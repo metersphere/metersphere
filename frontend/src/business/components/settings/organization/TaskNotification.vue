@@ -1,20 +1,18 @@
 <template>
-  <ms-container>
-    <ms-main-container>
-      <el-alert
-        title="Notice:"
-        type="info"
-        show-icon>
-        <template v-slot:default>
-          {{ $t('organization.message.notes') }}
-        </template>
-      </el-alert>
-      <jenkins-notification :jenkins-receiver-options="jenkinsReceiverOptions"/>
-      <test-plan-task-notification :test-plan-receiver-options="testPlanReceiverOptions"/>
-      <test-review-notification :review-receiver-options="reviewReceiverOptions"/>
-      <defect-task-notification :defect-receiver-options="defectReceiverOptions"/>
-    </ms-main-container>
-  </ms-container>
+  <div>
+    <el-alert
+      title="Notice:"
+      type="info"
+      show-icon>
+      <template v-slot:default>
+        {{ $t('organization.message.notes') }}
+      </template>
+    </el-alert>
+    <jenkins-notification :jenkins-receiver-options="jenkinsReceiverOptions"/>
+    <test-plan-task-notification :test-plan-receiver-options="testPlanReceiverOptions"/>
+    <test-review-notification :review-receiver-options="reviewReceiverOptions"/>
+    <defect-task-notification :defect-receiver-options="defectReceiverOptions"/>
+  </div>
 </template>
 
 <script>
@@ -76,10 +74,5 @@ export default {
 </script>
 
 <style scoped>
-/*/deep/ .el-select__tags {
-  flex-wrap: unset;
-  overflow: auto;
-}*/
-
 
 </style>

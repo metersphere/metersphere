@@ -7,6 +7,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import io.metersphere.api.dto.definition.request.assertions.MsAssertions;
 import io.metersphere.api.dto.definition.request.auth.MsAuthManager;
 import io.metersphere.api.dto.definition.request.configurations.MsHeaderManager;
+import io.metersphere.api.dto.definition.request.controller.MsIfController;
 import io.metersphere.api.dto.definition.request.extract.MsExtract;
 import io.metersphere.api.dto.definition.request.processors.post.MsJSR223PostProcessor;
 import io.metersphere.api.dto.definition.request.processors.pre.MsJSR223PreProcessor;
@@ -14,6 +15,7 @@ import io.metersphere.api.dto.definition.request.sampler.MsDubboSampler;
 import io.metersphere.api.dto.definition.request.sampler.MsHTTPSamplerProxy;
 import io.metersphere.api.dto.definition.request.sampler.MsJDBCSampler;
 import io.metersphere.api.dto.definition.request.sampler.MsTCPSampler;
+import io.metersphere.api.dto.definition.request.timer.MsConstantTimer;
 import io.metersphere.commons.utils.LogUtil;
 import lombok.Data;
 import org.apache.jmeter.protocol.http.control.AuthManager;
@@ -39,11 +41,13 @@ import java.util.List;
         @JsonSubTypes.Type(value = MsTCPSampler.class, name = "TCPSampler"),
         @JsonSubTypes.Type(value = MsDubboSampler.class, name = "DubboSampler"),
         @JsonSubTypes.Type(value = MsJDBCSampler.class, name = "JDBCSampler"),
+        @JsonSubTypes.Type(value = MsConstantTimer.class, name = "ConstantTimer"),
+        @JsonSubTypes.Type(value = MsIfController.class, name = "IfController"),
 
 })
 @JSONType(seeAlso = {MsHTTPSamplerProxy.class, MsHeaderManager.class, MsJSR223PostProcessor.class,
         MsJSR223PreProcessor.class, MsTestPlan.class, MsThreadGroup.class, AuthManager.class, MsAssertions.class,
-        MsExtract.class, MsTCPSampler.class, MsDubboSampler.class, MsJDBCSampler.class}, typeKey = "type")
+        MsExtract.class, MsTCPSampler.class, MsDubboSampler.class, MsJDBCSampler.class, MsConstantTimer.class, MsIfController.class}, typeKey = "type")
 @Data
 public abstract class MsTestElement {
     private String type;

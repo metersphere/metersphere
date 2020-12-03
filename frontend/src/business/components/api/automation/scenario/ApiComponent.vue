@@ -2,30 +2,30 @@
   <div v-loading="loading">
     <el-card>
       <el-row>
-        <div class="el-step__icon is-text ms-api-col" v-if="data.referenced">
-          <div class="el-step__icon-inner">{{data.$treeNodeId}}</div>
+        <div class="el-step__icon is-text ms-api-col" v-if="request.referenced">
+          <div class="el-step__icon-inner">{{request.index}}</div>
         </div>
         <div class="el-step__icon is-text ms-api-col-create" v-else>
-          <div class="el-step__icon-inner">{{data.$treeNodeId}}</div>
+          <div class="el-step__icon-inner">{{request.index}}</div>
         </div>
 
-        <i class="icon el-icon-arrow-right" :class="{'is-active': data.active}"
-           @click="active(data)"/>
-        <span>{{data.type!= 'create' ? data.name:''}} </span>
+        <i class="icon el-icon-arrow-right" :class="{'is-active': request.active}"
+           @click="active(request)"/>
+        <span>{{request.type!= 'create' ? request.name:''}} </span>
 
         <el-button size="mini" type="danger" icon="el-icon-delete" circle @click="remove" style="margin-right: 20px; float: right"/>
 
       </el-row>
       <!-- 请求参数-->
       <el-collapse-transition>
-        <div v-if="data.active">
+        <div v-if="request.active">
           <p class="tip">{{$t('api_test.definition.request.req_param')}} </p>
-          <ms-api-request-form :headers="data.request.hashTree[0].headers " :request="data.request" v-if="data.protocol==='HTTP'"/>
-          <ms-tcp-basis-parameters :request="data.request" :currentProject="currentProject" v-if="data.protocol==='TCP'"/>
-          <ms-sql-basis-parameters :request="data.request" :currentProject="currentProject" v-if="data.protocol==='SQL'"/>
-          <ms-dubbo-basis-parameters :request="data.request" :currentProject="currentProject" v-if="data.protocol==='DUBBO'"/>
+          <ms-api-request-form :headers="request.headers " :request="request" v-if="request.protocol==='HTTP'"/>
+          <ms-tcp-basis-parameters :request="request" :currentProject="currentProject" v-if="request.protocol==='TCP'"/>
+          <ms-sql-basis-parameters :request="request" :currentProject="currentProject" v-if="request.protocol==='SQL'"/>
+          <ms-dubbo-basis-parameters :request="request" :currentProject="currentProject" v-if="request.protocol==='DUBBO' || request.protocol==='dubbo://'"/>
           <!-- 保存操作 -->
-          <el-button type="primary" size="small" style="margin: 20px; float: right" @click="saveTestCase(item)" v-if="!data.referenced">
+          <el-button type="primary" size="small" style="margin: 20px; float: right" @click="saveTestCase(item)" v-if="!request.referenced">
             {{$t('commons.save')}}
           </el-button>
         </div>
@@ -43,7 +43,7 @@
   export default {
     name: "MsApiComponent",
     props: {
-      data: {},
+      request: {},
       node: {},
       currentProject: {},
     },
@@ -53,7 +53,7 @@
     },
     methods: {
       remove() {
-        this.$emit('remove', this.data, this.node);
+        this.$emit('remove', this.request, this.node);
       },
       active(item) {
         item.active = !item.active;

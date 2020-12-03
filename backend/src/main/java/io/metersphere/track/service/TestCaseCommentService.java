@@ -10,15 +10,12 @@ import io.metersphere.base.mapper.UserMapper;
 import io.metersphere.base.mapper.ext.ExtTestCaseCommentMapper;
 import io.metersphere.commons.constants.NoticeConstants;
 import io.metersphere.commons.exception.MSException;
-import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.SessionUtils;
+import io.metersphere.dto.BaseSystemConfigDTO;
 import io.metersphere.i18n.Translator;
-import io.metersphere.notice.domain.MessageDetail;
-import io.metersphere.notice.domain.MessageSettingDetail;
-import io.metersphere.notice.service.DingTaskService;
-import io.metersphere.notice.service.MailService;
-import io.metersphere.notice.service.NoticeService;
-import io.metersphere.notice.service.WxChatTaskService;
+import io.metersphere.notice.sender.NoticeModel;
+import io.metersphere.notice.service.NoticeSendService;
+import io.metersphere.service.SystemParameterService;
 import io.metersphere.track.dto.TestCaseCommentDTO;
 import io.metersphere.track.request.testreview.SaveCommentRequest;
 import org.apache.commons.lang3.StringUtils;
@@ -27,10 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -39,19 +33,15 @@ public class TestCaseCommentService {
     @Resource
     private TestCaseCommentMapper testCaseCommentMapper;
     @Resource
-    private MailService mailService;
-    @Resource
     private TestCaseMapper testCaseMapper;
-    @Resource
-    private DingTaskService dingTaskService;
-    @Resource
-    private WxChatTaskService wxChatTaskService;
-    @Resource
-    private NoticeService noticeService;
     @Resource
     private ExtTestCaseCommentMapper extTestCaseCommentMapper;
     @Resource
     private UserMapper userMapper;
+    @Resource
+    private NoticeSendService noticeSendService;
+    @Resource
+    private SystemParameterService systemParameterService;
 
     public void saveComment(SaveCommentRequest request) {
         TestCaseComment testCaseComment = new TestCaseComment();
@@ -64,29 +54,28 @@ public class TestCaseCommentService {
         testCaseCommentMapper.insert(testCaseComment);
         TestCaseWithBLOBs testCaseWithBLOBs;
         testCaseWithBLOBs = testCaseMapper.selectByPrimaryKey(request.getCaseId());
+
+        // 发送通知
+        User user = userMapper.selectByPrimaryKey(testCaseWithBLOBs.getMaintainer());
+        BaseSystemConfigDTO baseSystemConfigDTO = systemParameterService.getBaseInfo();
         List<String> userIds = new ArrayList<>();
         userIds.add(testCaseWithBLOBs.getMaintainer());//用例维护人
-        try {
-            String context = getReviewContext(testCaseComment, testCaseWithBLOBs);
-            MessageSettingDetail messageSettingDetail = noticeService.searchMessage();
-            List<MessageDetail> taskList = messageSettingDetail.getReviewTask();
-            taskList.forEach(r -> {
-                switch (r.getType()) {
-                    case NoticeConstants.NAIL_ROBOT:
-                        dingTaskService.sendNailRobot(r, userIds, context, NoticeConstants.COMMENT);
-                        break;
-                    case NoticeConstants.WECHAT_ROBOT:
-                        wxChatTaskService.sendWechatRobot(r, userIds, context, NoticeConstants.COMMENT);
-                        break;
-                    case NoticeConstants.EMAIL:
-                        mailService.sendCommentNotice(r, userIds, request, testCaseWithBLOBs, NoticeConstants.COMMENT);
-                        break;
-                }
-            });
-        } catch (Exception e) {
-            LogUtil.error(e.getMessage(), e);
-        }
-
+        String context = getReviewContext(testCaseComment, testCaseWithBLOBs);
+        Map<String, Object> paramMap = new HashMap<>();
+        paramMap.put("maintainer", user.getName());
+        paramMap.put("testCaseName", testCaseWithBLOBs.getName());
+        paramMap.put("description", request.getDescription());
+        paramMap.put("url", baseSystemConfigDTO.getUrl());
+        paramMap.put("id", request.getReviewId());
+        NoticeModel noticeModel = NoticeModel.builder()
+                .context(context)
+                .relatedUsers(userIds)
+                .subject(Translator.get("test_review_task_notice"))
+                .mailTemplate("ReviewComments")
+                .paramMap(paramMap)
+                .event(NoticeConstants.Event.COMMENT)
+                .build();
+        noticeSendService.send(NoticeConstants.TaskType.REVIEW_TASK, noticeModel);
     }
 
     public List<TestCaseCommentDTO> getCaseComments(String caseId) {

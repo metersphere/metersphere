@@ -3,13 +3,13 @@
     <el-row>
       <div>
         <el-button class="ms-left-buttion" size="small" :style="styleType" style="color: #B8741A;background-color: #F9F1EA">{{title}}</el-button>
-        <i class="icon el-icon-arrow-right" :class="{'is-active': active}" @click="changeActive" style="margin-left: 20px"/>
+        <i class="icon el-icon-arrow-right" :class="{'is-active': this.jsr223ProcessorData.active}" @click="changeActive" style="margin-left: 20px"/>
         <el-input size="small" v-model="jsr223ProcessorData.name" class="ms-api-header-select" style="width: 380px"/>
         <el-button size="small" style="float: right" @click="remove">移除</el-button>
       </div>
     </el-row>
     <el-collapse-transition>
-      <div v-if="active">
+      <div v-if="jsr223ProcessorData.active">
         <el-row style="margin:0px 10px 10px">
           <el-col>
             <div class="document-url">
@@ -51,7 +51,6 @@
     components: {MsDropdown, MsInstructionsIcon, MsCodeEdit},
     data() {
       return {
-        active: false,
         jsr223ProcessorData: {},
         codeTemplates: [
           {
@@ -135,7 +134,7 @@
         this.reload();
       },
       remove() {
-        this.$emit('remove', this.jsr223ProcessorData,this.node);
+        this.$emit('remove', this.jsr223ProcessorData, this.node);
       },
       reload() {
         this.isCodeEditAlive = false;
@@ -145,7 +144,7 @@
         this.jsr223ProcessorData.language = language;
       },
       changeActive() {
-        this.active = !this.active;
+        this.jsr223ProcessorData.active = !this.jsr223ProcessorData.active;
       },
     }
   }

@@ -3,7 +3,7 @@
     <el-row>
       <el-col :span="10">
         <h3>{{ $t('organization.message.jenkins_task_notification') }}</h3>
-        <el-button icon="el-icon-circle-plus-outline" plain size="mini" @click="handleAddTaskModel('jenkinsTask')">
+        <el-button icon="el-icon-circle-plus-outline" plain size="mini" @click="handleAddTaskModel">
           {{ $t('organization.message.create_new_notification') }}
         </el-button>
       </el-col>
@@ -14,13 +14,13 @@
           :data="form.jenkinsTask"
           class="tb-edit"
           border
-          size="mini"
           :cell-style="rowClass"
           :header-cell-style="headClass">
           <el-table-column :label="$t('schedule.event')" min-width="20%" prop="events">
             <template slot-scope="scope">
               <el-select v-model="scope.row.event"
                          :placeholder="$t('organization.message.select_events')"
+                         size="mini"
                          prop="events" :disabled="!scope.row.isSet">
                 <el-option
                   v-for="item in jenkinsEventOptions"
@@ -33,7 +33,7 @@
           </el-table-column>
           <el-table-column :label="$t('schedule.receiver')" prop="userIds" min-width="20%">
             <template v-slot:default="{row}">
-              <el-select v-model="row.userIds" filterable multiple
+              <el-select v-model="row.userIds" filterable multiple size="mini"
                          :placeholder="$t('commons.please_select')" style="width: 100%;" :disabled="!row.isSet">
                 <el-option
                   v-for="item in jenkinsReceiverOptions"
@@ -47,6 +47,7 @@
           <el-table-column :label="$t('schedule.receiving_mode')" min-width="20%" prop="type">
             <template slot-scope="scope">
               <el-select v-model="scope.row.type" :placeholder="$t('organization.message.select_receiving_method')"
+                         size="mini"
                          :disabled="!scope.row.isSet" @change="handleEdit(scope.$index, scope.row)"
               >
                 <el-option
@@ -61,6 +62,7 @@
           <el-table-column label="webhook" min-width="20%" prop="webhook">
             <template v-slot:default="scope">
               <el-input v-model="scope.row.webhook" placeholder="webhook地址"
+                        size="mini"
                         :disabled="!scope.row.isSet||!scope.row.isReadOnly"></el-input>
             </template>
           </el-table-column>
@@ -102,6 +104,8 @@
 </template>
 
 <script>
+const TASK_TYPE = 'JENKINS_TASK';
+
 export default {
   name: "JenkinsNotification",
   props: {
@@ -139,8 +143,8 @@ export default {
   },
   methods: {
     initForm() {
-      this.result = this.$get('/notice/search/message', response => {
-        this.form.jenkinsTask = response.data.jenkinsTask;
+      this.result = this.$get('/notice/search/message/type/' + TASK_TYPE, response => {
+        this.form.jenkinsTask = response.data;
       })
     },
     handleEdit(index, data) {
@@ -150,7 +154,7 @@ export default {
         data.webhook = '';
       }
     },
-    handleAddTaskModel(type) {
+    handleAddTaskModel() {
       let Task = {};
       Task.event = [];
       Task.userIds = [];
@@ -158,22 +162,8 @@ export default {
       Task.webhook = '';
       Task.isSet = true;
       Task.identification = '';
-      if (type === 'jenkinsTask') {
-        Task.taskType = 'JENKINS_TASK'
-        this.form.jenkinsTask.push(Task)
-      }
-      if (type === 'testPlanTask') {
-        Task.taskType = 'TEST_PLAN_TASK'
-        this.form.testCasePlanTask.push(Task)
-      }
-      if (type === 'reviewTask') {
-        Task.taskType = 'REVIEW_TASK'
-        this.form.reviewTask.push(Task)
-      }
-      if (type === 'defectTask') {
-        Task.taskType = 'DEFECT_TASK'
-        this.form.defectTask.push(Task)
-      }
+      Task.taskType = TASK_TYPE
+      this.form.jenkinsTask.push(Task)
     },
     handleAddTask(index, data) {
       if (data.event && data.userIds.length > 0 && data.type) {
@@ -191,7 +181,7 @@ export default {
         this.$warning(this.$t('organization.message.message'));
       }
     },
-    handleEditTask(index,data) {
+    handleEditTask(index, data) {
       data.isSet = true
       if (data.type === 'EMAIL') {
         data.isReadOnly = false;
@@ -202,11 +192,7 @@ export default {
 
     },
     addTask(data) {
-      let list = [];
-      list.push(data);
-      let param = {};
-      param.messageDetail = list;
-      this.result = this.$post("/notice/save/message/task", param, () => {
+      this.result = this.$post("/notice/save/message/task", data, () => {
         this.initForm();
         this.$success(this.$t('commons.save_success'));
       })

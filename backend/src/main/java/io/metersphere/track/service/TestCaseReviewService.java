@@ -16,12 +16,11 @@ import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.ServiceUtils;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.controller.request.member.QueryMemberRequest;
-import io.metersphere.notice.domain.MessageDetail;
-import io.metersphere.notice.domain.MessageSettingDetail;
-import io.metersphere.notice.service.DingTaskService;
-import io.metersphere.notice.service.MailService;
-import io.metersphere.notice.service.NoticeService;
-import io.metersphere.notice.service.WxChatTaskService;
+import io.metersphere.dto.BaseSystemConfigDTO;
+import io.metersphere.i18n.Translator;
+import io.metersphere.notice.sender.NoticeModel;
+import io.metersphere.notice.service.NoticeSendService;
+import io.metersphere.service.SystemParameterService;
 import io.metersphere.service.UserService;
 import io.metersphere.track.dto.TestCaseReviewDTO;
 import io.metersphere.track.dto.TestReviewCaseDTO;
@@ -75,14 +74,9 @@ public class TestCaseReviewService {
     @Resource
     ExtTestCaseMapper extTestCaseMapper;
     @Resource
-    NoticeService noticeService;
+    private NoticeSendService noticeSendService;
     @Resource
-    MailService mailService;
-    @Resource
-    DingTaskService dingTaskService;
-    @Resource
-    WxChatTaskService wxChatTaskService;
-
+    private SystemParameterService systemParameterService;
 
     public void saveTestCaseReview(SaveTestCaseReviewRequest reviewRequest) {
         checkCaseReviewExist(reviewRequest);
@@ -109,27 +103,55 @@ public class TestCaseReviewService {
         reviewRequest.setCreator(SessionUtils.getUser().getId());//创建人
         reviewRequest.setStatus(TestCaseReviewStatus.Prepare.name());
         testCaseReviewMapper.insert(reviewRequest);
-        try {
-            String context = getReviewContext(reviewRequest, NoticeConstants.CREATE);
-            MessageSettingDetail messageSettingDetail = noticeService.searchMessage();
-            List<MessageDetail> taskList = messageSettingDetail.getReviewTask();
-            taskList.forEach(r -> {
-                switch (r.getType()) {
-                    case NoticeConstants.NAIL_ROBOT:
-                        dingTaskService.sendNailRobot(r, userIds, context, NoticeConstants.CREATE);
-                        break;
-                    case NoticeConstants.WECHAT_ROBOT:
-                        wxChatTaskService.sendWechatRobot(r, userIds, context, NoticeConstants.CREATE);
-                        break;
-                    case NoticeConstants.EMAIL:
-                        mailService.sendReviewerNotice(r, userIds, reviewRequest, NoticeConstants.CREATE);
-                        break;
-                }
-            });
-        } catch (Exception e) {
-            LogUtil.error(e.getMessage(), e);
+        // 发送通知
+        String context = getReviewContext(reviewRequest, NoticeConstants.Event.CREATE);
+        Map<String, Object> paramMap = new HashMap<>(getReviewParamMap(reviewRequest));
+        NoticeModel noticeModel = NoticeModel.builder()
+                .context(context)
+                .relatedUsers(userIds)
+                .subject(Translator.get("test_review_task_notice"))
+                .mailTemplate("ReviewInitiate")
+                .paramMap(paramMap)
+                .event(NoticeConstants.Event.CREATE)
+                .build();
+        noticeSendService.send(NoticeConstants.TaskType.REVIEW_TASK, noticeModel);
+    }
+
+    //评审内容
+    private Map<String, String> getReviewParamMap(SaveTestCaseReviewRequest reviewRequest) {
+        Long startTime = reviewRequest.getCreateTime();
+        Long endTime = reviewRequest.getEndTime();
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String start = null;
+        String sTime = String.valueOf(startTime);
+        String eTime = String.valueOf(endTime);
+        if (!sTime.equals("null")) {
+            start = sdf.format(new Date(Long.parseLong(sTime)));
+        }
+        String end = null;
+        if (!eTime.equals("null")) {
+            end = sdf.format(new Date(Long.parseLong(eTime)));
         }
 
+        Map<String, String> paramMap = new HashMap<>();
+        BaseSystemConfigDTO baseSystemConfigDTO = systemParameterService.getBaseInfo();
+        paramMap.put("url", baseSystemConfigDTO.getUrl());
+        User user = userMapper.selectByPrimaryKey(reviewRequest.getCreator());
+        paramMap.put("creator", user.getName());
+        paramMap.put("reviewName", reviewRequest.getName());
+        paramMap.put("start", start);
+        paramMap.put("end", end);
+        paramMap.put("id", reviewRequest.getId());
+        String status = "";
+        if (StringUtils.equals(TestPlanStatus.Underway.name(), reviewRequest.getStatus())) {
+            status = "进行中";
+        } else if (StringUtils.equals(TestPlanStatus.Prepare.name(), reviewRequest.getStatus())) {
+            status = "未开始";
+        } else if (StringUtils.equals(TestPlanStatus.Completed.name(), reviewRequest.getStatus())) {
+            status = "已完成";
+        }
+        paramMap.put("status", status);
+        return paramMap;
     }
 
     public List<TestCaseReviewDTO> listCaseReview(QueryCaseReviewRequest request) {
@@ -185,29 +207,19 @@ public class TestCaseReviewService {
         testCaseReview.setUpdateTime(System.currentTimeMillis());
         checkCaseReviewExist(testCaseReview);
         testCaseReviewMapper.updateByPrimaryKeySelective(testCaseReview);
-        List<String> userIds = new ArrayList<>();
-        userIds.addAll(testCaseReview.getUserIds());
-        try {
-            String context = getReviewContext(testCaseReview, NoticeConstants.UPDATE);
-            MessageSettingDetail messageSettingDetail = noticeService.searchMessage();
-            List<MessageDetail> taskList = messageSettingDetail.getReviewTask();
-            taskList.forEach(r -> {
-                switch (r.getType()) {
-                    case NoticeConstants.NAIL_ROBOT:
-                        dingTaskService.sendNailRobot(r, userIds, context, NoticeConstants.UPDATE);
-                        break;
-                    case NoticeConstants.WECHAT_ROBOT:
-                        wxChatTaskService.sendWechatRobot(r, userIds, context, NoticeConstants.UPDATE);
-                        break;
-                    case NoticeConstants.EMAIL:
-                        mailService.sendEndNotice(r, userIds, testCaseReview, NoticeConstants.UPDATE);
-                        break;
-                }
-            });
-        } catch (Exception e) {
-            LogUtil.error(e.getMessage(), e);
-        }
-
+        //  发送通知
+        List<String> userIds = new ArrayList<>(testCaseReview.getUserIds());
+        String context = getReviewContext(testCaseReview, NoticeConstants.Event.UPDATE);
+        Map<String, Object> paramMap = new HashMap<>(getReviewParamMap(testCaseReview));
+        NoticeModel noticeModel = NoticeModel.builder()
+                .context(context)
+                .relatedUsers(userIds)
+                .subject(Translator.get("test_review_task_notice"))
+                .mailTemplate("ReviewEnd")
+                .paramMap(paramMap)
+                .event(NoticeConstants.Event.UPDATE)
+                .build();
+        noticeSendService.send(NoticeConstants.TaskType.REVIEW_TASK, noticeModel);
     }
 
     private void editCaseReviewer(SaveTestCaseReviewRequest testCaseReview) {
@@ -294,31 +306,26 @@ public class TestCaseReviewService {
         deleteCaseReviewUsers(reviewId);
         deleteCaseReviewTestCase(reviewId);
         testCaseReviewMapper.deleteByPrimaryKey(reviewId);
-        List<String> userIds = new ArrayList<>();
-        userIds.add(SessionUtils.getUser().getId());
-        SaveTestCaseReviewRequest testCaseReviewRequest = new SaveTestCaseReviewRequest();
+        // 发送通知
         try {
+            List<String> userIds = new ArrayList<>();
+            userIds.add(SessionUtils.getUser().getId());
+            SaveTestCaseReviewRequest testCaseReviewRequest = new SaveTestCaseReviewRequest();
             BeanUtils.copyProperties(testCaseReviewRequest, testCaseReview);
-            String context = getReviewContext(testCaseReviewRequest, NoticeConstants.DELETE);
-            MessageSettingDetail messageSettingDetail = noticeService.searchMessage();
-            List<MessageDetail> taskList = messageSettingDetail.getReviewTask();
-            taskList.forEach(r -> {
-                switch (r.getType()) {
-                    case NoticeConstants.NAIL_ROBOT:
-                        dingTaskService.sendNailRobot(r, userIds, context, NoticeConstants.DELETE);
-                        break;
-                    case NoticeConstants.WECHAT_ROBOT:
-                        wxChatTaskService.sendWechatRobot(r, userIds, context, NoticeConstants.DELETE);
-                        break;
-                    case NoticeConstants.EMAIL:
-                        mailService.sendDeleteNotice(r, userIds, testCaseReviewRequest, NoticeConstants.DELETE);
-                        break;
-                }
-            });
+            String context = getReviewContext(testCaseReviewRequest, NoticeConstants.Event.DELETE);
+            Map<String, Object> paramMap = new HashMap<>(getReviewParamMap(testCaseReviewRequest));
+            NoticeModel noticeModel = NoticeModel.builder()
+                    .context(context)
+                    .relatedUsers(userIds)
+                    .subject(Translator.get("test_review_task_notice"))
+                    .mailTemplate("ReviewDelete")
+                    .paramMap(paramMap)
+                    .event(NoticeConstants.Event.DELETE)
+                    .build();
+            noticeSendService.send(NoticeConstants.TaskType.REVIEW_TASK, noticeModel);
         } catch (Exception e) {
-            LogUtil.error(e.getMessage(), e);
+            LogUtil.error(e);
         }
-
     }
 
     private void deleteCaseReviewProject(String reviewId) {
@@ -446,25 +453,19 @@ public class TestCaseReviewService {
         List<String> userIds = new ArrayList<>();
         userIds.add(_testCaseReview.getCreator());
         if (StringUtils.equals(TestCaseReviewStatus.Completed.name(), _testCaseReview.getStatus())) {
-
             try {
                 BeanUtils.copyProperties(testCaseReviewRequest, _testCaseReview);
-                String context = getReviewContext(testCaseReviewRequest, NoticeConstants.UPDATE);
-                MessageSettingDetail messageSettingDetail = noticeService.searchMessage();
-                List<MessageDetail> taskList = messageSettingDetail.getReviewTask();
-                taskList.forEach(r -> {
-                    switch (r.getType()) {
-                        case NoticeConstants.NAIL_ROBOT:
-                            dingTaskService.sendNailRobot(r, userIds, context, NoticeConstants.UPDATE);
-                            break;
-                        case NoticeConstants.WECHAT_ROBOT:
-                            wxChatTaskService.sendWechatRobot(r, userIds, context, NoticeConstants.UPDATE);
-                            break;
-                        case NoticeConstants.EMAIL:
-                            mailService.sendEndNotice(r, userIds, testCaseReviewRequest, NoticeConstants.UPDATE);
-                            break;
-                    }
-                });
+                String context = getReviewContext(testCaseReviewRequest, NoticeConstants.Event.UPDATE);
+                Map<String, Object> paramMap = new HashMap<>(getReviewParamMap(testCaseReviewRequest));
+                NoticeModel noticeModel = NoticeModel.builder()
+                        .context(context)
+                        .relatedUsers(userIds)
+                        .subject(Translator.get("test_review_task_notice"))
+                        .mailTemplate("ReviewEnd")
+                        .paramMap(paramMap)
+                        .event(NoticeConstants.Event.UPDATE)
+                        .build();
+                noticeSendService.send(NoticeConstants.TaskType.REVIEW_TASK, noticeModel);
             } catch (Exception e) {
                 LogUtil.error(e.getMessage(), e);
             }
@@ -580,9 +581,9 @@ public class TestCaseReviewService {
             start = "未设置";
         }
         String context = "";
-        if (StringUtils.equals(NoticeConstants.CREATE, type)) {
+        if (StringUtils.equals(NoticeConstants.Event.CREATE, type)) {
             context = "测试评审任务通知：" + user.getName() + "发起的" + "'" + reviewRequest.getName() + "'" + "待开始，计划开始时间是" + start + "计划结束时间为" + end + "请跟进";
-        } else if (StringUtils.equals(NoticeConstants.UPDATE, type)) {
+        } else if (StringUtils.equals(NoticeConstants.Event.UPDATE, type)) {
             String status = "";
             if (StringUtils.equals(TestPlanStatus.Underway.name(), reviewRequest.getStatus())) {
                 status = "进行中";
@@ -592,7 +593,7 @@ public class TestCaseReviewService {
                 status = "已完成";
             }
             context = "测试评审任务通知：" + user.getName() + "发起的" + "'" + reviewRequest.getName() + "'" + "计划开始时间是" + start + "计划结束时间为" + end + status;
-        } else if (StringUtils.equals(NoticeConstants.DELETE, type)) {
+        } else if (StringUtils.equals(NoticeConstants.Event.DELETE, type)) {
             context = "测试评审任务通知：" + user.getName() + "发起的" + "'" + reviewRequest.getName() + "'" + "计划开始时间是" + start + "计划结束时间为" + end + "已删除";
         }
 

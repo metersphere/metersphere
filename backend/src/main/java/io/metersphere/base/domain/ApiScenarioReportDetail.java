@@ -1,14 +1,13 @@
 package io.metersphere.base.domain;
 
-import lombok.Data;
-
 import java.io.Serializable;
+import lombok.Data;
 
 @Data
 public class ApiScenarioReportDetail implements Serializable {
     private String reportId;
 
-    private String apiScenarioId;
+    private String scenarioId;
 
     private byte[] content;
 

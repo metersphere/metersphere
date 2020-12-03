@@ -364,6 +364,6 @@
         from test_case, project
         where test_case.project_id = project.id
         and project.workspace_id = #{workspaceId}
-        and test_case.id = #{caseId};
+        and test_case.id = #{caseId}
     </select>
 </mapper>

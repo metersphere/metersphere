@@ -1,5 +1,5 @@
 package io.metersphere.commons.constants;
 
 public enum ApiRunMode {
-    RUN, DEBUG,DELIMIT
+    RUN, DEBUG,DELIMIT,SCENARIO
 }

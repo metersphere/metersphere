@@ -2,7 +2,7 @@
   <el-card>
     <el-row>
       <div class="el-step__icon is-text ms-api-col" style="float: left">
-        <div class="el-step__icon-inner">{{controller.$treeNodeId}}</div>
+        <div class="el-step__icon-inner">{{controller.index}}</div>
       </div>
       <div>
         <el-row :gutter="10" type="flex" align="middle">
@@ -37,6 +37,7 @@
     props: {
       controller: {},
       node: {},
+      index: Object,
     },
     data() {
       return {

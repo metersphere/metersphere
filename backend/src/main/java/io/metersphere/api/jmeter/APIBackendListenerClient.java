@@ -1,9 +1,6 @@
 package io.metersphere.api.jmeter;
 
-import io.metersphere.api.service.APIReportService;
-import io.metersphere.api.service.APITestService;
-import io.metersphere.api.service.ApiDefinitionExecResultService;
-import io.metersphere.api.service.ApiDefinitionService;
+import io.metersphere.api.service.*;
 import io.metersphere.base.domain.ApiTestReport;
 import io.metersphere.commons.constants.APITestStatus;
 import io.metersphere.commons.constants.ApiRunMode;
@@ -12,12 +9,9 @@ import io.metersphere.commons.constants.TestPlanTestCaseStatus;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.dto.BaseSystemConfigDTO;
-import io.metersphere.notice.domain.MessageDetail;
-import io.metersphere.notice.domain.MessageSettingDetail;
-import io.metersphere.notice.service.DingTaskService;
-import io.metersphere.notice.service.MailService;
-import io.metersphere.notice.service.NoticeService;
-import io.metersphere.notice.service.WxChatTaskService;
+import io.metersphere.i18n.Translator;
+import io.metersphere.notice.sender.NoticeModel;
+import io.metersphere.notice.service.NoticeSendService;
 import io.metersphere.service.SystemParameterService;
 import io.metersphere.track.service.TestPlanTestCaseService;
 import org.apache.commons.lang3.StringUtils;
@@ -50,14 +44,11 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
 
     private APIReportService apiReportService;
 
-    private TestPlanTestCaseService testPlanTestCaseService;
-
-    private NoticeService noticeService;
-
-    private MailService mailService;
-
     private ApiDefinitionService apiDefinitionService;
+
     private ApiDefinitionExecResultService apiDefinitionExecResultService;
+
+    private ApiScenarioReportService apiScenarioReportService;
 
     public String runMode = ApiRunMode.RUN.name();
 
@@ -92,18 +83,6 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
         if (apiReportService == null) {
             LogUtil.error("apiReportService is required");
         }
-        testPlanTestCaseService = CommonBeanFactory.getBean(TestPlanTestCaseService.class);
-        if (testPlanTestCaseService == null) {
-            LogUtil.error("testPlanTestCaseService is required");
-        }
-        noticeService = CommonBeanFactory.getBean(NoticeService.class);
-        if (noticeService == null) {
-            LogUtil.error("noticeService is required");
-        }
-        mailService = CommonBeanFactory.getBean(MailService.class);
-        if (mailService == null) {
-            LogUtil.error("mailService is required");
-        }
         apiDefinitionService = CommonBeanFactory.getBean(ApiDefinitionService.class);
         if (apiDefinitionService == null) {
             LogUtil.error("apiDefinitionService is required");
@@ -112,6 +91,12 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
         if (apiDefinitionExecResultService == null) {
             LogUtil.error("apiDefinitionExecResultService is required");
         }
+
+        apiScenarioReportService = CommonBeanFactory.getBean(ApiScenarioReportService.class);
+        if (apiScenarioReportService == null) {
+            LogUtil.error("apiScenarioReportService is required");
+        }
+
         super.setupTest(context);
     }
 
@@ -170,6 +155,7 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
         testResult.getScenarios().addAll(scenarios.values());
         testResult.getScenarios().sort(Comparator.comparing(ScenarioResult::getId));
         ApiTestReport report = null;
+        // 这部分后续优化只留 DELIMIT 和 SCENARIO 两部分
         if (StringUtils.equals(this.runMode, ApiRunMode.DEBUG.name())) {
             report = apiReportService.get(debugReportId);
             apiReportService.complete(testResult, report);
@@ -180,6 +166,14 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
             } else {
                 apiDefinitionService.addResult(testResult);
                 apiDefinitionExecResultService.saveApiResult(testResult);
+            }
+        } else if (StringUtils.equals(this.runMode, ApiRunMode.SCENARIO.name())) {
+            // 调试操作，不需要存储结果
+            if (StringUtils.isBlank(debugReportId)) {
+                apiScenarioReportService.addResult(testResult);
+            } else {
+                apiScenarioReportService.addResult(testResult);
+                //apiScenarioReportService.saveApiResult(testResult);
             }
         } else {
             apiTestService.changeStatus(testId, APITestStatus.Completed);
@@ -211,61 +205,46 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
     }
 
     private static void sendTask(ApiTestReport report, TestResult testResult) {
-        NoticeService noticeService = CommonBeanFactory.getBean(NoticeService.class);
-        MailService mailService = CommonBeanFactory.getBean(MailService.class);
-        DingTaskService dingTaskService = CommonBeanFactory.getBean(DingTaskService.class);
-        WxChatTaskService wxChatTaskService = CommonBeanFactory.getBean(WxChatTaskService.class);
         SystemParameterService systemParameterService = CommonBeanFactory.getBean(SystemParameterService.class);
-        if (StringUtils.equals(NoticeConstants.API, report.getTriggerMode()) || StringUtils.equals(NoticeConstants.SCHEDULE, report.getTriggerMode())) {
-            List<String> userIds = new ArrayList<>();
-            List<MessageDetail> taskList = new ArrayList<>();
-            String successContext = "";
-            String failedContext = "";
-            BaseSystemConfigDTO baseSystemConfigDTO = systemParameterService.getBaseInfo();
-            String url = baseSystemConfigDTO.getUrl() + "/#/api/report/view/" + report.getId();
-            if (StringUtils.equals(NoticeConstants.API, report.getTriggerMode())) {
-                MessageSettingDetail messageSettingDetail = noticeService.searchMessage();
-                taskList = messageSettingDetail.getJenkinsTask();
-                successContext = "ApiJenkins任务通知:'" + report.getName() + "'执行成功" + "\n" + "请点击下面链接进入测试报告页面" + "\n" + url;
-                failedContext = "ApiJenkins任务通知:'" + report.getName() + "'执行失败" + "\n" + "请点击下面链接进入测试报告页面" + "\n" + url;
-            }
-            if (StringUtils.equals(NoticeConstants.SCHEDULE, report.getTriggerMode())) {
-                taskList = noticeService.searchMessageSchedule(testResult.getTestId());
-                successContext = "Api定时任务通知:'" + report.getName() + "'执行成功" + "\n" + "请点击下面链接进入测试报告页面" + "\n" + url;
-                failedContext = "Api定时任务通知:'" + report.getName() + "'执行失败" + "\n" + "请点击下面链接进入测试报告页面" + "\n" + url;
-            }
-            String finalSuccessContext = successContext;
-            String finalFailedContext = failedContext;
-            taskList.forEach(r -> {
-                switch (r.getType()) {
-                    case NoticeConstants.NAIL_ROBOT:
-                        if (StringUtils.equals(NoticeConstants.EXECUTE_SUCCESSFUL, r.getEvent()) && StringUtils.equals(report.getStatus(), "Success")) {
-                            dingTaskService.sendNailRobot(r, userIds, finalSuccessContext, NoticeConstants.EXECUTE_SUCCESSFUL);
-                        }
-                        if (StringUtils.equals(NoticeConstants.EXECUTE_FAILED, r.getEvent()) && StringUtils.equals(report.getStatus(), "Error")) {
-                            dingTaskService.sendNailRobot(r, userIds, finalFailedContext, NoticeConstants.EXECUTE_FAILED);
-                        }
-                        break;
-                    case NoticeConstants.WECHAT_ROBOT:
-                        if (StringUtils.equals(NoticeConstants.EXECUTE_SUCCESSFUL, r.getEvent()) && StringUtils.equals(report.getStatus(), "Success")) {
-                            wxChatTaskService.sendWechatRobot(r, userIds, finalSuccessContext, NoticeConstants.EXECUTE_SUCCESSFUL);
-                        }
-                        if (StringUtils.equals(NoticeConstants.EXECUTE_FAILED, r.getEvent()) && StringUtils.equals(report.getStatus(), "Error")) {
-                            wxChatTaskService.sendWechatRobot(r, userIds, finalFailedContext, NoticeConstants.EXECUTE_FAILED);
-                        }
-                        break;
-                    case NoticeConstants.EMAIL:
-                        if (StringUtils.equals(NoticeConstants.EXECUTE_SUCCESSFUL, r.getEvent()) && StringUtils.equals(report.getStatus(), "Success")) {
-                            mailService.sendApiNotification(r, report, NoticeConstants.EXECUTE_SUCCESSFUL);
-                        }
-                        if (StringUtils.equals(NoticeConstants.EXECUTE_FAILED, r.getEvent()) && StringUtils.equals(report.getStatus(), "Error")) {
-                            mailService.sendApiNotification(r, report, NoticeConstants.EXECUTE_FAILED);
-                        }
-                        break;
-                }
+        NoticeSendService noticeSendService = CommonBeanFactory.getBean(NoticeSendService.class);
+        assert systemParameterService != null;
+        assert noticeSendService != null;
 
-            });
+        BaseSystemConfigDTO baseSystemConfigDTO = systemParameterService.getBaseInfo();
+        String url = baseSystemConfigDTO.getUrl() + "/#/api/report/view/" + report.getId();
+
+        String successContext = "";
+        String failedContext = "";
+        String subject = "";
+        String event = "";
+        if (StringUtils.equals(NoticeConstants.Mode.API, report.getTriggerMode())) {
+            successContext = "接口测试 API任务通知:'" + report.getName() + "'执行成功" + "\n" + "请点击下面链接进入测试报告页面" + "\n" + url;
+            failedContext = "接口测试 API任务通知:'" + report.getName() + "'执行失败" + "\n" + "请点击下面链接进入测试报告页面" + "\n" + url;
+            subject = Translator.get("task_notification_jenkins");
         }
+        if (StringUtils.equals(NoticeConstants.Mode.SCHEDULE, report.getTriggerMode())) {
+            successContext = "接口测试定时任务通知:'" + report.getName() + "'执行成功" + "\n" + "请点击下面链接进入测试报告页面" + "\n" + url;
+            failedContext = "接口测试定时任务通知:'" + report.getName() + "'执行失败" + "\n" + "请点击下面链接进入测试报告页面" + "\n" + url;
+            subject = Translator.get("task_notification");
+        }
+        if (StringUtils.equals("Success", report.getStatus())) {
+            event = NoticeConstants.Event.EXECUTE_SUCCESSFUL;
+        }
+        if (StringUtils.equals("Error", report.getStatus())) {
+            event = NoticeConstants.Event.EXECUTE_FAILED;
+        }
+
+        NoticeModel noticeModel = NoticeModel.builder()
+                .successContext(successContext)
+                .successMailTemplate("ApiSuccessfulNotification")
+                .failedContext(failedContext)
+                .failedMailTemplate("ApiFailedNotification")
+                .testId(testResult.getTestId())
+                .status(report.getStatus())
+                .event(event)
+                .subject(subject)
+                .build();
+        noticeSendService.send(report.getTriggerMode(), noticeModel);
     }
 
     private RequestResult getRequestResult(SampleResult result) {

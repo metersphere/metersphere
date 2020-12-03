@@ -197,7 +197,6 @@
         });
       },
       handleSelect(selection, row) {
-        row.type = "API";
         row.hashTree = [];
         if (this.selectRows.has(row)) {
           this.$set(row, "showMore", false);
@@ -206,7 +205,6 @@
           this.$set(row, "showMore", true);
           this.selectRows.add(row);
         }
-
         let arr = Array.from(this.selectRows);
         if (this.currentRow) {
           this.currentRow.apis = arr;
@@ -223,12 +221,10 @@
       handleSelectAll(selection) {
         if (selection.length > 0) {
           if (selection.length === 1) {
-            selection.type = "API";
             selection.hashTree = [];
             this.selectRows.add(selection[0]);
           } else {
             this.tableData.forEach(item => {
-              item.type = "API";
               item.hashTree = [];
               this.$set(item, "showMore", true);
               this.selectRows.add(item);

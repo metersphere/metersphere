@@ -3,7 +3,7 @@
     <el-card>
       <el-row>
         <div class="el-step__icon is-text ms-api-col" style="float: left">
-          <div class="el-step__icon-inner">{{timer.$treeNodeId}}</div>
+          <div class="el-step__icon-inner">{{timer.index}}</div>
         </div>
         <div>
           <el-row :gutter="10" type="flex" align="middle">
