@@ -10,13 +10,17 @@ import io.metersphere.api.dto.definition.RunDefinitionRequest;
 import io.metersphere.api.jmeter.JMeterService;
 import io.metersphere.base.domain.ApiScenario;
 import io.metersphere.base.domain.ApiScenarioExample;
+import io.metersphere.base.domain.ApiTag;
+import io.metersphere.base.domain.ApiTagExample;
 import io.metersphere.base.mapper.ApiScenarioMapper;
+import io.metersphere.base.mapper.ApiTagMapper;
 import io.metersphere.base.mapper.ext.ExtApiScenarioMapper;
 import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.i18n.Translator;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.jorphan.collections.HashTree;
 import org.aspectj.util.FileUtil;
 import org.springframework.stereotype.Service;
@@ -27,6 +31,8 @@ import javax.annotation.Resource;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -36,12 +42,32 @@ public class ApiAutomationService {
     @Resource
     private ExtApiScenarioMapper extApiScenarioMapper;
     @Resource
+    private ApiTagMapper apiTagMapper;
+    @Resource
     private JMeterService jMeterService;
 
     private static final String BODY_FILE_DIR = "/opt/metersphere/data/body";
 
     public List<ApiScenarioDTO> list(ApiScenarioRequest request) {
-        return extApiScenarioMapper.list(request);
+        ApiTagExample example = new ApiTagExample();
+        example.createCriteria().andProjectIdEqualTo(request.getProjectId());
+        List<ApiTag> tags = apiTagMapper.selectByExample(example);
+        Map<String, String> tagMap = tags.stream().collect(Collectors.toMap(ApiTag::getId, ApiTag::getName));
+        List<ApiScenarioDTO> list = extApiScenarioMapper.list(request);
+        Gson gs = new Gson();
+        list.forEach(item -> {
+            if (item.getTagId() != null) {
+                StringBuilder buf = new StringBuilder();
+                gs.fromJson(item.getTagId(), List.class).forEach(t -> {
+                    buf.append(tagMap.get(t));
+                    buf.append(",");
+                });
+                if (buf != null && buf.length() > 0) {
+                    item.setTagName(buf.toString().substring(0, buf.toString().length() - 1));
+                }
+            }
+        });
+        return list;
     }
 
     public void deleteByIds(List<String> nodeIds) {
@@ -128,6 +154,13 @@ public class ApiAutomationService {
         return apiScenarioMapper.selectByPrimaryKey(id);
     }
 
+    public List<ApiScenario> getApiScenarios(List<String> ids) {
+        if (CollectionUtils.isNotEmpty(ids)) {
+            return extApiScenarioMapper.selectIds(ids);
+        }
+        return new ArrayList<>();
+    }
+
     private void createBodyFiles(List<String> bodyUploadIds, List<MultipartFile> bodyFiles) {
         if (!bodyUploadIds.isEmpty()) {
             File testDir = new File(BODY_FILE_DIR);
@@ -156,8 +189,8 @@ public class ApiAutomationService {
                 List<String> tagIds = gs.fromJson(item.getTagId(), List.class);
                 tagIds.remove(id);
                 item.setTagId(JSON.toJSONString(tagIds));
+                apiScenarioMapper.updateByPrimaryKeySelective(item);
             });
-            extApiScenarioMapper.batchUpdate(list);
         }
     }
 

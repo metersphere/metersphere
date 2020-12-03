@@ -10,4 +10,5 @@ public class ApiScenarioDTO extends ApiScenario {
 
     private String projectName;
     private String userName;
+    private String tagName;
 }

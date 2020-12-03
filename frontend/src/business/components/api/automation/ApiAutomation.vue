@@ -104,7 +104,6 @@ export default {
     },
     editScenario(row) {
       this.currentScenario = row;
-      console.log(row)
       this.addTab({name: 'add'});
     },
   }

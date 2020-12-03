@@ -22,6 +22,9 @@
       <!-- 执行组件 -->
       <ms-run :debug="true" :reportId="reportId" :run-data="runData" @runRefresh="runRefresh" ref="runTest"/>
     </el-card>
+    <div v-if="scenario">
+      <el-button style="float: right;margin: 20px" type="primary" @click="handleCommand('save_as')"> {{$t('commons.save')}}</el-button>
+    </div>
   </div>
 </template>
 
@@ -43,6 +46,7 @@
     props: {
       currentProtocol: String,
       currentProject: {},
+      scenario: Boolean,
     },
     data() {
       return {

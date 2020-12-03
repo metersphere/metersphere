@@ -64,60 +64,10 @@
       select * from api_scenario where tag_id like CONCAT('%', #{id},'%')
     </select>
 
-    <update id="batchUpdate" parameterType="java.util.List">
-        <foreach collection="list" item="record" index="index" separator=";">
-            update api_scenario
-            <set>
-                <if test="record.projectId != null">
-                    project_id = #{record.projectId,jdbcType=VARCHAR},
-                </if>
-                <if test="record.tagId != null">
-                    tag_id = #{record.tagId,jdbcType=VARCHAR},
-                </if>
-                <if test="record.userId != null">
-                    user_id = #{record.userId,jdbcType=VARCHAR},
-                </if>
-                <if test="record.apiScenarioModuleId != null">
-                    api_scenario_module_id = #{record.apiScenarioModuleId,jdbcType=VARCHAR},
-                </if>
-                <if test="record.modulePath != null">
-                    module_path = #{record.modulePath,jdbcType=VARCHAR},
-                </if>
-                <if test="record.name != null">
-                    `name` = #{record.name,jdbcType=VARCHAR},
-                </if>
-                <if test="record.level != null">
-                    `level` = #{record.level,jdbcType=VARCHAR},
-                </if>
-                <if test="record.status != null">
-                    `status` = #{record.status,jdbcType=VARCHAR},
-                </if>
-                <if test="record.principal != null">
-                    principal = #{record.principal,jdbcType=VARCHAR},
-                </if>
-                <if test="record.stepTotal != null">
-                    step_total = #{record.stepTotal,jdbcType=INTEGER},
-                </if>
-                <if test="record.followPeople != null">
-                    follow_people = #{record.followPeople,jdbcType=VARCHAR},
-                </if>
-                <if test="record.schedule != null">
-                    schedule = #{record.schedule,jdbcType=VARCHAR},
-                </if>
-                <if test="record.description != null">
-                    description = #{record.description,jdbcType=VARCHAR},
-                </if>
-                <if test="record.createTime != null">
-                    create_time = #{record.createTime,jdbcType=BIGINT},
-                </if>
-                <if test="record.updateTime != null">
-                    update_time = #{record.updateTime,jdbcType=BIGINT},
-                </if>
-                <if test="record.scenarioDefinition != null">
-                    scenario_definition = #{record.scenarioDefinition,jdbcType=LONGVARCHAR},
-                </if>
-            </set>
-            WHERE id = #{record.id,jdbcType=VARCHAR}
+    <select id="selectIds" resultType="io.metersphere.base.domain.ApiScenario">
+        select * from api_scenario where id in
+        <foreach collection="ids" item="v" separator="," open="(" close=")">
+            #{v}
         </foreach>
-    </update>
+    </select>
 </mapper>

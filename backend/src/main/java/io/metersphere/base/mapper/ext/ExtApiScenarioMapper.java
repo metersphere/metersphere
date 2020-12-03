@@ -12,5 +12,6 @@ public interface ExtApiScenarioMapper {
 
     List<ApiScenario> selectByTagId(@Param("id") String id);
 
-    void batchUpdate(List<ApiScenario> apiScenarios);
+    List<ApiScenario> selectIds(@Param("ids") List<String> ids);
+
 }

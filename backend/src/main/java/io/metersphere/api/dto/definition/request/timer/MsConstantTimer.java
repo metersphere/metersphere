@@ -1,5 +1,6 @@
 package io.metersphere.api.dto.definition.request.timer;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.annotation.JSONType;
 import io.metersphere.api.dto.definition.request.MsTestElement;
 import lombok.Data;
@@ -17,8 +18,11 @@ import java.util.List;
 @JSONType(typeName = "ConstantTimer")
 public class MsConstantTimer extends MsTestElement {
     private String type = "ConstantTimer";
+    @JSONField(ordinal = 10)
     private String id;
+    @JSONField(ordinal = 11)
     private boolean enable = true;
+    @JSONField(ordinal = 12)
     private String delay;
 
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree) {

@@ -55,7 +55,7 @@
           <el-col :span="12">
             <el-form-item :label="$t('test_track.case.priority')" prop="level">
               <el-select class="ms-scenario-input" size="small" v-model="currentScenario.level">
-                <el-option v-for="item in options" :key="item.id" :label="item.label" :value="item.id"/>
+                <el-option v-for="item in levels" :key="item.id" :label="item.label" :value="item.id"/>
               </el-select>
             </el-form-item>
           </el-col>
@@ -166,14 +166,7 @@
                  <span class="custom-tree-node father" slot-scope="{ node, data}" style="width: 96%">
                     <template>
                       <!-- 场景 -->
-                      <el-card v-if="data.type==='scenario'">
-                        <el-row>
-                            <div class="el-step__icon is-text ms-api-col" style="float: left">
-                              <div class="el-step__icon-inner">{{index}}</div>
-                            </div>
-                            <div style="margin-left: 20px;float: left"> {{data.name}}</div>
-                        </el-row>
-                      </el-card>
+                      <ms-api-scenario-component v-if="data.type==='scenario'" :scenario="data" :node="node" @remove="remove"/>
                       <!--条件控制器-->
                       <ms-if-controller :controller="data" :node="node" v-if="data.type==='IfController'" @remove="remove"/>
                       <!--等待控制器-->
@@ -242,15 +235,20 @@
       </div>
 
       <!--接口列表-->
-      <el-drawer :visible.sync="apiListVisible" :destroy-on-close="true" direction="ltr" :title="$t('api_test.automation.api_list_import')" :modal="false" size="90%">
+      <el-drawer :visible.sync="apiListVisible" :destroy-on-close="true" direction="ltr" :withHeader="false" :title="$t('api_test.automation.api_list_import')" :modal="false" size="90%">
         <ms-api-definition :visible="true" :currentRow="currentRow"/>
-        <el-button style="float: right;margin: 20px" @click="addReferenceApi">{{$t('api_test.scenario.reference')}}</el-button>
+        <el-button style="float: right;margin: 20px" type="primary" @click="copyApi('REF')">{{$t('api_test.scenario.reference')}}</el-button>
+        <el-button style="float: right;margin: 20px 0px 0px " @click="copyApi('Copy')">{{ $t('commons.copy') }}</el-button>
       </el-drawer>
 
       <!--自定义接口-->
-      <el-drawer :visible.sync="customizeVisible" :destroy-on-close="true" direction="ltr" :title="$t('api_test.automation.customize_req')" style="overflow: auto" :modal="false" size="90%">
+      <el-drawer :visible.sync="customizeVisible" :destroy-on-close="true" direction="ltr" :withHeader="false" :title="$t('api_test.automation.customize_req')" style="overflow: auto" :modal="false" size="90%">
         <ms-api-customize :request="customizeRequest" @addCustomizeApi="addCustomizeApi" :current-project="currentProject"/>
         <!--<el-button style="float: right;margin: 20px" @click="addCustomizeApi">{{$t('commons.save')}}</el-button>-->
+      </el-drawer>
+      <!--场景导入 -->
+      <el-drawer :visible.sync="scenarioVisible" :destroy-on-close="true" direction="ltr" :withHeader="false" :title="$t('api_test.automation.scenario_import')" style="overflow: auto" :modal="false" size="90%">
+        <ms-import-api-scenario @addScenario="addScenario"/>
       </el-drawer>
 
       <!-- 环境 -->
@@ -266,7 +264,7 @@
 </template>
 
 <script>
-  import {API_STATUS} from "../../definition/model/JsonData";
+  import {API_STATUS, PRIORITY} from "../../definition/model/JsonData";
   import {WORKSPACE_ID} from '@/common/js/constants';
   import {Assertions, Extract, IfController, JSR223Processor, ConstantTimer} from "../../definition/model/ApiTestModel";
   import MsJsr233Processor from "./Jsr233Processor";
@@ -283,6 +281,8 @@
   import ApiEnvironmentConfig from "../../definition/components/environment/ApiEnvironmentConfig";
   import MsAddTag from "./AddTag";
   import MsRun from "./Run";
+  import MsImportApiScenario from "./ImportApiScenario";
+  import MsApiScenarioComponent from "./ApiScenarioComponent";
 
   export default {
     name: "EditApiScenario",
@@ -291,7 +291,7 @@
       currentProject: {},
       currentScenario: {},
     },
-    components: {ApiEnvironmentConfig, MsAddTag, MsRun, MsJsr233Processor, MsConstantTimer, MsIfController, MsApiAssertions, MsApiExtract, MsApiDefinition, MsApiComponent, MsApiCustomize},
+    components: {ApiEnvironmentConfig, MsAddTag, MsRun, MsApiScenarioComponent, MsImportApiScenario, MsJsr233Processor, MsConstantTimer, MsIfController, MsApiAssertions, MsApiExtract, MsApiDefinition, MsApiComponent, MsApiCustomize},
     data() {
       return {
         props: {
@@ -313,11 +313,13 @@
         maintainerOptions: [],
         value: API_STATUS[0].id,
         options: API_STATUS,
+        levels: PRIORITY,
         scenario: {},
         isReloadData: false,
         apiListVisible: false,
         customizeVisible: false,
-        customizeRequest: {protocol: "HTTP", type: "API", hashTree: [], referenced: false, active: false},
+        scenarioVisible: false,
+        customizeRequest: {protocol: "HTTP", type: "API", hashTree: [], referenced: 'Created', active: false},
         operatingElements: [],
         currentRow: {cases: [], apis: []},
         selectedTreeNode: undefined,
@@ -330,14 +332,18 @@
     created() {
       this.operatingElements = ELEMENTS.get("ALL");
       this.getMaintainerOptions();
-      this.getApiScenario();
       this.refreshTags();
+      this.getApiScenario();
       this.getEnvironments();
     },
     watch: {},
     methods: {
       nodeClick(e) {
-        this.operatingElements = ELEMENTS.get(e.type);
+        if (e.referenced != 'REF') {
+          this.operatingElements = ELEMENTS.get(e.type);
+        } else {
+          this.operatingElements = [];
+        }
         this.selectedTreeNode = e;
       },
       showAll() {
@@ -395,8 +401,11 @@
               this.scenarioDefinition.push(new Extract());
             break;
           case ELEMENT_TYPE.CustomizeReq:
-            this.customizeRequest = {protocol: "HTTP", type: "API", hashTree: [], referenced: false, active: false};
+            this.customizeRequest = {protocol: "HTTP", type: "API", hashTree: [], referenced: 'Created', active: false};
             this.customizeVisible = true;
+            break;
+          case ELEMENT_TYPE.scenario:
+            this.scenarioVisible = true;
             break;
           default:
             break;
@@ -415,7 +424,17 @@
         this.sort();
         this.reload();
       },
-      addReferenceApi() {
+      addScenario(arr) {
+        if (arr.length > 0) {
+          arr.forEach(item => {
+            this.scenarioDefinition.push(item);
+          })
+        }
+        this.sort();
+        this.reload();
+        this.scenarioVisible = false;
+      },
+      copyApi(referenced) {
         if (this.currentRow.cases.length === 0 && this.currentRow.apis.length === 0) {
           this.$warning(this.$t('api_test.automation.reference_info'));
           return;
@@ -427,10 +446,12 @@
           } else {
             request = item.request;
           }
-          request.referenced = true;
+          request.referenced = referenced;
           request.active = false;
           request.resourceId = getUUID();
-
+          if (referenced === 'REF') {
+            request.hashTree = [];
+          }
           if (this.selectedTreeNode != undefined) {
             this.selectedTreeNode.hashTree.push(request);
           } else {
@@ -444,10 +465,12 @@
           } else {
             request = item.request;
           }
-          request.referenced = true;
+          request.referenced = referenced;
           request.active = false;
           request.resourceId = getUUID();
-
+          if (referenced === 'REF') {
+            request.hashTree = [];
+          }
           if (this.selectedTreeNode != undefined) {
             this.selectedTreeNode.hashTree.push(request);
           } else {
@@ -482,6 +505,9 @@
           this.tags.forEach(item => {
             tagIds.push(item.id);
           })
+          if (this.currentScenario.tagId != undefined && this.currentScenario.tagId.length > 0) {
+            this.currentScenario.tagId = this.currentScenario.tagId.filter(id => tagIds.indexOf(id) != -1);
+          }
         });
 
       },
@@ -567,12 +593,15 @@
             this.result = this.$post(this.path, this.currentScenario, () => {
               this.$success(this.$t('commons.save_success'));
               this.path = "/api/automation/update";
+              this.currentScenario.tagId = JSON.parse(this.currentScenario.tagId);
             })
           }
         })
       },
       getApiScenario() {
-        this.currentScenario.tagId = JSON.parse(this.currentScenario.tagId);
+        if (this.currentScenario.tagId != undefined) {
+          this.currentScenario.tagId = JSON.parse(this.currentScenario.tagId);
+        }
         if (this.currentScenario.id) {
           this.path = "/api/automation/update";
           this.result = this.$get("/api/automation/getApiScenario/" + this.currentScenario.id, response => {
@@ -587,6 +616,7 @@
         if (!this.currentScenario.id) {
           this.currentScenario.id = getUUID().substring(0, 8);
         }
+        this.currentScenario.stepTotal = this.scenarioDefinition.length;
         this.currentScenario.modulePath = this.getPath(this.currentScenario.apiScenarioModuleId);
         this.currentScenario.scenarioDefinition = JSON.stringify(this.scenarioDefinition);
         this.currentScenario.tagId = JSON.stringify(this.currentScenario.tagId);

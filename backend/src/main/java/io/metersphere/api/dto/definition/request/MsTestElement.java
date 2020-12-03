@@ -43,11 +43,12 @@ import java.util.List;
         @JsonSubTypes.Type(value = MsJDBCSampler.class, name = "JDBCSampler"),
         @JsonSubTypes.Type(value = MsConstantTimer.class, name = "ConstantTimer"),
         @JsonSubTypes.Type(value = MsIfController.class, name = "IfController"),
+        @JsonSubTypes.Type(value = MsScenario.class, name = "scenario"),
 
 })
 @JSONType(seeAlso = {MsHTTPSamplerProxy.class, MsHeaderManager.class, MsJSR223PostProcessor.class,
         MsJSR223PreProcessor.class, MsTestPlan.class, MsThreadGroup.class, AuthManager.class, MsAssertions.class,
-        MsExtract.class, MsTCPSampler.class, MsDubboSampler.class, MsJDBCSampler.class, MsConstantTimer.class, MsIfController.class}, typeKey = "type")
+        MsExtract.class, MsTCPSampler.class, MsDubboSampler.class, MsJDBCSampler.class, MsConstantTimer.class, MsIfController.class, MsScenario.class}, typeKey = "type")
 @Data
 public abstract class MsTestElement {
     private String type;

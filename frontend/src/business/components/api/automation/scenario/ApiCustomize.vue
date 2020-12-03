@@ -13,10 +13,10 @@
         </el-form-item>
       </el-form>
       <!--不同协议请求-->
-      <ms-debug-http-page :current-api="request" @saveAs="editApi" :currentProtocol="request.protocol" v-if="request.protocol==='HTTP'"/>
-      <ms-debug-jdbc-page :currentProtocol="request.protocol" @saveAs="editApi" :currentProject="currentProject" v-if="request.protocol==='SQL'"/>
-      <ms-debug-tcp-page :currentProtocol="request.protocol" @saveAs="editApi" :currentProject="currentProject" v-if="request.protocol==='TCP'"/>
-      <ms-debug-dubbo-page :currentProtocol="request.protocol" @saveAs="editApi" :currentProject="currentProject" v-if="request.protocol==='DUBBO'"/>
+      <ms-debug-http-page :scenario="true" :current-api="request" @saveAs="editApi" :currentProtocol="request.protocol" v-if="request.protocol==='HTTP'"/>
+      <ms-debug-jdbc-page :scenario="true" :currentProtocol="request.protocol" @saveAs="editApi" :currentProject="currentProject" v-if="request.protocol==='SQL'"/>
+      <ms-debug-tcp-page :scenario="true" :currentProtocol="request.protocol" @saveAs="editApi" :currentProject="currentProject" v-if="request.protocol==='TCP'"/>
+      <ms-debug-dubbo-page :scenario="true" :currentProtocol="request.protocol" @saveAs="editApi" :currentProject="currentProject" v-if="request.protocol==='DUBBO'"/>
 
     </el-card>
   </div>

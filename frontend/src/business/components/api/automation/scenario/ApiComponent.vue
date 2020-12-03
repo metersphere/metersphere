@@ -10,8 +10,10 @@
         </div>
 
         <i class="icon el-icon-arrow-right" :class="{'is-active': request.active}"
-           @click="active(request)"/>
+           @click="active(request)" v-if="request.referenced!=undefined && request.referenced!='Deleted' && request.referenced!='REF'"/>
         <span>{{request.type!= 'create' ? request.name:''}} </span>
+        <el-tag size="mini" style="margin-left: 20px" v-if="request.referenced==='Deleted'" type="danger">引用不存在</el-tag>
+        <el-tag size="mini" style="margin-left: 20px" v-if="request.referenced ==='REF'">{{ $t('api_test.scenario.reference') }}</el-tag>
 
         <el-button size="mini" type="danger" icon="el-icon-delete" circle @click="remove" style="margin-right: 20px; float: right"/>
 
