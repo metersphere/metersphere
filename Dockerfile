@@ -1,4 +1,4 @@
-FROM registry.fit2cloud.com/metersphere/fabric8-java-alpine-openjdk8-jre
+FROM metersphere/fabric8-java-alpine-openjdk8-jre
 
 MAINTAINER FIT2CLOUD <support@fit2cloud.com>
 
