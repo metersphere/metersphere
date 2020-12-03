@@ -18,7 +18,7 @@
           </el-tab-pane>
 
           <!--query 参数-->
-          <el-tab-pane :label="$t('api_test.definition.request.query_param')" name="parameters" :disabled="request.rest.length>1">
+          <el-tab-pane :label="$t('api_test.definition.request.query_param')" name="parameters" :disabled="request.arguments.length>1">
             <el-tooltip class="item-tabs" effect="dark" :content="$t('api_test.definition.request.query_info')" placement="top-start" slot="label">
               <span>{{$t('api_test.definition.request.query_param')}}
                 <div class="el-step__icon is-text ms-api-col ms-query" v-if="request.arguments.length>1">
@@ -30,7 +30,7 @@
           </el-tab-pane>
 
           <!--REST 参数-->
-          <el-tab-pane :label="$t('api_test.definition.request.rest_param')" name="rest" :disabled="request.arguments.length>1">
+          <el-tab-pane :label="$t('api_test.definition.request.rest_param')" name="rest" >
             <el-tooltip class="item-tabs" effect="dark" :content="$t('api_test.definition.request.rest_info')" placement="top-start" slot="label">
               <span>
                 {{$t('api_test.definition.request.rest_param')}}
@@ -98,7 +98,7 @@
   import {createComponent} from "../../jmeter/components";
   import MsApiAssertions from "../../assertion/ApiAssertions";
   import MsApiExtract from "../../extract/ApiExtract";
-  import {Assertions, Extract} from "../../../model/ApiTestModel";
+  import {Assertions, Body, Extract} from "../../../model/ApiTestModel";
 
   export default {
     name: "MsApiHttpRequestForm",
@@ -109,7 +109,12 @@
     },
     props: {
       request: {},
-      headers: Array,
+      headers: {
+        type: Array,
+        default() {
+          return [];
+        }
+      },
       isShowEnable: Boolean,
       jsonPathList: Array,
       isReadOnly: {
@@ -144,6 +149,11 @@
         isReloadData: false,
       }
     },
+
+    created() {
+      this.init();
+    },
+
     methods: {
       addPre() {
         let jsr223PreProcessor = createComponent("JSR223PreProcessor");
@@ -176,6 +186,20 @@
           this.isReloadData = false
         })
       },
+      init() {
+        if (!this.request.body) {
+          this.request.body = new Body();
+        }
+        if (!this.request.body.kvs) {
+          this.request.body.kvs = [];
+        }
+        if (!this.request.rest) {
+          this.request.rest = [];
+        }
+        if (!this.request.arguments) {
+          this.request.arguments = [];
+        }
+      }
     },
   }
 </script>
