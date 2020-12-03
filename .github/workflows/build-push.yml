@@ -1,22 +1,28 @@
 name: Build Docker Image and Push
 
 on:
-  workflow_dispatch:
+  push:
+    branches:
+      - main
+      - v1*
+  pull_request:
+    branches:
+      - main
+      - v1*
   
 jobs:
-  build:
+  build_push:
     runs-on: ubuntu-latest
-
+    name: Build Docker Image and Push
     steps:
     - uses: actions/checkout@v2
-    - uses: nelonoel/branch-name@v1.0.1
-
+    - name: Inject slug/short variables
+      uses: rlespinasse/github-slug-action@v3.x
     - name: Cache node modules
       uses: actions/cache@v2
       env:
         cache-name: cache-node-modules
       with:
-        # npm cache files are stored in `~/.npm` on Linux/macOS
         path: ~/.npm
         key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
         restore-keys: |
@@ -24,18 +30,13 @@ jobs:
           ${{ runner.os }}-build-
           ${{ runner.os }}-
 
-    - name: Cache maven dependencies
+    - name: Cache local Maven repository
       uses: actions/cache@v2
-      env:
-        cache-name: cache-maven-deps
       with:
-        # npm cache files are stored in `~/.npm` on Linux/macOS
-        path: ~/.m2
-        key: ${{ runner.os }}-build-${{ env.cache-name }}
+        path: ~/.m2/repository
+        key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
         restore-keys: |
-          ${{ runner.os }}-build-${{ env.cache-name }}-
-          ${{ runner.os }}-build-
-          ${{ runner.os }}-
+          ${{ runner.os }}-maven-
 
     - name: Set up JDK 1.8
       uses: actions/setup-java@v1
@@ -45,19 +46,13 @@ jobs:
         settings-path: ${{ github.workspace }} # location for the settings.xml file
 
     - name: Build with Maven
-      run: mvn -B package --file pom.xml
-      
-    - name: Docker Setup Buildx
-      uses: docker/setup-buildx-action@v1.0.3
-     
-    - name: Docker Login
-      uses: docker/login-action@v1.6.0
+      run: mvn -B package --file pom.xml    
+
+    - name: Push to Docker Hub
+      uses: docker/build-push-action@v1
       with:
-        username: ${{ secrets.DOCKER_HUB_USERNAME }}
+        username: metersphere
         password: ${{ secrets.DOCKER_HUB_TOKEN }}
-    
-    - name: Build Docker Image
-      uses: docker/build-push-action@v2.2.0
-      with:
-        build-args: MS_VERSION=${BRANCH_NAME}-b${GITHUB_RUN_NUMBER} 
-        tags: metersphere/metersphere:${BRANCH_NAME}
+        repository: metersphere/metersphere
+        tag_with_ref: true
+        build_args: MS_VERSION=${{ env.GITHUB_REF_SLUG }}-${{ env.GITHUB_SHA_SHORT }}

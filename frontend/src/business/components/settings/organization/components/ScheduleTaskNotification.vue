@@ -2,7 +2,8 @@
   <div>
     <el-row>
       <el-col :span="10">
-        <el-button :disabled="!isTesterPermission" icon="el-icon-circle-plus-outline" plain size="mini" @click="handleAddTaskModel('scheduleTask')">
+        <el-button :disabled="!isTesterPermission" icon="el-icon-circle-plus-outline" plain size="mini"
+                   @click="handleAddTaskModel">
           {{ $t('organization.message.create_new_notification') }}
         </el-button>
       </el-col>
@@ -10,7 +11,7 @@
     <el-row>
       <el-col :span="24">
         <el-table
-          :data="form.scheduleTask"
+          :data="scheduleTask"
           class="tb-edit"
           border
           size="mini"
@@ -77,7 +78,7 @@
                 size="mini"
                 v-show="scope.row.isSet"
                 :disabled="!isTesterPermission"
-                @click.native.prevent="removeRowTask(scope.$index,form.scheduleTask)"
+                @click.native.prevent="removeRowTask(scope.$index,scheduleTask)"
               >{{ $t('commons.cancel') }}
               </el-button>
               <el-button
@@ -86,7 +87,8 @@
                 v-show="!scope.row.isSet"
                 :disabled="!isTesterPermission"
                 @click="handleEditTask(scope.$index,scope.row)"
-              >{{ $t('commons.edit') }}</el-button>
+              >{{ $t('commons.edit') }}
+              </el-button>
               <el-button
                 type="danger"
                 icon="el-icon-delete"
@@ -108,8 +110,8 @@
 export default {
   name: "ScheduleTaskNotification",
   props: {
-    testId:String,
-    scheduleReceiverOptions:Array,
+    testId: String,
+    scheduleReceiverOptions: Array,
     isTesterPermission: {
       type: Boolean,
       default: true
@@ -117,19 +119,18 @@ export default {
   },
   data() {
     return {
-      form: {
-        scheduleTask: [{
-          taskType: "scheduleTask",
-          event: "",
-          userIds: [],
-          type: [],
-          webhook: "",
-          isSet: true,
-          identification: "",
-          isReadOnly: false,
-          testId:this.testId,
-        }],
-      },
+
+      scheduleTask: [{
+        taskType: "scheduleTask",
+        event: "",
+        userIds: [],
+        type: [],
+        webhook: "",
+        isSet: true,
+        identification: "",
+        isReadOnly: false,
+        testId: this.testId,
+      }],
       scheduleEventOptions: [
         {value: 'EXECUTE_SUCCESSFUL', label: this.$t('schedule.event_success')},
         {value: 'EXECUTE_FAILED', label: this.$t('schedule.event_failed')}
@@ -141,14 +142,14 @@ export default {
       ],
     }
   },
-  mounted(){
+  mounted() {
     this.initForm()
   },
   methods: {
-    initForm(){
-      this.result = this.$get('/notice/search/message/'+this.testId, response => {
+    initForm() {
+      this.result = this.$get('/notice/search/message/' + this.testId, response => {
         // console.log(response.data);
-        this.form.scheduleTask = response.data;
+        this.scheduleTask = response.data;
       })
     },
     handleEdit(index, data) {
@@ -158,7 +159,7 @@ export default {
         data.webhook = '';
       }
     },
-    handleAddTaskModel(type) {
+    handleAddTaskModel() {
       let Task = {};
       Task.event = [];
       Task.userIds = [];
@@ -166,13 +167,11 @@ export default {
       Task.webhook = '';
       Task.isSet = true;
       Task.identification = '';
-      if (type === 'scheduleTask') {
-        Task.taskType = 'SCHEDULE_TASK';
-        Task.testId=this.testId;
-        this.form.scheduleTask.push(Task);
-      }
+      Task.taskType = 'SCHEDULE_TASK';
+      Task.testId = this.testId;
+      this.scheduleTask.push(Task);
     },
-    handleEditTask(index,data) {
+    handleEditTask(index, data) {
       data.isSet = true;
       data.testId = this.testId;
       if (data.type === 'EMAIL') {

@@ -11,7 +11,7 @@
     <el-row>
       <el-col :span="24">
         <el-table
-          :data="form.reviewTask"
+          :data="reviewTask"
           class="tb-edit"
           border
           :cell-style="rowClass"
@@ -77,7 +77,7 @@
               <el-button
                 size="mini"
                 v-show="scope.row.isSet"
-                @click.native.prevent="removeRowTask(scope.$index,form.reviewTask)"
+                @click.native.prevent="removeRowTask(scope.$index,reviewTask)"
               >{{ $t('commons.cancel') }}
               </el-button>
               <el-button
@@ -114,18 +114,16 @@ export default {
   },
   data() {
     return {
-      form: {
-        reviewTask: [{
-          taskType: "reviewTask",
-          event: "",
-          userIds: [],
-          type: [],
-          webhook: "",
-          isSet: true,
-          identification: "",
-          isReadOnly: false,
-        }],
-      },
+      reviewTask: [{
+        taskType: "reviewTask",
+        event: "",
+        userIds: [],
+        type: [],
+        webhook: "",
+        isSet: true,
+        identification: "",
+        isReadOnly: false,
+      }],
       reviewTaskEventOptions: [
         {value: 'CREATE', label: this.$t('commons.create')},
         {value: 'UPDATE', label: this.$t('commons.update')},
@@ -139,14 +137,11 @@ export default {
       ],
     };
   },
-  activated() {
-    this.initForm()
-  },
   methods: {
     initForm() {
       this.result = this.$get('/notice/search/message/type/' + TASK_TYPE, response => {
-        this.form.reviewTask = response.data;
-        this.form.reviewTask.forEach(planTask => {
+        this.reviewTask = response.data;
+        this.reviewTask.forEach(planTask => {
           this.handleReviewReceivers(planTask);
         });
       })
@@ -176,7 +171,7 @@ export default {
       Task.isSet = true;
       Task.identification = '';
       Task.taskType = TASK_TYPE
-      this.form.reviewTask.push(Task)
+      this.reviewTask.push(Task)
     },
     handleAddTask(index, data) {
 
@@ -241,6 +236,13 @@ export default {
           break;
       }
       row.reviewReceiverOptions = reviewReceiverOptions;
+    }
+  },
+  watch: {
+    reviewReceiverOptions(value) {
+      if (value && value.length > 0) {
+        this.initForm();
+      }
     }
   }
 }

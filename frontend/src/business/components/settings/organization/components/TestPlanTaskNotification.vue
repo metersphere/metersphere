@@ -11,7 +11,7 @@
     <el-row>
       <el-col :span="24">
         <el-table
-          :data="form.testCasePlanTask"
+          :data="testCasePlanTask"
           class="tb-edit"
           border
           :cell-style="rowClass"
@@ -76,7 +76,7 @@
               <el-button
                 size="mini"
                 v-show="scope.row.isSet"
-                @click.native.prevent="removeRowTask(scope.$index,form.testCasePlanTask)"
+                @click.native.prevent="removeRowTask(scope.$index,testCasePlanTask)"
               >{{ $t('commons.cancel') }}
               </el-button>
               <el-button
@@ -114,18 +114,16 @@ export default {
   },
   data() {
     return {
-      form: {
-        testCasePlanTask: [{
-          taskType: "testPlanTask",
-          event: "",
-          userIds: [],
-          type: [],
-          webhook: "",
-          isSet: true,
-          identification: "",
-          isReadOnly: false,
-        }],
-      },
+      testCasePlanTask: [{
+        taskType: "testPlanTask",
+        event: "",
+        userIds: [],
+        type: [],
+        webhook: "",
+        isSet: true,
+        identification: "",
+        isReadOnly: false,
+      }],
       otherEventOptions: [
         {value: 'CREATE', label: this.$t('commons.create')},
         {value: 'UPDATE', label: this.$t('commons.update')},
@@ -138,14 +136,11 @@ export default {
       ],
     };
   },
-  activated() {
-    this.initForm()
-  },
   methods: {
     initForm() {
       this.result = this.$get('/notice/search/message/type/' + TASK_TYPE, response => {
-        this.form.testCasePlanTask = response.data;
-        this.form.testCasePlanTask.forEach(planTask => {
+        this.testCasePlanTask = response.data;
+        this.testCasePlanTask.forEach(planTask => {
           this.handleTestPlanReceivers(planTask);
         });
       })
@@ -175,7 +170,7 @@ export default {
       Task.isSet = true;
       Task.identification = '';
       Task.taskType = TASK_TYPE
-      this.form.testCasePlanTask.push(Task)
+      this.testCasePlanTask.push(Task)
     },
     handleAddTask(index, data) {
 
@@ -236,6 +231,13 @@ export default {
       }
       row.testPlanReceiverOptions = testPlanReceivers;
     },
+  },
+  watch: {
+    testPlanReceiverOptions(value) {
+      if (value && value.length > 0) {
+        this.initForm();
+      }
+    }
   }
 }
 </script>

@@ -11,7 +11,7 @@
     <el-row>
       <el-col :span="24">
         <el-table
-          :data="form.defectTask"
+          :data="defectTask"
           class="tb-edit"
           border
           :cell-style="rowClass"
@@ -76,7 +76,7 @@
               <el-button
                 size="mini"
                 v-show="scope.row.isSet"
-                @click.native.prevent="removeRowTask(scope.$index,form.defectTask)"
+                @click.native.prevent="removeRowTask(scope.$index,defectTask)"
               >{{ $t('commons.cancel') }}
               </el-button>
               <el-button
@@ -113,18 +113,16 @@ export default {
   },
   data() {
     return {
-      form: {
-        defectTask: [{
-          taskType: "defectTask",
-          event: "",
-          userIds: [],
-          type: [],
-          webhook: "",
-          isSet: true,
-          identification: "",
-          isReadOnly: false,
-        }],
-      },
+      defectTask: [{
+        taskType: "defectTask",
+        event: "",
+        userIds: [],
+        type: [],
+        webhook: "",
+        isSet: true,
+        identification: "",
+        isReadOnly: false,
+      }],
       defectEventOptions: [
         {value: 'CREATE', label: this.$t('commons.create')},
       ],
@@ -141,7 +139,7 @@ export default {
   methods: {
     initForm() {
       this.result = this.$get('/notice/search/message/type/' + TASK_TYPE, response => {
-        this.form.defectTask = response.data;
+        this.defectTask = response.data;
       })
     },
     handleEdit(index, data) {
@@ -169,7 +167,7 @@ export default {
       Task.isSet = true;
       Task.identification = '';
       Task.taskType = TASK_TYPE
-      this.form.defectTask.push(Task)
+      this.defectTask.push(Task)
     },
     handleAddTask(index, data) {
 
