@@ -7,6 +7,7 @@ import io.metersphere.api.dto.ApiTestImportRequest;
 import io.metersphere.api.dto.definition.ApiDefinitionResult;
 import io.metersphere.api.dto.definition.parse.ApiDefinitionImport;
 import io.metersphere.api.dto.definition.request.sampler.MsHTTPSamplerProxy;
+import io.metersphere.api.dto.definition.response.HttpResponse;
 import io.metersphere.api.dto.parse.ApiImport;
 import io.metersphere.api.dto.scenario.Body;
 import io.metersphere.api.dto.scenario.KeyValue;
@@ -20,7 +21,6 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.InputStream;
-import java.sql.Connection;
 import java.util.*;
 
 public class Swagger2Parser extends ApiImportAbstractParser {
@@ -65,7 +65,7 @@ public class Swagger2Parser extends ApiImportAbstractParser {
                 apiDefinition.setRequest(JSON.toJSONString(request));
                 apiDefinition.setId(request.getId());
                 results.add(apiDefinition);
-
+                parseResponse(operation.getResponses());
 
 //                List<String> tags = operation.getTags();
 //                if (tags != null) {
@@ -142,7 +142,7 @@ public class Swagger2Parser extends ApiImportAbstractParser {
                     parseFormDataParameters((FormParameter) parameter, request.getBody());
                     break;
                 case SwaggerParameterType.BODY:
-                    parseBodyParameters(parameter, request.getBody());
+                    parseRequestBodyParameters(parameter, request.getBody());
                     break;
                 case SwaggerParameterType.HEADER:
                     parseHeaderParameters(parameter, request.getHeaders());
@@ -207,14 +207,45 @@ public class Swagger2Parser extends ApiImportAbstractParser {
         addHeader(headers, headerParameter.getName(), "", getDefaultStringValue(headerParameter.getDescription()));
     }
 
-    private void parseBodyParameters(Parameter parameter, Body body) {
-        BodyParameter bodyParameter = (BodyParameter) parameter;
-        Model schema = bodyParameter.getSchema();
+    private void parseResponse(Map<String, Response> responses) {
+        HttpResponse msResponse = new HttpResponse();
+        msResponse.setBody(new Body());
+        msResponse.setHeaders(new ArrayList<>());
+        msResponse.setType(RequestType.HTTP);
+        // todo 状态码要调整？
+        msResponse.setStatusCode(new ArrayList<>());
+        if (responses != null) {
+            responses.forEach((responseCode, response) -> {
+                msResponse.getStatusCode().add(new KeyValue(responseCode, responseCode));
+                parseResponseHeader(response, msResponse.getHeaders());
+                parseResponseBodyParameters(response, msResponse.getBody());
+            });
+        }
+    }
 
+    private void parseResponseHeader(Response response, List<KeyValue> msHeaders) {
+        Map<String, Property> headers = response.getHeaders();
+        if (headers != null) {
+            headers.forEach((k, v) -> {
+                msHeaders.add(new KeyValue(k, "", v.getDescription()));
+            });
+        }
+    }
+
+    private void parseResponseBodyParameters(Response response, Body body) {
+        body.setRaw(parseSchema(response.getResponseSchema()));
+    }
+
+    private void parseRequestBodyParameters(Parameter parameter, Body body) {
+        BodyParameter bodyParameter = (BodyParameter) parameter;
+        body.setRaw(parseSchema(bodyParameter.getSchema()));
+    }
+
+    private String parseSchema(Model schema) {
         // 引用模型
         if (schema instanceof RefModel) {
             String simpleRef = "";
-            RefModel refModel = (RefModel) bodyParameter.getSchema();
+            RefModel refModel = (RefModel) schema;
             String originalRef = refModel.getOriginalRef();
             if (refModel.getOriginalRef().split("/").length > 3) {
                 simpleRef = originalRef.replace("#/definitions/", "");
@@ -226,11 +257,12 @@ public class Swagger2Parser extends ApiImportAbstractParser {
             refSet.add(simpleRef);
             if (model != null) {
                 JSONObject bodyParameters = getBodyParameters(model.getProperties(), refSet);
-                body.setRaw(bodyParameters.toJSONString());
+                //body.setRaw(bodyParameters.toJSONString());
+                return bodyParameters.toJSONString();
             }
         } else if (schema instanceof ArrayModel) {
             //模型数组
-            ArrayModel arrayModel = (ArrayModel) bodyParameter.getSchema();
+            ArrayModel arrayModel = (ArrayModel) schema;
             Property items = arrayModel.getItems();
             if (items instanceof RefProperty) {
                 RefProperty refProperty = (RefProperty) items;
@@ -240,10 +272,11 @@ public class Swagger2Parser extends ApiImportAbstractParser {
                 Model model = definitions.get(simpleRef);
                 JSONArray propertyList = new JSONArray();
                 propertyList.add(getBodyParameters(model.getProperties(), refSet));
-                body.setRaw(propertyList.toString());
+                // body.setRaw(propertyList.toString());
+                return propertyList.toString();
             }
         }
-        body.setFormat("json");
+        return "";
     }
 
     private JSONObject getBodyParameters(Map<String, Property> properties, HashSet<String> refSet) {
