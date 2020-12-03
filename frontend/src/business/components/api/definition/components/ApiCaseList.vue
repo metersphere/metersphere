@@ -82,6 +82,10 @@
         <div v-for="(item,index) in apiCaseList" :key="index">
           <el-card style="margin-top: 5px" @click.native="selectTestCase(item,$event)">
             <el-row>
+              <el-col :span="1">
+                <el-checkbox v-if="visible" @change="caseChecked(item)"/>
+              </el-col>
+
               <el-col :span="5">
                 <div class="el-step__icon is-text ms-api-col">
                   <div class="el-step__icon-inner">{{index+1}}</div>
@@ -119,7 +123,7 @@
                                circle/>
               </el-col>
 
-              <el-col :span="4">
+              <el-col :span="3">
                 <div v-if="item.type!='create'">{{getResult(item.execResult)}}</div>
                 <div v-if="item.type!='create'" style="color: #999999;font-size: 12px">
                   <span> {{item.updateTime | timestampFormatDate }}</span>
@@ -132,7 +136,7 @@
               <div v-if="item.active">
                 <p class="tip">{{$t('api_test.definition.request.req_param')}} </p>
 
-                <ms-api-request-form :is-read-only="isReadOnly" :headers="item.request.hashTree[0].headers " :request="item.request" v-if="api.protocol==='HTTP'"/>
+                <ms-api-request-form :is-read-only="isReadOnly" :headers="item.request.headers " :request="item.request" v-if="api.protocol==='HTTP'"/>
                 <ms-tcp-basis-parameters :request="item.request" :currentProject="currentProject" v-if="api.protocol==='TCP'"/>
                 <ms-sql-basis-parameters :request="item.request" :currentProject="currentProject" v-if="api.protocol==='SQL'"/>
                 <ms-dubbo-basis-parameters :request="item.request" :currentProject="currentProject" v-if="api.protocol==='DUBBO'"/>
@@ -186,9 +190,14 @@
       api: {
         type: Object
       },
+      visible: {
+        type: Boolean,
+        default: false,
+      },
       loaded: Boolean,
       currentProject: {},
       refreshSign: String,
+      currentRow: Object,
     },
     data() {
       return {
@@ -204,18 +213,29 @@
         loading: false,
         runData: [],
         reportId: "",
+        checkedCases: new Set(),
+
       }
     },
 
     watch: {
       // 初始化
       api() {
+        if (this.currentRow) {
+          this.currentRow.cases = [];
+        }
         this.getApiTest();
       },
       currentProject() {
+        if (this.currentRow) {
+          this.currentRow.cases = [];
+        }
         this.getEnvironments();
       },
       refreshSign() {
+        if (this.currentRow) {
+          this.currentRow.cases = [];
+        }
         this.getApiTest();
       }
     },
@@ -439,6 +459,17 @@
           this.$emit('selectTestCase', item);
         }
 
+      },
+      caseChecked(row) {
+        row.protocol = this.api.protocol;
+        row.hashTree = [];
+        if (this.checkedCases.has(row)) {
+          this.checkedCases.delete(row);
+        } else {
+          this.checkedCases.add(row)
+        }
+        let arr = Array.from(this.checkedCases);
+        this.currentRow.cases = arr;
       }
     }
   }

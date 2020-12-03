@@ -526,8 +526,22 @@ export default {
         post_script: "Postscript",
         extract_param: "Extract parameters",
         add_module: "Add module",
-
       }
+    },
+    automation: {
+      follow_people: "Follow people",
+      create_tag: "Create tag",
+      scenario_step: "Scenario step",
+      step_total: "Step total",
+      scenario_total: "Scene public parameters",
+      api_list_import: "Interface list import",
+      external_import: "External import",
+      wait_controller: "Waiting for controller",
+      if_controller: "Condition controller",
+      scenario_import: "Scene import",
+      customize_script: "Custom script",
+      customize_req: "Custom request",
+      reference_info: "Please select interface or use case",
     },
     environment: {
       name: "Environment Name",

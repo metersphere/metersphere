@@ -42,7 +42,7 @@ public class FileService {
         final List<LoadTestFile> loadTestFiles = loadTestFileMapper.selectByExample(loadTestFileExample);
 
         if (CollectionUtils.isEmpty(loadTestFiles)) {
-            return null;
+            return new ArrayList<>();
         }
         List<String> fileIds = loadTestFiles.stream().map(LoadTestFile::getFileId).collect(Collectors.toList());
         FileMetadataExample example = new FileMetadataExample();

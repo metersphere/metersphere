@@ -7,7 +7,6 @@ import org.apache.ibatis.annotations.Param;
 import java.util.List;
 
 public interface ApiModuleMapper {
-
     long countByExample(ApiModuleExample example);
 
     int deleteByExample(ApiModuleExample example);
@@ -15,8 +14,6 @@ public interface ApiModuleMapper {
     int deleteByPrimaryKey(String id);
 
     int insert(ApiModule record);
-
-    int insertBatch(@Param("records") List<ApiModule> records);
 
     int insertSelective(ApiModule record);
 

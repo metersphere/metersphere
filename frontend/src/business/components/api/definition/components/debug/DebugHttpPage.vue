@@ -26,12 +26,12 @@
 
         <p class="tip">{{$t('api_test.definition.request.req_param')}} </p>
         <!-- HTTP 请求参数 -->
-        <ms-api-request-form :headers="headers" :request="request"/>
+        <ms-api-request-form :headers="request.headers" :request="request"/>
 
       </el-form>
       <!-- HTTP 请求返回数据 -->
       <p class="tip">{{$t('api_test.definition.request.res_param')}} </p>
-      <ms-request-result-tail  :response="responseData" ref="debugResult"/>
+      <ms-request-result-tail :response="responseData" ref="debugResult"/>
 
       <!-- 执行组件 -->
       <ms-run :debug="true" :reportId="reportId" :run-data="runData" @runRefresh="runRefresh" ref="runTest"/>
@@ -69,27 +69,13 @@
         loading: false,
         debugResultId: "",
         runData: [],
-        headers: [],
         reportId: "",
         reqOptions: REQ_METHOD,
         request: {},
       }
     },
     created() {
-      switch (this.protocol) {
-        case Request.TYPES.SQL:
-          this.request = createComponent("SQL");
-          break;
-        case Request.TYPES.DUBBO:
-          this.request = createComponent("JDBCSampler");
-          break;
-        case Request.TYPES.TCP:
-          this.request = createComponent("TCPSampler");
-          break;
-        default:
-          this.createHttp();
-          break;
-      }
+      this.createHttp();
     },
     watch: {
       debugResultId() {
@@ -105,9 +91,7 @@
         }
       },
       createHttp() {
-        let header = createComponent("HeaderManager");
         this.request = createComponent("HTTPSamplerProxy");
-        this.request.hashTree = [header];
       },
       runDebug() {
         this.$refs['debugForm'].validate((valid) => {
@@ -115,7 +99,6 @@
             this.loading = true;
             this.request.url = this.debugForm.url;
             this.request.method = this.debugForm.method;
-            this.request.hashTree[0].headers = this.headers;
             this.request.name = getUUID().substring(0, 8);
             this.runData = [];
             this.runData.push(this.request);

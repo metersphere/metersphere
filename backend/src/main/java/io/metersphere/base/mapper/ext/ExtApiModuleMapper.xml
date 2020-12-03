@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.metersphere.base.mapper.ext.ExtApiModuleMapper">
+    <insert id="insertBatch" parameterType="io.metersphere.base.domain.ApiModule">
+        insert into api_module (id, project_id, name,protocol
+        parent_id, level, create_time,
+        update_time)
+        values
+        <foreach collection="records" item="emp" separator=",">
+            (#{emp.id,jdbcType=VARCHAR}, #{emp.projectId,jdbcType=VARCHAR},
+            #{emp.name,jdbcType=VARCHAR},#{emp.protocol,jdbcType=VARCHAR},
+            #{emp.parentId,jdbcType=VARCHAR}, #{emp.level,jdbcType=INTEGER}, #{emp.createTime,jdbcType=BIGINT},
+            #{emp.updateTime,jdbcType=BIGINT})
+        </foreach>
+    </insert>
+</mapper>

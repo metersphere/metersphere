@@ -214,13 +214,6 @@
         </if>
     </select>
 
-    <select id="getTestPlanTestCaseList" resultType="io.metersphere.track.dto.TestPlanCaseDTO">
-        select test_plan_test_case.id as id, test_case.name
-        from test_plan_test_case
-        inner join test_case on test_plan_test_case.case_id = test_case.id
-        where test_plan_test_case.plan_id = #{request.planId}
-    </select>
-
     <select id="listTestCaseByProjectIds" resultType="io.metersphere.track.dto.TestPlanCaseDTO">
         select distinct * from test_plan_test_case, test_case
         where test_plan_test_case.case_id = test_case.id

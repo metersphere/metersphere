@@ -10,6 +10,7 @@ import io.metersphere.base.domain.ApiModule;
 import io.metersphere.base.domain.ApiModuleExample;
 import io.metersphere.base.mapper.ApiDefinitionMapper;
 import io.metersphere.base.mapper.ApiModuleMapper;
+import io.metersphere.base.mapper.ext.ExtApiDefinitionMapper;
 import io.metersphere.commons.constants.TestCaseConstants;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.BeanUtils;
@@ -33,6 +34,9 @@ public class ApiModuleService {
     ApiModuleMapper apiModuleMapper;
     @Resource
     private ApiDefinitionMapper apiDefinitionMapper;
+    @Resource
+    private ExtApiDefinitionMapper extApiDefinitionMapper;
+
     @Resource
     SqlSessionFactory sqlSessionFactory;
 
@@ -132,7 +136,7 @@ public class ApiModuleService {
     private List<ApiDefinitionResult> queryByModuleIds(List<String> nodeIds) {
         ApiDefinitionRequest apiDefinitionRequest = new ApiDefinitionRequest();
         apiDefinitionRequest.setModuleIds(nodeIds);
-        return apiDefinitionMapper.list(apiDefinitionRequest);
+        return extApiDefinitionMapper.list(apiDefinitionRequest);
     }
 
     public int editNode(DragModuleRequest request) {

@@ -19,4 +19,11 @@ public interface ExtTestReviewCaseMapper {
      * @return List<TestReviewCaseDTO>
      */
     List<TestReviewCaseDTO> listTestCaseByProjectIds(@Param("ids") List<String> ids);
+
+    /**
+     * 获取 TestReviewTestCase 详细信息
+     * @param id TestReviewTestCase id
+     * @return TestReviewTestCase 详细信息
+     */
+    TestReviewCaseDTO get(@Param("id") String id);
 }

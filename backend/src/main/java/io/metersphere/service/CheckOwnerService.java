@@ -61,6 +61,10 @@ public class CheckOwnerService {
     }
 
     public void checkPerformanceTestOwner(String testId) {
+        // 关联为其他时
+        if (StringUtils.equals("other", testId)) {
+            return;
+        }
         String workspaceId = SessionUtils.getCurrentWorkspaceId();
         QueryTestPlanRequest request = new QueryTestPlanRequest();
         request.setWorkspaceId(workspaceId);

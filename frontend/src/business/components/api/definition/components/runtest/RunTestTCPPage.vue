@@ -34,8 +34,6 @@
                         :currentProject="currentProject" :loaded="loaded"
                         ref="caseList"/>
     </el-drawer>
-    >
-
     <!-- 环境 -->
     <api-environment-config ref="environmentConfig" @close="environmentConfigClose"/>
     <!-- 执行组件 -->

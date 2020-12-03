@@ -1,0 +1,465 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.metersphere.base.mapper.ApiScenarioMapper">
+  <resultMap id="BaseResultMap" type="io.metersphere.base.domain.ApiScenario">
+    <id column="id" jdbcType="VARCHAR" property="id" />
+    <result column="project_id" jdbcType="VARCHAR" property="projectId" />
+    <result column="tag_id" jdbcType="VARCHAR" property="tagId" />
+    <result column="user_id" jdbcType="VARCHAR" property="userId" />
+    <result column="api_scenario_module_id" jdbcType="VARCHAR" property="apiScenarioModuleId" />
+    <result column="module_path" jdbcType="VARCHAR" property="modulePath" />
+    <result column="name" jdbcType="VARCHAR" property="name" />
+    <result column="level" jdbcType="VARCHAR" property="level" />
+    <result column="status" jdbcType="VARCHAR" property="status" />
+    <result column="principal" jdbcType="VARCHAR" property="principal" />
+    <result column="step_total" jdbcType="INTEGER" property="stepTotal" />
+    <result column="follow_people" jdbcType="VARCHAR" property="followPeople" />
+    <result column="schedule" jdbcType="VARCHAR" property="schedule" />
+    <result column="description" jdbcType="VARCHAR" property="description" />
+    <result column="create_time" jdbcType="BIGINT" property="createTime" />
+    <result column="update_time" jdbcType="BIGINT" property="updateTime" />
+  </resultMap>
+  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.ApiScenario">
+    <result column="scenario_definition" jdbcType="LONGVARCHAR" property="scenarioDefinition" />
+  </resultMap>
+  <sql id="Example_Where_Clause">
+    <where>
+      <foreach collection="oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause">
+    <where>
+      <foreach collection="example.oredCriteria" item="criteria" separator="or">
+        <if test="criteria.valid">
+          <trim prefix="(" prefixOverrides="and" suffix=")">
+            <foreach collection="criteria.criteria" item="criterion">
+              <choose>
+                <when test="criterion.noValue">
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue">
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue">
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue">
+                  and ${criterion.condition}
+                  <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List">
+    id, project_id, tag_id, user_id, api_scenario_module_id, module_path, `name`, `level`, 
+    `status`, principal, step_total, follow_people, schedule, description, create_time, 
+    update_time
+  </sql>
+  <sql id="Blob_Column_List">
+    scenario_definition
+  </sql>
+  <select id="selectByExampleWithBLOBs" parameterType="io.metersphere.base.domain.ApiScenarioExample" resultMap="ResultMapWithBLOBs">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from api_scenario
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByExample" parameterType="io.metersphere.base.domain.ApiScenarioExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from api_scenario
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="ResultMapWithBLOBs">
+    select 
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from api_scenario
+    where id = #{id,jdbcType=VARCHAR}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
+    delete from api_scenario
+    where id = #{id,jdbcType=VARCHAR}
+  </delete>
+  <delete id="deleteByExample" parameterType="io.metersphere.base.domain.ApiScenarioExample">
+    delete from api_scenario
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="io.metersphere.base.domain.ApiScenario">
+    insert into api_scenario (id, project_id, tag_id, 
+      user_id, api_scenario_module_id, module_path, 
+      `name`, `level`, `status`, 
+      principal, step_total, follow_people, 
+      schedule, description, create_time, 
+      update_time, scenario_definition)
+    values (#{id,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, #{tagId,jdbcType=VARCHAR}, 
+      #{userId,jdbcType=VARCHAR}, #{apiScenarioModuleId,jdbcType=VARCHAR}, #{modulePath,jdbcType=VARCHAR}, 
+      #{name,jdbcType=VARCHAR}, #{level,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, 
+      #{principal,jdbcType=VARCHAR}, #{stepTotal,jdbcType=INTEGER}, #{followPeople,jdbcType=VARCHAR}, 
+      #{schedule,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, 
+      #{updateTime,jdbcType=BIGINT}, #{scenarioDefinition,jdbcType=LONGVARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="io.metersphere.base.domain.ApiScenario">
+    insert into api_scenario
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="projectId != null">
+        project_id,
+      </if>
+      <if test="tagId != null">
+        tag_id,
+      </if>
+      <if test="userId != null">
+        user_id,
+      </if>
+      <if test="apiScenarioModuleId != null">
+        api_scenario_module_id,
+      </if>
+      <if test="modulePath != null">
+        module_path,
+      </if>
+      <if test="name != null">
+        `name`,
+      </if>
+      <if test="level != null">
+        `level`,
+      </if>
+      <if test="status != null">
+        `status`,
+      </if>
+      <if test="principal != null">
+        principal,
+      </if>
+      <if test="stepTotal != null">
+        step_total,
+      </if>
+      <if test="followPeople != null">
+        follow_people,
+      </if>
+      <if test="schedule != null">
+        schedule,
+      </if>
+      <if test="description != null">
+        description,
+      </if>
+      <if test="createTime != null">
+        create_time,
+      </if>
+      <if test="updateTime != null">
+        update_time,
+      </if>
+      <if test="scenarioDefinition != null">
+        scenario_definition,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=VARCHAR},
+      </if>
+      <if test="projectId != null">
+        #{projectId,jdbcType=VARCHAR},
+      </if>
+      <if test="tagId != null">
+        #{tagId,jdbcType=VARCHAR},
+      </if>
+      <if test="userId != null">
+        #{userId,jdbcType=VARCHAR},
+      </if>
+      <if test="apiScenarioModuleId != null">
+        #{apiScenarioModuleId,jdbcType=VARCHAR},
+      </if>
+      <if test="modulePath != null">
+        #{modulePath,jdbcType=VARCHAR},
+      </if>
+      <if test="name != null">
+        #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="level != null">
+        #{level,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=VARCHAR},
+      </if>
+      <if test="principal != null">
+        #{principal,jdbcType=VARCHAR},
+      </if>
+      <if test="stepTotal != null">
+        #{stepTotal,jdbcType=INTEGER},
+      </if>
+      <if test="followPeople != null">
+        #{followPeople,jdbcType=VARCHAR},
+      </if>
+      <if test="schedule != null">
+        #{schedule,jdbcType=VARCHAR},
+      </if>
+      <if test="description != null">
+        #{description,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        #{createTime,jdbcType=BIGINT},
+      </if>
+      <if test="updateTime != null">
+        #{updateTime,jdbcType=BIGINT},
+      </if>
+      <if test="scenarioDefinition != null">
+        #{scenarioDefinition,jdbcType=LONGVARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="io.metersphere.base.domain.ApiScenarioExample" resultType="java.lang.Long">
+    select count(*) from api_scenario
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map">
+    update api_scenario
+    <set>
+      <if test="record.id != null">
+        id = #{record.id,jdbcType=VARCHAR},
+      </if>
+      <if test="record.projectId != null">
+        project_id = #{record.projectId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.tagId != null">
+        tag_id = #{record.tagId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.userId != null">
+        user_id = #{record.userId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.apiScenarioModuleId != null">
+        api_scenario_module_id = #{record.apiScenarioModuleId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.modulePath != null">
+        module_path = #{record.modulePath,jdbcType=VARCHAR},
+      </if>
+      <if test="record.name != null">
+        `name` = #{record.name,jdbcType=VARCHAR},
+      </if>
+      <if test="record.level != null">
+        `level` = #{record.level,jdbcType=VARCHAR},
+      </if>
+      <if test="record.status != null">
+        `status` = #{record.status,jdbcType=VARCHAR},
+      </if>
+      <if test="record.principal != null">
+        principal = #{record.principal,jdbcType=VARCHAR},
+      </if>
+      <if test="record.stepTotal != null">
+        step_total = #{record.stepTotal,jdbcType=INTEGER},
+      </if>
+      <if test="record.followPeople != null">
+        follow_people = #{record.followPeople,jdbcType=VARCHAR},
+      </if>
+      <if test="record.schedule != null">
+        schedule = #{record.schedule,jdbcType=VARCHAR},
+      </if>
+      <if test="record.description != null">
+        description = #{record.description,jdbcType=VARCHAR},
+      </if>
+      <if test="record.createTime != null">
+        create_time = #{record.createTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.updateTime != null">
+        update_time = #{record.updateTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.scenarioDefinition != null">
+        scenario_definition = #{record.scenarioDefinition,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExampleWithBLOBs" parameterType="map">
+    update api_scenario
+    set id = #{record.id,jdbcType=VARCHAR},
+      project_id = #{record.projectId,jdbcType=VARCHAR},
+      tag_id = #{record.tagId,jdbcType=VARCHAR},
+      user_id = #{record.userId,jdbcType=VARCHAR},
+      api_scenario_module_id = #{record.apiScenarioModuleId,jdbcType=VARCHAR},
+      module_path = #{record.modulePath,jdbcType=VARCHAR},
+      `name` = #{record.name,jdbcType=VARCHAR},
+      `level` = #{record.level,jdbcType=VARCHAR},
+      `status` = #{record.status,jdbcType=VARCHAR},
+      principal = #{record.principal,jdbcType=VARCHAR},
+      step_total = #{record.stepTotal,jdbcType=INTEGER},
+      follow_people = #{record.followPeople,jdbcType=VARCHAR},
+      schedule = #{record.schedule,jdbcType=VARCHAR},
+      description = #{record.description,jdbcType=VARCHAR},
+      create_time = #{record.createTime,jdbcType=BIGINT},
+      update_time = #{record.updateTime,jdbcType=BIGINT},
+      scenario_definition = #{record.scenarioDefinition,jdbcType=LONGVARCHAR}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update api_scenario
+    set id = #{record.id,jdbcType=VARCHAR},
+      project_id = #{record.projectId,jdbcType=VARCHAR},
+      tag_id = #{record.tagId,jdbcType=VARCHAR},
+      user_id = #{record.userId,jdbcType=VARCHAR},
+      api_scenario_module_id = #{record.apiScenarioModuleId,jdbcType=VARCHAR},
+      module_path = #{record.modulePath,jdbcType=VARCHAR},
+      `name` = #{record.name,jdbcType=VARCHAR},
+      `level` = #{record.level,jdbcType=VARCHAR},
+      `status` = #{record.status,jdbcType=VARCHAR},
+      principal = #{record.principal,jdbcType=VARCHAR},
+      step_total = #{record.stepTotal,jdbcType=INTEGER},
+      follow_people = #{record.followPeople,jdbcType=VARCHAR},
+      schedule = #{record.schedule,jdbcType=VARCHAR},
+      description = #{record.description,jdbcType=VARCHAR},
+      create_time = #{record.createTime,jdbcType=BIGINT},
+      update_time = #{record.updateTime,jdbcType=BIGINT}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.base.domain.ApiScenario">
+    update api_scenario
+    <set>
+      <if test="projectId != null">
+        project_id = #{projectId,jdbcType=VARCHAR},
+      </if>
+      <if test="tagId != null">
+        tag_id = #{tagId,jdbcType=VARCHAR},
+      </if>
+      <if test="userId != null">
+        user_id = #{userId,jdbcType=VARCHAR},
+      </if>
+      <if test="apiScenarioModuleId != null">
+        api_scenario_module_id = #{apiScenarioModuleId,jdbcType=VARCHAR},
+      </if>
+      <if test="modulePath != null">
+        module_path = #{modulePath,jdbcType=VARCHAR},
+      </if>
+      <if test="name != null">
+        `name` = #{name,jdbcType=VARCHAR},
+      </if>
+      <if test="level != null">
+        `level` = #{level,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        `status` = #{status,jdbcType=VARCHAR},
+      </if>
+      <if test="principal != null">
+        principal = #{principal,jdbcType=VARCHAR},
+      </if>
+      <if test="stepTotal != null">
+        step_total = #{stepTotal,jdbcType=INTEGER},
+      </if>
+      <if test="followPeople != null">
+        follow_people = #{followPeople,jdbcType=VARCHAR},
+      </if>
+      <if test="schedule != null">
+        schedule = #{schedule,jdbcType=VARCHAR},
+      </if>
+      <if test="description != null">
+        description = #{description,jdbcType=VARCHAR},
+      </if>
+      <if test="createTime != null">
+        create_time = #{createTime,jdbcType=BIGINT},
+      </if>
+      <if test="updateTime != null">
+        update_time = #{updateTime,jdbcType=BIGINT},
+      </if>
+      <if test="scenarioDefinition != null">
+        scenario_definition = #{scenarioDefinition,jdbcType=LONGVARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.metersphere.base.domain.ApiScenario">
+    update api_scenario
+    set project_id = #{projectId,jdbcType=VARCHAR},
+      tag_id = #{tagId,jdbcType=VARCHAR},
+      user_id = #{userId,jdbcType=VARCHAR},
+      api_scenario_module_id = #{apiScenarioModuleId,jdbcType=VARCHAR},
+      module_path = #{modulePath,jdbcType=VARCHAR},
+      `name` = #{name,jdbcType=VARCHAR},
+      `level` = #{level,jdbcType=VARCHAR},
+      `status` = #{status,jdbcType=VARCHAR},
+      principal = #{principal,jdbcType=VARCHAR},
+      step_total = #{stepTotal,jdbcType=INTEGER},
+      follow_people = #{followPeople,jdbcType=VARCHAR},
+      schedule = #{schedule,jdbcType=VARCHAR},
+      description = #{description,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=BIGINT},
+      update_time = #{updateTime,jdbcType=BIGINT},
+      scenario_definition = #{scenarioDefinition,jdbcType=LONGVARCHAR}
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="io.metersphere.base.domain.ApiScenario">
+    update api_scenario
+    set project_id = #{projectId,jdbcType=VARCHAR},
+      tag_id = #{tagId,jdbcType=VARCHAR},
+      user_id = #{userId,jdbcType=VARCHAR},
+      api_scenario_module_id = #{apiScenarioModuleId,jdbcType=VARCHAR},
+      module_path = #{modulePath,jdbcType=VARCHAR},
+      `name` = #{name,jdbcType=VARCHAR},
+      `level` = #{level,jdbcType=VARCHAR},
+      `status` = #{status,jdbcType=VARCHAR},
+      principal = #{principal,jdbcType=VARCHAR},
+      step_total = #{stepTotal,jdbcType=INTEGER},
+      follow_people = #{followPeople,jdbcType=VARCHAR},
+      schedule = #{schedule,jdbcType=VARCHAR},
+      description = #{description,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=BIGINT},
+      update_time = #{updateTime,jdbcType=BIGINT}
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+</mapper>

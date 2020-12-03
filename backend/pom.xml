@@ -176,7 +176,11 @@
             <artifactId>ApacheJMeter_tcp</artifactId>
             <version>${jmeter.version}</version>
         </dependency>
-
+        <dependency>
+            <groupId>org.apache.jmeter</groupId>
+            <artifactId>ApacheJMeter_java</artifactId>
+            <version>${jmeter.version}</version>
+        </dependency>
 
         <dependency>
             <groupId>com.microsoft.sqlserver</groupId>

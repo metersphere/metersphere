@@ -86,7 +86,7 @@
     <div id="svgResize"/>
     <div id="svgDown">
       <ms-bottom-container v-bind:enableAsideHidden="isHide">
-        <ms-api-case-list @apiCaseClose="apiCaseClose" @refresh="initApiTable" :api="selectApi" :current-project="currentProject"/>
+        <ms-api-case-list @apiCaseClose="apiCaseClose" @refresh="initApiTable" :visible="visible" :currentRow="currentRow" :api="selectApi" :current-project="currentProject"/>
       </ms-bottom-container>
     </div>
   </div>
@@ -142,7 +142,14 @@
     props: {
       currentProject: Object,
       currentProtocol: String,
-      currentModule: Object
+      currentModule: Object,
+      visible: {
+        type: Boolean,
+        default: false,
+      },
+      currentRow: {
+        type: Object,
+      }
     },
     created: function () {
       this.initApiTable();
@@ -190,6 +197,7 @@
         });
       },
       handleSelect(selection, row) {
+        row.hashTree = [];
         if (this.selectRows.has(row)) {
           this.$set(row, "showMore", false);
           this.selectRows.delete(row);
@@ -197,9 +205,10 @@
           this.$set(row, "showMore", true);
           this.selectRows.add(row);
         }
-
         let arr = Array.from(this.selectRows);
-
+        if (this.currentRow) {
+          this.currentRow.apis = arr;
+        }
         // 选中1个以上的用例时显示更多操作
         if (this.selectRows.size === 1) {
           this.$set(arr[0], "showMore", false);
@@ -212,9 +221,11 @@
       handleSelectAll(selection) {
         if (selection.length > 0) {
           if (selection.length === 1) {
+            selection.hashTree = [];
             this.selectRows.add(selection[0]);
           } else {
             this.tableData.forEach(item => {
+              item.hashTree = [];
               this.$set(item, "showMore", true);
               this.selectRows.add(item);
             });
@@ -224,6 +235,10 @@
           this.tableData.forEach(row => {
             this.$set(row, "showMore", false);
           })
+        }
+        if (this.currentRow) {
+          let arr = Array.from(this.selectRows);
+          this.currentRow.apis = arr;
         }
       },
       search() {

@@ -19,6 +19,8 @@ import lombok.EqualsAndHashCode;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.config.Arguments;
+import org.apache.jmeter.protocol.http.control.Header;
+import org.apache.jmeter.protocol.http.control.HeaderManager;
 import org.apache.jmeter.protocol.http.sampler.HTTPSamplerProxy;
 import org.apache.jmeter.protocol.http.util.HTTPArgument;
 import org.apache.jmeter.protocol.http.util.HTTPFileArg;
@@ -80,6 +82,8 @@ public class MsHTTPSamplerProxy extends MsTestElement {
     @JSONField(ordinal = 23)
     private String useEnvironment;
 
+    @JSONField(ordinal = 24)
+    private List<KeyValue> headers;
 
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree) {
         HTTPSamplerProxy sampler = new HTTPSamplerProxy();
@@ -174,7 +178,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         }
 
         final HashTree httpSamplerTree = tree.add(sampler);
-
+        setHeader(httpSamplerTree);
         //判断是否要开启DNS
         if (config != null && config.getCommonConfig() != null && config.getCommonConfig().isEnableHost()) {
             MsDNSCacheManager.addEnvironmentVariables(httpSamplerTree, this.getName(), config);
@@ -243,6 +247,19 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         });
         return list.toArray(new HTTPFileArg[0]);
     }
+
+    public void setHeader(HashTree tree) {
+        HeaderManager headerManager = new HeaderManager();
+        headerManager.setEnabled(true);
+        headerManager.setName(this.getName() + "Headers");
+        headerManager.setProperty(TestElement.TEST_CLASS, HeaderManager.class.getName());
+        headerManager.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("HeaderPanel"));
+        headers.stream().filter(KeyValue::isValid).filter(KeyValue::isEnable).forEach(keyValue ->
+                headerManager.add(new Header(keyValue.getName(), keyValue.getValue()))
+        );
+        tree.add(headerManager);
+    }
+
 
     private boolean isRest() {
         return this.getRest().stream().filter(KeyValue::isEnable).filter(KeyValue::isValid).toArray().length > 0;
