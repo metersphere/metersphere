@@ -73,6 +73,7 @@ public class TestCaseCommentService {
                 .subject(Translator.get("test_review_task_notice"))
                 .mailTemplate("ReviewComments")
                 .paramMap(paramMap)
+                .event(NoticeConstants.Event.COMMENT)
                 .build();
         noticeSendService.send(NoticeConstants.TaskType.REVIEW_TASK, noticeModel);
     }

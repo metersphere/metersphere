@@ -18,6 +18,10 @@ public class NoticeModel {
      */
     private String status;
     /**
+     * Event
+     */
+    private String event;
+    /**
      * 消息主题
      */
     private String subject;
