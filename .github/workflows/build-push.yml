@@ -1,7 +1,14 @@
 name: Build Docker Image and Push
 
 on:
-  workflow_dispatch:
+  push:
+    branches:
+      - main
+      - v1*
+  pull_request:
+    branches:
+      - main
+      - v1*
   
 jobs:
   build_push:
@@ -9,7 +16,8 @@ jobs:
     name: Build Docker Image and Push
     steps:
     - uses: actions/checkout@v2
-    - uses: nelonoel/branch-name@v1.0.1
+    - name: Inject slug/short variables
+      uses: rlespinasse/github-slug-action@v3.x
     - name: Cache node modules
       uses: actions/cache@v2
       env:
@@ -47,4 +55,4 @@ jobs:
         password: ${{ secrets.DOCKER_HUB_TOKEN }}
         repository: metersphere/metersphere
         tag_with_ref: true
-        tag_with_sha: true
+        build_args: MS_VERSION=${{ env.GITHUB_REF_SLUG }}-${{ env.GITHUB_SHA_SHORT }}
