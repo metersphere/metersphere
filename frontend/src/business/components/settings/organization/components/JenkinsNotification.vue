@@ -11,11 +11,11 @@
     <el-row>
       <el-col :span="24">
         <el-table
-          :data="form.jenkinsTask"
-          class="tb-edit"
-          border
-          :cell-style="rowClass"
-          :header-cell-style="headClass">
+            :data="jenkinsTask"
+            class="tb-edit"
+            border
+            :cell-style="rowClass"
+            :header-cell-style="headClass">
           <el-table-column :label="$t('schedule.event')" min-width="20%" prop="events">
             <template slot-scope="scope">
               <el-select v-model="scope.row.event"
@@ -23,10 +23,10 @@
                          size="mini"
                          prop="events" :disabled="!scope.row.isSet">
                 <el-option
-                  v-for="item in jenkinsEventOptions"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value">
+                    v-for="item in jenkinsEventOptions"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value">
                 </el-option>
               </el-select>
             </template>
@@ -36,10 +36,10 @@
               <el-select v-model="row.userIds" filterable multiple size="mini"
                          :placeholder="$t('commons.please_select')" style="width: 100%;" :disabled="!row.isSet">
                 <el-option
-                  v-for="item in jenkinsReceiverOptions"
-                  :key="item.id"
-                  :label="item.name"
-                  :value="item.id">
+                    v-for="item in jenkinsReceiverOptions"
+                    :key="item.id"
+                    :label="item.name"
+                    :value="item.id">
                 </el-option>
               </el-select>
             </template>
@@ -51,10 +51,10 @@
                          :disabled="!scope.row.isSet" @change="handleEdit(scope.$index, scope.row)"
               >
                 <el-option
-                  v-for="item in receiveTypeOptions"
-                  :key="item.value"
-                  :label="item.label"
-                  :value="item.value">
+                    v-for="item in receiveTypeOptions"
+                    :key="item.value"
+                    :label="item.label"
+                    :value="item.value">
                 </el-option>
               </el-select>
             </template>
@@ -69,31 +69,31 @@
           <el-table-column :label="$t('commons.operating')" min-width="20%" prop="result">
             <template v-slot:default="scope">
               <el-button
-                type="primary"
-                size="mini"
-                v-show="scope.row.isSet"
-                @click="handleAddTask(scope.$index,scope.row)"
+                  type="primary"
+                  size="mini"
+                  v-show="scope.row.isSet"
+                  @click="handleAddTask(scope.$index,scope.row)"
               >{{ $t('commons.add') }}
               </el-button>
               <el-button
-                size="mini"
-                v-show="scope.row.isSet"
-                @click.native.prevent="removeRowTask(scope.$index,form.jenkinsTask)"
+                  size="mini"
+                  v-show="scope.row.isSet"
+                  @click.native.prevent="removeRowTask(scope.$index,jenkinsTask)"
               >{{ $t('commons.cancel') }}
               </el-button>
               <el-button
-                type="primary"
-                size="mini"
-                v-show="!scope.row.isSet"
-                @click="handleEditTask(scope.$index,scope.row)"
+                  type="primary"
+                  size="mini"
+                  v-show="!scope.row.isSet"
+                  @click="handleEditTask(scope.$index,scope.row)"
               >{{ $t('commons.edit') }}
               </el-button>
               <el-button
-                type="danger"
-                icon="el-icon-delete"
-                size="mini"
-                v-show="!scope.row.isSet"
-                @click.native.prevent="deleteRowTask(scope.$index,scope.row)"
+                  type="danger"
+                  icon="el-icon-delete"
+                  size="mini"
+                  v-show="!scope.row.isSet"
+                  @click.native.prevent="deleteRowTask(scope.$index,scope.row)"
               ></el-button>
             </template>
           </el-table-column>
@@ -115,18 +115,16 @@ export default {
   },
   data() {
     return {
-      form: {
-        jenkinsTask: [{
-          taskType: "jenkinsTask",
-          event: "",
-          userIds: [],
-          type: [],
-          webhook: "",
-          isSet: true,
-          identification: "",
-          isReadOnly: false,
-        }],
-      },
+      jenkinsTask: [{
+        taskType: "jenkinsTask",
+        event: "",
+        userIds: [],
+        type: [],
+        webhook: "",
+        isSet: true,
+        identification: "",
+        isReadOnly: false,
+      }],
       jenkinsEventOptions: [
         {value: 'EXECUTE_SUCCESSFUL', label: this.$t('schedule.event_success')},
         {value: 'EXECUTE_FAILED', label: this.$t('schedule.event_failed')}
@@ -144,7 +142,7 @@ export default {
   methods: {
     initForm() {
       this.result = this.$get('/notice/search/message/type/' + TASK_TYPE, response => {
-        this.form.jenkinsTask = response.data;
+        this.jenkinsTask = response.data;
       })
     },
     handleEdit(index, data) {
@@ -163,7 +161,7 @@ export default {
       Task.isSet = true;
       Task.identification = '';
       Task.taskType = TASK_TYPE
-      this.form.jenkinsTask.push(Task)
+      this.jenkinsTask.push(Task)
     },
     handleAddTask(index, data) {
       if (data.event && data.userIds.length > 0 && data.type) {

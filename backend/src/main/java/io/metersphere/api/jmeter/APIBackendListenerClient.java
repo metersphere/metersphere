@@ -216,6 +216,7 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
         String successContext = "";
         String failedContext = "";
         String subject = "";
+        String event = "";
         if (StringUtils.equals(NoticeConstants.Mode.API, report.getTriggerMode())) {
             successContext = "接口测试 API任务通知:'" + report.getName() + "'执行成功" + "\n" + "请点击下面链接进入测试报告页面" + "\n" + url;
             failedContext = "接口测试 API任务通知:'" + report.getName() + "'执行失败" + "\n" + "请点击下面链接进入测试报告页面" + "\n" + url;
@@ -226,6 +227,12 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
             failedContext = "接口测试定时任务通知:'" + report.getName() + "'执行失败" + "\n" + "请点击下面链接进入测试报告页面" + "\n" + url;
             subject = Translator.get("task_notification");
         }
+        if (StringUtils.equals("Success", report.getStatus())) {
+            event = NoticeConstants.Event.EXECUTE_SUCCESSFUL;
+        }
+        if (StringUtils.equals("Error", report.getStatus())) {
+            event = NoticeConstants.Event.EXECUTE_FAILED;
+        }
 
         NoticeModel noticeModel = NoticeModel.builder()
                 .successContext(successContext)
@@ -234,6 +241,7 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
                 .failedMailTemplate("ApiFailedNotification")
                 .testId(testResult.getTestId())
                 .status(report.getStatus())
+                .event(event)
                 .subject(subject)
                 .build();
         noticeSendService.send(report.getTriggerMode(), noticeModel);

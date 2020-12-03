@@ -112,6 +112,7 @@ public class TestCaseReviewService {
                 .subject(Translator.get("test_review_task_notice"))
                 .mailTemplate("ReviewInitiate")
                 .paramMap(paramMap)
+                .event(NoticeConstants.Event.CREATE)
                 .build();
         noticeSendService.send(NoticeConstants.TaskType.REVIEW_TASK, noticeModel);
     }
@@ -216,6 +217,7 @@ public class TestCaseReviewService {
                 .subject(Translator.get("test_review_task_notice"))
                 .mailTemplate("ReviewEnd")
                 .paramMap(paramMap)
+                .event(NoticeConstants.Event.UPDATE)
                 .build();
         noticeSendService.send(NoticeConstants.TaskType.REVIEW_TASK, noticeModel);
     }
@@ -318,6 +320,7 @@ public class TestCaseReviewService {
                     .subject(Translator.get("test_review_task_notice"))
                     .mailTemplate("ReviewDelete")
                     .paramMap(paramMap)
+                    .event(NoticeConstants.Event.DELETE)
                     .build();
             noticeSendService.send(NoticeConstants.TaskType.REVIEW_TASK, noticeModel);
         } catch (Exception e) {
@@ -460,6 +463,7 @@ public class TestCaseReviewService {
                         .subject(Translator.get("test_review_task_notice"))
                         .mailTemplate("ReviewEnd")
                         .paramMap(paramMap)
+                        .event(NoticeConstants.Event.UPDATE)
                         .build();
                 noticeSendService.send(NoticeConstants.TaskType.REVIEW_TASK, noticeModel);
             } catch (Exception e) {

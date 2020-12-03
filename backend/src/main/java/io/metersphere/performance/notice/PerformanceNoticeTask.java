@@ -63,6 +63,7 @@ public class PerformanceNoticeTask {
         String successContext = "";
         String failedContext = "";
         String subject = "";
+        String event = "";
         if (StringUtils.equals(NoticeConstants.Mode.API, loadTestReport.getTriggerMode())) {
             successContext = "性能测试 API任务通知:" + loadTestReport.getName() + "执行成功" + "\n" + "请点击下面链接进入测试报告页面" + "\n" + url;
             failedContext = "性能测试 API任务通知:" + loadTestReport.getName() + "执行失败" + "\n" + "请点击下面链接进入测试报告页面" + "\n" + url;
@@ -74,6 +75,13 @@ public class PerformanceNoticeTask {
             subject = Translator.get("task_notification");
         }
 
+        if (PerformanceTestStatus.Completed.name().equals(loadTestReport.getStatus())) {
+            event = NoticeConstants.Event.EXECUTE_SUCCESSFUL;
+        }
+        if (PerformanceTestStatus.Error.name().equals(loadTestReport.getStatus())) {
+            event = NoticeConstants.Event.EXECUTE_FAILED;
+        }
+
         NoticeModel noticeModel = NoticeModel.builder()
                 .successContext(successContext)
                 .successMailTemplate("PerformanceApiSuccessNotification")
@@ -82,6 +90,7 @@ public class PerformanceNoticeTask {
                 .testId(loadTestReport.getTestId())
                 .status(loadTestReport.getStatus())
                 .subject(subject)
+                .event(event)
                 .build();
         noticeSendService.send(loadTestReport.getTriggerMode(), noticeModel);
     }

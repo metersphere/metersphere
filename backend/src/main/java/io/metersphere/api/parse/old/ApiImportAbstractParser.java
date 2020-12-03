@@ -1,4 +1,4 @@
-package io.metersphere.api.parse;
+package io.metersphere.api.parse.old;
 
 import io.metersphere.api.dto.ApiTestImportRequest;
 import io.metersphere.api.dto.scenario.KeyValue;
@@ -48,14 +48,11 @@ public abstract class ApiImportAbstractParser implements ApiImportParser {
     }
 
     protected void addContentType(HttpRequest request, String contentType) {
-//        addHeader(request, "Content-Type", contentType);
+        addHeader(request, "Content-Type", contentType);
     }
 
-    protected void addCookie(List<KeyValue> headers, String key, String value) {
-        addCookie(headers, key, value, "");
-    }
-
-    protected void addCookie(List<KeyValue> headers, String key, String value, String description) {
+    protected void addCookie(HttpRequest request, String key, String value) {
+        List<KeyValue> headers = Optional.ofNullable(request.getHeaders()).orElse(new ArrayList<>());
         boolean hasCookie = false;
         for (KeyValue header : headers) {
             if (StringUtils.equalsIgnoreCase("Cookie", header.getName())) {
@@ -65,15 +62,12 @@ public abstract class ApiImportAbstractParser implements ApiImportParser {
             }
         }
         if (!hasCookie) {
-            addHeader(headers, "Cookie", key + "=" + value + ";", description);
+            addHeader(request, "Cookie", key + "=" + value + ";");
         }
     }
 
-    protected void addHeader(List<KeyValue> headers, String key, String value) {
-        addHeader(headers, key, value, "");
-    }
-
-    protected void addHeader(List<KeyValue> headers, String key, String value, String description) {
+    protected void addHeader(HttpRequest request, String key, String value) {
+        List<KeyValue> headers = Optional.ofNullable(request.getHeaders()).orElse(new ArrayList<>());
         boolean hasContentType = false;
         for (KeyValue header : headers) {
             if (StringUtils.equalsIgnoreCase(header.getName(), key)) {
@@ -81,20 +75,8 @@ public abstract class ApiImportAbstractParser implements ApiImportParser {
             }
         }
         if (!hasContentType) {
-            headers.add(new KeyValue(key, value, description));
+            headers.add(new KeyValue(key, value));
         }
+        request.setHeaders(headers);
     }
-//    protected void addHeader(HttpRequest request, String key, String value) {
-//        List<KeyValue> headers = Optional.ofNullable(request.getHeaders()).orElse(new ArrayList<>());
-//        boolean hasContentType = false;
-//        for (KeyValue header : headers) {
-//            if (StringUtils.equalsIgnoreCase(header.getName(), key)) {
-//                hasContentType = true;
-//            }
-//        }
-//        if (!hasContentType) {
-//            headers.add(new KeyValue(key, value));
-//        }
-//        request.setHeaders(headers);
-//    }
 }
