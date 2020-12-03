@@ -23,8 +23,6 @@ import io.metersphere.controller.request.QueryScheduleRequest;
 import io.metersphere.dto.ScheduleDao;
 import io.metersphere.i18n.Translator;
 import io.metersphere.job.sechedule.ApiTestJob;
-import io.metersphere.notice.service.MailService;
-import io.metersphere.notice.service.NoticeService;
 import io.metersphere.service.FileService;
 import io.metersphere.service.QuotaService;
 import io.metersphere.service.ScheduleService;
@@ -64,11 +62,6 @@ public class APITestService {
     private ScheduleService scheduleService;
     @Resource
     private TestCaseService testCaseService;
-    @Resource
-    private MailService mailService;
-    @Resource
-    private NoticeService noticeService;
-
 
     private static final String BODY_FILE_DIR = "/opt/metersphere/data/body";
 
@@ -91,6 +84,7 @@ public class APITestService {
         ApiTest test = createTest(request, file);
         createBodyFiles(test, bodyUploadIds, bodyFiles);
     }
+
     private ApiTest createTest(SaveAPITestRequest request, MultipartFile file) {
         if (file == null) {
             throw new IllegalArgumentException(Translator.get("file_cannot_be_null"));

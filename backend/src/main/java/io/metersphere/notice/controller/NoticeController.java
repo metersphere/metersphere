@@ -1,8 +1,6 @@
 package io.metersphere.notice.controller;
 
-import io.metersphere.notice.controller.request.MessageRequest;
 import io.metersphere.notice.domain.MessageDetail;
-import io.metersphere.notice.domain.MessageSettingDetail;
 import io.metersphere.notice.service.NoticeService;
 import org.springframework.web.bind.annotation.*;
 
@@ -16,18 +14,18 @@ public class NoticeController {
     private NoticeService noticeService;
 
     @PostMapping("save/message/task")
-    public void saveMessage(@RequestBody MessageRequest messageRequest) {
-        noticeService.saveMessageTask(messageRequest);
+    public void saveMessage(@RequestBody MessageDetail messageDetail) {
+        noticeService.saveMessageTask(messageDetail);
     }
 
-    @GetMapping("/search/message")
-    public MessageSettingDetail searchMessage() {
-        return noticeService.searchMessage();
+    @GetMapping("/search/message/type/{type}")
+    public List<MessageDetail> searchMessage(@PathVariable String type) {
+        return noticeService.searchMessageByType(type);
     }
 
     @GetMapping("/search/message/{testId}")
     public List<MessageDetail> searchMessageSchedule(@PathVariable String testId) {
-        return noticeService.searchMessageSchedule(testId);
+        return noticeService.searchMessageByTestId(testId);
     }
 
     @GetMapping("/delete/message/{identification}")

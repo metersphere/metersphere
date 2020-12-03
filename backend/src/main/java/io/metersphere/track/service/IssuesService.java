@@ -8,15 +8,11 @@ import io.metersphere.base.mapper.IssuesMapper;
 import io.metersphere.commons.constants.IssuesManagePlatform;
 import io.metersphere.commons.constants.NoticeConstants;
 import io.metersphere.commons.user.SessionUser;
-import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.controller.request.IntegrationRequest;
-import io.metersphere.notice.domain.MessageDetail;
-import io.metersphere.notice.domain.MessageSettingDetail;
-import io.metersphere.notice.service.DingTaskService;
-import io.metersphere.notice.service.MailService;
-import io.metersphere.notice.service.NoticeService;
-import io.metersphere.notice.service.WxChatTaskService;
+import io.metersphere.i18n.Translator;
+import io.metersphere.notice.sender.NoticeModel;
+import io.metersphere.notice.service.NoticeSendService;
 import io.metersphere.service.IntegrationService;
 import io.metersphere.service.ProjectService;
 import io.metersphere.track.issue.*;
@@ -27,7 +23,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -42,13 +40,7 @@ public class IssuesService {
     @Resource
     private IssuesMapper issuesMapper;
     @Resource
-    MailService mailService;
-    @Resource
-    DingTaskService dingTaskService;
-    @Resource
-    WxChatTaskService wxChatTaskService;
-    @Resource
-    NoticeService noticeService;
+    private NoticeSendService noticeSendService;
 
     public void testAuth(String platform) {
         AbstractIssuePlatform abstractPlatform = IssueFactory.createPlatform(platform, new IssuesRequest());
@@ -98,27 +90,18 @@ public class IssuesService {
         });
         List<String> userIds = new ArrayList<>();
         userIds.add(orgId);
-        try {
-            String context = getIssuesContext(user, issuesRequest, NoticeConstants.CREATE);
-            MessageSettingDetail messageSettingDetail = noticeService.searchMessage();
-            List<MessageDetail> taskList = messageSettingDetail.getDefectTask();
-            taskList.forEach(r -> {
-                switch (r.getType()) {
-                    case NoticeConstants.NAIL_ROBOT:
-                        dingTaskService.sendNailRobot(r, userIds, context, NoticeConstants.CREATE);
-                        break;
-                    case NoticeConstants.WECHAT_ROBOT:
-                        wxChatTaskService.sendWechatRobot(r, userIds, context, NoticeConstants.CREATE);
-                        break;
-                    case NoticeConstants.EMAIL:
-                        mailService.sendIssuesNotice(r, userIds, issuesRequest, NoticeConstants.CREATE, user);
-                        break;
-                }
-            });
-        } catch (Exception e) {
-            LogUtil.error(e.getMessage(), e);
-        }
-
+        String context = getIssuesContext(user, issuesRequest, NoticeConstants.Event.CREATE);
+        Map<String, Object> paramMap = new HashMap<>();
+        paramMap.put("issuesName", issuesRequest.getTitle());
+        paramMap.put("creator", user.getName());
+        NoticeModel noticeModel = NoticeModel.builder()
+                .context(context)
+                .relatedUsers(userIds)
+                .subject(Translator.get("task_defect_notification"))
+                .mailTemplate("IssuesCreate")
+                .paramMap(paramMap)
+                .build();
+        noticeSendService.send(NoticeConstants.TaskType.DEFECT_TASK, noticeModel);
     }
 
     public List<Issues> getIssues(String caseId) {
@@ -222,7 +205,7 @@ public class IssuesService {
 
     private static String getIssuesContext(SessionUser user, IssuesRequest issuesRequest, String type) {
         String context = "";
-        if (StringUtils.equals(NoticeConstants.CREATE, type)) {
+        if (StringUtils.equals(NoticeConstants.Event.CREATE, type)) {
             context = "缺陷任务通知：" + user.getName() + "发起了一个缺陷" + "'" + issuesRequest.getTitle() + "'" + "请跟进";
         }
         return context;
