@@ -1,7 +1,7 @@
 <template>
   <div>
     <el-radio-group v-model="body.type" size="mini">
-      <el-radio :disabled="isReadOnly" :label="type.KV" @change="modeChange">
+      <el-radio :disabled="isReadOnly" :label="type.FORM_DATA" @change="modeChange">
         {{ $t('api_test.definition.request.body_form_data') }}
       </el-radio>
 
@@ -29,19 +29,19 @@
                      :parameters="body.kvs"
                      :isShowEnable="isShowEnable"
                      type="body"
-                     v-if="body.type == 'KeyValue'"/>
+                     v-if="body.type == 'Form Data'"/>
 
     <ms-api-from-url-variable :is-read-only="isReadOnly"
-                              :parameters="body.fromUrlencoded"
+                              :parameters="body.kvs"
                               type="body"
                               v-if="body.type == 'WWW_FORM'"/>
 
     <div class="ms-body" v-if="body.type == 'JSON'">
-      <ms-json-code-edit @json-change="jsonChange" @onError="jsonError" :value="body.json" ref="jsonCodeEdit"/>
+      <ms-json-code-edit @json-change="jsonChange" @onError="jsonError" :value="body.raw" ref="jsonCodeEdit"/>
     </div>
 
     <div class="ms-body" v-if="body.type == 'XML'">
-      <ms-code-edit :read-only="isReadOnly" :data.sync="body.xml" :modes="modes" ref="codeEdit"/>
+      <ms-code-edit :read-only="isReadOnly" :data.sync="body.raw" :modes="modes" ref="codeEdit"/>
     </div>
 
 
@@ -145,7 +145,7 @@
         }
       },
       jsonChange(json) {
-        this.body.json = json;
+        this.body.raw = JSON.stringify(json);
       },
       jsonError(e) {
         this.$error(e);

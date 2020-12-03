@@ -42,7 +42,7 @@
       return {
         editor: null,
         error: false,
-        json: this.value,
+        json: JSON.parse(this.value),
         internalChange: false,
         expandedModes: ["tree", "view", "form"],
       };
