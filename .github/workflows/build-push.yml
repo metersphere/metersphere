@@ -20,6 +20,7 @@ jobs:
     - uses: actions/checkout@v2
       with:
         submodules: true
+        token: ${{ secrets.ACCESS_TOKEN }}
 
     - name: Inject slug/short variables
       uses: rlespinasse/github-slug-action@v3.x
