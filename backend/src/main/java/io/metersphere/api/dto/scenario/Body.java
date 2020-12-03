@@ -17,8 +17,6 @@ public class Body {
     private String format;
     private List<KeyValue> kvs;
     private List<KeyValue> binary;
-    private Object json;
-    private String xml;
 
     public final static String KV = "KeyValue";
     public final static String FORM_DATA = "Form Data";
@@ -37,7 +35,8 @@ public class Body {
     }
 
     public boolean isKV() {
-        if (StringUtils.equals(type, FORM_DATA) || StringUtils.equals(type, WWW_FROM)) {
+        if (StringUtils.equals(type, FORM_DATA) || StringUtils.equals(type, WWW_FROM)
+                || StringUtils.equals(type, BINARY)) {
             return true;
         } else return false;
     }
