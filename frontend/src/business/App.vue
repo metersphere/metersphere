@@ -7,7 +7,7 @@
     </el-row>
     <el-row id="header-top" type="flex" justify="space-between" align="middle">
       <el-col :span="12">
-        <img :src="'/display/file/logo'" style="width: 156px;height: 37px;" alt="">
+        <img :src="'/display/file/logo'" class="logo" alt="">
         <ms-top-menus/>
       </el-col>
 
@@ -100,7 +100,6 @@ export default {
   height: 37px;
   background-repeat: no-repeat;
   background-position: 50% center;
-  background-image: url("../assets/logo-light-MeterSphere.svg");
 }
 
 .menus > * {
