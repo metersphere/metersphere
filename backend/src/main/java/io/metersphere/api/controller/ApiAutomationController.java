@@ -70,10 +70,9 @@ public class ApiAutomationController {
         return apiAutomationService.getApiScenarios(ids);
     }
 
-    @PostMapping(value = "/run/debug")
+    @PostMapping(value = "/run")
     public void runDebug(@RequestPart("request") RunDefinitionRequest request, @RequestPart(value = "files") List<MultipartFile> bodyFiles) {
         apiAutomationService.run(request, bodyFiles);
     }
-
 }
 

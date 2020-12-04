@@ -168,13 +168,9 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
                 apiDefinitionExecResultService.saveApiResult(testResult);
             }
         } else if (StringUtils.equals(this.runMode, ApiRunMode.SCENARIO.name())) {
-            // 调试操作，不需要存储结果
-            if (StringUtils.isBlank(debugReportId)) {
-                apiScenarioReportService.addResult(testResult);
-            } else {
-                apiScenarioReportService.addResult(testResult);
-                //apiScenarioReportService.saveApiResult(testResult);
-            }
+            // 执行报告不需要存储，由用户确认后在存储
+            testResult.setTestId(debugReportId);
+            apiScenarioReportService.complete(testResult);
         } else {
             apiTestService.changeStatus(testId, APITestStatus.Completed);
             report = apiReportService.getRunningReport(testResult.getTestId());

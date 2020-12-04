@@ -1,26 +1,28 @@
 package io.metersphere.api.service;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.google.gson.Gson;
+import io.metersphere.api.dto.APIReportResult;
 import io.metersphere.api.dto.automation.ApiScenarioDTO;
 import io.metersphere.api.dto.automation.ApiScenarioRequest;
 import io.metersphere.api.dto.automation.SaveApiScenarioRequest;
 import io.metersphere.api.dto.automation.ScenarioStatus;
 import io.metersphere.api.dto.definition.RunDefinitionRequest;
+import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
 import io.metersphere.api.jmeter.JMeterService;
-import io.metersphere.base.domain.ApiScenario;
-import io.metersphere.base.domain.ApiScenarioExample;
-import io.metersphere.base.domain.ApiTag;
-import io.metersphere.base.domain.ApiTagExample;
+import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ApiScenarioMapper;
 import io.metersphere.base.mapper.ApiTagMapper;
 import io.metersphere.base.mapper.ext.ExtApiScenarioMapper;
+import io.metersphere.commons.constants.APITestStatus;
 import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.i18n.Translator;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.jorphan.collections.HashTree;
 import org.aspectj.util.FileUtil;
 import org.springframework.stereotype.Service;
@@ -32,6 +34,7 @@ import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -45,6 +48,10 @@ public class ApiAutomationService {
     private ApiTagMapper apiTagMapper;
     @Resource
     private JMeterService jMeterService;
+    @Resource
+    private ApiTestEnvironmentService environmentService;
+    @Resource
+    private ApiScenarioReportService apiReportService;
 
     private static final String BODY_FILE_DIR = "/opt/metersphere/data/body";
 
@@ -92,7 +99,11 @@ public class ApiAutomationService {
         scenario.setScenarioDefinition(request.getScenarioDefinition());
         scenario.setCreateTime(System.currentTimeMillis());
         scenario.setUpdateTime(System.currentTimeMillis());
-        scenario.setStatus(ScenarioStatus.Saved.name());
+        if (StringUtils.isNotEmpty(request.getStatus())) {
+            scenario.setStatus(request.getStatus());
+        } else {
+            scenario.setStatus(ScenarioStatus.Underway.name());
+        }
         if (request.getUserId() == null) {
             scenario.setUserId(SessionUtils.getUserId());
         } else {
@@ -117,7 +128,11 @@ public class ApiAutomationService {
         scenario.setStepTotal(request.getStepTotal());
         scenario.setScenarioDefinition(request.getScenarioDefinition());
         scenario.setUpdateTime(System.currentTimeMillis());
-        scenario.setStatus(ScenarioStatus.Saved.name());
+        if (StringUtils.isNotEmpty(request.getStatus())) {
+            scenario.setStatus(request.getStatus());
+        } else {
+            scenario.setStatus(ScenarioStatus.Underway.name());
+        }
         scenario.setUserId(request.getUserId());
         scenario.setDescription(request.getDescription());
         apiScenarioMapper.updateByPrimaryKeySelective(scenario);
@@ -143,8 +158,7 @@ public class ApiAutomationService {
 
     private void checkNameExist(SaveApiScenarioRequest request) {
         ApiScenarioExample example = new ApiScenarioExample();
-        example.createCriteria().andNameEqualTo(request.getName()).andProjectIdEqualTo(request.getProjectId())
-                .andApiScenarioModuleIdEqualTo(request.getApiScenarioModuleId()).andIdNotEqualTo(request.getId());
+        example.createCriteria().andNameEqualTo(request.getName()).andProjectIdEqualTo(request.getProjectId()).andIdNotEqualTo(request.getId());
         if (apiScenarioMapper.countByExample(example) > 0) {
             MSException.throwException(Translator.get("automation_name_already_exists"));
         }
@@ -204,10 +218,26 @@ public class ApiAutomationService {
     public String run(RunDefinitionRequest request, List<MultipartFile> bodyFiles) {
         List<String> bodyUploadIds = new ArrayList<>(request.getBodyUploadIds());
         createBodyFiles(bodyUploadIds, bodyFiles);
-        HashTree hashTree = request.getTestElement().generateHashTree();
+        EnvironmentConfig config = null;
+        if (request.getEnvironmentId() != null) {
+            ApiTestEnvironmentWithBLOBs environment = environmentService.get(request.getEnvironmentId());
+            config = JSONObject.parseObject(environment.getConfig(), EnvironmentConfig.class);
+        }
+        HashTree hashTree = request.getTestElement().generateHashTree(config);
         request.getTestElement().getJmx(hashTree);
+
         // 调用执行方法
         jMeterService.runDefinition(request.getId(), hashTree, request.getReportId(), ApiRunMode.SCENARIO.name());
+        APIReportResult report = new APIReportResult();
+        report.setId(UUID.randomUUID().toString());
+        report.setTestId(request.getReportId());
+        report.setName("RUN");
+        report.setTriggerMode(null);
+        report.setCreateTime(System.currentTimeMillis());
+        report.setUpdateTime(System.currentTimeMillis());
+        report.setStatus(APITestStatus.Running.name());
+        report.setUserId(SessionUtils.getUserId());
+        apiReportService.addResult(report);
         return request.getId();
     }
 

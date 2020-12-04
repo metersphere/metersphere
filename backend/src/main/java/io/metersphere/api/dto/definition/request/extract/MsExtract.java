@@ -2,6 +2,7 @@ package io.metersphere.api.dto.definition.request.extract;
 
 import com.alibaba.fastjson.annotation.JSONType;
 import io.metersphere.api.dto.definition.request.MsTestElement;
+import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.collections.CollectionUtils;
@@ -23,7 +24,7 @@ public class MsExtract extends MsTestElement {
     private List<MsExtractXPath> xpath;
     private String type = "Extract";
 
-    public void toHashTree(HashTree tree, List<MsTestElement> hashTree) {
+    public void toHashTree(HashTree tree, List<MsTestElement> hashTree, EnvironmentConfig config) {
         addRequestExtractors(tree);
     }
 

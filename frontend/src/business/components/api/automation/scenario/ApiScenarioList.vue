@@ -64,6 +64,7 @@
   import MsTablePagination from "@/business/components/common/pagination/TablePagination";
   import ShowMoreBtn from "@/business/components/track/case/components/ShowMoreBtn";
   import MsTag from "../../../common/components/MsTag";
+  import {getUUID} from "@/common/js/utils";
 
   export default {
     name: "MsApiScenarioList",
@@ -101,7 +102,7 @@
     },
     methods: {
       search() {
-        this.condition.filters = ["Saved", "Success", "Fail"];
+        this.condition.filters = ["Prepare", "Underway", "Completed"];
         if (this.currentModule != null) {
           if (this.currentModule.id === "root") {
             this.condition.moduleIds = [];
@@ -158,10 +159,11 @@
 
       },
       copy(row) {
-
+        row.id = getUUID();
+        this.$emit('edit', row);
       },
       remove(row) {
-        if (this.currentModule !== undefined && this.currentModule.id === "gc") {
+        if (this.currentModule !== undefined && this.currentModule != null && this.currentModule.id === "gc") {
           this.$get('/api/automation/delete/' + row.id, () => {
             this.$success(this.$t('commons.delete_success'));
             this.search();

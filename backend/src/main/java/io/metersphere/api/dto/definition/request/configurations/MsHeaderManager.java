@@ -4,6 +4,7 @@ import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.annotation.JSONType;
 import io.metersphere.api.dto.definition.request.MsTestElement;
 import io.metersphere.api.dto.scenario.KeyValue;
+import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.collections.CollectionUtils;
@@ -24,7 +25,7 @@ public class MsHeaderManager extends MsTestElement {
     @JSONField(ordinal = 10)
     private List<KeyValue> headers;
 
-    public void toHashTree(HashTree tree, List<MsTestElement> hashTree) {
+    public void toHashTree(HashTree tree, List<MsTestElement> hashTree, EnvironmentConfig config) {
         HeaderManager headerManager = new HeaderManager();
         headerManager.setEnabled(true);
         headerManager.setName(this.getName() + "Headers");
@@ -36,7 +37,7 @@ public class MsHeaderManager extends MsTestElement {
         final HashTree headersTree = tree.add(headerManager);
         if (CollectionUtils.isNotEmpty(hashTree)) {
             hashTree.forEach(el -> {
-                el.toHashTree(headersTree, el.getHashTree());
+                el.toHashTree(headersTree, el.getHashTree(), config);
             });
         }
     }

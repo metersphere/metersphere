@@ -16,6 +16,7 @@ import io.metersphere.api.dto.definition.request.sampler.MsHTTPSamplerProxy;
 import io.metersphere.api.dto.definition.request.sampler.MsJDBCSampler;
 import io.metersphere.api.dto.definition.request.sampler.MsTCPSampler;
 import io.metersphere.api.dto.definition.request.timer.MsConstantTimer;
+import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
 import io.metersphere.commons.utils.LogUtil;
 import lombok.Data;
 import org.apache.jmeter.protocol.http.control.AuthManager;
@@ -61,9 +62,10 @@ public abstract class MsTestElement {
     @JSONField(ordinal = 4)
     private LinkedList<MsTestElement> hashTree;
 
-    public void toHashTree(HashTree tree, List<MsTestElement> hashTree) {
+    // 公共环境逐层传递，如果自身有环境 以自身引用环境为准否则以公共环境作为请求环境
+    public void toHashTree(HashTree tree, List<MsTestElement> hashTree, EnvironmentConfig config) {
         for (MsTestElement el : hashTree) {
-            el.toHashTree(tree, el.hashTree);
+            el.toHashTree(tree, el.hashTree, config);
         }
     }
 
@@ -85,9 +87,15 @@ public abstract class MsTestElement {
         return null;
     }
 
+    public HashTree generateHashTree(EnvironmentConfig config) {
+        HashTree jmeterTestPlanHashTree = new ListedHashTree();
+        this.toHashTree(jmeterTestPlanHashTree, this.hashTree, config);
+        return jmeterTestPlanHashTree;
+    }
+
     public HashTree generateHashTree() {
         HashTree jmeterTestPlanHashTree = new ListedHashTree();
-        this.toHashTree(jmeterTestPlanHashTree, this.hashTree);
+        this.toHashTree(jmeterTestPlanHashTree, this.hashTree, null);
         return jmeterTestPlanHashTree;
     }
 
