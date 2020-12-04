@@ -128,7 +128,7 @@ public class ApiModuleService {
                 criteria.andIdNotEqualTo(node.getId());
             }
             if (apiModuleMapper.selectByExample(example).size() > 0) {
-                MSException.throwException(Translator.get("test_case_module_already_exists"));
+                MSException.throwException(Translator.get("test_case_module_already_exists") + ": " + node.getName());
             }
         }
     }

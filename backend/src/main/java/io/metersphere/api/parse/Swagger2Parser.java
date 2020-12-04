@@ -11,6 +11,8 @@ import io.metersphere.api.dto.definition.response.HttpResponse;
 import io.metersphere.api.dto.parse.ApiImport;
 import io.metersphere.api.dto.scenario.Body;
 import io.metersphere.api.dto.scenario.KeyValue;
+import io.metersphere.api.dto.scenario.Scenario;
+import io.metersphere.api.dto.scenario.request.Request;
 import io.metersphere.api.dto.scenario.request.RequestType;
 import io.metersphere.commons.constants.SwaggerParameterType;
 import io.swagger.models.*;
@@ -36,7 +38,7 @@ public class Swagger2Parser extends ApiImportAbstractParser {
             swagger = new SwaggerParser().readWithInfo(getApiTestStr(source)).getSwagger();
         }
         ApiDefinitionImport definitionImport = new ApiDefinitionImport();
-        definitionImport.setData(parseRequests(swagger));
+        definitionImport.setResultMap(parseRequests(swagger));
         return definitionImport;
     }
 
@@ -45,12 +47,14 @@ public class Swagger2Parser extends ApiImportAbstractParser {
         return null;
     }
 
-    private List<ApiDefinitionResult> parseRequests(Swagger swagger) {
-        List<ApiDefinitionResult> results = new LinkedList<>();
+    private HashMap<String, List<ApiDefinitionResult>> parseRequests(Swagger swagger) {
+//        List<ApiDefinitionResult> results = new LinkedList<>();
         Map<String, Path> paths = swagger.getPaths();
         Set<String> pathNames = paths.keySet();
 
         this.definitions = swagger.getDefinitions();
+
+        HashMap<String, List<ApiDefinitionResult>> moduleMap = new HashMap<>();
 
         for (String pathName : pathNames) {
             Path path = paths.get(pathName);
@@ -64,33 +68,36 @@ public class Swagger2Parser extends ApiImportAbstractParser {
                 parseParameters(operation, request);
                 apiDefinition.setRequest(JSON.toJSONString(request));
                 apiDefinition.setId(request.getId());
-                results.add(apiDefinition);
-                parseResponse(operation.getResponses());
-
-//                List<String> tags = operation.getTags();
-//                if (tags != null) {
-//                    tags.forEach(tag -> {
-//                        Scenario scenario = Optional.ofNullable(scenarioMap.get(tag)).orElse(new Scenario());
-//                        List<Request> requests = Optional.ofNullable(scenario.getRequests()).orElse(new ArrayList<>());
-//                        requests.add(request);
-//                        scenario.setRequests(requests);
-//                        scenario.setName(tag);
-//                        scenarioMap.put(tag, scenario);
-//                    });
-//                } else {
-//                    Scenario scenario = Optional.ofNullable(scenarioMap.get("default")).orElse(new Scenario());
-//                    List<Request> requests = Optional.ofNullable(scenario.getRequests()).orElse(new ArrayList<>());
-//                    requests.add(request);
-//                    scenario.setRequests(requests);
-//                    scenarioMap.put("default", scenario);
-//                }
-
+//                results.add(apiDefinition);
+                apiDefinition.setResponse(JSON.toJSONString(parseResponse(operation.getResponses())));
+                buildResultMap(moduleMap, apiDefinition, operation);
             }
         }
 
         this.definitions = null;
+        return moduleMap;
+    }
 
-        return results;
+    private void buildResultMap(HashMap<String, List<ApiDefinitionResult>> moduleMap,
+                                ApiDefinitionResult apiDefinition, Operation operation) {
+        List<String> tags = operation.getTags();
+        if (tags != null) {
+            tags.forEach(tag -> {
+                List<ApiDefinitionResult> list = moduleMap.get(tag);
+                if (list == null) {
+                    list = new ArrayList<>();
+                    moduleMap.put(tag, list);
+                }
+                list.add(apiDefinition);
+            });
+        } else {
+            List<ApiDefinitionResult> list = moduleMap.get("default");
+            if (list == null) {
+                list = new ArrayList<>();
+                moduleMap.put("default", list);
+            }
+            list.add(apiDefinition);
+        }
     }
 
     private ApiDefinitionResult buildApiDefinition(Operation operation, String path, String method) {
@@ -207,7 +214,7 @@ public class Swagger2Parser extends ApiImportAbstractParser {
         addHeader(headers, headerParameter.getName(), "", getDefaultStringValue(headerParameter.getDescription()));
     }
 
-    private void parseResponse(Map<String, Response> responses) {
+    private HttpResponse parseResponse(Map<String, Response> responses) {
         HttpResponse msResponse = new HttpResponse();
         msResponse.setBody(new Body());
         msResponse.setHeaders(new ArrayList<>());
@@ -221,6 +228,7 @@ public class Swagger2Parser extends ApiImportAbstractParser {
                 parseResponseBodyParameters(response, msResponse.getBody());
             });
         }
+        return msResponse;
     }
 
     private void parseResponseHeader(Response response, List<KeyValue> msHeaders) {
