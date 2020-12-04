@@ -81,7 +81,7 @@ export default {
     if (!this.response.headers) {
       return;
     }
-    if (this.response.headers.indexOf("Content-Type: application/json") > 0) {
+    if (this.response.headers.indexOf("application/json") > 0) {
       this.mode = BODY_FORMAT.JSON;
     }
   },
