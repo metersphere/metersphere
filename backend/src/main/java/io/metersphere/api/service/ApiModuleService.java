@@ -105,6 +105,17 @@ public class ApiModuleService {
         return node.getId();
     }
 
+    public ApiModule getNewModule(String name, String projectId, int level) {
+        ApiModule node = new ApiModule();
+        node.setCreateTime(System.currentTimeMillis());
+        node.setUpdateTime(System.currentTimeMillis());
+        node.setId(UUID.randomUUID().toString());
+        node.setLevel(level);
+        node.setName(name);
+        node.setProjectId(projectId);
+        return node;
+    }
+
     private void validateNode(ApiModule node) {
         if (node.getLevel() > TestCaseConstants.MAX_NODE_DEPTH) {
             throw new RuntimeException(Translator.get("test_case_node_level_tip")
