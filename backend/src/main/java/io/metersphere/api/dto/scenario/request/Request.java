@@ -22,7 +22,6 @@ import lombok.Data;
 @JSONType(seeAlso = {HttpRequest.class, DubboRequest.class, SqlRequest.class, TCPRequest.class}, typeKey = "type")
 @Data
 public abstract class Request {
-    private String type;
     @JSONField(ordinal = 1)
     private String id;
     @JSONField(ordinal = 2)

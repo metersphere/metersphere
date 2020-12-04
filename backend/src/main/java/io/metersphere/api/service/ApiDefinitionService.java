@@ -61,6 +61,8 @@ public class ApiDefinitionService {
     private JMeterService jMeterService;
     @Resource
     private SqlSessionFactory sqlSessionFactory;
+    @Resource
+    private ApiModuleService apiModuleService;
 
     private static Cache cache = Cache.newHardMemoryCache(0, 3600 * 24);
 
@@ -333,6 +335,12 @@ public class ApiDefinitionService {
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
         ApiDefinitionMapper batchMapper = sqlSession.getMapper(ApiDefinitionMapper.class);
         List<ApiDefinitionResult> data = apiImport.getData();
+        HashMap<String, List<ApiDefinitionResult>> resultMap = apiImport.getResultMap();
+        resultMap.forEach((module, apiDefinition) -> {
+//            apiModuleService
+//            apiModuleService.addNode();
+
+        });
         for (int i = 0; i < data.size(); i++) {
             ApiDefinitionResult item = data.get(i);
             item.setProjectId(importRequest.getProjectId());
