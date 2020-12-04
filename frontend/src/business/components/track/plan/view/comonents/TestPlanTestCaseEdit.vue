@@ -484,12 +484,14 @@ export default {
         item.issues.hasIssues = false;
       }
       item.steptResults = [];
-      for (let i = 0; i < item.steps.length; i++) {
-        if (item.results[i]) {
-          item.steps[i].actualResult = item.results[i].actualResult;
-          item.steps[i].executeResult = item.results[i].executeResult;
+      if (item.steps) {
+        for (let i = 0; i < item.steps.length; i++) {
+          if (item.results[i]) {
+            item.steps[i].actualResult = item.results[i].actualResult;
+            item.steps[i].executeResult = item.results[i].executeResult;
+          }
+          item.steptResults.push(item.steps[i]);
         }
-        item.steptResults.push(item.steps[i]);
       }
       this.testCase = item;
       this.initTest();
