@@ -1,0 +1,64 @@
+name: Build Docker Image and Push
+
+on:
+  push:
+    branches:
+      - master
+      - v1*
+  pull_request:
+    branches:
+      - master
+      - v1*
+  
+  workflow_dispatch:
+  
+jobs:
+  build_push:
+    runs-on: ubuntu-latest
+    name: Build Docker Image and Push
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        submodules: true
+        token: ${{ secrets.ACCESS_TOKEN }}
+
+    - name: Inject slug/short variables
+      uses: rlespinasse/github-slug-action@v3.x
+    - name: Cache node modules
+      uses: actions/cache@v2
+      env:
+        cache-name: cache-node-modules
+      with:
+        path: ~/.npm
+        key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('**/package-lock.json') }}
+        restore-keys: |
+          ${{ runner.os }}-build-${{ env.cache-name }}-
+          ${{ runner.os }}-build-
+          ${{ runner.os }}-
+
+    - name: Cache local Maven repository
+      uses: actions/cache@v2
+      with:
+        path: ~/.m2/repository
+        key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+        restore-keys: |
+          ${{ runner.os }}-maven-
+
+    - name: Set up JDK 1.8
+      uses: actions/setup-java@v1
+      with:
+        java-version: 1.8
+        server-id: github # Value of the distributionManagement/repository/id field of the pom.xml
+        settings-path: ${{ github.workspace }} # location for the settings.xml file
+
+    - name: Build with Maven
+      run: mvn -B package --file pom.xml    
+
+    - name: Push to Docker Hub
+      uses: docker/build-push-action@v1
+      with:
+        username: metersphere
+        password: ${{ secrets.DOCKER_HUB_TOKEN }}
+        repository: metersphere/metersphere
+        tag_with_ref: true
+        build_args: MS_VERSION=${{ env.GITHUB_REF_SLUG }}-${{ env.GITHUB_SHA_SHORT }}

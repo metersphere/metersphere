@@ -372,7 +372,7 @@ public class TestCaseNodeService {
     public Map<String, String> createNodes(List<String> nodePaths, String projectId) {
         List<TestCaseNodeDTO> nodeTrees = getNodeTreeByProjectId(projectId);
         Map<String, String> pathMap = new HashMap<>();
-        for(String item : nodePaths){
+        for (String item : nodePaths) {
             if (item == null) {
                 throw new ExcelException(Translator.get("test_case_module_not_null"));
             }
@@ -590,6 +590,7 @@ public class TestCaseNodeService {
 
     /**
      * 测试用例同级模块排序
+     *
      * @param ids 被拖拽模块相邻的前一个模块 id，
      *            被拖拽的模块 id，
      *            被拖拽模块相邻的后一个模块 id
@@ -635,10 +636,11 @@ public class TestCaseNodeService {
 
     /**
      * 按照指定排序方式获取同级模块的列表
+     *
      * @param projectId 所属项目 id
-     * @param level node level
-     * @param parentId node parent id
-     * @param order pos 排序方式
+     * @param level     node level
+     * @param parentId  node parent id
+     * @param order     pos 排序方式
      * @return 按照指定排序方式排序的同级模块列表
      */
     private List<TestCaseNode> getPos(String projectId, int level, String parentId, String order) {
@@ -654,9 +656,10 @@ public class TestCaseNodeService {
 
     /**
      * 刷新同级模块的 pos 值
+     *
      * @param projectId project id
-     * @param level node level
-     * @param parentId node parent id
+     * @param level     node level
+     * @param parentId  node parent id
      */
     private void refreshPos(String projectId, int level, String parentId) {
         List<TestCaseNode> nodes = getPos(projectId, level, parentId, "pos asc");
@@ -675,14 +678,15 @@ public class TestCaseNodeService {
 
     /**
      * 获得同级模块下一个 pos 值
+     *
      * @param projectId project id
-     * @param level node level
-     * @param parentId node parent id
+     * @param level     node level
+     * @param parentId  node parent id
      * @return 同级模块下一个 pos 值
      */
     private double getNextLevelPos(String projectId, int level, String parentId) {
         List<TestCaseNode> list = getPos(projectId, level, parentId, "pos desc");
-        if (!CollectionUtils.isEmpty(list)) {
+        if (!CollectionUtils.isEmpty(list) && list.get(0) != null && list.get(0).getPos() != null) {
             return list.get(0).getPos() + 65536;
         } else {
             return 65536;
