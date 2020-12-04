@@ -226,8 +226,9 @@ export default {
       if (handler.rampUpTime < handler.step) {
         handler.step = handler.rampUpTime;
       }
+      let color = ['#60acfc', '#32d3eb', '#5bc49f', '#feb64d', '#ff7c7c', '#9287e7', '#ca8622', '#bda29a', '#6e7074', '#546570', '#c4ccd3'];
       handler.options = {
-        color: ['#60acfc', '#32d3eb', '#5bc49f', '#feb64d', '#ff7c7c', '#9287e7', '#ca8622', '#bda29a', '#6e7074', '#546570', '#c4ccd3'],
+        color: color,
         xAxis: {
           type: 'category',
           boundaryGap: false,
@@ -261,10 +262,10 @@ export default {
             normal: {
               color: new echarts.graphic.LinearGradient(0, 0, 0, 1, [{
                 offset: 0,
-                color: hexToRgba(handler.options.color[i], 0.3),
+                color: hexToRgba(color[i % color.length], 0.3),
               }, {
                 offset: 0.8,
-                color: hexToRgba(handler.options.color[i], 0),
+                color: hexToRgba(color[i % color.length], 0),
               }], false),
               shadowColor: 'rgba(0, 0, 0, 0.1)',
               shadowBlur: 10
@@ -272,7 +273,7 @@ export default {
           },
           itemStyle: {
             normal: {
-              color: hexToRgb(handler.options.color[i]),
+              color: hexToRgb(color[i % color.length]),
               borderColor: 'rgba(137,189,2,0.27)',
               borderWidth: 12
             }
