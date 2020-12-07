@@ -83,4 +83,10 @@ public class ProjectController {
     public void updateProject(@RequestBody Project Project) {
         projectService.updateProject(Project);
     }
+
+    @PostMapping("/search")
+    public List<ProjectDTO> searchProject(@RequestBody ProjectRequest projectRequest) {
+        projectRequest.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
+        return projectService.getProjectList(projectRequest);
+    }
 }
