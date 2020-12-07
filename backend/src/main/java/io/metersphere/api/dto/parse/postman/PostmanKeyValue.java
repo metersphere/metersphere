@@ -7,6 +7,8 @@ public class PostmanKeyValue {
     private String key;
     private String value;
     private String type;
+    private String description;
+    private String contentType;
 
     public PostmanKeyValue() {
     }

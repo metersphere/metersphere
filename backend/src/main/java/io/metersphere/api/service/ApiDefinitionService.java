@@ -323,7 +323,7 @@ public class ApiDefinitionService {
         ApiImportParser apiImportParser = ApiImportParserFactory.getApiImportParser(request.getPlatform());
         ApiDefinitionImport apiImport = null;
         try {
-            apiImport = Objects.requireNonNull(apiImportParser).parseApi(file == null ? null : file.getInputStream(), request);
+            apiImport = Objects.requireNonNull(apiImportParser).parse(file == null ? null : file.getInputStream(), request);
         } catch (Exception e) {
             LogUtil.error(e.getMessage(), e);
             MSException.throwException(Translator.get("parse_data_error"));
@@ -335,30 +335,16 @@ public class ApiDefinitionService {
     private void importApiTest(ApiTestImportRequest importRequest, ApiDefinitionImport apiImport) {
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
         ApiDefinitionMapper batchMapper = sqlSession.getMapper(ApiDefinitionMapper.class);
-        HashMap<String, List<ApiDefinitionResult>> resultMap = apiImport.getResultMap();
-        Integer batchNum = 1;
-        for (String key : resultMap.keySet()) {
-            List<ApiDefinitionResult> apiDefinitions = resultMap.get(key);
-            ApiModule newModule = apiModuleService.getNewModule(key, importRequest.getProjectId(), 1);
-            newModule.setProtocol(RequestType.HTTP);
-            if (!StringUtils.equals(key, "#default")) {
-                apiModuleService.addNode(newModule);
+        List<ApiDefinitionResult> data = apiImport.getData();
+        for (int i = 0; i < data.size(); i++) {
+            ApiDefinitionResult item = data.get(i);
+            if (item.getName().length() > 255) {
+                item.setName(item.getName().substring(0, 255));
             }
-
-            apiDefinitions.forEach(item -> {
-                item.setProjectId(importRequest.getProjectId());
-                if (!StringUtils.equals(key, "#default")) {
-                    item.setModuleId(newModule.getId());
-                }
-                item.setModulePath(importRequest.getModulePath());
-                item.setEnvironmentId(importRequest.getEnvironmentId());
-                item.setUserId(SessionUtils.getUserId());
-                createTest(item, batchMapper);
-            });
-            if (batchNum % 300 == 0) {
+            createTest(item, batchMapper);
+            if (i % 300 == 0) {
                 sqlSession.flushStatements();
             }
-            batchNum++;
         }
         sqlSession.flushStatements();
     }

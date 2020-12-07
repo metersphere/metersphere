@@ -98,6 +98,10 @@ public class ApiModuleService {
 
     public String addNode(ApiModule node) {
         validateNode(node);
+        return addNodeWithoutValidate(node);
+    }
+
+    public String addNodeWithoutValidate(ApiModule node) {
         node.setCreateTime(System.currentTimeMillis());
         node.setUpdateTime(System.currentTimeMillis());
         node.setId(UUID.randomUUID().toString());
@@ -126,22 +130,26 @@ public class ApiModuleService {
 
     private void checkApiModuleExist(ApiModule node) {
         if (node.getName() != null) {
-            ApiModuleExample example = new ApiModuleExample();
-            ApiModuleExample.Criteria criteria = example.createCriteria();
-            criteria.andNameEqualTo(node.getName())
-                    .andProjectIdEqualTo(node.getProjectId());
-            if (StringUtils.isNotBlank(node.getParentId())) {
-                criteria.andParentIdEqualTo(node.getParentId());
-            } else {
-                criteria.andParentIdIsNull();
-            }
-            if (StringUtils.isNotBlank(node.getId())) {
-                criteria.andIdNotEqualTo(node.getId());
-            }
-            if (apiModuleMapper.selectByExample(example).size() > 0) {
+            if (selectSameModule(node).size() > 0) {
                 MSException.throwException(Translator.get("test_case_module_already_exists") + ": " + node.getName());
             }
         }
+    }
+
+    public List<ApiModule> selectSameModule(ApiModule node) {
+        ApiModuleExample example = new ApiModuleExample();
+        ApiModuleExample.Criteria criteria = example.createCriteria();
+        criteria.andNameEqualTo(node.getName())
+                .andProjectIdEqualTo(node.getProjectId());
+        if (StringUtils.isNotBlank(node.getParentId())) {
+            criteria.andParentIdEqualTo(node.getParentId());
+        } else {
+            criteria.andParentIdIsNull();
+        }
+        if (StringUtils.isNotBlank(node.getId())) {
+            criteria.andIdNotEqualTo(node.getId());
+        }
+        return apiModuleMapper.selectByExample(example);
     }
 
     private List<ApiDefinitionResult> queryByModuleIds(List<String> nodeIds) {
