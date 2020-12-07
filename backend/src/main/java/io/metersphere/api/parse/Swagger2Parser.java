@@ -11,8 +11,6 @@ import io.metersphere.api.dto.definition.response.HttpResponse;
 import io.metersphere.api.dto.parse.ApiImport;
 import io.metersphere.api.dto.scenario.Body;
 import io.metersphere.api.dto.scenario.KeyValue;
-import io.metersphere.api.dto.scenario.Scenario;
-import io.metersphere.api.dto.scenario.request.Request;
 import io.metersphere.api.dto.scenario.request.RequestType;
 import io.metersphere.commons.constants.SwaggerParameterType;
 import io.swagger.models.*;
@@ -48,7 +46,6 @@ public class Swagger2Parser extends ApiImportAbstractParser {
     }
 
     private HashMap<String, List<ApiDefinitionResult>> parseRequests(Swagger swagger) {
-//        List<ApiDefinitionResult> results = new LinkedList<>();
         Map<String, Path> paths = swagger.getPaths();
         Set<String> pathNames = paths.keySet();
 
@@ -68,7 +65,6 @@ public class Swagger2Parser extends ApiImportAbstractParser {
                 parseParameters(operation, request);
                 apiDefinition.setRequest(JSON.toJSONString(request));
                 apiDefinition.setId(request.getId());
-//                results.add(apiDefinition);
                 apiDefinition.setResponse(JSON.toJSONString(parseResponse(operation.getResponses())));
                 buildResultMap(moduleMap, apiDefinition, operation);
             }
@@ -91,10 +87,10 @@ public class Swagger2Parser extends ApiImportAbstractParser {
                 list.add(apiDefinition);
             });
         } else {
-            List<ApiDefinitionResult> list = moduleMap.get("default");
+            List<ApiDefinitionResult> list = moduleMap.get("#default");
             if (list == null) {
                 list = new ArrayList<>();
-                moduleMap.put("default", list);
+                moduleMap.put("#default", list);
             }
             list.add(apiDefinition);
         }
@@ -162,9 +158,6 @@ public class Swagger2Parser extends ApiImportAbstractParser {
 //                    break;
             }
         }
-
-
-//        List<String> responseContentTypes = operation.getProduces();
     }
 
     private String getBodyType(Operation operation) {

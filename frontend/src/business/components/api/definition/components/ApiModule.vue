@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-loading="result.loading">
     <select-menu
       :data="projects"
       :current-data="currentProject"
@@ -116,6 +116,7 @@
     },
     data() {
       return {
+        result: {},
         options: OPTIONS,
         protocol: OPTIONS[0].value,
         httpVisible: false,
@@ -148,7 +149,7 @@
           if (this.expandedNode.length === 0) {
             this.expandedNode.push("root");
           }
-          this.$get("/api/module/list/" + this.currentProject.id + "/" + this.protocol, response => {
+          this.result = this.$get("/api/module/list/" + this.currentProject.id + "/" + this.protocol, response => {
             if (response.data != undefined && response.data != null) {
               this.data[1].children = response.data;
               let moduleOptions = [];
@@ -409,6 +410,7 @@
       },
       refresh(data) {
         this.$emit('refresh', data);
+        this.getApiModuleTree();
       },
       saveAsEdit(data) {
         this.$emit('saveAsEdit', data);

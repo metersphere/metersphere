@@ -25,6 +25,7 @@ import io.metersphere.commons.utils.ServiceUtils;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.i18n.Translator;
 import io.metersphere.service.FileService;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -334,24 +335,30 @@ public class ApiDefinitionService {
     private void importApiTest(ApiTestImportRequest importRequest, ApiDefinitionImport apiImport) {
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
         ApiDefinitionMapper batchMapper = sqlSession.getMapper(ApiDefinitionMapper.class);
-        List<ApiDefinitionResult> data = apiImport.getData();
         HashMap<String, List<ApiDefinitionResult>> resultMap = apiImport.getResultMap();
-        resultMap.forEach((module, apiDefinition) -> {
-//            apiModuleService
-//            apiModuleService.addNode();
+        Integer batchNum = 1;
+        for (String key : resultMap.keySet()) {
+            List<ApiDefinitionResult> apiDefinitions = resultMap.get(key);
+            ApiModule newModule = apiModuleService.getNewModule(key, importRequest.getProjectId(), 1);
+            newModule.setProtocol(RequestType.HTTP);
+            if (!StringUtils.equals(key, "#default")) {
+                apiModuleService.addNode(newModule);
+            }
 
-        });
-        for (int i = 0; i < data.size(); i++) {
-            ApiDefinitionResult item = data.get(i);
-            item.setProjectId(importRequest.getProjectId());
-            item.setModuleId(importRequest.getModuleId());
-            item.setModulePath(importRequest.getModulePath());
-            item.setEnvironmentId(importRequest.getEnvironmentId());
-            item.setUserId(null);
-            createTest(item, batchMapper);
-            if (i % 300 == 0) {
+            apiDefinitions.forEach(item -> {
+                item.setProjectId(importRequest.getProjectId());
+                if (!StringUtils.equals(key, "#default")) {
+                    item.setModuleId(newModule.getId());
+                }
+                item.setModulePath(importRequest.getModulePath());
+                item.setEnvironmentId(importRequest.getEnvironmentId());
+                item.setUserId(SessionUtils.getUserId());
+                createTest(item, batchMapper);
+            });
+            if (batchNum % 300 == 0) {
                 sqlSession.flushStatements();
             }
+            batchNum++;
         }
         sqlSession.flushStatements();
     }
