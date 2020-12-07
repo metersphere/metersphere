@@ -7,7 +7,7 @@ import lombok.Data;
 public class ApiScenarioReportDetail implements Serializable {
     private String reportId;
 
-    private String scenarioId;
+    private String projectId;
 
     private byte[] content;
 

@@ -4,6 +4,7 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.api.dto.automation.ApiScenarioDTO;
 import io.metersphere.api.dto.automation.ApiScenarioRequest;
+import io.metersphere.api.dto.automation.RunScenarioRequest;
 import io.metersphere.api.dto.automation.SaveApiScenarioRequest;
 import io.metersphere.api.dto.definition.RunDefinitionRequest;
 import io.metersphere.api.service.ApiAutomationService;
@@ -36,13 +37,13 @@ public class ApiAutomationController {
     }
 
     @PostMapping(value = "/create")
-    public void create(@RequestBody SaveApiScenarioRequest request) {
-        apiAutomationService.create(request);
+    public void create(@RequestPart("request") SaveApiScenarioRequest request, @RequestPart(value = "files") List<MultipartFile> bodyFiles) {
+        apiAutomationService.create(request, bodyFiles);
     }
 
     @PostMapping(value = "/update")
-    public void update(@RequestBody SaveApiScenarioRequest request) {
-        apiAutomationService.update(request);
+    public void update(@RequestPart("request") SaveApiScenarioRequest request, @RequestPart(value = "files") List<MultipartFile> bodyFiles) {
+        apiAutomationService.update(request, bodyFiles);
     }
 
     @GetMapping("/delete/{id}")
@@ -70,9 +71,15 @@ public class ApiAutomationController {
         return apiAutomationService.getApiScenarios(ids);
     }
 
-    @PostMapping(value = "/run")
+    @PostMapping(value = "/run/debug")
     public void runDebug(@RequestPart("request") RunDefinitionRequest request, @RequestPart(value = "files") List<MultipartFile> bodyFiles) {
         apiAutomationService.run(request, bodyFiles);
     }
+
+    @PostMapping(value = "/run")
+    public void run(@RequestBody RunScenarioRequest request) {
+        apiAutomationService.run(request);
+    }
+
 }
 

@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.metersphere.base.mapper.ext.ExtApiScenarioReportMapper">
+
+    <resultMap id="BaseResultMap" type="io.metersphere.api.dto.automation.APIScenarioReportResult"
+               extends="io.metersphere.base.mapper.ApiScenarioReportMapper.BaseResultMap">
+        <result column="test_name" property="testName"/>
+        <result column="project_name" property="projectName"/>
+        <result column="user_name" property="userName"/>
+    </resultMap>
+
+    <sql id="condition">
+        <choose>
+            <when test='${object}.operator == "like"'>
+                like CONCAT('%', #{${object}.value},'%')
+            </when>
+            <when test='${object}.operator == "not like"'>
+                not like CONCAT('%', #{${object}.value},'%')
+            </when>
+            <when test='${object}.operator == "in"'>
+                in
+                <foreach collection="${object}.value" item="v" separator="," open="(" close=")">
+                    #{v}
+                </foreach>
+            </when>
+            <when test='${object}.operator == "not in"'>
+                not in
+                <foreach collection="${object}.value" item="v" separator="," open="(" close=")">
+                    #{v}
+                </foreach>
+            </when>
+            <when test='${object}.operator == "between"'>
+                between #{${object}.value[0]} and #{${object}.value[1]}
+            </when>
+            <when test='${object}.operator == "gt"'>
+                &gt; #{${object}.value}
+            </when>
+            <when test='${object}.operator == "lt"'>
+                &lt; #{${object}.value}
+            </when>
+            <when test='${object}.operator == "ge"'>
+                &gt;= #{${object}.value}
+            </when>
+            <when test='${object}.operator == "le"'>
+                &lt;= #{${object}.value}
+            </when>
+            <when test='${object}.operator == "current user"'>
+                = '${@io.metersphere.commons.utils.SessionUtils@getUserId()}'
+            </when>
+            <otherwise>
+                = #{${object}.value}
+            </otherwise>
+        </choose>
+    </sql>
+
+    <sql id="combine">
+        <if test='${condition}.name != null and (${name} == null or ${name} == "")'>
+            and r.name
+            <include refid="condition">
+                <property name="object" value="${condition}.name"/>
+            </include>
+        </if>
+        <if test="${condition}.testName != null">
+            and t.name
+            <include refid="condition">
+                <property name="object" value="${condition}.testName"/>
+            </include>
+        </if>
+        <if test="${condition}.projectName != null">
+            and project.name
+            <include refid="condition">
+                <property name="object" value="${condition}.projectName"/>
+            </include>
+        </if>
+        <if test="${condition}.createTime != null">
+            and r.create_time
+            <include refid="condition">
+                <property name="object" value="${condition}.createTime"/>
+            </include>
+        </if>
+        <if test="${condition}.status != null">
+            and r.status
+            <include refid="condition">
+                <property name="object" value="${condition}.status"/>
+            </include>
+        </if>
+        <if test="${condition}.triggerMode != null">
+            and r.trigger_mode
+            <include refid="condition">
+                <property name="object" value="${condition}.triggerMode"/>
+            </include>
+        </if>
+        <if test="${condition}.creator != null">
+            and r.user_id
+            <include refid="condition">
+                <property name="object" value="${condition}.creator"/>
+            </include>
+        </if>
+    </sql>
+
+    <select id="list" resultMap="BaseResultMap">
+        SELECT r.name AS test_name,
+        r.name, r.description, r.id, r.project_id, r.create_time, r.update_time, r.status, r.trigger_mode,
+        project.name AS project_name, user.name AS user_name
+        FROM api_scenario_report r
+        LEFT JOIN project ON project.id = r.project_id
+        LEFT JOIN user ON user.id = r.user_id
+        <where>
+            <if test="request.combine != null">
+                <include refid="combine">
+                    <property name="condition" value="request.combine"/>
+                    <property name="name" value="request.name"/>
+                </include>
+            </if>
+
+            <if test="request.name != null">
+                and r.name like CONCAT('%', #{request.name},'%')
+            </if>
+            <if test="request.userId != null">
+                AND r.user_id = #{request.userId,jdbcType=VARCHAR}
+            </if>
+            <if test="request.projectId != null">
+                AND project.id = #{request.projectId}
+            </if>
+            <if test="request.workspaceId != null">
+                AND project.workspace_id = #{request.workspaceId,jdbcType=VARCHAR}
+            </if>
+            <if test="request.filters != null and request.filters.size() > 0">
+                <foreach collection="request.filters.entrySet()" index="key" item="values">
+                    <if test="values != null and values.size() > 0">
+                        <choose>
+                            <when test="key=='status'">
+                                and r.status in
+                                <foreach collection="values" item="value" separator="," open="(" close=")">
+                                    #{value}
+                                </foreach>
+                            </when>
+                            <otherwise>
+                                and r.trigger_mode in
+                                <foreach collection="values" item="value" separator="," open="(" close=")">
+                                    #{value}
+                                </foreach>
+                            </otherwise>
+                        </choose>
+                    </if>
+                </foreach>
+            </if>
+            AND r.status != 'Debug'
+        </where>
+        <if test="request.orders != null and request.orders.size() > 0">
+            order by
+            <foreach collection="request.orders" separator="," item="order">
+                r.${order.name} ${order.type}
+            </foreach>
+        </if>
+    </select>
+
+    <select id="get" resultType="io.metersphere.api.dto.APIReportResult">
+        SELECT r.*,r.id As testId, r.name AS test_name, project.name AS project_name, user.name AS user_name
+        FROM api_scenario_report r
+        LEFT JOIN project ON project.id = r.project_id
+        LEFT JOIN user ON user.id = r.user_id
+        <where>
+            r.id = #{reportId}
+        </where>
+        ORDER BY r.update_time DESC
+    </select>
+
+</mapper>

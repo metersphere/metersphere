@@ -2,23 +2,39 @@ package io.metersphere.api.service;
 
 import com.alibaba.fastjson.JSONObject;
 import io.metersphere.api.dto.APIReportResult;
+import io.metersphere.api.dto.DeleteAPIReportRequest;
+import io.metersphere.api.dto.QueryAPIReportRequest;
+import io.metersphere.api.dto.automation.APIScenarioReportResult;
 import io.metersphere.api.jmeter.TestResult;
-import io.metersphere.base.domain.ApiTestReportDetail;
+import io.metersphere.base.domain.*;
+import io.metersphere.base.mapper.ApiScenarioReportDetailMapper;
+import io.metersphere.base.mapper.ApiScenarioReportMapper;
+import io.metersphere.base.mapper.ext.ExtApiScenarioReportMapper;
 import io.metersphere.commons.constants.APITestStatus;
 import io.metersphere.commons.exception.MSException;
+import io.metersphere.commons.utils.ServiceUtils;
 import io.metersphere.i18n.Translator;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import sun.security.util.Cache;
 
+import javax.annotation.Resource;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
+import java.util.UUID;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
 public class ApiScenarioReportService {
 
     private static Cache cache = Cache.newHardMemoryCache(0, 3600 * 24);
+    @Resource
+    private ExtApiScenarioReportMapper extApiScenarioReportMapper;
+    @Resource
+    private ApiScenarioReportMapper apiScenarioReportMapper;
+    @Resource
+    private ApiScenarioReportDetailMapper apiScenarioReportDetailMapper;
 
     public void complete(TestResult result) {
         Object obj = cache.get(result.getTestId());
@@ -64,4 +80,103 @@ public class ApiScenarioReportService {
         }
         return null;
     }
+
+    public APIReportResult get(String reportId) {
+        APIReportResult reportResult = extApiScenarioReportMapper.get(reportId);
+        ApiScenarioReportDetail detail = apiScenarioReportDetailMapper.selectByPrimaryKey(reportId);
+        if (detail != null) {
+            reportResult.setContent(new String(detail.getContent(), StandardCharsets.UTF_8));
+        }
+        return reportResult;
+    }
+
+    public List<APIScenarioReportResult> list(QueryAPIReportRequest request) {
+        request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
+        return extApiScenarioReportMapper.list(request);
+    }
+
+    private void checkNameExist(APIScenarioReportResult request) {
+        ApiScenarioReportExample example = new ApiScenarioReportExample();
+        example.createCriteria().andNameEqualTo(request.getName()).andProjectIdEqualTo(request.getProjectId()).andIdNotEqualTo(request.getId());
+        if (apiScenarioReportMapper.countByExample(example) > 0) {
+            MSException.throwException(Translator.get("load_test_already_exists"));
+        }
+    }
+
+    public ApiScenarioReport createReport(APIScenarioReportResult test) {
+        checkNameExist(test);
+        ApiScenarioReport report = new ApiScenarioReport();
+        report.setId(UUID.randomUUID().toString());
+        report.setProjectId(test.getProjectId());
+        report.setName(test.getName());
+        report.setTriggerMode(test.getTriggerMode());
+        report.setDescription(test.getDescription());
+        report.setCreateTime(System.currentTimeMillis());
+        report.setUpdateTime(System.currentTimeMillis());
+        report.setStatus(test.getStatus());
+        report.setUserId(test.getUserId());
+        apiScenarioReportMapper.insert(report);
+        return report;
+    }
+
+    public ApiScenarioReport updateReport(APIScenarioReportResult test) {
+        checkNameExist(test);
+        ApiScenarioReport report = new ApiScenarioReport();
+        report.setId(test.getId());
+        report.setProjectId(test.getProjectId());
+        report.setName(test.getName());
+        report.setTriggerMode(test.getTriggerMode());
+        report.setDescription(test.getDescription());
+        report.setCreateTime(System.currentTimeMillis());
+        report.setUpdateTime(System.currentTimeMillis());
+        report.setStatus(test.getStatus());
+        report.setUserId(test.getUserId());
+        apiScenarioReportMapper.updateByPrimaryKey(report);
+        return report;
+    }
+
+
+    public String add(APIScenarioReportResult test) {
+        ApiScenarioReport report = createReport(test);
+        ApiScenarioReportDetail detail = new ApiScenarioReportDetail();
+        detail.setContent(test.getContent().getBytes(StandardCharsets.UTF_8));
+        detail.setReportId(report.getId());
+        detail.setProjectId(test.getProjectId());
+        apiScenarioReportDetailMapper.insert(detail);
+        return report.getId();
+    }
+
+    public String update(APIScenarioReportResult test) {
+        ApiScenarioReport report = updateReport(test);
+        ApiScenarioReportDetail detail = apiScenarioReportDetailMapper.selectByPrimaryKey(test.getId());
+        if (detail == null) {
+            detail = new ApiScenarioReportDetail();
+            detail.setContent(test.getContent().getBytes(StandardCharsets.UTF_8));
+            detail.setReportId(report.getId());
+            detail.setProjectId(test.getProjectId());
+            apiScenarioReportDetailMapper.insert(detail);
+        } else {
+            detail.setContent(test.getContent().getBytes(StandardCharsets.UTF_8));
+            detail.setReportId(report.getId());
+            detail.setProjectId(test.getProjectId());
+            apiScenarioReportDetailMapper.updateByPrimaryKey(detail);
+        }
+        return report.getId();
+    }
+
+    public void delete(DeleteAPIReportRequest request) {
+        apiScenarioReportDetailMapper.deleteByPrimaryKey(request.getId());
+        apiScenarioReportMapper.deleteByPrimaryKey(request.getId());
+    }
+
+    public void deleteAPIReportBatch(DeleteAPIReportRequest reportRequest) {
+        ApiScenarioReportDetailExample detailExample = new ApiScenarioReportDetailExample();
+        detailExample.createCriteria().andReportIdIn(reportRequest.getIds());
+        apiScenarioReportDetailMapper.deleteByExample(detailExample);
+
+        ApiScenarioReportExample apiTestReportExample = new ApiScenarioReportExample();
+        apiTestReportExample.createCriteria().andIdIn(reportRequest.getIds());
+        apiScenarioReportMapper.deleteByExample(apiTestReportExample);
+    }
+
 }

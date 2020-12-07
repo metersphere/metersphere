@@ -3,6 +3,8 @@ package io.metersphere.api.dto.automation;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
+
 @Setter
 @Getter
 public class SaveApiScenarioRequest {
@@ -35,4 +37,6 @@ public class SaveApiScenarioRequest {
     private String description;
 
     private String scenarioDefinition;
+
+    List<String> bodyUploadIds;
 }

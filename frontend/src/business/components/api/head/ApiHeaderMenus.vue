@@ -15,6 +15,10 @@
             {{ $t("i18n.automation") }}
           </el-menu-item>
 
+          <el-menu-item :index="'/api/automation/report'">
+            {{ $t("i18n.report") }}
+          </el-menu-item>
+
           <el-submenu :class="{'deactivation':!isProjectActivation}" v-permission="['test_manager','test_user','test_viewer']" index="3">
             <template v-slot:title>{{ $t('commons.project') }}</template>
             <ms-recent-list ref="projectRecent" :options="projectRecent"/>

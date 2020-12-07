@@ -12,12 +12,7 @@ export const TYPE = "TestPlan";
 export default class TestPlan extends HashTreeElement {
   constructor(options = DEFAULT_OPTIONS) {
     super(options);
-    this.$type = TYPE;
     this.type = TYPE;
-    this.functionalMode = this.initBoolProp('TestPlan.functional_mode', false);
-    this.serializeThreadGroups = this.initBoolProp('TestPlan.serialize_threadgroups', false);
-    this.tearDownOnShutdown = this.initBoolProp('TestPlan.tearDown_on_shutdown', true);
-    this.userDefineClasspath = this.initStringProp('TestPlan.user_define_classpath');
     this.hashTree = [];
     this.userDefinedVariables = [];
 

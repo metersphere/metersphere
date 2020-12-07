@@ -48,6 +48,11 @@ export default {
       path: "automation",
       name: "ApiAutomation",
       component: () => import('@/business/components/api/automation/ApiAutomation'),
+    },
+    {
+      path: "automation/report",
+      name: "ApiReportList",
+      component: () => import('@/business/components/api/automation/report/ApiReportList'),
     }
   ]
 }

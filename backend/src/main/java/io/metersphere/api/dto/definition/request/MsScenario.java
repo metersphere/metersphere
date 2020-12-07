@@ -4,6 +4,9 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.annotation.JSONType;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
 import io.metersphere.api.service.ApiAutomationService;
 import io.metersphere.api.service.ApiTestEnvironmentService;
@@ -15,6 +18,7 @@ import lombok.EqualsAndHashCode;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.jorphan.collections.HashTree;
 
+import java.util.LinkedList;
 import java.util.List;
 
 @Data
@@ -41,14 +45,21 @@ public class MsScenario extends MsTestElement {
         if (this.getReferenced() != null && this.getReferenced().equals("Deleted")) {
             return;
         } else if (this.getReferenced() != null && this.getReferenced().equals("REF")) {
-            ApiAutomationService apiAutomationService = CommonBeanFactory.getBean(ApiAutomationService.class);
-            ApiScenario scenario = apiAutomationService.getApiScenario(this.getId());
-            JSONObject element = JSON.parseObject(scenario.getScenarioDefinition());
-            List<MsTestElement> dataArr = JSON.parseArray(element.getString("hashTree"), MsTestElement.class);
-            if (hashTree == null) {
-                hashTree = dataArr;
-            } else {
-                hashTree.addAll(dataArr);
+            try {
+                ApiAutomationService apiAutomationService = CommonBeanFactory.getBean(ApiAutomationService.class);
+                ObjectMapper mapper = new ObjectMapper();
+                mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+                ApiScenario scenario = apiAutomationService.getApiScenario(this.getId());
+                JSONObject element = JSON.parseObject(scenario.getScenarioDefinition());
+                LinkedList<MsTestElement> elements = mapper.readValue(element.getString("hashTree"), new TypeReference<LinkedList<MsTestElement>>() {
+                });
+                if (hashTree == null) {
+                    hashTree = elements;
+                } else {
+                    hashTree.addAll(elements);
+                }
+            } catch (Exception ex) {
+                ex.printStackTrace();
             }
         }
         if (CollectionUtils.isNotEmpty(hashTree)) {

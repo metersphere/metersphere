@@ -1,10 +1,24 @@
 <template>
   <div class="scenario-result">
-    <div v-for="(request, index) in scenario.requestResults" :key="index">
-      <ms-request-result :key="index" :request="request" :indexNumber="index"
-                          v-on:requestResult="requestResult"
-                          :scenarioName="scenario.name"/>
+
+    <div @click="active">
+      <el-row :gutter="10" type="flex" align="middle" class="info">
+        <el-col :span="16">
+          <i class="icon el-icon-arrow-right" :class="{'is-active': isActive}"/>
+          {{scenario.name}}
+        </el-col>
+      </el-row>
     </div>
+    <el-collapse-transition>
+      <div v-show="isActive">
+        <div v-for="(request, index) in scenario.requestResults" :key="index">
+          <ms-request-result :key="index" :request="request" :indexNumber="index"
+                             v-on:requestResult="requestResult"
+                             :scenarioName="scenario.name"/>
+        </div>
+
+      </div>
+    </el-collapse-transition>
   </div>
 </template>
 
