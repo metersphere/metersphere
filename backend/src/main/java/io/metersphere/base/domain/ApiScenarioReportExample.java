@@ -174,73 +174,73 @@ public class ApiScenarioReportExample {
             return (Criteria) this;
         }
 
-        public Criteria andScenarioIdIsNull() {
-            addCriterion("scenario_id is null");
+        public Criteria andProjectIdIsNull() {
+            addCriterion("project_id is null");
             return (Criteria) this;
         }
 
-        public Criteria andScenarioIdIsNotNull() {
-            addCriterion("scenario_id is not null");
+        public Criteria andProjectIdIsNotNull() {
+            addCriterion("project_id is not null");
             return (Criteria) this;
         }
 
-        public Criteria andScenarioIdEqualTo(String value) {
-            addCriterion("scenario_id =", value, "scenarioId");
+        public Criteria andProjectIdEqualTo(String value) {
+            addCriterion("project_id =", value, "projectId");
             return (Criteria) this;
         }
 
-        public Criteria andScenarioIdNotEqualTo(String value) {
-            addCriterion("scenario_id <>", value, "scenarioId");
+        public Criteria andProjectIdNotEqualTo(String value) {
+            addCriterion("project_id <>", value, "projectId");
             return (Criteria) this;
         }
 
-        public Criteria andScenarioIdGreaterThan(String value) {
-            addCriterion("scenario_id >", value, "scenarioId");
+        public Criteria andProjectIdGreaterThan(String value) {
+            addCriterion("project_id >", value, "projectId");
             return (Criteria) this;
         }
 
-        public Criteria andScenarioIdGreaterThanOrEqualTo(String value) {
-            addCriterion("scenario_id >=", value, "scenarioId");
+        public Criteria andProjectIdGreaterThanOrEqualTo(String value) {
+            addCriterion("project_id >=", value, "projectId");
             return (Criteria) this;
         }
 
-        public Criteria andScenarioIdLessThan(String value) {
-            addCriterion("scenario_id <", value, "scenarioId");
+        public Criteria andProjectIdLessThan(String value) {
+            addCriterion("project_id <", value, "projectId");
             return (Criteria) this;
         }
 
-        public Criteria andScenarioIdLessThanOrEqualTo(String value) {
-            addCriterion("scenario_id <=", value, "scenarioId");
+        public Criteria andProjectIdLessThanOrEqualTo(String value) {
+            addCriterion("project_id <=", value, "projectId");
             return (Criteria) this;
         }
 
-        public Criteria andScenarioIdLike(String value) {
-            addCriterion("scenario_id like", value, "scenarioId");
+        public Criteria andProjectIdLike(String value) {
+            addCriterion("project_id like", value, "projectId");
             return (Criteria) this;
         }
 
-        public Criteria andScenarioIdNotLike(String value) {
-            addCriterion("scenario_id not like", value, "scenarioId");
+        public Criteria andProjectIdNotLike(String value) {
+            addCriterion("project_id not like", value, "projectId");
             return (Criteria) this;
         }
 
-        public Criteria andScenarioIdIn(List<String> values) {
-            addCriterion("scenario_id in", values, "scenarioId");
+        public Criteria andProjectIdIn(List<String> values) {
+            addCriterion("project_id in", values, "projectId");
             return (Criteria) this;
         }
 
-        public Criteria andScenarioIdNotIn(List<String> values) {
-            addCriterion("scenario_id not in", values, "scenarioId");
+        public Criteria andProjectIdNotIn(List<String> values) {
+            addCriterion("project_id not in", values, "projectId");
             return (Criteria) this;
         }
 
-        public Criteria andScenarioIdBetween(String value1, String value2) {
-            addCriterion("scenario_id between", value1, value2, "scenarioId");
+        public Criteria andProjectIdBetween(String value1, String value2) {
+            addCriterion("project_id between", value1, value2, "projectId");
             return (Criteria) this;
         }
 
-        public Criteria andScenarioIdNotBetween(String value1, String value2) {
-            addCriterion("scenario_id not between", value1, value2, "scenarioId");
+        public Criteria andProjectIdNotBetween(String value1, String value2) {
+            addCriterion("project_id not between", value1, value2, "projectId");
             return (Criteria) this;
         }
 

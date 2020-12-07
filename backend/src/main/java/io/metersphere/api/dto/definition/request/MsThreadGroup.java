@@ -50,4 +50,5 @@ public class MsThreadGroup extends MsTestElement {
         threadGroup.setSamplerController(loopController);
         return threadGroup;
     }
+
 }

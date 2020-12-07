@@ -3,7 +3,7 @@
 <mapper namespace="io.metersphere.base.mapper.ApiScenarioReportDetailMapper">
   <resultMap id="BaseResultMap" type="io.metersphere.base.domain.ApiScenarioReportDetail">
     <id column="report_id" jdbcType="VARCHAR" property="reportId" />
-    <result column="scenario_id" jdbcType="VARCHAR" property="scenarioId" />
+    <result column="project_id" jdbcType="VARCHAR" property="projectId" />
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.ApiScenarioReportDetail">
     <result column="content" jdbcType="LONGVARBINARY" property="content" />
@@ -67,7 +67,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    report_id, scenario_id
+    report_id, project_id
   </sql>
   <sql id="Blob_Column_List">
     content
@@ -121,9 +121,9 @@
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.base.domain.ApiScenarioReportDetail">
-    insert into api_scenario_report_detail (report_id, scenario_id, content
+    insert into api_scenario_report_detail (report_id, project_id, content
       )
-    values (#{reportId,jdbcType=VARCHAR}, #{scenarioId,jdbcType=VARCHAR}, #{content,jdbcType=LONGVARBINARY}
+    values (#{reportId,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, #{content,jdbcType=LONGVARBINARY}
       )
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.ApiScenarioReportDetail">
@@ -132,8 +132,8 @@
       <if test="reportId != null">
         report_id,
       </if>
-      <if test="scenarioId != null">
-        scenario_id,
+      <if test="projectId != null">
+        project_id,
       </if>
       <if test="content != null">
         content,
@@ -143,8 +143,8 @@
       <if test="reportId != null">
         #{reportId,jdbcType=VARCHAR},
       </if>
-      <if test="scenarioId != null">
-        #{scenarioId,jdbcType=VARCHAR},
+      <if test="projectId != null">
+        #{projectId,jdbcType=VARCHAR},
       </if>
       <if test="content != null">
         #{content,jdbcType=LONGVARBINARY},
@@ -163,8 +163,8 @@
       <if test="record.reportId != null">
         report_id = #{record.reportId,jdbcType=VARCHAR},
       </if>
-      <if test="record.scenarioId != null">
-        scenario_id = #{record.scenarioId,jdbcType=VARCHAR},
+      <if test="record.projectId != null">
+        project_id = #{record.projectId,jdbcType=VARCHAR},
       </if>
       <if test="record.content != null">
         content = #{record.content,jdbcType=LONGVARBINARY},
@@ -177,7 +177,7 @@
   <update id="updateByExampleWithBLOBs" parameterType="map">
     update api_scenario_report_detail
     set report_id = #{record.reportId,jdbcType=VARCHAR},
-      scenario_id = #{record.scenarioId,jdbcType=VARCHAR},
+      project_id = #{record.projectId,jdbcType=VARCHAR},
       content = #{record.content,jdbcType=LONGVARBINARY}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -186,7 +186,7 @@
   <update id="updateByExample" parameterType="map">
     update api_scenario_report_detail
     set report_id = #{record.reportId,jdbcType=VARCHAR},
-      scenario_id = #{record.scenarioId,jdbcType=VARCHAR}
+      project_id = #{record.projectId,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -194,8 +194,8 @@
   <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.base.domain.ApiScenarioReportDetail">
     update api_scenario_report_detail
     <set>
-      <if test="scenarioId != null">
-        scenario_id = #{scenarioId,jdbcType=VARCHAR},
+      <if test="projectId != null">
+        project_id = #{projectId,jdbcType=VARCHAR},
       </if>
       <if test="content != null">
         content = #{content,jdbcType=LONGVARBINARY},
@@ -205,13 +205,13 @@
   </update>
   <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.metersphere.base.domain.ApiScenarioReportDetail">
     update api_scenario_report_detail
-    set scenario_id = #{scenarioId,jdbcType=VARCHAR},
+    set project_id = #{projectId,jdbcType=VARCHAR},
       content = #{content,jdbcType=LONGVARBINARY}
     where report_id = #{reportId,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKey" parameterType="io.metersphere.base.domain.ApiScenarioReportDetail">
     update api_scenario_report_detail
-    set scenario_id = #{scenarioId,jdbcType=VARCHAR}
+    set project_id = #{projectId,jdbcType=VARCHAR}
     where report_id = #{reportId,jdbcType=VARCHAR}
   </update>
 </mapper>

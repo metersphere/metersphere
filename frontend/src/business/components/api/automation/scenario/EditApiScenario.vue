@@ -261,7 +261,7 @@
               @runRefresh="runRefresh" ref="runTest"/>
       <!-- 调试结果 -->
       <el-drawer :visible.sync="debugVisible" :destroy-on-close="true" direction="ltr" :withHeader="false" :title="$t('test_track.plan_view.test_result')" :modal="false" size="90%">
-        <ms-api-report-detail :report-id="reportId"/>
+        <ms-api-report-detail :report-id="reportId" :currentProjectId="currentProject.id"/>
       </el-drawer>
     </div>
   </el-card>
@@ -284,7 +284,7 @@
   import {getUUID} from "@/common/js/utils";
   import ApiEnvironmentConfig from "../../definition/components/environment/ApiEnvironmentConfig";
   import MsAddTag from "./AddTag";
-  import MsRun from "./Run";
+  import MsRun from "./DebugRun";
   import MsImportApiScenario from "./ImportApiScenario";
   import MsApiScenarioComponent from "./ApiScenarioComponent";
   import MsApiReportDetail from "../report/ApiReportDetail";
@@ -333,7 +333,7 @@
         expandedNode: [],
         scenarioDefinition: [],
         path: "/api/automation/create",
-        debugData: [],
+        debugData: {},
         reportId: "",
       }
     },
@@ -539,9 +539,7 @@
           this.$error(this.$t('api_test.environment.select_environment'));
           return;
         }
-        let scenario = {id: this.currentScenario.id, name: this.currentScenario.name, type: "scenario", referenced: 'Created', environmentId: this.currentEnvironmentId, hashTree: this.scenarioDefinition};
-        this.debugData = [];
-        this.debugData.push(scenario);
+        this.debugData = {id: this.currentScenario.id, name: this.currentScenario.name, type: "scenario", referenced: 'Created', environmentId: this.currentEnvironmentId, hashTree: this.scenarioDefinition};
         this.reportId = getUUID().substring(0, 8);
       },
       getEnvironments() {
@@ -592,11 +590,68 @@
         });
         return path[0].path;
       },
+      setFiles(item, bodyUploadFiles, obj) {
+        if (item.body) {
+          item.body.kvs.forEach(param => {
+            if (param.files) {
+              param.files.forEach(item => {
+                if (item.file) {
+                  if (!item.id) {
+                    let fileId = getUUID().substring(0, 12);
+                    item.name = item.file.name;
+                    item.id = fileId;
+                  }
+                  obj.bodyUploadIds.push(item.id);
+                  bodyUploadFiles.push(item.file);
+                }
+              });
+            }
+          });
+          item.body.binary.forEach(param => {
+            if (param.files) {
+              param.files.forEach(item => {
+                if (item.file) {
+                  if (!item.id) {
+                    let fileId = getUUID().substring(0, 12);
+                    item.name = item.file.name;
+                    item.id = fileId;
+                  }
+                  obj.bodyUploadIds.push(item.id);
+                  bodyUploadFiles.push(item.file);
+                }
+              });
+            }
+          });
+        }
+      },
+      recursiveFile(arr, bodyUploadFiles, obj) {
+        arr.forEach(item => {
+          this.setFiles(item, bodyUploadFiles, obj);
+          if (item.hashTree != undefined && item.hashTree.length > 0) {
+            this.recursiveFile(item.hashTree, bodyUploadFiles, obj);
+          }
+        });
+      },
+      getBodyUploadFiles(obj) {
+        let bodyUploadFiles = [];
+        obj.bodyUploadIds = [];
+        this.scenarioDefinition.forEach(item => {
+          this.setFiles(item, bodyUploadFiles, obj);
+          if (item.hashTree != undefined && item.hashTree.length > 0) {
+            this.recursiveFile(item.hashTree, bodyUploadFiles, obj);
+          }
+        })
+        return bodyUploadFiles;
+      },
       editScenario() {
         this.$refs['currentScenario'].validate((valid) => {
           if (valid) {
             this.setParameter();
-            this.result = this.$post(this.path, this.currentScenario, () => {
+            let bodyFiles = this.getBodyUploadFiles(this.currentScenario);
+            console.log(bodyFiles)
+            console.log(this.currentScenario.bodyUploadIds)
+
+            this.$fileUpload(this.path, null, bodyFiles, this.currentScenario, () => {
               this.$success(this.$t('commons.save_success'));
               this.path = "/api/automation/update";
               this.currentScenario.tagId = JSON.parse(this.currentScenario.tagId);

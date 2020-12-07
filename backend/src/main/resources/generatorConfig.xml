@@ -64,10 +64,8 @@
 
         <!--要生成的数据库表 -->
 
-        <table tableName="schedule"/>
-        <table tableName="notice"/>
-        <table tableName="message_task"/>
-        <table tableName="test_plan"/>
+        <table tableName="api_scenario_report"/>
+        <table tableName="api_scenario_report_detail"/>
 
     </context>
 </generatorConfiguration>

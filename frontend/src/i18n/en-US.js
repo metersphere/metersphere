@@ -163,7 +163,7 @@ export default {
         current_user: "Current user"
       }
     },
-    monitor:"monitor"
+    monitor: "monitor"
   },
   license: {
     title: 'Authorization management',
@@ -543,6 +543,7 @@ export default {
       customize_script: "Custom script",
       customize_req: "Custom request",
       reference_info: "Please select interface or use case",
+      report_name_info: 'Please enter the registration name',
     },
     environment: {
       name: "Environment Name",
@@ -779,14 +780,14 @@ export default {
     not_exist: "Test report does not exist",
   },
   api_monitor: {
-    to:"to",
-    start_time:"Start Time",
-    end_time:"End Time",
-    today:"Today",
-    this_week:"This Week",
-    this_mouth:"This Mouth",
-    please_search:"Please Search",
-    date:"Date"
+    to: "to",
+    start_time: "Start Time",
+    end_time: "End Time",
+    today: "Today",
+    this_week: "This Week",
+    this_mouth: "This Mouth",
+    please_search: "Please Search",
+    date: "Date"
   },
   test_track: {
     test_track: "Track",
@@ -1096,6 +1097,7 @@ export default {
     home: 'Home',
     definition: 'Api Definition',
     automation: 'Api Automation',
+    report: 'Test report',
   },
   ldap: {
     url: 'LDAP URL',

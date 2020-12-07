@@ -543,8 +543,8 @@ export default {
       scenario_import: "場景導入",
       customize_script: "自定義腳本",
       customize_req: "自定義請求",
-      reference_info: "請選擇接口或用例"
-
+      reference_info: "請選擇接口或用例",
+      report_name_info: '请输入报名名称',
     },
     environment: {
       name: "環境名稱",
@@ -1098,6 +1098,7 @@ export default {
     home: '首頁',
     definition: '接口定義',
     automation: '接口自動化',
+    report: '測試報告',
   },
   ldap: {
     url: 'LDAP地址',

@@ -5,18 +5,21 @@
       <el-col :span="12">
         <el-menu class="header-menu" :unique-opened="true" mode="horizontal" router
                  :default-active='$route.path'>
-          <el-menu-item :index="'/track/home'">
-            {{ $t("i18n.home") }}
-          </el-menu-item>
           <el-submenu :class="{'deactivation':!isProjectActivation}"
                       v-permission="['test_manager','test_user','test_viewer']" index="3" popper-class="submenu">
             <template v-slot:title>{{ $t('commons.project') }}</template>
-            <ms-recent-list ref="projectRecent" :options="projectRecent"/>
+            <search-list ref="projectRecent" :options="projectRecent"/>
             <el-divider/>
-            <ms-show-all :index="'/track/project/all'"/>
-            <ms-create-button v-permission="['test_manager','test_user']" :index="'/track/project/create'"
-                              :title="$t('project.create')"/>
+            <el-menu-item :index="'/performance/project/create'">
+              <font-awesome-icon :icon="['fa', 'plus']"/>
+              <span style="padding-left: 7px;">创建项目</span>
+            </el-menu-item>
+            <ms-show-all :index="'/setting/project'"/>
           </el-submenu>
+
+          <el-menu-item :index="'/track/home'">
+            {{ $t("i18n.home") }}
+          </el-menu-item>
 
           <el-submenu v-permission="['test_manager','test_user','test_viewer']"
                       index="6" popper-class="submenu">
@@ -62,10 +65,11 @@ import MsShowAll from "../../common/head/ShowAll";
 import MsRecentList from "../../common/head/RecentList";
 import MsCreateButton from "../../common/head/CreateButton";
 import {LIST_CHANGE, TrackEvent} from "@/business/components/common/head/ListEvent";
+import SearchList from "@/business/components/common/head/SearchList";
 
 export default {
   name: "TrackHeaderMenus",
-  components: {MsShowAll, MsRecentList, MsCreateButton},
+  components: {SearchList, MsShowAll, MsRecentList, MsCreateButton},
   data() {
     return {
       testPlanViewPath: '',

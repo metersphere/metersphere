@@ -570,7 +570,8 @@ export default {
         follow_people: "关注人",
         select_table: "选择可见数据",
         select_all: "选择全部数据"
-      }
+      },
+      report_name_info: '请输入报名名称',
     },
     environment: {
       name: "环境名称",
@@ -809,14 +810,14 @@ export default {
     not_exist: "测试报告不存在",
   },
   api_monitor: {
-    to:"至",
-    start_time:"开始日期",
-    end_time:"结束日期",
-    today:"今日",
-    this_week:"本周",
-    this_mouth:"本月",
-    please_search:"请搜索",
-    date:"日期"
+    to: "至",
+    start_time: "开始日期",
+    end_time: "结束日期",
+    today: "今日",
+    this_week: "本周",
+    this_mouth: "本月",
+    please_search: "请搜索",
+    date: "日期"
   },
   test_track: {
     test_track: "测试跟踪",
@@ -1125,6 +1126,7 @@ export default {
     home: '首页',
     definition: '接口定义',
     automation: '接口自动化',
+    report: '测试报告',
   },
   ldap: {
     url: 'LDAP地址',

@@ -4,12 +4,12 @@
       <el-card>
         <section class="report-container" v-if="this.report.testId">
 
-          <ms-api-report-view-header :report="report" @reportExport="handleExport"/>
+          <ms-api-report-view-header :report="report" @reportExport="handleExport" @reportSave="handleSave"/>
 
           <main v-if="this.isNotRunning">
             <ms-metric-chart :content="content" :totalTime="totalTime"/>
-            <div @click="active">
-              <ms-scenario-results :scenarios="content.scenarios"  v-on:requestResult="requestResult"/>
+            <div>
+              <ms-scenario-results :scenarios="content.scenarios" v-on:requestResult="requestResult"/>
             </div>
             <el-collapse-transition>
               <div v-show="isActive" style="width: 99%">
@@ -64,9 +64,13 @@
         requestType: undefined,
       }
     },
-    props: ['reportId'],
     activated() {
       this.isRequestResult = false;
+    },
+    props: {
+      reportId: String,
+      currentProjectId: String,
+      infoDb: Boolean,
     },
     watch: {
       reportId() {
@@ -91,7 +95,7 @@
       getReport() {
         this.init();
         if (this.reportId) {
-          let url = "/api/scenario/report/get/" + this.reportId;
+          let url = "/api/scenario/report/get/" + this.reportId + "/" + this.infoDb;
           this.$get(url, response => {
             this.report = response.data || {};
             if (response.data) {
@@ -99,7 +103,6 @@
                 try {
                   this.content = JSON.parse(this.report.content);
                 } catch (e) {
-                  // console.log(this.report.content)
                   throw e;
                 }
                 this.getFails();
@@ -136,6 +139,7 @@
         }
       },
       requestResult(requestResult) {
+        this.active();
         this.isRequestResult = false;
         this.requestType = undefined;
         if (requestResult.request.body.indexOf('[Callable Statement]') > -1) {
@@ -153,6 +157,27 @@
         this.$nextTick(() => {
           windowPrint('apiTestReport', 0.57);
           reset();
+        });
+      },
+      handleSave() {
+        if (!this.report.name) {
+          this.$warning(this.$t('api_test.automation.report_name_info'));
+          return;
+        }
+        if (!this.currentProjectId) {
+          this.$warning(this.$t('api_test.select_project'));
+          return;
+        }
+        this.loading = true;
+        this.report.projectId = this.currentProjectId;
+        let url = "/api/scenario/report/add";
+        if (this.infoDb === true) {
+          url = "/api/scenario/report/update";
+        }
+        this.result = this.$post(url, this.report, response => {
+          this.$success(this.$t('commons.save_success'));
+          this.loading = false;
+          this.$emit('refresh');
         });
       },
       exportReportReset() {

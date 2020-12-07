@@ -79,6 +79,11 @@ export default {
         roles: ['test_manager', 'test_user', 'test_viewer', 'org_admin', 'admin']
       }
     },
+    {
+      path: 'project',
+      component: () => import('@/business/components/settings/project/Project'),
+      meta: {project: true, title: '项目管理'}
+    },
 
   ]
 }

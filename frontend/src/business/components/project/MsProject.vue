@@ -4,7 +4,7 @@
       <el-card class="table-card" v-loading="result.loading">
         <template v-slot:header>
           <ms-table-header :is-tester-permission="true" :condition.sync="condition" @search="search" @create="create"
-                           :create-tip="btnTips" :title="title"/>
+                           :create-tip="btnTips" title=""/>
         </template>
         <el-table border class="adjust-table" @row-click="link" :data="items" style="width: 100%" @sort-change="sort">
           <el-table-column prop="name" :label="$t('commons.name')" width="250" show-overflow-tooltip/>
@@ -36,7 +36,7 @@
             <template v-slot:default="scope">
               <ms-table-operator :is-tester-permission="true" @editClick="edit(scope.row)"
                                  @deleteClick="handleDelete(scope.row)">
-                <template v-if="baseUrl == 'api'" v-slot:behind>
+                <template v-slot:behind>
                   <ms-table-operator-button :is-tester-permission="true" :tip="$t('api_test.environment.environment_config')" icon="el-icon-setting"
                                             type="info" @exec="openEnvironmentConfig(scope.row)"/>
                 </template>
@@ -188,21 +188,19 @@ export default {
       this.createVisible = true;
       listenGoBack(this.handleClose);
       this.form = Object.assign({}, row);
-      if (this.baseUrl === 'track') {
-        this.$get("/service/integration/all/" + getCurrentUser().lastOrganizationId, response => {
-          let data = response.data;
-          let platforms = data.map(d => d.platform);
-          if (platforms.indexOf("Tapd") !== -1) {
-            this.tapd = true;
-          }
-          if (platforms.indexOf("Jira") !== -1) {
-            this.jira = true;
-          }
-          if (platforms.indexOf("Zentao") !== -1) {
-            this.zentao = true;
-          }
-        });
-      }
+      this.$get("/service/integration/all/" + getCurrentUser().lastOrganizationId, response => {
+        let data = response.data;
+        let platforms = data.map(d => d.platform);
+        if (platforms.indexOf("Tapd") !== -1) {
+          this.tapd = true;
+        }
+        if (platforms.indexOf("Jira") !== -1) {
+          this.jira = true;
+        }
+        if (platforms.indexOf("Zentao") !== -1) {
+          this.zentao = true;
+        }
+      });
     },
 
     submit(formName) {

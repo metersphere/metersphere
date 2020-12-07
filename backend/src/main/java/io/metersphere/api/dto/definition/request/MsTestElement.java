@@ -51,7 +51,7 @@ import java.util.List;
         MsJSR223PreProcessor.class, MsTestPlan.class, MsThreadGroup.class, AuthManager.class, MsAssertions.class,
         MsExtract.class, MsTCPSampler.class, MsDubboSampler.class, MsJDBCSampler.class, MsConstantTimer.class, MsIfController.class, MsScenario.class}, typeKey = "type")
 @Data
-public abstract class MsTestElement {
+public class MsTestElement {
     private String type;
     @JSONField(ordinal = 1)
     private String id;

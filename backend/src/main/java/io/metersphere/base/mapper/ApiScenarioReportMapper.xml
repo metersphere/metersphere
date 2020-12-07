@@ -3,7 +3,7 @@
 <mapper namespace="io.metersphere.base.mapper.ApiScenarioReportMapper">
   <resultMap id="BaseResultMap" type="io.metersphere.base.domain.ApiScenarioReport">
     <id column="id" jdbcType="VARCHAR" property="id" />
-    <result column="scenario_id" jdbcType="VARCHAR" property="scenarioId" />
+    <result column="project_id" jdbcType="VARCHAR" property="projectId" />
     <result column="name" jdbcType="VARCHAR" property="name" />
     <result column="description" jdbcType="VARCHAR" property="description" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
@@ -71,7 +71,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, scenario_id, `name`, description, create_time, update_time, `status`, user_id, 
+    id, project_id, `name`, description, create_time, update_time, `status`, user_id, 
     trigger_mode
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.base.domain.ApiScenarioReportExample" resultMap="BaseResultMap">
@@ -105,11 +105,11 @@
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.base.domain.ApiScenarioReport">
-    insert into api_scenario_report (id, scenario_id, `name`, 
+    insert into api_scenario_report (id, project_id, `name`, 
       description, create_time, update_time, 
       `status`, user_id, trigger_mode
       )
-    values (#{id,jdbcType=VARCHAR}, #{scenarioId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, 
+    values (#{id,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, 
       #{description,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, 
       #{status,jdbcType=VARCHAR}, #{userId,jdbcType=VARCHAR}, #{triggerMode,jdbcType=VARCHAR}
       )
@@ -120,8 +120,8 @@
       <if test="id != null">
         id,
       </if>
-      <if test="scenarioId != null">
-        scenario_id,
+      <if test="projectId != null">
+        project_id,
       </if>
       <if test="name != null">
         `name`,
@@ -149,8 +149,8 @@
       <if test="id != null">
         #{id,jdbcType=VARCHAR},
       </if>
-      <if test="scenarioId != null">
-        #{scenarioId,jdbcType=VARCHAR},
+      <if test="projectId != null">
+        #{projectId,jdbcType=VARCHAR},
       </if>
       <if test="name != null">
         #{name,jdbcType=VARCHAR},
@@ -187,8 +187,8 @@
       <if test="record.id != null">
         id = #{record.id,jdbcType=VARCHAR},
       </if>
-      <if test="record.scenarioId != null">
-        scenario_id = #{record.scenarioId,jdbcType=VARCHAR},
+      <if test="record.projectId != null">
+        project_id = #{record.projectId,jdbcType=VARCHAR},
       </if>
       <if test="record.name != null">
         `name` = #{record.name,jdbcType=VARCHAR},
@@ -219,7 +219,7 @@
   <update id="updateByExample" parameterType="map">
     update api_scenario_report
     set id = #{record.id,jdbcType=VARCHAR},
-      scenario_id = #{record.scenarioId,jdbcType=VARCHAR},
+      project_id = #{record.projectId,jdbcType=VARCHAR},
       `name` = #{record.name,jdbcType=VARCHAR},
       description = #{record.description,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
@@ -234,8 +234,8 @@
   <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.base.domain.ApiScenarioReport">
     update api_scenario_report
     <set>
-      <if test="scenarioId != null">
-        scenario_id = #{scenarioId,jdbcType=VARCHAR},
+      <if test="projectId != null">
+        project_id = #{projectId,jdbcType=VARCHAR},
       </if>
       <if test="name != null">
         `name` = #{name,jdbcType=VARCHAR},
@@ -263,7 +263,7 @@
   </update>
   <update id="updateByPrimaryKey" parameterType="io.metersphere.base.domain.ApiScenarioReport">
     update api_scenario_report
-    set scenario_id = #{scenarioId,jdbcType=VARCHAR},
+    set project_id = #{projectId,jdbcType=VARCHAR},
       `name` = #{name,jdbcType=VARCHAR},
       description = #{description,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
