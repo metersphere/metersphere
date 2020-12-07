@@ -28,7 +28,7 @@ export const xpack = {
 function checkLicense(el, binding, type) {
   let v = hasLicense()
 
-  if (v) {
+  if (!v) {
     el.parentNode && el.parentNode.removeChild(el)
   }
 }

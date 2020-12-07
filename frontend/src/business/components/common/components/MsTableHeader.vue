@@ -1,7 +1,7 @@
 <template>
 
   <div>
-    <el-row class="table-title" type="flex" justify="space-between" align="middle">
+    <el-row v-if="title" class="table-title" type="flex" justify="space-between" align="middle">
       <slot name="title">
         {{title}}
       </slot>

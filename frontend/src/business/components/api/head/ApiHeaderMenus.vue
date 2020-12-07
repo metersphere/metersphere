@@ -3,6 +3,18 @@
     <el-row type="flex">
       <el-col :span="10">
         <el-menu class="header-menu" :unique-opened="true" mode="horizontal" router :default-active='$route.path'>
+
+          <el-submenu :class="{'deactivation':!isProjectActivation}" v-permission="['test_manager','test_user','test_viewer']" index="3">
+            <template v-slot:title>{{ $t('commons.project') }}</template>
+            <search-list ref="projectRecent" :options="projectRecent"/>
+            <el-divider class="menu-divider"/>
+            <el-menu-item :index="'/performance/project/create'">
+              <font-awesome-icon :icon="['fa', 'plus']"/>
+              <span style="padding-left: 7px;">创建项目</span>
+            </el-menu-item>
+            <ms-show-all :index="'/setting/project'"/>
+          </el-submenu>
+
           <el-menu-item :index="'/api/home'">
             {{ $t("i18n.home") }}
           </el-menu-item>
@@ -18,15 +30,6 @@
           <el-menu-item :index="'/api/automation/report'">
             {{ $t("i18n.report") }}
           </el-menu-item>
-
-          <el-submenu :class="{'deactivation':!isProjectActivation}" v-permission="['test_manager','test_user','test_viewer']" index="3">
-            <template v-slot:title>{{ $t('commons.project') }}</template>
-            <ms-recent-list ref="projectRecent" :options="projectRecent"/>
-            <el-divider class="menu-divider"/>
-            <ms-show-all :index="'/api/project/all'"/>
-            <ms-create-button v-permission="['test_manager','test_user']" :index="'/api/project/create'"
-                              :title="$t('project.create')"/>
-          </el-submenu>
 
           <el-submenu v-permission="['test_manager','test_user','test_viewer']" index="4">
             <template v-slot:title>{{ $t('commons.test') }}</template>
@@ -69,10 +72,11 @@ import MsShowAll from "../../common/head/ShowAll";
 import MsCreateButton from "../../common/head/CreateButton";
 import MsCreateTest from "../../common/head/CreateTest";
 import {ApiEvent, LIST_CHANGE} from "@/business/components/common/head/ListEvent";
+import SearchList from "@/business/components/common/head/SearchList";
 
 export default {
   name: "MsApiHeaderMenus",
-  components: {MsCreateTest, MsCreateButton, MsShowAll, MsRecentList},
+  components: {SearchList, MsCreateTest, MsCreateButton, MsShowAll, MsRecentList},
   data() {
     return {
       projectRecent: {
