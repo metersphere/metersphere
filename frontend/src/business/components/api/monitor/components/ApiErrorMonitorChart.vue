@@ -2,7 +2,7 @@
   <common-monitor-chart>
     <template>
       <div id="response-time-chart" :style="{ width:'100%',height:'100%' }">
-        <chart :options="getOptions()" :style="{ width:'100%' }"></chart>
+        <chart :options="getOptions()" :style="{ width:'100%' }" v-on:click="click"></chart>
       </div>
     </template>
   </common-monitor-chart>
@@ -27,20 +27,15 @@ export default {
   },
   methods: {
     click(params) {
-      //如果状态不是以2开头
-      if (params.value.substr(0, 1) !== '2') {
-        let startTime = params.name;
-        this.result = this.$$get('/api/monitor/getReportId', {'startTime': startTime}, {
-          'apiUrl': this.apiUrl
-        }, response => {
-          this.reportId = response.data;
-          let reportId = this.reportId
-          let url = '#/api/report/view/' + reportId;
-          let target = '_blank';
-          window.open(url, target);
-        });
-      }
-
+      let startTime = params.name;
+      this.result = this.$$get('/api/monitor/getReportId', {'startTime': startTime}, {
+        'apiUrl': this.apiUrl
+      }, response => {
+        this.reportId = response.data;
+        let reportId = this.reportId
+        let url = '#/api/report/view/' + reportId;
+        window.open(url, '_blank');
+      });
     },
     getOptions() {
       return {
