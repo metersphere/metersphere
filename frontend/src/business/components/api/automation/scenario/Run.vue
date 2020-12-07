@@ -10,7 +10,7 @@
     name: 'MsRun',
     components: {},
     props: {
-      environment: Object,
+      environment: String,
       debug: Boolean,
       reportId: String,
       runData: Array,
@@ -96,26 +96,21 @@
       },
       run() {
         let testPlan = new TestPlan();
-        let threadGroup = new ThreadGroup();
-        threadGroup.hashTree = [];
-        testPlan.hashTree = [threadGroup];
         this.runData.forEach(item => {
+          let threadGroup = new ThreadGroup();
+          threadGroup.hashTree = [];
+          threadGroup.name = item.name;
           threadGroup.hashTree.push(item);
+          testPlan.hashTree.push(threadGroup);
         })
-        let reqObj = {id: this.reportId, testElement: testPlan};
+        console.log("====",testPlan)
+        let reqObj = {id: this.reportId, reportId: this.reportId, environmentId: this.environment, testElement: testPlan};
         let bodyFiles = this.getBodyUploadFiles(reqObj);
-        let url = "";
-        if (this.debug) {
-          url = "/api/automation/run/debug";
-        } else {
-          reqObj.reportId = "run";
-          url = "/api/definition/run";
-        }
+        let url = "/api/automation/run";
         this.$fileUpload(url, null, bodyFiles, reqObj, response => {
           this.runId = response.data;
-          this.getResult();
-        }, erro => {
           this.$emit('runRefresh', {});
+        }, erro => {
         });
       }
     }

@@ -52,12 +52,12 @@ public class MsHTTPSamplerProxy extends MsTestElement {
 
     @JSONField(ordinal = 15)
     private String connectTimeout;
+
     @JSONField(ordinal = 16)
-
     private String responseTimeout;
-    @JSONField(ordinal = 17)
 
-    private List<KeyValue> arguments;
+    @JSONField(ordinal = 17)
+    private List<KeyValue> headers;
 
     @JSONField(ordinal = 18)
     private Body body;
@@ -78,9 +78,9 @@ public class MsHTTPSamplerProxy extends MsTestElement {
     private String useEnvironment;
 
     @JSONField(ordinal = 24)
-    private List<KeyValue> headers;
+    private List<KeyValue> arguments;
 
-    public void toHashTree(HashTree tree, List<MsTestElement> hashTree) {
+    public void toHashTree(HashTree tree, List<MsTestElement> hashTree, EnvironmentConfig config) {
         HTTPSamplerProxy sampler = new HTTPSamplerProxy();
         sampler.setEnabled(true);
         sampler.setName(this.getName());
@@ -93,7 +93,6 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         sampler.setFollowRedirects(this.isFollowRedirects());
         sampler.setUseKeepAlive(true);
         sampler.setDoMultipart(this.isDoMultipartPost());
-        EnvironmentConfig config = null;
         if (useEnvironment != null) {
             ApiTestEnvironmentService environmentService = CommonBeanFactory.getBean(ApiTestEnvironmentService.class);
             ApiTestEnvironmentWithBLOBs environment = environmentService.get(useEnvironment);
@@ -145,16 +144,18 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         }
 
         final HashTree httpSamplerTree = tree.add(sampler);
-        setHeader(httpSamplerTree);
+        if (CollectionUtils.isNotEmpty(this.headers)) {
+            setHeader(httpSamplerTree);
+        }
         //判断是否要开启DNS
         if (config != null && config.getCommonConfig() != null && config.getCommonConfig().isEnableHost()) {
             MsDNSCacheManager.addEnvironmentVariables(httpSamplerTree, this.getName(), config);
             MsDNSCacheManager.addEnvironmentDNS(httpSamplerTree, this.getName(), config);
         }
         if (CollectionUtils.isNotEmpty(hashTree)) {
-            hashTree.forEach(el -> {
-                el.toHashTree(httpSamplerTree, el.getHashTree());
-            });
+            for (MsTestElement el : hashTree) {
+                el.toHashTree(httpSamplerTree, el.getHashTree(), config);
+            }
         }
     }
 

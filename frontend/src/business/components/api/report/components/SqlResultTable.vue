@@ -118,4 +118,12 @@
     max-height: 500px;
   }
 
+  .el-table >>> th {
+    -webkit-user-select: text;
+    -khtml-user-select: text;
+    -moz-user-select: text;
+    -ms-user-select: text;
+    user-select: text;
+  }
+
 </style>

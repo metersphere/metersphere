@@ -1,6 +1,7 @@
 package io.metersphere.api.dto.definition.request;
 
 import com.alibaba.fastjson.annotation.JSONType;
+import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.collections.CollectionUtils;
@@ -18,11 +19,11 @@ import java.util.List;
 public class MsThreadGroup extends MsTestElement {
     private String type = "ThreadGroup";
 
-    public void toHashTree(HashTree tree, List<MsTestElement> hashTree) {
+    public void toHashTree(HashTree tree, List<MsTestElement> hashTree, EnvironmentConfig config) {
         final HashTree groupTree = tree.add(getThreadGroup());
         if (CollectionUtils.isNotEmpty(hashTree)) {
             hashTree.forEach(el -> {
-                el.toHashTree(groupTree, el.getHashTree());
+                el.toHashTree(groupTree, el.getHashTree(), config);
             });
         }
     }
@@ -37,7 +38,7 @@ public class MsThreadGroup extends MsTestElement {
 
         ThreadGroup threadGroup = new ThreadGroup();
         threadGroup.setEnabled(true);
-        threadGroup.setName(this.getName() + "ThreadGroup");
+        threadGroup.setName(this.getName());
         threadGroup.setProperty(TestElement.TEST_CLASS, ThreadGroup.class.getName());
         threadGroup.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("ThreadGroupGui"));
         threadGroup.setNumThreads(1);

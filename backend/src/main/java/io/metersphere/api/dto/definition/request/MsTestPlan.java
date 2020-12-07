@@ -1,6 +1,7 @@
 package io.metersphere.api.dto.definition.request;
 
 import com.alibaba.fastjson.annotation.JSONType;
+import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.collections.CollectionUtils;
@@ -18,11 +19,11 @@ import java.util.List;
 public class MsTestPlan extends MsTestElement {
     private String type = "TestPlan";
 
-    public void toHashTree(HashTree tree, List<MsTestElement> hashTree) {
+    public void toHashTree(HashTree tree, List<MsTestElement> hashTree, EnvironmentConfig config) {
         final HashTree testPlanTree = tree.add(getPlan());
         if (CollectionUtils.isNotEmpty(hashTree)) {
             hashTree.forEach(el -> {
-                el.toHashTree(testPlanTree, el.getHashTree());
+                el.toHashTree(testPlanTree, el.getHashTree(), config);
             });
         }
     }

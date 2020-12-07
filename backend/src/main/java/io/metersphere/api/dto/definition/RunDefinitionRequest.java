@@ -15,6 +15,8 @@ public class RunDefinitionRequest {
 
     private String reportId;
 
+    private String environmentId;
+
     private MsTestElement testElement;
 
     private Response response;

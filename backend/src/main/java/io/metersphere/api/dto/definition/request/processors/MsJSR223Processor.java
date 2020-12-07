@@ -3,13 +3,14 @@ package io.metersphere.api.dto.definition.request.processors;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.annotation.JSONType;
 import io.metersphere.api.dto.definition.request.MsTestElement;
+import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.jmeter.protocol.java.sampler.JSR223Sampler;
 import org.apache.jmeter.save.SaveService;
 import org.apache.jmeter.testelement.TestElement;
 import org.apache.jorphan.collections.HashTree;
-import org.apache.jmeter.protocol.java.sampler.JSR223Sampler;
 
 import java.util.List;
 
@@ -25,7 +26,7 @@ public class MsJSR223Processor extends MsTestElement {
     @JSONField(ordinal = 11)
     private String scriptLanguage;
 
-    public void toHashTree(HashTree tree, List<MsTestElement> hashTree) {
+    public void toHashTree(HashTree tree, List<MsTestElement> hashTree, EnvironmentConfig config) {
         JSR223Sampler processor = new JSR223Sampler();
         processor.setEnabled(true);
         processor.setName(this.getName() + "JSR223Processor");
@@ -38,7 +39,7 @@ public class MsJSR223Processor extends MsTestElement {
         final HashTree jsr223PreTree = tree.add(processor);
         if (CollectionUtils.isNotEmpty(hashTree)) {
             hashTree.forEach(el -> {
-                el.toHashTree(jsr223PreTree, el.getHashTree());
+                el.toHashTree(jsr223PreTree, el.getHashTree(), config);
             });
         }
     }

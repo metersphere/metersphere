@@ -18,7 +18,7 @@ export default class TestPlan extends HashTreeElement {
     this.serializeThreadGroups = this.initBoolProp('TestPlan.serialize_threadgroups', false);
     this.tearDownOnShutdown = this.initBoolProp('TestPlan.tearDown_on_shutdown', true);
     this.userDefineClasspath = this.initStringProp('TestPlan.user_define_classpath');
-
+    this.hashTree = [];
     this.userDefinedVariables = [];
 
     let elementProp = this.initElementProp('TestPlan.user_defined_variables', 'Arguments');

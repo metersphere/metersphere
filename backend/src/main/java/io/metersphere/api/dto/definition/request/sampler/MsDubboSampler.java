@@ -11,6 +11,7 @@ import io.metersphere.api.dto.definition.request.sampler.dubbo.MsConfigCenter;
 import io.metersphere.api.dto.definition.request.sampler.dubbo.MsConsumerAndService;
 import io.metersphere.api.dto.definition.request.sampler.dubbo.MsRegistryCenter;
 import io.metersphere.api.dto.scenario.KeyValue;
+import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.collections.CollectionUtils;
@@ -50,13 +51,13 @@ public class MsDubboSampler extends MsTestElement {
     @JSONField(ordinal = 59)
     private List<KeyValue> attachmentArgs;
 
-    public void toHashTree(HashTree tree, List<MsTestElement> hashTree) {
+    public void toHashTree(HashTree tree, List<MsTestElement> hashTree, EnvironmentConfig config) {
         final HashTree testPlanTree = new ListedHashTree();
         testPlanTree.add(dubboConfig());
         tree.set(dubboSample(), testPlanTree);
         if (CollectionUtils.isNotEmpty(hashTree)) {
             hashTree.forEach(el -> {
-                el.toHashTree(testPlanTree, el.getHashTree());
+                el.toHashTree(testPlanTree, el.getHashTree(), config);
             });
         }
     }

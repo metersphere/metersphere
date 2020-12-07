@@ -50,7 +50,7 @@ public class MsAuthManager extends MsTestElement {
     @JSONField(ordinal = 18)
     private String environment;
 
-    public void toHashTree(HashTree tree, List<MsTestElement> hashTree) {
+    public void toHashTree(HashTree tree, List<MsTestElement> hashTree, EnvironmentConfig config) {
         AuthManager authManager = new AuthManager();
         authManager.setEnabled(true);
         authManager.setName(this.getUsername() + "AuthManager");
@@ -63,7 +63,7 @@ public class MsAuthManager extends MsTestElement {
             if (environment != null) {
                 ApiTestEnvironmentService environmentService = CommonBeanFactory.getBean(ApiTestEnvironmentService.class);
                 ApiTestEnvironmentWithBLOBs environmentWithBLOBs = environmentService.get(environment);
-                EnvironmentConfig config = JSONObject.parseObject(environmentWithBLOBs.getConfig(), EnvironmentConfig.class);
+                config = JSONObject.parseObject(environmentWithBLOBs.getConfig(), EnvironmentConfig.class);
                 this.url = config.getHttpConfig().getProtocol() + "://" + config.getHttpConfig().getSocket();
             }
         }

@@ -23,9 +23,9 @@ import java.util.List;
 @JSONType(typeName = "DNSCacheManager")
 public class MsDNSCacheManager extends MsTestElement {
 
-    public void toHashTree(HashTree tree, List<MsTestElement> hashTree) {
+    public void toHashTree(HashTree tree, List<MsTestElement> hashTree, EnvironmentConfig config) {
         for (MsTestElement el : hashTree) {
-            el.toHashTree(tree, el.getHashTree());
+            el.toHashTree(tree, el.getHashTree(), config);
         }
     }
 
