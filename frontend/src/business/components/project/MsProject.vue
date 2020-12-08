@@ -144,7 +144,7 @@ export default {
     if (this.$route.path.split('/')[2] === 'project' &&
       this.$route.path.split('/')[3] === 'create') {
       this.create();
-      this.$router.push('/' + this.baseUrl + '/project/all');
+      // this.$router.push('/setting/project');
     }
     this.list();
   },
@@ -156,7 +156,7 @@ export default {
       if (this.$route.path.split('/')[2] === 'project' &&
         to.path.split('/')[3] === 'create') {
         this.create();
-        this.$router.push('/' + this.baseUrl + '/project/all');
+        // this.$router.push('/setting/project');
       } else if (this.$route.path.split('/')[2] === 'project' &&
         to.path.split('/')[3] === 'all') {
         this.list();

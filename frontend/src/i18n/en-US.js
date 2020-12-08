@@ -294,6 +294,7 @@ export default {
     tapd_id: 'TAPD Project ID',
     jira_key: 'JIRA Project key',
     zentao_id: 'Zentao Project ID',
+    manager: 'Manager',
   },
   member: {
     create: 'Create',

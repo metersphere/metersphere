@@ -43,11 +43,11 @@ export default {
       name: "perPlan",
       component: PerformanceTestList
     },
-    {
-      path: "project/:type",
-      name: "perProject",
-      component: MsProject
-    },
+    // {
+    //   path: "project/:type",
+    //   name: "perProject",
+    //   component: MsProject
+    // },
     {
       path: "report/:type",
       name: "perReport",

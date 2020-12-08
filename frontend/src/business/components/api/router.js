@@ -24,11 +24,11 @@ export default {
       name: "ApiTestList",
       component: () => import('@/business/components/api/test/ApiTestList'),
     },
-    {
-      path: "project/:type",
-      name: "fucProject",
-      component: MsProject,
-    },
+    // {
+    //   path: "project/:type",
+    //   name: "fucProject",
+    //   component: MsProject,
+    // },
     {
       path: "report/list/:testId",
       name: "ApiReportList",

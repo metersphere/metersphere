@@ -80,9 +80,9 @@ export default {
       }
     },
     {
-      path: 'project',
+      path: 'project/:type',
       component: () => import('@/business/components/settings/project/Project'),
-      meta: {project: true, title: '项目管理'}
+      meta: {project: true, title: 'project.manager'}
     },
 
   ]

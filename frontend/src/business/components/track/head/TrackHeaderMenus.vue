@@ -10,11 +10,11 @@
             <template v-slot:title>{{ $t('commons.project') }}</template>
             <search-list ref="projectRecent" :options="projectRecent"/>
             <el-divider/>
-            <el-menu-item :index="'/performance/project/create'">
+            <el-menu-item :index="'/setting/project/create'">
               <font-awesome-icon :icon="['fa', 'plus']"/>
-              <span style="padding-left: 7px;">创建项目</span>
+              <span style="padding-left: 7px;">{{ $t("project.create") }}</span>
             </el-menu-item>
-            <ms-show-all :index="'/setting/project'"/>
+            <ms-show-all :index="'/setting/project/all'"/>
           </el-submenu>
 
           <el-menu-item :index="'/track/home'">

@@ -293,6 +293,7 @@ export default {
     tapd_id: 'TAPD项目ID',
     jira_key: 'JIRA项目key',
     zentao_id: 'Zentao项目ID',
+    manager: '项目管理',
   },
   member: {
     create: '添加成员',

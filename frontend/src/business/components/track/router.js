@@ -51,11 +51,11 @@ export default {
       name: "planViewEdit",
       component: TestPlanView
     },
-    {
-      path: "project/:type",
-      name: "trackProject",
-      component: MsProject
-    },
+    // {
+    //   path: "project/:type",
+    //   name: "trackProject",
+    //   component: MsProject
+    // },
     {
       path: "review/:type",
       name: "testCaseReview",
