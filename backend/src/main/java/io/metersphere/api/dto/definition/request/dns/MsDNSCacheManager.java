@@ -2,6 +2,7 @@ package io.metersphere.api.dto.definition.request.dns;
 
 import com.alibaba.fastjson.annotation.JSONType;
 import io.metersphere.api.dto.definition.request.MsTestElement;
+import io.metersphere.api.dto.definition.request.ParameterConfig;
 import io.metersphere.api.dto.scenario.KeyValue;
 import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
 import io.metersphere.api.dto.scenario.environment.Host;
@@ -23,7 +24,7 @@ import java.util.List;
 @JSONType(typeName = "DNSCacheManager")
 public class MsDNSCacheManager extends MsTestElement {
 
-    public void toHashTree(HashTree tree, List<MsTestElement> hashTree, EnvironmentConfig config) {
+    public void toHashTree(HashTree tree, List<MsTestElement> hashTree, ParameterConfig config) {
         for (MsTestElement el : hashTree) {
             el.toHashTree(tree, el.getHashTree(), config);
         }

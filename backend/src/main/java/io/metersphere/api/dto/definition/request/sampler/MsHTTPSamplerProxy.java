@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.annotation.JSONType;
 import io.metersphere.api.dto.definition.request.MsTestElement;
+import io.metersphere.api.dto.definition.request.ParameterConfig;
 import io.metersphere.api.dto.definition.request.dns.MsDNSCacheManager;
 import io.metersphere.api.dto.scenario.Body;
 import io.metersphere.api.dto.scenario.KeyValue;
@@ -80,7 +81,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
     @JSONField(ordinal = 24)
     private List<KeyValue> arguments;
 
-    public void toHashTree(HashTree tree, List<MsTestElement> hashTree, EnvironmentConfig config) {
+    public void toHashTree(HashTree tree, List<MsTestElement> hashTree, ParameterConfig config) {
         HTTPSamplerProxy sampler = new HTTPSamplerProxy();
         sampler.setEnabled(true);
         sampler.setName(this.getName());
@@ -96,15 +97,15 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         if (useEnvironment != null) {
             ApiTestEnvironmentService environmentService = CommonBeanFactory.getBean(ApiTestEnvironmentService.class);
             ApiTestEnvironmentWithBLOBs environment = environmentService.get(useEnvironment);
-            config = JSONObject.parseObject(environment.getConfig(), EnvironmentConfig.class);
+            config.setConfig(JSONObject.parseObject(environment.getConfig(), EnvironmentConfig.class));
         }
         try {
-            if (config != null) {
+            if (config != null && config.getConfig() != null) {
                 String url = "";
-                sampler.setDomain(config.getHttpConfig().getDomain());
-                sampler.setPort(config.getHttpConfig().getPort());
-                sampler.setProtocol(config.getHttpConfig().getProtocol());
-                url = config.getHttpConfig().getProtocol() + "://" + config.getHttpConfig().getSocket();
+                sampler.setDomain(config.getConfig().getHttpConfig().getDomain());
+                sampler.setPort(config.getConfig().getHttpConfig().getPort());
+                sampler.setProtocol(config.getConfig().getHttpConfig().getProtocol());
+                url = config.getConfig().getHttpConfig().getProtocol() + "://" + config.getConfig().getHttpConfig().getSocket();
                 URL urlObject = new URL(url);
                 String envPath = StringUtils.equals(urlObject.getPath(), "/") ? "" : urlObject.getPath();
                 if (StringUtils.isNotBlank(this.getPath())) {
@@ -125,8 +126,11 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                 sampler.setPort(urlObject.getPort());
                 sampler.setProtocol(urlObject.getProtocol());
 
-                sampler.setPath(getRestParameters(URLDecoder.decode(urlObject.getPath(), "UTF-8")));
-                sampler.setPath(getPostQueryParameters(URLDecoder.decode(urlObject.getPath(), "UTF-8")));
+                if (CollectionUtils.isNotEmpty(this.getRest()) && this.isRest()) {
+                    sampler.setPath(getRestParameters(URLDecoder.decode(urlObject.getPath(), "UTF-8")));
+                } else {
+                    sampler.setPath(getPostQueryParameters(URLDecoder.decode(urlObject.getPath(), "UTF-8")));
+                }
             }
         } catch (Exception e) {
             LogUtil.error(e);
@@ -148,9 +152,10 @@ public class MsHTTPSamplerProxy extends MsTestElement {
             setHeader(httpSamplerTree);
         }
         //判断是否要开启DNS
-        if (config != null && config.getCommonConfig() != null && config.getCommonConfig().isEnableHost()) {
-            MsDNSCacheManager.addEnvironmentVariables(httpSamplerTree, this.getName(), config);
-            MsDNSCacheManager.addEnvironmentDNS(httpSamplerTree, this.getName(), config);
+        if (config != null && config.getConfig() != null && config.getConfig().getCommonConfig() != null
+                && config.getConfig().getCommonConfig().isEnableHost()) {
+            MsDNSCacheManager.addEnvironmentVariables(httpSamplerTree, this.getName(), config.getConfig());
+            MsDNSCacheManager.addEnvironmentDNS(httpSamplerTree, this.getName(), config.getConfig());
         }
         if (CollectionUtils.isNotEmpty(hashTree)) {
             for (MsTestElement el : hashTree) {

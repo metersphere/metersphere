@@ -3,7 +3,7 @@ package io.metersphere.api.dto.definition.request.sampler;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.annotation.JSONType;
 import io.metersphere.api.dto.definition.request.MsTestElement;
-import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
+import io.metersphere.api.dto.definition.request.ParameterConfig;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.collections.CollectionUtils;
@@ -49,7 +49,7 @@ public class MsTCPSampler extends MsTestElement {
     @JSONField(ordinal = 23)
     private String request;
 
-    public void toHashTree(HashTree tree, List<MsTestElement> hashTree, EnvironmentConfig config) {
+    public void toHashTree(HashTree tree, List<MsTestElement> hashTree, ParameterConfig config) {
         final HashTree samplerHashTree = new ListedHashTree();
         samplerHashTree.add(tcpConfig());
         tree.set(tcpSampler(), samplerHashTree);

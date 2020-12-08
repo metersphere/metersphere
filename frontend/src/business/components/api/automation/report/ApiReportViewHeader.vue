@@ -9,7 +9,7 @@
           {{$t('test_track.plan_view.export_report')}}
         </el-button>
 
-        <el-button :disabled="isReadOnly" class="export-button" plain type="primary" size="mini" @click="handleSave(report.name)" style="margin-right: 10px">
+        <el-button v-if="!debug" :disabled="isReadOnly" class="export-button" plain type="primary" size="mini" @click="handleSave(report.name)" style="margin-right: 10px">
           {{$t('commons.save')}}
         </el-button>
 
@@ -23,7 +23,10 @@
 
   export default {
     name: "MsApiReportViewHeader",
-    props: ['report'],
+    props: {
+      report: {},
+      debug: Boolean,
+    },
     computed: {
       path() {
         return "/api/test/edit?id=" + this.report.testId;

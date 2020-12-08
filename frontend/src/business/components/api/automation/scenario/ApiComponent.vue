@@ -21,6 +21,13 @@
       <!-- 请求参数-->
       <el-collapse-transition>
         <div v-if="request.active">
+          <div v-if="request.protocol === 'HTTP'">
+            <el-input :placeholder="$t('api_test.definition.request.path_all_info')" v-model="request.url" style="width: 85%;margin-top: 10px" size="small">
+              <el-select v-model="request.method" slot="prepend" style="width: 100px" size="small">
+                <el-option v-for="item in reqOptions" :key="item.id" :label="item.label" :value="item.id"/>
+              </el-select>
+            </el-input>
+          </div>
           <p class="tip">{{$t('api_test.definition.request.req_param')}} </p>
           <ms-api-request-form :headers="request.headers " :request="request" v-if="request.protocol==='HTTP'"/>
           <ms-tcp-basis-parameters :request="request" :currentProject="currentProject" v-if="request.protocol==='TCP'"/>
@@ -41,6 +48,7 @@
   import MsTcpBasisParameters from "../../definition/components/request/tcp/BasisParameters";
   import MsDubboBasisParameters from "../../definition/components/request/dubbo/BasisParameters";
   import MsApiRequestForm from "../../definition/components/request/http/ApiRequestForm";
+  import {REQ_METHOD} from "../../definition/model/JsonData";
 
   export default {
     name: "MsApiComponent",
@@ -51,7 +59,18 @@
     },
     components: {MsSqlBasisParameters, MsTcpBasisParameters, MsDubboBasisParameters, MsApiRequestForm},
     data() {
-      return {loading: false,}
+      return {loading: false, reqOptions: REQ_METHOD,}
+    },
+    created() {
+      if (this.request.protocol === 'HTTP') {
+        let urlObject = new URL(this.request.url);
+        let url = urlObject.protocol + "//" + urlObject.host + "/";
+        let path = this.request.url.substr(url.length);
+        if (!path.startsWith('/')) {
+          path = "/" + path;
+        }
+        this.request.path = path;
+      }
     },
     methods: {
       remove() {
@@ -92,6 +111,14 @@
 
   .icon.is-active {
     transform: rotate(90deg);
+  }
+
+  .tip {
+    padding: 3px 5px;
+    font-size: 16px;
+    border-radius: 4px;
+    border-left: 4px solid #783887;
+    margin: 20px 0;
   }
 
 </style>

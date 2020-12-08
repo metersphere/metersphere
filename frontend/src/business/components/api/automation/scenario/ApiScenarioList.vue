@@ -37,14 +37,13 @@
           </template>
         </el-table-column>
         <el-table-column prop="stepTotal" :label="$t('api_test.automation.step')" show-overflow-tooltip/>
-        <el-table-column prop="status" :label="$t('api_test.automation.last_result')">
+        <el-table-column prop="lastResult" :label="$t('api_test.automation.last_result')">
           <template v-slot:default="{row}">
-            <el-link type="success" v-if="row.status === 'Success'">{{ $t('api_test.automation.success') }}</el-link>
-            <el-link type="danger" v-if="row.status === 'Fail'">{{ $t('api_test.automation.fail') }}</el-link>
-            <el-link type="warning" v-if="row.status === 'Trash'">{{ $t('api_test.automation.trash') }}</el-link>
+            <el-link type="success" @click="showReport(row)" v-if="row.lastResult === 'Success'">{{ $t('api_test.automation.success') }}</el-link>
+            <el-link type="danger" @click="showReport(row)" v-if="row.lastResult === 'Fail'">{{ $t('api_test.automation.fail') }}</el-link>
           </template>
         </el-table-column>
-        <el-table-column prop="passingRate" :label="$t('api_test.automation.passing_rate')"
+        <el-table-column prop="passRate" :label="$t('api_test.automation.passing_rate')"
                          show-overflow-tooltip/>
         <el-table-column :label="$t('commons.operating')" width="180">
           <template v-slot:default="{row}">
@@ -59,9 +58,9 @@
                            :total="total"/>
 
       <div>
-        <!-- 调试结果 -->
+        <!-- 执行结果 -->
         <el-drawer :visible.sync="runVisible" :destroy-on-close="true" direction="ltr" :withHeader="false" :title="$t('test_track.plan_view.test_result')" :modal="false" size="90%">
-          <ms-api-report-detail :report-id="reportId" :currentProjectId="currentProject!=undefined ? currentProject.id:''"/>
+          <ms-api-report-detail @refresh="search" :infoDb="infoDb" :report-id="reportId" :currentProjectId="currentProject!=undefined ? currentProject.id:''"/>
         </el-drawer>
       </div>
     </el-card>
@@ -95,6 +94,7 @@
         pageSize: 10,
         total: 0,
         reportId: "",
+        infoDb: false,
         runVisible: false,
         runData: [],
         buttons: [
@@ -154,6 +154,7 @@
 
       },
       handleBatchExecute() {
+        this.infoDb = false;
         let url = "/api/automation/run";
         let run = {};
         let scenarioIds = this.selection;
@@ -179,6 +180,7 @@
         this.$emit('edit', row);
       },
       execute(row) {
+        this.infoDb = false;
         let url = "/api/automation/run";
         let run = {};
         let scenarioIds = [];
@@ -194,6 +196,11 @@
       copy(row) {
         row.id = getUUID();
         this.$emit('edit', row);
+      },
+      showReport(row) {
+        this.runVisible = true;
+        this.infoDb = true;
+        this.reportId = row.reportId;
       },
       remove(row) {
         if (this.currentModule !== undefined && this.currentModule != null && this.currentModule.id === "gc") {

@@ -263,7 +263,7 @@
               @runRefresh="runRefresh" ref="runTest"/>
       <!-- 调试结果 -->
       <el-drawer :visible.sync="debugVisible" :destroy-on-close="true" direction="ltr" :withHeader="false" :title="$t('test_track.plan_view.test_result')" :modal="false" size="90%">
-        <ms-api-report-detail :report-id="reportId" :currentProjectId="currentProject.id"/>
+        <ms-api-report-detail :report-id="reportId" :debug="true" :currentProjectId="currentProject.id"/>
       </el-drawer>
 
       <!--场景公共参数-->
@@ -553,7 +553,11 @@
           this.$error(this.$t('api_test.environment.select_environment'));
           return;
         }
-        this.debugData = {id: this.currentScenario.id, name: this.currentScenario.name, type: "scenario", referenced: 'Created', environmentId: this.currentEnvironmentId, hashTree: this.scenarioDefinition};
+        this.debugData = {
+          id: this.currentScenario.id, name: this.currentScenario.name, type: "scenario",
+          variables: this.currentScenario.variables, referenced: 'Created',
+          environmentId: this.currentEnvironmentId, hashTree: this.scenarioDefinition
+        };
         this.reportId = getUUID().substring(0, 8);
       },
       getEnvironments() {
@@ -681,6 +685,7 @@
               if (response.data.scenarioDefinition != null) {
                 let obj = JSON.parse(response.data.scenarioDefinition);
                 this.currentEnvironmentId = obj.environmentId;
+                this.currentScenario.variables = obj.variables;
                 this.scenarioDefinition = obj.hashTree;
               }
             }
@@ -695,7 +700,10 @@
         this.currentScenario.stepTotal = this.scenarioDefinition.length;
         this.currentScenario.modulePath = this.getPath(this.currentScenario.apiScenarioModuleId);
         // 构建一个场景对象 方便引用处理
-        let scenario = {id: this.currentScenario.id, name: this.currentScenario.name, type: "scenario", referenced: 'Created', environmentId: this.currentEnvironmentId, hashTree: this.scenarioDefinition};
+        let scenario = {
+          id: this.currentScenario.id, name: this.currentScenario.name, variables: this.currentScenario.variables,
+          type: "scenario", referenced: 'Created', environmentId: this.currentEnvironmentId, hashTree: this.scenarioDefinition
+        };
         this.currentScenario.scenarioDefinition = scenario;
         this.currentScenario.tagId = JSON.stringify(this.currentScenario.tagId);
         if (this.currentModule != null) {

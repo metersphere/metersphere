@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.annotation.JSONType;
 import io.metersphere.api.dto.definition.request.MsTestElement;
+import io.metersphere.api.dto.definition.request.ParameterConfig;
 import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
 import io.metersphere.api.service.ApiTestEnvironmentService;
 import io.metersphere.base.domain.ApiTestEnvironmentWithBLOBs;
@@ -50,7 +51,7 @@ public class MsAuthManager extends MsTestElement {
     @JSONField(ordinal = 18)
     private String environment;
 
-    public void toHashTree(HashTree tree, List<MsTestElement> hashTree, EnvironmentConfig config) {
+    public void toHashTree(HashTree tree, List<MsTestElement> hashTree, ParameterConfig config) {
         AuthManager authManager = new AuthManager();
         authManager.setEnabled(true);
         authManager.setName(this.getUsername() + "AuthManager");
@@ -63,8 +64,8 @@ public class MsAuthManager extends MsTestElement {
             if (environment != null) {
                 ApiTestEnvironmentService environmentService = CommonBeanFactory.getBean(ApiTestEnvironmentService.class);
                 ApiTestEnvironmentWithBLOBs environmentWithBLOBs = environmentService.get(environment);
-                config = JSONObject.parseObject(environmentWithBLOBs.getConfig(), EnvironmentConfig.class);
-                this.url = config.getHttpConfig().getProtocol() + "://" + config.getHttpConfig().getSocket();
+                EnvironmentConfig envConfig = JSONObject.parseObject(environmentWithBLOBs.getConfig(), EnvironmentConfig.class);
+                this.url = envConfig.getHttpConfig().getProtocol() + "://" + envConfig.getHttpConfig().getSocket();
             }
         }
         auth.setDomain(this.domain);

@@ -9,9 +9,8 @@ import com.google.gson.Gson;
 import io.metersphere.api.dto.APIReportResult;
 import io.metersphere.api.dto.automation.*;
 import io.metersphere.api.dto.definition.RunDefinitionRequest;
-import io.metersphere.api.dto.definition.request.MsTestElement;
-import io.metersphere.api.dto.definition.request.MsTestPlan;
-import io.metersphere.api.dto.definition.request.MsThreadGroup;
+import io.metersphere.api.dto.definition.request.*;
+import io.metersphere.api.dto.scenario.KeyValue;
 import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
 import io.metersphere.api.jmeter.JMeterService;
 import io.metersphere.base.domain.*;
@@ -244,7 +243,6 @@ public class ApiAutomationService {
         MsTestPlan testPlan = new MsTestPlan();
         testPlan.setHashTree(new LinkedList<>());
         HashTree jmeterTestPlanHashTree = new ListedHashTree();
-        EnvironmentConfig config = null;
         for (ApiScenario item : apiScenarios) {
             MsThreadGroup group = new MsThreadGroup();
             group.setLabel(item.getName());
@@ -253,22 +251,23 @@ public class ApiAutomationService {
                 ObjectMapper mapper = new ObjectMapper();
                 mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
                 JSONObject element = JSON.parseObject(item.getScenarioDefinition());
-                String environmentId = element.getString("environmentId");
-                if (environmentId != null) {
-                    ApiTestEnvironmentWithBLOBs environment = environmentService.get(environmentId);
-                    config = JSONObject.parseObject(environment.getConfig(), EnvironmentConfig.class);
-                }
-
-                LinkedList<MsTestElement> elements = mapper.readValue(element.getString("hashTree"), new TypeReference<LinkedList<MsTestElement>>() {
-                });
-                group.setHashTree(elements);
+                MsScenario scenario = JSONObject.parseObject(item.getScenarioDefinition(), MsScenario.class);
+                // 多态JSON普通转换会丢失内容，需要通过 ObjectMapper 获取
+                LinkedList<MsTestElement> elements = mapper.readValue(element.getString("hashTree"),
+                        new TypeReference<LinkedList<MsTestElement>>() {});
+                LinkedList<KeyValue> variables = mapper.readValue(element.getString("variables"),
+                        new TypeReference<LinkedList<KeyValue>>() {});
+                scenario.setHashTree(elements);
+                scenario.setVariables(variables);
+                LinkedList<MsTestElement> scenarios = new LinkedList<>();
+                scenarios.add(scenario);
+                group.setHashTree(scenarios);
                 testPlan.getHashTree().add(group);
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
         }
-        testPlan.toHashTree(jmeterTestPlanHashTree, testPlan.getHashTree(), config);
-
+        testPlan.toHashTree(jmeterTestPlanHashTree, testPlan.getHashTree(), new ParameterConfig());
         // 调用执行方法
         jMeterService.runDefinition(request.getId(), jmeterTestPlanHashTree, request.getReportId(), ApiRunMode.SCENARIO.name());
         createAPIReportResult(request.getId());
@@ -286,11 +285,13 @@ public class ApiAutomationService {
     public String run(RunDefinitionRequest request, List<MultipartFile> bodyFiles) {
         List<String> bodyUploadIds = new ArrayList<>(request.getBodyUploadIds());
         createBodyFiles(bodyUploadIds, bodyFiles);
-        EnvironmentConfig config = null;
+        EnvironmentConfig envConfig = null;
         if (request.getEnvironmentId() != null) {
             ApiTestEnvironmentWithBLOBs environment = environmentService.get(request.getEnvironmentId());
-            config = JSONObject.parseObject(environment.getConfig(), EnvironmentConfig.class);
+            envConfig = JSONObject.parseObject(environment.getConfig(), EnvironmentConfig.class);
         }
+        ParameterConfig config = new ParameterConfig();
+        config.setConfig(envConfig);
         HashTree hashTree = request.getTestElement().generateHashTree(config);
         request.getTestElement().getJmx(hashTree);
 
