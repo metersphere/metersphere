@@ -120,7 +120,7 @@
       saveAs() {
         this.$refs['debugForm'].validate((valid) => {
           if (valid) {
-            this.debugForm.request = JSON.stringify(this.request);
+            this.debugForm.request = this.request;
             this.debugForm.userId = getCurrentUser().id;
             this.debugForm.status = "Underway";
             this.debugForm.protocol = this.currentProtocol;

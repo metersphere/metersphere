@@ -1,18 +1,18 @@
 <template>
   <div id="menu-bar" v-if="isRouterAlive">
     <el-row type="flex">
-      <el-col :span="10">
+      <el-col :span="14">
         <el-menu class="header-menu" :unique-opened="true" mode="horizontal" router :default-active='$route.path'>
 
           <el-submenu :class="{'deactivation':!isProjectActivation}" v-permission="['test_manager','test_user','test_viewer']" index="3">
             <template v-slot:title>{{ $t('commons.project') }}</template>
             <search-list ref="projectRecent" :options="projectRecent"/>
             <el-divider class="menu-divider"/>
-            <el-menu-item :index="'/performance/project/create'">
+            <el-menu-item :index="'/setting/project/create'">
               <font-awesome-icon :icon="['fa', 'plus']"/>
-              <span style="padding-left: 7px;">创建项目</span>
+              <span style="padding-left: 7px;">{{ $t("project.create") }}</span>
             </el-menu-item>
-            <ms-show-all :index="'/setting/project'"/>
+            <ms-show-all :index="'/setting/project/all'"/>
           </el-submenu>
 
           <el-menu-item :index="'/api/home'">
@@ -54,12 +54,12 @@
           </el-menu-item>
         </el-menu>
       </el-col>
-      <el-col :span="8">
+      <el-col :span="6">
         <el-row type="flex" justify="center">
           <ms-create-test :to="'/api/test/create'"/>
         </el-row>
       </el-col>
-      <el-col :span="6"/>
+      <el-col :span="4"/>
     </el-row>
   </div>
 

@@ -190,6 +190,7 @@
       api: {
         type: Object
       },
+      createCase: String,
       visible: {
         type: Boolean,
         default: false,
@@ -217,7 +218,6 @@
 
       }
     },
-
     watch: {
       // 初始化
       api() {
@@ -237,13 +237,35 @@
           this.currentRow.cases = [];
         }
         this.getApiTest();
+      },
+      createCase() {
+        this.sysAddition();
       }
     },
     created() {
-      this.getApiTest();
       this.getEnvironments();
+      if (this.createCase) {
+        this.sysAddition();
+      } else {
+        this.getApiTest();
+      }
     },
     methods: {
+      sysAddition() {
+        let condition = {};
+        condition.projectId = this.api.projectId;
+        condition.apiDefinitionId = this.api.id;
+        condition.priority = this.priorityValue;
+        condition.name = this.name;
+        this.$post("/api/testcase/list", condition, response => {
+          for (let index in response.data) {
+            let test = response.data[index];
+            test.request = JSON.parse(test.request);
+          }
+          this.apiCaseList = response.data;
+          this.addCase();
+        });
+      },
       getResult(data) {
         if (RESULT_MAP.get(data)) {
           return RESULT_MAP.get(data);

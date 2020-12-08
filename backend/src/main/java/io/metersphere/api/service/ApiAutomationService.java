@@ -34,6 +34,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+
 import java.io.*;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -101,7 +102,7 @@ public class ApiAutomationService {
         scenario.setFollowPeople(request.getFollowPeople());
         scenario.setPrincipal(request.getPrincipal());
         scenario.setStepTotal(request.getStepTotal());
-        scenario.setScenarioDefinition(request.getScenarioDefinition());
+        scenario.setScenarioDefinition(JSON.toJSONString(request.getScenarioDefinition()));
         scenario.setCreateTime(System.currentTimeMillis());
         scenario.setUpdateTime(System.currentTimeMillis());
         if (StringUtils.isNotEmpty(request.getStatus())) {
@@ -137,7 +138,7 @@ public class ApiAutomationService {
         scenario.setFollowPeople(request.getFollowPeople());
         scenario.setPrincipal(request.getPrincipal());
         scenario.setStepTotal(request.getStepTotal());
-        scenario.setScenarioDefinition(request.getScenarioDefinition());
+        scenario.setScenarioDefinition(JSON.toJSONString(request.getScenarioDefinition()));
         scenario.setUpdateTime(System.currentTimeMillis());
         if (StringUtils.isNotEmpty(request.getStatus())) {
             scenario.setStatus(request.getStatus());
@@ -298,5 +299,9 @@ public class ApiAutomationService {
         jMeterService.runDefinition(request.getId(), hashTree, request.getReportId(), ApiRunMode.SCENARIO.name());
         createAPIReportResult(request.getId());
         return request.getId();
+    }
+
+    public List<ApiScenario> getReference(ApiScenarioRequest request) {
+        return extApiScenarioMapper.selectReference(request);
     }
 }

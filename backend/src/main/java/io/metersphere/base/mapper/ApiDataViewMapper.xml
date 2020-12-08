@@ -15,7 +15,7 @@
     </delete>
 
     <select id="selectAll" resultType="io.metersphere.api.dto.ApiMonitorSearch">
-        select distinct url from api_data_view;
+        select distinct url from api_data_view order by url;
     </select>
 
     <select id="selectResponseTimeByUrl" parameterType="java.lang.String"
@@ -56,7 +56,7 @@
     </select>
 
     <select id="selectReportIdByUrlAndStartTime" resultType="java.lang.String">
-        select report_id from api_data_view where response_code != 200 and url=#{apiUrl} and start_time=#{startTime};
+        select report_id from api_data_view where url=#{apiUrl} and start_time=#{startTime};
     </select>
 
     <insert id="insertListApiData" parameterType="java.util.List">

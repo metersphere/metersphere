@@ -125,10 +125,12 @@
                   {{currentScenario.name ===undefined || ''? $t('api_test.scenario.name') : currentScenario.name}}
                 </el-col>
                 <el-col :span="4" class="ms-col-one">
-                  {{$t('api_test.automation.step_total')}}:{{scenarioDefinition.length}}
+                  {{$t('api_test.automation.step_total')}}：{{scenarioDefinition.length}}
                 </el-col>
                 <el-col :span="4" class="ms-col-one">
-                  {{$t('api_test.automation.scenario_total')}}:
+                  <el-link style="font-size: 13px" @click="showScenarioParameters">{{$t('api_test.automation.scenario_total')}}：
+                    {{this.currentScenario.variables!=undefined?this.currentScenario.variables.length-1: 0}}
+                  </el-link>
                 </el-col>
                 <el-col :span="8">
                   {{$t('api_test.definition.request.run_env')}}:
@@ -263,6 +265,9 @@
       <el-drawer :visible.sync="debugVisible" :destroy-on-close="true" direction="ltr" :withHeader="false" :title="$t('test_track.plan_view.test_result')" :modal="false" size="90%">
         <ms-api-report-detail :report-id="reportId" :currentProjectId="currentProject.id"/>
       </el-drawer>
+
+      <!--场景公共参数-->
+      <ms-scenario-parameters :currentScenario="currentScenario" @addParameters="addParameters" ref="scenarioParameters"/>
     </div>
   </el-card>
 </template>
@@ -288,6 +293,7 @@
   import MsImportApiScenario from "./ImportApiScenario";
   import MsApiScenarioComponent from "./ApiScenarioComponent";
   import MsApiReportDetail from "../report/ApiReportDetail";
+  import MsScenarioParameters from "./ScenarioParameters";
 
 
   export default {
@@ -297,7 +303,15 @@
       currentProject: {},
       currentScenario: {},
     },
-    components: {ApiEnvironmentConfig, MsApiReportDetail, MsAddTag, MsRun, MsApiScenarioComponent, MsImportApiScenario, MsJsr233Processor, MsConstantTimer, MsIfController, MsApiAssertions, MsApiExtract, MsApiDefinition, MsApiComponent, MsApiCustomize},
+    components: {
+      ApiEnvironmentConfig, MsScenarioParameters,
+      MsApiReportDetail, MsAddTag, MsRun,
+      MsApiScenarioComponent, MsImportApiScenario,
+      MsJsr233Processor, MsConstantTimer,
+      MsIfController, MsApiAssertions,
+      MsApiExtract, MsApiDefinition,
+      MsApiComponent, MsApiCustomize
+    },
     data() {
       return {
         props: {
@@ -648,9 +662,6 @@
           if (valid) {
             this.setParameter();
             let bodyFiles = this.getBodyUploadFiles(this.currentScenario);
-            console.log(bodyFiles)
-            console.log(this.currentScenario.bodyUploadIds)
-
             this.$fileUpload(this.path, null, bodyFiles, this.currentScenario, () => {
               this.$success(this.$t('commons.save_success'));
               this.path = "/api/automation/update";
@@ -685,7 +696,7 @@
         this.currentScenario.modulePath = this.getPath(this.currentScenario.apiScenarioModuleId);
         // 构建一个场景对象 方便引用处理
         let scenario = {id: this.currentScenario.id, name: this.currentScenario.name, type: "scenario", referenced: 'Created', environmentId: this.currentEnvironmentId, hashTree: this.scenarioDefinition};
-        this.currentScenario.scenarioDefinition = JSON.stringify(scenario);
+        this.currentScenario.scenarioDefinition = scenario;
         this.currentScenario.tagId = JSON.stringify(this.currentScenario.tagId);
         if (this.currentModule != null) {
           this.currentScenario.modulePath = this.currentModule.method !== undefined ? this.currentModule.method : null;
@@ -695,6 +706,13 @@
       runRefresh() {
         this.debugVisible = true;
         this.isReloadData = false;
+      },
+      showScenarioParameters() {
+        this.$refs.scenarioParameters.open(this.currentScenario.variables);
+      },
+      addParameters(data) {
+        this.currentScenario.variables = data;
+        this.reload();
       }
     }
   }

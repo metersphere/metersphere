@@ -1,4 +1,4 @@
-import MsProject from "@/business/components/project/MsProject";
+import MsProject from "@/business/components/settings/project/MsProject";
 
 const PerformanceTest = () => import('@/business/components/performance/PerformanceTest')
 const PerformanceTestHome = () => import('@/business/components/performance/home/PerformanceTestHome')
@@ -43,11 +43,11 @@ export default {
       name: "perPlan",
       component: PerformanceTestList
     },
-    {
-      path: "project/:type",
-      name: "perProject",
-      component: MsProject
-    },
+    // {
+    //   path: "project/:type",
+    //   name: "perProject",
+    //   component: MsProject
+    // },
     {
       path: "report/:type",
       name: "perReport",

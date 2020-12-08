@@ -56,7 +56,7 @@
       },
       editApi(row) {
         let name = this.request.name;
-        Object.assign(this.request, JSON.parse(row.request));
+        Object.assign(this.request, row.request);
         this.request.name = name;
         this.request.resourceId = getUUID();
         this.$emit('addCustomizeApi', this.request);

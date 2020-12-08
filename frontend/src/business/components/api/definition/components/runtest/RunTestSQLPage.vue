@@ -30,9 +30,10 @@
     <!-- 加载用例 -->
     <el-drawer :visible.sync="visible" direction="btt" :with-header="false" :modal="false" size="50%">
       <ms-api-case-list @apiCaseClose="apiCaseClose" @selectTestCase="selectTestCase" :api="api" :refreshSign="refreshSign"
-                        :currentProject="currentProject" :loaded="loaded"
+                        :currentProject="currentProject" :loaded="loaded" :createCase="createCase"
                         ref="caseList"/>
-    </el-drawer>>
+    </el-drawer>
+    >
 
     <!-- 环境 -->
     <api-environment-config ref="environmentConfig" @close="environmentConfigClose"/>
@@ -79,6 +80,7 @@
         responseData: {type: 'HTTP', responseResult: {}, subRequestResults: []},
         reqOptions: REQ_METHOD,
         refreshSign: "",
+        createCase: "",
         environments: [],
         rules: {
           method: [{required: true, message: this.$t('test_track.case.input_maintainer'), trigger: 'change'}],
@@ -151,9 +153,9 @@
         return bodyUploadFiles;
       },
       saveAsCase() {
-        this.visible = false;
+        this.createCase = getUUID();
+        this.visible = true;
         this.loaded = false;
-        this.$refs.caseList.addCase();
       },
       saveAsApi() {
         let data = {};
@@ -249,7 +251,8 @@
     border-radius: 4px;
     border-left: 4px solid #783887;
   }
-  /deep/.el-drawer{
+
+  /deep/ .el-drawer {
     overflow: auto;
   }
 </style>

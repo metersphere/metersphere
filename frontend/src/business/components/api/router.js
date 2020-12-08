@@ -1,4 +1,4 @@
-import MsProject from "@/business/components/project/MsProject";
+import MsProject from "@/business/components/settings/project/MsProject";
 
 export default {
   path: "/api",
@@ -24,11 +24,11 @@ export default {
       name: "ApiTestList",
       component: () => import('@/business/components/api/test/ApiTestList'),
     },
-    {
-      path: "project/:type",
-      name: "fucProject",
-      component: MsProject,
-    },
+    // {
+    //   path: "project/:type",
+    //   name: "fucProject",
+    //   component: MsProject,
+    // },
     {
       path: "report/list/:testId",
       name: "ApiReportList",
@@ -53,6 +53,11 @@ export default {
       path: "automation/report",
       name: "ApiReportList",
       component: () => import('@/business/components/api/automation/report/ApiReportList'),
-    }
+    },    
+    {
+      path: 'monitor/view',
+      name: 'ApiMonitor',
+      component: () => import('@/business/components/api/monitor/ApiMonitor'),
+    },
   ]
 }
