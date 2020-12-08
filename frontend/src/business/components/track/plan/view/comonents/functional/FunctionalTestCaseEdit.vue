@@ -351,17 +351,17 @@
 </template>
 
 <script>
-import TestPlanTestCaseStatusButton from '../../common/TestPlanTestCaseStatusButton';
+import TestPlanTestCaseStatusButton from '../../../common/TestPlanTestCaseStatusButton';
 import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
-import ApiTestDetail from "./test/ApiTestDetail";
-import ApiTestResult from "./test/ApiTestResult";
-import PerformanceTestDetail from "./test/PerformanceTestDetail";
-import PerformanceTestResult from "./test/PerformanceTestResult";
+import ApiTestDetail from "../test/ApiTestDetail";
+import ApiTestResult from "../test/ApiTestResult";
+import PerformanceTestDetail from "../test/PerformanceTestDetail";
+import PerformanceTestResult from "../test/PerformanceTestResult";
 import {listenGoBack, removeGoBackListener} from "@/common/js/utils";
 import TestCaseAttachment from "@/business/components/track/case/components/TestCaseAttachment";
 
 export default {
-  name: "TestPlanTestCaseEdit",
+  name: "FunctionalTestCaseEdit",
   components: {
     PerformanceTestResult,
     PerformanceTestDetail,

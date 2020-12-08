@@ -1,7 +1,7 @@
 <template>
   <div>
     <span class="menu-title">{{'[' + title + ']'}}</span>
-    <el-select filterable slot="prepend" v-model="value" @change="changeData" class="project_menu"
+    <el-select filterable slot="prepend" v-model="value" @change="changeData" :style="{width: width}"
                size="small">
       <el-option v-for="(item,index) in data" :key="index" :label="item.name" :value="index"/>
     </el-select>
@@ -20,6 +20,12 @@
       },
       title: {
         type: String
+      },
+      width: {
+        type: String,
+        default() {
+          return "214px";
+        }
       }
     },
     data() {
@@ -43,9 +49,6 @@
 </script>
 
 <style scoped>
-  .project_menu {
-    width: 214px;
-  }
 
   .menu-title {
     color: darkgrey;
