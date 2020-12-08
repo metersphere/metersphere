@@ -81,7 +81,7 @@ export default {
     },
     {
       path: 'project/:type',
-      component: () => import('@/business/components/settings/project/Project'),
+      component: () => import('@/business/components/settings/project/MsProject'),
       meta: {project: true, title: 'project.manager'}
     },
 

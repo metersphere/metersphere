@@ -1,4 +1,4 @@
-import MsProject from "@/business/components/project/MsProject";
+import MsProject from "@/business/components/settings/project/MsProject";
 
 export default {
   path: "/api",
