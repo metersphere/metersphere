@@ -562,6 +562,10 @@ export default {
       execute: "执行",
       copy: "复制",
       remove: "删除",
+      view_ref: "查看引用",
+      case_ref: "用例引用",
+      scenario_ref: "场景引用",
+      plan_ref: "测试计划引用",
       batch_add_plan: "批量添加到测试计划",
       batch_execute: "批量执行",
       scenario: {
