@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+
 import java.util.List;
 
 @RestController
@@ -79,6 +80,11 @@ public class ApiAutomationController {
     @PostMapping(value = "/run")
     public void run(@RequestBody RunScenarioRequest request) {
         apiAutomationService.run(request);
+    }
+
+    @PostMapping("/getReference")
+    public List<ApiScenario> getReference(@RequestBody ApiScenarioRequest request) {
+        return apiAutomationService.getReference(request);
     }
 
 }

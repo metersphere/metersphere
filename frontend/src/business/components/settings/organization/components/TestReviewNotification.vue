@@ -17,7 +17,7 @@
           :cell-style="rowClass"
           :header-cell-style="headClass"
         >
-          <el-table-column :label="$t('schedule.event')" min-width="20%" prop="events">
+          <el-table-column :label="$t('schedule.event')" min-width="15%" prop="events">
             <template slot-scope="scope">
               <el-select v-model="scope.row.event" :placeholder="$t('organization.message.select_events')" size="mini"
                          @change="handleReviewReceivers(scope.row)"
@@ -65,8 +65,16 @@
                         :disabled="!scope.row.isSet||!scope.row.isReadOnly"></el-input>
             </template>
           </el-table-column>
-          <el-table-column :label="$t('commons.operating')" min-width="20%" prop="result">
+          <el-table-column :label="$t('commons.operating')" min-width="25%" prop="result">
             <template v-slot:default="scope">
+              <el-button
+                type="success"
+                size="mini"
+                v-if="scope.row.isSet"
+                v-xpack
+                @click="handleTemplate(scope.$index,scope.row)"
+              >{{ $t('organization.message.template') }}
+              </el-button>
               <el-button
                 type="primary"
                 size="mini"
@@ -99,14 +107,22 @@
         </el-table>
       </el-col>
     </el-row>
+    <notice-template v-xpack ref="noticeTemplate"/>
   </div>
 </template>
 
 <script>
+import {hasLicense} from "@/common/js/utils";
+
 const TASK_TYPE = 'REVIEW_TASK';
+const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
+const noticeTemplate = requireComponent.keys().length > 0 ? requireComponent("./notice/NoticeTemplate.vue") : {};
 
 export default {
   name: "TestReviewNotification",
+  components: {
+    "NoticeTemplate": noticeTemplate.default
+  },
   props: {
     reviewReceiverOptions: {
       type: Array
@@ -236,6 +252,11 @@ export default {
           break;
       }
       row.reviewReceiverOptions = reviewReceiverOptions;
+    },
+    handleTemplate(index, row) {
+      if (hasLicense()) {
+        this.$refs.noticeTemplate.open(row);
+      }
     }
   },
   watch: {

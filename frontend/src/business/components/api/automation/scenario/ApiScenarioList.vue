@@ -46,12 +46,13 @@
         </el-table-column>
         <el-table-column prop="passingRate" :label="$t('api_test.automation.passing_rate')"
                          show-overflow-tooltip/>
-        <el-table-column :label="$t('commons.operating')" width="180">
+        <el-table-column :label="$t('commons.operating')" width="240">
           <template v-slot:default="{row}">
             <el-button type="text" @click="edit(row)">{{ $t('api_test.automation.edit') }}</el-button>
             <el-button type="text" @click="execute(row)">{{ $t('api_test.automation.execute') }}</el-button>
             <el-button type="text" @click="copy(row)">{{ $t('api_test.automation.copy') }}</el-button>
             <el-button type="text" @click="remove(row)">{{ $t('api_test.automation.remove') }}</el-button>
+            <ms-scenario-extend-buttons :row="row"/>
           </template>
         </el-table-column>
       </el-table>
@@ -76,10 +77,11 @@
   import MsTag from "../../../common/components/MsTag";
   import {getUUID} from "@/common/js/utils";
   import MsApiReportDetail from "../report/ApiReportDetail";
+  import MsScenarioExtendButtons from "@/business/components/api/automation/scenario/ScenarioExtendBtns";
 
   export default {
     name: "MsApiScenarioList",
-    components: {ShowMoreBtn, MsTablePagination, MsTableHeader, MsTag, MsApiReportDetail},
+    components: {MsScenarioExtendButtons, ShowMoreBtn, MsTablePagination, MsTableHeader, MsTag, MsApiReportDetail},
     props: {
       currentProject: Object,
       currentModule: Object,

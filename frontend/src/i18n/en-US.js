@@ -244,7 +244,8 @@ export default {
         '3. When selecting the receiver, it must be the person included in the group you created. The mobile phone number of the receiver is required and it is the mobile phone number used by the nailing enterprise,',
       message: 'Event, receiver and receiving method are required\n' +
         '\n',
-      message_webhook: 'Webhook is required when the receiving mode is nail or enterprise robot'
+      message_webhook: 'Webhook is required when the receiving mode is nail or enterprise robot',
+      template: "Template"
     },
     integration: {
       select_defect_platform: 'Please select the defect management platform to be integrated:',
