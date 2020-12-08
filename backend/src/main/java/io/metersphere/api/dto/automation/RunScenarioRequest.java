@@ -15,5 +15,7 @@ public class RunScenarioRequest {
 
     private String environmentId;
 
+    private String triggerMode;
+
     private List<String> scenarioIds;
 }

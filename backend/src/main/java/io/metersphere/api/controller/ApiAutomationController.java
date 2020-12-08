@@ -9,6 +9,7 @@ import io.metersphere.api.dto.automation.SaveApiScenarioRequest;
 import io.metersphere.api.dto.definition.RunDefinitionRequest;
 import io.metersphere.api.service.ApiAutomationService;
 import io.metersphere.base.domain.ApiScenario;
+import io.metersphere.base.domain.Schedule;
 import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
@@ -44,6 +45,16 @@ public class ApiAutomationController {
     @PostMapping(value = "/update")
     public void update(@RequestPart("request") SaveApiScenarioRequest request, @RequestPart(value = "files") List<MultipartFile> bodyFiles) {
         apiAutomationService.update(request, bodyFiles);
+    }
+
+    @PostMapping(value = "/schedule/update")
+    public void updateSchedule(@RequestBody Schedule schedule) {
+        apiAutomationService.updateSchedule(schedule);
+    }
+
+    @PostMapping(value = "/schedule/create")
+    public void createSchedule(@RequestBody Schedule schedule) {
+        apiAutomationService.createSchedule(schedule);
     }
 
     @GetMapping("/delete/{id}")

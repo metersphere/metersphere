@@ -45,13 +45,14 @@
         </el-table-column>
         <el-table-column prop="passRate" :label="$t('api_test.automation.passing_rate')"
                          show-overflow-tooltip/>
-        <el-table-column :label="$t('commons.operating')" width="180">
+        <el-table-column :label="$t('commons.operating')" width="160">
           <template v-slot:default="{row}">
             <el-button type="text" @click="edit(row)">{{ $t('api_test.automation.edit') }}</el-button>
             <el-button type="text" @click="execute(row)">{{ $t('api_test.automation.execute') }}</el-button>
             <el-button type="text" @click="copy(row)">{{ $t('api_test.automation.copy') }}</el-button>
-            <el-button type="text" @click="remove(row)">{{ $t('api_test.automation.remove') }}</el-button>
+            <ms-table-more-btn :is-show="true" :row="row" :buttons="tableButtons"/>
           </template>
+
         </el-table-column>
       </el-table>
       <ms-table-pagination :change="search" :current-page.sync="currentPage" :page-size.sync="pageSize"
@@ -62,6 +63,13 @@
         <el-drawer :visible.sync="runVisible" :destroy-on-close="true" direction="ltr" :withHeader="false" :title="$t('test_track.plan_view.test_result')" :modal="false" size="90%">
           <ms-api-report-detail @refresh="search" :infoDb="infoDb" :report-id="reportId" :currentProjectId="currentProject!=undefined ? currentProject.id:''"/>
         </el-drawer>
+
+        <!--定时任务-->
+        <!--<ms-schedule-config :schedule="currentScenario.schedule" :is-read-only="false" :save="saveCronExpression"-->
+        <!--@scheduleChange="saveSchedule" :test-id="currentScenario.id" :check-open="checkScheduleEdit"/>-->
+        <ms-schedule-edit :is-read-only="false" :schedule="schedule" :test-id="currentScenario.id" :save="saveCronExpression"
+                          ref="scheduleEdit"/>
+
       </div>
     </el-card>
 
@@ -75,10 +83,13 @@
   import MsTag from "../../../common/components/MsTag";
   import {getUUID} from "@/common/js/utils";
   import MsApiReportDetail from "../report/ApiReportDetail";
+  import MsTableMoreBtn from "./TableMoreBtn";
+  import MsScheduleConfig from "../../../common/components/MsScheduleConfig";
+  import MsScheduleEdit from "../../../common/components/MsScheduleEdit";
 
   export default {
     name: "MsApiScenarioList",
-    components: {ShowMoreBtn, MsTablePagination, MsTableHeader, MsTag, MsApiReportDetail},
+    components: {ShowMoreBtn, MsTablePagination, MsTableHeader, MsTag, MsApiReportDetail, MsTableMoreBtn, MsScheduleConfig, MsScheduleEdit},
     props: {
       currentProject: Object,
       currentModule: Object,
@@ -87,6 +98,8 @@
       return {
         result: {},
         condition: {},
+        currentScenario: {},
+        schedule: {},
         selectAll: false,
         selection: [],
         tableData: [],
@@ -102,6 +115,15 @@
             name: this.$t('api_test.automation.batch_add_plan'), handleClick: this.handleBatchAddCase
           }, {
             name: this.$t('api_test.automation.batch_execute'), handleClick: this.handleBatchExecute
+          }
+        ],
+        tableButtons: [
+          {
+            name: this.$t('api_test.automation.remove'), handleClick: this.remove
+          }, {
+            name: '查看引用', handleClick: this.handleQuote
+          }, {
+            name: this.$t('commons.trigger_mode.schedule'), handleClick: this.handleSchedule
           }
         ],
       }
@@ -201,6 +223,42 @@
         this.runVisible = true;
         this.infoDb = true;
         this.reportId = row.reportId;
+      },
+      handleQuote() {
+
+      },
+      handleSchedule(row) {
+        this.currentScenario = row;
+        if (row.schedule) {
+          if (Object.prototype.toString.call(row.schedule).match(/\[object (\w+)\]/)[1].toLowerCase() === 'object') {
+            this.schedule = row.schedule;
+          } else {
+            this.schedule = JSON.parse(row.schedule);
+          }
+        }
+        this.$refs.scheduleEdit.open();
+      },
+      saveCronExpression(cronExpression) {
+        this.schedule.enable = true;
+        this.schedule.value = cronExpression;
+        this.saveSchedule();
+      },
+      saveSchedule() {
+        this.checkScheduleEdit();
+        let param = {};
+        param = this.schedule;
+        param.resourceId = this.currentScenario.id;
+        let url = '/api/automation/schedule/create';
+        if (param.id) {
+          url = '/api/automation/schedule/update';
+        }
+        this.$post(url, param, () => {
+          this.$success(this.$t('commons.save_success'));
+          this.search();
+        });
+      },
+      checkScheduleEdit() {
+        return true;
       },
       remove(row) {
         if (this.currentModule !== undefined && this.currentModule != null && this.currentModule.id === "gc") {

@@ -17,12 +17,14 @@ import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ApiScenarioMapper;
 import io.metersphere.base.mapper.ApiTagMapper;
 import io.metersphere.base.mapper.ext.ExtApiScenarioMapper;
-import io.metersphere.commons.constants.APITestStatus;
-import io.metersphere.commons.constants.ApiRunMode;
+import io.metersphere.commons.constants.*;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.i18n.Translator;
+import io.metersphere.job.sechedule.ApiTestJob;
+import io.metersphere.job.sechedule.ScenarioJob;
+import io.metersphere.service.ScheduleService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jorphan.collections.HashTree;
@@ -55,6 +57,8 @@ public class ApiAutomationService {
     private ApiTestEnvironmentService environmentService;
     @Resource
     private ApiScenarioReportService apiReportService;
+    @Resource
+    private ScheduleService scheduleService;
 
     private static final String BODY_FILE_DIR = "/opt/metersphere/data/body";
 
@@ -118,6 +122,27 @@ public class ApiAutomationService {
 
         List<String> bodyUploadIds = new ArrayList<>(request.getBodyUploadIds());
         createBodyFiles(bodyUploadIds, bodyFiles);
+    }
+
+    private Schedule buildApiTestSchedule(Schedule request) {
+        Schedule schedule = scheduleService.buildApiTestSchedule(request);
+        schedule.setJob(ScenarioJob.class.getName());
+        schedule.setGroup(ScheduleGroup.SCENARIO_TEST.name());
+        schedule.setType(ScheduleType.CRON.name());
+        return schedule;
+    }
+
+    private void addOrUpdateApiTestCronJob(Schedule request) {
+        scheduleService.addOrUpdateCronJob(request, ApiTestJob.getJobKey(request.getResourceId()), ApiTestJob.getTriggerKey(request.getResourceId()), ApiTestJob.class);
+    }
+
+    public void updateSchedule(Schedule schedule) {
+        scheduleService.addSchedule(buildApiTestSchedule(schedule));
+        addOrUpdateApiTestCronJob(schedule);
+    }
+    public void createSchedule(Schedule request) {
+        scheduleService.addSchedule(buildApiTestSchedule(request));
+        addOrUpdateApiTestCronJob(request);
     }
 
     public void update(SaveApiScenarioRequest request, List<MultipartFile> bodyFiles) {
@@ -218,7 +243,7 @@ public class ApiAutomationService {
         }
     }
 
-    private void createAPIReportResult(String id) {
+    private void createAPIReportResult(String id, String triggerMode) {
         APIReportResult report = new APIReportResult();
         report.setId(id);
         report.setTestId(id);
@@ -228,6 +253,7 @@ public class ApiAutomationService {
         report.setUpdateTime(System.currentTimeMillis());
         report.setStatus(APITestStatus.Running.name());
         report.setUserId(SessionUtils.getUserId());
+        report.setTriggerMode(triggerMode);
         apiReportService.addResult(report);
 
     }
@@ -254,9 +280,11 @@ public class ApiAutomationService {
                 MsScenario scenario = JSONObject.parseObject(item.getScenarioDefinition(), MsScenario.class);
                 // 多态JSON普通转换会丢失内容，需要通过 ObjectMapper 获取
                 LinkedList<MsTestElement> elements = mapper.readValue(element.getString("hashTree"),
-                        new TypeReference<LinkedList<MsTestElement>>() {});
+                        new TypeReference<LinkedList<MsTestElement>>() {
+                        });
                 LinkedList<KeyValue> variables = mapper.readValue(element.getString("variables"),
-                        new TypeReference<LinkedList<KeyValue>>() {});
+                        new TypeReference<LinkedList<KeyValue>>() {
+                        });
                 scenario.setHashTree(elements);
                 scenario.setVariables(variables);
                 LinkedList<MsTestElement> scenarios = new LinkedList<>();
@@ -270,7 +298,8 @@ public class ApiAutomationService {
         testPlan.toHashTree(jmeterTestPlanHashTree, testPlan.getHashTree(), new ParameterConfig());
         // 调用执行方法
         jMeterService.runDefinition(request.getId(), jmeterTestPlanHashTree, request.getReportId(), ApiRunMode.SCENARIO.name());
-        createAPIReportResult(request.getId());
+
+        createAPIReportResult(request.getId(), request.getTriggerMode() == null ? ReportTriggerMode.API.name() : request.getTriggerMode());
         return request.getId();
     }
 
@@ -297,7 +326,7 @@ public class ApiAutomationService {
 
         // 调用执行方法
         jMeterService.runDefinition(request.getId(), hashTree, request.getReportId(), ApiRunMode.SCENARIO.name());
-        createAPIReportResult(request.getId());
+        createAPIReportResult(request.getId(), ReportTriggerMode.MANUAL.name());
         return request.getId();
     }
 }
