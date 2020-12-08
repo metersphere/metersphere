@@ -8,11 +8,13 @@ import io.metersphere.api.dto.definition.ApiDefinitionResult;
 import io.metersphere.api.dto.definition.parse.ApiDefinitionImport;
 import io.metersphere.api.dto.definition.request.sampler.MsHTTPSamplerProxy;
 import io.metersphere.api.dto.definition.response.HttpResponse;
-import io.metersphere.api.dto.parse.ApiImport;
 import io.metersphere.api.dto.scenario.Body;
 import io.metersphere.api.dto.scenario.KeyValue;
 import io.metersphere.api.dto.scenario.request.RequestType;
+import io.metersphere.api.service.ApiModuleService;
+import io.metersphere.base.domain.ApiModule;
 import io.metersphere.commons.constants.SwaggerParameterType;
+import io.metersphere.commons.utils.CommonBeanFactory;
 import io.swagger.models.*;
 import io.swagger.models.parameters.*;
 import io.swagger.models.properties.*;
@@ -28,7 +30,7 @@ public class Swagger2Parser extends ApiImportAbstractParser {
     private Map<String, Model> definitions = null;
 
     @Override
-    public ApiDefinitionImport parseApi(InputStream source, ApiTestImportRequest request) {
+    public ApiDefinitionImport parse(InputStream source, ApiTestImportRequest request) {
         Swagger swagger;
         if (StringUtils.isNotBlank(request.getSwaggerUrl())) {
             swagger = new SwaggerParser().read(request.getSwaggerUrl());
@@ -36,22 +38,18 @@ public class Swagger2Parser extends ApiImportAbstractParser {
             swagger = new SwaggerParser().readWithInfo(getApiTestStr(source)).getSwagger();
         }
         ApiDefinitionImport definitionImport = new ApiDefinitionImport();
-        definitionImport.setResultMap(parseRequests(swagger));
+        this.projectId = request.getProjectId();
+        definitionImport.setData(parseRequests(swagger));
         return definitionImport;
     }
 
-    @Override
-    public ApiImport parse(InputStream source, ApiTestImportRequest request) {
-        return null;
-    }
-
-    private HashMap<String, List<ApiDefinitionResult>> parseRequests(Swagger swagger) {
+    private List<ApiDefinitionResult> parseRequests(Swagger swagger) {
         Map<String, Path> paths = swagger.getPaths();
         Set<String> pathNames = paths.keySet();
 
         this.definitions = swagger.getDefinitions();
 
-        HashMap<String, List<ApiDefinitionResult>> moduleMap = new HashMap<>();
+        List<ApiDefinitionResult> results = new ArrayList<>();
 
         for (String pathName : pathNames) {
             Path path = paths.get(pathName);
@@ -59,76 +57,55 @@ public class Swagger2Parser extends ApiImportAbstractParser {
             Set<HttpMethod> httpMethods = operationMap.keySet();
             for (HttpMethod method : httpMethods) {
                 Operation operation = operationMap.get(method);
-
-                ApiDefinitionResult apiDefinition = buildApiDefinition(operation, pathName, method.name());
                 MsHTTPSamplerProxy request = buildRequest(operation, pathName, method.name());
+                ApiDefinitionResult apiDefinition = buildApiDefinition(request.getId(), operation, pathName, method.name());
                 parseParameters(operation, request);
                 apiDefinition.setRequest(JSON.toJSONString(request));
-                apiDefinition.setId(request.getId());
                 apiDefinition.setResponse(JSON.toJSONString(parseResponse(operation.getResponses())));
-                buildResultMap(moduleMap, apiDefinition, operation);
+                buildModule(apiDefinition, operation);
+                results.add(apiDefinition);
             }
         }
 
         this.definitions = null;
-        return moduleMap;
+        return results;
     }
 
-    private void buildResultMap(HashMap<String, List<ApiDefinitionResult>> moduleMap,
-                                ApiDefinitionResult apiDefinition, Operation operation) {
+    private void buildModule(ApiDefinitionResult apiDefinition, Operation operation) {
         List<String> tags = operation.getTags();
         if (tags != null) {
             tags.forEach(tag -> {
-                List<ApiDefinitionResult> list = moduleMap.get(tag);
-                if (list == null) {
-                    list = new ArrayList<>();
-                    moduleMap.put(tag, list);
-                }
-                list.add(apiDefinition);
+                apiModuleService = CommonBeanFactory.getBean(ApiModuleService.class);
+                ApiModule module = apiModuleService.getNewModule(tag, this.projectId, 1);
+                createModule(module);
+                apiDefinition.setModuleId(module.getId());
             });
-        } else {
-            List<ApiDefinitionResult> list = moduleMap.get("#default");
-            if (list == null) {
-                list = new ArrayList<>();
-                moduleMap.put("#default", list);
-            }
-            list.add(apiDefinition);
         }
     }
 
-    private ApiDefinitionResult buildApiDefinition(Operation operation, String path, String method) {
-        ApiDefinitionResult apiDefinition = new ApiDefinitionResult();
+    private ApiDefinitionResult buildApiDefinition(String id, Operation operation, String path, String method) {
+        String name = "";
         if (StringUtils.isNotBlank(operation.getSummary())) {
-            apiDefinition.setName(operation.getSummary());
+            name = operation.getSummary();
         } else {
-            apiDefinition.setName(operation.getOperationId());
+            name = operation.getOperationId();
         }
-        apiDefinition.setPath(path);
-        apiDefinition.setProtocol(RequestType.HTTP);
-        apiDefinition.setMethod(method);
-        return apiDefinition;
+        return buildApiDefinition(id, name, path, method);
     }
+
     private MsHTTPSamplerProxy buildRequest(Operation operation, String path, String method) {
-        MsHTTPSamplerProxy request = new MsHTTPSamplerProxy();
+        String name = "";
         if (StringUtils.isNotBlank(operation.getSummary())) {
-            request.setName(operation.getSummary());
+            name = operation.getSummary();
         } else {
-            request.setName(operation.getOperationId());
+            name = operation.getOperationId();
         }
-        request.setPath(path);
-        request.setMethod(method);
-        request.setProtocol(RequestType.HTTP);
-        return request;
+        return buildRequest(name, path, method);
     }
 
     private void parseParameters(Operation operation, MsHTTPSamplerProxy request) {
 
         List<Parameter> parameters = operation.getParameters();
-        request.setId(UUID.randomUUID().toString());
-        request.setHeaders(new ArrayList<>());
-        request.setArguments(new ArrayList<>());
-        request.setRest(new ArrayList<>());
-        request.setBody(new Body());
         request.getBody().setType(getBodyType(operation));
 
         // todo 路径变量 {xxx} 是否要转换
@@ -179,9 +156,9 @@ public class Swagger2Parser extends ApiImportAbstractParser {
             case "application/xml":
                 bodyType = Body.XML;
                 break;
-//            case "": //todo binary 啥类型
-//                bodyType = Body.BINARY;
-//                break;
+            case "":
+                bodyType = Body.BINARY;
+                break;
             default:
                 bodyType = Body.RAW;
         }
@@ -258,7 +235,6 @@ public class Swagger2Parser extends ApiImportAbstractParser {
             refSet.add(simpleRef);
             if (model != null) {
                 JSONObject bodyParameters = getBodyParameters(model.getProperties(), refSet);
-                //body.setRaw(bodyParameters.toJSONString());
                 return bodyParameters.toJSONString();
             }
         } else if (schema instanceof ArrayModel) {
@@ -273,7 +249,6 @@ public class Swagger2Parser extends ApiImportAbstractParser {
                 Model model = definitions.get(simpleRef);
                 JSONArray propertyList = new JSONArray();
                 propertyList.add(getBodyParameters(model.getProperties(), refSet));
-                // body.setRaw(propertyList.toString());
                 return propertyList.toString();
             }
         }

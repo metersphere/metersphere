@@ -86,6 +86,7 @@ export default {
   background-color: rgb(44, 42, 72);
   color: rgb(245, 245, 245);
   font-size: 14px;
+  height: 40px;
 }
 
 .logo {

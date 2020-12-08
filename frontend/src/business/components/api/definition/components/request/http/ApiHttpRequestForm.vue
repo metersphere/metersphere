@@ -18,7 +18,7 @@
           </el-tab-pane>
 
           <!--query 参数-->
-          <el-tab-pane :label="$t('api_test.definition.request.query_param')" name="parameters" :disabled="request.arguments.length>1">
+          <el-tab-pane :label="$t('api_test.definition.request.query_param')" name="parameters">
             <el-tooltip class="item-tabs" effect="dark" :content="$t('api_test.definition.request.query_info')" placement="top-start" slot="label">
               <span>{{$t('api_test.definition.request.query_param')}}
                 <div class="el-step__icon is-text ms-api-col ms-query" v-if="request.arguments.length>1">

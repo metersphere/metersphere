@@ -20,22 +20,23 @@ public class KeyValue {
     private boolean required;
 
     public KeyValue() {
-        this.enable = true;
-        this.required = true;
+        this(null, null);
     }
 
     public KeyValue(String name, String value) {
-        this.name = name;
-        this.value = value;
-        this.enable = true;
-        this.required = true;
+        this(name, value, null);
     }
 
     public KeyValue(String name, String value, String description) {
+        this(name, value, description, null);
+    }
+
+    public KeyValue(String name, String value, String description, String contentType) {
         this.name = name;
         this.value = value;
-        this.enable = true;
         this.description = description;
+        this.contentType = contentType;
+        this.enable = true;
         this.required = true;
     }
 
