@@ -156,9 +156,9 @@ public class Swagger2Parser extends ApiImportAbstractParser {
             case "application/xml":
                 bodyType = Body.XML;
                 break;
-//            case "": //todo binary 啥类型
-//                bodyType = Body.BINARY;
-//                break;
+            case "":
+                bodyType = Body.BINARY;
+                break;
             default:
                 bodyType = Body.RAW;
         }
@@ -235,7 +235,6 @@ public class Swagger2Parser extends ApiImportAbstractParser {
             refSet.add(simpleRef);
             if (model != null) {
                 JSONObject bodyParameters = getBodyParameters(model.getProperties(), refSet);
-                //body.setRaw(bodyParameters.toJSONString());
                 return bodyParameters.toJSONString();
             }
         } else if (schema instanceof ArrayModel) {
@@ -250,7 +249,6 @@ public class Swagger2Parser extends ApiImportAbstractParser {
                 Model model = definitions.get(simpleRef);
                 JSONArray propertyList = new JSONArray();
                 propertyList.add(getBodyParameters(model.getProperties(), refSet));
-                // body.setRaw(propertyList.toString());
                 return propertyList.toString();
             }
         }
