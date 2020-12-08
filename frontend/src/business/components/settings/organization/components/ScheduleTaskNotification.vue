@@ -14,12 +14,11 @@
           :data="scheduleTask"
           class="tb-edit"
           border
-          size="mini"
           :cell-style="rowClass"
           :header-cell-style="headClass">
-          <el-table-column :label="$t('schedule.event')" min-width="20%" prop="events">
+          <el-table-column :label="$t('schedule.event')" prop="events" min-width="15%">
             <template slot-scope="scope">
-              <el-select v-model="scope.row.event"
+              <el-select v-model="scope.row.event" size="mini"
                          :placeholder="$t('organization.message.select_events')"
                          prop="events" :disabled="!scope.row.isSet">
                 <el-option
@@ -33,7 +32,7 @@
           </el-table-column>
           <el-table-column :label="$t('schedule.receiver')" prop="userIds" min-width="20%">
             <template v-slot:default="{row}">
-              <el-select v-model="row.userIds" filterable multiple
+              <el-select v-model="row.userIds" filterable multiple size="mini"
                          :placeholder="$t('commons.please_select')" style="width: 100%;" :disabled="!row.isSet">
                 <el-option
                   v-for="item in scheduleReceiverOptions"
@@ -44,9 +43,10 @@
               </el-select>
             </template>
           </el-table-column>
-          <el-table-column :label="$t('schedule.receiving_mode')" min-width="20%" prop="type">
+          <el-table-column :label="$t('schedule.receiving_mode')" prop="type" min-width="15%">
             <template slot-scope="scope">
               <el-select v-model="scope.row.type" :placeholder="$t('organization.message.select_receiving_method')"
+                         size="mini"
                          :disabled="!scope.row.isSet" @change="handleEdit(scope.$index, scope.row)"
               >
                 <el-option
@@ -60,12 +60,20 @@
           </el-table-column>
           <el-table-column label="webhook" min-width="20%" prop="webhook">
             <template v-slot:default="scope">
-              <el-input v-model="scope.row.webhook" placeholder="webhook地址"
+              <el-input v-model="scope.row.webhook" placeholder="webhook地址" size="mini"
                         :disabled="!scope.row.isSet||!scope.row.isReadOnly"></el-input>
             </template>
           </el-table-column>
-          <el-table-column :label="$t('commons.operating')" min-width="20%" prop="result">
+          <el-table-column :label="$t('commons.operating')" prop="result" min-width="20%">
             <template v-slot:default="scope">
+              <el-button
+                type="success"
+                size="mini"
+                v-if="scope.row.isSet"
+                v-xpack
+                @click="handleTemplate(scope.$index,scope.row)"
+              >{{ $t('organization.message.template') }}
+              </el-button>
               <el-button
                 type="primary"
                 size="mini"
@@ -102,13 +110,21 @@
         </el-table>
       </el-col>
     </el-row>
+    <notice-template v-xpack ref="noticeTemplate"/>
   </div>
 </template>
 
 <script>
+import {hasLicense} from "@/common/js/utils";
+
+const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
+const noticeTemplate = requireComponent.keys().length > 0 ? requireComponent("./notice/NoticeTemplate.vue") : {};
 
 export default {
   name: "ScheduleTaskNotification",
+  components: {
+    "NoticeTemplate": noticeTemplate.default
+  },
   props: {
     testId: String,
     scheduleReceiverOptions: Array,
@@ -226,6 +242,11 @@ export default {
     headClass() {
       return "text-align:center;background:'#ededed'"
     },
+    handleTemplate(index, row) {
+      if (hasLicense()) {
+        this.$refs.noticeTemplate.open(row);
+      }
+    }
   }
 }
 </script>

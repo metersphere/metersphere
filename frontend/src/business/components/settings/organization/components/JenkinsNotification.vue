@@ -11,22 +11,22 @@
     <el-row>
       <el-col :span="24">
         <el-table
-            :data="jenkinsTask"
-            class="tb-edit"
-            border
-            :cell-style="rowClass"
-            :header-cell-style="headClass">
-          <el-table-column :label="$t('schedule.event')" min-width="20%" prop="events">
+          :data="jenkinsTask"
+          class="tb-edit"
+          border
+          :cell-style="rowClass"
+          :header-cell-style="headClass">
+          <el-table-column :label="$t('schedule.event')" min-width="15%" prop="events">
             <template slot-scope="scope">
               <el-select v-model="scope.row.event"
                          :placeholder="$t('organization.message.select_events')"
                          size="mini"
                          prop="events" :disabled="!scope.row.isSet">
                 <el-option
-                    v-for="item in jenkinsEventOptions"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value">
+                  v-for="item in jenkinsEventOptions"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value">
                 </el-option>
               </el-select>
             </template>
@@ -36,10 +36,10 @@
               <el-select v-model="row.userIds" filterable multiple size="mini"
                          :placeholder="$t('commons.please_select')" style="width: 100%;" :disabled="!row.isSet">
                 <el-option
-                    v-for="item in jenkinsReceiverOptions"
-                    :key="item.id"
-                    :label="item.name"
-                    :value="item.id">
+                  v-for="item in jenkinsReceiverOptions"
+                  :key="item.id"
+                  :label="item.name"
+                  :value="item.id">
                 </el-option>
               </el-select>
             </template>
@@ -51,10 +51,10 @@
                          :disabled="!scope.row.isSet" @change="handleEdit(scope.$index, scope.row)"
               >
                 <el-option
-                    v-for="item in receiveTypeOptions"
-                    :key="item.value"
-                    :label="item.label"
-                    :value="item.value">
+                  v-for="item in receiveTypeOptions"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value">
                 </el-option>
               </el-select>
             </template>
@@ -66,48 +66,65 @@
                         :disabled="!scope.row.isSet||!scope.row.isReadOnly"></el-input>
             </template>
           </el-table-column>
-          <el-table-column :label="$t('commons.operating')" min-width="20%" prop="result">
+          <el-table-column :label="$t('commons.operating')" min-width="25%" prop="result">
             <template v-slot:default="scope">
               <el-button
-                  type="primary"
-                  size="mini"
-                  v-show="scope.row.isSet"
-                  @click="handleAddTask(scope.$index,scope.row)"
+                type="success"
+                size="mini"
+                v-if="scope.row.isSet"
+                v-xpack
+                @click="handleTemplate(scope.$index,scope.row)"
+              >{{ $t('organization.message.template') }}
+              </el-button>
+              <el-button
+                type="primary"
+                size="mini"
+                v-if="scope.row.isSet"
+                @click="handleAddTask(scope.$index,scope.row)"
               >{{ $t('commons.add') }}
               </el-button>
               <el-button
-                  size="mini"
-                  v-show="scope.row.isSet"
-                  @click.native.prevent="removeRowTask(scope.$index,jenkinsTask)"
+                size="mini"
+                v-if="scope.row.isSet"
+                @click.native.prevent="removeRowTask(scope.$index,jenkinsTask)"
               >{{ $t('commons.cancel') }}
               </el-button>
               <el-button
-                  type="primary"
-                  size="mini"
-                  v-show="!scope.row.isSet"
-                  @click="handleEditTask(scope.$index,scope.row)"
+                type="primary"
+                size="mini"
+                v-if="!scope.row.isSet"
+                @click="handleEditTask(scope.$index,scope.row)"
               >{{ $t('commons.edit') }}
               </el-button>
               <el-button
-                  type="danger"
-                  icon="el-icon-delete"
-                  size="mini"
-                  v-show="!scope.row.isSet"
-                  @click.native.prevent="deleteRowTask(scope.$index,scope.row)"
+                type="danger"
+                icon="el-icon-delete"
+                size="mini"
+                v-show="!scope.row.isSet"
+                @click.native.prevent="deleteRowTask(scope.$index,scope.row)"
               ></el-button>
             </template>
           </el-table-column>
         </el-table>
       </el-col>
     </el-row>
+    <notice-template v-xpack ref="noticeTemplate"/>
   </div>
 </template>
 
 <script>
+import {hasLicense} from "@/common/js/utils";
+
 const TASK_TYPE = 'JENKINS_TASK';
+
+const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
+const noticeTemplate = requireComponent.keys().length > 0 ? requireComponent("./notice/NoticeTemplate.vue") : {};
 
 export default {
   name: "JenkinsNotification",
+  components: {
+    "NoticeTemplate": noticeTemplate.default
+  },
   props: {
     jenkinsReceiverOptions: {
       type: Array
@@ -187,7 +204,6 @@ export default {
       } else {
         data.isReadOnly = true;
       }
-
     },
     addTask(data) {
       this.result = this.$post("/notice/save/message/task", data, () => {
@@ -215,6 +231,11 @@ export default {
     headClass() {
       return "text-align:center;background:'#ededed'"
     },
+    handleTemplate(index, row) {
+      if (hasLicense()) {
+        this.$refs.noticeTemplate.open(row);
+      }
+    }
   }
 }
 </script>

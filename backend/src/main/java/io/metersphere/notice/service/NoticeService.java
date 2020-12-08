@@ -33,14 +33,17 @@ public class NoticeService {
         SessionUser user = SessionUtils.getUser();
         String orgId = user.getLastOrganizationId();
         long time = System.currentTimeMillis();
-        String identification = UUID.randomUUID().toString();
-        messageDetail.getUserIds().forEach(m -> {
-            checkUserIdExist(m, messageDetail, orgId);
+        String identification = messageDetail.getIdentification();
+        if (StringUtils.isBlank(identification)) {
+            identification = UUID.randomUUID().toString();
+        }
+        for (String userId : messageDetail.getUserIds()) {
+            checkUserIdExist(userId, messageDetail, orgId);
             MessageTask messageTask = new MessageTask();
             messageTask.setId(UUID.randomUUID().toString());
             messageTask.setEvent(messageDetail.getEvent());
             messageTask.setTaskType(messageDetail.getTaskType());
-            messageTask.setUserId(m);
+            messageTask.setUserId(userId);
             messageTask.setType(messageDetail.getType());
             messageTask.setWebhook(messageDetail.getWebhook());
             messageTask.setIdentification(identification);
@@ -48,8 +51,15 @@ public class NoticeService {
             messageTask.setOrganizationId(orgId);
             messageTask.setTestId(messageDetail.getTestId());
             messageTask.setCreateTime(time);
+            setTemplate(messageDetail, messageTask);
             messageTaskMapper.insert(messageTask);
-        });
+        }
+    }
+
+    private void setTemplate(MessageDetail messageDetail, MessageTask messageTask) {
+        if (StringUtils.isNotBlank(messageDetail.getTemplate())) {
+            messageTask.setTemplate(messageDetail.getTemplate());
+        }
     }
 
     private void checkUserIdExist(String userId, MessageDetail list, String orgId) {
@@ -80,7 +90,7 @@ public class NoticeService {
     public List<MessageDetail> searchMessageByTestId(String testId) {
         MessageTaskExample example = new MessageTaskExample();
         example.createCriteria().andTestIdEqualTo(testId);
-        List<MessageTask> messageTaskLists = messageTaskMapper.selectByExample(example);
+        List<MessageTask> messageTaskLists = messageTaskMapper.selectByExampleWithBLOBs(example);
         List<MessageDetail> scheduleMessageTask = new ArrayList<>();
         Map<String, List<MessageTask>> MessageTaskMap = messageTaskLists.stream().collect(Collectors.groupingBy(MessageTask::getIdentification));
         MessageTaskMap.forEach((k, v) -> {
@@ -100,7 +110,7 @@ public class NoticeService {
         example.createCriteria()
                 .andTaskTypeEqualTo(type)
                 .andOrganizationIdEqualTo(orgId);
-        List<MessageTask> messageTaskLists = messageTaskMapper.selectByExample(example);
+        List<MessageTask> messageTaskLists = messageTaskMapper.selectByExampleWithBLOBs(example);
 
         Map<String, List<MessageTask>> messageTaskMap = messageTaskLists.stream()
                 .collect(Collectors.groupingBy(NoticeService::fetchGroupKey));
@@ -130,6 +140,7 @@ public class NoticeService {
             messageDetail.setType(m.getType());
             messageDetail.setIsSet(m.getIsSet());
             messageDetail.setCreateTime(m.getCreateTime());
+            messageDetail.setTemplate(m.getTemplate());
         }
         if (CollectionUtils.isNotEmpty(userIds)) {
             messageDetail.setUserIds(new ArrayList<>(userIds));
