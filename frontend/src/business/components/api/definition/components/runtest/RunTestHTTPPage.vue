@@ -70,9 +70,9 @@
     </el-card>
 
     <!-- 加载用例 -->
-    <el-drawer :visible.sync="visible" direction="btt" :with-header="false" :modal="false" size="50%">
+    <el-drawer :visible.sync="visible" direction="btt" :with-header="false" :modal="false" size="50%" ref="drawer">
       <ms-api-case-list @apiCaseClose="apiCaseClose" @selectTestCase="selectTestCase" :api="api" :refreshSign="refreshSign"
-                        :currentProject="currentProject" :loaded="loaded"
+                        :currentProject="currentProject" :loaded="loaded" :createCase="createCase"
                         ref="caseList"/>
     </el-drawer>
 
@@ -113,8 +113,9 @@
         api: {},
         loaded: false,
         loading: false,
+        createCase: "",
         currentRequest: {},
-        refreshSign:"",
+        refreshSign: "",
         responseData: {type: 'HTTP', responseResult: {}, subRequestResults: []},
         reqOptions: REQ_METHOD,
         environments: [],
@@ -194,7 +195,9 @@
         return bodyUploadFiles;
       },
       saveAsCase() {
-        this.visible = false;
+        //用于触发创建操作
+        this.createCase = getUUID();
+        this.visible = true;
         this.loaded = false;
       },
       saveAsApi() {
@@ -301,7 +304,8 @@
     border-radius: 4px;
     border-left: 4px solid #783887;
   }
-  /deep/.el-drawer{
+
+  /deep/ .el-drawer {
     overflow: auto;
   }
 </style>

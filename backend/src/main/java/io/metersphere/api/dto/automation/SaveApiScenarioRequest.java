@@ -1,5 +1,6 @@
 package io.metersphere.api.dto.automation;
 
+import io.metersphere.api.dto.definition.request.MsTestElement;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -36,7 +37,7 @@ public class SaveApiScenarioRequest {
 
     private String description;
 
-    private String scenarioDefinition;
+    private MsTestElement scenarioDefinition;
 
     List<String> bodyUploadIds;
 }
