@@ -53,6 +53,11 @@ export default {
       path: "automation/report",
       name: "ApiReportList",
       component: () => import('@/business/components/api/automation/report/ApiReportList'),
-    }
+    },    
+    {
+      path: 'monitor/view',
+      name: 'ApiMonitor',
+      component: () => import('@/business/components/api/monitor/ApiMonitor'),
+    },
   ]
 }
