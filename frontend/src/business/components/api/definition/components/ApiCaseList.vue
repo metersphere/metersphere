@@ -358,7 +358,7 @@
         let bodyUploadFiles = [];
         row.bodyUploadIds = [];
         let request = row.request;
-        if (request.body) {
+        if (request.body && request.body.kvs) {
           request.body.kvs.forEach(param => {
             if (param.files) {
               param.files.forEach(item => {
@@ -372,19 +372,21 @@
               });
             }
           });
-          request.body.binary.forEach(param => {
-            if (param.files) {
-              param.files.forEach(item => {
-                if (item.file) {
-                  let fileId = getUUID().substring(0, 8);
-                  item.name = item.file.name;
-                  item.id = fileId;
-                  row.bodyUploadIds.push(fileId);
-                  bodyUploadFiles.push(item.file);
-                }
-              });
-            }
-          });
+          if (request.body.binary) {
+            request.body.binary.forEach(param => {
+              if (param.files) {
+                param.files.forEach(item => {
+                  if (item.file) {
+                    let fileId = getUUID().substring(0, 8);
+                    item.name = item.file.name;
+                    item.id = fileId;
+                    row.bodyUploadIds.push(fileId);
+                    bodyUploadFiles.push(item.file);
+                  }
+                });
+              }
+            });
+          }
         }
         return bodyUploadFiles;
       },

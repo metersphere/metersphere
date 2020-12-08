@@ -1,4 +1,4 @@
-import MsProject from "@/business/components/project/MsProject";
+import MsProject from "@/business/components/settings/project/MsProject";
 
 const TestTrack = () => import('@/business/components/track/TestTrack')
 const TrackHome = () => import('@/business/components/track/home/TrackHome')
@@ -51,11 +51,11 @@ export default {
       name: "planViewEdit",
       component: TestPlanView
     },
-    {
-      path: "project/:type",
-      name: "trackProject",
-      component: MsProject
-    },
+    // {
+    //   path: "project/:type",
+    //   name: "trackProject",
+    //   component: MsProject
+    // },
     {
       path: "review/:type",
       name: "testCaseReview",

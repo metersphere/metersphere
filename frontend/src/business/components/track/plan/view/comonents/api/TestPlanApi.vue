@@ -10,8 +10,9 @@
                  :draggable="false"
                  ref="nodeTree"/>
     </template>
+
     <template v-slot:main>
-      <test-plan-test-case-list
+      <test-plan-api-case-list
         class="table-list"
         @openTestCaseRelevanceDialog="openTestCaseRelevanceDialog"
         @refresh="refresh"
@@ -21,23 +22,28 @@
         ref="testPlanTestCaseList"/>
     </template>
 
-    <test-case-relevance
+    <test-case-api-relevance
       @refresh="refresh"
       :plan-id="planId"
       ref="testCaseRelevance"/>
+
   </ms-test-plan-common-component>
 
 </template>
 
 <script>
     import NodeTree from "../../../../common/NodeTree";
-    import TestPlanTestCaseList from "../TestPlanTestCaseList";
-    import TestCaseRelevance from "../TestCaseRelevance";
-    import MsTestPlanCommonComponent from "../TestPlanCommonComponent";
+    import TestPlanTestCaseList from "../functional/FunctionalTestCaseList";
+    import TestCaseRelevance from "../functional/TestCaseFunctionalRelevance";
+    import MsTestPlanCommonComponent from "../base/TestPlanCommonComponent";
+    import TestPlanApiCaseList from "./TestPlanApiCaseList";
+    import TestCaseApiRelevance from "./TestCaseApiRelevance";
 
     export default {
       name: "TestPlanApi",
       components: {
+        TestCaseApiRelevance,
+        TestPlanApiCaseList,
         MsTestPlanCommonComponent,
         TestCaseRelevance,
         TestPlanTestCaseList,
@@ -77,7 +83,7 @@
           this.getNodeTreeByPlanId();
         },
         openTestCaseRelevanceDialog() {
-          this.$refs.testCaseRelevance.openTestCaseRelevanceDialog();
+          this.$refs.testCaseRelevance.open();
         },
         nodeChange(nodeIds, pNodes) {
           this.selectNodeIds = nodeIds;

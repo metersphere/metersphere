@@ -213,33 +213,33 @@
 </template>
 
 <script>
-import ExecutorEdit from './ExecutorEdit';
-import StatusEdit from './StatusEdit';
-import TestPlanTestCaseEdit from "./TestPlanTestCaseEdit";
-import MsTipButton from '../../../../common/components/MsTipButton';
-import MsTablePagination from '../../../../common/pagination/TablePagination';
-import MsTableHeader from '../../../../common/components/MsTableHeader';
-import MsTableButton from '../../../../common/components/MsTableButton';
-import NodeBreadcrumb from '../../../common/NodeBreadcrumb';
+import ExecutorEdit from '../ExecutorEdit';
+import StatusEdit from '../StatusEdit';
+import TestPlanTestCaseEdit from "../functional/FunctionalTestCaseEdit";
+import MsTipButton from '../../../../../common/components/MsTipButton';
+import MsTablePagination from '../../../../../common/pagination/TablePagination';
+import MsTableHeader from '../../../../../common/components/MsTableHeader';
+import MsTableButton from '../../../../../common/components/MsTableButton';
+import NodeBreadcrumb from '../../../../common/NodeBreadcrumb';
 
 import {ROLE_TEST_MANAGER, ROLE_TEST_USER, TokenKey, WORKSPACE_ID} from "@/common/js/constants";
 import {_filter, _sort, checkoutTestManagerOrTestUser, hasRoles} from "@/common/js/utils";
-import PriorityTableItem from "../../../common/tableItems/planview/PriorityTableItem";
-import StatusTableItem from "../../../common/tableItems/planview/StatusTableItem";
-import TypeTableItem from "../../../common/tableItems/planview/TypeTableItem";
-import MethodTableItem from "../../../common/tableItems/planview/MethodTableItem";
-import MsTableOperator from "../../../../common/components/MsTableOperator";
-import MsTableOperatorButton from "../../../../common/components/MsTableOperatorButton";
-import TestReportTemplateList from "./TestReportTemplateList";
-import TestCaseReportView from "./report/TestCaseReportView";
-import {TEST_CASE_CONFIGS} from "../../../../common/components/search/search-components";
-import ShowMoreBtn from "../../../case/components/ShowMoreBtn";
-import BatchEdit from "../../../case/components/BatchEdit";
+import PriorityTableItem from "../../../../common/tableItems/planview/PriorityTableItem";
+import StatusTableItem from "../../../../common/tableItems/planview/StatusTableItem";
+import TypeTableItem from "../../../../common/tableItems/planview/TypeTableItem";
+import MethodTableItem from "../../../../common/tableItems/planview/MethodTableItem";
+import MsTableOperator from "../../../../../common/components/MsTableOperator";
+import MsTableOperatorButton from "../../../../../common/components/MsTableOperatorButton";
+import TestReportTemplateList from "../TestReportTemplateList";
+import TestCaseReportView from "../report/TestCaseReportView";
+import {TEST_CASE_CONFIGS} from "../../../../../common/components/search/search-components";
+import ShowMoreBtn from "../../../../case/components/ShowMoreBtn";
+import BatchEdit from "../../../../case/components/BatchEdit";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 import {hub} from "@/business/components/track/plan/event-bus";
 
 export default {
-  name: "TestPlanTestCaseList",
+  name: "TestPlanApiCaseList",
   components: {
     TestCaseReportView,
     TestReportTemplateList,

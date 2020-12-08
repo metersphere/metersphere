@@ -41,7 +41,7 @@
       </el-menu-item>
     </el-submenu>
 
-    <el-menu-item v-for="menu in project" :key="menu.index" :index="menu.index" class="setting-item"
+    <el-menu-item v-for="menu in project" :key="menu.index" :index="'/setting/project/all'" class="setting-item"
                   v-permission="menu.roles">
       <template v-slot:title>
         <font-awesome-icon class="icon" :icon="['fa', 'bars']" size="lg"/>
