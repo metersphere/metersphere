@@ -58,7 +58,6 @@
 
 <script>
 import NodeEdit from "./NodeEdit";
-import {ROLE_TEST_MANAGER, ROLE_TEST_USER} from "../../../../common/js/constants";
 import {checkoutTestManagerOrTestUser, hasRoles} from "../../../../common/js/utils";
 
 export default {

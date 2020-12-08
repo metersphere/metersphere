@@ -26,8 +26,8 @@
 <script>
 
     import NodeTree from "../../common/NodeTree";
-    import TestPlanTestCaseList from "./comonents/TestPlanTestCaseList";
-    import TestCaseRelevance from "./comonents/TestCaseRelevance";
+    import TestPlanTestCaseList from "./comonents/functional/FunctionalTestCaseList";
+    import TestCaseRelevance from "./comonents/functional/TestCaseFunctionalRelevance";
     import SelectMenu from "../../common/SelectMenu";
     import MsContainer from "../../../common/components/MsContainer";
     import MsAsideContainer from "../../../common/components/MsAsideContainer";

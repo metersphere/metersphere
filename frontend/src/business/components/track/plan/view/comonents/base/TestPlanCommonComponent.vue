@@ -15,9 +15,9 @@
 </template>
 
 <script>
-    import MsMainContainer from "../../../../common/components/MsMainContainer";
-    import MsAsideContainer from "../../../../common/components/MsAsideContainer";
-    import MsContainer from "../../../../common/components/MsContainer";
+    import MsMainContainer from "../../../../../common/components/MsMainContainer";
+    import MsAsideContainer from "../../../../../common/components/MsAsideContainer";
+    import MsContainer from "../../../../../common/components/MsContainer";
     export default {
         name: "MsTestPlanCommonComponent",
       components: {MsContainer, MsAsideContainer, MsMainContainer}
