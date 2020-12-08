@@ -60,6 +60,14 @@ public class MsTestElement {
     @JSONField(ordinal = 3)
     private String label;
     @JSONField(ordinal = 4)
+    private String resourceId;
+    @JSONField(ordinal = 5)
+    private String referenced;
+    @JSONField(ordinal = 6)
+    private boolean active;
+    @JSONField(ordinal = 7)
+    private String index;
+    @JSONField(ordinal = 8)
     private LinkedList<MsTestElement> hashTree;
 
     // 公共环境逐层传递，如果自身有环境 以自身引用环境为准否则以公共环境作为请求环境

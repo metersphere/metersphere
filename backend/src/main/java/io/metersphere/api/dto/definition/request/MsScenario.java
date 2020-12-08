@@ -7,6 +7,7 @@ import com.alibaba.fastjson.annotation.JSONType;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.metersphere.api.dto.scenario.KeyValue;
 import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
 import io.metersphere.api.service.ApiAutomationService;
 import io.metersphere.api.service.ApiTestEnvironmentService;
@@ -35,6 +36,9 @@ public class MsScenario extends MsTestElement {
 
     @JSONField(ordinal = 12)
     private String environmentId;
+
+    @JSONField(ordinal = 13)
+    private List<KeyValue> variables;
 
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, EnvironmentConfig config) {
         if (environmentId != null) {
