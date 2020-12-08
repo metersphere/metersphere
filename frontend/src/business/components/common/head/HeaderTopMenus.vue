@@ -56,7 +56,7 @@
 
   .el-menu >>> .el-menu-item {
     box-sizing: border-box;
-    height: 37px;
+    height: 40px;
   }
 
 </style>

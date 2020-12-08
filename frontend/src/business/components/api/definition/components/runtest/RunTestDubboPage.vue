@@ -31,7 +31,7 @@
     <!-- 加载用例 -->
     <el-drawer :visible.sync="visible" direction="btt" :with-header="false" :modal="false" size="50%">
       <ms-api-case-list @apiCaseClose="apiCaseClose" @selectTestCase="selectTestCase" :api="api"
-                        :currentProject="currentProject" :loaded="loaded" :refreshSign="refreshSign"
+                        :currentProject="currentProject" :loaded="loaded" :refreshSign="refreshSign" :createCase="createCase"
                         ref="caseList"/>
     </el-drawer>
     >
@@ -78,6 +78,7 @@
         loaded: false,
         loading: false,
         currentRequest: {},
+        createCase: "",
         refreshSign: "",
         responseData: {type: 'HTTP', responseResult: {}, subRequestResults: []},
         reqOptions: REQ_METHOD,
@@ -153,9 +154,10 @@
         return bodyUploadFiles;
       },
       saveAsCase() {
-        this.visible = false;
+        //用于触发创建操作
+        this.createCase = getUUID();
+        this.visible = true;
         this.loaded = false;
-        this.$refs.caseList.addCase();
       },
       saveAsApi() {
         let data = {};

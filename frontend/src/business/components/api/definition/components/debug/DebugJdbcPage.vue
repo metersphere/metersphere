@@ -99,7 +99,7 @@
         this.$refs.debugResult.reload();
       },
       saveAs() {
-        let obj = {request: JSON.stringify(this.request)};
+        let obj = {request: this.request};
         this.$emit('saveAs', obj);
       }
     }

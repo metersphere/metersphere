@@ -91,35 +91,38 @@
           this.maintainerOptions = response.data;
         });
       },
-      initSql() {
+      setRequest() {
         if (this.currentApi.request != undefined && this.currentApi.request != null) {
-          this.request = JSON.parse(this.currentApi.request);
+          if (Object.prototype.toString.call(this.currentApi.request).match(/\[object (\w+)\]/)[1].toLowerCase() === 'object') {
+            this.request = this.currentApi.request;
+          } else {
+            this.request = JSON.parse(this.currentApi.request);
+          }
           this.currentApi.request = this.request;
-        } else {
+          return true;
+        }
+        return false;
+      },
+      initSql() {
+        if (!this.setRequest()) {
           this.request = createComponent("JDBCSampler");
+          this.currentApi.request = this.request;
         }
       },
       initDubbo() {
-        if (this.currentApi.request != undefined && this.currentApi.request != null) {
-          this.request = JSON.parse(this.currentApi.request);
-          this.currentApi.request = this.request;
-        } else {
+        if (!this.setRequest()) {
           this.request = createComponent("DubboSampler");
+          this.currentApi.request = this.request;
         }
       },
       initTcp() {
-        if (this.currentApi.request != undefined && this.currentApi.request != null) {
-          this.request = JSON.parse(this.currentApi.request);
-          this.currentApi.request = this.request;
-        } else {
+        if (!this.setRequest()) {
           this.request = createComponent("TCPSampler");
+          this.currentApi.request = this.request;
         }
       },
       initHttp() {
-        if (this.currentApi.request != undefined && this.currentApi.request != null) {
-          this.request = JSON.parse(this.currentApi.request);
-          this.currentApi.request = this.request;
-        } else {
+        if (!this.setRequest()) {
           this.request = createComponent("HTTPSamplerProxy");
           this.currentApi.request = this.request;
         }
