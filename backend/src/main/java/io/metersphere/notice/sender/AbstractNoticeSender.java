@@ -5,7 +5,9 @@ import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.notice.domain.MessageDetail;
 import io.metersphere.notice.domain.UserDetail;
 import io.metersphere.service.UserService;
+import org.apache.commons.collections4.MapUtils;
 import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.RegExUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.annotation.Resource;
@@ -14,6 +16,7 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public abstract class AbstractNoticeSender implements NoticeSender {
@@ -21,13 +24,16 @@ public abstract class AbstractNoticeSender implements NoticeSender {
     private UserService userService;
 
     protected String getContext(MessageDetail messageDetail, NoticeModel noticeModel) {
+        // 如果配置了模版就直接使用模版
+        if (StringUtils.isNotBlank(messageDetail.getTemplate())) {
+            return getContent(messageDetail.getTemplate(), noticeModel.getParamMap());
+        }
         // 处理 userIds 中包含的特殊值
         List<String> realUserIds = getRealUserIds(messageDetail.getUserIds(), noticeModel.getRelatedUsers(), messageDetail.getEvent());
         messageDetail.setUserIds(realUserIds);
 
         // 处理 WeCom Ding context
         String context = "";
-        String status = noticeModel.getStatus();
         switch (messageDetail.getEvent()) {
             case NoticeConstants.Event.CREATE:
             case NoticeConstants.Event.UPDATE:
@@ -48,6 +54,10 @@ public abstract class AbstractNoticeSender implements NoticeSender {
     }
 
     protected String getHtmlContext(MessageDetail messageDetail, NoticeModel noticeModel) {
+        // 如果配置了模版就直接使用模版
+        if (StringUtils.isNotBlank(messageDetail.getTemplate())) {
+            return getContent(messageDetail.getTemplate(), noticeModel.getParamMap());
+        }
         // 处理 userIds 中包含的特殊值
         List<String> realUserIds = getRealUserIds(messageDetail.getUserIds(), noticeModel.getRelatedUsers(), messageDetail.getEvent());
         messageDetail.setUserIds(realUserIds);
@@ -77,7 +87,20 @@ public abstract class AbstractNoticeSender implements NoticeSender {
         } catch (IOException e) {
             LogUtil.error(e);
         }
-        return context;
+        return getContent(context, noticeModel.getParamMap());
+    }
+
+    protected String getContent(String template, Map<String, Object> context) {
+        if (MapUtils.isNotEmpty(context)) {
+            for (String k : context.keySet()) {
+                if (context.get(k) != null) {
+                    template = RegExUtils.replaceAll(template, "\\$\\{" + k + "}", context.get(k).toString());
+                } else {
+                    template = RegExUtils.replaceAll(template, "\\$\\{" + k + "}", "未设置");
+                }
+            }
+        }
+        return template;
     }
 
     protected List<String> getUserPhones(List<String> userIds) {
