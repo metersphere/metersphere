@@ -11,28 +11,28 @@
 </template>
 
 <script>
-import MsReferenceView from "@/business/components/api/automation/scenario/ReferenceView";
+  import MsReferenceView from "@/business/components/api/automation/scenario/ReferenceView";
 
-export default {
-  name: "MsScenarioExtendButtons",
-  components: {MsReferenceView},
-  props: {
-    row: Object
-  },
-  methods: {
-    handleCommand(cmd) {
-      switch (cmd) {
-        case  "ref":
-          this.$refs.viewRef.open(this.row);
-          break;
-      }
+  export default {
+    name: "MsScenarioExtendButtons",
+    components: {MsReferenceView},
+    props: {
+      row: Object
     },
+    methods: {
+      handleCommand(cmd) {
+        switch (cmd) {
+          case  "ref":
+            this.$refs.viewRef.open(this.row);
+            break;
+        }
+      },
+    }
   }
-}
 </script>
 
 <style scoped>
-.scenario-ext-btn {
-  margin-left: 10px;
-}
+  .scenario-ext-btn {
+    margin-left: 10px;
+  }
 </style>
