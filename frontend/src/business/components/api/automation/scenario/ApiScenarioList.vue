@@ -47,11 +47,16 @@
                          show-overflow-tooltip/>
         <el-table-column :label="$t('commons.operating')" width="200px" v-if="!referenced">
           <template v-slot:default="{row}">
-            <el-button type="text" @click="edit(row)">{{ $t('api_test.automation.edit') }}</el-button>
-            <el-button type="text" @click="execute(row)">{{ $t('api_test.automation.execute') }}</el-button>
-            <el-button type="text" @click="copy(row)">{{ $t('api_test.automation.copy') }}</el-button>
-            <el-button type="text" @click="remove(row)">{{ $t('api_test.automation.remove') }}</el-button>
-            <ms-scenario-extend-buttons :row="row"/>
+            <div v-if="currentModule!=undefined && currentModule.id === 'gc'">
+              <el-button type="text" @click="reductionApi(row)">恢复</el-button>
+            </div>
+            <div v-else>
+              <el-button type="text" @click="edit(row)">{{ $t('api_test.automation.edit') }}</el-button>
+              <el-button type="text" @click="execute(row)">{{ $t('api_test.automation.execute') }}</el-button>
+              <el-button type="text" @click="copy(row)">{{ $t('api_test.automation.copy') }}</el-button>
+              <el-button type="text" @click="remove(row)">{{ $t('api_test.automation.remove') }}</el-button>
+              <ms-scenario-extend-buttons :row="row"/>
+            </div>
           </template>
         </el-table-column>
       </el-table>
@@ -201,6 +206,13 @@
       },
       edit(row) {
         this.$emit('edit', row);
+      },
+      reductionApi(row) {
+        let obj = {id: row.id, projectId: row.projectId, name: row.name, status: 'Underway'}
+        this.$fileUpload("/api/automation/update", null, [], obj, () => {
+          this.$success(this.$t('commons.save_success'));
+          this.search();
+        })
       },
       execute(row) {
         this.infoDb = false;

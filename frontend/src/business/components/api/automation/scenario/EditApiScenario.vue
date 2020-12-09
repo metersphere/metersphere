@@ -240,7 +240,7 @@
       <el-drawer :visible.sync="apiListVisible" :destroy-on-close="true" direction="ltr" :withHeader="false" :title="$t('api_test.automation.api_list_import')" :modal="false" size="90%">
         <ms-api-definition :visible="true" :currentRow="currentRow"/>
         <!--<el-button style="float: right;margin: 20px" type="primary" @click="copyApi('REF')">{{$t('api_test.scenario.reference')}}</el-button>-->
-        <el-button style="float: right;margin: 20px 0px 0px " type="primary" @click="copyApi('Copy')">{{ $t('commons.copy') }}</el-button>
+        <el-button style="float: right;margin: 0px 20px 0px" type="primary" @click="copyApi('Copy')">{{ $t('commons.copy') }}</el-button>
       </el-drawer>
 
       <!--自定义接口-->
@@ -326,6 +326,7 @@
           userId: [{required: true, message: this.$t('test_track.case.input_maintainer'), trigger: 'change'}],
           apiScenarioModuleId: [{required: true, message: this.$t('test_track.case.input_module'), trigger: 'change'}],
           status: [{required: true, message: this.$t('commons.please_select'), trigger: 'change'}],
+          principal: [{required: true, message: this.$t('api_test.definition.request.responsible'), trigger: 'change'}],
         },
         environments: [],
         tags: [],
@@ -684,9 +685,11 @@
               this.path = "/api/automation/update";
               if (response.data.scenarioDefinition != null) {
                 let obj = JSON.parse(response.data.scenarioDefinition);
-                this.currentEnvironmentId = obj.environmentId;
-                this.currentScenario.variables = obj.variables;
-                this.scenarioDefinition = obj.hashTree;
+                if (obj) {
+                  this.currentEnvironmentId = obj.environmentId;
+                  this.currentScenario.variables = obj.variables;
+                  this.scenarioDefinition = obj.hashTree;
+                }
               }
             }
           })

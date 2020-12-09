@@ -77,7 +77,8 @@
                 <el-button type="text" @click="handleTestCase(scope.row)">用例</el-button>
               </div>
               <div v-else>
-                <el-button type="text" @click="editApi(scope.row)">编辑</el-button>
+                <el-button type="text" @click="reductionApi(scope.row)" v-if="currentModule!=undefined && currentModule.id === 'gc'">恢复</el-button>
+                <el-button type="text" @click="editApi(scope.row)" v-else>编辑</el-button>
                 <el-button type="text" @click="handleTestCase(scope.row)">用例</el-button>
                 <el-button type="text" @click="handleDelete(scope.row)" style="color: #F56C6C">删除</el-button>
               </div>
@@ -255,6 +256,15 @@
 
       editApi(row) {
         this.$emit('editApi', row);
+      },
+      reductionApi(row) {
+        row.status = 'Underway';
+        row.request = null;
+        row.response = null;
+        this.$fileUpload("/api/definition/update", null, [], row, () => {
+          this.$success(this.$t('commons.save_success'));
+          this.search();
+        });
       },
       handleDeleteBatch() {
         if (this.currentModule != undefined && this.currentModule.id == "gc") {
