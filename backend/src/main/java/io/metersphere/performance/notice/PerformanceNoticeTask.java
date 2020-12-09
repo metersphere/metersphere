@@ -15,6 +15,8 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.PreDestroy;
 import javax.annotation.Resource;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -49,7 +51,7 @@ public class PerformanceNoticeTask {
                 }
                 try {
                     //查询定时任务是否关闭
-                    Thread.sleep(1000 * 30);// 每分钟检查 loadtest 的状态
+                    Thread.sleep(1000 * 10);// 检查 loadtest 的状态
                 } catch (InterruptedException e) {
                     LogUtil.error(e.getMessage(), e);
                 }
@@ -81,7 +83,11 @@ public class PerformanceNoticeTask {
         if (PerformanceTestStatus.Error.name().equals(loadTestReport.getStatus())) {
             event = NoticeConstants.Event.EXECUTE_FAILED;
         }
-
+        Map<String, Object> paramMap = new HashMap<>();
+        paramMap.put("testName", loadTestReport.getName());
+        paramMap.put("id", loadTestReport.getId());
+        paramMap.put("type", "performance");
+        paramMap.put("url", baseSystemConfigDTO.getUrl());
         NoticeModel noticeModel = NoticeModel.builder()
                 .successContext(successContext)
                 .successMailTemplate("PerformanceApiSuccessNotification")
@@ -91,6 +97,7 @@ public class PerformanceNoticeTask {
                 .status(loadTestReport.getStatus())
                 .subject(subject)
                 .event(event)
+                .paramMap(paramMap)
                 .build();
         noticeSendService.send(loadTestReport.getTriggerMode(), noticeModel);
     }
