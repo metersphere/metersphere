@@ -17,14 +17,13 @@ import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ApiScenarioMapper;
 import io.metersphere.base.mapper.ApiTagMapper;
 import io.metersphere.base.mapper.ext.ExtApiScenarioMapper;
-import io.metersphere.commons.constants.*;
+import io.metersphere.commons.constants.APITestStatus;
+import io.metersphere.commons.constants.ApiRunMode;
+import io.metersphere.commons.constants.ReportTriggerMode;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.i18n.Translator;
-import io.metersphere.job.sechedule.ApiTestJob;
-import io.metersphere.job.sechedule.ScenarioJob;
-import io.metersphere.service.ScheduleService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jorphan.collections.HashTree;
@@ -35,7 +34,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
-
 import java.io.*;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -58,8 +56,6 @@ public class ApiAutomationService {
     private ApiTestEnvironmentService environmentService;
     @Resource
     private ApiScenarioReportService apiReportService;
-    @Resource
-    private ScheduleService scheduleService;
 
     private static final String BODY_FILE_DIR = "/opt/metersphere/data/body";
 
@@ -123,27 +119,6 @@ public class ApiAutomationService {
 
         List<String> bodyUploadIds = new ArrayList<>(request.getBodyUploadIds());
         createBodyFiles(bodyUploadIds, bodyFiles);
-    }
-
-    private Schedule buildApiTestSchedule(Schedule request) {
-        Schedule schedule = scheduleService.buildApiTestSchedule(request);
-        schedule.setJob(ScenarioJob.class.getName());
-        schedule.setGroup(ScheduleGroup.SCENARIO_TEST.name());
-        schedule.setType(ScheduleType.CRON.name());
-        return schedule;
-    }
-
-    private void addOrUpdateApiTestCronJob(Schedule request) {
-        scheduleService.addOrUpdateCronJob(request, ApiTestJob.getJobKey(request.getResourceId()), ApiTestJob.getTriggerKey(request.getResourceId()), ApiTestJob.class);
-    }
-
-    public void updateSchedule(Schedule schedule) {
-        scheduleService.addSchedule(buildApiTestSchedule(schedule));
-        addOrUpdateApiTestCronJob(schedule);
-    }
-    public void createSchedule(Schedule request) {
-        scheduleService.addSchedule(buildApiTestSchedule(request));
-        addOrUpdateApiTestCronJob(request);
     }
 
     public void update(SaveApiScenarioRequest request, List<MultipartFile> bodyFiles) {
