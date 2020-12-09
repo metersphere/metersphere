@@ -1,5 +1,7 @@
 export default {
   commons: {
+    cut_back_old_version: 'Cut back to old version',
+    cut_back_new_version: 'Switch back to new version',
     comment: 'comment',
     examples: 'examples',
     help_documentation: 'Help documentation',

@@ -4,7 +4,8 @@
       <el-col :span="14">
         <el-menu class="header-menu" :unique-opened="true" mode="horizontal" router :default-active='$route.path'>
 
-          <el-submenu :class="{'deactivation':!isProjectActivation}" v-permission="['test_manager','test_user','test_viewer']" index="3">
+          <el-submenu :class="{'deactivation':!isProjectActivation}"
+                      v-permission="['test_manager','test_user','test_viewer']" index="3">
             <template v-slot:title>{{ $t('commons.project') }}</template>
             <search-list ref="projectRecent" :options="projectRecent"/>
             <el-divider class="menu-divider"/>
@@ -19,19 +20,20 @@
             {{ $t("i18n.home") }}
           </el-menu-item>
 
-          <el-menu-item :index="'/api/definition'">
+          <el-menu-item v-show="$store.state.switch.value=='new'" :index="'/api/definition'">
             {{ $t("i18n.definition") }}
           </el-menu-item>
 
-          <el-menu-item :index="'/api/automation'">
+          <el-menu-item v-show="$store.state.switch.value=='new'" :index="'/api/automation'">
             {{ $t("i18n.automation") }}
           </el-menu-item>
 
-          <el-menu-item :index="'/api/automation/report'">
+          <el-menu-item v-show="$store.state.switch.value=='new'" :index="'/api/automation/report'">
             {{ $t("i18n.report") }}
           </el-menu-item>
 
-          <el-submenu v-permission="['test_manager','test_user','test_viewer']" index="4">
+          <el-submenu v-show="$store.state.switch.value=='old'"
+                      v-permission="['test_manager','test_user','test_viewer']" index="4">
             <template v-slot:title>{{ $t('commons.test') }}</template>
             <ms-recent-list ref="testRecent" :options="testRecent"/>
             <el-divider class="menu-divider"/>
@@ -41,7 +43,8 @@
                               :title="$t('load_test.create')"/>
           </el-submenu>
 
-          <el-submenu v-permission="['test_manager','test_user','test_viewer']" index="5">
+          <el-submenu v-show="$store.state.switch.value=='old'"
+                      v-permission="['test_manager','test_user','test_viewer']" index="5">
             <template v-slot:title>{{ $t('commons.report') }}</template>
             <ms-recent-list ref="reportRecent" :options="reportRecent"/>
             <el-divider class="menu-divider"/>
@@ -49,7 +52,8 @@
           </el-submenu>
 
 
-          <el-menu-item v-permission="['test_manager','test_user','test_viewer']" :index="'/api/monitor/view'">
+          <el-menu-item v-show="$store.state.switch.value=='new'"
+                        v-permission="['test_manager','test_user','test_viewer']" :index="'/api/monitor/view'">
             {{ $t('commons.monitor') }}
           </el-menu-item>
         </el-menu>
@@ -112,10 +116,11 @@ export default {
       apiTestProjectPath: '',
     }
   },
+
   watch: {
     '$route'(to) {
       this.init();
-    }
+    },
   },
   methods: {
     registerEvents() {
@@ -156,20 +161,20 @@ export default {
 </script>
 
 <style scoped>
-  #menu-bar {
-    border-bottom: 1px solid #E6E6E6;
-    background-color: #FFF;
-  }
+#menu-bar {
+  border-bottom: 1px solid #E6E6E6;
+  background-color: #FFF;
+}
 
-  .menu-divider {
-    margin: 0;
-  }
+.menu-divider {
+  margin: 0;
+}
 
-  .blank_item {
-    display: none;
-  }
+.blank_item {
+  display: none;
+}
 
-  .deactivation >>> .el-submenu__title {
-    border-bottom: white !important;
-  }
+.deactivation >>> .el-submenu__title {
+  border-bottom: white !important;
+}
 </style>

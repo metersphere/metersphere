@@ -1,5 +1,7 @@
 export default {
   commons: {
+    cut_back_old_version: '切回旧版',
+    cut_back_new_version: '切回新版',
     comment: '评论',
     examples: '示例',
     help_documentation: '帮助文档',
@@ -278,7 +280,7 @@ export default {
       verified: '验证通过'
     }
   },
-  project: {
+  edit: {
     recent: '最近的项目',
     create: '创建项目',
     edit: '编辑项目',

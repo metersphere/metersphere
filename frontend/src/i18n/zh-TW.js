@@ -1,5 +1,7 @@
 export default {
   commons: {
+    cut_back_old_version: '切回舊版',
+    cut_back_new_version: '切回新版',
     comment: '評論',
     examples: '示例',
     help_documentation: '幫助文檔',
