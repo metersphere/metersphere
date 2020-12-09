@@ -1,34 +1,18 @@
 <template>
   <div class="metric-container">
     <el-row type="flex">
-      <div class="metric">
-        <div class="value">{{response.responseResult.responseTime}} ms</div>
-        <div class="name">{{$t('api_report.response_time')}}</div>
-        <br>
-        <div class="value">{{response.responseResult.latency}} ms</div>
-        <div class="name">{{$t('api_report.latency')}}</div>
-      </div>
-      <div class="metric">
-        <div class="value">{{response.requestSize}} bytes</div>
-        <div class="name">{{$t('api_report.request_size')}}</div>
-        <br>
-        <div class="value">{{response.responseResult.responseSize}} bytes</div>
-        <div class="name">{{$t('api_report.response_size')}}</div>
-      </div>
-
-      <div class="metric horizontal">
-        <el-row type="flex">
-          <div class="code">
-            <div class="value" :class="{'error': error}">{{response.responseResult.responseCode}}</div>
-            <div class="name">{{$t('api_report.response_code')}}</div>
-          </div>
-          <div class="split"></div>
-          <div class="message">
-            <div class="value">{{response.responseResult.responseMessage}}</div>
-            <div class="name">{{$t('api_report.response_message')}}</div>
-          </div>
-        </el-row>
-      </div>
+      <el-col>
+        <div style="font-size: 14px;color: #AAAAAA;float: left">{{$t('api_report.response_code')}} :</div>
+        <div style="font-size: 14px;color:#61C550;margin-top:2px;margin-left:10px;float: left">{{response.responseResult.responseCode ? response.responseResult.responseCode :'0'}}</div>
+      </el-col>
+      <el-col>
+        <div style="font-size: 14px;color: #AAAAAA;float: left">{{$t('api_report.response_time')}} :</div>
+        <div style="font-size: 14px;color:#61C550;margin-top:2px;margin-left:10px;float: left">{{response.responseResult.responseTime?response.responseResult.responseTime:0}} ms</div>
+      </el-col>
+      <el-col>
+        <div style="font-size: 14px;color: #AAAAAA;float: left">{{$t('api_report.response_size')}} :</div>
+        <div style="font-size: 14px;color:#61C550; margin-top:2px;margin-left:10px;float: left">{{response.responseResult.responseSize?response.responseResult.responseSize:0}} bytes</div>
+      </el-col>
     </el-row>
   </div>
 </template>
@@ -51,56 +35,6 @@
 
 <style scoped>
   .metric-container {
-    padding: 10px;
-  }
-
-  .metric {
-    padding: 10px;
-    border: 1px solid #EBEEF5;
-    min-width: 120px;
-    height: 114px;
-  }
-
-  .metric + .metric {
-    margin-left: 20px;
-  }
-
-  .metric .value {
-    font-size: 16px;
-    font-weight: 500;
-    word-break: break-all;
-  }
-
-  .metric .name {
-    color: #404040;
-    opacity: 0.5;
-    padding: 5px 0;
-  }
-
-  .metric.horizontal {
-    width: 100%;
-  }
-
-  .metric .code {
-    min-width: 120px;
-  }
-
-  .metric .code .value {
-    color: #67C23A;
-  }
-
-  .metric .code .value.error {
-    color: #F56C6C;
-  }
-
-  .metric .split {
-    height: 114px;
-    border-left: 1px solid #EBEEF5;
-    margin-right: 20px;
-  }
-
-  .metric .message {
-    max-height: 114px;
-    overflow-y: auto;
+    padding-bottom: 20px;
   }
 </style>
