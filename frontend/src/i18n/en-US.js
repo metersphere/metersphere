@@ -529,6 +529,7 @@ export default {
         post_script: "Postscript",
         extract_param: "Extract parameters",
         add_module: "Add module",
+        edit_api: "Edit Api",
       }
     },
     automation: {

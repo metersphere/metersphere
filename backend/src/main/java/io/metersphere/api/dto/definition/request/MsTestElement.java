@@ -102,7 +102,7 @@ public class MsTestElement {
 
     public HashTree generateHashTree() {
         HashTree jmeterTestPlanHashTree = new ListedHashTree();
-        this.toHashTree(jmeterTestPlanHashTree, this.hashTree, null);
+        this.toHashTree(jmeterTestPlanHashTree, this.hashTree, new ParameterConfig());
         return jmeterTestPlanHashTree;
     }
 

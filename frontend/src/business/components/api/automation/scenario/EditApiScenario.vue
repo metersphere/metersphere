@@ -342,7 +342,7 @@
         debugVisible: false,
         customizeRequest: {protocol: "HTTP", type: "API", hashTree: [], referenced: 'Created', active: false},
         operatingElements: [],
-        currentRow: {cases: [], apis: []},
+        currentRow: {cases: [], apis: [], referenced: true},
         selectedTreeNode: undefined,
         expandedNode: [],
         scenarioDefinition: [],

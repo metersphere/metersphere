@@ -10,6 +10,7 @@
         :current-module="currentModule"
         @edit="editScenario"
         @selection="setData"
+        :referenced="true"
         ref="apiScenarioList"/>
 
       <el-button style="float: right;margin: 10px" @click="importApiScenario" type="primary">{{ $t('api_test.scenario.reference') }}</el-button>

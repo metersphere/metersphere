@@ -28,7 +28,11 @@ import org.apache.jorphan.collections.HashTree;
 
 import java.net.URL;
 import java.net.URLDecoder;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -112,8 +116,10 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                     envPath += this.getPath();
                 }
                 if (CollectionUtils.isNotEmpty(this.getRest()) && this.isRest()) {
-                    sampler.setPath(getRestParameters(URLDecoder.decode(envPath, "UTF-8")));
-                } else {
+                    envPath = getRestParameters(URLDecoder.decode(envPath, "UTF-8"));
+                    sampler.setPath(envPath);
+                }
+                if (CollectionUtils.isNotEmpty(this.getArguments())) {
                     sampler.setPath(getPostQueryParameters(URLDecoder.decode(envPath, "UTF-8")));
                 }
             } else {
@@ -128,19 +134,22 @@ public class MsHTTPSamplerProxy extends MsTestElement {
 
                 if (CollectionUtils.isNotEmpty(this.getRest()) && this.isRest()) {
                     sampler.setPath(getRestParameters(URLDecoder.decode(urlObject.getPath(), "UTF-8")));
-                } else {
+                }
+                if (CollectionUtils.isNotEmpty(this.getArguments())) {
                     sampler.setPath(getPostQueryParameters(URLDecoder.decode(urlObject.getPath(), "UTF-8")));
                 }
             }
         } catch (Exception e) {
             LogUtil.error(e);
         }
-
+        // REST参数
+        if (CollectionUtils.isNotEmpty(this.getArguments())) {
+            sampler.setArguments(httpArguments(this.getRest()));
+        }
         // 请求参数
         if (CollectionUtils.isNotEmpty(this.getArguments())) {
             sampler.setArguments(httpArguments(this.getArguments()));
         }
-
         // 请求体
         if (!StringUtils.equals(this.getMethod(), "GET")) {
             List<KeyValue> bodyParams = this.body.getBodyParams(sampler, this.getId());
@@ -168,10 +177,22 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         StringBuffer stringBuffer = new StringBuffer();
         stringBuffer.append(path);
         stringBuffer.append("/");
+        Map<String, String> keyValueMap = new HashMap<>();
         this.getRest().stream().filter(KeyValue::isEnable).filter(KeyValue::isValid).forEach(keyValue ->
-                stringBuffer.append(keyValue.getValue()).append("/")
+                keyValueMap.put(keyValue.getName(), keyValue.getValue())
         );
-        return stringBuffer.substring(0, stringBuffer.length() - 1);
+
+        Pattern p = Pattern.compile("(\\{)([\\w]+)(\\})");
+        Matcher m = p.matcher(path);
+        StringBuffer sb = new StringBuffer();
+        while (m.find()) {
+            String group = m.group(2);
+            //替换并且把替换好的值放到sb中
+            m.appendReplacement(sb, keyValueMap.get(group));
+        }
+        //把符合的数据追加到sb尾
+        m.appendTail(sb);
+        return sb.toString();
     }
 
     private String getPostQueryParameters(String path) {
@@ -214,4 +235,5 @@ public class MsHTTPSamplerProxy extends MsTestElement {
     private boolean isRest() {
         return this.getRest().stream().filter(KeyValue::isEnable).filter(KeyValue::isValid).toArray().length > 0;
     }
+
 }

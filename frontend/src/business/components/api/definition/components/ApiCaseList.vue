@@ -402,6 +402,9 @@
             test.request = JSON.parse(test.request);
           }
           this.apiCaseList = response.data;
+          if (this.apiCaseList.length == 0) {
+            this.addCase();
+          }
         });
       },
       validate(row) {

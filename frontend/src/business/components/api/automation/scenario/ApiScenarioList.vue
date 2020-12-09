@@ -1,6 +1,6 @@
 <template>
   <div>
-    <el-card class="table-card" v-loading="result.loading">
+    <el-card class="table-card" v-loading="loading">
       <template v-slot:header>
         <ms-table-header :condition.sync="condition" @search="search" title=""
                          :show-create="false"/>
@@ -45,7 +45,7 @@
         </el-table-column>
         <el-table-column prop="passRate" :label="$t('api_test.automation.passing_rate')"
                          show-overflow-tooltip/>
-        <el-table-column :label="$t('commons.operating')" width="200px">
+        <el-table-column :label="$t('commons.operating')" width="200px" v-if="!referenced">
           <template v-slot:default="{row}">
             <el-button type="text" @click="edit(row)">{{ $t('api_test.automation.edit') }}</el-button>
             <el-button type="text" @click="execute(row)">{{ $t('api_test.automation.execute') }}</el-button>
@@ -53,12 +53,10 @@
             <el-button type="text" @click="remove(row)">{{ $t('api_test.automation.remove') }}</el-button>
             <ms-scenario-extend-buttons :row="row"/>
           </template>
-
         </el-table-column>
       </el-table>
       <ms-table-pagination :change="search" :current-page.sync="currentPage" :page-size.sync="pageSize"
                            :total="total"/>
-
       <div>
         <!-- 执行结果 -->
         <el-drawer :visible.sync="runVisible" :destroy-on-close="true" direction="ltr" :withHeader="false" :title="$t('test_track.plan_view.test_result')" :modal="false" size="90%">
@@ -87,10 +85,14 @@
     props: {
       currentProject: Object,
       currentModule: Object,
+      referenced: {
+        type: Boolean,
+        default: false,
+      }
     },
     data() {
       return {
-        result: {},
+        loading: false,
         condition: {},
         currentScenario: {},
         schedule: {},
@@ -123,6 +125,7 @@
     },
     methods: {
       search() {
+        this.loading = true;
         this.condition.filters = ["Prepare", "Underway", "Completed"];
         if (this.currentModule != null) {
           if (this.currentModule.id === "root") {
@@ -139,10 +142,11 @@
         }
 
         let url = "/api/automation/list/" + this.currentPage + "/" + this.pageSize;
-        this.result = this.$post(url, this.condition, response => {
+        this.$post(url, this.condition, response => {
           let data = response.data;
           this.total = data.itemCount;
           this.tableData = data.listObject;
+          this.loading = false;
         });
       },
       handleCommand(cmd) {
@@ -167,7 +171,7 @@
         let scenarioIds = this.selection;
         run.id = getUUID();
         run.scenarioIds = scenarioIds;
-        this.result = this.$post(url, run, response => {
+        this.$post(url, run, response => {
           let data = response.data;
           this.runVisible = true;
           this.reportId = run.id;
@@ -194,7 +198,7 @@
         scenarioIds.push(row.id);
         run.id = getUUID();
         run.scenarioIds = scenarioIds;
-        this.result = this.$post(url, run, response => {
+        this.$post(url, run, response => {
           let data = response.data;
           this.runVisible = true;
           this.reportId = run.id;

@@ -193,7 +193,7 @@
       },
       editApi(row) {
         this.currentApi = row;
-        this.handleTabsEdit(row.name, "add");
+        this.handleTabsEdit(this.$t('api_test.definition.request.edit_api') + "-" + row.name, "add");
       },
       handleCase(testCase) {
         this.currentApi = testCase;
@@ -219,7 +219,7 @@
         for (let index in this.apiTabs) {
           let tab = this.apiTabs[index];
           if (tab.name === this.apiDefaultTab) {
-            tab.title = data.name;
+            tab.title = this.$t('api_test.definition.request.edit_api') + "-" + data.name;
             break;
           }
         }

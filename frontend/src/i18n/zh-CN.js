@@ -528,6 +528,7 @@ export default {
         post_script: "后置脚本",
         extract_param: "提取参数",
         add_module: "创建模块",
+        edit_api: "编辑接口",
       }
     },
     automation: {
