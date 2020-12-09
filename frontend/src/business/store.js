@@ -28,9 +28,21 @@ const API = {
   }
 }
 
+const Switch = {
+  state: {
+    value: "new"
+  },
+  mutations: {
+    setValue(state, value) {
+      state.value = value;
+    }
+  }
+}
+
 export default new Vuex.Store({
   modules: {
     api: API,
-    common: Common
+    common: Common,
+    switch: Switch,
   }
 })
