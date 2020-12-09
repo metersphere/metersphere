@@ -17,6 +17,7 @@ import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ApiScenarioMapper;
 import io.metersphere.base.mapper.ApiTagMapper;
 import io.metersphere.base.mapper.ext.ExtApiScenarioMapper;
+import io.metersphere.base.mapper.ext.ExtTestPlanMapper;
 import io.metersphere.commons.constants.APITestStatus;
 import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.constants.ReportTriggerMode;
@@ -24,8 +25,13 @@ import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.i18n.Translator;
+import io.metersphere.track.dto.TestPlanDTO;
+import io.metersphere.track.request.testcase.QueryTestPlanRequest;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.ibatis.session.ExecutorType;
+import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.jorphan.collections.HashTree;
 import org.apache.jorphan.collections.ListedHashTree;
 import org.aspectj.util.FileUtil;
@@ -35,11 +41,9 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import java.io.*;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -56,6 +60,10 @@ public class ApiAutomationService {
     private ApiTestEnvironmentService environmentService;
     @Resource
     private ApiScenarioReportService apiReportService;
+    @Resource
+    private ExtTestPlanMapper extTestPlanMapper;
+    @Resource
+    SqlSessionFactory sqlSessionFactory;
 
     private static final String BODY_FILE_DIR = "/opt/metersphere/data/body";
 
@@ -306,7 +314,54 @@ public class ApiAutomationService {
         return request.getId();
     }
 
-    public List<ApiScenario> getReference(ApiScenarioRequest request) {
-        return extApiScenarioMapper.selectReference(request);
+    public ReferenceDTO getReference(ApiScenarioRequest request) {
+        ReferenceDTO dto = new ReferenceDTO();
+        dto.setScenarioList(extApiScenarioMapper.selectReference(request));
+        QueryTestPlanRequest planRequest = new QueryTestPlanRequest();
+        planRequest.setScenarioId(request.getId());
+        planRequest.setProjectId(request.getProjectId());
+        dto.setTestPlanList(extTestPlanMapper.selectReference(planRequest));
+        return dto;
     }
+
+    public String addScenarioToPlan(SaveApiPlanRequest request) {
+        if (CollectionUtils.isEmpty(request.getPlanIds())) {
+            MSException.throwException(Translator.get("plan id is null "));
+        }
+        List<TestPlanDTO> list = extTestPlanMapper.selectByIds(request.getPlanIds());
+        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+        ExtTestPlanMapper mapper = sqlSession.getMapper(ExtTestPlanMapper.class);
+        list.forEach(item -> {
+            if (CollectionUtils.isNotEmpty(request.getApiIds())) {
+                if (CollectionUtils.isNotEmpty(request.getApiIds())) {
+                    if (StringUtils.isEmpty(item.getApiIds())) {
+                        item.setApiIds(JSON.toJSONString(request.getApiIds()));
+                    } else {
+                        // 合并api
+                        List<String> dbApiIDs = JSON.parseArray(item.getApiIds(), String.class);
+                        List<String> result = Stream.of(request.getApiIds(), dbApiIDs)
+                                .flatMap(Collection::stream).distinct().collect(Collectors.toList());
+                        item.setApiIds(JSON.toJSONString(result));
+                    }
+                }
+            }
+            if (CollectionUtils.isNotEmpty(request.getScenarioIds())) {
+                if (CollectionUtils.isNotEmpty(request.getScenarioIds())) {
+                    if (StringUtils.isEmpty(item.getScenarioIds())) {
+                        item.setScenarioIds(JSON.toJSONString(request.getScenarioIds()));
+                    } else {
+                        // 合并场景ID
+                        List<String> dbScenarioIDs = JSON.parseArray(item.getScenarioIds(), String.class);
+                        List<String> result = Stream.of(request.getScenarioIds(), dbScenarioIDs)
+                                .flatMap(Collection::stream).distinct().collect(Collectors.toList());
+                        item.setScenarioIds(JSON.toJSONString(result));
+                    }
+                }
+            }
+            mapper.updatePlan(item);
+        });
+        sqlSession.flushStatements();
+        return "success";
+    }
+
 }

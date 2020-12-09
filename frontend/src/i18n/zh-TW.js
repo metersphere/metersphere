@@ -529,6 +529,7 @@ export default {
         extract_param: "提取參數",
         add_module: "創建模塊",
         edit_api: "编辑接口",
+        test_plan_select: "請選擇測試計劃",
       }
     },
     automation: {

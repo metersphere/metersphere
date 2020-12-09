@@ -62,7 +62,6 @@ public class ApiDefinitionController {
         apiDefinitionService.removeToGc(ids);
     }
 
-
     @GetMapping("/get/{id}")
     public ApiDefinition get(@PathVariable String id) {
         return apiDefinitionService.get(id);

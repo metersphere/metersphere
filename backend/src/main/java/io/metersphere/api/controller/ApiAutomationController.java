@@ -2,10 +2,7 @@ package io.metersphere.api.controller;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
-import io.metersphere.api.dto.automation.ApiScenarioDTO;
-import io.metersphere.api.dto.automation.ApiScenarioRequest;
-import io.metersphere.api.dto.automation.RunScenarioRequest;
-import io.metersphere.api.dto.automation.SaveApiScenarioRequest;
+import io.metersphere.api.dto.automation.*;
 import io.metersphere.api.dto.definition.RunDefinitionRequest;
 import io.metersphere.api.service.ApiAutomationService;
 import io.metersphere.base.domain.ApiScenario;
@@ -82,8 +79,13 @@ public class ApiAutomationController {
     }
 
     @PostMapping("/getReference")
-    public List<ApiScenario> getReference(@RequestBody ApiScenarioRequest request) {
+    public ReferenceDTO getReference(@RequestBody ApiScenarioRequest request) {
         return apiAutomationService.getReference(request);
+    }
+
+    @PostMapping("/scenario/plan")
+    public String addScenarioToPlan(@RequestBody SaveApiPlanRequest request) {
+        return apiAutomationService.addScenarioToPlan(request);
     }
 
 }

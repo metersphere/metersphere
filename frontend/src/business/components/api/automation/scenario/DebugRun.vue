@@ -93,7 +93,6 @@
         testPlan.hashTree.push(threadGroup);
         let reqObj = {id: this.reportId, reportId: this.reportId, environmentId: this.environment, testElement: testPlan};
         let bodyFiles = this.getBodyUploadFiles(reqObj);
-        console.log(bodyFiles)
         let url = "/api/automation/run/debug";
         this.$fileUpload(url, null, bodyFiles, reqObj, response => {
           this.runId = response.data;

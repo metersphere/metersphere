@@ -62,6 +62,10 @@
         <el-drawer :visible.sync="runVisible" :destroy-on-close="true" direction="ltr" :withHeader="false" :title="$t('test_track.plan_view.test_result')" :modal="false" size="90%">
           <ms-api-report-detail @refresh="search" :infoDb="infoDb" :report-id="reportId" :currentProjectId="currentProject!=undefined ? currentProject.id:''"/>
         </el-drawer>
+        <!--测试计划-->
+        <el-drawer :visible.sync="planVisible" :destroy-on-close="true" direction="ltr" :withHeader="false" :title="$t('test_track.plan_view.test_result')" :modal="false" size="90%">
+          <ms-test-plan-list @addTestPlan="addTestPlan"/>
+        </el-drawer>
       </div>
     </el-card>
 
@@ -77,11 +81,11 @@
   import MsApiReportDetail from "../report/ApiReportDetail";
   import MsTableMoreBtn from "./TableMoreBtn";
   import MsScenarioExtendButtons from "@/business/components/api/automation/scenario/ScenarioExtendBtns";
-
+  import MsTestPlanList from "./testplan/TestPlanList";
 
   export default {
     name: "MsApiScenarioList",
-    components: {MsTablePagination, MsTableMoreBtn, ShowMoreBtn, MsTableHeader, MsTag, MsApiReportDetail, MsScenarioExtendButtons},
+    components: {MsTablePagination, MsTableMoreBtn, ShowMoreBtn, MsTableHeader, MsTag, MsApiReportDetail, MsScenarioExtendButtons, MsTestPlanList},
     props: {
       currentProject: Object,
       currentModule: Object,
@@ -105,6 +109,7 @@
         reportId: "",
         infoDb: false,
         runVisible: false,
+        planVisible: false,
         runData: [],
         buttons: [
           {
@@ -162,7 +167,14 @@
         }
       },
       handleBatchAddCase() {
-
+        this.planVisible = true;
+      },
+      addTestPlan(plans) {
+        let obj = {planIds: plans, scenarioIds: this.selection};
+        this.planVisible = false;
+        this.$post("/api/automation/scenario/plan", obj, response => {
+          this.$success(this.$t("commons.save_success"));
+        });
       },
       handleBatchExecute() {
         this.infoDb = false;
@@ -212,42 +224,6 @@
         this.runVisible = true;
         this.infoDb = true;
         this.reportId = row.reportId;
-      },
-      handleQuote() {
-
-      },
-      handleSchedule(row) {
-        this.currentScenario = row;
-        if (row.schedule) {
-          if (Object.prototype.toString.call(row.schedule).match(/\[object (\w+)\]/)[1].toLowerCase() === 'object') {
-            this.schedule = row.schedule;
-          } else {
-            this.schedule = JSON.parse(row.schedule);
-          }
-        }
-        this.$refs.scheduleEdit.open();
-      },
-      saveCronExpression(cronExpression) {
-        this.schedule.enable = true;
-        this.schedule.value = cronExpression;
-        this.saveSchedule();
-      },
-      saveSchedule() {
-        this.checkScheduleEdit();
-        let param = {};
-        param = this.schedule;
-        param.resourceId = this.currentScenario.id;
-        let url = '/api/automation/schedule/create';
-        if (param.id) {
-          url = '/api/automation/schedule/update';
-        }
-        this.$post(url, param, () => {
-          this.$success(this.$t('commons.save_success'));
-          this.search();
-        });
-      },
-      checkScheduleEdit() {
-        return true;
       },
       remove(row) {
         if (this.currentModule !== undefined && this.currentModule != null && this.currentModule.id === "gc") {

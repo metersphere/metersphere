@@ -530,6 +530,7 @@ export default {
         extract_param: "Extract parameters",
         add_module: "Add module",
         edit_api: "Edit Api",
+        test_plan_select: "Please select test plan",
       }
     },
     automation: {

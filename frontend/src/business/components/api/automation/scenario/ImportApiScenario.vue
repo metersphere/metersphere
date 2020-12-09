@@ -57,7 +57,6 @@
       importApiScenario() {
         let scenarios = [];
         if (this.currentScenario) {
-          console.log(this.currentScenario)
           this.currentScenario.forEach(item => {
             let obj = {id: item.id, name: item.name, type: "scenario", referenced: 'REF', resourceId: getUUID()};
             scenarios.push(obj);
