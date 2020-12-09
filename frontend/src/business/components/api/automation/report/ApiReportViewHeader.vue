@@ -2,14 +2,14 @@
   <header class="report-header">
     <el-row>
       <el-col>
-        <span><el-input size="mini" style="width: 200px" v-model="report.name"/> </span>
+        <span v-if="!debug"><el-input size="mini" style="width: 200px" v-model="report.name"/> </span>
         <span class="time"> {{ report.createTime | timestampFormatDate }}</span>
 
         <el-button :disabled="isReadOnly" class="export-button" plain type="primary" size="mini" @click="handleExport(report.name)" style="margin-right: 10px">
           {{$t('test_track.plan_view.export_report')}}
         </el-button>
 
-        <el-button :disabled="isReadOnly" class="export-button" plain type="primary" size="mini" @click="handleSave(report.name)" style="margin-right: 10px">
+        <el-button v-if="!debug" :disabled="isReadOnly" class="export-button" plain type="primary" size="mini" @click="handleSave(report.name)" style="margin-right: 10px">
           {{$t('commons.save')}}
         </el-button>
 
@@ -23,7 +23,10 @@
 
   export default {
     name: "MsApiReportViewHeader",
-    props: ['report'],
+    props: {
+      report: {},
+      debug: Boolean,
+    },
     computed: {
       path() {
         return "/api/test/edit?id=" + this.report.testId;

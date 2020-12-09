@@ -9,7 +9,7 @@
 </template>
 
 <script>
-import MsProject from "@/business/components/project/MsProject";
+import MsProject from "@/business/components/settings/project/MsProject";
 export default {
   name: "Project",
   components: {MsProject},

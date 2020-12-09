@@ -2,7 +2,6 @@ package io.metersphere.notice.service;
 
 import com.alibaba.nacos.client.utils.StringUtils;
 import io.metersphere.commons.constants.NoticeConstants;
-import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.notice.domain.MessageDetail;
 import io.metersphere.notice.sender.NoticeModel;
 import io.metersphere.notice.sender.NoticeSender;
@@ -22,10 +21,8 @@ public class NoticeSendService {
     private WeComNoticeSender weComNoticeSender;
     @Resource
     private DingNoticeSender dingNoticeSender;
-
-    private void event(String event) {
-
-    }
+    @Resource
+    private NoticeService noticeService;
 
     private NoticeSender getNoticeSender(MessageDetail messageDetail) {
         NoticeSender noticeSender = null;
@@ -47,8 +44,6 @@ public class NoticeSendService {
     }
 
     public void send(String taskType, NoticeModel noticeModel) {
-        NoticeService noticeService = CommonBeanFactory.getBean(NoticeService.class);
-        assert noticeService != null;
         List<MessageDetail> messageDetails;
         switch (taskType) {
             case NoticeConstants.Mode.API:

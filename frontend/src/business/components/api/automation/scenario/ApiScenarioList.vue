@@ -1,6 +1,6 @@
 <template>
   <div>
-    <el-card class="table-card" v-loading="result.loading">
+    <el-card class="table-card" v-loading="loading">
       <template v-slot:header>
         <ms-table-header :condition.sync="condition" @search="search" title=""
                          :show-create="false"/>
@@ -37,31 +37,30 @@
           </template>
         </el-table-column>
         <el-table-column prop="stepTotal" :label="$t('api_test.automation.step')" show-overflow-tooltip/>
-        <el-table-column prop="status" :label="$t('api_test.automation.last_result')">
+        <el-table-column prop="lastResult" :label="$t('api_test.automation.last_result')">
           <template v-slot:default="{row}">
-            <el-link type="success" v-if="row.status === 'Success'">{{ $t('api_test.automation.success') }}</el-link>
-            <el-link type="danger" v-if="row.status === 'Fail'">{{ $t('api_test.automation.fail') }}</el-link>
-            <el-link type="warning" v-if="row.status === 'Trash'">{{ $t('api_test.automation.trash') }}</el-link>
+            <el-link type="success" @click="showReport(row)" v-if="row.lastResult === 'Success'">{{ $t('api_test.automation.success') }}</el-link>
+            <el-link type="danger" @click="showReport(row)" v-if="row.lastResult === 'Fail'">{{ $t('api_test.automation.fail') }}</el-link>
           </template>
         </el-table-column>
-        <el-table-column prop="passingRate" :label="$t('api_test.automation.passing_rate')"
+        <el-table-column prop="passRate" :label="$t('api_test.automation.passing_rate')"
                          show-overflow-tooltip/>
-        <el-table-column :label="$t('commons.operating')" width="180">
+        <el-table-column :label="$t('commons.operating')" width="200px" v-if="!referenced">
           <template v-slot:default="{row}">
             <el-button type="text" @click="edit(row)">{{ $t('api_test.automation.edit') }}</el-button>
             <el-button type="text" @click="execute(row)">{{ $t('api_test.automation.execute') }}</el-button>
             <el-button type="text" @click="copy(row)">{{ $t('api_test.automation.copy') }}</el-button>
             <el-button type="text" @click="remove(row)">{{ $t('api_test.automation.remove') }}</el-button>
+            <ms-scenario-extend-buttons :row="row"/>
           </template>
         </el-table-column>
       </el-table>
       <ms-table-pagination :change="search" :current-page.sync="currentPage" :page-size.sync="pageSize"
                            :total="total"/>
-
       <div>
-        <!-- 调试结果 -->
+        <!-- 执行结果 -->
         <el-drawer :visible.sync="runVisible" :destroy-on-close="true" direction="ltr" :withHeader="false" :title="$t('test_track.plan_view.test_result')" :modal="false" size="90%">
-          <ms-api-report-detail :report-id="reportId" :currentProjectId="currentProject!=undefined ? currentProject.id:''"/>
+          <ms-api-report-detail @refresh="search" :infoDb="infoDb" :report-id="reportId" :currentProjectId="currentProject!=undefined ? currentProject.id:''"/>
         </el-drawer>
       </div>
     </el-card>
@@ -76,18 +75,27 @@
   import MsTag from "../../../common/components/MsTag";
   import {getUUID} from "@/common/js/utils";
   import MsApiReportDetail from "../report/ApiReportDetail";
+  import MsTableMoreBtn from "./TableMoreBtn";
+  import MsScenarioExtendButtons from "@/business/components/api/automation/scenario/ScenarioExtendBtns";
+
 
   export default {
     name: "MsApiScenarioList",
-    components: {ShowMoreBtn, MsTablePagination, MsTableHeader, MsTag, MsApiReportDetail},
+    components: {MsTablePagination, MsTableMoreBtn, ShowMoreBtn, MsTableHeader, MsTag, MsApiReportDetail, MsScenarioExtendButtons},
     props: {
       currentProject: Object,
       currentModule: Object,
+      referenced: {
+        type: Boolean,
+        default: false,
+      }
     },
     data() {
       return {
-        result: {},
+        loading: false,
         condition: {},
+        currentScenario: {},
+        schedule: {},
         selectAll: false,
         selection: [],
         tableData: [],
@@ -95,6 +103,7 @@
         pageSize: 10,
         total: 0,
         reportId: "",
+        infoDb: false,
         runVisible: false,
         runData: [],
         buttons: [
@@ -116,6 +125,7 @@
     },
     methods: {
       search() {
+        this.loading = true;
         this.condition.filters = ["Prepare", "Underway", "Completed"];
         if (this.currentModule != null) {
           if (this.currentModule.id === "root") {
@@ -132,10 +142,11 @@
         }
 
         let url = "/api/automation/list/" + this.currentPage + "/" + this.pageSize;
-        this.result = this.$post(url, this.condition, response => {
+        this.$post(url, this.condition, response => {
           let data = response.data;
           this.total = data.itemCount;
           this.tableData = data.listObject;
+          this.loading = false;
         });
       },
       handleCommand(cmd) {
@@ -154,12 +165,13 @@
 
       },
       handleBatchExecute() {
+        this.infoDb = false;
         let url = "/api/automation/run";
         let run = {};
         let scenarioIds = this.selection;
         run.id = getUUID();
         run.scenarioIds = scenarioIds;
-        this.result = this.$post(url, run, response => {
+        this.$post(url, run, response => {
           let data = response.data;
           this.runVisible = true;
           this.reportId = run.id;
@@ -179,13 +191,14 @@
         this.$emit('edit', row);
       },
       execute(row) {
+        this.infoDb = false;
         let url = "/api/automation/run";
         let run = {};
         let scenarioIds = [];
         scenarioIds.push(row.id);
         run.id = getUUID();
         run.scenarioIds = scenarioIds;
-        this.result = this.$post(url, run, response => {
+        this.$post(url, run, response => {
           let data = response.data;
           this.runVisible = true;
           this.reportId = run.id;
@@ -194,6 +207,47 @@
       copy(row) {
         row.id = getUUID();
         this.$emit('edit', row);
+      },
+      showReport(row) {
+        this.runVisible = true;
+        this.infoDb = true;
+        this.reportId = row.reportId;
+      },
+      handleQuote() {
+
+      },
+      handleSchedule(row) {
+        this.currentScenario = row;
+        if (row.schedule) {
+          if (Object.prototype.toString.call(row.schedule).match(/\[object (\w+)\]/)[1].toLowerCase() === 'object') {
+            this.schedule = row.schedule;
+          } else {
+            this.schedule = JSON.parse(row.schedule);
+          }
+        }
+        this.$refs.scheduleEdit.open();
+      },
+      saveCronExpression(cronExpression) {
+        this.schedule.enable = true;
+        this.schedule.value = cronExpression;
+        this.saveSchedule();
+      },
+      saveSchedule() {
+        this.checkScheduleEdit();
+        let param = {};
+        param = this.schedule;
+        param.resourceId = this.currentScenario.id;
+        let url = '/api/automation/schedule/create';
+        if (param.id) {
+          url = '/api/automation/schedule/update';
+        }
+        this.$post(url, param, () => {
+          this.$success(this.$t('commons.save_success'));
+          this.search();
+        });
+      },
+      checkScheduleEdit() {
+        return true;
       },
       remove(row) {
         if (this.currentModule !== undefined && this.currentModule != null && this.currentModule.id === "gc") {

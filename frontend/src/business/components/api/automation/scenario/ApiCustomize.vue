@@ -58,6 +58,10 @@
         let name = this.request.name;
         Object.assign(this.request, row.request);
         this.request.name = name;
+        if (this.request.protocol === 'HTTP') {
+          this.request.url = row.url;
+          this.request.method = row.method;
+        }
         this.request.resourceId = getUUID();
         this.$emit('addCustomizeApi', this.request);
       },
@@ -72,5 +76,12 @@
 </script>
 
 <style scoped>
+  .tip {
+    padding: 3px 5px;
+    font-size: 16px;
+    border-radius: 4px;
+    border-left: 4px solid #783887;
+    margin: 20px 0;
+  }
 
 </style>

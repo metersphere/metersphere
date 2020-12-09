@@ -1,53 +1,51 @@
 <template>
-  <ms-container>
-    <ms-main-container>
-      <el-card class="table-card" v-loading="result.loading">
-        <template v-slot:header>
-          <ms-table-header :is-tester-permission="true" :condition.sync="condition" @search="search" @create="create"
-                           :create-tip="btnTips" title=""/>
-        </template>
-        <el-table border class="adjust-table" @row-click="link" :data="items" style="width: 100%" @sort-change="sort">
-          <el-table-column prop="name" :label="$t('commons.name')" width="250" show-overflow-tooltip/>
-          <el-table-column prop="description" :label="$t('commons.description')" show-overflow-tooltip>
-            <template v-slot:default="scope">
-              <pre>{{ scope.row.description }}</pre>
-            </template>
-          </el-table-column>
-          <!--<el-table-column prop="workspaceName" :label="$t('project.owning_workspace')"/>-->
-          <el-table-column
-            sortable
-            prop="createTime"
-            :label="$t('commons.create_time')"
-            show-overflow-tooltip>
-            <template v-slot:default="scope">
-              <span>{{ scope.row.createTime | timestampFormatDate }}</span>
-            </template>
-          </el-table-column>
-          <el-table-column
-            sortable
-            prop="updateTime"
-            :label="$t('commons.update_time')"
-            show-overflow-tooltip>
-            <template v-slot:default="scope">
-              <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
-            </template>
-          </el-table-column>
-          <el-table-column :label="$t('commons.operating')">
-            <template v-slot:default="scope">
-              <ms-table-operator :is-tester-permission="true" @editClick="edit(scope.row)"
-                                 @deleteClick="handleDelete(scope.row)">
-                <template v-slot:behind>
-                  <ms-table-operator-button :is-tester-permission="true" :tip="$t('api_test.environment.environment_config')" icon="el-icon-setting"
-                                            type="info" @exec="openEnvironmentConfig(scope.row)"/>
-                </template>
-              </ms-table-operator>
-            </template>
-          </el-table-column>
-        </el-table>
-        <ms-table-pagination :change="list" :current-page.sync="currentPage" :page-size.sync="pageSize"
-                             :total="total"/>
-      </el-card>
-    </ms-main-container>
+  <div v-loading="result.loading">
+    <el-card class="table-card">
+      <template v-slot:header>
+        <ms-table-header :is-tester-permission="true" :condition.sync="condition" @search="search" @create="create"
+                         :create-tip="btnTips" :title="$t('commons.project')"/>
+      </template>
+      <el-table border class="adjust-table" @row-click="link" :data="items" style="width: 100%" @sort-change="sort">
+        <el-table-column prop="name" :label="$t('commons.name')" width="250" show-overflow-tooltip/>
+        <el-table-column prop="description" :label="$t('commons.description')" show-overflow-tooltip>
+          <template v-slot:default="scope">
+            <pre>{{ scope.row.description }}</pre>
+          </template>
+        </el-table-column>
+        <!--<el-table-column prop="workspaceName" :label="$t('project.owning_workspace')"/>-->
+        <el-table-column
+          sortable
+          prop="createTime"
+          :label="$t('commons.create_time')"
+          show-overflow-tooltip>
+          <template v-slot:default="scope">
+            <span>{{ scope.row.createTime | timestampFormatDate }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column
+          sortable
+          prop="updateTime"
+          :label="$t('commons.update_time')"
+          show-overflow-tooltip>
+          <template v-slot:default="scope">
+            <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column :label="$t('commons.operating')">
+          <template v-slot:default="scope">
+            <ms-table-operator :is-tester-permission="true" @editClick="edit(scope.row)"
+                               @deleteClick="handleDelete(scope.row)">
+              <template v-slot:behind>
+                <ms-table-operator-button :is-tester-permission="true" :tip="$t('api_test.environment.environment_config')" icon="el-icon-setting"
+                                          type="info" @exec="openEnvironmentConfig(scope.row)"/>
+              </template>
+            </ms-table-operator>
+          </template>
+        </el-table-column>
+      </el-table>
+      <ms-table-pagination :change="list" :current-page.sync="currentPage" :page-size.sync="pageSize"
+                           :total="total"/>
+    </el-card>
 
     <el-dialog :close-on-click-modal="false" :title="title" :visible.sync="createVisible" destroy-on-close @close="handleClose">
       <el-form :model="form" :rules="rules" ref="form" label-position="right" label-width="100px" size="small">
@@ -80,23 +78,23 @@
 
     <api-environment-config ref="environmentConfig"/>
 
-  </ms-container>
+  </div>
 </template>
 
 <script>
-import MsCreateBox from "../settings/CreateBox";
+import MsCreateBox from "../CreateBox";
 import {Message} from "element-ui";
-import MsTablePagination from "../common/pagination/TablePagination";
-import MsTableHeader from "../common/components/MsTableHeader";
-import MsTableOperator from "../common/components/MsTableOperator";
-import MsDialogFooter from "../common/components/MsDialogFooter";
+import MsTablePagination from "../../common/pagination/TablePagination";
+import MsTableHeader from "../../common/components/MsTableHeader";
+import MsTableOperator from "../../common/components/MsTableOperator";
+import MsDialogFooter from "../../common/components/MsDialogFooter";
 import {_sort, getCurrentUser, listenGoBack, removeGoBackListener} from "@/common/js/utils";
-import MsContainer from "../common/components/MsContainer";
-import MsMainContainer from "../common/components/MsMainContainer";
-import MsDeleteConfirm from "../common/components/MsDeleteConfirm";
-import MsTableOperatorButton from "../common/components/MsTableOperatorButton";
-import ApiEnvironmentConfig from "../api/test/components/ApiEnvironmentConfig";
-import TemplateComponent from "../track/plan/view/comonents/report/TemplateComponent/TemplateComponent";
+import MsContainer from "../../common/components/MsContainer";
+import MsMainContainer from "../../common/components/MsMainContainer";
+import MsDeleteConfirm from "../../common/components/MsDeleteConfirm";
+import MsTableOperatorButton from "../../common/components/MsTableOperatorButton";
+import ApiEnvironmentConfig from "../../api/test/components/ApiEnvironmentConfig";
+import TemplateComponent from "../../track/plan/view/comonents/report/TemplateComponent/TemplateComponent";
 import {ApiEvent, LIST_CHANGE, PerformanceEvent, TrackEvent} from "@/business/components/common/head/ListEvent";
 
 export default {
@@ -144,24 +142,12 @@ export default {
     if (this.$route.path.split('/')[2] === 'project' &&
       this.$route.path.split('/')[3] === 'create') {
       this.create();
-      this.$router.push('/' + this.baseUrl + '/project/all');
+      this.$router.replace('/setting/project/all');
     }
     this.list();
   },
   activated() {
     this.list();
-  },
-  watch: {
-    '$route'(to) {
-      if (this.$route.path.split('/')[2] === 'project' &&
-        to.path.split('/')[3] === 'create') {
-        this.create();
-        this.$router.push('/' + this.baseUrl + '/project/all');
-      } else if (this.$route.path.split('/')[2] === 'project' &&
-        to.path.split('/')[3] === 'all') {
-        this.list();
-      }
-    }
   },
   computed: {
     currentUser: () => {
@@ -179,7 +165,7 @@ export default {
         return false;
       }
       this.title = this.$t('project.create');
-      listenGoBack(this.handleClose);
+      // listenGoBack(this.handleClose);
       this.createVisible = true;
       this.form = {};
     },
@@ -247,6 +233,9 @@ export default {
     handleClose() {
       removeGoBackListener(this.handleClose);
       this.createVisible = false;
+      this.tapd = false;
+      this.jira = false;
+      this.zentao = false;
     },
     search() {
       this.list();

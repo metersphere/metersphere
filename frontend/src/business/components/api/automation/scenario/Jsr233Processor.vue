@@ -2,10 +2,13 @@
   <el-card>
     <el-row>
       <div>
+        <div class="el-step__icon is-text" :style="styleType" style="margin-right: 10px">
+          <div class="el-step__icon-inner">{{jsr223ProcessorData.index}}</div>
+        </div>
         <el-button class="ms-left-buttion" size="small" :style="styleType" style="color: #B8741A;background-color: #F9F1EA">{{title}}</el-button>
         <i class="icon el-icon-arrow-right" :class="{'is-active': this.jsr223ProcessorData.active}" @click="changeActive" style="margin-left: 20px"/>
         <el-input size="small" v-model="jsr223ProcessorData.name" class="ms-api-header-select" style="width: 380px"/>
-        <el-button size="small" style="float: right" @click="remove">移除</el-button>
+        <el-button size="small" style="float: right" @click="remove">{{$t('commons.remove')}}</el-button>
       </div>
     </el-row>
     <el-collapse-transition>

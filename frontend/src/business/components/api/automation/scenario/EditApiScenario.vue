@@ -201,9 +201,9 @@
               <div v-if="operatingElements.indexOf('HTTPSamplerProxy')>0 || operatingElements.indexOf('DubboSampler')>0 || operatingElements.indexOf('JDBCSampler')>0 || operatingElements.indexOf('TCPSampler')>0 ">
                 <el-button class="ms-right-buttion" size="small" style="color: #F56C6C;background-color: #FCF1F1" @click="apiListImport">+{{$t('api_test.automation.api_list_import')}}</el-button>
               </div>
-              <div v-if="operatingElements.indexOf('OT_IMPORT')>0">
+              <!--<div v-if="operatingElements.indexOf('OT_IMPORT')>0">
                 <el-button class="ms-right-buttion" size="small" style="color: #409EFF;background-color: #EEF5FE" @click="addComponent('OT_IMPORT')">+{{$t('api_test.automation.external_import')}}</el-button>
-              </div>
+              </div>-->
               <div v-if="operatingElements.indexOf('ConstantTimer')>0">
                 <el-button class="ms-right-buttion" size="small" style="color: #67C23A;background-color: #F2F9EE" @click="addComponent('ConstantTimer')">+{{$t('api_test.automation.wait_controller')}}</el-button>
               </div>
@@ -263,7 +263,7 @@
               @runRefresh="runRefresh" ref="runTest"/>
       <!-- 调试结果 -->
       <el-drawer :visible.sync="debugVisible" :destroy-on-close="true" direction="ltr" :withHeader="false" :title="$t('test_track.plan_view.test_result')" :modal="false" size="90%">
-        <ms-api-report-detail :report-id="reportId" :currentProjectId="currentProject.id"/>
+        <ms-api-report-detail :report-id="reportId" :debug="true" :currentProjectId="currentProject.id"/>
       </el-drawer>
 
       <!--场景公共参数-->
@@ -342,7 +342,7 @@
         debugVisible: false,
         customizeRequest: {protocol: "HTTP", type: "API", hashTree: [], referenced: 'Created', active: false},
         operatingElements: [],
-        currentRow: {cases: [], apis: []},
+        currentRow: {cases: [], apis: [], referenced: true},
         selectedTreeNode: undefined,
         expandedNode: [],
         scenarioDefinition: [],
@@ -553,7 +553,11 @@
           this.$error(this.$t('api_test.environment.select_environment'));
           return;
         }
-        this.debugData = {id: this.currentScenario.id, name: this.currentScenario.name, type: "scenario", referenced: 'Created', environmentId: this.currentEnvironmentId, hashTree: this.scenarioDefinition};
+        this.debugData = {
+          id: this.currentScenario.id, name: this.currentScenario.name, type: "scenario",
+          variables: this.currentScenario.variables, referenced: 'Created',
+          environmentId: this.currentEnvironmentId, hashTree: this.scenarioDefinition
+        };
         this.reportId = getUUID().substring(0, 8);
       },
       getEnvironments() {
@@ -681,6 +685,7 @@
               if (response.data.scenarioDefinition != null) {
                 let obj = JSON.parse(response.data.scenarioDefinition);
                 this.currentEnvironmentId = obj.environmentId;
+                this.currentScenario.variables = obj.variables;
                 this.scenarioDefinition = obj.hashTree;
               }
             }
@@ -695,7 +700,10 @@
         this.currentScenario.stepTotal = this.scenarioDefinition.length;
         this.currentScenario.modulePath = this.getPath(this.currentScenario.apiScenarioModuleId);
         // 构建一个场景对象 方便引用处理
-        let scenario = {id: this.currentScenario.id, name: this.currentScenario.name, type: "scenario", referenced: 'Created', environmentId: this.currentEnvironmentId, hashTree: this.scenarioDefinition};
+        let scenario = {
+          id: this.currentScenario.id, name: this.currentScenario.name, variables: this.currentScenario.variables,
+          type: "scenario", referenced: 'Created', environmentId: this.currentEnvironmentId, hashTree: this.scenarioDefinition
+        };
         this.currentScenario.scenarioDefinition = scenario;
         this.currentScenario.tagId = JSON.stringify(this.currentScenario.tagId);
         if (this.currentModule != null) {

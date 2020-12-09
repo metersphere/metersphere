@@ -17,7 +17,10 @@ import io.metersphere.commons.utils.CommonBeanFactory;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.jmeter.save.SaveService;
+import org.apache.jmeter.testelement.TestElement;
 import org.apache.jorphan.collections.HashTree;
+import org.apache.jmeter.config.Arguments;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -40,11 +43,14 @@ public class MsScenario extends MsTestElement {
     @JSONField(ordinal = 13)
     private List<KeyValue> variables;
 
-    public void toHashTree(HashTree tree, List<MsTestElement> hashTree, EnvironmentConfig config) {
+    public void toHashTree(HashTree tree, List<MsTestElement> hashTree, ParameterConfig config) {
         if (environmentId != null) {
             ApiTestEnvironmentService environmentService = CommonBeanFactory.getBean(ApiTestEnvironmentService.class);
             ApiTestEnvironmentWithBLOBs environment = environmentService.get(environmentId);
-            config = JSONObject.parseObject(environment.getConfig(), EnvironmentConfig.class);
+            config.setConfig(JSONObject.parseObject(environment.getConfig(), EnvironmentConfig.class));
+        }
+        if (CollectionUtils.isNotEmpty(this.getVariables())) {
+            config.setVariables(this.variables);
         }
         if (this.getReferenced() != null && this.getReferenced().equals("Deleted")) {
             return;
@@ -66,10 +72,29 @@ public class MsScenario extends MsTestElement {
                 ex.printStackTrace();
             }
         }
+        // 场景变量
+        if (CollectionUtils.isNotEmpty(this.getVariables())) {
+            tree.add(arguments());
+        }
+
         if (CollectionUtils.isNotEmpty(hashTree)) {
             for (MsTestElement el : hashTree) {
                 el.toHashTree(tree, el.getHashTree(), config);
             }
         }
+
     }
+
+    private Arguments arguments() {
+        Arguments arguments = new Arguments();
+        arguments.setEnabled(true);
+        arguments.setName(name + "Variables");
+        arguments.setProperty(TestElement.TEST_CLASS, Arguments.class.getName());
+        arguments.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("ArgumentsPanel"));
+        variables.stream().filter(KeyValue::isValid).filter(KeyValue::isEnable).forEach(keyValue ->
+                arguments.addArgument(keyValue.getName(), keyValue.getValue(), "=")
+        );
+        return arguments;
+    }
+
 }

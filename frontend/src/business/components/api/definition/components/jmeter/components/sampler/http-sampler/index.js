@@ -37,6 +37,7 @@ export default class HTTPSamplerProxy extends Sampler {
     this.rest = [];
     this.files = [];
     this.headers = [];
+    this.hashTree = [];
   }
 }
 

@@ -17,4 +17,5 @@ public class MessageDetail {
     private Boolean isSet;
     private String testId;
     private Long createTime;
+    private String template;
 }

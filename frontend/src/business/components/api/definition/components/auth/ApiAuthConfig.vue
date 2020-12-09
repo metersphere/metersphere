@@ -102,5 +102,7 @@
 </script>
 
 <style scoped>
-
+  /deep/ .el-tabs__nav-wrap::after {
+    height: 0px;
+  }
 </style>

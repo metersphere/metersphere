@@ -2,8 +2,11 @@
   <div :style="customizeStyle" v-loading="loading">
     <el-card>
       <div>
+        <div class="el-step__icon is-text" style="color: #A30014;background-color: #F7E6E9;margin-right: 10px" v-if="assertions.index">
+          <div class="el-step__icon-inner">{{assertions.index}}</div>
+        </div>
         <el-button class="ms-left-buttion" size="small" style="color: #A30014;background-color: #F7E6E9">{{$t('api_test.definition.request.assertions_rule')}}</el-button>
-        <el-button size="small" style="float: right;margin-top: 0px" @click="remove">移除</el-button>
+        <el-button size="small" style="float: right;margin-top: 0px" @click="remove">{{$t('commons.remove')}}</el-button>
       </div>
       <div class="assertion-add">
         <el-row :gutter="10">
@@ -11,9 +14,6 @@
             <el-select :disabled="isReadOnly" class="assertion-item" v-model="type"
                        :placeholder="$t('api_test.request.assertions.select_type')"
                        size="small">
-              <!--
-                          <el-option :label="$t('api_test.request.assertions.text')" :value="options.TEXT"/>
-              -->
               <el-option :label="$t('api_test.request.assertions.regex')" :value="options.REGEX"/>
               <el-option :label="'JSONPath'" :value="options.JSON_PATH"/>
               <el-option :label="'XPath'" :value="options.XPATH2"/>
@@ -22,10 +22,6 @@
             </el-select>
           </el-col>
           <el-col :span="20">
-            <!--
-                      <ms-api-assertion-text :is-read-only="isReadOnly" :list="assertions.regex" v-if="type === options.TEXT"
-                                             :callback="after"/>
-            -->
             <ms-api-assertion-regex :is-read-only="isReadOnly" :list="assertions.regex" v-if="type === options.REGEX"
                                     :callback="after"/>
             <ms-api-assertion-json-path :is-read-only="isReadOnly" :list="assertions.jsonPath"
@@ -41,23 +37,7 @@
             </el-button>
           </el-col>
         </el-row>
-
-
-        <!--<div v-if="!scenario">-->
-        <!--<el-row :gutter="10" class="json-path-suggest-button">-->
-        <!--<el-link size="small" type="primary" @click="suggestJsonOpen" style="margin-right: 20px">-->
-        <!--{{ $t('api_test.request.assertions.json_path_suggest') }}-->
-        <!--</el-link>-->
-        <!--<el-link size="small" type="danger" @click="clearJson">-->
-        <!--{{ $t('api_test.request.assertions.json_path_clear') }}-->
-        <!--</el-link>-->
-        <!--</el-row>-->
-        <!--</div>-->
       </div>
-
-
-      <!--<ms-api-jsonpath-suggest-list @addJsonpathSuggest="addJsonpathSuggest" :request="request"-->
-      <!--ref="jsonpathSuggestList"/>-->
 
       <ms-api-assertions-edit :is-read-only="isReadOnly" :assertions="assertions" :reloadData="reloadData" style="margin-bottom: 20px"/>
     </el-card>

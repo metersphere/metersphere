@@ -81,5 +81,10 @@ public class ApiAutomationController {
         apiAutomationService.run(request);
     }
 
+    @PostMapping("/getReference")
+    public List<ApiScenario> getReference(@RequestBody ApiScenarioRequest request) {
+        return apiAutomationService.getReference(request);
+    }
+
 }
 

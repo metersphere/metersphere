@@ -3,7 +3,7 @@
     <p class="el-divider--horizontal"></p>
     <div @click="active">
       <el-row :gutter="10" type="flex" align="middle" class="info">
-        <el-col :span="10" v-if="indexNumber!=undefined">
+        <el-col :span="14" v-if="indexNumber!=undefined">
           <div class="method">
             <div class="el-step__icon is-text ms-api-col" v-if="indexNumber%2 ==0">
               <div class="el-step__icon-inner"> {{ indexNumber+1 }}</div>
@@ -14,14 +14,10 @@
             {{ request.name }}
           </div>
         </el-col>
-        <el-col :span="4">
-          <div class="method">
-            {{ request.method }}
-          </div>
-        </el-col>
+
         <el-col :span="5">
           <el-tooltip effect="dark" :content="request.responseResult.responseCode" placement="bottom" :open-delay="800">
-            <div class="url">{{ request.responseResult.responseCode }}</div>
+            <div class="url" style="color: #5daf34">{{ request.responseResult.responseCode }}</div>
           </el-tooltip>
         </el-col>
         <el-col :span="3">
@@ -122,16 +118,18 @@
   }
 
   .ms-api-col {
-    background-color: #FCF1F1;
-    border-color: #67C23A;
+    background-color: #EFF0F0;
+    border-color: #EFF0F0;
     margin-right: 10px;
-    color: #67C23A;
+    font-size: 12px;
+    color: #64666A;
   }
 
   .ms-api-col-create {
     background-color: #EBF2F2;
     border-color: #008080;
     margin-right: 10px;
+    font-size: 12px;
     color: #008080;
   }
 

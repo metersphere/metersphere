@@ -1,6 +1,9 @@
 <template>
   <div :style="customizeStyle">
     <el-card>
+      <div class="el-step__icon is-text" style="color: #015478;background-color: #E6EEF2;margin-right: 10px" v-if="extract.index">
+        <div class="el-step__icon-inner">{{extract.index}}</div>
+      </div>
       <el-button class="ms-left-buttion" size="small" style="color: #015478;background-color: #E6EEF2">{{$t('api_test.definition.request.extract_param')}}</el-button>
       <el-button size="small" style="float: right;margin-top: 0px" @click="remove">移除</el-button>
 

@@ -3,7 +3,7 @@ package io.metersphere.api.dto.definition.request.timer;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.annotation.JSONType;
 import io.metersphere.api.dto.definition.request.MsTestElement;
-import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
+import io.metersphere.api.dto.definition.request.ParameterConfig;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.collections.CollectionUtils;
@@ -26,7 +26,7 @@ public class MsConstantTimer extends MsTestElement {
     @JSONField(ordinal = 12)
     private String delay;
 
-    public void toHashTree(HashTree tree, List<MsTestElement> hashTree, EnvironmentConfig config) {
+    public void toHashTree(HashTree tree, List<MsTestElement> hashTree, ParameterConfig config) {
         final HashTree groupTree = tree.add(constantTimer());
         if (CollectionUtils.isNotEmpty(hashTree)) {
             hashTree.forEach(el -> {

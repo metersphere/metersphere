@@ -32,7 +32,7 @@ export default {
     options: Object
   },
   mounted() {
-    this.recent();
+    this.init();
   },
   data() {
     return {
@@ -44,7 +44,7 @@ export default {
   watch: {
     search_text(val) {
       if (!val) {
-        this.recent();
+        this.init();
       } else {
         this.search();
       }
@@ -66,7 +66,7 @@ export default {
   },
 
   methods: {
-    recent: function () {
+    init: function () {
       if (hasRoles(ROLE_TEST_VIEWER, ROLE_TEST_USER, ROLE_TEST_MANAGER)) {
         this.result = this.$get(this.options.url, (response) => {
           this.items = response.data;

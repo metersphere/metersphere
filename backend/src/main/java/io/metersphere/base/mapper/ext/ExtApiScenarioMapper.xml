@@ -12,6 +12,7 @@
         select api_scenario.id, api_scenario.project_id, api_scenario.tag_id, api_scenario.user_id,
         api_scenario.api_scenario_module_id,api_scenario.module_path, api_scenario.name, api_scenario.level,
         api_scenario.status, api_scenario.principal, api_scenario.step_total, api_scenario.follow_people,
+        api_scenario.last_result,api_scenario.pass_rate,api_scenario.report_id,
         api_scenario.schedule, api_scenario.description, api_scenario.create_time, api_scenario.update_time,
         project.name as project_name, user.name as user_name
         from api_scenario
@@ -70,4 +71,23 @@
             #{v}
         </foreach>
     </select>
+
+    <select id="selectReference" resultType="io.metersphere.base.domain.ApiScenario">
+        select * from api_scenario
+        <where>
+            id != #{request.id}
+            <if test="request.workspaceId != null">
+                AND project.workspace_id = #{request.workspaceId}
+            </if>
+            <if test="request.projectId != null">
+                AND project_id = #{request.projectId}
+            </if>
+            <if test="request.moduleId != null">
+                AND api_scenario_module_id = #{request.moduleId}
+            </if>
+            and scenario_definition like CONCAT('%', #{request.id},'%')
+        </where>
+    </select>
+
+
 </mapper>

@@ -246,7 +246,8 @@ export default {
         '3. When selecting the receiver, it must be the person included in the group you created. The mobile phone number of the receiver is required and it is the mobile phone number used by the nailing enterprise,',
       message: 'Event, receiver and receiving method are required\n' +
         '\n',
-      message_webhook: 'Webhook is required when the receiving mode is nail or enterprise robot'
+      message_webhook: 'Webhook is required when the receiving mode is nail or enterprise robot',
+      template: "Template"
     },
     integration: {
       select_defect_platform: 'Please select the defect management platform to be integrated:',
@@ -296,6 +297,7 @@ export default {
     tapd_id: 'TAPD Project ID',
     jira_key: 'JIRA Project key',
     zentao_id: 'Zentao Project ID',
+    manager: 'Manager',
   },
   member: {
     create: 'Create',
@@ -529,6 +531,7 @@ export default {
         post_script: "Postscript",
         extract_param: "Extract parameters",
         add_module: "Add module",
+        edit_api: "Edit Api",
       }
     },
     automation: {

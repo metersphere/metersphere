@@ -241,14 +241,9 @@ export default {
         confirmButtonText: this.$t('commons.confirm'),
         callback: (action) => {
           if (action === 'confirm') {
-            let ids = Array.from(this.selectRows).map(row => row.id);
-            this.result = this.$post('/performance/report/batch/delete', {ids: ids}, () => {
-              this.selectRows.clear();
-              this.$success(this.$t('commons.delete_success'));
-              this.search();
-              // 发送广播，刷新 head 上的最新列表
-              PerformanceEvent.$emit(LIST_CHANGE);
-            });
+            this.selectRows.forEach(row => {
+              this._handleDelete(row);
+            })
           }
         }
       });

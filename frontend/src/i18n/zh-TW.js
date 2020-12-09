@@ -244,9 +244,8 @@ export default {
         '         2.接收方式除郵件外webhook為必填；\n' +
         '         3.機器人選擇為群機器人，安全驗證選擇“自定義關鍵詞” ："任務通知"',
       message: '事件，接收人，接收方式為必填項',
-      message_webhook: '接收方式為釘釘和企業機器人時，webhook為必填項'
-
-
+      message_webhook: '接收方式為釘釘和企業機器人時，webhook為必填項',
+      template: "模版"
     },
     integration: {
       select_defect_platform: '請選擇要集成的缺陷管理平臺：',
@@ -295,6 +294,7 @@ export default {
     tapd_id: 'TAPD項目ID',
     jira_key: 'JIRA項目key',
     zentao_id: 'Zentao項目ID',
+    manager: '項目管理',
   },
   member: {
     create: '添加成員',
@@ -530,6 +530,7 @@ export default {
         post_script: "後置腳本",
         extract_param: "提取參數",
         add_module: "創建模塊",
+        edit_api: "编辑接口",
       }
     },
     automation: {

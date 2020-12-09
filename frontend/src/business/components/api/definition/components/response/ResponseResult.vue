@@ -86,7 +86,7 @@
     },
     computed: {
       isSqlType() {
-        return (this.currentProtocol === "SQL" && this.response.responseResult.responseCode === '200' && this.mode ==='table');
+        return (this.currentProtocol === "SQL" && this.response.responseResult.responseCode === '200' && this.mode === 'table');
       }
     }
   }
@@ -118,6 +118,10 @@
 
   .text-container .pane.cookie {
     padding: 0;
+  }
+
+  /deep/ .el-tabs__nav-wrap::after {
+    height: 0px;
   }
 
   pre {

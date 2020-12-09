@@ -213,10 +213,4 @@ export default {
   margin-bottom: 10px;
 }
 
-/deep/ .el-select__tags {
-  flex-wrap: unset;
-  overflow: auto;
-}
-
-
 </style>
