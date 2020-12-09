@@ -63,13 +63,17 @@
     },
     created() {
       if (this.request.protocol === 'HTTP') {
-        let urlObject = new URL(this.request.url);
-        let url = urlObject.protocol + "//" + urlObject.host + "/";
-        let path = this.request.url.substr(url.length);
-        if (!path.startsWith('/')) {
-          path = "/" + path;
+        try {
+          let urlObject = new URL(this.request.url);
+          let url = urlObject.protocol + "//" + urlObject.host + "/";
+          let path = this.request.url.substr(url.length);
+          if (!path.startsWith('/')) {
+            path = "/" + path;
+          }
+          this.request.path = path;
+        } catch (e) {
+          this.request.path = this.request.url;
         }
-        this.request.path = path;
       }
     },
     methods: {

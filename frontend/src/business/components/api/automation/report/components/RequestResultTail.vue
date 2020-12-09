@@ -1,27 +1,6 @@
 <template>
   <div class="request-result">
-    <div @click="active">
-      <el-row :gutter="10" type="flex" align="middle" class="info">
-        <el-col :span="12">
-          <i class="icon el-icon-arrow-right" :class="{'is-active': isActive}"/>
-          {{scenarioName}}
-        </el-col>
-        <el-col :span="4">
-          {{$t('api_report.start_time')}}
-        </el-col>
-        <el-col :span="2">
-          {{$t('api_report.response_time')}}
-        </el-col>
-        <el-col :span="2">
-          {{$t('api_report.error')}}
-        </el-col>
-        <el-col :span="2">
-          {{$t('api_report.assertions')}}
-        </el-col>
-        <el-col :span="2">
-          {{$t('api_report.result')}}
-        </el-col>
-      </el-row>
+    <div>
       <el-row :gutter="10" type="flex" align="middle" class="info">
         <el-col :span="2">
           <div class="method">
@@ -35,7 +14,7 @@
           </el-tooltip>
         </el-col>
         <el-col :span="4">
-            {{request.startTime | timestampFormatDate(true) }}
+          {{request.startTime | timestampFormatDate(true) }}
         </el-col>
         <el-col :span="2">
           <div class="time">
@@ -67,7 +46,7 @@
           </el-tab-pane>
           <el-tab-pane :label="$t('api_report.request_result')" name="result">
             <ms-request-metric :request="request"/>
-            <ms-request-text  :request="request"/>
+            <ms-request-text :request="request"/>
             <br>
             <ms-response-text :request-type="requestType" :response="request.responseResult"/>
           </el-tab-pane>

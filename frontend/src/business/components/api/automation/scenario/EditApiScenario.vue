@@ -201,9 +201,9 @@
               <div v-if="operatingElements.indexOf('HTTPSamplerProxy')>0 || operatingElements.indexOf('DubboSampler')>0 || operatingElements.indexOf('JDBCSampler')>0 || operatingElements.indexOf('TCPSampler')>0 ">
                 <el-button class="ms-right-buttion" size="small" style="color: #F56C6C;background-color: #FCF1F1" @click="apiListImport">+{{$t('api_test.automation.api_list_import')}}</el-button>
               </div>
-              <div v-if="operatingElements.indexOf('OT_IMPORT')>0">
+              <!--<div v-if="operatingElements.indexOf('OT_IMPORT')>0">
                 <el-button class="ms-right-buttion" size="small" style="color: #409EFF;background-color: #EEF5FE" @click="addComponent('OT_IMPORT')">+{{$t('api_test.automation.external_import')}}</el-button>
-              </div>
+              </div>-->
               <div v-if="operatingElements.indexOf('ConstantTimer')>0">
                 <el-button class="ms-right-buttion" size="small" style="color: #67C23A;background-color: #F2F9EE" @click="addComponent('ConstantTimer')">+{{$t('api_test.automation.wait_controller')}}</el-button>
               </div>
