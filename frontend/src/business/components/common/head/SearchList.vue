@@ -32,11 +32,7 @@ export default {
     options: Object
   },
   mounted() {
-    console.log('mounted')
     this.init();
-  },
-  beforeDestroy() {
-    console.log('beforeDestroy')
   },
   data() {
     return {
@@ -55,21 +51,6 @@ export default {
       }
     }
   },
-  computed: {
-    // getIndex: function () {
-    //   return function (item) {
-    //     return this.options.index(item);
-    //   }
-    // },
-    // getRouter: function () {
-    //   return function (item) {
-    //     if (this.options.router) {
-    //       return this.options.router(item);
-    //     }
-    //   }
-    // }
-  },
-
   methods: {
     init: function () {
       if (hasRoles(ROLE_TEST_VIEWER, ROLE_TEST_USER, ROLE_TEST_MANAGER)) {
