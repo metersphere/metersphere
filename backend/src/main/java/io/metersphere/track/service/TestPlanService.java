@@ -396,11 +396,22 @@ public class TestPlanService {
         if (StringUtils.isBlank(currentWorkspaceId)) {
             return null;
         }
-        TestPlanExample testPlanTestCaseExample = new TestPlanExample();
-        testPlanTestCaseExample.createCriteria().andWorkspaceIdEqualTo(currentWorkspaceId)
-                .andPrincipalEqualTo(SessionUtils.getUserId());
-        testPlanTestCaseExample.setOrderByClause("update_time desc");
-        return testPlanMapper.selectByExample(testPlanTestCaseExample);
+        TestPlanProjectExample testPlanProjectExample = new TestPlanProjectExample();
+        TestPlanProjectExample.Criteria criteria = testPlanProjectExample.createCriteria();
+        if (StringUtils.isNotBlank(SessionUtils.getCurrentProjectId())) {
+            criteria.andProjectIdEqualTo(SessionUtils.getCurrentProjectId());
+            List<TestPlanProject> testPlanProjects = testPlanProjectMapper.selectByExample(testPlanProjectExample);
+            if (!CollectionUtils.isEmpty(testPlanProjects)) {
+                List<String> testPlanIds = testPlanProjects.stream().map(TestPlanProject::getTestPlanId).collect(Collectors.toList());
+                TestPlanExample testPlanTestCaseExample = new TestPlanExample();
+                testPlanTestCaseExample.createCriteria().andWorkspaceIdEqualTo(currentWorkspaceId)
+                        .andIdIn(testPlanIds)
+                        .andPrincipalEqualTo(SessionUtils.getUserId());
+                testPlanTestCaseExample.setOrderByClause("update_time desc");
+                return testPlanMapper.selectByExample(testPlanTestCaseExample);
+            }
+        }
+        return new ArrayList<>();
     }
 
     public List<TestPlan> listTestAllPlan(String currentWorkspaceId) {

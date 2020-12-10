@@ -12,7 +12,7 @@ public interface ExtTestCaseReviewMapper {
 
     List<TestCaseReviewDTO> list(@Param("request") QueryCaseReviewRequest params);
 
-    List<TestCaseReviewDTO> listByWorkspaceId(@Param("workspaceId") String workspaceId, @Param("userId") String userId);
+    List<TestCaseReviewDTO> listByWorkspaceId(@Param("workspaceId") String workspaceId, @Param("userId") String userId, @Param("projectId") String projectId);
 
     List<TestReviewDTOWithMetric> listRelate(@Param("request") QueryTestReviewRequest request);
 

@@ -199,7 +199,7 @@ public class TestCaseReviewService {
     }
 
     public List<TestCaseReviewDTO> recent(String currentWorkspaceId) {
-        return extTestCaseReviewMapper.listByWorkspaceId(currentWorkspaceId, SessionUtils.getUserId());
+        return extTestCaseReviewMapper.listByWorkspaceId(currentWorkspaceId, SessionUtils.getUserId(), SessionUtils.getCurrentProjectId());
     }
 
     public void editCaseReview(SaveTestCaseReviewRequest testCaseReview) {
