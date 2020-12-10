@@ -489,6 +489,7 @@ export default {
       api_case_number: "Number use case",
       api_case_status: "Ise case status",
       api_case_passing_rate: "Use case pass rate",
+      create_tip: "Note: Detailed interface information can be filled out on the edit page",
       request: {
         grade_info: "From high to low",
         run_env: "Operating environment",

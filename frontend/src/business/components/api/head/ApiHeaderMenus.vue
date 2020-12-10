@@ -58,12 +58,6 @@
           </el-menu-item>
         </el-menu>
       </el-col>
-      <el-col :span="6">
-        <el-row type="flex" justify="center">
-          <ms-create-test :to="'/api/test/create'"/>
-        </el-row>
-      </el-col>
-      <el-col :span="4"/>
     </el-row>
   </div>
 

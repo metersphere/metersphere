@@ -1,6 +1,6 @@
 <template>
   <div v-loading="result.loading">
-    <el-select style="width: 100px ;height: 30px" size="small" v-model="protocol" @change="changeProtocol">
+    <el-select class="protocol-select" size="small" v-model="protocol" @change="changeProtocol">
       <el-option
         v-for="item in options"
         :key="item.value"
@@ -9,10 +9,10 @@
         :disabled="item.disabled">
       </el-option>
     </el-select>
-    <el-input style="width: 175px; padding-left: 3px" :placeholder="$t('test_track.module.search')" v-model="filterText"
+    <el-input class="filter-input" :placeholder="$t('test_track.module.search')" v-model="filterText"
               size="small">
       <template v-slot:append>
-        <el-dropdown size="small" split-button type="primary" class="ms-api-buttion" @click="handleCommand('add-api')"
+        <el-dropdown size="small" split-button type="primary" class="ms-api-button" @click="handleCommand('add-api')"
                      @command="handleCommand">
           <el-button icon="el-icon-folder-add" @click="addApi"></el-button>
           <el-dropdown-menu slot="dropdown">
@@ -475,7 +475,26 @@
     height: 33px;
   }
 
-  .ms-api-buttion {
+  .ms-api-button {
     width: 30px;
   }
+
+  .protocol-select {
+    width: 95px;
+    height: 30px;
+  }
+
+  .filter-input {
+    width: 180px;
+    padding-left: 3px;
+  }
+
+  .ms-api-button .el-button {
+    padding: 10px;
+  }
+
+  .filter-input >>> .el-input-group__append {
+    padding-right: 10px;
+  }
+
 </style>

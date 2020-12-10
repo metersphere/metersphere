@@ -36,6 +36,9 @@
                   :autosize="{ minRows: 2, maxRows: 10}"
                   :rows="2" size="small"/>
       </el-form-item>
+      <el-form-item class="create-tip">
+        {{$t('api_test.definition.create_tip')}}
+      </el-form-item>
     </el-form>
 
     <template v-slot:footer>
@@ -176,3 +179,11 @@
     }
   }
 </script>
+
+<style scoped>
+
+  .create-tip {
+    color: #8c939d;
+  }
+
+</style>

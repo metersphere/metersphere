@@ -61,6 +61,7 @@
   }
 
   .hiddenBottom:hover {
+    background-color: #783887;
     opacity: 0.8;
     width: 12px;
   }
