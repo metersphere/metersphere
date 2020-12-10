@@ -28,6 +28,9 @@ public class MsJSR223PostProcessor extends MsTestElement {
 
 
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, ParameterConfig config) {
+        if (!this.isEnable()) {
+            return;
+        }
         JSR223PostProcessor processor = new JSR223PostProcessor();
         processor.setEnabled(true);
         processor.setName(this.getName() + "JSR223PostProcessor");

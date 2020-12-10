@@ -25,7 +25,9 @@ public class MsAssertions extends MsTestElement {
     private String type = "Assertions";
 
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, ParameterConfig config) {
-        addAssertions(tree);
+        if (this.isEnable()) {
+            addAssertions(tree);
+        }
     }
 
     private void addAssertions(HashTree hashTree) {

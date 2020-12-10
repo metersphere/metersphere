@@ -52,6 +52,9 @@ public class MsAuthManager extends MsTestElement {
     private String environment;
 
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, ParameterConfig config) {
+        if (!this.isEnable()) {
+            return;
+        }
         AuthManager authManager = new AuthManager();
         authManager.setEnabled(true);
         authManager.setName(this.getUsername() + "AuthManager");

@@ -75,6 +75,9 @@ public abstract class MsTestElement {
     @JSONField(ordinal = 7)
     private String index;
     @JSONField(ordinal = 8)
+    private boolean enable = true;
+
+    @JSONField(ordinal = 9)
     private LinkedList<MsTestElement> hashTree;
 
     // 公共环境逐层传递，如果自身有环境 以自身引用环境为准否则以公共环境作为请求环境

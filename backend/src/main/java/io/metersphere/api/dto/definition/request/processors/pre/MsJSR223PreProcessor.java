@@ -27,6 +27,9 @@ public class MsJSR223PreProcessor extends MsTestElement {
     private String scriptLanguage;
 
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, ParameterConfig config) {
+        if (!this.isEnable()) {
+            return;
+        }
         JSR223PreProcessor processor = new JSR223PreProcessor();
         processor.setEnabled(true);
         processor.setName(this.getName() + "JSR223PreProcessor");
