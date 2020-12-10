@@ -7,8 +7,9 @@
         </div>
         <el-button class="ms-left-buttion" size="small" :style="styleType" style="color: #B8741A;background-color: #F9F1EA">{{title}}</el-button>
         <i class="icon el-icon-arrow-right" :class="{'is-active': this.jsr223ProcessorData.active}" @click="changeActive" style="margin-left: 20px"/>
-        <el-input size="small" v-model="jsr223ProcessorData.name" class="ms-api-header-select" style="width: 380px"/>
-        <el-button size="small" style="float: right" @click="remove">{{$t('commons.remove')}}</el-button>
+        <el-input size="small" v-model="jsr223ProcessorData.name" :placeholder="$t('commons.input_name')" class="ms-api-header-select" style="width: 40%"/>
+        <el-button size="mini" icon="el-icon-delete" circle @click="remove" style="margin-right: 20px; float: right"/>
+
       </div>
     </el-row>
     <el-collapse-transition>

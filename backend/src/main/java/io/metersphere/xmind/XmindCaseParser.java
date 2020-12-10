@@ -14,6 +14,7 @@ import io.metersphere.xmind.parser.XmindParser;
 import io.metersphere.xmind.parser.pojo.Attached;
 import io.metersphere.xmind.parser.pojo.JsonRootBean;
 import io.metersphere.xmind.utils.DetailUtil;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -185,7 +186,7 @@ public class XmindCaseParser {
                 String nodePath = parent.getPath() + "/" + item.getTitle();
                 item.setPath(nodePath);
                 item.setParent(parent);
-                if (item.getChildren() != null && !item.getChildren().getAttached().isEmpty()) {
+                if (item.getChildren() != null && CollectionUtils.isNotEmpty(item.getChildren().getAttached())) {
                     recursion(item, level + 1, item.getChildren().getAttached());
                 } else {
                     if (!nodePath.startsWith("/")) {

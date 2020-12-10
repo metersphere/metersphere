@@ -12,6 +12,7 @@ import io.metersphere.api.dto.definition.request.auth.MsAuthManager;
 import io.metersphere.api.dto.definition.request.configurations.MsHeaderManager;
 import io.metersphere.api.dto.definition.request.controller.MsIfController;
 import io.metersphere.api.dto.definition.request.extract.MsExtract;
+import io.metersphere.api.dto.definition.request.processors.MsJSR223Processor;
 import io.metersphere.api.dto.definition.request.processors.post.MsJSR223PostProcessor;
 import io.metersphere.api.dto.definition.request.processors.pre.MsJSR223PreProcessor;
 import io.metersphere.api.dto.definition.request.sampler.MsDubboSampler;
@@ -37,6 +38,7 @@ import java.util.List;
 @JsonSubTypes({
         @JsonSubTypes.Type(value = MsHTTPSamplerProxy.class, name = "HTTPSamplerProxy"),
         @JsonSubTypes.Type(value = MsHeaderManager.class, name = "HeaderManager"),
+        @JsonSubTypes.Type(value = MsJSR223Processor.class, name = "JSR223Processor"),
         @JsonSubTypes.Type(value = MsJSR223PostProcessor.class, name = "JSR223PostProcessor"),
         @JsonSubTypes.Type(value = MsJSR223PreProcessor.class, name = "JSR223PreProcessor"),
         @JsonSubTypes.Type(value = MsTestPlan.class, name = "TestPlan"),
@@ -52,7 +54,7 @@ import java.util.List;
         @JsonSubTypes.Type(value = MsScenario.class, name = "scenario"),
 
 })
-@JSONType(seeAlso = {MsHTTPSamplerProxy.class, MsHeaderManager.class, MsJSR223PostProcessor.class,
+@JSONType(seeAlso = {MsHTTPSamplerProxy.class, MsHeaderManager.class, MsJSR223Processor.class, MsJSR223PostProcessor.class,
         MsJSR223PreProcessor.class, MsTestPlan.class, MsThreadGroup.class, AuthManager.class, MsAssertions.class,
         MsExtract.class, MsTCPSampler.class, MsDubboSampler.class, MsJDBCSampler.class, MsConstantTimer.class, MsIfController.class, MsScenario.class}, typeKey = "type")
 @Data
@@ -118,7 +120,8 @@ public abstract class MsTestElement {
             ObjectMapper mapper = new ObjectMapper();
             mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             ApiDefinitionWithBLOBs apiDefinition = apiDefinitionService.getBLOBs(this.getId());
-            element = mapper.readValue(apiDefinition.getRequest(), new TypeReference<MsTestElement>() {});
+            element = mapper.readValue(apiDefinition.getRequest(), new TypeReference<MsTestElement>() {
+            });
             hashTree.add(element);
         } catch (Exception ex) {
             ex.printStackTrace();

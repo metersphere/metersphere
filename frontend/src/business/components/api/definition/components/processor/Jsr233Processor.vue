@@ -1,42 +1,44 @@
 <template>
-  <div style="border:1px #DCDFE6 solid; height: 100%;border-radius: 4px ;width: 100% ;margin-top: 20px">
-    <el-row>
-      <div>
-        <el-button class="ms-left-buttion" size="small" :style="styleType" style="color: #B8741A;background-color: #F9F1EA">{{title}}</el-button>
-        <i class="icon el-icon-arrow-right" :class="{'is-active': active}" @click="changeActive" style="margin-left: 20px"/>
-        <el-input size="small" v-model="jsr223ProcessorData.name" class="ms-api-header-select" style="width: 380px"/>
-        <el-button size="small" style="float: right" @click="remove">移除</el-button>
-      </div>
-    </el-row>
-    <el-collapse-transition>
-      <div v-if="active">
-        <el-row style="margin:0px 10px 10px">
-          <el-col>
-            <div class="document-url">
-              <el-link href="https://jmeter.apache.org/usermanual/component_reference.html#BeanShell_PostProcessor"
-                       type="primary">{{$t('commons.reference_documentation')}}
-              </el-link>
-              <ms-instructions-icon :content="$t('api_test.request.processor.bean_shell_processor_tip')"/>
-            </div>
-          </el-col>
-        </el-row>
-        <el-row>
-          <el-col :span="20" class="script-content">
-            <ms-code-edit v-if="isCodeEditAlive" :mode="jsr223ProcessorData.scriptLanguage"
-                          :read-only="isReadOnly"
-                          :data.sync="jsr223ProcessorData.script" theme="eclipse" :modes="['java','python']"
-                          ref="codeEdit"/>
-          </el-col>
-          <el-col :span="4" class="script-index">
-            <ms-dropdown :default-command="jsr223ProcessorData.language" :commands="languages" @command="languageChange"/>
-            <div class="template-title">{{$t('api_test.request.processor.code_template')}}</div>
-            <div v-for="(template, index) in codeTemplates" :key="index" class="code-template">
-              <el-link :disabled="template.disabled" @click="addTemplate(template)">{{template.title}}</el-link>
-            </div>
-          </el-col>
-        </el-row>
-      </div>
-    </el-collapse-transition>
+  <div style="margin-top: 10px">
+    <el-card>
+      <el-row>
+        <div>
+          <el-button class="ms-left-buttion" size="small" :style="styleType" style="color: #B8741A;background-color: #F9F1EA">{{title}}</el-button>
+          <i class="icon el-icon-arrow-right" :class="{'is-active': active}" @click="changeActive" style="margin-left: 20px"/>
+          <el-input size="small" v-model="jsr223ProcessorData.name" class="ms-api-header-select" style="width: 380px"/>
+          <el-button size="mini" icon="el-icon-delete" circle @click="remove" style="margin-right: 20px; float: right"/>
+        </div>
+      </el-row>
+      <el-collapse-transition>
+        <div v-if="active">
+          <el-row style="margin:0px 10px 10px">
+            <el-col>
+              <div class="document-url">
+                <el-link href="https://jmeter.apache.org/usermanual/component_reference.html#BeanShell_PostProcessor"
+                         type="primary">{{$t('commons.reference_documentation')}}
+                </el-link>
+                <ms-instructions-icon :content="$t('api_test.request.processor.bean_shell_processor_tip')"/>
+              </div>
+            </el-col>
+          </el-row>
+          <el-row>
+            <el-col :span="20" class="script-content">
+              <ms-code-edit v-if="isCodeEditAlive" :mode="jsr223ProcessorData.scriptLanguage"
+                            :read-only="isReadOnly"
+                            :data.sync="jsr223ProcessorData.script" theme="eclipse" :modes="['java','python']"
+                            ref="codeEdit"/>
+            </el-col>
+            <el-col :span="4" class="script-index">
+              <ms-dropdown :default-command="jsr223ProcessorData.language" :commands="languages" @command="languageChange"/>
+              <div class="template-title">{{$t('api_test.request.processor.code_template')}}</div>
+              <div v-for="(template, index) in codeTemplates" :key="index" class="code-template">
+                <el-link :disabled="template.disabled" @click="addTemplate(template)">{{template.title}}</el-link>
+              </div>
+            </el-col>
+          </el-row>
+        </div>
+      </el-collapse-transition>
+    </el-card>
   </div>
 </template>
 
@@ -138,7 +140,7 @@
         }
         this.reload();
       },
-      remove(){
+      remove() {
         this.$emit('remove', this.jsr223ProcessorData);
       },
       reload() {
@@ -194,5 +196,8 @@
 
   .icon.is-active {
     transform: rotate(90deg);
+  }
+  /deep/ .el-card__body {
+    padding: 15px;
   }
 </style>

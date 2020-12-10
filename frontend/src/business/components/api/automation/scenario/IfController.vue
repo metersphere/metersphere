@@ -1,32 +1,23 @@
 <template>
   <el-card>
     <el-row>
-      <div class="el-step__icon is-text ms-api-col" style="float: left">
+      <div class="el-step__icon is-text ms-api-col">
         <div class="el-step__icon-inner">{{controller.index}}</div>
       </div>
-      <div>
-        <el-row :gutter="10" type="flex" align="middle">
-          <el-col :span="1">If</el-col>
-          <el-col :span="6">
-            <el-input size="small" v-model="controller.variable" :placeholder="$t('api_test.request.condition_variable')"/>
-          </el-col>
-          <el-col :span="5">
-            <el-select v-model="controller.operator" :placeholder="$t('commons.please_select')" size="small"
-                       @change="change">
-              <el-option v-for="o in operators" :key="o.value" :label="$t(o.label)" :value="o.value"/>
-            </el-select>
-          </el-col>
-          <el-col :span="6">
-            <el-input size="small" v-model="controller.value" :placeholder="$t('api_test.value')" v-if="!hasEmptyOperator"/>
-          </el-col>
-          <el-col :span="4">
-            <el-switch v-model="controller.enable" :inactive-text="$t('api_test.scenario.enable_disable')"/>
-          </el-col>
-          <el-col :span="2">
-            <el-button size="mini" type="danger" icon="el-icon-delete" circle @click="remove"/>
-          </el-col>
-        </el-row>
-      </div>
+      <el-button class="ms-title-buttion" size="small">{{$t('api_test.automation.if_controller')}}</el-button>
+
+      <el-input size="small" v-model="controller.variable" style="width: 20%" :placeholder="$t('api_test.request.condition_variable')"/>
+
+      <el-select v-model="controller.operator" :placeholder="$t('commons.please_select')" size="small"
+                 @change="change" style="width: 10%;margin-left: 10px">
+        <el-option v-for="o in operators" :key="o.value" :label="$t(o.label)" :value="o.value"/>
+      </el-select>
+
+      <el-input size="small" v-model="controller.value" :placeholder="$t('api_test.value')" v-if="!hasEmptyOperator" style="width: 20%;margin-left: 20px"/>
+
+      <!--<el-switch v-model="controller.enable" :inactive-text="$t('api_test.scenario.enable_disable')" style="margin-left: 10px"/>-->
+
+      <el-button size="mini" icon="el-icon-delete" circle @click="remove" style="margin-right: 20px; float: right"/>
     </el-row>
   </el-card>
 </template>
@@ -100,6 +91,12 @@
     background-color: #FCF6EE;
     border-color: #E6A23C;
     margin-right: 10px;
+    color: #E6A23C;
+  }
+
+  .ms-title-buttion {
+    background-color: #FCF6EE;
+    margin-right: 20px;
     color: #E6A23C;
   }
 </style>
