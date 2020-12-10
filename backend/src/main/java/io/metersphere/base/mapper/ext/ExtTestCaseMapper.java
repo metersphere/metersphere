@@ -1,12 +1,13 @@
 package io.metersphere.base.mapper.ext;
 
 import io.metersphere.base.domain.TestCase;
-import io.metersphere.track.request.testcase.QueryTestCaseRequest;
 import io.metersphere.track.dto.TestCaseDTO;
+import io.metersphere.track.request.testcase.QueryTestCaseRequest;
 import io.metersphere.track.request.testcase.TestCaseBatchRequest;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
+import java.util.Set;
 
 public interface ExtTestCaseMapper {
 
@@ -22,6 +23,7 @@ public interface ExtTestCaseMapper {
 
     /**
      * 获取不在测试计划中的用例
+     *
      * @param request
      * @return
      */
@@ -29,6 +31,7 @@ public interface ExtTestCaseMapper {
 
     /**
      * 获取不在评审范围中的用例
+     *
      * @param request
      * @return
      */
@@ -38,9 +41,9 @@ public interface ExtTestCaseMapper {
      * 检查某工作空间下是否有某用例
      *
      * @param caseId
-     * @param workspaceId
+     * @param workspaceIds
      * @return TestCase ID
      */
-    List<String> checkIsHave(@Param("caseId") String caseId, @Param("workspaceId") String workspaceId);
+    int checkIsHave(@Param("caseId") String caseId, @Param("workspaceIds") Set<String> workspaceIds);
 
 }

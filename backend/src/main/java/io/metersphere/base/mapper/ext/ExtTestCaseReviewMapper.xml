@@ -74,11 +74,16 @@
 
         order by test_case_review.update_time desc
     </select>
-    <select id="checkIsHave" resultType="java.lang.String">
-        select distinct review_id
-        from project, test_case_review_project
-        where project.id = test_case_review_project.project_id
-        and project.workspace_id = #{workspaceId}
-        and test_case_review_project.review_id = #{reviewId}
+    <select id="checkIsHave" resultType="int">
+        SELECT COUNT(1)
+        FROM project, test_case_review_project
+        WHERE project.id = test_case_review_project.project_id
+        <if test="workspaceIds != null and workspaceIds.size() > 0">
+            AND project.workspace_id IN
+            <foreach collection="workspaceIds" item="id" separator="," open="(" close=")">
+                #{id}
+            </foreach>
+        </if>
+        AND test_case_review_project.review_id = #{reviewId}
     </select>
 </mapper>
