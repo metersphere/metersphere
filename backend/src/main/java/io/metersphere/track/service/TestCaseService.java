@@ -220,27 +220,17 @@ public class TestCaseService {
 
 
     public List<TestCase> recentTestPlans(QueryTestCaseRequest request, int count) {
-
-        if (StringUtils.isBlank(request.getWorkspaceId())) {
-            return null;
-        }
-
-        ProjectExample projectExample = new ProjectExample();
-        projectExample.createCriteria().andWorkspaceIdEqualTo(request.getWorkspaceId());
-
-        List<String> projectIds = projectMapper.selectByExample(projectExample).stream()
-                .map(Project::getId).collect(Collectors.toList());
-
-        if (projectIds.isEmpty()) {
-            return null;
-        }
-
         PageHelper.startPage(1, count, true);
-
         TestCaseExample testCaseExample = new TestCaseExample();
-        testCaseExample.createCriteria().andProjectIdIn(projectIds).andMaintainerEqualTo(request.getUserId());
-        testCaseExample.setOrderByClause("update_time desc, sort desc");
-        return testCaseMapper.selectByExample(testCaseExample);
+        TestCaseExample.Criteria criteria = testCaseExample.createCriteria();
+        criteria.andMaintainerEqualTo(request.getUserId());
+        String projectId = SessionUtils.getCurrentProjectId();
+        if (StringUtils.isNotBlank(projectId)) {
+            criteria.andProjectIdEqualTo(projectId);
+            testCaseExample.setOrderByClause("update_time desc, sort desc");
+            return testCaseMapper.selectByExample(testCaseExample);
+        }
+        return new ArrayList<>();
     }
 
     public Project getProjectByTestCaseId(String testCaseId) {

@@ -2,21 +2,32 @@
   <div v-loading="loading">
     <el-card>
       <el-row>
-        <div class="el-step__icon is-text ms-api-col" v-if="request.referenced">
+        <div class="el-step__icon is-text ms-api-col" v-if="request.referenced!=undefined && request.referenced==='Deleted' || request.referenced=='REF'">
           <div class="el-step__icon-inner">{{request.index}}</div>
         </div>
         <div class="el-step__icon is-text ms-api-col-create" v-else>
           <div class="el-step__icon-inner">{{request.index}}</div>
         </div>
 
-        <i class="icon el-icon-arrow-right" :class="{'is-active': request.active}"
-           @click="active(request)" v-if="request.referenced!=undefined && request.referenced!='Deleted' && request.referenced!='REF'"/>
-        <span>{{request.type!= 'create' ? request.name:''}} </span>
+        <el-button v-if="request.referenced!=undefined && request.referenced==='Deleted' || request.referenced=='REF'" class="ms-left-buttion" size="small">
+          {{$t('api_test.automation.api_list_import')}}
+        </el-button>
+
+        <el-button v-if="request.referenced==undefined || request.referenced==='Created' || request.referenced==='Copy'" class="ms-create-buttion" size="small">
+          {{$t('api_test.automation.customize_req')}}
+        </el-button>
+
+        <span v-if="request.referenced!=undefined && request.referenced==='Deleted' || request.referenced=='REF'">{{request.name}} </span>
+        <el-input size="small" v-model="request.name" style="width: 40%;" :placeholder="$t('commons.input_name')" v-else/>
+
         <el-tag size="mini" style="margin-left: 20px" v-if="request.referenced==='Deleted'" type="danger">{{$t('api_test.automation.reference_deleted')}}</el-tag>
         <el-tag size="mini" style="margin-left: 20px" v-if="request.referenced ==='REF'">{{ $t('api_test.scenario.reference') }}</el-tag>
-
-        <el-button size="mini" type="danger" icon="el-icon-delete" circle @click="remove" style="margin-right: 20px; float: right"/>
-
+        <div style="margin-right: 20px; float: right">
+          <i class="icon el-icon-arrow-right" :class="{'is-active': request.active}"
+             @click="active(request)" v-if="request.referenced!=undefined && request.referenced!='Deleted' && request.referenced!='REF'"/>
+          <el-switch v-model="request.enable" style="margin-left: 10px"/>
+          <el-button size="mini" icon="el-icon-delete" circle @click="remove" style="margin-left: 10px"/>
+        </div>
       </el-row>
       <!-- 请求参数-->
       <el-collapse-transition>
@@ -112,6 +123,12 @@
     color: #F56C6C;
   }
 
+  .ms-left-buttion {
+    color: #F56C6C;
+    background-color: #FCF1F1;
+    margin-right: 20px;
+  }
+
   .ms-api-col-create {
     background-color: #EBF2F2;
     border-color: #008080;
@@ -125,6 +142,12 @@
 
   .icon.is-active {
     transform: rotate(90deg);
+  }
+
+  .ms-create-buttion {
+    color: #008080;
+    background-color: #EBF2F2;
+    margin-right: 20px;
   }
 
   .tip {

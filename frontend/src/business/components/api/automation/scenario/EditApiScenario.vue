@@ -1,10 +1,10 @@
 <template>
   <el-card class="card-content">
-    <div style="background-color: white;">
+    <div class="ms-main-div">
       <el-row>
         <el-col>
           <!--操作按钮-->
-          <div style="float: right;margin-right: 20px">
+          <div class="ms-opt-btn">
             <el-button type="primary" size="small" @click="editScenario">{{$t('commons.save')}}</el-button>
           </div>
         </el-col>
@@ -119,7 +119,7 @@
         <el-row>
           <el-col :span="21">
             <!-- 调试部分 -->
-            <div style="margin-left: 20px;border:1px #DCDFE6 solid;border-radius: 4px;margin-right: 10px">
+            <div class="ms-debug-div">
               <el-row style="margin: 5px">
                 <el-col :span="6" class="ms-col-one">
                   {{currentScenario.name ===undefined || ''? $t('api_test.scenario.name') : currentScenario.name}}
@@ -199,37 +199,37 @@
               <el-button type="primary" icon="el-icon-refresh" size="small" @click="showAll">{{$t('commons.show_all')}}</el-button>
               <br/>
               <div v-if="operatingElements.indexOf('HTTPSamplerProxy')>0 || operatingElements.indexOf('DubboSampler')>0 || operatingElements.indexOf('JDBCSampler')>0 || operatingElements.indexOf('TCPSampler')>0 ">
-                <el-button class="ms-right-buttion" size="small" style="color: #F56C6C;background-color: #FCF1F1" @click="apiListImport">+{{$t('api_test.automation.api_list_import')}}</el-button>
+                <el-button class="ms-right-buttion ms-btn-1" size="small" @click="apiListImport">+{{$t('api_test.automation.api_list_import')}}</el-button>
               </div>
               <!--<div v-if="operatingElements.indexOf('OT_IMPORT')>0">
                 <el-button class="ms-right-buttion" size="small" style="color: #409EFF;background-color: #EEF5FE" @click="addComponent('OT_IMPORT')">+{{$t('api_test.automation.external_import')}}</el-button>
               </div>-->
               <div v-if="operatingElements.indexOf('ConstantTimer')>0">
-                <el-button class="ms-right-buttion" size="small" style="color: #67C23A;background-color: #F2F9EE" @click="addComponent('ConstantTimer')">+{{$t('api_test.automation.wait_controller')}}</el-button>
+                <el-button class="ms-right-buttion ms-btn-3" size="small" @click="addComponent('ConstantTimer')">+{{$t('api_test.automation.wait_controller')}}</el-button>
               </div>
               <div v-if="operatingElements.indexOf('IfController')>0">
-                <el-button class="ms-right-buttion" size="small" style="color: #E6A23C;background-color: #FCF6EE" @click="addComponent('IfController')">+{{$t('api_test.automation.if_controller')}}</el-button>
+                <el-button class="ms-right-buttion ms-btn-4" size="small" @click="addComponent('IfController')">+{{$t('api_test.automation.if_controller')}}</el-button>
               </div>
               <div v-if="operatingElements.indexOf('scenario')===0">
-                <el-button class="ms-right-buttion" size="small" style="color: #606266;background-color: #F4F4F5" @click="addComponent('scenario')">+{{$t('api_test.automation.scenario_import')}}</el-button>
+                <el-button class="ms-right-buttion ms-btn-5" size="small" @click="addComponent('scenario')">+{{$t('api_test.automation.scenario_import')}}</el-button>
               </div>
               <div v-if="operatingElements.indexOf('JSR223Processor')>0">
-                <el-button class="ms-right-buttion" size="small" style="color: #7B4D12;background-color: #F1EEE9" @click="addComponent('JSR223Processor')">+{{$t('api_test.automation.customize_script')}}</el-button>
+                <el-button class="ms-right-buttion ms-btn-6" size="small" @click="addComponent('JSR223Processor')">+{{$t('api_test.automation.customize_script')}}</el-button>
               </div>
               <div v-if="operatingElements.indexOf('CustomizeReq')>0">
-                <el-button class="ms-right-buttion" size="small" style="color: #008080;background-color: #EBF2F2" @click="addComponent('CustomizeReq')">+{{$t('api_test.automation.customize_req')}}</el-button>
+                <el-button class="ms-right-buttion ms-btn-7" size="small" @click="addComponent('CustomizeReq')">+{{$t('api_test.automation.customize_req')}}</el-button>
               </div>
               <div v-if="operatingElements.indexOf('JSR223PreProcessor')>0">
-                <el-button class="ms-right-buttion" size="small" style="color: #B8741A;background-color: #F9F1EA" @click="addComponent('JSR223PreProcessor')">+{{$t('api_test.definition.request.pre_script')}}</el-button>
+                <el-button class="ms-right-buttion ms-btn-8" size="small" @click="addComponent('JSR223PreProcessor')">+{{$t('api_test.definition.request.pre_script')}}</el-button>
               </div>
               <div v-if="operatingElements.indexOf('JSR223PostProcessor')>0">
-                <el-button class="ms-right-buttion" size="small" style="color: #783887;background-color: #F2ECF3" @click="addComponent('JSR223PostProcessor')">+{{$t('api_test.definition.request.post_script')}}</el-button>
+                <el-button class="ms-right-buttion ms-btn-9" size="small" @click="addComponent('JSR223PostProcessor')">+{{$t('api_test.definition.request.post_script')}}</el-button>
               </div>
               <div v-if="operatingElements.indexOf('Assertions')>0">
-                <el-button class="ms-right-buttion" size="small" style="color: #A30014;background-color: #F7E6E9" @click="addComponent('Assertions')">+{{$t('api_test.definition.request.assertions_rule')}}</el-button>
+                <el-button class="ms-right-buttion ms-btn-10" size="small" @click="addComponent('Assertions')">+{{$t('api_test.definition.request.assertions_rule')}}</el-button>
               </div>
               <div v-if="operatingElements.indexOf('Extract')>0">
-                <el-button class="ms-right-buttion" size="small" style="color: #015478;background-color: #E6EEF2" @click="addComponent('Extract')">+{{$t('api_test.definition.request.extract_param')}}</el-button>
+                <el-button class="ms-right-buttion ms-btn-11" size="small" @click="addComponent('Extract')">+{{$t('api_test.definition.request.extract_param')}}</el-button>
               </div>
             </el-col>
           </div>
@@ -245,7 +245,7 @@
 
       <!--自定义接口-->
       <el-drawer :visible.sync="customizeVisible" :destroy-on-close="true" direction="ltr" :withHeader="false" :title="$t('api_test.automation.customize_req')" style="overflow: auto" :modal="false" size="90%">
-        <ms-api-customize :request="customizeRequest" @addCustomizeApi="addCustomizeApi" />
+        <ms-api-customize :request="customizeRequest" @addCustomizeApi="addCustomizeApi"/>
         <!--<el-button style="float: right;margin: 20px" @click="addCustomizeApi">{{$t('commons.save')}}</el-button>-->
       </el-drawer>
       <!--场景导入 -->
@@ -361,38 +361,6 @@
     },
     watch: {},
     methods: {
-      nodeClick(e) {
-        if (e.referenced != 'REF' && e.referenced != 'Deleted') {
-          this.operatingElements = ELEMENTS.get(e.type);
-        } else {
-          this.operatingElements = [];
-        }
-        this.selectedTreeNode = e;
-      },
-      showAll() {
-        this.operatingElements = ELEMENTS.get("ALL");
-        this.selectedTreeNode = undefined;
-        this.reload();
-      },
-      apiListImport() {
-        this.apiListVisible = true;
-      },
-      recursiveSorting(arr) {
-        for (let i in arr) {
-          arr[i].index = Number(i) + 1;
-          if (arr[i].hashTree != undefined && arr[i].hashTree.length > 0) {
-            this.recursiveSorting(arr[i].hashTree);
-          }
-        }
-      },
-      sort() {
-        for (let i in this.scenarioDefinition) {
-          this.scenarioDefinition[i].index = Number(i) + 1;
-          if (this.scenarioDefinition[i].hashTree != undefined && this.scenarioDefinition[i].hashTree.length > 0) {
-            this.recursiveSorting(this.scenarioDefinition[i].hashTree);
-          }
-        }
-      },
       addComponent(type) {
         switch (type) {
           case ELEMENT_TYPE.IfController:
@@ -436,8 +404,41 @@
         this.sort();
         this.reload();
       },
+      nodeClick(e) {
+        if (e.referenced != 'REF' && e.referenced != 'Deleted') {
+          this.operatingElements = ELEMENTS.get(e.type);
+        } else {
+          this.operatingElements = [];
+        }
+        this.selectedTreeNode = e;
+      },
+      showAll() {
+        this.operatingElements = ELEMENTS.get("ALL");
+        this.selectedTreeNode = undefined;
+        this.reload();
+      },
+      apiListImport() {
+        this.apiListVisible = true;
+      },
+      recursiveSorting(arr) {
+        for (let i in arr) {
+          arr[i].index = Number(i) + 1;
+          if (arr[i].hashTree != undefined && arr[i].hashTree.length > 0) {
+            this.recursiveSorting(arr[i].hashTree);
+          }
+        }
+      },
+      sort() {
+        for (let i in this.scenarioDefinition) {
+          this.scenarioDefinition[i].index = Number(i) + 1;
+          if (this.scenarioDefinition[i].hashTree != undefined && this.scenarioDefinition[i].hashTree.length > 0) {
+            this.recursiveSorting(this.scenarioDefinition[i].hashTree);
+          }
+        }
+      },
       addCustomizeApi(request) {
         this.customizeVisible = false;
+        request.enable === undefined ? request.enable = true : request.enable;
         if (this.selectedTreeNode != undefined) {
           this.selectedTreeNode.hashTree.push(request);
         } else {
@@ -450,6 +451,7 @@
       addScenario(arr) {
         if (arr.length > 0) {
           arr.forEach(item => {
+            item.enable === undefined ? item.enable = true : item.enable;
             this.scenarioDefinition.push(item);
           })
         }
@@ -470,6 +472,7 @@
             request = item.request;
           }
           request.referenced = referenced;
+          request.enable === undefined ? request.enable = true : request.enable;
           request.active = false;
           request.resourceId = getUUID();
           if (referenced === 'REF') {
@@ -489,6 +492,7 @@
             request = item.request;
           }
           request.referenced = referenced;
+          request.enable === undefined ? request.enable = true : request.enable;
           request.active = false;
           request.resourceId = getUUID();
           if (referenced === 'REF') {
@@ -734,6 +738,22 @@
     width: 100%;
   }
 
+  .ms-main-div {
+    background-color: white;
+  }
+
+  .ms-opt-btn {
+    float: right;
+    margin-right: 20px;
+  }
+
+  .ms-debug-div {
+    margin-left: 20px;
+    border: 1px #DCDFE6 solid;
+    border-radius: 4px;
+    margin-right: 10px;
+  }
+
   .ms-scenario-button {
     margin-left: 30%;
     padding: 7px;
@@ -761,6 +781,61 @@
     margin-top: 10px;
   }
 
+  .ms-btn-1 {
+    color: #F56C6C;
+    background-color: #FCF1F1
+  }
+
+  .ms-btn-2 {
+    color: #F56C6C;
+    background-color: #FCF1F1
+  }
+
+  .ms-btn-3 {
+    color: #67C23A;
+    background-color: #F2F9EE
+  }
+
+  .ms-btn-4 {
+    color: #E6A23C;
+    background-color: #FCF6EE
+  }
+
+  .ms-btn-5 {
+    color: #606266;
+    background-color: #F4F4F5
+  }
+
+  .ms-btn-6 {
+    color: #7B4D12;
+    background-color: #F1EEE9
+  }
+
+  .ms-btn-7 {
+    color: #008080;
+    background-color: #EBF2F2
+  }
+
+  .ms-btn-8 {
+    color: #B8741A;
+    background-color: #F9F1EA
+  }
+
+  .ms-btn-9 {
+    color: #783887;
+    background-color: #F2ECF3
+  }
+
+  .ms-btn-10 {
+    color: #A30014;
+    background-color: #F7E6E9
+  }
+
+  .ms-btn-11 {
+    color: #015478;
+    background-color: #E6EEF2
+  }
+
   /deep/ .el-tree-node__content {
     height: 100%;
     margin-top: 8px;
@@ -775,4 +850,7 @@
     overflow: auto;
   }
 
+  /deep/ .el-step__icon.is-text {
+    border: 1px solid;
+  }
 </style>

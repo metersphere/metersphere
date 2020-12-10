@@ -135,20 +135,24 @@ export default {
     },
     init() {
       let path = this.$route.path;
-      if (path.indexOf("/track/case") >= 0 && !!this.$route.params.projectId) {
-        this.testCaseProjectPath = path;
-        //不激活项目菜单栏
-        this.isProjectActivation = false;
-        this.reload();
-      } else {
-        this.isProjectActivation = true;
-      }
+      // if (path.indexOf("/track/case") >= 0 && !!this.$route.params.projectId) {
+      //   this.testCaseProjectPath = path;
+      //   //不激活项目菜单栏
+      //   this.isProjectActivation = false;
+      //   this.reload();
+      // } else {
+      //   this.isProjectActivation = true;
+      // }
       if (path.indexOf("/track/plan/view") >= 0) {
         this.testPlanViewPath = path;
         this.reload();
       }
       if (path.indexOf("/track/case/edit") >= 0) {
         this.testCaseEditPath = path;
+        this.reload();
+      }
+      if (path.indexOf("/track/review/view") >= 0) {
+        this.testCaseReviewEditPath = path;
         this.reload();
       }
     },
