@@ -11,7 +11,7 @@ public interface ExtTestReviewCaseMapper {
 
     List<TestReviewCaseDTO> list(@Param("request") QueryCaseReviewRequest request);
     List<String> getStatusByReviewId(String reviewId);
-    List<String> findRelateTestReviewId(@Param("userId") String userId, @Param("workspaceId") String workspaceId);
+    List<String> findRelateTestReviewId(@Param("userId") String userId, @Param("workspaceId") String workspaceId, @Param("projectId") String projectId);
 
     /**
      * 根据项目 ids 查询 TestReviewCaseDTO 列表

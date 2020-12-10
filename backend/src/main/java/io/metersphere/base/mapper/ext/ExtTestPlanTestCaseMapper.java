@@ -19,7 +19,7 @@ public interface ExtTestPlanTestCaseMapper {
 
     List<TestPlanCaseDTO> listByNodes(@Param("request") QueryTestPlanCaseRequest request);
 
-    List<String> findRelateTestPlanId(@Param("userId") String userId, @Param("workspaceId") String workspaceId);
+    List<String> findRelateTestPlanId(@Param("userId") String userId, @Param("workspaceId") String workspaceId, @Param("projectId") String projectId);
 
     List<TestPlanCaseDTO> getRecentTestedTestCase(@Param("request") QueryTestPlanCaseRequest request);
 

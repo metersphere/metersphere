@@ -68,4 +68,8 @@ public class SessionUtils {
     public static String getCurrentOrganizationId() {
         return Optional.ofNullable(getUser()).orElse(new SessionUser()).getLastOrganizationId();
     }
+
+    public static String getCurrentProjectId() {
+        return Optional.ofNullable(getUser()).orElse(new SessionUser()).getLastProjectId();
+    }
 }

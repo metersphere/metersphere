@@ -489,7 +489,7 @@ export default {
           param.nodePath = item.path;
         }
       });
-      if (this.currentProject) {
+      if (this.currentProject.id) {
         param.projectId = this.currentProject.id;
       }
       param.name = param.name.trim();
@@ -563,7 +563,7 @@ export default {
     },
     getTestOptions() {
       this.testOptions = [];
-      if (this.currentProject && this.form.type != '' && this.form.type != 'functional') {
+      if (this.currentProject.id && this.form.type != '' && this.form.type != 'functional') {
         this.result = this.$get('/' + this.form.type + '/list/' + this.currentProject.id, response => {
           this.testOptions = response.data;
           this.testOptions.unshift({id: 'other', name: this.$t('test_track.case.other')})
