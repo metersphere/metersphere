@@ -71,9 +71,7 @@
         from load_test_report ltr
         join load_test lt on ltr.test_id = lt.id
         join user on ltr.user_id = user.id
-        <if test="reportRequest.workspaceId != null">
-            JOIN project on project.id = lt.project_id
-        </if>
+        join project on project.id = lt.project_id
         <where>
             <if test="reportRequest.combine != null">
                 <include refid="combine">
@@ -89,6 +87,9 @@
             </if>
             <if test="reportRequest.workspaceId != null">
                 AND workspace_id = #{reportRequest.workspaceId,jdbcType=VARCHAR}
+            </if>
+            <if test="reportRequest.projectId != null">
+                AND project.id = #{reportRequest.projectId,jdbcType=VARCHAR}
             </if>
             <if test="reportRequest.filters != null and reportRequest.filters.size() > 0">
                 <foreach collection="reportRequest.filters.entrySet()" index="key" item="values">

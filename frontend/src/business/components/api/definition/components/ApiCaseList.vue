@@ -357,16 +357,18 @@
         this.apiCaseList.unshift(obj);
       },
       addCase() {
-        // 初始化对象
-        let request = {};
-        if (this.api.request instanceof Object) {
-          request = this.api.request;
-        } else {
-          request = JSON.parse(this.api.request);
+        if (this.api.request) {
+          // 初始化对象
+          let request = {};
+          if (this.api.request instanceof Object) {
+            request = this.api.request;
+          } else {
+            request = JSON.parse(this.api.request);
+          }
+          let obj = {apiDefinitionId: this.api.id, name: '', priority: 'P0', type: 'create', active: false};
+          obj.request = request;
+          this.apiCaseList.unshift(obj);
         }
-        let obj = {apiDefinitionId: this.api.id, name: '', priority: 'P0', type: 'create', active: false};
-        obj.request = request;
-        this.apiCaseList.unshift(obj);
       },
 
       active(item) {

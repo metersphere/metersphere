@@ -11,7 +11,8 @@
         <div style="margin-right: 20px; float: right">
           <i class="icon el-icon-arrow-right" :class="{'is-active': assertions.active}" @click="active(assertions)" style="margin-left: 20px"/>
           <el-switch v-model="assertions.enable" style="margin-left: 10px"/>
-          <el-button size="mini" icon="el-icon-delete" circle @click="remove" style="margin-left: 10px;"/>
+          <el-button size="mini" icon="el-icon-copy-document" circle @click="copyRow" style="margin-left: 10px"/>
+          <el-button size="mini" icon="el-icon-delete" type="danger" circle @click="remove" style="margin-left: 10px"/>
         </div>
       </div>
       <!-- 请求参数-->
@@ -108,6 +109,9 @@
         this.type = "";
         this.reloadData = getUUID().substring(0, 8);
         this.reload();
+      },
+      copyRow() {
+        this.$emit('copyRow', this.assertions, this.node);
       },
       suggestJsonOpen() {
         if (!this.request.debugRequestResult) {

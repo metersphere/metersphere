@@ -9,7 +9,8 @@
       <div style="margin-right: 20px; float: right">
         <i class="icon el-icon-arrow-right" :class="{'is-active': extract.active}" @click="active(extract)" style="margin-left: 20px"/>
         <el-switch v-model="extract.enable" style="margin-left: 10px"/>
-        <el-button size="mini" icon="el-icon-delete" circle @click="remove" style="margin-left: 10px;"/>
+        <el-button size="mini" icon="el-icon-copy-document" circle @click="copyRow" style="margin-left: 10px"/>
+        <el-button size="mini" icon="el-icon-delete" type="danger" circle @click="remove" style="margin-left: 10px"/>
       </div>
       <!-- 请求参数-->
       <el-collapse-transition>
@@ -86,6 +87,9 @@
       },
       remove() {
         this.$emit('remove', this.extract, this.node);
+      },
+      copyRow() {
+        this.$emit('copyRow', this.extract, this.node);
       },
       reload() {
         this.loading = true

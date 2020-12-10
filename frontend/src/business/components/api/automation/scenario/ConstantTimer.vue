@@ -10,7 +10,8 @@
         ms
         <div style="margin-right: 20px; float: right">
           <el-switch v-model="timer.enable" style="margin-left: 10px"/>
-          <el-button size="mini" icon="el-icon-delete" circle @click="remove" style="margin-left: 10px;"/>
+          <el-button size="mini" icon="el-icon-copy-document" circle @click="copyRow" style="margin-left: 10px"/>
+          <el-button size="mini" icon="el-icon-delete" type="danger" circle @click="remove" style="margin-left: 10px"/>
         </div>
       </el-row>
     </el-card>
@@ -30,7 +31,10 @@
     methods: {
       remove() {
         this.$emit('remove', this.timer, this.node);
-      }
+      },
+      copyRow() {
+        this.$emit('copyRow', this.timer, this.node);
+      },
     }
   }
 </script>
