@@ -99,7 +99,6 @@
               <el-col :span="10">
                 <i class="icon el-icon-arrow-right" :class="{'is-active': item.active}"
                    @click="active(item)"/>
-
                 <el-input v-if="item.type==='create'" size="small" v-model="item.name" :name="index" :key="index"
                           class="ms-api-header-select" style="width: 180px"
                           @blur="saveTestCase(item)"/>
@@ -108,8 +107,14 @@
                   <i class="el-icon-edit" style="cursor:pointer" @click="showInput(item)"/>
                 </span>
                 <div v-if="item.type!='create'" style="color: #999999;font-size: 12px">
-                  <span> {{item.createTime | timestampFormatDate }}</span> {{item.createUser}} 创建
-                  <span> {{item.updateTime | timestampFormatDate }}</span> {{item.updateUser}} 更新
+                  <span>
+                    {{item.createTime | timestampFormatDate }}
+                    {{item.createUser}} {{$t('api_test.definition.request.create_info')}}
+                  </span>
+                  <span>
+                    {{item.updateTime | timestampFormatDate }}
+                    {{item.updateUser}} {{$t('api_test.definition.request.update_info')}}
+                  </span>
                 </div>
               </el-col>
 
@@ -119,8 +124,8 @@
                 <ms-tip-button @click="copyCase(item)" :tip="$t('commons.copy')" icon="el-icon-document-copy"
                                size="mini" circle/>
                 <ms-tip-button @click="deleteCase(index,item)" :tip="$t('commons.delete')" icon="el-icon-delete"
-                               size="mini"
-                               circle/>
+                               size="mini" circle/>
+                <ms-api-extend-btns :row="item"/>
               </el-col>
 
               <el-col :span="3">
@@ -172,6 +177,7 @@
   import MsSqlBasisParameters from "./request/database/BasisParameters";
   import MsTcpBasisParameters from "./request/tcp/BasisParameters";
   import MsDubboBasisParameters from "./request/dubbo/BasisParameters";
+  import MsApiExtendBtns from "./reference/ApiExtendBtns";
 
   export default {
     name: 'ApiCaseList',
@@ -184,7 +190,8 @@
       MsSqlBasisParameters,
       MsTcpBasisParameters,
       MsDubboBasisParameters,
-      MsRun
+      MsRun,
+      MsApiExtendBtns
     },
     props: {
       api: {

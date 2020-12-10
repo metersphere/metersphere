@@ -4,6 +4,8 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import io.metersphere.api.dto.APIReportResult;
 import io.metersphere.api.dto.ApiTestImportRequest;
+import io.metersphere.api.dto.automation.ApiScenarioRequest;
+import io.metersphere.api.dto.automation.ReferenceDTO;
 import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.dto.definition.parse.ApiDefinitionImport;
 import io.metersphere.api.dto.scenario.request.RequestType;
@@ -16,6 +18,8 @@ import io.metersphere.base.mapper.ApiDefinitionMapper;
 import io.metersphere.base.mapper.ApiTestFileMapper;
 import io.metersphere.base.mapper.ext.ExtApiDefinitionExecResultMapper;
 import io.metersphere.base.mapper.ext.ExtApiDefinitionMapper;
+import io.metersphere.base.mapper.ext.ExtApiScenarioMapper;
+import io.metersphere.base.mapper.ext.ExtTestPlanMapper;
 import io.metersphere.commons.constants.APITestStatus;
 import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.exception.MSException;
@@ -25,6 +29,7 @@ import io.metersphere.commons.utils.ServiceUtils;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.i18n.Translator;
 import io.metersphere.service.FileService;
+import io.metersphere.track.request.testcase.QueryTestPlanRequest;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
@@ -65,7 +70,9 @@ public class ApiDefinitionService {
     @Resource
     private SqlSessionFactory sqlSessionFactory;
     @Resource
-    private ApiModuleService apiModuleService;
+    private ExtApiScenarioMapper extApiScenarioMapper;
+    @Resource
+    private ExtTestPlanMapper extTestPlanMapper;
 
     private static Cache cache = Cache.newHardMemoryCache(0, 3600 * 24);
 
@@ -351,4 +358,13 @@ public class ApiDefinitionService {
         sqlSession.flushStatements();
     }
 
+    public ReferenceDTO getReference(ApiScenarioRequest request) {
+        ReferenceDTO dto = new ReferenceDTO();
+        dto.setScenarioList(extApiScenarioMapper.selectReference(request));
+        QueryTestPlanRequest planRequest = new QueryTestPlanRequest();
+        planRequest.setApiId(request.getId());
+        planRequest.setProjectId(request.getProjectId());
+        dto.setTestPlanList(extTestPlanMapper.selectReference(planRequest));
+        return dto;
+    }
 }

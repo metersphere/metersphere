@@ -4,6 +4,8 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.api.dto.APIReportResult;
 import io.metersphere.api.dto.ApiTestImportRequest;
+import io.metersphere.api.dto.automation.ApiScenarioRequest;
+import io.metersphere.api.dto.automation.ReferenceDTO;
 import io.metersphere.api.dto.definition.ApiDefinitionRequest;
 import io.metersphere.api.dto.definition.ApiDefinitionResult;
 import io.metersphere.api.dto.definition.RunDefinitionRequest;
@@ -93,5 +95,9 @@ public class ApiDefinitionController {
         return apiDefinitionService.apiTestImport(file, request);
     }
 
+    @PostMapping("/getReference")
+    public ReferenceDTO getReference(@RequestBody ApiScenarioRequest request) {
+        return apiDefinitionService.getReference(request);
+    }
 
 }

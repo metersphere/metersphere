@@ -49,6 +49,7 @@
           <template v-slot:default="{row}">
             <div v-if="currentModule!=undefined && currentModule.id === 'gc'">
               <el-button type="text" @click="reductionApi(row)">恢复</el-button>
+              <el-button type="text" @click="remove(row)">{{ $t('api_test.automation.remove') }}</el-button>
             </div>
             <div v-else>
               <el-button type="text" @click="edit(row)">{{ $t('api_test.automation.edit') }}</el-button>

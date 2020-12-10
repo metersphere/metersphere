@@ -322,6 +322,7 @@ public class ApiAutomationService {
                                 .flatMap(Collection::stream).distinct().collect(Collectors.toList());
                         item.setApiIds(JSON.toJSONString(result));
                     }
+                    item.setScenarioIds(null);
                 }
             }
             if (CollectionUtils.isNotEmpty(request.getScenarioIds())) {
@@ -335,6 +336,7 @@ public class ApiAutomationService {
                                 .flatMap(Collection::stream).distinct().collect(Collectors.toList());
                         item.setScenarioIds(JSON.toJSONString(result));
                     }
+                    item.setApiIds(null);
                 }
             }
             mapper.updatePlan(item);
