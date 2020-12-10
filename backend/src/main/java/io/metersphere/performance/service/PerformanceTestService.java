@@ -79,6 +79,7 @@ public class PerformanceTestService {
 
     public List<LoadTestDTO> list(QueryTestPlanRequest request) {
         request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
+        request.setProjectId(SessionUtils.getCurrentProjectId());
         return extLoadTestMapper.list(request);
     }
 
@@ -320,6 +321,7 @@ public class PerformanceTestService {
         orderRequest.setType("desc");
         orders.add(orderRequest);
         request.setOrders(orders);
+        request.setProjectId(SessionUtils.getCurrentProjectId());
         return extLoadTestMapper.list(request);
     }
 
@@ -462,7 +464,11 @@ public class PerformanceTestService {
                 .collect(Collectors.toList());
         if (!resourceIds.isEmpty()) {
             LoadTestExample example = new LoadTestExample();
-            example.createCriteria().andIdIn(resourceIds);
+            LoadTestExample.Criteria criteria = example.createCriteria();
+            if (StringUtils.isNotBlank(SessionUtils.getCurrentProjectId())) {
+                criteria.andProjectIdEqualTo(SessionUtils.getCurrentProjectId());
+            }
+            criteria.andIdIn(resourceIds);
             List<LoadTest> loadTests = loadTestMapper.selectByExample(example);
             Map<String, String> loadTestMap = loadTests.stream().collect(Collectors.toMap(LoadTest::getId, LoadTest::getName));
             scheduleService.build(loadTestMap, schedules);

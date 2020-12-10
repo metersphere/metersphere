@@ -215,4 +215,16 @@
             </if>
         </where>
     </select>
+
+    <select id="checkIsHave" resultType="int">
+        SELECT COUNT(1)
+        FROM test_plan_project, project
+        WHERE project_id = project.id AND test_plan_id = #{planId}
+        <if test="workspaceIds != null and workspaceIds.size() > 0">
+            AND project.workspace_id IN
+            <foreach collection="workspaceIds" item="id" separator="," open="(" close=")">
+                #{id}
+            </foreach>
+        </if>
+    </select>
 </mapper>

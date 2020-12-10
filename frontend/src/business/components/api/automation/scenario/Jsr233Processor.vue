@@ -10,7 +10,8 @@
         <div style="margin-right: 20px; float: right">
           <i class="icon el-icon-arrow-right" :class="{'is-active': this.jsr223ProcessorData.active}" @click="changeActive" style="margin-left: 20px"/>
           <el-switch v-model="jsr223ProcessorData.enable" style="margin-left: 10px"/>
-          <el-button size="mini" icon="el-icon-delete" circle @click="remove" style="margin-left: 10px;"/>
+          <el-button size="mini" icon="el-icon-copy-document" circle @click="copyRow" style="margin-left: 10px"/>
+          <el-button size="mini" icon="el-icon-delete" type="danger" circle @click="remove" style="margin-left: 10px"/>
         </div>
       </div>
     </el-row>
@@ -141,6 +142,9 @@
       },
       remove() {
         this.$emit('remove', this.jsr223ProcessorData, this.node);
+      },
+      copyRow() {
+        this.$emit('copyRow', this.jsr223ProcessorData, this.node);
       },
       reload() {
         this.isCodeEditAlive = false;

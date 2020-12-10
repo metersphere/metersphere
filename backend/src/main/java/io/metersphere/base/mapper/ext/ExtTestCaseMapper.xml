@@ -357,13 +357,19 @@
     </select>
 
     <select id="getMaxNumByProjectId" resultType="io.metersphere.base.domain.TestCase">
-        select * from test_case where test_case.project_id = #{projectId} order by num desc limit 1;
+        SELECT * FROM test_case WHERE test_case.project_id = #{projectId} ORDER BY num DESC LIMIT 1;
     </select>
-    <select id="checkIsHave" resultType="java.lang.String">
-        select distinct test_case.id
-        from test_case, project
-        where test_case.project_id = project.id
-        and project.workspace_id = #{workspaceId}
-        and test_case.id = #{caseId}
+
+    <select id="checkIsHave" resultType="int">
+        SELECT COUNT(1)
+        FROM test_case, project
+        WHERE test_case.project_id = project.id
+        <if test="workspaceIds != null and workspaceIds.size() > 0">
+            AND project.workspace_id IN
+            <foreach collection="workspaceIds" item="id" separator="," open="(" close=")">
+                #{id}
+            </foreach>
+        </if>
+        AND test_case.id = #{caseId}
     </select>
 </mapper>

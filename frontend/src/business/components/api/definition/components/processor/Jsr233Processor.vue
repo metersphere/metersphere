@@ -9,7 +9,8 @@
           <div style="margin-right: 20px; float: right">
             <i class="icon el-icon-arrow-right" :class="{'is-active': active}" @click="changeActive"/>
             <el-switch v-model="jsr223ProcessorData.enable" style="margin-left: 10px"/>
-            <el-button size="mini" icon="el-icon-delete" circle @click="remove" style="margin-left: 10px;"/>
+            <el-button size="mini" icon="el-icon-copy-document" circle @click="copyRow" style="margin-left: 10px"/>
+            <el-button size="mini" icon="el-icon-delete" type="danger" circle @click="remove" style="margin-left: 10px"/>
           </div>
         </div>
       </el-row>
@@ -146,6 +147,9 @@
       },
       remove() {
         this.$emit('remove', this.jsr223ProcessorData);
+      },
+      copyRow() {
+        this.$emit('copyRow', this.jsr223ProcessorData);
       },
       reload() {
         this.isCodeEditAlive = false;

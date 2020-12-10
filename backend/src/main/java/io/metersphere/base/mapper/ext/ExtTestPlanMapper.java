@@ -6,6 +6,7 @@ import io.metersphere.track.request.testcase.QueryTestPlanRequest;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
+import java.util.Set;
 
 public interface ExtTestPlanMapper {
     List<TestPlanDTOWithMetric> list(@Param("request") QueryTestPlanRequest params);
@@ -20,4 +21,5 @@ public interface ExtTestPlanMapper {
 
     List<TestPlanDTO> selectReference(@Param("request") QueryTestPlanRequest params);
 
+    int checkIsHave(@Param("planId") String planId, @Param("workspaceIds") Set<String> workspaceIds);
 }

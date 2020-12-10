@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="io.metersphere.base.mapper.ext.ExtApiTestMapper">
-
     <resultMap id="BaseResultMap" type="io.metersphere.api.dto.APITestResult"
                extends="io.metersphere.base.mapper.ApiTestMapper.BaseResultMap">
         <result column="project_name" property="projectName"/>
@@ -11,25 +10,25 @@
     <sql id="condition">
         <choose>
             <when test='${object}.operator == "like"'>
-                like CONCAT('%', #{${object}.value},'%')
+                LIKE CONCAT('%', #{${object}.value},'%')
             </when>
             <when test='${object}.operator == "not like"'>
-                not like CONCAT('%', #{${object}.value},'%')
+                NOT LIKE CONCAT('%', #{${object}.value},'%')
             </when>
             <when test='${object}.operator == "in"'>
-                in
+                IN
                 <foreach collection="${object}.value" item="v" separator="," open="(" close=")">
                     #{v}
                 </foreach>
             </when>
             <when test='${object}.operator == "not in"'>
-                not in
+                NOT IN
                 <foreach collection="${object}.value" item="v" separator="," open="(" close=")">
                     #{v}
                 </foreach>
             </when>
             <when test='${object}.operator == "between"'>
-                between #{${object}.value[0]} and #{${object}.value[1]}
+                BETWEEN #{${object}.value[0]} AND #{${object}.value[1]}
             </when>
             <when test='${object}.operator == "gt"'>
                 &gt; #{${object}.value}
@@ -54,37 +53,37 @@
 
     <sql id="combine">
         <if test='${condition}.name != null and (${name} == null or ${name} == "")'>
-            and api_test.name
+            AND api_test.name
             <include refid="condition">
                 <property name="object" value="${condition}.name"/>
             </include>
         </if>
         <if test="${condition}.updateTime != null">
-            and api_test.update_time
+            AND api_test.update_time
             <include refid="condition">
                 <property name="object" value="${condition}.updateTime"/>
             </include>
         </if>
         <if test="${condition}.projectName != null">
-            and project.name
+            AND project.name
             <include refid="condition">
                 <property name="object" value="${condition}.projectName"/>
             </include>
         </if>
         <if test="${condition}.createTime != null">
-            and api_test.create_time
+            AND api_test.create_time
             <include refid="condition">
                 <property name="object" value="${condition}.createTime"/>
             </include>
         </if>
         <if test="${condition}.status != null">
-            and api_test.status
+            AND api_test.status
             <include refid="condition">
                 <property name="object" value="${condition}.status"/>
             </include>
         </if>
         <if test="${condition}.creator != null">
-            and api_test.user_id
+            AND api_test.user_id
             <include refid="condition">
                 <property name="object" value="${condition}.creator"/>
             </include>
@@ -92,11 +91,11 @@
     </sql>
 
     <select id="list" resultMap="BaseResultMap">
-        select api_test.id, api_test.project_id, api_test.name, api_test.description,
-        api_test.status, api_test.user_id, api_test.create_time, api_test.update_time, project.name as project_name, user.name as user_name
-        from api_test
-        left join project on api_test.project_id = project.id
-        left join user on api_test.user_id = user.id
+        SELECT api_test.id, api_test.project_id, api_test.name, api_test.description,
+        api_test.status, api_test.user_id, api_test.create_time, api_test.update_time, project.name AS project_name, user.name AS user_name
+        FROM api_test
+        LEFT JOIN project ON api_test.project_id = project.id
+        LEFT JOIN user ON api_test.user_id = user.id
         <where>
             <if test="request.combine != null">
                 <include refid="combine">
@@ -109,7 +108,7 @@
                 and api_test.id != #{request.excludeId}
             </if>
             <if test="request.name != null">
-                and api_test.name like CONCAT('%', #{request.name},'%')
+                AND api_test.name LIKE CONCAT('%', #{request.name},'%')
             </if>
             <if test="request.workspaceId != null">
                 AND project.workspace_id = #{request.workspaceId}
@@ -125,36 +124,34 @@
             </if>
             <if test="request.filters != null and request.filters.size() > 0">
                 <foreach collection="request.filters.entrySet()" index="key" item="values">
-
                     <if test="values != null and values.size() > 0">
-                        and api_test.status in
+                        AND api_test.status IN
                         <foreach collection="values" item="value" separator="," open="(" close=")">
                             #{value}
                         </foreach>
                     </if>
-
                 </foreach>
             </if>
         </where>
         <if test="request.orders != null and request.orders.size() > 0">
-            order by
+            ORDER BY
             <foreach collection="request.orders" separator="," item="order">
                 api_test.${order.name} ${order.type}
             </foreach>
         </if>
     </select>
     <select id="getApiTestByProjectId" resultType="io.metersphere.base.domain.ApiTest">
-        select id,name,status
-        from api_test
-        where project_id = #{projectId}
+        SELECT id,name,status
+        FROM api_test
+        WHERE project_id = #{projectId}
     </select>
 
     <select id="listByIds" resultType="io.metersphere.base.domain.ApiTest">
-        select *
-        from api_test
+        SELECT *
+        FROM api_test
         <where>
             <if test="ids != null and ids.size() > 0">
-                id in
+                id IN
                 <foreach collection="ids" item="id" separator="," open="(" close=")">
                     #{id}
                 </foreach>
@@ -162,4 +159,20 @@
         </where>
     </select>
 
+    <select id="checkApiTestOwner" resultType="int">
+        SELECT COUNT(1)
+        FROM api_test
+        LEFT JOIN project ON api_test.project_id = project.id
+        <where>
+            <if test="testId != null">
+                and api_test.id = #{testId}
+            </if>
+            <if test="workspaceIds != null and workspaceIds.size() > 0">
+                AND workspace_id IN
+                <foreach collection="workspaceIds" item="id" separator="," open="(" close=")">
+                    #{id}
+                </foreach>
+            </if>
+        </where>
+    </select>
 </mapper>

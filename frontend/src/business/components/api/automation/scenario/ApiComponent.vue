@@ -26,7 +26,8 @@
           <i class="icon el-icon-arrow-right" :class="{'is-active': request.active}"
              @click="active(request)" v-if="request.referenced!=undefined && request.referenced!='Deleted' && request.referenced!='REF'"/>
           <el-switch v-model="request.enable" style="margin-left: 10px"/>
-          <el-button size="mini" icon="el-icon-delete" circle @click="remove" style="margin-left: 10px"/>
+          <el-button size="mini" icon="el-icon-copy-document" circle @click="copyRow" style="margin-left: 10px"/>
+          <el-button size="mini" icon="el-icon-delete" type="danger" circle @click="remove" style="margin-left: 10px"/>
         </div>
       </el-row>
       <!-- 请求参数-->
@@ -100,6 +101,9 @@
     methods: {
       remove() {
         this.$emit('remove', this.request, this.node);
+      },
+      copyRow() {
+        this.$emit('copyRow', this.request, this.node);
       },
       active(item) {
         item.active = !item.active;

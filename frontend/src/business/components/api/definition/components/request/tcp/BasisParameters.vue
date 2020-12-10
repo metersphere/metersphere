@@ -92,15 +92,15 @@
         </div>
         <div v-for="row in request.hashTree" :key="row.id" v-loading="isReloadData" style="margin-left: 20px;width: 100%">
           <!-- 前置脚本 -->
-          <ms-jsr233-processor v-if="row.label ==='JSR223 PreProcessor'" @remove="remove" :is-read-only="false" :title="$t('api_test.definition.request.pre_script')" style-type="color: #B8741A;background-color: #F9F1EA"
+          <ms-jsr233-processor v-if="row.label ==='JSR223 PreProcessor'" @copyRow="copyRow" @remove="remove" :is-read-only="false" :title="$t('api_test.definition.request.pre_script')" style-type="color: #B8741A;background-color: #F9F1EA"
                                :jsr223-processor="row"/>
           <!--后置脚本-->
-          <ms-jsr233-processor v-if="row.label ==='JSR223 PostProcessor'" @remove="remove" :is-read-only="false" :title="$t('api_test.definition.request.post_script')" style-type="color: #783887;background-color: #F2ECF3"
+          <ms-jsr233-processor v-if="row.label ==='JSR223 PostProcessor'" @copyRow="copyRow" @remove="remove" :is-read-only="false" :title="$t('api_test.definition.request.post_script')" style-type="color: #783887;background-color: #F2ECF3"
                                :jsr223-processor="row"/>
           <!--断言规则-->
-          <ms-api-assertions v-if="row.type==='Assertions'" @remove="remove" :is-read-only="isReadOnly" :assertions="row"/>
+          <ms-api-assertions v-if="row.type==='Assertions'" @copyRow="copyRow" @remove="remove" :is-read-only="isReadOnly" :assertions="row"/>
           <!--提取规则-->
-          <ms-api-extract :is-read-only="isReadOnly" @remove="remove" v-if="row.type==='Extract'" :extract="row"/>
+          <ms-api-extract :is-read-only="isReadOnly" @copyRow="copyRow" @remove="remove" v-if="row.type==='Extract'" :extract="row"/>
 
         </div>
       </el-col>
@@ -132,7 +132,7 @@
   import ApiEnvironmentConfig from "../../environment/ApiEnvironmentConfig";
   import {API_STATUS} from "../../../model/JsonData";
   import TCPSampler from "../../jmeter/components/sampler/tcp-sampler";
-  import {getCurrentProjectID} from "@/common/js/utils";
+  import {getCurrentProjectID, getUUID} from "@/common/js/utils";
 
   export default {
     name: "MsDatabaseConfig",
@@ -192,6 +192,13 @@
       remove(row) {
         let index = this.request.hashTree.indexOf(row);
         this.request.hashTree.splice(index, 1);
+        this.reload();
+      },
+      copyRow(row) {
+        let obj = {};
+        Object.assign(obj, row);
+        obj.id = getUUID();
+        this.request.hashTree.push(obj);
         this.reload();
       },
       reload() {
