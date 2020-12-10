@@ -4,6 +4,8 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import io.metersphere.api.dto.APIReportResult;
 import io.metersphere.api.dto.ApiTestImportRequest;
+import io.metersphere.api.dto.automation.ApiScenarioRequest;
+import io.metersphere.api.dto.automation.ReferenceDTO;
 import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.dto.definition.parse.ApiDefinitionImport;
 import io.metersphere.api.dto.scenario.request.RequestType;
@@ -16,6 +18,8 @@ import io.metersphere.base.mapper.ApiDefinitionMapper;
 import io.metersphere.base.mapper.ApiTestFileMapper;
 import io.metersphere.base.mapper.ext.ExtApiDefinitionExecResultMapper;
 import io.metersphere.base.mapper.ext.ExtApiDefinitionMapper;
+import io.metersphere.base.mapper.ext.ExtApiScenarioMapper;
+import io.metersphere.base.mapper.ext.ExtTestPlanMapper;
 import io.metersphere.commons.constants.APITestStatus;
 import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.exception.MSException;
@@ -25,7 +29,8 @@ import io.metersphere.commons.utils.ServiceUtils;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.i18n.Translator;
 import io.metersphere.service.FileService;
-import org.apache.commons.lang3.StringUtils;
+import io.metersphere.track.request.testcase.QueryTestPlanRequest;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -33,13 +38,15 @@ import org.apache.jorphan.collections.HashTree;
 import org.aspectj.util.FileUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 import sun.security.util.Cache;
 
 import javax.annotation.Resource;
 import java.io.*;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -63,7 +70,9 @@ public class ApiDefinitionService {
     @Resource
     private SqlSessionFactory sqlSessionFactory;
     @Resource
-    private ApiModuleService apiModuleService;
+    private ExtApiScenarioMapper extApiScenarioMapper;
+    @Resource
+    private ExtTestPlanMapper extTestPlanMapper;
 
     private static Cache cache = Cache.newHardMemoryCache(0, 3600 * 24);
 
@@ -96,6 +105,10 @@ public class ApiDefinitionService {
         return apiDefinitionMapper.selectByPrimaryKey(id);
     }
 
+    public ApiDefinitionWithBLOBs getBLOBs(String id) {
+        return apiDefinitionMapper.selectByPrimaryKey(id);
+    }
+
     public void create(SaveApiDefinitionRequest request, List<MultipartFile> bodyFiles) {
         List<String> bodyUploadIds = new ArrayList<>(request.getBodyUploadIds());
         createTest(request);
@@ -103,15 +116,17 @@ public class ApiDefinitionService {
     }
 
     public void update(SaveApiDefinitionRequest request, List<MultipartFile> bodyFiles) {
-        deleteFileByTestId(request.getRequest().getId());
-        List<String> bodyUploadIds = new ArrayList<>(request.getBodyUploadIds());
+        if (request.getRequest() != null) {
+            deleteFileByTestId(request.getRequest().getId());
+        }
+        List<String> bodyUploadIds = request.getBodyUploadIds();
         request.setBodyUploadIds(null);
         updateTest(request);
         createBodyFiles(bodyUploadIds, bodyFiles);
     }
 
-    private void createBodyFiles(List<String> bodyUploadIds, List<MultipartFile> bodyFiles) {
-        if (bodyUploadIds.size() > 0) {
+    public void createBodyFiles(List<String> bodyUploadIds, List<MultipartFile> bodyFiles) {
+        if (CollectionUtils.isNotEmpty(bodyUploadIds) && CollectionUtils.isNotEmpty(bodyFiles)) {
             File testDir = new File(BODY_FILE_DIR);
             if (!testDir.exists()) {
                 testDir.mkdirs();
@@ -139,10 +154,9 @@ public class ApiDefinitionService {
     }
 
     public void deleteBatch(List<String> apiIds) {
-        // 简单处理后续优化
-        apiIds.forEach(item -> {
-            delete(item);
-        });
+        ApiDefinitionExample example = new ApiDefinitionExample();
+        example.createCriteria().andIdIn(apiIds);
+        apiDefinitionMapper.deleteByExample(example);
     }
 
     public void removeToGc(List<String> apiIds) {
@@ -160,14 +174,14 @@ public class ApiDefinitionService {
     private void checkNameExist(SaveApiDefinitionRequest request) {
         ApiDefinitionExample example = new ApiDefinitionExample();
         if (request.getProtocol().equals(RequestType.HTTP)) {
-            example.createCriteria().andMethodEqualTo(request.getMethod())
+            example.createCriteria().andMethodEqualTo(request.getMethod()).andStatusNotEqualTo("Trash")
                     .andProtocolEqualTo(request.getProtocol()).andPathEqualTo(request.getPath())
                     .andProjectIdEqualTo(request.getProjectId()).andIdNotEqualTo(request.getId());
             if (apiDefinitionMapper.countByExample(example) > 0) {
                 MSException.throwException(Translator.get("api_definition_url_not_repeating"));
             }
         } else {
-            example.createCriteria().andProtocolEqualTo(request.getProtocol())
+            example.createCriteria().andProtocolEqualTo(request.getProtocol()).andStatusNotEqualTo("Trash")
                     .andNameEqualTo(request.getName()).andProjectIdEqualTo(request.getProjectId())
                     .andIdNotEqualTo(request.getId());
             if (apiDefinitionMapper.countByExample(example) > 0) {
@@ -175,7 +189,6 @@ public class ApiDefinitionService {
             }
         }
     }
-
 
     private ApiDefinition updateTest(SaveApiDefinitionRequest request) {
         checkNameExist(request);
@@ -349,4 +362,13 @@ public class ApiDefinitionService {
         sqlSession.flushStatements();
     }
 
+    public ReferenceDTO getReference(ApiScenarioRequest request) {
+        ReferenceDTO dto = new ReferenceDTO();
+        dto.setScenarioList(extApiScenarioMapper.selectReference(request));
+        QueryTestPlanRequest planRequest = new QueryTestPlanRequest();
+        planRequest.setApiId(request.getId());
+        planRequest.setProjectId(request.getProjectId());
+        dto.setTestPlanList(extTestPlanMapper.selectReference(planRequest));
+        return dto;
+    }
 }

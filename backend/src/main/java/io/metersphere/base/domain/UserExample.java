@@ -923,6 +923,76 @@ public class UserExample {
             addCriterion("`source` not between", value1, value2, "source");
             return (Criteria) this;
         }
+
+        public Criteria andLastProjectIdIsNull() {
+            addCriterion("last_project_id is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andLastProjectIdIsNotNull() {
+            addCriterion("last_project_id is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andLastProjectIdEqualTo(String value) {
+            addCriterion("last_project_id =", value, "lastProjectId");
+            return (Criteria) this;
+        }
+
+        public Criteria andLastProjectIdNotEqualTo(String value) {
+            addCriterion("last_project_id <>", value, "lastProjectId");
+            return (Criteria) this;
+        }
+
+        public Criteria andLastProjectIdGreaterThan(String value) {
+            addCriterion("last_project_id >", value, "lastProjectId");
+            return (Criteria) this;
+        }
+
+        public Criteria andLastProjectIdGreaterThanOrEqualTo(String value) {
+            addCriterion("last_project_id >=", value, "lastProjectId");
+            return (Criteria) this;
+        }
+
+        public Criteria andLastProjectIdLessThan(String value) {
+            addCriterion("last_project_id <", value, "lastProjectId");
+            return (Criteria) this;
+        }
+
+        public Criteria andLastProjectIdLessThanOrEqualTo(String value) {
+            addCriterion("last_project_id <=", value, "lastProjectId");
+            return (Criteria) this;
+        }
+
+        public Criteria andLastProjectIdLike(String value) {
+            addCriterion("last_project_id like", value, "lastProjectId");
+            return (Criteria) this;
+        }
+
+        public Criteria andLastProjectIdNotLike(String value) {
+            addCriterion("last_project_id not like", value, "lastProjectId");
+            return (Criteria) this;
+        }
+
+        public Criteria andLastProjectIdIn(List<String> values) {
+            addCriterion("last_project_id in", values, "lastProjectId");
+            return (Criteria) this;
+        }
+
+        public Criteria andLastProjectIdNotIn(List<String> values) {
+            addCriterion("last_project_id not in", values, "lastProjectId");
+            return (Criteria) this;
+        }
+
+        public Criteria andLastProjectIdBetween(String value1, String value2) {
+            addCriterion("last_project_id between", value1, value2, "lastProjectId");
+            return (Criteria) this;
+        }
+
+        public Criteria andLastProjectIdNotBetween(String value1, String value2) {
+            addCriterion("last_project_id not between", value1, value2, "lastProjectId");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {

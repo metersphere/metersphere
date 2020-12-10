@@ -229,7 +229,11 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
         if (StringUtils.equals("Error", report.getStatus())) {
             event = NoticeConstants.Event.EXECUTE_FAILED;
         }
-
+        Map<String, Object> paramMap = new HashMap<>();
+        paramMap.put("testName", report.getName());
+        paramMap.put("id", report.getId());
+        paramMap.put("type", "performance");
+        paramMap.put("url", baseSystemConfigDTO.getUrl());
         NoticeModel noticeModel = NoticeModel.builder()
                 .successContext(successContext)
                 .successMailTemplate("ApiSuccessfulNotification")
@@ -239,6 +243,7 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
                 .status(report.getStatus())
                 .event(event)
                 .subject(subject)
+                .paramMap(paramMap)
                 .build();
         noticeSendService.send(report.getTriggerMode(), noticeModel);
     }

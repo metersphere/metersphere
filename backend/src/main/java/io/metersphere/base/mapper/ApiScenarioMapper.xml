@@ -18,6 +18,9 @@
     <result column="description" jdbcType="VARCHAR" property="description" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
     <result column="update_time" jdbcType="BIGINT" property="updateTime" />
+    <result column="pass_rate" jdbcType="VARCHAR" property="passRate" />
+    <result column="last_result" jdbcType="VARCHAR" property="lastResult" />
+    <result column="report_id" jdbcType="VARCHAR" property="reportId" />
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.ApiScenario">
     <result column="scenario_definition" jdbcType="LONGVARCHAR" property="scenarioDefinition" />
@@ -83,7 +86,7 @@
   <sql id="Base_Column_List">
     id, project_id, tag_id, user_id, api_scenario_module_id, module_path, `name`, `level`, 
     `status`, principal, step_total, follow_people, schedule, description, create_time, 
-    update_time
+    update_time, pass_rate, last_result, report_id
   </sql>
   <sql id="Blob_Column_List">
     scenario_definition
@@ -142,13 +145,15 @@
       `name`, `level`, `status`, 
       principal, step_total, follow_people, 
       schedule, description, create_time, 
-      update_time, scenario_definition)
+      update_time, pass_rate, last_result, 
+      report_id, scenario_definition)
     values (#{id,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, #{tagId,jdbcType=VARCHAR}, 
       #{userId,jdbcType=VARCHAR}, #{apiScenarioModuleId,jdbcType=VARCHAR}, #{modulePath,jdbcType=VARCHAR}, 
       #{name,jdbcType=VARCHAR}, #{level,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, 
       #{principal,jdbcType=VARCHAR}, #{stepTotal,jdbcType=INTEGER}, #{followPeople,jdbcType=VARCHAR}, 
       #{schedule,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, 
-      #{updateTime,jdbcType=BIGINT}, #{scenarioDefinition,jdbcType=LONGVARCHAR})
+      #{updateTime,jdbcType=BIGINT}, #{passRate,jdbcType=VARCHAR}, #{lastResult,jdbcType=VARCHAR}, 
+      #{reportId,jdbcType=VARCHAR}, #{scenarioDefinition,jdbcType=LONGVARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.ApiScenario">
     insert into api_scenario
@@ -200,6 +205,15 @@
       </if>
       <if test="updateTime != null">
         update_time,
+      </if>
+      <if test="passRate != null">
+        pass_rate,
+      </if>
+      <if test="lastResult != null">
+        last_result,
+      </if>
+      <if test="reportId != null">
+        report_id,
       </if>
       <if test="scenarioDefinition != null">
         scenario_definition,
@@ -253,6 +267,15 @@
       </if>
       <if test="updateTime != null">
         #{updateTime,jdbcType=BIGINT},
+      </if>
+      <if test="passRate != null">
+        #{passRate,jdbcType=VARCHAR},
+      </if>
+      <if test="lastResult != null">
+        #{lastResult,jdbcType=VARCHAR},
+      </if>
+      <if test="reportId != null">
+        #{reportId,jdbcType=VARCHAR},
       </if>
       <if test="scenarioDefinition != null">
         #{scenarioDefinition,jdbcType=LONGVARCHAR},
@@ -316,6 +339,15 @@
       <if test="record.updateTime != null">
         update_time = #{record.updateTime,jdbcType=BIGINT},
       </if>
+      <if test="record.passRate != null">
+        pass_rate = #{record.passRate,jdbcType=VARCHAR},
+      </if>
+      <if test="record.lastResult != null">
+        last_result = #{record.lastResult,jdbcType=VARCHAR},
+      </if>
+      <if test="record.reportId != null">
+        report_id = #{record.reportId,jdbcType=VARCHAR},
+      </if>
       <if test="record.scenarioDefinition != null">
         scenario_definition = #{record.scenarioDefinition,jdbcType=LONGVARCHAR},
       </if>
@@ -342,6 +374,9 @@
       description = #{record.description,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
       update_time = #{record.updateTime,jdbcType=BIGINT},
+      pass_rate = #{record.passRate,jdbcType=VARCHAR},
+      last_result = #{record.lastResult,jdbcType=VARCHAR},
+      report_id = #{record.reportId,jdbcType=VARCHAR},
       scenario_definition = #{record.scenarioDefinition,jdbcType=LONGVARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -364,7 +399,10 @@
       schedule = #{record.schedule,jdbcType=VARCHAR},
       description = #{record.description,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
-      update_time = #{record.updateTime,jdbcType=BIGINT}
+      update_time = #{record.updateTime,jdbcType=BIGINT},
+      pass_rate = #{record.passRate,jdbcType=VARCHAR},
+      last_result = #{record.lastResult,jdbcType=VARCHAR},
+      report_id = #{record.reportId,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -417,6 +455,15 @@
       <if test="updateTime != null">
         update_time = #{updateTime,jdbcType=BIGINT},
       </if>
+      <if test="passRate != null">
+        pass_rate = #{passRate,jdbcType=VARCHAR},
+      </if>
+      <if test="lastResult != null">
+        last_result = #{lastResult,jdbcType=VARCHAR},
+      </if>
+      <if test="reportId != null">
+        report_id = #{reportId,jdbcType=VARCHAR},
+      </if>
       <if test="scenarioDefinition != null">
         scenario_definition = #{scenarioDefinition,jdbcType=LONGVARCHAR},
       </if>
@@ -440,6 +487,9 @@
       description = #{description,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
       update_time = #{updateTime,jdbcType=BIGINT},
+      pass_rate = #{passRate,jdbcType=VARCHAR},
+      last_result = #{lastResult,jdbcType=VARCHAR},
+      report_id = #{reportId,jdbcType=VARCHAR},
       scenario_definition = #{scenarioDefinition,jdbcType=LONGVARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
@@ -459,7 +509,10 @@
       schedule = #{schedule,jdbcType=VARCHAR},
       description = #{description,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
-      update_time = #{updateTime,jdbcType=BIGINT}
+      update_time = #{updateTime,jdbcType=BIGINT},
+      pass_rate = #{passRate,jdbcType=VARCHAR},
+      last_result = #{lastResult,jdbcType=VARCHAR},
+      report_id = #{reportId,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

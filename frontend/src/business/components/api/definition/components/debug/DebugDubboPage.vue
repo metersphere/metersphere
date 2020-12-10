@@ -12,7 +12,7 @@
 
       <p class="tip">{{$t('api_test.definition.request.req_param')}} </p>
       <!-- TCP 请求参数 -->
-      <ms-basis-parameters :request="request" :currentProject="currentProject" ref="requestForm"/>
+      <ms-basis-parameters :request="request" ref="requestForm"/>
 
 
       <!-- TCP 请求返回数据 -->
@@ -45,7 +45,6 @@
     components: {MsRequestResultTail, MsResponseResult, MsApiRequestForm, MsRequestMetric, MsResponseText, MsRun, MsBasisParameters},
     props: {
       currentProtocol: String,
-      currentProject: {},
       scenario: Boolean,
     },
     data() {

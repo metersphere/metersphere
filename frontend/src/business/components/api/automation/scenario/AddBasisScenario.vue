@@ -58,9 +58,8 @@
 
 <script>
 import {WORKSPACE_ID} from '@/common/js/constants';
-import {getCurrentUser, getUUID} from "@/common/js/utils";
+import {getCurrentUser, getUUID,getCurrentProjectID} from "@/common/js/utils";
 import MsDialogFooter from "@/business/components/common/components/MsDialogFooter";
-
 export default {
   name: "MsAddBasisScenario",
   components: {MsDialogFooter},
@@ -70,7 +69,6 @@ export default {
       scenarioForm: {},
       visible: false,
       currentModule: {},
-      projectId: "",
       userOptions: [],
       rule: {
         name: [
@@ -107,7 +105,7 @@ export default {
       })
     },
     setParameter() {
-      this.scenarioForm.projectId = this.projectId;
+      this.scenarioForm.projectId = getCurrentProjectID();
       this.scenarioForm.id = getUUID().substring(0, 8);
       this.scenarioForm.protocol = this.currentProtocol;
       if (this.currentModule != null) {
@@ -121,10 +119,9 @@ export default {
         this.userOptions = response.data;
       });
     },
-    open(currentModule, projectId) {
+    open(currentModule) {
       this.scenarioForm = {principal: getCurrentUser().id};
       this.currentModule = currentModule;
-      this.projectId = projectId;
       this.getMaintainerOptions();
       this.visible = true;
     }

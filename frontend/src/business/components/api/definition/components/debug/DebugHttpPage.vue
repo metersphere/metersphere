@@ -50,8 +50,7 @@
   import {getUUID, getCurrentUser} from "@/common/js/utils";
   import MsResponseText from "../response/ResponseText";
   import MsRun from "../Run";
-  import {createComponent, Request} from "../jmeter/components";
-  import HeaderManager from "../jmeter/components/configurations/header-manager";
+  import {createComponent} from "../jmeter/components";
   import {REQ_METHOD} from "../../model/JsonData";
   import MsRequestResultTail from "../response/RequestResultTail";
 

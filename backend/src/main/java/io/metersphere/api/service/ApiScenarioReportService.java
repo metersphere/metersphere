@@ -1,5 +1,6 @@
 package io.metersphere.api.service;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import io.metersphere.api.dto.APIReportResult;
 import io.metersphere.api.dto.DeleteAPIReportRequest;
@@ -7,6 +8,7 @@ import io.metersphere.api.dto.QueryAPIReportRequest;
 import io.metersphere.api.dto.automation.APIScenarioReportResult;
 import io.metersphere.api.jmeter.TestResult;
 import io.metersphere.base.domain.*;
+import io.metersphere.base.mapper.ApiScenarioMapper;
 import io.metersphere.base.mapper.ApiScenarioReportDetailMapper;
 import io.metersphere.base.mapper.ApiScenarioReportMapper;
 import io.metersphere.base.mapper.ext.ExtApiScenarioReportMapper;
@@ -21,6 +23,7 @@ import sun.security.util.Cache;
 
 import javax.annotation.Resource;
 import java.nio.charset.StandardCharsets;
+import java.text.DecimalFormat;
 import java.util.List;
 import java.util.UUID;
 
@@ -35,6 +38,8 @@ public class ApiScenarioReportService {
     private ApiScenarioReportMapper apiScenarioReportMapper;
     @Resource
     private ApiScenarioReportDetailMapper apiScenarioReportDetailMapper;
+    @Resource
+    private ApiScenarioMapper apiScenarioMapper;
 
     public void complete(TestResult result) {
         Object obj = cache.get(result.getTestId());
@@ -139,6 +144,27 @@ public class ApiScenarioReportService {
     public String add(APIScenarioReportResult test) {
         ApiScenarioReport report = createReport(test);
         ApiScenarioReportDetail detail = new ApiScenarioReportDetail();
+        TestResult result = JSON.parseObject(test.getContent(), TestResult.class);
+        // 更新场景
+        if (result != null) {
+            result.getScenarios().forEach(item -> {
+                ApiScenarioExample example = new ApiScenarioExample();
+                example.createCriteria().andNameEqualTo(item.getName()).andProjectIdEqualTo(test.getProjectId());
+                List<ApiScenario> list = apiScenarioMapper.selectByExample(example);
+                if (list.size() > 0) {
+                    ApiScenario scenario = list.get(0);
+                    if (item.getError() > 0) {
+                        scenario.setLastResult("Fail");
+                    } else {
+                        scenario.setLastResult("Success");
+                    }
+                    String passRate = new DecimalFormat("0%").format((float) item.getSuccess() / (item.getSuccess() + item.getError()));
+                    scenario.setPassRate(passRate);
+                    scenario.setReportId(report.getId());
+                    apiScenarioMapper.updateByPrimaryKey(scenario);
+                }
+            });
+        }
         detail.setContent(test.getContent().getBytes(StandardCharsets.UTF_8));
         detail.setReportId(report.getId());
         detail.setProjectId(test.getProjectId());

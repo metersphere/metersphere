@@ -35,4 +35,6 @@ public class QueryCaseReviewRequest extends TestCaseReviewTestCase {
     private String method;
 
     private Map<String, Object> combine;
+
+    private String projectId;
 }

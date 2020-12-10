@@ -1,15 +1,15 @@
 <template>
   <ms-container>
     <ms-aside-container>
-      <ms-api-scenario-module @selectModule="selectModule" @getApiModuleTree="initTree" @changeProject="changeProject"
+      <ms-api-scenario-module @selectModule="selectModule" @getApiModuleTree="initTree"
                               @refresh="refresh" @saveAsEdit="editScenario"/>
     </ms-aside-container>
     <ms-main-container>
       <ms-api-scenario-list
-        :current-project="currentProject"
         :current-module="currentModule"
         @edit="editScenario"
         @selection="setData"
+        :referenced="true"
         ref="apiScenarioList"/>
 
       <el-button style="float: right;margin: 10px" @click="importApiScenario" type="primary">{{ $t('api_test.scenario.reference') }}</el-button>
@@ -36,7 +36,6 @@
       return {
         isHide: true,
         activeName: 'default',
-        currentProject: null,
         currentModule: null,
         currentScenario: [],
         currentScenarioIds: [],
@@ -56,7 +55,6 @@
       importApiScenario() {
         let scenarios = [];
         if (this.currentScenario) {
-          console.log(this.currentScenario)
           this.currentScenario.forEach(item => {
             let obj = {id: item.id, name: item.name, type: "scenario", referenced: 'REF', resourceId: getUUID()};
             scenarios.push(obj);
@@ -84,9 +82,6 @@
       },
       initTree(data) {
         this.moduleOptions = data;
-      },
-      changeProject(data) {
-        this.currentProject = data;
       },
       refresh(data) {
         this.$refs.apiScenarioList.search(data);

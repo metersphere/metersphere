@@ -226,5 +226,4 @@
     height: 18px;
     border-radius: 42%;
   }
-
 </style>

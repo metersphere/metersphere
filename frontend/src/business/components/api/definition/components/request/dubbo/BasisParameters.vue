@@ -100,7 +100,6 @@
     props: {
       request: {},
       basisData: {},
-      currentProject: {},
       moduleOptions: Array,
       isReadOnly: {
         type: Boolean,
@@ -148,10 +147,6 @@
         })
       },
       validateApi() {
-        if (this.currentProject === null) {
-          this.$error(this.$t('api_test.select_project'), 2000);
-          return;
-        }
         this.$refs['basicForm'].validate();
       },
       saveApi() {
@@ -185,6 +180,7 @@
   /deep/ .el-form-item {
     margin-bottom: 15px;
   }
+
   .ms-left-cell {
     margin-top: 40px;
   }

@@ -28,9 +28,33 @@ const API = {
   }
 }
 
+const Switch = {
+  state: {
+    value: "new"
+  },
+  mutations: {
+    setValue(state, value) {
+      state.value = value;
+    }
+  }
+}
+
+const IsReadOnly = {
+  state: {
+    flag: true
+  },
+  mutations: {
+    setFlag(state, value) {
+      state.flag = value;
+    }
+  }
+}
+
 export default new Vuex.Store({
   modules: {
     api: API,
-    common: Common
+    common: Common,
+    switch: Switch,
+    isReadOnly: IsReadOnly,
   }
 })

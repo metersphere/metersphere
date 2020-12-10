@@ -39,7 +39,8 @@ export default {
       this.scenarioLoading = true;
       this.scenarioRefs = [];
       this.$post("/api/automation/getReference/", row, response => {
-        this.scenarioRefs = response.data;
+        this.scenarioRefs = response.data.scenarioList;
+        this.planRefs = response.data.testPlanList;
         this.scenarioLoading = false;
       })
     },

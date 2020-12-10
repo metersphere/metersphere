@@ -4,7 +4,7 @@
       <el-card>
         <section class="report-container" v-if="this.report.testId">
 
-          <ms-api-report-view-header :report="report" @reportExport="handleExport" @reportSave="handleSave"/>
+          <ms-api-report-view-header :debug="debug" :report="report" @reportExport="handleExport" @reportSave="handleSave"/>
 
           <main v-if="this.isNotRunning">
             <ms-metric-chart :content="content" :totalTime="totalTime"/>
@@ -71,6 +71,7 @@
       reportId: String,
       currentProjectId: String,
       infoDb: Boolean,
+      debug: Boolean,
     },
     watch: {
       reportId() {
@@ -178,6 +179,8 @@
           this.$success(this.$t('commons.save_success'));
           this.loading = false;
           this.$emit('refresh');
+        }, error => {
+          this.loading = false;
         });
       },
       exportReportReset() {

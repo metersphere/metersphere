@@ -82,8 +82,6 @@
 
       <el-container style="padding-bottom: 200px">
 
-
-        <!-- 用例部分 -->
         <el-main v-loading="loading" style="overflow: auto">
           <div v-for="(item,index) in apiCaseList" :key="index">
             <el-card style="margin-top: 5px" @click.native="selectTestCase(item,$event)">
@@ -105,17 +103,22 @@
                 <el-col :span="10">
                   <i class="icon el-icon-arrow-right" :class="{'is-active': item.active}"
                      @click="active(item)"/>
-
                   <el-input v-if="item.type==='create'" size="small" v-model="item.name" :name="index" :key="index"
                             class="ms-api-header-select" style="width: 180px"
                             @blur="saveTestCase(item)"/>
                   <span v-else>
-                {{item.type!= 'create' ? item.name:''}}
-                <i class="el-icon-edit" style="cursor:pointer" @click="showInput(item)"/>
-              </span>
+                  {{item.type!= 'create' ? item.name:''}}
+                  <i class="el-icon-edit" style="cursor:pointer" @click="showInput(item)"/>
+                </span>
                   <div v-if="item.type!='create'" style="color: #999999;font-size: 12px">
-                    <span> {{item.createTime | timestampFormatDate }}</span> {{item.createUser}} 创建
-                    <span> {{item.updateTime | timestampFormatDate }}</span> {{item.updateUser}} 更新
+                  <span>
+                    {{item.createTime | timestampFormatDate }}
+                    {{item.createUser}} {{$t('api_test.definition.request.create_info')}}
+                  </span>
+                    <span>
+                    {{item.updateTime | timestampFormatDate }}
+                    {{item.updateUser}} {{$t('api_test.definition.request.update_info')}}
+                  </span>
                   </div>
                 </el-col>
 
@@ -125,8 +128,8 @@
                   <ms-tip-button @click="copyCase(item)" :tip="$t('commons.copy')" icon="el-icon-document-copy"
                                  size="mini" circle/>
                   <ms-tip-button @click="deleteCase(index,item)" :tip="$t('commons.delete')" icon="el-icon-delete"
-                                 size="mini"
-                                 circle/>
+                                 size="mini" circle/>
+                  <ms-api-extend-btns :row="item"/>
                 </el-col>
 
                 <el-col :span="3">
@@ -143,9 +146,9 @@
                   <p class="tip">{{$t('api_test.definition.request.req_param')}} </p>
 
                   <ms-api-request-form :is-read-only="isReadOnly" :headers="item.request.headers " :request="item.request" v-if="api.protocol==='HTTP'"/>
-                  <ms-tcp-basis-parameters :request="item.request" :currentProject="currentProject" v-if="api.protocol==='TCP'"/>
-                  <ms-sql-basis-parameters :request="item.request" :currentProject="currentProject" v-if="api.protocol==='SQL'"/>
-                  <ms-dubbo-basis-parameters :request="item.request" :currentProject="currentProject" v-if="api.protocol==='DUBBO'"/>
+                  <ms-tcp-basis-parameters :request="item.request" v-if="api.protocol==='TCP'"/>
+                  <ms-sql-basis-parameters :request="item.request" v-if="api.protocol==='SQL'"/>
+                  <ms-dubbo-basis-parameters :request="item.request" v-if="api.protocol==='DUBBO'"/>
                   <!-- 保存操作 -->
                   <el-button type="primary" size="small" style="margin: 20px; float: right" @click="saveTestCase(item)">
                     {{$t('commons.save')}}
@@ -170,7 +173,7 @@
   import MsTag from "../../../common/components/MsTag";
   import MsTipButton from "../../../common/components/MsTipButton";
   import MsApiRequestForm from "./request/http/ApiRequestForm";
-  import {downloadFile, getUUID} from "@/common/js/utils";
+  import {downloadFile, getUUID, getCurrentProjectID} from "@/common/js/utils";
   import {parseEnvironment} from "../model/EnvironmentModel";
   import ApiEnvironmentConfig from "./environment/ApiEnvironmentConfig";
   import {PRIORITY, RESULT_MAP} from "../model/JsonData";
@@ -180,6 +183,7 @@
   import MsTcpBasisParameters from "./request/tcp/BasisParameters";
   import MsDubboBasisParameters from "./request/dubbo/BasisParameters";
   import MsDrawer from "../../../common/components/MsDrawer";
+  import MsApiExtendBtns from "./reference/ApiExtendBtns";
 
   export default {
     name: 'ApiCaseList',
@@ -193,7 +197,8 @@
       MsSqlBasisParameters,
       MsTcpBasisParameters,
       MsDubboBasisParameters,
-      MsRun
+      MsRun,
+      MsApiExtendBtns
     },
     props: {
       api: {
@@ -220,6 +225,7 @@
         loading: false,
         runData: [],
         reportId: "",
+        projectId: "",
         checkedCases: new Set(),
         visible: false
 
@@ -250,6 +256,7 @@
       }
     },
     created() {
+      this.projectId = getCurrentProjectID();
       this.getEnvironments();
       if (this.createCase) {
         this.sysAddition();
@@ -413,6 +420,9 @@
             test.request = JSON.parse(test.request);
           }
           this.apiCaseList = response.data;
+          if (this.apiCaseList.length == 0) {
+            this.addCase();
+          }
         });
       },
       validate(row) {
@@ -439,8 +449,8 @@
         });
       },
       getEnvironments() {
-        if (this.currentProject) {
-          this.$get('/api/environment/list/' + this.currentProject.id, response => {
+        if (this.projectId) {
+          this.$get('/api/environment/list/' + this.projectId, response => {
             this.environments = response.data;
             this.environments.forEach(environment => {
               parseEnvironment(environment);
@@ -461,11 +471,11 @@
         }
       },
       openEnvironmentConfig() {
-        if (!this.currentProject) {
+        if (!this.projectId) {
           this.$error(this.$t('api_test.select_project'));
           return;
         }
-        this.$refs.environmentConfig.open(this.currentProject.id);
+        this.$refs.environmentConfig.open(this.projectId);
       },
       environmentChange(value) {
         for (let i in this.environments) {

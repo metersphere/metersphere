@@ -1,14 +1,13 @@
 <template>
   <ms-container>
     <ms-aside-container>
-      <ms-api-scenario-module @selectModule="selectModule" @getApiModuleTree="initTree" @changeProject="changeProject"
+      <ms-api-scenario-module @selectModule="selectModule" @getApiModuleTree="initTree"
                               @refresh="refresh" @saveAsEdit="editScenario"/>
     </ms-aside-container>
     <ms-main-container>
       <el-tabs v-model="activeName" @tab-click="addTab" @tab-remove="removeTab">
         <el-tab-pane name="default" :label="$t('api_test.automation.scenario_test')">
           <ms-api-scenario-list
-            :current-project="currentProject"
             :current-module="currentModule"
             @edit="editScenario"
             ref="apiScenarioList"/>
@@ -21,7 +20,7 @@
           :name="item.name"
           closable>
           <div class="ms-api-scenario-div">
-            <ms-edit-api-scenario :current-project="currentProject" :currentScenario="item.currentScenario" :moduleOptions="moduleOptions"/>
+            <ms-edit-api-scenario :currentScenario="item.currentScenario" :moduleOptions="moduleOptions"/>
           </div>
         </el-tab-pane>
 
@@ -53,7 +52,6 @@
       return {
         isHide: true,
         activeName: 'default',
-        currentProject: null,
         currentModule: null,
         moduleOptions: {},
         tabs: [],
@@ -101,9 +99,6 @@
       },
       initTree(data) {
         this.moduleOptions = data;
-      },
-      changeProject(data) {
-        this.currentProject = data;
       },
       refresh(data) {
         this.$refs.apiScenarioList.search(data);

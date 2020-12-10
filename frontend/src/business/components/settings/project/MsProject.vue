@@ -142,24 +142,12 @@ export default {
     if (this.$route.path.split('/')[2] === 'project' &&
       this.$route.path.split('/')[3] === 'create') {
       this.create();
-      // this.$router.push('/setting/project');
+      this.$router.replace('/setting/project/all');
     }
     this.list();
   },
   activated() {
     this.list();
-  },
-  watch: {
-    '$route'(to) {
-      if (this.$route.path.split('/')[2] === 'project' &&
-        to.path.split('/')[3] === 'create') {
-        this.create();
-        // this.$router.push('/setting/project');
-      } else if (this.$route.path.split('/')[2] === 'project' &&
-        to.path.split('/')[3] === 'all') {
-        this.list();
-      }
-    }
   },
   computed: {
     currentUser: () => {
@@ -177,7 +165,7 @@ export default {
         return false;
       }
       this.title = this.$t('project.create');
-      listenGoBack(this.handleClose);
+      // listenGoBack(this.handleClose);
       this.createVisible = true;
       this.form = {};
     },
@@ -245,6 +233,9 @@ export default {
     handleClose() {
       removeGoBackListener(this.handleClose);
       this.createVisible = false;
+      this.tapd = false;
+      this.jira = false;
+      this.zentao = false;
     },
     search() {
       this.list();

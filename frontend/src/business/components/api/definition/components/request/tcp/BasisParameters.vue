@@ -132,6 +132,7 @@
   import ApiEnvironmentConfig from "../../environment/ApiEnvironmentConfig";
   import {API_STATUS} from "../../../model/JsonData";
   import TCPSampler from "../../jmeter/components/sampler/tcp-sampler";
+  import {getCurrentProjectID} from "@/common/js/utils";
 
   export default {
     name: "MsDatabaseConfig",
@@ -143,7 +144,6 @@
     props: {
       request: {},
       basisData: {},
-      currentProject: {},
       moduleOptions: Array,
       isReadOnly: {
         type: Boolean,
@@ -156,6 +156,7 @@
         classes: TCPSampler.CLASSES,
         isReloadData: false,
         options: API_STATUS,
+        currentProjectId: "",
         rules: {
           classname: [{required: true, message: "请选择TCPClient", trigger: 'change'}],
           server: [{required: true, message: this.$t('api_test.request.tcp.server_cannot_be_empty'), trigger: 'blur'}],
@@ -164,6 +165,7 @@
       }
     },
     created() {
+      this.currentProjectId = getCurrentProjectID();
       this.getEnvironments();
     },
     methods: {
@@ -199,7 +201,7 @@
         })
       },
       validateApi() {
-        if (this.currentProject === null) {
+        if (this.currentProjectId === null) {
           this.$error(this.$t('api_test.select_project'), 2000);
           return;
         }
@@ -213,7 +215,7 @@
 
       },
       validate() {
-        if (this.currentProject === null) {
+        if (this.currentProjectId === null) {
           this.$error(this.$t('api_test.select_project'), 2000);
           return;
         }
@@ -224,9 +226,9 @@
         })
       },
       getEnvironments() {
-        if (this.currentProject) {
+        if (this.currentProjectId) {
           this.environments = [];
-          this.$get('/api/environment/list/' + this.currentProject.id, response => {
+          this.$get('/api/environment/list/' + this.currentProjectId, response => {
             this.environments = response.data;
             this.environments.forEach(environment => {
               parseEnvironment(environment);
@@ -236,11 +238,11 @@
         }
       },
       openEnvironmentConfig() {
-        if (!this.currentProject) {
+        if (!this.currentProjectId) {
           this.$error(this.$t('api_test.select_project'));
           return;
         }
-        this.$refs.environmentConfig.open(this.currentProject.id);
+        this.$refs.environmentConfig.open(this.currentProjectId);
       },
       initDataSource() {
         for (let i in this.environments) {

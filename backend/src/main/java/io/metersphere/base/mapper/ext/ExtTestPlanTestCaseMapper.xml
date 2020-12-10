@@ -270,8 +270,15 @@
         select distinct plan_id from test_plan_test_case
         inner join test_plan
         on test_plan_test_case.plan_id = test_plan.id
-        where test_plan_test_case.executor = #{userId}
-        and test_plan.workspace_id = #{workspaceId}
+        inner join test_plan_project
+        on test_plan.id = test_plan_project.test_plan_id
+        <where>
+            test_plan_test_case.executor = #{userId}
+            and test_plan.workspace_id = #{workspaceId}
+            <if test="projectId != null">
+                and test_plan_project.project_id = #{projectId}
+            </if>
+        </where>
     </select>
     <select id="getRecentTestedTestCase" resultType="io.metersphere.track.dto.TestPlanCaseDTO">
         select test_plan_test_case.*, test_case.*

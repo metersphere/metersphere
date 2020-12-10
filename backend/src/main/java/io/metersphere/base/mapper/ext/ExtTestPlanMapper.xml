@@ -114,6 +114,9 @@
             <if test="request.workspaceId != null">
                 AND test_plan.workspace_id = #{request.workspaceId}
             </if>
+            <if test="request.projectId != null">
+                AND test_plan_project.project_id = #{request.projectId}
+            </if>
             <if test="request.id != null">
                 AND test_plan.id = #{request.id}
             </if>
@@ -160,16 +163,56 @@
     </select>
 
     <select id="listRelate" resultType="io.metersphere.track.dto.TestPlanDTOWithMetric">
-        select test_plan.* from test_plan
-        where test_plan.workspace_id = #{request.workspaceId}
-        and (test_plan.principal = #{request.principal}
-        <if test="request.planIds != null and request.planIds.size() > 0">
-            or test_plan.id in
-            <foreach collection="request.planIds" item="planId" open="(" close=")" separator=",">
-                #{planId}
-            </foreach>
-        </if>
-        )
+        select distinct test_plan.* from test_plan
+        inner join test_plan_project on test_plan.id = test_plan_project.test_plan_id
+        <where>
+            test_plan.workspace_id = #{request.workspaceId}
+            <if test="request.projectId != null">
+                and test_plan_project.project_id = #{request.projectId}
+            </if>
+            and (test_plan.principal = #{request.principal}
+            <if test="request.planIds != null and request.planIds.size() > 0">
+                or test_plan.id in
+                <foreach collection="request.planIds" item="planId" open="(" close=")" separator=",">
+                    #{planId}
+                </foreach>
+            </if>
+            )
+        </where>
         order by test_plan.update_time desc
+    </select>
+
+    <update id="updatePlan" parameterType="io.metersphere.track.dto.TestPlanDTO">
+        update test_plan
+        <set>
+            <if test="plan.apiIds != null">
+                api_ids = #{plan.apiIds,jdbcType=VARCHAR}
+            </if>
+            <if test="plan.scenarioIds != null">
+                scenario_ids = #{plan.scenarioIds,jdbcType=VARCHAR}
+            </if>
+        </set>
+        <where>
+            id = #{plan.id}
+        </where>
+    </update>
+
+    <select id="selectByIds" resultMap="BaseResultMap" parameterType="java.util.List">
+        SELECT * FROM TEST_PLAN p where p.id in
+        <foreach collection="list" item="planId" open="(" close=")" separator=",">
+            #{planId}
+        </foreach>
+    </select>
+
+    <select id="selectReference" resultMap="BaseResultMap" parameterType="io.metersphere.track.request.testcase.QueryTestPlanRequest">
+        SELECT * FROM TEST_PLAN p LEFT JOIN test_plan_project t ON t.test_plan_id=p.id
+        <where>
+            <if test="request.scenarioId != null">
+                AND p.scenario_ids like CONCAT('%', #{request.scenarioId},'%')
+            </if>
+            <if test="request.apiId != null">
+                AND p.api_ids like CONCAT('%', #{request.apiId},'%')
+            </if>
+        </where>
     </select>
 </mapper>

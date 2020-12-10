@@ -302,7 +302,9 @@ export default {
         // param.nodeIds = this.selectNodeIds;
         this.condition.nodeIds = this.selectNodeIds;
       }
-      this.getData();
+      if (this.currentProject.id) {
+        this.getData();
+      }
     },
     getData() {
       if (this.currentProject) {

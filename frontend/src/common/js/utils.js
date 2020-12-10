@@ -6,7 +6,8 @@ import {
   ROLE_TEST_MANAGER,
   ROLE_TEST_USER,
   ROLE_TEST_VIEWER,
-  TokenKey
+  TokenKey,
+  PROJECT_ID
 } from "./constants";
 import axios from "axios";
 import {jsPDF} from "jspdf";
@@ -86,6 +87,10 @@ export function getCurrentWorkspaceId() {
 
 export function getCurrentUser() {
   return JSON.parse(localStorage.getItem(TokenKey));
+}
+
+export function getCurrentProjectID() {
+  return localStorage.getItem(PROJECT_ID);
 }
 
 export function saveLocalStorage(response) {

@@ -3,7 +3,7 @@ package io.metersphere.api.dto.definition.request.processors.pre;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.annotation.JSONType;
 import io.metersphere.api.dto.definition.request.MsTestElement;
-import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
+import io.metersphere.api.dto.definition.request.ParameterConfig;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.collections.CollectionUtils;
@@ -26,7 +26,7 @@ public class MsJSR223PreProcessor extends MsTestElement {
     @JSONField(ordinal = 11)
     private String scriptLanguage;
 
-    public void toHashTree(HashTree tree, List<MsTestElement> hashTree, EnvironmentConfig config) {
+    public void toHashTree(HashTree tree, List<MsTestElement> hashTree, ParameterConfig config) {
         JSR223PreProcessor processor = new JSR223PreProcessor();
         processor.setEnabled(true);
         processor.setName(this.getName() + "JSR223PreProcessor");

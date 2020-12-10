@@ -3,9 +3,9 @@ package io.metersphere.api.dto.definition.request.sampler;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.annotation.JSONType;
 import io.metersphere.api.dto.definition.request.MsTestElement;
+import io.metersphere.api.dto.definition.request.ParameterConfig;
 import io.metersphere.api.dto.scenario.DatabaseConfig;
 import io.metersphere.api.dto.scenario.KeyValue;
-import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.collections.CollectionUtils;
@@ -39,7 +39,10 @@ public class MsJDBCSampler extends MsTestElement {
     @JSONField(ordinal = 16)
     private String environmentId;
 
-    public void toHashTree(HashTree tree, List<MsTestElement> hashTree, EnvironmentConfig config) {
+    public void toHashTree(HashTree tree, List<MsTestElement> hashTree, ParameterConfig config) {
+        if (this.getReferenced() != null && this.getReferenced().equals("REF")) {
+            this.getRefElement(this);
+        }
         final HashTree samplerHashTree = tree.add(jdbcSampler());
         tree.add(jdbcDataSource());
         tree.add(arguments(this.getName() + " Variables", this.getVariables()));

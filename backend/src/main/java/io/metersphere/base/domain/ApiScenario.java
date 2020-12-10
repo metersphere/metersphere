@@ -37,6 +37,12 @@ public class ApiScenario implements Serializable {
 
     private Long updateTime;
 
+    private String passRate;
+
+    private String lastResult;
+
+    private String reportId;
+
     private String scenarioDefinition;
 
     private static final long serialVersionUID = 1L;
