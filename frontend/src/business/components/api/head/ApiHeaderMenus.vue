@@ -52,7 +52,7 @@
           </el-submenu>
 
 
-          <el-menu-item v-show="$store.state.switch.value=='new'"
+          <el-menu-item v-show="$store.state.switch.value=='old'"
                         v-permission="['test_manager','test_user','test_viewer']" :index="'/api/monitor/view'">
             {{ $t('commons.monitor') }}
           </el-menu-item>
@@ -116,7 +116,6 @@ export default {
       apiTestProjectPath: '',
     }
   },
-
   watch: {
     '$route'(to) {
       this.init();
