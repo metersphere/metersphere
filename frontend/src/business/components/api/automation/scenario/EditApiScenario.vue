@@ -438,6 +438,7 @@
       },
       addCustomizeApi(request) {
         this.customizeVisible = false;
+        request.enable === undefined ? request.enable = true : request.enable;
         if (this.selectedTreeNode != undefined) {
           this.selectedTreeNode.hashTree.push(request);
         } else {
@@ -450,6 +451,7 @@
       addScenario(arr) {
         if (arr.length > 0) {
           arr.forEach(item => {
+            item.enable === undefined ? item.enable = true : item.enable;
             this.scenarioDefinition.push(item);
           })
         }
@@ -470,6 +472,7 @@
             request = item.request;
           }
           request.referenced = referenced;
+          request.enable === undefined ? request.enable = true : request.enable;
           request.active = false;
           request.resourceId = getUUID();
           if (referenced === 'REF') {
@@ -489,6 +492,7 @@
             request = item.request;
           }
           request.referenced = referenced;
+          request.enable === undefined ? request.enable = true : request.enable;
           request.active = false;
           request.resourceId = getUUID();
           if (referenced === 'REF') {

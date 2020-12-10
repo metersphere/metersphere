@@ -8,8 +8,10 @@
         <el-button class="ms-title-buttion" size="small">{{$t('api_test.automation.wait_controller')}}</el-button>
         <el-input-number class="width-100" size="small" v-model="timer.delay" :min="0" :step="1000"/>
         ms
-        <!--<el-switch v-model="timer.enable" :inactive-text="$t('api_test.scenario.enable_disable')" style="margin-left: 20px"/>-->
-        <el-button size="mini" icon="el-icon-delete" circle @click="remove" style="margin-right: 20px; float: right"/>
+        <div style="margin-right: 20px; float: right">
+          <el-switch v-model="timer.enable" style="margin-left: 10px"/>
+          <el-button size="mini" icon="el-icon-delete" circle @click="remove" style="margin-left: 10px;"/>
+        </div>
       </el-row>
     </el-card>
   </div>

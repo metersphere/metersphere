@@ -14,10 +14,10 @@
       </el-select>
 
       <el-input size="small" v-model="controller.value" :placeholder="$t('api_test.value')" v-if="!hasEmptyOperator" style="width: 20%;margin-left: 20px"/>
-
-      <!--<el-switch v-model="controller.enable" :inactive-text="$t('api_test.scenario.enable_disable')" style="margin-left: 10px"/>-->
-
-      <el-button size="mini" icon="el-icon-delete" circle @click="remove" style="margin-right: 20px; float: right"/>
+      <div style="margin-right: 20px; float: right">
+        <el-switch v-model="controller.enable" style="margin-left: 10px"/>
+        <el-button size="mini" icon="el-icon-delete" circle @click="remove" style="margin-left: 10px;"/>
+      </div>
     </el-row>
   </el-card>
 </template>

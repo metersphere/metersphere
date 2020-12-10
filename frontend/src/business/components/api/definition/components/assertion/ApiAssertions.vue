@@ -7,10 +7,12 @@
         </div>
         <el-button class="ms-left-buttion" size="small" style="color: #A30014;background-color: #F7E6E9">{{$t('api_test.definition.request.assertions_rule')}}</el-button>
 
-        <i class="icon el-icon-arrow-right" :class="{'is-active': assertions.active}" @click="active(assertions)" style="margin-left: 20px"/>
         <el-input size="small" v-model="assertions.name" style="width: 40%;margin-left: 20px" :placeholder="$t('commons.input_name')"/>
-
-        <el-button size="mini" icon="el-icon-delete" circle @click="remove" style="margin-right: 20px; float: right"/>
+        <div style="margin-right: 20px; float: right">
+          <i class="icon el-icon-arrow-right" :class="{'is-active': assertions.active}" @click="active(assertions)" style="margin-left: 20px"/>
+          <el-switch v-model="assertions.enable" style="margin-left: 10px"/>
+          <el-button size="mini" icon="el-icon-delete" circle @click="remove" style="margin-left: 10px;"/>
+        </div>
       </div>
       <!-- 请求参数-->
       <el-collapse-transition>
@@ -158,6 +160,7 @@
   .icon.is-active {
     transform: rotate(90deg);
   }
+
   /deep/ .el-card__body {
     padding: 15px;
   }

@@ -5,11 +5,14 @@
         <div class="el-step__icon is-text ms-api-col">
           <div class="el-step__icon-inner">{{scenario.index}}</div>
         </div>
-        <el-button class="ms-title-buttion" size="small">{{$t('api_test.automation.wait_controller')}}</el-button>
+        <el-button class="ms-title-buttion" size="small">{{$t('api_test.automation.scenario_import')}}</el-button>
         {{scenario.name}}
         <el-tag size="mini" style="margin-left: 20px" v-if="scenario.referenced==='Deleted'" type="danger">{{$t('api_test.automation.reference_deleted')}}</el-tag>
         <el-tag size="mini" style="margin-left: 20px" v-if="scenario.referenced==='REF'">{{ $t('api_test.scenario.reference') }}</el-tag>
-        <el-button size="mini" icon="el-icon-delete" circle @click="remove" style="margin-right: 20px; float: right"/>
+        <div style="margin-right: 20px; float: right">
+          <el-switch v-model="scenario.enable" style="margin-left: 10px"/>
+          <el-button size="mini" icon="el-icon-delete" circle @click="remove" style="margin-left: 10px"/>
+        </div>
       </el-row>
     </el-card>
   </div>

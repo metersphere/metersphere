@@ -5,10 +5,12 @@
         <div class="el-step__icon-inner">{{extract.index}}</div>
       </div>
       <el-button class="ms-left-buttion" size="small" style="color: #015478;background-color: #E6EEF2">{{$t('api_test.definition.request.extract_param')}}</el-button>
-      <i class="icon el-icon-arrow-right" :class="{'is-active': extract.active}" @click="active(extract)" style="margin-left: 20px"/>
       <el-input size="small" v-model="extract.name" style="width: 40%;margin-left: 20px" :placeholder="$t('commons.input_name')"/>
-
-      <el-button size="mini" icon="el-icon-delete" circle @click="remove" style="margin-right: 20px; float: right"/>
+      <div style="margin-right: 20px; float: right">
+        <i class="icon el-icon-arrow-right" :class="{'is-active': extract.active}" @click="active(extract)" style="margin-left: 20px"/>
+        <el-switch v-model="extract.enable" style="margin-left: 10px"/>
+        <el-button size="mini" icon="el-icon-delete" circle @click="remove" style="margin-left: 10px;"/>
+      </div>
       <!-- 请求参数-->
       <el-collapse-transition>
         <div v-if="extract.active">
