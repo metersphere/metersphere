@@ -103,13 +103,9 @@
         options: API_STATUS,
       }
     },
-    props: {moduleOptions: {}, currentProject: {}, request: {}, response: {}, basisData: {}},
+    props: {moduleOptions: {}, request: {}, response: {}, basisData: {}},
     methods: {
       runTest() {
-        if (this.currentProject === null) {
-          this.$error(this.$t('api_test.select_project'));
-          return;
-        }
         this.$refs['httpForm'].validate((valid) => {
           if (valid) {
             this.setParameter();
@@ -132,10 +128,6 @@
         this.httpForm.request.useEnvironment = undefined;
       },
       saveApi() {
-        if (this.currentProject === null) {
-          this.$error(this.$t('api_test.select_project'), 2000);
-          return;
-        }
         this.$refs['httpForm'].validate((valid) => {
           if (valid) {
             this.setParameter();

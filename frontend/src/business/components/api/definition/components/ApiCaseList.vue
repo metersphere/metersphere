@@ -142,9 +142,9 @@
                 <p class="tip">{{$t('api_test.definition.request.req_param')}} </p>
 
                 <ms-api-request-form :is-read-only="isReadOnly" :headers="item.request.headers " :request="item.request" v-if="api.protocol==='HTTP'"/>
-                <ms-tcp-basis-parameters :request="item.request" :currentProject="currentProject" v-if="api.protocol==='TCP'"/>
-                <ms-sql-basis-parameters :request="item.request" :currentProject="currentProject" v-if="api.protocol==='SQL'"/>
-                <ms-dubbo-basis-parameters :request="item.request" :currentProject="currentProject" v-if="api.protocol==='DUBBO'"/>
+                <ms-tcp-basis-parameters :request="item.request" v-if="api.protocol==='TCP'"/>
+                <ms-sql-basis-parameters :request="item.request" v-if="api.protocol==='SQL'"/>
+                <ms-dubbo-basis-parameters :request="item.request" v-if="api.protocol==='DUBBO'"/>
                 <!-- 保存操作 -->
                 <el-button type="primary" size="small" style="margin: 20px; float: right" @click="saveTestCase(item)">
                   {{$t('commons.save')}}
@@ -168,7 +168,7 @@
   import MsTag from "../../../common/components/MsTag";
   import MsTipButton from "../../../common/components/MsTipButton";
   import MsApiRequestForm from "./request/http/ApiRequestForm";
-  import {downloadFile, getUUID} from "@/common/js/utils";
+  import {downloadFile, getUUID, getCurrentProjectID} from "@/common/js/utils";
   import {parseEnvironment} from "../model/EnvironmentModel";
   import ApiEnvironmentConfig from "./environment/ApiEnvironmentConfig";
   import {PRIORITY, RESULT_MAP} from "../model/JsonData";
@@ -203,7 +203,6 @@
         default: false,
       },
       loaded: Boolean,
-      currentProject: {},
       refreshSign: String,
       currentRow: Object,
     },
@@ -221,6 +220,7 @@
         loading: false,
         runData: [],
         reportId: "",
+        projectId: "",
         checkedCases: new Set(),
 
       }
@@ -233,12 +233,6 @@
         }
         this.getApiTest();
       },
-      currentProject() {
-        if (this.currentRow) {
-          this.currentRow.cases = [];
-        }
-        this.getEnvironments();
-      },
       refreshSign() {
         if (this.currentRow) {
           this.currentRow.cases = [];
@@ -250,6 +244,7 @@
       }
     },
     created() {
+      this.projectId = getCurrentProjectID();
       this.getEnvironments();
       if (this.createCase) {
         this.sysAddition();
@@ -438,8 +433,8 @@
         });
       },
       getEnvironments() {
-        if (this.currentProject) {
-          this.$get('/api/environment/list/' + this.currentProject.id, response => {
+        if (this.projectId) {
+          this.$get('/api/environment/list/' + this.projectId, response => {
             this.environments = response.data;
             this.environments.forEach(environment => {
               parseEnvironment(environment);
@@ -460,11 +455,11 @@
         }
       },
       openEnvironmentConfig() {
-        if (!this.currentProject) {
+        if (!this.projectId) {
           this.$error(this.$t('api_test.select_project'));
           return;
         }
-        this.$refs.environmentConfig.open(this.currentProject.id);
+        this.$refs.environmentConfig.open(this.projectId);
       },
       environmentChange(value) {
         for (let i in this.environments) {
