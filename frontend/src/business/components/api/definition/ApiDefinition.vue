@@ -15,7 +15,8 @@
           <el-dropdown-item command="closeAll">{{$t('api_test.definition.request.close_all_label')}}</el-dropdown-item>
         </el-dropdown-menu>
       </el-dropdown>
-      <!-- 主框架列表 -->
+
+        <!-- 主框架列表 -->
       <el-tabs v-model="apiDefaultTab" @edit="handleTabsEdit">
         <el-tab-pane
           :key="item.name"
@@ -57,8 +58,8 @@
             <ms-run-test-dubbo-page :currentProtocol="currentProtocol" :api-data="runTestData" @saveAsApi="editApi" v-if="currentProtocol==='DUBBO'"/>
           </div>
         </el-tab-pane>
-
       </el-tabs>
+
     </ms-main-container>
 
 
@@ -266,4 +267,11 @@
   /deep/ .el-main {
     overflow: hidden;
   }
+
+  /deep/ .el-card {
+    /*border: 1px solid #EBEEF5;*/
+    /*border-style: none;*/
+    border-top: none;
+  }
+
 </style>
