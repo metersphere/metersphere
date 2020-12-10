@@ -279,7 +279,7 @@ export default {
       verified: '验证通过'
     }
   },
-  edit: {
+  project: {
     recent: '最近的项目',
     create: '创建项目',
     edit: '编辑项目',
@@ -532,6 +532,8 @@ export default {
         add_module: "创建模块",
         edit_api: "编辑接口",
         test_plan_select: "请选择测试计划",
+        create_info: '创建',
+        update_info: '更新',
       }
     },
     automation: {
@@ -570,7 +572,7 @@ export default {
       case_ref: "用例引用",
       scenario_ref: "场景引用",
       plan_ref: "测试计划引用",
-      batch_add_plan: "批量添加到测试计划",
+      batch_add_plan: "添加到测试计划",
       batch_execute: "批量执行",
       scenario: {
         principal: "责任人",
@@ -580,6 +582,8 @@ export default {
         select_all: "选择全部数据"
       },
       report_name_info: '请输入报名名称',
+      save_case_info: '请先保存用例',
+      reference_deleted: '引用已删除',
     },
     environment: {
       name: "环境名称",

@@ -77,7 +77,8 @@
                 <el-button type="text" @click="handleTestCase(scope.row)">用例</el-button>
               </div>
               <div v-else>
-                <el-button type="text" @click="editApi(scope.row)">编辑</el-button>
+                <el-button type="text" @click="reductionApi(scope.row)" v-if="currentModule!=undefined && currentModule.id === 'gc'">恢复</el-button>
+                <el-button type="text" @click="editApi(scope.row)" v-else>编辑</el-button>
                 <el-button type="text" @click="handleTestCase(scope.row)">用例</el-button>
                 <el-button type="text" @click="handleDelete(scope.row)" style="color: #F56C6C">删除</el-button>
               </div>
@@ -91,7 +92,7 @@
     <div id="svgResize"/>
     <div id="svgDown">
       <ms-bottom-container v-bind:enableAsideHidden="isHide">
-        <ms-api-case-list @apiCaseClose="apiCaseClose" @refresh="initApiTable" :visible="visible" :currentRow="currentRow" :api="selectApi" :current-project="currentProject"/>
+        <ms-api-case-list @apiCaseClose="apiCaseClose" @refresh="initApiTable" :visible="visible" :currentRow="currentRow" :api="selectApi"/>
       </ms-bottom-container>
     </div>
   </div>
@@ -111,7 +112,8 @@
   import MsContainer from "../../../common/components/MsContainer";
   import MsBottomContainer from "./BottomContainer";
   import ShowMoreBtn from "../../../../components/track/case/components/ShowMoreBtn";
-  import {API_METHOD_COLOUR, FILTER_MAP_1, FILTER_MAP_2} from "../model/JsonData";
+  import {API_METHOD_COLOUR} from "../model/JsonData";
+  import {getCurrentProjectID} from "@/common/js/utils";
 
   export default {
     name: "ApiList",
@@ -141,11 +143,11 @@
         currentPage: 1,
         pageSize: 10,
         total: 0,
+        projectId: "",
         screenHeight: document.documentElement.clientHeight - 330,//屏幕高度
       }
     },
     props: {
-      currentProject: Object,
       currentProtocol: String,
       currentModule: Object,
       visible: {
@@ -157,16 +159,13 @@
       }
     },
     created: function () {
+      this.projectId = getCurrentProjectID();
       this.initApiTable();
     },
     mounted() {
       this.dragControllerDiv();
     },
     watch: {
-      currentProject() {
-        this.initApiTable();
-        this.apiCaseClose();
-      },
       currentModule() {
         this.initApiTable();
         this.apiCaseClose();
@@ -190,8 +189,8 @@
             this.condition.moduleIds = this.currentModule.ids;
           }
         }
-        if (this.currentProject != null) {
-          this.condition.projectId = this.currentProject.id;
+        if (this.projectId != null) {
+          this.condition.projectId = this.projectId;
         }
         if (this.currentProtocol != null) {
           this.condition.protocol = this.currentProtocol;
@@ -255,6 +254,15 @@
 
       editApi(row) {
         this.$emit('editApi', row);
+      },
+      reductionApi(row) {
+        row.status = 'Underway';
+        row.request = null;
+        row.response = null;
+        this.$fileUpload("/api/definition/update", null, [], row, () => {
+          this.$success(this.$t('commons.save_success'));
+          this.search();
+        });
       },
       handleDeleteBatch() {
         if (this.currentModule != undefined && this.currentModule.id == "gc") {

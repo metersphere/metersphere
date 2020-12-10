@@ -22,10 +22,9 @@
 
     <!-- 请求参数 -->
     <p class="tip">{{$t('api_test.definition.request.req_param')}} </p>
-    <ms-basis-parameters :request="request" :currentProject="currentProject"/>
+    <ms-basis-parameters :request="request"/>
 
   </div>
-
 </template>
 
 <script>
@@ -40,7 +39,6 @@
     props: {
       request: {},
       basisData: {},
-      currentProject: {},
       moduleOptions: Array,
       isReadOnly: {
         type: Boolean,
@@ -57,10 +55,6 @@
       validateApi() {
         this.validated = false;
         this.basisData.method = this.request.protocol;
-        if (this.currentProject === null) {
-          this.$error(this.$t('api_test.select_project'), 2000);
-          return;
-        }
         this.$refs['basicForm'].validate();
       },
       saveApi() {

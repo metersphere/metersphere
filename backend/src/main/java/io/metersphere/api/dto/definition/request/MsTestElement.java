@@ -4,6 +4,9 @@ import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.annotation.JSONType;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.metersphere.api.dto.definition.request.assertions.MsAssertions;
 import io.metersphere.api.dto.definition.request.auth.MsAuthManager;
 import io.metersphere.api.dto.definition.request.configurations.MsHeaderManager;
@@ -16,6 +19,9 @@ import io.metersphere.api.dto.definition.request.sampler.MsHTTPSamplerProxy;
 import io.metersphere.api.dto.definition.request.sampler.MsJDBCSampler;
 import io.metersphere.api.dto.definition.request.sampler.MsTCPSampler;
 import io.metersphere.api.dto.definition.request.timer.MsConstantTimer;
+import io.metersphere.api.service.ApiDefinitionService;
+import io.metersphere.base.domain.ApiDefinitionWithBLOBs;
+import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
 import lombok.Data;
 import org.apache.jmeter.protocol.http.control.AuthManager;
@@ -50,7 +56,7 @@ import java.util.List;
         MsJSR223PreProcessor.class, MsTestPlan.class, MsThreadGroup.class, AuthManager.class, MsAssertions.class,
         MsExtract.class, MsTCPSampler.class, MsDubboSampler.class, MsJDBCSampler.class, MsConstantTimer.class, MsIfController.class, MsScenario.class}, typeKey = "type")
 @Data
-public class MsTestElement {
+public abstract class MsTestElement {
     private String type;
     @JSONField(ordinal = 1)
     private String id;
@@ -106,6 +112,18 @@ public class MsTestElement {
         return jmeterTestPlanHashTree;
     }
 
+    public void getRefElement(MsTestElement element) {
+        try {
+            ApiDefinitionService apiDefinitionService = CommonBeanFactory.getBean(ApiDefinitionService.class);
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+            ApiDefinitionWithBLOBs apiDefinition = apiDefinitionService.getBLOBs(this.getId());
+            element = mapper.readValue(apiDefinition.getRequest(), new TypeReference<MsTestElement>() {});
+            hashTree.add(element);
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
 }
 
 

@@ -72,7 +72,7 @@
     <!-- 加载用例 -->
     <el-drawer :visible.sync="visible" direction="btt" :with-header="false" :modal="false" size="50%" ref="drawer">
       <ms-api-case-list @apiCaseClose="apiCaseClose" @selectTestCase="selectTestCase" :api="api" :refreshSign="refreshSign"
-                        :currentProject="currentProject" :loaded="loaded" :createCase="createCase"
+                        :loaded="loaded" :createCase="createCase"
                         ref="caseList"/>
     </el-drawer>
 
@@ -87,14 +87,13 @@
 
 <script>
   import MsApiRequestForm from "../request/http/ApiRequestForm";
-  import {downloadFile, getUUID} from "@/common/js/utils";
+  import {downloadFile, getUUID, getCurrentProjectID} from "@/common/js/utils";
   import MsApiCaseList from "../ApiCaseList";
   import MsContainer from "../../../../common/components/MsContainer";
   import {parseEnvironment} from "../../model/EnvironmentModel";
   import ApiEnvironmentConfig from "../environment/ApiEnvironmentConfig";
   import MsRequestResultTail from "../response/RequestResultTail";
   import MsRun from "../Run";
-
   import {REQ_METHOD} from "../../model/JsonData";
 
   export default {
@@ -126,9 +125,10 @@
         },
         runData: [],
         reportId: "",
+        projectId: "",
       }
     },
-    props: {apiData: {}, currentProject: {}, currentProtocol: String,},
+    props: {apiData: {}, currentProtocol: String,},
     methods: {
       handleCommand(e) {
         switch (e) {
@@ -226,8 +226,8 @@
         }
       },
       getEnvironments() {
-        if (this.currentProject) {
-          this.$get('/api/environment/list/' + this.currentProject.id, response => {
+        if (this.projectId) {
+          this.$get('/api/environment/list/' + this.projectId, response => {
             this.environments = response.data;
             this.environments.forEach(environment => {
               parseEnvironment(environment);
@@ -251,11 +251,11 @@
         }
       },
       openEnvironmentConfig() {
-        if (!this.currentProject) {
+        if (!this.projectId) {
           this.$error(this.$t('api_test.select_project'));
           return;
         }
-        this.$refs.environmentConfig.open(this.currentProject.id);
+        this.$refs.environmentConfig.open(this.projectId);
       },
       environmentChange(value) {
         for (let i in this.environments) {
@@ -279,6 +279,7 @@
       }
     },
     created() {
+      this.projectId = getCurrentProjectID();
       this.api = this.apiData;
       this.api.protocol = this.currentProtocol;
       this.currentRequest = this.api.request;

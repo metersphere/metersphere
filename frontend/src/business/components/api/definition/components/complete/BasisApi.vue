@@ -80,7 +80,6 @@
         basicForm: {},
         httpVisible: false,
         currentModule: {},
-        projectId: "",
         maintainerOptions: [],
         rule: {
           name: [

@@ -40,6 +40,9 @@ public class MsJDBCSampler extends MsTestElement {
     private String environmentId;
 
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, ParameterConfig config) {
+        if (this.getReferenced() != null && this.getReferenced().equals("REF")) {
+            this.getRefElement(this);
+        }
         final HashTree samplerHashTree = tree.add(jdbcSampler());
         tree.add(jdbcDataSource());
         tree.add(arguments(this.getName() + " Variables", this.getVariables()));

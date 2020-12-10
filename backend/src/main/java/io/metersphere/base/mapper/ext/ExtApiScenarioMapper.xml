@@ -75,7 +75,6 @@
     <select id="selectReference" resultType="io.metersphere.base.domain.ApiScenario">
         select * from api_scenario
         <where>
-            id != #{request.id}
             <if test="request.workspaceId != null">
                 AND project.workspace_id = #{request.workspaceId}
             </if>

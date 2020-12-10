@@ -14,10 +14,9 @@
       </el-form>
       <!--不同协议请求-->
       <ms-debug-http-page :scenario="true" :current-api="request" @saveAs="editApi" :currentProtocol="request.protocol" v-if="request.protocol==='HTTP'"/>
-      <ms-debug-jdbc-page :scenario="true" :currentProtocol="request.protocol" @saveAs="editApi" :currentProject="currentProject" v-if="request.protocol==='SQL'"/>
-      <ms-debug-tcp-page :scenario="true" :currentProtocol="request.protocol" @saveAs="editApi" :currentProject="currentProject" v-if="request.protocol==='TCP'"/>
-      <ms-debug-dubbo-page :scenario="true" :currentProtocol="request.protocol" @saveAs="editApi" :currentProject="currentProject" v-if="request.protocol==='DUBBO'"/>
-
+      <ms-debug-jdbc-page :scenario="true" :currentProtocol="request.protocol" @saveAs="editApi" v-if="request.protocol==='SQL'"/>
+      <ms-debug-tcp-page :scenario="true" :currentProtocol="request.protocol" @saveAs="editApi" v-if="request.protocol==='TCP'"/>
+      <ms-debug-dubbo-page :scenario="true" :currentProtocol="request.protocol" @saveAs="editApi" v-if="request.protocol==='DUBBO'"/>
     </el-card>
   </div>
 </template>
@@ -33,7 +32,6 @@
     name: "ApiCustomize",
     props: {
       node: {},
-      currentProject: {},
       request: {},
     },
     components: {MsDebugHttpPage, MsDebugJdbcPage, MsDebugTcpPage, MsDebugDubboPage},

@@ -12,7 +12,7 @@
         <i class="icon el-icon-arrow-right" :class="{'is-active': request.active}"
            @click="active(request)" v-if="request.referenced!=undefined && request.referenced!='Deleted' && request.referenced!='REF'"/>
         <span>{{request.type!= 'create' ? request.name:''}} </span>
-        <el-tag size="mini" style="margin-left: 20px" v-if="request.referenced==='Deleted'" type="danger">引用不存在</el-tag>
+        <el-tag size="mini" style="margin-left: 20px" v-if="request.referenced==='Deleted'" type="danger">{{$t('api_test.automation.reference_deleted')}}</el-tag>
         <el-tag size="mini" style="margin-left: 20px" v-if="request.referenced ==='REF'">{{ $t('api_test.scenario.reference') }}</el-tag>
 
         <el-button size="mini" type="danger" icon="el-icon-delete" circle @click="remove" style="margin-right: 20px; float: right"/>
@@ -30,9 +30,9 @@
           </div>
           <p class="tip">{{$t('api_test.definition.request.req_param')}} </p>
           <ms-api-request-form :headers="request.headers " :request="request" v-if="request.protocol==='HTTP'"/>
-          <ms-tcp-basis-parameters :request="request" :currentProject="currentProject" v-if="request.protocol==='TCP'"/>
-          <ms-sql-basis-parameters :request="request" :currentProject="currentProject" v-if="request.protocol==='SQL'"/>
-          <ms-dubbo-basis-parameters :request="request" :currentProject="currentProject" v-if="request.protocol==='DUBBO' || request.protocol==='dubbo://'"/>
+          <ms-tcp-basis-parameters :request="request" v-if="request.protocol==='TCP'"/>
+          <ms-sql-basis-parameters :request="request" v-if="request.protocol==='SQL'"/>
+          <ms-dubbo-basis-parameters :request="request" v-if="request.protocol==='DUBBO' || request.protocol==='dubbo://'"/>
           <!-- 保存操作 -->
           <el-button type="primary" size="small" style="margin: 20px; float: right" @click="saveTestCase(item)" v-if="!request.referenced">
             {{$t('commons.save')}}
@@ -55,13 +55,23 @@
     props: {
       request: {},
       node: {},
-      currentProject: {},
     },
     components: {MsSqlBasisParameters, MsTcpBasisParameters, MsDubboBasisParameters, MsApiRequestForm},
     data() {
       return {loading: false, reqOptions: REQ_METHOD,}
     },
     created() {
+      if (this.request.id && this.request.referenced === 'REF') {
+        this.$get("/api/definition/get/" + this.request.id, response => {
+          if (response.data) {
+            this.request.name = response.data.name;
+            this.reload();
+          } else {
+            this.request.referenced = "Deleted";
+          }
+        })
+      }
+
       if (this.request.protocol === 'HTTP') {
         try {
           let urlObject = new URL(this.request.url);

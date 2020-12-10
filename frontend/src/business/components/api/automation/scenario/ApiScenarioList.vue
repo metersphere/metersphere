@@ -47,11 +47,17 @@
                          show-overflow-tooltip/>
         <el-table-column :label="$t('commons.operating')" width="200px" v-if="!referenced">
           <template v-slot:default="{row}">
-            <el-button type="text" @click="edit(row)">{{ $t('api_test.automation.edit') }}</el-button>
-            <el-button type="text" @click="execute(row)">{{ $t('api_test.automation.execute') }}</el-button>
-            <el-button type="text" @click="copy(row)">{{ $t('api_test.automation.copy') }}</el-button>
-            <el-button type="text" @click="remove(row)">{{ $t('api_test.automation.remove') }}</el-button>
-            <ms-scenario-extend-buttons :row="row"/>
+            <div v-if="currentModule!=undefined && currentModule.id === 'gc'">
+              <el-button type="text" @click="reductionApi(row)">恢复</el-button>
+              <el-button type="text" @click="remove(row)">{{ $t('api_test.automation.remove') }}</el-button>
+            </div>
+            <div v-else>
+              <el-button type="text" @click="edit(row)">{{ $t('api_test.automation.edit') }}</el-button>
+              <el-button type="text" @click="execute(row)">{{ $t('api_test.automation.execute') }}</el-button>
+              <el-button type="text" @click="copy(row)">{{ $t('api_test.automation.copy') }}</el-button>
+              <el-button type="text" @click="remove(row)">{{ $t('api_test.automation.remove') }}</el-button>
+              <ms-scenario-extend-buttons :row="row"/>
+            </div>
           </template>
         </el-table-column>
       </el-table>
@@ -60,7 +66,7 @@
       <div>
         <!-- 执行结果 -->
         <el-drawer :visible.sync="runVisible" :destroy-on-close="true" direction="ltr" :withHeader="false" :title="$t('test_track.plan_view.test_result')" :modal="false" size="90%">
-          <ms-api-report-detail @refresh="search" :infoDb="infoDb" :report-id="reportId" :currentProjectId="currentProject!=undefined ? currentProject.id:''"/>
+          <ms-api-report-detail @refresh="search" :infoDb="infoDb" :report-id="reportId" :currentProjectId="projectId"/>
         </el-drawer>
         <!--测试计划-->
         <el-drawer :visible.sync="planVisible" :destroy-on-close="true" direction="ltr" :withHeader="false" :title="$t('test_track.plan_view.test_result')" :modal="false" size="90%">
@@ -77,7 +83,7 @@
   import MsTablePagination from "@/business/components/common/pagination/TablePagination";
   import ShowMoreBtn from "@/business/components/track/case/components/ShowMoreBtn";
   import MsTag from "../../../common/components/MsTag";
-  import {getUUID} from "@/common/js/utils";
+  import {getUUID, getCurrentProjectID} from "@/common/js/utils";
   import MsApiReportDetail from "../report/ApiReportDetail";
   import MsTableMoreBtn from "./TableMoreBtn";
   import MsScenarioExtendButtons from "@/business/components/api/automation/scenario/ScenarioExtendBtns";
@@ -87,7 +93,6 @@
     name: "MsApiScenarioList",
     components: {MsTablePagination, MsTableMoreBtn, ShowMoreBtn, MsTableHeader, MsTag, MsApiReportDetail, MsScenarioExtendButtons, MsTestPlanList},
     props: {
-      currentProject: Object,
       currentModule: Object,
       referenced: {
         type: Boolean,
@@ -110,6 +115,7 @@
         infoDb: false,
         runVisible: false,
         planVisible: false,
+        projectId: "",
         runData: [],
         buttons: [
           {
@@ -120,10 +126,11 @@
         ],
       }
     },
+    created() {
+      this.projectId = getCurrentProjectID();
+      this.search();
+    },
     watch: {
-      currentProject() {
-        this.search();
-      },
       currentModule() {
         this.search();
       },
@@ -142,8 +149,8 @@
             this.condition.moduleIds = this.currentModule.ids;
           }
         }
-        if (this.currentProject != null) {
-          this.condition.projectId = this.currentProject.id;
+        if (this.projectId != null) {
+          this.condition.projectId = this.projectId;
         }
 
         let url = "/api/automation/list/" + this.currentPage + "/" + this.pageSize;
@@ -201,6 +208,13 @@
       },
       edit(row) {
         this.$emit('edit', row);
+      },
+      reductionApi(row) {
+        let obj = {id: row.id, projectId: row.projectId, name: row.name, status: 'Underway'}
+        this.$fileUpload("/api/automation/update", null, [], obj, () => {
+          this.$success(this.$t('commons.save_success'));
+          this.search();
+        })
       },
       execute(row) {
         this.infoDb = false;

@@ -38,10 +38,9 @@
 
 <script>
   import {WORKSPACE_ID} from '@/common/js/constants';
-  import {getCurrentUser, getUUID} from "@/common/js/utils";
+  import {getCurrentUser, getUUID,getCurrentProjectID} from "@/common/js/utils";
   import MsDialogFooter from "@/business/components/common/components/MsDialogFooter";
   import MsTablePagination from "../../../common/pagination/TablePagination";
-
   export default {
     name: "MsAddTag",
     components: {MsDialogFooter,MsTablePagination},
@@ -94,8 +93,8 @@
       setParameter() {
         this.tagForm.projectId = this.projectId;
       },
-      open(projectId) {
-        this.projectId = projectId;
+      open() {
+        this.projectId = getCurrentProjectID();
         this.visible = true;
         this.initTable();
       },

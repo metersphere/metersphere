@@ -12,7 +12,7 @@
         </span>
     </div>
     <div v-else style="height: 120px;overflow: auto">
-      <el-menu-item :key="i.id" v-for="i in items" :index="getIndex(i)" :route="getRouter(i)">
+      <el-menu-item :key="i.id" v-for="i in items" @click="change(i.id)">
         <template slot="title">
           <div class="title">{{ i.name }}</div>
         </template>
@@ -23,8 +23,8 @@
 </template>
 
 <script>
-import {hasRoles} from "@/common/js/utils";
-import {ROLE_TEST_MANAGER, ROLE_TEST_USER, ROLE_TEST_VIEWER} from "@/common/js/constants";
+import {getCurrentUser, hasRoles} from "@/common/js/utils";
+import {PROJECT_ID, ROLE_TEST_MANAGER, ROLE_TEST_USER, ROLE_TEST_VIEWER} from "@/common/js/constants";
 
 export default {
   name: "SearchList",
@@ -32,13 +32,18 @@ export default {
     options: Object
   },
   mounted() {
+    console.log('mounted')
     this.init();
+  },
+  beforeDestroy() {
+    console.log('beforeDestroy')
   },
   data() {
     return {
       result: {},
       items: [],
-      search_text: ''
+      search_text: '',
+      userId: getCurrentUser().id,
     }
   },
   watch: {
@@ -51,18 +56,18 @@ export default {
     }
   },
   computed: {
-    getIndex: function () {
-      return function (item) {
-        return this.options.index(item);
-      }
-    },
-    getRouter: function () {
-      return function (item) {
-        if (this.options.router) {
-          return this.options.router(item);
-        }
-      }
-    }
+    // getIndex: function () {
+    //   return function (item) {
+    //     return this.options.index(item);
+    //   }
+    // },
+    // getRouter: function () {
+    //   return function (item) {
+    //     if (this.options.router) {
+    //       return this.options.router(item);
+    //     }
+    //   }
+    // }
   },
 
   methods: {
@@ -80,6 +85,13 @@ export default {
           this.items = response.data;
         })
       }
+    },
+    change(projectId) {
+      // todo 初始化的时候切换默认项目
+      this.$post("/user/update/current", {id: this.userId, lastProjectId: projectId}, () => {
+        localStorage.setItem(PROJECT_ID, projectId);
+        window.location.reload();
+      });
     }
   }
 }
