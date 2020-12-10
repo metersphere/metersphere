@@ -60,7 +60,6 @@ public class TestCaseController {
 
     @GetMapping("/list/method/{projectId}")
     public List<TestCaseDTO> listByMethod(@PathVariable String projectId) {
-        checkOwnerService.checkProjectOwner(projectId);
         QueryTestCaseRequest request = new QueryTestCaseRequest();
         request.setProjectId(projectId);
         return testCaseService.listTestCaseMthod(request);
