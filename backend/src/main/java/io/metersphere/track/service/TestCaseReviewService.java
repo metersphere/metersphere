@@ -156,6 +156,7 @@ public class TestCaseReviewService {
 
     public List<TestCaseReviewDTO> listCaseReview(QueryCaseReviewRequest request) {
         request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
+        request.setProjectId(SessionUtils.getCurrentProjectId());
         return extTestCaseReviewMapper.list(request);
     }
 
@@ -346,21 +347,16 @@ public class TestCaseReviewService {
         testCaseReviewTestCaseMapper.deleteByExample(testCaseReviewTestCaseExample);
     }
 
-    public List<TestCaseReview> listCaseReviewAll(String currentWorkspaceId) {
-        ProjectExample projectExample = new ProjectExample();
-        projectExample.createCriteria().andWorkspaceIdEqualTo(currentWorkspaceId);
-        List<Project> projects = projectMapper.selectByExample(projectExample);
-        List<String> projectIds = projects.stream().map(Project::getId).collect(Collectors.toList());
-
-        if (!CollectionUtils.isEmpty(projectIds)) {
-            TestCaseReviewProjectExample testCaseReviewProjectExample = new TestCaseReviewProjectExample();
-            testCaseReviewProjectExample.createCriteria().andProjectIdIn(projectIds);
-            List<TestCaseReviewProject> testCaseReviewProjects = testCaseReviewProjectMapper.selectByExample(testCaseReviewProjectExample);
-            List<String> reviewIds = testCaseReviewProjects.stream().map(TestCaseReviewProject::getReviewId).collect(Collectors.toList());
-
-            if (!CollectionUtils.isEmpty(reviewIds)) {
+    public List<TestCaseReview> listCaseReviewAll() {
+        TestCaseReviewProjectExample reviewProjectExample = new TestCaseReviewProjectExample();
+        TestCaseReviewProjectExample.Criteria criteria = reviewProjectExample.createCriteria();
+        if (StringUtils.isNotBlank(SessionUtils.getCurrentProjectId())) {
+            criteria.andProjectIdEqualTo(SessionUtils.getCurrentProjectId());
+            List<TestCaseReviewProject> testCaseReviewProjects = testCaseReviewProjectMapper.selectByExample(reviewProjectExample);
+            if (!CollectionUtils.isEmpty(testCaseReviewProjects)) {
+                List<String> caseReviewIds = testCaseReviewProjects.stream().map(TestCaseReviewProject::getReviewId).collect(Collectors.toList());
                 TestCaseReviewExample testCaseReviewExample = new TestCaseReviewExample();
-                testCaseReviewExample.createCriteria().andIdIn(reviewIds);
+                testCaseReviewExample.createCriteria().andIdIn(caseReviewIds);
                 return testCaseReviewMapper.selectByExample(testCaseReviewExample);
             }
         }
@@ -481,7 +477,8 @@ public class TestCaseReviewService {
             request.setReviewerId(user.getId());
         }
         request.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
-        request.setReviewIds(extTestReviewCaseMapper.findRelateTestReviewId(user.getId(), SessionUtils.getCurrentWorkspaceId()));
+        request.setProjectId(SessionUtils.getCurrentProjectId());
+        request.setReviewIds(extTestReviewCaseMapper.findRelateTestReviewId(user.getId(), SessionUtils.getCurrentWorkspaceId(), user.getLastProjectId()));
 
         List<String> projectIds = extProjectMapper.getProjectIdByWorkspaceId(SessionUtils.getCurrentWorkspaceId());
 
@@ -545,9 +542,11 @@ public class TestCaseReviewService {
 
         if (userIds.size() > 0) {
             for (String id : userIds) {
-                stringBuilder.append(userMap.get(id)).append("、");
+                if (StringUtils.isNotBlank(userMap.get(id))) {
+                    stringBuilder.append(userMap.get(id)).append("、");
+                }
             }
-            name = stringBuilder.toString().substring(0, stringBuilder.length() - 1);
+            name = stringBuilder.substring(0, stringBuilder.length() - 1);
         }
         return name;
     }

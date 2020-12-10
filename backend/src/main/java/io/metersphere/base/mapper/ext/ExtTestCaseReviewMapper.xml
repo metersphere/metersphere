@@ -15,6 +15,9 @@
                 and test_case_review.name like CONCAT('%', #{request.name},'%')
             </if>
             and project.workspace_id = #{request.workspaceId}
+            <if test="request.projectId != null">
+                and test_case_review_project.project_id = #{request.projectId}
+            </if>
         </where>
         <if test="request.orders != null and request.orders.size() > 0">
             order by
@@ -50,6 +53,9 @@
             project.workspace_id = #{request.workspaceId}
             <if test="request.reviewerId != null">
                 and test_case_review_users.user_id = #{request.reviewerId}
+            </if>
+            <if test="request.projectId != null">
+                and test_case_review_project.project_id = #{request.projectId}
             </if>
             <if test="request.creator != null">
                 and (test_case_review.creator = #{request.creator}

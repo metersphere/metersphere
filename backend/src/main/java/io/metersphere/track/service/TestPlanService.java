@@ -327,6 +327,10 @@ public class TestPlanService {
 
     public List<TestPlanDTOWithMetric> listTestPlan(QueryTestPlanRequest request) {
         request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
+        String projectId = SessionUtils.getCurrentProjectId();
+        if (StringUtils.isNotBlank(projectId)) {
+            request.setProjectId(projectId);
+        }
         List<TestPlanDTOWithMetric> testPlans = extTestPlanMapper.list(request);
         calcTestPlanRate(testPlans);
         return testPlans;
@@ -400,9 +404,22 @@ public class TestPlanService {
     }
 
     public List<TestPlan> listTestAllPlan(String currentWorkspaceId) {
-        TestPlanExample testPlanExample = new TestPlanExample();
-        testPlanExample.createCriteria().andWorkspaceIdEqualTo(currentWorkspaceId);
-        return testPlanMapper.selectByExample(testPlanExample);
+        TestPlanProjectExample testPlanProjectExample = new TestPlanProjectExample();
+        TestPlanProjectExample.Criteria criteria = testPlanProjectExample.createCriteria();
+        if (StringUtils.isNotBlank(SessionUtils.getCurrentProjectId())) {
+            criteria.andProjectIdEqualTo(SessionUtils.getCurrentProjectId());
+            List<TestPlanProject> testPlanProjects = testPlanProjectMapper.selectByExample(testPlanProjectExample);
+            if (!CollectionUtils.isEmpty(testPlanProjects)) {
+                List<String> testPlanIds = testPlanProjects.stream().map(TestPlanProject::getTestPlanId).collect(Collectors.toList());
+                TestPlanExample testPlanExample = new TestPlanExample();
+                TestPlanExample.Criteria testPlanCriteria = testPlanExample.createCriteria();
+                testPlanCriteria.andWorkspaceIdEqualTo(currentWorkspaceId);
+                testPlanCriteria.andIdIn(testPlanIds);
+                return testPlanMapper.selectByExample(testPlanExample);
+            }
+        }
+
+        return new ArrayList<>();
     }
 
     public List<TestPlanDTOWithMetric> listRelateAllPlan() {
@@ -410,7 +427,8 @@ public class TestPlanService {
         QueryTestPlanRequest request = new QueryTestPlanRequest();
         request.setPrincipal(user.getId());
         request.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
-        request.setPlanIds(extTestPlanTestCaseMapper.findRelateTestPlanId(user.getId(), SessionUtils.getCurrentWorkspaceId()));
+        request.setProjectId(SessionUtils.getCurrentProjectId());
+        request.setPlanIds(extTestPlanTestCaseMapper.findRelateTestPlanId(user.getId(), SessionUtils.getCurrentWorkspaceId(), SessionUtils.getCurrentProjectId()));
         List<TestPlanDTOWithMetric> testPlans = extTestPlanMapper.listRelate(request);
         calcTestPlanRate(testPlans);
         return testPlans;

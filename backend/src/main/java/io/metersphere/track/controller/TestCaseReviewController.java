@@ -81,8 +81,7 @@ public class TestCaseReviewController {
 
     @PostMapping("/list/all")
     public List<TestCaseReview> listAll() {
-        String currentWorkspaceId = SessionUtils.getCurrentWorkspaceId();
-        return testCaseReviewService.listCaseReviewAll(currentWorkspaceId);
+        return testCaseReviewService.listCaseReviewAll();
     }
 
     @PostMapping("/relevance")

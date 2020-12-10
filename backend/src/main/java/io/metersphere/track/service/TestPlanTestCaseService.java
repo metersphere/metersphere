@@ -123,7 +123,7 @@ public class TestPlanTestCaseService {
 
     public void buildQueryRequest(QueryTestPlanCaseRequest request, int count) {
         SessionUser user = SessionUtils.getUser();
-        List<String> relateTestPlanIds = extTestPlanTestCaseMapper.findRelateTestPlanId(user.getId(), SessionUtils.getCurrentWorkspaceId());
+        List<String> relateTestPlanIds = extTestPlanTestCaseMapper.findRelateTestPlanId(user.getId(), SessionUtils.getCurrentWorkspaceId(), SessionUtils.getCurrentProjectId());
         PageHelper.startPage(1, count, true);
         request.setPlanIds(relateTestPlanIds);
         request.setExecutor(user.getId());
