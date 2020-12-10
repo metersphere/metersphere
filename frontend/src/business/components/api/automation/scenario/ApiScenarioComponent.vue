@@ -11,7 +11,8 @@
         <el-tag size="mini" style="margin-left: 20px" v-if="scenario.referenced==='REF'">{{ $t('api_test.scenario.reference') }}</el-tag>
         <div style="margin-right: 20px; float: right">
           <el-switch v-model="scenario.enable" style="margin-left: 10px"/>
-          <el-button size="mini" icon="el-icon-delete" circle @click="remove" style="margin-left: 10px"/>
+          <el-button size="mini" icon="el-icon-copy-document" circle @click="copyRow" style="margin-left: 10px"/>
+          <el-button size="mini" icon="el-icon-delete" type="danger" circle @click="remove" style="margin-left: 10px"/>
         </div>
       </el-row>
     </el-card>
@@ -54,6 +55,9 @@
       active(item) {
         item.active = !item.active;
         this.reload();
+      },
+      copyRow() {
+        this.$emit('copyRow', this.scenario, this.node);
       },
       reload() {
         this.loading = true

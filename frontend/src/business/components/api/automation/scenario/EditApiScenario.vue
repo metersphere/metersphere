@@ -79,8 +79,7 @@
         <el-row>
           <el-col :span="12">
             <el-form-item label="Tag" prop="tagId">
-              <el-select v-model="currentScenario.tagId" size="small" class="ms-scenario-input" placeholder="Tag"
-                         @change="tagChange" :multiple="true">
+              <el-select v-model="currentScenario.tagId" size="small" class="ms-scenario-input" placeholder="Tag" :multiple="true">
                 <el-option
                   v-for="item in tags"
                   :key="item.id"
@@ -168,26 +167,26 @@
                  <span class="custom-tree-node father" slot-scope="{ node, data}" style="width: 96%">
                     <template>
                       <!-- 场景 -->
-                      <ms-api-scenario-component v-if="data.type==='scenario'" :scenario="data" :node="node" @remove="remove"/>
+                      <ms-api-scenario-component v-if="data.type==='scenario'" :scenario="data" :node="node" @remove="remove" @copyRow="copyRow"/>
                       <!--条件控制器-->
-                      <ms-if-controller :controller="data" :node="node" v-if="data.type==='IfController'" @remove="remove"/>
+                      <ms-if-controller :controller="data" :node="node" v-if="data.type==='IfController'" @remove="remove" @copyRow="copyRow"/>
                       <!--等待控制器-->
-                      <ms-constant-timer :timer="data" :node="node" v-if="data.type==='ConstantTimer'" @remove="remove"/>
+                      <ms-constant-timer :timer="data" :node="node" v-if="data.type==='ConstantTimer'" @remove="remove" @copyRow="copyRow"/>
                       <!--自定义脚本-->
-                      <ms-jsr233-processor v-if="data.type==='JSR223Processor'" @remove="remove" :title="$t('api_test.automation.customize_script')"
+                      <ms-jsr233-processor v-if="data.type==='JSR223Processor'" @remove="remove" @copyRow="copyRow" :title="$t('api_test.automation.customize_script')"
                                            style-type="color: #7B4D12;background-color: #F1EEE9" :jsr223-processor="data" :node="node"/>
                       <!--前置脚本-->
-                      <ms-jsr233-processor v-if="data.type==='JSR223PreProcessor'" @remove="remove" :title="$t('api_test.definition.request.pre_script')"
+                      <ms-jsr233-processor v-if="data.type==='JSR223PreProcessor'" @remove="remove" @copyRow="copyRow" :title="$t('api_test.definition.request.pre_script')"
                                            style-type="color: #B8741A;background-color: #F9F1EA" :jsr223-processor="data" :node="node"/>
                       <!--后置脚本-->
-                      <ms-jsr233-processor v-if="data.type==='JSR223PostProcessor'" @remove="remove" :title="$t('api_test.definition.request.post_script')"
+                      <ms-jsr233-processor v-if="data.type==='JSR223PostProcessor'" @remove="remove" @copyRow="copyRow" :title="$t('api_test.definition.request.post_script')"
                                            style-type="color: #783887;background-color: #F2ECF3" :jsr223-processor="data" :node="node"/>
                       <!--断言规则-->
-                      <ms-api-assertions v-if="data.type==='Assertions'" @remove="remove" customizeStyle="margin-top: 0px" :assertions="data" :node="node"/>
+                      <ms-api-assertions v-if="data.type==='Assertions'" @remove="remove" @copyRow="copyRow" customizeStyle="margin-top: 0px" :assertions="data" :node="node"/>
                       <!--提取规则-->
-                      <ms-api-extract @remove="remove" v-if="data.type==='Extract'" customizeStyle="margin-top: 0px" :extract="data" :node="node"/>
+                      <ms-api-extract @remove="remove" @copyRow="copyRow" v-if="data.type==='Extract'" customizeStyle="margin-top: 0px" :extract="data" :node="node"/>
                       <!--API 导入 -->
-                      <ms-api-component :request="data" @remove="remove" v-if="data.type==='HTTPSamplerProxy'||data.type==='DubboSampler'||data.type==='JDBCSampler'||data.type==='TCPSampler'" :node="node"/>
+                      <ms-api-component :request="data" @remove="remove" @copyRow="copyRow" v-if="data.type==='HTTPSamplerProxy'||data.type==='DubboSampler'||data.type==='JDBCSampler'||data.type==='TCPSampler'" :node="node"/>
                     </template>
                    </span>
               </el-tree>
@@ -514,9 +513,6 @@
           this.maintainerOptions = response.data;
         });
       },
-      tagChange() {
-
-      },
       openTagConfig() {
         if (!this.projectId) {
           this.$error(this.$t('api_test.select_project'));
@@ -543,6 +539,16 @@
         const hashTree = parent.data.hashTree || parent.data;
         const index = hashTree.findIndex(d => d.id != undefined && row.id != undefined && d.id === row.id)
         hashTree.splice(index, 1);
+        this.sort();
+        this.reload();
+      },
+      copyRow(row, node) {
+        const parent = node.parent
+        const hashTree = parent.data.hashTree || parent.data;
+        let obj = {};
+        Object.assign(obj, row);
+        obj.resourceId = getUUID();
+        hashTree.push(obj);
         this.sort();
         this.reload();
       },

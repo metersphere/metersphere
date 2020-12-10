@@ -16,7 +16,8 @@
       <el-input size="small" v-model="controller.value" :placeholder="$t('api_test.value')" v-if="!hasEmptyOperator" style="width: 20%;margin-left: 20px"/>
       <div style="margin-right: 20px; float: right">
         <el-switch v-model="controller.enable" style="margin-left: 10px"/>
-        <el-button size="mini" icon="el-icon-delete" circle @click="remove" style="margin-left: 10px;"/>
+        <el-button size="mini" icon="el-icon-copy-document" circle @click="copyRow" style="margin-left: 10px"/>
+        <el-button size="mini" icon="el-icon-delete" type="danger" circle @click="remove" style="margin-left: 10px"/>
       </div>
     </el-row>
   </el-card>
@@ -71,6 +72,9 @@
     methods: {
       remove() {
         this.$emit('remove', this.controller, this.node);
+      },
+      copyRow() {
+        this.$emit('copyRow', this.controller, this.node);
       },
       change(value) {
         if (value.indexOf("empty") > 0 && !!this.controller.value) {
