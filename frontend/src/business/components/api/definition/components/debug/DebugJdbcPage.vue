@@ -12,7 +12,7 @@
 
       <p class="tip">{{$t('api_test.definition.request.req_param')}} </p>
       <!-- JDBC 请求参数 -->
-      <ms-basis-parameters :request="request" @callback="runDebug" :currentProject="currentProject" ref="requestForm"/>
+      <ms-basis-parameters :request="request" @callback="runDebug" ref="requestForm"/>
 
 
       <!-- JDBC 请求返回数据 -->
@@ -47,7 +47,6 @@
     components: {MsRequestResultTail, MsResponseResult, MsApiRequestForm, MsRequestMetric, MsResponseText, MsRun, MsBasisParameters},
     props: {
       currentProtocol: String,
-      currentProject: {},
       scenario: Boolean,
     },
     data() {

@@ -30,9 +30,9 @@
           </div>
           <p class="tip">{{$t('api_test.definition.request.req_param')}} </p>
           <ms-api-request-form :headers="request.headers " :request="request" v-if="request.protocol==='HTTP'"/>
-          <ms-tcp-basis-parameters :request="request" :currentProject="currentProject" v-if="request.protocol==='TCP'"/>
-          <ms-sql-basis-parameters :request="request" :currentProject="currentProject" v-if="request.protocol==='SQL'"/>
-          <ms-dubbo-basis-parameters :request="request" :currentProject="currentProject" v-if="request.protocol==='DUBBO' || request.protocol==='dubbo://'"/>
+          <ms-tcp-basis-parameters :request="request" v-if="request.protocol==='TCP'"/>
+          <ms-sql-basis-parameters :request="request" v-if="request.protocol==='SQL'"/>
+          <ms-dubbo-basis-parameters :request="request" v-if="request.protocol==='DUBBO' || request.protocol==='dubbo://'"/>
           <!-- 保存操作 -->
           <el-button type="primary" size="small" style="margin: 20px; float: right" @click="saveTestCase(item)" v-if="!request.referenced">
             {{$t('commons.save')}}
@@ -55,7 +55,6 @@
     props: {
       request: {},
       node: {},
-      currentProject: {},
     },
     components: {MsSqlBasisParameters, MsTcpBasisParameters, MsDubboBasisParameters, MsApiRequestForm},
     data() {

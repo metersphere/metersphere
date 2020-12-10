@@ -27,7 +27,6 @@
   import {getUUID} from "@/common/js/utils";
   import {createComponent, Request} from "./jmeter/components";
   import Sampler from "./jmeter/components/sampler/sampler";
-  import HeaderManager from "./jmeter/components/configurations/header-manager";
   import {WORKSPACE_ID} from '@/common/js/constants';
 
   export default {

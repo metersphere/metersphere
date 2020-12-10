@@ -25,7 +25,6 @@
     props: {
       scenario: {},
       node: {},
-      currentProject: {},
     },
     watch: {},
     created() {
@@ -68,13 +67,6 @@
     border-color: #606266;
     margin-right: 10px;
     color: #606266;
-  }
-
-  .ms-api-col-create {
-    background-color: #EBF2F2;
-    border-color: #008080;
-    margin-right: 10px;
-    color: #008080;
   }
 
   /deep/ .el-card__body {

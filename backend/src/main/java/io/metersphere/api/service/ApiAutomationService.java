@@ -243,11 +243,9 @@ public class ApiAutomationService {
                 MsScenario scenario = JSONObject.parseObject(item.getScenarioDefinition(), MsScenario.class);
                 // 多态JSON普通转换会丢失内容，需要通过 ObjectMapper 获取
                 LinkedList<MsTestElement> elements = mapper.readValue(element.getString("hashTree"),
-                        new TypeReference<LinkedList<MsTestElement>>() {
-                        });
+                        new TypeReference<LinkedList<MsTestElement>>() {});
                 LinkedList<KeyValue> variables = mapper.readValue(element.getString("variables"),
-                        new TypeReference<LinkedList<KeyValue>>() {
-                        });
+                        new TypeReference<LinkedList<KeyValue>>() {});
                 scenario.setHashTree(elements);
                 scenario.setVariables(variables);
                 LinkedList<MsTestElement> scenarios = new LinkedList<>();
@@ -285,8 +283,6 @@ public class ApiAutomationService {
         ParameterConfig config = new ParameterConfig();
         config.setConfig(envConfig);
         HashTree hashTree = request.getTestElement().generateHashTree(config);
-        request.getTestElement().getJmx(hashTree);
-
         // 调用执行方法
         jMeterService.runDefinition(request.getId(), hashTree, request.getReportId(), ApiRunMode.SCENARIO.name());
         createAPIReportResult(request.getId(), ReportTriggerMode.MANUAL.name());

@@ -118,8 +118,7 @@ public abstract class MsTestElement {
             ObjectMapper mapper = new ObjectMapper();
             mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             ApiDefinitionWithBLOBs apiDefinition = apiDefinitionService.getBLOBs(this.getId());
-            element = mapper.readValue(apiDefinition.getRequest(), new TypeReference<MsTestElement>() {
-            });
+            element = mapper.readValue(apiDefinition.getRequest(), new TypeReference<MsTestElement>() {});
             hashTree.add(element);
         } catch (Exception ex) {
             ex.printStackTrace();

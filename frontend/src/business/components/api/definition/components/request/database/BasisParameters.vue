@@ -117,7 +117,6 @@
     props: {
       request: {},
       basisData: {},
-      currentProject: {},
       moduleOptions: Array,
       isReadOnly: {
         type: Boolean,

@@ -187,7 +187,7 @@
                       <!--提取规则-->
                       <ms-api-extract @remove="remove" v-if="data.type==='Extract'" customizeStyle="margin-top: 0px" :extract="data" :node="node"/>
                       <!--API 导入 -->
-                      <ms-api-component :request="data" @remove="remove" current-project="currentProject" v-if="data.type==='HTTPSamplerProxy'||data.type==='DubboSampler'||data.type==='JDBCSampler'||data.type==='TCPSampler'" :node="node"/>
+                      <ms-api-component :request="data" @remove="remove" v-if="data.type==='HTTPSamplerProxy'||data.type==='DubboSampler'||data.type==='JDBCSampler'||data.type==='TCPSampler'" :node="node"/>
                     </template>
                    </span>
               </el-tree>
@@ -245,7 +245,7 @@
 
       <!--自定义接口-->
       <el-drawer :visible.sync="customizeVisible" :destroy-on-close="true" direction="ltr" :withHeader="false" :title="$t('api_test.automation.customize_req')" style="overflow: auto" :modal="false" size="90%">
-        <ms-api-customize :request="customizeRequest" @addCustomizeApi="addCustomizeApi" :current-project="currentProject"/>
+        <ms-api-customize :request="customizeRequest" @addCustomizeApi="addCustomizeApi" />
         <!--<el-button style="float: right;margin: 20px" @click="addCustomizeApi">{{$t('commons.save')}}</el-button>-->
       </el-drawer>
       <!--场景导入 -->
@@ -263,7 +263,7 @@
               @runRefresh="runRefresh" ref="runTest"/>
       <!-- 调试结果 -->
       <el-drawer :visible.sync="debugVisible" :destroy-on-close="true" direction="ltr" :withHeader="false" :title="$t('test_track.plan_view.test_result')" :modal="false" size="90%">
-        <ms-api-report-detail :report-id="reportId" :debug="true" :currentProjectId="currentProject.id"/>
+        <ms-api-report-detail :report-id="reportId" :debug="true" :currentProjectId="projectId"/>
       </el-drawer>
 
       <!--场景公共参数-->
@@ -286,7 +286,7 @@
   import MsApiComponent from "./ApiComponent";
   import {ELEMENTS, ELEMENT_TYPE} from "./Setting";
   import MsApiCustomize from "./ApiCustomize";
-  import {getUUID} from "@/common/js/utils";
+  import {getUUID, getCurrentProjectID} from "@/common/js/utils";
   import ApiEnvironmentConfig from "../../definition/components/environment/ApiEnvironmentConfig";
   import MsAddTag from "./AddTag";
   import MsRun from "./DebugRun";
@@ -295,12 +295,10 @@
   import MsApiReportDetail from "../report/ApiReportDetail";
   import MsScenarioParameters from "./ScenarioParameters";
 
-
   export default {
     name: "EditApiScenario",
     props: {
       moduleOptions: Array,
-      currentProject: {},
       currentScenario: {},
     },
     components: {
@@ -350,9 +348,11 @@
         path: "/api/automation/create",
         debugData: {},
         reportId: "",
+        projectId: "",
       }
     },
     created() {
+      this.projectId = getCurrentProjectID();
       this.operatingElements = ELEMENTS.get("ALL");
       this.getMaintainerOptions();
       this.refreshTags();
@@ -514,14 +514,14 @@
 
       },
       openTagConfig() {
-        if (!this.currentProject) {
+        if (!this.projectId) {
           this.$error(this.$t('api_test.select_project'));
           return;
         }
-        this.$refs.tag.open(this.currentProject.id);
+        this.$refs.tag.open();
       },
       refreshTags() {
-        let obj = {projectId: this.currentProject.id};
+        let obj = {projectId: this.projectId};
         let tagIds = [];
         this.$post('/api/tag/list', obj, response => {
           this.tags = response.data;
@@ -562,8 +562,8 @@
         this.reportId = getUUID().substring(0, 8);
       },
       getEnvironments() {
-        if (this.currentProject) {
-          this.$get('/api/environment/list/' + this.currentProject.id, response => {
+        if (this.projectId) {
+          this.$get('/api/environment/list/' + this.projectId, response => {
             this.environments = response.data;
             this.environments.forEach(environment => {
               parseEnvironment(environment);
@@ -572,11 +572,11 @@
         }
       },
       openEnvironmentConfig() {
-        if (!this.currentProject) {
+        if (!this.projectId) {
           this.$error(this.$t('api_test.select_project'));
           return;
         }
-        this.$refs.environmentConfig.open(this.currentProject.id);
+        this.$refs.environmentConfig.open(this.projectId);
       },
       environmentConfigClose() {
         this.getEnvironments();
@@ -696,7 +696,7 @@
         }
       },
       setParameter() {
-        this.currentScenario.projectId = this.currentProject.id;
+        this.currentScenario.projectId = this.projectId;
         if (!this.currentScenario.id) {
           this.currentScenario.id = getUUID();
         }

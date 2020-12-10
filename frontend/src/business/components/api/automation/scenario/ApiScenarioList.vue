@@ -66,7 +66,7 @@
       <div>
         <!-- 执行结果 -->
         <el-drawer :visible.sync="runVisible" :destroy-on-close="true" direction="ltr" :withHeader="false" :title="$t('test_track.plan_view.test_result')" :modal="false" size="90%">
-          <ms-api-report-detail @refresh="search" :infoDb="infoDb" :report-id="reportId" :currentProjectId="currentProject!=undefined ? currentProject.id:''"/>
+          <ms-api-report-detail @refresh="search" :infoDb="infoDb" :report-id="reportId" :currentProjectId="projectId"/>
         </el-drawer>
         <!--测试计划-->
         <el-drawer :visible.sync="planVisible" :destroy-on-close="true" direction="ltr" :withHeader="false" :title="$t('test_track.plan_view.test_result')" :modal="false" size="90%">
@@ -83,7 +83,7 @@
   import MsTablePagination from "@/business/components/common/pagination/TablePagination";
   import ShowMoreBtn from "@/business/components/track/case/components/ShowMoreBtn";
   import MsTag from "../../../common/components/MsTag";
-  import {getUUID} from "@/common/js/utils";
+  import {getUUID, getCurrentProjectID} from "@/common/js/utils";
   import MsApiReportDetail from "../report/ApiReportDetail";
   import MsTableMoreBtn from "./TableMoreBtn";
   import MsScenarioExtendButtons from "@/business/components/api/automation/scenario/ScenarioExtendBtns";
@@ -93,7 +93,6 @@
     name: "MsApiScenarioList",
     components: {MsTablePagination, MsTableMoreBtn, ShowMoreBtn, MsTableHeader, MsTag, MsApiReportDetail, MsScenarioExtendButtons, MsTestPlanList},
     props: {
-      currentProject: Object,
       currentModule: Object,
       referenced: {
         type: Boolean,
@@ -116,6 +115,7 @@
         infoDb: false,
         runVisible: false,
         planVisible: false,
+        projectId: "",
         runData: [],
         buttons: [
           {
@@ -126,10 +126,11 @@
         ],
       }
     },
+    created() {
+      this.projectId = getCurrentProjectID();
+      this.search();
+    },
     watch: {
-      currentProject() {
-        this.search();
-      },
       currentModule() {
         this.search();
       },
@@ -148,8 +149,8 @@
             this.condition.moduleIds = this.currentModule.ids;
           }
         }
-        if (this.currentProject != null) {
-          this.condition.projectId = this.currentProject.id;
+        if (this.projectId != null) {
+          this.condition.projectId = this.projectId;
         }
 
         let url = "/api/automation/list/" + this.currentPage + "/" + this.pageSize;
