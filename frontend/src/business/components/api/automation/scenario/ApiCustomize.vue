@@ -61,7 +61,9 @@
           this.request.method = row.method;
         }
         this.request.resourceId = getUUID();
-        this.$emit('addCustomizeApi', this.request);
+        let obj = {};
+        Object.assign(obj, this.request);
+        this.$emit('addCustomizeApi', obj);
       },
       reload() {
         this.loading = true

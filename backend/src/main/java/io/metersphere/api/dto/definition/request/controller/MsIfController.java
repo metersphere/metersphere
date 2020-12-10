@@ -20,12 +20,14 @@ import java.util.List;
 public class MsIfController extends MsTestElement {
     private String type = "IfController";
     private String id;
-    private boolean enable = true;
     private String variable;
     private String operator;
     private String value;
 
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, ParameterConfig config) {
+        if (!this.isEnable()) {
+            return;
+        }
         final HashTree groupTree = tree.add(ifController());
         if (CollectionUtils.isNotEmpty(hashTree)) {
             hashTree.forEach(el -> {

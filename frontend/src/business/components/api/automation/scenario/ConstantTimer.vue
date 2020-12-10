@@ -2,23 +2,15 @@
   <div>
     <el-card>
       <el-row>
-        <div class="el-step__icon is-text ms-api-col" style="float: left">
+        <div class="el-step__icon is-text ms-api-col">
           <div class="el-step__icon-inner">{{timer.index}}</div>
         </div>
-        <div>
-          <el-row :gutter="10" type="flex" align="middle">
-            <el-col :span="2">{{ $t('api_test.request.wait') }}</el-col>
-            <el-col :span="10">
-              <el-input-number class="width-100" size="small" v-model="timer.delay" :min="0" :step="1000"/>
-            </el-col>
-            <el-col :span="2">ms</el-col>
-            <el-col :span="8">
-              <el-switch v-model="timer.enable" :inactive-text="$t('api_test.scenario.enable_disable')"/>
-            </el-col>
-            <el-col :span="2">
-              <el-button size="mini" type="danger" icon="el-icon-delete" circle @click="remove"/>
-            </el-col>
-          </el-row>
+        <el-button class="ms-title-buttion" size="small">{{$t('api_test.automation.wait_controller')}}</el-button>
+        <el-input-number class="width-100" size="small" v-model="timer.delay" :min="0" :step="1000"/>
+        ms
+        <div style="margin-right: 20px; float: right">
+          <el-switch v-model="timer.enable" style="margin-left: 10px"/>
+          <el-button size="mini" icon="el-icon-delete" circle @click="remove" style="margin-left: 10px;"/>
         </div>
       </el-row>
     </el-card>
@@ -37,7 +29,7 @@
     },
     methods: {
       remove() {
-        this.$emit('remove', this.timer,this.node);
+        this.$emit('remove', this.timer, this.node);
       }
     }
   }
@@ -45,7 +37,7 @@
 
 <style scoped>
   .width-100 {
-    width: 100%
+    width: 40%
   }
 
   .ms-api-col {
@@ -53,6 +45,12 @@
     border-color: #67C23A;
     margin-right: 10px;
     color: #67C23A;
+  }
+
+  .ms-title-buttion {
+    background-color: #F2F9EE;
+    color: #67C23A;
+    margin-right: 20px;
   }
 
   /deep/ .el-card__body {

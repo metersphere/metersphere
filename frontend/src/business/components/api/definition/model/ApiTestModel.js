@@ -776,7 +776,7 @@ export class Assertions extends BaseConfig {
     this.jsr223 = [];
     this.xpath2 = [];
     this.duration = undefined;
-
+    this.enable = true;
     this.set(options);
     this.sets({text: Text, regex: Regex, jsonPath: JSONPath, jsr223: AssertionJSR223, xpath2: XPath2}, options);
   }
@@ -843,6 +843,7 @@ export class JSR223Processor extends BaseConfig {
     this.type = "JSR223Processor";
     this.script = undefined;
     this.language = "beanshell";
+    this.enable = true;
     this.set(options);
   }
 }
@@ -917,7 +918,7 @@ export class Extract extends BaseConfig {
     this.regex = [];
     this.json = [];
     this.xpath = [];
-
+    this.enable = true;
     this.set(options);
     let types = {
       json: ExtractJSONPath,

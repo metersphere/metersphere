@@ -25,6 +25,9 @@ public class MsExtract extends MsTestElement {
     private String type = "Extract";
 
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, ParameterConfig config) {
+        if (!this.isEnable()) {
+            return;
+        }
         addRequestExtractors(tree);
     }
 
