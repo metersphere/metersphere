@@ -1,6 +1,10 @@
 <template>
 
-  <test-case-relevance-base ref="baseRelevance">
+  <test-case-relevance-base
+    @setProject="setProject"
+    @save="saveCaseRelevance"
+    :plan-id="planId"
+    ref="baseRelevance">
 
     <template v-slot:aside>
       <node-tree class="node-tree"
@@ -11,7 +15,9 @@
     </template>
 
     <ms-table-header :condition.sync="condition" @search="search" title="" :show-create="false"/>
+
     <el-table
+      v-loading="result.loading"
       :data="testCases"
       @filter-change="filter"
       row-key="id"
@@ -58,104 +64,19 @@
     <div v-if="!lineStatus" style="text-align: center">{{$t('test_track.review_view.last_page')}}</div>
     <div style="text-align: center">共 {{total}} 条</div>
 
-
   </test-case-relevance-base>
-
-  <!--<div>-->
-    <!--<el-dialog :title="$t('test_track.plan_view.relevance_test_case')"-->
-               <!--:visible.sync="dialogFormVisible"-->
-               <!--@close="close"-->
-               <!--width="60%" v-loading="result.loading"-->
-               <!--:close-on-click-modal="false"-->
-               <!--top="50px">-->
-
-      <!--<el-container class="main-content">-->
-        <!--<el-aside class="tree-aside" width="250px">-->
-          <!--<el-link type="primary" class="project-link" @click="switchProject">{{projectName ? projectName :-->
-            <!--$t('test_track.switch_project') }}-->
-          <!--</el-link>-->
-          <!--<node-tree class="node-tree"-->
-                     <!--@nodeSelectEvent="nodeChange"-->
-                     <!--@refresh="refresh"-->
-                     <!--:tree-nodes="treeNodes"-->
-                     <!--ref="nodeTree"/>-->
-        <!--</el-aside>-->
-
-        <!--<el-container>-->
-          <!--<el-main class="case-content">-->
-            <!--<ms-table-header :condition.sync="condition" @search="search" title="" :show-create="false"/>-->
-            <!--<el-table-->
-              <!--:data="testCases"-->
-              <!--@filter-change="filter"-->
-              <!--row-key="id"-->
-              <!--@mouseleave.passive="leave"-->
-              <!--v-el-table-infinite-scroll="scrollLoading"-->
-              <!--@select-all="handleSelectAll"-->
-              <!--@select="handleSelectionChange"-->
-              <!--height="50vh"-->
-              <!--ref="table">-->
-
-              <!--<el-table-column-->
-                <!--type="selection"></el-table-column>-->
-
-              <!--<el-table-column-->
-                <!--prop="name"-->
-                <!--:label="$t('test_track.case.name')"-->
-                <!--style="width: 100%">-->
-                <!--<template v-slot:default="scope">-->
-                  <!--{{scope.row.name}}-->
-                <!--</template>-->
-              <!--</el-table-column>-->
-              <!--<el-table-column-->
-                <!--prop="priority"-->
-                <!--:filters="priorityFilters"-->
-                <!--column-key="priority"-->
-                <!--:label="$t('test_track.case.priority')"-->
-                <!--show-overflow-tooltip>-->
-                <!--<template v-slot:default="scope">-->
-                  <!--<priority-table-item :value="scope.row.priority"/>-->
-                <!--</template>-->
-              <!--</el-table-column>-->
-              <!--<el-table-column-->
-                <!--prop="type"-->
-                <!--:filters="typeFilters"-->
-                <!--column-key="type"-->
-                <!--:label="$t('test_track.case.type')"-->
-                <!--show-overflow-tooltip>-->
-                <!--<template v-slot:default="scope">-->
-                  <!--<type-table-item :value="scope.row.type"/>-->
-                <!--</template>-->
-              <!--</el-table-column>-->
-            <!--</el-table>-->
-
-            <!--<div v-if="!lineStatus" style="text-align: center">{{$t('test_track.review_view.last_page')}}</div>-->
-            <!--<div style="text-align: center">共 {{total}} 条</div>-->
-          <!--</el-main>-->
-        <!--</el-container>-->
-      <!--</el-container>-->
-
-      <!--<template v-slot:footer>-->
-        <!--<ms-dialog-footer @cancel="dialogFormVisible = false" @confirm="saveCaseRelevance"/>-->
-      <!--</template>-->
-
-    <!--</el-dialog>-->
-
-    <!--<switch-project ref="switchProject" @getProjectNode="getProjectNode"/>-->
-  <!--</div>-->
 
 </template>
 
 <script>
 
   import NodeTree from '../../../../common/NodeTree';
-  import MsDialogFooter from '../../../../../common/components/MsDialogFooter'
   import PriorityTableItem from "../../../../common/tableItems/planview/PriorityTableItem";
   import TypeTableItem from "../../../../common/tableItems/planview/TypeTableItem";
   import MsTableSearchBar from "../../../../../common/components/MsTableSearchBar";
   import MsTableAdvSearchBar from "../../../../../common/components/search/MsTableAdvSearchBar";
   import MsTableHeader from "../../../../../common/components/MsTableHeader";
   import {TEST_CASE_CONFIGS} from "../../../../../common/components/search/search-components";
-  import SwitchProject from "../../../../case/components/SwitchProject";
   import elTableInfiniteScroll from 'el-table-infinite-scroll';
   import TestCaseRelevanceBase from "../base/TestCaseRelevanceBase";
   import {_filter} from "../../../../../../../common/js/utils";
@@ -165,13 +86,11 @@
     components: {
       TestCaseRelevanceBase,
       NodeTree,
-      MsDialogFooter,
       PriorityTableItem,
       TypeTableItem,
       MsTableSearchBar,
       MsTableAdvSearchBar,
       MsTableHeader,
-      SwitchProject
     },
     directives: {
       'el-table-infinite-scroll': elTableInfiniteScroll
@@ -179,7 +98,6 @@
     data() {
       return {
         result: {},
-        dialogFormVisible: false,
         isCheckAll: false,
         testCases: [],
         selectIds: new Set(),
@@ -219,13 +137,12 @@
         this.condition.planId = this.planId;
       },
       selectNodeIds() {
-        if (this.dialogFormVisible) {
-          this.search();
-        }
+        this.search();
       },
       projectId() {
         this.condition.projectId = this.projectId;
         this.getProjectNode();
+        this.search();
       }
     },
     updated() {
@@ -235,8 +152,10 @@
 
       open() {
         this.$refs.baseRelevance.open();
+      },
 
-        //
+      setProject(projectId) {
+        this.projectId = projectId;
       },
 
       saveCaseRelevance() {
@@ -251,7 +170,9 @@
         this.result = this.$post('/test/plan/relevance', param, () => {
           this.selectIds.clear();
           this.$success(this.$t('commons.save_success'));
-          this.dialogFormVisible = false;
+
+          this.$refs.baseRelevance.close();
+
           this.$emit('refresh');
         });
       },
@@ -274,7 +195,27 @@
         }
         if (this.projectId) {
           this.condition.projectId = this.projectId;
-          this.result = this.$post(this.buildPagePath('/test/case/name'), this.condition, response => {
+          // this.result = this.$post(this.buildPagePath('/test/case/name'), this.condition, response => {
+          //   let data = response.data;
+          //   this.total = data.itemCount;
+          //   let tableData = data.listObject;
+          //   tableData.forEach(item => {
+          //     item.checked = false;
+          //   });
+          //   flag ? this.testCases = tableData : this.testCases = this.testCases.concat(tableData);
+          //   // 去重处理
+          //   let hash = {}
+          //   this.testCases = this.testCases.reduce((item, next) => {
+          //     if (!hash[next.id]) {
+          //       hash[next.id] = true
+          //       item.push(next)
+          //     }
+          //     return item
+          //   }, [])
+          //
+          //   this.lineStatus = tableData.length === 50 && this.testCases.length < this.total;
+          // });
+          this.result = this.$post('/api/definition/list/1/10', this.condition, response => {
             let data = response.data;
             this.total = data.itemCount;
             let tableData = data.listObject;
@@ -295,7 +236,6 @@
             this.lineStatus = tableData.length === 50 && this.testCases.length < this.total;
           });
         }
-
       },
       handleSelectAll(selection) {
         if (selection.length > 0) {
@@ -325,7 +265,7 @@
         this.close();
       },
       scrollLoading() {
-        if (this.dialogFormVisible && this.lineStatus) {
+        if (this.lineStatus) {
           this.currentPage += 1;
           this.getTestCases();
         }
@@ -336,7 +276,7 @@
             testPlanId: this.planId,
             projectId: this.projectId
           };
-          this.result = this.$post("/case/node/list/all/plan", param, response => {
+          this.result = this.$get('/api/module/list/' + this.project + '/HTTP', response => {
             this.treeNodes = response.data;
           });
         }
@@ -361,24 +301,6 @@
           })
         })
       },
-      getProject() {
-        if (this.planId) {
-          this.result = this.$post("/test/plan/project/", {planId: this.planId}, res => {
-            let data = res.data;
-            if (data) {
-              this.projects = data;
-              this.projectId = data[0].id;
-              this.projectName = data[0].name;
-              this.search();
-              // 获取项目时刷新该项目模块
-              this.getProjectNode(this.projectId)
-            }
-          })
-        }
-      },
-      switchProject() {
-        this.$refs.switchProject.open({id: this.planId, url: '/test/plan/project/', type: 'plan'});
-      },
       getProjectNode(projectId) {
         const index = this.projects.findIndex(project => project.id === projectId);
         if (index !== -1) {
@@ -387,11 +309,13 @@
         if (projectId) {
           this.projectId = projectId;
         }
-        this.result = this.$post("/case/node/list/all/plan",
-          {testPlanId: this.planId, projectId: this.projectId}, response => {
+        this.$refs.nodeTree.result = this.$get('/api/module/list/' + this.projectId + '/HTTP', response => {
             this.treeNodes = response.data;
           });
-
+        // this.$refs.nodeTree.result = this.$post('/api/module/list/' + this.project + '/HTTP',
+        //   {testPlanId: this.planId, projectId: this.projectId}, response => {
+        //     this.treeNodes = response.data;
+        //   });
         this.selectNodeIds = [];
       }
     }
@@ -399,53 +323,4 @@
 </script>
 
 <style scoped>
-
-  .tb-edit .el-input {
-    display: none;
-    color: black;
-  }
-
-  .tb-edit .current-row .el-input {
-    display: block;
-
-  }
-
-  .tb-edit .current-row .el-input + span {
-    display: none;
-
-  }
-
-  .node-tree {
-    margin-right: 10px;
-  }
-
-  .el-header {
-    background-color: darkgrey;
-    color: #333;
-    line-height: 60px;
-  }
-
-  .case-content {
-    padding: 0px 20px;
-    height: 100%;
-    /*border: 1px solid #EBEEF5;*/
-  }
-
-  .tree-aside {
-    min-height: 300px;
-    max-height: 100%;
-  }
-
-  .main-content {
-    min-height: 300px;
-    height: 100%;
-    /*border: 1px solid #EBEEF5;*/
-  }
-
-  .project-link {
-    float: right;
-    margin-right: 12px;
-    margin-bottom: 10px;
-  }
-
 </style>

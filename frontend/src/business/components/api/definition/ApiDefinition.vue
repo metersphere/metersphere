@@ -15,52 +15,54 @@
           <el-dropdown-item command="closeAll">{{$t('api_test.definition.request.close_all_label')}}</el-dropdown-item>
         </el-dropdown-menu>
       </el-dropdown>
-      <!-- 主框架列表 -->
+
+        <!-- 主框架列表 -->
       <el-tabs v-model="apiDefaultTab" @edit="handleTabsEdit">
-        <el-tab-pane
-          :key="item.name"
-          v-for="(item) in apiTabs"
-          :label="item.title"
-          :closable="item.closable"
-          :name="item.name">
-          <!-- 列表集合 -->
-          <ms-api-list
-            v-if="item.type === 'list'"
-            :current-project="currentProject"
-            :current-protocol="currentProtocol"
-            :current-module="currentModule"
-            @editApi="editApi"
-            @handleCase="handleCase"
-            :visible="visible"
-            :currentRow="currentRow"
-            ref="apiList"/>
+          <el-tab-pane
+            :key="item.name"
+            v-for="(item) in apiTabs"
+            :label="item.title"
+            :closable="item.closable"
+            :name="item.name">
+            <!-- 列表集合 -->
+            <ms-api-list
+              v-if="item.type === 'list'"
+              :current-project="currentProject"
+              :current-protocol="currentProtocol"
+              :current-module="currentModule"
+              @editApi="editApi"
+              @handleCase="handleCase"
+              :visible="visible"
+              :currentRow="currentRow"
+              ref="apiList"/>
 
-          <!-- 添加测试窗口-->
-          <div v-else-if="item.type=== 'add'" class="ms-api-div">
-            <ms-api-config @runTest="runTest" @saveApi="saveApi" :current-api="currentApi"
-                           :currentProject="currentProject"
-                           :currentProtocol="currentProtocol"
-                           :moduleOptions="moduleOptions" ref="apiConfig"/>
-          </div>
+            <!-- 添加测试窗口-->
+            <div v-else-if="item.type=== 'add'" class="ms-api-div">
+              <ms-api-config @runTest="runTest" @saveApi="saveApi" :current-api="currentApi"
+                             :currentProject="currentProject"
+                             :currentProtocol="currentProtocol"
+                             :moduleOptions="moduleOptions" ref="apiConfig"/>
+            </div>
 
-          <!-- 快捷调试 -->
-          <div v-else-if="item.type=== 'debug'" class="ms-api-div">
-            <ms-debug-http-page :currentProtocol="currentProtocol" @saveAs="editApi" v-if="currentProtocol==='HTTP'"/>
-            <ms-debug-jdbc-page :currentProtocol="currentProtocol" :currentProject="currentProject" @saveAs="editApi" v-if="currentProtocol==='SQL'"/>
-            <ms-debug-tcp-page :currentProtocol="currentProtocol" :currentProject="currentProject" @saveAs="editApi" v-if="currentProtocol==='TCP'"/>
-            <ms-debug-dubbo-page :currentProtocol="currentProtocol" :currentProject="currentProject" @saveAs="editApi" v-if="currentProtocol==='DUBBO'"/>
-          </div>
+            <!-- 快捷调试 -->
+            <div v-else-if="item.type=== 'debug'" class="ms-api-div">
+              <ms-debug-http-page :currentProtocol="currentProtocol" @saveAs="editApi" v-if="currentProtocol==='HTTP'"/>
+              <ms-debug-jdbc-page :currentProtocol="currentProtocol" :currentProject="currentProject" @saveAs="editApi" v-if="currentProtocol==='SQL'"/>
+              <ms-debug-tcp-page :currentProtocol="currentProtocol" :currentProject="currentProject" @saveAs="editApi" v-if="currentProtocol==='TCP'"/>
+              <ms-debug-dubbo-page :currentProtocol="currentProtocol" :currentProject="currentProject" @saveAs="editApi" v-if="currentProtocol==='DUBBO'"/>
+            </div>
 
-          <!-- 测试-->
-          <div v-else-if="item.type=== 'test'" class="ms-api-div">
-            <ms-run-test-http-page :currentProtocol="currentProtocol" :api-data="runTestData" @saveAsApi="editApi" :currentProject="currentProject" v-if="currentProtocol==='HTTP'"/>
-            <ms-run-test-tcp-page :currentProtocol="currentProtocol" :api-data="runTestData" @saveAsApi="editApi" :currentProject="currentProject" v-if="currentProtocol==='TCP'"/>
-            <ms-run-test-sql-page :currentProtocol="currentProtocol" :api-data="runTestData" @saveAsApi="editApi" :currentProject="currentProject" v-if="currentProtocol==='SQL'"/>
-            <ms-run-test-dubbo-page :currentProtocol="currentProtocol" :api-data="runTestData" @saveAsApi="editApi" :currentProject="currentProject" v-if="currentProtocol==='DUBBO'"/>
-          </div>
-        </el-tab-pane>
+            <!-- 测试-->
+            <div v-else-if="item.type=== 'test'" class="ms-api-div">
+              <ms-run-test-http-page :currentProtocol="currentProtocol" :api-data="runTestData" @saveAsApi="editApi" :currentProject="currentProject" v-if="currentProtocol==='HTTP'"/>
+              <ms-run-test-tcp-page :currentProtocol="currentProtocol" :api-data="runTestData" @saveAsApi="editApi" :currentProject="currentProject" v-if="currentProtocol==='TCP'"/>
+              <ms-run-test-sql-page :currentProtocol="currentProtocol" :api-data="runTestData" @saveAsApi="editApi" :currentProject="currentProject" v-if="currentProtocol==='SQL'"/>
+              <ms-run-test-dubbo-page :currentProtocol="currentProtocol" :api-data="runTestData" @saveAsApi="editApi" :currentProject="currentProject" v-if="currentProtocol==='DUBBO'"/>
+            </div>
+          </el-tab-pane>
 
-      </el-tabs>
+        </el-tabs>
+
     </ms-main-container>
 
 
@@ -273,4 +275,11 @@
   /deep/ .el-main {
     overflow: hidden;
   }
+
+  /deep/ .el-card {
+    /*border: 1px solid #EBEEF5;*/
+    /*border-style: none;*/
+    border-top: none;
+  }
+
 </style>

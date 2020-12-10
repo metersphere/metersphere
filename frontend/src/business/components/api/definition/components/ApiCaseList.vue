@@ -1,156 +1,163 @@
 <template>
-  <div>
-    <el-container style="padding-bottom: 200px">
-      <el-header style="width: 100% ;padding: 0px">
-        <el-card>
-          <el-row>
-            <el-col :span="api.protocol==='HTTP'? 3:5">
-              <div class="variable-combine"> {{api.name}}</div>
-            </el-col>
-            <el-col :span="api.protocol==='HTTP'? 1:3">
-              <ms-tag v-if="api.status == 'Prepare'" type="info" effect="plain" :content="$t('test_track.plan.plan_status_prepare')"/>
-              <ms-tag v-if="api.status == 'Underway'" type="warning" effect="plain" :content="$t('test_track.plan.plan_status_running')"/>
-              <ms-tag v-if="api.status == 'Completed'" type="success" effect="plain" :content="$t('test_track.plan.plan_status_completed')"/>
-            </el-col>
-            <el-col :span="api.protocol==='HTTP'? 4:0">
-              <div class="variable-combine" style="margin-left: 10px">{{api.path ===null ? " " : api.path}}</div>
-            </el-col>
-            <el-col :span="2">
-              <div>{{$t('test_track.plan_view.case_count')}}：{{apiCaseList.length}}</div>
-            </el-col>
-            <el-col :span="3">
-              <div>
-                <el-select size="small" :placeholder="$t('api_test.definition.request.grade_info')" v-model="priorityValue"
-                           class="ms-api-header-select" @change="getApiTest">
-                  <el-option v-for="grd in priority" :key="grd.id" :label="grd.name" :value="grd.id"/>
-                </el-select>
-              </div>
-            </el-col>
-            <el-col :span="4">
-              <div>
-                <el-select :disabled="isReadOnly" v-model="environment" size="small" class="ms-api-header-select"
-                           :placeholder="$t('api_test.definition.request.run_env')"
-                           @change="environmentChange" clearable>
-                  <el-option v-for="(environment, index) in environments" :key="index"
-                             :label="environment.name + (environment.config.httpConfig.socket ? (': ' + environment.config.httpConfig.protocol + '://' + environment.config.httpConfig.socket) : '')"
-                             :value="environment.id"/>
-                  <el-button class="environment-button" size="mini" type="primary" @click="openEnvironmentConfig">
-                    {{ $t('api_test.environment.environment_config') }}
-                  </el-button>
-                  <template v-slot:empty>
-                    <div class="empty-environment">
-                      <el-button class="environment-button" size="mini" type="primary" @click="openEnvironmentConfig">
-                        {{ $t('api_test.environment.environment_config') }}
-                      </el-button>
-                    </div>
-                  </template>
-                </el-select>
-              </div>
-            </el-col>
-            <el-col :span="3">
-              <div class="ms-api-header-select">
-                <el-input size="small" :placeholder="$t('api_test.definition.request.select_case')"
-                          v-model="name" @blur="getApiTest"/>
-              </div>
-            </el-col>
-            <el-col :span="2">
-              <el-dropdown size="small" split-button type="primary" class="ms-api-header-select" @click="addCase"
-                           @command="handleCommand">
-                +{{$t('api_test.definition.request.case')}}
-                <el-dropdown-menu slot="dropdown">
-                  <el-dropdown-item command="run">{{$t('commons.test')}}</el-dropdown-item>
-                </el-dropdown-menu>
-              </el-dropdown>
+  <div v-if="visible" v-loading="result.loading">
+    <ms-drawer :size="40" direction="bottom">
 
-
-            </el-col>
-            <el-col :span="2">
-              <button type="button" aria-label="Close" class="el-card-btn" @click="apiCaseClose()"><i
-                class="el-dialog__close el-icon el-icon-close"></i></button>
-            </el-col>
-
-          </el-row>
-        </el-card>
-
-        <!-- 环境 -->
-        <api-environment-config ref="environmentConfig" @close="environmentConfigClose"/>
-
-      </el-header>
-
-      <!-- 用例部分 -->
-      <el-main v-loading="loading" style="overflow: auto">
-        <div v-for="(item,index) in apiCaseList" :key="index">
-          <el-card style="margin-top: 5px" @click.native="selectTestCase(item,$event)">
+      <template v-slot:header>
+        <el-header style="width: 100% ;padding: 0px">
+          <el-card>
             <el-row>
-              <el-col :span="1">
-                <el-checkbox v-if="visible" @change="caseChecked(item)"/>
+              <el-col :span="api.protocol==='HTTP'? 3:5">
+                <div class="variable-combine"> {{api.name}}</div>
               </el-col>
-
-              <el-col :span="5">
-                <div class="el-step__icon is-text ms-api-col">
-                  <div class="el-step__icon-inner">{{index+1}}</div>
-                </div>
-
-                <label class="ms-api-label">{{$t('test_track.case.priority')}}</label>
-                <el-select size="small" v-model="item.priority" class="ms-api-select">
-                  <el-option v-for="grd in priority" :key="grd.id" :label="grd.name" :value="grd.id"/>
-                </el-select>
+              <el-col :span="api.protocol==='HTTP'? 1:3">
+                <ms-tag v-if="api.status == 'Prepare'" type="info" effect="plain" :content="$t('test_track.plan.plan_status_prepare')"/>
+                <ms-tag v-if="api.status == 'Underway'" type="warning" effect="plain" :content="$t('test_track.plan.plan_status_running')"/>
+                <ms-tag v-if="api.status == 'Completed'" type="success" effect="plain" :content="$t('test_track.plan.plan_status_completed')"/>
               </el-col>
-              <el-col :span="10">
-                <i class="icon el-icon-arrow-right" :class="{'is-active': item.active}"
-                   @click="active(item)"/>
-
-                <el-input v-if="item.type==='create'" size="small" v-model="item.name" :name="index" :key="index"
-                          class="ms-api-header-select" style="width: 180px"
-                          @blur="saveTestCase(item)"/>
-                <span v-else>
-                  {{item.type!= 'create' ? item.name:''}}
-                  <i class="el-icon-edit" style="cursor:pointer" @click="showInput(item)"/>
-                </span>
-                <div v-if="item.type!='create'" style="color: #999999;font-size: 12px">
-                  <span> {{item.createTime | timestampFormatDate }}</span> {{item.createUser}} 创建
-                  <span> {{item.updateTime | timestampFormatDate }}</span> {{item.updateUser}} 更新
-                </div>
+              <el-col :span="api.protocol==='HTTP'? 4:0">
+                <div class="variable-combine" style="margin-left: 10px">{{api.path ===null ? " " : api.path}}</div>
               </el-col>
-
-              <el-col :span="4">
-                <ms-tip-button @click="singleRun(item)" :tip="$t('api_test.run')" icon="el-icon-video-play"
-                               style="background-color: #409EFF;color: white" size="mini" circle/>
-                <ms-tip-button @click="copyCase(item)" :tip="$t('commons.copy')" icon="el-icon-document-copy"
-                               size="mini" circle/>
-                <ms-tip-button @click="deleteCase(index,item)" :tip="$t('commons.delete')" icon="el-icon-delete"
-                               size="mini"
-                               circle/>
+              <el-col :span="2">
+                <div>{{$t('test_track.plan_view.case_count')}}：{{apiCaseList.length}}</div>
               </el-col>
-
               <el-col :span="3">
-                <div v-if="item.type!='create'">{{getResult(item.execResult)}}</div>
-                <div v-if="item.type!='create'" style="color: #999999;font-size: 12px">
-                  <span> {{item.updateTime | timestampFormatDate }}</span>
-                  {{item.updateUser}}
+                <div>
+                  <el-select size="small" :placeholder="$t('api_test.definition.request.grade_info')" v-model="priorityValue"
+                             class="ms-api-header-select" @change="getApiTest">
+                    <el-option v-for="grd in priority" :key="grd.id" :label="grd.name" :value="grd.id"/>
+                  </el-select>
                 </div>
               </el-col>
+              <el-col :span="4">
+                <div>
+                  <el-select :disabled="isReadOnly" v-model="environment" size="small" class="ms-api-header-select"
+                             :placeholder="$t('api_test.definition.request.run_env')"
+                             @change="environmentChange" clearable>
+                    <el-option v-for="(environment, index) in environments" :key="index"
+                               :label="environment.name + (environment.config.httpConfig.socket ? (': ' + environment.config.httpConfig.protocol + '://' + environment.config.httpConfig.socket) : '')"
+                               :value="environment.id"/>
+                    <el-button class="environment-button" size="mini" type="primary" @click="openEnvironmentConfig">
+                      {{ $t('api_test.environment.environment_config') }}
+                    </el-button>
+                    <template v-slot:empty>
+                      <div class="empty-environment">
+                        <el-button class="environment-button" size="mini" type="primary" @click="openEnvironmentConfig">
+                          {{ $t('api_test.environment.environment_config') }}
+                        </el-button>
+                      </div>
+                    </template>
+                  </el-select>
+                </div>
+              </el-col>
+              <el-col :span="3">
+                <div class="ms-api-header-select">
+                  <el-input size="small" :placeholder="$t('api_test.definition.request.select_case')"
+                            v-model="name" @blur="getApiTest"/>
+                </div>
+              </el-col>
+              <el-col :span="2">
+                <el-dropdown size="small" split-button type="primary" class="ms-api-header-select" @click="addCase"
+                             @command="handleCommand">
+                  +{{$t('api_test.definition.request.case')}}
+                  <el-dropdown-menu slot="dropdown">
+                    <el-dropdown-item command="run">{{$t('commons.test')}}</el-dropdown-item>
+                  </el-dropdown-menu>
+                </el-dropdown>
+
+
+              </el-col>
+              <el-col :span="2">
+                <button type="button" aria-label="Close" class="el-card-btn" @click="apiCaseClose()"><i
+                  class="el-dialog__close el-icon el-icon-close"></i></button>
+              </el-col>
+
             </el-row>
-            <!-- 请求参数-->
-            <el-collapse-transition>
-              <div v-if="item.active">
-                <p class="tip">{{$t('api_test.definition.request.req_param')}} </p>
-
-                <ms-api-request-form :is-read-only="isReadOnly" :headers="item.request.headers " :request="item.request" v-if="api.protocol==='HTTP'"/>
-                <ms-tcp-basis-parameters :request="item.request" :currentProject="currentProject" v-if="api.protocol==='TCP'"/>
-                <ms-sql-basis-parameters :request="item.request" :currentProject="currentProject" v-if="api.protocol==='SQL'"/>
-                <ms-dubbo-basis-parameters :request="item.request" :currentProject="currentProject" v-if="api.protocol==='DUBBO'"/>
-                <!-- 保存操作 -->
-                <el-button type="primary" size="small" style="margin: 20px; float: right" @click="saveTestCase(item)">
-                  {{$t('commons.save')}}
-                </el-button>
-              </div>
-            </el-collapse-transition>
           </el-card>
-        </div>
-      </el-main>
 
-    </el-container>
+          <!-- 环境 -->
+          <api-environment-config ref="environmentConfig" @close="environmentConfigClose"/>
+
+        </el-header>
+      </template>
+
+      <el-container style="padding-bottom: 200px">
+
+
+        <!-- 用例部分 -->
+        <el-main v-loading="loading" style="overflow: auto">
+          <div v-for="(item,index) in apiCaseList" :key="index">
+            <el-card style="margin-top: 5px" @click.native="selectTestCase(item,$event)">
+              <el-row>
+                <el-col :span="1">
+                  <el-checkbox v-if="visible" @change="caseChecked(item)"/>
+                </el-col>
+
+                <el-col :span="5">
+                  <div class="el-step__icon is-text ms-api-col">
+                    <div class="el-step__icon-inner">{{index+1}}</div>
+                  </div>
+
+                  <label class="ms-api-label">{{$t('test_track.case.priority')}}</label>
+                  <el-select size="small" v-model="item.priority" class="ms-api-select">
+                    <el-option v-for="grd in priority" :key="grd.id" :label="grd.name" :value="grd.id"/>
+                  </el-select>
+                </el-col>
+                <el-col :span="10">
+                  <i class="icon el-icon-arrow-right" :class="{'is-active': item.active}"
+                     @click="active(item)"/>
+
+                  <el-input v-if="item.type==='create'" size="small" v-model="item.name" :name="index" :key="index"
+                            class="ms-api-header-select" style="width: 180px"
+                            @blur="saveTestCase(item)"/>
+                  <span v-else>
+                {{item.type!= 'create' ? item.name:''}}
+                <i class="el-icon-edit" style="cursor:pointer" @click="showInput(item)"/>
+              </span>
+                  <div v-if="item.type!='create'" style="color: #999999;font-size: 12px">
+                    <span> {{item.createTime | timestampFormatDate }}</span> {{item.createUser}} 创建
+                    <span> {{item.updateTime | timestampFormatDate }}</span> {{item.updateUser}} 更新
+                  </div>
+                </el-col>
+
+                <el-col :span="4">
+                  <ms-tip-button @click="singleRun(item)" :tip="$t('api_test.run')" icon="el-icon-video-play"
+                                 style="background-color: #409EFF;color: white" size="mini" circle/>
+                  <ms-tip-button @click="copyCase(item)" :tip="$t('commons.copy')" icon="el-icon-document-copy"
+                                 size="mini" circle/>
+                  <ms-tip-button @click="deleteCase(index,item)" :tip="$t('commons.delete')" icon="el-icon-delete"
+                                 size="mini"
+                                 circle/>
+                </el-col>
+
+                <el-col :span="3">
+                  <div v-if="item.type!='create'">{{getResult(item.execResult)}}</div>
+                  <div v-if="item.type!='create'" style="color: #999999;font-size: 12px">
+                    <span> {{item.updateTime | timestampFormatDate }}</span>
+                    {{item.updateUser}}
+                  </div>
+                </el-col>
+              </el-row>
+              <!-- 请求参数-->
+              <el-collapse-transition>
+                <div v-if="item.active">
+                  <p class="tip">{{$t('api_test.definition.request.req_param')}} </p>
+
+                  <ms-api-request-form :is-read-only="isReadOnly" :headers="item.request.headers " :request="item.request" v-if="api.protocol==='HTTP'"/>
+                  <ms-tcp-basis-parameters :request="item.request" :currentProject="currentProject" v-if="api.protocol==='TCP'"/>
+                  <ms-sql-basis-parameters :request="item.request" :currentProject="currentProject" v-if="api.protocol==='SQL'"/>
+                  <ms-dubbo-basis-parameters :request="item.request" :currentProject="currentProject" v-if="api.protocol==='DUBBO'"/>
+                  <!-- 保存操作 -->
+                  <el-button type="primary" size="small" style="margin: 20px; float: right" @click="saveTestCase(item)">
+                    {{$t('commons.save')}}
+                  </el-button>
+                </div>
+              </el-collapse-transition>
+            </el-card>
+          </div>
+        </el-main>
+
+      </el-container>
+    </ms-drawer>
 
     <!-- 执行组件 -->
     <ms-run :debug="false" :environment="environment" :reportId="reportId" :run-data="runData"
@@ -172,10 +179,12 @@
   import MsSqlBasisParameters from "./request/database/BasisParameters";
   import MsTcpBasisParameters from "./request/tcp/BasisParameters";
   import MsDubboBasisParameters from "./request/dubbo/BasisParameters";
+  import MsDrawer from "../../../common/components/MsDrawer";
 
   export default {
     name: 'ApiCaseList',
     components: {
+      MsDrawer,
       MsTag,
       MsTipButton,
       MsApiRequestForm,
@@ -191,10 +200,6 @@
         type: Object
       },
       createCase: String,
-      visible: {
-        type: Boolean,
-        default: false,
-      },
       loaded: Boolean,
       currentProject: {},
       refreshSign: String,
@@ -202,6 +207,7 @@
     },
     data() {
       return {
+        result: {},
         grades: [],
         environments: [],
         environment: {},
@@ -215,6 +221,7 @@
         runData: [],
         reportId: "",
         checkedCases: new Set(),
+        visible: false
 
       }
     },
@@ -251,6 +258,10 @@
       }
     },
     methods: {
+      open() {
+        // this.apiCaseList = [];
+        this.visible = true;
+      },
       sysAddition() {
         let condition = {};
         condition.projectId = this.api.projectId;
@@ -285,7 +296,7 @@
       },
       apiCaseClose() {
         this.apiCaseList = [];
-        this.$emit('apiCaseClose');
+        this.visible = false;
       },
       batchRun() {
         if (!this.environment) {
@@ -396,7 +407,7 @@
         condition.apiDefinitionId = this.api.id;
         condition.priority = this.priorityValue;
         condition.name = this.name;
-        this.$post("/api/testcase/list", condition, response => {
+        this.result = this.$post("/api/testcase/list", condition, response => {
           for (let index in response.data) {
             let test = response.data[index];
             test.request = JSON.parse(test.request);
@@ -494,6 +505,9 @@
         }
         let arr = Array.from(this.checkedCases);
         this.currentRow.cases = arr;
+      },
+      handleClose() {
+        this.visible = false;
       }
     }
   }
