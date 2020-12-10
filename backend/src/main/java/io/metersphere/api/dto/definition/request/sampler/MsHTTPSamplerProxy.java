@@ -86,6 +86,9 @@ public class MsHTTPSamplerProxy extends MsTestElement {
     private List<KeyValue> arguments;
 
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, ParameterConfig config) {
+        if (this.getReferenced() != null && this.getReferenced().equals("REF")) {
+            this.getRefElement(this);
+        }
         HTTPSamplerProxy sampler = new HTTPSamplerProxy();
         sampler.setEnabled(true);
         sampler.setName(this.getName());

@@ -583,6 +583,7 @@ export default {
       },
       report_name_info: '請輸入報名名稱',
       save_case_info: '請先保存用例',
+      reference_deleted: '引用已删除',
     },
     environment: {
       name: "環境名稱",

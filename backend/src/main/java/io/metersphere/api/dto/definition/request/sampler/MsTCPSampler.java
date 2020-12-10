@@ -50,6 +50,9 @@ public class MsTCPSampler extends MsTestElement {
     private String request;
 
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, ParameterConfig config) {
+        if (this.getReferenced() != null && this.getReferenced().equals("REF")) {
+            this.getRefElement(this);
+        }
         final HashTree samplerHashTree = new ListedHashTree();
         samplerHashTree.add(tcpConfig());
         tree.set(tcpSampler(), samplerHashTree);

@@ -584,6 +584,7 @@ export default {
       },
       report_name_info: 'Please enter the registration name',
       save_case_info: 'Please save the use case first',
+      reference_deleted: 'Reference deleted',
     },
     environment: {
       name: "Environment Name",

@@ -52,6 +52,13 @@ public class MsDubboSampler extends MsTestElement {
     private List<KeyValue> attachmentArgs;
 
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, ParameterConfig config) {
+        if (this.getReferenced() != null && this.getReferenced().equals("Deleted")) {
+            return;
+        }
+        if (this.getReferenced() != null && this.getReferenced().equals("REF")) {
+            this.getRefElement(this);
+        }
+
         final HashTree testPlanTree = new ListedHashTree();
         testPlanTree.add(dubboConfig());
         tree.set(dubboSample(), testPlanTree);

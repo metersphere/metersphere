@@ -105,6 +105,10 @@ public class ApiDefinitionService {
         return apiDefinitionMapper.selectByPrimaryKey(id);
     }
 
+    public ApiDefinitionWithBLOBs getBLOBs(String id) {
+        return apiDefinitionMapper.selectByPrimaryKey(id);
+    }
+
     public void create(SaveApiDefinitionRequest request, List<MultipartFile> bodyFiles) {
         List<String> bodyUploadIds = new ArrayList<>(request.getBodyUploadIds());
         createTest(request);

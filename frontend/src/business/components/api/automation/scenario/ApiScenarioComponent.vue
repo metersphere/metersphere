@@ -6,7 +6,7 @@
           <div class="el-step__icon-inner">{{scenario.index}}</div>
         </div>
         <div style="margin-left: 20px;float: left"> {{scenario.name}}</div>
-        <el-tag size="mini" style="margin-left: 20px" v-if="scenario.referenced==='Deleted'" type="danger">引用不存在</el-tag>
+        <el-tag size="mini" style="margin-left: 20px" v-if="scenario.referenced==='Deleted'" type="danger">{{$t('api_test.automation.reference_deleted')}}</el-tag>
         <el-tag size="mini" style="margin-left: 20px" v-if="scenario.referenced==='REF'">{{ $t('api_test.scenario.reference') }}</el-tag>
         <el-button size="mini" type="danger" icon="el-icon-delete" circle @click="remove" style="margin-right: 20px; float: right"/>
       </el-row>
