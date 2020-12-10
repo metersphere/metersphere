@@ -26,6 +26,9 @@ public class MsHeaderManager extends MsTestElement {
     private List<KeyValue> headers;
 
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, ParameterConfig config) {
+        if (!this.isEnable()) {
+            return;
+        }
         HeaderManager headerManager = new HeaderManager();
         headerManager.setEnabled(true);
         headerManager.setName(this.getName() + "Headers");

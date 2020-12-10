@@ -16,6 +16,11 @@ body {
   margin: 0;
 }
 
+/* 解决 document.body.clientHeight 为0 */
+html,body {
+  height:100%
+}
+
 .main-content span.title {
   font-size: 16px;
   font-weight: 500;

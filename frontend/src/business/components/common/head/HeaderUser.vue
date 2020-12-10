@@ -8,10 +8,10 @@
         <el-dropdown-item command="personal">{{ $t('commons.personal_information') }}</el-dropdown-item>
         <el-dropdown-item command="about">{{ $t('commons.about_us') }} <i class="el-icon-info"/></el-dropdown-item>
         <el-dropdown-item command="help">{{ $t('commons.help_documentation') }}</el-dropdown-item>
-        <el-dropdown-item command="old" :disabled=!isReadOnly @click.native="changeBar('old')">
+        <el-dropdown-item command="old" :disabled=isReadOnly @click.native="changeBar('old')">
           {{ $t('commons.cut_back_old_version') }}
         </el-dropdown-item>
-        <el-dropdown-item command="new" :disabled=isReadOnly @click.native="changeBar('new')">
+        <el-dropdown-item command="new" :disabled=!isReadOnly @click.native="changeBar('new')">
           {{ $t('commons.cut_back_new_version') }}
         </el-dropdown-item>
         <el-dropdown-item command="logout">{{ $t('commons.exit_system') }}</el-dropdown-item>
@@ -32,7 +32,7 @@
     components: {AboutUs},
     data() {
       return {
-        isReadOnly: true
+        isReadOnly: this.$store.state.isReadOnly.flag
       }
     },
     computed: {
@@ -75,6 +75,7 @@
       },
       changeBar(item) {
         this.isReadOnly = !this.isReadOnly
+        this.$store.commit('setFlag', this.isReadOnly);
         this.$store.commit('setValue', item);
       }
     }

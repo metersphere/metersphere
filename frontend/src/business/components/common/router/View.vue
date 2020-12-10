@@ -15,7 +15,7 @@
   #body {
     width: 100%;
     height: calc(100vh - 40px);
-    background-color: #F5F5F5;
+    /*background-color: #F5F5F5;*/
   }
 
   .sidebar {

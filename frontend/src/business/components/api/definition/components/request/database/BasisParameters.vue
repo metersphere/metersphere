@@ -106,6 +106,7 @@
   import {Assertions, Extract} from "../../../model/ApiTestModel";
   import {parseEnvironment} from "../../../model/EnvironmentModel";
   import ApiEnvironmentConfig from "../../environment/ApiEnvironmentConfig";
+  import {getCurrentProjectID} from "@/common/js/utils";
 
   export default {
     name: "MsDatabaseConfig",
@@ -171,10 +172,6 @@
         })
       },
       validate() {
-        if (this.currentProject === null) {
-          this.$error(this.$t('api_test.select_project'), 2000);
-          return;
-        }
         this.$refs['request'].validate((valid) => {
           if (valid) {
             this.$emit('callback');
@@ -190,23 +187,17 @@
       },
 
       getEnvironments() {
-        if (this.currentProject) {
-          this.environments = [];
-          this.$get('/api/environment/list/' + this.currentProject.id, response => {
-            this.environments = response.data;
-            this.environments.forEach(environment => {
-              parseEnvironment(environment);
-            });
-            this.initDataSource();
+        this.environments = [];
+        this.$get('/api/environment/list/' + getCurrentProjectID(), response => {
+          this.environments = response.data;
+          this.environments.forEach(environment => {
+            parseEnvironment(environment);
           });
-        }
+          this.initDataSource();
+        });
       },
       openEnvironmentConfig() {
-        if (!this.currentProject) {
-          this.$error(this.$t('api_test.select_project'));
-          return;
-        }
-        this.$refs.environmentConfig.open(this.currentProject.id);
+        this.$refs.environmentConfig.open(getCurrentProjectID());
       },
       initDataSource() {
         for (let i in this.environments) {

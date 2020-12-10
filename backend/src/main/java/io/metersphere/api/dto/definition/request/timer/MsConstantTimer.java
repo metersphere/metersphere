@@ -22,11 +22,12 @@ public class MsConstantTimer extends MsTestElement {
     @JSONField(ordinal = 10)
     private String id;
     @JSONField(ordinal = 11)
-    private boolean enable = true;
-    @JSONField(ordinal = 12)
     private String delay;
 
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, ParameterConfig config) {
+        if (!this.isEnable()) {
+            return;
+        }
         final HashTree groupTree = tree.add(constantTimer());
         if (CollectionUtils.isNotEmpty(hashTree)) {
             hashTree.forEach(el -> {

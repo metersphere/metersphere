@@ -1,7 +1,7 @@
 <template>
   <ms-container>
     <ms-aside-container>
-      <ms-node-tree @selectModule="selectModule" @getApiModuleTree="initTree" @changeProject="changeProject" @changeProtocol="changeProtocol"
+      <ms-node-tree @selectModule="selectModule" @getApiModuleTree="initTree" @changeProtocol="changeProtocol"
                     @refresh="refresh" @saveAsEdit="editApi" @debug="debug" @exportAPI="exportAPI"/>
     </ms-aside-container>
 
@@ -15,7 +15,8 @@
           <el-dropdown-item command="closeAll">{{$t('api_test.definition.request.close_all_label')}}</el-dropdown-item>
         </el-dropdown-menu>
       </el-dropdown>
-      <!-- 主框架列表 -->
+
+        <!-- 主框架列表 -->
       <el-tabs v-model="apiDefaultTab" @edit="handleTabsEdit">
         <el-tab-pane
           :key="item.name"
@@ -26,7 +27,6 @@
           <!-- 列表集合 -->
           <ms-api-list
             v-if="item.type === 'list'"
-            :current-project="currentProject"
             :current-protocol="currentProtocol"
             :current-module="currentModule"
             @editApi="editApi"
@@ -38,7 +38,6 @@
           <!-- 添加测试窗口-->
           <div v-else-if="item.type=== 'add'" class="ms-api-div">
             <ms-api-config @runTest="runTest" @saveApi="saveApi" :current-api="currentApi"
-                           :currentProject="currentProject"
                            :currentProtocol="currentProtocol"
                            :moduleOptions="moduleOptions" ref="apiConfig"/>
           </div>
@@ -46,21 +45,21 @@
           <!-- 快捷调试 -->
           <div v-else-if="item.type=== 'debug'" class="ms-api-div">
             <ms-debug-http-page :currentProtocol="currentProtocol" @saveAs="editApi" v-if="currentProtocol==='HTTP'"/>
-            <ms-debug-jdbc-page :currentProtocol="currentProtocol" :currentProject="currentProject" @saveAs="editApi" v-if="currentProtocol==='SQL'"/>
-            <ms-debug-tcp-page :currentProtocol="currentProtocol" :currentProject="currentProject" @saveAs="editApi" v-if="currentProtocol==='TCP'"/>
-            <ms-debug-dubbo-page :currentProtocol="currentProtocol" :currentProject="currentProject" @saveAs="editApi" v-if="currentProtocol==='DUBBO'"/>
+            <ms-debug-jdbc-page :currentProtocol="currentProtocol" @saveAs="editApi" v-if="currentProtocol==='SQL'"/>
+            <ms-debug-tcp-page :currentProtocol="currentProtocol" @saveAs="editApi" v-if="currentProtocol==='TCP'"/>
+            <ms-debug-dubbo-page :currentProtocol="currentProtocol" @saveAs="editApi" v-if="currentProtocol==='DUBBO'"/>
           </div>
 
           <!-- 测试-->
           <div v-else-if="item.type=== 'test'" class="ms-api-div">
-            <ms-run-test-http-page :currentProtocol="currentProtocol" :api-data="runTestData" @saveAsApi="editApi" :currentProject="currentProject" v-if="currentProtocol==='HTTP'"/>
-            <ms-run-test-tcp-page :currentProtocol="currentProtocol" :api-data="runTestData" @saveAsApi="editApi" :currentProject="currentProject" v-if="currentProtocol==='TCP'"/>
-            <ms-run-test-sql-page :currentProtocol="currentProtocol" :api-data="runTestData" @saveAsApi="editApi" :currentProject="currentProject" v-if="currentProtocol==='SQL'"/>
-            <ms-run-test-dubbo-page :currentProtocol="currentProtocol" :api-data="runTestData" @saveAsApi="editApi" :currentProject="currentProject" v-if="currentProtocol==='DUBBO'"/>
+            <ms-run-test-http-page :currentProtocol="currentProtocol" :api-data="runTestData" @saveAsApi="editApi" v-if="currentProtocol==='HTTP'"/>
+            <ms-run-test-tcp-page :currentProtocol="currentProtocol" :api-data="runTestData" @saveAsApi="editApi" v-if="currentProtocol==='TCP'"/>
+            <ms-run-test-sql-page :currentProtocol="currentProtocol" :api-data="runTestData" @saveAsApi="editApi" v-if="currentProtocol==='SQL'"/>
+            <ms-run-test-dubbo-page :currentProtocol="currentProtocol" :api-data="runTestData" @saveAsApi="editApi" v-if="currentProtocol==='DUBBO'"/>
           </div>
         </el-tab-pane>
-
       </el-tabs>
+
     </ms-main-container>
 
 
@@ -84,8 +83,7 @@
   import MsRunTestTcpPage from "./components/runtest/RunTestTCPPage";
   import MsRunTestSqlPage from "./components/runtest/RunTestSQLPage";
   import MsRunTestDubboPage from "./components/runtest/RunTestDubboPage";
-
-  import {downloadFile, getCurrentUser, getUUID} from "@/common/js/utils";
+  import {downloadFile, getCurrentUser, getUUID, getCurrentProjectID} from "@/common/js/utils";
 
   export default {
     name: "ApiDefinition",
@@ -118,7 +116,6 @@
       return {
         isHide: true,
         apiDefaultTab: 'default',
-        currentProject: null,
         currentProtocol: null,
         currentModule: null,
         currentApi: {},
@@ -209,7 +206,7 @@
         if (!this.$refs.apiList[0].tableData) {
           return;
         }
-        let obj = {projectName: this.currentProject.name, protocol: this.currentProtocol, data: this.$refs.apiList[0].tableData}
+        let obj = {projectName: getCurrentProjectID(), protocol: this.currentProtocol, data: this.$refs.apiList[0].tableData}
         downloadFile("导出API.json", JSON.stringify(obj));
       },
       refresh(data) {
@@ -235,9 +232,6 @@
       },
       initTree(data) {
         this.moduleOptions = data;
-      },
-      changeProject(data) {
-        this.currentProject = data;
       },
       changeProtocol(data) {
         this.currentProtocol = data;
@@ -273,4 +267,11 @@
   /deep/ .el-main {
     overflow: hidden;
   }
+
+  /deep/ .el-card {
+    /*border: 1px solid #EBEEF5;*/
+    /*border-style: none;*/
+    border-top: none;
+  }
+
 </style>

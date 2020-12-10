@@ -25,6 +25,9 @@ import java.util.List;
 public class MsDNSCacheManager extends MsTestElement {
 
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, ParameterConfig config) {
+        if (!this.isEnable()) {
+            return;
+        }
         for (MsTestElement el : hashTree) {
             el.toHashTree(tree, el.getHashTree(), config);
         }
