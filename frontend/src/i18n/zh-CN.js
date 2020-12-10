@@ -279,7 +279,7 @@ export default {
       verified: '验证通过'
     }
   },
-  edit: {
+  project: {
     recent: '最近的项目',
     create: '创建项目',
     edit: '编辑项目',
