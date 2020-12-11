@@ -130,12 +130,14 @@
         })
         if (!isType) {
           this.headers.unshift(new KeyValue({name: "Content-Type", value: value}));
+          this.$emit('headersChange');
         }
       },
       removeContentType() {
         for (let index in this.headers) {
           if (this.headers[index].name === "Content-Type") {
             this.headers.splice(index, 1);
+            this.$emit('headersChange');
             return;
           }
         }
