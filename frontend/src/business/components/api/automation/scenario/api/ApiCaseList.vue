@@ -72,7 +72,7 @@
           <el-card style="margin-top: 5px">
             <el-row>
               <el-col :span="1">
-                <el-checkbox v-if="visible" @change="caseChecked(item)"/>
+                <el-checkbox v-model="item.checked" @change="caseChecked(item)"/>
               </el-col>
               <el-col :span="5">
                 <div class="el-step__icon is-text ms-api-col">
@@ -169,10 +169,8 @@
       api: {
         type: Object
       },
-      createCase: String,
       visible: {
-        type: Boolean,
-        default: false,
+        type: String,
       },
       loaded: Boolean,
       refreshSign: String,
@@ -202,7 +200,7 @@
       api() {
         this.getApiTest();
       },
-      createCase() {
+      visible() {
         this.getApiTest();
       }
     },
@@ -212,21 +210,6 @@
       this.getApiTest();
     },
     methods: {
-      sysAddition() {
-        let condition = {};
-        condition.projectId = this.api.projectId;
-        condition.apiDefinitionId = this.api.id;
-        condition.priority = this.priorityValue;
-        condition.name = this.name;
-        this.$post("/api/testcase/list", condition, response => {
-          for (let index in response.data) {
-            let test = response.data[index];
-            test.request = JSON.parse(test.request);
-          }
-          this.apiCaseList = response.data;
-          this.addCase();
-        });
-      },
       getResult(data) {
         if (RESULT_MAP.get(data)) {
           return RESULT_MAP.get(data);
@@ -352,21 +335,27 @@
         return bodyUploadFiles;
       },
       getApiTest() {
-        if (this.currentRow) {
-          this.currentRow.cases = [];
-        }
-        let condition = {};
-        condition.projectId = this.api.projectId;
-        condition.apiDefinitionId = this.api.id;
-        condition.priority = this.priorityValue;
-        condition.name = this.name;
-        this.$post("/api/testcase/list", condition, response => {
-          for (let index in response.data) {
-            let test = response.data[index];
-            test.request = JSON.parse(test.request);
+        if (this.api) {
+          this.checkedCases = new Set();
+          this.loading = true;
+          if (this.currentRow) {
+            this.currentRow.cases = [];
           }
-          this.apiCaseList = response.data;
-        });
+          let condition = {};
+          condition.projectId = this.projectId;
+          condition.apiDefinitionId = this.api.id;
+          condition.priority = this.priorityValue;
+          condition.name = this.name;
+          this.$post("/api/testcase/list", condition, response => {
+            for (let index in response.data) {
+              let test = response.data[index];
+              test.checked = false;
+              test.request = JSON.parse(test.request);
+            }
+            this.loading = false;
+            this.apiCaseList = response.data;
+          });
+        }
       },
       validate(row) {
         if (!row.name) {
@@ -383,7 +372,7 @@
             });
             let hasEnvironment = false;
             for (let i in this.environments) {
-              if (this.environments[i].id === this.api.environmentId) {
+              if (this.api && this.environments[i].id === this.api.environmentId) {
                 hasEnvironment = true;
                 break;
               }

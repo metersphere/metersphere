@@ -142,8 +142,7 @@
       currentProtocol: String,
       currentModule: Object,
       visible: {
-        type: Boolean,
-        default: false,
+        type: String,
       },
       currentRow: {
         type: Object,
@@ -158,6 +157,10 @@
     },
     watch: {
       currentModule() {
+        this.initApiTable();
+        this.apiCaseClose();
+      },
+      visible() {
         this.initApiTable();
         this.apiCaseClose();
       },
@@ -321,8 +324,8 @@
         });
       },
       apiCaseClose() {
+        this.selectApi = {};
         let h = window.screen.height;
-
         let svgTop = document.getElementById("svgTop");
         svgTop.style.height = h - 200 + "px";
 
