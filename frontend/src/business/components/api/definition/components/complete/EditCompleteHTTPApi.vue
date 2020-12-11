@@ -11,53 +11,69 @@
         </div>
         <br/>
         <p class="tip">{{$t('test_track.plan_view.base_info')}} </p>
+
         <!-- 基础信息 -->
-        <el-form-item :label="$t('commons.name')" prop="name">
-          <el-input class="ms-http-input" size="small" v-model="httpForm.name"/>
-        </el-form-item>
-        <el-form-item :label="$t('test_track.module.module')" prop="moduleId">
-          <el-select class="ms-http-input" size="small" v-model="httpForm.moduleId">
-            <el-option v-for="item in moduleOptions" :key="item.id" :label="item.path" :value="item.id"/>
-          </el-select>
-        </el-form-item>
+        <div class="base-info">
+          <el-row>
+            <el-col :span="8">
+              <el-form-item :label="$t('commons.name')" prop="name">
+                <el-input class="ms-http-input" size="small" v-model="httpForm.name"/>
+              </el-form-item>
+            </el-col>
+            <el-col :span="16">
+              <el-form-item :label="$t('api_report.request')" prop="path">
+                <el-input :placeholder="$t('api_test.definition.request.path_info')" v-model="httpForm.path"
+                          class="ms-http-input" size="small" style="margin-top: 5px">
+                  <el-select v-model="httpForm.method" slot="prepend" style="width: 100px" size="small">
+                    <el-option v-for="item in reqOptions" :key="item.id" :label="item.label" :value="item.id"/>
+                  </el-select>
+                </el-input>
+              </el-form-item>
+            </el-col>
+          </el-row>
 
-        <el-form-item :label="$t('api_report.request')" prop="path">
-          <el-input :placeholder="$t('api_test.definition.request.path_info')" v-model="httpForm.path"
-                    class="ms-http-input" size="small" style="margin-top: 5px">
-            <el-select v-model="httpForm.method" slot="prepend" style="width: 100px" size="small">
-              <el-option v-for="item in reqOptions" :key="item.id" :label="item.label" :value="item.id"/>
-            </el-select>
-          </el-input>
+          <el-row>
+            <el-col :span="8">
+              <el-form-item :label="$t('test_track.module.module')" prop="moduleId">
+                <el-select class="ms-http-select" size="small" v-model="httpForm.moduleId">
+                  <el-option v-for="item in moduleOptions" :key="item.id" :label="item.path" :value="item.id"/>
+                </el-select>
+              </el-form-item>
+            </el-col>
+            <el-col :span="8">
+              <el-form-item :label="$t('api_test.definition.request.responsible')" prop="userId">
+                <el-select v-model="httpForm.userId"
+                           :placeholder="$t('api_test.definition.request.responsible')" filterable size="small"
+                           class="ms-http-select">
+                  <el-option
+                    v-for="item in maintainerOptions"
+                    :key="item.id"
+                    :label="item.id + ' (' + item.name + ')'"
+                    :value="item.id">
+                  </el-option>
+                </el-select>
+              </el-form-item>
+            </el-col>
+            <el-col :span="8">
+              <el-form-item :label="$t('commons.status')" prop="status">
+                <el-select class="ms-http-select" size="small" v-model="httpForm.status">
+                  <el-option v-for="item in options" :key="item.id" :label="item.label" :value="item.id"/>
+                </el-select>
+              </el-form-item>
+            </el-col>
+          </el-row>
 
-        </el-form-item>
+          <el-row>
+            <el-form-item :label="$t('commons.description')" prop="description">
+              <el-input class="ms-http-textarea"
+                        v-model="httpForm.description"
+                        type="textarea"
+                        :autosize="{ minRows: 2, maxRows: 10}"
+                        :rows="2" size="small"/>
+            </el-form-item>
+          </el-row>
+        </div>
 
-        <el-form-item :label="$t('commons.status')" prop="status">
-          <el-select class="ms-http-input" size="small" v-model="httpForm.status">
-            <el-option v-for="item in options" :key="item.id" :label="item.label" :value="item.id"/>
-          </el-select>
-        </el-form-item>
-
-        <el-form-item :label="$t('api_test.definition.request.responsible')" prop="userId">
-          <el-select v-model="httpForm.userId"
-                     :placeholder="$t('api_test.definition.request.responsible')" filterable size="small"
-                     class="ms-http-input">
-            <el-option
-              v-for="item in maintainerOptions"
-              :key="item.id"
-              :label="item.id + ' (' + item.name + ')'"
-              :value="item.id">
-            </el-option>
-          </el-select>
-
-        </el-form-item>
-
-        <el-form-item :label="$t('commons.description')" prop="description">
-          <el-input class="ms-http-textarea"
-                    v-model="httpForm.description"
-                    type="textarea"
-                    :autosize="{ minRows: 2, maxRows: 10}"
-                    :rows="2" size="small"/>
-        </el-form-item>
         <!-- 请求参数 -->
         <div>
           <p class="tip">{{$t('api_test.definition.request.req_param')}} </p>
@@ -157,8 +173,17 @@
 </script>
 
 <style scoped>
-  .ms-http-input {
-    width: 400px;
+
+  .base-info .el-form-item {
+    width: 100%;
+  }
+
+  .base-info .el-form-item >>> .el-form-item__content {
+    width: 80%;
+  }
+
+  .base-info .ms-http-select {
+    width: 100%;
   }
 
   .tip {

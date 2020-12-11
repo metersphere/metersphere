@@ -41,7 +41,7 @@
     </div>
 
     <div class="ms-body" v-if="body.type == 'XML'">
-      <ms-code-edit :read-only="isReadOnly" :data.sync="body.raw" :modes="modes" ref="codeEdit"/>
+      <ms-code-edit :read-only="isReadOnly" :data.sync="body.raw" :modes="modes" :mode="'xml'" ref="codeEdit"/>
     </div>
 
 
@@ -178,6 +178,11 @@
 
   .ace_editor {
     border-radius: 5px;
+  }
+
+  .el-radio-group {
+    margin: 10px 10px;
+    margin-top: 15px;
   }
 
 </style>
