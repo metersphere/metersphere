@@ -70,11 +70,12 @@
     </el-card>
 
     <!-- 加载用例 -->
-    <el-drawer :visible.sync="visible" direction="btt" :with-header="false" :modal="false" size="50%" ref="drawer">
-      <ms-api-case-list @apiCaseClose="apiCaseClose" @selectTestCase="selectTestCase" :api="api" :refreshSign="refreshSign"
-                        :loaded="loaded" :createCase="createCase"
+      <ms-api-case-list @selectTestCase="selectTestCase"
+                        :loaded="loaded"
+                        :refreshSign="refreshSign"
+                        :createCase="createCase"
+                        :api="api"
                         ref="caseList"/>
-    </el-drawer>
 
     <!-- 环境 -->
     <api-environment-config ref="environmentConfig" @close="environmentConfigClose"/>
@@ -168,7 +169,8 @@
       loadCase() {
         this.refreshSign = getUUID();
         this.loaded = true;
-        this.visible = true;
+        // this.visible = true;
+        this.$refs.caseList.open();
       },
       apiCaseClose() {
         this.visible = false;

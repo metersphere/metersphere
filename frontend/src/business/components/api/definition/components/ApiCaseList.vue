@@ -1,83 +1,20 @@
 <template>
   <div v-if="visible" v-loading="result.loading">
     <ms-drawer :size="40" direction="bottom">
-
       <template v-slot:header>
-        <el-header style="width: 100% ;padding: 0px">
-          <el-card>
-            <el-row>
-              <el-col :span="api.protocol==='HTTP'? 3:5">
-                <div class="variable-combine"> {{api.name}}</div>
-              </el-col>
-              <el-col :span="api.protocol==='HTTP'? 1:3">
-                <ms-tag v-if="api.status == 'Prepare'" type="info" effect="plain" :content="$t('test_track.plan.plan_status_prepare')"/>
-                <ms-tag v-if="api.status == 'Underway'" type="warning" effect="plain" :content="$t('test_track.plan.plan_status_running')"/>
-                <ms-tag v-if="api.status == 'Completed'" type="success" effect="plain" :content="$t('test_track.plan.plan_status_completed')"/>
-              </el-col>
-              <el-col :span="api.protocol==='HTTP'? 4:0">
-                <div class="variable-combine" style="margin-left: 10px">{{api.path ===null ? " " : api.path}}</div>
-              </el-col>
-              <el-col :span="2">
-                <div>{{$t('test_track.plan_view.case_count')}}：{{apiCaseList.length}}</div>
-              </el-col>
-              <el-col :span="3">
-                <div>
-                  <el-select size="small" :placeholder="$t('api_test.definition.request.grade_info')" v-model="priorityValue"
-                             class="ms-api-header-select" @change="getApiTest">
-                    <el-option v-for="grd in priority" :key="grd.id" :label="grd.name" :value="grd.id"/>
-                  </el-select>
-                </div>
-              </el-col>
-              <el-col :span="4">
-                <div>
-                  <el-select :disabled="isReadOnly" v-model="environment" size="small" class="ms-api-header-select"
-                             :placeholder="$t('api_test.definition.request.run_env')"
-                             @change="environmentChange" clearable>
-                    <el-option v-for="(environment, index) in environments" :key="index"
-                               :label="environment.name + (environment.config.httpConfig.socket ? (': ' + environment.config.httpConfig.protocol + '://' + environment.config.httpConfig.socket) : '')"
-                               :value="environment.id"/>
-                    <el-button class="environment-button" size="mini" type="primary" @click="openEnvironmentConfig">
-                      {{ $t('api_test.environment.environment_config') }}
-                    </el-button>
-                    <template v-slot:empty>
-                      <div class="empty-environment">
-                        <el-button class="environment-button" size="mini" type="primary" @click="openEnvironmentConfig">
-                          {{ $t('api_test.environment.environment_config') }}
-                        </el-button>
-                      </div>
-                    </template>
-                  </el-select>
-                </div>
-              </el-col>
-              <el-col :span="3">
-                <div class="ms-api-header-select">
-                  <el-input size="small" :placeholder="$t('api_test.definition.request.select_case')"
-                            v-model="name" @blur="getApiTest"/>
-                </div>
-              </el-col>
-              <el-col :span="2">
-                <el-dropdown size="small" split-button type="primary" class="ms-api-header-select" @click="addCase"
-                             @command="handleCommand">
-                  +{{$t('api_test.definition.request.case')}}
-                  <el-dropdown-menu slot="dropdown">
-                    <el-dropdown-item command="run">{{$t('commons.test')}}</el-dropdown-item>
-                  </el-dropdown-menu>
-                </el-dropdown>
-
-
-              </el-col>
-              <el-col :span="2">
-                <button type="button" aria-label="Close" class="el-card-btn" @click="apiCaseClose()"><i
-                  class="el-dialog__close el-icon el-icon-close"></i></button>
-              </el-col>
-
-            </el-row>
-          </el-card>
-
-          <!-- 环境 -->
-          <api-environment-config ref="environmentConfig" @close="environmentConfigClose"/>
-
-        </el-header>
+        <api-case-header
+          :api="api"
+          @getApiTest="getApiTest"
+          @setEnvironment="setEnvironment"
+          @close="apiCaseClose"
+          @addCase="addCase"
+          @batchRun="batchRun"
+          :condition="condition"
+          :priorities="priorities"
+          :apiCaseList="apiCaseList"
+          :is-read-only="isReadOnly"
+          :project-id="projectId"
+        />
       </template>
 
       <el-container style="padding-bottom: 200px">
@@ -97,7 +34,7 @@
 
                   <label class="ms-api-label">{{$t('test_track.case.priority')}}</label>
                   <el-select size="small" v-model="item.priority" class="ms-api-select">
-                    <el-option v-for="grd in priority" :key="grd.id" :label="grd.name" :value="grd.id"/>
+                    <el-option v-for="grd in priorities" :key="grd.id" :label="grd.name" :value="grd.id"/>
                   </el-select>
                 </el-col>
                 <el-col :span="10">
@@ -174,7 +111,6 @@
   import MsTipButton from "../../../common/components/MsTipButton";
   import MsApiRequestForm from "./request/http/ApiRequestForm";
   import {downloadFile, getUUID, getCurrentProjectID} from "@/common/js/utils";
-  import {parseEnvironment} from "../model/EnvironmentModel";
   import ApiEnvironmentConfig from "./environment/ApiEnvironmentConfig";
   import {PRIORITY, RESULT_MAP} from "../model/JsonData";
   import MsApiAssertions from "./assertion/ApiAssertions";
@@ -184,10 +120,12 @@
   import MsDubboBasisParameters from "./request/dubbo/BasisParameters";
   import MsDrawer from "../../../common/components/MsDrawer";
   import MsApiExtendBtns from "./reference/ApiExtendBtns";
+  import ApiCaseHeader from "./case/ApiCaseHeader";
 
   export default {
     name: 'ApiCaseList',
     components: {
+      ApiCaseHeader,
       MsDrawer,
       MsTag,
       MsTipButton,
@@ -206,7 +144,6 @@
       },
       createCase: String,
       loaded: Boolean,
-      currentProject: {},
       refreshSign: String,
       currentRow: Object,
     },
@@ -214,37 +151,22 @@
       return {
         result: {},
         grades: [],
-        environments: [],
         environment: {},
-        name: "",
-        priorityValue: "",
         isReadOnly: false,
         selectedEvent: Object,
-        priority: PRIORITY,
+        priorities: PRIORITY,
         apiCaseList: [],
         loading: false,
         runData: [],
         reportId: "",
         projectId: "",
         checkedCases: new Set(),
-        visible: false
+        visible: false,
+        condition: {}
 
       }
     },
     watch: {
-      // 初始化
-      api() {
-        if (this.currentRow) {
-          this.currentRow.cases = [];
-        }
-        this.getApiTest();
-      },
-      currentProject() {
-        if (this.currentRow) {
-          this.currentRow.cases = [];
-        }
-        this.getEnvironments();
-      },
       refreshSign() {
         if (this.currentRow) {
           this.currentRow.cases = [];
@@ -257,7 +179,6 @@
     },
     created() {
       this.projectId = getCurrentProjectID();
-      this.getEnvironments();
       if (this.createCase) {
         this.sysAddition();
       } else {
@@ -266,16 +187,22 @@
     },
     methods: {
       open() {
-        // this.apiCaseList = [];
+        this.init();
         this.visible = true;
       },
+      init() {
+        if (this.currentRow) {
+          this.currentRow.cases = [];
+        }
+        this.getApiTest();
+      },
+      setEnvironment(environment) {
+        this.environment = environment;
+      },
       sysAddition() {
-        let condition = {};
-        condition.projectId = this.api.projectId;
-        condition.apiDefinitionId = this.api.id;
-        condition.priority = this.priorityValue;
-        condition.name = this.name;
-        this.$post("/api/testcase/list", condition, response => {
+        this.condition.projectId = this.api.projectId;
+        this.condition.apiDefinitionId = this.api.id;
+        this.$post("/api/testcase/list", this.condition, response => {
           for (let index in response.data) {
             let test = response.data[index];
             test.request = JSON.parse(test.request);
@@ -289,11 +216,6 @@
           return RESULT_MAP.get(data);
         } else {
           return RESULT_MAP.get("default");
-        }
-      },
-      handleCommand(e) {
-        if (e === "run") {
-          this.batchRun();
         }
       },
       showInput(row) {
@@ -370,7 +292,6 @@
           this.apiCaseList.unshift(obj);
         }
       },
-
       active(item) {
         item.active = !item.active;
       },
@@ -411,12 +332,9 @@
         return bodyUploadFiles;
       },
       getApiTest() {
-        let condition = {};
-        condition.projectId = this.api.projectId;
-        condition.apiDefinitionId = this.api.id;
-        condition.priority = this.priorityValue;
-        condition.name = this.name;
-        this.result = this.$post("/api/testcase/list", condition, response => {
+        this.condition.projectId = this.api.projectId;
+        this.condition.apiDefinitionId = this.api.id;
+        this.result = this.$post("/api/testcase/list", this.condition, response => {
           for (let index in response.data) {
             let test = response.data[index];
             test.request = JSON.parse(test.request);
@@ -450,46 +368,7 @@
           this.$emit('refresh');
         });
       },
-      getEnvironments() {
-        if (this.projectId) {
-          this.$get('/api/environment/list/' + this.projectId, response => {
-            this.environments = response.data;
-            this.environments.forEach(environment => {
-              parseEnvironment(environment);
-            });
-            let hasEnvironment = false;
-            for (let i in this.environments) {
-              if (this.environments[i].id === this.api.environmentId) {
-                hasEnvironment = true;
-                break;
-              }
-            }
-            if (!hasEnvironment) {
-              this.environment = undefined;
-            }
-          });
-        } else {
-          this.environment = undefined;
-        }
-      },
-      openEnvironmentConfig() {
-        if (!this.projectId) {
-          this.$error(this.$t('api_test.select_project'));
-          return;
-        }
-        this.$refs.environmentConfig.open(this.projectId);
-      },
-      environmentChange(value) {
-        for (let i in this.environments) {
-          if (this.environments[i].id === value) {
-            this.environment = this.environments[i];
-            break;
-          }
-        }
-      },
-      environmentConfigClose() {
-        this.getEnvironments();
-      },
+
       selectTestCase(item, $event) {
         if (item.type === "create" || !this.loaded) {
           return;
@@ -536,19 +415,6 @@
     min-width: 100px;
   }
 
-  .el-card-btn {
-    float: right;
-    top: 20px;
-    right: 0px;
-    padding: 0;
-    background: 0 0;
-    border: none;
-    outline: 0;
-    cursor: pointer;
-    font-size: 18px;
-    margin-left: 30px;
-  }
-
   .ms-api-label {
     color: #CCCCCC;
   }
@@ -558,13 +424,6 @@
     border-color: #7C3985;
     margin-right: 10px;
     color: white;
-  }
-
-  .variable-combine {
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    font-size: 10px;
   }
 
   .icon.is-active {
@@ -577,11 +436,6 @@
     border-radius: 4px;
     border-left: 4px solid #783887;
     margin: 20px 0;
-  }
-
-  .environment-button {
-    margin-left: 20px;
-    padding: 7px;
   }
 
   .is-selected {
