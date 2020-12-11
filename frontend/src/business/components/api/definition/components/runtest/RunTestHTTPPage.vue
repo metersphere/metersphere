@@ -236,7 +236,7 @@
             let hasEnvironment = false;
             for (let i in this.environments) {
               if (this.environments[i].id === this.api.environmentId) {
-                this.api.environment = this.environments[i];
+                this.api.environmentId = this.environments[i];
                 hasEnvironment = true;
                 break;
               }
@@ -261,7 +261,8 @@
       environmentChange(value) {
         for (let i in this.environments) {
           if (this.environments[i].id === value) {
-            this.api.request.useEnvironment = this.environments[i].id;
+            this.api.environmentId = value;
+            this.api.request.useEnvironment = value;
             break;
           }
         }

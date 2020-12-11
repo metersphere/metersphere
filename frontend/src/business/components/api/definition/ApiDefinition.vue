@@ -154,7 +154,10 @@
         }
       },
       handleTabAdd(e) {
-        let api = {status: "Underway", method: "GET", userId: getCurrentUser().id, url: "", protocol: this.currentProtocol};
+        let api = {
+          status: "Underway", method: "GET", userId: getCurrentUser().id,
+          url: "", protocol: this.currentProtocol, environmentId: ""
+        };
         this.handleTabsEdit(this.$t('api_test.definition.request.title'), e, api);
       },
       handleTabClose() {
