@@ -46,6 +46,7 @@
     props: {
       currentProtocol: String,
       scenario: Boolean,
+      testCase: {},
     },
     data() {
       return {
@@ -66,7 +67,27 @@
       }
     },
     created() {
-      this.request = createComponent("DubboSampler");
+      if (this.testCase) {
+        // 执行结果信息
+        let url = "/api/definition/report/getReport/" + this.testCase.id;
+        this.$get(url, response => {
+          if (response.data) {
+            let data = JSON.parse(response.data.content);
+            this.responseData = data;
+          }
+        });
+        this.request = this.testCase.request;
+        if (this.request) {
+          this.debugForm.method = this.request.method;
+          if (this.request.url) {
+            this.debugForm.url = this.request.url;
+          } else {
+            this.debugForm.url = this.request.path;
+          }
+        }
+      } else {
+        this.request = createComponent("DubboSampler");
+      }
     },
     watch: {
       debugResultId() {

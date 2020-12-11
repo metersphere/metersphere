@@ -81,7 +81,7 @@
       <ms-table-pagination :change="initApiTable" :current-page.sync="currentPage" :page-size.sync="pageSize"
                            :total="total"/>
     </el-card>
-    <ms-api-case-list @refresh="initApiTable" :currentApi="selectApi" ref="caseList"/>
+    <ms-api-case-list @refresh="initApiTable" @showExecResult="showExecResult" :currentApi="selectApi" ref="caseList"/>
   </div>
 
 </template>
@@ -304,6 +304,9 @@
           return this.methodColorMap.get(method);
         }
       },
+      showExecResult(row) {
+        this.$emit('showExecResult', row);
+      }
     },
   }
 </script>

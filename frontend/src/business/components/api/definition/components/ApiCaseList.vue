@@ -66,7 +66,10 @@
                 </el-col>
 
                 <el-col :span="3">
-                  <div v-if="item.type!='create'">{{getResult(item.execResult)}}</div>
+                  <el-link type="danger" @click="showExecResult(item)" v-if="item.execResult && item.execResult==='error'">{{getResult(item.execResult)}}</el-link>
+                  <div v-else>
+                    <div v-if="item.type!='create'">{{getResult(item.execResult)}}</div>
+                  </div>
                   <div v-if="item.type!='create'" style="color: #999999;font-size: 12px">
                     <span> {{item.updateTime | timestampFormatDate }}</span>
                     {{item.updateUser}}
@@ -388,6 +391,10 @@
       },
       handleClose() {
         this.visible = false;
+      },
+      showExecResult(row) {
+        this.visible = false;
+        this.$emit('showExecResult', row);
       }
     }
   }
