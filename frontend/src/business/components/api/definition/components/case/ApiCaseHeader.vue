@@ -48,7 +48,7 @@
         <el-col :span="3">
           <div class="ms-api-header-select">
             <el-input size="small" :placeholder="$t('api_test.definition.request.select_case')"
-                      v-model="condition.name" @blur="getApiTest"/>
+                      v-model="condition.name" @blur="getApiTest" @keyup.enter.native="getApiTest"/>
           </div>
         </el-col>
         <el-col :span="2">
