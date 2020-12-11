@@ -30,7 +30,7 @@
 
     <!-- 加载用例 -->
     <el-drawer :visible.sync="visible" direction="btt" :with-header="false" :modal="false" size="50%">
-      <ms-api-case-list @apiCaseClose="apiCaseClose" @selectTestCase="selectTestCase" :api="api"
+      <ms-api-case-list @apiCaseClose="apiCaseClose" @selectTestCase="selectTestCase" :currentApi="api"
                         :loaded="loaded" :refreshSign="refreshSign" :createCase="createCase"
                         ref="caseList"/>
     </el-drawer>

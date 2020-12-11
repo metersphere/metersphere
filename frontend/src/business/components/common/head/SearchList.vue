@@ -14,7 +14,10 @@
     <div v-else style="height: 120px;overflow: auto">
       <el-menu-item :key="i.id" v-for="i in items" @click="change(i.id)">
         <template slot="title">
-          <div class="title">{{ i.name }}</div>
+          <div class="title">
+            {{ i.name }}
+            <i class="el-icon-check" v-if="i.id === projectId"></i>
+          </div>
         </template>
       </el-menu-item>
     </div>
@@ -40,6 +43,7 @@ export default {
       items: [],
       search_text: '',
       userId: getCurrentUser().id,
+      projectId: localStorage.getItem(PROJECT_ID)
     }
   },
   watch: {
@@ -96,5 +100,10 @@ export default {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.el-icon-check {
+  color: #773888;
+  margin-left: 10px;
 }
 </style>

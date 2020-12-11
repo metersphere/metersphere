@@ -43,8 +43,8 @@ public class MailService {
                     javaMailSender.setPassword(EncryptUtils.aesDecrypt(p.getParamValue()).toString());
                     break;
                 case "smtp.ssl":
-                    javaMailSender.setProtocol("smtps");
                     if (BooleanUtils.toBoolean(p.getParamValue())) {
+                        javaMailSender.setProtocol("smtps");
                         props.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
                     }
                     break;
