@@ -485,7 +485,7 @@
   }
 
   .filter-input {
-    width: 180px;
+    width: 175px;
     padding-left: 3px;
   }
 
@@ -495,6 +495,11 @@
 
   .filter-input >>> .el-input-group__append {
     padding-right: 10px;
+  }
+
+  .protocol-select >>> .el-input--small {
+    font-size: 10px;
+    width: 90px;
   }
 
 </style>

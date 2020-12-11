@@ -119,3 +119,21 @@ html,body {
 .el-input__inner[maxlength] {
   padding-right: 60px;
 }
+
+
+/* 滚动条样式 */
+::-webkit-scrollbar{
+  width: 5px;
+  height: 5px;
+  position: fixed;
+}
+::-webkit-scrollbar-thumb{
+  border-radius: 1em;
+  background-color: rgba(50,50,50,.3);
+  position: fixed;
+}
+::-webkit-scrollbar-track{
+  border-radius: 1em;
+  background-color: rgba(50,50,50,.1);
+  position: fixed;
+}
