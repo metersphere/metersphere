@@ -65,7 +65,7 @@
                            :total="total"/>
       <div>
         <!-- 执行结果 -->
-        <el-drawer :visible.sync="runVisible" :destroy-on-close="true" direction="ltr" :withHeader="false" :title="$t('test_track.plan_view.test_result')" :modal="false" size="90%">
+        <el-drawer :visible.sync="runVisible" :destroy-on-close="true" direction="ltr" :withHeader="true" :modal="false" size="90%">
           <ms-api-report-detail @refresh="search" :infoDb="infoDb" :report-id="reportId" :currentProjectId="projectId"/>
         </el-drawer>
         <!--测试计划-->
@@ -265,5 +265,7 @@
 </script>
 
 <style scoped>
-
+  /deep/.el-drawer__header{
+    margin-bottom: 0px;
+  }
 </style>

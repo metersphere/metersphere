@@ -261,7 +261,7 @@
       <ms-run :debug="true" :environment="currentEnvironmentId" :reportId="reportId" :run-data="debugData"
               @runRefresh="runRefresh" ref="runTest"/>
       <!-- 调试结果 -->
-      <el-drawer :visible.sync="debugVisible" :destroy-on-close="true" direction="ltr" :withHeader="false" :title="$t('test_track.plan_view.test_result')" :modal="false" size="90%">
+      <el-drawer :visible.sync="debugVisible" :destroy-on-close="true" direction="ltr" :withHeader="true" :modal="false" size="90%">
         <ms-api-report-detail :report-id="reportId" :debug="true" :currentProjectId="projectId"/>
       </el-drawer>
 
@@ -860,5 +860,8 @@
 
   /deep/ .el-step__icon.is-text {
     border: 1px solid;
+  }
+  /deep/.el-drawer__header{
+    margin-bottom: 0px;
   }
 </style>
