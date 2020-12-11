@@ -1,6 +1,7 @@
 package io.metersphere.api.service;
 
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.nacos.client.utils.StringUtils;
 import io.github.ningyu.jmeter.plugin.dubbo.sample.ProviderService;
 import io.metersphere.api.dto.*;
 import io.metersphere.api.dto.parse.ApiImport;
@@ -67,11 +68,13 @@ public class APITestService {
 
     public List<APITestResult> list(QueryAPITestRequest request) {
         request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
+        request.setProjectId(SessionUtils.getCurrentProjectId());
         return extApiTestMapper.list(request);
     }
 
     public List<APITestResult> recentTest(QueryAPITestRequest request) {
         request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
+        request.setProjectId(SessionUtils.getCurrentProjectId());
         return extApiTestMapper.list(request);
     }
 
@@ -402,7 +405,11 @@ public class APITestService {
                 .collect(Collectors.toList());
         if (!resourceIds.isEmpty()) {
             ApiTestExample example = new ApiTestExample();
-            example.createCriteria().andIdIn(resourceIds);
+            ApiTestExample.Criteria criteria = example.createCriteria();
+            criteria.andIdIn(resourceIds);
+            if (StringUtils.isNotBlank(SessionUtils.getCurrentProjectId())) {
+                criteria.andProjectIdEqualTo(SessionUtils.getCurrentProjectId());
+            }
             List<ApiTest> apiTests = apiTestMapper.selectByExample(example);
             Map<String, String> apiTestMap = apiTests.stream().collect(Collectors.toMap(ApiTest::getId, ApiTest::getName));
             scheduleService.build(apiTestMap, schedules);

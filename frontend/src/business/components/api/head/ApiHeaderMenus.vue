@@ -110,11 +110,11 @@ export default {
       apiTestProjectPath: '',
     }
   },
-  watch: {
-    '$route'(to) {
-      this.init();
-    },
-  },
+  // watch: {
+  //   '$route'(to) {
+  //     this.init();
+  //   },
+  // },
   methods: {
     registerEvents() {
       ApiEvent.$on(LIST_CHANGE, () => {
@@ -133,18 +133,17 @@ export default {
         this.isRouterAlive = true;
       });
     },
-    init() {
-      let path = this.$route.path;
-      if (path.indexOf("/api/test/list") >= 0 && !!this.$route.params.projectId) {
-        this.apiTestProjectPath = path;
-        //不激活项目菜单栏
-        this.isProjectActivation = false;
-        this.reload();
-      } else {
-        this.isProjectActivation = true;
-      }
-
-    },
+    // init() {
+    //   let path = this.$route.path;
+    //   if (path.indexOf("/api/test/list") >= 0 && !!this.$route.params.projectId) {
+    //     this.apiTestProjectPath = path;
+    //     //不激活项目菜单栏
+    //     this.isProjectActivation = false;
+    //     this.reload();
+    //   } else {
+    //     this.isProjectActivation = true;
+    //   }
+    // },
   },
   mounted() {
     this.registerEvents();
