@@ -54,6 +54,9 @@
         }
       },
       mounted() {
+        if (!this.data) {
+          this.formatData = "";
+        }
         this.format();
       },
       watch: {
@@ -81,20 +84,20 @@
         },
         format() {
           if (this.enableFormat) {
-            switch (this.mode) {
-              case 'json':
-                this.formatData = formatJson(this.data);
-                break;
-              case 'html':
-                this.formatData = toDiffableHtml(this.data);
-                break;
-              case 'xml':
-                this.formatData = formatXml(this.data);
-                break;
-              default:
-                if (this.data) {
+            if (this.data) {
+              switch (this.mode) {
+                case 'json':
+                  this.formatData = formatJson(this.data);
+                  break;
+                case 'html':
+                  this.formatData = toDiffableHtml(this.data);
+                  break;
+                case 'xml':
+                  this.formatData = formatXml(this.data);
+                  break;
+                default:
                   this.formatData = this.data;
-                }
+              }
             }
           } else {
             this.formatData = this.data;

@@ -3,7 +3,7 @@
     <el-col :span="21">
       <!-- HTTP 请求参数 -->
       <div style="border:1px #DCDFE6 solid; height: 100%;border-radius: 4px ;width: 100%">
-        <el-tabs v-model="activeName" style="margin: 20px;min-height: 200px">
+        <el-tabs v-model="activeName" class="request-tabs">
           <!-- 请求头-->
           <el-tab-pane :label="$t('api_test.request.headers')" name="headers">
             <el-tooltip class="item-tabs" effect="dark" :content="$t('api_test.request.headers')" placement="top-start" slot="label">
@@ -43,8 +43,8 @@
           </el-tab-pane>
 
           <!--请求体-->
-          <el-tab-pane :label="$t('api_test.request.body')" name="body">
-            <ms-api-body :is-read-only="isReadOnly" :isShowEnable="isShowEnable" :headers="headers" :body="request.body"/>
+          <el-tab-pane v-if="isBodyShow" :label="$t('api_test.request.body')" name="body">
+            <ms-api-body @headersChange="reloadBody" :is-read-only="isReadOnly" :isShowEnable="isShowEnable" :headers="headers" :body="request.body"/>
           </el-tab-pane>
 
           <!-- 认证配置 -->
@@ -148,6 +148,7 @@
         },
         headerSuggestions: REQUEST_HEADERS,
         isReloadData: false,
+        isBodyShow: true
       }
     },
 
@@ -207,8 +208,15 @@
         if (!this.request.arguments) {
           this.request.arguments = [];
         }
+      },
+      // 解决修改请求头后 body 显示错位
+      reloadBody() {
+        this.isBodyShow = false;
+        this.$nextTick(() => {
+          this.isBodyShow = true;
+        });
       }
-    },
+    }
   }
 </script>
 
@@ -222,7 +230,7 @@
   }
 
   .ms-query {
-    background: #7F7F7F;
+    background: #783887;
     color: white;
     height: 18px;
     border-radius: 42%;
@@ -233,5 +241,10 @@
     color: white;
     height: 18px;
     border-radius: 42%;
+  }
+
+  .request-tabs {
+    margin: 20px;
+    min-height: 200px;
   }
 </style>
