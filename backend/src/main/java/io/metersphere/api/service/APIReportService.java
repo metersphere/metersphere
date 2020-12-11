@@ -17,6 +17,7 @@ import io.metersphere.commons.constants.ReportTriggerMode;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.ServiceUtils;
+import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.dto.DashboardTestDTO;
 import io.metersphere.i18n.Translator;
 import org.apache.commons.lang3.StringUtils;
@@ -48,11 +49,13 @@ public class APIReportService {
 
     public List<APIReportResult> list(QueryAPIReportRequest request) {
         request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
+        request.setProjectId(SessionUtils.getCurrentProjectId());
         return extApiTestReportMapper.list(request);
     }
 
     public List<APIReportResult> recentTest(QueryAPIReportRequest request) {
         request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
+        request.setProjectId(SessionUtils.getCurrentProjectId());
         return extApiTestReportMapper.list(request);
     }
 
