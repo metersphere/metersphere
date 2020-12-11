@@ -16,7 +16,7 @@
         <template slot="title">
           <div class="title">
             {{ i.name }}
-            <i class="el-icon-check" v-if="i.id === projectId"></i>
+            <i class="el-icon-check" v-if="i.id === currentProjectId"></i>
           </div>
         </template>
       </el-menu-item>
@@ -26,7 +26,7 @@
 </template>
 
 <script>
-import {getCurrentUser, hasRoles} from "@/common/js/utils";
+import {getCurrentProjectID, getCurrentUser, hasRoles} from "@/common/js/utils";
 import {PROJECT_ID, ROLE_TEST_MANAGER, ROLE_TEST_USER, ROLE_TEST_VIEWER} from "@/common/js/constants";
 
 export default {
@@ -43,7 +43,7 @@ export default {
       items: [],
       search_text: '',
       userId: getCurrentUser().id,
-      projectId: localStorage.getItem(PROJECT_ID)
+      currentProjectId: localStorage.getItem(PROJECT_ID)
     }
   },
   watch: {
@@ -61,6 +61,9 @@ export default {
         this.result = this.$get(this.options.url, (response) => {
           this.items = response.data;
           this.items = this.items.splice(0, 3);
+          if (!getCurrentProjectID() && this.items.length > 0) {
+            this.change(this.items[0].id);
+          }
         });
       }
     },
@@ -72,7 +75,6 @@ export default {
       }
     },
     change(projectId) {
-      // todo 初始化的时候切换默认项目
       this.$post("/user/update/current", {id: this.userId, lastProjectId: projectId}, () => {
         localStorage.setItem(PROJECT_ID, projectId);
         window.location.reload();
