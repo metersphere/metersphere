@@ -15,13 +15,6 @@
             <ms-api-key-value :isShowEnable="false" :suggestions="headerSuggestions"
                               :items="response.statusCode"/>
           </el-tab-pane>
-
-          <el-tab-pane v-if="activeName == 'body'" :disabled="true" name="mode" class="pane cookie">
-            <template v-slot:label>
-              <ms-dropdown :commands="modes" :default-command="mode" @command="modeChange"/>
-            </template>
-          </el-tab-pane>
-
         </el-tabs>
       </el-collapse-transition>
     </el-form>
@@ -32,7 +25,6 @@
   import MsAssertionResults from "./AssertionResults";
   import MsCodeEdit from "../../../../common/components/MsCodeEdit";
   import MsDropdown from "../../../../common/components/MsDropdown";
-  import {BODY_FORMAT} from "../../model/ApiTestModel";
   import MsApiKeyValue from "../ApiKeyValue";
   import {REQUEST_HEADERS} from "@/common/js/constants";
   import MsApiBody from "../body/ApiBody";
@@ -55,8 +47,6 @@
       return {
         isActive: true,
         activeName: "headers",
-        modes: ['text', 'json', 'xml', 'html'],
-        mode: BODY_FORMAT.TEXT,
         headerSuggestions: REQUEST_HEADERS
 
       }
@@ -66,17 +56,11 @@
       active() {
         this.isActive = !this.isActive;
       },
-      modeChange(mode) {
-        this.mode = mode;
-      }
     },
 
     mounted() {
       if (!this.response.headers) {
         return;
-      }
-      if (this.response.headers.indexOf("Content-Type: application/json") > 0) {
-        this.mode = BODY_FORMAT.JSON;
       }
     }
   }

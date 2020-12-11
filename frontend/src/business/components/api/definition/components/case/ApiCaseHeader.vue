@@ -201,8 +201,9 @@
     min-width: 100px;
   }
 
-  .el-row {
-    /*vertical-align: center;*/
+  .el-col {
+    height: 32px;
+    line-height: 32px;
   }
 
 

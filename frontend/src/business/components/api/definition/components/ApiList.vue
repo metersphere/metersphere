@@ -32,7 +32,7 @@
             :label="$t('api_test.definition.api_type')"
             show-overflow-tooltip>
             <template v-slot:default="scope" class="request-method">
-              <el-tag size="mini" :style="{'background-color': getColor(true, scope.row.method)}" class="api-el-tag">
+              <el-tag size="mini" :style="{'background-color': getColor(true, scope.row.method), border: getColor(true, scope.row.method)}" class="api-el-tag">
                 {{ scope.row.method}}
               </el-tag>
             </template>
@@ -78,7 +78,8 @@
               <div v-else>
                 <el-button type="text" @click="reductionApi(scope.row)" v-if="currentModule!=undefined && currentModule.id === 'gc'">恢复</el-button>
                 <el-button type="text" @click="editApi(scope.row)" v-else>编辑</el-button>
-                <el-button type="text" @click="handleTestCase(scope.row)">用例</el-button>
+                <el-button v-if="scope.row.caseTotal > 0" type="text" @click="handleTestCase(scope.row)">用例</el-button>
+                <el-button v-else type="text" @click="handleTestCase(scope.row)">+用例</el-button>
                 <el-button type="text" @click="handleDelete(scope.row)" style="color: #F56C6C">删除</el-button>
               </div>
             </template>
@@ -315,7 +316,7 @@
           return this.methodColorMap.get(method);
         }
       },
-    }
+    },
   }
 </script>
 
