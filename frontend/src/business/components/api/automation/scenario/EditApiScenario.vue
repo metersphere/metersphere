@@ -281,7 +281,7 @@
   import MsIfController from "./IfController";
   import MsApiAssertions from "../../definition/components/assertion/ApiAssertions";
   import MsApiExtract from "../../definition/components/extract/ApiExtract";
-  import MsApiDefinition from "../../definition/ApiDefinition";
+  import MsApiDefinition from "./api/ApiDefinition";
   import MsApiComponent from "./ApiComponent";
   import {ELEMENTS, ELEMENT_TYPE} from "./Setting";
   import MsApiCustomize from "./ApiCustomize";

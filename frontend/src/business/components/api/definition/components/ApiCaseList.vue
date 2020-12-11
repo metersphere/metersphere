@@ -23,11 +23,7 @@
           <div v-for="(item,index) in apiCaseList" :key="index">
             <el-card style="margin-top: 5px" @click.native="selectTestCase(item,$event)">
               <el-row>
-                <el-col :span="1">
-                  <el-checkbox v-if="visible" @change="caseChecked(item)"/>
-                </el-col>
-
-                <el-col :span="5">
+                <el-col :span="6">
                   <div class="el-step__icon is-text ms-api-col">
                     <div class="el-step__icon-inner">{{index+1}}</div>
                   </div>
@@ -139,13 +135,12 @@
       MsApiExtendBtns
     },
     props: {
-      api: {
-        type: Object
-      },
       createCase: String,
       loaded: Boolean,
       refreshSign: String,
-      currentRow: Object,
+      currentApi: {
+        type: Object
+      },
     },
     data() {
       return {
@@ -162,22 +157,22 @@
         projectId: "",
         checkedCases: new Set(),
         visible: false,
-        condition: {}
-
+        condition: {},
+        api: {}
       }
     },
     watch: {
       refreshSign() {
-        if (this.currentRow) {
-          this.currentRow.cases = [];
-        }
+        this.api = this.currentApi;
         this.getApiTest();
       },
       createCase() {
+        this.api = this.currentApi;
         this.sysAddition();
       }
     },
     created() {
+      this.api = this.currentApi;
       this.projectId = getCurrentProjectID();
       if (this.createCase) {
         this.sysAddition();
@@ -186,21 +181,16 @@
       }
     },
     methods: {
-      open() {
-        this.init();
-        this.visible = true;
-      },
-      init() {
-        if (this.currentRow) {
-          this.currentRow.cases = [];
-        }
+      open(api) {
+        this.api = api;
         this.getApiTest();
+        this.visible = true;
       },
       setEnvironment(environment) {
         this.environment = environment;
       },
       sysAddition() {
-        this.condition.projectId = this.api.projectId;
+        this.condition.projectId = this.projectId;
         this.condition.apiDefinitionId = this.api.id;
         this.$post("/api/testcase/list", this.condition, response => {
           for (let index in response.data) {
@@ -332,18 +322,20 @@
         return bodyUploadFiles;
       },
       getApiTest() {
-        this.condition.projectId = this.api.projectId;
-        this.condition.apiDefinitionId = this.api.id;
-        this.result = this.$post("/api/testcase/list", this.condition, response => {
-          for (let index in response.data) {
-            let test = response.data[index];
-            test.request = JSON.parse(test.request);
-          }
-          this.apiCaseList = response.data;
-          if (this.apiCaseList.length == 0) {
-            this.addCase();
-          }
-        });
+        if (this.api) {
+          this.condition.projectId = this.projectId;
+          this.condition.apiDefinitionId = this.api.id;
+          this.result = this.$post("/api/testcase/list", this.condition, response => {
+            for (let index in response.data) {
+              let test = response.data[index];
+              test.request = JSON.parse(test.request);
+            }
+            this.apiCaseList = response.data;
+            if (this.apiCaseList.length == 0) {
+              this.addCase();
+            }
+          });
+        }
       },
       validate(row) {
         if (!row.name) {
@@ -356,7 +348,7 @@
           return;
         }
         let bodyFiles = this.getBodyUploadFiles(row);
-        row.projectId = this.api.projectId;
+        row.projectId = this.projectId;
         row.apiDefinitionId = row.apiDefinitionId || this.api.id;
         let url = "/api/testcase/create";
         if (row.id) {
@@ -385,17 +377,6 @@
           this.$emit('selectTestCase', item);
         }
 
-      },
-      caseChecked(row) {
-        row.protocol = this.api.protocol;
-        row.hashTree = [];
-        if (this.checkedCases.has(row)) {
-          this.checkedCases.delete(row);
-        } else {
-          this.checkedCases.add(row)
-        }
-        let arr = Array.from(this.checkedCases);
-        this.currentRow.cases = arr;
       },
       handleClose() {
         this.visible = false;

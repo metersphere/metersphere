@@ -74,7 +74,7 @@
                         :loaded="loaded"
                         :refreshSign="refreshSign"
                         :createCase="createCase"
-                        :api="api"
+                        :currentApi="api"
                         ref="caseList"/>
 
     <!-- 环境 -->
