@@ -535,6 +535,7 @@ export default {
         test_plan_select: "請選擇測試計劃",
         create_info: '創建',
         update_info: '更新',
+        batch_edit: "批量編輯",
       }
     },
     automation: {

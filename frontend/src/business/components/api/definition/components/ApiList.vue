@@ -72,10 +72,9 @@
         <el-table-column :label="$t('commons.operating')" min-width="130" align="center">
           <template v-slot:default="scope">
             <el-button type="text" @click="reductionApi(scope.row)" v-if="currentModule!=undefined && currentModule.id === 'gc'">恢复</el-button>
-            <el-button type="text" @click="editApi(scope.row)" v-else>编辑</el-button>
-            <el-button v-if="scope.row.caseTotal > 0" type="text" @click="handleTestCase(scope.row)">用例</el-button>
-            <el-button v-else type="text" @click="handleTestCase(scope.row)">+用例</el-button>
-            <el-button type="text" @click="handleDelete(scope.row)" style="color: #F56C6C">删除</el-button>
+            <el-button type="text" @click="editApi(scope.row)" v-else>{{$t('commons.edit')}}</el-button>
+            <el-button type="text" @click="handleTestCase(scope.row)">{{$t('api_test.definition.request.case')}}</el-button>
+            <el-button type="text" @click="handleDelete(scope.row)" style="color: #F56C6C">{{$t('commons.delete')}}</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -124,7 +123,10 @@
         moduleId: "",
         deletePath: "/test/case/delete",
         selectRows: new Set(),
-        buttons: [{name: this.$t('api_test.definition.request.batch_delete'), handleClick: this.handleDeleteBatch}],
+        buttons: [
+          {name: this.$t('api_test.definition.request.batch_delete'), handleClick: this.handleDeleteBatch},
+          {name: this.$t('api_test.definition.request.batch_edit'), handleClick: this.handleEditBatch}
+        ],
         methodColorMap: new Map(API_METHOD_COLOUR),
         tableData: [],
         currentPage: 1,
@@ -266,6 +268,9 @@
             }
           });
         }
+      },
+      handleEditBatch() {
+        this.$emit('handleEditBatch', this.selectRows);
       },
       handleTestCase(api) {
         this.selectApi = api;
