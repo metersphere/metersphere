@@ -70,12 +70,12 @@
     </el-card>
 
     <!-- 加载用例 -->
-      <ms-api-case-list @selectTestCase="selectTestCase"
-                        :loaded="loaded"
-                        :refreshSign="refreshSign"
-                        :createCase="createCase"
-                        :currentApi="api"
-                        ref="caseList"/>
+    <ms-api-case-list @selectTestCase="selectTestCase"
+                      :loaded="loaded"
+                      :refreshSign="refreshSign"
+                      :createCase="createCase"
+                      :currentApi="api"
+                      ref="caseList"/>
 
     <!-- 环境 -->
     <api-environment-config ref="environmentConfig" @close="environmentConfigClose"/>
@@ -169,7 +169,6 @@
       loadCase() {
         this.refreshSign = getUUID();
         this.loaded = true;
-        // this.visible = true;
         this.$refs.caseList.open();
       },
       apiCaseClose() {
@@ -199,7 +198,7 @@
       saveAsCase() {
         //用于触发创建操作
         this.createCase = getUUID();
-        this.visible = true;
+        this.$refs.caseList.open();
         this.loaded = false;
       },
       saveAsApi() {

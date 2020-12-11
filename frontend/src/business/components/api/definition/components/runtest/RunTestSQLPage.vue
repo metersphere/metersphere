@@ -28,12 +28,9 @@
     </el-card>
 
     <!-- 加载用例 -->
-    <el-drawer :visible.sync="visible" direction="btt" :with-header="false" :modal="false" size="50%">
-      <ms-api-case-list @apiCaseClose="apiCaseClose" @selectTestCase="selectTestCase" :currentApi="api" :refreshSign="refreshSign"
-                        :loaded="loaded" :createCase="createCase"
-                        ref="caseList"/>
-    </el-drawer>
-    >
+    <ms-api-case-list @apiCaseClose="apiCaseClose" @selectTestCase="selectTestCase" :currentApi="api" :refreshSign="refreshSign"
+                      :loaded="loaded" :createCase="createCase"
+                      ref="caseList"/>
 
     <!-- 环境 -->
     <api-environment-config ref="environmentConfig" @close="environmentConfigClose"/>
@@ -124,7 +121,7 @@
       },
       loadCase() {
         this.refreshSign = getUUID();
-        this.loaded = true;
+        this.$refs.caseList.open();
         this.visible = true;
       },
       apiCaseClose() {
@@ -153,7 +150,7 @@
       },
       saveAsCase() {
         this.createCase = getUUID();
-        this.visible = true;
+        this.$refs.caseList.open();
         this.loaded = false;
       },
       saveAsApi() {

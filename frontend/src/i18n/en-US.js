@@ -536,6 +536,7 @@ export default {
         test_plan_select: "Please select test plan",
         create_info: 'Create',
         update_info: 'Update',
+        batch_edit: "Batch edit",
       }
     },
     automation: {

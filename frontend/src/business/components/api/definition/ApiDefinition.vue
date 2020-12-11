@@ -1,45 +1,52 @@
 <template>
   <ms-container>
     <ms-aside-container>
-      <ms-node-tree @selectModule="selectModule" @getApiModuleTree="initTree" @changeProtocol="changeProtocol"
-                    @refresh="refresh" @saveAsEdit="editApi" @debug="debug" @exportAPI="exportAPI"/>
+      <ms-node-tree @selectModule="selectModule"
+                    @getApiModuleTree="initTree"
+                    @changeProtocol="changeProtocol"
+                    @refresh="refresh"
+                    @saveAsEdit="editApi"
+                    @debug="debug"
+                    @exportAPI="exportAPI"/>
     </ms-aside-container>
 
     <ms-main-container>
-      <el-dropdown size="small" split-button type="primary" class="ms-api-buttion" @click="handleCommand('add')"
+      <el-dropdown size="small" split-button type="primary" class="ms-api-buttion"
+                   @click="handleCommand('ADD')"
                    @command="handleCommand">
         {{$t('commons.add')}}
         <el-dropdown-menu slot="dropdown">
           <el-dropdown-item command="debug">{{$t('api_test.definition.request.fast_debug')}}</el-dropdown-item>
-          <el-dropdown-item command="add">{{$t('api_test.definition.request.title')}}</el-dropdown-item>
-          <el-dropdown-item command="closeAll">{{$t('api_test.definition.request.close_all_label')}}</el-dropdown-item>
+          <el-dropdown-item command="ADD">{{$t('api_test.definition.request.title')}}</el-dropdown-item>
+          <el-dropdown-item command="CLOSE_ALL">{{$t('api_test.definition.request.close_all_label')}}</el-dropdown-item>
         </el-dropdown-menu>
       </el-dropdown>
 
-        <!-- 主框架列表 -->
-      <el-tabs v-model="apiDefaultTab" @edit="handleTabsEdit">
-        <el-tab-pane
-          :key="item.name"
-          v-for="(item) in apiTabs"
-          :label="item.title"
-          :closable="item.closable"
-          :name="item.name">
+      <!-- 主框架列表 -->
+      <el-tabs v-model="apiDefaultTab" @edit="handleTabRemove">
+        <el-tab-pane v-for="(item) in apiTabs"
+                     :key="item.name"
+                     :label="item.title"
+                     :closable="item.closable"
+                     :name="item.name">
           <!-- 列表集合 -->
           <ms-api-list
             v-if="item.type === 'list'"
             :current-protocol="currentProtocol"
             :current-module="currentModule"
-            @editApi="editApi"
-            @handleCase="handleCase"
             :visible="visible"
             :currentRow="currentRow"
+            @editApi="editApi"
+            @handleCase="handleCase"
+            @handleEditBatch="handleEditBatch"
             ref="apiList"/>
 
-          <!-- 添加测试窗口-->
-          <div v-else-if="item.type=== 'add'" class="ms-api-div">
-            <ms-api-config @runTest="runTest" @saveApi="saveApi" :current-api="currentApi"
+          <!-- 添加/编辑测试窗口-->
+          <div v-else-if="item.type=== 'ADD'" class="ms-api-div">
+            <ms-api-config @runTest="runTest" @saveApi="saveApi" ref="apiConfig"
+                           :current-api="item.api"
                            :currentProtocol="currentProtocol"
-                           :moduleOptions="moduleOptions" ref="apiConfig"/>
+                           :moduleOptions="moduleOptions"/>
           </div>
 
           <!-- 快捷调试 -->
@@ -51,7 +58,7 @@
           </div>
 
           <!-- 测试-->
-          <div v-else-if="item.type=== 'test'" class="ms-api-div">
+          <div v-else-if="item.type=== 'TEST'" class="ms-api-div">
             <ms-run-test-http-page :currentProtocol="currentProtocol" :api-data="runTestData" @saveAsApi="editApi" v-if="currentProtocol==='HTTP'"/>
             <ms-run-test-tcp-page :currentProtocol="currentProtocol" :api-data="runTestData" @saveAsApi="editApi" v-if="currentProtocol==='TCP'"/>
             <ms-run-test-sql-page :currentProtocol="currentProtocol" :api-data="runTestData" @saveAsApi="editApi" v-if="currentProtocol==='SQL'"/>
@@ -59,14 +66,9 @@
           </div>
         </el-tab-pane>
       </el-tabs>
-
     </ms-main-container>
-
-
   </ms-container>
-
 </template>
-
 <script>
   import MsNodeTree from './components/ApiModule';
   import MsApiList from './components/ApiList';
@@ -114,7 +116,7 @@
     },
     data() {
       return {
-        isHide: true,
+        showCasePage: true,
         apiDefaultTab: 'default',
         currentProtocol: null,
         currentModule: null,
@@ -131,73 +133,89 @@
     },
     watch: {
       currentProtocol() {
-        this.handleCommand("closeAll");
+        this.handleCommand("CLOSE_ALL");
       }
     },
     methods: {
       handleCommand(e) {
-        if (e === "add") {
-          this.currentApi = {status: "Underway", method: "GET", userId: getCurrentUser().id, url: "", protocol: this.currentProtocol};
-          this.handleTabsEdit(this.$t('api_test.definition.request.title'), e);
-        }
-        else if (e === "test") {
-          this.handleTabsEdit(this.$t("commons.api"), e);
-        }
-        else if (e === "closeAll") {
-          let tabs = this.apiTabs[0];
-          this.apiTabs = [];
-          this.apiDefaultTab = tabs.name;
-          this.apiTabs.push(tabs);
-          this.refresh();
-        }
-        else {
-          this.handleTabsEdit(this.$t('api_test.definition.request.fast_debug'), "debug");
+        switch (e) {
+          case "ADD":
+            this.handleTabAdd(e);
+            break;
+          case "TEST":
+            this.handleTabsEdit(this.$t("commons.api"), e);
+            break;
+          case "CLOSE_ALL":
+            this.handleTabClose();
+            break;
+          default:
+            this.handleTabsEdit(this.$t('api_test.definition.request.fast_debug'), "debug");
+            break;
         }
       },
-      handleTabsEdit(targetName, action) {
-        if (action === 'remove') {
-          let tabs = this.apiTabs;
-          let activeName = this.apiDefaultTab;
-          if (activeName === targetName) {
-            tabs.forEach((tab, index) => {
-              if (tab.name === targetName) {
-                let nextTab = tabs[index + 1] || tabs[index - 1];
-                if (nextTab) {
-                  activeName = nextTab.name;
-                }
+      handleTabAdd(e) {
+        let api = {status: "Underway", method: "GET", userId: getCurrentUser().id, url: "", protocol: this.currentProtocol};
+        this.handleTabsEdit(this.$t('api_test.definition.request.title'), e, api);
+      },
+      handleTabClose() {
+        let tabs = this.apiTabs[0];
+        this.apiTabs = [];
+        this.apiDefaultTab = tabs.name;
+        this.apiTabs.push(tabs);
+        this.refresh();
+      },
+      handleTabRemove(targetName) {
+        let tabs = this.apiTabs;
+        let activeName = this.apiDefaultTab;
+        if (activeName === targetName) {
+          tabs.forEach((tab, index) => {
+            if (tab.name === targetName) {
+              let nextTab = tabs[index + 1] || tabs[index - 1];
+              if (nextTab) {
+                activeName = nextTab.name;
               }
-            });
-          }
-          this.apiDefaultTab = activeName;
-          this.apiTabs = tabs.filter(tab => tab.name !== targetName);
-          this.refresh();
-        } else {
-          if (targetName === undefined || targetName === null) {
-            targetName = this.$t('api_test.definition.request.title');
-          }
-          let newTabName = getUUID().substring(0, 8);
-          this.apiTabs.push({
-            title: targetName,
-            name: newTabName,
-            closable: true,
-            type: action
+            }
           });
-          this.apiDefaultTab = newTabName;
         }
+        this.apiDefaultTab = activeName;
+        this.apiTabs = tabs.filter(tab => tab.name !== targetName);
+        this.refresh();
+      },
+      handleTabsEdit(targetName, action, api) {
+        if (targetName === undefined || targetName === null) {
+          targetName = this.$t('api_test.definition.request.title');
+        }
+        let newTabName = getUUID();
+        this.apiTabs.push({
+          title: targetName,
+          name: newTabName,
+          closable: true,
+          type: action,
+          api: api,
+        });
+        this.apiDefaultTab = newTabName;
       },
       debug() {
         this.handleTabsEdit(this.$t('api_test.definition.request.fast_debug'), "debug");
       },
       editApi(row) {
-        this.currentApi = row;
-        this.handleTabsEdit(this.$t('api_test.definition.request.edit_api') + "-" + row.name, "add");
+        let name = this.$t('api_test.definition.request.edit_api');
+        if (row.name) {
+          name = this.$t('api_test.definition.request.edit_api') + "-" + row.name;
+        }
+        this.handleTabsEdit(name, "ADD", row);
       },
-      handleCase(testCase) {
-        this.currentApi = testCase;
-        this.isHide = false;
+      handleEditBatch(rows) {
+        rows.forEach(row => {
+          this.handleTabsEdit(this.$t('api_test.definition.request.edit_api') + "-" + row.name, "ADD", row);
+        })
+      },
+      handleCase(api) {
+        this.currentApi = api;
+        this.showCasePage = false;
       },
       apiCaseClose() {
-        this.isHide = true;
+        this.showCasePage = true;
       },
       selectModule(data) {
         this.currentModule = data;
@@ -206,7 +224,7 @@
         if (!this.$refs.apiList[0].tableData) {
           return;
         }
-        let obj = {projectName: getCurrentProjectID(), protocol: this.currentProtocol, data: this.$refs.apiList[0].tableData}
+        let obj = {protocol: this.currentProtocol, data: this.$refs.apiList[0].tableData}
         downloadFile("导出API.json", JSON.stringify(obj));
       },
       refresh(data) {
@@ -224,7 +242,7 @@
       },
       runTest(data) {
         this.setTabTitle(data);
-        this.handleCommand("test");
+        this.handleCommand("TEST");
       },
       saveApi(data) {
         this.setTabTitle(data);

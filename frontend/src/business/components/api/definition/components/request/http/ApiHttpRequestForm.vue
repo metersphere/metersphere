@@ -21,7 +21,7 @@
           <el-tab-pane :label="$t('api_test.definition.request.query_param')" name="parameters">
             <el-tooltip class="item-tabs" effect="dark" :content="$t('api_test.definition.request.query_info')" placement="top-start" slot="label">
               <span>{{$t('api_test.definition.request.query_param')}}
-                <div class="el-step__icon is-text ms-api-col ms-query" v-if="request.arguments.length>1">
+                <div class="el-step__icon is-text ms-api-col ms-header" v-if="request.arguments.length>1">
                   <div class="el-step__icon-inner">{{request.arguments.length-1}}</div>
                 </div></span>
             </el-tooltip>
@@ -34,7 +34,7 @@
             <el-tooltip class="item-tabs" effect="dark" :content="$t('api_test.definition.request.rest_info')" placement="top-start" slot="label">
               <span>
                 {{$t('api_test.definition.request.rest_param')}}
-                <div class="el-step__icon is-text ms-api-col ms-query" v-if="request.rest.length>1">
+                <div class="el-step__icon is-text ms-api-col ms-header" v-if="request.rest.length>1">
                   <div class="el-step__icon-inner">{{request.rest.length-1}}</div>
                 </div>
               </span>
