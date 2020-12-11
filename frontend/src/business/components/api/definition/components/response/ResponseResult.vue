@@ -25,6 +25,21 @@
         <pre>{{response.responseResult.vars}}</pre>
       </el-tab-pane>
 
+      <el-tab-pane :label="$t('api_report.request_body')" name="request_body" class="pane">
+        <div>
+          {{$t('api_test.request.address')}} : {{ response.url }}
+        </div>
+        <div>
+          {{$t('api_test.scenario.headers')}} : {{ response.headers }}
+        </div>
+        <div>
+          Cookies : {{response.cookies}}
+        </div>
+        <div>
+          Body : {{response.body}}
+        </div>
+
+      </el-tab-pane>
 
       <el-tab-pane v-if="activeName == 'body'" :disabled="true" name="mode" class="pane cookie">
         <template v-slot:label>

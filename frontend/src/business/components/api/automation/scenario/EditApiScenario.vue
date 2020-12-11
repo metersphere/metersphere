@@ -237,7 +237,7 @@
 
       <!--接口列表-->
       <el-drawer :visible.sync="apiListVisible" :destroy-on-close="true" direction="ltr" :withHeader="false" :title="$t('api_test.automation.api_list_import')" :modal="false" size="90%">
-        <ms-api-definition :visible="true" :currentRow="currentRow"/>
+        <ms-api-definition :visible="visibleRef" :currentRow="currentRow"/>
         <el-button style="float: right;margin: 0px 20px 0px" type="primary" @click="copyApi('REF')">{{$t('api_test.scenario.reference')}}</el-button>
         <el-button style="float: right;" type="primary" @click="copyApi('Copy')">{{ $t('commons.copy') }}</el-button>
       </el-drawer>
@@ -348,6 +348,7 @@
         debugData: {},
         reportId: "",
         projectId: "",
+        visibleRef: "",
       }
     },
     created() {
@@ -417,6 +418,7 @@
         this.reload();
       },
       apiListImport() {
+        this.visibleRef = getUUID();
         this.apiListVisible = true;
       },
       recursiveSorting(arr) {

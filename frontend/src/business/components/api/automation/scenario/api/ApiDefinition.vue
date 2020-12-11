@@ -50,8 +50,7 @@
     },
     props: {
       visible: {
-        type: Boolean,
-        default: false,
+        type: String,
       },
       currentRow: {
         type: Object,
