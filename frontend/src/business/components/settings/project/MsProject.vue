@@ -88,7 +88,7 @@ import MsTablePagination from "../../common/pagination/TablePagination";
 import MsTableHeader from "../../common/components/MsTableHeader";
 import MsTableOperator from "../../common/components/MsTableOperator";
 import MsDialogFooter from "../../common/components/MsDialogFooter";
-import {_sort, getCurrentUser, listenGoBack, removeGoBackListener} from "@/common/js/utils";
+import {_sort, getCurrentProjectID, getCurrentUser, listenGoBack, removeGoBackListener} from "@/common/js/utils";
 import MsContainer from "../../common/components/MsContainer";
 import MsMainContainer from "../../common/components/MsMainContainer";
 import MsDeleteConfirm from "../../common/components/MsDeleteConfirm";
@@ -96,6 +96,7 @@ import MsTableOperatorButton from "../../common/components/MsTableOperatorButton
 import ApiEnvironmentConfig from "../../api/test/components/ApiEnvironmentConfig";
 import TemplateComponent from "../../track/plan/view/comonents/report/TemplateComponent/TemplateComponent";
 import {ApiEvent, LIST_CHANGE, PerformanceEvent, TrackEvent} from "@/business/components/common/head/ListEvent";
+import {PROJECT_ID} from "@/common/js/constants";
 
 export default {
   name: "MsProject",
@@ -216,6 +217,10 @@ export default {
         type: 'warning'
       }).then(() => {
         this.$get('/project/delete/' + project.id, () => {
+          if (project.id === getCurrentProjectID()) {
+            localStorage.removeItem(PROJECT_ID);
+            this.$post("/user/update/current", {id: getCurrentUser().id, lastProjectId: ''});
+          }
           Message.success(this.$t('commons.delete_success'));
           this.list();
           // 发送广播，刷新 head 上的最新列表
