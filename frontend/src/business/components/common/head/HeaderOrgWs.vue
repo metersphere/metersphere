@@ -26,13 +26,14 @@
 </template>
 
 <script>
-  import {
-    ROLE_ORG_ADMIN,
-    ROLE_TEST_MANAGER,
-    ROLE_TEST_USER,
-    ROLE_TEST_VIEWER,
-    WORKSPACE_ID
-  } from '../../../../common/js/constants';
+import {
+  PROJECT_ID,
+  ROLE_ORG_ADMIN,
+  ROLE_TEST_MANAGER,
+  ROLE_TEST_USER,
+  ROLE_TEST_VIEWER,
+  WORKSPACE_ID
+} from '../../../../common/js/constants';
   import {getCurrentUser, hasRoles, saveLocalStorage} from "../../../../common/js/utils";
 
   export default {
@@ -107,6 +108,7 @@
           if (response.data.workspaceId) {
             localStorage.setItem("workspace_id", response.data.workspaceId);
           }
+          localStorage.removeItem(PROJECT_ID)
           this.$router.push('/');
           window.location.reload();
         });
@@ -119,6 +121,7 @@
         this.$post("/user/switch/source/ws/" + workspaceId, {}, response => {
           saveLocalStorage(response);
           localStorage.setItem("workspace_id", workspaceId);
+          localStorage.removeItem(PROJECT_ID)
           this.$router.push('/');
           window.location.reload();
         })
