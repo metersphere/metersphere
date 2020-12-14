@@ -6,8 +6,12 @@
 
           <el-submenu :class="{'deactivation':!isProjectActivation}"
                       v-permission="['test_manager','test_user','test_viewer']" index="3">
-            <template v-slot:title>{{ $t('commons.project') }}</template>
-            <search-list ref="projectRecent" :options="projectRecent"/>
+            <template v-slot:title>
+              <span style="display: inline-block;width: 150px;white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" :title="currentProject">
+                {{ $t('commons.project') }}: {{currentProject}}
+              </span>
+            </template>
+            <search-list ref="projectRecent" :options="projectRecent" :current-project.sync="currentProject"/>
             <el-divider class="menu-divider"/>
             <el-menu-item :index="'/setting/project/create'">
               <font-awesome-icon :icon="['fa', 'plus']"/>
@@ -108,6 +112,7 @@ export default {
       isProjectActivation: true,
       isRouterAlive: true,
       apiTestProjectPath: '',
+      currentProject: ''
     }
   },
   // watch: {
