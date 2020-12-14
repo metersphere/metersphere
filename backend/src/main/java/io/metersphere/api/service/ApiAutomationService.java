@@ -248,7 +248,7 @@ public class ApiAutomationService {
                 JSONObject element = JSON.parseObject(item.getScenarioDefinition());
                 MsScenario scenario = JSONObject.parseObject(item.getScenarioDefinition(), MsScenario.class);
                 // 多态JSON普通转换会丢失内容，需要通过 ObjectMapper 获取
-                if (StringUtils.isNotEmpty(element.getString("hashTree"))) {
+                if (element!= null && StringUtils.isNotEmpty(element.getString("hashTree"))) {
                     LinkedList<MsTestElement> elements = mapper.readValue(element.getString("hashTree"),
                             new TypeReference<LinkedList<MsTestElement>>() {
                             });

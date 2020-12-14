@@ -455,6 +455,10 @@
       addScenario(arr) {
         if (arr && arr.length > 0) {
           arr.forEach(item => {
+            if (item.id === this.currentScenario.id) {
+              this.$error("不能引用或复制自身！");
+              return;
+            }
             item.enable === undefined ? item.enable = true : item.enable;
             this.scenarioDefinition.push(item);
           })

@@ -306,7 +306,12 @@
       },
       handleTestCase(api) {
         this.selectApi = api;
-        let request = JSON.parse(api.request);
+        let request = {};
+        if (Object.prototype.toString.call(api.request).match(/\[object (\w+)\]/)[1].toLowerCase() === 'object') {
+          request = api.request;
+        } else {
+          request = JSON.parse(api.request);
+        }
         if (!request.hashTree) {
           request.hashTree = [];
         }
