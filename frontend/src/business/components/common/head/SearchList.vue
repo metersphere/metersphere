@@ -2,7 +2,7 @@
   <div v-loading="result.loading" class="search-list">
     <el-input placeholder="搜索项目"
               prefix-icon="el-icon-search"
-              v-model="search_text"
+              v-model="searchString"
               clearable
               class="search-input"
               size="small"/>
@@ -16,8 +16,8 @@
         <template slot="title">
           <div class="title">
             {{ i.name }}
-            <i class="el-icon-check" v-if="i.id === currentProjectId"></i>
           </div>
+          <i class="el-icon-check" v-if="i.id === currentProjectId"></i>
         </template>
       </el-menu-item>
     </div>
@@ -32,7 +32,8 @@ import {PROJECT_ID, ROLE_TEST_MANAGER, ROLE_TEST_USER, ROLE_TEST_VIEWER} from "@
 export default {
   name: "SearchList",
   props: {
-    options: Object
+    options: Object,
+    currentProject: String
   },
   mounted() {
     this.init();
@@ -41,44 +42,68 @@ export default {
     return {
       result: {},
       items: [],
-      search_text: '',
+      searchArray: [],
+      searchString: '',
       userId: getCurrentUser().id,
       currentProjectId: localStorage.getItem(PROJECT_ID)
     }
   },
   watch: {
-    search_text(val) {
-      if (!val) {
-        this.init();
-      } else {
-        this.search();
-      }
+    searchString(val) {
+      this.query(val)
     }
   },
   methods: {
     init: function () {
       if (hasRoles(ROLE_TEST_VIEWER, ROLE_TEST_USER, ROLE_TEST_MANAGER)) {
-        this.result = this.$get(this.options.url, (response) => {
+        this.result = this.$get("/project/listAll", response => {
           this.items = response.data;
-          this.items = this.items.splice(0, 3);
+          this.searchArray = response.data;
           if (!getCurrentProjectID() && this.items.length > 0) {
             this.change(this.items[0].id);
           }
-        });
+          let projectId = getCurrentProjectID();
+          this.changeProjectName(projectId);
+        })
       }
     },
     search() {
       if (hasRoles(ROLE_TEST_VIEWER, ROLE_TEST_USER, ROLE_TEST_MANAGER)) {
-        this.result = this.$post("/project/search", {name: this.search_text},response => {
+        this.result = this.$post("/project/search", {name: this.searchString},response => {
           this.items = response.data;
         })
       }
     },
+    query(queryString) {
+      this.items = queryString ? this.searchArray.filter(this.createFilter(queryString)) : this.searchArray;
+    },
+    createFilter(queryString) {
+      return item => {
+        return (item.name.toLowerCase().indexOf(queryString.toLowerCase()) !== -1);
+      };
+    },
     change(projectId) {
       this.$post("/user/update/current", {id: this.userId, lastProjectId: projectId}, () => {
         localStorage.setItem(PROJECT_ID, projectId);
-        window.location.reload();
+        if (this.$route.path.indexOf('/track/review/view/') >= 0) {
+          this.$router.replace('/track/review/all');
+        } else if (this.$route.path.indexOf('/track/plan/view/') >= 0) {
+          this.$router.replace('/track/plan/all');
+        } else {
+          window.location.reload();
+        }
+        this.changeProjectName(projectId);
       });
+    },
+    changeProjectName(projectId) {
+      if (projectId) {
+        let project = this.searchArray.filter(p => p.id === projectId);
+        if (project.length > 0) {
+          this.$emit("update:currentProject", project[0].name);
+        }
+      } else {
+        this.$emit("update:currentProject", '选择项目');
+      }
     }
   }
 }
