@@ -271,7 +271,7 @@
         });
       },
       copyCase(data) {
-        let obj = {name: data.name, priority: data.priority, type: 'create', active: false, request: data.request};
+        let obj = {name: "copy_"+data.name, priority: data.priority, type: 'create', active: false, request: data.request};
         this.apiCaseList.unshift(obj);
       },
       addCase() {
