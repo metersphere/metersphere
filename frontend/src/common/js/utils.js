@@ -96,7 +96,6 @@ export function getCurrentProjectID() {
 export function saveLocalStorage(response) {
   // 登录信息保存 cookie
   localStorage.setItem(TokenKey, JSON.stringify(response.data));
-  localStorage.setItem(PROJECT_ID, response.data.lastProjectId);
   let rolesArray = response.data.roles;
   let roles = rolesArray.map(r => r.id);
   // 保存角色

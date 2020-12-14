@@ -11,7 +11,7 @@
           无数据
         </span>
     </div>
-    <div v-else style="height: 120px;overflow: auto">
+    <div v-else style="height: 150px;overflow: auto">
       <el-menu-item :key="i.id" v-for="i in items" @click="change(i.id)">
         <template slot="title">
           <div class="title">
@@ -35,8 +35,18 @@ export default {
     options: Object,
     currentProject: String
   },
+  created() {
+    if (getCurrentUser().lastProjectId) {
+      localStorage.setItem(PROJECT_ID, getCurrentUser().lastProjectId);
+    }
+  },
   mounted() {
     this.init();
+  },
+  computed: {
+    currentProjectId() {
+      return localStorage.getItem(PROJECT_ID)
+    }
   },
   data() {
     return {
@@ -45,7 +55,6 @@ export default {
       searchArray: [],
       searchString: '',
       userId: getCurrentUser().id,
-      currentProjectId: localStorage.getItem(PROJECT_ID)
     }
   },
   watch: {
@@ -83,6 +92,10 @@ export default {
       };
     },
     change(projectId) {
+      let currentProjectId = getCurrentProjectID();
+      if (projectId === currentProjectId) {
+        return;
+      }
       this.$post("/user/update/current", {id: this.userId, lastProjectId: projectId}, () => {
         localStorage.setItem(PROJECT_ID, projectId);
         if (this.$route.path.indexOf('/track/review/view/') >= 0) {
