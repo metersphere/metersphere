@@ -21,10 +21,9 @@ import org.apache.ibatis.session.SqlSessionFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.Resource;
 import java.util.*;
 import java.util.stream.Collectors;
-
-import javax.annotation.Resource;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -124,16 +123,17 @@ public class ApiScenarioModuleService {
         }
     }
 
-    private List<ApiScenarioDTO> queryByModuleIds(List<String> nodeIds) {
+    private List<ApiScenarioDTO> queryByModuleIds(DragApiScenarioModuleRequest request) {
         ApiScenarioRequest apiScenarioRequest = new ApiScenarioRequest();
-        apiScenarioRequest.setModuleIds(nodeIds);
+        apiScenarioRequest.setProjectId(request.getProjectId());
+        apiScenarioRequest.setModuleIds(request.getNodeIds());
         return apiAutomationService.list(apiScenarioRequest);
     }
 
     public int editNode(DragApiScenarioModuleRequest request) {
         request.setUpdateTime(System.currentTimeMillis());
         checkApiScenarioModuleExist(request);
-        List<ApiScenarioDTO> apiScenarios = queryByModuleIds(request.getNodeIds());
+        List<ApiScenarioDTO> apiScenarios = queryByModuleIds(request);
 
         apiScenarios.forEach(apiScenario -> {
             StringBuilder path = new StringBuilder(apiScenario.getModulePath());
@@ -172,7 +172,7 @@ public class ApiScenarioModuleService {
 
         List<String> nodeIds = request.getNodeIds();
 
-        List<ApiScenarioDTO> apiScenarios = queryByModuleIds(nodeIds);
+        List<ApiScenarioDTO> apiScenarios = queryByModuleIds(request);
 
         ApiScenarioModuleDTO nodeTree = request.getNodeTree();
 

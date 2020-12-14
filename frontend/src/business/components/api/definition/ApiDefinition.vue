@@ -38,7 +38,7 @@
             :currentRow="currentRow"
             @editApi="editApi"
             @handleCase="handleCase"
-            @handleEditBatch="handleEditBatch"
+            @showExecResult="showExecResult"
             ref="apiList"/>
 
           <!-- 添加/编辑测试窗口-->
@@ -51,10 +51,10 @@
 
           <!-- 快捷调试 -->
           <div v-else-if="item.type=== 'debug'" class="ms-api-div">
-            <ms-debug-http-page :currentProtocol="currentProtocol" @saveAs="editApi" v-if="currentProtocol==='HTTP'"/>
-            <ms-debug-jdbc-page :currentProtocol="currentProtocol" @saveAs="editApi" v-if="currentProtocol==='SQL'"/>
-            <ms-debug-tcp-page :currentProtocol="currentProtocol" @saveAs="editApi" v-if="currentProtocol==='TCP'"/>
-            <ms-debug-dubbo-page :currentProtocol="currentProtocol" @saveAs="editApi" v-if="currentProtocol==='DUBBO'"/>
+            <ms-debug-http-page :currentProtocol="currentProtocol" :testCase="item.api" @saveAs="editApi" v-if="currentProtocol==='HTTP'"/>
+            <ms-debug-jdbc-page :currentProtocol="currentProtocol" :testCase="item.api" @saveAs="editApi" v-if="currentProtocol==='SQL'"/>
+            <ms-debug-tcp-page :currentProtocol="currentProtocol" :testCase="item.api" @saveAs="editApi" v-if="currentProtocol==='TCP'"/>
+            <ms-debug-dubbo-page :currentProtocol="currentProtocol" :testCase="item.api" @saveAs="editApi" v-if="currentProtocol==='DUBBO'"/>
           </div>
 
           <!-- 测试-->
@@ -154,7 +154,10 @@
         }
       },
       handleTabAdd(e) {
-        let api = {status: "Underway", method: "GET", userId: getCurrentUser().id, url: "", protocol: this.currentProtocol};
+        let api = {
+          status: "Underway", method: "GET", userId: getCurrentUser().id,
+          url: "", protocol: this.currentProtocol, environmentId: ""
+        };
         this.handleTabsEdit(this.$t('api_test.definition.request.title'), e, api);
       },
       handleTabClose() {
@@ -195,8 +198,8 @@
         });
         this.apiDefaultTab = newTabName;
       },
-      debug() {
-        this.handleTabsEdit(this.$t('api_test.definition.request.fast_debug'), "debug");
+      debug(id) {
+        this.handleTabsEdit(this.$t('api_test.definition.request.fast_debug'), "debug",id);
       },
       editApi(row) {
         let name = this.$t('api_test.definition.request.edit_api');
@@ -204,11 +207,6 @@
           name = this.$t('api_test.definition.request.edit_api') + "-" + row.name;
         }
         this.handleTabsEdit(name, "ADD", row);
-      },
-      handleEditBatch(rows) {
-        rows.forEach(row => {
-          this.handleTabsEdit(this.$t('api_test.definition.request.edit_api') + "-" + row.name, "ADD", row);
-        })
       },
       handleCase(api) {
         this.currentApi = api;
@@ -253,6 +251,9 @@
       },
       changeProtocol(data) {
         this.currentProtocol = data;
+      },
+      showExecResult(row){
+        this.debug(row);
       }
     }
   }

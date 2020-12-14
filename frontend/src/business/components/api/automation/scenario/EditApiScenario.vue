@@ -261,7 +261,7 @@
       <ms-run :debug="true" :environment="currentEnvironmentId" :reportId="reportId" :run-data="debugData"
               @runRefresh="runRefresh" ref="runTest"/>
       <!-- 调试结果 -->
-      <el-drawer :visible.sync="debugVisible" :destroy-on-close="true" direction="ltr" :withHeader="false" :title="$t('test_track.plan_view.test_result')" :modal="false" size="90%">
+      <el-drawer :visible.sync="debugVisible" :destroy-on-close="true" direction="ltr" :withHeader="true" :modal="false" size="90%">
         <ms-api-report-detail :report-id="reportId" :debug="true" :currentProjectId="projectId"/>
       </el-drawer>
 
@@ -352,6 +352,9 @@
       }
     },
     created() {
+      if (!this.currentScenario.apiScenarioModuleId) {
+        this.currentScenario.apiScenarioModuleId = "";
+      }
       this.projectId = getCurrentProjectID();
       this.operatingElements = ELEMENTS.get("ALL");
       this.getMaintainerOptions();
@@ -450,8 +453,12 @@
         this.reload();
       },
       addScenario(arr) {
-        if (arr.length > 0) {
+        if (arr && arr.length > 0) {
           arr.forEach(item => {
+            if (item.id === this.currentScenario.id) {
+              this.$error("不能引用或复制自身！");
+              return;
+            }
             item.enable === undefined ? item.enable = true : item.enable;
             this.scenarioDefinition.push(item);
           })
@@ -476,7 +483,7 @@
           request.enable === undefined ? request.enable = true : request.enable;
           request.active = false;
           request.resourceId = getUUID();
-          if (referenced === 'REF') {
+          if (referenced === 'REF' || !request.hashTree) {
             request.hashTree = [];
           }
           if (this.selectedTreeNode != undefined) {
@@ -496,7 +503,7 @@
           request.enable === undefined ? request.enable = true : request.enable;
           request.active = false;
           request.resourceId = getUUID();
-          if (referenced === 'REF') {
+          if (referenced === 'REF' || !request.hashTree) {
             request.hashTree = [];
           }
           if (this.selectedTreeNode != undefined) {
@@ -506,6 +513,8 @@
           }
         })
         this.apiListVisible = false;
+        this.currentRow.cases = [];
+        this.currentRow.apis = [];
         this.sort();
         this.reload();
       },
@@ -601,6 +610,7 @@
       },
       allowDrag() {
         this.sort();
+        this.reload();
       },
       nodeExpand(data) {
         if (data.resourceId) {
@@ -708,10 +718,6 @@
         }
       },
       setParameter() {
-        this.currentScenario.projectId = this.projectId;
-        if (!this.currentScenario.id) {
-          this.currentScenario.id = getUUID();
-        }
         this.currentScenario.stepTotal = this.scenarioDefinition.length;
         this.currentScenario.modulePath = this.getPath(this.currentScenario.apiScenarioModuleId);
         // 构建一个场景对象 方便引用处理
@@ -860,5 +866,9 @@
 
   /deep/ .el-step__icon.is-text {
     border: 1px solid;
+  }
+
+  /deep/ .el-drawer__header {
+    margin-bottom: 0px;
   }
 </style>

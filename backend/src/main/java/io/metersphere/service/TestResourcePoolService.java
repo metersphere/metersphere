@@ -1,26 +1,20 @@
 package io.metersphere.service;
 
-import com.alibaba.fastjson.JSON;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.LoadTestMapper;
 import io.metersphere.base.mapper.TestResourceMapper;
 import io.metersphere.base.mapper.TestResourcePoolMapper;
-import io.metersphere.commons.constants.ResourceStatusEnum;
+import io.metersphere.commons.constants.ResourcePoolTypeEnum;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.controller.request.resourcepool.QueryResourcePoolRequest;
-import io.metersphere.dto.NodeDTO;
 import io.metersphere.dto.TestResourcePoolDTO;
 import io.metersphere.i18n.Translator;
 import org.apache.commons.beanutils.BeanUtils;
-import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.client.RestTemplate;
 
 import javax.annotation.Resource;
 import java.lang.reflect.InvocationTargetException;
@@ -40,16 +34,14 @@ import static io.metersphere.commons.constants.ResourceStatusEnum.VALID;
 @Transactional(rollbackFor = Exception.class)
 public class TestResourcePoolService {
 
-    private final static String nodeControllerUrl = "http://%s:%s/status";
-
     @Resource
     private TestResourcePoolMapper testResourcePoolMapper;
     @Resource
     private TestResourceMapper testResourceMapper;
     @Resource
-    private RestTemplate restTemplateWithTimeOut;
-    @Resource
     private LoadTestMapper loadTestMapper;
+    @Resource
+    private NodeResourcePoolService nodeResourcePoolService;
 
     public TestResourcePoolDTO addTestResourcePool(TestResourcePoolDTO testResourcePool) {
         checkTestResourcePool(testResourcePool);
@@ -168,61 +160,14 @@ public class TestResourcePoolService {
     }
 
     private boolean validateTestResourcePool(TestResourcePoolDTO testResourcePool) {
-        return validateNodes(testResourcePool);
-    }
-
-    private boolean validateNodes(TestResourcePoolDTO testResourcePool) {
-        if (CollectionUtils.isEmpty(testResourcePool.getResources())) {
-            MSException.throwException(Translator.get("no_nodes_message"));
-        }
-
-        deleteTestResource(testResourcePool.getId());
-        List<String> nodeIps = testResourcePool.getResources().stream()
-                .map(resource -> {
-                    NodeDTO nodeDTO = JSON.parseObject(resource.getConfiguration(), NodeDTO.class);
-                    return nodeDTO.getIp();
-                })
-                .distinct()
-                .collect(Collectors.toList());
-        if (nodeIps.size() < testResourcePool.getResources().size()) {
-            MSException.throwException(Translator.get("duplicate_node_ip"));
-        }
-        testResourcePool.setStatus(VALID.name());
-        boolean isValid = true;
-        for (TestResource resource : testResourcePool.getResources()) {
-            NodeDTO nodeDTO = JSON.parseObject(resource.getConfiguration(), NodeDTO.class);
-            boolean isValidate = validateNode(nodeDTO);
-            if (!isValidate) {
-                testResourcePool.setStatus(ResourceStatusEnum.INVALID.name());
-                resource.setStatus(ResourceStatusEnum.INVALID.name());
-                isValid = false;
-            } else {
-                resource.setStatus(VALID.name());
+        if (StringUtils.equalsIgnoreCase(testResourcePool.getType(), ResourcePoolTypeEnum.K8S.name())) {
+            KubernetesResourcePoolService resourcePoolService = CommonBeanFactory.getBean(KubernetesResourcePoolService.class);
+            if (resourcePoolService == null) {
+                return false;
             }
-            resource.setTestResourcePoolId(testResourcePool.getId());
-            updateTestResource(resource);
+            return resourcePoolService.validate(testResourcePool);
         }
-        return isValid;
-    }
-
-    private boolean validateNode(NodeDTO node) {
-        try {
-            ResponseEntity<String> entity = restTemplateWithTimeOut.getForEntity(String.format(nodeControllerUrl, node.getIp(), node.getPort()), String.class);
-            return HttpStatus.OK.equals(entity.getStatusCode());
-        } catch (Exception e) {
-            LogUtil.error(e.getMessage(), e);
-            return false;
-        }
-    }
-
-    private void updateTestResource(TestResource testResource) {
-        testResource.setUpdateTime(System.currentTimeMillis());
-        testResource.setCreateTime(System.currentTimeMillis());
-        if (StringUtils.isBlank(testResource.getId())) {
-            testResource.setId(UUID.randomUUID().toString());
-        }
-        // 如果是更新操作，插入与原来的ID相同的数据
-        testResourceMapper.insertSelective(testResource);
+        return nodeResourcePoolService.validate(testResourcePool);
     }
 
     private void deleteTestResource(String testResourcePoolId) {

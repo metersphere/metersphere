@@ -30,11 +30,9 @@
                       class="ms-el-input" size="mini"></el-input>
           </template>
           <!-- 如果不是编辑状态 -->
-          <span v-else>
-            <i class="el-icon-delete" v-if="data.id==='gc'"/>
-            <i class="el-icon-folder" v-else/>
-            <span class="node-title" v-text="data.name"></span>
-          </span>
+            <i class="el-icon-delete" v-if="data.isEdit!=1 && data.id==='gc'"/>
+            <i class="el-icon-folder" v-if="data.isEdit!=1 && data.id!='gc'"/>
+            <span class="node-title" v-if="data.isEdit!=1" v-text="data.name"></span>
 
           <span class="node-operate child">
             <el-tooltip
@@ -117,6 +115,7 @@
     },
     methods: {
       getApiModuleTree() {
+        this.nextFlag = true;
         let projectId = getCurrentProjectID();
         if (projectId) {
           if (this.expandedNode.length === 0) {
@@ -265,6 +264,7 @@
           const children = parent.data.children || parent.data
           const index = children.findIndex(d => d.id !== undefined && data.id !== undefined && d.id === data.id)
           children.splice(index, 1);
+          this.getApiModuleTree();
         });
       },
 
@@ -313,7 +313,7 @@
       editApiModule(node, data) {
         let projectId = getCurrentProjectID();
         if (!projectId) {
-          this.$error("$t('api_test.select_project')");
+          this.$error(this.$t('api_test.select_project'));
           return;
         }
         let url = "";

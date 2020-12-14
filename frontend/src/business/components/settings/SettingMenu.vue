@@ -42,7 +42,7 @@
     </el-submenu>
 
     <el-menu-item v-for="menu in project" :key="menu.index" :index="'/setting/project/all'" class="setting-item"
-                  v-permission="menu.roles">
+                  v-permission="['test_user','test_manager', 'org_admin', 'admin']">
       <template v-slot:title>
         <font-awesome-icon class="icon" :icon="['fa', 'bars']" size="lg"/>
         <span>{{ $t(menu.title) }}</span>

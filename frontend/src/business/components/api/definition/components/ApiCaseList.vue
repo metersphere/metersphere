@@ -29,7 +29,7 @@
                   </div>
 
                   <label class="ms-api-label">{{$t('test_track.case.priority')}}</label>
-                  <el-select size="small" v-model="item.priority" class="ms-api-select">
+                  <el-select size="small" v-model="item.priority" class="ms-api-select" @change="changePriority(item)">
                     <el-option v-for="grd in priorities" :key="grd.id" :label="grd.name" :value="grd.id"/>
                   </el-select>
                 </el-col>
@@ -57,16 +57,19 @@
 
                 <el-col :span="4">
                   <ms-tip-button @click="singleRun(item)" :tip="$t('api_test.run')" icon="el-icon-video-play"
-                                 style="background-color: #409EFF;color: white" size="mini" circle/>
+                                 style="background-color: #409EFF;color: white" size="mini" :disabled="item.type=='create'" circle/>
                   <ms-tip-button @click="copyCase(item)" :tip="$t('commons.copy')" icon="el-icon-document-copy"
-                                 size="mini" circle/>
+                                 size="mini" :disabled="item.type=='create'" circle/>
                   <ms-tip-button @click="deleteCase(index,item)" :tip="$t('commons.delete')" icon="el-icon-delete"
-                                 size="mini" circle/>
+                                 size="mini" :disabled="item.type=='create'" circle/>
                   <ms-api-extend-btns :row="item"/>
                 </el-col>
 
                 <el-col :span="3">
-                  <div v-if="item.type!='create'">{{getResult(item.execResult)}}</div>
+                  <el-link type="danger" v-if="item.execResult && item.execResult==='error'" @click="showExecResult(item)">{{getResult(item.execResult)}}</el-link>
+                  <el-link v-else-if="item.execResult && item.execResult==='success'" @click="showExecResult(item)">{{getResult(item.execResult)}}</el-link>
+                  <div v-else> {{getResult(item.execResult)}}</div>
+
                   <div v-if="item.type!='create'" style="color: #999999;font-size: 12px">
                     <span> {{item.updateTime | timestampFormatDate }}</span>
                     {{item.updateUser}}
@@ -222,7 +225,6 @@
           this.$warning(this.$t('api_test.environment.select_environment'));
           return;
         }
-        this.loading = true;
         if (this.apiCaseList.length > 0) {
           this.apiCaseList.forEach(item => {
             if (item.type != "create") {
@@ -231,9 +233,13 @@
               this.runData.push(item.request);
             }
           })
-          this.loading = true;
-          /*触发执行操作*/
-          this.reportId = getUUID().substring(0, 8);
+          if (this.runData.length > 0) {
+            this.loading = true;
+            /*触发执行操作*/
+            this.reportId = getUUID().substring(0, 8);
+          } else {
+            this.$warning("没有可执行的用例！");
+          }
         } else {
           this.$warning("没有可执行的用例！");
         }
@@ -265,7 +271,7 @@
         });
       },
       copyCase(data) {
-        let obj = {name: data.name, priority: data.priority, type: 'create', active: false, request: data.request};
+        let obj = {name: "copy_"+data.name, priority: data.priority, type: 'create', active: false, request: data.request};
         this.apiCaseList.unshift(obj);
       },
       addCase() {
@@ -329,6 +335,9 @@
             for (let index in response.data) {
               let test = response.data[index];
               test.request = JSON.parse(test.request);
+              if (!test.request.hashTree) {
+                test.request.hashTree = [];
+              }
             }
             this.apiCaseList = response.data;
             if (this.apiCaseList.length == 0) {
@@ -341,6 +350,11 @@
         if (!row.name) {
           this.$warning(this.$t('api_test.input_name'));
           return true;
+        }
+      },
+      changePriority(row) {
+        if (row.type != 'create') {
+          this.saveTestCase(row);
         }
       },
       saveTestCase(row) {
@@ -380,6 +394,10 @@
       },
       handleClose() {
         this.visible = false;
+      },
+      showExecResult(row) {
+        this.visible = false;
+        this.$emit('showExecResult', row);
       }
     }
   }

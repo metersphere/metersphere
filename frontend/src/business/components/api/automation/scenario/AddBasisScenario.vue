@@ -57,74 +57,75 @@
 </template>
 
 <script>
-import {WORKSPACE_ID} from '@/common/js/constants';
-import {getCurrentUser, getUUID,getCurrentProjectID} from "@/common/js/utils";
-import MsDialogFooter from "@/business/components/common/components/MsDialogFooter";
-export default {
-  name: "MsAddBasisScenario",
-  components: {MsDialogFooter},
-  props: {},
-  data() {
-    return {
-      scenarioForm: {},
-      visible: false,
-      currentModule: {},
-      userOptions: [],
-      rule: {
-        name: [
-          {required: true, message: this.$t('test_track.case.input_name'), trigger: 'blur'},
-          {max: 50, message: this.$t('test_track.length_less_than') + '50', trigger: 'blur'}
-        ],
-        principal: [{
-          required: true,
-          message: this.$t('api_test.automation.scenario.select_principal'),
-          trigger: 'change'
-        }],
-      },
-    }
-  }
-  ,
-  methods: {
-    saveScenario(saveAs) {
-      this.$refs['scenarioForm'].validate((valid) => {
-        if (valid) {
-          let path = "/api/automation/create";
-          this.setParameter();
-          this.result = this.$post(path, this.scenarioForm, () => {
-            this.visible = false;
-            if (saveAs) {
-              this.scenarioForm.request = JSON.stringify(this.scenarioForm.request);
-              this.$parent.saveAsEdit(this.scenarioForm);
-            } else {
-              this.$parent.refresh(this.currentModule);
-            }
-          });
-        } else {
-          return false;
-        }
-      })
-    },
-    setParameter() {
-      this.scenarioForm.projectId = getCurrentProjectID();
-      this.scenarioForm.id = getUUID().substring(0, 8);
-      this.scenarioForm.protocol = this.currentProtocol;
-      if (this.currentModule != null) {
-        this.scenarioForm.modulePath = this.currentModule.method !== undefined ? this.currentModule.method : null;
-        this.scenarioForm.apiScenarioModuleId = this.currentModule.id;
+  import {WORKSPACE_ID} from '@/common/js/constants';
+  import {getCurrentUser, getUUID, getCurrentProjectID} from "@/common/js/utils";
+  import MsDialogFooter from "@/business/components/common/components/MsDialogFooter";
+
+  export default {
+    name: "MsAddBasisScenario",
+    components: {MsDialogFooter},
+    props: {},
+    data() {
+      return {
+        scenarioForm: {},
+        visible: false,
+        currentModule: {},
+        userOptions: [],
+        rule: {
+          name: [
+            {required: true, message: this.$t('test_track.case.input_name'), trigger: 'blur'},
+            {max: 50, message: this.$t('test_track.length_less_than') + '50', trigger: 'blur'}
+          ],
+          principal: [{
+            required: true,
+            message: this.$t('api_test.automation.scenario.select_principal'),
+            trigger: 'change'
+          }],
+        },
       }
-    },
-    getMaintainerOptions() {
-      let workspaceId = localStorage.getItem(WORKSPACE_ID);
-      this.$post('/user/ws/member/tester/list', {workspaceId: workspaceId}, response => {
-        this.userOptions = response.data;
-      });
-    },
-    open(currentModule) {
-      this.scenarioForm = {principal: getCurrentUser().id};
-      this.currentModule = currentModule;
-      this.getMaintainerOptions();
-      this.visible = true;
+    }
+    ,
+    methods: {
+      saveScenario(saveAs) {
+        this.$refs['scenarioForm'].validate((valid) => {
+          if (valid) {
+            let path = "/api/automation/create";
+            this.setParameter();
+            this.$fileUpload(path, null, [], this.scenarioForm, () => {
+              this.visible = false;
+              if (saveAs) {
+                this.scenarioForm.request = JSON.stringify(this.scenarioForm.request);
+                this.$parent.saveAsEdit(this.scenarioForm);
+              } else {
+                this.$parent.refresh(this.currentModule);
+              }
+            });
+          } else {
+            return false;
+          }
+        })
+      },
+      setParameter() {
+        this.scenarioForm.projectId = getCurrentProjectID();
+        this.scenarioForm.id = getUUID().substring(0, 8);
+        this.scenarioForm.protocol = this.currentProtocol;
+        if (this.currentModule != null && this.currentModule != "newId") {
+          this.scenarioForm.modulePath = this.currentModule.method !== undefined ? this.currentModule.method : null;
+          this.scenarioForm.apiScenarioModuleId = this.currentModule.id;
+        }
+      },
+      getMaintainerOptions() {
+        let workspaceId = localStorage.getItem(WORKSPACE_ID);
+        this.$post('/user/ws/member/tester/list', {workspaceId: workspaceId}, response => {
+          this.userOptions = response.data;
+        });
+      },
+      open(currentModule) {
+        this.scenarioForm = {principal: getCurrentUser().id};
+        this.currentModule = currentModule;
+        this.getMaintainerOptions();
+        this.visible = true;
+      }
     }
   }
-}
 </script>

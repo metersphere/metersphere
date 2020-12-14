@@ -35,11 +35,10 @@
              @node-click="selectModule"
              @node-drag-end="handleDragEnd"
              :filter-node-method="filterNode"
-             draggable
+             :draggable="true"
              :allow-drop="allowDrop"
              :allow-drag="allowDrag" ref="tree">
-        <span class="custom-tree-node father"
-              slot-scope="{ node, data }">
+        <span class="custom-tree-node father" slot-scope="{ node, data }">
           <!-- 如果是编辑状态 -->
           <template v-if="data.isEdit==1">
             <el-input ref="input"
@@ -48,12 +47,9 @@
                       class="ms-el-input" size="mini"></el-input>
           </template>
           <!-- 如果不是编辑状态 -->
-          <div v-else>
-            <i class="el-icon-delete" v-if="data.id==='gc'"/>
-            <i class="el-icon-folder" v-else/>
-          <span class="node-title" v-text="data.name"></span>
-          </div>
-
+           <i class="el-icon-delete" v-if="data.isEdit!=1 && data.id==='gc'"/>
+           <i class="el-icon-folder" v-if="data.isEdit!=1 && data.id!='gc'"/>
+          <span class="node-title" v-if="data.isEdit!=1" v-text="data.name"></span>
           <span class="node-operate child">
             <el-tooltip
               v-if="data.id!='root' && data.id!='gc'"
@@ -138,6 +134,7 @@
         if (this.expandedNode.length === 0) {
           this.expandedNode.push("root");
         }
+        this.nextFlag = true;
         this.result = this.$get("/api/module/list/" + this.projectId + "/" + this.protocol, response => {
           if (response.data != undefined && response.data != null) {
             this.data[1].children = response.data;
@@ -449,28 +446,6 @@
     width: 100%;
   }
 
-  .father .child {
-    display: none;
-  }
-
-  .father:hover .child {
-    display: block;
-  }
-
-  .node-title {
-    width: 0px;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    flex: 1 1 auto;
-    padding: 0px 5px;
-    overflow: hidden;
-  }
-
-  .node-operate > i {
-    color: #409eff;
-    margin: 0px 5px;
-  }
-
   /deep/ .el-tree-node__content {
     height: 33px;
   }
@@ -500,6 +475,28 @@
   .protocol-select >>> .el-input--small {
     font-size: 10px;
     width: 90px;
+  }
+
+  .father .child {
+    display: none;
+  }
+
+  .father:hover .child {
+    display: block;
+  }
+
+  .node-title {
+    width: 0px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    flex: 1 1 auto;
+    padding: 0px 5px;
+    overflow: hidden;
+  }
+
+  .node-operate > i {
+    color: #409eff;
+    margin: 0px 5px;
   }
 
 </style>

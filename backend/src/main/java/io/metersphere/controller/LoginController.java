@@ -5,14 +5,17 @@ import io.metersphere.commons.constants.UserSource;
 import io.metersphere.commons.user.SessionUser;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.controller.request.LoginRequest;
+import io.metersphere.service.BaseDisplayService;
 import io.metersphere.service.UserService;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.core.env.Environment;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.io.IOException;
 
 @RestController
 @RequestMapping
@@ -22,6 +25,8 @@ public class LoginController {
     private UserService userService;
     @Resource
     private Environment env;
+    @Resource
+    private BaseDisplayService baseDisplayService;
 
     @GetMapping(value = "/isLogin")
     public ResultHolder isLogin() {
@@ -65,5 +70,10 @@ public class LoginController {
     @GetMapping(value = "/language")
     public String getDefaultLanguage() {
         return userService.getDefaultLanguage();
+    }
+
+    @GetMapping("display/file/{imageName}")
+    public ResponseEntity<byte[]> image(@PathVariable("imageName") String imageName) throws IOException {
+        return baseDisplayService.getImage(imageName);
     }
 }

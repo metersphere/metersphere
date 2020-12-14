@@ -64,7 +64,11 @@
           break;
       }
       if (this.currentApi.response != null && this.currentApi.response != 'null' && this.currentApi.response != undefined) {
-        this.response = new ResponseFactory(JSON.parse(this.currentApi.response));
+        if (Object.prototype.toString.call(this.currentApi.response).match(/\[object (\w+)\]/)[1].toLowerCase() === 'object') {
+          this.response = this.currentApi.response;
+        } else {
+          this.response = new ResponseFactory(JSON.parse(this.currentApi.response));
+        }
       } else {
         this.response = {headers: [], body: new Body(), statusCode: [], type: "HTTP"};
       }
@@ -72,6 +76,9 @@
         this.reqUrl = "/api/definition/update";
       } else {
         this.reqUrl = "/api/definition/create";
+      }
+      if (!this.request.hashTree) {
+        this.request.hashTree = [];
       }
     },
     methods: {

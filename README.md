@@ -1,4 +1,4 @@
-# MeterSphere 开源持续测试平台
+# MeterSphere 一站式开源持续测试平台
 
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/176186d132df448b955f8bdd5e6ef9c0)](https://app.codacy.com/gh/metersphere/metersphere?utm_source=github.com&utm_medium=referral&utm_content=metersphere/metersphere&utm_campaign=Badge_Grade_Dashboard)
 [![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/metersphere/metersphere)](https://github.com/metersphere/metersphere/releases/latest)
@@ -11,7 +11,7 @@
 | ------------------------------------------------------------------------------------------------------------ |
 | 我们正在寻找开发者，欢迎加入我们共同打造更好用、更强大的 MeterSphere。联系我们： [metersphere@fit2cloud.com](mailto:metersphere@fit2cloud.com) |
 
-MeterSphere 是一站式的开源企业级持续测试平台，涵盖测试跟踪、接口测试、性能测试、团队协作等功能，兼容JMeter 等开源标准，有效助力开发和测试团队充分利用云弹性进行高度可扩展的自动化测试，加速高质量软件的交付。
+MeterSphere 是一站式开源持续测试平台，涵盖测试跟踪、接口测试、性能测试、团队协作等功能，兼容JMeter 等开源标准，有效助力开发和测试团队充分利用云弹性进行高度可扩展的自动化测试，加速高质量软件的交付。
 
 -   测试跟踪: 远超 TestLink 的使用体验；
 -   接口测试: 类似 Postman 的体验；

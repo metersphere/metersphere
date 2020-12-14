@@ -25,9 +25,11 @@
           </template>
 
         </el-table-column>
-        <el-table-column prop="tagName" :label="$t('api_test.automation.tag')" show-overflow-tooltip>
+        <el-table-column prop="tagNames" :label="$t('api_test.automation.tag')" width="200px">
           <template v-slot:default="scope">
-            <ms-tag type="success" effect="plain" v-if="scope.row.tagName!=undefined" :content="scope.row.tagName"/>
+            <div v-for="itemName in scope.row.tagNames" :key="itemName">
+              <ms-tag type="success" effect="plain" :content="itemName"/>
+            </div>
           </template>
         </el-table-column>
         <el-table-column prop="userId" :label="$t('api_test.automation.creator')" show-overflow-tooltip/>
@@ -65,7 +67,7 @@
                            :total="total"/>
       <div>
         <!-- 执行结果 -->
-        <el-drawer :visible.sync="runVisible" :destroy-on-close="true" direction="ltr" :withHeader="false" :title="$t('test_track.plan_view.test_result')" :modal="false" size="90%">
+        <el-drawer :visible.sync="runVisible" :destroy-on-close="true" direction="ltr" :withHeader="true" :modal="false" size="90%">
           <ms-api-report-detail @refresh="search" :infoDb="infoDb" :report-id="reportId" :currentProjectId="projectId"/>
         </el-drawer>
         <!--测试计划-->
@@ -210,8 +212,8 @@
         this.$emit('edit', row);
       },
       reductionApi(row) {
-        let obj = {id: row.id, projectId: row.projectId, name: row.name, status: 'Underway'}
-        this.$fileUpload("/api/automation/update", null, [], obj, () => {
+        let obj = [row.id];
+        this.$post("/api/automation/reduction", obj, response => {
           this.$success(this.$t('commons.save_success'));
           this.search();
         })
@@ -265,5 +267,7 @@
 </script>
 
 <style scoped>
-
+  /deep/ .el-drawer__header {
+    margin-bottom: 0px;
+  }
 </style>

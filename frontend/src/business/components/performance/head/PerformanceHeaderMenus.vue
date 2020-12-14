@@ -1,13 +1,17 @@
 <template>
   <div id="menu-bar">
     <el-row type="flex">
-      <el-col :span="8">
+      <el-col :span="10">
         <el-menu class="header-menu" :unique-opened="true" mode="horizontal" router :default-active='$route.path'>
 
           <el-submenu v-permission="['test_manager','test_user','test_viewer']"
                       index="3" popper-class="submenu">
-            <template v-slot:title>{{ $t('commons.project') }}</template>
-            <search-list ref="projectRecent" :options="projectRecent"/>
+            <template v-slot:title>
+              <span style="display: inline-block;width: 150px;white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" :title="currentProject">
+                {{ $t('commons.project') }}: {{currentProject}}
+              </span>
+            </template>
+            <search-list ref="projectRecent" :options="projectRecent" :current-project.sync="currentProject"/>
             <el-divider/>
             <el-menu-item :index="'/setting/project/create'">
               <font-awesome-icon :icon="['fa', 'plus']"/>
@@ -39,12 +43,12 @@
           </el-submenu>
         </el-menu>
       </el-col>
-      <el-col :span="8">
+      <el-col :span="4" >
         <el-row type="flex" justify="center">
           <ms-create-test :to="'/performance/test/create'"/>
         </el-row>
       </el-col>
-      <el-col :span="8"/>
+      <el-col :span="10"/>
     </el-row>
   </div>
 </template>
@@ -98,7 +102,7 @@ export default {
         router(item) {
         }
       },
-      input2: ''
+      currentProject: ''
     }
   },
   methods: {

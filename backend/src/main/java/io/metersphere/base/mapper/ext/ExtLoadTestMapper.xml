@@ -106,7 +106,7 @@
     <select id="checkLoadTestOwner" resultType="int">
         SELECT COUNT(1)
         FROM load_test
-        LEFT JOIN project ON api_test.project_id = project.id
+        LEFT JOIN project ON load_test.project_id = project.id
         <where>
             <if test="testId != null">
                 and load_test.id = #{testId}

@@ -48,7 +48,7 @@
         <el-col :span="3">
           <div class="ms-api-header-select">
             <el-input size="small" :placeholder="$t('api_test.definition.request.select_case')"
-                      v-model="condition.name" @blur="getApiTest"/>
+                      v-model="condition.name" @blur="getApiTest" @keyup.enter.native="getApiTest"/>
           </div>
         </el-col>
         <el-col :span="2">
@@ -103,6 +103,7 @@
         }
       },
       created() {
+        this.environment = undefined;
         this.getEnvironments();
       },
       watch: {
@@ -118,16 +119,6 @@
               this.environments.forEach(environment => {
                 parseEnvironment(environment);
               });
-              let hasEnvironment = false;
-              for (let i in this.environments) {
-                if (this.environments[i].id === this.api.environmentId) {
-                  hasEnvironment = true;
-                  break;
-                }
-              }
-              if (!hasEnvironment) {
-                this.environment = undefined;
-              }
             });
           } else {
             this.environment = undefined;
