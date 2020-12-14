@@ -193,6 +193,7 @@
           this.total = response.data.itemCount;
           this.tableData = response.data.listObject;
         });
+        this.selectRows = new Set();
       },
       handleSelect(selection, row) {
         row.hashTree = [];

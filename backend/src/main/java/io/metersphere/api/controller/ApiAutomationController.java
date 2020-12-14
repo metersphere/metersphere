@@ -58,6 +58,11 @@ public class ApiAutomationController {
         apiAutomationService.removeToGc(ids);
     }
 
+    @PostMapping("/reduction")
+    public void reduction(@RequestBody List<String> ids) {
+        apiAutomationService.reduction(ids);
+    }
+
     @GetMapping("/getApiScenario/{id}")
     public ApiScenario getScenarioDefinition(@PathVariable String id) {
         return apiAutomationService.getApiScenario(id);

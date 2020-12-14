@@ -9,7 +9,7 @@
             <el-input v-model="tagForm.name" autocomplete="off" :placeholder="$t('commons.name')"/>
           </el-col>
           <el-col :span="4">
-            <el-button @click="saveTag">{{$t('commons.save')}}</el-button>
+            <el-button style="margin-left: 20px" @click="saveTag">{{$t('commons.save')}}</el-button>
           </el-col>
         </el-row>
       </el-form-item>
@@ -72,7 +72,7 @@
     },
     methods: {
       saveTag() {
-        if (this.tagData.id != undefined && this.tagForm.id != null) {
+        if (this.tagForm.id != undefined && this.tagForm.id != null) {
           this.path = "/api/tag/update";
         } else {
           this.path = "/api/tag/create";

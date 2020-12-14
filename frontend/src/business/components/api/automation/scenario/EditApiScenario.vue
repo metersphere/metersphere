@@ -352,6 +352,9 @@
       }
     },
     created() {
+      if (!this.currentScenario.apiScenarioModuleId) {
+        this.currentScenario.apiScenarioModuleId = "";
+      }
       this.projectId = getCurrentProjectID();
       this.operatingElements = ELEMENTS.get("ALL");
       this.getMaintainerOptions();
@@ -450,7 +453,7 @@
         this.reload();
       },
       addScenario(arr) {
-        if (arr.length > 0) {
+        if (arr && arr.length > 0) {
           arr.forEach(item => {
             item.enable === undefined ? item.enable = true : item.enable;
             this.scenarioDefinition.push(item);
@@ -476,7 +479,7 @@
           request.enable === undefined ? request.enable = true : request.enable;
           request.active = false;
           request.resourceId = getUUID();
-          if (referenced === 'REF') {
+          if (referenced === 'REF' || !request.hashTree) {
             request.hashTree = [];
           }
           if (this.selectedTreeNode != undefined) {
@@ -496,7 +499,7 @@
           request.enable === undefined ? request.enable = true : request.enable;
           request.active = false;
           request.resourceId = getUUID();
-          if (referenced === 'REF') {
+          if (referenced === 'REF' || !request.hashTree) {
             request.hashTree = [];
           }
           if (this.selectedTreeNode != undefined) {
@@ -506,6 +509,8 @@
           }
         })
         this.apiListVisible = false;
+        this.currentRow.cases = [];
+        this.currentRow.apis = [];
         this.sort();
         this.reload();
       },
@@ -708,10 +713,6 @@
         }
       },
       setParameter() {
-        this.currentScenario.projectId = this.projectId;
-        if (!this.currentScenario.id) {
-          this.currentScenario.id = getUUID();
-        }
         this.currentScenario.stepTotal = this.scenarioDefinition.length;
         this.currentScenario.modulePath = this.getPath(this.currentScenario.apiScenarioModuleId);
         // 构建一个场景对象 方便引用处理
@@ -861,7 +862,8 @@
   /deep/ .el-step__icon.is-text {
     border: 1px solid;
   }
-  /deep/.el-drawer__header{
+
+  /deep/ .el-drawer__header {
     margin-bottom: 0px;
   }
 </style>

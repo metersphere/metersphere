@@ -41,7 +41,7 @@
             </el-input>
           </div>
           <p class="tip">{{$t('api_test.definition.request.req_param')}} </p>
-          <ms-api-request-form :headers="request.headers " :request="request" v-if="request.protocol==='HTTP'"/>
+          <ms-api-request-form :referenced="true" :headers="request.headers " :request="request" v-if="request.protocol==='HTTP'"/>
           <ms-tcp-basis-parameters :request="request" v-if="request.protocol==='TCP'"/>
           <ms-sql-basis-parameters :request="request" v-if="request.protocol==='SQL'"/>
           <ms-dubbo-basis-parameters :request="request" v-if="request.protocol==='DUBBO' || request.protocol==='dubbo://'"/>

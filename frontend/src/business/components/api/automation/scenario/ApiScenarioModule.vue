@@ -265,6 +265,7 @@
           const children = parent.data.children || parent.data
           const index = children.findIndex(d => d.id !== undefined && data.id !== undefined && d.id === data.id)
           children.splice(index, 1);
+          this.getApiModuleTree();
         });
       },
 
