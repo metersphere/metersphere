@@ -28,7 +28,7 @@ import static io.metersphere.commons.constants.ResourceStatusEnum.VALID;
 public class NodeResourcePoolService {
     private final static String nodeControllerUrl = "http://%s:%s/status";
 
-    @Resource
+    @Resource(name = "restTemplateWithTimeOut")
     private RestTemplate restTemplateWithTimeOut;
     @Resource
     private TestResourceMapper testResourceMapper;
