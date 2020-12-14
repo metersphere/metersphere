@@ -4,5 +4,5 @@ public enum ResourcePoolTypeEnum {
     /**
      * node controller 资源池
      */
-    NODE
+    NODE, K8S
 }
