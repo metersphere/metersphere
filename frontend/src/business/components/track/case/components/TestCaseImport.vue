@@ -111,8 +111,8 @@
 <script>
   import ElUploadList from "element-ui/packages/upload/src/upload-list";
   import MsTableButton from '../../../../components/common/components/MsTableButton';
-  import {listenGoBack, removeGoBackListener} from "../../../../../common/js/utils";
-  import {TokenKey, WORKSPACE_ID} from '../../../../../common/js/constants';
+  import {getCurrentProjectID, listenGoBack, removeGoBackListener} from "../../../../../common/js/utils";
+  import {TokenKey} from '../../../../../common/js/constants';
   import axios from "axios";
 
   export default {
@@ -127,11 +127,6 @@
         errList: [],
         xmindErrList: [],
         isLoading: false
-      }
-    },
-    props: {
-      projectId: {
-        type: String
       }
     },
     methods: {
@@ -176,6 +171,7 @@
       },
       open() {
         listenGoBack(this.close);
+        this.projectId = getCurrentProjectID();
         this.dialogVisible = true;
       },
       close() {

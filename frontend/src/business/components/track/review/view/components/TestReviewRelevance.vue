@@ -1,16 +1,23 @@
 <template>
   <div>
     <el-dialog :title="$t('test_track.review_view.relevance_case')" :visible.sync="dialogFormVisible" @close="close"
-               width="60%" v-loading="result.loading"
+               width="60%"
                :close-on-click-modal="false"
                top="50px">
 
       <el-container class="main-content">
         <el-aside class="tree-aside" width="250px">
-          <el-link type="primary" class="project-link" @click="switchProject">{{projectName ? projectName :
-            $t('test_track.switch_project') }}
-          </el-link>
-          <node-tree class="node-tree" @nodeSelectEvent="nodeChange" @refresh="refresh" :tree-nodes="treeNodes"
+          <select-menu
+            :data="projects"
+            width="160px"
+            :current-data="currentProject"
+            :title="$t('test_track.switch_project')"
+            @dataChange="changeProject"/>
+          <node-tree class="node-tree"
+                     :all-label="$t('commons.all_label.review')"
+                     v-loading="result.loading"
+                     @nodeSelectEvent="nodeChange"
+                     :tree-nodes="treeNodes"
                      ref="nodeTree"/>
         </el-aside>
 
@@ -21,6 +28,7 @@
                       @filter-change="filter" row-key="id"
                       @select-all="handleSelectAll"
                       @select="handleSelectionChange"
+                      v-loading="result.loading"
                       height="50vh"
                       ref="table">
 
@@ -98,10 +106,12 @@
   import {_filter} from "../../../../../../common/js/utils";
   import ReviewStatus from "@/business/components/track/case/components/ReviewStatus";
   import elTableInfiniteScroll from 'el-table-infinite-scroll';
+  import SelectMenu from "../../../common/SelectMenu";
 
   export default {
     name: "TestReviewRelevance",
     components: {
+      SelectMenu,
       NodeTree,
       MsDialogFooter,
       PriorityTableItem,
@@ -119,6 +129,7 @@
     data() {
       return {
         result: {},
+        currentProject: {},
         dialogFormVisible: false,
         isCheckAll: false,
         testReviews: [],
@@ -254,7 +265,7 @@
           this.selectIds.add(row.id);
         }
       },
-      nodeChange(nodeIds, nodeNames) {
+      nodeChange(node, nodeIds, nodeNames) {
         this.selectNodeIds = nodeIds;
         this.selectNodeNames = nodeNames;
       },
@@ -297,6 +308,7 @@
           this.$post("/test/case/review/projects", {reviewId: this.reviewId}, res => {
             let data = res.data;
             if (data) {
+              this.currentProject = data[0];
               this.projects = data;
               this.projectId = data[0].id;
               this.projectName = data[0].name;
@@ -318,11 +330,15 @@
         this.testReviews = [];
         this.getReviews(true);
       },
+      changeProject(project) {
+        this.projectId = project.id;
+      },
 
       getProjectNode(projectId) {
         const index = this.projects.findIndex(project => project.id === projectId);
         if (index !== -1) {
           this.projectName = this.projects[index].name;
+          this.currentProject = this.projects[index];
         }
         if (projectId) {
           this.projectId = projectId;
