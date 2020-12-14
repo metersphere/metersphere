@@ -163,6 +163,10 @@ public class ApiDefinitionService {
         extApiDefinitionMapper.removeToGc(apiIds);
     }
 
+    public void reduction(List<String> apiIds) {
+        extApiDefinitionMapper.reduction(apiIds);
+    }
+
     public void deleteBodyFiles(String apiId) {
         File file = new File(BODY_FILE_DIR + "/" + apiId);
         FileUtil.deleteContents(file);

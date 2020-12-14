@@ -64,6 +64,11 @@ public class ApiDefinitionController {
         apiDefinitionService.removeToGc(ids);
     }
 
+    @PostMapping("/reduction")
+    public void reduction(@RequestBody List<String> ids) {
+        apiDefinitionService.reduction(ids);
+    }
+
     @GetMapping("/get/{id}")
     public ApiDefinition get(@PathVariable String id) {
         return apiDefinitionService.get(id);

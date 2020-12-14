@@ -22,6 +22,7 @@ import io.metersphere.commons.constants.APITestStatus;
 import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.constants.ReportTriggerMode;
 import io.metersphere.commons.exception.MSException;
+import io.metersphere.commons.utils.ServiceUtils;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.i18n.Translator;
 import io.metersphere.track.dto.TestPlanDTO;
@@ -67,11 +68,12 @@ public class ApiAutomationService {
     private static final String BODY_FILE_DIR = "/opt/metersphere/data/body";
 
     public List<ApiScenarioDTO> list(ApiScenarioRequest request) {
+        request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
+        List<ApiScenarioDTO> list = extApiScenarioMapper.list(request);
         ApiTagExample example = new ApiTagExample();
         example.createCriteria().andProjectIdEqualTo(request.getProjectId());
         List<ApiTag> tags = apiTagMapper.selectByExample(example);
         Map<String, String> tagMap = tags.stream().collect(Collectors.toMap(ApiTag::getId, ApiTag::getName));
-        List<ApiScenarioDTO> list = extApiScenarioMapper.list(request);
         Gson gs = new Gson();
         list.forEach(item -> {
             if (item.getTagId() != null) {
@@ -81,7 +83,11 @@ public class ApiAutomationService {
                     buf.append(",");
                 });
                 if (buf != null && buf.length() > 0) {
-                    item.setTagName(buf.toString().substring(0, buf.toString().length() - 1));
+                    String tagNames = buf.toString().substring(0, buf.toString().length() - 1);
+                    List<String> tagList = Arrays.asList(tagNames.split(","));
+                    item.setTagNames(tagList);
+                } else {
+                    item.setTagNames(new ArrayList<>());
                 }
             }
         });
@@ -166,12 +172,12 @@ public class ApiAutomationService {
         apiScenarioMapper.deleteByExample(example);
     }
 
-    public void removeToGc(List<String> ids) {
-        ApiScenario record = new ApiScenario();
-        record.setStatus(ScenarioStatus.Trash.name());
-        ApiScenarioExample example = new ApiScenarioExample();
-        example.createCriteria().andIdIn(ids);
-        apiScenarioMapper.updateByExampleSelective(record, example);
+    public void removeToGc(List<String> apiIds) {
+        extApiScenarioMapper.removeToGc(apiIds);
+    }
+
+    public void reduction(List<String> apiIds) {
+        extApiScenarioMapper.reduction(apiIds);
     }
 
     private void checkNameExist(SaveApiScenarioRequest request) {
@@ -244,12 +250,14 @@ public class ApiAutomationService {
                 // 多态JSON普通转换会丢失内容，需要通过 ObjectMapper 获取
                 if (StringUtils.isNotEmpty(element.getString("hashTree"))) {
                     LinkedList<MsTestElement> elements = mapper.readValue(element.getString("hashTree"),
-                            new TypeReference<LinkedList<MsTestElement>>() {});
+                            new TypeReference<LinkedList<MsTestElement>>() {
+                            });
                     scenario.setHashTree(elements);
                 }
                 if (StringUtils.isNotEmpty(element.getString("variables"))) {
                     LinkedList<KeyValue> variables = mapper.readValue(element.getString("variables"),
-                            new TypeReference<LinkedList<KeyValue>>() {});
+                            new TypeReference<LinkedList<KeyValue>>() {
+                            });
                     scenario.setVariables(variables);
                 }
                 LinkedList<MsTestElement> scenarios = new LinkedList<>();

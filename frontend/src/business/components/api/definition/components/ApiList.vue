@@ -230,10 +230,8 @@
         this.$emit('editApi', row);
       },
       reductionApi(row) {
-        row.status = 'Underway';
-        row.request = null;
-        row.response = null;
-        this.$fileUpload("/api/definition/update", null, [], row, () => {
+        let ids = [row.id];
+        this.$post('/api/definition/reduction/', ids, () => {
           this.$success(this.$t('commons.save_success'));
           this.search();
         });

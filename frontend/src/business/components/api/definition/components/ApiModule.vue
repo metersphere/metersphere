@@ -138,6 +138,7 @@
         if (this.expandedNode.length === 0) {
           this.expandedNode.push("root");
         }
+        this.nextFlag = true;
         this.result = this.$get("/api/module/list/" + this.projectId + "/" + this.protocol, response => {
           if (response.data != undefined && response.data != null) {
             this.data[1].children = response.data;
