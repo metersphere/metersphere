@@ -610,6 +610,7 @@
       },
       allowDrag() {
         this.sort();
+        this.reload();
       },
       nodeExpand(data) {
         if (data.resourceId) {
