@@ -2,7 +2,7 @@
   <el-row>
     <el-col :span="21">
       <!-- HTTP 请求参数 -->
-      <div style="border:1px #DCDFE6 solid; height: 100%;border-radius: 4px ;width: 100%">
+      <div style="border:1px #DCDFE6 solid; height: 100%;border-radius: 4px ;width: 100%" v-loading="isReloadData">
         <el-tabs v-model="activeName" class="request-tabs">
           <!-- 请求头-->
           <el-tab-pane :label="$t('api_test.request.headers')" name="headers">
@@ -58,23 +58,23 @@
 
         </el-tabs>
       </div>
-
-      <div v-for="row in request.hashTree" :key="row.id" v-loading="isReloadData">
-        <!-- 前置脚本 -->
-        <ms-jsr233-processor v-if="row.label ==='JSR223 PreProcessor'" @copyRow="copyRow" @remove="remove" :is-read-only="false" :title="$t('api_test.definition.request.pre_script')" style-type="color: #B8741A;background-color: #F9F1EA"
-                             :jsr223-processor="row"/>
-        <!--后置脚本-->
-        <ms-jsr233-processor v-if="row.label ==='JSR223 PostProcessor'" @copyRow="copyRow" @remove="remove" :is-read-only="false" :title="$t('api_test.definition.request.post_script')" style-type="color: #783887;background-color: #F2ECF3"
-                             :jsr223-processor="row"/>
-        <!--断言规则-->
-        <ms-api-assertions v-if="row.type==='Assertions'" @copyRow="copyRow" @remove="remove" :is-read-only="isReadOnly" :assertions="row"/>
-        <!--提取规则-->
-        <ms-api-extract :is-read-only="isReadOnly" @copyRow="copyRow" @remove="remove" v-if="row.type==='Extract'" :extract="row"/>
-
+      <div v-if="!referenced">
+        <div v-for="row in request.hashTree" :key="row.id">
+          <!-- 前置脚本 -->
+          <ms-jsr233-processor v-if="row.label ==='JSR223 PreProcessor'" @copyRow="copyRow" @remove="remove" :is-read-only="false" :title="$t('api_test.definition.request.pre_script')" style-type="color: #B8741A;background-color: #F9F1EA"
+                               :jsr223-processor="row"/>
+          <!--后置脚本-->
+          <ms-jsr233-processor v-if="row.label ==='JSR223 PostProcessor'" @copyRow="copyRow" @remove="remove" :is-read-only="false" :title="$t('api_test.definition.request.post_script')" style-type="color: #783887;background-color: #F2ECF3"
+                               :jsr223-processor="row"/>
+          <!--断言规则-->
+          <ms-api-assertions v-if="row.type==='Assertions'" @copyRow="copyRow" @remove="remove" :is-read-only="isReadOnly" :assertions="row"/>
+          <!--提取规则-->
+          <ms-api-extract :is-read-only="isReadOnly" @copyRow="copyRow" @remove="remove" v-if="row.type==='Extract'" :extract="row"/>
+        </div>
       </div>
     </el-col>
     <!--操作按钮-->
-    <el-col :span="3" class="ms-left-cell">
+    <el-col :span="3" class="ms-left-cell" v-if="!referenced">
       <el-button class="ms-left-buttion" size="small" @click="addPre">+{{$t('api_test.definition.request.pre_script')}}</el-button>
       <br/>
       <el-button class="ms-left-buttion" size="small" @click="addPost">+{{$t('api_test.definition.request.post_script')}}</el-button>
@@ -116,6 +116,7 @@
           return [];
         }
       },
+      referenced: Boolean,
       isShowEnable: Boolean,
       jsonPathList: Array,
       isReadOnly: {

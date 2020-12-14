@@ -335,6 +335,9 @@
             for (let index in response.data) {
               let test = response.data[index];
               test.request = JSON.parse(test.request);
+              if (!test.request.hashTree) {
+                test.request.hashTree = [];
+              }
             }
             this.apiCaseList = response.data;
             if (this.apiCaseList.length == 0) {

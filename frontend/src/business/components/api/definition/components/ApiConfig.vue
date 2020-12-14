@@ -77,6 +77,9 @@
       } else {
         this.reqUrl = "/api/definition/create";
       }
+      if (!this.request.hashTree) {
+        this.request.hashTree = [];
+      }
     },
     methods: {
       runTest(data) {

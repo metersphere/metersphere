@@ -17,6 +17,7 @@ import io.metersphere.commons.utils.CommonBeanFactory;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.save.SaveService;
 import org.apache.jmeter.testelement.TestElement;
 import org.apache.jorphan.collections.HashTree;
@@ -47,7 +48,7 @@ public class MsScenario extends MsTestElement {
         if (!this.isEnable()) {
             return;
         }
-        if (environmentId != null) {
+        if (StringUtils.isNotEmpty(environmentId)) {
             ApiTestEnvironmentService environmentService = CommonBeanFactory.getBean(ApiTestEnvironmentService.class);
             ApiTestEnvironmentWithBLOBs environment = environmentService.get(environmentId);
             config.setConfig(JSONObject.parseObject(environment.getConfig(), EnvironmentConfig.class));

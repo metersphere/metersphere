@@ -476,7 +476,7 @@
           request.enable === undefined ? request.enable = true : request.enable;
           request.active = false;
           request.resourceId = getUUID();
-          if (referenced === 'REF') {
+          if (referenced === 'REF' || !request.hashTree) {
             request.hashTree = [];
           }
           if (this.selectedTreeNode != undefined) {
@@ -496,7 +496,7 @@
           request.enable === undefined ? request.enable = true : request.enable;
           request.active = false;
           request.resourceId = getUUID();
-          if (referenced === 'REF') {
+          if (referenced === 'REF' || !request.hashTree) {
             request.hashTree = [];
           }
           if (this.selectedTreeNode != undefined) {
@@ -506,6 +506,8 @@
           }
         })
         this.apiListVisible = false;
+        this.currentRow.cases = [];
+        this.currentRow.apis = [];
         this.sort();
         this.reload();
       },
@@ -861,7 +863,8 @@
   /deep/ .el-step__icon.is-text {
     border: 1px solid;
   }
-  /deep/.el-drawer__header{
+
+  /deep/ .el-drawer__header {
     margin-bottom: 0px;
   }
 </style>

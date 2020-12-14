@@ -124,7 +124,7 @@ public class ApiAutomationService {
         scenario.setDescription(request.getDescription());
         apiScenarioMapper.insert(scenario);
 
-        List<String> bodyUploadIds = new ArrayList<>(request.getBodyUploadIds());
+        List<String> bodyUploadIds = request.getBodyUploadIds();
         apiDefinitionService.createBodyFiles(bodyUploadIds, bodyFiles);
     }
 
