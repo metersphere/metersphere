@@ -12,6 +12,7 @@
         <el-table-column prop="type" :label="$t('test_resource_pool.type')">
           <template v-slot:default="scope">
             <span v-if="scope.row.type === 'NODE'">Node</span>
+            <span v-if="scope.row.type === 'K8S'" v-xpack>Kubernetes</span>
           </template>
         </el-table-column>
         <el-table-column prop="status" :label="$t('test_resource_pool.enable_disable')">
@@ -52,7 +53,7 @@
       :destroy-on-close="true"
       v-loading="result.loading"
     >
-      <el-form :model="form" label-position="right" label-width="100px" size="small" :rules="rule"
+      <el-form :model="form" label-position="right" label-width="120px" size="small" :rules="rule"
                ref="createTestResourcePoolForm">
         <el-form-item :label="$t('commons.name')" prop="name">
           <el-input v-model="form.name" autocomplete="off"/>
@@ -64,9 +65,40 @@
           <el-select v-model="form.type" :placeholder="$t('test_resource_pool.select_pool_type')"
                      @change="changeResourceType()">
             <el-option key="NODE" value="NODE" label="Node">Node</el-option>
+            <el-option key="K8S" value="K8S" label="Kubernetes" v-xpack>Kubernetes</el-option>
           </el-select>
         </el-form-item>
         <div v-for="(item,index) in infoList " :key="index">
+          <div class="node-line" v-if="form.type === 'K8S'" v-xpack>
+            <el-row>
+              <el-col>
+                <el-form-item prop="controllerUrl" label="Controller URL">
+                  <el-input v-model="item.controllerUrl" autocomplete="new-password"/>
+                </el-form-item>
+              </el-col>
+            </el-row>
+            <el-row>
+              <el-col>
+                <el-form-item prop="masterUrl" label="Master URL">
+                  <el-input v-model="item.masterUrl" autocomplete="new-password"/>
+                </el-form-item>
+              </el-col>
+            </el-row>
+            <el-row>
+              <el-col>
+                <el-form-item prop="password" label="Token">
+                  <el-input v-model="item.token" type="password" show-password autocomplete="new-password"/>
+                </el-form-item>
+              </el-col>
+            </el-row>
+            <el-row>
+              <el-col>
+                <el-form-item prop="maxConcurrency" :label="$t('test_resource_pool.max_threads')">
+                  <el-input-number v-model="item.maxConcurrency" :min="1" :max="1000000000"></el-input-number>
+                </el-form-item>
+              </el-col>
+            </el-row>
+          </div>
           <div class="node-line" v-if="form.type === 'NODE'">
             <el-row>
               <el-col :span="8">
@@ -115,7 +147,7 @@
       :title="$t('test_resource_pool.update_resource_pool')" :visible.sync="updateVisible" width="70%"
       :destroy-on-close="true"
       @close="closeFunc">
-      <el-form :model="form" label-position="right" label-width="100px" size="small" :rules="rule"
+      <el-form :model="form" label-position="right" label-width="120px" size="small" :rules="rule"
                ref="updateTestResourcePoolForm">
         <el-form-item :label="$t('commons.name')" prop="name">
           <el-input v-model="form.name" autocomplete="off"/>
@@ -127,9 +159,40 @@
           <el-select v-model="form.type" :placeholder="$t('test_resource_pool.select_pool_type')"
                      @change="changeResourceType()">
             <el-option key="NODE" value="NODE" label="Node">Node</el-option>
+            <el-option key="K8S" value="K8S" label="Kubernetes" v-xpack>Kubernetes</el-option>
           </el-select>
         </el-form-item>
         <div v-for="(item,index) in infoList " :key="index">
+          <div class="node-line" v-if="form.type === 'K8S'" v-xpack>
+            <el-row>
+              <el-col>
+                <el-form-item prop="controllerUrl" label="Controller URL">
+                  <el-input v-model="item.controllerUrl" autocomplete="off"/>
+                </el-form-item>
+              </el-col>
+            </el-row>
+            <el-row>
+              <el-col>
+                <el-form-item prop="masterUrl" label="Master URL">
+                  <el-input v-model="item.masterUrl" autocomplete="off"/>
+                </el-form-item>
+              </el-col>
+            </el-row>
+            <el-row>
+              <el-col>
+                <el-form-item prop="password" label="Token">
+                  <el-input v-model="item.token" type="password" show-password autocomplete="off"/>
+                </el-form-item>
+              </el-col>
+            </el-row>
+            <el-row>
+              <el-col>
+                <el-form-item prop="maxConcurrency" :label="$t('test_resource_pool.max_threads')">
+                  <el-input-number v-model="item.maxConcurrency" :min="1" :max="1000000000"></el-input-number>
+                </el-form-item>
+              </el-col>
+            </el-row>
+          </div>
           <div class="node-line" v-if="form.type === 'NODE'">
             <el-row>
               <el-col :span="8">
