@@ -38,7 +38,6 @@
             :currentRow="currentRow"
             @editApi="editApi"
             @handleCase="handleCase"
-            @handleEditBatch="handleEditBatch"
             @showExecResult="showExecResult"
             ref="apiList"/>
 
@@ -208,11 +207,6 @@
           name = this.$t('api_test.definition.request.edit_api') + "-" + row.name;
         }
         this.handleTabsEdit(name, "ADD", row);
-      },
-      handleEditBatch(rows) {
-        rows.forEach(row => {
-          this.handleTabsEdit(this.$t('api_test.definition.request.edit_api') + "-" + row.name, "ADD", row);
-        })
       },
       handleCase(api) {
         this.currentApi = api;

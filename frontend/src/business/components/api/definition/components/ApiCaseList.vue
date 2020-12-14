@@ -66,10 +66,10 @@
                 </el-col>
 
                 <el-col :span="3">
-                  <el-link type="danger" @click="showExecResult(item)" v-if="item.execResult && item.execResult==='error'">{{getResult(item.execResult)}}</el-link>
-                  <div v-else>
-                    <div v-if="item.type!='create'">{{getResult(item.execResult)}}</div>
-                  </div>
+                  <el-link type="danger" v-if="item.execResult && item.execResult==='error'" @click="showExecResult(item)">{{getResult(item.execResult)}}</el-link>
+                  <el-link v-else-if="item.execResult && item.execResult==='success'" @click="showExecResult(item)">{{getResult(item.execResult)}}</el-link>
+                  <div v-else> {{getResult(item.execResult)}}</div>
+
                   <div v-if="item.type!='create'" style="color: #999999;font-size: 12px">
                     <span> {{item.updateTime | timestampFormatDate }}</span>
                     {{item.updateUser}}
@@ -271,7 +271,7 @@
         });
       },
       copyCase(data) {
-        let obj = {name: data.name, priority: data.priority, type: 'create', active: false, request: data.request};
+        let obj = {name: "copy_"+data.name, priority: data.priority, type: 'create', active: false, request: data.request};
         this.apiCaseList.unshift(obj);
       },
       addCase() {

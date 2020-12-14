@@ -15,4 +15,6 @@ public interface ExtApiDefinitionMapper {
 
     int removeToGc(@Param("ids") List<String> ids);
 
+    int reduction(@Param("ids") List<String> ids);
+
 }

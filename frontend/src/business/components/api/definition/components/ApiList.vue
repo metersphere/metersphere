@@ -82,6 +82,8 @@
                            :total="total"/>
     </el-card>
     <ms-api-case-list @refresh="initApiTable" @showExecResult="showExecResult" :currentApi="selectApi" ref="caseList"/>
+    <!--批量编辑-->
+    <ms-batch-edit ref="batchEdit" @batchEdit="batchEdit" :typeArr="typeArr" :value-arr="valueArr"/>
   </div>
 
 </template>
@@ -99,8 +101,10 @@
   import MsContainer from "../../../common/components/MsContainer";
   import MsBottomContainer from "./BottomContainer";
   import ShowMoreBtn from "../../../../components/track/case/components/ShowMoreBtn";
-  import {API_METHOD_COLOUR} from "../model/JsonData";
+  import MsBatchEdit from "./basis/BatchEdit";
+  import {API_METHOD_COLOUR, REQ_METHOD, API_STATUS} from "../model/JsonData";
   import {getCurrentProjectID} from "@/common/js/utils";
+  import {WORKSPACE_ID} from '../../../../../common/js/constants';
 
   export default {
     name: "ApiList",
@@ -114,7 +118,8 @@
       MsApiCaseList,
       MsContainer,
       MsBottomContainer,
-      ShowMoreBtn
+      ShowMoreBtn,
+      MsBatchEdit
     },
     data() {
       return {
@@ -127,6 +132,16 @@
           {name: this.$t('api_test.definition.request.batch_delete'), handleClick: this.handleDeleteBatch},
           {name: this.$t('api_test.definition.request.batch_edit'), handleClick: this.handleEditBatch}
         ],
+        typeArr: [
+          {id: 'status', name: this.$t('api_test.definition.api_case_status')},
+          {id: 'method', name: this.$t('api_test.definition.api_type')},
+          {id: 'userId', name: this.$t('api_test.definition.api_principal')},
+        ],
+        valueArr: {
+          status: API_STATUS,
+          method: REQ_METHOD,
+          userId: [],
+        },
         methodColorMap: new Map(API_METHOD_COLOUR),
         tableData: [],
         currentPage: 1,
@@ -147,6 +162,7 @@
     created: function () {
       this.projectId = getCurrentProjectID();
       this.initApiTable();
+      this.getMaintainerOptions();
     },
     watch: {
       currentModule() {
@@ -158,6 +174,7 @@
     },
     methods: {
       initApiTable() {
+        this.selectRows = new Set();
         this.condition.filters = ["Prepare", "Underway", "Completed"];
         if (this.currentModule != null) {
           if (this.currentModule.id == "root") {
@@ -179,6 +196,12 @@
         this.result = this.$post("/api/definition/list/" + this.currentPage + "/" + this.pageSize, this.condition, response => {
           this.total = response.data.itemCount;
           this.tableData = response.data.listObject;
+        });
+      },
+      getMaintainerOptions() {
+        let workspaceId = localStorage.getItem(WORKSPACE_ID);
+        this.$post('/user/ws/member/tester/list', {workspaceId: workspaceId}, response => {
+          this.valueArr.userId = response.data;
         });
       },
       handleSelect(selection, row) {
@@ -230,10 +253,8 @@
         this.$emit('editApi', row);
       },
       reductionApi(row) {
-        row.status = 'Underway';
-        row.request = null;
-        row.response = null;
-        this.$fileUpload("/api/definition/update", null, [], row, () => {
+        let ids = [row.id];
+        this.$post('/api/definition/reduction/', ids, () => {
           this.$success(this.$t('commons.save_success'));
           this.search();
         });
@@ -270,11 +291,27 @@
         }
       },
       handleEditBatch() {
-        this.$emit('handleEditBatch', this.selectRows);
+        this.$refs.batchEdit.open();
+      },
+      batchEdit(form) {
+        let arr = Array.from(this.selectRows);
+        let ids = arr.map(row => row.id);
+        let param = {};
+        param[form.type] = form.value;
+        param.ids = ids;
+        this.$post('/api/definition/batch/edit', param, () => {
+          this.$success(this.$t('commons.save_success'));
+          this.initApiTable();
+        });
       },
       handleTestCase(api) {
         this.selectApi = api;
-        let request = JSON.parse(api.request);
+        let request = {};
+        if (Object.prototype.toString.call(api.request).match(/\[object (\w+)\]/)[1].toLowerCase() === 'object') {
+          request = api.request;
+        } else {
+          request = JSON.parse(api.request);
+        }
         if (!request.hashTree) {
           request.hashTree = [];
         }

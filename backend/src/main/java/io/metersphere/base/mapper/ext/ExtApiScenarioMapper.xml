@@ -88,5 +88,25 @@
         </where>
     </select>
 
+    <update id="removeToGc">
+        update api_scenario
+        set
+        status = 'Trash'
+        where id in
+        <foreach collection="ids" item="v" separator="," open="(" close=")">
+            #{v}
+        </foreach>
+    </update>
+
+    <update id="reduction">
+        update api_scenario
+        set
+        status = 'Underway'
+        where id in
+        <foreach collection="ids" item="v" separator="," open="(" close=")">
+            #{v}
+        </foreach>
+    </update>
+
 
 </mapper>

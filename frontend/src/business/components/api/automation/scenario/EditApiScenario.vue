@@ -352,6 +352,9 @@
       }
     },
     created() {
+      if (!this.currentScenario.apiScenarioModuleId) {
+        this.currentScenario.apiScenarioModuleId = "";
+      }
       this.projectId = getCurrentProjectID();
       this.operatingElements = ELEMENTS.get("ALL");
       this.getMaintainerOptions();
@@ -450,8 +453,12 @@
         this.reload();
       },
       addScenario(arr) {
-        if (arr.length > 0) {
+        if (arr && arr.length > 0) {
           arr.forEach(item => {
+            if (item.id === this.currentScenario.id) {
+              this.$error("不能引用或复制自身！");
+              return;
+            }
             item.enable === undefined ? item.enable = true : item.enable;
             this.scenarioDefinition.push(item);
           })
@@ -710,10 +717,6 @@
         }
       },
       setParameter() {
-        this.currentScenario.projectId = this.projectId;
-        if (!this.currentScenario.id) {
-          this.currentScenario.id = getUUID();
-        }
         this.currentScenario.stepTotal = this.scenarioDefinition.length;
         this.currentScenario.modulePath = this.getPath(this.currentScenario.apiScenarioModuleId);
         // 构建一个场景对象 方便引用处理

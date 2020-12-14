@@ -103,6 +103,7 @@
         }
       },
       created() {
+        this.environment = undefined;
         this.getEnvironments();
       },
       watch: {
@@ -118,16 +119,6 @@
               this.environments.forEach(environment => {
                 parseEnvironment(environment);
               });
-              let hasEnvironment = false;
-              for (let i in this.environments) {
-                if (this.environments[i].id === this.api.environmentId) {
-                  hasEnvironment = true;
-                  break;
-                }
-              }
-              if (!hasEnvironment) {
-                this.environment = undefined;
-              }
             });
           } else {
             this.environment = undefined;
