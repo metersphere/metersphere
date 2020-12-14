@@ -104,10 +104,14 @@
         threadGroup.hashTree = [];
         testPlan.hashTree = [threadGroup];
         this.runData.forEach(item => {
+          if (!item.useEnvironment) {
+            this.$error(this.$t("api_test.environment.select_environment"));
+            this.$emit('runRefresh', {});
+            return;
+          }
           threadGroup.hashTree.push(item);
         })
         let reqObj = {id: this.reportId, testElement: testPlan};
-
         let bodyFiles = this.getBodyUploadFiles(reqObj);
         let url = "";
         if (this.debug) {
