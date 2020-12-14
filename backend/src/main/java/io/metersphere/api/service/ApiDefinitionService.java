@@ -375,4 +375,15 @@ public class ApiDefinitionService {
         dto.setTestPlanList(extTestPlanMapper.selectReference(planRequest));
         return dto;
     }
+
+    public void editApiBath(ApiBatchRequest request) {
+        ApiDefinitionExample definitionExample = new ApiDefinitionExample();
+        definitionExample.createCriteria().andIdIn(request.getIds());
+
+        ApiDefinitionWithBLOBs definitionWithBLOBs = new ApiDefinitionWithBLOBs();
+        BeanUtils.copyBean(definitionWithBLOBs, request);
+        definitionWithBLOBs.setUpdateTime(System.currentTimeMillis());
+        apiDefinitionMapper.updateByExampleSelective(definitionWithBLOBs, definitionExample);
+    }
+
 }
