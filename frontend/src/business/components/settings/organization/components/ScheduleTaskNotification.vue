@@ -16,7 +16,7 @@
           border
           :cell-style="rowClass"
           :header-cell-style="headClass">
-          <el-table-column :label="$t('schedule.event')" prop="events" min-width="15%">
+          <el-table-column :label="$t('schedule.event')" prop="events" min-width="13%">
             <template slot-scope="scope">
               <el-select v-model="scope.row.event" size="mini"
                          :placeholder="$t('organization.message.select_events')"
@@ -30,7 +30,7 @@
               </el-select>
             </template>
           </el-table-column>
-          <el-table-column :label="$t('schedule.receiver')" prop="userIds" min-width="20%">
+          <el-table-column :label="$t('schedule.receiver')" prop="userIds" min-width="18%">
             <template v-slot:default="{row}">
               <el-select v-model="row.userIds" filterable multiple size="mini"
                          :placeholder="$t('commons.please_select')" style="width: 100%;" :disabled="!row.isSet">
@@ -64,7 +64,7 @@
                         :disabled="!scope.row.isSet||!scope.row.isReadOnly"></el-input>
             </template>
           </el-table-column>
-          <el-table-column :label="$t('commons.operating')" prop="result" min-width="20%">
+          <el-table-column :label="$t('commons.operating')" prop="result" min-width="25%">
             <template v-slot:default="scope">
               <el-button
                 type="success"
@@ -214,11 +214,7 @@ export default {
       }
     },
     addTask(data) {
-      let list = [];
-      list.push(data);
-      let param = {};
-      param.messageDetail = list;
-      this.result = this.$post("/notice/save/message/task", param, () => {
+      this.result = this.$post("/notice/save/message/task", data, () => {
         this.initForm()
         this.$success(this.$t('commons.save_success'));
       })
