@@ -236,7 +236,7 @@
             let hasEnvironment = false;
             for (let i in this.environments) {
               if (this.environments[i].id === this.api.environmentId) {
-                this.api.environmentId = this.environments[i];
+                this.api.environmentId = this.environments[i].id;
                 hasEnvironment = true;
                 break;
               }
