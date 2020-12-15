@@ -61,7 +61,6 @@
   import {REQ_METHOD} from "../../model/JsonData";
   import {getCurrentProjectID, getCurrentUser, getUUID} from "../../../../../../common/js/utils";
   import {createComponent, Request} from "../jmeter/components";
-  import HeaderManager from "../jmeter/components/configurations/header-manager";
 
   export default {
     name: "MsAddBasisApi",

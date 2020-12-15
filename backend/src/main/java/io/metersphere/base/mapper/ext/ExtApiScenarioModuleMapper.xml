@@ -5,7 +5,7 @@
         select
         <include refid="io.metersphere.base.mapper.ApiScenarioModuleMapper.Base_Column_List"/>
         from api_scenario_module
-        where api_module.project_id = #{projectId}
+        where api_scenario_module.project_id = #{projectId}
         order by create_time asc
     </select>
 </mapper>

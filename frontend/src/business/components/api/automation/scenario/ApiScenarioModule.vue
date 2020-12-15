@@ -24,7 +24,10 @@
 
     </ms-node-tree>
 
-    <ms-add-basis-scenario ref="basisScenario"/>
+    <ms-add-basis-scenario
+      @saveAsEdit="saveAsEdit"
+      @refresh="refresh"
+      ref="basisScenario"/>
   </div>
 
 </template>
@@ -64,6 +67,9 @@
     watch: {
       'condition.filterText'(val) {
         this.$refs.nodeTree.filter(val);
+      },
+      'condition.trashEnable'() {
+        this.$emit('enableTrash', this.condition.trashEnable);
       },
     },
     methods: {
@@ -145,36 +151,7 @@
       },
       enableTrash() {
         this.condition.trashEnable = true;
-        this.$emit('enableTrash', this.condition.trashEnable);
       }
-
-      // refresh(data) {
-      //   this.$emit('refresh', data);
-      // },
-      // saveAsEdit(data) {
-      //   this.$emit('saveAsEdit', data);
-      // },
-      // filterNode(value, data) {
-      //   if (!value) return true;
-      //   return data.name.indexOf(value) !== -1;
-      // },
-      // addScenario() {
-      //   this.$refs.basisScenario.open(this.currentModule);
-      // },
-      // nodeExpand(data) {
-      //   if (data.id) {
-      //     this.expandedNode.push(data.id);
-      //   }
-      // },
-      // nodeCollapse(data) {
-      //   if (data.id) {
-      //     this.expandedNode.splice(this.expandedNode.indexOf(data.id), 1);
-      //   }
-      // },
-      // changeProtocol() {
-      //   this.getApiModuleTree();
-      //   this.$emit('changeProtocol', this.protocol);
-      // }
     }
   }
 </script>

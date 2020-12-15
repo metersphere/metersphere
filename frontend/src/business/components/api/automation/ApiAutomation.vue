@@ -1,8 +1,6 @@
 <template>
   <ms-container>
     <ms-aside-container>
-      <!--<ms-api-scenario-module @selectModule="selectModule" @getApiModuleTree="initTree"-->
-                              <!--@refresh="refresh" @saveAsEdit="editScenario"/>-->
     <ms-api-scenario-module
       @nodeSelectEvent="nodeChange"
       @refreshTable="refresh"

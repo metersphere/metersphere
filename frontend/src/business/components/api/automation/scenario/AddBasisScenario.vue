@@ -95,9 +95,9 @@
               this.visible = false;
               if (saveAs) {
                 this.scenarioForm.request = JSON.stringify(this.scenarioForm.request);
-                this.$parent.saveAsEdit(this.scenarioForm);
+                this.$emit('saveAsEdit', this.httpForm);
               } else {
-                this.$parent.refresh(this.currentModule);
+                this.$emit('refresh');
               }
             });
           } else {
