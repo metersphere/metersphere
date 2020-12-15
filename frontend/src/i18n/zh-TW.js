@@ -1,5 +1,6 @@
 export default {
   commons: {
+    please_fill_in_the_template: '請填寫模版內容',
     cut_back_old_version: '切回舊版',
     cut_back_new_version: '切回新版',
     comment: '評論',
