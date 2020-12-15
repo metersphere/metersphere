@@ -24,8 +24,10 @@
         <el-tag size="mini" style="margin-left: 20px" v-if="request.referenced ==='REF'">{{ $t('api_test.scenario.reference') }}</el-tag>
         <div style="margin-right: 20px; float: right">
           <i class="icon el-icon-arrow-right" :class="{'is-active': request.active}"
-             @click="active(request)" v-if="request.referenced!=undefined && request.referenced!='Deleted' && request.referenced!='REF'"/>
+             @click="active(request)"/>
           <el-switch v-model="request.enable" style="margin-left: 10px"/>
+          <el-button @click="run" :tip="$t('api_test.run')" icon="el-icon-video-play"
+                     style="background-color: #409EFF;color: white;margin-left: 10px" size="mini" circle/>
           <el-button size="mini" icon="el-icon-copy-document" circle @click="copyRow" style="margin-left: 10px"/>
           <el-button size="mini" icon="el-icon-delete" type="danger" circle @click="remove" style="margin-left: 10px"/>
         </div>
@@ -45,6 +47,10 @@
           <ms-tcp-basis-parameters :request="request" v-if="request.protocol==='TCP'"/>
           <ms-sql-basis-parameters :request="request" v-if="request.protocol==='SQL'"/>
           <ms-dubbo-basis-parameters :request="request" v-if="request.protocol==='DUBBO' || request.protocol==='dubbo://'"/>
+
+          <p class="tip">{{$t('api_test.definition.request.res_param')}} </p>
+          <ms-request-result-tail :response="request.requestResult" ref="runResult"/>
+
           <!-- 保存操作 -->
           <el-button type="primary" size="small" style="margin: 20px; float: right" @click="saveTestCase(item)" v-if="!request.referenced">
             {{$t('commons.save')}}
@@ -52,6 +58,9 @@
         </div>
       </el-collapse-transition>
     </el-card>
+    <!-- 执行组件 -->
+    <ms-run :debug="false" :reportId="reportId" :run-data="runData"
+            @runRefresh="runRefresh" ref="runTest"/>
   </div>
 </template>
 
@@ -61,29 +70,27 @@
   import MsDubboBasisParameters from "../../definition/components/request/dubbo/BasisParameters";
   import MsApiRequestForm from "../../definition/components/request/http/ApiRequestForm";
   import {REQ_METHOD} from "../../definition/model/JsonData";
+  import MsRequestResultTail from "../../definition/components/response/RequestResultTail";
+  import MsRun from "../../definition/components/Run";
+  import {getUUID} from "@/common/js/utils";
 
   export default {
     name: "MsApiComponent",
     props: {
       request: {},
       node: {},
+      currentEnvironmentId: String,
     },
-    components: {MsSqlBasisParameters, MsTcpBasisParameters, MsDubboBasisParameters, MsApiRequestForm},
+    components: {MsSqlBasisParameters, MsTcpBasisParameters, MsDubboBasisParameters, MsApiRequestForm, MsRequestResultTail, MsRun},
     data() {
-      return {loading: false, reqOptions: REQ_METHOD,}
+      return {loading: false, reqOptions: REQ_METHOD, reportId: "", runData: []}
     },
     created() {
-      if (this.request.id && this.request.referenced === 'REF') {
-        this.$get("/api/definition/get/" + this.request.id, response => {
-          if (response.data) {
-            this.request.name = response.data.name;
-            this.reload();
-          } else {
-            this.request.referenced = "Deleted";
-          }
-        })
+      if (!this.request.requestResult) {
+        this.request.requestResult = {responseResult: {}};
       }
-
+      // 加载引用对象数据
+      this.getApiInfo();
       if (this.request.protocol === 'HTTP') {
         try {
           let urlObject = new URL(this.request.url);
@@ -105,9 +112,44 @@
       copyRow() {
         this.$emit('copyRow', this.request, this.node);
       },
+      getApiInfo() {
+        if (this.request.id && this.request.referenced === 'REF') {
+          let requestResult = this.request.requestResult;
+          this.$get("/api/definition/get/" + this.request.id, response => {
+            if (response.data) {
+              Object.assign(this.request, JSON.parse(response.data.request));
+              this.request.name = response.data.name;
+              this.request.path = response.data.path;
+              this.request.method = response.data.method;
+              this.request.url = response.data.path;
+              this.request.requestResult = requestResult;
+              this.reload();
+            } else {
+              this.request.referenced = "Deleted";
+            }
+          })
+        }
+      },
       active(item) {
         item.active = !item.active;
         this.reload();
+      },
+      run() {
+        if (!this.currentEnvironmentId) {
+          this.$error(this.$t('api_test.environment.select_environment'));
+          return;
+        }
+        this.loading = true;
+        this.runData = [];
+        this.request.useEnvironment = this.currentEnvironmentId;
+        this.runData.push(this.request);
+        /*触发执行操作*/
+        this.reportId = getUUID().substring(0, 8);
+
+      },
+      runRefresh(data) {
+        this.request.requestResult = data;
+        this.loading = false;
       },
       reload() {
         this.loading = true

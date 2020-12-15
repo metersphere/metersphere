@@ -48,6 +48,8 @@ public class MsTCPSampler extends MsTestElement {
     private String password = "";
     @JSONField(ordinal = 23)
     private String request;
+    @JSONField(ordinal = 24)
+    private Object requestResult;
 
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, ParameterConfig config) {
         if (!this.isEnable()) {
