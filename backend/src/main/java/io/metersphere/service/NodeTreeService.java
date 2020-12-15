@@ -1,7 +1,6 @@
 package io.metersphere.service;
 
 import io.metersphere.commons.utils.BeanUtils;
-import io.metersphere.track.dto.TestCaseNodeDTO;
 import io.metersphere.track.dto.TreeNodeDTO;
 import org.apache.commons.lang3.StringUtils;
 
@@ -11,6 +10,24 @@ public class NodeTreeService<T extends TreeNodeDTO> {
 
     protected static final double LIMIT_POS = 64;
     protected static final double DEFAULT_POS = 65536;
+    protected Class clazz;
+
+    public NodeTreeService(Class clazz) {
+        this.clazz = clazz;
+    }
+
+    public T getClassInstance() {
+        T instance = null;
+        try {
+            instance = (T) clazz.newInstance();
+        } catch (InstantiationException e) {
+            e.printStackTrace();
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
+        return instance;
+    }
+
 
     public List<T> getNodeTrees(List<T> nodes) {
         List<T> nodeTreeList = new ArrayList<>();
@@ -26,7 +43,9 @@ public class NodeTreeService<T extends TreeNodeDTO> {
             }
         });
         List<T> rootNodes = Optional.ofNullable(nodeLevelMap.get(1)).orElse(new ArrayList<>());
-        rootNodes.forEach(rootNode -> nodeTreeList.add(buildNodeTree(nodeLevelMap, rootNode)));
+        rootNodes.forEach(rootNode -> {
+            nodeTreeList.add(buildNodeTree(nodeLevelMap, rootNode));
+        });
         return nodeTreeList;
     }
 
@@ -39,7 +58,8 @@ public class NodeTreeService<T extends TreeNodeDTO> {
      */
     public T buildNodeTree(Map<Integer, List<T>> nodeLevelMap, T rootNode) {
 
-        T nodeTree = (T) new TreeNodeDTO();
+        T nodeTree = getClassInstance();
+//        T nodeTree = (T) new TreeNodeDTO();
         BeanUtils.copyBean(nodeTree, rootNode);
         nodeTree.setLabel(rootNode.getName());
 
@@ -102,10 +122,10 @@ public class NodeTreeService<T extends TreeNodeDTO> {
      * @param treeNode     当前节点
      * @param pathMap      记录节点路径对应的nodeId
      */
-    protected void createNodeByPathIterator(Iterator<String> pathIterator, String path, TestCaseNodeDTO treeNode,
+    protected void createNodeByPathIterator(Iterator<String> pathIterator, String path, T treeNode,
                                           Map<String, String> pathMap, String projectId, Integer level) {
 
-        List<TestCaseNodeDTO> children = treeNode.getChildren();
+        List<T> children = treeNode.getChildren();
 
         if (children == null || children.isEmpty() || !pathIterator.hasNext()) {
             pathMap.put(path, treeNode.getId());
@@ -119,7 +139,7 @@ public class NodeTreeService<T extends TreeNodeDTO> {
 
         Boolean hasNode = false;
 
-        for (TestCaseNodeDTO child : children) {
+        for (T child : children) {
             if (StringUtils.equals(nodeName, child.getName())) {
                 hasNode = true;
                 createNodeByPathIterator(pathIterator, path + "/" + child.getName(),
@@ -141,7 +161,7 @@ public class NodeTreeService<T extends TreeNodeDTO> {
      * @param pNode        父节点
      */
     protected void createNodeByPath(Iterator<String> pathIterator, String nodeName,
-                                  TestCaseNodeDTO pNode, String projectId, Integer level,
+                                  T pNode, String projectId, Integer level,
                                   String rootPath, Map<String, String> pathMap) {
 
         StringBuilder path = new StringBuilder(rootPath);

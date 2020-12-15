@@ -44,6 +44,10 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
     @Resource
     SqlSessionFactory sqlSessionFactory;
 
+    public ApiModuleService() {
+        super(ApiModuleDTO.class);
+    }
+
     public List<ApiModuleDTO> getNodeTreeByProjectId(String projectId, String protocol) {
         List<ApiModuleDTO> apiModules = extApiModuleMapper.getNodeTreeByProjectId(projectId, protocol);
         return getNodeTrees(apiModules);

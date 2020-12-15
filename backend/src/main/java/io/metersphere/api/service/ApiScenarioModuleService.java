@@ -40,6 +40,10 @@ public class ApiScenarioModuleService extends NodeTreeService<ApiScenarioModuleD
     @Resource
     SqlSessionFactory sqlSessionFactory;
 
+    public ApiScenarioModuleService() {
+        super(ApiScenarioModuleDTO.class);
+    }
+
     public List<ApiScenarioModuleDTO> getNodeTreeByProjectId(String projectId) {
         List<ApiScenarioModuleDTO> nodes = extApiScenarioModuleMapper.getNodeTreeByProjectId(projectId);
         return getNodeTrees(nodes);

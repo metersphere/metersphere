@@ -57,6 +57,10 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
     @Resource
     TestCaseReviewMapper testCaseReviewMapper;
 
+    public TestCaseNodeService() {
+        super(TestCaseNodeDTO.class);
+    }
+
     public String addNode(TestCaseNode node) {
         validateNode(node);
         node.setCreateTime(System.currentTimeMillis());
