@@ -200,9 +200,9 @@
               <div v-if="operatingElements.indexOf('HTTPSamplerProxy')>0 || operatingElements.indexOf('DubboSampler')>0 || operatingElements.indexOf('JDBCSampler')>0 || operatingElements.indexOf('TCPSampler')>0 ">
                 <el-button class="ms-right-buttion ms-btn-1" size="small" @click="apiListImport">+{{$t('api_test.automation.api_list_import')}}</el-button>
               </div>
-              <!--<div v-if="operatingElements.indexOf('OT_IMPORT')>0">
+              <div v-if="operatingElements.indexOf('OT_IMPORT')>0">
                 <el-button class="ms-right-buttion" size="small" style="color: #409EFF;background-color: #EEF5FE" @click="addComponent('OT_IMPORT')">+{{$t('api_test.automation.external_import')}}</el-button>
-              </div>-->
+              </div>
               <div v-if="operatingElements.indexOf('ConstantTimer')>0">
                 <el-button class="ms-right-buttion ms-btn-3" size="small" @click="addComponent('ConstantTimer')">+{{$t('api_test.automation.wait_controller')}}</el-button>
               </div>
@@ -245,7 +245,7 @@
       <!--自定义接口-->
       <el-drawer :visible.sync="customizeVisible" :destroy-on-close="true" direction="ltr" :withHeader="false" :title="$t('api_test.automation.customize_req')" style="overflow: auto" :modal="false" size="90%">
         <ms-api-customize :request="customizeRequest" @addCustomizeApi="addCustomizeApi"/>
-        <!--<el-button style="float: right;margin: 20px" @click="addCustomizeApi">{{$t('commons.save')}}</el-button>-->
+        <el-button style="float: right;margin: 20px" @click="addCustomizeApi">{{$t('commons.save')}}</el-button>
       </el-drawer>
       <!--场景导入 -->
       <el-drawer :visible.sync="scenarioVisible" :destroy-on-close="true" direction="ltr" :withHeader="false" :title="$t('api_test.automation.scenario_import')" style="overflow: auto" :modal="false" size="90%">

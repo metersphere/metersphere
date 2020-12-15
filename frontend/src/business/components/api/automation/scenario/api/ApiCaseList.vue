@@ -1,6 +1,6 @@
 <template>
   <div>
-    <el-container style="padding-bottom: 200px">
+    <el-container style="padding-bottom: 300px">
       <el-header style="width: 100% ;padding: 0px">
         <el-card>
           <el-row>
