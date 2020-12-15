@@ -47,23 +47,6 @@
     },
     data() {
       return {
-        // httpVisible: false,
-        // expandedNode: [],
-        // filterText: "",
-        // nextFlag: true,
-        // currentModule: {},
-        // newLabel: "",
-        // data: [{
-        //   "id": "gc",
-        //   "name": "回收站",
-        //   "level": 1,
-        //   "children": [],
-        // }, {
-        //   "id": "root",
-        //   "name": "默认模块",
-        //   "level": 0,
-        //   "children": [],
-        // }]
         result: {},
         condition: {
           filterText: "",
