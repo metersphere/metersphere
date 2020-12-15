@@ -58,7 +58,8 @@ public abstract class AbstractEngine implements Engine {
         if (resourcePool == null) {
             MSException.throwException("Resource Pool is empty");
         }
-        if (!ResourcePoolTypeEnum.NODE.name().equals(resourcePool.getType())) {
+        if (!ResourcePoolTypeEnum.K8S.name().equals(resourcePool.getType())
+                && !ResourcePoolTypeEnum.NODE.name().equals(resourcePool.getType())) {
             MSException.throwException("Invalid Resource Pool type.");
         }
         this.resourceList = testResourceService.getResourcesByPoolId(resourcePool.getId());
