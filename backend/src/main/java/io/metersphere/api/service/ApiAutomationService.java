@@ -104,7 +104,7 @@ public class ApiAutomationService {
         checkNameExist(request);
 
         final ApiScenario scenario = new ApiScenario();
-        scenario.setId(request.getId());
+        scenario.setId(UUID.randomUUID().toString());
         scenario.setName(request.getName());
         scenario.setProjectId(request.getProjectId());
         scenario.setTagId(request.getTagId());

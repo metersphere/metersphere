@@ -24,9 +24,7 @@
         </template>
       </el-input>
 
-      <div @click="enableTrash" class="recycle" :class="{'is-active': condition.trashEnable}">
-        <i class="el-icon-delete">  回收站</i>
-      </div>
+      <module-trash-button :condition="condition" :exe="enableTrash"/>
 
       <ms-add-basis-api
         :current-protocol="condition.protocol"
@@ -41,10 +39,11 @@
     import {OPTIONS} from "../../model/JsonData";
     import MsAddBasisApi from "../basis/AddBasisApi";
     import ApiImport from "../import/ApiImport";
+    import ModuleTrashButton from "./ModuleTrashButton";
 
     export default {
       name: "ApiModuleHeader",
-      components: {ApiImport, MsAddBasisApi},
+      components: {ModuleTrashButton, ApiImport, MsAddBasisApi},
       data() {
         return {
           options: OPTIONS,
@@ -110,22 +109,4 @@
     width: 175px;
     padding-left: 3px;
   }
-
-  .recycle {
-    padding-left: 25px;
-    margin-top: 15px;
-    height: 26px;
-    line-height: 26px;
-    margin-bottom: -10px;
-  }
-
-  .recycle:hover {
-    color: #6d317c;
-    cursor: pointer;
-  }
-
-  .is-active {
-    background-color: #f3f6f9;
-  }
-
 </style>
