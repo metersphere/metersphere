@@ -41,7 +41,7 @@
       <div v-show="isActive">
         <el-tabs v-model="activeName" v-show="isActive" v-if="hasSub">
           <el-tab-pane :label="$t('api_report.sub_result')" name="sub">
-            <ms-request-result class="sub-result" v-for="(sub, index) in request.subRequestResults"
+            <ms-request-sub-result class="sub-result" v-for="(sub, index) in request.subRequestResults"
                                :key="index" :request="sub"/>
           </el-tab-pane>
           <el-tab-pane :label="$t('api_report.request_result')" name="result">
@@ -68,10 +68,11 @@
   import MsRequestText from "./RequestText";
   import MsResponseText from "./ResponseText";
   import MsRequestResult from "./RequestResult";
+  import MsRequestSubResult from "./RequestSubResult";
 
   export default {
     name: "MsRequestResultTail",
-    components: {MsResponseText, MsRequestText, MsAssertionResults, MsRequestMetric, MsRequestResult},
+    components: {MsResponseText, MsRequestText, MsAssertionResults, MsRequestMetric, MsRequestResult,MsRequestSubResult},
     props: {
       request: Object,
       scenarioName: String,

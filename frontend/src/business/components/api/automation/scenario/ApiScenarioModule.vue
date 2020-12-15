@@ -99,7 +99,7 @@
           "children": [],
         }, {
           "id": "root",
-          "name": "默认模块",
+          "name": "全部模块",
           "level": 0,
           "children": [],
         }]

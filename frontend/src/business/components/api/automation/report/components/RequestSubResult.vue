@@ -36,13 +36,6 @@
         </el-col>
       </el-row>
     </div>
-
-    <el-collapse-transition>
-      <div v-show="isActive" style="width: 99%">
-        <ms-request-result-tail v-if="isActive" :request-type="requestType" :request="request"
-                                :scenario-name="scenarioName"/>
-      </div>
-    </el-collapse-transition>
   </div>
 </template>
 
@@ -51,11 +44,10 @@
   import MsAssertionResults from "./AssertionResults";
   import MsRequestText from "./RequestText";
   import MsResponseText from "./ResponseText";
-  import MsRequestResultTail from "./RequestResultTail";
 
   export default {
     name: "MsRequestResult",
-    components: {MsResponseText, MsRequestText, MsAssertionResults, MsRequestMetric, MsRequestResultTail},
+    components: {MsResponseText, MsRequestText, MsAssertionResults, MsRequestMetric},
     props: {
       request: Object,
       scenarioName: String,
