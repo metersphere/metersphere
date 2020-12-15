@@ -11,12 +11,12 @@
             <div>
               <ms-scenario-results :scenarios="content.scenarios" v-on:requestResult="requestResult"/>
             </div>
-            <el-collapse-transition>
-              <div v-show="isActive" style="width: 99%">
-                <ms-request-result-tail v-if="isRequestResult" :request-type="requestType" :request="request"
-                                        :scenario-name="scenarioName"/>
-              </div>
-            </el-collapse-transition>
+            <!--<el-collapse-transition>-->
+              <!--<div v-show="isActive" style="width: 99%">-->
+                <!--<ms-request-result-tail v-if="isRequestResult" :request-type="requestType" :request="request"-->
+                                        <!--:scenario-name="scenarioName"/>-->
+              <!--</div>-->
+            <!--</el-collapse-transition>-->
             <ms-api-report-export v-if="reportExportVisible" id="apiTestReport" :title="report.testName"
                                   :content="content" :total-time="totalTime"/>
           </main>

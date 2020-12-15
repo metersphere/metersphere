@@ -1,5 +1,5 @@
 <template>
-  <el-dialog :close-on-click-modal="false" :title="$t('api_test.definition.request.title')" :visible.sync="visible"
+  <el-dialog :close-on-click-modal="false" :title="$t('api_test.automation.create_tag')" :visible.sync="visible"
              width="45%"
              :destroy-on-close="true">
     <el-form :model="tagForm" label-position="right" label-width="80px" size="small" :rules="rule" ref="tagForm">
@@ -16,11 +16,11 @@
     </el-form>
     <el-table :data="tagData" row-key="id">
 
-      <el-table-column prop="name" :label="$t('api_test.definition.api_name')" show-overflow-tooltip/>
+      <el-table-column prop="name" :label="$t('commons.name')" show-overflow-tooltip/>
       <el-table-column :label="$t('commons.operating')" min-width="130" align="center">
         <template v-slot:default="scope">
-          <el-button type="text" @click="editApi(scope.row)">编辑</el-button>
-          <el-button type="text" @click="handleDelete(scope.row)" style="color: #F56C6C">删除</el-button>
+          <el-button type="text" @click="editApi(scope.row)">{{$t('commons.edit')}}</el-button>
+          <el-button type="text" @click="handleDelete(scope.row)" style="color: #F56C6C">{{$t('commons.delete')}}</el-button>
         </template>
       </el-table-column>
     </el-table>

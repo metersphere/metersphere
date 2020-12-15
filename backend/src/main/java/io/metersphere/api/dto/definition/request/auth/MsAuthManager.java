@@ -24,31 +24,31 @@ import java.util.List;
 @JSONType(typeName = "AuthManager")
 public class MsAuthManager extends MsTestElement {
     private String type = "AuthManager";
-    @JSONField(ordinal = 10)
+    @JSONField(ordinal = 20)
     private String username;
 
-    @JSONField(ordinal = 11)
+    @JSONField(ordinal = 21)
     private String password;
 
-    @JSONField(ordinal = 12)
+    @JSONField(ordinal = 22)
     private String url;
 
-    @JSONField(ordinal = 13)
+    @JSONField(ordinal = 23)
     private String realm;
 
-    @JSONField(ordinal = 14)
+    @JSONField(ordinal = 24)
     private String verification;
 
-    @JSONField(ordinal = 15)
+    @JSONField(ordinal = 25)
     private String mechanism;
 
-    @JSONField(ordinal = 16)
+    @JSONField(ordinal = 26)
     private String encrypt;
 
-    @JSONField(ordinal = 17)
+    @JSONField(ordinal = 27)
     private String domain;
 
-    @JSONField(ordinal = 18)
+    @JSONField(ordinal = 28)
     private String environment;
 
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, ParameterConfig config) {

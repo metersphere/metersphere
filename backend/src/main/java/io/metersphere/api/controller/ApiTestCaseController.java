@@ -4,6 +4,7 @@ import io.metersphere.api.dto.definition.ApiTestCaseRequest;
 import io.metersphere.api.dto.definition.ApiTestCaseResult;
 import io.metersphere.api.dto.definition.SaveApiTestCaseRequest;
 import io.metersphere.api.service.ApiTestCaseService;
+import io.metersphere.base.domain.ApiTestCaseWithBLOBs;
 import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.commons.utils.SessionUtils;
 import org.apache.shiro.authz.annotation.Logical;
@@ -41,6 +42,11 @@ public class ApiTestCaseController {
     @GetMapping("/delete/{id}")
     public void delete(@PathVariable String id) {
         apiTestCaseService.delete(id);
+    }
+
+    @GetMapping("/get/{id}")
+    public ApiTestCaseWithBLOBs get(@PathVariable String id) {
+        return apiTestCaseService.get(id);
     }
 
 }
