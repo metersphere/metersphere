@@ -36,7 +36,11 @@
         default: "view"
       },
     },
-
+    watch: {
+      treeNodes() {
+        this.$emit('setTreeNodes', this.treeNodes);
+      }
+    },
     mounted() {
       this.projectId = getCurrentProjectID();
       this.list();

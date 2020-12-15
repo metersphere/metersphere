@@ -5,6 +5,7 @@
       <test-case-node-tree
         @nodeSelectEvent="nodeChange"
         @refreshTable="refresh"
+        @setTreeNodes="setTreeNodes"
         :type="'edit'"
         ref="nodeTree"/>
     </ms-aside-container>
@@ -153,6 +154,9 @@ export default {
     },
     batchMove(selectIds) {
       this.$refs.testBatchMove.open(this.treeNodes, selectIds, this.$refs.testCaseEditDialog.moduleOptions);
+    },
+    setTreeNodes(data) {
+      this.treeNodes = data;
     }
   }
 }

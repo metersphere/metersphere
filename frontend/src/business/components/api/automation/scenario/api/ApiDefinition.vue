@@ -32,7 +32,7 @@
 </template>
 
 <script>
-  import MsNodeTree from '../../../definition/components/ApiModule';
+  import MsNodeTree from '../../../definition/components/module/ApiModule';
   import MsApiList from './ApiList';
   import MsContainer from "../../../../common/components/MsContainer";
   import MsMainContainer from "../../../../common/components/MsMainContainer";

@@ -65,6 +65,7 @@
 <script>
   import MsDialogFooter from "../../../../common/components/MsDialogFooter";
   import {listenGoBack, removeGoBackListener} from "@/common/js/utils";
+  import {getCurrentProjectID} from "../../../../../../common/js/utils";
 
   export default {
     name: "ApiImport",
@@ -104,7 +105,6 @@
         environments: [],
         useEnvironment: false,
         formData: {
-          projectId: '',
           file: undefined,
           swaggerUrl: ''
         },
@@ -113,7 +113,6 @@
         fileList: []
       }
     },
-    props: ['projectId'],
     activated() {
       this.selectedPlatform = this.platforms[0];
     },
@@ -184,7 +183,7 @@
         param.platform = this.selectedPlatformValue;
         param.moduleId = this.currentModule.id;
         param.modulePath = this.currentModule.path;
-        param.projectId = this.projectId;
+        param.projectId = getCurrentProjectID();
         if (!this.swaggerUrlEable) {
           param.swaggerUrl = undefined;
         }

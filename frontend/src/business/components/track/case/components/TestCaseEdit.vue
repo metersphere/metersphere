@@ -263,6 +263,7 @@ import {LIST_CHANGE, TrackEvent} from "@/business/components/common/head/ListEve
 import {Message} from "element-ui";
 import TestCaseAttachment from "@/business/components/track/case/components/TestCaseAttachment";
 import {getCurrentProjectID} from "../../../../../common/js/utils";
+import {buildNodePath} from "../../../api/definition/model/NodeTree";
 
 export default {
   name: "TestCaseEdit",
@@ -547,7 +548,7 @@ export default {
     getModuleOptions() {
       let moduleOptions = [];
       this.treeNodes.forEach(node => {
-        this.buildNodePath(node, {path: ''}, moduleOptions);
+        buildNodePath(node, {path: ''}, moduleOptions);
       });
       this.moduleOptions = moduleOptions;
     },
@@ -574,17 +575,7 @@ export default {
       this.getMaintainerOptions();
       this.getTestOptions();
     },
-    buildNodePath(node, option, moduleOptions) {
-      //递归构建节点路径
-      option.id = node.id;
-      option.path = option.path + '/' + node.name;
-      moduleOptions.push(option);
-      if (node.children) {
-        for (let i = 0; i < node.children.length; i++) {
-          this.buildNodePath(node.children[i], {path: option.path}, moduleOptions);
-        }
-      }
-    },
+
     resetForm() {
       //防止点击修改后，点击新建触发校验
       if (this.$refs['caseFrom']) {

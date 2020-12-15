@@ -59,7 +59,7 @@
   import MsDialogFooter from "../../../../common/components/MsDialogFooter";
   import {WORKSPACE_ID} from '../../../../../../common/js/constants';
   import {REQ_METHOD} from "../../model/JsonData";
-  import {getCurrentUser, getUUID} from "../../../../../../common/js/utils";
+  import {getCurrentProjectID, getCurrentUser, getUUID} from "../../../../../../common/js/utils";
   import {createComponent, Request} from "../jmeter/components";
   import HeaderManager from "../jmeter/components/configurations/header-manager";
 
@@ -77,7 +77,6 @@
         httpForm: {},
         httpVisible: false,
         currentModule: {},
-        projectId: "",
         maintainerOptions: [],
         rule: {
           name: [
@@ -103,9 +102,9 @@
               this.httpVisible = false;
               if (saveAs) {
                 this.httpForm.request = JSON.stringify(this.httpForm.request);
-                this.$parent.saveAsEdit(this.httpForm);
+                this.$emit('saveAsEdit', this.httpForm);
               } else {
-                this.$parent.refresh(this.currentModule);
+                this.$emit('refresh');
               }
             });
           } else {
@@ -129,7 +128,7 @@
             break;
         }
         this.httpForm.bodyUploadIds = [];
-        this.httpForm.projectId = this.projectId;
+        this.httpForm.projectId = getCurrentProjectID();
         this.httpForm.id = this.httpForm.request.id;
         this.httpForm.protocol = this.currentProtocol;
 
@@ -168,10 +167,9 @@
           this.maintainerOptions = response.data;
         });
       },
-      open(currentModule, projectId) {
+      open(currentModule) {
         this.httpForm = {method: REQ_METHOD[0].id, userId: getCurrentUser().id};
         this.currentModule = currentModule;
-        this.projectId = projectId;
         this.getMaintainerOptions();
         this.httpVisible = true;
       }

@@ -1,13 +1,17 @@
 <template>
   <ms-container>
     <ms-aside-container>
-      <ms-node-tree @selectModule="selectModule"
-                    @getApiModuleTree="initTree"
-                    @changeProtocol="changeProtocol"
-                    @refresh="refresh"
-                    @saveAsEdit="editApi"
-                    @debug="debug"
-                    @exportAPI="exportAPI"/>
+      <ms-api-module
+        @nodeSelectEvent="nodeChange"
+        @protocolChange="handleProtocolChange"
+        @refreshTable="refresh"
+        @exportAPI="exportAPI"
+        @debug="debug"
+        @saveAsEdit="editApi"
+        @setModuleOptions="setModuleOptions"
+        @enableTrash="enableTrash"
+        :type="'edit'"
+        ref="nodeTree"/>
     </ms-aside-container>
 
     <ms-main-container>
@@ -33,9 +37,10 @@
           <ms-api-list
             v-if="item.type === 'list'"
             :current-protocol="currentProtocol"
-            :current-module="currentModule"
             :visible="visible"
             :currentRow="currentRow"
+            :select-node-ids="selectNodeIds"
+            :trash-enable="trashEnable"
             @editApi="editApi"
             @handleCase="handleCase"
             @showExecResult="showExecResult"
@@ -48,7 +53,6 @@
                            :currentProtocol="currentProtocol"
                            :moduleOptions="moduleOptions"/>
           </div>
-
           <!-- 快捷调试 -->
           <div v-else-if="item.type=== 'debug'" class="ms-api-div">
             <ms-debug-http-page :currentProtocol="currentProtocol" :testCase="item.api" @saveAs="editApi" v-if="currentProtocol==='HTTP'"/>
@@ -70,7 +74,6 @@
   </ms-container>
 </template>
 <script>
-  import MsNodeTree from './components/ApiModule';
   import MsApiList from './components/ApiList';
   import MsContainer from "../../common/components/MsContainer";
   import MsMainContainer from "../../common/components/MsMainContainer";
@@ -86,11 +89,12 @@
   import MsRunTestSqlPage from "./components/runtest/RunTestSQLPage";
   import MsRunTestDubboPage from "./components/runtest/RunTestDubboPage";
   import {downloadFile, getCurrentUser, getUUID, getCurrentProjectID} from "@/common/js/utils";
+  import MsApiModule from "./components/module/ApiModule";
 
   export default {
     name: "ApiDefinition",
     components: {
-      MsNodeTree,
+      MsApiModule,
       MsApiList,
       MsMainContainer,
       MsContainer,
@@ -120,9 +124,11 @@
         apiDefaultTab: 'default',
         currentProtocol: null,
         currentModule: null,
+        selectNodeIds: [],
         currentApi: {},
         moduleOptions: {},
         runTestData: {},
+        trashEnable: false,
         apiTabs: [{
           title: this.$t('api_test.definition.api_title'),
           name: 'default',
@@ -199,7 +205,7 @@
         this.apiDefaultTab = newTabName;
       },
       debug(id) {
-        this.handleTabsEdit(this.$t('api_test.definition.request.fast_debug'), "debug",id);
+        this.handleTabsEdit(this.$t('api_test.definition.request.fast_debug'), "debug", id);
       },
       editApi(row) {
         let name = this.$t('api_test.definition.request.edit_api');
@@ -214,9 +220,6 @@
       },
       apiCaseClose() {
         this.showCasePage = true;
-      },
-      selectModule(data) {
-        this.currentModule = data;
       },
       exportAPI() {
         if (!this.$refs.apiList[0].tableData) {
@@ -254,6 +257,19 @@
       },
       showExecResult(row){
         this.debug(row);
+      },
+
+      nodeChange(node, nodeIds, pNodes) {
+        this.selectNodeIds = nodeIds;
+      },
+      handleProtocolChange(protocol) {
+        this.currentProtocol = protocol;
+      },
+      setModuleOptions(data) {
+        this.moduleOptions = data;
+      },
+      enableTrash(data) {
+        this.trashEnable = data;
       }
     }
   }

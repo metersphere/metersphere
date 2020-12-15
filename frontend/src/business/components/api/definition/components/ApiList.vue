@@ -3,9 +3,11 @@
     <el-card class="card-content">
       <el-input placeholder="搜索" @blur="search" class="search-input" size="small" v-model="condition.name"/>
 
-      <el-table border :data="tableData" row-key="id" class="test-content adjust-table"
-                @select-all="handleSelectAll"
-                @select="handleSelect" :height="screenHeight">
+      <el-table v-loading="result.loading"
+        border
+        :data="tableData" row-key="id" class="test-content adjust-table"
+        @select-all="handleSelectAll"
+        @select="handleSelect" :height="screenHeight">
         <el-table-column type="selection"/>
         <el-table-column width="40" :resizable="false" align="center">
           <template v-slot:default="scope">
@@ -71,7 +73,7 @@
 
         <el-table-column :label="$t('commons.operating')" min-width="130" align="center">
           <template v-slot:default="scope">
-            <el-button type="text" @click="reductionApi(scope.row)" v-if="currentModule!=undefined && currentModule.id === 'gc'">恢复</el-button>
+            <el-button type="text" @click="reductionApi(scope.row)" v-if="trashEnable">恢复</el-button>
             <el-button type="text" @click="editApi(scope.row)" v-else>{{$t('commons.edit')}}</el-button>
             <el-button type="text" @click="handleTestCase(scope.row)">{{$t('api_test.definition.request.case')}}</el-button>
             <el-button type="text" @click="handleDelete(scope.row)" style="color: #F56C6C">{{$t('commons.delete')}}</el-button>
@@ -125,6 +127,7 @@
       return {
         condition: {},
         selectApi: {},
+        result: {},
         moduleId: "",
         deletePath: "/test/case/delete",
         selectRows: new Set(),
@@ -153,8 +156,12 @@
     },
     props: {
       currentProtocol: String,
-      currentModule: Object,
+      selectNodeIds: Array,
       visible: {
+        type: Boolean,
+        default: false,
+      },
+      trashEnable: {
         type: Boolean,
         default: false,
       }
@@ -165,28 +172,28 @@
       this.getMaintainerOptions();
     },
     watch: {
-      currentModule() {
+      selectNodeIds() {
         this.initApiTable();
       },
       currentProtocol() {
         this.initApiTable();
+      },
+      trashEnable() {
+        if (this.trashEnable) {
+          this.initApiTable();
+        }
       },
     },
     methods: {
       initApiTable() {
         this.selectRows = new Set();
         this.condition.filters = ["Prepare", "Underway", "Completed"];
-        if (this.currentModule != null) {
-          if (this.currentModule.id == "root") {
-            this.condition.moduleIds = [];
-          } else if (this.currentModule.id == "gc") {
-            this.condition.moduleIds = [];
-            this.condition.filters = ["Trash"];
-          }
-          else {
-            this.condition.moduleIds = this.currentModule.ids;
-          }
+        if (this.trashEnable) {
+          this.condition.filters = ["Trash"];
+          this.condition.moduleIds = [];
         }
+        this.condition.moduleIds = this.selectNodeIds;
+
         if (this.projectId != null) {
           this.condition.projectId = this.projectId;
         }
@@ -260,7 +267,7 @@
         });
       },
       handleDeleteBatch() {
-        if (this.currentModule != undefined && this.currentModule.id == "gc") {
+        if (this.trashEnable) {
           this.$alert(this.$t('api_test.definition.request.delete_confirm') + "？", '', {
             confirmButtonText: this.$t('commons.confirm'),
             callback: (action) => {
@@ -319,7 +326,7 @@
         this.$refs.caseList.open(this.selectApi);
       },
       handleDelete(api) {
-        if (this.currentModule != undefined && this.currentModule.id == "gc") {
+        if (this.trashEnable) {
           this.$get('/api/definition/delete/' + api.id, () => {
             this.$success(this.$t('commons.delete_success'));
             this.initApiTable();
