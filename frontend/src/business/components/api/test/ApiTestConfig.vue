@@ -8,10 +8,7 @@
               <el-input :disabled="isReadOnly" class="test-name" v-model="test.name" maxlength="60"
                         :placeholder="$t('api_test.input_name')"
                         show-word-limit>
-                <el-select filterable class="test-project" v-model="test.projectId" slot="prepend"
-                           :placeholder="$t('api_test.select_project')">
-                  <el-option v-for="project in projects" :key="project.id" :label="project.name" :value="project.id"/>
-                </el-select>
+                <template slot="prepend">测试名称</template>
               </el-input>
 
               <el-tooltip :content="'Ctrl + S'"
@@ -80,7 +77,7 @@ import MsApiScenarioConfig from "./components/ApiScenarioConfig";
 import {Scenario, Test} from "./model/ScenarioModel"
 import MsApiReportStatus from "../report/ApiReportStatus";
 import MsApiReportDialog from "./ApiReportDialog";
-import {checkoutTestManagerOrTestUser, downloadFile, getUUID} from "@/common/js/utils";
+import {checkoutTestManagerOrTestUser, downloadFile, getCurrentProjectID, getUUID} from "@/common/js/utils";
 import MsScheduleConfig from "../../common/components/MsScheduleConfig";
 import ApiImport from "./components/import/ApiImport";
 import {ApiEvent, LIST_CHANGE} from "@/business/components/common/head/ListEvent";
@@ -124,8 +121,6 @@ export default {
 
     methods: {
       init() {
-        let projectId;
-
         this.isReadOnly = !checkoutTestManagerOrTestUser();
 
         if (this.id) {
@@ -137,14 +132,8 @@ export default {
           if (this.$refs.config) {
             this.$refs.config.reset();
           }
-          // 仅创建时获取选择的项目
-          projectId = this.$store.state.common.projectId;
         }
-        this.result = this.$get("/project/listAll", response => {
-          this.projects = response.data;
-          // 等待项目列表加载完
-          if (projectId) this.test.projectId = projectId;
-        })
+        this.test.projectId = getCurrentProjectID();
       },
       updateReference() {
         let updateIds = [];
@@ -318,7 +307,6 @@ export default {
             break;
           case "performance":
             this.$store.commit('setTest', {
-              projectId: this.test.projectId,
               name: this.test.name,
               jmx: this.test.toJMX()
             })

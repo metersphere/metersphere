@@ -20,34 +20,36 @@ import java.util.List;
 @EqualsAndHashCode(callSuper = true)
 @JSONType(typeName = "TCPSampler")
 public class MsTCPSampler extends MsTestElement {
-    @JSONField(ordinal = 10)
-    private String type = "TCPSampler";
-    @JSONField(ordinal = 11)
-    private String classname = "";
-    @JSONField(ordinal = 12)
-    private String server = "";
-    @JSONField(ordinal = 13)
-    private String port = "";
-    @JSONField(ordinal = 14)
-    private String ctimeout = "";
-    @JSONField(ordinal = 15)
-    private String timeout = "";
-    @JSONField(ordinal = 16)
-    private boolean reUseConnection = true;
-    @JSONField(ordinal = 17)
-    private boolean nodelay;
-    @JSONField(ordinal = 18)
-    private boolean closeConnection;
-    @JSONField(ordinal = 19)
-    private String soLinger = "";
     @JSONField(ordinal = 20)
-    private String eolByte = "";
+    private String type = "TCPSampler";
     @JSONField(ordinal = 21)
-    private String username = "";
+    private String classname = "";
     @JSONField(ordinal = 22)
-    private String password = "";
+    private String server = "";
     @JSONField(ordinal = 23)
+    private String port = "";
+    @JSONField(ordinal = 24)
+    private String ctimeout = "";
+    @JSONField(ordinal = 25)
+    private String timeout = "";
+    @JSONField(ordinal = 26)
+    private boolean reUseConnection = true;
+    @JSONField(ordinal = 27)
+    private boolean nodelay;
+    @JSONField(ordinal = 28)
+    private boolean closeConnection;
+    @JSONField(ordinal = 29)
+    private String soLinger = "";
+    @JSONField(ordinal = 30)
+    private String eolByte = "";
+    @JSONField(ordinal = 31)
+    private String username = "";
+    @JSONField(ordinal = 32)
+    private String password = "";
+    @JSONField(ordinal = 33)
     private String request;
+    @JSONField(ordinal = 34)
+    private Object requestResult;
 
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, ParameterConfig config) {
         if (!this.isEnable()) {

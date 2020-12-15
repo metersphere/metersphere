@@ -9,9 +9,9 @@
         <ms-sql-result-table v-if="isSqlType" :body="response.responseResult.body"/>
         <ms-code-edit v-if="!isSqlType" :mode="mode" :read-only="true" :modes="modes" :data.sync="response.responseResult.body" ref="codeEdit"/>
       </el-tab-pane>
-      <el-tab-pane label="Cookie" name="cookie" class="pane cookie">
-        <pre>{{response.cookies}}</pre>
-      </el-tab-pane>
+      <!--<el-tab-pane label="Cookie" name="cookie" class="pane cookie">-->
+        <!--<pre>{{response.cookies}}</pre>-->
+      <!--</el-tab-pane>-->
 
       <el-tab-pane :label="$t('api_test.definition.request.console')" name="console" class="pane">
         <pre>{{response.responseResult.console}}</pre>

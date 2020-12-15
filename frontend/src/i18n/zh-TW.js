@@ -1,5 +1,6 @@
 export default {
   commons: {
+    please_fill_in_the_template: '請填寫模版內容',
     cut_back_old_version: '切回舊版',
     cut_back_new_version: '切回新版',
     comment: '評論',
@@ -540,6 +541,7 @@ export default {
         create_info: '創建',
         update_info: '更新',
         batch_edit: "批量編輯",
+        path_valid_info: "請求地址不能包含空格",
       }
     },
     automation: {

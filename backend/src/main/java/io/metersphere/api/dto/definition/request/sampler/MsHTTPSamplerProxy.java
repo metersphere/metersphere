@@ -40,50 +40,53 @@ import java.util.regex.Pattern;
 public class MsHTTPSamplerProxy extends MsTestElement {
     private String type = "HTTPSamplerProxy";
 
-    @JSONField(ordinal = 10)
+    @JSONField(ordinal = 20)
     private String protocol;
 
-    @JSONField(ordinal = 11)
+    @JSONField(ordinal = 21)
     private String domain;
 
-    @JSONField(ordinal = 12)
+    @JSONField(ordinal = 22)
     private String port;
 
-    @JSONField(ordinal = 13)
+    @JSONField(ordinal = 23)
     private String method;
 
-    @JSONField(ordinal = 14)
+    @JSONField(ordinal = 24)
     private String path;
 
-    @JSONField(ordinal = 15)
+    @JSONField(ordinal = 25)
     private String connectTimeout;
 
-    @JSONField(ordinal = 16)
+    @JSONField(ordinal = 26)
     private String responseTimeout;
 
-    @JSONField(ordinal = 17)
+    @JSONField(ordinal = 27)
     private List<KeyValue> headers;
 
-    @JSONField(ordinal = 18)
+    @JSONField(ordinal = 28)
     private Body body;
 
-    @JSONField(ordinal = 19)
+    @JSONField(ordinal = 29)
     private List<KeyValue> rest;
 
-    @JSONField(ordinal = 20)
+    @JSONField(ordinal = 30)
     private String url;
 
-    @JSONField(ordinal = 21)
+    @JSONField(ordinal = 31)
     private boolean followRedirects;
 
-    @JSONField(ordinal = 22)
+    @JSONField(ordinal = 32)
     private boolean doMultipartPost;
 
-    @JSONField(ordinal = 23)
+    @JSONField(ordinal = 33)
     private String useEnvironment;
 
-    @JSONField(ordinal = 24)
+    @JSONField(ordinal = 34)
     private List<KeyValue> arguments;
+
+    @JSONField(ordinal = 35)
+    private Object requestResult;
 
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, ParameterConfig config) {
         if (!this.isEnable()) {

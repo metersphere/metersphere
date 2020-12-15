@@ -8,17 +8,7 @@
                       class="input-with-select"
                       maxlength="30" show-word-limit
             >
-              <template v-slot:prepend>
-                <el-select filterable v-model="test.projectId"
-                           :placeholder="$t('load_test.select_project')">
-                  <el-option
-                    v-for="item in projects"
-                    :key="item.id"
-                    :label="item.name"
-                    :value="item.id">
-                  </el-option>
-                </el-select>
-              </template>
+              <template slot="prepend">测试名称</template>
             </el-input>
           </el-col>
           <el-col :span="12" :offset="2">
@@ -59,7 +49,7 @@ import PerformancePressureConfig from "./components/PerformancePressureConfig";
 import PerformanceAdvancedConfig from "./components/PerformanceAdvancedConfig";
 import MsContainer from "../../common/components/MsContainer";
 import MsMainContainer from "../../common/components/MsMainContainer";
-import {checkoutTestManagerOrTestUser} from "@/common/js/utils";
+import {checkoutTestManagerOrTestUser, getCurrentProjectID} from "@/common/js/utils";
 import MsScheduleConfig from "../../common/components/MsScheduleConfig";
 import {LIST_CHANGE, PerformanceEvent} from "@/business/components/common/head/ListEvent";
 
@@ -77,7 +67,6 @@ export default {
     return {
       result: {},
       test: {schedule: {}},
-      listProjectPath: "/project/listAll",
       savePath: "/performance/save",
       editPath: "/performance/edit",
       runPath: "/performance/run",
@@ -127,9 +116,6 @@ export default {
     }
     this.getTest(this.$route.params.testId);
   },
-  activated() {
-    this.listProjects();
-  },
   mounted() {
     this.importAPITest();
   },
@@ -137,7 +123,6 @@ export default {
     importAPITest() {
       let apiTest = this.$store.state.api.test;
       if (apiTest && apiTest.name) {
-        this.$set(this.test, "projectId", apiTest.projectId);
         this.$set(this.test, "name", apiTest.name);
         let blob = new Blob([apiTest.jmx.xml], {type: "application/octet-stream"});
         let file = new File([blob], apiTest.jmx.name);
@@ -159,11 +144,6 @@ export default {
           }
         });
       }
-    },
-    listProjects() {
-      this.result = this.$get(this.listProjectPath, response => {
-        this.projects = response.data;
-      })
     },
     save() {
       if (!this.validTest()) {
@@ -237,6 +217,9 @@ export default {
       this.$router.push({path: '/performance/test/all'})
     },
     validTest() {
+      let currentProjectId = getCurrentProjectID();
+      this.test.projectId = currentProjectId;
+
       if (!this.test.name) {
         this.$error(this.$t('load_test.test_name_is_null'));
         return false;

@@ -1,5 +1,6 @@
 export default {
   commons: {
+    please_fill_in_the_template: '请填写模版内容',
     cut_back_old_version: '切回旧版',
     cut_back_new_version: '切回新版',
     comment: '评论',
@@ -540,6 +541,7 @@ export default {
         create_info: '创建',
         update_info: '更新',
         batch_edit: "批量编辑",
+        path_valid_info: "请求地址不能包含空格",
       }
     },
     automation: {

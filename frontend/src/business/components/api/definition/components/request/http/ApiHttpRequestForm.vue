@@ -186,7 +186,7 @@
       copyRow(row) {
         let obj = {};
         Object.assign(obj, row);
-        row.id = getUUID();
+        obj.id = getUUID();
         this.request.hashTree.push(obj);
         this.reload();
       },

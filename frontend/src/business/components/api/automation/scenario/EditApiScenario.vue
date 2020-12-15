@@ -186,7 +186,7 @@
                       <!--提取规则-->
                       <ms-api-extract @remove="remove" @copyRow="copyRow" v-if="data.type==='Extract'" customizeStyle="margin-top: 0px" :extract="data" :node="node"/>
                       <!--API 导入 -->
-                      <ms-api-component :request="data" @remove="remove" @copyRow="copyRow" v-if="data.type==='HTTPSamplerProxy'||data.type==='DubboSampler'||data.type==='JDBCSampler'||data.type==='TCPSampler'" :node="node"/>
+                      <ms-api-component :request="data" :currentEnvironmentId="currentEnvironmentId" @remove="remove" @copyRow="copyRow" v-if="data.type==='HTTPSamplerProxy'||data.type==='DubboSampler'||data.type==='JDBCSampler'||data.type==='TCPSampler'" :node="node"/>
                     </template>
                    </span>
               </el-tree>
@@ -238,8 +238,8 @@
       <!--接口列表-->
       <el-drawer :visible.sync="apiListVisible" :destroy-on-close="true" direction="ltr" :withHeader="false" :title="$t('api_test.automation.api_list_import')" :modal="false" size="90%">
         <ms-api-definition :visible="visibleRef" :currentRow="currentRow"/>
-        <el-button style="float: right;margin: 0px 20px 0px" type="primary" @click="copyApi('REF')">{{$t('api_test.scenario.reference')}}</el-button>
-        <el-button style="float: right;" type="primary" @click="copyApi('Copy')">{{ $t('commons.copy') }}</el-button>
+        <el-button style="float: right;margin: 0px 20px 0px" type="primary" @click="pushApiOrCase('REF')">{{$t('api_test.scenario.reference')}}</el-button>
+        <el-button style="float: right;" type="primary" @click="pushApiOrCase('Copy')">{{ $t('commons.copy') }}</el-button>
       </el-drawer>
 
       <!--自定义接口-->
@@ -467,50 +467,39 @@
         this.reload();
         this.scenarioVisible = false;
       },
-      copyApi(referenced) {
+      setApiParameter(item, refType, referenced) {
+        let request = {};
+        if (Object.prototype.toString.call(item.request).indexOf("String") > 0) {
+          request = JSON.parse(item.request);
+        } else {
+          request = item.request;
+        }
+        request.id = item.id;
+        request.name = item.name;
+        request.refType = refType;
+        request.referenced = referenced;
+        request.enable === undefined ? request.enable = true : request.enable;
+        request.active = false;
+        request.resourceId = getUUID();
+        if (referenced === 'REF' || !request.hashTree) {
+          request.hashTree = [];
+        }
+        if (this.selectedTreeNode != undefined) {
+          this.selectedTreeNode.hashTree.push(request);
+        } else {
+          this.scenarioDefinition.push(request);
+        }
+      },
+      pushApiOrCase(referenced) {
         if (this.currentRow.cases.length === 0 && this.currentRow.apis.length === 0) {
           this.$warning(this.$t('api_test.automation.reference_info'));
           return;
         }
         this.currentRow.cases.forEach(item => {
-          let request = {};
-          if (Object.prototype.toString.call(item.request).indexOf("String") > 0) {
-            request = JSON.parse(item.request);
-          } else {
-            request = item.request;
-          }
-          request.referenced = referenced;
-          request.enable === undefined ? request.enable = true : request.enable;
-          request.active = false;
-          request.resourceId = getUUID();
-          if (referenced === 'REF' || !request.hashTree) {
-            request.hashTree = [];
-          }
-          if (this.selectedTreeNode != undefined) {
-            this.selectedTreeNode.hashTree.push(request);
-          } else {
-            this.scenarioDefinition.push(request);
-          }
+          this.setApiParameter(item, "CASE", referenced);
         })
         this.currentRow.apis.forEach(item => {
-          let request = {};
-          if (Object.prototype.toString.call(item.request).indexOf("String") > 0) {
-            request = JSON.parse(item.request);
-          } else {
-            request = item.request;
-          }
-          request.referenced = referenced;
-          request.enable === undefined ? request.enable = true : request.enable;
-          request.active = false;
-          request.resourceId = getUUID();
-          if (referenced === 'REF' || !request.hashTree) {
-            request.hashTree = [];
-          }
-          if (this.selectedTreeNode != undefined) {
-            this.selectedTreeNode.hashTree.push(request);
-          } else {
-            this.scenarioDefinition.push(request);
-          }
+          this.setApiParameter(item, "API", referenced);
         })
         this.apiListVisible = false;
         this.currentRow.cases = [];

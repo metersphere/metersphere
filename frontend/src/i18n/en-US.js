@@ -1,5 +1,6 @@
 export default {
   commons: {
+    please_fill_in_the_template: 'Please fill in the template',
     cut_back_old_version: 'Cut back to old version',
     cut_back_new_version: 'Switch back to new version',
     comment: 'comment',
@@ -541,6 +542,7 @@ export default {
         create_info: 'Create',
         update_info: 'Update',
         batch_edit: "Batch edit",
+        path_valid_info: "The request address cannot contain spaces",
       }
     },
     automation: {

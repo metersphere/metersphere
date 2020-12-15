@@ -20,10 +20,10 @@ import java.util.List;
 public class MsJSR223PostProcessor extends MsTestElement {
     private String type = "JSR223PostProcessor";
 
-    @JSONField(ordinal = 10)
+    @JSONField(ordinal = 20)
     private String script;
 
-    @JSONField(ordinal = 11)
+    @JSONField(ordinal = 21)
     private String scriptLanguage;
 
 
