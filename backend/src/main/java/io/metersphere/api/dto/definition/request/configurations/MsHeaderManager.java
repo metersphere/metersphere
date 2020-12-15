@@ -22,7 +22,7 @@ import java.util.List;
 public class MsHeaderManager extends MsTestElement {
 
     private String type = "HeaderManager";
-    @JSONField(ordinal = 10)
+    @JSONField(ordinal = 20)
     private List<KeyValue> headers;
 
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, ParameterConfig config) {

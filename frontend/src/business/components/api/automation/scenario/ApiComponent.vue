@@ -115,7 +115,8 @@
       getApiInfo() {
         if (this.request.id && this.request.referenced === 'REF') {
           let requestResult = this.request.requestResult;
-          this.$get("/api/definition/get/" + this.request.id, response => {
+          let url = this.request.refType && this.request.refType === 'CASE' ? "/api/testcase/get/" : "/api/definition/get/";
+          this.$get(url + this.request.id, response => {
             if (response.data) {
               Object.assign(this.request, JSON.parse(response.data.request));
               this.request.name = response.data.name;
@@ -123,6 +124,7 @@
               this.request.method = response.data.method;
               this.request.url = response.data.path;
               this.request.requestResult = requestResult;
+              this.request.id = response.data.id;
               this.reload();
             } else {
               this.request.referenced = "Deleted";

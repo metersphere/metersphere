@@ -36,6 +36,13 @@
         </el-col>
       </el-row>
     </div>
+
+    <el-collapse-transition>
+      <div v-show="isActive" style="width: 99%">
+        <ms-request-result-tail v-if="isActive" :request-type="requestType" :request="request"
+                                :scenario-name="scenarioName"/>
+      </div>
+    </el-collapse-transition>
   </div>
 </template>
 
@@ -44,21 +51,23 @@
   import MsAssertionResults from "./AssertionResults";
   import MsRequestText from "./RequestText";
   import MsResponseText from "./ResponseText";
+  import MsRequestResultTail from "./RequestResultTail";
 
   export default {
     name: "MsRequestResult",
-    components: {MsResponseText, MsRequestText, MsAssertionResults, MsRequestMetric},
+    components: {MsResponseText, MsRequestText, MsAssertionResults, MsRequestMetric, MsRequestResultTail},
     props: {
       request: Object,
       scenarioName: String,
       indexNumber: Number,
     },
     data() {
-      return {}
+      return {isActive: false, requestType: undefined,}
     },
     methods: {
       active() {
-        this.$emit("requestResult", {request: this.request, scenarioName: this.scenarioName});
+        this.isActive = !this.isActive;
+        //this.$emit("requestResult", {request: this.request, scenarioName: this.scenarioName});
       }
     },
   }

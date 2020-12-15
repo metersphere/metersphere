@@ -19,9 +19,9 @@ import java.util.List;
 @JSONType(typeName = "ConstantTimer")
 public class MsConstantTimer extends MsTestElement {
     private String type = "ConstantTimer";
-    @JSONField(ordinal = 10)
+    @JSONField(ordinal = 20)
     private String id;
-    @JSONField(ordinal = 11)
+    @JSONField(ordinal = 21)
     private String delay;
 
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, ParameterConfig config) {
