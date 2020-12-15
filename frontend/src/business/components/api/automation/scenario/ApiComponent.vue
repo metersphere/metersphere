@@ -95,13 +95,21 @@
         try {
           let urlObject = new URL(this.request.url);
           let url = urlObject.protocol + "//" + urlObject.host + "/";
-          let path = this.request.url.substr(url.length);
-          if (!path.startsWith('/')) {
-            path = "/" + path;
+          if (url) {
+            let path = this.request.url.substr(url.length);
+            if (!path.startsWith('/')) {
+              path = "/" + path;
+            }
+            this.request.path = path;
+          } else {
+            this.request.url = this.request.path;
           }
-          this.request.path = path;
         } catch (e) {
-          this.request.path = this.request.url;
+          if (this.request.url) {
+            this.request.path = this.request.url;
+          } else {
+            this.request.url = this.request.path;
+          }
         }
       }
     },
