@@ -20,7 +20,7 @@
           :name="item.name"
           closable>
           <div class="ms-api-scenario-div">
-            <ms-edit-api-scenario :currentScenario="item.currentScenario" :moduleOptions="moduleOptions"/>
+            <ms-edit-api-scenario @refresh="refresh" :currentScenario="item.currentScenario" :moduleOptions="moduleOptions"/>
           </div>
         </el-tab-pane>
 
@@ -64,7 +64,7 @@
           let label = this.$t('api_test.automation.add_scenario');
           let name = getUUID().substring(0, 8);
           this.activeName = name;
-          this.tabs.push({label: label, name: name, currentScenario: {}});
+          this.tabs.push({label: label, name: name, currentScenario: {apiScenarioModuleId: "", id: getUUID()}});
         }
         if (tab.name === 'edit') {
           let label = this.$t('api_test.automation.add_scenario');

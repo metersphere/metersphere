@@ -682,6 +682,7 @@
               this.$success(this.$t('commons.save_success'));
               this.path = "/api/automation/update";
               this.currentScenario.tagId = JSON.parse(this.currentScenario.tagId);
+              this.$emit('refresh');
             })
           }
         })
@@ -708,6 +709,7 @@
       },
       setParameter() {
         this.currentScenario.stepTotal = this.scenarioDefinition.length;
+        this.currentScenario.projectId = getCurrentProjectID();
         this.currentScenario.modulePath = this.getPath(this.currentScenario.apiScenarioModuleId);
         // 构建一个场景对象 方便引用处理
         let scenario = {
@@ -715,7 +717,9 @@
           type: "scenario", referenced: 'Created', environmentId: this.currentEnvironmentId, hashTree: this.scenarioDefinition
         };
         this.currentScenario.scenarioDefinition = scenario;
-        this.currentScenario.tagId = JSON.stringify(this.currentScenario.tagId);
+        if (this.currentScenario.tagId instanceof Array) {
+          this.currentScenario.tagId = JSON.stringify(this.currentScenario.tagId);
+        }
         if (this.currentModule != null) {
           this.currentScenario.modulePath = this.currentModule.method !== undefined ? this.currentModule.method : null;
           this.currentScenario.apiScenarioModuleId = this.currentModule.id;
