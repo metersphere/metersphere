@@ -85,6 +85,9 @@ public class MsHTTPSamplerProxy extends MsTestElement {
     @JSONField(ordinal = 24)
     private List<KeyValue> arguments;
 
+    @JSONField(ordinal = 25)
+    private Object requestResult;
+
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, ParameterConfig config) {
         if (!this.isEnable()) {
             return;

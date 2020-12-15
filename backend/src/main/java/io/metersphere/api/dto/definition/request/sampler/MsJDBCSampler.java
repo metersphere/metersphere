@@ -38,6 +38,8 @@ public class MsJDBCSampler extends MsTestElement {
     private List<KeyValue> variables;
     @JSONField(ordinal = 16)
     private String environmentId;
+    @JSONField(ordinal = 17)
+    private Object requestResult;
 
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, ParameterConfig config) {
         if (!this.isEnable()) {
