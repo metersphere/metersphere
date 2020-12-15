@@ -52,7 +52,7 @@ public class ApiTestCaseService {
         return extApiTestCaseMapper.list(request);
     }
 
-    public ApiTestCase get(String id) {
+    public ApiTestCaseWithBLOBs get(String id) {
         return apiTestCaseMapper.selectByPrimaryKey(id);
     }
 

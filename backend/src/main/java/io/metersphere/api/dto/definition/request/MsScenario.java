@@ -32,16 +32,16 @@ import java.util.List;
 public class MsScenario extends MsTestElement {
 
     private String type = "scenario";
-    @JSONField(ordinal = 10)
+    @JSONField(ordinal = 20)
     private String name;
 
-    @JSONField(ordinal = 11)
+    @JSONField(ordinal = 21)
     private String referenced;
 
-    @JSONField(ordinal = 12)
+    @JSONField(ordinal = 22)
     private String environmentId;
 
-    @JSONField(ordinal = 13)
+    @JSONField(ordinal = 23)
     private List<KeyValue> variables;
 
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, ParameterConfig config) {
