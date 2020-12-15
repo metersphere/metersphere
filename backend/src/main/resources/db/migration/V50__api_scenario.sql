@@ -32,6 +32,7 @@ CREATE TABLE `api_scenario_module` (
   `name` varchar(64) NOT NULL COMMENT 'Node name',
   `parent_id` varchar(50) DEFAULT NULL COMMENT 'Parent node ID',
   `level` int(10) DEFAULT '1' COMMENT 'Node level',
+  `pos` double DEFAULT NULL COMMENT 'Node order',
   `create_time` bigint(13) NOT NULL COMMENT 'Create timestamp',
   `update_time` bigint(13) NOT NULL COMMENT 'Update timestamp',
   PRIMARY KEY (`id`)

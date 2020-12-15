@@ -49,7 +49,7 @@
                          show-overflow-tooltip/>
         <el-table-column :label="$t('commons.operating')" width="200px" v-if="!referenced">
           <template v-slot:default="{row}">
-            <div v-if="currentModule!=undefined && currentModule.id === 'gc'">
+            <div v-if="trashEnable">
               <el-button type="text" @click="reductionApi(row)">恢复</el-button>
               <el-button type="text" @click="remove(row)">{{ $t('api_test.automation.remove') }}</el-button>
             </div>
@@ -95,8 +95,12 @@
     name: "MsApiScenarioList",
     components: {MsTablePagination, MsTableMoreBtn, ShowMoreBtn, MsTableHeader, MsTag, MsApiReportDetail, MsScenarioExtendButtons, MsTestPlanList},
     props: {
-      currentModule: Object,
       referenced: {
+        type: Boolean,
+        default: false,
+      },
+      selectNodeIds: Array,
+      trashEnable: {
         type: Boolean,
         default: false,
       }
@@ -133,24 +137,27 @@
       this.search();
     },
     watch: {
-      currentModule() {
+      selectNodeIds() {
         this.search();
+      },
+      trashEnable() {
+        if (this.trashEnable) {
+          this.search();
+        }
       },
     },
     methods: {
       search() {
         this.loading = true;
         this.condition.filters = ["Prepare", "Underway", "Completed"];
-        if (this.currentModule != null) {
-          if (this.currentModule.id === "root") {
-            this.condition.moduleIds = [];
-          } else if (this.currentModule.id === "gc") {
-            this.condition.moduleIds = [];
-            this.condition.filters = ["Trash"];
-          } else {
-            this.condition.moduleIds = this.currentModule.ids;
-          }
+
+        this.condition.moduleIds = this.selectNodeIds;
+
+        if (this.trashEnable) {
+          this.condition.filters = ["Trash"];
+          this.condition.moduleIds = [];
         }
+
         if (this.projectId != null) {
           this.condition.projectId = this.projectId;
         }
@@ -242,7 +249,7 @@
         this.reportId = row.reportId;
       },
       remove(row) {
-        if (this.currentModule !== undefined && this.currentModule != null && this.currentModule.id === "gc") {
+        if (this.trashEnable) {
           this.$get('/api/automation/delete/' + row.id, () => {
             this.$success(this.$t('commons.delete_success'));
             this.search();

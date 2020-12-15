@@ -55,14 +55,9 @@
           filterText: "",
           trashEnable: false
         },
-
-        httpVisible: false,
-        expandedNode: [],
-        nextFlag: true,
         projectId: "",
         data: [],
         currentModule: {},
-        newLabel: ""
       }
     },
     mounted() {
@@ -135,7 +130,7 @@
         });
       },
       nodeChange(node, nodeIds, pNodes) {
-        this.currentModule = node;
+        this.currentModule = node.data;
         this.condition.trashEnable = false;
         if (node.data.id === 'root') {
           this.$emit("nodeSelectEvent", node, [], pNodes);

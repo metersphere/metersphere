@@ -188,12 +188,12 @@
       initApiTable() {
         this.selectRows = new Set();
         this.condition.filters = ["Prepare", "Underway", "Completed"];
+
+        this.condition.moduleIds = this.selectNodeIds;
         if (this.trashEnable) {
           this.condition.filters = ["Trash"];
           this.condition.moduleIds = [];
         }
-        this.condition.moduleIds = this.selectNodeIds;
-
         if (this.projectId != null) {
           this.condition.projectId = this.projectId;
         }

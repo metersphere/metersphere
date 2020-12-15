@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.metersphere.base.mapper.ext.ExtApiScenarioModuleMapper">
+    <select id="getNodeTreeByProjectId" resultType="io.metersphere.api.dto.automation.ApiScenarioModuleDTO">
+        select
+        <include refid="io.metersphere.base.mapper.ApiScenarioModuleMapper.Base_Column_List"/>
+        from api_scenario_module
+        where api_module.project_id = #{projectId}
+        order by create_time asc
+    </select>
+</mapper>

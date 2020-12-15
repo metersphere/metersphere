@@ -724,6 +724,7 @@
           this.currentScenario.modulePath = this.currentModule.method !== undefined ? this.currentModule.method : null;
           this.currentScenario.apiScenarioModuleId = this.currentModule.id;
         }
+        this.currentScenario.projectId = this.projectId;
       },
       runRefresh() {
         this.debugVisible = true;

@@ -1,14 +1,24 @@
 <template>
   <ms-container>
     <ms-aside-container>
-      <ms-api-scenario-module @selectModule="selectModule" @getApiModuleTree="initTree"
-                              @refresh="refresh" @saveAsEdit="editScenario"/>
+      <!--<ms-api-scenario-module @selectModule="selectModule" @getApiModuleTree="initTree"-->
+                              <!--@refresh="refresh" @saveAsEdit="editScenario"/>-->
+    <ms-api-scenario-module
+      @nodeSelectEvent="nodeChange"
+      @refreshTable="refresh"
+      @saveAsEdit="editScenario"
+      @setModuleOptions="setModuleOptions"
+      @enableTrash="enableTrash"
+      :type="'edit'"
+      ref="nodeTree"/>
     </ms-aside-container>
+
     <ms-main-container>
       <el-tabs v-model="activeName" @tab-click="addTab" @tab-remove="removeTab">
         <el-tab-pane name="default" :label="$t('api_test.automation.scenario_test')">
           <ms-api-scenario-list
-            :current-module="currentModule"
+            :select-node-ids="selectNodeIds"
+            :trash-enable="trashEnable"
             @edit="editScenario"
             ref="apiScenarioList"/>
         </el-tab-pane>
@@ -55,6 +65,8 @@
         currentModule: null,
         moduleOptions: {},
         tabs: [],
+        trashEnable: false,
+        selectNodeIds: [],
       }
     },
     watch: {},
@@ -97,15 +109,22 @@
         this.setTabLabel(data);
         this.$refs.apiScenarioList.search(data);
       },
-      initTree(data) {
-        this.moduleOptions = data;
-      },
       refresh(data) {
         this.$refs.apiScenarioList.search(data);
       },
       editScenario(row) {
         this.addTab({name: 'edit', currentScenario: row});
       },
+
+      nodeChange(node, nodeIds, pNodes) {
+        this.selectNodeIds = nodeIds;
+      },
+      setModuleOptions(data) {
+        this.moduleOptions = data;
+      },
+      enableTrash(data) {
+        this.trashEnable = data;
+      }
     }
   }
 </script>
