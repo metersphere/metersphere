@@ -541,6 +541,7 @@ export default {
         create_info: '創建',
         update_info: '更新',
         batch_edit: "批量編輯",
+        path_valid_info: "請求地址不能包含空格",
       }
     },
     automation: {
