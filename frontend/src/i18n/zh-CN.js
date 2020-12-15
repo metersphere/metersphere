@@ -165,7 +165,11 @@ export default {
         current_user: "是当前用户"
       }
     },
-    monitor: "监控"
+    monitor: "监控",
+    all_label: {
+      case: "全部用例",
+      review: "全部评审"
+    }
   },
   license: {
     title: '授权管理',

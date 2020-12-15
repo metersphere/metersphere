@@ -8,8 +8,8 @@
 
     <template v-slot:aside>
       <node-tree class="node-tree"
+                 v-loading="result.loading"
                  @nodeSelectEvent="nodeChange"
-                 @refresh="refresh"
                  :tree-nodes="treeNodes"
                  ref="nodeTree"/>
     </template>
@@ -237,7 +237,7 @@
           this.selectIds.add(row.id);
         }
       },
-      nodeChange(nodeIds, nodeNames) {
+      nodeChange(node, nodeIds, nodeNames) {
         this.selectNodeIds = nodeIds;
         this.selectNodeNames = nodeNames;
       },

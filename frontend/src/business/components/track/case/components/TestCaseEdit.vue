@@ -262,6 +262,7 @@ import {listenGoBack, removeGoBackListener} from "@/common/js/utils";
 import {LIST_CHANGE, TrackEvent} from "@/business/components/common/head/ListEvent";
 import {Message} from "element-ui";
 import TestCaseAttachment from "@/business/components/track/case/components/TestCaseAttachment";
+import {getCurrentProjectID} from "../../../../../common/js/utils";
 
 export default {
   name: "TestCaseEdit",
@@ -269,6 +270,7 @@ export default {
   data() {
     return {
       result: {},
+      projectId: "",
       dialogFormVisible: false,
       form: {
         name: '',
@@ -329,9 +331,6 @@ export default {
     selectNode: {
       type: Object
     },
-    currentProject: {
-      type: Object
-    }
   },
   mounted() {
     this.getSelectOptions();
@@ -340,9 +339,6 @@ export default {
     treeNodes() {
       this.getModuleOptions();
     },
-    currentProject() {
-      this.getTestOptions();
-    }
   },
   methods: {
     reload() {
@@ -351,7 +347,7 @@ export default {
     },
     open(testCase) {
       this.resetForm();
-
+      this.projectId = getCurrentProjectID();
       if (window.history && window.history.pushState) {
         history.pushState(null, null, document.URL);
         window.addEventListener('popstate', this.close);
@@ -489,8 +485,8 @@ export default {
           param.nodePath = item.path;
         }
       });
-      if (this.currentProject.id) {
-        param.projectId = this.currentProject.id;
+      if (this.projectId) {
+        param.projectId = this.projectId;
       }
       param.name = param.name.trim();
       if (param.method != 'auto') {
@@ -563,8 +559,8 @@ export default {
     },
     getTestOptions() {
       this.testOptions = [];
-      if (this.currentProject.id && this.form.type != '' && this.form.type != 'functional') {
-        this.result = this.$get('/' + this.form.type + '/list/' + this.currentProject.id, response => {
+      if (this.projectId && this.form.type != '' && this.form.type != 'functional') {
+        this.result = this.$get('/' + this.form.type + '/list/' + this.projectId, response => {
           this.testOptions = response.data;
           this.testOptions.unshift({id: 'other', name: this.$t('test_track.case.other')})
         });

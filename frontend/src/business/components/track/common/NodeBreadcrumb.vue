@@ -41,6 +41,12 @@
         },
         filterData() {
           this.data = this.nodes;
+          for (let index in this.data) {
+            if (this.data[index].id === 'root') {
+              this.data.splice(index, 1);
+              break;
+            }
+          }
           if (this.data.length > 4) {
             let lastData = this.data[this.data.length - 1];
             this.data.splice(1, this.data.length);

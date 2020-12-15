@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.metersphere.base.mapper.ext.ExtTestCaseNodeMapper">
+    <select id="getNodeTreeByProjectId" resultType="io.metersphere.track.dto.TestCaseNodeDTO">
+        select
+        <include refid="io.metersphere.base.mapper.TestCaseNodeMapper.Base_Column_List"/>
+        from test_case_node
+        where test_case_node.project_id = #{projectId}
+        order by pos asc
+    </select>
+    <select id="getNodeTreeByProjectIds" resultType="io.metersphere.track.dto.TestCaseNodeDTO">
+        select
+        <include refid="io.metersphere.base.mapper.TestCaseNodeMapper.Base_Column_List"/>
+        from test_case_node
+        where test_case_node.project_id
+        in
+        <foreach collection="projectIds" item="projectId" index="index" open="(" close=")" separator=",">
+            #{projectId}
+        </foreach>
+    </select>
+    <select id="get" resultType="io.metersphere.track.dto.TestCaseNodeDTO">
+        select
+        <include refid="io.metersphere.base.mapper.TestCaseNodeMapper.Base_Column_List"/>
+        from test_case_node
+        where id = #{id}
+    </select>
+    <update id="updatePos">
+        update test_case_node set pos = #{pos}
+        where id = #{id}
+    </update>
+</mapper>

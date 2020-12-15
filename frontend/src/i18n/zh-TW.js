@@ -165,7 +165,11 @@ export default {
         current_user: "是當前用戶"
       }
     },
-    monitor:"監控"
+    monitor:"監控",
+    all_label: {
+      case: "全部用例",
+      review: "全部評審"
+    }
   },
   license: {
     title: '授權管理',

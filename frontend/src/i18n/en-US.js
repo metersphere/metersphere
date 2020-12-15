@@ -165,7 +165,11 @@ export default {
         current_user: "Current user"
       }
     },
-    monitor: "monitor"
+    monitor: "monitor",
+    all_label: {
+      case: "all",
+      review: "all"
+    }
   },
   license: {
     title: 'Authorization management',

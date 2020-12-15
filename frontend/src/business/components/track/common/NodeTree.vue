@@ -1,14 +1,12 @@
 <template>
-  <div v-loading="result.loading">
-    <el-input :placeholder="$t('test_track.module.search')" v-model="filterText" size="small">
-      <template v-if="type == 'edit'" v-slot:append>
-        <el-button :disabled="disabled" icon="el-icon-folder-add" @click="openEditNodeDialog('add')"></el-button>
-      </template>
-    </el-input>
+  <div>
+    <slot name="header">
+      <el-input :placeholder="$t('test_track.module.search')" v-model="filterText" size="small" :clearable="true"/>
+    </slot>
 
     <el-tree
       class="filter-tree node-tree"
-      :data="treeNodes"
+      :data="extendTreeNodes"
       :default-expanded-keys="expandedNode"
       node-key="id"
       @node-drag-end="handleDragEnd"
@@ -17,63 +15,70 @@
       :filter-node-method="filterNode"
       :expand-on-click-node="false"
       highlight-current
-      :draggable="draggable"
+      :draggable="!disabled"
       ref="tree">
+
       <template v-slot:default="{node,data}">
-        <span class="custom-tree-node father" @click="handleNodeSelect(node)">
-          <span class="node-icon">
-            <i class="el-icon-folder"></i>
-          </span>
+      <span class="custom-tree-node father" @click="handleNodeSelect(node)">
 
-          <span class="node-title">{{node.label}}</span>
-
-          <span v-if="type == 'edit' && !disabled" class="node-operate child">
-            <el-tooltip
-              class="item"
-              effect="dark"
-              :open-delay="200"
-              :content="$t('test_track.module.rename')"
-              placement="top">
-              <i @click.stop="openEditNodeDialog('edit', data)" class="el-icon-edit"></i>
-            </el-tooltip>
-            <el-tooltip
-              class="item"
-              effect="dark"
-              :open-delay="200"
-              :content="$t('test_track.module.add_submodule')"
-              placement="top">
-              <i @click.stop="openEditNodeDialog('add', data)" class="el-icon-circle-plus-outline"></i>
-            </el-tooltip>
-            <el-tooltip class="item" effect="dark"
-              :open-delay="200" :content="$t('commons.delete')" placement="top">
-              <i @click.stop="remove(node, data)" class="el-icon-delete"></i>
-            </el-tooltip>
-          </span>
+        <span v-if="data.isEdit" @click.stop>
+          <el-input  @blur.stop="save(node, data)" v-model="data.name" class="name-input" size="mini"/>
         </span>
+
+        <span v-if="!data.isEdit" class="node-icon">
+          <i class="el-icon-folder"/>
+        </span>
+        <span v-if="!data.isEdit" class="node-title" v-text="data.name"/>
+
+        <span v-if="!disabled" class="node-operate child">
+          <el-tooltip
+            v-if="data.id != 'root'"
+            class="item"
+            effect="dark"
+            :open-delay="200"
+            :content="$t('test_track.module.rename')"
+            placement="top">
+            <i @click.stop="edit(node, data)" class="el-icon-edit"></i>
+          </el-tooltip>
+          <el-tooltip
+            class="item"
+            effect="dark"
+            :open-delay="200"
+            :content="$t('test_track.module.add_submodule')"
+            placement="top">
+            <i @click.stop="append(node, data)" class="el-icon-circle-plus-outline"></i>
+          </el-tooltip>
+          <el-tooltip
+            v-if="data.id != 'root'"
+            class="item" effect="dark"
+            :open-delay="200"
+            :content="$t('commons.delete')"
+            placement="top">
+            <i @click.stop="remove(node, data)" class="el-icon-delete"></i>
+          </el-tooltip>
+        </span>
+      </span>
       </template>
     </el-tree>
-    <node-edit ref="nodeEdit" :current-project="currentProject" :tree-nodes="treeNodes" @refresh="refreshNode" />
   </div>
 </template>
 
 <script>
-import NodeEdit from "./NodeEdit";
-import {checkoutTestManagerOrTestUser, hasRoles} from "../../../../common/js/utils";
+import {checkoutTestManagerOrTestUser} from "../../../../common/js/utils";
 
 export default {
-  name: "NodeTree",
-  components: { NodeEdit },
+  name: "MsNodeTree",
+  components: {},
   data() {
     return {
       result: {},
-      expandedNode: [],
       filterText: "",
+      expandedNode: [],
       defaultProps: {
         children: "children",
         label: "label"
       },
-      disabled: false,
-      list: []
+      extendTreeNodes: []
     };
   },
   props: {
@@ -84,43 +89,144 @@ export default {
     treeNodes: {
       type: Array
     },
-    selectNode: {
-      type: Object
+    allLabel: {
+      type: String,
+      default() {
+        return this.$t("commons.all_label.case");
+      }
     },
-    draggable: {
-      type: Boolean,
-      default: true
-    },
-    currentProject: {
-      type: Object
-    }
   },
   watch: {
+    treeNodes() {
+      this.init();
+    },
     filterText(val) {
-      this.$refs.tree.filter(val);
+      this.filter(val);
     }
   },
-  mounted() {
-    if (!checkoutTestManagerOrTestUser()) {
-      this.disabled = true;
+  computed: {
+    disabled() {
+      return this.type != 'edit' || !checkoutTestManagerOrTestUser();
     }
   },
   methods: {
+    init() {
+      this.extendTreeNodes = [];
+      this.extendTreeNodes.unshift({
+        "id": "root",
+        "name": this.allLabel,
+        "level": 0,
+        "children": this.treeNodes,
+      });
+      if (this.expandedNode.length === 0) {
+        this.expandedNode.push("root");
+      }
+    },
+    handleNodeSelect(node) {
+      let nodeIds = [];
+      let pNodes = [];
+      this.getChildNodeId(node.data, nodeIds);
+      this.getParentNodes(node, pNodes);
+      this.$emit("nodeSelectEvent", node, nodeIds, pNodes);
+    },
+    filterNode(value, data) {
+      if (!value) return true;
+      if (data.label) {
+        return data.label.indexOf(value) !== -1;
+      }
+      return false;
+    },
+    filter(val) {
+      this.$refs.tree.filter(val);
+    },
+    nodeExpand(data) {
+      if (data.id) {
+        this.expandedNode.push(data.id);
+      }
+    },
+    nodeCollapse(data) {
+      if (data.id) {
+        this.expandedNode.splice(this.expandedNode.indexOf(data.id), 1);
+      }
+    },
+    edit(node, data) {
+      this.$set(data, 'isEdit', true);
+    },
+    append(node, data) {
+      const newChild = {
+        id: undefined,
+        isEdit: false,
+        name: "",
+        children: []
+      };
+      if (!data.children) {
+        this.$set(data, 'children', [])
+      }
+      data.children.push(newChild);
+      this.edit(node, newChild);
+      this.$nextTick(() => {
+        this.$refs.tree.setCurrentKey(data.id);
+      });
+    },
+    save(node, data) {
+      if (data.name.trim() === '') {
+        this.$warning(this.$t('test_track.case.input_name'));
+        return;
+      }
+      let param = {};
+      this.buildSaveParam(param, node.parent.data, data);
+      if (param.type === 'edit') {
+        this.$emit('edit', param);
+      } else {
+        this.$emit('add', param);
+      }
+      this.$set(data, 'isEdit', false);
+    },
+    remove(node, data) {
+      let tip =  '确定删除节点 ' + data.label + ' 及其子节点下所有资源' + '？';
+      // let info =  this.$t("test_track.module.delete_confirm") + data.label + "，" + this.$t("test_track.module.delete_all_resource") + "？";
+      this.$alert(tip, "", {
+          confirmButtonText: this.$t("commons.confirm"),
+          callback: action => {
+            if (action === "confirm") {
+              let nodeIds = [];
+              this.getChildNodeId(node.data, nodeIds);
+              this.$emit('remove', nodeIds);
+            }
+          }
+        }
+      );
+    },
     handleDragEnd(draggingNode, dropNode, dropType, ev) {
       if (dropType === "none" || dropType === undefined) {
         return;
       }
       let param = this.buildParam(draggingNode, dropNode, dropType);
-
-      this.list = [];
-      this.getNodeTree(this.treeNodes,draggingNode.data.id, this.list);
-      this.$post("/case/node/drag", param, () => {
-        draggingNode.data.level = param.level;
-        this.$post("/case/node/pos", this.list);
-        this.refreshTable();
-      }, (error) => {
-        this.refreshNode();
-      });
+      let list = [];
+      this.getNodeTree(this.treeNodes, draggingNode.data.id, list);
+      if (param.parentId === 'root') {
+        param.parentId = undefined;
+      }
+      this.$emit('drag', param, list);
+    },
+    buildSaveParam(param, parentData, data) {
+      if (data.id) {
+        param.nodeIds = [];
+        param.type = 'edit';
+        param.id = data.id;
+        param.level = data.level;
+        this.getChildNodeId(data, param.nodeIds);
+      } else {
+        param.level = 1;
+        param.type = 'add';
+        if (parentData.id != 'root') {
+          // 非根节点
+          param.parentId = parentData.id;
+          param.level = parentData.level + 1;
+        }
+      }
+      param.name = data.name.trim();
+      param.label = data.name;
     },
     buildParam(draggingNode, dropNode, dropType) {
       let param = {};
@@ -141,7 +247,8 @@ export default {
       }
       let nodeIds = [];
       this.getChildNodeId(draggingNode.data, nodeIds);
-      if (dropNode.level == 1 && dropType != "inner") {
+      if (dropNode.data.level == 1 && dropType != "inner") {
+        // nodeTree 为需要修改的子节点
         param.nodeTree = draggingNode.data;
       } else {
         for (let i = 0; i < this.treeNodes.length; i++) {
@@ -151,7 +258,6 @@ export default {
           }
         }
       }
-
       param.nodeIds = nodeIds;
       return param;
     },
@@ -171,9 +277,6 @@ export default {
         }
       }
     },
-    refreshTable() {
-      this.$emit('refreshTable');
-    },
     findTreeByNodeId(rootNode, nodeId) {
       if (rootNode.id == nodeId) {
         return rootNode;
@@ -185,41 +288,6 @@ export default {
           }
         }
       }
-    },
-    remove(node, data) {
-      this.$alert(
-        this.$t("test_track.module.delete_confirm") +
-          data.label +
-          "，" +
-          this.$t("test_track.module.delete_all_resource") +
-          "？",
-        "",
-        {
-          confirmButtonText: this.$t("commons.confirm"),
-          callback: action => {
-            if (action === "confirm") {
-              let nodeIds = [];
-              this.getChildNodeId(node.data, nodeIds);
-              this.$post("/case/node/delete", nodeIds, () => {
-                const parent = node.parent;
-                const children = parent.data.children || parent.data;
-                const index = children.findIndex(d => d.id === data.id);
-                children.splice(index, 1);
-                this.$success(this.$t("commons.delete_success"));
-                this.$emit("refresh");
-              });
-            }
-          }
-        }
-      );
-    },
-    handleNodeSelect(node) {
-      let nodeIds = [];
-      let pNodes = [];
-      this.getChildNodeId(node.data, nodeIds);
-      this.getParentNodes(node, pNodes);
-      this.$emit("nodeSelectEvent", nodeIds, pNodes);
-      this.$emit("update:selectNode", node);
     },
     getChildNodeId(rootNode, nodeIds) {
       //递归获取所有子节点ID
@@ -238,30 +306,6 @@ export default {
         pNodes.push(rootNode.data);
       }
     },
-    filterNode(value, data) {
-      if (!value) return true;
-      return data.label.indexOf(value) !== -1;
-    },
-    openEditNodeDialog(type, data) {
-      let nodeIds = [];
-      if (type == 'edit') {
-        this.getChildNodeId(data, nodeIds);
-      }
-      this.$refs.nodeEdit.open(type, data, nodeIds);
-    },
-    refreshNode() {
-      this.$emit("refresh");
-    },
-    nodeExpand(data) {
-      if (data.id) {
-        this.expandedNode.push(data.id);
-      }
-    },
-    nodeCollapse(data) {
-      if (data.id) {
-        this.expandedNode.splice(this.expandedNode.indexOf(data.id), 1);
-      }
-    }
   }
 };
 </script>
@@ -310,5 +354,15 @@ export default {
 .node-operate > i {
   color: #409eff;
   margin: 0px 5px;
+}
+
+.name-input {
+  height: 25px;
+  line-height: 25px;
+}
+
+.name-input >>> .el-input__inner {
+  height: 25px;
+  line-height: 25px;
 }
 </style>

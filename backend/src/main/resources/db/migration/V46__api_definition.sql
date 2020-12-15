@@ -5,6 +5,7 @@ CREATE TABLE IF NOT EXISTS `api_module` (
     `protocol`               varchar(64) NOT NULL COMMENT 'Node protocol',
     `parent_id`              varchar(50) DEFAULT NULL COMMENT 'Parent node ID',
     `level`                  int(10)  DEFAULT 1 COMMENT 'Node level',
+    `pos`                    double DEFAULT NULL COMMENT 'Node order',
     `create_time`            bigint(13)  NOT NULL COMMENT 'Create timestamp',
     `update_time`            bigint(13)  NOT NULL COMMENT 'Update timestamp',
     PRIMARY KEY (`id`)

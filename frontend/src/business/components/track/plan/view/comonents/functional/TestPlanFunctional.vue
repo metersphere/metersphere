@@ -5,9 +5,7 @@
       <node-tree class="node-tree"
                  v-loading="result.loading"
                  @nodeSelectEvent="nodeChange"
-                 @refresh="refresh"
                  :tree-nodes="treeNodes"
-                 :draggable="false"
                  ref="nodeTree"/>
     </template>
     <template v-slot:main>
@@ -81,7 +79,7 @@
         openTestCaseRelevanceDialog() {
           this.$refs.testCaseRelevance.open();
         },
-        nodeChange(nodeIds, pNodes) {
+        nodeChange(node, nodeIds, pNodes) {
           this.selectNodeIds = nodeIds;
           this.selectParentNodes = pNodes;
           // 切换node后，重置分页数

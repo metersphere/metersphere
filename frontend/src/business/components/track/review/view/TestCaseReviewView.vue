@@ -8,11 +8,10 @@
         :title="$t('test_track.review_view.review')"
         @dataChange="changeReview"/>
       <node-tree class="node-tree"
+                 :all-label="$t('commons.all_label.review')"
                  v-loading="result.loading"
                  @nodeSelectEvent="nodeChange"
-                 @refresh="refresh"
                  :tree-nodes="treeNodes"
-                 :draggable="false"
                  ref="nodeTree"/>
     </ms-aside-container>
 
@@ -108,7 +107,7 @@ export default {
         });
       });
     },
-    nodeChange(nodeIds, pNodes) {
+    nodeChange(node, nodeIds, pNodes) {
       this.selectNodeIds = nodeIds;
       this.selectParentNodes = pNodes;
     },
