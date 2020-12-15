@@ -77,6 +77,7 @@
         this.isReadOnly = !this.isReadOnly
         this.$store.commit('setFlag', this.isReadOnly);
         this.$store.commit('setValue', item);
+        window.location.href = "/#/api/home";
       }
     }
   }
