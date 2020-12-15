@@ -13,4 +13,12 @@
             #{emp.updateTime,jdbcType=BIGINT})
         </foreach>
     </insert>
+    <select id="getNodeTreeByProjectId" resultType="io.metersphere.api.dto.definition.ApiModuleDTO">
+        select
+        <include refid="io.metersphere.base.mapper.ApiModuleMapper.Base_Column_List"/>
+        from api_module
+        where api_module.project_id = #{projectId}
+        and api_module.protocol = #{protocol}
+        order by create_time asc
+    </select>
 </mapper>

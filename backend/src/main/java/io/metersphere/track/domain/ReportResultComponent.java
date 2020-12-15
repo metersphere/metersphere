@@ -4,6 +4,7 @@ import io.metersphere.base.domain.Project;
 import io.metersphere.base.domain.TestCaseNode;
 import io.metersphere.base.domain.TestCaseNodeExample;
 import io.metersphere.base.mapper.TestCaseNodeMapper;
+import io.metersphere.base.mapper.ext.ExtTestCaseNodeMapper;
 import io.metersphere.commons.constants.TestPlanTestCaseStatus;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.MathUtils;
@@ -29,11 +30,9 @@ public class ReportResultComponent extends ReportComponent {
 
     public void init() {
         TestCaseNodeService testCaseNodeService = (TestCaseNodeService) CommonBeanFactory.getBean("testCaseNodeService");
-        TestCaseNodeMapper testCaseNodeMapper = (TestCaseNodeMapper) CommonBeanFactory.getBean("testCaseNodeMapper");
+        ExtTestCaseNodeMapper extTestCaseNodeMapper = (ExtTestCaseNodeMapper) CommonBeanFactory.getBean("extTestCaseNodeMapper");
         TestPlanProjectService testPlanProjectService = (TestPlanProjectService) CommonBeanFactory.getBean("testPlanProjectService");
-        TestCaseNodeExample testCaseNodeExample = new TestCaseNodeExample();
-        testCaseNodeExample.createCriteria().andProjectIdIn(testPlanProjectService.getProjectIdsByPlanId(testPlan.getId()));
-        List<TestCaseNode> nodes = testCaseNodeMapper.selectByExample(testCaseNodeExample);
+        List<TestCaseNodeDTO> nodes = extTestCaseNodeMapper.getNodeTreeByProjectIds(testPlanProjectService.getProjectIdsByPlanId(testPlan.getId()));
         nodeTrees = testCaseNodeService.getNodeTrees(nodes);
         nodeTrees.forEach(item -> {
             Set<String> childIds = new HashSet<>();

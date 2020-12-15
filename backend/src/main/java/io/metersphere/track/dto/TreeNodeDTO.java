@@ -1,17 +1,17 @@
-package io.metersphere.base.domain;
+package io.metersphere.track.dto;
 
-import java.io.Serializable;
+import io.metersphere.api.dto.definition.ApiModuleDTO;
 import lombok.Data;
 
+import java.util.List;
+
 @Data
-public class ApiModule implements Serializable {
+public class TreeNodeDTO<T> {
     private String id;
 
     private String projectId;
 
     private String name;
-
-    private String protocol;
 
     private String parentId;
 
@@ -22,6 +22,10 @@ public class ApiModule implements Serializable {
     private Long updateTime;
 
     private Double pos;
+
+    private String label;
+
+    private List<T> children;
 
     private static final long serialVersionUID = 1L;
 }

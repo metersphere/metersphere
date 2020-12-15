@@ -64,8 +64,8 @@
 
         <!--要生成的数据库表 -->
 
-        <table tableName="api_scenario"/>
-        <table tableName="api_scenario_report"/>
+        <table tableName="api_module"/>
+        <!--<table tableName="api_scenario_report"/>-->
 
     </context>
 </generatorConfiguration>

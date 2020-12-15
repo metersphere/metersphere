@@ -11,10 +11,12 @@ import io.metersphere.base.domain.ApiModuleExample;
 import io.metersphere.base.mapper.ApiDefinitionMapper;
 import io.metersphere.base.mapper.ApiModuleMapper;
 import io.metersphere.base.mapper.ext.ExtApiDefinitionMapper;
+import io.metersphere.base.mapper.ext.ExtApiModuleMapper;
 import io.metersphere.commons.constants.TestCaseConstants;
 import io.metersphere.commons.exception.MSException;
-import io.metersphere.commons.utils.BeanUtils;
+
 import io.metersphere.i18n.Translator;
+import io.metersphere.service.NodeTreeService;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
@@ -28,10 +30,12 @@ import java.util.stream.Collectors;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
-public class ApiModuleService {
+public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
 
     @Resource
     ApiModuleMapper apiModuleMapper;
+    @Resource
+    ExtApiModuleMapper extApiModuleMapper;
     @Resource
     private ApiDefinitionMapper apiDefinitionMapper;
     @Resource
@@ -41,60 +45,9 @@ public class ApiModuleService {
     SqlSessionFactory sqlSessionFactory;
 
     public List<ApiModuleDTO> getNodeTreeByProjectId(String projectId, String protocol) {
-        ApiModuleExample apiDefinitionNodeExample = new ApiModuleExample();
-        apiDefinitionNodeExample.createCriteria().andProjectIdEqualTo(projectId).andProtocolEqualTo(protocol);
-        apiDefinitionNodeExample.setOrderByClause("create_time asc");
-        List<ApiModule> nodes = apiModuleMapper.selectByExample(apiDefinitionNodeExample);
-        return getNodeTrees(nodes);
+        List<ApiModuleDTO> apiModules = extApiModuleMapper.getNodeTreeByProjectId(projectId, protocol);
+        return getNodeTrees(apiModules);
     }
-
-    public List<ApiModuleDTO> getNodeTrees(List<ApiModule> nodes) {
-
-        List<ApiModuleDTO> nodeTreeList = new ArrayList<>();
-        Map<Integer, List<ApiModule>> nodeLevelMap = new HashMap<>();
-        nodes.forEach(node -> {
-            Integer level = node.getLevel();
-            if (nodeLevelMap.containsKey(level)) {
-                nodeLevelMap.get(level).add(node);
-            } else {
-                List<ApiModule> apiModules = new ArrayList<>();
-                apiModules.add(node);
-                nodeLevelMap.put(node.getLevel(), apiModules);
-            }
-        });
-        List<ApiModule> rootNodes = Optional.ofNullable(nodeLevelMap.get(1)).orElse(new ArrayList<>());
-        rootNodes.forEach(rootNode -> nodeTreeList.add(buildNodeTree(nodeLevelMap, rootNode)));
-        return nodeTreeList;
-    }
-
-    /**
-     * 递归构建节点树
-     *
-     * @param nodeLevelMap
-     * @param rootNode
-     * @return
-     */
-    private ApiModuleDTO buildNodeTree(Map<Integer, List<ApiModule>> nodeLevelMap, ApiModule rootNode) {
-
-        ApiModuleDTO nodeTree = new ApiModuleDTO();
-        BeanUtils.copyBean(nodeTree, rootNode);
-        nodeTree.setLabel(rootNode.getName());
-
-        List<ApiModule> lowerNodes = nodeLevelMap.get(rootNode.getLevel() + 1);
-        if (lowerNodes == null) {
-            return nodeTree;
-        }
-        List<ApiModuleDTO> children = Optional.ofNullable(nodeTree.getChildren()).orElse(new ArrayList<>());
-        lowerNodes.forEach(node -> {
-            if (node.getParentId() != null && node.getParentId().equals(rootNode.getId())) {
-                children.add(buildNodeTree(nodeLevelMap, node));
-                nodeTree.setChildren(children);
-            }
-        });
-
-        return nodeTree;
-    }
-
 
     public String addNode(ApiModule node) {
         validateNode(node);

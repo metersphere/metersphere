@@ -10,6 +10,7 @@
     <result column="level" jdbcType="INTEGER" property="level" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
     <result column="update_time" jdbcType="BIGINT" property="updateTime" />
+    <result column="pos" jdbcType="DOUBLE" property="pos" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -70,7 +71,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, project_id, `name`, protocol, parent_id, `level`, create_time, update_time
+    id, project_id, `name`, protocol, parent_id, `level`, create_time, update_time, pos
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.base.domain.ApiModuleExample" resultMap="BaseResultMap">
     select
@@ -105,10 +106,12 @@
   <insert id="insert" parameterType="io.metersphere.base.domain.ApiModule">
     insert into api_module (id, project_id, `name`, 
       protocol, parent_id, `level`, 
-      create_time, update_time)
+      create_time, update_time, pos
+      )
     values (#{id,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, 
       #{protocol,jdbcType=VARCHAR}, #{parentId,jdbcType=VARCHAR}, #{level,jdbcType=INTEGER}, 
-      #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT})
+      #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, #{pos,jdbcType=DOUBLE}
+      )
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.ApiModule">
     insert into api_module
@@ -137,6 +140,9 @@
       <if test="updateTime != null">
         update_time,
       </if>
+      <if test="pos != null">
+        pos,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -162,6 +168,9 @@
       </if>
       <if test="updateTime != null">
         #{updateTime,jdbcType=BIGINT},
+      </if>
+      <if test="pos != null">
+        #{pos,jdbcType=DOUBLE},
       </if>
     </trim>
   </insert>
@@ -198,6 +207,9 @@
       <if test="record.updateTime != null">
         update_time = #{record.updateTime,jdbcType=BIGINT},
       </if>
+      <if test="record.pos != null">
+        pos = #{record.pos,jdbcType=DOUBLE},
+      </if>
     </set>
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -212,7 +224,8 @@
       parent_id = #{record.parentId,jdbcType=VARCHAR},
       `level` = #{record.level,jdbcType=INTEGER},
       create_time = #{record.createTime,jdbcType=BIGINT},
-      update_time = #{record.updateTime,jdbcType=BIGINT}
+      update_time = #{record.updateTime,jdbcType=BIGINT},
+      pos = #{record.pos,jdbcType=DOUBLE}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -241,6 +254,9 @@
       <if test="updateTime != null">
         update_time = #{updateTime,jdbcType=BIGINT},
       </if>
+      <if test="pos != null">
+        pos = #{pos,jdbcType=DOUBLE},
+      </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
@@ -252,7 +268,8 @@
       parent_id = #{parentId,jdbcType=VARCHAR},
       `level` = #{level,jdbcType=INTEGER},
       create_time = #{createTime,jdbcType=BIGINT},
-      update_time = #{updateTime,jdbcType=BIGINT}
+      update_time = #{updateTime,jdbcType=BIGINT},
+      pos = #{pos,jdbcType=DOUBLE}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>
