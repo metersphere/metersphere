@@ -124,6 +124,7 @@ export default {
     already_exists: 'The name already exists',
     modifier: 'Modifier',
     validate: "Validate",
+    batch_add: "Batch add",
     date: {
       select_date: 'Select date',
       start_date: 'Start date',

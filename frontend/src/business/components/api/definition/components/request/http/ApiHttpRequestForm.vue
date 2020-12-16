@@ -13,7 +13,6 @@
                 </div>
               </span>
             </el-tooltip>
-
             <ms-api-key-value :is-read-only="isReadOnly" :isShowEnable="isShowEnable" :suggestions="headerSuggestions" :items="headers"/>
           </el-tab-pane>
 
@@ -25,7 +24,9 @@
                   <div class="el-step__icon-inner">{{request.arguments.length-1}}</div>
                 </div></span>
             </el-tooltip>
-
+            <el-row>
+              <el-link class="ms-el-link" @click="batchAdd"> {{$t("commons.batch_add")}}</el-link>
+            </el-row>
             <ms-api-variable :is-read-only="isReadOnly" :isShowEnable="isShowEnable" :parameters="request.arguments"/>
           </el-tab-pane>
 
@@ -39,6 +40,9 @@
                 </div>
               </span>
             </el-tooltip>
+            <el-row>
+              <el-link class="ms-el-link" @click="batchAdd"> {{$t("commons.batch_add")}}</el-link>
+            </el-row>
             <ms-api-variable :is-read-only="isReadOnly" :isShowEnable="isShowEnable" :parameters="request.rest"/>
           </el-tab-pane>
 
@@ -71,6 +75,9 @@
           <!--提取规则-->
           <ms-api-extract :is-read-only="isReadOnly" @copyRow="copyRow" @remove="remove" v-if="row.type==='Extract'" :extract="row"/>
         </div>
+
+        <batch-add-parameter @batchSave="batchSave" ref="batchAddParameter"/>
+
       </div>
     </el-col>
     <!--操作按钮-->
@@ -98,15 +105,24 @@
   import {createComponent} from "../../jmeter/components";
   import MsApiAssertions from "../../assertion/ApiAssertions";
   import MsApiExtract from "../../extract/ApiExtract";
-  import {Assertions, Body, Extract} from "../../../model/ApiTestModel";
+  import {Assertions, Body, Extract, KeyValue} from "../../../model/ApiTestModel";
   import {getUUID} from "@/common/js/utils";
+  import BatchAddParameter from "../../basis/BatchAddParameter";
+
 
   export default {
     name: "MsApiHttpRequestForm",
     components: {
       MsJsr233Processor,
       MsApiAdvancedConfig,
-      MsApiVariable, ApiRequestMethodSelect, MsApiExtract, MsApiAuthConfig, MsApiBody, MsApiKeyValue, MsApiAssertions
+      BatchAddParameter,
+      MsApiVariable,
+      ApiRequestMethodSelect,
+      MsApiExtract,
+      MsApiAuthConfig,
+      MsApiBody,
+      MsApiKeyValue,
+      MsApiAssertions
     },
     props: {
       request: {},
@@ -149,7 +165,7 @@
         },
         headerSuggestions: REQUEST_HEADERS,
         isReloadData: false,
-        isBodyShow: true
+        isBodyShow: true,
       }
     },
 
@@ -216,6 +232,35 @@
         this.$nextTick(() => {
           this.isBodyShow = true;
         });
+      },
+      batchAdd() {
+        this.$refs.batchAddParameter.open();
+      },
+      batchSave(data) {
+        if (data) {
+          let params = data.split("\n");
+          let keyValues = [];
+          params.forEach(item => {
+            let line = item.split(/，|,/);
+            let required = false;
+            if (line[1] === '必填' || line[1] === 'true') {
+              required = true;
+            }
+            keyValues.push(new KeyValue({name: line[0], required: required, value: line[2], description: line[3], type: "text", valid: false, file: false, encode: true, enable: true, contentType: "text/plain"}));
+          })
+          keyValues.forEach(item => {
+            switch (this.activeName) {
+              case "parameters":
+                this.request.arguments.unshift(item);
+                break;
+              case "rest":
+                this.request.rest.unshift(item);
+                break;
+              default:
+                break;
+            }
+          })
+        }
       }
     }
   }
@@ -273,4 +318,8 @@
     border: #E6EEF2;
   }
 
+  .ms-el-link {
+    float: right;
+    margin-right: 45px;
+  }
 </style>
