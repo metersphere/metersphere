@@ -1,8 +1,11 @@
 <template xmlns:v-slot="http://www.w3.org/1999/XSL/Transform">
-  <el-form :model="request" :rules="rules" ref="request" label-width="100px" :disabled="isReadOnly">
+  <el-form :model="request" :rules="rules" ref="request" label-width="100px" :disabled="isReadOnly" label-position="right">
 
     <el-form-item :label="$t('api_test.request.name')" prop="name">
-      <el-input :disabled="isReadOnly" v-model="request.name" maxlength="300" show-word-limit/>
+      <el-input :disabled="isReadOnly" v-model="request.name" maxlength="300" show-word-limit>
+      <el-button  slot="append" :disabled="!request.enable || !scenario.enable || isReadOnly" class="debug-button" size="small"
+                 type="primary" @click="runDebug">{{ $t('api_test.request.debug') }}
+      </el-button></el-input>
     </el-form-item>
 
     <el-form-item v-if="!request.useEnvironment" :label="$t('api_test.request.url')" prop="url"
@@ -41,10 +44,6 @@
       <el-checkbox class="follow-redirects-item" v-model="request.followRedirects">{{$t('api_test.request.follow_redirects')}}</el-checkbox>
       <el-checkbox class="do-multipart-post" v-model="request.doMultipartPost">{{$t('api_test.request.do_multipart_post')}}</el-checkbox>
     </el-form-item>
-
-    <el-button :disabled="!request.enable || !scenario.enable || isReadOnly" class="debug-button" size="small"
-               type="primary" @click="runDebug">{{ $t('api_test.request.debug') }}
-    </el-button>
 
     <el-tabs v-model="activeName">
       <el-tab-pane :label="$t('api_test.request.parameters')" name="parameters">

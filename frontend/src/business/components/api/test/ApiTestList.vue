@@ -1,10 +1,10 @@
 <template>
   <ms-container>
     <ms-main-container>
-      <el-card class="table-card" v-loading="result.loading">
+      <el-card class="table-card" v-loading="result.loading" >
         <template v-slot:header>
           <ms-table-header :is-tester-permission="true" :condition.sync="condition" @search="search"
-                           :title="$t('commons.test')"
+                           :title="$t('commons.test')" :subtitle="projectName"
                            @create="create" :createTip="$t('load_test.create')" :runTip="$t('load_test.run')"
                            :show-run="true"
                            @runTest="runTest"/>
@@ -86,6 +86,7 @@
         condition: {
           components: TEST_CONFIGS
         },
+        projectName: "all",
         projectId: null,
         tableData: [],
         multipleSelection: [],
@@ -147,6 +148,15 @@
       search() {
         if (this.projectId !== 'all') {
           this.condition.projectId = this.projectId;
+          if (this.projectId){
+            this.result = this.$get("/project/get/" + this.projectId, response => {
+              this.projectName = response.data.name
+            });
+          } else {
+            this.projectName = "all"
+          }
+        } else {
+          this.projectName = "all"
         }
         let url = "/api/list/" + this.currentPage + "/" + this.pageSize;
         this.result = this.$post(url, this.condition, response => {

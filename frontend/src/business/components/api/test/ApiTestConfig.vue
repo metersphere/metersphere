@@ -1,7 +1,7 @@
 <template>
   <ms-container>
     <ms-main-container>
-      <el-card>
+      <el-card :body-style="{ padding: '4px' }">
         <el-container class="test-container" v-loading="result.loading">
           <el-header>
             <el-row>
