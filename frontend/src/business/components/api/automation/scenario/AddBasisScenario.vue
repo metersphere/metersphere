@@ -83,8 +83,7 @@
           }],
         },
       }
-    }
-    ,
+    },
     methods: {
       saveScenario(saveAs) {
         this.$refs['scenarioForm'].validate((valid) => {
@@ -95,7 +94,7 @@
               this.visible = false;
               if (saveAs) {
                 this.scenarioForm.request = JSON.stringify(this.scenarioForm.request);
-                this.$emit('saveAsEdit', this.httpForm);
+                this.$emit('saveAsEdit', this.scenarioForm);
               } else {
                 this.$emit('refresh');
               }
@@ -109,7 +108,8 @@
         this.scenarioForm.projectId = getCurrentProjectID();
         this.scenarioForm.id = getUUID().substring(0, 8);
         this.scenarioForm.protocol = this.currentProtocol;
-        if (this.currentModule != null && this.currentModule != "newId") {
+
+        if (this.currentModule && this.currentModule.id != "root") {
           this.scenarioForm.modulePath = this.currentModule.method !== undefined ? this.currentModule.method : null;
           this.scenarioForm.apiScenarioModuleId = this.currentModule.id;
         }
