@@ -1,6 +1,6 @@
 <template>
   <div>
-    <el-card class="card-content">
+    <api-list-container>
       <el-input placeholder="搜索" @blur="search" class="search-input" size="small" v-model="condition.name"/>
 
       <el-table v-loading="result.loading"
@@ -82,7 +82,7 @@
       </el-table>
       <ms-table-pagination :change="initApiTable" :current-page.sync="currentPage" :page-size.sync="pageSize"
                            :total="total"/>
-    </el-card>
+    </api-list-container>
     <ms-api-case-list @refresh="initApiTable" @showExecResult="showExecResult" :currentApi="selectApi" ref="caseList"/>
     <!--批量编辑-->
     <ms-batch-edit ref="batchEdit" @batchEdit="batchEdit" :typeArr="typeArr" :value-arr="valueArr"/>
@@ -92,25 +92,27 @@
 
 <script>
 
-  import MsTableHeader from '../../../../components/common/components/MsTableHeader';
-  import MsTableOperator from "../../../common/components/MsTableOperator";
-  import MsTableOperatorButton from "../../../common/components/MsTableOperatorButton";
-  import MsTableButton from "../../../common/components/MsTableButton";
+  import MsTableHeader from '../../../../common/components/MsTableHeader';
+  import MsTableOperator from "../../../../common/components/MsTableOperator";
+  import MsTableOperatorButton from "../../../../common/components/MsTableOperatorButton";
+  import MsTableButton from "../../../../common/components/MsTableButton";
   import {LIST_CHANGE, TrackEvent} from "@/business/components/common/head/ListEvent";
-  import MsTablePagination from "../../../common/pagination/TablePagination";
-  import MsTag from "../../../common/components/MsTag";
-  import MsApiCaseList from "./ApiCaseList";
-  import MsContainer from "../../../common/components/MsContainer";
-  import MsBottomContainer from "./BottomContainer";
-  import ShowMoreBtn from "../../../../components/track/case/components/ShowMoreBtn";
-  import MsBatchEdit from "./basis/BatchEdit";
-  import {API_METHOD_COLOUR, REQ_METHOD, API_STATUS} from "../model/JsonData";
+  import MsTablePagination from "../../../../common/pagination/TablePagination";
+  import MsTag from "../../../../common/components/MsTag";
+  import MsApiCaseList from "../case/ApiCaseList";
+  import MsContainer from "../../../../common/components/MsContainer";
+  import MsBottomContainer from "../BottomContainer";
+  import ShowMoreBtn from "../../../../track/case/components/ShowMoreBtn";
+  import MsBatchEdit from "../basis/BatchEdit";
+  import {API_METHOD_COLOUR, REQ_METHOD, API_STATUS} from "../../model/JsonData";
   import {getCurrentProjectID} from "@/common/js/utils";
-  import {WORKSPACE_ID} from '../../../../../common/js/constants';
+  import {WORKSPACE_ID} from '../../../../../../common/js/constants';
+  import ApiListContainer from "./ApiListContainer";
 
   export default {
     name: "ApiList",
     components: {
+      ApiListContainer,
       MsTableButton,
       MsTableOperatorButton,
       MsTableOperator,

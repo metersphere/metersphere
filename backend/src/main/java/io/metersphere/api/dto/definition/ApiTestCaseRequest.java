@@ -17,5 +17,6 @@ public class ApiTestCaseRequest {
     private String environmentId;
     private String workspaceId;
     private String apiDefinitionId;
+    private List<String> moduleIds;
     private List<OrderRequest> orders;
 }

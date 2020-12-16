@@ -1,6 +1,7 @@
 package io.metersphere.api.service;
 
 import com.alibaba.fastjson.JSONObject;
+import io.metersphere.api.dto.definition.ApiDefinitionRequest;
 import io.metersphere.api.dto.definition.ApiTestCaseRequest;
 import io.metersphere.api.dto.definition.ApiTestCaseResult;
 import io.metersphere.api.dto.definition.SaveApiTestCaseRequest;
@@ -50,6 +51,12 @@ public class ApiTestCaseService {
     public List<ApiTestCaseResult> list(ApiTestCaseRequest request) {
         request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
         return extApiTestCaseMapper.list(request);
+    }
+
+    public List<ApiTestCase> listSimple(ApiTestCaseRequest request) {
+        request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
+        List<ApiTestCase> apiTestCases = extApiTestCaseMapper.listSimple(request);
+        return apiTestCases;
     }
 
     public ApiTestCaseWithBLOBs get(String id) {

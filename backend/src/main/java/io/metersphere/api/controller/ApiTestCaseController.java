@@ -1,11 +1,16 @@
 package io.metersphere.api.controller;
 
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
 import io.metersphere.api.dto.definition.ApiTestCaseRequest;
 import io.metersphere.api.dto.definition.ApiTestCaseResult;
 import io.metersphere.api.dto.definition.SaveApiTestCaseRequest;
 import io.metersphere.api.service.ApiTestCaseService;
+import io.metersphere.base.domain.ApiTestCase;
 import io.metersphere.base.domain.ApiTestCaseWithBLOBs;
 import io.metersphere.commons.constants.RoleConstants;
+import io.metersphere.commons.utils.PageUtils;
+import io.metersphere.commons.utils.Pager;
 import io.metersphere.commons.utils.SessionUtils;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
@@ -27,6 +32,13 @@ public class ApiTestCaseController {
     public List<ApiTestCaseResult> list(@RequestBody ApiTestCaseRequest request) {
         request.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
         return apiTestCaseService.list(request);
+    }
+
+    @PostMapping("/list/{goPage}/{pageSize}")
+    public Pager<List<ApiTestCase>> listSimple(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody ApiTestCaseRequest request) {
+        Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
+        request.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
+        return PageUtils.setPageInfo(page, apiTestCaseService.listSimple(request));
     }
 
     @PostMapping(value = "/create", consumes = {"multipart/form-data"})
