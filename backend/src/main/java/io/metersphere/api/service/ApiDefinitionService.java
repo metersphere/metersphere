@@ -326,7 +326,7 @@ public class ApiDefinitionService {
      * @return
      */
     public APIReportResult getDbResult(String testId) {
-        ApiDefinitionExecResult result = extApiDefinitionExecResultMapper.selectByResourceId(testId);
+        ApiDefinitionExecResult result = extApiDefinitionExecResultMapper.selectMaxResultByResourceId(testId);
         if (result == null) {
             return null;
         }

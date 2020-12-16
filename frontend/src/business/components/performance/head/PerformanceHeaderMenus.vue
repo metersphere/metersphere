@@ -59,16 +59,6 @@ export default {
   },
   data() {
     return {
-      projectRecent: {
-        title: this.$t('project.recent'),
-        url: "/project/recent/5",
-        index(item) {
-          return '/performance/test/' + item.id;
-        },
-        router(item) {
-          return {name: 'perPlan', params: {projectId: item.id, projectName: item.name}}
-        }
-      },
       testRecent: {
         title: this.$t('load_test.recent'),
         url: "/performance/recent/5",
@@ -95,10 +85,6 @@ export default {
     registerEvents() {
       PerformanceEvent.$on(LIST_CHANGE, () => {
         // // todo 这里偶尔会有 refs 为空的情况
-        // if (!this.$refs.projectRecent) {
-        //   return;
-        // }
-        // this.$refs.projectRecent.recent();
         this.$refs.testRecent.recent();
         this.$refs.reportRecent.recent();
       });
