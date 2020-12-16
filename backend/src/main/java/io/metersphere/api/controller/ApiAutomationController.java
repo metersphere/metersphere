@@ -34,8 +34,8 @@ public class ApiAutomationController {
     }
 
     @PostMapping(value = "/create")
-    public void create(@RequestPart("request") SaveApiScenarioRequest request, @RequestPart(value = "files") List<MultipartFile> bodyFiles) {
-        apiAutomationService.create(request, bodyFiles);
+    public ApiScenario create(@RequestPart("request") SaveApiScenarioRequest request, @RequestPart(value = "files") List<MultipartFile> bodyFiles) {
+        return apiAutomationService.create(request, bodyFiles);
     }
 
     @PostMapping(value = "/update")

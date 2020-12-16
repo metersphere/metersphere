@@ -694,9 +694,12 @@
           if (valid) {
             this.setParameter();
             let bodyFiles = this.getBodyUploadFiles(this.currentScenario);
-            this.$fileUpload(this.path, null, bodyFiles, this.currentScenario, () => {
+            this.$fileUpload(this.path, null, bodyFiles, this.currentScenario, response => {
               this.$success(this.$t('commons.save_success'));
               this.path = "/api/automation/update";
+              if (response.data) {
+                this.currentScenario.id = response.data.id;
+              }
               this.currentScenario.tagId = JSON.parse(this.currentScenario.tagId);
               this.$emit('refresh');
             })
@@ -718,6 +721,9 @@
                   this.currentScenario.variables = obj.variables;
                   this.scenarioDefinition = obj.hashTree;
                 }
+              }
+              if (this.currentScenario.copy) {
+                this.path = "/api/automation/create";
               }
             }
           })
