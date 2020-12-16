@@ -493,6 +493,9 @@
         request.enable === undefined ? request.enable = true : request.enable;
         request.active = false;
         request.resourceId = getUUID();
+        if (!request.url) {
+          request.url = "";
+        }
         if (referenced === 'REF' || !request.hashTree) {
           request.hashTree = [];
         }
@@ -604,7 +607,7 @@
         this.getEnvironments();
       },
       allowDrop(draggingNode, dropNode, type) {
-        if (ELEMENTS.get(dropNode.data.type).indexOf(draggingNode.data.type) != -1) {
+        if (dropNode.data.type === draggingNode.data.type || ELEMENTS.get(dropNode.data.type).indexOf(draggingNode.data.type) != -1) {
           return true;
         }
         return false;
