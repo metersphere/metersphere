@@ -1,25 +1,9 @@
 <template>
   <div id="menu-bar">
     <el-row type="flex">
-      <el-col :span="10">
+      <project-change :project-name="currentProject"/>
+      <el-col :span="12">
         <el-menu class="header-menu" :unique-opened="true" mode="horizontal" router :default-active='$route.path'>
-
-          <el-submenu v-permission="['test_manager','test_user','test_viewer']"
-                      index="3" popper-class="submenu">
-            <template v-slot:title>
-              <span style="display: inline-block;width: 150px;white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" :title="currentProject">
-                {{ $t('commons.project') }}: {{currentProject}}
-              </span>
-            </template>
-            <search-list ref="projectRecent" :options="projectRecent" :current-project.sync="currentProject"/>
-            <el-divider/>
-            <el-menu-item :index="'/setting/project/create'">
-              <font-awesome-icon :icon="['fa', 'plus']"/>
-              <span style="padding-left: 7px;">{{ $t("project.create") }}</span>
-            </el-menu-item>
-            <ms-show-all :index="'/setting/project/all'"/>
-          </el-submenu>
-
           <el-menu-item :index="'/performance/home'">
             {{ $t("i18n.home") }}
           </el-menu-item>
@@ -61,10 +45,12 @@ import MsCreateButton from "../../common/head/CreateButton";
 import MsShowAll from "../../common/head/ShowAll";
 import {LIST_CHANGE, PerformanceEvent} from "@/business/components/common/head/ListEvent";
 import SearchList from "@/business/components/common/head/SearchList";
+import ProjectChange from "@/business/components/common/head/ProjectSwitch";
 
 export default {
   name: "PerformanceHeaderMenus",
   components: {
+    ProjectChange,
     SearchList,
     MsCreateButton,
     MsShowAll,
@@ -108,11 +94,11 @@ export default {
   methods: {
     registerEvents() {
       PerformanceEvent.$on(LIST_CHANGE, () => {
-        // todo 这里偶尔会有 refs 为空的情况
-        if (!this.$refs.projectRecent) {
-          return;
-        }
-        this.$refs.projectRecent.recent();
+        // // todo 这里偶尔会有 refs 为空的情况
+        // if (!this.$refs.projectRecent) {
+        //   return;
+        // }
+        // this.$refs.projectRecent.recent();
         this.$refs.testRecent.recent();
         this.$refs.reportRecent.recent();
       });
