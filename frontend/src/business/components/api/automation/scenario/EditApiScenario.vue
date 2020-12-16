@@ -557,8 +557,8 @@
       copyRow(row, node) {
         const parent = node.parent
         const hashTree = parent.data.hashTree || parent.data;
-        let obj = {};
-        Object.assign(obj, row);
+        // 深度复制
+        let obj = JSON.parse(JSON.stringify(row));
         obj.resourceId = getUUID();
         hashTree.push(obj);
         this.sort();
