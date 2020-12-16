@@ -1,5 +1,5 @@
 <template>
-  <div v-loading="result.loading" class="search-list">
+  <div v-loading="result.loading">
     <el-input placeholder="搜索项目"
               prefix-icon="el-icon-search"
               v-model="searchString"
@@ -135,7 +135,7 @@ export default {
 
 .title {
   display: inline-block;
-  padding-left: 20px;
+  padding-left: 15px;
   max-width: 200px;
   white-space: nowrap;
   overflow: hidden;

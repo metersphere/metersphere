@@ -59,7 +59,7 @@
   import MsDialogFooter from "../../../../common/components/MsDialogFooter";
   import {WORKSPACE_ID} from '../../../../../../common/js/constants';
   import {REQ_METHOD} from "../../model/JsonData";
-  import {getCurrentProjectID, getCurrentUser, getUUID} from "../../../../../../common/js/utils";
+  import {getCurrentProjectID, getCurrentUser} from "../../../../../../common/js/utils";
   import {createComponent, Request} from "../jmeter/components";
 
   export default {

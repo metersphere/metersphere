@@ -2,25 +2,10 @@
 
   <div id="menu-bar" v-if="isRouterAlive">
     <el-row type="flex">
-      <el-col :span="16">
+      <project-change :project-name="currentProject"/>
+      <el-col :span="14">
         <el-menu class="header-menu" :unique-opened="true" mode="horizontal" router
                  :default-active='$route.path'>
-          <el-submenu :class="{'deactivation':!isProjectActivation}"
-                      v-permission="['test_manager','test_user','test_viewer']" index="3" popper-class="submenu">
-            <template v-slot:title>
-              <span style="display: inline-block;width: 150px;white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" :title="currentProject">
-                {{ $t('commons.project') }}: {{currentProject}}
-              </span>
-            </template>
-            <search-list ref="projectRecent" :options="projectRecent" :current-project.sync="currentProject"/>
-            <el-divider/>
-            <el-menu-item :index="'/setting/project/create'">
-              <font-awesome-icon :icon="['fa', 'plus']"/>
-              <span style="padding-left: 7px;">{{ $t("project.create") }}</span>
-            </el-menu-item>
-            <ms-show-all :index="'/setting/project/all'"/>
-          </el-submenu>
-
           <el-menu-item :index="'/track/home'">
             {{ $t("i18n.home") }}
           </el-menu-item>
@@ -70,10 +55,11 @@ import MsRecentList from "../../common/head/RecentList";
 import MsCreateButton from "../../common/head/CreateButton";
 import {LIST_CHANGE, TrackEvent} from "@/business/components/common/head/ListEvent";
 import SearchList from "@/business/components/common/head/SearchList";
+import ProjectChange from "@/business/components/common/head/ProjectSwitch";
 
 export default {
   name: "TrackHeaderMenus",
-  components: {SearchList, MsShowAll, MsRecentList, MsCreateButton},
+  components: {ProjectChange, SearchList, MsShowAll, MsRecentList, MsCreateButton},
   data() {
     return {
       testPlanViewPath: '',
@@ -163,11 +149,11 @@ export default {
     },
     registerEvents() {
       TrackEvent.$on(LIST_CHANGE, () => {
-        // todo 这里偶尔会有 refs 为空的情况
-        if (!this.$refs.projectRecent) {
-          return;
-        }
-        this.$refs.projectRecent.recent();
+        // // todo 这里偶尔会有 refs 为空的情况
+        // if (!this.$refs.projectRecent) {
+        //   return;
+        // }
+        // this.$refs.projectRecent.recent();
         this.$refs.planRecent.recent();
         this.$refs.caseRecent.recent();
       });
@@ -198,5 +184,12 @@ export default {
 .deactivation >>> .el-submenu__title {
   border-bottom: white !important;
 }
+
+/*.project-change {*/
+/*  height: 40px;*/
+/*  line-height: 40px;*/
+/*  color: inherit;*/
+/*  margin-left: 20px;*/
+/*}*/
 
 </style>

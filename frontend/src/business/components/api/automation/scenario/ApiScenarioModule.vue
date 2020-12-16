@@ -57,7 +57,7 @@
         },
         projectId: "",
         data: [],
-        currentModule: {},
+        currentModule: undefined,
       }
     },
     mounted() {
