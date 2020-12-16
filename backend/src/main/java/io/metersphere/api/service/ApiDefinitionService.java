@@ -326,7 +326,7 @@ public class ApiDefinitionService {
      * @return
      */
     public APIReportResult getDbResult(String testId) {
-        ApiDefinitionExecResult result = extApiDefinitionExecResultMapper.selectByResourceId(testId);
+        ApiDefinitionExecResult result = extApiDefinitionExecResultMapper.selectMaxResultByResourceId(testId);
         if (result == null) {
             return null;
         }
@@ -336,7 +336,7 @@ public class ApiDefinitionService {
     }
 
 
-    public String apiTestImport(MultipartFile file, ApiTestImportRequest request) {
+    public ApiDefinitionImport apiTestImport(MultipartFile file, ApiTestImportRequest request) {
         ApiImportParser apiImportParser = ApiImportParserFactory.getApiImportParser(request.getPlatform());
         ApiDefinitionImport apiImport = null;
         try {
@@ -345,8 +345,10 @@ public class ApiDefinitionService {
             LogUtil.error(e.getMessage(), e);
             MSException.throwException(Translator.get("parse_data_error"));
         }
-        importApiTest(request, apiImport);
-        return "SUCCESS";
+        if (request.isSaved()) {
+            importApiTest(request, apiImport);
+        }
+        return apiImport;
     }
 
     private void importApiTest(ApiTestImportRequest importRequest, ApiDefinitionImport apiImport) {

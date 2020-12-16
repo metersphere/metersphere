@@ -124,6 +124,7 @@ export default {
     already_exists: '名稱不能重復',
     modifier: '修改人',
     validate: "校驗",
+    batch_add: "批量添加",
     date: {
       select_date: '選擇日期',
       start_date: '開始日期',
@@ -166,7 +167,7 @@ export default {
         current_user: "是當前用戶"
       }
     },
-    monitor:"監控",
+    monitor: "監控",
     all_label: {
       case: "全部用例",
       review: "全部評審"
@@ -589,7 +590,7 @@ export default {
         select_table: "選擇可見數據",
         select_all: "選擇全部數據"
       },
-      report_name_info: '請輸入報名名稱',
+      report_name_info: '請輸入報告名稱',
       save_case_info: '請先保存用例',
       reference_deleted: '引用已删除',
     },
@@ -829,14 +830,14 @@ export default {
     not_exist: "測試報告不存在",
   },
   api_monitor: {
-    to:"到",
-    start_time:"開始時間",
-    end_time:"結束時間",
-    today:"今天",
-    this_week:"本週",
-    this_mouth:"本月",
-    please_search:"請搜索",
-    date:"日期"
+    to: "到",
+    start_time: "開始時間",
+    end_time: "結束時間",
+    today: "今天",
+    this_week: "本週",
+    this_mouth: "本月",
+    please_search: "請搜索",
+    date: "日期"
   },
   test_track: {
     test_track: "測試跟蹤",

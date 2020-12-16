@@ -30,17 +30,17 @@ public class PostmanParser extends ApiImportAbstractParser {
         List<PostmanKeyValue> variables = postmanCollection.getVariable();
         ApiDefinitionImport apiImport = new ApiDefinitionImport();
         List<ApiDefinitionResult> results = new ArrayList<>();
-        parseItem(postmanCollection.getItem(), variables, results, buildModule(postmanCollection.getInfo().getName(), null));
+        parseItem(postmanCollection.getItem(), variables, results, buildModule(postmanCollection.getInfo().getName(), null, request.isSaved()), request.isSaved());
         apiImport.setData(results);
         return apiImport;
     }
 
-    private void parseItem(List<PostmanItem> items, List<PostmanKeyValue> variables, List<ApiDefinitionResult> results, ApiModule parentModule) {
+    private void parseItem(List<PostmanItem> items, List<PostmanKeyValue> variables, List<ApiDefinitionResult> results, ApiModule parentModule, boolean isSaved) {
         for (PostmanItem item : items) {
             List<PostmanItem> childItems = item.getItem();
             if (childItems != null) {
-                ApiModule module = buildModule(item.getName(), parentModule);
-                parseItem(childItems, variables, results, module);
+                ApiModule module = buildModule(item.getName(), parentModule, isSaved);
+                parseItem(childItems, variables, results, module, isSaved);
             } else {
                 ApiDefinitionResult request = parsePostman(item);
                 if (request != null) {
@@ -53,7 +53,7 @@ public class PostmanParser extends ApiImportAbstractParser {
         }
     }
 
-    private ApiModule buildModule(String name, ApiModule parentModule) {
+    private ApiModule buildModule(String name, ApiModule parentModule, boolean isSaved) {
         apiModuleService = CommonBeanFactory.getBean(ApiModuleService.class);
         ApiModule module;
         if (parentModule != null) {
@@ -62,7 +62,9 @@ public class PostmanParser extends ApiImportAbstractParser {
         } else {
             module = apiModuleService.getNewModule(name, this.projectId, 1);
         }
-        createModule(module);
+        if (isSaved) {
+            createModule(module);
+        }
         return module;
     }
 

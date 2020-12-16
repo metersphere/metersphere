@@ -32,7 +32,7 @@ public class MsParser extends ApiImportAbstractParser {
         if (testObject.get("projectName") != null) {
             return parseMsFormat(testStr, request);
         } else {
-            return parsePluginFormat(testObject);
+            return parsePluginFormat(testObject, request.isSaved());
         }
     }
 
@@ -53,14 +53,16 @@ public class MsParser extends ApiImportAbstractParser {
         return apiDefinitionImport;
     }
 
-    private ApiDefinitionImport parsePluginFormat(JSONObject testObject) {
+    private ApiDefinitionImport parsePluginFormat(JSONObject testObject, boolean isSaved) {
         List<ApiDefinitionResult> results = new ArrayList<>();
         ApiDefinitionImport apiImport = new ApiDefinitionImport();
         apiImport.setProtocol(RequestType.HTTP);
         apiImport.setData(results);
         testObject.keySet().forEach(tag -> {
             ApiModule module = apiModuleService.getNewModule(tag, this.projectId, 1);
-            createModule(module);
+            if (isSaved) {
+                createModule(module);
+            }
             JSONObject requests = testObject.getJSONObject(tag);
             requests.keySet().forEach(requestName -> {
 

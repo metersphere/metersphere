@@ -6,7 +6,6 @@ public interface ExtApiDefinitionExecResultMapper {
 
     void deleteByResourceId(String id);
 
-    ApiDefinitionExecResult selectByResourceId(String resourceId);
-
+    ApiDefinitionExecResult selectMaxResultByResourceId(String resourceId);
 
 }

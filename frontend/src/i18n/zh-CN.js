@@ -124,6 +124,7 @@ export default {
     already_exists: '名称不能重复',
     modifier: '修改人',
     validate: "校验",
+    batch_add: "批量添加",
     date: {
       select_date: '选择日期',
       start_date: '开始日期',
@@ -589,7 +590,7 @@ export default {
         select_table: "选择可见数据",
         select_all: "选择全部数据"
       },
-      report_name_info: '请输入报名名称',
+      report_name_info: '请输入报告名称',
       save_case_info: '请先保存用例',
       reference_deleted: '引用已删除',
     },

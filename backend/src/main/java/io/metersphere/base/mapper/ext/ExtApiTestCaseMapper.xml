@@ -146,15 +146,45 @@
     </sql>
 
     <select id="list" resultType="io.metersphere.api.dto.definition.ApiTestCaseResult">
-        select atc.id, atc.project_id,
-        atc.name,atc.priority,atc.api_definition_id,T1.name as createUser ,T2.name as updateUser,
-        atc.description,atc.request,atc.response,atc.create_user_id,
-        atc.create_time,atc.update_user_id, atc.update_time,ader.status execResult
-        from api_test_case atc left join user T1 on atc.create_user_id = T1.id left join user T2 on
-        atc.update_user_id = T2.id left join api_definition_exec_result ader on atc.id = ader.resource_id
+        select
+            atc.id,
+            atc.project_id,
+            atc.name,
+            atc.priority,
+            atc.api_definition_id,
+            u1.name as createUser ,
+            u2.name as updateUser,
+            atc.description,
+            atc.request,
+            atc.response,
+            atc.create_user_id,
+            atc.create_time,
+            atc.update_user_id,
+            atc.update_time,
+            ader.status execResult
+        from
+          api_test_case atc
+        left join user u1 on
+          atc.create_user_id = u1.id
+        left join user u2 on
+          atc.update_user_id = u2.id
+        left join (
+            select
+              a.status, a.id, a.resource_id
+            from
+              api_definition_exec_result a
+            left join (
+                select
+                  max(start_time) start_time , id, resource_id
+                from
+                  api_definition_exec_result
+                group by
+                  resource_id ) as b on a.id = b.id
+                where
+                  a.start_time = b.start_time) as ader
+        on atc.id = ader.resource_id
         <where>
             <if test="request.name != null and request.name!=''">
-
                 and atc.name like CONCAT('%', #{request.name},'%')
             </if>
             <if test="request.id != null and request.id!=''">

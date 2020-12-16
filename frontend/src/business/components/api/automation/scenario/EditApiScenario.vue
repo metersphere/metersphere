@@ -113,7 +113,7 @@
       </el-form>
 
       <!-- 场景步骤-->
-      <div v-loading="isReloadData">
+      <div v-loading="loading">
         <p class="tip">{{$t('api_test.automation.scenario_step')}} </p>
         <el-row>
           <el-col :span="21">
@@ -157,13 +157,13 @@
               </el-row>
             </div>
             <!-- 场景步骤内容 -->
-            <div style="margin-top: 10px" v-loading="isReloadData">
+            <div style="margin-top: 10px" v-loading="loading">
               <el-tree node-key="resourceId" :props="props" :data="scenarioDefinition"
                        :default-expanded-keys="expandedNode"
                        :expand-on-click-node="false"
                        @node-expand="nodeExpand"
                        @node-collapse="nodeCollapse"
-                       :allow-drop="allowDrop" @node-drag-end="allowDrag" @node-click="nodeClick" v-if="!isReloadData" draggable>
+                       :allow-drop="allowDrop" @node-drag-end="allowDrag" @node-click="nodeClick" v-if="!loading" draggable>
                  <span class="custom-tree-node father" slot-scope="{ node, data}" style="width: 96%">
                     <template>
                       <!-- 场景 -->
@@ -267,6 +267,8 @@
 
       <!--场景公共参数-->
       <ms-scenario-parameters :currentScenario="currentScenario" @addParameters="addParameters" ref="scenarioParameters"/>
+      <!--外部导入-->
+      <api-import ref="apiImport" :saved="false" @refresh="apiImport"/>
     </div>
   </el-card>
 </template>
@@ -293,6 +295,7 @@
   import MsApiScenarioComponent from "./ApiScenarioComponent";
   import MsApiReportDetail from "../report/ApiReportDetail";
   import MsScenarioParameters from "./ScenarioParameters";
+  import ApiImport from "../../definition/components/import/ApiImport";
 
   export default {
     name: "EditApiScenario",
@@ -301,13 +304,21 @@
       currentScenario: {},
     },
     components: {
-      ApiEnvironmentConfig, MsScenarioParameters,
-      MsApiReportDetail, MsAddTag, MsRun,
-      MsApiScenarioComponent, MsImportApiScenario,
-      MsJsr233Processor, MsConstantTimer,
-      MsIfController, MsApiAssertions,
-      MsApiExtract, MsApiDefinition,
-      MsApiComponent, MsApiCustomize
+      ApiEnvironmentConfig,
+      MsScenarioParameters,
+      MsApiReportDetail,
+      MsAddTag, MsRun,
+      MsApiScenarioComponent,
+      MsImportApiScenario,
+      MsJsr233Processor,
+      MsConstantTimer,
+      MsIfController,
+      MsApiAssertions,
+      MsApiExtract,
+      MsApiDefinition,
+      MsApiComponent,
+      MsApiCustomize,
+      ApiImport,
     },
     data() {
       return {
@@ -333,7 +344,7 @@
         options: API_STATUS,
         levels: PRIORITY,
         scenario: {},
-        isReloadData: false,
+        loading: false,
         apiListVisible: false,
         customizeVisible: false,
         scenarioVisible: false,
@@ -402,6 +413,7 @@
             this.scenarioVisible = true;
             break;
           default:
+            this.$refs.apiImport.open();
             break;
         }
         this.sort();
@@ -553,9 +565,9 @@
         this.reload();
       },
       reload() {
-        this.isReloadData = true
+        this.loading = true
         this.$nextTick(() => {
-          this.isReloadData = false
+          this.loading = false
         })
       },
       runDebug() {
@@ -622,36 +634,40 @@
       },
       setFiles(item, bodyUploadFiles, obj) {
         if (item.body) {
-          item.body.kvs.forEach(param => {
-            if (param.files) {
-              param.files.forEach(item => {
-                if (item.file) {
-                  if (!item.id) {
-                    let fileId = getUUID().substring(0, 12);
-                    item.name = item.file.name;
-                    item.id = fileId;
+          if (item.body.kvs) {
+            item.body.kvs.forEach(param => {
+              if (param.files) {
+                param.files.forEach(item => {
+                  if (item.file) {
+                    if (!item.id) {
+                      let fileId = getUUID().substring(0, 12);
+                      item.name = item.file.name;
+                      item.id = fileId;
+                    }
+                    obj.bodyUploadIds.push(item.id);
+                    bodyUploadFiles.push(item.file);
                   }
-                  obj.bodyUploadIds.push(item.id);
-                  bodyUploadFiles.push(item.file);
-                }
-              });
-            }
-          });
-          item.body.binary.forEach(param => {
-            if (param.files) {
-              param.files.forEach(item => {
-                if (item.file) {
-                  if (!item.id) {
-                    let fileId = getUUID().substring(0, 12);
-                    item.name = item.file.name;
-                    item.id = fileId;
+                });
+              }
+            });
+          }
+          if (item.body.binary) {
+            item.body.binary.forEach(param => {
+              if (param.files) {
+                param.files.forEach(item => {
+                  if (item.file) {
+                    if (!item.id) {
+                      let fileId = getUUID().substring(0, 12);
+                      item.name = item.file.name;
+                      item.id = fileId;
+                    }
+                    obj.bodyUploadIds.push(item.id);
+                    bodyUploadFiles.push(item.file);
                   }
-                  obj.bodyUploadIds.push(item.id);
-                  bodyUploadFiles.push(item.file);
-                }
-              });
-            }
-          });
+                });
+              }
+            });
+          }
         }
       },
       recursiveFile(arr, bodyUploadFiles, obj) {
@@ -728,7 +744,7 @@
       },
       runRefresh() {
         this.debugVisible = true;
-        this.isReloadData = false;
+        this.loading = false;
       },
       showScenarioParameters() {
         this.$refs.scenarioParameters.open(this.currentScenario.variables);
@@ -736,6 +752,15 @@
       addParameters(data) {
         this.currentScenario.variables = data;
         this.reload();
+      },
+      apiImport(importData) {
+        if (importData && importData.data) {
+          importData.data.forEach(item => {
+            this.setApiParameter(item, "API", "Copy");
+          })
+          this.sort();
+          this.reload();
+        }
       }
     }
   }

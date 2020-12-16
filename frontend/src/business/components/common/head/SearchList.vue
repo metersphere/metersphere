@@ -1,5 +1,5 @@
 <template>
-  <div v-loading="result.loading" class="search-list">
+  <div v-loading="result.loading">
     <el-input placeholder="搜索项目"
               prefix-icon="el-icon-search"
               v-model="searchString"
@@ -76,13 +76,6 @@ export default {
         })
       }
     },
-    search() {
-      if (hasRoles(ROLE_TEST_VIEWER, ROLE_TEST_USER, ROLE_TEST_MANAGER)) {
-        this.result = this.$post("/project/search", {name: this.searchString},response => {
-          this.items = response.data;
-        })
-      }
-    },
     query(queryString) {
       this.items = queryString ? this.searchArray.filter(this.createFilter(queryString)) : this.searchArray;
     },
@@ -98,13 +91,10 @@ export default {
       }
       this.$post("/user/update/current", {id: this.userId, lastProjectId: projectId}, () => {
         localStorage.setItem(PROJECT_ID, projectId);
-        if (this.$route.path.indexOf('/track/review/view/') >= 0) {
-          this.$router.replace('/track/review/all');
-        } else if (this.$route.path.indexOf('/track/plan/view/') >= 0) {
-          this.$router.replace('/track/plan/all');
-        } else {
-          window.location.reload();
-        }
+        let path = this.$route.matched[0].path ? this.$route.matched[0].path : '/';
+        this.$router.push(path).then(() => {
+          window.location.reload()
+        }).catch(err => err);
         this.changeProjectName(projectId);
       });
     },
@@ -135,7 +125,7 @@ export default {
 
 .title {
   display: inline-block;
-  padding-left: 20px;
+  padding-left: 15px;
   max-width: 200px;
   white-space: nowrap;
   overflow: hidden;

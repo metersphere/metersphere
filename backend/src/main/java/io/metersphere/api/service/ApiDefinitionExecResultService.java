@@ -4,7 +4,6 @@ import com.alibaba.fastjson.JSON;
 import io.metersphere.api.jmeter.TestResult;
 import io.metersphere.base.domain.ApiDefinitionExecResult;
 import io.metersphere.base.mapper.ApiDefinitionExecResultMapper;
-import io.metersphere.base.mapper.ext.ExtApiDefinitionExecResultMapper;
 import io.metersphere.commons.utils.SessionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,14 +17,9 @@ import java.util.UUID;
 public class ApiDefinitionExecResultService {
     @Resource
     private ApiDefinitionExecResultMapper apiDefinitionExecResultMapper;
-    @Resource
-    private ExtApiDefinitionExecResultMapper extApiDefinitionExecResultMapper;
-
 
     public void saveApiResult(TestResult result) {
         result.getScenarios().get(0).getRequestResults().forEach(item -> {
-            // 清理原始资源，每个执行 保留一条结果
-            extApiDefinitionExecResultMapper.deleteByResourceId(item.getName());
             ApiDefinitionExecResult saveResult = new ApiDefinitionExecResult();
             saveResult.setId(UUID.randomUUID().toString());
             saveResult.setUserId(Objects.requireNonNull(SessionUtils.getUser()).getId());
