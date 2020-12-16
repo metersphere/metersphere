@@ -98,13 +98,10 @@ export default {
       }
       this.$post("/user/update/current", {id: this.userId, lastProjectId: projectId}, () => {
         localStorage.setItem(PROJECT_ID, projectId);
-        if (this.$route.path.indexOf('/track/review/view/') >= 0) {
-          this.$router.replace('/track/review/all');
-        } else if (this.$route.path.indexOf('/track/plan/view/') >= 0) {
-          this.$router.replace('/track/plan/all');
-        } else {
-          window.location.reload();
-        }
+        let path = this.$route.matched[0].path ? this.$route.matched[0].path : '/';
+        this.$router.push(path).then(() => {
+          window.location.reload()
+        }).catch(err => err);
         this.changeProjectName(projectId);
       });
     },
