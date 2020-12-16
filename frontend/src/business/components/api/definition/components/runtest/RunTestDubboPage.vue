@@ -45,7 +45,7 @@
 <script>
   import MsApiRequestForm from "../request/http/ApiRequestForm";
   import {downloadFile, getUUID, getCurrentProjectID} from "@/common/js/utils";
-  import MsApiCaseList from "../ApiCaseList";
+  import MsApiCaseList from "../case/ApiCaseList";
   import MsContainer from "../../../../common/components/MsContainer";
   import MsBottomContainer from "../BottomContainer";
   import {parseEnvironment} from "../../model/EnvironmentModel";

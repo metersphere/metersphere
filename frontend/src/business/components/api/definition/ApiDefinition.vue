@@ -45,6 +45,16 @@
             @handleCase="handleCase"
             @showExecResult="showExecResult"
             ref="apiList"/>
+          <!--<api-case-simple-list-->
+            <!--v-if="item.type === 'list'"-->
+            <!--:current-protocol="currentProtocol"-->
+            <!--:visible="visible"-->
+            <!--:currentRow="currentRow"-->
+            <!--:select-node-ids="selectNodeIds"-->
+            <!--:trash-enable="trashEnable"-->
+            <!--@handleCase="handleCase"-->
+            <!--@showExecResult="showExecResult"-->
+            <!--ref="apiList"/>-->
 
           <!-- 添加/编辑测试窗口-->
           <div v-else-if="item.type=== 'ADD'" class="ms-api-div">
@@ -74,7 +84,7 @@
   </ms-container>
 </template>
 <script>
-  import MsApiList from './components/ApiList';
+  import MsApiList from './components/list/ApiList';
   import MsContainer from "../../common/components/MsContainer";
   import MsMainContainer from "../../common/components/MsMainContainer";
   import MsAsideContainer from "../../common/components/MsAsideContainer";
@@ -90,10 +100,12 @@
   import MsRunTestDubboPage from "./components/runtest/RunTestDubboPage";
   import {downloadFile, getCurrentUser, getUUID, getCurrentProjectID} from "@/common/js/utils";
   import MsApiModule from "./components/module/ApiModule";
+  import ApiCaseSimpleList from "./components/list/ApiCaseSimpleList";
 
   export default {
     name: "ApiDefinition",
     components: {
+      ApiCaseSimpleList,
       MsApiModule,
       MsApiList,
       MsMainContainer,
@@ -249,13 +261,8 @@
         this.setTabTitle(data);
         this.$refs.apiList[0].initApiTable(data);
       },
-      initTree(data) {
-        this.moduleOptions = data;
-      },
-      changeProtocol(data) {
-        this.currentProtocol = data;
-      },
-      showExecResult(row) {
+
+      showExecResult(row){
         this.debug(row);
       },
 

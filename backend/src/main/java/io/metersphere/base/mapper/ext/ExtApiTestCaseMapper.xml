@@ -208,4 +208,19 @@
         </if>
     </select>
 
+    <select id="listSimple" resultType="io.metersphere.base.domain.ApiTestCase">
+        select
+        c.id, c.project_id, c.name, c.api_definition_id, c.priority, c.description, c.create_user_id, c.update_user_id, c.create_time, c.update_time,
+        a.moudule_id as moudule_id,
+        from api_test_case c
+        left join api_definition a
+        on c.api_definition_id = a.id
+        where c.project_id = #{request.projectId}
+        <if test="request.moduleIds != null and request.moduleIds.size() > 0">
+            AND a.module_id in
+            <foreach collection="request.moduleIds" item="nodeId" separator="," open="(" close=")">
+                #{nodeId}
+            </foreach>
+        </if>
+    </select>
 </mapper>
