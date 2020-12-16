@@ -69,6 +69,7 @@
           require('brace/ext/language_tools') //language extension prerequsite...
           this.modes.forEach(mode => {
             require('brace/mode/' + mode); //language
+            require('brace/snippets/' + mode);
           });
           require('brace/theme/' + this.theme)
           require('brace/snippets/javascript') //snippet
@@ -78,6 +79,13 @@
           if (this.init) {
             this.init(editor);
           }
+          editor.setHighlightSelectedWord(true)
+          editor.getSession().setUseWrapMode(true)
+          editor.setOptions({
+            enableBasicAutocompletion: true,
+            enableLiveAutocompletion: true,
+            enableSnippets: true,
+          });
         },
         format() {
           if (this.enableFormat) {

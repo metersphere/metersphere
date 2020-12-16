@@ -292,6 +292,9 @@ export default {
   white-space: nowrap;
   font-size: 14px;
   width: 100%;
+  display: flex;
+  display: -webkit-flex;
+  align-items: center;
 }
 
 /*.scenario-name > #hint {*/

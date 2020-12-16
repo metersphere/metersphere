@@ -40,7 +40,16 @@ body {
 
 .table-card > .el-card__body {
   padding-top: 0;
+  padding-left: 8px;
+  padding-right: 8px;
 }
+
+.table-card > .el-card__header {
+  padding-top: 12px;
+  padding-left: 8px;
+  padding-right: 8px;
+}
+
 
 /* Safari 表格不错位 */
 .el-table__body {

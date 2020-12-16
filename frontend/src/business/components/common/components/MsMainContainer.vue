@@ -13,7 +13,7 @@
 <style scoped>
 
   .ms-main-container {
-    padding: 15px;
+    padding: 4px;
     height: calc(100vh - 80px);
   }
 

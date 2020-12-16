@@ -3,7 +3,7 @@
   <div>
     <el-row class="table-title" type="flex" justify="space-between" align="middle">
       <slot name="title">
-        {{title}}
+        <span>{{title}}<span v-if="subtitle !==''" class="ms-subtitle">  {{subtitle}}</span></span>
       </slot>
     </el-row>
     <el-row type="flex" justify="space-between" align="middle">
@@ -38,6 +38,12 @@
         type: String,
         default() {
           return this.$t('commons.name');
+        }
+      },
+      subtitle: {
+        type: String,
+        default() {
+          return '';
         }
       },
       showCreate: {
@@ -113,4 +119,8 @@
     width: 200px
   }
 
+  .ms-subtitle{
+    color: #1E90FF;
+    font-size: 14px;
+  }
 </style>
