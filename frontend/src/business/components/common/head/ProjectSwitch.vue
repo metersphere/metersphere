@@ -1,5 +1,5 @@
 <template>
-  <el-menu class="header-menu" :unique-opened="true" mode="horizontal" default-active="1">
+  <el-menu class="header-menu" :unique-opened="true" mode="horizontal" default-active="1" router>
     <!-- 不激活项目路由-->
     <el-menu-item index="1" v-show="false">Placeholder</el-menu-item>
     <el-submenu v-permission="['test_manager','test_user','test_viewer']" index="2" popper-class="submenu">
@@ -14,21 +14,23 @@
         <font-awesome-icon :icon="['fa', 'plus']"/>
         <span style="padding-left: 7px;">{{ $t("project.create") }}</span>
       </el-menu-item>
-      <ms-show-all :index="'/setting/project/all'"/>
+      <el-menu-item :index="'/setting/project/all'">
+        <font-awesome-icon :icon="['fa', 'list-ul']"/>
+        <span style="padding-left: 7px;">{{ $t('commons.show_all') }}</span>
+      </el-menu-item>
     </el-submenu>
   </el-menu>
 </template>
 
 <script>
 import SearchList from "@/business/components/common/head/SearchList";
-import MsShowAll from "@/business/components/common/head/ShowAll";
 
 export default {
   name: "ProjectSwitch",
   props: {
     projectName: String
   },
-  components: {SearchList, MsShowAll},
+  components: {SearchList},
   data() {
     return {
       currentProject: this.projectName

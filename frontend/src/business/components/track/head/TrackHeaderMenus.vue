@@ -69,16 +69,6 @@ export default {
       testCaseProjectPath: '',
       isProjectActivation: true,
       currentProject: '',
-      projectRecent: {
-        title: this.$t('project.recent'),
-        url: "/project/recent/5",
-        index: function (item) {
-          return '/track/case/' + item.id;
-        },
-        router: function (item) {
-          return {name: 'testCase', params: {projectId: item.id, projectName: item.name}}
-        }
-      },
       caseRecent: {
         title: this.$t('test_track.recent_case'),
         url: "/test/case/recent/5",
@@ -126,14 +116,6 @@ export default {
     },
     init() {
       let path = this.$route.path;
-      // if (path.indexOf("/track/case") >= 0 && !!this.$route.params.projectId) {
-      //   this.testCaseProjectPath = path;
-      //   //不激活项目菜单栏
-      //   this.isProjectActivation = false;
-      //   this.reload();
-      // } else {
-      //   this.isProjectActivation = true;
-      // }
       if (path.indexOf("/track/plan/view") >= 0) {
         this.testPlanViewPath = path;
         this.reload();
@@ -150,10 +132,6 @@ export default {
     registerEvents() {
       TrackEvent.$on(LIST_CHANGE, () => {
         // // todo 这里偶尔会有 refs 为空的情况
-        // if (!this.$refs.projectRecent) {
-        //   return;
-        // }
-        // this.$refs.projectRecent.recent();
         this.$refs.planRecent.recent();
         this.$refs.caseRecent.recent();
       });
