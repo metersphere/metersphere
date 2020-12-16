@@ -89,17 +89,29 @@
 
     <select id="selectByIds" resultType="io.metersphere.api.dto.definition.ApiComputeResult">
         select t1.api_definition_id apiDefinitionId,count(t1.id) caseTotal,
-        case t2.status
-        when 'success' then '通过'
-        when 'error' then '未通过'
-        ELSE '未执行' end as status ,
-        CONCAT(FORMAT(SUM(IF(t2.`status` = 'success', 1, 0))/ COUNT(t1.id)*100, 2), '%') passRate
-        from api_test_case t1 left join api_definition_exec_result t2 on t1.id = t2.resource_id
+            case t2.status
+            when 'success' then '通过'
+            when 'error' then '未通过'
+            ELSE '未执行' end as status ,
+            CONCAT(FORMAT(SUM(IF(t2.`status` = 'success', 1, 0))/ COUNT(t1.id)*100, 2), '%') passRate
+            from api_test_case t1 left join (
+        select
+          a.status, a.id, a.resource_id
+        from
+          api_definition_exec_result a
+        left join (
+          select
+            max(start_time) start_time , id, resource_id
+          from
+            api_definition_exec_result
+          group by
+            resource_id ) as b on a.id = b.id
+        where
+          a.start_time = b.start_time)as t2 on t1.id = t2.resource_id
         group by t1.api_definition_id having t1.api_definition_id in
         <foreach collection="ids" item="v" separator="," open="(" close=")">
             #{v}
         </foreach>
-        order by t2.end_time desc;
     </select>
 
     <sql id="combine">

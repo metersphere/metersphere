@@ -5,8 +5,8 @@
       delete from api_definition_exec_result  where resource_id = #{id,jdbcType=VARCHAR}
     </delete>
 
-    <select id="selectByResourceId" parameterType="java.lang.String" resultType="io.metersphere.base.domain.ApiDefinitionExecResult">
+    <select id="selectMaxResultByResourceId" parameterType="java.lang.String" resultType="io.metersphere.base.domain.ApiDefinitionExecResult">
         select  * from api_definition_exec_result
-        where resource_id = #{resourceId,jdbcType=VARCHAR}
+        where resource_id = #{resourceId,jdbcType=VARCHAR} ORDER BY update_time DESC LIMIT 1
     </select>
 </mapper>
