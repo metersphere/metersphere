@@ -39,11 +39,11 @@ public class Swagger2Parser extends ApiImportAbstractParser {
         }
         ApiDefinitionImport definitionImport = new ApiDefinitionImport();
         this.projectId = request.getProjectId();
-        definitionImport.setData(parseRequests(swagger));
+        definitionImport.setData(parseRequests(swagger, request.isSaved()));
         return definitionImport;
     }
 
-    private List<ApiDefinitionResult> parseRequests(Swagger swagger) {
+    private List<ApiDefinitionResult> parseRequests(Swagger swagger, boolean isSaved) {
         Map<String, Path> paths = swagger.getPaths();
         Set<String> pathNames = paths.keySet();
 
@@ -62,7 +62,7 @@ public class Swagger2Parser extends ApiImportAbstractParser {
                 parseParameters(operation, request);
                 apiDefinition.setRequest(JSON.toJSONString(request));
                 apiDefinition.setResponse(JSON.toJSONString(parseResponse(operation.getResponses())));
-                buildModule(apiDefinition, operation);
+                buildModule(apiDefinition, operation, isSaved);
                 results.add(apiDefinition);
             }
         }
@@ -71,13 +71,15 @@ public class Swagger2Parser extends ApiImportAbstractParser {
         return results;
     }
 
-    private void buildModule(ApiDefinitionResult apiDefinition, Operation operation) {
+    private void buildModule(ApiDefinitionResult apiDefinition, Operation operation, boolean isSaved) {
         List<String> tags = operation.getTags();
         if (tags != null) {
             tags.forEach(tag -> {
                 apiModuleService = CommonBeanFactory.getBean(ApiModuleService.class);
                 ApiModule module = apiModuleService.getNewModule(tag, this.projectId, 1);
-                createModule(module);
+                if (isSaved) {
+                    createModule(module);
+                }
                 apiDefinition.setModuleId(module.getId());
             });
         }
@@ -113,8 +115,8 @@ public class Swagger2Parser extends ApiImportAbstractParser {
         for (Parameter parameter : parameters) {
             switch (parameter.getIn()) {
                 case SwaggerParameterType.PATH:
-                   parsePathParameters(parameter, request.getRest());
-                   break;
+                    parsePathParameters(parameter, request.getRest());
+                    break;
                 case SwaggerParameterType.QUERY:
                     parseQueryParameters(parameter, request.getArguments());
                     break;
@@ -297,14 +299,14 @@ public class Swagger2Parser extends ApiImportAbstractParser {
                 || value instanceof DecimalProperty) {
             return 0.0;
         } else {// todo 其他类型?
-           return getDefaultStringValue(value.getDescription());
+            return getDefaultStringValue(value.getDescription());
         }
     }
 
     private void parseFormDataParameters(FormParameter parameter, Body body) {
         List<KeyValue> keyValues = Optional.ofNullable(body.getKvs()).orElse(new ArrayList<>());
         KeyValue kv = new KeyValue(parameter.getName(), "", getDefaultStringValue(parameter.getDescription()));
-        if (StringUtils.equals(parameter.getType(), "file") ) {
+        if (StringUtils.equals(parameter.getType(), "file")) {
             kv.setType("file");
         }
         keyValues.add(kv);
