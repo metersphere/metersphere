@@ -113,7 +113,7 @@
       </el-form>
 
       <!-- 场景步骤-->
-      <div v-loading="isReloadData">
+      <div v-loading="loading">
         <p class="tip">{{$t('api_test.automation.scenario_step')}} </p>
         <el-row>
           <el-col :span="21">
@@ -157,13 +157,13 @@
               </el-row>
             </div>
             <!-- 场景步骤内容 -->
-            <div style="margin-top: 10px" v-loading="isReloadData">
+            <div style="margin-top: 10px" v-loading="loading">
               <el-tree node-key="resourceId" :props="props" :data="scenarioDefinition"
                        :default-expanded-keys="expandedNode"
                        :expand-on-click-node="false"
                        @node-expand="nodeExpand"
                        @node-collapse="nodeCollapse"
-                       :allow-drop="allowDrop" @node-drag-end="allowDrag" @node-click="nodeClick" v-if="!isReloadData" draggable>
+                       :allow-drop="allowDrop" @node-drag-end="allowDrag" @node-click="nodeClick" v-if="!loading" draggable>
                  <span class="custom-tree-node father" slot-scope="{ node, data}" style="width: 96%">
                     <template>
                       <!-- 场景 -->
@@ -344,7 +344,7 @@
         options: API_STATUS,
         levels: PRIORITY,
         scenario: {},
-        isReloadData: false,
+        loading: false,
         apiListVisible: false,
         customizeVisible: false,
         scenarioVisible: false,
@@ -565,9 +565,9 @@
         this.reload();
       },
       reload() {
-        this.isReloadData = true
+        this.loading = true
         this.$nextTick(() => {
-          this.isReloadData = false
+          this.loading = false
         })
       },
       runDebug() {
@@ -744,7 +744,7 @@
       },
       runRefresh() {
         this.debugVisible = true;
-        this.isReloadData = false;
+        this.loading = false;
       },
       showScenarioParameters() {
         this.$refs.scenarioParameters.open(this.currentScenario.variables);
