@@ -76,13 +76,6 @@ export default {
         })
       }
     },
-    search() {
-      if (hasRoles(ROLE_TEST_VIEWER, ROLE_TEST_USER, ROLE_TEST_MANAGER)) {
-        this.result = this.$post("/project/search", {name: this.searchString},response => {
-          this.items = response.data;
-        })
-      }
-    },
     query(queryString) {
       this.items = queryString ? this.searchArray.filter(this.createFilter(queryString)) : this.searchArray;
     },
