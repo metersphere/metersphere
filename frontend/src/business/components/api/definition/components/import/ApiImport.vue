@@ -70,6 +70,12 @@
   export default {
     name: "ApiImport",
     components: {MsDialogFooter},
+    props: {
+      saved: {
+        type: Boolean,
+        default: true,
+      }
+    },
     data() {
       return {
         visible: false,
@@ -148,7 +154,7 @@
       },
       uploadValidate(file, fileList) {
         let suffix = file.name.substring(file.name.lastIndexOf('.') + 1);
-        if (!this.selectedPlatform.suffixes.has(suffix)) {
+        if (this.selectedPlatform.suffixes && !this.selectedPlatform.suffixes.has(suffix)) {
           this.$warning(this.$t('api_test.api_import.suffixFormatErr'));
           return false;
         }
@@ -170,7 +176,7 @@
               let res = response.data;
               this.$success(this.$t('test_track.case.import.success'));
               this.visible = false;
-              this.$emit('refresh');
+              this.$emit('refresh', res);
             });
           } else {
             return false;
@@ -181,8 +187,11 @@
         let param = {};
         Object.assign(param, this.formData);
         param.platform = this.selectedPlatformValue;
-        param.moduleId = this.currentModule.id;
-        param.modulePath = this.currentModule.path;
+        param.saved = this.saved;
+        if (this.currentModule) {
+          param.moduleId = this.currentModule.id;
+          param.modulePath = this.currentModule.path;
+        }
         param.projectId = getCurrentProjectID();
         if (!this.swaggerUrlEable) {
           param.swaggerUrl = undefined;

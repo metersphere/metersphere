@@ -225,7 +225,7 @@
         if (!this.$refs.apiList[0].tableData) {
           return;
         }
-        let obj = {protocol: this.currentProtocol, data: this.$refs.apiList[0].tableData}
+        let obj = {projectName: getCurrentProjectID(), protocol: this.currentProtocol, data: this.$refs.apiList[0].tableData}
         downloadFile("导出API.json", JSON.stringify(obj));
       },
       refresh(data) {
@@ -255,7 +255,7 @@
       changeProtocol(data) {
         this.currentProtocol = data;
       },
-      showExecResult(row){
+      showExecResult(row) {
         this.debug(row);
       },
 
