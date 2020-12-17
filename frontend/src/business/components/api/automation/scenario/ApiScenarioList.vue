@@ -240,7 +240,7 @@
         });
       },
       copy(row) {
-        row.id = getUUID();
+        row.copy = true;
         this.$emit('edit', row);
       },
       showReport(row) {

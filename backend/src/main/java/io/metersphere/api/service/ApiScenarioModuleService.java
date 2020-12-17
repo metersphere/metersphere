@@ -13,7 +13,6 @@ import io.metersphere.base.mapper.ApiScenarioModuleMapper;
 import io.metersphere.base.mapper.ext.ExtApiScenarioModuleMapper;
 import io.metersphere.commons.constants.TestCaseConstants;
 import io.metersphere.commons.exception.MSException;
-import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.i18n.Translator;
 import io.metersphere.service.NodeTreeService;
 import org.apache.commons.lang3.StringUtils;
@@ -24,7 +23,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -140,7 +142,9 @@ public class ApiScenarioModuleService extends NodeTreeService<ApiScenarioModuleD
         ApiScenarioModuleDTO nodeTree = request.getNodeTree();
 
         List<ApiScenarioModule> updateNodes = new ArrayList<>();
-
+        if (nodeTree == null) {
+            return;
+        }
         buildUpdateDefinition(nodeTree, apiScenarios, updateNodes, "/", "0", nodeTree.getLevel());
 
         updateNodes = updateNodes.stream()

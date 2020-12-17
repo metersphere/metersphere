@@ -60,6 +60,10 @@
             <ms-api-auth-config :is-read-only="isReadOnly" :request="request"/>
           </el-tab-pane>
 
+          <el-tab-pane label="其他设置" name="advancedConfig">
+            <ms-api-advanced-config :is-read-only="isReadOnly" :request="request"/>
+          </el-tab-pane>
+
         </el-tabs>
       </div>
       <div v-if="!referenced">
@@ -101,13 +105,13 @@
   import {REQUEST_HEADERS} from "@/common/js/constants";
   import MsApiVariable from "../../ApiVariable";
   import MsJsr233Processor from "../../processor/Jsr233Processor";
-  import MsApiAdvancedConfig from "../../ApiAdvancedConfig";
   import {createComponent} from "../../jmeter/components";
   import MsApiAssertions from "../../assertion/ApiAssertions";
   import MsApiExtract from "../../extract/ApiExtract";
   import {Assertions, Body, Extract, KeyValue} from "../../../model/ApiTestModel";
   import {getUUID} from "@/common/js/utils";
   import BatchAddParameter from "../../basis/BatchAddParameter";
+  import MsApiAdvancedConfig from "./ApiAdvancedConfig";
 
 
   export default {
@@ -200,8 +204,7 @@
         this.reload();
       },
       copyRow(row) {
-        let obj = {};
-        Object.assign(obj, row);
+        let obj =JSON.parse(JSON.stringify(row));
         obj.id = getUUID();
         this.request.hashTree.push(obj);
         this.reload();

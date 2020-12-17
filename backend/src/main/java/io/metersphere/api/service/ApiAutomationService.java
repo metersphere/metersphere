@@ -100,11 +100,12 @@ public class ApiAutomationService {
         apiScenarioMapper.deleteByExample(example);
     }
 
-    public void create(SaveApiScenarioRequest request, List<MultipartFile> bodyFiles) {
+    public ApiScenario create(SaveApiScenarioRequest request, List<MultipartFile> bodyFiles) {
+        request.setId(UUID.randomUUID().toString());
         checkNameExist(request);
-
+        
         final ApiScenario scenario = new ApiScenario();
-        scenario.setId(UUID.randomUUID().toString());
+        scenario.setId(request.getId());
         scenario.setName(request.getName());
         scenario.setProjectId(request.getProjectId());
         scenario.setTagId(request.getTagId());
@@ -132,6 +133,7 @@ public class ApiAutomationService {
 
         List<String> bodyUploadIds = request.getBodyUploadIds();
         apiDefinitionService.createBodyFiles(bodyUploadIds, bodyFiles);
+        return scenario;
     }
 
     public void update(SaveApiScenarioRequest request, List<MultipartFile> bodyFiles) {
@@ -248,7 +250,7 @@ public class ApiAutomationService {
                 JSONObject element = JSON.parseObject(item.getScenarioDefinition());
                 MsScenario scenario = JSONObject.parseObject(item.getScenarioDefinition(), MsScenario.class);
                 // 多态JSON普通转换会丢失内容，需要通过 ObjectMapper 获取
-                if (element!= null && StringUtils.isNotEmpty(element.getString("hashTree"))) {
+                if (element != null && StringUtils.isNotEmpty(element.getString("hashTree"))) {
                     LinkedList<MsTestElement> elements = mapper.readValue(element.getString("hashTree"),
                             new TypeReference<LinkedList<MsTestElement>>() {
                             });

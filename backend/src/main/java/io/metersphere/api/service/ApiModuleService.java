@@ -166,7 +166,9 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
         ApiModuleDTO nodeTree = request.getNodeTree();
 
         List<ApiModule> updateNodes = new ArrayList<>();
-
+        if (nodeTree == null) {
+            return;
+        }
         buildUpdateDefinition(nodeTree, apiModule, updateNodes, "/", "0", nodeTree.getLevel());
 
         updateNodes = updateNodes.stream()
@@ -179,8 +181,7 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
     }
 
     private void buildUpdateDefinition(ApiModuleDTO rootNode, List<ApiDefinitionResult> apiDefinitions,
-                                    List<ApiModule> updateNodes, String rootPath, String pId, int level) {
-
+                                       List<ApiModule> updateNodes, String rootPath, String pId, int level) {
         rootPath = rootPath + rootNode.getName();
 
         if (level > 8) {

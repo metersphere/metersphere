@@ -67,7 +67,7 @@
         if (Object.prototype.toString.call(this.currentApi.response).match(/\[object (\w+)\]/)[1].toLowerCase() === 'object') {
           this.response = this.currentApi.response;
         } else {
-          this.response = new ResponseFactory(JSON.parse(this.currentApi.response));
+          this.response = JSON.parse(this.currentApi.response);
         }
       } else {
         this.response = {headers: [], body: new Body(), statusCode: [], type: "HTTP"};

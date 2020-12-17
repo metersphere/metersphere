@@ -493,6 +493,9 @@
         request.enable === undefined ? request.enable = true : request.enable;
         request.active = false;
         request.resourceId = getUUID();
+        if (!request.url) {
+          request.url = "";
+        }
         if (referenced === 'REF' || !request.hashTree) {
           request.hashTree = [];
         }
@@ -557,8 +560,8 @@
       copyRow(row, node) {
         const parent = node.parent
         const hashTree = parent.data.hashTree || parent.data;
-        let obj = {};
-        Object.assign(obj, row);
+        // 深度复制
+        let obj = JSON.parse(JSON.stringify(row));
         obj.resourceId = getUUID();
         hashTree.push(obj);
         this.sort();
@@ -604,7 +607,7 @@
         this.getEnvironments();
       },
       allowDrop(draggingNode, dropNode, type) {
-        if (ELEMENTS.get(dropNode.data.type).indexOf(draggingNode.data.type) != -1) {
+        if (dropNode.data.type === draggingNode.data.type || ELEMENTS.get(dropNode.data.type).indexOf(draggingNode.data.type) != -1) {
           return true;
         }
         return false;
@@ -694,9 +697,12 @@
           if (valid) {
             this.setParameter();
             let bodyFiles = this.getBodyUploadFiles(this.currentScenario);
-            this.$fileUpload(this.path, null, bodyFiles, this.currentScenario, () => {
+            this.$fileUpload(this.path, null, bodyFiles, this.currentScenario, response => {
               this.$success(this.$t('commons.save_success'));
               this.path = "/api/automation/update";
+              if (response.data) {
+                this.currentScenario.id = response.data.id;
+              }
               this.currentScenario.tagId = JSON.parse(this.currentScenario.tagId);
               this.$emit('refresh');
             })
@@ -718,6 +724,9 @@
                   this.currentScenario.variables = obj.variables;
                   this.scenarioDefinition = obj.hashTree;
                 }
+              }
+              if (this.currentScenario.copy) {
+                this.path = "/api/automation/create";
               }
             }
           })

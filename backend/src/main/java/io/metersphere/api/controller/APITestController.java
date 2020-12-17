@@ -51,6 +51,7 @@ public class APITestController {
     public Pager<List<APITestResult>> list(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryAPITestRequest request) {
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         request.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
+        request.setProjectId(SessionUtils.getCurrentProjectId());
         return PageUtils.setPageInfo(page, apiTestService.list(request));
     }
 
