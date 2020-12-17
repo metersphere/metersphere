@@ -53,6 +53,7 @@ public class PerformanceTestController {
     public Pager<List<LoadTestDTO>> list(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryTestPlanRequest request) {
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         request.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
+        request.setProjectId(SessionUtils.getCurrentProjectId());
         return PageUtils.setPageInfo(page, performanceTestService.list(request));
     }
 

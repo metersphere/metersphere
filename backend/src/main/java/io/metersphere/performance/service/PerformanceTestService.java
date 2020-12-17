@@ -79,7 +79,6 @@ public class PerformanceTestService {
 
     public List<LoadTestDTO> list(QueryTestPlanRequest request) {
         request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
-        request.setProjectId(SessionUtils.getCurrentProjectId());
         return extLoadTestMapper.list(request);
     }
 
