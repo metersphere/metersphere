@@ -15,6 +15,7 @@ import io.metersphere.base.mapper.ext.ExtApiTestReportMapper;
 import io.metersphere.commons.constants.APITestStatus;
 import io.metersphere.commons.constants.ReportTriggerMode;
 import io.metersphere.commons.exception.MSException;
+import io.metersphere.commons.utils.DateUtils;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.ServiceUtils;
 import io.metersphere.commons.utils.SessionUtils;
@@ -30,10 +31,7 @@ import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -211,5 +209,22 @@ public class APIReportService {
         ApiTestReportExample apiTestReportExample = new ApiTestReportExample();
         apiTestReportExample.createCriteria().andIdIn(reportRequest.getIds());
         apiTestReportMapper.deleteByExample(apiTestReportExample);
+    }
+
+    public long countByWorkspaceIdAndGroupAndCreateInThisWeek(String workspaceID, String group) {
+        Map<String, Date> startAndEndDateInWeek = DateUtils.getWeedFirstTimeAndLastTime(new Date());
+
+        Date firstTime = startAndEndDateInWeek.get("firstTime");
+        Date lastTime = startAndEndDateInWeek.get("lastTime");
+
+        if(firstTime==null || lastTime == null){
+            return  0;
+        }else {
+            return apiTestReportMapper.countByProjectIDAndCreateInThisWeek(workspaceID,group,firstTime.getTime(),lastTime.getTime());
+        }
+    }
+
+    public long countByWorkspaceIdAndGroup(String workspaceID, String group) {
+        return apiTestReportMapper.countByWorkspaceIdAndGroup(workspaceID,group);
     }
 }

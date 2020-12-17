@@ -4,17 +4,17 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.api.dto.*;
 import io.metersphere.api.dto.scenario.request.dubbo.RegistryCenter;
-import io.metersphere.api.service.APITestService;
+import io.metersphere.api.service.*;
 import io.metersphere.base.domain.ApiTest;
 import io.metersphere.base.domain.Schedule;
 import io.metersphere.commons.constants.RoleConstants;
-import io.metersphere.commons.utils.PageUtils;
-import io.metersphere.commons.utils.Pager;
-import io.metersphere.commons.utils.SessionUtils;
+import io.metersphere.commons.constants.ScheduleGroup;
+import io.metersphere.commons.utils.*;
 import io.metersphere.controller.request.QueryScheduleRequest;
 import io.metersphere.dto.ScheduleDao;
 import io.metersphere.service.CheckOwnerService;
 
+import io.metersphere.service.ScheduleService;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.web.bind.annotation.*;
@@ -22,6 +22,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -35,7 +37,21 @@ public class APITestController {
     @Resource
     private APITestService apiTestService;
     @Resource
+    private ApiDefinitionService apiDefinitionService;
+    @Resource
     private CheckOwnerService checkownerService;
+    @Resource
+    private ApiTestCaseService apiTestCaseService;
+    @Resource
+    private ApiDefinitionExecResultService apiDefinitionExecResultService;
+    @Resource
+    private ApiAutomationService apiAutomationService;
+    @Resource
+    private ApiScenarioReportService apiScenarioReportService;
+    @Resource
+    private ScheduleService scheduleService;
+    @Resource
+    private APIReportService apiReportService;
 
     @GetMapping("recent/{count}")
     public List<APITestResult> recentTest(@PathVariable int count) {
