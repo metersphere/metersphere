@@ -68,7 +68,6 @@ public class APITestService {
 
     public List<APITestResult> list(QueryAPITestRequest request) {
         request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
-        request.setProjectId(SessionUtils.getCurrentProjectId());
         return extApiTestMapper.list(request);
     }
 
