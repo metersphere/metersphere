@@ -5,7 +5,10 @@
       <el-col :span="14">
         <el-menu class="header-menu" :unique-opened="true" mode="horizontal" router :default-active='$route.path'>
 
-          <el-menu-item :index="'/api/home'">
+          <el-menu-item v-show="$store.state.switch.value=='new'" :index="'/api/home'">
+            {{ $t("i18n.home") }}
+          </el-menu-item>
+          <el-menu-item v-show="$store.state.switch.value=='old'" :index="'/api/home_obsolete'">
             {{ $t("i18n.home") }}
           </el-menu-item>
 

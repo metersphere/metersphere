@@ -52,11 +52,8 @@ export default {
   }
 }
 </script>
-<style>
+<style scoped>
 .el-aside {
-  /*background-color: #D3DCE6;*/
-  /*color: #333;*/
   text-align: center;
-  /*line-height: 20;*/
 }
 </style>

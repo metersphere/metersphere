@@ -220,11 +220,11 @@ public class APIReportService {
         if(firstTime==null || lastTime == null){
             return  0;
         }else {
-            return apiTestReportMapper.countByProjectIDAndCreateInThisWeek(workspaceID,group,firstTime.getTime(),lastTime.getTime());
+            return extApiTestReportMapper.countByProjectIDAndCreateInThisWeek(workspaceID,group,firstTime.getTime(),lastTime.getTime());
         }
     }
 
     public long countByWorkspaceIdAndGroup(String workspaceID, String group) {
-        return apiTestReportMapper.countByWorkspaceIdAndGroup(workspaceID,group);
+        return extApiTestReportMapper.countByWorkspaceIdAndGroup(workspaceID,group);
     }
 }

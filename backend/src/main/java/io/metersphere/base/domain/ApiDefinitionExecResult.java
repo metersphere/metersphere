@@ -1,8 +1,7 @@
 package io.metersphere.base.domain;
 
-import lombok.Data;
-
 import java.io.Serializable;
+import lombok.Data;
 
 @Data
 public class ApiDefinitionExecResult implements Serializable {
@@ -19,6 +18,8 @@ public class ApiDefinitionExecResult implements Serializable {
     private Long startTime;
 
     private Long endTime;
+
+    private Long createTime;
 
     private String content;
 

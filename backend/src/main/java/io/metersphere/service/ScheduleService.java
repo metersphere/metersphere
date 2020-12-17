@@ -167,7 +167,7 @@ public class ScheduleService {
     }
 
     public long countTaskByWorkspaceIdAndGroup(String workspaceId,String group) {
-        return  scheduleMapper.countTaskByWorkspaceIdAndGroup(workspaceId,group);
+        return  extScheduleMapper.countTaskByWorkspaceIdAndGroup(workspaceId,group);
     }
 
     public long countTaskByWorkspaceIdAndGroupInThisWeek(String workspaceID, String group) {
@@ -179,12 +179,12 @@ public class ScheduleService {
         if(firstTime==null || lastTime == null){
             return  0;
         }else {
-            return scheduleMapper.countTaskByWorkspaceIdAndGroupAndCreateTimeRange(workspaceID,group,firstTime.getTime(),lastTime.getTime());
+            return extScheduleMapper.countTaskByWorkspaceIdAndGroupAndCreateTimeRange(workspaceID,group,firstTime.getTime(),lastTime.getTime());
         }
     }
 
     public List<TaskInfoResult> findRunningTaskInfoByWorkspaceID(String workspaceID) {
-        List<TaskInfoResult> runningTaskInfoList = scheduleMapper.findRunningTaskInfoByWorkspaceID(workspaceID);
+        List<TaskInfoResult> runningTaskInfoList = extScheduleMapper.findRunningTaskInfoByWorkspaceID(workspaceID);
         return  runningTaskInfoList;
     }
 }

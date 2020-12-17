@@ -173,6 +173,10 @@ export default {
         this.$warning(this.$t('test_track.case.input_name'));
         return;
       }
+      if (data.name.trim().length > 50) {
+        this.$warning(this.$t('test_track.length_less_than') + '50');
+        return;
+      }
       let param = {};
       this.buildSaveParam(param, node.parent.data, data);
       if (param.type === 'edit') {

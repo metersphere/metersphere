@@ -283,6 +283,7 @@ public class ApiDefinitionService {
         createBodyFiles(bodyUploadIds, bodyFiles);
 
         HashTree hashTree = request.getTestElement().generateHashTree();
+        request.getTestElement().getJmx(hashTree);
         // 调用执行方法
         jMeterService.runDefinition(request.getId(), hashTree, request.getReportId(), ApiRunMode.DELIMIT.name());
         return request.getId();
@@ -389,7 +390,7 @@ public class ApiDefinitionService {
      * @return
      */
     public List<ApiDataCountResult> countProtocolByProjectID(String projectId) {
-        return apiDefinitionMapper.countProtocolByProjectID(projectId);
+        return extApiDefinitionMapper.countProtocolByProjectID(projectId);
     }
 
     /**
@@ -406,7 +407,7 @@ public class ApiDefinitionService {
         if(firstTime==null || lastTime == null){
             return  0;
         }else {
-            return apiDefinitionMapper.countByProjectIDAndCreateInThisWeek(projectId,firstTime.getTime(),lastTime.getTime());
+            return extApiDefinitionMapper.countByProjectIDAndCreateInThisWeek(projectId,firstTime.getTime(),lastTime.getTime());
         }
     }
 }
