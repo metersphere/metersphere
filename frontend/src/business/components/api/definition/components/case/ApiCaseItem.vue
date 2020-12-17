@@ -49,7 +49,7 @@
             <div v-else> {{getResult(apiCase.execResult)}}</div>
 
             <div v-if="apiCase.id" style="color: #999999;font-size: 12px">
-              <span> {{apiCase.updateTime | timestampFormatDate }}</span>
+              <span> {{apiCase.execTime | timestampFormatDate }}</span>
               {{apiCase.updateUser}}
             </div>
           </el-col>

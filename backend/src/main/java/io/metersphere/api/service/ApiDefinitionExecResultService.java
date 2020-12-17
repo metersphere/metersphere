@@ -22,6 +22,7 @@ public class ApiDefinitionExecResultService {
         result.getScenarios().get(0).getRequestResults().forEach(item -> {
             ApiDefinitionExecResult saveResult = new ApiDefinitionExecResult();
             saveResult.setId(UUID.randomUUID().toString());
+            saveResult.setCreateTime(System.currentTimeMillis());
             saveResult.setUserId(Objects.requireNonNull(SessionUtils.getUser()).getId());
             saveResult.setName(item.getName());
             saveResult.setResourceId(item.getName());
