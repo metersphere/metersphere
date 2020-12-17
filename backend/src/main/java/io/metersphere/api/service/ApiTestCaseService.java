@@ -1,6 +1,10 @@
 package io.metersphere.api.service;
 
 import com.alibaba.fastjson.JSONObject;
+import io.metersphere.api.dto.dataCount.ApiDataCountResult;
+import io.metersphere.api.dto.definition.ApiTestCaseRequest;
+import io.metersphere.api.dto.definition.ApiTestCaseResult;
+import io.metersphere.api.dto.definition.SaveApiTestCaseRequest;
 import io.metersphere.api.dto.ApiCaseBatchRequest;
 import io.metersphere.api.dto.definition.*;
 import io.metersphere.base.domain.*;
@@ -243,4 +247,22 @@ public class ApiTestCaseService {
         example.createCriteria().andIdIn(ids);
         apiTestCaseMapper.deleteByExample(example);
     }
+
+    public List<ApiDataCountResult> countProtocolByProjectID(String projectId) {
+        return apiTestCaseMapper.countProtocolByProjectID(projectId);
+    }
+
+    public long countByProjectIDAndCreateInThisWeek(String projectId) {
+        Map<String, Date> startAndEndDateInWeek = DateUtils.getWeedFirstTimeAndLastTime(new Date());
+
+        Date firstTime = startAndEndDateInWeek.get("firstTime");
+        Date lastTime = startAndEndDateInWeek.get("lastTime");
+
+        if(firstTime==null || lastTime == null){
+            return  0;
+        }else {
+            return apiTestCaseMapper.countByProjectIDAndCreateInThisWeek(projectId,firstTime.getTime(),lastTime.getTime());
+        }
+    }
+
 }
