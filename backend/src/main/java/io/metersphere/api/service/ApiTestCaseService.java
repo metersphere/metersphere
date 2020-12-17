@@ -249,7 +249,7 @@ public class ApiTestCaseService {
     }
 
     public List<ApiDataCountResult> countProtocolByProjectID(String projectId) {
-        return apiTestCaseMapper.countProtocolByProjectID(projectId);
+        return extApiTestCaseMapper.countProtocolByProjectID(projectId);
     }
 
     public long countByProjectIDAndCreateInThisWeek(String projectId) {
@@ -261,7 +261,7 @@ public class ApiTestCaseService {
         if(firstTime==null || lastTime == null){
             return  0;
         }else {
-            return apiTestCaseMapper.countByProjectIDAndCreateInThisWeek(projectId,firstTime.getTime(),lastTime.getTime());
+            return extApiTestCaseMapper.countByProjectIDAndCreateInThisWeek(projectId,firstTime.getTime(),lastTime.getTime());
         }
     }
 

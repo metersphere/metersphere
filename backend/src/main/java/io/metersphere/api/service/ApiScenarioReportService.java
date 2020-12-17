@@ -209,7 +209,7 @@ public class ApiScenarioReportService {
     }
 
     public long countByProjectID(String projectId) {
-        return apiScenarioReportMapper.countByProjectID(projectId);
+        return extApiScenarioReportMapper.countByProjectID(projectId);
     }
 
     public long countByProjectIDAndCreateInThisWeek(String projectId) {
@@ -221,7 +221,7 @@ public class ApiScenarioReportService {
         if(firstTime==null || lastTime == null){
             return  0;
         }else {
-            return apiScenarioReportMapper.countByProjectIDAndCreateInThisWeek(projectId,firstTime.getTime(),lastTime.getTime());
+            return extApiScenarioReportMapper.countByProjectIDAndCreateInThisWeek(projectId,firstTime.getTime(),lastTime.getTime());
         }
     }
 }
