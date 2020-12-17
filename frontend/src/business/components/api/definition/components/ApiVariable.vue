@@ -199,16 +199,14 @@
       }
     },
     created() {
-      if (this.parameters) {
-        if (this.parameters.length === 0 || this.parameters[this.parameters.length - 1].name) {
-          this.parameters.push(new KeyValue({
-            type: 'text',
-            enable: true,
-            required: true,
-            uuid: this.uuid(),
-            contentType: 'text/plain'
-          }));
-        }
+      if (this.parameters.length === 0 || this.parameters[this.parameters.length - 1].name) {
+        this.parameters.push(new KeyValue({
+          type: 'text',
+          enable: true,
+          required: true,
+          uuid: this.uuid(),
+          contentType: 'text/plain'
+        }));
       }
     }
   }
