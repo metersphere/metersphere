@@ -29,20 +29,4 @@ public interface ApiTestReportMapper {
 
     int updateByPrimaryKey(ApiTestReport record);
 
-    @Select({
-            "SELECT COUNT(testReportDetail.report_id) AS countNumber FROM api_test_report_detail testReportDetail ",
-            "INNER JOIN `schedule` sch ON sch.resource_id = testReportDetail.test_id ",
-            "INNER JOIN api_test_report testReport ON testReportDetail.report_id = testReport.id ",
-            "WHERE workspace_id = #{workspaceID}  AND `group` = #{group} ",
-    })
-    long countByWorkspaceIdAndGroup(@Param("workspaceID") String workspaceID, @Param("group")String group);
-
-    @Select({
-            "SELECT COUNT(testReportDetail.report_id) AS countNumber FROM api_test_report_detail testReportDetail ",
-            "INNER JOIN `schedule` sch ON sch.resource_id = testReportDetail.test_id ",
-            "INNER JOIN api_test_report testReport ON testReportDetail.report_id = testReport.id ",
-            "WHERE workspace_id = #{workspaceID}  AND `group` = #{group} ",
-            "AND testReport.create_time BETWEEN #{startTime} and #{endTime} ",
-    })
-    long countByProjectIDAndCreateInThisWeek(@Param("workspaceID") String workspaceID, @Param("group")String group, @Param("startTime") long startTime, @Param("endTime")long endTime);
 }

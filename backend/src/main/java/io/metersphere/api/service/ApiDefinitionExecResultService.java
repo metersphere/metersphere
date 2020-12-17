@@ -50,12 +50,12 @@ public class ApiDefinitionExecResultService {
         if(firstTime==null || lastTime == null){
             return  0;
         }else {
-            return apiDefinitionExecResultMapper.countByProjectIDAndCreateInThisWeek(projectId,firstTime.getTime(),lastTime.getTime());
+            return extApiDefinitionExecResultMapper.countByProjectIDAndCreateInThisWeek(projectId,firstTime.getTime(),lastTime.getTime());
         }
     }
 
     public long countByTestCaseIDInProject(String projectId) {
-        return apiDefinitionExecResultMapper.countByTestCaseIDInProject(projectId);
+        return extApiDefinitionExecResultMapper.countByTestCaseIDInProject(projectId);
 
     }
 
@@ -73,7 +73,7 @@ public class ApiDefinitionExecResultService {
         if(startTime==null){
             return  new ArrayList<>(0);
         }else {
-            return apiDefinitionExecResultMapper.findFaliureCaseInfoByProjectIDAndExecuteTimeAndLimitNumber(projectId,startTime.getTime(),limitNumber);
+            return extApiDefinitionExecResultMapper.findFaliureCaseInfoByProjectIDAndExecuteTimeAndLimitNumber(projectId,startTime.getTime(),limitNumber);
         }
     }
 }

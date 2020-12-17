@@ -390,7 +390,7 @@ public class ApiDefinitionService {
      * @return
      */
     public List<ApiDataCountResult> countProtocolByProjectID(String projectId) {
-        return apiDefinitionMapper.countProtocolByProjectID(projectId);
+        return extApiDefinitionMapper.countProtocolByProjectID(projectId);
     }
 
     /**
@@ -407,7 +407,7 @@ public class ApiDefinitionService {
         if(firstTime==null || lastTime == null){
             return  0;
         }else {
-            return apiDefinitionMapper.countByProjectIDAndCreateInThisWeek(projectId,firstTime.getTime(),lastTime.getTime());
+            return extApiDefinitionMapper.countByProjectIDAndCreateInThisWeek(projectId,firstTime.getTime(),lastTime.getTime());
         }
     }
 }
