@@ -64,9 +64,9 @@
         </el-col>
 
         <!--<el-col v-if="type === 'body'" class="kv-select">-->
-          <!--<el-input :disabled="isReadOnly" v-model="item.contentType" size="small"-->
-                    <!--@change="change" :placeholder="$t('api_test.request.content_type')" show-word-limit>-->
-          <!--</el-input>-->
+        <!--<el-input :disabled="isReadOnly" v-model="item.contentType" size="small"-->
+        <!--@change="change" :placeholder="$t('api_test.request.content_type')" show-word-limit>-->
+        <!--</el-input>-->
         <!--</el-col>-->
 
         <el-col class="kv-delete">
@@ -199,14 +199,16 @@
       }
     },
     created() {
-      if (this.parameters.length === 0 || this.parameters[this.parameters.length - 1].name) {
-        this.parameters.push(new KeyValue({
-          type: 'text',
-          enable: true,
-          required: true,
-          uuid: this.uuid(),
-          contentType: 'text/plain'
-        }));
+      if (this.parameters) {
+        if (this.parameters.length === 0 || this.parameters[this.parameters.length - 1].name) {
+          this.parameters.push(new KeyValue({
+            type: 'text',
+            enable: true,
+            required: true,
+            uuid: this.uuid(),
+            contentType: 'text/plain'
+          }));
+        }
       }
     }
   }

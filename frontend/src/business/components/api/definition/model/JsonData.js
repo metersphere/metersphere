@@ -18,7 +18,7 @@ export const DEFAULT_DATA = [{
   "name": "回收站",
   "level": 1,
   "children": [],
-},{
+}, {
   "id": "root",
   "name": "全部模块",
   "level": 0,
@@ -27,7 +27,13 @@ export const DEFAULT_DATA = [{
 
 export const REQ_METHOD = [
   {id: 'GET', label: 'GET'},
-  {id: 'POST', label: 'POST'}
+  {id: 'POST', label: 'POST'},
+  {id: 'PUT', label: 'PUT'},
+  {id: 'PATCH', label: 'PATCH'},
+  {id: 'DELETE', label: 'DELETE'},
+  {id: 'OPTIONS', label: 'OPTIONS'},
+  {id: 'HEAD', label: 'HEAD'},
+  {id: 'CONNECT', label: 'CONNECT'}
 ]
 
 export const API_STATUS = [

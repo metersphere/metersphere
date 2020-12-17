@@ -182,11 +182,13 @@
       if (!this.body.type) {
         this.body.type = BODY_TYPE.FORM_DATA;
       }
-      this.body.kvs.forEach(param => {
-        if (!param.type) {
-          param.type = 'text';
-        }
-      });
+      if (this.body.kvs) {
+        this.body.kvs.forEach(param => {
+          if (!param.type) {
+            param.type = 'text';
+          }
+        });
+      }
     }
   }
 </script>
