@@ -59,10 +59,8 @@ export default {
 </script>
 <style scoped>
 .el-aside {
-  /*background-color: #D3DCE6;*/
-  /*color: #333;*/
+  line-height: 100px;
   text-align: center;
-  /*line-height: 200px;*/
 }
 
 .countNumber{

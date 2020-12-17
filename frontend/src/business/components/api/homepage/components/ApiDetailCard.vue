@@ -8,7 +8,10 @@
     <el-container>
       <el-main>
           <div class="text item">
+            <br/>
             {{$t('api_test.home_page.api_details_card.this_week_add',[apiCountData.thisWeekAddedCount])}}
+            <br/>
+            <br/>
           </div>
       </el-main>
     </el-container>
@@ -53,7 +56,5 @@ export default {
 }
 </script>
 <style scoped>
-.el-aside {
-  text-align: center;
-}
+
 </style>
