@@ -792,6 +792,64 @@ export default {
       swagger_export_tip: "通过 Swagger 页面导出",
       suffixFormatErr: "文件格式不符合要求",
       swagger_url_import: "使用URL导入",
+    },
+    home_page:{
+      unit_of_measurement:"个",
+      api_count_card:{
+        title: "接口总数",
+      },
+      test_case_count_card:{
+        title: "用例总数",
+      },
+      test_scene_count_card:{
+        title: "场景总数",
+      },
+      schedule_task_count_card:{
+        title: "定时任务总数",
+      },
+      api_details_card:{
+        title: "接口",
+        this_week_add:"本周新增{0}个",
+      },
+      test_case_details_card:{
+        title: "用例",
+        this_week_add:"本周新增: {0}个",
+        this_week_execute:"本周执行: {0}次",
+        executed:"历史总执行: {0}次",
+      },
+      test_scene_details_card:{
+        title: "场景",
+        this_week_add:"本周新增: {0}个",
+        this_week_execute:"本周执行: {0}次",
+        executed:"历史总执行: {0}次",
+      },
+      schedule_task_details_card:{
+        title: "定时任务",
+        this_week_add:"本周新增: {0}个",
+        this_week_execute:"本周执行: {0}次",
+        executed:"历史总执行: {0}次",
+      },
+      failed_case_list:{
+        title: "过去7天流程集失败用例TOP 10",
+        table_coloum:{
+          index: "排名",
+          case_name: "用例名称",
+          test_plan: "所属测试计划",
+          failure_times: "失败次数",
+        },
+      },
+      running_task_list:{
+        title: "运行中的任务",
+        table_coloum:{
+          index: "序号",
+          scenario: "场景名称",
+          run_rule: "运行规则",
+          task_status: "任务状态",
+          next_execution_time: "下次执行时间",
+          create_user: "创建人",
+          update_time: "更新时间",
+        },
+      }
     }
   },
   api_report: {

@@ -791,6 +791,64 @@ export default {
       swagger_export_tip: "通過 Swagger 頁面導出",
       suffixFormatErr: "文件格式不符合要求",
       swagger_url_import: "使用URL導入",
+    },
+    home_page:{
+      unit_of_measurement:"個",
+      api_count_card:{
+        title: "接口總數",
+      },
+      test_case_count_card:{
+        title: "用例總數",
+      },
+      test_scene_count_card:{
+        title: "場景總數",
+      },
+      schedule_task_count_card:{
+        title: "定時任務總數",
+      },
+      api_details_card:{
+        title: "接口",
+        this_week_add:"本週新增{0}个",
+      },
+      test_case_details_card:{
+        title: "用例",
+        this_week_add:"本週新增: {0}个",
+        this_week_execute:"本週執行: {0}次",
+        executed:"歷史總執行: {0}次",
+      },
+      test_scene_details_card:{
+        title: "場景",
+        this_week_add:"本週新增: {0}个",
+        this_week_execute:"本週執行: {0}次",
+        executed:"歷史總執行: {0}次",
+      },
+      schedule_task_details_card:{
+        title: "定時任務",
+        this_week_add:"本週新增: {0}个",
+        this_week_execute:"本週執行: {0}次",
+        executed:"歷史總執行: {0}次",
+      },
+      failed_case_list:{
+        title: "過去7天流程集失敗用例TOP 10",
+        table_coloum:{
+          index: "排名",
+          case_name: "用例名稱",
+          test_plan: "所屬測試計畫",
+          failure_times: "失敗次數",
+        },
+      },
+      running_task_list:{
+        title: "運行中的任務",
+        table_coloum:{
+          index: "序號",
+          scenario: "場景名稱",
+          run_rule: "運行規則",
+          task_status: "任務狀態",
+          next_execution_time: "下次執行時間",
+          create_user: "創建人",
+          update_time: "更新時間",
+        },
+      }
     }
   },
   api_report: {

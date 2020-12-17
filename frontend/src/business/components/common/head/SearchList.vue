@@ -36,11 +36,6 @@ export default {
     currentProject: String
   },
   created() {
-    if (getCurrentUser().lastProjectId) {
-      localStorage.setItem(PROJECT_ID, getCurrentUser().lastProjectId);
-    }
-  },
-  mounted() {
     this.init();
   },
   computed: {
@@ -68,10 +63,24 @@ export default {
         this.result = this.$get("/project/listAll", response => {
           this.items = response.data;
           this.searchArray = response.data;
-          if (!getCurrentProjectID() && this.items.length > 0) {
-            this.change(this.items[0].id);
+          let userLastProjectId = getCurrentUser().lastProjectId;
+          if (userLastProjectId) {
+            // id 是否存在
+            if (this.searchArray.length > 0 && this.searchArray.map(p => p.id).indexOf(userLastProjectId) !== -1) {
+              localStorage.setItem(PROJECT_ID, userLastProjectId);
+            }
           }
           let projectId = getCurrentProjectID();
+          if (projectId) {
+            // 保存的 projectId 在当前项目列表是否存在; 切换工作空间后
+            if (this.searchArray.length > 0 && this.searchArray.map(p => p.id).indexOf(projectId) === -1) {
+              this.change(this.items[0].id);
+            }
+          } else {
+            if (this.items.length > 0) {
+              this.change(this.items[0].id);
+            }
+          }
           this.changeProjectName(projectId);
         })
       }

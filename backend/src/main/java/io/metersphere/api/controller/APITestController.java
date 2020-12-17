@@ -3,18 +3,24 @@ package io.metersphere.api.controller;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.api.dto.*;
+import io.metersphere.api.dto.dataCount.ApiDataCountResult;
+import io.metersphere.api.dto.dataCount.ExecutedCaseInfoResult;
+import io.metersphere.api.dto.dataCount.request.ScheduleInfoRequest;
+import io.metersphere.api.dto.dataCount.response.ApiDataCountDTO;
+import io.metersphere.api.dto.dataCount.response.ExecutedCaseInfoDTO;
+import io.metersphere.api.dto.dataCount.response.TaskInfoResult;
 import io.metersphere.api.dto.scenario.request.dubbo.RegistryCenter;
-import io.metersphere.api.service.APITestService;
+import io.metersphere.api.service.*;
 import io.metersphere.base.domain.ApiTest;
 import io.metersphere.base.domain.Schedule;
 import io.metersphere.commons.constants.RoleConstants;
-import io.metersphere.commons.utils.PageUtils;
-import io.metersphere.commons.utils.Pager;
-import io.metersphere.commons.utils.SessionUtils;
+import io.metersphere.commons.constants.ScheduleGroup;
+import io.metersphere.commons.utils.*;
 import io.metersphere.controller.request.QueryScheduleRequest;
 import io.metersphere.dto.ScheduleDao;
 import io.metersphere.service.CheckOwnerService;
 
+import io.metersphere.service.ScheduleService;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.web.bind.annotation.*;
@@ -22,6 +28,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
@@ -35,7 +43,21 @@ public class APITestController {
     @Resource
     private APITestService apiTestService;
     @Resource
+    private ApiDefinitionService apiDefinitionService;
+    @Resource
     private CheckOwnerService checkownerService;
+    @Resource
+    private ApiTestCaseService apiTestCaseService;
+    @Resource
+    private ApiDefinitionExecResultService apiDefinitionExecResultService;
+    @Resource
+    private ApiAutomationService apiAutomationService;
+    @Resource
+    private ApiScenarioReportService apiScenarioReportService;
+    @Resource
+    private ScheduleService scheduleService;
+    @Resource
+    private APIReportService apiReportService;
 
     @GetMapping("recent/{count}")
     public List<APITestResult> recentTest(@PathVariable int count) {
@@ -149,5 +171,127 @@ public class APITestController {
     @PostMapping("/getJsonPaths")
     public List<HashMap> getJsonPaths(@RequestBody QueryJsonPathRequest request) {
         return getListJson(request.getJsonPath());
+    }
+
+    @GetMapping("/apiCount/{projectId}")
+    public ApiDataCountDTO apiCount(@PathVariable String projectId) {
+
+        ApiDataCountDTO apiCountResult = new ApiDataCountDTO();
+
+        List<ApiDataCountResult> countResultList = apiDefinitionService.countProtocolByProjectID(projectId);
+        apiCountResult.countByApiDefinitionCountResult(countResultList);
+
+        long dateCountByCreateInThisWeek = apiDefinitionService.countByProjectIDAndCreateInThisWeek(projectId);
+        apiCountResult.setThisWeekAddedCount(dateCountByCreateInThisWeek);
+
+        return  apiCountResult;
+    }
+
+    @GetMapping("/testCaseInfoCount/{projectId}")
+    public ApiDataCountDTO testCaseInfoCount(@PathVariable String projectId) {
+        ApiDataCountDTO apiCountResult = new ApiDataCountDTO();
+
+        List<ApiDataCountResult> countResultList = apiTestCaseService.countProtocolByProjectID(projectId);
+        apiCountResult.countByApiDefinitionCountResult(countResultList);
+
+        long dateCountByCreateInThisWeek = apiTestCaseService.countByProjectIDAndCreateInThisWeek(projectId);
+        apiCountResult.setThisWeekAddedCount(dateCountByCreateInThisWeek);
+
+        long executedInThisWeekCountNumber = apiDefinitionExecResultService.countByTestCaseIDInProjectAndExecutedInThisWeek(projectId);
+        apiCountResult.setThisWeekExecutedCount(executedInThisWeekCountNumber);
+        long executedCountNumber = apiDefinitionExecResultService.countByTestCaseIDInProject(projectId);
+        apiCountResult.setExecutedCount(executedCountNumber);
+
+        return  apiCountResult;
+    }
+
+    @GetMapping("/testSceneInfoCount/{projectId}")
+    public ApiDataCountDTO testSceneInfoCount(@PathVariable String projectId) {
+
+        ApiDataCountDTO apiCountResult = new ApiDataCountDTO();
+
+        long scenarioCountNumber = apiAutomationService.countScenarioByProjectID(projectId);
+        apiCountResult.setAllApiDataCountNumber(scenarioCountNumber);
+
+        /**
+         *  本周新增：通过测试场景的createTime
+         *  本周执行: 查询（本周）生成的测试报告
+         *  历史总执行：查询所有的测试报告
+         * */
+        long dateCountByCreateInThisWeek = apiAutomationService.countScenarioByProjectIDAndCreatInThisWeek(projectId);
+        apiCountResult.setThisWeekAddedCount(dateCountByCreateInThisWeek);
+        long executedInThisWeekCountNumber = apiScenarioReportService.countByProjectIDAndCreateInThisWeek(projectId);
+        apiCountResult.setThisWeekExecutedCount(executedInThisWeekCountNumber);
+        long executedCountNumber = apiScenarioReportService.countByProjectID(projectId);
+        apiCountResult.setExecutedCount(executedCountNumber);
+
+        return  apiCountResult;
+
+    }
+
+    @GetMapping("/scheduleTaskInfoCount/{workSpaceID}")
+    public ApiDataCountDTO scheduleTaskInfoCount(@PathVariable String workSpaceID) {
+        ApiDataCountDTO apiCountResult = new ApiDataCountDTO();
+
+        long allTaskCount = scheduleService.countTaskByWorkspaceIdAndGroup(workSpaceID,ScheduleGroup.API_TEST.name());
+
+        apiCountResult.setAllApiDataCountNumber(allTaskCount);
+
+        long taskCountInThisWeek = scheduleService.countTaskByWorkspaceIdAndGroupInThisWeek(workSpaceID,ScheduleGroup.API_TEST.name());
+        apiCountResult.setThisWeekAddedCount(taskCountInThisWeek);
+        long executedInThisWeekCountNumber = apiReportService.countByWorkspaceIdAndGroupAndCreateInThisWeek(workSpaceID,ScheduleGroup.API_TEST.name());
+        apiCountResult.setThisWeekExecutedCount(executedInThisWeekCountNumber);
+        long executedCountNumber = apiReportService.countByWorkspaceIdAndGroup(workSpaceID,ScheduleGroup.API_TEST.name());
+        apiCountResult.setExecutedCount(executedCountNumber);
+
+        return  apiCountResult;
+    }
+
+    @GetMapping("/faliureCaseAboutTestPlan/{projectId}/{limitNumber}")
+    public List<ExecutedCaseInfoDTO> faliureCaseAboutTestPlan(@PathVariable String projectId, @PathVariable int limitNumber) {
+
+        List<ExecutedCaseInfoResult> selectDataList = apiDefinitionExecResultService.findFaliureCaseInfoByProjectIDAndLimitNumberInSevenDays(projectId,limitNumber);
+
+        List<ExecutedCaseInfoDTO> returnList = new ArrayList<>(limitNumber);
+
+        for(int dataIndex = 0;dataIndex < limitNumber;dataIndex ++){
+
+            ExecutedCaseInfoDTO dataDTO = new ExecutedCaseInfoDTO();
+            dataDTO.setSortIndex(dataIndex+1);
+
+            if(dataIndex<selectDataList.size()){
+                ExecutedCaseInfoResult selectData = selectDataList.get(dataIndex);
+
+                dataDTO.setCaseName(selectData.getCaseName());
+                dataDTO.setTestPlan(selectData.getTestPlan());
+                dataDTO.setFailureTimes(selectData.getFailureTimes());
+            }else {
+                dataDTO.setCaseName("");
+                dataDTO.setTestPlan("");
+            }
+            returnList.add(dataDTO);
+        }
+        return  returnList;
+    }
+
+    @GetMapping("/runningTask/{workspaceID}")
+    public List<TaskInfoResult> runningTask(@PathVariable String workspaceID) {
+
+        List<TaskInfoResult> resultList = scheduleService.findRunningTaskInfoByWorkspaceID(workspaceID);
+        for (TaskInfoResult taskInfo :
+                resultList) {
+            Date nextExecutionTime = CronUtils.getNextTriggerTime(taskInfo.getRule());
+            if(nextExecutionTime!=null){
+                taskInfo.setNextExecutionTime(nextExecutionTime.getTime());
+            }
+        }
+        return  resultList;
+    }
+
+    @PostMapping(value = "/schedule/updateEnableByPrimyKey")
+    public void updateScheduleEnableByPrimyKey(@RequestBody ScheduleInfoRequest request) {
+        Schedule schedule = scheduleService.getSchedule(request.getTaskID());
+        schedule.setEnable(request.isEnable());
+        apiTestService.updateSchedule(schedule);
     }
 }
