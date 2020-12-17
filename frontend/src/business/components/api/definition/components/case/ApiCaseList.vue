@@ -1,12 +1,11 @@
 <template>
   <div v-if="visible">
-    <ms-drawer :size="40" direction="bottom">
+    <ms-drawer :size="40" @close="apiCaseClose" direction="bottom">
       <template v-slot:header>
         <api-case-header
           :api="api"
           @getApiTest="getApiTest"
           @setEnvironment="setEnvironment"
-          @close="apiCaseClose"
           @addCase="addCase"
           @batchRun="batchRun"
           :condition="condition"
@@ -14,6 +13,7 @@
           :apiCaseList="apiCaseList"
           :is-read-only="isReadOnly"
           :project-id="projectId"
+          :is-case-edit="isCaseEdit"
         />
       </template>
 
@@ -21,10 +21,13 @@
         <el-main v-loading="batchLoading" style="overflow: auto">
           <div v-for="(item,index) in apiCaseList" :key="index">
             <api-case-item v-loading="singleLoading && singleRunId === item.id"
-              @refresh="getApiTest"
-              @singleRun="singleRun"
-              :api="api"
-              :api-case="item" :index="index"/>
+                           @refresh="getApiTest"
+                           @singleRun="singleRun"
+                           @copyCase="copyCase"
+                           @showExecResult="showExecResult"
+                           :is-case-edit="isCaseEdit"
+                           :api="api"
+                           :api-case="item" :index="index"/>
           </div>
         </el-main>
       </el-container>
@@ -78,6 +81,7 @@
         runData: [],
         reportId: "",
         projectId: "",
+        testCaseId: "",
         checkedCases: new Set(),
         visible: false,
         condition: {},
@@ -103,9 +107,16 @@
         this.getApiTest();
       }
     },
+    computed: {
+      isCaseEdit() {
+        return this.testCaseId ? true : false;
+      }
+    },
     methods: {
-      open(api) {
+      open(api, testCaseId) {
         this.api = api;
+        // testCaseId 不为空则为用例编辑页面
+        this.testCaseId = testCaseId;
         this.getApiTest();
         this.visible = true;
       },
@@ -142,7 +153,11 @@
       getApiTest() {
         if (this.api) {
           this.condition.projectId = this.projectId;
-          this.condition.apiDefinitionId = this.api.id;
+          if (this.isCaseEdit) {
+            this.condition.id = this.testCaseId;
+          } else {
+            this.condition.apiDefinitionId = this.api.id;
+          }
           this.result = this.$post("/api/testcase/list", this.condition, response => {
             for (let index in response.data) {
               let test = response.data[index];
@@ -152,9 +167,9 @@
               }
             }
             this.apiCaseList = response.data;
-            if (this.apiCaseList.length == 0) {
-              this.addCase();
-            }
+            // if (this.apiCaseList.length == 0) {
+            //   this.addCase();
+            // }
           });
         }
       },
@@ -171,6 +186,10 @@
           obj.request = request;
           this.apiCaseList.unshift(obj);
         }
+      },
+
+      copyCase(data) {
+        this.apiCaseList.unshift(data);
       },
 
       handleClose() {

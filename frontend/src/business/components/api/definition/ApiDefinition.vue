@@ -35,26 +35,31 @@
                      :name="item.name">
           <!-- 列表集合 -->
           <ms-api-list
-            v-if="item.type === 'list'"
+            v-if="item.type === 'list' && isApiListEnable"
             :current-protocol="currentProtocol"
             :visible="visible"
             :currentRow="currentRow"
             :select-node-ids="selectNodeIds"
             :trash-enable="trashEnable"
+            :is-api-list-enable="isApiListEnable"
             @editApi="editApi"
             @handleCase="handleCase"
             @showExecResult="showExecResult"
+            @isApiListEnableChange="isApiListEnableChange"
             ref="apiList"/>
-          <!--<api-case-simple-list-->
-            <!--v-if="item.type === 'list'"-->
-            <!--:current-protocol="currentProtocol"-->
-            <!--:visible="visible"-->
-            <!--:currentRow="currentRow"-->
-            <!--:select-node-ids="selectNodeIds"-->
-            <!--:trash-enable="trashEnable"-->
-            <!--@handleCase="handleCase"-->
-            <!--@showExecResult="showExecResult"-->
-            <!--ref="apiList"/>-->
+          <!--测试用例列表-->
+          <api-case-simple-list
+            v-if="item.type === 'list' && !isApiListEnable"
+            :current-protocol="currentProtocol"
+            :visible="visible"
+            :currentRow="currentRow"
+            :select-node-ids="selectNodeIds"
+            :trash-enable="trashEnable"
+            :is-api-list-enable="isApiListEnable"
+            @isApiListEnableChange="isApiListEnableChange"
+            @handleCase="handleCase"
+            @showExecResult="showExecResult"
+            ref="apiList"/>
 
           <!-- 添加/编辑测试窗口-->
           <div v-else-if="item.type=== 'ADD'" class="ms-api-div">
@@ -147,6 +152,7 @@
           type: "list",
           closable: false
         }],
+        isApiListEnable: true
       }
     },
     watch: {
@@ -155,6 +161,9 @@
       }
     },
     methods: {
+      isApiListEnableChange(data) {
+        this.isApiListEnable = data;
+      },
       handleCommand(e) {
         switch (e) {
           case "ADD":
@@ -241,7 +250,7 @@
         downloadFile("导出API.json", JSON.stringify(obj));
       },
       refresh(data) {
-        this.$refs.apiList[0].initApiTable(data);
+        this.$refs.apiList[0].initTable(data);
       },
       setTabTitle(data) {
         for (let index in this.apiTabs) {

@@ -37,10 +37,10 @@
             <ms-tip-button @click="singleRun(apiCase)" :tip="$t('api_test.run')" icon="el-icon-video-play"
                            style="background-color: #409EFF;color: white" size="mini" :disabled="!apiCase.id" circle/>
             <ms-tip-button @click="copyCase(apiCase)" :tip="$t('commons.copy')" icon="el-icon-document-copy"
-                           size="mini" :disabled="!apiCase.id" circle/>
+                           size="mini" :disabled="!apiCase.id || isCaseEdit" circle/>
             <ms-tip-button @click="deleteCase(index,apiCase)" :tip="$t('commons.delete')" icon="el-icon-delete"
-                           size="mini" :disabled="!apiCase.id" circle/>
-            <ms-api-extend-btns :row="apiCase"/>
+                           size="mini" :disabled="!apiCase.id || isCaseEdit" circle/>
+            <ms-api-extend-btns :is-case-edit="isCaseEdit" :row="apiCase"/>
           </el-col>
 
           <el-col :span="3">
@@ -84,7 +84,6 @@
   import MsTcpBasisParameters from "../request/tcp/BasisParameters";
   import MsDubboBasisParameters from "../request/dubbo/BasisParameters";
   import MsApiExtendBtns from "../reference/ApiExtendBtns";
-
 
     export default {
       name: "ApiCaseItem",
@@ -132,7 +131,8 @@
           default() {
             return {}
           }
-        }
+        },
+        isCaseEdit: Boolean,
       },
       watch: {
       },
@@ -149,7 +149,7 @@
         },
         copyCase(data) {
           let obj = {name: "copy_" + data.name, priority: data.priority, active: false, request: data.request};
-          this.apiCaseList.unshift(obj);
+          this.$emit('copyCase', obj);
         },
 
         selectTestCase(item, $event) {
@@ -210,6 +210,9 @@
             this.$warning(this.$t('api_test.input_name'));
             return true;
           }
+        },
+        showExecResult(data) {
+          this.$emit('showExecResult', data);
         },
         getBodyUploadFiles(row) {
           let bodyUploadFiles = [];

@@ -1,8 +1,8 @@
 <template>
   <el-card class="card-content" v-if="isShow">
     <el-button-group>
-      <el-button plain size="small" icon="el-icon-tickets" :class="{active: activeButton == 'api'}" @click="click('api')"></el-button>
-      <el-button plain  size="small" icon="el-icon-paperclip" :class="{active: activeButton == 'case'}" @click="click('case')"></el-button>
+      <el-button plain size="small" icon="el-icon-tickets" :class="{active: isApiListEnable}" @click="apiChange('api')"></el-button>
+      <el-button plain class="case-button" size="small" icon="el-icon-paperclip" :class="{active: !isApiListEnable}" @click="caseChange('case')"></el-button>
     </el-button-group>
     <slot></slot>
   </el-card>
@@ -13,29 +13,32 @@
       name: "ApiListContainer",
       data() {
         return {
-          activeButton: 'api',
           isShow: true
         }
       },
+      props: {
+        isApiListEnable: Boolean
+      },
       methods: {
-        click(type) {
-          this.activeButton = type;
-          // this.reload();
+        apiChange() {
+          this.$emit('isApiListEnableChange', true);
         },
-        // reload() {
-        //   this.isShow = false;
-        //   this.$nextTick(() => {
-        //     this.isShow = true;
-        //   })
-        // }
+        caseChange() {
+          this.$emit('isApiListEnableChange', false);
+        }
       }
     }
 </script>
 
 <style scoped>
 
-  /*.active {*/
-    /*background-color: #409EFF;*/
-  /*}*/
+  .active {
+    border: solid 1px #6d317c;
+  }
+
+  .case-button {
+    border-left: solid 1px #6d317c;
+  }
+
 
 </style>

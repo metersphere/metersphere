@@ -3,9 +3,11 @@ package io.metersphere.base.mapper.ext;
 import io.metersphere.base.domain.User;
 import io.metersphere.controller.request.UserRequest;
 import io.metersphere.notice.domain.UserDetail;
+import org.apache.ibatis.annotations.MapKey;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
+import java.util.Map;
 
 public interface ExtUserMapper {
 
@@ -19,4 +21,6 @@ public interface ExtUserMapper {
 
     List<UserDetail> queryTypeByIds(List<String> userIds);
 
+    @MapKey("id")
+    Map<String, User> queryNameByIds(List<String> userIds);
 }

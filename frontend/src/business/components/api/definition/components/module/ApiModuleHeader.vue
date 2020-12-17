@@ -9,9 +9,9 @@
           :disabled="item.disabled">
         </el-option>
       </el-select>
-      <el-input class="filter-input" :placeholder="$t('test_track.module.search')" v-model="condition.filterText" size="small">
+      <el-input class="filter-input" :class="{'read-only': isReadOnly}" :placeholder="$t('test_track.module.search')" v-model="condition.filterText" size="small">
         <template v-slot:append>
-          <el-dropdown size="small" split-button type="primary" class="ms-api-button" @click="handleCommand('add-api')"
+          <el-dropdown v-if="!isReadOnly" size="small" split-button type="primary" class="ms-api-button" @click="handleCommand('add-api')"
                        @command="handleCommand">
             <el-button icon="el-icon-folder-add" @click="addApi"></el-button>
             <el-dropdown-menu slot="dropdown">
@@ -61,6 +61,12 @@
           default() {
             return {}
           }
+        },
+        isReadOnly: {
+          type: Boolean,
+          default() {
+            return false
+          }
         }
       },
       methods: {
@@ -105,8 +111,13 @@
     height: 30px;
   }
 
+  .read-only {
+    width: 150px !important;
+  }
+
   .filter-input {
     width: 175px;
     padding-left: 3px;
   }
+
 </style>
