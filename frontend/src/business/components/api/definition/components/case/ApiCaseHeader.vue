@@ -13,12 +13,13 @@
         <el-col :span="api.protocol==='HTTP'? 4:0">
           <div class="variable-combine" style="margin-left: 10px">{{api.path ===null ? " " : api.path}}</div>
         </el-col>
-        <el-col :span="2">
+        <el-col :span="2" v-if="!isCaseEdit">
           <div>{{$t('test_track.plan_view.case_count')}}：{{apiCaseList.length}}</div>
         </el-col>
         <el-col :span="3">
           <div>
             <el-select size="small" :placeholder="$t('api_test.definition.request.grade_info')" v-model="condition.priority"
+                       :disabled="isCaseEdit"
                        class="ms-api-header-select" @change="getApiTest">
               <el-option v-for="grd in priorities" :key="grd.id" :label="grd.name" :value="grd.id"/>
             </el-select>
@@ -48,25 +49,19 @@
         <el-col :span="3">
           <div class="ms-api-header-select">
             <el-input size="small" :placeholder="$t('api_test.definition.request.select_case')"
+                      :disabled="isCaseEdit"
                       v-model="condition.name" @blur="getApiTest" @keyup.enter.native="getApiTest"/>
           </div>
         </el-col>
         <el-col :span="2">
-          <el-dropdown size="small" split-button type="primary" class="ms-api-header-select" @click="addCase"
+          <el-dropdown size="small" split-button type="primary" class="ms-api-header-select" @click="addCase" :disabled="isReadOnly || isCaseEdit"
                        @command="handleCommand">
             +{{$t('api_test.definition.request.case')}}
             <el-dropdown-menu slot="dropdown">
               <el-dropdown-item command="run">{{$t('commons.test')}}</el-dropdown-item>
             </el-dropdown-menu>
           </el-dropdown>
-
-
         </el-col>
-        <el-col :span="2">
-          <button type="button" aria-label="Close" class="el-card-btn" @click="close()"><i
-            class="el-dialog__close el-icon el-icon-close"></i></button>
-        </el-col>
-
       </el-row>
     </el-card>
 
@@ -95,6 +90,7 @@
         priorities: Array,
         apiCaseList: Array,
         isReadOnly: Boolean,
+        isCaseEdit: Boolean,
         condition: {
           type: Object,
           default() {
@@ -144,9 +140,6 @@
         },
         getApiTest() {
           this.$emit('getApiTest');
-        },
-        close() {
-          this.$emit('close');
         },
         addCase() {
           this.$emit('addCase');

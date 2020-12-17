@@ -1,13 +1,16 @@
 <template>
   <div>
-    <api-list-container>
+    <api-list-container
+      :is-api-list-enable="isApiListEnable"
+      @isApiListEnableChange="isApiListEnableChange">
       <el-input placeholder="搜索" @blur="search" class="search-input" size="small" v-model="condition.name"/>
-
       <el-table v-loading="result.loading"
-        border
-        :data="tableData" row-key="id" class="test-content adjust-table"
-        @select-all="handleSelectAll"
-        @select="handleSelect" :height="screenHeight">
+                border
+                :data="tableData" row-key="id" class="test-content adjust-table"
+                @select-all="handleSelectAll"
+                @filter-change="filter"
+                @sort-change="sort"
+                @select="handleSelect" :height="screenHeight">
         <el-table-column type="selection"/>
         <el-table-column width="40" :resizable="false" align="center">
           <template v-slot:default="scope">
@@ -34,11 +37,15 @@
           show-overflow-tooltip/>
 
         <el-table-column
-          prop="createUserId"
+          prop="createUser"
           :label="'创建人'"
           show-overflow-tooltip/>
 
-        <el-table-column width="160" :label="$t('api_test.definition.api_last_time')" prop="updateTime">
+        <el-table-column
+          sortable="custom"
+          width="160"
+          :label="$t('api_test.definition.api_last_time')"
+          prop="updateTime">
           <template v-slot:default="scope">
             <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
           </template>
@@ -47,18 +54,18 @@
 
         <el-table-column :label="$t('commons.operating')" min-width="130" align="center">
           <template v-slot:default="scope">
-            <el-button type="text" @click="reductionApi(scope.row)" v-if="trashEnable">恢复</el-button>
-            <el-button type="text" @click="editCase(scope.row)" v-else>{{$t('commons.edit')}}</el-button>
+            <!--<el-button type="text" @click="reductionApi(scope.row)" v-if="trashEnable">恢复</el-button>-->
+            <el-button type="text" @click="handleTestCase(scope.row)" v-if="!trashEnable">{{$t('commons.edit')}}</el-button>
             <el-button type="text" @click="handleDelete(scope.row)" style="color: #F56C6C">{{$t('commons.delete')}}</el-button>
           </template>
         </el-table-column>
 
       </el-table>
-      <ms-table-pagination :change="initApiTable" :current-page.sync="currentPage" :page-size.sync="pageSize"
+      <ms-table-pagination :change="initTable" :current-page.sync="currentPage" :page-size.sync="pageSize"
                            :total="total"/>
     </api-list-container>
 
-    <api-case-list @refresh="initApiTable" @showExecResult="showExecResult" :currentApi="selectApi" ref="caseList"/>
+    <api-case-list @refresh="initTable" :currentApi="selectCase" ref="caseList"/>
     <!--批量编辑-->
     <ms-batch-edit ref="batchEdit" @batchEdit="batchEdit" :typeArr="typeArr" :value-arr="valueArr"/>
   </div>
@@ -79,11 +86,12 @@
   import MsBottomContainer from "../BottomContainer";
   import ShowMoreBtn from "../../../../track/case/components/ShowMoreBtn";
   import MsBatchEdit from "../basis/BatchEdit";
-  import {API_METHOD_COLOUR, REQ_METHOD, API_STATUS} from "../../model/JsonData";
+  import {API_METHOD_COLOUR, REQ_METHOD, API_STATUS, CASE_PRIORITY} from "../../model/JsonData";
   import {getCurrentProjectID} from "@/common/js/utils";
   import ApiListContainer from "./ApiListContainer";
   import PriorityTableItem from "../../../../track/common/tableItems/planview/PriorityTableItem";
   import ApiCaseList from "../case/ApiCaseList";
+  import {_filter, _sort} from "../../../../../../common/js/utils";
 
   export default {
     name: "ApiCaseSimpleList",
@@ -106,7 +114,7 @@
     data() {
       return {
         condition: {},
-        selectApi: {},
+        selectCase: {},
         result: {},
         moduleId: "",
         deletePath: "/test/case/delete",
@@ -116,14 +124,16 @@
           {name: this.$t('api_test.definition.request.batch_edit'), handleClick: this.handleEditBatch}
         ],
         typeArr: [
-          {id: 'status', name: this.$t('api_test.definition.api_case_status')},
-          {id: 'method', name: this.$t('api_test.definition.api_type')},
-          {id: 'userId', name: this.$t('api_test.definition.api_principal')},
+          {id: 'priority', name: this.$t('test_track.case.priority')},
+        ],
+        priorityFilters: [
+          {text: 'P0', value: 'P0'},
+          {text: 'P1', value: 'P1'},
+          {text: 'P2', value: 'P2'},
+          {text: 'P3', value: 'P3'}
         ],
         valueArr: {
-          status: API_STATUS,
-          method: REQ_METHOD,
-          userId: [],
+          priority: CASE_PRIORITY,
         },
         methodColorMap: new Map(API_METHOD_COLOUR),
         tableData: [],
@@ -144,34 +154,37 @@
       trashEnable: {
         type: Boolean,
         default: false,
-      }
+      },
+      isApiListEnable: Boolean
     },
     created: function () {
       this.projectId = getCurrentProjectID();
-      this.initApiTable();
-      this.getMaintainerOptions();
+      this.initTable();
     },
     watch: {
       selectNodeIds() {
-        this.initApiTable();
+        this.initTable();
       },
       currentProtocol() {
-        this.initApiTable();
+        this.initTable();
       },
       trashEnable() {
         if (this.trashEnable) {
-          this.initApiTable();
+          this.initTable();
         }
       },
     },
     methods: {
-      initApiTable() {
+      isApiListEnableChange(data) {
+        this.$emit('isApiListEnableChange', data);
+      },
+      initTable() {
         this.selectRows = new Set();
-        this.condition.filters = ["Prepare", "Underway", "Completed"];
-
+        // this.condition.filters = ["Prepare", "Underway", "Completed"];
+        this.condition.status = "";
         this.condition.moduleIds = this.selectNodeIds;
         if (this.trashEnable) {
-          this.condition.filters = ["Trash"];
+          this.condition.status = "Trash";
           this.condition.moduleIds = [];
         }
         if (this.projectId != null) {
@@ -210,6 +223,18 @@
           })
         }
       },
+      filter(filters) {
+        _filter(filters, this.condition);
+        this.initTable();
+      },
+      sort(column) {
+        // 每次只对一个字段排序
+        if (this.condition.orders) {
+          this.condition.orders = [];
+        }
+        _sort(column, this.condition);
+        this.initTable();
+      },
       handleSelectAll(selection) {
         if (selection.length > 0) {
           if (selection.length === 1) {
@@ -230,81 +255,66 @@
         }
       },
       search() {
-        this.initApiTable();
+        this.initTable();
       },
       buildPagePath(path) {
         return path + "/" + this.currentPage + "/" + this.pageSize;
       },
 
-      // handleTestCase(api) {
-      //   this.selectApi = api;
-      //   let request = {};
-      //   if (Object.prototype.toString.call(api.request).match(/\[object (\w+)\]/)[1].toLowerCase() === 'object') {
-      //     request = api.request;
-      //   } else {
-      //     request = JSON.parse(api.request);
-      //   }
-      //   if (!request.hashTree) {
-      //     request.hashTree = [];
-      //   }
-      //   this.selectApi.url = request.path;
-      //   this.$refs.caseList.open(this.selectApi);
-      // },
-      editCase(row) {
-        // this.$emit('editCase', row);
-        this.$get('/api/definition/' + row.api_definition_id, (response) => {
-
-        })
-          // this.selectApi = api;
-          // let request = {};
-          // if (Object.prototype.toString.call(api.request).match(/\[object (\w+)\]/)[1].toLowerCase() === 'object') {
-          //   request = api.request;
-          // } else {
-          //   request = JSON.parse(api.request);
-          // }
-          // if (!request.hashTree) {
-          //   request.hashTree = [];
-          // }
-          // this.selectApi.url = request.path;
-          // this.$refs.caseList.open(this.selectApi);
+      handleTestCase(testCase) {
+        this.$get('/api/definition/get/' + testCase.apiDefinitionId, (response) => {
+          let api = response.data;
+          let selectApi = api;
+          let request = {};
+          if (Object.prototype.toString.call(api.request).match(/\[object (\w+)\]/)[1].toLowerCase() === 'object') {
+            request = api.request;
+          } else {
+            request = JSON.parse(api.request);
+          }
+          if (!request.hashTree) {
+            request.hashTree = [];
+          }
+          selectApi.url = request.path;
+          this.$refs.caseList.open(selectApi, testCase.id);
+        });
       },
       reductionApi(row) {
         let ids = [row.id];
-        this.$post('/api/definition/reduction/', ids, () => {
+        this.$post('/api/testcase/reduction/', ids, () => {
           this.$success(this.$t('commons.save_success'));
           this.search();
         });
       },
       handleDeleteBatch() {
-        if (this.trashEnable) {
+        // if (this.trashEnable) {
           this.$alert(this.$t('api_test.definition.request.delete_confirm') + "？", '', {
             confirmButtonText: this.$t('commons.confirm'),
             callback: (action) => {
               if (action === 'confirm') {
                 let ids = Array.from(this.selectRows).map(row => row.id);
-                this.$post('/api/definition/deleteBatch/', ids, () => {
+                this.$post('/api/testcase/deleteBatch/', ids, () => {
                   this.selectRows.clear();
-                  this.initApiTable();
+                  this.initTable();
                   this.$success(this.$t('commons.delete_success'));
                 });
               }
             }
           });
-        } else {
-          this.$alert(this.$t('api_test.definition.request.delete_confirm') + "？", '', {
-            confirmButtonText: this.$t('commons.confirm'),
-            callback: (action) => {
-              if (action === 'confirm') {
-                let ids = Array.from(this.selectRows).map(row => row.id);
-                this.$post('/api/definition/removeToGc/', ids, () => {
-                  this.selectRows.clear();
-                  this.initApiTable();
-                  this.$success(this.$t('commons.delete_success'));
-                });
-              }
-            }
-          });
-        }
+        // } else {
+        //   this.$alert(this.$t('api_test.definition.request.delete_confirm') + "？", '', {
+        //     confirmButtonText: this.$t('commons.confirm'),
+        //     callback: (action) => {
+        //       if (action === 'confirm') {
+        //         let ids = Array.from(this.selectRows).map(row => row.id);
+        //         this.$post('/api/testcase/removeToGc/', ids, () => {
+        //           this.selectRows.clear();
+        //           this.initTable();
+        //           this.$success(this.$t('commons.delete_success'));
+        //         });
+        //       }
+        //     }
+        //   });
+        // }
       },
       handleEditBatch() {
         this.$refs.batchEdit.open();
@@ -315,39 +325,31 @@
         let param = {};
         param[form.type] = form.value;
         param.ids = ids;
-        this.$post('/api/definition/batch/edit', param, () => {
+        this.$post('/api/testcase/batch/edit', param, () => {
           this.$success(this.$t('commons.save_success'));
-          this.initApiTable();
+          this.initTable();
         });
       },
-      handleDelete(api) {
-        if (this.trashEnable) {
-          this.$get('/api/definition/delete/' + api.id, () => {
+      handleDelete(apiCase) {
+        // if (this.trashEnable) {
+          this.$get('/api/testcase/delete/' + apiCase.id, () => {
             this.$success(this.$t('commons.delete_success'));
-            this.initApiTable();
+            this.initTable();
           });
           return;
-        }
-        this.$alert(this.$t('api_test.definition.request.delete_confirm') + ' ' + api.name + " ？", '', {
-          confirmButtonText: this.$t('commons.confirm'),
-          callback: (action) => {
-            if (action === 'confirm') {
-              let ids = [api.id];
-              this.$post('/api/definition/removeToGc/', ids, () => {
-                this.$success(this.$t('commons.delete_success'));
-                this.initApiTable();
-              });
-            }
-          }
-        });
-      },
-      getColor(enable, method) {
-        if (enable) {
-          return this.methodColorMap.get(method);
-        }
-      },
-      showExecResult(row) {
-        this.$emit('showExecResult', row);
+        // }
+        // this.$alert(this.$t('api_test.definition.request.delete_confirm') + ' ' + apiCase.name + " ？", '', {
+        //   confirmButtonText: this.$t('commons.confirm'),
+        //   callback: (action) => {
+        //     if (action === 'confirm') {
+        //       let ids = [apiCase.id];
+        //       this.$post('/api/testcase/removeToGc/', ids, () => {
+        //         this.$success(this.$t('commons.delete_success'));
+        //         this.initTable();
+        //       });
+        //     }
+        //   }
+        // });
       }
     },
   }

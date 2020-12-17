@@ -208,18 +208,53 @@
         </if>
     </select>
 
-    <select id="listSimple" resultType="io.metersphere.base.domain.ApiTestCase">
+    <select id="listSimple" resultType="io.metersphere.api.dto.definition.ApiTestCaseDTO">
         select
-        c.id, c.project_id, c.name, c.api_definition_id, c.priority, c.description, c.create_user_id, c.update_user_id, c.create_time, c.update_time,
-        a.moudule_id as moudule_id,
-        from api_test_case c
-        left join api_definition a
-        on c.api_definition_id = a.id
-        where c.project_id = #{request.projectId}
+          c.id, c.project_id, c.name, c.api_definition_id, c.priority, c.description, c.create_user_id, c.update_user_id, c.create_time, c.update_time,
+          a.module_id, a.path, a.protocol
+        from
+          api_test_case c
+        inner join
+          api_definition a
+        on
+          c.api_definition_id = a.id
+            <choose>
+                <when test="request.status == 'Trash'">
+                    and a.status = 'Trash'
+                </when>
+                <otherwise>
+                    and a.status != 'Trash'
+                </otherwise>
+            </choose>
+        where
+          c.project_id = #{request.projectId}
+        <if test="request.name != null and request.name!=''">
+            and c.name like CONCAT('%', #{request.name},'%')
+        </if>
         <if test="request.moduleIds != null and request.moduleIds.size() > 0">
-            AND a.module_id in
+            and a.module_id in
             <foreach collection="request.moduleIds" item="nodeId" separator="," open="(" close=")">
                 #{nodeId}
+            </foreach>
+        </if>
+        <if test="request.filters != null and request.filters.size() > 0">
+            <foreach collection="request.filters.entrySet()" index="key" item="values">
+                <if test="values != null and values.size() > 0">
+                    <choose>
+                        <when test="key == 'priority'">
+                            and c.priority in
+                            <foreach collection="values" item="value" separator="," open="(" close=")">
+                                #{value}
+                            </foreach>
+                        </when>
+                    </choose>
+                </if>
+            </foreach>
+        </if>
+        <if test="request.orders != null and request.orders.size() > 0">
+            order by
+            <foreach collection="request.orders" separator="," item="order">
+                ${order.name} ${order.type}
             </foreach>
         </if>
     </select>

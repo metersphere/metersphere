@@ -30,6 +30,13 @@ export const REQ_METHOD = [
   {id: 'POST', label: 'POST'}
 ]
 
+export const CASE_PRIORITY = [
+  {id: 'P0', label: 'P0'},
+  {id: 'P1', label: 'P1'},
+  {id: 'P2', label: 'P2'},
+  {id: 'P3', label: 'P3'}
+]
+
 export const API_STATUS = [
   {id: 'Prepare', label: '未开始'},
   {id: 'Underway', label: '进行中'},
