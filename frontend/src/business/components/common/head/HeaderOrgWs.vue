@@ -108,6 +108,7 @@ import {
           if (response.data.workspaceId) {
             localStorage.setItem("workspace_id", response.data.workspaceId);
           }
+          localStorage.removeItem(PROJECT_ID);
           this.$router.push('/').then(() => {
             window.location.reload();
           }).catch(err => err);
@@ -121,6 +122,7 @@ import {
         this.$post("/user/switch/source/ws/" + workspaceId, {}, response => {
           saveLocalStorage(response);
           localStorage.setItem("workspace_id", workspaceId);
+          localStorage.removeItem(PROJECT_ID);
           this.$router.push('/').then(() => {
             window.location.reload();
           }).catch(err => err);
