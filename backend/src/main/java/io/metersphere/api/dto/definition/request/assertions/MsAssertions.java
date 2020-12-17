@@ -67,6 +67,7 @@ public class MsAssertions extends MsTestElement {
         assertion.setProperty(TestElement.TEST_CLASS, ResponseAssertion.class.getName());
         assertion.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("AssertionGui"));
         assertion.setAssumeSuccess(assertionRegex.isAssumeSuccess());
+        assertion.addTestString(assertionRegex.getExpression());
         assertion.setToContainsType();
         switch (assertionRegex.getSubject()) {
             case "Response Code":
