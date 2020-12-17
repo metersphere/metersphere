@@ -791,6 +791,64 @@ export default {
       swagger_export_tip: "Export jSON-formatted files via Swagger website",
       suffixFormatErr: "The file format does not meet the requirements",
       swagger_url_import: "Import using URL",
+    },
+    home_page:{
+      unit_of_measurement:"",
+      api_count_card:{
+        title: "API count",
+      },
+      test_case_count_card:{
+        title: "Test case count",
+      },
+      test_scene_count_card:{
+        title: "Scene count",
+      },
+      schedule_task_count_card:{
+        title: "Schedule task count",
+      },
+      api_details_card:{
+        title: "API",
+        this_week_add:"Added {0} this week",
+      },
+      test_case_details_card:{
+        title: "Test case",
+        this_week_add:"Added {0} this week",
+        this_week_execute:"Executed {0} this week",
+        executed:"Executed {0} in history",
+      },
+      test_scene_details_card:{
+        title: "Scene",
+        this_week_add:"Added {0} this week",
+        this_week_execute:"Executed {0} this week",
+        executed:"Executed {0} in history",
+      },
+      schedule_task_details_card:{
+        title: "Schedule task",
+        this_week_add:"Added {0} this week",
+        this_week_execute:"Executed {0} this week",
+        executed:"Executed {0} in history",
+      },
+      failed_case_list:{
+        title: "Top 10 failure process set cases in the past 7 days",
+        table_coloum:{
+          index: "Ranking",
+          case_name: "Case name",
+          test_plan: "Test plan",
+          failure_times: "Failure times",
+        },
+      },
+      running_task_list:{
+        title: "Running task",
+        table_coloum:{
+          index: "Index",
+          scenario: "Scene",
+          run_rule: "Rule",
+          task_status: "Status",
+          next_execution_time: "Next Execution Time",
+          create_user: "Creator",
+          update_time: "Update time",
+        },
+      }
     }
   },
   api_report: {

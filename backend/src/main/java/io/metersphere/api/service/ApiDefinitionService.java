@@ -6,6 +6,7 @@ import io.metersphere.api.dto.APIReportResult;
 import io.metersphere.api.dto.ApiTestImportRequest;
 import io.metersphere.api.dto.automation.ApiScenarioRequest;
 import io.metersphere.api.dto.automation.ReferenceDTO;
+import io.metersphere.api.dto.dataCount.ApiDataCountResult;
 import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.dto.definition.parse.ApiDefinitionImport;
 import io.metersphere.api.dto.scenario.request.RequestType;
@@ -23,10 +24,7 @@ import io.metersphere.base.mapper.ext.ExtTestPlanMapper;
 import io.metersphere.commons.constants.APITestStatus;
 import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.exception.MSException;
-import io.metersphere.commons.utils.BeanUtils;
-import io.metersphere.commons.utils.LogUtil;
-import io.metersphere.commons.utils.ServiceUtils;
-import io.metersphere.commons.utils.SessionUtils;
+import io.metersphere.commons.utils.*;
 import io.metersphere.i18n.Translator;
 import io.metersphere.service.FileService;
 import io.metersphere.track.request.testcase.QueryTestPlanRequest;
@@ -43,10 +41,7 @@ import sun.security.util.Cache;
 
 import javax.annotation.Resource;
 import java.io.*;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -388,4 +383,30 @@ public class ApiDefinitionService {
         apiDefinitionMapper.updateByExampleSelective(definitionWithBLOBs, definitionExample);
     }
 
+    /**
+     * 数据统计-接口类型
+     * @param projectId 项目ID
+     * @return
+     */
+    public List<ApiDataCountResult> countProtocolByProjectID(String projectId) {
+        return apiDefinitionMapper.countProtocolByProjectID(projectId);
+    }
+
+    /**
+     * 统计本周创建的数据总量
+     * @param projectId
+     * @return
+     */
+    public long countByProjectIDAndCreateInThisWeek(String projectId) {
+        Map<String, Date> startAndEndDateInWeek = DateUtils.getWeedFirstTimeAndLastTime(new Date());
+
+        Date firstTime = startAndEndDateInWeek.get("firstTime");
+        Date lastTime = startAndEndDateInWeek.get("lastTime");
+
+        if(firstTime==null || lastTime == null){
+            return  0;
+        }else {
+            return apiDefinitionMapper.countByProjectIDAndCreateInThisWeek(projectId,firstTime.getTime(),lastTime.getTime());
+        }
+    }
 }

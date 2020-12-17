@@ -11,7 +11,8 @@ export default {
     {
       path: 'home',
       name: 'fucHome',
-      component: () => import('@/business/components/api/home/ApiTestHome'),
+      // component: () => import('@/business/components/api/home/ApiTestHome'),
+      component: () => import('@/business/components/api/homepage/ApiTestHomePage'),
     },
     {
       path: "test/:type",
@@ -53,7 +54,7 @@ export default {
       path: "automation/report",
       name: "ApiReportList",
       component: () => import('@/business/components/api/automation/report/ApiReportList'),
-    },    
+    },
     {
       path: 'monitor/view',
       name: 'ApiMonitor',
