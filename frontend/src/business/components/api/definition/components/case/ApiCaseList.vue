@@ -21,7 +21,7 @@
         <el-main v-loading="batchLoading" style="overflow: auto">
           <div v-for="(item,index) in apiCaseList" :key="index">
             <api-case-item v-loading="singleLoading && singleRunId === item.id"
-                           @refresh="getApiTest"
+                           @refresh="refresh"
                            @singleRun="singleRun"
                            @copyCase="copyCase"
                            @showExecResult="showExecResult"
@@ -150,6 +150,11 @@
         this.$emit('refresh');
       },
 
+      refresh(data) {
+        this.getApiTest();
+        this.$emit('refresh');
+      },
+
       getApiTest() {
         if (this.api) {
           this.condition.projectId = this.projectId;
@@ -238,9 +243,6 @@
         } else {
           this.$warning("没有可执行的用例！");
         }
-      },
-      refresh() {
-        this.getApiTest();
       }
     }
   }

@@ -25,6 +25,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+
 import java.nio.charset.StandardCharsets;
 import java.text.SimpleDateFormat;
 import java.time.Instant;
@@ -131,7 +132,7 @@ public class APIReportService {
                     String startTime = jsonRequestResults.getJSONObject(j).getString("startTime");
                     String name = jsonRequestResults.getJSONObject(j).getString("name");
                     String url = jsonRequestResults.getJSONObject(j).getString("url");
-                    if (StringUtils.isBlank(url)){
+                    if (StringUtils.isBlank(url)) {
                         //如果非http请求不入库
                         continue;
                     }
@@ -139,7 +140,7 @@ public class APIReportService {
                     apiDataView.setId(UUID.randomUUID().toString());
                     apiDataView.setReportId(reportId);
                     apiDataView.setApiName(name);
-                    apiDataView.setUrl(StringUtils.substringBefore(url,"?"));
+                    apiDataView.setUrl(StringUtils.substringBefore(url, "?"));
                     apiDataView.setResponseTime(responseTime);
                     apiDataView.setStartTime(sdf.format(new Date(Long.parseLong(startTime))));
                     apiDataView.setResponseCode(responseCode);
@@ -149,8 +150,9 @@ public class APIReportService {
         } catch (Exception e) {
             LogUtil.error(e);
         }
-        apiDataViewMapper.insertListApiData(listApiDataView);
-
+        if (listApiDataView.size() > 0) {
+            apiDataViewMapper.insertListApiData(listApiDataView);
+        }
     }
 
     public String create(ApiTest test, String triggerMode) {
