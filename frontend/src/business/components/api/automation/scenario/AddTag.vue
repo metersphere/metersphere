@@ -38,12 +38,13 @@
 
 <script>
   import {WORKSPACE_ID} from '@/common/js/constants';
-  import {getCurrentUser, getUUID,getCurrentProjectID} from "@/common/js/utils";
+  import {getCurrentUser, getUUID, getCurrentProjectID} from "@/common/js/utils";
   import MsDialogFooter from "@/business/components/common/components/MsDialogFooter";
   import MsTablePagination from "../../../common/pagination/TablePagination";
+
   export default {
     name: "MsAddTag",
-    components: {MsDialogFooter,MsTablePagination},
+    components: {MsDialogFooter, MsTablePagination},
     props: {},
     data() {
       return {
@@ -84,6 +85,7 @@
             this.result = this.$post(this.path, this.tagForm, () => {
               this.$success(this.$t('commons.save_success'));
               this.initTable();
+              this.tagForm = {};
             });
           } else {
             return false;
