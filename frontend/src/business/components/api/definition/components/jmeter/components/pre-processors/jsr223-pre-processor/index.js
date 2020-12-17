@@ -19,6 +19,7 @@ export default class JSR223PreProcessor extends PostProcessor {
     this.parameters = [];
     this.filename = undefined;
     this.cacheKey = undefined;
+    this.enable = true;
     this.script = undefined;
   }
 }
