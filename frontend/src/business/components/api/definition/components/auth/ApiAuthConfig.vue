@@ -26,7 +26,7 @@
 
         <el-form-item :label="$t('commons.password')" prop="password" v-if=" authConfig.verification!=undefined && authConfig.verification !='No Auth'">
           <el-input v-model="authConfig.password" :placeholder="$t('commons.password')" show-password autocomplete="off"
-                    maxlength="20" show-word-limit/>
+                    maxlength="50" show-word-limit/>
         </el-form-item>
 
       </el-form>
