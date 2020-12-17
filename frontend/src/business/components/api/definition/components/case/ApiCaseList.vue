@@ -21,12 +21,13 @@
         <el-main v-loading="batchLoading" style="overflow: auto">
           <div v-for="(item,index) in apiCaseList" :key="index">
             <api-case-item v-loading="singleLoading && singleRunId === item.id"
-              @refresh="getApiTest"
-              @singleRun="singleRun"
-              @showExecResult="showExecResult"
-              :is-case-edit="isCaseEdit"
-              :api="api"
-              :api-case="item" :index="index"/>
+                           @refresh="getApiTest"
+                           @singleRun="singleRun"
+                           @copyCase="copyCase"
+                           @showExecResult="showExecResult"
+                           :is-case-edit="isCaseEdit"
+                           :api="api"
+                           :api-case="item" :index="index"/>
           </div>
         </el-main>
       </el-container>
@@ -185,6 +186,10 @@
           obj.request = request;
           this.apiCaseList.unshift(obj);
         }
+      },
+
+      copyCase(data) {
+        this.apiCaseList.unshift(data);
       },
 
       handleClose() {

@@ -149,7 +149,7 @@
         },
         copyCase(data) {
           let obj = {name: "copy_" + data.name, priority: data.priority, active: false, request: data.request};
-          this.apiCaseList.unshift(obj);
+          this.$emit('copyCase', obj);
         },
 
         selectTestCase(item, $event) {
