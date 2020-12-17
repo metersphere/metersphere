@@ -80,6 +80,18 @@
       if (!this.request.hashTree) {
         this.request.hashTree = [];
       }
+      // 处理导入数据缺失问题
+      if (this.response.body) {
+        let body = new Body();
+        Object.assign(body, this.response.body);
+        if (!body.binary) {
+          body.binary = [];
+        }
+        if (!body.kvs) {
+          body.kvs = [];
+        }
+        this.response.body = body;
+      }
     },
     methods: {
       runTest(data) {
