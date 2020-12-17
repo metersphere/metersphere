@@ -11,8 +11,12 @@ export default {
     {
       path: 'home',
       name: 'fucHome',
-      // component: () => import('@/business/components/api/home/ApiTestHome'),
       component: () => import('@/business/components/api/homepage/ApiTestHomePage'),
+    },
+    {
+      path: 'home_obsolete',
+      name: 'fucHome',
+      component: () => import('@/business/components/api/home/ApiTestHome'),
     },
     {
       path: "test/:type",
