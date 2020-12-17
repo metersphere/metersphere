@@ -29,6 +29,7 @@ public class ApiDefinitionExecResultService {
             extApiDefinitionExecResultMapper.deleteByResourceId(item.getName());
             ApiDefinitionExecResult saveResult = new ApiDefinitionExecResult();
             saveResult.setId(UUID.randomUUID().toString());
+            saveResult.setCreateTime(System.currentTimeMillis());
             saveResult.setUserId(Objects.requireNonNull(SessionUtils.getUser()).getId());
             saveResult.setName(item.getName());
             saveResult.setResourceId(item.getName());

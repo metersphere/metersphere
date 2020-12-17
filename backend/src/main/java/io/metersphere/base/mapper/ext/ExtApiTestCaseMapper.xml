@@ -161,7 +161,8 @@
             atc.create_time,
             atc.update_user_id,
             atc.update_time,
-            ader.status execResult
+            ader.status execResult,
+            ader.create_time execTime
         from
           api_test_case atc
         left join user u1 on
@@ -170,18 +171,11 @@
           atc.update_user_id = u2.id
         left join (
             select
-              a.status, a.id, a.resource_id
+              max(create_time) create_time ,status ,id, resource_id
             from
-              api_definition_exec_result a
-            left join (
-                select
-                  max(start_time) start_time , id, resource_id
-                from
-                  api_definition_exec_result
-                group by
-                  resource_id ) as b on a.id = b.id
-                where
-                  a.start_time = b.start_time) as ader
+              api_definition_exec_result
+            group by
+              resource_id) as ader
         on atc.id = ader.resource_id
         <where>
             <if test="request.name != null and request.name!=''">
