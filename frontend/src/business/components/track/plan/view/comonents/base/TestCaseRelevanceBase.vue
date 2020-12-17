@@ -11,9 +11,9 @@
         <el-aside class="tree-aside" width="250px">
           <select-menu
             :data="projects"
-            width="185px"
+            width="160px"
             :current-data="currentProject"
-            :title="$t('test_track.plan_view.plan')"
+            :title="$t('test_track.switch_project')"
             @dataChange="changeProject"/>
           <slot name="aside"></slot>
         </el-aside>
@@ -77,11 +77,6 @@
 
       save() {
         this.$emit('save');
-      },
-
-      refresh() {
-        // this.close();
-
       },
 
       close() {
