@@ -138,7 +138,7 @@
           {name: this.$t('api_test.definition.request.batch_edit'), handleClick: this.handleEditBatch}
         ],
         typeArr: [
-          {id: 'status', name: this.$t('api_test.definition.api_case_status')},
+          {id: 'status', name: this.$t('api_test.definition.api_status')},
           {id: 'method', name: this.$t('api_test.definition.api_type')},
           {id: 'userId', name: this.$t('api_test.definition.api_principal')},
         ],

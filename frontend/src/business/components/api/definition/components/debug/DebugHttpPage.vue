@@ -68,7 +68,7 @@
           method: [{required: true, message: this.$t('test_track.case.input_maintainer'), trigger: 'change'}],
           url: [{required: true, message: this.$t('api_test.definition.request.path_all_info'), trigger: 'blur'}],
         },
-        debugForm: {method: REQ_METHOD[0].id},
+        debugForm: {method: REQ_METHOD[0].id, environmentId: ""},
         options: [],
         responseData: {type: 'HTTP', responseResult: {}, subRequestResults: []},
         loading: false,
