@@ -23,6 +23,7 @@
             <api-case-item v-loading="singleLoading && singleRunId === item.id"
               @refresh="getApiTest"
               @singleRun="singleRun"
+              @showExecResult="showExecResult"
               :is-case-edit="isCaseEdit"
               :api="api"
               :api-case="item" :index="index"/>
