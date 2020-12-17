@@ -66,6 +66,10 @@ public class UserService {
         return extUserMapper.queryTypeByIds(userIds);
     }
 
+    public Map<String, User> queryNameByIds(List<String> userIds) {
+        return extUserMapper.queryNameByIds(userIds);
+    }
+
   /*  public List<String> queryEmailByIds(List<String> userIds) {
         return extUserMapper.queryTypeByIds(userIds);
     }*/

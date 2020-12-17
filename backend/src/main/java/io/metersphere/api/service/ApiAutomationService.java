@@ -22,6 +22,7 @@ import io.metersphere.commons.constants.APITestStatus;
 import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.constants.ReportTriggerMode;
 import io.metersphere.commons.exception.MSException;
+import io.metersphere.commons.utils.DateUtils;
 import io.metersphere.commons.utils.ServiceUtils;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.i18n.Translator;
@@ -355,4 +356,20 @@ public class ApiAutomationService {
         return "success";
     }
 
+    public long countScenarioByProjectID(String projectId) {
+        return apiScenarioMapper.countByProjectID(projectId);
+    }
+
+    public long countScenarioByProjectIDAndCreatInThisWeek(String projectId) {
+        Map<String, Date> startAndEndDateInWeek = DateUtils.getWeedFirstTimeAndLastTime(new Date());
+
+        Date firstTime = startAndEndDateInWeek.get("firstTime");
+        Date lastTime = startAndEndDateInWeek.get("lastTime");
+
+        if(firstTime==null || lastTime == null){
+            return  0;
+        }else {
+            return apiScenarioMapper.countByProjectIDAndCreatInThisWeek(projectId,firstTime.getTime(),lastTime.getTime());
+        }
+    }
 }

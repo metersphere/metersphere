@@ -4,7 +4,7 @@
     <ms-node-tree
       v-loading="result.loading"
       :tree-nodes="data"
-      :type="'edit'"
+      :type="isReadOnly ? 'view' : 'edit'"
       @add="add"
       @edit="edit"
       @drag="drag"
@@ -16,6 +16,7 @@
        <api-module-header
          :condition="condition"
          :current-module="currentModule"
+         :is-read-only="isReadOnly"
          @exportAPI="exportAPI"
          @saveAsEdit="saveAsEdit"
          @refresh="refresh"
@@ -58,6 +59,14 @@
         projectId: "",
         data: [],
         currentModule: {},
+      }
+    },
+    props: {
+      isReadOnly: {
+        type: Boolean,
+        default() {
+          return false
+        }
       }
     },
     mounted() {

@@ -62,4 +62,14 @@
         select id, name, email, last_organization_id, last_workspace_id from `user` where id like CONCAT('%', #{condition},'%') or email like CONCAT('%', #{condition},'%') limit 100;
     </select>
 
+    <select id="queryNameByIds" resultType="io.metersphere.base.domain.User">
+        select id, name
+        from `user`
+        WHERE id IN
+        <foreach collection="list" item="id" index="index"
+                 open="(" close=")" separator=",">
+            #{id}
+        </foreach>
+    </select>
+
 </mapper>

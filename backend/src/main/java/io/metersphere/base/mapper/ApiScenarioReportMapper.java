@@ -4,6 +4,7 @@ import io.metersphere.base.domain.ApiScenarioReport;
 import io.metersphere.base.domain.ApiScenarioReportExample;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
 
 public interface ApiScenarioReportMapper {
     long countByExample(ApiScenarioReportExample example);
@@ -27,4 +28,14 @@ public interface ApiScenarioReportMapper {
     int updateByPrimaryKeySelective(ApiScenarioReport record);
 
     int updateByPrimaryKey(ApiScenarioReport record);
+
+    @Select("SELECT count(id) AS countNumber FROM api_scenario_report WHERE project_id = #{0} ")
+    long countByProjectID(String projectId);
+
+    @Select({
+            "SELECT count(id) AS countNumber FROM api_scenario_report ",
+            "WHERE project_id = #{projectId} ",
+            "AND create_time BETWEEN #{firstDayTimestamp} AND #{lastDayTimestamp} "
+    })
+    long countByProjectIDAndCreateInThisWeek(@Param("projectId") String projectId, @Param("firstDayTimestamp") long firstDayTimestamp, @Param("lastDayTimestamp") long lastDayTimestamp);
 }

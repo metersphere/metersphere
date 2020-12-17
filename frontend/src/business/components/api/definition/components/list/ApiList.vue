@@ -1,6 +1,8 @@
 <template>
   <div>
-    <api-list-container>
+    <api-list-container
+      :is-api-list-enable="isApiListEnable"
+      @isApiListEnableChange="isApiListEnableChange">
       <el-input placeholder="搜索" @blur="search" class="search-input" size="small" v-model="condition.name"/>
 
       <el-table v-loading="result.loading"
@@ -80,10 +82,10 @@
           </template>
         </el-table-column>
       </el-table>
-      <ms-table-pagination :change="initApiTable" :current-page.sync="currentPage" :page-size.sync="pageSize"
+      <ms-table-pagination :change="initTable" :current-page.sync="currentPage" :page-size.sync="pageSize"
                            :total="total"/>
     </api-list-container>
-    <ms-api-case-list @refresh="initApiTable" @showExecResult="showExecResult" :currentApi="selectApi" ref="caseList"/>
+    <ms-api-case-list @refresh="initTable" @showExecResult="showExecResult" :currentApi="selectApi" ref="caseList"/>
     <!--批量编辑-->
     <ms-batch-edit ref="batchEdit" @batchEdit="batchEdit" :typeArr="typeArr" :value-arr="valueArr"/>
   </div>
@@ -166,28 +168,32 @@
       trashEnable: {
         type: Boolean,
         default: false,
-      }
+      },
+      isApiListEnable: Boolean
     },
     created: function () {
       this.projectId = getCurrentProjectID();
-      this.initApiTable();
+      this.initTable();
       this.getMaintainerOptions();
     },
     watch: {
       selectNodeIds() {
-        this.initApiTable();
+        this.initTable();
       },
       currentProtocol() {
-        this.initApiTable();
+        this.initTable();
       },
       trashEnable() {
         if (this.trashEnable) {
-          this.initApiTable();
+          this.initTable();
         }
       },
     },
     methods: {
-      initApiTable() {
+      isApiListEnableChange(data) {
+        this.$emit('isApiListEnableChange', data);
+      },
+      initTable() {
         this.selectRows = new Set();
         this.condition.filters = ["Prepare", "Underway", "Completed"];
 
@@ -252,7 +258,7 @@
         }
       },
       search() {
-        this.initApiTable();
+        this.initTable();
       },
       buildPagePath(path) {
         return path + "/" + this.currentPage + "/" + this.pageSize;
@@ -277,7 +283,7 @@
                 let ids = Array.from(this.selectRows).map(row => row.id);
                 this.$post('/api/definition/deleteBatch/', ids, () => {
                   this.selectRows.clear();
-                  this.initApiTable();
+                  this.initTable();
                   this.$success(this.$t('commons.delete_success'));
                 });
               }
@@ -291,7 +297,7 @@
                 let ids = Array.from(this.selectRows).map(row => row.id);
                 this.$post('/api/definition/removeToGc/', ids, () => {
                   this.selectRows.clear();
-                  this.initApiTable();
+                  this.initTable();
                   this.$success(this.$t('commons.delete_success'));
                 });
               }
@@ -310,7 +316,7 @@
         param.ids = ids;
         this.$post('/api/definition/batch/edit', param, () => {
           this.$success(this.$t('commons.save_success'));
-          this.initApiTable();
+          this.initTable();
         });
       },
       handleTestCase(api) {
@@ -331,7 +337,7 @@
         if (this.trashEnable) {
           this.$get('/api/definition/delete/' + api.id, () => {
             this.$success(this.$t('commons.delete_success'));
-            this.initApiTable();
+            this.initTable();
           });
           return;
         }
@@ -342,7 +348,7 @@
               let ids = [api.id];
               this.$post('/api/definition/removeToGc/', ids, () => {
                 this.$success(this.$t('commons.delete_success'));
-                this.initApiTable();
+                this.initTable();
               });
             }
           }
