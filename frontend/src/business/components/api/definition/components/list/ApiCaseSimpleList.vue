@@ -65,7 +65,7 @@
                            :total="total"/>
     </api-list-container>
 
-    <api-case-list @refresh="initTable" :currentApi="selectCase" ref="caseList"/>
+    <api-case-list @showExecResult="showExecResult" @refresh="initTable" :currentApi="selectCase" ref="caseList"/>
     <!--批量编辑-->
     <ms-batch-edit ref="batchEdit" @batchEdit="batchEdit" :typeArr="typeArr" :value-arr="valueArr"/>
   </div>
@@ -86,7 +86,7 @@
   import MsBottomContainer from "../BottomContainer";
   import ShowMoreBtn from "../../../../track/case/components/ShowMoreBtn";
   import MsBatchEdit from "../basis/BatchEdit";
-  import {API_METHOD_COLOUR, REQ_METHOD, API_STATUS, CASE_PRIORITY} from "../../model/JsonData";
+  import {API_METHOD_COLOUR, CASE_PRIORITY} from "../../model/JsonData";
   import {getCurrentProjectID} from "@/common/js/utils";
   import ApiListContainer from "./ApiListContainer";
   import PriorityTableItem from "../../../../track/common/tableItems/planview/PriorityTableItem";
@@ -222,6 +222,10 @@
             this.$set(row, "showMore", true);
           })
         }
+      },
+      showExecResult(row) {
+        this.visible = false;
+        this.$emit('showExecResult', row);
       },
       filter(filters) {
         _filter(filters, this.condition);

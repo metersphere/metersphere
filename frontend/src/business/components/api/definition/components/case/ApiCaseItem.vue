@@ -211,6 +211,9 @@
             return true;
           }
         },
+        showExecResult(data) {
+          this.$emit('showExecResult', data);
+        },
         getBodyUploadFiles(row) {
           let bodyUploadFiles = [];
           row.bodyUploadIds = [];
