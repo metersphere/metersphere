@@ -59,8 +59,8 @@ public class ApiAutomationController {
     }
 
     @PostMapping("/reduction")
-    public void reduction(@RequestBody List<String> ids) {
-        apiAutomationService.reduction(ids);
+    public void reduction(@RequestBody List<SaveApiScenarioRequest> requests) {
+        apiAutomationService.reduction(requests);
     }
 
     @GetMapping("/getApiScenario/{id}")

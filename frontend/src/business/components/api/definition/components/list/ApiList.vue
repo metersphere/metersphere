@@ -6,10 +6,10 @@
       <el-input placeholder="搜索" @blur="search" class="search-input" size="small" v-model="condition.name"/>
 
       <el-table v-loading="result.loading"
-        border
-        :data="tableData" row-key="id" class="test-content adjust-table"
-        @select-all="handleSelectAll"
-        @select="handleSelect" :height="screenHeight">
+                border
+                :data="tableData" row-key="id" class="test-content adjust-table"
+                @select-all="handleSelectAll"
+                @select="handleSelect" :height="screenHeight">
         <el-table-column type="selection"/>
         <el-table-column width="40" :resizable="false" align="center">
           <template v-slot:default="scope">
@@ -268,8 +268,10 @@
         this.$emit('editApi', row);
       },
       reductionApi(row) {
-        let ids = [row.id];
-        this.$post('/api/definition/reduction/', ids, () => {
+        row.request = null;
+        row.response = null;
+        let rows = [row];
+        this.$post('/api/definition/reduction/', rows, () => {
           this.$success(this.$t('commons.save_success'));
           this.search();
         });

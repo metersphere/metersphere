@@ -219,8 +219,9 @@
         this.$emit('edit', row);
       },
       reductionApi(row) {
-        let obj = [row.id];
-        this.$post("/api/automation/reduction", obj, response => {
+        row.scenarioDefinition = null;
+        let rows = [row];
+        this.$post("/api/automation/reduction", rows, response => {
           this.$success(this.$t('commons.save_success'));
           this.search();
         })

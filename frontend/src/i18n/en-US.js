@@ -304,6 +304,8 @@ export default {
     jira_key: 'JIRA Project key',
     zentao_id: 'Zentao Project ID',
     manager: 'Manager',
+    no_data: 'No Data',
+    select: 'Select'
   },
   member: {
     create: 'Create',
@@ -543,7 +545,7 @@ export default {
         create_info: 'Create',
         update_info: 'Update',
         batch_edit: "Batch edit",
-        path_valid_info: "The request address cannot contain spaces",
+        path_valid_info: "The request path is invalid",
       }
     },
     automation: {

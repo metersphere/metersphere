@@ -1,6 +1,6 @@
 <template>
   <div v-loading="result.loading">
-    <el-input placeholder="搜索项目"
+    <el-input :placeholder="$t('project.search_by_name')"
               prefix-icon="el-icon-search"
               v-model="searchString"
               clearable
@@ -8,7 +8,7 @@
               size="small"/>
     <div v-if="items.length === 0" style="text-align: center; margin: 15px 0">
         <span style="font-size: 15px; color: #8a8b8d;">
-          无数据
+          {{ $t('project.no_data') }}
         </span>
     </div>
     <div v-else style="height: 150px;overflow: auto">
@@ -114,7 +114,7 @@ export default {
           this.$emit("update:currentProject", project[0].name);
         }
       } else {
-        this.$emit("update:currentProject", '选择项目');
+        this.$emit("update:currentProject", this.$t('project.select'));
       }
     }
   }

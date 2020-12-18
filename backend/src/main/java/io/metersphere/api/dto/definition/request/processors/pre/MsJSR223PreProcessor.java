@@ -7,6 +7,7 @@ import io.metersphere.api.dto.definition.request.ParameterConfig;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.modifiers.JSR223PreProcessor;
 import org.apache.jmeter.save.SaveService;
 import org.apache.jmeter.testelement.TestElement;
@@ -32,7 +33,11 @@ public class MsJSR223PreProcessor extends MsTestElement {
         }
         JSR223PreProcessor processor = new JSR223PreProcessor();
         processor.setEnabled(true);
-        processor.setName(this.getName() + "JSR223PreProcessor");
+        if (StringUtils.isNotEmpty(this.getName())) {
+            processor.setName(this.getName());
+        } else {
+            processor.setName("JSR223PreProcessor");
+        }
         processor.setProperty(TestElement.TEST_CLASS, JSR223PreProcessor.class.getName());
         processor.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("TestBeanGUI"));
         processor.setProperty("cacheKey", "true");
