@@ -552,7 +552,7 @@
       remove(row, node) {
         const parent = node.parent
         const hashTree = parent.data.hashTree || parent.data;
-        const index = hashTree.findIndex(d => d.id != undefined && row.id != undefined && d.id === row.id)
+        const index = hashTree.findIndex(d => d.resourceId != undefined && row.resourceId != undefined && d.resourceId === row.resourceId)
         hashTree.splice(index, 1);
         this.sort();
         this.reload();

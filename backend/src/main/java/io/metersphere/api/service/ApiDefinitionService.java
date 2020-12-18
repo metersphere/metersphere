@@ -201,6 +201,7 @@ public class ApiDefinitionService {
         test.setName(request.getName());
         test.setPath(request.getPath());
         test.setProjectId(request.getProjectId());
+        request.getRequest().setId(request.getId());
         test.setRequest(JSONObject.toJSONString(request.getRequest()));
         test.setUpdateTime(System.currentTimeMillis());
         test.setStatus(request.getStatus());
@@ -227,6 +228,7 @@ public class ApiDefinitionService {
         test.setPath(request.getPath());
         test.setModuleId(request.getModuleId());
         test.setProjectId(request.getProjectId());
+        request.getRequest().setId(request.getId());
         test.setRequest(JSONObject.toJSONString(request.getRequest()));
         test.setCreateTime(System.currentTimeMillis());
         test.setUpdateTime(System.currentTimeMillis());

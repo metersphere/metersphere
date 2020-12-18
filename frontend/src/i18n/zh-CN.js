@@ -301,6 +301,8 @@ export default {
     jira_key: 'JIRA项目key',
     zentao_id: 'Zentao项目ID',
     manager: '项目管理',
+    no_data: '无数据',
+    select: '选择项目'
   },
   member: {
     create: '添加成员',
@@ -542,7 +544,7 @@ export default {
         create_info: '创建',
         update_info: '更新',
         batch_edit: "批量编辑",
-        path_valid_info: "请求地址不能包含空格",
+        path_valid_info: "请求路径无效",
       }
     },
     automation: {
