@@ -268,7 +268,7 @@
       },
       saveApi(data) {
         this.setTabTitle(data);
-        this.$refs.apiList[0].initApiTable(data);
+        this.$refs.apiList[0].initTable(data);
       },
 
       showExecResult(row){

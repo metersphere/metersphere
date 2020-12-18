@@ -104,6 +104,7 @@
         if (!this.httpForm.path.startsWith("/") || this.httpForm.path.match(/\s/) != null) {
           callback(this.$t('api_test.definition.request.path_valid_info'));
         }
+        callback();
       };
       return {
         rule: {
