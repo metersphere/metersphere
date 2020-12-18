@@ -101,6 +101,15 @@ export default {
       this.$post("/user/update/current", {id: this.userId, lastProjectId: projectId}, () => {
         localStorage.setItem(PROJECT_ID, projectId);
         let path = this.$route.matched[0].path ? this.$route.matched[0].path : '/';
+        if (path === '/api') {
+          if (this.$store.state.switch.value === 'new') {
+            path = "/api/home";
+          } else if (this.$store.state.switch.value === 'old') {
+            path = "/api/home_obsolete";
+          } else {
+            path = '/';
+          }
+        }
         this.$router.push(path).then(() => {
           window.location.reload()
         }).catch(err => err);
