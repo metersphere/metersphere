@@ -13,11 +13,10 @@
         <el-row>
           <el-col :span="8" :offset="1">
             <el-form-item
-              :placeholder="$t('test_track.plan.input_name')"
               :label="$t('test_track.plan.plan_name')"
               :label-width="formLabelWidth"
               prop="name">
-              <el-input v-model="form.name"></el-input>
+              <el-input v-model="form.name" :placeholder="$t('test_track.plan.input_plan_name')"></el-input>
             </el-form-item>
           </el-col>
 
