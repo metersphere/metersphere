@@ -179,7 +179,12 @@ public class ApiAutomationService {
         extApiScenarioMapper.removeToGc(apiIds);
     }
 
-    public void reduction(List<String> apiIds) {
+    public void reduction(List<SaveApiScenarioRequest> requests) {
+        List<String> apiIds = new ArrayList<>();
+        requests.forEach(item->{
+            checkNameExist(item);
+            apiIds.add(item.getId());
+        });
         extApiScenarioMapper.reduction(apiIds);
     }
 

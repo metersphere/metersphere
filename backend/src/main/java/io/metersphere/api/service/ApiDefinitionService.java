@@ -158,7 +158,12 @@ public class ApiDefinitionService {
         extApiDefinitionMapper.removeToGc(apiIds);
     }
 
-    public void reduction(List<String> apiIds) {
+    public void reduction(List<SaveApiDefinitionRequest> requests) {
+        List<String> apiIds = new ArrayList<>();
+        requests.forEach(item -> {
+            checkNameExist(item);
+            apiIds.add(item.getId());
+        });
         extApiDefinitionMapper.reduction(apiIds);
     }
 
@@ -386,6 +391,7 @@ public class ApiDefinitionService {
 
     /**
      * 数据统计-接口类型
+     *
      * @param projectId 项目ID
      * @return
      */
@@ -395,6 +401,7 @@ public class ApiDefinitionService {
 
     /**
      * 统计本周创建的数据总量
+     *
      * @param projectId
      * @return
      */
@@ -404,10 +411,10 @@ public class ApiDefinitionService {
         Date firstTime = startAndEndDateInWeek.get("firstTime");
         Date lastTime = startAndEndDateInWeek.get("lastTime");
 
-        if(firstTime==null || lastTime == null){
-            return  0;
-        }else {
-            return extApiDefinitionMapper.countByProjectIDAndCreateInThisWeek(projectId,firstTime.getTime(),lastTime.getTime());
+        if (firstTime == null || lastTime == null) {
+            return 0;
+        } else {
+            return extApiDefinitionMapper.countByProjectIDAndCreateInThisWeek(projectId, firstTime.getTime(), lastTime.getTime());
         }
     }
 }
