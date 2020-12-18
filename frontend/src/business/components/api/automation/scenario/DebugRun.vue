@@ -92,7 +92,7 @@
         let testPlan = createComponent('TestPlan');
         let threadGroup = createComponent('ThreadGroup');
         threadGroup.hashTree = [];
-        threadGroup.name = this.runData.name;
+        threadGroup.name = this.runData.name ? this.runData.name : "Debug-Scenario";
         threadGroup.hashTree.push(this.runData);
         testPlan.hashTree.push(threadGroup);
         let reqObj = {id: this.reportId, reportId: this.reportId, environmentId: this.environment, testElement: testPlan};

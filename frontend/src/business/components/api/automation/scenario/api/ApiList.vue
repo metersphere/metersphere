@@ -76,14 +76,14 @@
             </template>
           </el-table-column>
         </el-table>
-        <ms-table-pagination :change="initApiTable" :current-page.sync="currentPage" :page-size.sync="pageSize"
+        <ms-table-pagination :change="initTable" :current-page.sync="currentPage" :page-size.sync="pageSize"
                              :total="total"/>
       </el-card>
     </div>
     <div id="svgResize"/>
     <div id="svgDown">
       <ms-bottom-container v-bind:enableAsideHidden="isHide">
-        <ms-api-case-list @apiCaseClose="apiCaseClose" @refresh="initApiTable" :visible="visible" :currentRow="currentRow" :api="selectApi"/>
+        <ms-api-case-list @apiCaseClose="apiCaseClose" @refresh="initTable" :visible="visible" :currentRow="currentRow" :api="selectApi"/>
       </ms-bottom-container>
     </div>
   </div>
@@ -150,38 +150,35 @@
     },
     created: function () {
       this.projectId = getCurrentProjectID();
-      this.initApiTable();
+      this.initTable();
     },
     mounted() {
       this.dragControllerDiv();
     },
     watch: {
       currentModule() {
-        this.initApiTable();
+        this.initTable();
         this.apiCaseClose();
       },
       visible() {
-        this.initApiTable();
+        this.initTable();
         this.apiCaseClose();
       },
       currentProtocol() {
-        this.initApiTable();
+        this.initTable();
         this.apiCaseClose();
       },
     },
     methods: {
-      initApiTable() {
+      initTable() {
+        this.selectRows = new Set();
         this.condition.filters = ["Prepare", "Underway", "Completed"];
-        if (this.currentModule != null) {
-          if (this.currentModule.id == "root") {
-            this.condition.moduleIds = [];
-          } else if (this.currentModule.id == "gc") {
-            this.condition.moduleIds = [];
-            this.condition.filters = ["Trash"];
-          }
-          else {
-            this.condition.moduleIds = this.currentModule.ids;
-          }
+        if (this.currentModule) {
+          this.condition.moduleIds = [this.currentModule.id];
+        }
+        if (this.trashEnable) {
+          this.condition.filters = ["Trash"];
+          this.condition.moduleIds = [];
         }
         if (this.projectId != null) {
           this.condition.projectId = this.projectId;
@@ -193,7 +190,6 @@
           this.total = response.data.itemCount;
           this.tableData = response.data.listObject;
         });
-        this.selectRows = new Set();
       },
       handleSelect(selection, row) {
         row.hashTree = [];
@@ -241,7 +237,7 @@
         }
       },
       search() {
-        this.initApiTable();
+        this.initTable();
       },
       buildPagePath(path) {
         return path + "/" + this.currentPage + "/" + this.pageSize;
@@ -268,7 +264,7 @@
                 let ids = Array.from(this.selectRows).map(row => row.id);
                 this.$post('/api/definition/deleteBatch/', ids, () => {
                   this.selectRows.clear();
-                  this.initApiTable();
+                  this.initTable();
                   this.$success(this.$t('commons.delete_success'));
                 });
               }
@@ -282,7 +278,7 @@
                 let ids = Array.from(this.selectRows).map(row => row.id);
                 this.$post('/api/definition/removeToGc/', ids, () => {
                   this.selectRows.clear();
-                  this.initApiTable();
+                  this.initTable();
                   this.$success(this.$t('commons.delete_success'));
                 });
               }
@@ -307,7 +303,7 @@
         if (this.currentModule != undefined && this.currentModule.id == "gc") {
           this.$get('/api/definition/delete/' + api.id, () => {
             this.$success(this.$t('commons.delete_success'));
-            this.initApiTable();
+            this.initTable();
           });
           return;
         }
@@ -318,7 +314,7 @@
               let ids = [api.id];
               this.$post('/api/definition/removeToGc/', ids, () => {
                 this.$success(this.$t('commons.delete_success'));
-                this.initApiTable();
+                this.initTable();
               });
             }
           }

@@ -157,7 +157,7 @@
               </el-row>
             </div>
             <!-- 场景步骤内容 -->
-            <div style="margin-top: 10px" v-loading="loading">
+            <div v-loading="loading">
               <el-tree node-key="resourceId" :props="props" :data="scenarioDefinition"
                        :default-expanded-keys="expandedNode"
                        :expand-on-click-node="false"
@@ -486,6 +486,9 @@
         } else {
           request = item.request;
         }
+        if (item.protocol) {
+          request.protocol = item.protocol;
+        }
         request.id = item.id;
         request.name = item.name;
         request.refType = refType;
@@ -607,10 +610,13 @@
         this.getEnvironments();
       },
       allowDrop(draggingNode, dropNode, type) {
-        if (dropNode.data.type === draggingNode.data.type || ELEMENTS.get(dropNode.data.type).indexOf(draggingNode.data.type) != -1) {
-          return true;
-        }
-        return false;
+        // if (draggingNode.level == dropNode.level) {
+        //   return true;
+        // }
+        // else if (ELEMENTS.get(dropNode.data.type).indexOf(draggingNode.data.type) != -1) {
+        //   return true;
+        // }
+        return true;
       },
       allowDrag() {
         this.sort();

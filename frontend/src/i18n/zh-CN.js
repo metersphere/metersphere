@@ -497,7 +497,7 @@ export default {
       api_case_passing_rate: "用例通过率",
       create_tip: "注: 详细的接口信息可以在编辑页面填写",
       request: {
-        grade_info: "按等级从高到低",
+        grade_info: "按等级筛选",
         run_env: "运行环境",
         select_case: "搜索用例",
         case: "用例",

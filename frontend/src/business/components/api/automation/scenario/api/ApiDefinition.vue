@@ -1,7 +1,7 @@
 <template>
   <ms-container>
     <ms-aside-container>
-      <ms-node-tree @selectModule="selectModule" @getApiModuleTree="initTree" @changeProtocol="changeProtocol"
+      <ms-node-tree @nodeSelectEvent="selectModule" @getApiModuleTree="initTree" @protocolChange="changeProtocol"
                     @refresh="refresh" @saveAsEdit="editApi" @exportAPI="exportAPI"/>
     </ms-aside-container>
 
@@ -85,7 +85,7 @@
         this.isHide = true;
       },
       selectModule(data) {
-        this.currentModule = data;
+        this.currentModule = data.data;
       },
       exportAPI() {
         if (!this.$refs.apiList[0].tableData) {

@@ -280,7 +280,7 @@ public class ApiAutomationService {
         // 调用执行方法
         jMeterService.runDefinition(request.getId(), jmeterTestPlanHashTree, request.getReportId(), ApiRunMode.SCENARIO.name());
 
-        createAPIReportResult(request.getId(), request.getTriggerMode() == null ? ReportTriggerMode.API.name() : request.getTriggerMode());
+        createAPIReportResult(request.getId(), request.getTriggerMode() == null ? ReportTriggerMode.MANUAL.name() : request.getTriggerMode());
         return request.getId();
     }
 
@@ -303,6 +303,7 @@ public class ApiAutomationService {
         ParameterConfig config = new ParameterConfig();
         config.setConfig(envConfig);
         HashTree hashTree = request.getTestElement().generateHashTree(config);
+        request.getTestElement().getJmx(hashTree);
         // 调用执行方法
         jMeterService.runDefinition(request.getId(), hashTree, request.getReportId(), ApiRunMode.SCENARIO.name());
         createAPIReportResult(request.getId(), ReportTriggerMode.MANUAL.name());
