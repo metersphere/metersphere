@@ -543,7 +543,7 @@ export default {
         create_info: 'Create',
         update_info: 'Update',
         batch_edit: "Batch edit",
-        path_valid_info: "The request address cannot contain spaces",
+        path_valid_info: "The request path is invalid",
       }
     },
     automation: {

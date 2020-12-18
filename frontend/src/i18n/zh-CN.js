@@ -542,7 +542,7 @@ export default {
         create_info: '创建',
         update_info: '更新',
         batch_edit: "批量编辑",
-        path_valid_info: "请求地址不能包含空格",
+        path_valid_info: "请求路径无效",
       }
     },
     automation: {
