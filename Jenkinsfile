@@ -19,9 +19,9 @@ pipeline {
         }
         stage('Docker build & push') {
             steps {
-                sh "docker build --build-arg MS_VERSION=${TAG_NAME:-$BRANCH_NAME}-b${BUILD_NUMBER} -t ${IMAGE_NAME}:${TAG_NAME:-$BRANCH_NAME} ."
-                sh "docker tag ${IMAGE_NAME}:${TAG_NAME:-$BRANCH_NAME} ${IMAGE_FREFIX}/${IMAGE_NAME}:${TAG_NAME:-$BRANCH_NAME}"
-                sh "docker push ${IMAGE_FREFIX}/${IMAGE_NAME}:${TAG_NAME:-$BRANCH_NAME}"
+                sh "docker build --build-arg MS_VERSION=\${TAG_NAME:-\$BRANCH_NAME}-b\${BUILD_NUMBER} -t ${IMAGE_NAME}:\${TAG_NAME:-\$BRANCH_NAME} ."
+                sh "docker tag ${IMAGE_NAME}:\${TAG_NAME:-\$BRANCH_NAME} ${IMAGE_FREFIX}/${IMAGE_NAME}:\${TAG_NAME:-\$BRANCH_NAME}"
+                sh "docker push ${IMAGE_FREFIX}/${IMAGE_NAME}:\${TAG_NAME:-\$BRANCH_NAME}"
             }
         }
     }
