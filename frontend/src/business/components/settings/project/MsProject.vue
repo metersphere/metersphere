@@ -273,6 +273,7 @@ export default {
 <style scoped>
   pre {
     margin: 0 0;
+    font-family: "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", Arial, sans-serif;
   }
 
 </style>

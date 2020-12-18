@@ -66,6 +66,7 @@
       let validateURL = (rule, value, callback) => {
         try {
           new URL(this.debugForm.url);
+          callback();
         } catch (e) {
           callback(this.$t('api_test.request.url_invalid'));
         }
