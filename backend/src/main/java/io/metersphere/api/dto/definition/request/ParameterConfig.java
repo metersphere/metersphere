@@ -12,4 +12,7 @@ public class ParameterConfig {
     private EnvironmentConfig config;
     // 公共场景参数
     private List<KeyValue> variables;
+    // 公共Cookie
+    private boolean enableCookieShare;
+
 }

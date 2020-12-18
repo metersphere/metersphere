@@ -123,15 +123,18 @@
                 <el-col :span="6" class="ms-col-one">
                   {{currentScenario.name ===undefined || ''? $t('api_test.scenario.name') : currentScenario.name}}
                 </el-col>
-                <el-col :span="4" class="ms-col-one">
+                <el-col :span="3" class="ms-col-one">
                   {{$t('api_test.automation.step_total')}}：{{scenarioDefinition.length}}
                 </el-col>
-                <el-col :span="4" class="ms-col-one">
-                  <el-link style="font-size: 13px" @click="showScenarioParameters">{{$t('api_test.automation.scenario_total')}}：
+                <el-col :span="3" class="ms-col-one">
+                  <el-link class="head" @click="showScenarioParameters">{{$t('api_test.automation.scenario_total')}}：
                     {{this.currentScenario.variables!=undefined?this.currentScenario.variables.length-1: 0}}
                   </el-link>
                 </el-col>
-                <el-col :span="8">
+                <el-col :span="3">
+                  <el-checkbox v-model="currentScenario.enableCookieShare" style="margin-top: 5px">{{ '共享cookie' }}</el-checkbox>
+                </el-col>
+                <el-col :span="7">
                   {{$t('api_test.definition.request.run_env')}}:
                   <el-select v-model="currentEnvironmentId" size="small" class="ms-htt-width"
                              :placeholder="$t('api_test.definition.request.run_env')"
@@ -588,7 +591,7 @@
         }
         this.debugData = {
           id: this.currentScenario.id, name: this.currentScenario.name, type: "scenario",
-          variables: this.currentScenario.variables, referenced: 'Created',
+          variables: this.currentScenario.variables, referenced: 'Created', enableCookieShare: this.currentScenario.enableCookieShare,
           environmentId: this.currentEnvironmentId, hashTree: this.scenarioDefinition
         };
         this.reportId = getUUID().substring(0, 8);
@@ -732,6 +735,7 @@
                 if (obj) {
                   this.currentEnvironmentId = obj.environmentId;
                   this.currentScenario.variables = obj.variables;
+                  this.currentScenario.enableCookieShare = obj.enableCookieShare;
                   this.scenarioDefinition = obj.hashTree;
                 }
               }
@@ -748,7 +752,7 @@
         this.currentScenario.modulePath = this.getPath(this.currentScenario.apiScenarioModuleId);
         // 构建一个场景对象 方便引用处理
         let scenario = {
-          id: this.currentScenario.id, name: this.currentScenario.name, variables: this.currentScenario.variables,
+          id: this.currentScenario.id, enableCookieShare: this.currentScenario.enableCookieShare, name: this.currentScenario.name, variables: this.currentScenario.variables,
           type: "scenario", referenced: 'Created', environmentId: this.currentEnvironmentId, hashTree: this.scenarioDefinition
         };
         this.currentScenario.scenarioDefinition = scenario;
@@ -908,5 +912,10 @@
 
   /deep/ .el-drawer__header {
     margin-bottom: 0px;
+  }
+
+  .head {
+    border-bottom: 1px solid #dedede;
+    font-size: 13px;
   }
 </style>
