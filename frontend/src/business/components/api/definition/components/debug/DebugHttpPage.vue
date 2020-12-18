@@ -63,10 +63,20 @@
       scenario: Boolean,
     },
     data() {
+      let validateURL = (rule, value, callback) => {
+        try {
+          new URL(this.debugForm.url);
+        } catch (e) {
+          callback(this.$t('api_test.request.url_invalid'));
+        }
+      };
       return {
         rules: {
           method: [{required: true, message: this.$t('test_track.case.input_maintainer'), trigger: 'change'}],
-          url: [{required: true, message: this.$t('api_test.definition.request.path_all_info'), trigger: 'blur'}],
+          url: [
+            {max: 500, required: true, message: this.$t('commons.input_limit', [1, 500]), trigger: 'blur'},
+            {validator: validateURL, trigger: 'blur'}
+          ],
         },
         debugForm: {method: REQ_METHOD[0].id, environmentId: ""},
         options: [],
