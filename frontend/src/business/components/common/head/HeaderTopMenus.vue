@@ -9,17 +9,17 @@
            router>
 
     <el-menu-item index="/track" v-permission="['test_manager','test_user','test_viewer']">
-      {{$t('test_track.test_track')}}
+      {{ $t('test_track.test_track') }}
     </el-menu-item>
-    <el-menu-item index="/api" v-permission="['test_manager','test_user','test_viewer']">
-      {{$t('commons.api')}}
+    <el-menu-item index="/api" @click="active()" v-permission="['test_manager','test_user','test_viewer']">
+      {{ $t('commons.api') }}
     </el-menu-item>
     <el-menu-item index="/performance" onselectstart="return false"
                   v-permission="['test_manager','test_user','test_viewer']">
-      {{$t('commons.performance')}}
+      {{ $t('commons.performance') }}
     </el-menu-item>
     <el-menu-item index="/setting" onselectstart="return false">
-      {{$t('commons.system_setting')}}
+      {{ $t('commons.system_setting') }}
     </el-menu-item>
   </el-menu>
 </template>
@@ -47,7 +47,18 @@
     },
     methods: {
       handleSelect(index) {
+        console.log(index)
         this.activeIndex = index
+
+      },
+      active() {
+        if (this.activeIndex === '/api') {
+          if (this.$store.state.switch.value == 'new') {
+            window.location.href = "/#/api/home";
+          } else if (this.$store.state.switch.value == 'old') {
+            window.location.href = "/#/api/home_obsolete";
+          }
+        }
       }
     }
   }

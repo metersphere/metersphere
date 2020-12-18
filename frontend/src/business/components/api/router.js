@@ -3,7 +3,6 @@ import MsProject from "@/business/components/settings/project/MsProject";
 export default {
   path: "/api",
   name: "api",
-  redirect: "/api/home",
   components: {
     content: () => import('@/business/components/api/ApiTest')
   },
