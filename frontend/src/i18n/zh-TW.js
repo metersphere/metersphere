@@ -301,6 +301,8 @@ export default {
     jira_key: 'JIRA項目key',
     zentao_id: 'Zentao項目ID',
     manager: '項目管理',
+    no_data: '無數據',
+    select: '選擇項目'
   },
   member: {
     create: '添加成員',

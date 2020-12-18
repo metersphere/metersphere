@@ -304,6 +304,8 @@ export default {
     jira_key: 'JIRA Project key',
     zentao_id: 'Zentao Project ID',
     manager: 'Manager',
+    no_data: 'No Data',
+    select: 'Select'
   },
   member: {
     create: 'Create',
