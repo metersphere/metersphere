@@ -173,7 +173,7 @@
 
     created() {
       this.getMaintainerOptions();
-      this.httpForm = this.basisData;
+      this.httpForm = JSON.parse(JSON.stringify(this.basisData));
     }
   }
 </script>

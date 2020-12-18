@@ -197,37 +197,37 @@
             <el-col :span="3" class="ms-left-cell">
               <el-button type="primary" icon="el-icon-refresh" size="small" @click="showAll">{{$t('commons.show_all')}}</el-button>
               <br/>
-              <div v-if="operatingElements.indexOf('HTTPSamplerProxy')>0 || operatingElements.indexOf('DubboSampler')>0 || operatingElements.indexOf('JDBCSampler')>0 || operatingElements.indexOf('TCPSampler')>0 ">
+              <div v-if="operatingElements.indexOf('HTTPSamplerProxy')!=-1 || operatingElements.indexOf('DubboSampler')!=-1 || operatingElements.indexOf('JDBCSampler')!=-1 || operatingElements.indexOf('TCPSampler')!=-1 ">
                 <el-button class="ms-right-buttion ms-btn-1" size="small" @click="apiListImport">+{{$t('api_test.automation.api_list_import')}}</el-button>
               </div>
-              <div v-if="operatingElements.indexOf('OT_IMPORT')>0">
+              <div v-if="operatingElements.indexOf('OT_IMPORT')!=-1">
                 <el-button class="ms-right-buttion" size="small" style="color: #409EFF;background-color: #EEF5FE" @click="addComponent('OT_IMPORT')">+{{$t('api_test.automation.external_import')}}</el-button>
               </div>
-              <div v-if="operatingElements.indexOf('ConstantTimer')>0">
+              <div v-if="operatingElements.indexOf('ConstantTimer')!=-1">
                 <el-button class="ms-right-buttion ms-btn-3" size="small" @click="addComponent('ConstantTimer')">+{{$t('api_test.automation.wait_controller')}}</el-button>
               </div>
-              <div v-if="operatingElements.indexOf('IfController')>0">
+              <div v-if="operatingElements.indexOf('IfController')!=-1">
                 <el-button class="ms-right-buttion ms-btn-4" size="small" @click="addComponent('IfController')">+{{$t('api_test.automation.if_controller')}}</el-button>
               </div>
               <div v-if="operatingElements.indexOf('scenario')===0">
                 <el-button class="ms-right-buttion ms-btn-5" size="small" @click="addComponent('scenario')">+{{$t('api_test.automation.scenario_import')}}</el-button>
               </div>
-              <div v-if="operatingElements.indexOf('JSR223Processor')>0">
+              <div v-if="operatingElements.indexOf('JSR223Processor')!=-1">
                 <el-button class="ms-right-buttion ms-btn-6" size="small" @click="addComponent('JSR223Processor')">+{{$t('api_test.automation.customize_script')}}</el-button>
               </div>
-              <div v-if="operatingElements.indexOf('CustomizeReq')>0">
+              <div v-if="operatingElements.indexOf('CustomizeReq')!=-1">
                 <el-button class="ms-right-buttion ms-btn-7" size="small" @click="addComponent('CustomizeReq')">+{{$t('api_test.automation.customize_req')}}</el-button>
               </div>
-              <div v-if="operatingElements.indexOf('JSR223PreProcessor')>0">
+              <div v-if="operatingElements.indexOf('JSR223PreProcessor')!=-1">
                 <el-button class="ms-right-buttion ms-btn-8" size="small" @click="addComponent('JSR223PreProcessor')">+{{$t('api_test.definition.request.pre_script')}}</el-button>
               </div>
-              <div v-if="operatingElements.indexOf('JSR223PostProcessor')>0">
+              <div v-if="operatingElements.indexOf('JSR223PostProcessor')!=-1">
                 <el-button class="ms-right-buttion ms-btn-9" size="small" @click="addComponent('JSR223PostProcessor')">+{{$t('api_test.definition.request.post_script')}}</el-button>
               </div>
-              <div v-if="operatingElements.indexOf('Assertions')>0">
+              <div v-if="operatingElements.indexOf('Assertions')!=-1">
                 <el-button class="ms-right-buttion ms-btn-10" size="small" @click="addComponent('Assertions')">+{{$t('api_test.definition.request.assertions_rule')}}</el-button>
               </div>
-              <div v-if="operatingElements.indexOf('Extract')>0">
+              <div v-if="operatingElements.indexOf('Extract')!=-1">
                 <el-button class="ms-right-buttion ms-btn-11" size="small" @click="addComponent('Extract')">+{{$t('api_test.definition.request.extract_param')}}</el-button>
               </div>
             </el-col>
@@ -245,7 +245,6 @@
       <!--自定义接口-->
       <el-drawer :visible.sync="customizeVisible" :destroy-on-close="true" direction="ltr" :withHeader="false" :title="$t('api_test.automation.customize_req')" style="overflow: auto" :modal="false" size="90%">
         <ms-api-customize :request="customizeRequest" @addCustomizeApi="addCustomizeApi"/>
-        <el-button style="float: right;margin: 20px" @click="addCustomizeApi">{{$t('commons.save')}}</el-button>
       </el-drawer>
       <!--场景导入 -->
       <el-drawer :visible.sync="scenarioVisible" :destroy-on-close="true" direction="ltr" :withHeader="false" :title="$t('api_test.automation.scenario_import')" style="overflow: auto" :modal="false" size="90%">
@@ -373,7 +372,13 @@
       this.getApiScenario();
       this.getEnvironments();
     },
-    watch: {},
+    mounted() {
+      document.addEventListener('click', e => {
+        if (!this.$el.contains(e.target)) {
+        }
+      })
+    },
+      watch: {},
     methods: {
       addComponent(type) {
         switch (type) {
@@ -609,16 +614,16 @@
       environmentConfigClose() {
         this.getEnvironments();
       },
-      allowDrop(draggingNode, dropNode, type) {
-        // if (draggingNode.level == dropNode.level) {
-        //   return true;
-        // }
-        // else if (ELEMENTS.get(dropNode.data.type).indexOf(draggingNode.data.type) != -1) {
-        //   return true;
-        // }
-        return true;
+      allowDrop(draggingNode, dropNode, dropType) {
+        if (dropType != "inner") {
+          return true;
+        }
+        else if (dropType === "inner" && ELEMENTS.get(dropNode.data.type).indexOf(draggingNode.data.type) != -1) {
+          return true;
+        }
+        return false;
       },
-      allowDrag() {
+      allowDrag(draggingNode, dropNode, dropType) {
         this.sort();
         this.reload();
       },
