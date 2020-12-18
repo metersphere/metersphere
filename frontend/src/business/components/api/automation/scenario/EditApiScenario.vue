@@ -374,11 +374,10 @@
     },
     mounted() {
       document.addEventListener('click', e => {
-        if (!this.$el.contains(e.target)) {
-        }
+        this.showAll();
       })
     },
-      watch: {},
+    watch: {},
     methods: {
       addComponent(type) {
         switch (type) {
