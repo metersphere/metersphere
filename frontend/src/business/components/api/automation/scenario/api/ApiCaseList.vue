@@ -8,9 +8,9 @@
               <div class="variable-combine"> {{api.name}}</div>
             </el-col>
             <el-col :span="api.protocol==='HTTP'? 1:3">
-              <ms-tag v-if="api.status == 'Prepare'" type="info" effect="plain" :content="$t('test_track.plan.plan_status_prepare')"/>
-              <ms-tag v-if="api.status == 'Underway'" type="warning" effect="plain" :content="$t('test_track.plan.plan_status_running')"/>
-              <ms-tag v-if="api.status == 'Completed'" type="success" effect="plain" :content="$t('test_track.plan.plan_status_completed')"/>
+              <el-tag size="mini" :style="{'background-color': getColor(true, api.method), border: getColor(true, api.method)}" class="api-el-tag">
+                {{ api.method}}
+              </el-tag>
             </el-col>
             <el-col :span="api.protocol==='HTTP'? 4:0">
               <div class="variable-combine" style="margin-left: 10px">{{api.path ===null ? " " : api.path}}</div>
@@ -151,6 +151,7 @@
   import MsTcpBasisParameters from "../../../definition/components/request/tcp/BasisParameters";
   import MsDubboBasisParameters from "../../../definition/components/request/dubbo/BasisParameters";
   import MsApiExtendBtns from "../../../definition/components/reference/ApiExtendBtns";
+  import {API_METHOD_COLOUR} from "../../../definition/model/JsonData";
 
   export default {
     name: 'ApiCaseList',
@@ -192,7 +193,7 @@
         reportId: "",
         projectId: "",
         checkedCases: new Set(),
-
+        methodColorMap: new Map(API_METHOD_COLOUR),
       }
     },
     watch: {
@@ -403,6 +404,11 @@
       environmentConfigClose() {
         this.getEnvironments();
       },
+      getColor(enable, method) {
+        if (enable) {
+          return this.methodColorMap.get(method);
+        }
+      },
       caseChecked(row) {
         row.protocol = this.api.protocol;
         row.hashTree = [];
@@ -477,6 +483,9 @@
     padding: 7px;
   }
 
+  .api-el-tag {
+    color: white;
+  }
   .is-selected {
     background: #EFF7FF;
   }

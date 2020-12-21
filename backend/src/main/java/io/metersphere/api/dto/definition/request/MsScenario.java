@@ -44,10 +44,14 @@ public class MsScenario extends MsTestElement {
     @JSONField(ordinal = 23)
     private List<KeyValue> variables;
 
+    @JSONField(ordinal = 24)
+    private boolean enableCookieShare;
+
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, ParameterConfig config) {
         if (!this.isEnable()) {
             return;
         }
+        config.setEnableCookieShare(enableCookieShare);
         if (StringUtils.isNotEmpty(environmentId)) {
             ApiTestEnvironmentService environmentService = CommonBeanFactory.getBean(ApiTestEnvironmentService.class);
             ApiTestEnvironmentWithBLOBs environment = environmentService.get(environmentId);

@@ -1,6 +1,6 @@
 <template>
   <el-card class="card-content">
-    <div class="ms-main-div">
+    <div class="ms-main-div" @click="showAll">
       <el-row>
         <el-col>
           <!--操作按钮-->
@@ -123,15 +123,17 @@
                 <el-col :span="6" class="ms-col-one">
                   {{currentScenario.name ===undefined || ''? $t('api_test.scenario.name') : currentScenario.name}}
                 </el-col>
-                <el-col :span="4" class="ms-col-one">
+                <el-col :span="3" class="ms-col-one">
                   {{$t('api_test.automation.step_total')}}：{{scenarioDefinition.length}}
                 </el-col>
-                <el-col :span="4" class="ms-col-one">
-                  <el-link style="font-size: 13px" @click="showScenarioParameters">{{$t('api_test.automation.scenario_total')}}：
-                    {{this.currentScenario.variables!=undefined?this.currentScenario.variables.length-1: 0}}
-                  </el-link>
+                <el-col :span="3" class="ms-col-one">
+                  <el-link class="head" @click="showScenarioParameters">{{$t('api_test.automation.scenario_total')}}</el-link>
+                  ：{{this.currentScenario.variables!=undefined?this.currentScenario.variables.length-1: 0}}
                 </el-col>
-                <el-col :span="8">
+                <el-col :span="3">
+                  <el-checkbox v-model="enableCookieShare" style="margin-top: 5px">{{ '共享cookie' }}</el-checkbox>
+                </el-col>
+                <el-col :span="7">
                   {{$t('api_test.definition.request.run_env')}}:
                   <el-select v-model="currentEnvironmentId" size="small" class="ms-htt-width"
                              :placeholder="$t('api_test.definition.request.run_env')"
@@ -157,7 +159,7 @@
               </el-row>
             </div>
             <!-- 场景步骤内容 -->
-            <div style="margin-top: 10px" v-loading="loading">
+            <div v-loading="loading">
               <el-tree node-key="resourceId" :props="props" :data="scenarioDefinition"
                        :default-expanded-keys="expandedNode"
                        :expand-on-click-node="false"
@@ -197,37 +199,37 @@
             <el-col :span="3" class="ms-left-cell">
               <el-button type="primary" icon="el-icon-refresh" size="small" @click="showAll">{{$t('commons.show_all')}}</el-button>
               <br/>
-              <div v-if="operatingElements.indexOf('HTTPSamplerProxy')>0 || operatingElements.indexOf('DubboSampler')>0 || operatingElements.indexOf('JDBCSampler')>0 || operatingElements.indexOf('TCPSampler')>0 ">
+              <div v-if="operatingElements.indexOf('HTTPSamplerProxy')!=-1 || operatingElements.indexOf('DubboSampler')!=-1 || operatingElements.indexOf('JDBCSampler')!=-1 || operatingElements.indexOf('TCPSampler')!=-1 ">
                 <el-button class="ms-right-buttion ms-btn-1" size="small" @click="apiListImport">+{{$t('api_test.automation.api_list_import')}}</el-button>
               </div>
-              <div v-if="operatingElements.indexOf('OT_IMPORT')>0">
+              <div v-if="operatingElements.indexOf('OT_IMPORT')!=-1">
                 <el-button class="ms-right-buttion" size="small" style="color: #409EFF;background-color: #EEF5FE" @click="addComponent('OT_IMPORT')">+{{$t('api_test.automation.external_import')}}</el-button>
               </div>
-              <div v-if="operatingElements.indexOf('ConstantTimer')>0">
+              <div v-if="operatingElements.indexOf('ConstantTimer')!=-1">
                 <el-button class="ms-right-buttion ms-btn-3" size="small" @click="addComponent('ConstantTimer')">+{{$t('api_test.automation.wait_controller')}}</el-button>
               </div>
-              <div v-if="operatingElements.indexOf('IfController')>0">
+              <div v-if="operatingElements.indexOf('IfController')!=-1">
                 <el-button class="ms-right-buttion ms-btn-4" size="small" @click="addComponent('IfController')">+{{$t('api_test.automation.if_controller')}}</el-button>
               </div>
               <div v-if="operatingElements.indexOf('scenario')===0">
                 <el-button class="ms-right-buttion ms-btn-5" size="small" @click="addComponent('scenario')">+{{$t('api_test.automation.scenario_import')}}</el-button>
               </div>
-              <div v-if="operatingElements.indexOf('JSR223Processor')>0">
+              <div v-if="operatingElements.indexOf('JSR223Processor')!=-1">
                 <el-button class="ms-right-buttion ms-btn-6" size="small" @click="addComponent('JSR223Processor')">+{{$t('api_test.automation.customize_script')}}</el-button>
               </div>
-              <div v-if="operatingElements.indexOf('CustomizeReq')>0">
+              <div v-if="operatingElements.indexOf('CustomizeReq')!=-1">
                 <el-button class="ms-right-buttion ms-btn-7" size="small" @click="addComponent('CustomizeReq')">+{{$t('api_test.automation.customize_req')}}</el-button>
               </div>
-              <div v-if="operatingElements.indexOf('JSR223PreProcessor')>0">
+              <div v-if="operatingElements.indexOf('JSR223PreProcessor')!=-1">
                 <el-button class="ms-right-buttion ms-btn-8" size="small" @click="addComponent('JSR223PreProcessor')">+{{$t('api_test.definition.request.pre_script')}}</el-button>
               </div>
-              <div v-if="operatingElements.indexOf('JSR223PostProcessor')>0">
+              <div v-if="operatingElements.indexOf('JSR223PostProcessor')!=-1">
                 <el-button class="ms-right-buttion ms-btn-9" size="small" @click="addComponent('JSR223PostProcessor')">+{{$t('api_test.definition.request.post_script')}}</el-button>
               </div>
-              <div v-if="operatingElements.indexOf('Assertions')>0">
+              <div v-if="operatingElements.indexOf('Assertions')!=-1">
                 <el-button class="ms-right-buttion ms-btn-10" size="small" @click="addComponent('Assertions')">+{{$t('api_test.definition.request.assertions_rule')}}</el-button>
               </div>
-              <div v-if="operatingElements.indexOf('Extract')>0">
+              <div v-if="operatingElements.indexOf('Extract')!=-1">
                 <el-button class="ms-right-buttion ms-btn-11" size="small" @click="addComponent('Extract')">+{{$t('api_test.definition.request.extract_param')}}</el-button>
               </div>
             </el-col>
@@ -236,7 +238,7 @@
       </div>
 
       <!--接口列表-->
-      <el-drawer :visible.sync="apiListVisible" :destroy-on-close="true" direction="ltr" :withHeader="false" :title="$t('api_test.automation.api_list_import')" :modal="false" size="90%">
+      <el-drawer :visible.sync="apiListVisible" :destroy-on-close="true" direction="ltr" :withHeader="true" :modal="false" size="90%">
         <ms-api-definition :visible="visibleRef" :currentRow="currentRow"/>
         <el-button style="float: right;margin: 0px 20px 0px" type="primary" @click="pushApiOrCase('REF')">{{$t('api_test.scenario.reference')}}</el-button>
         <el-button style="float: right;" type="primary" @click="pushApiOrCase('Copy')">{{ $t('commons.copy') }}</el-button>
@@ -245,7 +247,6 @@
       <!--自定义接口-->
       <el-drawer :visible.sync="customizeVisible" :destroy-on-close="true" direction="ltr" :withHeader="false" :title="$t('api_test.automation.customize_req')" style="overflow: auto" :modal="false" size="90%">
         <ms-api-customize :request="customizeRequest" @addCustomizeApi="addCustomizeApi"/>
-        <el-button style="float: right;margin: 20px" @click="addCustomizeApi">{{$t('commons.save')}}</el-button>
       </el-drawer>
       <!--场景导入 -->
       <el-drawer :visible.sync="scenarioVisible" :destroy-on-close="true" direction="ltr" :withHeader="false" :title="$t('api_test.automation.scenario_import')" style="overflow: auto" :modal="false" size="90%">
@@ -360,6 +361,7 @@
         reportId: "",
         projectId: "",
         visibleRef: "",
+        enableCookieShare: false,
       }
     },
     created() {
@@ -486,6 +488,9 @@
         } else {
           request = item.request;
         }
+        if (item.protocol) {
+          request.protocol = item.protocol;
+        }
         request.id = item.id;
         request.name = item.name;
         request.refType = refType;
@@ -552,7 +557,7 @@
       remove(row, node) {
         const parent = node.parent
         const hashTree = parent.data.hashTree || parent.data;
-        const index = hashTree.findIndex(d => d.id != undefined && row.id != undefined && d.id === row.id)
+        const index = hashTree.findIndex(d => d.resourceId != undefined && row.resourceId != undefined && d.resourceId === row.resourceId)
         hashTree.splice(index, 1);
         this.sort();
         this.reload();
@@ -581,7 +586,7 @@
         }
         this.debugData = {
           id: this.currentScenario.id, name: this.currentScenario.name, type: "scenario",
-          variables: this.currentScenario.variables, referenced: 'Created',
+          variables: this.currentScenario.variables, referenced: 'Created', enableCookieShare: this.enableCookieShare,
           environmentId: this.currentEnvironmentId, hashTree: this.scenarioDefinition
         };
         this.reportId = getUUID().substring(0, 8);
@@ -606,13 +611,16 @@
       environmentConfigClose() {
         this.getEnvironments();
       },
-      allowDrop(draggingNode, dropNode, type) {
-        if (dropNode.data.type === draggingNode.data.type || ELEMENTS.get(dropNode.data.type).indexOf(draggingNode.data.type) != -1) {
+      allowDrop(draggingNode, dropNode, dropType) {
+        if (dropType != "inner") {
+          return true;
+        }
+        else if (dropType === "inner" && ELEMENTS.get(dropNode.data.type).indexOf(draggingNode.data.type) != -1) {
           return true;
         }
         return false;
       },
-      allowDrag() {
+      allowDrag(draggingNode, dropNode, dropType) {
         this.sort();
         this.reload();
       },
@@ -722,6 +730,7 @@
                 if (obj) {
                   this.currentEnvironmentId = obj.environmentId;
                   this.currentScenario.variables = obj.variables;
+                  this.enableCookieShare = obj.enableCookieShare;
                   this.scenarioDefinition = obj.hashTree;
                 }
               }
@@ -738,7 +747,7 @@
         this.currentScenario.modulePath = this.getPath(this.currentScenario.apiScenarioModuleId);
         // 构建一个场景对象 方便引用处理
         let scenario = {
-          id: this.currentScenario.id, name: this.currentScenario.name, variables: this.currentScenario.variables,
+          id: this.currentScenario.id, enableCookieShare: this.enableCookieShare, name: this.currentScenario.name, variables: this.currentScenario.variables,
           type: "scenario", referenced: 'Created', environmentId: this.currentEnvironmentId, hashTree: this.scenarioDefinition
         };
         this.currentScenario.scenarioDefinition = scenario;
@@ -898,5 +907,10 @@
 
   /deep/ .el-drawer__header {
     margin-bottom: 0px;
+  }
+
+  .head {
+    border-bottom: 1px solid #474849;
+    font-size: 13px;
   }
 </style>

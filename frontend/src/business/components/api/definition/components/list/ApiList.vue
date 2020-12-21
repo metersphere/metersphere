@@ -3,7 +3,7 @@
     <api-list-container
       :is-api-list-enable="isApiListEnable"
       @isApiListEnableChange="isApiListEnableChange">
-      <el-input placeholder="搜索" @blur="search" class="search-input" size="small" v-model="condition.name"/>
+      <el-input placeholder="搜索" @blur="search" class="search-input" size="small" @keyup.enter.native="search" v-model="condition.name"/>
 
       <el-table v-loading="result.loading"
                 border

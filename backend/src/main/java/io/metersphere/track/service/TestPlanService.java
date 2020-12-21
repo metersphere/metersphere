@@ -150,8 +150,8 @@ public class TestPlanService {
         if (!StringUtils.isBlank(testPlan.getStatus())) {
             BeanUtils.copyBean(testPlans, getTestPlan(testPlan.getId()));
             String context = getTestPlanContext(testPlans, NoticeConstants.Event.UPDATE);
-            User user = userMapper.selectByPrimaryKey(testPlan.getCreator());
-            Map<String, Object> paramMap = getTestPlanParamMap(testPlan);
+            User user = userMapper.selectByPrimaryKey(testPlans.getCreator());
+            Map<String, Object> paramMap = getTestPlanParamMap(testPlans);
             paramMap.put("creator", user.getName());
             NoticeModel noticeModel = NoticeModel.builder()
                     .context(context)
@@ -533,8 +533,8 @@ public class TestPlanService {
             try {
                 BeanUtils.copyBean(_testPlans, testPlans);
                 String context = getTestPlanContext(_testPlans, NoticeConstants.Event.UPDATE);
-                User user = userMapper.selectByPrimaryKey(testPlan.getCreator());
-                Map<String, Object> paramMap = getTestPlanParamMap(testPlan);
+                User user = userMapper.selectByPrimaryKey(_testPlans.getCreator());
+                Map<String, Object> paramMap = getTestPlanParamMap(_testPlans);
                 paramMap.put("creator", user.getName());
                 NoticeModel noticeModel = NoticeModel.builder()
                         .context(context)
