@@ -61,6 +61,7 @@
         this.validateApi();
         if (this.validated) {
           this.basisData.request = this.request;
+          console.log(this.basisData)
           this.$emit('saveApi', this.basisData);
         }
       },
