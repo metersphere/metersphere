@@ -370,7 +370,7 @@ export default {
       });
     },
     refresh() {
-      this.condition = {components: TEST_CASE_CONFIGS};
+      // this.condition = {components: TEST_CASE_CONFIGS};
       // this.selectIds.clear();
       this.selectRows.clear();
       this.$emit('refresh');
