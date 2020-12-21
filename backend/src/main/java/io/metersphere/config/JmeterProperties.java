@@ -16,4 +16,5 @@ public class JmeterProperties {
 
     private String home;
 
+    private String heap = "-Xms1g -Xmx1g -XX:MaxMetaspaceSize=256m";
 }

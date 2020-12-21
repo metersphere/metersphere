@@ -62,7 +62,7 @@
             <el-popover
               placement="right-end"
               :title="$t('test_track.case.view_case')"
-              width="60%"
+              width="70%"
               trigger="hover"
             >
               <test-case-detail v-if="currentCaseId === scope.row.id" :test-case-id="currentCaseId"/>
