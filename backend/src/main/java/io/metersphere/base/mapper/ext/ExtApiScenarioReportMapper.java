@@ -13,14 +13,8 @@ public interface ExtApiScenarioReportMapper {
 
     APIReportResult get(@Param("reportId") String reportId);
 
-    @Select("SELECT count(id) AS countNumber FROM api_scenario_report WHERE project_id = #{0} ")
     long countByProjectID(String projectId);
 
-    @Select({
-            "SELECT count(id) AS countNumber FROM api_scenario_report ",
-            "WHERE project_id = #{projectId} ",
-            "AND create_time BETWEEN #{firstDayTimestamp} AND #{lastDayTimestamp} "
-    })
     long countByProjectIDAndCreateInThisWeek(@Param("projectId") String projectId, @Param("firstDayTimestamp") long firstDayTimestamp, @Param("lastDayTimestamp") long lastDayTimestamp);
 
 }

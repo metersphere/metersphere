@@ -152,4 +152,19 @@
         GROUP BY x
     </select>
 
+    <select id="countByWorkspaceIdAndGroupGroupByExecuteResult" resultType="io.metersphere.api.dto.dataCount.ApiDataCountResult">
+        SELECT testReport.`status` AS groupField,COUNT(testReportDetail.report_id) AS countNumber
+        FROM api_test_report_detail testReportDetail
+        INNER JOIN `schedule` sch ON sch.resource_id = testReportDetail.test_id
+        INNER JOIN api_test_report testReport ON testReportDetail.report_id = testReport.id
+        WHERE workspace_id = #{workspaceID}  AND `group` = #{group}
+    </select>
+
+    <select id="countByProjectIDAndCreateInThisWeek" resultType="java.lang.Long">
+        SELECT COUNT(testReportDetail.report_id) AS countNumber FROM api_test_report_detail testReportDetail
+        INNER JOIN `schedule` sch ON sch.resource_id = testReportDetail.test_id
+        INNER JOIN api_test_report testReport ON testReportDetail.report_id = testReport.id
+        WHERE workspace_id = #{workspaceID}  AND `group` = #{group}
+        AND testReport.create_time BETWEEN #{startTime} and #{endTime}
+    </select>
 </mapper>

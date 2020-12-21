@@ -166,4 +166,12 @@
         ORDER BY r.update_time DESC
     </select>
 
+    <select id="countByProjectID" resultType="java.lang.Long">
+        SELECT count(id) AS countNumber FROM api_scenario_report WHERE project_id = #{0}
+    </select>
+    <select id="countByProjectIDAndCreateInThisWeek" resultType="java.lang.Long">
+        SELECT count(id) AS countNumber FROM api_scenario_report
+        WHERE project_id = #{projectId}
+        AND create_time BETWEEN #{firstDayTimestamp} AND #{lastDayTimestamp}
+    </select>
 </mapper>

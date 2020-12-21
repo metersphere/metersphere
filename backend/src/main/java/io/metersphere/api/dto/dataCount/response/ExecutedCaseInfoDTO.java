@@ -17,4 +17,6 @@ public class ExecutedCaseInfoDTO {
     private String testPlan;
     //失败次数
     private Long failureTimes;
+    //案例类型
+    private String caseType;
 }

@@ -28,6 +28,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
@@ -178,12 +179,27 @@ public class APITestController {
 
         ApiDataCountDTO apiCountResult = new ApiDataCountDTO();
 
-        List<ApiDataCountResult> countResultList = apiDefinitionService.countProtocolByProjectID(projectId);
-        apiCountResult.countByApiDefinitionCountResult(countResultList);
+        List<ApiDataCountResult> countResultByProtocolList = apiDefinitionService.countProtocolByProjectID(projectId);
+        apiCountResult.countProtocal(countResultByProtocolList);
 
         long dateCountByCreateInThisWeek = apiDefinitionService.countByProjectIDAndCreateInThisWeek(projectId);
         apiCountResult.setThisWeekAddedCount(dateCountByCreateInThisWeek);
 
+        //查询完成率、进行中、已完成
+        List<ApiDataCountResult> countResultByStatelList = apiDefinitionService.countStateByProjectID(projectId);
+        apiCountResult.countStatus(countResultByStatelList);
+        long allCount = apiCountResult.getFinishedCount()+apiCountResult.getRunningCount()+apiCountResult.getNotStartedCount();
+
+        if(allCount!=0){
+            float complateRageNumber =(float)apiCountResult.getFinishedCount()*100/allCount;
+            DecimalFormat df = new DecimalFormat("0.0");
+            apiCountResult.setCompletionRage(df.format(complateRageNumber)+"%");
+        }
+
+        apiCountResult.setHttpCountStr("HTTP&nbsp;&nbsp;<br/><br/>"+apiCountResult.getHttpApiDataCountNumber());
+        apiCountResult.setRpcCountStr("RPC&nbsp;&nbsp;<br/><br/>"+apiCountResult.getRpcApiDataCountNumber());
+        apiCountResult.setTcpCountStr("TCP&nbsp;&nbsp;<br/><br/>"+apiCountResult.getTcpApiDataCountNumber());
+        apiCountResult.setSqlCountStr("SQL&nbsp;&nbsp;<br/><br/>"+apiCountResult.getSqlApiDataCountNumber());
         return  apiCountResult;
     }
 
@@ -192,7 +208,7 @@ public class APITestController {
         ApiDataCountDTO apiCountResult = new ApiDataCountDTO();
 
         List<ApiDataCountResult> countResultList = apiTestCaseService.countProtocolByProjectID(projectId);
-        apiCountResult.countByApiDefinitionCountResult(countResultList);
+        apiCountResult.countProtocal(countResultList);
 
         long dateCountByCreateInThisWeek = apiTestCaseService.countByProjectIDAndCreateInThisWeek(projectId);
         apiCountResult.setThisWeekAddedCount(dateCountByCreateInThisWeek);
@@ -201,6 +217,23 @@ public class APITestController {
         apiCountResult.setThisWeekExecutedCount(executedInThisWeekCountNumber);
         long executedCountNumber = apiDefinitionExecResultService.countByTestCaseIDInProject(projectId);
         apiCountResult.setExecutedCount(executedCountNumber);
+
+        //未覆盖 已覆盖： 统计当前接口下是否含有案例
+        List<ApiDataCountResult> countResultByApiCoverageList = apiDefinitionService.countApiCoverageByProjectID(projectId);
+        apiCountResult.countApiCoverage(countResultByApiCoverageList);
+        long allCount = apiCountResult.getCoverageCount()+apiCountResult.getUncoverageCount();
+
+        if(allCount!=0){
+            float coverageRageNumber =(float)apiCountResult.getCoverageCount()*100/allCount;
+            DecimalFormat df = new DecimalFormat("0.0");
+            apiCountResult.setCoverageRage(df.format(coverageRageNumber)+"%");
+        }
+
+
+        apiCountResult.setHttpCountStr("HTTP&nbsp;&nbsp;<br/><br/>"+apiCountResult.getHttpApiDataCountNumber());
+        apiCountResult.setRpcCountStr("RPC&nbsp;&nbsp;<br/><br/>"+apiCountResult.getRpcApiDataCountNumber());
+        apiCountResult.setTcpCountStr("TCP&nbsp;&nbsp;<br/><br/>"+apiCountResult.getTcpApiDataCountNumber());
+        apiCountResult.setSqlCountStr("SQL&nbsp;&nbsp;<br/><br/>"+apiCountResult.getSqlApiDataCountNumber());
 
         return  apiCountResult;
     }
@@ -225,6 +258,18 @@ public class APITestController {
         long executedCountNumber = apiScenarioReportService.countByProjectID(projectId);
         apiCountResult.setExecutedCount(executedCountNumber);
 
+        //未执行、未通过、已通过
+        List<ApiDataCountResult> countResultByRunResult = apiAutomationService.countRunResultByProjectID(projectId);
+        apiCountResult.countRunResult(countResultByRunResult);
+
+        long allCount = apiCountResult.getUnexecuteCount()+apiCountResult.getExecutionPassCount()+apiCountResult.getExecutionFailedCount();
+
+        if(allCount!=0){
+            float coverageRageNumber =(float)apiCountResult.getExecutionPassCount()*100/allCount;
+            DecimalFormat df = new DecimalFormat("0.0");
+            apiCountResult.setCoverageRage(df.format(coverageRageNumber)+"%");
+        }
+
         return  apiCountResult;
 
     }
@@ -241,8 +286,17 @@ public class APITestController {
         apiCountResult.setThisWeekAddedCount(taskCountInThisWeek);
         long executedInThisWeekCountNumber = apiReportService.countByWorkspaceIdAndGroupAndCreateInThisWeek(workSpaceID,ScheduleGroup.API_TEST.name());
         apiCountResult.setThisWeekExecutedCount(executedInThisWeekCountNumber);
-        long executedCountNumber = apiReportService.countByWorkspaceIdAndGroup(workSpaceID,ScheduleGroup.API_TEST.name());
-        apiCountResult.setExecutedCount(executedCountNumber);
+
+        //统计 失败 成功 以及总数
+        List<ApiDataCountResult> allExecuteResult = apiReportService.countByWorkspaceIdAndGroupGroupByExecuteResult(workSpaceID,ScheduleGroup.API_TEST.name());
+        apiCountResult.countScheduleExecute(allExecuteResult);
+
+        long allCount = apiCountResult.getExecutedCount();
+        if(allCount!=0){
+            float coverageRageNumber =(float)apiCountResult.getSuccessCount()*100/allCount;
+            DecimalFormat df = new DecimalFormat("0.0");
+            apiCountResult.setCoverageRage(df.format(coverageRageNumber)+"%");
+        }
 
         return  apiCountResult;
     }
@@ -265,6 +319,7 @@ public class APITestController {
                 dataDTO.setCaseName(selectData.getCaseName());
                 dataDTO.setTestPlan(selectData.getTestPlan());
                 dataDTO.setFailureTimes(selectData.getFailureTimes());
+                dataDTO.setCaseType(selectData.getCaseType());
             }else {
                 dataDTO.setCaseName("");
                 dataDTO.setTestPlan("");

@@ -14,13 +14,13 @@
           <el-switch @click.stop.native v-model="scope.row.taskStatus" @change="updateTask(scope.row)"/>
         </template>
       </el-table-column>
-      <el-table-column width="200" :label="$t('api_test.home_page.running_task_list.table_coloum.next_execution_time')">
+      <el-table-column width="170" :label="$t('api_test.home_page.running_task_list.table_coloum.next_execution_time')">
         <template v-slot:default="scope">
           <span>{{ scope.row.nextExecutionTime | timestampFormatDate }}</span>
         </template>
       </el-table-column>
-      <el-table-column prop="creator"  :label="$t('api_test.home_page.running_task_list.table_coloum.create_user')" width="150" show-overflow-tooltip/>
-      <el-table-column width="200" :label="$t('api_test.home_page.running_task_list.table_coloum.update_time')">
+      <el-table-column prop="creator"  :label="$t('api_test.home_page.running_task_list.table_coloum.create_user')" width="100" show-overflow-tooltip/>
+      <el-table-column width="170" :label="$t('api_test.home_page.running_task_list.table_coloum.update_time')">
         <template v-slot:default="scope">
           <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
         </template>
@@ -74,6 +74,9 @@ export default {
 
 .el-table {
   cursor:pointer;
+}
+.el-card /deep/ .el-card__header {
+  border-bottom: 0px solid #EBEEF5;
 }
 
 </style>

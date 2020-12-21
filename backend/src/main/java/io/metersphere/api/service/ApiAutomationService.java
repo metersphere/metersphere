@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import io.metersphere.api.dto.APIReportResult;
 import io.metersphere.api.dto.automation.*;
+import io.metersphere.api.dto.dataCount.ApiDataCountResult;
 import io.metersphere.api.dto.definition.RunDefinitionRequest;
 import io.metersphere.api.dto.definition.request.*;
 import io.metersphere.api.dto.scenario.KeyValue;
@@ -376,5 +377,9 @@ public class ApiAutomationService {
         }else {
             return extApiScenarioMapper.countByProjectIDAndCreatInThisWeek(projectId,firstTime.getTime(),lastTime.getTime());
         }
+    }
+
+    public List<ApiDataCountResult> countRunResultByProjectID(String projectId) {
+        return extApiScenarioMapper.countRunResultByProjectID(projectId);
     }
 }

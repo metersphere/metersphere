@@ -252,4 +252,16 @@
             </foreach>
         </if>
     </select>
+    <select id="countProtocolByProjectID" resultType="io.metersphere.api.dto.dataCount.ApiDataCountResult">
+        SELECT apiDef.protocol AS groupField,COUNT(testCase.id) AS countNumber FROM api_test_case testCase
+        INNER JOIN  api_definition apiDef ON testCase.api_definition_id = apiDef.id
+        WHERE testCase.project_id = #{0}
+        GROUP BY apiDef.protocol
+    </select>
+    <select id="countByProjectIDAndCreateInThisWeek" resultType="java.lang.Long">
+        SELECT count(testCase.id) AS countNumber FROM api_test_case testCase
+        INNER JOIN  api_definition apiDef ON testCase.api_definition_id = apiDef.id
+        WHERE testCase.project_id = #{projectId}
+        AND testCase.create_time BETWEEN #{firstDayTimestamp} AND #{lastDayTimestamp}
+    </select>
 </mapper>

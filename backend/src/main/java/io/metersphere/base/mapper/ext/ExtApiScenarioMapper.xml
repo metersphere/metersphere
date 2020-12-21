@@ -108,5 +108,19 @@
         </foreach>
     </update>
 
+    <select id="countByProjectID" resultType="java.lang.Long">
+        SELECT COUNT(id) AS countNumber FROM api_scenario WHERE project_id = #{0}
+    </select>
+    <select id="countByProjectIDAndCreatInThisWeek" resultType="java.lang.Long">
+        SELECT count(id) AS countNumber FROM api_scenario
+        WHERE project_id = #{projectId}
+        AND create_time BETWEEN #{firstDayTimestamp} AND #{lastDayTimestamp}
+    </select>
+
+    <select id="countRunResultByProjectID" resultType="io.metersphere.api.dto.dataCount.ApiDataCountResult">
+        SELECT count(id) AS countNumber, if(last_result is null,"notRun",last_result) AS groupField  FROM api_scenario
+        WHERE project_id = #{0}
+        GROUP BY groupField
+    </select>
 
 </mapper>
