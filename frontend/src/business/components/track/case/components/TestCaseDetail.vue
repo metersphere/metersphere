@@ -1,7 +1,7 @@
 <template>
-  <el-row :gutter="10">
+  <el-row :gutter="5">
     <el-col :span="16">
-      <el-card>
+      <el-card class="case-detail-form-card">
         <el-form :model="form" ref="caseFrom" v-loading="result.loading">
 
           <el-row>
@@ -217,5 +217,12 @@ export default {
 </script>
 
 <style scoped>
+.case-detail-form-card {
+  height: 600px;
+  overflow: auto;
+}
 
+.case-detail-form-card >>> .el-card__body {
+  padding: 20px 28px;
+}
 </style>
