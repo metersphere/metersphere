@@ -15,7 +15,6 @@ public class EngineContext {
     private Integer resourceIndex;
     private Map<String, Object> properties = new HashMap<>();
     private Map<String, String> testData = new HashMap<>();
-    private Map<String, String> env = new HashMap<>();
     private Map<String, byte[]> testJars = new HashMap<>();
 
     public String getTestId() {
@@ -48,14 +47,6 @@ public class EngineContext {
 
     public void addProperties(Map<String, Object> props) {
         this.properties.putAll(props);
-    }
-
-    public Map<String, String> getEnv() {
-        return env;
-    }
-
-    public void setEnv(Map<String, String> env) {
-        this.env = env;
     }
 
     public Object getProperty(String key) {

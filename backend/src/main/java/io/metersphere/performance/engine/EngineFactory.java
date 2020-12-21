@@ -11,7 +11,6 @@ import io.metersphere.commons.constants.FileType;
 import io.metersphere.commons.constants.ResourcePoolTypeEnum;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.LogUtil;
-import io.metersphere.config.KafkaProperties;
 import io.metersphere.i18n.Translator;
 import io.metersphere.performance.engine.docker.DockerTestEngine;
 import io.metersphere.performance.parse.EngineSourceParser;
@@ -34,7 +33,6 @@ import java.util.stream.Collectors;
 public class EngineFactory {
     private static FileService fileService;
     private static TestResourcePoolService testResourcePoolService;
-    private static KafkaProperties kafkaProperties;
     private static Class<? extends KubernetesTestEngine> kubernetesTestEngineClass;
 
     static {
@@ -99,13 +97,6 @@ public class EngineFactory {
         engineContext.setStartTime(startTime);
         engineContext.setReportId(reportId);
         engineContext.setResourceIndex(resourceIndex);
-        HashMap<String, String> env = new HashMap<String, String>() {{
-            put("BOOTSTRAP_SERVERS", kafkaProperties.getBootstrapServers());
-            put("LOG_TOPIC", kafkaProperties.getLog().getTopic());
-            put("REPORT_ID", reportId);
-            put("RESOURCE_ID", resourceId);
-        }};
-        engineContext.setEnv(env);
 
         if (StringUtils.isNotEmpty(loadTest.getLoadConfiguration())) {
             final JSONArray jsonArray = JSONObject.parseArray(loadTest.getLoadConfiguration());
@@ -196,10 +187,5 @@ public class EngineFactory {
     @Resource
     public void setTestResourcePoolService(TestResourcePoolService testResourcePoolService) {
         EngineFactory.testResourcePoolService = testResourcePoolService;
-    }
-
-    @Resource
-    public void setKafkaProperties(KafkaProperties kafkaProperties) {
-        EngineFactory.kafkaProperties = kafkaProperties;
     }
 }
