@@ -8,12 +8,10 @@ import lombok.ToString;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
-public class ApiTestCaseWithBLOBs extends ApiTestCase implements Serializable {
+public class ApiScenarioWithBLOBs extends ApiScenario implements Serializable {
+    private String scenarioDefinition;
+
     private String description;
-
-    private String request;
-
-    private String response;
 
     private static final long serialVersionUID = 1L;
 }

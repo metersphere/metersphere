@@ -17,7 +17,7 @@
 
         <el-col :span="5">
           <el-tooltip effect="dark" :content="request.responseResult.responseCode" placement="bottom" :open-delay="800">
-            <div style="color: #5daf34" v-if="request.responseResult.responseCode==='200'">{{ request.responseResult.responseCode }}</div>
+            <div style="color: #5daf34" v-if="request.success">{{ request.responseResult.responseCode }}</div>
             <div style="color: #FE6F71" v-else>{{ request.responseResult.responseCode }}</div>
           </el-tooltip>
         </el-col>

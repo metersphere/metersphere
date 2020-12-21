@@ -141,7 +141,7 @@ public abstract class ApiImportAbstractParser implements ApiImportParser {
 //            }
 //        }
 //        if (!hasContentType) {
-//            headers.add(new KeyValue(key, value));
+//            headers.save(new KeyValue(key, value));
 //        }
 //        request.setHeaders(headers);
 //    }

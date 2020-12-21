@@ -2,10 +2,10 @@ package io.metersphere.api.controller;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
-import io.metersphere.api.dto.APIReportResult;
 import io.metersphere.api.dto.DeleteAPIReportRequest;
 import io.metersphere.api.dto.QueryAPIReportRequest;
 import io.metersphere.api.dto.automation.APIScenarioReportResult;
+import io.metersphere.api.dto.automation.ExecuteType;
 import io.metersphere.api.service.ApiScenarioReportService;
 import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.commons.utils.PageUtils;
@@ -27,8 +27,8 @@ public class APIScenarioReportController {
     private ApiScenarioReportService apiReportService;
 
     @GetMapping("/get/{reportId}/{infoDb}")
-    public APIReportResult get(@PathVariable String reportId,@PathVariable Boolean infoDb) {
-        if(infoDb){
+    public APIScenarioReportResult get(@PathVariable String reportId, @PathVariable Boolean infoDb) {
+        if (infoDb) {
             return apiReportService.get(reportId);
         }
         return apiReportService.getCacheResult(reportId);
@@ -44,12 +44,14 @@ public class APIScenarioReportController {
     @PostMapping("/add")
     @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
     public String add(@RequestBody APIScenarioReportResult node) {
-        return apiReportService.add(node);
+        node.setExecuteType(ExecuteType.Saved.name());
+        return apiReportService.save(node);
     }
 
     @PostMapping("/update")
     @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
     public String update(@RequestBody APIScenarioReportResult node) {
+        node.setExecuteType(ExecuteType.Saved.name());
         return apiReportService.update(node);
     }
 

@@ -1,14 +1,10 @@
 package io.metersphere.base.mapper;
 
-import io.metersphere.api.dto.dataCount.ApiDataCountResult;
-import io.metersphere.api.dto.dataCount.response.ApiDataCountDTO;
 import io.metersphere.base.domain.ApiDefinition;
 import io.metersphere.base.domain.ApiDefinitionExample;
 import io.metersphere.base.domain.ApiDefinitionWithBLOBs;
-import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.Select;
-
 import java.util.List;
+import org.apache.ibatis.annotations.Param;
 
 public interface ApiDefinitionMapper {
     long countByExample(ApiDefinitionExample example);
@@ -38,5 +34,4 @@ public interface ApiDefinitionMapper {
     int updateByPrimaryKeyWithBLOBs(ApiDefinitionWithBLOBs record);
 
     int updateByPrimaryKey(ApiDefinition record);
-
 }

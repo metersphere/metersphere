@@ -105,7 +105,7 @@ export default {
               try {
                 this.content = JSON.parse(this.report.content);
               } catch (e) {
-                // console.log(this.report.content)
+                // console.log(this.report.scenarioDefinition)
                 throw e;
               }
               this.getFails();
