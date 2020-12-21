@@ -314,76 +314,6 @@ public class ApiScenarioReportExample {
             return (Criteria) this;
         }
 
-        public Criteria andDescriptionIsNull() {
-            addCriterion("description is null");
-            return (Criteria) this;
-        }
-
-        public Criteria andDescriptionIsNotNull() {
-            addCriterion("description is not null");
-            return (Criteria) this;
-        }
-
-        public Criteria andDescriptionEqualTo(String value) {
-            addCriterion("description =", value, "description");
-            return (Criteria) this;
-        }
-
-        public Criteria andDescriptionNotEqualTo(String value) {
-            addCriterion("description <>", value, "description");
-            return (Criteria) this;
-        }
-
-        public Criteria andDescriptionGreaterThan(String value) {
-            addCriterion("description >", value, "description");
-            return (Criteria) this;
-        }
-
-        public Criteria andDescriptionGreaterThanOrEqualTo(String value) {
-            addCriterion("description >=", value, "description");
-            return (Criteria) this;
-        }
-
-        public Criteria andDescriptionLessThan(String value) {
-            addCriterion("description <", value, "description");
-            return (Criteria) this;
-        }
-
-        public Criteria andDescriptionLessThanOrEqualTo(String value) {
-            addCriterion("description <=", value, "description");
-            return (Criteria) this;
-        }
-
-        public Criteria andDescriptionLike(String value) {
-            addCriterion("description like", value, "description");
-            return (Criteria) this;
-        }
-
-        public Criteria andDescriptionNotLike(String value) {
-            addCriterion("description not like", value, "description");
-            return (Criteria) this;
-        }
-
-        public Criteria andDescriptionIn(List<String> values) {
-            addCriterion("description in", values, "description");
-            return (Criteria) this;
-        }
-
-        public Criteria andDescriptionNotIn(List<String> values) {
-            addCriterion("description not in", values, "description");
-            return (Criteria) this;
-        }
-
-        public Criteria andDescriptionBetween(String value1, String value2) {
-            addCriterion("description between", value1, value2, "description");
-            return (Criteria) this;
-        }
-
-        public Criteria andDescriptionNotBetween(String value1, String value2) {
-            addCriterion("description not between", value1, value2, "description");
-            return (Criteria) this;
-        }
-
         public Criteria andCreateTimeIsNull() {
             addCriterion("create_time is null");
             return (Criteria) this;
@@ -711,6 +641,76 @@ public class ApiScenarioReportExample {
 
         public Criteria andTriggerModeNotBetween(String value1, String value2) {
             addCriterion("trigger_mode not between", value1, value2, "triggerMode");
+            return (Criteria) this;
+        }
+
+        public Criteria andExecuteTypeIsNull() {
+            addCriterion("execute_type is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andExecuteTypeIsNotNull() {
+            addCriterion("execute_type is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andExecuteTypeEqualTo(String value) {
+            addCriterion("execute_type =", value, "executeType");
+            return (Criteria) this;
+        }
+
+        public Criteria andExecuteTypeNotEqualTo(String value) {
+            addCriterion("execute_type <>", value, "executeType");
+            return (Criteria) this;
+        }
+
+        public Criteria andExecuteTypeGreaterThan(String value) {
+            addCriterion("execute_type >", value, "executeType");
+            return (Criteria) this;
+        }
+
+        public Criteria andExecuteTypeGreaterThanOrEqualTo(String value) {
+            addCriterion("execute_type >=", value, "executeType");
+            return (Criteria) this;
+        }
+
+        public Criteria andExecuteTypeLessThan(String value) {
+            addCriterion("execute_type <", value, "executeType");
+            return (Criteria) this;
+        }
+
+        public Criteria andExecuteTypeLessThanOrEqualTo(String value) {
+            addCriterion("execute_type <=", value, "executeType");
+            return (Criteria) this;
+        }
+
+        public Criteria andExecuteTypeLike(String value) {
+            addCriterion("execute_type like", value, "executeType");
+            return (Criteria) this;
+        }
+
+        public Criteria andExecuteTypeNotLike(String value) {
+            addCriterion("execute_type not like", value, "executeType");
+            return (Criteria) this;
+        }
+
+        public Criteria andExecuteTypeIn(List<String> values) {
+            addCriterion("execute_type in", values, "executeType");
+            return (Criteria) this;
+        }
+
+        public Criteria andExecuteTypeNotIn(List<String> values) {
+            addCriterion("execute_type not in", values, "executeType");
+            return (Criteria) this;
+        }
+
+        public Criteria andExecuteTypeBetween(String value1, String value2) {
+            addCriterion("execute_type between", value1, value2, "executeType");
+            return (Criteria) this;
+        }
+
+        public Criteria andExecuteTypeNotBetween(String value1, String value2) {
+            addCriterion("execute_type not between", value1, value2, "executeType");
             return (Criteria) this;
         }
     }

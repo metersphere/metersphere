@@ -1,124 +1,127 @@
 <template>
   <el-card class="card-content">
-    <div class="ms-main-div" @click="showAll">
-      <el-row>
-        <el-col>
-          <!--操作按钮-->
-          <div class="ms-opt-btn">
-            <el-button type="primary" size="small" @click="editScenario">{{$t('commons.save')}}</el-button>
-          </div>
-        </el-col>
-      </el-row>
-      <div class="tip">{{$t('test_track.plan_view.base_info')}}</div>
-      <el-form :model="currentScenario" label-position="right" label-width="80px" size="small" :rules="rules" ref="currentScenario" style="margin-right: 20px">
-        <!-- 基础信息 -->
+    <div>
+      <div class="ms-main-div" @click="showAll">
         <el-row>
-          <el-col :span="12">
-            <el-form-item :label="$t('commons.name')" prop="name">
-              <el-input class="ms-scenario-input" size="small" v-model="currentScenario.name"/>
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item :label="$t('test_track.module.module')" prop="apiScenarioModuleId">
-              <el-select class="ms-scenario-input" size="small" v-model="currentScenario.apiScenarioModuleId">
-                <el-option v-for="item in moduleOptions" :key="item.id" :label="item.path" :value="item.id"/>
-              </el-select>
-            </el-form-item>
+          <el-col>
+            <!--操作按钮-->
+            <div class="ms-opt-btn">
+              <el-button type="primary" size="small" @click="editScenario">{{$t('commons.save')}}</el-button>
+            </div>
           </el-col>
         </el-row>
-        <el-row>
-          <el-col :span="12">
-            <el-form-item :label="$t('commons.status')" prop="status">
-              <el-select class="ms-scenario-input" size="small" v-model="currentScenario.status">
-                <el-option v-for="item in options" :key="item.id" :label="item.label" :value="item.id"/>
-              </el-select>
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item :label="$t('api_test.definition.request.responsible')" prop="principal">
-              <el-select v-model="currentScenario.principal"
-                         :placeholder="$t('api_test.definition.request.responsible')" filterable size="small"
-                         class="ms-scenario-input">
-                <el-option
-                  v-for="item in maintainerOptions"
-                  :key="item.id"
-                  :label="item.id + ' (' + item.name + ')'"
-                  :value="item.id">
-                </el-option>
-              </el-select>
+        <div class="tip">{{$t('test_track.plan_view.base_info')}}</div>
+        <el-form :model="currentScenario" label-position="right" label-width="80px" size="small" :rules="rules" ref="currentScenario" style="margin-right: 20px">
+          <!-- 基础信息 -->
+          <el-row>
+            <el-col :span="12">
+              <el-form-item :label="$t('commons.name')" prop="name">
+                <el-input class="ms-scenario-input" size="small" v-model="currentScenario.name"/>
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item :label="$t('test_track.module.module')" prop="apiScenarioModuleId">
+                <el-select class="ms-scenario-input" size="small" v-model="currentScenario.apiScenarioModuleId">
+                  <el-option v-for="item in moduleOptions" :key="item.id" :label="item.path" :value="item.id"/>
+                </el-select>
+              </el-form-item>
+            </el-col>
+          </el-row>
+          <el-row>
+            <el-col :span="12">
+              <el-form-item :label="$t('commons.status')" prop="status">
+                <el-select class="ms-scenario-input" size="small" v-model="currentScenario.status">
+                  <el-option v-for="item in options" :key="item.id" :label="item.label" :value="item.id"/>
+                </el-select>
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item :label="$t('api_test.definition.request.responsible')" prop="principal">
+                <el-select v-model="currentScenario.principal"
+                           :placeholder="$t('api_test.definition.request.responsible')" filterable size="small"
+                           class="ms-scenario-input">
+                  <el-option
+                    v-for="item in maintainerOptions"
+                    :key="item.id"
+                    :label="item.id + ' (' + item.name + ')'"
+                    :value="item.id">
+                  </el-option>
+                </el-select>
 
-            </el-form-item>
-          </el-col>
-        </el-row>
+              </el-form-item>
+            </el-col>
+          </el-row>
 
-        <el-row>
-          <el-col :span="12">
-            <el-form-item :label="$t('test_track.case.priority')" prop="level">
-              <el-select class="ms-scenario-input" size="small" v-model="currentScenario.level">
-                <el-option v-for="item in levels" :key="item.id" :label="item.label" :value="item.id"/>
-              </el-select>
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item :label="$t('api_test.automation.follow_people')" prop="followPeople">
-              <el-select v-model="currentScenario.followPeople"
-                         :placeholder="$t('api_test.automation.follow_people')" filterable size="small"
-                         class="ms-scenario-input">
-                <el-option
-                  v-for="item in maintainerOptions"
-                  :key="item.id"
-                  :label="item.id + ' (' + item.name + ')'"
-                  :value="item.id">
-                </el-option>
-              </el-select>
+          <el-row>
+            <el-col :span="12">
+              <el-form-item :label="$t('test_track.case.priority')" prop="level">
+                <el-select class="ms-scenario-input" size="small" v-model="currentScenario.level">
+                  <el-option v-for="item in levels" :key="item.id" :label="item.label" :value="item.id"/>
+                </el-select>
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item :label="$t('api_test.automation.follow_people')" prop="followPeople">
+                <el-select v-model="currentScenario.followPeople"
+                           :placeholder="$t('api_test.automation.follow_people')" filterable size="small"
+                           class="ms-scenario-input">
+                  <el-option
+                    v-for="item in maintainerOptions"
+                    :key="item.id"
+                    :label="item.id + ' (' + item.name + ')'"
+                    :value="item.id">
+                  </el-option>
+                </el-select>
 
-            </el-form-item>
-          </el-col>
-        </el-row>
+              </el-form-item>
+            </el-col>
+          </el-row>
 
-        <el-row>
-          <el-col :span="12">
-            <el-form-item label="Tag" prop="tagId">
-              <el-select v-model="currentScenario.tagId" size="small" class="ms-scenario-input" placeholder="Tag" :multiple="true">
-                <el-option
-                  v-for="item in tags"
-                  :key="item.id"
-                  :label="item.name"
-                  :value="item.id"/>
-                <el-button size="mini" type="primary" @click="openTagConfig" class="ms-scenario-button">
-                  {{ $t('api_test.automation.create_tag') }}
-                </el-button>
-                <template v-slot:empty>
-                  <div>
-                    <el-button size="mini" type="primary" @click="openTagConfig" class="ms-scenario-button">
-                      {{ $t('api_test.automation.create_tag') }}
-                    </el-button>
-                  </div>
-                </template>
-              </el-select>
+          <el-row>
+            <el-col :span="12">
+              <el-form-item label="Tag" prop="tagId">
+                <el-select v-model="currentScenario.tagId" size="small" class="ms-scenario-input" placeholder="Tag" :multiple="true">
+                  <el-option
+                    v-for="item in tags"
+                    :key="item.id"
+                    :label="item.name"
+                    :value="item.id"/>
+                  <el-button size="mini" type="primary" @click="openTagConfig" class="ms-scenario-button">
+                    {{ $t('api_test.automation.create_tag') }}
+                  </el-button>
+                  <template v-slot:empty>
+                    <div>
+                      <el-button size="mini" type="primary" @click="openTagConfig" class="ms-scenario-button">
+                        {{ $t('api_test.automation.create_tag') }}
+                      </el-button>
+                    </div>
+                  </template>
+                </el-select>
 
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item :label="$t('commons.description')" prop="description">
-              <el-input class="ms-http-textarea"
-                        v-model="currentScenario.description"
-                        type="textarea"
-                        :autosize="{ minRows: 2, maxRows: 10}"
-                        :rows="2" size="small"/>
-            </el-form-item>
-          </el-col>
-        </el-row>
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item :label="$t('commons.description')" prop="description">
+                <el-input class="ms-http-textarea"
+                          v-model="currentScenario.description"
+                          type="textarea"
+                          :autosize="{ minRows: 2, maxRows: 10}"
+                          :rows="2" size="small"/>
+              </el-form-item>
+            </el-col>
+          </el-row>
 
-      </el-form>
-
+        </el-form>
+      </div>
       <!-- 场景步骤-->
       <div v-loading="loading">
-        <p class="tip">{{$t('api_test.automation.scenario_step')}} </p>
+        <div @click="showAll">
+          <p class="tip">{{$t('api_test.automation.scenario_step')}} </p>
+        </div>
         <el-row>
           <el-col :span="21">
             <!-- 调试部分 -->
-            <div class="ms-debug-div">
+            <div class="ms-debug-div" @click="showAll">
               <el-row style="margin: 5px">
                 <el-col :span="6" class="ms-col-one">
                   {{currentScenario.name ===undefined || ''? $t('api_test.scenario.name') : currentScenario.name}}

@@ -844,6 +844,7 @@ export class JSR223Processor extends BaseConfig {
     this.script = undefined;
     this.language = "beanshell";
     this.enable = true;
+    this.hashTree = [];
     this.set(options);
   }
 }

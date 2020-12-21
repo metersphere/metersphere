@@ -9,6 +9,8 @@ import lombok.ToString;
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 public class ApiDefinitionWithBLOBs extends ApiDefinition implements Serializable {
+    private String description;
+
     private String request;
 
     private String response;

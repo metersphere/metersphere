@@ -7,13 +7,13 @@
     <result column="name" jdbcType="VARCHAR" property="name" />
     <result column="priority" jdbcType="VARCHAR" property="priority" />
     <result column="api_definition_id" jdbcType="VARCHAR" property="apiDefinitionId" />
-    <result column="description" jdbcType="VARCHAR" property="description" />
     <result column="create_user_id" jdbcType="VARCHAR" property="createUserId" />
     <result column="update_user_id" jdbcType="VARCHAR" property="updateUserId" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
     <result column="update_time" jdbcType="BIGINT" property="updateTime" />
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.ApiTestCaseWithBLOBs">
+    <result column="description" jdbcType="LONGVARCHAR" property="description" />
     <result column="request" jdbcType="LONGVARCHAR" property="request" />
     <result column="response" jdbcType="LONGVARCHAR" property="response" />
   </resultMap>
@@ -76,11 +76,11 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, project_id, `name`, priority, api_definition_id, description, create_user_id, 
-    update_user_id, create_time, update_time
+    id, project_id, `name`, priority, api_definition_id, create_user_id, update_user_id, 
+    create_time, update_time
   </sql>
   <sql id="Blob_Column_List">
-    request, response
+    description, request, response
   </sql>
   <select id="selectByExampleWithBLOBs" parameterType="io.metersphere.base.domain.ApiTestCaseExample" resultMap="ResultMapWithBLOBs">
     select
@@ -132,14 +132,14 @@
   </delete>
   <insert id="insert" parameterType="io.metersphere.base.domain.ApiTestCaseWithBLOBs">
     insert into api_test_case (id, project_id, `name`, 
-      priority, api_definition_id, description, 
-      create_user_id, update_user_id, create_time, 
-      update_time, request, response
+      priority, api_definition_id, create_user_id, 
+      update_user_id, create_time, update_time, 
+      description, request, response
       )
     values (#{id,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, 
-      #{priority,jdbcType=VARCHAR}, #{apiDefinitionId,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}, 
-      #{createUserId,jdbcType=VARCHAR}, #{updateUserId,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, 
-      #{updateTime,jdbcType=BIGINT}, #{request,jdbcType=LONGVARCHAR}, #{response,jdbcType=LONGVARCHAR}
+      #{priority,jdbcType=VARCHAR}, #{apiDefinitionId,jdbcType=VARCHAR}, #{createUserId,jdbcType=VARCHAR}, 
+      #{updateUserId,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, 
+      #{description,jdbcType=LONGVARCHAR}, #{request,jdbcType=LONGVARCHAR}, #{response,jdbcType=LONGVARCHAR}
       )
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.ApiTestCaseWithBLOBs">
@@ -160,9 +160,6 @@
       <if test="apiDefinitionId != null">
         api_definition_id,
       </if>
-      <if test="description != null">
-        description,
-      </if>
       <if test="createUserId != null">
         create_user_id,
       </if>
@@ -174,6 +171,9 @@
       </if>
       <if test="updateTime != null">
         update_time,
+      </if>
+      <if test="description != null">
+        description,
       </if>
       <if test="request != null">
         request,
@@ -198,9 +198,6 @@
       <if test="apiDefinitionId != null">
         #{apiDefinitionId,jdbcType=VARCHAR},
       </if>
-      <if test="description != null">
-        #{description,jdbcType=VARCHAR},
-      </if>
       <if test="createUserId != null">
         #{createUserId,jdbcType=VARCHAR},
       </if>
@@ -212,6 +209,9 @@
       </if>
       <if test="updateTime != null">
         #{updateTime,jdbcType=BIGINT},
+      </if>
+      <if test="description != null">
+        #{description,jdbcType=LONGVARCHAR},
       </if>
       <if test="request != null">
         #{request,jdbcType=LONGVARCHAR},
@@ -245,9 +245,6 @@
       <if test="record.apiDefinitionId != null">
         api_definition_id = #{record.apiDefinitionId,jdbcType=VARCHAR},
       </if>
-      <if test="record.description != null">
-        description = #{record.description,jdbcType=VARCHAR},
-      </if>
       <if test="record.createUserId != null">
         create_user_id = #{record.createUserId,jdbcType=VARCHAR},
       </if>
@@ -259,6 +256,9 @@
       </if>
       <if test="record.updateTime != null">
         update_time = #{record.updateTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.description != null">
+        description = #{record.description,jdbcType=LONGVARCHAR},
       </if>
       <if test="record.request != null">
         request = #{record.request,jdbcType=LONGVARCHAR},
@@ -278,11 +278,11 @@
       `name` = #{record.name,jdbcType=VARCHAR},
       priority = #{record.priority,jdbcType=VARCHAR},
       api_definition_id = #{record.apiDefinitionId,jdbcType=VARCHAR},
-      description = #{record.description,jdbcType=VARCHAR},
       create_user_id = #{record.createUserId,jdbcType=VARCHAR},
       update_user_id = #{record.updateUserId,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
       update_time = #{record.updateTime,jdbcType=BIGINT},
+      description = #{record.description,jdbcType=LONGVARCHAR},
       request = #{record.request,jdbcType=LONGVARCHAR},
       response = #{record.response,jdbcType=LONGVARCHAR}
     <if test="_parameter != null">
@@ -296,7 +296,6 @@
       `name` = #{record.name,jdbcType=VARCHAR},
       priority = #{record.priority,jdbcType=VARCHAR},
       api_definition_id = #{record.apiDefinitionId,jdbcType=VARCHAR},
-      description = #{record.description,jdbcType=VARCHAR},
       create_user_id = #{record.createUserId,jdbcType=VARCHAR},
       update_user_id = #{record.updateUserId,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
@@ -320,9 +319,6 @@
       <if test="apiDefinitionId != null">
         api_definition_id = #{apiDefinitionId,jdbcType=VARCHAR},
       </if>
-      <if test="description != null">
-        description = #{description,jdbcType=VARCHAR},
-      </if>
       <if test="createUserId != null">
         create_user_id = #{createUserId,jdbcType=VARCHAR},
       </if>
@@ -334,6 +330,9 @@
       </if>
       <if test="updateTime != null">
         update_time = #{updateTime,jdbcType=BIGINT},
+      </if>
+      <if test="description != null">
+        description = #{description,jdbcType=LONGVARCHAR},
       </if>
       <if test="request != null">
         request = #{request,jdbcType=LONGVARCHAR},
@@ -350,11 +349,11 @@
       `name` = #{name,jdbcType=VARCHAR},
       priority = #{priority,jdbcType=VARCHAR},
       api_definition_id = #{apiDefinitionId,jdbcType=VARCHAR},
-      description = #{description,jdbcType=VARCHAR},
       create_user_id = #{createUserId,jdbcType=VARCHAR},
       update_user_id = #{updateUserId,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
       update_time = #{updateTime,jdbcType=BIGINT},
+      description = #{description,jdbcType=LONGVARCHAR},
       request = #{request,jdbcType=LONGVARCHAR},
       response = #{response,jdbcType=LONGVARCHAR}
     where id = #{id,jdbcType=VARCHAR}
@@ -365,7 +364,6 @@
       `name` = #{name,jdbcType=VARCHAR},
       priority = #{priority,jdbcType=VARCHAR},
       api_definition_id = #{apiDefinitionId,jdbcType=VARCHAR},
-      description = #{description,jdbcType=VARCHAR},
       create_user_id = #{createUserId,jdbcType=VARCHAR},
       update_user_id = #{updateUserId,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
