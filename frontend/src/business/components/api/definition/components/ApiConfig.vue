@@ -166,7 +166,11 @@
         data.protocol = this.currentProtocol;
         data.request = this.request;
         data.request.name = data.name;
-        data.request.protocol = this.currentProtocol;
+        if (this.currentProtocol === "DUBBO" || this.currentProtocol === "dubbo://") {
+          data.request.protocol = "dubbo://";
+        } else {
+          data.request.protocol = this.currentProtocol;
+        }
         data.id = data.request.id;
         data.response = this.response;
       },
