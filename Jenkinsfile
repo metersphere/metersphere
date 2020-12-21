@@ -24,5 +24,12 @@ pipeline {
                 sh "docker push ${IMAGE_FREFIX}/${IMAGE_NAME}:\${TAG_NAME:-\$BRANCH_NAME}"
             }
         }
+        stage('Notification') {
+            steps {
+                withCredentials([string(credentialsId: 'wechat-bot-webhook', variable: 'WEBHOOK')]) {
+                    qyWechatNotification failSend: true, mentionedId: '', mentionedMobile: '', webhookUrl: '${WEBHOOK}'
+                }
+            }
+        }
     }
 }
