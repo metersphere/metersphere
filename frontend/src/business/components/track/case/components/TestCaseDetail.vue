@@ -157,7 +157,7 @@
       </el-card>
     </el-col>
     <el-col :span="8">
-      <case-comment :case-id="testCaseId"/>
+      <case-comment :case-id="testCaseId" :read-only="true"/>
     </el-col>
   </el-row>
 
