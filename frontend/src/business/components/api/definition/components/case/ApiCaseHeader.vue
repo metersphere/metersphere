@@ -6,9 +6,9 @@
           <div class="variable-combine"> {{api.name}}</div>
         </el-col>
         <el-col :span="api.protocol==='HTTP'? 1:3">
-          <ms-tag v-if="api.status == 'Prepare'" type="info" effect="plain" :content="$t('test_track.plan.plan_status_prepare')"/>
-          <ms-tag v-if="api.status == 'Underway'" type="warning" effect="plain" :content="$t('test_track.plan.plan_status_running')"/>
-          <ms-tag v-if="api.status == 'Completed'" type="success" effect="plain" :content="$t('test_track.plan.plan_status_completed')"/>
+          <el-tag size="mini" :style="{'background-color': getColor(true, api.method), border: getColor(true, api.method)}" class="api-el-tag">
+            {{ api.method}}
+          </el-tag>
         </el-col>
         <el-col :span="api.protocol==='HTTP'? 4:0">
           <div class="variable-combine" style="margin-left: 10px">{{api.path ===null ? " " : api.path}}</div>
@@ -72,85 +72,93 @@
 </template>
 
 <script>
-    import ApiEnvironmentConfig from "../../../test/components/ApiEnvironmentConfig";
-    import {parseEnvironment} from "../../../test/model/EnvironmentModel";
-    import MsTag from "../../../../common/components/MsTag";
-    export default {
-      name: "ApiCaseHeader",
-      components: {MsTag, ApiEnvironmentConfig},
-      data() {
-        return {
-          environments: [],
-          environment: {},
+  import ApiEnvironmentConfig from "../../../test/components/ApiEnvironmentConfig";
+  import {parseEnvironment} from "../../../test/model/EnvironmentModel";
+  import MsTag from "../../../../common/components/MsTag";
+  import {API_METHOD_COLOUR} from "../../model/JsonData";
+
+  export default {
+    name: "ApiCaseHeader",
+    components: {MsTag, ApiEnvironmentConfig},
+    data() {
+      return {
+        environments: [],
+        environment: {},
+        methodColorMap: new Map(API_METHOD_COLOUR),
+      }
+    },
+    props: {
+      api: Object,
+      projectId: String,
+      priorities: Array,
+      apiCaseList: Array,
+      isReadOnly: Boolean,
+      isCaseEdit: Boolean,
+      condition: {
+        type: Object,
+        default() {
+          return {}
+        }
+      }
+    },
+    created() {
+      this.environment = undefined;
+      this.getEnvironments();
+    },
+    watch: {
+      environment() {
+        this.$emit('setEnvironment', this.environment);
+      }
+    },
+    methods: {
+      getEnvironments() {
+        if (this.projectId) {
+          this.$get('/api/environment/list/' + this.projectId, response => {
+            this.environments = response.data;
+            this.environments.forEach(environment => {
+              parseEnvironment(environment);
+            });
+          });
+        } else {
+          this.environment = undefined;
         }
       },
-      props: {
-        api: Object,
-        projectId: String,
-        priorities: Array,
-        apiCaseList: Array,
-        isReadOnly: Boolean,
-        isCaseEdit: Boolean,
-        condition: {
-          type: Object,
-          default() {
-            return {}
+      openEnvironmentConfig() {
+        if (!this.projectId) {
+          this.$error(this.$t('api_test.select_project'));
+          return;
+        }
+        this.$refs.environmentConfig.open(this.projectId);
+      },
+      environmentChange(value) {
+        for (let i in this.environments) {
+          if (this.environments[i].id === value) {
+            this.environment = this.environments[i];
+            break;
           }
         }
       },
-      created() {
-        this.environment = undefined;
+      environmentConfigClose() {
         this.getEnvironments();
       },
-      watch: {
-        environment() {
-          this.$emit('setEnvironment', this.environment);
+      getApiTest() {
+        this.$emit('getApiTest');
+      },
+      addCase() {
+        this.$emit('addCase');
+      },
+      handleCommand(e) {
+        if (e === "run") {
+          this.$emit('batchRun');
         }
       },
-      methods: {
-        getEnvironments() {
-          if (this.projectId) {
-            this.$get('/api/environment/list/' + this.projectId, response => {
-              this.environments = response.data;
-              this.environments.forEach(environment => {
-                parseEnvironment(environment);
-              });
-            });
-          } else {
-            this.environment = undefined;
-          }
-        },
-        openEnvironmentConfig() {
-          if (!this.projectId) {
-            this.$error(this.$t('api_test.select_project'));
-            return;
-          }
-          this.$refs.environmentConfig.open(this.projectId);
-        },
-        environmentChange(value) {
-          for (let i in this.environments) {
-            if (this.environments[i].id === value) {
-              this.environment = this.environments[i];
-              break;
-            }
-          }
-        },
-        environmentConfigClose() {
-          this.getEnvironments();
-        },
-        getApiTest() {
-          this.$emit('getApiTest');
-        },
-        addCase() {
-          this.$emit('addCase');
-        },
-        handleCommand(e) {
-          if (e === "run") {
-            this.$emit('batchRun');
-          }
-        },
-      }
+      getColor(enable, method) {
+        if (enable) {
+          return this.methodColorMap.get(method);
+        }
+      },
     }
+  }
 </script>
 
 <style scoped>
@@ -190,5 +198,8 @@
     line-height: 32px;
   }
 
+  .api-el-tag {
+    color: white;
+  }
 
 </style>
