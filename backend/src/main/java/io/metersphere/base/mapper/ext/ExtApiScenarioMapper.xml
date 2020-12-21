@@ -61,11 +61,11 @@
         </if>
     </select>
 
-    <select id="selectByTagId" resultType="io.metersphere.base.domain.ApiScenario">
+    <select id="selectByTagId" resultType="io.metersphere.base.domain.ApiScenarioWithBLOBs">
       select * from api_scenario where tag_id like CONCAT('%', #{id},'%')
     </select>
 
-    <select id="selectIds" resultType="io.metersphere.base.domain.ApiScenario">
+    <select id="selectIds" resultType="io.metersphere.base.domain.ApiScenarioWithBLOBs">
         select * from api_scenario where id in
         <foreach collection="ids" item="v" separator="," open="(" close=")">
             #{v}

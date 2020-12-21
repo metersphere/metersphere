@@ -2,10 +2,10 @@ package io.metersphere.api.service;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import io.metersphere.api.dto.APIReportResult;
 import io.metersphere.api.dto.DeleteAPIReportRequest;
 import io.metersphere.api.dto.QueryAPIReportRequest;
 import io.metersphere.api.dto.automation.APIScenarioReportResult;
+import io.metersphere.api.dto.automation.ExecuteType;
 import io.metersphere.api.jmeter.TestResult;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ApiScenarioMapper;
@@ -49,11 +49,12 @@ public class ApiScenarioReportService {
         if (obj == null) {
             MSException.throwException(Translator.get("api_report_is_null"));
         }
-        APIReportResult report = (APIReportResult) obj;
+        APIScenarioReportResult report = (APIScenarioReportResult) obj;
         // report detail
-        ApiTestReportDetail detail = new ApiTestReportDetail();
+        ApiScenarioReportDetail detail = new ApiScenarioReportDetail();
         detail.setReportId(result.getTestId());
-        detail.setTestId(report.getTestId());
+        detail.setProjectId(report.getProjectId());
+        report.setTestId(result.getTestId());
         detail.setContent(JSONObject.toJSONString(result).getBytes(StandardCharsets.UTF_8));
         // report
         report.setUpdateTime(System.currentTimeMillis());
@@ -65,11 +66,8 @@ public class ApiScenarioReportService {
             }
         }
         report.setContent(new String(detail.getContent(), StandardCharsets.UTF_8));
-        cache.put(report.getTestId(), report);
-    }
-
-    public void addResult(APIReportResult res) {
-        cache.put(res.getTestId(), res);
+        this.save(report);
+        cache.put(report.getId(), report);
     }
 
     /**
@@ -77,10 +75,10 @@ public class ApiScenarioReportService {
      *
      * @param testId
      */
-    public APIReportResult getCacheResult(String testId) {
+    public APIScenarioReportResult getCacheResult(String testId) {
         Object res = cache.get(testId);
         if (res != null) {
-            APIReportResult reportResult = (APIReportResult) res;
+            APIScenarioReportResult reportResult = (APIScenarioReportResult) res;
             if (!reportResult.getStatus().equals(APITestStatus.Running.name())) {
                 cache.remove(testId);
             }
@@ -89,8 +87,13 @@ public class ApiScenarioReportService {
         return null;
     }
 
-    public APIReportResult get(String reportId) {
-        APIReportResult reportResult = extApiScenarioReportMapper.get(reportId);
+
+    public void addResult(APIScenarioReportResult res) {
+        cache.put(res.getId(), res);
+    }
+
+    public APIScenarioReportResult get(String reportId) {
+        APIScenarioReportResult reportResult = extApiScenarioReportMapper.get(reportId);
         ApiScenarioReportDetail detail = apiScenarioReportDetailMapper.selectByPrimaryKey(reportId);
         if (detail != null) {
             reportResult.setContent(new String(detail.getContent(), StandardCharsets.UTF_8));
@@ -105,7 +108,7 @@ public class ApiScenarioReportService {
 
     private void checkNameExist(APIScenarioReportResult request) {
         ApiScenarioReportExample example = new ApiScenarioReportExample();
-        example.createCriteria().andNameEqualTo(request.getName()).andProjectIdEqualTo(request.getProjectId()).andIdNotEqualTo(request.getId());
+        example.createCriteria().andNameEqualTo(request.getName()).andProjectIdEqualTo(request.getProjectId()).andExecuteTypeEqualTo(ExecuteType.Saved.name()).andIdNotEqualTo(request.getId());
         if (apiScenarioReportMapper.countByExample(example) > 0) {
             MSException.throwException(Translator.get("load_test_already_exists"));
         }
@@ -123,6 +126,7 @@ public class ApiScenarioReportService {
         report.setUpdateTime(System.currentTimeMillis());
         report.setStatus(test.getStatus());
         report.setUserId(test.getUserId());
+        report.setExecuteType(test.getExecuteType());
         apiScenarioReportMapper.insert(report);
         return report;
     }
@@ -139,12 +143,13 @@ public class ApiScenarioReportService {
         report.setUpdateTime(System.currentTimeMillis());
         report.setStatus(test.getStatus());
         report.setUserId(test.getUserId());
+        report.setExecuteType(test.getExecuteType());
         apiScenarioReportMapper.updateByPrimaryKey(report);
         return report;
     }
 
 
-    public String add(APIScenarioReportResult test) {
+    public String save(APIScenarioReportResult test) {
         ApiScenarioReport report = createReport(test);
         ApiScenarioReportDetail detail = new ApiScenarioReportDetail();
         TestResult result = JSON.parseObject(test.getContent(), TestResult.class);
@@ -218,10 +223,10 @@ public class ApiScenarioReportService {
         Date firstTime = startAndEndDateInWeek.get("firstTime");
         Date lastTime = startAndEndDateInWeek.get("lastTime");
 
-        if(firstTime==null || lastTime == null){
-            return  0;
-        }else {
-            return extApiScenarioReportMapper.countByProjectIDAndCreateInThisWeek(projectId,firstTime.getTime(),lastTime.getTime());
+        if (firstTime == null || lastTime == null) {
+            return 0;
+        } else {
+            return extApiScenarioReportMapper.countByProjectIDAndCreateInThisWeek(projectId, firstTime.getTime(), lastTime.getTime());
         }
     }
 }

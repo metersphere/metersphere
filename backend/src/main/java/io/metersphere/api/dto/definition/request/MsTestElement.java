@@ -101,7 +101,7 @@ public abstract class MsTestElement {
             return baos.toString();
         } catch (Exception e) {
             e.printStackTrace();
-            LogUtil.warn("HashTree error, can't log jmx content");
+            LogUtil.warn("HashTree error, can't log jmx scenarioDefinition");
         }
         return null;
     }

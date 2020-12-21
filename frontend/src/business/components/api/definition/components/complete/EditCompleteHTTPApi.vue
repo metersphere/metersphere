@@ -117,7 +117,7 @@
           moduleId: [{required: true, message: this.$t('test_track.case.input_module'), trigger: 'change'}],
           status: [{required: true, message: this.$t('commons.please_select'), trigger: 'change'}],
         },
-        httpForm: {},
+        httpForm: {environmentId: ""},
         isShowEnable: false,
         maintainerOptions: [],
         currentModule: {},
@@ -173,6 +173,9 @@
 
     created() {
       this.getMaintainerOptions();
+      if (!this.basisData.environmentId) {
+        this.basisData.environmentId = "";
+      }
       this.httpForm = JSON.parse(JSON.stringify(this.basisData));
     }
   }

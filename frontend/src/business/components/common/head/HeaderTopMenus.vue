@@ -47,9 +47,7 @@
     },
     methods: {
       handleSelect(index) {
-        console.log(index)
         this.activeIndex = index
-
       },
       active() {
         if (this.activeIndex === '/api') {

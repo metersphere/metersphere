@@ -1,10 +1,10 @@
 pipeline {
     agent {
         node {
-            label 'master'
+            label 'metersphere'
         }
     }
-    options { quietPeriod(1200) }
+    options { quietPeriod(600) }
     parameters { 
         string(name: 'IMAGE_NAME', defaultValue: 'metersphere', description: '构建后的 Docker 镜像名称')
         string(name: 'IMAGE_FREFIX', defaultValue: 'registry.cn-qingdao.aliyuncs.com/metersphere', description: '构建后的 Docker 镜像带仓库名的前缀')

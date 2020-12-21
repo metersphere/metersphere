@@ -199,6 +199,7 @@
         let scenarioIds = this.selection;
         run.id = getUUID();
         run.scenarioIds = scenarioIds;
+        run.projectId = getCurrentProjectID();
         this.$post(url, run, response => {
           let data = response.data;
           this.runVisible = true;
@@ -233,6 +234,7 @@
         let scenarioIds = [];
         scenarioIds.push(row.id);
         run.id = getUUID();
+        run.projectId = getCurrentProjectID();
         run.scenarioIds = scenarioIds;
         this.$post(url, run, response => {
           let data = response.data;

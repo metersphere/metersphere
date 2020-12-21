@@ -78,10 +78,10 @@
 
           <!-- 测试-->
           <div v-else-if="item.type=== 'TEST'" class="ms-api-div">
-            <ms-run-test-http-page :currentProtocol="currentProtocol" :api-data="runTestData" @saveAsApi="editApi" v-if="currentProtocol==='HTTP'"/>
-            <ms-run-test-tcp-page :currentProtocol="currentProtocol" :api-data="runTestData" @saveAsApi="editApi" v-if="currentProtocol==='TCP'"/>
-            <ms-run-test-sql-page :currentProtocol="currentProtocol" :api-data="runTestData" @saveAsApi="editApi" v-if="currentProtocol==='SQL'"/>
-            <ms-run-test-dubbo-page :currentProtocol="currentProtocol" :api-data="runTestData" @saveAsApi="editApi" v-if="currentProtocol==='DUBBO'"/>
+            <ms-run-test-http-page :currentProtocol="currentProtocol" :api-data="item.api" @saveAsApi="editApi" v-if="currentProtocol==='HTTP'"/>
+            <ms-run-test-tcp-page :currentProtocol="currentProtocol" :api-data="item.api" @saveAsApi="editApi" v-if="currentProtocol==='TCP'"/>
+            <ms-run-test-sql-page :currentProtocol="currentProtocol" :api-data="item.api" @saveAsApi="editApi" v-if="currentProtocol==='SQL'"/>
+            <ms-run-test-dubbo-page :currentProtocol="currentProtocol" :api-data="item.api" @saveAsApi="editApi" v-if="currentProtocol==='DUBBO'"/>
           </div>
         </el-tab-pane>
       </el-tabs>
@@ -144,7 +144,6 @@
         selectNodeIds: [],
         currentApi: {},
         moduleOptions: {},
-        runTestData: {},
         trashEnable: false,
         apiTabs: [{
           title: this.$t('api_test.definition.api_title'),
@@ -260,18 +259,17 @@
             break;
           }
         }
-        this.runTestData = data;
       },
       runTest(data) {
         this.setTabTitle(data);
-        this.handleCommand("TEST");
+        this.handleTabsEdit(this.$t("commons.api"), "TEST", data);
       },
       saveApi(data) {
         this.setTabTitle(data);
         this.$refs.apiList[0].initTable(data);
       },
 
-      showExecResult(row){
+      showExecResult(row) {
         this.debug(row);
       },
 
