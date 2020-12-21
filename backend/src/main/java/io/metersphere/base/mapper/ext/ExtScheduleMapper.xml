@@ -36,4 +36,20 @@
         </if>
     </select>
 
+    <select id="countTaskByWorkspaceIdAndGroup" resultType="java.lang.Long">
+        SELECT COUNT(id) AS countNumber FROM `schedule` WHERE `workspace_id` = #{workspaceId} AND `group` = #{group}
+    </select>
+    <select id="countTaskByWorkspaceIdAndGroupAndCreateTimeRange" resultType="java.lang.Long">
+        SELECT COUNT(id) AS countNumber FROM `schedule`
+        WHERE workspace_id = #{workspaceId}
+        AND `group` = #{group}
+        AND create_time BETWEEN #{startTime} and #{endTime}
+    </select>
+    <select id="findRunningTaskInfoByWorkspaceID" resultType="io.metersphere.api.dto.dataCount.response.TaskInfoResult">
+        SELECT apiTest.`name` AS scenario,sch.id AS taskID,sch.`value` AS rule,sch.`enable` AS `taskStatus`,u.`name` AS creator,sch.update_time AS updateTime
+        FROM api_test apiTest
+        INNER JOIN `schedule` sch ON apiTest.id = sch.resource_id
+        INNER JOIN `user` u ON u.id = sch.user_id
+        WHERE sch.`enable` = true AND sch.workspace_id = #{0,jdbcType=VARCHAR}
+    </select>
 </mapper>

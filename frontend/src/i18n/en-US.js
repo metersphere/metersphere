@@ -582,6 +582,7 @@ export default {
       remove: "Remove",
       view_ref: "View ref",
       case_ref: "Case ref",
+      schedule: "Scheduled Task",
       scenario_ref: "Scenario ref",
       plan_ref: "Plan ref",
       batch_add_plan: "Add plan",
@@ -800,13 +801,31 @@ export default {
         title: "API count",
       },
       test_case_count_card:{
-        title: "Test case count",
+        title: "Api test case count",
       },
       test_scene_count_card:{
-        title: "Scene count",
+        title: "Scene test case count",
       },
       schedule_task_count_card:{
         title: "Schedule task count",
+      },
+      detail_card:{
+        running:"Running",
+        not_started:"Not started",
+        finished:"Finished",
+        uncoverage:"Uncoverage",
+        coverage:"Coverage",
+        unexecute:"Unexecute",
+        execution_failed:"Execution failed",
+        execution_pass:"Execution passed",
+        failed:"Failure",
+        success:"Success",
+        rate:{
+          completion:"Completion rate",
+          coverage:"Coverage rate",
+          pass:"Pass rate",
+          success:"Success rate",
+        },
       },
       api_details_card:{
         title: "API",
@@ -817,30 +836,46 @@ export default {
         this_week_add:"Added {0} this week",
         this_week_execute:"Executed {0} this week",
         executed:"Executed {0} in history",
+        this_week_add_sm:"Added {0}<br/> this week",
+        this_week_execute_sm:"Executed {0}<br/> this week",
+        executed_sm:"Executed {0}<br/> in history",
       },
       test_scene_details_card:{
         title: "Scene",
         this_week_add:"Added {0} this week",
         this_week_execute:"Executed {0} this week",
         executed:"Executed {0} in history",
+        this_week_add_sm:"Added {0}<br/> this week",
+        this_week_execute_sm:"Executed {0}<br/> this week",
+        executed_sm:"Executed {0}<br/> in history",
       },
       schedule_task_details_card:{
         title: "Schedule task",
         this_week_add:"Added {0} this week",
         this_week_execute:"Executed {0} this week",
         executed:"Executed {0} in history",
+        this_week_add_sm:"Added {0}<br/> this week",
+        this_week_execute_sm:"Executed {0}<br/> this week",
+        executed_sm:"Executed {0}<br/> in history",
       },
       failed_case_list:{
-        title: "Top 10 failure process set cases in the past 7 days",
+        title: "Top 10 failure cases about test plan in the past 7 days",
         table_coloum:{
           index: "Ranking",
           case_name: "Case name",
+          case_type: "Case Type",
           test_plan: "Test plan",
           failure_times: "Failure times",
         },
+        table_value:{
+          case_type:{
+            api: "Api case",
+            scene: "Scenario case",
+          }
+        }
       },
       running_task_list:{
-        title: "Running task",
+        title: "Running schedule task",
         table_coloum:{
           index: "Index",
           scenario: "Scene",

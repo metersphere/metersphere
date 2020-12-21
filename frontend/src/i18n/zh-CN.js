@@ -581,6 +581,7 @@ export default {
       remove: "删除",
       view_ref: "查看引用",
       case_ref: "用例引用",
+      schedule: "定时任务",
       scenario_ref: "场景引用",
       plan_ref: "测试计划引用",
       batch_add_plan: "添加到测试计划",
@@ -798,50 +799,84 @@ export default {
     home_page:{
       unit_of_measurement:"个",
       api_count_card:{
-        title: "接口总数",
+        title: "接口数量统计",
       },
       test_case_count_card:{
-        title: "用例总数",
+        title: "接口用例数量统计",
       },
       test_scene_count_card:{
-        title: "场景总数",
+        title: "场景用例数量统计",
       },
       schedule_task_count_card:{
-        title: "定时任务总数",
+        title: "定时任务数量统计",
+      },
+      detail_card:{
+        running:"进行中",
+        not_started:"未开始",
+        finished:"已完成",
+        uncoverage:"未覆盖",
+        coverage:"已覆盖",
+        unexecute:"未执行",
+        execution_failed:"未通过",
+        execution_pass:"已通过",
+        failed:"失败",
+        success:"成功",
+        rate:{
+          completion:"完成率",
+          coverage:"覆盖率",
+          pass:"通过率",
+          success:"成功率",
+        },
       },
       api_details_card:{
         title: "接口",
-        this_week_add:"本周新增{0}个",
+        this_week_add:"本周新增: {0}个",
       },
       test_case_details_card:{
         title: "用例",
         this_week_add:"本周新增: {0}个",
         this_week_execute:"本周执行: {0}次",
         executed:"历史总执行: {0}次",
+        this_week_add_sm:"本周新增:<br/>{0}个",
+        this_week_execute_sm:"本周执行:<br/>{0}次",
+        executed_sm:"历史总执行:<br/>{0}次",
       },
       test_scene_details_card:{
         title: "场景",
         this_week_add:"本周新增: {0}个",
         this_week_execute:"本周执行: {0}次",
         executed:"历史总执行: {0}次",
+        this_week_add_sm:"本周新增:<br/>{0}个",
+        this_week_execute_sm:"本周执行:<br/>{0}次",
+        executed_sm:"历史总执行:<br/>{0}次",
       },
       schedule_task_details_card:{
         title: "定时任务",
         this_week_add:"本周新增: {0}个",
         this_week_execute:"本周执行: {0}次",
         executed:"历史总执行: {0}次",
+        this_week_add_sm:"本周新增:<br/>{0}个",
+        this_week_execute_sm:"本周执行:<br/>{0}次",
+        executed_sm:"历史总执行:<br/>{0}次",
       },
       failed_case_list:{
-        title: "过去7天流程集失败用例TOP 10",
+        title: "过去7天测试计划失败用例TOP 10",
         table_coloum:{
           index: "排名",
           case_name: "用例名称",
+          case_type: "用例类型",
           test_plan: "所属测试计划",
           failure_times: "失败次数",
         },
+        table_value:{
+          case_type:{
+            api: "接口用例",
+            scene: "场景用例",
+          }
+        }
       },
       running_task_list:{
-        title: "运行中的任务",
+        title: "运行中的定时任务",
         table_coloum:{
           index: "序号",
           scenario: "场景名称",

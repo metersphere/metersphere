@@ -15,6 +15,7 @@ public interface ExtApiDefinitionExecResultMapper {
 
     ApiDefinitionExecResult selectMaxResultByResourceIdAndType(String resourceId, String type);
 
+
     @Select({
             "SELECT count(id) AS countNumber FROM api_definition_exec_result ",
             "WHERE resource_id IN ( ",
@@ -50,4 +51,5 @@ public interface ExtApiDefinitionExecResultMapper {
             "limit #{limitNumber} "
     })
     List<ExecutedCaseInfoResult> findFaliureCaseInfoByProjectIDAndExecuteTimeAndLimitNumber(@Param("projectId") String projectId, @Param("startTimestamp") long startTimestamp, @Param("limitNumber") int limitNumber);
+
 }

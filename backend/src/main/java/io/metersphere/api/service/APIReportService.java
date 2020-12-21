@@ -6,6 +6,7 @@ import com.alibaba.fastjson.JSONObject;
 import io.metersphere.api.dto.APIReportResult;
 import io.metersphere.api.dto.DeleteAPIReportRequest;
 import io.metersphere.api.dto.QueryAPIReportRequest;
+import io.metersphere.api.dto.dataCount.ApiDataCountResult;
 import io.metersphere.api.jmeter.TestResult;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ApiDataViewMapper;
@@ -224,7 +225,7 @@ public class APIReportService {
         }
     }
 
-    public long countByWorkspaceIdAndGroup(String workspaceID, String group) {
-        return extApiTestReportMapper.countByWorkspaceIdAndGroup(workspaceID,group);
+    public List<ApiDataCountResult> countByWorkspaceIdAndGroupGroupByExecuteResult(String workspaceID, String group) {
+        return extApiTestReportMapper.countByWorkspaceIdAndGroupGroupByExecuteResult(workspaceID,group);
     }
 }

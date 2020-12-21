@@ -3,6 +3,7 @@ package io.metersphere.api.dto.dataCount.response;
 import io.metersphere.api.dto.dataCount.ApiDataCountResult;
 import io.metersphere.api.dto.scenario.request.RequestType;
 import io.metersphere.base.domain.ApiDefinition;
+import io.metersphere.commons.constants.APITestStatus;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -16,31 +17,110 @@ import java.util.Locale;
 @Setter
 public class ApiDataCountDTO {
 
-    //接口统计
+    /**
+     * 接口统计
+     */
     private long allApiDataCountNumber = 0;
-    //http接口统计
+    /**
+     * http接口统计
+     */
     private long httpApiDataCountNumber = 0;
-    //rpc接口统计
+    /**
+     * rpc接口统计
+     */
     private long rpcApiDataCountNumber = 0;
-    //tcp接口统计
+    /**
+     * tcp接口统计
+     */
     private long tcpApiDataCountNumber = 0;
-    //sql接口统计
+    /**
+     * sql接口统计
+     */
     private long sqlApiDataCountNumber = 0;
 
-    //本周新增数量
+    private String httpCountStr = "";
+    private String rpcCountStr = "";
+    private String tcpCountStr = "";
+    private String sqlCountStr = "";
+
+    /**
+     * 本周新增数量
+     */
     private long thisWeekAddedCount = 0;
-    //本周执行数量
+    /**
+     * 本周执行数量
+     */
     private long thisWeekExecutedCount = 0;
-    //历史总执行数量
+    /**
+     * 历史总执行数量
+     */
     private long executedCount = 0;
+
+    /**
+     * 进行中
+     */
+    private long runningCount = 0;
+    /**
+     * 未开始
+     */
+    private long notStartedCount = 0;
+    /**
+     * 已完成
+     */
+    private long finishedCount = 0;
+    /**
+     * 未覆盖
+     */
+    private long uncoverageCount = 0;
+    /**
+     * 已覆盖
+     */
+    private long coverageCount = 0;
+    /**
+     * 未执行
+     */
+    private long unexecuteCount = 0;
+    /**
+     * 执行失败
+     */
+    private long executionFailedCount = 0;
+    /**
+     * 执行通过
+     */
+    private long executionPassCount = 0;
+    /**
+     * 失败
+     */
+    private long failedCount = 0;
+    /**
+     * 成功
+     */
+    private long successCount = 0;
+
+    /**
+     * 完成率
+     */
+    private String completionRage = " 0%";
+    /**
+     * 覆盖率
+     */
+    private String coverageRage = " 0%";
+    /**
+     * 通过率
+     */
+    private String passRage = " 0%";
+    /**
+     * 成功率
+     */
+    private String successRage = " 0%";
 
     public ApiDataCountDTO(){}
 
     /**
-     * 通过ApiDefinitionCountResult统计查询结果进行数据合计
+     * 对Protocal视角对查询结果进行统计
      * @param countResultList
      */
-    public void countByApiDefinitionCountResult(List<ApiDataCountResult> countResultList){
+    public void countProtocal(List<ApiDataCountResult> countResultList){
         for (ApiDataCountResult countResult :
                 countResultList) {
             switch (countResult.getGroupField().toUpperCase()){
@@ -60,6 +140,60 @@ public class ApiDataCountDTO {
                     break;
             }
             allApiDataCountNumber += countResult.getCountNumber();
+        }
+    }
+
+
+    /**
+     * 对Status视角对查询结果进行统计
+     * @param countResultList
+     */
+    public void countStatus(List<ApiDataCountResult> countResultList){
+        for (ApiDataCountResult countResult :
+                countResultList) {
+            if("Underway".equals(countResult.getGroupField())){
+                this.runningCount+= countResult.getCountNumber();
+            }else if("Completed".equals(countResult.getGroupField())){
+                this.finishedCount+= countResult.getCountNumber();
+            }else if("Trash".equals(countResult.getGroupField())){
+                this.notStartedCount+= countResult.getCountNumber();
+            }
+        }
+    }
+
+    public void countApiCoverage(List<ApiDataCountResult> countResultList) {
+
+        for (ApiDataCountResult countResult : countResultList) {
+            if("coverage".equals(countResult.getGroupField())){
+                this.coverageCount+= countResult.getCountNumber();
+            }else if("uncoverage".equals(countResult.getGroupField())){
+                this.uncoverageCount+= countResult.getCountNumber();
+            }
+        }
+    }
+
+    public void countRunResult(List<ApiDataCountResult> countResultByRunResult) {
+
+        for (ApiDataCountResult countResult : countResultByRunResult) {
+            if("notRun".equals(countResult.getGroupField())){
+                this.unexecuteCount+= countResult.getCountNumber();
+            }else if("Fail".equals(countResult.getGroupField())){
+                this.executionFailedCount+= countResult.getCountNumber();
+            }else {
+                this.executionPassCount+= countResult.getCountNumber();
+            }
+        }
+    }
+
+    public void countScheduleExecute(List<ApiDataCountResult> allExecuteResult) {
+        for (ApiDataCountResult countResult : allExecuteResult) {
+            if("Success".equals(countResult.getGroupField())){
+                this.successCount+= countResult.getCountNumber();
+            }else if("Error".equals(countResult.getGroupField())){
+                this.failedCount+= countResult.getCountNumber();
+            }
+
+            this.executedCount+= countResult.getCountNumber();
         }
     }
 }

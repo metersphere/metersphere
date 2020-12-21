@@ -438,4 +438,12 @@ public class ApiDefinitionService {
             return extApiDefinitionMapper.countByProjectIDAndCreateInThisWeek(projectId, firstTime.getTime(), lastTime.getTime());
         }
     }
+
+    public List<ApiDataCountResult> countStateByProjectID(String projectId) {
+        return extApiDefinitionMapper.countStateByProjectID(projectId);
+    }
+
+    public List<ApiDataCountResult> countApiCoverageByProjectID(String projectId) {
+        return extApiDefinitionMapper.countApiCoverageByProjectID(projectId);
+    }
 }
