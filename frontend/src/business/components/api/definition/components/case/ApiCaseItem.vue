@@ -14,7 +14,7 @@
           <el-col :span="10">
             <i class="icon el-icon-arrow-right" :class="{'is-active': apiCase.active}"
                @click="active(apiCase)"/>
-            <el-input v-if="!apiCase.id" size="small" v-model="apiCase.name" :name="index" :key="index"
+            <el-input v-if="!apiCase.id || isShowInput" size="small" v-model="apiCase.name" :name="index" :key="index"
                       class="ms-api-header-select" style="width: 180px"
                       @blur="saveTestCase(apiCase)"/>
             <span v-else>
@@ -42,6 +42,8 @@
                            size="mini" :disabled="!apiCase.id || isCaseEdit" circle/>
             <ms-api-extend-btns :is-case-edit="isCaseEdit" :row="apiCase"/>
           </el-col>
+
+          {{apiCase.execResult}}//
 
           <el-col :span="3">
             <el-link type="danger" v-if="apiCase.execResult && apiCase.execResult==='error'" @click="showExecResult(apiCase)">{{getResult(apiCase.execResult)}}</el-link>
@@ -111,6 +113,7 @@
           checkedCases: new Set(),
           visible: false,
           condition: {},
+          isShowInput: false
         }
       },
       props: {
@@ -175,6 +178,7 @@
           }
         },
         saveTestCase(row) {
+          this.isShowInput = false;
           if (this.validate(row)) {
             return;
           }
@@ -192,6 +196,7 @@
         },
         showInput(row) {
           // row.type = "create";
+          this.isShowInput = true;
           row.active = true;
           this.active(row);
         },

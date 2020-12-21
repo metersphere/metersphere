@@ -8,4 +8,5 @@ public interface ExtApiDefinitionExecResultMapper {
 
     ApiDefinitionExecResult selectMaxResultByResourceId(String resourceId);
 
+    ApiDefinitionExecResult selectMaxResultByResourceIdAndType(String resourceId, String type);
 }

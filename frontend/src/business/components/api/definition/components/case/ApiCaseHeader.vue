@@ -27,23 +27,10 @@
         </el-col>
         <el-col :span="4">
           <div>
-            <el-select :disabled="isReadOnly" v-model="environment" size="small" class="ms-api-header-select"
-                       :placeholder="$t('api_test.definition.request.run_env')"
-                       @change="environmentChange" clearable>
-              <el-option v-for="(environment, index) in environments" :key="index"
-                         :label="environment.name + (environment.config.httpConfig.socket ? (': ' + environment.config.httpConfig.protocol + '://' + environment.config.httpConfig.socket) : '')"
-                         :value="environment.id"/>
-              <el-button class="environment-button" size="mini" type="primary" @click="openEnvironmentConfig">
-                {{ $t('api_test.environment.environment_config') }}
-              </el-button>
-              <template v-slot:empty>
-                <div class="empty-environment">
-                  <el-button class="environment-button" size="mini" type="primary" @click="openEnvironmentConfig">
-                    {{ $t('api_test.environment.environment_config') }}
-                  </el-button>
-                </div>
-              </template>
-            </el-select>
+            <ms-environment-select
+              :project-id="projectId"
+              :is-read-only="isReadOnly || isCaseEdit"
+              @setEnvironment="setEnvironment"/>
           </div>
         </el-col>
         <el-col :span="3">
@@ -53,8 +40,8 @@
                       v-model="condition.name" @blur="getApiTest" @keyup.enter.native="getApiTest"/>
           </div>
         </el-col>
-        <el-col :span="2">
-          <el-dropdown size="small" split-button type="primary" class="ms-api-header-select" @click="addCase" :disabled="isReadOnly || isCaseEdit"
+        <el-col :span="2" v-if="!(isReadOnly || isCaseEdit)">
+          <el-dropdown size="small" split-button type="primary" class="ms-api-header-select" @click="addCase"
                        @command="handleCommand">
             +{{$t('api_test.definition.request.case')}}
             <el-dropdown-menu slot="dropdown">
@@ -64,10 +51,6 @@
         </el-col>
       </el-row>
     </el-card>
-
-    <!-- 环境 -->
-    <api-environment-config ref="environmentConfig" @close="environmentConfigClose"/>
-
   </el-header>
 </template>
 
@@ -75,13 +58,12 @@
     import ApiEnvironmentConfig from "../../../test/components/ApiEnvironmentConfig";
     import {parseEnvironment} from "../../../test/model/EnvironmentModel";
     import MsTag from "../../../../common/components/MsTag";
+    import MsEnvironmentSelect from "./MsEnvironmentSelect";
     export default {
       name: "ApiCaseHeader",
-      components: {MsTag, ApiEnvironmentConfig},
+      components: {MsEnvironmentSelect, MsTag, ApiEnvironmentConfig},
       data() {
         return {
-          environments: [],
-          environment: {},
         }
       },
       props: {
@@ -96,48 +78,9 @@
           default() {
             return {}
           }
-        }
-      },
-      created() {
-        this.environment = undefined;
-        this.getEnvironments();
-      },
-      watch: {
-        environment() {
-          this.$emit('setEnvironment', this.environment);
-        }
+        },
       },
       methods: {
-        getEnvironments() {
-          if (this.projectId) {
-            this.$get('/api/environment/list/' + this.projectId, response => {
-              this.environments = response.data;
-              this.environments.forEach(environment => {
-                parseEnvironment(environment);
-              });
-            });
-          } else {
-            this.environment = undefined;
-          }
-        },
-        openEnvironmentConfig() {
-          if (!this.projectId) {
-            this.$error(this.$t('api_test.select_project'));
-            return;
-          }
-          this.$refs.environmentConfig.open(this.projectId);
-        },
-        environmentChange(value) {
-          for (let i in this.environments) {
-            if (this.environments[i].id === value) {
-              this.environment = this.environments[i];
-              break;
-            }
-          }
-        },
-        environmentConfigClose() {
-          this.getEnvironments();
-        },
         getApiTest() {
           this.$emit('getApiTest');
         },
@@ -149,6 +92,9 @@
             this.$emit('batchRun');
           }
         },
+        setEnvironment(data) {
+          this.$emit('setEnvironment', data);
+        }
       }
     }
 </script>
@@ -175,19 +121,15 @@
     font-size: 10px;
   }
 
-  .environment-button {
-    margin-left: 20px;
-    padding: 7px;
+
+  .el-col {
+    height: 32px;
+    line-height: 32px;
   }
 
   .ms-api-header-select {
     margin-left: 20px;
     min-width: 100px;
-  }
-
-  .el-col {
-    height: 32px;
-    line-height: 32px;
   }
 
 

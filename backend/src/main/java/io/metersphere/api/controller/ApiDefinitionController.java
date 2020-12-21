@@ -14,6 +14,7 @@ import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.commons.utils.SessionUtils;
+import io.metersphere.track.request.testcase.ApiCaseRelevanceRequest;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.web.bind.annotation.*;
@@ -92,6 +93,11 @@ public class ApiDefinitionController {
         return apiDefinitionService.getDbResult(testId);
     }
 
+    @GetMapping("/report/getReport/{testId}/{type}")
+    public APIReportResult getReport(@PathVariable String testId, @PathVariable String type) {
+        return apiDefinitionService.getDbResult(testId, type);
+    }
+
     @PostMapping(value = "/import", consumes = {"multipart/form-data"})
     @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
     public ApiDefinitionImport testCaseImport(@RequestPart(value = "file", required = false) MultipartFile file, @RequestPart("request") ApiTestImportRequest request) {
@@ -109,4 +115,8 @@ public class ApiDefinitionController {
         apiDefinitionService.editApiBath(request);
     }
 
+    @PostMapping("/relevance")
+    public void testPlanRelevance(@RequestBody ApiCaseRelevanceRequest request) {
+        apiDefinitionService.testPlanRelevance(request);
+    }
 }

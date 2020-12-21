@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="select-menu">
     <span class="menu-title">{{'[' + title + ']'}}</span>
     <el-select filterable slot="prepend" v-model="value" @change="changeData" :style="{width: width}"
                size="small">

@@ -1,9 +1,12 @@
 <template>
   <el-card class="card-content" v-if="isShow">
-    <el-button-group>
+    <el-button-group v-if="isShowChangeButton">
       <el-button plain size="small" icon="el-icon-tickets" :class="{active: isApiListEnable}" @click="apiChange('api')"></el-button>
       <el-button plain class="case-button" size="small" icon="el-icon-paperclip" :class="{active: !isApiListEnable}" @click="caseChange('case')"></el-button>
     </el-button-group>
+    <template v-slot:header>
+      <slot name="header"></slot>
+    </template>
     <slot></slot>
   </el-card>
 </template>
@@ -17,7 +20,11 @@
         }
       },
       props: {
-        isApiListEnable: Boolean
+        isApiListEnable: Boolean,
+        isShowChangeButton: {
+          type: Boolean,
+          default: true
+        }
       },
       methods: {
         apiChange() {
@@ -39,6 +46,5 @@
   .case-button {
     border-left: solid 1px #6d317c;
   }
-
 
 </style>

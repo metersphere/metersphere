@@ -24,7 +24,7 @@
         </template>
       </el-input>
 
-      <module-trash-button :condition="condition" :exe="enableTrash"/>
+      <module-trash-button v-if="!isReadOnly" :condition="condition" :exe="enableTrash"/>
 
       <ms-add-basis-api
         :current-protocol="condition.protocol"
