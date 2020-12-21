@@ -72,13 +72,6 @@
           <div class="node-line" v-if="form.type === 'K8S'" v-xpack>
             <el-row>
               <el-col>
-                <el-form-item prop="controllerUrl" label="Controller URL">
-                  <el-input v-model="item.controllerUrl" autocomplete="new-password"/>
-                </el-form-item>
-              </el-col>
-            </el-row>
-            <el-row>
-              <el-col>
                 <el-form-item prop="masterUrl" label="Master URL">
                   <el-input v-model="item.masterUrl" autocomplete="new-password"/>
                 </el-form-item>
@@ -164,13 +157,6 @@
         </el-form-item>
         <div v-for="(item,index) in infoList " :key="index">
           <div class="node-line" v-if="form.type === 'K8S'" v-xpack>
-            <el-row>
-              <el-col>
-                <el-form-item prop="controllerUrl" label="Controller URL">
-                  <el-input v-model="item.controllerUrl" autocomplete="off"/>
-                </el-form-item>
-              </el-col>
-            </el-row>
             <el-row>
               <el-col>
                 <el-form-item prop="masterUrl" label="Master URL">
