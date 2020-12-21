@@ -1,7 +1,7 @@
 pipeline {
     agent {
         node {
-            label 'master'
+            label 'metersphere'
         }
     }
     options { quietPeriod(1200) }
