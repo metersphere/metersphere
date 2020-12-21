@@ -8,7 +8,7 @@
 <!--      <el-dropdown-item command="schedule">{{ $t('api_test.automation.schedule') }}</el-dropdown-item>-->
     </el-dropdown-menu>
     <ms-reference-view ref="viewRef"/>
-    <ms-schedule-maintain ref="scheduleMaintain" />
+<!--    <ms-schedule-maintain ref="scheduleMaintain" />-->
   </el-dropdown>
 </template>
 

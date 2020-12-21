@@ -16,4 +16,50 @@
           and `type` = #{type, jdbcType=VARCHAR}
         ORDER BY start_time DESC LIMIT 1
     </select>
+
+    <select id="countByProjectIDAndCreateInThisWeek" resultType="java.lang.Long">
+        SELECT count(id) AS countNumber FROM api_definition_exec_result
+        WHERE resource_id IN (
+        SELECT testCase.id FROM api_test_case testCase
+        WHERE testCase.project_id = #{projectId})
+        and start_time BETWEEN #{firstDayTimestamp} AND #{lastDayTimestamp}
+    </select>
+
+    <select id="countByTestCaseIDInProject" resultType="java.lang.Long">
+        SELECT count(id) AS countNumber FROM api_definition_exec_result
+        WHERE resource_id IN (
+        SELECT testCase.id FROM api_test_case testCase
+        WHERE testCase.project_id = #{projectId})
+    </select>
+
+    <select id="findFaliureCaseInfoByProjectIDAndExecuteTimeAndLimitNumber" resultType="io.metersphere.api.dto.dataCount.ExecutedCaseInfoResult">
+        SELECT * FROM (
+            SELECT testCase.testCaseName AS caseName,testCase.testPlanName AS testPlan ,caseErrorCountData.dataCountNumber AS failureTimes,'apiCase' AS caseType
+            FROM (
+            SELECT apiCase.id AS testCaseID,apiCase.`name` AS testCaseName,group_concat(testPlan.`name`)  AS testPlanName FROM api_test_case apiCase
+            LEFT JOIN test_plan testPlan ON testPlan.api_ids like concat('%"',apiCase.id,'"%')
+            GROUP BY apiCase.id
+            ORDER BY apiCase.create_time DESC
+            )testCase
+            INNER JOIN (
+                SELECT resource_id AS testCaseID,COUNT(id) AS dataCountNumber,start_time AS executeTime FROM api_definition_exec_result
+                WHERE resource_id IN (
+                SELECT id FROM api_test_case WHERE project_id = #{projectId}
+                ) and `status` = 'error' GROUP BY resource_id
+            ) caseErrorCountData ON caseErrorCountData.testCaseID =testCase.testCaseID
+            WHERE caseErrorCountData.executeTime >= #{startTimestamp}
+            UNION
+            SELECT scene.`name` AS caseName,testPlan.`name` AS testPlan,count(report.id) AS failureTimes,'scenario' AS caseType
+            FROM api_scenario_report report
+               INNER JOIN api_scenario_report_detail reportDetail ON report.id = reportDetail.report_id
+               INNER JOIN api_scenario scene ON reportDetail.content like concat('%"',scene.`name`,'"%')
+               LEFT JOIN test_plan_api_scenario apiScene ON apiScene.api_scenario_id = scene.id
+               LEFT JOIN test_plan testPlan ON testPlan.id = apiScene.test_plan_id
+            WHERE report.project_id = #{projectId}
+            AND report.status = 'Error' AND report.create_time >= #{startTimestamp}
+          GROUP BY scene.id
+          ) showTable
+        ORDER BY showTable.failureTimes DESC
+            limit #{limitNumber}
+    </select>
 </mapper>
