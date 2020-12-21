@@ -77,7 +77,12 @@
         this.isReadOnly = !this.isReadOnly
         this.$store.commit('setFlag', this.isReadOnly);
         this.$store.commit('setValue', item);
-        window.location.href = "/#/api/home";
+        if(item=="old"){
+          window.location.href = "/#/api/home_obsolete";
+        }else {
+          window.location.href = "/#/api/home";
+        }
+
       }
     }
   }

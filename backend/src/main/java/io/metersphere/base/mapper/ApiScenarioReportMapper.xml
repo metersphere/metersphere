@@ -5,12 +5,15 @@
     <id column="id" jdbcType="VARCHAR" property="id" />
     <result column="project_id" jdbcType="VARCHAR" property="projectId" />
     <result column="name" jdbcType="VARCHAR" property="name" />
-    <result column="description" jdbcType="VARCHAR" property="description" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
     <result column="update_time" jdbcType="BIGINT" property="updateTime" />
     <result column="status" jdbcType="VARCHAR" property="status" />
     <result column="user_id" jdbcType="VARCHAR" property="userId" />
     <result column="trigger_mode" jdbcType="VARCHAR" property="triggerMode" />
+    <result column="execute_type" jdbcType="VARCHAR" property="executeType" />
+  </resultMap>
+  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.ApiScenarioReport">
+    <result column="description" jdbcType="LONGVARCHAR" property="description" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -71,9 +74,28 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, project_id, `name`, description, create_time, update_time, `status`, user_id, 
-    trigger_mode
+    id, project_id, `name`, create_time, update_time, `status`, user_id, trigger_mode, 
+    execute_type
   </sql>
+  <sql id="Blob_Column_List">
+    description
+  </sql>
+  <select id="selectByExampleWithBLOBs" parameterType="io.metersphere.base.domain.ApiScenarioReportExample" resultMap="ResultMapWithBLOBs">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from api_scenario_report
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
   <select id="selectByExample" parameterType="io.metersphere.base.domain.ApiScenarioReportExample" resultMap="BaseResultMap">
     select
     <if test="distinct">
@@ -88,9 +110,11 @@
       order by ${orderByClause}
     </if>
   </select>
-  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="ResultMapWithBLOBs">
     select 
     <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
     from api_scenario_report
     where id = #{id,jdbcType=VARCHAR}
   </select>
@@ -106,13 +130,13 @@
   </delete>
   <insert id="insert" parameterType="io.metersphere.base.domain.ApiScenarioReport">
     insert into api_scenario_report (id, project_id, `name`, 
-      description, create_time, update_time, 
-      `status`, user_id, trigger_mode
-      )
+      create_time, update_time, `status`, 
+      user_id, trigger_mode, execute_type, 
+      description)
     values (#{id,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, 
-      #{description,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, 
-      #{status,jdbcType=VARCHAR}, #{userId,jdbcType=VARCHAR}, #{triggerMode,jdbcType=VARCHAR}
-      )
+      #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, #{status,jdbcType=VARCHAR}, 
+      #{userId,jdbcType=VARCHAR}, #{triggerMode,jdbcType=VARCHAR}, #{executeType,jdbcType=VARCHAR}, 
+      #{description,jdbcType=LONGVARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.ApiScenarioReport">
     insert into api_scenario_report
@@ -125,9 +149,6 @@
       </if>
       <if test="name != null">
         `name`,
-      </if>
-      <if test="description != null">
-        description,
       </if>
       <if test="createTime != null">
         create_time,
@@ -144,6 +165,12 @@
       <if test="triggerMode != null">
         trigger_mode,
       </if>
+      <if test="executeType != null">
+        execute_type,
+      </if>
+      <if test="description != null">
+        description,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -154,9 +181,6 @@
       </if>
       <if test="name != null">
         #{name,jdbcType=VARCHAR},
-      </if>
-      <if test="description != null">
-        #{description,jdbcType=VARCHAR},
       </if>
       <if test="createTime != null">
         #{createTime,jdbcType=BIGINT},
@@ -172,6 +196,12 @@
       </if>
       <if test="triggerMode != null">
         #{triggerMode,jdbcType=VARCHAR},
+      </if>
+      <if test="executeType != null">
+        #{executeType,jdbcType=VARCHAR},
+      </if>
+      <if test="description != null">
+        #{description,jdbcType=LONGVARCHAR},
       </if>
     </trim>
   </insert>
@@ -193,9 +223,6 @@
       <if test="record.name != null">
         `name` = #{record.name,jdbcType=VARCHAR},
       </if>
-      <if test="record.description != null">
-        description = #{record.description,jdbcType=VARCHAR},
-      </if>
       <if test="record.createTime != null">
         create_time = #{record.createTime,jdbcType=BIGINT},
       </if>
@@ -211,7 +238,29 @@
       <if test="record.triggerMode != null">
         trigger_mode = #{record.triggerMode,jdbcType=VARCHAR},
       </if>
+      <if test="record.executeType != null">
+        execute_type = #{record.executeType,jdbcType=VARCHAR},
+      </if>
+      <if test="record.description != null">
+        description = #{record.description,jdbcType=LONGVARCHAR},
+      </if>
     </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExampleWithBLOBs" parameterType="map">
+    update api_scenario_report
+    set id = #{record.id,jdbcType=VARCHAR},
+      project_id = #{record.projectId,jdbcType=VARCHAR},
+      `name` = #{record.name,jdbcType=VARCHAR},
+      create_time = #{record.createTime,jdbcType=BIGINT},
+      update_time = #{record.updateTime,jdbcType=BIGINT},
+      `status` = #{record.status,jdbcType=VARCHAR},
+      user_id = #{record.userId,jdbcType=VARCHAR},
+      trigger_mode = #{record.triggerMode,jdbcType=VARCHAR},
+      execute_type = #{record.executeType,jdbcType=VARCHAR},
+      description = #{record.description,jdbcType=LONGVARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -221,12 +270,12 @@
     set id = #{record.id,jdbcType=VARCHAR},
       project_id = #{record.projectId,jdbcType=VARCHAR},
       `name` = #{record.name,jdbcType=VARCHAR},
-      description = #{record.description,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
       update_time = #{record.updateTime,jdbcType=BIGINT},
       `status` = #{record.status,jdbcType=VARCHAR},
       user_id = #{record.userId,jdbcType=VARCHAR},
-      trigger_mode = #{record.triggerMode,jdbcType=VARCHAR}
+      trigger_mode = #{record.triggerMode,jdbcType=VARCHAR},
+      execute_type = #{record.executeType,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -239,9 +288,6 @@
       </if>
       <if test="name != null">
         `name` = #{name,jdbcType=VARCHAR},
-      </if>
-      <if test="description != null">
-        description = #{description,jdbcType=VARCHAR},
       </if>
       <if test="createTime != null">
         create_time = #{createTime,jdbcType=BIGINT},
@@ -258,19 +304,38 @@
       <if test="triggerMode != null">
         trigger_mode = #{triggerMode,jdbcType=VARCHAR},
       </if>
+      <if test="executeType != null">
+        execute_type = #{executeType,jdbcType=VARCHAR},
+      </if>
+      <if test="description != null">
+        description = #{description,jdbcType=LONGVARCHAR},
+      </if>
     </set>
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.metersphere.base.domain.ApiScenarioReport">
+    update api_scenario_report
+    set project_id = #{projectId,jdbcType=VARCHAR},
+      `name` = #{name,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=BIGINT},
+      update_time = #{updateTime,jdbcType=BIGINT},
+      `status` = #{status,jdbcType=VARCHAR},
+      user_id = #{userId,jdbcType=VARCHAR},
+      trigger_mode = #{triggerMode,jdbcType=VARCHAR},
+      execute_type = #{executeType,jdbcType=VARCHAR},
+      description = #{description,jdbcType=LONGVARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKey" parameterType="io.metersphere.base.domain.ApiScenarioReport">
     update api_scenario_report
     set project_id = #{projectId,jdbcType=VARCHAR},
       `name` = #{name,jdbcType=VARCHAR},
-      description = #{description,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
       update_time = #{updateTime,jdbcType=BIGINT},
       `status` = #{status,jdbcType=VARCHAR},
       user_id = #{userId,jdbcType=VARCHAR},
-      trigger_mode = #{triggerMode,jdbcType=VARCHAR}
+      trigger_mode = #{triggerMode,jdbcType=VARCHAR},
+      execute_type = #{executeType,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

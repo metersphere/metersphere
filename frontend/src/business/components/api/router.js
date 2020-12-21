@@ -3,13 +3,17 @@ import MsProject from "@/business/components/settings/project/MsProject";
 export default {
   path: "/api",
   name: "api",
-  redirect: "/api/home",
   components: {
     content: () => import('@/business/components/api/ApiTest')
   },
   children: [
     {
       path: 'home',
+      name: 'fucHome',
+      component: () => import('@/business/components/api/homepage/ApiTestHomePage'),
+    },
+    {
+      path: 'home_obsolete',
       name: 'fucHome',
       component: () => import('@/business/components/api/home/ApiTestHome'),
     },
@@ -53,7 +57,7 @@ export default {
       path: "automation/report",
       name: "ApiReportList",
       component: () => import('@/business/components/api/automation/report/ApiReportList'),
-    },    
+    },
     {
       path: 'monitor/view',
       name: 'ApiMonitor',

@@ -1,9 +1,13 @@
 package io.metersphere.base.mapper;
 
+import io.metersphere.api.dto.dataCount.response.TaskInfoResult;
 import io.metersphere.base.domain.Schedule;
 import io.metersphere.base.domain.ScheduleExample;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
+import org.python.antlr.ast.Str;
 
 public interface ScheduleMapper {
     long countByExample(ScheduleExample example);
@@ -33,4 +37,5 @@ public interface ScheduleMapper {
     int updateByPrimaryKeyWithBLOBs(Schedule record);
 
     int updateByPrimaryKey(Schedule record);
+
 }

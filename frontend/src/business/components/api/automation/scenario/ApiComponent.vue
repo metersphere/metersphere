@@ -134,10 +134,27 @@
               this.request.requestResult = requestResult;
               this.request.id = response.data.id;
               this.reload();
+              this.sort();
             } else {
               this.request.referenced = "Deleted";
             }
           })
+        }
+      },
+      recursiveSorting(arr) {
+        for (let i in arr) {
+          arr[i].index = Number(i) + 1;
+          if (arr[i].hashTree != undefined && arr[i].hashTree.length > 0) {
+            this.recursiveSorting(arr[i].hashTree);
+          }
+        }
+      },
+      sort() {
+        for (let i in this.request.hashTree) {
+          this.request.hashTree[i].index = Number(i) + 1;
+          if (this.request.hashTree[i].hashTree != undefined && this.request.hashTree[i].hashTree.length > 0) {
+            this.recursiveSorting(this.request.hashTree[i].hashTree);
+          }
         }
       },
       active(item) {

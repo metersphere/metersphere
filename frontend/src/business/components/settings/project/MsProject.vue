@@ -5,7 +5,7 @@
         <ms-table-header :is-tester-permission="true" :condition.sync="condition" @search="search" @create="create"
                          :create-tip="btnTips" :title="$t('commons.project')"/>
       </template>
-      <el-table border class="adjust-table" @row-click="link" :data="items" style="width: 100%" @sort-change="sort">
+      <el-table border class="adjust-table" :data="items" style="width: 100%" @sort-change="sort">
         <el-table-column prop="name" :label="$t('commons.name')" width="250" show-overflow-tooltip/>
         <el-table-column prop="description" :label="$t('commons.description')" show-overflow-tooltip>
           <template v-slot:default="scope">
@@ -95,7 +95,6 @@ import MsDeleteConfirm from "../../common/components/MsDeleteConfirm";
 import MsTableOperatorButton from "../../common/components/MsTableOperatorButton";
 import ApiEnvironmentConfig from "../../api/test/components/ApiEnvironmentConfig";
 import TemplateComponent from "../../track/plan/view/comonents/report/TemplateComponent/TemplateComponent";
-import {ApiEvent, LIST_CHANGE, PerformanceEvent, TrackEvent} from "@/business/components/common/head/ListEvent";
 import {PROJECT_ID} from "@/common/js/constants";
 
 export default {
@@ -223,10 +222,6 @@ export default {
           }
           Message.success(this.$t('commons.delete_success'));
           this.list();
-          // 发送广播，刷新 head 上的最新列表
-          ApiEvent.$emit(LIST_CHANGE);
-          TrackEvent.$emit(LIST_CHANGE);
-          PerformanceEvent.$emit(LIST_CHANGE);
         });
       }).catch(() => {
         this.$message({
@@ -253,22 +248,6 @@ export default {
         this.total = data.itemCount;
       })
     },
-    link(row) {
-      // performance_test project link
-      if (this.$route.name === 'perProject') {
-        this.$router.push({
-          path: '/performance/test/' + row.id,
-        })
-      } else if (this.$route.name === 'fucProject') {
-        this.$router.push({
-          path: '/api/test/list/' + row.id
-        })
-      } else if (this.$route.name === 'trackProject') {
-        this.$router.push({
-          path: '/track/case/' + row.id
-        })
-      }
-    },
     sort(column) {
       _sort(column, this.condition);
       this.list();
@@ -292,13 +271,9 @@ export default {
 </script>
 
 <style scoped>
-
-.el-table {
-  cursor: pointer;
-}
-
   pre {
     margin: 0 0;
+    font-family: "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", Arial, sans-serif;
   }
 
 </style>

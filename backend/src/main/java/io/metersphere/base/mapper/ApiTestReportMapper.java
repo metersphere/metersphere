@@ -4,6 +4,7 @@ import io.metersphere.base.domain.ApiTestReport;
 import io.metersphere.base.domain.ApiTestReportExample;
 import java.util.List;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
 
 public interface ApiTestReportMapper {
     long countByExample(ApiTestReportExample example);
@@ -27,4 +28,5 @@ public interface ApiTestReportMapper {
     int updateByPrimaryKeySelective(ApiTestReport record);
 
     int updateByPrimaryKey(ApiTestReport record);
+
 }

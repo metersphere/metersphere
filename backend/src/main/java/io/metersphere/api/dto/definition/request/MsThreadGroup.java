@@ -5,6 +5,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.jmeter.control.LoopController;
+import org.apache.jmeter.protocol.http.control.CookieManager;
 import org.apache.jmeter.save.SaveService;
 import org.apache.jmeter.testelement.TestElement;
 import org.apache.jmeter.threads.ThreadGroup;
@@ -17,9 +18,20 @@ import java.util.List;
 @JSONType(typeName = "ThreadGroup")
 public class MsThreadGroup extends MsTestElement {
     private String type = "ThreadGroup";
+    private boolean enableCookieShare;
 
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, ParameterConfig config) {
         final HashTree groupTree = tree.add(getThreadGroup());
+        if ((config != null && config.isEnableCookieShare()) || enableCookieShare) {
+            CookieManager cookieManager = new CookieManager();
+            cookieManager.setProperty(TestElement.TEST_CLASS, CookieManager.class.getName());
+            cookieManager.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("CookiePanel"));
+            cookieManager.setEnabled(true);
+            cookieManager.setName("CookieManager");
+            cookieManager.setClearEachIteration(false);
+            cookieManager.setControlledByThread(false);
+            groupTree.add(cookieManager);
+        }
         if (CollectionUtils.isNotEmpty(hashTree)) {
             hashTree.forEach(el -> {
                 el.toHashTree(groupTree, el.getHashTree(), config);

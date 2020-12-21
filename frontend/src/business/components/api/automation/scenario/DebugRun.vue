@@ -2,7 +2,7 @@
   <div></div>
 </template>
 <script>
-  import {getUUID} from "@/common/js/utils";
+  import {getUUID, getCurrentProjectID} from "@/common/js/utils";
   import {createComponent} from "../../definition/components/jmeter/components";
 
   export default {
@@ -92,10 +92,11 @@
         let testPlan = createComponent('TestPlan');
         let threadGroup = createComponent('ThreadGroup');
         threadGroup.hashTree = [];
-        threadGroup.name = this.runData.name;
+        threadGroup.name = this.runData.name ? this.runData.name : "Debug-Scenario";
+        threadGroup.enableCookieShare = this.runData.enableCookieShare;
         threadGroup.hashTree.push(this.runData);
         testPlan.hashTree.push(threadGroup);
-        let reqObj = {id: this.reportId, reportId: this.reportId, environmentId: this.environment, testElement: testPlan};
+        let reqObj = {id: this.reportId, reportId: this.reportId, environmentId: this.environment, testElement: testPlan, projectId: getCurrentProjectID()};
         let bodyFiles = this.getBodyUploadFiles(reqObj);
         let url = "/api/automation/run/debug";
         this.$fileUpload(url, null, bodyFiles, reqObj, response => {

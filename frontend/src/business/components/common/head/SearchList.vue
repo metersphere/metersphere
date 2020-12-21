@@ -1,6 +1,6 @@
 <template>
   <div v-loading="result.loading">
-    <el-input placeholder="搜索项目"
+    <el-input :placeholder="$t('project.search_by_name')"
               prefix-icon="el-icon-search"
               v-model="searchString"
               clearable
@@ -8,7 +8,7 @@
               size="small"/>
     <div v-if="items.length === 0" style="text-align: center; margin: 15px 0">
         <span style="font-size: 15px; color: #8a8b8d;">
-          无数据
+          {{ $t('project.no_data') }}
         </span>
     </div>
     <div v-else style="height: 150px;overflow: auto">
@@ -36,11 +36,6 @@ export default {
     currentProject: String
   },
   created() {
-    if (getCurrentUser().lastProjectId) {
-      localStorage.setItem(PROJECT_ID, getCurrentUser().lastProjectId);
-    }
-  },
-  mounted() {
     this.init();
   },
   computed: {
@@ -68,10 +63,24 @@ export default {
         this.result = this.$get("/project/listAll", response => {
           this.items = response.data;
           this.searchArray = response.data;
-          if (!getCurrentProjectID() && this.items.length > 0) {
-            this.change(this.items[0].id);
+          let userLastProjectId = getCurrentUser().lastProjectId;
+          if (userLastProjectId) {
+            // id 是否存在
+            if (this.searchArray.length > 0 && this.searchArray.map(p => p.id).indexOf(userLastProjectId) !== -1) {
+              localStorage.setItem(PROJECT_ID, userLastProjectId);
+            }
           }
           let projectId = getCurrentProjectID();
+          if (projectId) {
+            // 保存的 projectId 在当前项目列表是否存在; 切换工作空间后
+            if (this.searchArray.length > 0 && this.searchArray.map(p => p.id).indexOf(projectId) === -1) {
+              this.change(this.items[0].id);
+            }
+          } else {
+            if (this.items.length > 0) {
+              this.change(this.items[0].id);
+            }
+          }
           this.changeProjectName(projectId);
         })
       }
@@ -92,6 +101,15 @@ export default {
       this.$post("/user/update/current", {id: this.userId, lastProjectId: projectId}, () => {
         localStorage.setItem(PROJECT_ID, projectId);
         let path = this.$route.matched[0].path ? this.$route.matched[0].path : '/';
+        if (path === '/api') {
+          if (this.$store.state.switch.value === 'new') {
+            path = "/api/home";
+          } else if (this.$store.state.switch.value === 'old') {
+            path = "/api/home_obsolete";
+          } else {
+            path = '/';
+          }
+        }
         this.$router.push(path).then(() => {
           window.location.reload()
         }).catch(err => err);
@@ -105,7 +123,7 @@ export default {
           this.$emit("update:currentProject", project[0].name);
         }
       } else {
-        this.$emit("update:currentProject", '选择项目');
+        this.$emit("update:currentProject", this.$t('project.select'));
       }
     }
   }

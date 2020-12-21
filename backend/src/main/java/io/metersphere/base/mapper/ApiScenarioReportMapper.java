@@ -2,8 +2,9 @@ package io.metersphere.base.mapper;
 
 import io.metersphere.base.domain.ApiScenarioReport;
 import io.metersphere.base.domain.ApiScenarioReportExample;
-import java.util.List;
 import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 public interface ApiScenarioReportMapper {
     long countByExample(ApiScenarioReportExample example);
@@ -16,15 +17,21 @@ public interface ApiScenarioReportMapper {
 
     int insertSelective(ApiScenarioReport record);
 
+    List<ApiScenarioReport> selectByExampleWithBLOBs(ApiScenarioReportExample example);
+
     List<ApiScenarioReport> selectByExample(ApiScenarioReportExample example);
 
     ApiScenarioReport selectByPrimaryKey(String id);
 
     int updateByExampleSelective(@Param("record") ApiScenarioReport record, @Param("example") ApiScenarioReportExample example);
 
+    int updateByExampleWithBLOBs(@Param("record") ApiScenarioReport record, @Param("example") ApiScenarioReportExample example);
+
     int updateByExample(@Param("record") ApiScenarioReport record, @Param("example") ApiScenarioReportExample example);
 
     int updateByPrimaryKeySelective(ApiScenarioReport record);
+
+    int updateByPrimaryKeyWithBLOBs(ApiScenarioReport record);
 
     int updateByPrimaryKey(ApiScenarioReport record);
 }

@@ -158,7 +158,7 @@ export default {
             interval: yAxisListMax / 5
           },
             {
-              name: 'Hits/s',
+              name: 'Transactions/s',
               type: 'value',
               splitNumber: 5,
               min: 0,

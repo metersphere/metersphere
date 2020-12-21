@@ -11,8 +11,8 @@
         {{ comment.createTime | timestampFormatDate }}
       </span>
       <span class="comment-delete">
-        <i class="el-icon-edit" style="font-size: 9px;margin-right: 6px;" @click="openEdit"/>
-        <i class="el-icon-close" @click="deleteComment"/>
+        <el-link icon="el-icon-edit" style="font-size: 9px;margin-right: 6px;" @click="openEdit" :disabled="readOnly"/>
+        <el-link icon="el-icon-close" @click="deleteComment" :disabled="readOnly"/>
       </span>
       <br/>
       <div class="comment-desc" style="font-size: 10px;color: #303133">
@@ -50,7 +50,11 @@ export default {
   name: "ReviewCommentItem",
   components: {MsDialogFooter},
   props: {
-    comment: Object
+    comment: Object,
+    readOnly: {
+      type: Boolean,
+      default: false
+    }
   },
   data() {
     return {

@@ -100,18 +100,24 @@
     name: "MsAddCompleteHttpApi",
     components: {MsResponseText, MsApiRequestForm, MsJsr233Processor},
     data() {
+      let validateURL = (rule, value, callback) => {
+        if (!this.httpForm.path.startsWith("/") || this.httpForm.path.match(/\s/) != null) {
+          callback(this.$t('api_test.definition.request.path_valid_info'));
+        }
+        callback();
+      };
       return {
         rule: {
           name: [
             {required: true, message: this.$t('test_track.case.input_name'), trigger: 'blur'},
             {max: 50, message: this.$t('test_track.length_less_than') + '50', trigger: 'blur'}
           ],
-          path: [{required: true, message: this.$t('api_test.definition.request.path_info'), trigger: 'blur'}],
+          path: [{required: true, message: this.$t('api_test.definition.request.path_info'), trigger: 'blur'}, {validator: validateURL, trigger: 'blur'}],
           userId: [{required: true, message: this.$t('test_track.case.input_maintainer'), trigger: 'change'}],
           moduleId: [{required: true, message: this.$t('test_track.case.input_module'), trigger: 'change'}],
           status: [{required: true, message: this.$t('commons.please_select'), trigger: 'change'}],
         },
-        httpForm: {},
+        httpForm: {environmentId: ""},
         isShowEnable: false,
         maintainerOptions: [],
         currentModule: {},
@@ -124,10 +130,6 @@
       runTest() {
         this.$refs['httpForm'].validate((valid) => {
           if (valid) {
-            if(this.httpForm.path.match(/\s/)!=null){
-              this.$error(this.$t("api_test.definition.request.path_valid_info"));
-              return false;
-            }
             this.setParameter();
             this.$emit('runTest', this.httpForm);
           } else {
@@ -150,10 +152,6 @@
       saveApi() {
         this.$refs['httpForm'].validate((valid) => {
           if (valid) {
-            if(this.httpForm.path.match(/\s/)!=null){
-              this.$error(this.$t("api_test.definition.request.path_valid_info"));
-              return false;
-            }
             this.setParameter();
             this.$emit('saveApi', this.httpForm);
           }
@@ -175,7 +173,10 @@
 
     created() {
       this.getMaintainerOptions();
-      this.httpForm = this.basisData;
+      if (!this.basisData.environmentId) {
+        this.basisData.environmentId = "";
+      }
+      this.httpForm = JSON.parse(JSON.stringify(this.basisData));
     }
   }
 </script>

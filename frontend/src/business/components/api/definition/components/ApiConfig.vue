@@ -63,35 +63,7 @@
           this.initHttp();
           break;
       }
-      if (this.currentApi.response != null && this.currentApi.response != 'null' && this.currentApi.response != undefined) {
-        if (Object.prototype.toString.call(this.currentApi.response).match(/\[object (\w+)\]/)[1].toLowerCase() === 'object') {
-          this.response = this.currentApi.response;
-        } else {
-          this.response = JSON.parse(this.currentApi.response);
-        }
-      } else {
-        this.response = {headers: [], body: new Body(), statusCode: [], type: "HTTP"};
-      }
-      if (this.currentApi != null && this.currentApi.id != null) {
-        this.reqUrl = "/api/definition/update";
-      } else {
-        this.reqUrl = "/api/definition/create";
-      }
-      if (!this.request.hashTree) {
-        this.request.hashTree = [];
-      }
-      // 处理导入数据缺失问题
-      if (this.response.body) {
-        let body = new Body();
-        Object.assign(body, this.response.body);
-        if (!body.binary) {
-          body.binary = [];
-        }
-        if (!body.kvs) {
-          body.kvs = [];
-        }
-        this.response.body = body;
-      }
+      this.formatApi();
     },
     methods: {
       runTest(data) {
@@ -143,6 +115,40 @@
         if (!this.setRequest()) {
           this.request = createComponent("HTTPSamplerProxy");
           this.currentApi.request = this.request;
+        }
+      },
+      formatApi() {
+        if (this.currentApi.response != null && this.currentApi.response != 'null' && this.currentApi.response != undefined) {
+          if (Object.prototype.toString.call(this.currentApi.response).match(/\[object (\w+)\]/)[1].toLowerCase() === 'object') {
+            this.response = this.currentApi.response;
+          } else {
+            this.response = JSON.parse(this.currentApi.response);
+          }
+        } else {
+          this.response = {headers: [], body: new Body(), statusCode: [], type: "HTTP"};
+        }
+        if (this.currentApi != null && this.currentApi.id != null) {
+          this.reqUrl = "/api/definition/update";
+        } else {
+          this.reqUrl = "/api/definition/create";
+        }
+        if (!this.request.hashTree) {
+          this.request.hashTree = [];
+        }
+        // 处理导入数据缺失问题
+        if (this.response.body) {
+          let body = new Body();
+          Object.assign(body, this.response.body);
+          if (!body.binary) {
+            body.binary = [];
+          }
+          if (!body.kvs) {
+            body.kvs = [];
+          }
+          this.response.body = body;
+        }
+        if (this.currentApi.moduleId && this.currentApi.moduleId === "root") {
+          this.currentApi.moduleId = "";
         }
       },
       saveApi(data) {

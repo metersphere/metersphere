@@ -162,6 +162,9 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         // 请求体
         if (!StringUtils.equals(this.getMethod(), "GET")) {
             List<KeyValue> bodyParams = this.body.getBodyParams(sampler, this.getId());
+            if (this.body.getType().equals("Form Data")) {
+                sampler.setDoMultipart(true);
+            }
             sampler.setArguments(httpArguments(bodyParams));
         }
 

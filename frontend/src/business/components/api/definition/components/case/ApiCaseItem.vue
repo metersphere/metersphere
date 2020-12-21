@@ -43,15 +43,13 @@
             <ms-api-extend-btns :is-case-edit="isCaseEdit" :row="apiCase"/>
           </el-col>
 
-          {{apiCase.execResult}}//
-
           <el-col :span="3">
             <el-link type="danger" v-if="apiCase.execResult && apiCase.execResult==='error'" @click="showExecResult(apiCase)">{{getResult(apiCase.execResult)}}</el-link>
             <el-link v-else-if="apiCase.execResult && apiCase.execResult==='success'" @click="showExecResult(apiCase)">{{getResult(apiCase.execResult)}}</el-link>
             <div v-else> {{getResult(apiCase.execResult)}}</div>
 
             <div v-if="apiCase.id" style="color: #999999;font-size: 12px">
-              <span> {{apiCase.updateTime | timestampFormatDate }}</span>
+              <span> {{apiCase.execTime | timestampFormatDate }}</span>
               {{apiCase.updateUser}}
             </div>
           </el-col>

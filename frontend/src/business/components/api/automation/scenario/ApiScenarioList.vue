@@ -199,6 +199,7 @@
         let scenarioIds = this.selection;
         run.id = getUUID();
         run.scenarioIds = scenarioIds;
+        run.projectId = getCurrentProjectID();
         this.$post(url, run, response => {
           let data = response.data;
           this.runVisible = true;
@@ -219,8 +220,9 @@
         this.$emit('edit', row);
       },
       reductionApi(row) {
-        let obj = [row.id];
-        this.$post("/api/automation/reduction", obj, response => {
+        row.scenarioDefinition = null;
+        let rows = [row];
+        this.$post("/api/automation/reduction", rows, response => {
           this.$success(this.$t('commons.save_success'));
           this.search();
         })
@@ -232,6 +234,7 @@
         let scenarioIds = [];
         scenarioIds.push(row.id);
         run.id = getUUID();
+        run.projectId = getCurrentProjectID();
         run.scenarioIds = scenarioIds;
         this.$post(url, run, response => {
           let data = response.data;

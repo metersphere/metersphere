@@ -145,7 +145,7 @@
                     </if>
                 </foreach>
             </if>
-            AND r.status != 'Debug'
+            AND r.execute_type = 'Saved'
         </where>
         <if test="request.orders != null and request.orders.size() > 0">
             order by
@@ -155,7 +155,7 @@
         </if>
     </select>
 
-    <select id="get" resultType="io.metersphere.api.dto.APIReportResult">
+    <select id="get" resultType="io.metersphere.api.dto.automation.APIScenarioReportResult">
         SELECT r.*,r.id As testId, r.name AS test_name, project.name AS project_name, user.name AS user_name
         FROM api_scenario_report r
         LEFT JOIN project ON project.id = r.project_id

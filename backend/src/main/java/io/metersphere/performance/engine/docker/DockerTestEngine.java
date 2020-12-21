@@ -6,17 +6,20 @@ import io.metersphere.base.domain.TestResource;
 import io.metersphere.commons.constants.ResourceStatusEnum;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.CommonBeanFactory;
-import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.config.JmeterProperties;
+import io.metersphere.config.KafkaProperties;
 import io.metersphere.controller.ResultHolder;
+import io.metersphere.dto.BaseSystemConfigDTO;
 import io.metersphere.dto.NodeDTO;
 import io.metersphere.i18n.Translator;
 import io.metersphere.performance.engine.AbstractEngine;
-import io.metersphere.performance.engine.EngineContext;
-import io.metersphere.performance.engine.EngineFactory;
-import io.metersphere.performance.engine.docker.request.TestRequest;
+import io.metersphere.performance.engine.request.StartTestRequest;
+import io.metersphere.service.SystemParameterService;
 import org.springframework.web.client.RestTemplate;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 public class DockerTestEngine extends AbstractEngine {
@@ -60,38 +63,40 @@ public class DockerTestEngine extends AbstractEngine {
     }
 
     private void runTest(TestResource resource, double ratio, int resourceIndex) {
-        EngineContext context = null;
-        try {
-            context = EngineFactory.createContext(loadTest, resource.getId(), ratio, this.getStartTime(), this.getReportId(), resourceIndex);
-        } catch (MSException e) {
-            LogUtil.error(e.getMessage(), e);
-            throw e;
-        } catch (Exception e) {
-            LogUtil.error(e.getMessage(), e);
-            MSException.throwException(e);
-        }
 
         String configuration = resource.getConfiguration();
         NodeDTO node = JSON.parseObject(configuration, NodeDTO.class);
         String nodeIp = node.getIp();
         Integer port = node.getPort();
-        String testId = context.getTestId();
-        String content = context.getContent();
+
+        BaseSystemConfigDTO baseInfo = CommonBeanFactory.getBean(SystemParameterService.class).getBaseInfo();
+        KafkaProperties kafkaProperties = CommonBeanFactory.getBean(KafkaProperties.class);
+        JmeterProperties jmeterProperties = CommonBeanFactory.getBean(JmeterProperties.class);
+        String metersphereUrl = "http://localhost:8081";
+        if (baseInfo != null) {
+            metersphereUrl = baseInfo.getUrl();
+        }
+
+        Map<String, String> env = new HashMap<>();
+        env.put("RATIO", "" + ratio);
+        env.put("RESOURCE_INDEX", "" + resourceIndex);
+        env.put("METERSPHERE_URL", metersphereUrl);
+        env.put("START_TIME", "" + this.getStartTime());
+        env.put("TEST_ID", this.loadTest.getId());
+        env.put("REPORT_ID", this.getReportId());
+        env.put("BOOTSTRAP_SERVERS", kafkaProperties.getBootstrapServers());
+        env.put("LOG_TOPIC", kafkaProperties.getLog().getTopic());
+        env.put("RESOURCE_ID", resource.getId());
+        env.put("THREAD_NUM", "" + threadNum);
+        env.put("HEAP", jmeterProperties.getHeap());
+
+
+        StartTestRequest startTestRequest = new StartTestRequest();
+        startTestRequest.setImage(JMETER_IMAGE);
+        startTestRequest.setEnv(env);
 
         String uri = String.format(BASE_URL + "/jmeter/container/start", nodeIp, port);
-
-        TestRequest testRequest = new TestRequest();
-        testRequest.setSize(1);
-        testRequest.setTestId(testId);
-        testRequest.setReportId(getReportId());
-        testRequest.setFileString(content);
-        testRequest.setImage(JMETER_IMAGE);
-        testRequest.setTestData(context.getTestData());
-        testRequest.setTestJars(context.getTestJars());
-        testRequest.setEnv(context.getEnv());
-
-
-        ResultHolder result = restTemplate.postForObject(uri, testRequest, ResultHolder.class);
+        ResultHolder result = restTemplate.postForObject(uri, startTestRequest, ResultHolder.class);
         if (result == null) {
             MSException.throwException(Translator.get("start_engine_fail"));
         }

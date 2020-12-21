@@ -7,7 +7,7 @@
 
         <el-form-item :label="$t('api_report.request')" prop="url">
           <el-input :placeholder="$t('api_test.definition.request.path_all_info')" v-model="debugForm.url"
-                    class="ms-http-input" size="small">
+                    class="ms-http-input" size="small" :disabled="testCase!=undefined">
             <el-select v-model="debugForm.method" slot="prepend" style="width: 100px" size="small">
               <el-option v-for="item in reqOptions" :key="item.id" :label="item.label" :value="item.id"/>
             </el-select>
@@ -16,7 +16,7 @@
 
         <el-form-item>
           <el-dropdown split-button type="primary" class="ms-api-buttion" @click="handleCommand"
-                       @command="handleCommand" size="small">
+                       @command="handleCommand" size="small" v-if="testCase===undefined">
             {{$t('commons.test')}}
             <el-dropdown-menu slot="dropdown">
               <el-dropdown-item command="save_as">{{$t('api_test.definition.request.save_as')}}</el-dropdown-item>
@@ -63,10 +63,21 @@
       scenario: Boolean,
     },
     data() {
+      let validateURL = (rule, value, callback) => {
+        try {
+          new URL(this.debugForm.url);
+          callback();
+        } catch (e) {
+          callback(this.$t('api_test.request.url_invalid'));
+        }
+      };
       return {
         rules: {
           method: [{required: true, message: this.$t('test_track.case.input_maintainer'), trigger: 'change'}],
-          url: [{required: true, message: this.$t('api_test.definition.request.path_all_info'), trigger: 'blur'}],
+          url: [
+            {max: 500, required: true, message: this.$t('commons.input_limit', [1, 500]), trigger: 'blur'},
+            {validator: validateURL, trigger: 'blur'}
+          ],
         },
         debugForm: {method: REQ_METHOD[0].id, environmentId: ""},
         options: [],

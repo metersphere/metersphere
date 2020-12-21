@@ -7,7 +7,6 @@
     <result column="name" jdbcType="VARCHAR" property="name" />
     <result column="method" jdbcType="VARCHAR" property="method" />
     <result column="module_path" jdbcType="VARCHAR" property="modulePath" />
-    <result column="description" jdbcType="VARCHAR" property="description" />
     <result column="environment_id" jdbcType="VARCHAR" property="environmentId" />
     <result column="schedule" jdbcType="VARCHAR" property="schedule" />
     <result column="status" jdbcType="VARCHAR" property="status" />
@@ -19,6 +18,7 @@
     <result column="path" jdbcType="VARCHAR" property="path" />
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.ApiDefinitionWithBLOBs">
+    <result column="description" jdbcType="LONGVARCHAR" property="description" />
     <result column="request" jdbcType="LONGVARCHAR" property="request" />
     <result column="response" jdbcType="LONGVARCHAR" property="response" />
   </resultMap>
@@ -81,11 +81,11 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, project_id, `name`, `method`, module_path, description, environment_id, schedule, 
-    `status`, module_id, user_id, create_time, update_time, protocol, `path`
+    id, project_id, `name`, `method`, module_path, environment_id, schedule, `status`, 
+    module_id, user_id, create_time, update_time, protocol, `path`
   </sql>
   <sql id="Blob_Column_List">
-    request, response
+    description, request, response
   </sql>
   <select id="selectByExampleWithBLOBs" parameterType="io.metersphere.base.domain.ApiDefinitionExample" resultMap="ResultMapWithBLOBs">
     select
@@ -137,16 +137,16 @@
   </delete>
   <insert id="insert" parameterType="io.metersphere.base.domain.ApiDefinitionWithBLOBs">
     insert into api_definition (id, project_id, `name`, 
-      `method`, module_path, description, 
-      environment_id, schedule, `status`, 
-      module_id, user_id, create_time, 
-      update_time, protocol, `path`, 
+      `method`, module_path, environment_id, 
+      schedule, `status`, module_id, 
+      user_id, create_time, update_time, 
+      protocol, `path`, description, 
       request, response)
     values (#{id,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, 
-      #{method,jdbcType=VARCHAR}, #{modulePath,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR}, 
-      #{environmentId,jdbcType=VARCHAR}, #{schedule,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, 
-      #{moduleId,jdbcType=VARCHAR}, #{userId,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, 
-      #{updateTime,jdbcType=BIGINT}, #{protocol,jdbcType=VARCHAR}, #{path,jdbcType=VARCHAR}, 
+      #{method,jdbcType=VARCHAR}, #{modulePath,jdbcType=VARCHAR}, #{environmentId,jdbcType=VARCHAR}, 
+      #{schedule,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, #{moduleId,jdbcType=VARCHAR}, 
+      #{userId,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, 
+      #{protocol,jdbcType=VARCHAR}, #{path,jdbcType=VARCHAR}, #{description,jdbcType=LONGVARCHAR}, 
       #{request,jdbcType=LONGVARCHAR}, #{response,jdbcType=LONGVARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.ApiDefinitionWithBLOBs">
@@ -166,9 +166,6 @@
       </if>
       <if test="modulePath != null">
         module_path,
-      </if>
-      <if test="description != null">
-        description,
       </if>
       <if test="environmentId != null">
         environment_id,
@@ -197,6 +194,9 @@
       <if test="path != null">
         `path`,
       </if>
+      <if test="description != null">
+        description,
+      </if>
       <if test="request != null">
         request,
       </if>
@@ -219,9 +219,6 @@
       </if>
       <if test="modulePath != null">
         #{modulePath,jdbcType=VARCHAR},
-      </if>
-      <if test="description != null">
-        #{description,jdbcType=VARCHAR},
       </if>
       <if test="environmentId != null">
         #{environmentId,jdbcType=VARCHAR},
@@ -249,6 +246,9 @@
       </if>
       <if test="path != null">
         #{path,jdbcType=VARCHAR},
+      </if>
+      <if test="description != null">
+        #{description,jdbcType=LONGVARCHAR},
       </if>
       <if test="request != null">
         #{request,jdbcType=LONGVARCHAR},
@@ -282,9 +282,6 @@
       <if test="record.modulePath != null">
         module_path = #{record.modulePath,jdbcType=VARCHAR},
       </if>
-      <if test="record.description != null">
-        description = #{record.description,jdbcType=VARCHAR},
-      </if>
       <if test="record.environmentId != null">
         environment_id = #{record.environmentId,jdbcType=VARCHAR},
       </if>
@@ -312,6 +309,9 @@
       <if test="record.path != null">
         `path` = #{record.path,jdbcType=VARCHAR},
       </if>
+      <if test="record.description != null">
+        description = #{record.description,jdbcType=LONGVARCHAR},
+      </if>
       <if test="record.request != null">
         request = #{record.request,jdbcType=LONGVARCHAR},
       </if>
@@ -330,7 +330,6 @@
       `name` = #{record.name,jdbcType=VARCHAR},
       `method` = #{record.method,jdbcType=VARCHAR},
       module_path = #{record.modulePath,jdbcType=VARCHAR},
-      description = #{record.description,jdbcType=VARCHAR},
       environment_id = #{record.environmentId,jdbcType=VARCHAR},
       schedule = #{record.schedule,jdbcType=VARCHAR},
       `status` = #{record.status,jdbcType=VARCHAR},
@@ -340,6 +339,7 @@
       update_time = #{record.updateTime,jdbcType=BIGINT},
       protocol = #{record.protocol,jdbcType=VARCHAR},
       `path` = #{record.path,jdbcType=VARCHAR},
+      description = #{record.description,jdbcType=LONGVARCHAR},
       request = #{record.request,jdbcType=LONGVARCHAR},
       response = #{record.response,jdbcType=LONGVARCHAR}
     <if test="_parameter != null">
@@ -353,7 +353,6 @@
       `name` = #{record.name,jdbcType=VARCHAR},
       `method` = #{record.method,jdbcType=VARCHAR},
       module_path = #{record.modulePath,jdbcType=VARCHAR},
-      description = #{record.description,jdbcType=VARCHAR},
       environment_id = #{record.environmentId,jdbcType=VARCHAR},
       schedule = #{record.schedule,jdbcType=VARCHAR},
       `status` = #{record.status,jdbcType=VARCHAR},
@@ -382,9 +381,6 @@
       <if test="modulePath != null">
         module_path = #{modulePath,jdbcType=VARCHAR},
       </if>
-      <if test="description != null">
-        description = #{description,jdbcType=VARCHAR},
-      </if>
       <if test="environmentId != null">
         environment_id = #{environmentId,jdbcType=VARCHAR},
       </if>
@@ -412,6 +408,9 @@
       <if test="path != null">
         `path` = #{path,jdbcType=VARCHAR},
       </if>
+      <if test="description != null">
+        description = #{description,jdbcType=LONGVARCHAR},
+      </if>
       <if test="request != null">
         request = #{request,jdbcType=LONGVARCHAR},
       </if>
@@ -427,7 +426,6 @@
       `name` = #{name,jdbcType=VARCHAR},
       `method` = #{method,jdbcType=VARCHAR},
       module_path = #{modulePath,jdbcType=VARCHAR},
-      description = #{description,jdbcType=VARCHAR},
       environment_id = #{environmentId,jdbcType=VARCHAR},
       schedule = #{schedule,jdbcType=VARCHAR},
       `status` = #{status,jdbcType=VARCHAR},
@@ -437,6 +435,7 @@
       update_time = #{updateTime,jdbcType=BIGINT},
       protocol = #{protocol,jdbcType=VARCHAR},
       `path` = #{path,jdbcType=VARCHAR},
+      description = #{description,jdbcType=LONGVARCHAR},
       request = #{request,jdbcType=LONGVARCHAR},
       response = #{response,jdbcType=LONGVARCHAR}
     where id = #{id,jdbcType=VARCHAR}
@@ -447,7 +446,6 @@
       `name` = #{name,jdbcType=VARCHAR},
       `method` = #{method,jdbcType=VARCHAR},
       module_path = #{modulePath,jdbcType=VARCHAR},
-      description = #{description,jdbcType=VARCHAR},
       environment_id = #{environmentId,jdbcType=VARCHAR},
       schedule = #{schedule,jdbcType=VARCHAR},
       `status` = #{status,jdbcType=VARCHAR},

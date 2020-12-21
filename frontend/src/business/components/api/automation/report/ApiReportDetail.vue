@@ -103,6 +103,7 @@
               if (this.isNotRunning) {
                 try {
                   this.content = JSON.parse(this.report.content);
+                  this.$emit('refresh');
                 } catch (e) {
                   throw e;
                 }

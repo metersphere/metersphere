@@ -26,7 +26,6 @@ import io.swagger.models.properties.Property;
 import io.swagger.models.properties.RefProperty;
 import io.swagger.parser.SwaggerParser;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.jorphan.collections.HashTree;
 
 import java.io.InputStream;
 import java.util.*;
@@ -80,7 +79,7 @@ public class Swagger2Parser extends ApiImportAbstractParser {
                     headerManager.setName(res.getName() + "Postman MsHeaderManager");
                     headerManager.setHeaders(res.getHeaders());
 //                    HashTree tree = new HashTree();
-//                    tree.add(headerManager);
+//                    tree.save(headerManager);
                     LinkedList<MsTestElement> list = new LinkedList<>();
                     list.add(headerManager);
                     requestElement.setHashTree(list);

@@ -7,7 +7,7 @@
 
     <select id="selectMaxResultByResourceId" parameterType="java.lang.String" resultType="io.metersphere.base.domain.ApiDefinitionExecResult">
         select  * from api_definition_exec_result
-        where resource_id = #{resourceId,jdbcType=VARCHAR} ORDER BY start_time DESC LIMIT 1
+        where resource_id = #{resourceId,jdbcType=VARCHAR} ORDER BY create_time DESC LIMIT 1
     </select>
     <select id="selectMaxResultByResourceIdAndType"
             resultType="io.metersphere.base.domain.ApiDefinitionExecResult">

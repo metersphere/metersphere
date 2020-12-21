@@ -379,6 +379,12 @@
             <artifactId>reflections8</artifactId>
             <version>0.11.7</version>
         </dependency>
+        <!-- k8s client -->
+        <dependency>
+            <groupId>io.fabric8</groupId>
+            <artifactId>kubernetes-client</artifactId>
+            <version>4.13.0</version>
+        </dependency>
     </dependencies>
 
     <build>

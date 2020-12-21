@@ -6,6 +6,7 @@ import io.metersphere.api.dto.automation.*;
 import io.metersphere.api.dto.definition.RunDefinitionRequest;
 import io.metersphere.api.service.ApiAutomationService;
 import io.metersphere.base.domain.ApiScenario;
+import io.metersphere.base.domain.ApiScenarioWithBLOBs;
 import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
@@ -59,8 +60,8 @@ public class ApiAutomationController {
     }
 
     @PostMapping("/reduction")
-    public void reduction(@RequestBody List<String> ids) {
-        apiAutomationService.reduction(ids);
+    public void reduction(@RequestBody List<SaveApiScenarioRequest> requests) {
+        apiAutomationService.reduction(requests);
     }
 
     @GetMapping("/getApiScenario/{id}")
@@ -69,17 +70,19 @@ public class ApiAutomationController {
     }
 
     @PostMapping("/getApiScenarios")
-    public List<ApiScenario> getApiScenarios(@RequestBody List<String> ids) {
+    public List<ApiScenarioWithBLOBs> getApiScenarios(@RequestBody List<String> ids) {
         return apiAutomationService.getApiScenarios(ids);
     }
 
     @PostMapping(value = "/run/debug")
     public void runDebug(@RequestPart("request") RunDefinitionRequest request, @RequestPart(value = "files") List<MultipartFile> bodyFiles) {
+        request.setExecuteType(ExecuteType.Debug.name());
         apiAutomationService.run(request, bodyFiles);
     }
 
     @PostMapping(value = "/run")
     public void run(@RequestBody RunScenarioRequest request) {
+        request.setExecuteType(ExecuteType.Completed.name());
         apiAutomationService.run(request);
     }
 

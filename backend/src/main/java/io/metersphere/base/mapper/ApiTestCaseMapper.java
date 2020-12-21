@@ -3,9 +3,8 @@ package io.metersphere.base.mapper;
 import io.metersphere.base.domain.ApiTestCase;
 import io.metersphere.base.domain.ApiTestCaseExample;
 import io.metersphere.base.domain.ApiTestCaseWithBLOBs;
-import org.apache.ibatis.annotations.Param;
-
 import java.util.List;
+import org.apache.ibatis.annotations.Param;
 
 public interface ApiTestCaseMapper {
     long countByExample(ApiTestCaseExample example);

@@ -27,7 +27,9 @@
             <ms-dropdown v-if="isSqlType" :commands="sqlModes" :default-command="mode" @command="sqlModeChange"/>
           </template>
         </el-tab-pane>
-
+        <el-tab-pane :label="$t('api_test.definition.request.console')" name="console" class="pane">
+          <pre>{{response.console}}</pre>
+        </el-tab-pane>
       </el-tabs>
     </el-collapse-transition>
   </div>

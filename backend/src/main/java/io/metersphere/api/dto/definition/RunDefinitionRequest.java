@@ -17,9 +17,13 @@ public class RunDefinitionRequest {
 
     private String type;
 
+    private String projectId;
+
     private String environmentId;
 
     private MsTestElement testElement;
+
+    private String executeType;
 
     private Response response;
 
