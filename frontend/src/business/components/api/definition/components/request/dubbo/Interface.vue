@@ -77,14 +77,16 @@
         this.request.method = value;
       },
       getProviderList() {
-        if (this.request.registryCenter === undefined || this.request.dubboConfig ===undefined) {
-          return;
+        let param = {};
+        if (this.request.registryCenter) {
+          param.protocol = this.request.registryCenter.protocol;
+          param.address = this.request.registryCenter.address;
+          param.group = this.request.registryCenter.group;
+        } else if (this.request.dubboConfig.registryCenter) {
+          param.protocol = this.request.dubboConfig.registryCenter.protocol;
+          param.address = this.request.dubboConfig.registryCenter.address;
+          param.group = this.request.dubboConfig.registryCenter.group;
         }
-        let param = {
-          protocol: this.request.registryCenter.protocol || this.request.dubboConfig.registryCenter.protocol,
-          address: this.request.registryCenter.address || this.request.dubboConfig.registryCenter.address,
-          group: this.request.registryCenter.group || this.request.dubboConfig.registryCenter.group,
-        };
 
         this.loading = true;
         this.$post("/api/dubbo/providers", param).then(response => {

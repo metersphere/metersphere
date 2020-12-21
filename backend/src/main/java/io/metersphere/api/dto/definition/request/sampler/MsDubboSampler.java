@@ -19,7 +19,6 @@ import org.apache.jmeter.config.ConfigTestElement;
 import org.apache.jmeter.save.SaveService;
 import org.apache.jmeter.testelement.TestElement;
 import org.apache.jorphan.collections.HashTree;
-import org.apache.jorphan.collections.ListedHashTree;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -65,9 +64,7 @@ public class MsDubboSampler extends MsTestElement {
             this.getRefElement(this);
         }
 
-        final HashTree testPlanTree = new ListedHashTree();
-        testPlanTree.add(dubboConfig());
-        tree.set(dubboSample(), testPlanTree);
+        final HashTree testPlanTree = tree.add(dubboSample());
         if (CollectionUtils.isNotEmpty(hashTree)) {
             hashTree.forEach(el -> {
                 el.toHashTree(testPlanTree, el.getHashTree(), config);
@@ -115,7 +112,7 @@ public class MsDubboSampler extends MsTestElement {
 
     private ConfigTestElement configCenter(MsConfigCenter configCenter) {
         ConfigTestElement configTestElement = new ConfigTestElement();
-        if (configCenter != null) {
+        if (configCenter != null && configCenter.getProtocol() != null && configCenter.getUsername() != null && configCenter.getPassword() != null) {
             Constants.setConfigCenterProtocol(configCenter.getProtocol(), configTestElement);
             Constants.setConfigCenterGroup(configCenter.getGroup(), configTestElement);
             Constants.setConfigCenterNamespace(configCenter.getNamespace(), configTestElement);
