@@ -1,6 +1,6 @@
 <template>
   <el-card class="card-content">
-    <div class="ms-main-div">
+    <div class="ms-main-div" @click="showAll">
       <el-row>
         <el-col>
           <!--操作按钮-->
@@ -127,12 +127,11 @@
                   {{$t('api_test.automation.step_total')}}：{{scenarioDefinition.length}}
                 </el-col>
                 <el-col :span="3" class="ms-col-one">
-                  <el-link class="head" @click="showScenarioParameters">{{$t('api_test.automation.scenario_total')}}：
-                    {{this.currentScenario.variables!=undefined?this.currentScenario.variables.length-1: 0}}
-                  </el-link>
+                  <el-link class="head" @click="showScenarioParameters">{{$t('api_test.automation.scenario_total')}}</el-link>
+                  ：{{this.currentScenario.variables!=undefined?this.currentScenario.variables.length-1: 0}}
                 </el-col>
                 <el-col :span="3">
-                  <el-checkbox v-model="currentScenario.enableCookieShare" style="margin-top: 5px">{{ '共享cookie' }}</el-checkbox>
+                  <el-checkbox v-model="enableCookieShare" style="margin-top: 5px">{{ '共享cookie' }}</el-checkbox>
                 </el-col>
                 <el-col :span="7">
                   {{$t('api_test.definition.request.run_env')}}:
@@ -239,7 +238,7 @@
       </div>
 
       <!--接口列表-->
-      <el-drawer :visible.sync="apiListVisible" :destroy-on-close="true" direction="ltr" :withHeader="false" :title="$t('api_test.automation.api_list_import')" :modal="false" size="90%">
+      <el-drawer :visible.sync="apiListVisible" :destroy-on-close="true" direction="ltr" :withHeader="true" :modal="false" size="90%">
         <ms-api-definition :visible="visibleRef" :currentRow="currentRow"/>
         <el-button style="float: right;margin: 0px 20px 0px" type="primary" @click="pushApiOrCase('REF')">{{$t('api_test.scenario.reference')}}</el-button>
         <el-button style="float: right;" type="primary" @click="pushApiOrCase('Copy')">{{ $t('commons.copy') }}</el-button>
@@ -362,6 +361,7 @@
         reportId: "",
         projectId: "",
         visibleRef: "",
+        enableCookieShare: false,
       }
     },
     created() {
@@ -374,11 +374,6 @@
       this.refreshTags();
       this.getApiScenario();
       this.getEnvironments();
-    },
-    mounted() {
-      document.addEventListener('click', e => {
-        this.showAll();
-      })
     },
     watch: {},
     methods: {
@@ -591,7 +586,7 @@
         }
         this.debugData = {
           id: this.currentScenario.id, name: this.currentScenario.name, type: "scenario",
-          variables: this.currentScenario.variables, referenced: 'Created', enableCookieShare: this.currentScenario.enableCookieShare,
+          variables: this.currentScenario.variables, referenced: 'Created', enableCookieShare: this.enableCookieShare,
           environmentId: this.currentEnvironmentId, hashTree: this.scenarioDefinition
         };
         this.reportId = getUUID().substring(0, 8);
@@ -735,7 +730,7 @@
                 if (obj) {
                   this.currentEnvironmentId = obj.environmentId;
                   this.currentScenario.variables = obj.variables;
-                  this.currentScenario.enableCookieShare = obj.enableCookieShare;
+                  this.enableCookieShare = obj.enableCookieShare;
                   this.scenarioDefinition = obj.hashTree;
                 }
               }
@@ -752,7 +747,7 @@
         this.currentScenario.modulePath = this.getPath(this.currentScenario.apiScenarioModuleId);
         // 构建一个场景对象 方便引用处理
         let scenario = {
-          id: this.currentScenario.id, enableCookieShare: this.currentScenario.enableCookieShare, name: this.currentScenario.name, variables: this.currentScenario.variables,
+          id: this.currentScenario.id, enableCookieShare: this.enableCookieShare, name: this.currentScenario.name, variables: this.currentScenario.variables,
           type: "scenario", referenced: 'Created', environmentId: this.currentEnvironmentId, hashTree: this.scenarioDefinition
         };
         this.currentScenario.scenarioDefinition = scenario;
@@ -915,7 +910,7 @@
   }
 
   .head {
-    border-bottom: 1px solid #dedede;
+    border-bottom: 1px solid #474849;
     font-size: 13px;
   }
 </style>
