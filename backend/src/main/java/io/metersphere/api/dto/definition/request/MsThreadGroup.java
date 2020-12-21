@@ -24,6 +24,9 @@ public class MsThreadGroup extends MsTestElement {
         final HashTree groupTree = tree.add(getThreadGroup());
         if ((config != null && config.isEnableCookieShare()) || enableCookieShare) {
             CookieManager cookieManager = new CookieManager();
+            cookieManager.setProperty(TestElement.TEST_CLASS, CookieManager.class.getName());
+            cookieManager.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("CookiePanel"));
+            cookieManager.setEnabled(true);
             cookieManager.setName("CookieManager");
             cookieManager.setClearEachIteration(false);
             cookieManager.setControlledByThread(false);
