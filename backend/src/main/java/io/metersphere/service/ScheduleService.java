@@ -20,6 +20,7 @@ import io.metersphere.dto.ScheduleDao;
 import io.metersphere.job.sechedule.ApiTestJob;
 import io.metersphere.job.sechedule.ScheduleManager;
 import org.apache.commons.lang3.StringUtils;
+import org.quartz.JobDetail;
 import org.quartz.JobKey;
 import org.quartz.SchedulerException;
 import org.quartz.TriggerKey;
@@ -64,6 +65,7 @@ public class ScheduleService {
     }
 
     public Schedule getScheduleByResource(String resourceId, String group) {
+
         ScheduleExample example = new ScheduleExample();
         example.createCriteria().andResourceIdEqualTo(resourceId).andGroupEqualTo(group);
         List<Schedule> schedules = scheduleMapper.selectByExample(example);

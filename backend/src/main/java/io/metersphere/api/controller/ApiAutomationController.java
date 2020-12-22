@@ -2,15 +2,21 @@ package io.metersphere.api.controller;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import io.metersphere.api.dto.APITestResult;
 import io.metersphere.api.dto.automation.*;
 import io.metersphere.api.dto.definition.RunDefinitionRequest;
 import io.metersphere.api.service.ApiAutomationService;
 import io.metersphere.base.domain.ApiScenario;
 import io.metersphere.base.domain.ApiScenarioWithBLOBs;
+import io.metersphere.base.domain.ApiTest;
+import io.metersphere.base.domain.Schedule;
 import io.metersphere.commons.constants.RoleConstants;
+import io.metersphere.commons.constants.ScheduleGroup;
+import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.commons.utils.SessionUtils;
+import io.metersphere.service.ScheduleService;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.web.bind.annotation.*;
@@ -26,6 +32,7 @@ public class ApiAutomationController {
 
     @Resource
     ApiAutomationService apiAutomationService;
+
 
     @PostMapping("/list/{goPage}/{pageSize}")
     public Pager<List<ApiScenarioDTO>> list(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody ApiScenarioRequest request) {
@@ -94,6 +101,17 @@ public class ApiAutomationController {
     @PostMapping("/scenario/plan")
     public String addScenarioToPlan(@RequestBody SaveApiPlanRequest request) {
         return apiAutomationService.addScenarioToPlan(request);
+    }
+
+
+    @PostMapping(value = "/schedule/update")
+    public void updateSchedule(@RequestBody Schedule request) {
+        apiAutomationService.updateSchedule(request);
+    }
+
+    @PostMapping(value = "/schedule/create")
+    public void createSchedule(@RequestBody Schedule request) {
+        apiAutomationService.createSchedule(request);
     }
 
 }

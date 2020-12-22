@@ -21,5 +21,7 @@ public class RunScenarioRequest {
 
     private String executeType;
 
+    private String reportUserID;
+
     private List<String> scenarioIds;
 }
