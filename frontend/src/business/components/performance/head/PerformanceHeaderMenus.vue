@@ -2,7 +2,7 @@
   <div id="menu-bar">
     <el-row type="flex">
       <project-change :project-name="currentProject"/>
-      <el-col :span="12">
+      <el-col :span="9">
         <el-menu class="header-menu" :unique-opened="true" mode="horizontal" router :default-active='$route.path'>
           <el-menu-item :index="'/performance/home'">
             {{ $t("i18n.home") }}
@@ -32,7 +32,7 @@
           <ms-create-test :to="'/performance/test/create'"/>
         </el-row>
       </el-col>
-      <el-col :span="10"/>
+      <el-col :span="11"/>
     </el-row>
   </div>
 </template>

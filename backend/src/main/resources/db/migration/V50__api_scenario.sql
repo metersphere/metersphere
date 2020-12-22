@@ -59,13 +59,3 @@ CREATE TABLE `api_scenario_report_detail` (
   `content` longblob COMMENT 'Report Content',
   PRIMARY KEY (`report_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
-CREATE TABLE `api_tag` (
-  `id` varchar(50) NOT NULL COMMENT 'Test ID',
-  `project_id` varchar(50) NOT NULL COMMENT 'Project ID this test belongs to',
-  `name` varchar(200) NOT NULL COMMENT 'api tag',
-  `user_id` varchar(64) DEFAULT NULL COMMENT 'User ID',
-  `create_time` bigint(13) NOT NULL COMMENT 'Create timestamp',
-  `update_time` bigint(13) NOT NULL COMMENT 'Update timestamp',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

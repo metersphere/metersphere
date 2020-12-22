@@ -9,7 +9,7 @@
     </resultMap>
 
     <select id="list" resultMap="BaseResultMap">
-        select api_scenario.id, api_scenario.project_id, api_scenario.tag_id, api_scenario.user_id,
+        select api_scenario.id, api_scenario.project_id, api_scenario.tags, api_scenario.user_id,
         api_scenario.api_scenario_module_id,api_scenario.module_path, api_scenario.name, api_scenario.level,
         api_scenario.status, api_scenario.principal, api_scenario.step_total, api_scenario.follow_people,
         api_scenario.last_result,api_scenario.pass_rate,api_scenario.report_id,
@@ -62,7 +62,7 @@
     </select>
 
     <select id="selectByTagId" resultType="io.metersphere.base.domain.ApiScenarioWithBLOBs">
-      select * from api_scenario where tag_id like CONCAT('%', #{id},'%')
+      select * from api_scenario where tags like CONCAT('%', #{id},'%')
     </select>
 
     <select id="selectIds" resultType="io.metersphere.base.domain.ApiScenarioWithBLOBs">
