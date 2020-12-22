@@ -1,5 +1,5 @@
 <template>
-  <div style="min-width: 1000px;margin-bottom: 20px">
+  <div style="min-width: 1200px;margin-bottom: 20px">
     <el-radio-group v-model="body.type" size="mini">
       <el-radio :disabled="isReadOnly" :label="type.FORM_DATA" @change="modeChange">
         {{ $t('api_test.definition.request.body_form_data') }}
