@@ -1,6 +1,6 @@
 <template>
   <el-row :gutter="5">
-    <el-col :span="16">
+    <el-col :span="15">
       <el-card class="case-detail-form-card">
         <el-form :model="form" ref="caseFrom" v-loading="result.loading">
 
@@ -11,13 +11,13 @@
                 :label="$t('test_track.case.name')"
                 :label-width="formLabelWidth"
                 prop="name">
-                <el-input class="case-name" :disabled="readOnly" v-model="testCase.name"></el-input>
+                <el-input :disabled="readOnly" v-model="testCase.name"></el-input>
               </el-form-item>
             </el-col>
 
             <el-col :span="12">
               <el-form-item :label="$t('test_track.case.module')" :label-width="formLabelWidth" prop="module">
-                <el-input class="case-name" :disabled="readOnly" v-model="testCase.nodePath"></el-input>
+                <el-input :disabled="readOnly" v-model="testCase.nodePath"></el-input>
               </el-form-item>
             </el-col>
           </el-row>
@@ -156,8 +156,8 @@
         </el-form>
       </el-card>
     </el-col>
-    <el-col :span="8">
-      <case-comment :case-id="testCaseId" :read-only="true"/>
+    <el-col :span="9">
+      <case-comment :case-id="testCaseId" :read-only="true" class="case-detail-comment"/>
     </el-col>
   </el-row>
 
@@ -193,7 +193,7 @@ export default {
         remark: '',
       },
       workspaceId: '',
-      formLabelWidth: "120px",
+      formLabelWidth: "80px",
 
       isStepTableAlive: true,
       methodOptions: [
@@ -223,6 +223,12 @@ export default {
 }
 
 .case-detail-form-card >>> .el-card__body {
-  padding: 20px 28px;
+  padding: 20px 0;
+}
+
+.case-detail-comment {
+  min-width: 320px;
+  height: 600px;
+  overflow: auto;
 }
 </style>

@@ -3,13 +3,13 @@
   <el-dialog :close-on-click-modal="false" class="case-dialog"
              @close="close"
              :title="operationType == 'edit' ? ( readOnly ? $t('test_track.case.view_case') : $t('test_track.case.edit_case')) : $t('test_track.case.create')"
-             :visible.sync="dialogFormVisible" width="88%">
+             :visible.sync="dialogFormVisible" width="85%">
 
     <el-row :gutter="10">
       <div>
         <el-col :span="17">
-          <el-card>
-            <el-form :model="form" :rules="rules" ref="caseFrom" v-loading="result.loading">
+          <el-card class="container">
+            <el-form :model="form" :rules="rules" ref="caseFrom" v-loading="result.loading" class="case-form">
 
               <el-row>
                 <el-col :span="8" :offset="1">
@@ -170,7 +170,7 @@
                           clearable/>
                       </template>
                     </el-table-column>
-                    <el-table-column :label="$t('commons.input_content')" min-width="20%">
+                    <el-table-column :label="$t('commons.input_content')" min-width="25%">
                       <template v-slot:default="scope">
                         <el-button
                           type="primary"
@@ -237,22 +237,20 @@
                 </el-col>
               </el-row>
 
-              <el-row style="float: right; margin-bottom: 10px;">
-                <el-switch v-if="operationType == 'add'"
-                           v-model="isCreateContinue"
-                           :active-text="$t('test_track.case.save_create_continue')">
-                </el-switch>
-                <ms-dialog-footer v-if="!readOnly"
-                                  @cancel="dialogFormVisible = false"
-                                  @confirm="saveCase"/>
-              </el-row>
-
             </el-form>
-
+            <el-row style="float: right; margin-bottom: 20px;margin-top: 20px">
+              <el-switch v-if="operationType == 'add'"
+                         v-model="isCreateContinue"
+                         :active-text="$t('test_track.case.save_create_continue')">
+              </el-switch>
+              <ms-dialog-footer v-if="!readOnly"
+                                @cancel="dialogFormVisible = false"
+                                @confirm="saveCase"/>
+            </el-row>
           </el-card>
         </el-col>
         <el-col :span="7">
-          <case-comment :case-id="testCase ? testCase.id : ''"/>
+          <case-comment :case-id="testCase ? testCase.id : ''" class="comment-card"/>
         </el-col>
       </div>
     </el-row>
@@ -712,8 +710,28 @@ export default {
   width: 194px;
 }
 
+.container {
+  height: 100vh;
+}
+
+.case-form {
+  height: 95%;
+  overflow: auto;
+}
+
 .case-dialog >>> .el-dialog__body {
   padding: 0 20px 10px 20px;
 }
 
+.container >>> .el-card__body {
+  height: calc(100vh - 120px);
+}
+
+.comment-card >>> .el-card__header {
+  padding: 27px 20px;
+}
+
+.comment-card >>> .el-card__body {
+  height: calc(100vh - 120px);
+}
 </style>
