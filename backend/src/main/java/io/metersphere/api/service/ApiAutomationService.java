@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.gson.Gson;
 import io.metersphere.api.dto.automation.*;
 import io.metersphere.api.dto.datacount.ApiDataCountResult;
 import io.metersphere.api.dto.definition.RunDefinitionRequest;
@@ -12,21 +13,19 @@ import io.metersphere.api.dto.definition.request.*;
 import io.metersphere.api.dto.scenario.KeyValue;
 import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
 import io.metersphere.api.jmeter.JMeterService;
-import io.metersphere.base.domain.ApiScenario;
-import io.metersphere.base.domain.ApiScenarioExample;
-import io.metersphere.base.domain.ApiScenarioWithBLOBs;
-import io.metersphere.base.domain.ApiTestEnvironmentWithBLOBs;
+import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ApiScenarioMapper;
 import io.metersphere.base.mapper.ext.ExtApiScenarioMapper;
 import io.metersphere.base.mapper.ext.ExtTestPlanMapper;
-import io.metersphere.commons.constants.APITestStatus;
-import io.metersphere.commons.constants.ApiRunMode;
-import io.metersphere.commons.constants.ReportTriggerMode;
+import io.metersphere.commons.constants.*;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.DateUtils;
 import io.metersphere.commons.utils.ServiceUtils;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.i18n.Translator;
+import io.metersphere.job.sechedule.ApiScenarioTestJob;
+import io.metersphere.job.sechedule.ApiTestJob;
+import io.metersphere.service.ScheduleService;
 import io.metersphere.track.dto.TestPlanDTO;
 import io.metersphere.track.request.testcase.QueryTestPlanRequest;
 import org.apache.commons.collections.CollectionUtils;
@@ -54,10 +53,14 @@ public class ApiAutomationService {
     private ApiDefinitionService apiDefinitionService;
     @Resource
     private ExtApiScenarioMapper extApiScenarioMapper;
+//    @Resource
+//    private ApiTagMapper apiTagMapper;
     @Resource
     private JMeterService jMeterService;
     @Resource
     private ApiTestEnvironmentService environmentService;
+    @Resource
+    private ScheduleService scheduleService;
     @Resource
     private ApiScenarioReportService apiReportService;
     @Resource
@@ -184,14 +187,19 @@ public class ApiAutomationService {
         return new ArrayList<>();
     }
 
-    private void createAPIScenarioReportResult(String id, String triggerMode, String execType, String projectId) {
+    private void createAPIScenarioReportResult(String id, String triggerMode, String execType, String projectId,String userID) {
         APIScenarioReportResult report = new APIScenarioReportResult();
         report.setId(id);
         report.setName("测试执行结果");
         report.setCreateTime(System.currentTimeMillis());
         report.setUpdateTime(System.currentTimeMillis());
         report.setStatus(APITestStatus.Running.name());
-        report.setUserId(SessionUtils.getUserId());
+        if(StringUtils.isNotEmpty(userID)){
+            report.setUserId(userID);
+        }else {
+            report.setUserId(SessionUtils.getUserId());
+        }
+
         report.setTriggerMode(triggerMode);
         report.setExecuteType(execType);
         report.setProjectId(projectId);
@@ -210,10 +218,12 @@ public class ApiAutomationService {
         MsTestPlan testPlan = new MsTestPlan();
         testPlan.setHashTree(new LinkedList<>());
         HashTree jmeterTestPlanHashTree = new ListedHashTree();
+        String projectID = request.getProjectId();
         for (ApiScenarioWithBLOBs item : apiScenarios) {
             MsThreadGroup group = new MsThreadGroup();
             group.setLabel(item.getName());
             group.setName(item.getName());
+            projectID = item.getProjectId();
             try {
                 ObjectMapper mapper = new ObjectMapper();
                 mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
@@ -245,7 +255,7 @@ public class ApiAutomationService {
         jMeterService.runDefinition(request.getId(), jmeterTestPlanHashTree, request.getReportId(), ApiRunMode.SCENARIO.name());
 
         createAPIScenarioReportResult(request.getId(), request.getTriggerMode() == null ? ReportTriggerMode.MANUAL.name() : request.getTriggerMode(),
-                request.getExecuteType(), request.getProjectId());
+                request.getExecuteType(), projectID,request.getReportUserID());
         return request.getId();
     }
 
@@ -271,7 +281,8 @@ public class ApiAutomationService {
         request.getTestElement().getJmx(hashTree);
         // 调用执行方法
         jMeterService.runDefinition(request.getId(), hashTree, request.getReportId(), ApiRunMode.SCENARIO.name());
-        createAPIScenarioReportResult(request.getId(), ReportTriggerMode.MANUAL.name(), request.getExecuteType(), request.getProjectId());
+        createAPIScenarioReportResult(request.getId(), ReportTriggerMode.MANUAL.name(), request.getExecuteType(), request.getProjectId(),
+                SessionUtils.getUserId());
         return request.getId();
     }
 
@@ -347,4 +358,28 @@ public class ApiAutomationService {
     public List<ApiDataCountResult> countRunResultByProjectID(String projectId) {
         return extApiScenarioMapper.countRunResultByProjectID(projectId);
     }
+
+    public void createSchedule(Schedule request) {
+
+        Schedule schedule = scheduleService.buildApiTestSchedule(request);
+        schedule.setJob(ApiScenarioTestJob.class.getName());
+        schedule.setGroup(ScheduleGroup.API_SCENARIO_TEST.name());
+        schedule.setType(ScheduleType.CRON.name());
+
+        scheduleService.addSchedule(schedule);
+        this.addOrUpdateApiScenarioCronJob(request);
+
+    }
+
+    public void updateSchedule(Schedule request) {
+        scheduleService.editSchedule(request);
+        this.addOrUpdateApiScenarioCronJob(request);
+    }
+
+    private void addOrUpdateApiScenarioCronJob(Schedule request) {
+        scheduleService.addOrUpdateCronJob(
+                request, ApiScenarioTestJob.getJobKey(request.getResourceId()), ApiScenarioTestJob.getTriggerKey(request.getResourceId()), ApiScenarioTestJob.class);
+    }
+
+
 }

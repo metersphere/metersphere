@@ -9,7 +9,6 @@ import org.quartz.JobExecutionContext;
 import org.quartz.JobKey;
 import org.quartz.TriggerKey;
 
-
 public class ApiTestJob extends MsScheduleJob {
 
     private APITestService apiTestService;
@@ -34,3 +33,4 @@ public class ApiTestJob extends MsScheduleJob {
         return new TriggerKey(testId, ScheduleGroup.API_TEST.name());
     }
 }
+
