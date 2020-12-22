@@ -149,9 +149,10 @@ public class ApiDataCountDTO {
         for (ApiDataCountResult countResult :
                 countResultList) {
             if("Underway".equals(countResult.getGroupField())){
-                //未开始
+                //运行中
                 this.runningCount+= countResult.getCountNumber();
             }else if("Completed".equals(countResult.getGroupField())){
+                //已完成
                 this.finishedCount+= countResult.getCountNumber();
             }else if("Prepare".equals(countResult.getGroupField())){
                 this.notStartedCount+= countResult.getCountNumber();

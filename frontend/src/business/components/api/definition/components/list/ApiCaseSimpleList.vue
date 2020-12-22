@@ -7,7 +7,7 @@
 
       <ms-environment-select v-if="isRelevanceModel" :project-id="relevanceProjectId" :is-read-only="isReadOnly" @setEnvironment="setEnvironment"/>
 
-      <el-input v-if="!isPlanModel" placeholder="搜索" @blur="search" class="search-input" size="small" v-model="condition.name"/>
+      <el-input v-if="!isPlanModel" placeholder="搜索" @blur="search" @keyup.enter.native="search" class="search-input" size="small" v-model="condition.name"/>
 
       <template v-slot:header>
        <test-plan-case-list-header

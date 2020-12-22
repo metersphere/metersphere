@@ -11,7 +11,9 @@
           <span class="count-number">
             {{sceneCountData.allApiDataCountNumber}}
           </span>
-          {{$t('api_test.home_page.unit_of_measurement')}}
+          <span style="color: #6C317C;">
+            {{$t('api_test.home_page.unit_of_measurement')}}
+          </span>
         </div>
       </el-main>
     </el-container>
@@ -65,12 +67,14 @@
                       {{sceneCountData.unexecuteCount}}
                     </span>
                   </el-col>
-                  <el-col>
-                    {{$t('api_test.home_page.detail_card.execution_failed')}}
-                    {{"\xa0\xa0"}}
-                    {{sceneCountData.executionFailedCount}}
+                  <el-col style="margin-top: 5px;">
+                    <span class="defaultProperty">
+                      {{$t('api_test.home_page.detail_card.execution_failed')}}
+                      {{"\xa0\xa0"}}
+                      {{sceneCountData.executionFailedCount}}
+                    </span>
                   </el-col>
-                  <el-col>
+                  <el-col style="margin-top: 5px;">
                     <span class="main-property">
                       {{$t('api_test.home_page.detail_card.execution_pass')}}
                       {{"\xa0\xa0"}}
@@ -141,10 +145,11 @@ export default {
   box-shadow: 0 0px 0px 0 rgba(0,0,0,.1);
 }
 .defaultProperty{
-
+  font-size: 12px
 }
 .main-property{
   color: #F39021;
+  font-size: 12px
 }
 
 .el-card /deep/ .el-card__header {

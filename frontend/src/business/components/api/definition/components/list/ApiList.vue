@@ -318,6 +318,7 @@
                   this.selectRows.clear();
                   this.initTable();
                   this.$success(this.$t('commons.delete_success'));
+                  this.$refs.caseList.apiCaseClose();
                 });
               }
             }
@@ -368,6 +369,7 @@
               this.$post('/api/definition/removeToGc/', ids, () => {
                 this.$success(this.$t('commons.delete_success'));
                 this.initTable();
+                this.$refs.caseList.apiCaseClose();
               });
             }
           }

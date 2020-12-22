@@ -1,5 +1,5 @@
 <template>
-  <el-dialog :close-on-click-modal="false" :title="$t('api_test.automation.case_ref')" :visible.sync="visible"
+  <el-dialog :close-on-click-modal="false" :title="$t('api_test.automation.scenario_ref')" :visible.sync="visible"
              width="45%" :destroy-on-close="true">
     <span>{{ $t('api_test.automation.scenario_ref') }}：</span>
     <div class="refs" v-loading="scenarioLoading">

@@ -90,7 +90,7 @@
             <if test="request.moduleId != null">
                 AND api_scenario_module_id = #{request.moduleId}
             </if>
-            and scenario_definition like CONCAT('%', #{request.id},'%')
+            and scenario_definition like CONCAT('%', #{request.id},'%') and id != #{request.id}
         </where>
     </select>
 

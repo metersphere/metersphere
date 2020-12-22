@@ -25,5 +25,7 @@ public class RunScenarioRequest {
 
     private List<String> planCaseIds;
 
+    private String reportUserID;
+
     private List<String> scenarioIds;
 }
