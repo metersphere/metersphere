@@ -171,7 +171,8 @@ export default {
     all_label: {
       case: "全部用例",
       review: "全部評審"
-    }
+    },
+    image: '鏡像'
   },
   license: {
     title: '授權管理',
