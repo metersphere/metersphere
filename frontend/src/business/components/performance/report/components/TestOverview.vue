@@ -13,10 +13,10 @@
       <el-col :span="4">
         <el-card shadow="always" class="ms-card-index-2">
           <span class="ms-card-data">
-            <span class="ms-card-data-digital">{{ avgThroughput }}</span>
-            <span class="ms-card-data-unit"> Hits/s</span>
+            <span class="ms-card-data-digital">{{ avgTransactions }}</span>
+            <span class="ms-card-data-unit"> Transactions/s</span>
           </span>
-          <span class="ms-card-desc">Avg.Throughput</span>
+          <span class="ms-card-desc">Avg.Transactions</span>
         </el-card>
       </el-col>
       <el-col :span="4">
@@ -86,6 +86,7 @@ export default {
     return {
       maxUsers: "0",
       avgThroughput: "0",
+      avgTransactions: "0",
       errors: "0",
       avgResponseTime: "0",
       responseTime90: "0",
@@ -103,6 +104,7 @@ export default {
         let data = res.data.data;
         this.maxUsers = data.maxUsers;
         this.avgThroughput = data.avgThroughput;
+        this.avgTransactions = data.avgTransactions;
         this.errors = data.errors;
         this.avgResponseTime = data.avgResponseTime;
         this.responseTime90 = data.responseTime90;
@@ -110,6 +112,7 @@ export default {
       }).catch(() => {
         this.maxUsers = '0';
         this.avgThroughput = '0';
+        this.avgTransactions = '0';
         this.errors = '0';
         this.avgResponseTime = '0';
         this.responseTime90 = '0';
