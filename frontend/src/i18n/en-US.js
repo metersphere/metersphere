@@ -885,6 +885,9 @@ export default {
           create_user: "Creator",
           update_time: "Update time",
         },
+        confirm:{
+          close_title: "Do you want to close this scheduled task？",
+        }
       }
     }
   },

@@ -11,8 +11,16 @@
       <el-table-column prop="rule"  :label="$t('api_test.home_page.running_task_list.table_coloum.run_rule')" width="120" show-overflow-tooltip/>
       <el-table-column width="100" :label="$t('api_test.home_page.running_task_list.table_coloum.task_status')">
         <template v-slot:default="scope">
-          <el-switch @click.stop.native v-model="scope.row.taskStatus" @change="updateTask(scope.row)"/>
+          <div>
+            <el-switch
+              v-model="scope.row.taskStatus"
+              class="captcha-img"
+              @click.native="closeTaskConfirm(scope.row)"
+            ></el-switch>
+          </div>
         </template>
+
+
       </el-table-column>
       <el-table-column width="170" :label="$t('api_test.home_page.running_task_list.table_coloum.next_execution_time')">
         <template v-slot:default="scope">
@@ -41,6 +49,7 @@ export default {
       value: '100',
       result: {},
       tableData: [],
+      visible: false,
       loading: false
     }
   },
@@ -50,6 +59,19 @@ export default {
       let workSpaceID = getCurrentWorkspaceId();
       this.result = this.$get("/api/runningTask/"+workSpaceID, response => {
         this.tableData = response.data;
+      });
+    },
+
+    closeTaskConfirm(row){
+      let flag = row.taskStatus;
+      row.taskStatus = !flag; //保持switch点击前的状态
+      this.$confirm(this.$t('api_test.home_page.running_task_list.confirm.close_title'), this.$t('commons.prompt'), {
+        confirmButtonText: this.$t('commons.confirm'),
+        cancelButtonText: this.$t('commons.cancel'),
+        type: 'warning'
+      }).then(() => {
+        this.updateTask(row);
+      }).catch(() => {
       });
     },
 
@@ -66,8 +88,11 @@ export default {
   },
   activated() {
     this.search();
+  },
+  handleStatus(scope) {
+    console.log(scope.row.userId)
   }
-}
+  }
 </script>
 
 <style scoped>

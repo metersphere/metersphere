@@ -886,6 +886,9 @@ export default {
           create_user: "创建人",
           update_time: "更新时间",
         },
+        confirm:{
+          close_title: "要关闭这条定时任务吗？",
+        }
       }
     }
   },
