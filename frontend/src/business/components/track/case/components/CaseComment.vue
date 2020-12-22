@@ -5,7 +5,7 @@
       <i class="el-icon-refresh" @click="getComments()"
          style="margin-left:10px;font-size: 14px; cursor: pointer"/>
     </template>
-    <div class="comment-list" style="height: 500px; overflow: auto;">
+    <div style="height: 100%;overflow:auto;">
       <review-comment-item v-for="(comment,index) in comments"
                            :key="index"
                            :comment="comment"
