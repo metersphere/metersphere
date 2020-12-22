@@ -88,6 +88,9 @@
           } else {
             this.request = JSON.parse(this.currentApi.request);
           }
+          if (!this.request.headers) {
+            this.request.headers = [];
+          }
           this.currentApi.request = this.request;
           return true;
         }
@@ -135,6 +138,9 @@
         if (!this.request.hashTree) {
           this.request.hashTree = [];
         }
+        if (!this.request.body.binary) {
+          this.request.body.binary = [];
+        }
         // 处理导入数据缺失问题
         if (this.response.body) {
           let body = new Body();
@@ -144,6 +150,9 @@
           }
           if (!body.kvs) {
             body.kvs = [];
+          }
+          if (!body.binary) {
+            body.binary = [];
           }
           this.response.body = body;
         }

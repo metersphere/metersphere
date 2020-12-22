@@ -16,7 +16,7 @@
                @click="active(apiCase)"/>
             <el-input v-if="!apiCase.id || isShowInput" size="small" v-model="apiCase.name" :name="index" :key="index"
                       class="ms-api-header-select" style="width: 180px"
-                      @blur="saveTestCase(apiCase)"/>
+                      @blur="saveTestCase(apiCase)" placeholder="请输入用例名称"/>
             <span v-else>
                   {{apiCase.id ? apiCase.name:''}}
                   <i class="el-icon-edit" style="cursor:pointer" @click="showInput(apiCase)"/>
@@ -149,7 +149,7 @@
           this.$emit('singleRun', data);
         },
         copyCase(data) {
-          let obj = {name: "copy_" + data.name, priority: data.priority, active: false, request: data.request};
+          let obj = {name: "copy_" + data.name, priority: data.priority, active: true, request: data.request};
           this.$emit('copyCase', obj);
         },
 
@@ -182,6 +182,7 @@
           }
           let bodyFiles = this.getBodyUploadFiles(row);
           row.projectId = getCurrentProjectID();
+          row.active = true;
           row.apiDefinitionId = row.apiDefinitionId || this.api.id;
           let url = "/api/testcase/create";
           if (row.id) {
