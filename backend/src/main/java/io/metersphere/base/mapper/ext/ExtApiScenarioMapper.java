@@ -2,7 +2,7 @@ package io.metersphere.base.mapper.ext;
 
 import io.metersphere.api.dto.automation.ApiScenarioDTO;
 import io.metersphere.api.dto.automation.ApiScenarioRequest;
-import io.metersphere.api.dto.dataCount.ApiDataCountResult;
+import io.metersphere.api.dto.datacount.ApiDataCountResult;
 import io.metersphere.base.domain.ApiScenario;
 import io.metersphere.base.domain.ApiScenarioWithBLOBs;
 import org.apache.ibatis.annotations.Param;

@@ -1,4 +1,4 @@
-package io.metersphere.api.dto.dataCount.request;
+package io.metersphere.api.dto.datacount.request;
 
 import lombok.Getter;
 import lombok.Setter;

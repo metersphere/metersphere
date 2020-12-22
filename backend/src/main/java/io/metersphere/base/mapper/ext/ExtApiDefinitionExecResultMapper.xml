@@ -32,7 +32,7 @@
         WHERE testCase.project_id = #{projectId})
     </select>
 
-    <select id="findFaliureCaseInfoByProjectIDAndExecuteTimeAndLimitNumber" resultType="io.metersphere.api.dto.dataCount.ExecutedCaseInfoResult">
+    <select id="findFaliureCaseInfoByProjectIDAndExecuteTimeAndLimitNumber" resultType="io.metersphere.api.dto.datacount.ExecutedCaseInfoResult">
         SELECT * FROM (
             SELECT testCase.testCaseName AS caseName,testCase.testPlanName AS testPlan ,caseErrorCountData.dataCountNumber AS failureTimes,'apiCase' AS caseType
             FROM (

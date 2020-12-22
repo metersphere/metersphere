@@ -244,73 +244,73 @@ public class ApiScenarioExample {
             return (Criteria) this;
         }
 
-        public Criteria andTagIdIsNull() {
-            addCriterion("tag_id is null");
+        public Criteria andTagsIsNull() {
+            addCriterion("tags is null");
             return (Criteria) this;
         }
 
-        public Criteria andTagIdIsNotNull() {
-            addCriterion("tag_id is not null");
+        public Criteria andTagsIsNotNull() {
+            addCriterion("tags is not null");
             return (Criteria) this;
         }
 
-        public Criteria andTagIdEqualTo(String value) {
-            addCriterion("tag_id =", value, "tagId");
+        public Criteria andTagsEqualTo(String value) {
+            addCriterion("tags =", value, "tags");
             return (Criteria) this;
         }
 
-        public Criteria andTagIdNotEqualTo(String value) {
-            addCriterion("tag_id <>", value, "tagId");
+        public Criteria andTagsNotEqualTo(String value) {
+            addCriterion("tags <>", value, "tags");
             return (Criteria) this;
         }
 
-        public Criteria andTagIdGreaterThan(String value) {
-            addCriterion("tag_id >", value, "tagId");
+        public Criteria andTagsGreaterThan(String value) {
+            addCriterion("tags >", value, "tags");
             return (Criteria) this;
         }
 
-        public Criteria andTagIdGreaterThanOrEqualTo(String value) {
-            addCriterion("tag_id >=", value, "tagId");
+        public Criteria andTagsGreaterThanOrEqualTo(String value) {
+            addCriterion("tags >=", value, "tags");
             return (Criteria) this;
         }
 
-        public Criteria andTagIdLessThan(String value) {
-            addCriterion("tag_id <", value, "tagId");
+        public Criteria andTagsLessThan(String value) {
+            addCriterion("tags <", value, "tags");
             return (Criteria) this;
         }
 
-        public Criteria andTagIdLessThanOrEqualTo(String value) {
-            addCriterion("tag_id <=", value, "tagId");
+        public Criteria andTagsLessThanOrEqualTo(String value) {
+            addCriterion("tags <=", value, "tags");
             return (Criteria) this;
         }
 
-        public Criteria andTagIdLike(String value) {
-            addCriterion("tag_id like", value, "tagId");
+        public Criteria andTagsLike(String value) {
+            addCriterion("tags like", value, "tags");
             return (Criteria) this;
         }
 
-        public Criteria andTagIdNotLike(String value) {
-            addCriterion("tag_id not like", value, "tagId");
+        public Criteria andTagsNotLike(String value) {
+            addCriterion("tags not like", value, "tags");
             return (Criteria) this;
         }
 
-        public Criteria andTagIdIn(List<String> values) {
-            addCriterion("tag_id in", values, "tagId");
+        public Criteria andTagsIn(List<String> values) {
+            addCriterion("tags in", values, "tags");
             return (Criteria) this;
         }
 
-        public Criteria andTagIdNotIn(List<String> values) {
-            addCriterion("tag_id not in", values, "tagId");
+        public Criteria andTagsNotIn(List<String> values) {
+            addCriterion("tags not in", values, "tags");
             return (Criteria) this;
         }
 
-        public Criteria andTagIdBetween(String value1, String value2) {
-            addCriterion("tag_id between", value1, value2, "tagId");
+        public Criteria andTagsBetween(String value1, String value2) {
+            addCriterion("tags between", value1, value2, "tags");
             return (Criteria) this;
         }
 
-        public Criteria andTagIdNotBetween(String value1, String value2) {
-            addCriterion("tag_id not between", value1, value2, "tagId");
+        public Criteria andTagsNotBetween(String value1, String value2) {
+            addCriterion("tags not between", value1, value2, "tags");
             return (Criteria) this;
         }
 

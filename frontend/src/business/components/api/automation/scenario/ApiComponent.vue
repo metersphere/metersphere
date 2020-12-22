@@ -2,18 +2,18 @@
   <div v-loading="loading">
     <el-card>
       <el-row>
-        <div class="el-step__icon is-text ms-api-col" v-if="request.referenced!=undefined && request.referenced==='Deleted' || request.referenced=='REF'">
+        <div class="el-step__icon is-text ms-api-col" v-if="request.referenced!=undefined && request.referenced==='Deleted' || request.referenced=='REF' || request.referenced==='Copy'">
           <div class="el-step__icon-inner">{{request.index}}</div>
         </div>
         <div class="el-step__icon is-text ms-api-col-create" v-else>
           <div class="el-step__icon-inner">{{request.index}}</div>
         </div>
 
-        <el-button v-if="request.referenced!=undefined && request.referenced==='Deleted' || request.referenced=='REF'" class="ms-left-buttion" size="small">
+        <el-button v-if="request.referenced!=undefined && request.referenced==='Deleted' || request.referenced=='REF'  || request.referenced==='Copy'" class="ms-left-buttion" size="small">
           {{$t('api_test.automation.api_list_import')}}
         </el-button>
 
-        <el-button v-if="request.referenced==undefined || request.referenced==='Created' || request.referenced==='Copy'" class="ms-create-buttion" size="small">
+        <el-button v-if="request.referenced==undefined || request.referenced==='Created' " class="ms-create-buttion" size="small">
           {{$t('api_test.automation.customize_req')}}
         </el-button>
 
@@ -21,6 +21,7 @@
         <el-input size="small" v-model="request.name" style="width: 40%;" :placeholder="$t('commons.input_name')" v-else/>
 
         <el-tag size="mini" style="margin-left: 20px" v-if="request.referenced==='Deleted'" type="danger">{{$t('api_test.automation.reference_deleted')}}</el-tag>
+        <el-tag size="mini" style="margin-left: 20px" v-if="request.referenced==='Copy'">{{ $t('commons.copy') }}</el-tag>
         <el-tag size="mini" style="margin-left: 20px" v-if="request.referenced ==='REF'">{{ $t('api_test.scenario.reference') }}</el-tag>
         <div style="margin-right: 20px; float: right">
           <i class="icon el-icon-arrow-right" :class="{'is-active': request.active}"

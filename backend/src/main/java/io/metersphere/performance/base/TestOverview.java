@@ -11,5 +11,5 @@ public class TestOverview {
     private String avgResponseTime;
     private String responseTime90;
     private String avgBandwidth;
-
+    private String avgTransactions;
 }

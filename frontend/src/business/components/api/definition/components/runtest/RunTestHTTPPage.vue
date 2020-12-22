@@ -216,6 +216,7 @@
       updateApi() {
         let url = "/api/definition/update";
         let bodyFiles = this.getBodyUploadFiles();
+        this.api.method = this.api.request.method;
         this.$fileUpload(url, null, bodyFiles, this.api, () => {
           this.$success(this.$t('commons.save_success'));
           this.$emit('saveApi', this.api);

@@ -1,14 +1,11 @@
-package io.metersphere.api.dto.dataCount.response;
+package io.metersphere.api.dto.datacount.response;
 
-import io.metersphere.api.dto.dataCount.ApiDataCountResult;
+import io.metersphere.api.dto.datacount.ApiDataCountResult;
 import io.metersphere.api.dto.scenario.request.RequestType;
-import io.metersphere.base.domain.ApiDefinition;
-import io.metersphere.commons.constants.APITestStatus;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.util.List;
-import java.util.Locale;
 
 /**
  * 接口数据统计返回
@@ -118,7 +115,7 @@ public class ApiDataCountDTO {
 
     /**
      * 对Protocal视角对查询结果进行统计
-     * @param countResultList
+     * @param countResultList 查询参数
      */
     public void countProtocal(List<ApiDataCountResult> countResultList){
         for (ApiDataCountResult countResult :
@@ -146,16 +143,17 @@ public class ApiDataCountDTO {
 
     /**
      * 对Status视角对查询结果进行统计
-     * @param countResultList
+     * @param countResultList 查询参数
      */
     public void countStatus(List<ApiDataCountResult> countResultList){
         for (ApiDataCountResult countResult :
                 countResultList) {
             if("Underway".equals(countResult.getGroupField())){
+                //未开始
                 this.runningCount+= countResult.getCountNumber();
             }else if("Completed".equals(countResult.getGroupField())){
                 this.finishedCount+= countResult.getCountNumber();
-            }else if("Trash".equals(countResult.getGroupField())){
+            }else if("Prepare".equals(countResult.getGroupField())){
                 this.notStartedCount+= countResult.getCountNumber();
             }
         }

@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS `api_definition` (
     `protocol` varchar(255)  NOT NULL COMMENT 'request protocol',
     `path` varchar(1000)  DEFAULT NULL COMMENT 'request path',
     `module_path` varchar(1000)  COMMENT 'module path',
-    `description` varchar(255)  DEFAULT NULL COMMENT 'Test description',
+    `description` longtext  DEFAULT NULL COMMENT 'Test description',
     `environment_id` varchar(50)  DEFAULT NULL COMMENT 'environment id',
     `request` longtext  COMMENT 'request (JSON format)',
     `response` longtext  COMMENT 'request (JSON format)',
@@ -40,7 +40,7 @@ CREATE TABLE IF NOT EXISTS `api_test_case` (
     `name` varchar(64)  NOT NULL COMMENT 'Test name',
     `priority` varchar(64)  NOT NULL COMMENT 'priority',
     `api_definition_id` varchar(50)  NOT NULL COMMENT 'api definition id',
-    `description` varchar(255)  DEFAULT NULL COMMENT 'Test description',
+    `description` longtext  DEFAULT NULL COMMENT 'Test description',
     `request` longtext  COMMENT 'request (JSON format)',
     `response` longtext  COMMENT 'response (JSON format)',
     `create_user_id` varchar(64) DEFAULT NULL COMMENT 'User ID',
@@ -59,6 +59,7 @@ CREATE TABLE IF NOT EXISTS `api_definition_exec_result` (
     `user_id` varchar(64) DEFAULT NULL COMMENT 'User ID',
     `start_time` bigint(13) NOT NULL COMMENT 'Create timestamp',
     `end_time` bigint(13) NOT NULL COMMENT 'Update timestamp',
+    `create_time` bigint(13) NULL COMMENT 'Create time',
     PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 

@@ -171,7 +171,8 @@ export default {
     all_label: {
       case: "全部用例",
       review: "全部評審"
-    }
+    },
+    image: '鏡像'
   },
   license: {
     title: '授權管理',
@@ -885,6 +886,9 @@ export default {
           create_user: "創建人",
           update_time: "更新時間",
         },
+        confirm:{
+          close_title: "要關閉這條定時任務嗎？",
+        }
       }
     }
   },

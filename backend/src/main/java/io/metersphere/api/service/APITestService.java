@@ -4,7 +4,6 @@ import com.alibaba.fastjson.JSONObject;
 import com.alibaba.nacos.client.utils.StringUtils;
 import io.github.ningyu.jmeter.plugin.dubbo.sample.ProviderService;
 import io.metersphere.api.dto.*;
-import io.metersphere.api.dto.dataCount.ApiDataCountResult;
 import io.metersphere.api.dto.parse.ApiImport;
 import io.metersphere.api.dto.scenario.request.dubbo.RegistryCenter;
 import io.metersphere.api.jmeter.JMeterService;

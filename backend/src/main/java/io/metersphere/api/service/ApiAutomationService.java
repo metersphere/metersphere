@@ -5,9 +5,8 @@ import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.Gson;
 import io.metersphere.api.dto.automation.*;
-import io.metersphere.api.dto.dataCount.ApiDataCountResult;
+import io.metersphere.api.dto.datacount.ApiDataCountResult;
 import io.metersphere.api.dto.definition.RunDefinitionRequest;
 import io.metersphere.api.dto.definition.request.*;
 import io.metersphere.api.dto.scenario.KeyValue;
@@ -15,7 +14,6 @@ import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
 import io.metersphere.api.jmeter.JMeterService;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ApiScenarioMapper;
-import io.metersphere.base.mapper.ApiTagMapper;
 import io.metersphere.base.mapper.ext.ExtApiScenarioMapper;
 import io.metersphere.base.mapper.ext.ExtTestPlanMapper;
 import io.metersphere.base.mapper.ext.ExtTestPlanScenarioCaseMapper;
@@ -56,8 +54,6 @@ public class ApiAutomationService {
     @Resource
     private ExtApiScenarioMapper extApiScenarioMapper;
     @Resource
-    private ApiTagMapper apiTagMapper;
-    @Resource
     private JMeterService jMeterService;
     @Resource
     private ApiTestEnvironmentService environmentService;
@@ -71,33 +67,9 @@ public class ApiAutomationService {
     public List<ApiScenarioDTO> list(ApiScenarioRequest request) {
         request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
         List<ApiScenarioDTO> list = extApiScenarioMapper.list(request);
-//        buildScenarioInfo(request.getProjectId(), list); todo tag?
         return list;
     }
 
-    public void buildScenarioInfo(String projectId, List<ApiScenarioDTO> list) {
-        ApiTagExample example = new ApiTagExample();
-        example.createCriteria().andProjectIdEqualTo(projectId);
-        List<ApiTag> tags = apiTagMapper.selectByExample(example);
-        Map<String, String> tagMap = tags.stream().collect(Collectors.toMap(ApiTag::getId, ApiTag::getName));
-        Gson gs = new Gson();
-        list.forEach(item -> {
-            if (item.getTagId() != null) {
-                StringBuilder buf = new StringBuilder();
-                gs.fromJson(item.getTagId(), List.class).forEach(t -> {
-                    buf.append(tagMap.get(t));
-                    buf.append(",");
-                });
-                if (buf != null && buf.length() > 0) {
-                    String tagNames = buf.toString().substring(0, buf.toString().length() - 1);
-                    List<String> tagList = Arrays.asList(tagNames.split(","));
-                    item.setTagNames(tagList);
-                } else {
-                    item.setTagNames(new ArrayList<>());
-                }
-            }
-        });
-    }
 
     public List<String> selectIdsNotExistsInPlan(String projectId, String planId) {
         return extApiScenarioMapper.selectIdsNotExistsInPlan(projectId, planId);
@@ -117,7 +89,7 @@ public class ApiAutomationService {
         scenario.setId(request.getId());
         scenario.setName(request.getName());
         scenario.setProjectId(request.getProjectId());
-        scenario.setTagId(request.getTagId());
+        scenario.setTags(request.getTags());
         scenario.setApiScenarioModuleId(request.getApiScenarioModuleId());
         scenario.setModulePath(request.getModulePath());
         scenario.setLevel(request.getLevel());
@@ -154,7 +126,7 @@ public class ApiAutomationService {
         scenario.setId(request.getId());
         scenario.setName(request.getName());
         scenario.setProjectId(request.getProjectId());
-        scenario.setTagId(request.getTagId());
+        scenario.setTags(request.getTags());
         scenario.setApiScenarioModuleId(request.getApiScenarioModuleId());
         scenario.setModulePath(request.getModulePath());
         scenario.setLevel(request.getLevel());
@@ -213,19 +185,6 @@ public class ApiAutomationService {
             return extApiScenarioMapper.selectIds(ids);
         }
         return new ArrayList<>();
-    }
-
-    public void deleteTag(String id) {
-        List<ApiScenarioWithBLOBs> list = extApiScenarioMapper.selectByTagId(id);
-        if (!list.isEmpty()) {
-            Gson gs = new Gson();
-            list.forEach(item -> {
-                List<String> tagIds = gs.fromJson(item.getTagId(), List.class);
-                tagIds.remove(id);
-                item.setTagId(JSON.toJSONString(tagIds));
-                apiScenarioMapper.updateByPrimaryKeySelective(item);
-            });
-        }
     }
 
     private void createAPIScenarioReportResult(String id, String triggerMode, String execType, String projectId) {
@@ -317,6 +276,7 @@ public class ApiAutomationService {
         ParameterConfig config = new ParameterConfig();
         config.setConfig(envConfig);
         HashTree hashTree = request.getTestElement().generateHashTree(config);
+        request.getTestElement().getJmx(hashTree);
         // 调用执行方法
         jMeterService.runDefinition(request.getId(), hashTree, request.getReportId(), ApiRunMode.SCENARIO.name());
         createAPIScenarioReportResult(request.getId(), ReportTriggerMode.MANUAL.name(), request.getExecuteType(), request.getProjectId());

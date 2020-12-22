@@ -59,7 +59,6 @@
     methods: {
       active() {
         this.isActive = !this.isActive;
-        console.log(this.request)
         //this.$emit("requestResult", {request: this.request, scenarioName: this.scenarioName});
       }
     },
