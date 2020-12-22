@@ -27,9 +27,9 @@
                 </el-form-item>
               </el-col>
               <el-col :span="8">
-                <el-form-item :label="$t('api_test.request.sql.dataSource')" prop="dataSource" style="margin-left: 10px">
-                  <el-select v-model="request.dataSource" size="small">
-                    <el-option v-for="(item, index) in databaseConfigsOptions" :key="index" :value="item" :label="item.name"/>
+                <el-form-item :label="$t('api_test.request.sql.dataSource')" prop="dataSourceId" style="margin-left: 10px">
+                  <el-select v-model="request.dataSourceId" size="small">
+                    <el-option v-for="(item, index) in databaseConfigsOptions" :key="index" :value="item.id" :label="item.name"/>
                   </el-select>
                 </el-form-item>
 
@@ -133,8 +133,13 @@
         activeName: "variables",
         rules: {
           environmentId: [{required: true, message: this.$t('test_track.case.input_maintainer'), trigger: 'change'}],
-          dataSource: [{required: true, message: this.$t('api_test.request.sql.dataSource'), trigger: 'change'}],
+          dataSourceId: [{required: true, message: this.$t('api_test.request.sql.dataSource'), trigger: 'change'}],
         },
+      }
+    },
+    watch: {
+      'request.dataSourceId'() {
+        this.setDataSource();
       }
     },
     created() {
@@ -212,7 +217,15 @@
             this.databaseConfigsOptions = [];
             this.environments[i].config.databaseConfigs.forEach(item => {
               this.databaseConfigsOptions.push(item);
-            })
+            });
+            break;
+          }
+        }
+      },
+      setDataSource() {
+        for (let item of this.databaseConfigsOptions) {
+          if (this.request.dataSourceId === item.id) {
+            this.request.dataSource = item;
             break;
           }
         }

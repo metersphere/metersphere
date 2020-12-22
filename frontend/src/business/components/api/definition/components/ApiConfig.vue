@@ -138,7 +138,7 @@
         if (!this.request.hashTree) {
           this.request.hashTree = [];
         }
-        if (!this.request.body.binary) {
+        if (this.request.body && !this.request.body.binary) {
           this.request.body.binary = [];
         }
         // 处理导入数据缺失问题
