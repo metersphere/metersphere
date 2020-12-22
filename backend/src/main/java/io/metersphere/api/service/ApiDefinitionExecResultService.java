@@ -41,13 +41,13 @@ public class ApiDefinitionExecResultService {
             saveResult.setStartTime(item.getStartTime());
             saveResult.setType(type);
             saveResult.setEndTime(item.getResponseResult().getResponseTime());
-            saveResult.setStatus(item.getResponseResult().getResponseCode().equals("200") ? "success" : "error");
+            saveResult.setStatus(item.isSuccess() ? "success" : "error");
             apiDefinitionExecResultMapper.insert(saveResult);
         });
     }
 
     public void deleteByResourceId(String resourceId) {
-        ApiDefinitionExecResultExample example =  new ApiDefinitionExecResultExample();
+        ApiDefinitionExecResultExample example = new ApiDefinitionExecResultExample();
         example.createCriteria().andResourceIdEqualTo(resourceId);
         apiDefinitionExecResultMapper.deleteByExample(example);
     }
@@ -64,10 +64,10 @@ public class ApiDefinitionExecResultService {
         Date firstTime = startAndEndDateInWeek.get("firstTime");
         Date lastTime = startAndEndDateInWeek.get("lastTime");
 
-        if(firstTime==null || lastTime == null){
-            return  0;
-        }else {
-            return extApiDefinitionExecResultMapper.countByProjectIDAndCreateInThisWeek(projectId,firstTime.getTime(),lastTime.getTime());
+        if (firstTime == null || lastTime == null) {
+            return 0;
+        } else {
+            return extApiDefinitionExecResultMapper.countByProjectIDAndCreateInThisWeek(projectId, firstTime.getTime(), lastTime.getTime());
         }
     }
 
@@ -79,18 +79,18 @@ public class ApiDefinitionExecResultService {
     public List<ExecutedCaseInfoResult> findFaliureCaseInfoByProjectIDAndLimitNumberInSevenDays(String projectId, int limitNumber) {
 
         //获取7天之前的日期
-        Date startDay = DateUtils.dateSum(new Date(),-6);
+        Date startDay = DateUtils.dateSum(new Date(), -6);
         //将日期转化为 00:00:00 的时间戳
         Date startTime = null;
-        try{
+        try {
             startTime = DateUtils.getDayStartTime(startDay);
-        }catch (Exception e){
+        } catch (Exception e) {
         }
 
-        if(startTime==null){
-            return  new ArrayList<>(0);
-        }else {
-            return extApiDefinitionExecResultMapper.findFaliureCaseInfoByProjectIDAndExecuteTimeAndLimitNumber(projectId,startTime.getTime(),limitNumber);
+        if (startTime == null) {
+            return new ArrayList<>(0);
+        } else {
+            return extApiDefinitionExecResultMapper.findFaliureCaseInfoByProjectIDAndExecuteTimeAndLimitNumber(projectId, startTime.getTime(), limitNumber);
         }
     }
 }

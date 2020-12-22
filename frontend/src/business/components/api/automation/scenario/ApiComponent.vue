@@ -129,9 +129,13 @@
             if (response.data) {
               Object.assign(this.request, JSON.parse(response.data.request));
               this.request.name = response.data.name;
-              this.request.path = response.data.path;
-              this.request.method = response.data.method;
-              this.request.url = response.data.path;
+              if (response.data.path && response.data.path != null) {
+                this.request.path = response.data.path;
+                this.request.url = response.data.path;
+              }
+              if (response.data.method && response.data.method != null) {
+                this.request.method = response.data.method;
+              }
               this.request.requestResult = requestResult;
               this.request.id = response.data.id;
               this.reload();

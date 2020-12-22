@@ -183,6 +183,8 @@
           let bodyFiles = this.getBodyUploadFiles(row);
           row.projectId = getCurrentProjectID();
           row.active = true;
+          row.request.path = this.api.path;
+          row.request.method = this.api.method;
           row.apiDefinitionId = row.apiDefinitionId || this.api.id;
           let url = "/api/testcase/create";
           if (row.id) {

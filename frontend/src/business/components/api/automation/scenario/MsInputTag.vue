@@ -1,5 +1,5 @@
 <template>
-  <input-tag v-model="data"></input-tag>
+  <input-tag v-model="data" placeholder="输入回车添加"></input-tag>
 </template>
 
 <script>
@@ -13,7 +13,6 @@
       if (!this.currentScenario.tags) {
         this.currentScenario.tags = [];
       }
-      console.log(this.currentScenario.tags)
       this.data = this.currentScenario.tags;
     },
     data() {
