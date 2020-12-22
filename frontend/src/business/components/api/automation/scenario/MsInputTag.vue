@@ -10,11 +10,11 @@
     components: {InputTag},
     props: {currentScenario: {}},
     created() {
-      if (!this.currentScenario.tagId) {
-        this.currentScenario.tagId = [];
+      if (!this.currentScenario.tags) {
+        this.currentScenario.tags = [];
       }
-      console.log(this.currentScenario.tagId)
-      this.data = this.currentScenario.tagId;
+      console.log(this.currentScenario.tags)
+      this.data = this.currentScenario.tags;
     },
     data() {
       return {
@@ -23,7 +23,7 @@
     },
     watch: {
       data() {
-        this.currentScenario.tagId = this.data;
+        this.currentScenario.tags = this.data;
       }
     },
     methods: {}

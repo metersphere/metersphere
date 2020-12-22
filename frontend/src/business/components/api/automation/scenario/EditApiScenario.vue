@@ -79,7 +79,7 @@
 
           <el-row>
             <el-col :span="12">
-              <el-form-item label="Tag" prop="tagId">
+              <el-form-item label="Tag" prop="tags">
                 <ms-input-tag :currentScenario="currentScenario" ref="tag"/>
               </el-form-item>
             </el-col>
@@ -710,8 +710,8 @@
               if (response.data) {
                 this.currentScenario.id = response.data.id;
               }
-              if (this.currentScenario.tagId instanceof String) {
-                this.currentScenario.tagId = JSON.parse(this.currentScenario.tagId);
+              if (this.currentScenario.tags instanceof String) {
+                this.currentScenario.tags = JSON.parse(this.currentScenario.tags);
               }
               this.$emit('refresh');
             })
@@ -720,8 +720,8 @@
       }
       ,
       getApiScenario() {
-        if (this.currentScenario.tagId != undefined && !(this.currentScenario.tagId instanceof Array)) {
-          this.currentScenario.tagId = JSON.parse(this.currentScenario.tagId);
+        if (this.currentScenario.tags != undefined && !(this.currentScenario.tags instanceof Array)) {
+          this.currentScenario.tags = JSON.parse(this.currentScenario.tags);
         }
         if (this.currentScenario.id) {
           this.result = this.$get("/api/automation/getApiScenario/" + this.currentScenario.id, response => {
@@ -754,8 +754,8 @@
           type: "scenario", referenced: 'Created', environmentId: this.currentEnvironmentId, hashTree: this.scenarioDefinition
         };
         this.currentScenario.scenarioDefinition = scenario;
-        if (this.currentScenario.tagId instanceof Array) {
-          this.currentScenario.tagId = JSON.stringify(this.currentScenario.tagId);
+        if (this.currentScenario.tags instanceof Array) {
+          this.currentScenario.tags = JSON.stringify(this.currentScenario.tags);
         }
         if (this.currentModule != null) {
           this.currentScenario.modulePath = this.currentModule.method !== undefined ? this.currentModule.method : null;

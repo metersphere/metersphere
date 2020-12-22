@@ -25,9 +25,9 @@
           </template>
 
         </el-table-column>
-        <el-table-column prop="tagId" :label="$t('api_test.automation.tag')" width="200px">
+        <el-table-column prop="tags" :label="$t('api_test.automation.tag')" width="200px">
           <template v-slot:default="scope">
-            <div v-for="(itemName,index)  in scope.row.tagId" :key="index">
+            <div v-for="(itemName,index)  in scope.row.tags" :key="index">
               <ms-tag type="success" effect="plain" :content="itemName"/>
             </div>
           </template>
@@ -168,8 +168,8 @@
           this.total = data.itemCount;
           this.tableData = data.listObject;
           this.tableData.forEach(item => {
-            if (item.tagId && item.tagId.length > 0) {
-              item.tagId = JSON.parse(item.tagId);
+            if (item.tags && item.tags.length > 0) {
+              item.tags = JSON.parse(item.tags);
             }
           })
           this.loading = false;

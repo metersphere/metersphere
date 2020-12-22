@@ -9,7 +9,7 @@ public class ApiScenario implements Serializable {
 
     private String projectId;
 
-    private String tagId;
+    private String tags;
 
     private String userId;
 

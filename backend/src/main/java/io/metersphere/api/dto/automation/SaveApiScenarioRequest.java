@@ -13,7 +13,7 @@ public class SaveApiScenarioRequest {
 
     private String projectId;
 
-    private String tagId;
+    private String tags;
 
     private String userId;
 
