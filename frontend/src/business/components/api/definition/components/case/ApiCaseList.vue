@@ -206,7 +206,7 @@
       },
 
       singleRun(row) {
-        if (!this.environment) {
+        if (!this.environment || !this.environment) {
           this.$warning(this.$t('api_test.environment.select_environment'));
           return;
         }

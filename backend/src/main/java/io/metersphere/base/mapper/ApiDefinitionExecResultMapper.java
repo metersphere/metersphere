@@ -1,12 +1,9 @@
 package io.metersphere.base.mapper;
 
-import io.metersphere.api.dto.dataCount.ExecutedCaseInfoResult;
 import io.metersphere.base.domain.ApiDefinitionExecResult;
 import io.metersphere.base.domain.ApiDefinitionExecResultExample;
-import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.Select;
-
 import java.util.List;
+import org.apache.ibatis.annotations.Param;
 
 public interface ApiDefinitionExecResultMapper {
     long countByExample(ApiDefinitionExecResultExample example);
@@ -36,5 +33,4 @@ public interface ApiDefinitionExecResultMapper {
     int updateByPrimaryKeyWithBLOBs(ApiDefinitionExecResult record);
 
     int updateByPrimaryKey(ApiDefinitionExecResult record);
-
 }

@@ -11,6 +11,8 @@ import java.util.Map;
 @Setter
 public class ApiTestCaseRequest {
     private String id;
+    private List<String> ids;
+    private String planId;
     private String projectId;
     private String priority;
     private String name;
@@ -18,6 +20,7 @@ public class ApiTestCaseRequest {
     private String workspaceId;
     private String apiDefinitionId;
     private String status;
+    private String protocol;
     private List<String> moduleIds;
     private List<OrderRequest> orders;
     private Map<String, List<String>> filters;

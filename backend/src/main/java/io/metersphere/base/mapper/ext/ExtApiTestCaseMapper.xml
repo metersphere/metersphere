@@ -212,6 +212,9 @@
           api_definition a
         on
           c.api_definition_id = a.id
+            <if test="request.protocol != null and request.protocol!=''">
+                and a.protocol = #{request.protocol}
+            </if>
             <choose>
                 <when test="request.status == 'Trash'">
                     and a.status = 'Trash'
@@ -221,7 +224,18 @@
                 </otherwise>
             </choose>
         where
-          c.project_id = #{request.projectId}
+        <if test="request.projectId != null and request.projectId!=''">
+            c.project_id = #{request.projectId}
+        </if>
+        <if test="request.ids != null and request.ids.size() > 0">
+            <if test="request.projectId != null and request.projectId!=''">
+                and
+            </if>
+            c.id in
+            <foreach collection="request.ids" item="caseId" separator="," open="(" close=")">
+                #{caseId}
+            </foreach>
+        </if>
         <if test="request.name != null and request.name!=''">
             and c.name like CONCAT('%', #{request.name},'%')
         </if>
@@ -252,16 +266,13 @@
             </foreach>
         </if>
     </select>
-    <select id="countProtocolByProjectID" resultType="io.metersphere.api.dto.dataCount.ApiDataCountResult">
-        SELECT apiDef.protocol AS groupField,COUNT(testCase.id) AS countNumber FROM api_test_case testCase
-        INNER JOIN  api_definition apiDef ON testCase.api_definition_id = apiDef.id
-        WHERE testCase.project_id = #{0}
-        GROUP BY apiDef.protocol
-    </select>
-    <select id="countByProjectIDAndCreateInThisWeek" resultType="java.lang.Long">
-        SELECT count(testCase.id) AS countNumber FROM api_test_case testCase
-        INNER JOIN  api_definition apiDef ON testCase.api_definition_id = apiDef.id
-        WHERE testCase.project_id = #{projectId}
-        AND testCase.create_time BETWEEN #{firstDayTimestamp} AND #{lastDayTimestamp}
+    <select id="selectIdsNotExistsInPlan" resultType="java.lang.String">
+        select c.id
+        from api_test_case c
+        where c.project_id = #{projectId} and c.id not in (
+          select pc.api_case_id
+          from test_plan_api_case pc
+          where pc.test_plan_id = #{planId}
+        )
     </select>
 </mapper>

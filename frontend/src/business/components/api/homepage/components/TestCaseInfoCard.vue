@@ -18,7 +18,21 @@
       </el-aside>
       <el-main style="padding-left: 0px;padding-right: 0px">
         <div style="width: 200px;margin:0 auto">
-          <el-row align="center">
+          <el-row align="center" class="hidden-lg-and-down">
+            <el-col :span="6" style="padding: 5px;border-right-style: solid;border-right-width: 1px;border-right-color: #ECEEF4;">
+              <div class="count-info-div" v-html="testCaseCountData.httpCountStr"></div>
+            </el-col>
+            <el-col :span="6" style="padding: 5px;border-right-style: solid;border-right-width: 1px;border-right-color: #ECEEF4;">
+              <div class="count-info-div" v-html="testCaseCountData.rpcCountStr"></div>
+            </el-col>
+            <el-col :span="6" style="padding: 5px;border-right-style: solid;border-right-width: 1px;border-right-color: #ECEEF4;">
+              <div class="count-info-div" v-html="testCaseCountData.tcpCountStr"></div>
+            </el-col>
+            <el-col :span="6" style="padding: 5px;">
+              <div class="count-info-div" v-html="testCaseCountData.sqlCountStr"></div>
+            </el-col>
+          </el-row>
+          <el-row align="right" style="margin-left: 20px" class="hidden-xl-only">
             <el-col :span="6" style="padding: 5px;border-right-style: solid;border-right-width: 1px;border-right-color: #ECEEF4;">
               <div class="count-info-div" v-html="testCaseCountData.httpCountStr"></div>
             </el-col>

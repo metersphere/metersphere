@@ -117,7 +117,7 @@
         AND create_time BETWEEN #{firstDayTimestamp} AND #{lastDayTimestamp}
     </select>
 
-    <select id="countRunResultByProjectID" resultType="io.metersphere.api.dto.dataCount.ApiDataCountResult">
+    <select id="countRunResultByProjectID" resultType="io.metersphere.api.dto.datacount.ApiDataCountResult">
         SELECT count(id) AS countNumber, if(last_result is null,"notRun",last_result) AS groupField  FROM api_scenario
         WHERE project_id = #{0}
         GROUP BY groupField

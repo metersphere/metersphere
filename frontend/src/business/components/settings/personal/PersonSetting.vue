@@ -114,6 +114,7 @@
             }
           ],
           phone: [
+            {required: true, message: this.$t('user.input_phone'), trigger: 'blur'},
             {
               required: false,
               pattern: PHONE_REGEX,

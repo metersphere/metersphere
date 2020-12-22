@@ -152,7 +152,7 @@
         GROUP BY x
     </select>
 
-    <select id="countByWorkspaceIdAndGroupGroupByExecuteResult" resultType="io.metersphere.api.dto.dataCount.ApiDataCountResult">
+    <select id="countByWorkspaceIdAndGroupGroupByExecuteResult" resultType="io.metersphere.api.dto.datacount.ApiDataCountResult">
         SELECT testReport.`status` AS groupField,COUNT(testReportDetail.report_id) AS countNumber
         FROM api_test_report_detail testReportDetail
         INNER JOIN `schedule` sch ON sch.resource_id = testReportDetail.test_id

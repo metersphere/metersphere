@@ -1,24 +1,28 @@
 package io.metersphere.api.service;
 
 import com.alibaba.fastjson.JSONObject;
-import io.metersphere.api.dto.dataCount.ApiDataCountResult;
+import io.metersphere.api.dto.datacount.ApiDataCountResult;
 import io.metersphere.api.dto.definition.ApiTestCaseRequest;
 import io.metersphere.api.dto.definition.ApiTestCaseResult;
 import io.metersphere.api.dto.definition.SaveApiTestCaseRequest;
 import io.metersphere.api.dto.ApiCaseBatchRequest;
-import io.metersphere.api.dto.definition.*;
+import io.metersphere.api.dto.definition.ApiTestCaseDTO;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ApiTestCaseMapper;
 import io.metersphere.base.mapper.ApiTestFileMapper;
 import io.metersphere.base.mapper.ext.ExtApiDefinitionExecResultMapper;
 import io.metersphere.base.mapper.ext.ExtApiTestCaseMapper;
+import io.metersphere.base.mapper.ext.ExtTestPlanApiCaseMapper;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
 import io.metersphere.i18n.Translator;
-import io.metersphere.notice.domain.UserDetail;
 import io.metersphere.service.FileService;
 import io.metersphere.service.QuotaService;
 import io.metersphere.service.UserService;
+import io.metersphere.track.request.testcase.ApiCaseRelevanceRequest;
+import org.apache.ibatis.session.ExecutorType;
+import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionFactory;
 import org.aspectj.util.FileUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,6 +39,8 @@ import java.util.stream.Collectors;
 public class ApiTestCaseService {
     @Resource
     private ApiTestCaseMapper apiTestCaseMapper;
+    @Resource
+    private SqlSessionFactory sqlSessionFactory;
     @Resource
     private UserService userService;
     @Resource
@@ -59,6 +65,11 @@ public class ApiTestCaseService {
         if (CollectionUtils.isEmpty(apiTestCases)) {
             return apiTestCases;
         }
+        buildUserInfo(apiTestCases);
+        return apiTestCases;
+    }
+
+    public void buildUserInfo(List<? extends ApiTestCaseDTO> apiTestCases) {
         List<String> userIds = new ArrayList();
         userIds.addAll(apiTestCases.stream().map(ApiTestCaseDTO::getCreateUserId).collect(Collectors.toList()));
         userIds.addAll(apiTestCases.stream().map(ApiTestCaseDTO::getUpdateUserId).collect(Collectors.toList()));
@@ -69,7 +80,6 @@ public class ApiTestCaseService {
                 caseResult.setUpdateUser(userMap.get(caseResult.getUpdateUserId()).getName());
             });
         }
-        return apiTestCases;
     }
 
     public ApiTestCaseWithBLOBs get(String id) {
@@ -246,6 +256,48 @@ public class ApiTestCaseService {
         ApiTestCaseExample example = new ApiTestCaseExample();
         example.createCriteria().andIdIn(ids);
         apiTestCaseMapper.deleteByExample(example);
+    }
+
+    public void relevanceByApi(ApiCaseRelevanceRequest request) {
+        if (CollectionUtils.isEmpty(request.getSelectIds())) {
+            return;
+        }
+        ApiTestCaseExample example = new ApiTestCaseExample();
+        example.createCriteria().andApiDefinitionIdIn(request.getSelectIds());
+        List<ApiTestCase> apiTestCases = apiTestCaseMapper.selectByExample(example);
+        relevance(apiTestCases, request);
+    }
+
+    public void relevanceByCase(ApiCaseRelevanceRequest request) {
+        List<String> ids = request.getSelectIds();
+        if (CollectionUtils.isEmpty(ids)) {
+            return;
+        }
+        ApiTestCaseExample example = new ApiTestCaseExample();
+        example.createCriteria().andIdIn(ids);
+        List<ApiTestCase> apiTestCases = apiTestCaseMapper.selectByExample(example);
+        relevance(apiTestCases, request);
+    }
+
+    private void relevance(List<ApiTestCase> apiTestCases, ApiCaseRelevanceRequest request) {
+        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+
+        ExtTestPlanApiCaseMapper batchMapper = sqlSession.getMapper(ExtTestPlanApiCaseMapper.class);
+        apiTestCases.forEach(apiTestCase -> {
+            TestPlanApiCase testPlanApiCase = new TestPlanApiCase();
+            testPlanApiCase.setId(UUID.randomUUID().toString());
+            testPlanApiCase.setApiCaseId(apiTestCase.getId());
+            testPlanApiCase.setTestPlanId(request.getPlanId());
+            testPlanApiCase.setEnvironmentId(request.getEnvironmentId());
+            testPlanApiCase.setCreateTime(System.currentTimeMillis());
+            testPlanApiCase.setUpdateTime(System.currentTimeMillis());
+            batchMapper.insertIfNotExists(testPlanApiCase);
+        });
+        sqlSession.flushStatements();
+    }
+
+    public List<String> selectIdsNotExistsInPlan(String projectId, String planId) {
+        return extApiTestCaseMapper.selectIdsNotExistsInPlan(projectId, planId);
     }
 
     public List<ApiDataCountResult> countProtocolByProjectID(String projectId) {

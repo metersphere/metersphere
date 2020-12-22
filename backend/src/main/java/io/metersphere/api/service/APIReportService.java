@@ -6,7 +6,7 @@ import com.alibaba.fastjson.JSONObject;
 import io.metersphere.api.dto.APIReportResult;
 import io.metersphere.api.dto.DeleteAPIReportRequest;
 import io.metersphere.api.dto.QueryAPIReportRequest;
-import io.metersphere.api.dto.dataCount.ApiDataCountResult;
+import io.metersphere.api.dto.datacount.ApiDataCountResult;
 import io.metersphere.api.jmeter.TestResult;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ApiDataViewMapper;

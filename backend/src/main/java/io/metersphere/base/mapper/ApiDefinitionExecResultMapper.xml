@@ -10,6 +10,7 @@
     <result column="start_time" jdbcType="BIGINT" property="startTime" />
     <result column="end_time" jdbcType="BIGINT" property="endTime" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
+    <result column="type" jdbcType="VARCHAR" property="type" />
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.ApiDefinitionExecResult">
     <result column="content" jdbcType="LONGVARCHAR" property="content" />
@@ -73,7 +74,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, `name`, resource_id, `status`, user_id, start_time, end_time, create_time
+    id, `name`, resource_id, `status`, user_id, start_time, end_time, create_time, `type`
   </sql>
   <sql id="Blob_Column_List">
     content
@@ -129,12 +130,12 @@
   <insert id="insert" parameterType="io.metersphere.base.domain.ApiDefinitionExecResult">
     insert into api_definition_exec_result (id, `name`, resource_id, 
       `status`, user_id, start_time, 
-      end_time, create_time, content
-      )
+      end_time, create_time, `type`, 
+      content)
     values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{resourceId,jdbcType=VARCHAR}, 
       #{status,jdbcType=VARCHAR}, #{userId,jdbcType=VARCHAR}, #{startTime,jdbcType=BIGINT}, 
-      #{endTime,jdbcType=BIGINT}, #{createTime,jdbcType=BIGINT}, #{content,jdbcType=LONGVARCHAR}
-      )
+      #{endTime,jdbcType=BIGINT}, #{createTime,jdbcType=BIGINT}, #{type,jdbcType=VARCHAR}, 
+      #{content,jdbcType=LONGVARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.ApiDefinitionExecResult">
     insert into api_definition_exec_result
@@ -162,6 +163,9 @@
       </if>
       <if test="createTime != null">
         create_time,
+      </if>
+      <if test="type != null">
+        `type`,
       </if>
       <if test="content != null">
         content,
@@ -191,6 +195,9 @@
       </if>
       <if test="createTime != null">
         #{createTime,jdbcType=BIGINT},
+      </if>
+      <if test="type != null">
+        #{type,jdbcType=VARCHAR},
       </if>
       <if test="content != null">
         #{content,jdbcType=LONGVARCHAR},
@@ -230,6 +237,9 @@
       <if test="record.createTime != null">
         create_time = #{record.createTime,jdbcType=BIGINT},
       </if>
+      <if test="record.type != null">
+        `type` = #{record.type,jdbcType=VARCHAR},
+      </if>
       <if test="record.content != null">
         content = #{record.content,jdbcType=LONGVARCHAR},
       </if>
@@ -248,6 +258,7 @@
       start_time = #{record.startTime,jdbcType=BIGINT},
       end_time = #{record.endTime,jdbcType=BIGINT},
       create_time = #{record.createTime,jdbcType=BIGINT},
+      `type` = #{record.type,jdbcType=VARCHAR},
       content = #{record.content,jdbcType=LONGVARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -262,7 +273,8 @@
       user_id = #{record.userId,jdbcType=VARCHAR},
       start_time = #{record.startTime,jdbcType=BIGINT},
       end_time = #{record.endTime,jdbcType=BIGINT},
-      create_time = #{record.createTime,jdbcType=BIGINT}
+      create_time = #{record.createTime,jdbcType=BIGINT},
+      `type` = #{record.type,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -291,6 +303,9 @@
       <if test="createTime != null">
         create_time = #{createTime,jdbcType=BIGINT},
       </if>
+      <if test="type != null">
+        `type` = #{type,jdbcType=VARCHAR},
+      </if>
       <if test="content != null">
         content = #{content,jdbcType=LONGVARCHAR},
       </if>
@@ -306,6 +321,7 @@
       start_time = #{startTime,jdbcType=BIGINT},
       end_time = #{endTime,jdbcType=BIGINT},
       create_time = #{createTime,jdbcType=BIGINT},
+      `type` = #{type,jdbcType=VARCHAR},
       content = #{content,jdbcType=LONGVARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
@@ -317,7 +333,8 @@
       user_id = #{userId,jdbcType=VARCHAR},
       start_time = #{startTime,jdbcType=BIGINT},
       end_time = #{endTime,jdbcType=BIGINT},
-      create_time = #{createTime,jdbcType=BIGINT}
+      create_time = #{createTime,jdbcType=BIGINT},
+      `type` = #{type,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

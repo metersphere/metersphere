@@ -3,14 +3,17 @@ package io.metersphere.api.controller;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.api.dto.ApiCaseBatchRequest;
-import io.metersphere.api.dto.definition.*;
+import io.metersphere.api.dto.definition.ApiTestCaseDTO;
+import io.metersphere.api.dto.definition.ApiTestCaseRequest;
+import io.metersphere.api.dto.definition.ApiTestCaseResult;
+import io.metersphere.api.dto.definition.SaveApiTestCaseRequest;
 import io.metersphere.api.service.ApiTestCaseService;
-import io.metersphere.base.domain.ApiTestCase;
 import io.metersphere.base.domain.ApiTestCaseWithBLOBs;
 import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.commons.utils.SessionUtils;
+import io.metersphere.track.request.testcase.ApiCaseRelevanceRequest;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.web.bind.annotation.*;
@@ -74,5 +77,10 @@ public class ApiTestCaseController {
     @PostMapping("/deleteBatch")
     public void deleteBatch(@RequestBody List<String> ids) {
         apiTestCaseService.deleteBatch(ids);
+    }
+
+    @PostMapping("/relevance")
+    public void testPlanRelevance(@RequestBody ApiCaseRelevanceRequest request) {
+        apiTestCaseService.relevanceByCase(request);
     }
 }

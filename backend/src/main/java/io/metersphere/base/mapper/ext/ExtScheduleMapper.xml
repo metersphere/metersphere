@@ -45,7 +45,7 @@
         AND `group` = #{group}
         AND create_time BETWEEN #{startTime} and #{endTime}
     </select>
-    <select id="findRunningTaskInfoByWorkspaceID" resultType="io.metersphere.api.dto.dataCount.response.TaskInfoResult">
+    <select id="findRunningTaskInfoByWorkspaceID" resultType="io.metersphere.api.dto.datacount.response.TaskInfoResult">
         SELECT apiTest.`name` AS scenario,sch.id AS taskID,sch.`value` AS rule,sch.`enable` AS `taskStatus`,u.`name` AS creator,sch.update_time AS updateTime
         FROM api_test apiTest
         INNER JOIN `schedule` sch ON apiTest.id = sch.resource_id

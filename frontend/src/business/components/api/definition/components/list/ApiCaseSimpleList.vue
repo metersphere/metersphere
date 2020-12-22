@@ -1,9 +1,25 @@
 <template>
   <div>
     <api-list-container
+      :is-show-change-button="!isPlanModel"
       :is-api-list-enable="isApiListEnable"
       @isApiListEnableChange="isApiListEnableChange">
-      <el-input placeholder="搜索" @blur="search" class="search-input" size="small" v-model="condition.name"/>
+
+      <ms-environment-select v-if="isRelevanceModel" :project-id="relevanceProjectId" :is-read-only="isReadOnly" @setEnvironment="setEnvironment"/>
+
+      <el-input v-if="!isPlanModel" placeholder="搜索" @blur="search" class="search-input" size="small" v-model="condition.name"/>
+
+      <template v-slot:header>
+       <test-plan-case-list-header
+         :project-id="getProjectId()"
+         :condition="condition"
+         :plan-id="planId"
+         @refresh="initTable"
+         @relevanceCase="$emit('relevanceCase')"
+         @setEnvironment="setEnvironment"
+         v-if="isPlanModel"/>
+      </template>
+
       <el-table v-loading="result.loading"
                 border
                 :data="tableData" row-key="id" class="test-content adjust-table"
@@ -14,7 +30,7 @@
         <el-table-column type="selection"/>
         <el-table-column width="40" :resizable="false" align="center">
           <template v-slot:default="scope">
-            <show-more-btn :is-show="scope.row.showMore" :buttons="buttons" :size="selectRows.size"/>
+            <show-more-btn :is-show="scope.row.showMore && !isReadOnly" :buttons="buttons" :size="selectRows.size"/>
           </template>
         </el-table-column>
 
@@ -51,8 +67,7 @@
           </template>
         </el-table-column>
 
-
-        <el-table-column :label="$t('commons.operating')" min-width="130" align="center">
+        <el-table-column v-if="!isReadOnly && !isRelevanceModel" :label="$t('commons.operating')" min-width="130" align="center">
           <template v-slot:default="scope">
             <!--<el-button type="text" @click="reductionApi(scope.row)" v-if="trashEnable">恢复</el-button>-->
             <el-button type="text" @click="handleTestCase(scope.row)" v-if="!trashEnable">{{$t('commons.edit')}}</el-button>
@@ -65,19 +80,17 @@
                            :total="total"/>
     </api-list-container>
 
-    <api-case-list @showExecResult="showExecResult" @refresh="initTable" :currentApi="selectCase" ref="caseList"/>
+    <api-case-list v-if="!isRelevanceModel" @showExecResult="showExecResult" @refresh="initTable" :currentApi="selectCase" ref="caseList"/>
     <!--批量编辑-->
-    <ms-batch-edit ref="batchEdit" @batchEdit="batchEdit" :typeArr="typeArr" :value-arr="valueArr"/>
+    <ms-batch-edit v-if="!isRelevanceModel" ref="batchEdit" @batchEdit="batchEdit" :typeArr="typeArr" :value-arr="valueArr"/>
   </div>
 
 </template>
 
 <script>
 
-  import MsTableHeader from '../../../../common/components/MsTableHeader';
   import MsTableOperator from "../../../../common/components/MsTableOperator";
   import MsTableOperatorButton from "../../../../common/components/MsTableOperatorButton";
-  import MsTableButton from "../../../../common/components/MsTableButton";
   import {LIST_CHANGE, TrackEvent} from "@/business/components/common/head/ListEvent";
   import MsTablePagination from "../../../../common/pagination/TablePagination";
   import MsTag from "../../../../common/components/MsTag";
@@ -92,17 +105,19 @@
   import PriorityTableItem from "../../../../track/common/tableItems/planview/PriorityTableItem";
   import ApiCaseList from "../case/ApiCaseList";
   import {_filter, _sort} from "../../../../../../common/js/utils";
+  import TestPlanCaseListHeader from "../../../../track/plan/view/comonents/api/TestPlanCaseListHeader";
+  import MsEnvironmentSelect from "../case/MsEnvironmentSelect";
 
   export default {
     name: "ApiCaseSimpleList",
     components: {
+      MsEnvironmentSelect,
+      TestPlanCaseListHeader,
       ApiCaseList,
       PriorityTableItem,
       ApiListContainer,
-      MsTableButton,
       MsTableOperatorButton,
       MsTableOperator,
-      MsTableHeader,
       MsTablePagination,
       MsTag,
       MsApiCaseList,
@@ -140,8 +155,8 @@
         currentPage: 1,
         pageSize: 10,
         total: 0,
-        projectId: "",
         screenHeight: document.documentElement.clientHeight - 330,//屏幕高度
+        environmentId: undefined
       }
     },
     props: {
@@ -155,10 +170,28 @@
         type: Boolean,
         default: false,
       },
-      isApiListEnable: Boolean
+      isApiListEnable: {
+        type: Boolean,
+        default: false,
+      },
+      isReadOnly: {
+        type: Boolean,
+        default: false
+      },
+      isCaseRelevance: {
+        type: Boolean,
+        default: false,
+      },
+      relevanceProjectId: String,
+      model: {
+        type: String,
+        default() {
+          'api'
+        }
+      },
+      planId: String
     },
     created: function () {
-      this.projectId = getCurrentProjectID();
       this.initTable();
     },
     watch: {
@@ -172,6 +205,23 @@
         if (this.trashEnable) {
           this.initTable();
         }
+      },
+      relevanceProjectId() {
+        this.initTable();
+      }
+    },
+    computed: {
+      // 测试计划关联测试列表
+      isRelevanceModel() {
+        return this.model === 'relevance'
+      },
+      // 测试计划接口用例列表
+      isPlanModel() {
+        return this.model === 'plan'
+      },
+      // 接口定义用例列表
+      isApiModel() {
+        return this.model === 'api'
       },
     },
     methods: {
@@ -187,16 +237,44 @@
           this.condition.status = "Trash";
           this.condition.moduleIds = [];
         }
-        if (this.projectId != null) {
-          this.condition.projectId = this.projectId;
-        }
+
+        this.buildCondition(this.condition);
+
         if (this.currentProtocol != null) {
           this.condition.protocol = this.currentProtocol;
         }
-        this.result = this.$post("/api/testcase/list/" + this.currentPage + "/" + this.pageSize, this.condition, response => {
+        this.result = this.$post(this.getListUrl() + this.currentPage + "/" + this.pageSize, this.condition, response => {
           this.total = response.data.itemCount;
           this.tableData = response.data.listObject;
         });
+      },
+      buildCondition(condition) {
+        if (this.isPlanModel) {
+          condition.planId = this.planId;
+        } else if (this.isRelevanceModel) {
+          condition.planId = this.planId;
+          condition.projectId = this.getProjectId();
+        } else {
+          condition.projectId = this.getProjectId();
+        }
+      },
+      getListUrl() {
+        if (this.isPlanModel) {
+          return '/test/plan/api/case/list/';
+        } else if (this.isRelevanceModel) {
+          return '/test/plan/api/case/relevance/list/';
+        } else {
+          return '/api/testcase/list/';
+        }
+      },
+      getDeleteUrl(apiCase) {
+        if (this.isPlanModel) {
+          return '/test/plan/api/case/delete/' + this.planId + '/' + apiCase.id;
+        } else if (this.isRelevanceModel) {
+          return '/api/testcase/delete/' + apiCase.id;
+        } else {
+          return '/api/testcase/delete/' + +apiCase.id;
+        }
       },
       // getMaintainerOptions() {
       //   let workspaceId = localStorage.getItem(WORKSPACE_ID);
@@ -295,8 +373,7 @@
             confirmButtonText: this.$t('commons.confirm'),
             callback: (action) => {
               if (action === 'confirm') {
-                let ids = Array.from(this.selectRows).map(row => row.id);
-                this.$post('/api/testcase/deleteBatch/', ids, () => {
+                this.$post(this.getBatchDeleteParam(), this.buildBatchDeleteParam(), () => {
                   this.selectRows.clear();
                   this.initTable();
                   this.$success(this.$t('commons.delete_success'));
@@ -320,6 +397,23 @@
         //   });
         // }
       },
+      buildBatchDeleteParam() {
+        if (this.isPlanModel) {
+          let request = {};
+          request.ids = Array.from(this.selectRows).map(row => row.id);
+          request.planId = this.planId;
+          return request;
+        } else {
+          return Array.from(this.selectRows).map(row => row.id);
+        }
+      },
+      getBatchDeleteParam() {
+        if (this.isPlanModel) {
+         return '/test/plan/api/case/batch/delete';
+        } else {
+          return '/api/testcase/deleteBatch/';
+        }
+      },
       handleEditBatch() {
         this.$refs.batchEdit.open();
       },
@@ -336,7 +430,7 @@
       },
       handleDelete(apiCase) {
         // if (this.trashEnable) {
-          this.$get('/api/testcase/delete/' + apiCase.id, () => {
+          this.$get(this.getDeleteUrl(apiCase), () => {
             this.$success(this.$t('commons.delete_success'));
             this.initTable();
           });
@@ -354,6 +448,16 @@
         //     }
         //   }
         // });
+      },
+      getProjectId() {
+        if (!this.isRelevanceModel) {
+          return getCurrentProjectID();
+        } else {
+          return this.relevanceProjectId;
+        }
+      },
+      setEnvironment(data) {
+        this.environmentId = data.id;
       }
     },
   }

@@ -193,11 +193,13 @@ public class ReportService {
 
     public List<LogDetailDTO> getReportLogResource(String reportId) {
         List<LogDetailDTO> result = new ArrayList<>();
-        List<String> resourceIds = extLoadTestReportMapper.selectResourceId(reportId);
-        resourceIds.forEach(resourceId -> {
+        List<String> resourceIdAndIndexes = extLoadTestReportMapper.selectResourceId(reportId);
+        resourceIdAndIndexes.forEach(resourceIdAndIndex -> {
             LogDetailDTO detailDTO = new LogDetailDTO();
+            String[] split = StringUtils.split(resourceIdAndIndex, "_");
+            String resourceId = split[0];
             TestResource testResource = testResourceService.getTestResource(resourceId);
-            detailDTO.setResourceId(resourceId);
+            detailDTO.setResourceId(resourceIdAndIndex);
             if (testResource == null) {
                 detailDTO.setResourceName(resourceId);
                 result.add(detailDTO);

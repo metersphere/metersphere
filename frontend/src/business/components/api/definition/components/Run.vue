@@ -14,6 +14,7 @@
       debug: Boolean,
       reportId: String,
       runData: Array,
+      type: String
     },
     data() {
       return {
@@ -106,7 +107,7 @@
         this.runData.forEach(item => {
           threadGroup.hashTree.push(item);
         })
-        let reqObj = {id: this.reportId, testElement: testPlan};
+        let reqObj = {id: this.reportId, testElement: testPlan, type: this.type};
         let bodyFiles = this.getBodyUploadFiles(reqObj);
         let url = "";
         if (this.debug) {

@@ -2,6 +2,7 @@ package io.metersphere.controller;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import io.metersphere.base.domain.Schedule;
 import io.metersphere.controller.request.QueryScheduleRequest;
 import io.metersphere.dto.ScheduleDao;
 import io.metersphere.service.ScheduleService;
@@ -22,4 +23,9 @@ public class ScheduleController {
         return scheduleService.list(request);
     }
 
+    @GetMapping("/findOne/{testId}/{group}")
+    public Schedule schedule(@PathVariable String testId,@PathVariable String group) {
+        Schedule schedule = scheduleService.getScheduleByResource(testId,group);
+        return schedule;
+    }
 }
