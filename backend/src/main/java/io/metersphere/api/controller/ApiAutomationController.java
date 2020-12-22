@@ -11,6 +11,7 @@ import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.commons.utils.SessionUtils;
+import io.metersphere.track.request.testcase.ApiCaseRelevanceRequest;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.web.bind.annotation.*;
@@ -96,5 +97,9 @@ public class ApiAutomationController {
         return apiAutomationService.addScenarioToPlan(request);
     }
 
+    @PostMapping("/relevance")
+    public void testPlanRelevance(@RequestBody ApiCaseRelevanceRequest request) {
+        apiAutomationService.relevance(request);
+    }
 }
 

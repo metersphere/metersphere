@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.metersphere.base.mapper.ext.ExtTestPlanScenarioCaseMapper">
+
+
+  <insert id="insertIfNotExists" parameterType="io.metersphere.base.domain.TestPlanApiScenario">
+    -- 查询没有数据再插入
+    INSERT INTO test_plan_api_scenario(id, test_plan_id, api_scenario_id, create_time, update_time)
+    SELECT #{request.id}, #{request.testPlanId}, #{request.apiScenarioId}, #{request.createTime}, #{request.updateTime}
+      FROM DUAL
+      WHERE NOT EXISTS(
+        SELECT id FROM
+        test_plan_api_scenario
+        WHERE test_plan_id = #{request.testPlanId} and api_scenario_id = #{request.apiScenarioId}
+      )
+  </insert>
+
+  <select id="list" resultType="io.metersphere.api.dto.automation.ApiScenarioDTO">
+    select
+      t.id, t.environment_id, t.create_time, t.update_time, t.last_result, t.pass_rate, t.report_id,
+      c.id as case_id, c.project_id, c.user_id,c.api_scenario_module_id, c.module_path, c.name, c.level,
+      c.status, c.principal, c.step_total, c.follow_people, c.schedule, c.description,
+      p.name as project_name, p.id as project_id, u.name as user_name
+    from
+      test_plan_api_scenario t
+    inner join
+      api_scenario c
+      on t.api_scenario_id = c.id and c.status != 'Trash'
+    left join project p
+      on c.project_id = p.id
+    left join user u
+      on c.user_id = u.id
+    where 1
+    <if test="request.ids != null and request.ids.size() > 0">
+      <if test="request.projectId != null and request.projectId!=''">
+        and
+      </if>
+      t.id in
+      <foreach collection="request.ids" item="caseId" separator="," open="(" close=")">
+        #{caseId}
+      </foreach>
+    </if>
+    <if test="request.name != null and request.name!=''">
+      and c.name like CONCAT('%', #{request.name},'%')
+    </if>
+    <if test="request.moduleIds != null and request.moduleIds.size() > 0">
+      and c.api_scenario_module_id in
+      <foreach collection="request.moduleIds" item="nodeId" separator="," open="(" close=")">
+        #{nodeId}
+      </foreach>
+    </if>
+    <if test="request.filters != null and request.filters.size() > 0">
+      <foreach collection="request.filters.entrySet()" index="key" item="values">
+        <if test="values != null and values.size() > 0">
+          <choose>
+            <when test="key == 'priority'">
+              and c.priority in
+              <foreach collection="values" item="value" separator="," open="(" close=")">
+                #{value}
+              </foreach>
+            </when>
+          </choose>
+        </if>
+      </foreach>
+    </if>
+    <if test="request.orders != null and request.orders.size() > 0">
+      order by
+      <foreach collection="request.orders" separator="," item="order">
+        <choose>
+          <when test="order.name == 'update_time'">
+            t.${order.name} ${order.type}
+          </when>
+          <otherwise>
+            ${order.name} ${order.type}
+          </otherwise>
+        </choose>
+      </foreach>
+    </if>
+  </select>
+
+</mapper>

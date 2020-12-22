@@ -6,13 +6,16 @@ import io.metersphere.api.dto.DeleteAPIReportRequest;
 import io.metersphere.api.dto.QueryAPIReportRequest;
 import io.metersphere.api.dto.automation.APIScenarioReportResult;
 import io.metersphere.api.dto.automation.ExecuteType;
+import io.metersphere.api.jmeter.ScenarioResult;
 import io.metersphere.api.jmeter.TestResult;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ApiScenarioMapper;
 import io.metersphere.base.mapper.ApiScenarioReportDetailMapper;
 import io.metersphere.base.mapper.ApiScenarioReportMapper;
+import io.metersphere.base.mapper.TestPlanApiScenarioMapper;
 import io.metersphere.base.mapper.ext.ExtApiScenarioReportMapper;
 import io.metersphere.commons.constants.APITestStatus;
+import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.DateUtils;
 import io.metersphere.commons.utils.ServiceUtils;
@@ -43,8 +46,10 @@ public class ApiScenarioReportService {
     private ApiScenarioReportDetailMapper apiScenarioReportDetailMapper;
     @Resource
     private ApiScenarioMapper apiScenarioMapper;
+    @Resource
+    private TestPlanApiScenarioMapper testPlanApiScenarioMapper;
 
-    public void complete(TestResult result) {
+    public void complete(TestResult result, String runMode) {
         Object obj = cache.get(result.getTestId());
         if (obj == null) {
             MSException.throwException(Translator.get("api_report_is_null"));
@@ -66,7 +71,7 @@ public class ApiScenarioReportService {
             }
         }
         report.setContent(new String(detail.getContent(), StandardCharsets.UTF_8));
-        this.save(report);
+        this.save(report, runMode);
         cache.put(report.getId(), report);
     }
 
@@ -149,35 +154,58 @@ public class ApiScenarioReportService {
     }
 
 
-    public String save(APIScenarioReportResult test) {
+    public String save(APIScenarioReportResult test, String runModel) {
         ApiScenarioReport report = createReport(test);
         ApiScenarioReportDetail detail = new ApiScenarioReportDetail();
         TestResult result = JSON.parseObject(test.getContent(), TestResult.class);
         // 更新场景
         if (result != null) {
-            result.getScenarios().forEach(item -> {
-                ApiScenarioExample example = new ApiScenarioExample();
-                example.createCriteria().andNameEqualTo(item.getName()).andProjectIdEqualTo(test.getProjectId());
-                List<ApiScenario> list = apiScenarioMapper.selectByExample(example);
-                if (list.size() > 0) {
-                    ApiScenario scenario = list.get(0);
-                    if (item.getError() > 0) {
-                        scenario.setLastResult("Fail");
-                    } else {
-                        scenario.setLastResult("Success");
-                    }
-                    String passRate = new DecimalFormat("0%").format((float) item.getSuccess() / (item.getSuccess() + item.getError()));
-                    scenario.setPassRate(passRate);
-                    scenario.setReportId(report.getId());
-                    apiScenarioMapper.updateByPrimaryKey(scenario);
-                }
-            });
+            if (StringUtils.equals(runModel, ApiRunMode.SCENARIO_PLAN.name())) {
+                updatePlanCase(result, test, report);
+            } else {
+                updateScenario(result.getScenarios(), test.getProjectId(), report.getId());
+            }
         }
         detail.setContent(test.getContent().getBytes(StandardCharsets.UTF_8));
         detail.setReportId(report.getId());
         detail.setProjectId(test.getProjectId());
         apiScenarioReportDetailMapper.insert(detail);
         return report.getId();
+    }
+
+    public void updatePlanCase(TestResult result, APIScenarioReportResult test, ApiScenarioReport report) {
+        TestPlanApiScenario testPlanApiScenario = new TestPlanApiScenario();
+        testPlanApiScenario.setId(test.getId());
+        ScenarioResult scenarioResult = result.getScenarios().get(0);
+        if (scenarioResult.getError() > 0) {
+            testPlanApiScenario.setLastResult("Fail");
+        } else {
+            testPlanApiScenario.setLastResult("Success");
+        }
+        String passRate = new DecimalFormat("0%").format((float) scenarioResult.getSuccess() / (scenarioResult.getSuccess() + scenarioResult.getError()));
+        testPlanApiScenario.setPassRate(passRate);
+        testPlanApiScenario.setReportId(report.getId());
+        testPlanApiScenarioMapper.updateByPrimaryKeySelective(testPlanApiScenario);
+    }
+
+    public void updateScenario(List<ScenarioResult> Scenarios, String projectId, String reportId) {
+        Scenarios.forEach(item -> {
+            ApiScenarioExample example = new ApiScenarioExample();
+            example.createCriteria().andNameEqualTo(item.getName()).andProjectIdEqualTo(projectId);
+            List<ApiScenario> list = apiScenarioMapper.selectByExample(example);
+            if (list.size() > 0) {
+                ApiScenario scenario = list.get(0);
+                if (item.getError() > 0) {
+                    scenario.setLastResult("Fail");
+                } else {
+                    scenario.setLastResult("Success");
+                }
+                String passRate = new DecimalFormat("0%").format((float) item.getSuccess() / (item.getSuccess() + item.getError()));
+                scenario.setPassRate(passRate);
+                scenario.setReportId(reportId);
+                apiScenarioMapper.updateByPrimaryKey(scenario);
+            }
+        });
     }
 
     public String update(APIScenarioReportResult test) {

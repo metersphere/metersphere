@@ -18,6 +18,7 @@ import io.metersphere.base.mapper.ApiScenarioMapper;
 import io.metersphere.base.mapper.ApiTagMapper;
 import io.metersphere.base.mapper.ext.ExtApiScenarioMapper;
 import io.metersphere.base.mapper.ext.ExtTestPlanMapper;
+import io.metersphere.base.mapper.ext.ExtTestPlanScenarioCaseMapper;
 import io.metersphere.commons.constants.APITestStatus;
 import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.constants.ReportTriggerMode;
@@ -27,6 +28,7 @@ import io.metersphere.commons.utils.ServiceUtils;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.i18n.Translator;
 import io.metersphere.track.dto.TestPlanDTO;
+import io.metersphere.track.request.testcase.ApiCaseRelevanceRequest;
 import io.metersphere.track.request.testcase.QueryTestPlanRequest;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -66,13 +68,16 @@ public class ApiAutomationService {
     @Resource
     SqlSessionFactory sqlSessionFactory;
 
-    private static final String BODY_FILE_DIR = "/opt/metersphere/data/body";
-
     public List<ApiScenarioDTO> list(ApiScenarioRequest request) {
         request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
         List<ApiScenarioDTO> list = extApiScenarioMapper.list(request);
+//        buildScenarioInfo(request.getProjectId(), list); todo tag?
+        return list;
+    }
+
+    public void buildScenarioInfo(String projectId, List<ApiScenarioDTO> list) {
         ApiTagExample example = new ApiTagExample();
-        example.createCriteria().andProjectIdEqualTo(request.getProjectId());
+        example.createCriteria().andProjectIdEqualTo(projectId);
         List<ApiTag> tags = apiTagMapper.selectByExample(example);
         Map<String, String> tagMap = tags.stream().collect(Collectors.toMap(ApiTag::getId, ApiTag::getName));
         Gson gs = new Gson();
@@ -92,7 +97,10 @@ public class ApiAutomationService {
                 }
             }
         });
-        return list;
+    }
+
+    public List<String> selectIdsNotExistsInPlan(String projectId, String planId) {
+        return extApiScenarioMapper.selectIdsNotExistsInPlan(projectId, planId);
     }
 
     public void deleteByIds(List<String> nodeIds) {
@@ -277,8 +285,13 @@ public class ApiAutomationService {
             }
         }
         testPlan.toHashTree(jmeterTestPlanHashTree, testPlan.getHashTree(), new ParameterConfig());
+
+        String runMode = ApiRunMode.SCENARIO.name();
+        if (StringUtils.isNotBlank(request.getRunMode()) && StringUtils.equals(request.getRunMode(), ApiRunMode.SCENARIO_PLAN.name())) {
+            runMode = ApiRunMode.SCENARIO_PLAN.name();
+        }
         // 调用执行方法
-        jMeterService.runDefinition(request.getId(), jmeterTestPlanHashTree, request.getReportId(), ApiRunMode.SCENARIO.name());
+        jMeterService.runDefinition(request.getId(), jmeterTestPlanHashTree, request.getReportId(), runMode);
 
         createAPIScenarioReportResult(request.getId(), request.getTriggerMode() == null ? ReportTriggerMode.MANUAL.name() : request.getTriggerMode(),
                 request.getExecuteType(), request.getProjectId());
@@ -381,5 +394,28 @@ public class ApiAutomationService {
 
     public List<ApiDataCountResult> countRunResultByProjectID(String projectId) {
         return extApiScenarioMapper.countRunResultByProjectID(projectId);
+    }
+
+    public void relevance(ApiCaseRelevanceRequest request) {
+        List<String> ids = request.getSelectIds();
+        if (CollectionUtils.isEmpty(ids)) {
+            return;
+        }
+        ApiScenarioExample example = new ApiScenarioExample();
+        example.createCriteria().andIdIn(ids);
+        List<ApiScenario> apiScenarios = apiScenarioMapper.selectByExample(example);
+        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+
+        ExtTestPlanScenarioCaseMapper batchMapper = sqlSession.getMapper(ExtTestPlanScenarioCaseMapper.class);
+        apiScenarios.forEach(scenario -> {
+            TestPlanApiScenario testPlanApiScenario = new TestPlanApiScenario();
+            testPlanApiScenario.setId(UUID.randomUUID().toString());
+            testPlanApiScenario.setApiScenarioId(scenario.getId());
+            testPlanApiScenario.setTestPlanId(request.getPlanId());
+            testPlanApiScenario.setCreateTime(System.currentTimeMillis());
+            testPlanApiScenario.setUpdateTime(System.currentTimeMillis());
+            batchMapper.insertIfNotExists(testPlanApiScenario);
+        });
+        sqlSession.flushStatements();
     }
 }

@@ -573,6 +573,216 @@ public class TestPlanApiScenarioExample {
             addCriterion("update_time not between", value1, value2, "updateTime");
             return (Criteria) this;
         }
+
+        public Criteria andPassRateIsNull() {
+            addCriterion("pass_rate is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andPassRateIsNotNull() {
+            addCriterion("pass_rate is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andPassRateEqualTo(String value) {
+            addCriterion("pass_rate =", value, "passRate");
+            return (Criteria) this;
+        }
+
+        public Criteria andPassRateNotEqualTo(String value) {
+            addCriterion("pass_rate <>", value, "passRate");
+            return (Criteria) this;
+        }
+
+        public Criteria andPassRateGreaterThan(String value) {
+            addCriterion("pass_rate >", value, "passRate");
+            return (Criteria) this;
+        }
+
+        public Criteria andPassRateGreaterThanOrEqualTo(String value) {
+            addCriterion("pass_rate >=", value, "passRate");
+            return (Criteria) this;
+        }
+
+        public Criteria andPassRateLessThan(String value) {
+            addCriterion("pass_rate <", value, "passRate");
+            return (Criteria) this;
+        }
+
+        public Criteria andPassRateLessThanOrEqualTo(String value) {
+            addCriterion("pass_rate <=", value, "passRate");
+            return (Criteria) this;
+        }
+
+        public Criteria andPassRateLike(String value) {
+            addCriterion("pass_rate like", value, "passRate");
+            return (Criteria) this;
+        }
+
+        public Criteria andPassRateNotLike(String value) {
+            addCriterion("pass_rate not like", value, "passRate");
+            return (Criteria) this;
+        }
+
+        public Criteria andPassRateIn(List<String> values) {
+            addCriterion("pass_rate in", values, "passRate");
+            return (Criteria) this;
+        }
+
+        public Criteria andPassRateNotIn(List<String> values) {
+            addCriterion("pass_rate not in", values, "passRate");
+            return (Criteria) this;
+        }
+
+        public Criteria andPassRateBetween(String value1, String value2) {
+            addCriterion("pass_rate between", value1, value2, "passRate");
+            return (Criteria) this;
+        }
+
+        public Criteria andPassRateNotBetween(String value1, String value2) {
+            addCriterion("pass_rate not between", value1, value2, "passRate");
+            return (Criteria) this;
+        }
+
+        public Criteria andLastResultIsNull() {
+            addCriterion("last_result is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andLastResultIsNotNull() {
+            addCriterion("last_result is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andLastResultEqualTo(String value) {
+            addCriterion("last_result =", value, "lastResult");
+            return (Criteria) this;
+        }
+
+        public Criteria andLastResultNotEqualTo(String value) {
+            addCriterion("last_result <>", value, "lastResult");
+            return (Criteria) this;
+        }
+
+        public Criteria andLastResultGreaterThan(String value) {
+            addCriterion("last_result >", value, "lastResult");
+            return (Criteria) this;
+        }
+
+        public Criteria andLastResultGreaterThanOrEqualTo(String value) {
+            addCriterion("last_result >=", value, "lastResult");
+            return (Criteria) this;
+        }
+
+        public Criteria andLastResultLessThan(String value) {
+            addCriterion("last_result <", value, "lastResult");
+            return (Criteria) this;
+        }
+
+        public Criteria andLastResultLessThanOrEqualTo(String value) {
+            addCriterion("last_result <=", value, "lastResult");
+            return (Criteria) this;
+        }
+
+        public Criteria andLastResultLike(String value) {
+            addCriterion("last_result like", value, "lastResult");
+            return (Criteria) this;
+        }
+
+        public Criteria andLastResultNotLike(String value) {
+            addCriterion("last_result not like", value, "lastResult");
+            return (Criteria) this;
+        }
+
+        public Criteria andLastResultIn(List<String> values) {
+            addCriterion("last_result in", values, "lastResult");
+            return (Criteria) this;
+        }
+
+        public Criteria andLastResultNotIn(List<String> values) {
+            addCriterion("last_result not in", values, "lastResult");
+            return (Criteria) this;
+        }
+
+        public Criteria andLastResultBetween(String value1, String value2) {
+            addCriterion("last_result between", value1, value2, "lastResult");
+            return (Criteria) this;
+        }
+
+        public Criteria andLastResultNotBetween(String value1, String value2) {
+            addCriterion("last_result not between", value1, value2, "lastResult");
+            return (Criteria) this;
+        }
+
+        public Criteria andReportIdIsNull() {
+            addCriterion("report_id is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andReportIdIsNotNull() {
+            addCriterion("report_id is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andReportIdEqualTo(String value) {
+            addCriterion("report_id =", value, "reportId");
+            return (Criteria) this;
+        }
+
+        public Criteria andReportIdNotEqualTo(String value) {
+            addCriterion("report_id <>", value, "reportId");
+            return (Criteria) this;
+        }
+
+        public Criteria andReportIdGreaterThan(String value) {
+            addCriterion("report_id >", value, "reportId");
+            return (Criteria) this;
+        }
+
+        public Criteria andReportIdGreaterThanOrEqualTo(String value) {
+            addCriterion("report_id >=", value, "reportId");
+            return (Criteria) this;
+        }
+
+        public Criteria andReportIdLessThan(String value) {
+            addCriterion("report_id <", value, "reportId");
+            return (Criteria) this;
+        }
+
+        public Criteria andReportIdLessThanOrEqualTo(String value) {
+            addCriterion("report_id <=", value, "reportId");
+            return (Criteria) this;
+        }
+
+        public Criteria andReportIdLike(String value) {
+            addCriterion("report_id like", value, "reportId");
+            return (Criteria) this;
+        }
+
+        public Criteria andReportIdNotLike(String value) {
+            addCriterion("report_id not like", value, "reportId");
+            return (Criteria) this;
+        }
+
+        public Criteria andReportIdIn(List<String> values) {
+            addCriterion("report_id in", values, "reportId");
+            return (Criteria) this;
+        }
+
+        public Criteria andReportIdNotIn(List<String> values) {
+            addCriterion("report_id not in", values, "reportId");
+            return (Criteria) this;
+        }
+
+        public Criteria andReportIdBetween(String value1, String value2) {
+            addCriterion("report_id between", value1, value2, "reportId");
+            return (Criteria) this;
+        }
+
+        public Criteria andReportIdNotBetween(String value1, String value2) {
+            addCriterion("report_id not between", value1, value2, "reportId");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {

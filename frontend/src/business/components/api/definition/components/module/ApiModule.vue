@@ -1,6 +1,8 @@
 <template>
   <div v-loading="result.loading">
 
+    <slot name="header"></slot>
+
     <ms-node-tree
       v-loading="result.loading"
       :tree-nodes="data"

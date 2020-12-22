@@ -7,6 +7,7 @@ import io.metersphere.api.dto.QueryAPIReportRequest;
 import io.metersphere.api.dto.automation.APIScenarioReportResult;
 import io.metersphere.api.dto.automation.ExecuteType;
 import io.metersphere.api.service.ApiScenarioReportService;
+import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
@@ -45,7 +46,7 @@ public class APIScenarioReportController {
     @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
     public String add(@RequestBody APIScenarioReportResult node) {
         node.setExecuteType(ExecuteType.Saved.name());
-        return apiReportService.save(node);
+        return apiReportService.save(node, ApiRunMode.SCENARIO.name());
     }
 
     @PostMapping("/update")

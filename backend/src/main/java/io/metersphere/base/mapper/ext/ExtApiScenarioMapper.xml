@@ -40,6 +40,12 @@
             <if test="request.projectId != null">
                 AND api_scenario.project_id = #{request.projectId}
             </if>
+            <if test="request.ids != null and request.ids.size() > 0">
+                AND api_scenario.id in
+                <foreach collection="request.ids" item="itemId" separator="," open="(" close=")">
+                    #{itemId}
+                </foreach>
+            </if>
             <if test="request.moduleIds != null and request.moduleIds.size() > 0">
                 AND api_scenario.api_scenario_module_id in
                 <foreach collection="request.moduleIds" item="nodeId" separator="," open="(" close=")">
@@ -121,6 +127,16 @@
         SELECT count(id) AS countNumber, if(last_result is null,"notRun",last_result) AS groupField  FROM api_scenario
         WHERE project_id = #{0}
         GROUP BY groupField
+    </select>
+
+    <select id="selectIdsNotExistsInPlan" resultType="java.lang.String">
+        select c.id
+        from api_scenario c
+        where c.project_id = #{projectId} and c.id not in (
+          select pc.api_scenario_id
+          from test_plan_api_scenario pc
+          where pc.test_plan_id = #{planId}
+        )
     </select>
 
 </mapper>

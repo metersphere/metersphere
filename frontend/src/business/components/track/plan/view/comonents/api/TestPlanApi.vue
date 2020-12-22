@@ -3,18 +3,42 @@
   <ms-test-plan-common-component>
     <template v-slot:aside>
       <ms-api-module
+        v-if="model === 'api'"
         @nodeSelectEvent="nodeChange"
         @protocolChange="handleProtocolChange"
         @refreshTable="refresh"
         @setModuleOptions="setModuleOptions"
         :is-read-only="true"
-        :type="'edit'"
-        ref="nodeTree"/>
+        ref="apiNodeTree">
+        <template v-slot:header>
+          <div class="model-change-radio">
+            <el-radio v-model="model" label="api">接口用例</el-radio>
+            <el-radio v-model="model" label="scenario">场景用例</el-radio>
+          </div>
+        </template>
+      </ms-api-module>
+
+      <ms-api-scenario-module
+        v-if="model === 'scenario'"
+        @nodeSelectEvent="nodeChange"
+        @refreshTable="refresh"
+        @setModuleOptions="setModuleOptions"
+        :is-read-only="true"
+        ref="nodeTree">
+        <template v-slot:header>
+          <div class="model-change-radio">
+          <el-radio v-model="model" label="api">接口用例</el-radio>
+          <el-radio v-model="model" label="scenario">场景用例</el-radio>
+          </div>
+        </template>
+      </ms-api-scenario-module>
     </template>
+
 
     <template v-slot:main>
       <!--测试用例列表-->
       <test-plan-api-case-list
+        v-if="model === 'api'"
         :current-protocol="currentProtocol"
         :currentRow="currentRow"
         :select-node-ids="selectNodeIds"
@@ -24,12 +48,28 @@
         :plan-id="planId"
         @relevanceCase="openTestCaseRelevanceDialog"
         ref="apiCaseList"/>
+
+      <ms-test-plan-api-scenario-list
+        v-if="model === 'scenario'"
+        :select-node-ids="selectNodeIds"
+        :trash-enable="trashEnable"
+        :plan-id="planId"
+        @relevanceCase="openTestCaseRelevanceDialog"
+        ref="apiScenarioList"/>
+
     </template>
 
     <test-case-api-relevance
       @refresh="refresh"
       :plan-id="planId"
+      :model="model"
       ref="apiCaseRelevance"/>
+
+    <test-case-scenario-relevance
+      @refresh="refresh"
+      :plan-id="planId"
+      :model="model"
+      ref="scenarioCaseRelevance"/>
 
   </ms-test-plan-common-component>
 
@@ -43,10 +83,16 @@
     import TestCaseApiRelevance from "./TestCaseApiRelevance";
     import ApiCaseSimpleList from "../../../../../api/definition/components/list/ApiCaseSimpleList";
     import MsApiModule from "../../../../../api/definition/components/module/ApiModule";
+    import MsApiScenarioModule from "../../../../../api/automation/scenario/ApiScenarioModule";
+    import MsTestPlanApiScenarioList from "./TestPlanApiScenarioList";
+    import TestCaseScenarioRelevance from "./TestCaseScenarioRelevance";
 
     export default {
       name: "TestPlanApi",
       components: {
+        TestCaseScenarioRelevance,
+        MsTestPlanApiScenarioList,
+        MsApiScenarioModule,
         MsApiModule,
         ApiCaseSimpleList,
         TestCaseApiRelevance,
@@ -58,7 +104,6 @@
       data() {
         return {
           result: {},
-          selectParentNodes: [],
           treeNodes: [],
           currentRow: "",
           trashEnable: false,
@@ -66,35 +111,32 @@
           currentModule: null,
           selectNodeIds: [],
           moduleOptions: {},
-
+          model: 'api'
         }
       },
       props: [
         'planId'
       ],
       mounted() {
-        // this.initData();
-        // this.openTestCaseEdit(this.$route.path);
+
       },
       watch: {
-        '$route'(to, from) {
-          // this.openTestCaseEdit(to.path);
-        },
-        planId() {
-          // this.initData();
+        model() {
+          this.selectNodeIds = [];
+          this.moduleOptions = {};
         }
       },
       methods: {
-        setProject(projectId) {
-          this.projectId = projectId;
-        },
-        // isApiListEnableChange(data) {
-        //   this.isApiListEnable = data;
-        // },
-
         refresh(data) {
-          this.$refs.nodeTree.list();
-          this.$refs.apiCaseList.initTable();
+          if (this.$refs.apiNodeTree) {
+            this.$refs.apiNodeTree.list();
+          }
+          if (this.$refs.apiCaseList) {
+            this.$refs.apiCaseList.initTable();
+          }
+          if (this.$refs.apiScenarioList) {
+            this.$refs.apiScenarioList.search();
+          }
         },
 
         nodeChange(node, nodeIds, pNodes) {
@@ -110,72 +152,33 @@
         saveCaseRelevance() {
           let url = '';
           let selectIds = [];
-          // if (this.isApiListEnable) {
-          //   url = '/api/definition/relevance';
-          //   selectIds = Array.from(this.$refs.apiList.selectRows).map(row => row.id);
-          // } else {
-          //   url = '/api/testcase/relevance';
-          //   selectIds = Array.from(this.$refs.apiCaseList.selectRows).map(row => row.id);
-          // }
-
           let param = {};
           param.planId = this.planId;
           param.selectIds = selectIds;
-          // param.request = this.condition;
-          // 选择全选则全部加入到评审，无论是否加载完全部
-          // if (this.testCases.length === param.testCaseIds.length) {
-          //   param.testCaseIds = ['all'];
-          // }
-
           this.result = this.$post(url, param, () => {
             this.$success(this.$t('commons.save_success'));
             this.refresh();
             this.$refs.baseRelevance.close();
           });
         },
-      //   refresh() {
-      //     this.selectNodeIds = [];
-      //     this.selectParentNodes = [];
-      //     this.$refs.testCaseRelevance.search();
-      //     this.getNodeTreeByPlanId();
-      //   },
-      //   initData() {
-      //     this.getNodeTreeByPlanId();
-      //   },
-        openTestCaseRelevanceDialog() {
-          this.$refs.apiCaseRelevance.open();
+        openTestCaseRelevanceDialog(model) {
+          if (model === 'scenario') {
+            this.$refs.scenarioCaseRelevance.open();
+          } else {
+            this.$refs.apiCaseRelevance.open();
+          }
         },
-      //   nodeChange(nodeIds, pNodes) {
-      //     this.selectNodeIds = nodeIds;
-      //     this.selectParentNodes = pNodes;
-      //     // 切换node后，重置分页数
-      //     this.$refs.testPlanTestCaseList.currentPage = 1;
-      //     this.$refs.testPlanTestCaseList.pageSize = 10;
-      //   },
-      //   getNodeTreeByPlanId() {
-      //     if (this.planId) {
-      //       this.result = this.$get("/case/node/list/plan/" + this.planId, response => {
-      //         this.treeNodes = response.data;
-      //       });
-      //     }
-      //   },
-      //   openTestCaseEdit(path) {
-      //     if (path.indexOf("/plan/view/edit") >= 0) {
-      //       let caseId = this.$route.params.caseId;
-      //       this.$get('/test/plan/case/get/' + caseId, response => {
-      //         let testCase = response.data;
-      //         if (testCase) {
-      //           this.$refs.testPlanTestCaseList.handleEdit(testCase);
-      //           this.$router.push('/track/plan/view/' + testCase.planId);
-      //         }
-      //       });
-      //     }
-      //   },
       }
     }
 
 </script>
 
 <style scoped>
+
+  .model-change-radio {
+    height: 25px;
+    line-height: 25px;
+    margin: 5px 10px;
+  }
 
 </style>

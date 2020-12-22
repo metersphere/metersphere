@@ -1,10 +1,12 @@
 <template>
   <div>
 
+    <slot name="header"></slot>
+
     <ms-node-tree
       v-loading="result.loading"
       :tree-nodes="data"
-      :type="'edit'"
+      :type="isReadOnly ? 'view' : 'edit'"
       @add="add"
       @edit="edit"
       @drag="drag"
@@ -13,13 +15,13 @@
       ref="nodeTree">
 
       <template v-slot:header>
-        <el-input style="width: 275px;" :placeholder="$t('test_track.module.search')" v-model="condition.filterText"
+        <el-input class="module-input" :placeholder="$t('test_track.module.search')" v-model="condition.filterText"
                   size="small">
           <template v-slot:append>
             <el-button icon="el-icon-folder-add" @click="addScenario"/>
           </template>
         </el-input>
-        <module-trash-button :condition="condition" :exe="enableTrash"/>
+        <module-trash-button v-if="!isReadOnly" :condition="condition" :exe="enableTrash"/>
       </template>
 
     </ms-node-tree>
@@ -47,6 +49,14 @@
       MsNodeTree,
       MsAddBasisScenario,
       SelectMenu,
+    },
+    props: {
+      isReadOnly: {
+        type: Boolean,
+        default() {
+          return false
+        }
+      }
     },
     data() {
       return {
@@ -205,5 +215,9 @@
 
   .ms-api-buttion {
     width: 30px;
+  }
+
+  .module-input {
+    width: 275px;
   }
 </style>

@@ -19,6 +19,9 @@ CREATE TABLE IF NOT EXISTS `test_plan_api_scenario` (
     `environment_id` varchar(50) NULL COMMENT 'Relevance environment_id',
     `create_time` bigint(13) NOT NULL COMMENT 'Create timestamp',
     `update_time` bigint(13) NOT NULL COMMENT 'Update timestamp',
+    `pass_rate` varchar(100) DEFAULT NULL,
+    `last_result` varchar(100) DEFAULT NULL,
+    `report_id` varchar(50) DEFAULT NULL,
     PRIMARY KEY (`id`),
     UNIQUE KEY `plan_id_scenario_id` (`test_plan_id`, `api_scenario_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

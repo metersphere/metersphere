@@ -9,7 +9,7 @@ import java.util.Map;
 
 @Getter
 @Setter
-public class ApiScenarioRequest {
+public class TestPlanScenarioRequest {
     private String id;
     private String excludeId;
     private String projectId;
@@ -21,7 +21,7 @@ public class ApiScenarioRequest {
     private String planId;
     private boolean recent = false;
     private List<OrderRequest> orders;
-    private List<String> filters;
+    private Map<String, List<String>> filters;
     private Map<String, Object> combine;
     private List<String> ids;
 }
