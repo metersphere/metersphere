@@ -115,9 +115,9 @@
           {
             name: this.$t('api_test.definition.request.batch_delete'), handleClick: this.handleDeleteBatch
           },
-          // {
-          //   name: this.$t('api_test.automation.batch_execute'), handleClick: this.handleBatchExecute
-          // }
+          {
+            name: this.$t('api_test.automation.batch_execute'), handleClick: this.handleBatchExecute
+          }
         ],
         selectRows: new Set()
       }
@@ -149,19 +149,6 @@
           this.loading = false;
         });
       },
-      handleBatchExecute() {
-        this.infoDb = false;
-        let url = "/test/plan/scenario/case/run";
-        let run = {};
-        run.planCaseIds = Array.from(this.selectRows).map(row => row.id);
-        run.id = getUUID();
-        run.projectId = getCurrentProjectID();
-        this.$post(url, run, response => {
-          let data = response.data;
-          this.runVisible = true;
-          this.reportId = run.id;
-        });
-      },
       reductionApi(row) {
         row.scenarioDefinition = null;
         let rows = [row];
@@ -170,18 +157,30 @@
           this.search();
         })
       },
+      handleBatchExecute() {
+        this.selectRows.forEach(row => {
+          let param = this.buildExecuteParam(row);
+          this.$post("/test/plan/scenario/case/run", param, response => {
+          });
+        });
+        this.$message('任务执行中，请稍后刷新查看结果');
+        this.search();
+      },
       execute(row) {
         this.infoDb = false;
-        let url = "/test/plan/scenario/case/run";
-        let run = {};
-        run.id = row.id;
-        run.projectId = row.projectId;
-        run.planCaseIds = [];
-        run.planCaseIds.push(row.id);
-        this.$post(url, run, response => {
+        let param = this.buildExecuteParam(row);
+        this.$post("/test/plan/scenario/case/run", param, response => {
           this.runVisible = true;
           this.reportId = response.data;
         });
+      },
+      buildExecuteParam(row) {
+        let param = {};
+        param.id = row.id;
+        param.projectId = row.projectId;
+        param.planCaseIds = [];
+        param.planCaseIds.push(row.id);
+        return param;
       },
       showReport(row) {
         this.runVisible = true;

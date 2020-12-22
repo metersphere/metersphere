@@ -2,7 +2,7 @@
   <div></div>
 </template>
 <script>
-  import {getUUID} from "@/common/js/utils";
+  import {getUUID, getBodyUploadFiles} from "@/common/js/utils";
   import ThreadGroup from "./jmeter/components/thread-group";
   import TestPlan from "./jmeter/components/test-plan";
 
@@ -56,49 +56,6 @@
           });
         }
       },
-      getBodyUploadFiles(obj) {
-        let bodyUploadFiles = [];
-        obj.bodyUploadIds = [];
-        if (this.runData) {
-          this.runData.forEach(request => {
-            if (request.body) {
-              request.body.kvs.forEach(param => {
-                if (param.files) {
-                  param.files.forEach(item => {
-                    if (item.file) {
-                      if (!item.id) {
-                        let fileId = getUUID().substring(0, 12);
-                        item.name = item.file.name;
-                        item.id = fileId;
-                      }
-                      obj.bodyUploadIds.push(item.id);
-                      bodyUploadFiles.push(item.file);
-                    }
-                  });
-                }
-              });
-              if (request.body.binary) {
-                request.body.binary.forEach(param => {
-                  if (param.files) {
-                    param.files.forEach(item => {
-                      if (item.file) {
-                        if (!item.id) {
-                          let fileId = getUUID().substring(0, 12);
-                          item.name = item.file.name;
-                          item.id = fileId;
-                        }
-                        obj.bodyUploadIds.push(item.id);
-                        bodyUploadFiles.push(item.file);
-                      }
-                    });
-                  }
-                });
-              }
-            }
-          });
-        }
-        return bodyUploadFiles;
-      },
       run() {
         let testPlan = new TestPlan();
         let threadGroup = new ThreadGroup();
@@ -108,7 +65,7 @@
           threadGroup.hashTree.push(item);
         })
         let reqObj = {id: this.reportId, testElement: testPlan, type: this.type};
-        let bodyFiles = this.getBodyUploadFiles(reqObj);
+        let bodyFiles = getBodyUploadFiles(reqObj, this.runData);
         let url = "";
         if (this.debug) {
           url = "/api/definition/run/debug";

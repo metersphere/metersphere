@@ -299,3 +299,46 @@ export function windowPrint(id, zoom) {
   return false;
 }
 
+export function getBodyUploadFiles(obj, runData) {
+  let bodyUploadFiles = [];
+  obj.bodyUploadIds = [];
+  if (runData) {
+    runData.forEach(request => {
+      if (request.body) {
+        request.body.kvs.forEach(param => {
+          if (param.files) {
+            param.files.forEach(item => {
+              if (item.file) {
+                if (!item.id) {
+                  let fileId = getUUID().substring(0, 12);
+                  item.name = item.file.name;
+                  item.id = fileId;
+                }
+                obj.bodyUploadIds.push(item.id);
+                bodyUploadFiles.push(item.file);
+              }
+            });
+          }
+        });
+        if (request.body.binary) {
+          request.body.binary.forEach(param => {
+            if (param.files) {
+              param.files.forEach(item => {
+                if (item.file) {
+                  if (!item.id) {
+                    let fileId = getUUID().substring(0, 12);
+                    item.name = item.file.name;
+                    item.id = fileId;
+                  }
+                  obj.bodyUploadIds.push(item.id);
+                  bodyUploadFiles.push(item.file);
+                }
+              });
+            }
+          });
+        }
+      }
+    });
+  }
+  return bodyUploadFiles;
+}

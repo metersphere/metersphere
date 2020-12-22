@@ -81,7 +81,6 @@
 
         <el-table-column v-if="!isReadOnly" :label="$t('commons.operating')" align="center">
           <template v-slot:default="scope">
-            <!--<el-button type="text" @click="handleTestCase(scope.row)">{{$t('commons.edit')}}</el-button>-->
             <el-button type="text" @click="singleRun(scope.row)">{{$t('api_test.run')}}</el-button>
             <el-button type="text" @click="handleDelete(scope.row)" style="color: #F56C6C">{{$t('commons.delete')}}</el-button>
           </template>
@@ -91,12 +90,7 @@
       <ms-table-pagination :change="initTable" :current-page.sync="currentPage" :page-size.sync="pageSize"
                            :total="total"/>
 
-      <!--<api-case-list @showExecResult="showExecResult" @refresh="initTable" :currentApi="selectCase" ref="caseList"/>-->
-
       <test-plan-api-case-result :response="response" ref="apiCaseResult"/>
-
-      <!--批量编辑-->
-      <!--<ms-batch-edit ref="batchEdit" @batchEdit="batchEdit" :typeArr="typeArr" :value-arr="valueArr"/>-->
 
       <!-- 执行组件 -->
       <ms-run :debug="false" :type="'API_PLAN'" :reportId="reportId" :run-data="runData"
@@ -124,11 +118,12 @@
   import ApiListContainer from "../../../../../api/definition/components/list/ApiListContainer";
   import PriorityTableItem from "../../../../common/tableItems/planview/PriorityTableItem";
   import ApiCaseList from "../../../../../api/definition/components/case/ApiCaseList";
-  import {_filter, _sort, getUUID} from "../../../../../../../common/js/utils";
+  import {_filter, _sort, getUUID, getBodyUploadFiles} from "../../../../../../../common/js/utils";
   import TestPlanCaseListHeader from "./TestPlanCaseListHeader";
   import MsRun from "../../../../../api/definition/components/Run";
   import TestPlanApiCaseResult from "./TestPlanApiCaseResult";
-
+  import TestPlan from "../../../../../api/definition/components/jmeter/components/test-plan";
+  import ThreadGroup from "../../../../../api/definition/components/jmeter/components/thread-group";
 
   export default {
     name: "TestPlanApiCaseList",
@@ -159,7 +154,7 @@
         selectRows: new Set(),
         buttons: [
           {name: this.$t('api_test.definition.request.batch_delete'), handleClick: this.handleDeleteBatch},
-          // {name: this.$t('api_test.definition.request.batch_edit'), handleClick: this.handleEditBatch}
+          {name: this.$t('api_test.automation.batch_execute'), handleClick: this.handleBatchExecute}
         ],
         typeArr: [
           {id: 'priority', name: this.$t('test_track.case.priority')},
@@ -320,24 +315,6 @@
       buildPagePath(path) {
         return path + "/" + this.currentPage + "/" + this.pageSize;
       },
-      handleTestCase(testCase) {
-        this.$get('/api/definition/get/' + testCase.apiDefinitionId, (response) => {
-          let api = response.data;
-          let selectApi = api;
-          let request = {};
-          if (Object.prototype.toString.call(api.request).match(/\[object (\w+)\]/)[1].toLowerCase() === 'object') {
-            request = api.request;
-          } else {
-            request = JSON.parse(api.request);
-          }
-          if (!request.hashTree) {
-            request.hashTree = [];
-          }
-          selectApi.url = request.path;
-          this.currentCaseProjectId = testCase.projectId;
-          this.$refs.caseList.open(selectApi, testCase.id);
-        });
-      },
       reductionApi(row) {
         let ids = [row.id];
         this.$post('/api/testcase/reduction/', ids, () => {
@@ -395,44 +372,46 @@
           this.reportId = getUUID().substring(0, 8);
         });
       },
-      // batchRun() {
-      //   if (!this.environment) {
-      //     this.$warning(this.$t('api_test.environment.select_environment'));
-      //     return;
-      //   }
-      //   if (this.apiCaseList.length > 0) {
-      //     this.apiCaseList.forEach(item => {
-      //       if (item.id) {
-      //         item.request.name = item.id;
-      //         item.request.useEnvironment = this.environment.id;
-      //         this.runData.push(item.request);
-      //       }
-      //     })
-      //     if (this.runData.length > 0) {
-      //       // this.batchLoading = true;
-      //       /*触发执行操作*/
-      //       this.reportId = getUUID().substring(0, 8);
-      //     } else {
-      //       this.$warning("没有可执行的用例！");
-      //     }
-      //   } else {
-      //     this.$warning("没有可执行的用例！");
-      //   }
-      // },
-      // handleEditBatch() {
-      //   this.$refs.batchEdit.open();
-      // },
-      // batchEdit(form) {
-      //   let arr = Array.from(this.selectRows);
-      //   let ids = arr.map(row => row.id);
-      //   let param = {};
-      //   param[form.type] = form.value;
-      //   param.ids = ids;
-      //   this.$post('/api/testcase/batch/edit', param, () => {
-      //     this.$success(this.$t('commons.save_success'));
-      //     this.initTable();
-      //   });
-      // },
+      batchEdit(form) {
+        let arr = Array.from(this.selectRows);
+        let ids = arr.map(row => row.id);
+        let param = {};
+        param[form.type] = form.value;
+        param.ids = ids;
+        this.$post('/api/testcase/batch/edit', param, () => {
+          this.$success(this.$t('commons.save_success'));
+          this.initTable();
+        });
+      },
+      handleBatchExecute() {
+        this.selectRows.forEach(row => {
+          this.$get('/api/testcase/get/' + row.caseId, (response) => {
+            let apiCase = response.data;
+            let request = JSON.parse(apiCase.request);
+            request.name = row.id;
+            request.id = row.id;
+            request.useEnvironment = row.environmentId;
+            let runData = [];
+            runData.push(request);
+            this.batchRun(runData, getUUID().substring(0, 8));
+          });
+        });
+        this.$message('任务执行中，请稍后刷新查看结果');
+        this.search();
+      },
+      batchRun(runData, reportId) {
+        let testPlan = new TestPlan();
+        let threadGroup = new ThreadGroup();
+        threadGroup.hashTree = [];
+        testPlan.hashTree = [threadGroup];
+        runData.forEach(item => {
+          threadGroup.hashTree.push(item);
+        });
+        let reqObj = {id: reportId, testElement: testPlan, type: 'API_PLAN', reportId: "run"};
+        let bodyFiles = getBodyUploadFiles(reqObj, runData);
+        this.$fileUpload("/api/definition/run", null, bodyFiles, reqObj, response => {
+        });
+      },
       handleDelete(apiCase) {
         this.$get('/test/plan/api/case/delete/' + this.planId + '/' + apiCase.id, () => {
           this.$success(this.$t('commons.delete_success'));
