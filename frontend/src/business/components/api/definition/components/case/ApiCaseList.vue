@@ -187,7 +187,7 @@
           } else {
             request = JSON.parse(this.api.request);
           }
-          let obj = {apiDefinitionId: this.api.id, name: '', priority: 'P0', active: false};
+          let obj = {apiDefinitionId: this.api.id, name: '', priority: 'P0', active: true};
           obj.request = request;
           this.apiCaseList.unshift(obj);
         }
