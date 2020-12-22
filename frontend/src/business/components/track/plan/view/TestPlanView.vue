@@ -56,6 +56,11 @@
           return this.$route.params.planId;
         }
       },
+      watch: {
+        '$route.params.planId'() {
+          this.getTestPlans();
+        }
+      },
       mounted() {
         this.getTestPlans();
       },
