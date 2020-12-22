@@ -18,9 +18,6 @@
       <span style="margin-right: 10px">
       <el-checkbox class="follow-redirects-item" v-model="request.followRedirects">{{$t('api_test.request.follow_redirects')}}</el-checkbox>
       </span>
-      <span style="margin-right: 10px">
-          <el-checkbox class="do-multipart-post" v-model="request.doMultipartPost">{{$t('api_test.request.do_multipart_post')}}</el-checkbox>
-      </span>
     </el-row>
   </div>
 </template>

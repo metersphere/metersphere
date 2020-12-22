@@ -48,7 +48,7 @@
             </el-tab-pane>
 
             <!--请求体-->
-            <el-tab-pane v-if="isBodyShow" :label="$t('api_test.request.body')" name="body">
+            <el-tab-pane v-if="isBodyShow" :label="$t('api_test.request.body')" name="body" style="overflow: auto">
               <ms-api-body @headersChange="reloadBody" :is-read-only="isReadOnly" :isShowEnable="isShowEnable" :headers="headers" :body="request.body"/>
             </el-tab-pane>
 

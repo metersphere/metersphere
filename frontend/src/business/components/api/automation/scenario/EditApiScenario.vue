@@ -134,10 +134,10 @@
                   ：{{this.currentScenario.variables!=undefined?this.currentScenario.variables.length-1: 0}}
                 </el-col>
                 <el-col :span="3" class="ms-col-one ms-font">
-                  <el-checkbox v-model="enableCookieShare">{{ '共享cookie' }}</el-checkbox>
+                  <el-checkbox v-model="enableCookieShare">共享cookie</el-checkbox>
                 </el-col>
                 <el-col :span="7" class="ms-font">
-                  {{$t('api_test.definition.request.run_env')}}:
+                  {{$t('api_test.definition.request.run_env')}}：
                   <el-select v-model="currentEnvironmentId" size="small" class="ms-htt-width"
                              :placeholder="$t('api_test.definition.request.run_env')"
                              clearable>
@@ -826,12 +826,13 @@
     margin-right: 10px;
     color: white;
   }
-  .ms-font{
+
+  .ms-font {
     color: #303133;
     font-family: "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", Arial, sans-serif;
     font-size: 13px;
-
   }
+
   .ms-col-one {
     margin-top: 6px;
   }
@@ -919,6 +920,17 @@
 
   /deep/ .el-link {
     font-weight: normal;
+  }
+
+  /deep/ .el-checkbox {
+    color: #303133;
+    font-family: "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", Arial, sans-serif;
+    font-size: 13px;
+    font-weight: normal;
+  }
+
+  /deep/ .el-checkbox__label {
+    padding-left: 5px;
   }
 
   .head {

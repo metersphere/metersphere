@@ -16,7 +16,7 @@ CREATE TABLE `api_scenario` (
   `follow_people` varchar(100) DEFAULT NULL COMMENT 'api scenario Follow people ',
   `schedule` varchar(255) DEFAULT NULL COMMENT 'Test schedule (cron list)',
   `scenario_definition` longtext COMMENT 'Test scenario_definition json',
-  `description` varchar(255) DEFAULT NULL COMMENT 'api scenario description',
+  `description` longtext DEFAULT NULL COMMENT 'api scenario description',
   `create_time` bigint(13) NOT NULL COMMENT 'Create timestamp',
   `update_time` bigint(13) NOT NULL COMMENT 'Update timestamp',
   `pass_rate` varchar(100) DEFAULT NULL,
@@ -43,12 +43,13 @@ CREATE TABLE `api_scenario_report` (
   `id` varchar(50) NOT NULL COMMENT 'Test report ID',
   `project_id` varchar(50) NOT NULL COMMENT 'scenario ID this test report belongs to',
   `name` varchar(64) NOT NULL COMMENT 'Test report name',
-  `description` varchar(255) DEFAULT NULL COMMENT 'Test report name',
+  `description` longtext DEFAULT NULL COMMENT 'Test report name',
   `create_time` bigint(13) NOT NULL COMMENT 'Create timestamp',
   `update_time` bigint(13) NOT NULL COMMENT 'Update timestamp',
   `status` varchar(64) NOT NULL COMMENT 'Status of this test run',
   `user_id` varchar(64) DEFAULT NULL,
   `trigger_mode` varchar(64) DEFAULT NULL,
+  `execute_type` varchar(200) NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
