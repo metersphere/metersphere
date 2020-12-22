@@ -56,6 +56,16 @@
         default() {
           return false
         }
+      },
+      relevanceProjectId: String,
+      planId: String
+    },
+    computed: {
+      isPlanModel() {
+        return this.planId ? true : false;
+      },
+      isRelevanceModel() {
+        return this.relevanceProjectId ? true : false;
       }
     },
     data() {
@@ -81,22 +91,37 @@
       'condition.trashEnable'() {
         this.$emit('enableTrash', this.condition.trashEnable);
       },
+      planId() {
+        this.list();
+      },
+      relevanceProjectId() {
+        this.list();
+      }
     },
     methods: {
 
       list() {
-        if (this.projectId) {
-          this.result = this.$get("/api/automation/module/list/" + this.projectId + "/", response => {
-            if (response.data != undefined && response.data != null) {
-              this.data = response.data;
-              let moduleOptions = [];
-              this.data.forEach(node => {
-                buildNodePath(node, {path: ''}, moduleOptions);
-              });
-              this.$emit('setModuleOptions', moduleOptions);
-            }
-          });
+        let url = undefined;
+        if (this.isPlanModel) {
+          url = '/api/automation/module/list/plan/' + this.planId;
+        } else if (this.isRelevanceModel) {
+          url = "/api/automation/module/list/" + this.relevanceProjectId;
+        } else {
+          url = "/api/automation/module/list/" + this.projectId;
+          if (!this.projectId) {
+            return;
+          }
         }
+        this.result = this.$get(url, response => {
+          if (response.data != undefined && response.data != null) {
+            this.data = response.data;
+            let moduleOptions = [];
+            this.data.forEach(node => {
+              buildNodePath(node, {path: ''}, moduleOptions);
+            });
+            this.$emit('setModuleOptions', moduleOptions);
+          }
+        });
       },
       edit(param) {
         param.projectId = this.projectId;

@@ -317,4 +317,9 @@ public class ApiTestCaseService {
         }
     }
 
+    public List<ApiTestCase> selectCasesBydIds(List<String> caseIds) {
+        ApiTestCaseExample example = new ApiTestCaseExample();
+        example.createCriteria().andIdIn(caseIds);
+        return apiTestCaseMapper.selectByExample(example);
+    }
 }

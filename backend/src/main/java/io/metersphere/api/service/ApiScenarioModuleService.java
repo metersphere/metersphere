@@ -5,9 +5,8 @@ import io.metersphere.api.dto.automation.ApiScenarioDTO;
 import io.metersphere.api.dto.automation.ApiScenarioModuleDTO;
 import io.metersphere.api.dto.automation.ApiScenarioRequest;
 import io.metersphere.api.dto.automation.DragApiScenarioModuleRequest;
-import io.metersphere.base.domain.ApiScenario;
-import io.metersphere.base.domain.ApiScenarioModule;
-import io.metersphere.base.domain.ApiScenarioModuleExample;
+import io.metersphere.api.dto.definition.ApiModuleDTO;
+import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ApiScenarioMapper;
 import io.metersphere.base.mapper.ApiScenarioModuleMapper;
 import io.metersphere.base.mapper.ext.ExtApiScenarioModuleMapper;
@@ -15,6 +14,10 @@ import io.metersphere.commons.constants.TestCaseConstants;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.i18n.Translator;
 import io.metersphere.service.NodeTreeService;
+import io.metersphere.service.ProjectService;
+import io.metersphere.track.service.TestPlanProjectService;
+import io.metersphere.track.service.TestPlanScenarioCaseService;
+import io.metersphere.track.service.TestPlanTestCaseService;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
@@ -23,10 +26,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -41,6 +41,16 @@ public class ApiScenarioModuleService extends NodeTreeService<ApiScenarioModuleD
     ApiAutomationService apiAutomationService;
     @Resource
     SqlSessionFactory sqlSessionFactory;
+    @Resource
+    private TestPlanScenarioCaseService testPlanScenarioCaseService;
+    @Resource
+    TestPlanProjectService testPlanProjectService;
+    @Resource
+    private ApiTestCaseService apiTestCaseService;
+    @Resource
+    private ApiDefinitionService apiDefinitionService;
+    @Resource
+    private ProjectService projectService;
 
     public ApiScenarioModuleService() {
         super(ApiScenarioModuleDTO.class);
@@ -59,6 +69,51 @@ public class ApiScenarioModuleService extends NodeTreeService<ApiScenarioModuleD
         apiScenarioModuleMapper.insertSelective(node);
         return node.getId();
     }
+
+    public List<ApiScenarioModuleDTO> getNodeByPlanId(String planId) {
+        List<ApiScenarioModuleDTO> list = new ArrayList<>();
+        List<String> projectIds = testPlanProjectService.getProjectIdsByPlanId(planId);
+        projectIds.forEach(id -> {
+            Project project = projectService.getProjectById(id);
+            String name = project.getName();
+            List<ApiScenarioModuleDTO> nodeList = getNodeDTO(id, planId);
+            ApiScenarioModuleDTO scenarioModuleDTO = new ApiScenarioModuleDTO();
+            scenarioModuleDTO.setId(project.getId());
+            scenarioModuleDTO.setName(name);
+            scenarioModuleDTO.setLabel(name);
+            scenarioModuleDTO.setChildren(nodeList);
+            list.add(scenarioModuleDTO);
+        });
+        return list;
+    }
+
+    private List<ApiScenarioModuleDTO> getNodeDTO(String projectId, String planId) {
+        List<TestPlanApiScenario> apiCases = testPlanScenarioCaseService.getCasesByPlanId(planId);
+        if (apiCases.isEmpty()) {
+            return null;
+        }
+        List<ApiScenarioModuleDTO> testCaseNodes = extApiScenarioModuleMapper.getNodeTreeByProjectId(projectId);
+
+        List<String> caseIds = apiCases.stream()
+                .map(TestPlanApiScenario::getApiScenarioId)
+                .collect(Collectors.toList());
+
+        List<String> dataNodeIds = apiAutomationService.selectByIds(caseIds).stream()
+                .map(ApiScenario::getApiScenarioModuleId)
+                .collect(Collectors.toList());
+
+        List<ApiScenarioModuleDTO> nodeTrees = getNodeTrees(testCaseNodes);
+
+        Iterator<ApiScenarioModuleDTO> iterator = nodeTrees.iterator();
+        while (iterator.hasNext()) {
+            ApiScenarioModuleDTO rootNode = iterator.next();
+            if (pruningTree(rootNode, dataNodeIds)) {
+                iterator.remove();
+            }
+        }
+        return nodeTrees;
+    }
+
 
     private void validateNode(ApiScenarioModule node) {
         if (node.getLevel() > TestCaseConstants.MAX_NODE_DEPTH) {

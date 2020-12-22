@@ -361,9 +361,7 @@ public class ApiAutomationService {
         if (CollectionUtils.isEmpty(ids)) {
             return;
         }
-        ApiScenarioExample example = new ApiScenarioExample();
-        example.createCriteria().andIdIn(ids);
-        List<ApiScenario> apiScenarios = apiScenarioMapper.selectByExample(example);
+        List<ApiScenario> apiScenarios = selectByIds(ids);
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
 
         ExtTestPlanScenarioCaseMapper batchMapper = sqlSession.getMapper(ExtTestPlanScenarioCaseMapper.class);
@@ -377,5 +375,11 @@ public class ApiAutomationService {
             batchMapper.insertIfNotExists(testPlanApiScenario);
         });
         sqlSession.flushStatements();
+    }
+
+    public List<ApiScenario> selectByIds(List<String> ids) {
+        ApiScenarioExample example = new ApiScenarioExample();
+        example.createCriteria().andIdIn(ids);
+        return apiScenarioMapper.selectByExample(example);
     }
 }

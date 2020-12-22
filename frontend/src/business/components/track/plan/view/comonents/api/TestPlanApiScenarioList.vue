@@ -130,15 +130,16 @@
       selectNodeIds() {
         this.search();
       },
+      planId() {
+        this.search();
+      }
     },
     methods: {
       search() {
         this.selectRows = new Set();
         this.loading = true;
         this.condition.moduleIds = this.selectNodeIds;
-        if (this.projectId != null) {
-          this.condition.projectId = this.projectId;
-        }
+        this.condition.planId = this.planId;
 
         let url = "/test/plan/scenario/case/list/" + this.currentPage + "/" + this.pageSize;
         this.$post(url, this.condition, response => {
@@ -161,9 +162,6 @@
           this.reportId = run.id;
         });
       },
-      edit(row) {
-        this.$emit('edit', row);
-      },
       reductionApi(row) {
         row.scenarioDefinition = null;
         let rows = [row];
@@ -185,10 +183,6 @@
           this.reportId = response.data;
         });
       },
-      copy(row) {
-        row.copy = true;
-        this.$emit('edit', row);
-      },
       showReport(row) {
         this.runVisible = true;
         this.infoDb = true;
@@ -197,6 +191,7 @@
       remove(row) {
         this.$get('/test/plan/scenario/case/delete/' + this.planId + '/' + row.id, () => {
           this.$success(this.$t('commons.delete_success'));
+          this.$emit('refresh');
           this.search();
         });
         return;
@@ -222,6 +217,7 @@
                 this.selectRows.clear();
                 this.search();
                 this.$success(this.$t('commons.delete_success'));
+                this.$emit('refresh');
               });
             }
           }

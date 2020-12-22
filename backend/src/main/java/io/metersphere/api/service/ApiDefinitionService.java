@@ -446,4 +446,10 @@ public class ApiDefinitionService {
     public List<ApiDataCountResult> countApiCoverageByProjectID(String projectId) {
         return extApiDefinitionMapper.countApiCoverageByProjectID(projectId);
     }
+
+    public List<ApiDefinition> selectApiDefinitionBydIds(List<String> ids) {
+        ApiDefinitionExample example = new ApiDefinitionExample();
+        example.createCriteria().andIdIn(ids);
+        return apiDefinitionMapper.selectByExample(example);
+    }
 }

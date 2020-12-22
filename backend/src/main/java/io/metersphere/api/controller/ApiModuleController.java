@@ -29,6 +29,12 @@ public class ApiModuleController {
         return apiModuleService.getNodeTreeByProjectId(projectId,protocol);
     }
 
+    @GetMapping("/list/plan/{planId}/{protocol}")
+    public List<ApiModuleDTO> getNodeByPlanId(@PathVariable String planId, @PathVariable String protocol) {
+        checkOwnerService.checkTestPlanOwner(planId);
+        return apiModuleService.getNodeByPlanId(planId, protocol);
+    }
+
     @PostMapping("/add")
     @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
     public String addNode(@RequestBody ApiModule node) {

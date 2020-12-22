@@ -12,6 +12,7 @@
         @protocolChange="handleProtocolChange"
         @refreshTable="refresh"
         @setModuleOptions="setModuleOptions"
+        :relevance-project-id="projectId"
         :is-read-only="true"
         :type="'edit'"
         ref="nodeTree"/>

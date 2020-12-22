@@ -42,6 +42,12 @@ public class ApiScenarioModuleController {
         return apiScenarioModuleService.editNode(node);
     }
 
+    @GetMapping("/list/plan/{planId}")
+    public List<ApiScenarioModuleDTO> getNodeByPlanId(@PathVariable String planId) {
+        checkOwnerService.checkTestPlanOwner(planId);
+        return apiScenarioModuleService.getNodeByPlanId(planId);
+    }
+
     @PostMapping("/delete")
     @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
     public int deleteNode(@RequestBody List<String> nodeIds) {

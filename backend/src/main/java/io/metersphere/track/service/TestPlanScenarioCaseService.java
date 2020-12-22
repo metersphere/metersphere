@@ -5,6 +5,7 @@ import io.metersphere.api.dto.automation.ApiScenarioRequest;
 import io.metersphere.api.dto.automation.RunScenarioRequest;
 import io.metersphere.api.dto.automation.TestPlanScenarioRequest;
 import io.metersphere.api.service.ApiAutomationService;
+import io.metersphere.base.domain.TestPlanApiCase;
 import io.metersphere.base.domain.TestPlanApiScenario;
 import io.metersphere.base.domain.TestPlanApiScenarioExample;
 import io.metersphere.base.mapper.TestPlanApiScenarioMapper;
@@ -18,6 +19,7 @@ import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -39,13 +41,6 @@ public class TestPlanScenarioCaseService {
         if (CollectionUtils.isEmpty(apiTestCases)) {
             return apiTestCases;
         }
-        List<String> projectIds = apiTestCases.stream()
-                .map(ApiScenarioDTO::getProjectId)
-                .distinct()
-                .collect(Collectors.toList());
-        projectIds.forEach(projectId -> {
-//            apiAutomationService.buildScenarioInfo(projectId, apiTestCases);
-        });
         return apiTestCases;
     }
 
@@ -87,5 +82,11 @@ public class TestPlanScenarioCaseService {
         request.setScenarioIds(scenarioIds);
         request.setRunMode(ApiRunMode.SCENARIO_PLAN.name());
         return apiAutomationService.run(request);
+    }
+
+    public List<TestPlanApiScenario> getCasesByPlanId(String planId) {
+        TestPlanApiScenarioExample example = new TestPlanApiScenarioExample();
+        example.createCriteria().andTestPlanIdEqualTo(planId);
+        return testPlanApiScenarioMapper.selectByExample(example);
     }
 }

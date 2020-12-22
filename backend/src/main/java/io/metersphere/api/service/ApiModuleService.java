@@ -5,9 +5,7 @@ import io.metersphere.api.dto.definition.ApiDefinitionRequest;
 import io.metersphere.api.dto.definition.ApiDefinitionResult;
 import io.metersphere.api.dto.definition.ApiModuleDTO;
 import io.metersphere.api.dto.definition.DragModuleRequest;
-import io.metersphere.base.domain.ApiDefinitionExample;
-import io.metersphere.base.domain.ApiModule;
-import io.metersphere.base.domain.ApiModuleExample;
+import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ApiDefinitionMapper;
 import io.metersphere.base.mapper.ApiModuleMapper;
 import io.metersphere.base.mapper.ext.ExtApiDefinitionMapper;
@@ -17,6 +15,10 @@ import io.metersphere.commons.exception.MSException;
 
 import io.metersphere.i18n.Translator;
 import io.metersphere.service.NodeTreeService;
+import io.metersphere.service.ProjectService;
+import io.metersphere.track.dto.TestCaseNodeDTO;
+import io.metersphere.track.service.TestPlanApiCaseService;
+import io.metersphere.track.service.TestPlanProjectService;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
@@ -40,6 +42,16 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
     private ApiDefinitionMapper apiDefinitionMapper;
     @Resource
     private ExtApiDefinitionMapper extApiDefinitionMapper;
+    @Resource
+    private TestPlanProjectService testPlanProjectService;
+    @Resource
+    private ProjectService projectService;
+    @Resource
+    private TestPlanApiCaseService testPlanApiCaseService;
+    @Resource
+    private ApiTestCaseService apiTestCaseService;
+    @Resource
+    private ApiDefinitionService apiDefinitionService;
 
     @Resource
     SqlSessionFactory sqlSessionFactory;
@@ -65,6 +77,55 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
         apiModuleMapper.insertSelective(node);
         return node.getId();
     }
+
+    public List<ApiModuleDTO> getNodeByPlanId(String planId, String protocol) {
+        List<ApiModuleDTO> list = new ArrayList<>();
+        List<String> projectIds = testPlanProjectService.getProjectIdsByPlanId(planId);
+        projectIds.forEach(id -> {
+            Project project = projectService.getProjectById(id);
+            String name = project.getName();
+            List<ApiModuleDTO> nodeList = getNodeDTO(id, planId, protocol);
+            ApiModuleDTO apiModuleDTO = new ApiModuleDTO();
+            apiModuleDTO.setId(project.getId());
+            apiModuleDTO.setName(name);
+            apiModuleDTO.setLabel(name);
+            apiModuleDTO.setChildren(nodeList);
+            list.add(apiModuleDTO);
+        });
+        return list;
+    }
+
+    private List<ApiModuleDTO> getNodeDTO(String projectId, String planId, String protocol) {
+        List<TestPlanApiCase> apiCases = testPlanApiCaseService.getCasesByPlanId(planId);
+        if (apiCases.isEmpty()) {
+            return null;
+        }
+        List<ApiModuleDTO> testCaseNodes = extApiModuleMapper.getNodeTreeByProjectId(projectId, protocol);
+
+        List<String> caseIds = apiCases.stream()
+                .map(TestPlanApiCase::getApiCaseId)
+                .collect(Collectors.toList());
+
+        List<String> definitionIds = apiTestCaseService.selectCasesBydIds(caseIds).stream()
+                .map(ApiTestCase::getApiDefinitionId)
+                .collect(Collectors.toList());
+
+        List<String> dataNodeIds = apiDefinitionService.selectApiDefinitionBydIds(definitionIds).stream()
+                .map(ApiDefinition::getModuleId)
+                .collect(Collectors.toList());
+
+        List<ApiModuleDTO> nodeTrees = getNodeTrees(testCaseNodes);
+
+        Iterator<ApiModuleDTO> iterator = nodeTrees.iterator();
+        while (iterator.hasNext()) {
+            ApiModuleDTO rootNode = iterator.next();
+            if (pruningTree(rootNode, dataNodeIds)) {
+                iterator.remove();
+            }
+        }
+        return nodeTrees;
+    }
+
 
     public ApiModule getNewModule(String name, String projectId, int level) {
         ApiModule node = new ApiModule();

@@ -224,6 +224,9 @@
       currentProtocol() {
         this.initTable();
       },
+      planId() {
+        this.initTable();
+      }
     },
     computed: {
       // 测试计划关联测试列表
@@ -245,7 +248,6 @@
       },
       initTable() {
         this.selectRows = new Set();
-        // this.condition.filters = ["Prepare", "Underway", "Completed"];
         this.condition.status = "";
         this.condition.moduleIds = this.selectNodeIds;
 
@@ -354,6 +356,7 @@
               this.$post('/test/plan/api/case/batch/delete', param, () => {
                 this.selectRows.clear();
                 this.initTable();
+                this.$emit('refresh');
                 this.$success(this.$t('commons.delete_success'));
               });
             }
@@ -433,6 +436,7 @@
       handleDelete(apiCase) {
         this.$get('/test/plan/api/case/delete/' + this.planId + '/' + apiCase.id, () => {
           this.$success(this.$t('commons.delete_success'));
+          this.$emit('refresh');
           this.initTable();
         });
         return;

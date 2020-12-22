@@ -6,8 +6,9 @@
         v-if="model === 'api'"
         @nodeSelectEvent="nodeChange"
         @protocolChange="handleProtocolChange"
-        @refreshTable="refresh"
+        @refreshTable="refreshTable"
         @setModuleOptions="setModuleOptions"
+        :plan-id="planId"
         :is-read-only="true"
         ref="apiNodeTree">
         <template v-slot:header>
@@ -21,10 +22,11 @@
       <ms-api-scenario-module
         v-if="model === 'scenario'"
         @nodeSelectEvent="nodeChange"
-        @refreshTable="refresh"
+        @refreshTable="refreshTable"
         @setModuleOptions="setModuleOptions"
         :is-read-only="true"
-        ref="nodeTree">
+        :plan-id="planId"
+        ref="scenarioNodeTree">
         <template v-slot:header>
           <div class="model-change-radio">
           <el-radio v-model="model" label="api">接口用例</el-radio>
@@ -46,6 +48,7 @@
         :is-case-relevance="true"
         :model="'plan'"
         :plan-id="planId"
+        @refresh="refreshTree"
         @relevanceCase="openTestCaseRelevanceDialog"
         ref="apiCaseList"/>
 
@@ -54,6 +57,7 @@
         :select-node-ids="selectNodeIds"
         :trash-enable="trashEnable"
         :plan-id="planId"
+        @refresh="refreshTree"
         @relevanceCase="openTestCaseRelevanceDialog"
         ref="apiScenarioList"/>
 
@@ -127,15 +131,24 @@
         }
       },
       methods: {
-        refresh(data) {
-          if (this.$refs.apiNodeTree) {
-            this.$refs.apiNodeTree.list();
-          }
+        refresh() {
+          this.refreshTree();
+          this.refreshTable();
+        },
+        refreshTable() {
           if (this.$refs.apiCaseList) {
             this.$refs.apiCaseList.initTable();
           }
           if (this.$refs.apiScenarioList) {
             this.$refs.apiScenarioList.search();
+          }
+        },
+        refreshTree() {
+          if (this.$refs.apiNodeTree) {
+            this.$refs.apiNodeTree.list();
+          }
+          if (this.$refs.scenarioNodeTree) {
+            this.$refs.scenarioNodeTree.list();
           }
         },
 

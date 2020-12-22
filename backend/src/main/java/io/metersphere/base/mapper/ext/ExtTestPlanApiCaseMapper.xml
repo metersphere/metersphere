@@ -25,6 +25,9 @@
     inner join
       api_test_case c
     on t.api_case_id = c.id
+      <if test="request.planId != null and request.planId!=''">
+        and t.test_plan_id = #{request.planId}
+      </if>
     inner join
       api_definition a
     on

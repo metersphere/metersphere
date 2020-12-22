@@ -5,6 +5,7 @@ import io.metersphere.api.dto.definition.ApiTestCaseRequest;
 import io.metersphere.api.dto.definition.TestPlanApiCaseDTO;
 import io.metersphere.api.service.ApiDefinitionExecResultService;
 import io.metersphere.api.service.ApiTestCaseService;
+import io.metersphere.base.domain.TestPlanApiCase;
 import io.metersphere.base.domain.TestPlanApiCaseExample;
 import io.metersphere.base.mapper.TestPlanApiCaseMapper;
 import io.metersphere.base.mapper.ext.ExtTestPlanApiCaseMapper;
@@ -51,6 +52,8 @@ public class TestPlanApiCaseService {
         return apiTestCaseService.listSimple(request);
     }
 
+
+
     public int delete(String planId, String id) {
         apiDefinitionExecResultService.deleteByResourceId(id);
         TestPlanApiCaseExample example = new TestPlanApiCaseExample();
@@ -68,5 +71,11 @@ public class TestPlanApiCaseService {
                 .andIdIn(request.getIds())
                 .andTestPlanIdEqualTo(request.getPlanId());
         testPlanApiCaseMapper.deleteByExample(example);
+    }
+
+    public List<TestPlanApiCase> getCasesByPlanId(String planId) {
+        TestPlanApiCaseExample example = new TestPlanApiCaseExample();
+        example.createCriteria().andTestPlanIdEqualTo(planId);
+        return testPlanApiCaseMapper.selectByExample(example);
     }
 }

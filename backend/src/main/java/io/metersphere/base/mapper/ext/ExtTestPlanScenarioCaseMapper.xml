@@ -26,6 +26,9 @@
     inner join
       api_scenario c
       on t.api_scenario_id = c.id and c.status != 'Trash'
+      <if test="request.planId != null and request.planId!=''">
+          and t.test_plan_id = #{request.planId}
+      </if>
     left join project p
       on c.project_id = p.id
     left join user u
