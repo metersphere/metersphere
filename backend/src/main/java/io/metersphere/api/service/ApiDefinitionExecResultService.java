@@ -1,7 +1,7 @@
 package io.metersphere.api.service;
 
 import com.alibaba.fastjson.JSON;
-import io.metersphere.api.dto.dataCount.ExecutedCaseInfoResult;
+import io.metersphere.api.dto.datacount.ExecutedCaseInfoResult;
 import io.metersphere.api.jmeter.TestResult;
 import io.metersphere.base.domain.ApiDefinitionExecResult;
 import io.metersphere.base.domain.ApiDefinitionExecResultExample;

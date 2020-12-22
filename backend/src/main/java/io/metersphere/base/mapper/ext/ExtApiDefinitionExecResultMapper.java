@@ -1,9 +1,8 @@
 package io.metersphere.base.mapper.ext;
 
-import io.metersphere.api.dto.dataCount.ExecutedCaseInfoResult;
+import io.metersphere.api.dto.datacount.ExecutedCaseInfoResult;
 import io.metersphere.base.domain.ApiDefinitionExecResult;
 import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
 

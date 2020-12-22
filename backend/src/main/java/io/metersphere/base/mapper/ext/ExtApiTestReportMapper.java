@@ -2,11 +2,9 @@ package io.metersphere.base.mapper.ext;
 
 import io.metersphere.api.dto.APIReportResult;
 import io.metersphere.api.dto.QueryAPIReportRequest;
-import io.metersphere.api.dto.dataCount.ApiDataCountResult;
-import io.metersphere.dto.ApiReportDTO;
+import io.metersphere.api.dto.datacount.ApiDataCountResult;
 import io.metersphere.dto.DashboardTestDTO;
 import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
 

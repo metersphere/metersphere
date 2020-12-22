@@ -1,6 +1,6 @@
-package io.metersphere.api.dto.dataCount.response;
+package io.metersphere.api.dto.datacount.response;
 
-import io.metersphere.api.dto.dataCount.ApiDataCountResult;
+import io.metersphere.api.dto.datacount.ApiDataCountResult;
 import io.metersphere.api.dto.scenario.request.RequestType;
 import lombok.Getter;
 import lombok.Setter;

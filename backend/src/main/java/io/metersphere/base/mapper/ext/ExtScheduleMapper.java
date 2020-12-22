@@ -1,10 +1,9 @@
 package io.metersphere.base.mapper.ext;
 
-import io.metersphere.api.dto.dataCount.response.TaskInfoResult;
+import io.metersphere.api.dto.datacount.response.TaskInfoResult;
 import io.metersphere.controller.request.QueryScheduleRequest;
 import io.metersphere.dto.ScheduleDao;
 import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
 
