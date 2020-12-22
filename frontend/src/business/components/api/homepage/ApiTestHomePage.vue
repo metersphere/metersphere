@@ -2,9 +2,22 @@
   <ms-container>
     <el-header height="0">
       <div style="float: right">
-        <span>
+        <div v-if="dateType==='1'">
+          🤔️天凉了，保温杯买了吗？
+        </div>
+        <div v-else-if="dateType==='2'">
+          <el-link href="https://github.com/metersphere/metersphere/issues" target="_blank" type="primary">😔觉得MeterSphere不好用就来https://github.com/metersphere/metersphere/issues吐个槽吧！</el-link>
+<!--          <el-link href="https://jmeter.apache.org/usermanual/component_reference.html#BeanShell_PostProcessor"-->
+<!--                   type="primary">{{$t('commons.reference_documentation')}}-->
+<!--          </el-link>-->
+        </div>
+        <div v-else-if="dateType==='3'">
+<!--          <el-link :herf="'https://github.com/metersphere/metersphere/issues'"  target="_blank"></el-link>-->
+          <el-link href="https://github.com/metersphere/metersphere"  target="_blank" type="primary">😄觉得MeterSphere好用就来 https://github.com/metersphere/metersphere 点个star吧！</el-link>
+        </div>
+        <div v-else>
           😊 MeterSphere温馨提醒 —— 多喝热水哟！
-        </span>
+        </div>
       </div>
     </el-header>
     <ms-main-container v-loading="result.loading">
@@ -71,20 +84,28 @@ export default {
       sceneCountData:{},
       testCaseCountData:{},
       scheduleTaskCountData:{},
+      dateType:"1",
       result: {},
     }
   },
-  // activated() {
-  //   this.getValues();
-  // },
+  activated() {
+    this.search();
+    this.checkDateType();
+  },
   // mounted() {
   //   this.getValues();
   // },
   created() {
-    this.search();
+    // this.search();
   },
   methods: {
-
+    checkDateType(){
+      var random = Math.floor(Math.random() * (4 - 1 + 1))+1;
+      this.dateType = random +"";
+    },
+    openNewPage(herf){
+      window.open(herf, '_blank');
+    },
     search() {
       let selectProjectId = getCurrentProjectID();
       this.$get("/api/apiCount/"+selectProjectId, response => {
