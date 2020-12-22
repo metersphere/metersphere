@@ -29,7 +29,7 @@
           <div>
             <ms-environment-select
               :project-id="projectId"
-              :is-read-only="isReadOnly || isCaseEdit"
+              :is-read-only="isReadOnly"
               @setEnvironment="setEnvironment"/>
           </div>
         </el-col>
