@@ -20,5 +20,7 @@ public class TestResourcePool implements Serializable {
 
     private Long updateTime;
 
+    private String image;
+
     private static final long serialVersionUID = 1L;
 }

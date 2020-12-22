@@ -61,6 +61,9 @@
         <el-form-item :label="$t('commons.description')" prop="description">
           <el-input v-model="form.description" autocomplete="off"/>
         </el-form-item>
+        <el-form-item :label="$t('commons.image')" prop="image">
+          <el-input v-model="form.image" autocomplete="off"/>
+        </el-form-item>
         <el-form-item :label="$t('test_resource_pool.type')" prop="type">
           <el-select v-model="form.type" :placeholder="$t('test_resource_pool.select_pool_type')"
                      @change="changeResourceType()">
@@ -147,6 +150,9 @@
         </el-form-item>
         <el-form-item :label="$t('commons.description')" prop="description">
           <el-input v-model="form.description" autocomplete="off"/>
+        </el-form-item>
+        <el-form-item :label="$t('commons.image')" prop="image">
+          <el-input v-model="form.image" autocomplete="off"/>
         </el-form-item>
         <el-form-item :label="$t('test_resource_pool.type')" prop="type">
           <el-select v-model="form.type" :placeholder="$t('test_resource_pool.select_pool_type')"
