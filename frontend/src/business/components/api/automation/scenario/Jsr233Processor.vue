@@ -31,7 +31,7 @@
           <el-col :span="20" class="script-content">
             <ms-code-edit v-if="isCodeEditAlive" :mode="jsr223ProcessorData.scriptLanguage"
                           :read-only="isReadOnly"
-                          :data.sync="jsr223ProcessorData.script" theme="eclipse" :modes="['java','python']"
+                          :data.sync="jsr223ProcessorData.script" theme="eclipse" :modes="[]"
                           ref="codeEdit"/>
           </el-col>
           <el-col :span="4" class="script-index">
@@ -94,10 +94,10 @@
         ],
         isCodeEditAlive: true,
         languages: [
-          'java', "python"
+          'beanshell', "python"
         ],
         codeEditModeMap: {
-          beanshell: 'java',
+          beanshell: 'beanshell',
           python: 'python'
         }
       }
