@@ -79,25 +79,8 @@
 
           <el-row>
             <el-col :span="12">
-              <el-form-item label="Tag" prop="tagId">
-                <el-select v-model="currentScenario.tagId" size="small" class="ms-scenario-input" placeholder="Tag" :multiple="true">
-                  <el-option
-                    v-for="item in tags"
-                    :key="item.id"
-                    :label="item.name"
-                    :value="item.id"/>
-                  <el-button size="mini" type="primary" @click="openTagConfig" class="ms-scenario-button">
-                    {{ $t('api_test.automation.create_tag') }}
-                  </el-button>
-                  <template v-slot:empty>
-                    <div>
-                      <el-button size="mini" type="primary" @click="openTagConfig" class="ms-scenario-button">
-                        {{ $t('api_test.automation.create_tag') }}
-                      </el-button>
-                    </div>
-                  </template>
-                </el-select>
-
+              <el-form-item label="Tag" prop="tags">
+                <ms-input-tag :currentScenario="currentScenario" ref="tag"/>
               </el-form-item>
             </el-col>
             <el-col :span="12">
@@ -259,8 +242,6 @@
       <!-- 环境 -->
       <api-environment-config ref="environmentConfig" @close="environmentConfigClose"/>
 
-      <!--TAG-->
-      <ms-add-tag @refreshTags="refreshTags" ref="tag"/>
       <!--执行组件-->
       <ms-run :debug="true" :environment="currentEnvironmentId" :reportId="reportId" :run-data="debugData"
               @runRefresh="runRefresh" ref="runTest"/>
@@ -293,13 +274,14 @@
   import MsApiCustomize from "./ApiCustomize";
   import {getUUID, getCurrentProjectID} from "@/common/js/utils";
   import ApiEnvironmentConfig from "../../definition/components/environment/ApiEnvironmentConfig";
-  import MsAddTag from "./AddTag";
+  import MsInputTag from "./MsInputTag";
   import MsRun from "./DebugRun";
   import MsImportApiScenario from "./ImportApiScenario";
   import MsApiScenarioComponent from "./ApiScenarioComponent";
   import MsApiReportDetail from "../report/ApiReportDetail";
   import MsScenarioParameters from "./ScenarioParameters";
   import ApiImport from "../../definition/components/import/ApiImport";
+  import InputTag from 'vue-input-tag'
 
   export default {
     name: "EditApiScenario",
@@ -311,7 +293,7 @@
       ApiEnvironmentConfig,
       MsScenarioParameters,
       MsApiReportDetail,
-      MsAddTag, MsRun,
+      MsInputTag, MsRun,
       MsApiScenarioComponent,
       MsImportApiScenario,
       MsJsr233Processor,
@@ -323,6 +305,7 @@
       MsApiComponent,
       MsApiCustomize,
       ApiImport,
+      InputTag,
     },
     data() {
       return {
@@ -341,7 +324,6 @@
           principal: [{required: true, message: this.$t('api_test.definition.request.responsible'), trigger: 'change'}],
         },
         environments: [],
-        tags: [],
         currentEnvironmentId: "",
         maintainerOptions: [],
         value: API_STATUS[0].id,
@@ -366,7 +348,8 @@
         visibleRef: "",
         enableCookieShare: false,
       }
-    },
+    }
+    ,
     created() {
       if (!this.currentScenario.apiScenarioModuleId) {
         this.currentScenario.apiScenarioModuleId = "";
@@ -374,11 +357,12 @@
       this.projectId = getCurrentProjectID();
       this.operatingElements = ELEMENTS.get("ALL");
       this.getMaintainerOptions();
-      this.refreshTags();
       this.getApiScenario();
       this.getEnvironments();
-    },
-    watch: {},
+    }
+    ,
+    watch: {}
+    ,
     methods: {
       addComponent(type) {
         switch (type) {
@@ -423,7 +407,8 @@
         }
         this.sort();
         this.reload();
-      },
+      }
+      ,
       nodeClick(e) {
         if (e.referenced != 'REF' && e.referenced != 'Deleted') {
           this.operatingElements = ELEMENTS.get(e.type);
@@ -431,16 +416,19 @@
           this.operatingElements = [];
         }
         this.selectedTreeNode = e;
-      },
+      }
+      ,
       showAll() {
         this.operatingElements = ELEMENTS.get("ALL");
         this.selectedTreeNode = undefined;
         this.reload();
-      },
+      }
+      ,
       apiListImport() {
         this.visibleRef = getUUID();
         this.apiListVisible = true;
-      },
+      }
+      ,
       recursiveSorting(arr) {
         for (let i in arr) {
           arr[i].index = Number(i) + 1;
@@ -448,7 +436,8 @@
             this.recursiveSorting(arr[i].hashTree);
           }
         }
-      },
+      }
+      ,
       sort() {
         for (let i in this.scenarioDefinition) {
           this.scenarioDefinition[i].index = Number(i) + 1;
@@ -456,7 +445,8 @@
             this.recursiveSorting(this.scenarioDefinition[i].hashTree);
           }
         }
-      },
+      }
+      ,
       addCustomizeApi(request) {
         this.customizeVisible = false;
         request.enable === undefined ? request.enable = true : request.enable;
@@ -468,7 +458,8 @@
         this.customizeRequest = {};
         this.sort();
         this.reload();
-      },
+      }
+      ,
       addScenario(arr) {
         if (arr && arr.length > 0) {
           arr.forEach(item => {
@@ -483,7 +474,8 @@
         this.sort();
         this.reload();
         this.scenarioVisible = false;
-      },
+      }
+      ,
       setApiParameter(item, refType, referenced) {
         let request = {};
         if (Object.prototype.toString.call(item.request).indexOf("String") > 0) {
@@ -512,7 +504,8 @@
         } else {
           this.scenarioDefinition.push(request);
         }
-      },
+      }
+      ,
       pushApiOrCase(referenced) {
         if (this.currentRow.cases.length === 0 && this.currentRow.apis.length === 0) {
           this.$warning(this.$t('api_test.automation.reference_info'));
@@ -529,33 +522,21 @@
         this.currentRow.apis = [];
         this.sort();
         this.reload();
-      },
+      }
+      ,
       getMaintainerOptions() {
         let workspaceId = localStorage.getItem(WORKSPACE_ID);
         this.$post('/user/ws/member/tester/list', {workspaceId: workspaceId}, response => {
           this.maintainerOptions = response.data;
         });
-      },
+      }
+      ,
       openTagConfig() {
         if (!this.projectId) {
           this.$error(this.$t('api_test.select_project'));
           return;
         }
         this.$refs.tag.open();
-      },
-      refreshTags() {
-        let obj = {projectId: this.projectId};
-        let tagIds = [];
-        this.$post('/api/tag/list', obj, response => {
-          this.tags = response.data;
-          this.tags.forEach(item => {
-            tagIds.push(item.id);
-          })
-          if (this.currentScenario.tagId != undefined && this.currentScenario.tagId.length > 0) {
-            this.currentScenario.tagId = this.currentScenario.tagId.filter(id => tagIds.indexOf(id) != -1);
-          }
-        });
-
       },
       remove(row, node) {
         const parent = node.parent
@@ -564,7 +545,8 @@
         hashTree.splice(index, 1);
         this.sort();
         this.reload();
-      },
+      }
+      ,
       copyRow(row, node) {
         const parent = node.parent
         const hashTree = parent.data.hashTree || parent.data;
@@ -574,13 +556,15 @@
         hashTree.push(obj);
         this.sort();
         this.reload();
-      },
+      }
+      ,
       reload() {
         this.loading = true
         this.$nextTick(() => {
           this.loading = false
         })
-      },
+      }
+      ,
       runDebug() {
         /*触发执行操作*/
         if (!this.currentEnvironmentId) {
@@ -593,7 +577,8 @@
           environmentId: this.currentEnvironmentId, hashTree: this.scenarioDefinition
         };
         this.reportId = getUUID().substring(0, 8);
-      },
+      }
+      ,
       getEnvironments() {
         if (this.projectId) {
           this.$get('/api/environment/list/' + this.projectId, response => {
@@ -603,17 +588,20 @@
             });
           });
         }
-      },
+      }
+      ,
       openEnvironmentConfig() {
         if (!this.projectId) {
           this.$error(this.$t('api_test.select_project'));
           return;
         }
         this.$refs.environmentConfig.open(this.projectId);
-      },
+      }
+      ,
       environmentConfigClose() {
         this.getEnvironments();
-      },
+      }
+      ,
       allowDrop(draggingNode, dropNode, dropType) {
         if (dropType != "inner") {
           return true;
@@ -622,21 +610,25 @@
           return true;
         }
         return false;
-      },
+      }
+      ,
       allowDrag(draggingNode, dropNode, dropType) {
         this.sort();
         this.reload();
-      },
+      }
+      ,
       nodeExpand(data) {
         if (data.resourceId) {
           this.expandedNode.push(data.resourceId);
         }
-      },
+      }
+      ,
       nodeCollapse(data) {
         if (data.resourceId) {
           this.expandedNode.splice(this.expandedNode.indexOf(data.resourceId), 1);
         }
-      },
+      }
+      ,
       getPath(id) {
         if (id === null) {
           return null;
@@ -645,7 +637,8 @@
           return item.id === id ? item.path : "";
         });
         return path[0].path;
-      },
+      }
+      ,
       setFiles(item, bodyUploadFiles, obj) {
         if (item.body) {
           if (item.body.kvs) {
@@ -683,7 +676,8 @@
             });
           }
         }
-      },
+      }
+      ,
       recursiveFile(arr, bodyUploadFiles, obj) {
         arr.forEach(item => {
           this.setFiles(item, bodyUploadFiles, obj);
@@ -691,7 +685,8 @@
             this.recursiveFile(item.hashTree, bodyUploadFiles, obj);
           }
         });
-      },
+      }
+      ,
       getBodyUploadFiles(obj) {
         let bodyUploadFiles = [];
         obj.bodyUploadIds = [];
@@ -702,7 +697,8 @@
           }
         })
         return bodyUploadFiles;
-      },
+      }
+      ,
       editScenario() {
         this.$refs['currentScenario'].validate((valid) => {
           if (valid) {
@@ -714,15 +710,18 @@
               if (response.data) {
                 this.currentScenario.id = response.data.id;
               }
-              this.currentScenario.tagId = JSON.parse(this.currentScenario.tagId);
+              if (this.currentScenario.tags instanceof String) {
+                this.currentScenario.tags = JSON.parse(this.currentScenario.tags);
+              }
               this.$emit('refresh');
             })
           }
         })
-      },
+      }
+      ,
       getApiScenario() {
-        if (this.currentScenario.tagId != undefined && !(this.currentScenario.tagId instanceof Array)) {
-          this.currentScenario.tagId = JSON.parse(this.currentScenario.tagId);
+        if (this.currentScenario.tags != undefined && !(this.currentScenario.tags instanceof Array)) {
+          this.currentScenario.tags = JSON.parse(this.currentScenario.tags);
         }
         if (this.currentScenario.id) {
           this.result = this.$get("/api/automation/getApiScenario/" + this.currentScenario.id, response => {
@@ -743,7 +742,8 @@
             }
           })
         }
-      },
+      }
+      ,
       setParameter() {
         this.currentScenario.stepTotal = this.scenarioDefinition.length;
         this.currentScenario.projectId = getCurrentProjectID();
@@ -754,26 +754,30 @@
           type: "scenario", referenced: 'Created', environmentId: this.currentEnvironmentId, hashTree: this.scenarioDefinition
         };
         this.currentScenario.scenarioDefinition = scenario;
-        if (this.currentScenario.tagId instanceof Array) {
-          this.currentScenario.tagId = JSON.stringify(this.currentScenario.tagId);
+        if (this.currentScenario.tags instanceof Array) {
+          this.currentScenario.tags = JSON.stringify(this.currentScenario.tags);
         }
         if (this.currentModule != null) {
           this.currentScenario.modulePath = this.currentModule.method !== undefined ? this.currentModule.method : null;
           this.currentScenario.apiScenarioModuleId = this.currentModule.id;
         }
         this.currentScenario.projectId = this.projectId;
-      },
+      }
+      ,
       runRefresh() {
         this.debugVisible = true;
         this.loading = false;
-      },
+      }
+      ,
       showScenarioParameters() {
         this.$refs.scenarioParameters.open(this.currentScenario.variables);
-      },
+      }
+      ,
       addParameters(data) {
         this.currentScenario.variables = data;
         this.reload();
-      },
+      }
+      ,
       apiImport(importData) {
         if (importData && importData.data) {
           importData.data.forEach(item => {
@@ -939,4 +943,9 @@
     font-family: "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", Arial, sans-serif;
     font-size: 13px;
   }
+
+  /deep/ .el-form-item__content {
+    line-height: 100%;
+  }
+
 </style>

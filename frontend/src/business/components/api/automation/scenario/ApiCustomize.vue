@@ -2,7 +2,7 @@
   <div>
     <el-card>
       <el-form :model="request" :rules="rules" label-width="auto" ref="request">
-        <el-form-item :label="$t('api_test.request.assertions.script_name')" prop="name">
+        <el-form-item :label="$t('api_test.request.name')" prop="name">
           <el-input v-model="request.name" maxlength="200" show-word-limit size="small"/>
         </el-form-item>
         <el-form-item :label="$t('api_test.definition.api_type')" prop="protocol">
