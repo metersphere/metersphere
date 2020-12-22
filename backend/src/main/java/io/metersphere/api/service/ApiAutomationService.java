@@ -73,25 +73,6 @@ public class ApiAutomationService {
         List<ApiScenarioDTO> list = extApiScenarioMapper.list(request);
         ApiTagExample example = new ApiTagExample();
         example.createCriteria().andProjectIdEqualTo(request.getProjectId());
-        List<ApiTag> tags = apiTagMapper.selectByExample(example);
-        Map<String, String> tagMap = tags.stream().collect(Collectors.toMap(ApiTag::getId, ApiTag::getName));
-        Gson gs = new Gson();
-        list.forEach(item -> {
-            if (item.getTagId() != null) {
-                StringBuilder buf = new StringBuilder();
-                gs.fromJson(item.getTagId(), List.class).forEach(t -> {
-                    buf.append(tagMap.get(t));
-                    buf.append(",");
-                });
-                if (buf != null && buf.length() > 0) {
-                    String tagNames = buf.toString().substring(0, buf.toString().length() - 1);
-                    List<String> tagList = Arrays.asList(tagNames.split(","));
-                    item.setTagNames(tagList);
-                } else {
-                    item.setTagNames(new ArrayList<>());
-                }
-            }
-        });
         return list;
     }
 
