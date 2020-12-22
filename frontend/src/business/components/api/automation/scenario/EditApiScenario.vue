@@ -123,20 +123,20 @@
             <!-- 调试部分 -->
             <div class="ms-debug-div" @click="showAll">
               <el-row style="margin: 5px">
-                <el-col :span="6" class="ms-col-one">
+                <el-col :span="6" class="ms-col-one ms-font">
                   {{currentScenario.name ===undefined || ''? $t('api_test.scenario.name') : currentScenario.name}}
                 </el-col>
-                <el-col :span="3" class="ms-col-one">
+                <el-col :span="3" class="ms-col-one ms-font">
                   {{$t('api_test.automation.step_total')}}：{{scenarioDefinition.length}}
                 </el-col>
-                <el-col :span="3" class="ms-col-one">
+                <el-col :span="3" class="ms-col-one ms-font">
                   <el-link class="head" @click="showScenarioParameters">{{$t('api_test.automation.scenario_total')}}</el-link>
                   ：{{this.currentScenario.variables!=undefined?this.currentScenario.variables.length-1: 0}}
                 </el-col>
-                <el-col :span="3">
-                  <el-checkbox v-model="enableCookieShare" style="margin-top: 5px">{{ '共享cookie' }}</el-checkbox>
+                <el-col :span="3" class="ms-col-one ms-font">
+                  <el-checkbox v-model="enableCookieShare">{{ '共享cookie' }}</el-checkbox>
                 </el-col>
-                <el-col :span="7">
+                <el-col :span="7" class="ms-font">
                   {{$t('api_test.definition.request.run_env')}}:
                   <el-select v-model="currentEnvironmentId" size="small" class="ms-htt-width"
                              :placeholder="$t('api_test.definition.request.run_env')"
@@ -826,7 +826,12 @@
     margin-right: 10px;
     color: white;
   }
+  .ms-font{
+    color: #303133;
+    font-family: "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", Arial, sans-serif;
+    font-size: 13px;
 
+  }
   .ms-col-one {
     margin-top: 6px;
   }
@@ -912,8 +917,14 @@
     margin-bottom: 0px;
   }
 
+  /deep/ .el-link {
+    font-weight: normal;
+  }
+
   .head {
-    border-bottom: 1px solid #474849;
+    border-bottom: 1px solid #303133;
+    color: #303133;
+    font-family: "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", Arial, sans-serif;
     font-size: 13px;
   }
 </style>
