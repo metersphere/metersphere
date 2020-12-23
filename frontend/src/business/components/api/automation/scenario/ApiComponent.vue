@@ -5,15 +5,22 @@
         <div class="el-step__icon is-text ms-api-col" v-if="request.referenced!=undefined && request.referenced==='Deleted' || request.referenced=='REF' || request.referenced==='Copy'">
           <div class="el-step__icon-inner">{{request.index}}</div>
         </div>
+        <div class="el-step__icon is-text ms-api-col-ot-import" v-else-if="request.referenced!=undefined && request.referenced==='OT_IMPORT'">
+          <div class="el-step__icon-inner">{{request.index}}</div>
+        </div>
         <div class="el-step__icon is-text ms-api-col-create" v-else>
           <div class="el-step__icon-inner">{{request.index}}</div>
         </div>
 
-        <el-button v-if="request.referenced!=undefined && request.referenced==='Deleted' || request.referenced=='REF'  || request.referenced==='Copy'" class="ms-left-buttion" size="small">
+        <el-button v-if="request.referenced!=undefined && request.referenced==='Deleted' || request.referenced=='REF'  || request.referenced==='Copy'" class="ms-left-button" size="small">
           {{$t('api_test.automation.api_list_import')}}
         </el-button>
 
-        <el-button v-if="request.referenced==undefined || request.referenced==='Created' " class="ms-create-buttion" size="small">
+        <el-button v-if="request.referenced!=undefined && request.referenced==='OT_IMPORT'" class="ms-api-col-ot-import-button" size="small">
+          {{$t('api_test.automation.external_import')}}
+        </el-button>
+
+        <el-button v-if="request.referenced==undefined || request.referenced==='Created' " class="ms-create-button" size="small">
           {{$t('api_test.automation.customize_req')}}
         </el-button>
 
@@ -196,7 +203,7 @@
     color: #F56C6C;
   }
 
-  .ms-left-buttion {
+  .ms-left-button {
     color: #F56C6C;
     background-color: #FCF1F1;
     margin-right: 20px;
@@ -209,6 +216,19 @@
     color: #008080;
   }
 
+  .ms-api-col-ot-import {
+    background-color: #EEF5FE;
+    border-color: #409EFF;
+    margin-right: 10px;
+    color: #409EFF;
+  }
+
+  .ms-api-col-ot-import-button {
+    background-color: #EEF5FE;
+    margin-right: 20px;
+    color: #409EFF;
+  }
+
   /deep/ .el-card__body {
     padding: 15px;
   }
@@ -217,7 +237,7 @@
     transform: rotate(90deg);
   }
 
-  .ms-create-buttion {
+  .ms-create-button {
     color: #008080;
     background-color: #EBF2F2;
     margin-right: 20px;

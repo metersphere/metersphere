@@ -110,16 +110,19 @@
         </el-table>
       </el-col>
     </el-row>
-<!--    <notice-template v-xpack ref="noticeTemplate"/>-->
+    <notice-template v-xpack ref="noticeTemplate"/>
   </div>
 </template>
 
 <script>
 import {hasLicense} from "@/common/js/utils";
+const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
+const noticeTemplate = requireComponent.keys().length > 0 ? requireComponent("./notice/NoticeTemplate.vue") : {};
 
 export default {
   name: "ScheduleNotification",
   components: {
+    "NoticeTemplate": noticeTemplate.default
   },
   props: {
     testId: String,

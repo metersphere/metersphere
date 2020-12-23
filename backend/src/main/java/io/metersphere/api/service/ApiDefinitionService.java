@@ -392,7 +392,7 @@ public class ApiDefinitionService {
         QueryTestPlanRequest planRequest = new QueryTestPlanRequest();
         planRequest.setApiId(request.getId());
         planRequest.setProjectId(request.getProjectId());
-        dto.setTestPlanList(extTestPlanMapper.selectReference(planRequest));
+        dto.setTestPlanList(extTestPlanMapper.selectTestPlanByRelevancy(planRequest));
         return dto;
     }
 

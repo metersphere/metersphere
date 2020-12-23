@@ -172,9 +172,9 @@
               }
             }
             this.apiCaseList = response.data;
-            // if (this.apiCaseList.length == 0) {
-            //   this.addCase();
-            // }
+            if (this.apiCaseList.length == 0 && !this.loaded) {
+              this.addCase();
+            }
           });
         }
       },
