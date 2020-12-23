@@ -31,14 +31,14 @@
 
 <style scoped>
 
-  ms-input-tag-wrapper >>> .vue-input-tag-wrapper {
+  .ms-input-tag-wrapper >>> .vue-input-tag-wrapper {
     border-radius: 2px;
     border: 1px solid #a5d24a;
     color: #909399;
     display: inline-block;
   }
 
-  ms-input-remove >>> .remove {
+  .ms-input-remove >>> .remove {
     color: #909399;
   }
 

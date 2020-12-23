@@ -182,42 +182,19 @@
           </el-col>
           <!-- 按钮列表 -->
           <div>
-            <el-col :span="3" class="ms-left-cell">
-              <el-button type="primary" icon="el-icon-refresh" size="small" @click="showAll">{{$t('commons.show_all')}}</el-button>
-              <br/>
-              <div v-if="operatingElements.indexOf('HTTPSamplerProxy')!=-1 || operatingElements.indexOf('DubboSampler')!=-1 || operatingElements.indexOf('JDBCSampler')!=-1 || operatingElements.indexOf('TCPSampler')!=-1 ">
-                <el-button class="ms-right-buttion ms-btn-1" size="small" @click="apiListImport">+{{$t('api_test.automation.api_list_import')}}</el-button>
-              </div>
-              <div v-if="operatingElements.indexOf('OT_IMPORT')!=-1">
-                <el-button class="ms-right-buttion" size="small" style="color: #409EFF;background-color: #EEF5FE" @click="addComponent('OT_IMPORT')">+{{$t('api_test.automation.external_import')}}</el-button>
-              </div>
-              <div v-if="operatingElements.indexOf('ConstantTimer')!=-1">
-                <el-button class="ms-right-buttion ms-btn-3" size="small" @click="addComponent('ConstantTimer')">+{{$t('api_test.automation.wait_controller')}}</el-button>
-              </div>
-              <div v-if="operatingElements.indexOf('IfController')!=-1">
-                <el-button class="ms-right-buttion ms-btn-4" size="small" @click="addComponent('IfController')">+{{$t('api_test.automation.if_controller')}}</el-button>
-              </div>
-              <div v-if="operatingElements.indexOf('scenario')===0">
-                <el-button class="ms-right-buttion ms-btn-5" size="small" @click="addComponent('scenario')">+{{$t('api_test.automation.scenario_import')}}</el-button>
-              </div>
-              <div v-if="operatingElements.indexOf('JSR223Processor')!=-1">
-                <el-button class="ms-right-buttion ms-btn-6" size="small" @click="addComponent('JSR223Processor')">+{{$t('api_test.automation.customize_script')}}</el-button>
-              </div>
-              <div v-if="operatingElements.indexOf('CustomizeReq')!=-1">
-                <el-button class="ms-right-buttion ms-btn-7" size="small" @click="addComponent('CustomizeReq')">+{{$t('api_test.automation.customize_req')}}</el-button>
-              </div>
-              <div v-if="operatingElements.indexOf('JSR223PreProcessor')!=-1">
-                <el-button class="ms-right-buttion ms-btn-8" size="small" @click="addComponent('JSR223PreProcessor')">+{{$t('api_test.definition.request.pre_script')}}</el-button>
-              </div>
-              <div v-if="operatingElements.indexOf('JSR223PostProcessor')!=-1">
-                <el-button class="ms-right-buttion ms-btn-9" size="small" @click="addComponent('JSR223PostProcessor')">+{{$t('api_test.definition.request.post_script')}}</el-button>
-              </div>
-              <div v-if="operatingElements.indexOf('Assertions')!=-1">
-                <el-button class="ms-right-buttion ms-btn-10" size="small" @click="addComponent('Assertions')">+{{$t('api_test.definition.request.assertions_rule')}}</el-button>
-              </div>
-              <div v-if="operatingElements.indexOf('Extract')!=-1">
-                <el-button class="ms-right-buttion ms-btn-11" size="small" @click="addComponent('Extract')">+{{$t('api_test.definition.request.extract_param')}}</el-button>
-              </div>
+            <el-col :span="3">
+              <vue-fab id="fab" mainBtnColor="#783887" :click-auto-close="false">
+                <fab-item
+                  v-for="(item, index) in buttons"
+                  :key="index"
+                  :idx="getIdx(index)"
+                  :title="item.title"
+                  :title-bg-color="item.titleBgColor"
+                  :title-color="item.titleColor"
+                  :color="item.titleColor"
+                  :icon="item.icon"
+                  @clickItem="item.click"/>
+              </vue-fab>
             </el-col>
           </div>
         </el-row>
@@ -282,6 +259,7 @@
   import MsScenarioParameters from "./ScenarioParameters";
   import ApiImport from "../../definition/components/import/ApiImport";
   import InputTag from 'vue-input-tag'
+  import "@/common/css/material-icons.css"
 
   export default {
     name: "EditApiScenario",
@@ -363,7 +341,123 @@
     ,
     watch: {}
     ,
+    computed: {
+      buttons() {
+        let buttons = [
+          {
+            title: this.$t('api_test.automation.api_list_import'),
+            show: this.showButton("HTTPSamplerProxy", "DubboSampler", "JDBCSampler", "TCPSampler"),
+            titleColor: "#F56C6C",
+            titleBgColor: "#FCF1F1",
+            icon: "api",
+            click: this.apiListImport
+          }, {
+            title: this.$t('api_test.automation.external_import'),
+            show: this.showButton("OT_IMPORT"),
+            titleColor: "#409EFF",
+            titleBgColor: "#EEF5FE",
+            icon: "next_plan",
+            click: () => {
+              this.addComponent('OT_IMPORT')
+            }
+          }, {
+            title: this.$t('api_test.automation.wait_controller'),
+            show: this.showButton("ConstantTimer"),
+            titleColor: "#67C23A",
+            titleBgColor: "#F2F9EE",
+            icon: "access_time",
+            click: () => {
+              this.addComponent('ConstantTimer')
+            }
+          }, {
+            title: this.$t('api_test.automation.if_controller'),
+            show: this.showButton("IfController"),
+            titleColor: "#E6A23C",
+            titleBgColor: "#FCF6EE",
+            icon: "alt_route",
+            click: () => {
+              this.addComponent('IfController')
+            }
+          }, {
+            title: this.$t('api_test.automation.scenario_import'),
+            show: this.operatingElements.indexOf('scenario') === 0,
+            titleColor: "#606266",
+            titleBgColor: "#F4F4F5",
+            icon: "movie",
+            click: () => {
+              this.addComponent('scenario')
+            }
+          }, {
+            title: this.$t('api_test.automation.customize_script'),
+            show: this.showButton("JSR223Processor"),
+            titleColor: "#7B4D12",
+            titleBgColor: "#F1EEE9",
+            icon: "code",
+            click: () => {
+              this.addComponent('JSR223Processor')
+            }
+          }, {
+            title: this.$t('api_test.automation.customize_req'),
+            show: this.showButton("CustomizeReq"),
+            titleColor: "#008080",
+            titleBgColor: "#EBF2F2",
+            icon: "tune",
+            click: () => {
+              this.addComponent('CustomizeReq')
+            }
+          }, {
+            title: this.$t('api_test.definition.request.pre_script'),
+            show: this.showButton("JSR223PreProcessor"),
+            titleColor: "#B8741A",
+            titleBgColor: "#F9F1EA",
+            icon: "skip_previous",
+            click: () => {
+              this.addComponent('JSR223PreProcessor')
+            }
+          }, {
+            title: this.$t('api_test.definition.request.post_script'),
+            show: this.showButton("JSR223PostProcessor"),
+            titleColor: "#783887",
+            titleBgColor: "#F2ECF3",
+            icon: "skip_next",
+            click: () => {
+              this.addComponent('JSR223PostProcessor')
+            }
+          }, {
+            title: this.$t('api_test.definition.request.assertions_rule'),
+            show: this.showButton("Assertions"),
+            titleColor: "#A30014",
+            titleBgColor: "#F7E6E9",
+            icon: "fact_check",
+            click: () => {
+              this.addComponent('Assertions')
+            }
+          }, {
+            title: this.$t('api_test.definition.request.extract_param'),
+            show: this.showButton("Extract"),
+            titleColor: "#015478",
+            titleBgColor: "#E6EEF2",
+            icon: "colorize",
+            click: () => {
+              this.addComponent('Extract')
+            }
+          }
+        ];
+        return buttons.filter(btn => btn.show);
+      }
+    },
     methods: {
+      getIdx(index) {
+        return -1 * index - 2.25; // 为了向下展示菜单
+      },
+      showButton(...names) {
+        for (const name of names) {
+          if (this.operatingElements.includes(name)) {
+            return true;
+          }
+        }
+        return false;
+      },
       addComponent(type) {
         switch (type) {
           case ELEMENT_TYPE.IfController:
@@ -842,63 +936,10 @@
     margin-top: 5px;
   }
 
-  .ms-right-buttion {
-    margin-top: 10px;
-  }
-
-  .ms-btn-1 {
-    color: #F56C6C;
-    background-color: #FCF1F1
-  }
-
-  .ms-btn-2 {
-    color: #F56C6C;
-    background-color: #FCF1F1
-  }
-
-  .ms-btn-3 {
-    color: #67C23A;
-    background-color: #F2F9EE
-  }
-
-  .ms-btn-4 {
-    color: #E6A23C;
-    background-color: #FCF6EE
-  }
-
-  .ms-btn-5 {
-    color: #606266;
-    background-color: #F4F4F5
-  }
-
-  .ms-btn-6 {
-    color: #7B4D12;
-    background-color: #F1EEE9
-  }
-
-  .ms-btn-7 {
-    color: #008080;
-    background-color: #EBF2F2
-  }
-
-  .ms-btn-8 {
-    color: #B8741A;
-    background-color: #F9F1EA
-  }
-
-  .ms-btn-9 {
-    color: #783887;
-    background-color: #F2ECF3
-  }
-
-  .ms-btn-10 {
-    color: #A30014;
-    background-color: #F7E6E9
-  }
-
-  .ms-btn-11 {
-    color: #015478;
-    background-color: #E6EEF2
+  #fab {
+    bottom: unset;
+    right: 90px;
+    z-index: 5;
   }
 
   /deep/ .el-tree-node__content {
@@ -944,5 +985,4 @@
     font-family: "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", Arial, sans-serif;
     font-size: 13px;
   }
-
 </style>

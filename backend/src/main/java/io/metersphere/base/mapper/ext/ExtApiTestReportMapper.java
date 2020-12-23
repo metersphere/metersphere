@@ -18,7 +18,7 @@ public interface ExtApiTestReportMapper {
 
     List<DashboardTestDTO> selectDashboardTests(@Param("workspaceId") String workspaceId, @Param("startTimestamp") long startTimestamp);
 
-    List<ApiDataCountResult> countByWorkspaceIdAndGroupGroupByExecuteResult(@Param("workspaceID") String workspaceID, @Param("group")String group);
+    List<ApiDataCountResult> countByProjectIdGroupByExecuteResult(String projectId);
 
-    long countByProjectIDAndCreateInThisWeek(@Param("workspaceID") String workspaceID, @Param("group")String group, @Param("startTime") long startTime, @Param("endTime")long endTime);
+    long countByProjectIDAndCreateInThisWeek(@Param("projectId") String projectId, @Param("startTime") long startTime, @Param("endTime")long endTime);
 }

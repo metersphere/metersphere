@@ -248,7 +248,7 @@
         let arr = Array.from(this.selectRows);
         // 选中1个以上的用例时显示更多操作
         if (this.selectRows.size === 1) {
-          this.$set(arr[0], "showMore", false);
+          this.$set(arr[0], "showMore", true);
         } else if (this.selectRows.size === 2) {
           arr.forEach(row => {
             this.$set(row, "showMore", true);

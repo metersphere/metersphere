@@ -254,7 +254,7 @@ public class APITestController {
          * */
         long dateCountByCreateInThisWeek = apiAutomationService.countScenarioByProjectIDAndCreatInThisWeek(projectId);
         apiCountResult.setThisWeekAddedCount(dateCountByCreateInThisWeek);
-        long executedInThisWeekCountNumber = apiScenarioReportService.countByProjectIDAndCreateInThisWeek(projectId);
+        long executedInThisWeekCountNumber = apiScenarioReportService.countByProjectIdAndCreateInThisWeek(projectId);
         apiCountResult.setThisWeekExecutedCount(executedInThisWeekCountNumber);
         long executedCountNumber = apiScenarioReportService.countByProjectID(projectId);
         apiCountResult.setExecutedCount(executedCountNumber);
@@ -275,21 +275,27 @@ public class APITestController {
 
     }
 
-    @GetMapping("/scheduleTaskInfoCount/{workSpaceID}")
-    public ApiDataCountDTO scheduleTaskInfoCount(@PathVariable String workSpaceID) {
+    @GetMapping("/scheduleTaskInfoCount/{projectId}")
+    public ApiDataCountDTO scheduleTaskInfoCount(@PathVariable String projectId) {
         ApiDataCountDTO apiCountResult = new ApiDataCountDTO();
 
-        long allTaskCount = scheduleService.countTaskByWorkspaceIdAndGroup(workSpaceID,ScheduleGroup.API_TEST.name());
+        long allTaskCount = scheduleService.countTaskByProjectId(projectId);
 
         apiCountResult.setAllApiDataCountNumber(allTaskCount);
 
-        long taskCountInThisWeek = scheduleService.countTaskByWorkspaceIdAndGroupInThisWeek(workSpaceID,ScheduleGroup.API_TEST.name());
+        long taskCountInThisWeek = scheduleService.countTaskByProjectIdInThisWeek(projectId);
         apiCountResult.setThisWeekAddedCount(taskCountInThisWeek);
-        long executedInThisWeekCountNumber = apiReportService.countByWorkspaceIdAndGroupAndCreateInThisWeek(workSpaceID,ScheduleGroup.API_TEST.name());
+        long api_executedInThisWeekCountNumber = apiReportService.countByProjectIdAndCreateInThisWeek(projectId);
+        long scene_executedInThisWeekCountNumber = apiScenarioReportService.countByProjectIdAndCreateAndByScheduleInThisWeek(projectId);
+        long executedInThisWeekCountNumber = api_executedInThisWeekCountNumber+scene_executedInThisWeekCountNumber;
         apiCountResult.setThisWeekExecutedCount(executedInThisWeekCountNumber);
 
         //统计 失败 成功 以及总数
-        List<ApiDataCountResult> allExecuteResult = apiReportService.countByWorkspaceIdAndGroupGroupByExecuteResult(workSpaceID,ScheduleGroup.API_TEST.name());
+        List<ApiDataCountResult> api_allExecuteResult = apiReportService.countByProjectIdGroupByExecuteResult(projectId);
+        List<ApiDataCountResult> scene_allExecuteResult = apiScenarioReportService.countByProjectIdGroupByExecuteResult(projectId);
+        List<ApiDataCountResult> allExecuteResult = new ArrayList<>();
+        allExecuteResult.addAll(api_allExecuteResult);
+        allExecuteResult.addAll(scene_allExecuteResult);
         apiCountResult.countScheduleExecute(allExecuteResult);
 
         long allCount = apiCountResult.getExecutedCount();
@@ -330,10 +336,10 @@ public class APITestController {
         return  returnList;
     }
 
-    @GetMapping("/runningTask/{workspaceID}")
-    public List<TaskInfoResult> runningTask(@PathVariable String workspaceID) {
+    @GetMapping("/runningTask/{projectID}")
+    public List<TaskInfoResult> runningTask(@PathVariable String projectID) {
 
-        List<TaskInfoResult> resultList = scheduleService.findRunningTaskInfoByWorkspaceID(workspaceID);
+        List<TaskInfoResult> resultList = scheduleService.findRunningTaskInfoByProjectID(projectID);
         for (TaskInfoResult taskInfo :
                 resultList) {
             Date nextExecutionTime = CronUtils.getNextTriggerTime(taskInfo.getRule());

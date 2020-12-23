@@ -7,12 +7,8 @@
         </div>
         <div v-else-if="dateType==='2'">
           <el-link href="https://github.com/metersphere/metersphere/issues" target="_blank" type="primary">😔觉得MeterSphere不好用就来https://github.com/metersphere/metersphere/issues吐个槽吧！</el-link>
-<!--          <el-link href="https://jmeter.apache.org/usermanual/component_reference.html#BeanShell_PostProcessor"-->
-<!--                   type="primary">{{$t('commons.reference_documentation')}}-->
-<!--          </el-link>-->
         </div>
         <div v-else-if="dateType==='3'">
-<!--          <el-link :herf="'https://github.com/metersphere/metersphere/issues'"  target="_blank"></el-link>-->
           <el-link href="https://github.com/metersphere/metersphere"  target="_blank" type="primary">😄觉得MeterSphere好用就来 https://github.com/metersphere/metersphere 点个star吧！</el-link>
         </div>
         <div v-else>
@@ -58,21 +54,15 @@ import MsSceneInfoCard from "./components/SceneInfoCard";
 import MsScheduleTaskInfoCard from "./components/ScheduleTaskInfoCard";
 import MsTestCaseInfoCard from "./components/TestCaseInfoCard";
 
-// import MsApiDetailCard from "./components/ApiDetailCard";
-// import MsSceneDetailCard from "./components/SceneDetailCard";
-// import MsScheduleTaskDetailCard from "./components/ScheduleTaskDetailCard";
-// import MsTestCaseDetailCard from "./components/TestCaseDetailCard";
-
 import MsFailureTestCaseList from "./components/FailureTestCaseList";
 import MsRunningTaskList from "./components/RunningTaskList"
-import {getCurrentProjectID,getCurrentWorkspaceId} from "@/common/js/utils";
+import {getCurrentProjectID} from "@/common/js/utils";
 
 export default {
   name: "ApiTestHomePage",
 
   components: {
     MsApiInfoCard, MsSceneInfoCard, MsScheduleTaskInfoCard, MsTestCaseInfoCard,
-    // MsApiDetailCard, MsSceneDetailCard, MsScheduleTaskDetailCard, MsTestCaseDetailCard,
     MsFailureTestCaseList,MsRunningTaskList,
     MsMainContainer, MsContainer
   },
@@ -121,8 +111,8 @@ export default {
       });
 
 
-      let workSpaceID = getCurrentWorkspaceId();
-      this.$get("/api/scheduleTaskInfoCount/"+workSpaceID, response => {
+      // let workSpaceID = getCurrentWorkspaceId();
+      this.$get("/api/scheduleTaskInfoCount/"+selectProjectId, response => {
         this.scheduleTaskCountData = response.data;
       });
     },
