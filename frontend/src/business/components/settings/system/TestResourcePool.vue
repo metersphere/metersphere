@@ -75,7 +75,7 @@
           <div class="node-line" v-if="form.type === 'K8S'" v-xpack>
             <el-row>
               <el-col>
-                <el-form-item prop="masterUrl" label="Master URL"
+                <el-form-item label="Master URL"
                               :rules="requiredRules">
                   <el-input v-model="item.masterUrl" autocomplete="new-password"/>
                 </el-form-item>
@@ -83,7 +83,7 @@
             </el-row>
             <el-row>
               <el-col>
-                <el-form-item prop="password" label="Token"
+                <el-form-item label="Token"
                               :rules="requiredRules">
                   <el-input v-model="item.token" type="password" show-password autocomplete="new-password"/>
                 </el-form-item>
@@ -91,7 +91,7 @@
             </el-row>
             <el-row>
               <el-col>
-                <el-form-item prop="maxConcurrency" :label="$t('test_resource_pool.max_threads')"
+                <el-form-item :label="$t('test_resource_pool.max_threads')"
                               :rules="requiredRules">
                   <el-input-number v-model="item.maxConcurrency" :min="1" :max="1000000000"/>
                 </el-form-item>
@@ -101,18 +101,18 @@
           <div class="node-line" v-if="form.type === 'NODE'">
             <el-row>
               <el-col :span="8">
-                <el-form-item prop="ip" label="IP" :rules="requiredRules">
+                <el-form-item label="IP" :rules="requiredRules">
                   <el-input v-model="item.ip" autocomplete="off"/>
                 </el-form-item>
               </el-col>
               <el-col :span="6">
-                <el-form-item prop="port" label="Port" style="padding-left: 20px"
+                <el-form-item label="Port" style="padding-left: 20px"
                               :rules="requiredRules">
                   <el-input-number v-model="item.port" :min="1" :max="65535"></el-input-number>
                 </el-form-item>
               </el-col>
               <el-col :span="6">
-                <el-form-item prop="maxConcurrency" :label="$t('test_resource_pool.max_threads')"
+                <el-form-item :label="$t('test_resource_pool.max_threads')"
                               :rules="requiredRules"
                               style="padding-left: 20px">
                   <el-input-number v-model="item.maxConcurrency" :min="1" :max="1000000000"></el-input-number>
@@ -170,7 +170,7 @@
           <div class="node-line" v-if="form.type === 'K8S'" v-xpack>
             <el-row>
               <el-col>
-                <el-form-item prop="masterUrl" label="Master URL"
+                <el-form-item label="Master URL"
                               :rules="requiredRules">
                   <el-input v-model="item.masterUrl" autocomplete="off"/>
                 </el-form-item>
@@ -178,7 +178,7 @@
             </el-row>
             <el-row>
               <el-col>
-                <el-form-item prop="password" label="Token"
+                <el-form-item label="Token"
                               :rules="requiredRules">
                   <el-input v-model="item.token" type="password" show-password autocomplete="off"/>
                 </el-form-item>
@@ -186,7 +186,7 @@
             </el-row>
             <el-row>
               <el-col>
-                <el-form-item prop="maxConcurrency" :label="$t('test_resource_pool.max_threads')"
+                <el-form-item :label="$t('test_resource_pool.max_threads')"
                               :rules="requiredRules">
                   <el-input-number v-model="item.maxConcurrency" :min="1" :max="1000000000"></el-input-number>
                 </el-form-item>
@@ -196,18 +196,18 @@
           <div class="node-line" v-if="form.type === 'NODE'">
             <el-row>
               <el-col :span="8">
-                <el-form-item prop="ip" label="IP" :rules="requiredRules">
+                <el-form-item label="IP" :rules="requiredRules">
                   <el-input v-model="item.ip" autocomplete="off"/>
                 </el-form-item>
               </el-col>
               <el-col :span="6">
-                <el-form-item prop="port" label="Port" style="padding-left: 20px"
+                <el-form-item label="Port" style="padding-left: 20px"
                               :rules="requiredRules">
                   <el-input-number v-model="item.port" :min="1" :max="65535"></el-input-number>
                 </el-form-item>
               </el-col>
               <el-col :span="6">
-                <el-form-item prop="maxConcurrency" :label="$t('test_resource_pool.max_threads')"
+                <el-form-item :label="$t('test_resource_pool.max_threads')"
                               :rules="requiredRules"
                               style="padding-left: 20px">
                   <el-input-number v-model="item.maxConcurrency" :min="1" :max="1000000000"></el-input-number>
