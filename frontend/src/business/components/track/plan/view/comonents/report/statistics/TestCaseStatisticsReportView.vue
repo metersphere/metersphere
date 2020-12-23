@@ -1,36 +1,35 @@
 <template>
-  <div>
+  <div v-loading="result.loading">
+    <el-row type="flex" class="head-bar">
+      <el-col :span="12">
+      </el-col>
 
-        <el-row type="flex" class="head-bar">
-          <el-col :span="12">
-          </el-col>
+      <el-col v-if="!reportId" :span="11" class="head-right">
+        <el-button :disabled="!isTestManagerOrTestUser" plain size="mini" @click="openTemplateReport">
+          {{$t('test_track.plan_view.create_report')}}
+        </el-button>
+      </el-col>
 
-          <el-col v-if="!reportId" :span="12" class="head-right">
-            <el-button :disabled="!isTestManagerOrTestUser" plain size="mini" @click="openTemplateReport">
-              {{$t('test_track.plan_view.create_report')}}
-            </el-button>
-          </el-col>
+      <el-col v-else :span="11" class="head-right">
+        <el-button :disabled="!isTestManagerOrTestUser" plain size="mini" @click="handleSave">
+          {{$t('commons.save')}}
+        </el-button>
+        <el-button :disabled="!isTestManagerOrTestUser" plain size="mini" @click="handleEdit">
+          {{$t('test_track.plan_view.edit_component')}}
+        </el-button>
+        <el-button :disabled="!isTestManagerOrTestUser" plain size="mini" @click="handleExport(report.name)">
+          {{$t('test_track.plan_view.export_report')}}
+        </el-button>
+      </el-col>
+    </el-row>
 
-          <el-col v-else :span="12" class="head-right">
-            <el-button :disabled="!isTestManagerOrTestUser" plain size="mini" @click="handleSave">
-              {{$t('commons.save')}}
-            </el-button>
-            <el-button :disabled="!isTestManagerOrTestUser" plain size="mini" @click="handleEdit">
-              {{$t('test_track.plan_view.edit_component')}}
-            </el-button>
-            <el-button :disabled="!isTestManagerOrTestUser" plain size="mini" @click="handleExport(report.name)">
-              {{$t('test_track.plan_view.export_report')}}
-            </el-button>
-          </el-col>
-        </el-row>
-
-        <div class="container" ref="resume" id="app">
-          <el-main>
-            <div v-for="(item, index) in previews" :key="item.id">
-              <template-component :isReportView="true" :metric="metric" :preview="item" :index="index" ref="templateComponent"/>
-            </div>
-          </el-main>
+    <div class="container" ref="resume" id="app">
+      <el-main>
+        <div v-for="(item, index) in previews" :key="item.id">
+          <template-component :isReportView="true" :metric="metric" :preview="item" :index="index" ref="templateComponent"/>
         </div>
+      </el-main>
+    </div>
 
     <test-report-template-list @openReport="openReport" ref="testReportTemplateList"/>
 
@@ -227,12 +226,13 @@
   }
 
   .head-bar {
-    background: white;
-    height: 45px;
-    line-height: 45px;
-    padding: 0 10px;
-    border: 1px solid #EBEEF5;
-    box-shadow: 0 0 2px 0 rgba(31, 31, 31, 0.15), 0 1px 2px 0 rgba(31, 31, 31, 0.15);
+    /*background: white;*/
+    /*height: 45px;*/
+    /*line-height: 45px;*/
+    /*padding-left: 10px;*/
+    /*padding: 0 10px;*/
+    /*border: 1px solid #EBEEF5;*/
+    /*box-shadow: 0 0 2px 0 rgba(31, 31, 31, 0.15), 0 1px 2px 0 rgba(31, 31, 31, 0.15);*/
   }
 
   .container {
@@ -247,6 +247,19 @@
 
   .head-right {
     text-align: right;
+
   }
+
+  .head-bar .el-button {
+    margin-bottom: 10px;
+    width: 80px;
+  }
+
+  .head-bar {
+    position: fixed;
+    right: 10px;
+    padding: 20px;
+  }
+
 
 </style>

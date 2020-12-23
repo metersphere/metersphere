@@ -2,25 +2,25 @@
 
   <common-component :title="$t('test_track.plan_view.result_statistics')">
 
-    <template>
+    <div :class="{'show-one': isShowOne}">
 
-      <div class="char-item">
+      <div class="char-item" v-if="showFunctional">
         <ms-pie-chart v-if="isShow" :text="'功能测试用例'"
                       :name="$t('test_track.plan_view.test_result')" :data="functionalCharData"/>
       </div>
 
-      <div class="char-item">
+      <div class="char-item" v-if="showApi">
         <ms-pie-chart v-if="isShow" :text="'接口测试用例'"
                       :name="$t('test_track.plan_view.test_result')" :data="apiCharData"/>
       </div>
 
-      <div class="char-item">
+      <div class="char-item"  v-if="showScenario">
         <ms-pie-chart v-if="isShow" :text="'场景测试用例'"
                       :name="$t('test_track.plan_view.test_result')" :data="scenarioCharData"/>
       </div>
 
 
-    </template>
+    </div>
 
   </common-component>
 
@@ -76,6 +76,30 @@
           }
         }
       },
+     computed: {
+       showFunctional() {
+         return this.executeResult.functionalResult.length > 0 || (this.executeResult.apiResult.length <= 0 && this.executeResult.scenarioResult.length <= 0);
+       },
+       showApi() {
+         return this.executeResult.apiResult.length > 0;
+       },
+       showScenario() {
+         return this.executeResult.scenarioResult.length > 0;
+       },
+       isShowOne() {
+         let count = 0;
+         if (this.showFunctional) {
+           count++;
+         }
+         if (this.showApi) {
+           count++;
+         }
+         if (this.showScenario) {
+           count++;
+         }
+         return count === 1;
+       }
+     },
       watch: {
         executeResult() {
           this.getCharData();
@@ -139,6 +163,10 @@
 
   .char-item {
     display: inline-block;
+  }
+
+  .show-one .char-item {
+    display: block;
   }
 
 </style>
