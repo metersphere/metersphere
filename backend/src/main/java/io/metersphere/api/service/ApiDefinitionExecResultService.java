@@ -29,8 +29,6 @@ public class ApiDefinitionExecResultService {
 
     public void saveApiResult(TestResult result, String type) {
         result.getScenarios().get(0).getRequestResults().forEach(item -> {
-            // 清理原始资源，每个执行 保留一条结果
-            extApiDefinitionExecResultMapper.deleteByResourceId(item.getName());
             ApiDefinitionExecResult saveResult = new ApiDefinitionExecResult();
             saveResult.setId(UUID.randomUUID().toString());
             saveResult.setCreateTime(System.currentTimeMillis());
