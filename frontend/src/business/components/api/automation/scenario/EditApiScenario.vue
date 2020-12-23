@@ -945,8 +945,4 @@
     font-size: 13px;
   }
 
-  /deep/ .el-form-item__content {
-    line-height: 100%;
-  }
-
 </style>

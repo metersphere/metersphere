@@ -15,7 +15,7 @@ public class KeyValue {
     private List<BodyFile> files;
     private String description;
     private String contentType;
-    private boolean enable;
+    private boolean enable = true;
     private boolean encode = true;
     private boolean required;
 

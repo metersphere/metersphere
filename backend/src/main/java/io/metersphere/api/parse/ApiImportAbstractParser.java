@@ -20,6 +20,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
@@ -72,7 +73,7 @@ public abstract class ApiImportAbstractParser implements ApiImportParser {
     protected ApiDefinitionResult buildApiDefinition(String id, String name, String path, String method) {
         ApiDefinitionResult apiDefinition = new ApiDefinitionResult();
         apiDefinition.setName(name);
-        apiDefinition.setPath(path);
+        apiDefinition.setPath(formatPath(path));
         apiDefinition.setProtocol(RequestType.HTTP);
         apiDefinition.setMethod(method);
         apiDefinition.setId(id);
@@ -81,17 +82,34 @@ public abstract class ApiImportAbstractParser implements ApiImportParser {
         return apiDefinition;
     }
 
+    private String formatPath(String url) {
+        try {
+            URL urlObject = new URL(url);
+            StringBuffer pathBuffer = new StringBuffer(urlObject.getPath());
+            if (StringUtils.isNotEmpty(urlObject.getQuery())) {
+                pathBuffer.append("?").append(urlObject.getQuery());
+            }
+            return pathBuffer.toString();
+        } catch (Exception ex) {
+            return url;
+        }
+    }
+
     protected MsHTTPSamplerProxy buildRequest(String name, String path, String method) {
         MsHTTPSamplerProxy request = new MsHTTPSamplerProxy();
         request.setName(name);
-        request.setPath(path);
+        // 路径去掉域名/IP 地址，保留方法名称及参数
+        request.setPath(formatPath(path));
         request.setMethod(method);
         request.setProtocol(RequestType.HTTP);
         request.setId(UUID.randomUUID().toString());
         request.setHeaders(new ArrayList<>());
         request.setArguments(new ArrayList<>());
         request.setRest(new ArrayList<>());
-        request.setBody(new Body());
+        Body body = new Body();
+        body.initKvs();
+        body.initBinary();
+        request.setBody(body);
         return request;
     }
 

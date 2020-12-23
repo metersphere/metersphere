@@ -98,11 +98,14 @@ public class Body {
         return StringUtils.equals(type, XML);
     }
 
-    public boolean isWwwFROM() {
-        return StringUtils.equals(type, WWW_FROM);
+    public void initKvs() {
+        this.kvs = new ArrayList<>();
+        this.kvs.add(new KeyValue());
     }
 
-    public boolean isFromData() {
-        return StringUtils.equals(type, FORM_DATA);
+    public void initBinary() {
+        this.binary = new ArrayList<>();
+        this.binary.add(new KeyValue());
     }
+
 }
