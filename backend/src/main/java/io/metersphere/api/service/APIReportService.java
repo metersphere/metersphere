@@ -212,7 +212,7 @@ public class APIReportService {
         apiTestReportMapper.deleteByExample(apiTestReportExample);
     }
 
-    public long countByWorkspaceIdAndGroupAndCreateInThisWeek(String workspaceID, String group) {
+    public long countByProjectIdAndCreateInThisWeek(String projectId) {
         Map<String, Date> startAndEndDateInWeek = DateUtils.getWeedFirstTimeAndLastTime(new Date());
 
         Date firstTime = startAndEndDateInWeek.get("firstTime");
@@ -221,11 +221,11 @@ public class APIReportService {
         if(firstTime==null || lastTime == null){
             return  0;
         }else {
-            return extApiTestReportMapper.countByProjectIDAndCreateInThisWeek(workspaceID,group,firstTime.getTime(),lastTime.getTime());
+            return extApiTestReportMapper.countByProjectIDAndCreateInThisWeek(projectId,firstTime.getTime(),lastTime.getTime());
         }
     }
 
-    public List<ApiDataCountResult> countByWorkspaceIdAndGroupGroupByExecuteResult(String workspaceID, String group) {
-        return extApiTestReportMapper.countByWorkspaceIdAndGroupGroupByExecuteResult(workspaceID,group);
+    public List<ApiDataCountResult> countByProjectIdGroupByExecuteResult(String projectId) {
+        return extApiTestReportMapper.countByProjectIdGroupByExecuteResult(projectId);
     }
 }

@@ -161,6 +161,7 @@ public class ApiAutomationService {
     }
 
     public void preDelete(String scenarioID){
+        scheduleService.deleteByResourceId(scenarioID);
 
         TestPlanApiScenarioExample example = new TestPlanApiScenarioExample();
         example.createCriteria().andApiScenarioIdEqualTo(scenarioID);
@@ -172,27 +173,34 @@ public class ApiAutomationService {
             idList.add(api.getId());
         }
         example = new TestPlanApiScenarioExample();
-        example.createCriteria()
-                .andIdIn(idList);
-        testPlanApiScenarioMapper.deleteByExample(example);
+
+        if(!idList.isEmpty()){
+            example.createCriteria().andIdIn(idList);
+            testPlanApiScenarioMapper.deleteByExample(example);
+        }
+
     }
     public void preDelete(List<String> scenarioIDList){
-        List<String> idList = new ArrayList<>();
+        List<String> testPlanApiScenarioIdList = new ArrayList<>();
+        List<String> scheduleIdList = new ArrayList<>();
         for (String id :scenarioIDList) {
             TestPlanApiScenarioExample example = new TestPlanApiScenarioExample();
             example.createCriteria().andApiScenarioIdEqualTo(id);
             List<TestPlanApiScenario> testPlanApiScenarioList = testPlanApiScenarioMapper.selectByExample(example);
-
             for (TestPlanApiScenario api :testPlanApiScenarioList) {
-                if(!idList.contains(api.getId())){
-                    idList.add(api.getId());
+                if(!testPlanApiScenarioIdList.contains(api.getId())){
+                    testPlanApiScenarioIdList.add(api.getId());
                 }
             }
+
+            scheduleService.deleteByResourceId(id);
         }
-        TestPlanApiScenarioExample example = new TestPlanApiScenarioExample();
-        example.createCriteria()
-                .andIdIn(idList);
-        testPlanApiScenarioMapper.deleteByExample(example);
+        if(!testPlanApiScenarioIdList.isEmpty()){
+            TestPlanApiScenarioExample example = new TestPlanApiScenarioExample();
+            example.createCriteria().andIdIn(testPlanApiScenarioIdList);
+            testPlanApiScenarioMapper.deleteByExample(example);
+        }
+
     }
     public void deleteBatch(List<String> ids) {
         //及连删除外键表

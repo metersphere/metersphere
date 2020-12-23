@@ -6,6 +6,7 @@ import io.metersphere.api.dto.DeleteAPIReportRequest;
 import io.metersphere.api.dto.QueryAPIReportRequest;
 import io.metersphere.api.dto.automation.APIScenarioReportResult;
 import io.metersphere.api.dto.automation.ExecuteType;
+import io.metersphere.api.dto.datacount.ApiDataCountResult;
 import io.metersphere.api.jmeter.ScenarioResult;
 import io.metersphere.api.jmeter.TestResult;
 import io.metersphere.base.domain.*;
@@ -254,7 +255,7 @@ public class ApiScenarioReportService {
         return extApiScenarioReportMapper.countByProjectID(projectId);
     }
 
-    public long countByProjectIDAndCreateInThisWeek(String projectId) {
+    public long countByProjectIdAndCreateAndByScheduleInThisWeek(String projectId) {
         Map<String, Date> startAndEndDateInWeek = DateUtils.getWeedFirstTimeAndLastTime(new Date());
 
         Date firstTime = startAndEndDateInWeek.get("firstTime");
@@ -263,7 +264,24 @@ public class ApiScenarioReportService {
         if (firstTime == null || lastTime == null) {
             return 0;
         } else {
-            return extApiScenarioReportMapper.countByProjectIDAndCreateInThisWeek(projectId, firstTime.getTime(), lastTime.getTime());
+            return extApiScenarioReportMapper.countByProjectIdAndCreateAndByScheduleInThisWeek(projectId, firstTime.getTime(), lastTime.getTime());
         }
+    }
+
+    public long countByProjectIdAndCreateInThisWeek(String projectId) {
+        Map<String, Date> startAndEndDateInWeek = DateUtils.getWeedFirstTimeAndLastTime(new Date());
+
+        Date firstTime = startAndEndDateInWeek.get("firstTime");
+        Date lastTime = startAndEndDateInWeek.get("lastTime");
+
+        if (firstTime == null || lastTime == null) {
+            return 0;
+        } else {
+            return extApiScenarioReportMapper.countByProjectIdAndCreateInThisWeek(projectId, firstTime.getTime(), lastTime.getTime());
+        }
+    }
+
+    public List<ApiDataCountResult> countByProjectIdGroupByExecuteResult(String projectId) {
+        return extApiScenarioReportMapper.countByProjectIdGroupByExecuteResult(projectId);
     }
 }
