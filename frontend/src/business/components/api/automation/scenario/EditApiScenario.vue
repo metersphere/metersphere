@@ -344,7 +344,8 @@
         visibleRef: "",
         enableCookieShare: false,
       }
-    },
+    }
+    ,
     created() {
       if (!this.currentScenario.apiScenarioModuleId) {
         this.currentScenario.apiScenarioModuleId = "";
@@ -354,8 +355,127 @@
       this.getMaintainerOptions();
       this.getApiScenario();
       this.getEnvironments();
+    }
+    ,
+    watch: {}
+    ,
+    computed:{
+      buttons() {
+        let buttons = [
+          {
+            title: this.$t('api_test.automation.api_list_import'),
+            show: this.showButton("HTTPSamplerProxy", "DubboSampler", "JDBCSampler", "TCPSampler"),
+            titleColor: "#F56C6C",
+            titleBgColor: "#FCF1F1",
+            icon: "api",
+            click: this.apiListImport
+          }, {
+            title: this.$t('api_test.automation.external_import'),
+            show: this.showButton("OT_IMPORT"),
+            titleColor: "#409EFF",
+            titleBgColor: "#EEF5FE",
+            icon: "next_plan",
+            click: () => {
+              this.addComponent('OT_IMPORT')
+            }
+          }, {
+            title: this.$t('api_test.automation.wait_controller'),
+            show: this.showButton("ConstantTimer"),
+            titleColor: "#67C23A",
+            titleBgColor: "#F2F9EE",
+            icon: "access_time",
+            click: () => {
+              this.addComponent('ConstantTimer')
+            }
+          }, {
+            title: this.$t('api_test.automation.if_controller'),
+            show: this.showButton("IfController"),
+            titleColor: "#E6A23C",
+            titleBgColor: "#FCF6EE",
+            icon: "alt_route",
+            click: () => {
+              this.addComponent('IfController')
+            }
+          }, {
+            title: this.$t('api_test.automation.scenario_import'),
+            show: this.operatingElements.indexOf('scenario') === 0,
+            titleColor: "#606266",
+            titleBgColor: "#F4F4F5",
+            icon: "movie",
+            click: () => {
+              this.addComponent('scenario')
+            }
+          }, {
+            title: this.$t('api_test.automation.customize_script'),
+            show: this.showButton("JSR223Processor"),
+            titleColor: "#7B4D12",
+            titleBgColor: "#F1EEE9",
+            icon: "code",
+            click: () => {
+              this.addComponent('JSR223Processor')
+            }
+          }, {
+            title: this.$t('api_test.automation.customize_req'),
+            show: this.showButton("CustomizeReq"),
+            titleColor: "#008080",
+            titleBgColor: "#EBF2F2",
+            icon: "tune",
+            click: () => {
+              this.addComponent('CustomizeReq')
+            }
+          }, {
+            title: this.$t('api_test.definition.request.pre_script'),
+            show: this.showButton("JSR223PreProcessor"),
+            titleColor: "#B8741A",
+            titleBgColor: "#F9F1EA",
+            icon: "skip_previous",
+            click: () => {
+              this.addComponent('JSR223PreProcessor')
+            }
+          }, {
+            title: this.$t('api_test.definition.request.post_script'),
+            show: this.showButton("JSR223PostProcessor"),
+            titleColor: "#783887",
+            titleBgColor: "#F2ECF3",
+            icon: "skip_next",
+            click: () => {
+              this.addComponent('JSR223PostProcessor')
+            }
+          }, {
+            title: this.$t('api_test.definition.request.assertions_rule'),
+            show: this.showButton("Assertions"),
+            titleColor: "#A30014",
+            titleBgColor: "#F7E6E9",
+            icon: "fact_check",
+            click: () => {
+              this.addComponent('Assertions')
+            }
+          }, {
+            title: this.$t('api_test.definition.request.extract_param'),
+            show: this.showButton("Extract"),
+            titleColor: "#015478",
+            titleBgColor: "#E6EEF2",
+            icon: "colorize",
+            click: () => {
+              this.addComponent('Extract')
+            }
+          }
+        ];
+        return buttons.filter(btn => btn.show);
+      }
     },
     methods: {
+      getIdx(index){
+        return -1 * index - 2.25; // 为了向下展示菜单
+      },
+      showButton(...names) {
+        for (const name of names) {
+          if (this.operatingElements.includes(name)) {
+            return true;
+          }
+        }
+        return false;
+      },
       addComponent(type) {
         switch (type) {
           case ELEMENT_TYPE.IfController:

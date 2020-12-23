@@ -17,6 +17,7 @@ import CalendarHeatmap from "../common/js/calendar-heatmap";
 import '../common/css/menu-header.css';
 import '../common/css/main.css';
 import CKEditor from '@ckeditor/ckeditor5-vue';
+import VueFab from 'vue-float-action-button'
 
 Vue.config.productionTip = false;
 Vue.use(icon);
@@ -29,7 +30,8 @@ Vue.use(chart);
 Vue.use(CalendarHeatmap);
 Vue.use(message);
 Vue.use(CKEditor);
-Vue.use(YanProgress)
+Vue.use(YanProgress);
+Vue.use(VueFab);
 
 // v-permission
 Vue.directive('permission', permission);
