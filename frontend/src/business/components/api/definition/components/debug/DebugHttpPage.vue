@@ -16,7 +16,7 @@
 
         <el-form-item>
           <el-dropdown split-button type="primary" class="ms-api-buttion" @click="handleCommand"
-                       @command="handleCommand" size="small" v-if="testCase===undefined">
+                       @command="handleCommand" size="small" v-if="testCase===undefined && !scenario">
             {{$t('commons.test')}}
             <el-dropdown-menu slot="dropdown">
               <el-dropdown-item command="save_as">{{$t('api_test.definition.request.save_as')}}</el-dropdown-item>
@@ -76,7 +76,9 @@
           method: [{required: true, message: this.$t('test_track.case.input_maintainer'), trigger: 'change'}],
           url: [
             {max: 500, required: true, message: this.$t('commons.input_limit', [1, 500]), trigger: 'blur'},
-            {validator: validateURL, trigger: 'blur'}
+            /*
+                        {validator: validateURL, trigger: 'blur'}
+            */
           ],
         },
         debugForm: {method: REQ_METHOD[0].id, environmentId: ""},

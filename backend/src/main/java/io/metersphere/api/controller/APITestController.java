@@ -15,11 +15,13 @@ import io.metersphere.base.domain.ApiTest;
 import io.metersphere.base.domain.Schedule;
 import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.commons.constants.ScheduleGroup;
-import io.metersphere.commons.utils.*;
+import io.metersphere.commons.utils.CronUtils;
+import io.metersphere.commons.utils.PageUtils;
+import io.metersphere.commons.utils.Pager;
+import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.controller.request.QueryScheduleRequest;
 import io.metersphere.dto.ScheduleDao;
-import io.metersphere.service.CheckOwnerService;
-
+import io.metersphere.service.CheckPermissionService;
 import io.metersphere.service.ScheduleService;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
@@ -27,7 +29,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
-
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -46,7 +47,7 @@ public class APITestController {
     @Resource
     private ApiDefinitionService apiDefinitionService;
     @Resource
-    private CheckOwnerService checkownerService;
+    private CheckPermissionService checkownerService;
     @Resource
     private ApiTestCaseService apiTestCaseService;
     @Resource

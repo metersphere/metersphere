@@ -53,6 +53,7 @@ public class PerformanceReportController {
     }
 
     @PostMapping("/delete/{reportId}")
+    @RequiresRoles(value = {RoleConstants.TEST_MANAGER, RoleConstants.TEST_USER}, logical = Logical.OR)
     public void deleteReport(@PathVariable String reportId) {
         reportService.deleteReport(reportId);
     }
@@ -130,6 +131,7 @@ public class PerformanceReportController {
     }
 
     @PostMapping("/batch/delete")
+    @RequiresRoles(value = {RoleConstants.TEST_MANAGER, RoleConstants.TEST_USER}, logical = Logical.OR)
     public void deleteReportBatch(@RequestBody DeleteReportRequest reportRequest) {
         reportService.deleteReportBatch(reportRequest);
     }

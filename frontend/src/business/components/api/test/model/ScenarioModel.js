@@ -962,7 +962,7 @@ export class IfController extends Controller {
     return !!this.variable && !!this.operator && !!this.value;
   }
 
-  label() {
+  getLabel() {
     if (this.isValid()) {
       let label = this.variable;
       if (this.operator) label += " " + this.operator;
@@ -998,7 +998,7 @@ export class ConstantTimer extends Timer {
     return this.delay > 0;
   }
 
-  label() {
+  getLabel() {
     if (this.isValid()) {
       return this.delay + " ms";
     }
@@ -1362,14 +1362,14 @@ class JMXGenerator {
 
   addConstantsTimer(sampler, request) {
     if (request.timer && request.timer.isValid() && request.timer.enable) {
-      sampler.put(new JMXConstantTimer(request.timer.label(), request.timer));
+      sampler.put(new JMXConstantTimer(request.timer.getLabel(), request.timer));
     }
   }
 
   getController(sampler, request) {
     if (request.controller.isValid() && request.controller.enable) {
       if (request.controller instanceof IfController) {
-        let name = request.controller.label();
+        let name = request.controller.getLabel();
         let variable = "\"" + request.controller.variable + "\"";
         let operator = request.controller.operator;
         let value = "\"" + request.controller.value + "\"";

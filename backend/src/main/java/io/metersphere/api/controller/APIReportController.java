@@ -11,7 +11,7 @@ import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.dto.DashboardTestDTO;
-import io.metersphere.service.CheckOwnerService;
+import io.metersphere.service.CheckPermissionService;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.web.bind.annotation.*;
@@ -27,7 +27,7 @@ public class APIReportController {
     @Resource
     private APIReportService apiReportService;
     @Resource
-    private CheckOwnerService checkOwnerService;
+    private CheckPermissionService checkPermissionService;
 
     @GetMapping("recent/{count}")
     public List<APIReportResult> recentTest(@PathVariable int count) {
@@ -41,7 +41,7 @@ public class APIReportController {
 
     @GetMapping("/list/{testId}/{goPage}/{pageSize}")
     public Pager<List<APIReportResult>> listByTestId(@PathVariable String testId, @PathVariable int goPage, @PathVariable int pageSize) {
-        checkOwnerService.checkApiTestOwner(testId);
+        checkPermissionService.checkApiTestOwner(testId);
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, apiReportService.listByTestId(testId));
 
@@ -60,6 +60,7 @@ public class APIReportController {
     }
 
     @PostMapping("/delete")
+    @RequiresRoles(value = {RoleConstants.TEST_MANAGER, RoleConstants.TEST_USER}, logical = Logical.OR)
     public void delete(@RequestBody DeleteAPIReportRequest request) {
         apiReportService.delete(request);
     }
@@ -70,6 +71,7 @@ public class APIReportController {
     }
 
     @PostMapping("/batch/delete")
+    @RequiresRoles(value = {RoleConstants.TEST_MANAGER, RoleConstants.TEST_USER}, logical = Logical.OR)
     public void deleteAPIReportBatch(@RequestBody DeleteAPIReportRequest reportRequest) {
         apiReportService.deleteAPIReportBatch(reportRequest);
     }

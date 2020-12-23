@@ -37,7 +37,12 @@
       <el-collapse-transition>
         <div v-if="request.active">
           <div v-if="request.protocol === 'HTTP'">
-            <el-input :placeholder="$t('api_test.definition.request.path_all_info')" v-model="request.url" style="width: 85%;margin-top: 10px" size="small">
+            <el-input :placeholder="$t('api_test.definition.request.path_all_info')" v-if="request.url" v-model="request.url" style="width: 85%;margin-top: 10px" size="small">
+              <el-select v-model="request.method" slot="prepend" style="width: 100px" size="small">
+                <el-option v-for="item in reqOptions" :key="item.id" :label="item.label" :value="item.id"/>
+              </el-select>
+            </el-input>
+            <el-input :placeholder="$t('api_test.definition.request.path_all_info')" v-else v-model="request.path" style="width: 85%;margin-top: 10px" size="small">
               <el-select v-model="request.method" slot="prepend" style="width: 100px" size="small">
                 <el-option v-for="item in reqOptions" :key="item.id" :label="item.label" :value="item.id"/>
               </el-select>
@@ -96,20 +101,10 @@
         try {
           let urlObject = new URL(this.request.url);
           let url = urlObject.protocol + "//" + urlObject.host + "/";
-          if (url) {
-            let path = this.request.url.substr(url.length);
-            if (!path.startsWith('/')) {
-              path = "/" + path;
-            }
-            this.request.path = path;
-          } else {
-            this.request.url = this.request.path;
-          }
         } catch (e) {
           if (this.request.url) {
             this.request.path = this.request.url;
-          } else {
-            this.request.url = this.request.path;
+            this.request.url = undefined;
           }
         }
       }
