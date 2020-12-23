@@ -336,7 +336,6 @@
       this.operatingElements = ELEMENTS.get("ALL");
       this.getMaintainerOptions();
       this.getApiScenario();
-      this.getEnvironments();
     }
     ,
     watch: {}
@@ -680,6 +679,16 @@
             this.environments.forEach(environment => {
               parseEnvironment(environment);
             });
+            let hasEnvironment = false;
+            for (let i in this.environments) {
+              if (this.environments[i].id === this.currentEnvironmentId) {
+                hasEnvironment = true;
+                break;
+              }
+            }
+            if (!hasEnvironment) {
+              this.currentEnvironmentId = '';
+            }
           });
         }
       }
@@ -812,8 +821,7 @@
             })
           }
         })
-      }
-      ,
+      },
       getApiScenario() {
         if (this.currentScenario.tags != undefined && !(this.currentScenario.tags instanceof Array)) {
           this.currentScenario.tags = JSON.parse(this.currentScenario.tags);
@@ -835,6 +843,7 @@
                 this.path = "/api/automation/create";
               }
             }
+            this.getEnvironments();
           })
         }
       }

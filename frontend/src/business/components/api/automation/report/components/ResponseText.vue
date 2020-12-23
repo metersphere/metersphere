@@ -2,14 +2,15 @@
   <div class="text-container">
     <el-collapse-transition>
       <el-tabs v-model="activeName" v-show="isActive">
-        <el-tab-pane :label="$t('api_test.definition.request.response_header')" name="headers" class="pane">
-          <pre>{{ response.headers }}</pre>
-        </el-tab-pane>
-
         <el-tab-pane :class="'body-pane'" :label="$t('api_test.definition.request.response_body')" name="body" class="pane">
           <ms-sql-result-table v-if="isSqlType" :body="response.body"/>
           <ms-code-edit v-if="!isSqlType" :mode="mode" :read-only="true" :data="response.body" :modes="modes" ref="codeEdit"/>
         </el-tab-pane>
+
+        <el-tab-pane :label="$t('api_test.definition.request.response_header')" name="headers" class="pane">
+          <pre>{{ response.headers }}</pre>
+        </el-tab-pane>
+
         <el-tab-pane :label="$t('api_test.definition.request.console')" name="console" class="pane">
           <pre>{{response.console}}</pre>
         </el-tab-pane>
