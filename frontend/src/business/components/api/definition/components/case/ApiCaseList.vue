@@ -1,6 +1,6 @@
 <template>
   <div v-if="visible">
-    <ms-drawer :size="40" @close="apiCaseClose" direction="bottom">
+    <ms-drawer :size="60" @close="apiCaseClose" direction="bottom">
       <template v-slot:header>
         <api-case-header
           :api="api"
@@ -17,8 +17,8 @@
         />
       </template>
 
-      <el-container v-loading="result.loading" style="padding-bottom: 200px">
-        <el-main v-loading="batchLoading" style="overflow: auto">
+      <el-container v-loading="result.loading">
+        <el-main v-loading="batchLoading">
           <div v-for="(item,index) in apiCaseList" :key="index">
             <api-case-item v-loading="singleLoading && singleRunId === item.id"
                            @refresh="refresh"
