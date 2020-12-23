@@ -134,6 +134,6 @@ html,body {
 }
 ::-webkit-scrollbar-track{
   border-radius: 1em;
-  background-color: rgba(50,50,50,.1);
+  background-color: transparent;
   position: fixed;
 }
