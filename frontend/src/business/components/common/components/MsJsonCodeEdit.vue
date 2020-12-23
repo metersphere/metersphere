@@ -17,12 +17,12 @@
       },
       mode: {
         type: String,
-        default: "tree"
+        default: "code"
       },
       modes: {
         type: Array,
         default: function () {
-          return ["tree", "code"];
+          return ["code"];
         }
       }
     },
