@@ -20,7 +20,6 @@ import io.metersphere.dto.ScheduleDao;
 import io.metersphere.job.sechedule.ApiTestJob;
 import io.metersphere.job.sechedule.ScheduleManager;
 import org.apache.commons.lang3.StringUtils;
-import org.quartz.JobDetail;
 import org.quartz.JobKey;
 import org.quartz.SchedulerException;
 import org.quartz.TriggerKey;
@@ -168,11 +167,11 @@ public class ScheduleService {
         });
     }
 
-    public long countTaskByWorkspaceIdAndGroup(String workspaceId,String group) {
-        return  extScheduleMapper.countTaskByWorkspaceIdAndGroup(workspaceId,group);
+    public long countTaskByProjectId(String projectId) {
+        return  extScheduleMapper.countTaskByProjectId(projectId);
     }
 
-    public long countTaskByWorkspaceIdAndGroupInThisWeek(String workspaceID, String group) {
+    public long countTaskByProjectIdInThisWeek(String projectId) {
         Map<String, Date> startAndEndDateInWeek = DateUtils.getWeedFirstTimeAndLastTime(new Date());
 
         Date firstTime = startAndEndDateInWeek.get("firstTime");
@@ -181,12 +180,12 @@ public class ScheduleService {
         if(firstTime==null || lastTime == null){
             return  0;
         }else {
-            return extScheduleMapper.countTaskByWorkspaceIdAndGroupAndCreateTimeRange(workspaceID,group,firstTime.getTime(),lastTime.getTime());
+            return extScheduleMapper.countTaskByProjectIdAndCreateTimeRange(projectId,firstTime.getTime(),lastTime.getTime());
         }
     }
 
-    public List<TaskInfoResult> findRunningTaskInfoByWorkspaceID(String workspaceID) {
-        List<TaskInfoResult> runningTaskInfoList = extScheduleMapper.findRunningTaskInfoByWorkspaceID(workspaceID);
+    public List<TaskInfoResult> findRunningTaskInfoByProjectID(String projectID) {
+        List<TaskInfoResult> runningTaskInfoList = extScheduleMapper.findRunningTaskInfoByProjectID(projectID);
         return  runningTaskInfoList;
     }
 }

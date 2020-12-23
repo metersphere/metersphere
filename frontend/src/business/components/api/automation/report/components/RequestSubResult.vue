@@ -3,7 +3,7 @@
     <p class="el-divider--horizontal"></p>
     <div @click="active">
       <el-row :gutter="10" type="flex" align="middle" class="info">
-        <el-col :span="14" v-if="indexNumber!=undefined">
+        <el-col :span="6" v-if="indexNumber!=undefined">
           <div class="method">
             <div class="el-step__icon is-text ms-api-col" v-if="indexNumber%2 ==0">
               <div class="el-step__icon-inner"> {{ indexNumber+1 }}</div>
@@ -14,7 +14,16 @@
             {{ request.name }}
           </div>
         </el-col>
-
+        <el-col :span="2">
+          <div>
+            {{ request.method }}
+          </div>
+        </el-col>
+        <el-col :span="6">
+          <div class="url">
+            {{ request.url }}
+          </div>
+        </el-col>
         <el-col :span="5">
           <el-tooltip effect="dark" :content="request.responseResult.responseCode" placement="bottom" :open-delay="800">
             <div class="url" style="color: #5daf34">{{ request.responseResult.responseCode }}</div>

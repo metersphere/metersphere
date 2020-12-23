@@ -25,7 +25,7 @@
 
       </template>
 
-      <test-case-import @refresh="refresh" ref="testCaseImport"/>
+      <test-case-import @refreshAll="refreshAll" ref="testCaseImport"/>
 
       <el-table
         border
@@ -373,6 +373,10 @@ export default {
       // this.selectIds.clear();
       this.selectRows.clear();
       this.$emit('refresh');
+    },
+    refreshAll() {
+      this.selectRows.clear();
+      this.$emit('refreshAll');
     },
     showDetail(row, event, column) {
       this.$emit('testCaseDetail', row);

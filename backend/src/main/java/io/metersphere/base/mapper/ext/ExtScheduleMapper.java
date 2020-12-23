@@ -10,9 +10,9 @@ import java.util.List;
 public interface ExtScheduleMapper {
     List<ScheduleDao> list(@Param("request") QueryScheduleRequest request);
 
-    long countTaskByWorkspaceIdAndGroup(@Param("workspaceId") String workspaceId,@Param("group") String group);
+    long countTaskByProjectId(String workspaceId);
 
-    long countTaskByWorkspaceIdAndGroupAndCreateTimeRange(@Param("workspaceId")String workspaceId,@Param("group") String group, @Param("startTime") long startTime, @Param("endTime") long endTime);
+    long countTaskByProjectIdAndCreateTimeRange(@Param("projectId")String projectId, @Param("startTime") long startTime, @Param("endTime") long endTime);
 
-    List<TaskInfoResult> findRunningTaskInfoByWorkspaceID(String workspaceID);
+    List<TaskInfoResult> findRunningTaskInfoByProjectID(String workspaceID);
 }

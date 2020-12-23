@@ -6,6 +6,7 @@ import io.metersphere.api.dto.DeleteAPIReportRequest;
 import io.metersphere.api.dto.QueryAPIReportRequest;
 import io.metersphere.api.dto.automation.APIScenarioReportResult;
 import io.metersphere.api.dto.automation.ExecuteType;
+import io.metersphere.api.dto.datacount.ApiDataCountResult;
 import io.metersphere.api.jmeter.ScenarioResult;
 import io.metersphere.api.jmeter.TestResult;
 import io.metersphere.base.domain.*;
@@ -16,10 +17,13 @@ import io.metersphere.base.mapper.TestPlanApiScenarioMapper;
 import io.metersphere.base.mapper.ext.ExtApiScenarioReportMapper;
 import io.metersphere.commons.constants.APITestStatus;
 import io.metersphere.commons.constants.ApiRunMode;
+import io.metersphere.commons.constants.ReportTriggerMode;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.DateUtils;
+import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.ServiceUtils;
 import io.metersphere.i18n.Translator;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,10 +32,7 @@ import sun.security.util.Cache;
 import javax.annotation.Resource;
 import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -55,6 +56,13 @@ public class ApiScenarioReportService {
             MSException.throwException(Translator.get("api_report_is_null"));
         }
         APIScenarioReportResult report = (APIScenarioReportResult) obj;
+        if (CollectionUtils.isNotEmpty(result.getScenarios())) {
+            try {
+                report.setName(result.getScenarios().get(0).getName() + "-" + DateUtils.getTimeString(System.currentTimeMillis()));
+            } catch (Exception e) {
+                LogUtil.error(e.getMessage());
+            }
+        }
         // report detail
         ApiScenarioReportDetail detail = new ApiScenarioReportDetail();
         detail.setReportId(result.getTestId());
@@ -72,7 +80,9 @@ public class ApiScenarioReportService {
         }
         report.setContent(new String(detail.getContent(), StandardCharsets.UTF_8));
         this.save(report, runMode);
-        cache.put(report.getId(), report);
+        if (!report.getTriggerMode().equals(ReportTriggerMode.SCHEDULE.name())) {
+            cache.put(report.getId(), report);
+        }
     }
 
     /**
@@ -245,7 +255,7 @@ public class ApiScenarioReportService {
         return extApiScenarioReportMapper.countByProjectID(projectId);
     }
 
-    public long countByProjectIDAndCreateInThisWeek(String projectId) {
+    public long countByProjectIdAndCreateAndByScheduleInThisWeek(String projectId) {
         Map<String, Date> startAndEndDateInWeek = DateUtils.getWeedFirstTimeAndLastTime(new Date());
 
         Date firstTime = startAndEndDateInWeek.get("firstTime");
@@ -254,7 +264,24 @@ public class ApiScenarioReportService {
         if (firstTime == null || lastTime == null) {
             return 0;
         } else {
-            return extApiScenarioReportMapper.countByProjectIDAndCreateInThisWeek(projectId, firstTime.getTime(), lastTime.getTime());
+            return extApiScenarioReportMapper.countByProjectIdAndCreateAndByScheduleInThisWeek(projectId, firstTime.getTime(), lastTime.getTime());
         }
+    }
+
+    public long countByProjectIdAndCreateInThisWeek(String projectId) {
+        Map<String, Date> startAndEndDateInWeek = DateUtils.getWeedFirstTimeAndLastTime(new Date());
+
+        Date firstTime = startAndEndDateInWeek.get("firstTime");
+        Date lastTime = startAndEndDateInWeek.get("lastTime");
+
+        if (firstTime == null || lastTime == null) {
+            return 0;
+        } else {
+            return extApiScenarioReportMapper.countByProjectIdAndCreateInThisWeek(projectId, firstTime.getTime(), lastTime.getTime());
+        }
+    }
+
+    public List<ApiDataCountResult> countByProjectIdGroupByExecuteResult(String projectId) {
+        return extApiScenarioReportMapper.countByProjectIdGroupByExecuteResult(projectId);
     }
 }

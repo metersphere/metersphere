@@ -78,10 +78,10 @@
 
           <!-- 测试-->
           <div v-else-if="item.type=== 'TEST'" class="ms-api-div">
-            <ms-run-test-http-page :currentProtocol="currentProtocol" :api-data="item.api" @saveAsApi="editApi" v-if="currentProtocol==='HTTP'"/>
-            <ms-run-test-tcp-page :currentProtocol="currentProtocol" :api-data="item.api" @saveAsApi="editApi" v-if="currentProtocol==='TCP'"/>
-            <ms-run-test-sql-page :currentProtocol="currentProtocol" :api-data="item.api" @saveAsApi="editApi" v-if="currentProtocol==='SQL'"/>
-            <ms-run-test-dubbo-page :currentProtocol="currentProtocol" :api-data="item.api" @saveAsApi="editApi" v-if="currentProtocol==='DUBBO'"/>
+            <ms-run-test-http-page :currentProtocol="currentProtocol" :api-data="item.api" @saveAsApi="editApi" @refresh="refresh" v-if="currentProtocol==='HTTP'"/>
+            <ms-run-test-tcp-page :currentProtocol="currentProtocol" :api-data="item.api" @saveAsApi="editApi" @refresh="refresh" v-if="currentProtocol==='TCP'"/>
+            <ms-run-test-sql-page :currentProtocol="currentProtocol" :api-data="item.api" @saveAsApi="editApi" @refresh="refresh" v-if="currentProtocol==='SQL'"/>
+            <ms-run-test-dubbo-page :currentProtocol="currentProtocol" :api-data="item.api" @saveAsApi="editApi" @refresh="refresh" v-if="currentProtocol==='DUBBO'"/>
           </div>
         </el-tab-pane>
       </el-tabs>

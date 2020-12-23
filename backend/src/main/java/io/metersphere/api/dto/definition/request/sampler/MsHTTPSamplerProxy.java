@@ -110,7 +110,9 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         if (useEnvironment != null) {
             ApiTestEnvironmentService environmentService = CommonBeanFactory.getBean(ApiTestEnvironmentService.class);
             ApiTestEnvironmentWithBLOBs environment = environmentService.get(useEnvironment);
-            config.setConfig(JSONObject.parseObject(environment.getConfig(), EnvironmentConfig.class));
+            if (environment != null && environment.getConfig() != null) {
+                config.setConfig(JSONObject.parseObject(environment.getConfig(), EnvironmentConfig.class));
+            }
         }
         try {
             if (config != null && config.getConfig() != null) {
@@ -119,9 +121,15 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                 sampler.setPort(config.getConfig().getHttpConfig().getPort());
                 sampler.setProtocol(config.getConfig().getHttpConfig().getProtocol());
                 url = config.getConfig().getHttpConfig().getProtocol() + "://" + config.getConfig().getHttpConfig().getSocket();
+                // 补充如果是完整URL 则用自身URL
+                boolean isUrl = false;
+                if (StringUtils.isNotEmpty(this.getUrl()) && isURL(this.getUrl())) {
+                    url = this.getUrl();
+                    isUrl = true;
+                }
                 URL urlObject = new URL(url);
                 String envPath = StringUtils.equals(urlObject.getPath(), "/") ? "" : urlObject.getPath();
-                if (StringUtils.isNotBlank(this.getPath())) {
+                if (StringUtils.isNotBlank(this.getPath()) && !isUrl) {
                     envPath += this.getPath();
                 }
                 if (CollectionUtils.isNotEmpty(this.getRest()) && this.isRest()) {
@@ -243,6 +251,15 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         tree.add(headerManager);
     }
 
+    public boolean isURL(String str) {
+        //转换为小写
+        try {
+            new URL(str);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+    }
 
     private boolean isRest() {
         return this.getRest().stream().filter(KeyValue::isEnable).filter(KeyValue::isValid).toArray().length > 0;

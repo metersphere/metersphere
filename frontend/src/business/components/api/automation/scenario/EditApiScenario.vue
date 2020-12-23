@@ -201,7 +201,7 @@
       </div>
 
       <!--接口列表-->
-      <el-drawer :visible.sync="apiListVisible" :destroy-on-close="true" direction="ltr" :withHeader="true" :modal="false" size="90%">
+      <el-drawer :visible.sync="apiListVisible" :destroy-on-close="true" direction="ltr" :withHeader="false" :modal="false" size="90%">
         <ms-api-definition :visible="visibleRef" :currentRow="currentRow"/>
         <el-button style="float: right;margin: 0px 20px 0px" type="primary" @click="pushApiOrCase('REF')">{{$t('api_test.scenario.reference')}}</el-button>
         <el-button style="float: right;" type="primary" @click="pushApiOrCase('Copy')">{{ $t('commons.copy') }}</el-button>
@@ -876,7 +876,7 @@
       apiImport(importData) {
         if (importData && importData.data) {
           importData.data.forEach(item => {
-            this.setApiParameter(item, "API", "Copy");
+            this.setApiParameter(item, "API", "OT_IMPORT");
           })
           this.sort();
           this.reload();
@@ -933,7 +933,7 @@
   }
 
   .ms-col-one {
-    margin-top: 6px;
+    margin-top: 5px;
   }
 
   #fab {
@@ -984,10 +984,6 @@
     color: #303133;
     font-family: "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", Arial, sans-serif;
     font-size: 13px;
-  }
-
-  /deep/ .el-form-item__content {
-    line-height: 100%;
   }
 
 </style>

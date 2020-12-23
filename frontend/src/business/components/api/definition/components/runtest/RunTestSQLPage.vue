@@ -28,7 +28,7 @@
     </el-card>
 
     <!-- 加载用例 -->
-    <ms-api-case-list @apiCaseClose="apiCaseClose" @selectTestCase="selectTestCase" :currentApi="api" :refreshSign="refreshSign"
+    <ms-api-case-list @apiCaseClose="apiCaseClose" @refresh="refresh" @selectTestCase="selectTestCase" :currentApi="api" :refreshSign="refreshSign"
                       :loaded="loaded" :createCase="createCase"
                       ref="caseList"/>
 
@@ -102,6 +102,9 @@
           default:
             return this.$refs['requestForm'].validate();
         }
+      },
+      refresh(){
+        this.$emit('refresh');
       },
       runTest() {
         this.loading = true;

@@ -1,5 +1,5 @@
 <template>
-  <el-dialog :close-on-click-modal="false" :title="$t('api_test.definition.request.title')" :visible.sync="visible"
+  <el-dialog :close-on-click-modal="false" :title="$t('api_test.automation.add_scenario')" :visible.sync="visible"
              width="45%"
              :destroy-on-close="true">
     <el-form :model="scenarioForm" label-position="right" label-width="80px" size="small" :rules="rule"

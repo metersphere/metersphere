@@ -39,7 +39,7 @@
 </template>
 
 <script>
-import {getCurrentProjectID,getCurrentWorkspaceId} from "@/common/js/utils";
+import {getCurrentProjectID} from "@/common/js/utils";
 export default {
   name: "MsRunningTaskList",
 
@@ -56,8 +56,8 @@ export default {
 
   methods: {
     search() {
-      let workSpaceID = getCurrentWorkspaceId();
-      this.result = this.$get("/api/runningTask/"+workSpaceID, response => {
+      let projectID = getCurrentProjectID();
+      this.result = this.$get("/api/runningTask/"+projectID, response => {
         this.tableData = response.data;
       });
     },

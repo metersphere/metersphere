@@ -50,10 +50,12 @@ function defaultCustomValidate() {
 }
 
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
+const noticeTemplate = requireComponent.keys().length > 0 ? requireComponent("./notice/NoticeTemplate.vue") : {};
+
 
 export default {
   name: "MsScheduleMaintain",
-  components: {CrontabResult, Crontab, MsScheduleNotification},
+  components: {CrontabResult, Crontab, MsScheduleNotification,"NoticeTemplate": noticeTemplate.default},
 
   props: {
     customValidate: {

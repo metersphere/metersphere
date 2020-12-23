@@ -85,7 +85,7 @@
         </div>
       </el-col>
       <!--操作按钮-->
-      <el-col :span="3" class="ms-left-cell" v-if="!referenced">
+      <el-col :span="3" class="ms-left-cell" v-if="!referenced && showScript">
         <el-button class="ms-left-buttion" size="small" @click="addPre">+{{$t('api_test.definition.request.pre_script')}}</el-button>
         <br/>
         <el-button class="ms-left-buttion" size="small" @click="addPost">+{{$t('api_test.definition.request.post_script')}}</el-button>
@@ -131,6 +131,7 @@
     },
     props: {
       request: {},
+      showScript: Boolean,
       headers: {
         type: Array,
         default() {

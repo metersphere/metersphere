@@ -21,7 +21,7 @@
 
     <!-- 请求参数 -->
     <p class="tip">{{$t('api_test.definition.request.req_param')}} </p>
-    <ms-basis-parameters :request="request"/>
+    <ms-basis-parameters :showScript="false" :request="request"/>
 
   </div>
 </template>

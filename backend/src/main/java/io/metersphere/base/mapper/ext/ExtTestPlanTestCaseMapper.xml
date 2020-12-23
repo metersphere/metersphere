@@ -122,13 +122,13 @@
 
     <select id="list" resultType="io.metersphere.track.dto.TestPlanCaseDTO">
         select test_plan_test_case.id as id, test_case.id as caseId, test_case.name, test_case.priority,
-        test_case.type,test_case.test_id as testId,
+        test_case.type,test_case.test_id as testId,test_case.node_id,
         test_case.node_path, test_case.method, test_case.num, test_plan_test_case.executor, test_plan_test_case.status,
         test_plan_test_case.update_time, test_case_node.name as model, project.name as projectName,
         test_plan_test_case.plan_id as planId
         from test_plan_test_case
         inner join test_case on test_plan_test_case.case_id = test_case.id
-        left join test_case_node on test_case_node.id=test_case.node_id
+        left join test_case_node on test_case_node.id = test_case.node_id
         inner join project on project.id = test_case.project_id
         <where>
             <if test="request.combine != null">
@@ -342,4 +342,8 @@
             #{id}
         </foreach>
     </update>
+
+    <delete id="deleteByTestCaseID" parameterType="java.lang.String">
+        delete from test_plan_api_case  where api_case_id = #{id,jdbcType=VARCHAR}
+    </delete>
 </mapper>
