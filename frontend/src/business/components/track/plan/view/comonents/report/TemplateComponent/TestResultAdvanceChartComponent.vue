@@ -2,8 +2,7 @@
 
   <common-component :title="$t('test_track.plan_view.result_statistics')">
 
-    <div :class="{'show-one': isShowOne}">
-
+    <div class="char-component">
       <div class="char-item" v-if="showFunctional">
         <ms-pie-chart v-if="isShow" :text="'功能测试用例'"
                       :name="$t('test_track.plan_view.test_result')" :data="functionalCharData"/>
@@ -18,8 +17,6 @@
         <ms-pie-chart v-if="isShow" :text="'场景测试用例'"
                       :name="$t('test_track.plan_view.test_result')" :data="scenarioCharData"/>
       </div>
-
-
     </div>
 
   </common-component>
@@ -85,19 +82,6 @@
        },
        showScenario() {
          return this.executeResult.scenarioResult.length > 0;
-       },
-       isShowOne() {
-         let count = 0;
-         if (this.showFunctional) {
-           count++;
-         }
-         if (this.showApi) {
-           count++;
-         }
-         if (this.showScenario) {
-           count++;
-         }
-         return count === 1;
        }
      },
       watch: {
@@ -165,8 +149,8 @@
     display: inline-block;
   }
 
-  .show-one .char-item {
-    display: block;
+  .char-component {
+    text-align: center;
   }
 
 </style>
