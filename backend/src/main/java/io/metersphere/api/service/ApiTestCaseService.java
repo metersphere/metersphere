@@ -13,6 +13,7 @@ import io.metersphere.base.mapper.ApiTestFileMapper;
 import io.metersphere.base.mapper.ext.ExtApiDefinitionExecResultMapper;
 import io.metersphere.base.mapper.ext.ExtApiTestCaseMapper;
 import io.metersphere.base.mapper.ext.ExtTestPlanApiCaseMapper;
+import io.metersphere.base.mapper.ext.ExtTestPlanTestCaseMapper;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
 import io.metersphere.i18n.Translator;
@@ -47,6 +48,8 @@ public class ApiTestCaseService {
     private ExtApiTestCaseMapper extApiTestCaseMapper;
     @Resource
     private ApiTestFileMapper apiTestFileMapper;
+    @Resource
+    private ExtTestPlanTestCaseMapper extTestPlanTestCaseMapper;
     @Resource
     private FileService fileService;
     @Resource
@@ -131,8 +134,12 @@ public class ApiTestCaseService {
     }
 
     public void delete(String testId) {
+
+        extTestPlanTestCaseMapper.deleteByTestCaseID(testId);
+
         deleteFileByTestId(testId);
         extApiDefinitionExecResultMapper.deleteByResourceId(testId);
+
         apiTestCaseMapper.deleteByPrimaryKey(testId);
         deleteBodyFiles(testId);
     }
@@ -253,6 +260,9 @@ public class ApiTestCaseService {
     }
 
     public void deleteBatch(List<String> ids) {
+        for (String testId:ids) {
+            extTestPlanTestCaseMapper.deleteByTestCaseID(testId);
+        }
         ApiTestCaseExample example = new ApiTestCaseExample();
         example.createCriteria().andIdIn(ids);
         apiTestCaseMapper.deleteByExample(example);
