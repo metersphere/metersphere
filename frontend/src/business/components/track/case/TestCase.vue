@@ -19,6 +19,7 @@
         @testCaseDetail="showTestCaseDetail"
         @batchMove="batchMove"
         @refresh="refresh"
+        @refreshAll="refreshAll"
         @moveToNode="moveToNode"
         ref="testCaseList">
       </test-case-list>
@@ -130,6 +131,10 @@ export default {
       this.selectParentNodes = [];
       this.selectNode = {};
       this.refreshTable();
+    },
+    refreshAll() {
+      this.$refs.nodeTree.list();
+      this.refresh();
     },
     openRecentTestCaseEditDialog(caseId) {
       if (caseId) {
