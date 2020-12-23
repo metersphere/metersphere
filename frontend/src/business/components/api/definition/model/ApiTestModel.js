@@ -843,6 +843,7 @@ export class JSR223Processor extends BaseConfig {
     this.type = "JSR223Processor";
     this.script = undefined;
     this.language = "beanshell";
+    this.scriptLanguage = "java";
     this.enable = true;
     this.hashTree = [];
     this.set(options);
