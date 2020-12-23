@@ -1,14 +1,14 @@
 <template>
   <ms-container>
     <ms-aside-container>
-    <ms-api-scenario-module
-      @nodeSelectEvent="nodeChange"
-      @refreshTable="refresh"
-      @saveAsEdit="editScenario"
-      @setModuleOptions="setModuleOptions"
-      @enableTrash="enableTrash"
-      :type="'edit'"
-      ref="nodeTree"/>
+      <ms-api-scenario-module
+        @nodeSelectEvent="nodeChange"
+        @refreshTable="refresh"
+        @saveAsEdit="editScenario"
+        @setModuleOptions="setModuleOptions"
+        @enableTrash="enableTrash"
+        :type="'edit'"
+        ref="nodeTree"/>
     </ms-aside-container>
 
     <ms-main-container>
