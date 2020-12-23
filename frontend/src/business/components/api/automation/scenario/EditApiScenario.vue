@@ -2,8 +2,14 @@
   <el-card class="card-content">
     <div>
       <div class="ms-main-div" @click="showAll">
-        <el-button type="primary" size="small" @click="editScenario" style="float: right;margin: 0px 20px 10px">{{$t('commons.save')}}</el-button>
-
+        <el-row>
+          <el-col>
+            <!--操作按钮-->
+            <div class="ms-opt-btn">
+              <el-button type="primary" size="small" @click="editScenario">{{$t('commons.save')}}</el-button>
+            </div>
+          </el-col>
+        </el-row>
         <div class="tip">{{$t('test_track.plan_view.base_info')}}</div>
         <el-form :model="currentScenario" label-position="right" label-width="80px" size="small" :rules="rules" ref="currentScenario" style="margin-right: 20px">
           <!-- 基础信息 -->
@@ -99,11 +105,9 @@
           <el-col :span="21">
             <!-- 调试部分 -->
             <div class="ms-debug-div" @click="showAll">
-              <el-row style="margin:5px">
-                <el-col :span="5" class="ms-col-one ms-font">
-                  <span style="margin-left: 5px;">
-                    {{currentScenario.name}}
-                  </span>
+              <el-row style="margin: 5px">
+                <el-col :span="6" class="ms-col-one ms-font">
+                  {{currentScenario.name ===undefined || ''? $t('api_test.scenario.name') : currentScenario.name}}
                 </el-col>
                 <el-col :span="3" class="ms-col-one ms-font">
                   {{$t('api_test.automation.step_total')}}：{{scenarioDefinition.length}}
@@ -115,7 +119,7 @@
                 <el-col :span="3" class="ms-col-one ms-font">
                   <el-checkbox v-model="enableCookieShare">共享cookie</el-checkbox>
                 </el-col>
-                <el-col :span="8" class="ms-font">
+                <el-col :span="7" class="ms-font">
                   {{$t('api_test.definition.request.run_env')}}：
                   <el-select v-model="currentEnvironmentId" size="small" class="ms-htt-width"
                              :placeholder="$t('api_test.definition.request.run_env')"
@@ -178,42 +182,19 @@
           </el-col>
           <!-- 按钮列表 -->
           <div>
-            <el-col :span="3" class="ms-left-cell">
-              <el-button type="primary" icon="el-icon-refresh" size="small" @click="showAll">{{$t('commons.show_all')}}</el-button>
-              <br/>
-              <div v-if="operatingElements.indexOf('HTTPSamplerProxy')!=-1 || operatingElements.indexOf('DubboSampler')!=-1 || operatingElements.indexOf('JDBCSampler')!=-1 || operatingElements.indexOf('TCPSampler')!=-1 ">
-                <el-button class="ms-right-buttion ms-btn-1" size="small" @click="apiListImport">+{{$t('api_test.automation.api_list_import')}}</el-button>
-              </div>
-              <div v-if="operatingElements.indexOf('OT_IMPORT')!=-1">
-                <el-button class="ms-right-buttion" size="small" style="color: #409EFF;background-color: #EEF5FE" @click="addComponent('OT_IMPORT')">+{{$t('api_test.automation.external_import')}}</el-button>
-              </div>
-              <div v-if="operatingElements.indexOf('ConstantTimer')!=-1">
-                <el-button class="ms-right-buttion ms-btn-3" size="small" @click="addComponent('ConstantTimer')">+{{$t('api_test.automation.wait_controller')}}</el-button>
-              </div>
-              <div v-if="operatingElements.indexOf('IfController')!=-1">
-                <el-button class="ms-right-buttion ms-btn-4" size="small" @click="addComponent('IfController')">+{{$t('api_test.automation.if_controller')}}</el-button>
-              </div>
-              <div v-if="operatingElements.indexOf('scenario')===0">
-                <el-button class="ms-right-buttion ms-btn-5" size="small" @click="addComponent('scenario')">+{{$t('api_test.automation.scenario_import')}}</el-button>
-              </div>
-              <div v-if="operatingElements.indexOf('JSR223Processor')!=-1">
-                <el-button class="ms-right-buttion ms-btn-6" size="small" @click="addComponent('JSR223Processor')">+{{$t('api_test.automation.customize_script')}}</el-button>
-              </div>
-              <div v-if="operatingElements.indexOf('CustomizeReq')!=-1">
-                <el-button class="ms-right-buttion ms-btn-7" size="small" @click="addComponent('CustomizeReq')">+{{$t('api_test.automation.customize_req')}}</el-button>
-              </div>
-              <div v-if="operatingElements.indexOf('JSR223PreProcessor')!=-1">
-                <el-button class="ms-right-buttion ms-btn-8" size="small" @click="addComponent('JSR223PreProcessor')">+{{$t('api_test.definition.request.pre_script')}}</el-button>
-              </div>
-              <div v-if="operatingElements.indexOf('JSR223PostProcessor')!=-1">
-                <el-button class="ms-right-buttion ms-btn-9" size="small" @click="addComponent('JSR223PostProcessor')">+{{$t('api_test.definition.request.post_script')}}</el-button>
-              </div>
-              <div v-if="operatingElements.indexOf('Assertions')!=-1">
-                <el-button class="ms-right-buttion ms-btn-10" size="small" @click="addComponent('Assertions')">+{{$t('api_test.definition.request.assertions_rule')}}</el-button>
-              </div>
-              <div v-if="operatingElements.indexOf('Extract')!=-1">
-                <el-button class="ms-right-buttion ms-btn-11" size="small" @click="addComponent('Extract')">+{{$t('api_test.definition.request.extract_param')}}</el-button>
-              </div>
+            <el-col :span="3">
+              <vue-fab id="fab" mainBtnColor="#783887" :click-auto-close="false">
+                <fab-item
+                  v-for="(item, index) in buttons"
+                  :key="index"
+                  :idx="getIdx(index)"
+                  :title="item.title"
+                  :title-bg-color="item.titleBgColor"
+                  :title-color="item.titleColor"
+                  :color="item.titleColor"
+                  :icon="item.icon"
+                  @clickItem="item.click"/>
+              </vue-fab>
             </el-col>
           </div>
         </el-row>
@@ -278,6 +259,7 @@
   import MsScenarioParameters from "./ScenarioParameters";
   import ApiImport from "../../definition/components/import/ApiImport";
   import InputTag from 'vue-input-tag'
+  import "@/common/css/material-icons.css"
 
   export default {
     name: "EditApiScenario",
@@ -359,7 +341,7 @@
     ,
     watch: {}
     ,
-    computed:{
+    computed: {
       buttons() {
         let buttons = [
           {
@@ -465,7 +447,7 @@
       }
     },
     methods: {
-      getIdx(index){
+      getIdx(index) {
         return -1 * index - 2.25; // 为了向下展示菜单
       },
       showButton(...names) {
@@ -519,7 +501,8 @@
         }
         this.sort();
         this.reload();
-      },
+      }
+      ,
       nodeClick(e) {
         if (e.referenced != 'REF' && e.referenced != 'Deleted') {
           this.operatingElements = ELEMENTS.get(e.type);
@@ -527,16 +510,19 @@
           this.operatingElements = [];
         }
         this.selectedTreeNode = e;
-      },
+      }
+      ,
       showAll() {
         this.operatingElements = ELEMENTS.get("ALL");
         this.selectedTreeNode = undefined;
         this.reload();
-      },
+      }
+      ,
       apiListImport() {
         this.visibleRef = getUUID();
         this.apiListVisible = true;
-      },
+      }
+      ,
       recursiveSorting(arr) {
         for (let i in arr) {
           arr[i].index = Number(i) + 1;
@@ -544,7 +530,8 @@
             this.recursiveSorting(arr[i].hashTree);
           }
         }
-      },
+      }
+      ,
       sort() {
         for (let i in this.scenarioDefinition) {
           this.scenarioDefinition[i].index = Number(i) + 1;
@@ -552,7 +539,8 @@
             this.recursiveSorting(this.scenarioDefinition[i].hashTree);
           }
         }
-      },
+      }
+      ,
       addCustomizeApi(request) {
         this.customizeVisible = false;
         request.enable === undefined ? request.enable = true : request.enable;
@@ -564,7 +552,8 @@
         this.customizeRequest = {};
         this.sort();
         this.reload();
-      },
+      }
+      ,
       addScenario(arr) {
         if (arr && arr.length > 0) {
           arr.forEach(item => {
@@ -579,7 +568,8 @@
         this.sort();
         this.reload();
         this.scenarioVisible = false;
-      },
+      }
+      ,
       setApiParameter(item, refType, referenced) {
         let request = {};
         if (Object.prototype.toString.call(item.request).indexOf("String") > 0) {
@@ -608,7 +598,8 @@
         } else {
           this.scenarioDefinition.push(request);
         }
-      },
+      }
+      ,
       pushApiOrCase(referenced) {
         if (this.currentRow.cases.length === 0 && this.currentRow.apis.length === 0) {
           this.$warning(this.$t('api_test.automation.reference_info'));
@@ -625,13 +616,15 @@
         this.currentRow.apis = [];
         this.sort();
         this.reload();
-      },
+      }
+      ,
       getMaintainerOptions() {
         let workspaceId = localStorage.getItem(WORKSPACE_ID);
         this.$post('/user/ws/member/tester/list', {workspaceId: workspaceId}, response => {
           this.maintainerOptions = response.data;
         });
-      },
+      }
+      ,
       openTagConfig() {
         if (!this.projectId) {
           this.$error(this.$t('api_test.select_project'));
@@ -646,7 +639,8 @@
         hashTree.splice(index, 1);
         this.sort();
         this.reload();
-      },
+      }
+      ,
       copyRow(row, node) {
         const parent = node.parent
         const hashTree = parent.data.hashTree || parent.data;
@@ -656,13 +650,15 @@
         hashTree.push(obj);
         this.sort();
         this.reload();
-      },
+      }
+      ,
       reload() {
         this.loading = true
         this.$nextTick(() => {
           this.loading = false
         })
-      },
+      }
+      ,
       runDebug() {
         /*触发执行操作*/
         if (!this.currentEnvironmentId) {
@@ -675,7 +671,8 @@
           environmentId: this.currentEnvironmentId, hashTree: this.scenarioDefinition
         };
         this.reportId = getUUID().substring(0, 8);
-      },
+      }
+      ,
       getEnvironments() {
         if (this.projectId) {
           this.$get('/api/environment/list/' + this.projectId, response => {
@@ -685,17 +682,20 @@
             });
           });
         }
-      },
+      }
+      ,
       openEnvironmentConfig() {
         if (!this.projectId) {
           this.$error(this.$t('api_test.select_project'));
           return;
         }
         this.$refs.environmentConfig.open(this.projectId);
-      },
+      }
+      ,
       environmentConfigClose() {
         this.getEnvironments();
-      },
+      }
+      ,
       allowDrop(draggingNode, dropNode, dropType) {
         if (dropType != "inner") {
           return true;
@@ -705,21 +705,25 @@
           return true;
         }
         return false;
-      },
+      }
+      ,
       allowDrag(draggingNode, dropNode, dropType) {
         this.sort();
         this.reload();
-      },
+      }
+      ,
       nodeExpand(data) {
         if (data.resourceId) {
           this.expandedNode.push(data.resourceId);
         }
-      },
+      }
+      ,
       nodeCollapse(data) {
         if (data.resourceId) {
           this.expandedNode.splice(this.expandedNode.indexOf(data.resourceId), 1);
         }
-      },
+      }
+      ,
       getPath(id) {
         if (id === null) {
           return null;
@@ -728,7 +732,8 @@
           return item.id === id ? item.path : "";
         });
         return path[0].path;
-      },
+      }
+      ,
       setFiles(item, bodyUploadFiles, obj) {
         if (item.body) {
           if (item.body.kvs) {
@@ -766,7 +771,8 @@
             });
           }
         }
-      },
+      }
+      ,
       recursiveFile(arr, bodyUploadFiles, obj) {
         arr.forEach(item => {
           this.setFiles(item, bodyUploadFiles, obj);
@@ -774,7 +780,8 @@
             this.recursiveFile(item.hashTree, bodyUploadFiles, obj);
           }
         });
-      },
+      }
+      ,
       getBodyUploadFiles(obj) {
         let bodyUploadFiles = [];
         obj.bodyUploadIds = [];
@@ -785,7 +792,8 @@
           }
         })
         return bodyUploadFiles;
-      },
+      }
+      ,
       editScenario() {
         this.$refs['currentScenario'].validate((valid) => {
           if (valid) {
@@ -804,7 +812,8 @@
             })
           }
         })
-      },
+      }
+      ,
       getApiScenario() {
         if (this.currentScenario.tags != undefined && !(this.currentScenario.tags instanceof Array)) {
           this.currentScenario.tags = JSON.parse(this.currentScenario.tags);
@@ -828,7 +837,8 @@
             }
           })
         }
-      },
+      }
+      ,
       setParameter() {
         this.currentScenario.stepTotal = this.scenarioDefinition.length;
         this.currentScenario.projectId = getCurrentProjectID();
@@ -847,18 +857,22 @@
           this.currentScenario.apiScenarioModuleId = this.currentModule.id;
         }
         this.currentScenario.projectId = this.projectId;
-      },
+      }
+      ,
       runRefresh() {
         this.debugVisible = true;
         this.loading = false;
-      },
+      }
+      ,
       showScenarioParameters() {
         this.$refs.scenarioParameters.open(this.currentScenario.variables);
-      },
+      }
+      ,
       addParameters(data) {
         this.currentScenario.variables = data;
         this.reload();
-      },
+      }
+      ,
       apiImport(importData) {
         if (importData && importData.data) {
           importData.data.forEach(item => {
@@ -922,63 +936,10 @@
     margin-top: 5px;
   }
 
-  .ms-right-buttion {
-    margin-top: 10px;
-  }
-
-  .ms-btn-1 {
-    color: #F56C6C;
-    background-color: #FCF1F1
-  }
-
-  .ms-btn-2 {
-    color: #F56C6C;
-    background-color: #FCF1F1
-  }
-
-  .ms-btn-3 {
-    color: #67C23A;
-    background-color: #F2F9EE
-  }
-
-  .ms-btn-4 {
-    color: #E6A23C;
-    background-color: #FCF6EE
-  }
-
-  .ms-btn-5 {
-    color: #606266;
-    background-color: #F4F4F5
-  }
-
-  .ms-btn-6 {
-    color: #7B4D12;
-    background-color: #F1EEE9
-  }
-
-  .ms-btn-7 {
-    color: #008080;
-    background-color: #EBF2F2
-  }
-
-  .ms-btn-8 {
-    color: #B8741A;
-    background-color: #F9F1EA
-  }
-
-  .ms-btn-9 {
-    color: #783887;
-    background-color: #F2ECF3
-  }
-
-  .ms-btn-10 {
-    color: #A30014;
-    background-color: #F7E6E9
-  }
-
-  .ms-btn-11 {
-    color: #015478;
-    background-color: #E6EEF2
+  #fab {
+    bottom: unset;
+    right: 90px;
+    z-index: 5;
   }
 
   /deep/ .el-tree-node__content {
