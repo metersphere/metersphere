@@ -1,5 +1,5 @@
 <template>
-  <input-tag v-model="data" placeholder="输入回车添加"></input-tag>
+  <input-tag v-model="data" placeholder="输入回车添加" class="ms-input-div ms-input-tag-wrapper ms-input ms-input-remove"></input-tag>
 </template>
 
 <script>
@@ -31,14 +31,22 @@
 
 <style scoped>
 
-  /deep/ .vue-input-tag-wrapper {
+  ms-input-tag-wrapper >>> .vue-input-tag-wrapper {
     border-radius: 2px;
     border: 1px solid #a5d24a;
     color: #909399;
     display: inline-block;
   }
 
-  /deep/ .input-tag {
+  ms-input-remove >>> .remove {
+    color: #909399;
+  }
+
+  .ms-input-div {
+    border-radius: 4px;
+  }
+
+  .ms-input >>> .input-tag {
     display: inline-block;
     font-size: 12px;
     min-width: auto;
@@ -56,13 +64,5 @@
     height: 23px;
     padding: 0 5px;
     line-height: 19px;
-  }
-
-  /deep/ .remove {
-    color: #909399;
-  }
-
-  /deep/ .el-form-item__content {
-    line-height: 100%;
   }
 </style>
