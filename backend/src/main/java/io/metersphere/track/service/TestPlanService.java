@@ -3,6 +3,10 @@ package io.metersphere.track.service;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import io.metersphere.api.dto.automation.ApiScenarioDTO;
+import io.metersphere.api.dto.automation.TestPlanScenarioRequest;
+import io.metersphere.api.dto.definition.ApiTestCaseRequest;
+import io.metersphere.api.dto.definition.TestPlanApiCaseDTO;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtProjectMapper;
@@ -22,6 +26,7 @@ import io.metersphere.notice.service.NoticeSendService;
 import io.metersphere.service.SystemParameterService;
 import io.metersphere.track.Factory.ReportComponentFactory;
 import io.metersphere.track.domain.ReportComponent;
+
 import io.metersphere.track.dto.TestCaseReportMetricDTO;
 import io.metersphere.track.dto.TestPlanCaseDTO;
 import io.metersphere.track.dto.TestPlanDTO;
@@ -80,6 +85,10 @@ public class TestPlanService {
     private NoticeSendService noticeSendService;
     @Resource
     private SystemParameterService systemParameterService;
+    @Resource
+    private TestPlanApiCaseService testPlanApiCaseService;
+    @Resource
+    private TestPlanScenarioCaseService testPlanScenarioCaseService;
 
     public synchronized void addTestPlan(AddTestPlanRequest testPlan) {
         if (getTestPlanByName(testPlan.getName()).size() > 0) {
@@ -459,7 +468,6 @@ public class TestPlanService {
     }
 
     public TestCaseReportMetricDTO getMetric(String planId) {
-        IssuesService issuesService = (IssuesService) CommonBeanFactory.getBean("issuesService");
         QueryTestPlanRequest queryTestPlanRequest = new QueryTestPlanRequest();
         queryTestPlanRequest.setId(planId);
 
@@ -472,31 +480,8 @@ public class TestPlanService {
         JSONArray componentIds = content.getJSONArray("components");
 
         List<ReportComponent> components = ReportComponentFactory.createComponents(componentIds.toJavaList(String.class), testPlan);
+        List<Issues> issues = buildFunctionalCaseReport(planId, components);
 
-        List<TestPlanCaseDTO> testPlanTestCases = listTestCaseByPlanId(planId);
-        List<Issues> issues = new ArrayList<>();
-        for (TestPlanCaseDTO testCase : testPlanTestCases) {
-            List<Issues> issue = issuesService.getIssues(testCase.getCaseId());
-            if (issue.size() > 0) {
-                for (Issues i : issue) {
-                    i.setModel(testCase.getNodePath());
-                    i.setProjectName(testCase.getProjectName());
-                    String des = i.getDescription().replaceAll("<p>", "").replaceAll("</p>", "");
-                    i.setDescription(des);
-                    if (i.getLastmodify() == null || i.getLastmodify() == "") {
-                        if (i.getReporter() != null || i.getReporter() != "") {
-                            i.setLastmodify(i.getReporter());
-                        }
-                    }
-                }
-                issues.addAll(issue);
-                Collections.sort(issues, Comparator.comparing(Issues::getCreateTime, (t1, t2) -> t2.compareTo(t1)));
-            }
-
-            components.forEach(component -> {
-                component.readRecord(testCase);
-            });
-        }
         TestCaseReportMetricDTO testCaseReportMetricDTO = new TestCaseReportMetricDTO();
         components.forEach(component -> {
             component.afterBuild(testCaseReportMetricDTO);
@@ -609,4 +594,78 @@ public class TestPlanService {
         return context;
     }
 
+    public TestCaseReportMetricDTO getStatisticsMetric(String planId) {
+        QueryTestPlanRequest queryTestPlanRequest = new QueryTestPlanRequest();
+        queryTestPlanRequest.setId(planId);
+
+        TestPlanDTO testPlan = extTestPlanMapper.list(queryTestPlanRequest).get(0);
+        String projectName = getProjectNameByPlanId(planId);
+        testPlan.setProjectName(projectName);
+
+        TestCaseReport testCaseReport = testCaseReportMapper.selectByPrimaryKey(testPlan.getReportId());
+        JSONObject content = JSONObject.parseObject(testCaseReport.getContent());
+        JSONArray componentIds = content.getJSONArray("components");
+
+        List<ReportComponent> components = ReportComponentFactory.createComponents(componentIds.toJavaList(String.class), testPlan);
+        List<Issues> issues = buildFunctionalCaseReport(planId, components);
+        buildApiCaseReport(planId, components);
+        buildScenarioCaseReport(planId, components);
+
+        TestCaseReportMetricDTO testCaseReportMetricDTO = new TestCaseReportMetricDTO();
+        components.forEach(component -> {
+            component.afterBuild(testCaseReportMetricDTO);
+        });
+        testCaseReportMetricDTO.setIssues(issues);
+        return testCaseReportMetricDTO;
+    }
+
+    public void buildApiCaseReport(String planId, List<ReportComponent> components) {
+        ApiTestCaseRequest request = new ApiTestCaseRequest();
+        request.setPlanId(planId);
+        List<TestPlanApiCaseDTO> apiCaseDTOS = testPlanApiCaseService.list(request);
+        for (TestPlanApiCaseDTO item : apiCaseDTOS) {
+            for (ReportComponent component : components) {
+                component.readRecord(item);
+            }
+        }
+    }
+
+    public void buildScenarioCaseReport(String planId, List<ReportComponent> components) {
+        TestPlanScenarioRequest request = new TestPlanScenarioRequest();
+        request.setPlanId(planId);
+        List<ApiScenarioDTO> scenarioDTOS = testPlanScenarioCaseService.list(request);
+        for (ApiScenarioDTO item : scenarioDTOS) {
+            for (ReportComponent component : components) {
+                component.readRecord(item);
+            }
+        }
+    }
+
+    public List<Issues> buildFunctionalCaseReport(String planId, List<ReportComponent> components) {
+        IssuesService issuesService = (IssuesService) CommonBeanFactory.getBean("issuesService");
+        List<TestPlanCaseDTO> testPlanTestCases = listTestCaseByPlanId(planId);
+        List<Issues> issues = new ArrayList<>();
+        for (TestPlanCaseDTO testCase : testPlanTestCases) {
+            List<Issues> issue = issuesService.getIssues(testCase.getCaseId());
+            if (issue.size() > 0) {
+                for (Issues i : issue) {
+                    i.setModel(testCase.getNodePath());
+                    i.setProjectName(testCase.getProjectName());
+                    String des = i.getDescription().replaceAll("<p>", "").replaceAll("</p>", "");
+                    i.setDescription(des);
+                    if (i.getLastmodify() == null || i.getLastmodify() == "") {
+                        if (i.getReporter() != null || i.getReporter() != "") {
+                            i.setLastmodify(i.getReporter());
+                        }
+                    }
+                }
+                issues.addAll(issue);
+                Collections.sort(issues, Comparator.comparing(Issues::getCreateTime, (t1, t2) -> t2.compareTo(t1)));
+            }
+            components.forEach(component -> {
+                component.readRecord(testCase);
+            });
+        }
+        return issues;
+    }
 }

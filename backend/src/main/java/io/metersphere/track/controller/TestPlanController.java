@@ -113,6 +113,11 @@ public class TestPlanController {
         return testPlanService.getMetric(planId);
     }
 
+    @GetMapping("/get/statistics/metric/{planId}")
+    public TestCaseReportMetricDTO getStatisticsMetric(@PathVariable String planId) {
+        return testPlanService.getStatisticsMetric(planId);
+    }
+
     @GetMapping("/project/name/{planId}")
     public String getProjectNameByPlanId(@PathVariable String planId) {
         return testPlanService.getProjectNameByPlanId(planId);
