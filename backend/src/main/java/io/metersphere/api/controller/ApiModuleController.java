@@ -5,7 +5,7 @@ import io.metersphere.api.dto.definition.DragModuleRequest;
 import io.metersphere.api.service.ApiModuleService;
 import io.metersphere.base.domain.ApiModule;
 import io.metersphere.commons.constants.RoleConstants;
-import io.metersphere.service.CheckOwnerService;
+import io.metersphere.service.CheckPermissionService;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.web.bind.annotation.*;
@@ -21,17 +21,17 @@ public class ApiModuleController {
     @Resource
     ApiModuleService apiModuleService;
     @Resource
-    private CheckOwnerService checkOwnerService;
+    private CheckPermissionService checkPermissionService;
 
     @GetMapping("/list/{projectId}/{protocol}")
     public List<ApiModuleDTO> getNodeByProjectId(@PathVariable String projectId,@PathVariable String protocol) {
-        checkOwnerService.checkProjectOwner(projectId);
+        checkPermissionService.checkProjectOwner(projectId);
         return apiModuleService.getNodeTreeByProjectId(projectId,protocol);
     }
 
     @GetMapping("/list/plan/{planId}/{protocol}")
     public List<ApiModuleDTO> getNodeByPlanId(@PathVariable String planId, @PathVariable String protocol) {
-        checkOwnerService.checkTestPlanOwner(planId);
+        checkPermissionService.checkTestPlanOwner(planId);
         return apiModuleService.getNodeByPlanId(planId, protocol);
     }
 

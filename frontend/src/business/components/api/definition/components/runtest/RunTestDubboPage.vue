@@ -29,7 +29,7 @@
     </el-card>
 
     <!-- 加载用例 -->
-    <ms-api-case-list @apiCaseClose="apiCaseClose" @selectTestCase="selectTestCase" :currentApi="api"
+    <ms-api-case-list @apiCaseClose="apiCaseClose" @refresh="refresh" @selectTestCase="selectTestCase" :currentApi="api"
                       :loaded="loaded" :refreshSign="refreshSign" :createCase="createCase"
                       ref="caseList"/>
 
@@ -103,6 +103,9 @@
           default:
             return this.runTest();
         }
+      },
+      refresh(){
+        this.$emit('refresh');
       },
       runTest() {
         this.loading = true;

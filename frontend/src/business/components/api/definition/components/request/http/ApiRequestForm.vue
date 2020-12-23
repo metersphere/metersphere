@@ -1,6 +1,6 @@
 <template>
   <div class="request-form">
-    <component :is="component" :is-read-only="isReadOnly" :referenced="referenced" :request="request" :headers="headers" :isShowEnable="isShowEnable"/>
+    <component :is="component" :showScript="showScript" :is-read-only="isReadOnly" :referenced="referenced" :request="request" :headers="headers" :isShowEnable="isShowEnable"/>
   </div>
 </template>
 
@@ -16,6 +16,10 @@
       isShowEnable: {
         type: Boolean,
         default: true
+      },
+      showScript: {
+        type: Boolean,
+        default: true,
       },
       referenced: {
         type: Boolean,

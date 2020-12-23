@@ -77,7 +77,7 @@
         <!-- 请求参数 -->
         <div>
           <p class="tip">{{$t('api_test.definition.request.req_param')}} </p>
-          <ms-api-request-form :request="request" :headers="request.headers" :isShowEnable="isShowEnable"/>
+          <ms-api-request-form :showScript="false" :request="request" :headers="request.headers" :isShowEnable="isShowEnable"/>
         </div>
 
       </el-form>

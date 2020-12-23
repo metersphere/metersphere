@@ -204,7 +204,7 @@
           if (res.success) {
             this.$success(this.$t('test_track.case.import.success'));
             this.dialogVisible = false;
-            this.$emit("refresh");
+            this.$emit("refreshAll");
           } else {
             this.errList = res.errList;
           }
@@ -223,7 +223,7 @@
           if (res.success) {
             this.$success(this.$t('test_track.case.import.success'));
             this.dialogVisible = false;
-            this.$emit("refresh");
+            this.$emit("refreshAll");
           } else {
             this.xmindErrList = res.errList;
           }

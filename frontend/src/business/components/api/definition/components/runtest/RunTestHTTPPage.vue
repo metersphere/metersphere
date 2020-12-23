@@ -70,7 +70,7 @@
     </el-card>
 
     <!-- 加载用例 -->
-    <ms-api-case-list @selectTestCase="selectTestCase"
+    <ms-api-case-list @selectTestCase="selectTestCase" @refresh="refresh"
                       :loaded="loaded"
                       :refreshSign="refreshSign"
                       :createCase="createCase"
@@ -272,6 +272,9 @@
       },
       environmentConfigClose() {
         this.getEnvironments();
+      },
+      refresh(){
+        this.$emit('refresh');
       },
       getResult() {
         let url = "/api/definition/report/getReport/" + this.api.id;

@@ -19,19 +19,14 @@
         <el-tabs v-model="activeName" v-show="isActive" v-if="hasSub">
           <el-tab-pane :label="$t('api_report.sub_result')" name="sub">
             <ms-request-sub-result class="sub-result" v-for="(sub, index) in request.subRequestResults"
-                               :key="index" :request="sub"/>
+                               :key="index" :indexNumber="index" :request="sub"/>
           </el-tab-pane>
           <el-tab-pane :label="$t('api_report.request_result')" name="result">
-            <ms-request-metric :request="request"/>
-            <ms-request-text :request="request"/>
-            <br>
-            <ms-response-text :request-type="requestType" :response="request.responseResult"/>
+            <ms-response-text :request-type="requestType" :response="request.responseResult" :request="request"/>
           </el-tab-pane>
         </el-tabs>
         <div v-else>
-          <ms-request-text v-if="isCodeEditAlive" :request="request"/>
-          <br>
-          <ms-response-text :request-type="requestType" v-if="isCodeEditAlive" :response="request.responseResult"/>
+          <ms-response-text :request-type="requestType" v-if="isCodeEditAlive" :response="request.responseResult" :request="request"/>
         </div>
       </div>
     </el-collapse-transition>

@@ -69,7 +69,7 @@
   import MsContainer from "../../../common/components/MsContainer";
   import MsMainContainer from "../../../common/components/MsMainContainer";
   import MsApiReportStatus from "./ApiReportStatus";
-  import {_filter, _sort} from "@/common/js/utils";
+  import {_filter, _sort,getCurrentProjectID} from "@/common/js/utils";
   import MsTableOperatorButton from "../../../common/components/MsTableOperatorButton";
   import ReportTriggerModeItem from "../../../common/tableItem/ReportTriggerModeItem";
   import {REPORT_CONFIGS} from "../../../common/components/search/search-components";
@@ -130,6 +130,7 @@
         if (this.testId !== 'all') {
           this.condition.testId = this.testId;
         }
+        this.condition.projectId = getCurrentProjectID();
         let url = "/api/scenario/report/list/" + this.currentPage + "/" + this.pageSize;
         this.result = this.$post(url, this.condition, response => {
           let data = response.data;

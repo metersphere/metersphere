@@ -782,7 +782,7 @@
       apiImport(importData) {
         if (importData && importData.data) {
           importData.data.forEach(item => {
-            this.setApiParameter(item, "API", "Copy");
+            this.setApiParameter(item, "API", "OT_IMPORT");
           })
           this.sort();
           this.reload();
@@ -943,10 +943,6 @@
     color: #303133;
     font-family: "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", Arial, sans-serif;
     font-size: 13px;
-  }
-
-  /deep/ .el-form-item__content {
-    line-height: 100%;
   }
 
 </style>

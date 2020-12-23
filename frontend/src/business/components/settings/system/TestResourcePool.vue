@@ -47,14 +47,14 @@
 
     <el-dialog
       :close-on-click-modal="false"
-      :title="$t('test_resource_pool.create_resource_pool')"
-      :visible.sync="createVisible" width="70%"
+      :title="form.id ? $t('test_resource_pool.update_resource_pool') : $t('test_resource_pool.create_resource_pool')"
+      :visible.sync="dialogVisible" width="70%"
       @closed="closeFunc"
       :destroy-on-close="true"
       v-loading="result.loading"
     >
       <el-form :model="form" label-position="right" label-width="120px" size="small" :rules="rule"
-               ref="createTestResourcePoolForm">
+               ref="testResourcePoolForm">
         <el-form-item :label="$t('commons.name')" prop="name">
           <el-input v-model="form.name" autocomplete="off"/>
         </el-form-item>
@@ -75,22 +75,25 @@
           <div class="node-line" v-if="form.type === 'K8S'" v-xpack>
             <el-row>
               <el-col>
-                <el-form-item prop="masterUrl" label="Master URL">
+                <el-form-item label="Master URL"
+                              :rules="requiredRules">
                   <el-input v-model="item.masterUrl" autocomplete="new-password"/>
                 </el-form-item>
               </el-col>
             </el-row>
             <el-row>
               <el-col>
-                <el-form-item prop="password" label="Token">
+                <el-form-item label="Token"
+                              :rules="requiredRules">
                   <el-input v-model="item.token" type="password" show-password autocomplete="new-password"/>
                 </el-form-item>
               </el-col>
             </el-row>
             <el-row>
               <el-col>
-                <el-form-item prop="maxConcurrency" :label="$t('test_resource_pool.max_threads')">
-                  <el-input-number v-model="item.maxConcurrency" :min="1" :max="1000000000"></el-input-number>
+                <el-form-item :label="$t('test_resource_pool.max_threads')"
+                              :rules="requiredRules">
+                  <el-input-number v-model="item.maxConcurrency" :min="1" :max="1000000000"/>
                 </el-form-item>
               </el-col>
             </el-row>
@@ -98,17 +101,19 @@
           <div class="node-line" v-if="form.type === 'NODE'">
             <el-row>
               <el-col :span="8">
-                <el-form-item prop="ip" label="IP">
+                <el-form-item label="IP" :rules="requiredRules">
                   <el-input v-model="item.ip" autocomplete="off"/>
                 </el-form-item>
               </el-col>
               <el-col :span="6">
-                <el-form-item prop="port" label="Port" style="padding-left: 20px">
+                <el-form-item label="Port" style="padding-left: 20px"
+                              :rules="requiredRules">
                   <el-input-number v-model="item.port" :min="1" :max="65535"></el-input-number>
                 </el-form-item>
               </el-col>
               <el-col :span="6">
-                <el-form-item prop="maxConcurrency" :label="$t('test_resource_pool.max_threads')"
+                <el-form-item :label="$t('test_resource_pool.max_threads')"
+                              :rules="requiredRules"
                               style="padding-left: 20px">
                   <el-input-number v-model="item.maxConcurrency" :min="1" :max="1000000000"></el-input-number>
                 </el-form-item>
@@ -132,100 +137,15 @@
       </el-form>
       <template v-slot:footer>
         <ms-dialog-footer
-          @cancel="createVisible = false"
-          @confirm="createTestResourcePool('createTestResourcePoolForm')"/>
-      </template>
-    </el-dialog>
-
-    <el-dialog
-      :close-on-click-modal="false"
-      v-loading="result.loading"
-      :title="$t('test_resource_pool.update_resource_pool')" :visible.sync="updateVisible" width="70%"
-      :destroy-on-close="true"
-      @close="closeFunc">
-      <el-form :model="form" label-position="right" label-width="120px" size="small" :rules="rule"
-               ref="updateTestResourcePoolForm">
-        <el-form-item :label="$t('commons.name')" prop="name">
-          <el-input v-model="form.name" autocomplete="off"/>
-        </el-form-item>
-        <el-form-item :label="$t('commons.description')" prop="description">
-          <el-input v-model="form.description" autocomplete="off"/>
-        </el-form-item>
-        <el-form-item :label="$t('commons.image')" prop="image">
-          <el-input v-model="form.image" autocomplete="off"/>
-        </el-form-item>
-        <el-form-item :label="$t('test_resource_pool.type')" prop="type">
-          <el-select v-model="form.type" :placeholder="$t('test_resource_pool.select_pool_type')"
-                     @change="changeResourceType()">
-            <el-option key="NODE" value="NODE" label="Node">Node</el-option>
-            <el-option key="K8S" value="K8S" label="Kubernetes" v-xpack>Kubernetes</el-option>
-          </el-select>
-        </el-form-item>
-        <div v-for="(item,index) in infoList " :key="index">
-          <div class="node-line" v-if="form.type === 'K8S'" v-xpack>
-            <el-row>
-              <el-col>
-                <el-form-item prop="masterUrl" label="Master URL">
-                  <el-input v-model="item.masterUrl" autocomplete="off"/>
-                </el-form-item>
-              </el-col>
-            </el-row>
-            <el-row>
-              <el-col>
-                <el-form-item prop="password" label="Token">
-                  <el-input v-model="item.token" type="password" show-password autocomplete="off"/>
-                </el-form-item>
-              </el-col>
-            </el-row>
-            <el-row>
-              <el-col>
-                <el-form-item prop="maxConcurrency" :label="$t('test_resource_pool.max_threads')">
-                  <el-input-number v-model="item.maxConcurrency" :min="1" :max="1000000000"></el-input-number>
-                </el-form-item>
-              </el-col>
-            </el-row>
-          </div>
-          <div class="node-line" v-if="form.type === 'NODE'">
-            <el-row>
-              <el-col :span="8">
-                <el-form-item prop="ip" label="IP">
-                  <el-input v-model="item.ip" autocomplete="off"/>
-                </el-form-item>
-              </el-col>
-              <el-col :span="6">
-                <el-form-item prop="port" label="Port" style="padding-left: 20px">
-                  <el-input-number v-model="item.port" :min="1" :max="65535"></el-input-number>
-                </el-form-item>
-              </el-col>
-              <el-col :span="6">
-                <el-form-item prop="maxConcurrency" :label="$t('test_resource_pool.max_threads')"
-                              style="padding-left: 20px">
-                  <el-input-number v-model="item.maxConcurrency" :min="1" :max="1000000000"></el-input-number>
-                </el-form-item>
-              </el-col>
-              <el-col :offset="2" :span="2">
-                <span class="box">
-                    <el-button @click="addResourceInfo()" type="success" size="mini" circle>
-                        <font-awesome-icon :icon="['fas', 'plus']"/>
-                    </el-button>
-                </span>
-                <span class="box">
-                    <el-button @click="removeResourceInfo(index)" type="danger" size="mini" circle>
-                        <font-awesome-icon :icon="['fas', 'minus']"/>
-                    </el-button>
-                </span>
-              </el-col>
-            </el-row>
-          </div>
-        </div>
-      </el-form>
-      <template v-slot:footer>
+          v-if="form.id"
+          @cancel="dialogVisible = false"
+          @confirm="updateTestResourcePool()"/>
         <ms-dialog-footer
-          @cancel="updateVisible = false"
-          @confirm="updateTestResourcePool('updateTestResourcePoolForm')"/>
+          v-else
+          @cancel="dialogVisible = false"
+          @confirm="createTestResourcePool()"/>
       </template>
     </el-dialog>
-
   </div>
 </template>
 
@@ -235,7 +155,7 @@ import MsTablePagination from "../../common/pagination/TablePagination";
 import MsTableHeader from "../../common/components/MsTableHeader";
 import MsTableOperator from "../../common/components/MsTableOperator";
 import MsDialogFooter from "../../common/components/MsDialogFooter";
-import {listenGoBack, removeGoBackListener} from "../../../../common/js/utils";
+import {listenGoBack, removeGoBackListener} from "@/common/js/utils";
 
 export default {
   name: "MsTestResourcePool",
@@ -243,9 +163,8 @@ export default {
   data() {
     return {
       result: {},
-      createVisible: false,
+      dialogVisible: false,
       infoList: [],
-      updateVisible: false,
       queryPath: "testresourcepool/list",
       condition: {},
       items: [],
@@ -253,6 +172,7 @@ export default {
       pageSize: 5,
       total: 0,
       form: {},
+      requiredRules: [{required: true, message: this.$t('test_resource_pool.fill_the_data'), trigger: 'blur'}],
       rule: {
         name: [
           {required: true, message: this.$t('test_resource_pool.input_pool_name'), trigger: 'blur'},
@@ -329,11 +249,11 @@ export default {
       this.initTableData();
     },
     create() {
-      this.createVisible = true;
+      this.dialogVisible = true;
       listenGoBack(this.closeFunc);
     },
     edit(row) {
-      this.updateVisible = true;
+      this.dialogVisible = true;
       this.form = JSON.parse(JSON.stringify(row));
       this.convertResources();
       listenGoBack(this.closeFunc);
@@ -363,8 +283,8 @@ export default {
         this.$info(this.$t('commons.delete_cancel'));
       });
     },
-    createTestResourcePool(createTestResourcePoolForm) {
-      this.$refs[createTestResourcePoolForm].validate(valid => {
+    createTestResourcePool() {
+      this.$refs.testResourcePoolForm.validate(valid => {
         if (valid) {
           let vri = this.validateResourceInfo();
           if (vri.validate) {
@@ -374,7 +294,7 @@ export default {
                   type: 'success',
                   message: this.$t('commons.save_success')
                 },
-                this.createVisible = false,
+                this.dialogVisible = false,
                 this.initTableData());
             });
           } else {
@@ -400,8 +320,8 @@ export default {
       });
       this.form.resources = resources;
     },
-    updateTestResourcePool(updateTestResourcePoolForm) {
-      this.$refs[updateTestResourcePoolForm].validate(valid => {
+    updateTestResourcePool() {
+      this.$refs.testResourcePoolForm.validate(valid => {
         if (valid) {
           let vri = this.validateResourceInfo();
           if (vri.validate) {
@@ -411,7 +331,7 @@ export default {
                   type: 'success',
                   message: this.$t('commons.modify_success')
                 },
-                this.updateVisible = false,
+                this.dialogVisible = false,
                 this.initTableData(),
                 self.loading = false);
             });
@@ -426,8 +346,7 @@ export default {
     },
     closeFunc() {
       this.form = {};
-      this.updateVisible = false;
-      this.createVisible = false;
+      this.dialogVisible = false;
       removeGoBackListener(this.closeFunc);
     },
     changeSwitch(row) {
