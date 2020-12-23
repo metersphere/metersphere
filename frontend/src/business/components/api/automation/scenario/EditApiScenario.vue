@@ -606,7 +606,8 @@
         if (dropType != "inner") {
           return true;
         }
-        else if (dropType === "inner" && ELEMENTS.get(dropNode.data.type).indexOf(draggingNode.data.type) != -1) {
+        else if (dropType === "inner" && dropNode.data.referenced != 'REF' && dropNode.data.referenced != 'Deleted'
+          && ELEMENTS.get(dropNode.data.type).indexOf(draggingNode.data.type) != -1) {
           return true;
         }
         return false;
