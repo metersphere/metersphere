@@ -20,7 +20,7 @@
           <div>
             <el-select size="small" :placeholder="$t('api_test.definition.request.grade_info')" v-model="condition.priority"
                        :disabled="isCaseEdit"
-                       class="ms-api-header-select" @change="getApiTest" clearable>
+                       class="ms-api-header-select" @change="getApiTest" clearable style="margin-right: 20px">
               <el-option v-for="grd in priorities" :key="grd.id" :label="grd.name" :value="grd.id"/>
             </el-select>
           </div>
