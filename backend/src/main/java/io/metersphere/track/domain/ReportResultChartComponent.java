@@ -27,7 +27,7 @@ public class ReportResultChartComponent extends ReportComponent {
 
     @Override
     public void afterBuild(TestCaseReportMetricDTO testCaseReportMetric) {
-        testCaseReportMetric.setExecuteResult(getReportStatusResult());
+//        testCaseReportMetric.setExecuteResult(getReportStatusResult());
     }
 
     private List<TestCaseReportStatusResultDTO> getReportStatusResult() {
