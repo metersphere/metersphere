@@ -342,4 +342,8 @@
             #{id}
         </foreach>
     </update>
+
+    <delete id="deleteByTestCaseID" parameterType="java.lang.String">
+        delete from test_plan_api_case  where api_case_id = #{id,jdbcType=VARCHAR}
+    </delete>
 </mapper>

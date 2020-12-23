@@ -21,5 +21,12 @@ public interface ExtTestPlanMapper {
 
     List<TestPlanDTO> selectReference(@Param("request") QueryTestPlanRequest params);
 
+    /**
+     * 通过关联表(test_plan_api_case/test_plan_api_scenario)查询testPlan
+     * @param params
+     * @return
+     */
+    List<TestPlanDTO> selectTestPlanByRelevancy(@Param("request") QueryTestPlanRequest params);
+
     int checkIsHave(@Param("planId") String planId, @Param("workspaceIds") Set<String> workspaceIds);
 }

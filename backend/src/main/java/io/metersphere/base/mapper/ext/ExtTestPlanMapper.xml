@@ -227,4 +227,16 @@
             </foreach>
         </if>
     </select>
+
+    <select id="selectTestPlanByRelevancy" resultMap="BaseResultMap" parameterType="io.metersphere.track.request.testcase.QueryTestPlanRequest">
+        SELECT * FROM TEST_PLAN p LEFT JOIN test_plan_project t ON t.test_plan_id=p.id
+        <where>
+            <if test="request.scenarioId != null">
+                AND p.id IN (SELECT test_plan_id FROM test_plan_api_scenario WHERE api_scenario_id = #{request.scenarioId} )
+            </if>
+            <if test="request.apiId != null">
+                AND p.id IN (SELECT test_plan_id FROM test_plan_api_case WHERE api_case_id = #{request.apiId})
+            </if>
+        </where>
+    </select>
 </mapper>
