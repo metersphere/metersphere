@@ -26,6 +26,6 @@ public class ReportFailureResultComponent extends ReportComponent {
 
     @Override
     public void afterBuild(TestCaseReportMetricDTO testCaseReportMetric) {
-        testCaseReportMetric.setFailureTestCases(failureTestCases);
+//        testCaseReportMetric.setFailureTestCases(failureTestCases);
     }
 }

@@ -26,7 +26,7 @@ import io.metersphere.notice.service.NoticeSendService;
 import io.metersphere.service.SystemParameterService;
 import io.metersphere.track.Factory.ReportComponentFactory;
 import io.metersphere.track.domain.ReportComponent;
-import io.metersphere.track.domain.ReportResultAdvancedChartComponent;
+
 import io.metersphere.track.dto.TestCaseReportMetricDTO;
 import io.metersphere.track.dto.TestPlanCaseDTO;
 import io.metersphere.track.dto.TestPlanDTO;
@@ -623,13 +623,9 @@ public class TestPlanService {
         ApiTestCaseRequest request = new ApiTestCaseRequest();
         request.setPlanId(planId);
         List<TestPlanApiCaseDTO> apiCaseDTOS = testPlanApiCaseService.list(request);
-        ReportResultAdvancedChartComponent chartComponent = null;
         for (TestPlanApiCaseDTO item : apiCaseDTOS) {
             for (ReportComponent component : components) {
-                if (component instanceof ReportResultAdvancedChartComponent) {
-                    chartComponent = (ReportResultAdvancedChartComponent) component;
-                    chartComponent.readRecord(item);
-                }
+                component.readRecord(item);
             }
         }
     }
@@ -638,13 +634,9 @@ public class TestPlanService {
         TestPlanScenarioRequest request = new TestPlanScenarioRequest();
         request.setPlanId(planId);
         List<ApiScenarioDTO> scenarioDTOS = testPlanScenarioCaseService.list(request);
-        ReportResultAdvancedChartComponent chartComponent = null;
         for (ApiScenarioDTO item : scenarioDTOS) {
             for (ReportComponent component : components) {
-                if (component instanceof ReportResultAdvancedChartComponent) {
-                    chartComponent = (ReportResultAdvancedChartComponent) component;
-                    chartComponent.readRecord(item);
-                }
+                component.readRecord(item);
             }
         }
     }

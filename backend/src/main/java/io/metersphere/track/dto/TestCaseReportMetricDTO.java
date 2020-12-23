@@ -13,7 +13,8 @@ public class TestCaseReportMetricDTO {
 //    private List<TestCaseReportStatusResultDTO> executeResult;
     private TestCaseReportAdvanceStatusResultDTO executeResult;
     private List<TestCaseReportModuleResultDTO> moduleExecuteResult;
-    private List<TestPlanCaseDTO> failureTestCases;
+    private FailureTestCasesAdvanceDTO failureTestCases;
+//    private List<TestPlanCaseDTO> failureTestCases;
     private List<Issues> Issues;
     private List<String> executors;
     private String principal;

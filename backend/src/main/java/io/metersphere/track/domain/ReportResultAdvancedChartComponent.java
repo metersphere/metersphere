@@ -1,8 +1,8 @@
 package io.metersphere.track.domain;
 
 import io.metersphere.api.dto.automation.ApiScenarioDTO;
+import io.metersphere.api.dto.automation.ScenarioStatus;
 import io.metersphere.api.dto.definition.TestPlanApiCaseDTO;
-import io.metersphere.commons.constants.APITestStatus;
 import io.metersphere.commons.constants.TestPlanTestCaseStatus;
 import io.metersphere.track.dto.*;
 import org.apache.commons.lang3.StringUtils;
@@ -23,8 +23,8 @@ public class ReportResultAdvancedChartComponent extends ReportComponent {
     static {
         apiResultMap.put("success", TestPlanTestCaseStatus.Pass.name());
         apiResultMap.put("error", TestPlanTestCaseStatus.Failure.name());
-        scenarioResultMap.put(APITestStatus.Success.name(), TestPlanTestCaseStatus.Pass.name());
-        scenarioResultMap.put(APITestStatus.Error.name(), TestPlanTestCaseStatus.Failure.name());
+        scenarioResultMap.put(ScenarioStatus.Success.name(), TestPlanTestCaseStatus.Pass.name());
+        scenarioResultMap.put(ScenarioStatus.Fail.name(), TestPlanTestCaseStatus.Failure.name());
     }
 
     public ReportResultAdvancedChartComponent(TestPlanDTO testPlan) {
@@ -37,10 +37,12 @@ public class ReportResultAdvancedChartComponent extends ReportComponent {
         getStatusResultMap(functionalStatusResultMap, testCase.getStatus());
     }
 
+    @Override
     public void readRecord(TestPlanApiCaseDTO testCase) {
         getStatusResultMap(apiStatusResultMap, apiResultMap.get(testCase.getExecResult()));
     }
 
+    @Override
     public void readRecord(ApiScenarioDTO testCase) {
         getStatusResultMap(scenarioStatusResultMap, scenarioResultMap.get(testCase.getLastResult()));
     }

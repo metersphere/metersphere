@@ -18,7 +18,8 @@ public class ReportComponentFactory {
             return new ReportResultAdvancedChartComponent(testPlan);
 //            return new ReportResultChartComponent(testPlan);
         } else if (StringUtils.equals("4", componentId)) {
-            return new ReportFailureResultComponent(testPlan);
+//            return new ReportFailureResultComponent(testPlan);
+            return new ReportFailureAdvanceResultComponent(testPlan);
         }
         return null;
     }
