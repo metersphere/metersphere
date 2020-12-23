@@ -224,7 +224,7 @@
       </div>
 
       <!--接口列表-->
-      <el-drawer :visible.sync="apiListVisible" :destroy-on-close="true" direction="ltr" :withHeader="true" :modal="false" size="90%">
+      <el-drawer :visible.sync="apiListVisible" :destroy-on-close="true" direction="ltr" :withHeader="false" :modal="false" size="90%">
         <ms-api-definition :visible="visibleRef" :currentRow="currentRow"/>
         <el-button style="float: right;margin: 0px 20px 0px" type="primary" @click="pushApiOrCase('REF')">{{$t('api_test.scenario.reference')}}</el-button>
         <el-button style="float: right;" type="primary" @click="pushApiOrCase('Copy')">{{ $t('commons.copy') }}</el-button>
@@ -839,7 +839,7 @@
   }
 
   .ms-col-one {
-    margin-top: 6px;
+    margin-top: 5px;
   }
 
   .ms-right-buttion {

@@ -226,6 +226,7 @@
       },
       reductionApi(row) {
         row.scenarioDefinition = null;
+        row.tags = null;
         let rows = [row];
         this.$post("/api/automation/reduction", rows, response => {
           this.$success(this.$t('commons.save_success'));
