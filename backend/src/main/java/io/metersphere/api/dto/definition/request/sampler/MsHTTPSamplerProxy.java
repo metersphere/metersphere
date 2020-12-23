@@ -116,11 +116,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         }
         try {
             if (config != null && config.getConfig() != null) {
-                String url = "";
-                sampler.setDomain(config.getConfig().getHttpConfig().getDomain());
-                sampler.setPort(config.getConfig().getHttpConfig().getPort());
-                sampler.setProtocol(config.getConfig().getHttpConfig().getProtocol());
-                url = config.getConfig().getHttpConfig().getProtocol() + "://" + config.getConfig().getHttpConfig().getSocket();
+                String url = config.getConfig().getHttpConfig().getProtocol() + "://" + config.getConfig().getHttpConfig().getSocket();
                 // 补充如果是完整URL 则用自身URL
                 boolean isUrl = false;
                 if (StringUtils.isNotEmpty(this.getUrl()) && isURL(this.getUrl())) {
@@ -128,12 +124,21 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                     isUrl = true;
                 }
                 URL urlObject = new URL(url);
+                if (isUrl) {
+                    sampler.setDomain(URLDecoder.decode(urlObject.getHost(), "UTF-8"));
+                    sampler.setPort(urlObject.getPort());
+                    sampler.setProtocol(urlObject.getProtocol());
+                } else {
+                    sampler.setDomain(config.getConfig().getHttpConfig().getDomain());
+                    sampler.setPort(config.getConfig().getHttpConfig().getPort());
+                    sampler.setProtocol(config.getConfig().getHttpConfig().getProtocol());
+                }
                 String envPath = StringUtils.equals(urlObject.getPath(), "/") ? "" : urlObject.getPath();
                 if (StringUtils.isNotBlank(this.getPath()) && !isUrl) {
                     envPath += this.getPath();
                 }
                 if (CollectionUtils.isNotEmpty(this.getRest()) && this.isRest()) {
-                    envPath = getRestParameters(URLDecoder.decode(envPath, "UTF-8"));
+                    envPath = getRestParameters(URLDecoder.decode(envPath, "UTF-8"), config);
                     sampler.setPath(envPath);
                 }
                 if (CollectionUtils.isNotEmpty(this.getArguments())) {
@@ -150,7 +155,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                 sampler.setProtocol(urlObject.getProtocol());
 
                 if (CollectionUtils.isNotEmpty(this.getRest()) && this.isRest()) {
-                    sampler.setPath(getRestParameters(URLDecoder.decode(urlObject.getPath(), "UTF-8")));
+                    sampler.setPath(getRestParameters(URLDecoder.decode(urlObject.getPath(), "UTF-8"), config));
                 }
                 if (CollectionUtils.isNotEmpty(this.getArguments())) {
                     sampler.setPath(getPostQueryParameters(URLDecoder.decode(urlObject.getPath(), "UTF-8")));
@@ -193,7 +198,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         }
     }
 
-    private String getRestParameters(String path) {
+    private String getRestParameters(String path, ParameterConfig config) {
         StringBuffer stringBuffer = new StringBuffer();
         stringBuffer.append(path);
         stringBuffer.append("/");
@@ -201,14 +206,31 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         this.getRest().stream().filter(KeyValue::isEnable).filter(KeyValue::isValid).forEach(keyValue ->
                 keyValueMap.put(keyValue.getName(), keyValue.getValue())
         );
+        // 这块是否使用jmeter自身机制？
+        Map<String, String> pubKeyValueMap = new HashMap<>();
+        if (config != null && config.getVariables() != null) {
+            config.getVariables().stream().forEach(keyValue -> {
+                pubKeyValueMap.put(keyValue.getName(), keyValue.getValue());
+            });
+        }
+        for (String key : keyValueMap.keySet()) {
+            if (keyValueMap.get(key) != null && keyValueMap.get(key).startsWith("$")) {
+                String pubKey = keyValueMap.get(key).substring(2, keyValueMap.get(key).length() - 1);
+                keyValueMap.put(key, pubKeyValueMap.get(pubKey));
+            }
+        }
 
         Pattern p = Pattern.compile("(\\{)([\\w]+)(\\})");
         Matcher m = p.matcher(path);
         StringBuffer sb = new StringBuffer();
-        while (m.find()) {
-            String group = m.group(2);
-            //替换并且把替换好的值放到sb中
-            m.appendReplacement(sb, keyValueMap.get(group));
+        try {
+            while (m.find()) {
+                String group = m.group(2);
+                //替换并且把替换好的值放到sb中
+                m.appendReplacement(sb, keyValueMap.get(group));
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
         }
         //把符合的数据追加到sb尾
         m.appendTail(sb);
