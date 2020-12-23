@@ -110,7 +110,9 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         if (useEnvironment != null) {
             ApiTestEnvironmentService environmentService = CommonBeanFactory.getBean(ApiTestEnvironmentService.class);
             ApiTestEnvironmentWithBLOBs environment = environmentService.get(useEnvironment);
-            config.setConfig(JSONObject.parseObject(environment.getConfig(), EnvironmentConfig.class));
+            if (environment != null && environment.getConfig() != null) {
+                config.setConfig(JSONObject.parseObject(environment.getConfig(), EnvironmentConfig.class));
+            }
         }
         try {
             if (config != null && config.getConfig() != null) {
