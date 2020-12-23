@@ -1,12 +1,9 @@
 <template>
 
   <common-component :title="$t('test_track.plan_view.failure_case')">
-    <template>
-      <functional-failure-cases-list :functional-test-cases="failureTestCases.functionalTestCases"/>
-      <api-failure-cases-list :api-test-cases="failureTestCases.apiTestCases"/>
-      <scenario-failure-cases-list :scenario-test-cases="failureTestCases.scenarioTestCases"/>
-    </template>
-
+    <functional-failure-cases-list v-if="showFunctional" :functional-test-cases="failureTestCases.functionalTestCases"/>
+    <api-failure-cases-list v-if="showApi" :api-test-cases="failureTestCases.apiTestCases"/>
+    <scenario-failure-cases-list v-if="showScenario" :scenario-test-cases="failureTestCases.scenarioTestCases"/>
   </common-component>
 
 </template>
@@ -81,6 +78,17 @@
           }
         }
       },
+      computed: {
+        showFunctional() {
+          return this.failureTestCases.functionalTestCases.length > 0 || (this.failureTestCases.apiTestCases.length <= 0 && this.failureTestCases.scenarioTestCases.length <= 0);
+        },
+        showApi() {
+          return this.failureTestCases.apiTestCases.length > 0;
+        },
+        showScenario() {
+          return this.failureTestCases.scenarioTestCases.length > 0;
+        }
+      },
       methods: {
         goFailureTestCase(row) {
           hub.$emit("openFailureTestCase", row);
@@ -98,7 +106,7 @@
   }
 
   .failure-cases-list {
-    margin-bottom: 30px;
+    margin-bottom: 40px;
   }
 
 </style>
