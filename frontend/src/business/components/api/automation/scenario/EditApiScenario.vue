@@ -2,14 +2,8 @@
   <el-card class="card-content">
     <div>
       <div class="ms-main-div" @click="showAll">
-        <el-row>
-          <el-col>
-            <!--操作按钮-->
-            <div class="ms-opt-btn">
-              <el-button type="primary" size="small" @click="editScenario">{{$t('commons.save')}}</el-button>
-            </div>
-          </el-col>
-        </el-row>
+        <el-button type="primary" size="small" @click="editScenario" style="float: right;margin: 0px 20px 10px">{{$t('commons.save')}}</el-button>
+
         <div class="tip">{{$t('test_track.plan_view.base_info')}}</div>
         <el-form :model="currentScenario" label-position="right" label-width="80px" size="small" :rules="rules" ref="currentScenario" style="margin-right: 20px">
           <!-- 基础信息 -->
@@ -105,9 +99,11 @@
           <el-col :span="21">
             <!-- 调试部分 -->
             <div class="ms-debug-div" @click="showAll">
-              <el-row style="margin: 5px">
-                <el-col :span="6" class="ms-col-one ms-font">
-                  {{currentScenario.name ===undefined || ''? $t('api_test.scenario.name') : currentScenario.name}}
+              <el-row style="margin:5px">
+                <el-col :span="5" class="ms-col-one ms-font">
+                  <span style="margin-left: 5px;">
+                    {{currentScenario.name}}
+                  </span>
                 </el-col>
                 <el-col :span="3" class="ms-col-one ms-font">
                   {{$t('api_test.automation.step_total')}}：{{scenarioDefinition.length}}
@@ -119,7 +115,7 @@
                 <el-col :span="3" class="ms-col-one ms-font">
                   <el-checkbox v-model="enableCookieShare">共享cookie</el-checkbox>
                 </el-col>
-                <el-col :span="7" class="ms-font">
+                <el-col :span="8" class="ms-font">
                   {{$t('api_test.definition.request.run_env')}}：
                   <el-select v-model="currentEnvironmentId" size="small" class="ms-htt-width"
                              :placeholder="$t('api_test.definition.request.run_env')"
@@ -348,8 +344,7 @@
         visibleRef: "",
         enableCookieShare: false,
       }
-    }
-    ,
+    },
     created() {
       if (!this.currentScenario.apiScenarioModuleId) {
         this.currentScenario.apiScenarioModuleId = "";
@@ -359,10 +354,7 @@
       this.getMaintainerOptions();
       this.getApiScenario();
       this.getEnvironments();
-    }
-    ,
-    watch: {}
-    ,
+    },
     methods: {
       addComponent(type) {
         switch (type) {
@@ -407,8 +399,7 @@
         }
         this.sort();
         this.reload();
-      }
-      ,
+      },
       nodeClick(e) {
         if (e.referenced != 'REF' && e.referenced != 'Deleted') {
           this.operatingElements = ELEMENTS.get(e.type);
@@ -416,19 +407,16 @@
           this.operatingElements = [];
         }
         this.selectedTreeNode = e;
-      }
-      ,
+      },
       showAll() {
         this.operatingElements = ELEMENTS.get("ALL");
         this.selectedTreeNode = undefined;
         this.reload();
-      }
-      ,
+      },
       apiListImport() {
         this.visibleRef = getUUID();
         this.apiListVisible = true;
-      }
-      ,
+      },
       recursiveSorting(arr) {
         for (let i in arr) {
           arr[i].index = Number(i) + 1;
@@ -436,8 +424,7 @@
             this.recursiveSorting(arr[i].hashTree);
           }
         }
-      }
-      ,
+      },
       sort() {
         for (let i in this.scenarioDefinition) {
           this.scenarioDefinition[i].index = Number(i) + 1;
@@ -445,8 +432,7 @@
             this.recursiveSorting(this.scenarioDefinition[i].hashTree);
           }
         }
-      }
-      ,
+      },
       addCustomizeApi(request) {
         this.customizeVisible = false;
         request.enable === undefined ? request.enable = true : request.enable;
@@ -458,8 +444,7 @@
         this.customizeRequest = {};
         this.sort();
         this.reload();
-      }
-      ,
+      },
       addScenario(arr) {
         if (arr && arr.length > 0) {
           arr.forEach(item => {
@@ -474,8 +459,7 @@
         this.sort();
         this.reload();
         this.scenarioVisible = false;
-      }
-      ,
+      },
       setApiParameter(item, refType, referenced) {
         let request = {};
         if (Object.prototype.toString.call(item.request).indexOf("String") > 0) {
@@ -504,8 +488,7 @@
         } else {
           this.scenarioDefinition.push(request);
         }
-      }
-      ,
+      },
       pushApiOrCase(referenced) {
         if (this.currentRow.cases.length === 0 && this.currentRow.apis.length === 0) {
           this.$warning(this.$t('api_test.automation.reference_info'));
@@ -522,15 +505,13 @@
         this.currentRow.apis = [];
         this.sort();
         this.reload();
-      }
-      ,
+      },
       getMaintainerOptions() {
         let workspaceId = localStorage.getItem(WORKSPACE_ID);
         this.$post('/user/ws/member/tester/list', {workspaceId: workspaceId}, response => {
           this.maintainerOptions = response.data;
         });
-      }
-      ,
+      },
       openTagConfig() {
         if (!this.projectId) {
           this.$error(this.$t('api_test.select_project'));
@@ -545,8 +526,7 @@
         hashTree.splice(index, 1);
         this.sort();
         this.reload();
-      }
-      ,
+      },
       copyRow(row, node) {
         const parent = node.parent
         const hashTree = parent.data.hashTree || parent.data;
@@ -556,15 +536,13 @@
         hashTree.push(obj);
         this.sort();
         this.reload();
-      }
-      ,
+      },
       reload() {
         this.loading = true
         this.$nextTick(() => {
           this.loading = false
         })
-      }
-      ,
+      },
       runDebug() {
         /*触发执行操作*/
         if (!this.currentEnvironmentId) {
@@ -577,8 +555,7 @@
           environmentId: this.currentEnvironmentId, hashTree: this.scenarioDefinition
         };
         this.reportId = getUUID().substring(0, 8);
-      }
-      ,
+      },
       getEnvironments() {
         if (this.projectId) {
           this.$get('/api/environment/list/' + this.projectId, response => {
@@ -588,20 +565,17 @@
             });
           });
         }
-      }
-      ,
+      },
       openEnvironmentConfig() {
         if (!this.projectId) {
           this.$error(this.$t('api_test.select_project'));
           return;
         }
         this.$refs.environmentConfig.open(this.projectId);
-      }
-      ,
+      },
       environmentConfigClose() {
         this.getEnvironments();
-      }
-      ,
+      },
       allowDrop(draggingNode, dropNode, dropType) {
         if (dropType != "inner") {
           return true;
@@ -611,25 +585,21 @@
           return true;
         }
         return false;
-      }
-      ,
+      },
       allowDrag(draggingNode, dropNode, dropType) {
         this.sort();
         this.reload();
-      }
-      ,
+      },
       nodeExpand(data) {
         if (data.resourceId) {
           this.expandedNode.push(data.resourceId);
         }
-      }
-      ,
+      },
       nodeCollapse(data) {
         if (data.resourceId) {
           this.expandedNode.splice(this.expandedNode.indexOf(data.resourceId), 1);
         }
-      }
-      ,
+      },
       getPath(id) {
         if (id === null) {
           return null;
@@ -638,8 +608,7 @@
           return item.id === id ? item.path : "";
         });
         return path[0].path;
-      }
-      ,
+      },
       setFiles(item, bodyUploadFiles, obj) {
         if (item.body) {
           if (item.body.kvs) {
@@ -677,8 +646,7 @@
             });
           }
         }
-      }
-      ,
+      },
       recursiveFile(arr, bodyUploadFiles, obj) {
         arr.forEach(item => {
           this.setFiles(item, bodyUploadFiles, obj);
@@ -686,8 +654,7 @@
             this.recursiveFile(item.hashTree, bodyUploadFiles, obj);
           }
         });
-      }
-      ,
+      },
       getBodyUploadFiles(obj) {
         let bodyUploadFiles = [];
         obj.bodyUploadIds = [];
@@ -698,8 +665,7 @@
           }
         })
         return bodyUploadFiles;
-      }
-      ,
+      },
       editScenario() {
         this.$refs['currentScenario'].validate((valid) => {
           if (valid) {
@@ -718,8 +684,7 @@
             })
           }
         })
-      }
-      ,
+      },
       getApiScenario() {
         if (this.currentScenario.tags != undefined && !(this.currentScenario.tags instanceof Array)) {
           this.currentScenario.tags = JSON.parse(this.currentScenario.tags);
@@ -743,8 +708,7 @@
             }
           })
         }
-      }
-      ,
+      },
       setParameter() {
         this.currentScenario.stepTotal = this.scenarioDefinition.length;
         this.currentScenario.projectId = getCurrentProjectID();
@@ -763,22 +727,18 @@
           this.currentScenario.apiScenarioModuleId = this.currentModule.id;
         }
         this.currentScenario.projectId = this.projectId;
-      }
-      ,
+      },
       runRefresh() {
         this.debugVisible = true;
         this.loading = false;
-      }
-      ,
+      },
       showScenarioParameters() {
         this.$refs.scenarioParameters.open(this.currentScenario.variables);
-      }
-      ,
+      },
       addParameters(data) {
         this.currentScenario.variables = data;
         this.reload();
-      }
-      ,
+      },
       apiImport(importData) {
         if (importData && importData.data) {
           importData.data.forEach(item => {
@@ -944,5 +904,4 @@
     font-family: "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", Arial, sans-serif;
     font-size: 13px;
   }
-
 </style>
