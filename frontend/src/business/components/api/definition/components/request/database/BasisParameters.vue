@@ -77,7 +77,7 @@
 
         </div>
       </el-col>
-      <el-col :span="3" class="ms-left-cell">
+      <el-col :span="3" class="ms-left-cell" v-if="showScript">
 
         <el-button class="ms-left-buttion" size="small" style="color: #B8741A;background-color: #F9F1EA" @click="addPre">+{{$t('api_test.definition.request.pre_script')}}</el-button>
         <br/>
@@ -120,6 +120,10 @@
       request: {},
       basisData: {},
       moduleOptions: Array,
+      showScript: {
+        type: Boolean,
+        default: true,
+      },
       isReadOnly: {
         type: Boolean,
         default: false
@@ -172,7 +176,7 @@
         this.reload();
       },
       copyRow(row) {
-        let obj =JSON.parse(JSON.stringify(row));
+        let obj = JSON.parse(JSON.stringify(row));
         obj.id = getUUID();
         this.request.hashTree.push(obj);
         this.reload();

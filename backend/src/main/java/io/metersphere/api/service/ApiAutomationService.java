@@ -246,6 +246,7 @@ public class ApiAutomationService {
                             });
                     scenario.setVariables(variables);
                 }
+                group.setEnableCookieShare(scenario.isEnableCookieShare());
                 LinkedList<MsTestElement> scenarios = new LinkedList<>();
                 scenarios.add(scenario);
                 group.setHashTree(scenarios);

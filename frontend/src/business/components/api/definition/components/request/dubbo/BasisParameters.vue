@@ -57,7 +57,7 @@
         </div>
       </el-col>
 
-      <el-col :span="3" class="ms-left-cell">
+      <el-col :span="3" class="ms-left-cell" v-if="showScript">
         <el-button class="ms-left-buttion" size="small" style="color: #B8741A;background-color: #F9F1EA" @click="addPre">+{{$t('api_test.definition.request.pre_script')}}</el-button>
         <br/>
         <el-button class="ms-left-buttion" size="small" style="color: #783887;background-color: #F2ECF3" @click="addPost">+{{$t('api_test.definition.request.post_script')}}</el-button>
@@ -105,6 +105,10 @@
         type: Boolean,
         default: false
       },
+      showScript: {
+        type: Boolean,
+        default: true,
+      }
     },
     data() {
       return {
@@ -141,7 +145,7 @@
         this.reload();
       },
       copyRow(row) {
-        let obj =JSON.parse(JSON.stringify(row));
+        let obj = JSON.parse(JSON.stringify(row));
         obj.id = getUUID();
         this.request.hashTree.push(obj);
         this.reload();

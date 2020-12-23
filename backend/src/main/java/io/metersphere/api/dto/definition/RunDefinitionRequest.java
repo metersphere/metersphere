@@ -15,6 +15,8 @@ public class RunDefinitionRequest {
 
     private String reportId;
 
+    private String name;
+
     private String type;
 
     private String projectId;

@@ -782,7 +782,7 @@
       apiImport(importData) {
         if (importData && importData.data) {
           importData.data.forEach(item => {
-            this.setApiParameter(item, "API", "Copy");
+            this.setApiParameter(item, "API", "OT_IMPORT");
           })
           this.sort();
           this.reload();

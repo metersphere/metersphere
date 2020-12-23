@@ -1,9 +1,7 @@
 package io.metersphere.job.sechedule;
 
-import io.metersphere.api.dto.SaveAPITestRequest;
 import io.metersphere.api.dto.automation.ExecuteType;
 import io.metersphere.api.dto.automation.RunScenarioRequest;
-import io.metersphere.api.service.APITestService;
 import io.metersphere.api.service.ApiAutomationService;
 import io.metersphere.commons.constants.ReportTriggerMode;
 import io.metersphere.commons.constants.ScheduleGroup;
@@ -56,7 +54,7 @@ public class ApiScenarioTestJob extends   MsScheduleJob {
         request.setId(id);
         request.setReportId(id);
         request.setProjectId(projectID);
-        request.setTriggerMode(ReportTriggerMode.MANUAL.name());
+        request.setTriggerMode(ReportTriggerMode.SCHEDULE.name());
         request.setExecuteType(ExecuteType.Completed.name());
         request.setScenarioIds(this.scenarioIds);
         request.setReportUserID(this.userId);
