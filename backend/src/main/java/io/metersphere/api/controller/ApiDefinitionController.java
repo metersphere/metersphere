@@ -14,6 +14,7 @@ import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.commons.utils.SessionUtils;
+import io.metersphere.service.CheckPermissionService;
 import io.metersphere.track.request.testcase.ApiCaseRelevanceRequest;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
@@ -30,6 +31,8 @@ import java.util.List;
 public class ApiDefinitionController {
     @Resource
     private ApiDefinitionService apiDefinitionService;
+    @Resource
+    private CheckPermissionService checkPermissionService;
 
     @PostMapping("/list/{goPage}/{pageSize}")
     public Pager<List<ApiDefinitionResult>> list(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody ApiDefinitionRequest request) {
@@ -41,18 +44,21 @@ public class ApiDefinitionController {
     @PostMapping(value = "/create", consumes = {"multipart/form-data"})
     @RequiresRoles(value = {RoleConstants.TEST_MANAGER, RoleConstants.TEST_USER}, logical = Logical.OR)
     public void create(@RequestPart("request") SaveApiDefinitionRequest request, @RequestPart(value = "files") List<MultipartFile> bodyFiles) {
+        checkPermissionService.checkReadOnlyUser();
         apiDefinitionService.create(request, bodyFiles);
     }
 
     @PostMapping(value = "/update", consumes = {"multipart/form-data"})
     @RequiresRoles(value = {RoleConstants.TEST_MANAGER, RoleConstants.TEST_USER}, logical = Logical.OR)
     public void update(@RequestPart("request") SaveApiDefinitionRequest request, @RequestPart(value = "files") List<MultipartFile> bodyFiles) {
+        checkPermissionService.checkReadOnlyUser();
         apiDefinitionService.update(request, bodyFiles);
     }
 
     @GetMapping("/delete/{id}")
     @RequiresRoles(value = {RoleConstants.TEST_MANAGER, RoleConstants.TEST_USER}, logical = Logical.OR)
     public void delete(@PathVariable String id) {
+        checkPermissionService.checkReadOnlyUser();
         apiDefinitionService.delete(id);
     }
 

@@ -9,7 +9,6 @@ import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.i18n.Translator;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.shiro.authz.UnauthorizedException;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -18,7 +17,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
-public class CheckOwnerService {
+public class CheckPermissionService {
     @Resource
     private ProjectMapper projectMapper;
     @Resource
@@ -32,6 +31,20 @@ public class CheckOwnerService {
     @Resource
     private ExtTestCaseReviewMapper extTestCaseReviewMapper;
 
+
+    public void checkReadOnlyUser() {
+        String currentWorkspaceId = SessionUtils.getCurrentWorkspaceId();
+        Set<String> collect = Objects.requireNonNull(SessionUtils.getUser()).getUserRoles().stream()
+                .filter(ur ->
+                        StringUtils.equals(ur.getRoleId(), RoleConstants.TEST_VIEWER))
+                .map(UserRole::getSourceId)
+                .filter(sourceId -> StringUtils.equals(currentWorkspaceId, sourceId))
+                .collect(Collectors.toSet());
+        if (CollectionUtils.isNotEmpty(collect)) {
+            throw new RuntimeException(Translator.get("check_owner_read_only"));
+        }
+    }
+
     public void checkProjectOwner(String projectId) {
         Set<String> workspaceIds = getUserRelatedWorkspaceIds();
         Project project = projectMapper.selectByPrimaryKey(projectId);
@@ -42,7 +55,7 @@ public class CheckOwnerService {
             return;
         }
         if (!workspaceIds.contains(project.getWorkspaceId())) {
-            throw new UnauthorizedException(Translator.get("check_owner_project"));
+            throw new RuntimeException(Translator.get("check_owner_project"));
         }
     }
 
@@ -67,7 +80,7 @@ public class CheckOwnerService {
         int result = extApiTestMapper.checkApiTestOwner(testId, workspaceIds);
 
         if (result == 0) {
-            throw new UnauthorizedException(Translator.get("check_owner_test"));
+            throw new RuntimeException(Translator.get("check_owner_test"));
         }
     }
 
@@ -83,7 +96,7 @@ public class CheckOwnerService {
         int result = extLoadTestMapper.checkLoadTestOwner(testId, workspaceIds);
 
         if (result == 0) {
-            throw new UnauthorizedException(Translator.get("check_owner_test"));
+            throw new RuntimeException(Translator.get("check_owner_test"));
         }
     }
 
@@ -95,7 +108,7 @@ public class CheckOwnerService {
 
         int result = extTestCaseMapper.checkIsHave(caseId, workspaceIds);
         if (result == 0) {
-            throw new UnauthorizedException(Translator.get("check_owner_case"));
+            throw new RuntimeException(Translator.get("check_owner_case"));
         }
     }
 
@@ -106,7 +119,7 @@ public class CheckOwnerService {
         }
         int result = extTestPlanMapper.checkIsHave(planId, workspaceIds);
         if (result == 0) {
-            throw new UnauthorizedException(Translator.get("check_owner_plan"));
+            throw new RuntimeException(Translator.get("check_owner_plan"));
         }
     }
 
@@ -117,7 +130,7 @@ public class CheckOwnerService {
         }
         int result = extTestCaseReviewMapper.checkIsHave(reviewId, workspaceIds);
         if (result == 0) {
-            throw new UnauthorizedException(Translator.get("check_owner_review"));
+            throw new RuntimeException(Translator.get("check_owner_review"));
         }
     }
 }
