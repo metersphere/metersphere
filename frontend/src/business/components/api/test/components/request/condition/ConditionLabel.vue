@@ -7,7 +7,7 @@
                  v-if="request.controller && request.controller.isValid()">
         <el-row type="flex" align="middle">
           <font-awesome-icon :icon="['fas', 'random']"/>
-          <div class="condition-label">{{ request.controller.label() }}</div>
+          <div class="condition-label">{{ request.controller.getLabel() }}</div>
         </el-row>
       </el-button>
     </div>
@@ -19,7 +19,7 @@
                  v-if="request.timer && request.timer.isValid()">
         <el-row type="flex" align="middle">
           <font-awesome-icon :icon="['fas', 'clock']"/>
-          <div class="condition-label">{{ request.timer && request.timer.label() }}</div>
+          <div class="condition-label">{{ request.timer && request.timer.getLabel() }}</div>
         </el-row>
       </el-button>
     </div>

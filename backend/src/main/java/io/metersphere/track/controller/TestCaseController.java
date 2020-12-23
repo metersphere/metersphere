@@ -11,7 +11,7 @@ import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.excel.domain.ExcelResponse;
-import io.metersphere.service.CheckOwnerService;
+import io.metersphere.service.CheckPermissionService;
 import io.metersphere.service.FileService;
 import io.metersphere.track.dto.TestCaseDTO;
 import io.metersphere.track.request.testcase.EditTestCaseRequest;
@@ -39,7 +39,7 @@ public class TestCaseController {
     @Resource
     TestCaseService testCaseService;
     @Resource
-    private CheckOwnerService checkOwnerService;
+    private CheckPermissionService checkPermissionService;
     @Resource
     private FileService fileService;
 
@@ -51,7 +51,7 @@ public class TestCaseController {
 
     @GetMapping("/list/{projectId}")
     public List<TestCaseDTO> list(@PathVariable String projectId) {
-        checkOwnerService.checkProjectOwner(projectId);
+        checkPermissionService.checkProjectOwner(projectId);
         QueryTestCaseRequest request = new QueryTestCaseRequest();
         request.setProjectId(projectId);
         return testCaseService.listTestCase(request);
@@ -94,13 +94,13 @@ public class TestCaseController {
 
     @GetMapping("/get/{testCaseId}")
     public TestCaseWithBLOBs getTestCase(@PathVariable String testCaseId) {
-        checkOwnerService.checkTestCaseOwner(testCaseId);
+        checkPermissionService.checkTestCaseOwner(testCaseId);
         return testCaseService.getTestCase(testCaseId);
     }
 
     @GetMapping("/project/{testCaseId}")
     public Project getProjectByTestCaseId(@PathVariable String testCaseId) {
-        checkOwnerService.checkTestCaseOwner(testCaseId);
+        checkPermissionService.checkTestCaseOwner(testCaseId);
         return testCaseService.getProjectByTestCaseId(testCaseId);
     }
 
@@ -119,14 +119,14 @@ public class TestCaseController {
     @PostMapping("/delete/{testCaseId}")
     @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
     public int deleteTestCase(@PathVariable String testCaseId) {
-        checkOwnerService.checkTestCaseOwner(testCaseId);
+        checkPermissionService.checkTestCaseOwner(testCaseId);
         return testCaseService.deleteTestCase(testCaseId);
     }
 
     @PostMapping("/import/{projectId}/{userId}")
     @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
     public ExcelResponse testCaseImport(MultipartFile file, @PathVariable String projectId, @PathVariable String userId) {
-        checkOwnerService.checkProjectOwner(projectId);
+        checkPermissionService.checkProjectOwner(projectId);
         return testCaseService.testCaseImport(file, projectId, userId);
     }
 
