@@ -5,7 +5,8 @@
     <div v-if="!metric">
       <base-info-component :is-report="false" v-if="preview.id == 1"/>
       <test-result-component v-if="preview.id == 2"/>
-      <test-result-chart-component v-if="preview.id == 3"/>
+      <!--<test-result-chart-component v-if="preview.id == 3"/>-->
+      <test-result-advance-chart-component v-if="preview.id == 3"/>
       <failure-result-component v-if="preview.id == 4"/>
       <defect-list-component v-if="preview.id == 5"/>
       <rich-text-component :preview="preview" v-if="preview.type != 'system'"/>
@@ -15,7 +16,8 @@
     <div v-if="metric">
       <base-info-component id="baseInfoComponent" :report-info="metric" v-if="preview.id == 1"/>
       <test-result-component id="testResultComponent" :test-results="metric.moduleExecuteResult" v-if="preview.id == 2"/>
-      <test-result-chart-component id="resultChartComponent" :execute-result="metric.executeResult" v-if="preview.id == 3"/>
+      <!--<test-result-chart-component id="resultChartComponent" :execute-result="metric.executeResult" v-if="preview.id == 3"/>-->
+      <test-result-advance-chart-component id="resultChartComponent" :execute-result="metric.executeResult" v-if="preview.id == 3"/>
       <failure-result-component id="failureResultComponent" :failure-test-cases="metric.failureTestCases" v-if="preview.id == 4"/>
       <defect-list-component id="defectListComponent" :defect-list="metric.issues" v-if="preview.id == 5"/>
       <rich-text-component id="richTextComponent" :is-report-view="isReportView" :preview="preview" v-if="preview.type != 'system'"/>
@@ -32,10 +34,12 @@
     import FailureResultComponent from "./FailureResultComponent";
     import DefectListComponent from "./DefectListComponent";
     import html2canvas from 'html2canvas';
+    import TestResultAdvanceChartComponent from "./TestResultAdvanceChartComponent";
 
     export default {
       name: "TemplateComponent",
       components: {
+        TestResultAdvanceChartComponent,
         FailureResultComponent,DefectListComponent,
         RichTextComponent, TestResultChartComponent, TestResultComponent, BaseInfoComponent},
       props: {
