@@ -250,4 +250,8 @@
 
 <style scoped>
 
+  .ms-drawer >>> .ms-drawer-body {
+    margin-top: 80px;
+  }
+
 </style>
