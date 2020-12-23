@@ -60,6 +60,7 @@ public class APIReportController {
     }
 
     @PostMapping("/delete")
+    @RequiresRoles(value = {RoleConstants.TEST_MANAGER, RoleConstants.TEST_USER}, logical = Logical.OR)
     public void delete(@RequestBody DeleteAPIReportRequest request) {
         apiReportService.delete(request);
     }
@@ -70,6 +71,7 @@ public class APIReportController {
     }
 
     @PostMapping("/batch/delete")
+    @RequiresRoles(value = {RoleConstants.TEST_MANAGER, RoleConstants.TEST_USER}, logical = Logical.OR)
     public void deleteAPIReportBatch(@RequestBody DeleteAPIReportRequest reportRequest) {
         apiReportService.deleteAPIReportBatch(reportRequest);
     }

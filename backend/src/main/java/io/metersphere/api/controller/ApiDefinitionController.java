@@ -39,26 +39,31 @@ public class ApiDefinitionController {
     }
 
     @PostMapping(value = "/create", consumes = {"multipart/form-data"})
+    @RequiresRoles(value = {RoleConstants.TEST_MANAGER, RoleConstants.TEST_USER}, logical = Logical.OR)
     public void create(@RequestPart("request") SaveApiDefinitionRequest request, @RequestPart(value = "files") List<MultipartFile> bodyFiles) {
         apiDefinitionService.create(request, bodyFiles);
     }
 
     @PostMapping(value = "/update", consumes = {"multipart/form-data"})
+    @RequiresRoles(value = {RoleConstants.TEST_MANAGER, RoleConstants.TEST_USER}, logical = Logical.OR)
     public void update(@RequestPart("request") SaveApiDefinitionRequest request, @RequestPart(value = "files") List<MultipartFile> bodyFiles) {
         apiDefinitionService.update(request, bodyFiles);
     }
 
     @GetMapping("/delete/{id}")
+    @RequiresRoles(value = {RoleConstants.TEST_MANAGER, RoleConstants.TEST_USER}, logical = Logical.OR)
     public void delete(@PathVariable String id) {
         apiDefinitionService.delete(id);
     }
 
     @PostMapping("/deleteBatch")
+    @RequiresRoles(value = {RoleConstants.TEST_MANAGER, RoleConstants.TEST_USER}, logical = Logical.OR)
     public void deleteBatch(@RequestBody List<String> ids) {
         apiDefinitionService.deleteBatch(ids);
     }
 
     @PostMapping("/removeToGc")
+    @RequiresRoles(value = {RoleConstants.TEST_MANAGER, RoleConstants.TEST_USER}, logical = Logical.OR)
     public void removeToGc(@RequestBody List<String> ids) {
         apiDefinitionService.removeToGc(ids);
     }
