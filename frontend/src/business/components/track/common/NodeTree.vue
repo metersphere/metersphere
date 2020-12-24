@@ -22,7 +22,7 @@
       <span class="custom-tree-node father" @click="handleNodeSelect(node)">
 
         <span v-if="data.isEdit" @click.stop>
-          <el-input  @blur.stop="save(node, data)" v-model="data.name" class="name-input" size="mini"/>
+          <el-input  @blur.stop="save(node, data)" v-model="data.name" class="name-input" size="mini" ref="nameInput"/>
         </span>
 
         <span v-if="!data.isEdit" class="node-icon">
@@ -164,8 +164,9 @@ export default {
       }
       data.children.push(newChild);
       this.edit(node, newChild);
+      node.expanded = true;
       this.$nextTick(() => {
-        this.$refs.tree.setCurrentKey(data.id);
+        this.$refs.nameInput.focus();
       });
     },
     save(node, data) {
@@ -187,6 +188,10 @@ export default {
       this.$set(data, 'isEdit', false);
     },
     remove(node, data) {
+      if (data.label === undefined) {
+        this.$refs.tree.remove(node);
+        return;
+      }
       let tip =  '确定删除节点 ' + data.label + ' 及其子节点下所有资源' + '？';
       // let info =  this.$t("test_track.module.delete_confirm") + data.label + "，" + this.$t("test_track.module.delete_all_resource") + "？";
       this.$alert(tip, "", {
