@@ -450,7 +450,8 @@
         }
         return false;
       },
-      outsideClick() {
+      outsideClick(e) {
+        e.stopPropagation()
         this.operatingElements = ELEMENTS.get("ALL");
       },
       addComponent(type) {
