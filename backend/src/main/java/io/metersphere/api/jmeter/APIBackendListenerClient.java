@@ -204,12 +204,9 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
                 }
             }
             ApiScenarioReport savedReport = apiScenarioReportService.get(testId);
-            String scenarioID = null;
+            String scenarioID = "";
             if(savedReport!=null){
                 scenarioID = savedReport.getScenarioId();
-            }
-            if(scenarioID==null){
-                scenarioID = apiScenarioReportService.getApiScenarioId(scenaName, scenarioReport.getProjectId());
             }
 
             testResult.setTestId(scenarioID);
