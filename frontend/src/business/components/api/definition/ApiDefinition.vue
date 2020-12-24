@@ -242,11 +242,30 @@
         this.showCasePage = true;
       },
       exportAPI() {
-        if (!this.$refs.apiList[0].tableData) {
-          return;
+        let obj = {projectName: getCurrentProjectID(), protocol: this.currentProtocol}
+        if (this.$refs.apiList[0].selectRows && this.$refs.apiList[0].selectRows.length > 0) {
+          let arr = Array.from(this.$refs.apiList[0].selectRows);
+          obj.data = arr;
+          downloadFile("导出API.json", JSON.stringify(obj));
+        } else {
+          let condition = {};
+          if (this.isApiListEnable) {
+            let url = "/api/definition/list/1/100000";
+            condition.filters = ["Prepare", "Underway", "Completed"];
+            condition.projectId = getCurrentProjectID();
+            this.$post(url, condition, response => {
+              obj.data = response.data.listObject;
+              downloadFile("导出API.json", JSON.stringify(obj));
+            });
+          } else {
+            let url = "/api/testcase/list/";
+            condition.projectId = getCurrentProjectID();
+            this.$post(url, condition, response => {
+              obj.data = response.data;
+              downloadFile("导出API.json", JSON.stringify(obj));
+            });
+          }
         }
-        let obj = {projectName: getCurrentProjectID(), protocol: this.currentProtocol, data: this.$refs.apiList[0].tableData}
-        downloadFile("导出API.json", JSON.stringify(obj));
       },
       refresh(data) {
         this.$refs.apiList[0].initTable(data);
