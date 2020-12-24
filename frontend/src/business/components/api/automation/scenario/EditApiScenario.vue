@@ -1,6 +1,6 @@
 <template>
-  <el-card class="card-content">
-    <div>
+  <el-card>
+    <div class="card-content">
       <div class="ms-main-div" @click="showAll">
         <el-row>
           <el-col>
@@ -14,28 +14,28 @@
         <el-form :model="currentScenario" label-position="right" label-width="80px" size="small" :rules="rules" ref="currentScenario" style="margin-right: 20px">
           <!-- 基础信息 -->
           <el-row>
-            <el-col :span="12">
+            <el-col :span="7">
               <el-form-item :label="$t('commons.name')" prop="name">
                 <el-input class="ms-scenario-input" size="small" v-model="currentScenario.name"/>
               </el-form-item>
             </el-col>
-            <el-col :span="12">
+            <el-col :span="7">
               <el-form-item :label="$t('test_track.module.module')" prop="apiScenarioModuleId">
                 <el-select class="ms-scenario-input" size="small" v-model="currentScenario.apiScenarioModuleId">
                   <el-option v-for="item in moduleOptions" :key="item.id" :label="item.path" :value="item.id"/>
                 </el-select>
               </el-form-item>
             </el-col>
-          </el-row>
-          <el-row>
-            <el-col :span="12">
+            <el-col :span="7">
               <el-form-item :label="$t('commons.status')" prop="status">
                 <el-select class="ms-scenario-input" size="small" v-model="currentScenario.status">
                   <el-option v-for="item in options" :key="item.id" :label="item.label" :value="item.id"/>
                 </el-select>
               </el-form-item>
             </el-col>
-            <el-col :span="12">
+          </el-row>
+          <el-row>
+            <el-col :span="7">
               <el-form-item :label="$t('api_test.definition.request.responsible')" prop="principal">
                 <el-select v-model="currentScenario.principal"
                            :placeholder="$t('api_test.definition.request.responsible')" filterable size="small"
@@ -47,20 +47,16 @@
                     :value="item.id">
                   </el-option>
                 </el-select>
-
               </el-form-item>
             </el-col>
-          </el-row>
-
-          <el-row>
-            <el-col :span="12">
+            <el-col :span="7">
               <el-form-item :label="$t('test_track.case.priority')" prop="level">
                 <el-select class="ms-scenario-input" size="small" v-model="currentScenario.level">
                   <el-option v-for="item in levels" :key="item.id" :label="item.label" :value="item.id"/>
                 </el-select>
               </el-form-item>
             </el-col>
-            <el-col :span="12">
+            <el-col :span="7">
               <el-form-item :label="$t('api_test.automation.follow_people')" prop="followPeople">
                 <el-select v-model="currentScenario.followPeople"
                            :placeholder="$t('api_test.automation.follow_people')" filterable size="small"
@@ -76,14 +72,13 @@
               </el-form-item>
             </el-col>
           </el-row>
-
           <el-row>
-            <el-col :span="12">
+            <el-col :span="7">
               <el-form-item label="Tag" prop="tags">
                 <ms-input-tag :currentScenario="currentScenario" ref="tag"/>
               </el-form-item>
             </el-col>
-            <el-col :span="12">
+            <el-col :span="7">
               <el-form-item :label="$t('commons.description')" prop="description">
                 <el-input class="ms-http-textarea"
                           v-model="currentScenario.description"
@@ -181,22 +176,21 @@
             </div>
           </el-col>
           <!-- 按钮列表 -->
-          <div>
-            <el-col :span="3">
-              <vue-fab id="fab" mainBtnColor="#783887" :click-auto-close="false">
-                <fab-item
-                  v-for="(item, index) in buttons"
-                  :key="index"
-                  :idx="getIdx(index)"
-                  :title="item.title"
-                  :title-bg-color="item.titleBgColor"
-                  :title-color="item.titleColor"
-                  :color="item.titleColor"
-                  :icon="item.icon"
-                  @clickItem="item.click"/>
-              </vue-fab>
-            </el-col>
-          </div>
+          <el-col :span="3">
+            <vue-fab id="fab" mainBtnColor="#783887" size="small" :global-options="globalOptions"
+                     :click-auto-close="false" v-outside-click="outsideClick">
+              <fab-item
+                v-for="(item, index) in buttons"
+                :key="index"
+                :idx="getIdx(index)"
+                :title="item.title"
+                :title-bg-color="item.titleBgColor"
+                :title-color="item.titleColor"
+                :color="item.titleColor"
+                :icon="item.icon"
+                @clickItem="item.click"/>
+            </vue-fab>
+          </el-col>
         </el-row>
       </div>
 
@@ -241,7 +235,6 @@
   import MsIfController from "./IfController";
   import MsApiAssertions from "../../definition/components/assertion/ApiAssertions";
   import MsApiExtract from "../../definition/components/extract/ApiExtract";
-  import MsApiDefinition from "./api/ApiDefinition";
   import MsApiComponent from "./ApiComponent";
   import {ELEMENTS, ELEMENT_TYPE} from "./Setting";
   import MsApiCustomize from "./ApiCustomize";
@@ -256,6 +249,7 @@
   import ApiImport from "../../definition/components/import/ApiImport";
   import InputTag from 'vue-input-tag'
   import "@/common/css/material-icons.css"
+  import OutsideClick from "@/common/js/outside-click";
   import ScenarioApiRelevance from "./api/ScenarioApiRelevance";
 
   export default {
@@ -321,6 +315,9 @@
         reportId: "",
         projectId: "",
         enableCookieShare: false,
+        globalOptions: {
+          spacing: 30
+        }
       }
     }
     ,
@@ -336,6 +333,7 @@
     ,
     watch: {}
     ,
+    directives: {OutsideClick},
     computed: {
       buttons() {
         let buttons = [
@@ -443,7 +441,7 @@
     },
     methods: {
       getIdx(index) {
-        return -1 * index - 2.25; // 为了向下展示菜单
+        return index - 0.33
       },
       showButton(...names) {
         for (const name of names) {
@@ -452,6 +450,9 @@
           }
         }
         return false;
+      },
+      outsideClick() {
+        this.operatingElements = ELEMENTS.get("ALL");
       },
       addComponent(type) {
         switch (type) {
@@ -881,6 +882,10 @@
 </script>
 
 <style scoped>
+  .card-content {
+    height: calc(100vh - 196px);
+    overflow-y: auto;
+  }
   .ms-scenario-input {
     width: 100%;
   }
@@ -895,10 +900,9 @@
   }
 
   .ms-debug-div {
-    margin-left: 20px;
     border: 1px #DCDFE6 solid;
     border-radius: 4px;
-    margin-right: 10px;
+    margin-right: 20px;
   }
 
   .ms-scenario-button {
@@ -931,7 +935,6 @@
   }
 
   #fab {
-    bottom: unset;
     right: 90px;
     z-index: 5;
   }
