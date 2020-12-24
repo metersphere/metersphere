@@ -41,6 +41,10 @@ public class DateUtils {
         return dateFormat.format(timeStamp);
     }
 
+    public static String getTimeStr(long timeStamp) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat(TIME_PATTERN);
+        return dateFormat.format(timeStamp);
+    }
 
 
     public static Date dateSum (Date date,int countDays){

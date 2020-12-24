@@ -1,7 +1,8 @@
 package io.metersphere.base.domain;
 
-import java.io.Serializable;
 import lombok.Data;
+
+import java.io.Serializable;
 
 @Data
 public class TestPlan implements Serializable {
@@ -38,10 +39,6 @@ public class TestPlan implements Serializable {
     private Long actualStartTime;
 
     private String creator;
-
-    private String apiIds;
-
-    private String scenarioIds;
 
     private String tags;
 
