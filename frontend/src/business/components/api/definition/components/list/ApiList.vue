@@ -221,7 +221,6 @@
         }
 
         this.condition.projectId = this.getProjectId();
-
         if (this.currentProtocol != null) {
           this.condition.protocol = this.currentProtocol;
         }
