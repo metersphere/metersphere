@@ -253,7 +253,7 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
         Map<String, Object> paramMap = new HashMap<>();
         paramMap.put("testName", report.getName());
         paramMap.put("id", report.getId());
-        paramMap.put("type", "performance");
+        paramMap.put("type", "api");
         paramMap.put("url", baseSystemConfigDTO.getUrl());
         paramMap.put("status", report.getStatus());
         NoticeModel noticeModel = NoticeModel.builder()
