@@ -1,16 +1,15 @@
 <template>
-  <div v-loading="result.loading">
+  <div v-loading="result.loading" :class="{'text-align': !reportId}">
+
+      <el-button v-if="!reportId" class="create-button" :disabled="!isTestManagerOrTestUser" plain size="mini" @click="openTemplateReport">
+        {{$t('test_track.plan_view.create_report')}}
+      </el-button>
+
     <el-row type="flex" class="head-bar">
       <el-col :span="12">
       </el-col>
 
-      <el-col v-if="!reportId" :span="11" class="head-right">
-        <el-button :disabled="!isTestManagerOrTestUser" plain size="mini" @click="openTemplateReport">
-          {{$t('test_track.plan_view.create_report')}}
-        </el-button>
-      </el-col>
-
-      <el-col v-else :span="11" class="head-right">
+      <el-col v-if="reportId" :span="11" class="head-right">
         <el-button :disabled="!isTestManagerOrTestUser" plain size="mini" @click="handleSave">
           {{$t('commons.save')}}
         </el-button>
@@ -253,6 +252,14 @@
   .head-bar .el-button {
     margin-bottom: 10px;
     width: 80px;
+  }
+
+  .text-align {
+    text-align: center;
+  }
+
+  .create-button {
+    margin: 20px auto;
   }
 
   .head-bar {
