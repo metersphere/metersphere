@@ -297,10 +297,6 @@ public class ApiAutomationService {
         testPlan.setHashTree(new LinkedList<>());
         HashTree jmeterTestPlanHashTree = new ListedHashTree();
         String projectID = request.getProjectId();
-        // 批量执行的结果直接存储为报告
-        if (apiScenarios.size() > 1) {
-            request.setExecuteType(ExecuteType.Saved.name());
-        }
         boolean isOne = true;
         for (ApiScenarioWithBLOBs item : apiScenarios) {
             MsThreadGroup group = new MsThreadGroup();
