@@ -88,7 +88,18 @@ public class ApiDefinitionExecResultService {
         if (startTime == null) {
             return new ArrayList<>(0);
         } else {
-            return extApiDefinitionExecResultMapper.findFaliureCaseInfoByProjectIDAndExecuteTimeAndLimitNumber(projectId, startTime.getTime(), limitNumber);
+            List<ExecutedCaseInfoResult>list =  extApiDefinitionExecResultMapper.findFaliureCaseInfoByProjectIDAndExecuteTimeAndLimitNumber(projectId, startTime.getTime());
+
+            List<ExecutedCaseInfoResult> returnList = new ArrayList<>(limitNumber);
+            for(int i = 0;i<list.size();i++){
+                if(i<limitNumber){
+                    returnList.add(list.get(i));
+                }else {
+                    break;
+                }
+            }
+
+            return returnList;
         }
     }
 }

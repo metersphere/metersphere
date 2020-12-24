@@ -42,7 +42,7 @@
         </el-col>
         <el-col :span="2" v-if="!(isReadOnly || isCaseEdit)">
           <el-dropdown size="small" split-button type="primary" class="ms-api-header-select" @click="addCase"
-                       @command="handleCommand">
+                       @command="handleCommand" v-tester>
             +{{$t('api_test.definition.request.case')}}
             <el-dropdown-menu slot="dropdown">
               <el-dropdown-item command="run">{{$t('commons.test')}}</el-dropdown-item>

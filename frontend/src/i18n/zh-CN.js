@@ -65,6 +65,7 @@ export default {
     refresh: '刷新',
     remark: '备注',
     delete: '删除',
+    reduction: '恢复',
     not_filled: '未填写',
     please_select: '请选择',
     search_by_name: '根据名称搜索',

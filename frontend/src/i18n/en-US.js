@@ -65,6 +65,7 @@ export default {
     refresh: 'Refresh',
     remark: 'Remark',
     delete: 'Delete',
+    reduction: 'Reduction',
     not_filled: 'Not filled',
     please_select: 'Please select',
     search_by_name: 'Search by name',
