@@ -713,6 +713,146 @@ public class ApiScenarioReportExample {
             addCriterion("execute_type not between", value1, value2, "executeType");
             return (Criteria) this;
         }
+
+        public Criteria andScenarioNameIsNull() {
+            addCriterion("scenario_name is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andScenarioNameIsNotNull() {
+            addCriterion("scenario_name is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andScenarioNameEqualTo(String value) {
+            addCriterion("scenario_name =", value, "scenarioName");
+            return (Criteria) this;
+        }
+
+        public Criteria andScenarioNameNotEqualTo(String value) {
+            addCriterion("scenario_name <>", value, "scenarioName");
+            return (Criteria) this;
+        }
+
+        public Criteria andScenarioNameGreaterThan(String value) {
+            addCriterion("scenario_name >", value, "scenarioName");
+            return (Criteria) this;
+        }
+
+        public Criteria andScenarioNameGreaterThanOrEqualTo(String value) {
+            addCriterion("scenario_name >=", value, "scenarioName");
+            return (Criteria) this;
+        }
+
+        public Criteria andScenarioNameLessThan(String value) {
+            addCriterion("scenario_name <", value, "scenarioName");
+            return (Criteria) this;
+        }
+
+        public Criteria andScenarioNameLessThanOrEqualTo(String value) {
+            addCriterion("scenario_name <=", value, "scenarioName");
+            return (Criteria) this;
+        }
+
+        public Criteria andScenarioNameLike(String value) {
+            addCriterion("scenario_name like", value, "scenarioName");
+            return (Criteria) this;
+        }
+
+        public Criteria andScenarioNameNotLike(String value) {
+            addCriterion("scenario_name not like", value, "scenarioName");
+            return (Criteria) this;
+        }
+
+        public Criteria andScenarioNameIn(List<String> values) {
+            addCriterion("scenario_name in", values, "scenarioName");
+            return (Criteria) this;
+        }
+
+        public Criteria andScenarioNameNotIn(List<String> values) {
+            addCriterion("scenario_name not in", values, "scenarioName");
+            return (Criteria) this;
+        }
+
+        public Criteria andScenarioNameBetween(String value1, String value2) {
+            addCriterion("scenario_name between", value1, value2, "scenarioName");
+            return (Criteria) this;
+        }
+
+        public Criteria andScenarioNameNotBetween(String value1, String value2) {
+            addCriterion("scenario_name not between", value1, value2, "scenarioName");
+            return (Criteria) this;
+        }
+
+        public Criteria andScenarioIdIsNull() {
+            addCriterion("scenario_id is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andScenarioIdIsNotNull() {
+            addCriterion("scenario_id is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andScenarioIdEqualTo(String value) {
+            addCriterion("scenario_id =", value, "scenarioId");
+            return (Criteria) this;
+        }
+
+        public Criteria andScenarioIdNotEqualTo(String value) {
+            addCriterion("scenario_id <>", value, "scenarioId");
+            return (Criteria) this;
+        }
+
+        public Criteria andScenarioIdGreaterThan(String value) {
+            addCriterion("scenario_id >", value, "scenarioId");
+            return (Criteria) this;
+        }
+
+        public Criteria andScenarioIdGreaterThanOrEqualTo(String value) {
+            addCriterion("scenario_id >=", value, "scenarioId");
+            return (Criteria) this;
+        }
+
+        public Criteria andScenarioIdLessThan(String value) {
+            addCriterion("scenario_id <", value, "scenarioId");
+            return (Criteria) this;
+        }
+
+        public Criteria andScenarioIdLessThanOrEqualTo(String value) {
+            addCriterion("scenario_id <=", value, "scenarioId");
+            return (Criteria) this;
+        }
+
+        public Criteria andScenarioIdLike(String value) {
+            addCriterion("scenario_id like", value, "scenarioId");
+            return (Criteria) this;
+        }
+
+        public Criteria andScenarioIdNotLike(String value) {
+            addCriterion("scenario_id not like", value, "scenarioId");
+            return (Criteria) this;
+        }
+
+        public Criteria andScenarioIdIn(List<String> values) {
+            addCriterion("scenario_id in", values, "scenarioId");
+            return (Criteria) this;
+        }
+
+        public Criteria andScenarioIdNotIn(List<String> values) {
+            addCriterion("scenario_id not in", values, "scenarioId");
+            return (Criteria) this;
+        }
+
+        public Criteria andScenarioIdBetween(String value1, String value2) {
+            addCriterion("scenario_id between", value1, value2, "scenarioId");
+            return (Criteria) this;
+        }
+
+        public Criteria andScenarioIdNotBetween(String value1, String value2) {
+            addCriterion("scenario_id not between", value1, value2, "scenarioId");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {
