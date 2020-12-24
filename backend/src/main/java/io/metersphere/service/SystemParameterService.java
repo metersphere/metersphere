@@ -212,6 +212,8 @@ public class SystemParameterService {
     public void saveBaseInfo(List<SystemParameter> parameters) {
         SystemParameterExample example = new SystemParameterExample();
         parameters.forEach(param -> {
+            // 去掉路径最后的 /
+            param.setParamValue(StringUtils.removeEnd(param.getParamValue(), "/"));
             example.createCriteria().andParamKeyEqualTo(param.getParamKey());
             if (systemParameterMapper.countByExample(example) > 0) {
                 systemParameterMapper.updateByPrimaryKey(param);
