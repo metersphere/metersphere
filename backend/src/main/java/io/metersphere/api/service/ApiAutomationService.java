@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.metersphere.api.dto.DeleteAPIReportRequest;
 import io.metersphere.api.dto.automation.*;
 import io.metersphere.api.dto.datacount.ApiDataCountResult;
 import io.metersphere.api.dto.definition.RunDefinitionRequest;
@@ -14,6 +15,7 @@ import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
 import io.metersphere.api.jmeter.JMeterService;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ApiScenarioMapper;
+import io.metersphere.base.mapper.ApiScenarioReportMapper;
 import io.metersphere.base.mapper.TestPlanApiScenarioMapper;
 import io.metersphere.base.mapper.ext.ExtApiScenarioMapper;
 import io.metersphere.base.mapper.ext.ExtTestPlanApiCaseMapper;
@@ -37,13 +39,13 @@ import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.jorphan.collections.HashTree;
 import org.apache.jorphan.collections.ListedHashTree;
-import org.python.antlr.ast.Str;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -68,6 +70,8 @@ public class ApiAutomationService {
     private ExtTestPlanMapper extTestPlanMapper;
     @Resource
     SqlSessionFactory sqlSessionFactory;
+    @Resource
+    private ApiScenarioReportMapper apiScenarioReportMapper;
 
     public List<ApiScenarioDTO> list(ApiScenarioRequest request) {
         request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
@@ -157,6 +161,10 @@ public class ApiAutomationService {
     }
 
     public void preDelete(String scenarioID) {
+        ApiScenarioReportExample scenarioReportExample = new ApiScenarioReportExample();
+        scenarioReportExample.createCriteria().andScenarioIdEqualTo(scenarioID);
+        List<ApiScenarioReport> list = apiScenarioReportMapper.selectByExample(scenarioReportExample);
+        deleteApiScenarioReport(list);
         scheduleService.deleteByResourceId(scenarioID);
 
         TestPlanApiScenarioExample example = new TestPlanApiScenarioExample();
@@ -177,9 +185,21 @@ public class ApiAutomationService {
 
     }
 
-    public void preDelete(List<String> scenarioIDList) {
+    private void deleteApiScenarioReport(List<ApiScenarioReport> list) {
+        if (CollectionUtils.isNotEmpty(list)) {
+            List<String> ids = list.stream().map(ApiScenarioReport::getId).collect(Collectors.toList());
+            DeleteAPIReportRequest reportRequest = new DeleteAPIReportRequest();
+            reportRequest.setIds(ids);
+            apiReportService.deleteAPIReportBatch(reportRequest);
+        }
+    }
+
+    public void preDeleteBatch(List<String> scenarioIDList) {
+        ApiScenarioReportExample scenarioReportExample = new ApiScenarioReportExample();
+        scenarioReportExample.createCriteria().andScenarioIdIn(scenarioIDList);
+        List<ApiScenarioReport> list = apiScenarioReportMapper.selectByExample(scenarioReportExample);
+        deleteApiScenarioReport(list);
         List<String> testPlanApiScenarioIdList = new ArrayList<>();
-        List<String> scheduleIdList = new ArrayList<>();
         for (String id : scenarioIDList) {
             TestPlanApiScenarioExample example = new TestPlanApiScenarioExample();
             example.createCriteria().andApiScenarioIdEqualTo(id);
@@ -201,9 +221,8 @@ public class ApiAutomationService {
     }
 
     public void deleteBatch(List<String> ids) {
-        //及连删除外键表
-        preDelete(ids);
-        ;
+        // 删除外键表
+        preDeleteBatch(ids);
         ApiScenarioExample example = new ApiScenarioExample();
         example.createCriteria().andIdIn(ids);
         apiScenarioMapper.deleteByExample(example);
@@ -388,40 +407,7 @@ public class ApiAutomationService {
                     apiCaseBatchMapper.insertIfNotExists(testPlanApiCase);
                 }
             }
-
         }
-//        testPlan的ID先不存储
-//        list.forEach(item -> {
-//            if (CollectionUtils.isNotEmpty(request.getApiIds())) {
-//                if (CollectionUtils.isNotEmpty(request.getApiIds())) {
-//                    if (StringUtils.isEmpty(item.getApiIds())) {
-//                        item.setApiIds(JSON.toJSONString(request.getApiIds()));
-//                    } else {
-//                        // 合并api
-//                        List<String> dbApiIDs = JSON.parseArray(item.getApiIds(), String.class);
-//                        List<String> result = Stream.of(request.getApiIds(), dbApiIDs)
-//                                .flatMap(Collection::stream).distinct().collect(Collectors.toList());
-//                        item.setApiIds(JSON.toJSONString(result));
-//                    }
-//                    item.setScenarioIds(null);
-//                }
-//            }
-//            if (CollectionUtils.isNotEmpty(request.getScenarioIds())) {
-//                if (CollectionUtils.isNotEmpty(request.getScenarioIds())) {
-//                    if (StringUtils.isEmpty(item.getScenarioIds())) {
-//                        item.setScenarioIds(JSON.toJSONString(request.getScenarioIds()));
-//                    } else {
-//                        // 合并场景ID
-//                        List<String> dbScenarioIDs = JSON.parseArray(item.getScenarioIds(), String.class);
-//                        List<String> result = Stream.of(request.getScenarioIds(), dbScenarioIDs)
-//                                .flatMap(Collection::stream).distinct().collect(Collectors.toList());
-//                        item.setScenarioIds(JSON.toJSONString(result));
-//                    }
-//                    item.setApiIds(null);
-//                }
-//            }
-//            mapper.updatePlan(item);
-//        });
         sqlSession.flushStatements();
         return "success";
     }
@@ -432,10 +418,8 @@ public class ApiAutomationService {
 
     public long countScenarioByProjectIDAndCreatInThisWeek(String projectId) {
         Map<String, Date> startAndEndDateInWeek = DateUtils.getWeedFirstTimeAndLastTime(new Date());
-
         Date firstTime = startAndEndDateInWeek.get("firstTime");
         Date lastTime = startAndEndDateInWeek.get("lastTime");
-
         if (firstTime == null || lastTime == null) {
             return 0;
         } else {

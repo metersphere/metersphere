@@ -7,38 +7,28 @@
 
     <ms-container>
       <ms-aside-container :enable-aside-hidden="false">
-        <ms-api-module
+        <ms-api-scenario-module
           @nodeSelectEvent="nodeChange"
-          @protocolChange="handleProtocolChange"
           @refreshTable="refresh"
           @setModuleOptions="setModuleOptions"
+          @enableTrash="false"
           :is-read-only="true"
           ref="nodeTree"/>
       </ms-aside-container>
 
       <ms-main-container>
-        <scenario-relevance-api-list
-          v-if="isApiListEnable"
-          :current-protocol="currentProtocol"
+        <ms-api-scenario-list
           :select-node-ids="selectNodeIds"
-          :is-api-list-enable="isApiListEnable"
-          @isApiListEnableChange="isApiListEnableChange"
-          ref="apiList"
-        />
-
-        <scenario-relevance-case-list
-          v-if="!isApiListEnable"
-          :current-protocol="currentProtocol"
-          :select-node-ids="selectNodeIds"
-          :is-api-list-enable="isApiListEnable"
-          @isApiListEnableChange="isApiListEnableChange"
-          ref="apiCaseList"/>
+          :referenced="true"
+          :trash-enable="false"
+          @selection="setData"
+          ref="apiScenarioList"/>
       </ms-main-container>
     </ms-container>
 
     <template v-slot:footer>
       <el-button type="primary" @click="copy" @keydown.enter.native.prevent>复制</el-button>
-      <el-button v-if="!isApiListEnable" type="primary" @click="reference" @keydown.enter.native.prevent>引用</el-button>
+      <el-button type="primary" @click="reference" @keydown.enter.native.prevent>引用</el-button>
     </template>
 
   </el-dialog>
@@ -51,11 +41,15 @@
     import MsAsideContainer from "../../../../common/components/MsAsideContainer";
     import MsMainContainer from "../../../../common/components/MsMainContainer";
     import ScenarioRelevanceApiList from "./ScenarioRelevanceApiList";
+    import MsApiScenarioModule from "../ApiScenarioModule";
+    import MsApiScenarioList from "../ApiScenarioList";
+    import {getUUID} from "../../../../../../common/js/utils";
     export default {
-      name: "ScenarioApiRelevance",
+      name: "ScenarioRelevance",
       components: {
-        ScenarioRelevanceApiList,
-        MsMainContainer, MsAsideContainer, MsContainer, MsApiModule, ScenarioRelevanceCaseList},
+        MsApiScenarioList,
+        MsApiScenarioModule,
+        MsMainContainer, MsAsideContainer, MsContainer},
       data() {
           return {
             dialogVisible: false,
@@ -64,30 +58,42 @@
             selectNodeIds: [],
             moduleOptions: {},
             isApiListEnable: true,
+
+            currentScenario: [],
+            currentScenarioIds: [],
           }
       },
       methods: {
         reference() {
-          this.save('REF');
+          let scenarios = [];
+          if (!this.currentScenario || this.currentScenario.length < 1) {
+            this.$emit('请选择场景');
+            return;
+          }
+          this.currentScenario.forEach(item => {
+            let obj = {id: item.id, name: item.name, type: "scenario", referenced: 'REF', resourceId: getUUID()};
+            scenarios.push(obj);
+          });
+          this.$emit('save', scenarios);
+          this.close();
         },
         copy() {
-          this.save('Copy');
-        },
-        save(reference) {
-          if (this.isApiListEnable) {
-            this.$emit('save', this.$refs.apiList.selectRows, 'API', reference);
-            this.close();
-          } else {
-            let apiCases = this.$refs.apiCaseList.selectRows;
-            let ids = Array.from(apiCases).map(row => row.id);
-            this.result = this.$post("/api/testcase/get/request", {ids: ids}, (response) => {
-              apiCases.forEach((item) => {
-                item.request = response.data[item.id];
-              });
-              this.$emit('save', apiCases, 'CASE', reference);
-              this.close();
-            });
+          let scenarios = [];
+          if (!this.currentScenarioIds || this.currentScenarioIds.length < 1) {
+            this.$emit('请选择场景');
+            return;
           }
+          this.result = this.$post("/api/automation/getApiScenarios/", this.currentScenarioIds, response => {
+            if (response.data) {
+              response.data.forEach(item => {
+                let scenarioDefinition = JSON.parse(item.scenarioDefinition);
+                let obj = {id: item.id, name: item.name, type: "scenario", referenced: 'Copy', resourceId: getUUID(), hashTree: scenarioDefinition.hashTree};
+                scenarios.push(obj);
+              });
+              this.$emit('save', scenarios);
+              this.close();
+            }
+          })
         },
         close() {
           this.refresh();
@@ -95,9 +101,9 @@
         },
         open() {
           this.dialogVisible = true;
-        },
-        isApiListEnableChange(data) {
-          this.isApiListEnable = data;
+          if (this.$refs.apiScenarioList) {
+            this.$refs.apiScenarioList.search();
+          }
         },
         nodeChange(node, nodeIds, pNodes) {
           this.selectNodeIds = nodeIds;
@@ -109,11 +115,11 @@
           this.moduleOptions = data;
         },
         refresh() {
-          if (this.isApiListEnable) {
-            this.$refs.apiList.initTable();
-          } else {
-            this.$refs.apiCaseList.initTable();
-          }
+            this.$refs.apiScenarioList.search();
+        },
+        setData(data) {
+          this.currentScenario = Array.from(data).map(row => row);
+          this.currentScenarioIds = Array.from(data).map(row => row.id);
         },
       }
     }

@@ -17,12 +17,9 @@ public interface ExtTestPlanMapper {
 
     List<TestPlanDTO> selectByIds(@Param("list") List<String> ids);
 
-    int updatePlan(@Param("plan") TestPlanDTO plan);
-
-    List<TestPlanDTO> selectReference(@Param("request") QueryTestPlanRequest params);
-
     /**
      * 通过关联表(test_plan_api_case/test_plan_api_scenario)查询testPlan
+     *
      * @param params
      * @return
      */

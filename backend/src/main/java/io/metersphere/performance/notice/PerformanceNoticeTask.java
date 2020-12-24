@@ -87,6 +87,7 @@ public class PerformanceNoticeTask {
         paramMap.put("testName", loadTestReport.getName());
         paramMap.put("id", loadTestReport.getId());
         paramMap.put("type", "performance");
+        paramMap.put("status", loadTestReport.getStatus());
         paramMap.put("url", baseSystemConfigDTO.getUrl());
         NoticeModel noticeModel = NoticeModel.builder()
                 .successContext(successContext)

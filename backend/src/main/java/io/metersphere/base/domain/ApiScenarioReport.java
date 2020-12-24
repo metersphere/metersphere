@@ -24,6 +24,10 @@ public class ApiScenarioReport implements Serializable {
 
     private String executeType;
 
+    private String scenarioName;
+
+    private String scenarioId;
+
     private String description;
 
     private static final long serialVersionUID = 1L;

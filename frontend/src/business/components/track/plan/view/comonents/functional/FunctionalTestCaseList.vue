@@ -15,10 +15,6 @@
             <ms-table-button :is-tester-permission="true" icon="el-icon-connection"
                              :content="$t('test_track.plan_view.relevance_test_case')"
                              @click="$emit('openTestCaseRelevanceDialog')"/>
-            <ms-table-button :is-tester-permission="true" v-if="!testPlan.reportId" icon="el-icon-document"
-                             :content="$t('test_track.plan_view.create_report')" @click="openTestReport"/>
-            <ms-table-button :is-tester-permission="true" v-if="testPlan.reportId" icon="el-icon-document"
-                             :content="$t('test_track.plan_view.view_report')" @click="openReport"/>
             <ms-table-button :is-tester-permission="true" icon="el-icon-document-remove"
                              :content="$t('test_track.plan_view.cancel_all_relevance')" @click="handleDeleteBatch"/>
           </template>
@@ -204,8 +200,6 @@
         :is-read-only="isReadOnly"
         @refreshTable="search"/>
 
-      <test-report-template-list @openReport="openReport" ref="testReportTemplateList"/>
-      <test-case-report-view @refresh="initTableData" ref="testCaseReportView"/>
     </el-card>
     <batch-edit ref="batchEdit" @batchEdit="batchEdit"
                 :type-arr="typeArr" :value-arr="valueArr" :dialog-title="$t('test_track.case.batch_edit_case')"/>
@@ -242,8 +236,6 @@ export default {
   name: "FunctionalTestCaseList",
   components: {
     FunctionalTestCaseEdit,
-    TestCaseReportView,
-    TestReportTemplateList,
     MsTableOperatorButton,
     MsTableOperator,
     MethodTableItem,
@@ -522,9 +514,6 @@ export default {
       }
       this.initTableData();
     },
-    openTestReport() {
-      this.$refs.testReportTemplateList.open(this.planId);
-    },
     statusChange(param) {
       this.$post('/test/plan/case/edit', param, () => {
         for (let i = 0; i < this.tableData.length; i++) {
@@ -543,16 +532,7 @@ export default {
         });
       }
     },
-    openReport(planId, id) {
-      this.getTestPlanById();
-      if (!id) {
-        id = this.testPlan.reportId;
-      }
-      if (!planId) {
-        planId = this.planId;
-      }
-      this.$refs.testCaseReportView.open(planId, id);
-    },
+
     filter(filters) {
       _filter(filters, this.condition);
       this.initTableData();

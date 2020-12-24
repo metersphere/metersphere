@@ -2,9 +2,8 @@ package io.metersphere.base.mapper;
 
 import io.metersphere.base.domain.ApiScenarioReport;
 import io.metersphere.base.domain.ApiScenarioReportExample;
-import org.apache.ibatis.annotations.Param;
-
 import java.util.List;
+import org.apache.ibatis.annotations.Param;
 
 public interface ApiScenarioReportMapper {
     long countByExample(ApiScenarioReportExample example);

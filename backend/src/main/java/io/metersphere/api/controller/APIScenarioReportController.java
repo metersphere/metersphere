@@ -44,9 +44,9 @@ public class APIScenarioReportController {
 
     @PostMapping("/add")
     @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
-    public String add(@RequestBody APIScenarioReportResult node) {
+    public void add(@RequestBody APIScenarioReportResult node) {
         node.setExecuteType(ExecuteType.Saved.name());
-        return apiReportService.save(node, ApiRunMode.SCENARIO.name());
+        apiReportService.save(node, ApiRunMode.SCENARIO.name());
     }
 
     @PostMapping("/update")
