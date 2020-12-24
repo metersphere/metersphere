@@ -34,7 +34,7 @@
 
         <el-tab-pane name="add">
           <template v-slot:label>
-            <el-button type="primary" plain icon="el-icon-plus" size="mini"/>
+            <el-button type="primary" plain icon="el-icon-plus" size="mini" v-tester/>
           </template>
         </el-tab-pane>
       </el-tabs>

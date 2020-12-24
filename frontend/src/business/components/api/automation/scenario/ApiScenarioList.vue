@@ -50,14 +50,14 @@
         <el-table-column :label="$t('commons.operating')" width="200px" v-if="!referenced">
           <template v-slot:default="{row}">
             <div v-if="trashEnable">
-              <el-button type="text" @click="reductionApi(row)">恢复</el-button>
-              <el-button type="text" @click="remove(row)">{{ $t('api_test.automation.remove') }}</el-button>
+              <el-button type="text" @click="reductionApi(row)" v-tester>{{$t('commons.reduction')}}</el-button>
+              <el-button type="text" @click="remove(row)" v-tester>{{ $t('api_test.automation.remove') }}</el-button>
             </div>
             <div v-else>
-              <el-button type="text" @click="edit(row)">{{ $t('api_test.automation.edit') }}</el-button>
-              <el-button type="text" @click="execute(row)">{{ $t('api_test.automation.execute') }}</el-button>
-              <el-button type="text" @click="copy(row)">{{ $t('api_test.automation.copy') }}</el-button>
-              <el-button type="text" @click="remove(row)">{{ $t('api_test.automation.remove') }}</el-button>
+              <el-button type="text" @click="edit(row)" v-tester>{{ $t('api_test.automation.edit') }}</el-button>
+              <el-button type="text" @click="execute(row)" v-tester>{{ $t('api_test.automation.execute') }}</el-button>
+              <el-button type="text" @click="copy(row)" v-tester>{{ $t('api_test.automation.copy') }}</el-button>
+              <el-button type="text" @click="remove(row)" v-tester>{{ $t('api_test.automation.remove') }}</el-button>
               <ms-scenario-extend-buttons :row="row"/>
             </div>
           </template>
@@ -161,7 +161,7 @@
         if (this.projectId != null) {
           this.condition.projectId = this.projectId;
         }
-
+        this.selection = [];
         let url = "/api/automation/list/" + this.currentPage + "/" + this.pageSize;
         this.$post(url, this.condition, response => {
           let data = response.data;

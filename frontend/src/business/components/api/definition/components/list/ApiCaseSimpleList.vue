@@ -69,7 +69,7 @@
 
         <el-table-column v-if="!isReadOnly && !isRelevanceModel" :label="$t('commons.operating')" min-width="130" align="center">
           <template v-slot:default="scope">
-            <!--<el-button type="text" @click="reductionApi(scope.row)" v-if="trashEnable">恢复</el-button>-->
+            <!--<el-button type="text" @click="reductionApi(scope.row)" v-if="trashEnable">{{$t('commons.reduction')}}</el-button>-->
             <el-button type="text" @click="handleTestCase(scope.row)" v-if="!trashEnable">{{$t('commons.edit')}}</el-button>
             <el-button type="text" @click="handleDelete(scope.row)" style="color: #F56C6C">{{$t('commons.delete')}}</el-button>
           </template>

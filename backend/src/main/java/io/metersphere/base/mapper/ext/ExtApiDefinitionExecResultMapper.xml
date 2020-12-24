@@ -52,9 +52,9 @@
             UNION
             SELECT scene.`name` AS caseName,apiScene.testPlanName AS testPlan,count(report.id) AS failureTimes,'scenario' AS caseType
             FROM api_scenario_report report
-               INNER JOIN api_scenario_report_detail reportDetail ON report.id = reportDetail.report_id
-               INNER JOIN api_scenario scene ON report.scenario_id = scene.id
-               LEFT JOIN
+                     INNER JOIN api_scenario_report_detail reportDetail ON report.id = reportDetail.report_id
+                     INNER JOIN api_scenario scene ON report.scenario_id = scene.id
+                     LEFT JOIN
                  (
                      SELECT
                          apiScene.api_scenario_id,
@@ -65,10 +65,9 @@
                      GROUP BY apiScene.api_scenario_id
                  )apiScene ON apiScene.api_scenario_id = scene.id
             WHERE report.project_id = #{projectId}
-            AND report.status = 'Error' AND report.create_time >= #{startTimestamp}
-          GROUP BY scene.id
+              AND ( report.STATUS = 'Error' OR report.STATUS = 'Fail' )  AND report.create_time >= #{startTimestamp}
+            GROUP BY scene.id
           ) showTable
         ORDER BY showTable.failureTimes DESC
-            limit #{limitNumber}
     </select>
 </mapper>
