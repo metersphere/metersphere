@@ -195,14 +195,23 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
             } else {
                 String[] sceneNameArr = scenaName.split("-");
                 if (sceneNameArr.length >= 4) {
+                    //如果以yyyy-MM-dd 时间类型结尾
                     String endStr = "-" + sceneNameArr[sceneNameArr.length - 3] + "-" + sceneNameArr[sceneNameArr.length - 2] + "-" + sceneNameArr[sceneNameArr.length - 1];
                     scenaName = scenaName.split(endStr)[0];
                 } else {
+                    //如果以时间戳结尾
                     scenaName = scenaName.split("-")[0];
                 }
             }
+            ApiScenarioReport savedReport = apiScenarioReportService.get(testId);
+            String scenarioID = null;
+            if(savedReport!=null){
+                scenarioID = savedReport.getScenarioId();
+            }
+            if(scenarioID==null){
+                scenarioID = apiScenarioReportService.getApiScenarioId(scenaName, scenarioReport.getProjectId());
+            }
 
-            String scenarioID = apiScenarioReportService.getApiScenarioId(scenaName, scenarioReport.getProjectId());
             testResult.setTestId(scenarioID);
         } else {
             apiTestService.changeStatus(testId, APITestStatus.Completed);
