@@ -90,6 +90,13 @@ public class ApiAutomationController {
         apiAutomationService.run(request);
     }
 
+    @PostMapping(value = "/run/batch")
+    public void runBatch(@RequestBody RunScenarioRequest request) {
+        request.setExecuteType(ExecuteType.Saved.name());
+        apiAutomationService.run(request);
+    }
+
+
     @PostMapping("/getReference")
     public ReferenceDTO getReference(@RequestBody ApiScenarioRequest request) {
         return apiAutomationService.getReference(request);

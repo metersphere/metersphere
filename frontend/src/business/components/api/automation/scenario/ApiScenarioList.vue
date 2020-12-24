@@ -6,7 +6,7 @@
                          :show-create="false"/>
       </template>
 
-      <el-table ref="scenarioTable" border :data="tableData" class="adjust-table" @select-all="select" @select="select">
+      <el-table ref="scenarioTable" border :data="tableData" class="adjust-table" @select-all="select" @select="select" v-loading="loading">
         <el-table-column type="selection"/>
         <el-table-column width="40" :resizable="false" align="center">
           <template v-slot:default="{row}">
@@ -118,11 +118,14 @@
         pageSize: 10,
         total: 0,
         reportId: "",
+        batchReportId: "",
+        content: {},
         infoDb: false,
         runVisible: false,
         planVisible: false,
         projectId: "",
         runData: [],
+        report: {},
         buttons: [
           {
             name: this.$t('api_test.automation.batch_add_plan'), handleClick: this.handleBatchAddCase
@@ -145,12 +148,20 @@
           this.search();
         }
       },
+      batchReportId() {
+        this.loading = true;
+        this.getReport();
+      }
+    },
+    computed: {
+      isNotRunning() {
+        return "Running" !== this.report.status;
+      }
     },
     methods: {
       search() {
         this.loading = true;
         this.condition.filters = ["Prepare", "Underway", "Completed"];
-
         this.condition.moduleIds = this.selectNodeIds;
 
         if (this.trashEnable) {
@@ -197,9 +208,33 @@
           this.$success(this.$t("commons.save_success"));
         });
       },
+      getReport() {
+        if (this.batchReportId) {
+          let url = "/api/scenario/report/get/" + this.batchReportId;
+          this.$get(url, response => {
+            this.report = response.data || {};
+            if (response.data) {
+              if (this.isNotRunning) {
+                try {
+                  this.content = JSON.parse(this.report.content);
+                } catch (e) {
+                  throw e;
+                }
+                this.loading = false;
+                this.$success("批量执行成功，请到报告页面查看详情！");
+              } else {
+                setTimeout(this.getReport, 2000)
+              }
+            } else {
+              this.loading = false;
+              this.$error(this.$t('api_report.not_exist'));
+            }
+          });
+        }
+      },
       handleBatchExecute() {
         this.infoDb = false;
-        let url = "/api/automation/run";
+        let url = "/api/automation/run/batch";
         let run = {};
         let scenarioIds = this.selection;
         run.id = getUUID();
@@ -207,8 +242,8 @@
         run.projectId = getCurrentProjectID();
         this.$post(url, run, response => {
           let data = response.data;
-          this.runVisible = true;
-          this.reportId = run.id;
+          this.runVisible = false;
+          this.batchReportId = run.id;
         });
       },
       selectAllChange() {
