@@ -5,7 +5,7 @@
     </el-link>
     <el-dropdown-menu slot="dropdown">
       <el-dropdown-item command="ref">{{ $t('api_test.automation.view_ref') }}</el-dropdown-item>
-      <el-dropdown-item command="schedule">{{ $t('api_test.automation.schedule') }}</el-dropdown-item>
+      <el-dropdown-item command="schedule" v-tester>{{ $t('api_test.automation.schedule') }}</el-dropdown-item>
     </el-dropdown-menu>
     <ms-reference-view ref="viewRef"/>
     <ms-schedule-maintain ref="scheduleMaintain" />
