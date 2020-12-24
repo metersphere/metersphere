@@ -12,10 +12,10 @@
               <ms-scenario-results :scenarios="content.scenarios" v-on:requestResult="requestResult"/>
             </div>
             <!--<el-collapse-transition>-->
-              <!--<div v-show="isActive" style="width: 99%">-->
-                <!--<ms-request-result-tail v-if="isRequestResult" :request-type="requestType" :request="request"-->
-                                        <!--:scenario-name="scenarioName"/>-->
-              <!--</div>-->
+            <!--<div v-show="isActive" style="width: 99%">-->
+            <!--<ms-request-result-tail v-if="isRequestResult" :request-type="requestType" :request="request"-->
+            <!--:scenario-name="scenarioName"/>-->
+            <!--</div>-->
             <!--</el-collapse-transition>-->
             <ms-api-report-export v-if="reportExportVisible" id="apiTestReport" :title="report.testName"
                                   :content="content" :total-time="totalTime"/>
@@ -38,7 +38,7 @@
   import MsApiReportExport from "./ApiReportExport";
   import MsApiReportViewHeader from "./ApiReportViewHeader";
   import {RequestFactory} from "../../definition/model/ApiTestModel";
-  import {windowPrint} from "@/common/js/utils";
+  import {windowPrint, getCurrentProjectID} from "@/common/js/utils";
 
   export default {
     name: "MsApiReport",
@@ -166,16 +166,9 @@
           this.$warning(this.$t('api_test.automation.report_name_info'));
           return;
         }
-        if (!this.currentProjectId) {
-          this.$warning(this.$t('api_test.select_project'));
-          return;
-        }
         this.loading = true;
-        this.report.projectId = this.currentProjectId;
-        let url = "/api/scenario/report/add";
-        if (this.infoDb === true) {
-          url = "/api/scenario/report/update";
-        }
+        this.report.projectId = getCurrentProjectID();
+        let url = "/api/scenario/report/update";
         this.result = this.$post(url, this.report, response => {
           this.$success(this.$t('commons.save_success'));
           this.loading = false;

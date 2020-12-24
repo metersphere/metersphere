@@ -17,7 +17,7 @@
     <ms-main-container>
       <el-dropdown size="small" split-button type="primary" class="ms-api-buttion"
                    @click="handleCommand('ADD')"
-                   @command="handleCommand">
+                   @command="handleCommand" v-tester>
         {{$t('commons.add')}}
         <el-dropdown-menu slot="dropdown">
           <el-dropdown-item command="debug">{{$t('api_test.definition.request.fast_debug')}}</el-dropdown-item>
@@ -242,8 +242,12 @@
         this.showCasePage = true;
       },
       exportAPI() {
+        if (!this.isApiListEnable) {
+          this.$warning('用例列表暂不支持导出，请切换成接口列表');
+          return;
+        }
         let obj = {projectName: getCurrentProjectID(), protocol: this.currentProtocol}
-        if (this.$refs.apiList[0].selectRows && this.$refs.apiList[0].selectRows.length > 0) {
+        if (this.$refs.apiList[0].selectRows && this.$refs.apiList[0].selectRows.size > 0) {
           let arr = Array.from(this.$refs.apiList[0].selectRows);
           obj.data = arr;
           downloadFile("导出API.json", JSON.stringify(obj));
