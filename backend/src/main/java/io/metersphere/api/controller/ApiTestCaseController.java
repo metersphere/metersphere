@@ -21,6 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping(value = "/api/testcase")
@@ -41,6 +42,12 @@ public class ApiTestCaseController {
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         request.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
         return PageUtils.setPageInfo(page, apiTestCaseService.listSimple(request));
+    }
+
+    @PostMapping("/get/request")
+    public Map<String, String> listSimple(@RequestBody ApiTestCaseRequest request) {
+        request.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
+        return apiTestCaseService.getRequest(request);
     }
 
     @PostMapping(value = "/create", consumes = {"multipart/form-data"})

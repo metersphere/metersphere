@@ -201,11 +201,7 @@
       </div>
 
       <!--接口列表-->
-      <el-drawer :visible.sync="apiListVisible" :destroy-on-close="true" direction="ltr" :withHeader="false" :modal="false" size="90%">
-        <ms-api-definition :visible="visibleRef" :currentRow="currentRow"/>
-        <el-button style="float: right;margin: 0px 20px 0px" type="primary" @click="pushApiOrCase('REF')">{{$t('api_test.scenario.reference')}}</el-button>
-        <el-button style="float: right;" type="primary" @click="pushApiOrCase('Copy')">{{ $t('commons.copy') }}</el-button>
-      </el-drawer>
+      <scenario-api-relevance @save="pushApiOrCase" ref="scenarioApiRelevance"/>
 
       <!--自定义接口-->
       <el-drawer :visible.sync="customizeVisible" :destroy-on-close="true" direction="ltr" :withHeader="false" :title="$t('api_test.automation.customize_req')" style="overflow: auto" :modal="false" size="90%">
@@ -260,6 +256,7 @@
   import ApiImport from "../../definition/components/import/ApiImport";
   import InputTag from 'vue-input-tag'
   import "@/common/css/material-icons.css"
+  import ScenarioApiRelevance from "./api/ScenarioApiRelevance";
 
   export default {
     name: "EditApiScenario",
@@ -268,6 +265,7 @@
       currentScenario: {},
     },
     components: {
+      ScenarioApiRelevance,
       ApiEnvironmentConfig,
       MsScenarioParameters,
       MsApiReportDetail,
@@ -279,7 +277,6 @@
       MsIfController,
       MsApiAssertions,
       MsApiExtract,
-      MsApiDefinition,
       MsApiComponent,
       MsApiCustomize,
       ApiImport,
@@ -323,7 +320,6 @@
         debugData: {},
         reportId: "",
         projectId: "",
-        visibleRef: "",
         enableCookieShare: false,
       }
     }
@@ -518,8 +514,7 @@
       }
       ,
       apiListImport() {
-        this.visibleRef = getUUID();
-        this.apiListVisible = true;
+        this.$refs.scenarioApiRelevance.open();
       }
       ,
       recursiveSorting(arr) {
@@ -599,20 +594,10 @@
         }
       }
       ,
-      pushApiOrCase(referenced) {
-        if (this.currentRow.cases.length === 0 && this.currentRow.apis.length === 0) {
-          this.$warning(this.$t('api_test.automation.reference_info'));
-          return;
-        }
-        this.currentRow.cases.forEach(item => {
-          this.setApiParameter(item, "CASE", referenced);
-        })
-        this.currentRow.apis.forEach(item => {
-          this.setApiParameter(item, "API", referenced);
-        })
-        this.apiListVisible = false;
-        this.currentRow.cases = [];
-        this.currentRow.apis = [];
+      pushApiOrCase(data, refType,  referenced) {
+        data.forEach(item => {
+          this.setApiParameter(item, refType, referenced);
+        });
         this.sort();
         this.reload();
       }
