@@ -81,7 +81,7 @@ public class ApiAutomationController {
     @PostMapping(value = "/run/debug")
     public void runDebug(@RequestPart("request") RunDefinitionRequest request, @RequestPart(value = "files") List<MultipartFile> bodyFiles) {
         request.setExecuteType(ExecuteType.Debug.name());
-        apiAutomationService.run(request, bodyFiles);
+        apiAutomationService.debugRun(request, bodyFiles);
     }
 
     @PostMapping(value = "/run")
