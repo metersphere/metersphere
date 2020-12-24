@@ -20,10 +20,8 @@
           </el-table-column>
           <el-table-column :label="$t('commons.name')" width="200" show-overflow-tooltip prop="name">
           </el-table-column>
-<!--
-          <el-table-column prop="testName" :label="$t('api_report.test_name')" width="200" show-overflow-tooltip/>
--->
-          <el-table-column prop="projectName" :label="$t('load_test.project_name')" width="150" show-overflow-tooltip/>
+
+          <el-table-column prop="scenarioName" :label="$t('api_test.automation.scenario_name')" width="150" show-overflow-tooltip/>
           <el-table-column prop="userName" :label="$t('api_test.creator')" width="150" show-overflow-tooltip/>
           <el-table-column prop="createTime" width="250" :label="$t('commons.create_time')" sortable>
             <template v-slot:default="scope">
@@ -69,7 +67,7 @@
   import MsContainer from "../../../common/components/MsContainer";
   import MsMainContainer from "../../../common/components/MsMainContainer";
   import MsApiReportStatus from "./ApiReportStatus";
-  import {_filter, _sort,getCurrentProjectID} from "@/common/js/utils";
+  import {_filter, _sort, getCurrentProjectID} from "@/common/js/utils";
   import MsTableOperatorButton from "../../../common/components/MsTableOperatorButton";
   import ReportTriggerModeItem from "../../../common/tableItem/ReportTriggerModeItem";
   import {REPORT_CONFIGS} from "../../../common/components/search/search-components";

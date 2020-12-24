@@ -105,7 +105,6 @@ public class ApiTestCaseService {
     public void update(SaveApiTestCaseRequest request, List<MultipartFile> bodyFiles) {
 
         deleteFileByTestId(request.getId());
-
         List<String> bodyUploadIds = new ArrayList<>(request.getBodyUploadIds());
         request.setBodyUploadIds(null);
         ApiTestCase test = updateTest(request);
@@ -134,12 +133,9 @@ public class ApiTestCaseService {
     }
 
     public void delete(String testId) {
-
         extTestPlanTestCaseMapper.deleteByTestCaseID(testId);
-
         deleteFileByTestId(testId);
         extApiDefinitionExecResultMapper.deleteByResourceId(testId);
-
         apiTestCaseMapper.deleteByPrimaryKey(testId);
         deleteBodyFiles(testId);
     }

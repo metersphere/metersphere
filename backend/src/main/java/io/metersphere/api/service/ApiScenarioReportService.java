@@ -204,8 +204,7 @@ public class ApiScenarioReportService {
     }
 
     public void updatePlanCase(TestResult result, APIScenarioReportResult test) {
-        TestPlanApiScenario testPlanApiScenario = new TestPlanApiScenario();
-        testPlanApiScenario.setId(test.getId());
+        TestPlanApiScenario testPlanApiScenario = testPlanApiScenarioMapper.selectByPrimaryKey(test.getId());
         ScenarioResult scenarioResult = result.getScenarios().get(0);
         if (scenarioResult.getError() > 0) {
             testPlanApiScenario.setLastResult("Fail");
@@ -214,7 +213,6 @@ public class ApiScenarioReportService {
         }
         String passRate = new DecimalFormat("0%").format((float) scenarioResult.getSuccess() / (scenarioResult.getSuccess() + scenarioResult.getError()));
         testPlanApiScenario.setPassRate(passRate);
-
         // 存储场景报告
         ApiScenarioReport report = createReport(test, scenarioResult.getName(), testPlanApiScenario.getApiScenarioId(), scenarioResult.getError() == 0 ? "Success" : "Error");
         // 报告详情内容
