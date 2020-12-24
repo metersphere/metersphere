@@ -127,10 +127,12 @@
         if (this.request.id && this.request.referenced === 'REF') {
           let requestResult = this.request.requestResult;
           let url = this.request.refType && this.request.refType === 'CASE' ? "/api/testcase/get/" : "/api/definition/get/";
+          let enable = this.request.enable;
           this.$get(url + this.request.id, response => {
             if (response.data) {
               Object.assign(this.request, JSON.parse(response.data.request));
               this.request.name = response.data.name;
+              this.request.enable = enable;
               if (response.data.path && response.data.path != null) {
                 this.request.path = response.data.path;
                 this.request.url = response.data.path;
