@@ -75,7 +75,7 @@ public class PerformanceTestController {
             @RequestPart("request") SaveTestPlanRequest request,
             @RequestPart(value = "file") List<MultipartFile> files
     ) {
-        checkPermissionService.checkReadOnlyUser();
+        checkPermissionService.checkProjectOwner(request.getProjectId());
         return performanceTestService.save(request, files);
     }
 
@@ -84,7 +84,6 @@ public class PerformanceTestController {
             @RequestPart("request") EditTestPlanRequest request,
             @RequestPart(value = "file", required = false) List<MultipartFile> files
     ) {
-        checkPermissionService.checkReadOnlyUser();
         checkPermissionService.checkPerformanceTestOwner(request.getId());
         return performanceTestService.edit(request, files);
     }
@@ -115,7 +114,6 @@ public class PerformanceTestController {
 
     @PostMapping("/delete")
     public void delete(@RequestBody DeleteTestPlanRequest request) {
-        checkPermissionService.checkReadOnlyUser();
         checkPermissionService.checkPerformanceTestOwner(request.getId());
         performanceTestService.delete(request);
     }
