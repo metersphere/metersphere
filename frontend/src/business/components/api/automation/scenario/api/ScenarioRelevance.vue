@@ -1,5 +1,5 @@
 <template>
-  <el-dialog class="api-relevance" :title="$t('test_track.plan_view.relevance_test_case')"
+  <el-dialog class="api-relevance" :title="'场景导入'"
              :visible.sync="dialogVisible"
              width="60%"
              :close-on-click-modal="false"
