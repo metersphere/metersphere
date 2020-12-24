@@ -53,7 +53,7 @@
             SELECT scene.`name` AS caseName,testPlan.`name` AS testPlan,count(report.id) AS failureTimes,'scenario' AS caseType
             FROM api_scenario_report report
                INNER JOIN api_scenario_report_detail reportDetail ON report.id = reportDetail.report_id
-               INNER JOIN api_scenario scene ON reportDetail.content like concat('%"',scene.`name`,'"%')
+               INNER JOIN api_scenario scene ON reportDetail.content like concat('%"', scene.`name`,'"%')
                LEFT JOIN test_plan_api_scenario apiScene ON apiScene.api_scenario_id = scene.id
                LEFT JOIN test_plan testPlan ON testPlan.id = apiScene.test_plan_id
             WHERE report.project_id = #{projectId}
