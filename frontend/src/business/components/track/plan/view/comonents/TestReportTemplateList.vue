@@ -2,6 +2,7 @@
 
   <el-dialog :title="$t('test_track.plan_view.select_template')"
              :visible.sync="templateVisible"
+             class="report-template-list"
              width="50%">
 
     <el-main>
@@ -59,4 +60,7 @@
     display: none;
   }
 
+  .report-template-list {
+    text-align: left;
+  }
 </style>

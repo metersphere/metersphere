@@ -10,7 +10,7 @@
           @dataChange="changePlan"/>
       </template>
       <template v-slot:menu>
-        <el-menu active-text-color="#6d317c" :default-active="activeIndex"
+        <el-menu v-if="isMenuShow" active-text-color="#6d317c" :default-active="activeIndex"
                  class="el-menu-demo header-menu" mode="horizontal" @select="handleSelect">
           <el-menu-item index="functional">功能测试用例</el-menu-item>
           <el-menu-item index="api">接口测试用例</el-menu-item>
@@ -21,6 +21,9 @@
     <test-plan-functional v-if="activeIndex === 'functional'" :plan-id="planId"/>
     <test-plan-api v-if="activeIndex === 'api'" :plan-id="planId"/>
     <test-case-statistics-report-view :test-plan="currentPlan" v-if="activeIndex === 'report'"/>
+
+    <test-report-template-list @openReport="openReport" ref="testReportTemplateList"/>
+
   </div>
 
 </template>
@@ -38,10 +41,12 @@
     import TestPlanFunctional from "./comonents/functional/TestPlanFunctional";
     import TestPlanApi from "./comonents/api/TestPlanApi";
     import TestCaseStatisticsReportView from "./comonents/report/statistics/TestCaseStatisticsReportView";
+    import TestReportTemplateList from "./comonents/TestReportTemplateList";
 
     export default {
       name: "TestPlanView",
       components: {
+        TestReportTemplateList,
         TestCaseStatisticsReportView,
         TestPlanApi,
         TestPlanFunctional,
@@ -52,7 +57,8 @@
         return {
           testPlans: [],
           currentPlan: {},
-          activeIndex: "functional"
+          activeIndex: "functional",
+          isMenuShow: true
         }
       },
       computed: {
@@ -62,6 +68,7 @@
       },
       watch: {
         '$route.params.planId'() {
+          this.activeIndex = "functional";
           this.getTestPlans();
         }
       },
@@ -85,8 +92,23 @@
         },
         handleSelect(key) {
           this.activeIndex = key;
+          if (key === 'report' && !this.currentPlan.reportId) {
+            this.$refs.testReportTemplateList.open(this.planId);
+          }
+        },
+        openTemplateReport() {
+          this.$refs.testReportTemplateList.open(this.planId);
+        },
+        openReport(planId, id) {
+          this.currentPlan.reportId = id;
+        },
+        reloadMenu() {
+          this.isMenuShow = false;
+          this.$nextTick(() => {
+            this.isMenuShow = true;
+          });
         }
-      }
+      },
     }
 </script>
 

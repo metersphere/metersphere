@@ -6,10 +6,10 @@
           🤔️天凉了，保温杯买了吗？
         </div>
         <div v-else-if="dateType==='2'">
-          <el-link href="https://github.com/metersphere/metersphere/issues" target="_blank" type="primary">😔觉得MeterSphere不好用就来https://github.com/metersphere/metersphere/issues吐个槽吧！</el-link>
+          😔觉得MeterSphere不好用就来 <el-link href="https://github.com/metersphere/metersphere/issues" target="_blank" style="color: black" type="primary">https://github.com/metersphere/metersphere/issues</el-link> 吐个槽吧！
         </div>
         <div v-else-if="dateType==='3'">
-          <el-link href="https://github.com/metersphere/metersphere"  target="_blank" type="primary">😄觉得MeterSphere好用就来 https://github.com/metersphere/metersphere 点个star吧！</el-link>
+          😄觉得MeterSphere好用就来 <el-link href="https://github.com/metersphere/metersphere"  target="_blank" style="color: black" type="primary">https://github.com/metersphere/metersphere</el-link> 点个star吧！
         </div>
         <div v-else>
           😊 MeterSphere温馨提醒 —— 多喝热水哟！
