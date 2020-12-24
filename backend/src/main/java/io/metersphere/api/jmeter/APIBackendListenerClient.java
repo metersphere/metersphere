@@ -196,9 +196,11 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
             }
         }
         try {
-            sendTask(report, testResult);
+            if (StringUtils.equals(NoticeConstants.Mode.API, report.getTriggerMode()) || StringUtils.equals(NoticeConstants.Mode.SCHEDULE, report.getTriggerMode())) {
+                sendTask(report, testResult);
+            }
         } catch (Exception e) {
-            LogUtil.error(e.getMessage(), e);
+            LogUtil.error("发送通知" + e.getMessage(), e);
         }
 
     }
@@ -237,6 +239,7 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
         paramMap.put("id", report.getId());
         paramMap.put("type", "performance");
         paramMap.put("url", baseSystemConfigDTO.getUrl());
+        paramMap.put("state", report.getStatus());
         NoticeModel noticeModel = NoticeModel.builder()
                 .successContext(successContext)
                 .successMailTemplate("ApiSuccessfulNotification")
