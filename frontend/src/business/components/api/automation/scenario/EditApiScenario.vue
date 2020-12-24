@@ -202,9 +202,7 @@
         <ms-api-customize :request="customizeRequest" @addCustomizeApi="addCustomizeApi"/>
       </el-drawer>
       <!--场景导入 -->
-      <el-drawer :visible.sync="scenarioVisible" :destroy-on-close="true" direction="ltr" :withHeader="false" :title="$t('api_test.automation.scenario_import')" style="overflow: auto" :modal="false" size="90%">
-        <ms-import-api-scenario @addScenario="addScenario"/>
-      </el-drawer>
+      <scenario-relevance @save="addScenario" ref="scenarioRelevance"/>
 
       <!-- 环境 -->
       <api-environment-config ref="environmentConfig" @close="environmentConfigClose"/>
@@ -251,6 +249,7 @@
   import "@/common/css/material-icons.css"
   import OutsideClick from "@/common/js/outside-click";
   import ScenarioApiRelevance from "./api/ScenarioApiRelevance";
+  import ScenarioRelevance from "./api/ScenarioRelevance";
 
   export default {
     name: "EditApiScenario",
@@ -259,13 +258,13 @@
       currentScenario: {},
     },
     components: {
+      ScenarioRelevance,
       ScenarioApiRelevance,
       ApiEnvironmentConfig,
       MsScenarioParameters,
       MsApiReportDetail,
       MsInputTag, MsRun,
       MsApiScenarioComponent,
-      MsImportApiScenario,
       MsJsr233Processor,
       MsConstantTimer,
       MsIfController,
@@ -489,7 +488,8 @@
             this.customizeVisible = true;
             break;
           case ELEMENT_TYPE.scenario:
-            this.scenarioVisible = true;
+            // this.scenarioVisible = true;
+            this.$refs.scenarioRelevance.open();
             break;
           default:
             this.$refs.apiImport.open();
@@ -547,8 +547,7 @@
         this.customizeRequest = {};
         this.sort();
         this.reload();
-      }
-      ,
+      },
       addScenario(arr) {
         if (arr && arr.length > 0) {
           arr.forEach(item => {
@@ -563,8 +562,7 @@
         this.sort();
         this.reload();
         this.scenarioVisible = false;
-      }
-      ,
+      },
       setApiParameter(item, refType, referenced) {
         let request = {};
         if (Object.prototype.toString.call(item.request).indexOf("String") > 0) {
