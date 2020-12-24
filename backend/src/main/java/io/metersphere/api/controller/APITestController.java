@@ -268,7 +268,7 @@ public class APITestController {
         if(allCount!=0){
             float coverageRageNumber =(float)apiCountResult.getExecutionPassCount()*100/allCount;
             DecimalFormat df = new DecimalFormat("0.0");
-            apiCountResult.setCoverageRage(df.format(coverageRageNumber)+"%");
+            apiCountResult.setPassRage(df.format(coverageRageNumber)+"%");
         }
 
         return  apiCountResult;
@@ -302,7 +302,7 @@ public class APITestController {
         if(allCount!=0){
             float coverageRageNumber =(float)apiCountResult.getSuccessCount()*100/allCount;
             DecimalFormat df = new DecimalFormat("0.0");
-            apiCountResult.setCoverageRage(df.format(coverageRageNumber)+"%");
+            apiCountResult.setSuccessRage(df.format(coverageRageNumber)+"%");
         }
 
         return  apiCountResult;
@@ -354,6 +354,6 @@ public class APITestController {
     public void updateScheduleEnableByPrimyKey(@RequestBody ScheduleInfoRequest request) {
         Schedule schedule = scheduleService.getSchedule(request.getTaskID());
         schedule.setEnable(request.isEnable());
-        apiTestService.updateSchedule(schedule);
+        apiAutomationService.updateSchedule(schedule);
     }
 }

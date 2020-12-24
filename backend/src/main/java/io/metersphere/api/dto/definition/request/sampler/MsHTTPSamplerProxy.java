@@ -206,35 +206,17 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         this.getRest().stream().filter(KeyValue::isEnable).filter(KeyValue::isValid).forEach(keyValue ->
                 keyValueMap.put(keyValue.getName(), keyValue.getValue())
         );
-        // 这块是否使用jmeter自身机制？
-        Map<String, String> pubKeyValueMap = new HashMap<>();
-        if (config != null && config.getVariables() != null) {
-            config.getVariables().stream().forEach(keyValue -> {
-                pubKeyValueMap.put(keyValue.getName(), keyValue.getValue());
-            });
-        }
-        for (String key : keyValueMap.keySet()) {
-            if (keyValueMap.get(key) != null && keyValueMap.get(key).startsWith("$")) {
-                String pubKey = keyValueMap.get(key).substring(2, keyValueMap.get(key).length() - 1);
-                keyValueMap.put(key, pubKeyValueMap.get(pubKey));
-            }
-        }
-
-        Pattern p = Pattern.compile("(\\{)([\\w]+)(\\})");
-        Matcher m = p.matcher(path);
-        StringBuffer sb = new StringBuffer();
         try {
+            Pattern p = Pattern.compile("(\\{)([\\w]+)(\\})");
+            Matcher m = p.matcher(path);
             while (m.find()) {
                 String group = m.group(2);
-                //替换并且把替换好的值放到sb中
-                m.appendReplacement(sb, keyValueMap.get(group));
+                path = path.replace("{" + group + "}", keyValueMap.get(group));
             }
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-        //把符合的数据追加到sb尾
-        m.appendTail(sb);
-        return sb.toString();
+        return path;
     }
 
     private String getPostQueryParameters(String path) {
