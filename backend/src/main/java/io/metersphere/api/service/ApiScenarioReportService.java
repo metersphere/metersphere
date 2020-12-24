@@ -50,7 +50,18 @@ public class ApiScenarioReportService {
     @Resource
     private TestPlanApiScenarioMapper testPlanApiScenarioMapper;
 
-    public void complete(TestResult result, String runMode) {
+    public String getApiScenarioId(String name, String projectID) {
+        ApiScenarioExample example = new ApiScenarioExample();
+        example.createCriteria().andNameEqualTo(name).andProjectIdEqualTo(projectID).andStatusNotEqualTo("Trash");
+        List<ApiScenario> list = apiScenarioMapper.selectByExample(example);
+        if (list.isEmpty()) {
+            return null;
+        } else {
+            return list.get(0).getId();
+        }
+    }
+
+    public ApiScenarioReport complete(TestResult result, String runMode) {
         Object obj = cache.get(result.getTestId());
         if (obj == null) {
             MSException.throwException(Translator.get("api_report_is_null"));
@@ -83,6 +94,7 @@ public class ApiScenarioReportService {
         if (!report.getTriggerMode().equals(ReportTriggerMode.SCHEDULE.name())) {
             cache.put(report.getId(), report);
         }
+        return report;
     }
 
     /**

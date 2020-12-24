@@ -290,5 +290,20 @@
         AND testCase.create_time BETWEEN #{firstDayTimestamp} AND #{lastDayTimestamp}
     </select>
 
+    <select id="getRequest" resultType="io.metersphere.base.domain.ApiTestCaseWithBLOBs">
+        select id, request
+        from api_test_case
+        where 1
+        <if test="request.id != null and request.id!=''">
+            and id = #{request.id}
+        </if>
+        <if test="request.ids != null and request.ids.size() > 0">
+            and id in
+            <foreach collection="request.ids" item="caseId" separator="," open="(" close=")">
+                #{caseId}
+            </foreach>
+        </if>
+    </select>
+
 
 </mapper>
