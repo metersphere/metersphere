@@ -50,7 +50,7 @@
         <el-table-column :label="$t('commons.operating')" width="200px" v-if="!referenced">
           <template v-slot:default="{row}">
             <div v-if="trashEnable">
-              <el-button type="text" @click="reductionApi(row)">恢复</el-button>
+              <el-button type="text" @click="reductionApi(row)">{{$t('commons.reduction')}}</el-button>
               <el-button type="text" @click="remove(row)">{{ $t('api_test.automation.remove') }}</el-button>
             </div>
             <div v-else>

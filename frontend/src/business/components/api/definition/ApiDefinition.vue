@@ -249,22 +249,13 @@
           downloadFile("导出API.json", JSON.stringify(obj));
         } else {
           let condition = {};
-          if (this.isApiListEnable) {
-            let url = "/api/definition/list/1/100000";
-            condition.filters = ["Prepare", "Underway", "Completed"];
-            condition.projectId = getCurrentProjectID();
-            this.$post(url, condition, response => {
-              obj.data = response.data.listObject;
-              downloadFile("导出API.json", JSON.stringify(obj));
-            });
-          } else {
-            let url = "/api/testcase/list/";
-            condition.projectId = getCurrentProjectID();
-            this.$post(url, condition, response => {
-              obj.data = response.data;
-              downloadFile("导出API.json", JSON.stringify(obj));
-            });
-          }
+          let url = "/api/definition/list/1/100000";
+          condition.filters = ["Prepare", "Underway", "Completed"];
+          condition.projectId = getCurrentProjectID();
+          this.$post(url, condition, response => {
+            obj.data = response.data.listObject;
+            downloadFile("导出API.json", JSON.stringify(obj));
+          });
         }
       },
       refresh(data) {
