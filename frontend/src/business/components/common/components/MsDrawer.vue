@@ -178,7 +178,9 @@
   }
 
   .ms-drawer-header {
-    position: relative;
+    position: fixed;
+    width: 100%;
+    z-index: 999;
   }
 
   .el-icon-close {
