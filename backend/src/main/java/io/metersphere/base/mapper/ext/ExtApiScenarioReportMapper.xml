@@ -192,5 +192,6 @@
         SELECT acitem.`name`,acitem.id FROM api_scenario acitem INNER JOIN `schedule` sc ON acitem.id = sc.resource_id
         ) ac on ar.scenario_id = ac.id
         WHERE acr.project_id = #{projectId}
+        GROUP BY groupField;
     </select>
 </mapper>

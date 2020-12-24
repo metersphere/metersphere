@@ -37,8 +37,8 @@
             SELECT testCase.testCaseName AS caseName,testCase.testPlanName AS testPlan ,caseErrorCountData.dataCountNumber AS failureTimes,'apiCase' AS caseType
             FROM (
             SELECT apiCase.id AS testCaseID,apiCase.`name` AS testCaseName,group_concat(testPlan.`name`)  AS testPlanName FROM api_test_case apiCase
-           LEFT JOIN test_plan_api_case testPlanCase ON testPlanCase.api_case_id = apiCase.id
-           LEFT JOIN test_plan testPlan ON testPlan.id = testPlanCase.test_plan_id
+           INNER JOIN test_plan_api_case testPlanCase ON testPlanCase.api_case_id = apiCase.id
+           INNER JOIN test_plan testPlan ON testPlan.id = testPlanCase.test_plan_id
             GROUP BY apiCase.id
             ORDER BY apiCase.create_time DESC
             )testCase
@@ -54,7 +54,7 @@
             FROM api_scenario_report report
                      INNER JOIN api_scenario_report_detail reportDetail ON report.id = reportDetail.report_id
                      INNER JOIN api_scenario scene ON report.scenario_id = scene.id
-                     LEFT JOIN
+                     INNER JOIN
                  (
                      SELECT
                          apiScene.api_scenario_id,
