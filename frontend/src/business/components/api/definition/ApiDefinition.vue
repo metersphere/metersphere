@@ -17,7 +17,7 @@
     <ms-main-container>
       <el-dropdown size="small" split-button type="primary" class="ms-api-buttion"
                    @click="handleCommand('ADD')"
-                   @command="handleCommand">
+                   @command="handleCommand" v-tester>
         {{$t('commons.add')}}
         <el-dropdown-menu slot="dropdown">
           <el-dropdown-item command="debug">{{$t('api_test.definition.request.fast_debug')}}</el-dropdown-item>
