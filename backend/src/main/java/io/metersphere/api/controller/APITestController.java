@@ -268,7 +268,7 @@ public class APITestController {
         if(allCount!=0){
             float coverageRageNumber =(float)apiCountResult.getExecutionPassCount()*100/allCount;
             DecimalFormat df = new DecimalFormat("0.0");
-            apiCountResult.setCoverageRage(df.format(coverageRageNumber)+"%");
+            apiCountResult.setPassRage(df.format(coverageRageNumber)+"%");
         }
 
         return  apiCountResult;
