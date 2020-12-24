@@ -1,6 +1,6 @@
 import router from './components/common/router/router'
 import {TokenKey} from '@/common/js/constants';
-import {hasLicense, hasRolePermissions, hasRoles} from "@/common/js/utils";
+import {checkoutTestManagerOrTestUser, hasLicense, hasRolePermissions, hasRoles} from "@/common/js/utils";
 import NProgress from 'nprogress' // progress bar
 import 'nprogress/nprogress.css' // progress bar style
 const whiteList = ['/login']; // no redirect whitelist
@@ -24,6 +24,20 @@ export const xpack = {
     checkLicense(el, binding);
   }
 };
+
+export const tester = {
+  inserted(el, binding) {
+    checkTestManagerOrTestUser(el, binding);
+  }
+};
+
+function checkTestManagerOrTestUser(el, binding) {
+  let v = checkoutTestManagerOrTestUser();
+
+  if (!v) {
+    el.parentNode && el.parentNode.removeChild(el)
+  }
+}
 
 function checkLicense(el, binding, type) {
   let v = hasLicense()
