@@ -84,7 +84,7 @@ public class MsScenario extends MsTestElement {
         }
         // 场景变量
         if (CollectionUtils.isNotEmpty(this.getVariables())) {
-            tree.add(arguments());
+            tree.add(arguments(config));
         }
 
         if (CollectionUtils.isNotEmpty(hashTree)) {
@@ -95,7 +95,7 @@ public class MsScenario extends MsTestElement {
 
     }
 
-    private Arguments arguments() {
+    private Arguments arguments(ParameterConfig config) {
         Arguments arguments = new Arguments();
         arguments.setEnabled(true);
         arguments.setName(name + "Variables");
@@ -104,7 +104,12 @@ public class MsScenario extends MsTestElement {
         variables.stream().filter(KeyValue::isValid).filter(KeyValue::isEnable).forEach(keyValue ->
                 arguments.addArgument(keyValue.getName(), keyValue.getValue(), "=")
         );
+        if (config != null && config.getConfig() != null && config.getConfig().getCommonConfig() != null
+                && CollectionUtils.isNotEmpty(config.getConfig().getCommonConfig().getVariables())) {
+            config.getConfig().getCommonConfig().getVariables().stream().filter(KeyValue::isValid).filter(KeyValue::isEnable).forEach(keyValue ->
+                    arguments.addArgument(keyValue.getName(), keyValue.getValue(), "=")
+            );
+        }
         return arguments;
     }
-
 }

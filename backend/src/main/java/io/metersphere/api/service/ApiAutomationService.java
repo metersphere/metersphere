@@ -260,10 +260,15 @@ public class ApiAutomationService {
         return new ArrayList<>();
     }
 
-    private void createAPIScenarioReportResult(String id, String triggerMode, String execType, String projectId, String userID) {
+    private void createAPIScenarioReportResult(String id, String scenarioId, String scenarioName, String triggerMode, String execType, String projectId, String userID) {
         APIScenarioReportResult report = new APIScenarioReportResult();
         report.setId(id);
-        report.setName("测试执行结果");
+        report.setTestId(id);
+        if (StringUtils.isNotEmpty(scenarioName)) {
+            report.setName(scenarioName);
+        } else {
+            report.setName("零时调试名称");
+        }
         report.setCreateTime(System.currentTimeMillis());
         report.setUpdateTime(System.currentTimeMillis());
         report.setStatus(APITestStatus.Running.name());
@@ -272,12 +277,12 @@ public class ApiAutomationService {
         } else {
             report.setUserId(SessionUtils.getUserId());
         }
-
         report.setTriggerMode(triggerMode);
         report.setExecuteType(execType);
         report.setProjectId(projectId);
-        apiReportService.addResult(report);
-
+        report.setScenarioName(scenarioName);
+        report.setScenarioId(scenarioId);
+        apiScenarioReportMapper.insert(report);
     }
 
     /**
@@ -292,10 +297,17 @@ public class ApiAutomationService {
         testPlan.setHashTree(new LinkedList<>());
         HashTree jmeterTestPlanHashTree = new ListedHashTree();
         String projectID = request.getProjectId();
+        boolean isOne = true;
         for (ApiScenarioWithBLOBs item : apiScenarios) {
             MsThreadGroup group = new MsThreadGroup();
             group.setLabel(item.getName());
-            group.setName(item.getName());
+            // 批量执行的结果直接存储为报告
+            if (isOne) {
+                group.setName(request.getId());
+                isOne = false;
+            } else {
+                group.setName(UUID.randomUUID().toString());
+            }
             projectID = item.getProjectId();
             try {
                 ObjectMapper mapper = new ObjectMapper();
@@ -318,6 +330,9 @@ public class ApiAutomationService {
                 group.setEnableCookieShare(scenario.isEnableCookieShare());
                 LinkedList<MsTestElement> scenarios = new LinkedList<>();
                 scenarios.add(scenario);
+                // 创建场景报告
+                createAPIScenarioReportResult(group.getName(), item.getId(), item.getName(), request.getTriggerMode() == null ? ReportTriggerMode.MANUAL.name() : request.getTriggerMode(),
+                        request.getExecuteType(), projectID, request.getReportUserID());
                 group.setHashTree(scenarios);
                 testPlan.getHashTree().add(group);
             } catch (Exception ex) {
@@ -332,9 +347,6 @@ public class ApiAutomationService {
         }
         // 调用执行方法
         jMeterService.runDefinition(request.getId(), jmeterTestPlanHashTree, request.getReportId(), runMode);
-
-        createAPIScenarioReportResult(request.getId(), request.getTriggerMode() == null ? ReportTriggerMode.MANUAL.name() : request.getTriggerMode(),
-                request.getExecuteType(), projectID, request.getReportUserID());
         return request.getId();
     }
 
@@ -346,7 +358,7 @@ public class ApiAutomationService {
      * @param bodyFiles
      * @return
      */
-    public String run(RunDefinitionRequest request, List<MultipartFile> bodyFiles) {
+    public String debugRun(RunDefinitionRequest request, List<MultipartFile> bodyFiles) {
         List<String> bodyUploadIds = new ArrayList<>(request.getBodyUploadIds());
         apiDefinitionService.createBodyFiles(bodyUploadIds, bodyFiles);
         EnvironmentConfig envConfig = null;
@@ -359,7 +371,7 @@ public class ApiAutomationService {
         HashTree hashTree = request.getTestElement().generateHashTree(config);
         // 调用执行方法
         jMeterService.runDefinition(request.getId(), hashTree, request.getReportId(), ApiRunMode.SCENARIO.name());
-        createAPIScenarioReportResult(request.getId(), ReportTriggerMode.MANUAL.name(), request.getExecuteType(), request.getProjectId(),
+        createAPIScenarioReportResult(request.getId(), request.getScenarioId(), request.getScenarioName(), ReportTriggerMode.MANUAL.name(), request.getExecuteType(), request.getProjectId(),
                 SessionUtils.getUserId());
         return request.getId();
     }

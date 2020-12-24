@@ -81,7 +81,7 @@ public class ApiAutomationController {
     @PostMapping(value = "/run/debug")
     public void runDebug(@RequestPart("request") RunDefinitionRequest request, @RequestPart(value = "files") List<MultipartFile> bodyFiles) {
         request.setExecuteType(ExecuteType.Debug.name());
-        apiAutomationService.run(request, bodyFiles);
+        apiAutomationService.debugRun(request, bodyFiles);
     }
 
     @PostMapping(value = "/run")
@@ -89,6 +89,13 @@ public class ApiAutomationController {
         request.setExecuteType(ExecuteType.Completed.name());
         apiAutomationService.run(request);
     }
+
+    @PostMapping(value = "/run/batch")
+    public void runBatch(@RequestBody RunScenarioRequest request) {
+        request.setExecuteType(ExecuteType.Saved.name());
+        apiAutomationService.run(request);
+    }
+
 
     @PostMapping("/getReference")
     public ReferenceDTO getReference(@RequestBody ApiScenarioRequest request) {

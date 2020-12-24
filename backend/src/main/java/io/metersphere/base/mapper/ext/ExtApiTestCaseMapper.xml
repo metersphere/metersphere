@@ -279,14 +279,14 @@
     <select id="countProtocolByProjectID" resultType="io.metersphere.api.dto.datacount.ApiDataCountResult">
         SELECT apiDef.protocol AS groupField,COUNT(testCase.id) AS countNumber FROM api_test_case testCase
         INNER JOIN  api_definition apiDef ON testCase.api_definition_id = apiDef.id
-        WHERE testCase.project_id = #{0}
+        WHERE testCase.project_id = #{0} AND apiDef.status != "Trash"
         GROUP BY apiDef.protocol
     </select>
 
     <select id="countByProjectIDAndCreateInThisWeek" resultType="java.lang.Long">
         SELECT count(testCase.id) AS countNumber FROM api_test_case testCase
         INNER JOIN  api_definition apiDef ON testCase.api_definition_id = apiDef.id
-        WHERE testCase.project_id = #{projectId}
+        WHERE testCase.project_id = #{projectId}  AND apiDef.status != "Trash"
         AND testCase.create_time BETWEEN #{firstDayTimestamp} AND #{lastDayTimestamp}
     </select>
 
