@@ -84,7 +84,6 @@ public class MsScenario extends MsTestElement {
         }
         // 场景变量
         tree.add(arguments(config));
-
         if (CollectionUtils.isNotEmpty(hashTree)) {
             for (MsTestElement el : hashTree) {
                 el.toHashTree(tree, el.getHashTree(), config);
