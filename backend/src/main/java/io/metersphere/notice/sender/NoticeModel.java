@@ -16,7 +16,6 @@ public class NoticeModel {
     /**
      * 保存状态
      */
-    private String state;
     private String status;
     /**
      * Event
