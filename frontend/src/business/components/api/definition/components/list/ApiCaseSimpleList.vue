@@ -273,7 +273,7 @@
         } else if (this.isRelevanceModel) {
           return '/api/testcase/delete/' + apiCase.id;
         } else {
-          return '/api/testcase/delete/' + +apiCase.id;
+          return '/api/testcase/delete/' + apiCase.id;
         }
       },
       // getMaintainerOptions() {

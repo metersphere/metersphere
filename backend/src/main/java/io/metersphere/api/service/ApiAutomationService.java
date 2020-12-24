@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.metersphere.api.dto.DeleteAPIReportRequest;
 import io.metersphere.api.dto.automation.*;
 import io.metersphere.api.dto.datacount.ApiDataCountResult;
 import io.metersphere.api.dto.definition.RunDefinitionRequest;
@@ -14,6 +15,7 @@ import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
 import io.metersphere.api.jmeter.JMeterService;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ApiScenarioMapper;
+import io.metersphere.base.mapper.ApiScenarioReportMapper;
 import io.metersphere.base.mapper.TestPlanApiScenarioMapper;
 import io.metersphere.base.mapper.ext.ExtApiScenarioMapper;
 import io.metersphere.base.mapper.ext.ExtTestPlanApiCaseMapper;
@@ -30,9 +32,6 @@ import io.metersphere.service.ScheduleService;
 import io.metersphere.track.dto.TestPlanDTO;
 import io.metersphere.track.request.testcase.ApiCaseRelevanceRequest;
 import io.metersphere.track.request.testcase.QueryTestPlanRequest;
-import io.metersphere.track.request.testcase.TestPlanApiCaseBatchRequest;
-import io.metersphere.track.service.TestPlanApiCaseService;
-import io.metersphere.track.service.TestPlanScenarioCaseService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
@@ -47,7 +46,6 @@ import org.springframework.web.multipart.MultipartFile;
 import javax.annotation.Resource;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -72,6 +70,8 @@ public class ApiAutomationService {
     private ExtTestPlanMapper extTestPlanMapper;
     @Resource
     SqlSessionFactory sqlSessionFactory;
+    @Resource
+    private ApiScenarioReportMapper apiScenarioReportMapper;
 
     public List<ApiScenarioDTO> list(ApiScenarioRequest request) {
         request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
@@ -160,7 +160,11 @@ public class ApiAutomationService {
         apiScenarioMapper.deleteByPrimaryKey(id);
     }
 
-    public void preDelete(String scenarioID){
+    public void preDelete(String scenarioID) {
+        ApiScenarioReportExample scenarioReportExample = new ApiScenarioReportExample();
+        scenarioReportExample.createCriteria().andScenarioIdEqualTo(scenarioID);
+        List<ApiScenarioReport> list = apiScenarioReportMapper.selectByExample(scenarioReportExample);
+        deleteApiScenarioReport(list);
         scheduleService.deleteByResourceId(scenarioID);
 
         TestPlanApiScenarioExample example = new TestPlanApiScenarioExample();
@@ -174,37 +178,51 @@ public class ApiAutomationService {
         }
         example = new TestPlanApiScenarioExample();
 
-        if(!idList.isEmpty()){
+        if (!idList.isEmpty()) {
             example.createCriteria().andIdIn(idList);
             testPlanApiScenarioMapper.deleteByExample(example);
         }
 
     }
-    public void preDelete(List<String> scenarioIDList){
+
+    private void deleteApiScenarioReport(List<ApiScenarioReport> list) {
+        if (CollectionUtils.isNotEmpty(list)) {
+            List<String> ids = list.stream().map(ApiScenarioReport::getId).collect(Collectors.toList());
+            DeleteAPIReportRequest reportRequest = new DeleteAPIReportRequest();
+            reportRequest.setIds(ids);
+            apiReportService.deleteAPIReportBatch(reportRequest);
+        }
+    }
+
+    public void preDeleteBatch(List<String> scenarioIDList) {
+        ApiScenarioReportExample scenarioReportExample = new ApiScenarioReportExample();
+        scenarioReportExample.createCriteria().andScenarioIdIn(scenarioIDList);
+        List<ApiScenarioReport> list = apiScenarioReportMapper.selectByExample(scenarioReportExample);
+        deleteApiScenarioReport(list);
         List<String> testPlanApiScenarioIdList = new ArrayList<>();
-        List<String> scheduleIdList = new ArrayList<>();
-        for (String id :scenarioIDList) {
+        for (String id : scenarioIDList) {
             TestPlanApiScenarioExample example = new TestPlanApiScenarioExample();
             example.createCriteria().andApiScenarioIdEqualTo(id);
             List<TestPlanApiScenario> testPlanApiScenarioList = testPlanApiScenarioMapper.selectByExample(example);
-            for (TestPlanApiScenario api :testPlanApiScenarioList) {
-                if(!testPlanApiScenarioIdList.contains(api.getId())){
+            for (TestPlanApiScenario api : testPlanApiScenarioList) {
+                if (!testPlanApiScenarioIdList.contains(api.getId())) {
                     testPlanApiScenarioIdList.add(api.getId());
                 }
             }
 
             scheduleService.deleteByResourceId(id);
         }
-        if(!testPlanApiScenarioIdList.isEmpty()){
+        if (!testPlanApiScenarioIdList.isEmpty()) {
             TestPlanApiScenarioExample example = new TestPlanApiScenarioExample();
             example.createCriteria().andIdIn(testPlanApiScenarioIdList);
             testPlanApiScenarioMapper.deleteByExample(example);
         }
 
     }
+
     public void deleteBatch(List<String> ids) {
-        //及连删除外键表
-        preDelete(ids);;
+        // 删除外键表
+        preDeleteBatch(ids);
         ApiScenarioExample example = new ApiScenarioExample();
         example.createCriteria().andIdIn(ids);
         apiScenarioMapper.deleteByExample(example);
@@ -242,16 +260,16 @@ public class ApiAutomationService {
         return new ArrayList<>();
     }
 
-    private void createAPIScenarioReportResult(String id, String triggerMode, String execType, String projectId,String userID) {
+    private void createAPIScenarioReportResult(String id, String triggerMode, String execType, String projectId, String userID) {
         APIScenarioReportResult report = new APIScenarioReportResult();
         report.setId(id);
         report.setName("测试执行结果");
         report.setCreateTime(System.currentTimeMillis());
         report.setUpdateTime(System.currentTimeMillis());
         report.setStatus(APITestStatus.Running.name());
-        if(StringUtils.isNotEmpty(userID)){
+        if (StringUtils.isNotEmpty(userID)) {
             report.setUserId(userID);
-        }else {
+        } else {
             report.setUserId(SessionUtils.getUserId());
         }
 
@@ -316,7 +334,7 @@ public class ApiAutomationService {
         jMeterService.runDefinition(request.getId(), jmeterTestPlanHashTree, request.getReportId(), runMode);
 
         createAPIScenarioReportResult(request.getId(), request.getTriggerMode() == null ? ReportTriggerMode.MANUAL.name() : request.getTriggerMode(),
-                request.getExecuteType(), projectID,request.getReportUserID());
+                request.getExecuteType(), projectID, request.getReportUserID());
         return request.getId();
     }
 
@@ -339,7 +357,6 @@ public class ApiAutomationService {
         ParameterConfig config = new ParameterConfig();
         config.setConfig(envConfig);
         HashTree hashTree = request.getTestElement().generateHashTree(config);
-        request.getTestElement().getJmx(hashTree);
         // 调用执行方法
         jMeterService.runDefinition(request.getId(), hashTree, request.getReportId(), ApiRunMode.SCENARIO.name());
         createAPIScenarioReportResult(request.getId(), ReportTriggerMode.MANUAL.name(), request.getExecuteType(), request.getProjectId(),
@@ -367,8 +384,8 @@ public class ApiAutomationService {
         ExtTestPlanScenarioCaseMapper scenarioBatchMapper = sqlSession.getMapper(ExtTestPlanScenarioCaseMapper.class);
         ExtTestPlanApiCaseMapper apiCaseBatchMapper = sqlSession.getMapper(ExtTestPlanApiCaseMapper.class);
 
-        for (TestPlanDTO testPlan:list) {
-            if(request.getScenarioIds()!=null){
+        for (TestPlanDTO testPlan : list) {
+            if (request.getScenarioIds() != null) {
                 for (String scenarioId : request.getScenarioIds()) {
                     TestPlanApiScenario testPlanApiScenario = new TestPlanApiScenario();
                     testPlanApiScenario.setId(UUID.randomUUID().toString());
@@ -379,7 +396,7 @@ public class ApiAutomationService {
                     scenarioBatchMapper.insertIfNotExists(testPlanApiScenario);
                 }
             }
-            if(request.getApiIds()!=null){
+            if (request.getApiIds() != null) {
                 for (String caseId : request.getApiIds()) {
                     TestPlanApiCase testPlanApiCase = new TestPlanApiCase();
                     testPlanApiCase.setId(UUID.randomUUID().toString());
@@ -390,40 +407,7 @@ public class ApiAutomationService {
                     apiCaseBatchMapper.insertIfNotExists(testPlanApiCase);
                 }
             }
-
         }
-//        testPlan的ID先不存储
-//        list.forEach(item -> {
-//            if (CollectionUtils.isNotEmpty(request.getApiIds())) {
-//                if (CollectionUtils.isNotEmpty(request.getApiIds())) {
-//                    if (StringUtils.isEmpty(item.getApiIds())) {
-//                        item.setApiIds(JSON.toJSONString(request.getApiIds()));
-//                    } else {
-//                        // 合并api
-//                        List<String> dbApiIDs = JSON.parseArray(item.getApiIds(), String.class);
-//                        List<String> result = Stream.of(request.getApiIds(), dbApiIDs)
-//                                .flatMap(Collection::stream).distinct().collect(Collectors.toList());
-//                        item.setApiIds(JSON.toJSONString(result));
-//                    }
-//                    item.setScenarioIds(null);
-//                }
-//            }
-//            if (CollectionUtils.isNotEmpty(request.getScenarioIds())) {
-//                if (CollectionUtils.isNotEmpty(request.getScenarioIds())) {
-//                    if (StringUtils.isEmpty(item.getScenarioIds())) {
-//                        item.setScenarioIds(JSON.toJSONString(request.getScenarioIds()));
-//                    } else {
-//                        // 合并场景ID
-//                        List<String> dbScenarioIDs = JSON.parseArray(item.getScenarioIds(), String.class);
-//                        List<String> result = Stream.of(request.getScenarioIds(), dbScenarioIDs)
-//                                .flatMap(Collection::stream).distinct().collect(Collectors.toList());
-//                        item.setScenarioIds(JSON.toJSONString(result));
-//                    }
-//                    item.setApiIds(null);
-//                }
-//            }
-//            mapper.updatePlan(item);
-//        });
         sqlSession.flushStatements();
         return "success";
     }
@@ -434,10 +418,8 @@ public class ApiAutomationService {
 
     public long countScenarioByProjectIDAndCreatInThisWeek(String projectId) {
         Map<String, Date> startAndEndDateInWeek = DateUtils.getWeedFirstTimeAndLastTime(new Date());
-
         Date firstTime = startAndEndDateInWeek.get("firstTime");
         Date lastTime = startAndEndDateInWeek.get("lastTime");
-
         if (firstTime == null || lastTime == null) {
             return 0;
         } else {

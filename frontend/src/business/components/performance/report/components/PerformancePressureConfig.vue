@@ -112,8 +112,8 @@ export default {
       threadGroups: [],
     }
   },
-  mounted() {
-    // this.getJmxContent();
+  activated() {
+    this.getJmxContent();
   },
   methods: {
     calculateLoadConfiguration: function (data) {

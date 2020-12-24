@@ -105,7 +105,6 @@ public class ApiTestCaseService {
     public void update(SaveApiTestCaseRequest request, List<MultipartFile> bodyFiles) {
 
         deleteFileByTestId(request.getId());
-
         List<String> bodyUploadIds = new ArrayList<>(request.getBodyUploadIds());
         request.setBodyUploadIds(null);
         ApiTestCase test = updateTest(request);
@@ -134,12 +133,9 @@ public class ApiTestCaseService {
     }
 
     public void delete(String testId) {
-
         extTestPlanTestCaseMapper.deleteByTestCaseID(testId);
-
         deleteFileByTestId(testId);
         extApiDefinitionExecResultMapper.deleteByResourceId(testId);
-
         apiTestCaseMapper.deleteByPrimaryKey(testId);
         deleteBodyFiles(testId);
     }
@@ -331,5 +327,10 @@ public class ApiTestCaseService {
         ApiTestCaseExample example = new ApiTestCaseExample();
         example.createCriteria().andIdIn(caseIds);
         return apiTestCaseMapper.selectByExample(example);
+    }
+
+    public Map<String, String> getRequest(ApiTestCaseRequest request) {
+        List<ApiTestCaseWithBLOBs> list = extApiTestCaseMapper.getRequest(request);
+        return list.stream().collect(Collectors.toMap(ApiTestCaseWithBLOBs::getId, ApiTestCaseWithBLOBs::getRequest));
     }
 }
