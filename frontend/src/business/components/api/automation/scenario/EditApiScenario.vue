@@ -981,8 +981,4 @@
     font-family: "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", Arial, sans-serif;
     font-size: 13px;
   }
-
-  /deep/ .fab-item-title {
-    background-color: white !important;
-  }
 </style>

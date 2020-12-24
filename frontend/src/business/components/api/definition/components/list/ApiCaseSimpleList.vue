@@ -48,6 +48,7 @@
         </el-table-column>
 
         <el-table-column
+          sortable="custom"
           prop="path"
           :label="$t('api_test.definition.api_path')"
           show-overflow-tooltip/>
