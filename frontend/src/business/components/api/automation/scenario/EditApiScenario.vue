@@ -452,7 +452,7 @@
       },
       outsideClick(e) {
         e.stopPropagation()
-        this.operatingElements = ELEMENTS.get("ALL");
+        this.showAll();
       },
       addComponent(type) {
         switch (type) {
@@ -594,7 +594,7 @@
         }
       }
       ,
-      pushApiOrCase(data, refType,  referenced) {
+      pushApiOrCase(data, refType, referenced) {
         data.forEach(item => {
           this.setApiParameter(item, refType, referenced);
         });
@@ -885,6 +885,7 @@
     height: calc(100vh - 196px);
     overflow-y: auto;
   }
+
   .ms-scenario-input {
     width: 100%;
   }

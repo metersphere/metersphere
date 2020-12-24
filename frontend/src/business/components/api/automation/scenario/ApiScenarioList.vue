@@ -111,7 +111,6 @@
         condition: {},
         currentScenario: {},
         schedule: {},
-        selectAll: false,
         selection: [],
         tableData: [],
         currentPage: 1,
@@ -120,6 +119,7 @@
         reportId: "",
         batchReportId: "",
         content: {},
+        selectAll: false,
         infoDb: false,
         runVisible: false,
         planVisible: false,
@@ -245,9 +245,6 @@
           this.runVisible = false;
           this.batchReportId = run.id;
         });
-      },
-      selectAllChange() {
-        this.handleCommand("table");
       },
       select(selection) {
         this.selection = selection.map(s => s.id);
