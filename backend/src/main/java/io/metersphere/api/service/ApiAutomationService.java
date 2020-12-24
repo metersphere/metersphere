@@ -160,15 +160,14 @@ public class ApiAutomationService {
         apiScenarioMapper.deleteByPrimaryKey(id);
     }
 
-    public void preDelete(String scenarioID) {
-        ApiScenarioReportExample scenarioReportExample = new ApiScenarioReportExample();
-        scenarioReportExample.createCriteria().andScenarioIdEqualTo(scenarioID);
-        List<ApiScenarioReport> list = apiScenarioReportMapper.selectByExample(scenarioReportExample);
-        deleteApiScenarioReport(list);
-        scheduleService.deleteByResourceId(scenarioID);
+    public void preDelete(String scenarioId) {
+        List<String> ids = new ArrayList<>();
+        ids.add(scenarioId);
+        deleteApiScenarioReport(ids);
 
+        scheduleService.deleteByResourceId(scenarioId);
         TestPlanApiScenarioExample example = new TestPlanApiScenarioExample();
-        example.createCriteria().andApiScenarioIdEqualTo(scenarioID);
+        example.createCriteria().andApiScenarioIdEqualTo(scenarioId);
         List<TestPlanApiScenario> testPlanApiScenarioList = testPlanApiScenarioMapper.selectByExample(example);
 
         List<String> idList = new ArrayList<>(testPlanApiScenarioList.size());
@@ -185,7 +184,10 @@ public class ApiAutomationService {
 
     }
 
-    private void deleteApiScenarioReport(List<ApiScenarioReport> list) {
+    private void deleteApiScenarioReport(List<String> scenarioIds) {
+        ApiScenarioReportExample scenarioReportExample = new ApiScenarioReportExample();
+        scenarioReportExample.createCriteria().andScenarioIdIn(scenarioIds);
+        List<ApiScenarioReport> list = apiScenarioReportMapper.selectByExample(scenarioReportExample);
         if (CollectionUtils.isNotEmpty(list)) {
             List<String> ids = list.stream().map(ApiScenarioReport::getId).collect(Collectors.toList());
             DeleteAPIReportRequest reportRequest = new DeleteAPIReportRequest();
@@ -194,13 +196,11 @@ public class ApiAutomationService {
         }
     }
 
-    public void preDeleteBatch(List<String> scenarioIDList) {
-        ApiScenarioReportExample scenarioReportExample = new ApiScenarioReportExample();
-        scenarioReportExample.createCriteria().andScenarioIdIn(scenarioIDList);
-        List<ApiScenarioReport> list = apiScenarioReportMapper.selectByExample(scenarioReportExample);
-        deleteApiScenarioReport(list);
+    public void preDeleteBatch(List<String> scenarioIds) {
+        deleteApiScenarioReport(scenarioIds);
+
         List<String> testPlanApiScenarioIdList = new ArrayList<>();
-        for (String id : scenarioIDList) {
+        for (String id : scenarioIds) {
             TestPlanApiScenarioExample example = new TestPlanApiScenarioExample();
             example.createCriteria().andApiScenarioIdEqualTo(id);
             List<TestPlanApiScenario> testPlanApiScenarioList = testPlanApiScenarioMapper.selectByExample(example);

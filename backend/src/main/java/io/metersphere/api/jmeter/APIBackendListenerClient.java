@@ -21,7 +21,6 @@ import org.apache.jmeter.protocol.http.sampler.HTTPSampleResult;
 import org.apache.jmeter.samplers.SampleResult;
 import org.apache.jmeter.visualizers.backend.AbstractBackendListenerClient;
 import org.apache.jmeter.visualizers.backend.BackendListenerContext;
-import org.python.antlr.ast.Str;
 import org.springframework.http.HttpMethod;
 
 import java.io.ByteArrayOutputStream;
@@ -270,6 +269,7 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
         paramMap.put("id", report.getId());
         paramMap.put("type", "performance");
         paramMap.put("url", baseSystemConfigDTO.getUrl());
+        paramMap.put("status", report.getStatus());
         NoticeModel noticeModel = NoticeModel.builder()
                 .successContext(successContext)
                 .successMailTemplate("ApiSuccessfulNotification")
