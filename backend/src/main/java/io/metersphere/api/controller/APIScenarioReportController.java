@@ -7,7 +7,6 @@ import io.metersphere.api.dto.QueryAPIReportRequest;
 import io.metersphere.api.dto.automation.APIScenarioReportResult;
 import io.metersphere.api.dto.automation.ExecuteType;
 import io.metersphere.api.service.ApiScenarioReportService;
-import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
@@ -27,12 +26,9 @@ public class APIScenarioReportController {
     @Resource
     private ApiScenarioReportService apiReportService;
 
-    @GetMapping("/get/{reportId}/{infoDb}")
-    public APIScenarioReportResult get(@PathVariable String reportId, @PathVariable Boolean infoDb) {
-        if (infoDb) {
-            return apiReportService.get(reportId);
-        }
-        return apiReportService.getCacheResult(reportId);
+    @GetMapping("/get/{reportId}")
+    public APIScenarioReportResult get(@PathVariable String reportId) {
+        return apiReportService.get(reportId);
     }
 
     @PostMapping("/list/{goPage}/{pageSize}")
@@ -40,13 +36,6 @@ public class APIScenarioReportController {
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         request.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
         return PageUtils.setPageInfo(page, apiReportService.list(request));
-    }
-
-    @PostMapping("/add")
-    @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
-    public void add(@RequestBody APIScenarioReportResult node) {
-        node.setExecuteType(ExecuteType.Saved.name());
-        apiReportService.save(node, ApiRunMode.SCENARIO.name());
     }
 
     @PostMapping("/update")

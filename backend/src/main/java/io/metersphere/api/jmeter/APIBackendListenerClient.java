@@ -189,27 +189,7 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
             BaseSystemConfigDTO baseSystemConfigDTO = systemParameterService.getBaseInfo();
             reportUrl = baseSystemConfigDTO.getUrl() + "/#/api/automation/report";
 
-            String scenaName = scenarioReport.getName();
-            if (scenaName == null) {
-                scenaName = "";
-            } else {
-                String[] sceneNameArr = scenaName.split("-");
-                if (sceneNameArr.length >= 4) {
-                    //如果以yyyy-MM-dd 时间类型结尾
-                    String endStr = "-" + sceneNameArr[sceneNameArr.length - 3] + "-" + sceneNameArr[sceneNameArr.length - 2] + "-" + sceneNameArr[sceneNameArr.length - 1];
-                    scenaName = scenaName.split(endStr)[0];
-                } else {
-                    //如果以时间戳结尾
-                    scenaName = scenaName.split("-")[0];
-                }
-            }
-            ApiScenarioReport savedReport = apiScenarioReportService.get(testId);
-            String scenarioID = "";
-            if(savedReport!=null){
-                scenarioID = savedReport.getScenarioId();
-            }
-
-            testResult.setTestId(scenarioID);
+            testResult.setTestId(scenarioReport.getScenarioId());
         } else {
             apiTestService.changeStatus(testId, APITestStatus.Completed);
             report = apiReportService.getRunningReport(testResult.getTestId());

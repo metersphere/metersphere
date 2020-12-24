@@ -92,11 +92,11 @@
         let testPlan = createComponent('TestPlan');
         let threadGroup = createComponent('ThreadGroup');
         threadGroup.hashTree = [];
-        threadGroup.name = this.runData.name ? this.runData.name : "Debug-Scenario";
+        threadGroup.name = this.reportId;
         threadGroup.enableCookieShare = this.runData.enableCookieShare;
         threadGroup.hashTree.push(this.runData);
         testPlan.hashTree.push(threadGroup);
-        let reqObj = {id: this.reportId, reportId: this.reportId, environmentId: this.environment, testElement: testPlan, projectId: getCurrentProjectID()};
+        let reqObj = {id: this.reportId, reportId: this.reportId, scenarioName: this.runData.name, scenarioId: this.runData.id, environmentId: this.environment, testElement: testPlan, projectId: getCurrentProjectID()};
         let bodyFiles = this.getBodyUploadFiles(reqObj);
         let url = "/api/automation/run/debug";
         this.$fileUpload(url, null, bodyFiles, reqObj, response => {

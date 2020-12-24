@@ -21,6 +21,10 @@ public class RunDefinitionRequest {
 
     private String projectId;
 
+    private String scenarioId;
+
+    private String scenarioName;
+
     private String environmentId;
 
     private MsTestElement testElement;

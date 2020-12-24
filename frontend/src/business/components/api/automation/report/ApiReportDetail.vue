@@ -2,7 +2,7 @@
   <ms-container v-loading="loading">
     <ms-main-container>
       <el-card>
-        <section class="report-container" v-if="this.report.testId">
+        <section class="report-container">
 
           <ms-api-report-view-header :debug="debug" :report="report" @reportExport="handleExport" @reportSave="handleSave"/>
 
@@ -96,7 +96,7 @@
       getReport() {
         this.init();
         if (this.reportId) {
-          let url = "/api/scenario/report/get/" + this.reportId + "/" + this.infoDb;
+          let url = "/api/scenario/report/get/" + this.reportId;
           this.$get(url, response => {
             this.report = response.data || {};
             if (response.data) {
