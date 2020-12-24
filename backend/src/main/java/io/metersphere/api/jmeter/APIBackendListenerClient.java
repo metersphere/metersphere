@@ -179,28 +179,31 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
             testResult.setTestId(testId);
             ApiScenarioReport scenarioReport = apiScenarioReportService.complete(testResult, this.runMode);
 
-
             report = new ApiTestReport();
             report.setStatus(scenarioReport.getStatus());
             report.setId(scenarioReport.getId());
             report.setTriggerMode(scenarioReport.getTriggerMode());
             report.setName(scenarioReport.getName());
 
-
             SystemParameterService systemParameterService = CommonBeanFactory.getBean(SystemParameterService.class);
             assert systemParameterService != null;
             BaseSystemConfigDTO baseSystemConfigDTO = systemParameterService.getBaseInfo();
             reportUrl = baseSystemConfigDTO.getUrl() + "/#/api/automation/report";
 
-
-            String  scenaName = scenarioReport.getName();
-            if(scenaName==null){
+            String scenaName = scenarioReport.getName();
+            if (scenaName == null) {
                 scenaName = "";
-            }else {
-                scenaName = scenaName.split("-")[0];
+            } else {
+                String[] sceneNameArr = scenaName.split("-");
+                if (sceneNameArr.length >= 4) {
+                    String endStr = "-" + sceneNameArr[sceneNameArr.length - 3] + "-" + sceneNameArr[sceneNameArr.length - 2] + "-" + sceneNameArr[sceneNameArr.length - 1];
+                    scenaName = scenaName.split(endStr)[0];
+                } else {
+                    scenaName = scenaName.split("-")[0];
+                }
             }
 
-            String scenarioID = apiScenarioReportService.getApiScenarioId(scenaName,scenarioReport.getProjectId());
+            String scenarioID = apiScenarioReportService.getApiScenarioId(scenaName, scenarioReport.getProjectId());
             testResult.setTestId(scenarioID);
         } else {
             apiTestService.changeStatus(testId, APITestStatus.Completed);
@@ -224,14 +227,14 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
             }
         }
         try {
-            sendTask(report,reportUrl, testResult);
+            sendTask(report, reportUrl, testResult);
         } catch (Exception e) {
             LogUtil.error(e.getMessage(), e);
         }
 
     }
 
-    private static void sendTask(ApiTestReport report,String reportUrl, TestResult testResult) {
+    private static void sendTask(ApiTestReport report, String reportUrl, TestResult testResult) {
         SystemParameterService systemParameterService = CommonBeanFactory.getBean(SystemParameterService.class);
         NoticeSendService noticeSendService = CommonBeanFactory.getBean(NoticeSendService.class);
         assert systemParameterService != null;
@@ -239,7 +242,7 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
 
         BaseSystemConfigDTO baseSystemConfigDTO = systemParameterService.getBaseInfo();
         String url = reportUrl;
-        if(StringUtils.isEmpty(url)){
+        if (StringUtils.isEmpty(url)) {
             url = baseSystemConfigDTO.getUrl() + "/#/api/report/view/" + report.getId();
         }
         String successContext = "";
