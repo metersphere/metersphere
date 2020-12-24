@@ -160,7 +160,6 @@
         WHERE sch.resource_id IN (
             SELECT id FROM api_test WHERE project_id = #{projectId,jdbcType=VARCHAR}
         )
-        AND `group` = #{group}
     </select>
 
     <select id="countByProjectIDAndCreateInThisWeek" resultType="java.lang.Long">

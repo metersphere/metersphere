@@ -1,6 +1,7 @@
 package io.metersphere.api.jmeter;
 
 import io.metersphere.api.service.*;
+import io.metersphere.base.domain.ApiScenarioReport;
 import io.metersphere.base.domain.ApiTestReport;
 import io.metersphere.commons.constants.APITestStatus;
 import io.metersphere.commons.constants.ApiRunMode;
@@ -20,6 +21,7 @@ import org.apache.jmeter.protocol.http.sampler.HTTPSampleResult;
 import org.apache.jmeter.samplers.SampleResult;
 import org.apache.jmeter.visualizers.backend.AbstractBackendListenerClient;
 import org.apache.jmeter.visualizers.backend.BackendListenerContext;
+import org.python.antlr.ast.Str;
 import org.springframework.http.HttpMethod;
 
 import java.io.ByteArrayOutputStream;
@@ -49,6 +51,7 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
     private ApiDefinitionExecResultService apiDefinitionExecResultService;
 
     private ApiScenarioReportService apiScenarioReportService;
+
 
     public String runMode = ApiRunMode.RUN.name();
 
@@ -155,6 +158,7 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
         testResult.getScenarios().addAll(scenarios.values());
         testResult.getScenarios().sort(Comparator.comparing(ScenarioResult::getId));
         ApiTestReport report = null;
+        String reportUrl = null;
         // 这部分后续优化只留 DELIMIT 和 SCENARIO 两部分
         if (StringUtils.equals(this.runMode, ApiRunMode.DEBUG.name())) {
             report = apiReportService.get(debugReportId);
@@ -173,7 +177,31 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
         } else if (StringUtils.equalsAny(this.runMode, ApiRunMode.SCENARIO.name(), ApiRunMode.SCENARIO_PLAN.name())) {
             // 执行报告不需要存储，由用户确认后在存储
             testResult.setTestId(testId);
-            apiScenarioReportService.complete(testResult, this.runMode);
+            ApiScenarioReport scenarioReport = apiScenarioReportService.complete(testResult, this.runMode);
+
+
+            report = new ApiTestReport();
+            report.setStatus(scenarioReport.getStatus());
+            report.setId(scenarioReport.getId());
+            report.setTriggerMode(scenarioReport.getTriggerMode());
+            report.setName(scenarioReport.getName());
+
+
+            SystemParameterService systemParameterService = CommonBeanFactory.getBean(SystemParameterService.class);
+            assert systemParameterService != null;
+            BaseSystemConfigDTO baseSystemConfigDTO = systemParameterService.getBaseInfo();
+            reportUrl = baseSystemConfigDTO.getUrl() + "/#/api/automation/report";
+
+
+            String  scenaName = scenarioReport.getName();
+            if(scenaName==null){
+                scenaName = "";
+            }else {
+                scenaName = scenaName.split("-")[0];
+            }
+
+            String scenarioID = apiScenarioReportService.getApiScenarioId(scenaName,scenarioReport.getProjectId());
+            testResult.setTestId(scenarioID);
         } else {
             apiTestService.changeStatus(testId, APITestStatus.Completed);
             report = apiReportService.getRunningReport(testResult.getTestId());
@@ -196,22 +224,24 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
             }
         }
         try {
-            sendTask(report, testResult);
+            sendTask(report,reportUrl, testResult);
         } catch (Exception e) {
             LogUtil.error(e.getMessage(), e);
         }
 
     }
 
-    private static void sendTask(ApiTestReport report, TestResult testResult) {
+    private static void sendTask(ApiTestReport report,String reportUrl, TestResult testResult) {
         SystemParameterService systemParameterService = CommonBeanFactory.getBean(SystemParameterService.class);
         NoticeSendService noticeSendService = CommonBeanFactory.getBean(NoticeSendService.class);
         assert systemParameterService != null;
         assert noticeSendService != null;
 
         BaseSystemConfigDTO baseSystemConfigDTO = systemParameterService.getBaseInfo();
-        String url = baseSystemConfigDTO.getUrl() + "/#/api/report/view/" + report.getId();
-
+        String url = reportUrl;
+        if(StringUtils.isEmpty(url)){
+            url = baseSystemConfigDTO.getUrl() + "/#/api/report/view/" + report.getId();
+        }
         String successContext = "";
         String failedContext = "";
         String subject = "";
