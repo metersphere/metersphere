@@ -114,6 +114,11 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                 config.setConfig(JSONObject.parseObject(environment.getConfig(), EnvironmentConfig.class));
             }
         }
+        // 添加环境中的公共变量
+        Arguments arguments = this.addArguments(config);
+        if (arguments != null) {
+            tree.add(this.addArguments(config));
+        }
         try {
             if (config != null && config.getConfig() != null) {
                 String url = config.getConfig().getHttpConfig().getProtocol() + "://" + config.getConfig().getHttpConfig().getSocket();

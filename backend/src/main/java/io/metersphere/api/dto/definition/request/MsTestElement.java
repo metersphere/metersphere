@@ -20,13 +20,17 @@ import io.metersphere.api.dto.definition.request.sampler.MsHTTPSamplerProxy;
 import io.metersphere.api.dto.definition.request.sampler.MsJDBCSampler;
 import io.metersphere.api.dto.definition.request.sampler.MsTCPSampler;
 import io.metersphere.api.dto.definition.request.timer.MsConstantTimer;
+import io.metersphere.api.dto.scenario.KeyValue;
 import io.metersphere.api.service.ApiDefinitionService;
 import io.metersphere.base.domain.ApiDefinitionWithBLOBs;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
 import lombok.Data;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.jmeter.config.Arguments;
 import org.apache.jmeter.protocol.http.control.AuthManager;
 import org.apache.jmeter.save.SaveService;
+import org.apache.jmeter.testelement.TestElement;
 import org.apache.jorphan.collections.HashTree;
 import org.apache.jorphan.collections.ListedHashTree;
 
@@ -77,7 +81,7 @@ public abstract class MsTestElement {
     @JSONField(ordinal = 8)
     private boolean enable = true;
     @JSONField(ordinal = 9)
-    private String refType ;
+    private String refType;
     @JSONField(ordinal = 10)
     private LinkedList<MsTestElement> hashTree;
 
@@ -132,6 +136,22 @@ public abstract class MsTestElement {
         } catch (Exception ex) {
             ex.printStackTrace();
         }
+    }
+
+    public Arguments addArguments(ParameterConfig config) {
+        if (config != null && config.getConfig() != null && config.getConfig().getCommonConfig() != null
+                && CollectionUtils.isNotEmpty(config.getConfig().getCommonConfig().getVariables())) {
+            Arguments arguments = new Arguments();
+            arguments.setEnabled(true);
+            arguments.setName(name + "Variables");
+            arguments.setProperty(TestElement.TEST_CLASS, Arguments.class.getName());
+            arguments.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("ArgumentsPanel"));
+            config.getConfig().getCommonConfig().getVariables().stream().filter(KeyValue::isValid).filter(KeyValue::isEnable).forEach(keyValue ->
+                    arguments.addArgument(keyValue.getName(), keyValue.getValue(), "=")
+            );
+            return arguments;
+        }
+        return null;
     }
 }
 
