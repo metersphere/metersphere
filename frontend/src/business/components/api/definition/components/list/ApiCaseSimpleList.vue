@@ -34,7 +34,7 @@
           </template>
         </el-table-column>
 
-        <el-table-column prop="name" :label="$t('api_test.definition.api_name')" show-overflow-tooltip/>
+        <el-table-column prop="name" :label="$t('test_track.case.name')" show-overflow-tooltip/>
 
         <el-table-column
           prop="priority"

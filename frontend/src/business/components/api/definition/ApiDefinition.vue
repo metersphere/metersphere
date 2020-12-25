@@ -106,6 +106,7 @@
   import {downloadFile, getCurrentUser, getUUID, getCurrentProjectID} from "@/common/js/utils";
   import MsApiModule from "./components/module/ApiModule";
   import ApiCaseSimpleList from "./components/list/ApiCaseSimpleList";
+  import {PROJECT_NAME} from "../../../../common/js/constants";
 
   export default {
     name: "ApiDefinition",
@@ -258,17 +259,28 @@
         if (this.$refs.apiList[0].selectRows && this.$refs.apiList[0].selectRows.size > 0) {
           let arr = Array.from(this.$refs.apiList[0].selectRows);
           obj.data = arr;
-          downloadFile("导出API.json", JSON.stringify(obj));
+          this.buildApiPath(obj.data);
+          downloadFile("Metersphere_Api_" + localStorage.getItem(PROJECT_NAME) + ".json", JSON.stringify(obj));
         } else {
           let condition = {};
-          let url = "/api/definition/list/1/100000";
+          let url = "/api/definition/list/all";
           condition.filters = ["Prepare", "Underway", "Completed"];
           condition.projectId = getCurrentProjectID();
           this.$post(url, condition, response => {
-            obj.data = response.data.listObject;
-            downloadFile("导出API.json", JSON.stringify(obj));
+            obj.data = response.data;
+            this.buildApiPath(obj.data);
+            downloadFile("Metersphere_Api_" + localStorage.getItem(PROJECT_NAME) + ".json", JSON.stringify(obj));
           });
         }
+      },
+      buildApiPath(apis) {
+        apis.forEach((api) => {
+          this.moduleOptions.forEach(item => {
+            if (api.moduleId === item.id) {
+              api.modulePath = item.path;
+            }
+          });
+        });
       },
       refresh(data) {
         this.$refs.apiList[0].initTable(data);

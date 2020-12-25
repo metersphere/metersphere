@@ -11,6 +11,7 @@ export const ROLE_TEST_VIEWER = 'test_viewer';
 export const WORKSPACE_ID = 'workspace_id';
 export const CURRENT_PROJECT = 'current_project';
 export const PROJECT_ID = 'project_id';
+export const PROJECT_NAME = 'project_name';
 
 export const REFRESH_SESSION_USER_URL = 'user/refresh';
 export const WORKSPACE = 'workspace';

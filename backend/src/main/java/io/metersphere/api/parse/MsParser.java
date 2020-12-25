@@ -15,11 +15,10 @@ import io.metersphere.api.service.ApiModuleService;
 import io.metersphere.base.domain.ApiModule;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 public class MsParser extends ApiImportAbstractParser {
 
@@ -42,7 +41,8 @@ public class MsParser extends ApiImportAbstractParser {
         List<ApiDefinitionResult> data = apiDefinitionImport.getData();
         data.forEach(apiDefinition -> {
             String id = UUID.randomUUID().toString();
-            apiDefinition.setModuleId(null);
+//            apiDefinition.setModuleId(null);
+            parseModule(apiDefinition, importRequest.isSaved());
             apiDefinition.setId(id);
             apiDefinition.setProjectId(this.projectId);
             String request = apiDefinition.getRequest();
@@ -120,5 +120,44 @@ public class MsParser extends ApiImportAbstractParser {
                 }
             }
         }
+    }
+
+
+    private void parseModule(ApiDefinitionResult apiDefinition, Boolean isSaved) {
+        String modulePath = apiDefinition.getModulePath();
+        if (StringUtils.isBlank(modulePath)) {
+            return;
+        }
+        if (modulePath.startsWith("/")) {
+            modulePath = modulePath.substring(1, modulePath.length());
+        }
+        if (modulePath.endsWith("/")) {
+            modulePath = modulePath.substring(0, modulePath.length() - 1);
+        }
+        List<String> modules = Arrays.asList(modulePath.split("/"));
+        ApiModule parent = null;
+        Iterator<String> iterator = modules.iterator();
+        while (iterator.hasNext()) {
+            String item = iterator.next();
+            parent = buildModule(item, parent, isSaved);
+            if (!iterator.hasNext()) {
+                apiDefinition.setModuleId(parent.getId());
+            }
+        }
+    }
+
+    private ApiModule buildModule(String name, ApiModule parentModule, boolean isSaved) {
+        apiModuleService = CommonBeanFactory.getBean(ApiModuleService.class);
+        ApiModule module;
+        if (parentModule != null) {
+            module = apiModuleService.getNewModule(name, this.projectId, parentModule.getLevel() + 1);
+            module.setParentId(parentModule.getId());
+        } else {
+            module = apiModuleService.getNewModule(name, this.projectId, 1);
+        }
+        if (isSaved) {
+            createModule(module);
+        }
+        return module;
     }
 }

@@ -41,6 +41,11 @@ public class ApiDefinitionController {
         return PageUtils.setPageInfo(page, apiDefinitionService.list(request));
     }
 
+    @PostMapping("/list/all")
+    public List<ApiDefinitionResult> list(@RequestBody ApiDefinitionRequest request) {
+        return apiDefinitionService.list(request);
+    }
+
     @PostMapping(value = "/create", consumes = {"multipart/form-data"})
     @RequiresRoles(value = {RoleConstants.TEST_MANAGER, RoleConstants.TEST_USER}, logical = Logical.OR)
     public void create(@RequestPart("request") SaveApiDefinitionRequest request, @RequestPart(value = "files") List<MultipartFile> bodyFiles) {
