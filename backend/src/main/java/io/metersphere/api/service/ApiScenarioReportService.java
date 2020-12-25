@@ -96,6 +96,8 @@ public class ApiScenarioReportService {
         report.setId(test.getId());
         report.setProjectId(test.getProjectId());
         report.setName(test.getName());
+        report.setScenarioName(test.getScenarioName());
+        report.setScenarioId(test.getScenarioId());
         report.setTriggerMode(test.getTriggerMode());
         report.setDescription(test.getDescription());
         report.setCreateTime(System.currentTimeMillis());
@@ -103,7 +105,7 @@ public class ApiScenarioReportService {
         report.setStatus(test.getStatus());
         report.setUserId(test.getUserId());
         report.setExecuteType(test.getExecuteType());
-        apiScenarioReportMapper.updateByPrimaryKey(report);
+        apiScenarioReportMapper.updateByPrimaryKeySelective(report);
         return report;
     }
 

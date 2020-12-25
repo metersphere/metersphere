@@ -1,7 +1,7 @@
 <template>
   <el-dialog class="api-relevance" :title="'接口导入'"
              :visible.sync="dialogVisible"
-             width="60%"
+             width="70%"
              :close-on-click-modal="false"
              top="50px">
 
