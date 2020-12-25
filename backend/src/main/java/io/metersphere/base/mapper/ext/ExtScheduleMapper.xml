@@ -46,9 +46,11 @@
     <select id="countTaskByProjectIdAndCreateTimeRange" resultType="java.lang.Long">
         SELECT COUNT(id) AS countNumber FROM `schedule`
         WHERE resource_id IN (
-            SELECT id FROM api_test WHERE project_id = #{projectId,jdbcType=VARCHAR} AND status != 'Trash'
+            SELECT atest.id FROM api_test atest
+            WHERE atest.project_id = #{projectId,jdbcType=VARCHAR} AND atest.status != 'Trash'
             UNION
-            SELECT id FROM api_scenario WHERE project_id = #{projectId,jdbcType=VARCHAR} AND status != 'Trash'
+            SELECT scene.id FROM api_scenario scene
+            WHERE scene.project_id = #{projectId,jdbcType=VARCHAR} AND scene.status != 'Trash'
         )
         AND create_time BETWEEN #{startTime} and #{endTime}
     </select>
