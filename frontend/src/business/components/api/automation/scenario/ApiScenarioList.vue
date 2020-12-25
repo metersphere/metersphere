@@ -160,10 +160,9 @@
     },
     methods: {
       search() {
-        this.loading = true;
+
         this.condition.filters = ["Prepare", "Underway", "Completed"];
         this.condition.moduleIds = this.selectNodeIds;
-
         if (this.trashEnable) {
           this.condition.filters = ["Trash"];
           this.condition.moduleIds = [];
@@ -174,17 +173,20 @@
         }
         this.selection = [];
         let url = "/api/automation/list/" + this.currentPage + "/" + this.pageSize;
-        this.$post(url, this.condition, response => {
-          let data = response.data;
-          this.total = data.itemCount;
-          this.tableData = data.listObject;
-          this.tableData.forEach(item => {
-            if (item.tags && item.tags.length > 0) {
-              item.tags = JSON.parse(item.tags);
-            }
-          })
-          this.loading = false;
-        });
+        if (this.condition.projectId) {
+          this.loading = true;
+          this.$post(url, this.condition, response => {
+            let data = response.data;
+            this.total = data.itemCount;
+            this.tableData = data.listObject;
+            this.tableData.forEach(item => {
+              if (item.tags && item.tags.length > 0) {
+                item.tags = JSON.parse(item.tags);
+              }
+            });
+            this.loading = false;
+          });
+        }
       },
       handleCommand(cmd) {
         let table = this.$refs.scenarioTable;

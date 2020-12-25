@@ -182,6 +182,10 @@
         this.$emit("refreshTable");
       },
       addScenario() {
+        if (!getCurrentProjectID()) {
+          this.$warning(this.$t('commons.check_project_tip'));
+          return;
+        }
         this.$refs.basisScenario.open(this.currentModule);
       },
       enableTrash() {

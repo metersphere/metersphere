@@ -87,7 +87,13 @@ import MsDialogFooter from "../../../common/components/MsDialogFooter";
 import MsTableHeader from "../../../common/components/MsTableHeader";
 import MsCreateBox from "../../../settings/CreateBox";
 import MsTablePagination from "../../../common/pagination/TablePagination";
-import {_filter, _sort, checkoutTestManagerOrTestUser, getCurrentWorkspaceId} from "../../../../../common/js/utils";
+import {
+  _filter,
+  _sort,
+  checkoutTestManagerOrTestUser,
+  getCurrentProjectID,
+  getCurrentWorkspaceId
+} from "../../../../../common/js/utils";
 import PlanStatusTableItem from "../../common/tableItems/plan/PlanStatusTableItem";
 
 export default {
@@ -133,6 +139,9 @@ export default {
     initTableData() {
       let lastWorkspaceId = getCurrentWorkspaceId();
       this.condition.workspaceId = lastWorkspaceId;
+      if (!getCurrentProjectID()) {
+        return;
+      }
       this.result = this.$post("/test/case/review/list/" + this.currentPage + "/" + this.pageSize, this.condition, response => {
         let data = response.data;
         this.total = data.itemCount;
@@ -160,6 +169,10 @@ export default {
       this.$router.push('/track/review/view/' + row.id);
     },
     testCaseReviewCreate() {
+      if (!getCurrentProjectID()) {
+        this.$warning(this.$t('commons.check_project_tip'));
+        return;
+      }
       this.$emit('openCaseReviewEditDialog');
     },
     handleEdit(caseReview) {

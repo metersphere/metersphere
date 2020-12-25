@@ -74,6 +74,7 @@
     import PlanStatusTableItem from "../../common/tableItems/plan/PlanStatusTableItem";
     import PlanStageTableItem from "../../common/tableItems/plan/PlanStageTableItem";
     import MsTableOperator from "../../../common/components/MsTableOperator";
+    import {getCurrentProjectID} from "../../../../../common/js/utils";
     export default {
       name: "RelatedTestPlanList",
       components: {MsTableOperator, PlanStageTableItem, PlanStatusTableItem, HomeBaseComponent},
@@ -88,7 +89,10 @@
       },
       methods: {
         initTableData() {
-          this.result = this.$post('/test/plan/list/all/relate', this.condition, response => {
+          if (!getCurrentProjectID()) {
+            return;
+          }
+          this.result = this.$post('/test/plan/list/all/relate', {}, response => {
             this.tableData = response.data;
             for (let i = 0; i < this.tableData.length; i++) {
               let path = "/test/plan/project/name/" + this.tableData[i].id;

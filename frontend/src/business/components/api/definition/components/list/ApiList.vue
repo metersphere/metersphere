@@ -224,10 +224,12 @@
         if (this.currentProtocol != null) {
           this.condition.protocol = this.currentProtocol;
         }
-        this.result = this.$post("/api/definition/list/" + this.currentPage + "/" + this.pageSize, this.condition, response => {
-          this.total = response.data.itemCount;
-          this.tableData = response.data.listObject;
-        });
+        if (this.condition.projectId) {
+          this.result = this.$post("/api/definition/list/" + this.currentPage + "/" + this.pageSize, this.condition, response => {
+            this.total = response.data.itemCount;
+            this.tableData = response.data.listObject;
+          });
+        }
       },
       getMaintainerOptions() {
         let workspaceId = localStorage.getItem(WORKSPACE_ID);

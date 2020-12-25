@@ -159,6 +159,7 @@ import TestCaseReportView from "../view/comonents/report/TestCaseReportView";
 import MsDeleteConfirm from "../../../common/components/MsDeleteConfirm";
 import {TEST_PLAN_CONFIGS} from "../../../common/components/search/search-components";
 import {LIST_CHANGE, TrackEvent} from "@/business/components/common/head/ListEvent";
+import {getCurrentProjectID} from "../../../../../common/js/utils";
 
 export default {
   name: "TestPlanList",
@@ -216,6 +217,9 @@ export default {
       if (this.selectNodeIds && this.selectNodeIds.length > 0) {
         this.condition.nodeIds = this.selectNodeIds;
       }
+      if (!getCurrentProjectID()) {
+        return;
+      }
       this.result = this.$post(this.buildPagePath(this.queryPath), this.condition, response => {
         let data = response.data;
         this.total = data.itemCount;
@@ -236,6 +240,10 @@ export default {
       return path + "/" + this.currentPage + "/" + this.pageSize;
     },
     testPlanCreate() {
+      if (!getCurrentProjectID()) {
+        this.$warning(this.$t('commons.check_project_tip'));
+        return;
+      }
       this.$emit('openTestPlanEditDialog');
     },
     handleEdit(testPlan) {

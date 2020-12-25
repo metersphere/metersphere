@@ -404,9 +404,17 @@ export default {
       }
     },
     importTestCase() {
+      if (!getCurrentProjectID()) {
+        this.$warning(this.$t('commons.check_project_tip'));
+        return;
+      }
       this.$refs.testCaseImport.open();
     },
     exportTestCase() {
+      if (!getCurrentProjectID()) {
+        this.$warning(this.$t('commons.check_project_tip'));
+        return;
+      }
       let ids = Array.from(this.selectRows).map(row => row.id);
       let config = {
         url: '/test/case/export/testcase',

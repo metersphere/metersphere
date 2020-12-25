@@ -69,6 +69,7 @@ import PlanStageTableItem from "../../common/tableItems/plan/PlanStageTableItem"
 import PlanStatusTableItem from "../../common/tableItems/plan/PlanStatusTableItem";
 import HomeBaseComponent from "./HomeBaseComponent";
 import MsTableButton from "../../../common/components/MsTableButton";
+import {getCurrentProjectID} from "../../../../../common/js/utils";
 
 export default {
   name: "ReviewList",
@@ -92,6 +93,9 @@ export default {
     initTableData(type) {
       if (!type) {
         type = 'reviewer'
+      }
+      if (!getCurrentProjectID()) {
+        return;
       }
       this.result = this.$get('/test/case/review/list/all/relate/' + type, response => {
         this.tableData = response.data;

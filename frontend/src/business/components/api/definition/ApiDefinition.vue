@@ -180,6 +180,10 @@
         }
       },
       handleTabAdd(e) {
+        if (!getCurrentProjectID()) {
+          this.$warning(this.$t('commons.check_project_tip'));
+          return;
+        }
         let api = {
           status: "Underway", method: "GET", userId: getCurrentUser().id,
           url: "", protocol: this.currentProtocol, environmentId: ""
@@ -211,6 +215,10 @@
         this.refresh();
       },
       handleTabsEdit(targetName, action, api) {
+        if (!getCurrentProjectID()) {
+          this.$warning(this.$t('commons.check_project_tip'));
+          return;
+        }
         if (targetName === undefined || targetName === null) {
           targetName = this.$t('api_test.definition.request.title');
         }

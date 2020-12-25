@@ -126,6 +126,7 @@ export default {
     modifier: '修改人',
     validate: "校验",
     batch_add: "批量添加",
+    check_project_tip: "请先创建或选择项目",
     date: {
       select_date: '选择日期',
       start_date: '开始日期',

@@ -244,10 +244,12 @@
         if (this.currentProtocol != null) {
           this.condition.protocol = this.currentProtocol;
         }
-        this.result = this.$post(this.getListUrl() + this.currentPage + "/" + this.pageSize, this.condition, response => {
-          this.total = response.data.itemCount;
-          this.tableData = response.data.listObject;
-        });
+        if (this.condition.projectId) {
+          this.result = this.$post(this.getListUrl() + this.currentPage + "/" + this.pageSize, this.condition, response => {
+            this.total = response.data.itemCount;
+            this.tableData = response.data.listObject;
+          });
+        }
       },
       buildCondition(condition) {
         if (this.isPlanModel) {
