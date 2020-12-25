@@ -396,16 +396,16 @@
               this.addComponent('ConstantTimer')
             }
           },
-          // {
-          //   title: this.$t('api_test.automation.external_import'),
-          //   show: this.showButton("OT_IMPORT"),
-          //   titleColor: "#409EFF",
-          //   titleBgColor: "#EEF5FE",
-          //   icon: "next_plan",
-          //   click: () => {
-          //     this.addComponent('OT_IMPORT')
-          //   }
-          // },
+          {
+            title: this.$t('api_test.definition.request.assertions_rule'),
+            show: this.showButton("Assertions"),
+            titleColor: "#A30014",
+            titleBgColor: "#F7E6E9",
+            icon: "next_plan",
+            click: () => {
+              this.addComponent('Assertions')
+            }
+          },
           {
             title: this.$t('api_test.automation.customize_req'),
             show: this.showButton("CustomizeReq"),

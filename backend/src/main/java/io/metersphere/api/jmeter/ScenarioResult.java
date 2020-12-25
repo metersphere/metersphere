@@ -43,4 +43,8 @@ public class ScenarioResult {
     public void addPassAssertions(int count) {
         this.passAssertions += count;
     }
+
+    public int getTotal() {
+        return error + success;
+    }
 }

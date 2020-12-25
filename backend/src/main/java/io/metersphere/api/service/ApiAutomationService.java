@@ -298,13 +298,15 @@ public class ApiAutomationService {
         testPlan.setHashTree(new LinkedList<>());
         HashTree jmeterHashTree = new ListedHashTree();
         try {
+            boolean isFirst = true;
             for (ApiScenarioWithBLOBs item : apiScenarios) {
                 MsThreadGroup group = new MsThreadGroup();
                 group.setLabel(item.getName());
                 group.setName(UUID.randomUUID().toString());
                 // 批量执行的结果直接存储为报告
-                if (apiScenarios.size() == 1) {
+                if (isFirst) {
                     group.setName(request.getId());
+                    isFirst = false;
                 }
                 ObjectMapper mapper = new ObjectMapper();
                 mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);

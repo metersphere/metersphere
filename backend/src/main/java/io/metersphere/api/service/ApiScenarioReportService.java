@@ -107,14 +107,14 @@ public class ApiScenarioReportService {
         return report;
     }
 
-    private TestResult createTestResult(TestResult result) {
+    private TestResult createTestResult(String testId, ScenarioResult scenarioResult) {
         TestResult testResult = new TestResult();
-        testResult.setTestId(result.getTestId());
-        testResult.setTotal(result.getTotal());
-        testResult.setError(result.getError());
-        testResult.setPassAssertions(result.getPassAssertions());
-        testResult.setSuccess(result.getSuccess());
-        testResult.setTotalAssertions(result.getTotalAssertions());
+        testResult.setTestId(testId);
+        testResult.setTotal(scenarioResult.getTotal());
+        testResult.setError(scenarioResult.getError());
+        testResult.setPassAssertions(scenarioResult.getPassAssertions());
+        testResult.setSuccess(scenarioResult.getSuccess());
+        testResult.setTotalAssertions(scenarioResult.getTotalAssertions());
         return testResult;
     }
 
@@ -132,7 +132,7 @@ public class ApiScenarioReportService {
         ApiScenarioReport report = editReport(scenarioResult);
         // 报告详情内容
         ApiScenarioReportDetail detail = new ApiScenarioReportDetail();
-        TestResult newResult = createTestResult(result);
+        TestResult newResult = createTestResult(result.getTestId(), scenarioResult);
         List<ScenarioResult> scenarioResults = new ArrayList();
         scenarioResult.setName(report.getScenarioName());
         scenarioResults.add(scenarioResult);
@@ -152,10 +152,9 @@ public class ApiScenarioReportService {
         for (ScenarioResult item : result.getScenarios()) {
             // 更新报告状态
             ApiScenarioReport report = editReport(item);
-
             // 报告详情内容
             ApiScenarioReportDetail detail = new ApiScenarioReportDetail();
-            TestResult newResult = createTestResult(result);
+            TestResult newResult = createTestResult(result.getTestId(), item);
             List<ScenarioResult> scenarioResults = new ArrayList();
             item.setName(report.getScenarioName());
             scenarioResults.add(item);
