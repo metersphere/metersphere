@@ -16,7 +16,6 @@ import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
@@ -29,20 +28,18 @@ public class ProjectController {
 
     @GetMapping("/listAll")
     public List<ProjectDTO> listAll() {
-//        String currentWorkspaceId = SessionUtils.getCurrentWorkspaceId();
-//        ProjectRequest request = new ProjectRequest();
-//        request.setWorkspaceId(currentWorkspaceId);
-//        return projectService.getProjectList(request);
-        return new ArrayList<>();
+        String currentWorkspaceId = SessionUtils.getCurrentWorkspaceId();
+        ProjectRequest request = new ProjectRequest();
+        request.setWorkspaceId(currentWorkspaceId);
+        return projectService.getProjectList(request);
     }
 
     /*jenkins项目列表*/
     @GetMapping("/listAll/{workspaceId}")
     public List<ProjectDTO> jlistAll(@PathVariable String workspaceId) {
-//        ProjectRequest request = new ProjectRequest();
-//        request.setWorkspaceId(workspaceId);
-//        return projectService.getProjectList(request);
-        return new ArrayList<>();
+        ProjectRequest request = new ProjectRequest();
+        request.setWorkspaceId(workspaceId);
+        return projectService.getProjectList(request);
     }
 
     @GetMapping("/recent/{count}")
