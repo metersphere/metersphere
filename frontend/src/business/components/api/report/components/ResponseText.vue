@@ -20,6 +20,9 @@
         <el-tab-pane :label="$t('api_test.request.extract.label')" name="label" class="pane">
           <pre>{{response.vars}}</pre>
         </el-tab-pane>
+        <el-tab-pane :label="$t('api_test.definition.request.console')" name="console" class="pane">
+          <pre>{{response.console}}</pre>
+        </el-tab-pane>
 
         <el-tab-pane v-if="activeName == 'body'" :disabled="true" name="mode" class="pane assertions">
           <template v-slot:label>
