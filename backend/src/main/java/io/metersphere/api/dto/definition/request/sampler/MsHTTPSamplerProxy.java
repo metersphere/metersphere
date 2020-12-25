@@ -143,7 +143,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                     envPath += this.getPath();
                 }
                 if (CollectionUtils.isNotEmpty(this.getRest()) && this.isRest()) {
-                    envPath = getRestParameters(URLDecoder.decode(envPath, "UTF-8"), config);
+                    envPath = getRestParameters(URLDecoder.decode(envPath, "UTF-8"));
                     sampler.setPath(envPath);
                 }
                 if (CollectionUtils.isNotEmpty(this.getArguments())) {
@@ -160,7 +160,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                 sampler.setProtocol(urlObject.getProtocol());
 
                 if (CollectionUtils.isNotEmpty(this.getRest()) && this.isRest()) {
-                    sampler.setPath(getRestParameters(URLDecoder.decode(urlObject.getPath(), "UTF-8"), config));
+                    sampler.setPath(getRestParameters(URLDecoder.decode(urlObject.getPath(), "UTF-8")));
                 }
                 if (CollectionUtils.isNotEmpty(this.getArguments())) {
                     sampler.setPath(getPostQueryParameters(URLDecoder.decode(urlObject.getPath(), "UTF-8")));
@@ -203,7 +203,19 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         }
     }
 
-    private String getRestParameters(String path, ParameterConfig config) {
+    private boolean isVariable(String path, String value) {
+        Pattern p = Pattern.compile("(\\$\\{)([\\w]+)(\\})");
+        Matcher m = p.matcher(path);
+        while (m.find()) {
+            String group = m.group(2);
+            if (group.equals(value)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private String getRestParameters(String path) {
         StringBuffer stringBuffer = new StringBuffer();
         stringBuffer.append(path);
         stringBuffer.append("/");
@@ -216,7 +228,9 @@ public class MsHTTPSamplerProxy extends MsTestElement {
             Matcher m = p.matcher(path);
             while (m.find()) {
                 String group = m.group(2);
-                path = path.replace("{" + group + "}", keyValueMap.get(group));
+                if (!isVariable(path, group)) {
+                    path = path.replace("{" + group + "}", keyValueMap.get(group));
+                }
             }
         } catch (Exception ex) {
             ex.printStackTrace();
