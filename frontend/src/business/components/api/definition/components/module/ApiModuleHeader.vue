@@ -33,7 +33,7 @@
       @saveAsEdit="saveAsEdit"
       @refresh="refresh"
       ref="basisApi"/>
-    <api-import ref="apiImport" @refresh="refresh"/>
+    <api-import ref="apiImport" @refresh="$emit('refreshTable')"/>
   </div>
 </template>
 

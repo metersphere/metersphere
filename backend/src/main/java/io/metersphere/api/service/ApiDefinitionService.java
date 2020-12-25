@@ -369,7 +369,7 @@ public class ApiDefinitionService {
         return apiImport;
     }
 
-    private void importApiTest(ApiTestImportRequest importRequest, ApiDefinitionImport apiImport) {
+    private void importApiTest(ApiTestImportRequest request, ApiDefinitionImport apiImport) {
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
         ApiDefinitionMapper batchMapper = sqlSession.getMapper(ApiDefinitionMapper.class);
         List<ApiDefinitionResult> data = apiImport.getData();
@@ -378,6 +378,7 @@ public class ApiDefinitionService {
             if (item.getName().length() > 255) {
                 item.setName(item.getName().substring(0, 255));
             }
+            item.setModuleId(request.getModuleId());
             createTest(item, batchMapper);
             if (i % 300 == 0) {
                 sqlSession.flushStatements();

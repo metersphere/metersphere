@@ -21,6 +21,7 @@
           :is-read-only="isReadOnly"
           @exportAPI="exportAPI"
           @saveAsEdit="saveAsEdit"
+          @refreshTable="$emit('refreshTable')"
           @refresh="refresh"
           @debug="debug"/>
       </template>
