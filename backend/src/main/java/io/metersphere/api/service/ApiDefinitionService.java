@@ -238,6 +238,7 @@ public class ApiDefinitionService {
         test.setModulePath(request.getModulePath());
         test.setResponse(JSONObject.toJSONString(request.getResponse()));
         test.setEnvironmentId(request.getEnvironmentId());
+        test.setNum(getNextNum(request.getProjectId()));
         if (request.getUserId() == null) {
             test.setUserId(Objects.requireNonNull(SessionUtils.getUser()).getId());
         } else {
@@ -246,6 +247,15 @@ public class ApiDefinitionService {
         test.setDescription(request.getDescription());
         apiDefinitionMapper.insert(test);
         return test;
+    }
+
+    private int getNextNum(String projectId) {
+        ApiDefinition apiDefinition = extApiDefinitionMapper.getNextNum(projectId);
+        if (apiDefinition == null) {
+            return 100001;
+        } else {
+            return Optional.of(apiDefinition.getNum() + 1).orElse(100001);
+        }
     }
 
     private ApiDefinition createTest(ApiDefinitionResult request, ApiDefinitionMapper batchMapper) {
@@ -372,11 +382,16 @@ public class ApiDefinitionService {
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
         ApiDefinitionMapper batchMapper = sqlSession.getMapper(ApiDefinitionMapper.class);
         List<ApiDefinitionResult> data = apiImport.getData();
+        int num = 0;
+        if (!CollectionUtils.isEmpty(data) && data.get(0) != null && data.get(0).getProjectId() != null) {
+            num = getNextNum(data.get(0).getProjectId());
+        }
         for (int i = 0; i < data.size(); i++) {
             ApiDefinitionResult item = data.get(i);
             if (item.getName().length() > 255) {
                 item.setName(item.getName().substring(0, 255));
             }
+            item.setNum(num++);
             createTest(item, batchMapper);
             if (i % 300 == 0) {
                 sqlSession.flushStatements();

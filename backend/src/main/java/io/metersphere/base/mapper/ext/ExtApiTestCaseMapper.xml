@@ -161,6 +161,7 @@
             atc.create_time,
             atc.update_user_id,
             atc.update_time,
+            atc.num,
             ader.status execResult,
             ader.create_time execTime
         from
@@ -204,7 +205,7 @@
 
     <select id="listSimple" resultType="io.metersphere.api.dto.definition.ApiTestCaseDTO">
         select
-          c.id, c.project_id, c.name, c.api_definition_id, c.priority, c.description, c.create_user_id, c.update_user_id, c.create_time, c.update_time,
+          c.id, c.project_id, c.name, c.api_definition_id, c.priority, c.description, c.create_user_id, c.update_user_id, c.create_time, c.update_time, c.num,
           a.module_id, a.path, a.protocol
         from
           api_test_case c
@@ -303,6 +304,9 @@
                 #{caseId}
             </foreach>
         </if>
+    </select>
+    <select id="getNextNum" resultType="io.metersphere.base.domain.ApiTestCase">
+        SELECT * FROM api_test_case WHERE api_test_case.api_definition_id = #{definitionId} ORDER BY num DESC LIMIT 1;
     </select>
 
 

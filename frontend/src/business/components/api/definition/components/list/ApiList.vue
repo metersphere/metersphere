@@ -20,6 +20,7 @@
           </template>
         </el-table-column>
 
+        <el-table-column prop="num" label="ID" show-overflow-tooltip/>
         <el-table-column prop="name" :label="$t('api_test.definition.api_name')" show-overflow-tooltip/>
         <el-table-column
           prop="status"

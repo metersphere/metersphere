@@ -34,6 +34,7 @@
           </template>
         </el-table-column>
 
+        <el-table-column prop="num" label="ID" show-overflow-tooltip/>
         <el-table-column prop="name" :label="$t('test_track.case.name')" show-overflow-tooltip/>
 
         <el-table-column
