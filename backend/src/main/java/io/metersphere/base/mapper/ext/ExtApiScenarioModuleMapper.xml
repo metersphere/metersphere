@@ -6,6 +6,10 @@
         <include refid="io.metersphere.base.mapper.ApiScenarioModuleMapper.Base_Column_List"/>
         from api_scenario_module
         where api_scenario_module.project_id = #{projectId}
-        order by create_time asc
+        order by api_scenario_module.pos asc
     </select>
+
+    <update id="updatePos">
+        update api_scenario_module set pos = #{pos} where id = #{id}
+    </update>
 </mapper>

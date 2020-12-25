@@ -154,8 +154,9 @@
       },
       drag(param, list) {
         this.$post("/api/automation/module/drag", param, () => {
-          // this.$post("/api/module/pos", list); //todo 排序
-          this.list();
+          this.$post("/api/automation/module/pos", list, () => {
+            this.list();
+          });
         }, (error) => {
           this.list();
         });

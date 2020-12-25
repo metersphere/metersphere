@@ -19,6 +19,10 @@
         from api_module
         where api_module.project_id = #{projectId}
         and api_module.protocol = #{protocol}
-        order by create_time asc
+        order by api_module.pos asc
     </select>
+
+    <update id="updatePos">
+        update api_module set pos = #{pos} where id = #{id}
+    </update>
 </mapper>

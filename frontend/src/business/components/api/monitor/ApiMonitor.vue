@@ -80,9 +80,8 @@ export default {
       this.getResponseCode(this.apiUrl, today1, today2);
     },
     getResponseTime(apiUrl, startTime, endTime) {
-      return this.$$get('/api/monitor/getResponseTime',
-        {'startTime': startTime, 'endTime': endTime},
-        {'apiUrl': apiUrl}, response => {
+      return this.$post('/api/monitor/getResponseTime',
+        {'startTime': startTime, 'endTime': endTime, 'apiUrl': apiUrl}, response => {
           Object.values(response.data).forEach(value => {
             this.rspTimexAxis.push(value.startTime);
             this.rspTimeData.push(value.responseTime);
@@ -90,9 +89,8 @@ export default {
         });
     },
     getResponseCode(apiUrl, startTime, endTime) {
-      return this.$$get('/api/monitor/getResponseCode',
-        {'startTime': startTime, 'endTime': endTime},
-        {'apiUrl': this.apiUrl}, response => {
+      return this.$post('/api/monitor/getResponseCode',
+        {'startTime': startTime, 'endTime': endTime, 'apiUrl': this.apiUrl}, response => {
           Object.values(response.data).forEach(value => {
             this.rspCodexAxis.push(value.startTime);
             this.rspCodeData.push(value.responseCode);

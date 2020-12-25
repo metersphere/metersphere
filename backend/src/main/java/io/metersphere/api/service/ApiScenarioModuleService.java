@@ -1,6 +1,7 @@
 package io.metersphere.api.service;
 
 
+import com.alibaba.fastjson.JSON;
 import io.metersphere.api.dto.automation.ApiScenarioDTO;
 import io.metersphere.api.dto.automation.ApiScenarioModuleDTO;
 import io.metersphere.api.dto.automation.ApiScenarioRequest;
@@ -17,7 +18,6 @@ import io.metersphere.service.NodeTreeService;
 import io.metersphere.service.ProjectService;
 import io.metersphere.track.service.TestPlanProjectService;
 import io.metersphere.track.service.TestPlanScenarioCaseService;
-import io.metersphere.track.service.TestPlanTestCaseService;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
@@ -184,6 +184,18 @@ public class ApiScenarioModuleService extends NodeTreeService<ApiScenarioModuleD
         ApiScenarioMapper apiScenarioMapper = sqlSession.getMapper(ApiScenarioMapper.class);
         apiScenarios.forEach(apiScenarioMapper::updateByPrimaryKey);
         sqlSession.flushStatements();
+    }
+
+    @Override
+    public ApiScenarioModuleDTO getNode(String id) {
+        ApiScenarioModule module = apiScenarioModuleMapper.selectByPrimaryKey(id);
+        ApiScenarioModuleDTO dto = JSON.parseObject(JSON.toJSONString(module), ApiScenarioModuleDTO.class);
+        return dto;
+    }
+
+    @Override
+    public void updatePos(String id, Double pos) {
+        extApiScenarioModuleMapper.updatePos(id, pos);
     }
 
     public void dragNode(DragApiScenarioModuleRequest request) {

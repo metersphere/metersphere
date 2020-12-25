@@ -8,5 +8,8 @@ import java.util.List;
 
 public interface ExtApiModuleMapper {
     int insertBatch(@Param("records") List<ApiModule> records);
+
     List<ApiModuleDTO> getNodeTreeByProjectId(@Param("projectId") String projectId, @Param("protocol") String protocol);
+
+    void updatePos(String id, Double pos);
 }

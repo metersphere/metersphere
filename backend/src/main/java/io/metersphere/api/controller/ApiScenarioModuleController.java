@@ -59,4 +59,10 @@ public class ApiScenarioModuleController {
     public void dragNode(@RequestBody DragApiScenarioModuleRequest node) {
         apiScenarioModuleService.dragNode(node);
     }
+
+    @PostMapping("/pos")
+    public void treeSort(@RequestBody List<String> ids) {
+        apiScenarioModuleService.sort(ids);
+    }
+
 }

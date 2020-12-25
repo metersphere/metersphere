@@ -7,4 +7,6 @@ import java.util.List;
 
 public interface ExtApiScenarioModuleMapper {
     List<ApiScenarioModuleDTO> getNodeTreeByProjectId(@Param("projectId") String projectId);
+
+    void updatePos(String id, Double pos);
 }

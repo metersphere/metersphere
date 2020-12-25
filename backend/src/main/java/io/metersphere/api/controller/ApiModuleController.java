@@ -59,4 +59,10 @@ public class ApiModuleController {
     public void dragNode(@RequestBody DragModuleRequest node) {
         apiModuleService.dragNode(node);
     }
+
+    @PostMapping("/pos")
+    public void treeSort(@RequestBody List<String> ids) {
+        apiModuleService.sort(ids);
+    }
+
 }
