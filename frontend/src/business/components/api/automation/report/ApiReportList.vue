@@ -15,7 +15,7 @@
             type="selection"/>
           <el-table-column width="40" :resizable="false" align="center">
             <template v-slot:default="scope">
-              <show-more-btn :is-show="scope.row.showMore" :buttons="buttons" :size="selectRows.size"/>
+              <show-more-btn v-tester :is-show="scope.row.showMore" :buttons="buttons" :size="selectRows.size"/>
             </template>
           </el-table-column>
           <el-table-column :label="$t('commons.name')" width="200" show-overflow-tooltip prop="name">
@@ -62,20 +62,20 @@
 </template>
 
 <script>
-  import MsTablePagination from "../../../common/pagination/TablePagination";
-  import MsTableHeader from "../../../common/components/MsTableHeader";
-  import MsContainer from "../../../common/components/MsContainer";
-  import MsMainContainer from "../../../common/components/MsMainContainer";
-  import MsApiReportStatus from "./ApiReportStatus";
-  import {_filter, _sort, getCurrentProjectID} from "@/common/js/utils";
-  import MsTableOperatorButton from "../../../common/components/MsTableOperatorButton";
-  import ReportTriggerModeItem from "../../../common/tableItem/ReportTriggerModeItem";
-  import {REPORT_CONFIGS} from "../../../common/components/search/search-components";
-  import {ApiEvent, LIST_CHANGE} from "@/business/components/common/head/ListEvent";
-  import ShowMoreBtn from "../../../track/case/components/ShowMoreBtn";
-  import MsApiReportDetail from "./ApiReportDetail";
+import MsTablePagination from "../../../common/pagination/TablePagination";
+import MsTableHeader from "../../../common/components/MsTableHeader";
+import MsContainer from "../../../common/components/MsContainer";
+import MsMainContainer from "../../../common/components/MsMainContainer";
+import MsApiReportStatus from "./ApiReportStatus";
+import {_filter, _sort, getCurrentProjectID} from "@/common/js/utils";
+import MsTableOperatorButton from "../../../common/components/MsTableOperatorButton";
+import ReportTriggerModeItem from "../../../common/tableItem/ReportTriggerModeItem";
+import {REPORT_CONFIGS} from "../../../common/components/search/search-components";
+import {ApiEvent, LIST_CHANGE} from "@/business/components/common/head/ListEvent";
+import ShowMoreBtn from "../../../track/case/components/ShowMoreBtn";
+import MsApiReportDetail from "./ApiReportDetail";
 
-  export default {
+export default {
     components: {
       ReportTriggerModeItem,
       MsTableOperatorButton,

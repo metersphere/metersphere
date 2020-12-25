@@ -74,20 +74,6 @@ export default {
       }
     }
 
-    Vue.prototype.$$get = function (url, data, header, success) {
-      let result = {loading: true};
-      if (!success) {
-        return axios.get(url, {params: data, headers: header});
-      } else {
-        axios.get(url, {params: data, headers: header}).then(response => {
-          then(success, response, result);
-        }).catch(error => {
-          exception(error, result, url);
-        });
-        return result;
-      }
-    };
-
     Vue.prototype.$get = function (url, success) {
       let result = {loading: true};
       if (!success) {
