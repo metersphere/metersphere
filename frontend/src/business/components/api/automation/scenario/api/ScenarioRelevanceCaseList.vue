@@ -161,7 +161,6 @@
           this.condition.protocol = this.currentProtocol;
         }
         this.condition.projectId = getCurrentProjectID();
-
         this.result = this.$post("/api/testcase/list/" + this.currentPage + "/" + this.pageSize, this.condition, response => {
           this.total = response.data.itemCount;
           this.tableData = response.data.listObject;

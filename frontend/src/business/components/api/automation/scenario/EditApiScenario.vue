@@ -396,16 +396,16 @@
               this.addComponent('ConstantTimer')
             }
           },
-          // {
-          //   title: this.$t('api_test.automation.external_import'),
-          //   show: this.showButton("OT_IMPORT"),
-          //   titleColor: "#409EFF",
-          //   titleBgColor: "#EEF5FE",
-          //   icon: "next_plan",
-          //   click: () => {
-          //     this.addComponent('OT_IMPORT')
-          //   }
-          // },
+          {
+            title: this.$t('api_test.definition.request.assertions_rule'),
+            show: this.showButton("Assertions"),
+            titleColor: "#A30014",
+            titleBgColor: "#F7E6E9",
+            icon: "next_plan",
+            click: () => {
+              this.addComponent('Assertions')
+            }
+          },
           {
             title: this.$t('api_test.automation.customize_req'),
             show: this.showButton("CustomizeReq"),
@@ -452,7 +452,7 @@
       },
       outsideClick(e) {
         e.stopPropagation()
-        this.operatingElements = ELEMENTS.get("ALL");
+        this.showAll();
       },
       addComponent(type) {
         switch (type) {
@@ -594,7 +594,7 @@
         }
       }
       ,
-      pushApiOrCase(data, refType,  referenced) {
+      pushApiOrCase(data, refType, referenced) {
         data.forEach(item => {
           this.setApiParameter(item, refType, referenced);
         });
@@ -885,6 +885,7 @@
     height: calc(100vh - 196px);
     overflow-y: auto;
   }
+
   .ms-scenario-input {
     width: 100%;
   }

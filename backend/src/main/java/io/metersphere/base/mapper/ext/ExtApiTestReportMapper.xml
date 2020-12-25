@@ -159,7 +159,7 @@
         INNER JOIN api_test_report testReport ON testReportDetail.report_id = testReport.id
         WHERE sch.resource_id IN (
             SELECT id FROM api_test WHERE project_id = #{projectId,jdbcType=VARCHAR}
-        )
+        ) AND testReport.trigger_mode = 'SCHEDULE'
         GROUP BY groupField;
     </select>
 
@@ -170,6 +170,6 @@
         WHERE sch.resource_id IN (
             SELECT id FROM api_test WHERE project_id = #{projectId,jdbcType=VARCHAR}
         )
-        AND testReport.create_time BETWEEN #{startTime} and #{endTime}
+        AND testReport.trigger_mode = 'SCHEDULE' AND testReport.create_time BETWEEN #{startTime} and #{endTime}
     </select>
 </mapper>
