@@ -126,6 +126,7 @@ export default {
     modifier: 'Modifier',
     validate: "Validate",
     batch_add: "Batch add",
+    check_project_tip: "Create or select the project first",
     date: {
       select_date: 'Select date',
       start_date: 'Start date',
