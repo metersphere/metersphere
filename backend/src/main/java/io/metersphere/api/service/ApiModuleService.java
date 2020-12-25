@@ -24,6 +24,7 @@ import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.util.*;
@@ -69,10 +70,32 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
         return addNodeWithoutValidate(node);
     }
 
+    private double getNextLevelPos(String projectId, int level, String parentId) {
+        List<ApiModule> list = getPos(projectId, level, parentId, "pos desc");
+        if (!CollectionUtils.isEmpty(list) && list.get(0) != null && list.get(0).getPos() != null) {
+            return list.get(0).getPos() + DEFAULT_POS;
+        } else {
+            return DEFAULT_POS;
+        }
+    }
+
+    private List<ApiModule> getPos(String projectId, int level, String parentId, String order) {
+        ApiModuleExample example = new ApiModuleExample();
+        ApiModuleExample.Criteria criteria = example.createCriteria();
+        criteria.andProjectIdEqualTo(projectId).andLevelEqualTo(level);
+        if (level != 1 && StringUtils.isNotBlank(parentId)) {
+            criteria.andParentIdEqualTo(parentId);
+        }
+        example.setOrderByClause(order);
+        return apiModuleMapper.selectByExample(example);
+    }
+
     public String addNodeWithoutValidate(ApiModule node) {
         node.setCreateTime(System.currentTimeMillis());
         node.setUpdateTime(System.currentTimeMillis());
         node.setId(UUID.randomUUID().toString());
+        double pos = getNextLevelPos(node.getProjectId(), node.getLevel(), node.getParentId());
+        node.setPos(pos);
         apiModuleMapper.insertSelective(node);
         return node.getId();
     }
@@ -253,7 +276,7 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
         if (nodeTree == null) {
             return;
         }
-        buildUpdateDefinition(nodeTree, apiModule, updateNodes, "/", "0", nodeTree.getLevel());
+        buildUpdateDefinition(nodeTree, apiModule, updateNodes, "/", "0", 1);
 
         updateNodes = updateNodes.stream()
                 .filter(item -> nodeIds.contains(item.getId()))
