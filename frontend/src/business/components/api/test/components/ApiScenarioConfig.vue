@@ -1,6 +1,6 @@
 <template>
   <el-container>
-    <el-aside class="scenario-aside">
+    <el-aside class="scenario-aside" id="silderLeft">
       <div class="scenario-list">
         <ms-api-collapse v-model="activeName" @change="handleChange">
           <draggable :list="scenarios" group="Scenario" class="scenario-draggable" ghost-class="scenario-ghost">
@@ -50,6 +50,7 @@
         <el-button slot="reference" :disabled="isReadOnly" class="scenario-create" type="primary" size="mini"
                    icon="el-icon-plus" plain/>
       </el-popover>
+      <div class="moveBtn" v-move></div>
     </el-aside>
 
     <el-main class="scenario-main">
@@ -111,7 +112,23 @@ export default {
       currentScenario: {}
     }
   },
-
+  directives: {
+    move(el, bindings) {
+      el.onmousedown = function (e) {
+        const init = e.clientX;
+        const parent = document.getElementById("silderLeft");
+        const initWidth = parent.offsetWidth;
+        document.onmousemove = function (e) {
+          const end = e.clientX;
+          const newWidth = end - init + initWidth;
+          parent.style.width = newWidth + "px";
+        };
+        document.onmouseup = function () {
+          document.onmousemove = document.onmouseup = null;
+        };
+      };
+    }
+  },
   watch: {
     test() {
       this.initScenarioEnvironment();
@@ -336,5 +353,15 @@ export default {
 .disable-scenario >>> .el-collapse-item__header {
   border-right: 2px solid #909399;
   color: #8a8b8d;
+}
+
+.moveBtn{
+  height: 100%;
+  width: 2px;
+  position: absolute;
+  right: 0px;
+  top: 0;
+  cursor: col-resize;
+  background-color: #DCDFE6;
 }
 </style>
