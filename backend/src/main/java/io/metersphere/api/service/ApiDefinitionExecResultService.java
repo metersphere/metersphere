@@ -7,8 +7,11 @@ import io.metersphere.base.domain.ApiDefinitionExecResult;
 import io.metersphere.base.domain.ApiDefinitionExecResultExample;
 import io.metersphere.base.mapper.ApiDefinitionExecResultMapper;
 import io.metersphere.base.mapper.ext.ExtApiDefinitionExecResultMapper;
+import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.utils.DateUtils;
 import io.metersphere.commons.utils.SessionUtils;
+import io.metersphere.track.service.TestPlanApiCaseService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -25,6 +28,8 @@ public class ApiDefinitionExecResultService {
     private ApiDefinitionExecResultMapper apiDefinitionExecResultMapper;
     @Resource
     private ExtApiDefinitionExecResultMapper extApiDefinitionExecResultMapper;
+    @Resource
+    private TestPlanApiCaseService testPlanApiCaseService;
 
 
     public void saveApiResult(TestResult result, String type) {
@@ -37,9 +42,13 @@ public class ApiDefinitionExecResultService {
             saveResult.setResourceId(item.getName());
             saveResult.setContent(JSON.toJSONString(item));
             saveResult.setStartTime(item.getStartTime());
-            saveResult.setType(type);
+            String status = item.isSuccess() ? "success" : "error";
             saveResult.setEndTime(item.getResponseResult().getResponseTime());
-            saveResult.setStatus(item.isSuccess() ? "success" : "error");
+            saveResult.setType(type);
+            saveResult.setStatus(status);
+            if (StringUtils.equals(type, ApiRunMode.API_PLAN.name())) {
+                testPlanApiCaseService.setExecResult(item.getName(), status);
+            }
             apiDefinitionExecResultMapper.insert(saveResult);
         });
     }

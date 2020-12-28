@@ -122,7 +122,7 @@ export default {
         this.fileList = JSON.parse(JSON.stringify(files));
         this.tableData = JSON.parse(JSON.stringify(files));
         this.tableData.map(f => {
-          f.size = f.size + ' Bytes';
+          f.size = (f.size / 1024).toFixed(2) + ' KB';
         });
       })
     },

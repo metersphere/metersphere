@@ -18,6 +18,8 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.io.ByteArrayInputStream;
 import java.io.StringWriter;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -26,7 +28,7 @@ public class JmeterDocumentParser {
     private final static String STRING_PROP = "stringProp";
     private final static String ARGUMENTS = "Arguments";
     private final static String COLLECTION_PROP = "collectionProp";
-    private final static String HTTP_SAMPLER_PROXY = "MsHTTPSamplerProxy";
+    private final static String HTTP_SAMPLER_PROXY = "HTTPSamplerProxy";
     private final static String ELEMENT_PROP = "elementProp";
 
     public static byte[] parse(byte[] source) {
@@ -154,7 +156,14 @@ public class JmeterDocumentParser {
                     if (!StringUtils.equals("?", u)) {
                         u += "&";
                     }
-                    u += k + "=" + ScriptEngineUtils.calculate(v);
+                    v = ScriptEngineUtils.calculate(v);
+                    // urlencoder
+                    try {
+                        v = URLEncoder.encode(v, "UTF-8");
+                    } catch (UnsupportedEncodingException e) {
+                        LogUtil.error(e);
+                    }
+                    u += k + "=" + v;
                     return u;
                 });
                 ele.setTextContent(url + ((params != null && !params.equals("?")) ? params : ""));
