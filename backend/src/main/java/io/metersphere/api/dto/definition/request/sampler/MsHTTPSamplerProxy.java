@@ -158,12 +158,13 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                 sampler.setDomain(URLDecoder.decode(urlObject.getHost(), "UTF-8"));
                 sampler.setPort(urlObject.getPort());
                 sampler.setProtocol(urlObject.getProtocol());
-
+                String envPath = StringUtils.equals(urlObject.getPath(), "/") ? "" : urlObject.getPath();
                 if (CollectionUtils.isNotEmpty(this.getRest()) && this.isRest()) {
-                    sampler.setPath(getRestParameters(URLDecoder.decode(urlObject.getPath(), "UTF-8")));
+                    envPath = getRestParameters(URLDecoder.decode(envPath, "UTF-8"));
+                    sampler.setPath(envPath);
                 }
                 if (CollectionUtils.isNotEmpty(this.getArguments())) {
-                    sampler.setPath(getPostQueryParameters(URLDecoder.decode(urlObject.getPath(), "UTF-8")));
+                    sampler.setPath(getPostQueryParameters(URLDecoder.decode(envPath, "UTF-8")));
                 }
             }
         } catch (Exception e) {

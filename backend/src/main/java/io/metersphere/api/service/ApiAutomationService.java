@@ -13,6 +13,7 @@ import io.metersphere.api.dto.definition.request.*;
 import io.metersphere.api.dto.scenario.KeyValue;
 import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
 import io.metersphere.api.jmeter.JMeterService;
+import io.metersphere.api.parse.old.JmeterDocumentParser;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ApiScenarioMapper;
 import io.metersphere.base.mapper.ApiScenarioReportMapper;
@@ -38,6 +39,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
+import org.apache.jmeter.save.SaveService;
 import org.apache.jorphan.collections.HashTree;
 import org.apache.jorphan.collections.ListedHashTree;
 import org.springframework.stereotype.Service;
@@ -45,6 +47,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -356,7 +360,18 @@ public class ApiAutomationService {
             runMode = ApiRunMode.SCENARIO_PLAN.name();
         }
         // 调用执行方法
-        jMeterService.runDefinition(request.getId(), jmeterHashTree, request.getReportId(), runMode);
+        String jmx = testPlan.getJmx(jmeterHashTree);
+        byte[] bytes = JmeterDocumentParser.parse(jmx.getBytes());
+        InputStream is = new ByteArrayInputStream(bytes);
+        try {
+            Object scriptWrapper = SaveService.loadElement(is);
+            HashTree hashTree = JMeterService.getHashTree(scriptWrapper);
+            // 调用执行方法
+            jMeterService.runDefinition(request.getId(), hashTree, request.getReportId(), runMode);
+        } catch (Exception e) {
+            e.printStackTrace();
+            LogUtil.error(e.getMessage());
+        }
         return request.getId();
     }
 
@@ -380,9 +395,20 @@ public class ApiAutomationService {
         config.setConfig(envConfig);
         HashTree hashTree = request.getTestElement().generateHashTree(config);
         // 调用执行方法
-        jMeterService.runDefinition(request.getId(), hashTree, request.getReportId(), ApiRunMode.SCENARIO.name());
+        String jmx = request.getTestElement().getJmx(hashTree);
         createScenarioReport(request.getId(), request.getScenarioId(), request.getScenarioName(), ReportTriggerMode.MANUAL.name(), request.getExecuteType(), request.getProjectId(),
                 SessionUtils.getUserId());
+        byte[] bytes = JmeterDocumentParser.parse(jmx.getBytes());
+        InputStream is = new ByteArrayInputStream(bytes);
+        try {
+            Object scriptWrapper = SaveService.loadElement(is);
+            HashTree jmeterHashTree = JMeterService.getHashTree(scriptWrapper);
+            // 调用执行方法
+            jMeterService.runDefinition(request.getId(), jmeterHashTree, request.getReportId(), ApiRunMode.SCENARIO.name());
+        } catch (Exception e) {
+            e.printStackTrace();
+            LogUtil.error(e.getMessage());
+        }
         return request.getId();
     }
 
