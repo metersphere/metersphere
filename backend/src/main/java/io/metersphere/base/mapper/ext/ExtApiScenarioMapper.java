@@ -29,4 +29,6 @@ public interface ExtApiScenarioMapper {
     List<ApiDataCountResult> countRunResultByProjectID(String projectId);
 
     List<String> selectIdsNotExistsInPlan(String projectId, String planId);
+
+    ApiScenario getNextNum(@Param("projectId") String projectId);
 }

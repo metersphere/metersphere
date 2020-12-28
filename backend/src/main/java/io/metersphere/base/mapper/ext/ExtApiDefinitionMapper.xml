@@ -194,7 +194,7 @@
     </sql>
 
     <select id="list" resultType="io.metersphere.api.dto.definition.ApiDefinitionResult">
-        select api_definition.id, api_definition.project_id,
+        select api_definition.id, api_definition.project_id, api_definition.num,
         api_definition.name,api_definition.protocol,api_definition.path,api_definition.module_id,api_definition.module_path,api_definition.method,
         api_definition.description,api_definition.request,api_definition.response,api_definition.environment_id,
         api_definition.status, api_definition.user_id, api_definition.create_time, api_definition.update_time, project.name as
@@ -291,5 +291,8 @@
         ) test_case_api ON api.id = test_case_api.api_definition_id
         WHERE api.project_id = #{0} and  api.`status` != 'Trash'
         GROUP BY groupField
+    </select>
+    <select id="getNextNum" resultType="io.metersphere.base.domain.ApiDefinition">
+        SELECT * FROM api_definition WHERE api_definition.project_id = #{projectId} ORDER BY num DESC LIMIT 1;
     </select>
 </mapper>

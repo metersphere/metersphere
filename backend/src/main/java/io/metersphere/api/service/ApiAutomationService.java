@@ -109,6 +109,7 @@ public class ApiAutomationService {
         scenario.setScenarioDefinition(JSON.toJSONString(request.getScenarioDefinition()));
         scenario.setCreateTime(System.currentTimeMillis());
         scenario.setUpdateTime(System.currentTimeMillis());
+        scenario.setNum(getNextNum(request.getProjectId()));
         if (StringUtils.isNotEmpty(request.getStatus())) {
             scenario.setStatus(request.getStatus());
         } else {
@@ -125,6 +126,15 @@ public class ApiAutomationService {
         List<String> bodyUploadIds = request.getBodyUploadIds();
         apiDefinitionService.createBodyFiles(bodyUploadIds, bodyFiles);
         return scenario;
+    }
+
+    private int getNextNum(String projectId) {
+        ApiScenario apiScenario = extApiScenarioMapper.getNextNum(projectId);
+        if (apiScenario == null) {
+            return 100001;
+        } else {
+            return Optional.of(apiScenario.getNum() + 1).orElse(100001);
+        }
     }
 
     public void update(SaveApiScenarioRequest request, List<MultipartFile> bodyFiles) {

@@ -13,6 +13,8 @@
             <show-more-btn :is-show="isSelect(row)" :buttons="buttons" :size="selection.length"/>
           </template>
         </el-table-column>
+        <el-table-column prop="num" label="ID"
+                         show-overflow-tooltip/>
         <el-table-column prop="name" :label="$t('api_test.automation.scenario_name')"
                          show-overflow-tooltip/>
         <el-table-column prop="level" :label="$t('api_test.automation.case_level')"
