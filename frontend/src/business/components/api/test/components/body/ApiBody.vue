@@ -19,7 +19,7 @@
                      type="body"
                      v-if="body.isKV()"/>
     <div class="body-raw" v-if="body.type == 'Raw'">
-      <ms-code-edit :mode="body.format" :enable-format="false" :read-only="isReadOnly" :data.sync="body.raw" :modes="modes" ref="codeEdit"/>
+      <ms-code-edit v-if="isCodeEditAlive" :mode="body.format" :read-only="isReadOnly" :data.sync="body.raw" :modes="modes" ref="codeEdit"/>
     </div>
 
   </div>
@@ -43,20 +43,26 @@ export default {
     isReadOnly: {
       type: Boolean,
       default: false
-    }
+    },
   },
 
   data() {
     return {
       type: BODY_TYPE,
-      modes: ['text', 'json', 'xml', 'html']
+      modes: ['text', 'json', 'xml', 'html'],
+      isCodeEditAlive: true
     };
   },
 
   methods: {
     modeChange(mode) {
       this.body.format = mode;
-    }
+      this.reload();
+    },
+    reload() {
+      this.isCodeEditAlive = false;
+      this.$nextTick(() => (this.isCodeEditAlive = true));
+    },
   },
 
   created() {
