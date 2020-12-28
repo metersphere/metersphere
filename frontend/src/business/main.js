@@ -18,6 +18,7 @@ import '../common/css/menu-header.css';
 import '../common/css/main.css';
 import CKEditor from '@ckeditor/ckeditor5-vue';
 import VueFab from 'vue-float-action-button'
+import {horizontalDrag} from "../common/js/directive";
 
 Vue.config.productionTip = false;
 Vue.use(icon);
@@ -42,6 +43,9 @@ Vue.directive('roles', roles);
 Vue.directive('xpack', xpack);
 
 Vue.directive('tester', tester);
+
+//支持左右拖拽
+Vue.directive('horizontal-drag', horizontalDrag);
 
 new Vue({
   el: '#app',
