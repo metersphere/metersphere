@@ -28,7 +28,7 @@ public class JmeterDocumentParser {
     private final static String STRING_PROP = "stringProp";
     private final static String ARGUMENTS = "Arguments";
     private final static String COLLECTION_PROP = "collectionProp";
-    private final static String HTTP_SAMPLER_PROXY = "MsHTTPSamplerProxy";
+    private final static String HTTP_SAMPLER_PROXY = "HTTPSamplerProxy";
     private final static String ELEMENT_PROP = "elementProp";
 
     public static byte[] parse(byte[] source) {
