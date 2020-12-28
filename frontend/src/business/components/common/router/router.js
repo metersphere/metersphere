@@ -11,7 +11,7 @@ Vue.use(VueRouter);
 
 const router = new VueRouter({
   routes: [
-    {path: "/", redirect: '/setting/personsetting'},
+    {path: "/", redirect: '/track/home'},
     {
       path: "/sidebar",
       components: {
