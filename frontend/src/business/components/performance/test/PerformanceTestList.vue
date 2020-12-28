@@ -148,14 +148,15 @@ export default {
     initTableData() {
       if (this.projectId !== 'all') {
         this.condition.projectId = this.projectId;
+        if (!this.condition.projectId) {
+          return;
+        }
       }
-      if (this.condition.projectId) {
-        this.result = this.$post(this.buildPagePath(this.queryPath), this.condition, response => {
-          let data = response.data;
-          this.total = data.itemCount;
-          this.tableData = data.listObject;
-        });
-      }
+      this.result = this.$post(this.buildPagePath(this.queryPath), this.condition, response => {
+        let data = response.data;
+        this.total = data.itemCount;
+        this.tableData = data.listObject;
+      });
     },
     search(combine) {
       this.initTableData(combine);
