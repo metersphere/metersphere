@@ -5,6 +5,7 @@ import io.metersphere.api.dto.DeleteAPIReportRequest;
 import io.metersphere.api.dto.QueryAPIReportRequest;
 import io.metersphere.api.dto.automation.APIScenarioReportResult;
 import io.metersphere.api.dto.automation.ExecuteType;
+import io.metersphere.api.dto.automation.ScenarioStatus;
 import io.metersphere.api.dto.datacount.ApiDataCountResult;
 import io.metersphere.api.jmeter.ScenarioResult;
 import io.metersphere.api.jmeter.TestResult;
@@ -124,9 +125,9 @@ public class ApiScenarioReportService {
         TestPlanApiScenario testPlanApiScenario = testPlanApiScenarioMapper.selectByPrimaryKey(result.getTestId());
         ScenarioResult scenarioResult = result.getScenarios().get(0);
         if (scenarioResult.getError() > 0) {
-            testPlanApiScenario.setLastResult("Fail");
+            testPlanApiScenario.setLastResult(ScenarioStatus.Fail.name());
         } else {
-            testPlanApiScenario.setLastResult("Success");
+            testPlanApiScenario.setLastResult(ScenarioStatus.Success.name());
         }
         String passRate = new DecimalFormat("0%").format((float) scenarioResult.getSuccess() / (scenarioResult.getSuccess() + scenarioResult.getError()));
         testPlanApiScenario.setPassRate(passRate);

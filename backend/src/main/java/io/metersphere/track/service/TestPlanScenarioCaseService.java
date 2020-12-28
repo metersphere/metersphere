@@ -89,4 +89,8 @@ public class TestPlanScenarioCaseService {
         example.createCriteria().andTestPlanIdEqualTo(planId);
         return testPlanApiScenarioMapper.selectByExample(example);
     }
+
+    public List<String> getExecResultByPlanId(String planId) {
+        return extTestPlanScenarioCaseMapper.getExecResultByPlanId(planId);
+    }
 }

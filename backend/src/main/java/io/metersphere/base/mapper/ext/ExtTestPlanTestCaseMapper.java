@@ -41,4 +41,6 @@ public interface ExtTestPlanTestCaseMapper {
     TestPlanCaseDTO get(String testPlanTestCaseId);
 
     void deleteByTestCaseID(String id);
+
+    List<String> getExecResultByPlanId(String planId);
 }
