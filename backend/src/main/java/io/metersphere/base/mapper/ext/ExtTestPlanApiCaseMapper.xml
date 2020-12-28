@@ -108,5 +108,11 @@
       </foreach>
     </if>
   </select>
+    <select id="getExecResultByPlanId" resultType="java.lang.String">
+      select status
+      from
+      test_plan_api_case
+      where test_plan_id = #{planId}
+    </select>
 
 </mapper>

@@ -330,6 +330,13 @@
         where test_plan_test_case.id = #{testPlanTestCaseId}
     </select>
 
+    <select id="getExecResultByPlanId" resultType="java.lang.String">
+      select status
+      from
+      test_plan_test_case
+      where plan_id = #{planId}
+    </select>
+
     <update id="updateTestCaseStates" parameterType="java.lang.String">
         update test_plan_test_case
         <set>

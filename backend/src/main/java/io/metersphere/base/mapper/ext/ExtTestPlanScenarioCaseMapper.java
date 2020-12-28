@@ -18,4 +18,5 @@ public interface ExtTestPlanScenarioCaseMapper {
 
     List<ApiScenarioDTO> list(@Param("request") TestPlanScenarioRequest request);
 
+    List<String> getExecResultByPlanId(String planId);
 }
