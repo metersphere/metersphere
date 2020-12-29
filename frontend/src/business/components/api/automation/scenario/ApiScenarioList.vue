@@ -9,7 +9,7 @@
       <el-table ref="scenarioTable" border :data="tableData" class="adjust-table" @select-all="select" @select="select"
                 v-loading="loading">
         <el-table-column type="selection" width="38"/>
-        <el-table-column width="40" :resizable="false" align="center">
+        <el-table-column v-if="!referenced" width="40" :resizable="false" align="center">
           <el-dropdown slot="header" style="width: 14px">
               <span class="el-dropdown-link" style="width: 14px">
                 <i class="el-icon-arrow-down el-icon--right" style="margin-left: 0px"></i>
@@ -23,6 +23,7 @@
               </el-dropdown-item>
             </el-dropdown-menu>
           </el-dropdown>
+
           <template v-slot:default="{row}">
             <show-more-btn :is-show="isSelect(row)" :buttons="buttons" :size="selectDataCounts"/>
           </template>

@@ -1,55 +1,45 @@
 <template>
-  <div>
-    <el-dialog :title="$t('test_track.plan_view.relevance_test_case')"
-               :visible.sync="dialogVisible"
-               @close="close"
-               width="60%" v-loading="result.loading"
-               :close-on-click-modal="false"
-               top="50px">
+  <relevance-dialog :title="$t('test_track.plan_view.relevance_test_case')"  ref="relevanceDialog">
 
-      <el-container class="main-content">
-        <el-aside class="tree-aside" width="250px">
-          <select-menu
-            :data="projects"
-            width="160px"
-            :current-data="currentProject"
-            :title="$t('test_track.switch_project')"
-            @dataChange="changeProject"/>
-          <slot name="aside"></slot>
-        </el-aside>
+    <template v-slot:aside>
+      <select-menu
+        :data="projects"
+        width="160px"
+        :current-data="currentProject"
+        :title="$t('test_track.switch_project')"
+        @dataChange="changeProject"/>
+      <slot name="aside"></slot>
+    </template>
 
-        <el-container>
-          <el-main class="case-content">
-            <slot></slot>
-          </el-main>
-        </el-container>
-      </el-container>
+    <slot></slot>
 
-      <template v-slot:footer>
-        <ms-dialog-footer @cancel="dialogVisible = false" @confirm="save"/>
-      </template>
+    <template v-slot:footer>
+      <ms-dialog-footer @cancel="close" @confirm="save"/>
+    </template>
 
-    </el-dialog>
+    <template v-slot:footer>
+      <ms-dialog-footer @cancel="close" @confirm="save"/>
+    </template>
 
-  </div>
-
+  </relevance-dialog>
 </template>
 
 <script>
 
   import MsDialogFooter from '../../../../../common/components/MsDialogFooter'
   import SelectMenu from "../../../../common/SelectMenu";
+  import RelevanceDialog from "./RelevanceDialog";
 
   export default {
     name: "TestCaseRelevanceBase",
     components: {
+      RelevanceDialog,
       SelectMenu,
       MsDialogFooter,
     },
     data() {
       return {
         result: {},
-        dialogVisible: false,
         currentProject: {},
         projectId: '',
         projectName: '',
@@ -66,10 +56,6 @@
 
     },
     methods: {
-      open() {
-        this.getProject();
-        this.dialogVisible = true;
-      },
 
       refreshNode() {
         this.$emit('refresh');
@@ -80,7 +66,12 @@
       },
 
       close() {
-        this.dialogVisible = false;
+        this.$refs.relevanceDialog.close();
+      },
+
+      open() {
+        this.getProject();
+        this.$refs.relevanceDialog.open();
       },
 
       getProject() {
@@ -108,53 +99,4 @@
 </script>
 
 <style scoped>
-
-  .tb-edit .el-input {
-    display: none;
-    color: black;
-  }
-
-  .tb-edit .current-row .el-input {
-    display: block;
-
-  }
-
-  .tb-edit .current-row .el-input + span {
-    display: none;
-
-  }
-
-  .node-tree {
-    margin-right: 10px;
-  }
-
-  .el-header {
-    background-color: darkgrey;
-    color: #333;
-    line-height: 60px;
-  }
-
-  .case-content {
-    padding: 0px 20px;
-    height: 100%;
-    /*border: 1px solid #EBEEF5;*/
-  }
-
-  .tree-aside {
-    min-height: 300px;
-    max-height: 100%;
-  }
-
-  .main-content {
-    min-height: 300px;
-    height: 100%;
-    /*border: 1px solid #EBEEF5;*/
-  }
-
-  .project-link {
-    float: right;
-    margin-right: 12px;
-    margin-bottom: 10px;
-  }
-
 </style>

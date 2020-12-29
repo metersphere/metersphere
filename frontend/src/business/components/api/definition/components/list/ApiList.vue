@@ -8,7 +8,7 @@
 
       <el-input placeholder="搜索" @blur="search" class="search-input" size="small" @keyup.enter.native="search" v-model="condition.name"/>
 
-      <el-table v-loading="result.loading" ref="apiDefinitionTable"
+      <el-table v-loading="result.loading"
                 border
                 :data="tableData" row-key="id" class="test-content adjust-table"
                 @select-all="handleSelectAll"
@@ -29,7 +29,7 @@
             </el-dropdown-menu>
           </el-dropdown>
           <template v-slot:default="scope">
-            <show-more-btn :is-show="scope.row.showMore && !isReadOnly && !isRelevance" :buttons="buttons" :size="selectDataCounts"/>
+            <show-more-btn :is-show="scope.row.showMore && !isReadOnly" :buttons="buttons" :size="selectDataCounts"/>
           </template>
         </el-table-column>
 
@@ -127,12 +127,10 @@
   import {getCurrentProjectID} from "@/common/js/utils";
   import {WORKSPACE_ID} from '../../../../../../common/js/constants';
   import ApiListContainer from "./ApiListContainer";
-  import MsEnvironmentSelect from "../case/MsEnvironmentSelect";
 
   export default {
     name: "ApiList",
     components: {
-      MsEnvironmentSelect,
       ApiListContainer,
       MsTableButton,
       MsTableOperatorButton,
@@ -200,8 +198,6 @@
         type: Boolean,
         default: false
       },
-      relevanceProjectId: String,
-      isRelevance: Boolean
     },
     created: function () {
       this.initTable();
@@ -218,9 +214,6 @@
         if (this.trashEnable) {
           this.initTable();
         }
-      },
-      relevanceProjectId() {
-        this.initTable();
       }
     },
     methods: {
@@ -242,7 +235,7 @@
           this.condition.moduleIds = [];
         }
 
-        this.condition.projectId = this.getProjectId();
+        this.condition.projectId = getCurrentProjectID();
         if (this.currentProtocol != null) {
           this.condition.protocol = this.currentProtocol;
         }
@@ -426,16 +419,6 @@
       },
       showExecResult(row) {
         this.$emit('showExecResult', row);
-      },
-      getProjectId() {
-        if (!this.isCaseRelevance) {
-          return getCurrentProjectID();
-        } else {
-          return this.relevanceProjectId;
-        }
-      },
-      setEnvironment(data) {
-        this.environmentId = data.id;
       },
       selectRowsCount(selection){
         let selectedIDs = this.getIds(selection);

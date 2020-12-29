@@ -51,8 +51,10 @@
                          show-overflow-tooltip/>
         <el-table-column :label="$t('commons.operating')" width="200px" v-if="!referenced">
           <template v-slot:default="{row}">
-            <el-button type="text" @click="execute(row)">{{ $t('api_test.automation.execute') }}</el-button>
-            <el-button type="text" @click="remove(row)">{{ $t('api_test.automation.remove') }}</el-button>
+            <ms-table-operator-button class="run-button" :is-tester-permission="true" :tip="$t('api_test.run')" icon="el-icon-video-play"
+                                      @exec="execute(row)" v-tester/>
+            <ms-table-operator-button :is-tester-permission="true" :tip="$t('test_track.plan_view.cancel_relevance')"
+                                      icon="el-icon-unlock" type="danger" @exec="remove(row)" v-tester/>
           </template>
         </el-table-column>
       </el-table>
@@ -81,10 +83,12 @@
   import MsTestPlanList from "../../../../../api/automation/scenario/testplan/TestPlanList";
   import TestPlanScenarioListHeader from "./TestPlanScenarioListHeader";
   import {_handleSelect, _handleSelectAll} from "../../../../../../../common/js/tableUtils";
+  import MsTableOperatorButton from "../../../../../common/components/MsTableOperatorButton";
 
   export default {
     name: "MsTestPlanApiScenarioList",
     components: {
+      MsTableOperatorButton,
       TestPlanScenarioListHeader,
       MsTablePagination, MsTableMoreBtn, ShowMoreBtn, MsTableHeader, MsTag, MsApiReportDetail, MsScenarioExtendButtons, MsTestPlanList},
     props: {
@@ -189,7 +193,7 @@
       },
       remove(row) {
         this.$get('/test/plan/scenario/case/delete/' + this.planId + '/' + row.id, () => {
-          this.$success(this.$t('commons.delete_success'));
+          this.$success(this.$t('test_track.cancel_relevance_success'));
           this.$emit('refresh');
           this.search();
         });
@@ -215,7 +219,7 @@
               this.$post('/test/plan/scenario/case/batch/delete', param, () => {
                 this.selectRows.clear();
                 this.search();
-                this.$success(this.$t('commons.delete_success'));
+                this.$success(this.$t('test_track.cancel_relevance_success'));
                 this.$emit('refresh');
               });
             }

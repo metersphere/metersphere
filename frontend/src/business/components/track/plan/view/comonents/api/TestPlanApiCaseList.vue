@@ -81,8 +81,10 @@
 
         <el-table-column v-if="!isReadOnly" :label="$t('commons.operating')" align="center">
           <template v-slot:default="scope">
-            <el-button type="text" @click="singleRun(scope.row)">{{$t('api_test.run')}}</el-button>
-            <el-button type="text" @click="handleDelete(scope.row)" style="color: #F56C6C">{{$t('commons.delete')}}</el-button>
+              <ms-table-operator-button class="run-button" :is-tester-permission="true" :tip="$t('api_test.run')" icon="el-icon-video-play"
+                                        @exec="singleRun(scope.row)" v-tester/>
+              <ms-table-operator-button :is-tester-permission="true" :tip="$t('test_track.plan_view.cancel_relevance')"
+                                        icon="el-icon-unlock" type="danger" @exec="handleDelete(scope.row)" v-tester/>
           </template>
         </el-table-column>
 
@@ -334,7 +336,7 @@
                 this.selectRows.clear();
                 this.initTable();
                 this.$emit('refresh');
-                this.$success(this.$t('commons.delete_success'));
+                this.$success(this.$t('test_track.cancel_relevance_success'));
               });
             }
           }
@@ -414,7 +416,7 @@
       },
       handleDelete(apiCase) {
         this.$get('/test/plan/api/case/delete/' + this.planId + '/' + apiCase.id, () => {
-          this.$success(this.$t('commons.delete_success'));
+          this.$success(this.$t('test_track.cancel_relevance_success'));
           this.$emit('refresh');
           this.initTable();
         });

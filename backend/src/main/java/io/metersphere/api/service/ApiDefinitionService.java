@@ -79,23 +79,7 @@ public class ApiDefinitionService {
     public List<ApiDefinitionResult> list(ApiDefinitionRequest request) {
         request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
         List<ApiDefinitionResult> resList = extApiDefinitionMapper.list(request);
-        if (!resList.isEmpty()) {
-            List<String> ids = resList.stream().map(ApiDefinitionResult::getId).collect(Collectors.toList());
-            List<ApiComputeResult> results = extApiDefinitionMapper.selectByIds(ids);
-            Map<String, ApiComputeResult> resultMap = results.stream().collect(Collectors.toMap(ApiComputeResult::getApiDefinitionId, Function.identity()));
-            for (ApiDefinitionResult res : resList) {
-                ApiComputeResult compRes = resultMap.get(res.getId());
-                if (compRes != null) {
-                    res.setCaseTotal(compRes.getCaseTotal());
-                    res.setCasePassingRate(compRes.getPassRate());
-                    res.setCaseStatus(compRes.getStatus());
-                } else {
-                    res.setCaseTotal("-");
-                    res.setCasePassingRate("-");
-                    res.setCaseStatus("-");
-                }
-            }
-        }
+        calculateResult(resList);
         return resList;
     }
 
@@ -516,5 +500,32 @@ public class ApiDefinitionService {
             apiIds = this.getAllApiIdsByFontedSelect(request.getFilters(),request.getName(),request.getModuleIds(),request.getProjectId(),request.getUnSelectIds());
         }
         extApiDefinitionMapper.removeToGc(apiIds);
+    }
+
+    public List<ApiDefinitionResult> listRelevance(ApiDefinitionRequest request) {
+        request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
+        List<ApiDefinitionResult> resList = extApiDefinitionMapper.listRelevance(request);
+        calculateResult(resList);
+        return resList;
+    }
+
+    public void calculateResult(List<ApiDefinitionResult> resList) {
+        if (!resList.isEmpty()) {
+            List<String> ids = resList.stream().map(ApiDefinitionResult::getId).collect(Collectors.toList());
+            List<ApiComputeResult> results = extApiDefinitionMapper.selectByIds(ids);
+            Map<String, ApiComputeResult> resultMap = results.stream().collect(Collectors.toMap(ApiComputeResult::getApiDefinitionId, Function.identity()));
+            for (ApiDefinitionResult res : resList) {
+                ApiComputeResult compRes = resultMap.get(res.getId());
+                if (compRes != null) {
+                    res.setCaseTotal(compRes.getCaseTotal());
+                    res.setCasePassingRate(compRes.getPassRate());
+                    res.setCaseStatus(compRes.getStatus());
+                } else {
+                    res.setCaseTotal("-");
+                    res.setCasePassingRate("-");
+                    res.setCaseStatus("-");
+                }
+            }
+        }
     }
 }

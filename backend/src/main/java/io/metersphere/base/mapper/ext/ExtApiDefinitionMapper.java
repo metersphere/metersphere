@@ -28,4 +28,6 @@ public interface ExtApiDefinitionMapper {
     List<ApiDataCountResult> countApiCoverageByProjectID(String projectId);
 
     ApiDefinition getNextNum(@Param("projectId") String projectId);
+
+    List<ApiDefinitionResult> listRelevance(@Param("request")ApiDefinitionRequest request);
 }
