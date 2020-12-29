@@ -168,7 +168,7 @@
                       <!--提取规则-->
                       <ms-api-extract @remove="remove" @copyRow="copyRow" v-if="data.type==='Extract'" customizeStyle="margin-top: 0px" :extract="data" :node="node"/>
                       <!--API 导入 -->
-                      <ms-api-component :request="data" :currentEnvironmentId="currentEnvironmentId" @remove="remove" @copyRow="copyRow" v-if="data.type==='HTTPSamplerProxy'||data.type==='DubboSampler'||data.type==='JDBCSampler'||data.type==='TCPSampler'" :node="node"/>
+                      <ms-api-component :request="data" :currentScenario="currentScenario" :currentEnvironmentId="currentEnvironmentId" @remove="remove" @copyRow="copyRow" v-if="data.type==='HTTPSamplerProxy'||data.type==='DubboSampler'||data.type==='JDBCSampler'||data.type==='TCPSampler'" :node="node"/>
                     </template>
                    </span>
               </el-tree>

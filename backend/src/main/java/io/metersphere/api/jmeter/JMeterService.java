@@ -66,7 +66,7 @@ public class JMeterService {
         }
     }
 
-    private HashTree getHashTree(Object scriptWrapper) throws Exception {
+    public static HashTree getHashTree(Object scriptWrapper) throws Exception {
         Field field = scriptWrapper.getClass().getDeclaredField("testPlan");
         field.setAccessible(true);
         return (HashTree) field.get(scriptWrapper);

@@ -349,8 +349,8 @@ public class ApiAutomationService {
         } catch (Exception ex) {
             LogUtil.error(ex.getMessage());
         }
-        testPlan.toHashTree(jmeterHashTree, testPlan.getHashTree(), new ParameterConfig());
 
+        testPlan.toHashTree(jmeterHashTree, testPlan.getHashTree(), new ParameterConfig());
         String runMode = ApiRunMode.SCENARIO.name();
         if (StringUtils.isNotBlank(request.getRunMode()) && StringUtils.equals(request.getRunMode(), ApiRunMode.SCENARIO_PLAN.name())) {
             runMode = ApiRunMode.SCENARIO_PLAN.name();
@@ -380,9 +380,10 @@ public class ApiAutomationService {
         config.setConfig(envConfig);
         HashTree hashTree = request.getTestElement().generateHashTree(config);
         // 调用执行方法
-        jMeterService.runDefinition(request.getId(), hashTree, request.getReportId(), ApiRunMode.SCENARIO.name());
         createScenarioReport(request.getId(), request.getScenarioId(), request.getScenarioName(), ReportTriggerMode.MANUAL.name(), request.getExecuteType(), request.getProjectId(),
                 SessionUtils.getUserId());
+        // 调用执行方法
+        jMeterService.runDefinition(request.getId(), hashTree, request.getReportId(), ApiRunMode.SCENARIO.name());
         return request.getId();
     }
 
