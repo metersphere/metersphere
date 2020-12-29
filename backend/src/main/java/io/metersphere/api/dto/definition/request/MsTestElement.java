@@ -101,7 +101,6 @@ public abstract class MsTestElement {
     public String getJmx(HashTree hashTree) {
         try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
             SaveService.saveTree(hashTree, baos);
-            System.out.print(baos.toString());
             return baos.toString();
         } catch (Exception e) {
             e.printStackTrace();

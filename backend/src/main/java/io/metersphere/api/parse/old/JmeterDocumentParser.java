@@ -166,6 +166,16 @@ public class JmeterDocumentParser {
                     u += k + "=" + v;
                     return u;
                 });
+                //rest参数处理
+                if (url.contains("@")) {
+                    String vars[] = url.split("@");
+                    for (String item : vars) {
+                        if (item.endsWith("/")) {
+                            item = item.substring(0, item.length() - 1);
+                        }
+                        url = url.replace("@" + item, ScriptEngineUtils.calculate("@" + item));
+                    }
+                }
                 ele.setTextContent(url + ((params != null && !params.equals("?")) ? params : ""));
                 break;
             case "Argument.value":

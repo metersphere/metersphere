@@ -13,6 +13,7 @@ import io.metersphere.api.service.ApiTestEnvironmentService;
 import io.metersphere.base.domain.ApiTestEnvironmentWithBLOBs;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.commons.utils.ScriptEngineUtils;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.collections.CollectionUtils;
@@ -158,12 +159,13 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                 sampler.setDomain(URLDecoder.decode(urlObject.getHost(), "UTF-8"));
                 sampler.setPort(urlObject.getPort());
                 sampler.setProtocol(urlObject.getProtocol());
-
+                String envPath = StringUtils.equals(urlObject.getPath(), "/") ? "" : urlObject.getPath();
                 if (CollectionUtils.isNotEmpty(this.getRest()) && this.isRest()) {
-                    sampler.setPath(getRestParameters(URLDecoder.decode(urlObject.getPath(), "UTF-8")));
+                    envPath = getRestParameters(URLDecoder.decode(envPath, "UTF-8"));
+                    sampler.setPath(envPath);
                 }
                 if (CollectionUtils.isNotEmpty(this.getArguments())) {
-                    sampler.setPath(getPostQueryParameters(URLDecoder.decode(urlObject.getPath(), "UTF-8")));
+                    sampler.setPath(getPostQueryParameters(URLDecoder.decode(envPath, "UTF-8")));
                 }
             }
         } catch (Exception e) {
@@ -221,7 +223,8 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         stringBuffer.append("/");
         Map<String, String> keyValueMap = new HashMap<>();
         this.getRest().stream().filter(KeyValue::isEnable).filter(KeyValue::isValid).forEach(keyValue ->
-                keyValueMap.put(keyValue.getName(), keyValue.getValue())
+                keyValueMap.put(keyValue.getName(), keyValue.getValue() != null && keyValue.getValue().startsWith("@") ?
+                        ScriptEngineUtils.calculate(keyValue.getValue()) : keyValue.getValue())
         );
         try {
             Pattern p = Pattern.compile("(\\{)([\\w]+)(\\})");
@@ -243,7 +246,8 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         stringBuffer.append(path);
         stringBuffer.append("?");
         this.getArguments().stream().filter(KeyValue::isEnable).filter(KeyValue::isValid).forEach(keyValue ->
-                stringBuffer.append(keyValue.getName()).append("=").append(keyValue.getValue()).append("&")
+                stringBuffer.append(keyValue.getName()).append("=").append(keyValue.getValue() != null && keyValue.getValue().startsWith("@") ?
+                        ScriptEngineUtils.calculate(keyValue.getValue()) : keyValue.getValue()).append("&")
         );
         return stringBuffer.substring(0, stringBuffer.length() - 1);
     }
@@ -251,7 +255,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
     private Arguments httpArguments(List<KeyValue> list) {
         Arguments arguments = new Arguments();
         list.stream().filter(KeyValue::isValid).filter(KeyValue::isEnable).forEach(keyValue -> {
-                    HTTPArgument httpArgument = new HTTPArgument(keyValue.getName(), keyValue.getValue());
+                    HTTPArgument httpArgument = new HTTPArgument(keyValue.getName(), keyValue.getValue() != null && keyValue.getValue().startsWith("@") ? ScriptEngineUtils.calculate(keyValue.getValue()) : keyValue.getValue());
                     httpArgument.setAlwaysEncoded(keyValue.isEncode());
                     if (StringUtils.isNotBlank(keyValue.getContentType())) {
                         httpArgument.setContentType(keyValue.getContentType());
