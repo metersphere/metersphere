@@ -45,11 +45,6 @@
         :label="$t('api_test.definition.api_path')"
         show-overflow-tooltip/>
 
-      <el-table-column
-        prop="userName"
-        :label="$t('api_test.definition.api_principal')"
-        show-overflow-tooltip/>
-
       <el-table-column width="160" :label="$t('api_test.definition.api_last_time')" prop="updateTime">
         <template v-slot:default="scope">
           <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
