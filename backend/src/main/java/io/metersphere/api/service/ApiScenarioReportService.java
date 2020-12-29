@@ -3,9 +3,7 @@ package io.metersphere.api.service;
 import com.alibaba.fastjson.JSON;
 import io.metersphere.api.dto.DeleteAPIReportRequest;
 import io.metersphere.api.dto.QueryAPIReportRequest;
-import io.metersphere.api.dto.automation.APIScenarioReportResult;
-import io.metersphere.api.dto.automation.ExecuteType;
-import io.metersphere.api.dto.automation.ScenarioStatus;
+import io.metersphere.api.dto.automation.*;
 import io.metersphere.api.dto.datacount.ApiDataCountResult;
 import io.metersphere.api.jmeter.ScenarioResult;
 import io.metersphere.api.jmeter.TestResult;
@@ -19,6 +17,7 @@ import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.DateUtils;
 import io.metersphere.commons.utils.ServiceUtils;
+import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.i18n.Translator;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -31,6 +30,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -208,12 +208,23 @@ public class ApiScenarioReportService {
     }
 
     public void deleteAPIReportBatch(DeleteAPIReportRequest reportRequest) {
+        List<String> ids = reportRequest.getIds();
+        if (reportRequest.isSelectAllDate()) {
+            QueryAPIReportRequest selectRequest = new QueryAPIReportRequest();
+            selectRequest.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
+            selectRequest.setName(reportRequest.getName());
+            selectRequest.setProjectId(reportRequest.getProjectId());
+            List<APIScenarioReportResult> list = extApiScenarioReportMapper.list(selectRequest);
+            List<String> allIds = list.stream().map(APIScenarioReportResult::getId).collect(Collectors.toList());
+            ids = allIds.stream().filter(id -> !reportRequest.getUnSelectIds().contains(id)).collect(Collectors.toList());
+        }
+
         ApiScenarioReportDetailExample detailExample = new ApiScenarioReportDetailExample();
-        detailExample.createCriteria().andReportIdIn(reportRequest.getIds());
+        detailExample.createCriteria().andReportIdIn(ids);
         apiScenarioReportDetailMapper.deleteByExample(detailExample);
 
         ApiScenarioReportExample apiTestReportExample = new ApiScenarioReportExample();
-        apiTestReportExample.createCriteria().andIdIn(reportRequest.getIds());
+        apiTestReportExample.createCriteria().andIdIn(ids);
         apiScenarioReportMapper.deleteByExample(apiTestReportExample);
     }
 
