@@ -14,7 +14,6 @@ import io.metersphere.api.jmeter.JMeterService;
 import io.metersphere.api.jmeter.TestResult;
 import io.metersphere.api.parse.ApiImportParser;
 import io.metersphere.api.parse.ApiImportParserFactory;
-import io.metersphere.api.parse.old.JmeterDocumentParser;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ApiDefinitionMapper;
 import io.metersphere.base.mapper.ApiTestFileMapper;
@@ -35,7 +34,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
-import org.apache.jmeter.save.SaveService;
 import org.apache.jorphan.collections.HashTree;
 import org.aspectj.util.FileUtil;
 import org.springframework.stereotype.Service;
@@ -309,17 +307,7 @@ public class ApiDefinitionService {
             runMode = ApiRunMode.API_PLAN.name();
         }
         // 调用执行方法
-        String jmx = request.getTestElement().getJmx(hashTree);
-        byte[] bytes = JmeterDocumentParser.parse(jmx.getBytes());
-        InputStream is = new ByteArrayInputStream(bytes);
-        try {
-            Object scriptWrapper = SaveService.loadElement(is);
-            HashTree testPlan = JMeterService.getHashTree(scriptWrapper);
-            // 调用执行方法
-            jMeterService.runDefinition(request.getId(), testPlan, request.getReportId(), runMode);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        jMeterService.runDefinition(request.getId(), hashTree, request.getReportId(), runMode);
         return request.getId();
     }
 
