@@ -487,6 +487,10 @@ export default {
       file_exist: "該項目下已存在該jar包",
       upload_limit_size: "上傳文件大小不能超過 30MB!",
     },
+    batch_menus:{
+      select_all_data: "選擇所有數據(共{0}條)",
+      select_show_data: "選擇可見數據(共{0}條)",
+    },
     definition: {
       api_title: "接口列表",
       api_name: "接口名稱",

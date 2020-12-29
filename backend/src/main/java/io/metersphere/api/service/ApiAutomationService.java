@@ -24,7 +24,6 @@ import io.metersphere.base.mapper.ext.ExtTestPlanScenarioCaseMapper;
 import io.metersphere.commons.constants.*;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.DateUtils;
-import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.ServiceUtils;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.i18n.Translator;
@@ -303,13 +302,23 @@ public class ApiAutomationService {
      * @return
      */
     public String run(RunScenarioRequest request) {
-        List<ApiScenarioWithBLOBs> apiScenarios = extApiScenarioMapper.selectIds(request.getScenarioIds());
+        List<ApiScenarioWithBLOBs> apiScenarios = null;
+        List<String> ids = request.getScenarioIds();
+        if (request.isSelectAllDate()) {
+            ids = this.getAllScenarioIdsByFontedSelect(
+                    request.getModuleIds(), request.getName(), request.getProjectId(), request.getFilters(), request.getUnSelectIds());
+        }
+        apiScenarios = extApiScenarioMapper.selectIds(ids);
         MsTestPlan testPlan = new MsTestPlan();
         testPlan.setHashTree(new LinkedList<>());
         HashTree jmeterHashTree = new ListedHashTree();
         try {
             boolean isFirst = true;
             for (ApiScenarioWithBLOBs item : apiScenarios) {
+                if (item.getStepTotal() == 0) {
+                    MSException.throwException(item.getName() + "，" + Translator.get("automation_exec_info"));
+                    break;
+                }
                 MsThreadGroup group = new MsThreadGroup();
                 group.setLabel(item.getName());
                 group.setName(UUID.randomUUID().toString());
@@ -347,7 +356,7 @@ public class ApiAutomationService {
 
             }
         } catch (Exception ex) {
-            LogUtil.error(ex.getMessage());
+            MSException.throwException(ex.getMessage());
         }
 
         testPlan.toHashTree(jmeterHashTree, testPlan.getHashTree(), new ParameterConfig());
@@ -360,6 +369,27 @@ public class ApiAutomationService {
         return request.getId();
     }
 
+    /**
+     * 获取前台查询条件查询的所有(未经分页筛选)数据ID
+     *
+     * @param moduleIds   模块ID_前台查询时所选择的
+     * @param name        搜索条件_名称_前台查询时所输入的
+     * @param projectId   所属项目_前台查询时所在项目
+     * @param filters     过滤集合__前台查询时的过滤条件
+     * @param unSelectIds 未勾选ID_前台没有勾选的ID
+     * @return
+     */
+    private List<String> getAllScenarioIdsByFontedSelect(List<String> moduleIds, String name, String projectId, List<String> filters, List<String> unSelectIds) {
+        ApiScenarioRequest selectRequest = new ApiScenarioRequest();
+        selectRequest.setModuleIds(moduleIds);
+        selectRequest.setName(name);
+        selectRequest.setProjectId(projectId);
+        selectRequest.setFilters(filters);
+        List<ApiScenarioDTO> list = extApiScenarioMapper.list(selectRequest);
+        List<String> allIds = list.stream().map(ApiScenarioDTO::getId).collect(Collectors.toList());
+        List<String> ids = allIds.stream().filter(id -> !unSelectIds.contains(id)).collect(Collectors.toList());
+        return ids;
+    }
 
     /**
      * 场景测试执行
@@ -401,6 +431,11 @@ public class ApiAutomationService {
         if (CollectionUtils.isEmpty(request.getPlanIds())) {
             MSException.throwException(Translator.get("plan id is null "));
         }
+        List<String> scenarioIds = request.getScenarioIds();
+        if (request.isSelectAllDate()) {
+            scenarioIds = this.getAllScenarioIdsByFontedSelect(
+                    request.getModuleIds(), request.getName(), request.getProjectId(), request.getFilters(), request.getUnSelectIds());
+        }
         List<TestPlanDTO> list = extTestPlanMapper.selectByIds(request.getPlanIds());
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
         ExtTestPlanMapper mapper = sqlSession.getMapper(ExtTestPlanMapper.class);
@@ -408,8 +443,8 @@ public class ApiAutomationService {
         ExtTestPlanApiCaseMapper apiCaseBatchMapper = sqlSession.getMapper(ExtTestPlanApiCaseMapper.class);
 
         for (TestPlanDTO testPlan : list) {
-            if (request.getScenarioIds() != null) {
-                for (String scenarioId : request.getScenarioIds()) {
+            if (scenarioIds != null) {
+                for (String scenarioId : scenarioIds) {
                     TestPlanApiScenario testPlanApiScenario = new TestPlanApiScenario();
                     testPlanApiScenario.setId(UUID.randomUUID().toString());
                     testPlanApiScenario.setApiScenarioId(scenarioId);

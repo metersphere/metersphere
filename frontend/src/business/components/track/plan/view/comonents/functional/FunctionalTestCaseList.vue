@@ -364,12 +364,14 @@ export default {
           for (let i = 0; i < this.tableData.length; i++) {
             if (this.tableData[i]) {
               this.$set(this.tableData[i], "issuesSize", 0);
-              this.$get("/issues/get/" + this.tableData[i].caseId, response => {
-                let issues = response.data;
+              this.$get("/issues/get/" + this.tableData[i].caseId).then(response => {
+                let issues = response.data.data;
                 if (this.tableData[i]) {
                   this.$set(this.tableData[i], "issuesSize", issues.length);
                   this.$set(this.tableData[i], "issuesContent", issues);
                 }
+              }).catch(() => {
+                this.$set(this.tableData[i], "issuesContent", [{title: '获取缺陷失败',description: '获取缺陷失败',platform: '获取缺陷失败' }]);
               })
             }
           }
