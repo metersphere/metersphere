@@ -489,6 +489,10 @@ export default {
       file_exist: "The name already exists in the project",
       upload_limit_size: "Upload file size cannot exceed 30MB!",
     },
+    batch_menus:{
+      select_all_data: "Select all datas({0})",
+      select_show_data: "Select show datas({0})",
+    },
     definition: {
       api_title: "Api test",
       api_name: "Api name",
