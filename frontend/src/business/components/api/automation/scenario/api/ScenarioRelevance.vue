@@ -27,12 +27,12 @@
 </template>
 
 <script>
-    import ScenarioRelevanceCaseList from "./ScenarioRelevanceCaseList";
+    import ScenarioRelevanceCaseList from "./RelevanceCaseList";
     import MsApiModule from "../../../definition/components/module/ApiModule";
     import MsContainer from "../../../../common/components/MsContainer";
     import MsAsideContainer from "../../../../common/components/MsAsideContainer";
     import MsMainContainer from "../../../../common/components/MsMainContainer";
-    import ScenarioRelevanceApiList from "./ScenarioRelevanceApiList";
+    import ScenarioRelevanceApiList from "./RelevanceApiList";
     import MsApiScenarioModule from "../ApiScenarioModule";
     import MsApiScenarioList from "../ApiScenarioList";
     import {getUUID} from "../../../../../../common/js/utils";

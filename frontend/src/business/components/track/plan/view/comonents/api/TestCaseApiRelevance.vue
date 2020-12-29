@@ -12,41 +12,29 @@
         @protocolChange="handleProtocolChange"
         @refreshTable="refresh"
         @setModuleOptions="setModuleOptions"
-        :relevance-project-id="projectId"
         :is-read-only="true"
-        :type="'edit'"
         ref="nodeTree"/>
     </template>
 
-    <!-- 列表集合 -->
-    <api-list
+    <relevance-api-list
       v-if="isApiListEnable"
       :current-protocol="currentProtocol"
-      :currentRow="currentRow"
       :select-node-ids="selectNodeIds"
-      :trash-enable="trashEnable"
       :is-api-list-enable="isApiListEnable"
-      :is-case-relevance="true"
-      :relevance-project-id="projectId"
-      :is-relevance="true"
+      :project-id="projectId"
+      :is-test-plan="true"
       @isApiListEnableChange="isApiListEnableChange"
       ref="apiList"/>
 
-    <!--测试用例列表-->
-    <api-case-simple-list
+    <relevance-case-list
       v-if="!isApiListEnable"
       :current-protocol="currentProtocol"
-      :currentRow="currentRow"
       :select-node-ids="selectNodeIds"
-      :trash-enable="trashEnable"
       :is-api-list-enable="isApiListEnable"
-      :is-case-relevance="true"
-      :relevance-project-id="projectId"
-      :plan-id="planId"
-      :model="'relevance'"
+      :project-id="projectId"
+      :is-test-plan="true"
       @isApiListEnableChange="isApiListEnableChange"
       ref="apiCaseList"/>
-
 
   </test-case-relevance-base>
 
@@ -56,15 +44,14 @@
 
   import TestCaseRelevanceBase from "../base/TestCaseRelevanceBase";
   import MsApiModule from "../../../../../api/definition/components/module/ApiModule";
-  import {getCurrentProjectID} from "../../../../../../../common/js/utils";
-  import ApiList from "../../../../../api/definition/components/list/ApiList";
-  import ApiCaseSimpleList from "../../../../../api/definition/components/list/ApiCaseSimpleList";
+  import RelevanceApiList from "../../../../../api/automation/scenario/api/RelevanceApiList";
+  import RelevanceCaseList from "../../../../../api/automation/scenario/api/RelevanceCaseList";
 
   export default {
     name: "TestCaseApiRelevance",
     components: {
-      ApiCaseSimpleList,
-      ApiList,
+      RelevanceCaseList,
+      RelevanceApiList,
       MsApiModule,
       TestCaseRelevanceBase,
     },
@@ -145,11 +132,6 @@
         param.planId = this.planId;
         param.selectIds = selectIds;
         param.environmentId = environmentId;
-        // param.request = this.condition;
-        // 选择全选则全部加入到评审，无论是否加载完全部
-        // if (this.testCases.length === param.testCaseIds.length) {
-        //   param.testCaseIds = ['all'];
-        // }
 
         this.result = this.$post(url, param, () => {
           this.$success(this.$t('commons.save_success'));
