@@ -1,5 +1,5 @@
 <template>
-  <div style="min-width: 1200px;margin-bottom: 20px">
+  <div>
     <el-radio-group v-model="body.type" size="mini">
       <el-radio :disabled="isReadOnly" :label="type.FORM_DATA" @change="modeChange">
         {{ $t('api_test.definition.request.body_form_data') }}
@@ -40,7 +40,7 @@
                               type="body"
                               v-if="body.type == 'WWW_FORM'"/>
 
-    <div class="ms-body" v-if="body.type == 'JSON'">
+    <div v-if="body.type == 'JSON'">
       <ms-json-code-edit @json-change="jsonChange" @onError="jsonError" :value="body.raw" ref="jsonCodeEdit"/>
     </div>
 
@@ -67,7 +67,7 @@
   import MsApiKeyValue from "../ApiKeyValue";
   import {BODY_TYPE, KeyValue} from "../../model/ApiTestModel";
   import MsCodeEdit from "../../../../common/components/MsCodeEdit";
-  import MsJsonCodeEdit from "../../../../common/components/MsJsonCodeEdit";
+  import MsJsonCodeEdit from "../../../../common/json/JsonTable";
   import MsDropdown from "../../../../common/components/MsDropdown";
   import MsApiVariable from "../ApiVariable";
   import MsApiBinaryVariable from "./ApiBinaryVariable";
