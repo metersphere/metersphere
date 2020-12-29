@@ -8,7 +8,7 @@
 
       <el-table ref="scenarioTable" border :data="tableData" class="adjust-table" @select-all="select" @select="select" v-loading="loading">
         <el-table-column type="selection"/>
-        <el-table-column width="40" :resizable="false" align="center">
+        <el-table-column v-if="!referenced" width="40" :resizable="false" align="center">
           <template v-slot:default="{row}">
             <show-more-btn :is-show="isSelect(row)" :buttons="buttons" :size="selection.length"/>
           </template>
