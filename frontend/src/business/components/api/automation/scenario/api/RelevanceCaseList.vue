@@ -4,6 +4,8 @@
       :is-api-list-enable="isApiListEnable"
       @isApiListEnableChange="isApiListEnableChange">
 
+      <ms-environment-select :project-id="projectId" v-if="isTestPlan" :is-read-only="isReadOnly" @setEnvironment="setEnvironment"/>
+
       <el-input placeholder="搜索" @blur="initTable" @keyup.enter.native="initTable" class="search-input" size="small" v-model="condition.name"/>
 
       <el-table v-loading="result.loading"
@@ -73,10 +75,12 @@
   import PriorityTableItem from "../../../../track/common/tableItems/planview/PriorityTableItem";
   import {_filter, _sort} from "../../../../../../common/js/utils";
   import {_handleSelect, _handleSelectAll} from "../../../../../../common/js/tableUtils";
+  import MsEnvironmentSelect from "../../../definition/components/case/MsEnvironmentSelect";
 
   export default {
-    name: "ScenarioRelevanceCaseList",
+    name: "RelevanceCaseList",
     components: {
+      MsEnvironmentSelect,
       PriorityTableItem,
       ApiListContainer,
       MsTableOperatorButton,
@@ -111,6 +115,7 @@
         currentPage: 1,
         pageSize: 10,
         total: 0,
+        environmentId: ""
       }
     },
     props: {
@@ -132,8 +137,8 @@
         type: Boolean,
         default: false,
       },
-      relevanceProjectId: String,
-      planId: String
+      projectId: String,
+      isTestPlan: Boolean
     },
     created: function () {
       this.initTable();
@@ -145,6 +150,9 @@
       currentProtocol() {
         this.initTable();
       },
+      projectId() {
+        this.initTable();
+      }
     },
     computed: {
 
@@ -157,10 +165,15 @@
         this.selectRows = new Set();
         this.condition.status = "";
         this.condition.moduleIds = this.selectNodeIds;
+        if (this.projectId != null) {
+          this.condition.projectId = this.projectId;
+        } else {
+          this.condition.projectId = getCurrentProjectID();
+
+        }
         if (this.currentProtocol != null) {
           this.condition.protocol = this.currentProtocol;
         }
-        this.condition.projectId = getCurrentProjectID();
         this.result = this.$post("/api/testcase/list/" + this.currentPage + "/" + this.pageSize, this.condition, response => {
           this.total = response.data.itemCount;
           this.tableData = response.data.listObject;
@@ -209,6 +222,9 @@
           this.$refs.caseList.open(selectApi, testCase.id);
         });
       },
+      setEnvironment(data) {
+        this.environmentId = data.id;
+      }
     },
   }
 </script>

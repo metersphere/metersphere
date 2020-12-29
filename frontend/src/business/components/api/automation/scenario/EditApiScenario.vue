@@ -115,7 +115,6 @@
                   <el-checkbox v-model="enableCookieShare">共享cookie</el-checkbox>
                 </el-col>
                 <el-col :span="7" class="ms-font">
-                  {{$t('api_test.definition.request.run_env')}}：
                   <el-select v-model="currentEnvironmentId" size="small" class="ms-htt-width"
                              :placeholder="$t('api_test.definition.request.run_env')"
                              clearable>
@@ -177,19 +176,21 @@
           </el-col>
           <!-- 按钮列表 -->
           <el-col :span="3">
-            <vue-fab id="fab" mainBtnColor="#783887" size="small" :global-options="globalOptions"
-                     :click-auto-close="false" v-outside-click="outsideClick">
-              <fab-item
-                v-for="(item, index) in buttons"
-                :key="index"
-                :idx="getIdx(index)"
-                :title="item.title"
-                :title-bg-color="item.titleBgColor"
-                :title-color="item.titleColor"
-                :color="item.titleColor"
-                :icon="item.icon"
-                @clickItem="item.click"/>
-            </vue-fab>
+            <div @click="fabClick">
+              <vue-fab id="fab" mainBtnColor="#783887" size="small" :global-options="globalOptions"
+                       :click-auto-close="false" v-outside-click="outsideClick">
+                <fab-item
+                  v-for="(item, index) in buttons"
+                  :key="index"
+                  :idx="getIdx(index)"
+                  :title="item.title"
+                  :title-bg-color="item.titleBgColor"
+                  :title-color="item.titleColor"
+                  :color="item.titleColor"
+                  :icon="item.icon"
+                  @clickItem="item.click"/>
+              </vue-fab>
+            </div>
           </el-col>
         </el-row>
       </div>
@@ -248,7 +249,7 @@
   import InputTag from 'vue-input-tag'
   import "@/common/css/material-icons.css"
   import OutsideClick from "@/common/js/outside-click";
-  import ScenarioApiRelevance from "./api/ScenarioApiRelevance";
+  import ScenarioApiRelevance from "./api/ApiRelevance";
   import ScenarioRelevance from "./api/ScenarioRelevance";
 
   export default {
@@ -451,8 +452,13 @@
         return false;
       },
       outsideClick(e) {
-        e.stopPropagation()
+        e.stopPropagation();
         this.showAll();
+      },
+      fabClick() {
+        if (this.operatingElements.length < 1) {
+          this.$info("引用的场景或接口无法添加配置");
+        }
       },
       addComponent(type) {
         switch (type) {

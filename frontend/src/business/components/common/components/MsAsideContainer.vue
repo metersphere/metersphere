@@ -1,17 +1,20 @@
 <template>
   <el-aside :width="width" class="ms-aside-container"
             :style="{'margin-left': !asideHidden ? 0 : '-' + width}">
-    <div v-if="enableAsideHidden" class="hiddenBottom" @click="asideHidden = !asideHidden" :style="{'left': asideHidden ? 0 : width}">
-      <i v-if="!asideHidden" class="el-icon-arrow-left"/>
-      <i v-if="asideHidden" class="el-icon-arrow-right"/>
-    </div>
+    <!--<div v-if="enableAsideHidden" class="hiddenBottom" @click="asideHidden = !asideHidden">-->
+      <!--<i v-if="!asideHidden" class="el-icon-arrow-left"/>-->
+      <!--<i v-if="asideHidden" class="el-icon-arrow-right"/>-->
+    <!--</div>-->
     <slot></slot>
+    <ms-horizontal-drag-bar/>
   </el-aside>
 </template>
 
 <script>
+    import MsHorizontalDragBar from "./MsHorizontalDragBar";
     export default {
       name: "MsAsideContainer",
+      components: {MsHorizontalDragBar},
       props: {
         width: {
           type: String,
@@ -39,12 +42,16 @@
     box-sizing: border-box;
     background-color: #FFF;
     height: calc(100vh - 80px);
+    border-right: 0px;
+    position: relative;
   }
 
   .hiddenBottom {
     width: 8px;
     height: 50px;
     top: calc((100vh - 80px)/3);
+    right: -10px;
+    /*top: 0;*/
     line-height: 50px;
     border-radius: 0 15px 15px 0;
     background-color: #acb7c1;

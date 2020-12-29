@@ -50,6 +50,7 @@
         <el-button slot="reference" :disabled="isReadOnly" class="scenario-create" type="primary" size="mini"
                    icon="el-icon-plus" plain/>
       </el-popover>
+      <ms-horizontal-drag-bar/>
     </el-aside>
 
     <el-main class="scenario-main">
@@ -76,11 +77,13 @@ import {Request, Scenario} from "../model/ScenarioModel";
 import draggable from 'vuedraggable';
 import MsApiScenarioSelect from "@/business/components/api/test/components/ApiScenarioSelect";
 import {parseEnvironment} from "../model/EnvironmentModel";
+import MsHorizontalDragBar from "../../../common/components/MsHorizontalDragBar";
 
 export default {
   name: "MsApiScenarioConfig",
 
   components: {
+    MsHorizontalDragBar,
     MsApiScenarioSelect,
     MsApiRequestConfig,
     MsApiScenarioForm,
@@ -111,7 +114,6 @@ export default {
       currentScenario: {}
     }
   },
-
   watch: {
     test() {
       this.initScenarioEnvironment();
@@ -337,4 +339,5 @@ export default {
   border-right: 2px solid #909399;
   color: #8a8b8d;
 }
+
 </style>

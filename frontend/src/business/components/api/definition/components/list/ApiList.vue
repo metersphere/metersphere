@@ -4,8 +4,6 @@
       :is-api-list-enable="isApiListEnable"
       @isApiListEnableChange="isApiListEnableChange">
 
-      <ms-environment-select :project-id="relevanceProjectId" v-if="isRelevance" :is-read-only="isReadOnly" @setEnvironment="setEnvironment"/>
-
       <el-input placeholder="搜索" @blur="search" class="search-input" size="small" @keyup.enter.native="search" v-model="condition.name"/>
 
       <el-table v-loading="result.loading"
@@ -16,7 +14,7 @@
         <el-table-column type="selection"/>
         <el-table-column width="40" :resizable="false" align="center">
           <template v-slot:default="scope">
-            <show-more-btn :is-show="scope.row.showMore && !isReadOnly && !isRelevance" :buttons="buttons" :size="selectRows.size"/>
+            <show-more-btn :is-show="scope.row.showMore && !isReadOnly" :buttons="buttons" :size="selectRows.size"/>
           </template>
         </el-table-column>
 
@@ -77,7 +75,7 @@
           :label="$t('api_test.definition.api_case_passing_rate')"
           show-overflow-tooltip/>
 
-        <el-table-column v-if="!isReadOnly && !isRelevance" :label="$t('commons.operating')" min-width="130" align="center">
+        <el-table-column v-if="!isReadOnly" :label="$t('commons.operating')" min-width="130" align="center">
           <template v-slot:default="scope">
             <el-button type="text" @click="reductionApi(scope.row)" v-if="trashEnable" v-tester>{{$t('commons.reduction')}}</el-button>
             <el-button type="text" @click="editApi(scope.row)" v-else v-tester>{{$t('commons.edit')}}</el-button>
@@ -114,12 +112,10 @@
   import {getCurrentProjectID} from "@/common/js/utils";
   import {WORKSPACE_ID} from '../../../../../../common/js/constants';
   import ApiListContainer from "./ApiListContainer";
-  import MsEnvironmentSelect from "../case/MsEnvironmentSelect";
 
   export default {
     name: "ApiList",
     components: {
-      MsEnvironmentSelect,
       ApiListContainer,
       MsTableButton,
       MsTableOperatorButton,
@@ -184,8 +180,6 @@
         type: Boolean,
         default: false
       },
-      relevanceProjectId: String,
-      isRelevance: Boolean
     },
     created: function () {
       this.initTable();
@@ -202,9 +196,6 @@
         if (this.trashEnable) {
           this.initTable();
         }
-      },
-      relevanceProjectId() {
-        this.initTable();
       }
     },
     methods: {
@@ -221,7 +212,7 @@
           this.condition.moduleIds = [];
         }
 
-        this.condition.projectId = this.getProjectId();
+        this.condition.projectId = getCurrentProjectID();
         if (this.currentProtocol != null) {
           this.condition.protocol = this.currentProtocol;
         }
@@ -385,16 +376,6 @@
       showExecResult(row) {
         this.$emit('showExecResult', row);
       },
-      getProjectId() {
-        if (!this.isCaseRelevance) {
-          return getCurrentProjectID();
-        } else {
-          return this.relevanceProjectId;
-        }
-      },
-      setEnvironment(data) {
-        this.environmentId = data.id;
-      }
     },
   }
 </script>
