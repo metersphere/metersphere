@@ -295,4 +295,52 @@
     <select id="getNextNum" resultType="io.metersphere.base.domain.ApiDefinition">
         SELECT * FROM api_definition WHERE api_definition.project_id = #{projectId} ORDER BY num DESC LIMIT 1;
     </select>
+
+    <select id="listRelevance" resultType="io.metersphere.api.dto.definition.ApiDefinitionResult">
+        select
+        <include refid="io.metersphere.base.mapper.ApiDefinitionMapper.Base_Column_List"/>
+        from api_definition
+
+        <where>
+            <if test="request.combine != null">
+                <include refid="combine">
+                    <property name="condition" value="request.combine"/>
+                    <property name="name" value="request.name"/>
+                </include>
+            </if>
+            <if test="request.name != null">
+                and api_definition.name like CONCAT('%', #{request.name},'%')
+            </if>
+            <if test="request.protocol != null">
+                AND api_definition.protocol = #{request.protocol}
+            </if>
+            <if test="request.id != null">
+                AND api_definition.id = #{request.id}
+            </if>
+            <if test="request.moduleId != null">
+                AND api_definition.module_id = #{request.moduleId}
+            </if>
+            <if test="request.projectId != null">
+                AND api_definition.project_id = #{request.projectId}
+            </if>
+            <if test="request.moduleIds != null and request.moduleIds.size() > 0">
+                AND api_definition.module_id in
+                <foreach collection="request.moduleIds" item="nodeId" separator="," open="(" close=")">
+                    #{nodeId}
+                </foreach>
+            </if>
+            <if test="request.filters != null and request.filters.size() > 0">
+                and api_definition.status in
+                <foreach collection="request.filters" item="value" separator="," open="(" close=")">
+                    #{value}
+                </foreach>
+            </if>
+        </where>
+        <if test="request.orders != null and request.orders.size() > 0">
+            order by
+            <foreach collection="request.orders" separator="," item="order">
+                api_definition.${order.name} ${order.type}
+            </foreach>
+        </if>
+    </select>
 </mapper>

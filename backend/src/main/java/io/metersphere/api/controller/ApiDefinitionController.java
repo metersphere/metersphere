@@ -41,6 +41,13 @@ public class ApiDefinitionController {
         return PageUtils.setPageInfo(page, apiDefinitionService.list(request));
     }
 
+    @PostMapping("/list/relevance/{goPage}/{pageSize}")
+    public Pager<List<ApiDefinitionResult>> listRelevance(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody ApiDefinitionRequest request) {
+        Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
+        request.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
+        return PageUtils.setPageInfo(page, apiDefinitionService.listRelevance(request));
+    }
+
     @PostMapping("/list/all")
     public List<ApiDefinitionResult> list(@RequestBody ApiDefinitionRequest request) {
         return apiDefinitionService.list(request);

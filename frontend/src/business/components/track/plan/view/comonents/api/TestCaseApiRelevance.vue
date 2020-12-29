@@ -23,6 +23,7 @@
       :is-api-list-enable="isApiListEnable"
       :project-id="projectId"
       :is-test-plan="true"
+      :plan-id="planId"
       @isApiListEnableChange="isApiListEnableChange"
       ref="apiList"/>
 
