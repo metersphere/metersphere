@@ -4,11 +4,10 @@
       :is-api-list-enable="isApiListEnable"
       @isApiListEnableChange="isApiListEnableChange">
 
-      <ms-environment-select :project-id="relevanceProjectId" v-if="isRelevance" :is-read-only="isReadOnly" @setEnvironment="setEnvironment"/>
-
       <el-input placeholder="搜索" @blur="search" class="search-input" size="small" @keyup.enter.native="search" v-model="condition.name"/>
 
       <el-table v-loading="result.loading"
+                ref="apiDefinitionTable"
                 border
                 :data="tableData" row-key="id" class="test-content adjust-table"
                 @select-all="handleSelectAll"
@@ -29,7 +28,7 @@
             </el-dropdown-menu>
           </el-dropdown>
           <template v-slot:default="scope">
-            <show-more-btn :is-show="scope.row.showMore && !isReadOnly" :buttons="buttons" :size="selectDataCounts"/>
+            <show-more-btn :is-show="scope.row.showMore" :buttons="buttons" :size="selectDataCounts"/>
           </template>
         </el-table-column>
 
@@ -90,7 +89,7 @@
           :label="$t('api_test.definition.api_case_passing_rate')"
           show-overflow-tooltip/>
 
-        <el-table-column v-if="!isReadOnly && !isRelevance" :label="$t('commons.operating')" min-width="130" align="center">
+        <el-table-column v-if="!isReadOnly" :label="$t('commons.operating')" min-width="130" align="center">
           <template v-slot:default="scope">
             <el-button type="text" @click="reductionApi(scope.row)" v-if="trashEnable" v-tester>{{$t('commons.reduction')}}</el-button>
             <el-button type="text" @click="editApi(scope.row)" v-else v-tester>{{$t('commons.edit')}}</el-button>
