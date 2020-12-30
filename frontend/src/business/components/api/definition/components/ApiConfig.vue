@@ -2,16 +2,16 @@
 
   <div class="card-container">
     <!-- HTTP 请求参数 -->
-    <ms-edit-complete-http-api @runTest="runTest" @saveApi="saveApi" :request="request" :response="response"
+    <ms-edit-complete-http-api @runTest="runTest" @saveApi="saveApi" @createRootModelInTree="createRootModelInTree" :request="request" :response="response"
                                :basisData="currentApi" :moduleOptions="moduleOptions" v-if="currentProtocol === 'HTTP'"/>
     <!-- TCP -->
-    <ms-edit-complete-tcp-api :request="request" @runTest="runTest" @saveApi="saveApi" :basisData="currentApi"
+    <ms-edit-complete-tcp-api :request="request" @runTest="runTest" @createRootModelInTree="createRootModelInTree" @saveApi="saveApi" :basisData="currentApi"
                               :moduleOptions="moduleOptions" v-if="currentProtocol === 'TCP'"/>
     <!--DUBBO-->
-    <ms-edit-complete-dubbo-api :request="request" @runTest="runTest" @saveApi="saveApi" :basisData="currentApi"
+    <ms-edit-complete-dubbo-api :request="request" @runTest="runTest" @createRootModelInTree="createRootModelInTree" @saveApi="saveApi" :basisData="currentApi"
                                 :moduleOptions="moduleOptions" v-if="currentProtocol === 'DUBBO'"/>
     <!--SQL-->
-    <ms-edit-complete-sql-api :request="request" @runTest="runTest" @saveApi="saveApi" :basisData="currentApi"
+    <ms-edit-complete-sql-api :request="request" @runTest="runTest" @createRootModelInTree="createRootModelInTree" @saveApi="saveApi" :basisData="currentApi"
                               :moduleOptions="moduleOptions" v-if="currentProtocol === 'SQL'"/>
   </div>
 </template>
@@ -74,6 +74,9 @@
           this.reqUrl = "/api/definition/update";
           this.$emit('runTest', data);
         })
+      },
+      createRootModelInTree(){
+        this.$emit("createRootModel");
       },
       getMaintainerOptions() {
         let workspaceId = localStorage.getItem(WORKSPACE_ID);
