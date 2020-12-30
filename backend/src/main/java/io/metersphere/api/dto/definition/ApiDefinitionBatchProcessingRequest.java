@@ -1,18 +1,19 @@
-package io.metersphere.api.dto.automation;
+package io.metersphere.api.dto.definition;
 
 import lombok.Getter;
 import lombok.Setter;
 
 import java.util.List;
 
+/**
+ * 接口定义模块-批量处理请求类
+ * @author song.tianyang
+ * @Date 2020/12/29 4:13 下午
+ * @Description
+ */
 @Getter
 @Setter
-public class SaveApiPlanRequest {
-    private List<String> planIds;
-    private List<String> apiIds;
-    private List<String> scenarioIds;
-
-
+public class ApiDefinitionBatchProcessingRequest {
     /**
      * isSelectAllDate：选择的数据是否是全部数据（全部数据是不受分页影响的数据）
      * filters: 数据状态
@@ -32,5 +33,7 @@ public class SaveApiPlanRequest {
     private List<String> unSelectIds;
 
     private String projectId;
+
+    private List<String> dataIds;
 
 }

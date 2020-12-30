@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import io.metersphere.api.dto.APIReportResult;
 import io.metersphere.api.dto.ApiTestImportRequest;
+import io.metersphere.api.dto.automation.ApiScenarioDTO;
 import io.metersphere.api.dto.automation.ApiScenarioRequest;
 import io.metersphere.api.dto.automation.ReferenceDTO;
 import io.metersphere.api.dto.datacount.ApiDataCountResult;
@@ -78,23 +79,7 @@ public class ApiDefinitionService {
     public List<ApiDefinitionResult> list(ApiDefinitionRequest request) {
         request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
         List<ApiDefinitionResult> resList = extApiDefinitionMapper.list(request);
-        if (!resList.isEmpty()) {
-            List<String> ids = resList.stream().map(ApiDefinitionResult::getId).collect(Collectors.toList());
-            List<ApiComputeResult> results = extApiDefinitionMapper.selectByIds(ids);
-            Map<String, ApiComputeResult> resultMap = results.stream().collect(Collectors.toMap(ApiComputeResult::getApiDefinitionId, Function.identity()));
-            for (ApiDefinitionResult res : resList) {
-                ApiComputeResult compRes = resultMap.get(res.getId());
-                if (compRes != null) {
-                    res.setCaseTotal(compRes.getCaseTotal());
-                    res.setCasePassingRate(compRes.getPassRate());
-                    res.setCaseStatus(compRes.getStatus());
-                } else {
-                    res.setCaseTotal("-");
-                    res.setCasePassingRate("-");
-                    res.setCaseStatus("-");
-                }
-            }
-        }
+        calculateResult(resList);
         return resList;
     }
 
@@ -420,6 +405,23 @@ public class ApiDefinitionService {
         apiDefinitionMapper.updateByExampleSelective(definitionWithBLOBs, definitionExample);
     }
 
+    public void editApiByParam(ApiBatchRequest request) {
+        List<String> ids = request.getIds();
+        if(request.isSelectAllDate()){
+            ids = this.getAllApiIdsByFontedSelect(request.getFilters(),request.getName(),request.getModuleIds(),request.getProjectId(),request.getUnSelectIds());
+        }
+        //name在这里只是查询参数
+        request.setName(null);
+
+        ApiDefinitionExample definitionExample = new ApiDefinitionExample();
+        definitionExample.createCriteria().andIdIn(ids);
+
+        ApiDefinitionWithBLOBs definitionWithBLOBs = new ApiDefinitionWithBLOBs();
+        BeanUtils.copyBean(definitionWithBLOBs, request);
+        definitionWithBLOBs.setUpdateTime(System.currentTimeMillis());
+        apiDefinitionMapper.updateByExampleSelective(definitionWithBLOBs, definitionExample);
+    }
+
     public void testPlanRelevance(ApiCaseRelevanceRequest request) {
         apiTestCaseService.relevanceByApi(request);
     }
@@ -465,5 +467,65 @@ public class ApiDefinitionService {
         ApiDefinitionExample example = new ApiDefinitionExample();
         example.createCriteria().andIdIn(ids);
         return apiDefinitionMapper.selectByExample(example);
+    }
+
+    public void deleteByParams(ApiDefinitionBatchProcessingRequest request) {
+        List<String> apiIds = request.getDataIds();
+        if(request.isSelectAllDate()){
+            apiIds = this.getAllApiIdsByFontedSelect(request.getFilters(),request.getName(),request.getModuleIds(),request.getProjectId(),request.getUnSelectIds());
+        }
+        ApiDefinitionExample example = new ApiDefinitionExample();
+        example.createCriteria().andIdIn(apiIds);
+        apiDefinitionMapper.deleteByExample(example);
+    }
+
+    private List<String> getAllApiIdsByFontedSelect(List<String> filter,String name,List<String> moduleIds,String projectId,List<String>unSelectIds) {
+        ApiDefinitionRequest request = new ApiDefinitionRequest();
+        request.setFilters(filter);
+        request.setName(name);
+        request.setModuleIds(moduleIds);
+        request.setProjectId(projectId);
+        List<ApiDefinitionResult> resList = extApiDefinitionMapper.list(request);
+        List<String> ids = new ArrayList<>(0);
+        if (!resList.isEmpty()) {
+            List<String> allIds = resList.stream().map(ApiDefinitionResult::getId).collect(Collectors.toList());
+            ids = allIds.stream().filter(id -> !unSelectIds.contains(id)).collect(Collectors.toList());
+        }
+        return ids;
+    }
+
+    public void removeToGcByParams(ApiDefinitionBatchProcessingRequest request) {
+        List<String> apiIds = request.getDataIds();
+        if(request.isSelectAllDate()){
+            apiIds = this.getAllApiIdsByFontedSelect(request.getFilters(),request.getName(),request.getModuleIds(),request.getProjectId(),request.getUnSelectIds());
+        }
+        extApiDefinitionMapper.removeToGc(apiIds);
+    }
+
+    public List<ApiDefinitionResult> listRelevance(ApiDefinitionRequest request) {
+        request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
+        List<ApiDefinitionResult> resList = extApiDefinitionMapper.listRelevance(request);
+        calculateResult(resList);
+        return resList;
+    }
+
+    public void calculateResult(List<ApiDefinitionResult> resList) {
+        if (!resList.isEmpty()) {
+            List<String> ids = resList.stream().map(ApiDefinitionResult::getId).collect(Collectors.toList());
+            List<ApiComputeResult> results = extApiDefinitionMapper.selectByIds(ids);
+            Map<String, ApiComputeResult> resultMap = results.stream().collect(Collectors.toMap(ApiComputeResult::getApiDefinitionId, Function.identity()));
+            for (ApiDefinitionResult res : resList) {
+                ApiComputeResult compRes = resultMap.get(res.getId());
+                if (compRes != null) {
+                    res.setCaseTotal(compRes.getCaseTotal());
+                    res.setCasePassingRate(compRes.getPassRate());
+                    res.setCaseStatus(compRes.getStatus());
+                } else {
+                    res.setCaseTotal("-");
+                    res.setCasePassingRate("-");
+                    res.setCaseStatus("-");
+                }
+            }
+        }
     }
 }

@@ -45,11 +45,6 @@
         :label="$t('api_test.definition.api_path')"
         show-overflow-tooltip/>
 
-      <el-table-column
-        prop="userName"
-        :label="$t('api_test.definition.api_principal')"
-        show-overflow-tooltip/>
-
       <el-table-column width="160" :label="$t('api_test.definition.api_last_time')" prop="updateTime">
         <template v-slot:default="scope">
           <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
@@ -156,6 +151,7 @@
         default: false,
       },
       projectId: String,
+      planId: String,
       isTestPlan: Boolean
     },
     created: function () {
@@ -194,7 +190,12 @@
         if (this.currentProtocol != null) {
           this.condition.protocol = this.currentProtocol;
         }
-        this.result = this.$post("/api/definition/list/" + this.currentPage + "/" + this.pageSize, this.condition, response => {
+        let url = '/api/definition/list/';
+        if (this.isTestPlan) {
+          url = '/api/definition/list/relevance/';
+          this.condition.planId = this.planId;
+        }
+        this.result = this.$post(url + this.currentPage + "/" + this.pageSize, this.condition, response => {
           this.total = response.data.itemCount;
           this.tableData = response.data.listObject;
         });

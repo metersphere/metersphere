@@ -138,6 +138,7 @@
         default: false,
       },
       projectId: String,
+      planId: String,
       isTestPlan: Boolean
     },
     created: function () {
@@ -174,7 +175,13 @@
         if (this.currentProtocol != null) {
           this.condition.protocol = this.currentProtocol;
         }
-        this.result = this.$post("/api/testcase/list/" + this.currentPage + "/" + this.pageSize, this.condition, response => {
+        let url = '/api/testcase/list/';
+        if (this.isTestPlan) {
+          url = '/test/plan/api/case/relevance/list/';
+          this.condition.planId = this.planId;
+        }
+
+        this.result = this.$post(url + this.currentPage + "/" + this.pageSize, this.condition, response => {
           this.total = response.data.itemCount;
           this.tableData = response.data.listObject;
         });

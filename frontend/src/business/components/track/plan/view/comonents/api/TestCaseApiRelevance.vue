@@ -23,6 +23,7 @@
       :is-api-list-enable="isApiListEnable"
       :project-id="projectId"
       :is-test-plan="true"
+      :plan-id="planId"
       @isApiListEnableChange="isApiListEnableChange"
       ref="apiList"/>
 
@@ -33,6 +34,7 @@
       :is-api-list-enable="isApiListEnable"
       :project-id="projectId"
       :is-test-plan="true"
+      :plan-id="planId"
       @isApiListEnableChange="isApiListEnableChange"
       ref="apiCaseList"/>
 
@@ -81,7 +83,19 @@
     },
     methods: {
       open() {
+        this.init();
         this.$refs.baseRelevance.open();
+      },
+      init() {
+        if (this.$refs.apiList) {
+          this.$refs.apiList.initTable();
+        }
+        if (this.$refs.apiCaseList) {
+          this.$refs.apiCaseList.initTable();
+        }
+        if (this.$refs.nodeTree) {
+          this.$refs.nodeTree.list();
+        }
       },
       setProject(projectId) {
         this.projectId = projectId;
