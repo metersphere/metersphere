@@ -1,10 +1,8 @@
 package io.metersphere.track.service;
 
-import io.metersphere.base.domain.Project;
-import io.metersphere.base.domain.ProjectExample;
-import io.metersphere.base.domain.TestPlanProject;
-import io.metersphere.base.domain.TestPlanProjectExample;
+import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ProjectMapper;
+import io.metersphere.base.mapper.TestPlanMapper;
 import io.metersphere.base.mapper.TestPlanProjectMapper;
 import io.metersphere.track.request.testplancase.TestCaseRelevanceRequest;
 import org.apache.commons.lang3.StringUtils;
@@ -24,15 +22,22 @@ public class TestPlanProjectService {
     TestPlanProjectMapper testPlanProjectMapper;
     @Resource
     ProjectMapper projectMapper;
+    @Resource
+    private TestPlanMapper testPlanMapper;
 
     public List<String> getProjectIdsByPlanId(String planId) {
+        TestPlan testPlan = testPlanMapper.selectByPrimaryKey(planId);
         TestPlanProjectExample example = new TestPlanProjectExample();
         example.createCriteria().andTestPlanIdEqualTo(planId);
         List<String> projectIds = testPlanProjectMapper.selectByExample(example)
                 .stream()
                 .map(TestPlanProject::getProjectId)
                 .collect(Collectors.toList());
-
+        if (testPlan != null && StringUtils.isNotBlank(testPlan.getProjectId())) {
+            if (!projectIds.contains(testPlan.getProjectId())) {
+                projectIds.add(testPlan.getProjectId());
+            }
+        }
         if (projectIds.isEmpty()) {
             return null;
         }

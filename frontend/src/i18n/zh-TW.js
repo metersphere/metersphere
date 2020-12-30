@@ -503,6 +503,10 @@ export default {
       api_case_status: "用例狀態",
       api_case_passing_rate: "用例通過率",
       create_tip: "註: 詳細的接口信息可以在編輯頁面填寫",
+      select_comp:{
+        no_data:"無數據",
+        add_data:"去添加"
+      },
       request: {
         grade_info: "按等級筛选",
         run_env: "運行環境",
@@ -1053,6 +1057,7 @@ export default {
       edit_plan: "編輯測試計劃",
       plan_name: "計劃名稱",
       plan_project: "所屬項目",
+      related_project: "關聯項目",
       plan_stage: "測試階段",
       plan_status: "當前狀態",
       smoke_test: "冒煙測試",
@@ -1065,6 +1070,7 @@ export default {
       input_plan_name: "請輸入測試計劃名稱",
       input_plan_principal: "請選擇負責人",
       input_plan_project: "請選擇所屬項目",
+      input_related_project: "請選擇關聯項目",
       input_plan_stage: "請選擇測試階段",
       plan_status_prepare: "未開始",
       plan_status_running: "進行中",

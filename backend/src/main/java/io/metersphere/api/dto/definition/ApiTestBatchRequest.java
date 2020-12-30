@@ -1,15 +1,19 @@
 package io.metersphere.api.dto.definition;
 
 import io.metersphere.base.domain.ApiDefinitionWithBLOBs;
+import io.metersphere.base.domain.ApiTestCaseWithBLOBs;
 import io.metersphere.controller.request.OrderRequest;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Getter
 @Setter
-public class ApiBatchRequest extends ApiDefinitionWithBLOBs {
+public class ApiTestBatchRequest extends ApiTestCaseWithBLOBs {
     private List<String> ids;
     private List<OrderRequest> orders;
     private String projectId;
@@ -24,12 +28,24 @@ public class ApiBatchRequest extends ApiDefinitionWithBLOBs {
      */
     private boolean isSelectAllDate;
 
-    private List<String> filters;
+    private Map<String, List<String>> filters;
 
     private String name;
 
     private List<String> moduleIds;
 
     private List<String> unSelectIds;
+
+    private String protocol;
+
+    private String status;
+
+    public void cleanSelectParam() {
+        filters = new HashMap<>();
+        name = null;
+        moduleIds = new ArrayList<>();
+        protocol = null;
+        status = null;
+    }
 
 }

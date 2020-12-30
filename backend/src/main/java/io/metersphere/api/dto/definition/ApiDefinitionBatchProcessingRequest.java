@@ -1,19 +1,19 @@
 package io.metersphere.api.dto.definition;
 
-import io.metersphere.base.domain.ApiDefinitionWithBLOBs;
-import io.metersphere.controller.request.OrderRequest;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.util.List;
 
+/**
+ * 接口定义模块-批量处理请求类
+ * @author song.tianyang
+ * @Date 2020/12/29 4:13 下午
+ * @Description
+ */
 @Getter
 @Setter
-public class ApiBatchRequest extends ApiDefinitionWithBLOBs {
-    private List<String> ids;
-    private List<OrderRequest> orders;
-    private String projectId;
-
+public class ApiDefinitionBatchProcessingRequest {
     /**
      * isSelectAllDate：选择的数据是否是全部数据（全部数据是不受分页影响的数据）
      * filters: 数据状态
@@ -31,5 +31,9 @@ public class ApiBatchRequest extends ApiDefinitionWithBLOBs {
     private List<String> moduleIds;
 
     private List<String> unSelectIds;
+
+    private String projectId;
+
+    private List<String> dataIds;
 
 }

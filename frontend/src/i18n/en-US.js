@@ -505,6 +505,10 @@ export default {
       api_case_status: "Ise case status",
       api_case_passing_rate: "Use case pass rate",
       create_tip: "Note: Detailed interface information can be filled out on the edit page",
+      select_comp:{
+        no_data:"No Data",
+        add_data:"Add Data"
+      },
       request: {
         grade_info: "Filter by rank",
         run_env: "Operating environment",
@@ -1053,6 +1057,7 @@ export default {
       edit_plan: "Edit test plan",
       plan_name: "Test plan name",
       plan_project: "Project",
+      related_project: "Related Project",
       plan_stage: "Stage",
       plan_status: "Status",
       smoke_test: "Smoke test",
@@ -1065,6 +1070,7 @@ export default {
       input_plan_name: "Please input plan name",
       input_plan_principal: "Please select principal",
       input_plan_project: "Please select project",
+      input_related_project: "Please Related project",
       input_plan_stage: "Please select stage",
       plan_status_prepare: "Not started",
       plan_status_running: "Starting",
