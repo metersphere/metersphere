@@ -51,6 +51,7 @@
   import {getUUID} from "@/common/js/utils";
   import MsApiScenarioModule from "@/business/components/api/automation/scenario/ApiScenarioModule";
   import MsEditApiScenario from "./scenario/EditApiScenario";
+  import {getCurrentProjectID} from "../../../../common/js/utils";
 
   export default {
     name: "ApiAutomation",
@@ -70,6 +71,10 @@
     watch: {},
     methods: {
       addTab(tab) {
+        if (!getCurrentProjectID()) {
+          this.$warning(this.$t('commons.check_project_tip'));
+          return;
+        }
         if (tab.name === 'add') {
           let label = this.$t('api_test.automation.add_scenario');
           let name = getUUID().substring(0, 8);

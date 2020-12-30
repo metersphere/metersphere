@@ -1,11 +1,11 @@
 package io.metersphere.api.service;
 
 
+import com.alibaba.fastjson.JSON;
 import io.metersphere.api.dto.automation.ApiScenarioDTO;
 import io.metersphere.api.dto.automation.ApiScenarioModuleDTO;
 import io.metersphere.api.dto.automation.ApiScenarioRequest;
 import io.metersphere.api.dto.automation.DragApiScenarioModuleRequest;
-import io.metersphere.api.dto.definition.ApiModuleDTO;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ApiScenarioMapper;
 import io.metersphere.base.mapper.ApiScenarioModuleMapper;
@@ -17,13 +17,13 @@ import io.metersphere.service.NodeTreeService;
 import io.metersphere.service.ProjectService;
 import io.metersphere.track.service.TestPlanProjectService;
 import io.metersphere.track.service.TestPlanScenarioCaseService;
-import io.metersphere.track.service.TestPlanTestCaseService;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.util.*;
@@ -61,11 +61,33 @@ public class ApiScenarioModuleService extends NodeTreeService<ApiScenarioModuleD
         return getNodeTrees(nodes);
     }
 
+    private double getNextLevelPos(String projectId, int level, String parentId) {
+        List<ApiScenarioModule> list = getPos(projectId, level, parentId, "pos desc");
+        if (!CollectionUtils.isEmpty(list) && list.get(0) != null && list.get(0).getPos() != null) {
+            return list.get(0).getPos() + DEFAULT_POS;
+        } else {
+            return DEFAULT_POS;
+        }
+    }
+
+    private List<ApiScenarioModule> getPos(String projectId, int level, String parentId, String order) {
+        ApiScenarioModuleExample example = new ApiScenarioModuleExample();
+        ApiScenarioModuleExample.Criteria criteria = example.createCriteria();
+        criteria.andProjectIdEqualTo(projectId).andLevelEqualTo(level);
+        if (level != 1 && StringUtils.isNotBlank(parentId)) {
+            criteria.andParentIdEqualTo(parentId);
+        }
+        example.setOrderByClause(order);
+        return apiScenarioModuleMapper.selectByExample(example);
+    }
+
     public String addNode(ApiScenarioModule node) {
         validateNode(node);
+        node.setId(UUID.randomUUID().toString());
         node.setCreateTime(System.currentTimeMillis());
         node.setUpdateTime(System.currentTimeMillis());
-        node.setId(UUID.randomUUID().toString());
+        double pos = getNextLevelPos(node.getProjectId(), node.getLevel(), node.getParentId());
+        node.setPos(pos);
         apiScenarioModuleMapper.insertSelective(node);
         return node.getId();
     }
@@ -186,6 +208,18 @@ public class ApiScenarioModuleService extends NodeTreeService<ApiScenarioModuleD
         sqlSession.flushStatements();
     }
 
+    @Override
+    public ApiScenarioModuleDTO getNode(String id) {
+        ApiScenarioModule module = apiScenarioModuleMapper.selectByPrimaryKey(id);
+        ApiScenarioModuleDTO dto = JSON.parseObject(JSON.toJSONString(module), ApiScenarioModuleDTO.class);
+        return dto;
+    }
+
+    @Override
+    public void updatePos(String id, Double pos) {
+        extApiScenarioModuleMapper.updatePos(id, pos);
+    }
+
     public void dragNode(DragApiScenarioModuleRequest request) {
 
         checkApiScenarioModuleExist(request);
@@ -200,7 +234,7 @@ public class ApiScenarioModuleService extends NodeTreeService<ApiScenarioModuleD
         if (nodeTree == null) {
             return;
         }
-        buildUpdateDefinition(nodeTree, apiScenarios, updateNodes, "/", "0", nodeTree.getLevel());
+        buildUpdateDefinition(nodeTree, apiScenarios, updateNodes, "/", "0", 1);
 
         updateNodes = updateNodes.stream()
                 .filter(item -> nodeIds.contains(item.getId()))

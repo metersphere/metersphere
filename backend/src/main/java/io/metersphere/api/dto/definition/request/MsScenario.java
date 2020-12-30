@@ -82,7 +82,7 @@ public class MsScenario extends MsTestElement {
                 ex.printStackTrace();
             }
         }
-        // 场景变量
+        // 场景变量和环境变量
         tree.add(arguments(config));
 
         if (CollectionUtils.isNotEmpty(hashTree)) {
@@ -90,7 +90,6 @@ public class MsScenario extends MsTestElement {
                 el.toHashTree(tree, el.getHashTree(), config);
             }
         }
-
     }
 
     private Arguments arguments(ParameterConfig config) {

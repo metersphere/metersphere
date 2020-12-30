@@ -1,40 +1,32 @@
 <template>
-  <api-list-container
+  <div>
+    <api-list-container
       :is-api-list-enable="isApiListEnable"
       @isApiListEnableChange="isApiListEnableChange">
 
-      <el-input placeholder="搜索" @blur="initTable" class="search-input" size="small" @keyup.enter.native="initTable" v-model="condition.name"/>
+      <ms-environment-select :project-id="projectId" v-if="isTestPlan" :is-read-only="isReadOnly" @setEnvironment="setEnvironment"/>
+
+      <el-input placeholder="搜索" @blur="initTable" @keyup.enter.native="initTable" class="search-input" size="small" v-model="condition.name"/>
 
       <el-table v-loading="result.loading"
                 border
                 :data="tableData" row-key="id" class="test-content adjust-table"
                 @select-all="handleSelectAll"
+                @filter-change="filter"
+                @sort-change="sort"
                 @select="handleSelect">
         <el-table-column type="selection"/>
 
         <el-table-column prop="name" :label="$t('api_test.definition.api_name')" show-overflow-tooltip/>
 
         <el-table-column
-          prop="status"
-          column-key="api_status"
-          :label="$t('api_test.definition.api_status')"
+          prop="priority"
+          :filters="priorityFilters"
+          column-key="priority"
+          :label="$t('test_track.case.priority')"
           show-overflow-tooltip>
           <template v-slot:default="scope">
-            <ms-tag v-if="scope.row.status == 'Prepare'" type="info" effect="plain" :content="$t('test_track.plan.plan_status_prepare')"/>
-            <ms-tag v-if="scope.row.status == 'Underway'" type="warning" effect="plain" :content="$t('test_track.plan.plan_status_running')"/>
-            <ms-tag v-if="scope.row.status == 'Completed'" type="success" effect="plain" :content="$t('test_track.plan.plan_status_completed')"/>
-            <ms-tag v-if="scope.row.status == 'Trash'" type="danger" effect="plain" content="废弃"/>
-          </template>
-        </el-table-column>
-
-        <el-table-column
-          prop="method"
-          :label="$t('api_test.definition.api_type')"
-          show-overflow-tooltip>
-          <template v-slot:default="scope" class="request-method">
-            <el-tag size="mini" :style="{'background-color': getColor(scope.row.method), border: getColor(true, scope.row.method)}" class="api-el-tag">
-              {{ scope.row.method}}
-            </el-tag>
+            <priority-table-item :value="scope.row.priority"/>
           </template>
         </el-table-column>
 
@@ -44,34 +36,27 @@
           show-overflow-tooltip/>
 
         <el-table-column
-          prop="userName"
-          :label="$t('api_test.definition.api_principal')"
+          prop="createUser"
+          :label="'创建人'"
           show-overflow-tooltip/>
 
-        <el-table-column width="160" :label="$t('api_test.definition.api_last_time')" prop="updateTime">
+        <el-table-column
+          sortable="custom"
+          width="160"
+          :label="$t('api_test.definition.api_last_time')"
+          prop="updateTime">
           <template v-slot:default="scope">
             <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
           </template>
         </el-table-column>
 
-        <el-table-column
-          prop="caseTotal"
-          :label="$t('api_test.definition.api_case_number')"
-          show-overflow-tooltip/>
-
-        <el-table-column
-          prop="caseStatus"
-          :label="$t('api_test.definition.api_case_status')"
-          show-overflow-tooltip/>
-
-        <el-table-column
-          prop="casePassingRate"
-          :label="$t('api_test.definition.api_case_passing_rate')"
-          show-overflow-tooltip/>
       </el-table>
       <ms-table-pagination :change="initTable" :current-page.sync="currentPage" :page-size.sync="pageSize"
                            :total="total"/>
     </api-list-container>
+
+  </div>
+
 </template>
 
 <script>
@@ -90,10 +75,12 @@
   import PriorityTableItem from "../../../../track/common/tableItems/planview/PriorityTableItem";
   import {_filter, _sort} from "../../../../../../common/js/utils";
   import {_handleSelect, _handleSelectAll} from "../../../../../../common/js/tableUtils";
+  import MsEnvironmentSelect from "../../../definition/components/case/MsEnvironmentSelect";
 
   export default {
-    name: "ScenarioRelevanceApiList",
+    name: "RelevanceCaseList",
     components: {
+      MsEnvironmentSelect,
       PriorityTableItem,
       ApiListContainer,
       MsTableOperatorButton,
@@ -110,7 +97,6 @@
         selectCase: {},
         result: {},
         moduleId: "",
-        deletePath: "/test/case/delete",
         selectRows: new Set(),
         typeArr: [
           {id: 'priority', name: this.$t('test_track.case.priority')},
@@ -129,6 +115,7 @@
         currentPage: 1,
         pageSize: 10,
         total: 0,
+        environmentId: ""
       }
     },
     props: {
@@ -150,8 +137,9 @@
         type: Boolean,
         default: false,
       },
-      relevanceProjectId: String,
-      planId: String
+      projectId: String,
+      planId: String,
+      isTestPlan: Boolean
     },
     created: function () {
       this.initTable();
@@ -163,6 +151,9 @@
       currentProtocol() {
         this.initTable();
       },
+      projectId() {
+        this.initTable();
+      }
     },
     computed: {
 
@@ -173,19 +164,24 @@
       },
       initTable() {
         this.selectRows = new Set();
-        this.condition.filters = ["Prepare", "Underway", "Completed"];
+        this.condition.status = "";
         this.condition.moduleIds = this.selectNodeIds;
-        if (this.trashEnable) {
-          this.condition.filters = ["Trash"];
-          this.condition.moduleIds = [];
-        }
         if (this.projectId != null) {
           this.condition.projectId = this.projectId;
+        } else {
+          this.condition.projectId = getCurrentProjectID();
+
         }
         if (this.currentProtocol != null) {
           this.condition.protocol = this.currentProtocol;
         }
-        this.result = this.$post("/api/definition/list/" + this.currentPage + "/" + this.pageSize, this.condition, response => {
+        let url = '/api/testcase/list/';
+        if (this.isTestPlan) {
+          url = '/test/plan/api/case/relevance/list/';
+          this.condition.planId = this.planId;
+        }
+
+        this.result = this.$post(url + this.currentPage + "/" + this.pageSize, this.condition, response => {
           this.total = response.data.itemCount;
           this.tableData = response.data.listObject;
         });
@@ -216,9 +212,26 @@
       buildPagePath(path) {
         return path + "/" + this.currentPage + "/" + this.pageSize;
       },
-      getColor(method) {
-        return this.methodColorMap.get(method);
+      handleTestCase(testCase) {
+        this.$get('/api/definition/get/' + testCase.apiDefinitionId, (response) => {
+          let api = response.data;
+          let selectApi = api;
+          let request = {};
+          if (Object.prototype.toString.call(api.request).match(/\[object (\w+)\]/)[1].toLowerCase() === 'object') {
+            request = api.request;
+          } else {
+            request = JSON.parse(api.request);
+          }
+          if (!request.hashTree) {
+            request.hashTree = [];
+          }
+          selectApi.url = request.path;
+          this.$refs.caseList.open(selectApi, testCase.id);
+        });
       },
+      setEnvironment(data) {
+        this.environmentId = data.id;
+      }
     },
   }
 </script>

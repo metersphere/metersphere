@@ -1,12 +1,7 @@
 <template>
-  <el-dialog class="api-relevance" :title="'场景导入'"
-             :visible.sync="dialogVisible"
-             width="60%"
-             :close-on-click-modal="false"
-             top="50px">
+  <relevance-dialog :title="'场景导入'" ref="relevanceDialog">
 
-    <ms-container>
-      <ms-aside-container :enable-aside-hidden="false">
+    <template v-slot:aside>
         <ms-api-scenario-module
           @nodeSelectEvent="nodeChange"
           @refreshTable="refresh"
@@ -14,51 +9,48 @@
           @enableTrash="false"
           :is-read-only="true"
           ref="nodeTree"/>
-      </ms-aside-container>
+    </template>
 
-      <ms-main-container>
-        <ms-api-scenario-list
-          :select-node-ids="selectNodeIds"
-          :referenced="true"
-          :trash-enable="false"
-          @selection="setData"
-          ref="apiScenarioList"/>
-      </ms-main-container>
-    </ms-container>
+    <ms-api-scenario-list
+      :select-node-ids="selectNodeIds"
+      :referenced="true"
+      :trash-enable="false"
+      @selection="setData"
+      ref="apiScenarioList"/>
 
     <template v-slot:footer>
       <el-button type="primary" @click="copy" @keydown.enter.native.prevent>复制</el-button>
       <el-button type="primary" @click="reference" @keydown.enter.native.prevent>引用</el-button>
     </template>
 
-  </el-dialog>
+  </relevance-dialog>
 </template>
 
 <script>
-    import ScenarioRelevanceCaseList from "./ScenarioRelevanceCaseList";
+    import ScenarioRelevanceCaseList from "./RelevanceCaseList";
     import MsApiModule from "../../../definition/components/module/ApiModule";
     import MsContainer from "../../../../common/components/MsContainer";
     import MsAsideContainer from "../../../../common/components/MsAsideContainer";
     import MsMainContainer from "../../../../common/components/MsMainContainer";
-    import ScenarioRelevanceApiList from "./ScenarioRelevanceApiList";
+    import ScenarioRelevanceApiList from "./RelevanceApiList";
     import MsApiScenarioModule from "../ApiScenarioModule";
     import MsApiScenarioList from "../ApiScenarioList";
     import {getUUID} from "../../../../../../common/js/utils";
+    import RelevanceDialog from "../../../../track/plan/view/comonents/base/RelevanceDialog";
     export default {
       name: "ScenarioRelevance",
       components: {
+        RelevanceDialog,
         MsApiScenarioList,
         MsApiScenarioModule,
         MsMainContainer, MsAsideContainer, MsContainer},
       data() {
           return {
-            dialogVisible: false,
             result: {},
             currentProtocol: null,
             selectNodeIds: [],
             moduleOptions: {},
             isApiListEnable: true,
-
             currentScenario: [],
             currentScenarioIds: [],
           }
@@ -97,10 +89,10 @@
         },
         close() {
           this.refresh();
-          this.dialogVisible = false;
+          this.$refs.relevanceDialog.close();
         },
         open() {
-          this.dialogVisible = true;
+          this.$refs.relevanceDialog.open();
           if (this.$refs.apiScenarioList) {
             this.$refs.apiScenarioList.search();
           }
@@ -126,13 +118,5 @@
 </script>
 
 <style scoped>
-
-  .ms-aside-container {
-    border: 0px;
-  }
-
-  .api-relevance >>> .el-dialog__body {
-    padding: 10px 20px;
-  }
 
 </style>

@@ -17,6 +17,6 @@ public class Translator {
      * 单Key翻译
      */
     public static String get(String key) {
-        return messageSource.getMessage(key, null, "Not Support Key", LocaleContextHolder.getLocale());
+        return messageSource.getMessage(key, null, "Not Support Key: " + key, LocaleContextHolder.getLocale());
     }
 }

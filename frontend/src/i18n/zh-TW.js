@@ -126,6 +126,7 @@ export default {
     modifier: '修改人',
     validate: "校驗",
     batch_add: "批量添加",
+    check_project_tip: "請先創建或選擇項目",
     date: {
       select_date: '選擇日期',
       start_date: '開始日期',
@@ -368,9 +369,9 @@ export default {
     test_error_log: '錯誤記錄',
     test_log_details: '日誌詳情',
     test_details: '測試詳情',
-    test_duration: '持續時間：{0} 分鐘 {1} 秒',
-    test_start_time: '開始時間',
-    test_end_time: '結束時間',
+    test_duration: '當前執行時長：{0} 分鐘 {1} 秒',
+    test_start_time: '開始執行時間',
+    test_end_time: '計劃結束時間',
     test_stop_now: '立即停止',
     test_stop_now_confirm: '確定要立即停止當前測試嗎？',
     test_rerun_confirm: '確定要再次執行當前測試嗎？',
@@ -485,6 +486,10 @@ export default {
       delete_tip: "刪除需重啟服務後生效",
       file_exist: "該項目下已存在該jar包",
       upload_limit_size: "上傳文件大小不能超過 30MB!",
+    },
+    batch_menus:{
+      select_all_data: "選擇所有數據(共{0}條)",
+      select_show_data: "選擇可見數據(共{0}條)",
     },
     definition: {
       api_title: "接口列表",

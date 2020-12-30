@@ -21,6 +21,7 @@
           :is-read-only="isReadOnly"
           @exportAPI="exportAPI"
           @saveAsEdit="saveAsEdit"
+          @refreshTable="$emit('refreshTable')"
           @refresh="refresh"
           @debug="debug"/>
       </template>
@@ -159,8 +160,9 @@
       },
       drag(param, list) {
         this.$post("/api/module/drag", param, () => {
-          // this.$post("/api/module/pos", list); //todo 排序
-          this.list();
+          this.$post("/api/module/pos", list, () => {
+            this.list();
+          });
         }, (error) => {
           this.list();
         });

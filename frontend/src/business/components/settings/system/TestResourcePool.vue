@@ -66,7 +66,7 @@
         </el-form-item>
         <el-form-item :label="$t('test_resource_pool.type')" prop="type">
           <el-select v-model="form.type" :placeholder="$t('test_resource_pool.select_pool_type')"
-                     @change="changeResourceType()">
+                     @change="changeResourceType(form.type)">
             <el-option key="NODE" value="NODE" label="Node">Node</el-option>
             <el-option key="K8S" value="K8S" label="Kubernetes" v-xpack>Kubernetes</el-option>
           </el-select>
@@ -86,6 +86,14 @@
                 <el-form-item label="Token"
                               :rules="requiredRules">
                   <el-input v-model="item.token" type="password" show-password autocomplete="new-password"/>
+                </el-form-item>
+              </el-col>
+            </el-row>
+            <el-row>
+              <el-col>
+                <el-form-item label="Namespace"
+                              :rules="requiredRules">
+                  <el-input v-model="item.namespace" type="text"/>
                 </el-form-item>
               </el-col>
             </el-row>
@@ -205,9 +213,20 @@ export default {
         this.total = data.itemCount;
       })
     },
-    changeResourceType() {
+    changeResourceType(type) {
       this.infoList = [];
-      this.infoList.push({})
+      let info = {};
+      if (type === 'NODE') {
+        info.ip = '';
+        info.port = '8082';
+      }
+      if (type === 'K8S') {
+        info.masterUrl = '';
+        info.token = '';
+        info.namespace = '';
+      }
+      info.maxConcurrency = 100;
+      this.infoList.push(info);
     },
 
     addResourceInfo() {

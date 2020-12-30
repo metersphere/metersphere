@@ -115,7 +115,6 @@
                   <el-checkbox v-model="enableCookieShare">共享cookie</el-checkbox>
                 </el-col>
                 <el-col :span="7" class="ms-font">
-                  {{$t('api_test.definition.request.run_env')}}：
                   <el-select v-model="currentEnvironmentId" size="small" class="ms-htt-width"
                              :placeholder="$t('api_test.definition.request.run_env')"
                              clearable>
@@ -169,7 +168,7 @@
                       <!--提取规则-->
                       <ms-api-extract @remove="remove" @copyRow="copyRow" v-if="data.type==='Extract'" customizeStyle="margin-top: 0px" :extract="data" :node="node"/>
                       <!--API 导入 -->
-                      <ms-api-component :request="data" :currentEnvironmentId="currentEnvironmentId" @remove="remove" @copyRow="copyRow" v-if="data.type==='HTTPSamplerProxy'||data.type==='DubboSampler'||data.type==='JDBCSampler'||data.type==='TCPSampler'" :node="node"/>
+                      <ms-api-component :request="data" :currentScenario="currentScenario" :currentEnvironmentId="currentEnvironmentId" @remove="remove" @copyRow="copyRow" v-if="data.type==='HTTPSamplerProxy'||data.type==='DubboSampler'||data.type==='JDBCSampler'||data.type==='TCPSampler'" :node="node"/>
                     </template>
                    </span>
               </el-tree>
@@ -177,19 +176,21 @@
           </el-col>
           <!-- 按钮列表 -->
           <el-col :span="3">
-            <vue-fab id="fab" mainBtnColor="#783887" size="small" :global-options="globalOptions"
-                     :click-auto-close="false" v-outside-click="outsideClick">
-              <fab-item
-                v-for="(item, index) in buttons"
-                :key="index"
-                :idx="getIdx(index)"
-                :title="item.title"
-                :title-bg-color="item.titleBgColor"
-                :title-color="item.titleColor"
-                :color="item.titleColor"
-                :icon="item.icon"
-                @clickItem="item.click"/>
-            </vue-fab>
+            <div @click="fabClick">
+              <vue-fab id="fab" mainBtnColor="#783887" size="small" :global-options="globalOptions"
+                       :click-auto-close="false" v-outside-click="outsideClick">
+                <fab-item
+                  v-for="(item, index) in buttons"
+                  :key="index"
+                  :idx="getIdx(index)"
+                  :title="item.title"
+                  :title-bg-color="item.titleBgColor"
+                  :title-color="item.titleColor"
+                  :color="item.titleColor"
+                  :icon="item.icon"
+                  @clickItem="item.click"/>
+              </vue-fab>
+            </div>
           </el-col>
         </el-row>
       </div>
@@ -248,7 +249,7 @@
   import InputTag from 'vue-input-tag'
   import "@/common/css/material-icons.css"
   import OutsideClick from "@/common/js/outside-click";
-  import ScenarioApiRelevance from "./api/ScenarioApiRelevance";
+  import ScenarioApiRelevance from "./api/ApiRelevance";
   import ScenarioRelevance from "./api/ScenarioRelevance";
 
   export default {
@@ -396,16 +397,16 @@
               this.addComponent('ConstantTimer')
             }
           },
-          // {
-          //   title: this.$t('api_test.automation.external_import'),
-          //   show: this.showButton("OT_IMPORT"),
-          //   titleColor: "#409EFF",
-          //   titleBgColor: "#EEF5FE",
-          //   icon: "next_plan",
-          //   click: () => {
-          //     this.addComponent('OT_IMPORT')
-          //   }
-          // },
+          {
+            title: this.$t('api_test.definition.request.assertions_rule'),
+            show: this.showButton("Assertions"),
+            titleColor: "#A30014",
+            titleBgColor: "#F7E6E9",
+            icon: "next_plan",
+            click: () => {
+              this.addComponent('Assertions')
+            }
+          },
           {
             title: this.$t('api_test.automation.customize_req'),
             show: this.showButton("CustomizeReq"),
@@ -451,8 +452,13 @@
         return false;
       },
       outsideClick(e) {
-        e.stopPropagation()
-        this.operatingElements = ELEMENTS.get("ALL");
+        e.stopPropagation();
+        this.showAll();
+      },
+      fabClick() {
+        if (this.operatingElements.length < 1) {
+          this.$info("引用的场景或接口无法添加配置");
+        }
       },
       addComponent(type) {
         switch (type) {
@@ -594,7 +600,7 @@
         }
       }
       ,
-      pushApiOrCase(data, refType,  referenced) {
+      pushApiOrCase(data, refType, referenced) {
         data.forEach(item => {
           this.setApiParameter(item, refType, referenced);
         });
@@ -885,6 +891,7 @@
     height: calc(100vh - 196px);
     overflow-y: auto;
   }
+
   .ms-scenario-input {
     width: 100%;
   }

@@ -80,5 +80,11 @@
       </foreach>
     </if>
   </select>
+    <select id="getExecResultByPlanId" resultType="java.lang.String">
+      select last_result
+      from
+      test_plan_api_scenario
+      where test_plan_id = #{planId}
+    </select>
 
 </mapper>

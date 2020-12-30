@@ -1,6 +1,7 @@
 package io.metersphere.api.service;
 
 
+import com.alibaba.fastjson.JSON;
 import io.metersphere.api.dto.definition.ApiDefinitionRequest;
 import io.metersphere.api.dto.definition.ApiDefinitionResult;
 import io.metersphere.api.dto.definition.ApiModuleDTO;
@@ -12,11 +13,9 @@ import io.metersphere.base.mapper.ext.ExtApiDefinitionMapper;
 import io.metersphere.base.mapper.ext.ExtApiModuleMapper;
 import io.metersphere.commons.constants.TestCaseConstants;
 import io.metersphere.commons.exception.MSException;
-
 import io.metersphere.i18n.Translator;
 import io.metersphere.service.NodeTreeService;
 import io.metersphere.service.ProjectService;
-import io.metersphere.track.dto.TestCaseNodeDTO;
 import io.metersphere.track.service.TestPlanApiCaseService;
 import io.metersphere.track.service.TestPlanProjectService;
 import org.apache.commons.lang3.StringUtils;
@@ -25,6 +24,7 @@ import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.util.*;
@@ -70,10 +70,32 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
         return addNodeWithoutValidate(node);
     }
 
+    private double getNextLevelPos(String projectId, int level, String parentId) {
+        List<ApiModule> list = getPos(projectId, level, parentId, "pos desc");
+        if (!CollectionUtils.isEmpty(list) && list.get(0) != null && list.get(0).getPos() != null) {
+            return list.get(0).getPos() + DEFAULT_POS;
+        } else {
+            return DEFAULT_POS;
+        }
+    }
+
+    private List<ApiModule> getPos(String projectId, int level, String parentId, String order) {
+        ApiModuleExample example = new ApiModuleExample();
+        ApiModuleExample.Criteria criteria = example.createCriteria();
+        criteria.andProjectIdEqualTo(projectId).andLevelEqualTo(level);
+        if (level != 1 && StringUtils.isNotBlank(parentId)) {
+            criteria.andParentIdEqualTo(parentId);
+        }
+        example.setOrderByClause(order);
+        return apiModuleMapper.selectByExample(example);
+    }
+
     public String addNodeWithoutValidate(ApiModule node) {
         node.setCreateTime(System.currentTimeMillis());
         node.setUpdateTime(System.currentTimeMillis());
         node.setId(UUID.randomUUID().toString());
+        double pos = getNextLevelPos(node.getProjectId(), node.getLevel(), node.getParentId());
+        node.setPos(pos);
         apiModuleMapper.insertSelective(node);
         return node.getId();
     }
@@ -148,7 +170,19 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
 
     private void checkApiModuleExist(ApiModule node) {
         if (node.getName() != null) {
-            if (selectSameModule(node).size() > 0) {
+            ApiModuleExample example = new ApiModuleExample();
+            ApiModuleExample.Criteria criteria = example.createCriteria();
+            criteria.andNameEqualTo(node.getName())
+                    .andProjectIdEqualTo(node.getProjectId());
+            if (StringUtils.isNotBlank(node.getParentId())) {
+                criteria.andParentIdEqualTo(node.getParentId());
+            } else {
+                criteria.andParentIdIsNull();
+            }
+            if (StringUtils.isNotBlank(node.getId())) {
+                criteria.andIdNotEqualTo(node.getId());
+            }
+            if (apiModuleMapper.selectByExample(example).size() > 0) {
                 MSException.throwException(Translator.get("test_case_module_already_exists") + ": " + node.getName());
             }
         }
@@ -216,6 +250,18 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
         sqlSession.flushStatements();
     }
 
+    @Override
+    public ApiModuleDTO getNode(String id) {
+        ApiModule module = apiModuleMapper.selectByPrimaryKey(id);
+        ApiModuleDTO dto = JSON.parseObject(JSON.toJSONString(module), ApiModuleDTO.class);
+        return dto;
+    }
+
+    @Override
+    public void updatePos(String id, Double pos) {
+        extApiModuleMapper.updatePos(id, pos);
+    }
+
     public void dragNode(DragModuleRequest request) {
 
         checkApiModuleExist(request);
@@ -230,7 +276,7 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
         if (nodeTree == null) {
             return;
         }
-        buildUpdateDefinition(nodeTree, apiModule, updateNodes, "/", "0", nodeTree.getLevel());
+        buildUpdateDefinition(nodeTree, apiModule, updateNodes, "/", "0", 1);
 
         updateNodes = updateNodes.stream()
                 .filter(item -> nodeIds.contains(item.getId()))

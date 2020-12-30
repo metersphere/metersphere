@@ -28,9 +28,7 @@ export default {
   methods: {
     click(params) {
       let startTime = params.name;
-      this.result = this.$$get('/api/monitor/getReportId', {'startTime': startTime}, {
-        'apiUrl': this.apiUrl
-      }, response => {
+      this.result = this.$post('/api/monitor/getReportId', {'startTime': startTime, 'apiUrl': this.apiUrl}, response => {
         this.reportId = response.data;
         let reportId = this.reportId
         let url = '#/api/report/view/' + reportId;

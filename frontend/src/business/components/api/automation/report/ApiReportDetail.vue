@@ -2,7 +2,7 @@
   <ms-container v-loading="loading">
     <ms-main-container>
       <el-card>
-        <section class="report-container">
+        <section class="report-container" v-if="this.report.testId">
 
           <ms-api-report-view-header :debug="debug" :report="report" @reportExport="handleExport" @reportSave="handleSave"/>
 

@@ -33,5 +33,7 @@ public class ApiDefinition implements Serializable {
 
     private String path;
 
+    private Integer num;
+
     private static final long serialVersionUID = 1L;
 }

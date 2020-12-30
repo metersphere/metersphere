@@ -33,7 +33,7 @@
       @saveAsEdit="saveAsEdit"
       @refresh="refresh"
       ref="basisApi"/>
-    <api-import ref="apiImport" @refresh="refresh"/>
+    <api-import ref="apiImport" @refresh="$emit('refresh')"/>
   </div>
 </template>
 
@@ -42,6 +42,7 @@ import {OPTIONS} from "../../model/JsonData";
 import MsAddBasisApi from "../basis/AddBasisApi";
 import ApiImport from "../import/ApiImport";
 import ModuleTrashButton from "./ModuleTrashButton";
+import {getCurrentProjectID} from "../../../../../../common/js/utils";
 
 export default {
   name: "ApiModuleHeader",
@@ -83,14 +84,26 @@ export default {
         case "add-module":
           break;
         case "import":
+          if (!getCurrentProjectID()) {
+            this.$warning(this.$t('commons.check_project_tip'));
+            return;
+          }
           this.$refs.apiImport.open(this.currentModule);
           break;
         default:
+          if (!getCurrentProjectID()) {
+            this.$warning(this.$t('commons.check_project_tip'));
+            return;
+          }
           this.$emit('exportAPI');
           break;
       }
     },
     addApi() {
+      if (!getCurrentProjectID()) {
+        this.$warning(this.$t('commons.check_project_tip'));
+        return;
+      }
       this.$refs.basisApi.open(this.currentModule);
     },
     saveAsEdit(data) {

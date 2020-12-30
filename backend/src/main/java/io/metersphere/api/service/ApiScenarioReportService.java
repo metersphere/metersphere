@@ -3,8 +3,7 @@ package io.metersphere.api.service;
 import com.alibaba.fastjson.JSON;
 import io.metersphere.api.dto.DeleteAPIReportRequest;
 import io.metersphere.api.dto.QueryAPIReportRequest;
-import io.metersphere.api.dto.automation.APIScenarioReportResult;
-import io.metersphere.api.dto.automation.ExecuteType;
+import io.metersphere.api.dto.automation.*;
 import io.metersphere.api.dto.datacount.ApiDataCountResult;
 import io.metersphere.api.jmeter.ScenarioResult;
 import io.metersphere.api.jmeter.TestResult;
@@ -18,6 +17,7 @@ import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.DateUtils;
 import io.metersphere.commons.utils.ServiceUtils;
+import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.i18n.Translator;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -30,6 +30,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -96,6 +97,8 @@ public class ApiScenarioReportService {
         report.setId(test.getId());
         report.setProjectId(test.getProjectId());
         report.setName(test.getName());
+        report.setScenarioName(test.getScenarioName());
+        report.setScenarioId(test.getScenarioId());
         report.setTriggerMode(test.getTriggerMode());
         report.setDescription(test.getDescription());
         report.setCreateTime(System.currentTimeMillis());
@@ -103,18 +106,18 @@ public class ApiScenarioReportService {
         report.setStatus(test.getStatus());
         report.setUserId(test.getUserId());
         report.setExecuteType(test.getExecuteType());
-        apiScenarioReportMapper.updateByPrimaryKey(report);
+        apiScenarioReportMapper.updateByPrimaryKeySelective(report);
         return report;
     }
 
-    private TestResult createTestResult(TestResult result) {
+    private TestResult createTestResult(String testId, ScenarioResult scenarioResult) {
         TestResult testResult = new TestResult();
-        testResult.setTestId(result.getTestId());
-        testResult.setTotal(result.getTotal());
-        testResult.setError(result.getError());
-        testResult.setPassAssertions(result.getPassAssertions());
-        testResult.setSuccess(result.getSuccess());
-        testResult.setTotalAssertions(result.getTotalAssertions());
+        testResult.setTestId(testId);
+        testResult.setTotal(scenarioResult.getTotal());
+        testResult.setError(scenarioResult.getError());
+        testResult.setPassAssertions(scenarioResult.getPassAssertions());
+        testResult.setSuccess(scenarioResult.getSuccess());
+        testResult.setTotalAssertions(scenarioResult.getTotalAssertions());
         return testResult;
     }
 
@@ -122,9 +125,9 @@ public class ApiScenarioReportService {
         TestPlanApiScenario testPlanApiScenario = testPlanApiScenarioMapper.selectByPrimaryKey(result.getTestId());
         ScenarioResult scenarioResult = result.getScenarios().get(0);
         if (scenarioResult.getError() > 0) {
-            testPlanApiScenario.setLastResult("Fail");
+            testPlanApiScenario.setLastResult(ScenarioStatus.Fail.name());
         } else {
-            testPlanApiScenario.setLastResult("Success");
+            testPlanApiScenario.setLastResult(ScenarioStatus.Success.name());
         }
         String passRate = new DecimalFormat("0%").format((float) scenarioResult.getSuccess() / (scenarioResult.getSuccess() + scenarioResult.getError()));
         testPlanApiScenario.setPassRate(passRate);
@@ -132,7 +135,7 @@ public class ApiScenarioReportService {
         ApiScenarioReport report = editReport(scenarioResult);
         // 报告详情内容
         ApiScenarioReportDetail detail = new ApiScenarioReportDetail();
-        TestResult newResult = createTestResult(result);
+        TestResult newResult = createTestResult(result.getTestId(), scenarioResult);
         List<ScenarioResult> scenarioResults = new ArrayList();
         scenarioResult.setName(report.getScenarioName());
         scenarioResults.add(scenarioResult);
@@ -152,10 +155,9 @@ public class ApiScenarioReportService {
         for (ScenarioResult item : result.getScenarios()) {
             // 更新报告状态
             ApiScenarioReport report = editReport(item);
-
             // 报告详情内容
             ApiScenarioReportDetail detail = new ApiScenarioReportDetail();
-            TestResult newResult = createTestResult(result);
+            TestResult newResult = createTestResult(result.getTestId(), item);
             List<ScenarioResult> scenarioResults = new ArrayList();
             item.setName(report.getScenarioName());
             scenarioResults.add(item);
@@ -206,12 +208,23 @@ public class ApiScenarioReportService {
     }
 
     public void deleteAPIReportBatch(DeleteAPIReportRequest reportRequest) {
+        List<String> ids = reportRequest.getIds();
+        if (reportRequest.isSelectAllDate()) {
+            QueryAPIReportRequest selectRequest = new QueryAPIReportRequest();
+            selectRequest.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
+            selectRequest.setName(reportRequest.getName());
+            selectRequest.setProjectId(reportRequest.getProjectId());
+            List<APIScenarioReportResult> list = extApiScenarioReportMapper.list(selectRequest);
+            List<String> allIds = list.stream().map(APIScenarioReportResult::getId).collect(Collectors.toList());
+            ids = allIds.stream().filter(id -> !reportRequest.getUnSelectIds().contains(id)).collect(Collectors.toList());
+        }
+
         ApiScenarioReportDetailExample detailExample = new ApiScenarioReportDetailExample();
-        detailExample.createCriteria().andReportIdIn(reportRequest.getIds());
+        detailExample.createCriteria().andReportIdIn(ids);
         apiScenarioReportDetailMapper.deleteByExample(detailExample);
 
         ApiScenarioReportExample apiTestReportExample = new ApiScenarioReportExample();
-        apiTestReportExample.createCriteria().andIdIn(reportRequest.getIds());
+        apiTestReportExample.createCriteria().andIdIn(ids);
         apiScenarioReportMapper.deleteByExample(apiTestReportExample);
     }
 

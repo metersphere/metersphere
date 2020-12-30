@@ -91,6 +91,7 @@
     name: "MsApiComponent",
     props: {
       request: {},
+      currentScenario: {},
       node: {},
       currentEnvironmentId: String,
     },
@@ -127,10 +128,12 @@
         if (this.request.id && this.request.referenced === 'REF') {
           let requestResult = this.request.requestResult;
           let url = this.request.refType && this.request.refType === 'CASE' ? "/api/testcase/get/" : "/api/definition/get/";
+          let enable = this.request.enable;
           this.$get(url + this.request.id, response => {
             if (response.data) {
               Object.assign(this.request, JSON.parse(response.data.request));
               this.request.name = response.data.name;
+              this.request.enable = enable;
               if (response.data.path && response.data.path != null) {
                 this.request.path = response.data.path;
                 this.request.url = response.data.path;
@@ -176,7 +179,13 @@
         this.loading = true;
         this.runData = [];
         this.request.useEnvironment = this.currentEnvironmentId;
-        this.runData.push(this.request);
+
+        let debugData = {
+          id: this.currentScenario.id, name: this.currentScenario.name, type: "scenario",
+          variables: this.currentScenario.variables, referenced: 'Created', enableCookieShare: this.enableCookieShare,
+          environmentId: this.currentEnvironmentId, hashTree: [this.request]
+        };
+        this.runData.push(debugData);
         /*触发执行操作*/
         this.reportId = getUUID().substring(0, 8);
 

@@ -11,4 +11,6 @@ public interface ExtTestPlanApiCaseMapper {
     void insertIfNotExists(@Param("request") TestPlanApiCase request);
 
     List<TestPlanApiCaseDTO> list(@Param("request") ApiTestCaseRequest request);
+
+    List<String> getExecResultByPlanId(String planId);
 }

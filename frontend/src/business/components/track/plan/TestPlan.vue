@@ -19,6 +19,7 @@
   import TestPlanEdit from './components/TestPlanEdit';
   import MsContainer from "../../common/components/MsContainer";
   import MsMainContainer from "../../common/components/MsMainContainer";
+  import {getCurrentProjectID} from "../../../../common/js/utils";
 
   export default {
     name: "TestPlan",
@@ -36,6 +37,10 @@
     watch: {
       '$route'(to, from) {
         if (to.path.indexOf("/track/plan/create") >= 0){
+          if (!getCurrentProjectID()) {
+            this.$warning(this.$t('commons.check_project_tip'));
+            return;
+          }
           this.openTestPlanEditDialog();
           this.$router.push('/track/plan/all');
         }

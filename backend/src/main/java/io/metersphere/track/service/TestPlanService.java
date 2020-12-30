@@ -4,6 +4,7 @@ package io.metersphere.track.service;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import io.metersphere.api.dto.automation.ApiScenarioDTO;
+import io.metersphere.api.dto.automation.ScenarioStatus;
 import io.metersphere.api.dto.automation.TestPlanScenarioRequest;
 import io.metersphere.api.dto.definition.ApiTestCaseRequest;
 import io.metersphere.api.dto.definition.TestPlanApiCaseDTO;
@@ -300,35 +301,44 @@ public class TestPlanService {
     }
 
     private void calcTestPlanRate(List<TestPlanDTOWithMetric> testPlans) {
-        List<String> projectIds = extProjectMapper.getProjectIdByWorkspaceId(SessionUtils.getCurrentWorkspaceId());
-        Map<String, List<TestPlanCaseDTO>> testCaseMap = new HashMap<>();
-        listTestCaseByProjectIds(projectIds).forEach(testCase -> {
-            List<TestPlanCaseDTO> list = testCaseMap.get(testCase.getPlanId());
-            if (list == null) {
-                list = new ArrayList<>();
-                list.add(testCase);
-                testCaseMap.put(testCase.getPlanId(), list);
-            } else {
-                list.add(testCase);
-            }
-        });
         testPlans.forEach(testPlan -> {
-            List<TestPlanCaseDTO> testCases = testCaseMap.get(testPlan.getId());
             testPlan.setTested(0);
             testPlan.setPassed(0);
             testPlan.setTotal(0);
-            if (testCases != null) {
-                testPlan.setTotal(testCases.size());
-                testCases.forEach(testCase -> {
-                    if (!StringUtils.equals(testCase.getStatus(), TestPlanTestCaseStatus.Prepare.name())
-                            && !StringUtils.equals(testCase.getStatus(), TestPlanTestCaseStatus.Underway.name())) {
-                        testPlan.setTested(testPlan.getTested() + 1);
-                        if (StringUtils.equals(testCase.getStatus(), TestPlanTestCaseStatus.Pass.name())) {
-                            testPlan.setPassed(testPlan.getPassed() + 1);
-                        }
+
+            List<String> functionalExecResults = extTestPlanTestCaseMapper.getExecResultByPlanId(testPlan.getId());
+            functionalExecResults.forEach(item -> {
+                if (!StringUtils.equals(item, TestPlanTestCaseStatus.Prepare.name())
+                        && !StringUtils.equals(item, TestPlanTestCaseStatus.Underway.name())) {
+                    testPlan.setTested(testPlan.getTested() + 1);
+                    if (StringUtils.equals(item, TestPlanTestCaseStatus.Pass.name())) {
+                        testPlan.setPassed(testPlan.getPassed() + 1);
                     }
-                });
-            }
+                }
+            });
+
+            List<String> apiExecResults = testPlanApiCaseService.getExecResultByPlanId(testPlan.getId());
+            apiExecResults.forEach(item -> {
+                if (StringUtils.isNotBlank(item)) {
+                    testPlan.setTested(testPlan.getTested() + 1);
+                    if (StringUtils.equals(item, "success")) {
+                        testPlan.setPassed(testPlan.getPassed() + 1);
+                    }
+                }
+            });
+
+            List<String> scenarioExecResults = testPlanScenarioCaseService.getExecResultByPlanId(testPlan.getId());
+            scenarioExecResults.forEach(item -> {
+                if (StringUtils.isNotBlank(item)) {
+                    testPlan.setTested(testPlan.getTested() + 1);
+                    if (StringUtils.equals(item, ScenarioStatus.Success.name())) {
+                        testPlan.setPassed(testPlan.getPassed() + 1);
+                    }
+                }
+            });
+
+            testPlan.setTotal(apiExecResults.size() + scenarioExecResults.size() + functionalExecResults.size());
+
             testPlan.setPassRate(MathUtils.getPercentWithDecimal(testPlan.getTested() == 0 ? 0 : testPlan.getPassed() * 1.0 / testPlan.getTested()));
             testPlan.setTestRate(MathUtils.getPercentWithDecimal(testPlan.getTotal() == 0 ? 0 : testPlan.getTested() * 1.0 / testPlan.getTotal()));
         });

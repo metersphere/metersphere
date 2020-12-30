@@ -19,7 +19,7 @@
             type="selection"/>
           <el-table-column width="40" :resizable="false" align="center">
             <template v-slot:default="scope">
-              <show-more-btn :is-show="scope.row.showMore" :buttons="buttons" :size="selectRows.size"/>
+              <show-more-btn v-tester :is-show="scope.row.showMore" :buttons="buttons" :size="selectRows.size"/>
             </template>
           </el-table-column>
           <el-table-column
@@ -93,7 +93,7 @@ import MsTablePagination from "../../common/pagination/TablePagination";
 import MsContainer from "../../common/components/MsContainer";
 import MsMainContainer from "../../common/components/MsMainContainer";
 import MsPerformanceReportStatus from "./PerformanceReportStatus";
-import {_filter, _sort} from "../../../../common/js/utils";
+import {_filter, _sort, getCurrentProjectID} from "../../../../common/js/utils";
 import MsTableOperatorButton from "../../common/components/MsTableOperatorButton";
 import ReportTriggerModeItem from "../../common/tableItem/ReportTriggerModeItem";
 import {REPORT_CONFIGS} from "../../common/components/search/search-components";
@@ -162,6 +162,9 @@ export default {
     initTableData() {
       if (this.testId !== 'all') {
         this.condition.testId = this.testId;
+      }
+      if (!getCurrentProjectID()) {
+        return;
       }
       this.result = this.$post(this.buildPagePath(this.queryPath), this.condition, response => {
         let data = response.data;

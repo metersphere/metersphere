@@ -41,6 +41,18 @@ public class ApiDefinitionController {
         return PageUtils.setPageInfo(page, apiDefinitionService.list(request));
     }
 
+    @PostMapping("/list/relevance/{goPage}/{pageSize}")
+    public Pager<List<ApiDefinitionResult>> listRelevance(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody ApiDefinitionRequest request) {
+        Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
+        request.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
+        return PageUtils.setPageInfo(page, apiDefinitionService.listRelevance(request));
+    }
+
+    @PostMapping("/list/all")
+    public List<ApiDefinitionResult> list(@RequestBody ApiDefinitionRequest request) {
+        return apiDefinitionService.list(request);
+    }
+
     @PostMapping(value = "/create", consumes = {"multipart/form-data"})
     @RequiresRoles(value = {RoleConstants.TEST_MANAGER, RoleConstants.TEST_USER}, logical = Logical.OR)
     public void create(@RequestPart("request") SaveApiDefinitionRequest request, @RequestPart(value = "files") List<MultipartFile> bodyFiles) {
@@ -67,10 +79,21 @@ public class ApiDefinitionController {
         apiDefinitionService.deleteBatch(ids);
     }
 
+    @PostMapping("/deleteBatchByParams")
+    public void deleteBatchByParams(@RequestBody ApiDefinitionBatchProcessingRequest request) {
+        apiDefinitionService.deleteByParams(request);
+    }
+
     @PostMapping("/removeToGc")
     @RequiresRoles(value = {RoleConstants.TEST_MANAGER, RoleConstants.TEST_USER}, logical = Logical.OR)
     public void removeToGc(@RequestBody List<String> ids) {
         apiDefinitionService.removeToGc(ids);
+    }
+
+    @PostMapping("/removeToGcByParams")
+    @RequiresRoles(value = {RoleConstants.TEST_MANAGER, RoleConstants.TEST_USER}, logical = Logical.OR)
+    public void removeToGcByParams(@RequestBody ApiDefinitionBatchProcessingRequest request) {
+        apiDefinitionService.removeToGcByParams(request);
     }
 
     @PostMapping("/reduction")
@@ -123,6 +146,12 @@ public class ApiDefinitionController {
     @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
     public void editApiBath(@RequestBody ApiBatchRequest request) {
         apiDefinitionService.editApiBath(request);
+    }
+
+    @PostMapping("/batch/editByParams")
+    @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
+    public void editByParams(@RequestBody ApiBatchRequest request) {
+        apiDefinitionService.editApiByParam(request);
     }
 
     @PostMapping("/relevance")

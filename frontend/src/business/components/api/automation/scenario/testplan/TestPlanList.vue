@@ -149,6 +149,7 @@
   import MsDeleteConfirm from "../../../../common/components/MsDeleteConfirm";
   import {TEST_PLAN_CONFIGS} from "../../../../common/components/search/search-components";
   import {LIST_CHANGE, TrackEvent} from "@/business/components/common/head/ListEvent";
+  import {getCurrentProjectID} from "../../../../../../common/js/utils";
 
   export default {
     name: "TestPlanList",
@@ -216,6 +217,10 @@
         }
         if (this.selectNodeIds && this.selectNodeIds.length > 0) {
           this.condition.nodeIds = this.selectNodeIds;
+        }
+        if (!getCurrentProjectID()) {
+          this.$warning(this.$t('commons.check_project_tip'));
+          return;
         }
         this.result = this.$post(this.buildPagePath(this.queryPath), this.condition, response => {
           let data = response.data;

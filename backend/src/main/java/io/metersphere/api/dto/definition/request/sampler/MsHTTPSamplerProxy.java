@@ -13,6 +13,7 @@ import io.metersphere.api.service.ApiTestEnvironmentService;
 import io.metersphere.base.domain.ApiTestEnvironmentWithBLOBs;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.commons.utils.ScriptEngineUtils;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.collections.CollectionUtils;
@@ -114,6 +115,11 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                 config.setConfig(JSONObject.parseObject(environment.getConfig(), EnvironmentConfig.class));
             }
         }
+        // 添加环境中的公共变量
+        Arguments arguments = this.addArguments(config);
+        if (arguments != null) {
+            tree.add(this.addArguments(config));
+        }
         try {
             if (config != null && config.getConfig() != null) {
                 String url = config.getConfig().getHttpConfig().getProtocol() + "://" + config.getConfig().getHttpConfig().getSocket();
@@ -138,7 +144,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                     envPath += this.getPath();
                 }
                 if (CollectionUtils.isNotEmpty(this.getRest()) && this.isRest()) {
-                    envPath = getRestParameters(URLDecoder.decode(envPath, "UTF-8"), config);
+                    envPath = getRestParameters(URLDecoder.decode(envPath, "UTF-8"));
                     sampler.setPath(envPath);
                 }
                 if (CollectionUtils.isNotEmpty(this.getArguments())) {
@@ -153,12 +159,13 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                 sampler.setDomain(URLDecoder.decode(urlObject.getHost(), "UTF-8"));
                 sampler.setPort(urlObject.getPort());
                 sampler.setProtocol(urlObject.getProtocol());
-
+                String envPath = StringUtils.equals(urlObject.getPath(), "/") ? "" : urlObject.getPath();
                 if (CollectionUtils.isNotEmpty(this.getRest()) && this.isRest()) {
-                    sampler.setPath(getRestParameters(URLDecoder.decode(urlObject.getPath(), "UTF-8"), config));
+                    envPath = getRestParameters(URLDecoder.decode(envPath, "UTF-8"));
+                    sampler.setPath(envPath);
                 }
                 if (CollectionUtils.isNotEmpty(this.getArguments())) {
-                    sampler.setPath(getPostQueryParameters(URLDecoder.decode(urlObject.getPath(), "UTF-8")));
+                    sampler.setPath(getPostQueryParameters(URLDecoder.decode(envPath, "UTF-8")));
                 }
             }
         } catch (Exception e) {
@@ -198,20 +205,35 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         }
     }
 
-    private String getRestParameters(String path, ParameterConfig config) {
+    private boolean isVariable(String path, String value) {
+        Pattern p = Pattern.compile("(\\$\\{)([\\w]+)(\\})");
+        Matcher m = p.matcher(path);
+        while (m.find()) {
+            String group = m.group(2);
+            if (group.equals(value)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private String getRestParameters(String path) {
         StringBuffer stringBuffer = new StringBuffer();
         stringBuffer.append(path);
         stringBuffer.append("/");
         Map<String, String> keyValueMap = new HashMap<>();
         this.getRest().stream().filter(KeyValue::isEnable).filter(KeyValue::isValid).forEach(keyValue ->
-                keyValueMap.put(keyValue.getName(), keyValue.getValue())
+                keyValueMap.put(keyValue.getName(), keyValue.getValue() != null && keyValue.getValue().startsWith("@") ?
+                        ScriptEngineUtils.calculate(keyValue.getValue()) : keyValue.getValue())
         );
         try {
             Pattern p = Pattern.compile("(\\{)([\\w]+)(\\})");
             Matcher m = p.matcher(path);
             while (m.find()) {
                 String group = m.group(2);
-                path = path.replace("{" + group + "}", keyValueMap.get(group));
+                if (!isVariable(path, group)) {
+                    path = path.replace("{" + group + "}", keyValueMap.get(group));
+                }
             }
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -224,7 +246,8 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         stringBuffer.append(path);
         stringBuffer.append("?");
         this.getArguments().stream().filter(KeyValue::isEnable).filter(KeyValue::isValid).forEach(keyValue ->
-                stringBuffer.append(keyValue.getName()).append("=").append(keyValue.getValue()).append("&")
+                stringBuffer.append(keyValue.getName()).append("=").append(keyValue.getValue() != null && keyValue.getValue().startsWith("@") ?
+                        ScriptEngineUtils.calculate(keyValue.getValue()) : keyValue.getValue()).append("&")
         );
         return stringBuffer.substring(0, stringBuffer.length() - 1);
     }
@@ -232,7 +255,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
     private Arguments httpArguments(List<KeyValue> list) {
         Arguments arguments = new Arguments();
         list.stream().filter(KeyValue::isValid).filter(KeyValue::isEnable).forEach(keyValue -> {
-                    HTTPArgument httpArgument = new HTTPArgument(keyValue.getName(), keyValue.getValue());
+                    HTTPArgument httpArgument = new HTTPArgument(keyValue.getName(), keyValue.getValue() != null && keyValue.getValue().startsWith("@") ? ScriptEngineUtils.calculate(keyValue.getValue()) : keyValue.getValue());
                     httpArgument.setAlwaysEncoded(keyValue.isEncode());
                     if (StringUtils.isNotBlank(keyValue.getContentType())) {
                         httpArgument.setContentType(keyValue.getContentType());

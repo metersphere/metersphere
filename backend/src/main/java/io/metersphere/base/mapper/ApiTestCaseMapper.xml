@@ -11,6 +11,7 @@
     <result column="update_user_id" jdbcType="VARCHAR" property="updateUserId" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
     <result column="update_time" jdbcType="BIGINT" property="updateTime" />
+    <result column="num" jdbcType="INTEGER" property="num" />
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.ApiTestCaseWithBLOBs">
     <result column="description" jdbcType="LONGVARCHAR" property="description" />
@@ -77,7 +78,7 @@
   </sql>
   <sql id="Base_Column_List">
     id, project_id, `name`, priority, api_definition_id, create_user_id, update_user_id, 
-    create_time, update_time
+    create_time, update_time, num
   </sql>
   <sql id="Blob_Column_List">
     description, request, response
@@ -134,13 +135,13 @@
     insert into api_test_case (id, project_id, `name`, 
       priority, api_definition_id, create_user_id, 
       update_user_id, create_time, update_time, 
-      description, request, response
-      )
+      num, description, request, 
+      response)
     values (#{id,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, 
       #{priority,jdbcType=VARCHAR}, #{apiDefinitionId,jdbcType=VARCHAR}, #{createUserId,jdbcType=VARCHAR}, 
       #{updateUserId,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, 
-      #{description,jdbcType=LONGVARCHAR}, #{request,jdbcType=LONGVARCHAR}, #{response,jdbcType=LONGVARCHAR}
-      )
+      #{num,jdbcType=INTEGER}, #{description,jdbcType=LONGVARCHAR}, #{request,jdbcType=LONGVARCHAR}, 
+      #{response,jdbcType=LONGVARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.ApiTestCaseWithBLOBs">
     insert into api_test_case
@@ -171,6 +172,9 @@
       </if>
       <if test="updateTime != null">
         update_time,
+      </if>
+      <if test="num != null">
+        num,
       </if>
       <if test="description != null">
         description,
@@ -209,6 +213,9 @@
       </if>
       <if test="updateTime != null">
         #{updateTime,jdbcType=BIGINT},
+      </if>
+      <if test="num != null">
+        #{num,jdbcType=INTEGER},
       </if>
       <if test="description != null">
         #{description,jdbcType=LONGVARCHAR},
@@ -257,6 +264,9 @@
       <if test="record.updateTime != null">
         update_time = #{record.updateTime,jdbcType=BIGINT},
       </if>
+      <if test="record.num != null">
+        num = #{record.num,jdbcType=INTEGER},
+      </if>
       <if test="record.description != null">
         description = #{record.description,jdbcType=LONGVARCHAR},
       </if>
@@ -282,6 +292,7 @@
       update_user_id = #{record.updateUserId,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
       update_time = #{record.updateTime,jdbcType=BIGINT},
+      num = #{record.num,jdbcType=INTEGER},
       description = #{record.description,jdbcType=LONGVARCHAR},
       request = #{record.request,jdbcType=LONGVARCHAR},
       response = #{record.response,jdbcType=LONGVARCHAR}
@@ -299,7 +310,8 @@
       create_user_id = #{record.createUserId,jdbcType=VARCHAR},
       update_user_id = #{record.updateUserId,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
-      update_time = #{record.updateTime,jdbcType=BIGINT}
+      update_time = #{record.updateTime,jdbcType=BIGINT},
+      num = #{record.num,jdbcType=INTEGER}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -331,6 +343,9 @@
       <if test="updateTime != null">
         update_time = #{updateTime,jdbcType=BIGINT},
       </if>
+      <if test="num != null">
+        num = #{num,jdbcType=INTEGER},
+      </if>
       <if test="description != null">
         description = #{description,jdbcType=LONGVARCHAR},
       </if>
@@ -353,6 +368,7 @@
       update_user_id = #{updateUserId,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
       update_time = #{updateTime,jdbcType=BIGINT},
+      num = #{num,jdbcType=INTEGER},
       description = #{description,jdbcType=LONGVARCHAR},
       request = #{request,jdbcType=LONGVARCHAR},
       response = #{response,jdbcType=LONGVARCHAR}
@@ -367,7 +383,8 @@
       create_user_id = #{createUserId,jdbcType=VARCHAR},
       update_user_id = #{updateUserId,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
-      update_time = #{updateTime,jdbcType=BIGINT}
+      update_time = #{updateTime,jdbcType=BIGINT},
+      num = #{num,jdbcType=INTEGER}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

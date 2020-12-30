@@ -126,6 +126,7 @@ export default {
     modifier: 'Modifier',
     validate: "Validate",
     batch_add: "Batch add",
+    check_project_tip: "Create or select the project first",
     date: {
       select_date: 'Select date',
       start_date: 'Start date',
@@ -371,9 +372,9 @@ export default {
     test_error_log: 'Test Error Log',
     test_log_details: 'Test Log Details',
     test_details: 'Test Details',
-    test_duration: 'Test Duration：{0} minutes {1} seconds',
-    test_start_time: 'Test Start Time',
-    test_end_time: 'Test End Time',
+    test_duration: 'Current Execution Time：{0} minutes {1} seconds',
+    test_start_time: 'Start Execution Time',
+    test_end_time: 'Plan End Time',
     test_stop_now: 'Test Stop Now',
     test_stop_now_confirm: 'Are you sure you want to stop the current test immediately?',
     test_rerun_confirm: 'Are you sure you want to rerun the current test immediately?',
@@ -487,6 +488,10 @@ export default {
       delete_tip: "The deletion takes effect after the service is restarted",
       file_exist: "The name already exists in the project",
       upload_limit_size: "Upload file size cannot exceed 30MB!",
+    },
+    batch_menus:{
+      select_all_data: "Select all datas({0})",
+      select_show_data: "Select show datas({0})",
     },
     definition: {
       api_title: "Api test",

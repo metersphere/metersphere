@@ -1,64 +1,56 @@
 <template>
-  <el-dialog class="api-relevance" :title="'接口导入'"
-             :visible.sync="dialogVisible"
-             width="60%"
-             :close-on-click-modal="false"
-             top="50px">
+  <relevance-dialog :title="'接口导入'" ref="relevanceDialog">
 
-    <ms-container>
-      <ms-aside-container :enable-aside-hidden="false">
-        <ms-api-module
-          @nodeSelectEvent="nodeChange"
-          @protocolChange="handleProtocolChange"
-          @refreshTable="refresh"
-          @setModuleOptions="setModuleOptions"
-          :is-read-only="true"
-          ref="nodeTree"/>
-      </ms-aside-container>
+    <template v-slot:aside>
+      <ms-api-module
+        @nodeSelectEvent="nodeChange"
+        @protocolChange="handleProtocolChange"
+        @refreshTable="refresh"
+        @setModuleOptions="setModuleOptions"
+        :is-read-only="true"
+        ref="nodeTree"/>
+    </template>
 
-      <ms-main-container>
-        <scenario-relevance-api-list
-          v-if="isApiListEnable"
-          :current-protocol="currentProtocol"
-          :select-node-ids="selectNodeIds"
-          :is-api-list-enable="isApiListEnable"
-          @isApiListEnableChange="isApiListEnableChange"
-          ref="apiList"
-        />
+    <scenario-relevance-api-list
+      v-if="isApiListEnable"
+      :current-protocol="currentProtocol"
+      :select-node-ids="selectNodeIds"
+      :is-api-list-enable="isApiListEnable"
+      @isApiListEnableChange="isApiListEnableChange"
+      ref="apiList"/>
 
-        <scenario-relevance-case-list
-          v-if="!isApiListEnable"
-          :current-protocol="currentProtocol"
-          :select-node-ids="selectNodeIds"
-          :is-api-list-enable="isApiListEnable"
-          @isApiListEnableChange="isApiListEnableChange"
-          ref="apiCaseList"/>
-      </ms-main-container>
-    </ms-container>
+    <scenario-relevance-case-list
+      v-if="!isApiListEnable"
+      :current-protocol="currentProtocol"
+      :select-node-ids="selectNodeIds"
+      :is-api-list-enable="isApiListEnable"
+      @isApiListEnableChange="isApiListEnableChange"
+      ref="apiCaseList"/>
 
     <template v-slot:footer>
       <el-button type="primary" @click="copy" @keydown.enter.native.prevent>复制</el-button>
       <el-button v-if="!isApiListEnable" type="primary" @click="reference" @keydown.enter.native.prevent>引用</el-button>
     </template>
 
-  </el-dialog>
+  </relevance-dialog>
 </template>
 
 <script>
-    import ScenarioRelevanceCaseList from "./ScenarioRelevanceCaseList";
+    import ScenarioRelevanceCaseList from "./RelevanceCaseList";
     import MsApiModule from "../../../definition/components/module/ApiModule";
     import MsContainer from "../../../../common/components/MsContainer";
     import MsAsideContainer from "../../../../common/components/MsAsideContainer";
     import MsMainContainer from "../../../../common/components/MsMainContainer";
-    import ScenarioRelevanceApiList from "./ScenarioRelevanceApiList";
+    import ScenarioRelevanceApiList from "./RelevanceApiList";
+    import RelevanceDialog from "../../../../track/plan/view/comonents/base/RelevanceDialog";
     export default {
-      name: "ScenarioApiRelevance",
+      name: "ApiRelevance",
       components: {
+        RelevanceDialog,
         ScenarioRelevanceApiList,
         MsMainContainer, MsAsideContainer, MsContainer, MsApiModule, ScenarioRelevanceCaseList},
       data() {
           return {
-            dialogVisible: false,
             result: {},
             currentProtocol: null,
             selectNodeIds: [],
@@ -91,10 +83,10 @@
         },
         close() {
           this.refresh();
-          this.dialogVisible = false;
+          this.$refs.relevanceDialog.close();
         },
         open() {
-          this.dialogVisible = true;
+          this.$refs.relevanceDialog.open();
         },
         isApiListEnableChange(data) {
           this.isApiListEnable = data;
@@ -120,13 +112,4 @@
 </script>
 
 <style scoped>
-
-  .ms-aside-container {
-    border: 0px;
-  }
-
-  .api-relevance >>> .el-dialog__body {
-    padding: 10px 20px;
-  }
-
 </style>

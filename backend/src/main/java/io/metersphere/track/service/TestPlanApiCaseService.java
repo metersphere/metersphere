@@ -11,6 +11,7 @@ import io.metersphere.base.mapper.TestPlanApiCaseMapper;
 import io.metersphere.base.mapper.ext.ExtTestPlanApiCaseMapper;
 import io.metersphere.commons.utils.ServiceUtils;
 import io.metersphere.track.request.testcase.TestPlanApiCaseBatchRequest;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -29,6 +30,7 @@ public class TestPlanApiCaseService {
     ApiTestCaseService apiTestCaseService;
     @Resource
     ExtTestPlanApiCaseMapper extTestPlanApiCaseMapper;
+    @Lazy
     @Resource
     ApiDefinitionExecResultService apiDefinitionExecResultService;
 
@@ -41,6 +43,10 @@ public class TestPlanApiCaseService {
         }
         apiTestCaseService.buildUserInfo(apiTestCases);
         return apiTestCases;
+    }
+
+    public List<String> getExecResultByPlanId(String plan) {
+        return extTestPlanApiCaseMapper.getExecResultByPlanId(plan);
     }
 
     public List<ApiTestCaseDTO> relevanceList(ApiTestCaseRequest request) {
@@ -77,5 +83,12 @@ public class TestPlanApiCaseService {
         TestPlanApiCaseExample example = new TestPlanApiCaseExample();
         example.createCriteria().andTestPlanIdEqualTo(planId);
         return testPlanApiCaseMapper.selectByExample(example);
+    }
+
+    public void setExecResult(String id, String status) {
+        TestPlanApiCase apiCase = new TestPlanApiCase();
+        apiCase.setId(id);
+        apiCase.setStatus(status);
+        testPlanApiCaseMapper.updateByPrimaryKeySelective(apiCase);
     }
 }

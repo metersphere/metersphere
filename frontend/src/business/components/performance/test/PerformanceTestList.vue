@@ -84,6 +84,7 @@ import {_filter, _sort} from "@/common/js/utils";
 import MsTableHeader from "../../common/components/MsTableHeader";
 import {TEST_CONFIGS} from "../../common/components/search/search-components";
 import {LIST_CHANGE, PerformanceEvent} from "@/business/components/common/head/ListEvent";
+import {getCurrentProjectID} from "../../../../common/js/utils";
 
 export default {
   components: {
@@ -147,8 +148,10 @@ export default {
     initTableData() {
       if (this.projectId !== 'all') {
         this.condition.projectId = this.projectId;
+        if (!this.condition.projectId) {
+          return;
+        }
       }
-
       this.result = this.$post(this.buildPagePath(this.queryPath), this.condition, response => {
         let data = response.data;
         this.total = data.itemCount;
@@ -211,6 +214,10 @@ export default {
       })
     },
     create() {
+      if (!getCurrentProjectID()) {
+        this.$warning(this.$t('commons.check_project_tip'));
+        return;
+      }
       this.$router.push('/performance/test/create');
     }
   }

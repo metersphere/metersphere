@@ -4,6 +4,7 @@ import io.metersphere.api.dto.datacount.ApiDataCountResult;
 import io.metersphere.api.dto.definition.ApiComputeResult;
 import io.metersphere.api.dto.definition.ApiDefinitionRequest;
 import io.metersphere.api.dto.definition.ApiDefinitionResult;
+import io.metersphere.base.domain.ApiDefinition;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -25,4 +26,8 @@ public interface ExtApiDefinitionMapper {
     List<ApiDataCountResult> countStateByProjectID(String projectId);
 
     List<ApiDataCountResult> countApiCoverageByProjectID(String projectId);
+
+    ApiDefinition getNextNum(@Param("projectId") String projectId);
+
+    List<ApiDefinitionResult> listRelevance(@Param("request")ApiDefinitionRequest request);
 }

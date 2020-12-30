@@ -20,11 +20,20 @@
           <div>
             <el-select size="small" :placeholder="$t('api_test.definition.request.grade_info')" v-model="condition.priority"
                        :disabled="isCaseEdit"
-                       class="ms-api-header-select" @change="getApiTest" clearable style="margin-right: 20px">
+                       class="ms-api-header-select" @change="getApiTest" clearable>
               <el-option v-for="grd in priorities" :key="grd.id" :label="grd.name" :value="grd.id"/>
             </el-select>
           </div>
         </el-col>
+
+        <el-col :span="3">
+          <div class="ms-api-header-select" style="margin-right: 20px">
+            <el-input size="small" :placeholder="$t('api_test.definition.request.select_case')"
+                      :disabled="isCaseEdit"
+                      v-model="condition.name" @blur="getApiTest" @keyup.enter.native="getApiTest" />
+          </div>
+        </el-col>
+
         <el-col :span="4">
           <div>
             <ms-environment-select
@@ -33,13 +42,7 @@
               @setEnvironment="setEnvironment"/>
           </div>
         </el-col>
-        <el-col :span="3">
-          <div class="ms-api-header-select">
-            <el-input size="small" :placeholder="$t('api_test.definition.request.select_case')"
-                      :disabled="isCaseEdit"
-                      v-model="condition.name" @blur="getApiTest" @keyup.enter.native="getApiTest"/>
-          </div>
-        </el-col>
+
         <el-col :span="2" v-if="!(isReadOnly || isCaseEdit)">
           <el-dropdown size="small" split-button type="primary" class="ms-api-header-select" @click="addCase"
                        @command="handleCommand" v-tester>
@@ -56,17 +59,17 @@
 
 <script>
 
-    import ApiEnvironmentConfig from "../../../test/components/ApiEnvironmentConfig";
-    import {parseEnvironment} from "../../../test/model/EnvironmentModel";
-    import MsTag from "../../../../common/components/MsTag";
-    import MsEnvironmentSelect from "./MsEnvironmentSelect";
-    import {API_METHOD_COLOUR} from "../../model/JsonData";
+  import ApiEnvironmentConfig from "../../../test/components/ApiEnvironmentConfig";
+  import {parseEnvironment} from "../../../test/model/EnvironmentModel";
+  import MsTag from "../../../../common/components/MsTag";
+  import MsEnvironmentSelect from "./MsEnvironmentSelect";
+  import {API_METHOD_COLOUR} from "../../model/JsonData";
 
-    export default {
-      name: "ApiCaseHeader",
-      components: {MsEnvironmentSelect, MsTag, ApiEnvironmentConfig},
-      data() {
-        return {
+  export default {
+    name: "ApiCaseHeader",
+    components: {MsEnvironmentSelect, MsTag, ApiEnvironmentConfig},
+    data() {
+      return {
         environments: [],
         environment: {},
         methodColorMap: new Map(API_METHOD_COLOUR),
@@ -170,7 +173,6 @@
     white-space: nowrap;
     font-size: 10px;
   }
-
 
   .el-col {
     height: 32px;

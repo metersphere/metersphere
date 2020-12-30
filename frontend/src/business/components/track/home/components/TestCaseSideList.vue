@@ -61,6 +61,7 @@
   import StatusTableItem from "../../common/tableItems/planview/StatusTableItem";
   import TypeTableItem from "../../common/tableItems/planview/TypeTableItem";
   import PriorityTableItem from "../../common/tableItems/planview/PriorityTableItem";
+  import {getCurrentProjectID} from "../../../../../common/js/utils";
   export default {
     name: "TestCaseSideList",
     components: {PriorityTableItem, TypeTableItem, StatusTableItem, HomeBaseComponent},
@@ -80,6 +81,9 @@
     },
     methods: {
       initTableData() {
+        if (!getCurrentProjectID()) {
+          return;
+        }
         this.result = this.$post('/test/plan/case/recent/10', {}, response => {
           this.tableData = response.data;
         });

@@ -118,12 +118,12 @@
     display: inline-block;
   }
 
-  .ms-main-container {
-    height: calc(100vh - 80px - 50px);
+  /deep/ .ms-main-container {
+    height: calc(100vh - 80px - 53px);
   }
 
-  .ms-aside-container {
-    height: calc(100vh - 80px - 51px);
+  /deep/ .ms-aside-container {
+    height: calc(100vh - 80px - 53px);
     margin-top: 1px;
   }
 
@@ -132,5 +132,6 @@
     line-height: 50px;
     color: dimgray;
   }
+
 
 </style>

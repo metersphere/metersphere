@@ -8,6 +8,7 @@ import io.metersphere.api.dto.definition.SaveApiTestCaseRequest;
 import io.metersphere.api.dto.ApiCaseBatchRequest;
 import io.metersphere.api.dto.definition.ApiTestCaseDTO;
 import io.metersphere.base.domain.*;
+import io.metersphere.base.mapper.ApiDefinitionMapper;
 import io.metersphere.base.mapper.ApiTestCaseMapper;
 import io.metersphere.base.mapper.ApiTestFileMapper;
 import io.metersphere.base.mapper.ext.ExtApiDefinitionExecResultMapper;
@@ -54,6 +55,8 @@ public class ApiTestCaseService {
     private FileService fileService;
     @Resource
     private ExtApiDefinitionExecResultMapper extApiDefinitionExecResultMapper;
+    @Resource
+    private ApiDefinitionMapper apiDefinitionMapper;
 
     private static final String BODY_FILE_DIR = "/opt/metersphere/data/body";
 
@@ -218,8 +221,20 @@ public class ApiTestCaseService {
         test.setPriority(request.getPriority());
         test.setUpdateTime(System.currentTimeMillis());
         test.setDescription(request.getDescription());
+        test.setNum(getNextNum(request.getApiDefinitionId()));
         apiTestCaseMapper.insert(test);
         return test;
+    }
+
+    private int getNextNum(String definitionId) {
+        ApiTestCase apiTestCase = extApiTestCaseMapper.getNextNum(definitionId);
+        if (apiTestCase == null) {
+            int n = apiDefinitionMapper.selectByPrimaryKey(definitionId).getNum();
+            return n * 1000 + 1;
+        } else {
+            return Optional.of(apiTestCase.getNum() + 1)
+                    .orElse(apiDefinitionMapper.selectByPrimaryKey(definitionId).getNum() * 1000 + 1);
+        }
     }
 
     private void saveFile(String testId, MultipartFile file) {

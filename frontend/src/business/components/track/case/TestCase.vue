@@ -51,7 +51,7 @@ import TestCaseMove from "./components/TestCaseMove";
 import MsContainer from "../../common/components/MsContainer";
 import MsAsideContainer from "../../common/components/MsAsideContainer";
 import MsMainContainer from "../../common/components/MsMainContainer";
-import {checkoutTestManagerOrTestUser, hasRoles} from "../../../../common/js/utils";
+import {checkoutTestManagerOrTestUser, getCurrentProjectID, hasRoles} from "../../../../common/js/utils";
 import BatchMove from "./components/BatchMove";
 import TestCaseNodeTree from "../common/TestCaseNodeTree";
 
@@ -94,6 +94,10 @@ export default {
           this.testCaseReadOnly = true;
         }
         let caseId = this.$route.params.caseId;
+        if (!getCurrentProjectID()) {
+          this.$warning(this.$t('commons.check_project_tip'));
+          return;
+        }
         this.openRecentTestCaseEditDialog(caseId);
         this.$router.push('/track/case/all');
       }

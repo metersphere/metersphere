@@ -24,6 +24,7 @@
 
 <script>
 import SearchList from "@/business/components/common/head/SearchList";
+import {PROJECT_NAME} from "../../../../common/js/constants";
 
 export default {
   name: "ProjectSwitch",
@@ -31,6 +32,11 @@ export default {
     projectName: String
   },
   components: {SearchList},
+  watch: {
+    currentProject() {
+      localStorage.setItem(PROJECT_NAME, this.currentProject);
+    }
+  },
   data() {
     return {
       currentProject: this.projectName
