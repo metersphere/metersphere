@@ -503,6 +503,10 @@ export default {
       api_case_status: "用例狀態",
       api_case_passing_rate: "用例通過率",
       create_tip: "註: 詳細的接口信息可以在編輯頁面填寫",
+      select_comp:{
+        no_data:"無數據",
+        add_data:"去添加"
+      },
       request: {
         grade_info: "按等級筛选",
         run_env: "運行環境",
