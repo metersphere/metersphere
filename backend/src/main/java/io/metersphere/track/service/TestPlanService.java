@@ -213,6 +213,8 @@ public class TestPlanService {
 
             // 关联的项目下的用例idList
             List<String> caseIds = null;
+            // 测试计划所属项目下的用例不解除关联
+            projectIds.add(testPlan.getProjectId());
             if (!CollectionUtils.isEmpty(projectIds)) {
                 TestCaseExample example = new TestCaseExample();
                 example.createCriteria().andProjectIdIn(projectIds);
@@ -220,7 +222,7 @@ public class TestPlanService {
                 caseIds = caseList.stream().map(TestCase::getId).collect(Collectors.toList());
             }
 
-            // 取消关联所属项目下的用例和计划的关系
+            // 取消关联项目下的用例和计划的关系
             TestPlanTestCaseExample testPlanTestCaseExample = new TestPlanTestCaseExample();
             TestPlanTestCaseExample.Criteria criteria = testPlanTestCaseExample.createCriteria().andPlanIdEqualTo(testPlan.getId());
             if (!CollectionUtils.isEmpty(caseIds)) {
