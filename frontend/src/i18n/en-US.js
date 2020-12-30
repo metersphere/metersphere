@@ -505,6 +505,10 @@ export default {
       api_case_status: "Ise case status",
       api_case_passing_rate: "Use case pass rate",
       create_tip: "Note: Detailed interface information can be filled out on the edit page",
+      select_comp:{
+        no_data:"No Data",
+        add_data:"Add Data"
+      },
       request: {
         grade_info: "Filter by rank",
         run_env: "Operating environment",

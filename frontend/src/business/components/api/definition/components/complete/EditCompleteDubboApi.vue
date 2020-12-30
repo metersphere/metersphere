@@ -16,7 +16,7 @@
     <br/>
     <el-row>
       <el-col>
-        <ms-basis-api :moduleOptions="moduleOptions" :basisData="basisData" ref="basicForm" @callback="callback"/>
+        <ms-basis-api @createRootModelInTree="createRootModelInTree" :moduleOptions="moduleOptions" :basisData="basisData" ref="basicForm" @callback="callback"/>
       </el-col>
     </el-row>
 
@@ -71,7 +71,10 @@
           this.basisData.request = this.request;
           this.$emit('runTest', this.basisData);
         }
-      }
+      },
+      createRootModelInTree(){
+        this.$emit("createRootModelInTree");
+      },
     },
 
     computed: {}

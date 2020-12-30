@@ -176,6 +176,13 @@
           this.$emit("nodeSelectEvent", node, nodeIds, pNodes);
         }
       },
+      //创建根目录的模块---供父类使用
+      createRootModel(){
+        let dataArr = this.$refs.nodeTree.extendTreeNodes;
+        if(dataArr.length>0){
+          this.$refs.nodeTree.append({},dataArr[0]);
+        }
+      },
       exportAPI() {
         this.$emit('exportAPI');
       },

@@ -63,7 +63,7 @@
 
           <!-- 添加/编辑测试窗口-->
           <div v-else-if="item.type=== 'ADD'" class="ms-api-div">
-            <ms-api-config @runTest="runTest" @saveApi="saveApi" ref="apiConfig"
+            <ms-api-config @runTest="runTest" @saveApi="saveApi" @createRootModel="createRootModel" ref="apiConfig"
                            :current-api="item.api"
                            :currentProtocol="currentProtocol"
                            :moduleOptions="moduleOptions"/>
@@ -214,6 +214,10 @@
         this.apiDefaultTab = activeName;
         this.apiTabs = tabs.filter(tab => tab.name !== targetName);
         this.refresh();
+      },
+      //创建左侧树的根目录模块
+      createRootModel(){
+        this.$refs.nodeTree.createRootModel();
       },
       handleTabsEdit(targetName, action, api) {
         if (!getCurrentProjectID()) {
