@@ -98,9 +98,9 @@
 
     <select id="list" resultType="io.metersphere.track.dto.TestPlanDTOWithMetric"
             parameterType="io.metersphere.track.request.testcase.QueryTestPlanRequest">
-        select DISTINCT test_plan.*, user.name as user_name from test_plan
+        select DISTINCT test_plan.*, user.name as user_name, project.name as projectName from test_plan
         LEFT JOIN user ON user.id = test_plan.principal
-        JOIN test_plan_project on test_plan.id = test_plan_project.test_plan_id JOIN project on project.id = test_plan_project.project_id
+        JOIN project on project.id = test_plan.project_id
         <where>
             <if test="request.combine != null">
                 <include refid="combine">
@@ -115,7 +115,7 @@
                 AND test_plan.workspace_id = #{request.workspaceId}
             </if>
             <if test="request.projectId != null">
-                AND test_plan_project.project_id = #{request.projectId}
+                AND test_plan.project_id = #{request.projectId}
             </if>
             <if test="request.id != null">
                 AND test_plan.id = #{request.id}
@@ -190,7 +190,8 @@
     </select>
 
     <select id="checkIsHave" resultType="int">
-        SELECT COUNT(1)
+        select sum(c) from (
+        SELECT COUNT(1) as c
         FROM test_plan_project, project
         WHERE project_id = project.id AND test_plan_id = #{planId}
         <if test="workspaceIds != null and workspaceIds.size() > 0">
@@ -199,6 +200,15 @@
                 #{id}
             </foreach>
         </if>
+        union
+        select count(1) as c from test_plan, project
+        WHERE project_id = project.id AND test_plan.id = #{planId}
+        <if test="workspaceIds != null and workspaceIds.size() > 0">
+            AND project.workspace_id IN
+            <foreach collection="workspaceIds" item="id" separator="," open="(" close=")">
+                #{id}
+            </foreach>
+        </if>) as temp
     </select>
 
     <select id="selectTestPlanByRelevancy" resultMap="BaseResultMap" parameterType="io.metersphere.track.request.testcase.QueryTestPlanRequest">
