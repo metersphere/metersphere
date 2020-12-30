@@ -70,6 +70,30 @@ public abstract class ApiImportAbstractParser implements ApiImportParser {
         }
     }
 
+    protected String getBodyType(String contentType) {
+        String bodyType = "";
+        switch (contentType) {
+            case "application/x-www-form-urlencoded":
+                bodyType = Body.WWW_FROM;
+                break;
+            case "multipart/form-data":
+                bodyType = Body.FORM_DATA;
+                break;
+            case "application/json":
+                bodyType = Body.JSON;
+                break;
+            case "application/xml":
+                bodyType = Body.XML;
+                break;
+            case "application/octet-stream":
+                bodyType = Body.BINARY;
+                break;
+            default:
+                bodyType = Body.RAW;
+        }
+        return bodyType;
+    }
+
     protected ApiDefinitionResult buildApiDefinition(String id, String name, String path, String method) {
         ApiDefinitionResult apiDefinition = new ApiDefinitionResult();
         apiDefinition.setName(name);
@@ -150,17 +174,4 @@ public abstract class ApiImportAbstractParser implements ApiImportParser {
             headers.add(new KeyValue(key, value, description));
         }
     }
-//    protected void addHeader(HttpRequest request, String key, String value) {
-//        List<KeyValue> headers = Optional.ofNullable(request.getHeaders()).orElse(new ArrayList<>());
-//        boolean hasContentType = false;
-//        for (KeyValue header : headers) {
-//            if (StringUtils.equalsIgnoreCase(header.getName(), key)) {
-//                hasContentType = true;
-//            }
-//        }
-//        if (!hasContentType) {
-//            headers.save(new KeyValue(key, value));
-//        }
-//        request.setHeaders(headers);
-//    }
 }

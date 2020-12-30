@@ -32,11 +32,19 @@ public class Swagger2Parser extends ApiImportAbstractParser {
     @Override
     public ApiDefinitionImport parse(InputStream source, ApiTestImportRequest request) {
         Swagger swagger;
+        String sourceStr = "";
         if (StringUtils.isNotBlank(request.getSwaggerUrl())) {
             swagger = new SwaggerParser().read(request.getSwaggerUrl());
         } else {
-            swagger = new SwaggerParser().readWithInfo(getApiTestStr(source)).getSwagger();
+            sourceStr = getApiTestStr(source);
+            swagger = new SwaggerParser().readWithInfo(sourceStr).getSwagger();
         }
+
+        if (swagger == null || swagger.getSwagger() == null) {
+            Swagger3Parser swagger3Parser = new Swagger3Parser();
+            return swagger3Parser.parse(sourceStr, request);
+        }
+
         ApiDefinitionImport definitionImport = new ApiDefinitionImport();
         this.projectId = request.getProjectId();
         definitionImport.setData(parseRequests(swagger, request.isSaved()));
@@ -144,27 +152,7 @@ public class Swagger2Parser extends ApiImportAbstractParser {
             return Body.RAW;
         }
         String contentType = operation.getConsumes().get(0);
-        String bodyType = "";
-        switch (contentType) {
-            case "application/x-www-form-urlencoded":
-                bodyType = Body.WWW_FROM;
-                break;
-            case "multipart/form-data":
-                bodyType = Body.FORM_DATA;
-                break;
-            case "application/json":
-                bodyType = Body.JSON;
-                break;
-            case "application/xml":
-                bodyType = Body.XML;
-                break;
-            case "":
-                bodyType = Body.BINARY;
-                break;
-            default:
-                bodyType = Body.RAW;
-        }
-        return bodyType;
+        return getBodyType(contentType);
     }
 
     private void parsePathParameters(Parameter parameter, List<KeyValue> rests) {
