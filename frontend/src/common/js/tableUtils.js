@@ -29,12 +29,7 @@ export function _handleSelect(component, selection, row, selectRows) {
     selectRows.add(row);
   }
   let arr = Array.from(selectRows);
-  // 选中1个以上的用例时显示更多操作
-  if (selectRows.size === 1) {
-    component.$set(arr[0], "showMore", false);
-  } else if (selectRows.size === 2) {
-    arr.forEach(row => {
-      component.$set(row, "showMore", true);
-    })
-  }
+  arr.forEach(row => {
+    component.$set(row, "showMore", true);
+  })
 }

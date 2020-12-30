@@ -162,18 +162,6 @@
           this.moduleOptions = data;
         },
 
-        saveCaseRelevance() {
-          let url = '';
-          let selectIds = [];
-          let param = {};
-          param.planId = this.planId;
-          param.selectIds = selectIds;
-          this.result = this.$post(url, param, () => {
-            this.$success(this.$t('commons.save_success'));
-            this.refresh();
-            this.$refs.baseRelevance.close();
-          });
-        },
         openTestCaseRelevanceDialog(model) {
           if (model === 'scenario') {
             this.$refs.scenarioCaseRelevance.open();
@@ -192,6 +180,11 @@
     height: 25px;
     line-height: 25px;
     margin: 5px 10px;
+  }
+
+  /deep/ .run-button {
+    background-color: #409EFF;
+    border-color: #409EFF;
   }
 
 </style>

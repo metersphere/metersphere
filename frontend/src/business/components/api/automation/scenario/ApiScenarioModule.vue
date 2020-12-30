@@ -15,10 +15,9 @@
       ref="nodeTree">
 
       <template v-slot:header>
-        <el-input class="module-input" :placeholder="$t('test_track.module.search')" v-model="condition.filterText"
-                  size="small">
+        <el-input :placeholder="$t('test_track.module.search')" v-model="condition.filterText" size="small">
           <template v-slot:append>
-            <el-button icon="el-icon-folder-add" @click="addScenario" v-tester/>
+            <el-button v-if="!isReadOnly" icon="el-icon-folder-add" @click="addScenario" v-tester/>
           </template>
         </el-input>
         <module-trash-button v-if="!isReadOnly" :condition="condition" :exe="enableTrash"/>
@@ -247,7 +246,4 @@
     width: 30px;
   }
 
-  .module-input {
-    width: 275px;
-  }
 </style>
