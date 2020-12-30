@@ -1,0 +1,149 @@
+.json-schema-vue-editor {
+  cursor: pointer;
+  .el-input--medium {
+    height: 36px;
+  }
+  .el-input.is-disabled {
+    background-color: #f5f7fa;
+    border-color: #dfe4ed;
+    color: #c0c4cc;
+    cursor: not-allowed;
+  }
+  .hidden {
+    display: none;
+  }
+}
+.json-schema-vue-editor .option-formStyle {
+  /* padding-left: 25px; */
+  padding-top: 8px;
+}
+
+.json-schema-vue-editor .required-icon {
+  font-size: 1em;
+  color: red;
+  font-weight: bold;
+  padding-left: 5px;
+}
+
+.json-schema-vue-editor .object-style {
+  /* border-left: 2px dotted gray; */
+  /* padding-left: 8px; */
+  padding-top: 6px;
+  /* margin-left: 20px; */
+  margin-top: 8px;
+}
+
+.json-schema-vue-editor .col-item-type {
+  text-align: center;
+}
+
+.json-schema-vue-editor .down-style {
+  cursor: pointer;
+}
+
+.json-schema-vue-editor .col-item-desc {
+  text-align: center;
+}
+
+.json-schema-vue-editor .col-item-mock {
+  text-align: center;
+  padding-right: 6px;
+}
+
+.json-schema-vue-editor .col-item-setting {
+  padding-left: 6px;
+  cursor: pointer;
+}
+
+.json-schema-vue-editor .plus {
+  color: #2395f1;
+}
+
+.json-schema-vue-editor .close {
+  color: #ff561b;
+}
+
+.json-schema-vue-editor .array-type {
+  margin-top: 8px;
+}
+
+.json-schema-vue-editor .delete-item {
+  padding-right: 8px;
+}
+
+.json-schema-vue-editor .object-style .name-item .ant-input-group-addon {
+  background-color: unset;
+  border: unset;
+}
+
+.json-schema-vue-editor
+  .object-style
+  .name-item
+  .ant-input-group
+  > .ant-input:first-child,
+.ant-input-group-addon:first-child {
+  border-bottom-right-radius: 4px;
+  border-top-right-radius: 4px;
+}
+
+.json-schema-vue-editor .icon-object {
+  color: #0d1b3ea6;
+  font-weight: 400;
+  font-size: 12px;
+}
+
+.json-schema-vue-editor .down-style-col {
+  width: 10px;
+}
+
+.json-schema-vue-editor .wrapper {
+  padding-left: 8px;
+}
+
+/* .schema-content {
+  margin-left: 20px;
+} */
+
+.json-schema-vue-editor .adv-set {
+  padding-right: 8px;
+  color: #00a854;
+}
+
+.json-schema-vue-editor .type-select-style {
+  width: 90%;
+}
+
+.json-schema-vue-editor-import-modal .ant-tabs-nav .ant-tabs-tab {
+  height: auto;
+}
+
+.json-schema-vue-editor-adv-modal .other-row {
+  margin-bottom: 16px;
+}
+
+.json-schema-vue-editor-adv-modal .other-label {
+  text-align: right;
+  padding-right: 8px;
+}
+
+.json-schema-vue-editor-adv-modal .default-setting {
+  font-size: 16px;
+  font-weight: 400;
+  margin-bottom: 16px;
+  border-left: 3px solid #2395f1;
+  padding-left: 8px;
+}
+
+.json-schema-vue-editor-adv-modal .ant-modal-body {
+  min-height: 400px;
+}
+
+.json-schema-vue-editor-adv-modal .ant-modal-body .ace_editor {
+  min-height: 350px;
+}
+
+.json-schema-vue-editor-adv-modal-select .format-items-title {
+  color: #999;
+  position: absolute;
+  right: 16px;
+}
