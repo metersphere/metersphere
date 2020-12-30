@@ -164,11 +164,10 @@
 
     <select id="listRelate" resultType="io.metersphere.track.dto.TestPlanDTOWithMetric">
         select distinct test_plan.* from test_plan
-        inner join test_plan_project on test_plan.id = test_plan_project.test_plan_id
         <where>
             test_plan.workspace_id = #{request.workspaceId}
             <if test="request.projectId != null">
-                and test_plan_project.project_id = #{request.projectId}
+                and test_plan.project_id = #{request.projectId}
             </if>
             and (test_plan.principal = #{request.principal}
             <if test="request.planIds != null and request.planIds.size() > 0">
