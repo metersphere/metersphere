@@ -19,9 +19,8 @@ import '../common/css/main.css';
 import CKEditor from '@ckeditor/ckeditor5-vue';
 import VueFab from 'vue-float-action-button'
 import {horizontalDrag} from "../common/js/directive";
-import JsonSchemaEditor from './components/common/json-schema/index';
+import JsonSchemaEditor from './components/common/json-schema/ot/packages/index';
 Vue.use(JsonSchemaEditor);
-
 
 Vue.config.productionTip = false;
 Vue.use(icon);

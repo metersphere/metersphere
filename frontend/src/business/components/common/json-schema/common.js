@@ -11,9 +11,7 @@ jsf.extend('mock', function () {
 
 const defaultOptions = {
   failOnInvalidTypes: false,
-  failOnInvalidFormat: false,
-  alwaysFakeOptionals: true,
-  useDefaultValue: true
+  failOnInvalidFormat: false
 };
 
 export const schemaToJson = (schema, options = {}) => {

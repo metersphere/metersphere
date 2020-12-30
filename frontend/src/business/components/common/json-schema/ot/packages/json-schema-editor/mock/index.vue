@@ -31,10 +31,6 @@
         default: () => {
         }
       },
-      mock: {
-        type: Array,
-        default: () => []
-      }
     },
     data() {
       return {
@@ -42,6 +38,9 @@
       }
     },
     created() {
+      if (!this.schema.mock) {
+        this.schema.mock = "";
+      }
     },
     mounted() {
     },
