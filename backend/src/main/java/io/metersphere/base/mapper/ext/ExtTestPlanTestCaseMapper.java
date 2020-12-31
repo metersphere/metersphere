@@ -15,6 +15,8 @@ public interface ExtTestPlanTestCaseMapper {
 
     List<TestPlanCaseDTO> list(@Param("request") QueryTestPlanCaseRequest request);
 
+    List<TestPlanCaseDTO> listByPlanId(@Param("request") QueryTestPlanCaseRequest request);
+
     List<TestPlanCaseDTO> listByNode(@Param("request") QueryTestPlanCaseRequest request);
 
     List<TestPlanCaseDTO> listByNodes(@Param("request") QueryTestPlanCaseRequest request);
