@@ -41,7 +41,9 @@ public class MsParser extends ApiImportAbstractParser {
         List<ApiDefinitionResult> data = apiDefinitionImport.getData();
         data.forEach(apiDefinition -> {
             String id = UUID.randomUUID().toString();
-//            apiDefinition.setModuleId(null);
+            if (StringUtils.isBlank(apiDefinition.getModulePath())) {
+                apiDefinition.setModuleId(null);
+            }
             parseModule(apiDefinition, importRequest.isSaved());
             apiDefinition.setId(id);
             apiDefinition.setProjectId(this.projectId);

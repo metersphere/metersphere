@@ -17,7 +17,6 @@ import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.XMLUtils;
-import io.swagger.models.parameters.FormParameter;
 import io.swagger.parser.OpenAPIParser;
 import io.swagger.v3.oas.models.*;
 import io.swagger.v3.oas.models.headers.Header;
@@ -51,7 +50,7 @@ public class Swagger3Parser extends ApiImportAbstractParser {
     public ApiDefinitionImport parse(String sourceStr, ApiTestImportRequest request) {
         SwaggerParseResult result;
         if (StringUtils.isNotBlank(request.getSwaggerUrl())) {
-            result = new OpenAPIParser().readLocation("https://petstore3.swagger.io/api/v3/openapi.json", null, null);
+            result = new OpenAPIParser().readLocation(request.getSwaggerUrl(), null, null);
         } else {
             result = new OpenAPIParser().readContents(sourceStr, null, null);
         }
@@ -179,12 +178,12 @@ public class Swagger3Parser extends ApiImportAbstractParser {
 
     private void parseCookieParameters(Parameter parameter, List<KeyValue> headers) {
         CookieParameter cookieParameter = (CookieParameter) parameter;
-        addCookie(headers, cookieParameter.getName(), "", getDefaultStringValue(cookieParameter.getDescription()), "", true);
+        addCookie(headers, cookieParameter.getName(), "", getDefaultStringValue(cookieParameter.getDescription()), parameter.getRequired());
     }
 
     private void parseHeaderParameters(Parameter parameter, List<KeyValue> headers) {
         HeaderParameter headerParameter = (HeaderParameter) parameter;
-        addHeader(headers, headerParameter.getName(), "", getDefaultStringValue(headerParameter.getDescription()), "", true);
+        addHeader(headers, headerParameter.getName(), "", getDefaultStringValue(headerParameter.getDescription()), "", parameter.getRequired());
     }
 
     private HttpResponse parseResponse(ApiResponses responses) {
@@ -250,9 +249,9 @@ public class Swagger3Parser extends ApiImportAbstractParser {
         }
 
         Set<String> refSet = new HashSet<>();
-        Map<String, String> binaryKeyMap = new HashMap();
+        Map<String, Schema> infoMap = new HashMap();
         Schema schema = mediaType.getSchema();
-        Object bodyData = parseSchema(schema, refSet, binaryKeyMap);
+        Object bodyData = parseSchema(schema, refSet, infoMap);
 
         if (bodyData == null) {
             return;
@@ -261,7 +260,7 @@ public class Swagger3Parser extends ApiImportAbstractParser {
         body.setType(getBodyType(contentType));
 
         if (StringUtils.equals(contentType, org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED_VALUE)) {
-            parseKvBody(schema, body, bodyData, binaryKeyMap);
+            parseKvBody(schema, body, bodyData, infoMap);
         } else if (StringUtils.equals(contentType, org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE)) {
             body.setRaw(bodyData.toString());
         } else if (StringUtils.equals(contentType, org.springframework.http.MediaType.APPLICATION_JSON_VALUE)) {
@@ -269,27 +268,34 @@ public class Swagger3Parser extends ApiImportAbstractParser {
         } else if (StringUtils.equals(contentType, org.springframework.http.MediaType.APPLICATION_XML_VALUE)) {
             body.setRaw(parseXmlBody(schema, bodyData));
         } else if (StringUtils.equals(contentType, org.springframework.http.MediaType.APPLICATION_OCTET_STREAM_VALUE)) {
-            parseKvBody(schema, body, bodyData, binaryKeyMap);
+            parseKvBody(schema, body, bodyData, infoMap);
         } else {
             body.setRaw(bodyData.toString());
         }
     }
 
-    private void parseKvBody(Schema schema, Body body, Object data, Map<String, String> binaryKeyMap) {
+    private void parseKvBody(Schema schema, Body body, Object data, Map<String, Schema> infoMap) {
         if (data instanceof JSONObject) {
             ((JSONObject) data).forEach((k, v) -> {
                 KeyValue kv = new KeyValue(k, v.toString());
-                if (binaryKeyMap.keySet().contains(k)) {
-                    kv.setDescription(binaryKeyMap.get(k));
-                    kv.setType("file");
+                Schema schemaInfo = infoMap.get(k);
+                if (schemaInfo != null) {
+                    kv.setDescription(schemaInfo.getDescription());
+//                    kv.setRequired(schemaInfo.getRequired());
+                    if (schemaInfo instanceof BinarySchema) {
+                        kv.setType("file");
+                    }
                 }
                 body.getKvs().add(kv);
             });
         } else {
             KeyValue kv = new KeyValue(schema.getName(), data.toString(), schema.getDescription());
-            if (binaryKeyMap.keySet().contains(schema.getName())) {
-                kv.setDescription(binaryKeyMap.get(schema.getDescription()));
-                kv.setType("file");
+            Schema schemaInfo = infoMap.get(schema.getName());
+            if (schemaInfo != null) {
+                kv.setDescription(schemaInfo.getDescription());
+                if (schemaInfo instanceof BinarySchema) {
+                    kv.setType("file");
+                }
             }
             body.getKvs().add(kv);
         }
@@ -315,34 +321,37 @@ public class Swagger3Parser extends ApiImportAbstractParser {
         return this.components.getSchemas().get(ref);
     }
 
-    private Object parseSchema(Schema schema, Set<String> refSet, Map<String, String> binaryKeyMap) {
+    private Object parseSchema(Schema schema, Set<String> refSet, Map<String, Schema> infoMap) {
+        infoMap.put(schema.getName(), schema);
         if (StringUtils.isNotBlank(schema.get$ref())) {
+            if (refSet.contains(schema.get$ref())) {
+                return new JSONObject();
+            }
             refSet.add(schema.get$ref());
-            Object propertiesResult = parseSchemaProperties(getModelByRef(schema.get$ref()), refSet, binaryKeyMap);
+            Object propertiesResult = parseSchemaProperties(getModelByRef(schema.get$ref()), refSet, infoMap);
             return propertiesResult == null ? getDefaultValueByPropertyType(schema) : propertiesResult;
         } else if (schema instanceof ArraySchema) {
             JSONArray jsonArray = new JSONArray();
             Schema items = ((ArraySchema) schema).getItems();
-            parseSchema(items, refSet, binaryKeyMap);
-            jsonArray.add(parseSchema(items, refSet, binaryKeyMap));
+            parseSchema(items, refSet, infoMap);
+            jsonArray.add(parseSchema(items, refSet, infoMap));
             return jsonArray;
         } else if (schema instanceof BinarySchema) {
-            binaryKeyMap.put(schema.getName(), schema.getDescription());
             return getDefaultValueByPropertyType(schema);
         } else {
-            Object propertiesResult = parseSchemaProperties(schema, refSet, binaryKeyMap);
+            Object propertiesResult = parseSchemaProperties(schema, refSet, infoMap);
             return propertiesResult == null ? getDefaultValueByPropertyType(schema) : propertiesResult;
         }
     }
 
-    private Object parseSchemaProperties(Schema schema, Set<String> refSet, Map<String, String> binaryKeyMap) {
+    private Object parseSchemaProperties(Schema schema, Set<String> refSet, Map<String, Schema> infoMap) {
         Map<String, Schema> properties = schema.getProperties();
         if (MapUtils.isEmpty(properties)) {
             return null;
         }
         JSONObject jsonObject = new JSONObject();
         properties.forEach((key, value) -> {
-            jsonObject.put(key,  parseSchema(value, refSet, binaryKeyMap));
+            jsonObject.put(key,  parseSchema(value, refSet, infoMap));
         });
         return jsonObject;
     }
@@ -360,6 +369,6 @@ public class Swagger3Parser extends ApiImportAbstractParser {
 
     private void parseQueryParameters(Parameter parameter, List<KeyValue> arguments) {
         QueryParameter queryParameter = (QueryParameter) parameter;
-        arguments.add(new KeyValue(queryParameter.getName(), "", getDefaultStringValue(queryParameter.getDescription())));
+        arguments.add(new KeyValue(queryParameter.getName(), "", getDefaultStringValue(queryParameter.getDescription()), parameter.getRequired()));
     }
 }

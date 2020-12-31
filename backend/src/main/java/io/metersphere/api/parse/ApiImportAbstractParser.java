@@ -142,10 +142,10 @@ public abstract class ApiImportAbstractParser implements ApiImportParser {
     }
 
     protected void addCookie(List<KeyValue> headers, String key, String value) {
-        addCookie(headers, key, value, "", "", true);
+        addCookie(headers, key, value, "", true);
     }
 
-    protected void addCookie(List<KeyValue> headers, String key, String value, String description, String contentType, boolean required) {
+    protected void addCookie(List<KeyValue> headers, String key, String value, String description, boolean required) {
         boolean hasCookie = false;
         for (KeyValue header : headers) {
             if (StringUtils.equalsIgnoreCase("Cookie", header.getName())) {
