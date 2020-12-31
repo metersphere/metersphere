@@ -21,10 +21,10 @@
           </el-col>
 
           <el-col :span="11" :offset="2">
-            <el-form-item :label="$t('test_track.plan.plan_project')" :label-width="formLabelWidth" prop="projectIds">
+            <el-form-item :label="$t('test_track.plan.related_project')" :label-width="formLabelWidth" prop="projectIds">
               <el-select
                 v-model="form.projectIds"
-                :placeholder="$t('test_track.plan.input_plan_project')"
+                :placeholder="$t('test_track.plan.input_related_project')"
                 multiple
                 style="width: 100%"
                 filterable>
@@ -134,7 +134,7 @@
 
 import {WORKSPACE_ID} from '@/common/js/constants';
 import TestPlanStatusButton from "../common/TestPlanStatusButton";
-import {listenGoBack, removeGoBackListener} from "@/common/js/utils";
+import {getCurrentProjectID, listenGoBack, removeGoBackListener} from "@/common/js/utils";
 import {LIST_CHANGE, TrackEvent} from "@/business/components/common/head/ListEvent";
 
 export default {
@@ -158,7 +158,7 @@ export default {
           {required: true, message: this.$t('test_track.plan.input_plan_name'), trigger: 'blur'},
           {max: 30, message: this.$t('test_track.length_less_than') + '30', trigger: 'blur'}
         ],
-        projectIds: [{required: true, message: this.$t('test_track.plan.input_plan_project'), trigger: 'change'}],
+        // projectIds: [{required: true, message: this.$t('test_track.plan.input_plan_project'), trigger: 'change'}],
         principal: [{required: true, message: this.$t('test_track.plan.input_plan_principal'), trigger: 'change'}],
         stage: [{required: true, message: this.$t('test_track.plan.input_plan_stage'), trigger: 'change'}],
         description: [{max: 200, message: this.$t('test_track.length_less_than') + '200', trigger: 'blur'}]
@@ -248,7 +248,7 @@ export default {
     getProjects() {
       this.$get("/project/listAll", (response) => {
         if (response.success) {
-          this.projects = response.data;
+          this.projects = response.data.filter(da => da.id !== getCurrentProjectID());
         } else {
           this.$warning()(response.message);
         }

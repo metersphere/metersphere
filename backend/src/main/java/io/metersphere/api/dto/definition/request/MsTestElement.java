@@ -149,16 +149,6 @@ public abstract class MsTestElement {
                     arguments.addArgument(keyValue.getName(), keyValue.getValue(), "=")
             );
         }
-        if (config != null && config.getConfig() != null && config.getConfig().getCommonConfig() != null
-                && CollectionUtils.isNotEmpty(config.getConfig().getHttpConfig().getHeaders())) {
-            arguments.setEnabled(true);
-            arguments.setName(name + "Variables");
-            arguments.setProperty(TestElement.TEST_CLASS, Arguments.class.getName());
-            arguments.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("ArgumentsPanel"));
-            config.getConfig().getHttpConfig().getHeaders().stream().filter(KeyValue::isValid).filter(KeyValue::isEnable).forEach(keyValue ->
-                    arguments.addArgument(keyValue.getName(), keyValue.getValue(), "=")
-            );
-        }
         return arguments;
     }
 }

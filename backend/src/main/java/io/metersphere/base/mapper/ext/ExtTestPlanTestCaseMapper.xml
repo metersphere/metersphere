@@ -272,13 +272,11 @@
         select distinct plan_id from test_plan_test_case
         inner join test_plan
         on test_plan_test_case.plan_id = test_plan.id
-        inner join test_plan_project
-        on test_plan.id = test_plan_project.test_plan_id
         <where>
             test_plan_test_case.executor = #{userId}
             and test_plan.workspace_id = #{workspaceId}
             <if test="projectId != null">
-                and test_plan_project.project_id = #{projectId}
+                and test_plan.project_id = #{projectId}
             </if>
         </where>
     </select>
@@ -335,6 +333,34 @@
       from
       test_plan_test_case
       where plan_id = #{planId}
+    </select>
+    <select id="listByPlanId" resultType="io.metersphere.track.dto.TestPlanCaseDTO">
+        SELECT test_plan_api_case.api_case_id as id,"definition" as type,api_test_case.name,test_plan_api_case.status
+        from test_plan_api_case left join  api_test_case  on test_plan_api_case.api_case_id=api_test_case.id
+        <where>
+            <if test="request.planId != null">
+                and test_plan_api_case.test_plan_id = #{request.planId}
+            </if>
+        </where>
+        UNION ALL
+        SELECT test_plan_api_scenario.api_scenario_id as id,"scenario" as type,api_scenario.name,test_plan_api_scenario.status
+        from test_plan_api_scenario  left join api_scenario on test_plan_api_scenario.api_scenario_id=api_scenario.id
+        <where>
+            <if test="request.planId != null">
+                and test_plan_api_scenario.test_plan_id = #{request.planId}
+            </if>
+        </where>
+        UNION ALL
+        SELECT test_case.test_id as id,test_case.type as type,test_case.name,test_plan_test_case.status
+        from test_plan_test_case  left join  test_case  on test_plan_test_case.case_id =test_case.id
+        <where>
+            <if test="request.planId != null">
+                and test_plan_test_case.plan_id = #{request.planId}
+            </if>
+            <if test="request.method != null">
+                and test_case.method = #{request.method}
+            </if>
+        </where>
     </select>
 
     <update id="updateTestCaseStates" parameterType="java.lang.String">

@@ -57,7 +57,7 @@ public class TestCaseController {
         return testCaseService.listTestCase(request);
     }
 
-
+   /*jenkins项目下所有接口和性能测试用例*/
     @GetMapping("/list/method/{projectId}")
     public List<TestCaseDTO> listByMethod(@PathVariable String projectId) {
         QueryTestCaseRequest request = new QueryTestCaseRequest();
