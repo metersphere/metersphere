@@ -23,9 +23,24 @@
   import json5 from 'json5';
   import MsImportJson from './import/ImportJson';
 
+  const GenerateSchema = require('generate-schema/src/schemas/json.js');
+
   export default {
     name: 'App',
     components: {MsImportJson},
+    props: {
+      body: {},
+    },
+    created() {
+      if (!this.body.jsonSchema && this.body.raw) {
+        let obj = {"root": GenerateSchema(JSON.parse(this.body.raw))}
+        this.body.jsonSchema = obj;
+        this.schema = this.body.jsonSchema;
+      }
+      else if (this.body.jsonSchema) {
+        this.schema = this.body.jsonSchema;
+      }
+    },
     data() {
       return {
         schema:

@@ -17,6 +17,7 @@ public class Body {
     private String format;
     private List<KeyValue> kvs;
     private List<KeyValue> binary;
+    private Object jsonSchema;
 
     public final static String KV = "KeyValue";
     public final static String FORM_DATA = "Form Data";

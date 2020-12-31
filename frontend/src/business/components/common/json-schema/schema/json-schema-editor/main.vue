@@ -46,14 +46,14 @@
       <json-schema-editor :value="{items:pickValue.items}" :deep="deep+1" disabled isItem :root="false" class="children" :lang="lang" :custom="custom"/>
     </template>
     <!-- 高级设置-->
-    <el-dialog :close-on-click-modal="false" :title="local['adv_setting']" :visible.sync="modalVisible" width="800px" :destroy-on-close="true"
+    <el-dialog :close-on-click-modal="false" :title="local['adv_setting']" :visible.sync="modalVisible" :destroy-on-close="true"
                @close="handleClose">
       <p class="tip">基础设置 </p>
-      <el-form v-model="advancedValue" class="ant-advanced-search-form">
+      <el-form :inline="true" v-model="advancedValue" class="ant-advanced-search-form">
         <el-row :gutter="6">
-          <el-col :span="8" v-for="(item,key) in advancedValue" :key="key">
+          <el-col :span="8" v-for="(item,key) in advancedValue" :key="key" style="float: right">
             <el-form-item>
-              <span>{{ local[key] }}</span>
+              <div>{{ local[key] }}</div>
               <el-input-number v-model="advancedValue[key]" v-if="advancedAttr[key].type === 'integer'" style="width:100%" :placeholder="key" size="small"/>
               <el-input-number v-model="advancedValue[key]" v-else-if="advancedAttr[key].type === 'number'" style="width:100%" :placeholder="key" size="small"/>
               <span v-else-if="advancedAttr[key].type === 'boolean'" style="display:inline-block;width:100%">
@@ -63,7 +63,7 @@
                 <el-option value="" :label="local['nothing']"></el-option>
                 <el-option :key="t" :value="t" :label="t" v-for="t in advancedAttr[key].enums"/>
               </el-select>
-              <el-input v-model="advancedValue[key]" v-else style="width:100%" :placeholder="key" size="small"/>
+              <el-input v-model="advancedValue[key]" v-else style="width:100%;" :placeholder="key" size="small"/>
             </el-form-item>
           </el-col>
         </el-row>
@@ -109,7 +109,7 @@
   import {TYPE_NAME, TYPE} from './type/type'
   import MsMock from './mock/index'
   import MsDialogFooter from '../../../components/MsDialogFooter'
-  import LocalProvider from './LocalProvider/index'
+  import LocalProvider from './provider/index'
 
   export default {
     name: 'JsonSchemaEditor',

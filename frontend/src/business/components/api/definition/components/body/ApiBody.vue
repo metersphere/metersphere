@@ -41,7 +41,7 @@
                               v-if="body.type == 'WWW_FORM'"/>
 
     <div v-if="body.type == 'JSON'">
-      <ms-json-code-edit @json-change="jsonChange" @onError="jsonError" :value="body.raw" ref="jsonCodeEdit"/>
+      <ms-json-code-edit :body="body" ref="jsonCodeEdit"/>
     </div>
 
     <div class="ms-body" v-if="body.type == 'XML'">
