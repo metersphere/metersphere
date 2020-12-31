@@ -51,7 +51,7 @@ public class Swagger3Parser extends ApiImportAbstractParser {
     public ApiDefinitionImport parse(String sourceStr, ApiTestImportRequest request) {
         SwaggerParseResult result;
         if (StringUtils.isNotBlank(request.getSwaggerUrl())) {
-            result = new OpenAPIParser().readLocation("https://petstore3.swagger.io/api/v3/openapi.json", null, null);
+            result = new OpenAPIParser().readLocation(request.getSwaggerUrl(), null, null);
         } else {
             result = new OpenAPIParser().readContents(sourceStr, null, null);
         }
@@ -317,6 +317,9 @@ public class Swagger3Parser extends ApiImportAbstractParser {
 
     private Object parseSchema(Schema schema, Set<String> refSet, Map<String, String> binaryKeyMap) {
         if (StringUtils.isNotBlank(schema.get$ref())) {
+            if (refSet.contains(schema.get$ref())) {
+                return new JSONObject();
+            }
             refSet.add(schema.get$ref());
             Object propertiesResult = parseSchemaProperties(getModelByRef(schema.get$ref()), refSet, binaryKeyMap);
             return propertiesResult == null ? getDefaultValueByPropertyType(schema) : propertiesResult;
