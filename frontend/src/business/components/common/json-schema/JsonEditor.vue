@@ -57,8 +57,7 @@
     methods: {
       handleClick() {
         if (this.activeName === 'preview') {
-          console.log(this.schema)
-          this.preview = schemaToJson(json5.parse(JSON.stringify(this.schema)));
+          this.preview = schemaToJson(Object.values(this.schema)[0]);
         }
       },
       openOneClickOperation() {
