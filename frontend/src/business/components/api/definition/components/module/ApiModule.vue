@@ -194,7 +194,7 @@
       },
       refresh() {
         this.list();
-        this.$emit("refresh");
+        this.$emit("refreshTable");
       },
     }
   }
