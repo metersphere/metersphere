@@ -1,11 +1,14 @@
 package io.metersphere.api.service;
 
 import com.alibaba.fastjson.JSONObject;
-import io.metersphere.api.dto.automation.ApiScenarioDTO;
-import io.metersphere.api.dto.automation.ApiScenarioRequest;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import io.metersphere.api.dto.ApiCaseBatchRequest;
 import io.metersphere.api.dto.datacount.ApiDataCountResult;
 import io.metersphere.api.dto.definition.*;
-import io.metersphere.api.dto.ApiCaseBatchRequest;
+import io.metersphere.api.dto.definition.request.MsTestElement;
+import io.metersphere.api.jmeter.JMeterService;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ApiDefinitionMapper;
 import io.metersphere.base.mapper.ApiTestCaseMapper;
@@ -14,6 +17,7 @@ import io.metersphere.base.mapper.ext.ExtApiDefinitionExecResultMapper;
 import io.metersphere.base.mapper.ext.ExtApiTestCaseMapper;
 import io.metersphere.base.mapper.ext.ExtTestPlanApiCaseMapper;
 import io.metersphere.base.mapper.ext.ExtTestPlanTestCaseMapper;
+import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
 import io.metersphere.i18n.Translator;
@@ -21,11 +25,12 @@ import io.metersphere.service.FileService;
 import io.metersphere.service.QuotaService;
 import io.metersphere.service.UserService;
 import io.metersphere.track.request.testcase.ApiCaseRelevanceRequest;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
+import org.apache.jorphan.collections.HashTree;
 import org.aspectj.util.FileUtil;
-import org.python.antlr.ast.Str;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -57,6 +62,8 @@ public class ApiTestCaseService {
     private ExtApiDefinitionExecResultMapper extApiDefinitionExecResultMapper;
     @Resource
     private ApiDefinitionMapper apiDefinitionMapper;
+    @Resource
+    private JMeterService jMeterService;
 
     private static final String BODY_FILE_DIR = "/opt/metersphere/data/body";
 
@@ -271,7 +278,7 @@ public class ApiTestCaseService {
     }
 
     public void deleteBatch(List<String> ids) {
-        for (String testId:ids) {
+        for (String testId : ids) {
             extTestPlanTestCaseMapper.deleteByTestCaseID(testId);
         }
         ApiTestCaseExample example = new ApiTestCaseExample();
@@ -331,10 +338,10 @@ public class ApiTestCaseService {
         Date firstTime = startAndEndDateInWeek.get("firstTime");
         Date lastTime = startAndEndDateInWeek.get("lastTime");
 
-        if(firstTime==null || lastTime == null){
-            return  0;
-        }else {
-            return extApiTestCaseMapper.countByProjectIDAndCreateInThisWeek(projectId,firstTime.getTime(),lastTime.getTime());
+        if (firstTime == null || lastTime == null) {
+            return 0;
+        } else {
+            return extApiTestCaseMapper.countByProjectIDAndCreateInThisWeek(projectId, firstTime.getTime(), lastTime.getTime());
         }
     }
 
@@ -351,16 +358,16 @@ public class ApiTestCaseService {
 
     public void deleteBatchByParam(ApiTestBatchRequest request) {
         List<String> ids = request.getIds();
-        if(request.isSelectAllDate()){
-            ids = this.getAllApiCaseIdsByFontedSelect(request.getFilters(),request.getModuleIds(),request.getName(),request.getProjectId(),request.getProtocol(),request.getUnSelectIds(),request.getStatus());
+        if (request.isSelectAllDate()) {
+            ids = this.getAllApiCaseIdsByFontedSelect(request.getFilters(), request.getModuleIds(), request.getName(), request.getProjectId(), request.getProtocol(), request.getUnSelectIds(), request.getStatus());
         }
         this.deleteBatch(ids);
     }
 
     public void editApiBathByParam(ApiTestBatchRequest request) {
         List<String> ids = request.getIds();
-        if(request.isSelectAllDate()){
-            ids = this.getAllApiCaseIdsByFontedSelect(request.getFilters(),request.getModuleIds(),request.getName(),request.getProjectId(),request.getProtocol(),request.getUnSelectIds(),request.getStatus());
+        if (request.isSelectAllDate()) {
+            ids = this.getAllApiCaseIdsByFontedSelect(request.getFilters(), request.getModuleIds(), request.getName(), request.getProjectId(), request.getProtocol(), request.getUnSelectIds(), request.getStatus());
         }
         request.cleanSelectParam();
         ApiTestCaseExample apiDefinitionExample = new ApiTestCaseExample();
@@ -371,7 +378,7 @@ public class ApiTestCaseService {
         apiTestCaseMapper.updateByExampleSelective(apiDefinitionWithBLOBs, apiDefinitionExample);
     }
 
-    private List<String> getAllApiCaseIdsByFontedSelect(Map<String, List<String>> filters,List<String>moduleIds, String name, String projectId, String protocol,List<String> unSelectIds,String status) {
+    private List<String> getAllApiCaseIdsByFontedSelect(Map<String, List<String>> filters, List<String> moduleIds, String name, String projectId, String protocol, List<String> unSelectIds, String status) {
         ApiTestCaseRequest selectRequest = new ApiTestCaseRequest();
         selectRequest.setFilters(filters);
         selectRequest.setModuleIds(moduleIds);
@@ -383,6 +390,27 @@ public class ApiTestCaseService {
         List<ApiTestCaseResult> list = extApiTestCaseMapper.list(selectRequest);
         List<String> allIds = list.stream().map(ApiTestCaseResult::getId).collect(Collectors.toList());
         List<String> ids = allIds.stream().filter(id -> !unSelectIds.contains(id)).collect(Collectors.toList());
-        return  ids;
+        return ids;
     }
+
+    public String run(RunCaseRequest request) {
+        ApiTestCaseWithBLOBs testCaseWithBLOBs = apiTestCaseMapper.selectByPrimaryKey(request.getCaseId());
+        // 多态JSON普通转换会丢失内容，需要通过 ObjectMapper 获取
+        if (testCaseWithBLOBs != null && StringUtils.isNotEmpty(testCaseWithBLOBs.getRequest())) {
+            try {
+                ObjectMapper mapper = new ObjectMapper();
+                mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+                MsTestElement elements = mapper.readValue(testCaseWithBLOBs.getRequest(), new TypeReference<MsTestElement>() { });
+                HashTree hashTree = elements.generateHashTree();
+                String runMode = ApiRunMode.DELIMIT.name();
+                // 调用执行方法
+                jMeterService.runDefinition(request.getReportId(), hashTree, request.getReportId(), runMode);
+
+            } catch (Exception ex) {
+                LogUtil.error(ex.getMessage());
+            }
+        }
+        return request.getReportId();
+    }
+
 }
