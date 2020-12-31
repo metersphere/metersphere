@@ -86,5 +86,10 @@
       test_plan_api_scenario
       where test_plan_id = #{planId}
     </select>
+    <select id="getIdsByPlanId" resultType="java.lang.String">
+      select id
+      from test_plan_api_scenario
+      where test_plan_id = #{planId}
+    </select>
 
 </mapper>

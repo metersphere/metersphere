@@ -1,11 +1,14 @@
 package io.metersphere.track.service;
 
+import io.metersphere.api.dto.DeleteAPIReportRequest;
 import io.metersphere.api.dto.automation.ApiScenarioDTO;
 import io.metersphere.api.dto.automation.ApiScenarioRequest;
 import io.metersphere.api.dto.automation.RunScenarioRequest;
 import io.metersphere.api.dto.automation.TestPlanScenarioRequest;
 import io.metersphere.api.service.ApiAutomationService;
+import io.metersphere.api.service.ApiScenarioReportService;
 import io.metersphere.base.domain.TestPlanApiCase;
+import io.metersphere.base.domain.TestPlanApiCaseExample;
 import io.metersphere.base.domain.TestPlanApiScenario;
 import io.metersphere.base.domain.TestPlanApiScenarioExample;
 import io.metersphere.base.mapper.TestPlanApiScenarioMapper;
@@ -16,6 +19,7 @@ import io.metersphere.track.request.testcase.TestPlanApiCaseBatchRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
@@ -33,6 +37,8 @@ public class TestPlanScenarioCaseService {
     TestPlanApiScenarioMapper testPlanApiScenarioMapper;
     @Resource
     ExtTestPlanScenarioCaseMapper extTestPlanScenarioCaseMapper;
+    @Resource
+    ApiScenarioReportService apiScenarioReportService;
 
     public List<ApiScenarioDTO> list(TestPlanScenarioRequest request) {
         request.setProjectId(null);
@@ -53,22 +59,26 @@ public class TestPlanScenarioCaseService {
         return apiAutomationService.list(request);
     }
 
-    public int delete(String planId, String id) {
-//        apiDefinitionExecResultService.deleteByResourceId(id);
+    public int delete(String id) {
+        TestPlanApiScenario testPlanApiScenario = testPlanApiScenarioMapper.selectByPrimaryKey(id);
+        String reportId = testPlanApiScenario.getReportId();
+        if (!StringUtils.isEmpty(reportId)) {
+            apiScenarioReportService.delete(reportId);
+        }
         TestPlanApiScenarioExample example = new TestPlanApiScenarioExample();
         example.createCriteria()
-                .andTestPlanIdEqualTo(planId)
                 .andIdEqualTo(id);
 
         return testPlanApiScenarioMapper.deleteByExample(example);
     }
 
     public void deleteApiCaseBath(TestPlanApiCaseBatchRequest request) {
-//        apiDefinitionExecResultService.deleteByResourceIds(request.getIds());
         TestPlanApiScenarioExample example = new TestPlanApiScenarioExample();
         example.createCriteria()
-                .andIdIn(request.getIds())
-                .andTestPlanIdEqualTo(request.getPlanId());
+                .andIdIn(request.getIds());
+        List<String> reportIds = testPlanApiScenarioMapper.selectByExample(example).stream()
+                .map(TestPlanApiScenario::getReportId).collect(Collectors.toList());
+        apiScenarioReportService.deleteByIds(reportIds);
         testPlanApiScenarioMapper.deleteByExample(example);
     }
 
@@ -92,5 +102,12 @@ public class TestPlanScenarioCaseService {
 
     public List<String> getExecResultByPlanId(String planId) {
         return extTestPlanScenarioCaseMapper.getExecResultByPlanId(planId);
+    }
+
+    public void deleteByPlanId(String planId) {
+        TestPlanApiCaseBatchRequest request = new TestPlanApiCaseBatchRequest();
+        List<String> ids = extTestPlanScenarioCaseMapper.getIdsByPlanId(planId);
+        request.setIds(ids);
+        deleteApiCaseBath(request);
     }
 }
