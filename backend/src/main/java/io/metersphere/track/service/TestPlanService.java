@@ -287,6 +287,8 @@ public class TestPlanService {
         TestPlan testPlan = getTestPlan(planId);
         deleteTestCaseByPlanId(planId);
         testPlanProjectService.deleteTestPlanProjectByPlanId(planId);
+        testPlanApiCaseService.deleteByPlanId(planId);
+        testPlanScenarioCaseService.deleteByPlanId(planId);
         int num = testPlanMapper.deleteByPrimaryKey(planId);
         List<String> relatedUsers = new ArrayList<>();
         AddTestPlanRequest testPlans = new AddTestPlanRequest();

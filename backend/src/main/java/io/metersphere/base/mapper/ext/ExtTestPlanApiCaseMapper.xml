@@ -97,4 +97,10 @@
       where test_plan_id = #{planId}
     </select>
 
+    <select id="getIdsByPlanId" resultType="java.lang.String">
+      select id from
+      from test_plan_api_case
+      where id = #{planId}
+    </select>
+
 </mapper>

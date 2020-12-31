@@ -415,7 +415,7 @@
         });
       },
       handleDelete(apiCase) {
-        this.$get('/test/plan/api/case/delete/' + this.planId + '/' + apiCase.id, () => {
+        this.$get('/test/plan/api/case/delete/' + apiCase.id, () => {
           this.$success(this.$t('test_track.cancel_relevance_success'));
           this.$emit('refresh');
           this.initTable();
