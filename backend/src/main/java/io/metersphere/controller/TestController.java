@@ -5,6 +5,7 @@ import io.metersphere.base.domain.User;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.controller.handler.annotation.NoResultHolder;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -28,6 +29,15 @@ public class TestController {
 
     @PostMapping(value = "/multipart", consumes = {"multipart/form-data"})
     public Object testMultipart(@RequestPart(value = "id") String id, @RequestPart(value = "user") User user, @RequestParam(value = "name") String name) {
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("id", id);
+        jsonObject.put("user", user.getName());
+        jsonObject.put("name", name);
+        return jsonObject;
+    }
+
+    @PostMapping(value = "/wwwform", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+    public Object testWwwForm(String id, User user, String name) {
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("id", id);
         jsonObject.put("user", user.getName());

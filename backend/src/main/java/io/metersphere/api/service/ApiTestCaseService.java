@@ -1,12 +1,11 @@
 package io.metersphere.api.service;
 
 import com.alibaba.fastjson.JSONObject;
+import io.metersphere.api.dto.automation.ApiScenarioDTO;
+import io.metersphere.api.dto.automation.ApiScenarioRequest;
 import io.metersphere.api.dto.datacount.ApiDataCountResult;
-import io.metersphere.api.dto.definition.ApiTestCaseRequest;
-import io.metersphere.api.dto.definition.ApiTestCaseResult;
-import io.metersphere.api.dto.definition.SaveApiTestCaseRequest;
+import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.dto.ApiCaseBatchRequest;
-import io.metersphere.api.dto.definition.ApiTestCaseDTO;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ApiDefinitionMapper;
 import io.metersphere.base.mapper.ApiTestCaseMapper;
@@ -26,6 +25,7 @@ import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.aspectj.util.FileUtil;
+import org.python.antlr.ast.Str;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -347,5 +347,42 @@ public class ApiTestCaseService {
     public Map<String, String> getRequest(ApiTestCaseRequest request) {
         List<ApiTestCaseWithBLOBs> list = extApiTestCaseMapper.getRequest(request);
         return list.stream().collect(Collectors.toMap(ApiTestCaseWithBLOBs::getId, ApiTestCaseWithBLOBs::getRequest));
+    }
+
+    public void deleteBatchByParam(ApiTestBatchRequest request) {
+        List<String> ids = request.getIds();
+        if(request.isSelectAllDate()){
+            ids = this.getAllApiCaseIdsByFontedSelect(request.getFilters(),request.getModuleIds(),request.getName(),request.getProjectId(),request.getProtocol(),request.getUnSelectIds(),request.getStatus());
+        }
+        this.deleteBatch(ids);
+    }
+
+    public void editApiBathByParam(ApiTestBatchRequest request) {
+        List<String> ids = request.getIds();
+        if(request.isSelectAllDate()){
+            ids = this.getAllApiCaseIdsByFontedSelect(request.getFilters(),request.getModuleIds(),request.getName(),request.getProjectId(),request.getProtocol(),request.getUnSelectIds(),request.getStatus());
+        }
+        request.cleanSelectParam();
+        ApiTestCaseExample apiDefinitionExample = new ApiTestCaseExample();
+        apiDefinitionExample.createCriteria().andIdIn(ids);
+        ApiTestCaseWithBLOBs apiDefinitionWithBLOBs = new ApiTestCaseWithBLOBs();
+        BeanUtils.copyBean(apiDefinitionWithBLOBs, request);
+        apiDefinitionWithBLOBs.setUpdateTime(System.currentTimeMillis());
+        apiTestCaseMapper.updateByExampleSelective(apiDefinitionWithBLOBs, apiDefinitionExample);
+    }
+
+    private List<String> getAllApiCaseIdsByFontedSelect(Map<String, List<String>> filters,List<String>moduleIds, String name, String projectId, String protocol,List<String> unSelectIds,String status) {
+        ApiTestCaseRequest selectRequest = new ApiTestCaseRequest();
+        selectRequest.setFilters(filters);
+        selectRequest.setModuleIds(moduleIds);
+        selectRequest.setName(name);
+        selectRequest.setProjectId(projectId);
+        selectRequest.setProtocol(protocol);
+        selectRequest.setStatus(status);
+        selectRequest.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
+        List<ApiTestCaseResult> list = extApiTestCaseMapper.list(selectRequest);
+        List<String> allIds = list.stream().map(ApiTestCaseResult::getId).collect(Collectors.toList());
+        List<String> ids = allIds.stream().filter(id -> !unSelectIds.contains(id)).collect(Collectors.toList());
+        return  ids;
     }
 }

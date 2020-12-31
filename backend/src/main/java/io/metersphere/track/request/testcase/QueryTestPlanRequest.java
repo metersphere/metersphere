@@ -27,4 +27,6 @@ public class QueryTestPlanRequest extends TestPlan {
     private Map<String, Object> combine;
 
     private String projectId;
+
+    private String projectName;
 }

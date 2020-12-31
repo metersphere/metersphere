@@ -70,6 +70,30 @@ public abstract class ApiImportAbstractParser implements ApiImportParser {
         }
     }
 
+    protected String getBodyType(String contentType) {
+        String bodyType = "";
+        switch (contentType) {
+            case "application/x-www-form-urlencoded":
+                bodyType = Body.WWW_FROM;
+                break;
+            case "multipart/form-data":
+                bodyType = Body.FORM_DATA;
+                break;
+            case "application/json":
+                bodyType = Body.JSON;
+                break;
+            case "application/xml":
+                bodyType = Body.XML;
+                break;
+            case "application/octet-stream":
+                bodyType = Body.BINARY;
+                break;
+            default:
+                bodyType = Body.RAW;
+        }
+        return bodyType;
+    }
+
     protected ApiDefinitionResult buildApiDefinition(String id, String name, String path, String method) {
         ApiDefinitionResult apiDefinition = new ApiDefinitionResult();
         apiDefinition.setName(name);
@@ -118,10 +142,10 @@ public abstract class ApiImportAbstractParser implements ApiImportParser {
     }
 
     protected void addCookie(List<KeyValue> headers, String key, String value) {
-        addCookie(headers, key, value, "");
+        addCookie(headers, key, value, "", "", true);
     }
 
-    protected void addCookie(List<KeyValue> headers, String key, String value, String description) {
+    protected void addCookie(List<KeyValue> headers, String key, String value, String description, String contentType, boolean required) {
         boolean hasCookie = false;
         for (KeyValue header : headers) {
             if (StringUtils.equalsIgnoreCase("Cookie", header.getName())) {
@@ -131,15 +155,15 @@ public abstract class ApiImportAbstractParser implements ApiImportParser {
             }
         }
         if (!hasCookie) {
-            addHeader(headers, "Cookie", key + "=" + value + ";", description);
+            addHeader(headers, "Cookie", key + "=" + value + ";", description, "", required);
         }
     }
 
     protected void addHeader(List<KeyValue> headers, String key, String value) {
-        addHeader(headers, key, value, "");
+        addHeader(headers, key, value, "", "", true);
     }
 
-    protected void addHeader(List<KeyValue> headers, String key, String value, String description) {
+    protected void addHeader(List<KeyValue> headers, String key, String value, String description, String contentType, boolean required) {
         boolean hasContentType = false;
         for (KeyValue header : headers) {
             if (StringUtils.equalsIgnoreCase(header.getName(), key)) {
@@ -147,20 +171,7 @@ public abstract class ApiImportAbstractParser implements ApiImportParser {
             }
         }
         if (!hasContentType) {
-            headers.add(new KeyValue(key, value, description));
+            headers.add(new KeyValue(key, value, description, contentType, required));
         }
     }
-//    protected void addHeader(HttpRequest request, String key, String value) {
-//        List<KeyValue> headers = Optional.ofNullable(request.getHeaders()).orElse(new ArrayList<>());
-//        boolean hasContentType = false;
-//        for (KeyValue header : headers) {
-//            if (StringUtils.equalsIgnoreCase(header.getName(), key)) {
-//                hasContentType = true;
-//            }
-//        }
-//        if (!hasContentType) {
-//            headers.save(new KeyValue(key, value));
-//        }
-//        request.setHeaders(headers);
-//    }
 }
