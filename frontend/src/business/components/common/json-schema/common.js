@@ -4,7 +4,10 @@ const jsf = require('json-schema-faker');
 jsf.extend('mock', function () {
   return {
     mock: function (xx) {
-      return Mock.mock(xx);
+      if (xx && xx.startsWith("@")) {
+        return Mock.mock(xx);
+      }
+      return xx;
     }
   };
 });

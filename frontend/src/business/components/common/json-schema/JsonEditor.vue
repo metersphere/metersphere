@@ -57,6 +57,7 @@
     methods: {
       handleClick() {
         if (this.activeName === 'preview') {
+          console.log(this.schema)
           this.preview = schemaToJson(json5.parse(JSON.stringify(this.schema)));
         }
       },
@@ -64,10 +65,7 @@
         this.$refs.importJson.openOneClickOperation();
       },
       jsonData(data) {
-        let obj =
-          {
-            "root": data
-          }
+        let obj = {"root": data}
         this.schema = obj;
       }
     }

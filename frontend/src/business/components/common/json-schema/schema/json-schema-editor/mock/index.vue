@@ -40,6 +40,8 @@
     created() {
       if (this.schema.mock && Object.prototype.toString.call(this.schema.mock).match(/\[object (\w+)\]/)[1].toLowerCase() === 'object') {
         this.mock = this.schema.mock;
+      } else {
+        this.schema.mock = this.mock;
       }
     },
     mounted() {
