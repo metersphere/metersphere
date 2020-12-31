@@ -181,11 +181,13 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         }
         // 请求体
         if (!StringUtils.equals(this.getMethod(), "GET")) {
-            List<KeyValue> bodyParams = this.body.getBodyParams(sampler, this.getId());
-            if (this.body.getType().equals("Form Data")) {
-                sampler.setDoMultipart(true);
+            if (this.body != null) {
+                List<KeyValue> bodyParams = this.body.getBodyParams(sampler, this.getId());
+                if (StringUtils.isNotEmpty(this.body.getType()) && this.body.getType().equals("Form Data")) {
+                    sampler.setDoMultipart(true);
+                }
+                sampler.setArguments(httpArguments(bodyParams));
             }
-            sampler.setArguments(httpArguments(bodyParams));
         }
 
         final HashTree httpSamplerTree = tree.add(sampler);
