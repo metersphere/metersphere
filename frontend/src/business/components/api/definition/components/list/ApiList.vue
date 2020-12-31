@@ -9,14 +9,15 @@
       <el-table v-loading="result.loading"
                 ref="apiDefinitionTable"
                 border
-                :data="tableData" row-key="id" class="test-content adjust-table"
+                :data="tableData" row-key="id" class="test-content adjust-table api-list"
                 @select-all="handleSelectAll"
                 @select="handleSelect" :height="screenHeight">
-        <el-table-column type="selection"/>
-        <el-table-column width="40" :resizable="false" align="center">
-          <el-dropdown slot="header" style="width: 14px">
-            <span class="el-dropdown-link" style="width: 14px">
-              <i class="el-icon-arrow-down el-icon--right" style="margin-left: 0px"></i>
+        <el-table-column width="20" type="selection"/>
+
+        <el-table-column width="30" :resizable="false" align="center">
+          <el-dropdown slot="header">
+            <span class="el-dropdown-link">
+              <i class="el-icon-arrow-down"></i>
             </span>
             <el-dropdown-menu slot="dropdown">
               <el-dropdown-item @click.native.stop="isSelectDataAll(true)">
@@ -468,6 +469,34 @@
     width: 300px;
     /*margin-bottom: 20px;*/
     margin-right: 20px;
+  }
+
+  .api-list >>> th:first-child {
+    /*border: 1px solid #DCDFE6;*/
+    /*border-right: 0px;*/
+    /*border-top-left-radius:5px;*/
+    /*border-bottom-left-radius:5px;*/
+    /*width: 20px;*/
+
+  }
+
+  .api-list >>> th:nth-child(2) {
+    /*border: 1px solid #DCDFE6;*/
+    /*border-left: 0px;*/
+    /*border-top-right-radius:5px;*/
+    /*border-bottom-right-radius:5px;*/
+  }
+
+  .api-list >>> th:first-child>.cell {
+    padding: 5px;
+    width: 30px;
+  }
+  .api-list >>> th:nth-child(2)>.cell {
+    /*background-color: black;*/
+  }
+
+  .api-list >>> .el-dropdown {
+    float: left;
   }
 
 </style>
