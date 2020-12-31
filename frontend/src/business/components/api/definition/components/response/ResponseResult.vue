@@ -41,7 +41,7 @@
         </div>
         <div class="ms-div">
           Body :
-          <pre>{{response.body}}</pre>
+          <pre>{{response.body ? response.body:""}}</pre>
         </div>
 
       </el-tab-pane>
