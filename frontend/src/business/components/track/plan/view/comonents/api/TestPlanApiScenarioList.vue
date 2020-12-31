@@ -192,7 +192,7 @@
         this.reportId = row.reportId;
       },
       remove(row) {
-        this.$get('/test/plan/scenario/case/delete/' + this.planId + '/' + row.id, () => {
+        this.$get('/test/plan/scenario/case/delete/' + row.id, () => {
           this.$success(this.$t('test_track.cancel_relevance_success'));
           this.$emit('refresh');
           this.search();

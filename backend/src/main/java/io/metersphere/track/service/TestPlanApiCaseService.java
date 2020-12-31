@@ -58,15 +58,21 @@ public class TestPlanApiCaseService {
         return apiTestCaseService.listSimple(request);
     }
 
-
-
-    public int delete(String planId, String id) {
+    public int delete(String id) {
         apiDefinitionExecResultService.deleteByResourceId(id);
         TestPlanApiCaseExample example = new TestPlanApiCaseExample();
         example.createCriteria()
-                .andTestPlanIdEqualTo(planId)
                 .andIdEqualTo(id);
 
+        return testPlanApiCaseMapper.deleteByExample(example);
+    }
+
+    public int deleteByPlanId(String planId) {
+        List<String> ids = extTestPlanApiCaseMapper.getIdsByPlanId(planId);
+        apiDefinitionExecResultService.deleteByResourceIds(ids);
+        TestPlanApiCaseExample example = new TestPlanApiCaseExample();
+        example.createCriteria()
+                .andTestPlanIdEqualTo(planId);
         return testPlanApiCaseMapper.deleteByExample(example);
     }
 

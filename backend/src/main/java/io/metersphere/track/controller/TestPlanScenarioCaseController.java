@@ -36,10 +36,10 @@ public class TestPlanScenarioCaseController {
         return PageUtils.setPageInfo(page, testPlanScenarioCaseService.relevanceList(request));
     }
 
-    @GetMapping("/delete/{planId}/{id}")
+    @GetMapping("/delete/{id}")
     @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
-    public int deleteTestCase(@PathVariable String planId, @PathVariable String id) {
-        return testPlanScenarioCaseService.delete(planId, id);
+    public int deleteTestCase(@PathVariable String id) {
+        return testPlanScenarioCaseService.delete(id);
     }
 
     @PostMapping("/batch/delete")

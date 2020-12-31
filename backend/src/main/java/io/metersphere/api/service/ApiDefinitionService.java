@@ -181,6 +181,21 @@ public class ApiDefinitionService {
         }
     }
 
+    private List<ApiDefinition> getSameRequest(SaveApiDefinitionRequest request) {
+        ApiDefinitionExample example = new ApiDefinitionExample();
+        if (request.getProtocol().equals(RequestType.HTTP)) {
+            example.createCriteria().andMethodEqualTo(request.getMethod()).andStatusNotEqualTo("Trash")
+                    .andProtocolEqualTo(request.getProtocol()).andPathEqualTo(request.getPath())
+                    .andProjectIdEqualTo(request.getProjectId()).andIdNotEqualTo(request.getId());
+            return apiDefinitionMapper.selectByExample(example);
+        } else {
+            example.createCriteria().andProtocolEqualTo(request.getProtocol()).andStatusNotEqualTo("Trash")
+                    .andNameEqualTo(request.getName()).andProjectIdEqualTo(request.getProjectId())
+                    .andIdNotEqualTo(request.getId());
+            return apiDefinitionMapper.selectByExample(example);
+        }
+    }
+
     private ApiDefinition updateTest(SaveApiDefinitionRequest request) {
         checkNameExist(request);
         final ApiDefinitionWithBLOBs test = new ApiDefinitionWithBLOBs();
@@ -243,23 +258,30 @@ public class ApiDefinitionService {
         }
     }
 
-    private ApiDefinition createTest(ApiDefinitionResult request, ApiDefinitionMapper batchMapper) {
+    private ApiDefinition importCreate(ApiDefinitionResult request, ApiDefinitionMapper batchMapper) {
         SaveApiDefinitionRequest saveReq = new SaveApiDefinitionRequest();
         BeanUtils.copyBean(saveReq, request);
-        checkNameExist(saveReq);
-        final ApiDefinitionWithBLOBs test = new ApiDefinitionWithBLOBs();
-        BeanUtils.copyBean(test, request);
-        test.setCreateTime(System.currentTimeMillis());
-        test.setUpdateTime(System.currentTimeMillis());
-        test.setStatus(APITestStatus.Underway.name());
+        final ApiDefinitionWithBLOBs apiDefinition = new ApiDefinitionWithBLOBs();
+        BeanUtils.copyBean(apiDefinition, request);
+        apiDefinition.setCreateTime(System.currentTimeMillis());
+        apiDefinition.setUpdateTime(System.currentTimeMillis());
+        apiDefinition.setStatus(APITestStatus.Underway.name());
         if (request.getUserId() == null) {
-            test.setUserId(Objects.requireNonNull(SessionUtils.getUser()).getId());
+            apiDefinition.setUserId(Objects.requireNonNull(SessionUtils.getUser()).getId());
         } else {
-            test.setUserId(request.getUserId());
+            apiDefinition.setUserId(request.getUserId());
         }
-        test.setDescription(request.getDescription());
-        batchMapper.insert(test);
-        return test;
+        apiDefinition.setDescription(request.getDescription());
+
+        List<ApiDefinition> sameRequest = getSameRequest(saveReq);
+        if (CollectionUtils.isEmpty(sameRequest)) {
+            batchMapper.insert(apiDefinition);
+        } else {
+            //如果存在则修改
+            apiDefinition.setId(sameRequest.get(0).getId());
+            apiDefinitionMapper.updateByPrimaryKey(apiDefinition);
+        }
+        return apiDefinition;
     }
 
 
@@ -358,12 +380,12 @@ public class ApiDefinitionService {
             MSException.throwException(Translator.get("parse_data_error"));
         }
         if (request.isSaved()) {
-            importApiTest(request, apiImport);
+            importApi(request, apiImport);
         }
         return apiImport;
     }
 
-    private void importApiTest(ApiTestImportRequest request, ApiDefinitionImport apiImport) {
+    private void importApi(ApiTestImportRequest request, ApiDefinitionImport apiImport) {
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
         ApiDefinitionMapper batchMapper = sqlSession.getMapper(ApiDefinitionMapper.class);
         List<ApiDefinitionResult> data = apiImport.getData();
@@ -377,7 +399,7 @@ public class ApiDefinitionService {
                 item.setName(item.getName().substring(0, 255));
             }
             item.setNum(num++);
-            createTest(item, batchMapper);
+            importCreate(item, batchMapper);
             if (i % 300 == 0) {
                 sqlSession.flushStatements();
             }
