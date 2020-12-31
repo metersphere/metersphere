@@ -333,6 +333,13 @@
                 and project_id= #{request.projectId}
             </if>
         </where>
+        UNION ALL
+        select id,name,status,project_id,"scenario" as type from api_scenario
+        <where>
+            <if test="request.projectId!=null">
+                and project_id= #{request.projectId}
+            </if>
+        </where>
     </select>
     <select id="listByTestCaseIds" resultType="io.metersphere.track.dto.TestCaseDTO">
         select test_case.*,api_test.name as apiName,load_test.name AS performName from test_case left join api_test on
