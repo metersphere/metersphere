@@ -166,12 +166,14 @@ public class Swagger2Parser extends ApiImportAbstractParser {
 
     private void parseCookieParameters(Parameter parameter, List<KeyValue> headers) {
         CookieParameter cookieParameter = (CookieParameter) parameter;
-        addCookie(headers, cookieParameter.getName(), "", getDefaultStringValue(cookieParameter.getDescription()));
+        addCookie(headers, cookieParameter.getName(), "", getDefaultStringValue(cookieParameter.getDescription()),
+                "", parameter.getRequired());
     }
 
     private void parseHeaderParameters(Parameter parameter, List<KeyValue> headers) {
         HeaderParameter headerParameter = (HeaderParameter) parameter;
-        addHeader(headers, headerParameter.getName(), "", getDefaultStringValue(headerParameter.getDescription()));
+        addHeader(headers, headerParameter.getName(), "", getDefaultStringValue(headerParameter.getDescription()),
+                "", parameter.getRequired());
     }
 
     private HttpResponse parseResponse(Map<String, Response> responses) {
@@ -299,7 +301,8 @@ public class Swagger2Parser extends ApiImportAbstractParser {
 
     private void parseFormDataParameters(FormParameter parameter, Body body) {
         List<KeyValue> keyValues = Optional.ofNullable(body.getKvs()).orElse(new ArrayList<>());
-        KeyValue kv = new KeyValue(parameter.getName(), "", getDefaultStringValue(parameter.getDescription()));
+        KeyValue kv = new KeyValue(parameter.getName(), "", getDefaultStringValue(parameter.getDescription()),
+                "", parameter.getRequired());
         if (StringUtils.equals(parameter.getType(), "file")) {
             kv.setType("file");
         }
@@ -309,6 +312,7 @@ public class Swagger2Parser extends ApiImportAbstractParser {
 
     private void parseQueryParameters(Parameter parameter, List<KeyValue> arguments) {
         QueryParameter queryParameter = (QueryParameter) parameter;
-        arguments.add(new KeyValue(queryParameter.getName(), "", getDefaultStringValue(queryParameter.getDescription())));
+        arguments.add(new KeyValue(queryParameter.getName(), "", getDefaultStringValue(queryParameter.getDescription()),
+                "", queryParameter.getRequired()));
     }
 }
