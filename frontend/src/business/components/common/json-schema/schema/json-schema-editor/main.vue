@@ -21,7 +21,7 @@
         </el-select>
       </el-col>
       <el-col :span="8">
-        <ms-mock :schema="pickValue"/>
+        <ms-mock :disabled="pickValue.type==='object'" :schema="pickValue"/>
       </el-col>
       <el-col>
         <el-input v-model="pickValue.description" class="ant-col-title" :placeholder="local['description']" size="small"/>
@@ -220,6 +220,7 @@
         this.$delete(this.pickValue, 'properties')
         this.$delete(this.pickValue, 'items')
         this.$delete(this.pickValue, 'required')
+        this.$delete(this.pickValue, 'mock')
         if (this.isArray) {
           this.$set(this.pickValue, 'items', {type: 'string', mock: {mock: ""}})
         }

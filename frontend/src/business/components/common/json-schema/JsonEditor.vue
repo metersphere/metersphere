@@ -34,12 +34,12 @@
     created() {
       if (!this.body.jsonSchema && this.body.raw) {
         let obj = {"root": GenerateSchema(JSON.parse(this.body.raw))}
-        this.body.jsonSchema = obj;
-        this.schema = this.body.jsonSchema;
+        this.schema = obj;
       }
       else if (this.body.jsonSchema) {
-        this.schema = this.body.jsonSchema;
+        this.schema = {"root": this.body.jsonSchema};
       }
+      this.body.jsonSchema = this.schema.root;
     },
     data() {
       return {
@@ -57,7 +57,7 @@
     methods: {
       handleClick() {
         if (this.activeName === 'preview') {
-          this.preview = schemaToJson(Object.values(this.schema)[0]);
+          this.preview = schemaToJson(this.schema.root);
         }
       },
       openOneClickOperation() {

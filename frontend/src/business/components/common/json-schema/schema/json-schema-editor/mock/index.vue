@@ -2,10 +2,10 @@
   <div>
     <el-autocomplete
       size="small"
-      :disabled="false"
       class="input-with-autocomplete"
       v-model="mock.mock"
       :fetch-suggestions="funcSearch"
+      :disabled="disabled"
       :placeholder="$t('api_test.value')"
       value-key="name"
       highlight-first-item
@@ -31,6 +31,7 @@
         default: () => {
         }
       },
+      disabled: Boolean,
     },
     data() {
       return {
@@ -42,6 +43,9 @@
         this.mock = this.schema.mock;
       } else {
         this.schema.mock = this.mock;
+      }
+      if (this.schema.type === 'object') {
+        this.$delete(this.schema, 'mock')
       }
     },
     mounted() {
