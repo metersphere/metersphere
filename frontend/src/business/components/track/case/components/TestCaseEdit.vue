@@ -307,7 +307,7 @@ export default {
       rules: {
         name: [
           {required: true, message: this.$t('test_track.case.input_name'), trigger: 'blur'},
-          {max: 50, message: this.$t('test_track.length_less_than') + '50', trigger: 'blur'}
+          {max: 255, message: this.$t('test_track.length_less_than') + '255', trigger: 'blur'}
         ],
         module: [{required: true, message: this.$t('test_track.case.input_module'), trigger: 'change'}],
         maintainer: [{required: true, message: this.$t('test_track.case.input_maintainer'), trigger: 'change'}],
