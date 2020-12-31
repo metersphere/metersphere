@@ -30,13 +30,13 @@ public class TestPlanTestCaseController {
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, testPlanTestCaseService.list(request));
     }
-
+   /*jenkins测试计划下全部用例*/
     @GetMapping("/list/{planId}")
     public List<TestPlanCaseDTO> getTestPlanCaseByPlanId(@PathVariable String planId) {
         QueryTestPlanCaseRequest request = new QueryTestPlanCaseRequest();
         request.setPlanId(planId);
         request.setMethod("auto");
-        return testPlanTestCaseService.list(request);
+        return testPlanTestCaseService.listByPlanId(request);
     }
 
     @GetMapping("/list/node/{planId}/{nodePaths}")

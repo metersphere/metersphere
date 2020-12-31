@@ -166,8 +166,7 @@ public class Swagger2Parser extends ApiImportAbstractParser {
 
     private void parseCookieParameters(Parameter parameter, List<KeyValue> headers) {
         CookieParameter cookieParameter = (CookieParameter) parameter;
-        addCookie(headers, cookieParameter.getName(), "", getDefaultStringValue(cookieParameter.getDescription()),
-                "", parameter.getRequired());
+        addCookie(headers, cookieParameter.getName(), "", getDefaultStringValue(cookieParameter.getDescription()), parameter.getRequired());
     }
 
     private void parseHeaderParameters(Parameter parameter, List<KeyValue> headers) {
@@ -301,8 +300,7 @@ public class Swagger2Parser extends ApiImportAbstractParser {
 
     private void parseFormDataParameters(FormParameter parameter, Body body) {
         List<KeyValue> keyValues = Optional.ofNullable(body.getKvs()).orElse(new ArrayList<>());
-        KeyValue kv = new KeyValue(parameter.getName(), "", getDefaultStringValue(parameter.getDescription()),
-                "", parameter.getRequired());
+        KeyValue kv = new KeyValue(parameter.getName(), "", getDefaultStringValue(parameter.getDescription()), parameter.getRequired());
         if (StringUtils.equals(parameter.getType(), "file")) {
             kv.setType("file");
         }
@@ -312,7 +310,6 @@ public class Swagger2Parser extends ApiImportAbstractParser {
 
     private void parseQueryParameters(Parameter parameter, List<KeyValue> arguments) {
         QueryParameter queryParameter = (QueryParameter) parameter;
-        arguments.add(new KeyValue(queryParameter.getName(), "", getDefaultStringValue(queryParameter.getDescription()),
-                "", queryParameter.getRequired()));
+        arguments.add(new KeyValue(queryParameter.getName(), "", getDefaultStringValue(queryParameter.getDescription()), queryParameter.getRequired()));
     }
 }
