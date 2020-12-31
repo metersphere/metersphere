@@ -78,7 +78,7 @@
       },
       open() {
         this.dialogVisible = true;
-        this.size = this.$parent.selectRows.size;
+        this.size = this.$parent.selectDataCounts;
         listenGoBack(this.handleClose);
       },
       handleClose() {
