@@ -85,15 +85,15 @@ public class ApiAutomationController {
     }
 
     @PostMapping(value = "/run")
-    public void run(@RequestBody RunScenarioRequest request) {
+    public String run(@RequestBody RunScenarioRequest request) {
         request.setExecuteType(ExecuteType.Completed.name());
-        apiAutomationService.run(request);
+        return apiAutomationService.run(request);
     }
 
     @PostMapping(value = "/run/batch")
-    public void runBatch(@RequestBody RunScenarioRequest request) {
+    public String runBatch(@RequestBody RunScenarioRequest request) {
         request.setExecuteType(ExecuteType.Saved.name());
-        apiAutomationService.run(request);
+        return apiAutomationService.run(request);
     }
 
 
