@@ -40,6 +40,15 @@ public class KeyValue {
         this.required = true;
     }
 
+    public KeyValue(String name, String value, String description, String contentType, boolean required) {
+        this.name = name;
+        this.value = value;
+        this.description = description;
+        this.contentType = contentType;
+        this.enable = true;
+        this.required = required;
+    }
+
     public boolean isValid() {
         return (StringUtils.isNotBlank(name) || StringUtils.isNotBlank(value)) && !StringUtils.equalsIgnoreCase(type, "file");
     }

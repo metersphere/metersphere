@@ -142,10 +142,10 @@ public abstract class ApiImportAbstractParser implements ApiImportParser {
     }
 
     protected void addCookie(List<KeyValue> headers, String key, String value) {
-        addCookie(headers, key, value, "");
+        addCookie(headers, key, value, "", "", true);
     }
 
-    protected void addCookie(List<KeyValue> headers, String key, String value, String description) {
+    protected void addCookie(List<KeyValue> headers, String key, String value, String description, String contentType, boolean required) {
         boolean hasCookie = false;
         for (KeyValue header : headers) {
             if (StringUtils.equalsIgnoreCase("Cookie", header.getName())) {
@@ -155,15 +155,15 @@ public abstract class ApiImportAbstractParser implements ApiImportParser {
             }
         }
         if (!hasCookie) {
-            addHeader(headers, "Cookie", key + "=" + value + ";", description);
+            addHeader(headers, "Cookie", key + "=" + value + ";", description, "", required);
         }
     }
 
     protected void addHeader(List<KeyValue> headers, String key, String value) {
-        addHeader(headers, key, value, "");
+        addHeader(headers, key, value, "", "", true);
     }
 
-    protected void addHeader(List<KeyValue> headers, String key, String value, String description) {
+    protected void addHeader(List<KeyValue> headers, String key, String value, String description, String contentType, boolean required) {
         boolean hasContentType = false;
         for (KeyValue header : headers) {
             if (StringUtils.equalsIgnoreCase(header.getName(), key)) {
@@ -171,7 +171,7 @@ public abstract class ApiImportAbstractParser implements ApiImportParser {
             }
         }
         if (!hasContentType) {
-            headers.add(new KeyValue(key, value, description));
+            headers.add(new KeyValue(key, value, description, contentType, required));
         }
     }
 }
