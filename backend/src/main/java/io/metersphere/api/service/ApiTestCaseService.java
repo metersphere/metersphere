@@ -8,6 +8,9 @@ import io.metersphere.api.dto.ApiCaseBatchRequest;
 import io.metersphere.api.dto.datacount.ApiDataCountResult;
 import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.dto.definition.request.MsTestElement;
+import io.metersphere.api.dto.definition.request.MsTestPlan;
+import io.metersphere.api.dto.definition.request.MsThreadGroup;
+import io.metersphere.api.dto.definition.request.ParameterConfig;
 import io.metersphere.api.jmeter.JMeterService;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ApiDefinitionMapper;
@@ -30,6 +33,7 @@ import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.jorphan.collections.HashTree;
+import org.apache.jorphan.collections.ListedHashTree;
 import org.aspectj.util.FileUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -400,11 +404,28 @@ public class ApiTestCaseService {
             try {
                 ObjectMapper mapper = new ObjectMapper();
                 mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-                MsTestElement elements = mapper.readValue(testCaseWithBLOBs.getRequest(), new TypeReference<MsTestElement>() { });
-                HashTree hashTree = elements.generateHashTree();
+                MsTestElement element = mapper.readValue(testCaseWithBLOBs.getRequest(), new TypeReference<MsTestElement>() {
+                });
+                // 测试计划
+                MsTestPlan testPlan = new MsTestPlan();
+                testPlan.setHashTree(new LinkedList<>());
+                HashTree jmeterHashTree = new ListedHashTree();
+
+                // 线程组
+                MsThreadGroup group = new MsThreadGroup();
+                group.setLabel(testCaseWithBLOBs.getName());
+                group.setName(testCaseWithBLOBs.getId());
+
+                LinkedList<MsTestElement> hashTrees = new LinkedList<>();
+                hashTrees.add(element);
+                group.setHashTree(hashTrees);
+                testPlan.getHashTree().add(group);
+
+                testPlan.toHashTree(jmeterHashTree, testPlan.getHashTree(), new ParameterConfig());
+
                 String runMode = ApiRunMode.DELIMIT.name();
                 // 调用执行方法
-                jMeterService.runDefinition(request.getReportId(), hashTree, request.getReportId(), runMode);
+                jMeterService.runDefinition(request.getReportId(), jmeterHashTree, request.getReportId(), runMode);
 
             } catch (Exception ex) {
                 LogUtil.error(ex.getMessage());
