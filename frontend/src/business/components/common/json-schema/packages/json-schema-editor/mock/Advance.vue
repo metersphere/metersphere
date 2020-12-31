@@ -89,7 +89,6 @@
     name: "MsApiVariableAdvance",
     props: {
       parameters: Array,
-      environment: Object,
       currentItem: Object,
     },
     data() {

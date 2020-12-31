@@ -4,7 +4,7 @@
       size="small"
       :disabled="false"
       class="input-with-autocomplete"
-      v-model="schema.mock"
+      v-model="mock.mock"
       :fetch-suggestions="funcSearch"
       :placeholder="$t('api_test.value')"
       value-key="name"
@@ -13,7 +13,7 @@
       <i slot="suffix" class="el-input__icon el-icon-edit pointer" @click="advanced()"></i>
     </el-autocomplete>
 
-    <ms-advance ref="variableAdvance" :current-item="schema"/>
+    <ms-advance ref="variableAdvance" :current-item="mock"/>
   </div>
 
 </template>
@@ -23,7 +23,7 @@
   import MsAdvance from "./Advance";
 
   export default {
-    name: 'MockSelect',
+    name: 'MsMock',
     components: {MsAdvance},
     props: {
       schema: {
@@ -34,12 +34,12 @@
     },
     data() {
       return {
-        mockValue: ''
+        mock: {mock: ""}
       }
     },
     created() {
-      if (!this.schema.mock) {
-        this.schema.mock = "";
+      if (this.schema.mock && Object.prototype.toString.call(this.schema.mock).match(/\[object (\w+)\]/)[1].toLowerCase() === 'object') {
+        this.mock = this.schema.mock;
       }
     },
     mounted() {

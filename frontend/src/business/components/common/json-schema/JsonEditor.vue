@@ -2,8 +2,9 @@
   <div id="app">
     <el-tabs v-model="activeName" @tab-click="handleClick">
       <el-tab-pane label="模版" name="apiTemplate">
+        <el-button type="primary" size="mini" style="margin-left: 10px" @click="openOneClickOperation">导入</el-button>
         <div style="min-height: 400px">
-          <json-schema-editor class="schema" :value.sync="schema" lang="zh_CN" custom/>
+          <json-schema-editor class="schema" :value="schema" lang="zh_CN" custom/>
         </div>
       </el-tab-pane>
       <el-tab-pane label="预览" name="preview">
@@ -11,25 +12,26 @@
           <pre>{{this.preview}}</pre>
         </div>
       </el-tab-pane>
-
     </el-tabs>
+
+    <ms-import-json ref="importJson" @jsonData="jsonData"/>
   </div>
 </template>
 
 <script>
   import {schemaToJson} from './common';
   import json5 from 'json5';
+  import MsImportJson from './import/ImportJson';
 
   export default {
     name: 'App',
-    components: {},
+    components: {MsImportJson},
     data() {
       return {
         schema:
           {
             "root": {
               "type": "object",
-              "mock": {"mock": ""},
               "properties": {},
             }
           },
@@ -42,6 +44,16 @@
         if (this.activeName === 'preview') {
           this.preview = schemaToJson(json5.parse(JSON.stringify(this.schema)));
         }
+      },
+      openOneClickOperation() {
+        this.$refs.importJson.openOneClickOperation();
+      },
+      jsonData(data) {
+        let obj =
+          {
+            "root": data
+          }
+        this.schema = obj;
       }
     }
   }

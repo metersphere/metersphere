@@ -21,12 +21,12 @@
         </el-select>
       </el-col>
       <el-col :span="8">
-        <ms-mock :schema="pickValue.mock"/>
+        <ms-mock :schema="pickValue"/>
       </el-col>
       <el-col>
         <el-input v-model="pickValue.description" class="ant-col-title" :placeholder="local['description']" size="small"/>
       </el-col>
-      <el-col :span="4" class="col-item-setting">
+      <el-col :span="5" class="col-item-setting">
         <el-tooltip class="item" effect="dark" content="高级设置" placement="top">
           <i class="el-icon-setting" @click="onSetting"/>
         </el-tooltip>
@@ -46,18 +46,18 @@
       <json-schema-editor :value="{items:pickValue.items}" :deep="deep+1" disabled isItem :root="false" class="children" :lang="lang" :custom="custom"/>
     </template>
     <!-- 高级设置-->
-    <el-dialog :close-on-click-modal="false" :title="local['adv_setting']" :visible.sync="modalVisible" width="60%" :destroy-on-close="true"
+    <el-dialog :close-on-click-modal="false" :title="local['adv_setting']" :visible.sync="modalVisible" width="800px" :destroy-on-close="true"
                @close="handleClose">
-      <!--<el-dialog v-model="modalVisible" :title="local['adv_setting']" :maskClosable="false" :okText="local['ok']" :cancelText="local['cancel']" width="800px" @ok="handleOk" dialogClass="json-schema-editor-advanced-modal">-->
-      <h3 v-text="local['base_setting']">基础设置</h3>
+      <p class="tip">基础设置 </p>
       <el-form v-model="advancedValue" class="ant-advanced-search-form">
         <el-row :gutter="6">
           <el-col :span="8" v-for="(item,key) in advancedValue" :key="key">
             <el-form-item>
+              <span>{{ local[key] }}</span>
               <el-input-number v-model="advancedValue[key]" v-if="advancedAttr[key].type === 'integer'" style="width:100%" :placeholder="key" size="small"/>
               <el-input-number v-model="advancedValue[key]" v-else-if="advancedAttr[key].type === 'number'" style="width:100%" :placeholder="key" size="small"/>
               <span v-else-if="advancedAttr[key].type === 'boolean'" style="display:inline-block;width:100%">
-                <el-switch :active-text="local[key]" v-model="advancedValue[key]"/>
+                <el-switch v-model="advancedValue[key]"/>
                 </span>
               <el-select v-else-if="advancedAttr[key].type === 'array'" v-model="advancedValue[key]" style="width:100%" size="small">
                 <el-option value="" :label="local['nothing']"></el-option>
@@ -93,7 +93,7 @@
           </el-col>
         </el-row>
       </el-form>-->
-      <h3 v-text="local['preview']">预览</h3>
+      <p class="tip">预览 </p>
       <pre style="width:100%">{{completeNodeValue}}</pre>
 
       <span slot="footer" class="dialog-footer">
@@ -108,8 +108,8 @@
   import {isNull} from './util'
   import {TYPE_NAME, TYPE} from './type/type'
   import MsMock from './mock/index'
-  import MsDialogFooter from '../../../../../common/components/MsDialogFooter'
-  import LocalProvider from './LocalProvider'
+  import MsDialogFooter from '../../../components/MsDialogFooter'
+  import LocalProvider from './LocalProvider/index'
 
   export default {
     name: 'JsonSchemaEditor',
@@ -221,7 +221,7 @@
         this.$delete(this.pickValue, 'items')
         this.$delete(this.pickValue, 'required')
         if (this.isArray) {
-          this.$set(this.pickValue, 'items', {type: 'string',mock: {mock: ""}})
+          this.$set(this.pickValue, 'items', {type: 'string', mock: {mock: ""}})
         }
       },
       onCheck(e) {
@@ -352,8 +352,7 @@
     color: #888;
     border: none;
   }
-</style>
-<style>
+
   .json-schema-editor-advanced-modal {
     color: rgba(0, 0, 0, 0.65);
     min-width: 600px;
@@ -388,4 +387,11 @@
     cursor: pointer;
   }
 
+  .tip {
+    padding: 3px 5px;
+    font-size: 16px;
+    border-radius: 4px;
+    border-left: 4px solid #783887;
+    margin: 0px 0px 10px;
+  }
 </style>
