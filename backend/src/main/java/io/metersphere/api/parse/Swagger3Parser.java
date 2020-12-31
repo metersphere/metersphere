@@ -179,12 +179,12 @@ public class Swagger3Parser extends ApiImportAbstractParser {
 
     private void parseCookieParameters(Parameter parameter, List<KeyValue> headers) {
         CookieParameter cookieParameter = (CookieParameter) parameter;
-        addCookie(headers, cookieParameter.getName(), "", getDefaultStringValue(cookieParameter.getDescription()));
+        addCookie(headers, cookieParameter.getName(), "", getDefaultStringValue(cookieParameter.getDescription()), "", true);
     }
 
     private void parseHeaderParameters(Parameter parameter, List<KeyValue> headers) {
         HeaderParameter headerParameter = (HeaderParameter) parameter;
-        addHeader(headers, headerParameter.getName(), "", getDefaultStringValue(headerParameter.getDescription()));
+        addHeader(headers, headerParameter.getName(), "", getDefaultStringValue(headerParameter.getDescription()), "", true);
     }
 
     private HttpResponse parseResponse(ApiResponses responses) {
