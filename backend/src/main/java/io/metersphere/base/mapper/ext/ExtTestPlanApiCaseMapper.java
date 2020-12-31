@@ -13,4 +13,6 @@ public interface ExtTestPlanApiCaseMapper {
     List<TestPlanApiCaseDTO> list(@Param("request") ApiTestCaseRequest request);
 
     List<String> getExecResultByPlanId(String planId);
+
+    List<String> getIdsByPlanId(String planId);
 }
