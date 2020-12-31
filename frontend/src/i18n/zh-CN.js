@@ -503,6 +503,10 @@ export default {
       api_case_status: "用例状态",
       api_case_passing_rate: "用例通过率",
       create_tip: "注: 详细的接口信息可以在编辑页面填写",
+      select_comp:{
+        no_data:"无数据",
+        add_data:"去添加"
+      },
       request: {
         grade_info: "按等级筛选",
         run_env: "运行环境",
@@ -797,7 +801,7 @@ export default {
       ms_tip: "支持 Metersphere json 格式",
       ms_export_tip: "通过 Metersphere 接口测试页面或者浏览器插件导出 json 格式文件",
       postman_tip: "只支持 Postman Collection v2.1 格式的 json 文件",
-      swagger_tip: "只支持 Swagger 2.x 版本的 json 文件",
+      swagger_tip: "支持 Swagger 2.0 与 3.0 版本的 json 文件",
       post_export_tip: "通过 Postman 导出测试集合",
       swagger_export_tip: "通过 Swagger 页面导出",
       suffixFormatErr: "文件格式不符合要求",
@@ -1054,6 +1058,7 @@ export default {
       edit_plan: "编辑测试计划",
       plan_name: "计划名称",
       plan_project: "所属项目",
+      related_project: "关联项目",
       plan_stage: "测试阶段",
       plan_status: "当前状态",
       smoke_test: "冒烟测试",
@@ -1066,6 +1071,7 @@ export default {
       input_plan_name: "请输入测试计划名称",
       input_plan_principal: "请选择负责人",
       input_plan_project: "请选择所属项目",
+      input_related_project: "请选择关联项目",
       input_plan_stage: "请选择测试阶段",
       plan_status_prepare: "未开始",
       plan_status_running: "进行中",

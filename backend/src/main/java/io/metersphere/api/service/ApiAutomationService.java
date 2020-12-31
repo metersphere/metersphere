@@ -385,6 +385,7 @@ public class ApiAutomationService {
         selectRequest.setName(name);
         selectRequest.setProjectId(projectId);
         selectRequest.setFilters(filters);
+        selectRequest.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
         List<ApiScenarioDTO> list = extApiScenarioMapper.list(selectRequest);
         List<String> allIds = list.stream().map(ApiScenarioDTO::getId).collect(Collectors.toList());
         List<String> ids = allIds.stream().filter(id -> !unSelectIds.contains(id)).collect(Collectors.toList());

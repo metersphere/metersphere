@@ -32,12 +32,20 @@ public class KeyValue {
     }
 
     public KeyValue(String name, String value, String description, String contentType) {
+        this(name, value, description, contentType, true);
+    }
+
+    public KeyValue(String name, String value, String description, String contentType, boolean required) {
         this.name = name;
         this.value = value;
         this.description = description;
         this.contentType = contentType;
         this.enable = true;
-        this.required = true;
+        this.required = required;
+    }
+
+    public KeyValue(String name, String value, String description, boolean required) {
+        this(name, value, description, "", required);
     }
 
     public boolean isValid() {

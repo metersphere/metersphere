@@ -485,6 +485,7 @@ public class ApiDefinitionService {
         request.setName(name);
         request.setModuleIds(moduleIds);
         request.setProjectId(projectId);
+        request.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
         List<ApiDefinitionResult> resList = extApiDefinitionMapper.list(request);
         List<String> ids = new ArrayList<>(0);
         if (!resList.isEmpty()) {

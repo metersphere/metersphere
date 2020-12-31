@@ -228,9 +228,7 @@ export default {
           let path = "/test/plan/project";
           this.$post(path,{planId: this.tableData[i].id}, res => {
             let arr = res.data;
-            let projectName = arr.map(data => data.name).join("、");
-            let projectIds = arr.map(data => data.id);
-            this.$set(this.tableData[i], "projectName", projectName);
+            let projectIds = arr.filter(d => d.id !== this.tableData[i].projectId).map(data => data.id);
             this.$set(this.tableData[i], "projectIds", projectIds);
           })
         }

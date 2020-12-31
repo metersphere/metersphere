@@ -181,17 +181,25 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         }
         // 请求体
         if (!StringUtils.equals(this.getMethod(), "GET")) {
-            List<KeyValue> bodyParams = this.body.getBodyParams(sampler, this.getId());
-            if (this.body.getType().equals("Form Data")) {
-                sampler.setDoMultipart(true);
+            if (this.body != null) {
+                List<KeyValue> bodyParams = this.body.getBodyParams(sampler, this.getId());
+                if (StringUtils.isNotEmpty(this.body.getType()) && this.body.getType().equals("Form Data")) {
+                    sampler.setDoMultipart(true);
+                }
+                sampler.setArguments(httpArguments(bodyParams));
             }
-            sampler.setArguments(httpArguments(bodyParams));
         }
 
         final HashTree httpSamplerTree = tree.add(sampler);
-        if (CollectionUtils.isNotEmpty(this.headers)) {
-            setHeader(httpSamplerTree);
+        // 通用请求Headers
+        if (config != null && config.getConfig() != null && config.getConfig().getHttpConfig() != null
+                && CollectionUtils.isNotEmpty(config.getConfig().getHttpConfig().getHeaders())) {
+            setHeader(httpSamplerTree, config.getConfig().getHttpConfig().getHeaders());
         }
+        if (CollectionUtils.isNotEmpty(this.headers)) {
+            setHeader(httpSamplerTree, this.headers);
+        }
+
         //判断是否要开启DNS
         if (config != null && config.getConfig() != null && config.getConfig().getCommonConfig() != null
                 && config.getConfig().getCommonConfig().isEnableHost()) {
@@ -266,7 +274,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         return arguments;
     }
 
-    public void setHeader(HashTree tree) {
+    public void setHeader(HashTree tree, List<KeyValue> headers) {
         HeaderManager headerManager = new HeaderManager();
         headerManager.setEnabled(true);
         headerManager.setName(this.getName() + "Headers");
