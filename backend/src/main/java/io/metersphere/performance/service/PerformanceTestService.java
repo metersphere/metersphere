@@ -127,9 +127,7 @@ public class PerformanceTestService {
         if (files == null) {
             throw new IllegalArgumentException(Translator.get("file_cannot_be_null"));
         }
-
         checkQuota(request, true);
-
         final LoadTestWithBLOBs loadTest = saveLoadTest(request);
         files.forEach(file -> {
             final FileMetadata fileMetadata = fileService.saveFile(file);
@@ -138,6 +136,20 @@ public class PerformanceTestService {
             loadTestFile.setFileId(fileMetadata.getId());
             loadTestFileMapper.insert(loadTestFile);
         });
+        return loadTest.getId();
+    }
+
+    public String save(SaveTestPlanRequest request, byte[] file) {
+        if (file == null) {
+            throw new IllegalArgumentException(Translator.get("file_cannot_be_null"));
+        }
+        checkQuota(request, true);
+        final LoadTestWithBLOBs loadTest = saveLoadTest(request);
+        final FileMetadata fileMetadata = fileService.saveFile(file, request.getName() + ".JMX", new Long(file.length));
+        LoadTestFile loadTestFile = new LoadTestFile();
+        loadTestFile.setTestId(loadTest.getId());
+        loadTestFile.setFileId(fileMetadata.getId());
+        loadTestFileMapper.insert(loadTestFile);
         return loadTest.getId();
     }
 

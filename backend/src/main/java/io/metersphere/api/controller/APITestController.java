@@ -9,10 +9,14 @@ import io.metersphere.api.dto.datacount.request.ScheduleInfoRequest;
 import io.metersphere.api.dto.datacount.response.ApiDataCountDTO;
 import io.metersphere.api.dto.datacount.response.ExecutedCaseInfoDTO;
 import io.metersphere.api.dto.datacount.response.TaskInfoResult;
+import io.metersphere.api.dto.definition.RunDefinitionRequest;
+import io.metersphere.api.dto.definition.request.MsTestElement;
 import io.metersphere.api.dto.scenario.request.dubbo.RegistryCenter;
 import io.metersphere.api.service.*;
 import io.metersphere.base.domain.ApiTest;
+import io.metersphere.base.domain.LoadTest;
 import io.metersphere.base.domain.Schedule;
+import io.metersphere.commons.constants.PerformanceTestStatus;
 import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.commons.constants.ScheduleGroup;
 import io.metersphere.commons.utils.CronUtils;
@@ -21,19 +25,23 @@ import io.metersphere.commons.utils.Pager;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.controller.request.QueryScheduleRequest;
 import io.metersphere.dto.ScheduleDao;
+import io.metersphere.performance.service.PerformanceTestService;
 import io.metersphere.service.CheckPermissionService;
+import io.metersphere.service.FileService;
 import io.metersphere.service.ScheduleService;
+import io.metersphere.track.request.testplan.SaveTestPlanRequest;
+import org.apache.http.entity.ContentType;
+import org.apache.jorphan.collections.HashTree;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 import static io.metersphere.commons.utils.JsonPathUtils.getListJson;
 
@@ -60,6 +68,10 @@ public class APITestController {
     private ScheduleService scheduleService;
     @Resource
     private APIReportService apiReportService;
+    @Resource
+    private PerformanceTestService performanceTestService;
+    @Resource
+    private CheckPermissionService checkPermissionService;
 
     @GetMapping("recent/{count}")
     public List<APITestResult> recentTest(@PathVariable int count) {
@@ -109,6 +121,7 @@ public class APITestController {
     public void mergeCreate(@RequestPart("request") SaveAPITestRequest request, @RequestPart(value = "file") MultipartFile file, @RequestPart(value = "selectIds") List<String> selectIds) {
         apiTestService.mergeCreate(request, file, selectIds);
     }
+
     @PostMapping(value = "/update", consumes = {"multipart/form-data"})
     public void update(@RequestPart("request") SaveAPITestRequest request, @RequestPart(value = "file") MultipartFile file, @RequestPart(value = "files") List<MultipartFile> bodyFiles) {
         checkownerService.checkApiTestOwner(request.getId());
@@ -189,19 +202,19 @@ public class APITestController {
         //查询完成率、进行中、已完成
         List<ApiDataCountResult> countResultByStatelList = apiDefinitionService.countStateByProjectID(projectId);
         apiCountResult.countStatus(countResultByStatelList);
-        long allCount = apiCountResult.getFinishedCount()+apiCountResult.getRunningCount()+apiCountResult.getNotStartedCount();
+        long allCount = apiCountResult.getFinishedCount() + apiCountResult.getRunningCount() + apiCountResult.getNotStartedCount();
 
-        if(allCount!=0){
-            float complateRageNumber =(float)apiCountResult.getFinishedCount()*100/allCount;
+        if (allCount != 0) {
+            float complateRageNumber = (float) apiCountResult.getFinishedCount() * 100 / allCount;
             DecimalFormat df = new DecimalFormat("0.0");
-            apiCountResult.setCompletionRage(df.format(complateRageNumber)+"%");
+            apiCountResult.setCompletionRage(df.format(complateRageNumber) + "%");
         }
 
-        apiCountResult.setHttpCountStr("HTTP&nbsp;&nbsp;<br/><br/>"+apiCountResult.getHttpApiDataCountNumber());
-        apiCountResult.setRpcCountStr("RPC&nbsp;&nbsp;<br/><br/>"+apiCountResult.getRpcApiDataCountNumber());
-        apiCountResult.setTcpCountStr("TCP&nbsp;&nbsp;<br/><br/>"+apiCountResult.getTcpApiDataCountNumber());
-        apiCountResult.setSqlCountStr("SQL&nbsp;&nbsp;<br/><br/>"+apiCountResult.getSqlApiDataCountNumber());
-        return  apiCountResult;
+        apiCountResult.setHttpCountStr("HTTP&nbsp;&nbsp;<br/><br/>" + apiCountResult.getHttpApiDataCountNumber());
+        apiCountResult.setRpcCountStr("RPC&nbsp;&nbsp;<br/><br/>" + apiCountResult.getRpcApiDataCountNumber());
+        apiCountResult.setTcpCountStr("TCP&nbsp;&nbsp;<br/><br/>" + apiCountResult.getTcpApiDataCountNumber());
+        apiCountResult.setSqlCountStr("SQL&nbsp;&nbsp;<br/><br/>" + apiCountResult.getSqlApiDataCountNumber());
+        return apiCountResult;
     }
 
     @GetMapping("/testCaseInfoCount/{projectId}")
@@ -222,21 +235,21 @@ public class APITestController {
         //未覆盖 已覆盖： 统计当前接口下是否含有案例
         List<ApiDataCountResult> countResultByApiCoverageList = apiDefinitionService.countApiCoverageByProjectID(projectId);
         apiCountResult.countApiCoverage(countResultByApiCoverageList);
-        long allCount = apiCountResult.getCoverageCount()+apiCountResult.getUncoverageCount();
+        long allCount = apiCountResult.getCoverageCount() + apiCountResult.getUncoverageCount();
 
-        if(allCount!=0){
-            float coverageRageNumber =(float)apiCountResult.getCoverageCount()*100/allCount;
+        if (allCount != 0) {
+            float coverageRageNumber = (float) apiCountResult.getCoverageCount() * 100 / allCount;
             DecimalFormat df = new DecimalFormat("0.0");
-            apiCountResult.setCoverageRage(df.format(coverageRageNumber)+"%");
+            apiCountResult.setCoverageRage(df.format(coverageRageNumber) + "%");
         }
 
 
-        apiCountResult.setHttpCountStr("HTTP&nbsp;&nbsp;<br/><br/>"+apiCountResult.getHttpApiDataCountNumber());
-        apiCountResult.setRpcCountStr("RPC&nbsp;&nbsp;<br/><br/>"+apiCountResult.getRpcApiDataCountNumber());
-        apiCountResult.setTcpCountStr("TCP&nbsp;&nbsp;<br/><br/>"+apiCountResult.getTcpApiDataCountNumber());
-        apiCountResult.setSqlCountStr("SQL&nbsp;&nbsp;<br/><br/>"+apiCountResult.getSqlApiDataCountNumber());
+        apiCountResult.setHttpCountStr("HTTP&nbsp;&nbsp;<br/><br/>" + apiCountResult.getHttpApiDataCountNumber());
+        apiCountResult.setRpcCountStr("RPC&nbsp;&nbsp;<br/><br/>" + apiCountResult.getRpcApiDataCountNumber());
+        apiCountResult.setTcpCountStr("TCP&nbsp;&nbsp;<br/><br/>" + apiCountResult.getTcpApiDataCountNumber());
+        apiCountResult.setSqlCountStr("SQL&nbsp;&nbsp;<br/><br/>" + apiCountResult.getSqlApiDataCountNumber());
 
-        return  apiCountResult;
+        return apiCountResult;
     }
 
     @GetMapping("/testSceneInfoCount/{projectId}")
@@ -263,15 +276,15 @@ public class APITestController {
         List<ApiDataCountResult> countResultByRunResult = apiAutomationService.countRunResultByProjectID(projectId);
         apiCountResult.countRunResult(countResultByRunResult);
 
-        long allCount = apiCountResult.getUnexecuteCount()+apiCountResult.getExecutionPassCount()+apiCountResult.getExecutionFailedCount();
+        long allCount = apiCountResult.getUnexecuteCount() + apiCountResult.getExecutionPassCount() + apiCountResult.getExecutionFailedCount();
 
-        if(allCount!=0){
-            float coverageRageNumber =(float)apiCountResult.getExecutionPassCount()*100/allCount;
+        if (allCount != 0) {
+            float coverageRageNumber = (float) apiCountResult.getExecutionPassCount() * 100 / allCount;
             DecimalFormat df = new DecimalFormat("0.0");
-            apiCountResult.setPassRage(df.format(coverageRageNumber)+"%");
+            apiCountResult.setPassRage(df.format(coverageRageNumber) + "%");
         }
 
-        return  apiCountResult;
+        return apiCountResult;
 
     }
 
@@ -287,7 +300,7 @@ public class APITestController {
         apiCountResult.setThisWeekAddedCount(taskCountInThisWeek);
         long api_executedInThisWeekCountNumber = apiReportService.countByProjectIdAndCreateInThisWeek(projectId);
         long scene_executedInThisWeekCountNumber = apiScenarioReportService.countByProjectIdAndCreateAndByScheduleInThisWeek(projectId);
-        long executedInThisWeekCountNumber = api_executedInThisWeekCountNumber+scene_executedInThisWeekCountNumber;
+        long executedInThisWeekCountNumber = api_executedInThisWeekCountNumber + scene_executedInThisWeekCountNumber;
         apiCountResult.setThisWeekExecutedCount(executedInThisWeekCountNumber);
 
         //统计 失败 成功 以及总数
@@ -299,41 +312,41 @@ public class APITestController {
         apiCountResult.countScheduleExecute(allExecuteResult);
 
         long allCount = apiCountResult.getExecutedCount();
-        if(allCount!=0){
-            float coverageRageNumber =(float)apiCountResult.getSuccessCount()*100/allCount;
+        if (allCount != 0) {
+            float coverageRageNumber = (float) apiCountResult.getSuccessCount() * 100 / allCount;
             DecimalFormat df = new DecimalFormat("0.0");
-            apiCountResult.setSuccessRage(df.format(coverageRageNumber)+"%");
+            apiCountResult.setSuccessRage(df.format(coverageRageNumber) + "%");
         }
 
-        return  apiCountResult;
+        return apiCountResult;
     }
 
     @GetMapping("/faliureCaseAboutTestPlan/{projectId}/{limitNumber}")
     public List<ExecutedCaseInfoDTO> faliureCaseAboutTestPlan(@PathVariable String projectId, @PathVariable int limitNumber) {
 
-        List<ExecutedCaseInfoResult> selectDataList = apiDefinitionExecResultService.findFaliureCaseInfoByProjectIDAndLimitNumberInSevenDays(projectId,limitNumber);
+        List<ExecutedCaseInfoResult> selectDataList = apiDefinitionExecResultService.findFaliureCaseInfoByProjectIDAndLimitNumberInSevenDays(projectId, limitNumber);
 
         List<ExecutedCaseInfoDTO> returnList = new ArrayList<>(limitNumber);
 
-        for(int dataIndex = 0;dataIndex < limitNumber;dataIndex ++){
+        for (int dataIndex = 0; dataIndex < limitNumber; dataIndex++) {
 
             ExecutedCaseInfoDTO dataDTO = new ExecutedCaseInfoDTO();
-            dataDTO.setSortIndex(dataIndex+1);
+            dataDTO.setSortIndex(dataIndex + 1);
 
-            if(dataIndex<selectDataList.size()){
+            if (dataIndex < selectDataList.size()) {
                 ExecutedCaseInfoResult selectData = selectDataList.get(dataIndex);
 
                 dataDTO.setCaseName(selectData.getCaseName());
                 dataDTO.setTestPlan(selectData.getTestPlan());
                 dataDTO.setFailureTimes(selectData.getFailureTimes());
                 dataDTO.setCaseType(selectData.getCaseType());
-            }else {
+            } else {
                 dataDTO.setCaseName("");
                 dataDTO.setTestPlan("");
             }
             returnList.add(dataDTO);
         }
-        return  returnList;
+        return returnList;
     }
 
     @GetMapping("/runningTask/{projectID}")
@@ -343,11 +356,11 @@ public class APITestController {
         for (TaskInfoResult taskInfo :
                 resultList) {
             Date nextExecutionTime = CronUtils.getNextTriggerTime(taskInfo.getRule());
-            if(nextExecutionTime!=null){
+            if (nextExecutionTime != null) {
                 taskInfo.setNextExecutionTime(nextExecutionTime.getTime());
             }
         }
-        return  resultList;
+        return resultList;
     }
 
     @PostMapping(value = "/schedule/updateEnableByPrimyKey")
@@ -355,5 +368,18 @@ public class APITestController {
         Schedule schedule = scheduleService.getSchedule(request.getTaskID());
         schedule.setEnable(request.isEnable());
         apiAutomationService.updateSchedule(schedule);
+    }
+
+    @PostMapping(value = "/genPerformanceTest", consumes = {"multipart/form-data"})
+    public String genPerformanceTest(@RequestPart("request") RunDefinitionRequest runRequest, @RequestPart(value = "files") List<MultipartFile> bodyFiles) {
+        SaveTestPlanRequest request = new SaveTestPlanRequest();
+        request.setName(runRequest.getName());
+        request.setProjectId(runRequest.getProjectId());
+        request.setAdvancedConfiguration("{\"timeout\":2000,\"responseTimeout\":0,\"statusCode\":[],\"params\":[],\"domains\":[]}");
+        request.setLoadConfiguration("[]");
+        HashTree hashTree = runRequest.getTestElement().generateHashTree();
+        String jmxString = runRequest.getTestElement().getJmx(hashTree);
+        String testID = performanceTestService.save(request, jmxString.getBytes());
+        return testID;
     }
 }

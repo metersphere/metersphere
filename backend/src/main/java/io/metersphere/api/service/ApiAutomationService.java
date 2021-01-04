@@ -24,19 +24,23 @@ import io.metersphere.base.mapper.ext.ExtTestPlanScenarioCaseMapper;
 import io.metersphere.commons.constants.*;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.DateUtils;
+import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.ServiceUtils;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.i18n.Translator;
 import io.metersphere.job.sechedule.ApiScenarioTestJob;
+import io.metersphere.performance.service.PerformanceTestService;
 import io.metersphere.service.ScheduleService;
 import io.metersphere.track.dto.TestPlanDTO;
 import io.metersphere.track.request.testcase.ApiCaseRelevanceRequest;
 import io.metersphere.track.request.testcase.QueryTestPlanRequest;
+import io.metersphere.track.request.testplan.SaveTestPlanRequest;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
+import org.apache.jmeter.save.SaveService;
 import org.apache.jorphan.collections.HashTree;
 import org.apache.jorphan.collections.ListedHashTree;
 import org.springframework.stereotype.Service;
@@ -44,6 +48,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import java.io.ByteArrayOutputStream;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -72,6 +77,8 @@ public class ApiAutomationService {
     SqlSessionFactory sqlSessionFactory;
     @Resource
     private ApiScenarioReportMapper apiScenarioReportMapper;
+    @Resource
+    private PerformanceTestService performanceTestService;
 
     public List<ApiScenarioDTO> list(ApiScenarioRequest request) {
         request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
@@ -537,5 +544,145 @@ public class ApiAutomationService {
     private void addOrUpdateApiScenarioCronJob(Schedule request) {
         scheduleService.addOrUpdateCronJob(
                 request, ApiScenarioTestJob.getJobKey(request.getResourceId()), ApiScenarioTestJob.getTriggerKey(request.getResourceId()), ApiScenarioTestJob.class);
+    }
+
+    public String genPerformanceTest1(RunScenarioRequest runRequest) {
+        SaveTestPlanRequest request = new SaveTestPlanRequest();
+        request.setName(runRequest.getName());
+        request.setProjectId(runRequest.getProjectId());
+        request.setAdvancedConfiguration("{\"timeout\":2000,\"responseTimeout\":0,\"statusCode\":[],\"params\":[],\"domains\":[]}");
+        request.setLoadConfiguration("[]");
+
+        List<String> ids = runRequest.getScenarioIds();
+        if (runRequest.isSelectAllDate()) {
+            ids = this.getAllScenarioIdsByFontedSelect(
+                    runRequest.getModuleIds(), request.getName(), request.getProjectId(), runRequest.getFilters(), runRequest.getUnSelectIds());
+        }
+        List<ApiScenarioWithBLOBs> apiScenarios = extApiScenarioMapper.selectIds(ids);
+        MsTestPlan testPlan = new MsTestPlan();
+        testPlan.setHashTree(new LinkedList<>());
+        HashTree jmeterHashTree = new ListedHashTree();
+
+        try {
+            boolean isFirst = true;
+            for (ApiScenarioWithBLOBs item : apiScenarios) {
+                if (item.getStepTotal() == 0) {
+                    MSException.throwException(item.getName() + "，" + Translator.get("automation_exec_info"));
+                    break;
+                }
+                MsThreadGroup group = new MsThreadGroup();
+                group.setLabel(item.getName());
+                group.setName(UUID.randomUUID().toString());
+                // 批量执行的结果直接存储为报告
+                if (isFirst) {
+                    group.setName(request.getId());
+                    isFirst = false;
+                }
+                ObjectMapper mapper = new ObjectMapper();
+                mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+                JSONObject element = JSON.parseObject(item.getScenarioDefinition());
+                MsScenario scenario = JSONObject.parseObject(item.getScenarioDefinition(), MsScenario.class);
+
+                // 多态JSON普通转换会丢失内容，需要通过 ObjectMapper 获取
+                if (element != null && StringUtils.isNotEmpty(element.getString("hashTree"))) {
+                    LinkedList<MsTestElement> elements = mapper.readValue(element.getString("hashTree"),
+                            new TypeReference<LinkedList<MsTestElement>>() {
+                            });
+                    scenario.setHashTree(elements);
+                }
+                if (StringUtils.isNotEmpty(element.getString("variables"))) {
+                    LinkedList<KeyValue> variables = mapper.readValue(element.getString("variables"),
+                            new TypeReference<LinkedList<KeyValue>>() {
+                            });
+                    scenario.setVariables(variables);
+                }
+                group.setEnableCookieShare(scenario.isEnableCookieShare());
+                LinkedList<MsTestElement> scenarios = new LinkedList<>();
+                scenarios.add(scenario);
+                // 创建场景报告
+//                createScenarioReport(group.getName(), item.getId(), item.getName(), runRequest.getTriggerMode() == null ? ReportTriggerMode.MANUAL.name() : runRequest.getTriggerMode(),
+//                        runRequest.getExecuteType(), item.getProjectId(), runRequest.getReportUserID());
+                group.setHashTree(scenarios);
+                testPlan.getHashTree().add(group);
+
+            }
+        } catch (Exception ex) {
+            MSException.throwException(ex.getMessage());
+        }
+
+        testPlan.toHashTree(jmeterHashTree, testPlan.getHashTree(), new ParameterConfig());
+
+
+        String jmxString = testPlan.getJmx(jmeterHashTree);
+
+        String testID = performanceTestService.save(request, jmxString.getBytes());
+        return testID;
+    }
+
+    public String genPerformanceTest(RunScenarioRequest request) {
+        List<ApiScenarioWithBLOBs> apiScenarios = null;
+        List<String> ids = request.getScenarioIds();
+        if (request.isSelectAllDate()) {
+            ids = this.getAllScenarioIdsByFontedSelect(
+                    request.getModuleIds(), request.getName(), request.getProjectId(), request.getFilters(), request.getUnSelectIds());
+        }
+        apiScenarios = extApiScenarioMapper.selectIds(ids);
+        MsTestPlan testPlan = new MsTestPlan();
+        testPlan.setHashTree(new LinkedList<>());
+        HashTree jmeterHashTree = new ListedHashTree();
+        try {
+            boolean isFirst = true;
+            for (ApiScenarioWithBLOBs item : apiScenarios) {
+                if (item.getStepTotal() == 0) {
+                    MSException.throwException(item.getName() + "，" + Translator.get("automation_exec_info"));
+                    break;
+                }
+                MsThreadGroup group = new MsThreadGroup();
+                group.setLabel(item.getName());
+                group.setName(UUID.randomUUID().toString());
+                // 批量执行的结果直接存储为报告
+                if (isFirst) {
+                    group.setName(request.getId());
+                    isFirst = false;
+                }
+                ObjectMapper mapper = new ObjectMapper();
+                mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+                JSONObject element = JSON.parseObject(item.getScenarioDefinition());
+                MsScenario scenario = JSONObject.parseObject(item.getScenarioDefinition(), MsScenario.class);
+
+                // 多态JSON普通转换会丢失内容，需要通过 ObjectMapper 获取
+                if (element != null && StringUtils.isNotEmpty(element.getString("hashTree"))) {
+                    LinkedList<MsTestElement> elements = mapper.readValue(element.getString("hashTree"),
+                            new TypeReference<LinkedList<MsTestElement>>() {
+                            });
+                    scenario.setHashTree(elements);
+                }
+                if (StringUtils.isNotEmpty(element.getString("variables"))) {
+                    LinkedList<KeyValue> variables = mapper.readValue(element.getString("variables"),
+                            new TypeReference<LinkedList<KeyValue>>() {
+                            });
+                    scenario.setVariables(variables);
+                }
+                group.setEnableCookieShare(scenario.isEnableCookieShare());
+                LinkedList<MsTestElement> scenarios = new LinkedList<>();
+                scenarios.add(scenario);
+                group.setHashTree(scenarios);
+                testPlan.getHashTree().add(group);
+
+            }
+        } catch (Exception ex) {
+            MSException.throwException(ex.getMessage());
+        }
+
+        testPlan.toHashTree(jmeterHashTree, testPlan.getHashTree(), new ParameterConfig());
+        String jmx = testPlan.getJmx(jmeterHashTree);
+
+        SaveTestPlanRequest saveRequest = new SaveTestPlanRequest();
+        saveRequest.setName(request.getName());
+        saveRequest.setProjectId(request.getProjectId());
+        saveRequest.setAdvancedConfiguration("{\"timeout\":2000,\"responseTimeout\":0,\"statusCode\":[],\"params\":[],\"domains\":[]}");
+        saveRequest.setLoadConfiguration("[]");
+        String testID = performanceTestService.save(saveRequest, jmx.getBytes());
+        return testID;
     }
 }
