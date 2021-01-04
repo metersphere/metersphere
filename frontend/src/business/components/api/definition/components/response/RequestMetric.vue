@@ -27,7 +27,7 @@
 
     computed: {
       error() {
-        return this.response.responseCode >= 400;
+        return this.response && this.response.responseCode && this.response.responseCode >= 400;
       }
     }
   }

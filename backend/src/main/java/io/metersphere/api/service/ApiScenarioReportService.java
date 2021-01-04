@@ -207,6 +207,20 @@ public class ApiScenarioReportService {
         apiScenarioReportMapper.deleteByPrimaryKey(request.getId());
     }
 
+    public void delete(String id) {
+        apiScenarioReportDetailMapper.deleteByPrimaryKey(id);
+        apiScenarioReportMapper.deleteByPrimaryKey(id);
+    }
+
+    public void deleteByIds(List<String> ids) {
+        ApiScenarioReportExample example = new ApiScenarioReportExample();
+        example.createCriteria().andIdIn(ids);
+        ApiScenarioReportDetailExample detailExample = new ApiScenarioReportDetailExample();
+        detailExample.createCriteria().andReportIdIn(ids);
+        apiScenarioReportDetailMapper.deleteByExample(detailExample);
+        apiScenarioReportMapper.deleteByExample(example);
+    }
+
     public void deleteAPIReportBatch(DeleteAPIReportRequest reportRequest) {
         List<String> ids = reportRequest.getIds();
         if (reportRequest.isSelectAllDate()) {

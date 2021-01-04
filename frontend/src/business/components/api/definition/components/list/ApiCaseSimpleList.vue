@@ -7,6 +7,7 @@
       <el-input placeholder="搜索" @blur="search" @keyup.enter.native="search" class="search-input" size="small" v-model="condition.name"/>
 
       <el-table v-loading="result.loading"
+                ref="caseTable"
                 border
                 :data="tableData" row-key="id" class="test-content adjust-table"
                 @select-all="handleSelectAll"
@@ -15,8 +16,21 @@
                 @select="handleSelect" :height="screenHeight">
         <el-table-column type="selection"/>
         <el-table-column width="40" :resizable="false" align="center">
+          <el-dropdown slot="header" style="width: 14px">
+            <span class="el-dropdown-link" style="width: 14px">
+              <i class="el-icon-arrow-down el-icon--right" style="margin-left: 0px"></i>
+            </span>
+            <el-dropdown-menu slot="dropdown">
+              <el-dropdown-item @click.native.stop="isSelectDataAll(true)">
+                {{$t('api_test.batch_menus.select_all_data',[total])}}
+              </el-dropdown-item>
+              <el-dropdown-item @click.native.stop="isSelectDataAll(false)">
+                {{$t('api_test.batch_menus.select_show_data',[tableData.length])}}
+              </el-dropdown-item>
+            </el-dropdown-menu>
+          </el-dropdown>
           <template v-slot:default="scope">
-            <show-more-btn :is-show="scope.row.showMore && !isReadOnly" :buttons="buttons" :size="selectRows.size"/>
+            <show-more-btn :is-show="scope.row.showMore && !isReadOnly" :buttons="buttons" :size="selectDataCounts"/>
           </template>
         </el-table-column>
 
@@ -143,7 +157,10 @@
         pageSize: 10,
         total: 0,
         screenHeight: document.documentElement.clientHeight - 330,//屏幕高度
-        environmentId: undefined
+        environmentId: undefined,
+        selectAll: false,
+        unSelection:[],
+        selectDataCounts:0,
       }
     },
     props: {
@@ -216,7 +233,9 @@
           this.condition.status = "Trash";
           this.condition.moduleIds = [];
         }
-
+        this.selectAll  = false;
+        this.unSelection = [];
+        this.selectDataCounts = 0;
         this.condition.projectId = getCurrentProjectID();
 
         if (this.currentProtocol != null) {
@@ -226,6 +245,7 @@
           this.result = this.$post('/api/testcase/list/' + this.currentPage + "/" + this.pageSize, this.condition, response => {
             this.total = response.data.itemCount;
             this.tableData = response.data.listObject;
+            this.unSelection = response.data.listObject.map(s=>s.id);
           });
         }
       },
@@ -237,6 +257,7 @@
       // },
       handleSelect(selection, row) {
         _handleSelect(this, selection, row, this.selectRows);
+        this.selectRowsCount(this.selectRows)
       },
       showExecResult(row) {
         this.visible = false;
@@ -256,6 +277,7 @@
       },
       handleSelectAll(selection) {
         _handleSelectAll(this, selection, this.tableData, this.selectRows);
+        this.selectRowsCount(this.selectRows)
       },
       search() {
         this.initTable();
@@ -294,7 +316,13 @@
             confirmButtonText: this.$t('commons.confirm'),
             callback: (action) => {
               if (action === 'confirm') {
-                this.$post('/api/testcase/deleteBatch/',  Array.from(this.selectRows).map(row => row.id), () => {
+                let obj = {};
+                obj.projectId = getCurrentProjectID();
+                obj.selectAllDate = this.isSelectAllDate;
+                obj.unSelectIds = this.unSelection;
+                obj.ids = Array.from(this.selectRows).map(row => row.id);
+                obj = Object.assign(obj, this.condition);
+                this.$post('/api/testcase/deleteBatchByParam/', obj , () => {
                   this.selectRows.clear();
                   this.initTable();
                   this.$success(this.$t('commons.delete_success'));
@@ -327,7 +355,12 @@
         let param = {};
         param[form.type] = form.value;
         param.ids = ids;
-        this.$post('/api/testcase/batch/edit', param, () => {
+
+        param.projectId = getCurrentProjectID();
+        param.selectAllDate = this.isSelectAllDate;
+        param.unSelectIds = this.unSelection;
+        param = Object.assign(param, this.condition);
+        this.$post('/api/testcase/batch/editByParam', param, () => {
           this.$success(this.$t('commons.save_success'));
           this.initTable();
         });
@@ -355,6 +388,31 @@
       },
       setEnvironment(data) {
         this.environmentId = data.id;
+      },
+      selectRowsCount(selection){
+        let selectedIDs = this.getIds(selection);
+        let allIDs = this.tableData.map(s=>s.id);
+        this.unSelection = allIDs.filter(function (val) {
+          return selectedIDs.indexOf(val) === -1
+        });
+        if(this.isSelectAllDate){
+          this.selectDataCounts =this.total - this.unSelection.length;
+        }else {
+          this.selectDataCounts =selection.size;
+        }
+      },
+      isSelectDataAll(dataType) {
+        this.isSelectAllDate = dataType;
+        this.selectRowsCount(this.selectRows)
+        //如果已经全选，不需要再操作了
+        if (this.selectRows.size != this.tableData.length) {
+          this.$refs.caseTable.toggleAllSelection(true);
+        }
+      },
+      getIds(rowSets){
+        let rowArray = Array.from(rowSets)
+        let ids =  rowArray.map(s=>s.id);
+        return ids;
       }
     },
   }

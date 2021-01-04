@@ -38,10 +38,10 @@ public class TestPlanApiCaseController {
         return PageUtils.setPageInfo(page, testPlanApiCaseService.relevanceList(request));
     }
 
-    @GetMapping("/delete/{planId}/{id}")
+    @GetMapping("/delete/{id}")
     @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
-    public int deleteTestCase(@PathVariable String planId, @PathVariable String id) {
-        return testPlanApiCaseService.delete(planId, id);
+    public int deleteTestCase(@PathVariable String id) {
+        return testPlanApiCaseService.delete(id);
     }
 
     @PostMapping("/batch/delete")

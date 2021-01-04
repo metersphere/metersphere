@@ -3,10 +3,7 @@ package io.metersphere.api.controller;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.api.dto.ApiCaseBatchRequest;
-import io.metersphere.api.dto.definition.ApiTestCaseDTO;
-import io.metersphere.api.dto.definition.ApiTestCaseRequest;
-import io.metersphere.api.dto.definition.ApiTestCaseResult;
-import io.metersphere.api.dto.definition.SaveApiTestCaseRequest;
+import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.service.ApiTestCaseService;
 import io.metersphere.base.domain.ApiTestCaseWithBLOBs;
 import io.metersphere.commons.constants.RoleConstants;
@@ -81,13 +78,29 @@ public class ApiTestCaseController {
         apiTestCaseService.editApiBath(request);
     }
 
+    @PostMapping("/batch/editByParam")
+    @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
+    public void editApiBathByParam(@RequestBody ApiTestBatchRequest request) {
+        apiTestCaseService.editApiBathByParam(request);
+    }
+
     @PostMapping("/deleteBatch")
     public void deleteBatch(@RequestBody List<String> ids) {
         apiTestCaseService.deleteBatch(ids);
     }
 
+    @PostMapping("/deleteBatchByParam")
+    public void deleteBatchByParam(@RequestBody ApiTestBatchRequest request) {
+        apiTestCaseService.deleteBatchByParam(request);
+    }
+
     @PostMapping("/relevance")
     public void testPlanRelevance(@RequestBody ApiCaseRelevanceRequest request) {
         apiTestCaseService.relevanceByCase(request);
+    }
+
+    @PostMapping(value = "/jenkins/run")
+    public String jenkinsRun(@RequestBody RunCaseRequest request) {
+        return apiTestCaseService.run(request);
     }
 }

@@ -55,6 +55,11 @@ public class TestPlanTestCaseService {
         });
         return list;
     }
+    public List<TestPlanCaseDTO> listByPlanId(QueryTestPlanCaseRequest request) {
+        List<TestPlanCaseDTO> list = extTestPlanTestCaseMapper.listByPlanId(request);
+
+        return list;
+    }
 
     public List<TestPlanCaseDTO> listByNode(QueryTestPlanCaseRequest request) {
         List<TestPlanCaseDTO> list = extTestPlanTestCaseMapper.listByNode(request);

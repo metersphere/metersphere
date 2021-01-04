@@ -36,7 +36,17 @@
             <el-col :span="8">
               <el-form-item :label="$t('test_track.module.module')" prop="moduleId">
                 <el-select class="ms-http-select" size="small" v-model="httpForm.moduleId">
-                  <el-option v-for="item in moduleOptions" :key="item.id" :label="item.path" :value="item.id"/>
+                  <div v-if="moduleOptions.length>0">
+                    <el-option v-for="item in moduleOptions" :key="item.id" :label="item.path" :value="item.id"/>
+                  </div>
+                  <div v-else>
+                    <el-option :key="0" :value="''">
+                      <div style="margin-left: 40px">
+                        <span style="font-size: 14px;color: #606266;font-weight: 48.93">{{$t('api_test.definition.select_comp.no_data')}},
+                        </span><el-link type="primary" @click="createModules">{{$t('api_test.definition.select_comp.add_data')}}</el-link>
+                      </div>
+                    </el-option>
+                  </div>
                 </el-select>
               </el-form-item>
             </el-col>
@@ -96,6 +106,7 @@
   import {REQ_METHOD, API_STATUS} from "../../model/JsonData";
   import MsJsr233Processor from "../processor/Jsr233Processor";
   import {KeyValue} from "../../model/ApiTestModel";
+  // import {append} from "./../../../../track/common/NodeTree";
 
   export default {
     name: "MsAddCompleteHttpApi",
@@ -160,6 +171,9 @@
             return false;
           }
         })
+      },
+      createModules(){
+        this.$emit("createRootModelInTree");
       },
       getPath(id) {
         if (id === null) {

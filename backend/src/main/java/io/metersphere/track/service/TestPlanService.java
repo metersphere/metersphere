@@ -111,6 +111,7 @@ public class TestPlanService {
         testPlan.setCreateTime(System.currentTimeMillis());
         testPlan.setUpdateTime(System.currentTimeMillis());
         testPlan.setCreator(SessionUtils.getUser().getId());
+        testPlan.setProjectId(SessionUtils.getCurrentProjectId());
         testPlanMapper.insert(testPlan);
 
         List<String> userIds = new ArrayList<>();
@@ -177,8 +178,16 @@ public class TestPlanService {
     }
 
     private void editTestPlanProject(TestPlanDTO testPlan) {
+        // 将要进行关联的项目ID
         List<String> projectIds = testPlan.getProjectIds();
+        // 如果将要关联的项目ID中包含测试计划所属ID则进行剔除
         if (!CollectionUtils.isEmpty(projectIds)) {
+            if (projectIds.contains(testPlan.getProjectId())) {
+                projectIds.remove(testPlan.getProjectId());
+            }
+        }
+        // todo 优化； TestPlanList intoPlan 方法会触发此更新
+        if (StringUtils.isNotBlank(testPlan.getProjectId())) {
             TestPlanProjectExample testPlanProjectExample1 = new TestPlanProjectExample();
             testPlanProjectExample1.createCriteria().andTestPlanIdEqualTo(testPlan.getId());
             List<TestPlanProject> testPlanProjects = testPlanProjectMapper.selectByExample(testPlanProjectExample1);
@@ -195,16 +204,25 @@ public class TestPlanService {
             });
 
             TestPlanProjectExample testPlanProjectExample = new TestPlanProjectExample();
-            testPlanProjectExample.createCriteria().andTestPlanIdEqualTo(testPlan.getId()).andProjectIdNotIn(projectIds);
+            TestPlanProjectExample.Criteria criteria1 = testPlanProjectExample.createCriteria();
+            criteria1.andTestPlanIdEqualTo(testPlan.getId());
+            if (!CollectionUtils.isEmpty(projectIds)) {
+                criteria1.andProjectIdNotIn(projectIds);
+            }
             testPlanProjectMapper.deleteByExample(testPlanProjectExample);
 
             // 关联的项目下的用例idList
-            TestCaseExample example = new TestCaseExample();
-            example.createCriteria().andProjectIdIn(projectIds);
-            List<TestCase> caseList = testCaseMapper.selectByExample(example);
-            List<String> caseIds = caseList.stream().map(TestCase::getId).collect(Collectors.toList());
+            List<String> caseIds = null;
+            // 测试计划所属项目下的用例不解除关联
+            projectIds.add(testPlan.getProjectId());
+            if (!CollectionUtils.isEmpty(projectIds)) {
+                TestCaseExample example = new TestCaseExample();
+                example.createCriteria().andProjectIdIn(projectIds);
+                List<TestCase> caseList = testCaseMapper.selectByExample(example);
+                caseIds = caseList.stream().map(TestCase::getId).collect(Collectors.toList());
+            }
 
-            // 取消关联所属项目下的用例和计划的关系
+            // 取消关联项目下的用例和计划的关系
             TestPlanTestCaseExample testPlanTestCaseExample = new TestPlanTestCaseExample();
             TestPlanTestCaseExample.Criteria criteria = testPlanTestCaseExample.createCriteria().andPlanIdEqualTo(testPlan.getId());
             if (!CollectionUtils.isEmpty(caseIds)) {
@@ -269,6 +287,8 @@ public class TestPlanService {
         TestPlan testPlan = getTestPlan(planId);
         deleteTestCaseByPlanId(planId);
         testPlanProjectService.deleteTestPlanProjectByPlanId(planId);
+        testPlanApiCaseService.deleteByPlanId(planId);
+        testPlanScenarioCaseService.deleteByPlanId(planId);
         int num = testPlanMapper.deleteByPrimaryKey(planId);
         List<String> relatedUsers = new ArrayList<>();
         AddTestPlanRequest testPlans = new AddTestPlanRequest();
@@ -415,13 +435,13 @@ public class TestPlanService {
         if (StringUtils.isBlank(currentWorkspaceId)) {
             return null;
         }
-        TestPlanProjectExample testPlanProjectExample = new TestPlanProjectExample();
-        TestPlanProjectExample.Criteria criteria = testPlanProjectExample.createCriteria();
         if (StringUtils.isNotBlank(SessionUtils.getCurrentProjectId())) {
+            TestPlanExample testPlanExample = new TestPlanExample();
+            TestPlanExample.Criteria criteria = testPlanExample.createCriteria();
             criteria.andProjectIdEqualTo(SessionUtils.getCurrentProjectId());
-            List<TestPlanProject> testPlanProjects = testPlanProjectMapper.selectByExample(testPlanProjectExample);
-            if (!CollectionUtils.isEmpty(testPlanProjects)) {
-                List<String> testPlanIds = testPlanProjects.stream().map(TestPlanProject::getTestPlanId).collect(Collectors.toList());
+            List<TestPlan> testPlans = testPlanMapper.selectByExample(testPlanExample);
+            if (!CollectionUtils.isEmpty(testPlans)) {
+                List<String> testPlanIds = testPlans.stream().map(TestPlan::getId).collect(Collectors.toList());
                 TestPlanExample testPlanTestCaseExample = new TestPlanExample();
                 testPlanTestCaseExample.createCriteria().andWorkspaceIdEqualTo(currentWorkspaceId)
                         .andIdIn(testPlanIds)
@@ -434,18 +454,18 @@ public class TestPlanService {
     }
 
     public List<TestPlan> listTestAllPlan(String currentWorkspaceId) {
-        TestPlanProjectExample testPlanProjectExample = new TestPlanProjectExample();
-        TestPlanProjectExample.Criteria criteria = testPlanProjectExample.createCriteria();
         if (StringUtils.isNotBlank(SessionUtils.getCurrentProjectId())) {
+            TestPlanExample testPlanExample = new TestPlanExample();
+            TestPlanExample.Criteria criteria = testPlanExample.createCriteria();
             criteria.andProjectIdEqualTo(SessionUtils.getCurrentProjectId());
-            List<TestPlanProject> testPlanProjects = testPlanProjectMapper.selectByExample(testPlanProjectExample);
-            if (!CollectionUtils.isEmpty(testPlanProjects)) {
-                List<String> testPlanIds = testPlanProjects.stream().map(TestPlanProject::getTestPlanId).collect(Collectors.toList());
-                TestPlanExample testPlanExample = new TestPlanExample();
-                TestPlanExample.Criteria testPlanCriteria = testPlanExample.createCriteria();
+            List<TestPlan> testPlans = testPlanMapper.selectByExample(testPlanExample);
+            if (!CollectionUtils.isEmpty(testPlans)) {
+                List<String> testPlanIds = testPlans.stream().map(TestPlan::getId).collect(Collectors.toList());
+                TestPlanExample testPlanExample1 = new TestPlanExample();
+                TestPlanExample.Criteria testPlanCriteria = testPlanExample1.createCriteria();
                 testPlanCriteria.andWorkspaceIdEqualTo(currentWorkspaceId);
                 testPlanCriteria.andIdIn(testPlanIds);
-                return testPlanMapper.selectByExample(testPlanExample);
+                return testPlanMapper.selectByExample(testPlanExample1);
             }
         }
 

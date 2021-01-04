@@ -138,9 +138,9 @@ public abstract class MsTestElement {
     }
 
     public Arguments addArguments(ParameterConfig config) {
+        Arguments arguments = new Arguments();
         if (config != null && config.getConfig() != null && config.getConfig().getCommonConfig() != null
                 && CollectionUtils.isNotEmpty(config.getConfig().getCommonConfig().getVariables())) {
-            Arguments arguments = new Arguments();
             arguments.setEnabled(true);
             arguments.setName(name + "Variables");
             arguments.setProperty(TestElement.TEST_CLASS, Arguments.class.getName());
@@ -148,9 +148,8 @@ public abstract class MsTestElement {
             config.getConfig().getCommonConfig().getVariables().stream().filter(KeyValue::isValid).filter(KeyValue::isEnable).forEach(keyValue ->
                     arguments.addArgument(keyValue.getName(), keyValue.getValue(), "=")
             );
-            return arguments;
         }
-        return null;
+        return arguments;
     }
 }
 
