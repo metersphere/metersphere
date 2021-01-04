@@ -1,6 +1,7 @@
 package io.metersphere.api.dto.scenario;
 
 import io.metersphere.api.dto.scenario.request.BodyFile;
+import io.metersphere.commons.json.JSONSchemaGenerator;
 import lombok.Data;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.protocol.http.sampler.HTTPSamplerProxy;
@@ -55,6 +56,10 @@ public class Body {
         } else {
             if (!this.isJson()) {
                 sampler.setPostBodyRaw(true);
+            } else {
+                if (this.getJsonSchema() != null) {
+                    this.raw = JSONSchemaGenerator.getJson(com.alibaba.fastjson.JSON.toJSONString(this.getJsonSchema()));
+                }
             }
             KeyValue keyValue = new KeyValue("", this.getRaw());
             keyValue.setEnable(true);

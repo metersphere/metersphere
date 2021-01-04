@@ -6,7 +6,7 @@
           <span v-if="pickValue.type==='object'" :class="hidden? 'el-tree-node__expand-icon el-icon-caret-right':
             'expanded el-tree-node__expand-icon el-icon-caret-right'" @click="hidden = !hidden"/>
           <span v-else style="width:10px;display:inline-block"></span>
-          <el-input :disabled="disabled || root" :value="pickKey" @blur="onInputName" size="small"/>
+          <input class="el-input el-input__inner" style="height: 32px" :disabled="disabled || root" :value="pickKey" @blur="onInputName" size="small"/>
         </div>
         <el-tooltip v-if="root" content="全选">
           <input type="checkbox" :disabled="!isObject && !isArray" class="ant-col-name-required" @change="onRootCheck"/>
@@ -110,6 +110,7 @@
   import MsMock from './mock/index'
   import MsDialogFooter from '../../../components/MsDialogFooter'
   import LocalProvider from './provider/index'
+  import {getUUID} from "@/common/js/utils";
 
   export default {
     name: 'JsonSchemaEditor',
@@ -282,7 +283,7 @@
         }
       },
       _joinName() {
-        return `feild_${this.deep}_${this.countAdd++}`
+        return `feild_${this.deep}_${this.countAdd++}_${getUUID().substring(0, 5)}`
       },
       onSetting() {
         this.modalVisible = true;

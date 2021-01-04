@@ -67,7 +67,7 @@
   import MsApiKeyValue from "../ApiKeyValue";
   import {BODY_TYPE, KeyValue} from "../../model/ApiTestModel";
   import MsCodeEdit from "../../../../common/components/MsCodeEdit";
-  import MsJsonCodeEdit from "../../../../common/json-schema/JsonEditor";
+  import MsJsonCodeEdit from "../../../../common/json-schema/JsonSchemaEditor";
   import MsDropdown from "../../../../common/components/MsDropdown";
   import MsApiVariable from "../ApiVariable";
   import MsApiBinaryVariable from "./ApiBinaryVariable";

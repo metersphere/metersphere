@@ -1,5 +1,5 @@
 <template>
-  <div id="app">
+  <div id="app" v-loading="loading">
     <el-tabs v-model="activeName" @tab-click="handleClick">
       <el-tab-pane label="模版" name="apiTemplate">
         <el-button type="primary" size="mini" style="margin-left: 10px" @click="openOneClickOperation">导入</el-button>
@@ -20,7 +20,6 @@
 
 <script>
   import {schemaToJson} from './common';
-  import json5 from 'json5';
   import MsImportJson from './import/ImportJson';
 
   const GenerateSchema = require('generate-schema/src/schemas/json.js');
@@ -50,6 +49,7 @@
               "properties": {},
             }
           },
+        loading: false,
         preview: null,
         activeName: "apiTemplate",
       }
@@ -57,7 +57,14 @@
     methods: {
       handleClick() {
         if (this.activeName === 'preview') {
-          this.preview = schemaToJson(this.schema.root);
+          // 前端转换
+          //this.preview = schemaToJson(this.schema.root);
+          this.loading = true;
+          // 后台转换
+          this.$post('/api/definition/preview', this.schema.root, response => {
+            this.preview = response.data;
+            this.loading = false;
+          });
         }
       },
       openOneClickOperation() {

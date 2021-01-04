@@ -1,4 +1,4 @@
-import JsonSchemaEditor from './json-schema-editor/index'
+import JsonSchemaEditor from './editor/index'
 const components = [
     JsonSchemaEditor
 ]
