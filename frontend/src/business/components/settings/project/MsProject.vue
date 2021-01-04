@@ -120,7 +120,7 @@ export default {
       zentao: false,
       form: {},
       currentPage: 1,
-      pageSize: 5,
+      pageSize: 10,
       total: 0,
       rules: {
         name: [

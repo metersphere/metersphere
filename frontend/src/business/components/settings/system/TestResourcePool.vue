@@ -177,7 +177,7 @@ export default {
       condition: {},
       items: [],
       currentPage: 1,
-      pageSize: 5,
+      pageSize: 10,
       total: 0,
       form: {},
       requiredRules: [{required: true, message: this.$t('test_resource_pool.fill_the_data'), trigger: 'blur'}],
