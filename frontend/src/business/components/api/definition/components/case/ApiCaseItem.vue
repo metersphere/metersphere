@@ -140,10 +140,18 @@
       methods: {
 
         deleteCase(index, row) {
-          this.$get('/api/testcase/delete/' + row.id, () => {
-            this.$success(this.$t('commons.delete_success'));
-            this.$emit('refresh');
+          this.$alert(this.$t('api_test.definition.request.delete_confirm') + ' ' + row.name + " ？", '', {
+            confirmButtonText: this.$t('commons.confirm'),
+            callback: (action) => {
+              if (action === 'confirm') {
+                this.$get('/api/testcase/delete/' + row.id, () => {
+                  this.$success(this.$t('commons.delete_success'));
+                  this.$emit('refresh');
+                });
+              }
+            }
           });
+
         },
         singleRun(data) {
           this.$emit('singleRun', data);
