@@ -100,7 +100,7 @@ public class ApiTestCaseController {
     }
 
     @PostMapping(value = "/jenkins/run")
-    public String jenkinsRun(@RequestPart("request") RunCaseRequest request) {
+    public String jenkinsRun(@RequestBody RunCaseRequest request) {
         return apiTestCaseService.run(request);
     }
 }
