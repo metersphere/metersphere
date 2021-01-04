@@ -34,7 +34,7 @@
                             ref="codeEdit"/>
             </el-col>
             <el-col :span="4" class="script-index">
-              <ms-dropdown :default-command="jsr223ProcessorData.language" :commands="languages" @command="languageChange"/>
+              <ms-dropdown :default-command="jsr223ProcessorData.scriptLanguage" :commands="languages" @command="languageChange"/>
               <div class="template-title">{{$t('api_test.request.processor.code_template')}}</div>
               <div v-for="(template, index) in codeTemplates" :key="index" class="code-template">
                 <el-link :disabled="template.disabled" @click="addTemplate(template)">{{template.title}}</el-link>
@@ -140,7 +140,7 @@
           this.jsr223ProcessorData.script = "";
         }
         this.jsr223ProcessorData.script += template.value;
-        if (this.jsr223ProcessorData.language === 'beanshell') {
+        if (this.jsr223ProcessorData.scriptLanguage === 'beanshell') {
           this.jsr223ProcessorData.script += ';';
         }
         this.reload();
@@ -156,7 +156,7 @@
         this.$nextTick(() => (this.isCodeEditAlive = true));
       },
       languageChange(language) {
-        this.jsr223ProcessorData.language = language;
+        this.jsr223ProcessorData.scriptLanguage = language;
       },
       changeActive() {
         this.active = !this.active;
