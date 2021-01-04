@@ -484,14 +484,25 @@ export default {
       let bodyFiles = getBodyUploadFiles(reqObj, runData);
       reqObj.reportId = "run";
 
-      let url = "/api/genPerformanceTest";
+      let url = "/api/genPerformanceTestXml";
+
       this.$fileUpload(url, null, bodyFiles, reqObj, response => {
-        let performanceId = response.data;
-        if(performanceId!=null){
-          this.$router.push({
-            path: "/performance/test/edit/"+performanceId,
-          })
-        }
+        let jmxObj = {};
+        jmxObj.name = response.data.name;
+        jmxObj.xml = response.data.xml;
+        this.$store.commit('setTest', {
+          name: row.name,
+          jmx: jmxObj
+        })
+        this.$router.push({
+          path: "/performance/test/create"
+        })
+        // let performanceId = response.data;
+        // if(performanceId!=null){
+        //   this.$router.push({
+        //     path: "/performance/test/edit/"+performanceId,
+        //   })
+        // }
       }, erro => {
         this.$emit('runRefresh', {});
       });

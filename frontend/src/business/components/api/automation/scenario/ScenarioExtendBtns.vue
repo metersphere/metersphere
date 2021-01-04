@@ -40,7 +40,7 @@
       },
       createPerformance(row) {
         this.infoDb = false;
-        let url = "/api/automation/genPerformanceTest";
+        let url = "/api/automation/genPerformanceTestJmx";
         let run = {};
         let scenarioIds = [];
         scenarioIds.push(row.id);
@@ -49,12 +49,16 @@
         run.id = getUUID();
         run.name = row.name;
         this.$post(url, run, response => {
-          let performanceId = response.data;
-          if(performanceId!=null){
-            this.$router.push({
-              path: "/performance/test/edit/"+performanceId,
-            })
-          }
+          let jmxObj = {};
+          jmxObj.name = response.data.name;
+          jmxObj.xml = response.data.xml;
+          this.$store.commit('setTest', {
+            name: row.name,
+            jmx: jmxObj
+          })
+          this.$router.push({
+            path: "/performance/test/create"
+          })
         });
       },
     }

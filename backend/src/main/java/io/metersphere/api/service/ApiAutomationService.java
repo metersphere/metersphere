@@ -6,6 +6,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.metersphere.api.dto.DeleteAPIReportRequest;
+import io.metersphere.api.dto.JmxInfoDTO;
 import io.metersphere.api.dto.automation.*;
 import io.metersphere.api.dto.datacount.ApiDataCountResult;
 import io.metersphere.api.dto.definition.RunDefinitionRequest;
@@ -546,80 +547,7 @@ public class ApiAutomationService {
                 request, ApiScenarioTestJob.getJobKey(request.getResourceId()), ApiScenarioTestJob.getTriggerKey(request.getResourceId()), ApiScenarioTestJob.class);
     }
 
-    public String genPerformanceTest1(RunScenarioRequest runRequest) {
-        SaveTestPlanRequest request = new SaveTestPlanRequest();
-        request.setName(runRequest.getName());
-        request.setProjectId(runRequest.getProjectId());
-        request.setAdvancedConfiguration("{\"timeout\":2000,\"responseTimeout\":0,\"statusCode\":[],\"params\":[],\"domains\":[]}");
-        request.setLoadConfiguration("[]");
-
-        List<String> ids = runRequest.getScenarioIds();
-        if (runRequest.isSelectAllDate()) {
-            ids = this.getAllScenarioIdsByFontedSelect(
-                    runRequest.getModuleIds(), request.getName(), request.getProjectId(), runRequest.getFilters(), runRequest.getUnSelectIds());
-        }
-        List<ApiScenarioWithBLOBs> apiScenarios = extApiScenarioMapper.selectIds(ids);
-        MsTestPlan testPlan = new MsTestPlan();
-        testPlan.setHashTree(new LinkedList<>());
-        HashTree jmeterHashTree = new ListedHashTree();
-
-        try {
-            boolean isFirst = true;
-            for (ApiScenarioWithBLOBs item : apiScenarios) {
-                if (item.getStepTotal() == 0) {
-                    MSException.throwException(item.getName() + "，" + Translator.get("automation_exec_info"));
-                    break;
-                }
-                MsThreadGroup group = new MsThreadGroup();
-                group.setLabel(item.getName());
-                group.setName(UUID.randomUUID().toString());
-                // 批量执行的结果直接存储为报告
-                if (isFirst) {
-                    group.setName(request.getId());
-                    isFirst = false;
-                }
-                ObjectMapper mapper = new ObjectMapper();
-                mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-                JSONObject element = JSON.parseObject(item.getScenarioDefinition());
-                MsScenario scenario = JSONObject.parseObject(item.getScenarioDefinition(), MsScenario.class);
-
-                // 多态JSON普通转换会丢失内容，需要通过 ObjectMapper 获取
-                if (element != null && StringUtils.isNotEmpty(element.getString("hashTree"))) {
-                    LinkedList<MsTestElement> elements = mapper.readValue(element.getString("hashTree"),
-                            new TypeReference<LinkedList<MsTestElement>>() {
-                            });
-                    scenario.setHashTree(elements);
-                }
-                if (StringUtils.isNotEmpty(element.getString("variables"))) {
-                    LinkedList<KeyValue> variables = mapper.readValue(element.getString("variables"),
-                            new TypeReference<LinkedList<KeyValue>>() {
-                            });
-                    scenario.setVariables(variables);
-                }
-                group.setEnableCookieShare(scenario.isEnableCookieShare());
-                LinkedList<MsTestElement> scenarios = new LinkedList<>();
-                scenarios.add(scenario);
-                // 创建场景报告
-//                createScenarioReport(group.getName(), item.getId(), item.getName(), runRequest.getTriggerMode() == null ? ReportTriggerMode.MANUAL.name() : runRequest.getTriggerMode(),
-//                        runRequest.getExecuteType(), item.getProjectId(), runRequest.getReportUserID());
-                group.setHashTree(scenarios);
-                testPlan.getHashTree().add(group);
-
-            }
-        } catch (Exception ex) {
-            MSException.throwException(ex.getMessage());
-        }
-
-        testPlan.toHashTree(jmeterHashTree, testPlan.getHashTree(), new ParameterConfig());
-
-
-        String jmxString = testPlan.getJmx(jmeterHashTree);
-
-        String testID = performanceTestService.save(request, jmxString.getBytes());
-        return testID;
-    }
-
-    public String genPerformanceTest(RunScenarioRequest request) {
+    public JmxInfoDTO genPerformanceTestJmx(RunScenarioRequest request) {
         List<ApiScenarioWithBLOBs> apiScenarios = null;
         List<String> ids = request.getScenarioIds();
         if (request.isSelectAllDate()) {
@@ -676,13 +604,11 @@ public class ApiAutomationService {
 
         testPlan.toHashTree(jmeterHashTree, testPlan.getHashTree(), new ParameterConfig());
         String jmx = testPlan.getJmx(jmeterHashTree);
+        String name = request.getName() + ".JMX";
 
-        SaveTestPlanRequest saveRequest = new SaveTestPlanRequest();
-        saveRequest.setName(request.getName());
-        saveRequest.setProjectId(request.getProjectId());
-        saveRequest.setAdvancedConfiguration("{\"timeout\":2000,\"responseTimeout\":0,\"statusCode\":[],\"params\":[],\"domains\":[]}");
-        saveRequest.setLoadConfiguration("[]");
-        String testID = performanceTestService.save(saveRequest, jmx.getBytes());
-        return testID;
+        JmxInfoDTO dto = new JmxInfoDTO();
+        dto.setName(name);
+        dto.setXml(jmx);
+        return  dto;
     }
 }

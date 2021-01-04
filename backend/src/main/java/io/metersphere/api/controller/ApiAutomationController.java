@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import io.metersphere.api.dto.JmxInfoDTO;
 import io.metersphere.api.dto.automation.*;
 import io.metersphere.api.dto.definition.RunDefinitionRequest;
 import io.metersphere.api.dto.definition.request.*;
@@ -144,11 +145,10 @@ public class ApiAutomationController {
         apiAutomationService.createSchedule(request);
     }
 
-    //一键创建性能测试
-    @PostMapping(value = "/genPerformanceTest")
-    public String genPerformanceTest(@RequestBody RunScenarioRequest runRequest) {
+    @PostMapping(value = "/genPerformanceTestJmx")
+    public JmxInfoDTO genPerformanceTestJmx(@RequestBody RunScenarioRequest runRequest) {
         runRequest.setExecuteType(ExecuteType.Completed.name());
-        return apiAutomationService.genPerformanceTest(runRequest);
+        return apiAutomationService.genPerformanceTestJmx(runRequest);
     }
 }
 

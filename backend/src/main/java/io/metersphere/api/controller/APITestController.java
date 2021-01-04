@@ -370,16 +370,14 @@ public class APITestController {
         apiAutomationService.updateSchedule(schedule);
     }
 
-    @PostMapping(value = "/genPerformanceTest", consumes = {"multipart/form-data"})
-    public String genPerformanceTest(@RequestPart("request") RunDefinitionRequest runRequest, @RequestPart(value = "files") List<MultipartFile> bodyFiles) {
-        SaveTestPlanRequest request = new SaveTestPlanRequest();
-        request.setName(runRequest.getName());
-        request.setProjectId(runRequest.getProjectId());
-        request.setAdvancedConfiguration("{\"timeout\":2000,\"responseTimeout\":0,\"statusCode\":[],\"params\":[],\"domains\":[]}");
-        request.setLoadConfiguration("[]");
+    @PostMapping(value = "/genPerformanceTestXml", consumes = {"multipart/form-data"})
+    public JmxInfoDTO genPerformanceTest(@RequestPart("request") RunDefinitionRequest runRequest, @RequestPart(value = "files") List<MultipartFile> bodyFiles) {
         HashTree hashTree = runRequest.getTestElement().generateHashTree();
         String jmxString = runRequest.getTestElement().getJmx(hashTree);
-        String testID = performanceTestService.save(request, jmxString.getBytes());
-        return testID;
+        JmxInfoDTO dto = new JmxInfoDTO();
+        dto.setName(runRequest.getName()+".JMX");
+        dto.setXml(jmxString);
+        return  dto;
     }
+
 }
