@@ -623,12 +623,19 @@
         this.$refs.tag.open();
       },
       remove(row, node) {
-        const parent = node.parent
-        const hashTree = parent.data.hashTree || parent.data;
-        const index = hashTree.findIndex(d => d.resourceId != undefined && row.resourceId != undefined && d.resourceId === row.resourceId)
-        hashTree.splice(index, 1);
-        this.sort();
-        this.reload();
+        this.$alert(this.$t('api_test.definition.request.delete_confirm') + ' ' + row.name + " ？", '', {
+          confirmButtonText: this.$t('commons.confirm'),
+          callback: (action) => {
+            if (action === 'confirm') {
+              const parent = node.parent
+              const hashTree = parent.data.hashTree || parent.data;
+              const index = hashTree.findIndex(d => d.resourceId != undefined && row.resourceId != undefined && d.resourceId === row.resourceId)
+              hashTree.splice(index, 1);
+              this.sort();
+              this.reload();
+            }
+          }
+        });
       }
       ,
       copyRow(row, node) {

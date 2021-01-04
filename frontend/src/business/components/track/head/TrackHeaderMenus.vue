@@ -131,11 +131,13 @@ export default {
     },
     registerEvents() {
       TrackEvent.$on(LIST_CHANGE, () => {
-        // // todo 这里偶尔会有 refs 为空的情况
         this.$refs.planRecent.recent();
         this.$refs.caseRecent.recent();
       });
     }
+  },
+  beforeDestroy() {
+    TrackEvent.$off(LIST_CHANGE);
   }
 }
 
