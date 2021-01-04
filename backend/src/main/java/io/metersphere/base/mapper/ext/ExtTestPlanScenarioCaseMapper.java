@@ -21,4 +21,6 @@ public interface ExtTestPlanScenarioCaseMapper {
     List<String> getExecResultByPlanId(String planId);
 
     List<String> getIdsByPlanId(String planId);
+
+    List<String> getNotRelevanceCaseIds(String planId, List<String> relevanceProjectIds);
 }

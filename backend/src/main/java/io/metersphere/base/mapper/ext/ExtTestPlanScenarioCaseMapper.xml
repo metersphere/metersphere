@@ -92,4 +92,18 @@
       where test_plan_id = #{planId}
     </select>
 
+    <select id="getNotRelevanceCaseIds" resultType="java.lang.String">
+      select t.id
+      from test_plan_api_scenario t
+      inner join api_scenario c
+      on c.id = t.api_scenario_id
+      <if test="relevanceProjectIds != null and relevanceProjectIds.size() > 0">
+        and c.project_id not in
+        <foreach collection="relevanceProjectIds" item="projectId" separator="," open="(" close=")">
+          #{projectId}
+        </foreach>
+      </if>
+      where t.test_plan_id = #{planId}
+    </select>
+
 </mapper>

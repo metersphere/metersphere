@@ -77,6 +77,9 @@ public class TestPlanApiCaseService {
     }
 
     public void deleteApiCaseBath(TestPlanApiCaseBatchRequest request) {
+        if (CollectionUtils.isEmpty(request.getIds())) {
+            return;
+        }
         apiDefinitionExecResultService.deleteByResourceIds(request.getIds());
         TestPlanApiCaseExample example = new TestPlanApiCaseExample();
         example.createCriteria()
@@ -96,5 +99,12 @@ public class TestPlanApiCaseService {
         apiCase.setId(id);
         apiCase.setStatus(status);
         testPlanApiCaseMapper.updateByPrimaryKeySelective(apiCase);
+    }
+
+    public void deleteByRelevanceProjectIds(String planId, List<String> relevanceProjectIds) {
+        TestPlanApiCaseBatchRequest request = new TestPlanApiCaseBatchRequest();
+        request.setPlanId(planId);
+        request.setIds(extTestPlanApiCaseMapper.getNotRelevanceCaseIds(planId, relevanceProjectIds));
+        deleteApiCaseBath(request);
     }
 }
