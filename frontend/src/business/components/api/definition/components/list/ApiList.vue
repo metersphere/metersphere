@@ -9,25 +9,18 @@
       <el-table v-loading="result.loading"
                 ref="apiDefinitionTable"
                 border
-                :data="tableData" row-key="id" class="test-content adjust-table api-list"
+                :data="tableData" row-key="id" class="test-content adjust-table ms-select-all"
                 @select-all="handleSelectAll"
                 @select="handleSelect" :height="screenHeight">
-        <el-table-column width="20" type="selection"/>
+        <el-table-column width="50" type="selection"/>
+
+        <ms-table-select-all
+          :page-size="pageSize"
+          :total="total"
+          @selectPageAll="isSelectDataAll(false)"
+          @selectAll="isSelectDataAll(true)"/>
 
         <el-table-column width="30" :resizable="false" align="center">
-          <el-dropdown slot="header">
-            <span class="el-dropdown-link">
-              <i class="el-icon-arrow-down"></i>
-            </span>
-            <el-dropdown-menu slot="dropdown">
-              <el-dropdown-item @click.native.stop="isSelectDataAll(true)">
-                {{$t('api_test.batch_menus.select_all_data',[total])}}
-              </el-dropdown-item>
-              <el-dropdown-item @click.native.stop="isSelectDataAll(false)">
-                {{$t('api_test.batch_menus.select_show_data',[tableData.length])}}
-              </el-dropdown-item>
-            </el-dropdown-menu>
-          </el-dropdown>
           <template v-slot:default="scope">
             <show-more-btn :is-show="scope.row.showMore" :buttons="buttons" :size="selectDataCounts"/>
           </template>
@@ -127,10 +120,12 @@
   import {getCurrentProjectID} from "@/common/js/utils";
   import {WORKSPACE_ID} from '../../../../../../common/js/constants';
   import ApiListContainer from "./ApiListContainer";
+  import MsTableSelectAll from "../../../../common/components/table/MsTableSelectAll";
 
   export default {
     name: "ApiList",
     components: {
+      MsTableSelectAll,
       ApiListContainer,
       MsTableButton,
       MsTableOperatorButton,
@@ -467,36 +462,7 @@
   .search-input {
     float: right;
     width: 300px;
-    /*margin-bottom: 20px;*/
     margin-right: 20px;
-  }
-
-  .api-list >>> th:first-child {
-    /*border: 1px solid #DCDFE6;*/
-    /*border-right: 0px;*/
-    /*border-top-left-radius:5px;*/
-    /*border-bottom-left-radius:5px;*/
-    /*width: 20px;*/
-
-  }
-
-  .api-list >>> th:nth-child(2) {
-    /*border: 1px solid #DCDFE6;*/
-    /*border-left: 0px;*/
-    /*border-top-right-radius:5px;*/
-    /*border-bottom-right-radius:5px;*/
-  }
-
-  .api-list >>> th:first-child>.cell {
-    padding: 5px;
-    width: 30px;
-  }
-  .api-list >>> th:nth-child(2)>.cell {
-    /*background-color: black;*/
-  }
-
-  .api-list >>> .el-dropdown {
-    float: left;
   }
 
 </style>
