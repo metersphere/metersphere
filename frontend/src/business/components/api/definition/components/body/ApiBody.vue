@@ -41,7 +41,11 @@
                               v-if="body.type == 'WWW_FORM'"/>
 
     <div v-if="body.type == 'JSON'">
-      <ms-json-code-edit :body="body" ref="jsonCodeEdit"/>
+      <div style="padding: 10px">
+        <el-switch active-text="JSON-SCHEMA" v-model="body.format" active-value="JSON-SCHEMA"/>
+      </div>
+      <ms-json-code-edit v-if="body.format==='JSON-SCHEMA'" :body="body" ref="jsonCodeEdit"/>
+      <ms-code-edit v-else :read-only="isReadOnly" height="400px" :data.sync="body.raw" :modes="modes" :mode="'json'" ref="codeEdit"/>
     </div>
 
     <div class="ms-body" v-if="body.type == 'XML'">
@@ -101,10 +105,10 @@
     data() {
       return {
         type: BODY_TYPE,
-        modes: ['text', 'json', 'xml', 'html']
+        modes: ['text', 'json', 'xml', 'html'],
+        jsonSchema: "JSON",
       };
     },
-
     methods: {
       modeChange(mode) {
         switch (this.body.type) {
@@ -147,12 +151,6 @@
             return;
           }
         }
-      },
-      jsonChange(json) {
-        this.body.raw = JSON.stringify(json);
-      },
-      jsonError(e) {
-        this.$error(e);
       },
       batchAdd() {
         this.$refs.batchAddParameter.open();

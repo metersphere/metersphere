@@ -57,7 +57,7 @@ public class Body {
             if (!this.isJson()) {
                 sampler.setPostBodyRaw(true);
             } else {
-                if (this.getJsonSchema() != null) {
+                if (StringUtils.isNotEmpty(this.format) && this.format.equals("JSON-SCHEMA") && this.getJsonSchema() != null) {
                     this.raw = JSONSchemaGenerator.getJson(com.alibaba.fastjson.JSON.toJSONString(this.getJsonSchema()));
                 }
             }
