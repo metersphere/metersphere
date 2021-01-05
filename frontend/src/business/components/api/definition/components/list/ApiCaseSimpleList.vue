@@ -101,14 +101,12 @@
   import MsBottomContainer from "../BottomContainer";
   import ShowMoreBtn from "../../../../track/case/components/ShowMoreBtn";
   import MsBatchEdit from "../basis/BatchEdit";
-  import {API_METHOD_COLOUR, CASE_PRIORITY} from "../../model/JsonData";
+  import {API_METHOD_COLOUR, CASE_PRIORITY, REQ_METHOD} from "../../model/JsonData";
   import {getCurrentProjectID} from "@/common/js/utils";
   import ApiListContainer from "./ApiListContainer";
   import PriorityTableItem from "../../../../track/common/tableItems/planview/PriorityTableItem";
   import ApiCaseList from "../case/ApiCaseList";
   import {_filter, _sort} from "../../../../../../common/js/utils";
-  import TestPlanCaseListHeader from "../../../../track/plan/view/comonents/api/TestPlanCaseListHeader";
-  import MsEnvironmentSelect from "../case/MsEnvironmentSelect";
   import {_handleSelect, _handleSelectAll} from "../../../../../../common/js/tableUtils";
 
   export default {
@@ -141,6 +139,8 @@
         ],
         typeArr: [
           {id: 'priority', name: this.$t('test_track.case.priority')},
+          {id: 'method', name: this.$t('api_test.definition.api_type')},
+          {id: 'path', name: this.$t('api_test.request.path')},
         ],
         priorityFilters: [
           {text: 'P0', value: 'P0'},
@@ -150,6 +150,7 @@
         ],
         valueArr: {
           priority: CASE_PRIORITY,
+          method: REQ_METHOD,
         },
         methodColorMap: new Map(API_METHOD_COLOUR),
         tableData: [],
@@ -159,8 +160,8 @@
         screenHeight: document.documentElement.clientHeight - 330,//屏幕高度
         environmentId: undefined,
         selectAll: false,
-        unSelection:[],
-        selectDataCounts:0,
+        unSelection: [],
+        selectDataCounts: 0,
       }
     },
     props: {
@@ -233,7 +234,7 @@
           this.condition.status = "Trash";
           this.condition.moduleIds = [];
         }
-        this.selectAll  = false;
+        this.selectAll = false;
         this.unSelection = [];
         this.selectDataCounts = 0;
         this.condition.projectId = getCurrentProjectID();
@@ -245,7 +246,7 @@
           this.result = this.$post('/api/testcase/list/' + this.currentPage + "/" + this.pageSize, this.condition, response => {
             this.total = response.data.itemCount;
             this.tableData = response.data.listObject;
-            this.unSelection = response.data.listObject.map(s=>s.id);
+            this.unSelection = response.data.listObject.map(s => s.id);
           });
         }
       },
@@ -312,24 +313,24 @@
       },
       handleDeleteBatch() {
         // if (this.trashEnable) {
-          this.$alert(this.$t('api_test.definition.request.delete_confirm') + "？", '', {
-            confirmButtonText: this.$t('commons.confirm'),
-            callback: (action) => {
-              if (action === 'confirm') {
-                let obj = {};
-                obj.projectId = getCurrentProjectID();
-                obj.selectAllDate = this.isSelectAllDate;
-                obj.unSelectIds = this.unSelection;
-                obj.ids = Array.from(this.selectRows).map(row => row.id);
-                obj = Object.assign(obj, this.condition);
-                this.$post('/api/testcase/deleteBatchByParam/', obj , () => {
-                  this.selectRows.clear();
-                  this.initTable();
-                  this.$success(this.$t('commons.delete_success'));
-                });
-              }
+        this.$alert(this.$t('api_test.definition.request.delete_confirm') + "？", '', {
+          confirmButtonText: this.$t('commons.confirm'),
+          callback: (action) => {
+            if (action === 'confirm') {
+              let obj = {};
+              obj.projectId = getCurrentProjectID();
+              obj.selectAllDate = this.isSelectAllDate;
+              obj.unSelectIds = this.unSelection;
+              obj.ids = Array.from(this.selectRows).map(row => row.id);
+              obj = Object.assign(obj, this.condition);
+              this.$post('/api/testcase/deleteBatchByParam/', obj, () => {
+                this.selectRows.clear();
+                this.initTable();
+                this.$success(this.$t('commons.delete_success'));
+              });
             }
-          });
+          }
+        });
         // } else {
         //   this.$alert(this.$t('api_test.definition.request.delete_confirm') + "？", '', {
         //     confirmButtonText: this.$t('commons.confirm'),
@@ -355,7 +356,6 @@
         let param = {};
         param[form.type] = form.value;
         param.ids = ids;
-
         param.projectId = getCurrentProjectID();
         param.selectAllDate = this.isSelectAllDate;
         param.unSelectIds = this.unSelection;
@@ -367,11 +367,11 @@
       },
       handleDelete(apiCase) {
         // if (this.trashEnable) {
-          this.$get('/api/testcase/delete/' + apiCase.id, () => {
-            this.$success(this.$t('commons.delete_success'));
-            this.initTable();
-          });
-          return;
+        this.$get('/api/testcase/delete/' + apiCase.id, () => {
+          this.$success(this.$t('commons.delete_success'));
+          this.initTable();
+        });
+        return;
         // }
         // this.$alert(this.$t('api_test.definition.request.delete_confirm') + ' ' + apiCase.name + " ？", '', {
         //   confirmButtonText: this.$t('commons.confirm'),
@@ -389,16 +389,16 @@
       setEnvironment(data) {
         this.environmentId = data.id;
       },
-      selectRowsCount(selection){
+      selectRowsCount(selection) {
         let selectedIDs = this.getIds(selection);
-        let allIDs = this.tableData.map(s=>s.id);
+        let allIDs = this.tableData.map(s => s.id);
         this.unSelection = allIDs.filter(function (val) {
           return selectedIDs.indexOf(val) === -1
         });
-        if(this.isSelectAllDate){
-          this.selectDataCounts =this.total - this.unSelection.length;
-        }else {
-          this.selectDataCounts =selection.size;
+        if (this.isSelectAllDate) {
+          this.selectDataCounts = this.total - this.unSelection.length;
+        } else {
+          this.selectDataCounts = selection.size;
         }
       },
       isSelectDataAll(dataType) {
@@ -409,9 +409,9 @@
           this.$refs.caseTable.toggleAllSelection(true);
         }
       },
-      getIds(rowSets){
+      getIds(rowSets) {
         let rowArray = Array.from(rowSets)
-        let ids =  rowArray.map(s=>s.id);
+        let ids = rowArray.map(s => s.id);
         return ids;
       }
     },
