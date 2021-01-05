@@ -43,7 +43,8 @@
                     <el-option :key="0" :value="''">
                       <div style="margin-left: 40px">
                         <span style="font-size: 14px;color: #606266;font-weight: 48.93">{{$t('api_test.definition.select_comp.no_data')}},
-                        </span><el-link type="primary" @click="createModules">{{$t('api_test.definition.select_comp.add_data')}}</el-link>
+                        </span>
+                        <el-link type="primary" @click="createModules">{{$t('api_test.definition.select_comp.add_data')}}</el-link>
                       </div>
                     </el-option>
                   </div>
@@ -106,7 +107,6 @@
   import {REQ_METHOD, API_STATUS} from "../../model/JsonData";
   import MsJsr233Processor from "../processor/Jsr233Processor";
   import {KeyValue} from "../../model/ApiTestModel";
-  // import {append} from "./../../../../track/common/NodeTree";
 
   export default {
     name: "MsAddCompleteHttpApi",
@@ -172,7 +172,7 @@
           }
         })
       },
-      createModules(){
+      createModules() {
         this.$emit("createRootModelInTree");
       },
       getPath(id) {
@@ -185,7 +185,7 @@
         return path[0].path;
       },
       urlChange() {
-        if (!this.httpForm.path) return;
+        if (!this.httpForm.path || this.httpForm.path.indexOf('?') === -1) return;
         let url = this.getURL(this.addProtocol(this.httpForm.path));
         if (url) {
           this.httpForm.path = decodeURIComponent("/" + url.hostname + url.pathname);
@@ -202,7 +202,6 @@
       getURL(urlStr) {
         try {
           let url = new URL(urlStr);
-          console.log(urlStr)
           url.searchParams.forEach((value, key) => {
             if (key && value) {
               this.request.arguments.splice(0, 0, new KeyValue({name: key, required: false, value: value}));
