@@ -215,7 +215,7 @@ export default {
       this.condition.executeStatus = null;
       this.isSelectThissWeekData();
       switch (this.selectDataRange){
-        case 'thisWeek':
+        case 'thisWeekCount':
           this.condition.selectThisWeedData = true;
           break;
         case 'unExecute':

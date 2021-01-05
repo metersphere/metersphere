@@ -341,8 +341,10 @@ public class APITestController {
     public List<TaskInfoResult> runningTask(@PathVariable String projectID) {
 
         List<TaskInfoResult> resultList = scheduleService.findRunningTaskInfoByProjectID(projectID);
+        int dataIndex = 1;
         for (TaskInfoResult taskInfo :
                 resultList) {
+            taskInfo.setIndex(dataIndex++);
             Date nextExecutionTime = CronUtils.getNextTriggerTime(taskInfo.getRule());
             if(nextExecutionTime!=null){
                 taskInfo.setNextExecutionTime(nextExecutionTime.getTime());
