@@ -1253,6 +1253,8 @@ export default {
     host: '主机号不能为空',
     port: '端口号不能为空',
     account: '账户不能为空',
+    test_recipients:'测试收件人',
+    tip:'提示：仅用来作为测试邮件收件人',
   },
   i18n: {
     home: '首页',

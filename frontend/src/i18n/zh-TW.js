@@ -1252,6 +1252,8 @@ export default {
     host: '主機號不能為空',
     port: '端口號不能為空',
     account: '賬戶不能為空',
+    test_recipients:'測試收件人',
+    tip:'提示：僅用來作為測試郵件收件人',
   },
   i18n: {
     home: '首頁',
