@@ -3,9 +3,10 @@
     :is-api-list-enable="isApiListEnable"
     @isApiListEnableChange="isApiListEnableChange">
 
-    <ms-environment-select :project-id="projectId" v-if="isTestPlan" :is-read-only="isReadOnly" @setEnvironment="setEnvironment"/>
+      <ms-environment-select :project-id="projectId" v-if="isTestPlan" :is-read-only="isReadOnly" @setEnvironment="setEnvironment"/>
 
-    <el-input placeholder="搜索" @blur="initTable" class="search-input" size="small" @keyup.enter.native="initTable" v-model="condition.name"/>
+      <el-input placeholder="搜索" @blur="initTable" class="search-input" size="small" @keyup.enter.native="initTable" v-model="condition.name"/>
+
 
     <el-table v-loading="result.loading"
               border
@@ -253,8 +254,8 @@
 
   .search-input {
     float: right;
-    width: 300px;
-    /*margin-bottom: 20px;*/
+    width: 30%;
+    margin-bottom: 20px;
     margin-right: 20px;
   }
 
