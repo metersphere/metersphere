@@ -9,24 +9,18 @@
       <el-table v-loading="result.loading"
                 ref="apiDefinitionTable"
                 border
-                :data="tableData" row-key="id" class="test-content adjust-table"
+                :data="tableData" row-key="id" class="test-content adjust-table ms-select-all"
                 @select-all="handleSelectAll"
                 @select="handleSelect" :height="screenHeight">
-        <el-table-column type="selection"/>
-        <el-table-column width="40" :resizable="false" align="center">
-          <el-dropdown slot="header" style="width: 14px">
-            <span class="el-dropdown-link" style="width: 14px">
-              <i class="el-icon-arrow-down el-icon--right" style="margin-left: 0px"></i>
-            </span>
-            <el-dropdown-menu slot="dropdown">
-              <el-dropdown-item @click.native.stop="isSelectDataAll(true)">
-                {{$t('api_test.batch_menus.select_all_data',[total])}}
-              </el-dropdown-item>
-              <el-dropdown-item @click.native.stop="isSelectDataAll(false)">
-                {{$t('api_test.batch_menus.select_show_data',[tableData.length])}}
-              </el-dropdown-item>
-            </el-dropdown-menu>
-          </el-dropdown>
+        <el-table-column width="50" type="selection"/>
+
+        <ms-table-select-all
+          :page-size="pageSize"
+          :total="total"
+          @selectPageAll="isSelectDataAll(false)"
+          @selectAll="isSelectDataAll(true)"/>
+
+        <el-table-column width="30" :resizable="false" align="center">
           <template v-slot:default="scope">
             <show-more-btn :is-show="scope.row.showMore" :buttons="buttons" :size="selectDataCounts"/>
           </template>
@@ -126,10 +120,12 @@
   import {getCurrentProjectID} from "@/common/js/utils";
   import {WORKSPACE_ID} from '../../../../../../common/js/constants';
   import ApiListContainer from "./ApiListContainer";
+  import MsTableSelectAll from "../../../../common/components/table/MsTableSelectAll";
 
   export default {
     name: "ApiList",
     components: {
+      MsTableSelectAll,
       ApiListContainer,
       MsTableButton,
       MsTableOperatorButton,
@@ -466,7 +462,6 @@
   .search-input {
     float: right;
     width: 300px;
-    /*margin-bottom: 20px;*/
     margin-right: 20px;
   }
 

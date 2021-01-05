@@ -98,4 +98,9 @@ public class ApiTestCaseController {
     public void testPlanRelevance(@RequestBody ApiCaseRelevanceRequest request) {
         apiTestCaseService.relevanceByCase(request);
     }
+
+    @PostMapping(value = "/jenkins/run")
+    public String jenkinsRun(@RequestBody RunCaseRequest request) {
+        return apiTestCaseService.run(request);
+    }
 }

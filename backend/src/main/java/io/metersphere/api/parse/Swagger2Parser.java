@@ -275,6 +275,11 @@ public class Swagger2Parser extends ApiImportAbstractParser {
                 } else if (value instanceof RefProperty) {
                     RefProperty refProperty = (RefProperty) value;
                     String simpleRef = refProperty.getSimpleRef();
+                    if (refSet.contains(simpleRef)) {
+                        //避免嵌套死循环
+                        jsonObject.put(key, new JSONArray());
+                        return;
+                    }
                     refSet.add(simpleRef);
                     Model model = definitions.get(simpleRef);
                     jsonObject.put(key, getBodyParameters(model.getProperties(), refSet));
