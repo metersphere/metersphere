@@ -1252,6 +1252,8 @@ export default {
     host: 'Host number cannot be empty',
     port: 'Port cannot be empty',
     account: 'Account cannot be empty',
+    test_recipients:'Test recipients',
+    tip:'Tip: use as test mail recipient only',
 
   },
   i18n: {

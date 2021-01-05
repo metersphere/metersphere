@@ -5,6 +5,7 @@ import io.metersphere.commons.constants.ParamConstants;
 import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.dto.BaseSystemConfigDTO;
 import io.metersphere.ldap.domain.LdapInfo;
+import io.metersphere.notice.domain.MailInfo;
 import io.metersphere.service.SystemParameterService;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.web.bind.annotation.*;
@@ -38,7 +39,7 @@ public class SystemParameterController {
 
     @GetMapping("/mail/info")
     @RequiresRoles(value = {RoleConstants.ADMIN})
-    public Object mailInfo() {
+    public MailInfo mailInfo() {
         return SystemParameterService.mailInfo(ParamConstants.Classify.MAIL.getValue());
     }
 

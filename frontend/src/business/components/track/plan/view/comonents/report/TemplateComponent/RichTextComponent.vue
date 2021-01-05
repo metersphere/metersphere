@@ -9,7 +9,7 @@
 
     <template>
       <ckeditor v-if="!isReportView" :editor="editor" v-model="preview.content" :config="editorConfig"></ckeditor>
-      <div v-if="isReportView" v-html="preview.content"></div>
+      <div class="rich-text-content" v-if="isReportView" v-html="preview.content"></div>
     </template>
 
   </common-component>
@@ -52,5 +52,12 @@
 </script>
 
 <style scoped>
+
+  .rich-text-content >>> .table td {
+    border: solid 1px #e6e6e6;
+    min-width: 2em;
+    padding: .4em;
+  }
+
 
 </style>
