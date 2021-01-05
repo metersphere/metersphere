@@ -15,7 +15,7 @@ export default class JSR223PreProcessor extends PostProcessor {
   constructor(options = DEFAULT_OPTIONS) {
     super(options);
     this.type = "JSR223PreProcessor";
-    this.scriptLanguage = "java";
+    this.scriptLanguage = "beanshell";
     this.parameters = [];
     this.filename = undefined;
     this.cacheKey = undefined;

@@ -122,7 +122,7 @@ export default {
 <style scoped>
 
 .protocol-select {
-  width: 95px;
+  width: 92px;
   height: 30px;
 }
 

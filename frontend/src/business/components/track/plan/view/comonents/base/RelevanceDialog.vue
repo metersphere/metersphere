@@ -62,6 +62,10 @@
     min-height: 700px;
   }
 
+  .tree-aside {
+    max-height: 700px;
+  }
+
   .el-dialog >>> .el-dialog__body {
     padding: 10px 20px;
   }
