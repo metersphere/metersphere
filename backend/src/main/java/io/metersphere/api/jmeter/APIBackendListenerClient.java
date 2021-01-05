@@ -324,7 +324,10 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
             if (responseAssertionResult.isPass()) {
                 requestResult.addPassAssertions();
             }
-            responseResult.getAssertions().add(responseAssertionResult);
+            //xpath 提取错误会添加断言错误
+            if (!responseAssertionResult.getMessage().contains("The required item type of the first operand of")) {
+                responseResult.getAssertions().add(responseAssertionResult);
+            }
         }
         responseResult.setConsole(getConsole());
 
