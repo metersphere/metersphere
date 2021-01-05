@@ -82,7 +82,7 @@
 </template>
 
 <script>
-  import {calculate} from "./Calculate";
+  import {calculate} from "./calculate";
   import {JMETER_FUNC, MOCKJS_FUNC} from "@/common/js/constants";
 
   export default {

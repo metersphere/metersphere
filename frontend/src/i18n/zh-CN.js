@@ -487,7 +487,7 @@ export default {
       file_exist: "该项目下已存在该jar包",
       upload_limit_size: "上传文件大小不能超过 30MB!",
     },
-    batch_menus:{
+    batch_menus: {
       select_all_data: "选择所有数据(共{0}条)",
       select_show_data: "选择可见数据(共{0}条)",
     },
@@ -503,9 +503,9 @@ export default {
       api_case_status: "用例状态",
       api_case_passing_rate: "用例通过率",
       create_tip: "注: 详细的接口信息可以在编辑页面填写",
-      select_comp:{
-        no_data:"无数据",
-        add_data:"去添加"
+      select_comp: {
+        no_data: "无数据",
+        add_data: "去添加"
       },
       request: {
         grade_info: "按等级筛选",
@@ -1363,5 +1363,47 @@ export default {
     workspace_quota_list: "{0}的工作空间配额列表",
     unlimited: "无限制",
     clean: "清空"
+  },
+  schema: {
+    title: "标题",
+    import_json: "导入 json",
+    base_setting: "基础设置",
+    all_setting: "编辑源码",
+    default: "默认值",
+    description: "描述",
+    adv_setting: "高级设置",
+    add_child_node: "添加子节点",
+    add_sibling_node: "添加兄弟节点",
+    add_node: "添加兄弟/子节点",
+    remove_node: "删除节点",
+    child_node: "子节点",
+    sibling_node: "兄弟节点",
+    ok: "确定",
+    cancel: "取消",
+    minLength: "最小长度",
+    maxLength: "最大长度",
+    pattern: "用正则表达式约束字符串",
+    exclusiveMinimum: "开启后，数据必须大于最小值",
+    exclusiveMaximum: "开启后，数据必须小于最大值",
+    minimum: "最小值",
+    maximum: "最大值",
+    uniqueItems: "开启后，每个元素都不相同",
+    minItems: "最小元素个数",
+    maxItems: "最大元素个数",
+    minProperties: "最小元素个数",
+    maxProperties: "最大元素个数",
+    checked_all: "全选",
+    valid_json: "不是合法的json字符串",
+    enum: "枚举",
+    enum_msg: "每行只能写一个值",
+    enum_desc: "备注",
+    enum_desc_msg: "备注描述信息",
+    required: "是否必须",
+    mock: "mock",
+    mockLink: "查看文档",
+    format: "格式化",
+    nothing: "无",
+    preview: "预览",
+    add_custom: "添加自定义属性"
   }
 };

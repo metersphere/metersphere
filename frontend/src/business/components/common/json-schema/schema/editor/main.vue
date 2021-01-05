@@ -8,10 +8,10 @@
           <span v-else style="width:10px;display:inline-block"></span>
           <input class="el-input el-input__inner" style="height: 32px" :disabled="disabled || root" :value="pickKey" @blur="onInputName" size="small"/>
         </div>
-        <el-tooltip v-if="root" content="全选">
+        <el-tooltip v-if="root" :content="$t('schema.checked_all')" placement="top">
           <input type="checkbox" :disabled="!isObject && !isArray" class="ant-col-name-required" @change="onRootCheck"/>
         </el-tooltip>
-        <el-tooltip v-else content="是否必填">
+        <el-tooltip v-else :content="$t('schema.required')" placement="top">
           <input type="checkbox" :disabled="isItem" :checked="checked" class="ant-col-name-required" @change="onCheck"/>
         </el-tooltip>
       </el-col>
@@ -24,16 +24,16 @@
         <ms-mock :disabled="pickValue.type==='object'" :schema="pickValue"/>
       </el-col>
       <el-col>
-        <el-input v-model="pickValue.description" class="ant-col-title" :placeholder="local['description']" size="small"/>
+        <el-input v-model="pickValue.description" class="ant-col-title" :placeholder="$t('schema.description')" size="small"/>
       </el-col>
       <el-col :span="5" class="col-item-setting">
-        <el-tooltip class="item" effect="dark" content="高级设置" placement="top">
+        <el-tooltip class="item" effect="dark" :content="$t('schema.adv_setting')" placement="top">
           <i class="el-icon-setting" @click="onSetting"/>
         </el-tooltip>
-        <el-tooltip v-if="isObject" content="添加子节点" placement="top">
+        <el-tooltip v-if="isObject" :content="$t('schema.add_child_node')" placement="top">
           <i class="el-icon-plus" @click="addChild" style="margin-left: 10px"/>
         </el-tooltip>
-        <el-tooltip v-if="!root && !isItem" content="删除节点" placement="top">
+        <el-tooltip v-if="!root && !isItem" :content="$t('schema.remove_node')" placement="top">
           <i class="el-icon-close" @click="removeNode" style="margin-left: 10px"/>
         </el-tooltip>
       </el-col>
@@ -46,21 +46,21 @@
       <json-schema-editor :value="{items:pickValue.items}" :deep="deep+1" disabled isItem :root="false" class="children" :lang="lang" :custom="custom"/>
     </template>
     <!-- 高级设置-->
-    <el-dialog :close-on-click-modal="false" :title="local['adv_setting']" :visible.sync="modalVisible" :destroy-on-close="true"
+    <el-dialog :close-on-click-modal="false" :title="$t('schema.adv_setting')" :visible.sync="modalVisible" :destroy-on-close="true"
                @close="handleClose">
       <p class="tip">基础设置 </p>
       <el-form :inline="true" v-model="advancedValue" class="ant-advanced-search-form">
         <el-row :gutter="6">
           <el-col :span="8" v-for="(item,key) in advancedValue" :key="key" style="float: right">
             <el-form-item>
-              <div>{{ local[key] }}</div>
+              <div>{{ $t('schema.'+key)}}</div>
               <el-input-number v-model="advancedValue[key]" v-if="advancedAttr[key].type === 'integer'" style="width:100%" :placeholder="key" size="small"/>
               <el-input-number v-model="advancedValue[key]" v-else-if="advancedAttr[key].type === 'number'" style="width:100%" :placeholder="key" size="small"/>
               <span v-else-if="advancedAttr[key].type === 'boolean'" style="display:inline-block;width:100%">
                 <el-switch v-model="advancedValue[key]"/>
                 </span>
               <el-select v-else-if="advancedAttr[key].type === 'array'" v-model="advancedValue[key]" style="width:100%" size="small">
-                <el-option value="" :label="local['nothing']"></el-option>
+                <el-option value="" :label="$t('schema.nothing')"></el-option>
                 <el-option :key="t" :value="t" :label="t" v-for="t in advancedAttr[key].enums"/>
               </el-select>
               <el-input v-model="advancedValue[key]" v-else style="width:100%;" :placeholder="key" size="small"/>
@@ -68,7 +68,7 @@
           </el-col>
         </el-row>
       </el-form>
-      <!--<h3 v-text="local['add_custom']" v-show="custom">添加自定义属性</h3>
+      <!--<h3 v-text="$t('schema.add_custom')" v-show="custom">添加自定义属性</h3>
       <el-form class="ant-advanced-search-form" v-show="custom">
         <el-row :gutter="6">
           <el-col :span="8" v-for="item in customProps" :key="item.key">
@@ -86,14 +86,14 @@
           <el-col :span="8">
             <el-form-item>
               <el-button icon="check" type="link" @click="confirmAddCustomNode" v-if="customing"/>
-              <el-tooltip content="local['add_custom']" v-else>
+              <el-tooltip content="$t('schema.add_custom')" v-else>
                 <el-button icon="el-icon-plus" type="link" @click="addCustomNode"/>
               </el-tooltip>
             </el-form-item>
           </el-col>
         </el-row>
       </el-form>-->
-      <p class="tip">预览 </p>
+      <p class="tip">{{$t('schema.preview')}} </p>
       <pre style="width:100%">{{completeNodeValue}}</pre>
 
       <span slot="footer" class="dialog-footer">
@@ -107,9 +107,8 @@
 <script>
   import {isNull} from './util'
   import {TYPE_NAME, TYPE} from './type/type'
-  import MsMock from './mock/index'
+  import MsMock from './mock/MockComplete'
   import MsDialogFooter from '../../../components/MsDialogFooter'
-  import LocalProvider from './provider/index'
   import {getUUID} from "@/common/js/utils";
 
   export default {
@@ -199,8 +198,7 @@
         advancedValue: {},
         addProp: {},// 自定义属性
         customProps: [],
-        customing: false,
-        local: LocalProvider(this.lang)
+        customing: false
       }
     },
     methods: {

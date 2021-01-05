@@ -15,7 +15,6 @@
 
     <ms-advance ref="variableAdvance" :current-item="mock"/>
   </div>
-
 </template>
 
 <script>
@@ -67,8 +66,6 @@
       advanced() {
         this.$refs.variableAdvance.open();
       },
-
-
       showEdit() {
         this.$emit('showEdit')
       },
