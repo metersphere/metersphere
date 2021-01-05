@@ -227,6 +227,9 @@
             <if test="request.userId != null">
                 AND api_definition.user_id = #{request.userId}
             </if>
+            <if test="request.createTime >0">
+                AND api_definition.create_time >= #{request.createTime}
+            </if>
             <if test="request.moduleId != null">
                 AND api_definition.module_id = #{request.moduleId}
             </if>
@@ -245,6 +248,16 @@
                     #{value}
                 </foreach>
             </if>
+            <if test="request.apiCaseCoverage == 'uncoverage' ">
+                and api_definition.id not in
+                (SELECT api_definition_id FROM api_test_case)
+            </if>
+            <if test="request.apiCaseCoverage == 'coverage' ">
+                and api_definition.id in
+                (SELECT api_definition_id FROM api_test_case)
+            </if>
+
+
         </where>
         <if test="request.orders != null and request.orders.size() > 0">
             order by

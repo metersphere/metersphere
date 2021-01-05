@@ -10,7 +10,10 @@ import io.metersphere.base.mapper.ext.ExtApiDefinitionExecResultMapper;
 import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.utils.DateUtils;
 import io.metersphere.commons.utils.SessionUtils;
+import io.metersphere.track.dto.TestPlanDTO;
+import io.metersphere.track.request.testcase.QueryTestPlanRequest;
 import io.metersphere.track.service.TestPlanApiCaseService;
+import io.metersphere.track.service.TestPlanService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,6 +33,8 @@ public class ApiDefinitionExecResultService {
     private ExtApiDefinitionExecResultMapper extApiDefinitionExecResultMapper;
     @Resource
     private TestPlanApiCaseService testPlanApiCaseService;
+    @Resource
+    private TestPlanService testPlanService;
 
 
     public void saveApiResult(TestResult result, String type) {
@@ -100,9 +105,22 @@ public class ApiDefinitionExecResultService {
             List<ExecutedCaseInfoResult>list =  extApiDefinitionExecResultMapper.findFaliureCaseInfoByProjectIDAndExecuteTimeAndLimitNumber(projectId, startTime.getTime());
 
             List<ExecutedCaseInfoResult> returnList = new ArrayList<>(limitNumber);
+
             for(int i = 0;i<list.size();i++){
                 if(i<limitNumber){
-                    returnList.add(list.get(i));
+                    //开始遍历查询TestPlan信息 --> 提供前台做超链接
+                    ExecutedCaseInfoResult item = list.get(i);
+
+                    QueryTestPlanRequest planRequest = new QueryTestPlanRequest();
+                    planRequest.setProjectId(projectId);
+                    if("scenario".equals(item.getCaseType())){
+                        planRequest.setScenarioId(item.getTestCaseID());
+                    }else if("apiCase".equals(item.getCaseType())){
+                        planRequest.setApiId(item.getTestCaseID());
+                    }
+                    List<TestPlanDTO> dtoList = testPlanService.selectTestPlanByRelevancy(planRequest);
+                    item.setTestPlanDTOList(dtoList);
+                    returnList.add(item);
                 }else {
                     break;
                 }

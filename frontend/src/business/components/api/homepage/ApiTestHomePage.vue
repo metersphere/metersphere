@@ -28,13 +28,13 @@
       <el-row :gutter="0"></el-row>
       <el-row :gutter="10">
         <el-col :span="6">
-          <ms-api-info-card :api-count-data="apiCountData"/>
+          <ms-api-info-card @redirectPage="redirectPage" :api-count-data="apiCountData"/>
         </el-col>
         <el-col :span="6">
-          <ms-test-case-info-card :test-case-count-data="testCaseCountData"/>
+          <ms-test-case-info-card @redirectPage="redirectPage" :test-case-count-data="testCaseCountData"/>
         </el-col>
         <el-col :span="6">
-          <ms-scene-info-card :scene-count-data="sceneCountData"/>
+          <ms-scene-info-card @redirectPage="redirectPage"  :scene-count-data="sceneCountData"/>
         </el-col>
         <el-col :span="6">
           <ms-schedule-task-info-card :schedule-task-count-data="scheduleTaskCountData"/>
@@ -43,10 +43,10 @@
 
       <el-row :gutter="10">
         <el-col :span="12">
-          <ms-failure-test-case-list/>
+          <ms-failure-test-case-list @redirectPage="redirectPage"/>
         </el-col>
         <el-col :span="12">
-          <ms-running-task-list/>
+          <ms-running-task-list @redirectPage="redirectPage"/>
         </el-col>
       </el-row>
 
@@ -64,7 +64,7 @@ import MsTestCaseInfoCard from "./components/TestCaseInfoCard";
 
 import MsFailureTestCaseList from "./components/FailureTestCaseList";
 import MsRunningTaskList from "./components/RunningTaskList"
-import {getCurrentProjectID} from "@/common/js/utils";
+import {getCurrentProjectID,getUUID} from "@/common/js/utils";
 
 export default {
   name: "ApiTestHomePage",
@@ -117,6 +117,22 @@ export default {
         this.scheduleTaskCountData = response.data;
       });
     },
+    redirectPage(page,dataType,selectType){
+      //api页面跳转
+      //传入UUID是为了进行页面重新加载判断
+      let uuid = getUUID();
+      switch (page){
+        case "api":
+          this.$router.push({name:'ApiDefinition',params:{redirectID:uuid,dataType:dataType,dataSelectRange:selectType}});
+          break;
+        case "scenario":
+          this.$router.push({name:'ApiAutomation',params:{redirectID:uuid,dataType:dataType,dataSelectRange:selectType}});
+          break;
+        case "testPlanEdit":
+          this.$router.push('/track/plan/view/'+selectType)
+          break;
+      }
+    }
   }
 }
 </script>

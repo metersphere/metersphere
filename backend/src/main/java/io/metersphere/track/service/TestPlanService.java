@@ -37,6 +37,7 @@ import io.metersphere.track.request.testcase.QueryTestPlanRequest;
 import io.metersphere.track.request.testplan.AddTestPlanRequest;
 import io.metersphere.track.request.testplancase.QueryTestPlanCaseRequest;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -697,5 +698,8 @@ public class TestPlanService {
             });
         }
         return issues;
+    }
+    public List<TestPlanDTO> selectTestPlanByRelevancy(QueryTestPlanRequest params){
+        return  extTestPlanMapper.selectTestPlanByRelevancy(params);
     }
 }

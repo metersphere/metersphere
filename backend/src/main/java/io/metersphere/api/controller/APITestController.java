@@ -285,17 +285,17 @@ public class APITestController {
 
         long taskCountInThisWeek = scheduleService.countTaskByProjectIdInThisWeek(projectId);
         apiCountResult.setThisWeekAddedCount(taskCountInThisWeek);
-        long api_executedInThisWeekCountNumber = apiReportService.countByProjectIdAndCreateInThisWeek(projectId);
-        long scene_executedInThisWeekCountNumber = apiScenarioReportService.countByProjectIdAndCreateAndByScheduleInThisWeek(projectId);
-        long executedInThisWeekCountNumber = api_executedInThisWeekCountNumber+scene_executedInThisWeekCountNumber;
+//        long api_executedInThisWeekCountNumber = apiReportService.countByProjectIdAndCreateInThisWeek(projectId);
+        long executedInThisWeekCountNumber = apiScenarioReportService.countByProjectIdAndCreateAndByScheduleInThisWeek(projectId);
+//        long executedInThisWeekCountNumber = api_executedInThisWeekCountNumber+scene_executedInThisWeekCountNumber;
         apiCountResult.setThisWeekExecutedCount(executedInThisWeekCountNumber);
 
         //统计 失败 成功 以及总数
-        List<ApiDataCountResult> api_allExecuteResult = apiReportService.countByProjectIdGroupByExecuteResult(projectId);
-        List<ApiDataCountResult> scene_allExecuteResult = apiScenarioReportService.countByProjectIdGroupByExecuteResult(projectId);
-        List<ApiDataCountResult> allExecuteResult = new ArrayList<>();
-        allExecuteResult.addAll(api_allExecuteResult);
-        allExecuteResult.addAll(scene_allExecuteResult);
+//        List<ApiDataCountResult> api_allExecuteResult = apiReportService.countByProjectIdGroupByExecuteResult(projectId);
+        List<ApiDataCountResult> allExecuteResult = apiScenarioReportService.countByProjectIdGroupByExecuteResult(projectId);
+//        List<ApiDataCountResult> allExecuteResult = new ArrayList<>();
+//        allExecuteResult.addAll(api_allExecuteResult);
+//        allExecuteResult.addAll(scene_allExecuteResult);
         apiCountResult.countScheduleExecute(allExecuteResult);
 
         long allCount = apiCountResult.getExecutedCount();
@@ -322,11 +322,12 @@ public class APITestController {
 
             if(dataIndex<selectDataList.size()){
                 ExecutedCaseInfoResult selectData = selectDataList.get(dataIndex);
-
+                dataDTO.setCaseID(selectData.getTestCaseID());
                 dataDTO.setCaseName(selectData.getCaseName());
                 dataDTO.setTestPlan(selectData.getTestPlan());
                 dataDTO.setFailureTimes(selectData.getFailureTimes());
                 dataDTO.setCaseType(selectData.getCaseType());
+                dataDTO.setTestPlanDTOList(selectData.getTestPlanDTOList());
             }else {
                 dataDTO.setCaseName("");
                 dataDTO.setTestPlan("");

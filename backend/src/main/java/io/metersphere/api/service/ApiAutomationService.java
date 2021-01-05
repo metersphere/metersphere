@@ -75,6 +75,13 @@ public class ApiAutomationService {
 
     public List<ApiScenarioDTO> list(ApiScenarioRequest request) {
         request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
+        if(request.isSelectThisWeedData()){
+            Map<String, Date> weekFirstTimeAndLastTime = DateUtils.getWeedFirstTimeAndLastTime(new Date());
+            Date weekFirstTime = weekFirstTimeAndLastTime.get("firstTime");
+            if(weekFirstTime!=null){
+                request.setCreateTime(weekFirstTime.getTime());
+            }
+        }
         List<ApiScenarioDTO> list = extApiScenarioMapper.list(request);
         return list;
     }

@@ -2,7 +2,7 @@
   <div>
     <el-card class="table-card" v-loading="loading">
       <template v-slot:header>
-        <ms-table-header :condition.sync="condition" @search="search" title=""
+        <ms-table-header :condition.sync="condition" @search="selectByParam" title=""
                          :show-create="false"/>
       </template>
 
@@ -16,10 +16,10 @@
               </span>
             <el-dropdown-menu slot="dropdown">
               <el-dropdown-item @click.native.stop="isSelectDataAll(true)">
-                {{$t('api_test.batch_menus.select_all_data',[total])}}
+                {{ $t('api_test.batch_menus.select_all_data', [total]) }}
               </el-dropdown-item>
               <el-dropdown-item @click.native.stop="isSelectDataAll(false)">
-                {{$t('api_test.batch_menus.select_show_data',[tableData.length])}}
+                {{ $t('api_test.batch_menus.select_show_data', [tableData.length]) }}
               </el-dropdown-item>
             </el-dropdown-menu>
           </el-dropdown>
@@ -143,6 +143,7 @@ export default {
       schedule: {},
       selection: [],
       tableData: [],
+      selectDataRange: 'all',
       currentPage: 1,
       pageSize: 10,
       total: 0,
@@ -193,8 +194,11 @@ export default {
     }
   },
   methods: {
+    selectByParam() {
+      this.changeSelectDataRangeAll();
+      this.search();
+    },
     search() {
-
       this.condition.filters = ["Prepare", "Underway", "Completed"];
       this.condition.moduleIds = this.selectNodeIds;
       if (this.trashEnable) {
@@ -204,6 +208,25 @@ export default {
 
       if (this.projectId != null) {
         this.condition.projectId = this.projectId;
+      }
+
+      //检查是否只查询本周数据
+      this.condition.selectThisWeedData = false;
+      this.condition.executeStatus = null;
+      this.isSelectThissWeekData();
+      switch (this.selectDataRange){
+        case 'thisWeek':
+          this.condition.selectThisWeedData = true;
+          break;
+        case 'unExecute':
+          this.condition.executeStatus = 'unExecute';
+          break;
+        case 'executeFailed':
+          this.condition.executeStatus = 'executeFailed';
+          break;
+        case 'executePass':
+          this.condition.executeStatus = 'executePass';
+          break;
       }
       this.selection = [];
 
@@ -365,6 +388,14 @@ export default {
       } else {
         this.selectDataCounts = this.selection.length;
       }
+    },
+    //判断是否只显示本周的数据。  从首页跳转过来的请求会带有相关参数
+    isSelectThissWeekData() {
+      let dataRange = this.$route.params.dataSelectRange;
+      this.selectDataRange = dataRange;
+    },
+    changeSelectDataRangeAll() {
+      this.$emit("changeSelectDataRangeAll");
     },
     remove(row) {
       if (this.trashEnable) {

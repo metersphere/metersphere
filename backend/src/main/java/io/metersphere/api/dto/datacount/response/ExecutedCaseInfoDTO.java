@@ -1,7 +1,10 @@
 package io.metersphere.api.dto.datacount.response;
 
+import io.metersphere.track.dto.TestPlanDTO;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.util.List;
 
 /**
  * 已执行的案例
@@ -19,4 +22,8 @@ public class ExecutedCaseInfoDTO {
     private Long failureTimes;
     //案例类型
     private String caseType;
+    //案例ID
+    private String caseID;
+    //测试计划集合
+    private List<TestPlanDTO> testPlanDTOList;
 }

@@ -54,7 +54,10 @@
       <el-header style="height:20px;padding: 0px;margin-bottom: 10px;">
         <el-row>
           <el-col>
-            {{$t('api_test.home_page.api_details_card.this_week_add',[apiCountData.thisWeekAddedCount])}}
+            {{$t('api_test.home_page.api_details_card.this_week_add')}}
+            <el-link type="info" @click="redirectPage('thisWeekCount')" target="_blank" style="color: #000000">{{apiCountData.thisWeekAddedCount}}
+            </el-link>
+            {{$t('api_test.home_page.unit_of_measurement')}}
           </el-col>
         </el-row>
       </el-header>
@@ -80,21 +83,27 @@
                     <span class="default-property">
                       {{$t('api_test.home_page.detail_card.running')}}
                       {{"\xa0\xa0"}}
-                      {{apiCountData.runningCount}}
+                      <el-link type="info" @click="redirectPage('Underway')" target="_blank" style="color: #000000">
+                        {{apiCountData.runningCount}}
+                      </el-link>
                     </span>
                   </el-col>
                   <el-col style="margin-top: 5px;">
                     <span class="default-property">
                       {{$t('api_test.home_page.detail_card.not_started')}}
                       {{"\xa0\xa0"}}
-                      {{apiCountData.notStartedCount}}
+                      <el-link type="info" @click="redirectPage('Prepare')" target="_blank" style="color: #000000">
+                        {{apiCountData.notStartedCount}}
+                      </el-link>
                     </span>
                   </el-col>
                   <el-col style="margin-top: 5px;">
                     <span class="main-property">
                       {{$t('api_test.home_page.detail_card.finished')}}
                       {{"\xa0\xa0"}}
-                      {{apiCountData.finishedCount}}
+                      <el-link type="info" @click="redirectPage('Completed')" target="_blank" style="color: #000000">
+                        {{apiCountData.finishedCount}}
+                      </el-link>
                     </span>
                   </el-col>
                 </el-row>
@@ -123,6 +132,11 @@ export default {
   props:{
     apiCountData:{},
   },
+  methods:{
+    redirectPage(clickType){
+      this.$emit("redirectPage","api","api",clickType);
+    }
+  }
 }
 </script>
 <style scoped>
