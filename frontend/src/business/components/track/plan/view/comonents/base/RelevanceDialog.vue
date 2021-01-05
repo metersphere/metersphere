@@ -59,11 +59,11 @@
 <style scoped>
 
   .el-dialog {
-    min-height: 700px;
+    min-height: 600px;
   }
 
   .tree-aside {
-    max-height: 700px;
+    max-height: 600px;
   }
 
   .el-dialog >>> .el-dialog__body {
