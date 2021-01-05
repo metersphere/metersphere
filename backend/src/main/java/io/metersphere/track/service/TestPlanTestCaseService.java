@@ -57,7 +57,6 @@ public class TestPlanTestCaseService {
     }
     public List<TestPlanCaseDTO> listByPlanId(QueryTestPlanCaseRequest request) {
         List<TestPlanCaseDTO> list = extTestPlanTestCaseMapper.listByPlanId(request);
-
         return list;
     }
 
