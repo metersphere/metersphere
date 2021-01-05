@@ -489,7 +489,7 @@ export default {
       file_exist: "The name already exists in the project",
       upload_limit_size: "Upload file size cannot exceed 30MB!",
     },
-    batch_menus:{
+    batch_menus: {
       select_all_data: "Select all datas({0})",
       select_show_data: "Select show datas({0})",
     },
@@ -505,9 +505,9 @@ export default {
       api_case_status: "Ise case status",
       api_case_passing_rate: "Use case pass rate",
       create_tip: "Note: Detailed interface information can be filled out on the edit page",
-      select_comp:{
-        no_data:"No Data",
-        add_data:"Add Data"
+      select_comp: {
+        no_data: "No Data",
+        add_data: "Add Data"
       },
       request: {
         grade_info: "Filter by rank",
@@ -1365,5 +1365,47 @@ export default {
     workspace_quota_list: "Workspace quota list of {0}",
     unlimited: "Unlimited",
     clean: "Clean"
+  },
+  schema: {
+    title: "Title",
+    import_json: "Import JSON",
+    base_setting: "Base Setting",
+    all_setting: "Source Code",
+    default: "Default",
+    description: "Description",
+    "adv_setting": "Advanced Settings",
+    "add_child_node": "Add child node",
+    add_sibling_node: "Add sibling nodes",
+    add_node: "Add sibling/child nodes",
+    remove_node: "Remove node",
+    child_node: "Child node",
+    sibling_node: "Sibling node",
+    ok: "OK",
+    cancel: "Cancel",
+    minLength: "Min length",
+    maxLength: "Max length",
+    pattern: "MUST be a valid regular expression.",
+    exclusiveMinimum: "Value strictly less than",
+    exclusiveMaximum: "Value strictly more than",
+    minimum: "Min",
+    maximum: "Max",
+    uniqueItems: "Unique Items",
+    minItems: "MinItems",
+    maxItems: "MaxItems",
+    minProperties: "MinProperties",
+    maxProperties: "MaxProperties",
+    checked_all: "Checked All",
+    valid_json: "Not valid json",
+    enum: "Enum",
+    enum_msg: "One value per line",
+    enum_desc: "desc",
+    enum_desc_msg: "enum description",
+    required: "Required",
+    mock: "mock",
+    mockLink: "Help",
+    format: "Format",
+    nothing: "Nothing",
+    preview: "Preview",
+    add_custom: "Add Custom Prop"
   }
 };

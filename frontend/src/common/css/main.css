@@ -120,7 +120,6 @@ html,body {
   padding-right: 60px;
 }
 
-
 /* 滚动条样式 */
 ::-webkit-scrollbar{
   width: 5px;
@@ -137,3 +136,36 @@ html,body {
   background-color: transparent;
   position: fixed;
 }
+
+/* <-- 表格全选样式 */
+.ms-select-all th:first-child {
+  border: 1px solid #DCDFE6;
+  border-radius:5px;
+  padding: 0px;
+  margin-top: 5px;
+  display: inline-block;
+  margin-top: 25px;
+  width: 50px;
+}
+
+.ms-select-all th:nth-child(2) {
+  overflow: visible;
+}
+
+.ms-select-all th:first-child>.cell {
+  padding: 5px;
+  width: 35px;
+}
+
+.ms-select-all th:nth-child(2)>.cell {
+  overflow: visible;
+}
+
+.ms-select-all .el-icon-arrow-down {
+  position: absolute;
+  display: inline-block;
+  top: -3px;
+  left: -40px;
+  width: 30px;
+}
+/* 表格全选样式 --> */

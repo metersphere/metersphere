@@ -90,193 +90,194 @@
 </template>
 
 <script>
-import {calculate, Scenario} from "../model/ApiTestModel";
-import {JMETER_FUNC, MOCKJS_FUNC} from "@/common/js/constants";
+  import {calculate, Scenario} from "../model/ApiTestModel";
+  import {JMETER_FUNC, MOCKJS_FUNC} from "@/common/js/constants";
 
-export default {
-  name: "MsApiVariableAdvance",
-  props: {
-    parameters: Array,
-    environment: Object,
-    scenario: Scenario,
-    currentItem: Object,
-  },
-  data() {
-    return {
-      itemValueVisible: false,
-      filterText: '',
-      environmentParams: [],
-      scenarioParams: [],
-      preRequests: [],
-      preRequestParams: [],
-      treeProps: {children: 'children', label: 'name'},
-      currentTab: 0,
-      itemValue: null,
-      itemValuePreview: null,
-      funcs: [
-        {name: "md5"},
-        {name: "base64"},
-        {name: "unbase64"},
-        {
-          name: "substr",
-          params: [{name: "start"}, {name: "length"}]
-        },
-        {
-          name: "concat",
-          params: [{name: "suffix"}]
-        },
-        {name: "lconcat", params: [{name: "prefix"}]},
-        {name: "sha1"},
-        {name: "sha224"},
-        {name: "sha256"},
-        {name: "sha384"},
-        {name: "sha512"},
-        {name: "lower"},
-        {name: "upper"},
-        {name: "length"},
-        {name: "number"}
-      ],
-      mockFuncs: MOCKJS_FUNC.map(f => {
-        return {name: f.name, value: f.name}
-      }),
-      jmeterFuncs: JMETER_FUNC,
-      mockVariableFuncs: [],
-      jmeterVariableFuncs: [],
-    }
-  },
-  computed: {
-    valueText() {
-      return this.valuePlaceholder || this.$t("api_test.value");
-    }
-  },
-  mounted() {
-    this.prepareData();
-  },
-  watch: {
-    filterText(val) {
-      this.$refs.tree.filter(val);
+  export default {
+    name: "MsApiVariableAdvance",
+    props: {
+      parameters: Array,
+      environment: Object,
+      scenario: Scenario,
+      currentItem: Object,
     },
-  },
-  methods: {
-    open() {
-      this.itemValueVisible = true;
-    },
-    prepareData() {
-      if (this.scenario) {
-        let variables = this.scenario.variables;
-        this.scenarioParams = [
+    data() {
+      return {
+        itemValueVisible: false,
+        filterText: '',
+        environmentParams: [],
+        scenarioParams: [],
+        preRequests: [],
+        preRequestParams: [],
+        treeProps: {children: 'children', label: 'name'},
+        currentTab: 0,
+        itemValue: null,
+        itemValuePreview: null,
+        funcs: [
+          {name: "md5"},
+          {name: "base64"},
+          {name: "unbase64"},
           {
-            name: this.scenario.name,
-            children: variables.filter(v => v.name).map(v => {
-              return {name: v.name, value: '${' + v.name + '}'}
-            }),
-          }
-        ];
-        if (this.environment) {
-          let variables = this.environment.config.commonConfig.variables;
-          this.environmentParams = [
+            name: "substr",
+            params: [{name: "start"}, {name: "length"}]
+          },
+          {
+            name: "concat",
+            params: [{name: "suffix"}]
+          },
+          {name: "lconcat", params: [{name: "prefix"}]},
+          {name: "sha1"},
+          {name: "sha224"},
+          {name: "sha256"},
+          {name: "sha384"},
+          {name: "sha512"},
+          {name: "lower"},
+          {name: "upper"},
+          {name: "length"},
+          {name: "number"}
+        ],
+        mockFuncs: MOCKJS_FUNC.map(f => {
+          return {name: f.name, value: f.name}
+        }),
+        jmeterFuncs: JMETER_FUNC,
+        mockVariableFuncs: [],
+        jmeterVariableFuncs: [],
+      }
+    },
+    computed: {
+      valueText() {
+        return this.valuePlaceholder || this.$t("api_test.value");
+      }
+    },
+    mounted() {
+      this.prepareData();
+    },
+    watch: {
+      filterText(val) {
+        this.$refs.tree.filter(val);
+      },
+    },
+    methods: {
+      open() {
+        this.itemValueVisible = true;
+      },
+      prepareData() {
+        if (this.scenario) {
+          let variables = this.scenario.variables;
+          this.scenarioParams = [
             {
-              name: this.environment.name,
+              name: this.scenario.name,
               children: variables.filter(v => v.name).map(v => {
                 return {name: v.name, value: '${' + v.name + '}'}
               }),
             }
           ];
+          if (this.environment) {
+            let variables = this.environment.config.commonConfig.variables;
+            this.environmentParams = [
+              {
+                name: this.environment.name,
+                children: variables.filter(v => v.name).map(v => {
+                  return {name: v.name, value: '${' + v.name + '}'}
+                }),
+              }
+            ];
+          }
+          let i = this.scenario.requests.indexOf(this.request);
+          this.preRequests = this.scenario.requests.slice(0, i);
+          this.preRequests.forEach(r => {
+            let js = r.extract.json.map(v => {
+              return {name: v.variable, value: v.value}
+            });
+            let xs = r.extract.xpath.map(v => {
+              return {name: v.variable, value: v.value}
+            });
+            let rx = r.extract.regex.map(v => {
+              return {name: v.variable, value: v.value}
+            });
+            let vs = [...js, ...xs, ...rx];
+            if (vs.length > 0) {
+              this.preRequestParams.push({name: r.name, children: vs});
+            }
+          });
         }
-        let i = this.scenario.requests.indexOf(this.request);
-        this.preRequests = this.scenario.requests.slice(0, i);
-        this.preRequests.forEach(r => {
-          let js = r.extract.json.map(v => {
-            return {name: v.variable, value: v.value}
-          });
-          let xs = r.extract.xpath.map(v => {
-            return {name: v.variable, value: v.value}
-          });
-          let rx = r.extract.regex.map(v => {
-            return {name: v.variable, value: v.value}
-          });
-          let vs = [...js, ...xs, ...rx];
-          if (vs.length > 0) {
-            this.preRequestParams.push({name: r.name, children: vs});
+      },
+      filterNode(value, data) {
+        if (!value) return true;
+        return data.name.indexOf(value) !== -1;
+      },
+      selectVariable(node) {
+        this.itemValue = node.value;
+      },
+      selectTab(tab) {
+        this.currentTab = +tab.index;
+        this.itemValue = null;
+        this.itemValuePreview = null;
+      },
+      showPreview() {
+        // 找到变量本身
+        if (!this.itemValue) {
+          return;
+        }
+        let index = this.itemValue.indexOf("|");
+        if (index > -1) {
+          this.itemValue = this.itemValue.substring(0, index).trim();
+        }
+
+        this.mockVariableFuncs.forEach(f => {
+          if (!f.name) {
+            return;
+          }
+          this.itemValue += "|" + f.name;
+          if (f.params) {
+            this.itemValue += ":" + f.params.map(p => p.value).join(",");
           }
         });
-      }
-    },
-    filterNode(value, data) {
-      if (!value) return true;
-      return data.name.indexOf(value) !== -1;
-    },
-    selectVariable(node) {
-      this.itemValue = node.value;
-    },
-    selectTab(tab) {
-      this.currentTab = +tab.index;
-      this.itemValue = null;
-      this.itemValuePreview = null;
-    },
-    showPreview() {
-      // 找到变量本身
-      if (!this.itemValue) {
-        return;
-      }
-      let index = this.itemValue.indexOf("|");
-      if (index > -1) {
-        this.itemValue = this.itemValue.substring(0, index).trim();
-      }
 
-      this.mockVariableFuncs.forEach(f => {
-        if (!f.name) {
+        this.itemValuePreview = calculate(this.itemValue);
+      },
+      methodChange(itemFunc, func) {
+        let index = this.mockVariableFuncs.indexOf(itemFunc);
+        this.mockVariableFuncs = this.mockVariableFuncs.slice(0, index);
+        // 这里要用 deep copy
+        this.mockVariableFuncs.push(JSON.parse(JSON.stringify(func)));
+        this.showPreview();
+      },
+      addFunc() {
+        if (this.mockVariableFuncs.length > 4) {
+          this.$info(this.$t('api_test.request.parameters_advance_add_func_limit'));
           return;
         }
-        this.itemValue += "|" + f.name;
-        if (f.params) {
-          this.itemValue += ":" + f.params.map(p => p.value).join(",");
-        }
-      });
-
-      this.itemValuePreview = calculate(this.itemValue);
-    },
-    methodChange(itemFunc, func) {
-      let index = this.mockVariableFuncs.indexOf(itemFunc);
-      this.mockVariableFuncs = this.mockVariableFuncs.slice(0, index);
-      // 这里要用 deep copy
-      this.mockVariableFuncs.push(JSON.parse(JSON.stringify(func)));
-      this.showPreview();
-    },
-    addFunc() {
-      if (this.mockVariableFuncs.length > 4) {
-        this.$info(this.$t('api_test.request.parameters_advance_add_func_limit'));
-        return;
-      }
-      if (this.mockVariableFuncs.length > 0) {
-        let func = this.mockVariableFuncs[this.mockVariableFuncs.length - 1];
-        if (!func.name) {
-          this.$warning(this.$t('api_test.request.parameters_advance_add_func_error'));
-          return;
-        }
-        if (func.params) {
-          for (let j = 0; j < func.params.length; j++) {
-            if (!func.params[j].value) {
-              this.$warning(this.$t('api_test.request.parameters_advance_add_param_error'));
-              return;
+        if (this.mockVariableFuncs.length > 0) {
+          let func = this.mockVariableFuncs[this.mockVariableFuncs.length - 1];
+          if (!func.name) {
+            this.$warning(this.$t('api_test.request.parameters_advance_add_func_error'));
+            return;
+          }
+          if (func.params) {
+            for (let j = 0; j < func.params.length; j++) {
+              if (!func.params[j].value) {
+                this.$warning(this.$t('api_test.request.parameters_advance_add_param_error'));
+                return;
+              }
             }
           }
         }
+        this.mockVariableFuncs.push({name: '', params: []});
+      },
+      saveAdvanced() {
+        this.currentItem.value = this.itemValue;
+        this.itemValueVisible = false;
+        this.mockVariableFuncs = [];
+        this.$emit('advancedRefresh', this.itemValue);
       }
-      this.mockVariableFuncs.push({name: '', params: []});
-    },
-    saveAdvanced() {
-      this.currentItem.value = this.itemValue;
-      this.itemValueVisible = false;
-      this.mockVariableFuncs = [];
     }
   }
-}
 </script>
 
 <style scoped>
-.col-height {
-  height: 40vh;
-  overflow: auto;
-}
+  .col-height {
+    height: 40vh;
+    overflow: auto;
+  }
 </style>
