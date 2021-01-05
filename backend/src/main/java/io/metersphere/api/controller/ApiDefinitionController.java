@@ -11,6 +11,7 @@ import io.metersphere.api.dto.definition.parse.ApiDefinitionImport;
 import io.metersphere.api.service.ApiDefinitionService;
 import io.metersphere.base.domain.ApiDefinition;
 import io.metersphere.commons.constants.RoleConstants;
+import io.metersphere.commons.json.JSONSchemaGenerator;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.commons.utils.SessionUtils;
@@ -158,4 +159,10 @@ public class ApiDefinitionController {
     public void testPlanRelevance(@RequestBody ApiCaseRelevanceRequest request) {
         apiDefinitionService.testPlanRelevance(request);
     }
+
+    @PostMapping("/preview")
+    public String preview(@RequestBody String jsonSchema) {
+        return JSONSchemaGenerator.getJson(jsonSchema);
+    }
+
 }

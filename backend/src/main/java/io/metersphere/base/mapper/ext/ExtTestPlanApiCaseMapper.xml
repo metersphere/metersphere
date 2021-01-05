@@ -18,7 +18,7 @@
   <select id="list" resultType="io.metersphere.api.dto.definition.TestPlanApiCaseDTO">
     select
       t.id, t.environment_id, t.create_time, t.update_time,
-      c.id as case_id, c.project_id, c.name, c.api_definition_id, c.priority, c.description, c.create_user_id, c.update_user_id,
+      c.id as case_id, c.project_id, c.name, c.api_definition_id, c.priority, c.description, c.create_user_id, c.update_user_id, c.num,
       a.module_id, a.path, a.protocol, t.status execResult
     from
       test_plan_api_case t
@@ -90,17 +90,31 @@
       </foreach>
     </if>
   </select>
-    <select id="getExecResultByPlanId" resultType="java.lang.String">
-      select status
-      from
-      test_plan_api_case
-      where test_plan_id = #{planId}
-    </select>
+  <select id="getExecResultByPlanId" resultType="java.lang.String">
+    select status
+    from
+    test_plan_api_case
+    where test_plan_id = #{planId}
+  </select>
 
-    <select id="getIdsByPlanId" resultType="java.lang.String">
-      select id from
-      from test_plan_api_case
-      where id = #{planId}
-    </select>
+  <select id="getIdsByPlanId" resultType="java.lang.String">
+    select id
+    from test_plan_api_case
+    where id = #{planId}
+  </select>
+
+  <select id="getNotRelevanceCaseIds" resultType="java.lang.String">
+    select t.id
+    from test_plan_api_case t
+    inner join api_test_case c
+      on c.id = t.api_case_id
+      <if test="relevanceProjectIds != null and relevanceProjectIds.size() > 0">
+        and c.project_id not in
+        <foreach collection="relevanceProjectIds" item="projectId" separator="," open="(" close=")">
+          #{projectId}
+        </foreach>
+      </if>
+    where t.test_plan_id = #{planId}
+  </select>
 
 </mapper>

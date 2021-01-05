@@ -10,25 +10,18 @@
       <el-table v-loading="result.loading"
                 ref="apiDefinitionTable"
                 border
-                :data="tableData" row-key="id" class="test-content adjust-table api-list"
+                :data="tableData" row-key="id" class="test-content adjust-table ms-select-all"
                 @select-all="handleSelectAll"
                 @select="handleSelect" :height="screenHeight">
-        <el-table-column width="20" type="selection"/>
+        <el-table-column width="50" type="selection"/>
+
+        <ms-table-select-all
+          :page-size="pageSize"
+          :total="total"
+          @selectPageAll="isSelectDataAll(false)"
+          @selectAll="isSelectDataAll(true)"/>
 
         <el-table-column width="30" :resizable="false" align="center">
-          <el-dropdown slot="header">
-            <span class="el-dropdown-link">
-              <i class="el-icon-arrow-down"></i>
-            </span>
-            <el-dropdown-menu slot="dropdown">
-              <el-dropdown-item @click.native.stop="isSelectDataAll(true)">
-                {{ $t('api_test.batch_menus.select_all_data', [total]) }}
-              </el-dropdown-item>
-              <el-dropdown-item @click.native.stop="isSelectDataAll(false)">
-                {{ $t('api_test.batch_menus.select_show_data', [tableData.length]) }}
-              </el-dropdown-item>
-            </el-dropdown-menu>
-          </el-dropdown>
           <template v-slot:default="scope">
             <show-more-btn :is-show="scope.row.showMore" :buttons="buttons" :size="selectDataCounts"/>
           </template>
@@ -37,43 +30,38 @@
         <el-table-column prop="num" label="ID" show-overflow-tooltip/>
         <el-table-column prop="name" :label="$t('api_test.definition.api_name')" show-overflow-tooltip/>
         <el-table-column
-            prop="status"
-            column-key="api_status"
-            :label="$t('api_test.definition.api_status')"
-            show-overflow-tooltip>
+          prop="status"
+          column-key="api_status"
+          :label="$t('api_test.definition.api_status')"
+          show-overflow-tooltip>
           <template v-slot:default="scope">
-            <ms-tag v-if="scope.row.status == 'Prepare'" type="info" effect="plain"
-                    :content="$t('test_track.plan.plan_status_prepare')"/>
-            <ms-tag v-if="scope.row.status == 'Underway'" type="warning" effect="plain"
-                    :content="$t('test_track.plan.plan_status_running')"/>
-            <ms-tag v-if="scope.row.status == 'Completed'" type="success" effect="plain"
-                    :content="$t('test_track.plan.plan_status_completed')"/>
+            <ms-tag v-if="scope.row.status == 'Prepare'" type="info" effect="plain" :content="$t('test_track.plan.plan_status_prepare')"/>
+            <ms-tag v-if="scope.row.status == 'Underway'" type="warning" effect="plain" :content="$t('test_track.plan.plan_status_running')"/>
+            <ms-tag v-if="scope.row.status == 'Completed'" type="success" effect="plain" :content="$t('test_track.plan.plan_status_completed')"/>
             <ms-tag v-if="scope.row.status == 'Trash'" type="danger" effect="plain" content="废弃"/>
           </template>
         </el-table-column>
 
         <el-table-column
-            prop="method"
-            :label="$t('api_test.definition.api_type')"
-            show-overflow-tooltip>
+          prop="method"
+          :label="$t('api_test.definition.api_type')"
+          show-overflow-tooltip>
           <template v-slot:default="scope" class="request-method">
-            <el-tag size="mini"
-                    :style="{'background-color': getColor(true, scope.row.method), border: getColor(true, scope.row.method)}"
-                    class="api-el-tag">
-              {{ scope.row.method }}
+            <el-tag size="mini" :style="{'background-color': getColor(true, scope.row.method), border: getColor(true, scope.row.method)}" class="api-el-tag">
+              {{ scope.row.method}}
             </el-tag>
           </template>
         </el-table-column>
 
         <el-table-column
-            prop="path"
-            :label="$t('api_test.definition.api_path')"
-            show-overflow-tooltip/>
+          prop="path"
+          :label="$t('api_test.definition.api_path')"
+          show-overflow-tooltip/>
 
         <el-table-column
-            prop="userName"
-            :label="$t('api_test.definition.api_principal')"
-            show-overflow-tooltip/>
+          prop="userName"
+          :label="$t('api_test.definition.api_principal')"
+          show-overflow-tooltip/>
 
         <el-table-column width="160" :label="$t('api_test.definition.api_last_time')" prop="updateTime">
           <template v-slot:default="scope">
@@ -82,31 +70,27 @@
         </el-table-column>
 
         <el-table-column
-            prop="caseTotal"
-            :label="$t('api_test.definition.api_case_number')"
-            show-overflow-tooltip/>
+          prop="caseTotal"
+          :label="$t('api_test.definition.api_case_number')"
+          show-overflow-tooltip/>
 
         <el-table-column
-            prop="caseStatus"
-            :label="$t('api_test.definition.api_case_status')"
-            show-overflow-tooltip/>
+          prop="caseStatus"
+          :label="$t('api_test.definition.api_case_status')"
+          show-overflow-tooltip/>
 
         <el-table-column
-            prop="casePassingRate"
-            :label="$t('api_test.definition.api_case_passing_rate')"
-            show-overflow-tooltip/>
+          prop="casePassingRate"
+          :width="100"
+          :label="$t('api_test.definition.api_case_passing_rate')"
+          show-overflow-tooltip/>
 
         <el-table-column v-if="!isReadOnly" :label="$t('commons.operating')" min-width="130" align="center">
           <template v-slot:default="scope">
-            <el-button type="text" @click="reductionApi(scope.row)" v-if="trashEnable" v-tester>
-              {{ $t('commons.reduction') }}
-            </el-button>
-            <el-button type="text" @click="editApi(scope.row)" v-else v-tester>{{ $t('commons.edit') }}</el-button>
-            <el-button type="text" @click="handleTestCase(scope.row)">{{ $t('api_test.definition.request.case') }}
-            </el-button>
-            <el-button type="text" @click="handleDelete(scope.row)" style="color: #F56C6C" v-tester>
-              {{ $t('commons.delete') }}
-            </el-button>
+            <el-button type="text" @click="reductionApi(scope.row)" v-if="trashEnable" v-tester>{{$t('commons.reduction')}}</el-button>
+            <el-button type="text" @click="editApi(scope.row)" v-else v-tester>{{$t('commons.edit')}}</el-button>
+            <el-button type="text" @click="handleTestCase(scope.row)">{{$t('api_test.definition.request.case')}}</el-button>
+            <el-button type="text" @click="handleDelete(scope.row)" style="color: #F56C6C" v-tester>{{$t('commons.delete')}}</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -122,134 +106,133 @@
 
 <script>
 
-import MsTableHeader from '../../../../common/components/MsTableHeader';
-import MsTableOperator from "../../../../common/components/MsTableOperator";
-import MsTableOperatorButton from "../../../../common/components/MsTableOperatorButton";
-import MsTableButton from "../../../../common/components/MsTableButton";
-import {LIST_CHANGE, TrackEvent} from "@/business/components/common/head/ListEvent";
-import MsTablePagination from "../../../../common/pagination/TablePagination";
-import MsTag from "../../../../common/components/MsTag";
-import MsApiCaseList from "../case/ApiCaseList";
-import MsContainer from "../../../../common/components/MsContainer";
-import MsBottomContainer from "../BottomContainer";
-import ShowMoreBtn from "../../../../track/case/components/ShowMoreBtn";
-import MsBatchEdit from "../basis/BatchEdit";
-import {API_METHOD_COLOUR, REQ_METHOD, API_STATUS} from "../../model/JsonData";
-import {getCurrentProjectID} from "@/common/js/utils";
-import {WORKSPACE_ID} from '../../../../../../common/js/constants';
-import ApiListContainer from "./ApiListContainer";
+  import MsTableHeader from '../../../../common/components/MsTableHeader';
+  import MsTableOperator from "../../../../common/components/MsTableOperator";
+  import MsTableOperatorButton from "../../../../common/components/MsTableOperatorButton";
+  import MsTableButton from "../../../../common/components/MsTableButton";
+  import {LIST_CHANGE, TrackEvent} from "@/business/components/common/head/ListEvent";
+  import MsTablePagination from "../../../../common/pagination/TablePagination";
+  import MsTag from "../../../../common/components/MsTag";
+  import MsApiCaseList from "../case/ApiCaseList";
+  import MsContainer from "../../../../common/components/MsContainer";
+  import MsBottomContainer from "../BottomContainer";
+  import ShowMoreBtn from "../../../../track/case/components/ShowMoreBtn";
+  import MsBatchEdit from "../basis/BatchEdit";
+  import {API_METHOD_COLOUR, REQ_METHOD, API_STATUS} from "../../model/JsonData";
+  import {getCurrentProjectID} from "@/common/js/utils";
+  import {WORKSPACE_ID} from '../../../../../../common/js/constants';
+  import ApiListContainer from "./ApiListContainer";
+  import MsTableSelectAll from "../../../../common/components/table/MsTableSelectAll";
 
-export default {
-  name: "ApiList",
-  components: {
-    ApiListContainer,
-    MsTableButton,
-    MsTableOperatorButton,
-    MsTableOperator,
-    MsTableHeader,
-    MsTablePagination,
-    MsTag,
-    MsApiCaseList,
-    MsContainer,
-    MsBottomContainer,
-    ShowMoreBtn,
-    MsBatchEdit
-  },
-  data() {
-    return {
-      condition: {},
-      selectApi: {},
-      result: {},
-      moduleId: "",
-      selectDataRange: "all",
-      deletePath: "/test/case/delete",
-      selectRows: new Set(),
-      buttons: [
-        {name: this.$t('api_test.definition.request.batch_delete'), handleClick: this.handleDeleteBatch},
-        {name: this.$t('api_test.definition.request.batch_edit'), handleClick: this.handleEditBatch}
-      ],
-      typeArr: [
-        {id: 'status', name: this.$t('api_test.definition.api_status')},
-        {id: 'method', name: this.$t('api_test.definition.api_type')},
-        {id: 'userId', name: this.$t('api_test.definition.api_principal')},
-      ],
-      valueArr: {
-        status: API_STATUS,
-        method: REQ_METHOD,
-        userId: [],
+  export default {
+    name: "ApiList",
+    components: {
+      MsTableSelectAll,
+      ApiListContainer,
+      MsTableButton,
+      MsTableOperatorButton,
+      MsTableOperator,
+      MsTableHeader,
+      MsTablePagination,
+      MsTag,
+      MsApiCaseList,
+      MsContainer,
+      MsBottomContainer,
+      ShowMoreBtn,
+      MsBatchEdit
+    },
+    data() {
+      return {
+        condition: {},
+        selectApi: {},
+        result: {},
+        moduleId: "",
+        selectDataRange: "all",
+        deletePath: "/test/case/delete",
+        selectRows: new Set(),
+        buttons: [
+          {name: this.$t('api_test.definition.request.batch_delete'), handleClick: this.handleDeleteBatch},
+          {name: this.$t('api_test.definition.request.batch_edit'), handleClick: this.handleEditBatch}
+        ],
+        typeArr: [
+          {id: 'status', name: this.$t('api_test.definition.api_status')},
+          {id: 'method', name: this.$t('api_test.definition.api_type')},
+          {id: 'userId', name: this.$t('api_test.definition.api_principal')},
+        ],
+        valueArr: {
+          status: API_STATUS,
+          method: REQ_METHOD,
+          userId: [],
+        },
+        methodColorMap: new Map(API_METHOD_COLOUR),
+        tableData: [],
+        currentPage: 1,
+        pageSize: 10,
+        total: 0,
+        screenHeight: document.documentElement.clientHeight - 330,//屏幕高度,
+        environmentId: undefined,
+        selectAll: false,
+        unSelection:[],
+        selectDataCounts:0,
+      }
+    },
+    props: {
+      currentProtocol: String,
+      selectNodeIds: Array,
+      isSelectThisWeek: String,
+      visible: {
+        type: Boolean,
+        default: false,
       },
-      methodColorMap: new Map(API_METHOD_COLOUR),
-      tableData: [],
-      currentPage: 1,
-      pageSize: 10,
-      total: 0,
-      screenHeight: document.documentElement.clientHeight - 330,//屏幕高度,
-      environmentId: undefined,
-      selectAll: false,
-      unSelection: [],
-      selectDataCounts: 0,
-    }
-  },
-  props: {
-    currentProtocol: String,
-    selectNodeIds: Array,
-    isSelectThisWeek: String,
-    visible: {
-      type: Boolean,
-      default: false,
+      isCaseRelevance: {
+        type: Boolean,
+        default: false,
+      },
+      trashEnable: {
+        type: Boolean,
+        default: false,
+      },
+      isApiListEnable: Boolean,
+      isReadOnly: {
+        type: Boolean,
+        default: false
+      },
     },
-    isCaseRelevance: {
-      type: Boolean,
-      default: false,
-    },
-    trashEnable: {
-      type: Boolean,
-      default: false,
-    },
-    isApiListEnable: Boolean,
-    isReadOnly: {
-      type: Boolean,
-      default: false
-    },
-  },
-  mounted: function () {
-    this.initTable();
-  },
-  created: function () {
-    this.initTable();
-    this.getMaintainerOptions();
-  },
-  watch: {
-    selectNodeIds() {
+    created: function () {
       this.initTable();
+      this.getMaintainerOptions();
     },
-    currentProtocol() {
-      this.initTable();
-    },
-    trashEnable() {
-      if (this.trashEnable) {
+    watch: {
+      selectNodeIds() {
         this.initTable();
+      },
+      currentProtocol() {
+        this.initTable();
+      },
+      trashEnable() {
+        if (this.trashEnable) {
+          this.initTable();
+        }
       }
-    }
-  },
-  methods: {
-    isApiListEnableChange(data) {
-      this.$emit('isApiListEnableChange', data);
     },
-    initTable() {
-      this.selectRows = new Set();
+    methods: {
+      isApiListEnableChange(data) {
+        this.$emit('isApiListEnableChange', data);
+      },
+      initTable() {
+        this.selectRows = new Set();
 
-      this.selectAll = false;
-      this.unSelection = [];
-      this.selectDataCounts = 0;
+        this.selectAll  = false;
+        this.unSelection = [];
+        this.selectDataCounts = 0;
 
-      this.condition.filters = ["Prepare", "Underway", "Completed"];
+        this.condition.filters = ["Prepare", "Underway", "Completed"];
 
-      this.condition.moduleIds = this.selectNodeIds;
-      if (this.trashEnable) {
-        this.condition.filters = ["Trash"];
-        this.condition.moduleIds = [];
-      }
+        this.condition.moduleIds = this.selectNodeIds;
+        if (this.trashEnable) {
+          this.condition.filters = ["Trash"];
+          this.condition.moduleIds = [];
+        }
 
       this.condition.projectId = getCurrentProjectID();
       if (this.currentProtocol != null) {
@@ -342,76 +325,76 @@ export default {
       return path + "/" + this.currentPage + "/" + this.pageSize;
     },
 
-    editApi(row) {
-      this.$emit('editApi', row);
-    },
-    reductionApi(row) {
-      row.request = null;
-      row.response = null;
-      let rows = [row];
-      this.$post('/api/definition/reduction/', rows, () => {
-        this.$success(this.$t('commons.save_success'));
-        this.search();
-      });
-    },
-    handleDeleteBatch() {
-      if (this.trashEnable) {
-        this.$alert(this.$t('api_test.definition.request.delete_confirm') + "？", '', {
-          confirmButtonText: this.$t('commons.confirm'),
-          callback: (action) => {
-            if (action === 'confirm') {
-              let deleteParam = {};
-              let ids = Array.from(this.selectRows).map(row => row.id);
-              deleteParam.dataIds = ids;
-              deleteParam.projectId = getCurrentProjectID();
-              deleteParam.selectAllDate = this.isSelectAllDate;
-              deleteParam.unSelectIds = this.unSelection;
-              deleteParam = Object.assign(deleteParam, this.condition);
-              this.$post('/api/definition/deleteBatchByParams/', deleteParam, () => {
-                this.selectRows.clear();
-                this.initTable();
-                this.$success(this.$t('commons.delete_success'));
-              });
-            }
-          }
+      editApi(row) {
+        this.$emit('editApi', row);
+      },
+      reductionApi(row) {
+        row.request = null;
+        row.response = null;
+        let rows = [row];
+        this.$post('/api/definition/reduction/', rows, () => {
+          this.$success(this.$t('commons.save_success'));
+          this.search();
         });
-      } else {
-        this.$alert(this.$t('api_test.definition.request.delete_confirm') + "？", '', {
-          confirmButtonText: this.$t('commons.confirm'),
-          callback: (action) => {
-            if (action === 'confirm') {
-              let ids = Array.from(this.selectRows).map(row => row.id);
-              let deleteParam = {};
-              deleteParam.dataIds = ids;
-              deleteParam.projectId = getCurrentProjectID();
-              deleteParam.selectAllDate = this.isSelectAllDate;
-              deleteParam.unSelectIds = this.unSelection;
-              deleteParam = Object.assign(deleteParam, this.condition);
-              this.$post('/api/definition/removeToGcByParams/', deleteParam, () => {
-                this.selectRows.clear();
-                this.initTable();
-                this.$success(this.$t('commons.delete_success'));
-                this.$refs.caseList.apiCaseClose();
-              });
+      },
+      handleDeleteBatch() {
+        if (this.trashEnable) {
+          this.$alert(this.$t('api_test.definition.request.delete_confirm') + "？", '', {
+            confirmButtonText: this.$t('commons.confirm'),
+            callback: (action) => {
+              if (action === 'confirm') {
+                let deleteParam = {};
+                let ids = Array.from(this.selectRows).map(row => row.id);
+                deleteParam.dataIds = ids;
+                deleteParam.projectId = getCurrentProjectID();
+                deleteParam.selectAllDate = this.isSelectAllDate;
+                deleteParam.unSelectIds = this.unSelection;
+                deleteParam = Object.assign(deleteParam, this.condition);
+                this.$post('/api/definition/deleteBatchByParams/', deleteParam, () => {
+                  this.selectRows.clear();
+                  this.initTable();
+                  this.$success(this.$t('commons.delete_success'));
+                });
+              }
             }
-          }
-        });
-      }
-    },
-    handleEditBatch() {
-      this.$refs.batchEdit.open();
-    },
-    batchEdit(form) {
-      let arr = Array.from(this.selectRows);
-      let ids = arr.map(row => row.id);
-      let param = {};
-      param[form.type] = form.value;
-      param.ids = ids;
+          });
+        } else {
+          this.$alert(this.$t('api_test.definition.request.delete_confirm') + "？", '', {
+            confirmButtonText: this.$t('commons.confirm'),
+            callback: (action) => {
+              if (action === 'confirm') {
+                let ids = Array.from(this.selectRows).map(row => row.id);
+                let deleteParam = {};
+                deleteParam.dataIds = ids;
+                deleteParam.projectId = getCurrentProjectID();
+                deleteParam.selectAllDate = this.isSelectAllDate;
+                deleteParam.unSelectIds = this.unSelection;
+                deleteParam = Object.assign(deleteParam, this.condition);
+                this.$post('/api/definition/removeToGcByParams/', deleteParam, () => {
+                  this.selectRows.clear();
+                  this.initTable();
+                  this.$success(this.$t('commons.delete_success'));
+                  this.$refs.caseList.apiCaseClose();
+                });
+              }
+            }
+          });
+        }
+      },
+      handleEditBatch() {
+        this.$refs.batchEdit.open();
+      },
+      batchEdit(form) {
+        let arr = Array.from(this.selectRows);
+        let ids = arr.map(row => row.id);
+        let param = {};
+        param[form.type] = form.value;
+        param.ids = ids;
 
-      param.projectId = getCurrentProjectID();
-      param.selectAllDate = this.isSelectAllDate;
-      param.unSelectIds = this.unSelection;
-      param = Object.assign(param, this.condition);
+        param.projectId = getCurrentProjectID();
+        param.selectAllDate = this.isSelectAllDate;
+        param.unSelectIds = this.unSelection;
+        param = Object.assign(param, this.condition);
 
       this.$post('/api/definition/batch/editByParams', param, () => {
         this.$success(this.$t('commons.save_success'));
@@ -505,54 +488,52 @@ export default {
 </script>
 
 <style scoped>
-.operate-button > div {
-  display: inline-block;
-  margin-left: 10px;
-}
+  .operate-button > div {
+    display: inline-block;
+    margin-left: 10px;
+  }
 
-.request-method {
-  padding: 0 5px;
-  color: #1E90FF;
-}
+  .request-method {
+    padding: 0 5px;
+    color: #1E90FF;
+  }
 
-.api-el-tag {
-  color: white;
-}
+  .api-el-tag {
+    color: white;
+  }
 
-.search-input {
-  float: right;
-  width: 300px;
-  /*margin-bottom: 20px;*/
-  margin-right: 20px;
-}
+  .search-input {
+    float: right;
+    width: 300px;
+    margin-right: 20px;
+  }
 
-.api-list >>> th:first-child {
-  /*border: 1px solid #DCDFE6;*/
-  /*border-right: 0px;*/
-  /*border-top-left-radius:5px;*/
-  /*border-bottom-left-radius:5px;*/
-  /*width: 20px;*/
+  .api-list >>> th:first-child {
+    /*border: 1px solid #DCDFE6;*/
+    /*border-right: 0px;*/
+    /*border-top-left-radius:5px;*/
+    /*border-bottom-left-radius:5px;*/
+    /*width: 20px;*/
 
-}
+  }
 
-.api-list >>> th:nth-child(2) {
-  /*border: 1px solid #DCDFE6;*/
-  /*border-left: 0px;*/
-  /*border-top-right-radius:5px;*/
-  /*border-bottom-right-radius:5px;*/
-}
+  .api-list >>> th:nth-child(2) {
+    /*border: 1px solid #DCDFE6;*/
+    /*border-left: 0px;*/
+    /*border-top-right-radius:5px;*/
+    /*border-bottom-right-radius:5px;*/
+  }
 
-.api-list >>> th:first-child > .cell {
-  padding: 5px;
-  width: 30px;
-}
+  .api-list >>> th:first-child>.cell {
+    padding: 5px;
+    width: 30px;
+  }
+  .api-list >>> th:nth-child(2)>.cell {
+    /*background-color: black;*/
+  }
 
-.api-list >>> th:nth-child(2) > .cell {
-  /*background-color: black;*/
-}
-
-.api-list >>> .el-dropdown {
-  float: left;
-}
+  .api-list >>> .el-dropdown {
+    float: left;
+  }
 
 </style>

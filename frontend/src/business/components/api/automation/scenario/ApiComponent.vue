@@ -62,7 +62,7 @@
           <ms-dubbo-basis-parameters :request="request" v-if="request.protocol==='DUBBO' || request.protocol==='dubbo://'|| request.type==='DubboSampler'"/>
 
           <p class="tip">{{$t('api_test.definition.request.res_param')}} </p>
-          <ms-request-result-tail :response="request.requestResult" ref="runResult"/>
+          <ms-request-result-tail :currentProtocol="request.protocol" :response="request.requestResult" ref="runResult"/>
 
           <!-- 保存操作 -->
           <el-button type="primary" size="small" style="margin: 20px; float: right" @click="saveTestCase(item)" v-if="!request.referenced">

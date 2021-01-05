@@ -14,7 +14,10 @@
             <el-option v-for="(type, index) in typeArr" :key="index" :value="type.id" :label="type.name"/>
           </el-select>
         </el-form-item>
-        <el-form-item :label="$t('test_track.case.updated_attr_value')" prop="value">
+        <el-form-item v-if="form.type ==='path'" :label="$t('test_track.case.updated_attr_value')" prop="value">
+          <el-input size="small" v-model="form.value"/>
+        </el-form-item>
+        <el-form-item v-else :label="$t('test_track.case.updated_attr_value')" prop="value">
           <el-select v-model="form.value" style="width: 80%" :filterable="filterable">
             <el-option v-for="(option, index) in options" :key="index" :value="option.id" :label="option.label">
               <div v-if="option.email">

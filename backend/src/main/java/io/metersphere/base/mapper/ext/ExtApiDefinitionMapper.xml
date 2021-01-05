@@ -310,20 +310,9 @@
     </select>
 
     <select id="listRelevance" resultType="io.metersphere.api.dto.definition.ApiDefinitionResult">
-        select api_definition.id, api_definition.project_id, api_definition.num,
-            api_definition.name,api_definition.protocol,api_definition.path,api_definition.module_id,api_definition.module_path,api_definition.method,
-            api_definition.description,api_definition.request,api_definition.response,api_definition.environment_id,
-            api_definition.status, api_definition.user_id, api_definition.create_time, api_definition.update_time
+        select
+        <include refid="io.metersphere.base.mapper.ApiDefinitionMapper.Base_Column_List"/>
         from api_definition
-        inner join
-          api_test_case c
-          on c.api_definition_id = api_definition.id
-          and not exists (
-            select id
-            from test_plan_api_case t
-            where t.api_case_id = c.id
-            and t.test_plan_id = #{request.planId}
-          )
         <where>
             <if test="request.combine != null">
                 <include refid="combine">
@@ -359,6 +348,17 @@
                     #{value}
                 </foreach>
             </if>
+            and exists (
+                select id
+                from api_test_case c
+                where c.api_definition_id = api_definition.id
+                and not exists (
+                    select id
+                    from test_plan_api_case t
+                    where t.api_case_id = c.id
+                    and t.test_plan_id = #{request.planId}
+                )
+            )
         </where>
         <if test="request.orders != null and request.orders.size() > 0">
             order by

@@ -46,11 +46,11 @@ public class TestPlanController {
 
     /*jenkins测试计划*/
     @GetMapping("/list/all/{projectId}/{workspaceId}")
-    public List<TestPlanDTO> listByProjectId(@PathVariable String projectId, @PathVariable String workspaceId) {
+    public List<TestPlanDTOWithMetric> listByProjectId(@PathVariable String projectId, @PathVariable String workspaceId) {
         QueryTestPlanRequest request = new QueryTestPlanRequest();
         request.setWorkspaceId(workspaceId);
         request.setProjectId(projectId);
-        return testPlanService.listTestPlanByProject(request);
+        return testPlanService.listTestPlan(request);
     }
 
     @PostMapping("/list/all")

@@ -118,7 +118,21 @@ export default {
     },
     copyRequest(index) {
       let request = this.scenario.requests[index];
-      this.scenario.requests.push(new RequestFactory(request));
+      let item = new RequestFactory(request);
+      if (item.body && item.body.kvs) {
+        item.body.kvs.forEach(kv => {
+          let files = [];
+          if (kv.files) {
+            kv.files.forEach(file => {
+              let fileCopy = {};
+              Object.assign(fileCopy, file);
+              files.push(fileCopy);
+            })
+          }
+          kv.files = files;
+        });
+      }
+      this.scenario.requests.push(item);
     },
     disableRequest(index) {
       this.scenario.requests[index].enable = false;

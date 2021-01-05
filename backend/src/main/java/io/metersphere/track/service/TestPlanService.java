@@ -10,7 +10,6 @@ import io.metersphere.api.dto.definition.ApiTestCaseRequest;
 import io.metersphere.api.dto.definition.TestPlanApiCaseDTO;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
-import io.metersphere.base.mapper.ext.ExtProjectMapper;
 import io.metersphere.base.mapper.ext.ExtTestCaseMapper;
 import io.metersphere.base.mapper.ext.ExtTestPlanMapper;
 import io.metersphere.base.mapper.ext.ExtTestPlanTestCaseMapper;
@@ -27,7 +26,6 @@ import io.metersphere.notice.service.NoticeSendService;
 import io.metersphere.service.SystemParameterService;
 import io.metersphere.track.Factory.ReportComponentFactory;
 import io.metersphere.track.domain.ReportComponent;
-
 import io.metersphere.track.dto.TestCaseReportMetricDTO;
 import io.metersphere.track.dto.TestPlanCaseDTO;
 import io.metersphere.track.dto.TestPlanDTO;
@@ -69,8 +67,6 @@ public class TestPlanService {
     @Lazy
     @Resource
     TestPlanTestCaseService testPlanTestCaseService;
-    @Resource
-    ExtProjectMapper extProjectMapper;
     @Resource
     TestCaseReportMapper testCaseReportMapper;
     @Resource
@@ -230,6 +226,14 @@ public class TestPlanService {
                 criteria.andCaseIdNotIn(caseIds);
             }
             testPlanTestCaseMapper.deleteByExample(testPlanTestCaseExample);
+
+            List<String> relevanceProjectIds = new ArrayList<>();
+            relevanceProjectIds.add(testPlan.getProjectId());
+            if (!CollectionUtils.isEmpty(testPlan.getProjectIds())) {
+                relevanceProjectIds.addAll(testPlan.getProjectIds());
+            }
+            testPlanApiCaseService.deleteByRelevanceProjectIds(testPlan.getId(), relevanceProjectIds);
+            testPlanScenarioCaseService.deleteByRelevanceProjectIds(testPlan.getId(), relevanceProjectIds);
         }
     }
 

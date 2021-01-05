@@ -36,16 +36,23 @@
           </el-form-item>
         </el-col>
       </el-row>
+      <el-row>
+        <el-col>
+          <el-form-item :label="$t('system_parameter_setting.test_recipients')">
+            <el-input v-model="formInline.recipient" :placeholder="$t('system_parameter_setting.test_recipients')"
+                      autocomplete="new-password" show-password type="text"  ref="input">
+            </el-input>
+            <p style="color: #8a8b8d">({{ $t('system_parameter_setting.tip') }})</p>
+          </el-form-item>
+        </el-col>
+      </el-row>
 
       <!---->
-      <div style="border: 0px;margin-bottom: 20px;margin-top: 20px">
-        <el-checkbox v-model="formInline.SSL" :label="$t('system_parameter_setting.SSL')"></el-checkbox>
+      <div style="border: 0px;margin-bottom: 20px">
+        <el-checkbox v-model="formInline.ssl" :label="$t('system_parameter_setting.SSL')"></el-checkbox>
       </div>
       <div style="border: 0px;margin-bottom: 20px">
-        <el-checkbox v-model="formInline.TLS" :label="$t('system_parameter_setting.TLS')"></el-checkbox>
-      </div>
-      <div style="border: 0px;margin-bottom: 20px">
-        <el-checkbox v-model="formInline.ANON" :label="$t('system_parameter_setting.SMTP')"></el-checkbox>
+        <el-checkbox v-model="formInline.tls" :label="$t('system_parameter_setting.TLS')"></el-checkbox>
       </div>
       <template v-slot:footer>
       </template>
@@ -114,13 +121,10 @@ export default {
     },
     query() {
       this.result = this.$get("/system/mail/info", response => {
-        this.$set(this.formInline, "host", response.data[0].paramValue);
-        this.$set(this.formInline, "port", response.data[1].paramValue);
-        this.$set(this.formInline, "account", response.data[2].paramValue);
-        this.$set(this.formInline, "password", response.data[3].paramValue);
-        this.$set(this.formInline, "SSL", JSON.parse(response.data[4].paramValue));
-        this.$set(this.formInline, "TLS", JSON.parse(response.data[5].paramValue));
-        this.$set(this.formInline, "ANON", JSON.parse(response.data[6].paramValue));
+        this.formInline = response.data;
+        this.formInline.ssl = this.formInline.ssl === 'true';
+        this.formInline.tls = this.formInline.tls === 'true';
+        console.log(this.formInline)
         this.$nextTick(() => {
           this.$refs.formInline.clearValidate();
         })
@@ -137,13 +141,13 @@ export default {
     },
     testConnection(formInline) {
       let param = {
-        "smtp.server": this.formInline.host,
+        "smtp.host": this.formInline.host,
         "smtp.port": this.formInline.port,
         "smtp.account": this.formInline.account,
         "smtp.password": this.formInline.password,
-        "smtp.ssl": this.formInline.SSL,
-        "smtp.tls": this.formInline.TLS,
-        "smtp.anon": this.formInline.ANON,
+        "smtp.ssl": this.formInline.ssl,
+        "smtp.tls": this.formInline.tls,
+        "smtp.recipient": this.formInline.recipient,
       };
       this.$refs[formInline].validate((valid) => {
         if (valid) {
@@ -171,9 +175,10 @@ export default {
         {paramKey: "smtp.port", paramValue: this.formInline.port, type: "text", sort: 2},
         {paramKey: "smtp.account", paramValue: this.formInline.account, type: "text", sort: 3},
         {paramKey: "smtp.password", paramValue: this.formInline.password, type: "password", sort: 4},
-        {paramKey: "smtp.ssl", paramValue: this.formInline.SSL, type: "text", sort: 5},
-        {paramKey: "smtp.tls", paramValue: this.formInline.TLS, type: "text", sort: 6},
-        {paramKey: "smtp.anon", paramValue: this.formInline.ANON, type: "text", sort: 7}
+        {paramKey: "smtp.ssl", paramValue: this.formInline.ssl, type: "text", sort: 5},
+        {paramKey: "smtp.tls", paramValue: this.formInline.tls, type: "text", sort: 6},
+        {paramKey: "smtp.recipient", paramValue: this.formInline.recipient, type: "text", sort: 8}
+
       ]
 
       this.$refs[formInline].validate(valid => {

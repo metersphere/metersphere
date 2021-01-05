@@ -129,8 +129,10 @@ public class Swagger3Parser extends ApiImportAbstractParser {
         String name = "";
         if (StringUtils.isNotBlank(operation.getSummary())) {
             name = operation.getSummary();
-        } else {
+        } else if (StringUtils.isNotBlank(operation.getOperationId())) {
             name = operation.getOperationId();
+        } else {
+            name = path;
         }
         return buildApiDefinition(id, name, path, method);
     }
