@@ -1,5 +1,6 @@
 package io.metersphere.api.jmeter;
 
+import io.metersphere.api.dto.scenario.request.RequestType;
 import io.metersphere.api.service.*;
 import io.metersphere.base.domain.ApiScenarioReport;
 import io.metersphere.base.domain.ApiTestReport;
@@ -339,7 +340,11 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
         String start = "RPC Protocol: ";
         String end = "://";
         if (StringUtils.contains(body, start)) {
-            return StringUtils.substringBetween(body, start, end).toUpperCase();
+            String protocol = StringUtils.substringBetween(body, start, end);
+            if (StringUtils.isNotEmpty(protocol)) {
+                return protocol.toUpperCase();
+            }
+            return RequestType.DUBBO;
         } else {
             // Http Method
             String method = StringUtils.substringBefore(body, " ");
