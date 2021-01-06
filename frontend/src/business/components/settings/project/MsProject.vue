@@ -3,7 +3,12 @@
     <el-card class="table-card">
       <template v-slot:header>
         <ms-table-header :is-tester-permission="true" :condition.sync="condition" @search="search" @create="create"
-                         :create-tip="btnTips" :title="$t('commons.project')"/>
+                         :create-tip="btnTips" :title="$t('commons.project')">
+          <template v-slot:button>
+            <ms-table-button :is-tester-permission="true" icon="el-icon-box"
+                             :content="$t('api_test.jar_config.title')" @click="openJarConfig"/>
+          </template>
+        </ms-table-header>
       </template>
       <el-table border class="adjust-table" :data="items" style="width: 100%" @sort-change="sort">
         <el-table-column prop="name" :label="$t('commons.name')" width="250" show-overflow-tooltip/>
@@ -78,6 +83,8 @@
 
     <api-environment-config ref="environmentConfig"/>
 
+    <ms-jar-config :is-read-only="isReadOnly" ref="jarConfig"/>
+
   </div>
 </template>
 
@@ -96,10 +103,14 @@ import MsTableOperatorButton from "../../common/components/MsTableOperatorButton
 import ApiEnvironmentConfig from "../../api/test/components/ApiEnvironmentConfig";
 import TemplateComponent from "../../track/plan/view/comonents/report/TemplateComponent/TemplateComponent";
 import {PROJECT_ID} from "@/common/js/constants";
+import MsJarConfig from "../../api/test/components/jar/JarConfig";
+import MsTableButton from "../../common/components/MsTableButton";
 
 export default {
   name: "MsProject",
   components: {
+    MsTableButton,
+    MsJarConfig,
     TemplateComponent,
     ApiEnvironmentConfig,
     MsTableOperatorButton,
@@ -205,6 +216,9 @@ export default {
           return false;
         }
       });
+    },
+    openJarConfig() {
+      this.$refs.jarConfig.open();
     },
     handleDelete(project) {
       this.$refs.deleteConfirm.open(project);
