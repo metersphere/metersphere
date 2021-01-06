@@ -65,10 +65,12 @@ public abstract class ApiImportAbstractParser implements ApiImportParser {
 
     protected ApiModule getSelectModule(String moduleId) {
         apiModuleService = CommonBeanFactory.getBean(ApiModuleService.class);
-        if (StringUtils.isNotBlank(moduleId)) {
+        if (StringUtils.isNotBlank(moduleId) && !StringUtils.equals("root", moduleId)) {
             ApiModule module = new ApiModule();
             ApiModuleDTO moduleDTO = apiModuleService.getNode(moduleId);
-            BeanUtils.copyBean(module, moduleDTO);
+            if (moduleDTO != null) {
+                BeanUtils.copyBean(module, moduleDTO);
+            }
             return module;
         }
         return null;
