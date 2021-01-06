@@ -972,15 +972,8 @@ public class JmeterDocumentParser implements DocumentParser {
     }
 
     private void processVariableThroughputTimer(Element variableThroughputTimer) {
-        Object durations = context.getProperty("duration");
-        Integer duration;
-        if (durations instanceof List) {
-            Object o = ((List<?>) durations).get(0);
-            duration = (Integer) o;
-            ((List<?>) durations).remove(0);
-        } else {
-            duration = (Integer) durations;
-        }
+        // 设置rps时长
+        Integer duration = Integer.MAX_VALUE;
         Object rpsLimits = context.getProperty("rpsLimit");
         String rpsLimit;
         if (rpsLimits instanceof List) {
