@@ -172,7 +172,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
             LogUtil.error(e);
         }
         // REST参数
-        if (CollectionUtils.isNotEmpty(this.getArguments())) {
+        if (CollectionUtils.isNotEmpty(this.getRest())) {
             sampler.setArguments(httpArguments(this.getRest()));
         }
         // 请求参数
@@ -186,7 +186,9 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                 if (StringUtils.isNotEmpty(this.body.getType()) && this.body.getType().equals("Form Data")) {
                     sampler.setDoMultipart(true);
                 }
-                sampler.setArguments(httpArguments(bodyParams));
+                if (CollectionUtils.isNotEmpty(bodyParams)) {
+                    sampler.setArguments(httpArguments(bodyParams));
+                }
             }
         }
 

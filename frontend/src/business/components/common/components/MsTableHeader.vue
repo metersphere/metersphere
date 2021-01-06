@@ -13,6 +13,8 @@
         <ms-table-button :is-tester-permission="isTesterPermission" v-if="showRun" icon="el-icon-video-play"
                          type="primary"
                          :content="runTip" @click="runTest"/>
+          <ms-table-button :is-tester-permission="isTesterPermission" v-if="showRun" icon="el-icon-circle-plus-outline"
+                           content="转场景测试" @click="historicalDataUpgrade"/>
 
         <slot name="button"></slot>
       </span>
@@ -84,6 +86,9 @@
       },
       runTest() {
         this.$emit('runTest')
+      },
+      historicalDataUpgrade() {
+        this.$emit('historicalDataUpgrade');
       }
     },
     computed: {

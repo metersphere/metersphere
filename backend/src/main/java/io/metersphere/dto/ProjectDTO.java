@@ -17,4 +17,6 @@ public class ProjectDTO {
     private String tapdId;
     private String jiraKey;
     private String zentaoId;
+    private boolean repeatable;
+
 }

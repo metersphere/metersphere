@@ -308,7 +308,8 @@ export default {
     zentao_id: 'Zentao Project ID',
     manager: 'Manager',
     no_data: 'No Data',
-    select: 'Select'
+    select: 'Select',
+    repeatable: 'Interface definition URL repeatable'
   },
   member: {
     create: 'Create',

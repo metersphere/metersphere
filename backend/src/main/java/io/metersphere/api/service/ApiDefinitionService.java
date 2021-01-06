@@ -4,7 +4,6 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import io.metersphere.api.dto.APIReportResult;
 import io.metersphere.api.dto.ApiTestImportRequest;
-import io.metersphere.api.dto.automation.ApiScenarioDTO;
 import io.metersphere.api.dto.automation.ApiScenarioRequest;
 import io.metersphere.api.dto.automation.ReferenceDTO;
 import io.metersphere.api.dto.datacount.ApiDataCountResult;
@@ -18,6 +17,7 @@ import io.metersphere.api.parse.ApiImportParserFactory;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ApiDefinitionMapper;
 import io.metersphere.base.mapper.ApiTestFileMapper;
+import io.metersphere.base.mapper.ProjectMapper;
 import io.metersphere.base.mapper.ext.ExtApiDefinitionExecResultMapper;
 import io.metersphere.base.mapper.ext.ExtApiDefinitionMapper;
 import io.metersphere.base.mapper.ext.ExtApiScenarioMapper;
@@ -71,6 +71,8 @@ public class ApiDefinitionService {
     private ExtApiScenarioMapper extApiScenarioMapper;
     @Resource
     private ExtTestPlanMapper extTestPlanMapper;
+    @Resource
+    private ProjectMapper projectMapper;
 
     private static Cache cache = Cache.newHardMemoryCache(0, 3600 * 24);
 
@@ -178,7 +180,8 @@ public class ApiDefinitionService {
             example.createCriteria().andMethodEqualTo(request.getMethod()).andStatusNotEqualTo("Trash")
                     .andProtocolEqualTo(request.getProtocol()).andPathEqualTo(request.getPath())
                     .andProjectIdEqualTo(request.getProjectId()).andIdNotEqualTo(request.getId());
-            if (apiDefinitionMapper.countByExample(example) > 0) {
+            Project project = projectMapper.selectByPrimaryKey(request.getProjectId());
+            if (apiDefinitionMapper.countByExample(example) > 0 && !project.getRepeatable()) {
                 MSException.throwException(Translator.get("api_definition_url_not_repeating"));
             }
         } else {
@@ -439,8 +442,8 @@ public class ApiDefinitionService {
 
     public void editApiByParam(ApiBatchRequest request) {
         List<String> ids = request.getIds();
-        if(request.isSelectAllDate()){
-            ids = this.getAllApiIdsByFontedSelect(request.getFilters(),request.getName(),request.getModuleIds(),request.getProjectId(),request.getUnSelectIds());
+        if (request.isSelectAllDate()) {
+            ids = this.getAllApiIdsByFontedSelect(request.getFilters(), request.getName(), request.getModuleIds(), request.getProjectId(), request.getUnSelectIds());
         }
         //name在这里只是查询参数
         request.setName(null);
@@ -503,15 +506,15 @@ public class ApiDefinitionService {
 
     public void deleteByParams(ApiDefinitionBatchProcessingRequest request) {
         List<String> apiIds = request.getDataIds();
-        if(request.isSelectAllDate()){
-            apiIds = this.getAllApiIdsByFontedSelect(request.getFilters(),request.getName(),request.getModuleIds(),request.getProjectId(),request.getUnSelectIds());
+        if (request.isSelectAllDate()) {
+            apiIds = this.getAllApiIdsByFontedSelect(request.getFilters(), request.getName(), request.getModuleIds(), request.getProjectId(), request.getUnSelectIds());
         }
         ApiDefinitionExample example = new ApiDefinitionExample();
         example.createCriteria().andIdIn(apiIds);
         apiDefinitionMapper.deleteByExample(example);
     }
 
-    private List<String> getAllApiIdsByFontedSelect(List<String> filter,String name,List<String> moduleIds,String projectId,List<String>unSelectIds) {
+    private List<String> getAllApiIdsByFontedSelect(List<String> filter, String name, List<String> moduleIds, String projectId, List<String> unSelectIds) {
         ApiDefinitionRequest request = new ApiDefinitionRequest();
         request.setFilters(filter);
         request.setName(name);
@@ -529,8 +532,8 @@ public class ApiDefinitionService {
 
     public void removeToGcByParams(ApiDefinitionBatchProcessingRequest request) {
         List<String> apiIds = request.getDataIds();
-        if(request.isSelectAllDate()){
-            apiIds = this.getAllApiIdsByFontedSelect(request.getFilters(),request.getName(),request.getModuleIds(),request.getProjectId(),request.getUnSelectIds());
+        if (request.isSelectAllDate()) {
+            apiIds = this.getAllApiIdsByFontedSelect(request.getFilters(), request.getName(), request.getModuleIds(), request.getProjectId(), request.getUnSelectIds());
         }
         extApiDefinitionMapper.removeToGc(apiIds);
     }

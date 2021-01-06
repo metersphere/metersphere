@@ -58,8 +58,8 @@
           <p class="tip">{{$t('api_test.definition.request.req_param')}} </p>
           <ms-api-request-form :referenced="true" :headers="request.headers " :request="request" v-if="request.protocol==='HTTP' || request.type==='HTTPSamplerProxy'"/>
           <ms-tcp-basis-parameters :request="request" v-if="request.protocol==='TCP'|| request.type==='TCPSampler'"/>
-          <ms-sql-basis-parameters :request="request" v-if="request.protocol==='SQL'|| request.type==='JDBCSampler'"/>
-          <ms-dubbo-basis-parameters :request="request" v-if="request.protocol==='DUBBO' || request.protocol==='dubbo://'|| request.type==='DubboSampler'"/>
+          <ms-sql-basis-parameters :request="request" v-if="request.protocol==='SQL'|| request.type==='JDBCSampler'" :showScript="false"/>
+          <ms-dubbo-basis-parameters :request="request" v-if="request.protocol==='DUBBO' || request.protocol==='dubbo://'|| request.type==='DubboSampler'" :showScript="false"/>
 
           <p class="tip">{{$t('api_test.definition.request.res_param')}} </p>
           <ms-request-result-tail :currentProtocol="request.protocol" :response="request.requestResult" ref="runResult"/>

@@ -87,7 +87,7 @@ export default {
       isHide: true,
       activeName: 'default',
       currentModule: null,
-      moduleOptions: {},
+      moduleOptions: [],
       tabs: [],
       trashEnable: false,
       selectNodeIds: [],
@@ -114,7 +114,12 @@ export default {
           this.$post(url, {id:scenarioId,projectId:projectId}, response => {
             let data = response.data;
             if(data!=null){
+              //如果树未加载
+              if(JSON.stringify(this.moduleOptions) === '{}' ){
+                this.$refs.nodeTree.list();
+              }
               let row = data.listObject[0];
+              row.tags = JSON.parse(row.tags);
               this.editScenario(row);
             }
           });

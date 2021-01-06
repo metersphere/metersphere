@@ -7,7 +7,7 @@
                            :title="$t('commons.test')"
                            @create="create" :createTip="$t('load_test.create')" :runTip="$t('load_test.run')"
                            :show-run="true"
-                           @runTest="runTest"/>
+                           @runTest="runTest" @historicalDataUpgrade="historicalDataUpgrade"/>
 
         </template>
 
@@ -54,7 +54,8 @@
       </el-card>
 
       <api-copy-dialog ref="apiCopy" @refresh="search"/>
-
+      <ms-upgrade ref="upgrade" :select-ids="selectIds"
+                  :select-project-names="selectProjectNames" :select-project-id="selectProjectId"/>
     </ms-main-container>
   </ms-container>
 </template>
@@ -72,13 +73,14 @@
   import {TEST_CONFIGS} from "../../common/components/search/search-components";
   import {ApiEvent, LIST_CHANGE} from "@/business/components/common/head/ListEvent";
   import ApiCopyDialog from "./components/ApiCopyDialog";
+  import MsUpgrade from "./Upgrade";
 
   export default {
     components: {
       ApiCopyDialog,
       OneClickOperation,
       MsTableOperators,
-      MsApiTestStatus, MsMainContainer, MsContainer, MsTableHeader, MsTablePagination, MsTableOperator
+      MsApiTestStatus, MsMainContainer, MsContainer, MsTableHeader, MsTablePagination, MsTableOperator, MsUpgrade
     },
     data() {
       return {
@@ -204,6 +206,13 @@
         _filter(filters, this.condition);
         this.init();
       },
+      historicalDataUpgrade() {
+        if (this.selectIds.size < 1) {
+          this.$warning(this.$t('test_track.plan_view.select_manipulate'));
+        } else {
+          this.$refs.upgrade.openOneClickOperation();
+        }
+      }
     },
     created() {
       this.init();

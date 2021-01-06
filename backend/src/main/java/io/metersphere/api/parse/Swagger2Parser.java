@@ -11,10 +11,8 @@ import io.metersphere.api.dto.definition.response.HttpResponse;
 import io.metersphere.api.dto.scenario.Body;
 import io.metersphere.api.dto.scenario.KeyValue;
 import io.metersphere.api.dto.scenario.request.RequestType;
-import io.metersphere.api.service.ApiModuleService;
 import io.metersphere.base.domain.ApiModule;
 import io.metersphere.commons.constants.SwaggerParameterType;
-import io.metersphere.commons.utils.CommonBeanFactory;
 import io.swagger.models.*;
 import io.swagger.models.parameters.*;
 import io.swagger.models.properties.*;
@@ -25,7 +23,7 @@ import org.apache.commons.lang3.StringUtils;
 import java.io.InputStream;
 import java.util.*;
 
-public class Swagger2Parser extends ApiImportAbstractParser {
+public class Swagger2Parser extends SwaggerAbstractParser {
 
     private Map<String, Model> definitions = null;
 
@@ -47,17 +45,19 @@ public class Swagger2Parser extends ApiImportAbstractParser {
 
         ApiDefinitionImport definitionImport = new ApiDefinitionImport();
         this.projectId = request.getProjectId();
-        definitionImport.setData(parseRequests(swagger, request.isSaved()));
+        definitionImport.setData(parseRequests(swagger, request));
         return definitionImport;
     }
 
-    private List<ApiDefinitionResult> parseRequests(Swagger swagger, boolean isSaved) {
+    private List<ApiDefinitionResult> parseRequests(Swagger swagger, ApiTestImportRequest importRequest) {
         Map<String, Path> paths = swagger.getPaths();
         Set<String> pathNames = paths.keySet();
 
         this.definitions = swagger.getDefinitions();
 
         List<ApiDefinitionResult> results = new ArrayList<>();
+
+        ApiModule parentNode = getSelectModule(importRequest.getModuleId());
 
         for (String pathName : pathNames) {
             Path path = paths.get(pathName);
@@ -70,27 +70,13 @@ public class Swagger2Parser extends ApiImportAbstractParser {
                 parseParameters(operation, request);
                 apiDefinition.setRequest(JSON.toJSONString(request));
                 apiDefinition.setResponse(JSON.toJSONString(parseResponse(operation.getResponses())));
-                buildModule(apiDefinition, operation, isSaved);
+                buildModule(parentNode, apiDefinition, operation.getTags(), importRequest.isSaved());
                 results.add(apiDefinition);
             }
         }
 
         this.definitions = null;
         return results;
-    }
-
-    private void buildModule(ApiDefinitionResult apiDefinition, Operation operation, boolean isSaved) {
-        List<String> tags = operation.getTags();
-        if (tags != null) {
-            tags.forEach(tag -> {
-                apiModuleService = CommonBeanFactory.getBean(ApiModuleService.class);
-                ApiModule module = apiModuleService.getNewModule(tag, this.projectId, 1);
-                if (isSaved) {
-                    createModule(module);
-                }
-                apiDefinition.setModuleId(module.getId());
-            });
-        }
     }
 
     private ApiDefinitionResult buildApiDefinition(String id, Operation operation, String path, String method) {
