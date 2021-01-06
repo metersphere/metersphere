@@ -21,7 +21,10 @@
       <el-header style="height:20px;padding: 0px;margin-bottom: 10px;">
       <el-row :gutter="20" class="hidden-lg-and-down ">
         <el-col  :span="8">
-          {{$t('api_test.home_page.test_scene_details_card.this_week_add',[sceneCountData.thisWeekAddedCount])}}
+          {{$t('api_test.home_page.test_scene_details_card.this_week_add')}}
+          <el-link type="info" @click="redirectPage('thisWeekCount')" target="_blank" style="color: #000000">{{sceneCountData.thisWeekAddedCount}}
+          </el-link>
+          {{$t('api_test.home_page.unit_of_measurement')}}
         </el-col>
         <el-col :span="8" >
           {{$t('api_test.home_page.test_scene_details_card.this_week_execute',[sceneCountData.thisWeekExecutedCount])}}
@@ -32,7 +35,11 @@
       </el-row>
       <el-row :gutter="20" class="hidden-xl-only">
         <el-col  :span="8">
-          <div class="count-info-div" v-html="$t('api_test.home_page.test_scene_details_card.this_week_add_sm',[sceneCountData.thisWeekAddedCount])"></div>
+          {{$t('api_test.home_page.test_scene_details_card.this_week_add_sm')}}
+          <br/>
+          <el-link type="info" @click="redirectPage('thisWeekCount')" target="_blank" style="color: #000000">{{sceneCountData.thisWeekAddedCount}}
+          </el-link>
+          {{$t('api_test.home_page.unit_of_measurement')}}
         </el-col>
         <el-col :span="8" >
           <div class="count-info-div" v-html="$t('api_test.home_page.test_scene_details_card.this_week_execute_sm',[sceneCountData.thisWeekExecutedCount])"></div>
@@ -64,21 +71,27 @@
                     <span class="defaultProperty">
                       {{$t('api_test.home_page.detail_card.unexecute')}}
                       {{"\xa0\xa0"}}
-                      {{sceneCountData.unexecuteCount}}
+                      <el-link type="info" @click="redirectPage('unExecute')" target="_blank" style="color: #000000">
+                        {{sceneCountData.unexecuteCount}}
+                      </el-link>
                     </span>
                   </el-col>
                   <el-col style="margin-top: 5px;">
                     <span class="defaultProperty">
                       {{$t('api_test.home_page.detail_card.execution_failed')}}
                       {{"\xa0\xa0"}}
-                      {{sceneCountData.executionFailedCount}}
+                      <el-link type="info" @click="redirectPage('executeFailed')" target="_blank" style="color: #000000">
+                        {{sceneCountData.executionFailedCount}}
+                      </el-link>
                     </span>
                   </el-col>
                   <el-col style="margin-top: 5px;">
                     <span class="main-property">
                       {{$t('api_test.home_page.detail_card.execution_pass')}}
                       {{"\xa0\xa0"}}
-                      {{sceneCountData.executionPassCount}}
+                      <el-link type="info" @click="redirectPage('executePass')" target="_blank" style="color: #000000">
+                        {{sceneCountData.executionPassCount}}
+                      </el-link>
                     </span>
                   </el-col>
                 </el-row>
@@ -110,6 +123,9 @@ export default {
   },
 
   methods: {
+    redirectPage(clickType){
+      this.$emit("redirectPage","scenario","scenario",clickType);
+    }
   },
 }
 </script>

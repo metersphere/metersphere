@@ -24,6 +24,7 @@ import io.metersphere.base.mapper.ext.ExtTestPlanScenarioCaseMapper;
 import io.metersphere.commons.constants.*;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.DateUtils;
+import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.ServiceUtils;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.i18n.Translator;
@@ -75,6 +76,13 @@ public class ApiAutomationService {
 
     public List<ApiScenarioDTO> list(ApiScenarioRequest request) {
         request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
+        if(request.isSelectThisWeedData()){
+            Map<String, Date> weekFirstTimeAndLastTime = DateUtils.getWeedFirstTimeAndLastTime(new Date());
+            Date weekFirstTime = weekFirstTimeAndLastTime.get("firstTime");
+            if(weekFirstTime!=null){
+                request.setCreateTime(weekFirstTime.getTime());
+            }
+        }
         List<ApiScenarioDTO> list = extApiScenarioMapper.list(request);
         return list;
     }
@@ -316,8 +324,12 @@ public class ApiAutomationService {
             boolean isFirst = true;
             for (ApiScenarioWithBLOBs item : apiScenarios) {
                 if (item.getStepTotal() == 0) {
-                    MSException.throwException(item.getName() + "，" + Translator.get("automation_exec_info"));
-                    break;
+                    // 只有一个场景且没有测试步骤，则提示
+                    if (apiScenarios.size() == 1) {
+                        MSException.throwException((item.getName() + "，" + Translator.get("automation_exec_info")));
+                    }
+                    LogUtil.warn(item.getName() + "，" + Translator.get("automation_exec_info"));
+                    continue;
                 }
                 MsThreadGroup group = new MsThreadGroup();
                 group.setLabel(item.getName());
@@ -335,14 +347,12 @@ public class ApiAutomationService {
                 // 多态JSON普通转换会丢失内容，需要通过 ObjectMapper 获取
                 if (element != null && StringUtils.isNotEmpty(element.getString("hashTree"))) {
                     LinkedList<MsTestElement> elements = mapper.readValue(element.getString("hashTree"),
-                            new TypeReference<LinkedList<MsTestElement>>() {
-                            });
+                            new TypeReference<LinkedList<MsTestElement>>() {});
                     scenario.setHashTree(elements);
                 }
                 if (StringUtils.isNotEmpty(element.getString("variables"))) {
                     LinkedList<KeyValue> variables = mapper.readValue(element.getString("variables"),
-                            new TypeReference<LinkedList<KeyValue>>() {
-                            });
+                            new TypeReference<LinkedList<KeyValue>>() {});
                     scenario.setVariables(variables);
                 }
                 group.setEnableCookieShare(scenario.isEnableCookieShare());

@@ -88,28 +88,22 @@ public interface ParamConstants {
         }
     }
 
-    enum MAIL {
-        SERVER("smtp.server", 1),
-        PORT("smtp.port", 2),
-        ACCOUNT("smtp.account", 3),
-        PASSWORD("smtp.password", 4),
-        SSL("smtp.ssl", 5),
-        TLS("smtp.tls", 6),
-        ANON("smtp.anon", 7);
+    enum MAIL implements ParamConstants{
+        SERVER("smtp.host"),
+        PORT("smtp.port"),
+        ACCOUNT("smtp.account"),
+        PASSWORD("smtp.password"),
+        SSL("smtp.ssl"),
+        TLS("smtp.tls"),
+        RECIPIENTS("smtp.recipient");
 
-        private String key;
-        private Integer value;
+        private String value;
 
-        private MAIL(String key, Integer value) {
-            this.key = key;
+        private MAIL(String value) {
             this.value = value;
         }
 
-        public String getKey() {
-            return this.key;
-        }
-
-        public Integer getValue() {
+        public String getValue() {
             return this.value;
         }
     }

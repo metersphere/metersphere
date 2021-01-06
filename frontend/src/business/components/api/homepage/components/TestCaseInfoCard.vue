@@ -53,7 +53,10 @@
       <el-header style="height:20px;padding: 0px;margin-bottom: 10px;">
         <el-row :gutter="20" class="hidden-lg-and-down ">
           <el-col  :span="8">
-            {{$t('api_test.home_page.test_case_details_card.this_week_add',[testCaseCountData.thisWeekAddedCount])}}
+            {{$t('api_test.home_page.test_case_details_card.this_week_add')}}
+            <el-link type="info" @click="redirectPage('thisWeekCount')" target="_blank" style="color: #000000">{{testCaseCountData.thisWeekAddedCount}}
+            </el-link>
+            {{$t('api_test.home_page.unit_of_measurement')}}
           </el-col>
           <el-col :span="8" >
             {{$t('api_test.home_page.test_case_details_card.this_week_execute',[testCaseCountData.thisWeekExecutedCount])}}
@@ -64,7 +67,11 @@
         </el-row>
         <el-row :gutter="20" class="hidden-xl-only">
           <el-col  :span="8">
-            <div class="count-info-div" v-html="$t('api_test.home_page.test_case_details_card.this_week_add_sm',[testCaseCountData.thisWeekAddedCount])"></div>
+            {{$t('api_test.home_page.test_case_details_card.this_week_add_sm')}}
+            <br/>
+            <el-link type="info" @click="redirectPage('thisWeekCount')" target="_blank" style="color: #000000">{{testCaseCountData.thisWeekAddedCount}}
+            </el-link>
+            {{$t('api_test.home_page.unit_of_measurement')}}
           </el-col>
           <el-col :span="8" >
             <div class="count-info-div" v-html="$t('api_test.home_page.test_case_details_card.this_week_execute_sm',[testCaseCountData.thisWeekExecutedCount])"></div>
@@ -96,7 +103,9 @@
                     <span class="default-property">
                       {{$t('api_test.home_page.detail_card.uncoverage')}}
                       {{"\xa0\xa0"}}
-                      {{testCaseCountData.uncoverageCount}}
+                      <el-link type="info" @click="redirectPage('uncoverage')" target="_blank" style="color: #000000">
+                        {{testCaseCountData.uncoverageCount}}
+                      </el-link>
                     </span>
                   </el-col>
                   <el-col style=" height: 20px;margin-top: 3px;">
@@ -105,7 +114,9 @@
                     <span class="main-property">
                       {{$t('api_test.home_page.detail_card.coverage')}}
                       {{"\xa0\xa0"}}
-                      {{testCaseCountData.coverageCount}}
+                      <el-link type="info" @click="redirectPage('coverage')" target="_blank" style="color: #000000">
+                        {{testCaseCountData.coverageCount}}
+                      </el-link>
                     </span>
                   </el-col>
                 </el-row>
@@ -135,6 +146,16 @@ export default {
     testCaseCountData:{},
   },
   methods: {
+    redirectPage(clickType){
+      if(clickType === 'thisWeekCount'){
+        //这里业务逻辑应当跳转接口案例列表
+        this.$emit("redirectPage","api","apiTestCase",clickType);
+      }else{
+        //这里业务逻辑应当跳转接口列表
+        this.$emit("redirectPage","api","api",clickType);
+      }
+
+    }
   },
 
   created() {

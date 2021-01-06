@@ -24,4 +24,7 @@ public class ApiScenarioRequest {
     private List<String> filters;
     private Map<String, Object> combine;
     private List<String> ids;
+    private boolean isSelectThisWeedData;
+    private long createTime = 0;
+    private String executeStatus;
 }

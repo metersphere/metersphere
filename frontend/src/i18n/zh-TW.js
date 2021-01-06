@@ -808,6 +808,8 @@ export default {
     },
     home_page: {
       unit_of_measurement: "個",
+      unit_of_count: "個",
+      unit_of_times: "次",
       api_count_card: {
         title: "接口數量統計",
       },
@@ -840,23 +842,23 @@ export default {
       },
       api_details_card: {
         title: "接口",
-        this_week_add: "本週新增: {0}个",
+        this_week_add: "本週新增:",
       },
       test_case_details_card: {
         title: "用例",
-        this_week_add: "本週新增: {0}个",
+        this_week_add: "本週新增:",
         this_week_execute: "本週執行: {0}次",
         executed: "歷史總執行: {0}次",
-        this_week_add_sm: "本週新增:<br/>{0}个",
+        this_week_add_sm: "本週新增:",
         this_week_execute_sm: "本週執行:<br/>{0}次",
         executed_sm: "歷史總執行:<br/>{0}次",
       },
       test_scene_details_card: {
         title: "場景",
-        this_week_add: "本週新增: {0}个",
+        this_week_add: "本週新增:",
         this_week_execute: "本週執行: {0}次",
         executed: "歷史總執行: {0}次",
-        this_week_add_sm: "本週新增:<br/>{0}个",
+        this_week_add_sm: "本週新增:",
         this_week_execute_sm: "本週執行:<br/>{0}次",
         executed_sm: "歷史總執行:<br/>{0}次",
       },
@@ -1252,6 +1254,8 @@ export default {
     host: '主機號不能為空',
     port: '端口號不能為空',
     account: '賬戶不能為空',
+    test_recipients:'測試收件人',
+    tip:'提示：僅用來作為測試郵件收件人',
   },
   i18n: {
     home: '首頁',

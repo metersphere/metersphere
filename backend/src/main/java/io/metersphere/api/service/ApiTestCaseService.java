@@ -1,5 +1,6 @@
 package io.metersphere.api.service;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -11,6 +12,8 @@ import io.metersphere.api.dto.definition.request.MsTestElement;
 import io.metersphere.api.dto.definition.request.MsTestPlan;
 import io.metersphere.api.dto.definition.request.MsThreadGroup;
 import io.metersphere.api.dto.definition.request.ParameterConfig;
+import io.metersphere.api.dto.definition.request.sampler.MsHTTPSamplerProxy;
+import io.metersphere.api.dto.scenario.request.RequestType;
 import io.metersphere.api.jmeter.JMeterService;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ApiDefinitionMapper;
@@ -78,6 +81,13 @@ public class ApiTestCaseService {
 
     public List<ApiTestCaseDTO> listSimple(ApiTestCaseRequest request) {
         request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
+        if(request.isSelectThisWeedData()){
+            Map<String, Date> weekFirstTimeAndLastTime = DateUtils.getWeedFirstTimeAndLastTime(new Date());
+            Date weekFirstTime = weekFirstTimeAndLastTime.get("firstTime");
+            if(weekFirstTime!=null){
+                request.setCreateTime(weekFirstTime.getTime());
+            }
+        }
         List<ApiTestCaseDTO> apiTestCases = extApiTestCaseMapper.listSimple(request);
         if (CollectionUtils.isEmpty(apiTestCases)) {
             return apiTestCases;
@@ -373,13 +383,33 @@ public class ApiTestCaseService {
         if (request.isSelectAllDate()) {
             ids = this.getAllApiCaseIdsByFontedSelect(request.getFilters(), request.getModuleIds(), request.getName(), request.getProjectId(), request.getProtocol(), request.getUnSelectIds(), request.getStatus());
         }
-        request.cleanSelectParam();
         ApiTestCaseExample apiDefinitionExample = new ApiTestCaseExample();
         apiDefinitionExample.createCriteria().andIdIn(ids);
-        ApiTestCaseWithBLOBs apiDefinitionWithBLOBs = new ApiTestCaseWithBLOBs();
-        BeanUtils.copyBean(apiDefinitionWithBLOBs, request);
-        apiDefinitionWithBLOBs.setUpdateTime(System.currentTimeMillis());
-        apiTestCaseMapper.updateByExampleSelective(apiDefinitionWithBLOBs, apiDefinitionExample);
+        if (StringUtils.isNotEmpty(request.getPriority())) {
+            ApiTestCaseWithBLOBs apiDefinitionWithBLOBs = new ApiTestCaseWithBLOBs();
+            apiDefinitionWithBLOBs.setPriority(request.getPriority());
+            apiDefinitionWithBLOBs.setUpdateTime(System.currentTimeMillis());
+            apiTestCaseMapper.updateByExampleSelective(apiDefinitionWithBLOBs, apiDefinitionExample);
+        }
+        if ((StringUtils.isNotEmpty(request.getMethod()) || StringUtils.isNotEmpty(request.getPath())) && request.getProtocol().equals(RequestType.HTTP)) {
+            List<ApiTestCaseWithBLOBs> bloBs = apiTestCaseMapper.selectByExampleWithBLOBs(apiDefinitionExample);
+            SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+            ApiTestCaseMapper batchMapper = sqlSession.getMapper(ApiTestCaseMapper.class);
+            bloBs.forEach(apiTestCase -> {
+                MsHTTPSamplerProxy req = JSON.parseObject(apiTestCase.getRequest(), MsHTTPSamplerProxy.class);
+                if (StringUtils.isNotEmpty(request.getMethod())) {
+                    req.setMethod(request.getMethod());
+                }
+                if (StringUtils.isNotEmpty(request.getPath())) {
+                    req.setPath(request.getPath());
+                }
+                String requestStr = JSON.toJSONString(req);
+                apiTestCase.setRequest(requestStr);
+                batchMapper.updateByPrimaryKeySelective(apiTestCase);
+            });
+            sqlSession.flushStatements();
+        }
+
     }
 
     private List<String> getAllApiCaseIdsByFontedSelect(Map<String, List<String>> filters, List<String> moduleIds, String name, String projectId, String protocol, List<String> unSelectIds, String status) {

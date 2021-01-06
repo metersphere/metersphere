@@ -15,6 +15,8 @@ public class TaskInfoResult {
     private String taskID;
     //场景名称
     private String scenario;
+    //场景ID
+    private String scenarioId;
     //规则
     private String rule;
     //任务状态
