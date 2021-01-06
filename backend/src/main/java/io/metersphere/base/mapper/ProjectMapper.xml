@@ -11,6 +11,7 @@
     <result column="tapd_id" jdbcType="VARCHAR" property="tapdId" />
     <result column="jira_key" jdbcType="VARCHAR" property="jiraKey" />
     <result column="zentao_id" jdbcType="VARCHAR" property="zentaoId" />
+    <result column="repeatable" jdbcType="BIT" property="repeatable" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -72,7 +73,7 @@
   </sql>
   <sql id="Base_Column_List">
     id, workspace_id, `name`, description, create_time, update_time, tapd_id, jira_key, 
-    zentao_id
+    zentao_id, `repeatable`
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.base.domain.ProjectExample" resultMap="BaseResultMap">
     select
@@ -107,12 +108,12 @@
   <insert id="insert" parameterType="io.metersphere.base.domain.Project">
     insert into project (id, workspace_id, `name`, 
       description, create_time, update_time, 
-      tapd_id, jira_key, zentao_id
-      )
+      tapd_id, jira_key, zentao_id, 
+      `repeatable`)
     values (#{id,jdbcType=VARCHAR}, #{workspaceId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, 
       #{description,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, 
-      #{tapdId,jdbcType=VARCHAR}, #{jiraKey,jdbcType=VARCHAR}, #{zentaoId,jdbcType=VARCHAR}
-      )
+      #{tapdId,jdbcType=VARCHAR}, #{jiraKey,jdbcType=VARCHAR}, #{zentaoId,jdbcType=VARCHAR}, 
+      #{repeatable,jdbcType=BIT})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.Project">
     insert into project
@@ -144,6 +145,9 @@
       <if test="zentaoId != null">
         zentao_id,
       </if>
+      <if test="repeatable != null">
+        `repeatable`,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -172,6 +176,9 @@
       </if>
       <if test="zentaoId != null">
         #{zentaoId,jdbcType=VARCHAR},
+      </if>
+      <if test="repeatable != null">
+        #{repeatable,jdbcType=BIT},
       </if>
     </trim>
   </insert>
@@ -211,6 +218,9 @@
       <if test="record.zentaoId != null">
         zentao_id = #{record.zentaoId,jdbcType=VARCHAR},
       </if>
+      <if test="record.repeatable != null">
+        `repeatable` = #{record.repeatable,jdbcType=BIT},
+      </if>
     </set>
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -226,7 +236,8 @@
       update_time = #{record.updateTime,jdbcType=BIGINT},
       tapd_id = #{record.tapdId,jdbcType=VARCHAR},
       jira_key = #{record.jiraKey,jdbcType=VARCHAR},
-      zentao_id = #{record.zentaoId,jdbcType=VARCHAR}
+      zentao_id = #{record.zentaoId,jdbcType=VARCHAR},
+      `repeatable` = #{record.repeatable,jdbcType=BIT}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -258,6 +269,9 @@
       <if test="zentaoId != null">
         zentao_id = #{zentaoId,jdbcType=VARCHAR},
       </if>
+      <if test="repeatable != null">
+        `repeatable` = #{repeatable,jdbcType=BIT},
+      </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
@@ -270,7 +284,8 @@
       update_time = #{updateTime,jdbcType=BIGINT},
       tapd_id = #{tapdId,jdbcType=VARCHAR},
       jira_key = #{jiraKey,jdbcType=VARCHAR},
-      zentao_id = #{zentaoId,jdbcType=VARCHAR}
+      zentao_id = #{zentaoId,jdbcType=VARCHAR},
+      `repeatable` = #{repeatable,jdbcType=BIT}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

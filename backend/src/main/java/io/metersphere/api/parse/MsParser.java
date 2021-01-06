@@ -6,6 +6,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.parser.Feature;
 import io.metersphere.api.dto.ApiTestImportRequest;
 import io.metersphere.api.dto.definition.ApiDefinitionResult;
+import io.metersphere.api.dto.definition.ApiModuleDTO;
 import io.metersphere.api.dto.definition.parse.ApiDefinitionImport;
 import io.metersphere.api.dto.definition.request.sampler.MsHTTPSamplerProxy;
 import io.metersphere.api.dto.scenario.Body;
@@ -31,7 +32,7 @@ public class MsParser extends ApiImportAbstractParser {
         if (testObject.get("projectName") != null) {
             return parseMsFormat(testStr, request);
         } else {
-            return parsePluginFormat(testObject, request.isSaved());
+            return parsePluginFormat(testObject, request);
         }
     }
 
@@ -44,7 +45,7 @@ public class MsParser extends ApiImportAbstractParser {
             if (StringUtils.isBlank(apiDefinition.getModulePath())) {
                 apiDefinition.setModuleId(null);
             }
-            parseModule(apiDefinition, importRequest.isSaved());
+            parseModule(apiDefinition, importRequest);
             apiDefinition.setId(id);
             apiDefinition.setProjectId(this.projectId);
             String request = apiDefinition.getRequest();
@@ -55,16 +56,16 @@ public class MsParser extends ApiImportAbstractParser {
         return apiDefinitionImport;
     }
 
-    private ApiDefinitionImport parsePluginFormat(JSONObject testObject, boolean isSaved) {
+    private ApiDefinitionImport parsePluginFormat(JSONObject testObject,  ApiTestImportRequest importRequest) {
         List<ApiDefinitionResult> results = new ArrayList<>();
         ApiDefinitionImport apiImport = new ApiDefinitionImport();
         apiImport.setProtocol(RequestType.HTTP);
         apiImport.setData(results);
         testObject.keySet().forEach(tag -> {
-            ApiModule module = apiModuleService.getNewModule(tag, this.projectId, 1);
-            if (isSaved) {
-                createModule(module);
-            }
+
+            ApiModule parentModule = getSelectModule(importRequest.getModuleId());
+            ApiModule module = buildModule(parentModule, tag, importRequest.isSaved());
+
             JSONObject requests = testObject.getJSONObject(tag);
             requests.keySet().forEach(requestName -> {
 
@@ -125,7 +126,7 @@ public class MsParser extends ApiImportAbstractParser {
     }
 
 
-    private void parseModule(ApiDefinitionResult apiDefinition, Boolean isSaved) {
+    private void parseModule(ApiDefinitionResult apiDefinition, ApiTestImportRequest importRequest) {
         String modulePath = apiDefinition.getModulePath();
         if (StringUtils.isBlank(modulePath)) {
             return;
@@ -137,29 +138,14 @@ public class MsParser extends ApiImportAbstractParser {
             modulePath = modulePath.substring(0, modulePath.length() - 1);
         }
         List<String> modules = Arrays.asList(modulePath.split("/"));
-        ApiModule parent = null;
+        ApiModule parent = getSelectModule(importRequest.getModuleId());
         Iterator<String> iterator = modules.iterator();
         while (iterator.hasNext()) {
             String item = iterator.next();
-            parent = buildModule(item, parent, isSaved);
+            parent = buildModule(parent, item, importRequest.isSaved());
             if (!iterator.hasNext()) {
                 apiDefinition.setModuleId(parent.getId());
             }
         }
-    }
-
-    private ApiModule buildModule(String name, ApiModule parentModule, boolean isSaved) {
-        apiModuleService = CommonBeanFactory.getBean(ApiModuleService.class);
-        ApiModule module;
-        if (parentModule != null) {
-            module = apiModuleService.getNewModule(name, this.projectId, parentModule.getLevel() + 1);
-            module.setParentId(parentModule.getId());
-        } else {
-            module = apiModuleService.getNewModule(name, this.projectId, 1);
-        }
-        if (isSaved) {
-            createModule(module);
-        }
-        return module;
     }
 }

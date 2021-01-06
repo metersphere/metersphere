@@ -13,7 +13,7 @@ import javax.validation.constraints.Pattern;
 public class TestCaseExcelDataCn extends TestCaseExcelData {
 
     @NotBlank(message = "{cannot_be_null}")
-    @Length(max = 50)
+    @Length(max = 255)
     @ExcelProperty("用例名称")
     private String name;
 
