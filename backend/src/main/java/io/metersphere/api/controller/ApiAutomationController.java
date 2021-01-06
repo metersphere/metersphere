@@ -121,5 +121,6 @@ public class ApiAutomationController {
     public void createSchedule(@RequestBody Schedule request) {
         apiAutomationService.createSchedule(request);
     }
+
 }
 
