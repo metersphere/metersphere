@@ -17,6 +17,7 @@ import io.metersphere.track.service.TestPlanService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -65,6 +66,9 @@ public class ApiDefinitionExecResultService {
     }
 
     public void deleteByResourceIds(List<String> ids) {
+        if (CollectionUtils.isEmpty(ids)) {
+            return;
+        }
         ApiDefinitionExecResultExample example = new ApiDefinitionExecResultExample();
         example.createCriteria().andResourceIdIn(ids);
         apiDefinitionExecResultMapper.deleteByExample(example);
