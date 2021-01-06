@@ -15,6 +15,7 @@ import io.metersphere.api.dto.definition.request.sampler.MsHTTPSamplerProxy;
 import io.metersphere.api.dto.definition.request.sampler.MsJDBCSampler;
 import io.metersphere.api.dto.definition.request.sampler.MsTCPSampler;
 import io.metersphere.api.dto.definition.request.timer.MsConstantTimer;
+import io.metersphere.api.dto.scenario.Body;
 import io.metersphere.api.dto.scenario.Scenario;
 import io.metersphere.api.dto.scenario.request.*;
 import io.metersphere.base.domain.*;
@@ -102,6 +103,9 @@ public class HistoricalDataUpgradeService {
                     } catch (Exception ex) {
                         LogUtil.error(ex.getMessage());
                     }
+                }
+                if (request1.getBody() != null && request1.getBody().isOldKV()) {
+                    request1.getBody().setType(Body.FORM_DATA);
                 }
                 BeanUtils.copyBean(element, request1);
                 ((MsHTTPSamplerProxy) element).setProtocol(RequestType.HTTP);

@@ -42,7 +42,11 @@ public class Body {
             return true;
         } else return false;
     }
-
+    public boolean isOldKV() {
+        if (StringUtils.equals(type, KV)) {
+            return true;
+        } else return false;
+    }
     public List<KeyValue> getBodyParams(HTTPSamplerProxy sampler, String requestId) {
         List<KeyValue> body = new ArrayList<>();
         if (this.isKV() || this.isBinary()) {
