@@ -26,4 +26,8 @@ public class ApiDefinitionRequest {
     private List<String> filters;
     private Map<String, Object> combine;
     private List<String> ids;
+    private boolean isSelectThisWeedData = false;
+    private long createTime = 0;
+    private String status;
+    private String apiCaseCoverage;
 }

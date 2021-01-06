@@ -809,6 +809,8 @@ export default {
     },
     home_page: {
       unit_of_measurement: "",
+      unit_of_count: "",
+      unit_of_times: "times",
       api_count_card: {
         title: "API count",
       },
@@ -841,23 +843,23 @@ export default {
       },
       api_details_card: {
         title: "API",
-        this_week_add: "Added {0} this week",
+        this_week_add: "This week add:",
       },
       test_case_details_card: {
         title: "Test case",
-        this_week_add: "Added {0} this week",
+        this_week_add: "This week add:",
         this_week_execute: "Executed {0} this week",
         executed: "Executed {0} in history",
-        this_week_add_sm: "Added {0}<br/> this week",
+        this_week_add_sm: "This week add:",
         this_week_execute_sm: "Executed {0}<br/> this week",
         executed_sm: "Executed {0}<br/> in history",
       },
       test_scene_details_card: {
         title: "Scene",
-        this_week_add: "Added {0} this week",
+        this_week_add: "This week add:",
         this_week_execute: "Executed {0} this week",
         executed: "Executed {0} in history",
-        this_week_add_sm: "Added {0}<br/> this week",
+        this_week_add_sm: "This week add:",
         this_week_execute_sm: "Executed {0}<br/> this week",
         executed_sm: "Executed {0}<br/> in history",
       },

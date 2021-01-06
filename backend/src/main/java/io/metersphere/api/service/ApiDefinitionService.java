@@ -80,6 +80,16 @@ public class ApiDefinitionService {
 
     public List<ApiDefinitionResult> list(ApiDefinitionRequest request) {
         request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
+
+        //判断是否查询本周数据
+        if(request.isSelectThisWeedData()){
+            Map<String, Date> weekFirstTimeAndLastTime = DateUtils.getWeedFirstTimeAndLastTime(new Date());
+            Date weekFirstTime = weekFirstTimeAndLastTime.get("firstTime");
+            if(weekFirstTime!=null){
+                request.setCreateTime(weekFirstTime.getTime());
+            }
+        }
+
         List<ApiDefinitionResult> resList = extApiDefinitionMapper.list(request);
         calculateResult(resList);
         return resList;

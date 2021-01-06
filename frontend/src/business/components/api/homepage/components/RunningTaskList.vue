@@ -7,7 +7,13 @@
     </template>
     <el-table border :data="tableData" class="adjust-table table-content" height="300px">
       <el-table-column prop="index"  :label="$t('api_test.home_page.running_task_list.table_coloum.index')" width="80" show-overflow-tooltip/>
-      <el-table-column prop="scenario"  :label="$t('api_test.home_page.running_task_list.table_coloum.scenario')" width="200" show-overflow-tooltip/>
+      <el-table-column prop="scenario"  :label="$t('api_test.home_page.running_task_list.table_coloum.scenario')" width="200" >
+        <template v-slot:default="{row}">
+          <el-link type="info" @click="redirect(row.scenarioId)">
+            {{ row.scenario }}
+          </el-link>
+        </template>
+      </el-table-column>
       <el-table-column prop="rule"  :label="$t('api_test.home_page.running_task_list.table_coloum.run_rule')" width="120" show-overflow-tooltip/>
       <el-table-column width="100" :label="$t('api_test.home_page.running_task_list.table_coloum.task_status')">
         <template v-slot:default="scope">
@@ -80,6 +86,9 @@ export default {
       this.result = this.$post('/api/schedule/updateEnableByPrimyKey', taskRow, response => {
         this.search();
       });
+    },
+    redirect(param){
+      this.$emit('redirectPage','scenario','scenario', 'edit:'+param);
     }
   },
 

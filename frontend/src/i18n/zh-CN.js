@@ -810,6 +810,8 @@ export default {
     },
     home_page: {
       unit_of_measurement: "个",
+      unit_of_count: "个",
+      unit_of_times: "次",
       api_count_card: {
         title: "接口数量统计",
       },
@@ -842,23 +844,23 @@ export default {
       },
       api_details_card: {
         title: "接口",
-        this_week_add: "本周新增: {0}个",
+        this_week_add: "本周新增:",
       },
       test_case_details_card: {
         title: "用例",
-        this_week_add: "本周新增: {0}个",
+        this_week_add: "本周新增:",
         this_week_execute: "本周执行: {0}次",
         executed: "历史总执行: {0}次",
-        this_week_add_sm: "本周新增:<br/>{0}个",
+        this_week_add_sm: "本周新增:",
         this_week_execute_sm: "本周执行:<br/>{0}次",
         executed_sm: "历史总执行:<br/>{0}次",
       },
       test_scene_details_card: {
         title: "场景",
-        this_week_add: "本周新增: {0}个",
+        this_week_add: "本周新增:",
         this_week_execute: "本周执行: {0}次",
         executed: "历史总执行: {0}次",
-        this_week_add_sm: "本周新增:<br/>{0}个",
+        this_week_add_sm: "本周新增:",
         this_week_execute_sm: "本周执行:<br/>{0}次",
         executed_sm: "历史总执行:<br/>{0}次",
       },
