@@ -40,6 +40,9 @@
             <if test="request.projectId != null">
                 AND api_scenario.project_id = #{request.projectId}
             </if>
+            <if test="request.createTime >0 ">
+                AND api_scenario.create_time >= #{request.createTime}
+            </if>
             <if test="request.ids != null and request.ids.size() > 0">
                 AND api_scenario.id in
                 <foreach collection="request.ids" item="itemId" separator="," open="(" close=")">
@@ -58,6 +61,16 @@
                     #{value}
                 </foreach>
             </if>
+            <if test="request.executeStatus == 'unExecute'">
+                and api_scenario.last_result IS NULL
+            </if>
+            <if test="request.executeStatus == 'executeFailed'">
+                and api_scenario.last_result = 'Fail'
+            </if>
+            <if test="request.executeStatus == 'executePass'">
+                and api_scenario.last_result = 'Success'
+            </if>
+
         </where>
         <if test="request.orders != null and request.orders.size() > 0">
             order by

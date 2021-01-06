@@ -131,6 +131,7 @@
         selectCase: {},
         result: {},
         moduleId: "",
+        selectDataRange: "all",
         deletePath: "/test/case/delete",
         selectRows: new Set(),
         buttons: [
@@ -239,53 +240,69 @@
         this.selectDataCounts = 0;
         this.condition.projectId = getCurrentProjectID();
 
-        if (this.currentProtocol != null) {
-          this.condition.protocol = this.currentProtocol;
+      if (this.currentProtocol != null) {
+        this.condition.protocol = this.currentProtocol;
+      }
+
+      //检查是否只查询本周数据
+      this.isSelectThissWeekData();
+      this.condition.selectThisWeedData = false;
+      this.condition.id = null;
+      if (this.selectDataRange == 'thisWeekCount') {
+        this.condition.selectThisWeedData = true;
+      } else if (this.selectDataRange != null) {
+        let selectParamArr = this.selectDataRange.split("single:");
+
+        if (selectParamArr.length == 2) {
+          this.condition.id = selectParamArr[1];
         }
-        if (this.condition.projectId) {
-          this.result = this.$post('/api/testcase/list/' + this.currentPage + "/" + this.pageSize, this.condition, response => {
-            this.total = response.data.itemCount;
-            this.tableData = response.data.listObject;
-            this.unSelection = response.data.listObject.map(s => s.id);
-          });
-        }
-      },
-      // getMaintainerOptions() {
-      //   let workspaceId = localStorage.getItem(WORKSPACE_ID);
-      //   this.$post('/user/ws/member/tester/list', {workspaceId: workspaceId}, response => {
-      //     this.valueArr.userId = response.data;
-      //   });
-      // },
-      handleSelect(selection, row) {
-        _handleSelect(this, selection, row, this.selectRows);
-        this.selectRowsCount(this.selectRows)
-      },
-      showExecResult(row) {
-        this.visible = false;
-        this.$emit('showExecResult', row);
-      },
-      filter(filters) {
-        _filter(filters, this.condition);
-        this.initTable();
-      },
-      sort(column) {
-        // 每次只对一个字段排序
-        if (this.condition.orders) {
-          this.condition.orders = [];
-        }
-        _sort(column, this.condition);
-        this.initTable();
-      },
-      handleSelectAll(selection) {
-        _handleSelectAll(this, selection, this.tableData, this.selectRows);
-        this.selectRowsCount(this.selectRows)
-      },
-      search() {
-        this.initTable();
-      },
-      buildPagePath(path) {
-        return path + "/" + this.currentPage + "/" + this.pageSize;
-      },
+      }
+
+      if (this.condition.projectId) {
+        this.result = this.$post('/api/testcase/list/' + this.currentPage + "/" + this.pageSize, this.condition, response => {
+          this.total = response.data.itemCount;
+          this.tableData = response.data.listObject;
+          this.unSelection = response.data.listObject.map(s => s.id);
+        });
+      }
+    },
+    // getMaintainerOptions() {
+    //   let workspaceId = localStorage.getItem(WORKSPACE_ID);
+    //   this.$post('/user/ws/member/tester/list', {workspaceId: workspaceId}, response => {
+    //     this.valueArr.userId = response.data;
+    //   });
+    // },
+    handleSelect(selection, row) {
+      _handleSelect(this, selection, row, this.selectRows);
+      this.selectRowsCount(this.selectRows)
+    },
+    showExecResult(row) {
+      this.visible = false;
+      this.$emit('showExecResult', row);
+    },
+    filter(filters) {
+      _filter(filters, this.condition);
+      this.initTable();
+    },
+    sort(column) {
+      // 每次只对一个字段排序
+      if (this.condition.orders) {
+        this.condition.orders = [];
+      }
+      _sort(column, this.condition);
+      this.initTable();
+    },
+    handleSelectAll(selection) {
+      _handleSelectAll(this, selection, this.tableData, this.selectRows);
+      this.selectRowsCount(this.selectRows)
+    },
+    search() {
+      this.changeSelectDataRangeAll();
+      this.initTable();
+    },
+    buildPagePath(path) {
+      return path + "/" + this.currentPage + "/" + this.pageSize;
+    },
 
       handleTestCase(testCase) {
         this.$get('/api/definition/get/' + testCase.apiDefinitionId, (response) => {
@@ -408,6 +425,18 @@
         if (this.selectRows.size != this.tableData.length) {
           this.$refs.caseTable.toggleAllSelection(true);
         }
+      },
+      //判断是否只显示本周的数据。  从首页跳转过来的请求会带有相关参数
+      isSelectThissWeekData() {
+        this.selectDataRange = "all";
+        let routeParam = this.$route.params.dataSelectRange;
+        let dataType = this.$route.params.dataType;
+        if (dataType === 'apiTestCase') {
+          this.selectDataRange = routeParam;
+        }
+      },
+      changeSelectDataRangeAll() {
+        this.$emit("changeSelectDataRangeAll", "testCase");
       },
       getIds(rowSets) {
         let rowArray = Array.from(rowSets)

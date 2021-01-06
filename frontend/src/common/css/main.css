@@ -142,9 +142,9 @@ html,body {
   border: 1px solid #DCDFE6;
   border-radius:5px;
   padding: 0px;
-  margin-top: 5px;
+  margin-top: 10px;
   display: inline-block;
-  margin-top: 25px;
+  /*margin-top: 25px;*/
   width: 50px;
 }
 
@@ -164,8 +164,8 @@ html,body {
 .ms-select-all .el-icon-arrow-down {
   position: absolute;
   display: inline-block;
-  top: -3px;
-  left: -40px;
+  top: -7px;
+  left: -38px;
   width: 30px;
 }
 /* 表格全选样式 --> */

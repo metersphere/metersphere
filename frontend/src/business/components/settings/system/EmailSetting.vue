@@ -48,15 +48,12 @@
       </el-row>
 
       <!---->
-      <div style="border: 0px;margin-bottom: 20px;margin-top: 20px">
+      <div style="border: 0px;margin-bottom: 20px">
         <el-checkbox v-model="formInline.ssl" :label="$t('system_parameter_setting.SSL')"></el-checkbox>
       </div>
       <div style="border: 0px;margin-bottom: 20px">
         <el-checkbox v-model="formInline.tls" :label="$t('system_parameter_setting.TLS')"></el-checkbox>
       </div>
-<!--      <div style="border: 0px;margin-bottom: 20px">
-        <el-checkbox v-model="formInline.ANON" :label="$t('system_parameter_setting.SMTP')"></el-checkbox>
-      </div>-->
       <template v-slot:footer>
       </template>
     </el-form>

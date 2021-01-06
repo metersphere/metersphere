@@ -1,10 +1,11 @@
 <template>
   <div>
     <api-list-container
-      :is-api-list-enable="isApiListEnable"
-      @isApiListEnableChange="isApiListEnableChange">
+        :is-api-list-enable="isApiListEnable"
+        @isApiListEnableChange="isApiListEnableChange">
 
-      <el-input placeholder="搜索" @blur="search" class="search-input" size="small" @keyup.enter.native="search" v-model="condition.name"/>
+      <el-input placeholder="搜索" @blur="search" class="search-input" size="small" @keyup.enter.native="search"
+                v-model="condition.name"/>
 
       <el-table v-loading="result.loading"
                 ref="apiDefinitionTable"
@@ -80,6 +81,7 @@
 
         <el-table-column
           prop="casePassingRate"
+          :width="100"
           :label="$t('api_test.definition.api_case_passing_rate')"
           show-overflow-tooltip/>
 
@@ -145,6 +147,7 @@
         selectApi: {},
         result: {},
         moduleId: "",
+        selectDataRange: "all",
         deletePath: "/test/case/delete",
         selectRows: new Set(),
         buttons: [
@@ -176,6 +179,7 @@
     props: {
       currentProtocol: String,
       selectNodeIds: Array,
+      isSelectThisWeek: String,
       visible: {
         type: Boolean,
         default: false,
@@ -230,70 +234,96 @@
           this.condition.moduleIds = [];
         }
 
-        this.condition.projectId = getCurrentProjectID();
-        if (this.currentProtocol != null) {
-          this.condition.protocol = this.currentProtocol;
-        }
-        if (this.condition.projectId) {
-          this.result = this.$post("/api/definition/list/" + this.currentPage + "/" + this.pageSize, this.condition, response => {
-            this.total = response.data.itemCount;
-            this.tableData = response.data.listObject;
-            this.unSelection = response.data.listObject.map(s=>s.id);
+      this.condition.projectId = getCurrentProjectID();
+      if (this.currentProtocol != null) {
+        this.condition.protocol = this.currentProtocol;
+      }
+
+      //检查是否只查询本周数据
+      this.getSelectDataRange();
+      this.condition.selectThisWeedData = false;
+      this.condition.apiCaseCoverage = null;
+      switch (this.selectDataRange){
+        case 'thisWeekCount':
+          this.condition.selectThisWeedData = true;
+          break;
+        case 'Prepare':
+          this.condition.filters = [this.selectDataRange];
+          break;
+        case 'Completed':
+          this.condition.filters = [this.selectDataRange];
+          break;
+        case 'Underway':
+          this.condition.filters = [this.selectDataRange];
+          break;
+        case 'uncoverage':
+          this.condition.apiCaseCoverage = 'uncoverage';
+          break;
+        case 'coverage':
+          this.condition.apiCaseCoverage = 'coverage';
+          break;
+      }
+      if (this.condition.projectId) {
+        this.result = this.$post("/api/definition/list/" + this.currentPage + "/" + this.pageSize, this.condition, response => {
+          this.total = response.data.itemCount;
+          this.tableData = response.data.listObject;
+          this.unSelection = response.data.listObject.map(s => s.id);
+        });
+      }
+    },
+    getMaintainerOptions() {
+      let workspaceId = localStorage.getItem(WORKSPACE_ID);
+      this.$post('/user/ws/member/tester/list', {workspaceId: workspaceId}, response => {
+        this.valueArr.userId = response.data;
+      });
+    },
+    handleSelect(selection, row) {
+      row.hashTree = [];
+      if (this.selectRows.has(row)) {
+        this.$set(row, "showMore", false);
+        this.selectRows.delete(row);
+      } else {
+        this.$set(row, "showMore", true);
+        this.selectRows.add(row);
+      }
+      let arr = Array.from(this.selectRows);
+      // 选中1个以上的用例时显示更多操作
+      if (this.selectRows.size === 1) {
+        this.$set(arr[0], "showMore", true);
+      } else if (this.selectRows.size === 2) {
+        arr.forEach(row => {
+          this.$set(row, "showMore", true);
+        })
+      }
+      this.selectRowsCount(this.selectRows)
+    },
+    handleSelectAll(selection) {
+      if (selection.length > 0) {
+        if (selection.length === 1) {
+          selection.hashTree = [];
+          this.selectRows.add(selection[0]);
+        } else {
+          this.tableData.forEach(item => {
+            item.hashTree = [];
+            this.$set(item, "showMore", true);
+            this.selectRows.add(item);
           });
         }
-      },
-      getMaintainerOptions() {
-        let workspaceId = localStorage.getItem(WORKSPACE_ID);
-        this.$post('/user/ws/member/tester/list', {workspaceId: workspaceId}, response => {
-          this.valueArr.userId = response.data;
-        });
-      },
-      handleSelect(selection, row) {
-        row.hashTree = [];
-        if (this.selectRows.has(row)) {
+      } else {
+        this.selectRows.clear();
+        this.tableData.forEach(row => {
           this.$set(row, "showMore", false);
-          this.selectRows.delete(row);
-        } else {
-          this.$set(row, "showMore", true);
-          this.selectRows.add(row);
-        }
-        let arr = Array.from(this.selectRows);
-        // 选中1个以上的用例时显示更多操作
-        if (this.selectRows.size === 1) {
-          this.$set(arr[0], "showMore", true);
-        } else if (this.selectRows.size === 2) {
-          arr.forEach(row => {
-            this.$set(row, "showMore", true);
-          })
-        }
-        this.selectRowsCount(this.selectRows)
-      },
-      handleSelectAll(selection) {
-        if (selection.length > 0) {
-          if (selection.length === 1) {
-            selection.hashTree = [];
-            this.selectRows.add(selection[0]);
-          } else {
-            this.tableData.forEach(item => {
-              item.hashTree = [];
-              this.$set(item, "showMore", true);
-              this.selectRows.add(item);
-            });
-          }
-        } else {
-          this.selectRows.clear();
-          this.tableData.forEach(row => {
-            this.$set(row, "showMore", false);
-          })
-        }
-        this.selectRowsCount(this.selectRows)
-      },
-      search() {
-        this.initTable();
-      },
-      buildPagePath(path) {
-        return path + "/" + this.currentPage + "/" + this.pageSize;
-      },
+        })
+      }
+      this.selectRowsCount(this.selectRows)
+    },
+    search() {
+      this.changeSelectDataRangeAll();
+      this.initTable();
+    },
+    buildPagePath(path) {
+      return path + "/" + this.currentPage + "/" + this.pageSize;
+    },
 
       editApi(row) {
         this.$emit('editApi', row);
@@ -366,82 +396,95 @@
         param.unSelectIds = this.unSelection;
         param = Object.assign(param, this.condition);
 
-        this.$post('/api/definition/batch/editByParams', param, () => {
-          this.$success(this.$t('commons.save_success'));
+      this.$post('/api/definition/batch/editByParams', param, () => {
+        this.$success(this.$t('commons.save_success'));
+        this.initTable();
+      });
+    },
+    handleTestCase(api) {
+      this.selectApi = api;
+      let request = {};
+      if (Object.prototype.toString.call(api.request).match(/\[object (\w+)\]/)[1].toLowerCase() === 'object') {
+        request = api.request;
+      } else {
+        request = JSON.parse(api.request);
+      }
+      if (!request.hashTree) {
+        request.hashTree = [];
+      }
+      this.selectApi.url = request.path;
+      this.$refs.caseList.open(this.selectApi);
+    },
+    handleDelete(api) {
+      if (this.trashEnable) {
+        this.$get('/api/definition/delete/' + api.id, () => {
+          this.$success(this.$t('commons.delete_success'));
           this.initTable();
         });
-      },
-      handleTestCase(api) {
-        this.selectApi = api;
-        let request = {};
-        if (Object.prototype.toString.call(api.request).match(/\[object (\w+)\]/)[1].toLowerCase() === 'object') {
-          request = api.request;
-        } else {
-          request = JSON.parse(api.request);
-        }
-        if (!request.hashTree) {
-          request.hashTree = [];
-        }
-        this.selectApi.url = request.path;
-        this.$refs.caseList.open(this.selectApi);
-      },
-      handleDelete(api) {
-        if (this.trashEnable) {
-          this.$get('/api/definition/delete/' + api.id, () => {
-            this.$success(this.$t('commons.delete_success'));
-            this.initTable();
-          });
-          return;
-        }
-        this.$alert(this.$t('api_test.definition.request.delete_confirm') + ' ' + api.name + " ？", '', {
-          confirmButtonText: this.$t('commons.confirm'),
-          callback: (action) => {
-            if (action === 'confirm') {
-              let ids = [api.id];
-              this.$post('/api/definition/removeToGc/', ids, () => {
-                this.$success(this.$t('commons.delete_success'));
-                this.initTable();
-                this.$refs.caseList.apiCaseClose();
-              });
-            }
+        return;
+      }
+      this.$alert(this.$t('api_test.definition.request.delete_confirm') + ' ' + api.name + " ？", '', {
+        confirmButtonText: this.$t('commons.confirm'),
+        callback: (action) => {
+          if (action === 'confirm') {
+            let ids = [api.id];
+            this.$post('/api/definition/removeToGc/', ids, () => {
+              this.$success(this.$t('commons.delete_success'));
+              this.initTable();
+              this.$refs.caseList.apiCaseClose();
+            });
           }
-        });
-      },
-      getColor(enable, method) {
-        if (enable) {
-          return this.methodColorMap.get(method);
         }
-      },
-      showExecResult(row) {
-        this.$emit('showExecResult', row);
-      },
-      selectRowsCount(selection){
-        let selectedIDs = this.getIds(selection);
-        let allIDs = this.tableData.map(s=>s.id);
-        this.unSelection = allIDs.filter(function (val) {
-          return selectedIDs.indexOf(val) === -1
-        });
-        if(this.isSelectAllDate){
-          this.selectDataCounts =this.total - this.unSelection.length;
-        }else {
-          this.selectDataCounts =selection.size;
-        }
-      },
-      isSelectDataAll(dataType) {
-        this.isSelectAllDate = dataType;
-        this.selectRowsCount(this.selectRows)
-        //如果已经全选，不需要再操作了
-        if (this.selectRows.size != this.tableData.length) {
-          this.$refs.apiDefinitionTable.toggleAllSelection(true);
-        }
-      },
-      getIds(rowSets){
-        let rowArray = Array.from(rowSets)
-        let ids =  rowArray.map(s=>s.id);
-        return ids;
+      });
+    },
+    getColor(enable, method) {
+      if (enable) {
+        return this.methodColorMap.get(method);
       }
     },
-  }
+    showExecResult(row) {
+      this.$emit('showExecResult', row);
+    },
+    selectRowsCount(selection) {
+      let selectedIDs = this.getIds(selection);
+      let allIDs = this.tableData.map(s => s.id);
+      this.unSelection = allIDs.filter(function (val) {
+        return selectedIDs.indexOf(val) === -1
+      });
+      if (this.isSelectAllDate) {
+        this.selectDataCounts = this.total - this.unSelection.length;
+      } else {
+        this.selectDataCounts = selection.size;
+      }
+    },
+    isSelectDataAll(dataType) {
+      this.isSelectAllDate = dataType;
+      this.selectRowsCount(this.selectRows)
+      //如果已经全选，不需要再操作了
+      if (this.selectRows.size != this.tableData.length) {
+        this.$refs.apiDefinitionTable.toggleAllSelection(true);
+      }
+    },
+    //判断是否只显示本周的数据。  从首页跳转过来的请求会带有相关参数
+    getSelectDataRange() {
+      let dataRange = this.$route.params.dataSelectRange;
+      let dataType = this.$route.params.dataType;
+      if (dataType === 'api') {
+        this.selectDataRange = dataRange;
+      } else {
+        this.selectDataRange = 'all';
+      }
+    },
+    changeSelectDataRangeAll() {
+      this.$emit("changeSelectDataRangeAll", "api");
+    },
+    getIds(rowSets) {
+      let rowArray = Array.from(rowSets)
+      let ids = rowArray.map(s => s.id);
+      return ids;
+    }
+  },
+}
 </script>
 
 <style scoped>
@@ -463,6 +506,34 @@
     float: right;
     width: 300px;
     margin-right: 20px;
+  }
+
+  .api-list >>> th:first-child {
+    /*border: 1px solid #DCDFE6;*/
+    /*border-right: 0px;*/
+    /*border-top-left-radius:5px;*/
+    /*border-bottom-left-radius:5px;*/
+    /*width: 20px;*/
+
+  }
+
+  .api-list >>> th:nth-child(2) {
+    /*border: 1px solid #DCDFE6;*/
+    /*border-left: 0px;*/
+    /*border-top-right-radius:5px;*/
+    /*border-bottom-right-radius:5px;*/
+  }
+
+  .api-list >>> th:first-child>.cell {
+    padding: 5px;
+    width: 30px;
+  }
+  .api-list >>> th:nth-child(2)>.cell {
+    /*background-color: black;*/
+  }
+
+  .api-list >>> .el-dropdown {
+    float: left;
   }
 
 </style>

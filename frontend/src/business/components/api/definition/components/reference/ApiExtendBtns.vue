@@ -5,7 +5,7 @@
     </el-link>
     <el-dropdown-menu slot="dropdown">
       <el-dropdown-item command="ref">{{ $t('api_test.automation.view_ref') }}</el-dropdown-item>
-      <el-dropdown-item :disabled="isCaseEdit" command="add_plan">{{ $t('api_test.automation.batch_add_plan') }}</el-dropdown-item>
+      <!--<el-dropdown-item :disabled="isCaseEdit" command="add_plan">{{ $t('api_test.automation.batch_add_plan') }}</el-dropdown-item>-->
     </el-dropdown-menu>
     <ms-reference-view ref="viewRef"/>
     <!--测试计划-->
