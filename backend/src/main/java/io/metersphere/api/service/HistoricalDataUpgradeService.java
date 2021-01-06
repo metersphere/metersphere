@@ -122,9 +122,8 @@ public class HistoricalDataUpgradeService {
                 element.setType("DubboSampler");
             }
             if (request instanceof SqlRequest) {
-                element = new MsJDBCSampler();
-                SqlRequest request1 = (SqlRequest) request;
-                BeanUtils.copyBean(element, request1);
+                String requestJson = JSON.toJSONString(request);
+                element = JSON.parseObject(requestJson, MsJDBCSampler.class);
                 element.setType("JDBCSampler");
             }
             if (request instanceof TCPRequest) {
