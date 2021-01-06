@@ -21,45 +21,85 @@
                   size="mini"/>
               </el-form-item>
               <br>
-              <el-form-item :label="$t('load_test.duration')">
-                <el-input-number
-                  :disabled="true"
-                  :placeholder="$t('load_test.duration')"
-                  v-model="threadGroup.duration"
-                  :min="1"
-                  size="mini"/>
+              <el-form-item>
+                <el-radio-group v-model="threadGroup.threadType">
+                  <el-radio label="DURATION">{{ $t('load_test.by_duration') }}</el-radio>
+                  <el-radio label="ITERATION">{{ $t('load_test.by_iteration') }}</el-radio>
+                </el-radio-group>
               </el-form-item>
               <br>
-              <el-form-item :label="$t('load_test.rps_limit')">
-                <el-switch v-model="rpsLimitEnable"/>
-                &nbsp;
-                <el-input-number
-                  :disabled="true"
-                  :placeholder="$t('load_test.input_rps_limit')"
-                  v-model="threadGroup.rpsLimit"
-                  :min="1"
-                  size="mini"/>
-              </el-form-item>
-              <br>
-              <el-form-item :label="$t('load_test.ramp_up_time_within')">
-                <el-input-number
-                  :disabled="true"
-                  placeholder=""
-                  :min="1"
-                  :max="threadGroup.duration"
-                  v-model="threadGroup.rampUpTime"
-                  size="mini"/>
-              </el-form-item>
-              <el-form-item :label="$t('load_test.ramp_up_time_minutes')">
-                <el-input-number
-                  :disabled="true"
-                  placeholder=""
-                  :min="1"
-                  :max="Math.min(threadGroup.threadNumber, threadGroup.rampUpTime)"
-                  v-model="threadGroup.step"
-                  size="mini"/>
-              </el-form-item>
-              <el-form-item :label="$t('load_test.ramp_up_time_times')"/>
+              <div v-if="threadGroup.threadType === 'DURATION'">
+                <el-form-item :label="$t('load_test.duration')">
+                  <el-input-number
+                    :disabled="true"
+                    v-model="threadGroup.duration"
+                    :min="1"
+                    @change="calculateChart(threadGroup)"
+                    size="mini"/>
+                </el-form-item>
+                <br>
+                <el-form-item :label="$t('load_test.rps_limit')">
+                  <el-switch v-model="threadGroup.rpsLimitEnable" @change="calculateTotalChart()"/>
+                  &nbsp;
+                  <el-input-number
+                    :disabled="true "
+                    v-model="threadGroup.rpsLimit"
+                    @change="calculateChart(threadGroup)"
+                    :min="1"
+                    size="mini"/>
+                </el-form-item>
+                <br>
+                <el-form-item :label="$t('load_test.ramp_up_time_within')">
+                  <el-input-number
+                    :disabled="true"
+                    :min="1"
+                    :max="threadGroup.duration"
+                    v-model="threadGroup.rampUpTime"
+                    @change="calculateChart(threadGroup)"
+                    size="mini"/>
+                </el-form-item>
+                <el-form-item :label="$t('load_test.ramp_up_time_minutes')">
+                  <el-input-number
+                    :disabled="true"
+                    :min="1"
+                    :max="Math.min(threadGroup.threadNumber, threadGroup.rampUpTime)"
+                    v-model="threadGroup.step"
+                    @change="calculateChart(threadGroup)"
+                    size="mini"/>
+                </el-form-item>
+                <el-form-item :label="$t('load_test.ramp_up_time_times')"/>
+              </div>
+              <div v-if="threadGroup.threadType === 'ITERATION'">
+                <el-form-item :label="$t('load_test.iterate_num')">
+                  <el-input-number
+                    :disabled="true"
+                    v-model="threadGroup.iterateNum"
+                    :min="1"
+                    @change="calculateChart(threadGroup)"
+                    size="mini"/>
+                </el-form-item>
+                <br>
+                <el-form-item :label="$t('load_test.rps_limit')">
+                  <el-switch v-model="threadGroup.rpsLimitEnable" @change="calculateTotalChart()"/>
+                  &nbsp;
+                  <el-input-number
+                    :disabled="true || !threadGroup.rpsLimitEnable"
+                    v-model="threadGroup.rpsLimit"
+                    @change="calculateChart(threadGroup)"
+                    :min="1"
+                    size="mini"/>
+                </el-form-item>
+                <br>
+                <el-form-item :label="$t('load_test.ramp_up_time_within')">
+                  <el-input-number
+                    :disabled="true"
+                    :min="1"
+                    v-model="threadGroup.iterateRampUp"
+                    @change="calculateChart(threadGroup)"
+                    size="mini"/>
+                </el-form-item>
+                <el-form-item :label="$t('load_test.ramp_up_time_seconds')"/>
+              </div>
             </el-form>
           </el-col>
           <el-col :span="14">
@@ -83,6 +123,10 @@ const STEPS = "Steps";
 const DURATION = "duration";
 const RPS_LIMIT = "rpsLimit";
 const RPS_LIMIT_ENABLE = "rpsLimitEnable";
+const THREAD_TYPE = "threadType";
+const ITERATE_NUM = "iterateNum";
+const ITERATE_RAMP_UP = "iterateRampUpTime";
+
 const hexToRgba = function (hex, opacity) {
   return 'rgba(' + parseInt('0x' + hex.slice(1, 3)) + ',' + parseInt('0x' + hex.slice(3, 5)) + ','
     + parseInt('0x' + hex.slice(5, 7)) + ',' + opacity + ')';
@@ -128,6 +172,9 @@ export default {
               case RAMP_UP:
                 this.threadGroups[i].rampUpTime = item.value;
                 break;
+              case ITERATE_RAMP_UP:
+                this.threadGroups[i].iterateRampUp = item.value;
+                break;
               case DURATION:
                 if (item.unit) {
                   this.threadGroups[i].duration = item.value;
@@ -144,6 +191,12 @@ export default {
               case RPS_LIMIT_ENABLE:
                 this.threadGroups[i].rpsLimitEnable = item.value;
                 break;
+              case THREAD_TYPE:
+                this.threadGroups[i].threadType = item.value;
+                break;
+              case ITERATE_NUM:
+                this.threadGroups[i].iterateNum = item.value;
+                break;
               default:
                 break;
             }
@@ -156,6 +209,9 @@ export default {
               break;
             case RAMP_UP:
               this.threadGroups[0].rampUpTime = d.value;
+              break;
+            case ITERATE_RAMP_UP:
+              this.threadGroups[0].iterateRampUp = d.value;
               break;
             case DURATION:
               if (d.unit) {
@@ -172,6 +228,12 @@ export default {
               break;
             case RPS_LIMIT_ENABLE:
               this.threadGroups[0].rpsLimitEnable = d.value;
+              break;
+            case THREAD_TYPE:
+              this.threadGroups[0].threadType = d.value;
+              break;
+            case ITERATE_NUM:
+              this.threadGroups[0].iterateNum = d.value;
               break;
             default:
               break;
