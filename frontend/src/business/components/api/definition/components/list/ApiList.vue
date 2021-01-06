@@ -80,6 +80,7 @@
 
         <el-table-column
           prop="casePassingRate"
+          :width="100"
           :label="$t('api_test.definition.api_case_passing_rate')"
           show-overflow-tooltip/>
 
