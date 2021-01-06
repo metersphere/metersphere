@@ -305,7 +305,8 @@ export default {
     zentao_id: 'Zentao项目ID',
     manager: '项目管理',
     no_data: '无数据',
-    select: '选择项目'
+    select: '选择项目',
+    repeatable: '接口定义URL可重复'
   },
   member: {
     create: '添加成员',
@@ -487,7 +488,7 @@ export default {
       file_exist: "该项目下已存在该jar包",
       upload_limit_size: "上传文件大小不能超过 30MB!",
     },
-    batch_menus:{
+    batch_menus: {
       select_all_data: "选择所有数据(共{0}条)",
       select_show_data: "选择可见数据(共{0}条)",
     },
@@ -503,9 +504,9 @@ export default {
       api_case_status: "用例状态",
       api_case_passing_rate: "用例通过率",
       create_tip: "注: 详细的接口信息可以在编辑页面填写",
-      select_comp:{
-        no_data:"无数据",
-        add_data:"去添加"
+      select_comp: {
+        no_data: "无数据",
+        add_data: "去添加"
       },
       request: {
         grade_info: "按等级筛选",

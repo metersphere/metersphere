@@ -316,8 +316,11 @@ public class ApiAutomationService {
             boolean isFirst = true;
             for (ApiScenarioWithBLOBs item : apiScenarios) {
                 if (item.getStepTotal() == 0) {
-                    MSException.throwException(item.getName() + "，" + Translator.get("automation_exec_info"));
-                    break;
+                    if (apiScenarios.size() == 1) {
+                        MSException.throwException(item.getName() + "，" + Translator.get("automation_exec_info"));
+                        break;
+                    }
+                    continue;
                 }
                 MsThreadGroup group = new MsThreadGroup();
                 group.setLabel(item.getName());

@@ -48,7 +48,7 @@
     </el-card>
 
     <el-dialog :close-on-click-modal="false" :title="title" :visible.sync="createVisible" destroy-on-close @close="handleClose">
-      <el-form :model="form" :rules="rules" ref="form" label-position="right" label-width="100px" size="small">
+      <el-form :model="form" :rules="rules" ref="form" label-position="right" label-width="140px" size="small">
         <el-form-item :label="$t('commons.name')" prop="name">
           <el-input v-model="form.name" autocomplete="off"></el-input>
         </el-form-item>
@@ -63,6 +63,9 @@
         </el-form-item>
         <el-form-item :label="$t('project.zentao_id')" v-if="zentao">
           <el-input v-model="form.zentaoId" autocomplete="off"></el-input>
+        </el-form-item>
+        <el-form-item :label="$t('project.repeatable')" prop="repeatable">
+          <el-switch v-model="form.repeatable"></el-switch>
         </el-form-item>
       </el-form>
       <template v-slot:footer>
@@ -82,192 +85,192 @@
 </template>
 
 <script>
-import MsCreateBox from "../CreateBox";
-import {Message} from "element-ui";
-import MsTablePagination from "../../common/pagination/TablePagination";
-import MsTableHeader from "../../common/components/MsTableHeader";
-import MsTableOperator from "../../common/components/MsTableOperator";
-import MsDialogFooter from "../../common/components/MsDialogFooter";
-import {_sort, getCurrentProjectID, getCurrentUser, listenGoBack, removeGoBackListener} from "@/common/js/utils";
-import MsContainer from "../../common/components/MsContainer";
-import MsMainContainer from "../../common/components/MsMainContainer";
-import MsDeleteConfirm from "../../common/components/MsDeleteConfirm";
-import MsTableOperatorButton from "../../common/components/MsTableOperatorButton";
-import ApiEnvironmentConfig from "../../api/test/components/ApiEnvironmentConfig";
-import TemplateComponent from "../../track/plan/view/comonents/report/TemplateComponent/TemplateComponent";
-import {PROJECT_ID} from "@/common/js/constants";
+  import MsCreateBox from "../CreateBox";
+  import {Message} from "element-ui";
+  import MsTablePagination from "../../common/pagination/TablePagination";
+  import MsTableHeader from "../../common/components/MsTableHeader";
+  import MsTableOperator from "../../common/components/MsTableOperator";
+  import MsDialogFooter from "../../common/components/MsDialogFooter";
+  import {_sort, getCurrentProjectID, getCurrentUser, listenGoBack, removeGoBackListener} from "@/common/js/utils";
+  import MsContainer from "../../common/components/MsContainer";
+  import MsMainContainer from "../../common/components/MsMainContainer";
+  import MsDeleteConfirm from "../../common/components/MsDeleteConfirm";
+  import MsTableOperatorButton from "../../common/components/MsTableOperatorButton";
+  import ApiEnvironmentConfig from "../../api/test/components/ApiEnvironmentConfig";
+  import TemplateComponent from "../../track/plan/view/comonents/report/TemplateComponent/TemplateComponent";
+  import {PROJECT_ID} from "@/common/js/constants";
 
-export default {
-  name: "MsProject",
-  components: {
-    TemplateComponent,
-    ApiEnvironmentConfig,
-    MsTableOperatorButton,
-    MsDeleteConfirm,
-    MsMainContainer,
-    MsContainer, MsTableOperator, MsCreateBox, MsTablePagination, MsTableHeader, MsDialogFooter
-  },
-  data() {
-    return {
-      createVisible: false,
-      result: {},
-      btnTips: this.$t('project.create'),
-      title: this.$t('project.create'),
-      condition: {},
-      items: [],
-      tapd: false,
-      jira: false,
-      zentao: false,
-      form: {},
-      currentPage: 1,
-      pageSize: 10,
-      total: 0,
-      rules: {
-        name: [
-          {required: true, message: this.$t('project.input_name'), trigger: 'blur'},
-          {min: 2, max: 50, message: this.$t('commons.input_limit', [2, 50]), trigger: 'blur'}
-        ],
-        description: [
-          {max: 250, message: this.$t('commons.input_limit', [0, 250]), trigger: 'blur'}
-        ],
-      },
-    }
-  },
-  props: {
-    baseUrl: {
-      type: String
-    }
-  },
-  mounted() {
-    if (this.$route.path.split('/')[2] === 'project' &&
-      this.$route.path.split('/')[3] === 'create') {
-      this.create();
-      this.$router.replace('/setting/project/all');
-    }
-    this.list();
-  },
-  activated() {
-    this.list();
-  },
-  computed: {
-    currentUser: () => {
-      return getCurrentUser();
-    }
-  },
-  destroyed() {
-    this.createVisible = false;
-  },
-  methods: {
-    create() {
-      let workspaceId = this.currentUser.lastWorkspaceId;
-      if (!workspaceId) {
-        this.$warning(this.$t('project.please_choose_workspace'));
-        return false;
+  export default {
+    name: "MsProject",
+    components: {
+      TemplateComponent,
+      ApiEnvironmentConfig,
+      MsTableOperatorButton,
+      MsDeleteConfirm,
+      MsMainContainer,
+      MsContainer, MsTableOperator, MsCreateBox, MsTablePagination, MsTableHeader, MsDialogFooter
+    },
+    data() {
+      return {
+        createVisible: false,
+        result: {},
+        btnTips: this.$t('project.create'),
+        title: this.$t('project.create'),
+        condition: {},
+        items: [],
+        tapd: false,
+        jira: false,
+        zentao: false,
+        form: {},
+        currentPage: 1,
+        pageSize: 10,
+        total: 0,
+        rules: {
+          name: [
+            {required: true, message: this.$t('project.input_name'), trigger: 'blur'},
+            {min: 2, max: 50, message: this.$t('commons.input_limit', [2, 50]), trigger: 'blur'}
+          ],
+          description: [
+            {max: 250, message: this.$t('commons.input_limit', [0, 250]), trigger: 'blur'}
+          ],
+        },
       }
-      this.title = this.$t('project.create');
-      // listenGoBack(this.handleClose);
-      this.createVisible = true;
-      this.form = {};
     },
-    edit(row) {
-      this.title = this.$t('project.edit');
-      this.createVisible = true;
-      listenGoBack(this.handleClose);
-      this.form = Object.assign({}, row);
-      this.$get("/service/integration/all/" + getCurrentUser().lastOrganizationId, response => {
-        let data = response.data;
-        let platforms = data.map(d => d.platform);
-        if (platforms.indexOf("Tapd") !== -1) {
-          this.tapd = true;
-        }
-        if (platforms.indexOf("Jira") !== -1) {
-          this.jira = true;
-        }
-        if (platforms.indexOf("Zentao") !== -1) {
-          this.zentao = true;
-        }
-      });
+    props: {
+      baseUrl: {
+        type: String
+      }
     },
-
-    submit(formName) {
-      this.$refs[formName].validate((valid) => {
-        if (valid) {
-          let saveType = "add";
-          if (this.form.id) {
-            saveType = "update"
-          }
-          this.result = this.$post("/project/" + saveType, this.form, () => {
-            this.createVisible = false;
-            this.list();
-            Message.success(this.$t('commons.save_success'));
-          });
-        } else {
+    mounted() {
+      if (this.$route.path.split('/')[2] === 'project' &&
+        this.$route.path.split('/')[3] === 'create') {
+        this.create();
+        this.$router.replace('/setting/project/all');
+      }
+      this.list();
+    },
+    activated() {
+      this.list();
+    },
+    computed: {
+      currentUser: () => {
+        return getCurrentUser();
+      }
+    },
+    destroyed() {
+      this.createVisible = false;
+    },
+    methods: {
+      create() {
+        let workspaceId = this.currentUser.lastWorkspaceId;
+        if (!workspaceId) {
+          this.$warning(this.$t('project.please_choose_workspace'));
           return false;
         }
-      });
-    },
-    handleDelete(project) {
-      this.$refs.deleteConfirm.open(project);
-    },
-    _handleDelete(project) {
-      this.$confirm(this.$t('project.delete_tip'), '', {
-        confirmButtonText: this.$t('commons.confirm'),
-        cancelButtonText: this.$t('commons.cancel'),
-        type: 'warning'
-      }).then(() => {
-        this.$get('/project/delete/' + project.id, () => {
-          if (project.id === getCurrentProjectID()) {
-            localStorage.removeItem(PROJECT_ID);
-            this.$post("/user/update/current", {id: getCurrentUser().id, lastProjectId: ''});
+        this.title = this.$t('project.create');
+        // listenGoBack(this.handleClose);
+        this.createVisible = true;
+        this.form = {};
+      },
+      edit(row) {
+        this.title = this.$t('project.edit');
+        this.createVisible = true;
+        listenGoBack(this.handleClose);
+        this.form = Object.assign({}, row);
+        this.$get("/service/integration/all/" + getCurrentUser().lastOrganizationId, response => {
+          let data = response.data;
+          let platforms = data.map(d => d.platform);
+          if (platforms.indexOf("Tapd") !== -1) {
+            this.tapd = true;
           }
-          Message.success(this.$t('commons.delete_success'));
-          this.list();
+          if (platforms.indexOf("Jira") !== -1) {
+            this.jira = true;
+          }
+          if (platforms.indexOf("Zentao") !== -1) {
+            this.zentao = true;
+          }
         });
-      }).catch(() => {
-        this.$message({
-          type: 'info',
-          message: this.$t('commons.delete_cancelled')
+      },
+
+      submit(formName) {
+        this.$refs[formName].validate((valid) => {
+          if (valid) {
+            let saveType = "add";
+            if (this.form.id) {
+              saveType = "update"
+            }
+            this.result = this.$post("/project/" + saveType, this.form, () => {
+              this.createVisible = false;
+              this.list();
+              Message.success(this.$t('commons.save_success'));
+            });
+          } else {
+            return false;
+          }
         });
-      });
+      },
+      handleDelete(project) {
+        this.$refs.deleteConfirm.open(project);
+      },
+      _handleDelete(project) {
+        this.$confirm(this.$t('project.delete_tip'), '', {
+          confirmButtonText: this.$t('commons.confirm'),
+          cancelButtonText: this.$t('commons.cancel'),
+          type: 'warning'
+        }).then(() => {
+          this.$get('/project/delete/' + project.id, () => {
+            if (project.id === getCurrentProjectID()) {
+              localStorage.removeItem(PROJECT_ID);
+              this.$post("/user/update/current", {id: getCurrentUser().id, lastProjectId: ''});
+            }
+            Message.success(this.$t('commons.delete_success'));
+            this.list();
+          });
+        }).catch(() => {
+          this.$message({
+            type: 'info',
+            message: this.$t('commons.delete_cancelled')
+          });
+        });
+      },
+      handleClose() {
+        removeGoBackListener(this.handleClose);
+        this.createVisible = false;
+        this.tapd = false;
+        this.jira = false;
+        this.zentao = false;
+      },
+      search() {
+        this.list();
+      },
+      list() {
+        let url = "/project/list/" + this.currentPage + '/' + this.pageSize;
+        this.result = this.$post(url, this.condition, (response) => {
+          let data = response.data;
+          this.items = data.listObject;
+          this.total = data.itemCount;
+        })
+      },
+      sort(column) {
+        _sort(column, this.condition);
+        this.list();
+      },
+      openEnvironmentConfig(project) {
+        this.$refs.environmentConfig.open(project.id);
+      },
+      handleEvent(event) {
+        if (event.keyCode === 13) {
+          this.submit('form')
+        }
+      },
     },
-    handleClose() {
-      removeGoBackListener(this.handleClose);
-      this.createVisible = false;
-      this.tapd = false;
-      this.jira = false;
-      this.zentao = false;
+    created() {
+      document.addEventListener('keydown', this.handleEvent)
     },
-    search() {
-      this.list();
-    },
-    list() {
-      let url = "/project/list/" + this.currentPage + '/' + this.pageSize;
-      this.result = this.$post(url, this.condition, (response) => {
-        let data = response.data;
-        this.items = data.listObject;
-        this.total = data.itemCount;
-      })
-    },
-    sort(column) {
-      _sort(column, this.condition);
-      this.list();
-    },
-    openEnvironmentConfig(project) {
-      this.$refs.environmentConfig.open(project.id);
-    },
-    handleEvent(event) {
-      if (event.keyCode === 13) {
-       this.submit('form')
-      }
-    },
-  },
-  created() {
-    document.addEventListener('keydown', this.handleEvent)
-  },
-  beforeDestroy() {
-    document.removeEventListener('keydown', this.handleEvent);
+    beforeDestroy() {
+      document.removeEventListener('keydown', this.handleEvent);
+    }
   }
-}
 </script>
 
 <style scoped>

@@ -713,6 +713,66 @@ public class ProjectExample {
             addCriterion("zentao_id not between", value1, value2, "zentaoId");
             return (Criteria) this;
         }
+
+        public Criteria andRepeatableIsNull() {
+            addCriterion("`repeatable` is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andRepeatableIsNotNull() {
+            addCriterion("`repeatable` is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andRepeatableEqualTo(Boolean value) {
+            addCriterion("`repeatable` =", value, "repeatable");
+            return (Criteria) this;
+        }
+
+        public Criteria andRepeatableNotEqualTo(Boolean value) {
+            addCriterion("`repeatable` <>", value, "repeatable");
+            return (Criteria) this;
+        }
+
+        public Criteria andRepeatableGreaterThan(Boolean value) {
+            addCriterion("`repeatable` >", value, "repeatable");
+            return (Criteria) this;
+        }
+
+        public Criteria andRepeatableGreaterThanOrEqualTo(Boolean value) {
+            addCriterion("`repeatable` >=", value, "repeatable");
+            return (Criteria) this;
+        }
+
+        public Criteria andRepeatableLessThan(Boolean value) {
+            addCriterion("`repeatable` <", value, "repeatable");
+            return (Criteria) this;
+        }
+
+        public Criteria andRepeatableLessThanOrEqualTo(Boolean value) {
+            addCriterion("`repeatable` <=", value, "repeatable");
+            return (Criteria) this;
+        }
+
+        public Criteria andRepeatableIn(List<Boolean> values) {
+            addCriterion("`repeatable` in", values, "repeatable");
+            return (Criteria) this;
+        }
+
+        public Criteria andRepeatableNotIn(List<Boolean> values) {
+            addCriterion("`repeatable` not in", values, "repeatable");
+            return (Criteria) this;
+        }
+
+        public Criteria andRepeatableBetween(Boolean value1, Boolean value2) {
+            addCriterion("`repeatable` between", value1, value2, "repeatable");
+            return (Criteria) this;
+        }
+
+        public Criteria andRepeatableNotBetween(Boolean value1, Boolean value2) {
+            addCriterion("`repeatable` not between", value1, value2, "repeatable");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {
