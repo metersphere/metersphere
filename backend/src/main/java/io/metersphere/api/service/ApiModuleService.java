@@ -213,20 +213,22 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
     public int editNode(DragModuleRequest request) {
         request.setUpdateTime(System.currentTimeMillis());
         checkApiModuleExist(request);
-        List<ApiDefinitionResult> apiModule = queryByModuleIds(request.getNodeIds());
+        List<ApiDefinitionResult> apiDefinitionResults = queryByModuleIds(request.getNodeIds());
 
-        apiModule.forEach(apiDefinition -> {
-            StringBuilder path = new StringBuilder(apiDefinition.getModulePath());
-            List<String> pathLists = Arrays.asList(path.toString().split("/"));
-            pathLists.set(request.getLevel(), request.getName());
-            path.delete(0, path.length());
-            for (int i = 1; i < pathLists.size(); i++) {
-                path = path.append("/").append(pathLists.get(i));
+        apiDefinitionResults.forEach(apiDefinition -> {
+            if (StringUtils.isNotBlank(apiDefinition.getModulePath())) {
+                StringBuilder path = new StringBuilder(apiDefinition.getModulePath());
+                List<String> pathLists = Arrays.asList(path.toString().split("/"));
+                pathLists.set(request.getLevel(), request.getName());
+                path.delete(0, path.length());
+                for (int i = 1; i < pathLists.size(); i++) {
+                    path = path.append("/").append(pathLists.get(i));
+                }
+                apiDefinition.setModulePath(path.toString());
             }
-            apiDefinition.setModulePath(path.toString());
         });
 
-        batchUpdateApiDefinition(apiModule);
+        batchUpdateApiDefinition(apiDefinitionResults);
 
         return apiModuleMapper.updateByPrimaryKeySelective(request);
     }
