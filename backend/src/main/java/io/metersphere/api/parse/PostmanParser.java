@@ -61,6 +61,16 @@ public class PostmanParser extends ApiImportAbstractParser {
         MsHTTPSamplerProxy request = buildRequest(requestItem.getName(), url.getRaw(), requestDesc.getMethod());
         ApiDefinitionResult apiDefinition =
                 buildApiDefinition(request.getId(), requestItem.getName(), url.getRaw(), requestDesc.getMethod());
+        if (StringUtils.isNotBlank(request.getPath())) {
+            String path = request.getPath().split("\\?")[0];
+            path = path.replace("{{", "${");
+            path = path.replace("}}", "}");
+            request.setPath(path);
+            apiDefinition.setPath(path);
+        } else {
+            request.setPath("/");
+            apiDefinition.setPath("/");
+        }
         parseBody(request.getBody(), requestDesc);
         request.setArguments(parseKeyValue(url.getQuery()));
         request.setHeaders(parseKeyValue(requestDesc.getHeader()));
