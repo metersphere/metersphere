@@ -1,6 +1,8 @@
 package io.metersphere.api.service;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import io.metersphere.api.dto.EnvironmentDTO;
 import io.metersphere.api.dto.SaveHistoricalDataUpgrade;
 import io.metersphere.api.dto.automation.ScenarioStatus;
 import io.metersphere.api.dto.definition.request.MsScenario;
@@ -17,6 +19,7 @@ import io.metersphere.api.dto.definition.request.sampler.MsTCPSampler;
 import io.metersphere.api.dto.definition.request.timer.MsConstantTimer;
 import io.metersphere.api.dto.scenario.Body;
 import io.metersphere.api.dto.scenario.Scenario;
+import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
 import io.metersphere.api.dto.scenario.request.*;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ApiScenarioMapper;
@@ -48,6 +51,9 @@ public class HistoricalDataUpgradeService {
     private ExtApiScenarioMapper extApiScenarioMapper;
     @Resource
     SqlSessionFactory sqlSessionFactory;
+    @Resource
+    ApiTestEnvironmentService apiTestEnvironmentService;
+    private Map<String, EnvironmentDTO> environmentDTOMap;
 
     private int getNextNum(String projectId) {
         ApiScenario apiScenario = extApiScenarioMapper.getNextNum(projectId);
@@ -110,6 +116,10 @@ public class HistoricalDataUpgradeService {
                 BeanUtils.copyBean(element, request1);
                 ((MsHTTPSamplerProxy) element).setProtocol(RequestType.HTTP);
                 ((MsHTTPSamplerProxy) element).setArguments(request1.getParameters());
+                if (StringUtils.isEmpty(element.getName())) {
+                    element.setName(request1.getPath());
+                }
+
                 element.setType("HTTPSamplerProxy");
             }
             if (request instanceof DubboRequest) {
@@ -121,6 +131,11 @@ public class HistoricalDataUpgradeService {
                 element = new MsJDBCSampler();
                 SqlRequest request1 = (SqlRequest) request;
                 BeanUtils.copyBean(element, request1);
+                EnvironmentDTO dto = environmentDTOMap.get(request1.getDataSource());
+                if (dto != null) {
+                    ((MsJDBCSampler) element).setEnvironmentId(dto.getEnvironmentId());
+                    ((MsJDBCSampler) element).setDataSource(dto.getDatabaseConfig());
+                }
                 element.setType("JDBCSampler");
             }
             if (request instanceof TCPRequest) {
@@ -250,11 +265,13 @@ public class HistoricalDataUpgradeService {
         if (!end.exists()) {
             end.mkdir();
         }
-        for (String temp : filePath) {
-            //添加满足情况的条件
-            if (new File(sourcePathDir + File.separator + temp).isFile()) {
-                //为文件则进行拷贝
-                copyFile(sourcePathDir + File.separator + temp, newPathDir + File.separator + temp);
+        if (filePath != null) {
+            for (String temp : filePath) {
+                //添加满足情况的条件
+                if (new File(sourcePathDir + File.separator + temp).isFile()) {
+                    //为文件则进行拷贝
+                    copyFile(sourcePathDir + File.separator + temp, newPathDir + File.separator + temp);
+                }
             }
         }
     }
@@ -310,6 +327,9 @@ public class HistoricalDataUpgradeService {
     }
 
     public String upgrade(SaveHistoricalDataUpgrade saveHistoricalDataUpgrade) {
+        // 初始化环境，获取数据源
+        getDataSource(saveHistoricalDataUpgrade.getProjectId());
+
         ApiTestExample example = new ApiTestExample();
         example.createCriteria().andIdIn(saveHistoricalDataUpgrade.getTestIds());
         List<ApiTest> blobs = apiTestMapper.selectByExampleWithBLOBs(example);
@@ -332,4 +352,23 @@ public class HistoricalDataUpgradeService {
         sqlSession.flushStatements();
         return null;
     }
+
+    private void getDataSource(String projectId) {
+        List<ApiTestEnvironmentWithBLOBs> environments = apiTestEnvironmentService.list(projectId);
+        environmentDTOMap = new HashMap<>();
+        if (CollectionUtils.isNotEmpty(environments)) {
+            environments.forEach(environment -> {
+                EnvironmentConfig envConfig = JSONObject.parseObject(environment.getConfig(), EnvironmentConfig.class);
+                if (CollectionUtils.isNotEmpty(envConfig.getDatabaseConfigs())) {
+                    envConfig.getDatabaseConfigs().forEach(item -> {
+                        EnvironmentDTO dto = new EnvironmentDTO();
+                        dto.setDatabaseConfig(item);
+                        dto.setEnvironmentId(environment.getId());
+                        environmentDTOMap.put(item.getId(), dto);
+                    });
+                }
+            });
+        }
+    }
+
 }

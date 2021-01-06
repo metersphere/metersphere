@@ -544,6 +544,7 @@ export default {
         res_param: "Response content",
         batch_delete: "Batch deletion",
         delete_confirm: "Confirm deletion",
+        delete_confirm_step: "Confirm deletion step",
         assertions_rule: "Assertion rule",
         response_header: "Response header",
         response_body: "Response body",
@@ -574,6 +575,7 @@ export default {
       external_import: "External import",
       wait_controller: "Wait controller",
       if_controller: "If controller",
+      loop_controller: "Loop Controller",
       scenario_import: "Scenario import",
       customize_script: "Customize script",
       customize_req: "Customize req",
@@ -1259,8 +1261,8 @@ export default {
     host: 'Host number cannot be empty',
     port: 'Port cannot be empty',
     account: 'Account cannot be empty',
-    test_recipients:'Test recipients',
-    tip:'Tip: use as test mail recipient only',
+    test_recipients: 'Test recipients',
+    tip: 'Tip: use as test mail recipient only',
 
   },
   i18n: {
@@ -1414,5 +1416,15 @@ export default {
     nothing: "Nothing",
     preview: "Preview",
     add_custom: "Add Custom Prop"
+  },
+  loop: {
+    loops_title: "loops",
+    foreach: "ForEach",
+    while: "While",
+    loops: "loops",
+    interval: "interval",
+    proceed: "proceed",
+    timeout: "timeout",
   }
+
 };

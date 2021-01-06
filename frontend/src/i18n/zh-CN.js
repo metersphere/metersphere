@@ -543,6 +543,7 @@ export default {
         res_param: "响应内容",
         batch_delete: "批量删除",
         delete_confirm: "确认删除接口",
+        delete_confirm_step: "确认删除步骤",
         assertions_rule: "断言规则",
         response_header: "响应头",
         response_body: "响应体",
@@ -573,6 +574,7 @@ export default {
       external_import: "外部导入",
       wait_controller: "等待控制器",
       if_controller: "条件控制器",
+      loop_controller: "循环控制器",
       scenario_import: "场景导入",
       customize_script: "自定义脚本",
       customize_req: "自定义请求",
@@ -1260,8 +1262,8 @@ export default {
     host: '主机号不能为空',
     port: '端口号不能为空',
     account: '账户不能为空',
-    test_recipients:'测试收件人',
-    tip:'提示：仅用来作为测试邮件收件人',
+    test_recipients: '测试收件人',
+    tip: '提示：仅用来作为测试邮件收件人',
   },
   i18n: {
     home: '首页',
@@ -1414,5 +1416,14 @@ export default {
     nothing: "无",
     preview: "预览",
     add_custom: "添加自定义属性"
+  },
+  loop: {
+    loops_title: "次数循环",
+    foreach: "ForEach 循环",
+    while: "While 循环",
+    loops: "循环次数",
+    interval: "循环间隔",
+    proceed: "成功后继续循环",
+    timeout: "循环超时时间",
   }
 };

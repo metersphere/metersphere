@@ -543,6 +543,7 @@ export default {
         res_param: "響應内容",
         batch_delete: "批量删除",
         delete_confirm: "確認刪除接口",
+        delete_confirm_step: "確認刪除步骤",
         assertions_rule: "斷言規則",
         response_header: "響應頭",
         response_body: "響應體",
@@ -573,6 +574,7 @@ export default {
       external_import: "外部導入",
       wait_controller: "等待控制器",
       if_controller: "條件控制器",
+      loop_controller: "循环控制器",
       scenario_import: "場景導入",
       customize_script: "自定義脚本",
       customize_req: "自定義請求",
@@ -1259,8 +1261,8 @@ export default {
     host: '主機號不能為空',
     port: '端口號不能為空',
     account: '賬戶不能為空',
-    test_recipients:'測試收件人',
-    tip:'提示：僅用來作為測試郵件收件人',
+    test_recipients: '測試收件人',
+    tip: '提示：僅用來作為測試郵件收件人',
   },
   i18n: {
     home: '首頁',
@@ -1413,5 +1415,15 @@ export default {
     nothing: "无",
     preview: "预览",
     add_custom: "添加自定义属性"
+  },
+  loop: {
+    loops_title: "次數循環",
+    foreach: "ForEach 循環",
+    while: "While 循環",
+    loops: "循環次数",
+    interval: "循環間隔",
+    proceed: "成功後繼續循環",
+    timeout: "循環超時時間",
   }
+
 };
