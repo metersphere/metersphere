@@ -110,6 +110,10 @@ public class HistoricalDataUpgradeService {
                 BeanUtils.copyBean(element, request1);
                 ((MsHTTPSamplerProxy) element).setProtocol(RequestType.HTTP);
                 ((MsHTTPSamplerProxy) element).setArguments(request1.getParameters());
+                if (StringUtils.isEmpty(element.getName())) {
+                    element.setName(request1.getPath());
+                }
+
                 element.setType("HTTPSamplerProxy");
             }
             if (request instanceof DubboRequest) {

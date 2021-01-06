@@ -152,6 +152,8 @@
                       <ms-api-scenario-component v-if="data.type==='scenario'" :scenario="data" :node="node" @remove="remove" @copyRow="copyRow"/>
                       <!--条件控制器-->
                       <ms-if-controller :controller="data" :node="node" v-if="data.type==='IfController'" @remove="remove" @copyRow="copyRow"/>
+                      <!--循环控制器-->
+                      <ms-loop-controller :controller="data" :node="node" v-if="data.type==='LoopController'" @remove="remove" @copyRow="copyRow"/>
                       <!--等待控制器-->
                       <ms-constant-timer :timer="data" :node="node" v-if="data.type==='ConstantTimer'" @remove="remove" @copyRow="copyRow"/>
                       <!--自定义脚本-->
@@ -168,7 +170,8 @@
                       <!--提取规则-->
                       <ms-api-extract @remove="remove" @copyRow="copyRow" v-if="data.type==='Extract'" customizeStyle="margin-top: 0px" :extract="data" :node="node"/>
                       <!--API 导入 -->
-                      <ms-api-component :request="data" :currentScenario="currentScenario" :currentEnvironmentId="currentEnvironmentId" @remove="remove" @copyRow="copyRow" v-if="data.type==='HTTPSamplerProxy'||data.type==='DubboSampler'||data.type==='JDBCSampler'||data.type==='TCPSampler'" :node="node"/>
+                      <ms-api-component :request="data" :currentScenario="currentScenario" :currentEnvironmentId="currentEnvironmentId" @remove="remove" @copyRow="copyRow"
+                                        v-if="data.type==='HTTPSamplerProxy'||data.type==='DubboSampler'||data.type==='JDBCSampler'||data.type==='TCPSampler'" :node="node"/>
                     </template>
                    </span>
               </el-tree>
@@ -227,7 +230,7 @@
 <script>
   import {API_STATUS, PRIORITY} from "../../definition/model/JsonData";
   import {WORKSPACE_ID} from '@/common/js/constants';
-  import {Assertions, Extract, IfController, JSR223Processor, ConstantTimer} from "../../definition/model/ApiTestModel";
+  import {Assertions, Extract, IfController, JSR223Processor, ConstantTimer, LoopController} from "../../definition/model/ApiTestModel";
   import MsJsr233Processor from "./Jsr233Processor";
   import {parseEnvironment} from "../../definition/model/EnvironmentModel";
   import MsConstantTimer from "./ConstantTimer";
@@ -241,7 +244,7 @@
   import ApiEnvironmentConfig from "../../definition/components/environment/ApiEnvironmentConfig";
   import MsInputTag from "./MsInputTag";
   import MsRun from "./DebugRun";
-  import MsImportApiScenario from "./ImportApiScenario";
+  import MsLoopController from "./LoopController";
   import MsApiScenarioComponent from "./ApiScenarioComponent";
   import MsApiReportDetail from "../report/ApiReportDetail";
   import MsScenarioParameters from "./ScenarioParameters";
@@ -275,6 +278,7 @@
       MsApiCustomize,
       ApiImport,
       InputTag,
+      MsLoopController,
     },
     data() {
       return {
@@ -388,13 +392,13 @@
             }
           },
           {
-            title: this.$t('api_test.automation.if_controller'),
+            title: this.$t('api_test.automation.loop_controller'),
             show: this.showButton("LoopController"),
             titleColor: "#02A7F0",
             titleBgColor: "#F4F4F5",
-            icon: "alt_route",
+            icon: "next_plan",
             click: () => {
-              this.addComponent('IfController')
+              this.addComponent('LoopController')
             }
           },
           {
@@ -504,8 +508,11 @@
             this.customizeRequest = {protocol: "HTTP", type: "API", hashTree: [], referenced: 'Created', active: false};
             this.customizeVisible = true;
             break;
+          case  ELEMENT_TYPE.LoopController:
+            this.selectedTreeNode != undefined ? this.selectedTreeNode.hashTree.push(new LoopController()) :
+              this.scenarioDefinition.push(new LoopController());
+            break;
           case ELEMENT_TYPE.scenario:
-            // this.scenarioVisible = true;
             this.$refs.scenarioRelevance.open();
             break;
           default:
@@ -623,8 +630,7 @@
         this.$post('/user/ws/member/tester/list', {workspaceId: workspaceId}, response => {
           this.maintainerOptions = response.data;
         });
-      }
-      ,
+      },
       openTagConfig() {
         if (!this.projectId) {
           this.$error(this.$t('api_test.select_project'));
@@ -633,7 +639,8 @@
         this.$refs.tag.open();
       },
       remove(row, node) {
-        this.$alert(this.$t('api_test.definition.request.delete_confirm') + ' ' + row.name + " ？", '', {
+        let name = row.name === undefined ? "" : row.name;
+        this.$alert(this.$t('api_test.definition.request.delete_confirm_step') + ' ' + name + " ？", '', {
           confirmButtonText: this.$t('commons.confirm'),
           callback: (action) => {
             if (action === 'confirm') {
@@ -646,8 +653,7 @@
             }
           }
         });
-      }
-      ,
+      },
       copyRow(row, node) {
         const parent = node.parent
         const hashTree = parent.data.hashTree || parent.data;
@@ -664,8 +670,7 @@
         this.$nextTick(() => {
           this.loading = false
         })
-      }
-      ,
+      },
       runDebug() {
         /*触发执行操作*/
         if (!this.currentEnvironmentId) {
@@ -678,8 +683,7 @@
           environmentId: this.currentEnvironmentId, hashTree: this.scenarioDefinition
         };
         this.reportId = getUUID().substring(0, 8);
-      }
-      ,
+      },
       getEnvironments() {
         if (this.projectId) {
           this.$get('/api/environment/list/' + this.projectId, response => {
@@ -699,16 +703,14 @@
             }
           });
         }
-      }
-      ,
+      },
       openEnvironmentConfig() {
         if (!this.projectId) {
           this.$error(this.$t('api_test.select_project'));
           return;
         }
         this.$refs.environmentConfig.open(this.projectId);
-      }
-      ,
+      },
       environmentConfigClose() {
         this.getEnvironments();
       }
@@ -722,25 +724,21 @@
           return true;
         }
         return false;
-      }
-      ,
+      },
       allowDrag(draggingNode, dropNode, dropType) {
         this.sort();
         this.reload();
-      }
-      ,
+      },
       nodeExpand(data) {
         if (data.resourceId) {
           this.expandedNode.push(data.resourceId);
         }
-      }
-      ,
+      },
       nodeCollapse(data) {
         if (data.resourceId) {
           this.expandedNode.splice(this.expandedNode.indexOf(data.resourceId), 1);
         }
-      }
-      ,
+      },
       getPath(id) {
         if (id === null) {
           return null;
@@ -749,8 +747,7 @@
           return item.id === id ? item.path : "";
         });
         return path[0].path;
-      }
-      ,
+      },
       setFiles(item, bodyUploadFiles, obj) {
         if (item.body) {
           if (item.body.kvs) {
@@ -788,8 +785,7 @@
             });
           }
         }
-      }
-      ,
+      },
       recursiveFile(arr, bodyUploadFiles, obj) {
         arr.forEach(item => {
           this.setFiles(item, bodyUploadFiles, obj);
@@ -797,8 +793,7 @@
             this.recursiveFile(item.hashTree, bodyUploadFiles, obj);
           }
         });
-      }
-      ,
+      },
       getBodyUploadFiles(obj) {
         let bodyUploadFiles = [];
         obj.bodyUploadIds = [];
@@ -809,8 +804,7 @@
           }
         })
         return bodyUploadFiles;
-      }
-      ,
+      },
       editScenario() {
         this.$refs['currentScenario'].validate((valid) => {
           if (valid) {

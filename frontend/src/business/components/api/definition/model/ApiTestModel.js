@@ -1016,6 +1016,38 @@ export class IfController extends Controller {
   }
 }
 
+export class LoopController extends Controller {
+  constructor(options = {}) {
+    super("LoopController", options);
+    this.type = "LoopController";
+    this.active = false;
+    this.loopType = "LOOP_COUNT";
+    this.countController = {loops: 0, interval: 0, proceed: false};
+    this.forEachController = {inputVal: "", returnVal: "", interval: 0};
+    this.whileController = {variable: "", operator: "", value: "", timeout: 0};
+    this.hashTree = [];
+    this.set(options);
+  }
+
+  isValid() {
+    if (!!this.operator && this.operator.indexOf("empty") > 0) {
+      return !!this.variable && !!this.operator;
+    }
+    return !!this.variable && !!this.operator && !!this.value;
+  }
+
+  label() {
+    if (this.isValid()) {
+      let label = this.variable;
+      if (this.operator) label += " " + this.operator;
+      if (this.value) label += " " + this.value;
+      return label;
+    }
+    return "";
+  }
+}
+
+
 export class Timer extends BaseConfig {
   static TYPES = {
     CONSTANT_TIMER: "Constant Timer",
