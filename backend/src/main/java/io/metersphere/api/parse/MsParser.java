@@ -6,7 +6,6 @@ import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.parser.Feature;
 import io.metersphere.api.dto.ApiTestImportRequest;
 import io.metersphere.api.dto.definition.ApiDefinitionResult;
-import io.metersphere.api.dto.definition.ApiModuleDTO;
 import io.metersphere.api.dto.definition.parse.ApiDefinitionImport;
 import io.metersphere.api.dto.definition.request.sampler.MsHTTPSamplerProxy;
 import io.metersphere.api.dto.scenario.Body;
@@ -15,10 +14,13 @@ import io.metersphere.api.dto.scenario.request.RequestType;
 import io.metersphere.api.service.ApiModuleService;
 import io.metersphere.base.domain.ApiModule;
 import io.metersphere.commons.utils.CommonBeanFactory;
+import io.metersphere.commons.utils.LogUtil;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.*;
 
 public class MsParser extends ApiImportAbstractParser {
@@ -77,9 +79,9 @@ public class MsParser extends ApiImportAbstractParser {
                 ApiDefinitionResult apiDefinition = buildApiDefinition(request.getId(), requestName, path, method);
                 apiDefinition.setModuleId(module.getId());
                 apiDefinition.setProjectId(this.projectId);
-
                 parseBody(requestObject, request.getBody());
                 parseHeader(requestObject, request.getHeaders());
+                parsePath(request, apiDefinition);
                 apiDefinition.setRequest(JSONObject.toJSONString(request));
                 results.add(apiDefinition);
             });
@@ -87,6 +89,36 @@ public class MsParser extends ApiImportAbstractParser {
         return apiImport;
     }
 
+    private void parsePath(MsHTTPSamplerProxy request, ApiDefinitionResult apiDefinition) {
+        if (StringUtils.isNotBlank(request.getPath())) {
+            String[] split = request.getPath().split("\\?");
+            String path = split[0];
+            parseQueryParameters(split, request.getArguments());
+            request.setPath(path);
+            apiDefinition.setPath(path);
+        } else {
+            request.setPath("/");
+            apiDefinition.setPath("/");
+        }
+        apiDefinition.setName(apiDefinition.getPath() + " [" + apiDefinition.getMethod() + "]");
+    }
+
+    private void parseQueryParameters(String[] split, List<KeyValue> arguments) {
+        if (split.length > 1) {
+            try {
+                String queryParams = split[1];
+                queryParams = URLDecoder.decode(queryParams, "UTF-8");
+                String[] params = queryParams.split("&");
+                for (String param : params) {
+                    String[] kv = param.split("=");
+                    arguments.add(new KeyValue(kv[0], kv[1]));
+                }
+            } catch (UnsupportedEncodingException e) {
+                LogUtil.info(e.getMessage(), e);
+                return;
+            }
+        }
+    }
     private void parseHeader(JSONObject requestObject, List<KeyValue> msHeaders) {
         JSONArray headers = requestObject.getJSONArray("headers");
         if (CollectionUtils.isNotEmpty(headers)) {
