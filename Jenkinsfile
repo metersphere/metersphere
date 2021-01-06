@@ -5,9 +5,9 @@ pipeline {
         }
     }
     options { quietPeriod(600) }
-    parameters { 
-        string(name: 'IMAGE_NAME', defaultValue: 'metersphere', description: '构建后的 Docker 镜像名称')
-        string(name: 'IMAGE_PREFIX', defaultValue: 'registry.cn-qingdao.aliyuncs.com/metersphere', description: '构建后的 Docker 镜像带仓库名的前缀')
+    environment { 
+        IMAGE_NAME = 'metersphere'
+        IMAGE_PREFIX = 'registry.cn-qingdao.aliyuncs.com/metersphere'
     }
     stages {
         stage('Build/Test') {

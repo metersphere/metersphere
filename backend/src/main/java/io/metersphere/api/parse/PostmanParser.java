@@ -9,11 +9,9 @@ import io.metersphere.api.dto.definition.request.sampler.MsHTTPSamplerProxy;
 import io.metersphere.api.dto.parse.postman.*;
 import io.metersphere.api.dto.scenario.Body;
 import io.metersphere.api.dto.scenario.KeyValue;
-import io.metersphere.api.service.ApiModuleService;
 import io.metersphere.base.domain.ApiModule;
 import io.metersphere.commons.constants.MsRequestBodyType;
 import io.metersphere.commons.constants.PostmanRequestBodyMode;
-import io.metersphere.commons.utils.CommonBeanFactory;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.InputStream;
@@ -30,7 +28,7 @@ public class PostmanParser extends ApiImportAbstractParser {
         List<PostmanKeyValue> variables = postmanCollection.getVariable();
         ApiDefinitionImport apiImport = new ApiDefinitionImport();
         List<ApiDefinitionResult> results = new ArrayList<>();
-        parseItem(postmanCollection.getItem(), variables, results, buildModule(postmanCollection.getInfo().getName(), null, request.isSaved()), request.isSaved());
+        parseItem(postmanCollection.getItem(), variables, results, buildModule(getSelectModule(request.getModuleId()), postmanCollection.getInfo().getName(), request.isSaved()), request.isSaved());
         apiImport.setData(results);
         return apiImport;
     }
@@ -39,7 +37,7 @@ public class PostmanParser extends ApiImportAbstractParser {
         for (PostmanItem item : items) {
             List<PostmanItem> childItems = item.getItem();
             if (childItems != null) {
-                ApiModule module = buildModule(item.getName(), parentModule, isSaved);
+                ApiModule module = buildModule(parentModule, item.getName() , isSaved);
                 parseItem(childItems, variables, results, module, isSaved);
             } else {
                 ApiDefinitionResult request = parsePostman(item);
@@ -51,21 +49,6 @@ public class PostmanParser extends ApiImportAbstractParser {
                 }
             }
         }
-    }
-
-    private ApiModule buildModule(String name, ApiModule parentModule, boolean isSaved) {
-        apiModuleService = CommonBeanFactory.getBean(ApiModuleService.class);
-        ApiModule module;
-        if (parentModule != null) {
-            module = apiModuleService.getNewModule(name, this.projectId, parentModule.getLevel() + 1);
-            module.setParentId(parentModule.getId());
-        } else {
-            module = apiModuleService.getNewModule(name, this.projectId, 1);
-        }
-        if (isSaved) {
-            createModule(module);
-        }
-        return module;
     }
 
     private ApiDefinitionResult parsePostman(PostmanItem requestItem) {

@@ -2,6 +2,7 @@ package io.metersphere.api.parse;
 
 import io.metersphere.api.dto.ApiTestImportRequest;
 import io.metersphere.api.dto.definition.ApiDefinitionResult;
+import io.metersphere.api.dto.definition.ApiModuleDTO;
 import io.metersphere.api.dto.definition.request.sampler.MsHTTPSamplerProxy;
 import io.metersphere.api.dto.scenario.Body;
 import io.metersphere.api.dto.scenario.KeyValue;
@@ -11,6 +12,8 @@ import io.metersphere.api.dto.scenario.request.RequestType;
 import io.metersphere.api.service.ApiModuleService;
 import io.metersphere.base.domain.ApiModule;
 import io.metersphere.commons.exception.MSException;
+import io.metersphere.commons.utils.BeanUtils;
+import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.SessionUtils;
 import org.apache.commons.collections.CollectionUtils;
@@ -58,6 +61,32 @@ public abstract class ApiImportAbstractParser implements ApiImportParser {
         if (request.getUseEnvironment()) {
             scenario.setEnvironmentId(request.getEnvironmentId());
         }
+    }
+
+    protected ApiModule getSelectModule(String moduleId) {
+        apiModuleService = CommonBeanFactory.getBean(ApiModuleService.class);
+        if (StringUtils.isNotBlank(moduleId)) {
+            ApiModule module = new ApiModule();
+            ApiModuleDTO moduleDTO = apiModuleService.getNode(moduleId);
+            BeanUtils.copyBean(module, moduleDTO);
+            return module;
+        }
+        return null;
+    }
+
+    protected ApiModule buildModule(ApiModule parentModule, String name, boolean isSaved) {
+        apiModuleService = CommonBeanFactory.getBean(ApiModuleService.class);
+        ApiModule module;
+        if (parentModule != null) {
+            module = apiModuleService.getNewModule(name, this.projectId, parentModule.getLevel() + 1);
+            module.setParentId(parentModule.getId());
+        } else {
+            module = apiModuleService.getNewModule(name, this.projectId, 1);
+        }
+        if (isSaved) {
+            createModule(module);
+        }
+        return module;
     }
 
     protected void createModule(ApiModule module) {

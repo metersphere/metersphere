@@ -88,7 +88,7 @@ public class JmeterFileService {
         if (!CollectionUtils.isEmpty(testData)) {
             for (String k : testData.keySet()) {
                 String v = testData.get(k);
-                files.put("k", v.getBytes(StandardCharsets.UTF_8));
+                files.put(k, v.getBytes(StandardCharsets.UTF_8));
             }
         }
 
@@ -97,7 +97,7 @@ public class JmeterFileService {
         if (!CollectionUtils.isEmpty(jarFiles)) {
             for (String k : jarFiles.keySet()) {
                 byte[] v = jarFiles.get(k);
-                files.put("k", v);
+                files.put(k, v);
             }
         }
 

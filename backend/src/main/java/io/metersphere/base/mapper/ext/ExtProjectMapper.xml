@@ -4,7 +4,7 @@
 
     <select id="getProjectWithWorkspace" resultType="io.metersphere.dto.ProjectDTO">
         select p.id, p.workspace_id, p.name, p.description, p.update_time,
-        p.create_time, w.id as workspaceId, w.name as workspaceName, p.tapd_id, p.jira_key, p.zentao_id
+        p.create_time, w.id as workspaceId, w.name as workspaceName, p.tapd_id, p.jira_key, p.zentao_id,p.repeatable
         from project p
         join workspace w on p.workspace_id = w.id
         <where>
@@ -42,11 +42,11 @@
             </if>
         </set>
         where project.id in (select id from (select id
-                             from project
-                             where workspace_id in
-                                   (select workspace.id
-                                    from workspace
-                                    where organization_id = #{orgId})) as a)
+        from project
+        where workspace_id in
+        (select workspace.id
+        from workspace
+        where organization_id = #{orgId})) as a)
     </update>
 
 </mapper>
