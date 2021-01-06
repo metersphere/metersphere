@@ -53,7 +53,7 @@
     </el-card>
 
     <el-dialog :close-on-click-modal="false" :title="title" :visible.sync="createVisible" destroy-on-close @close="handleClose">
-      <el-form :model="form" :rules="rules" ref="form" label-position="right" label-width="100px" size="small">
+      <el-form :model="form" :rules="rules" ref="form" label-position="right" label-width="140px" size="small">
         <el-form-item :label="$t('commons.name')" prop="name">
           <el-input v-model="form.name" autocomplete="off"></el-input>
         </el-form-item>
@@ -86,7 +86,7 @@
 
     <api-environment-config ref="environmentConfig"/>
 
-    <ms-jar-config :is-read-only="isReadOnly" ref="jarConfig"/>
+    <ms-jar-config ref="jarConfig"/>
 
   </div>
 </template>
