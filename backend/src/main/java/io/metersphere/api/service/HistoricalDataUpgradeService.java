@@ -250,11 +250,13 @@ public class HistoricalDataUpgradeService {
         if (!end.exists()) {
             end.mkdir();
         }
-        for (String temp : filePath) {
-            //添加满足情况的条件
-            if (new File(sourcePathDir + File.separator + temp).isFile()) {
-                //为文件则进行拷贝
-                copyFile(sourcePathDir + File.separator + temp, newPathDir + File.separator + temp);
+        if (filePath != null) {
+            for (String temp : filePath) {
+                //添加满足情况的条件
+                if (new File(sourcePathDir + File.separator + temp).isFile()) {
+                    //为文件则进行拷贝
+                    copyFile(sourcePathDir + File.separator + temp, newPathDir + File.separator + temp);
+                }
             }
         }
     }

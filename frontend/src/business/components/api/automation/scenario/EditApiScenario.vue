@@ -388,6 +388,16 @@
             }
           },
           {
+            title: this.$t('api_test.automation.if_controller'),
+            show: this.showButton("LoopController"),
+            titleColor: "#02A7F0",
+            titleBgColor: "#F4F4F5",
+            icon: "alt_route",
+            click: () => {
+              this.addComponent('IfController')
+            }
+          },
+          {
             title: this.$t('api_test.automation.wait_controller'),
             show: this.showButton("ConstantTimer"),
             titleColor: "#67C23A",
