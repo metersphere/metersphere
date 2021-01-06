@@ -31,7 +31,7 @@ public class MsDubboSampler extends MsTestElement {
     private String type = "DubboSampler";
 
     @JSONField(ordinal = 52)
-    private String protocol;
+    private String protocol = "DUBBO";
     @JsonProperty(value = "interface")
     @JSONField(ordinal = 53, name = "interface")
     private String _interface;

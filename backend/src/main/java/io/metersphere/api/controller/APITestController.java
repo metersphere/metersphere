@@ -14,7 +14,6 @@ import io.metersphere.api.service.*;
 import io.metersphere.base.domain.ApiTest;
 import io.metersphere.base.domain.Schedule;
 import io.metersphere.commons.constants.RoleConstants;
-import io.metersphere.commons.constants.ScheduleGroup;
 import io.metersphere.commons.utils.CronUtils;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
@@ -59,7 +58,7 @@ public class APITestController {
     @Resource
     private ScheduleService scheduleService;
     @Resource
-    private APIReportService apiReportService;
+    private HistoricalDataUpgradeService historicalDataUpgradeService;
 
     @GetMapping("recent/{count}")
     public List<APITestResult> recentTest(@PathVariable int count) {
@@ -358,5 +357,9 @@ public class APITestController {
         Schedule schedule = scheduleService.getSchedule(request.getTaskID());
         schedule.setEnable(request.isEnable());
         apiAutomationService.updateSchedule(schedule);
+    }
+    @PostMapping(value = "/historicalDataUpgrade")
+    public String historicalDataUpgrade(@RequestBody SaveHistoricalDataUpgrade request) {
+        return historicalDataUpgradeService.upgrade(request);
     }
 }
