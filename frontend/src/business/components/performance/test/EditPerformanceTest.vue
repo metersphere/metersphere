@@ -298,6 +298,9 @@ export default {
         tg.rampUpTime = tg.rampUpTime || 5;
         tg.step = tg.step || 5;
         tg.rpsLimit = tg.rpsLimit || 10;
+        tg.threadType = tg.threadType || 'DURATION';
+        tg.iterateNum = tg.iterateNum || 1;
+        tg.iterateRampUp = tg.iterateRampUp || 10;
         handler.calculateChart(tg);
       });
     }
