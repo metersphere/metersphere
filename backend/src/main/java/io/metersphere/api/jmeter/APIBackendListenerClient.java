@@ -325,7 +325,7 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
                 requestResult.addPassAssertions();
             }
             //xpath 提取错误会添加断言错误
-            if (!responseAssertionResult.getMessage().contains("The required item type of the first operand of")) {
+            if (StringUtils.isNotBlank(responseAssertionResult.getMessage()) && !responseAssertionResult.getMessage().contains("The required item type of the first operand of")) {
                 responseResult.getAssertions().add(responseAssertionResult);
             }
         }
