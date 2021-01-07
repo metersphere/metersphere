@@ -11,6 +11,8 @@ public class TestPlanLoadCase implements Serializable {
 
     private String loadCaseId;
 
+    private String loadReportId;
+
     private String status;
 
     private Long createTime;

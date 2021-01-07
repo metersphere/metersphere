@@ -25,6 +25,7 @@
                            @singleRun="singleRun"
                            @copyCase="copyCase"
                            @showExecResult="showExecResult"
+                           :environment="environment"
                            :is-case-edit="isCaseEdit"
                            :api="api"
                            :api-case="item" :index="index"/>

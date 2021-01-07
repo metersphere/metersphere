@@ -6,7 +6,9 @@ import io.metersphere.base.domain.LoadTest;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.track.dto.TestPlanLoadCaseDTO;
+import io.metersphere.track.request.testplan.LoadCaseReportRequest;
 import io.metersphere.track.request.testplan.LoadCaseRequest;
+import io.metersphere.track.request.testplan.RunTestPlanRequest;
 import io.metersphere.track.service.TestPlanLoadCaseService;
 import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
@@ -39,5 +41,15 @@ public class TestPlanLoadCaseController {
     @GetMapping("/delete/{id}")
     public void delete(@PathVariable String id) {
         testPlanLoadCaseService.delete(id);
+    }
+
+    @PostMapping("/run")
+    public String run(@RequestBody RunTestPlanRequest request) {
+        return testPlanLoadCaseService.run(request);
+    }
+
+    @PostMapping("/report/exist")
+    public Boolean isExistReport(@RequestBody LoadCaseReportRequest request) {
+        return testPlanLoadCaseService.isExistReport(request);
     }
 }

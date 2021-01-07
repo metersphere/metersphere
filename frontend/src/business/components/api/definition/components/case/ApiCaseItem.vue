@@ -57,15 +57,15 @@
         </div>
       </el-col>
 
-      <el-col :span="4">
-        <ms-tip-button @click="singleRun(apiCase)" :tip="$t('api_test.run')" icon="el-icon-video-play"
-                       style="background-color: #409EFF;color: white" size="mini" :disabled="!apiCase.id" circle v-tester/>
-        <ms-tip-button @click="copyCase(apiCase)" :tip="$t('commons.copy')" icon="el-icon-document-copy"
-                       size="mini" :disabled="!apiCase.id || isCaseEdit" circle v-tester/>
-        <ms-tip-button @click="deleteCase(index,apiCase)" :tip="$t('commons.delete')" icon="el-icon-delete"
-                       size="mini" :disabled="!apiCase.id || isCaseEdit" circle v-tester/>
-        <ms-api-extend-btns :is-case-edit="isCaseEdit" :row="apiCase" v-tester/>
-      </el-col>
+          <el-col :span="4">
+            <ms-tip-button @click="singleRun(apiCase)" :tip="$t('api_test.run')" icon="el-icon-video-play"
+                           style="background-color: #409EFF;color: white" size="mini" :disabled="!apiCase.id" circle v-tester/>
+            <ms-tip-button @click="copyCase(apiCase)" :tip="$t('commons.copy')" icon="el-icon-document-copy"
+                           size="mini" :disabled="!apiCase.id || isCaseEdit" circle v-tester/>
+            <ms-tip-button @click="deleteCase(index,apiCase)" :tip="$t('commons.delete')" icon="el-icon-delete"
+                           size="mini" :disabled="!apiCase.id || isCaseEdit" circle v-tester/>
+            <ms-api-extend-btns :is-case-edit="isCaseEdit" :environment="environment" :row="apiCase" v-tester/>
+          </el-col>
 
       <el-col :span="3">
         <el-link type="danger" v-if="apiCase.execResult && apiCase.execResult==='error'" @click="showExecResult(apiCase)">
@@ -130,7 +130,6 @@ export default {
     return {
       result: {},
       grades: [],
-      environment: {},
       isReadOnly: false,
       selectedEvent: Object,
       priorities: PRIORITY,
@@ -151,6 +150,7 @@ export default {
         return {}
       }
     },
+    environment: {},
     index: {
       type: Number,
       default() {

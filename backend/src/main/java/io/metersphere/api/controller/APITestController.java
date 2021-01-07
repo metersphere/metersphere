@@ -9,25 +9,37 @@ import io.metersphere.api.dto.datacount.request.ScheduleInfoRequest;
 import io.metersphere.api.dto.datacount.response.ApiDataCountDTO;
 import io.metersphere.api.dto.datacount.response.ExecutedCaseInfoDTO;
 import io.metersphere.api.dto.datacount.response.TaskInfoResult;
+import io.metersphere.api.dto.definition.RunDefinitionRequest;
+import io.metersphere.api.dto.definition.request.MsTestElement;
 import io.metersphere.api.dto.scenario.request.dubbo.RegistryCenter;
 import io.metersphere.api.service.*;
 import io.metersphere.base.domain.ApiTest;
+import io.metersphere.base.domain.LoadTest;
 import io.metersphere.base.domain.Schedule;
+import io.metersphere.commons.constants.PerformanceTestStatus;
 import io.metersphere.commons.constants.RoleConstants;
+import io.metersphere.commons.constants.ScheduleGroup;
 import io.metersphere.commons.utils.CronUtils;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.controller.request.QueryScheduleRequest;
 import io.metersphere.dto.ScheduleDao;
+import io.metersphere.performance.service.PerformanceTestService;
 import io.metersphere.service.CheckPermissionService;
+import io.metersphere.service.FileService;
 import io.metersphere.service.ScheduleService;
+import io.metersphere.track.request.testplan.SaveTestPlanRequest;
+import org.apache.http.entity.ContentType;
+import org.apache.jorphan.collections.HashTree;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -57,6 +69,12 @@ public class APITestController {
     private ApiScenarioReportService apiScenarioReportService;
     @Resource
     private ScheduleService scheduleService;
+    @Resource
+    private APIReportService apiReportService;
+    @Resource
+    private PerformanceTestService performanceTestService;
+    @Resource
+    private CheckPermissionService checkPermissionService;
     @Resource
     private HistoricalDataUpgradeService historicalDataUpgradeService;
 
@@ -108,6 +126,7 @@ public class APITestController {
     public void mergeCreate(@RequestPart("request") SaveAPITestRequest request, @RequestPart(value = "file") MultipartFile file, @RequestPart(value = "selectIds") List<String> selectIds) {
         apiTestService.mergeCreate(request, file, selectIds);
     }
+
     @PostMapping(value = "/update", consumes = {"multipart/form-data"})
     public void update(@RequestPart("request") SaveAPITestRequest request, @RequestPart(value = "file") MultipartFile file, @RequestPart(value = "files") List<MultipartFile> bodyFiles) {
         checkownerService.checkApiTestOwner(request.getId());
@@ -262,15 +281,15 @@ public class APITestController {
         List<ApiDataCountResult> countResultByRunResult = apiAutomationService.countRunResultByProjectID(projectId);
         apiCountResult.countRunResult(countResultByRunResult);
 
-        long allCount = apiCountResult.getUnexecuteCount()+apiCountResult.getExecutionPassCount()+apiCountResult.getExecutionFailedCount();
+        long allCount = apiCountResult.getUnexecuteCount() + apiCountResult.getExecutionPassCount() + apiCountResult.getExecutionFailedCount();
 
-        if(allCount!=0){
-            float coverageRageNumber =(float)apiCountResult.getExecutionPassCount()*100/allCount;
+        if (allCount != 0) {
+            float coverageRageNumber = (float) apiCountResult.getExecutionPassCount() * 100 / allCount;
             DecimalFormat df = new DecimalFormat("0.0");
-            apiCountResult.setPassRage(df.format(coverageRageNumber)+"%");
+            apiCountResult.setPassRage(df.format(coverageRageNumber) + "%");
         }
 
-        return  apiCountResult;
+        return apiCountResult;
 
     }
 
@@ -362,4 +381,15 @@ public class APITestController {
     public String historicalDataUpgrade(@RequestBody SaveHistoricalDataUpgrade request) {
         return historicalDataUpgradeService.upgrade(request);
     }
+
+    @PostMapping(value = "/genPerformanceTestXml", consumes = {"multipart/form-data"})
+    public JmxInfoDTO genPerformanceTest(@RequestPart("request") RunDefinitionRequest runRequest, @RequestPart(value = "files") List<MultipartFile> bodyFiles) {
+        HashTree hashTree = runRequest.getTestElement().generateHashTree();
+        String jmxString = runRequest.getTestElement().getJmx(hashTree);
+        JmxInfoDTO dto = new JmxInfoDTO();
+        dto.setName(runRequest.getName()+".jmx");
+        dto.setXml(jmxString);
+        return  dto;
+    }
+
 }

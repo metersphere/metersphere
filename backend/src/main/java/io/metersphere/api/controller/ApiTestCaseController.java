@@ -34,6 +34,19 @@ public class ApiTestCaseController {
         return apiTestCaseService.list(request);
     }
 
+    @GetMapping("/findById/{id}")
+    public ApiTestCaseResult single(@PathVariable String id ) {
+        ApiTestCaseRequest request = new ApiTestCaseRequest();
+        request.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
+        request.setId(id);
+        List<ApiTestCaseResult> list =  apiTestCaseService.list(request);
+        if(!list.isEmpty()){
+            return  list.get(0);
+        }else {
+            return  null;
+        }
+    }
+
     @PostMapping("/list/{goPage}/{pageSize}")
     public Pager<List<ApiTestCaseDTO>> listSimple(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody ApiTestCaseRequest request) {
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);

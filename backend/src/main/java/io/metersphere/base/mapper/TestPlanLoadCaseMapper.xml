@@ -5,6 +5,7 @@
     <id column="id" jdbcType="VARCHAR" property="id" />
     <result column="test_plan_id" jdbcType="VARCHAR" property="testPlanId" />
     <result column="load_case_id" jdbcType="VARCHAR" property="loadCaseId" />
+    <result column="load_report_id" jdbcType="VARCHAR" property="loadReportId" />
     <result column="status" jdbcType="VARCHAR" property="status" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
     <result column="update_time" jdbcType="BIGINT" property="updateTime" />
@@ -68,7 +69,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, test_plan_id, load_case_id, `status`, create_time, update_time
+    id, test_plan_id, load_case_id, load_report_id, `status`, create_time, update_time
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.base.domain.TestPlanLoadCaseExample" resultMap="BaseResultMap">
     select
@@ -102,11 +103,11 @@
   </delete>
   <insert id="insert" parameterType="io.metersphere.base.domain.TestPlanLoadCase">
     insert into test_plan_load_case (id, test_plan_id, load_case_id, 
-      `status`, create_time, update_time
-      )
+      load_report_id, `status`, create_time, 
+      update_time)
     values (#{id,jdbcType=VARCHAR}, #{testPlanId,jdbcType=VARCHAR}, #{loadCaseId,jdbcType=VARCHAR}, 
-      #{status,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}
-      )
+      #{loadReportId,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, 
+      #{updateTime,jdbcType=BIGINT})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.TestPlanLoadCase">
     insert into test_plan_load_case
@@ -119,6 +120,9 @@
       </if>
       <if test="loadCaseId != null">
         load_case_id,
+      </if>
+      <if test="loadReportId != null">
+        load_report_id,
       </if>
       <if test="status != null">
         `status`,
@@ -139,6 +143,9 @@
       </if>
       <if test="loadCaseId != null">
         #{loadCaseId,jdbcType=VARCHAR},
+      </if>
+      <if test="loadReportId != null">
+        #{loadReportId,jdbcType=VARCHAR},
       </if>
       <if test="status != null">
         #{status,jdbcType=VARCHAR},
@@ -169,6 +176,9 @@
       <if test="record.loadCaseId != null">
         load_case_id = #{record.loadCaseId,jdbcType=VARCHAR},
       </if>
+      <if test="record.loadReportId != null">
+        load_report_id = #{record.loadReportId,jdbcType=VARCHAR},
+      </if>
       <if test="record.status != null">
         `status` = #{record.status,jdbcType=VARCHAR},
       </if>
@@ -188,6 +198,7 @@
     set id = #{record.id,jdbcType=VARCHAR},
       test_plan_id = #{record.testPlanId,jdbcType=VARCHAR},
       load_case_id = #{record.loadCaseId,jdbcType=VARCHAR},
+      load_report_id = #{record.loadReportId,jdbcType=VARCHAR},
       `status` = #{record.status,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
       update_time = #{record.updateTime,jdbcType=BIGINT}
@@ -203,6 +214,9 @@
       </if>
       <if test="loadCaseId != null">
         load_case_id = #{loadCaseId,jdbcType=VARCHAR},
+      </if>
+      <if test="loadReportId != null">
+        load_report_id = #{loadReportId,jdbcType=VARCHAR},
       </if>
       <if test="status != null">
         `status` = #{status,jdbcType=VARCHAR},
@@ -220,6 +234,7 @@
     update test_plan_load_case
     set test_plan_id = #{testPlanId,jdbcType=VARCHAR},
       load_case_id = #{loadCaseId,jdbcType=VARCHAR},
+      load_report_id = #{loadReportId,jdbcType=VARCHAR},
       `status` = #{status,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
       update_time = #{updateTime,jdbcType=BIGINT}

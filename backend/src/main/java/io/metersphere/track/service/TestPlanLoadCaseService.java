@@ -1,13 +1,14 @@
 package io.metersphere.track.service;
 
-import io.metersphere.base.domain.LoadTest;
-import io.metersphere.base.domain.TestPlanLoadCase;
-import io.metersphere.base.domain.TestPlanLoadCaseExample;
+import io.metersphere.base.domain.*;
+import io.metersphere.base.mapper.LoadTestReportMapper;
 import io.metersphere.base.mapper.TestPlanLoadCaseMapper;
 import io.metersphere.base.mapper.ext.ExtTestPlanLoadCaseMapper;
 import io.metersphere.performance.service.PerformanceTestService;
 import io.metersphere.track.dto.TestPlanLoadCaseDTO;
+import io.metersphere.track.request.testplan.LoadCaseReportRequest;
 import io.metersphere.track.request.testplan.LoadCaseRequest;
+import io.metersphere.track.request.testplan.RunTestPlanRequest;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -32,6 +33,8 @@ public class TestPlanLoadCaseService {
     private PerformanceTestService performanceTestService;
     @Resource
     private SqlSessionFactory sqlSessionFactory;
+    @Resource
+    private LoadTestReportMapper loadTestReportMapper;
 
     public List<LoadTest> relevanceList(LoadCaseRequest request) {
         List<String> ids = extTestPlanLoadCaseMapper.selectIdsNotInPlan(request.getProjectId(), request.getTestPlanId());
@@ -67,5 +70,30 @@ public class TestPlanLoadCaseService {
         TestPlanLoadCaseExample testPlanLoadCaseExample = new TestPlanLoadCaseExample();
         testPlanLoadCaseExample.createCriteria().andIdEqualTo(id);
         testPlanLoadCaseMapper.deleteByExample(testPlanLoadCaseExample);
+    }
+
+    public String run(RunTestPlanRequest request) {
+        String reportId = performanceTestService.run(request);
+        TestPlanLoadCase testPlanLoadCase = new TestPlanLoadCase();
+        testPlanLoadCase.setId(request.getTestPlanLoadId());
+        testPlanLoadCase.setLoadReportId(reportId);
+        testPlanLoadCaseMapper.updateByPrimaryKeySelective(testPlanLoadCase);
+        return reportId;
+    }
+
+    public Boolean isExistReport(LoadCaseReportRequest request) {
+        String reportId = request.getReportId();
+        String testPlanLoadCaseId = request.getTestPlanLoadCaseId();
+        LoadTestReportExample example = new LoadTestReportExample();
+        example.createCriteria().andIdEqualTo(reportId);
+        List<LoadTestReport> loadTestReports = loadTestReportMapper.selectByExample(example);
+        if (CollectionUtils.isEmpty(loadTestReports)) {
+            TestPlanLoadCase testPlanLoadCase = new TestPlanLoadCase();
+            testPlanLoadCase.setId(testPlanLoadCaseId);
+            testPlanLoadCase.setLoadReportId("");
+            testPlanLoadCaseMapper.updateByPrimaryKeySelective(testPlanLoadCase);
+            return false;
+        }
+        return true;
     }
 }
