@@ -111,6 +111,15 @@
           </template>
         </el-table-column>
 
+        <el-table-column prop="tags" :label="$t('commons.tag')">
+          <template v-slot:default="scope">
+            <ms-tag v-for="(tag, index) in scope.row.showTags"
+                    :key="tag + '_' + index"
+                    :effect="'light'"
+                    :content="tag"/>
+          </template>
+        </el-table-column>
+
         <el-table-column
           prop="nodePath"
           :label="$t('test_track.case.module')"
@@ -175,6 +184,7 @@ import StatusTableItem from "@/business/components/track/common/tableItems/planv
 import TestCaseDetail from "./TestCaseDetail";
 import ReviewStatus from "@/business/components/track/case/components/ReviewStatus";
 import {getCurrentProjectID} from "../../../../../common/js/utils";
+import MsTag from "@/business/components/common/components/MsTag";
 
 export default {
   name: "TestCaseList",
@@ -195,7 +205,8 @@ export default {
     BatchEdit,
     StatusTableItem,
     TestCaseDetail,
-    ReviewStatus
+    ReviewStatus,
+    MsTag,
   },
   data() {
     return {
@@ -308,6 +319,9 @@ export default {
           this.tableData = data.listObject;
           // this.selectIds.clear();
           this.selectRows.clear();
+          this.tableData.forEach(row => {
+            row.showTags = JSON.parse(row.tags);
+          })
         });
       }
     },
@@ -537,4 +551,7 @@ export default {
   cursor: pointer;
 }
 
+.el-tag {
+  margin-left: 10px;
+}
 </style>
