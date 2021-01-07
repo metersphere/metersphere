@@ -5,6 +5,7 @@ import com.github.pagehelper.PageHelper;
 import io.metersphere.base.domain.LoadTest;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
+import io.metersphere.track.dto.TestPlanLoadCaseDTO;
 import io.metersphere.track.request.testplan.LoadCaseRequest;
 import io.metersphere.track.service.TestPlanLoadCaseService;
 import org.springframework.web.bind.annotation.*;
@@ -30,7 +31,7 @@ public class TestPlanLoadCaseController {
     }
 
     @PostMapping("/list/{goPage}/{pageSize}")
-    public Pager<List<LoadTest>> list(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody LoadCaseRequest request) {
+    public Pager<List<TestPlanLoadCaseDTO>> list(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody LoadCaseRequest request) {
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, testPlanLoadCaseService.list(request));
     }

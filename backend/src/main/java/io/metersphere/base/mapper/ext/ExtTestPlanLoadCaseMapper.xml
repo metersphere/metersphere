@@ -10,4 +10,12 @@
             select tplc.load_case_id from test_plan_load_case tplc where tplc.test_plan_id = #{planId}
         )
     </select>
+    <select id="selectTestPlanLoadCaseList" resultType="io.metersphere.track.dto.TestPlanLoadCaseDTO">
+        select tplc.id, u.name as userName, tplc.create_time, tplc.update_time, tplc.test_plan_id, tplc.load_case_id,
+               lt.status, lt.name as caseName
+        from test_plan_load_case tplc
+                 inner join load_test lt on tplc.load_case_id = lt.id
+                 inner join user u on lt.user_id = u.id
+        where tplc.test_plan_id = #{planId}
+    </select>
 </mapper>

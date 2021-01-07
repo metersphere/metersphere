@@ -26,7 +26,7 @@
 
 <!--        <el-table-column prop="num" label="ID" show-overflow-tooltip/>-->
         <el-table-column
-          prop="name"
+          prop="caseName"
           :label="$t('commons.name')"
           show-overflow-tooltip>
         </el-table-column>
@@ -190,12 +190,11 @@ export default {
 
     },
     handleDelete(loadCase) {
-      console.log(loadCase)
-      // this.$get('/test/plan/load/case/delete/' + loadCase.id, () => {
-      //   this.$success(this.$t('test_track.cancel_relevance_success'));
-      //   this.$emit('refresh');
-      //   this.initTable();
-      // });
+      this.$get('/test/plan/load/case/delete/' + loadCase.id, () => {
+        this.$success(this.$t('test_track.cancel_relevance_success'));
+        this.$emit('refresh');
+        this.initTable();
+      });
     },
     sort(column) {
       // 每次只对一个字段排序
