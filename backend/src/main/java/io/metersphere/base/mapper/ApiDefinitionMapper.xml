@@ -17,6 +17,7 @@
     <result column="protocol" jdbcType="VARCHAR" property="protocol" />
     <result column="path" jdbcType="VARCHAR" property="path" />
     <result column="num" jdbcType="INTEGER" property="num" />
+    <result column="tags" jdbcType="VARCHAR" property="tags" />
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.ApiDefinitionWithBLOBs">
     <result column="description" jdbcType="LONGVARCHAR" property="description" />
@@ -83,7 +84,7 @@
   </sql>
   <sql id="Base_Column_List">
     id, project_id, `name`, `method`, module_path, environment_id, schedule, `status`, 
-    module_id, user_id, create_time, update_time, protocol, `path`, num
+    module_id, user_id, create_time, update_time, protocol, `path`, num, tags
   </sql>
   <sql id="Blob_Column_List">
     description, request, response
@@ -142,15 +143,15 @@
       schedule, `status`, module_id, 
       user_id, create_time, update_time, 
       protocol, `path`, num, 
-      description, request, response
-      )
+      tags, description, request, 
+      response)
     values (#{id,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, 
       #{method,jdbcType=VARCHAR}, #{modulePath,jdbcType=VARCHAR}, #{environmentId,jdbcType=VARCHAR}, 
       #{schedule,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, #{moduleId,jdbcType=VARCHAR}, 
       #{userId,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, 
       #{protocol,jdbcType=VARCHAR}, #{path,jdbcType=VARCHAR}, #{num,jdbcType=INTEGER}, 
-      #{description,jdbcType=LONGVARCHAR}, #{request,jdbcType=LONGVARCHAR}, #{response,jdbcType=LONGVARCHAR}
-      )
+      #{tags,jdbcType=VARCHAR}, #{description,jdbcType=LONGVARCHAR}, #{request,jdbcType=LONGVARCHAR}, 
+      #{response,jdbcType=LONGVARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.ApiDefinitionWithBLOBs">
     insert into api_definition
@@ -199,6 +200,9 @@
       </if>
       <if test="num != null">
         num,
+      </if>
+      <if test="tags != null">
+        tags,
       </if>
       <if test="description != null">
         description,
@@ -255,6 +259,9 @@
       </if>
       <if test="num != null">
         #{num,jdbcType=INTEGER},
+      </if>
+      <if test="tags != null">
+        #{tags,jdbcType=VARCHAR},
       </if>
       <if test="description != null">
         #{description,jdbcType=LONGVARCHAR},
@@ -321,6 +328,9 @@
       <if test="record.num != null">
         num = #{record.num,jdbcType=INTEGER},
       </if>
+      <if test="record.tags != null">
+        tags = #{record.tags,jdbcType=VARCHAR},
+      </if>
       <if test="record.description != null">
         description = #{record.description,jdbcType=LONGVARCHAR},
       </if>
@@ -352,6 +362,7 @@
       protocol = #{record.protocol,jdbcType=VARCHAR},
       `path` = #{record.path,jdbcType=VARCHAR},
       num = #{record.num,jdbcType=INTEGER},
+      tags = #{record.tags,jdbcType=VARCHAR},
       description = #{record.description,jdbcType=LONGVARCHAR},
       request = #{record.request,jdbcType=LONGVARCHAR},
       response = #{record.response,jdbcType=LONGVARCHAR}
@@ -375,7 +386,8 @@
       update_time = #{record.updateTime,jdbcType=BIGINT},
       protocol = #{record.protocol,jdbcType=VARCHAR},
       `path` = #{record.path,jdbcType=VARCHAR},
-      num = #{record.num,jdbcType=INTEGER}
+      num = #{record.num,jdbcType=INTEGER},
+      tags = #{record.tags,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -425,6 +437,9 @@
       <if test="num != null">
         num = #{num,jdbcType=INTEGER},
       </if>
+      <if test="tags != null">
+        tags = #{tags,jdbcType=VARCHAR},
+      </if>
       <if test="description != null">
         description = #{description,jdbcType=LONGVARCHAR},
       </if>
@@ -453,6 +468,7 @@
       protocol = #{protocol,jdbcType=VARCHAR},
       `path` = #{path,jdbcType=VARCHAR},
       num = #{num,jdbcType=INTEGER},
+      tags = #{tags,jdbcType=VARCHAR},
       description = #{description,jdbcType=LONGVARCHAR},
       request = #{request,jdbcType=LONGVARCHAR},
       response = #{response,jdbcType=LONGVARCHAR}
@@ -473,7 +489,8 @@
       update_time = #{updateTime,jdbcType=BIGINT},
       protocol = #{protocol,jdbcType=VARCHAR},
       `path` = #{path,jdbcType=VARCHAR},
-      num = #{num,jdbcType=INTEGER}
+      num = #{num,jdbcType=INTEGER},
+      tags = #{tags,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

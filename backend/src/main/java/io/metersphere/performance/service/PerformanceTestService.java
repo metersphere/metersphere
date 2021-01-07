@@ -127,9 +127,7 @@ public class PerformanceTestService {
         if (files == null) {
             throw new IllegalArgumentException(Translator.get("file_cannot_be_null"));
         }
-
         checkQuota(request, true);
-
         final LoadTestWithBLOBs loadTest = saveLoadTest(request);
         files.forEach(file -> {
             final FileMetadata fileMetadata = fileService.saveFile(file);
@@ -480,5 +478,15 @@ public class PerformanceTestService {
         if (quotaService != null) {
             quotaService.checkLoadTestQuota(request, create);
         }
+    }
+    
+    public List<LoadTest> getLoadTestListByIds(List<String> ids) {
+        if (CollectionUtils.isEmpty(ids)) { 
+            return new ArrayList<>();
+        }
+        LoadTestExample loadTestExample = new LoadTestExample();
+        loadTestExample.createCriteria().andIdIn(ids);
+        List<LoadTest> loadTests = loadTestMapper.selectByExample(loadTestExample);
+        return Optional.ofNullable(loadTests).orElse(new ArrayList<>());
     }
 }

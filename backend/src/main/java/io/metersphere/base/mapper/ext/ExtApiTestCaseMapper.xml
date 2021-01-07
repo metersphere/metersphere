@@ -162,6 +162,7 @@
             atc.update_user_id,
             atc.update_time,
             atc.num,
+            atc.tags,
             ader.status execResult,
             ader.create_time execTime
         from

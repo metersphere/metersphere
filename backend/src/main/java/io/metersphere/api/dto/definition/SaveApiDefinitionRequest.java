@@ -6,6 +6,7 @@ import io.metersphere.base.domain.Schedule;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Setter
@@ -47,4 +48,6 @@ public class SaveApiDefinitionRequest {
     private String triggerMode;
 
     private List<String> bodyUploadIds;
+
+    private List<String> tags = new ArrayList<>();
 }

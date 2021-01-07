@@ -247,6 +247,7 @@
       },
       environmentChange(value) {
         this.request.dataSource = undefined;
+        this.request.dataSourceId = "";
         for (let i in this.environments) {
           if (this.environments[i].id === value) {
             this.databaseConfigsOptions = [];

@@ -2,6 +2,9 @@ package io.metersphere.api.service;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.metersphere.api.dto.APIReportResult;
 import io.metersphere.api.dto.ApiTestImportRequest;
 import io.metersphere.api.dto.automation.ApiScenarioRequest;
@@ -9,6 +12,8 @@ import io.metersphere.api.dto.automation.ReferenceDTO;
 import io.metersphere.api.dto.datacount.ApiDataCountResult;
 import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.dto.definition.parse.ApiDefinitionImport;
+import io.metersphere.api.dto.definition.request.*;
+import io.metersphere.api.dto.scenario.KeyValue;
 import io.metersphere.api.dto.scenario.request.RequestType;
 import io.metersphere.api.jmeter.JMeterService;
 import io.metersphere.api.jmeter.TestResult;
@@ -24,6 +29,7 @@ import io.metersphere.base.mapper.ext.ExtApiScenarioMapper;
 import io.metersphere.base.mapper.ext.ExtTestPlanMapper;
 import io.metersphere.commons.constants.APITestStatus;
 import io.metersphere.commons.constants.ApiRunMode;
+import io.metersphere.commons.constants.ReportTriggerMode;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
 import io.metersphere.i18n.Translator;
@@ -36,6 +42,7 @@ import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.jorphan.collections.HashTree;
+import org.apache.jorphan.collections.ListedHashTree;
 import org.aspectj.util.FileUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -82,10 +89,10 @@ public class ApiDefinitionService {
         request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
 
         //判断是否查询本周数据
-        if(request.isSelectThisWeedData()){
+        if (request.isSelectThisWeedData()) {
             Map<String, Date> weekFirstTimeAndLastTime = DateUtils.getWeedFirstTimeAndLastTime(new Date());
             Date weekFirstTime = weekFirstTimeAndLastTime.get("firstTime");
-            if(weekFirstTime!=null){
+            if (weekFirstTime != null) {
                 request.setCreateTime(weekFirstTime.getTime());
             }
         }
@@ -228,6 +235,7 @@ public class ApiDefinitionService {
         test.setResponse(JSONObject.toJSONString(request.getResponse()));
         test.setEnvironmentId(request.getEnvironmentId());
         test.setUserId(request.getUserId());
+        test.setTags(JSON.toJSONString(new HashSet<>(request.getTags())));
 
         apiDefinitionMapper.updateByPrimaryKeySelective(test);
         return test;
@@ -258,6 +266,7 @@ public class ApiDefinitionService {
             test.setUserId(request.getUserId());
         }
         test.setDescription(request.getDescription());
+        test.setTags(JSON.toJSONString(new HashSet<>(request.getTags())));
         apiDefinitionMapper.insert(test);
         return test;
     }
@@ -328,6 +337,55 @@ public class ApiDefinitionService {
         }
         // 调用执行方法
         jMeterService.runDefinition(request.getId(), hashTree, request.getReportId(), runMode);
+        return request.getId();
+    }
+
+    /**
+     * 内部构建HashTree 定时任务发起的执行
+     * @param request
+     * @return
+     */
+    public String run(RunDefinitionRequest request,ApiTestCaseWithBLOBs item) {
+        MsTestPlan testPlan = new MsTestPlan();
+        testPlan.setHashTree(new LinkedList<>());
+        HashTree jmeterHashTree = new ListedHashTree();
+        try {
+            MsThreadGroup group = new MsThreadGroup();
+            group.setLabel(item.getName());
+            group.setName(UUID.randomUUID().toString());
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+
+            JSONObject element = JSON.parseObject(item.getRequest());
+            MsScenario scenario = JSONObject.parseObject(item.getRequest(), MsScenario.class);
+
+            // 多态JSON普通转换会丢失内容，需要通过 ObjectMapper 获取
+            if (element != null && StringUtils.isNotEmpty(element.getString("hashTree"))) {
+                LinkedList<MsTestElement> elements = mapper.readValue(element.getString("hashTree"),
+                        new TypeReference<LinkedList<MsTestElement>>() {});
+                scenario.setHashTree(elements);
+            }
+            if (StringUtils.isNotEmpty(element.getString("variables"))) {
+                LinkedList<KeyValue> variables = mapper.readValue(element.getString("variables"),
+                        new TypeReference<LinkedList<KeyValue>>() {});
+                scenario.setVariables(variables);
+            }
+            group.setEnableCookieShare(scenario.isEnableCookieShare());
+            LinkedList<MsTestElement> scenarios = new LinkedList<>();
+            scenarios.add(scenario);
+            group.setHashTree(scenarios);
+            testPlan.getHashTree().add(group);
+        } catch (Exception ex) {
+            MSException.throwException(ex.getMessage());
+        }
+
+        testPlan.toHashTree(jmeterHashTree, testPlan.getHashTree(), new ParameterConfig());
+        String runMode = ApiRunMode.DELIMIT.name();
+        if (StringUtils.isNotBlank(request.getType()) && StringUtils.equals(request.getType(), ApiRunMode.API_PLAN.name())) {
+            runMode = ApiRunMode.API_PLAN.name();
+        }
+        // 调用执行方法
+        jMeterService.runDefinition(request.getId(), jmeterHashTree, request.getReportId(), runMode);
         return request.getId();
     }
 

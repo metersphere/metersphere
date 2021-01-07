@@ -4,7 +4,7 @@
     <ms-table-operator-button :isTesterPermission="isTesterPermission" :tip="tip1" icon="el-icon-edit" @exec="editClick" @click.stop="editClickStop"/>
     <slot name="middle"></slot>
     <ms-table-operator-button :isTesterPermission="isTesterPermission" :tip="tip2" icon="el-icon-delete" type="danger" @exec="deleteClick" @click.stop="deleteClickStop"/>
-    <slot name="behind"></slot>
+    <slot name="beheind"></slot>
   </span>
 
 </template>

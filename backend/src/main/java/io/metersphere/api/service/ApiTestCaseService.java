@@ -222,6 +222,7 @@ public class ApiTestCaseService {
         test.setPriority(request.getPriority());
         test.setUpdateTime(System.currentTimeMillis());
         test.setDescription(request.getDescription());
+        test.setTags(JSON.toJSONString(new HashSet<>(request.getTags())));
         apiTestCaseMapper.updateByPrimaryKeySelective(test);
         return test;
     }
@@ -243,6 +244,7 @@ public class ApiTestCaseService {
         test.setUpdateTime(System.currentTimeMillis());
         test.setDescription(request.getDescription());
         test.setNum(getNextNum(request.getApiDefinitionId()));
+        test.setTags(JSON.toJSONString(new HashSet<>(request.getTags())));
         apiTestCaseMapper.insert(test);
         return test;
     }

@@ -174,7 +174,8 @@ export default {
       case: "全部用例",
       review: "全部評審"
     },
-    image: '鏡像'
+    image: '鏡像',
+    tag: '標簽'
   },
   license: {
     title: '授權管理',
