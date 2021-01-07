@@ -40,7 +40,7 @@
                            size="mini" :disabled="!apiCase.id || isCaseEdit" circle v-tester/>
             <ms-tip-button @click="deleteCase(index,apiCase)" :tip="$t('commons.delete')" icon="el-icon-delete"
                            size="mini" :disabled="!apiCase.id || isCaseEdit" circle v-tester/>
-            <ms-api-extend-btns :is-case-edit="isCaseEdit" :row="apiCase" v-tester/>
+            <ms-api-extend-btns :is-case-edit="isCaseEdit" :environment="environment" :row="apiCase" v-tester/>
           </el-col>
 
           <el-col :span="3">
@@ -102,7 +102,6 @@
         return {
           result: {},
           grades: [],
-          environment: {},
           isReadOnly: false,
           selectedEvent: Object,
           priorities: PRIORITY,
@@ -121,6 +120,7 @@
             return {}
           }
         },
+        environment: {},
         index: {
           type: Number,
           default() {

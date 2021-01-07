@@ -127,9 +127,7 @@ public class PerformanceTestService {
         if (files == null) {
             throw new IllegalArgumentException(Translator.get("file_cannot_be_null"));
         }
-
         checkQuota(request, true);
-
         final LoadTestWithBLOBs loadTest = saveLoadTest(request);
         files.forEach(file -> {
             final FileMetadata fileMetadata = fileService.saveFile(file);

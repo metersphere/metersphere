@@ -85,6 +85,10 @@
     <api-case-list @showExecResult="showExecResult" @refresh="initTable" :currentApi="selectCase" ref="caseList"/>
     <!--批量编辑-->
     <ms-batch-edit ref="batchEdit" @batchEdit="batchEdit" :typeArr="typeArr" :value-arr="valueArr"/>
+    <!--选择环境(当创建性能测试的时候)-->
+    <ms-set-environment ref="setEnvironment" :testCase="clickRow" @createPerformance="createPerformance"/>
+    <!--查看引用-->
+    <ms-reference-view ref="viewRef"/>
   </div>
 
 </template>
@@ -101,17 +105,26 @@
   import MsBottomContainer from "../BottomContainer";
   import ShowMoreBtn from "../../../../track/case/components/ShowMoreBtn";
   import MsBatchEdit from "../basis/BatchEdit";
-  import {API_METHOD_COLOUR, CASE_PRIORITY, REQ_METHOD} from "../../model/JsonData";
+  import {API_METHOD_COLOUR, CASE_PRIORITY} from "../../model/JsonData";
   import {getCurrentProjectID} from "@/common/js/utils";
   import ApiListContainer from "./ApiListContainer";
   import PriorityTableItem from "../../../../track/common/tableItems/planview/PriorityTableItem";
   import ApiCaseList from "../case/ApiCaseList";
   import {_filter, _sort} from "../../../../../../common/js/utils";
+  import TestPlanCaseListHeader from "../../../../track/plan/view/comonents/api/TestPlanCaseListHeader";
+  import MsEnvironmentSelect from "../case/MsEnvironmentSelect";
   import {_handleSelect, _handleSelectAll} from "../../../../../../common/js/tableUtils";
+  import MsApiCaseTableExtendBtns from "../reference/ApiCaseTableExtendBtns";
+  import MsReferenceView from "../reference/ReferenceView";
+  import MsSetEnvironment from "@/business/components/api/definition/components/basis/SetEnvironment";
+  import TestPlan from "@/business/components/api/definition/components/jmeter/components/test-plan";
+  import ThreadGroup from "@/business/components/api/definition/components/jmeter/components/thread-group";
+  import {parseEnvironment} from "@/business/components/api/test/model/EnvironmentModel";
 
   export default {
     name: "ApiCaseSimpleList",
     components: {
+      MsSetEnvironment,
       ApiCaseList,
       PriorityTableItem,
       ApiListContainer,
@@ -123,7 +136,9 @@
       MsContainer,
       MsBottomContainer,
       ShowMoreBtn,
-      MsBatchEdit
+      MsBatchEdit,
+      MsApiCaseTableExtendBtns,
+      MsReferenceView,
     },
     data() {
       return {
@@ -134,6 +149,7 @@
         selectDataRange: "all",
         deletePath: "/test/case/delete",
         selectRows: new Set(),
+        clickRow: {},
         buttons: [
           {name: this.$t('api_test.definition.request.batch_delete'), handleClick: this.handleDeleteBatch},
           {name: this.$t('api_test.definition.request.batch_edit'), handleClick: this.handleEditBatch}
@@ -163,6 +179,7 @@
         selectAll: false,
         unSelection: [],
         selectDataCounts: 0,
+        environments: [],
       }
     },
     props: {
@@ -442,9 +459,87 @@
         let rowArray = Array.from(rowSets)
         let ids = rowArray.map(s => s.id);
         return ids;
-      }
+      },
+      showCaseRef(row) {
+        this.$refs.viewRef.open(row);
+      },
+      showEnvironment(row) {
+
+        let projectID = getCurrentProjectID();
+        if (this.projectId) {
+          this.$get('/api/environment/list/' + this.projectId, response => {
+            this.environments = response.data;
+            this.environments.forEach(environment => {
+              parseEnvironment(environment);
+            });
+          });
+        } else {
+          this.environment = undefined;
+        }
+        this.clickRow = row;
+        this.$refs.setEnvironment.open(row);
+      },
     },
-  }
+    createPerformance(row,environment){
+      /**
+       * 思路：调用后台创建性能测试的方法，把当前案例的hashTree在后台转化为jmx并文件创建性能测试。
+       * 然后跳转到修改性能测试的页面
+       *
+       * 性能测试保存地址： performance/save
+       *
+       */
+      if (!environment) {
+        this.$warning(this.$t('api_test.environment.select_environment'));
+        return;
+      }
+      let runData = [];
+      let singleLoading = true;
+      row.request = JSON.parse( row.request );
+      row.request.name = row.id;
+      row.request.useEnvironment = environment.id;
+      runData.push(row.request);
+      /*触发执行操作*/
+      let testPlan = new TestPlan();
+      let threadGroup = new ThreadGroup();
+      threadGroup.hashTree = [];
+      testPlan.hashTree = [threadGroup];
+      runData.forEach(item => {
+        threadGroup.hashTree.push(item);
+      })
+      let reqObj = {id: row.id,
+        testElement: testPlan,
+        name:row.name,
+        projectId:getCurrentProjectID(),
+      };
+      let bodyFiles = getBodyUploadFiles(reqObj, runData);
+      reqObj.reportId = "run";
+
+      let url = "/api/genPerformanceTestXml";
+
+      this.$fileUpload(url, null, bodyFiles, reqObj, response => {
+        let jmxObj = {};
+        jmxObj.name = response.data.name;
+        jmxObj.xml = response.data.xml;
+        this.$store.commit('setTest', {
+          name: row.name,
+          jmx: jmxObj
+        })
+        this.$router.push({
+          path: "/performance/test/create"
+        })
+        // let performanceId = response.data;
+        // if(performanceId!=null){
+        //   this.$router.push({
+        //     path: "/performance/test/edit/"+performanceId,
+        //   })
+        // }
+      }, erro => {
+        this.$emit('runRefresh', {});
+      });
+
+    },
+  },
+}
 </script>
 
 <style scoped>
