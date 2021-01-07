@@ -387,7 +387,7 @@ public class APITestController {
         HashTree hashTree = runRequest.getTestElement().generateHashTree();
         String jmxString = runRequest.getTestElement().getJmx(hashTree);
         JmxInfoDTO dto = new JmxInfoDTO();
-        dto.setName(runRequest.getName()+".JMX");
+        dto.setName(runRequest.getName()+".jmx");
         dto.setXml(jmxString);
         return  dto;
     }

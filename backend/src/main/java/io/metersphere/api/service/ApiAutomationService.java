@@ -610,7 +610,7 @@ public class ApiAutomationService {
 
         testPlan.toHashTree(jmeterHashTree, testPlan.getHashTree(), new ParameterConfig());
         String jmx = testPlan.getJmx(jmeterHashTree);
-        String name = request.getName() + ".JMX";
+        String name = request.getName() + ".jmx";
 
         JmxInfoDTO dto = new JmxInfoDTO();
         dto.setName(name);
