@@ -52,7 +52,32 @@
       </el-row>
 
       <el-row>
-        <el-col>
+        <el-col :span="8">
+          <el-form-item :label="$t('commons.tag')" prop="tag">
+            <el-tag
+              :key="tag"
+              v-for="tag in basicForm.tags"
+              closable
+              size="mini"
+              :disable-transitions="false"
+              @close="handleClose(tag)">
+              {{ tag }}
+            </el-tag>
+            <el-input
+              class="input-new-tag"
+              v-if="inputVisible"
+              v-model="inputValue"
+              ref="saveTagInput"
+              size="mini"
+              @keyup.enter.native="handleInputConfirm"
+              @blur="handleInputConfirm"
+            >
+            </el-input>
+            <el-button v-else class="button-new-tag" size="mini" @click="showInput">+</el-button>
+
+          </el-form-item>
+        </el-col>
+        <el-col :span="16">
           <el-form-item :label="$t('commons.description')" prop="description">
             <el-input class="ms-http-textarea"
                       v-model="basicForm.description"
@@ -67,10 +92,10 @@
 </template>
 
 <script>
-  import {API_STATUS} from "../../model/JsonData";
-  import {WORKSPACE_ID} from '../../../../../../common/js/constants';
+import {API_STATUS} from "../../model/JsonData";
+import {WORKSPACE_ID} from '../../../../../../common/js/constants';
 
-  export default {
+export default {
     name: "MsBasisApi",
     components: {},
     props: {
@@ -83,6 +108,11 @@
     },
     created() {
       this.getMaintainerOptions();
+      if (!this.basisData.tags) {
+        this.basisData.tags = [];
+      } else {
+        this.basisData.tags = JSON.parse(this.basisData.tags);
+      }
       this.basicForm = this.basisData;
     },
     data() {
@@ -103,7 +133,8 @@
         },
         value: API_STATUS[0].id,
         options: API_STATUS,
-
+        inputVisible: false,
+        inputValue: ''
       }
     },
     methods: {
@@ -129,9 +160,45 @@
       createModules(){
         this.$emit("createRootModelInTree");
       },
+      handleClose(tag) {
+        this.basicForm.tags.splice(this.basicForm.tags.indexOf(tag), 1);
+      },
+
+      showInput() {
+        this.inputVisible = true;
+        this.$nextTick(_ => {
+          this.$refs.saveTagInput.$refs.input.focus();
+        });
+      },
+
+      handleInputConfirm() {
+        let inputValue = this.inputValue;
+        if (inputValue) {
+          this.basicForm.tags.push(inputValue);
+        }
+        this.inputVisible = false;
+        this.inputValue = '';
+      }
     }
   }
 </script>
 
 <style scoped>
+.el-tag + .el-tag {
+  margin-left: 10px;
+}
+
+.button-new-tag {
+  margin-left: 10px;
+  height: 20px;
+  /*line-height: 30px;*/
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+.input-new-tag {
+  width: 90px;
+  margin-left: 10px;
+  vertical-align: bottom;
+}
 </style>

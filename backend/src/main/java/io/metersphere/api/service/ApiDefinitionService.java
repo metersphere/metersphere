@@ -82,10 +82,10 @@ public class ApiDefinitionService {
         request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
 
         //判断是否查询本周数据
-        if(request.isSelectThisWeedData()){
+        if (request.isSelectThisWeedData()) {
             Map<String, Date> weekFirstTimeAndLastTime = DateUtils.getWeedFirstTimeAndLastTime(new Date());
             Date weekFirstTime = weekFirstTimeAndLastTime.get("firstTime");
-            if(weekFirstTime!=null){
+            if (weekFirstTime != null) {
                 request.setCreateTime(weekFirstTime.getTime());
             }
         }
@@ -228,6 +228,7 @@ public class ApiDefinitionService {
         test.setResponse(JSONObject.toJSONString(request.getResponse()));
         test.setEnvironmentId(request.getEnvironmentId());
         test.setUserId(request.getUserId());
+        test.setTags(JSON.toJSONString(new HashSet<>(request.getTags())));
 
         apiDefinitionMapper.updateByPrimaryKeySelective(test);
         return test;
@@ -258,6 +259,7 @@ public class ApiDefinitionService {
             test.setUserId(request.getUserId());
         }
         test.setDescription(request.getDescription());
+        test.setTags(JSON.toJSONString(new HashSet<>(request.getTags())));
         apiDefinitionMapper.insert(test);
         return test;
     }
