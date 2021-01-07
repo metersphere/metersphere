@@ -174,7 +174,8 @@ export default {
       case: "all",
       review: "all"
     },
-    image: 'Image'
+    image: 'Image',
+    tag: 'Tag'
   },
   license: {
     title: 'Authorization management',

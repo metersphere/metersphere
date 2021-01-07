@@ -19,6 +19,7 @@
     <result column="num" jdbcType="INTEGER" property="num" />
     <result column="other_test_name" jdbcType="VARCHAR" property="otherTestName" />
     <result column="review_status" jdbcType="VARCHAR" property="reviewStatus" />
+    <result column="tags" jdbcType="VARCHAR" property="tags" />
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.TestCaseWithBLOBs">
     <result column="remark" jdbcType="LONGVARCHAR" property="remark" />
@@ -84,7 +85,8 @@
   </sql>
   <sql id="Base_Column_List">
     id, node_id, node_path, project_id, `name`, `type`, maintainer, priority, `method`, 
-    prerequisite, create_time, update_time, test_id, sort, num, other_test_name, review_status
+    prerequisite, create_time, update_time, test_id, sort, num, other_test_name, review_status, 
+    tags
   </sql>
   <sql id="Blob_Column_List">
     remark, steps
@@ -143,15 +145,15 @@
       maintainer, priority, `method`, 
       prerequisite, create_time, update_time, 
       test_id, sort, num, 
-      other_test_name, review_status, remark, 
-      steps)
+      other_test_name, review_status, tags, 
+      remark, steps)
     values (#{id,jdbcType=VARCHAR}, #{nodeId,jdbcType=VARCHAR}, #{nodePath,jdbcType=VARCHAR}, 
       #{projectId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR}, 
       #{maintainer,jdbcType=VARCHAR}, #{priority,jdbcType=VARCHAR}, #{method,jdbcType=VARCHAR}, 
       #{prerequisite,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, 
       #{testId,jdbcType=VARCHAR}, #{sort,jdbcType=INTEGER}, #{num,jdbcType=INTEGER}, 
-      #{otherTestName,jdbcType=VARCHAR}, #{reviewStatus,jdbcType=VARCHAR}, #{remark,jdbcType=LONGVARCHAR}, 
-      #{steps,jdbcType=LONGVARCHAR})
+      #{otherTestName,jdbcType=VARCHAR}, #{reviewStatus,jdbcType=VARCHAR}, #{tags,jdbcType=VARCHAR}, 
+      #{remark,jdbcType=LONGVARCHAR}, #{steps,jdbcType=LONGVARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.TestCaseWithBLOBs">
     insert into test_case
@@ -206,6 +208,9 @@
       </if>
       <if test="reviewStatus != null">
         review_status,
+      </if>
+      <if test="tags != null">
+        tags,
       </if>
       <if test="remark != null">
         remark,
@@ -265,6 +270,9 @@
       </if>
       <if test="reviewStatus != null">
         #{reviewStatus,jdbcType=VARCHAR},
+      </if>
+      <if test="tags != null">
+        #{tags,jdbcType=VARCHAR},
       </if>
       <if test="remark != null">
         #{remark,jdbcType=LONGVARCHAR},
@@ -334,6 +342,9 @@
       <if test="record.reviewStatus != null">
         review_status = #{record.reviewStatus,jdbcType=VARCHAR},
       </if>
+      <if test="record.tags != null">
+        tags = #{record.tags,jdbcType=VARCHAR},
+      </if>
       <if test="record.remark != null">
         remark = #{record.remark,jdbcType=LONGVARCHAR},
       </if>
@@ -364,6 +375,7 @@
       num = #{record.num,jdbcType=INTEGER},
       other_test_name = #{record.otherTestName,jdbcType=VARCHAR},
       review_status = #{record.reviewStatus,jdbcType=VARCHAR},
+      tags = #{record.tags,jdbcType=VARCHAR},
       remark = #{record.remark,jdbcType=LONGVARCHAR},
       steps = #{record.steps,jdbcType=LONGVARCHAR}
     <if test="_parameter != null">
@@ -388,7 +400,8 @@
       sort = #{record.sort,jdbcType=INTEGER},
       num = #{record.num,jdbcType=INTEGER},
       other_test_name = #{record.otherTestName,jdbcType=VARCHAR},
-      review_status = #{record.reviewStatus,jdbcType=VARCHAR}
+      review_status = #{record.reviewStatus,jdbcType=VARCHAR},
+      tags = #{record.tags,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -444,6 +457,9 @@
       <if test="reviewStatus != null">
         review_status = #{reviewStatus,jdbcType=VARCHAR},
       </if>
+      <if test="tags != null">
+        tags = #{tags,jdbcType=VARCHAR},
+      </if>
       <if test="remark != null">
         remark = #{remark,jdbcType=LONGVARCHAR},
       </if>
@@ -471,6 +487,7 @@
       num = #{num,jdbcType=INTEGER},
       other_test_name = #{otherTestName,jdbcType=VARCHAR},
       review_status = #{reviewStatus,jdbcType=VARCHAR},
+      tags = #{tags,jdbcType=VARCHAR},
       remark = #{remark,jdbcType=LONGVARCHAR},
       steps = #{steps,jdbcType=LONGVARCHAR}
     where id = #{id,jdbcType=VARCHAR}
@@ -492,7 +509,8 @@
       sort = #{sort,jdbcType=INTEGER},
       num = #{num,jdbcType=INTEGER},
       other_test_name = #{otherTestName,jdbcType=VARCHAR},
-      review_status = #{reviewStatus,jdbcType=VARCHAR}
+      review_status = #{reviewStatus,jdbcType=VARCHAR},
+      tags = #{tags,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

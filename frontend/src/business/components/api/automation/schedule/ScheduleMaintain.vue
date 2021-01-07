@@ -30,7 +30,7 @@
           </el-tab-pane>
           <el-tab-pane :label="$t('schedule.task_notification')" name="second">
             <ms-schedule-notification :is-tester-permission="isTesterPermission" :test-id="testId"
-                                        :schedule-receiver-options="scheduleReceiverOptions"/>
+                                      :schedule-receiver-options="scheduleReceiverOptions"/>
           </el-tab-pane>
         </el-tabs>
       </div>
@@ -55,7 +55,7 @@ const noticeTemplate = requireComponent.keys().length > 0 ? requireComponent("./
 
 export default {
   name: "MsScheduleMaintain",
-  components: {CrontabResult, Crontab, MsScheduleNotification,"NoticeTemplate": noticeTemplate.default},
+  components: {CrontabResult, Crontab, MsScheduleNotification, "NoticeTemplate": noticeTemplate.default},
 
   props: {
     customValidate: {
@@ -81,8 +81,7 @@ export default {
         callback(new Error(this.$t('commons.input_content')));
       } else if (!cronValidate(cronValue)) {
         callback(new Error(this.$t('schedule.cron_expression_format_error')));
-      }
-      else if (!customValidate.pass) {
+      } else if (!customValidate.pass) {
         callback(new Error(customValidate.info));
       } else {
         callback();
@@ -93,9 +92,10 @@ export default {
       operation: true,
       dialogVisible: false,
       schedule: {
-        value : "",
+        value: "",
       },
-      testId:String,
+      scheduleTaskType: "",
+      testId: String,
       showCron: false,
       form: {
         cronValue: ""
@@ -130,20 +130,30 @@ export default {
       return param;
     },
     open(row) {
-      this.testId = row.id;
-      this.findSchedule(row.id);
+      //测试计划页面跳转来的
+      let paramTestId = "";
+      if (row.redirectFrom == 'testPlan') {
+        paramTestId = row.id;
+        this.scheduleTaskType = "TEST_PLAN_TEST";
+      } else {
+        paramTestId = row.id;
+        this.scheduleTaskType = "API_SCENARIO_TEST";
+      }
+      this.testId = paramTestId;
+      this.findSchedule(paramTestId);
       this.initUserList();
       this.dialogVisible = true;
       this.form.cronValue = this.schedule.value;
       listenGoBack(this.close);
       this.activeName = 'first'
     },
-    findSchedule(){
-      var scenarioID = this.testId;
-      this.result = this.$get("/schedule/findOne/"+scenarioID+"/API_SCENARIO_TEST", response => {
-        if(response.data!=null){
+    findSchedule() {
+      var scheduleResourceID = this.testId;
+      var taskType = this.scheduleTaskType;
+      this.result = this.$get("/schedule/findOne/" + scheduleResourceID + "/" +taskType, response => {
+        if (response.data != null) {
           this.schedule = response.data;
-        }else {
+        } else {
           this.schedule = {};
         }
       });
@@ -177,9 +187,20 @@ export default {
       param = this.schedule;
       param.resourceId = this.testId;
       let url = '/api/automation/schedule/create';
-      if (param.id) {
-        url = '/api/automation/schedule/update';
+      if(this.scheduleTaskType === "TEST_PLAN_TEST"){
+        param.scheduleFrom = "testPlan";
+        //测试计划页面跳转的创建
+        url = '/schedule/create';
+        if (param.id) {
+          url = '/schedule/update';
+        }
+      }else {
+        param.scheduleFrom = "scenario";
+        if (param.id) {
+          url = '/api/automation/schedule/update';
+        }
       }
+
       this.$post(url, param, () => {
         this.$success(this.$t('commons.save_success'));
       });

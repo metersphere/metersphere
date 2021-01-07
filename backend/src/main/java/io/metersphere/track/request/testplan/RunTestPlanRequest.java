@@ -8,4 +8,5 @@ import lombok.Setter;
 public class RunTestPlanRequest extends TestPlanRequest {
     private String userId;
     private String triggerMode;
+    private String testPlanLoadId;
 }
