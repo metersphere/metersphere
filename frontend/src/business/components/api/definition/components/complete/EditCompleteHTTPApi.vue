@@ -78,8 +78,8 @@
             <el-col :span="8">
               <el-form-item :label="$t('commons.tag')" prop="tag">
                 <el-tag
-                  :key="tag"
-                  v-for="tag in httpForm.tags"
+                  :key="httpForm + '_' + index"
+                  v-for="(tag, index) in httpForm.tags"
                   closable
                   size="mini"
                   :disable-transitions="false"

@@ -55,8 +55,8 @@
         <el-col :span="8">
           <el-form-item :label="$t('commons.tag')" prop="tag">
             <el-tag
-              :key="tag"
-              v-for="tag in basicForm.tags"
+              :key="basicForm + '_' + index"
+              v-for="(tag, index) in basicForm.tags"
               closable
               size="mini"
               :disable-transitions="false"
