@@ -528,15 +528,12 @@ public class ApiAutomationService {
     }
 
     public void createSchedule(Schedule request) {
-
         Schedule schedule = scheduleService.buildApiTestSchedule(request);
         schedule.setJob(ApiScenarioTestJob.class.getName());
         schedule.setGroup(ScheduleGroup.API_SCENARIO_TEST.name());
         schedule.setType(ScheduleType.CRON.name());
-
         scheduleService.addSchedule(schedule);
         this.addOrUpdateApiScenarioCronJob(request);
-
     }
 
     public void updateSchedule(Schedule request) {

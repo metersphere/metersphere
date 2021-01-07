@@ -1,23 +1,34 @@
 package io.metersphere.track.service;
 
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import io.metersphere.api.dto.definition.ApiTestCaseDTO;
 import io.metersphere.api.dto.definition.ApiTestCaseRequest;
+import io.metersphere.api.dto.definition.RunDefinitionRequest;
 import io.metersphere.api.dto.definition.TestPlanApiCaseDTO;
+import io.metersphere.api.dto.definition.request.MsTestElement;
+import io.metersphere.api.dto.definition.request.MsTestPlan;
+import io.metersphere.api.dto.definition.request.MsThreadGroup;
 import io.metersphere.api.service.ApiDefinitionExecResultService;
+import io.metersphere.api.service.ApiDefinitionService;
 import io.metersphere.api.service.ApiTestCaseService;
+import io.metersphere.base.domain.ApiTestCaseWithBLOBs;
 import io.metersphere.base.domain.TestPlanApiCase;
 import io.metersphere.base.domain.TestPlanApiCaseExample;
 import io.metersphere.base.mapper.TestPlanApiCaseMapper;
 import io.metersphere.base.mapper.ext.ExtTestPlanApiCaseMapper;
 import io.metersphere.commons.utils.ServiceUtils;
 import io.metersphere.track.request.testcase.TestPlanApiCaseBatchRequest;
+import org.apache.jmeter.testelement.TestElement;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 @Service
@@ -30,6 +41,8 @@ public class TestPlanApiCaseService {
     ApiTestCaseService apiTestCaseService;
     @Resource
     ExtTestPlanApiCaseMapper extTestPlanApiCaseMapper;
+    @Resource
+    ApiDefinitionService apiDefinitionService;
     @Lazy
     @Resource
     ApiDefinitionExecResultService apiDefinitionExecResultService;
