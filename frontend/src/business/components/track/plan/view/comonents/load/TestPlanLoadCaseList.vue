@@ -24,18 +24,18 @@
           </template>
         </el-table-column>
 
-<!--        <el-table-column prop="num" label="ID" show-overflow-tooltip/>-->
+        <!--        <el-table-column prop="num" label="ID" show-overflow-tooltip/>-->
         <el-table-column
           prop="caseName"
           :label="$t('commons.name')"
           show-overflow-tooltip>
         </el-table-column>
-<!--        <el-table-column-->
-<!--          prop="projectName"-->
-<!--          :label="$t('load_test.project_name')"-->
-<!--          width="150"-->
-<!--          show-overflow-tooltip>-->
-<!--        </el-table-column>-->
+        <!--        <el-table-column-->
+        <!--          prop="projectName"-->
+        <!--          :label="$t('load_test.project_name')"-->
+        <!--          width="150"-->
+        <!--          show-overflow-tooltip>-->
+        <!--        </el-table-column>-->
         <el-table-column
           prop="userName"
           :label="$t('load_test.user_name')"
@@ -66,9 +66,20 @@
             <ms-performance-test-status :row="row"/>
           </template>
         </el-table-column>
+        <el-table-column
+          label="报告"
+          show-overflow-tooltip>
+          <template v-slot:default="scope">
+            <div v-loading="loading === scope.row.id">
+              <el-link type="info" @click="getReport(scope.row)" v-if="scope.row.loadReportId">查看报告</el-link>
+              <span v-else> - </span>
+            </div>
+          </template>
+        </el-table-column>
         <el-table-column v-if="!isReadOnly" :label="$t('commons.operating')" align="center">
           <template v-slot:default="scope">
-            <ms-table-operator-button class="run-button" :is-tester-permission="true" :tip="$t('api_test.run')" icon="el-icon-video-play"
+            <ms-table-operator-button class="run-button" :is-tester-permission="true" :tip="$t('api_test.run')"
+                                      icon="el-icon-video-play"
                                       @exec="run(scope.row)" v-tester/>
             <ms-table-operator-button :is-tester-permission="true" :tip="$t('test_track.plan_view.cancel_relevance')"
                                       icon="el-icon-unlock" type="danger" @exec="handleDelete(scope.row)" v-tester/>
@@ -78,19 +89,25 @@
       <ms-table-pagination :change="initTable" :current-page.sync="currentPage" :page-size.sync="pageSize"
                            :total="total"/>
     </el-card>
+
+    <load-case-report :report-id="reportId" ref="loadCaseReport" @refresh="initTable"/>
   </div>
 </template>
 
 <script>
-import TestPlanLoadCaseListHeader from "@/business/components/track/plan/view/comonents/load/TestPlanLoadCaseListHeader";
+import TestPlanLoadCaseListHeader
+  from "@/business/components/track/plan/view/comonents/load/TestPlanLoadCaseListHeader";
 import ShowMoreBtn from "@/business/components/track/case/components/ShowMoreBtn";
 import {_filter, _sort} from "@/common/js/utils";
 import MsTablePagination from "@/business/components/common/pagination/TablePagination";
 import MsPerformanceTestStatus from "@/business/components/performance/test/PerformanceTestStatus";
 import MsTableOperatorButton from "@/business/components/common/components/MsTableOperatorButton";
+import LoadCaseReport from "@/business/components/track/plan/view/comonents/load/LoadCaseReport";
+
 export default {
   name: "TestPlanLoadCaseList",
   components: {
+    LoadCaseReport,
     TestPlanLoadCaseListHeader,
     ShowMoreBtn,
     MsTablePagination,
@@ -108,9 +125,9 @@ export default {
       total: 0,
       screenHeight: document.documentElement.clientHeight - 330,//屏幕高度
       buttons: [
-        {
-          name: "批量编辑用例", handleClick: this.handleBatchEdit
-        },
+        // {
+        //   name: "批量编辑用例", handleClick: this.handleBatchEdit
+        // },
         {
           name: "批量取消关联", handleClick: this.handleDeleteBatch
         },
@@ -126,6 +143,8 @@ export default {
         {text: 'Completed', value: 'Completed'},
         {text: 'Error', value: 'Error'}
       ],
+      reportId: '',
+      loading: false
     }
   },
   props: {
@@ -177,17 +196,24 @@ export default {
         this.selectRows.add(row);
       }
     },
-    handleBatchEdit() {
-
-    },
+    // handleBatchEdit() {
+    //
+    // },
     handleDeleteBatch() {
 
     },
     handleRunBatch() {
 
     },
-    run() {
-
+    run(loadCase) {
+      this.$post('/test/plan/load/case/run', {
+        id: loadCase.loadCaseId,
+        testPlanLoadId: loadCase.id,
+        triggerMode: 'MANUAL'
+      }, response => {
+        let reportId = response.data;
+        this.initTable();
+      })
     },
     handleDelete(loadCase) {
       this.$get('/test/plan/load/case/delete/' + loadCase.id, () => {
@@ -208,6 +234,24 @@ export default {
       _filter(filters, this.condition);
       this.initTableData();
     },
+    getReport(data) {
+      const {loadReportId} = data;
+      this.reportId = loadReportId;
+      this.loading = data.id;
+      this.$post('/test/plan/load/case/report/exist', {
+        testPlanLoadCaseId: data.id,
+        reportId: loadReportId
+      }, response => {
+        let exist = response.data;
+        this.loading = "";
+        if (exist) {
+          this.$refs.loadCaseReport.drawer = true;
+        } else {
+          this.$warning("报告不存在");
+          // this.initTable();
+        }
+      })
+    }
   }
 }
 </script>

@@ -314,6 +314,76 @@ public class TestPlanLoadCaseExample {
             return (Criteria) this;
         }
 
+        public Criteria andLoadReportIdIsNull() {
+            addCriterion("load_report_id is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andLoadReportIdIsNotNull() {
+            addCriterion("load_report_id is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andLoadReportIdEqualTo(String value) {
+            addCriterion("load_report_id =", value, "loadReportId");
+            return (Criteria) this;
+        }
+
+        public Criteria andLoadReportIdNotEqualTo(String value) {
+            addCriterion("load_report_id <>", value, "loadReportId");
+            return (Criteria) this;
+        }
+
+        public Criteria andLoadReportIdGreaterThan(String value) {
+            addCriterion("load_report_id >", value, "loadReportId");
+            return (Criteria) this;
+        }
+
+        public Criteria andLoadReportIdGreaterThanOrEqualTo(String value) {
+            addCriterion("load_report_id >=", value, "loadReportId");
+            return (Criteria) this;
+        }
+
+        public Criteria andLoadReportIdLessThan(String value) {
+            addCriterion("load_report_id <", value, "loadReportId");
+            return (Criteria) this;
+        }
+
+        public Criteria andLoadReportIdLessThanOrEqualTo(String value) {
+            addCriterion("load_report_id <=", value, "loadReportId");
+            return (Criteria) this;
+        }
+
+        public Criteria andLoadReportIdLike(String value) {
+            addCriterion("load_report_id like", value, "loadReportId");
+            return (Criteria) this;
+        }
+
+        public Criteria andLoadReportIdNotLike(String value) {
+            addCriterion("load_report_id not like", value, "loadReportId");
+            return (Criteria) this;
+        }
+
+        public Criteria andLoadReportIdIn(List<String> values) {
+            addCriterion("load_report_id in", values, "loadReportId");
+            return (Criteria) this;
+        }
+
+        public Criteria andLoadReportIdNotIn(List<String> values) {
+            addCriterion("load_report_id not in", values, "loadReportId");
+            return (Criteria) this;
+        }
+
+        public Criteria andLoadReportIdBetween(String value1, String value2) {
+            addCriterion("load_report_id between", value1, value2, "loadReportId");
+            return (Criteria) this;
+        }
+
+        public Criteria andLoadReportIdNotBetween(String value1, String value2) {
+            addCriterion("load_report_id not between", value1, value2, "loadReportId");
+            return (Criteria) this;
+        }
+
         public Criteria andStatusIsNull() {
             addCriterion("`status` is null");
             return (Criteria) this;
