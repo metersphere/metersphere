@@ -570,7 +570,7 @@ export default {
       create_tag: "Create tag",
       scenario_step: "Ccenario step",
       step_total: "Step total",
-      scenario_total: "Scenario total",
+      scenario_total: "Scenario variable",
       api_list_import: "Api list import",
       external_import: "External import",
       wait_controller: "Wait controller",
