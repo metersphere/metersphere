@@ -49,7 +49,7 @@ public class KeyValue {
     }
 
     public boolean isValid() {
-        return (StringUtils.isNotBlank(name) || StringUtils.isNotBlank(value)) && !StringUtils.equalsIgnoreCase(type, "file");
+        return (StringUtils.isNotBlank(name) && StringUtils.isNotBlank(value)) && !StringUtils.equalsIgnoreCase(type, "file");
     }
 
     public boolean isFile() {
