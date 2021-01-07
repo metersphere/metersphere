@@ -11,6 +11,7 @@ import io.metersphere.api.dto.definition.request.assertions.MsAssertions;
 import io.metersphere.api.dto.definition.request.auth.MsAuthManager;
 import io.metersphere.api.dto.definition.request.configurations.MsHeaderManager;
 import io.metersphere.api.dto.definition.request.controller.MsIfController;
+import io.metersphere.api.dto.definition.request.controller.MsLoopController;
 import io.metersphere.api.dto.definition.request.extract.MsExtract;
 import io.metersphere.api.dto.definition.request.processors.MsJSR223Processor;
 import io.metersphere.api.dto.definition.request.processors.post.MsJSR223PostProcessor;
@@ -56,11 +57,12 @@ import java.util.List;
         @JsonSubTypes.Type(value = MsConstantTimer.class, name = "ConstantTimer"),
         @JsonSubTypes.Type(value = MsIfController.class, name = "IfController"),
         @JsonSubTypes.Type(value = MsScenario.class, name = "scenario"),
+        @JsonSubTypes.Type(value = MsLoopController.class, name = "LoopController"),
 
 })
 @JSONType(seeAlso = {MsHTTPSamplerProxy.class, MsHeaderManager.class, MsJSR223Processor.class, MsJSR223PostProcessor.class,
         MsJSR223PreProcessor.class, MsTestPlan.class, MsThreadGroup.class, AuthManager.class, MsAssertions.class,
-        MsExtract.class, MsTCPSampler.class, MsDubboSampler.class, MsJDBCSampler.class, MsConstantTimer.class, MsIfController.class, MsScenario.class}, typeKey = "type")
+        MsExtract.class, MsTCPSampler.class, MsDubboSampler.class, MsJDBCSampler.class, MsConstantTimer.class, MsIfController.class, MsScenario.class, MsLoopController.class}, typeKey = "type")
 @Data
 public abstract class MsTestElement {
     private String type;

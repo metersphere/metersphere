@@ -333,6 +333,9 @@ public class Swagger3Parser extends SwaggerAbstractParser {
     }
 
     private Object parseSchemaProperties(Schema schema, Set<String> refSet, Map<String, Schema> infoMap) {
+        if (schema == null) {
+            return null;
+        }
         Map<String, Schema> properties = schema.getProperties();
         if (MapUtils.isEmpty(properties)) {
             return null;
