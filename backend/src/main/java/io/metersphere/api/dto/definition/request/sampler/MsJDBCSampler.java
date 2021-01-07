@@ -1,14 +1,21 @@
 package io.metersphere.api.dto.definition.request.sampler;
 
+import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.annotation.JSONType;
 import io.metersphere.api.dto.definition.request.MsTestElement;
 import io.metersphere.api.dto.definition.request.ParameterConfig;
 import io.metersphere.api.dto.scenario.DatabaseConfig;
 import io.metersphere.api.dto.scenario.KeyValue;
+import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
+import io.metersphere.api.service.ApiTestEnvironmentService;
+import io.metersphere.base.domain.ApiTestEnvironmentWithBLOBs;
+import io.metersphere.commons.exception.MSException;
+import io.metersphere.commons.utils.CommonBeanFactory;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.config.Arguments;
 import org.apache.jmeter.protocol.jdbc.config.DataSourceElement;
 import org.apache.jmeter.protocol.jdbc.sampler.JDBCSampler;
@@ -17,6 +24,7 @@ import org.apache.jmeter.testelement.TestElement;
 import org.apache.jorphan.collections.HashTree;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -40,6 +48,8 @@ public class MsJDBCSampler extends MsTestElement {
     private String environmentId;
     @JSONField(ordinal = 27)
     private Object requestResult;
+    @JSONField(ordinal = 28)
+    private String dataSourceId;
 
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, ParameterConfig config) {
         if (!this.isEnable()) {
@@ -48,6 +58,12 @@ public class MsJDBCSampler extends MsTestElement {
         if (this.getReferenced() != null && this.getReferenced().equals("REF")) {
             this.getRefElement(this);
         }
+        if (StringUtils.isNotEmpty(dataSourceId)) {
+            initDataSource();
+        }
+        if (this.dataSource == null) {
+            MSException.throwException("数据源为空无法执行");
+        }
         final HashTree samplerHashTree = tree.add(jdbcSampler());
         tree.add(jdbcDataSource());
         tree.add(arguments(this.getName() + " Variables", this.getVariables()));
@@ -55,6 +71,20 @@ public class MsJDBCSampler extends MsTestElement {
             hashTree.forEach(el -> {
                 el.toHashTree(samplerHashTree, el.getHashTree(), config);
             });
+        }
+    }
+
+    private void initDataSource() {
+        ApiTestEnvironmentService environmentService = CommonBeanFactory.getBean(ApiTestEnvironmentService.class);
+        ApiTestEnvironmentWithBLOBs environment = environmentService.get(this.dataSourceId);
+        if (environment != null && environment.getConfig() != null) {
+            EnvironmentConfig config = JSONObject.parseObject(environment.getConfig(), EnvironmentConfig.class);
+            if (CollectionUtils.isNotEmpty(config.getDatabaseConfigs())) {
+                List<DatabaseConfig> databaseConfigs = config.getDatabaseConfigs().stream().filter((DatabaseConfig d) -> this.dataSourceId.equals(d.getId())).collect(Collectors.toList());
+                if (CollectionUtils.isNotEmpty(databaseConfigs)) {
+                    this.dataSource = databaseConfigs.get(0);
+                }
+            }
         }
     }
 
