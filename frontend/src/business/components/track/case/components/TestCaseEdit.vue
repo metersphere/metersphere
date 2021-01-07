@@ -66,6 +66,33 @@
                   </el-form-item>
                 </el-col>
               </el-row>
+              <el-row>
+                <el-col :span="10" :offset="1">
+                  <el-form-item :label="$t('commons.tag')" :label-width="formLabelWidth" prop="tag">
+                    <el-tag
+                      :key="form + '_' + index"
+                      v-for="(tag, index) in form.caseTags"
+                      closable
+                      size="mini"
+                      :disable-transitions="false"
+                      @close="handleClose(tag)">
+                      {{ tag }}
+                    </el-tag>
+                    <el-input
+                      class="input-new-tag"
+                      v-if="inputVisible"
+                      v-model="inputValue"
+                      ref="saveTagInput"
+                      size="mini"
+                      @keyup.enter.native="handleInputConfirm"
+                      @blur="handleInputConfirm"
+                    >
+                    </el-input>
+                    <el-button v-else class="button-new-tag" size="mini" @click="showInput">+</el-button>
+
+                  </el-form-item>
+                </el-col>
+              </el-row>
 
               <el-row>
                 <el-col :span="10" :offset="1">
@@ -296,6 +323,7 @@ export default {
           result: ''
         }],
         remark: '',
+        caseTags: []
       },
       moduleOptions: [],
       maintainerOptions: [],
@@ -326,7 +354,9 @@ export default {
         {value: 'auto', label: this.$t('test_track.case.auto')},
         {value: 'manual', label: this.$t('test_track.case.manual')}
       ],
-      testCase: {}
+      testCase: {},
+      inputVisible: false,
+      inputValue: ''
     };
   },
   props: {
@@ -357,6 +387,7 @@ export default {
     open(testCase) {
       this.testCase = {};
       if (testCase) {
+        testCase.caseTags = JSON.parse(testCase.tags);
         // 复制 不查询评论
         this.testCase = testCase.isCopy ? {} : testCase;
       }
@@ -394,6 +425,7 @@ export default {
         this.form.type = 'functional';
         this.form.method = 'manual';
         this.form.maintainer = user.id;
+        this.form.caseTags = [];
       }
 
       this.getSelectOptions();
@@ -609,6 +641,7 @@ export default {
             desc: '',
             result: ''
           }];
+          this.caseTags = [];
           this.uploadList = [];
           this.fileList = [];
           this.tableData = [];
@@ -695,6 +728,26 @@ export default {
     fileValidator(file) {
       /// todo: 是否需要对文件内容和大小做限制
       return file.size > 0;
+    },
+
+    handleClose(tag) {
+      this.form.caseTags.splice(this.form.caseTags.indexOf(tag), 1);
+    },
+
+    showInput() {
+      this.inputVisible = true;
+      this.$nextTick(_ => {
+        this.$refs.saveTagInput.$refs.input.focus();
+      });
+    },
+
+    handleInputConfirm() {
+      let inputValue = this.inputValue;
+      if (inputValue) {
+        this.form.caseTags.push(inputValue);
+      }
+      this.inputVisible = false;
+      this.inputValue = '';
     }
   }
 }
@@ -733,5 +786,23 @@ export default {
 
 .comment-card >>> .el-card__body {
   height: calc(100vh - 120px);
+}
+
+.el-tag + .el-tag {
+  margin-left: 10px;
+}
+
+.button-new-tag {
+  margin-left: 10px;
+  height: 20px;
+  /*line-height: 30px;*/
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+.input-new-tag {
+  width: 90px;
+  margin-left: 10px;
+  vertical-align: bottom;
 }
 </style>
