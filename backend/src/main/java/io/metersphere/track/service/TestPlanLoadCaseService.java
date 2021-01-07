@@ -45,7 +45,7 @@ public class TestPlanLoadCaseService {
     }
 
     public List<TestPlanLoadCaseDTO> list(LoadCaseRequest request) {
-        return extTestPlanLoadCaseMapper.selectTestPlanLoadCaseList(request.getTestPlanId());
+        return extTestPlanLoadCaseMapper.selectTestPlanLoadCaseList(request.getTestPlanId(), request.getProjectId());
     }
 
     public void relevanceCase(LoadCaseRequest request) {

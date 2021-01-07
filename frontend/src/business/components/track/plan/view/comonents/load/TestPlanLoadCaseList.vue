@@ -30,12 +30,11 @@
           :label="$t('commons.name')"
           show-overflow-tooltip>
         </el-table-column>
-        <!--        <el-table-column-->
-        <!--          prop="projectName"-->
-        <!--          :label="$t('load_test.project_name')"-->
-        <!--          width="150"-->
-        <!--          show-overflow-tooltip>-->
-        <!--        </el-table-column>-->
+        <el-table-column
+          prop="projectName"
+          :label="$t('load_test.project_name')"
+          show-overflow-tooltip>
+        </el-table-column>
         <el-table-column
           prop="userName"
           :label="$t('load_test.user_name')"
@@ -148,7 +147,7 @@ export default {
     }
   },
   props: {
-    selectNodeIds: Array,
+    selectProjectId: String,
     isReadOnly: {
       type: Boolean,
       default: false
@@ -159,7 +158,7 @@ export default {
     this.initTable();
   },
   watch: {
-    selectNodeIds() {
+    selectProjectId() {
       this.initTable();
     },
     planId() {
@@ -168,7 +167,12 @@ export default {
   },
   methods: {
     initTable() {
-      this.$post("/test/plan/load/case/list/" + this.currentPage + "/" + this.pageSize, {testPlanId: this.planId}, response => {
+      let param = {};
+      param.testPlanId = this.planId;
+      if (this.selectProjectId && this.selectProjectId !== 'root') {
+        param.projectId = this.selectProjectId;
+      }
+      this.$post("/test/plan/load/case/list/" + this.currentPage + "/" + this.pageSize, param, response => {
         let data = response.data;
         this.total = data.itemCount;
         this.tableData = data.listObject;
