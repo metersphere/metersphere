@@ -731,6 +731,7 @@ export default {
         json_path_suggest: "JSONPath Assertion Suggest",
         json_path_clear: "Clear JSONPath Assertion",
         debug_first: "First, debug to get the response",
+        suggest_tip: "Click the note to add the JSONPath assertion",
       },
       extract: {
         label: "Extract from response",
@@ -741,6 +742,7 @@ export default {
         regex_expression: "Regular expression",
         json_path_expression: "JSONPath expression",
         xpath_expression: "XPath expression",
+        suggest_tip: "Click the note to add the JSONPath extraction",
       },
       processor: {
         pre_exec_script: "PreProcessor",

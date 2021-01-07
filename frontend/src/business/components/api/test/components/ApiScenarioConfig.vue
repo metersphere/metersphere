@@ -77,7 +77,7 @@ import {Request, Scenario} from "../model/ScenarioModel";
 import draggable from 'vuedraggable';
 import MsApiScenarioSelect from "@/business/components/api/test/components/ApiScenarioSelect";
 import {parseEnvironment} from "../model/EnvironmentModel";
-import MsHorizontalDragBar from "../../../common/components/MsHorizontalDragBar";
+import MsHorizontalDragBar from "../../../common/components/dragbar/MsLeft2RightDragBar";
 
 export default {
   name: "MsApiScenarioConfig",

@@ -1,6 +1,6 @@
 <template>
   <div class="request-form">
-    <component :is="component" :showScript="showScript" :is-read-only="isReadOnly" :referenced="referenced" :request="request" :headers="headers" :isShowEnable="isShowEnable"/>
+    <component :is="component" :showScript="showScript" :is-read-only="isReadOnly" :referenced="referenced" :request="request" :response="response" :headers="headers" :isShowEnable="isShowEnable"/>
   </div>
 </template>
 
@@ -12,6 +12,7 @@
     components: {MsApiHttpRequestForm},
     props: {
       request: {},
+      response: {},
       headers: Array,
       isShowEnable: {
         type: Boolean,
