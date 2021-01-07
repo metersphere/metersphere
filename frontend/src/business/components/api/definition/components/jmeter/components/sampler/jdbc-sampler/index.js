@@ -17,7 +17,9 @@ export default class JDBCSampler extends Sampler {
     this.type = "JDBCSampler";
     this.hashTree = [];
     this.variables = [];
+    this.environmentId = undefined;
     this.dataSource = undefined;
+    this.dataSourceId = undefined;
     this.query = undefined;
     this.queryType = undefined;
     this.queryArguments = undefined;

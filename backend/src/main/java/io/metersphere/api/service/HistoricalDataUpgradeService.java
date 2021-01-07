@@ -134,6 +134,7 @@ public class HistoricalDataUpgradeService {
                 EnvironmentDTO dto = environmentDTOMap.get(request1.getDataSource());
                 if (dto != null) {
                     ((MsJDBCSampler) element).setEnvironmentId(dto.getEnvironmentId());
+                    ((MsJDBCSampler) element).setDataSourceId(dto.getDatabaseConfig().getId());
                     ((MsJDBCSampler) element).setDataSource(dto.getDatabaseConfig());
                 }
                 element.setType("JDBCSampler");

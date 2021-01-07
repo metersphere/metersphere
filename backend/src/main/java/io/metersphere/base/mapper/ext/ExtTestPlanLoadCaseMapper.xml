@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.metersphere.base.mapper.ext.ExtTestPlanLoadCaseMapper">
+
+    <select id="selectIdsNotInPlan" resultType="java.lang.String">
+        select load_test.id
+        from load_test
+        where load_test.project_id = #{projectId}
+          and load_test.id not in (
+            select tplc.load_case_id from test_plan_load_case tplc where tplc.test_plan_id = #{planId}
+        )
+    </select>
+    <select id="selectTestPlanLoadCaseList" resultType="io.metersphere.track.dto.TestPlanLoadCaseDTO">
+        select tplc.id, u.name as userName, tplc.create_time, tplc.update_time, tplc.test_plan_id, tplc.load_case_id,
+               lt.status, lt.name as caseName
+        from test_plan_load_case tplc
+                 inner join load_test lt on tplc.load_case_id = lt.id
+                 inner join user u on lt.user_id = u.id
+        where tplc.test_plan_id = #{planId}
+    </select>
+</mapper>

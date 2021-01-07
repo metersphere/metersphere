@@ -481,4 +481,14 @@ public class PerformanceTestService {
             quotaService.checkLoadTestQuota(request, create);
         }
     }
+    
+    public List<LoadTest> getLoadTestListByIds(List<String> ids) {
+        if (CollectionUtils.isEmpty(ids)) { 
+            return new ArrayList<>();
+        }
+        LoadTestExample loadTestExample = new LoadTestExample();
+        loadTestExample.createCriteria().andIdIn(ids);
+        List<LoadTest> loadTests = loadTestMapper.selectByExample(loadTestExample);
+        return Optional.ofNullable(loadTests).orElse(new ArrayList<>());
+    }
 }
