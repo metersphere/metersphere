@@ -113,4 +113,13 @@ public class TestPlanLoadCaseService {
         }
         testPlanLoadCaseMapper.deleteByExample(testPlanLoadCaseExample);
     }
+
+    public void batchDelete(List<String> ids) {
+        if (CollectionUtils.isEmpty(ids)) {
+            return;
+        }
+        TestPlanLoadCaseExample example = new TestPlanLoadCaseExample();
+        example.createCriteria().andIdIn(ids);
+        testPlanLoadCaseMapper.deleteByExample(example);
+    }
 }

@@ -2,14 +2,12 @@
   <el-card>
     <div class="card-content">
       <div class="ms-main-div" @click="showAll">
-        <el-row>
-          <el-col>
-            <!--操作按钮-->
-            <div class="ms-opt-btn">
-              <el-button type="primary" size="small" @click="editScenario">{{$t('commons.save')}}</el-button>
-            </div>
-          </el-col>
-        </el-row>
+
+        <!--操作按钮-->
+        <div class="ms-opt-btn">
+          <el-button type="primary" size="small" @click="editScenario">{{$t('commons.save')}}</el-button>
+        </div>
+
         <div class="tip">{{$t('test_track.plan_view.base_info')}}</div>
         <el-form :model="currentScenario" label-position="right" label-width="80px" size="small" :rules="rules" ref="currentScenario" style="margin-right: 20px">
           <!-- 基础信息 -->
@@ -998,5 +996,10 @@
     color: #303133;
     font-family: "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", Arial, sans-serif;
     font-size: 13px;
+  }
+
+  .ms-opt-btn {
+    position: fixed;
+    right: 20px;
   }
 </style>

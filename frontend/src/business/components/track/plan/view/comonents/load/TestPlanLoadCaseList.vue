@@ -205,7 +205,19 @@ export default {
     //
     // },
     handleDeleteBatch() {
-
+      this.$alert(this.$t('test_track.plan_view.confirm_cancel_relevance') + "？", '', {
+        confirmButtonText: this.$t('commons.confirm'),
+        callback: (action) => {
+          if (action === 'confirm') {
+            let ids = Array.from(this.selectRows).map(row => row.id);
+            this.result = this.$post('/test/plan/load/case/batch/delete', ids, () => {
+              this.selectRows.clear();
+              this.initTable();
+              this.$success(this.$t('test_track.cancel_relevance_success'));
+            });
+          }
+        }
+      })
     },
     handleRunBatch() {
 
@@ -221,7 +233,7 @@ export default {
       })
     },
     handleDelete(loadCase) {
-      this.$get('/test/plan/load/case/delete/' + loadCase.id, () => {
+      this.result = this.$get('/test/plan/load/case/delete/' + loadCase.id, () => {
         this.$success(this.$t('test_track.cancel_relevance_success'));
         this.$emit('refresh');
         this.initTable();
