@@ -365,8 +365,8 @@ public class ApiDefinitionService {
                 scenario.setHashTree(elements);
             }
             if (StringUtils.isNotEmpty(element.getString("variables"))) {
-                LinkedList<ScenarioVariable> variables = mapper.readValue(element.getString("variables"),
-                        new TypeReference<LinkedList<ScenarioVariable>>() {});
+                LinkedList<KeyValue> variables = mapper.readValue(element.getString("variables"),
+                        new TypeReference<LinkedList<KeyValue>>() {});
                 scenario.setVariables(variables);
             }
             group.setEnableCookieShare(scenario.isEnableCookieShare());

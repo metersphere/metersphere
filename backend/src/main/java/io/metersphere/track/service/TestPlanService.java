@@ -87,6 +87,8 @@ public class TestPlanService {
     private TestPlanApiCaseService testPlanApiCaseService;
     @Resource
     private TestPlanScenarioCaseService testPlanScenarioCaseService;
+    @Resource
+    private TestPlanLoadCaseService testPlanLoadCaseService;
 
     public synchronized void addTestPlan(AddTestPlanRequest testPlan) {
         if (getTestPlanByName(testPlan.getName()).size() > 0) {
@@ -234,6 +236,7 @@ public class TestPlanService {
             }
             testPlanApiCaseService.deleteByRelevanceProjectIds(testPlan.getId(), relevanceProjectIds);
             testPlanScenarioCaseService.deleteByRelevanceProjectIds(testPlan.getId(), relevanceProjectIds);
+            testPlanLoadCaseService.deleteByRelevanceProjectIds(testPlan.getId(), relevanceProjectIds);
         }
     }
 

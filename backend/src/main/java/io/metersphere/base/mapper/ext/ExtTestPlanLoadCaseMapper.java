@@ -8,5 +8,5 @@ import java.util.List;
 public interface ExtTestPlanLoadCaseMapper {
 
     List<String> selectIdsNotInPlan(@Param("projectId") String projectId, @Param("planId") String planId);
-    List<TestPlanLoadCaseDTO> selectTestPlanLoadCaseList(@Param("planId") String planId);
+    List<TestPlanLoadCaseDTO> selectTestPlanLoadCaseList(@Param("planId") String planId, @Param("projectId") String projectId);
 }

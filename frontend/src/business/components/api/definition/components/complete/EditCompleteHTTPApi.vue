@@ -77,27 +77,7 @@
           <el-row>
             <el-col :span="8">
               <el-form-item :label="$t('commons.tag')" prop="tag">
-                <el-tag
-                  :key="httpForm + '_' + index"
-                  v-for="(tag, index) in httpForm.tags"
-                  closable
-                  size="mini"
-                  :disable-transitions="false"
-                  @close="handleClose(tag)">
-                  {{ tag }}
-                </el-tag>
-                <el-input
-                  class="input-new-tag"
-                  v-if="inputVisible"
-                  v-model="inputValue"
-                  ref="saveTagInput"
-                  size="mini"
-                  @keyup.enter.native="handleInputConfirm"
-                  @blur="handleInputConfirm"
-                >
-                </el-input>
-                <el-button v-else class="button-new-tag" size="mini" @click="showInput">+</el-button>
-
+                <ms-input-tag :currentScenario="httpForm" ref="tag"/>
               </el-form-item>
             </el-col>
             <el-col :span="16">
@@ -134,10 +114,11 @@ import {WORKSPACE_ID} from '../../../../../../common/js/constants';
 import {API_STATUS, REQ_METHOD} from "../../model/JsonData";
 import MsJsr233Processor from "../processor/Jsr233Processor";
 import {KeyValue} from "../../model/ApiTestModel";
+import MsInputTag from "@/business/components/api/automation/scenario/MsInputTag";
 
 export default {
   name: "MsAddCompleteHttpApi",
-  components: {MsResponseText, MsApiRequestForm, MsJsr233Processor},
+  components: {MsResponseText, MsApiRequestForm, MsJsr233Processor, MsInputTag},
   data() {
     let validateURL = (rule, value, callback) => {
       if (!this.httpForm.path.startsWith("/") || this.httpForm.path.match(/\s/) != null) {
@@ -165,8 +146,6 @@ export default {
       currentModule: {},
       reqOptions: REQ_METHOD,
       options: API_STATUS,
-      inputVisible: false,
-      inputValue: ''
     }
   },
   props: {moduleOptions: {}, request: {}, response: {}, basisData: {}},
@@ -192,6 +171,9 @@ export default {
       this.request.path = this.httpForm.path;
       this.request.method = this.httpForm.method;
       this.httpForm.request.useEnvironment = undefined;
+      if (this.httpForm.tags instanceof Array) {
+        this.httpForm.tags = JSON.stringify(this.httpForm.tags);
+      }
     },
     saveApi() {
       this.$refs['httpForm'].validate((valid) => {
@@ -243,37 +225,12 @@ export default {
         this.$error(this.$t('api_test.request.url_invalid'), 2000);
       }
     },
-
-    handleClose(tag) {
-      this.httpForm.tags.splice(this.httpForm.tags.indexOf(tag), 1);
-    },
-
-    showInput() {
-      this.inputVisible = true;
-      this.$nextTick(_ => {
-        this.$refs.saveTagInput.$refs.input.focus();
-      });
-    },
-
-    handleInputConfirm() {
-      let inputValue = this.inputValue;
-      if (inputValue) {
-        this.httpForm.tags.push(inputValue);
-      }
-      this.inputVisible = false;
-      this.inputValue = '';
-    }
   },
 
   created() {
     this.getMaintainerOptions();
     if (!this.basisData.environmentId) {
       this.basisData.environmentId = "";
-    }
-    if (!this.basisData.tags) {
-      this.basisData.tags = [];
-    } else {
-      this.basisData.tags = JSON.parse(this.basisData.tags);
     }
 
     this.httpForm = JSON.parse(JSON.stringify(this.basisData));
@@ -313,23 +270,5 @@ export default {
 
 .ms-left-buttion {
   margin: 6px 0px 8px 30px;
-}
-
-.el-tag + .el-tag {
-  margin-left: 10px;
-}
-
-.button-new-tag {
-  margin-left: 10px;
-  height: 20px;
-  /*line-height: 30px;*/
-  padding-top: 0;
-  padding-bottom: 0;
-}
-
-.input-new-tag {
-  width: 90px;
-  margin-left: 10px;
-  vertical-align: bottom;
 }
 </style>

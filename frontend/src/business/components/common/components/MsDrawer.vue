@@ -1,21 +1,29 @@
 <template>
-  <div id="ms-drawer" class="ms-drawer" :class="directionStyle" :style="{width: w + 'px', height: h + 'px'}" ref="msDrawer">
-    <ms-drag-move-bar :direction="dragBarDirection" @widthChange="widthChange" @heightChange="heightChange"/>
-    <div class="ms-drawer-header" >
+  <div v-if="visible" id="ms-drawer" class="ms-drawer" :class="directionStyle" :style="{width: w + 'px', height: h + 'px'}" ref="msDrawer">
+
+    <ms-bottom2-top-drag-bar v-if="direction == 'bottom'"/>
+
+    <ms-right2-left-drag-bar v-if="direction == 'right'"/>
+
+    <div class="ms-drawer-header">
       <slot name="header"></slot>
       <i class="el-icon-close" @click="close"/>
     </div>
     <div class="ms-drawer-body">
       <slot></slot>
     </div>
+
+    <ms-left2-right-drag-bar v-if="direction == 'left'"/>
   </div>
 </template>
 
 <script>
-    import MsDragMoveBar from "./MsDragMoveBar";
+    import MsRight2LeftDragBar from "./dragbar/MsRight2LeftDragBar";
+    import MsLeft2RightDragBar from "./dragbar/MsLeft2RightDragBar";
+    import MsBottom2TopDragBar from "./dragbar/MsBottom2TopDragBar";
     export default {
       name: "MsDrawer",
-      components: {MsDragMoveBar},
+      components: {MsBottom2TopDragBar, MsLeft2RightDragBar, MsRight2LeftDragBar},
       data() {
         return {
           x: 0,
@@ -31,6 +39,12 @@
           type: String,
           default() {
             return "left";
+          }
+        },
+        visible: {
+          type: Boolean,
+          default() {
+            return true;
           }
         },
         size: {
@@ -81,57 +95,11 @@
               break;
           }
         },
-        resize() {
-        },
         getWidthPercentage(per) {
           return document.body.clientWidth * per / 100.0;
         },
         getHeightPercentage(per) {
           return document.body.clientHeight * per / 100.0;
-        },
-        widthChange(movement) {
-          if (this.direction != 'left' && this.direction != 'right') {
-            return;
-          }
-          switch (this.direction) {
-            case 'top':
-              this.w -= movement;
-              break;
-            case 'bottom':
-              this.w += movement;
-              break;
-          }
-          this._widthChange();
-        },
-        heightChange(movement) {
-          if (this.direction != 'top' && this.direction != 'bottom') {
-            return;
-          }
-          switch (this.direction) {
-            case 'top':
-              this.h -= movement;
-              break;
-            case 'bottom':
-              this.h += movement;
-              break;
-          }
-          this._heightChange();
-        },
-        _heightChange() {
-          if (this.h < 0) {
-            this.h = 0;
-          }
-          if (this.h > document.body.clientHeight) {
-            this.h = document.body.clientHeight;
-          }
-        },
-        _widthChange() {
-          if (this.w < 0) {
-            this.w = 0;
-          }
-          if (this.w > document.body.clientWidth) {
-            this.w = document.body.clientWidth;
-          }
         },
         close() {
           this.$emit('close')
@@ -178,17 +146,31 @@
   }
 
   .ms-drawer-header {
-    position: fixed;
-    width: 100%;
     z-index: 999;
+    width: 100%;
+  }
+
+  .bottom-style .ms-drawer-header {
+    position: fixed;
   }
 
   .el-icon-close {
     position: absolute;
+    font-size: 20px;
+    right: 10px;
+    top: 10px;
+    color: gray;
+  }
+
+  .bottom-style .el-icon-close {
     right: 10px;
     top: 13px;
-    color: gray;
-    font-size: 20px;
+  }
+
+  .right-style .el-icon-close {
+    position: fixed;
+    right: 10px;
+    top: 10px;
   }
 
   .el-icon-close:hover {

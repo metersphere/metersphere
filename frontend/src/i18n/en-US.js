@@ -732,6 +732,7 @@ export default {
         json_path_suggest: "JSONPath Assertion Suggest",
         json_path_clear: "Clear JSONPath Assertion",
         debug_first: "First, debug to get the response",
+        suggest_tip: "Click the note to add the JSONPath assertion",
       },
       extract: {
         label: "Extract from response",
@@ -742,6 +743,9 @@ export default {
         regex_expression: "Regular expression",
         json_path_expression: "JSONPath expression",
         xpath_expression: "XPath expression",
+        suggest_tip: "Click the note to add the JSONPath extraction",
+        json_path_suggest: "JSONPath Extraction Suggest",
+        json_path_clear: "Clear JSONPath Extraction",
       },
       processor: {
         pre_exec_script: "PreProcessor",
@@ -1085,6 +1089,7 @@ export default {
       plan_status_prepare: "Not started",
       plan_status_running: "Starting",
       plan_status_completed: "Completed",
+      plan_status_trash: "Trashed",
       planned_start_time: "Scheduled Start Time",
       planned_end_time: "Scheduled End Time",
       actual_start_time: "Actual Start Time",

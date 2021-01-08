@@ -62,10 +62,9 @@
 
         <el-table-column prop="tags" :label="$t('commons.tag')">
           <template v-slot:default="scope">
-            <ms-tag v-for="(tag, index) in scope.row.showTags"
-                    :key="tag + '_' + index"
-                    :effect="'light'"
-                    :content="tag"/>
+            <div v-for="(itemName,index)  in scope.row.tags" :key="index">
+              <ms-tag type="success" effect="plain" :content="itemName"/>
+            </div>
           </template>
         </el-table-column>
 
@@ -265,8 +264,10 @@ export default {
       this.result = this.$post('/test/plan/api/case/list/' + this.currentPage + "/" + this.pageSize, this.condition, response => {
         this.total = response.data.itemCount;
         this.tableData = response.data.listObject;
-        this.tableData.forEach(row => {
-          row.showTags = JSON.parse(row.tags);
+        this.tableData.forEach(item => {
+          if (item.tags && item.tags.length > 0) {
+            item.tags = JSON.parse(item.tags);
+          }
         })
       });
     },
@@ -479,7 +480,4 @@ export default {
   margin-right: 20px;
 }
 
-.el-tag {
-  margin-left: 10px;
-}
 </style>

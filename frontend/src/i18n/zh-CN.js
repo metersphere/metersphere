@@ -732,6 +732,7 @@ export default {
         variable_name: "变量名称",
         set_failure_status: "设置失败状态",
         set_failure_msg: "设置失败消息",
+        suggest_tip: "点击便签添加JSONPath断言",
       },
       extract: {
         label: "提取",
@@ -742,6 +743,9 @@ export default {
         regex_expression: "Perl型正则表达式",
         json_path_expression: "JSONPath表达式",
         xpath_expression: "XPath表达式",
+        suggest_tip: "点击便签添加JSONPath提取",
+        json_path_suggest: "推荐JSONPath提取",
+        json_path_clear: "清空JSONPath提取",
       },
       processor: {
         pre_exec_script: "预执行脚本",
@@ -1086,6 +1090,7 @@ export default {
       plan_status_prepare: "未开始",
       plan_status_running: "进行中",
       plan_status_completed: "已完成",
+      plan_status_trash: "废弃",
       planned_start_time: "计划开始",
       planned_end_time: "计划结束",
       actual_start_time: "实际开始",
