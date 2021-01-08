@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 接口定义模块-批量处理请求类
@@ -24,7 +25,7 @@ public class ApiDefinitionBatchProcessingRequest {
      */
     private boolean isSelectAllDate;
 
-    private List<String> filters;
+    private Map<String, List<String>> filters;
 
     private String name;
 

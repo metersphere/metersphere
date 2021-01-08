@@ -1089,6 +1089,7 @@ export default {
       plan_status_prepare: "Not started",
       plan_status_running: "Starting",
       plan_status_completed: "Completed",
+      plan_status_trash: "Trashed",
       planned_start_time: "Scheduled Start Time",
       planned_end_time: "Scheduled End Time",
       actual_start_time: "Actual Start Time",

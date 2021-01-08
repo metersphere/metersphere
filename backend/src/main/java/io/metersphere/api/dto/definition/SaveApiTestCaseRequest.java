@@ -4,7 +4,6 @@ import io.metersphere.api.dto.definition.request.MsTestElement;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Setter
@@ -37,5 +36,5 @@ public class SaveApiTestCaseRequest {
 
     private List<String> bodyUploadIds;
 
-    private List<String> tags = new ArrayList<>();
+    private String tags;
 }

@@ -585,7 +585,6 @@ public class TestCaseService {
             throw new IllegalArgumentException(Translator.get("file_cannot_be_null"));
         }
 
-        request.setTags(JSON.toJSONString(new HashSet<>(request.getCaseTags())));
         final TestCaseWithBLOBs testCaseWithBLOBs = addTestCase(request);
 
         // 复制用例时传入文件ID进行复制
@@ -642,7 +641,6 @@ public class TestCaseService {
             });
         }
 
-        request.setTags(JSON.toJSONString(new HashSet<>(request.getCaseTags())));
         editTestCase(request);
         return request.getId();
     }

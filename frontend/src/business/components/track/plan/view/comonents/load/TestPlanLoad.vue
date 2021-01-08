@@ -12,7 +12,7 @@
         class="table-list"
         @refresh="refresh"
         :plan-id="planId"
-        :select-node-ids="selectNodeIds"
+        :select-project-id="selectProjectId"
         :select-parent-nodes="selectParentNodes"
         @relevanceCase="openTestCaseRelevanceDialog"
         ref="testPlanLoadCaseList"/>
@@ -46,6 +46,7 @@ export default {
       result: {},
       selectNodeIds: [],
       selectParentNodes: [],
+      selectProjectId: "",
       treeNodes: [],
     }
   },
@@ -74,8 +75,7 @@ export default {
       this.$refs.testCaseLoadRelevance.open();
     },
     nodeChange(node, nodeIds, pNodes) {
-      this.selectNodeIds = nodeIds;
-      this.selectParentNodes = pNodes;
+      this.selectProjectId = node.key;
       // 切换node后，重置分页数
       this.$refs.testPlanLoadCaseList.currentPage = 1;
       this.$refs.testPlanLoadCaseList.pageSize = 10;
@@ -84,6 +84,8 @@ export default {
       if (this.planId) {
         this.result = this.$get("/case/node/list/plan/" + this.planId, response => {
           this.treeNodes = response.data;
+          // 性能测试与模块无关，过滤项目下模块
+          this.treeNodes.map(node => node.children = null);
         });
       }
     },

@@ -177,9 +177,7 @@ export default {
             this.addCase();
           }
           this.apiCaseList.forEach(apiCase => {
-            if (!apiCase.tags) {
-              apiCase.tags = [];
-            } else {
+            if (apiCase.tags && apiCase.tags.length > 0) {
               apiCase.tags = JSON.parse(apiCase.tags);
             }
           })

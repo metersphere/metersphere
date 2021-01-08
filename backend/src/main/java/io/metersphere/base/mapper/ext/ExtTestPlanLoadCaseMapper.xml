@@ -11,11 +11,25 @@
         )
     </select>
     <select id="selectTestPlanLoadCaseList" resultType="io.metersphere.track.dto.TestPlanLoadCaseDTO">
-        select tplc.id, u.name as userName, tplc.create_time, tplc.update_time, tplc.test_plan_id, tplc.load_case_id,
-               lt.status, lt.name as caseName, tplc.load_report_id
+        select tplc.id,
+               u.name  as userName,
+               tplc.create_time,
+               tplc.update_time,
+               tplc.test_plan_id,
+               tplc.load_case_id,
+               lt.status,
+               lt.name as caseName,
+               tplc.load_report_id,
+               p.name as projectName
         from test_plan_load_case tplc
                  inner join load_test lt on tplc.load_case_id = lt.id
                  inner join user u on lt.user_id = u.id
-        where tplc.test_plan_id = #{planId}
+                 inner join project p on lt.project_id = p.id
+            <where>
+                tplc.test_plan_id = #{planId}
+                <if test="projectId != null and projectId != ''">
+                    and lt.project_id = #{projectId}
+                </if>
+            </where>
     </select>
 </mapper>

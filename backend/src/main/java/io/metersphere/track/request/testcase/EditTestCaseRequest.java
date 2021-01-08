@@ -16,5 +16,4 @@ public class EditTestCaseRequest extends TestCaseWithBLOBs {
      * 复制测试用例后，要进行复制的文件Id list
      */
     private List<String> fileIds = new ArrayList<>();
-    private List<String> caseTags = new ArrayList<>();
 }

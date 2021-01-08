@@ -161,7 +161,7 @@ html,body {
   overflow: visible;
 }
 
-.ms-select-all .el-icon-arrow-down {
+.ms-select-all th:nth-child(2) .el-icon-arrow-down {
   position: absolute;
   display: inline-block;
   top: -7px;

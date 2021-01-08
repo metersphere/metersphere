@@ -10,6 +10,8 @@
       <el-table v-loading="result.loading"
                 ref="apiDefinitionTable"
                 border
+                @sort-change="sort"
+                @filter-change="filter"
                 :data="tableData" row-key="id" class="test-content adjust-table ms-select-all"
                 @select-all="handleSelectAll"
                 @select="handleSelect" :height="screenHeight">
@@ -27,18 +29,21 @@
           </template>
         </el-table-column>
 
-        <el-table-column prop="num" label="ID" show-overflow-tooltip/>
-        <el-table-column prop="name" :label="$t('api_test.definition.api_name')" show-overflow-tooltip/>
+        <el-table-column prop="num" label="ID" show-overflow-tooltip
+                         sortable="custom"/>
+        <el-table-column prop="name" :label="$t('api_test.definition.api_name')"
+                         show-overflow-tooltip
+                         sortable="custom"/>
         <el-table-column
           prop="status"
-          column-key="api_status"
-          :label="$t('api_test.definition.api_status')"
-          show-overflow-tooltip>
+          column-key="status"
+          sortable="custom"
+          :filters="statusFilters"
+          :label="$t('api_test.definition.api_status')">
           <template v-slot:default="scope">
-            <ms-tag v-if="scope.row.status == 'Prepare'" type="info" effect="plain" :content="$t('test_track.plan.plan_status_prepare')"/>
-            <ms-tag v-if="scope.row.status == 'Underway'" type="warning" effect="plain" :content="$t('test_track.plan.plan_status_running')"/>
-            <ms-tag v-if="scope.row.status == 'Completed'" type="success" effect="plain" :content="$t('test_track.plan.plan_status_completed')"/>
-            <ms-tag v-if="scope.row.status == 'Trash'" type="danger" effect="plain" content="废弃"/>
+            <span class="el-dropdown-link">
+              <api-status :value="scope.row.status"/>
+            </span>
           </template>
         </el-table-column>
 
@@ -66,10 +71,9 @@
 
         <el-table-column prop="tags" :label="$t('commons.tag')">
           <template v-slot:default="scope">
-            <ms-tag v-for="(tag, index) in scope.row.showTags"
-                    :key="tag + '_' + index"
-                    :effect="'light'"
-                    :content="tag"/>
+            <div v-for="(itemName,index)  in scope.row.tags" :key="index">
+              <ms-tag type="success" effect="plain" :content="itemName"/>
+            </div>
           </template>
         </el-table-column>
 
@@ -128,14 +132,16 @@ import MsBottomContainer from "../BottomContainer";
 import ShowMoreBtn from "../../../../track/case/components/ShowMoreBtn";
 import MsBatchEdit from "../basis/BatchEdit";
 import {API_METHOD_COLOUR, API_STATUS, REQ_METHOD} from "../../model/JsonData";
-import {getCurrentProjectID} from "@/common/js/utils";
+import {_filter, _sort, getCurrentProjectID} from "@/common/js/utils";
 import {WORKSPACE_ID} from '@/common/js/constants';
 import ApiListContainer from "./ApiListContainer";
 import MsTableSelectAll from "../../../../common/components/table/MsTableSelectAll";
+import ApiStatus from "@/business/components/api/definition/components/list/ApiStatus";
 
 export default {
   name: "ApiList",
   components: {
+    ApiStatus,
     MsTableSelectAll,
     ApiListContainer,
     MsTableButton,
@@ -167,6 +173,12 @@ export default {
         {id: 'status', name: this.$t('api_test.definition.api_status')},
         {id: 'method', name: this.$t('api_test.definition.api_type')},
         {id: 'userId', name: this.$t('api_test.definition.api_principal')},
+      ],
+      statusFilters: [
+        {text: this.$t('test_track.plan.plan_status_prepare'), value: 'Prepare'},
+        {text: this.$t('test_track.plan.plan_status_running'), value: 'Underway'},
+        {text: this.$t('test_track.plan.plan_status_completed'), value: 'Completed'},
+        {text: this.$t('test_track.plan.plan_status_trash'), value: 'Trash'},
       ],
       valueArr: {
         status: API_STATUS,
@@ -208,6 +220,7 @@ export default {
     },
   },
   created: function () {
+    this.condition.filters = {status: ["Prepare", "Underway", "Completed"]};
     this.initTable();
     this.getMaintainerOptions();
   },
@@ -220,8 +233,12 @@ export default {
     },
     trashEnable() {
       if (this.trashEnable) {
-        this.initTable();
+        this.condition.filters = {status: ["Trash"]};
+        this.condition.moduleIds = [];
+      } else {
+        this.condition.filters = {status: ["Prepare", "Underway", "Completed"]};
       }
+      this.initTable();
     }
   },
   methods: {
@@ -235,14 +252,8 @@ export default {
       this.unSelection = [];
       this.selectDataCounts = 0;
 
-      this.condition.filters = ["Prepare", "Underway", "Completed"];
 
       this.condition.moduleIds = this.selectNodeIds;
-      if (this.trashEnable) {
-        this.condition.filters = ["Trash"];
-        this.condition.moduleIds = [];
-      }
-
       this.condition.projectId = getCurrentProjectID();
       if (this.currentProtocol != null) {
         this.condition.protocol = this.currentProtocol;
@@ -255,15 +266,6 @@ export default {
       switch (this.selectDataRange) {
         case 'thisWeekCount':
           this.condition.selectThisWeedData = true;
-          break;
-        case 'Prepare':
-          this.condition.filters = [this.selectDataRange];
-          break;
-        case 'Completed':
-          this.condition.filters = [this.selectDataRange];
-          break;
-        case 'Underway':
-          this.condition.filters = [this.selectDataRange];
           break;
         case 'uncoverage':
           this.condition.apiCaseCoverage = 'uncoverage';
@@ -278,9 +280,9 @@ export default {
           this.tableData = response.data.listObject;
           this.unSelection = response.data.listObject.map(s => s.id);
 
-          this.tableData.forEach(row => {
-            if (row.tags) {
-              row.showTags = JSON.parse();
+          this.tableData.forEach(item => {
+            if (item.tags && item.tags.length > 0) {
+              item.tags = JSON.parse(item.tags);
             }
           })
         });
@@ -344,9 +346,13 @@ export default {
       this.$emit('editApi', row);
     },
     reductionApi(row) {
-      row.request = null;
-      row.response = null;
-      let rows = [row];
+      let tmp = JSON.parse(JSON.stringify(row));
+      tmp.request = null;
+      tmp.response = null;
+      if (tmp.tags instanceof Array) {
+        tmp.tags = JSON.stringify(tmp.tags);
+      }
+      let rows = [tmp];
       this.$post('/api/definition/reduction/', rows, () => {
         this.$success(this.$t('commons.save_success'));
         this.search();
@@ -497,7 +503,19 @@ export default {
       let rowArray = Array.from(rowSets)
       let ids = rowArray.map(s => s.id);
       return ids;
-    }
+    },
+    sort(column) {
+      // 每次只对一个字段排序
+      if (this.condition.orders) {
+        this.condition.orders = [];
+      }
+      _sort(column, this.condition);
+      this.initTable();
+    },
+    filter(filters) {
+      _filter(filters, this.condition);
+      this.initTable();
+    },
   },
 }
 </script>
