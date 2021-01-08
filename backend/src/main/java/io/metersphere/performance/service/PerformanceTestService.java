@@ -76,6 +76,8 @@ public class PerformanceTestService {
     private TestCaseService testCaseService;
     @Resource
     private PerformanceNoticeTask performanceNoticeTask;
+    @Resource
+    private TestResourcePoolMapper testResourcePoolMapper;
 
     public List<LoadTestDTO> list(QueryTestPlanRequest request) {
         request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
@@ -216,6 +218,14 @@ public class PerformanceTestService {
 
         if (StringUtils.equalsAny(loadTest.getStatus(), PerformanceTestStatus.Running.name(), PerformanceTestStatus.Starting.name())) {
             MSException.throwException(Translator.get("load_test_is_running"));
+        }
+        String testResourcePoolId = loadTest.getTestResourcePoolId();
+        TestResourcePool testResourcePool = testResourcePoolMapper.selectByPrimaryKey(testResourcePoolId);
+        if (testResourcePool == null) {
+            MSException.throwException("Test resource pool not exists.");
+        }
+        if (ResourceStatusEnum.INVALID.name().equals(testResourcePool.getStatus())) {
+            MSException.throwException("Test resource pool invalid.");
         }
         // check kafka
         checkKafka();
@@ -479,9 +489,9 @@ public class PerformanceTestService {
             quotaService.checkLoadTestQuota(request, create);
         }
     }
-    
+
     public List<LoadTest> getLoadTestListByIds(List<String> ids) {
-        if (CollectionUtils.isEmpty(ids)) { 
+        if (CollectionUtils.isEmpty(ids)) {
             return new ArrayList<>();
         }
         LoadTestExample loadTestExample = new LoadTestExample();
