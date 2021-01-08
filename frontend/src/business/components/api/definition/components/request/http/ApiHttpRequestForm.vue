@@ -76,12 +76,10 @@
             <ms-jsr233-processor v-if="row.label ==='JSR223 PostProcessor'" @copyRow="copyRow" @remove="remove" :is-read-only="false" :title="$t('api_test.definition.request.post_script')" style-type="color: #783887;background-color: #F2ECF3"
                                  :jsr223-processor="row"/>
             <!--断言规则-->
-            <ms-api-assertions v-if="row.type==='Assertions'" @copyRow="copyRow" @remove="remove" :is-read-only="isReadOnly" :assertions="row"/>
+            <ms-api-assertions :response="response" v-if="row.type==='Assertions'" @copyRow="copyRow" @remove="remove" :is-read-only="isReadOnly" :assertions="row"/>
             <!--提取规则-->
             <ms-api-extract :is-read-only="isReadOnly" @copyRow="copyRow" @remove="remove" v-if="row.type==='Extract'" :extract="row"/>
           </div>
-
-
         </div>
       </el-col>
       <!--操作按钮-->
@@ -131,6 +129,7 @@
     },
     props: {
       request: {},
+      response: {},
       showScript: Boolean,
       headers: {
         type: Array,

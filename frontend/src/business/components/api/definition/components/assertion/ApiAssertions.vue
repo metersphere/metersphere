@@ -48,11 +48,15 @@
               </el-col>
             </el-row>
           </div>
+
+          <api-json-path-suggest-button @open="suggestJsonOpen" @clear="clearJson"/>
           <ms-api-assertions-edit :is-read-only="isReadOnly" :assertions="assertions" :reloadData="reloadData" style="margin-bottom: 20px"/>
 
         </div>
       </el-collapse-transition>
     </el-card>
+
+    <ms-api-jsonpath-suggest :tip="$t('api_test.request.extract.suggest_tip')" @addSuggest="addJsonPathSuggest" :data="suggestData" ref="jsonpathSuggest"/>
   </div>
 </template>
 
@@ -67,11 +71,15 @@
   import MsApiJsonpathSuggestList from "./ApiJsonpathSuggestList";
   import MsApiAssertionXPath2 from "./ApiAssertionXPath2";
   import {getUUID} from "@/common/js/utils";
+  import ApiJsonPathSuggestButton from "./ApiJsonPathSuggestButton";
+  import MsApiJsonpathSuggest from "./ApiJsonpathSuggest";
 
   export default {
     name: "MsApiAssertions",
 
     components: {
+      MsApiJsonpathSuggest,
+      ApiJsonPathSuggestButton,
       MsApiAssertionXPath2,
       MsApiAssertionJsr223,
       MsApiJsonpathSuggestList,
@@ -83,6 +91,7 @@
       assertions: {},
       node: {},
       request: {},
+      response: {},
       customizeStyle: {
         type: String,
         default: "margin-top: 10px"
@@ -101,6 +110,7 @@
         type: "",
         loading: false,
         reloadData: "",
+        suggestData: {}
       }
     },
 
@@ -114,11 +124,17 @@
         this.$emit('copyRow', this.assertions, this.node);
       },
       suggestJsonOpen() {
-        if (!this.request.debugRequestResult) {
+        if (!this.response || !this.response.responseResult || !this.response.responseResult.body) {
           this.$message(this.$t('api_test.request.assertions.debug_first'));
           return;
         }
-        this.$refs.jsonpathSuggestList.open();
+        try {
+          this.suggestData = JSON.parse(this.response.responseResult.body);
+        } catch (e) {
+          this.$error(this.$t('api_test.request.assertions.json_path_err'));
+          return;
+        }
+        this.$refs.jsonpathSuggest.open();
       },
       reload() {
         this.loading = true
@@ -133,14 +149,12 @@
       remove() {
         this.$emit('remove', this.assertions, this.node);
       },
-      addJsonpathSuggest(jsonPathList) {
-        jsonPathList.forEach(jsonPath => {
-          let jsonItem = new JSONPath();
-          jsonItem.expression = jsonPath.json_path;
-          jsonItem.expect = jsonPath.json_value;
-          jsonItem.setJSONPathDescription();
-          this.assertions.jsonPath.push(jsonItem);
-        });
+      addJsonPathSuggest(data) {
+        let jsonItem = new JSONPath();
+        jsonItem.expression = data.path;
+        jsonItem.expect = data.value;
+        jsonItem.setJSONPathDescription();
+        this.assertions.jsonPath.push(jsonItem);
       },
       clearJson() {
         this.assertions.jsonPath = [];
@@ -159,6 +173,7 @@
     padding: 10px;
     margin: 5px 0;
     border-radius: 5px;
+    border: #DCDFE6 solid 1px;
   }
 
   .icon.is-active {
@@ -168,4 +183,5 @@
   /deep/ .el-card__body {
     padding: 15px;
   }
+
 </style>
