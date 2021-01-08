@@ -176,7 +176,7 @@
       },
       initTable() {
         this.selectRows = new Set();
-        this.condition.filters = ["Prepare", "Underway", "Completed"];
+        this.condition.filters = {status: ["Prepare", "Underway", "Completed"]};
         this.condition.moduleIds = this.selectNodeIds;
         if (this.trashEnable) {
           this.condition.filters = ["Trash"];

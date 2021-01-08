@@ -19,22 +19,34 @@
       return {
         visible: false,
         isCheckAll: false,
+        data: {},
       };
     },
     props: {
-      data: {},
       tip: {
         type: String,
         default() {
           return ""
         }
-      }
+      },
     },
     methods: {
       close() {
         this.visible = false;
       },
-      open() {
+      open(objStr) {
+        this.data = {};
+        try {
+          let param = JSON.parse(objStr);
+          if (param instanceof Array) {
+            this.$warning(this.$t('api_test.request.assertions.json_path_err'));
+            return;
+          }
+          this.data = param;
+        } catch (e) {
+          this.$warning(this.$t('api_test.request.assertions.json_path_err'));
+          return;
+        }
         this.visible = true;
       },
       pathChangeHandler(data) {
@@ -64,8 +76,8 @@
         if (index === params.length - 1) {
           if (childObj instanceof Object) {
             childObj = JSON.stringify(childObj);
-          } else if (childObj == null) {
-            childObj = "null";
+          } else {
+            childObj = childObj + "";
           }
           return {
             key: param,
