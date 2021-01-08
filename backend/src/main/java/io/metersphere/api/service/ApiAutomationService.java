@@ -11,7 +11,7 @@ import io.metersphere.api.dto.automation.*;
 import io.metersphere.api.dto.datacount.ApiDataCountResult;
 import io.metersphere.api.dto.definition.RunDefinitionRequest;
 import io.metersphere.api.dto.definition.request.*;
-import io.metersphere.api.dto.scenario.KeyValue;
+import io.metersphere.api.dto.definition.request.variable.ScenarioVariable;
 import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
 import io.metersphere.api.jmeter.JMeterService;
 import io.metersphere.base.domain.*;
@@ -30,18 +30,16 @@ import io.metersphere.commons.utils.ServiceUtils;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.i18n.Translator;
 import io.metersphere.job.sechedule.ApiScenarioTestJob;
-import io.metersphere.performance.service.PerformanceTestService;
 import io.metersphere.service.ScheduleService;
 import io.metersphere.track.dto.TestPlanDTO;
 import io.metersphere.track.request.testcase.ApiCaseRelevanceRequest;
 import io.metersphere.track.request.testcase.QueryTestPlanRequest;
-import io.metersphere.track.request.testplan.SaveTestPlanRequest;
+import io.metersphere.track.request.testplan.FileOperationRequest;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
-import org.apache.jmeter.save.SaveService;
 import org.apache.jorphan.collections.HashTree;
 import org.apache.jorphan.collections.ListedHashTree;
 import org.springframework.stereotype.Service;
@@ -50,6 +48,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -78,15 +78,13 @@ public class ApiAutomationService {
     SqlSessionFactory sqlSessionFactory;
     @Resource
     private ApiScenarioReportMapper apiScenarioReportMapper;
-    @Resource
-    private PerformanceTestService performanceTestService;
 
     public List<ApiScenarioDTO> list(ApiScenarioRequest request) {
         request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
-        if(request.isSelectThisWeedData()){
+        if (request.isSelectThisWeedData()) {
             Map<String, Date> weekFirstTimeAndLastTime = DateUtils.getWeedFirstTimeAndLastTime(new Date());
             Date weekFirstTime = weekFirstTimeAndLastTime.get("firstTime");
-            if(weekFirstTime!=null){
+            if (weekFirstTime != null) {
                 request.setCreateTime(weekFirstTime.getTime());
             }
         }
@@ -285,6 +283,22 @@ public class ApiAutomationService {
         return new ArrayList<>();
     }
 
+    public byte[] loadFileAsBytes(FileOperationRequest fileOperationRequest) {
+        File file = new File("/opt/metersphere/data/body/" + fileOperationRequest.getId() + "_" + fileOperationRequest.getName());
+        try (FileInputStream fis = new FileInputStream(file);
+             ByteArrayOutputStream bos = new ByteArrayOutputStream(1000);) {
+            byte[] b = new byte[1000];
+            int n;
+            while ((n = fis.read(b)) != -1) {
+                bos.write(b, 0, n);
+            }
+            return bos.toByteArray();
+        } catch (Exception ex) {
+            LogUtil.error(ex.getMessage());
+        }
+        return null;
+    }
+
     private void createScenarioReport(String id, String scenarioId, String scenarioName, String triggerMode, String execType, String projectId, String userID) {
         APIScenarioReportResult report = new APIScenarioReportResult();
         report.setId(id);
@@ -354,12 +368,14 @@ public class ApiAutomationService {
                 // 多态JSON普通转换会丢失内容，需要通过 ObjectMapper 获取
                 if (element != null && StringUtils.isNotEmpty(element.getString("hashTree"))) {
                     LinkedList<MsTestElement> elements = mapper.readValue(element.getString("hashTree"),
-                            new TypeReference<LinkedList<MsTestElement>>() {});
+                            new TypeReference<LinkedList<MsTestElement>>() {
+                            });
                     scenario.setHashTree(elements);
                 }
                 if (StringUtils.isNotEmpty(element.getString("variables"))) {
-                    LinkedList<KeyValue> variables = mapper.readValue(element.getString("variables"),
-                            new TypeReference<LinkedList<KeyValue>>() {});
+                    LinkedList<ScenarioVariable> variables = mapper.readValue(element.getString("variables"),
+                            new TypeReference<LinkedList<ScenarioVariable>>() {
+                            });
                     scenario.setVariables(variables);
                 }
                 group.setEnableCookieShare(scenario.isEnableCookieShare());
@@ -592,8 +608,8 @@ public class ApiAutomationService {
                     scenario.setHashTree(elements);
                 }
                 if (StringUtils.isNotEmpty(element.getString("variables"))) {
-                    LinkedList<KeyValue> variables = mapper.readValue(element.getString("variables"),
-                            new TypeReference<LinkedList<KeyValue>>() {
+                    LinkedList<ScenarioVariable> variables = mapper.readValue(element.getString("variables"),
+                            new TypeReference<LinkedList<ScenarioVariable>>() {
                             });
                     scenario.setVariables(variables);
                 }
@@ -602,7 +618,6 @@ public class ApiAutomationService {
                 scenarios.add(scenario);
                 group.setHashTree(scenarios);
                 testPlan.getHashTree().add(group);
-
             }
         } catch (Exception ex) {
             MSException.throwException(ex.getMessage());
@@ -615,6 +630,6 @@ public class ApiAutomationService {
         JmxInfoDTO dto = new JmxInfoDTO();
         dto.setName(name);
         dto.setXml(jmx);
-        return  dto;
+        return dto;
     }
 }

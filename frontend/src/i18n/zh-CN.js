@@ -570,7 +570,7 @@ export default {
       create_tag: "创建Tag",
       scenario_step: "场景步骤",
       step_total: "步骤总数",
-      scenario_total: "场景公共参数",
+      scenario_total: "场景变量",
       api_list_import: "接口列表导入",
       external_import: "外部导入",
       wait_controller: "等待控制器",
