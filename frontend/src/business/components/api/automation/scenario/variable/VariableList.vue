@@ -1,6 +1,6 @@
 <template>
   <el-dialog :title="$t('api_test.scenario.variables')"
-             :visible.sync="visible" class="environment-dialog" width="70%"
+             :visible.sync="visible" class="environment-dialog" width="60%"
              @close="close">
     <div>
       <el-row>

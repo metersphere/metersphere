@@ -67,7 +67,7 @@
           return false;
         }
         if (!file.name.endsWith(".csv")) {
-          this.$warning("只能上传CSV文件");
+          this.$warning(this.$t('variables.cvs_info'));
           return false;
         }
         return true;

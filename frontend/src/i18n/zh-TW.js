@@ -1431,5 +1431,16 @@ export default {
     interval: "循環間隔",
     proceed: "成功後繼續循環",
     timeout: "循環超時時間",
+  },
+  variables: {
+    cvs_info: "只能上傳CSV文件",
+    end: "结束",
+    start: "開始",
+    increment: "增量",
+    counter_info: "000產生至少3位數字。user_000輸出形式為user_nnn",
+    config: "配置",
+    add_file: "添加文件",
+    delimiter: "分隔符",
+    format: "輸出格式",
   }
 };

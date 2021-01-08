@@ -8,14 +8,15 @@
       <el-input class="ms-http-textarea"
                 v-model="editData.description"
                 type="textarea"
+                :placeholder="$t('commons.input_content')"
                 :autosize="{ minRows: 2, maxRows: 10}"
                 :rows="2" size="small"/>
     </el-form-item>
     <el-tabs v-model="activeName" @tab-click="handleClick" style="margin-left: 40px">
-      <el-tab-pane label="配置" name="config">
+      <el-tab-pane :label="$t('variables.config')" name="config">
         <el-row>
           <el-col :span="4" style="margin-top: 5px">
-            <span>添加文件</span>
+            <span>{{$t('variables.add_file')}}</span>
           </el-col>
           <el-col :span="20">
             <ms-csv-file-upload :parameter="editData"/>
@@ -26,12 +27,18 @@
             <span>Encoding</span>
           </el-col>
           <el-col :span="20">
-            <el-input v-model="editData.encoding" size="small"/>
+            <el-autocomplete
+              size="small"
+              class="inline-input"
+              v-model="editData.encoding"
+              :fetch-suggestions="querySearch"
+              :placeholder="$t('commons.input_content')"
+            ></el-autocomplete>
           </el-col>
         </el-row>
         <el-row style="margin-top: 10px">
           <el-col :span="4" style="margin-top: 5px">
-            <span>分隔符</span>
+            <span>{{$t('variables.delimiter')}}</span>
           </el-col>
           <el-col :span="20">
             <el-input v-model="editData.delimiter" size="small"/>
@@ -43,7 +50,7 @@
         <el-table
           :data="previewData"
           style="width: 100%"
-          height="400px"
+          height="240px"
           v-loading="loading">
           <!-- 自定义列的遍历-->
           <el-table-column v-for="(item, index) in columns" :key="index" :label="columns[index]" align="left" width="180">
@@ -120,6 +127,19 @@
           });
         }
       },
+      createFilter(queryString) {
+        return (restaurant) => {
+          return (restaurant.value.toLowerCase().indexOf(queryString.toLowerCase()) === 0);
+        };
+      },
+
+      querySearch(queryString, cb) {
+        let restaurants = [{value: "UTF-8"}, {value: "UTF-16"}, {value: "ISO-8859-15"}, {value: "US-ASCll"}];
+        let results = queryString ? restaurants.filter(this.createFilter(queryString)) : restaurants;
+        // 调用 callback 返回建议列表的数据
+        cb(results);
+      },
+
     }
   }
 </script>

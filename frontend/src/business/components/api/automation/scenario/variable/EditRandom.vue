@@ -12,14 +12,14 @@
                 :rows="2" size="small"/>
     </el-form-item>
 
-    <el-form-item label="最小值" prop="minNumber">
+    <el-form-item :label="$t('schema.minimum')" prop="minNumber">
       <el-input size="small" v-model="editData.minNumber" placeholder="0"/>
     </el-form-item>
-    <el-form-item label="最大值" prop="maxNumber">
-      <el-input size="small" v-model="editData.maxNumber" placeholder="10" />
+    <el-form-item :label="$t('schema.maximum')" prop="maxNumber">
+      <el-input size="small" v-model="editData.maxNumber" placeholder="10"/>
     </el-form-item>
-    <el-form-item label="开始" prop="value">
-      <el-input v-model="editData.value" placeholder="000产生至少3位数字。user_000输出形式为user_nnn"></el-input>
+    <el-form-item :label="$t('variables.format')" prop="value">
+      <el-input v-model="editData.value" :placeholder="$t('variables.counter_info')"></el-input>
     </el-form-item>
   </el-form>
 </template>

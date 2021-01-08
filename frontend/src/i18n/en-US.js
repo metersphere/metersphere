@@ -1431,6 +1431,17 @@ export default {
     interval: "interval",
     proceed: "proceed",
     timeout: "timeout",
+  },
+  variables: {
+    cvs_info: "Only CSV files can be uploaded",
+    end: "end",
+    start: "start",
+    increment: "increment",
+    counter_info: "000 produces at least three digits. user_ 000 in the form of user_ NNN",
+    config: "configure",
+    add_file: "Add file",
+    delimiter: "Delimiter",
+    format: "Output format",
   }
 
 };
