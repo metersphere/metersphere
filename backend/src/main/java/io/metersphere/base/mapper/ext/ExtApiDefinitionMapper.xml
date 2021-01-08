@@ -252,6 +252,18 @@
                                     #{value}
                                 </foreach>
                             </when>
+                            <when test="key=='method'">
+                                and api_definition.method in
+                                <foreach collection="values" item="value" separator="," open="(" close=")">
+                                    #{value}
+                                </foreach>
+                            </when>
+                            <when test="key=='user_id'">
+                                and api_definition.user_id in
+                                <foreach collection="values" item="value" separator="," open="(" close=")">
+                                    #{value}
+                                </foreach>
+                            </when>
                         </choose>
                     </if>
                 </foreach>
@@ -270,7 +282,12 @@
         <if test="request.orders != null and request.orders.size() > 0">
             order by
             <foreach collection="request.orders" separator="," item="order">
+             <if test="order.name == 'user_name'">
+                 user_name ${order.type}
+             </if>
+             <if test="order.name != 'user_name'">
                 api_definition.${order.name} ${order.type}
+             </if>
             </foreach>
         </if>
     </select>

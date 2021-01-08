@@ -49,6 +49,9 @@
 
         <el-table-column
           prop="method"
+          sortable="custom"
+          column-key="method"
+          :filters="methodFilters"
           :label="$t('api_test.definition.api_type')"
           show-overflow-tooltip>
           <template v-slot:default="scope" class="request-method">
@@ -66,6 +69,9 @@
 
         <el-table-column
           prop="userName"
+          sortable="custom"
+          :filters="userFilters"
+          column-key="user_id"
           :label="$t('api_test.definition.api_principal')"
           show-overflow-tooltip/>
 
@@ -77,7 +83,11 @@
           </template>
         </el-table-column>
 
-        <el-table-column width="160" :label="$t('api_test.definition.api_last_time')" prop="updateTime">
+        <el-table-column
+          width="160"
+          :label="$t('api_test.definition.api_last_time')"
+          sortable="custom"
+          prop="updateTime">
           <template v-slot:default="scope">
             <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
           </template>
@@ -180,6 +190,21 @@ export default {
         {text: this.$t('test_track.plan.plan_status_completed'), value: 'Completed'},
         {text: this.$t('test_track.plan.plan_status_trash'), value: 'Trash'},
       ],
+      methodFilters: [
+        {text: 'GET', value: 'GET'},
+        {text: 'POST', value: 'POST'},
+        {text: 'PUT', value: 'PUT'},
+        {text: 'PATCH', value: 'PATCH'},
+        {text: 'DELETE', value: 'DELETE'},
+        {text: 'OPTIONS', value: 'OPTIONS'},
+        {text: 'HEAD', value: 'HEAD'},
+        {text: 'CONNECT', value: 'CONNECT'},
+        {text: 'DUBBO', value: 'DUBBO'},
+        {text: 'dubbo://', value: 'dubbo://'},
+        {text: 'SQL', value: 'SQL'},
+        {text: 'TCP', value: 'TCP'},
+      ],
+      userFilters: [],
       valueArr: {
         status: API_STATUS,
         method: REQ_METHOD,
@@ -292,6 +317,9 @@ export default {
       let workspaceId = localStorage.getItem(WORKSPACE_ID);
       this.$post('/user/ws/member/tester/list', {workspaceId: workspaceId}, response => {
         this.valueArr.userId = response.data;
+        this.userFilters = response.data.map(u => {
+          return {text: u.name, value: u.id}
+        });
       });
     },
     handleSelect(selection, row) {
