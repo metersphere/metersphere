@@ -332,7 +332,7 @@ public class UserService {
                 MSException.throwException(Translator.get("user_email_already_exists"));
             }
         }
-
+        user.setPassword(null);
         user.setUpdateTime(System.currentTimeMillis());
         userMapper.updateByPrimaryKeySelective(user);
         // 禁用用户之后，剔除在线用户
