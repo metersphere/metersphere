@@ -13,7 +13,7 @@ import io.metersphere.api.dto.datacount.ApiDataCountResult;
 import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.dto.definition.parse.ApiDefinitionImport;
 import io.metersphere.api.dto.definition.request.*;
-import io.metersphere.api.dto.scenario.KeyValue;
+import io.metersphere.api.dto.definition.request.variable.ScenarioVariable;
 import io.metersphere.api.dto.scenario.request.RequestType;
 import io.metersphere.api.jmeter.JMeterService;
 import io.metersphere.api.jmeter.TestResult;
@@ -29,7 +29,6 @@ import io.metersphere.base.mapper.ext.ExtApiScenarioMapper;
 import io.metersphere.base.mapper.ext.ExtTestPlanMapper;
 import io.metersphere.commons.constants.APITestStatus;
 import io.metersphere.commons.constants.ApiRunMode;
-import io.metersphere.commons.constants.ReportTriggerMode;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
 import io.metersphere.i18n.Translator;
@@ -366,8 +365,8 @@ public class ApiDefinitionService {
                 scenario.setHashTree(elements);
             }
             if (StringUtils.isNotEmpty(element.getString("variables"))) {
-                LinkedList<KeyValue> variables = mapper.readValue(element.getString("variables"),
-                        new TypeReference<LinkedList<KeyValue>>() {});
+                LinkedList<ScenarioVariable> variables = mapper.readValue(element.getString("variables"),
+                        new TypeReference<LinkedList<ScenarioVariable>>() {});
                 scenario.setVariables(variables);
             }
             group.setEnableCookieShare(scenario.isEnableCookieShare());

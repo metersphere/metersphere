@@ -7,6 +7,7 @@ import com.alibaba.fastjson.annotation.JSONType;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.metersphere.api.dto.definition.request.variable.ScenarioVariable;
 import io.metersphere.api.dto.scenario.KeyValue;
 import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
 import io.metersphere.api.service.ApiAutomationService;
@@ -42,7 +43,7 @@ public class MsScenario extends MsTestElement {
     private String environmentId;
 
     @JSONField(ordinal = 23)
-    private List<KeyValue> variables;
+    private List<ScenarioVariable> variables;
 
     @JSONField(ordinal = 24)
     private boolean enableCookieShare;
@@ -60,7 +61,7 @@ public class MsScenario extends MsTestElement {
             }
         }
         if (CollectionUtils.isNotEmpty(this.getVariables())) {
-            config.setVariables(this.variables);
+            //config.setVariables(this.variables);
         }
         if (this.getReferenced() != null && this.getReferenced().equals("Deleted")) {
             return;
@@ -92,17 +93,24 @@ public class MsScenario extends MsTestElement {
         }
     }
 
+    public void setOldVariables(List<KeyValue> oldVariables) {
+        if (CollectionUtils.isNotEmpty(oldVariables)) {
+            String json = JSON.toJSONString(oldVariables);
+            this.variables = JSON.parseArray(json, ScenarioVariable.class);
+        }
+    }
+
     private Arguments arguments(ParameterConfig config) {
         Arguments arguments = new Arguments();
         arguments.setEnabled(true);
         arguments.setName(name + "Variables");
         arguments.setProperty(TestElement.TEST_CLASS, Arguments.class.getName());
         arguments.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("ArgumentsPanel"));
-        if (CollectionUtils.isNotEmpty(this.getVariables())) {
-            variables.stream().filter(KeyValue::isValid).filter(KeyValue::isEnable).forEach(keyValue ->
-                    arguments.addArgument(keyValue.getName(), keyValue.getValue(), "=")
-            );
-        }
+//        if (CollectionUtils.isNotEmpty(this.getVariables())) {
+//            variables.stream().filter(KeyValue::isValid).filter(KeyValue::isEnable).forEach(keyValue ->
+//                    arguments.addArgument(keyValue.getName(), keyValue.getValue(), "=")
+//            );
+//        }
         if (config != null && config.getConfig() != null && config.getConfig().getCommonConfig() != null
                 && CollectionUtils.isNotEmpty(config.getConfig().getCommonConfig().getVariables())) {
             config.getConfig().getCommonConfig().getVariables().stream().filter(KeyValue::isValid).filter(KeyValue::isEnable).forEach(keyValue ->

@@ -803,6 +803,22 @@
             this.recursiveFile(item.hashTree, bodyUploadFiles, obj);
           }
         })
+        // 场景变量csv 文件
+        this.currentScenario.variables.forEach(param => {
+          if (param.type === 'CSV' && param.files) {
+            param.files.forEach(item => {
+              if (item.file) {
+                if (!item.id) {
+                  let fileId = getUUID().substring(0, 12);
+                  item.name = item.file.name;
+                  item.id = fileId;
+                }
+                obj.bodyUploadIds.push(item.id);
+                bodyUploadFiles.push(item.file);
+              }
+            })
+          }
+        })
         return bodyUploadFiles;
       },
       editScenario() {
@@ -842,7 +858,7 @@
                     // 兼容历史数据
                     if (item.name) {
                       if (!item.type) {
-                        item.type = "VARIABLE";
+                        item.type = "CONSTANT";
                         item.id = getUUID();
                       }
                       item.num = index;

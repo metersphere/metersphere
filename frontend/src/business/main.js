@@ -21,6 +21,8 @@ import VueFab from 'vue-float-action-button'
 import {horizontalDrag} from "../common/js/directive";
 import JsonSchemaEditor from './components/common/json-schema/schema/index';
 Vue.use(JsonSchemaEditor);
+import VuePapaParse from 'vue-papa-parse'
+Vue.use(VuePapaParse)
 
 Vue.config.productionTip = false;
 Vue.use(icon);

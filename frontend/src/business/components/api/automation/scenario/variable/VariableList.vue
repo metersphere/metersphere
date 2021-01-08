@@ -3,7 +3,7 @@
              :visible.sync="visible" class="environment-dialog" width="60%"
              @close="close">
     <div>
-      <el-table ref="scenarioTable" border :data="variables" class="adjust-table" @select-all="select" @select="select"
+      <el-table ref="table" border :data="variables" class="adjust-table" @select-all="select" @select="select"
                 v-loading="loading">
         <el-table-column type="selection" width="38"/>
         <el-table-column prop="num" label="ID" sortable/>
