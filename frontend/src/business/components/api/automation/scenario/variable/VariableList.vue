@@ -1,27 +1,36 @@
 <template>
   <el-dialog :title="$t('api_test.scenario.variables')"
-             :visible.sync="visible" class="environment-dialog" width="60%"
+             :visible.sync="visible" class="environment-dialog" width="70%"
              @close="close">
     <div>
-      <el-table ref="table" border :data="variables" class="adjust-table" @select-all="select" @select="select"
-                v-loading="loading">
-        <el-table-column type="selection" width="38"/>
-        <el-table-column prop="num" label="ID" sortable/>
-        <el-table-column prop="name" :label="$t('api_test.variable_name')" sortable show-overflow-tooltip/>
-        <el-table-column prop="type" :label="$t('test_track.case.type')">
-          <template v-slot:default="scope">
-            <span>{{types.get(scope.row.type)}}</span>
-          </template>
-        </el-table-column>
-        <el-table-column prop="value" :label="$t('api_test.value')" show-overflow-tooltip/>
+      <el-row>
+        <el-col :span="12">
+          <div style="border:1px #DCDFE6 solid; min-height: 400px;border-radius: 4px ;width: 100% ;">
 
-        <el-table-column :label="$t('commons.operating')">
-          <template v-slot:default="{row}">
-            <el-button type="text" @click="edit(row)">{{ $t('commons.edit') }}</el-button>
-          </template>
-        </el-table-column>
+            <el-table ref="table" border :data="variables" class="adjust-table" @select-all="select" @select="select"
+                      v-loading="loading" @row-click="edit">
+              <el-table-column type="selection" width="38"/>
+              <el-table-column prop="num" label="ID" sortable/>
+              <el-table-column prop="name" :label="$t('api_test.variable_name')" sortable show-overflow-tooltip/>
+              <el-table-column prop="type" :label="$t('test_track.case.type')">
+                <template v-slot:default="scope">
+                  <span>{{types.get(scope.row.type)}}</span>
+                </template>
+              </el-table-column>
+              <el-table-column prop="value" :label="$t('api_test.value')" show-overflow-tooltip/>
+            </el-table>
+          </div>
+        </el-col>
+        <el-col :span="12">
+          <ms-edit-constant v-if="editData.type=='CONSTANT'" ref="parameters" :editData.sync="editData"/>
+          <ms-edit-counter v-if="editData.type=='COUNTER'" ref="counter" :editData.sync="editData"/>
+          <ms-edit-random v-if="editData.type=='RANDOM'" ref="random" :editData.sync="editData"/>
+          <ms-edit-list-value v-if="editData.type=='LIST'" ref="listValue" :editData="editData"/>
+          <ms-edit-csv v-if="editData.type=='CSV'" ref="csv" :editData.sync="editData"/>
+        </el-col>
 
-      </el-table>
+      </el-row>
+
     </div>
 
     <template v-slot:footer>
@@ -41,11 +50,6 @@
       </div>
     </template>
 
-    <ms-edit-constant ref="parameters" @addParameters="addParameters"/>
-    <ms-edit-counter ref="counter" @addParameters="addParameters"/>
-    <ms-edit-random ref="random" @addParameters="addParameters"/>
-    <ms-edit-list-value ref="listValue" @addParameters="addParameters"/>
-    <ms-edit-csv ref="csv" @addParameters="addParameters"/>
 
   </el-dialog>
 </template>
@@ -87,48 +91,19 @@
         selection: [],
         loading: false,
         currentPage: 1,
+        editData: {},
         pageSize: 10,
         total: 0,
       }
     },
     methods: {
       handleClick(command) {
-        switch (command) {
-          case "CONSTANT":
-            this.$refs.parameters.open();
-            break;
-          case "LIST":
-            this.$refs.listValue.open();
-            break;
-          case "CSV":
-            this.$refs.csv.open();
-            break;
-          case "COUNTER":
-            this.$refs.counter.open();
-            break;
-          case "RANDOM":
-            this.$refs.random.open();
-            break;
-        }
+        this.editData = {};
+        this.editData.type = command;
+        this.addParameters(this.editData);
       },
       edit(row) {
-        switch (row.type) {
-          case "CONSTANT":
-            this.$refs.parameters.open(row);
-            break;
-          case "LIST":
-            this.$refs.listValue.open(row);
-            break;
-          case "CSV":
-            this.$refs.csv.open(row);
-            break;
-          case "COUNTER":
-            this.$refs.counter.open(row);
-            break;
-          case "RANDOM":
-            this.$refs.random.open(row);
-            break;
-        }
+        this.editData = row;
       },
       addParameters(v) {
         v.id = getUUID();
@@ -148,9 +123,17 @@
       open: function (variables) {
         this.variables = variables;
         this.visible = true;
+        this.editData = {type: "CONSTANT"};
+        this.addParameters(this.editData);
       },
       close() {
         this.visible = false;
+        this.variables.forEach(item => {
+          if (item.name === undefined || item.name === "") {
+            const index = this.variables.findIndex(d => d.id === item.id);
+            this.variables.splice(index, 1);
+          }
+        })
         this.$emit('setVariables', this.variables);
       },
       deleteVariable() {

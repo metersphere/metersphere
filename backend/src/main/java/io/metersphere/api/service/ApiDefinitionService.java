@@ -234,7 +234,7 @@ public class ApiDefinitionService {
         test.setResponse(JSONObject.toJSONString(request.getResponse()));
         test.setEnvironmentId(request.getEnvironmentId());
         test.setUserId(request.getUserId());
-        test.setTags(JSON.toJSONString(new HashSet<>(request.getTags())));
+        test.setTags(request.getTags());
 
         apiDefinitionMapper.updateByPrimaryKeySelective(test);
         return test;
@@ -265,7 +265,7 @@ public class ApiDefinitionService {
             test.setUserId(request.getUserId());
         }
         test.setDescription(request.getDescription());
-        test.setTags(JSON.toJSONString(new HashSet<>(request.getTags())));
+        test.setTags(request.getTags());
         apiDefinitionMapper.insert(test);
         return test;
     }
@@ -341,10 +341,11 @@ public class ApiDefinitionService {
 
     /**
      * 内部构建HashTree 定时任务发起的执行
+     *
      * @param request
      * @return
      */
-    public String run(RunDefinitionRequest request,ApiTestCaseWithBLOBs item) {
+    public String run(RunDefinitionRequest request, ApiTestCaseWithBLOBs item) {
         MsTestPlan testPlan = new MsTestPlan();
         testPlan.setHashTree(new LinkedList<>());
         HashTree jmeterHashTree = new ListedHashTree();
@@ -361,12 +362,14 @@ public class ApiDefinitionService {
             // 多态JSON普通转换会丢失内容，需要通过 ObjectMapper 获取
             if (element != null && StringUtils.isNotEmpty(element.getString("hashTree"))) {
                 LinkedList<MsTestElement> elements = mapper.readValue(element.getString("hashTree"),
-                        new TypeReference<LinkedList<MsTestElement>>() {});
+                        new TypeReference<LinkedList<MsTestElement>>() {
+                        });
                 scenario.setHashTree(elements);
             }
             if (StringUtils.isNotEmpty(element.getString("variables"))) {
-                LinkedList<KeyValue> variables = mapper.readValue(element.getString("variables"),
-                        new TypeReference<LinkedList<KeyValue>>() {});
+                LinkedList<ScenarioVariable> variables = mapper.readValue(element.getString("variables"),
+                        new TypeReference<LinkedList<ScenarioVariable>>() {
+                        });
                 scenario.setVariables(variables);
             }
             group.setEnableCookieShare(scenario.isEnableCookieShare());
@@ -571,9 +574,9 @@ public class ApiDefinitionService {
         apiDefinitionMapper.deleteByExample(example);
     }
 
-    private List<String> getAllApiIdsByFontedSelect(List<String> filter, String name, List<String> moduleIds, String projectId, List<String> unSelectIds) {
+    private List<String> getAllApiIdsByFontedSelect(Map<String, List<String>> filters, String name, List<String> moduleIds, String projectId, List<String> unSelectIds) {
         ApiDefinitionRequest request = new ApiDefinitionRequest();
-        request.setFilters(filter);
+        request.setFilters(filters);
         request.setName(name);
         request.setModuleIds(moduleIds);
         request.setProjectId(projectId);

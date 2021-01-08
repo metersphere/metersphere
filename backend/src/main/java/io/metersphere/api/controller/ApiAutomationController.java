@@ -133,7 +133,7 @@ public class ApiAutomationController {
     }
 
     @PostMapping("/file/download")
-    public ResponseEntity<byte[]> downloadJmx(@RequestBody FileOperationRequest fileOperationRequest) {
+    public ResponseEntity<byte[]> download(@RequestBody FileOperationRequest fileOperationRequest) {
         byte[] bytes = apiAutomationService.loadFileAsBytes(fileOperationRequest);
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType("application/octet-stream"))

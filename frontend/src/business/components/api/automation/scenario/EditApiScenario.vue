@@ -6,7 +6,7 @@
           <el-col>
             <!--操作按钮-->
             <div class="ms-opt-btn">
-              <el-button type="primary" size="small" @click="editScenario">{{$t('commons.save')}}</el-button>
+              <el-button type="primary" size="small" @click="editScenario(true)">{{$t('commons.save')}}</el-button>
             </div>
           </el-col>
         </el-row>
@@ -220,7 +220,7 @@
       </el-drawer>
 
       <!--场景公共参数-->
-      <ms-variable-list :currentScenario="currentScenario" @setVariables="setVariables" ref="scenarioParameters"/>
+      <ms-variable-list @setVariables="setVariables" ref="scenarioParameters"/>
       <!--外部导入-->
       <api-import ref="apiImport" :saved="false" @refresh="apiImport"/>
     </div>
@@ -456,6 +456,10 @@
       },
       setVariables(v) {
         this.currentScenario.variables = v;
+        if (this.path.endsWith("/update")) {
+          // 直接更新场景防止编辑内容丢失
+          this.editScenario();
+        }
       },
       showButton(...names) {
         for (const name of names) {
@@ -677,12 +681,17 @@
           this.$error(this.$t('api_test.environment.select_environment'));
           return;
         }
-        this.debugData = {
-          id: this.currentScenario.id, name: this.currentScenario.name, type: "scenario",
-          variables: this.currentScenario.variables, referenced: 'Created', enableCookieShare: this.enableCookieShare,
-          environmentId: this.currentEnvironmentId, hashTree: this.scenarioDefinition
-        };
-        this.reportId = getUUID().substring(0, 8);
+        this.$refs['currentScenario'].validate((valid) => {
+          if (valid) {
+            this.editScenario();
+            this.debugData = {
+              id: this.currentScenario.id, name: this.currentScenario.name, type: "scenario",
+              variables: this.currentScenario.variables, referenced: 'Created', enableCookieShare: this.enableCookieShare,
+              environmentId: this.currentEnvironmentId, hashTree: this.scenarioDefinition
+            };
+            this.reportId = getUUID().substring(0, 8);
+          }
+        })
       },
       getEnvironments() {
         if (this.projectId) {
@@ -821,13 +830,15 @@
         })
         return bodyUploadFiles;
       },
-      editScenario() {
+      editScenario(showMessage) {
         this.$refs['currentScenario'].validate((valid) => {
           if (valid) {
             this.setParameter();
             let bodyFiles = this.getBodyUploadFiles(this.currentScenario);
             this.$fileUpload(this.path, null, bodyFiles, this.currentScenario, response => {
-              this.$success(this.$t('commons.save_success'));
+              if (showMessage) {
+                this.$success(this.$t('commons.save_success'));
+              }
               this.path = "/api/automation/update";
               if (response.data) {
                 this.currentScenario.id = response.data.id;
