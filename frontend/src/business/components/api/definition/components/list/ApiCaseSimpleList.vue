@@ -10,28 +10,23 @@
       <el-table v-loading="result.loading"
                 ref="caseTable"
                 border
-                :data="tableData" row-key="id" class="test-content adjust-table"
+                :data="tableData" row-key="id" class="test-content adjust-table ms-select-all"
                 @select-all="handleSelectAll"
                 @filter-change="filter"
                 @sort-change="sort"
                 @select="handleSelect" :height="screenHeight">
-        <el-table-column type="selection"/>
-        <el-table-column width="40" :resizable="false" align="center">
-          <el-dropdown slot="header" style="width: 14px">
-            <span class="el-dropdown-link" style="width: 14px">
-              <i class="el-icon-arrow-down el-icon--right" style="margin-left: 0px"></i>
-            </span>
-            <el-dropdown-menu slot="dropdown">
-              <el-dropdown-item @click.native.stop="isSelectDataAll(true)">
-                {{ $t('api_test.batch_menus.select_all_data', [total]) }}
-              </el-dropdown-item>
-              <el-dropdown-item @click.native.stop="isSelectDataAll(false)">
-                {{ $t('api_test.batch_menus.select_show_data', [tableData.length]) }}
-              </el-dropdown-item>
-            </el-dropdown-menu>
-          </el-dropdown>
+
+        <el-table-column type="selection" width="50"/>
+
+        <ms-table-select-all
+          :page-size="pageSize"
+          :total="total"
+          @selectPageAll="isSelectDataAll(false)"
+          @selectAll="isSelectDataAll(true)"/>
+
+        <el-table-column width="30" :resizable="false" align="center">
           <template v-slot:default="scope">
-            <show-more-btn :is-show="scope.row.showMore && !isReadOnly" :buttons="buttons" :size="selectDataCounts"/>
+            <show-more-btn :is-show="scope.row.showMore" :buttons="buttons" :size="selectDataCounts"/>
           </template>
         </el-table-column>
 
@@ -117,8 +112,6 @@ import ApiListContainer from "./ApiListContainer";
 import PriorityTableItem from "../../../../track/common/tableItems/planview/PriorityTableItem";
 import ApiCaseList from "../case/ApiCaseList";
 import {_filter, _sort} from "../../../../../../common/js/utils";
-import TestPlanCaseListHeader from "../../../../track/plan/view/comonents/api/TestPlanCaseListHeader";
-import MsEnvironmentSelect from "../case/MsEnvironmentSelect";
 import {_handleSelect, _handleSelectAll} from "../../../../../../common/js/tableUtils";
 import MsApiCaseTableExtendBtns from "../reference/ApiCaseTableExtendBtns";
 import MsReferenceView from "../reference/ReferenceView";
@@ -126,10 +119,12 @@ import MsSetEnvironment from "@/business/components/api/definition/components/ba
 import TestPlan from "@/business/components/api/definition/components/jmeter/components/test-plan";
 import ThreadGroup from "@/business/components/api/definition/components/jmeter/components/thread-group";
 import {parseEnvironment} from "@/business/components/api/test/model/EnvironmentModel";
+import MsTableSelectAll from "../../../../common/components/table/MsTableSelectAll";
 
 export default {
   name: "ApiCaseSimpleList",
   components: {
+    MsTableSelectAll,
     MsSetEnvironment,
     ApiCaseList,
     PriorityTableItem,
@@ -568,5 +563,13 @@ export default {
   /*margin-bottom: 20px;*/
   margin-right: 20px;
 }
+
+  .ms-select-all >>> th:first-child {
+    margin-top: 20px;
+  }
+
+  .ms-select-all >>> .el-icon-arrow-down {
+    top: -3px;
+  }
 
 </style>
