@@ -220,16 +220,20 @@ public class Swagger2Parser extends SwaggerAbstractParser {
             //模型数组
             ArrayModel arrayModel = (ArrayModel) schema;
             Property items = arrayModel.getItems();
+            JSONArray propertyList = new JSONArray();
             if (items instanceof RefProperty) {
                 RefProperty refProperty = (RefProperty) items;
                 String simpleRef = refProperty.getSimpleRef();
                 HashSet<String> refSet = new HashSet<>();
                 refSet.add(simpleRef);
                 Model model = definitions.get(simpleRef);
-                JSONArray propertyList = new JSONArray();
-                propertyList.add(getBodyParameters(model.getProperties(), refSet));
-                return propertyList.toString();
+                if (model != null) {
+                    propertyList.add(getBodyParameters(model.getProperties(), refSet));
+                } else {
+                    propertyList.add(new JSONObject());
+                }
             }
+            return propertyList.toString();
         }
         return "";
     }
