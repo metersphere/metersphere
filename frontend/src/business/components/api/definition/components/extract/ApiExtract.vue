@@ -12,6 +12,7 @@
         <el-button size="mini" icon="el-icon-copy-document" circle @click="copyRow" style="margin-left: 10px"/>
         <el-button size="mini" icon="el-icon-delete" type="danger" circle @click="remove" style="margin-left: 10px"/>
       </div>
+
       <!-- 请求参数-->
       <el-collapse-transition>
         <div v-if="extract.active">
@@ -36,10 +37,17 @@
                 <el-button v-if="!type" :disabled="true" type="primary" size="small">Add</el-button>
               </el-row>
             </div>
+
+            <api-json-path-suggest-button :open-tip="$t('api_test.request.extract.json_path_suggest')"
+                                          :clear-tip="$t('api_test.request.extract.json_path_clear')" @open="suggestJsonOpen" @clear="clearJson"/>
+
             <ms-api-extract-edit :is-read-only="isReadOnly" :reloadData="reloadData" :extract="extract"/>
           </div>
         </div>
       </el-collapse-transition>
+
+      <ms-api-jsonpath-suggest :tip="$t('api_test.request.extract.suggest_tip')" @addSuggest="addJsonPathSuggest" :data="suggestData" ref="jsonpathSuggest"/>
+
     </el-card>
   </div>
 </template>
@@ -49,17 +57,23 @@
   import MsApiExtractEdit from "./ApiExtractEdit";
   import MsApiExtractCommon from "./ApiExtractCommon";
   import {getUUID} from "@/common/js/utils";
+  import ApiJsonPathSuggestButton from "../assertion/ApiJsonPathSuggestButton";
+  import MsApiJsonpathSuggest from "../assertion/ApiJsonpathSuggest";
+  import {ExtractJSONPath} from "../../../test/model/ScenarioModel";
 
   export default {
     name: "MsApiExtract",
 
     components: {
+      MsApiJsonpathSuggest,
+      ApiJsonPathSuggestButton,
       MsApiExtractCommon,
       MsApiExtractEdit,
     },
 
     props: {
       extract: {},
+      response: {},
       node: {},
       customizeStyle: {
         type: String,
@@ -77,6 +91,7 @@
         type: "",
         reloadData: "",
         loading: false,
+        suggestData: {}
       }
     },
 
@@ -101,6 +116,28 @@
         item.active = !item.active;
         this.reload();
       },
+      suggestJsonOpen() {
+        if (!this.response || !this.response.responseResult || !this.response.responseResult.body) {
+          this.$message(this.$t('api_test.request.assertions.debug_first'));
+          return;
+        }
+        try {
+          this.suggestData = JSON.parse(this.response.responseResult.body);
+        } catch (e) {
+          this.$error(this.$t('api_test.request.assertions.json_path_err'));
+          return;
+        }
+        this.$refs.jsonpathSuggest.open();
+      },
+      addJsonPathSuggest(data) {
+        let option = {};
+        option.variable = data.key;
+        option.expression = data.path;
+        this.extract.json.push(new ExtractJSONPath(option));
+      },
+      clearJson() {
+        this.extract.json = [];
+      }
     },
     computed: {
       list() {
