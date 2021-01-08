@@ -78,7 +78,7 @@
             <!--断言规则-->
             <ms-api-assertions :response="response" v-if="row.type==='Assertions'" @copyRow="copyRow" @remove="remove" :is-read-only="isReadOnly" :assertions="row"/>
             <!--提取规则-->
-            <ms-api-extract :is-read-only="isReadOnly" @copyRow="copyRow" @remove="remove" v-if="row.type==='Extract'" :extract="row"/>
+            <ms-api-extract :response="response" :is-read-only="isReadOnly" @copyRow="copyRow" @remove="remove" v-if="row.type==='Extract'" :extract="row"/>
           </div>
         </div>
       </el-col>

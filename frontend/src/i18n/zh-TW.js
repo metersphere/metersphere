@@ -744,6 +744,8 @@ export default {
         json_path_expression: "JSONPath表達式",
         xpath_expression: "XPath表達式",
         suggest_tip: "點擊便簽添加JSONPath提取",
+        json_path_suggest: "推薦JSONPath提取",
+        json_path_clear: "清空JSONPath提取",
       },
       processor: {
         pre_exec_script: "預執行腳本",

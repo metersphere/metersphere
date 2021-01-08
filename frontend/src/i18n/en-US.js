@@ -744,6 +744,8 @@ export default {
         json_path_expression: "JSONPath expression",
         xpath_expression: "XPath expression",
         suggest_tip: "Click the note to add the JSONPath extraction",
+        json_path_suggest: "JSONPath Extraction Suggest",
+        json_path_clear: "Clear JSONPath Extraction",
       },
       processor: {
         pre_exec_script: "PreProcessor",

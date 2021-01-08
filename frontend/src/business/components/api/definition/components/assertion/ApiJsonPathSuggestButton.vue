@@ -1,17 +1,18 @@
 <template>
   <el-row :gutter="10" class="json-path-suggest-button">
     <el-button size="small" type="primary" @click="$emit('open')">
-      {{ $t('api_test.request.assertions.json_path_suggest') }}
+      {{openTip}}
     </el-button>
     <el-button size="small" type="danger" @click="$emit('clear')">
-      {{ $t('api_test.request.assertions.json_path_clear') }}
+      {{clearTip}}
     </el-button>
   </el-row>
 </template>
 
 <script>
     export default {
-        name: "ApiJsonPathSuggestButton"
+      name: "ApiJsonPathSuggestButton",
+      props: ['openTip', 'clearTip']
     }
 </script>
 

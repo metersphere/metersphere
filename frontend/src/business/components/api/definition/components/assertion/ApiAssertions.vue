@@ -49,7 +49,8 @@
             </el-row>
           </div>
 
-          <api-json-path-suggest-button @open="suggestJsonOpen" @clear="clearJson"/>
+          <api-json-path-suggest-button :open-tip="$t('api_test.request.assertions.json_path_suggest')"
+                                        :clear-tip="$t('api_test.request.assertions.json_path_clear')" @open="suggestJsonOpen" @clear="clearJson"/>
           <ms-api-assertions-edit :is-read-only="isReadOnly" :assertions="assertions" :reloadData="reloadData" style="margin-bottom: 20px"/>
 
         </div>
