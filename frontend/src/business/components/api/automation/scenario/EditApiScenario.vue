@@ -107,7 +107,7 @@
                 </el-col>
                 <el-col :span="3" class="ms-col-one ms-font">
                   <el-link class="head" @click="showScenarioParameters">{{$t('api_test.automation.scenario_total')}}</el-link>
-                  ：{{this.currentScenario.variables!=undefined?this.currentScenario.variables.length-1: 0}}
+                  ：{{this.currentScenario.variables!=undefined?this.currentScenario.variables.length: 0}}
                 </el-col>
                 <el-col :span="3" class="ms-col-one ms-font">
                   <el-checkbox v-model="enableCookieShare">共享cookie</el-checkbox>
@@ -941,11 +941,6 @@
     background-color: white;
   }
 
-  .ms-opt-btn {
-    float: right;
-    margin-right: 20px;
-  }
-
   .ms-debug-div {
     border: 1px #DCDFE6 solid;
     border-radius: 4px;
@@ -1028,5 +1023,9 @@
     color: #303133;
     font-family: "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", Arial, sans-serif;
     font-size: 13px;
+  }
+  .ms-opt-btn {
+    position: fixed;
+    right: 50px;
   }
 </style>

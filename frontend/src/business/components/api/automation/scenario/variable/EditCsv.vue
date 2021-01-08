@@ -34,7 +34,7 @@
             <span>分隔符</span>
           </el-col>
           <el-col :span="20">
-            <el-input v-model="editData.splits" size="small"/>
+            <el-input v-model="editData.delimiter" size="small"/>
           </el-col>
         </el-row>
 
