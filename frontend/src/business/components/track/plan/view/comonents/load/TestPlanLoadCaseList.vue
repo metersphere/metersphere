@@ -167,6 +167,7 @@ export default {
   },
   methods: {
     initTable() {
+      this.selectRows = new Set();
       let param = {};
       param.testPlanId = this.planId;
       if (this.selectProjectId && this.selectProjectId !== 'root') {
