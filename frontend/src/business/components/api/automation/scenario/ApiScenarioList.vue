@@ -6,28 +6,22 @@
                          :show-create="false"/>
       </template>
 
-      <el-table ref="scenarioTable" border :data="tableData" class="adjust-table" @select-all="select" @select="select"
+      <el-table ref="scenarioTable" border :data="tableData" class="adjust-table ms-select-all" @select-all="select" @select="select"
                 v-loading="loading">
-        <el-table-column type="selection" width="38"/>
-        <el-table-column v-if="!referenced" width="40" :resizable="false" align="center">
-          <el-dropdown slot="header" style="width: 14px">
-              <span class="el-dropdown-link" style="width: 14px">
-                <i class="el-icon-arrow-down el-icon--right" style="margin-left: 0px"></i>
-              </span>
-            <el-dropdown-menu slot="dropdown">
-              <el-dropdown-item @click.native.stop="isSelectDataAll(true)">
-                {{$t('api_test.batch_menus.select_all_data',[total])}}
-              </el-dropdown-item>
-              <el-dropdown-item @click.native.stop="isSelectDataAll(false)">
-                {{$t('api_test.batch_menus.select_show_data',[tableData.length])}}
-              </el-dropdown-item>
-            </el-dropdown-menu>
-          </el-dropdown>
+        <el-table-column type="selection" width="50"/>
 
-          <template v-slot:default="{row}">
-            <show-more-btn :is-show="isSelect(row)" :buttons="buttons" :size="selectDataCounts"/>
+        <ms-table-select-all v-if="!referenced"
+          :page-size="pageSize"
+          :total="total"
+          @selectPageAll="isSelectDataAll(false)"
+          @selectAll="isSelectDataAll(true)"/>
+
+        <el-table-column v-if="!referenced" width="30" :resizable="false" align="center">
+          <template v-slot:default="scope">
+            <show-more-btn :is-show="isSelect(scope.row)" :buttons="buttons" :size="selectDataCounts"/>
           </template>
         </el-table-column>
+
         <el-table-column prop="num" label="ID"
                          show-overflow-tooltip/>
         <el-table-column prop="name" :label="$t('api_test.automation.scenario_name')"
@@ -111,10 +105,12 @@ import MsApiReportDetail from "../report/ApiReportDetail";
 import MsTableMoreBtn from "./TableMoreBtn";
 import MsScenarioExtendButtons from "@/business/components/api/automation/scenario/ScenarioExtendBtns";
 import MsTestPlanList from "./testplan/TestPlanList";
+import MsTableSelectAll from "../../../common/components/table/MsTableSelectAll";
 
 export default {
   name: "MsApiScenarioList",
   components: {
+    MsTableSelectAll,
     MsTablePagination,
     MsTableMoreBtn,
     ShowMoreBtn,
