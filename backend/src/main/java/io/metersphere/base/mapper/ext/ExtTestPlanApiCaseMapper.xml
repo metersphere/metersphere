@@ -23,7 +23,7 @@
     from
       test_plan_api_case t
     inner join
-      api_test_case c
+    api_test_case c
     on t.api_case_id = c.id
       <if test="request.planId != null and request.planId!=''">
         and t.test_plan_id = #{request.planId}

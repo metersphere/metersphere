@@ -103,4 +103,8 @@ public class ApiTestCaseController {
     public String jenkinsRun(@RequestBody RunCaseRequest request) {
         return apiTestCaseService.run(request);
     }
+    @GetMapping(value = "/jenkins/exec/result/{id}")
+    public String getExecResult(@PathVariable String  id) {
+        return apiTestCaseService.getExecResult(id);
+    }
 }
