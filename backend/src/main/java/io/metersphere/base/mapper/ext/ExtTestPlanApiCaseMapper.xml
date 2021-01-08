@@ -72,6 +72,12 @@
                 #{value}
               </foreach>
             </when>
+            <when test="key == 'user_id'">
+              and c.create_user_id in
+              <foreach collection="values" item="value" separator="," open="(" close=")">
+                #{value}
+              </foreach>
+            </when>
           </choose>
         </if>
       </foreach>
@@ -82,6 +88,9 @@
         <choose>
           <when test="order.name == 'update_time'">
             t.${order.name} ${order.type}
+          </when>
+          <when test="order.name == 'create_user'">
+            create_user_id ${order.type}
           </when>
           <otherwise>
             ${order.name} ${order.type}

@@ -63,9 +63,9 @@ export default {
   },
   methods: {
     refresh() {
-      this.selectNodeIds = [];
+      this.selectProjectId = '';
       this.selectParentNodes = [];
-      this.$refs.testCaseLoadRelevance.search();
+      this.$refs.testPlanLoadCaseList.initTable();
       this.getNodeTreeByPlanId();
     },
     initData() {

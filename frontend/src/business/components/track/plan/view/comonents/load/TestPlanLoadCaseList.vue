@@ -143,7 +143,8 @@ export default {
         {text: 'Error', value: 'Error'}
       ],
       reportId: '',
-      loading: false
+      loading: false,
+      statusScheduler: null
     }
   },
   props: {
@@ -156,6 +157,7 @@ export default {
   },
   created() {
     this.initTable();
+    this.refreshStatus();
   },
   watch: {
     selectProjectId() {
@@ -178,6 +180,16 @@ export default {
         this.total = data.itemCount;
         this.tableData = data.listObject;
       })
+    },
+    refreshStatus() {
+      this.refreshScheduler = setInterval(() => {
+        let arr = this.tableData.filter(data => data.status !== 'Completed' && data.status !== 'Error');
+        if (arr.length > 0) {
+          this.initTable();
+        } else {
+          clearInterval(this.refreshScheduler);
+        }
+      }, 4000);
     },
     handleSelectAll(selection) {
       if (selection.length > 0) {
@@ -220,17 +232,29 @@ export default {
       })
     },
     handleRunBatch() {
-
+      this.selectRows.forEach(loadCase => {
+        this.run(loadCase);
+      })
     },
     run(loadCase) {
       this.$post('/test/plan/load/case/run', {
         id: loadCase.loadCaseId,
         testPlanLoadId: loadCase.id,
         triggerMode: 'MANUAL'
-      }, response => {
-        let reportId = response.data;
+      }).then(() => {
+        this.$notify({
+          title: loadCase.caseName,
+          message: '正在执行....',
+          type: 'success'
+        });
         this.initTable();
+      }).catch(() => {
+        this.$notify.error({
+          title: loadCase.caseName,
+          message: '用例执行错误，请单独调试该用例！'
+        });
       })
+      this.refreshStatus();
     },
     handleDelete(loadCase) {
       this.result = this.$get('/test/plan/load/case/delete/' + loadCase.id, () => {
@@ -268,8 +292,16 @@ export default {
           // this.initTable();
         }
       })
+    },
+    cancelRefresh() {
+      if (this.refreshScheduler) {
+        clearInterval(this.refreshScheduler);
+      }
     }
-  }
+  },
+  beforeDestroy() {
+    this.cancelRefresh();
+  },
 }
 </script>
 
