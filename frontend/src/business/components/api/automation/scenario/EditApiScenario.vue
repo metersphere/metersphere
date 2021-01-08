@@ -164,9 +164,9 @@
                       <ms-jsr233-processor v-if="data.type==='JSR223PostProcessor'" @remove="remove" @copyRow="copyRow" :title="$t('api_test.definition.request.post_script')"
                                            style-type="color: #783887;background-color: #F2ECF3" :jsr223-processor="data" :node="node"/>
                       <!--断言规则-->
-                      <ms-api-assertions v-if="data.type==='Assertions'" @remove="remove" @copyRow="copyRow" customizeStyle="margin-top: 0px" :assertions="data" :node="node"/>
+                      <ms-api-assertions @suggestClick="suggestClick(node)" :response="response" v-if="data.type==='Assertions'" @remove="remove" @copyRow="copyRow" customizeStyle="margin-top: 0px" :assertions="data" :node="node"/>
                       <!--提取规则-->
-                      <ms-api-extract @remove="remove" @copyRow="copyRow" v-if="data.type==='Extract'" customizeStyle="margin-top: 0px" :extract="data" :node="node"/>
+                      <ms-api-extract @suggestClick="suggestClick(node)" :response="response" @remove="remove" @copyRow="copyRow" v-if="data.type==='Extract'" customizeStyle="margin-top: 0px" :extract="data" :node="node"/>
                       <!--API 导入 -->
                       <ms-api-component :request="data" :currentScenario="currentScenario" :currentEnvironmentId="currentEnvironmentId" @remove="remove" @copyRow="copyRow"
                                         v-if="data.type==='HTTPSamplerProxy'||data.type==='DubboSampler'||data.type==='JDBCSampler'||data.type==='TCPSampler'" :node="node"/>
@@ -319,7 +319,8 @@
         enableCookieShare: false,
         globalOptions: {
           spacing: 30
-        }
+        },
+        response: {}
       }
     }
     ,
@@ -534,6 +535,12 @@
         this.selectedTreeNode = e;
       }
       ,
+      suggestClick(node) {
+        this.response = {};
+        if (node.parent && node.parent.data.requestResult) {
+         this.response = node.parent.data.requestResult;
+        }
+      },
       showAll() {
         this.operatingElements = ELEMENTS.get("ALL");
         this.selectedTreeNode = undefined;
