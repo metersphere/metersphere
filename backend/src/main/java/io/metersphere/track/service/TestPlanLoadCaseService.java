@@ -16,6 +16,7 @@ import org.apache.ibatis.session.SqlSessionFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
@@ -39,6 +40,8 @@ public class TestPlanLoadCaseService {
     private LoadTestReportMapper loadTestReportMapper;
     @Resource
     private LoadTestMapper loadTestMapper;
+    @Resource
+    private LoadReportStatusTask loadReportStatusTask;
 
     public List<LoadTest> relevanceList(LoadCaseRequest request) {
         List<String> ids = extTestPlanLoadCaseMapper.selectIdsNotInPlan(request.getProjectId(), request.getTestPlanId());
@@ -82,6 +85,7 @@ public class TestPlanLoadCaseService {
         testPlanLoadCase.setId(request.getTestPlanLoadId());
         testPlanLoadCase.setLoadReportId(reportId);
         testPlanLoadCaseMapper.updateByPrimaryKeySelective(testPlanLoadCase);
+        loadReportStatusTask.registerReportIsEndTask(request.getTestPlanLoadId(), reportId);
         return reportId;
     }
 
@@ -121,5 +125,11 @@ public class TestPlanLoadCaseService {
         TestPlanLoadCaseExample example = new TestPlanLoadCaseExample();
         example.createCriteria().andIdIn(ids);
         testPlanLoadCaseMapper.deleteByExample(example);
+    }
+
+    public void update(TestPlanLoadCase testPlanLoadCase) {
+        if (!StringUtils.isEmpty(testPlanLoadCase.getId())) {
+            testPlanLoadCaseMapper.updateByPrimaryKeySelective(testPlanLoadCase);
+        }
     }
 }

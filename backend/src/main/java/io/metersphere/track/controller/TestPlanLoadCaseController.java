@@ -3,6 +3,7 @@ package io.metersphere.track.controller;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.base.domain.LoadTest;
+import io.metersphere.base.domain.TestPlanLoadCase;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.track.dto.TestPlanLoadCaseDTO;
@@ -56,5 +57,10 @@ public class TestPlanLoadCaseController {
     @PostMapping("/batch/delete")
     public void batchDelete(@RequestBody List<String> ids) {
         testPlanLoadCaseService.batchDelete(ids);
+    }
+
+    @PostMapping("/update")
+    public void update(@RequestBody TestPlanLoadCase testPlanLoadCase) {
+        testPlanLoadCaseService.update(testPlanLoadCase);
     }
 }

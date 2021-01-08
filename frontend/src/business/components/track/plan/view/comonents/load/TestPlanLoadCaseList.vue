@@ -66,6 +66,19 @@
           </template>
         </el-table-column>
         <el-table-column
+          prop="caseStatus"
+          label="执行状态">
+          <template v-slot:default="{row}">
+            <el-tag size="mini" type="danger" v-if="row.caseStatus === 'error'">
+              {{ row.caseStatus }}
+            </el-tag>
+            <el-tag size="mini" type="success" v-else-if="row.caseStatus === 'success'">
+              {{ row.caseStatus }}
+            </el-tag>
+            <span v-else>-</span>
+          </template>
+        </el-table-column>
+        <el-table-column
           label="报告"
           show-overflow-tooltip>
           <template v-slot:default="scope">
@@ -187,6 +200,7 @@ export default {
         if (arr.length > 0) {
           this.initTable();
         } else {
+          setTimeout(this.initTable, 3000);
           clearInterval(this.refreshScheduler);
         }
       }, 4000);
@@ -233,10 +247,15 @@ export default {
     },
     handleRunBatch() {
       this.selectRows.forEach(loadCase => {
-        this.run(loadCase);
+        this._run(loadCase);
       })
+      this.refreshStatus();
     },
     run(loadCase) {
+      this._run(loadCase);
+      this.refreshStatus();
+    },
+    _run(loadCase) {
       this.$post('/test/plan/load/case/run', {
         id: loadCase.loadCaseId,
         testPlanLoadId: loadCase.id,
@@ -249,12 +268,15 @@ export default {
         });
         this.initTable();
       }).catch(() => {
+        //todo 用例出错
+        this.$post('/test/plan/load/case/update', {id: loadCase.id, status: "error"},() => {
+          this.initTable();
+        });
         this.$notify.error({
           title: loadCase.caseName,
           message: '用例执行错误，请单独调试该用例！'
         });
       })
-      this.refreshStatus();
     },
     handleDelete(loadCase) {
       this.result = this.$get('/test/plan/load/case/delete/' + loadCase.id, () => {
