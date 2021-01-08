@@ -2,14 +2,12 @@
   <el-card>
     <div class="card-content">
       <div class="ms-main-div" @click="showAll">
-        <el-row>
-          <el-col>
-            <!--操作按钮-->
-            <div class="ms-opt-btn">
-              <el-button type="primary" size="small" @click="editScenario(true)">{{$t('commons.save')}}</el-button>
-            </div>
-          </el-col>
-        </el-row>
+
+        <!--操作按钮-->
+        <div class="ms-opt-btn">
+          <el-button type="primary" size="small" @click="editScenario">{{$t('commons.save')}}</el-button>
+        </div>
+
         <div class="tip">{{$t('test_track.plan_view.base_info')}}</div>
         <el-form :model="currentScenario" label-position="right" label-width="80px" size="small" :rules="rules" ref="currentScenario" style="margin-right: 20px">
           <!-- 基础信息 -->
@@ -109,7 +107,7 @@
                 </el-col>
                 <el-col :span="3" class="ms-col-one ms-font">
                   <el-link class="head" @click="showScenarioParameters">{{$t('api_test.automation.scenario_total')}}</el-link>
-                  ：{{this.currentScenario.variables!=undefined?this.currentScenario.variables.length: 0}}
+                  ：{{this.currentScenario.variables!=undefined?this.currentScenario.variables.length-1: 0}}
                 </el-col>
                 <el-col :span="3" class="ms-col-one ms-font">
                   <el-checkbox v-model="enableCookieShare">共享cookie</el-checkbox>

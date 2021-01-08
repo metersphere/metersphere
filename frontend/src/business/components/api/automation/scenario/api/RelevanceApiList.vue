@@ -3,9 +3,9 @@
     :is-api-list-enable="isApiListEnable"
     @isApiListEnableChange="isApiListEnableChange">
 
-      <ms-environment-select :project-id="projectId" v-if="isTestPlan" :is-read-only="isReadOnly" @setEnvironment="setEnvironment"/>
+    <ms-environment-select :project-id="projectId" v-if="isTestPlan" :is-read-only="isReadOnly" @setEnvironment="setEnvironment"/>
 
-      <el-input placeholder="搜索" @blur="initTable" class="search-input" size="small" @keyup.enter.native="initTable" v-model="condition.name"/>
+    <el-input placeholder="搜索" @blur="initTable" class="search-input" size="small" @keyup.enter.native="initTable" v-model="condition.name"/>
 
 
     <el-table v-loading="result.loading"
@@ -36,7 +36,7 @@
         show-overflow-tooltip>
         <template v-slot:default="scope" class="request-method">
           <el-tag size="mini" :style="{'background-color': getColor(scope.row.method), border: getColor(true, scope.row.method)}" class="api-el-tag">
-            {{ scope.row.method}}
+            {{ scope.row.method }}
           </el-tag>
         </template>
       </el-table-column>
@@ -74,189 +74,188 @@
 
 <script>
 
-  import MsTableOperator from "../../../../common/components/MsTableOperator";
-  import MsTableOperatorButton from "../../../../common/components/MsTableOperatorButton";
-  import {LIST_CHANGE, TrackEvent} from "@/business/components/common/head/ListEvent";
-  import MsTablePagination from "../../../../common/pagination/TablePagination";
-  import MsTag from "../../../../common/components/MsTag";
-  import MsBottomContainer from "../../../definition/components/BottomContainer";
-  import ShowMoreBtn from "../../../../track/case/components/ShowMoreBtn";
-  import MsBatchEdit from "../../../definition/components/basis/BatchEdit";
-  import {API_METHOD_COLOUR, CASE_PRIORITY} from "../../../definition/model/JsonData";
-  import {getCurrentProjectID} from "@/common/js/utils";
-  import ApiListContainer from "../../../definition/components/list/ApiListContainer";
-  import PriorityTableItem from "../../../../track/common/tableItems/planview/PriorityTableItem";
-  import {_filter, _sort} from "../../../../../../common/js/utils";
-  import {_handleSelect, _handleSelectAll} from "../../../../../../common/js/tableUtils";
-  import MsEnvironmentSelect from "../../../definition/components/case/MsEnvironmentSelect";
+import MsTableOperator from "../../../../common/components/MsTableOperator";
+import MsTableOperatorButton from "../../../../common/components/MsTableOperatorButton";
+import MsTablePagination from "../../../../common/pagination/TablePagination";
+import MsTag from "../../../../common/components/MsTag";
+import MsBottomContainer from "../../../definition/components/BottomContainer";
+import ShowMoreBtn from "../../../../track/case/components/ShowMoreBtn";
+import MsBatchEdit from "../../../definition/components/basis/BatchEdit";
+import {API_METHOD_COLOUR, CASE_PRIORITY} from "../../../definition/model/JsonData";
+import {getCurrentProjectID} from "@/common/js/utils";
+import ApiListContainer from "../../../definition/components/list/ApiListContainer";
+import PriorityTableItem from "../../../../track/common/tableItems/planview/PriorityTableItem";
+import {_filter, _sort} from "../../../../../../common/js/utils";
+import {_handleSelect, _handleSelectAll} from "../../../../../../common/js/tableUtils";
+import MsEnvironmentSelect from "../../../definition/components/case/MsEnvironmentSelect";
 
-  export default {
-    name: "RelevanceApiList",
-    components: {
-      MsEnvironmentSelect,
-      PriorityTableItem,
-      ApiListContainer,
-      MsTableOperatorButton,
-      MsTableOperator,
-      MsTablePagination,
-      MsTag,
-      MsBottomContainer,
-      ShowMoreBtn,
-      MsBatchEdit
+export default {
+  name: "RelevanceApiList",
+  components: {
+    MsEnvironmentSelect,
+    PriorityTableItem,
+    ApiListContainer,
+    MsTableOperatorButton,
+    MsTableOperator,
+    MsTablePagination,
+    MsTag,
+    MsBottomContainer,
+    ShowMoreBtn,
+    MsBatchEdit
+  },
+  data() {
+    return {
+      condition: {},
+      selectCase: {},
+      result: {},
+      moduleId: "",
+      deletePath: "/test/case/delete",
+      selectRows: new Set(),
+      typeArr: [
+        {id: 'priority', name: this.$t('test_track.case.priority')},
+      ],
+      priorityFilters: [
+        {text: 'P0', value: 'P0'},
+        {text: 'P1', value: 'P1'},
+        {text: 'P2', value: 'P2'},
+        {text: 'P3', value: 'P3'}
+      ],
+      valueArr: {
+        priority: CASE_PRIORITY,
+      },
+      methodColorMap: new Map(API_METHOD_COLOUR),
+      tableData: [],
+      currentPage: 1,
+      pageSize: 10,
+      total: 0,
+      environmentId: ""
+    }
+  },
+  props: {
+    currentProtocol: String,
+    selectNodeIds: Array,
+    visible: {
+      type: Boolean,
+      default: false,
     },
-    data() {
-      return {
-        condition: {},
-        selectCase: {},
-        result: {},
-        moduleId: "",
-        deletePath: "/test/case/delete",
-        selectRows: new Set(),
-        typeArr: [
-          {id: 'priority', name: this.$t('test_track.case.priority')},
-        ],
-        priorityFilters: [
-          {text: 'P0', value: 'P0'},
-          {text: 'P1', value: 'P1'},
-          {text: 'P2', value: 'P2'},
-          {text: 'P3', value: 'P3'}
-        ],
-        valueArr: {
-          priority: CASE_PRIORITY,
-        },
-        methodColorMap: new Map(API_METHOD_COLOUR),
-        tableData: [],
-        currentPage: 1,
-        pageSize: 10,
-        total: 0,
-        environmentId: ""
-      }
+    isApiListEnable: {
+      type: Boolean,
+      default: false,
     },
-    props: {
-      currentProtocol: String,
-      selectNodeIds: Array,
-      visible: {
-        type: Boolean,
-        default: false,
-      },
-      isApiListEnable: {
-        type: Boolean,
-        default: false,
-      },
-      isReadOnly: {
-        type: Boolean,
-        default: false
-      },
-      isCaseRelevance: {
-        type: Boolean,
-        default: false,
-      },
-      projectId: String,
-      planId: String,
-      isTestPlan: Boolean
+    isReadOnly: {
+      type: Boolean,
+      default: false
     },
-    created: function () {
+    isCaseRelevance: {
+      type: Boolean,
+      default: false,
+    },
+    projectId: String,
+    planId: String,
+    isTestPlan: Boolean
+  },
+  created: function () {
+    this.initTable();
+  },
+  watch: {
+    selectNodeIds() {
       this.initTable();
     },
-    watch: {
-      selectNodeIds() {
-        this.initTable();
-      },
-      currentProtocol() {
-        this.initTable();
-      },
-      projectId() {
-        this.initTable();
-      }
+    currentProtocol() {
+      this.initTable();
     },
-    computed: {},
-    methods: {
-      isApiListEnableChange(data) {
-        this.$emit('isApiListEnableChange', data);
-      },
-      initTable() {
-        this.selectRows = new Set();
-        this.condition.filters = ["Prepare", "Underway", "Completed"];
-        this.condition.moduleIds = this.selectNodeIds;
-        if (this.trashEnable) {
-          this.condition.filters = ["Trash"];
-          this.condition.moduleIds = [];
-        }
-        if (this.projectId != null) {
-          this.condition.projectId = this.projectId;
-        } else {
-          this.condition.projectId = getCurrentProjectID();
-
-        }
-        if (this.currentProtocol != null) {
-          this.condition.protocol = this.currentProtocol;
-        }
-        let url = '/api/definition/list/';
-        if (this.isTestPlan) {
-          url = '/api/definition/list/relevance/';
-          this.condition.planId = this.planId;
-        }
-        this.result = this.$post(url + this.currentPage + "/" + this.pageSize, this.condition, response => {
-          this.total = response.data.itemCount;
-          this.tableData = response.data.listObject;
-        });
-      },
-
-      handleSelect(selection, row) {
-        _handleSelect(this, selection, row, this.selectRows);
-      },
-      showExecResult(row) {
-        this.visible = false;
-        this.$emit('showExecResult', row);
-      },
-      filter(filters) {
-        _filter(filters, this.condition);
-        this.initTable();
-      },
-      sort(column) {
-        // 每次只对一个字段排序
-        if (this.condition.orders) {
-          this.condition.orders = [];
-        }
-        _sort(column, this.condition);
-        this.initTable();
-      },
-      handleSelectAll(selection) {
-        _handleSelectAll(this, selection, this.tableData, this.selectRows);
-      },
-      buildPagePath(path) {
-        return path + "/" + this.currentPage + "/" + this.pageSize;
-      },
-      getColor(method) {
-        return this.methodColorMap.get(method);
-      },
-      setEnvironment(data) {
-        this.environmentId = data.id;
-      }
+    projectId() {
+      this.initTable();
+    }
+  },
+  computed: {},
+  methods: {
+    isApiListEnableChange(data) {
+      this.$emit('isApiListEnableChange', data);
     },
-  }
+    initTable() {
+      this.selectRows = new Set();
+      this.condition.filters = {status: ["Prepare", "Underway", "Completed"]};
+      this.condition.moduleIds = this.selectNodeIds;
+      if (this.trashEnable) {
+        this.condition.filters = {status: ["Trash"]};
+        this.condition.moduleIds = [];
+      }
+      if (this.projectId != null) {
+        this.condition.projectId = this.projectId;
+      } else {
+        this.condition.projectId = getCurrentProjectID();
+
+      }
+      if (this.currentProtocol != null) {
+        this.condition.protocol = this.currentProtocol;
+      }
+      let url = '/api/definition/list/';
+      if (this.isTestPlan) {
+        url = '/api/definition/list/relevance/';
+        this.condition.planId = this.planId;
+      }
+      this.result = this.$post(url + this.currentPage + "/" + this.pageSize, this.condition, response => {
+        this.total = response.data.itemCount;
+        this.tableData = response.data.listObject;
+      });
+    },
+
+    handleSelect(selection, row) {
+      _handleSelect(this, selection, row, this.selectRows);
+    },
+    showExecResult(row) {
+      this.visible = false;
+      this.$emit('showExecResult', row);
+    },
+    filter(filters) {
+      _filter(filters, this.condition);
+      this.initTable();
+    },
+    sort(column) {
+      // 每次只对一个字段排序
+      if (this.condition.orders) {
+        this.condition.orders = [];
+      }
+      _sort(column, this.condition);
+      this.initTable();
+    },
+    handleSelectAll(selection) {
+      _handleSelectAll(this, selection, this.tableData, this.selectRows);
+    },
+    buildPagePath(path) {
+      return path + "/" + this.currentPage + "/" + this.pageSize;
+    },
+    getColor(method) {
+      return this.methodColorMap.get(method);
+    },
+    setEnvironment(data) {
+      this.environmentId = data.id;
+    }
+  },
+}
 </script>
 
 <style scoped>
-  .operate-button > div {
-    display: inline-block;
-    margin-left: 10px;
-  }
+.operate-button > div {
+  display: inline-block;
+  margin-left: 10px;
+}
 
-  .request-method {
-    padding: 0 5px;
-    color: #1E90FF;
-  }
+.request-method {
+  padding: 0 5px;
+  color: #1E90FF;
+}
 
-  .api-el-tag {
-    color: white;
-  }
+.api-el-tag {
+  color: white;
+}
 
-  .search-input {
-    float: right;
-    width: 30%;
-    margin-bottom: 20px;
-    margin-right: 20px;
-  }
+.search-input {
+  float: right;
+  width: 30%;
+  margin-bottom: 20px;
+  margin-right: 20px;
+}
 
 </style>

@@ -383,8 +383,9 @@ public class TestPlanService {
         return testPlans;
     }
 
-    public List<TestPlanDTO> listTestPlanByProject(QueryTestPlanRequest request) {
-        return extTestPlanMapper.planList(request);
+    public List<TestPlanDTOWithMetric> listTestPlanByProject(QueryTestPlanRequest request) {
+        List<TestPlanDTOWithMetric> testPlans=extTestPlanMapper.list(request);
+        return testPlans;
     }
 
     public void testPlanRelevance(PlanCaseRelevanceRequest request) {

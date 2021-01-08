@@ -26,12 +26,13 @@
           </template>
         </el-table-column>
 
-        <el-table-column prop="num" label="ID" show-overflow-tooltip/>
-        <el-table-column prop="name" :label="$t('api_test.definition.api_name')" show-overflow-tooltip/>
+        <el-table-column prop="num" sortable="custom" label="ID" show-overflow-tooltip/>
+        <el-table-column prop="name" sortable="custom" :label="$t('api_test.definition.api_name')" show-overflow-tooltip/>
 
         <el-table-column
           prop="priority"
           :filters="priorityFilters"
+          sortable="custom"
           column-key="priority"
           :label="$t('test_track.case.priority')"
           show-overflow-tooltip>
@@ -47,6 +48,9 @@
 
         <el-table-column
           prop="createUser"
+          column-key="user_id"
+          sortable="custom"
+          :filters="userFilters"
           :label="'创建人'"
           show-overflow-tooltip/>
 
@@ -134,6 +138,7 @@ import MsRun from "../../../../../api/definition/components/Run";
 import TestPlanApiCaseResult from "./TestPlanApiCaseResult";
 import TestPlan from "../../../../../api/definition/components/jmeter/components/test-plan";
 import ThreadGroup from "../../../../../api/definition/components/jmeter/components/thread-group";
+import {WORKSPACE_ID} from "@/common/js/constants";
 
 export default {
   name: "TestPlanApiCaseList",
@@ -177,6 +182,7 @@ export default {
       ],
       valueArr: {
         priority: CASE_PRIORITY,
+        userId: [],
       },
       methodColorMap: new Map(API_METHOD_COLOUR),
       tableData: [],
@@ -189,7 +195,8 @@ export default {
       runData: [],
       reportId: "",
       response: {},
-      rowLoading: ""
+      rowLoading: "",
+      userFilters: []
     }
   },
   props: {
@@ -220,6 +227,7 @@ export default {
     planId: String
   },
   created: function () {
+    this.getMaintainerOptions();
     this.initTable();
   },
   watch: {
@@ -248,6 +256,15 @@ export default {
     },
   },
   methods: {
+    getMaintainerOptions() {
+      let workspaceId = localStorage.getItem(WORKSPACE_ID);
+      this.$post('/user/ws/member/tester/list', {workspaceId: workspaceId}, response => {
+        this.valueArr.userId = response.data;
+        this.userFilters = response.data.map(u => {
+          return {text: u.name, value: u.id}
+        });
+      });
+    },
     isApiListEnableChange(data) {
       this.$emit('isApiListEnableChange', data);
     },
