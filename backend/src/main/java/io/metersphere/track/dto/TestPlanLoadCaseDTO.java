@@ -10,4 +10,5 @@ public class TestPlanLoadCaseDTO extends TestPlanLoadCase {
     private String userName;
     private String caseName;
     private String projectName;
+    private String caseStatus;
 }

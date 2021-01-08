@@ -18,6 +18,7 @@
                tplc.test_plan_id,
                tplc.load_case_id,
                lt.status,
+               tplc.status as caseStatus,
                lt.name as caseName,
                tplc.load_report_id,
                p.name as projectName

@@ -47,7 +47,7 @@ public class PerformanceNoticeTask {
                 if (StringUtils.equalsAny(loadTestReportFromDatabase.getStatus(),
                         PerformanceTestStatus.Completed.name(), PerformanceTestStatus.Error.name())) {
                     sendNotice(loadTestReportFromDatabase);
-                    isRunning = false;
+                    return;
                 }
                 try {
                     //查询定时任务是否关闭
