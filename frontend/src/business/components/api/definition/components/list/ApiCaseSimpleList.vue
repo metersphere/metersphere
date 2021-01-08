@@ -568,8 +568,8 @@ export default {
     margin-top: 20px;
   }
 
-  .ms-select-all >>> .el-icon-arrow-down {
-    top: -3px;
+  .ms-select-all >>> th:nth-child(2) .el-icon-arrow-down {
+    top: -2px;
   }
 
 </style>

@@ -541,37 +541,16 @@ export default {
   margin-right: 20px;
 }
 
-.api-list >>> th:first-child {
-  /*border: 1px solid #DCDFE6;*/
-  /*border-right: 0px;*/
-  /*border-top-left-radius:5px;*/
-  /*border-bottom-left-radius:5px;*/
-  /*width: 20px;*/
-
-}
-
-.api-list >>> th:nth-child(2) {
-  /*border: 1px solid #DCDFE6;*/
-  /*border-left: 0px;*/
-  /*border-top-right-radius:5px;*/
-  /*border-bottom-right-radius:5px;*/
-}
-
-.api-list >>> th:first-child > .cell {
-  padding: 5px;
-  width: 30px;
-}
-
-.api-list >>> th:nth-child(2) > .cell {
-  /*background-color: black;*/
-}
-
-.api-list >>> .el-dropdown {
-  float: left;
-}
-
 .el-tag {
   margin-left: 10px;
+}
+
+.ms-select-all >>> th:first-child {
+  margin-top: 20px;
+}
+
+.ms-select-all >>> th:nth-child(2) .el-icon-arrow-down {
+  top: -2px;
 }
 
 </style>
