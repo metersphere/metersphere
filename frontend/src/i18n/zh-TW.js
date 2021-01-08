@@ -1085,6 +1085,7 @@ export default {
       plan_status_prepare: "未開始",
       plan_status_running: "進行中",
       plan_status_completed: "已完成",
+      plan_status_trash: "廢棄",
       planned_start_time: "計劃開始",
       planned_end_time: "計劃結束",
       actual_start_time: "實際開始",

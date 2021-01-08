@@ -24,26 +24,7 @@
 
 
         <label class="ms-api-label" style="padding-left: 20px; padding-right: 20px;">{{ $t('commons.tag') }}</label>
-        <el-tag
-          :key="apiCase.id + '_' + index"
-          v-for="(tag, index) in apiCase.tags"
-          closable
-          size="mini"
-          :disable-transitions="false"
-          @close="handleClose(tag)">
-          {{ tag }}
-        </el-tag>
-        <el-input
-          class="input-new-tag"
-          v-if="inputVisible"
-          v-model="inputValue"
-          ref="saveTagInput"
-          size="mini"
-          @keyup.enter.native="handleInputConfirm"
-          @blur="handleInputConfirm"
-        >
-        </el-input>
-        <el-button v-else class="button-new-tag" size="mini" @click="showTagInput">+</el-button>
+        <ms-input-tag :currentScenario="apiCase" ref="tag" style="float: right;margin-right: 215px;margin-top: -3px;"/>
 
         <div v-if="apiCase.id" style="color: #999999;font-size: 12px">
                   <span>
@@ -57,15 +38,15 @@
         </div>
       </el-col>
 
-          <el-col :span="4">
-            <ms-tip-button @click="singleRun(apiCase)" :tip="$t('api_test.run')" icon="el-icon-video-play"
-                           style="background-color: #409EFF;color: white" size="mini" :disabled="!apiCase.id" circle v-tester/>
-            <ms-tip-button @click="copyCase(apiCase)" :tip="$t('commons.copy')" icon="el-icon-document-copy"
-                           size="mini" :disabled="!apiCase.id || isCaseEdit" circle v-tester/>
-            <ms-tip-button @click="deleteCase(index,apiCase)" :tip="$t('commons.delete')" icon="el-icon-delete"
-                           size="mini" :disabled="!apiCase.id || isCaseEdit" circle v-tester/>
-            <ms-api-extend-btns :is-case-edit="isCaseEdit" :environment="environment" :row="apiCase" v-tester/>
-          </el-col>
+      <el-col :span="4">
+        <ms-tip-button @click="singleRun(apiCase)" :tip="$t('api_test.run')" icon="el-icon-video-play"
+                       style="background-color: #409EFF;color: white" size="mini" :disabled="!apiCase.id" circle v-tester/>
+        <ms-tip-button @click="copyCase(apiCase)" :tip="$t('commons.copy')" icon="el-icon-document-copy"
+                       size="mini" :disabled="!apiCase.id || isCaseEdit" circle v-tester/>
+        <ms-tip-button @click="deleteCase(index,apiCase)" :tip="$t('commons.delete')" icon="el-icon-delete"
+                       size="mini" :disabled="!apiCase.id || isCaseEdit" circle v-tester/>
+        <ms-api-extend-btns :is-case-edit="isCaseEdit" :environment="environment" :row="apiCase" v-tester/>
+      </el-col>
 
       <el-col :span="3">
         <el-link type="danger" v-if="apiCase.execResult && apiCase.execResult==='error'" @click="showExecResult(apiCase)">
@@ -112,10 +93,12 @@ import MsSqlBasisParameters from "../request/database/BasisParameters";
 import MsTcpBasisParameters from "../request/tcp/BasisParameters";
 import MsDubboBasisParameters from "../request/dubbo/BasisParameters";
 import MsApiExtendBtns from "../reference/ApiExtendBtns";
+import MsInputTag from "@/business/components/api/automation/scenario/MsInputTag";
 
 export default {
   name: "ApiCaseItem",
   components: {
+    MsInputTag,
     MsTag,
     MsTipButton,
     MsApiRequestForm,
@@ -139,8 +122,6 @@ export default {
       visible: false,
       condition: {},
       isShowInput: false,
-      inputVisible: false,
-      inputValue: ''
     }
   },
   props: {
@@ -213,21 +194,25 @@ export default {
       }
     },
     saveTestCase(row) {
+      let tmp = JSON.parse(JSON.stringify(row));
       this.isShowInput = false;
-      if (this.validate(row)) {
+      if (this.validate(tmp)) {
         return;
       }
-      let bodyFiles = this.getBodyUploadFiles(row);
-      row.projectId = getCurrentProjectID();
-      row.active = true;
-      row.request.path = this.api.path;
-      row.request.method = this.api.method;
-      row.apiDefinitionId = row.apiDefinitionId || this.api.id;
+      let bodyFiles = this.getBodyUploadFiles(tmp);
+      tmp.projectId = getCurrentProjectID();
+      tmp.active = true;
+      tmp.request.path = this.api.path;
+      tmp.request.method = this.api.method;
+      tmp.apiDefinitionId = tmp.apiDefinitionId || this.api.id;
       let url = "/api/testcase/create";
-      if (row.id) {
+      if (tmp.id) {
         url = "/api/testcase/update";
       }
-      this.$fileUpload(url, null, bodyFiles, row, () => {
+      if (tmp.tags instanceof Array) {
+        tmp.tags = JSON.stringify(tmp.tags);
+      }
+      this.$fileUpload(url, null, bodyFiles, tmp, () => {
         this.$success(this.$t('commons.save_success'));
         this.$emit('refresh');
       });
@@ -293,28 +278,6 @@ export default {
       }
       return bodyUploadFiles;
     },
-    handleClose(tag) {
-      this.apiCase.tags.splice(this.apiCase.tags.indexOf(tag), 1);
-      this.saveTestCase(this.apiCase)
-    },
-
-    showTagInput() {
-      this.inputVisible = true;
-      this.$nextTick(_ => {
-        this.$refs.saveTagInput.$refs.input.focus();
-      });
-    },
-
-    handleInputConfirm() {
-      let inputValue = this.inputValue;
-      if (inputValue) {
-        this.apiCase.tags.push(inputValue);
-        this.saveTestCase(this.apiCase)
-      }
-      this.inputVisible = false;
-      this.inputValue = '';
-    }
-
   }
 }
 </script>
@@ -355,23 +318,5 @@ export default {
 
 .is-selected {
   background: #EFF7FF;
-}
-
-.el-tag + .el-tag {
-  margin-left: 10px;
-}
-
-.button-new-tag {
-  margin-left: 10px;
-  height: 20px;
-  /*line-height: 30px;*/
-  padding-top: 0;
-  padding-bottom: 0;
-}
-
-.input-new-tag {
-  width: 90px;
-  margin-left: 10px;
-  vertical-align: bottom;
 }
 </style>
