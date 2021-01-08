@@ -13,6 +13,7 @@ import io.metersphere.api.dto.definition.request.MsThreadGroup;
 import io.metersphere.api.dto.definition.request.ParameterConfig;
 import io.metersphere.api.jmeter.JMeterService;
 import io.metersphere.base.domain.*;
+import io.metersphere.base.mapper.ApiDefinitionExecResultMapper;
 import io.metersphere.base.mapper.ApiDefinitionMapper;
 import io.metersphere.base.mapper.ApiTestCaseMapper;
 import io.metersphere.base.mapper.ApiTestFileMapper;
@@ -68,6 +69,8 @@ public class ApiTestCaseService {
     private ApiDefinitionMapper apiDefinitionMapper;
     @Resource
     private JMeterService jMeterService;
+    @Resource
+    private ApiDefinitionExecResultMapper  apiDefinitionExecResultMapper;
 
     private static final String BODY_FILE_DIR = "/opt/metersphere/data/body";
 
@@ -406,6 +409,7 @@ public class ApiTestCaseService {
                 mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
                 MsTestElement element = mapper.readValue(testCaseWithBLOBs.getRequest(), new TypeReference<MsTestElement>() {
                 });
+                element.setName(request.getCaseId());
                 // 测试计划
                 MsTestPlan testPlan = new MsTestPlan();
                 testPlan.setHashTree(new LinkedList<>());
@@ -434,4 +438,11 @@ public class ApiTestCaseService {
         return request.getReportId();
     }
 
+    public String getExecResult(String id){
+        ApiDefinitionExecResultExample apidefinitionexecresultexample = new ApiDefinitionExecResultExample();
+        ApiDefinitionExecResultExample.Criteria criteria = apidefinitionexecresultexample.createCriteria();
+        criteria.andResourceIdEqualTo(id);
+        String status=apiDefinitionExecResultMapper.selectByExample(apidefinitionexecresultexample).get(0).getStatus();
+        return status;
+    }
 }

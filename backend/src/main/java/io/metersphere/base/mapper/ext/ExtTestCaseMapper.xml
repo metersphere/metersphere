@@ -320,21 +320,28 @@
         </if>
     </select>
     <select id="listByMethod" resultType="io.metersphere.track.dto.TestCaseDTO">
-        SELECT id,name,status,project_id,"api" as type from api_test
+        SELECT id,name,project_id,"api" as type from api_test
         <where>
             <if test="request.projectId!=null">
                 and project_id=#{request.projectId}
             </if>
         </where>
         UNION ALL
-        select id,name,status,project_id,"perform" as type from load_test
+        select id,name,project_id,"perform" as type from load_test
         <where>
             <if test="request.projectId!=null">
                 and project_id= #{request.projectId}
             </if>
         </where>
         UNION ALL
-        select id,name,status,project_id,"scenario" as type from api_scenario
+        select id,name,project_id,"scenario" as type from api_scenario
+        <where>
+            <if test="request.projectId!=null">
+                and project_id= #{request.projectId}
+            </if>
+        </where>
+        UNION ALL
+        select id,name,project_id,"definition" as type from api_test_case
         <where>
             <if test="request.projectId!=null">
                 and project_id= #{request.projectId}
