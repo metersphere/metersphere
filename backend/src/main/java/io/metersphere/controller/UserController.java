@@ -136,6 +136,10 @@ public class UserController {
 
     @PostMapping("/update/current")
     public UserDTO updateCurrentUser(@RequestBody User user) {
+        String currentUserId = SessionUtils.getUserId();
+        if (!StringUtils.equals(currentUserId, user.getId())) {
+            MSException.throwException(Translator.get("not_authorized"));
+        }
         userService.updateUser(user);
         UserDTO userDTO = userService.getUserDTO(user.getId());
         SessionUtils.putUser(SessionUser.fromUser(userDTO));

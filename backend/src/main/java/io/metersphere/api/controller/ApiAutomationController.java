@@ -5,37 +5,26 @@ import com.github.pagehelper.PageHelper;
 import io.metersphere.api.dto.JmxInfoDTO;
 import io.metersphere.api.dto.automation.*;
 import io.metersphere.api.dto.definition.RunDefinitionRequest;
-import io.metersphere.api.dto.definition.request.*;
-import io.metersphere.api.dto.scenario.KeyValue;
 import io.metersphere.api.service.ApiAutomationService;
 import io.metersphere.base.domain.ApiScenario;
 import io.metersphere.base.domain.ApiScenarioWithBLOBs;
 import io.metersphere.base.domain.Schedule;
-import io.metersphere.commons.constants.ReportTriggerMode;
 import io.metersphere.commons.constants.RoleConstants;
-import io.metersphere.commons.exception.MSException;
-import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.commons.utils.SessionUtils;
-import io.metersphere.i18n.Translator;
-import io.metersphere.performance.service.PerformanceTestService;
 import io.metersphere.track.request.testcase.ApiCaseRelevanceRequest;
-import io.metersphere.track.request.testplan.SaveTestPlanRequest;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.jmeter.save.SaveService;
-import org.apache.jorphan.collections.HashTree;
-import org.apache.jorphan.collections.ListedHashTree;
+import io.metersphere.track.request.testplan.FileOperationRequest;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
-import java.io.ByteArrayOutputStream;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.UUID;
 
 @RestController
 @RequestMapping(value = "/api/automation")
@@ -44,9 +33,6 @@ public class ApiAutomationController {
 
     @Resource
     ApiAutomationService apiAutomationService;
-    @Resource
-    PerformanceTestService performanceTestService;
-
 
     @PostMapping("/list/{goPage}/{pageSize}")
     @RequiresRoles(value = {RoleConstants.TEST_MANAGER, RoleConstants.TEST_USER, RoleConstants.TEST_VIEWER}, logical = Logical.OR)
@@ -144,6 +130,15 @@ public class ApiAutomationController {
     public JmxInfoDTO genPerformanceTestJmx(@RequestBody RunScenarioRequest runRequest) {
         runRequest.setExecuteType(ExecuteType.Completed.name());
         return apiAutomationService.genPerformanceTestJmx(runRequest);
+    }
+
+    @PostMapping("/file/download")
+    public ResponseEntity<byte[]> download(@RequestBody FileOperationRequest fileOperationRequest) {
+        byte[] bytes = apiAutomationService.loadFileAsBytes(fileOperationRequest);
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType("application/octet-stream"))
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileOperationRequest.getName() + "\"")
+                .body(bytes);
     }
 }
 

@@ -107,7 +107,7 @@
                 </el-col>
                 <el-col :span="3" class="ms-col-one ms-font">
                   <el-link class="head" @click="showScenarioParameters">{{$t('api_test.automation.scenario_total')}}</el-link>
-                  ：{{this.currentScenario.variables!=undefined?this.currentScenario.variables.length-1: 0}}
+                  ：{{this.currentScenario.variables!=undefined?this.currentScenario.variables.length: 0}}
                 </el-col>
                 <el-col :span="3" class="ms-col-one ms-font">
                   <el-checkbox v-model="enableCookieShare">共享cookie</el-checkbox>
@@ -164,9 +164,9 @@
                       <ms-jsr233-processor v-if="data.type==='JSR223PostProcessor'" @remove="remove" @copyRow="copyRow" :title="$t('api_test.definition.request.post_script')"
                                            style-type="color: #783887;background-color: #F2ECF3" :jsr223-processor="data" :node="node"/>
                       <!--断言规则-->
-                      <ms-api-assertions v-if="data.type==='Assertions'" @remove="remove" @copyRow="copyRow" customizeStyle="margin-top: 0px" :assertions="data" :node="node"/>
+                      <ms-api-assertions @suggestClick="suggestClick(node)" :response="response" v-if="data.type==='Assertions'" @remove="remove" @copyRow="copyRow" customizeStyle="margin-top: 0px" :assertions="data" :node="node"/>
                       <!--提取规则-->
-                      <ms-api-extract @remove="remove" @copyRow="copyRow" v-if="data.type==='Extract'" customizeStyle="margin-top: 0px" :extract="data" :node="node"/>
+                      <ms-api-extract @suggestClick="suggestClick(node)" :response="response" @remove="remove" @copyRow="copyRow" v-if="data.type==='Extract'" customizeStyle="margin-top: 0px" :extract="data" :node="node"/>
                       <!--API 导入 -->
                       <ms-api-component :request="data" :currentScenario="currentScenario" :currentEnvironmentId="currentEnvironmentId" @remove="remove" @copyRow="copyRow"
                                         v-if="data.type==='HTTPSamplerProxy'||data.type==='DubboSampler'||data.type==='JDBCSampler'||data.type==='TCPSampler'" :node="node"/>
@@ -218,7 +218,7 @@
       </el-drawer>
 
       <!--场景公共参数-->
-      <ms-scenario-parameters :currentScenario="currentScenario" @addParameters="addParameters" ref="scenarioParameters"/>
+      <ms-variable-list @setVariables="setVariables" ref="scenarioParameters"/>
       <!--外部导入-->
       <api-import ref="apiImport" :saved="false" @refresh="apiImport"/>
     </div>
@@ -245,7 +245,7 @@
   import MsLoopController from "./LoopController";
   import MsApiScenarioComponent from "./ApiScenarioComponent";
   import MsApiReportDetail from "../report/ApiReportDetail";
-  import MsScenarioParameters from "./ScenarioParameters";
+  import MsVariableList from "./variable/VariableList";
   import ApiImport from "../../definition/components/import/ApiImport";
   import InputTag from 'vue-input-tag'
   import "@/common/css/material-icons.css"
@@ -260,10 +260,10 @@
       currentScenario: {},
     },
     components: {
+      MsVariableList,
       ScenarioRelevance,
       ScenarioApiRelevance,
       ApiEnvironmentConfig,
-      MsScenarioParameters,
       MsApiReportDetail,
       MsInputTag, MsRun,
       MsApiScenarioComponent,
@@ -319,7 +319,8 @@
         enableCookieShare: false,
         globalOptions: {
           spacing: 30
-        }
+        },
+        response: {}
       }
     }
     ,
@@ -331,10 +332,7 @@
       this.operatingElements = ELEMENTS.get("ALL");
       this.getMaintainerOptions();
       this.getApiScenario();
-    }
-    ,
-    watch: {}
-    ,
+    },
     directives: {OutsideClick},
     computed: {
       buttons() {
@@ -455,6 +453,13 @@
       getIdx(index) {
         return index - 0.33
       },
+      setVariables(v) {
+        this.currentScenario.variables = v;
+        if (this.path.endsWith("/update")) {
+          // 直接更新场景防止编辑内容丢失
+          this.editScenario();
+        }
+      },
       showButton(...names) {
         for (const name of names) {
           if (this.operatingElements.includes(name)) {
@@ -530,6 +535,12 @@
         this.selectedTreeNode = e;
       }
       ,
+      suggestClick(node) {
+        this.response = {};
+        if (node.parent && node.parent.data.requestResult) {
+         this.response = node.parent.data.requestResult;
+        }
+      },
       showAll() {
         this.operatingElements = ELEMENTS.get("ALL");
         this.selectedTreeNode = undefined;
@@ -675,12 +686,17 @@
           this.$error(this.$t('api_test.environment.select_environment'));
           return;
         }
-        this.debugData = {
-          id: this.currentScenario.id, name: this.currentScenario.name, type: "scenario",
-          variables: this.currentScenario.variables, referenced: 'Created', enableCookieShare: this.enableCookieShare,
-          environmentId: this.currentEnvironmentId, hashTree: this.scenarioDefinition
-        };
-        this.reportId = getUUID().substring(0, 8);
+        this.$refs['currentScenario'].validate((valid) => {
+          if (valid) {
+            this.editScenario();
+            this.debugData = {
+              id: this.currentScenario.id, name: this.currentScenario.name, type: "scenario",
+              variables: this.currentScenario.variables, referenced: 'Created', enableCookieShare: this.enableCookieShare,
+              environmentId: this.currentEnvironmentId, hashTree: this.scenarioDefinition
+            };
+            this.reportId = getUUID().substring(0, 8);
+          }
+        })
       },
       getEnvironments() {
         if (this.projectId) {
@@ -801,15 +817,33 @@
             this.recursiveFile(item.hashTree, bodyUploadFiles, obj);
           }
         })
+        // 场景变量csv 文件
+        this.currentScenario.variables.forEach(param => {
+          if (param.type === 'CSV' && param.files) {
+            param.files.forEach(item => {
+              if (item.file) {
+                if (!item.id) {
+                  let fileId = getUUID().substring(0, 12);
+                  item.name = item.file.name;
+                  item.id = fileId;
+                }
+                obj.bodyUploadIds.push(item.id);
+                bodyUploadFiles.push(item.file);
+              }
+            })
+          }
+        })
         return bodyUploadFiles;
       },
-      editScenario() {
+      editScenario(showMessage) {
         this.$refs['currentScenario'].validate((valid) => {
           if (valid) {
             this.setParameter();
             let bodyFiles = this.getBodyUploadFiles(this.currentScenario);
             this.$fileUpload(this.path, null, bodyFiles, this.currentScenario, response => {
-              this.$success(this.$t('commons.save_success'));
+              if (showMessage) {
+                this.$success(this.$t('commons.save_success'));
+              }
               this.path = "/api/automation/update";
               if (response.data) {
                 this.currentScenario.id = response.data.id;
@@ -834,7 +868,20 @@
                 let obj = JSON.parse(response.data.scenarioDefinition);
                 if (obj) {
                   this.currentEnvironmentId = obj.environmentId;
-                  this.currentScenario.variables = obj.variables;
+                  this.currentScenario.variables = [];
+                  let index = 1;
+                  obj.variables.forEach(item => {
+                    // 兼容历史数据
+                    if (item.name) {
+                      if (!item.type) {
+                        item.type = "CONSTANT";
+                        item.id = getUUID();
+                      }
+                      item.num = index;
+                      this.currentScenario.variables.push(item);
+                      index++;
+                    }
+                  })
                   this.enableCookieShare = obj.enableCookieShare;
                   this.scenarioDefinition = obj.hashTree;
                 }
@@ -846,8 +893,7 @@
             this.getEnvironments();
           })
         }
-      }
-      ,
+      },
       setParameter() {
         this.currentScenario.stepTotal = this.scenarioDefinition.length;
         this.currentScenario.projectId = getCurrentProjectID();
@@ -871,17 +917,10 @@
       runRefresh() {
         this.debugVisible = true;
         this.loading = false;
-      }
-      ,
+      },
       showScenarioParameters() {
         this.$refs.scenarioParameters.open(this.currentScenario.variables);
-      }
-      ,
-      addParameters(data) {
-        this.currentScenario.variables = data;
-        this.reload();
-      }
-      ,
+      },
       apiImport(importData) {
         if (importData && importData.data) {
           importData.data.forEach(item => {
@@ -907,11 +946,6 @@
 
   .ms-main-div {
     background-color: white;
-  }
-
-  .ms-opt-btn {
-    float: right;
-    margin-right: 20px;
   }
 
   .ms-debug-div {
@@ -997,9 +1031,8 @@
     font-family: "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", Arial, sans-serif;
     font-size: 13px;
   }
-
   .ms-opt-btn {
     position: fixed;
-    right: 20px;
+    right: 50px;
   }
 </style>

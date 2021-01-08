@@ -185,7 +185,6 @@ export default {
         this.condition.projectId = this.projectId;
       } else {
         this.condition.projectId = getCurrentProjectID();
-
       }
       if (this.currentProtocol != null) {
         this.condition.protocol = this.currentProtocol;

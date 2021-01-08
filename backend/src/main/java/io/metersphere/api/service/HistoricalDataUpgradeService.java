@@ -66,7 +66,7 @@ public class HistoricalDataUpgradeService {
 
     private MsScenario createScenario(Scenario oldScenario) {
         MsScenario scenario = new MsScenario();
-        scenario.setVariables(oldScenario.getVariables());
+        scenario.setOldVariables(oldScenario.getVariables());
         scenario.setName(oldScenario.getName());
         scenario.setEnableCookieShare(oldScenario.isEnableCookieShare());
         scenario.setEnvironmentId(oldScenario.getEnvironmentId());

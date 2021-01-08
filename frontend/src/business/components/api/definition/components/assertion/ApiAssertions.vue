@@ -57,7 +57,7 @@
       </el-collapse-transition>
     </el-card>
 
-    <ms-api-jsonpath-suggest :tip="$t('api_test.request.extract.suggest_tip')" @addSuggest="addJsonPathSuggest" :data="suggestData" ref="jsonpathSuggest"/>
+    <ms-api-jsonpath-suggest :tip="$t('api_test.request.extract.suggest_tip')" @addSuggest="addJsonPathSuggest" ref="jsonpathSuggest"/>
   </div>
 </template>
 
@@ -111,7 +111,6 @@
         type: "",
         loading: false,
         reloadData: "",
-        suggestData: {}
       }
     },
 
@@ -125,17 +124,14 @@
         this.$emit('copyRow', this.assertions, this.node);
       },
       suggestJsonOpen() {
-        if (!this.response || !this.response.responseResult || !this.response.responseResult.body) {
-          this.$message(this.$t('api_test.request.assertions.debug_first'));
-          return;
-        }
-        try {
-          this.suggestData = JSON.parse(this.response.responseResult.body);
-        } catch (e) {
-          this.$error(this.$t('api_test.request.assertions.json_path_err'));
-          return;
-        }
-        this.$refs.jsonpathSuggest.open();
+        this.$emit('suggestClick');
+        this.$nextTick(() => {
+          if (!this.response || !this.response.responseResult || !this.response.responseResult.body) {
+            this.$message(this.$t('api_test.request.assertions.debug_first'));
+            return;
+          }
+          this.$refs.jsonpathSuggest.open(this.response.responseResult.body);
+        })
       },
       reload() {
         this.loading = true
