@@ -279,7 +279,9 @@ export default {
           this.unSelection = response.data.listObject.map(s => s.id);
 
           this.tableData.forEach(row => {
-            row.showTags = JSON.parse(row.tags);
+            if (row.tags) {
+              row.showTags = JSON.parse();
+            }
           })
         });
       }
