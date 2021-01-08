@@ -52,4 +52,9 @@ public class TestPlanLoadCaseController {
     public Boolean isExistReport(@RequestBody LoadCaseReportRequest request) {
         return testPlanLoadCaseService.isExistReport(request);
     }
+
+    @PostMapping("/batch/delete")
+    public void batchDelete(@RequestBody List<String> ids) {
+        testPlanLoadCaseService.batchDelete(ids);
+    }
 }
