@@ -1,10 +1,10 @@
 <template>
-  <div class="drag-bar" v-horizontal-drag/>
+  <div class="drag-bar" v-right-to-left-drag/>
 </template>
 
 <script>
     export default {
-        name: "MsHorizontalDragBar"
+        name: "MsRight2LeftDragBar"
     }
 </script>
 
@@ -14,7 +14,7 @@
     height: 100%;
     width: 1px;
     position: absolute;
-    right: 0px;
+    left: 0px;
     top: 0;
     cursor: col-resize;
     background-color: #E6E6E6;

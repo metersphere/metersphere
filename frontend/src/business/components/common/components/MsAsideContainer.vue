@@ -11,7 +11,7 @@
 </template>
 
 <script>
-    import MsHorizontalDragBar from "./MsHorizontalDragBar";
+    import MsHorizontalDragBar from "./dragbar/MsLeft2RightDragBar";
     export default {
       name: "MsAsideContainer",
       components: {MsHorizontalDragBar},

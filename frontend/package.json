@@ -44,7 +44,8 @@
     "vuedraggable": "^2.23.2",
     "vuex": "^3.1.2",
     "xml-js": "^1.6.11",
-    "yan-progress": "^1.0.3"
+    "yan-progress": "^1.0.3",
+    "vue-jsonpath-picker": "^1.1.5"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "^4.1.0",
