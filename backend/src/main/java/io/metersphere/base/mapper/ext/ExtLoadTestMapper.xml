@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
 <mapper namespace="io.metersphere.base.mapper.ext.ExtLoadTestMapper">
-
     <resultMap id="BaseResultMap" type="io.metersphere.dto.LoadTestDTO"
                extends="io.metersphere.base.mapper.LoadTestMapper.BaseResultMap">
         <result column="project_name" property="projectName"/>
@@ -14,37 +13,37 @@
 
     <sql id="combine">
         <if test='${condition}.name != null and (${name} == null or ${name} == "")'>
-            and load_test.name
+            AND load_test.name
             <include refid="condition">
                 <property name="object" value="${condition}.name"/>
             </include>
         </if>
         <if test="${condition}.updateTime != null">
-            and load_test.update_time
+            AND load_test.update_time
             <include refid="condition">
                 <property name="object" value="${condition}.updateTime"/>
             </include>
         </if>
         <if test="${condition}.projectName != null">
-            and project.name
+            AND project.name
             <include refid="condition">
                 <property name="object" value="${condition}.projectName"/>
             </include>
         </if>
         <if test="${condition}.createTime != null">
-            and load_test.create_time
+            AND load_test.create_time
             <include refid="condition">
                 <property name="object" value="${condition}.createTime"/>
             </include>
         </if>
         <if test="${condition}.status != null">
-            and load_test.status
+            AND load_test.status
             <include refid="condition">
                 <property name="object" value="${condition}.status"/>
             </include>
         </if>
         <if test="${condition}.creator != null">
-            and load_test.user_id
+            AND load_test.user_id
             <include refid="condition">
                 <property name="object" value="${condition}.creator"/>
             </include>
@@ -53,10 +52,10 @@
 
     <select id="list" resultMap="BaseResultMap"
             parameterType="io.metersphere.track.request.testplan.QueryTestPlanRequest">
-        select load_test.*, project.name as project_name, user.name as user_name
-        from load_test
-        left join project on load_test.project_id = project.id
-        left join user on load_test.user_id = user.id
+        SELECT load_test.*, project.name AS project_name, user.name AS user_name
+        FROM load_test
+                     LEFT JOIN project ON load_test.project_id = project.id
+                     LEFT JOIN user ON load_test.user_id = user.id
         <where>
             <if test="request.combine != null">
                 <include refid="combine">
@@ -65,10 +64,10 @@
                 </include>
             </if>
             <if test="request.name != null">
-                and load_test.name like CONCAT('%', #{request.name},'%')
+                and load_test.name LIKE CONCAT('%', #{request.name}, '%')
             </if>
             <if test="request.userId != null">
-                and load_test.user_id= #{request.userId}
+                AND load_test.user_id = #{request.userId}
             </if>
             <if test="request.workspaceId != null">
                 AND project.workspace_id = #{request.workspaceId}
@@ -82,23 +81,33 @@
             <if test="request.filters != null and request.filters.size() > 0">
                 <foreach collection="request.filters.entrySet()" index="key" item="values">
                     <if test="values != null and values.size() > 0">
-                        and load_test.status in
-                        <foreach collection="values" item="value" separator="," open="(" close=")">
-                            #{value}
-                        </foreach>
+                        <choose>
+                            <when test="key == 'status'">
+                                AND load_test.status IN
+                                <foreach collection="values" item="value" separator="," open="(" close=")">
+                                    #{value}
+                                </foreach>
+                            </when>
+                            <when test="key == 'user_id'">
+                                AND load_test.user_id IN
+                                <foreach collection="values" item="value" separator="," open="(" close=")">
+                                    #{value}
+                                </foreach>
+                            </when>
+                        </choose>
                     </if>
                 </foreach>
             </if>
         </where>
         <if test="request.orders != null and request.orders.size() > 0">
-            order by
+            ORDER BY
             <foreach collection="request.orders" separator="," item="order">
                 load_test.${order.name} ${order.type}
             </foreach>
         </if>
     </select>
     <select id="getLoadTestByProjectId" resultType="io.metersphere.base.domain.LoadTest">
-        SELECT id,name
+        SELECT id, name
         FROM load_test
         WHERE project_id = #{projectId}
     </select>
@@ -106,7 +115,7 @@
     <select id="checkLoadTestOwner" resultType="int">
         SELECT COUNT(1)
         FROM load_test
-        LEFT JOIN project ON load_test.project_id = project.id
+                     LEFT JOIN project ON load_test.project_id = project.id
         <where>
             <if test="testId != null">
                 and load_test.id = #{testId}
