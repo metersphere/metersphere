@@ -144,7 +144,51 @@
             </otherwise>
         </choose>
     </sql>
+    <sql id="combine">
+        <if test='${condition}.name != null and (${name} == null or ${name} == "")'>
+            and atc.name
+            <include refid="condition">
+                <property name="object" value="${condition}.name"/>
+            </include>
+        </if>
+        <if test="${condition}.updateTime != null">
+            and atc.update_time
+            <include refid="condition">
+                <property name="object" value="${condition}.updateTime"/>
+            </include>
+        </if>
+         <if test="${condition}.createTime != null">
+            and atc.create_time
+            <include refid="condition">
+                <property name="object" value="${condition}.createTime"/>
+            </include>
+        </if>
+        <if test="${condition}.priority != null">
+            and atc.priority
+            <include refid="condition">
+                <property name="object" value="${condition}.priority"/>
+            </include>
+        </if>
+        <if test="${condition}.creator != null">
+            and atc.user_id
+            <include refid="condition">
+                <property name="object" value="${condition}.creator"/>
+            </include>
+        </if>
+        <if test="${condition}.tags != null">
+            and atc.tags
+            <include refid="condition">
+                <property name="object" value="${condition}.tags"/>
+            </include>
+        </if>
+        <if test="${condition}.status != null">
+            and ader.status
+            <include refid="condition">
+                <property name="object" value="${condition}.status"/>
+            </include>
+        </if>
 
+    </sql>
     <select id="list" resultType="io.metersphere.api.dto.definition.ApiTestCaseResult">
         select
             atc.id,
@@ -180,6 +224,13 @@
               resource_id) as ader
         on atc.id = ader.resource_id
         <where>
+            <if test="request.combine != null">
+                <include refid="combine">
+                    <property name="condition" value="request.combine"/>
+                    <property name="name" value="request.name"/>
+                </include>
+            </if>
+
             <if test="request.name != null and request.name!=''">
                 and atc.name like CONCAT('%', #{request.name},'%')
             </if>
@@ -196,6 +247,14 @@
                 AND atc.api_definition_id = #{request.apiDefinitionId}
             </if>
         </where>
+
+        <if test="request.orders != null and request.orders.size() > 0">
+            order by
+            <foreach collection="request.orders" separator="," item="order">
+                atc.${order.name} ${order.type}
+             </foreach>
+        </if>
+
     </select>
 
     <select id="listSimple" resultType="io.metersphere.api.dto.definition.ApiTestCaseDTO">

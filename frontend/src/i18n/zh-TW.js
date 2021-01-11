@@ -515,6 +515,12 @@ export default {
       },
       request: {
         grade_info: "按等級篩選",
+        grade_order_asc: "按用例等級從高到低",
+        grade_order_desc: "按用例等級從高到低",
+        create_time_order_asc: "按創建時間從前到後",
+        create_time_order_desc: "按創建時間從後到前",
+        update_time_order_asc: "按更新時間從前到後",
+        update_time_order_desc: "按更新時間從後到前",
         run_env: "運行環境",
         select_case: "搜索用例",
         case: "用例",

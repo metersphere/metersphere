@@ -1,6 +1,6 @@
 <template>
   <span class="adv-search-bar">
-    <el-link type="primary" @click="open">{{$t('commons.adv_search.title')}}</el-link>
+    <el-link type="primary" @click="open" v-if="showLink">{{$t('commons.adv_search.title')}}</el-link>
     <el-dialog :title="$t('commons.adv_search.combine')" :visible.sync="visible" custom-class="adv-dialog"
                :append-to-body="true">
       <div>
@@ -28,6 +28,10 @@
     name: "MsTableAdvSearchBar",
     props: {
       condition: Object,
+      showLink: {
+        type: Boolean,
+        default: true,
+      }
     },
     data() {
       return {
