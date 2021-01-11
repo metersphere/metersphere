@@ -6,6 +6,15 @@ export const PRIORITY = [
   {name: 'P3', id: 'P3'}
 ]
 
+export const CASE_ORDER = [
+  {label: 'api_test.definition.request.grade_order_asc', name: 'priority', type: 'desc', id: 'grade_order_asc'},
+  {label: 'api_test.definition.request.grade_order_desc', name: 'priority', type: 'asc', id: 'grade_order_desc'},
+  {label: 'api_test.definition.request.create_time_order_asc', name: 'create_time', type: 'asc', id: 'create_time_order_asc'},
+  {label: 'api_test.definition.request.create_time_order_desc', name: 'create_time', type: 'desc', id: 'create_time_order_desc'},
+  {label: 'api_test.definition.request.update_time_order_asc', name: 'update_time', type: 'asc', id: 'update_time_order_asc'},
+  {label: 'api_test.definition.request.update_time_order_desc', name: 'update_time', type: 'desc', id: 'update_time_order_desc'}
+]
+
 export const OPTIONS = [
   {value: 'HTTP', name: 'HTTP'},
   {value: 'TCP', name: 'TCP'},

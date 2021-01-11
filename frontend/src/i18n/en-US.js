@@ -517,6 +517,12 @@ export default {
       },
       request: {
         grade_info: "Filter by rank",
+        grade_order_asc: "from high to low by use case level",
+        grade_order_desc: "from high to low by use case level,",
+        create_time_order_asc: "by creation time from front to back",
+        create_time_order_desc: "from back to front by creation time,",
+        update_time_order_asc: "by update time from front to back",
+        update_time_order_desc: "from back to front by update time,",
         run_env: "Operating environment",
         select_case: "Search use cases",
         case: "Case",
