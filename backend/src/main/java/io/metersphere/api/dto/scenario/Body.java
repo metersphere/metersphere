@@ -42,11 +42,13 @@ public class Body {
             return true;
         } else return false;
     }
+
     public boolean isOldKV() {
         if (StringUtils.equals(type, KV)) {
             return true;
         } else return false;
     }
+
     public List<KeyValue> getBodyParams(HTTPSamplerProxy sampler, String requestId) {
         List<KeyValue> body = new ArrayList<>();
         if (this.isKV() || this.isBinary()) {
@@ -65,7 +67,7 @@ public class Body {
                     this.raw = JSONSchemaGenerator.getJson(com.alibaba.fastjson.JSON.toJSONString(this.getJsonSchema()));
                 }
             }
-            KeyValue keyValue = new KeyValue("", this.getRaw());
+            KeyValue keyValue = new KeyValue("", "JSON-SCHEMA", this.getRaw(), true, true);
             keyValue.setEnable(true);
             keyValue.setEncode(false);
             body.add(keyValue);
