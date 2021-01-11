@@ -596,9 +596,11 @@ export class TCPRequest extends Request {
     super(RequestFactory.TYPES.TCP, options);
     this.useEnvironment = options.useEnvironment;
     this.debugReport = undefined;
+    this.parameters = [];
 
     //设置TCPConfig的属性
     this.set(new TCPConfig(options));
+    this.sets({parameters: KeyValue}, options);
 
     this.request = options.request;
   }

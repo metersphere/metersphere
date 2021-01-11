@@ -16,6 +16,10 @@
         </el-dropdown-menu>
       </el-dropdown>
 
+      <p class="tip">{{$t('test_track.plan_view.base_info')}} </p>
+      <!-- 执行环境 -->
+      {{$t('api_test.definition.request.run_env')}}：
+      <environment-select :type="'TCP'" :current-data="api" :project-id="projectId"/>
 
       <p class="tip">{{$t('api_test.definition.request.req_param')}} </p>
       <!-- TCP 请求参数 -->
@@ -32,8 +36,7 @@
     <ms-api-case-list @apiCaseClose="apiCaseClose" @refresh="refresh" @selectTestCase="selectTestCase" :currentApi="api" :refreshSign="refreshSign"
                       :loaded="loaded" :createCase="createCase"
                       ref="caseList"/>
-    <!-- 环境 -->
-    <api-environment-config ref="environmentConfig" @close="environmentConfigClose"/>
+
     <!-- 执行组件 -->
     <ms-run :debug="false" :environment="api.environment" :reportId="reportId" :run-data="runData"
             @runRefresh="runRefresh" ref="runTest"/>
@@ -47,22 +50,21 @@
   import MsApiCaseList from "../case/ApiCaseList";
   import MsContainer from "../../../../common/components/MsContainer";
   import MsBottomContainer from "../BottomContainer";
-  import {parseEnvironment} from "../../model/EnvironmentModel";
-  import ApiEnvironmentConfig from "../environment/ApiEnvironmentConfig";
   import MsRequestResultTail from "../response/RequestResultTail";
   import MsRun from "../Run";
-  import MsBasisParameters from "../request/tcp/BasisParameters";
+  import MsBasisParameters from "../request/tcp/TcpBasisParameters";
   import {REQ_METHOD} from "../../model/JsonData";
+  import EnvironmentSelect from "../environment/EnvironmentSelect";
 
   export default {
     name: "RunTestTCPPage",
     components: {
+      EnvironmentSelect,
       MsApiRequestForm,
       MsApiCaseList,
       MsContainer,
       MsBottomContainer,
       MsRequestResultTail,
-      ApiEnvironmentConfig,
       MsRun,
       MsBasisParameters
     },
@@ -85,6 +87,7 @@
         },
         runData: [],
         reportId: "",
+        projectId: ""
       }
     },
     props: {apiData: {}, currentProtocol: String,},
@@ -180,40 +183,6 @@
           this.api.request = this.currentRequest;
         }
       },
-      getEnvironments() {
-        this.$get('/api/environment/list/' + getCurrentProjectID(), response => {
-          this.environments = response.data;
-          this.environments.forEach(environment => {
-            parseEnvironment(environment);
-          });
-          let hasEnvironment = false;
-          for (let i in this.environments) {
-            if (this.environments[i].id === this.api.environmentId) {
-              this.api.environment = this.environments[i];
-              hasEnvironment = true;
-              break;
-            }
-          }
-          if (!hasEnvironment) {
-            this.api.environmentId = '';
-            this.api.environment = undefined;
-          }
-        });
-      },
-      openEnvironmentConfig() {
-        this.$refs.environmentConfig.open(getCurrentProjectID());
-      },
-      environmentChange(value) {
-        for (let i in this.environments) {
-          if (this.environments[i].id === value) {
-            this.api.request.useEnvironment = this.environments[i].id;
-            break;
-          }
-        }
-      },
-      environmentConfigClose() {
-        this.getEnvironments();
-      },
       getResult() {
         let url = "/api/definition/report/getReport/" + this.api.id;
         this.$get(url, response => {
@@ -228,7 +197,7 @@
       this.api = this.apiData;
       this.api.protocol = this.currentProtocol;
       this.currentRequest = this.api.request;
-      this.getEnvironments();
+      this.projectId = getCurrentProjectID();
       this.getResult();
     }
   }

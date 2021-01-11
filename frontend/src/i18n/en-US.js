@@ -570,6 +570,9 @@ export default {
         update_info: 'Update',
         batch_edit: "Batch edit",
         path_valid_info: "The request path is invalid",
+        other_config: "Other Config",
+        message_template: "Message Template",
+        tcp_parameter_tip: "The request parameters can be referenced in the request template ${XXX}",
       }
     },
     automation: {

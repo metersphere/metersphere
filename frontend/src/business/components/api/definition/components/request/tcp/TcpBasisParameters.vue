@@ -4,89 +4,93 @@
       <el-col :span="21" style="padding-bottom: 20px">
         <div style="border:1px #DCDFE6 solid; height: 100%;border-radius: 4px ;width: 100% ;margin: 10px">
           <el-form class="tcp" :model="request" :rules="rules" ref="request" label-width="auto" :disabled="isReadOnly" style="margin: 20px">
-            <el-row :gutter="10">
-              <el-col :span="9">
-                <el-form-item label="TCPClient" prop="classname">
-                  <el-select v-model="request.classname" style="width: 100%" size="small">
-                    <el-option v-for="c in classes" :key="c" :label="c" :value="c"/>
-                  </el-select>
-                </el-form-item>
-              </el-col>
-              <el-col :span="9">
-                <el-form-item :label="$t('api_test.request.tcp.server')" prop="server">
-                  <el-input v-model="request.server" maxlength="300" show-word-limit size="small"/>
-                </el-form-item>
-              </el-col>
-              <el-col :span="6">
-                <el-form-item :label="$t('api_test.request.tcp.port')" prop="port" label-width="60px">
-                  <el-input-number v-model="request.port" controls-position="right" :min="0" :max="65535" size="small"/>
-                </el-form-item>
-              </el-col>
-            </el-row>
 
-            <el-row :gutter="10">
-              <el-col :span="9">
-                <el-form-item :label="$t('api_test.request.tcp.connect')" prop="ctimeout">
-                  <el-input-number v-model="request.ctimeout" controls-position="right" :min="0" size="small"/>
-                </el-form-item>
-              </el-col>
-              <el-col :span="9">
-                <el-form-item :label="$t('api_test.request.tcp.response')" prop="timeout">
-                  <el-input-number v-model="request.timeout" controls-position="right" :min="0" size="small"/>
-                </el-form-item>
-              </el-col>
-              <el-col :span="6">
-                <el-form-item :label="$t('api_test.request.tcp.so_linger')" prop="soLinger">
-                  <el-input v-model="request.soLinger" size="small"/>
-                </el-form-item>
-              </el-col>
-            </el-row>
+            <el-tabs v-model="activeName" class="request-tabs">
 
-            <el-row :gutter="10">
-              <el-col :span="9">
-                <el-form-item :label="$t('api_test.request.tcp.username')" prop="username">
-                  <el-input v-model="request.username" maxlength="100" show-word-limit size="small"/>
-                </el-form-item>
-              </el-col>
-              <el-col :span="9">
-                <el-form-item :label="$t('api_test.request.tcp.password')" prop="password">
-                  <el-input v-model="request.password" maxlength="30" show-word-limit show-password
-                            autocomplete="new-password" size="small"/>
-                </el-form-item>
-              </el-col>
+              <!--query 参数-->
+              <el-tab-pane name="parameters">
+                <template v-slot:label>
+                  {{$t('api_test.definition.request.req_param')}}
+                  <ms-instructions-icon :content="$t('api_test.definition.request.tcp_parameter_tip')"/>
+                </template>
+                <ms-api-variable :is-read-only="isReadOnly" :parameters="request.parameters"/>
+              </el-tab-pane>
 
-              <el-col :span="6">
-                <el-form-item :label="$t('api_test.request.tcp.eol_byte')" prop="eolByte">
-                  <el-input v-model="request.eolByte" size="small"/>
-                </el-form-item>
-              </el-col>
+              <el-tab-pane :label="$t('api_test.definition.request.message_template')" name="request">
+                <div class="send-request">
+                  <ms-code-edit mode="text" :read-only="isReadOnly" :data.sync="request.request"
+                                :modes="['text', 'json', 'xml', 'html']" theme="eclipse"/>
+                </div>
+              </el-tab-pane>
 
-            </el-row>
+              <el-tab-pane :label="$t('api_test.definition.request.other_config')" name="other" class="other-config">
+                <el-row>
+                  <el-col :span="8">
+                    <el-form-item label="TCPClient" prop="classname">
+                      <el-select v-model="request.classname" style="width: 100%" size="small">
+                        <el-option v-for="c in classes" :key="c" :label="c" :value="c"/>
+                      </el-select>
+                    </el-form-item>
+                  </el-col>
+                  <el-col :span="8">
+                    <el-form-item :label="$t('api_test.request.tcp.connect')" prop="ctimeout">
+                      <el-input-number v-model="request.ctimeout" controls-position="right" :min="0" size="small"/>
+                    </el-form-item>
+                  </el-col>
+                  <el-col :span="8">
+                    <el-form-item :label="$t('api_test.request.tcp.response')" prop="timeout">
+                      <el-input-number v-model="request.timeout" controls-position="right" :min="0" size="small"/>
+                    </el-form-item>
+                  </el-col>
+                </el-row>
+                <el-row :gutter="10">
+                  <el-col :span="6">
+                    <el-form-item :label="$t('api_test.request.tcp.so_linger')" prop="soLinger">
+                      <el-input v-model="request.soLinger" size="small"/>
+                    </el-form-item>
+                  </el-col>
 
-            <el-row :gutter="10" style="margin-left: 30px">
-              <el-col :span="9">
-                <el-form-item :label="$t('api_test.request.tcp.re_use_connection')">
-                  <el-checkbox v-model="request.reUseConnection"/>
-                </el-form-item>
-              </el-col>
-              <el-col :span="9">
-                <el-form-item :label="$t('api_test.request.tcp.close_connection')">
-                  <el-checkbox v-model="request.closeConnection"/>
-                </el-form-item>
-              </el-col>
-              <el-col :span="6">
-                <el-form-item :label="$t('api_test.request.tcp.no_delay')">
-                  <el-checkbox v-model="request.nodelay"/>
-                </el-form-item>
-              </el-col>
-            </el-row>
+                  <el-col :span="6">
+                    <el-form-item :label="$t('api_test.request.tcp.eol_byte')" prop="eolByte">
+                      <el-input v-model="request.eolByte" size="small"/>
+                    </el-form-item>
+                  </el-col>
 
-            <el-form-item :label="$t('api_test.request.tcp.request')" prop="request">
-              <div class="send-request">
-                <ms-code-edit mode="text" :read-only="isReadOnly" :data.sync="request.request"
-                              :modes="['text', 'json', 'xml', 'html']" theme="eclipse"/>
-              </div>
-            </el-form-item>
+                  <el-col :span="6">
+                    <el-form-item :label="$t('api_test.request.tcp.username')" prop="username">
+                      <el-input v-model="request.username" maxlength="100" show-word-limit size="small"/>
+                    </el-form-item>
+                  </el-col>
+                  <el-col :span="6">
+                    <el-form-item :label="$t('api_test.request.tcp.password')" prop="password">
+                      <el-input v-model="request.password" maxlength="30" show-word-limit show-password
+                                autocomplete="new-password" size="small"/>
+                    </el-form-item>
+                  </el-col>
+                </el-row>
+
+
+                <el-row :gutter="10" style="margin-left: 30px">
+                  <el-col :span="9">
+                    <el-form-item :label="$t('api_test.request.tcp.re_use_connection')">
+                      <el-checkbox v-model="request.reUseConnection"/>
+                    </el-form-item>
+                  </el-col>
+                  <el-col :span="9">
+                    <el-form-item :label="$t('api_test.request.tcp.close_connection')">
+                      <el-checkbox v-model="request.closeConnection"/>
+                    </el-form-item>
+                  </el-col>
+                  <el-col :span="6">
+                    <el-form-item :label="$t('api_test.request.tcp.no_delay')">
+                      <el-checkbox v-model="request.nodelay"/>
+                    </el-form-item>
+                  </el-col>
+                </el-row>
+              </el-tab-pane>
+
+            </el-tabs>
+
 
           </el-form>
         </div>
@@ -133,10 +137,15 @@
   import {API_STATUS} from "../../../model/JsonData";
   import TCPSampler from "../../jmeter/components/sampler/tcp-sampler";
   import {getCurrentProjectID, getUUID} from "@/common/js/utils";
+  import MsApiVariable from "../../ApiVariable";
+  import MsInstructionsIcon from "../../../../../common/components/MsInstructionsIcon";
+
 
   export default {
-    name: "MsDatabaseConfig",
+    name: "TcpBasisParameters",
     components: {
+      MsInstructionsIcon,
+      MsApiVariable,
       MsApiScenarioVariables,
       MsCodeEdit,
       MsJsr233Processor, ApiRequestMethodSelect, MsApiExtract, MsApiAssertions, MsApiKeyValue, ApiEnvironmentConfig
@@ -152,7 +161,7 @@
     },
     data() {
       return {
-        activeName: "assertions",
+        activeName: "parameters",
         classes: TCPSampler.CLASSES,
         isReloadData: false,
         options: API_STATUS,
@@ -166,6 +175,10 @@
     },
     created() {
       this.currentProjectId = getCurrentProjectID();
+      if (!this.request.parameters) {
+        this.$set(this.request, 'parameters', []);
+        this.request.parameters = [];
+      }
       this.getEnvironments();
     },
     methods: {
@@ -275,7 +288,7 @@
       },
       environmentConfigClose() {
         this.getEnvironments();
-      },
+      }
     }
 
   }
@@ -317,4 +330,18 @@
   /deep/ .el-form-item {
     margin-bottom: 15px;
   }
+
+  /deep/ .instructions-icon {
+    font-size: 14px !important;
+  }
+
+  .request-tabs {
+    margin: 20px;
+    min-height: 200px;
+  }
+
+  .other-config {
+    padding: 15px;
+  }
+
 </style>

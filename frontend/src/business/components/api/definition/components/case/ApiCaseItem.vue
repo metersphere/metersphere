@@ -90,7 +90,7 @@ import MsApiRequestForm from "../request/http/ApiRequestForm";
 import ApiEnvironmentConfig from "../environment/ApiEnvironmentConfig";
 import MsApiAssertions from "../assertion/ApiAssertions";
 import MsSqlBasisParameters from "../request/database/BasisParameters";
-import MsTcpBasisParameters from "../request/tcp/BasisParameters";
+import MsTcpBasisParameters from "../request/tcp/TcpBasisParameters";
 import MsDubboBasisParameters from "../request/dubbo/BasisParameters";
 import MsApiExtendBtns from "../reference/ApiExtendBtns";
 import MsInputTag from "@/business/components/api/automation/scenario/MsInputTag";

@@ -15,23 +15,7 @@
 
         <!-- 执行环境 -->
         <el-form-item prop="environmentId">
-          <el-select v-model="api.environmentId" size="small" class="ms-htt-width"
-                     :placeholder="$t('api_test.definition.request.run_env')"
-                     @change="environmentChange" clearable>
-            <el-option v-for="(environment, index) in environments" :key="index"
-                       :label="environment.name + (environment.config.httpConfig.socket ? (': ' + environment.config.httpConfig.protocol + '://' + environment.config.httpConfig.socket) : '')"
-                       :value="environment.id"/>
-            <el-button class="environment-button" size="mini" type="primary" @click="openEnvironmentConfig">
-              {{ $t('api_test.environment.environment_config') }}
-            </el-button>
-            <template v-slot:empty>
-              <div class="empty-environment">
-                <el-button class="environment-button" size="mini" type="primary" @click="openEnvironmentConfig">
-                  {{ $t('api_test.environment.environment_config') }}
-                </el-button>
-              </div>
-            </template>
-          </el-select>
+          <environment-select :current-data="api" :project-id="projectId"/>
         </el-form-item>
 
         <!-- 请求地址 -->
@@ -77,8 +61,6 @@
                       :currentApi="api"
                       ref="caseList"/>
 
-    <!-- 环境 -->
-    <api-environment-config ref="environmentConfig" @close="environmentConfigClose"/>
     <!-- 执行组件 -->
     <ms-run :debug="false" :environment="api.environment" :reportId="reportId" :run-data="runData"
             @runRefresh="runRefresh" ref="runTest"/>
@@ -91,20 +73,19 @@
   import {downloadFile, getUUID, getCurrentProjectID} from "@/common/js/utils";
   import MsApiCaseList from "../case/ApiCaseList";
   import MsContainer from "../../../../common/components/MsContainer";
-  import {parseEnvironment} from "../../model/EnvironmentModel";
-  import ApiEnvironmentConfig from "../environment/ApiEnvironmentConfig";
   import MsRequestResultTail from "../response/RequestResultTail";
   import MsRun from "../Run";
   import {REQ_METHOD} from "../../model/JsonData";
+  import EnvironmentSelect from "../environment/EnvironmentSelect";
 
   export default {
     name: "RunTestHTTPPage",
     components: {
+      EnvironmentSelect,
       MsApiRequestForm,
       MsApiCaseList,
       MsContainer,
       MsRequestResultTail,
-      ApiEnvironmentConfig,
       MsRun
     },
     data() {
@@ -118,7 +99,6 @@
         refreshSign: "",
         responseData: {type: 'HTTP', responseResult: {}, subRequestResults: []},
         reqOptions: REQ_METHOD,
-        environments: [],
         rules: {
           method: [{required: true, message: this.$t('test_track.case.input_maintainer'), trigger: 'change'}],
           path: [{required: true, message: this.$t('api_test.definition.request.path_info'), trigger: 'blur'}],
@@ -230,50 +210,7 @@
           this.api.request = this.currentRequest;
         }
       },
-      getEnvironments() {
-        if (this.projectId) {
-          this.$get('/api/environment/list/' + this.projectId, response => {
-            this.environments = response.data;
-            this.environments.forEach(environment => {
-              parseEnvironment(environment);
-            });
-            let hasEnvironment = false;
-            for (let i in this.environments) {
-              if (this.environments[i].id === this.api.environmentId) {
-                this.api.environmentId = this.environments[i].id;
-                hasEnvironment = true;
-                break;
-              }
-            }
-            if (!hasEnvironment) {
-              this.api.environmentId = '';
-              this.api.environment = undefined;
-            }
-          });
-        } else {
-          this.api.environmentId = '';
-          this.api.environment = undefined;
-        }
-      },
-      openEnvironmentConfig() {
-        if (!this.projectId) {
-          this.$error(this.$t('api_test.select_project'));
-          return;
-        }
-        this.$refs.environmentConfig.open(this.projectId);
-      },
-      environmentChange(value) {
-        for (let i in this.environments) {
-          if (this.environments[i].id === value) {
-            this.api.environmentId = value;
-            this.api.request.useEnvironment = value;
-            break;
-          }
-        }
-      },
-      environmentConfigClose() {
-        this.getEnvironments();
-      },
+
       refresh() {
         this.$emit('refresh');
       },
@@ -292,7 +229,6 @@
       this.api = this.apiData;
       this.api.protocol = this.currentProtocol;
       this.currentRequest = this.api.request;
-      this.getEnvironments();
       this.getResult();
     }
   }
@@ -301,11 +237,6 @@
 <style scoped>
   .ms-htt-width {
     width: 350px;
-  }
-
-  .environment-button {
-    margin-left: 20px;
-    padding: 7px;
   }
 
   .tip {
