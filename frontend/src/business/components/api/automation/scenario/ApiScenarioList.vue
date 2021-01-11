@@ -3,7 +3,7 @@
     <el-card class="table-card" v-loading="loading">
       <template v-slot:header>
         <ms-table-header :condition.sync="condition" @search="selectByParam" title=""
-                         :show-create="false"/>
+                         :show-create="false" />
       </template>
 
       <el-table ref="scenarioTable" border :data="tableData" class="adjust-table ms-select-all" @select-all="select" @select="select"
@@ -12,10 +12,10 @@
         <el-table-column type="selection" width="50"/>
 
         <ms-table-select-all v-if="!referenced"
-          :page-size="pageSize"
-          :total="total"
-          @selectPageAll="isSelectDataAll(false)"
-          @selectAll="isSelectDataAll(true)"/>
+                             :page-size="pageSize"
+                             :total="total"
+                             @selectPageAll="isSelectDataAll(false)"
+                             @selectAll="isSelectDataAll(true)"/>
 
         <el-table-column v-if="!referenced" width="30" :resizable="false" align="center">
           <template v-slot:default="scope">
@@ -93,335 +93,338 @@
         </el-drawer>
       </div>
     </el-card>
+
   </div>
 </template>
 
 <script>
-import MsTableHeader from "@/business/components/common/components/MsTableHeader";
-import MsTablePagination from "@/business/components/common/pagination/TablePagination";
-import ShowMoreBtn from "@/business/components/track/case/components/ShowMoreBtn";
-import MsTag from "../../../common/components/MsTag";
-import {getUUID, getCurrentProjectID} from "@/common/js/utils";
-import MsApiReportDetail from "../report/ApiReportDetail";
-import MsTableMoreBtn from "./TableMoreBtn";
-import MsScenarioExtendButtons from "@/business/components/api/automation/scenario/ScenarioExtendBtns";
-import MsTestPlanList from "./testplan/TestPlanList";
-import MsTableSelectAll from "../../../common/components/table/MsTableSelectAll";
+  import MsTableHeader from "@/business/components/common/components/MsTableHeader";
+  import MsTablePagination from "@/business/components/common/pagination/TablePagination";
+  import ShowMoreBtn from "@/business/components/track/case/components/ShowMoreBtn";
+  import MsTag from "../../../common/components/MsTag";
+  import {getUUID, getCurrentProjectID} from "@/common/js/utils";
+  import MsApiReportDetail from "../report/ApiReportDetail";
+  import MsTableMoreBtn from "./TableMoreBtn";
+  import MsScenarioExtendButtons from "@/business/components/api/automation/scenario/ScenarioExtendBtns";
+  import MsTestPlanList from "./testplan/TestPlanList";
+  import MsTableSelectAll from "../../../common/components/table/MsTableSelectAll";
+  import {API_CASE_CONFIGS} from "@/business/components/common/components/search/search-components";
 
-export default {
-  name: "MsApiScenarioList",
-  components: {
-    MsTableSelectAll,
-    MsTablePagination,
-    MsTableMoreBtn,
-    ShowMoreBtn,
-    MsTableHeader,
-    MsTag,
-    MsApiReportDetail,
-    MsScenarioExtendButtons,
-    MsTestPlanList
-  },
-  props: {
-    referenced: {
-      type: Boolean,
-      default: false,
+  export default {
+    name: "MsApiScenarioList",
+    components: {
+      MsTableSelectAll,
+      MsTablePagination,
+      MsTableMoreBtn,
+      ShowMoreBtn,
+      MsTableHeader,
+      MsTag,
+      MsApiReportDetail,
+      MsScenarioExtendButtons,
+      MsTestPlanList
     },
-    selectNodeIds: Array,
-    trashEnable: {
-      type: Boolean,
-      default: false,
-    }
-  },
-  data() {
-    return {
-      loading: false,
-      condition: {},
-      currentScenario: {},
-      schedule: {},
-      selection: [],
-      tableData: [],
-      selectDataRange: 'all',
-      currentPage: 1,
-      pageSize: 10,
-      total: 0,
-      reportId: "",
-      batchReportId: "",
-      content: {},
-      infoDb: false,
-      runVisible: false,
-      planVisible: false,
-      projectId: "",
-      runData: [],
-      report: {},
-      selectDataSize: 0,
-      selectAll: false,
-      buttons: [
-        {
-          name: this.$t('api_test.automation.batch_add_plan'), handleClick: this.handleBatchAddCase
-        }, {
-          name: this.$t('api_test.automation.batch_execute'), handleClick: this.handleBatchExecute
-        }
-      ],
-      isSelectAllDate: false,
-      unSelection: [],
-      selectDataCounts: 0,
-    }
-  },
-  created() {
-    this.projectId = getCurrentProjectID();
-    this.search();
-  },
-  watch: {
-    selectNodeIds() {
+    props: {
+      referenced: {
+        type: Boolean,
+        default: false,
+      },
+      selectNodeIds: Array,
+      trashEnable: {
+        type: Boolean,
+        default: false,
+      }
+    },
+    data() {
+      return {
+        loading: false,
+        condition: {
+          components: API_CASE_CONFIGS
+        },
+        currentScenario: {},
+        schedule: {},
+        selection: [],
+        tableData: [],
+        selectDataRange: 'all',
+        currentPage: 1,
+        pageSize: 10,
+        total: 0,
+        reportId: "",
+        batchReportId: "",
+        content: {},
+        infoDb: false,
+        runVisible: false,
+        planVisible: false,
+        projectId: "",
+        runData: [],
+        report: {},
+        selectDataSize: 0,
+        selectAll: false,
+        buttons: [
+          {
+            name: this.$t('api_test.automation.batch_add_plan'), handleClick: this.handleBatchAddCase
+          }, {
+            name: this.$t('api_test.automation.batch_execute'), handleClick: this.handleBatchExecute
+          }
+        ],
+        isSelectAllDate: false,
+        unSelection: [],
+        selectDataCounts: 0,
+      }
+    },
+    created() {
+      this.projectId = getCurrentProjectID();
       this.search();
     },
-    trashEnable() {
-      if (this.trashEnable) {
+    watch: {
+      selectNodeIds() {
         this.search();
-      }
-    },
-    batchReportId() {
-      this.loading = true;
-      this.getReport();
-    }
-  },
-  computed: {
-    isNotRunning() {
-      return "Running" !== this.report.status;
-    }
-  },
-  methods: {
-    selectByParam() {
-      this.changeSelectDataRangeAll();
-      this.search();
-    },
-    search() {
-      this.condition.filters = ["Prepare", "Underway", "Completed"];
-      this.condition.moduleIds = this.selectNodeIds;
-      if (this.trashEnable) {
-        this.condition.filters = ["Trash"];
-        this.condition.moduleIds = [];
-      }
-
-      if (this.projectId != null) {
-        this.condition.projectId = this.projectId;
-      }
-
-      //检查是否只查询本周数据
-      this.condition.selectThisWeedData = false;
-      this.condition.executeStatus = null;
-      this.isSelectThissWeekData();
-      switch (this.selectDataRange){
-        case 'thisWeekCount':
-          this.condition.selectThisWeedData = true;
-          break;
-        case 'unExecute':
-          this.condition.executeStatus = 'unExecute';
-          break;
-        case 'executeFailed':
-          this.condition.executeStatus = 'executeFailed';
-          break;
-        case 'executePass':
-          this.condition.executeStatus = 'executePass';
-          break;
-      }
-      this.selection = [];
-
-      this.selectAll = false;
-      this.unSelection = [];
-      this.selectDataCounts = 0;
-      let url = "/api/automation/list/" + this.currentPage + "/" + this.pageSize;
-      if (this.condition.projectId) {
+      },
+      trashEnable() {
+        if (this.trashEnable) {
+          this.search();
+        }
+      },
+      batchReportId() {
         this.loading = true;
-        this.$post(url, this.condition, response => {
-          let data = response.data;
-          this.total = data.itemCount;
-          this.tableData = data.listObject;
-          this.tableData.forEach(item => {
-            if (item.tags && item.tags.length > 0) {
-              item.tags = JSON.parse(item.tags);
+        this.getReport();
+      }
+    },
+    computed: {
+      isNotRunning() {
+        return "Running" !== this.report.status;
+      }
+    },
+    methods: {
+      selectByParam() {
+        this.changeSelectDataRangeAll();
+        this.search();
+      },
+      search() {
+        this.condition.filters = ["Prepare", "Underway", "Completed"];
+        this.condition.moduleIds = this.selectNodeIds;
+        if (this.trashEnable) {
+          this.condition.filters = ["Trash"];
+          this.condition.moduleIds = [];
+        }
+
+        if (this.projectId != null) {
+          this.condition.projectId = this.projectId;
+        }
+
+        //检查是否只查询本周数据
+        this.condition.selectThisWeedData = false;
+        this.condition.executeStatus = null;
+        this.isSelectThissWeekData();
+        switch (this.selectDataRange) {
+          case 'thisWeekCount':
+            this.condition.selectThisWeedData = true;
+            break;
+          case 'unExecute':
+            this.condition.executeStatus = 'unExecute';
+            break;
+          case 'executeFailed':
+            this.condition.executeStatus = 'executeFailed';
+            break;
+          case 'executePass':
+            this.condition.executeStatus = 'executePass';
+            break;
+        }
+        this.selection = [];
+        this.selectAll = false;
+        this.unSelection = [];
+        this.selectDataCounts = 0;
+        let url = "/api/automation/list/" + this.currentPage + "/" + this.pageSize;
+        if (this.condition.projectId) {
+          this.loading = true;
+          this.$post(url, this.condition, response => {
+            let data = response.data;
+            this.total = data.itemCount;
+            this.tableData = data.listObject;
+            this.tableData.forEach(item => {
+              if (item.tags && item.tags.length > 0) {
+                item.tags = JSON.parse(item.tags);
+              }
+            });
+            this.loading = false;
+            this.unSelection = data.listObject.map(s => s.id);
+          });
+        }
+      },
+      handleCommand(cmd) {
+        let table = this.$refs.scenarioTable;
+        switch (cmd) {
+          case "table":
+            this.selectAll = false;
+            table.toggleAllSelection();
+            break;
+          case "all":
+            this.selectAll = true;
+            break
+        }
+      },
+      handleBatchAddCase() {
+        this.planVisible = true;
+      },
+      addTestPlan(plans) {
+        let obj = {planIds: plans, scenarioIds: this.selection};
+
+        obj.projectId = getCurrentProjectID();
+        obj.selectAllDate = this.isSelectAllDate;
+        obj.unSelectIds = this.unSelection;
+        obj = Object.assign(obj, this.condition);
+
+        this.planVisible = false;
+        this.$post("/api/automation/scenario/plan", obj, response => {
+          this.$success(this.$t("commons.save_success"));
+        });
+      },
+      getReport() {
+        if (this.batchReportId) {
+          let url = "/api/scenario/report/get/" + this.batchReportId;
+          this.$get(url, response => {
+            this.report = response.data || {};
+            if (response.data) {
+              if (this.isNotRunning) {
+                try {
+                  this.content = JSON.parse(this.report.content);
+                } catch (e) {
+                  throw e;
+                }
+                this.loading = false;
+                this.$success("批量执行成功，请到报告页面查看详情！");
+              } else {
+                setTimeout(this.getReport, 2000)
+              }
+            } else {
+              this.loading = false;
+              this.$error(this.$t('api_report.not_exist'));
             }
           });
-          this.loading = false;
-          this.unSelection = data.listObject.map(s => s.id);
-        });
-      }
-    },
-    handleCommand(cmd) {
-      let table = this.$refs.scenarioTable;
-      switch (cmd) {
-        case "table":
-          this.selectAll = false;
-          table.toggleAllSelection();
-          break;
-        case "all":
-          this.selectAll = true;
-          break
-      }
-    },
-    handleBatchAddCase() {
-      this.planVisible = true;
-    },
-    addTestPlan(plans) {
-      let obj = {planIds: plans, scenarioIds: this.selection};
-
-      obj.projectId = getCurrentProjectID();
-      obj.selectAllDate = this.isSelectAllDate;
-      obj.unSelectIds = this.unSelection;
-      obj = Object.assign(obj, this.condition);
-
-      this.planVisible = false;
-      this.$post("/api/automation/scenario/plan", obj, response => {
-        this.$success(this.$t("commons.save_success"));
-      });
-    },
-    getReport() {
-      if (this.batchReportId) {
-        let url = "/api/scenario/report/get/" + this.batchReportId;
-        this.$get(url, response => {
-          this.report = response.data || {};
-          if (response.data) {
-            if (this.isNotRunning) {
-              try {
-                this.content = JSON.parse(this.report.content);
-              } catch (e) {
-                throw e;
-              }
-              this.loading = false;
-              this.$success("批量执行成功，请到报告页面查看详情！");
-            } else {
-              setTimeout(this.getReport, 2000)
-            }
-          } else {
-            this.loading = false;
-            this.$error(this.$t('api_report.not_exist'));
-          }
-        });
-      }
-    },
-    handleBatchExecute() {
-      this.infoDb = false;
-      let url = "/api/automation/run/batch";
-      let run = {};
-      let scenarioIds = this.selection;
-      run.id = getUUID();
-      run.scenarioIds = scenarioIds;
-      run.projectId = getCurrentProjectID();
-      run.selectAllDate = this.isSelectAllDate;
-      run.unSelectIds = this.unSelection;
-
-      run = Object.assign(run, this.condition);
-      this.$post(url, run, response => {
-        let data = response.data;
-        this.runVisible = false;
-        this.batchReportId = run.id;
-      });
-    },
-    select(selection) {
-      this.selection = selection.map(s => s.id);
-
-      //统计应当展示选择了多少行
-      this.selectRowsCount(this.selection)
-
-      this.$emit('selection', selection);
-    },
-    isSelect(row) {
-      return this.selection.includes(row.id)
-    },
-    edit(row) {
-      this.$emit('edit', row);
-    },
-    reductionApi(row) {
-      row.scenarioDefinition = null;
-      row.tags = null;
-      let rows = [row];
-      this.$post("/api/automation/reduction", rows, response => {
-        this.$success(this.$t('commons.save_success'));
-        this.search();
-      })
-    },
-    execute(row) {
-      this.infoDb = false;
-      let url = "/api/automation/run";
-      let run = {};
-      let scenarioIds = [];
-      scenarioIds.push(row.id);
-      run.id = getUUID();
-      run.projectId = getCurrentProjectID();
-      run.scenarioIds = scenarioIds;
-      this.$post(url, run, response => {
-        let data = response.data;
-        this.runVisible = true;
-        this.reportId = run.id;
-      });
-    },
-    copy(row) {
-      row.copy = true;
-      this.$emit('edit', row);
-    },
-    showReport(row) {
-      this.runVisible = true;
-      this.infoDb = true;
-      this.reportId = row.reportId;
-    },
-    //是否选择了全部数据
-    isSelectDataAll(dataType) {
-      this.isSelectAllDate = dataType;
-      this.selectRowsCount(this.selection);
-      //如果已经全选，不需要再操作了
-      if (this.selection.length != this.tableData.length) {
-        this.$refs.scenarioTable.toggleAllSelection(true);
-      }
-    },
-    //选择数据数量统计
-    selectRowsCount(selection) {
-      let selectedIDs = selection;
-      let allIDs = this.tableData.map(s => s.id);
-      this.unSelection = allIDs.filter(function (val) {
-        return selectedIDs.indexOf(val) === -1
-      });
-      if (this.isSelectAllDate) {
-        this.selectDataCounts = this.total - this.unSelection.length;
-      } else {
-        this.selectDataCounts = this.selection.length;
-      }
-    },
-    //判断是否只显示本周的数据。  从首页跳转过来的请求会带有相关参数
-    isSelectThissWeekData() {
-      let dataRange = this.$route.params.dataSelectRange;
-      this.selectDataRange = dataRange;
-    },
-    changeSelectDataRangeAll() {
-      this.$emit("changeSelectDataRangeAll");
-    },
-    remove(row) {
-      if (this.trashEnable) {
-        this.$get('/api/automation/delete/' + row.id, () => {
-          this.$success(this.$t('commons.delete_success'));
-          this.search();
-        });
-        return;
-      }
-      this.$alert(this.$t('api_test.definition.request.delete_confirm') + ' ' + row.name + " ？", '', {
-        confirmButtonText: this.$t('commons.confirm'),
-        callback: (action) => {
-          if (action === 'confirm') {
-            let ids = [row.id];
-            this.$post('/api/automation/removeToGc/', ids, () => {
-              this.$success(this.$t('commons.delete_success'));
-              this.search();
-            });
-          }
         }
-      });
-    },
+      },
+      handleBatchExecute() {
+        this.infoDb = false;
+        let url = "/api/automation/run/batch";
+        let run = {};
+        let scenarioIds = this.selection;
+        run.id = getUUID();
+        run.scenarioIds = scenarioIds;
+        run.projectId = getCurrentProjectID();
+        run.selectAllDate = this.isSelectAllDate;
+        run.unSelectIds = this.unSelection;
+
+        run = Object.assign(run, this.condition);
+        this.$post(url, run, response => {
+          let data = response.data;
+          this.runVisible = false;
+          this.batchReportId = run.id;
+        });
+      },
+      select(selection) {
+        this.selection = selection.map(s => s.id);
+
+        //统计应当展示选择了多少行
+        this.selectRowsCount(this.selection)
+
+        this.$emit('selection', selection);
+      },
+      isSelect(row) {
+        return this.selection.includes(row.id)
+      },
+      edit(row) {
+        this.$emit('edit', row);
+      },
+      reductionApi(row) {
+        row.scenarioDefinition = null;
+        row.tags = null;
+        let rows = [row];
+        this.$post("/api/automation/reduction", rows, response => {
+          this.$success(this.$t('commons.save_success'));
+          this.search();
+        })
+      },
+      execute(row) {
+        this.infoDb = false;
+        let url = "/api/automation/run";
+        let run = {};
+        let scenarioIds = [];
+        scenarioIds.push(row.id);
+        run.id = getUUID();
+        run.projectId = getCurrentProjectID();
+        run.scenarioIds = scenarioIds;
+        this.$post(url, run, response => {
+          let data = response.data;
+          this.runVisible = true;
+          this.reportId = run.id;
+        });
+      },
+      copy(row) {
+        row.copy = true;
+        this.$emit('edit', row);
+      },
+      showReport(row) {
+        this.runVisible = true;
+        this.infoDb = true;
+        this.reportId = row.reportId;
+      },
+      //是否选择了全部数据
+      isSelectDataAll(dataType) {
+        this.isSelectAllDate = dataType;
+        this.selectRowsCount(this.selection);
+        //如果已经全选，不需要再操作了
+        if (this.selection.length != this.tableData.length) {
+          this.$refs.scenarioTable.toggleAllSelection(true);
+        }
+      },
+      //选择数据数量统计
+      selectRowsCount(selection) {
+        let selectedIDs = selection;
+        let allIDs = this.tableData.map(s => s.id);
+        this.unSelection = allIDs.filter(function (val) {
+          return selectedIDs.indexOf(val) === -1
+        });
+        if (this.isSelectAllDate) {
+          this.selectDataCounts = this.total - this.unSelection.length;
+        } else {
+          this.selectDataCounts = this.selection.length;
+        }
+      },
+      //判断是否只显示本周的数据。  从首页跳转过来的请求会带有相关参数
+      isSelectThissWeekData() {
+        let dataRange = this.$route.params.dataSelectRange;
+        this.selectDataRange = dataRange;
+      },
+      changeSelectDataRangeAll() {
+        this.$emit("changeSelectDataRangeAll");
+      },
+      remove(row) {
+        if (this.trashEnable) {
+          this.$get('/api/automation/delete/' + row.id, () => {
+            this.$success(this.$t('commons.delete_success'));
+            this.search();
+          });
+          return;
+        }
+        this.$alert(this.$t('api_test.definition.request.delete_confirm') + ' ' + row.name + " ？", '', {
+          confirmButtonText: this.$t('commons.confirm'),
+          callback: (action) => {
+            if (action === 'confirm') {
+              let ids = [row.id];
+              this.$post('/api/automation/removeToGc/', ids, () => {
+                this.$success(this.$t('commons.delete_success'));
+                this.search();
+              });
+            }
+          }
+        });
+      },
+    }
   }
-}
 </script>
 
 <style scoped>
-/deep/ .el-drawer__header {
-  margin-bottom: 0px;
-}
+  /deep/ .el-drawer__header {
+    margin-bottom: 0px;
+  }
 
 </style>

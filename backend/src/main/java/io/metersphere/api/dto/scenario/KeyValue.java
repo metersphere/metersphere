@@ -31,6 +31,14 @@ public class KeyValue {
         this(name, value, description, null);
     }
 
+    public KeyValue(String name, String type, String value, boolean required, boolean enable) {
+        this.name = name;
+        this.type = type;
+        this.value = value;
+        this.required = required;
+        this.enable = enable;
+    }
+
     public KeyValue(String name, String value, String description, String contentType) {
         this(name, value, description, contentType, true);
     }
@@ -49,7 +57,7 @@ public class KeyValue {
     }
 
     public boolean isValid() {
-        return (StringUtils.isNotBlank(name) && StringUtils.isNotBlank(value)) && !StringUtils.equalsIgnoreCase(type, "file");
+        return ((StringUtils.isNotBlank(name) && StringUtils.isNotBlank(value)) || "JSON-SCHEMA".equals(type)) && !StringUtils.equalsIgnoreCase(type, "file");
     }
 
     public boolean isFile() {

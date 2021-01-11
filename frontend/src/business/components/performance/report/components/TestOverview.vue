@@ -499,6 +499,7 @@ export default {
         } else {
           this.maxUsers = '0';
           this.avgThroughput = '0';
+          this.avgTransactions = '0';
           this.errors = '0';
           this.avgResponseTime = '0';
           this.responseTime90 = '0';

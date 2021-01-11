@@ -147,6 +147,25 @@
                 <property name="object" value="${condition}.creator"/>
             </include>
         </if>
+        <if test="${condition}.path != null">
+            and api_definition.path
+            <include refid="condition">
+                <property name="object" value="${condition}.path"/>
+            </include>
+        </if>
+        <if test="${condition}.method != null">
+            and api_definition.method
+            <include refid="condition">
+                <property name="object" value="${condition}.method"/>
+            </include>
+        </if>
+        <if test="${condition}.tags != null">
+            and api_definition.tags
+            <include refid="condition">
+                <property name="object" value="${condition}.tags"/>
+            </include>
+        </if>
+
     </sql>
 
     <sql id="condition">

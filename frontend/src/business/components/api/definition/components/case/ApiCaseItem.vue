@@ -24,7 +24,7 @@
 
 
         <label class="ms-api-label" style="padding-left: 20px; padding-right: 20px;">{{ $t('commons.tag') }}</label>
-        <ms-input-tag :currentScenario="apiCase" ref="tag" style="float: right;margin-right: 215px;margin-top: -3px;"/>
+        <ms-input-tag :currentScenario="apiCase" ref="tag" style="float: right;margin-right: 215px;margin-top: -3px;" @keyup.enter.native="saveTestCase(apiCase)"/>
 
         <div v-if="apiCase.id" style="color: #999999;font-size: 12px">
                   <span>

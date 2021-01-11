@@ -517,6 +517,12 @@ export default {
       },
       request: {
         grade_info: "Filter by rank",
+        grade_order_asc: "from high to low by use case level",
+        grade_order_desc: "from high to low by use case level,",
+        create_time_order_asc: "by creation time from front to back",
+        create_time_order_desc: "from back to front by creation time,",
+        update_time_order_asc: "by update time from front to back",
+        update_time_order_desc: "from back to front by update time,",
         run_env: "Operating environment",
         select_case: "Search use cases",
         case: "Case",
@@ -1100,6 +1106,16 @@ export default {
       plan_delete_confirm: "All use cases under this plan will be deleted,confirm delete test plan: ",
       plan_delete_tip: "The test plan is under way, please confirm and delete it!",
       plan_delete: "Delete test plan",
+      load_case: {
+        execution_status: "Execution status",
+        report: "report",
+        view_report: "View report",
+        unlink_in_bulk: "Unlink in bulk",
+        batch_exec_cases: "Batch execution use cases",
+        exec: "Executing....",
+        error: "Use case execution error, please debug this use case separately!",
+        report_not_found: "Report does not exist",
+      }
     },
     review: {
       test_review: "Test Review",

@@ -48,14 +48,14 @@
             <span>{{ scope.row.createTime | timestampFormatDate }}</span>
           </template>
         </el-table-column>
-        <el-table-column
-          sortable
-          prop="updateTime"
-          :label="$t('commons.update_time')">
-          <template v-slot:default="scope">
-            <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
-          </template>
-        </el-table-column>
+<!--        <el-table-column-->
+<!--          sortable-->
+<!--          prop="updateTime"-->
+<!--          :label="$t('commons.update_time')">-->
+<!--          <template v-slot:default="scope">-->
+<!--            <span>{{ scope.row.updateTime | timestampFormatDate }}</span>-->
+<!--          </template>-->
+<!--        </el-table-column>-->
         <el-table-column
           prop="status"
           column-key="status"
@@ -67,7 +67,7 @@
         </el-table-column>
         <el-table-column
           prop="caseStatus"
-          label="执行状态">
+          :label="$t('test_track.plan.load_case.execution_status')">
           <template v-slot:default="{row}">
             <el-tag size="mini" type="danger" v-if="row.caseStatus === 'error'">
               {{ row.caseStatus }}
@@ -79,11 +79,11 @@
           </template>
         </el-table-column>
         <el-table-column
-          label="报告"
+          :label="$t('test_track.plan.load_case.report')"
           show-overflow-tooltip>
           <template v-slot:default="scope">
             <div v-loading="loading === scope.row.id">
-              <el-link type="info" @click="getReport(scope.row)" v-if="scope.row.loadReportId">查看报告</el-link>
+              <el-link type="info" @click="getReport(scope.row)" v-if="scope.row.loadReportId">{{ $t('test_track.plan.load_case.view_report') }}</el-link>
               <span v-else> - </span>
             </div>
           </template>
@@ -141,10 +141,10 @@ export default {
         //   name: "批量编辑用例", handleClick: this.handleBatchEdit
         // },
         {
-          name: "批量取消关联", handleClick: this.handleDeleteBatch
+          name: this.$t('test_track.plan.load_case.unlink_in_bulk'), handleClick: this.handleDeleteBatch
         },
         {
-          name: "批量执行用例", handleClick: this.handleRunBatch
+          name: this.$t('test_track.plan.load_case.batch_exec_cases'), handleClick: this.handleRunBatch
         }
       ],
       statusFilters: [
@@ -200,7 +200,6 @@ export default {
         if (arr.length > 0) {
           this.initTable();
         } else {
-          setTimeout(this.initTable, 3000);
           clearInterval(this.refreshScheduler);
         }
       }, 4000);
@@ -263,7 +262,7 @@ export default {
       }).then(() => {
         this.$notify({
           title: loadCase.caseName,
-          message: '正在执行....',
+          message: this.$t('test_track.plan.load_case.exec'),
           type: 'success'
         });
         this.initTable();
@@ -274,7 +273,7 @@ export default {
         });
         this.$notify.error({
           title: loadCase.caseName,
-          message: '用例执行错误，请单独调试该用例！'
+          message: this.$t('test_track.plan.load_case.error')
         });
       })
     },
@@ -310,7 +309,7 @@ export default {
         if (exist) {
           this.$refs.loadCaseReport.drawer = true;
         } else {
-          this.$warning("报告不存在");
+          this.$warning(this.$t('test_track.plan.load_case.report_not_found'));
           // this.initTable();
         }
       })
