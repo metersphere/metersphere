@@ -1,12 +1,19 @@
 package io.metersphere.api.dto.definition.request.sampler;
 
+import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.annotation.JSONType;
 import io.metersphere.api.dto.definition.request.MsTestElement;
 import io.metersphere.api.dto.definition.request.ParameterConfig;
+import io.metersphere.api.dto.scenario.KeyValue;
+import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
+import io.metersphere.api.service.ApiTestEnvironmentService;
+import io.metersphere.base.domain.ApiTestEnvironmentWithBLOBs;
+import io.metersphere.commons.utils.CommonBeanFactory;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.config.ConfigTestElement;
 import org.apache.jmeter.protocol.tcp.sampler.TCPSampler;
 import org.apache.jmeter.save.SaveService;
@@ -15,6 +22,7 @@ import org.apache.jorphan.collections.HashTree;
 import org.apache.jorphan.collections.ListedHashTree;
 
 import java.util.List;
+import java.util.regex.Matcher;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -50,6 +58,10 @@ public class MsTCPSampler extends MsTestElement {
     private String request;
     @JSONField(ordinal = 34)
     private Object requestResult;
+    @JSONField(ordinal = 35)
+    private List<KeyValue> parameters;
+    @JSONField(ordinal = 36)
+    private String useEnvironment;
 
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, ParameterConfig config) {
         if (!this.isEnable()) {
@@ -58,6 +70,9 @@ public class MsTCPSampler extends MsTestElement {
         if (this.getReferenced() != null && this.getReferenced().equals("REF")) {
             this.getRefElement(this);
         }
+        parseParameters();
+        config.setConfig(getEnvironmentConfig(useEnvironment));
+        parseEnvironment(config.getConfig());
         final HashTree samplerHashTree = new ListedHashTree();
         samplerHashTree.add(tcpConfig());
         tree.set(tcpSampler(), samplerHashTree);
@@ -65,6 +80,13 @@ public class MsTCPSampler extends MsTestElement {
             hashTree.forEach(el -> {
                 el.toHashTree(samplerHashTree, el.getHashTree(), config);
             });
+        }
+    }
+
+    private void parseEnvironment(EnvironmentConfig config) {
+        if (config != null && config.getTcpConfig() != null) {
+            this.server = config.getTcpConfig().getServer();
+            this.port = config.getTcpConfig().getPort();
         }
     }
 
@@ -87,6 +109,16 @@ public class MsTCPSampler extends MsTestElement {
         tcpSampler.setProperty(ConfigTestElement.PASSWORD, this.getPassword());
 
         return tcpSampler;
+    }
+
+    private void parseParameters() {
+        if (CollectionUtils.isNotEmpty(parameters)) {
+            parameters.forEach(item -> {
+                if (item.isEnable() && StringUtils.isNotBlank(item.getValue())) {
+                    request = request.replaceAll("\\$\\{" + item.getName() + "\\}", Matcher.quoteReplacement(item.getValue()));
+                }
+            });
+        }
     }
 
     private ConfigTestElement tcpConfig() {

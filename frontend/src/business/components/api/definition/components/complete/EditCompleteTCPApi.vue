@@ -30,7 +30,7 @@
 
 <script>
 import MsBasisApi from "./BasisApi";
-import MsBasisParameters from "../request/tcp/BasisParameters";
+import MsBasisParameters from "../request/tcp/TcpBasisParameters";
 
 export default {
   name: "MsAddCompleteTcpApi",
@@ -72,6 +72,9 @@ export default {
       this.validateApi();
       if (this.validated) {
         this.basisData.request = this.request;
+        if (this.basisData.tags instanceof Array) {
+          this.basisData.tags = JSON.stringify(this.basisData.tags);
+        }
         this.$emit('runTest', this.basisData);
       }
     },
