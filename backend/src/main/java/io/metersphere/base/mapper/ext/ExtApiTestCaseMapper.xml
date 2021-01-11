@@ -259,14 +259,14 @@
 
     <select id="listSimple" resultType="io.metersphere.api.dto.definition.ApiTestCaseDTO">
         select
-          c.id, c.project_id, c.name, c.api_definition_id, c.priority, c.description, c.create_user_id, c.update_user_id, c.create_time, c.update_time, c.num,
+          atc.id, atc.project_id, atc.name, atc.api_definition_id, atc.priority, atc.description, atc.create_user_id, atc.update_user_id, atc.create_time, atc.update_time, atc.num,
           a.module_id, a.path, a.protocol
         from
-          api_test_case c
+          api_test_case atc
         inner join
           api_definition a
         on
-          c.api_definition_id = a.id
+          atc.api_definition_id = a.id
             <if test="request.protocol != null and request.protocol!=''">
                 and a.protocol = #{request.protocol}
             </if>
@@ -278,48 +278,55 @@
                     and a.status != 'Trash'
                 </otherwise>
             </choose>
-        where
-        <if test="request.projectId != null and request.projectId!=''">
-            c.project_id = #{request.projectId}
-        </if>
-        <if test="request.id != null and request.id!=''">
-            and c.id = #{request.id}
-        </if>
-        <if test="request.ids != null and request.ids.size() > 0">
-            <if test="request.projectId != null and request.projectId!=''">
-                and
+        <where>
+            <if test="request.combine != null">
+                <include refid="combine">
+                    <property name="condition" value="request.combine"/>
+                    <property name="name" value="request.name"/>
+                </include>
             </if>
-            c.id in
-            <foreach collection="request.ids" item="caseId" separator="," open="(" close=")">
-                #{caseId}
-            </foreach>
-        </if>
-        <if test="request.name != null and request.name!=''">
-            and c.name like CONCAT('%', #{request.name},'%')
-        </if>
-        <if test="request.createTime > 0">
-            and c.create_time >= #{request.createTime}
-        </if>
-        <if test="request.moduleIds != null and request.moduleIds.size() > 0">
-            and a.module_id in
-            <foreach collection="request.moduleIds" item="nodeId" separator="," open="(" close=")">
-                #{nodeId}
-            </foreach>
-        </if>
-        <if test="request.filters != null and request.filters.size() > 0">
-            <foreach collection="request.filters.entrySet()" index="key" item="values">
-                <if test="values != null and values.size() > 0">
-                    <choose>
-                        <when test="key == 'priority'">
-                            and c.priority in
-                            <foreach collection="values" item="value" separator="," open="(" close=")">
-                                #{value}
-                            </foreach>
-                        </when>
-                    </choose>
+            <if test="request.projectId != null and request.projectId!=''">
+                and atc.project_id = #{request.projectId}
+            </if>
+            <if test="request.id != null and request.id!=''">
+                and atc.id = #{request.id}
+            </if>
+            <if test="request.ids != null and request.ids.size() > 0">
+                <if test="request.projectId != null and request.projectId!=''">
+                    and
                 </if>
-            </foreach>
-        </if>
+                atc.id in
+                <foreach collection="request.ids" item="caseId" separator="," open="(" close=")">
+                    #{caseId}
+                </foreach>
+            </if>
+            <if test="request.name != null and request.name!=''">
+                and atc.name like CONCAT('%', #{request.name},'%')
+            </if>
+            <if test="request.createTime > 0">
+                and atc.create_time >= #{request.createTime}
+            </if>
+            <if test="request.moduleIds != null and request.moduleIds.size() > 0">
+                and a.module_id in
+                <foreach collection="request.moduleIds" item="nodeId" separator="," open="(" close=")">
+                    #{nodeId}
+                </foreach>
+            </if>
+            <if test="request.filters != null and request.filters.size() > 0">
+                <foreach collection="request.filters.entrySet()" index="key" item="values">
+                    <if test="values != null and values.size() > 0">
+                        <choose>
+                            <when test="key == 'priority'">
+                                and atc.priority in
+                                <foreach collection="values" item="value" separator="," open="(" close=")">
+                                    #{value}
+                                </foreach>
+                            </when>
+                        </choose>
+                    </if>
+                </foreach>
+            </if>
+        </where>
         <if test="request.orders != null and request.orders.size() > 0">
             order by
             <foreach collection="request.orders" separator="," item="order">
