@@ -99,6 +99,10 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         HTTPSamplerProxy sampler = new HTTPSamplerProxy();
         sampler.setEnabled(true);
         sampler.setName(this.getName());
+        if (config != null && StringUtils.isNotEmpty(config.getStep())) {
+            sampler.setName(this.getName() + "<->" + config.getStep());
+        }
+
         sampler.setProperty(TestElement.TEST_CLASS, HTTPSamplerProxy.class.getName());
         sampler.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("HttpTestSampleGui"));
         sampler.setMethod(this.getMethod());

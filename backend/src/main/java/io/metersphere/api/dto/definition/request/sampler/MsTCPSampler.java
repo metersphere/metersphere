@@ -7,6 +7,7 @@ import io.metersphere.api.dto.definition.request.ParameterConfig;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.config.ConfigTestElement;
 import org.apache.jmeter.protocol.tcp.sampler.TCPSampler;
 import org.apache.jmeter.save.SaveService;
@@ -59,7 +60,7 @@ public class MsTCPSampler extends MsTestElement {
             this.getRefElement(this);
         }
         final HashTree samplerHashTree = new ListedHashTree();
-        samplerHashTree.add(tcpConfig());
+        samplerHashTree.add(tcpConfig(config));
         tree.set(tcpSampler(), samplerHashTree);
         if (CollectionUtils.isNotEmpty(hashTree)) {
             hashTree.forEach(el -> {
@@ -89,10 +90,14 @@ public class MsTCPSampler extends MsTestElement {
         return tcpSampler;
     }
 
-    private ConfigTestElement tcpConfig() {
+    private ConfigTestElement tcpConfig(ParameterConfig config) {
         ConfigTestElement configTestElement = new ConfigTestElement();
         configTestElement.setEnabled(true);
         configTestElement.setName(this.getName());
+        if (config != null && StringUtils.isNotEmpty(config.getStep())) {
+            configTestElement.setName(this.getName() + "<->" + config.getStep());
+        }
+
         configTestElement.setProperty(TestElement.TEST_CLASS, ConfigTestElement.class.getName());
         configTestElement.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("TCPConfigGui"));
         configTestElement.setProperty(TCPSampler.CLASSNAME, this.getClassname());

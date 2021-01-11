@@ -14,5 +14,9 @@ public class ParameterConfig {
     private List<ScenarioVariable> variables;
     // 公共Cookie
     private boolean enableCookieShare;
+    // 步骤
+    private String step;
+
+    private final String stepType = "STEP_GROUP";
 
 }
