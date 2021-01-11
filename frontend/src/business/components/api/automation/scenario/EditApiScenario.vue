@@ -524,8 +524,7 @@
         }
         this.sort();
         this.reload();
-      }
-      ,
+      },
       nodeClick(e) {
         if (e.referenced != 'REF' && e.referenced != 'Deleted') {
           this.operatingElements = ELEMENTS.get(e.type);
@@ -533,8 +532,7 @@
           this.operatingElements = [];
         }
         this.selectedTreeNode = e;
-      }
-      ,
+      },
       suggestClick(node) {
         this.response = {};
         if (node.parent && node.parent.data.requestResult) {
@@ -544,13 +542,11 @@
       showAll() {
         this.operatingElements = ELEMENTS.get("ALL");
         this.selectedTreeNode = undefined;
-        this.reload();
-      }
-      ,
+        //this.reload();
+      },
       apiListImport() {
         this.$refs.scenarioApiRelevance.open();
-      }
-      ,
+      },
       recursiveSorting(arr) {
         for (let i in arr) {
           arr[i].index = Number(i) + 1;
@@ -558,8 +554,7 @@
             this.recursiveSorting(arr[i].hashTree);
           }
         }
-      }
-      ,
+      },
       sort() {
         for (let i in this.scenarioDefinition) {
           this.scenarioDefinition[i].index = Number(i) + 1;
@@ -567,8 +562,7 @@
             this.recursiveSorting(this.scenarioDefinition[i].hashTree);
           }
         }
-      }
-      ,
+      },
       addCustomizeApi(request) {
         this.customizeVisible = false;
         request.enable === undefined ? request.enable = true : request.enable;
@@ -1034,5 +1028,6 @@
   .ms-opt-btn {
     position: fixed;
     right: 50px;
+    z-index: 1;
   }
 </style>
