@@ -1104,6 +1104,16 @@ export default {
       plan_delete_confirm: "將刪除該測試計劃下所有用例，確認刪除測試計劃: ",
       plan_delete_tip: "該測試計劃正在進行中，請確認再刪除！",
       plan_delete: "刪除計劃",
+      load_case: {
+        execution_status: "執行狀態",
+        report: "報告",
+        view_report: "查看報告",
+        unlink_in_bulk: "批量取消關聯",
+        batch_exec_cases: "批量執行用例",
+        exec: "正在執行....",
+        error: "用例執行錯誤，請單獨調試該用例！",
+        report_not_found: "報告不存在",
+      }
     },
     review: {
       test_review: "用例評審",
