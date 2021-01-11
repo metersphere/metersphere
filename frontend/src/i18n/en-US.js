@@ -1103,6 +1103,16 @@ export default {
       plan_delete_confirm: "All use cases under this plan will be deleted,confirm delete test plan: ",
       plan_delete_tip: "The test plan is under way, please confirm and delete it!",
       plan_delete: "Delete test plan",
+      load_case: {
+        execution_status: "Execution status",
+        report: "report",
+        view_report: "View report",
+        unlink_in_bulk: "Unlink in bulk",
+        batch_exec_cases: "Batch execution use cases",
+        exec: "Executing....",
+        error: "Use case execution error, please debug this use case separately!",
+        report_not_found: "Report does not exist",
+      }
     },
     review: {
       test_review: "Test Review",
