@@ -13,7 +13,7 @@
       <slot name="headerLeft">
         <i class="icon el-icon-arrow-right" :class="{'is-active': request.active}"
            @click="active(request)"/>
-        <el-input v-if="(isShowInput || !request.name) && !isDeletedOrRef" size="small" v-model="request.name" class="name-input"
+        <el-input draggable v-if="(isShowInput || !request.name) && !isDeletedOrRef" size="small" v-model="request.name" class="name-input"
                   @blur="isShowInput = false" :placeholder="$t('commons.input_name')"/>
         <span v-else>
           {{request.name}}
