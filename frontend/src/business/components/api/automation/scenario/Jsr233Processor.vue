@@ -140,9 +140,6 @@
       languageChange(language) {
         this.jsr223ProcessorData.scriptLanguage = language;
       },
-      changeActive() {
-        this.jsr223ProcessorData.active = !this.jsr223ProcessorData.active;
-      },
     }
   }
 </script>
