@@ -45,6 +45,11 @@ public class XmindCaseParser {
      */
     private List<TestCaseWithBLOBs> testCases;
     /**
+     * 需要更新的用例
+     */
+    private List<TestCaseWithBLOBs> updateTestCases;
+
+    /**
      * 案例详情重写了hashCode方法去重用
      */
     private List<TestCaseExcelData> compartDatas;
@@ -59,6 +64,7 @@ public class XmindCaseParser {
         this.projectId = projectId;
         this.testCaseNames = testCaseNames;
         testCases = new LinkedList<>();
+        updateTestCases = new LinkedList<>();
         compartDatas = new ArrayList<>();
         process = new DetailUtil();
         nodePaths = new ArrayList<>();
@@ -71,12 +77,17 @@ public class XmindCaseParser {
     public void clear() {
         compartDatas.clear();
         testCases.clear();
+        updateTestCases.clear();
         testCaseNames.clear();
         nodePaths.clear();
     }
 
     public List<TestCaseWithBLOBs> getTestCase() {
         return this.testCases;
+    }
+
+    public List<TestCaseWithBLOBs> getUpdateTestCase() {
+        return this.updateTestCases;
     }
 
     public List<String> getNodePaths() {
@@ -112,7 +123,7 @@ public class XmindCaseParser {
     /**
      * 验证用例的合规性
      */
-    private void validate(TestCaseWithBLOBs data) {
+    private boolean validate(TestCaseWithBLOBs data) {
         String nodePath = data.getNodePath();
         if (!nodePath.startsWith("/")) {
             nodePath = "/" + nodePath;
@@ -149,9 +160,13 @@ public class XmindCaseParser {
         }
 
         if (testCaseNames.contains(data.getName())) {
-            boolean dbExist = testCaseService.exist(data);
-            if (dbExist) {
-                process.add(Translator.get("test_case_already_exists_excel"), nodePath + "/" + data.getName());
+            TestCaseWithBLOBs bloBs = testCaseService.checkTestCaseExist(data);
+            if (bloBs != null) {
+                // process.add(Translator.get("test_case_already_exists_excel"), nodePath + "/" + data.getName());
+                // 记录需要变更的用例
+                BeanUtils.copyBean(bloBs, data, "id");
+                updateTestCases.add(bloBs);
+                return false;
             }
         } else {
             testCaseNames.add(data.getName());
@@ -172,6 +187,7 @@ public class XmindCaseParser {
             process.add(Translator.get("test_case_already_exists_excel"), nodePath + "/" + compartData.getName());
         }
         compartDatas.add(compartData);
+        return true;
     }
 
     /**
@@ -299,9 +315,10 @@ public class XmindCaseParser {
         }
         testCase.setRemark(rc.toString());
         testCase.setSteps(this.getSteps(steps));
-        testCases.add(testCase);
         // 校验合规性
-        validate(testCase);
+        if (validate(testCase)) {
+            testCases.add(testCase);
+        }
     }
 
     /**

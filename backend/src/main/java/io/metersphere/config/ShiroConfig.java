@@ -1,9 +1,14 @@
 package io.metersphere.config;
 
+import io.metersphere.commons.user.UserModularRealmAuthenticator;
 import io.metersphere.commons.utils.ShiroUtils;
 import io.metersphere.security.ApiKeyFilter;
+import io.metersphere.security.LdapRealm;
 import io.metersphere.security.ShiroDBRealm;
+import org.apache.shiro.authc.pam.FirstSuccessfulStrategy;
+import org.apache.shiro.authc.pam.ModularRealmAuthenticator;
 import org.apache.shiro.cache.MemoryConstrainedCacheManager;
+import org.apache.shiro.realm.Realm;
 import org.apache.shiro.session.mgt.SessionManager;
 import org.apache.shiro.spring.LifecycleBeanPostProcessor;
 import org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor;
@@ -23,9 +28,7 @@ import org.springframework.core.env.Environment;
 
 import javax.servlet.DispatcherType;
 import javax.servlet.Filter;
-import java.util.EnumSet;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 @Configuration
 @ConditionalOnProperty(prefix = "sso", name = "mode", havingValue = "local", matchIfMissing = true)
@@ -74,13 +77,20 @@ public class ShiroConfig implements EnvironmentAware {
         DefaultWebSecurityManager dwsm = new DefaultWebSecurityManager();
         dwsm.setSessionManager(sessionManager);
         dwsm.setCacheManager(memoryConstrainedCacheManager);
+        dwsm.setAuthenticator(modularRealmAuthenticator());
         return dwsm;
     }
 
-    @Bean(name = "shiroDBRealm")
+    @Bean
     @DependsOn("lifecycleBeanPostProcessor")
-    public ShiroDBRealm getShiroDBRealm() {
+    public ShiroDBRealm shiroDBRealm() {
         return new ShiroDBRealm();
+    }
+
+    @Bean
+    @DependsOn("lifecycleBeanPostProcessor")
+    public LdapRealm ldapRealm() {
+        return new LdapRealm();
     }
 
     @Bean(name = "lifecycleBeanPostProcessor")
@@ -93,6 +103,14 @@ public class ShiroConfig implements EnvironmentAware {
         DefaultAdvisorAutoProxyCreator daap = new DefaultAdvisorAutoProxyCreator();
         daap.setProxyTargetClass(true);
         return daap;
+    }
+
+    @Bean
+    public ModularRealmAuthenticator modularRealmAuthenticator() {
+        //自己重写的ModularRealmAuthenticator
+        UserModularRealmAuthenticator modularRealmAuthenticator = new UserModularRealmAuthenticator();
+        modularRealmAuthenticator.setAuthenticationStrategy(new FirstSuccessfulStrategy());
+        return modularRealmAuthenticator;
     }
 
     @Bean
@@ -114,8 +132,13 @@ public class ShiroConfig implements EnvironmentAware {
     @EventListener
     public void handleContextRefresh(ContextRefreshedEvent event) {
         ApplicationContext context = event.getApplicationContext();
-        ShiroDBRealm shiroDBRealm = (ShiroDBRealm) context.getBean("shiroDBRealm");
-        ((DefaultWebSecurityManager) context.getBean("securityManager")).setRealm(shiroDBRealm);
+        List<Realm> realmList = new ArrayList<>();
+        ShiroDBRealm shiroDBRealm = context.getBean(ShiroDBRealm.class);
+        LdapRealm ldapRealm = context.getBean(LdapRealm.class);
+        // 基本realm
+        realmList.add(shiroDBRealm);
+        realmList.add(ldapRealm);
+        context.getBean(DefaultWebSecurityManager.class).setRealms(realmList);
     }
 
     @Override

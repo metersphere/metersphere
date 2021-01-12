@@ -22,7 +22,7 @@ public class ScenarioResult {
 
     private int passAssertions = 0;
 
-    private final List<RequestResult> requestResults = new ArrayList<>();
+    private List<RequestResult> requestResults = new ArrayList<>();
 
     public void addResponseTime(long time) {
         this.responseTime += time;

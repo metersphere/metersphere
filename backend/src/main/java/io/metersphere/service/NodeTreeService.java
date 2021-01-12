@@ -2,6 +2,7 @@ package io.metersphere.service;
 
 import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.track.dto.TreeNodeDTO;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.*;
@@ -123,7 +124,7 @@ public class NodeTreeService<T extends TreeNodeDTO> {
      * @param pathMap      记录节点路径对应的nodeId
      */
     protected void createNodeByPathIterator(Iterator<String> pathIterator, String path, T treeNode,
-                                          Map<String, String> pathMap, String projectId, Integer level) {
+                                            Map<String, String> pathMap, String projectId, Integer level) {
 
         List<T> children = treeNode.getChildren();
 
@@ -161,8 +162,8 @@ public class NodeTreeService<T extends TreeNodeDTO> {
      * @param pNode        父节点
      */
     protected void createNodeByPath(Iterator<String> pathIterator, String nodeName,
-                                  T pNode, String projectId, Integer level,
-                                  String rootPath, Map<String, String> pathMap) {
+                                    T pNode, String projectId, Integer level,
+                                    String rootPath, Map<String, String> pathMap) {
 
         StringBuilder path = new StringBuilder(rootPath);
 
@@ -203,6 +204,8 @@ public class NodeTreeService<T extends TreeNodeDTO> {
      */
     public void sort(List<String> ids) {
         // 获取相邻节点 id
+        if (CollectionUtils.isEmpty(ids))
+            return;
         String before = ids.get(0);
         String id = ids.get(1);
         String after = ids.get(2);

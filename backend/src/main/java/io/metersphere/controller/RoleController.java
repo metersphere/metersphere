@@ -1,7 +1,9 @@
 package io.metersphere.controller;
 
 import io.metersphere.base.domain.Role;
+import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.service.RoleService;
+import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -23,6 +25,7 @@ public class RoleController {
     }
 
     @GetMapping("/all")
+    @RequiresRoles(RoleConstants.ADMIN)
     public List<Role> getAllRole() {
         return roleService.getAllRole();
     }

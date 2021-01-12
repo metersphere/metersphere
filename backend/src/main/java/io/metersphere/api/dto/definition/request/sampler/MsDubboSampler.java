@@ -15,6 +15,7 @@ import io.metersphere.api.dto.scenario.KeyValue;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.config.ConfigTestElement;
 import org.apache.jmeter.save.SaveService;
 import org.apache.jmeter.testelement.TestElement;
@@ -64,7 +65,7 @@ public class MsDubboSampler extends MsTestElement {
             this.getRefElement(this);
         }
 
-        final HashTree testPlanTree = tree.add(dubboSample());
+        final HashTree testPlanTree = tree.add(dubboSample(config));
         if (CollectionUtils.isNotEmpty(hashTree)) {
             hashTree.forEach(el -> {
                 el.toHashTree(testPlanTree, el.getHashTree(), config);
@@ -72,9 +73,12 @@ public class MsDubboSampler extends MsTestElement {
         }
     }
 
-    private DubboSample dubboSample() {
+    private DubboSample dubboSample(ParameterConfig config) {
         DubboSample sampler = new DubboSample();
         sampler.setName(this.getName());
+        if (config != null && StringUtils.isNotEmpty(config.getStep())) {
+            sampler.setName(this.getName() + "<->" + config.getStep());
+        }
         sampler.setProperty(TestElement.TEST_CLASS, DubboSample.class.getName());
         sampler.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("DubboSampleGui"));
 
@@ -95,19 +99,6 @@ public class MsDubboSampler extends MsTestElement {
         Constants.setAttachmentArgs(attachmentArgs, sampler);
 
         return sampler;
-    }
-
-
-    private ConfigTestElement dubboConfig() {
-        ConfigTestElement configTestElement = new ConfigTestElement();
-        configTestElement.setEnabled(true);
-        configTestElement.setName(this.getName());
-        configTestElement.setProperty(TestElement.TEST_CLASS, ConfigTestElement.class.getName());
-        configTestElement.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("DubboDefaultConfigGui"));
-        configTestElement.addConfigElement(configCenter(this.getConfigCenter()));
-        configTestElement.addConfigElement(registryCenter(this.getRegistryCenter()));
-        configTestElement.addConfigElement(consumerAndService(this.getConsumerAndService()));
-        return configTestElement;
     }
 
     private ConfigTestElement configCenter(MsConfigCenter configCenter) {

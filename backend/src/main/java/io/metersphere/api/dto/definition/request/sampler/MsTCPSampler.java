@@ -1,15 +1,11 @@
 package io.metersphere.api.dto.definition.request.sampler;
 
-import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.annotation.JSONType;
 import io.metersphere.api.dto.definition.request.MsTestElement;
 import io.metersphere.api.dto.definition.request.ParameterConfig;
 import io.metersphere.api.dto.scenario.KeyValue;
 import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
-import io.metersphere.api.service.ApiTestEnvironmentService;
-import io.metersphere.base.domain.ApiTestEnvironmentWithBLOBs;
-import io.metersphere.commons.utils.CommonBeanFactory;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.collections.CollectionUtils;
@@ -75,7 +71,7 @@ public class MsTCPSampler extends MsTestElement {
         parseEnvironment(config.getConfig());
         final HashTree samplerHashTree = new ListedHashTree();
         samplerHashTree.add(tcpConfig());
-        tree.set(tcpSampler(), samplerHashTree);
+        tree.set(tcpSampler(config), samplerHashTree);
         if (CollectionUtils.isNotEmpty(hashTree)) {
             hashTree.forEach(el -> {
                 el.toHashTree(samplerHashTree, el.getHashTree(), config);
@@ -90,9 +86,13 @@ public class MsTCPSampler extends MsTestElement {
         }
     }
 
-    private TCPSampler tcpSampler() {
+    private TCPSampler tcpSampler(ParameterConfig config) {
         TCPSampler tcpSampler = new TCPSampler();
         tcpSampler.setName(this.getName());
+        if (config != null && StringUtils.isNotEmpty(config.getStep())) {
+            tcpSampler.setName(this.getName() + "<->" + config.getStep());
+        }
+
         tcpSampler.setProperty(TestElement.TEST_CLASS, TCPSampler.class.getName());
         tcpSampler.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("TCPSamplerGui"));
         tcpSampler.setClassname(this.getClassname());

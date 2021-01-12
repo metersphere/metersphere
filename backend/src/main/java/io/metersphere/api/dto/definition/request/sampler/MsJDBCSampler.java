@@ -64,7 +64,7 @@ public class MsJDBCSampler extends MsTestElement {
         if (this.dataSource == null) {
             MSException.throwException("数据源为空无法执行");
         }
-        final HashTree samplerHashTree = tree.add(jdbcSampler());
+        final HashTree samplerHashTree = tree.add(jdbcSampler(config));
         tree.add(jdbcDataSource());
         tree.add(arguments(this.getName() + " Variables", this.getVariables()));
         if (CollectionUtils.isNotEmpty(hashTree)) {
@@ -102,9 +102,12 @@ public class MsJDBCSampler extends MsTestElement {
         return arguments;
     }
 
-    private JDBCSampler jdbcSampler() {
+    private JDBCSampler jdbcSampler(ParameterConfig config) {
         JDBCSampler sampler = new JDBCSampler();
         sampler.setName(this.getName());
+        if (config != null && StringUtils.isNotEmpty(config.getStep())) {
+            sampler.setName(this.getName() + "<->" + config.getStep());
+        }
         sampler.setProperty(TestElement.TEST_CLASS, JDBCSampler.class.getName());
         sampler.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("TestBeanGUI"));
         // request.getDataSource() 是ID，需要转换为Name

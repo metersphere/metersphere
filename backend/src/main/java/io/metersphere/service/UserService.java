@@ -8,6 +8,7 @@ import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.commons.constants.UserSource;
 import io.metersphere.commons.constants.UserStatus;
 import io.metersphere.commons.exception.MSException;
+import io.metersphere.commons.user.MsUserToken;
 import io.metersphere.commons.user.SessionUser;
 import io.metersphere.commons.utils.CodingUtil;
 import io.metersphere.commons.utils.SessionUtils;
@@ -558,14 +559,16 @@ public class UserService {
         String login = (String) SecurityUtils.getSubject().getSession().getAttribute("authenticate");
         String username = StringUtils.trim(request.getUsername());
         String password = "";
+        String loginType = UserSource.LDAP.name();
         if (!StringUtils.equals(login, UserSource.LDAP.name())) {
+            loginType = UserSource.LOCAL.name();
             password = StringUtils.trim(request.getPassword());
             if (StringUtils.isBlank(username) || StringUtils.isBlank(password)) {
                 return ResultHolder.error("user or password can't be null");
             }
         }
 
-        UsernamePasswordToken token = new UsernamePasswordToken(username, password);
+        MsUserToken token = new MsUserToken(username, password, loginType);
         Subject subject = SecurityUtils.getSubject();
         try {
             subject.login(token);
