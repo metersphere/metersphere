@@ -10,6 +10,7 @@
     :title="$t('api_test.automation.loop_controller')">
 
     <template v-slot:headerLeft>
+      <i class="icon el-icon-arrow-right" :class="{'is-active': controller.active}" @click="active(controller)" style="margin-right: 10px"/>
       <el-radio @change="changeRadio" class="ms-radio" v-model="controller.loopType" label="LOOP_COUNT">{{$t('loop.loops_title')}}</el-radio>
       <el-radio @change="changeRadio" class="ms-radio" v-model="controller.loopType" label="FOREACH">{{$t('loop.foreach')}}</el-radio>
       <el-radio @change="changeRadio" class="ms-radio" v-model="controller.loopType" label="WHILE">{{$t('loop.while')}}</el-radio>
@@ -71,6 +72,7 @@
 
 <script>
   import ApiBaseComponent from "./common/ApiBaseComponent";
+
   export default {
     name: "MsLoopController",
     components: {ApiBaseComponent},
@@ -157,10 +159,15 @@
   .ms-span {
     margin: 10px;
   }
+
   .ms-radio {
     color: #606266;
     font-family: "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", Arial, sans-serif;
     font-size: 13px;
     font-weight: normal;
+  }
+
+  .icon.is-active {
+    transform: rotate(90deg);
   }
 </style>
