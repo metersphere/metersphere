@@ -4,9 +4,12 @@ import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.annotation.JSONType;
 import io.metersphere.api.dto.definition.request.MsTestElement;
 import io.metersphere.api.dto.definition.request.ParameterConfig;
+import io.metersphere.api.dto.scenario.KeyValue;
+import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.config.ConfigTestElement;
 import org.apache.jmeter.protocol.tcp.sampler.TCPSampler;
 import org.apache.jmeter.save.SaveService;
@@ -15,6 +18,7 @@ import org.apache.jorphan.collections.HashTree;
 import org.apache.jorphan.collections.ListedHashTree;
 
 import java.util.List;
+import java.util.regex.Matcher;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -50,6 +54,10 @@ public class MsTCPSampler extends MsTestElement {
     private String request;
     @JSONField(ordinal = 34)
     private Object requestResult;
+    @JSONField(ordinal = 35)
+    private List<KeyValue> parameters;
+    @JSONField(ordinal = 36)
+    private String useEnvironment;
 
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, ParameterConfig config) {
         if (!this.isEnable()) {
@@ -58,9 +66,12 @@ public class MsTCPSampler extends MsTestElement {
         if (this.getReferenced() != null && this.getReferenced().equals("REF")) {
             this.getRefElement(this);
         }
+        parseParameters();
+        config.setConfig(getEnvironmentConfig(useEnvironment));
+        parseEnvironment(config.getConfig());
         final HashTree samplerHashTree = new ListedHashTree();
         samplerHashTree.add(tcpConfig());
-        tree.set(tcpSampler(), samplerHashTree);
+        tree.set(tcpSampler(config), samplerHashTree);
         if (CollectionUtils.isNotEmpty(hashTree)) {
             hashTree.forEach(el -> {
                 el.toHashTree(samplerHashTree, el.getHashTree(), config);
@@ -68,9 +79,20 @@ public class MsTCPSampler extends MsTestElement {
         }
     }
 
-    private TCPSampler tcpSampler() {
+    private void parseEnvironment(EnvironmentConfig config) {
+        if (config != null && config.getTcpConfig() != null) {
+            this.server = config.getTcpConfig().getServer();
+            this.port = config.getTcpConfig().getPort();
+        }
+    }
+
+    private TCPSampler tcpSampler(ParameterConfig config) {
         TCPSampler tcpSampler = new TCPSampler();
         tcpSampler.setName(this.getName());
+        if (config != null && StringUtils.isNotEmpty(config.getStep())) {
+            tcpSampler.setName(this.getName() + "<->" + config.getStep());
+        }
+
         tcpSampler.setProperty(TestElement.TEST_CLASS, TCPSampler.class.getName());
         tcpSampler.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("TCPSamplerGui"));
         tcpSampler.setClassname(this.getClassname());
@@ -87,6 +109,16 @@ public class MsTCPSampler extends MsTestElement {
         tcpSampler.setProperty(ConfigTestElement.PASSWORD, this.getPassword());
 
         return tcpSampler;
+    }
+
+    private void parseParameters() {
+        if (CollectionUtils.isNotEmpty(parameters)) {
+            parameters.forEach(item -> {
+                if (item.isEnable() && StringUtils.isNotBlank(item.getValue())) {
+                    request = request.replaceAll("\\$\\{" + item.getName() + "\\}", Matcher.quoteReplacement(item.getValue()));
+                }
+            });
+        }
     }
 
     private ConfigTestElement tcpConfig() {

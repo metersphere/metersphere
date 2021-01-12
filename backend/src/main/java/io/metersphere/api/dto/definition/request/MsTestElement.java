@@ -1,5 +1,6 @@
 package io.metersphere.api.dto.definition.request;
 
+import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.annotation.JSONType;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
@@ -22,8 +23,11 @@ import io.metersphere.api.dto.definition.request.sampler.MsJDBCSampler;
 import io.metersphere.api.dto.definition.request.sampler.MsTCPSampler;
 import io.metersphere.api.dto.definition.request.timer.MsConstantTimer;
 import io.metersphere.api.dto.scenario.KeyValue;
+import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
 import io.metersphere.api.service.ApiDefinitionService;
+import io.metersphere.api.service.ApiTestEnvironmentService;
 import io.metersphere.base.domain.ApiDefinitionWithBLOBs;
+import io.metersphere.base.domain.ApiTestEnvironmentWithBLOBs;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
 import lombok.Data;
@@ -152,6 +156,15 @@ public abstract class MsTestElement {
             );
         }
         return arguments;
+    }
+
+    protected EnvironmentConfig getEnvironmentConfig(String environmentId) {
+        ApiTestEnvironmentService environmentService = CommonBeanFactory.getBean(ApiTestEnvironmentService.class);
+        ApiTestEnvironmentWithBLOBs environment = environmentService.get(environmentId);
+        if (environment != null && environment.getConfig() != null) {
+            return JSONObject.parseObject(environment.getConfig(), EnvironmentConfig.class);
+        }
+        return null;
     }
 }
 

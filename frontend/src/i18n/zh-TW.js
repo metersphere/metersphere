@@ -569,6 +569,9 @@ export default {
         update_info: '更新',
         batch_edit: "批量編輯",
         path_valid_info: "請求路徑無效",
+        other_config: "其他設置",
+        message_template: "報文模版",
+        tcp_parameter_tip: "請求參數可以在請求模版通過${xxx}引用",
       }
     },
     automation: {
@@ -1450,7 +1453,7 @@ export default {
   },
   variables: {
     cvs_info: "只能上傳CSV文件",
-    end: "结束",
+    end: "結束",
     start: "開始",
     increment: "增量",
     counter_info: "000產生至少3位數字。user_000輸出形式為user_nnn",

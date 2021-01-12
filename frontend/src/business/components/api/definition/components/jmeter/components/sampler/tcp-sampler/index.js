@@ -31,6 +31,8 @@ export default class TCPSampler extends Sampler {
 
     this.username = options.username;
     this.password = options.password;
+
+    this.parameters = [];
     this.hashTree = [];
   }
 }

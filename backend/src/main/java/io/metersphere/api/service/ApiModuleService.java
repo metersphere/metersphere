@@ -24,7 +24,7 @@ import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
+import org.apache.commons.collections.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.util.*;
@@ -214,22 +214,21 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
         request.setUpdateTime(System.currentTimeMillis());
         checkApiModuleExist(request);
         List<ApiDefinitionResult> apiDefinitionResults = queryByModuleIds(request.getNodeIds());
-
-        apiDefinitionResults.forEach(apiDefinition -> {
-            if (StringUtils.isNotBlank(apiDefinition.getModulePath())) {
-                StringBuilder path = new StringBuilder(apiDefinition.getModulePath());
-                List<String> pathLists = Arrays.asList(path.toString().split("/"));
-                pathLists.set(request.getLevel(), request.getName());
-                path.delete(0, path.length());
-                for (int i = 1; i < pathLists.size(); i++) {
-                    path = path.append("/").append(pathLists.get(i));
+        if (CollectionUtils.isNotEmpty(apiDefinitionResults)) {
+            apiDefinitionResults.forEach(apiDefinition -> {
+                if (apiDefinition != null && StringUtils.isNotBlank(apiDefinition.getModulePath())) {
+                    StringBuilder path = new StringBuilder(apiDefinition.getModulePath());
+                    List<String> pathLists = Arrays.asList(path.toString().split("/"));
+                    pathLists.set(request.getLevel(), request.getName());
+                    path.delete(0, path.length());
+                    for (int i = 1; i < pathLists.size(); i++) {
+                        path = path.append("/").append(pathLists.get(i));
+                    }
+                    apiDefinition.setModulePath(path.toString());
                 }
-                apiDefinition.setModulePath(path.toString());
-            }
-        });
-
-        batchUpdateApiDefinition(apiDefinitionResults);
-
+            });
+            batchUpdateApiDefinition(apiDefinitionResults);
+        }
         return apiModuleMapper.updateByPrimaryKeySelective(request);
     }
 

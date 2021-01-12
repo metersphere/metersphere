@@ -569,6 +569,9 @@ export default {
         update_info: '更新',
         batch_edit: "批量编辑",
         path_valid_info: "请求路径无效",
+        other_config: "其他设置",
+        message_template: "报文模版",
+        tcp_parameter_tip: "请求参数可以在请求模版通过${xxx}引用",
       }
     },
     automation: {

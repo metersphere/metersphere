@@ -9,14 +9,21 @@
           <main v-if="this.isNotRunning">
             <ms-metric-chart :content="content" :totalTime="totalTime"/>
             <div>
-              <ms-scenario-results :scenarios="content.scenarios" v-on:requestResult="requestResult"/>
+              <!--<ms-scenario-results :scenarios="content.scenarios" v-on:requestResult="requestResult"/>-->
+
+              <el-tabs v-model="activeName" @tab-click="handleClick">
+                <el-tab-pane :label="$t('api_report.total')" name="total">
+                  <ms-scenario-results :scenarios="content.scenarios" v-on:requestResult="requestResult"/>
+                </el-tab-pane>
+                <el-tab-pane name="fail">
+                  <template slot="label">
+                    <span class="fail">{{ $t('api_report.fail') }}</span>
+                  </template>
+                  <ms-scenario-results v-on:requestResult="requestResult" :scenarios="fails"/>
+                </el-tab-pane>
+              </el-tabs>
+
             </div>
-            <!--<el-collapse-transition>-->
-            <!--<div v-show="isActive" style="width: 99%">-->
-            <!--<ms-request-result-tail v-if="isRequestResult" :request-type="requestType" :request="request"-->
-            <!--:scenario-name="scenarioName"/>-->
-            <!--</div>-->
-            <!--</el-collapse-transition>-->
             <ms-api-report-export v-if="reportExportVisible" id="apiTestReport" :title="report.testName"
                                   :content="content" :total-time="totalTime"/>
           </main>

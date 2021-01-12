@@ -2,18 +2,28 @@
 
   <div class="card-container" v-loading="loading">
     <el-card class="card-content">
-      <el-dropdown split-button type="primary" class="ms-api-buttion" @click="handleCommand"
-                   @command="handleCommand" size="small" style="float: right;margin-right: 20px">
-        {{$t('commons.test')}}
-        <el-dropdown-menu slot="dropdown">
-          <el-dropdown-item command="save_as">{{$t('api_test.definition.request.save_as')}}</el-dropdown-item>
-        </el-dropdown-menu>
-      </el-dropdown>
+      <el-form :model="debugForm" :rules="rules" ref="debugForm" :inline="true" label-position="right">
+        <p class="tip">{{$t('test_track.plan_view.base_info')}} </p>
+        <el-form-item :label="$t('api_test.request.tcp.server')" prop="server">
+          <el-input v-model="request.server" maxlength="300" show-word-limit size="small"/>
+        </el-form-item>
+        <el-form-item :label="$t('api_test.request.tcp.port')" prop="port" label-width="60px">
+          <el-input-number v-model="request.port" controls-position="right" :min="0" :max="65535" size="small"/>
+        </el-form-item>
+        <el-form-item>
+          <el-dropdown split-button type="primary" class="ms-api-buttion" @click="handleCommand"
+                       @command="handleCommand" size="small" style="float: right;margin-right: 20px">
+            {{$t('commons.test')}}
+            <el-dropdown-menu slot="dropdown">
+              <el-dropdown-item command="save_as">{{$t('api_test.definition.request.save_as')}}</el-dropdown-item>
+            </el-dropdown-menu>
+          </el-dropdown>
+        </el-form-item>
+      </el-form>
 
       <p class="tip">{{$t('api_test.definition.request.req_param')}} </p>
       <!-- TCP 请求参数 -->
-      <ms-basis-parameters :request="request" @callback="runDebug" ref="requestForm"/>
-
+      <tcp-basis-parameters :request="request" @callback="runDebug" ref="requestForm"/>
 
       <!-- TCP 请求返回数据 -->
       <p class="tip">{{$t('api_test.definition.request.res_param')}} </p>
@@ -39,11 +49,13 @@
   import {createComponent} from "../jmeter/components";
   import {REQ_METHOD} from "../../model/JsonData";
   import MsRequestResultTail from "../response/RequestResultTail";
-  import MsBasisParameters from "../request/tcp/BasisParameters";
+  import TcpBasisParameters from "../request/tcp/TcpBasisParameters";
 
   export default {
     name: "ApiConfig",
-    components: {MsRequestResultTail, MsResponseResult, MsApiRequestForm, MsRequestMetric, MsResponseText, MsRun, MsBasisParameters},
+    components: {
+      TcpBasisParameters,
+      MsRequestResultTail, MsResponseResult, MsApiRequestForm, MsRequestMetric, MsResponseText, MsRun},
     props: {
       currentProtocol: String,
       scenario: Boolean,

@@ -79,7 +79,7 @@
 
 <script>
   import MsSqlBasisParameters from "../../definition/components/request/database/BasisParameters";
-  import MsTcpBasisParameters from "../../definition/components/request/tcp/BasisParameters";
+  import MsTcpBasisParameters from "../../definition/components/request/tcp/TcpBasisParameters";
   import MsDubboBasisParameters from "../../definition/components/request/dubbo/BasisParameters";
   import MsApiRequestForm from "../../definition/components/request/http/ApiRequestForm";
   import {REQ_METHOD} from "../../definition/model/JsonData";

@@ -3,7 +3,9 @@ package io.metersphere.api.service;
 import com.alibaba.fastjson.JSON;
 import io.metersphere.api.dto.DeleteAPIReportRequest;
 import io.metersphere.api.dto.QueryAPIReportRequest;
-import io.metersphere.api.dto.automation.*;
+import io.metersphere.api.dto.automation.APIScenarioReportResult;
+import io.metersphere.api.dto.automation.ExecuteType;
+import io.metersphere.api.dto.automation.ScenarioStatus;
 import io.metersphere.api.dto.datacount.ApiDataCountResult;
 import io.metersphere.api.jmeter.ScenarioResult;
 import io.metersphere.api.jmeter.TestResult;
@@ -26,7 +28,6 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.Resource;
 import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -136,10 +137,12 @@ public class ApiScenarioReportService {
         // 报告详情内容
         ApiScenarioReportDetail detail = new ApiScenarioReportDetail();
         TestResult newResult = createTestResult(result.getTestId(), scenarioResult);
-        List<ScenarioResult> scenarioResults = new ArrayList();
-        scenarioResult.setName(report.getScenarioName());
-        scenarioResults.add(scenarioResult);
-        newResult.setScenarios(scenarioResults);
+//        List<ScenarioResult> scenarioResults = new ArrayList();
+//        scenarioResult.setName(report.getScenarioName());
+//        scenarioResults.add(scenarioResult);
+//        newResult.setScenarios(scenarioResults);
+        newResult.addScenario(scenarioResult);
+
         detail.setContent(JSON.toJSONString(newResult).getBytes(StandardCharsets.UTF_8));
         detail.setReportId(report.getId());
         detail.setProjectId(report.getProjectId());
@@ -158,10 +161,11 @@ public class ApiScenarioReportService {
             // 报告详情内容
             ApiScenarioReportDetail detail = new ApiScenarioReportDetail();
             TestResult newResult = createTestResult(result.getTestId(), item);
-            List<ScenarioResult> scenarioResults = new ArrayList();
-            item.setName(report.getScenarioName());
-            scenarioResults.add(item);
-            newResult.setScenarios(scenarioResults);
+//            List<ScenarioResult> scenarioResults = new ArrayList();
+//            item.setName(report.getScenarioName());
+//            scenarioResults.add(item);
+//            newResult.setScenarios(scenarioResults);
+            newResult.addScenario(item);
             detail.setContent(JSON.toJSONString(newResult).getBytes(StandardCharsets.UTF_8));
             detail.setReportId(report.getId());
             detail.setProjectId(report.getProjectId());
