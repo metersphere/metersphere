@@ -2,12 +2,12 @@
   <div style="margin-top: 10px">
     <el-card>
       <el-row>
-        <div>
+        <div @click="changeActive">
           <el-button class="ms-left-buttion" size="small" :style="styleType" style="color: #B8741A;background-color: #F9F1EA">{{title}}</el-button>
+          <i class="icon el-icon-arrow-right" :class="{'is-active': active}" style="margin-left:15px" @click="changeActive"/>
           <el-input size="small" v-model="jsr223ProcessorData.name" class="ms-api-header-select" style="width: 380px"/>
 
           <div style="margin-right: 20px; float: right">
-            <i class="icon el-icon-arrow-right" :class="{'is-active': active}" @click="changeActive"/>
             <el-switch v-model="jsr223ProcessorData.enable" style="margin-left: 10px"/>
             <el-button size="mini" icon="el-icon-copy-document" circle @click="copyRow" style="margin-left: 10px"/>
             <el-button size="mini" icon="el-icon-delete" type="danger" circle @click="remove" style="margin-left: 10px"/>
@@ -198,7 +198,7 @@
   }
 
   .ms-api-header-select {
-    margin-left: 20px;
+    margin-left: 5px;
     min-width: 300px;
   }
 
