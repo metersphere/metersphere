@@ -26,13 +26,11 @@ import io.metersphere.notice.service.NoticeSendService;
 import io.metersphere.service.SystemParameterService;
 import io.metersphere.track.Factory.ReportComponentFactory;
 import io.metersphere.track.domain.ReportComponent;
-import io.metersphere.track.dto.TestCaseReportMetricDTO;
-import io.metersphere.track.dto.TestPlanCaseDTO;
-import io.metersphere.track.dto.TestPlanDTO;
-import io.metersphere.track.dto.TestPlanDTOWithMetric;
+import io.metersphere.track.dto.*;
 import io.metersphere.track.request.testcase.PlanCaseRelevanceRequest;
 import io.metersphere.track.request.testcase.QueryTestPlanRequest;
 import io.metersphere.track.request.testplan.AddTestPlanRequest;
+import io.metersphere.track.request.testplan.LoadCaseRequest;
 import io.metersphere.track.request.testplancase.QueryTestPlanCaseRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.annotations.Param;
@@ -649,6 +647,7 @@ public class TestPlanService {
         List<Issues> issues = buildFunctionalCaseReport(planId, components);
         buildApiCaseReport(planId, components);
         buildScenarioCaseReport(planId, components);
+        buildLoadCaseReport(planId, components);
 
         TestCaseReportMetricDTO testCaseReportMetricDTO = new TestCaseReportMetricDTO();
         components.forEach(component -> {
@@ -674,6 +673,17 @@ public class TestPlanService {
         request.setPlanId(planId);
         List<ApiScenarioDTO> scenarioDTOS = testPlanScenarioCaseService.list(request);
         for (ApiScenarioDTO item : scenarioDTOS) {
+            for (ReportComponent component : components) {
+                component.readRecord(item);
+            }
+        }
+    }
+
+    public void buildLoadCaseReport(String planId, List<ReportComponent> components) {
+        LoadCaseRequest request = new LoadCaseRequest();
+        request.setTestPlanId(planId);
+        List<TestPlanLoadCaseDTO> loadDTOs = testPlanLoadCaseService.list(request);
+        for (TestPlanLoadCaseDTO item : loadDTOs) {
             for (ReportComponent component : components) {
                 component.readRecord(item);
             }

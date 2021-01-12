@@ -184,6 +184,7 @@ export default {
   },
   methods: {
     initTable() {
+      console.log('init')
       this.selectRows = new Set();
       let param = {};
       param.testPlanId = this.planId;
@@ -198,7 +199,7 @@ export default {
     },
     refreshStatus() {
       this.refreshScheduler = setInterval(() => {
-        let arr = this.tableData.filter(data => data.status !== 'Completed' && data.status !== 'Error');
+        let arr = this.tableData.filter(data => data.status !== 'Completed' && data.status !== 'Error' && data.status !== "Saved");
         if (arr.length > 0) {
           this.initTable();
         } else {
