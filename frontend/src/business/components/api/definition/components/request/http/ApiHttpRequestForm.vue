@@ -69,11 +69,11 @@
         </div>
         <div v-if="!referenced">
           <div v-for="row in request.hashTree" :key="row.id">
-            <!-- 前置脚本 -->
-            <ms-jsr233-processor v-if="row.label ==='JSR223 PreProcessor'" @copyRow="copyRow" @remove="remove" :is-read-only="false" :title="$t('api_test.definition.request.pre_script')" style-type="color: #B8741A;background-color: #F9F1EA"
+            <!--前置脚本-->
+            <ms-jsr233-processor v-if="row.type==='JSR223PreProcessor'" @remove="remove" @copyRow="copyRow" :title="$t('api_test.definition.request.pre_script')"
                                  :jsr223-processor="row"/>
             <!--后置脚本-->
-            <ms-jsr233-processor v-if="row.label ==='JSR223 PostProcessor'" @copyRow="copyRow" @remove="remove" :is-read-only="false" :title="$t('api_test.definition.request.post_script')" style-type="color: #783887;background-color: #F2ECF3"
+            <ms-jsr233-processor v-if="row.label ==='JSR223 PostProcessor'" @copyRow="copyRow" @remove="remove" :is-read-only="false" :title="$t('api_test.definition.request.post_script')"
                                  :jsr223-processor="row"/>
             <!--断言规则-->
             <div style="margin-top: 10px">
@@ -108,7 +108,6 @@
   import ApiRequestMethodSelect from "../../collapse/ApiRequestMethodSelect";
   import {REQUEST_HEADERS} from "@/common/js/constants";
   import MsApiVariable from "../../ApiVariable";
-  import MsJsr233Processor from "../../processor/Jsr233Processor";
   import {createComponent} from "../../jmeter/components";
   import MsApiAssertions from "../../assertion/ApiAssertions";
   import MsApiExtract from "../../extract/ApiExtract";
@@ -116,6 +115,7 @@
   import {getUUID} from "@/common/js/utils";
   import BatchAddParameter from "../../basis/BatchAddParameter";
   import MsApiAdvancedConfig from "./ApiAdvancedConfig";
+  import MsJsr233Processor from "../../../../automation/scenario/Jsr233Processor";
 
   export default {
     name: "MsApiHttpRequestForm",

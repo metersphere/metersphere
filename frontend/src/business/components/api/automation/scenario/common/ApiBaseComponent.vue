@@ -1,5 +1,5 @@
 <template>
-  <el-card>
+  <el-card class="api-component">
     <div class="header" @click="active(data)">
 
       <div v-if="data.index" class="el-step__icon is-text" style="margin-right: 10px;" :style="{'color': color, 'background-color': backgroundColor}">
@@ -75,7 +75,7 @@
       },
       methods: {
         active() {
-          this.data.active = !this.data.active;
+          this.$set(this.data, 'active', !this.data.active);
           this.$emit('active');
         },
         copyRow() {

@@ -155,18 +155,15 @@
                       <!--等待控制器-->
                       <ms-constant-timer :timer="data" :node="node" v-if="data.type==='ConstantTimer'" @remove="remove" @copyRow="copyRow"/>
                       <!--自定义脚本-->
-                      <ms-jsr233-processor v-if="data.type==='JSR223Processor'" @remove="remove" @copyRow="copyRow" :title="$t('api_test.automation.customize_script')"
-                                           style-type="color: #7B4D12;background-color: #F1EEE9" :jsr223-processor="data" :node="node"/>
+                      <ms-jsr233-processor v-if="data.type==='JSR223Processor'" @remove="remove" @copyRow="copyRow" :title="$t('api_test.automation.customize_script')" :jsr223-processor="data" :node="node"/>
                       <!--前置脚本-->
-                      <ms-jsr233-processor v-if="data.type==='JSR223PreProcessor'" @remove="remove" @copyRow="copyRow" :title="$t('api_test.definition.request.pre_script')"
-                                           style-type="color: #B8741A;background-color: #F9F1EA" :jsr223-processor="data" :node="node"/>
+                      <ms-jsr233-processor v-if="data.type==='JSR223PreProcessor'" @remove="remove" @copyRow="copyRow" :title="$t('api_test.definition.request.pre_script')" :jsr223-processor="data" :node="node"/>
                       <!--后置脚本-->
-                      <ms-jsr233-processor v-if="data.type==='JSR223PostProcessor'" @remove="remove" @copyRow="copyRow" :title="$t('api_test.definition.request.post_script')"
-                                           style-type="color: #783887;background-color: #F2ECF3" :jsr223-processor="data" :node="node"/>
+                      <ms-jsr233-processor v-if="data.type==='JSR223PostProcessor'" @remove="remove" @copyRow="copyRow" :title="$t('api_test.definition.request.post_script')" :jsr223-processor="data" :node="node"/>
                       <!--断言规则-->
-                      <ms-api-assertions :draggable="true" @suggestClick="suggestClick(node)" :response="response" v-if="data.type==='Assertions'" @remove="remove" @copyRow="copyRow" customizeStyle="margin-top: 0px" :assertions="data" :node="node"/>
+                      <ms-api-assertions :draggable="true" @suggestClick="suggestClick(node)" :response="response" v-if="data.type==='Assertions'" @remove="remove" @copyRow="copyRow" :assertions="data" :node="node"/>
                       <!--提取规则-->
-                      <ms-api-extract :draggable="true" @suggestClick="suggestClick(node)" :response="response" @remove="remove" @copyRow="copyRow" v-if="data.type==='Extract'" customizeStyle="margin-top: 0px" :extract="data" :node="node"/>
+                      <ms-api-extract :draggable="true" @suggestClick="suggestClick(node)" :response="response" @remove="remove" @copyRow="copyRow" v-if="data.type==='Extract'" :extract="data" :node="node"/>
                       <!--API 导入 -->
                       <ms-api-component :request="data" :currentScenario="currentScenario" :currentEnvironmentId="currentEnvironmentId" @remove="remove" @copyRow="copyRow"
                                         v-if="data.type==='HTTPSamplerProxy'||data.type==='DubboSampler'||data.type==='JDBCSampler'||data.type==='TCPSampler'" :node="node"/>

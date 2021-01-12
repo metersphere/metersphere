@@ -127,7 +127,6 @@
   import MsApiAssertions from "../../assertion/ApiAssertions";
   import MsApiExtract from "../../extract/ApiExtract";
   import ApiRequestMethodSelect from "../../collapse/ApiRequestMethodSelect";
-  import MsJsr233Processor from "../../processor/Jsr233Processor";
   import MsCodeEdit from "../../../../../common/components/MsCodeEdit";
   import MsApiScenarioVariables from "../../ApiScenarioVariables";
   import {createComponent} from "../../jmeter/components";
@@ -148,7 +147,7 @@
       MsApiVariable,
       MsApiScenarioVariables,
       MsCodeEdit,
-      MsJsr233Processor, ApiRequestMethodSelect, MsApiExtract, MsApiAssertions, MsApiKeyValue, ApiEnvironmentConfig
+      ApiRequestMethodSelect, MsApiExtract, MsApiAssertions, MsApiKeyValue, ApiEnvironmentConfig
     },
     props: {
       request: {},
