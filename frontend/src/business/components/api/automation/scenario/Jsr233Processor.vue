@@ -1,61 +1,48 @@
 <template>
-  <el-card>
-    <el-row>
-      <div>
-        <div class="el-step__icon is-text" :style="styleType" style="margin-right: 10px">
-          <div class="el-step__icon-inner">{{jsr223ProcessorData.index}}</div>
+  <api-base-component
+    @copy="copyRow"
+    @remove="remove"
+    :data="jsr223ProcessorData"
+    color="#B8741A"
+    background-color="#F9F1EA"
+    :title="title">
+    <el-row style="margin:0px 10px 10px">
+      <el-col>
+        <div class="document-url">
+          <el-link href="https://jmeter.apache.org/usermanual/component_reference.html#BeanShell_PostProcessor"
+                   type="primary">{{$t('commons.reference_documentation')}}
+          </el-link>
         </div>
-        <el-button class="ms-left-buttion" size="small" :style="styleType" style="color: #B8741A;background-color: #F9F1EA">{{title}}</el-button>
-        <el-input size="small" v-model="jsr223ProcessorData.name" :placeholder="$t('commons.input_name')" class="ms-api-header-select" style="width: 40%"/>
-        <div style="margin-right: 20px; float: right">
-          <i class="icon el-icon-arrow-right" :class="{'is-active': this.jsr223ProcessorData.active}" @click="changeActive" style="margin-left: 20px"/>
-          <el-switch v-model="jsr223ProcessorData.enable" style="margin-left: 10px"/>
-          <el-button size="mini" icon="el-icon-copy-document" circle @click="copyRow" style="margin-left: 10px"/>
-          <el-button size="mini" icon="el-icon-delete" type="danger" circle @click="remove" style="margin-left: 10px"/>
-        </div>
-      </div>
+      </el-col>
     </el-row>
-    <el-collapse-transition>
-      <div v-if="jsr223ProcessorData.active">
-        <el-row style="margin:0px 10px 10px">
-          <el-col>
-            <div class="document-url">
-              <el-link href="https://jmeter.apache.org/usermanual/component_reference.html#BeanShell_PostProcessor"
-                       type="primary">{{$t('commons.reference_documentation')}}
-              </el-link>
-              <ms-instructions-icon :content="$t('api_test.request.processor.bean_shell_processor_tip')"/>
-            </div>
-          </el-col>
-        </el-row>
-        <el-row>
-          <el-col :span="20" class="script-content">
-            <ms-code-edit v-if="isCodeEditAlive" :mode="jsr223ProcessorData.scriptLanguage"
-                          :read-only="isReadOnly"
-                          :data.sync="jsr223ProcessorData.script" theme="eclipse" :modes="[]"
-                          ref="codeEdit"/>
-          </el-col>
-          <el-col :span="4" class="script-index">
-            <ms-dropdown :default-command="jsr223ProcessorData.scriptLanguage" :commands="languages" @command="languageChange"/>
-            <div class="template-title">{{$t('api_test.request.processor.code_template')}}</div>
-            <div v-for="(template, index) in codeTemplates" :key="index" class="code-template">
-              <el-link :disabled="template.disabled" @click="addTemplate(template)">{{template.title}}</el-link>
-            </div>
-          </el-col>
-        </el-row>
-      </div>
-    </el-collapse-transition>
-  </el-card>
+    <el-row>
+      <el-col :span="20" class="script-content">
+        <ms-code-edit v-if="isCodeEditAlive" :mode="jsr223ProcessorData.scriptLanguage"
+                      :read-only="isReadOnly"
+                      :data.sync="jsr223ProcessorData.script" theme="eclipse" :modes="[]"
+                      ref="codeEdit"/>
+      </el-col>
+      <el-col :span="4" class="script-index">
+        <ms-dropdown :default-command="jsr223ProcessorData.scriptLanguage" :commands="languages" @command="languageChange"/>
+        <div class="template-title">{{$t('api_test.request.processor.code_template')}}</div>
+        <div v-for="(template, index) in codeTemplates" :key="index" class="code-template">
+          <el-link :disabled="template.disabled" @click="addTemplate(template)">{{template.title}}</el-link>
+        </div>
+      </el-col>
+    </el-row>
+  </api-base-component>
 </template>
 
 <script>
   import MsCodeEdit from "../../../common/components/MsCodeEdit";
   import MsInstructionsIcon from "../../../common/components/MsInstructionsIcon";
   import MsDropdown from "../../../common/components/MsDropdown";
+  import ApiBaseComponent from "./common/ApiBaseComponent";
 
 
   export default {
     name: "MsJsr233Processor",
-    components: {MsDropdown, MsInstructionsIcon, MsCodeEdit},
+    components: {ApiBaseComponent, MsDropdown, MsInstructionsIcon, MsCodeEdit},
     data() {
       return {
         jsr223ProcessorData: {},
@@ -192,12 +179,8 @@
     margin-bottom: 20px;
   }
 
-  .ms-api-header-select {
-    margin-left: 20px;
-    min-width: 300px;
+  /deep/ .el-divider {
+    margin-bottom: 10px;
   }
 
-  .icon.is-active {
-    transform: rotate(90deg);
-  }
 </style>

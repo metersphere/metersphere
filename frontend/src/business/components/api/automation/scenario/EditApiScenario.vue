@@ -663,6 +663,9 @@
         // 深度复制
         let obj = JSON.parse(JSON.stringify(row));
         obj.resourceId = getUUID();
+        if (obj.name) {
+          obj.name = obj.name  + '_copy';
+        }
         hashTree.push(obj);
         this.sort();
         this.reload();
