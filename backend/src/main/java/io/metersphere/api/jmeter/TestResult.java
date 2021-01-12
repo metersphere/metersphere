@@ -40,20 +40,26 @@ public class TestResult {
         this.passAssertions += count;
     }
 
+    private static final String separator = "<->";
+
     public void addScenario(ScenarioResult result) {
         Map<String, List<RequestResult>> requestResultMap = new LinkedHashMap<>();
         if (result != null && CollectionUtils.isNotEmpty(result.getRequestResults())) {
             result.getRequestResults().forEach(item -> {
-                if (StringUtils.isNotEmpty(item.getName()) && item.getName().indexOf("<->") != -1) {
-                    String array[] = item.getName().split("<->");
-                    item.setName(array[0]);
-                    if (requestResultMap.containsKey(array[1])) {
-                        requestResultMap.get(array[1]).add(item);
+                if (StringUtils.isNotEmpty(item.getName()) && item.getName().indexOf(separator) != -1) {
+                    String array[] = item.getName().split(separator);
+                    String scenarioName = array[array.length - 1];
+                    item.setName(item.getName().replace(separator + scenarioName, ""));
+                    if (requestResultMap.containsKey(scenarioName)) {
+                        requestResultMap.get(scenarioName).add(item);
                     } else {
                         List<RequestResult> requestResults = new LinkedList<>();
                         requestResults.add(item);
-                        requestResultMap.put(array[1], requestResults);
+                        requestResultMap.put(scenarioName, requestResults);
                     }
+                    item.getSubRequestResults().forEach(subItem -> {
+                        subItem.setName(item.getName());
+                    });
                 }
             });
         }

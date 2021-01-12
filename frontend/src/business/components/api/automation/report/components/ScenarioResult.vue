@@ -1,5 +1,5 @@
 <template>
-  <div class="scenario-result">
+  <div class="scenario-result" v-if="scenario && scenario.requestResults && scenario.requestResults.length>0">
 
     <div @click="active">
       <el-row :gutter="10" type="flex" align="middle" class="info">

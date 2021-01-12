@@ -28,18 +28,15 @@
     <el-row v-if="body.type == 'Form Data' || body.type == 'WWW_FORM'">
       <el-link class="ms-el-link" @click="batchAdd"> {{$t("commons.batch_add")}}</el-link>
     </el-row>
+    <div style="min-width: 1200px;" v-if="body.type == 'Form Data' || body.type == 'WWW_FORM'">
+      <ms-api-variable :is-read-only="isReadOnly"
+                       :parameters="body.kvs"
+                       :isShowEnable="isShowEnable" type="body" v-if="body.type == 'Form Data'"/>
 
-    <ms-api-variable :is-read-only="isReadOnly"
-                     :parameters="body.kvs"
-                     :isShowEnable="isShowEnable"
-                     type="body"
-                     v-if="body.type == 'Form Data'"/>
-
-    <ms-api-from-url-variable :is-read-only="isReadOnly"
-                              :parameters="body.kvs"
-                              type="body"
-                              v-if="body.type == 'WWW_FORM'"/>
-
+      <ms-api-from-url-variable :is-read-only="isReadOnly"
+                                :parameters="body.kvs"
+                                type="body" v-if="body.type == 'WWW_FORM'"/>
+    </div>
     <div v-if="body.type == 'JSON'">
       <div style="padding: 10px">
         <el-switch active-text="JSON-SCHEMA" v-model="body.format" active-value="JSON-SCHEMA"/>
