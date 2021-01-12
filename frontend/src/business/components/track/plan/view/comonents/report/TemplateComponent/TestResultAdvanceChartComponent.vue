@@ -17,6 +17,11 @@
         <ms-pie-chart v-if="isShow" :text="'场景测试用例'"
                       :name="$t('test_track.plan_view.test_result')" :data="scenarioCharData"/>
       </div>
+
+      <div class="char-item"  v-if="showLoad">
+        <ms-pie-chart v-if="isShow" :text="'性能测试用例'"
+                      :name="$t('test_track.plan_view.test_result')" :data="loadCharData"/>
+      </div>
     </div>
 
   </common-component>
@@ -43,6 +48,7 @@
           functionalCharData: [],
           apiCharData: [],
           scenarioCharData: [],
+          loadCharData: [],
           isShow: true
         }
       },
@@ -69,19 +75,28 @@
                 {status: 'Failure', count: '350'},
                 {status: 'Underway', count: '110'},
               ],
+              loadResult: [
+                {status: 'Pass', count: '205'},
+                {status: 'Failure', count: '350'},
+                {status: 'Underway', count: '110'},
+              ],
             }
           }
         }
       },
      computed: {
        showFunctional() {
-         return this.executeResult.functionalResult.length > 0 || (this.executeResult.apiResult.length <= 0 && this.executeResult.scenarioResult.length <= 0);
+         return this.executeResult.functionalResult.length > 0
+           || (this.executeResult.apiResult.length <= 0 && this.executeResult.scenarioResult.length <= 0 && this.executeResult.loadResult.length <= 0);
        },
        showApi() {
          return this.executeResult.apiResult.length > 0;
        },
        showScenario() {
          return this.executeResult.scenarioResult.length > 0;
+       },
+       showLoad() {
+         return this.executeResult.loadResult.length > 0;
        }
      },
       watch: {
@@ -97,6 +112,7 @@
           this.getFunctionalCharData();
           this.getApiCharData();
           this.getScenarioCharData();
+          this.getLoadCharData();
           this.reload();
         },
         getFunctionalCharData() {
@@ -126,6 +142,16 @@
               let data = this.dataMap.get(item.status);
               data.value = item.count;
               this.scenarioCharData.push(data);
+            });
+          }
+        },
+        getLoadCharData() {
+          this.loadCharData = [];
+          if (this.executeResult.loadResult) {
+            this.executeResult.loadResult.forEach(item => {
+              let data = this.dataMap.get(item.status);
+              data.value = item.count;
+              this.loadCharData.push(data);
             });
           }
         },

@@ -13,4 +13,5 @@ public class FailureTestCasesAdvanceDTO {
     private List<TestPlanCaseDTO> functionalTestCases;
     private List<TestPlanApiCaseDTO> apiTestCases;
     private List<ApiScenarioDTO> scenarioTestCases;
+    private List<TestPlanLoadCaseDTO> loadTestCases;
 }
