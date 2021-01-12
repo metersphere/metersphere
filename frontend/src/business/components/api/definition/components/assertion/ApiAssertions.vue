@@ -5,11 +5,12 @@
     @remove="remove"
     @active="active"
     :data="assertions"
+    :draggable="draggable"
     color="#A30014"
     background-color="#F7E6E9"
     :title="$t('api_test.definition.request.assertions_rule')">
 
-    <div class="assertion-add">
+    <div class="assertion-add" :draggable="draggable">
       <el-row :gutter="10">
         <el-col :span="4">
           <el-select :disabled="isReadOnly" class="assertion-item" v-model="type"
@@ -67,7 +68,6 @@
 
   export default {
     name: "MsApiAssertions",
-
     components: {
       ApiBaseComponent,
       MsApiJsonpathSuggest,
@@ -78,8 +78,11 @@
       MsApiAssertionJsonPath,
       MsApiAssertionsEdit, MsApiAssertionDuration, MsApiAssertionRegex, MsApiAssertionText
     },
-
     props: {
+      draggable: {
+        type: Boolean,
+        default: false,
+      },
       assertions: {},
       node: {},
       request: {},
@@ -94,7 +97,6 @@
         default: false
       }
     },
-
     data() {
       return {
         options: ASSERTION_TYPE,
@@ -104,7 +106,6 @@
         reloadData: "",
       }
     },
-
     methods: {
       after() {
         this.type = "";
@@ -148,7 +149,6 @@
         this.assertions.jsonPath = [];
       }
     }
-
   }
 </script>
 
@@ -171,5 +171,4 @@
   /deep/ .el-card__body {
     padding: 15px;
   }
-
 </style>

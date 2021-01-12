@@ -3,6 +3,7 @@
     @copy="copyRow"
     @remove="remove"
     :data="timer"
+    :draggable="true"
     :show-collapse="false"
     color="#67C23A"
     background-color="#F2F9EE"

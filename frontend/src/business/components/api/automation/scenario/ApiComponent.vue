@@ -4,6 +4,7 @@
     @copy="copyRow"
     @remove="remove"
     :data="request"
+    :draggable="true"
     :color="displayColor.color"
     :background-color="displayColor.backgroundColor"
     :title="displayTitle">
@@ -48,7 +49,7 @@
     <ms-dubbo-basis-parameters :request="request" v-if="request.protocol==='DUBBO' || request.protocol==='dubbo://'|| request.type==='DubboSampler'" :showScript="false"/>
 
     <p class="tip">{{$t('api_test.definition.request.res_param')}} </p>
-    <ms-request-result-tail :currentProtocol="request.protocol" :response="request.requestResult" ref="runResult"/>
+    <ms-request-result-tail draggable :currentProtocol="request.protocol" :response="request.requestResult" ref="runResult"/>
 
     <!-- 保存操作 -->
     <el-button type="primary" size="small" style="margin: 20px; float: right" @click="saveTestCase(item)" v-if="!request.referenced">
@@ -71,7 +72,6 @@
   import MsRun from "../../definition/components/Run";
   import {getUUID} from "@/common/js/utils";
   import ApiBaseComponent from "./common/ApiBaseComponent";
-
   export default {
     name: "MsApiComponent",
     props: {
@@ -227,7 +227,6 @@
         this.loading = true;
         this.runData = [];
         this.request.useEnvironment = this.currentEnvironmentId;
-
         let debugData = {
           id: this.currentScenario.id, name: this.currentScenario.name, type: "scenario",
           variables: this.currentScenario.variables, referenced: 'Created', enableCookieShare: this.enableCookieShare,
@@ -236,7 +235,6 @@
         this.runData.push(debugData);
         /*触发执行操作*/
         this.reportId = getUUID().substring(0, 8);
-
       },
       runRefresh(data) {
         this.request.requestResult = data;
@@ -253,17 +251,14 @@
 </script>
 
 <style scoped>
-
   .ms-api-col-ot-import-button {
     background-color: #EEF5FE;
     margin-right: 20px;
     color: #409EFF;
   }
-
   /deep/ .el-card__body {
     padding: 15px;
   }
-
   .tip {
     padding: 3px 5px;
     font-size: 16px;
@@ -271,15 +266,12 @@
     border-left: 4px solid #783887;
     margin: 20px 0;
   }
-
   .name-input {
     width: 30%;
   }
-
   .el-icon-arrow-right {
     margin-right: 5px;
   }
-
   .icon.is-active {
     transform: rotate(90deg);
   }

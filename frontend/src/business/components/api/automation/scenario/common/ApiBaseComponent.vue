@@ -11,7 +11,7 @@
         <slot name="headerLeft">
           <i class="icon el-icon-arrow-right" :class="{'is-active': data.active}"
              @click="active(data)"/>
-          <el-input v-if="!data.name || isShowInput" size="small" v-model="data.name" class="name-input"
+          <el-input :draggable="draggable" v-if="!data.name || isShowInput" size="small" v-model="data.name" class="name-input"
                     @blur="isShowInput = false" :placeholder="$t('commons.input_name')"/>
           <span v-else>
             {{data.name}}
@@ -29,7 +29,7 @@
     </div>
 
     <el-collapse-transition>
-      <div v-if="data.active && showCollapse">
+      <div v-if="data.active && showCollapse" draggable>
         <el-divider></el-divider>
        <slot></slot>
       </div>
@@ -46,6 +46,7 @@
         }
       },
       props: {
+        draggable: Boolean,
         data: {
           type: Object,
           default() {

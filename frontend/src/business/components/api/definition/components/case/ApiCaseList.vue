@@ -121,7 +121,7 @@
         // testCaseId 不为空则为用例编辑页面
         this.testCaseId = testCaseId;
         this.condition = {components: API_CASE_CONFIGS};
-        this.getApiTest();
+        this.getApiTest(true);
         this.visible = true;
       },
       setEnvironment(environment) {
@@ -145,7 +145,7 @@
         this.visible = false;
       },
 
-      runRefresh(data) {
+      runRefresh() {
         this.batchLoading = false;
         this.singleLoading = false;
         this.singleRunId = "";
@@ -154,12 +154,12 @@
         this.$emit('refresh');
       },
 
-      refresh(data) {
+      refresh() {
         this.getApiTest();
         this.$emit('refresh');
       },
 
-      getApiTest() {
+      getApiTest(addCase) {
         if (this.api) {
           this.condition.projectId = this.projectId;
           if (this.isCaseEdit) {
@@ -176,9 +176,9 @@
               }
             }
             this.apiCaseList = response.data;
-            // if (this.apiCaseList.length == 0 && !this.loaded) {
-            //   this.addCase();
-            // }
+            if (addCase && this.apiCaseList.length == 0 && !this.loaded) {
+              this.addCase();
+            }
             this.apiCaseList.forEach(apiCase => {
               if (apiCase.tags && apiCase.tags.length > 0) {
                 apiCase.tags = JSON.parse(apiCase.tags);

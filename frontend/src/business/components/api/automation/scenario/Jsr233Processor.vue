@@ -3,6 +3,7 @@
     @copy="copyRow"
     @remove="remove"
     :data="jsr223ProcessorData"
+    :draggable="true"
     color="#B8741A"
     background-color="#F9F1EA"
     :title="title">
@@ -38,8 +39,6 @@
   import MsInstructionsIcon from "../../../common/components/MsInstructionsIcon";
   import MsDropdown from "../../../common/components/MsDropdown";
   import ApiBaseComponent from "./common/ApiBaseComponent";
-
-
   export default {
     name: "MsJsr233Processor",
     components: {ApiBaseComponent, MsDropdown, MsInstructionsIcon, MsCodeEdit},
@@ -145,39 +144,30 @@
 </script>
 
 <style scoped>
-
   .ace_editor {
     border-radius: 5px;
   }
-
   .script-content {
     height: calc(100vh - 570px);
   }
-
   .script-index {
     padding: 0 20px;
   }
-
   .template-title {
     margin-bottom: 5px;
     font-weight: bold;
     font-size: 15px;
   }
-
   .document-url {
     margin-top: 10px;
   }
-
   .instructions-icon {
     margin-left: 5px;
   }
-
   .ms-dropdown {
     margin-bottom: 20px;
   }
-
   /deep/ .el-divider {
     margin-bottom: 10px;
   }
-
 </style>

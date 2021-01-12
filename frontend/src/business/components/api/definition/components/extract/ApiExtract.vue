@@ -46,10 +46,8 @@
   import MsApiJsonpathSuggest from "../assertion/ApiJsonpathSuggest";
   import {ExtractJSONPath} from "../../../test/model/ScenarioModel";
   import ApiBaseComponent from "../../../automation/scenario/common/ApiBaseComponent";
-
   export default {
     name: "MsApiExtract",
-
     components: {
       ApiBaseComponent,
       MsApiJsonpathSuggest,
@@ -57,7 +55,6 @@
       MsApiExtractCommon,
       MsApiExtractEdit,
     },
-
     props: {
       extract: {},
       response: {},
@@ -71,7 +68,6 @@
         default: false
       }
     },
-
     data() {
       return {
         options: EXTRACT_TYPE,
@@ -80,7 +76,6 @@
         loading: false,
       }
     },
-
     methods: {
       after() {
         this.type = "";
@@ -144,18 +139,15 @@
     font-size: 13px;
     margin-bottom: 10px;
   }
-
   .extract-item {
     width: 100%;
   }
-
   .extract-add {
     padding: 10px;
     border: #DCDFE6 solid 1px;
     margin: 5px 0;
     border-radius: 5px;
   }
-
   /deep/ .el-card__body {
     padding: 15px;
   }
