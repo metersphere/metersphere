@@ -5,7 +5,7 @@
         <div class="el-step__icon-inner">{{extract.index}}</div>
       </div>
       <el-button class="ms-left-buttion" size="small" style="color: #015478;background-color: #E6EEF2">{{$t('api_test.definition.request.extract_param')}}</el-button>
-      <el-input size="small" v-model="extract.name" style="width: 40%;margin-left: 20px" :placeholder="$t('commons.input_name')"/>
+      <el-input :draggable="draggable" size="small" v-model="extract.name" style="width: 40%;margin-left: 20px" :placeholder="$t('commons.input_name')"/>
       <div style="margin-right: 20px; float: right">
         <i class="icon el-icon-arrow-right" :class="{'is-active': extract.active}" @click="active(extract)" style="margin-left: 20px"/>
         <el-switch v-model="extract.enable" style="margin-left: 10px"/>
@@ -15,7 +15,7 @@
 
       <!-- 请求参数-->
       <el-collapse-transition>
-        <div v-if="extract.active">
+        <div v-if="extract.active" :draggable="draggable">
           <div style="margin: 20px">
             <div class="extract-description">
               {{$t('api_test.request.extract.description')}}
@@ -82,6 +82,10 @@
       isReadOnly: {
         type: Boolean,
         default: false
+      },
+      draggable: {
+        type: Boolean,
+        default: false,
       }
     },
 

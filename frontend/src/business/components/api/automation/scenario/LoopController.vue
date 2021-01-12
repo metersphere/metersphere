@@ -20,7 +20,7 @@
     </el-row>
 
     <el-collapse-transition>
-      <div v-if="controller.active" style="margin-top: 20px;">
+      <div v-if="controller.active" style="margin-top: 20px;" draggable>
         <div v-if="controller.loopType==='LOOP_COUNT'">
           <el-row>
             <el-col :span="8">

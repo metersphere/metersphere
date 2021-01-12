@@ -7,7 +7,7 @@
         </div>
         <el-button class="ms-left-buttion" size="small" style="color: #A30014;background-color: #F7E6E9">{{$t('api_test.definition.request.assertions_rule')}}</el-button>
 
-        <el-input size="small" v-model="assertions.name" style="width: 40%;margin-left: 20px" :placeholder="$t('commons.input_name')"/>
+        <el-input :draggable="draggable" size="small" v-model="assertions.name" style="width: 40%;margin-left: 20px" :placeholder="$t('commons.input_name')"/>
         <div style="margin-right: 20px; float: right">
           <i class="icon el-icon-arrow-right" :class="{'is-active': assertions.active}" @click="active(assertions)" style="margin-left: 20px"/>
           <el-switch v-model="assertions.enable" style="margin-left: 10px"/>
@@ -17,7 +17,7 @@
       </div>
       <!-- 请求参数-->
       <el-collapse-transition>
-        <div v-if="assertions.active">
+        <div v-if="assertions.active" :draggable="draggable">
           <div class="assertion-add">
             <el-row :gutter="10">
               <el-col :span="4">
@@ -97,10 +97,13 @@
         type: String,
         default: "margin-top: 10px"
       },
-      scenario: Scenario,
       isReadOnly: {
         type: Boolean,
         default: false
+      },
+      draggable: {
+        type: Boolean,
+        default: false,
       }
     },
 

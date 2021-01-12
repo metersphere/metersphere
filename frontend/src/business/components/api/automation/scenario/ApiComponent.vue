@@ -25,7 +25,7 @@
         </el-button>
 
         <span v-if="request.referenced!=undefined && request.referenced==='Deleted' || request.referenced=='REF'">{{request.name}} </span>
-        <el-input size="small" v-model="request.name" style="width: 40%;" :placeholder="$t('commons.input_name')" v-else/>
+        <el-input size="small" draggable v-model="request.name" style="width: 40%;" :placeholder="$t('commons.input_name')" v-else/>
 
         <el-tag size="mini" style="margin-left: 20px" v-if="request.referenced==='Deleted'" type="danger">{{$t('api_test.automation.reference_deleted')}}</el-tag>
         <el-tag size="mini" style="margin-left: 20px" v-if="request.referenced==='Copy'">{{ $t('commons.copy') }}</el-tag>
@@ -42,14 +42,14 @@
       </el-row>
       <!-- 请求参数-->
       <el-collapse-transition>
-        <div v-if="request.active">
+        <div v-if="request.active" draggable>
           <div v-if="request.protocol === 'HTTP'">
-            <el-input :placeholder="$t('api_test.definition.request.path_all_info')" v-if="request.url" v-model="request.url" style="width: 85%;margin-top: 10px" size="small">
+            <el-input draggable :placeholder="$t('api_test.definition.request.path_all_info')" v-if="request.url" v-model="request.url" style="width: 85%;margin-top: 10px" size="small">
               <el-select v-model="request.method" slot="prepend" style="width: 100px" size="small">
                 <el-option v-for="item in reqOptions" :key="item.id" :label="item.label" :value="item.id"/>
               </el-select>
             </el-input>
-            <el-input :placeholder="$t('api_test.definition.request.path_all_info')" v-else v-model="request.path" style="width: 85%;margin-top: 10px" size="small">
+            <el-input draggable :placeholder="$t('api_test.definition.request.path_all_info')" v-else v-model="request.path" style="width: 85%;margin-top: 10px" size="small">
               <el-select v-model="request.method" slot="prepend" style="width: 100px" size="small">
                 <el-option v-for="item in reqOptions" :key="item.id" :label="item.label" :value="item.id"/>
               </el-select>
@@ -62,7 +62,7 @@
           <ms-dubbo-basis-parameters :request="request" v-if="request.protocol==='DUBBO' || request.protocol==='dubbo://'|| request.type==='DubboSampler'" :showScript="false"/>
 
           <p class="tip">{{$t('api_test.definition.request.res_param')}} </p>
-          <ms-request-result-tail :currentProtocol="request.protocol" :response="request.requestResult" ref="runResult"/>
+          <ms-request-result-tail draggable :currentProtocol="request.protocol" :response="request.requestResult" ref="runResult"/>
 
           <!-- 保存操作 -->
           <el-button type="primary" size="small" style="margin: 20px; float: right" @click="saveTestCase(item)" v-if="!request.referenced">
