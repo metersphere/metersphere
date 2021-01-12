@@ -14,4 +14,6 @@ public interface ExtLoadTestMapper {
     List<LoadTest> getLoadTestByProjectId(String projectId);
 
     int checkLoadTestOwner(@Param("testId") String testId, @Param("workspaceIds") Set<String> workspaceIds);
+
+    LoadTest getNextNum(@Param("projectId") String projectId);
 }

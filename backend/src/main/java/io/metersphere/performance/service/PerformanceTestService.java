@@ -160,6 +160,7 @@ public class PerformanceTestService {
         loadTest.setLoadConfiguration(request.getLoadConfiguration());
         loadTest.setAdvancedConfiguration(request.getAdvancedConfiguration());
         loadTest.setStatus(PerformanceTestStatus.Saved.name());
+        loadTest.setNum(getNextNum(request.getProjectId()));
         loadTestMapper.insert(loadTest);
         return loadTest;
     }
@@ -396,6 +397,7 @@ public class PerformanceTestService {
         copy.setUpdateTime(System.currentTimeMillis());
         copy.setStatus(APITestStatus.Saved.name());
         copy.setUserId(Objects.requireNonNull(SessionUtils.getUser()).getId());
+        copy.setNum(getNextNum(copy.getProjectId()));
         loadTestMapper.insert(copy);
         // copy test file
         LoadTestFileExample loadTestFileExample = new LoadTestFileExample();
@@ -498,5 +500,14 @@ public class PerformanceTestService {
         loadTestExample.createCriteria().andIdIn(ids);
         List<LoadTest> loadTests = loadTestMapper.selectByExample(loadTestExample);
         return Optional.ofNullable(loadTests).orElse(new ArrayList<>());
+    }
+
+    private int getNextNum(String projectId) {
+        LoadTest loadTest = extLoadTestMapper.getNextNum(projectId);
+        if (loadTest == null) {
+            return 100001;
+        } else {
+            return Optional.of(loadTest.getNum() + 1).orElse(100001);
+        }
     }
 }

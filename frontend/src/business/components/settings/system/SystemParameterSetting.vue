@@ -14,6 +14,9 @@
       <el-tab-pane v-if="hasLicense()" :label="$t('display.title')" name="display">
         <ms-display/>
       </el-tab-pane>
+      <el-tab-pane v-if="hasLicense()" :label="'认证设置'" name="auth">
+        <ms-auth/>
+      </el-tab-pane>
     </el-tabs>
   </el-card>
 </template>
@@ -26,6 +29,7 @@ import {hasLicense} from '@/common/js/utils';
 
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
 const display = requireComponent.keys().length > 0 ? requireComponent("./display/Display.vue") : {};
+const auth = requireComponent.keys().length > 0 ? requireComponent("./auth/Auth.vue") : {};
 
 export default {
   name: "SystemParameterSetting",
@@ -33,7 +37,8 @@ export default {
     BaseSetting,
     EmailSetting,
     LdapSetting,
-    "MsDisplay": display.default
+    "MsDisplay": display.default,
+    "MsAuth": auth.default,
   },
   data() {
     return {
