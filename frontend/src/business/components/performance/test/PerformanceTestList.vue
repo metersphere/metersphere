@@ -14,6 +14,12 @@
                   @row-click="link"
         >
           <el-table-column
+            prop="num"
+            label="ID"
+            width="100"
+            show-overflow-tooltip>
+          </el-table-column>
+          <el-table-column
             prop="name"
             :label="$t('commons.name')"
             width="150"
