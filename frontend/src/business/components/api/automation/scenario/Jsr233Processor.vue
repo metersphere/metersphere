@@ -3,6 +3,7 @@
     @copy="copyRow"
     @remove="remove"
     :data="jsr223ProcessorData"
+    :draggable="true"
     color="#B8741A"
     background-color="#F9F1EA"
     :title="title">

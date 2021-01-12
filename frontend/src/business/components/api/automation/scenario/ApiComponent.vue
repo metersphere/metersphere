@@ -4,6 +4,7 @@
     @copy="copyRow"
     @remove="remove"
     :data="request"
+    :draggable="true"
     :color="displayColor.color"
     :background-color="displayColor.backgroundColor"
     :title="displayTitle">
@@ -12,7 +13,7 @@
       <slot name="headerLeft">
         <i class="icon el-icon-arrow-right" :class="{'is-active': request.active}"
            @click="active(request)"/>
-        <el-input v-if="isShowInput || !request.name" size="small" v-model="request.name" class="name-input"
+        <el-input draggable v-if="isShowInput || !request.name" size="small" v-model="request.name" class="name-input"
                   @blur="isShowInput = false" :placeholder="$t('commons.input_name')"/>
         <span v-else>
           {{request.name}}
@@ -48,7 +49,7 @@
     <ms-dubbo-basis-parameters :request="request" v-if="request.protocol==='DUBBO' || request.protocol==='dubbo://'|| request.type==='DubboSampler'" :showScript="false"/>
 
     <p class="tip">{{$t('api_test.definition.request.res_param')}} </p>
-    <ms-request-result-tail :currentProtocol="request.protocol" :response="request.requestResult" ref="runResult"/>
+    <ms-request-result-tail draggable :currentProtocol="request.protocol" :response="request.requestResult" ref="runResult"/>
 
     <!-- 保存操作 -->
     <el-button type="primary" size="small" style="margin: 20px; float: right" @click="saveTestCase(item)" v-if="!request.referenced">

@@ -4,6 +4,7 @@
     @copy="copyRow"
     @remove="remove"
     :data="controller"
+    :draggable="true"
     color="#015478"
     background-color="#E6EEF2"
     :title="$t('api_test.automation.loop_controller')">
@@ -15,7 +16,7 @@
     </template>
 
 
-    <div v-if="controller.loopType==='LOOP_COUNT'">
+    <div v-if="controller.loopType==='LOOP_COUNT'" draggable>
       <el-row>
         <el-col :span="8">
           <span class="ms-span ms-radio">{{$t('loop.loops')}}</span>
@@ -34,7 +35,7 @@
       </el-row>
     </div>
 
-    <div v-else-if="controller.loopType==='FOREACH'">
+    <div v-else-if="controller.loopType==='FOREACH'" draggable>
       <el-row>
         <el-col :span="8">
           <el-input :placeholder="$t('api_test.request.condition_variable')" v-model="controller.forEachController.inputVal" size="small"/>
@@ -52,7 +53,7 @@
         </el-col>
       </el-row>
     </div>
-    <div v-else>
+    <div v-else draggable>
       <el-input size="small" v-model="controller.whileController.variable" style="width: 20%" :placeholder="$t('api_test.request.condition_variable')"/>
 
       <el-select v-model="controller.whileController.operator" :placeholder="$t('commons.please_select')" size="small"

@@ -4,20 +4,21 @@
     @remove="remove"
     :data="controller"
     :show-collapse="false"
+    :draggable="true"
     color="#E6A23C"
     background-color="#FCF6EE"
     :title="$t('api_test.automation.if_controller')">
 
     <template v-slot:headerLeft>
 
-      <el-input size="small" v-model="controller.variable" style="width: 20%" :placeholder="$t('api_test.request.condition_variable')"/>
+      <el-input draggable size="small" v-model="controller.variable" style="width: 20%" :placeholder="$t('api_test.request.condition_variable')"/>
 
       <el-select v-model="controller.operator" :placeholder="$t('commons.please_select')" size="small"
                  @change="change" style="width: 10%;margin-left: 10px">
         <el-option v-for="o in operators" :key="o.value" :label="$t(o.label)" :value="o.value"/>
       </el-select>
 
-      <el-input size="small" v-model="controller.value" :placeholder="$t('api_test.value')" v-if="!hasEmptyOperator" style="width: 20%;margin-left: 20px"/>
+      <el-input draggable size="small" v-model="controller.value" :placeholder="$t('api_test.value')" v-if="!hasEmptyOperator" style="width: 20%;margin-left: 20px"/>
     </template>
 
   </api-base-component>
