@@ -1,7 +1,7 @@
 <template>
   <el-card style="margin-top: 5px" @click.native="selectTestCase(apiCase,$event)">
     <el-row>
-      <el-col :span="6">
+      <el-col :span="4">
         <div class="el-step__icon is-text ms-api-col">
           <div class="el-step__icon-inner">{{ index + 1 }}</div>
         </div>
@@ -11,30 +11,29 @@
           <el-option v-for="grd in priorities" :key="grd.id" :label="grd.name" :value="grd.id"/>
         </el-select>
       </el-col>
-      <el-col :span="10">
+      <el-col :span="12">
         <i class="icon el-icon-arrow-right" :class="{'is-active': apiCase.active}"
            @click="active(apiCase)"/>
         <el-input v-if="!apiCase.id || isShowInput" size="small" v-model="apiCase.name" :name="index" :key="index"
                   class="ms-api-header-select" style="width: 180px"
                   @blur="saveTestCase(apiCase)" placeholder="请输入用例名称"/>
         <span v-else>
-                  {{ apiCase.id ? apiCase.name : '' }}
-                  <i class="el-icon-edit" style="cursor:pointer" @click="showInput(apiCase)" v-tester/>
+          {{ apiCase.id ? apiCase.name : '' }}
+          <i class="el-icon-edit" style="cursor:pointer" @click="showInput(apiCase)" v-tester/>
         </span>
-
 
         <label class="ms-api-label" style="padding-left: 20px; padding-right: 20px;">{{ $t('commons.tag') }}</label>
         <ms-input-tag :currentScenario="apiCase" ref="tag" style="float: right;margin-right: 215px;margin-top: -3px;" @keyup.enter.native="saveTestCase(apiCase)"/>
 
         <div v-if="apiCase.id" style="color: #999999;font-size: 12px">
-                  <span>
-                    {{ apiCase.createTime | timestampFormatDate }}
-                    {{ apiCase.createUser }} {{ $t('api_test.definition.request.create_info') }}
-                  </span>
           <span>
-                    {{ apiCase.updateTime | timestampFormatDate }}
-                    {{ apiCase.updateUser }} {{ $t('api_test.definition.request.update_info') }}
-                  </span>
+            {{ apiCase.createTime | timestampFormatDate }}
+            {{ apiCase.createUser }} {{ $t('api_test.definition.request.create_info') }}
+          </span>
+          <span>
+            {{ apiCase.updateTime | timestampFormatDate }}
+            {{ apiCase.updateUser }} {{ $t('api_test.definition.request.update_info') }}
+          </span>
         </div>
       </el-col>
 
