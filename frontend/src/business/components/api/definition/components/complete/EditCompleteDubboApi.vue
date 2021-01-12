@@ -29,68 +29,70 @@
 </template>
 
 <script>
-import MsBasisApi from "./BasisApi";
-import MsBasisParameters from "../request/dubbo/BasisParameters";
+  import MsBasisApi from "./BasisApi";
+  import MsBasisParameters from "../request/dubbo/BasisParameters";
 
-export default {
-  name: "MsApiDubboRequestForm",
-  components: {
-    MsBasisApi, MsBasisParameters
-  },
-  props: {
-    request: {},
-    basisData: {},
-    moduleOptions: Array,
-    isReadOnly: {
-      type: Boolean,
-      default: false
-    }
-  },
-  data() {
-    return {validated: false}
-  },
-  methods: {
-    callback() {
-      this.validated = true;
+  export default {
+    name: "MsApiDubboRequestForm",
+    components: {
+      MsBasisApi, MsBasisParameters
     },
-    validateApi() {
-      this.validated = false;
-      this.basisData.method = this.request.protocol;
-      this.$refs['basicForm'].validate();
+    props: {
+      request: {},
+      basisData: {},
+      moduleOptions: Array,
+      isReadOnly: {
+        type: Boolean,
+        default: false
+      }
     },
-    saveApi() {
-      this.validateApi();
-      if (this.validated) {
-        this.basisData.request = this.request;
-        console.log(this.basisData)
-        if (this.basisData.tags instanceof Array) {
-          this.basisData.tags = JSON.stringify(this.basisData.tags);
+    data() {
+      return {validated: false}
+    },
+    methods: {
+      callback() {
+        this.validated = true;
+      },
+      validateApi() {
+        this.validated = false;
+        this.basisData.method = this.request.protocol;
+        this.$refs['basicForm'].validate();
+      },
+      saveApi() {
+        this.validateApi();
+        if (this.validated) {
+          this.basisData.request = this.request;
+          if (this.basisData.tags instanceof Array) {
+            this.basisData.tags = JSON.stringify(this.basisData.tags);
+          }
+          this.$emit('saveApi', this.basisData);
         }
-        this.$emit('saveApi', this.basisData);
-      }
+      },
+      runTest() {
+        this.validateApi();
+        if (this.validated) {
+          this.basisData.request = this.request;
+          if (this.basisData.tags instanceof Array) {
+            this.basisData.tags = JSON.stringify(this.basisData.tags);
+          }
+          this.$emit('runTest', this.basisData);
+        }
+      },
+      createRootModelInTree() {
+        this.$emit("createRootModelInTree");
+      },
     },
-    runTest() {
-      this.validateApi();
-      if (this.validated) {
-        this.basisData.request = this.request;
-        this.$emit('runTest', this.basisData);
-      }
-    },
-    createRootModelInTree() {
-      this.$emit("createRootModelInTree");
-    },
-  },
 
-  computed: {}
-}
+    computed: {}
+  }
 </script>
 
 <style scoped>
-.tip {
-  padding: 3px 5px;
-  font-size: 16px;
-  border-radius: 4px;
-  border-left: 4px solid #783887;
-  margin: 0px 20px 0px;
-}
+  .tip {
+    padding: 3px 5px;
+    font-size: 16px;
+    border-radius: 4px;
+    border-left: 4px solid #783887;
+    margin: 0px 20px 0px;
+  }
 </style>

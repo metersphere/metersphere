@@ -71,6 +71,10 @@ export default {
       this.validateApi();
       if (this.validated) {
         this.basisData.request = this.request;
+        this.basisData.method = this.basisData.protocol;
+        if (this.basisData.tags instanceof Array) {
+          this.basisData.tags = JSON.stringify(this.basisData.tags);
+        }
         this.$emit('runTest', this.basisData);
       }
     },
