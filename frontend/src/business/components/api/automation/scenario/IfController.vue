@@ -1,31 +1,33 @@
 <template>
-  <el-card>
-    <el-row>
-      <div class="el-step__icon is-text ms-api-col">
-        <div class="el-step__icon-inner">{{controller.index}}</div>
-      </div>
-      <el-button class="ms-title-buttion" size="small">{{$t('api_test.automation.if_controller')}}</el-button>
+  <api-base-component
+    @copy="copyRow"
+    @remove="remove"
+    :data="controller"
+    :show-collapse="false"
+    color="#E6A23C"
+    background-color="#FCF6EE"
+    :title="$t('api_test.automation.if_controller')">
 
-      <el-input draggable size="small" v-model="controller.variable" style="width: 20%" :placeholder="$t('api_test.request.condition_variable')"/>
+    <template v-slot:headerLeft>
+
+      <el-input size="small" v-model="controller.variable" style="width: 20%" :placeholder="$t('api_test.request.condition_variable')"/>
 
       <el-select v-model="controller.operator" :placeholder="$t('commons.please_select')" size="small"
                  @change="change" style="width: 10%;margin-left: 10px">
         <el-option v-for="o in operators" :key="o.value" :label="$t(o.label)" :value="o.value"/>
       </el-select>
 
-      <el-input draggable size="small" v-model="controller.value" :placeholder="$t('api_test.value')" v-if="!hasEmptyOperator" style="width: 20%;margin-left: 20px"/>
-      <div style="margin-right: 20px; float: right">
-        <el-switch v-model="controller.enable" style="margin-left: 10px"/>
-        <el-button size="mini" icon="el-icon-copy-document" circle @click="copyRow" style="margin-left: 10px"/>
-        <el-button size="mini" icon="el-icon-delete" type="danger" circle @click="remove" style="margin-left: 10px"/>
-      </div>
-    </el-row>
-  </el-card>
+      <el-input size="small" v-model="controller.value" :placeholder="$t('api_test.value')" v-if="!hasEmptyOperator" style="width: 20%;margin-left: 20px"/>
+    </template>
+
+  </api-base-component>
 </template>
 
 <script>
+  import ApiBaseComponent from "./common/ApiBaseComponent";
   export default {
     name: "MsIfController",
+    components: {ApiBaseComponent},
     props: {
       controller: {},
       node: {},
@@ -91,16 +93,4 @@
 </script>
 
 <style scoped>
-  .ms-api-col {
-    background-color: #FCF6EE;
-    border-color: #E6A23C;
-    margin-right: 10px;
-    color: #E6A23C;
-  }
-
-  .ms-title-buttion {
-    background-color: #FCF6EE;
-    margin-right: 20px;
-    color: #E6A23C;
-  }
 </style>

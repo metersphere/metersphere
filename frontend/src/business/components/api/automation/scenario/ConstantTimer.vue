@@ -1,26 +1,25 @@
 <template>
-  <div>
-    <el-card>
-      <el-row>
-        <div class="el-step__icon is-text ms-api-col">
-          <div class="el-step__icon-inner">{{timer.index}}</div>
-        </div>
-        <el-button class="ms-title-buttion" size="small">{{$t('api_test.automation.wait_controller')}}</el-button>
-        <el-input-number class="width-100" size="small" v-model="timer.delay" :min="0" :step="1000"/>
-        ms
-        <div style="margin-right: 20px; float: right">
-          <el-switch v-model="timer.enable" style="margin-left: 10px"/>
-          <el-button size="mini" icon="el-icon-copy-document" circle @click="copyRow" style="margin-left: 10px"/>
-          <el-button size="mini" icon="el-icon-delete" type="danger" circle @click="remove" style="margin-left: 10px"/>
-        </div>
-      </el-row>
-    </el-card>
-  </div>
+  <api-base-component
+    @copy="copyRow"
+    @remove="remove"
+    :data="timer"
+    :show-collapse="false"
+    color="#67C23A"
+    background-color="#F2F9EE"
+    :title="$t('api_test.automation.wait_controller')">
+
+    <template v-slot:headerLeft>
+      <el-input-number class="time-input" size="small" v-model="timer.delay" :min="0" :step="1000"/>
+    </template>
+
+  </api-base-component>
 </template>
 
 <script>
+  import ApiBaseComponent from "./common/ApiBaseComponent";
   export default {
     name: "MsConstantTimer",
+    components: {ApiBaseComponent},
     props: {
       timer: {},
       node: {},
@@ -59,5 +58,10 @@
 
   /deep/ .el-card__body {
     padding: 15px;
+  }
+
+  .time-input {
+    width: 30%;
+    /*margin-left: 20px;*/
   }
 </style>
