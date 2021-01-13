@@ -22,20 +22,13 @@ CREATE TABLE IF NOT EXISTS `test_plan_report` (
 CREATE TABLE IF NOT EXISTS `test_plan_report_data` (
     `id` VARCHAR ( 50 ) NOT NULL COMMENT 'ID',
     `test_plan_report_id` VARCHAR ( 50 ) NOT NULL COMMENT 'Test plan ID',
-    `execute_result` LONGTEXT CHARACTER
-    SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT 'executeResult (JSON format)',
-    `failur_test_cases` LONGTEXT CHARACTER
-    SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT 'failurTestCases (JSON format)',
-    `module_execute_result` LONGTEXT CHARACTER
-    SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT 'moduleExecuteResult (JSON format)',
-    `api_case_info` LONGTEXT CHARACTER
-    SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT 'apiCaseID list (JSON format)',
-    `scenario_info` LONGTEXT CHARACTER
-    SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT 'scenarioID list (JSON format)',
-    `performance_info` LONGTEXT CHARACTER
-    SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT 'performanceID list (JSON format)',
-    `issues_info` LONGTEXT CHARACTER
-    SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL COMMENT 'issues (JSON format)',
+    `execute_result` longtext  COMMENT 'executeResult (JSON format)',
+    `failur_test_cases` longtext  COMMENT 'failurTestCases (JSON format)',
+    `module_execute_result` longtext  COMMENT 'moduleExecuteResult (JSON format)',
+    `api_case_info` longtext  COMMENT 'apiCaseID list (JSON format)',
+    `scenario_info` longtext  COMMENT 'scenarioID list (JSON format)',
+    `performance_info` longtext  COMMENT 'performanceID list (JSON format)',
+    `issues_info` longtext  COMMENT 'issues (JSON format)',
     PRIMARY KEY ( `id` ),
     UNIQUE KEY `test_plan_report_id` ( `test_plan_report_id` )
 )
