@@ -29,63 +29,63 @@
     </div>
 
     <el-collapse-transition>
-      <div v-if="data.active && showCollapse" draggable>
+      <div v-if="data.active && showCollapse" :draggable="draggable">
         <el-divider></el-divider>
-       <slot></slot>
+        <slot></slot>
       </div>
     </el-collapse-transition>
   </el-card>
 </template>
 
 <script>
-    export default {
-      name: "ApiBaseComponent",
-      data() {
-        return {
-          isShowInput: false
+  export default {
+    name: "ApiBaseComponent",
+    data() {
+      return {
+        isShowInput: false
+      }
+    },
+    props: {
+      draggable: Boolean,
+      data: {
+        type: Object,
+        default() {
+          return {}
+        },
+      },
+      color: {
+        type: String,
+        default() {
+          return "#B8741A"
         }
       },
-      props: {
-        draggable: Boolean,
-        data: {
-          type: Object,
-          default() {
-            return {}
-          },
-        },
-        color: {
-          type: String,
-          default() {
-            return "#B8741A"
-          }
-        },
-        backgroundColor: {
-          type: String,
-          default() {
-            return "#F9F1EA"
-          }
-        },
-        showCollapse: {
-          type: Boolean,
-          default() {
-            return true
-          }
-        },
-        title: String
-      },
-      methods: {
-        active() {
-          this.$set(this.data, 'active', !this.data.active);
-          this.$emit('active');
-        },
-        copyRow() {
-          this.$emit('copy');
-        },
-        remove() {
-          this.$emit('remove');
+      backgroundColor: {
+        type: String,
+        default() {
+          return "#F9F1EA"
         }
+      },
+      showCollapse: {
+        type: Boolean,
+        default() {
+          return true
+        }
+      },
+      title: String
+    },
+    methods: {
+      active() {
+        this.$set(this.data, 'active', !this.data.active);
+        this.$emit('active');
+      },
+      copyRow() {
+        this.$emit('copy');
+      },
+      remove() {
+        this.$emit('remove');
       }
     }
+  }
 </script>
 
 <style scoped>

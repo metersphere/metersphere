@@ -156,11 +156,11 @@
                       <!--等待控制器-->
                       <ms-constant-timer :timer="data" :node="node" v-if="data.type==='ConstantTimer'" @remove="remove" @copyRow="copyRow"/>
                       <!--自定义脚本-->
-                      <ms-jsr233-processor v-if="data.type==='JSR223Processor'" @remove="remove" @copyRow="copyRow" :title="$t('api_test.automation.customize_script')" :jsr223-processor="data" :node="node"/>
+                      <ms-jsr233-processor :draggable="true" v-if="data.type==='JSR223Processor'" @remove="remove" @copyRow="copyRow" :title="$t('api_test.automation.customize_script')" :jsr223-processor="data" :node="node"/>
                       <!--前置脚本-->
-                      <ms-jsr233-processor v-if="data.type==='JSR223PreProcessor'" @remove="remove" @copyRow="copyRow" :title="$t('api_test.definition.request.pre_script')" :jsr223-processor="data" :node="node"/>
+                      <ms-jsr233-processor :draggable="true" v-if="data.type==='JSR223PreProcessor'" @remove="remove" @copyRow="copyRow" :title="$t('api_test.definition.request.pre_script')" :jsr223-processor="data" :node="node"/>
                       <!--后置脚本-->
-                      <ms-jsr233-processor v-if="data.type==='JSR223PostProcessor'" @remove="remove" @copyRow="copyRow" :title="$t('api_test.definition.request.post_script')" :jsr223-processor="data" :node="node"/>
+                      <ms-jsr233-processor :draggable="true" v-if="data.type==='JSR223PostProcessor'" @remove="remove" @copyRow="copyRow" :title="$t('api_test.definition.request.post_script')" :jsr223-processor="data" :node="node"/>
                       <!--断言规则-->
                       <ms-api-assertions :draggable="true" @suggestClick="suggestClick(node)" :response="response" v-if="data.type==='Assertions'" @remove="remove" @copyRow="copyRow" :assertions="data" :node="node"/>
                       <!--提取规则-->
