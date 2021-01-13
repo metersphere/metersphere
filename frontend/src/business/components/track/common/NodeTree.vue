@@ -151,6 +151,9 @@ export default {
     },
     edit(node, data) {
       this.$set(data, 'isEdit', true);
+      this.$nextTick(() => {
+        this.$refs.nameInput.focus();
+      });
     },
     append(node, data) {
       const newChild = {

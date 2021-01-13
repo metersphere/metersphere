@@ -132,7 +132,7 @@
                   </el-select>
                 </el-col>
                 <el-col :span="2">
-                  <el-button size="small" type="primary" @click="runDebug">{{$t('api_test.request.debug')}}</el-button>
+                  <el-button :disabled="scenarioDefinition.length < 1" size="small" type="primary" @click="runDebug">{{$t('api_test.request.debug')}}</el-button>
                 </el-col>
               </el-row>
             </div>
@@ -141,6 +141,7 @@
               <el-tree node-key="resourceId" :props="props" :data="scenarioDefinition"
                        :default-expanded-keys="expandedNode"
                        :expand-on-click-node="false"
+                       highlight-current
                        @node-expand="nodeExpand"
                        @node-collapse="nodeCollapse"
                        :allow-drop="allowDrop" @node-drag-end="allowDrag" @node-click="nodeClick" v-if="!loading" draggable>
@@ -307,6 +308,7 @@
         operatingElements: [],
         currentRow: {cases: [], apis: [], referenced: true},
         selectedTreeNode: undefined,
+        selectedNode: undefined,
         expandedNode: [],
         scenarioDefinition: [],
         path: "/api/automation/create",
@@ -519,16 +521,18 @@
             this.$refs.apiImport.open();
             break;
         }
+
+        this.selectedNode.expanded = true;
         this.sort();
-        this.reload();
       },
-      nodeClick(e) {
-        if (e.referenced != 'REF' && e.referenced != 'Deleted') {
-          this.operatingElements = ELEMENTS.get(e.type);
+      nodeClick(data, node) {
+        if (data.referenced != 'REF' && data.referenced != 'Deleted') {
+          this.operatingElements = ELEMENTS.get(data.type);
         } else {
           this.operatingElements = [];
         }
-        this.selectedTreeNode = e;
+        this.selectedTreeNode = data;
+        this.selectedNode = node;
       },
       suggestClick(node) {
         this.response = {};
