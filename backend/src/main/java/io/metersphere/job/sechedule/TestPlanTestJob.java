@@ -46,7 +46,6 @@ public class TestPlanTestJob extends MsScheduleJob {
     private ApiTestCaseService apiTestCaseService;
     private TestPlanReportService testPlanReportService;
     private TestPlanLoadCaseService testPlanLoadCaseService;
-    private LoadReportStatusTask loadReportStatusTask;
 
     public TestPlanTestJob() {
         this.apiAutomationService = CommonBeanFactory.getBean(ApiAutomationService.class);
@@ -56,7 +55,6 @@ public class TestPlanTestJob extends MsScheduleJob {
         this.apiTestCaseService = CommonBeanFactory.getBean(ApiTestCaseService.class);
         this.testPlanReportService = CommonBeanFactory.getBean(TestPlanReportService.class);
         this.testPlanLoadCaseService = CommonBeanFactory.getBean(TestPlanLoadCaseService.class);
-        this.loadReportStatusTask = CommonBeanFactory.getBean(LoadReportStatusTask.class);
     }
 
     /**
