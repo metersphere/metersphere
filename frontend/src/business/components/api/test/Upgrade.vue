@@ -7,13 +7,24 @@
     :destroy-on-close="true"
     show-close
     @closed="handleClose" v-loading="loading">
-    <el-form :model="ruleForm" label-position="right" label-width="80px" size="small" :rules="rule">
-      <el-form-item :label="$t('test_track.module.module')" prop="apiScenarioModuleId">
-        <el-select size="small" style="width: 80%" v-model="apiScenarioModuleId">
-          <el-option v-for="item in moduleOptions" :key="item.id" :label="item.path" :value="item.id"/>
-        </el-select>
-      </el-form-item>
-    </el-form>
+
+    <ms-node-tree
+      v-loading="result.loading"
+      :tree-nodes="data"
+      @add="add"
+      :type="'edit'"
+      @edit="edit"
+      @drag="drag"
+      @remove="remove"
+      @nodeSelectEvent="nodeChange"
+      ref="nodeTree">
+
+      <template v-slot:header>
+        <el-input :placeholder="$t('test_track.module.search')" v-model="condition.filterText" size="small">
+        </el-input>
+      </template>
+
+    </ms-node-tree>
     <span slot="footer" class="dialog-footer">
    <ms-dialog-footer
      @cancel="oneClickOperationVisible = false"
@@ -28,30 +39,31 @@
   import MsApiReportStatus from "../report/ApiReportStatus";
   import MsApiReportDialog from "./ApiReportDialog";
   import {getUUID, getCurrentProjectID} from "@/common/js/utils";
+  import SelectMenu from "../../track/common/SelectMenu";
+  import MsNodeTree from "../../track/common/NodeTree";
   import {buildNodePath} from "../definition/model/NodeTree";
-
 
   export default {
     name: "MsUpgrade",
     components: {
-      MsApiReportDialog, MsApiReportStatus, MsApiScenarioConfig, MsDialogFooter
+      MsApiReportDialog, MsApiReportStatus, MsApiScenarioConfig,
+      MsDialogFooter,
+      MsNodeTree,
+      SelectMenu,
     },
     data() {
       return {
         oneClickOperationVisible: false,
-        apiScenarioModuleId: "",
         moduleOptions: [],
-        ruleForm: {},
         loading: false,
-        rule: {
-          apiScenarioModuleId: [
-            {required: true, message: this.$t('test_track.module.module'), trigger: 'blur'},
-          ],
-        }
+        result: {},
+        data: [],
+        condition: {
+          filterText: "",
+          trashEnable: false
+        },
+        currentModule: undefined,
       };
-    },
-    created() {
-      this.initModule();
     },
     props: {
       selectIds: {
@@ -64,8 +76,14 @@
         type: Set
       }
     },
+    watch: {
+      'condition.filterText'(val) {
+        this.$refs.nodeTree.filter(val);
+      },
+    },
     methods: {
       openOneClickOperation() {
+        this.initModule();
         this.oneClickOperationVisible = true;
       },
       getPath(id) {
@@ -75,9 +93,13 @@
         return path[0].path;
       },
       confirm() {
+        if (!this.currentModule) {
+          this.$warning("请选择一个模块");
+          return;
+        }
         this.loading = true;
         let arr = Array.from(this.selectIds);
-        let obj = {testIds: arr, projectId: getCurrentProjectID(), modulePath: this.getPath(this.apiScenarioModuleId), moduleId: this.apiScenarioModuleId};
+        let obj = {testIds: arr, projectId: getCurrentProjectID(), modulePath: this.getPath(this.currentModule.id), moduleId: this.currentModule.id};
         this.$post("/api/historicalDataUpgrade", obj, response => {
           this.loading = false;
           this.$success(this.$t('organization.integration.successful_operation'));
@@ -100,6 +122,69 @@
       handleClose() {
         this.ruleForm = {}
       },
+      edit(param) {
+        param.projectId = getCurrentProjectID();
+        param.protocol = this.condition.protocol;
+        this.$post("/api/automation/module/edit", param, () => {
+          this.$success(this.$t('commons.save_success'));
+          this.initModule();
+          this.refresh();
+        }, (error) => {
+          this.initModule();
+        });
+      },
+      add(param) {
+        param.projectId = getCurrentProjectID();
+        param.protocol = this.condition.protocol;
+        this.$post("/api/automation/module/add", param, () => {
+          this.$success(this.$t('commons.save_success'));
+          this.initModule();
+        }, (error) => {
+          this.initModule();
+        });
+      },
+      remove(nodeIds) {
+        this.$post("/api/automation/module/delete", nodeIds, () => {
+          this.initModule();
+          this.refresh();
+        }, (error) => {
+          this.initModule();
+        });
+      },
+      drag(param, list) {
+        this.$post("/api/automation/module/drag", param, () => {
+          this.$post("/api/automation/module/pos", list, () => {
+            this.initModule();
+          });
+        }, (error) => {
+          this.initModule();
+        });
+      },
+      nodeChange(node, nodeIds, pNodes) {
+        this.currentModule = node.data;
+        this.condition.trashEnable = false;
+        if (node.data.id === 'root') {
+          this.$emit("nodeSelectEvent", node, [], pNodes);
+        } else {
+          this.$emit("nodeSelectEvent", node, nodeIds, pNodes);
+        }
+      },
+      saveAsEdit(data) {
+        this.$emit('saveAsEdit', data);
+      },
+      refresh() {
+        this.$emit("refreshTable");
+      },
+      addScenario() {
+        if (!getCurrentProjectID()) {
+          this.$warning(this.$t('commons.check_project_tip'));
+          return;
+        }
+        this.$refs.basisScenario.open(this.currentModule);
+      },
+      enableTrash() {
+        this.condition.trashEnable = true;
+      }
     }
   }
 </script>
