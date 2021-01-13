@@ -521,8 +521,9 @@
             this.$refs.apiImport.open();
             break;
         }
-
-        this.selectedNode.expanded = true;
+        if (this.selectedNode) {
+          this.selectedNode.expanded = true;
+        }
         this.sort();
       },
       nodeClick(data, node) {
