@@ -116,10 +116,11 @@ public class ApiTestCaseService {
         return apiTestCaseMapper.selectByPrimaryKey(id);
     }
 
-    public void create(SaveApiTestCaseRequest request, List<MultipartFile> bodyFiles) {
+    public ApiTestCase create(SaveApiTestCaseRequest request, List<MultipartFile> bodyFiles) {
         List<String> bodyUploadIds = new ArrayList<>(request.getBodyUploadIds());
         ApiTestCase test = createTest(request);
         createBodyFiles(test, bodyUploadIds, bodyFiles);
+        return test;
     }
 
     private void checkQuota() {
@@ -129,13 +130,13 @@ public class ApiTestCaseService {
         }
     }
 
-    public void update(SaveApiTestCaseRequest request, List<MultipartFile> bodyFiles) {
-
+    public ApiTestCase update(SaveApiTestCaseRequest request, List<MultipartFile> bodyFiles) {
         deleteFileByTestId(request.getId());
         List<String> bodyUploadIds = new ArrayList<>(request.getBodyUploadIds());
         request.setBodyUploadIds(null);
         ApiTestCase test = updateTest(request);
         createBodyFiles(test, bodyUploadIds, bodyFiles);
+        return test;
     }
 
     private void createBodyFiles(ApiTestCase test, List<String> bodyUploadIds, List<MultipartFile> bodyFiles) {
