@@ -71,6 +71,17 @@
         <ms-tcp-basis-parameters :request="apiCase.request" v-if="api.protocol==='TCP'"/>
         <ms-sql-basis-parameters :request="apiCase.request" v-if="api.protocol==='SQL'"/>
         <ms-dubbo-basis-parameters :request="apiCase.request" v-if="api.protocol==='DUBBO'"/>
+
+        <!-- HTTP 请求返回数据 -->
+        <p class="tip">
+          {{$t('api_test.definition.request.res_param')}}
+          <i class="icon el-icon-arrow-right" :class="{'is-responseActive': apiCase.responseActive}" @click="responseActive(apiCase)"/>
+        </p>
+        <el-collapse-transition>
+          <div v-if="apiCase.responseActive">
+            <ms-request-result-tail :response="responseData"/>
+          </div>
+        </el-collapse-transition>
         <!-- 保存操作 -->
         <el-button type="primary" size="small" style="margin: 20px; float: right" @click="saveTestCase(apiCase)" v-tester>
           {{ $t('commons.save') }}
@@ -81,189 +92,195 @@
 </template>
 
 <script>
-import {getCurrentProjectID, getUUID} from "../../../../../../common/js/utils";
-import {PRIORITY, RESULT_MAP} from "../../model/JsonData";
-import MsTag from "../../../../common/components/MsTag";
-import MsTipButton from "../../../../common/components/MsTipButton";
-import MsApiRequestForm from "../request/http/ApiRequestForm";
-import ApiEnvironmentConfig from "../environment/ApiEnvironmentConfig";
-import MsApiAssertions from "../assertion/ApiAssertions";
-import MsSqlBasisParameters from "../request/database/BasisParameters";
-import MsTcpBasisParameters from "../request/tcp/TcpBasisParameters";
-import MsDubboBasisParameters from "../request/dubbo/BasisParameters";
-import MsApiExtendBtns from "../reference/ApiExtendBtns";
-import MsInputTag from "@/business/components/api/automation/scenario/MsInputTag";
+  import {getCurrentProjectID, getUUID} from "../../../../../../common/js/utils";
+  import {PRIORITY, RESULT_MAP} from "../../model/JsonData";
+  import MsTag from "../../../../common/components/MsTag";
+  import MsTipButton from "../../../../common/components/MsTipButton";
+  import MsApiRequestForm from "../request/http/ApiRequestForm";
+  import ApiEnvironmentConfig from "../environment/ApiEnvironmentConfig";
+  import MsApiAssertions from "../assertion/ApiAssertions";
+  import MsSqlBasisParameters from "../request/database/BasisParameters";
+  import MsTcpBasisParameters from "../request/tcp/TcpBasisParameters";
+  import MsDubboBasisParameters from "../request/dubbo/BasisParameters";
+  import MsApiExtendBtns from "../reference/ApiExtendBtns";
+  import MsInputTag from "@/business/components/api/automation/scenario/MsInputTag";
+  import MsRequestResultTail from "../response/RequestResultTail";
 
-export default {
-  name: "ApiCaseItem",
-  components: {
-    MsInputTag,
-    MsTag,
-    MsTipButton,
-    MsApiRequestForm,
-    ApiEnvironmentConfig,
-    MsApiAssertions,
-    MsSqlBasisParameters,
-    MsTcpBasisParameters,
-    MsDubboBasisParameters,
-    MsApiExtendBtns
-  },
-  data() {
-    return {
-      result: {},
-      grades: [],
-      isReadOnly: false,
-      selectedEvent: Object,
-      priorities: PRIORITY,
-      runData: [],
-      reportId: "",
-      checkedCases: new Set(),
-      visible: false,
-      condition: {},
-      isShowInput: false,
-    }
-  },
-  props: {
-    apiCase: {
-      type: Object,
-      default() {
-        return {}
+  export default {
+    name: "ApiCaseItem",
+    components: {
+      MsInputTag,
+      MsTag,
+      MsTipButton,
+      MsApiRequestForm,
+      ApiEnvironmentConfig,
+      MsApiAssertions,
+      MsSqlBasisParameters,
+      MsTcpBasisParameters,
+      MsDubboBasisParameters,
+      MsApiExtendBtns,
+      MsRequestResultTail
+    },
+    data() {
+      return {
+        result: {},
+        grades: [],
+        isReadOnly: false,
+        selectedEvent: Object,
+        priorities: PRIORITY,
+        runData: [],
+        reportId: "",
+        checkedCases: new Set(),
+        visible: false,
+        condition: {},
+        responseData: {type: 'HTTP', responseResult: {}, subRequestResults: []},
+        isShowInput: false,
       }
     },
-    environment: {},
-    index: {
-      type: Number,
-      default() {
-        return 0
-      }
-    },
-    api: {
-      type: Object,
-      default() {
-        return {}
-      }
-    },
-    isCaseEdit: Boolean,
-  },
-  watch: {},
-  methods: {
-
-    deleteCase(index, row) {
-      this.$alert(this.$t('api_test.definition.request.delete_confirm') + ' ' + row.name + " ？", '', {
-        confirmButtonText: this.$t('commons.confirm'),
-        callback: (action) => {
-          if (action === 'confirm') {
-            this.$get('/api/testcase/delete/' + row.id, () => {
-              this.$success(this.$t('commons.delete_success'));
-              this.$emit('refresh');
-            });
-          }
+    props: {
+      apiCase: {
+        type: Object,
+        default() {
+          return {}
+        },
+      },
+      environment: {},
+      index: {
+        type: Number,
+        default() {
+          return 0
         }
-      });
-
-    },
-    singleRun(data) {
-      this.$emit('singleRun', data);
-    },
-    copyCase(data) {
-      let obj = {name: "copy_" + data.name, priority: data.priority, active: true, request: data.request};
-      this.$emit('copyCase', obj);
-    },
-
-    selectTestCase(item, $event) {
-      if (!item.id || !this.loaded) {
-        return;
-      }
-      if ($event.currentTarget.className.indexOf('is-selected') > 0) {
-        $event.currentTarget.className = "el-card is-always-shadow";
-        this.$emit('selectTestCase', null);
-      } else {
-        if (this.selectedEvent.currentTarget != undefined) {
-          this.selectedEvent.currentTarget.className = "el-card is-always-shadow";
+      },
+      api: {
+        type: Object,
+        default() {
+          return {}
         }
-        this.selectedEvent.currentTarget = $event.currentTarget;
-        $event.currentTarget.className = "el-card is-always-shadow is-selected";
-        this.$emit('selectTestCase', item);
-      }
-
+      },
+      isCaseEdit: Boolean,
     },
-    changePriority(row) {
-      if (row.id) {
-        this.saveTestCase(row);
-      }
-    },
-    saveTestCase(row) {
-      let tmp = JSON.parse(JSON.stringify(row));
-      this.isShowInput = false;
-      if (this.validate(tmp)) {
-        return;
-      }
-      let bodyFiles = this.getBodyUploadFiles(tmp);
-      tmp.projectId = getCurrentProjectID();
-      tmp.active = true;
-      tmp.request.path = this.api.path;
-      tmp.request.method = this.api.method;
-      tmp.apiDefinitionId = tmp.apiDefinitionId || this.api.id;
-      let url = "/api/testcase/create";
-      if (tmp.id) {
-        url = "/api/testcase/update";
-      }
-      if (tmp.tags instanceof Array) {
-        tmp.tags = JSON.stringify(tmp.tags);
-      }
-      this.$fileUpload(url, null, bodyFiles, tmp, (response) => {
-        let data = response.data;
-        row.id = data.id;
-        row.createTime = data.createTime;
-        row.updateTime = data.updateTime;
-        this.$success(this.$t('commons.save_success'));
-      });
-    },
-    showInput(row) {
-      // row.type = "create";
-      this.isShowInput = true;
-      row.active = true;
-      this.active(row);
-    },
-    active(item) {
-      item.active = !item.active;
-    },
-    getResult(data) {
-      if (RESULT_MAP.get(data)) {
-        return RESULT_MAP.get(data);
-      } else {
-        return RESULT_MAP.get("default");
-      }
-    },
-    validate(row) {
-      if (!row.name) {
-        this.$warning(this.$t('api_test.input_name'));
-        return true;
-      }
-    },
-    showExecResult(data) {
-      this.$emit('showExecResult', data);
-    },
-    getBodyUploadFiles(row) {
-      let bodyUploadFiles = [];
-      row.bodyUploadIds = [];
-      let request = row.request;
-      if (request.body && request.body.kvs) {
-        request.body.kvs.forEach(param => {
-          if (param.files) {
-            param.files.forEach(item => {
-              if (item.file) {
-                let fileId = getUUID().substring(0, 8);
-                item.name = item.file.name;
-                item.id = fileId;
-                row.bodyUploadIds.push(fileId);
-                bodyUploadFiles.push(item.file);
-              }
-            });
+    watch: {},
+    methods: {
+      deleteCase(index, row) {
+        this.$alert(this.$t('api_test.definition.request.delete_confirm') + ' ' + row.name + " ？", '', {
+          confirmButtonText: this.$t('commons.confirm'),
+          callback: (action) => {
+            if (action === 'confirm') {
+              this.$get('/api/testcase/delete/' + row.id, () => {
+                this.$success(this.$t('commons.delete_success'));
+                this.$emit('refresh');
+              });
+            }
           }
         });
-        if (request.body.binary) {
-          request.body.binary.forEach(param => {
+
+      },
+      getExecResult() {
+        // 执行结果信息
+        if (this.apiCase) {
+          let url = "/api/definition/report/getReport/" + this.apiCase.id;
+          this.$get(url, response => {
+            if (response.data) {
+              let data = JSON.parse(response.data.content);
+              this.responseData = data;
+            }
+          });
+        }
+      },
+      singleRun(data) {
+        this.$emit('singleRun', data);
+      },
+      copyCase(data) {
+        let obj = {name: "copy_" + data.name, priority: data.priority, active: true, request: data.request};
+        this.$emit('copyCase', obj);
+      },
+
+      selectTestCase(item, $event) {
+        if (!item.id || !this.loaded) {
+          return;
+        }
+        if ($event.currentTarget.className.indexOf('is-selected') > 0) {
+          $event.currentTarget.className = "el-card is-always-shadow";
+          this.$emit('selectTestCase', null);
+        } else {
+          if (this.selectedEvent.currentTarget != undefined) {
+            this.selectedEvent.currentTarget.className = "el-card is-always-shadow";
+          }
+          this.selectedEvent.currentTarget = $event.currentTarget;
+          $event.currentTarget.className = "el-card is-always-shadow is-selected";
+          this.$emit('selectTestCase', item);
+        }
+
+      },
+      changePriority(row) {
+        if (row.id) {
+          this.saveTestCase(row);
+        }
+      },
+      saveTestCase(row) {
+        let tmp = JSON.parse(JSON.stringify(row));
+        this.isShowInput = false;
+        if (this.validate(tmp)) {
+          return;
+        }
+        let bodyFiles = this.getBodyUploadFiles(tmp);
+        tmp.projectId = getCurrentProjectID();
+        tmp.active = true;
+        tmp.request.path = this.api.path;
+        tmp.request.method = this.api.method;
+        tmp.apiDefinitionId = tmp.apiDefinitionId || this.api.id;
+        let url = "/api/testcase/create";
+        if (tmp.id) {
+          url = "/api/testcase/update";
+        }
+        if (tmp.tags instanceof Array) {
+          tmp.tags = JSON.stringify(tmp.tags);
+        }
+        this.$fileUpload(url, null, bodyFiles, tmp, (response) => {
+          let data = response.data;
+          row.id = data.id;
+          row.createTime = data.createTime;
+          row.updateTime = data.updateTime;
+          this.$success(this.$t('commons.save_success'));
+        });
+      },
+      showInput(row) {
+        // row.type = "create";
+        this.isShowInput = true;
+        row.active = true;
+        this.active(row);
+      },
+      active(item) {
+        item.active = !item.active;
+      },
+      responseActive(item) {
+        item.responseActive = !item.responseActive;
+        if (item.responseActive) {
+          this.getExecResult();
+        }
+      },
+      getResult(data) {
+        if (RESULT_MAP.get(data)) {
+          return RESULT_MAP.get(data);
+        } else {
+          return RESULT_MAP.get("default");
+        }
+      },
+      validate(row) {
+        if (!row.name) {
+          this.$warning(this.$t('api_test.input_name'));
+          return true;
+        }
+      },
+      showExecResult(data) {
+        this.$emit('showExecResult', data);
+      },
+      getBodyUploadFiles(row) {
+        let bodyUploadFiles = [];
+        row.bodyUploadIds = [];
+        let request = row.request;
+        if (request.body && request.body.kvs) {
+          request.body.kvs.forEach(param => {
             if (param.files) {
               param.files.forEach(item => {
                 if (item.file) {
@@ -276,49 +293,67 @@ export default {
               });
             }
           });
+          if (request.body.binary) {
+            request.body.binary.forEach(param => {
+              if (param.files) {
+                param.files.forEach(item => {
+                  if (item.file) {
+                    let fileId = getUUID().substring(0, 8);
+                    item.name = item.file.name;
+                    item.id = fileId;
+                    row.bodyUploadIds.push(fileId);
+                    bodyUploadFiles.push(item.file);
+                  }
+                });
+              }
+            });
+          }
         }
-      }
-      return bodyUploadFiles;
-    },
+        return bodyUploadFiles;
+      },
+    }
   }
-}
 </script>
 
 <style scoped>
-.ms-api-select {
-  margin-left: 20px;
-  width: 80px;
-}
+  .ms-api-select {
+    margin-left: 20px;
+    width: 80px;
+  }
 
-.ms-api-header-select {
-  margin-left: 20px;
-  min-width: 100px;
-}
+  .ms-api-header-select {
+    margin-left: 20px;
+    min-width: 100px;
+  }
 
-.ms-api-label {
-  color: #CCCCCC;
-}
+  .ms-api-label {
+    color: #CCCCCC;
+  }
 
-.ms-api-col {
-  background-color: #7C3985;
-  border-color: #7C3985;
-  margin-right: 10px;
-  color: white;
-}
+  .ms-api-col {
+    background-color: #7C3985;
+    border-color: #7C3985;
+    margin-right: 10px;
+    color: white;
+  }
 
-.icon.is-active {
-  transform: rotate(90deg);
-}
+  .icon.is-active {
+    transform: rotate(90deg);
+  }
 
-.tip {
-  padding: 3px 5px;
-  font-size: 16px;
-  border-radius: 4px;
-  border-left: 4px solid #783887;
-  margin: 20px 0;
-}
+  .icon.is-responseActive {
+    transform: rotate(90deg);
+  }
 
-.is-selected {
-  background: #EFF7FF;
-}
+  .tip {
+    padding: 3px 5px;
+    font-size: 16px;
+    border-radius: 4px;
+    border-left: 4px solid #783887;
+    margin: 20px 0;
+  }
+
+  .is-selected {
+    background: #EFF7FF;
+  }
 </style>

@@ -13,4 +13,5 @@ public class ApiTestCaseResult extends ApiTestCaseWithBLOBs {
     private String execResult;
     private Long execTime;
     private boolean active = false;
+    private boolean responseActive = false;
 }
