@@ -4,6 +4,7 @@
     <functional-failure-cases-list v-if="showFunctional" :functional-test-cases="failureTestCases.functionalTestCases"/>
     <api-failure-cases-list v-if="showApi" :api-test-cases="failureTestCases.apiTestCases"/>
     <scenario-failure-cases-list v-if="showScenario" :scenario-test-cases="failureTestCases.scenarioTestCases"/>
+    <load-failure-cases-list v-if="showLoad" :load-test-cases="failureTestCases.loadTestCases"/>
   </common-component>
 
 </template>
@@ -18,13 +19,15 @@
     import FunctionalFailureCasesList from "./component/FunctionalFailureCasesList";
     import ApiFailureCasesList from "./component/ApiFailureCasesList";
     import ScenarioFailureCasesList from "./component/ScenarioFailureCasesList";
+    import LoadFailureCasesList
+      from "@/business/components/track/plan/view/comonents/report/TemplateComponent/component/LoadFailureCasesList";
     export default {
       name: "FailureResultAdvanceComponent",
       components: {
         ScenarioFailureCasesList,
         ApiFailureCasesList,
         FunctionalFailureCasesList,
-        StatusTableItem, MethodTableItem, TypeTableItem, PriorityTableItem, CommonComponent},
+        StatusTableItem, MethodTableItem, TypeTableItem, PriorityTableItem, CommonComponent, LoadFailureCasesList},
       props: {
         failureTestCases: {
           type: Object,
@@ -73,6 +76,15 @@
                   lastResult: "Failure",
                   updateTime: new Date(),
                 }
+              ],
+              loadTestCases: [
+                {
+                  caseName: 'testCase4',
+                  projectName: 'P3',
+                  userName: '/module1/module2',
+                  createTime:  new Date(),
+                  status: 'error',
+                }
               ]
             }
           }
@@ -80,14 +92,18 @@
       },
       computed: {
         showFunctional() {
-          return this.failureTestCases.functionalTestCases.length > 0 || (this.failureTestCases.apiTestCases.length <= 0 && this.failureTestCases.scenarioTestCases.length <= 0);
+          return this.failureTestCases.functionalTestCases.length > 0
+            || (this.failureTestCases.apiTestCases.length <= 0 && this.failureTestCases.scenarioTestCases.length <= 0 && this.failureTestCases.loadTestCases.length <= 0);
         },
         showApi() {
           return this.failureTestCases.apiTestCases.length > 0;
         },
         showScenario() {
           return this.failureTestCases.scenarioTestCases.length > 0;
-        }
+        },
+        showLoad() {
+          return this.failureTestCases.loadTestCases.length > 0;
+        },
       },
       methods: {
         goFailureTestCase(row) {

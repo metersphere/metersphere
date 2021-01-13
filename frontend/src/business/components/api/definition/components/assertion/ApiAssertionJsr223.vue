@@ -56,12 +56,12 @@
 
 <script>
 import {AssertionJSR223} from "../../model/ApiTestModel";
-import MsJsr233Processor from "@/business/components/api/test/components/processor/Jsr233Processor";
 import MsDialogFooter from "@/business/components/common/components/MsDialogFooter";
+import MsJsr233Processor from "../../../automation/scenario/Jsr233Processor";
 
 export default {
   name: "MsApiAssertionJsr223",
-  components: {MsDialogFooter, MsJsr233Processor},
+  components: {MsJsr233Processor, MsDialogFooter},
   props: {
     assertion: {
       default: () => {

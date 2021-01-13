@@ -39,7 +39,7 @@ import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
@@ -119,7 +119,7 @@ public class TestCaseService {
         return testCaseMapper.updateByPrimaryKeySelective(testCase);
     }
 
-    private void checkTestCaseExist(TestCaseWithBLOBs testCase) {
+    public TestCaseWithBLOBs checkTestCaseExist(TestCaseWithBLOBs testCase) {
 
         // 全部字段值相同才判断为用例存在
         if (testCase != null) {
@@ -152,17 +152,22 @@ public class TestCaseService {
             List<TestCaseWithBLOBs> caseList = testCaseMapper.selectByExampleWithBLOBs(example);
 
             // 如果上边字段全部相同，去检查 steps 和 remark
+            boolean isExt = false;
             if (!CollectionUtils.isEmpty(caseList)) {
-                caseList.forEach(tc -> {
+                for (TestCaseWithBLOBs tc : caseList) {
                     String steps = tc.getSteps();
                     String remark = tc.getRemark();
                     if (StringUtils.equals(steps, testCase.getSteps()) && StringUtils.equals(remark, testCase.getRemark())) {
-                        MSException.throwException(Translator.get("test_case_already_exists"));
+                        // MSException.throwException(Translator.get("test_case_already_exists"));
+                        isExt = true;
                     }
-                });
+                }
             }
-
+            if (isExt) {
+                return caseList.get(0);
+            }
         }
+        return null;
     }
 
     public int deleteTestCase(String testCaseId) {
@@ -260,7 +265,9 @@ public class TestCaseService {
             try {
                 XmindCaseParser xmindParser = new XmindCaseParser(this, userId, projectId, testCaseNames);
                 errList = xmindParser.parse(multipartFile);
-                if (xmindParser.getNodePaths().isEmpty() && xmindParser.getTestCase().isEmpty()) {
+                if (CollectionUtils.isEmpty(xmindParser.getNodePaths())
+                        && CollectionUtils.isEmpty(xmindParser.getTestCase())
+                        && CollectionUtils.isEmpty(xmindParser.getUpdateTestCase())) {
                     if (errList == null) {
                         errList = new ArrayList<>();
                     }
@@ -269,15 +276,18 @@ public class TestCaseService {
                     excelResponse.setErrList(errList);
                 }
                 if (errList.isEmpty()) {
-                    if (!xmindParser.getNodePaths().isEmpty()) {
+                    if (CollectionUtils.isNotEmpty(xmindParser.getNodePaths())) {
                         testCaseNodeService.createNodes(xmindParser.getNodePaths(), projectId);
                     }
-                    if (!xmindParser.getTestCase().isEmpty()) {
+                    if (CollectionUtils.isNotEmpty(xmindParser.getTestCase())) {
                         Collections.reverse(xmindParser.getTestCase());
                         this.saveImportData(xmindParser.getTestCase(), projectId);
-                        xmindParser.clear();
+                    }
+                    if (CollectionUtils.isNotEmpty(xmindParser.getUpdateTestCase())) {
+                        this.updateImportData(xmindParser.getUpdateTestCase(), projectId);
                     }
                 }
+                xmindParser.clear();
             } catch (Exception e) {
                 LogUtil.error(e.getMessage(), e);
                 MSException.throwException(e.getMessage());
@@ -313,7 +323,6 @@ public class TestCaseService {
     }
 
     public void saveImportData(List<TestCaseWithBLOBs> testCases, String projectId) {
-
         Map<String, String> nodePathMap = testCaseNodeService.createNodeByTestCases(testCases, projectId);
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
         TestCaseMapper mapper = sqlSession.getMapper(TestCaseMapper.class);
@@ -334,6 +343,27 @@ public class TestCaseService {
         }
         sqlSession.flushStatements();
     }
+
+    public void updateImportData(List<TestCaseWithBLOBs> testCases, String projectId) {
+        Map<String, String> nodePathMap = testCaseNodeService.createNodeByTestCases(testCases, projectId);
+        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+        TestCaseMapper mapper = sqlSession.getMapper(TestCaseMapper.class);
+        if (!testCases.isEmpty()) {
+            AtomicInteger sort = new AtomicInteger();
+            AtomicInteger num = new AtomicInteger();
+            num.set(getNextNum(projectId) + testCases.size());
+            testCases.forEach(testcase -> {
+                testcase.setUpdateTime(System.currentTimeMillis());
+                testcase.setNodeId(nodePathMap.get(testcase.getNodePath()));
+                testcase.setSort(sort.getAndIncrement());
+                testcase.setNum(num.decrementAndGet());
+                testcase.setReviewStatus(TestCaseReviewStatus.Prepare.name());
+                mapper.updateByPrimaryKeySelective(testcase);
+            });
+        }
+        sqlSession.flushStatements();
+    }
+
 
     public void testCaseTemplateExport(HttpServletResponse response) {
         try {
@@ -572,7 +602,9 @@ public class TestCaseService {
     public boolean exist(TestCaseWithBLOBs testCaseWithBLOBs) {
 
         try {
-            checkTestCaseExist(testCaseWithBLOBs);
+            TestCaseWithBLOBs caseWithBLOBs = checkTestCaseExist(testCaseWithBLOBs);
+            if (caseWithBLOBs != null)
+                return true;
         } catch (MSException e) {
             return true;
         }

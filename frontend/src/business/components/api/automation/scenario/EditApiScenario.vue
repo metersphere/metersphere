@@ -132,7 +132,7 @@
                   </el-select>
                 </el-col>
                 <el-col :span="2">
-                  <el-button size="small" type="primary" @click="runDebug">{{$t('api_test.request.debug')}}</el-button>
+                  <el-button :disabled="scenarioDefinition.length < 1" size="small" type="primary" @click="runDebug">{{$t('api_test.request.debug')}}</el-button>
                 </el-col>
               </el-row>
             </div>
@@ -141,6 +141,7 @@
               <el-tree node-key="resourceId" :props="props" :data="scenarioDefinition"
                        :default-expanded-keys="expandedNode"
                        :expand-on-click-node="false"
+                       highlight-current
                        @node-expand="nodeExpand"
                        @node-collapse="nodeCollapse"
                        :allow-drop="allowDrop" @node-drag-end="allowDrag" @node-click="nodeClick" v-if="!loading" draggable>
@@ -155,18 +156,15 @@
                       <!--等待控制器-->
                       <ms-constant-timer :timer="data" :node="node" v-if="data.type==='ConstantTimer'" @remove="remove" @copyRow="copyRow"/>
                       <!--自定义脚本-->
-                      <ms-jsr233-processor v-if="data.type==='JSR223Processor'" @remove="remove" @copyRow="copyRow" :title="$t('api_test.automation.customize_script')"
-                                           style-type="color: #7B4D12;background-color: #F1EEE9" :jsr223-processor="data" :node="node"/>
+                      <ms-jsr233-processor v-if="data.type==='JSR223Processor'" @remove="remove" @copyRow="copyRow" :title="$t('api_test.automation.customize_script')" :jsr223-processor="data" :node="node"/>
                       <!--前置脚本-->
-                      <ms-jsr233-processor v-if="data.type==='JSR223PreProcessor'" @remove="remove" @copyRow="copyRow" :title="$t('api_test.definition.request.pre_script')"
-                                           style-type="color: #B8741A;background-color: #F9F1EA" :jsr223-processor="data" :node="node"/>
+                      <ms-jsr233-processor v-if="data.type==='JSR223PreProcessor'" @remove="remove" @copyRow="copyRow" :title="$t('api_test.definition.request.pre_script')" :jsr223-processor="data" :node="node"/>
                       <!--后置脚本-->
-                      <ms-jsr233-processor v-if="data.type==='JSR223PostProcessor'" @remove="remove" @copyRow="copyRow" :title="$t('api_test.definition.request.post_script')"
-                                           style-type="color: #783887;background-color: #F2ECF3" :jsr223-processor="data" :node="node"/>
+                      <ms-jsr233-processor v-if="data.type==='JSR223PostProcessor'" @remove="remove" @copyRow="copyRow" :title="$t('api_test.definition.request.post_script')" :jsr223-processor="data" :node="node"/>
                       <!--断言规则-->
-                      <ms-api-assertions @suggestClick="suggestClick(node)" :response="response" v-if="data.type==='Assertions'" @remove="remove" @copyRow="copyRow" customizeStyle="margin-top: 0px" :assertions="data" :node="node"/>
+                      <ms-api-assertions :draggable="true" @suggestClick="suggestClick(node)" :response="response" v-if="data.type==='Assertions'" @remove="remove" @copyRow="copyRow" :assertions="data" :node="node"/>
                       <!--提取规则-->
-                      <ms-api-extract @suggestClick="suggestClick(node)" :response="response" @remove="remove" @copyRow="copyRow" v-if="data.type==='Extract'" customizeStyle="margin-top: 0px" :extract="data" :node="node"/>
+                      <ms-api-extract :draggable="true" @suggestClick="suggestClick(node)" :response="response" @remove="remove" @copyRow="copyRow" v-if="data.type==='Extract'" :extract="data" :node="node"/>
                       <!--API 导入 -->
                       <ms-api-component :request="data" :currentScenario="currentScenario" :currentEnvironmentId="currentEnvironmentId" @remove="remove" @copyRow="copyRow"
                                         v-if="data.type==='HTTPSamplerProxy'||data.type==='DubboSampler'||data.type==='JDBCSampler'||data.type==='TCPSampler'" :node="node"/>
@@ -310,6 +308,7 @@
         operatingElements: [],
         currentRow: {cases: [], apis: [], referenced: true},
         selectedTreeNode: undefined,
+        selectedNode: undefined,
         expandedNode: [],
         scenarioDefinition: [],
         path: "/api/automation/create",
@@ -522,21 +521,23 @@
             this.$refs.apiImport.open();
             break;
         }
+
+        this.selectedNode.expanded = true;
         this.sort();
-        this.reload();
       },
-      nodeClick(e) {
-        if (e.referenced != 'REF' && e.referenced != 'Deleted') {
-          this.operatingElements = ELEMENTS.get(e.type);
+      nodeClick(data, node) {
+        if (data.referenced != 'REF' && data.referenced != 'Deleted') {
+          this.operatingElements = ELEMENTS.get(data.type);
         } else {
           this.operatingElements = [];
         }
-        this.selectedTreeNode = e;
+        this.selectedTreeNode = data;
+        this.selectedNode = node;
       },
       suggestClick(node) {
         this.response = {};
         if (node.parent && node.parent.data.requestResult) {
-         this.response = node.parent.data.requestResult;
+          this.response = node.parent.data.requestResult;
         }
       },
       showAll() {
@@ -663,6 +664,9 @@
         // 深度复制
         let obj = JSON.parse(JSON.stringify(row));
         obj.resourceId = getUUID();
+        if (obj.name) {
+          obj.name = obj.name  + '_copy';
+        }
         hashTree.push(obj);
         this.sort();
         this.reload();
@@ -721,8 +725,7 @@
       },
       environmentConfigClose() {
         this.getEnvironments();
-      }
-      ,
+      },
       allowDrop(draggingNode, dropNode, dropType) {
         if (dropType != "inner") {
           return true;
@@ -734,8 +737,10 @@
         return false;
       },
       allowDrag(draggingNode, dropNode, dropType) {
-        this.sort();
-        this.reload();
+        if (dropNode && draggingNode && dropType) {
+          this.sort();
+          this.reload();
+        }
       },
       nodeExpand(data) {
         if (data.resourceId) {
@@ -1025,6 +1030,7 @@
     font-family: "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", Arial, sans-serif;
     font-size: 13px;
   }
+
   .ms-opt-btn {
     position: fixed;
     right: 50px;

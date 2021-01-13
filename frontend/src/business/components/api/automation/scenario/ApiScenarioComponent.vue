@@ -1,23 +1,30 @@
 <template>
-  <div v-loading="loading">
-    <el-card>
-      <el-row>
-        <div class="el-step__icon is-text ms-api-col">
-          <div class="el-step__icon-inner">{{scenario.index}}</div>
-        </div>
-        <el-button class="ms-title-buttion" size="small">{{$t('api_test.automation.scenario_import')}}</el-button>
-        {{scenario.name}}
-        <el-tag size="mini" style="margin-left: 20px" v-if="scenario.referenced==='Deleted'" type="danger">{{$t('api_test.automation.reference_deleted')}}</el-tag>
-        <el-tag size="mini" style="margin-left: 20px" v-if="scenario.referenced==='Copy'">{{ $t('commons.copy') }}</el-tag>
-        <el-tag size="mini" style="margin-left: 20px" v-if="scenario.referenced==='REF'">{{ $t('api_test.scenario.reference') }}</el-tag>
-        <div style="margin-right: 20px; float: right">
-          <el-switch v-model="scenario.enable" style="margin-left: 10px"/>
-          <el-button size="mini" icon="el-icon-copy-document" circle @click="copyRow" style="margin-left: 10px"/>
-          <el-button size="mini" icon="el-icon-delete" type="danger" circle @click="remove" style="margin-left: 10px"/>
-        </div>
-      </el-row>
-    </el-card>
-  </div>
+  <api-base-component
+    v-loading="loading"
+    @copy="copyRow"
+    @remove="remove"
+    :data="scenario"
+    :show-collapse="false"
+    color="#606266"
+    background-color="#F4F4F5"
+    :title="$t('api_test.automation.scenario_import')">
+
+    <template v-slot:headerLeft>
+      <slot name="headerLeft">
+        <el-input v-if="(isShowInput || !scenario.name) && !isDeletedOrRef" size="small" v-model="scenario.name" class="name-input"
+                  @blur="isShowInput = false" :placeholder="$t('commons.input_name')"/>
+        <span v-else>
+          {{scenario.name}}
+          <i v-if="!isDeletedOrRef" class="el-icon-edit" style="cursor:pointer" @click="isShowInput = true" v-tester/>
+        </span>
+      </slot>
+
+      <el-tag size="mini" style="margin-left: 20px" v-if="scenario.referenced==='Deleted'" type="danger">{{$t('api_test.automation.reference_deleted')}}</el-tag>
+      <el-tag size="mini" style="margin-left: 20px" v-if="scenario.referenced==='Copy'">{{ $t('commons.copy') }}</el-tag>
+      <el-tag size="mini" style="margin-left: 20px" v-if="scenario.referenced==='REF'">{{ $t('api_test.scenario.reference') }}</el-tag>
+    </template>
+
+  </api-base-component>
 </template>
 
 <script>
@@ -25,6 +32,7 @@
   import MsTcpBasisParameters from "../../definition/components/request/tcp/TcpBasisParameters";
   import MsDubboBasisParameters from "../../definition/components/request/dubbo/BasisParameters";
   import MsApiRequestForm from "../../definition/components/request/http/ApiRequestForm";
+  import ApiBaseComponent from "./common/ApiBaseComponent";
 
   export default {
     name: "ApiScenarioComponent",
@@ -45,9 +53,20 @@
         })
       }
     },
-    components: {MsSqlBasisParameters, MsTcpBasisParameters, MsDubboBasisParameters, MsApiRequestForm},
+    components: {ApiBaseComponent, MsSqlBasisParameters, MsTcpBasisParameters, MsDubboBasisParameters, MsApiRequestForm},
     data() {
-      return {loading: false}
+      return {
+        loading: false,
+        isShowInput: false
+      }
+    },
+    computed: {
+      isDeletedOrRef() {
+        if (this.scenario.referenced!= undefined && this.scenario.referenced === 'Deleted' || this.scenario.referenced === 'REF') {
+          return true
+        }
+        return false;
+      }
     },
     methods: {
       remove() {
@@ -71,21 +90,9 @@
 </script>
 
 <style scoped>
-  .ms-api-col {
-    background-color: #F4F4F5;
-    border-color: #606266;
-    margin-right: 10px;
-    color: #606266;
-  }
 
   /deep/ .el-card__body {
     padding: 15px;
-  }
-
-  .ms-title-buttion {
-    background-color: #F4F4F5;
-    margin-right: 20px;
-    color: #606266;
   }
 
   .icon.is-active {

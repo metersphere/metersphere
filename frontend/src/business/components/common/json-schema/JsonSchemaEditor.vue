@@ -3,12 +3,12 @@
     <el-tabs v-model="activeName" @tab-click="handleClick">
       <el-tab-pane :label="$t('organization.message.template')" name="apiTemplate">
         <el-button type="primary" size="mini" style="margin-left: 10px" @click="openOneClickOperation">导入</el-button>
-        <div style="min-height: 400px">
+        <div style="min-height: 200px">
           <json-schema-editor class="schema" :value="schema" lang="zh_CN" custom/>
         </div>
       </el-tab-pane>
       <el-tab-pane :label="$t('schema.preview')" name="preview">
-        <div style="min-height: 400px">
+        <div style="min-height: 200px">
           <pre>{{this.preview}}</pre>
         </div>
       </el-tab-pane>

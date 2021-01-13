@@ -24,7 +24,7 @@
           </template>
         </el-table-column>
 
-        <!--        <el-table-column prop="num" label="ID" show-overflow-tooltip/>-->
+        <el-table-column prop="num" label="ID" show-overflow-tooltip/>
         <el-table-column
           prop="caseName"
           :label="$t('commons.name')"
@@ -48,14 +48,14 @@
             <span>{{ scope.row.createTime | timestampFormatDate }}</span>
           </template>
         </el-table-column>
-<!--        <el-table-column-->
-<!--          sortable-->
-<!--          prop="updateTime"-->
-<!--          :label="$t('commons.update_time')">-->
-<!--          <template v-slot:default="scope">-->
-<!--            <span>{{ scope.row.updateTime | timestampFormatDate }}</span>-->
-<!--          </template>-->
-<!--        </el-table-column>-->
+        <!--        <el-table-column-->
+        <!--          sortable-->
+        <!--          prop="updateTime"-->
+        <!--          :label="$t('commons.update_time')">-->
+        <!--          <template v-slot:default="scope">-->
+        <!--            <span>{{ scope.row.updateTime | timestampFormatDate }}</span>-->
+        <!--          </template>-->
+        <!--        </el-table-column>-->
         <el-table-column
           prop="status"
           column-key="status"
@@ -83,7 +83,9 @@
           show-overflow-tooltip>
           <template v-slot:default="scope">
             <div v-loading="loading === scope.row.id">
-              <el-link type="info" @click="getReport(scope.row)" v-if="scope.row.loadReportId">{{ $t('test_track.plan.load_case.view_report') }}</el-link>
+              <el-link type="info" @click="getReport(scope.row)" v-if="scope.row.loadReportId">
+                {{ $t('test_track.plan.load_case.view_report') }}
+              </el-link>
               <span v-else> - </span>
             </div>
           </template>
@@ -182,6 +184,7 @@ export default {
   },
   methods: {
     initTable() {
+      console.log('init')
       this.selectRows = new Set();
       let param = {};
       param.testPlanId = this.planId;
@@ -196,7 +199,7 @@ export default {
     },
     refreshStatus() {
       this.refreshScheduler = setInterval(() => {
-        let arr = this.tableData.filter(data => data.status !== 'Completed' && data.status !== 'Error');
+        let arr = this.tableData.filter(data => data.status !== 'Completed' && data.status !== 'Error' && data.status !== "Saved");
         if (arr.length > 0) {
           this.initTable();
         } else {
@@ -268,7 +271,7 @@ export default {
         this.initTable();
       }).catch(() => {
         //todo 用例出错
-        this.$post('/test/plan/load/case/update', {id: loadCase.id, status: "error"},() => {
+        this.$post('/test/plan/load/case/update', {id: loadCase.id, status: "error"}, () => {
           this.initTable();
         });
         this.$notify.error({

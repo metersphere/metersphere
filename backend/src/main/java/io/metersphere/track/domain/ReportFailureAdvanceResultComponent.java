@@ -4,10 +4,7 @@ import io.metersphere.api.dto.automation.ApiScenarioDTO;
 import io.metersphere.api.dto.automation.ScenarioStatus;
 import io.metersphere.api.dto.definition.TestPlanApiCaseDTO;
 import io.metersphere.commons.constants.TestPlanTestCaseStatus;
-import io.metersphere.track.dto.FailureTestCasesAdvanceDTO;
-import io.metersphere.track.dto.TestCaseReportMetricDTO;
-import io.metersphere.track.dto.TestPlanCaseDTO;
-import io.metersphere.track.dto.TestPlanDTO;
+import io.metersphere.track.dto.*;
 import org.apache.commons.lang3.StringUtils;
 
 import java.util.ArrayList;
@@ -17,6 +14,7 @@ public class ReportFailureAdvanceResultComponent extends ReportComponent {
     private List<TestPlanCaseDTO> functionalTestCases = new ArrayList<>();
     private List<TestPlanApiCaseDTO> apiTestCases = new ArrayList<>();
     private List<ApiScenarioDTO> scenarioTestCases = new ArrayList<>();
+    private List<TestPlanLoadCaseDTO> loadTestCases = new ArrayList<>();
 
     public ReportFailureAdvanceResultComponent(TestPlanDTO testPlan) {
         super(testPlan);
@@ -45,11 +43,19 @@ public class ReportFailureAdvanceResultComponent extends ReportComponent {
     }
 
     @Override
+    public void readRecord(TestPlanLoadCaseDTO testCase) {
+        if (StringUtils.equals(testCase.getCaseStatus(), "error")) {
+            this.loadTestCases.add(testCase);
+        }
+    }
+
+    @Override
     public void afterBuild(TestCaseReportMetricDTO testCaseReportMetric) {
         FailureTestCasesAdvanceDTO failureTestCasesAdvanceDTO = new FailureTestCasesAdvanceDTO();
         failureTestCasesAdvanceDTO.setFunctionalTestCases(functionalTestCases);
         failureTestCasesAdvanceDTO.setApiTestCases(apiTestCases);
         failureTestCasesAdvanceDTO.setScenarioTestCases(scenarioTestCases);
+        failureTestCasesAdvanceDTO.setLoadTestCases(loadTestCases);
         testCaseReportMetric.setFailureTestCases(failureTestCasesAdvanceDTO);
     }
 }

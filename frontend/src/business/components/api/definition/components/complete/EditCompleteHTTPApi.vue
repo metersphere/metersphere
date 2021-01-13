@@ -112,13 +112,13 @@ import MsApiRequestForm from "../request/http/ApiRequestForm";
 import MsResponseText from "../response/ResponseText";
 import {WORKSPACE_ID} from '../../../../../../common/js/constants';
 import {API_STATUS, REQ_METHOD} from "../../model/JsonData";
-import MsJsr233Processor from "../processor/Jsr233Processor";
 import {KeyValue} from "../../model/ApiTestModel";
 import MsInputTag from "@/business/components/api/automation/scenario/MsInputTag";
+import MsJsr233Processor from "../../../automation/scenario/Jsr233Processor";
 
 export default {
   name: "MsAddCompleteHttpApi",
-  components: {MsResponseText, MsApiRequestForm, MsJsr233Processor, MsInputTag},
+  components: {MsJsr233Processor, MsResponseText, MsApiRequestForm, MsInputTag},
   data() {
     let validateURL = (rule, value, callback) => {
       if (!this.httpForm.path.startsWith("/") || this.httpForm.path.match(/\s/) != null) {

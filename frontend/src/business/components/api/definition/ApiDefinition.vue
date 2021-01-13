@@ -403,4 +403,8 @@ export default {
   border-top: none;
 }
 
+/deep/ .api-component {
+  margin-top: 10px;
+}
+
 </style>

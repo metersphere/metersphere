@@ -11,5 +11,6 @@ public class TestCaseReportAdvanceStatusResultDTO {
     private List<TestCaseReportStatusResultDTO> functionalResult;
     private List<TestCaseReportStatusResultDTO> apiResult;
     private List<TestCaseReportStatusResultDTO> scenarioResult;
+    private List<TestCaseReportStatusResultDTO> loadResult;
 }
 

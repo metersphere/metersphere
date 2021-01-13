@@ -6,6 +6,7 @@ import io.metersphere.commons.constants.APITestStatus;
 import io.metersphere.track.dto.TestCaseReportMetricDTO;
 import io.metersphere.track.dto.TestPlanCaseDTO;
 import io.metersphere.track.dto.TestPlanDTO;
+import io.metersphere.track.dto.TestPlanLoadCaseDTO;
 import org.apache.commons.lang3.StringUtils;
 
 public abstract class ReportComponent {
@@ -24,6 +25,9 @@ public abstract class ReportComponent {
     }
 
     public void readRecord(ApiScenarioDTO testCase) {
+    }
+
+    public void readRecord(TestPlanLoadCaseDTO testCase) {
     }
 
 }

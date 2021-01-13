@@ -3,7 +3,7 @@
     <el-row>
       <el-col :span="21" style="padding-bottom: 20px">
         <div style="border:1px #DCDFE6 solid; height: 100%;border-radius: 4px ;width: 100% ;margin: 10px">
-          <el-form class="tcp" :model="request" :rules="rules" ref="request" label-width="auto" :disabled="isReadOnly" style="margin: 20px">
+          <el-form class="tcp" :model="request" :rules="rules" ref="request" :disabled="isReadOnly" style="margin: 20px">
 
             <el-tabs v-model="activeName" class="request-tabs">
 
@@ -127,7 +127,6 @@
   import MsApiAssertions from "../../assertion/ApiAssertions";
   import MsApiExtract from "../../extract/ApiExtract";
   import ApiRequestMethodSelect from "../../collapse/ApiRequestMethodSelect";
-  import MsJsr233Processor from "../../processor/Jsr233Processor";
   import MsCodeEdit from "../../../../../common/components/MsCodeEdit";
   import MsApiScenarioVariables from "../../ApiScenarioVariables";
   import {createComponent} from "../../jmeter/components";
@@ -148,7 +147,7 @@
       MsApiVariable,
       MsApiScenarioVariables,
       MsCodeEdit,
-      MsJsr233Processor, ApiRequestMethodSelect, MsApiExtract, MsApiAssertions, MsApiKeyValue, ApiEnvironmentConfig
+      ApiRequestMethodSelect, MsApiExtract, MsApiAssertions, MsApiKeyValue, ApiEnvironmentConfig
     },
     props: {
       request: {},
