@@ -261,7 +261,7 @@ export default {
       this.$post('/test/plan/load/case/run', {
         id: loadCase.loadCaseId,
         testPlanLoadId: loadCase.id,
-        triggerMode: 'MANUAL'
+        triggerMode: 'CASE'
       }).then(() => {
         this.$notify({
           title: loadCase.caseName,
@@ -324,6 +324,7 @@ export default {
     }
   },
   beforeDestroy() {
+    console.log('beforeDestroy')
     this.cancelRefresh();
   },
 }

@@ -40,8 +40,6 @@ public class TestPlanLoadCaseService {
     private LoadTestReportMapper loadTestReportMapper;
     @Resource
     private LoadTestMapper loadTestMapper;
-    @Resource
-    private LoadReportStatusTask loadReportStatusTask;
 
     public List<LoadTest> relevanceList(LoadCaseRequest request) {
         List<String> ids = extTestPlanLoadCaseMapper.selectIdsNotInPlan(request.getProjectId(), request.getTestPlanId());
@@ -85,7 +83,6 @@ public class TestPlanLoadCaseService {
         testPlanLoadCase.setId(request.getTestPlanLoadId());
         testPlanLoadCase.setLoadReportId(reportId);
         testPlanLoadCaseMapper.updateByPrimaryKeySelective(testPlanLoadCase);
-        loadReportStatusTask.registerReportIsEndTask(request.getTestPlanLoadId(), reportId);
         return reportId;
     }
 
