@@ -85,6 +85,7 @@ public class HistoricalDataUpgradeService {
                 ifController.setType("IfController");
                 ifController.setName("IfController");
                 ifController.setIndex(index + "");
+                ifController.setHashTree(new LinkedList<>());
                 ifController.setResourceId(UUID.randomUUID().toString());
             }
             // 等待控制器
@@ -93,6 +94,7 @@ public class HistoricalDataUpgradeService {
                 BeanUtils.copyBean(constantTimer, request.getTimer());
                 constantTimer.setType("ConstantTimer");
                 constantTimer.setIndex(index + "");
+                constantTimer.setHashTree(new LinkedList<>());
                 constantTimer.setResourceId(UUID.randomUUID().toString());
                 testElements.add(constantTimer);
             }
@@ -119,7 +121,6 @@ public class HistoricalDataUpgradeService {
                 if (StringUtils.isEmpty(element.getName())) {
                     element.setName(request1.getPath());
                 }
-
                 element.setType("HTTPSamplerProxy");
             }
             if (request instanceof DubboRequest) {
@@ -147,6 +148,7 @@ public class HistoricalDataUpgradeService {
             }
             element.setIndex(index + "");
             element.setResourceId(UUID.randomUUID().toString());
+            element.setHashTree(new LinkedList<>());
             LinkedList<MsTestElement> msTestElements = new LinkedList<>();
             // 断言规则
             if (request.getAssertions() != null && ((request.getAssertions().getDuration() != null && request.getAssertions().getDuration().getValue() > 0) ||
@@ -157,6 +159,7 @@ public class HistoricalDataUpgradeService {
                 msAssertions.setType("Assertions");
                 msAssertions.setIndex(index + "");
                 msAssertions.setResourceId(UUID.randomUUID().toString());
+                msAssertions.setHashTree(new LinkedList<>());
                 msTestElements.add(msAssertions);
             }
             // 提取规则
@@ -166,6 +169,7 @@ public class HistoricalDataUpgradeService {
                 MsExtract extract = JSON.parseObject(extractJson, MsExtract.class);
                 extract.setType("Extract");
                 extract.setIndex(index + "");
+                extract.setHashTree(new LinkedList<>());
                 extract.setResourceId(UUID.randomUUID().toString());
                 msTestElements.add(extract);
             }
@@ -175,6 +179,7 @@ public class HistoricalDataUpgradeService {
                 MsJSR223PreProcessor preProcessor = JSON.parseObject(preJson, MsJSR223PreProcessor.class);
                 preProcessor.setType("JSR223PreProcessor");
                 preProcessor.setIndex(index + "");
+                preProcessor.setHashTree(new LinkedList<>());
                 preProcessor.setResourceId(UUID.randomUUID().toString());
                 msTestElements.add(preProcessor);
             }
@@ -184,6 +189,7 @@ public class HistoricalDataUpgradeService {
                 MsJSR223PostProcessor preProcessor = JSON.parseObject(preJson, MsJSR223PostProcessor.class);
                 preProcessor.setType("JSR223PostProcessor");
                 preProcessor.setIndex(index + "");
+                preProcessor.setHashTree(new LinkedList<>());
                 preProcessor.setResourceId(UUID.randomUUID().toString());
                 msTestElements.add(preProcessor);
             }
