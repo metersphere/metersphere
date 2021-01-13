@@ -3,6 +3,7 @@ package io.metersphere.performance.notice;
 import io.metersphere.base.domain.LoadTestReport;
 import io.metersphere.commons.constants.NoticeConstants;
 import io.metersphere.commons.constants.PerformanceTestStatus;
+import io.metersphere.commons.constants.ReportTriggerMode;
 import io.metersphere.commons.consumer.LoadTestFinishEvent;
 import io.metersphere.dto.BaseSystemConfigDTO;
 import io.metersphere.i18n.Translator;
@@ -30,12 +31,12 @@ public class PerformanceNoticeEvent implements LoadTestFinishEvent {
         String failedContext = "";
         String subject = "";
         String event = "";
-        if (StringUtils.equals(NoticeConstants.Mode.API, loadTestReport.getTriggerMode())) {
+        if (StringUtils.equals(ReportTriggerMode.API.name(), loadTestReport.getTriggerMode())) {
             successContext = "性能测试 API任务通知:" + loadTestReport.getName() + "执行成功" + "\n" + "请点击下面链接进入测试报告页面" + "\n" + url;
             failedContext = "性能测试 API任务通知:" + loadTestReport.getName() + "执行失败" + "\n" + "请点击下面链接进入测试报告页面" + "\n" + url;
             subject = Translator.get("task_notification_jenkins");
         }
-        if (StringUtils.equals(NoticeConstants.Mode.SCHEDULE, loadTestReport.getTriggerMode())) {
+        if (StringUtils.equals(ReportTriggerMode.SCHEDULE.name(), loadTestReport.getTriggerMode())) {
             successContext = "性能测试定时任务通知:" + loadTestReport.getName() + "执行成功" + "\n" + "请点击下面链接进入测试报告页面" + "\n" + url;
             failedContext = "性能测试定时任务通知:" + loadTestReport.getName() + "执行失败" + "\n" + "请点击下面链接进入测试报告页面" + "\n" + url;
             subject = Translator.get("task_notification");
@@ -69,7 +70,8 @@ public class PerformanceNoticeEvent implements LoadTestFinishEvent {
 
     @Override
     public void execute(LoadTestReport loadTestReport) {
-        if (StringUtils.equals(NoticeConstants.Mode.API, loadTestReport.getTriggerMode()) || StringUtils.equals(NoticeConstants.Mode.SCHEDULE, loadTestReport.getTriggerMode())) {
+        if (StringUtils.equals(ReportTriggerMode.API.name(), loadTestReport.getTriggerMode())
+                || StringUtils.equals(ReportTriggerMode.SCHEDULE.name(), loadTestReport.getTriggerMode())) {
             if (StringUtils.equalsAny(loadTestReport.getStatus(),
                     PerformanceTestStatus.Completed.name(), PerformanceTestStatus.Error.name())) {
                 sendNotice(loadTestReport);
