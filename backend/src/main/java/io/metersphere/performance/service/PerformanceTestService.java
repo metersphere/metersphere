@@ -21,7 +21,6 @@ import io.metersphere.i18n.Translator;
 import io.metersphere.job.sechedule.PerformanceTestJob;
 import io.metersphere.performance.engine.Engine;
 import io.metersphere.performance.engine.EngineFactory;
-import io.metersphere.performance.notice.PerformanceNoticeTask;
 import io.metersphere.service.FileService;
 import io.metersphere.service.QuotaService;
 import io.metersphere.service.ScheduleService;
@@ -74,8 +73,6 @@ public class PerformanceTestService {
     private ScheduleService scheduleService;
     @Resource
     private TestCaseService testCaseService;
-    @Resource
-    private PerformanceNoticeTask performanceNoticeTask;
     @Resource
     private TestResourcePoolMapper testResourcePoolMapper;
 
@@ -240,10 +237,6 @@ public class PerformanceTestService {
 
         startEngine(loadTest, engine, request.getTriggerMode());
 
-        LoadTestReportWithBLOBs loadTestReport = loadTestReportMapper.selectByPrimaryKey(engine.getReportId());
-        if (StringUtils.equals(NoticeConstants.Mode.API, loadTestReport.getTriggerMode()) || StringUtils.equals(NoticeConstants.Mode.SCHEDULE, loadTestReport.getTriggerMode())) {
-            performanceNoticeTask.registerNoticeTask(loadTestReport);
-        }
         return engine.getReportId();
     }
 

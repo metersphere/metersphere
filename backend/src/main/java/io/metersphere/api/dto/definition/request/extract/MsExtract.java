@@ -6,6 +6,7 @@ import io.metersphere.api.dto.definition.request.ParameterConfig;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.jmeter.extractor.JSR223PostProcessor;
 import org.apache.jmeter.extractor.RegexExtractor;
 import org.apache.jmeter.extractor.XPath2Extractor;
 import org.apache.jmeter.extractor.json.jsonpath.JSONPostProcessor;
@@ -14,6 +15,8 @@ import org.apache.jmeter.testelement.TestElement;
 import org.apache.jorphan.collections.HashTree;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.StringJoiner;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -32,24 +35,34 @@ public class MsExtract extends MsTestElement {
     }
 
     private void addRequestExtractors(HashTree samplerHashTree) {
+        StringJoiner extract = new StringJoiner(";");
+
         if (CollectionUtils.isNotEmpty(this.getRegex())) {
             this.getRegex().stream().filter(MsExtractRegex::isValid).forEach(extractRegex ->
-                    samplerHashTree.add(regexExtractor(extractRegex))
+                    samplerHashTree.add(regexExtractor(extractRegex, extract))
             );
         }
         if (CollectionUtils.isNotEmpty(this.getXpath())) {
             this.getXpath().stream().filter(MsExtractCommon::isValid).forEach(extractXPath ->
-                    samplerHashTree.add(xPath2Extractor(extractXPath))
+                    samplerHashTree.add(xPath2Extractor(extractXPath, extract))
             );
         }
         if (CollectionUtils.isNotEmpty(this.getJson())) {
             this.getJson().stream().filter(MsExtractCommon::isValid).forEach(extractJSONPath ->
-                    samplerHashTree.add(jsonPostProcessor(extractJSONPath))
+                    samplerHashTree.add(jsonPostProcessor(extractJSONPath, extract))
             );
+        }
+        if (Optional.ofNullable(extract).orElse(extract).length() > 0) {
+            JSR223PostProcessor shell = new JSR223PostProcessor();
+            shell.setEnabled(true);
+            shell.setName(this.getName());
+            shell.setProperty("script", "io.metersphere.api.jmeter.JMeterVars.addVars(prev.hashCode(),vars," + "\"" + extract.toString() + "\"" + ");");
+            samplerHashTree.add(shell);
         }
     }
 
-    private RegexExtractor regexExtractor(MsExtractRegex extractRegex) {
+    private RegexExtractor regexExtractor(MsExtractRegex extractRegex, StringJoiner extract) {
+
         RegexExtractor extractor = new RegexExtractor();
         extractor.setEnabled(true);
         extractor.setName(extractRegex.getVariable() + " RegexExtractor");
@@ -62,10 +75,12 @@ public class MsExtract extends MsTestElement {
             extractor.setMatchNumber(-1);
         }
         extractor.setTemplate("$1$");
+        extract.add(extractor.getRefName());
+
         return extractor;
     }
 
-    private XPath2Extractor xPath2Extractor(MsExtractXPath extractXPath) {
+    private XPath2Extractor xPath2Extractor(MsExtractXPath extractXPath, StringJoiner extract) {
         XPath2Extractor extractor = new XPath2Extractor();
         extractor.setEnabled(true);
         extractor.setName(extractXPath.getVariable() + " XPath2Extractor");
@@ -76,10 +91,11 @@ public class MsExtract extends MsTestElement {
         if (extractXPath.isMultipleMatching()) {
             extractor.setMatchNumber(-1);
         }
+        extract.add(extractor.getRefName());
         return extractor;
     }
 
-    private JSONPostProcessor jsonPostProcessor(MsExtractJSONPath extractJSONPath) {
+    private JSONPostProcessor jsonPostProcessor(MsExtractJSONPath extractJSONPath, StringJoiner extract) {
         JSONPostProcessor extractor = new JSONPostProcessor();
         extractor.setEnabled(true);
         extractor.setName(extractJSONPath.getVariable() + " JSONExtractor");
@@ -90,6 +106,7 @@ public class MsExtract extends MsTestElement {
         if (extractJSONPath.isMultipleMatching()) {
             extractor.setMatchNumbers("-1");
         }
+        extract.add(extractor.getRefNames());
         return extractor;
     }
 }

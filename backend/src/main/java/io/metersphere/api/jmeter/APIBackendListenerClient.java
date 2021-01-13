@@ -4,10 +4,7 @@ import io.metersphere.api.dto.scenario.request.RequestType;
 import io.metersphere.api.service.*;
 import io.metersphere.base.domain.ApiScenarioReport;
 import io.metersphere.base.domain.ApiTestReport;
-import io.metersphere.commons.constants.APITestStatus;
-import io.metersphere.commons.constants.ApiRunMode;
-import io.metersphere.commons.constants.NoticeConstants;
-import io.metersphere.commons.constants.TestPlanTestCaseStatus;
+import io.metersphere.commons.constants.*;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.dto.BaseSystemConfigDTO;
@@ -16,6 +13,7 @@ import io.metersphere.notice.sender.NoticeModel;
 import io.metersphere.notice.service.NoticeSendService;
 import io.metersphere.service.SystemParameterService;
 import io.metersphere.track.service.TestPlanTestCaseService;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.assertions.AssertionResult;
 import org.apache.jmeter.protocol.http.sampler.HTTPSampleResult;
@@ -165,7 +163,7 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
             apiReportService.complete(testResult, report);
         } else if (StringUtils.equals(this.runMode, ApiRunMode.DELIMIT.name())) {
             // 调试操作，不需要存储结果
-            if (StringUtils.isBlank(debugReportId)) {
+            if (!StringUtils.isBlank(debugReportId)) {
                 apiDefinitionService.addResult(testResult);
             } else {
                 apiDefinitionService.addResult(testResult);
@@ -235,12 +233,12 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
         String failedContext = "";
         String subject = "";
         String event = "";
-        if (StringUtils.equals(NoticeConstants.Mode.API, report.getTriggerMode())) {
+        if (StringUtils.equals(ReportTriggerMode.API.name(), report.getTriggerMode())) {
             successContext = "接口测试 API任务通知:'" + report.getName() + "'执行成功" + "\n" + "请点击下面链接进入测试报告页面" + "\n" + url;
             failedContext = "接口测试 API任务通知:'" + report.getName() + "'执行失败" + "\n" + "请点击下面链接进入测试报告页面" + "\n" + url;
             subject = Translator.get("task_notification_jenkins");
         }
-        if (StringUtils.equals(NoticeConstants.Mode.SCHEDULE, report.getTriggerMode())) {
+        if (StringUtils.equals(ReportTriggerMode.SCHEDULE.name(), report.getTriggerMode())) {
             successContext = "接口测试定时任务通知:'" + report.getName() + "'执行成功" + "\n" + "请点击下面链接进入测试报告页面" + "\n" + url;
             failedContext = "接口测试定时任务通知:'" + report.getName() + "'执行失败" + "\n" + "请点击下面链接进入测试报告页面" + "\n" + url;
             subject = Translator.get("task_notification");
@@ -303,20 +301,14 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
         responseResult.setResponseSize(result.getResponseData().length);
         responseResult.setResponseTime(result.getTime());
         responseResult.setResponseMessage(result.getResponseMessage());
-
-        if (JMeterVars.get(result.hashCode()) != null) {
-            List<String> vars = new LinkedList<>();
-            JMeterVars.get(result.hashCode()).entrySet().parallelStream().reduce(vars, (first, second) -> {
-                first.add(second.getKey() + "：" + second.getValue());
-                return first;
-            }, (first, second) -> {
-                if (first == second) {
-                    return first;
-                }
-                first.addAll(second);
-                return first;
-            });
-            responseResult.setVars(StringUtils.join(vars, "\n"));
+        if (JMeterVars.get(result.hashCode()) != null && CollectionUtils.isNotEmpty(JMeterVars.get(result.hashCode()).entrySet())) {
+            StringBuilder builder = new StringBuilder();
+            for (Map.Entry<String, Object> entry : JMeterVars.get(result.hashCode()).entrySet()) {
+                builder.append(entry.getKey()).append("：").append(entry.getValue()).append("\n");
+            }
+            if (StringUtils.isNotEmpty(builder)) {
+                responseResult.setVars(builder.toString());
+            }
             JMeterVars.remove(result.hashCode());
         }
         for (AssertionResult assertionResult : result.getAssertionResults()) {
