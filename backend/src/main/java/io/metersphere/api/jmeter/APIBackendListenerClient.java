@@ -304,21 +304,13 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
         responseResult.setResponseSize(result.getResponseData().length);
         responseResult.setResponseTime(result.getTime());
         responseResult.setResponseMessage(result.getResponseMessage());
-
-        if (JMeterVars.get(result.hashCode()) != null) {
-            List<String> vars = new LinkedList<>();
-            JMeterVars.get(result.hashCode()).entrySet().parallelStream().reduce(vars, (first, second) -> {
-                first.add(second.getKey() + "：" + second.getValue());
-                return first;
-            }, (first, second) -> {
-                if (first == second) {
-                    return first;
-                }
-                first.addAll(second);
-                return first;
-            });
-            if (CollectionUtils.isNotEmpty(vars)) {
-                responseResult.setVars(StringUtils.join(vars, "\n"));
+        if (JMeterVars.get(result.hashCode()) != null && CollectionUtils.isNotEmpty(JMeterVars.get(result.hashCode()).entrySet())) {
+            StringBuilder builder = new StringBuilder();
+            for (Map.Entry<String, Object> entry : JMeterVars.get(result.hashCode()).entrySet()) {
+                builder.append(entry.getKey()).append("：").append(entry.getValue()).append("\n");
+            }
+            if (StringUtils.isNotEmpty(builder)) {
+                responseResult.setVars(builder.toString());
             }
             JMeterVars.remove(result.hashCode());
         }
