@@ -105,7 +105,8 @@
     </sql>
 
     <select id="getTestCaseByNotInReview" resultType="io.metersphere.base.domain.TestCase">
-        select test_case.id, test_case.name, test_case.priority, test_case.type, test_case.review_status from test_case as test_case
+        select test_case.id, test_case.name, test_case.priority, test_case.type, test_case.review_status from test_case
+        as test_case
         left join test_case_review_test_case as T2 on test_case.id=T2.case_id and T2.review_id =#{request.reviewId}
         <where>
             <if test="request.combine != null">
@@ -159,7 +160,8 @@
     </select>
 
     <select id="getTestCaseByNotInPlan" resultType="io.metersphere.base.domain.TestCase">
-        select test_case.id, test_case.name, test_case.priority, test_case.type, test_case.review_status from test_case as test_case
+        select test_case.id, test_case.name, test_case.priority, test_case.type, test_case.review_status from test_case
+        as test_case
         left join test_plan_test_case as T2 on test_case.id=T2.case_id and T2.plan_id =#{request.planId}
         <where>
             <if test="request.combine != null">
@@ -265,7 +267,8 @@
     </select>
 
     <select id="list" resultType="io.metersphere.track.dto.TestCaseDTO">
-        select <include refid="io.metersphere.base.mapper.TestCaseMapper.Base_Column_List"/>
+        select
+        <include refid="io.metersphere.base.mapper.TestCaseMapper.Base_Column_List"/>
         from test_case
         <where>
             <if test="request.combine != null">
@@ -275,7 +278,8 @@
                 </include>
             </if>
             <if test="request.name != null">
-                and (test_case.name like CONCAT('%', #{request.name},'%') or test_case.num like CONCAT('%', #{request.name},'%'))
+                and (test_case.name like CONCAT('%', #{request.name},'%') or test_case.num like CONCAT('%',
+                #{request.name},'%'))
             </if>
             <if test="request.nodeIds != null and request.nodeIds.size() > 0">
                 and test_case.node_id in
@@ -342,16 +346,23 @@
         </where>
         UNION ALL
         select id,name,project_id,"scenario" as type from api_scenario
+
         <where>
             <if test="request.projectId!=null">
                 and project_id= #{request.projectId}
             </if>
         </where>
+        and api_scenario.status!='Trash'
         UNION ALL
-        select id,name,project_id,"definition" as type from api_test_case
+        select b.id,b.name,b.project_id,"definition" as type from api_test_case b
+        inner join
+        api_definition a
+        on
+        b.api_definition_id = a.id
+        and a.status != 'Trash'
         <where>
             <if test="request.projectId!=null">
-                and project_id= #{request.projectId}
+                and b.project_id= #{request.projectId}
             </if>
         </where>
     </select>
@@ -378,7 +389,11 @@
     </select>
 
     <select id="getMaxNumByProjectId" resultType="io.metersphere.base.domain.TestCase">
-        SELECT * FROM test_case WHERE test_case.project_id = #{projectId} ORDER BY num DESC LIMIT 1;
+        SELECT *
+        FROM test_case
+        WHERE test_case.project_id = #{projectId}
+        ORDER BY num DESC
+        LIMIT 1;
     </select>
 
     <select id="checkIsHave" resultType="int">

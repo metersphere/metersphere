@@ -366,6 +366,15 @@
             </if>
         </where>
         UNION ALL
+        select load_test.id as id,"perform" as type,load_test.name as name,test_plan_load_case.status from test_plan_load_case inner join
+        load_test on
+        test_plan_load_case.load_case_id =load_test.id
+        <where>
+            <if test="request.planId != null">
+                and test_plan_load_case.test_plan_id = #{request.planId}
+            </if>
+        </where>
+        UNION ALL
         SELECT test_case.test_id as id,test_case.type as type,test_case.name,test_plan_test_case.status
         from test_plan_test_case left join test_case on test_plan_test_case.case_id =test_case.id
         <where>

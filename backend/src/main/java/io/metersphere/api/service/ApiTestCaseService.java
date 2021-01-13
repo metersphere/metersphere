@@ -13,13 +13,11 @@ import io.metersphere.api.dto.definition.request.MsTestPlan;
 import io.metersphere.api.dto.definition.request.MsThreadGroup;
 import io.metersphere.api.dto.definition.request.ParameterConfig;
 import io.metersphere.api.dto.definition.request.sampler.MsHTTPSamplerProxy;
+import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
 import io.metersphere.api.dto.scenario.request.RequestType;
 import io.metersphere.api.jmeter.JMeterService;
 import io.metersphere.base.domain.*;
-import io.metersphere.base.mapper.ApiDefinitionExecResultMapper;
-import io.metersphere.base.mapper.ApiDefinitionMapper;
-import io.metersphere.base.mapper.ApiTestCaseMapper;
-import io.metersphere.base.mapper.ApiTestFileMapper;
+import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtApiDefinitionExecResultMapper;
 import io.metersphere.base.mapper.ext.ExtApiTestCaseMapper;
 import io.metersphere.base.mapper.ext.ExtTestPlanApiCaseMapper;
@@ -73,7 +71,9 @@ public class ApiTestCaseService {
     @Resource
     private JMeterService jMeterService;
     @Resource
-    private ApiDefinitionExecResultMapper  apiDefinitionExecResultMapper;
+    private ApiDefinitionExecResultMapper apiDefinitionExecResultMapper;
+    @Resource
+    TestPlanApiCaseMapper testPlanApiCaseMapper;
 
     private static final String BODY_FILE_DIR = "/opt/metersphere/data/body";
 
@@ -84,10 +84,10 @@ public class ApiTestCaseService {
 
     public List<ApiTestCaseDTO> listSimple(ApiTestCaseRequest request) {
         request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
-        if(request.isSelectThisWeedData()){
+        if (request.isSelectThisWeedData()) {
             Map<String, Date> weekFirstTimeAndLastTime = DateUtils.getWeedFirstTimeAndLastTime(new Date());
             Date weekFirstTime = weekFirstTimeAndLastTime.get("firstTime");
-            if(weekFirstTime!=null){
+            if (weekFirstTime != null) {
                 request.setCreateTime(weekFirstTime.getTime());
             }
         }
@@ -434,6 +434,7 @@ public class ApiTestCaseService {
 
     public String run(RunCaseRequest request) {
         ApiTestCaseWithBLOBs testCaseWithBLOBs = apiTestCaseMapper.selectByPrimaryKey(request.getCaseId());
+
         // 多态JSON普通转换会丢失内容，需要通过 ObjectMapper 获取
         if (testCaseWithBLOBs != null && StringUtils.isNotEmpty(testCaseWithBLOBs.getRequest())) {
             try {
@@ -441,7 +442,16 @@ public class ApiTestCaseService {
                 mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
                 MsTestElement element = mapper.readValue(testCaseWithBLOBs.getRequest(), new TypeReference<MsTestElement>() {
                 });
-                element.setName(request.getCaseId());
+                if(StringUtils.isBlank(request.getEnvironmentId())){
+                    TestPlanApiCaseExample example = new TestPlanApiCaseExample();
+                    example.createCriteria().andTestPlanIdEqualTo(request.getTestPlanId()).andApiCaseIdEqualTo(request.getCaseId());
+                    List<TestPlanApiCase> list=testPlanApiCaseMapper.selectByExample(example);
+                    request.setEnvironmentId(list.get(0).getEnvironmentId());
+                    element.setName(list.get(0).getId());
+                }else{
+                    element.setName(request.getCaseId());
+                }
+
                 // 测试计划
                 MsTestPlan testPlan = new MsTestPlan();
                 testPlan.setHashTree(new LinkedList<>());
@@ -456,10 +466,14 @@ public class ApiTestCaseService {
                 hashTrees.add(element);
                 group.setHashTree(hashTrees);
                 testPlan.getHashTree().add(group);
-
-                testPlan.toHashTree(jmeterHashTree, testPlan.getHashTree(), new ParameterConfig());
-
-                String runMode = ApiRunMode.DELIMIT.name();
+                ApiTestEnvironmentService environmentService = CommonBeanFactory.getBean(ApiTestEnvironmentService.class);
+                ApiTestEnvironmentWithBLOBs environment = environmentService.get(request.getEnvironmentId());
+                ParameterConfig parameterConfig=new ParameterConfig();
+                if (environment != null && environment.getConfig() != null) {
+                    parameterConfig.setConfig( JSONObject.parseObject(environment.getConfig(), EnvironmentConfig.class));
+                }
+                testPlan.toHashTree(jmeterHashTree, testPlan.getHashTree(), parameterConfig);
+                String runMode = request.getRunMode();
                 // 调用执行方法
                 jMeterService.runDefinition(request.getReportId(), jmeterHashTree, request.getReportId(), runMode);
 

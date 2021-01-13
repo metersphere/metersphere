@@ -395,6 +395,9 @@ public class ApiAutomationService {
         if (StringUtils.isNotBlank(request.getRunMode()) && StringUtils.equals(request.getRunMode(), ApiRunMode.SCENARIO_PLAN.name())) {
             runMode = ApiRunMode.SCENARIO_PLAN.name();
         }
+        if (StringUtils.isNotBlank(request.getRunMode()) && StringUtils.equals(request.getRunMode(), ApiRunMode.DELIMIT.name())) {
+            runMode = ApiRunMode.DELIMIT.name();
+        }
         // 调用执行方法
         jMeterService.runDefinition(request.getId(), jmeterHashTree, request.getReportId(), runMode);
         return request.getId();

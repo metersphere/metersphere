@@ -109,8 +109,11 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         sampler.setFollowRedirects(this.isFollowRedirects());
         sampler.setUseKeepAlive(true);
         sampler.setDoMultipart(this.isDoMultipartPost());
-
-        config.setConfig(getEnvironmentConfig(useEnvironment));
+        if(config != null && config.getConfig() != null){
+            config.setConfig(config.getConfig());
+        }else{
+            config.setConfig(getEnvironmentConfig(useEnvironment));
+        }
 
         // 添加环境中的公共变量
         Arguments arguments = this.addArguments(config);
