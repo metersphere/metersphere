@@ -33,43 +33,27 @@
         </template>
       </el-table-column>
       <el-table-column
-        prop="status"
-        column-key="status"
-        :filters="statusFilters"
-        :label="$t('commons.status')">
+        prop="caseStatus"
+        :label="$t('test_track.plan.load_case.execution_status')">
         <template v-slot:default="{row}">
-          <ms-performance-test-status :row="row"/>
+          <el-tag size="mini" type="danger" v-if="row.caseStatus === 'error'">
+            {{ row.caseStatus }}
+          </el-tag>
+          <el-tag size="mini" type="success" v-else-if="row.caseStatus === 'success'">
+            {{ row.caseStatus }}
+          </el-tag>
+          <span v-else>-</span>
         </template>
       </el-table-column>
-<!--      <el-table-column-->
-<!--        prop="caseStatus"-->
-<!--        :label="$t('test_track.plan.load_case.execution_status')">-->
-<!--        <template v-slot:default="{row}">-->
-<!--          <el-tag size="mini" type="danger" v-if="row.caseStatus === 'error'">-->
-<!--            {{ row.caseStatus }}-->
-<!--          </el-tag>-->
-<!--          <el-tag size="mini" type="success" v-else-if="row.caseStatus === 'success'">-->
-<!--            {{ row.caseStatus }}-->
-<!--          </el-tag>-->
-<!--          <span v-else>-</span>-->
-<!--        </template>-->
-<!--      </el-table-column>-->
 
     </el-table>
   </div>
 </template>
 
 <script>
-import MsTag from "@/business/components/common/components/MsTag";
-import PriorityTableItem from "@/business/components/track/common/tableItems/planview/PriorityTableItem";
-import TypeTableItem from "@/business/components/track/common/tableItems/planview/TypeTableItem";
-import MethodTableItem from "@/business/components/track/common/tableItems/planview/MethodTableItem";
-import StatusTableItem from "@/business/components/track/common/tableItems/planview/StatusTableItem";
-import MsPerformanceTestStatus from "@/business/components/performance/test/PerformanceTestStatus";
 
 export default {
   name: "LoadFailureCasesList",
-  components: {MsTag, PriorityTableItem, TypeTableItem, MethodTableItem, StatusTableItem, MsPerformanceTestStatus},
   props: ['loadTestCases'],
   data() {
     return {

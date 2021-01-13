@@ -79,11 +79,11 @@
               ],
               loadTestCases: [
                 {
-                  caseName: 'testCase4',
-                  projectName: 'P3',
-                  userName: '/module1/module2',
+                  caseName: 'testCase5',
+                  projectName: '测试项目',
+                  userName: 'Tom',
                   createTime:  new Date(),
-                  status: 'error',
+                  caseStatus: 'error',
                 }
               ]
             }

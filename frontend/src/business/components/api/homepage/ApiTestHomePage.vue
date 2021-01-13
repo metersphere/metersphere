@@ -3,17 +3,17 @@
     <el-header height="0">
       <div style="float: right">
         <div v-if="tipsType==='1'">
-          🤔️天凉了，保温杯买了吗？
+          🤔️ 天凉了，保温杯买了吗？
         </div>
         <div v-else-if="tipsType==='2'">
-          😔觉得MeterSphere不好用就来
+          😔 觉得MeterSphere不好用就来
           <el-link href="https://github.com/metersphere/metersphere/issues" target="_blank" style="color: black"
                    type="primary">https://github.com/metersphere/metersphere/issues
           </el-link>
           吐个槽吧！
         </div>
         <div v-else-if="tipsType==='3'">
-          😄觉得MeterSphere好用就来
+          😄 觉得MeterSphere好用就来
           <el-link href="https://github.com/metersphere/metersphere" target="_blank" style="color: black"
                    type="primary">https://github.com/metersphere/metersphere
           </el-link>

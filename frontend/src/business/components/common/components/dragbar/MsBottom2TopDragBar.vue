@@ -13,7 +13,7 @@
   .drag-bar {
     height: 1px;
     width: 100%;
-    z-index: 9999;
+    z-index: 1000;
     cursor: row-resize;
     position: fixed;
     background-color: #E6E6E6;

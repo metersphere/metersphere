@@ -16,7 +16,7 @@
            @click="active(apiCase)"/>
         <el-input v-if="!apiCase.id || isShowInput" size="small" v-model="apiCase.name" :name="index" :key="index"
                   class="ms-api-header-select" style="width: 180px"
-                  @blur="saveTestCase(apiCase)" placeholder="请输入用例名称"/>
+                  @blur="saveTestCase(apiCase)" :placeholder="$t('commons.input_name')"/>
         <span v-else>
           {{ apiCase.id ? apiCase.name : '' }}
           <i class="el-icon-edit" style="cursor:pointer" @click="showInput(apiCase)" v-tester/>
@@ -211,9 +211,12 @@ export default {
       if (tmp.tags instanceof Array) {
         tmp.tags = JSON.stringify(tmp.tags);
       }
-      this.$fileUpload(url, null, bodyFiles, tmp, () => {
+      this.$fileUpload(url, null, bodyFiles, tmp, (response) => {
+        let data = response.data;
+        row.id = data.id;
+        row.createTime = data.createTime;
+        row.updateTime = data.updateTime;
         this.$success(this.$t('commons.save_success'));
-        this.$emit('refresh');
       });
     },
     showInput(row) {

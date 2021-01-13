@@ -665,7 +665,7 @@
         let obj = JSON.parse(JSON.stringify(row));
         obj.resourceId = getUUID();
         if (obj.name) {
-          obj.name = obj.name  + '_copy';
+          obj.name = obj.name + '_copy';
         }
         hashTree.push(obj);
         this.sort();
@@ -817,21 +817,23 @@
           }
         })
         // 场景变量csv 文件
-        this.currentScenario.variables.forEach(param => {
-          if (param.type === 'CSV' && param.files) {
-            param.files.forEach(item => {
-              if (item.file) {
-                if (!item.id) {
-                  let fileId = getUUID().substring(0, 12);
-                  item.name = item.file.name;
-                  item.id = fileId;
+        if (this.currentScenario.variables) {
+          this.currentScenario.variables.forEach(param => {
+            if (param.type === 'CSV' && param.files) {
+              param.files.forEach(item => {
+                if (item.file) {
+                  if (!item.id) {
+                    let fileId = getUUID().substring(0, 12);
+                    item.name = item.file.name;
+                    item.id = fileId;
+                  }
+                  obj.bodyUploadIds.push(item.id);
+                  bodyUploadFiles.push(item.file);
                 }
-                obj.bodyUploadIds.push(item.id);
-                bodyUploadFiles.push(item.file);
-              }
-            })
-          }
-        })
+              })
+            }
+          })
+        }
         return bodyUploadFiles;
       },
       editScenario(showMessage) {
