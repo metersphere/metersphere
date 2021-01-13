@@ -125,5 +125,8 @@
       </if>
     where t.test_plan_id = #{planId}
   </select>
+  <select id="getStatusByTestPlanId" resultType="java.lang.String">
+    SELECT `status` FROM test_plan_api_case WHERE test_plan_id = #{0}
+  </select>
 
 </mapper>

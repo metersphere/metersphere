@@ -41,6 +41,10 @@
             <ms-create-button v-permission="['test_manager','test_user']" :index="'/track/plan/create'"
                               :title="$t('test_track.plan.create_plan')"/>
           </el-submenu>
+
+          <el-menu-item :index="'/track/testPlan/reportList'">
+            {{ $t("commons.report") }}
+          </el-menu-item>
         </el-menu>
       </el-col>
       <el-col :span="8"/>

@@ -1252,6 +1252,22 @@ export default {
       tapd_current_owner: "Tapd Current Owner：",
       zentao_bug_build: "Zentao bug Impact version",
       zentao_bug_assigned: "Zentao bug handler",
+    },
+    report: {
+      name: "Test Plan Report",
+      list: {
+        name: "name",
+        test_plan: "Test plan",
+        creator: "Creator",
+        create_time: "Create Time",
+        trigger_mode: "Trigger Mode",
+        status: "Status",
+        operation: "Operation",
+      },
+      trigger_mode: {
+        manual: "Manual",
+        automation: "Automation",
+      },
     }
   },
   test_resource_pool: {

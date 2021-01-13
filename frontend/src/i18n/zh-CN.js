@@ -1253,6 +1253,22 @@ export default {
       tapd_current_owner: "Tapd bug 处理人：",
       zentao_bug_build: "禅道 bug 影响版本",
       zentao_bug_assigned: "禅道 bug 处理人",
+    },
+    report: {
+      name: "测试计划报告",
+      list: {
+        name: "名称",
+        test_plan: "测试计划名称",
+        creator: "创建人",
+        create_time: "创建时间",
+        trigger_mode: "触发方式",
+        status: "状态",
+        operation: "操作",
+      },
+      trigger_mode: {
+        manual: "手动触发",
+        automation: "自动触发",
+      },
     }
   },
   test_resource_pool: {

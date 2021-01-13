@@ -720,4 +720,12 @@ public class TestPlanService {
     public List<TestPlanDTO> selectTestPlanByRelevancy(QueryTestPlanRequest params){
         return  extTestPlanMapper.selectTestPlanByRelevancy(params);
     }
+
+    public String findTestProjectNameByTestPlanID(String testPlanId) {
+        return  extTestPlanMapper.findTestProjectNameByTestPlanID(testPlanId);
+    }
+
+    public String findScheduleCreateUserById(String testPlanId) {
+        return extTestPlanMapper.findScheduleCreateUserById(testPlanId);
+    }
 }
