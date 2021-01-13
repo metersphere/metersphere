@@ -3,6 +3,7 @@
     @copy="copyRow"
     @remove="remove"
     :data="extract"
+    :draggable="draggable"
     color="#015478"
     background-color="#E6EEF2"
     :title="$t('api_test.definition.request.extract_param')">
@@ -46,6 +47,7 @@
   import MsApiJsonpathSuggest from "../assertion/ApiJsonpathSuggest";
   import {ExtractJSONPath} from "../../../test/model/ScenarioModel";
   import ApiBaseComponent from "../../../automation/scenario/common/ApiBaseComponent";
+
   export default {
     name: "MsApiExtract",
     components: {
@@ -66,6 +68,10 @@
       isReadOnly: {
         type: Boolean,
         default: false
+      },
+      draggable: {
+        type: Boolean,
+        default: false,
       }
     },
     data() {
@@ -139,15 +145,18 @@
     font-size: 13px;
     margin-bottom: 10px;
   }
+
   .extract-item {
     width: 100%;
   }
+
   .extract-add {
     padding: 10px;
     border: #DCDFE6 solid 1px;
     margin: 5px 0;
     border-radius: 5px;
   }
+
   /deep/ .el-card__body {
     padding: 15px;
   }
