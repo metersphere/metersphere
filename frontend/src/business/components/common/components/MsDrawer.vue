@@ -8,6 +8,8 @@
     <div class="ms-drawer-header">
       <slot name="header"></slot>
       <i class="el-icon-close" @click="close"/>
+      <font-awesome-icon v-if="!isFullScreen && showFullScreen" class="alt-ico" :icon="['fa', 'expand-alt']" size="lg" @click="fullScreen"/>
+      <font-awesome-icon v-if="isFullScreen && showFullScreen" class="alt-ico" :icon="['fa', 'compress-alt']" size="lg" @click="unFullScreen"/>
     </div>
     <div class="ms-drawer-body">
       <slot></slot>
@@ -32,6 +34,9 @@
           h: 100,
           directionStyle: 'left-style',
           dragBarDirection: 'vertical',
+          isFullScreen: false,
+          originalW: 100,
+          originalH: 100,
         }
       },
       props: {
@@ -51,6 +56,12 @@
           type: Number,
           default() {
             return 40;
+          }
+        },
+        showFullScreen: {
+          type: Boolean,
+          default() {
+            return true;
           }
         }
       },
@@ -100,6 +111,18 @@
         },
         getHeightPercentage(per) {
           return document.body.clientHeight * per / 100.0;
+        },
+        fullScreen() {
+          this.originalW = this.w;
+          this.originalH = this.h;
+          this.w = document.body.clientWidth;
+          this.h = document.body.clientHeight;
+          this.isFullScreen = true;
+        },
+        unFullScreen() {
+          this.w = this.originalW;
+          this.h = this.originalH;
+          this.isFullScreen = false;
         },
         close() {
           this.$emit('close')
@@ -176,5 +199,19 @@
   .el-icon-close:hover {
     color: red;
   }
+
+  .alt-ico {
+    position: absolute;
+    font-size: 15px;
+    right: 40px;
+    top: 15px;
+    color: #8c939d;
+  }
+
+  .alt-ico:hover {
+    color: black;
+    font-size: 18px;
+  }
+
 
 </style>

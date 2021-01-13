@@ -817,21 +817,23 @@
           }
         })
         // 场景变量csv 文件
-        this.currentScenario.variables.forEach(param => {
-          if (param.type === 'CSV' && param.files) {
-            param.files.forEach(item => {
-              if (item.file) {
-                if (!item.id) {
-                  let fileId = getUUID().substring(0, 12);
-                  item.name = item.file.name;
-                  item.id = fileId;
+        if (this.currentScenario.variables) {
+          this.currentScenario.variables.forEach(param => {
+            if (param.type === 'CSV' && param.files) {
+              param.files.forEach(item => {
+                if (item.file) {
+                  if (!item.id) {
+                    let fileId = getUUID().substring(0, 12);
+                    item.name = item.file.name;
+                    item.id = fileId;
+                  }
+                  obj.bodyUploadIds.push(item.id);
+                  bodyUploadFiles.push(item.file);
                 }
-                obj.bodyUploadIds.push(item.id);
-                bodyUploadFiles.push(item.file);
-              }
-            })
-          }
-        })
+              })
+            }
+          })
+        }
         return bodyUploadFiles;
       },
       editScenario(showMessage) {
@@ -869,18 +871,20 @@
                   this.currentEnvironmentId = obj.environmentId;
                   this.currentScenario.variables = [];
                   let index = 1;
-                  obj.variables.forEach(item => {
-                    // 兼容历史数据
-                    if (item.name) {
-                      if (!item.type) {
-                        item.type = "CONSTANT";
-                        item.id = getUUID();
+                  if (obj.variables) {
+                    obj.variables.forEach(item => {
+                      // 兼容历史数据
+                      if (item.name) {
+                        if (!item.type) {
+                          item.type = "CONSTANT";
+                          item.id = getUUID();
+                        }
+                        item.num = index;
+                        this.currentScenario.variables.push(item);
+                        index++;
                       }
-                      item.num = index;
-                      this.currentScenario.variables.push(item);
-                      index++;
-                    }
-                  })
+                    })
+                  }
                   this.enableCookieShare = obj.enableCookieShare;
                   this.scenarioDefinition = obj.hashTree;
                 }
