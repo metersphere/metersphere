@@ -16,6 +16,7 @@ import io.metersphere.notice.sender.NoticeModel;
 import io.metersphere.notice.service.NoticeSendService;
 import io.metersphere.service.SystemParameterService;
 import io.metersphere.track.service.TestPlanTestCaseService;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.assertions.AssertionResult;
 import org.apache.jmeter.protocol.http.sampler.HTTPSampleResult;
@@ -316,7 +317,9 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
                 first.addAll(second);
                 return first;
             });
-            responseResult.setVars(StringUtils.join(vars, "\n"));
+            if (CollectionUtils.isNotEmpty(vars)) {
+                responseResult.setVars(StringUtils.join(vars, "\n"));
+            }
             JMeterVars.remove(result.hashCode());
         }
         for (AssertionResult assertionResult : result.getAssertionResults()) {
