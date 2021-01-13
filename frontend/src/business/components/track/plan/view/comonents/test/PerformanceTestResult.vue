@@ -205,11 +205,13 @@ export default {
         if (this.reportId) {
           this.result = this.$get("/performance/report/" + this.reportId, res => {
             let data = res.data;
-            this.status = data.status;
-            this.$set(this.report, "id", this.reportId);
-            this.$set(this.report, "status", data.status);
-            if (this.status === "Completed") {
-              this.initReportTimeInfo();
+            if (data) {
+              this.status = data.status;
+              this.$set(this.report, "id", this.reportId);
+              this.$set(this.report, "status", data.status);
+              if (this.status === "Completed") {
+                this.initReportTimeInfo();
+              }
             }
           });
         }
