@@ -138,7 +138,7 @@ html,body {
 }
 
 /* <-- 表格全选样式 */
-.ms-select-all th:first-child {
+.ms-select-all th:first-child.el-table-column--selection {
   border: 1px solid #DCDFE6;
   border-radius:5px;
   padding: 0px;
@@ -152,7 +152,7 @@ html,body {
   overflow: visible;
 }
 
-.ms-select-all th:first-child>.cell {
+.ms-select-all th:first-child.el-table-column--selection>.cell {
   padding: 5px;
   width: 35px;
 }
