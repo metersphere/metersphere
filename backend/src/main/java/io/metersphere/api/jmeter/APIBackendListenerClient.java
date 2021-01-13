@@ -4,10 +4,7 @@ import io.metersphere.api.dto.scenario.request.RequestType;
 import io.metersphere.api.service.*;
 import io.metersphere.base.domain.ApiScenarioReport;
 import io.metersphere.base.domain.ApiTestReport;
-import io.metersphere.commons.constants.APITestStatus;
-import io.metersphere.commons.constants.ApiRunMode;
-import io.metersphere.commons.constants.NoticeConstants;
-import io.metersphere.commons.constants.TestPlanTestCaseStatus;
+import io.metersphere.commons.constants.*;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.dto.BaseSystemConfigDTO;
@@ -236,12 +233,12 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
         String failedContext = "";
         String subject = "";
         String event = "";
-        if (StringUtils.equals(NoticeConstants.Mode.API, report.getTriggerMode())) {
+        if (StringUtils.equals(ReportTriggerMode.API.name(), report.getTriggerMode())) {
             successContext = "接口测试 API任务通知:'" + report.getName() + "'执行成功" + "\n" + "请点击下面链接进入测试报告页面" + "\n" + url;
             failedContext = "接口测试 API任务通知:'" + report.getName() + "'执行失败" + "\n" + "请点击下面链接进入测试报告页面" + "\n" + url;
             subject = Translator.get("task_notification_jenkins");
         }
-        if (StringUtils.equals(NoticeConstants.Mode.SCHEDULE, report.getTriggerMode())) {
+        if (StringUtils.equals(ReportTriggerMode.SCHEDULE.name(), report.getTriggerMode())) {
             successContext = "接口测试定时任务通知:'" + report.getName() + "'执行成功" + "\n" + "请点击下面链接进入测试报告页面" + "\n" + url;
             failedContext = "接口测试定时任务通知:'" + report.getName() + "'执行失败" + "\n" + "请点击下面链接进入测试报告页面" + "\n" + url;
             subject = Translator.get("task_notification");
