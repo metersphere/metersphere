@@ -18,6 +18,7 @@ import java.util.List;
 public class MsTestPlan extends MsTestElement {
     private String type = "TestPlan";
 
+    @Override
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, ParameterConfig config) {
         final HashTree testPlanTree = tree.add(getPlan());
         if (CollectionUtils.isNotEmpty(hashTree)) {

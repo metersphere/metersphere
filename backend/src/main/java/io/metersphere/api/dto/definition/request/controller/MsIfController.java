@@ -24,6 +24,7 @@ public class MsIfController extends MsTestElement {
     private String operator;
     private String value;
 
+    @Override
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, ParameterConfig config) {
         if (!this.isEnable()) {
             return;
@@ -39,7 +40,7 @@ public class MsIfController extends MsTestElement {
     private IfController ifController() {
         IfController ifController = new IfController();
         ifController.setEnabled(true);
-        ifController.setName(this.getLabel());
+        ifController.setName(this.getLabelName());
         ifController.setCondition(this.getCondition());
         ifController.setProperty(TestElement.TEST_CLASS, IfController.class.getName());
         ifController.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("IfControllerPanel"));
@@ -55,7 +56,7 @@ public class MsIfController extends MsTestElement {
         return StringUtils.isNotBlank(variable) && StringUtils.isNotBlank(operator) && StringUtils.isNotBlank(value);
     }
 
-    public String getLabel() {
+    public String getLabelName() {
         if (isValid()) {
             String label = variable + " " + operator;
             if (StringUtils.isNotBlank(value)) {

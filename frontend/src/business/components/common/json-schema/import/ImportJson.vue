@@ -61,7 +61,6 @@
           json5.parse(json);
           return true;
         } catch (e) {
-          alert(1);
           return false;
         }
       },

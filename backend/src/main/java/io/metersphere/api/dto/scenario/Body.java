@@ -40,13 +40,17 @@ public class Body {
         if (StringUtils.equals(type, FORM_DATA) || StringUtils.equals(type, WWW_FROM)
                 || StringUtils.equals(type, BINARY)) {
             return true;
-        } else return false;
+        } else {
+            return false;
+        }
     }
 
     public boolean isOldKV() {
         if (StringUtils.equals(type, KV)) {
             return true;
-        } else return false;
+        } else {
+            return false;
+        }
     }
 
     public List<KeyValue> getBodyParams(HTTPSamplerProxy sampler, String requestId) {
@@ -63,7 +67,7 @@ public class Body {
             if (!this.isJson()) {
                 sampler.setPostBodyRaw(true);
             } else {
-                if (StringUtils.isNotEmpty(this.format) && this.format.equals("JSON-SCHEMA") && this.getJsonSchema() != null) {
+                if (StringUtils.isNotEmpty(this.format) && "JSON-SCHEMA".equals(this.format) && this.getJsonSchema() != null) {
                     this.raw = JSONSchemaGenerator.getJson(com.alibaba.fastjson.JSON.toJSONString(this.getJsonSchema()));
                 }
             }

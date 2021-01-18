@@ -108,13 +108,14 @@
 </template>
 
 <script>
-import MsApiRequestForm from "../request/http/ApiRequestForm";
+
+import MsApiRequestForm from "../request/http/ApiHttpRequestForm";
 import MsResponseText from "../response/ResponseText";
 import {WORKSPACE_ID} from '../../../../../../common/js/constants';
 import {API_STATUS, REQ_METHOD} from "../../model/JsonData";
 import {KeyValue} from "../../model/ApiTestModel";
 import MsInputTag from "@/business/components/api/automation/scenario/MsInputTag";
-import MsJsr233Processor from "../../../automation/scenario/Jsr233Processor";
+import MsJsr233Processor from "../../../automation/scenario/component/Jsr233Processor";
 
 export default {
   name: "MsAddCompleteHttpApi",

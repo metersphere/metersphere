@@ -20,6 +20,7 @@ public class MsThreadGroup extends MsTestElement {
     private String type = "ThreadGroup";
     private boolean enableCookieShare;
 
+    @Override
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, ParameterConfig config) {
         final HashTree groupTree = tree.add(getThreadGroup());
         if ((config != null && config.isEnableCookieShare()) || enableCookieShare) {

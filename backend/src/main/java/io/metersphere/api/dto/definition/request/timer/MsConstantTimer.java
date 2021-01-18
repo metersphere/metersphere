@@ -24,6 +24,7 @@ public class MsConstantTimer extends MsTestElement {
     @JSONField(ordinal = 21)
     private String delay;
 
+    @Override
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, ParameterConfig config) {
         if (!this.isEnable()) {
             return;

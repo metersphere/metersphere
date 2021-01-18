@@ -289,7 +289,6 @@
         for (const k in this.advancedValue) {
           if (this.pickValue[k]) this.advancedValue[k] = this.pickValue[k]
         }
-        console.log(this.pickValue)
       },
       handleClose() {
         this.modalVisible = false;

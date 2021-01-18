@@ -51,11 +51,12 @@ public class MsJDBCSampler extends MsTestElement {
     @JSONField(ordinal = 28)
     private String dataSourceId;
 
+    @Override
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, ParameterConfig config) {
         if (!this.isEnable()) {
             return;
         }
-        if (this.getReferenced() != null && this.getReferenced().equals("REF")) {
+        if (this.getReferenced() != null && "REF".equals(this.getReferenced())) {
             this.getRefElement(this);
         }
         if (StringUtils.isNotEmpty(dataSourceId)) {

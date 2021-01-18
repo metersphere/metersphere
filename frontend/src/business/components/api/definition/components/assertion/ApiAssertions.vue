@@ -55,7 +55,7 @@
   import MsApiAssertionText from "./ApiAssertionText";
   import MsApiAssertionRegex from "./ApiAssertionRegex";
   import MsApiAssertionDuration from "./ApiAssertionDuration";
-  import {ASSERTION_TYPE, JSONPath, Scenario} from "../../model/ApiTestModel";
+  import {ASSERTION_TYPE, JSONPath} from "../../model/ApiTestModel";
   import MsApiAssertionsEdit from "./ApiAssertionsEdit";
   import MsApiAssertionJsonPath from "./ApiAssertionJsonPath";
   import MsApiAssertionJsr223 from "./ApiAssertionJsr223";
@@ -91,7 +91,6 @@
         type: String,
         default: "margin-top: 10px"
       },
-      scenario: Scenario,
       isReadOnly: {
         type: Boolean,
         default: false

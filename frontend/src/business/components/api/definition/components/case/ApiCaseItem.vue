@@ -67,10 +67,10 @@
       <div v-if="apiCase.active">
         <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
 
-        <ms-api-request-form :is-read-only="isReadOnly" :headers="apiCase.request.headers " :request="apiCase.request" v-if="api.protocol==='HTTP'"/>
-        <ms-tcp-basis-parameters :request="apiCase.request" v-if="api.protocol==='TCP'"/>
-        <ms-sql-basis-parameters :request="apiCase.request" v-if="api.protocol==='SQL'"/>
-        <ms-dubbo-basis-parameters :request="apiCase.request" v-if="api.protocol==='DUBBO'"/>
+        <ms-api-request-form :showScript="true" :is-read-only="isReadOnly" :headers="apiCase.request.headers " :request="apiCase.request" v-if="api.protocol==='HTTP'"/>
+        <ms-tcp-basis-parameters :showScript="true" :request="apiCase.request" v-if="api.protocol==='TCP'"/>
+        <ms-sql-basis-parameters :showScript="true" :request="apiCase.request" v-if="api.protocol==='SQL'"/>
+        <ms-dubbo-basis-parameters :showScript="true" :request="apiCase.request" v-if="api.protocol==='DUBBO'"/>
 
         <!-- HTTP 请求返回数据 -->
         <p class="tip">
@@ -92,11 +92,11 @@
 </template>
 
 <script>
-  import {_getBodyUploadFiles, getCurrentProjectID, getUUID} from "../../../../../../common/js/utils";
+  import {_getBodyUploadFiles, getCurrentProjectID} from "../../../../../../common/js/utils";
   import {PRIORITY, RESULT_MAP} from "../../model/JsonData";
   import MsTag from "../../../../common/components/MsTag";
   import MsTipButton from "../../../../common/components/MsTipButton";
-  import MsApiRequestForm from "../request/http/ApiRequestForm";
+  import MsApiRequestForm from "../request/http/ApiHttpRequestForm";
   import ApiEnvironmentConfig from "../environment/ApiEnvironmentConfig";
   import MsApiAssertions from "../assertion/ApiAssertions";
   import MsSqlBasisParameters from "../request/database/BasisParameters";

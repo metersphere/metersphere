@@ -337,9 +337,6 @@ public class ApiDefinitionService {
         if (StringUtils.isNotBlank(request.getType()) && StringUtils.equals(request.getType(), ApiRunMode.API_PLAN.name())) {
             runMode = ApiRunMode.API_PLAN.name();
         }
-
-        MsTestPlan testPlan = new MsTestPlan();
-        System.out.println(testPlan.getJmx(hashTree));
         // 调用执行方法
         jMeterService.runDefinition(request.getId(), hashTree, request.getReportId(), runMode);
         return request.getId();

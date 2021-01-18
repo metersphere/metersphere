@@ -38,14 +38,15 @@ public class MsLoopController extends MsTestElement {
     @JSONField(ordinal = 23)
     private MsWhileController whileController;
 
+    @Override
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, ParameterConfig config) {
         if (!this.isEnable()) {
             return;
         }
         GenericController controller = controller();
-        if (controller == null)
+        if (controller == null) {
             return;
-
+        }
         final HashTree groupTree = tree.add(controller);
         if (CollectionUtils.isNotEmpty(hashTree)) {
             hashTree.forEach(el -> {
