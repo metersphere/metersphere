@@ -16,7 +16,6 @@
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.LoadTestWithBLOBs">
     <result column="load_configuration" jdbcType="LONGVARCHAR" property="loadConfiguration" />
     <result column="advanced_configuration" jdbcType="LONGVARCHAR" property="advancedConfiguration" />
-    <result column="schedule" jdbcType="LONGVARCHAR" property="schedule" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -81,7 +80,7 @@
     user_id, num
   </sql>
   <sql id="Blob_Column_List">
-    load_configuration, advanced_configuration, schedule
+    load_configuration, advanced_configuration
   </sql>
   <select id="selectByExampleWithBLOBs" parameterType="io.metersphere.base.domain.LoadTestExample" resultMap="ResultMapWithBLOBs">
     select
@@ -135,13 +134,13 @@
     insert into load_test (id, project_id, `name`, 
       description, create_time, update_time, 
       `status`, test_resource_pool_id, user_id, 
-      num, load_configuration, advanced_configuration, 
-      schedule)
+      num, load_configuration, advanced_configuration
+      )
     values (#{id,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, 
       #{description,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, 
       #{status,jdbcType=VARCHAR}, #{testResourcePoolId,jdbcType=VARCHAR}, #{userId,jdbcType=VARCHAR}, 
-      #{num,jdbcType=INTEGER}, #{loadConfiguration,jdbcType=LONGVARCHAR}, #{advancedConfiguration,jdbcType=LONGVARCHAR}, 
-      #{schedule,jdbcType=LONGVARCHAR})
+      #{num,jdbcType=INTEGER}, #{loadConfiguration,jdbcType=LONGVARCHAR}, #{advancedConfiguration,jdbcType=LONGVARCHAR}
+      )
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.LoadTestWithBLOBs">
     insert into load_test
@@ -182,9 +181,6 @@
       <if test="advancedConfiguration != null">
         advanced_configuration,
       </if>
-      <if test="schedule != null">
-        schedule,
-      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -222,9 +218,6 @@
       </if>
       <if test="advancedConfiguration != null">
         #{advancedConfiguration,jdbcType=LONGVARCHAR},
-      </if>
-      <if test="schedule != null">
-        #{schedule,jdbcType=LONGVARCHAR},
       </if>
     </trim>
   </insert>
@@ -273,9 +266,6 @@
       <if test="record.advancedConfiguration != null">
         advanced_configuration = #{record.advancedConfiguration,jdbcType=LONGVARCHAR},
       </if>
-      <if test="record.schedule != null">
-        schedule = #{record.schedule,jdbcType=LONGVARCHAR},
-      </if>
     </set>
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -294,8 +284,7 @@
       user_id = #{record.userId,jdbcType=VARCHAR},
       num = #{record.num,jdbcType=INTEGER},
       load_configuration = #{record.loadConfiguration,jdbcType=LONGVARCHAR},
-      advanced_configuration = #{record.advancedConfiguration,jdbcType=LONGVARCHAR},
-      schedule = #{record.schedule,jdbcType=LONGVARCHAR}
+      advanced_configuration = #{record.advancedConfiguration,jdbcType=LONGVARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -352,9 +341,6 @@
       <if test="advancedConfiguration != null">
         advanced_configuration = #{advancedConfiguration,jdbcType=LONGVARCHAR},
       </if>
-      <if test="schedule != null">
-        schedule = #{schedule,jdbcType=LONGVARCHAR},
-      </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
@@ -370,8 +356,7 @@
       user_id = #{userId,jdbcType=VARCHAR},
       num = #{num,jdbcType=INTEGER},
       load_configuration = #{loadConfiguration,jdbcType=LONGVARCHAR},
-      advanced_configuration = #{advancedConfiguration,jdbcType=LONGVARCHAR},
-      schedule = #{schedule,jdbcType=LONGVARCHAR}
+      advanced_configuration = #{advancedConfiguration,jdbcType=LONGVARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKey" parameterType="io.metersphere.base.domain.LoadTest">
