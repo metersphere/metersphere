@@ -23,7 +23,7 @@
           </el-col>
 
           <el-col :span="11" :offset="2">
-            <el-form-item :label="$t('test_track.review.review_project')" :label-width="formLabelWidth" prop="projectIds">
+            <el-form-item label="关联项目" :label-width="formLabelWidth" prop="projectIds">
               <el-select
                 v-model="form.projectIds"
                 :placeholder="$t('test_track.review.input_review_project')"
@@ -111,7 +111,7 @@
 
 import TestPlanStatusButton from "../../plan/common/TestPlanStatusButton";
 import {WORKSPACE_ID} from "@/common/js/constants";
-import {listenGoBack, removeGoBackListener} from "@/common/js/utils";
+import {getCurrentProjectID, listenGoBack, removeGoBackListener} from "@/common/js/utils";
 
 export default {
   name: "TestCaseReviewEdit",
@@ -134,7 +134,7 @@ export default {
           {required: true, message: this.$t('test_track.plan.input_plan_name'), trigger: 'blur'},
           {max: 30, message: this.$t('test_track.length_less_than') + '30', trigger: 'blur'}
         ],
-        projectIds: [{required: true, message: this.$t('test_track.plan.input_plan_project'), trigger: 'change'}],
+        // projectIds: [{required: true, message: this.$t('test_track.plan.input_plan_project'), trigger: 'change'}],
         userIds: [{required: true, message: this.$t('test_track.plan.input_plan_principal'), trigger: 'change'}],
         stage: [{required: true, message: this.$t('test_track.plan.input_plan_stage'), trigger: 'change'}],
         description: [{max: 200, message: this.$t('test_track.length_less_than') + '200', trigger: 'blur'}],
@@ -218,7 +218,7 @@ export default {
     getProjects() {
       this.result = this.$get("/project/listAll", (response) => {
         if (response.success) {
-          this.projects = response.data;
+          this.projects = response.data.filter(da => da.id !== getCurrentProjectID());
         } else {
           this.$warning()(response.message);
         }

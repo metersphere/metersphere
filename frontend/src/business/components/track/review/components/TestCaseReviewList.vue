@@ -142,6 +142,7 @@ export default {
       if (!getCurrentProjectID()) {
         return;
       }
+      this.condition.projectId = getCurrentProjectID();
       this.result = this.$post("/test/case/review/list/" + this.currentPage + "/" + this.pageSize, this.condition, response => {
         let data = response.data;
         this.total = data.itemCount;
@@ -150,9 +151,7 @@ export default {
           let path = "/test/case/review/project";
           this.$post(path, {id: this.tableData[i].id}, res => {
             let arr = res.data;
-            let projectName = arr.map(data => data.name).join("、");
-            let projectIds = arr.map(data => data.id);
-            this.$set(this.tableData[i], "projectName", projectName);
+            let projectIds = arr.filter(d => d.id !== this.tableData[i].projectId).map(data => data.id);
             this.$set(this.tableData[i], "projectIds", projectIds);
           });
           this.$post('/test/case/review/reviewer', {id: this.tableData[i].id}, res => {

@@ -52,11 +52,11 @@
         </template>
       </el-table-column>
 
-      <el-table-column
-        prop="projectName"
-        :label="$t('test_track.plan.plan_project')"
-        show-overflow-tooltip>
-      </el-table-column>
+<!--      <el-table-column-->
+<!--        prop="projectName"-->
+<!--        :label="$t('test_track.plan.plan_project')"-->
+<!--        show-overflow-tooltip>-->
+<!--      </el-table-column>-->
 
     </el-table>
 
@@ -99,14 +99,6 @@ export default {
       }
       this.result = this.$get('/test/case/review/list/all/relate/' + type, response => {
         this.tableData = response.data;
-        for (let i = 0; i < this.tableData.length; i++) {
-          let path = "/test/case/review/project";
-          this.$post(path, {id: this.tableData[i].id}, res => {
-            let arr = res.data;
-            let projectName = arr.map(data => data.name).join("、");
-            this.$set(this.tableData[i], "projectName", projectName);
-          });
-        }
       });
     },
     intoPlan(row) {

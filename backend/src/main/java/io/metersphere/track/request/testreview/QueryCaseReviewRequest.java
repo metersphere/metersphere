@@ -37,4 +37,6 @@ public class QueryCaseReviewRequest extends TestCaseReviewTestCase {
     private Map<String, Object> combine;
 
     private String projectId;
+
+    private String projectName;
 }

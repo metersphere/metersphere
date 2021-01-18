@@ -202,11 +202,10 @@
     <select id="findRelateTestReviewId" resultType="java.lang.String">
         select distinct test_case_review_test_case.review_id from test_case_review_test_case
         inner join test_case_review on test_case_review_test_case.review_id = test_case_review.id
-        inner join test_case_review_project on test_case_review_project.review_id = test_case_review.id
-        inner join project on project.id = test_case_review_project.project_id
+        inner join project on project.id = test_case_review.project_id
         where test_case_review_test_case.review_id = #{userId}
         and project.workspace_id = #{workspaceId}
-        and test_case_review_project.project_id = #{projectId}
+        and test_case_review.project_id = #{projectId}
     </select>
     <select id="listTestCaseByProjectIds" resultType="io.metersphere.track.dto.TestReviewCaseDTO">
         select distinct * from test_case_review_test_case, test_case
