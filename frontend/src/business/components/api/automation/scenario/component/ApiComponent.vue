@@ -67,7 +67,7 @@
   import MsSqlBasisParameters from "../../../definition/components/request/database/BasisParameters";
   import MsTcpBasisParameters from "../../../definition/components/request/tcp/TcpBasisParameters";
   import MsDubboBasisParameters from "../../../definition/components/request/dubbo/BasisParameters";
-  import MsApiRequestForm from "../../../definition/components/request/http/ApiRequestForm";
+  import MsApiRequestForm from "../../../definition/components/request/http/ApiHttpRequestForm";
   import {REQ_METHOD} from "../../../definition/model/JsonData";
   import MsRequestResultTail from "../../../definition/components/response/RequestResultTail";
   import MsRun from "../../../definition/components/Run";

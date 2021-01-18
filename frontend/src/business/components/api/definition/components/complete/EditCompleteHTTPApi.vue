@@ -108,7 +108,8 @@
 </template>
 
 <script>
-import MsApiRequestForm from "../request/http/ApiRequestForm";
+
+import MsApiRequestForm from "../request/http/ApiHttpRequestForm";
 import MsResponseText from "../response/ResponseText";
 import {WORKSPACE_ID} from '../../../../../../common/js/constants';
 import {API_STATUS, REQ_METHOD} from "../../model/JsonData";

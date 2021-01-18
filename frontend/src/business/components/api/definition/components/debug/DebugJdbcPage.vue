@@ -31,7 +31,6 @@
 </template>
 
 <script>
-  import MsApiRequestForm from "../request/http/ApiRequestForm";
   import MsResponseResult from "../response/ResponseResult";
   import MsRequestMetric from "../response/RequestMetric";
   import {getUUID, getCurrentUser} from "@/common/js/utils";
@@ -44,7 +43,7 @@
 
   export default {
     name: "ApiConfig",
-    components: {MsRequestResultTail, MsResponseResult, MsApiRequestForm, MsRequestMetric, MsResponseText, MsRun, MsBasisParameters},
+    components: {MsRequestResultTail, MsResponseResult, MsRequestMetric, MsResponseText, MsRun, MsBasisParameters},
     props: {
       currentProtocol: String,
       scenario: Boolean,
