@@ -3,7 +3,8 @@
     <el-card>
       <el-row>
         <el-col :span="api.protocol==='HTTP'? 3:5">
-          <div class="variable-combine"> {{api.name}}</div>
+          <el-checkbox v-model="isSelectAll" class="select-all"/>
+          <span class="variable-combine"> {{api.name}}</span>
         </el-col>
         <el-col :span="api.protocol==='HTTP'? 1:3">
           <el-tag size="mini" :style="{'background-color': getColor(true, api.method), border: getColor(true, api.method)}" class="api-el-tag">
@@ -85,6 +86,7 @@
         environments: [],
         environment: {},
         methodColorMap: new Map(API_METHOD_COLOUR),
+        isSelectAll: false
       }
     },
     props: {
@@ -108,6 +110,9 @@
     watch: {
       environment() {
         this.$emit('setEnvironment', this.environment);
+      },
+      isSelectAll() {
+        this.$emit('selectAll', this.isSelectAll);
       }
     },
     methods: {
@@ -213,6 +218,10 @@
 
   .api-el-tag {
     color: white;
+  }
+
+  .select-all {
+    margin-right: 10px;
   }
 
 </style>

@@ -2,6 +2,9 @@
   <el-card style="margin-top: 5px" @click.native="selectTestCase(apiCase,$event)">
     <el-row>
       <el-col :span="4">
+
+        <el-checkbox v-model="apiCase.selected"/>
+
         <div class="el-step__icon is-text ms-api-col">
           <div class="el-step__icon-inner">{{ index + 1 }}</div>
         </div>
@@ -173,7 +176,6 @@
             }
           }
         });
-
       },
       getExecResult() {
         // 执行结果信息

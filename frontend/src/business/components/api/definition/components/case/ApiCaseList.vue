@@ -8,19 +8,21 @@
           @setEnvironment="setEnvironment"
           @addCase="addCase"
           @batchRun="batchRun"
+          @selectAll="selectAll"
           :condition="condition"
           :priorities="priorities"
           :apiCaseList="apiCaseList"
           :is-read-only="isReadOnly"
           :project-id="projectId"
           :is-case-edit="isCaseEdit"
+          ref="header"
         />
       </template>
 
       <el-container v-loading="result.loading">
-        <el-main v-loading="batchLoading">
+        <el-main>
           <div v-for="(item,index) in apiCaseList" :key="index">
-            <api-case-item v-loading="singleLoading && singleRunId === item.id"
+            <api-case-item v-loading="singleLoading && singleRunId === item.id || batchLoadingIds.indexOf(item.id) > -1"
                            @refresh="refresh"
                            @singleRun="singleRun"
                            @copyCase="copyCase"
@@ -76,7 +78,7 @@
         selectedEvent: Object,
         priorities: CASE_ORDER,
         apiCaseList: [],
-        batchLoading: false,
+        batchLoadingIds: [],
         singleLoading: false,
         singleRunId: "",
         runData: [],
@@ -146,9 +148,16 @@
       },
 
       runRefresh() {
-        this.batchLoading = false;
+        this.batchLoadingIds = [];
         this.singleLoading = false;
         this.singleRunId = "";
+        if (this.$refs.header.isSelectAll) {
+          this.$refs.header.isSelectAll = false;
+        } else {
+          this.apiCaseList.forEach(item => {
+            this.$set(item, 'selected', false);
+          })
+        }
         this.$success(this.$t('schedule.event_success'));
         this.getApiTest();
         this.$emit('refresh');
@@ -158,7 +167,11 @@
         this.getApiTest();
         this.$emit('refresh');
       },
-
+      selectAll(isSelectAll) {
+        this.apiCaseList.forEach(item => {
+          this.$set(item, 'selected', isSelectAll);
+        })
+      },
       getApiTest(addCase) {
         if (this.api) {
           this.condition.projectId = this.projectId;
@@ -182,6 +195,7 @@
             this.apiCaseList.forEach(apiCase => {
               if (apiCase.tags && apiCase.tags.length > 0) {
                 apiCase.tags = JSON.parse(apiCase.tags);
+                this.$set(apiCase, 'selected', false);
               }
             })
 
@@ -237,14 +251,14 @@
         }
         if (this.apiCaseList.length > 0) {
           this.apiCaseList.forEach(item => {
-            if (item.id) {
+            if (item.selected && item.id) {
               item.request.name = item.id;
               item.request.useEnvironment = this.environment.id;
               this.runData.push(item.request);
+              this.batchLoadingIds.push(item.id);
             }
           })
           if (this.runData.length > 0) {
-            this.batchLoading = true;
             /*触发执行操作*/
             this.reportId = getUUID().substring(0, 8);
           } else {
