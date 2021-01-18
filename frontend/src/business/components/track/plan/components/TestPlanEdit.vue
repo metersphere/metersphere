@@ -21,7 +21,13 @@
           </el-col>
 
           <el-col :span="11" :offset="2">
-            <el-form-item :label="$t('test_track.plan.related_project')" :label-width="formLabelWidth" prop="projectIds">
+            <el-form-item :label-width="formLabelWidth" prop="projectIds">
+              <template slot="label">
+                <el-tooltip class="item" effect="dark" :content="$t('test_track.plan.related_tip')" placement="top">
+                  <i class="el-icon-warning"/>
+                </el-tooltip>
+                {{ $t('test_track.plan.related_project') }}
+              </template>
               <el-select
                 v-model="form.projectIds"
                 :placeholder="$t('test_track.plan.input_related_project')"
