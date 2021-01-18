@@ -11,13 +11,14 @@
         <slot name="headerLeft">
           <i class="icon el-icon-arrow-right" :class="{'is-active': data.active}"
              @click="active(data)"/>
-          <el-input :draggable="draggable" v-if="!data.name || isShowInput" size="small" v-model="data.name" class="name-input"
-                    @blur="isShowInput = false" :placeholder="$t('commons.input_name')"/>
+          <el-input :draggable="draggable" v-if="isShowInput && isShowNameInput" size="small" v-model="data.name" class="name-input"
+                    @blur="isShowInput = false" :placeholder="$t('commons.input_name')" ref="nameEdit"/>
           <span v-else>
             {{data.name}}
-            <i class="el-icon-edit" style="cursor:pointer" @click="isShowInput = true" v-tester/>
+            <i class="el-icon-edit" style="cursor:pointer" @click="editName" v-tester/>
           </span>
         </slot>
+        <slot name="behindHeaderLeft"></slot>
       </span>
 
       <div class="header-right" @click.stop>
@@ -71,7 +72,18 @@
           return true
         }
       },
+      isShowNameInput: {
+        type: Boolean,
+        default() {
+          return true
+        }
+      },
       title: String
+    },
+    created() {
+      if (!this.data.name) {
+        this.isShowInput = true;
+      }
     },
     methods: {
       active() {
@@ -83,6 +95,12 @@
       },
       remove() {
         this.$emit('remove');
+      },
+      editName() {
+        this.isShowInput = true;
+        this.$nextTick(() => {
+          this.$refs.nameEdit.focus();
+        });
       }
     }
   }

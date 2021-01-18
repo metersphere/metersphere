@@ -3,30 +3,19 @@
     v-loading="loading"
     @copy="copyRow"
     @remove="remove"
+    :is-show-name-input="!isDeletedOrRef"
     :data="request"
     :draggable="true"
     :color="displayColor.color"
     :background-color="displayColor.backgroundColor"
     :title="displayTitle">
 
-    <template v-slot:headerLeft>
-      <slot name="headerLeft">
-        <i class="icon el-icon-arrow-right" :class="{'is-active': request.active}"
-           @click="active(request)"/>
-        <el-input draggable v-if="(isShowInput || !request.name) && !isDeletedOrRef" size="small" v-model="request.name" class="name-input"
-                  @blur="isShowInput = false" :placeholder="$t('commons.input_name')"/>
-        <span v-else>
-          {{request.name}}
-          <i v-if="!isDeletedOrRef" class="el-icon-edit" style="cursor:pointer" @click="isShowInput = true" v-tester/>
-        </span>
-      </slot>
-
-      <el-tag size="mini" style="margin-left: 20px" v-if="request.referenced==='Deleted'" type="danger">{{$t('api_test.automation.reference_deleted')}}</el-tag>
-      <el-tag size="mini" style="margin-left: 20px" v-if="request.referenced==='Copy'">{{ $t('commons.copy') }}</el-tag>
-      <el-tag size="mini" style="margin-left: 20px" v-if="request.referenced ==='REF'">{{ $t('api_test.scenario.reference') }}</el-tag>
-
-      <ms-run :debug="false" :reportId="reportId" :run-data="runData"
-              @runRefresh="runRefresh" ref="runTest"/>
+    <template v-slot:behindHeaderLeft>
+        <el-tag size="mini" style="margin-left: 20px" v-if="request.referenced==='Deleted'" type="danger">{{$t('api_test.automation.reference_deleted')}}</el-tag>
+        <el-tag size="mini" style="margin-left: 20px" v-if="request.referenced==='Copy'">{{ $t('commons.copy') }}</el-tag>
+        <el-tag size="mini" style="margin-left: 20px" v-if="request.referenced ==='REF'">{{ $t('api_test.scenario.reference') }}</el-tag>
+        <ms-run :debug="false" :reportId="reportId" :run-data="runData"
+                @runRefresh="runRefresh" ref="runTest"/>
 
     </template>
 

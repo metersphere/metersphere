@@ -5,20 +5,12 @@
     @remove="remove"
     :data="scenario"
     :show-collapse="false"
+    :is-show-name-input="!isDeletedOrRef"
     color="#606266"
     background-color="#F4F4F5"
     :title="$t('api_test.automation.scenario_import')">
 
-    <template v-slot:headerLeft>
-      <slot name="headerLeft">
-        <el-input v-if="(isShowInput || !scenario.name) && !isDeletedOrRef" size="small" v-model="scenario.name" class="name-input"
-                  @blur="isShowInput = false" :placeholder="$t('commons.input_name')"/>
-        <span v-else>
-          {{scenario.name}}
-          <i v-if="!isDeletedOrRef" class="el-icon-edit" style="cursor:pointer" @click="isShowInput = true" v-tester/>
-        </span>
-      </slot>
-
+    <template v-slot:behindHeaderLeft>
       <el-tag size="mini" style="margin-left: 20px" v-if="scenario.referenced==='Deleted'" type="danger">{{$t('api_test.automation.reference_deleted')}}</el-tag>
       <el-tag size="mini" style="margin-left: 20px" v-if="scenario.referenced==='Copy'">{{ $t('commons.copy') }}</el-tag>
       <el-tag size="mini" style="margin-left: 20px" v-if="scenario.referenced==='REF'">{{ $t('api_test.scenario.reference') }}</el-tag>
