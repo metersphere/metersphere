@@ -18,7 +18,7 @@ public class TestPlanReportDTO {
     private String name;
     private String testPlanName;
     private String creator;
-    private String createTime;
+    private long createTime;
     private String triggerMode;
 
     private TestCaseReportAdvanceStatusResultDTO executeResult;

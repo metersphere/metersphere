@@ -8,13 +8,21 @@
     <el-table border class="adjust-table" :data="tableData"
       @filter-change="filter" @sort-change="sort">
       <el-table-column min-width="300" prop="name" :label="$t('test_track.report.list.name')" show-overflow-tooltip></el-table-column>
-      <el-table-column prop="testPlanName" :label="$t('test_track.report.list.test_plan')" show-overflow-tooltip></el-table-column>
+      <el-table-column prop="testPlanName" sortable :label="$t('test_track.report.list.test_plan')" show-overflow-tooltip></el-table-column>
       <el-table-column prop="creator" :label="$t('test_track.report.list.creator')" show-overflow-tooltip></el-table-column>
-      <el-table-column prop="createTime" :label="$t('test_track.report.list.create_time' )" show-overflow-tooltip></el-table-column>
-      <el-table-column prop="triggerMode" :label="$t('test_track.report.list.trigger_mode')" show-overflow-tooltip></el-table-column>
+      <el-table-column prop="createTime" sortable :label="$t('test_track.report.list.create_time' )" show-overflow-tooltip>
+        <template v-slot:default="scope">
+          <span>{{ scope.row.createTime | timestampFormatDate }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column prop="triggerMode" :label="$t('test_track.report.list.trigger_mode')" show-overflow-tooltip>
+        <template v-slot:default="scope">
+          <report-trigger-mode-item :trigger-mode="scope.row.triggerMode"/>
+        </template>
+      </el-table-column>
       <el-table-column min-width="150" :label="$t('commons.operating')">
         <template v-slot:default="scope">
-          <ms-table-operator-button type="success" :tip="$t('test_track.plan_view.view_report')" icon="el-icon-document"
+          <ms-table-operator-button :tip="$t('test_track.plan_view.view_report')" icon="el-icon-document"
             @exec="openReport(scope.row.id)"/>
           <ms-table-operator-button type="danger" :tip="$t('commons.delete')" icon="el-icon-delete"
             @exec="handleDelete(scope.row)" />
@@ -24,10 +32,6 @@
     <ms-table-pagination :change="initTableData" :current-page.sync="currentPage" :page-size.sync="pageSize"
                          :total="total"/>
     <test-plan-report-view @refresh="initTableData" ref="testPlanReportView"/>
-<!--    <ms-delete-confirm :title="$t('test_track.plan.plan_delete')" @delete="_handleDelete" ref="deleteConfirm"-->
-<!--                       :with-tip="enableDeleteTip">-->
-<!--      {{ $t('test_track.plan.plan_delete_tip') }}-->
-<!--    </ms-delete-confirm>-->
   </el-card>
 </template>
 
@@ -40,12 +44,14 @@ import {_filter, _sort, checkoutTestManagerOrTestUser} from "@/common/js/utils";
 import {TEST_PLAN_REPORT_CONFIGS} from "../../../common/components/search/search-components";
 import {getCurrentProjectID} from "../../../../../common/js/utils";
 import TestPlanReportView from "@/business/components/track/report/components/TestPlanReportView";
+import ReportTriggerModeItem from "@/business/components/common/tableItem/ReportTriggerModeItem";
 
 export default {
   name: "TestPlanReportList",
   components: {
     TestPlanReportView,
-    MsTableOperator, MsTableOperatorButton, MsTableHeader, MsTablePagination
+    MsTableOperator, MsTableOperatorButton, MsTableHeader, MsTablePagination,
+    ReportTriggerModeItem
   },
   data() {
     return {

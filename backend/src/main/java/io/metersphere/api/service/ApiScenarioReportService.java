@@ -16,6 +16,7 @@ import io.metersphere.base.mapper.ApiScenarioReportMapper;
 import io.metersphere.base.mapper.TestPlanApiScenarioMapper;
 import io.metersphere.base.mapper.ext.ExtApiScenarioReportMapper;
 import io.metersphere.commons.constants.ApiRunMode;
+import io.metersphere.commons.constants.ReportTriggerMode;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.DateUtils;
@@ -215,7 +216,7 @@ public class ApiScenarioReportService {
         }
 
         TestPlanReportService testPlanReportService = CommonBeanFactory.getBean(TestPlanReportService.class);
-        testPlanReportService.updateReport(testPlanReportIdList,ApiRunMode.SCHEDULE_SCENARIO_PLAN.name());
+        testPlanReportService.updateReport(testPlanReportIdList,ApiRunMode.SCHEDULE_SCENARIO_PLAN.name(), ReportTriggerMode.SCHEDULE.name());
 
         return lastReport;
     }

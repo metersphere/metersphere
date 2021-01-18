@@ -5,6 +5,7 @@ import io.metersphere.commons.constants.NoticeConstants;
 import io.metersphere.commons.constants.PerformanceTestStatus;
 import io.metersphere.commons.constants.ReportTriggerMode;
 import io.metersphere.commons.consumer.LoadTestFinishEvent;
+import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.dto.BaseSystemConfigDTO;
 import io.metersphere.i18n.Translator;
 import io.metersphere.notice.sender.NoticeModel;
@@ -70,6 +71,7 @@ public class PerformanceNoticeEvent implements LoadTestFinishEvent {
 
     @Override
     public void execute(LoadTestReport loadTestReport) {
+        LogUtil.info("PerformanceNoticeEvent OVER:" + loadTestReport.getTriggerMode()+";"+loadTestReport.getStatus());
         if (StringUtils.equals(ReportTriggerMode.API.name(), loadTestReport.getTriggerMode())
                 || StringUtils.equals(ReportTriggerMode.SCHEDULE.name(), loadTestReport.getTriggerMode())) {
             if (StringUtils.equalsAny(loadTestReport.getStatus(),
