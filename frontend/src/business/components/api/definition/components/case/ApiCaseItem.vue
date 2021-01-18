@@ -92,7 +92,7 @@
 </template>
 
 <script>
-  import {getCurrentProjectID, getUUID} from "../../../../../../common/js/utils";
+  import {_getBodyUploadFiles, getCurrentProjectID, getUUID} from "../../../../../../common/js/utils";
   import {PRIORITY, RESULT_MAP} from "../../model/JsonData";
   import MsTag from "../../../../common/components/MsTag";
   import MsTipButton from "../../../../common/components/MsTipButton";
@@ -223,6 +223,7 @@
         if (this.validate(tmp)) {
           return;
         }
+        tmp.request.body = row.request.body;
         let bodyFiles = this.getBodyUploadFiles(tmp);
         tmp.projectId = getCurrentProjectID();
         tmp.active = true;
@@ -278,37 +279,7 @@
       getBodyUploadFiles(row) {
         let bodyUploadFiles = [];
         row.bodyUploadIds = [];
-        let request = row.request;
-        if (request.body && request.body.kvs) {
-          request.body.kvs.forEach(param => {
-            if (param.files) {
-              param.files.forEach(item => {
-                if (item.file) {
-                  let fileId = getUUID().substring(0, 8);
-                  item.name = item.file.name;
-                  item.id = fileId;
-                  row.bodyUploadIds.push(fileId);
-                  bodyUploadFiles.push(item.file);
-                }
-              });
-            }
-          });
-          if (request.body.binary) {
-            request.body.binary.forEach(param => {
-              if (param.files) {
-                param.files.forEach(item => {
-                  if (item.file) {
-                    let fileId = getUUID().substring(0, 8);
-                    item.name = item.file.name;
-                    item.id = fileId;
-                    row.bodyUploadIds.push(fileId);
-                    bodyUploadFiles.push(item.file);
-                  }
-                });
-              }
-            });
-          }
-        }
+        _getBodyUploadFiles(row.request, bodyUploadFiles, row);
         return bodyUploadFiles;
       },
     }
