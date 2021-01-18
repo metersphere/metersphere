@@ -188,13 +188,14 @@
         }
       },
       singleRun(data) {
+        data.message = true;
+        this.saveTestCase(data);
         this.$emit('singleRun', data);
       },
       copyCase(data) {
         let obj = {name: "copy_" + data.name, priority: data.priority, active: true, request: data.request};
         this.$emit('copyCase', obj);
       },
-
       selectTestCase(item, $event) {
         if (!item.id || !this.loaded) {
           return;
@@ -210,7 +211,6 @@
           $event.currentTarget.className = "el-card is-always-shadow is-selected";
           this.$emit('selectTestCase', item);
         }
-
       },
       changePriority(row) {
         if (row.id) {
@@ -242,7 +242,9 @@
           row.id = data.id;
           row.createTime = data.createTime;
           row.updateTime = data.updateTime;
-          this.$success(this.$t('commons.save_success'));
+          if (!row.message) {
+            this.$success(this.$t('commons.save_success'));
+          }
         });
       },
       showInput(row) {
