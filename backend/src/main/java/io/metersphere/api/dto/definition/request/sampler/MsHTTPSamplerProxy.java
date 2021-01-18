@@ -31,7 +31,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 
-
 @Data
 @EqualsAndHashCode(callSuper = true)
 @JSONType(typeName = "HTTPSamplerProxy")
@@ -86,11 +85,12 @@ public class MsHTTPSamplerProxy extends MsTestElement {
     @JSONField(ordinal = 35)
     private Object requestResult;
 
+    @Override
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, ParameterConfig config) {
         if (!this.isEnable()) {
             return;
         }
-        if (this.getReferenced() != null && this.getReferenced().equals("REF")) {
+        if (this.getReferenced() != null && "REF".equals(this.getReferenced())) {
             this.getRefElement(this);
         }
         HTTPSamplerProxy sampler = new HTTPSamplerProxy();
@@ -109,9 +109,9 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         sampler.setFollowRedirects(this.isFollowRedirects());
         sampler.setUseKeepAlive(true);
         sampler.setDoMultipart(this.isDoMultipartPost());
-        if(config != null && config.getConfig() != null){
+        if (config != null && config.getConfig() != null) {
             config.setConfig(config.getConfig());
-        }else{
+        } else {
             config.setConfig(getEnvironmentConfig(useEnvironment));
         }
 
@@ -183,7 +183,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         if (!StringUtils.equals(this.getMethod(), "GET")) {
             if (this.body != null) {
                 List<KeyValue> bodyParams = this.body.getBodyParams(sampler, this.getId());
-                if (StringUtils.isNotEmpty(this.body.getType()) && this.body.getType().equals("Form Data")) {
+                if (StringUtils.isNotEmpty(this.body.getType()) && "Form Data".equals(this.body.getType())) {
                     sampler.setDoMultipart(true);
                 }
                 if (CollectionUtils.isNotEmpty(bodyParams)) {

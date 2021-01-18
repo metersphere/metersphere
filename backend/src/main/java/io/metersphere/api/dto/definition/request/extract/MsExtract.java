@@ -27,6 +27,7 @@ public class MsExtract extends MsTestElement {
     private List<MsExtractXPath> xpath;
     private String type = "Extract";
 
+    @Override
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, ParameterConfig config) {
         if (!this.isEnable()) {
             return;

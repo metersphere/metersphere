@@ -54,14 +54,15 @@ public class MsDubboSampler extends MsTestElement {
     @JSONField(ordinal = 60)
     private Object requestResult;
 
+    @Override
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, ParameterConfig config) {
         if (!this.isEnable()) {
             return;
         }
-        if (this.getReferenced() != null && this.getReferenced().equals("Deleted")) {
+        if (this.getReferenced() != null && "Deleted".equals(this.getReferenced())) {
             return;
         }
-        if (this.getReferenced() != null && this.getReferenced().equals("REF")) {
+        if (this.getReferenced() != null && "REF".equals(this.getReferenced())) {
             this.getRefElement(this);
         }
 

@@ -40,16 +40,16 @@ public class TestResult {
         this.passAssertions += count;
     }
 
-    private static final String separator = "<->";
+    private static final String SEPARATOR = "<->";
 
     public void addScenario(ScenarioResult result) {
         Map<String, List<RequestResult>> requestResultMap = new LinkedHashMap<>();
         if (result != null && CollectionUtils.isNotEmpty(result.getRequestResults())) {
             result.getRequestResults().forEach(item -> {
-                if (StringUtils.isNotEmpty(item.getName()) && item.getName().indexOf(separator) != -1) {
-                    String array[] = item.getName().split(separator);
+                if (StringUtils.isNotEmpty(item.getName()) && item.getName().indexOf(SEPARATOR) != -1) {
+                    String array[] = item.getName().split(SEPARATOR);
                     String scenarioName = array[array.length - 1];
-                    item.setName(item.getName().replace(separator + scenarioName, ""));
+                    item.setName(item.getName().replace(SEPARATOR + scenarioName, ""));
                     if (requestResultMap.containsKey(scenarioName)) {
                         requestResultMap.get(scenarioName).add(item);
                     } else {

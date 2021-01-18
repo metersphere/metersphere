@@ -24,6 +24,7 @@ public class MsAssertions extends MsTestElement {
     private MsAssertionDuration duration;
     private String type = "Assertions";
 
+    @Override
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, ParameterConfig config) {
         if (this.isEnable()) {
             addAssertions(tree);
@@ -78,6 +79,8 @@ public class MsAssertions extends MsTestElement {
                 break;
             case "Response Data":
                 assertion.setTestFieldResponseData();
+                break;
+            default:
                 break;
         }
         return assertion;

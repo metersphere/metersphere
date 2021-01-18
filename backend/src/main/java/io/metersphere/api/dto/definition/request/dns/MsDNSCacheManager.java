@@ -24,6 +24,7 @@ import java.util.List;
 @JSONType(typeName = "DNSCacheManager")
 public class MsDNSCacheManager extends MsTestElement {
 
+    @Override
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, ParameterConfig config) {
         if (!this.isEnable()) {
             return;
