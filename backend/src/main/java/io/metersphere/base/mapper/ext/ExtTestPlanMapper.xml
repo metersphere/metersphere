@@ -222,4 +222,19 @@
             </if>
         </where>
     </select>
+    <select id="findTestProjectNameByTestPlanID" resultType="java.lang.String">
+        SELECT p.name FROM TEST_PLAN tp INNER JOIN project p ON p.id =tp.project_id
+        WHERE tp.id = #{0} limit 1;
+    </select>
+    <select id="findScheduleCreateUserById" resultType="java.lang.String">
+        SELECT user_id FROM `schedule`
+        WHERE resource_id = #{0}
+        limit 1;
+    </select>
+
+    <select id="findIdByPerformanceReportId" resultType="java.lang.String">
+        SELECT report.id FROM test_plan_report report INNER JOIN test_plan_report_data reportData ON report.id = reportData.test_plan_report_id
+        WHERE reportData.performance_info like CONCAT('%', #{0}'%')
+    </select>
+
 </mapper>

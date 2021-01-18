@@ -458,6 +458,7 @@
           // 直接更新场景防止编辑内容丢失
           this.editScenario();
         }
+        this.reload();
       },
       showButton(...names) {
         for (const name of names) {
@@ -521,8 +522,9 @@
             this.$refs.apiImport.open();
             break;
         }
-
-        this.selectedNode.expanded = true;
+        if (this.selectedNode) {
+          this.selectedNode.expanded = true;
+        }
         this.sort();
       },
       nodeClick(data, node) {

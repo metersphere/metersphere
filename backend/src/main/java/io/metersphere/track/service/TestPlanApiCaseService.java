@@ -107,10 +107,18 @@ public class TestPlanApiCaseService {
         return testPlanApiCaseMapper.selectByExample(example);
     }
 
+    public TestPlanApiCase getById(String id) {
+        return testPlanApiCaseMapper.selectByPrimaryKey(id);
+    }
+
     public void setExecResult(String id, String status) {
         TestPlanApiCase apiCase = new TestPlanApiCase();
         apiCase.setId(id);
         apiCase.setStatus(status);
+        testPlanApiCaseMapper.updateByPrimaryKeySelective(apiCase);
+    }
+
+    public void updateByPrimaryKeySelective(TestPlanApiCase apiCase) {
         testPlanApiCaseMapper.updateByPrimaryKeySelective(apiCase);
     }
 

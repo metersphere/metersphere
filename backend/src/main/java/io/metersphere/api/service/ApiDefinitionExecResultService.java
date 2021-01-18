@@ -5,6 +5,7 @@ import io.metersphere.api.dto.datacount.ExecutedCaseInfoResult;
 import io.metersphere.api.jmeter.TestResult;
 import io.metersphere.base.domain.ApiDefinitionExecResult;
 import io.metersphere.base.domain.ApiDefinitionExecResultExample;
+import io.metersphere.base.domain.TestPlanApiCase;
 import io.metersphere.base.mapper.ApiDefinitionExecResultMapper;
 import io.metersphere.base.mapper.ext.ExtApiDefinitionExecResultMapper;
 import io.metersphere.commons.constants.ApiRunMode;
@@ -55,6 +56,43 @@ public class ApiDefinitionExecResultService {
             if (StringUtils.equals(type, ApiRunMode.API_PLAN.name())) {
                 testPlanApiCaseService.setExecResult(item.getName(), status);
             }
+            apiDefinitionExecResultMapper.insert(saveResult);
+        });
+    }
+
+    /**
+     * 定时任务触发的保存逻辑
+     *      定时任务时，userID要改为定时任务中的用户
+     * @param result
+     * @param type
+     */
+    public void saveApiResultByScheduleTask(TestResult result, String type) {
+        result.getScenarios().get(0).getRequestResults().forEach(item -> {
+            ApiDefinitionExecResult saveResult = new ApiDefinitionExecResult();
+            saveResult.setId(UUID.randomUUID().toString());
+            saveResult.setCreateTime(System.currentTimeMillis());
+            saveResult.setName(item.getName());
+            saveResult.setResourceId(item.getName());
+            saveResult.setContent(JSON.toJSONString(item));
+            saveResult.setStartTime(item.getStartTime());
+            String status = item.isSuccess() ? "success" : "error";
+            saveResult.setEndTime(item.getResponseResult().getResponseTime());
+            saveResult.setType(type);
+            saveResult.setStatus(status);
+
+            String userID = null;
+            if (StringUtils.equals(type, ApiRunMode.SCHEDULE_API_PLAN.name())) {
+                TestPlanApiCase apiCase = testPlanApiCaseService.getById(item.getName());
+                String scheduleCreateUser = testPlanService.findScheduleCreateUserById(apiCase.getTestPlanId());
+                userID = scheduleCreateUser;
+                apiCase.setStatus(status);
+                testPlanApiCaseService.updateByPrimaryKeySelective(apiCase);
+            }else {
+                userID = Objects.requireNonNull(SessionUtils.getUser()).getId();
+                testPlanApiCaseService.setExecResult(item.getName(), status);
+            }
+
+            saveResult.setUserId(userID);
             apiDefinitionExecResultMapper.insert(saveResult);
         });
     }

@@ -1,32 +1,32 @@
 <template>
   <div class="json-schema-editor">
-    <el-row class="row" :gutter="10">
-      <el-col :span="12" class="ant-col-name">
-        <div :style="{marginLeft:`${10*deep}px`}" class="ant-col-name-c">
-          <span v-if="pickValue.type==='object'" :class="hidden? 'el-tree-node__expand-icon el-icon-caret-right':
+    <el-row class="row" :gutter="20">
+      <el-col :span="8" class="ms-col-name">
+        <div :style="{marginLeft:`${10*deep}px`}" class="ms-col-name-c"/>
+        <span v-if="pickValue.type==='object'" :class="hidden? 'el-tree-node__expand-icon el-icon-caret-right':
             'expanded el-tree-node__expand-icon el-icon-caret-right'" @click="hidden = !hidden"/>
-          <span v-else style="width:10px;display:inline-block"></span>
-          <input class="el-input el-input__inner" style="height: 32px" :disabled="disabled || root" :value="pickKey" @blur="onInputName" size="small"/>
-        </div>
+        <span v-else style="width:10px;display:inline-block"></span>
+        <input class="el-input el-input__inner" style="height: 32px" :disabled="disabled || root" :value="pickKey" @blur="onInputName" size="small"/>
+
         <el-tooltip v-if="root" :content="$t('schema.checked_all')" placement="top">
-          <input type="checkbox" :disabled="!isObject && !isArray" class="ant-col-name-required" @change="onRootCheck"/>
+          <input type="checkbox" :disabled="!isObject && !isArray" class="ms-col-name-required" @change="onRootCheck"/>
         </el-tooltip>
         <el-tooltip v-else :content="$t('schema.required')" placement="top">
-          <input type="checkbox" :disabled="isItem" :checked="checked" class="ant-col-name-required" @change="onCheck"/>
+          <input type="checkbox" :disabled="isItem" :checked="checked" class="ms-col-name-required" @change="onCheck"/>
         </el-tooltip>
       </el-col>
       <el-col :span="4">
-        <el-select v-model="pickValue.type" :disabled="disabledType" class="ant-col-type" @change="onChangeType" size="small">
+        <el-select v-model="pickValue.type" :disabled="disabledType" class="ms-col-type" @change="onChangeType" size="small">
           <el-option :key="t" :value="t" :label="t" v-for="t in TYPE_NAME"/>
         </el-select>
       </el-col>
-      <el-col :span="8">
+      <el-col :span="4">
         <ms-mock :disabled="pickValue.type==='object'" :schema="pickValue"/>
       </el-col>
-      <el-col>
-        <el-input v-model="pickValue.description" class="ant-col-title" :placeholder="$t('schema.description')" size="small"/>
+      <el-col :span="4">
+        <el-input v-model="pickValue.description" class="ms-col-title" :placeholder="$t('schema.description')" size="small"/>
       </el-col>
-      <el-col :span="5" class="col-item-setting">
+      <el-col :span="4" class="col-item-setting">
         <el-tooltip class="item" effect="dark" :content="$t('schema.adv_setting')" placement="top">
           <i class="el-icon-setting" @click="onSetting"/>
         </el-tooltip>
@@ -49,7 +49,7 @@
     <el-dialog :close-on-click-modal="false" :title="$t('schema.adv_setting')" :visible.sync="modalVisible" :destroy-on-close="true"
                @close="handleClose">
       <p class="tip">基础设置 </p>
-      <el-form :inline="true" v-model="advancedValue" class="ant-advanced-search-form">
+      <el-form :inline="true" v-model="advancedValue" class="ms-advanced-search-form">
         <el-row :gutter="6">
           <el-col :span="8" v-for="(item,key) in advancedValue" :key="key" style="float: right">
             <el-form-item>
@@ -69,7 +69,7 @@
         </el-row>
       </el-form>
       <!--<h3 v-text="$t('schema.add_custom')" v-show="custom">添加自定义属性</h3>
-      <el-form class="ant-advanced-search-form" v-show="custom">
+      <el-form class="ms-advanced-search-form" v-show="custom">
         <el-row :gutter="6">
           <el-col :span="8" v-for="item in customProps" :key="item.key">
             <el-form-item :label="item.key">
@@ -316,27 +316,26 @@
     margin: 12px;
   }
 
-  .json-schema-editor .row .ant-col-name {
+  .json-schema-editor .row .ms-col-name {
     display: flex;
     align-items: center;
   }
 
-  .json-schema-editor .row .ant-col-name .ant-col-name-c {
+  .json-schema-editor .row .ms-col-name .ms-col-name-c {
     display: flex;
     align-items: center;
   }
 
-  .json-schema-editor .row .ant-col-name .ant-col-name-required {
-    flex: 0 0 24px;
+  .json-schema-editor .row .ms-col-name .ms-col-name-required {
+    flex: 0 0 30px;
     text-align: center;
   }
 
-  .json-schema-editor .row .ant-col-type {
-    min-width: 100px;
+  .json-schema-editor .row .ms-col-type {
     width: 100%;
   }
 
-  .json-schema-editor .row .ant-col-setting {
+  .json-schema-editor .row .ms-col-setting {
     display: inline-block;
   }
 
@@ -375,11 +374,11 @@
     padding: 0 8px;
   }
 
-  .json-schema-editor-advanced-modal .ant-advanced-search-form {
+  .json-schema-editor-advanced-modal .ms-advanced-search-form {
     display: flex;
   }
 
-  .json-schema-editor-advanced-modal .ant-advanced-search-form .ant-form-item .ant-form-item-control-wrapper {
+  .json-schema-editor-advanced-modal .ms-advanced-search-form .ms-form-item .ms-form-item-control-wrapper {
     flex: 1;
   }
 

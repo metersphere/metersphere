@@ -23,6 +23,9 @@ public class RunScenarioRequest {
 
     private String runMode;
 
+    //测试情景和测试计划的关联ID
+    private String planScenarioId;
+
     private List<String> planCaseIds;
 
     private String reportUserID;

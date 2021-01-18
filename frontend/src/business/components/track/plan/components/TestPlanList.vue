@@ -129,7 +129,7 @@
             </template>
           </ms-table-operator>
           <ms-table-operator-button style="margin-left: 10px;color:#6C317C" type=""
-                                    :tip="$t('test_track.plan_view.view_report')" icon="el-icon-time"
+                                    :tip="$t('commons.trigger_mode.schedule')" icon="el-icon-time"
                                     @exec="scheduleTask(scope.row)"/>
         </template>
       </el-table-column>
