@@ -12,6 +12,7 @@ import io.metersphere.i18n.Translator;
 import io.metersphere.notice.sender.NoticeModel;
 import io.metersphere.notice.service.NoticeSendService;
 import io.metersphere.service.SystemParameterService;
+import io.metersphere.track.service.TestPlanReportService;
 import io.metersphere.track.service.TestPlanTestCaseService;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -47,6 +48,8 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
     private ApiDefinitionService apiDefinitionService;
 
     private ApiDefinitionExecResultService apiDefinitionExecResultService;
+
+    private TestPlanReportService testPlanReportService;
 
     private ApiScenarioReportService apiScenarioReportService;
 
@@ -91,6 +94,10 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
         apiDefinitionExecResultService = CommonBeanFactory.getBean(ApiDefinitionExecResultService.class);
         if (apiDefinitionExecResultService == null) {
             LogUtil.error("apiDefinitionExecResultService is required");
+        }
+        testPlanReportService = CommonBeanFactory.getBean(TestPlanReportService.class);
+        if (testPlanReportService == null) {
+            LogUtil.error("testPlanReportService is required");
         }
 
         apiScenarioReportService = CommonBeanFactory.getBean(ApiScenarioReportService.class);
@@ -163,16 +170,27 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
             apiReportService.complete(testResult, report);
         } else if (StringUtils.equals(this.runMode, ApiRunMode.DELIMIT.name())) {
             // 调试操作，不需要存储结果
+            apiDefinitionService.addResult(testResult);
+            if (StringUtils.isBlank(debugReportId)) {
             if (StringUtils.isBlank(debugReportId)) {
                 apiDefinitionService.addResult(testResult);
             } else {
                 apiDefinitionService.addResult(testResult);
                 apiDefinitionExecResultService.saveApiResult(testResult, ApiRunMode.DELIMIT.name());
             }
-        } else if (StringUtils.equals(this.runMode, ApiRunMode.API_PLAN.name())) {
+        } else if (StringUtils.equalsAny(this.runMode, ApiRunMode.API_PLAN.name(), ApiRunMode.SCHEDULE_API_PLAN.name())) {
             apiDefinitionService.addResult(testResult);
-            apiDefinitionExecResultService.saveApiResult(testResult, ApiRunMode.API_PLAN.name());
-        } else if (StringUtils.equalsAny(this.runMode, ApiRunMode.SCENARIO.name(), ApiRunMode.SCENARIO_PLAN.name())) {
+
+            //测试计划定时任务-接口执行逻辑的话，需要同步测试计划的报告数据
+            if (StringUtils.equals(this.runMode, ApiRunMode.SCHEDULE_API_PLAN.name())) {
+                apiDefinitionExecResultService.saveApiResultByScheduleTask(testResult, ApiRunMode.SCHEDULE_API_PLAN.name());
+                List<String> testPlanReportIdList = new ArrayList<>();
+                testPlanReportIdList.add(debugReportId);
+                testPlanReportService.updateReport(testPlanReportIdList,ApiRunMode.SCHEDULE_API_PLAN.name(),ReportTriggerMode.SCHEDULE.name());
+            }else {
+                apiDefinitionExecResultService.saveApiResult(testResult, ApiRunMode.API_PLAN.name());
+            }
+        } else if (StringUtils.equalsAny(this.runMode, ApiRunMode.SCENARIO.name(), ApiRunMode.SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO_PLAN.name())) {
             // 执行报告不需要存储，由用户确认后在存储
             testResult.setTestId(testId);
             ApiScenarioReport scenarioReport = apiScenarioReportService.complete(testResult, this.runMode);

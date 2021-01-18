@@ -12,4 +12,5 @@ public class TestPlanDTO extends TestPlan {
     private String projectName;
     private String userName;
     private List<String> projectIds;
+    private String scheduleId;
 }

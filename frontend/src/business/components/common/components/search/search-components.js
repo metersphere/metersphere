@@ -88,6 +88,14 @@ export const TEST_NAME = {
     options: [OPERATORS.LIKE, OPERATORS.NOT_LIKE]
   },
 }
+export const TEST_PLAN_NAME = {
+  key: "testPlanName",
+  name: 'MsTableSearchInput',
+  label: 'test_track.report.list.test_plan',
+  operator: {
+    options: [OPERATORS.LIKE, OPERATORS.NOT_LIKE]
+  },
+}
 export const CREATE_TIME = {
   key: "createTime",
   name: 'MsTableSearchDateTimePicker',
@@ -406,6 +414,22 @@ export const TEST_PLAN_STATUS = {
   }
 };
 
+export const TEST_PLAN_TRIGGER_MODE = {
+  key: "triggerMode",
+  name: 'MsTableSearchSelect',
+  label: "test_track.report.list.trigger_mode",
+  operator: {
+    options: [OPERATORS.IN, OPERATORS.NOT_IN]
+  },
+  options: [
+    {label: 'test_track.report.trigger_mode.manual', value: 'manual'},
+    {label: 'test_track.report.trigger_mode.automation', value: 'automation'},
+  ],
+  props: {
+    multiple: true
+  }
+};
+
 export const TEST_CONFIGS = [NAME, UPDATE_TIME, CREATE_TIME, STATUS, CREATOR];
 
 export const REPORT_CONFIGS = [NAME, TEST_NAME, CREATE_TIME, STATUS, CREATOR, TRIGGER_MODE];
@@ -417,3 +441,5 @@ export const TEST_PLAN_CONFIGS = [NAME, UPDATE_TIME, CREATE_TIME, PRINCIPAL, TES
 export const API_DEFINITION_CONFIGS = [NAME, API_METHOD, API_PATH, API_STATUS, API_TAGS, UPDATE_TIME, CREATE_TIME, CREATOR];
 
 export const API_CASE_CONFIGS = [NAME, API_CASE_PRIORITY, API_TAGS, API_CASE_RESULT, UPDATE_TIME, CREATE_TIME, CREATOR];
+
+export const TEST_PLAN_REPORT_CONFIGS = [NAME, TEST_PLAN_NAME,CREATOR, CREATE_TIME, TEST_PLAN_TRIGGER_MODE, TEST_PLAN_STATUS];

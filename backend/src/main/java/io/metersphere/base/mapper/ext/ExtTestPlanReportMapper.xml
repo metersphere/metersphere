@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="io.metersphere.base.mapper.ext.ExtTestPlanReportMapper">
+
+    <select id="list" resultType="io.metersphere.track.dto.TestPlanReportDTO"
+            parameterType="io.metersphere.track.request.report.QueryTestPlanReportRequest">
+        SELECT tpr.id AS id, tpr.`name` AS `name`, tp.`name` AS testPlanName, tpr.creator AS creator, tpr.create_time AS createTime,tpr.trigger_Mode AS triggerMode
+        FROM test_plan tp
+        INNER JOIN test_plan_report tpr on tp.id = tpr.test_plan_id
+        <where>
+            <if test="name != null">
+                and tpr.name like CONCAT('%', #{name},'%')
+            </if>
+
+            <if test="projectId != null">
+                AND tp.project_id = #{projectId}
+            </if>
+            <if test="testPlanName != null">
+                AND tp.name like CONCAT('%', #{testPlanName},'%')
+            </if>
+            <if test="creator != null">
+                AND tpr.creator = #{creator}
+            </if>
+        </where>
+        <if test="orders != null and orders.size() > 0">
+            order by
+            <foreach collection="orders" separator="," item="order">
+                <if test="order.name == 'test_plan_name'">
+                    tp.name ${order.type}
+                </if>
+                <if test="order.name != 'test_plan_name'">
+                    tpr.${order.name} ${order.type}
+                </if>
+            </foreach>
+        </if>
+    </select>
+</mapper>

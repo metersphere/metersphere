@@ -4,7 +4,7 @@
     <el-tabs v-model="activeName" v-show="isActive">
       <el-tab-pane :label="$t('api_test.definition.request.response_body')" name="body" class="pane">
         <ms-sql-result-table v-if="isSqlType" :body="response.responseResult.body"/>
-        <ms-code-edit v-if="!isSqlType" :mode="mode" :read-only="true" :modes="modes" :data.sync="response.responseResult.body" ref="codeEdit"/>
+        <ms-code-edit v-if="!isSqlType && isMsCodeEditShow" :mode="mode" :read-only="true" :modes="modes" :data.sync="response.responseResult.body" ref="codeEdit"/>
       </el-tab-pane>
 
       <el-tab-pane :label="$t('api_test.definition.request.response_header')" name="headers" class="pane">
@@ -49,7 +49,7 @@
       <el-tab-pane v-if="activeName == 'body'" :disabled="true" name="mode" class="pane cookie">
         <template v-slot:label>
           <ms-dropdown v-if="currentProtocol==='SQL'" :commands="sqlModes" :default-command="mode" @command="sqlModeChange"/>
-          <ms-dropdown v-else :commands="modes" :default-command="mode" @command="modeChange"/>
+          <ms-dropdown v-else :commands="modes" :default-command="mode" @command="modeChange" ref="modeDropdown"/>
         </template>
       </el-tab-pane>
     </el-tabs>
@@ -84,7 +84,13 @@
         activeName: "body",
         modes: ['text', 'json', 'xml', 'html'],
         sqlModes: ['text', 'table'],
-        mode: BODY_FORMAT.TEXT
+        mode: BODY_FORMAT.TEXT,
+        isMsCodeEditShow: true
+      }
+    },
+    watch: {
+      response() {
+        this.setBodyType();
       }
     },
     methods: {
@@ -93,15 +99,27 @@
       },
       sqlModeChange(mode) {
         this.mode = mode;
-      }
+      },
+      setBodyType() {
+        if (!this.response.headers) {
+          return;
+        }
+        if (this.response.headers.indexOf("Content-Type: application/json") > 0) {
+          if (this.$refs.modeDropdown) {
+            this.$refs.modeDropdown.handleCommand(BODY_FORMAT.JSON);
+            this.msCodeReload();
+          }
+        }
+      },
+      msCodeReload() {
+        this.isMsCodeEditShow = false;
+        this.$nextTick(() => {
+          this.isMsCodeEditShow = true;
+        });
+      },
     },
     mounted() {
-      if (!this.response.headers) {
-        return;
-      }
-      if (this.response.headers.indexOf("Content-Type: application/json") > 0) {
-        this.mode = BODY_FORMAT.JSON;
-      }
+      this.setBodyType();
     },
     computed: {
       isSqlType() {

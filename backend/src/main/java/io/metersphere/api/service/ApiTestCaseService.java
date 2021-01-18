@@ -435,46 +435,11 @@ public class ApiTestCaseService {
 
     public String run(RunCaseRequest request) {
         ApiTestCaseWithBLOBs testCaseWithBLOBs = apiTestCaseMapper.selectByPrimaryKey(request.getCaseId());
-
         // 多态JSON普通转换会丢失内容，需要通过 ObjectMapper 获取
         if (testCaseWithBLOBs != null && StringUtils.isNotEmpty(testCaseWithBLOBs.getRequest())) {
             try {
-                ObjectMapper mapper = new ObjectMapper();
-                mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-                MsTestElement element = mapper.readValue(testCaseWithBLOBs.getRequest(), new TypeReference<MsTestElement>() {
-                });
-                if(StringUtils.isBlank(request.getEnvironmentId())){
-                    TestPlanApiCaseExample example = new TestPlanApiCaseExample();
-                    example.createCriteria().andTestPlanIdEqualTo(request.getTestPlanId()).andApiCaseIdEqualTo(request.getCaseId());
-                    List<TestPlanApiCase> list=testPlanApiCaseMapper.selectByExample(example);
-                    request.setEnvironmentId(list.get(0).getEnvironmentId());
-                    element.setName(list.get(0).getId());
-                }else{
-                    element.setName(request.getCaseId());
-                }
-
-                // 测试计划
-                MsTestPlan testPlan = new MsTestPlan();
-                testPlan.setHashTree(new LinkedList<>());
-                HashTree jmeterHashTree = new ListedHashTree();
-
-                // 线程组
-                MsThreadGroup group = new MsThreadGroup();
-                group.setLabel(testCaseWithBLOBs.getName());
-                group.setName(testCaseWithBLOBs.getId());
-
-                LinkedList<MsTestElement> hashTrees = new LinkedList<>();
-                hashTrees.add(element);
-                group.setHashTree(hashTrees);
-                testPlan.getHashTree().add(group);
-                ApiTestEnvironmentService environmentService = CommonBeanFactory.getBean(ApiTestEnvironmentService.class);
-                ApiTestEnvironmentWithBLOBs environment = environmentService.get(request.getEnvironmentId());
-                ParameterConfig parameterConfig=new ParameterConfig();
-                if (environment != null && environment.getConfig() != null) {
-                    parameterConfig.setConfig( JSONObject.parseObject(environment.getConfig(), EnvironmentConfig.class));
-                }
-                testPlan.toHashTree(jmeterHashTree, testPlan.getHashTree(), parameterConfig);
-                String runMode = request.getRunMode();
+                HashTree jmeterHashTree = this.generateHashTree(request,testCaseWithBLOBs);
+                String runMode = ApiRunMode.DELIMIT.name();
                 // 调用执行方法
                 jMeterService.runDefinition(request.getReportId(), jmeterHashTree, request.getReportId(), runMode);
 
@@ -483,6 +448,62 @@ public class ApiTestCaseService {
             }
         }
         return request.getReportId();
+    }
+    public String run(ApiTestCaseWithBLOBs apiCaseBolbs,String id,String debugReportId,String testPlanID,String runMode) {
+        // 多态JSON普通转换会丢失内容，需要通过 ObjectMapper 获取
+        if (apiCaseBolbs != null && StringUtils.isNotEmpty(apiCaseBolbs.getRequest())) {
+            try {
+                ApiTestCase apiTestCase = apiTestCaseMapper.selectByPrimaryKey(apiCaseBolbs.getId());
+                RunCaseRequest request = new RunCaseRequest();
+                request.setCaseId(apiTestCase.getId());
+                request.setTestPlanId(testPlanID);
+                HashTree jmeterHashTree = this.generateHashTree(request,apiCaseBolbs);
+                // 调用执行方法
+                jMeterService.runDefinition(id, jmeterHashTree, debugReportId, runMode);
+
+            } catch (Exception ex) {
+                LogUtil.error(ex.getMessage());
+            }
+        }
+        return id;
+    }
+    public HashTree generateHashTree(RunCaseRequest request,ApiTestCaseWithBLOBs testCaseWithBLOBs) throws Exception {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        MsTestElement element = mapper.readValue(testCaseWithBLOBs.getRequest(), new TypeReference<MsTestElement>() {
+        });
+        if(StringUtils.isBlank(request.getEnvironmentId())){
+            TestPlanApiCaseExample example = new TestPlanApiCaseExample();
+            example.createCriteria().andTestPlanIdEqualTo(request.getTestPlanId()).andApiCaseIdEqualTo(request.getCaseId());
+            List<TestPlanApiCase> list=testPlanApiCaseMapper.selectByExample(example);
+            request.setEnvironmentId(list.get(0).getEnvironmentId());
+            element.setName(list.get(0).getId());
+        }else{
+            element.setName(request.getCaseId());
+        }
+
+        // 测试计划
+        MsTestPlan testPlan = new MsTestPlan();
+        testPlan.setHashTree(new LinkedList<>());
+        HashTree jmeterHashTree = new ListedHashTree();
+
+        // 线程组
+        MsThreadGroup group = new MsThreadGroup();
+        group.setLabel(testCaseWithBLOBs.getName());
+        group.setName(testCaseWithBLOBs.getId());
+
+        LinkedList<MsTestElement> hashTrees = new LinkedList<>();
+        hashTrees.add(element);
+        group.setHashTree(hashTrees);
+        testPlan.getHashTree().add(group);
+        ApiTestEnvironmentService environmentService = CommonBeanFactory.getBean(ApiTestEnvironmentService.class);
+        ApiTestEnvironmentWithBLOBs environment = environmentService.get(request.getEnvironmentId());
+        ParameterConfig parameterConfig=new ParameterConfig();
+        if (environment != null && environment.getConfig() != null) {
+            parameterConfig.setConfig( JSONObject.parseObject(environment.getConfig(), EnvironmentConfig.class));
+        }
+        testPlan.toHashTree(jmeterHashTree, testPlan.getHashTree(), parameterConfig);
+        return jmeterHashTree;
     }
 
     public String getExecResult(String id){

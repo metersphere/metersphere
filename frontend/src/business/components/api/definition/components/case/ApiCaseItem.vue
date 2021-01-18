@@ -67,10 +67,10 @@
       <div v-if="apiCase.active">
         <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
 
-        <ms-api-request-form :is-read-only="isReadOnly" :headers="apiCase.request.headers " :request="apiCase.request" v-if="api.protocol==='HTTP'"/>
-        <ms-tcp-basis-parameters :request="apiCase.request" v-if="api.protocol==='TCP'"/>
-        <ms-sql-basis-parameters :request="apiCase.request" v-if="api.protocol==='SQL'"/>
-        <ms-dubbo-basis-parameters :request="apiCase.request" v-if="api.protocol==='DUBBO'"/>
+        <ms-api-request-form :showScript="true" :is-read-only="isReadOnly" :headers="apiCase.request.headers " :request="apiCase.request" v-if="api.protocol==='HTTP'"/>
+        <ms-tcp-basis-parameters :showScript="true" :request="apiCase.request" v-if="api.protocol==='TCP'"/>
+        <ms-sql-basis-parameters :showScript="true" :request="apiCase.request" v-if="api.protocol==='SQL'"/>
+        <ms-dubbo-basis-parameters :showScript="true" :request="apiCase.request" v-if="api.protocol==='DUBBO'"/>
 
         <!-- HTTP 请求返回数据 -->
         <p class="tip">
@@ -92,11 +92,11 @@
 </template>
 
 <script>
-  import {getCurrentProjectID, getUUID} from "../../../../../../common/js/utils";
+  import {_getBodyUploadFiles, getCurrentProjectID} from "../../../../../../common/js/utils";
   import {PRIORITY, RESULT_MAP} from "../../model/JsonData";
   import MsTag from "../../../../common/components/MsTag";
   import MsTipButton from "../../../../common/components/MsTipButton";
-  import MsApiRequestForm from "../request/http/ApiRequestForm";
+  import MsApiRequestForm from "../request/http/ApiHttpRequestForm";
   import ApiEnvironmentConfig from "../environment/ApiEnvironmentConfig";
   import MsApiAssertions from "../assertion/ApiAssertions";
   import MsSqlBasisParameters from "../request/database/BasisParameters";
@@ -188,13 +188,14 @@
         }
       },
       singleRun(data) {
+        data.message = true;
+        this.saveTestCase(data);
         this.$emit('singleRun', data);
       },
       copyCase(data) {
         let obj = {name: "copy_" + data.name, priority: data.priority, active: true, request: data.request};
         this.$emit('copyCase', obj);
       },
-
       selectTestCase(item, $event) {
         if (!item.id || !this.loaded) {
           return;
@@ -210,7 +211,6 @@
           $event.currentTarget.className = "el-card is-always-shadow is-selected";
           this.$emit('selectTestCase', item);
         }
-
       },
       changePriority(row) {
         if (row.id) {
@@ -223,6 +223,7 @@
         if (this.validate(tmp)) {
           return;
         }
+        tmp.request.body = row.request.body;
         let bodyFiles = this.getBodyUploadFiles(tmp);
         tmp.projectId = getCurrentProjectID();
         tmp.active = true;
@@ -241,7 +242,9 @@
           row.id = data.id;
           row.createTime = data.createTime;
           row.updateTime = data.updateTime;
-          this.$success(this.$t('commons.save_success'));
+          if (!row.message) {
+            this.$success(this.$t('commons.save_success'));
+          }
         });
       },
       showInput(row) {
@@ -278,37 +281,7 @@
       getBodyUploadFiles(row) {
         let bodyUploadFiles = [];
         row.bodyUploadIds = [];
-        let request = row.request;
-        if (request.body && request.body.kvs) {
-          request.body.kvs.forEach(param => {
-            if (param.files) {
-              param.files.forEach(item => {
-                if (item.file) {
-                  let fileId = getUUID().substring(0, 8);
-                  item.name = item.file.name;
-                  item.id = fileId;
-                  row.bodyUploadIds.push(fileId);
-                  bodyUploadFiles.push(item.file);
-                }
-              });
-            }
-          });
-          if (request.body.binary) {
-            request.body.binary.forEach(param => {
-              if (param.files) {
-                param.files.forEach(item => {
-                  if (item.file) {
-                    let fileId = getUUID().substring(0, 8);
-                    item.name = item.file.name;
-                    item.id = fileId;
-                    row.bodyUploadIds.push(fileId);
-                    bodyUploadFiles.push(item.file);
-                  }
-                });
-              }
-            });
-          }
-        }
+        _getBodyUploadFiles(row.request, bodyUploadFiles, row);
         return bodyUploadFiles;
       },
     }

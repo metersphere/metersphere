@@ -303,42 +303,56 @@ export function getBodyUploadFiles(obj, runData) {
   let bodyUploadFiles = [];
   obj.bodyUploadIds = [];
   if (runData) {
-    runData.forEach(request => {
-      if (request.body) {
-        request.body.kvs.forEach(param => {
-          if (param.files) {
-            param.files.forEach(item => {
-              if (item.file) {
-                if (!item.id) {
-                  let fileId = getUUID().substring(0, 12);
-                  item.name = item.file.name;
-                  item.id = fileId;
-                }
-                obj.bodyUploadIds.push(item.id);
-                bodyUploadFiles.push(item.file);
-              }
-            });
+    if (runData instanceof Array) {
+      runData.forEach(request => {
+        _getBodyUploadFiles(request, bodyUploadFiles, obj);
+      });
+    } else {
+      _getBodyUploadFiles(runData, bodyUploadFiles, obj);
+    }
+  }
+  return bodyUploadFiles;
+}
+
+export function _getBodyUploadFiles(request, bodyUploadFiles, obj) {
+  let body = null;
+  if (request.hashTree && request.hashTree.length > 0 && request.hashTree[0].body) {
+    body = request.hashTree[0].body;
+  } else if (request.body) {
+    body = request.body;
+  }
+  if (body) {
+    body.kvs.forEach(param => {
+      if (param.files) {
+        param.files.forEach(item => {
+          if (item.file) {
+            if (!item.id) {
+              let fileId = getUUID().substring(0, 12);
+              item.name = item.file.name;
+              item.id = fileId;
+            }
+            obj.bodyUploadIds.push(item.id);
+            bodyUploadFiles.push(item.file);
           }
         });
-        if (request.body.binary) {
-          request.body.binary.forEach(param => {
-            if (param.files) {
-              param.files.forEach(item => {
-                if (item.file) {
-                  if (!item.id) {
-                    let fileId = getUUID().substring(0, 12);
-                    item.name = item.file.name;
-                    item.id = fileId;
-                  }
-                  obj.bodyUploadIds.push(item.id);
-                  bodyUploadFiles.push(item.file);
-                }
-              });
+      }
+    });
+    if (body.binary) {
+      body.binary.forEach(param => {
+        if (param.files) {
+          param.files.forEach(item => {
+            if (item.file) {
+              if (!item.id) {
+                let fileId = getUUID().substring(0, 12);
+                item.name = item.file.name;
+                item.id = fileId;
+              }
+              obj.bodyUploadIds.push(item.id);
+              bodyUploadFiles.push(item.file);
             }
           });
         }
-      }
-    });
+      });
+    }
   }
-  return bodyUploadFiles;
 }

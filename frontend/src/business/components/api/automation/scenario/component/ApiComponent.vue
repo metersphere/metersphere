@@ -24,6 +24,10 @@
       <el-tag size="mini" style="margin-left: 20px" v-if="request.referenced==='Deleted'" type="danger">{{$t('api_test.automation.reference_deleted')}}</el-tag>
       <el-tag size="mini" style="margin-left: 20px" v-if="request.referenced==='Copy'">{{ $t('commons.copy') }}</el-tag>
       <el-tag size="mini" style="margin-left: 20px" v-if="request.referenced ==='REF'">{{ $t('api_test.scenario.reference') }}</el-tag>
+
+      <ms-run :debug="false" :reportId="reportId" :run-data="runData"
+              @runRefresh="runRefresh" ref="runTest"/>
+
     </template>
 
     <template v-slot:button>
@@ -56,22 +60,19 @@
       {{$t('commons.save')}}
     </el-button>
 
-    <ms-run :debug="false" :reportId="reportId" :run-data="runData"
-            @runRefresh="runRefresh" ref="runTest"/>
-
   </api-base-component>
 </template>
 
 <script>
-  import MsSqlBasisParameters from "../../definition/components/request/database/BasisParameters";
-  import MsTcpBasisParameters from "../../definition/components/request/tcp/TcpBasisParameters";
-  import MsDubboBasisParameters from "../../definition/components/request/dubbo/BasisParameters";
-  import MsApiRequestForm from "../../definition/components/request/http/ApiRequestForm";
-  import {REQ_METHOD} from "../../definition/model/JsonData";
-  import MsRequestResultTail from "../../definition/components/response/RequestResultTail";
-  import MsRun from "../../definition/components/Run";
+  import MsSqlBasisParameters from "../../../definition/components/request/database/BasisParameters";
+  import MsTcpBasisParameters from "../../../definition/components/request/tcp/TcpBasisParameters";
+  import MsDubboBasisParameters from "../../../definition/components/request/dubbo/BasisParameters";
+  import MsApiRequestForm from "../../../definition/components/request/http/ApiHttpRequestForm";
+  import {REQ_METHOD} from "../../../definition/model/JsonData";
+  import MsRequestResultTail from "../../../definition/components/response/RequestResultTail";
+  import MsRun from "../../../definition/components/Run";
   import {getUUID} from "@/common/js/utils";
-  import ApiBaseComponent from "./common/ApiBaseComponent";
+  import ApiBaseComponent from "../common/ApiBaseComponent";
   export default {
     name: "MsApiComponent",
     props: {

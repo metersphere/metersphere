@@ -295,7 +295,7 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
         if (level > 8) {
             MSException.throwException(Translator.get("node_deep_limit"));
         }
-        if (rootNode.getId().equals("root")) {
+        if ("root".equals(rootNode.getId())) {
             rootPath = "";
         }
         ApiModule apiDefinitionNode = new ApiModule();

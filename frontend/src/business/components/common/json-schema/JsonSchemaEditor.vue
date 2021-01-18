@@ -31,7 +31,7 @@
       body: {},
     },
     created() {
-      if (!this.body.jsonSchema && this.body.raw) {
+      if (!this.body.jsonSchema && this.body.raw && this.checkIsJson(this.body.raw)) {
         let obj = {"root": GenerateSchema(JSON.parse(this.body.raw))}
         this.schema = obj;
       }
@@ -69,6 +69,14 @@
       },
       openOneClickOperation() {
         this.$refs.importJson.openOneClickOperation();
+      },
+      checkIsJson(json) {
+        try {
+          JSON.parse(json);
+          return true;
+        } catch (e) {
+          return false;
+        }
       },
       jsonData(data) {
         let obj = {"root": data}

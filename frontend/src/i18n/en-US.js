@@ -1084,6 +1084,7 @@ export default {
       plan_name: "Test plan name",
       plan_project: "Project",
       related_project: "Related Project",
+      related_tip: "After linking the project, you can add test cases under the linking project to the test plan list",
       plan_stage: "Stage",
       plan_status: "Status",
       smoke_test: "Smoke test",
@@ -1129,6 +1130,8 @@ export default {
       review_project: "Project",
       review_creator: "Creator",
       review_status: "Status",
+      related_project: "Related Project",
+      related_tip: "After the project is associated, you can add test cases under the associated project to the review list",
       end_time: "EndTime",
       delete: "Delete",
       input_review_name: "Please enter the name of the review",
@@ -1255,6 +1258,22 @@ export default {
       tapd_current_owner: "Tapd Current Owner：",
       zentao_bug_build: "Zentao bug Impact version",
       zentao_bug_assigned: "Zentao bug handler",
+    },
+    report: {
+      name: "Test Plan Report",
+      list: {
+        name: "name",
+        test_plan: "Test plan",
+        creator: "Creator",
+        create_time: "Create Time",
+        trigger_mode: "Trigger Mode",
+        status: "Status",
+        operation: "Operation",
+      },
+      trigger_mode: {
+        manual: "Manual",
+        automation: "Automation",
+      },
     }
   },
   test_resource_pool: {

@@ -5,8 +5,8 @@
     @remove="remove"
     :data="controller"
     :draggable="true"
-    color="#015478"
-    background-color="#E6EEF2"
+    color="#02A7F0"
+    background-color="#F4F4F5"
     :title="$t('api_test.automation.loop_controller')">
 
     <template v-slot:headerLeft>
@@ -15,7 +15,6 @@
       <el-radio @change="changeRadio" class="ms-radio" v-model="controller.loopType" label="FOREACH">{{$t('loop.foreach')}}</el-radio>
       <el-radio @change="changeRadio" class="ms-radio" v-model="controller.loopType" label="WHILE">{{$t('loop.while')}}</el-radio>
     </template>
-
 
     <div v-if="controller.loopType==='LOOP_COUNT'" draggable>
       <el-row>
@@ -71,7 +70,7 @@
 </template>
 
 <script>
-  import ApiBaseComponent from "./common/ApiBaseComponent";
+  import ApiBaseComponent from "../common/ApiBaseComponent";
 
   export default {
     name: "MsLoopController",

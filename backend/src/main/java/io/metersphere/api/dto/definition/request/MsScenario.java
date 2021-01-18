@@ -54,6 +54,7 @@ public class MsScenario extends MsTestElement {
 
     private static final String BODY_FILE_DIR = "/opt/metersphere/data/body";
 
+    @Override
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, ParameterConfig config) {
         if (!this.isEnable()) {
             return;

@@ -25,7 +25,7 @@
 </template>
 
 <script>
-  import ApiBaseComponent from "./common/ApiBaseComponent";
+  import ApiBaseComponent from "../common/ApiBaseComponent";
   export default {
     name: "MsIfController",
     components: {ApiBaseComponent},

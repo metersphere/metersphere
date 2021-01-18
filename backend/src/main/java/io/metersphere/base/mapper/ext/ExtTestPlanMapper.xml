@@ -98,8 +98,9 @@
 
     <select id="list" resultType="io.metersphere.track.dto.TestPlanDTOWithMetric"
             parameterType="io.metersphere.track.request.testcase.QueryTestPlanRequest">
-        select DISTINCT test_plan.*, user.name as user_name, project.name as projectName from test_plan
+        select DISTINCT test_plan.*, user.name as user_name, project.name as projectName,schedule.id as scheduleId from test_plan
         LEFT JOIN user ON user.id = test_plan.principal
+        LEFT JOIN schedule ON schedule.resource_id = test_plan.id
         JOIN project on project.id = test_plan.project_id
         <where>
             <if test="request.combine != null">
@@ -222,4 +223,19 @@
             </if>
         </where>
     </select>
+    <select id="findTestProjectNameByTestPlanID" resultType="java.lang.String">
+        SELECT p.name FROM TEST_PLAN tp INNER JOIN project p ON p.id =tp.project_id
+        WHERE tp.id = #{0} limit 1;
+    </select>
+    <select id="findScheduleCreateUserById" resultType="java.lang.String">
+        SELECT user_id FROM `schedule`
+        WHERE resource_id = #{0}
+        limit 1;
+    </select>
+
+    <select id="findIdByPerformanceReportId" resultType="java.lang.String">
+        SELECT report.id FROM test_plan_report report INNER JOIN test_plan_report_data reportData ON report.id = reportData.test_plan_report_id
+        WHERE reportData.performance_info like CONCAT('%', #{0}'%')
+    </select>
+
 </mapper>

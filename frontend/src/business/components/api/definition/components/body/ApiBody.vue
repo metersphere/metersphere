@@ -25,17 +25,13 @@
         {{ $t('api_test.definition.request.body_binary') }}
       </el-radio>
     </el-radio-group>
-    <el-row v-if="body.type == 'Form Data' || body.type == 'WWW_FORM'">
-      <el-link class="ms-el-link" @click="batchAdd"> {{$t("commons.batch_add")}}</el-link>
-    </el-row>
     <div style="min-width: 1200px;" v-if="body.type == 'Form Data' || body.type == 'WWW_FORM'">
+      <el-row v-if="body.type == 'Form Data' || body.type == 'WWW_FORM'">
+        <el-link class="ms-el-link" @click="batchAdd"> {{$t("commons.batch_add")}}</el-link>
+      </el-row>
       <ms-api-variable :is-read-only="isReadOnly"
                        :parameters="body.kvs"
-                       :isShowEnable="isShowEnable" type="body" v-if="body.type == 'Form Data'"/>
-
-      <ms-api-from-url-variable :is-read-only="isReadOnly"
-                                :parameters="body.kvs"
-                                type="body" v-if="body.type == 'WWW_FORM'"/>
+                       :isShowEnable="isShowEnable" type="body"/>
     </div>
     <div v-if="body.type == 'JSON'">
       <div style="padding: 10px">

@@ -1,0 +1,29 @@
+package io.metersphere.track.request.report;
+
+import io.metersphere.controller.request.OrderRequest;
+import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+
+import java.util.List;
+import java.util.Map;
+
+/**
+ * @author song.tianyang
+ * @Date 2021/1/8 4:36 下午
+ * @Description
+ */
+@Getter
+@Setter
+@Data
+public class QueryTestPlanReportRequest {
+    private String name;
+    private String testPlanName;
+    private String creator;
+    private String workspaceId;
+    private String projectId;
+
+    private List<OrderRequest> orders;
+    private Map<String, List<String>> filters;
+//    private Map<String, Object> combine;
+}

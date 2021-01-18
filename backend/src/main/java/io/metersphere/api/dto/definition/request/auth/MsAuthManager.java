@@ -51,6 +51,7 @@ public class MsAuthManager extends MsTestElement {
     @JSONField(ordinal = 28)
     private String environment;
 
+    @Override
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, ParameterConfig config) {
         if (!this.isEnable()) {
             return;

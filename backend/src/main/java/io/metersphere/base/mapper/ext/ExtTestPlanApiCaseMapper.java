@@ -17,4 +17,6 @@ public interface ExtTestPlanApiCaseMapper {
     List<String> getIdsByPlanId(String planId);
 
     List<String> getNotRelevanceCaseIds(@Param("planId")String planId, @Param("relevanceProjectIds")List<String> relevanceProjectIds);
+
+    List<String> getStatusByTestPlanId(String id);
 }

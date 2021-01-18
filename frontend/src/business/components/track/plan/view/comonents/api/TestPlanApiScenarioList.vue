@@ -180,7 +180,9 @@
       },
       buildExecuteParam(row) {
         let param = {};
-        param.id = row.id;
+        // param.id = row.id;
+        param.id = getUUID();
+        param.planScenarioId = row.id;
         param.projectId = row.projectId;
         param.planCaseIds = [];
         param.planCaseIds.push(row.id);

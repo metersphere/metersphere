@@ -35,10 +35,10 @@
 </template>
 
 <script>
-  import MsCodeEdit from "../../../common/components/MsCodeEdit";
-  import MsInstructionsIcon from "../../../common/components/MsInstructionsIcon";
-  import MsDropdown from "../../../common/components/MsDropdown";
-  import ApiBaseComponent from "./common/ApiBaseComponent";
+  import MsCodeEdit from "../../../../common/components/MsCodeEdit";
+  import MsInstructionsIcon from "../../../../common/components/MsInstructionsIcon";
+  import MsDropdown from "../../../../common/components/MsDropdown";
+  import ApiBaseComponent from "../common/ApiBaseComponent";
 
   export default {
     name: "MsJsr233Processor",

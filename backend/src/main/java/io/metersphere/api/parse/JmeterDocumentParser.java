@@ -157,7 +157,7 @@ public class JmeterDocumentParser {
                     u += k + "=" + ScriptEngineUtils.calculate(v);
                     return u;
                 });
-                ele.setTextContent(url + ((params != null && !params.equals("?")) ? params : ""));
+                ele.setTextContent(url + ((params != null && !"?".equals(params)) ? params : ""));
                 break;
             case "Argument.value":
                 String textContent = ele.getTextContent();

@@ -1085,6 +1085,7 @@ export default {
       plan_name: "計劃名稱",
       plan_project: "所屬項目",
       related_project: "關聯項目",
+      related_tip: "關聯項目後可以添加關聯項目下的測試用例到測試計劃列表",
       plan_stage: "測試階段",
       plan_status: "當前狀態",
       smoke_test: "冒煙測試",
@@ -1128,6 +1129,8 @@ export default {
       review_name: "評審名稱",
       reviewer: "評審人",
       review_project: "所屬項目",
+      related_project: "關聯項目",
+      related_tip: "關聯項目後可以添加關聯項目下的測試用例到評審列表",
       review_creator: "發起人",
       review_status: "當前狀態",
       end_time: "截止時間",
@@ -1256,6 +1259,22 @@ export default {
       tapd_current_owner: "Tapd bug 處理人：",
       zentao_bug_build: "禪道 bug 影響版本",
       zentao_bug_assigned: "禪道 bug 處理人",
+    },
+    report: {
+      name: "測試計畫包括",
+      list: {
+        name: "名稱",
+        test_plan: "測試計畫名稱",
+        creator: "創建人",
+        create_time: "創建時間",
+        trigger_mode: "觸發方式",
+        status: "狀態",
+        operation: "操作",
+      },
+      trigger_mode: {
+        manual: "手動觸發",
+        automation: "自動觸發",
+      },
     }
   },
   test_resource_pool: {

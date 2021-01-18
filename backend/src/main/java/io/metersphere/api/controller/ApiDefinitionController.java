@@ -114,6 +114,7 @@ public class ApiDefinitionController {
 
     @PostMapping(value = "/run", consumes = {"multipart/form-data"})
     public String run(@RequestPart("request") RunDefinitionRequest request, @RequestPart(value = "files") List<MultipartFile> bodyFiles) {
+        request.setReportId(null);
         return apiDefinitionService.run(request, bodyFiles);
     }
 
