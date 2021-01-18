@@ -24,6 +24,10 @@
       <el-tag size="mini" style="margin-left: 20px" v-if="request.referenced==='Deleted'" type="danger">{{$t('api_test.automation.reference_deleted')}}</el-tag>
       <el-tag size="mini" style="margin-left: 20px" v-if="request.referenced==='Copy'">{{ $t('commons.copy') }}</el-tag>
       <el-tag size="mini" style="margin-left: 20px" v-if="request.referenced ==='REF'">{{ $t('api_test.scenario.reference') }}</el-tag>
+
+      <ms-run :debug="false" :reportId="reportId" :run-data="runData"
+              @runRefresh="runRefresh" ref="runTest"/>
+
     </template>
 
     <template v-slot:button>
@@ -55,9 +59,6 @@
     <el-button type="primary" size="small" style="margin: 20px; float: right" @click="saveTestCase(item)" v-if="!request.referenced">
       {{$t('commons.save')}}
     </el-button>
-
-    <ms-run :debug="false" :reportId="reportId" :run-data="runData"
-            @runRefresh="runRefresh" ref="runTest"/>
 
   </api-base-component>
 </template>

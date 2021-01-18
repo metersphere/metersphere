@@ -1,5 +1,5 @@
 <template>
-  <div></div>
+  <span></span>
 </template>
 <script>
   import {getUUID, getBodyUploadFiles} from "@/common/js/utils";
