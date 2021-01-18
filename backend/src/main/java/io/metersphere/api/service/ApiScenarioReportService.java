@@ -49,8 +49,6 @@ public class ApiScenarioReportService {
     private ApiScenarioMapper apiScenarioMapper;
     @Resource
     private TestPlanApiScenarioMapper testPlanApiScenarioMapper;
-//    @Resource
-//    private TestPlanReportService testPlanReportService;
 
     public ApiScenarioReport complete(TestResult result, String runMode) {
         // 更新场景
@@ -144,10 +142,7 @@ public class ApiScenarioReportService {
         // 报告详情内容
         ApiScenarioReportDetail detail = new ApiScenarioReportDetail();
         TestResult newResult = createTestResult(result.getTestId(), scenarioResult);
-//        List<ScenarioResult> scenarioResults = new ArrayList();
-//        scenarioResult.setName(report.getScenarioName());
-//        scenarioResults.add(scenarioResult);
-//        newResult.setScenarios(scenarioResults);
+        scenarioResult.setName(report.getScenarioName());
         newResult.addScenario(scenarioResult);
 
         detail.setContent(JSON.toJSONString(newResult).getBytes(StandardCharsets.UTF_8));
@@ -175,15 +170,15 @@ public class ApiScenarioReportService {
              * 拆分report.getScenarioId, 查出ScenarioId，将真正的场景ID赋值回去
              * 同时将testPlanReportID存入集合，逻辑走完后更新TestPlanReport
              */
-            String [] idArr = report.getScenarioId().split(":");
+            String[] idArr = report.getScenarioId().split(":");
             String planScenarioId = null;
-            if(idArr.length>1){
+            if (idArr.length > 1) {
                 planScenarioId = idArr[0];
                 String planReportID = idArr[1];
-                if(!testPlanReportIdList.contains(planReportID)){
+                if (!testPlanReportIdList.contains(planReportID)) {
                     testPlanReportIdList.add(planReportID);
                 }
-            }else {
+            } else {
                 planScenarioId = report.getScenarioId();
             }
             TestPlanApiScenario testPlanApiScenario = testPlanApiScenarioMapper.selectByPrimaryKey(planScenarioId);
@@ -215,10 +210,11 @@ public class ApiScenarioReportService {
         }
 
         TestPlanReportService testPlanReportService = CommonBeanFactory.getBean(TestPlanReportService.class);
-        testPlanReportService.updateReport(testPlanReportIdList,ApiRunMode.SCHEDULE_SCENARIO_PLAN.name());
+        testPlanReportService.updateReport(testPlanReportIdList, ApiRunMode.SCHEDULE_SCENARIO_PLAN.name());
 
         return lastReport;
     }
+
     public ApiScenarioReport updateScenario(TestResult result) {
         ApiScenarioReport lastReport = null;
         for (ScenarioResult item : result.getScenarios()) {
@@ -227,10 +223,7 @@ public class ApiScenarioReportService {
             // 报告详情内容
             ApiScenarioReportDetail detail = new ApiScenarioReportDetail();
             TestResult newResult = createTestResult(result.getTestId(), item);
-//            List<ScenarioResult> scenarioResults = new ArrayList();
-//            item.setName(report.getScenarioName());
-//            scenarioResults.add(item);
-//            newResult.setScenarios(scenarioResults);
+            item.setName(report.getScenarioName());
             newResult.addScenario(item);
             detail.setContent(JSON.toJSONString(newResult).getBytes(StandardCharsets.UTF_8));
             detail.setReportId(report.getId());
