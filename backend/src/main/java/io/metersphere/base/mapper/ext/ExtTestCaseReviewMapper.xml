@@ -6,17 +6,16 @@
             parameterType="io.metersphere.track.request.testreview.QueryCaseReviewRequest">
         select distinct test_case_review.id, test_case_review.name, test_case_review.creator, test_case_review.status,
         test_case_review.create_time, test_case_review.update_time, test_case_review.end_time,
-        test_case_review.description, user.name as creatorName
-        from test_case_review join test_case_review_project on test_case_review.id = test_case_review_project.review_id
-        join project on test_case_review_project.project_id = project.id
-        left join user on  test_case_review.creator = user.id
+        test_case_review.description, user.name as creatorName, project.name as projectName, test_case_review.project_id
+        from test_case_review
+            join project on project.id = test_case_review.project_id
+        left join user on test_case_review.creator = user.id
         <where>
             <if test="request.name != null">
                 and test_case_review.name like CONCAT('%', #{request.name},'%')
             </if>
-            and project.workspace_id = #{request.workspaceId}
             <if test="request.projectId != null">
-                and test_case_review_project.project_id = #{request.projectId}
+                and test_case_review.project_id = #{request.projectId}
             </if>
         </where>
         <if test="request.orders != null and request.orders.size() > 0">
@@ -30,13 +29,10 @@
     <select id="listByWorkspaceId" resultType="io.metersphere.track.dto.TestCaseReviewDTO"
             parameterType="io.metersphere.track.request.testreview.QueryCaseReviewRequest">
         select distinct test_case_review.*
-        from test_case_review, project, test_case_review_project, test_case_review_users
+        from test_case_review, test_case_review_users
         <where>
-            test_case_review.id = test_case_review_project.review_id
-            and test_case_review_project.project_id = project.id
-            and project.workspace_id = #{workspaceId}
             <if test="projectId != null">
-                and test_case_review_project.project_id = #{projectId}
+                and test_case_review.project_id = #{projectId}
             </if>
             and (
             (test_case_review_users.review_id = test_case_review.id
@@ -48,9 +44,8 @@
     </select>
 
     <select id="listRelate" resultType="io.metersphere.track.dto.TestReviewDTOWithMetric">
-        select distinct test_case_review.* from test_case_review
-        inner join test_case_review_project on test_case_review.id = test_case_review_project.review_id
-        inner join project on project.id = test_case_review_project.project_id
+        select distinct test_case_review.*, project.name as projectName from test_case_review
+        inner join project on project.id = test_case_review.project_id
         inner join test_case_review_users on test_case_review_users.review_id = test_case_review.id
         <where>
             project.workspace_id = #{request.workspaceId}
@@ -58,7 +53,7 @@
                 and test_case_review_users.user_id = #{request.reviewerId}
             </if>
             <if test="request.projectId != null">
-                and test_case_review_project.project_id = #{request.projectId}
+                and test_case_review.project_id = #{request.projectId}
             </if>
             <if test="request.creator != null">
                 and (test_case_review.creator = #{request.creator}
@@ -75,15 +70,24 @@
         order by test_case_review.update_time desc
     </select>
     <select id="checkIsHave" resultType="int">
-        SELECT COUNT(1)
+        select sum(c) from (
+        SELECT COUNT(1) as c
         FROM project, test_case_review_project
-        WHERE project.id = test_case_review_project.project_id
+        WHERE project.id = test_case_review_project.project_id AND test_case_review_project.review_id = #{reviewId}
         <if test="workspaceIds != null and workspaceIds.size() > 0">
             AND project.workspace_id IN
             <foreach collection="workspaceIds" item="id" separator="," open="(" close=")">
                 #{id}
             </foreach>
         </if>
-        AND test_case_review_project.review_id = #{reviewId}
+        union
+        select count(1) as c from test_case_review, project
+        WHERE project_id = project.id AND test_case_review.id = #{reviewId}
+        <if test="workspaceIds != null and workspaceIds.size() > 0">
+            AND project.workspace_id IN
+            <foreach collection="workspaceIds" item="id" separator="," open="(" close=")">
+                #{id}
+            </foreach>
+        </if>) as temp
     </select>
 </mapper>

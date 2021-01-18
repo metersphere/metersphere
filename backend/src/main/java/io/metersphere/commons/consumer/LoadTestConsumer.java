@@ -5,6 +5,7 @@ import io.metersphere.Application;
 import io.metersphere.base.domain.LoadTestReport;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.config.KafkaProperties;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.reflections8.Reflections;
 import org.springframework.kafka.annotation.KafkaListener;
@@ -21,6 +22,8 @@ public class LoadTestConsumer {
         LoadTestReport loadTestReport = JSON.parseObject(record.value(), LoadTestReport.class);
         Reflections reflections = new Reflections(Application.class);
         Set<Class<? extends LoadTestFinishEvent>> subTypes = reflections.getSubTypesOf(LoadTestFinishEvent.class);
+        LogUtil.info("Execute Over: LoadTestConsumer");
+        System.out.println("Execute Over: LoadTestConsumer");
         subTypes.forEach(s -> {
             try {
                 CommonBeanFactory.getBean(s).execute(loadTestReport);

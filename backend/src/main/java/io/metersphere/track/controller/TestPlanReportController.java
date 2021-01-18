@@ -4,6 +4,7 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.base.domain.TestCaseReport;
 import io.metersphere.base.domain.TestPlanReport;
+import io.metersphere.commons.constants.ReportTriggerMode;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.commons.utils.SessionUtils;
@@ -51,5 +52,11 @@ public class TestPlanReportController {
     @PostMapping("/delete")
     public void delete(@RequestBody List<String> testPlanReportIdList) {
         testPlanReportService.delete(testPlanReportIdList);
+    }
+
+    @GetMapping("/apiExecuteFinish/{planId}/{userId}")
+    public void apiExecuteFinish(@PathVariable String planId,@PathVariable String userId) {
+        TestPlanReport report = testPlanReportService.genTestPlanReport(planId,userId,ReportTriggerMode.API.name());
+        testPlanReportService.countReportByTestPlanReportId(report.getId(),null, ReportTriggerMode.API.name());
     }
 }

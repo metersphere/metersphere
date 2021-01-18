@@ -7,7 +7,6 @@
         SELECT tpr.id AS id, tpr.`name` AS `name`, tp.`name` AS testPlanName, tpr.creator AS creator, tpr.create_time AS createTime,tpr.trigger_Mode AS triggerMode
         FROM test_plan tp
         INNER JOIN test_plan_report tpr on tp.id = tpr.test_plan_id
---         INNER JOIN
         <where>
             <if test="name != null">
                 and tpr.name like CONCAT('%', #{name},'%')
@@ -26,7 +25,12 @@
         <if test="orders != null and orders.size() > 0">
             order by
             <foreach collection="orders" separator="," item="order">
-                tpr.${order.name} ${order.type}
+                <if test="order.name == 'test_plan_name'">
+                    tp.name ${order.type}
+                </if>
+                <if test="order.name != 'test_plan_name'">
+                    tpr.${order.name} ${order.type}
+                </if>
             </foreach>
         </if>
     </select>

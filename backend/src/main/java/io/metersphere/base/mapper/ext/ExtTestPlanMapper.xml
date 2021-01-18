@@ -98,8 +98,9 @@
 
     <select id="list" resultType="io.metersphere.track.dto.TestPlanDTOWithMetric"
             parameterType="io.metersphere.track.request.testcase.QueryTestPlanRequest">
-        select DISTINCT test_plan.*, user.name as user_name, project.name as projectName from test_plan
+        select DISTINCT test_plan.*, user.name as user_name, project.name as projectName,schedule.id as scheduleId from test_plan
         LEFT JOIN user ON user.id = test_plan.principal
+        LEFT JOIN schedule ON schedule.resource_id = test_plan.id
         JOIN project on project.id = test_plan.project_id
         <where>
             <if test="request.combine != null">
