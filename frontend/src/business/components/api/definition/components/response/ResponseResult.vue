@@ -105,8 +105,10 @@
           return;
         }
         if (this.response.headers.indexOf("Content-Type: application/json") > 0) {
-          this.$refs.modeDropdown.handleCommand(BODY_FORMAT.JSON);
-          this.msCodeReload();
+          if (this.$refs.modeDropdown) {
+            this.$refs.modeDropdown.handleCommand(BODY_FORMAT.JSON);
+            this.msCodeReload();
+          }
         }
       },
       msCodeReload() {
