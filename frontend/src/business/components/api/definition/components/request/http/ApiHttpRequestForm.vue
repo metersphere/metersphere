@@ -14,6 +14,10 @@
                 </div>
               </span>
               </el-tooltip>
+              <el-row>
+                <el-link class="ms-el-link" @click="batchAdd"> {{$t("commons.batch_add")}}</el-link>
+              </el-row>
+
               <ms-api-key-value :is-read-only="isReadOnly" :isShowEnable="isShowEnable" :suggestions="headerSuggestions" :items="headers"/>
             </el-tab-pane>
 
@@ -115,7 +119,7 @@
   import {getUUID} from "@/common/js/utils";
   import BatchAddParameter from "../../basis/BatchAddParameter";
   import MsApiAdvancedConfig from "./ApiAdvancedConfig";
-  import MsJsr233Processor from "../../../../automation/scenario/Jsr233Processor";
+  import MsJsr233Processor from "../../../../automation/scenario/component/Jsr233Processor";
 
   export default {
     name: "MsApiHttpRequestForm",
@@ -264,6 +268,9 @@
                 break;
               case "rest":
                 this.request.rest.unshift(item);
+                break;
+              case "headers":
+                this.request.headers.unshift(item);
                 break;
               default:
                 break;

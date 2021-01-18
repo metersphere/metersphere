@@ -89,7 +89,7 @@
   import MsDubboConfigCenter from "../../request/dubbo/ConfigCenter";
   import MsDubboConsumerService from "../../request/dubbo/ConsumerAndService";
   import {getUUID} from "@/common/js/utils";
-  import MsJsr233Processor from "../../../../automation/scenario/Jsr233Processor";
+  import MsJsr233Processor from "../../../../automation/scenario/component/Jsr233Processor";
 
   export default {
     name: "MsDatabaseConfig",

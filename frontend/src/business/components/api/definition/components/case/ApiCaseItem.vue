@@ -92,11 +92,11 @@
 </template>
 
 <script>
-  import {_getBodyUploadFiles, getCurrentProjectID, getUUID} from "../../../../../../common/js/utils";
+  import {_getBodyUploadFiles, getCurrentProjectID} from "../../../../../../common/js/utils";
   import {PRIORITY, RESULT_MAP} from "../../model/JsonData";
   import MsTag from "../../../../common/components/MsTag";
   import MsTipButton from "../../../../common/components/MsTipButton";
-  import MsApiRequestForm from "../request/http/ApiRequestForm";
+  import MsApiRequestForm from "../request/http/ApiHttpRequestForm";
   import ApiEnvironmentConfig from "../environment/ApiEnvironmentConfig";
   import MsApiAssertions from "../assertion/ApiAssertions";
   import MsSqlBasisParameters from "../request/database/BasisParameters";

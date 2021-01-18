@@ -42,7 +42,6 @@
 </template>
 
 <script>
-  import MsApiRequestForm from "../request/http/ApiRequestForm";
   import {downloadFile, getUUID, getCurrentProjectID} from "@/common/js/utils";
   import MsApiCaseList from "../case/ApiCaseList";
   import MsContainer from "../../../../common/components/MsContainer";
@@ -57,7 +56,6 @@
   export default {
     name: "RunTestSQLPage",
     components: {
-      MsApiRequestForm,
       MsApiCaseList,
       MsContainer,
       MsBottomContainer,

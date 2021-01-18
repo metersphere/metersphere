@@ -68,9 +68,9 @@
         let bodyFiles = getBodyUploadFiles(reqObj, this.runData);
         let url = "";
         if (this.debug) {
+          reqObj.reportId = this.reportId;
           url = "/api/definition/run/debug";
         } else {
-          reqObj.reportId = "run";
           url = "/api/definition/run";
         }
         this.$fileUpload(url, null, bodyFiles, reqObj, response => {
