@@ -636,7 +636,12 @@
         if (obj.name) {
           obj.name = obj.name + '_copy';
         }
-        hashTree.push(obj);
+        const index = hashTree.findIndex(d => d.resourceId === row.resourceId);
+        if (index != -1) {
+          hashTree.splice(index, 0, obj);
+        } else {
+          hashTree.push(obj);
+        }
         this.sort();
         this.reload();
       }
