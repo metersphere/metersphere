@@ -211,7 +211,6 @@ public class ApiScenarioReportService {
         }
 
         TestPlanReportService testPlanReportService = CommonBeanFactory.getBean(TestPlanReportService.class);
-        testPlanReportService.updateReport(testPlanReportIdList, ApiRunMode.SCHEDULE_SCENARIO_PLAN.name());
         testPlanReportService.updateReport(testPlanReportIdList,ApiRunMode.SCHEDULE_SCENARIO_PLAN.name(), ReportTriggerMode.SCHEDULE.name());
 
         return lastReport;
