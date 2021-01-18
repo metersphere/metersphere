@@ -67,10 +67,10 @@
       <div v-if="apiCase.active">
         <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
 
-        <ms-api-request-form :is-read-only="isReadOnly" :headers="apiCase.request.headers " :request="apiCase.request" v-if="api.protocol==='HTTP'"/>
-        <ms-tcp-basis-parameters :request="apiCase.request" v-if="api.protocol==='TCP'"/>
-        <ms-sql-basis-parameters :request="apiCase.request" v-if="api.protocol==='SQL'"/>
-        <ms-dubbo-basis-parameters :request="apiCase.request" v-if="api.protocol==='DUBBO'"/>
+        <ms-api-request-form :showScript="true" :is-read-only="isReadOnly" :headers="apiCase.request.headers " :request="apiCase.request" v-if="api.protocol==='HTTP'"/>
+        <ms-tcp-basis-parameters :showScript="true" :request="apiCase.request" v-if="api.protocol==='TCP'"/>
+        <ms-sql-basis-parameters :showScript="true" :request="apiCase.request" v-if="api.protocol==='SQL'"/>
+        <ms-dubbo-basis-parameters :showScript="true" :request="apiCase.request" v-if="api.protocol==='DUBBO'"/>
 
         <!-- HTTP 请求返回数据 -->
         <p class="tip">
