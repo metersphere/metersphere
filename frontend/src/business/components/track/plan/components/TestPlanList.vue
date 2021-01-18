@@ -120,15 +120,18 @@
           <ms-table-operator :is-tester-permission="true" @editClick="handleEdit(scope.row)"
                              @deleteClick="handleDelete(scope.row)">
             <template v-slot:middle>
-              <ms-table-operator-button :isTesterPermission="true" type="success" v-if="!scope.row.reportId"
+              <ms-table-operator-button :isTesterPermission="true" style="background-color: #85888E;border-color: #85888E" v-if="!scope.row.reportId"
                                         :tip="$t('test_track.plan_view.create_report')" icon="el-icon-document"
                                         @exec="openTestReportTemplate(scope.row)"/>
-              <ms-table-operator-button type="success" v-if="scope.row.reportId"
+              <ms-table-operator-button v-if="scope.row.reportId"
                                         :tip="$t('test_track.plan_view.view_report')" icon="el-icon-document"
                                         @exec="openReport(scope.row.id, scope.row.reportId)"/>
             </template>
           </ms-table-operator>
-          <ms-table-operator-button style="margin-left: 10px;color:#6C317C" type=""
+          <ms-table-operator-button style="margin-left: 10px;color:#85888E;border-color: #85888E; border-width: thin;" v-if="!scope.row.scheduleId" type="text"
+                                    :tip="$t('commons.trigger_mode.schedule')" icon="el-icon-time"
+                                    @exec="scheduleTask(scope.row)"/>
+          <ms-table-operator-button style="margin-left: 10px;color:#6C317C; border-color: #6C317C; border-width: thin;" v-if="scope.row.scheduleId" type="text"
                                     :tip="$t('commons.trigger_mode.schedule')" icon="el-icon-time"
                                     @exec="scheduleTask(scope.row)"/>
         </template>

@@ -20,7 +20,7 @@
         <el-table-column type="selection" width="50"/>
 
         <ms-table-select-all
-          :page-size="pageSize"
+          :page-size="pageSize>total?total:pageSize"
           :total="total"
           @selectPageAll="isSelectDataAll(false)"
           @selectAll="isSelectDataAll(true)"/>

@@ -2,6 +2,7 @@ package io.metersphere.track.service;
 
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ProjectMapper;
+import io.metersphere.base.mapper.TestCaseReviewMapper;
 import io.metersphere.base.mapper.TestCaseReviewProjectMapper;
 import io.metersphere.track.request.testreview.TestReviewRelevanceRequest;
 import org.apache.commons.lang3.StringUtils;
@@ -17,18 +18,25 @@ import java.util.stream.Collectors;
 public class TestReviewProjectService {
 
     @Resource
-    ProjectMapper projectMapper;
+    private ProjectMapper projectMapper;
     @Resource
-    TestCaseReviewProjectMapper testCaseReviewProjectMapper;
+    private TestCaseReviewProjectMapper testCaseReviewProjectMapper;
+    @Resource
+    private TestCaseReviewMapper testCaseReviewMapper;
 
-    public List<String> getProjectIdsByPlanId(String reviewId) {
+    public List<String> getProjectIdsByReviewId(String reviewId) {
         TestCaseReviewProjectExample example = new TestCaseReviewProjectExample();
         example.createCriteria().andReviewIdEqualTo(reviewId);
         List<String> projectIds = testCaseReviewProjectMapper.selectByExample(example)
                 .stream()
                 .map(TestCaseReviewProject::getProjectId)
                 .collect(Collectors.toList());
-
+        TestCaseReview caseReview = testCaseReviewMapper.selectByPrimaryKey(reviewId);
+        if (caseReview != null && StringUtils.isNotBlank(caseReview.getProjectId())) {
+            if (!projectIds.contains(caseReview.getProjectId())) {
+                projectIds.add(caseReview.getProjectId());
+            }
+        }
         if (projectIds.isEmpty()) {
             return null;
         }

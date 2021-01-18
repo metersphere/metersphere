@@ -12,7 +12,6 @@ import io.metersphere.base.domain.*;
 import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.constants.ReportTriggerMode;
 import io.metersphere.commons.constants.ScheduleGroup;
-import io.metersphere.commons.consumer.LoadTestFinishEvent;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.performance.service.PerformanceTestService;
@@ -25,6 +24,8 @@ import org.quartz.*;
 
 import javax.annotation.Resource;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * 情景测试Job
@@ -102,7 +103,7 @@ public class TestPlanTestJob extends MsScheduleJob {
     void businessExecute(JobExecutionContext context) {
         LogUtil.info("-------------- start testplan schedule ----------");
         //首先创建testPlanReport，然后返回的ID重新赋值为resourceID，作为后续的参数
-        TestPlanReport testPlanReport = testPlanReportService.genTestPlanReport(this.resourceId,this.userId);
+        TestPlanReport testPlanReport = testPlanReportService.genTestPlanReport(this.resourceId,this.userId,ReportTriggerMode.SCHEDULE.name());
         //执行接口案例任务
         for (Map.Entry<String,String> entry: this.apiTestCaseIdMap.entrySet()) {
             String apiCaseID = entry.getKey();
@@ -127,39 +128,38 @@ public class TestPlanTestJob extends MsScheduleJob {
         scenarioRequest.setTestPlanID(this.resourceId);
         scenarioRequest.setRunMode(ApiRunMode.SCHEDULE_SCENARIO_PLAN.name());
         scenarioRequest.setTestPlanReportId(testPlanReport.getId());
-        String reportID = apiAutomationService.run(scenarioRequest);
+        apiAutomationService.run(scenarioRequest);
         LogUtil.info("-------------- testplan schedule ---------- scenario case over -----------------");
 
         //执行性能测试任务
-        boolean havePerformanceTask = false;
         List<String> performaneReportIDList = new ArrayList<>();
         for (Map.Entry<String,String> entry: this.performanceIdMap.entrySet()) {
             String id = entry.getKey();
             String caseID = entry.getValue();
             RunTestPlanRequest performanceRequest = new RunTestPlanRequest();
-            performanceRequest.setId(id);
+            performanceRequest.setId(caseID);
             performanceRequest.setTestPlanLoadId(caseID);
             performanceRequest.setTriggerMode(ReportTriggerMode.SCHEDULE.name());
 
             String reportId = null;
-            havePerformanceTask = true;
-
             try {
                 reportId = performanceTestService.run(performanceRequest);
+                if(reportId!=null){
+                    performaneReportIDList.add(reportId);
+
+                    TestPlanLoadCase testPlanLoadCase = new TestPlanLoadCase();
+                    testPlanLoadCase.setId(performanceRequest.getTestPlanLoadId());
+                    testPlanLoadCase.setLoadReportId(reportId);
+                    testPlanLoadCaseService.update(testPlanLoadCase);
+                }
             }catch (Exception e){
-            }
-            if(reportID!=null){
-                TestPlanLoadCase testPlanLoadCase = new TestPlanLoadCase();
-                testPlanLoadCase.setId(performanceRequest.getTestPlanLoadId());
-                testPlanLoadCase.setLoadReportId(reportId);
-                testPlanLoadCaseService.update(testPlanLoadCase);
-                performaneReportIDList.add(reportID);
+                e.printStackTrace();
             }
         }
 
         if(!performaneReportIDList.isEmpty()){
             //性能测试时保存性能测试报告ID，在结果返回时用于捕捉并进行
-            testPlanReportService.updatePerformanceInfo(testPlanReport,performaneReportIDList);
+            testPlanReportService.updatePerformanceInfo(testPlanReport,performaneReportIDList,ReportTriggerMode.SCHEDULE.name());
         }
 
     }
