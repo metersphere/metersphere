@@ -63,15 +63,15 @@
 </template>
 
 <script>
-  import MsSqlBasisParameters from "../../definition/components/request/database/BasisParameters";
-  import MsTcpBasisParameters from "../../definition/components/request/tcp/TcpBasisParameters";
-  import MsDubboBasisParameters from "../../definition/components/request/dubbo/BasisParameters";
-  import MsApiRequestForm from "../../definition/components/request/http/ApiRequestForm";
-  import {REQ_METHOD} from "../../definition/model/JsonData";
-  import MsRequestResultTail from "../../definition/components/response/RequestResultTail";
-  import MsRun from "../../definition/components/Run";
+  import MsSqlBasisParameters from "../../../definition/components/request/database/BasisParameters";
+  import MsTcpBasisParameters from "../../../definition/components/request/tcp/TcpBasisParameters";
+  import MsDubboBasisParameters from "../../../definition/components/request/dubbo/BasisParameters";
+  import MsApiRequestForm from "../../../definition/components/request/http/ApiRequestForm";
+  import {REQ_METHOD} from "../../../definition/model/JsonData";
+  import MsRequestResultTail from "../../../definition/components/response/RequestResultTail";
+  import MsRun from "../../../definition/components/Run";
   import {getUUID} from "@/common/js/utils";
-  import ApiBaseComponent from "./common/ApiBaseComponent";
+  import ApiBaseComponent from "../common/ApiBaseComponent";
   export default {
     name: "MsApiComponent",
     props: {

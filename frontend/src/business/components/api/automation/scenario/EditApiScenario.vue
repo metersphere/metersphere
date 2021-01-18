@@ -145,31 +145,12 @@
                        @node-expand="nodeExpand"
                        @node-collapse="nodeCollapse"
                        :allow-drop="allowDrop" @node-drag-end="allowDrag" @node-click="nodeClick" v-if="!loading" draggable>
-                 <span class="custom-tree-node father" slot-scope="{ node, data}" style="width: 96%">
-                    <template>
-                      <!-- 场景 -->
-                      <ms-api-scenario-component v-if="data.type==='scenario'" :scenario="data" :node="node" @remove="remove" @copyRow="copyRow"/>
-                      <!--条件控制器-->
-                      <ms-if-controller :controller="data" :node="node" v-if="data.type==='IfController'" @remove="remove" @copyRow="copyRow"/>
-                      <!--循环控制器-->
-                      <ms-loop-controller :controller="data" :node="node" v-if="data.type==='LoopController'" @remove="remove" @copyRow="copyRow"/>
-                      <!--等待控制器-->
-                      <ms-constant-timer :timer="data" :node="node" v-if="data.type==='ConstantTimer'" @remove="remove" @copyRow="copyRow"/>
-                      <!--自定义脚本-->
-                      <ms-jsr233-processor :draggable="true" v-if="data.type==='JSR223Processor'" @remove="remove" @copyRow="copyRow" :title="$t('api_test.automation.customize_script')" :jsr223-processor="data" :node="node"/>
-                      <!--前置脚本-->
-                      <ms-jsr233-processor :draggable="true" v-if="data.type==='JSR223PreProcessor'" @remove="remove" @copyRow="copyRow" :title="$t('api_test.definition.request.pre_script')" :jsr223-processor="data" :node="node"/>
-                      <!--后置脚本-->
-                      <ms-jsr233-processor :draggable="true" v-if="data.type==='JSR223PostProcessor'" @remove="remove" @copyRow="copyRow" :title="$t('api_test.definition.request.post_script')" :jsr223-processor="data" :node="node"/>
-                      <!--断言规则-->
-                      <ms-api-assertions :draggable="true" @suggestClick="suggestClick(node)" :response="response" v-if="data.type==='Assertions'" @remove="remove" @copyRow="copyRow" :assertions="data" :node="node"/>
-                      <!--提取规则-->
-                      <ms-api-extract :draggable="true" @suggestClick="suggestClick(node)" :response="response" @remove="remove" @copyRow="copyRow" v-if="data.type==='Extract'" :extract="data" :node="node"/>
-                      <!--API 导入 -->
-                      <ms-api-component :request="data" :currentScenario="currentScenario" :currentEnvironmentId="currentEnvironmentId" @remove="remove" @copyRow="copyRow"
-                                        v-if="data.type==='HTTPSamplerProxy'||data.type==='DubboSampler'||data.type==='JDBCSampler'||data.type==='TCPSampler'" :node="node"/>
-                    </template>
-                   </span>
+                    <span class="custom-tree-node father" slot-scope="{ node, data}" style="width: 96%">
+                      <!-- 步骤组件-->
+                       <ms-component-config :type="data.type" :scenario="data" :response="response" :currentScenario="currentScenario"
+                                            :currentEnvironmentId="currentEnvironmentId" :node="node"
+                                            @remove="remove" @copyRow="copyRow" @suggestClick="suggestClick"/>
+                    </span>
               </el-tree>
             </div>
           </el-col>
@@ -227,21 +208,13 @@
   import {API_STATUS, PRIORITY} from "../../definition/model/JsonData";
   import {WORKSPACE_ID} from '@/common/js/constants';
   import {Assertions, Extract, IfController, JSR223Processor, ConstantTimer, LoopController} from "../../definition/model/ApiTestModel";
-  import MsJsr233Processor from "./Jsr233Processor";
   import {parseEnvironment} from "../../definition/model/EnvironmentModel";
-  import MsConstantTimer from "./ConstantTimer";
-  import MsIfController from "./IfController";
-  import MsApiAssertions from "../../definition/components/assertion/ApiAssertions";
-  import MsApiExtract from "../../definition/components/extract/ApiExtract";
-  import MsApiComponent from "./ApiComponent";
   import {ELEMENTS, ELEMENT_TYPE} from "./Setting";
   import MsApiCustomize from "./ApiCustomize";
   import {getUUID, getCurrentProjectID} from "@/common/js/utils";
   import ApiEnvironmentConfig from "../../definition/components/environment/ApiEnvironmentConfig";
   import MsInputTag from "./MsInputTag";
   import MsRun from "./DebugRun";
-  import MsLoopController from "./LoopController";
-  import MsApiScenarioComponent from "./ApiScenarioComponent";
   import MsApiReportDetail from "../report/ApiReportDetail";
   import MsVariableList from "./variable/VariableList";
   import ApiImport from "../../definition/components/import/ApiImport";
@@ -250,6 +223,7 @@
   import OutsideClick from "@/common/js/outside-click";
   import ScenarioApiRelevance from "./api/ApiRelevance";
   import ScenarioRelevance from "./api/ScenarioRelevance";
+  import MsComponentConfig from "./component/ComponentConfig";
 
   export default {
     name: "EditApiScenario",
@@ -264,17 +238,10 @@
       ApiEnvironmentConfig,
       MsApiReportDetail,
       MsInputTag, MsRun,
-      MsApiScenarioComponent,
-      MsJsr233Processor,
-      MsConstantTimer,
-      MsIfController,
-      MsApiAssertions,
-      MsApiExtract,
-      MsApiComponent,
       MsApiCustomize,
       ApiImport,
       InputTag,
-      MsLoopController,
+      MsComponentConfig,
     },
     data() {
       return {

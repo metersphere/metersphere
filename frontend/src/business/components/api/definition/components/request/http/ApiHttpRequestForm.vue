@@ -115,7 +115,7 @@
   import {getUUID} from "@/common/js/utils";
   import BatchAddParameter from "../../basis/BatchAddParameter";
   import MsApiAdvancedConfig from "./ApiAdvancedConfig";
-  import MsJsr233Processor from "../../../../automation/scenario/Jsr233Processor";
+  import MsJsr233Processor from "../../../../automation/scenario/component/Jsr233Processor";
 
   export default {
     name: "MsApiHttpRequestForm",
