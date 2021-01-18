@@ -1024,7 +1024,7 @@ export class LoopController extends Controller {
     this.type = "LoopController";
     this.active = false;
     this.loopType = "LOOP_COUNT";
-    this.countController = {loops: 0, interval: 0, proceed: false};
+    this.countController = {loops: 0, interval: 0, proceed: true};
     this.forEachController = {inputVal: "", returnVal: "", interval: 0};
     this.whileController = {variable: "", operator: "", value: "", timeout: 0};
     this.hashTree = [];

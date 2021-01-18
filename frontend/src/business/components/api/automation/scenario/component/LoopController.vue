@@ -30,7 +30,10 @@
         </el-col>
         <el-col :span="8">
           <span class="ms-span ms-radio">{{$t('loop.proceed')}}</span>
-          <el-switch v-model="controller.countController.proceed"/>
+          <el-tooltip class="item" effect="dark" content="默认为开启，当循环下只有一个请求时，可以开启/关闭;当循环下超过一个请求时，则只能开启。" placement="top">>
+            <el-switch v-model="controller.countController.proceed"/>
+
+          </el-tooltip>
         </el-col>
       </el-row>
     </div>
