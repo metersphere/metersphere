@@ -263,7 +263,6 @@ public class Swagger2Parser extends SwaggerAbstractParser {
                             propertyList.add(getBodyParameters(model.getProperties(), refSet));
                         } else {
                             propertyList.add(new JSONObject());
-//                            return;
                         }
 
                         jsonObject.put(key, propertyList);
