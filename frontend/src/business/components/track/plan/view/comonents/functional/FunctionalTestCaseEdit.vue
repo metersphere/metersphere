@@ -20,24 +20,24 @@
 
                   <el-row type="flex" class="head-bar">
 
-                    <el-col :span="12">
+                    <el-col>
                       <el-button plain size="mini"
                                  icon="el-icon-back"
                                  @click="cancel">{{ $t('test_track.return') }}
                       </el-button>
                     </el-col>
 
-                    <el-col :span="11" class="head-right">
-                <span class="head-right-tip" v-if="index + 1 === testCases.length">
-                  {{ $t('test_track.plan_view.pre_case') }} : {{
-                    testCases[index - 1] ? testCases[index - 1].name : ''
-                  }}
-                </span>
-                      <span class="head-right-tip" v-if="index + 1 !== testCases.length">
-                  {{ $t('test_track.plan_view.next_case') }} : {{
-                          testCases[index + 1] ? testCases[index + 1].name : ''
+                    <el-col class="head-right">
+                      <span class="head-right-tip" v-if="index + 1 === testCases.length">
+                        {{ $t('test_track.plan_view.pre_case') }} : {{
+                          testCases[index - 1] ? testCases[index - 1].name : ''
                         }}
-                </span>
+                      </span>
+                            <span class="head-right-tip" v-if="index + 1 !== testCases.length">
+                        {{ $t('test_track.plan_view.next_case') }} : {{
+                                testCases[index + 1] ? testCases[index + 1].name : ''
+                              }}
+                      </span>
 
                       <el-button plain size="mini" icon="el-icon-arrow-up"
                                  :disabled="index + 1 <= 1"
