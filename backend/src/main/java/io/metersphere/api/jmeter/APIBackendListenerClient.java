@@ -163,7 +163,7 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
             apiReportService.complete(testResult, report);
         } else if (StringUtils.equals(this.runMode, ApiRunMode.DELIMIT.name())) {
             // 调试操作，不需要存储结果
-            if (!StringUtils.isBlank(debugReportId)) {
+            if (StringUtils.isBlank(debugReportId)) {
                 apiDefinitionService.addResult(testResult);
             } else {
                 apiDefinitionService.addResult(testResult);

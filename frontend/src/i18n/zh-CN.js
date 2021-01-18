@@ -827,6 +827,10 @@ export default {
       swagger_export_tip: "通过 Swagger 页面导出",
       suffixFormatErr: "文件格式不符合要求",
       swagger_url_import: "使用URL导入",
+      timing_synchronization:"定时同步",
+      next_synchronization_time:"下次同步时间"
+
+
     },
     home_page: {
       unit_of_measurement: "个",

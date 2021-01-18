@@ -486,10 +486,7 @@ public class ApiTestCaseService {
     }
 
     public String getExecResult(String id){
-        ApiDefinitionExecResultExample apidefinitionexecresultexample = new ApiDefinitionExecResultExample();
-        ApiDefinitionExecResultExample.Criteria criteria = apidefinitionexecresultexample.createCriteria();
-        criteria.andResourceIdEqualTo(id);
-        String status=apiDefinitionExecResultMapper.selectByExample(apidefinitionexecresultexample).get(0).getStatus();
+        String status=apiDefinitionExecResultMapper.selectExecResult(id);
         return status;
     }
 }
