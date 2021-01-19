@@ -31,7 +31,7 @@
         <el-col :span="8">
           <span class="ms-span ms-radio">{{$t('loop.proceed')}}</span>
           <el-tooltip class="item" effect="dark" content="默认为开启，当循环下只有一个请求时，可以开启/关闭;当循环下超过一个请求时，则只能开启。" placement="top">>
-            <el-switch v-model="controller.countController.proceed"/>
+            <el-switch v-model="controller.countController.proceed" @change="switchChange"/>
 
           </el-tooltip>
         </el-col>
@@ -123,6 +123,13 @@
       }
     },
     methods: {
+      switchChange() {
+        if (this.controller.hashTree && this.controller.hashTree.length > 1) {
+          this.$warning("当前循环下超过一个请求，不能关闭状态")
+          this.controller.countController.proceed = true;
+          return;
+        }
+      },
       remove() {
         this.$emit('remove', this.controller, this.node);
       },
