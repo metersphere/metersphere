@@ -520,6 +520,9 @@
       recursiveSorting(arr) {
         for (let i in arr) {
           arr[i].index = Number(i) + 1;
+          if (arr[i].type === ELEMENT_TYPE.LoopController && arr[i].hashTree && arr[i].hashTree.length > 1) {
+            arr[i].countController.proceed = true;
+          }
           if (arr[i].hashTree != undefined && arr[i].hashTree.length > 0) {
             this.recursiveSorting(arr[i].hashTree);
           }
@@ -528,6 +531,10 @@
       sort() {
         for (let i in this.scenarioDefinition) {
           this.scenarioDefinition[i].index = Number(i) + 1;
+          if (this.scenarioDefinition[i].type === ELEMENT_TYPE.LoopController && this.scenarioDefinition[i].hashTree
+            && this.scenarioDefinition[i].hashTree.length > 1) {
+            this.scenarioDefinition[i].countController.proceed = true;
+          }
           if (this.scenarioDefinition[i].hashTree != undefined && this.scenarioDefinition[i].hashTree.length > 0) {
             this.recursiveSorting(this.scenarioDefinition[i].hashTree);
           }
@@ -588,16 +595,14 @@
         } else {
           this.scenarioDefinition.push(request);
         }
-      }
-      ,
+      },
       pushApiOrCase(data, refType, referenced) {
         data.forEach(item => {
           this.setApiParameter(item, refType, referenced);
         });
         this.sort();
         this.reload();
-      }
-      ,
+      },
       getMaintainerOptions() {
         let workspaceId = localStorage.getItem(WORKSPACE_ID);
         this.$post('/user/ws/member/tester/list', {workspaceId: workspaceId}, response => {
