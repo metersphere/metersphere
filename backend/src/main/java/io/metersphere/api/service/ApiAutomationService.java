@@ -417,16 +417,13 @@ public class ApiAutomationService {
         if (StringUtils.isNotBlank(request.getRunMode()) && StringUtils.equals(request.getRunMode(), ApiRunMode.SCENARIO_PLAN.name())) {
             runMode = ApiRunMode.SCENARIO_PLAN.name();
         }
-        if (StringUtils.isNotBlank(request.getRunMode()) && StringUtils.equals(request.getRunMode(), ApiRunMode.SCENARIO_BATCH.name())) {
-            runMode = ApiRunMode.SCENARIO_BATCH.name();
-        }
         if (StringUtils.isNotBlank(request.getRunMode()) && StringUtils.equals(request.getRunMode(), ApiRunMode.DEFINITION.name())) {
             runMode = ApiRunMode.DEFINITION.name();
         }
         // 调用执行方法
         List<String> reportIds = new LinkedList<>();
         HashTree hashTree = generateHashTree(apiScenarios, request, reportIds);
-        jMeterService.runDefinition(request.getId(), hashTree, request.getReportId(), runMode);
+        jMeterService.runDefinition(JSON.toJSONString(reportIds), hashTree, request.getReportId(), runMode);
         return request.getId();
     }
 
@@ -502,7 +499,6 @@ public class ApiAutomationService {
         }
         List<TestPlanDTO> list = extTestPlanMapper.selectByIds(request.getPlanIds());
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
-        ExtTestPlanMapper mapper = sqlSession.getMapper(ExtTestPlanMapper.class);
         ExtTestPlanScenarioCaseMapper scenarioBatchMapper = sqlSession.getMapper(ExtTestPlanScenarioCaseMapper.class);
         ExtTestPlanApiCaseMapper apiCaseBatchMapper = sqlSession.getMapper(ExtTestPlanApiCaseMapper.class);
 
@@ -608,14 +604,11 @@ public class ApiAutomationService {
         }
         apiScenarios = extApiScenarioMapper.selectIds(ids);
         String testName = "";
-        if(!apiScenarios.isEmpty()){
+        if (!apiScenarios.isEmpty()) {
             testName = apiScenarios.get(0).getName();
         }
         MsTestPlan testPlan = new MsTestPlan();
         testPlan.setHashTree(new LinkedList<>());
-
-        HashTree jmeterHashTree = generateHashTree(apiScenarios, request, false);
-
 
         HashTree jmeterHashTree = generateHashTree(apiScenarios, request, null);
         String jmx = testPlan.getJmx(jmeterHashTree);

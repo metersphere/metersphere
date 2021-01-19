@@ -98,7 +98,6 @@ public class ApiAutomationController {
     @PostMapping(value = "/run/batch")
     public String runBatch(@RequestBody RunScenarioRequest request) {
         request.setExecuteType(ExecuteType.Saved.name());
-        request.setRunMode(ApiRunMode.SCENARIO_BATCH.name());
         return apiAutomationService.run(request);
     }
 
