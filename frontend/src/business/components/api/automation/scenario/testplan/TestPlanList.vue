@@ -115,7 +115,6 @@
           <span>{{ scope.row.actualEndTime | timestampFormatDate }}</span>
         </template>
       </el-table-column>
-
     </el-table>
 
     <ms-table-pagination :change="initTableData" :current-page.sync="currentPage" :page-size.sync="pageSize"

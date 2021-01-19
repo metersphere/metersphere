@@ -128,10 +128,10 @@
                                         @exec="openReport(scope.row.id, scope.row.reportId)"/>
             </template>
           </ms-table-operator>
-          <ms-table-operator-button style="margin-left: 10px;color:#85888E;border-color: #85888E; border-width: thin;" v-if="!scope.row.scheduleId" type="text"
+          <ms-table-operator-button style="margin-left: 10px;color:#85888E;border-color: #85888E; border-width: thin;" v-if="!scope.row.scheduleOpen" type="text"
                                     :tip="$t('commons.trigger_mode.schedule')" icon="el-icon-time"
                                     @exec="scheduleTask(scope.row)"/>
-          <ms-table-operator-button style="margin-left: 10px;color:#6C317C; border-color: #6C317C; border-width: thin;" v-if="scope.row.scheduleId" type="text"
+          <ms-table-operator-button style="margin-left: 10px;color:#6C317C; border-color: #6C317C; border-width: thin;" v-if="scope.row.scheduleOpen" type="text"
                                     :tip="$t('commons.trigger_mode.schedule')" icon="el-icon-time"
                                     @exec="scheduleTask(scope.row)"/>
         </template>
@@ -145,7 +145,7 @@
     <ms-delete-confirm :title="$t('test_track.plan.plan_delete')" @delete="_handleDelete" ref="deleteConfirm" :with-tip="enableDeleteTip">
       {{$t('test_track.plan.plan_delete_tip')}}
     </ms-delete-confirm>
-    <ms-schedule-maintain ref="scheduleMaintain" />
+    <ms-schedule-maintain ref="scheduleMaintain" @refreshTable="initTableData" />
   </el-card>
 </template>
 

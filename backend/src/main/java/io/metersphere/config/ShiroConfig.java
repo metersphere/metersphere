@@ -1,10 +1,10 @@
 package io.metersphere.config;
 
-import io.metersphere.commons.user.UserModularRealmAuthenticator;
 import io.metersphere.commons.utils.ShiroUtils;
 import io.metersphere.security.ApiKeyFilter;
-import io.metersphere.security.LdapRealm;
-import io.metersphere.security.ShiroDBRealm;
+import io.metersphere.security.UserModularRealmAuthenticator;
+import io.metersphere.security.realm.LdapRealm;
+import io.metersphere.security.realm.ShiroDBRealm;
 import org.apache.shiro.authc.pam.FirstSuccessfulStrategy;
 import org.apache.shiro.authc.pam.ModularRealmAuthenticator;
 import org.apache.shiro.cache.MemoryConstrainedCacheManager;
@@ -46,10 +46,7 @@ public class ShiroConfig implements EnvironmentAware {
         shiroFilterFactoryBean.getFilters().put("apikey", new ApiKeyFilter());
         Map<String, String> filterChainDefinitionMap = shiroFilterFactoryBean.getFilterChainDefinitionMap();
         ShiroUtils.loadBaseFilterChain(filterChainDefinitionMap);
-        filterChainDefinitionMap.put("/display/info", "anon");
-        filterChainDefinitionMap.put("/favicon.ico", "anon");
-        filterChainDefinitionMap.put("/display/file/**", "anon");
-        filterChainDefinitionMap.put("/jmeter/download/**", "anon");
+
         filterChainDefinitionMap.put("/**", "apikey, authc");
         return shiroFilterFactoryBean;
     }

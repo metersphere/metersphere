@@ -9,7 +9,7 @@
       <el-dropdown-item command="create_performance" v-tester>{{ $t('api_test.create_performance_test') }}</el-dropdown-item>
     </el-dropdown-menu>
     <ms-reference-view ref="viewRef"/>
-    <ms-schedule-maintain ref="scheduleMaintain" />
+    <ms-schedule-maintain ref="scheduleMaintain" @refreshTable="refreshTable" />
   </el-dropdown>
 </template>
 
@@ -61,6 +61,9 @@
           })
         });
       },
+      refreshTable(){
+
+      }
     }
   }
 </script>

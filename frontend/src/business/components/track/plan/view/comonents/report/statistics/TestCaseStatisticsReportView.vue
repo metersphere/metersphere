@@ -139,8 +139,10 @@
       handleSave() {
         let param = {};
         this.buildParam(param);
-        this.result = this.$post('/case/report/edit', param, () => {
-          this.$success(this.$t('commons.save_success'));
+        this.$get('/test/plan/report/saveTestPlanReport/'+this.planId+'/MANUAL', () => {
+          this.result = this.$post('/case/report/edit', param, () => {
+            this.$success(this.$t('commons.save_success'));
+          });
         });
       },
       buildParam(param) {

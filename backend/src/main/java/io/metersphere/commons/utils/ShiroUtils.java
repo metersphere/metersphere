@@ -21,7 +21,12 @@ public class ShiroUtils {
         filterChainDefinitionMap.put("/js/**", "anon");
         filterChainDefinitionMap.put("/img/**", "anon");
         filterChainDefinitionMap.put("/fonts/**", "anon");
-
+        filterChainDefinitionMap.put("/display/info", "anon");
+        filterChainDefinitionMap.put("/favicon.ico", "anon");
+        filterChainDefinitionMap.put("/display/file/**", "anon");
+        filterChainDefinitionMap.put("/jmeter/download/**", "anon");
+        filterChainDefinitionMap.put("/authsource/list/allenable", "anon");
+        filterChainDefinitionMap.put("/sso/signin", "anon");
         // for swagger
         filterChainDefinitionMap.put("/swagger-ui.html", "anon");
         filterChainDefinitionMap.put("/swagger-ui/**", "anon");
