@@ -15,17 +15,18 @@ import io.metersphere.base.mapper.ApiScenarioReportDetailMapper;
 import io.metersphere.base.mapper.ApiScenarioReportMapper;
 import io.metersphere.base.mapper.TestPlanApiScenarioMapper;
 import io.metersphere.base.mapper.ext.ExtApiScenarioReportMapper;
+import io.metersphere.base.mapper.ext.ExtTestPlanScenarioCaseMapper;
 import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.constants.ReportTriggerMode;
 import io.metersphere.commons.exception.MSException;
-import io.metersphere.commons.utils.CommonBeanFactory;
-import io.metersphere.commons.utils.DateUtils;
-import io.metersphere.commons.utils.ServiceUtils;
-import io.metersphere.commons.utils.SessionUtils;
+import io.metersphere.commons.utils.*;
 import io.metersphere.i18n.Translator;
 import io.metersphere.track.service.TestPlanReportService;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.ibatis.session.ExecutorType;
+import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -51,6 +52,8 @@ public class ApiScenarioReportService {
     private ApiScenarioMapper apiScenarioMapper;
     @Resource
     private TestPlanApiScenarioMapper testPlanApiScenarioMapper;
+    @Resource
+    SqlSessionFactory sqlSessionFactory;
 
     public ApiScenarioReport complete(TestResult result, String runMode) {
         // 更新场景
@@ -60,6 +63,7 @@ public class ApiScenarioReportService {
             } else if (StringUtils.equals(runMode, ApiRunMode.SCHEDULE_SCENARIO_PLAN.name())) {
                 return updateSchedulePlanCase(result);
             } else {
+                updateScenarioStatus(result.getTestId());
                 return updateScenario(result);
             }
         }
@@ -217,14 +221,39 @@ public class ApiScenarioReportService {
         return lastReport;
     }
 
+    /**
+     * 批量更新状态，防止重复刷新报告
+     *
+     * @param reportIds
+     */
+    private void updateScenarioStatus(String reportIds) {
+
+        if (StringUtils.isNotEmpty(reportIds)) {
+            List<String> list = new ArrayList<>();
+            try {
+                list = JSON.parseArray(reportIds, String.class);
+            } catch (Exception e) {
+                list.add(reportIds);
+            }
+            ApiScenarioReportExample scenarioReportExample = new ApiScenarioReportExample();
+            scenarioReportExample.createCriteria().andIdIn(list);
+            List<ApiScenarioReport> reportList = apiScenarioReportMapper.selectByExample(scenarioReportExample);
+            SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+            ApiScenarioReportMapper scenarioReportMapper = sqlSession.getMapper(ApiScenarioReportMapper.class);
+            if (CollectionUtils.isNotEmpty(reportList)) {
+                reportList.forEach(report -> {
+                    report.setUpdateTime(System.currentTimeMillis());
+                    String status = "Success";
+                    report.setStatus(status);
+                    scenarioReportMapper.updateByPrimaryKeySelective(report);
+                });
+                sqlSession.flushStatements();
+            }
+        }
+    }
+
     public ApiScenarioReport updateScenario(TestResult result) {
         ApiScenarioReport lastReport = null;
-        if (CollectionUtils.isEmpty(result.getScenarios())) {
-            ScenarioResult test = new ScenarioResult();
-            test.setName(result.getTestId());
-            ApiScenarioReport report = editReport(test);
-            return report;
-        }
         for (ScenarioResult item : result.getScenarios()) {
             // 更新报告状态
             ApiScenarioReport report = editReport(item);

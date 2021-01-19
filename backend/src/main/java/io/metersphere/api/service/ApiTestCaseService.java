@@ -439,7 +439,7 @@ public class ApiTestCaseService {
         if (testCaseWithBLOBs != null && StringUtils.isNotEmpty(testCaseWithBLOBs.getRequest())) {
             try {
                 HashTree jmeterHashTree = this.generateHashTree(request,testCaseWithBLOBs);
-                String runMode = ApiRunMode.DELIMIT.name();
+                String runMode = ApiRunMode.DEFINITION.name();
                 // 调用执行方法
                 jMeterService.runDefinition(request.getReportId(), jmeterHashTree, request.getReportId(), runMode);
 
