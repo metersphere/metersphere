@@ -37,7 +37,7 @@
             <ms-table-operator @editClick="edit(scope.row)" @deleteClick="del(scope.row)">
               <template v-slot:behind>
                 <ms-table-operator-button :tip="$t('member.edit_password')" icon="el-icon-s-tools"
-                                          type="success" @exec="editPassword(scope.row)" v-if="!scope.row.isLdapUser"/>
+                                          type="success" @exec="editPassword(scope.row)" v-if="scope.row.isLocalUser"/>
               </template>
             </ms-table-operator>
           </template>
@@ -541,7 +541,7 @@ export default {
               let roles = data.roles;
               // let userRoles = result.userRoles;
               this.$set(this.tableData[i], "roles", roles);
-              this.$set(this.tableData[i], "isLdapUser", this.tableData[i].source === 'LDAP');
+              this.$set(this.tableData[i], "isLocalUser", this.tableData[i].source === 'LOCAL');
             });
           }
         }
