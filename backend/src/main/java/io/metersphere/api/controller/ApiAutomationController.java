@@ -127,7 +127,7 @@ public class ApiAutomationController {
     }
 
     @PostMapping(value = "/genPerformanceTestJmx")
-    public JmxInfoDTO genPerformanceTestJmx(@RequestBody RunScenarioRequest runRequest) {
+    public JmxInfoDTO genPerformanceTestJmx(@RequestBody RunScenarioRequest runRequest) throws Exception {
         runRequest.setExecuteType(ExecuteType.Completed.name());
         return apiAutomationService.genPerformanceTestJmx(runRequest);
     }
