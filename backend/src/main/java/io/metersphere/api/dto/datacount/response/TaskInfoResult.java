@@ -27,5 +27,7 @@ public class TaskInfoResult {
     private String creator;
     //更新时间
     private Long updateTime;
+    //定时任务类型  情景定时任务/范围计划任务
+    private String taskType;
 
 }

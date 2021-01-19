@@ -22,8 +22,6 @@ public class LoadTestConsumer {
         LoadTestReport loadTestReport = JSON.parseObject(record.value(), LoadTestReport.class);
         Reflections reflections = new Reflections(Application.class);
         Set<Class<? extends LoadTestFinishEvent>> subTypes = reflections.getSubTypesOf(LoadTestFinishEvent.class);
-        LogUtil.info("Execute Over: LoadTestConsumer");
-        System.out.println("Execute Over: LoadTestConsumer");
         subTypes.forEach(s -> {
             try {
                 CommonBeanFactory.getBean(s).execute(loadTestReport);

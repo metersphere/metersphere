@@ -18,6 +18,7 @@
               <el-radio-group v-model="form.authenticate">
                 <el-radio label="LDAP" size="mini" v-if="openLdap">LDAP</el-radio>
                 <el-radio label="LOCAL" size="mini" v-if="openLdap">普通登录</el-radio>
+                <el-radio :label="auth.id" size="mini" v-for="auth in authSources" :key="auth.id">{{ auth.type }} {{ auth.name }}</el-radio>
               </el-radio-group>
             </el-form-item>
             <el-form-item prop="username">
@@ -52,6 +53,7 @@ import {DEFAULT_LANGUAGE} from "@/common/js/constants";
 
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
 const display = requireComponent.keys().length > 0 ? requireComponent("./display/Display.vue") : {};
+const auth = requireComponent.keys().length > 0 ? requireComponent("./auth/Auth.vue") : {};
 
 export default {
   name: "Login",
@@ -84,7 +86,9 @@ export default {
       msg: '',
       ready: false,
       openLdap: false,
-      loginTitle: this.$t("commons.login") + " MeterSphere"
+      loginTitle: this.$t("commons.login") + " MeterSphere",
+      authSources: [],
+      loginUrl: 'signin',
     }
   },
   beforeCreate() {
@@ -94,17 +98,17 @@ export default {
         display.default.showLogin(this);
       }
 
+      if (auth.default !== undefined) {
+        auth.default.getAuthSources(this);
+      }
+
       if (!response.data.success) {
-        if (response.data.message === 'sso') {
-          window.location.href = "/sso/login"
-        } else {
-          this.ready = true;
-        }
+        this.ready = true;
       } else {
         let user = response.data.data;
         saveLocalStorage(response.data);
         this.getLanguage(user.language);
-        window.location.href = "/"
+        window.location.href = "/";
       }
     });
     this.$get("/ldap/open", response => {
@@ -135,28 +139,24 @@ export default {
         if (valid) {
           switch (this.form.authenticate) {
             case "LOCAL":
-              this.normalLogin();
+              this.loginUrl = "/signin";
+              this.doLogin();
               break;
             case "LDAP":
-              this.ldapLogin();
+              this.loginUrl = "/ldap/signin";
+              this.doLogin();
               break;
             default:
-              this.normalLogin();
+              this.loginUrl = "/sso/signin";
+              this.doLogin();
           }
         } else {
           return false;
         }
       });
     },
-    normalLogin() {
-      this.result = this.$post("signin", this.form, response => {
-        saveLocalStorage(response);
-        sessionStorage.setItem('loginSuccess', 'true');
-        this.getLanguage(response.data.language);
-      });
-    },
-    ldapLogin() {
-      this.result = this.$post("ldap/signin", this.form, response => {
+    doLogin() {
+      this.result = this.$post(this.loginUrl, this.form, response => {
         saveLocalStorage(response);
         sessionStorage.setItem('loginSuccess', 'true');
         this.getLanguage(response.data.language);

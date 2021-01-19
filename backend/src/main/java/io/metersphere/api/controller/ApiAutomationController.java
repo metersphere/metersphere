@@ -9,6 +9,7 @@ import io.metersphere.api.service.ApiAutomationService;
 import io.metersphere.base.domain.ApiScenario;
 import io.metersphere.base.domain.ApiScenarioWithBLOBs;
 import io.metersphere.base.domain.Schedule;
+import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
@@ -100,7 +101,6 @@ public class ApiAutomationController {
         return apiAutomationService.run(request);
     }
 
-
     @PostMapping("/getReference")
     public ReferenceDTO getReference(@RequestBody ApiScenarioRequest request) {
         return apiAutomationService.getReference(request);
@@ -127,7 +127,7 @@ public class ApiAutomationController {
     }
 
     @PostMapping(value = "/genPerformanceTestJmx")
-    public JmxInfoDTO genPerformanceTestJmx(@RequestBody RunScenarioRequest runRequest) {
+    public JmxInfoDTO genPerformanceTestJmx(@RequestBody RunScenarioRequest runRequest) throws Exception {
         runRequest.setExecuteType(ExecuteType.Completed.name());
         return apiAutomationService.genPerformanceTestJmx(runRequest);
     }

@@ -186,26 +186,23 @@ export default {
     initTable() {
       console.log('init')
       this.selectRows = new Set();
-      let param = {};
-      param.testPlanId = this.planId;
+      this.condition.testPlanId = this.planId;
       if (this.selectProjectId && this.selectProjectId !== 'root') {
-        param.projectId = this.selectProjectId;
+        this.condition.projectId = this.selectProjectId;
       }
-      this.$post("/test/plan/load/case/list/" + this.currentPage + "/" + this.pageSize, param, response => {
+      this.$post("/test/plan/load/case/list/" + this.currentPage + "/" + this.pageSize, this.condition, response => {
         let data = response.data;
-        this.total = data.itemCount;
-        this.tableData = data.listObject;
+        let {itemCount, listObject} = data;
+        this.total = itemCount;
+        this.tableData = listObject;
       })
     },
     refreshStatus() {
       this.refreshScheduler = setInterval(() => {
-        let arr = this.tableData.filter(data => data.status !== 'Completed' && data.status !== 'Error' && data.status !== "Saved");
-        if (arr.length > 0) {
-          this.initTable();
-        } else {
-          clearInterval(this.refreshScheduler);
-        }
-      }, 4000);
+        // 如果有状态不是最终状态则定时查询
+        let arr = this.tableData.filter(data => data.status !== 'Completed' && data.status !== 'Error' && data.status !== 'Saved');
+        arr.length > 0 ? this.initTable() : clearInterval(this.refreshScheduler);
+      }, 8000);
     },
     handleSelectAll(selection) {
       if (selection.length > 0) {
@@ -263,20 +260,18 @@ export default {
         testPlanLoadId: loadCase.id,
         triggerMode: 'CASE'
       }).then(() => {
-        this.$notify({
+        this.$notify.success({
           title: loadCase.caseName,
-          message: this.$t('test_track.plan.load_case.exec'),
-          type: 'success'
+          message: this.$t('test_track.plan.load_case.exec').toString()
         });
         this.initTable();
       }).catch(() => {
-        //todo 用例出错
         this.$post('/test/plan/load/case/update', {id: loadCase.id, status: "error"}, () => {
           this.initTable();
         });
         this.$notify.error({
           title: loadCase.caseName,
-          message: this.$t('test_track.plan.load_case.error')
+          message: this.$t('test_track.plan.load_case.error').toString()
         });
       })
     },
@@ -289,15 +284,15 @@ export default {
     },
     sort(column) {
       // 每次只对一个字段排序
-      if (this.condition.orders) {
-        this.condition.orders = [];
-      }
-      _sort(column, this.condition);
-      this.initTableData();
+      // if (this.condition.orders) {
+      //   this.condition.orders = [];
+      // }
+      // _sort(column, this.condition);
+      // this.initTable();
     },
     filter(filters) {
-      _filter(filters, this.condition);
-      this.initTableData();
+      // _filter(filters, this.condition);
+      // this.initTable();
     },
     getReport(data) {
       const {loadReportId} = data;

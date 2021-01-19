@@ -1,4 +1,4 @@
-package io.metersphere.commons.user;
+package io.metersphere.security;
 
 import io.metersphere.commons.exception.MSException;
 import org.apache.shiro.authc.AuthenticationException;

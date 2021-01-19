@@ -59,4 +59,12 @@ public class TestPlanReportController {
         TestPlanReport report = testPlanReportService.genTestPlanReport(planId,userId,ReportTriggerMode.API.name());
         testPlanReportService.countReportByTestPlanReportId(report.getId(),null, ReportTriggerMode.API.name());
     }
+
+    @GetMapping("/saveTestPlanReport/{planId}/{triggerMode}")
+    public String saveTestPlanReport(@PathVariable String planId,@PathVariable String triggerMode) {
+        String userId = SessionUtils.getUser().getId();
+        TestPlanReport report = testPlanReportService.genTestPlanReport(planId,userId,triggerMode);
+        testPlanReportService.countReportByTestPlanReportId(report.getId(),null, triggerMode);
+        return "success";
+    }
 }

@@ -11,4 +11,5 @@ import java.util.List;
 public class LoadCaseRequest extends TestPlanLoadCase {
     private String projectId;
     private List<String> caseIds;
+    private String name;
 }

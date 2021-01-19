@@ -1,6 +1,5 @@
 package io.metersphere.security;
 
-import io.metersphere.commons.user.MsUserToken;
 import io.metersphere.commons.utils.LogUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.SecurityUtils;

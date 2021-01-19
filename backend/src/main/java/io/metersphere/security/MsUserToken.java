@@ -1,4 +1,4 @@
-package io.metersphere.commons.user;
+package io.metersphere.security;
 
 import org.apache.shiro.authc.UsernamePasswordToken;
 

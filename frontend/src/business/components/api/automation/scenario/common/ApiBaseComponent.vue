@@ -15,7 +15,7 @@
                     @blur="isShowInput = false" :placeholder="$t('commons.input_name')" ref="nameEdit"/>
           <span v-else>
             {{data.name}}
-            <i class="el-icon-edit" style="cursor:pointer" @click="editName" v-tester/>
+            <i class="el-icon-edit" style="cursor:pointer" @click="editName" v-tester v-if="data.referenced!='REF'"/>
           </span>
         </slot>
         <slot name="behindHeaderLeft"></slot>

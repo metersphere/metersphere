@@ -25,8 +25,8 @@
         </el-col>
         <el-col :span="8">
           <span class="ms-span ms-radio">{{$t('loop.interval')}}</span>
-          <el-input-number size="small" v-model="controller.countController.interval" :placeholder="$t('commons.millisecond')" :max="1000*10000000" :min="0"/>
-          <span class="ms-span ms-radio">秒</span>
+          <el-input-number size="small" v-model="controller.countController.interval" :placeholder="$t('commons.millisecond')" :max="1000*10000000" :min="0" :step="1000"/>
+          <span class="ms-span ms-radio">ms</span>
         </el-col>
         <el-col :span="8">
           <span class="ms-span ms-radio">{{$t('loop.proceed')}}</span>
@@ -51,8 +51,8 @@
         </el-col>
         <el-col :span="7">
           <span class="ms-span ms-radio">{{$t('loop.interval')}}</span>
-          <el-input-number size="small" v-model="controller.forEachController.interval" :placeholder="$t('commons.millisecond')" :max="1000*10000000" :min="0"/>
-          <span class="ms-span ms-radio">秒</span>
+          <el-input-number size="small" v-model="controller.forEachController.interval" :placeholder="$t('commons.millisecond')" :max="1000*10000000" :min="0" :step="1000"/>
+          <span class="ms-span ms-radio">ms</span>
         </el-col>
       </el-row>
     </div>
@@ -65,8 +65,8 @@
       </el-select>
       <el-input size="small" v-model="controller.whileController.value" :placeholder="$t('api_test.value')" v-if="!hasEmptyOperator" style="width: 20%;margin-left: 20px"/>
       <span class="ms-span ms-radio">{{$t('loop.timeout')}}</span>
-      <el-input-number size="small" v-model="controller.whileController.timeout" :placeholder="$t('commons.millisecond')" :max="1000*10000000" :min="0"/>
-      <span class="ms-span ms-radio">秒</span>
+      <el-input-number size="small" v-model="controller.whileController.timeout" :placeholder="$t('commons.millisecond')" :max="1000*10000000" :min="1" :step="1000"/>
+      <span class="ms-span ms-radio">ms</span>
     </div>
 
   </api-base-component>
@@ -82,6 +82,10 @@
       controller: {},
       node: {},
       index: Object,
+      draggable: {
+        type: Boolean,
+        default: false,
+      },
     },
     data() {
       return {
