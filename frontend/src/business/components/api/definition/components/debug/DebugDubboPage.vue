@@ -11,14 +11,15 @@
       </el-dropdown>
 
       <p class="tip">{{$t('api_test.definition.request.req_param')}} </p>
-      <!-- TCP 请求参数 -->
+      <!-- 请求参数 -->
       <ms-basis-parameters :request="request" ref="requestForm"/>
 
 
-      <!-- TCP 请求返回数据 -->
+      <!-- 请求返回数据 -->
       <p class="tip">{{$t('api_test.definition.request.res_param')}} </p>
       <ms-request-result-tail :response="responseData" :currentProtocol="currentProtocol" ref="debugResult"/>
 
+      <ms-jmx-step :request="request" :response="responseData"/>
       <!-- 执行组件 -->
       <ms-run :debug="true" :reportId="reportId" :run-data="runData" @runRefresh="runRefresh" ref="runTest"/>
     </el-card>
@@ -38,10 +39,11 @@
   import {REQ_METHOD} from "../../model/JsonData";
   import MsRequestResultTail from "../response/RequestResultTail";
   import MsBasisParameters from "../request/dubbo/BasisParameters";
+  import MsJmxStep from "../step/JmxStep";
 
   export default {
     name: "ApiConfig",
-    components: {MsRequestResultTail, MsResponseResult, MsRequestMetric, MsResponseText, MsRun, MsBasisParameters},
+    components: {MsRequestResultTail, MsResponseResult, MsRequestMetric, MsResponseText, MsRun, MsBasisParameters,MsJmxStep},
     props: {
       currentProtocol: String,
       scenario: Boolean,

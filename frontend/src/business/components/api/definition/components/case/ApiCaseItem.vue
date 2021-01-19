@@ -85,6 +85,8 @@
             <ms-request-result-tail :response="responseData"/>
           </div>
         </el-collapse-transition>
+
+        <ms-jmx-step :request="apiCase.request"/>
         <!-- 保存操作 -->
         <el-button type="primary" size="small" style="margin: 20px; float: right" @click="saveTestCase(apiCase)" v-tester>
           {{ $t('commons.save') }}
@@ -108,6 +110,7 @@
   import MsApiExtendBtns from "../reference/ApiExtendBtns";
   import MsInputTag from "@/business/components/api/automation/scenario/MsInputTag";
   import MsRequestResultTail from "../response/RequestResultTail";
+  import MsJmxStep from "../step/JmxStep";
 
   export default {
     name: "ApiCaseItem",
@@ -122,7 +125,8 @@
       MsTcpBasisParameters,
       MsDubboBasisParameters,
       MsApiExtendBtns,
-      MsRequestResultTail
+      MsRequestResultTail,
+      MsJmxStep
     },
     data() {
       return {
@@ -310,14 +314,6 @@
     border-color: #7C3985;
     margin-right: 10px;
     color: white;
-  }
-
-  .icon.is-active {
-    transform: rotate(90deg);
-  }
-
-  .icon.is-responseActive {
-    transform: rotate(90deg);
   }
 
   .tip {

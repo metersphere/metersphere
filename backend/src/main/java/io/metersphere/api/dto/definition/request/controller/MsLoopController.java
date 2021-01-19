@@ -61,8 +61,11 @@ public class MsLoopController extends MsTestElement {
         loopController.setName(this.getLabel());
         loopController.setProperty(TestElement.TEST_CLASS, LoopController.class.getName());
         loopController.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("LoopControlPanel"));
-        // loopController.setContinueForever(countController.isProceed());
         loopController.setLoops(countController.getLoops());
+        // 不打开执行成功后轮询功能，则成功后就停止循环
+        if (!countController.isProceed()) {
+
+        }
         return loopController;
     }
 
