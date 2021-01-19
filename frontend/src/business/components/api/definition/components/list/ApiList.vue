@@ -114,15 +114,16 @@
           <template v-slot:default="scope">
             <ms-table-operator-button :tip="$t('commons.reduction')" icon="el-icon-refresh-left" @exec="reductionApi(scope.row)" v-if="trashEnable" v-tester/>
             <ms-table-operator-button :tip="$t('commons.edit')" icon="el-icon-edit" @exec="editApi(scope.row)" v-else v-tester/>
-            <el-tooltip :content="$t('api_test.definition.request.case')"
+            <el-tooltip :content="$t('test_track.case.case_list')"
                         placement="bottom"
                         :enterable="false"
                         effect="dark" >
               <el-button @click="handleTestCase(scope.row)"
                          @keydown.enter.native.prevent
+                         type="primary"
                          circle
-                         style="padding: 9px 1px;font-size: 1px"
-                         size="mini" >Case
+                         style="padding: 7px 0.5px;font-size: 0.5px;color:white"
+                         size="mini" >case
               </el-button>
             </el-tooltip>
             <ms-table-operator-button :tip="$t('commons.delete')" icon="el-icon-delete" @exec="handleDelete(scope.row)" type="danger" v-tester/>
