@@ -127,6 +127,9 @@ export default {
     validate: "校验",
     batch_add: "批量添加",
     check_project_tip: "请先创建或选择项目",
+    table: {
+      select_tip: "已选中 {0} 条数据"
+    },
     date: {
       select_date: '选择日期',
       start_date: '开始日期',

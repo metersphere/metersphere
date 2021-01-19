@@ -203,6 +203,7 @@ export default {
 
       this.$post(url, param, () => {
         this.$success(this.$t('commons.save_success'));
+        this.$emit("refreshTable");
       });
     },
     checkScheduleEdit() {

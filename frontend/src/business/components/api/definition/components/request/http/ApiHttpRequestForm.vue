@@ -71,24 +71,24 @@
 
           </el-tabs>
         </div>
-        <div v-if="!referenced">
-          <div v-for="row in request.hashTree" :key="row.id">
-            <!--前置脚本-->
-            <ms-jsr233-processor v-if="row.type==='JSR223PreProcessor'" @remove="remove" @copyRow="copyRow" :title="$t('api_test.definition.request.pre_script')"
-                                 :jsr223-processor="row"/>
-            <!--后置脚本-->
-            <ms-jsr233-processor v-if="row.label ==='JSR223 PostProcessor'" @copyRow="copyRow" @remove="remove" :is-read-only="false" :title="$t('api_test.definition.request.post_script')"
-                                 :jsr223-processor="row"/>
-            <!--断言规则-->
-            <div style="margin-top: 10px">
-              <ms-api-assertions :response="response" v-if="row.type==='Assertions'" @copyRow="copyRow" @remove="remove" :is-read-only="isReadOnly" :assertions="row"/>
-            </div>
-            <!--提取规则-->
-            <div style="margin-top: 10px">
-              <ms-api-extract :response="response" :is-read-only="isReadOnly" @copyRow="copyRow" @remove="remove" v-if="row.type==='Extract'" :extract="row"/>
-            </div>
-          </div>
-        </div>
+        <!--<div v-if="!referenced">-->
+          <!--<div v-for="row in request.hashTree" :key="row.id">-->
+            <!--&lt;!&ndash;前置脚本&ndash;&gt;-->
+            <!--<ms-jsr233-processor v-if="row.type==='JSR223PreProcessor'" @remove="remove" @copyRow="copyRow" :title="$t('api_test.definition.request.pre_script')"-->
+                                 <!--:jsr223-processor="row"/>-->
+            <!--&lt;!&ndash;后置脚本&ndash;&gt;-->
+            <!--<ms-jsr233-processor v-if="row.label ==='JSR223 PostProcessor'" @copyRow="copyRow" @remove="remove" :is-read-only="false" :title="$t('api_test.definition.request.post_script')"-->
+                                 <!--:jsr223-processor="row"/>-->
+            <!--&lt;!&ndash;断言规则&ndash;&gt;-->
+            <!--<div style="margin-top: 10px">-->
+              <!--<ms-api-assertions :response="response" v-if="row.type==='Assertions'" @copyRow="copyRow" @remove="remove" :is-read-only="isReadOnly" :assertions="row"/>-->
+            <!--</div>-->
+            <!--&lt;!&ndash;提取规则&ndash;&gt;-->
+            <!--<div style="margin-top: 10px">-->
+              <!--<ms-api-extract :response="response" :is-read-only="isReadOnly" @copyRow="copyRow" @remove="remove" v-if="row.type==='Extract'" :extract="row"/>-->
+            <!--</div>-->
+          <!--</div>-->
+        <!--</div>-->
       </el-col>
       <!--操作按钮-->
       <el-col :span="3" class="ms-left-cell" v-if="!referenced && showScript">
@@ -138,14 +138,20 @@
     props: {
       request: {},
       response: {},
-      showScript: Boolean,
+      showScript: {
+        type: Boolean,
+        default: true,
+      },
       headers: {
         type: Array,
         default() {
           return [];
         }
       },
-      referenced: Boolean,
+      referenced: {
+        type: Boolean,
+        default: false,
+      },
       isShowEnable: Boolean,
       jsonPathList: Array,
       isReadOnly: {

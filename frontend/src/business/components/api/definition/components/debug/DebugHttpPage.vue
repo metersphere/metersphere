@@ -27,11 +27,12 @@
         <p class="tip">{{$t('api_test.definition.request.req_param')}} </p>
         <!-- HTTP 请求参数 -->
         <ms-api-request-form :headers="request.headers" :request="request" :response="responseData"/>
-
       </el-form>
       <!-- HTTP 请求返回数据 -->
       <p class="tip">{{$t('api_test.definition.request.res_param')}} </p>
       <ms-request-result-tail :response="responseData" ref="debugResult"/>
+
+      <ms-jmx-step :request="request" :response="responseData"/>
 
       <!-- 执行组件 -->
       <ms-run :debug="true" :reportId="reportId" :run-data="runData" @runRefresh="runRefresh" ref="runTest"/>
@@ -53,10 +54,11 @@
   import {createComponent} from "../jmeter/components";
   import {REQ_METHOD} from "../../model/JsonData";
   import MsRequestResultTail from "../response/RequestResultTail";
+  import MsJmxStep from "../step/JmxStep";
 
   export default {
     name: "ApiConfig",
-    components: {MsRequestResultTail, MsResponseResult, MsApiRequestForm, MsRequestMetric, MsResponseText, MsRun},
+    components: {MsRequestResultTail, MsResponseResult, MsApiRequestForm, MsRequestMetric, MsResponseText, MsRun,MsJmxStep},
     props: {
       currentProtocol: String,
       testCase: {},

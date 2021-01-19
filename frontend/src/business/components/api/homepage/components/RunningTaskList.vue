@@ -9,7 +9,7 @@
       <el-table-column prop="index"  :label="$t('api_test.home_page.running_task_list.table_coloum.index')" width="80" show-overflow-tooltip/>
       <el-table-column prop="scenario"  :label="$t('api_test.home_page.running_task_list.table_coloum.scenario')" width="200" >
         <template v-slot:default="{row}">
-          <el-link type="info" @click="redirect(row.scenarioId)">
+          <el-link type="info" @click="redirect(row)">
             {{ row.scenario }}
           </el-link>
         </template>
@@ -88,7 +88,11 @@ export default {
       });
     },
     redirect(param){
-      this.$emit('redirectPage','scenario','scenario', 'edit:'+param);
+      if(param.taskType === 'testPlan'){
+        this.$emit('redirectPage','testPlanEdit','', param.scenarioId);
+      }else{
+        this.$emit('redirectPage','scenario','scenario', 'edit:'+param.scenarioId);
+      }
     }
   },
 

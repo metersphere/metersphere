@@ -1,75 +1,78 @@
 <template>
-  <api-list-container
-    :is-api-list-enable="isApiListEnable"
-    @isApiListEnableChange="isApiListEnableChange">
+  <div>
+    <api-list-container
+      :is-api-list-enable="isApiListEnable"
+      @isApiListEnableChange="isApiListEnableChange">
 
-    <ms-environment-select :project-id="projectId" v-if="isTestPlan" :is-read-only="isReadOnly" @setEnvironment="setEnvironment"/>
+      <ms-environment-select :project-id="projectId" v-if="isTestPlan" :is-read-only="isReadOnly" @setEnvironment="setEnvironment"/>
 
-    <el-input placeholder="搜索" @blur="initTable" class="search-input" size="small" @keyup.enter.native="initTable" v-model="condition.name"/>
+      <el-input placeholder="搜索" @blur="initTable" class="search-input" size="small" @keyup.enter.native="initTable" v-model="condition.name"/>
 
+      <el-table v-loading="result.loading"
+                border
+                :data="tableData" row-key="id" class="test-content adjust-table"
+                @select-all="handleSelectAll"
+                @select="handleSelect" ref="table">
+        <el-table-column reserve-selection type="selection"/>
 
-    <el-table v-loading="result.loading"
-              border
-              :data="tableData" row-key="id" class="test-content adjust-table"
-              @select-all="handleSelectAll"
-              @select="handleSelect">
-      <el-table-column type="selection"/>
+        <el-table-column prop="name" :label="$t('api_test.definition.api_name')" show-overflow-tooltip/>
 
-      <el-table-column prop="name" :label="$t('api_test.definition.api_name')" show-overflow-tooltip/>
+        <el-table-column
+          prop="status"
+          column-key="api_status"
+          :label="$t('api_test.definition.api_status')"
+          show-overflow-tooltip>
+          <template v-slot:default="scope">
+            <ms-tag v-if="scope.row.status == 'Prepare'" type="info" effect="plain" :content="$t('test_track.plan.plan_status_prepare')"/>
+            <ms-tag v-if="scope.row.status == 'Underway'" type="warning" effect="plain" :content="$t('test_track.plan.plan_status_running')"/>
+            <ms-tag v-if="scope.row.status == 'Completed'" type="success" effect="plain" :content="$t('test_track.plan.plan_status_completed')"/>
+            <ms-tag v-if="scope.row.status == 'Trash'" type="danger" effect="plain" content="废弃"/>
+          </template>
+        </el-table-column>
 
-      <el-table-column
-        prop="status"
-        column-key="api_status"
-        :label="$t('api_test.definition.api_status')"
-        show-overflow-tooltip>
-        <template v-slot:default="scope">
-          <ms-tag v-if="scope.row.status == 'Prepare'" type="info" effect="plain" :content="$t('test_track.plan.plan_status_prepare')"/>
-          <ms-tag v-if="scope.row.status == 'Underway'" type="warning" effect="plain" :content="$t('test_track.plan.plan_status_running')"/>
-          <ms-tag v-if="scope.row.status == 'Completed'" type="success" effect="plain" :content="$t('test_track.plan.plan_status_completed')"/>
-          <ms-tag v-if="scope.row.status == 'Trash'" type="danger" effect="plain" content="废弃"/>
-        </template>
-      </el-table-column>
+        <el-table-column
+          prop="method"
+          :label="$t('api_test.definition.api_type')"
+          show-overflow-tooltip>
+          <template v-slot:default="scope" class="request-method">
+            <el-tag size="mini" :style="{'background-color': getColor(scope.row.method), border: getColor(true, scope.row.method)}" class="api-el-tag">
+              {{ scope.row.method }}
+            </el-tag>
+          </template>
+        </el-table-column>
 
-      <el-table-column
-        prop="method"
-        :label="$t('api_test.definition.api_type')"
-        show-overflow-tooltip>
-        <template v-slot:default="scope" class="request-method">
-          <el-tag size="mini" :style="{'background-color': getColor(scope.row.method), border: getColor(true, scope.row.method)}" class="api-el-tag">
-            {{ scope.row.method }}
-          </el-tag>
-        </template>
-      </el-table-column>
+        <el-table-column
+          prop="path"
+          :label="$t('api_test.definition.api_path')"
+          show-overflow-tooltip/>
 
-      <el-table-column
-        prop="path"
-        :label="$t('api_test.definition.api_path')"
-        show-overflow-tooltip/>
+        <el-table-column width="160" :label="$t('api_test.definition.api_last_time')" prop="updateTime">
+          <template v-slot:default="scope">
+            <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
+          </template>
+        </el-table-column>
 
-      <el-table-column width="160" :label="$t('api_test.definition.api_last_time')" prop="updateTime">
-        <template v-slot:default="scope">
-          <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
-        </template>
-      </el-table-column>
+        <el-table-column
+          prop="caseTotal"
+          :label="$t('api_test.definition.api_case_number')"
+          show-overflow-tooltip/>
 
-      <el-table-column
-        prop="caseTotal"
-        :label="$t('api_test.definition.api_case_number')"
-        show-overflow-tooltip/>
+        <el-table-column
+          prop="caseStatus"
+          :label="$t('api_test.definition.api_case_status')"
+          show-overflow-tooltip/>
 
-      <el-table-column
-        prop="caseStatus"
-        :label="$t('api_test.definition.api_case_status')"
-        show-overflow-tooltip/>
+        <el-table-column
+          prop="casePassingRate"
+          :label="$t('api_test.definition.api_case_passing_rate')"
+          show-overflow-tooltip/>
+      </el-table>
+      <ms-table-pagination :change="initTable" :current-page.sync="currentPage" :page-size.sync="pageSize"
+                           :total="total"/>
+    </api-list-container>
+    <table-select-count-bar :count="selectRows.size"/>
+  </div>
 
-      <el-table-column
-        prop="casePassingRate"
-        :label="$t('api_test.definition.api_case_passing_rate')"
-        show-overflow-tooltip/>
-    </el-table>
-    <ms-table-pagination :change="initTable" :current-page.sync="currentPage" :page-size.sync="pageSize"
-                         :total="total"/>
-  </api-list-container>
 </template>
 
 <script>
@@ -88,10 +91,12 @@ import PriorityTableItem from "../../../../track/common/tableItems/planview/Prio
 import {_filter, _sort} from "../../../../../../common/js/utils";
 import {_handleSelect, _handleSelectAll} from "../../../../../../common/js/tableUtils";
 import MsEnvironmentSelect from "../../../definition/components/case/MsEnvironmentSelect";
+import TableSelectCountBar from "./TableSelectCountBar";
 
 export default {
   name: "RelevanceApiList",
   components: {
+    TableSelectCountBar,
     MsEnvironmentSelect,
     PriorityTableItem,
     ApiListContainer,
@@ -155,6 +160,7 @@ export default {
     isTestPlan: Boolean
   },
   created: function () {
+    this.selectRows = new Set();
     this.initTable();
   },
   watch: {
@@ -174,7 +180,6 @@ export default {
       this.$emit('isApiListEnableChange', data);
     },
     initTable() {
-      this.selectRows = new Set();
       this.condition.filters = {status: ["Prepare", "Underway", "Completed"]};
       this.condition.moduleIds = this.selectNodeIds;
       if (this.trashEnable) {
@@ -230,6 +235,12 @@ export default {
     },
     setEnvironment(data) {
       this.environmentId = data.id;
+    },
+    clearSelection() {
+      this.selectRows = new Set();
+      if (this.$refs.table) {
+        this.$refs.table.clearSelection();
+      }
     }
   },
 }

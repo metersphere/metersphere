@@ -18,10 +18,10 @@
                          @click="dialogFormVisible=true">
                 {{ $t('report.test_stop_now') }}
               </el-button>
-              <el-button :disabled="isReadOnly || report.status !== 'Completed'" type="success" plain size="mini"
-                         @click="rerun(testId)">
-                {{ $t('report.test_execute_again') }}
-              </el-button>
+<!--              <el-button :disabled="isReadOnly || report.status !== 'Completed'" type="success" plain size="mini"-->
+<!--                         @click="rerun(testId)">-->
+<!--                {{ $t('report.test_execute_again') }}-->
+<!--              </el-button>-->
               <el-button :disabled="isReadOnly" type="info" plain size="mini" @click="handleExport(reportName)">
                 {{ $t('test_track.plan_view.export_report') }}
               </el-button>

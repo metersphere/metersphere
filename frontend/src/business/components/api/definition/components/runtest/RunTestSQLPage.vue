@@ -25,6 +25,8 @@
       <p class="tip">{{$t('api_test.definition.request.res_param')}} </p>
       <ms-request-result-tail :response="responseData" :currentProtocol="currentProtocol" ref="runResult"/>
 
+      <ms-jmx-step :request="api.request" :response="responseData"/>
+
     </el-card>
 
     <!-- 加载用例 -->
@@ -52,6 +54,7 @@
   import MsRun from "../Run";
   import MsBasisParameters from "../request/database/BasisParameters";
   import {REQ_METHOD} from "../../model/JsonData";
+  import MsJmxStep from "../step/JmxStep";
 
   export default {
     name: "RunTestSQLPage",
@@ -62,7 +65,8 @@
       MsRequestResultTail,
       ApiEnvironmentConfig,
       MsRun,
-      MsBasisParameters
+      MsBasisParameters,
+      MsJmxStep
     },
     data() {
       return {

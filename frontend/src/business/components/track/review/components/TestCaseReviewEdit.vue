@@ -226,7 +226,7 @@ export default {
         if (response.success) {
           this.projects = response.data.filter(da => da.id !== getCurrentProjectID());
         } else {
-          this.$warning()(response.message);
+          this.$warning(response.message);
         }
       });
     },
