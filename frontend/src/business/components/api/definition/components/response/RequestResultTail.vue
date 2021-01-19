@@ -1,6 +1,6 @@
 <template>
   <div class="request-result">
-    <ms-request-metric :response="response"/>
+    <ms-request-metric v-if="showMetric" :response="response"/>
     <ms-response-result :currentProtocol="currentProtocol" :response="response"/>
   </div>
 </template>
@@ -15,6 +15,12 @@
     props: {
       response: Object,
       currentProtocol: String,
+      showMetric: {
+        type: Boolean,
+        default() {
+          return true;
+        }
+      }
     },
 
     data() {

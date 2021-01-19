@@ -30,7 +30,7 @@
                            :environment="environment"
                            :is-case-edit="isCaseEdit"
                            :api="api"
-                           :api-case="item" :index="index"/>
+                           :api-case="item" :index="index" ref="apiCaseItem"/>
           </div>
         </el-main>
       </el-container>
@@ -147,7 +147,7 @@
         this.visible = false;
       },
 
-      runRefresh() {
+      runRefresh(data) {
         this.batchLoadingIds = [];
         this.singleLoading = false;
         this.singleRunId = "";
@@ -160,7 +160,6 @@
         }
         this.$success(this.$t('schedule.event_success'));
         this.getApiTest();
-        this.$emit('refresh');
       },
 
       refresh() {

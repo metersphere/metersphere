@@ -76,17 +76,10 @@
         <ms-dubbo-basis-parameters :showScript="true" :request="apiCase.request" v-if="api.protocol==='DUBBO'"/>
 
         <!-- HTTP 请求返回数据 -->
-        <p class="tip">
-          {{$t('api_test.definition.request.res_param')}}
-          <i class="icon el-icon-arrow-right" :class="{'is-responseActive': apiCase.responseActive}" @click="responseActive(apiCase)"/>
-        </p>
-        <el-collapse-transition>
-          <div v-if="apiCase.responseActive">
-            <ms-request-result-tail :response="responseData"/>
-          </div>
-        </el-collapse-transition>
+        <p class="tip">{{$t('api_test.definition.request.res_param')}}</p>
+        <api-response-component :api-item="apiCase"/>
 
-        <ms-jmx-step :request="apiCase.request"/>
+        <ms-jmx-step :request="apiCase.request" :response="apiCase.responseData"/>
         <!-- 保存操作 -->
         <el-button type="primary" size="small" style="margin: 20px; float: right" @click="saveTestCase(apiCase)" v-tester>
           {{ $t('commons.save') }}
@@ -111,10 +104,12 @@
   import MsInputTag from "@/business/components/api/automation/scenario/MsInputTag";
   import MsRequestResultTail from "../response/RequestResultTail";
   import MsJmxStep from "../step/JmxStep";
+  import ApiResponseComponent from "../../../automation/scenario/component/ApiResponseComponent";
 
   export default {
     name: "ApiCaseItem",
     components: {
+      ApiResponseComponent,
       MsInputTag,
       MsTag,
       MsTipButton,
@@ -180,18 +175,6 @@
             }
           }
         });
-      },
-      getExecResult() {
-        // 执行结果信息
-        if (this.apiCase) {
-          let url = "/api/definition/report/getReport/" + this.apiCase.id;
-          this.$get(url, response => {
-            if (response.data) {
-              let data = JSON.parse(response.data.content);
-              this.responseData = data;
-            }
-          });
-        }
       },
       singleRun(data) {
         data.message = true;
@@ -261,12 +244,6 @@
       },
       active(item) {
         item.active = !item.active;
-      },
-      responseActive(item) {
-        item.responseActive = !item.responseActive;
-        if (item.responseActive) {
-          this.getExecResult();
-        }
       },
       getResult(data) {
         if (RESULT_MAP.get(data)) {
