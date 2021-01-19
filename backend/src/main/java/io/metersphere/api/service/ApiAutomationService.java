@@ -329,10 +329,10 @@ public class ApiAutomationService {
      *
      * @param apiScenarios 场景
      * @param request      请求参数
-     * @param isSave       是否需要生成报告
+     * @param reportIds    报告ID
      * @return hashTree
      */
-    private HashTree generateHashTree(List<ApiScenarioWithBLOBs> apiScenarios, RunScenarioRequest request, boolean isSave) {
+    private HashTree generateHashTree(List<ApiScenarioWithBLOBs> apiScenarios, RunScenarioRequest request, List<String> reportIds) {
         HashTree jmeterHashTree = new ListedHashTree();
         MsTestPlan testPlan = new MsTestPlan();
         testPlan.setHashTree(new LinkedList<>());
@@ -377,9 +377,10 @@ public class ApiAutomationService {
                 LinkedList<MsTestElement> scenarios = new LinkedList<>();
                 scenarios.add(scenario);
                 // 创建场景报告
-                if (isSave) {
+                if (reportIds != null) {
                     createScenarioReport(group.getName(), item.getId(), item.getName(), request.getTriggerMode() == null ? ReportTriggerMode.MANUAL.name() : request.getTriggerMode(),
                             request.getExecuteType(), item.getProjectId(), request.getReportUserID());
+                    reportIds.add(group.getName());
                 }
                 group.setHashTree(scenarios);
                 testPlan.getHashTree().add(group);
@@ -405,15 +406,21 @@ public class ApiAutomationService {
                     request.getModuleIds(), request.getName(), request.getProjectId(), request.getFilters(), request.getUnSelectIds());
         }
         List<ApiScenarioWithBLOBs> apiScenarios = extApiScenarioMapper.selectIds(ids);
+
         String runMode = ApiRunMode.SCENARIO.name();
         if (StringUtils.isNotBlank(request.getRunMode()) && StringUtils.equals(request.getRunMode(), ApiRunMode.SCENARIO_PLAN.name())) {
             runMode = ApiRunMode.SCENARIO_PLAN.name();
         }
-        if (StringUtils.isNotBlank(request.getRunMode()) && StringUtils.equals(request.getRunMode(), ApiRunMode.DELIMIT.name())) {
-            runMode = ApiRunMode.DELIMIT.name();
+        if (StringUtils.isNotBlank(request.getRunMode()) && StringUtils.equals(request.getRunMode(), ApiRunMode.SCENARIO_BATCH.name())) {
+            runMode = ApiRunMode.SCENARIO_BATCH.name();
+        }
+        if (StringUtils.isNotBlank(request.getRunMode()) && StringUtils.equals(request.getRunMode(), ApiRunMode.DEFINITION.name())) {
+            runMode = ApiRunMode.DEFINITION.name();
         }
         // 调用执行方法
-        jMeterService.runDefinition(request.getId(), generateHashTree(apiScenarios, request, true), request.getReportId(), runMode);
+        List<String> reportIds = new LinkedList<>();
+        HashTree hashTree = generateHashTree(apiScenarios, request, reportIds);
+        jMeterService.runDefinition(request.getId(), hashTree, request.getReportId(), runMode);
         return request.getId();
     }
 
@@ -597,7 +604,7 @@ public class ApiAutomationService {
         MsTestPlan testPlan = new MsTestPlan();
         testPlan.setHashTree(new LinkedList<>());
 
-        HashTree jmeterHashTree = generateHashTree(apiScenarios, request, false);
+        HashTree jmeterHashTree = generateHashTree(apiScenarios, request, null);
         String jmx = testPlan.getJmx(jmeterHashTree);
         String name = request.getName() + ".jmx";
 

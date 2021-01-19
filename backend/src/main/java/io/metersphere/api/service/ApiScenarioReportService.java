@@ -218,13 +218,13 @@ public class ApiScenarioReportService {
     }
 
     public ApiScenarioReport updateScenario(TestResult result) {
-        ApiScenarioReport lastReport = null;
         if (CollectionUtils.isEmpty(result.getScenarios())) {
             ScenarioResult test = new ScenarioResult();
             test.setName(result.getTestId());
             ApiScenarioReport report = editReport(test);
             return report;
         }
+        ApiScenarioReport lastReport = null;
         for (ScenarioResult item : result.getScenarios()) {
             // 更新报告状态
             ApiScenarioReport report = editReport(item);

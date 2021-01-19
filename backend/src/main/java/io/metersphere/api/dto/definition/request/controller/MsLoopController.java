@@ -7,6 +7,7 @@ import io.metersphere.api.dto.definition.request.ParameterConfig;
 import io.metersphere.api.dto.definition.request.controller.loop.CountController;
 import io.metersphere.api.dto.definition.request.controller.loop.MsForEachController;
 import io.metersphere.api.dto.definition.request.controller.loop.MsWhileController;
+import io.metersphere.commons.constants.LoopConstants;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.collections.CollectionUtils;
@@ -45,7 +46,7 @@ public class MsLoopController extends MsTestElement {
         final HashTree groupTree = controller(tree);
 
         // 不打开执行成功后轮询功能，则成功后就停止循环
-        if (StringUtils.equals(this.loopType, "LOOP_COUNT") && this.countController != null && !countController.isProceed()) {
+        if (StringUtils.equals(this.loopType, LoopConstants.LOOP_COUNT.name()) && this.countController != null && !countController.isProceed()) {
             ResultAction resultAction = new ResultAction();
             resultAction.setName("ResultAction");
             resultAction.setProperty("OnError.action", "1000");
@@ -125,7 +126,7 @@ public class MsLoopController extends MsTestElement {
     }
 
     private HashTree controller(HashTree tree) {
-        if (StringUtils.equals(this.loopType, "WHILE") && this.whileController != null) {
+        if (StringUtils.equals(this.loopType, LoopConstants.WHILE.name()) && this.whileController != null) {
             RunTime runTime = new RunTime();
             runTime.setEnabled(true);
             runTime.setProperty(TestElement.TEST_CLASS, RunTime.class.getName());
@@ -139,10 +140,10 @@ public class MsLoopController extends MsTestElement {
             HashTree hashTree = tree.add(runTime);
             return hashTree.add(whileController());
         }
-        if (StringUtils.equals(this.loopType, "FOREACH") && this.forEachController != null) {
+        if (StringUtils.equals(this.loopType, LoopConstants.FOREACH.name()) && this.forEachController != null) {
             return tree.add(foreachController());
         }
-        if (StringUtils.equals(this.loopType, "LOOP_COUNT") && this.countController != null) {
+        if (StringUtils.equals(this.loopType, LoopConstants.LOOP_COUNT.name()) && this.countController != null) {
             return tree.add(loopController());
         }
         return null;
@@ -153,16 +154,16 @@ public class MsLoopController extends MsTestElement {
         constantTimer.setEnabled(true);
         constantTimer.setProperty(TestElement.TEST_CLASS, ConstantTimer.class.getName());
         constantTimer.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("ConstantTimerGui"));
-        if (StringUtils.equals(this.loopType, "WHILE") && this.whileController != null) {
+        if (StringUtils.equals(this.loopType, LoopConstants.WHILE.name()) && this.whileController != null) {
             return null;
         }
-        if (StringUtils.equals(this.loopType, "FOREACH") && this.forEachController != null) {
+        if (StringUtils.equals(this.loopType, LoopConstants.FOREACH.name()) && this.forEachController != null) {
             constantTimer.setProperty("ConstantTimer.delay", this.forEachController.getInterval());
             constantTimer.setDelay(this.forEachController.getInterval());
             constantTimer.setName(this.forEachController.getInterval() + " ms");
             return constantTimer;
         }
-        if (StringUtils.equals(this.loopType, "LOOP_COUNT") && this.countController != null) {
+        if (StringUtils.equals(this.loopType, LoopConstants.LOOP_COUNT.name()) && this.countController != null) {
             constantTimer.setProperty("ConstantTimer.delay", this.countController.getInterval() + "");
             constantTimer.setDelay(this.countController.getInterval() + "");
             constantTimer.setName(this.countController.getInterval() + " ms");

@@ -164,15 +164,15 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
         testResult.getScenarios().sort(Comparator.comparing(ScenarioResult::getId));
         ApiTestReport report = null;
         String reportUrl = null;
-        // 这部分后续优化只留 DELIMIT 和 SCENARIO 两部分
+        // 这部分后续优化只留 DEFINITION 和 SCENARIO 两部分
         if (StringUtils.equals(this.runMode, ApiRunMode.DEBUG.name())) {
             report = apiReportService.get(debugReportId);
             apiReportService.complete(testResult, report);
-        } else if (StringUtils.equals(this.runMode, ApiRunMode.DELIMIT.name())) {
+        } else if (StringUtils.equals(this.runMode, ApiRunMode.DEFINITION.name())) {
             // 调试操作，不需要存储结果
             apiDefinitionService.addResult(testResult);
             if (StringUtils.isBlank(debugReportId)) {
-                apiDefinitionExecResultService.saveApiResult(testResult, ApiRunMode.DELIMIT.name());
+                apiDefinitionExecResultService.saveApiResult(testResult, ApiRunMode.DEFINITION.name());
             }
         } else if (StringUtils.equalsAny(this.runMode, ApiRunMode.API_PLAN.name(), ApiRunMode.SCHEDULE_API_PLAN.name())) {
             apiDefinitionService.addResult(testResult);
