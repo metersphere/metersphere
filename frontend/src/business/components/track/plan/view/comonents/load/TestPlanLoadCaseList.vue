@@ -186,12 +186,11 @@ export default {
     initTable() {
       console.log('init')
       this.selectRows = new Set();
-      let param = {};
-      param.testPlanId = this.planId;
+      this.condition.testPlanId = this.planId;
       if (this.selectProjectId && this.selectProjectId !== 'root') {
-        param.projectId = this.selectProjectId;
+        this.condition.projectId = this.selectProjectId;
       }
-      this.$post("/test/plan/load/case/list/" + this.currentPage + "/" + this.pageSize, param, response => {
+      this.$post("/test/plan/load/case/list/" + this.currentPage + "/" + this.pageSize, this.condition, response => {
         let data = response.data;
         let {itemCount, listObject} = data;
         this.total = itemCount;

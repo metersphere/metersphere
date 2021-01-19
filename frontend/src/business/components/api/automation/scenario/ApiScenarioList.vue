@@ -75,14 +75,9 @@
               <ms-table-operator-button class="run-button" :is-tester-permission="true" :tip="$t('api_test.automation.execute')"
                                         icon="el-icon-video-play"
                                         @exec="execute(row)" v-tester/>
-              <ms-table-operator-button :tip="$t('api_test.automation.copy')" icon="el-icon-document"
+              <ms-table-operator-button :tip="$t('api_test.automation.copy')" icon="el-icon-document-copy" type=""
                                         @exec="copy(row)"/>
               <ms-table-operator-button :tip="$t('api_test.automation.remove')" icon="el-icon-delete" @exec="remove(row)" type="danger" v-tester/>
-
-<!--              <el-button type="text" @click="edit(row)" v-tester>{{ $t('api_test.automation.edit') }}</el-button>-->
-<!--              <el-button type="text" @click="execute(row)" v-tester>{{ $t('api_test.automation.execute') }}</el-button>-->
-<!--              <el-button type="text" @click="copy(row)" v-tester>{{ $t('api_test.automation.copy') }}</el-button>-->
-<!--              <el-button type="text" @click="remove(row)" v-tester>{{ $t('api_test.automation.remove') }}</el-button>-->
               <ms-scenario-extend-buttons :row="row"/>
             </div>
           </template>
