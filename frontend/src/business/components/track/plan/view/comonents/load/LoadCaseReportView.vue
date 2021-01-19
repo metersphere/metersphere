@@ -72,7 +72,7 @@
                                       :report="report"/>
 
       </el-card>
-      <el-dialog :title="$t('report.test_stop_now_confirm')" :visible.sync="dialogFormVisible" width="30%">
+      <el-dialog :title="$t('report.test_stop_now_confirm')" :visible.sync="dialogFormVisible" width="30%" :append-to-body="true">
         <p v-html="$t('report.force_stop_tips')"/>
         <p v-html="$t('report.stop_tips')"/>
         <div slot="footer" class="dialog-footer">
