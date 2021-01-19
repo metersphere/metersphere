@@ -10,7 +10,7 @@
     :title="$t('api_test.automation.wait_controller')">
 
     <template v-slot:headerLeft>
-      <el-input-number class="time-input" size="small" v-model="timer.delay" :min="0" :step="1000"/>
+      <el-input-number class="time-input" size="small" v-model="timer.delay" :min="0" :step="1000"/> ms
     </template>
 
   </api-base-component>
@@ -24,6 +24,10 @@
     props: {
       timer: {},
       node: {},
+      draggable: {
+        type: Boolean,
+        default: false,
+      },
     },
     data() {
       return {}
