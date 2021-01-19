@@ -10,12 +10,14 @@
 
       <el-table v-loading="result.loading"
                 border
-                :data="tableData" row-key="id" class="test-content adjust-table"
+                :data="tableData"
+                row-key="id"
+                class="test-content adjust-table"
                 @select-all="handleSelectAll"
                 @filter-change="filter"
                 @sort-change="sort"
-                @select="handleSelect">
-        <el-table-column type="selection"/>
+                @select="handleSelect" ref="table">
+        <el-table-column reserve-selection type="selection"/>
 
         <el-table-column prop="name" :label="$t('api_test.definition.api_name')" show-overflow-tooltip/>
 
@@ -55,6 +57,8 @@
                            :total="total"/>
     </api-list-container>
 
+    <table-select-count-bar :count="selectRows.size"/>
+
   </div>
 
 </template>
@@ -76,10 +80,12 @@
   import {_filter, _sort} from "../../../../../../common/js/utils";
   import {_handleSelect, _handleSelectAll} from "../../../../../../common/js/tableUtils";
   import MsEnvironmentSelect from "../../../definition/components/case/MsEnvironmentSelect";
+  import TableSelectCountBar from "./TableSelectCountBar";
 
   export default {
     name: "RelevanceCaseList",
     components: {
+      TableSelectCountBar,
       MsEnvironmentSelect,
       PriorityTableItem,
       ApiListContainer,
@@ -155,15 +161,11 @@
         this.initTable();
       }
     },
-    computed: {
-
-    },
     methods: {
       isApiListEnableChange(data) {
         this.$emit('isApiListEnableChange', data);
       },
       initTable() {
-        this.selectRows = new Set();
         this.condition.status = "";
         this.condition.moduleIds = this.selectNodeIds;
         if (this.projectId != null) {
@@ -231,6 +233,12 @@
       },
       setEnvironment(data) {
         this.environmentId = data.id;
+      },
+      clearSelection() {
+        this.selectRows = new Set();
+        if (this.$refs.table) {
+          this.$refs.table.clearSelection();
+        }
       }
     },
   }
