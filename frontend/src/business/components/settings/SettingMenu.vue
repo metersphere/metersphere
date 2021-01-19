@@ -30,6 +30,14 @@
       </el-menu-item>
     </el-submenu>
 
+    <el-menu-item v-for="menu in project" :key="menu.index" :index="'/setting/project/all'" class="setting-item"
+                  v-permission="['test_user','test_manager', 'org_admin', 'admin']">
+      <template v-slot:title>
+        <font-awesome-icon class="icon" :icon="['fa', 'bars']" size="lg"/>
+        <span>{{ $t(menu.title) }}</span>
+      </template>
+    </el-menu-item>
+
     <el-submenu index="4">
       <template v-slot:title>
         <font-awesome-icon class="icon" :icon="['far', 'user']" size="lg"/>
@@ -41,13 +49,6 @@
       </el-menu-item>
     </el-submenu>
 
-    <el-menu-item v-for="menu in project" :key="menu.index" :index="'/setting/project/all'" class="setting-item"
-                  v-permission="['test_user','test_manager', 'org_admin', 'admin']">
-      <template v-slot:title>
-        <font-awesome-icon class="icon" :icon="['fa', 'bars']" size="lg"/>
-        <span>{{ $t(menu.title) }}</span>
-      </template>
-    </el-menu-item>
 
   </el-menu>
 </template>
