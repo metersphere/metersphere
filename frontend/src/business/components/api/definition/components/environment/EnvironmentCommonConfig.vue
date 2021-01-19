@@ -3,8 +3,8 @@
       <el-form :model="commonConfig" :rules="rules" ref="commonConfig">
 
         <span>{{$t('api_test.environment.globalVariable')}}</span>
+        <batch-add-parameter-button :data="commonConfig.variables"/>
         <ms-api-scenario-variables :show-copy="false" :items="commonConfig.variables"/>
-
         <el-form-item>
           <el-switch v-model="commonConfig.enableHost" active-text="Hosts"/>
         </el-form-item>
@@ -17,10 +17,11 @@
   import {CommonConfig, Environment} from "../../model/EnvironmentModel";
   import MsApiScenarioVariables from "../ApiScenarioVariables";
   import MsApiHostTable from "./ApiHostTable";
+  import BatchAddParameterButton from "../basis/BatchAddParameterButton";
 
     export default {
       name: "MsEnvironmentCommonConfig",
-      components: {MsApiHostTable, MsApiScenarioVariables},
+      components: {BatchAddParameterButton, MsApiHostTable, MsApiScenarioVariables},
       props: {
         commonConfig: new CommonConfig(),
       },
@@ -53,6 +54,9 @@
             }
           });
           return isValidate;
+        },
+        batchAdd() {
+
         }
       }
     }
