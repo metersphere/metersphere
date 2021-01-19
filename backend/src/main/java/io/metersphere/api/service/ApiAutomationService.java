@@ -363,12 +363,14 @@ public class ApiAutomationService {
                 // 多态JSON普通转换会丢失内容，需要通过 ObjectMapper 获取
                 if (element != null && StringUtils.isNotEmpty(element.getString("hashTree"))) {
                     LinkedList<MsTestElement> elements = mapper.readValue(element.getString("hashTree"),
-                            new TypeReference<LinkedList<MsTestElement>>() {});
+                            new TypeReference<LinkedList<MsTestElement>>() {
+                            });
                     scenario.setHashTree(elements);
                 }
                 if (StringUtils.isNotEmpty(element.getString("variables"))) {
                     LinkedList<ScenarioVariable> variables = mapper.readValue(element.getString("variables"),
-                            new TypeReference<LinkedList<ScenarioVariable>>() {});
+                            new TypeReference<LinkedList<ScenarioVariable>>() {
+                            });
                     scenario.setVariables(variables);
                 }
                 group.setEnableCookieShare(scenario.isEnableCookieShare());
@@ -397,14 +399,12 @@ public class ApiAutomationService {
      * @return
      */
     public String run(RunScenarioRequest request) {
-        List<ApiScenarioWithBLOBs> apiScenarios = null;
         List<String> ids = request.getScenarioIds();
         if (request.isSelectAllDate()) {
             ids = this.getAllScenarioIdsByFontedSelect(
                     request.getModuleIds(), request.getName(), request.getProjectId(), request.getFilters(), request.getUnSelectIds());
         }
-        apiScenarios = extApiScenarioMapper.selectIds(ids);
-
+        List<ApiScenarioWithBLOBs> apiScenarios = extApiScenarioMapper.selectIds(ids);
         String runMode = ApiRunMode.SCENARIO.name();
         if (StringUtils.isNotBlank(request.getRunMode()) && StringUtils.equals(request.getRunMode(), ApiRunMode.SCENARIO_PLAN.name())) {
             runMode = ApiRunMode.SCENARIO_PLAN.name();
@@ -427,17 +427,17 @@ public class ApiAutomationService {
         MsTestPlan testPlan = new MsTestPlan();
         testPlan.setHashTree(new LinkedList<>());
         HashTree jmeterHashTree = new ListedHashTree();
-        Map<String, Map<String,String>> testPlanScenarioIdMap = request.getTestPlanScenarioIDMap();
-        for (Map.Entry<String, Map<String,String>> entry : testPlanScenarioIdMap.entrySet()) {
+        Map<String, Map<String, String>> testPlanScenarioIdMap = request.getTestPlanScenarioIDMap();
+        for (Map.Entry<String, Map<String, String>> entry : testPlanScenarioIdMap.entrySet()) {
             String testPlanID = entry.getKey();
-            Map<String,String> planScenarioIdMap = entry.getValue();
+            Map<String, String> planScenarioIdMap = entry.getValue();
             List<ApiScenarioWithBLOBs> apiScenarios = extApiScenarioMapper.selectIds(new ArrayList<>(planScenarioIdMap.keySet()));
             try {
                 boolean isFirst = true;
                 for (ApiScenarioWithBLOBs item : apiScenarios) {
                     String apiScenarioID = item.getId();
                     String planScenarioID = planScenarioIdMap.get(apiScenarioID);
-                    if(StringUtils.isEmpty(planScenarioID)){
+                    if (StringUtils.isEmpty(planScenarioID)) {
                         continue;
                     }
                     if (item.getStepTotal() == 0) {
@@ -480,7 +480,7 @@ public class ApiAutomationService {
                     // 创建场景报告
                     //不同的运行模式，第二个参数入参不同
                     createScenarioReport(group.getName(),
-                            planScenarioID+":"+request.getTestPlanReportId() ,
+                            planScenarioID + ":" + request.getTestPlanReportId(),
                             item.getName(), request.getTriggerMode() == null ? ReportTriggerMode.MANUAL.name() : request.getTriggerMode(),
                             request.getExecuteType(), item.getProjectId(), request.getReportUserID());
                     group.setHashTree(scenarios);
