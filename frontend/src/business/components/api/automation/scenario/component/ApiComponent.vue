@@ -68,6 +68,10 @@
       request: {},
       currentScenario: {},
       node: {},
+      draggable: {
+        type: Boolean,
+        default: false,
+      },
       currentEnvironmentId: String,
     },
     components: {

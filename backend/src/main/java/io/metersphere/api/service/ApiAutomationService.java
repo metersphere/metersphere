@@ -42,11 +42,17 @@ import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.jorphan.collections.HashTree;
 import org.apache.jorphan.collections.ListedHashTree;
+import org.dom4j.Document;
+import org.dom4j.DocumentHelper;
+import org.dom4j.Element;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -586,7 +592,7 @@ public class ApiAutomationService {
                 request, ApiScenarioTestJob.getJobKey(request.getResourceId()), ApiScenarioTestJob.getTriggerKey(request.getResourceId()), ApiScenarioTestJob.class);
     }
 
-    public JmxInfoDTO genPerformanceTestJmx(RunScenarioRequest request) {
+    public JmxInfoDTO genPerformanceTestJmx(RunScenarioRequest request) throws Exception {
         List<ApiScenarioWithBLOBs> apiScenarios = null;
         List<String> ids = request.getScenarioIds();
         if (request.isSelectAllDate()) {
@@ -594,11 +600,26 @@ public class ApiAutomationService {
                     request.getModuleIds(), request.getName(), request.getProjectId(), request.getFilters(), request.getUnSelectIds());
         }
         apiScenarios = extApiScenarioMapper.selectIds(ids);
+        String testName = "";
+        if(!apiScenarios.isEmpty()){
+            testName = apiScenarios.get(0).getName();
+        }
         MsTestPlan testPlan = new MsTestPlan();
         testPlan.setHashTree(new LinkedList<>());
 
         HashTree jmeterHashTree = generateHashTree(apiScenarios, request, false);
+
+
         String jmx = testPlan.getJmx(jmeterHashTree);
+        //将ThreadGroup的testname改为接口名称
+        Document doc = DocumentHelper.parseText(jmx);// 获取可续保保单列表报文模板
+        Element root = doc.getRootElement();
+        Element rootHashTreeElement = root.element("hashTree");
+        Element innerHashTreeElement = rootHashTreeElement.elements("hashTree").get(0);
+        Element theadGroupElement = innerHashTreeElement.elements("ThreadGroup").get(0);
+        theadGroupElement.attribute("testname").setText(testName);
+        jmx = root.asXML();
+
         String name = request.getName() + ".jmx";
 
         JmxInfoDTO dto = new JmxInfoDTO();

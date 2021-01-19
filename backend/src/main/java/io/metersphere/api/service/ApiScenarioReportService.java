@@ -24,6 +24,7 @@ import io.metersphere.commons.utils.ServiceUtils;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.i18n.Translator;
 import io.metersphere.track.service.TestPlanReportService;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -211,13 +212,19 @@ public class ApiScenarioReportService {
         }
 
         TestPlanReportService testPlanReportService = CommonBeanFactory.getBean(TestPlanReportService.class);
-        testPlanReportService.updateReport(testPlanReportIdList,ApiRunMode.SCHEDULE_SCENARIO_PLAN.name(), ReportTriggerMode.SCHEDULE.name());
+        testPlanReportService.updateReport(testPlanReportIdList, ApiRunMode.SCHEDULE_SCENARIO_PLAN.name(), ReportTriggerMode.SCHEDULE.name());
 
         return lastReport;
     }
 
     public ApiScenarioReport updateScenario(TestResult result) {
         ApiScenarioReport lastReport = null;
+        if (CollectionUtils.isEmpty(result.getScenarios())) {
+            ScenarioResult test = new ScenarioResult();
+            test.setName(result.getTestId());
+            ApiScenarioReport report = editReport(test);
+            return report;
+        }
         for (ScenarioResult item : result.getScenarios()) {
             // 更新报告状态
             ApiScenarioReport report = editReport(item);

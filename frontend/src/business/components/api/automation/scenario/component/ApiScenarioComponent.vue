@@ -31,6 +31,10 @@
     props: {
       scenario: {},
       node: {},
+      draggable: {
+        type: Boolean,
+        default: false,
+      },
     },
     watch: {},
     created() {

@@ -33,6 +33,10 @@
       controller: {},
       node: {},
       index: Object,
+      draggable: {
+        type: Boolean,
+        default: false,
+      },
     },
     data() {
       return {
