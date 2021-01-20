@@ -2,10 +2,12 @@
   <el-card class="api-component">
     <div class="header" @click="active(data)">
 
-      <div v-if="data.index" class="el-step__icon is-text" style="margin-right: 10px;" :style="{'color': color, 'background-color': backgroundColor}">
-        <div class="el-step__icon-inner">{{data.index}}</div>
-      </div>
-      <el-button class="ms-left-buttion" size="small" :style="{'color': color, 'background-color': backgroundColor}">{{title}}</el-button>
+      <slot name="beforeHeaderLeft">
+        <div v-if="data.index" class="el-step__icon is-text" style="margin-right: 10px;" :style="{'color': color, 'background-color': backgroundColor}">
+          <div class="el-step__icon-inner">{{data.index}}</div>
+        </div>
+        <el-button class="ms-left-buttion" size="small" :style="{'color': color, 'background-color': backgroundColor}">{{title}}</el-button>
+      </slot>
 
       <span @click.stop>
         <slot name="headerLeft">

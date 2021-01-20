@@ -1,5 +1,5 @@
 <template>
-  <input-tag v-model="data" placeholder="输入回车添加" class="ms-input-div ms-input-tag-wrapper ms-input ms-input-remove"></input-tag>
+  <input-tag v-model="data" placeholder="输入回车添加标签" class="ms-tag-input ms-input-div ms-input-tag-wrapper ms-input ms-input-remove"></input-tag>
 </template>
 
 <script>
