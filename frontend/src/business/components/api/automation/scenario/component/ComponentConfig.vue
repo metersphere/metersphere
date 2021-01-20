@@ -1,7 +1,7 @@
 <template>
   <div class="request-form">
     <component :is="component" :scenario="scenario" :controller="scenario" :timer="scenario" :assertions="scenario" :extract="scenario" :jsr223-processor="scenario" :request="scenario" :currentScenario="currentScenario" :currentEnvironmentId="currentEnvironmentId" :node="node"
-               :draggable="true" :title="title" @suggestClick="suggestClick(node)" :response="response"
+               :draggable="true" :title="title" :color="titleColor" :background-color="backgroundColor" @suggestClick="suggestClick(node)" :response="response"
                @remove="remove" @copyRow="copyRow"/>
   </div>
 </template>
@@ -32,6 +32,8 @@
     data() {
       return {
         title: this.$t('api_test.automation.customize_script'),
+        titleColor: "",
+        backgroundColor: "",
       }
     },
     computed: {
@@ -79,25 +81,31 @@
       getComponent(type) {
         if (type === ELEMENT_TYPE.JSR223PreProcessor) {
           this.title = this.$t('api_test.definition.request.pre_script');
+          this.titleColor = "#B8741A";
+          this.backgroundColor = "#F9F1EA";
           return "MsJsr233Processor";
         } else if (type === ELEMENT_TYPE.JSR223PostProcessor) {
           this.title = this.$t('api_test.definition.request.post_script');
+          this.titleColor = "#783887";
+          this.backgroundColor = "#F2ECF3";
           return "MsJsr233Processor";
         } else {
           this.title = this.$t('api_test.automation.customize_script');
+          this.titleColor = "#7B4D12";
+          this.backgroundColor = "#F1EEE9";
           return "MsJsr233Processor";
         }
       },
       remove(row, node) {
-        this.$emit('remove',row,node);
+        this.$emit('remove', row, node);
 
       },
       copyRow(row, node) {
-        this.$emit('copyRow',row,node);
+        this.$emit('copyRow', row, node);
 
       },
       suggestClick(node) {
-        this.$emit('suggestClick',node);
+        this.$emit('suggestClick', node);
       },
     }
   }
