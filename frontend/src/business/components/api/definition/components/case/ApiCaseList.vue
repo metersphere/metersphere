@@ -86,7 +86,7 @@
         singleLoading: false,
         singleRunId: "",
         runData: [],
-        batchData: [],
+        selectdCases: [],
         reportId: "",
         projectId: "",
         testCaseId: "",
@@ -128,8 +128,6 @@
       this.projectId = getCurrentProjectID();
       if (this.createCase) {
         this.sysAddition();
-      } else {
-        this.getApiTest();
       }
     },
     computed: {
@@ -153,11 +151,19 @@
         this.condition.projectId = this.projectId;
         this.condition.apiDefinitionId = this.api.id;
         this.$post("/api/testcase/list", this.condition, response => {
-          for (let index in response.data) {
-            let test = response.data[index];
-            test.request = JSON.parse(test.request);
-          }
           this.apiCaseList = response.data;
+          this.apiCaseList.forEach(apiCase => {
+            if (apiCase.tags && apiCase.tags.length > 0) {
+              apiCase.tags = JSON.parse(apiCase.tags);
+              this.$set(apiCase, 'selected', false);
+            }
+            if (Object.prototype.toString.call(apiCase.request).match(/\[object (\w+)\]/)[1].toLowerCase() != 'object') {
+              apiCase.request = JSON.parse(apiCase.request);
+            }
+            if (!apiCase.request.hashTree) {
+              apiCase.request.hashTree = [];
+            }
+          })
           this.addCase();
         });
       },
@@ -200,24 +206,22 @@
             this.condition.apiDefinitionId = this.api.id;
           }
           this.result = this.$post("/api/testcase/list", this.condition, response => {
-            for (let index in response.data) {
-              let test = response.data[index];
-              test.request = JSON.parse(test.request);
-              if (!test.request.hashTree) {
-                test.request.hashTree = [];
-              }
-            }
             this.apiCaseList = response.data;
-            if (addCase && this.apiCaseList.length == 0 && !this.loaded) {
-              this.addCase();
-            }
             this.apiCaseList.forEach(apiCase => {
               if (apiCase.tags && apiCase.tags.length > 0) {
                 apiCase.tags = JSON.parse(apiCase.tags);
                 this.$set(apiCase, 'selected', false);
               }
+              if (Object.prototype.toString.call(apiCase.request).match(/\[object (\w+)\]/)[1].toLowerCase() != 'object') {
+                apiCase.request = JSON.parse(apiCase.request);
+              }
+              if (!apiCase.request.hashTree) {
+                apiCase.request.hashTree = [];
+              }
             })
-
+            if (addCase && this.apiCaseList.length == 0 && !this.loaded) {
+              this.addCase();
+            }
           });
         }
       },
@@ -293,11 +297,11 @@
         if (this.apiCaseList.length > 0) {
           this.apiCaseList.forEach(item => {
             if (item.selected && item.id) {
-              this.batchData.push(item.id);
+              this.selectdCases.push(item.id);
             }
           })
         }
-        if (this.batchData.length == 0) {
+        if (this.selectdCases.length == 0) {
           this.$warning("请选择用例！");
           return;
         }
@@ -306,7 +310,7 @@
       batchEdit(form) {
         let param = {};
         param[form.type] = form.value;
-        param.ids = this.batchData;
+        param.ids = this.selectdCases;
         param.projectId = getCurrentProjectID();
         if (this.api) {
           param.protocol = this.api.protocol;
@@ -316,6 +320,7 @@
         param = Object.assign(param, this.condition);
         this.$post('/api/testcase/batch/editByParam', param, () => {
           this.$success(this.$t('commons.save_success'));
+          this.selectdCases = [];
           this.getApiTest();
         });
       },

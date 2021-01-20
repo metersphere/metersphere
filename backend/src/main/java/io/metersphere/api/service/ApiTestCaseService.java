@@ -417,19 +417,34 @@ public class ApiTestCaseService {
             List<ApiTestCaseWithBLOBs> bloBs = apiTestCaseMapper.selectByExampleWithBLOBs(apiDefinitionExample);
             SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
             ApiTestCaseMapper batchMapper = sqlSession.getMapper(ApiTestCaseMapper.class);
+
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             bloBs.forEach(apiTestCase -> {
                 MsHTTPSamplerProxy req = JSON.parseObject(apiTestCase.getRequest(), MsHTTPSamplerProxy.class);
-                if (StringUtils.isNotEmpty(request.getMethod())) {
-                    req.setMethod(request.getMethod());
-                }
-                if (StringUtils.isNotEmpty(request.getPath())) {
-                    req.setPath(request.getPath());
+                try {
+                    JSONObject element = JSON.parseObject(apiTestCase.getRequest());
+                    if (element != null && StringUtils.isNotEmpty(element.getString("hashTree"))) {
+                        LinkedList<MsTestElement> elements = mapper.readValue(element.getString("hashTree"), new TypeReference<LinkedList<MsTestElement>>() {
+                        });
+                        req.setHashTree(elements);
+                    }
+                    if (StringUtils.isNotEmpty(request.getMethod())) {
+                        req.setMethod(request.getMethod());
+                    }
+                    if (StringUtils.isNotEmpty(request.getPath())) {
+                        req.setPath(request.getPath());
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    LogUtil.error(e.getMessage());
                 }
                 String requestStr = JSON.toJSONString(req);
                 apiTestCase.setRequest(requestStr);
                 batchMapper.updateByPrimaryKeySelective(apiTestCase);
             });
             sqlSession.flushStatements();
+
         }
 
     }
