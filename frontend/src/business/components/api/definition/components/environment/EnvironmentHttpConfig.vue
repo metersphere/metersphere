@@ -48,7 +48,7 @@
       methods: {
         validateSocket(socket) {
           // if (!socket) return true;
-          if (socket != ''){
+          if (socket !== ''){
           let urlStr = this.httpConfig.protocol + '://' + socket;
           let url = {};
           try {
