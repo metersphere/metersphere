@@ -16,43 +16,43 @@
 </template>
 
 <script>
-    import ApiBaseComponent from "../common/ApiBaseComponent";
-    import MsRequestResultTail from "../../../definition/components/response/RequestResultTail";
-    import ElCollapseTransition from "element-ui/src/transitions/collapse-transition";
-    import MsRequestMetric from "../../../definition/components/response/RequestMetric";
+  import ApiBaseComponent from "../common/ApiBaseComponent";
+  import MsRequestResultTail from "../../../definition/components/response/RequestResultTail";
+  import ElCollapseTransition from "element-ui/src/transitions/collapse-transition";
+  import MsRequestMetric from "../../../definition/components/response/RequestMetric";
 
-    export default {
-      name: "ApiResponseComponent",
-      components: {ElCollapseTransition, MsRequestResultTail, ApiBaseComponent, MsRequestMetric},
-      props: ['apiItem'],
-      data() {
-        return {
-          isActive: false,
-          response: {responseResult: {}}
+  export default {
+    name: "ApiResponseComponent",
+    components: {ElCollapseTransition, MsRequestResultTail, ApiBaseComponent, MsRequestMetric},
+    props: ['apiItem'],
+    data() {
+      return {
+        isActive: false,
+        response: {responseResult: {}}
+      }
+    },
+    created() {
+      this.getExecResult();
+    },
+    methods: {
+      getExecResult() {
+        // 执行结果信息
+        if (this.apiItem) {
+          let url = "/api/definition/report/getReport/" + this.apiItem.id;
+          this.$get(url, response => {
+            if (response.data) {
+              let data = JSON.parse(response.data.content);
+              this.response = data;
+              this.$set(this.apiItem, 'responseData', data);
+            }
+          });
         }
       },
-      methods: {
-        getExecResult() {
-          // 执行结果信息
-          if (this.apiItem) {
-            let url = "/api/definition/report/getReport/" + this.apiItem.id;
-            this.$get(url, response => {
-              if (response.data) {
-                let data = JSON.parse(response.data.content);
-                this.response = data;
-                this.$set(this.apiItem, 'responseData', data);
-              }
-            });
-          }
-        },
-        active() {
-          this.isActive = !this.isActive;
-          if (this.isActive) {
-            this.getExecResult();
-          }
-        }
+      active() {
+        this.isActive = !this.isActive;
       }
     }
+  }
 </script>
 
 <style scoped>

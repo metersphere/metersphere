@@ -50,6 +50,8 @@
 
   .active {
     border: solid 1px #6d317c;
+    background-color: #7C3985;
+    color: #FFFFFF;
   }
 
   .case-button {
