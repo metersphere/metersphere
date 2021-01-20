@@ -27,7 +27,7 @@
           <span>
             <el-button size="mini" p="$t('commons.remove')" icon="el-icon-close" circle @click="remove(scope.row)"
                        class="ht-btn-remove"/>
-            <el-button size="mini" p="$t('commons.save')" icon="el-icon-check" circle @click="confirm(scope.row)"
+            <el-button size="mini" p="$t('commons.save')" icon="el-icon-check" type="primary" circle @click="confirm(scope.row)"
                        class="ht-btn-confirm"/>
           </span>
         </template>
@@ -143,13 +143,13 @@
 
   .ht-btn-confirm {
     color: white;
-    background-color: #1483F6;
+    /*background-color: #1483F6;*/
   }
 
   .ht-btn-add {
     border: 0px;
     margin-top: 10px;
-    color: #1483F6;
+    color: #783887;
     background-color: white;
   }
 

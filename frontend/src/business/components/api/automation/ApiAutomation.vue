@@ -41,7 +41,7 @@
             <el-dropdown @command="handleCommand" v-tester>
               <el-button type="primary" plain icon="el-icon-plus" size="mini" v-tester/>
               <el-dropdown-menu slot="dropdown">
-                <el-dropdown-item command="ADD">{{ $t('api_test.definition.request.title') }}</el-dropdown-item>
+                <el-dropdown-item command="ADD">{{ $t('api_test.automation.add_scenario') }}</el-dropdown-item>
                 <el-dropdown-item command="CLOSE_ALL">{{ $t('api_test.definition.request.close_all_label') }}
                 </el-dropdown-item>
               </el-dropdown-menu>

@@ -692,9 +692,19 @@
             if (!hasEnvironment) {
               this.currentEnvironmentId = '';
             }
+            //检查场景是否需要先进行保存
+            this.checkDataIsCopy();
           });
         }
       },
+
+      checkDataIsCopy(){
+        //  如果是复制按钮创建的场景，直接进行保存
+        if(this.currentScenario.copy){
+          this.editScenario(false);
+        }
+      },
+
       openEnvironmentConfig() {
         if (!this.projectId) {
           this.$error(this.$t('api_test.select_project'));
@@ -937,7 +947,7 @@
   }
 
   .ms-scenario-button {
-    margin-left: 30%;
+    margin-left: 20px;
     padding: 7px;
   }
 
