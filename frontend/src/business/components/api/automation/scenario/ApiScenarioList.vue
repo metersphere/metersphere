@@ -374,6 +374,7 @@
       },
       copy(row) {
         row.copy = true;
+        row.name = 'copy_'+row.name;
         this.$emit('edit', row);
       },
       showReport(row) {
