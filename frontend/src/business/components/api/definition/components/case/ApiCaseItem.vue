@@ -2,9 +2,9 @@
   <el-card style="margin-top: 5px" @click.native="selectTestCase(apiCase,$event)">
     <div @click="active(apiCase)">
       <el-row>
-        <el-col :span="4">
+        <el-col :span="5">
 
-          <el-checkbox v-model="apiCase.selected"/>
+          <el-checkbox class="item-select" v-model="apiCase.selected"/>
 
           <div class="el-step__icon is-text ms-api-col">
             <div class="el-step__icon-inner">{{ index + 1 }}</div>
@@ -39,9 +39,8 @@
           </div>
         </el-col>
 
-        <el-col class="tag-item" :span="4">
-          <span class="ms-api-label tag-label">{{ $t('commons.tag') }}</span>
-          <ms-input-tag :currentScenario="apiCase" ref="tag" @keyup.enter.native="saveTestCase(apiCase)"/>
+        <el-col :span="4">
+          <ms-input-tag class="tag-item" :currentScenario="apiCase" ref="tag" @keyup.enter.native="saveTestCase(apiCase)"/>
         </el-col>
 
         <el-col :span="4">
@@ -74,6 +73,8 @@
     <!-- 请求参数-->
     <el-collapse-transition>
       <div v-if="apiCase.active">
+        <el-divider></el-divider>
+
         <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
 
         <ms-api-request-form :showScript="true" :is-read-only="isReadOnly" :headers="apiCase.request.headers " :request="apiCase.request" v-if="api.protocol==='HTTP'"/>
@@ -314,19 +315,15 @@
     background: #EFF7FF;
   }
 
-  .ms-tag-input {
-    /*display: inline-block;*/
-    /*height: 32px;*/
-    /*box-sizing: border-box;*/
+  .icon.is-active {
+    transform: rotate(90deg);
+  }
+
+  .item-select {
+    margin-right: 10px;
   }
 
   .tag-item {
-    /*height: 30px;*/
-    /*line-height: 30px;*/
-  }
-
-  .tag-label {
-    /*height: 32px;*/
-    /*line-height: 32px;*/
+    margin-right: 30px;
   }
 </style>
