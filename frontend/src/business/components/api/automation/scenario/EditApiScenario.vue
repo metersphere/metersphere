@@ -92,7 +92,7 @@
       <!-- 场景步骤-->
       <div v-loading="loading">
         <div @click="showAll">
-          <p class="tip">{{$t('api_test.automation.scenario_stepscenario_step')}} </p>
+          <p class="tip">{{$t('api_test.automation.scenario_step')}} </p>
         </div>
         <el-row>
           <el-col :span="21">
