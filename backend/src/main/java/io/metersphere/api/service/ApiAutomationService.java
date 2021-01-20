@@ -50,9 +50,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -86,16 +83,32 @@ public class ApiAutomationService {
     private ApiScenarioReportMapper apiScenarioReportMapper;
 
     public List<ApiScenarioDTO> list(ApiScenarioRequest request) {
-        request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
-        if (request.isSelectThisWeedData()) {
-            Map<String, Date> weekFirstTimeAndLastTime = DateUtils.getWeedFirstTimeAndLastTime(new Date());
-            Date weekFirstTime = weekFirstTimeAndLastTime.get("firstTime");
-            if (weekFirstTime != null) {
-                request.setCreateTime(weekFirstTime.getTime());
-            }
-        }
+        request = this.initRequest(request,true,true);
         List<ApiScenarioDTO> list = extApiScenarioMapper.list(request);
         return list;
+    }
+
+    /**
+     * 初始化部分参数
+     * @param request
+     * @param setDefultOrders
+     * @param checkThisWeekData
+     * @return
+     */
+    private ApiScenarioRequest initRequest(ApiScenarioRequest request,boolean setDefultOrders, boolean checkThisWeekData) {
+        if(setDefultOrders){
+            request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
+        }
+        if(checkThisWeekData){
+            if (request.isSelectThisWeedData()) {
+                Map<String, Date> weekFirstTimeAndLastTime = DateUtils.getWeedFirstTimeAndLastTime(new Date());
+                Date weekFirstTime = weekFirstTimeAndLastTime.get("firstTime");
+                if (weekFirstTime != null) {
+                    request.setCreateTime(weekFirstTime.getTime());
+                }
+            }
+        }
+        return request;
     }
 
 
