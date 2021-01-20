@@ -40,22 +40,24 @@ public class TestPlanTestJob extends MsScheduleJob {
     private Map<String,String> apiTestCaseIdMap;
     private Map<String,String> performanceIdMap;
 
-    private ApiAutomationService apiAutomationService;
     private PerformanceTestService performanceTestService;
     private TestPlanScenarioCaseService testPlanScenarioCaseService;
     private TestPlanApiCaseService testPlanApiCaseService;
     private ApiTestCaseService apiTestCaseService;
     private TestPlanReportService testPlanReportService;
     private TestPlanLoadCaseService testPlanLoadCaseService;
+    private TestPlanService testPlanService;
 
     public TestPlanTestJob() {
-        this.apiAutomationService = CommonBeanFactory.getBean(ApiAutomationService.class);
         this.performanceTestService = CommonBeanFactory.getBean(PerformanceTestService.class);
         this.testPlanScenarioCaseService = CommonBeanFactory.getBean(TestPlanScenarioCaseService.class);
         this.testPlanApiCaseService = CommonBeanFactory.getBean(TestPlanApiCaseService.class);
         this.apiTestCaseService = CommonBeanFactory.getBean(ApiTestCaseService.class);
         this.testPlanReportService = CommonBeanFactory.getBean(TestPlanReportService.class);
         this.testPlanLoadCaseService = CommonBeanFactory.getBean(TestPlanLoadCaseService.class);
+        this.testPlanService = CommonBeanFactory.getBean(TestPlanService.class);
+
+
     }
 
     /**
@@ -128,7 +130,7 @@ public class TestPlanTestJob extends MsScheduleJob {
         scenarioRequest.setTestPlanID(this.resourceId);
         scenarioRequest.setRunMode(ApiRunMode.SCHEDULE_SCENARIO_PLAN.name());
         scenarioRequest.setTestPlanReportId(testPlanReport.getId());
-        apiAutomationService.run(scenarioRequest);
+        testPlanService.runApiCase(scenarioRequest);
         LogUtil.info("-------------- testplan schedule ---------- scenario case over -----------------");
 
         //执行性能测试任务

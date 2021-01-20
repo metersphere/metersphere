@@ -13,6 +13,7 @@
       </el-form-item>
 
       <span>{{$t('api_test.request.headers')}}</span>
+      <batch-add-parameter-button :data="httpConfig.headers"/>
       <ms-api-key-value :items="httpConfig.headers" :isShowEnable="true" :suggestions="headerSuggestions"/>
     </el-form>
 </template>
@@ -21,10 +22,11 @@
     import {HttpConfig} from "../../model/EnvironmentModel";
     import MsApiKeyValue from "../ApiKeyValue";
     import {REQUEST_HEADERS} from "../../../../../../common/js/constants";
+    import BatchAddParameterButton from "../basis/BatchAddParameterButton";
 
     export default {
       name: "MsEnvironmentHttpConfig",
-      components: {MsApiKeyValue},
+      components: {BatchAddParameterButton, MsApiKeyValue},
       props: {
         httpConfig: new HttpConfig(),
       },

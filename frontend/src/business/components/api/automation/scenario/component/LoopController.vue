@@ -25,12 +25,15 @@
         </el-col>
         <el-col :span="8">
           <span class="ms-span ms-radio">{{$t('loop.interval')}}</span>
-          <el-input-number size="small" v-model="controller.countController.interval" :placeholder="$t('commons.millisecond')" :max="1000*10000000" :min="0"/>
-          <span class="ms-span ms-radio">秒</span>
+          <el-input-number size="small" v-model="controller.countController.interval" :placeholder="$t('commons.millisecond')" :max="1000*10000000" :min="0" :step="1000"/>
+          <span class="ms-span ms-radio">ms</span>
         </el-col>
         <el-col :span="8">
           <span class="ms-span ms-radio">{{$t('loop.proceed')}}</span>
-          <el-switch v-model="controller.countController.proceed"/>
+          <el-tooltip class="item" effect="dark" content="默认为开启，当循环下只有一个请求时，可以开启/关闭;当循环下超过一个请求时，则只能开启。" placement="top">>
+            <el-switch v-model="controller.countController.proceed" @change="switchChange"/>
+
+          </el-tooltip>
         </el-col>
       </el-row>
     </div>
@@ -48,8 +51,8 @@
         </el-col>
         <el-col :span="7">
           <span class="ms-span ms-radio">{{$t('loop.interval')}}</span>
-          <el-input-number size="small" v-model="controller.forEachController.interval" :placeholder="$t('commons.millisecond')" :max="1000*10000000" :min="0"/>
-          <span class="ms-span ms-radio">秒</span>
+          <el-input-number size="small" v-model="controller.forEachController.interval" :placeholder="$t('commons.millisecond')" :max="1000*10000000" :min="0" :step="1000"/>
+          <span class="ms-span ms-radio">ms</span>
         </el-col>
       </el-row>
     </div>
@@ -62,8 +65,8 @@
       </el-select>
       <el-input size="small" v-model="controller.whileController.value" :placeholder="$t('api_test.value')" v-if="!hasEmptyOperator" style="width: 20%;margin-left: 20px"/>
       <span class="ms-span ms-radio">{{$t('loop.timeout')}}</span>
-      <el-input-number size="small" v-model="controller.whileController.timeout" :placeholder="$t('commons.millisecond')" :max="1000*10000000" :min="0"/>
-      <span class="ms-span ms-radio">秒</span>
+      <el-input-number size="small" v-model="controller.whileController.timeout" :placeholder="$t('commons.millisecond')" :max="1000*10000000" :min="1" :step="1000"/>
+      <span class="ms-span ms-radio">ms</span>
     </div>
 
   </api-base-component>
@@ -79,6 +82,10 @@
       controller: {},
       node: {},
       index: Object,
+      draggable: {
+        type: Boolean,
+        default: false,
+      },
     },
     data() {
       return {
@@ -120,6 +127,13 @@
       }
     },
     methods: {
+      switchChange() {
+        if (this.controller.hashTree && this.controller.hashTree.length > 1) {
+          this.$warning("当前循环下超过一个请求，不能关闭状态")
+          this.controller.countController.proceed = true;
+          return;
+        }
+      },
       remove() {
         this.$emit('remove', this.controller, this.node);
       },

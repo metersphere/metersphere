@@ -7,7 +7,7 @@
 
     <div class="ms-drawer-header">
       <slot name="header"></slot>
-      <i class="el-icon-close" @click="close"/>
+      <i v-if="isShowClose" class="el-icon-close" @click="close"/>
       <font-awesome-icon v-if="!isFullScreen && showFullScreen" class="alt-ico" :icon="['fa', 'expand-alt']" size="lg" @click="fullScreen"/>
       <font-awesome-icon v-if="isFullScreen && showFullScreen" class="alt-ico" :icon="['fa', 'compress-alt']" size="lg" @click="unFullScreen"/>
     </div>
@@ -59,6 +59,12 @@
           }
         },
         showFullScreen: {
+          type: Boolean,
+          default() {
+            return true;
+          }
+        },
+        isShowClose: {
           type: Boolean,
           default() {
             return true;

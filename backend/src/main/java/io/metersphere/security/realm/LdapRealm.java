@@ -1,4 +1,4 @@
-package io.metersphere.security;
+package io.metersphere.security.realm;
 
 
 import io.metersphere.base.domain.Role;
@@ -8,7 +8,6 @@ import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.dto.UserDTO;
 import io.metersphere.i18n.Translator;
 import io.metersphere.service.UserService;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.*;
 import org.apache.shiro.authz.AuthorizationInfo;
@@ -17,10 +16,9 @@ import org.apache.shiro.realm.AuthorizingRealm;
 import org.apache.shiro.subject.PrincipalCollection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Value;
 
 import javax.annotation.Resource;
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -34,18 +32,15 @@ import java.util.stream.Collectors;
  * set realm
  * </p>
  */
-public class ShiroDBRealm extends AuthorizingRealm {
+public class LdapRealm extends AuthorizingRealm {
 
-    private Logger logger = LoggerFactory.getLogger(ShiroDBRealm.class);
+    private Logger logger = LoggerFactory.getLogger(LdapRealm.class);
     @Resource
     private UserService userService;
 
-    @Value("${run.mode:release}")
-    private String runMode;
-
     @Override
     public String getName() {
-        return "LOCAL";
+        return "LDAP";
     }
 
     /**
@@ -72,50 +67,20 @@ public class ShiroDBRealm extends AuthorizingRealm {
     @Override
     protected AuthenticationInfo doGetAuthenticationInfo(AuthenticationToken authenticationToken) throws AuthenticationException {
         UsernamePasswordToken token = (UsernamePasswordToken) authenticationToken;
-        String login = (String) SecurityUtils.getSubject().getSession().getAttribute("authenticate");
 
         String userId = token.getUsername();
         String password = String.valueOf(token.getPassword());
 
-        if (StringUtils.equals("local", runMode)) {
-            UserDTO user = getUserWithOutAuthenticate(userId);
-            userId = user.getId();
-            SessionUser sessionUser = SessionUser.fromUser(user);
-            SessionUtils.putUser(sessionUser);
-            return new SimpleAuthenticationInfo(userId, password, getName());
-        }
-
-        if (StringUtils.equals(login, UserSource.LOCAL.name())) {
-            return loginLocalMode(userId, password);
-        }
-
-        UserDTO user = getUserWithOutAuthenticate(userId);
-        userId = user.getId();
-        SessionUser sessionUser = SessionUser.fromUser(user);
-        SessionUtils.putUser(sessionUser);
-        return new SimpleAuthenticationInfo(userId, password, getName());
-
+        return loginLdapMode(userId, password);
     }
 
-    private UserDTO getUserWithOutAuthenticate(String userId) {
-        UserDTO user = userService.getUserDTO(userId);
+    private AuthenticationInfo loginLdapMode(String userId, String password) {
+        // userId 或 email 有一个相同就返回User
+        String email = (String) SecurityUtils.getSubject().getSession().getAttribute("email");
+        UserDTO user = userService.getLoginUser(userId, Arrays.asList(UserSource.LDAP.name(), UserSource.LOCAL.name()));
         String msg;
         if (user == null) {
-            user = userService.getUserDTOByEmail(userId);
-            if (user == null) {
-                msg = "The user does not exist: " + userId;
-                logger.warn(msg);
-                throw new UnknownAccountException(Translator.get("user_not_exist") + userId);
-            }
-        }
-        return user;
-    }
-
-    private AuthenticationInfo loginLocalMode(String userId, String password) {
-        UserDTO user = userService.getLoginUser(userId, Collections.singletonList(UserSource.LOCAL.name()));
-        String msg;
-        if (user == null) {
-            user = userService.getUserDTOByEmail(userId, UserSource.LOCAL.name());
+            user = userService.getUserDTOByEmail(email, UserSource.LDAP.name(), UserSource.LOCAL.name());
             if (user == null) {
                 msg = "The user does not exist: " + userId;
                 logger.warn(msg);
@@ -123,13 +88,11 @@ public class ShiroDBRealm extends AuthorizingRealm {
             }
             userId = user.getId();
         }
-        // 密码验证
-        if (!userService.checkUserPassword(userId, password)) {
-            throw new IncorrectCredentialsException(Translator.get("password_is_incorrect"));
-        }
+
         SessionUser sessionUser = SessionUser.fromUser(user);
         SessionUtils.putUser(sessionUser);
         return new SimpleAuthenticationInfo(userId, password, getName());
+
     }
 
     @Override

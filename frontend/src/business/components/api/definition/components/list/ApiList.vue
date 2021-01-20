@@ -112,10 +112,21 @@
 
         <el-table-column v-if="!isReadOnly" :label="$t('commons.operating')" min-width="130" align="center">
           <template v-slot:default="scope">
-            <el-button type="text" @click="reductionApi(scope.row)" v-if="trashEnable" v-tester>{{ $t('commons.reduction') }}</el-button>
-            <el-button type="text" @click="editApi(scope.row)" v-else v-tester>{{ $t('commons.edit') }}</el-button>
-            <el-button type="text" @click="handleTestCase(scope.row)">{{ $t('api_test.definition.request.case') }}</el-button>
-            <el-button type="text" @click="handleDelete(scope.row)" style="color: #F56C6C" v-tester>{{ $t('commons.delete') }}</el-button>
+            <ms-table-operator-button :tip="$t('commons.reduction')" icon="el-icon-refresh-left" @exec="reductionApi(scope.row)" v-if="trashEnable" v-tester/>
+            <ms-table-operator-button :tip="$t('commons.edit')" icon="el-icon-edit" @exec="editApi(scope.row)" v-else v-tester/>
+            <el-tooltip :content="$t('test_track.case.case_list')"
+                        placement="bottom"
+                        :enterable="false"
+                        effect="dark" >
+              <el-button @click="handleTestCase(scope.row)"
+                         @keydown.enter.native.prevent
+                         type="primary"
+                         circle
+                         style="padding: 7px 0.5px;font-size: 0.5px;color:white"
+                         size="mini" >case
+              </el-button>
+            </el-tooltip>
+            <ms-table-operator-button :tip="$t('commons.delete')" icon="el-icon-delete" @exec="handleDelete(scope.row)" type="danger" v-tester/>
           </template>
         </el-table-column>
       </el-table>
@@ -153,6 +164,7 @@
   import ApiStatus from "@/business/components/api/definition/components/list/ApiStatus";
   import MsTableAdvSearchBar from "@/business/components/common/components/search/MsTableAdvSearchBar";
   import {API_DEFINITION_CONFIGS} from "@/business/components/common/components/search/search-components";
+  import MsTipButton from "@/business/components/common/components/MsTipButton";
 
   export default {
     name: "ApiList",
@@ -171,6 +183,7 @@
       MsBottomContainer,
       ShowMoreBtn,
       MsBatchEdit,
+      MsTipButton,
       MsTableAdvSearchBar
     },
     data() {

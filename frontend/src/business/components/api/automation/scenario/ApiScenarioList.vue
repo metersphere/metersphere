@@ -65,14 +65,19 @@
         <el-table-column :label="$t('commons.operating')" width="200px" v-if="!referenced">
           <template v-slot:default="{row}">
             <div v-if="trashEnable">
-              <el-button type="text" @click="reductionApi(row)" v-tester>{{ $t('commons.reduction') }}</el-button>
-              <el-button type="text" @click="remove(row)" v-tester>{{ $t('api_test.automation.remove') }}</el-button>
+<!--              <el-button type="text" @click="reductionApi(row)" v-tester>{{ $t('commons.reduction') }}</el-button>-->
+<!--              <el-button type="text" @click="remove(row)" v-tester>{{ $t('api_test.automation.remove') }}</el-button>-->
+              <ms-table-operator-button :tip="$t('commons.reduction')" icon="el-icon-refresh-left" @exec="reductionApi(row)" v-tester/>
+              <ms-table-operator-button :tip="$t('api_test.automation.remove')" icon="el-icon-delete" @exec="remove(row)" type="danger" v-tester/>
             </div>
             <div v-else>
-              <el-button type="text" @click="edit(row)" v-tester>{{ $t('api_test.automation.edit') }}</el-button>
-              <el-button type="text" @click="execute(row)" v-tester>{{ $t('api_test.automation.execute') }}</el-button>
-              <el-button type="text" @click="copy(row)" v-tester>{{ $t('api_test.automation.copy') }}</el-button>
-              <el-button type="text" @click="remove(row)" v-tester>{{ $t('api_test.automation.remove') }}</el-button>
+              <ms-table-operator-button :tip="$t('api_test.automation.edit')" icon="el-icon-edit" @exec="edit(row)" v-tester/>
+              <ms-table-operator-button class="run-button" :is-tester-permission="true" :tip="$t('api_test.automation.execute')"
+                                        icon="el-icon-video-play"
+                                        @exec="execute(row)" v-tester/>
+              <ms-table-operator-button :tip="$t('api_test.automation.copy')" icon="el-icon-document-copy" type=""
+                                        @exec="copy(row)"/>
+              <ms-table-operator-button :tip="$t('api_test.automation.remove')" icon="el-icon-delete" @exec="remove(row)" type="danger" v-tester/>
               <ms-scenario-extend-buttons :row="row"/>
             </div>
           </template>
@@ -109,6 +114,7 @@
   import MsTestPlanList from "./testplan/TestPlanList";
   import MsTableSelectAll from "../../../common/components/table/MsTableSelectAll";
   import {API_CASE_CONFIGS} from "@/business/components/common/components/search/search-components";
+  import MsTableOperatorButton from "@/business/components/common/components/MsTableOperatorButton";
 
   export default {
     name: "MsApiScenarioList",
@@ -121,7 +127,8 @@
       MsTag,
       MsApiReportDetail,
       MsScenarioExtendButtons,
-      MsTestPlanList
+      MsTestPlanList,
+      MsTableOperatorButton
     },
     props: {
       referenced: {
@@ -426,5 +433,8 @@
   /deep/ .el-drawer__header {
     margin-bottom: 0px;
   }
-
+  /deep/ .run-button {
+    background-color: #409EFF;
+    border-color: #409EFF;
+  }
 </style>

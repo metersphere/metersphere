@@ -1,5 +1,5 @@
 <template>
-  <el-dialog :title="$t('api_test.scenario.variables')"
+  <el-dialog :title="$t('api_test.scenario.variables')" :close-on-click-modal="false"
              :visible.sync="visible" class="environment-dialog" width="60%"
              @close="close">
     <div>

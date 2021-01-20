@@ -13,6 +13,7 @@ import io.metersphere.api.dto.definition.RunDefinitionRequest;
 import io.metersphere.api.dto.definition.request.MsTestElement;
 import io.metersphere.api.dto.scenario.request.dubbo.RegistryCenter;
 import io.metersphere.api.service.*;
+import io.metersphere.base.domain.ApiDefinition;
 import io.metersphere.base.domain.ApiTest;
 import io.metersphere.base.domain.LoadTest;
 import io.metersphere.base.domain.Schedule;
@@ -34,6 +35,10 @@ import org.apache.http.entity.ContentType;
 import org.apache.jorphan.collections.HashTree;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
+import org.dom4j.Document;
+import org.dom4j.DocumentException;
+import org.dom4j.DocumentHelper;
+import org.dom4j.Element;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -383,9 +388,20 @@ public class APITestController {
     }
 
     @PostMapping(value = "/genPerformanceTestXml", consumes = {"multipart/form-data"})
-    public JmxInfoDTO genPerformanceTest(@RequestPart("request") RunDefinitionRequest runRequest, @RequestPart(value = "files") List<MultipartFile> bodyFiles) {
+    public JmxInfoDTO genPerformanceTest(@RequestPart("request") RunDefinitionRequest runRequest, @RequestPart(value = "files") List<MultipartFile> bodyFiles) throws Exception {
         HashTree hashTree = runRequest.getTestElement().generateHashTree();
         String jmxString = runRequest.getTestElement().getJmx(hashTree);
+
+        String testName = runRequest.getName();
+        //将ThreadGroup的testname改为接口名称
+        Document doc = DocumentHelper.parseText(jmxString);// 获取可续保保单列表报文模板
+        Element root = doc.getRootElement();
+        Element rootHashTreeElement = root.element("hashTree");
+        Element innerHashTreeElement = rootHashTreeElement.elements("hashTree").get(0);
+        Element theadGroupElement = innerHashTreeElement.elements("ThreadGroup").get(0);
+        theadGroupElement.attribute("testname").setText(testName);
+        jmxString = root.asXML();
+
         JmxInfoDTO dto = new JmxInfoDTO();
         dto.setName(runRequest.getName()+".jmx");
         dto.setXml(jmxString);

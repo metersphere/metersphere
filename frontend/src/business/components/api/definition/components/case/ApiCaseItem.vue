@@ -1,70 +1,80 @@
 <template>
   <el-card style="margin-top: 5px" @click.native="selectTestCase(apiCase,$event)">
-    <el-row>
-      <el-col :span="4">
-        <div class="el-step__icon is-text ms-api-col">
-          <div class="el-step__icon-inner">{{ index + 1 }}</div>
-        </div>
+    <div @click="active(apiCase)">
+      <el-row>
+        <el-col :span="5">
 
-        <label class="ms-api-label">{{ $t('test_track.case.priority') }}</label>
-        <el-select size="small" v-model="apiCase.priority" class="ms-api-select" @change="changePriority(apiCase)">
-          <el-option v-for="grd in priorities" :key="grd.id" :label="grd.name" :value="grd.id"/>
-        </el-select>
-      </el-col>
-      <el-col :span="12">
-        <i class="icon el-icon-arrow-right" :class="{'is-active': apiCase.active}"
-           @click="active(apiCase)"/>
-        <el-input v-if="!apiCase.id || isShowInput" size="small" v-model="apiCase.name" :name="index" :key="index"
-                  class="ms-api-header-select" style="width: 180px"
-                  @blur="saveTestCase(apiCase)" :placeholder="$t('commons.input_name')"/>
-        <span v-else>
-          {{ apiCase.id ? apiCase.name : '' }}
-          <i class="el-icon-edit" style="cursor:pointer" @click="showInput(apiCase)" v-tester/>
-        </span>
+          <el-checkbox class="item-select" v-model="apiCase.selected"/>
 
-        <label class="ms-api-label" style="padding-left: 20px; padding-right: 20px;">{{ $t('commons.tag') }}</label>
-        <ms-input-tag :currentScenario="apiCase" ref="tag" style="float: right;margin-right: 215px;margin-top: -3px;" @keyup.enter.native="saveTestCase(apiCase)"/>
+          <div class="el-step__icon is-text ms-api-col">
+            <div class="el-step__icon-inner">{{ index + 1 }}</div>
+          </div>
 
-        <div v-if="apiCase.id" style="color: #999999;font-size: 12px">
+          <label class="ms-api-label">{{ $t('test_track.case.priority') }}</label>
+          <el-select size="small" v-model="apiCase.priority" class="ms-api-select" @change="changePriority(apiCase)">
+            <el-option v-for="grd in priorities" :key="grd.id" :label="grd.name" :value="grd.id"/>
+          </el-select>
+        </el-col>
+
+        <el-col :span="8">
+          <span @click.stop>
+            <i class="icon el-icon-arrow-right" :class="{'is-active': apiCase.active}" @click="active(apiCase)"/>
+            <el-input v-if="!apiCase.id || isShowInput" size="small" v-model="apiCase.name" :name="index" :key="index"
+                      class="ms-api-header-select" style="width: 180px"
+                      @blur="saveTestCase(apiCase)" :placeholder="$t('commons.input_name')" ref="nameEdit"/>
+            <span v-else>
+              {{ apiCase.id ? apiCase.name : '' }}
+              <i class="el-icon-edit" style="cursor:pointer" @click="showInput(apiCase)" v-tester/>
+            </span>
+          </span>
+          <div v-if="apiCase.id" style="color: #999999;font-size: 12px">
           <span>
             {{ apiCase.createTime | timestampFormatDate }}
             {{ apiCase.createUser }} {{ $t('api_test.definition.request.create_info') }}
           </span>
-          <span>
+            <span>
             {{ apiCase.updateTime | timestampFormatDate }}
             {{ apiCase.updateUser }} {{ $t('api_test.definition.request.update_info') }}
           </span>
-        </div>
-      </el-col>
+          </div>
+        </el-col>
 
-      <el-col :span="4">
-        <ms-tip-button @click="singleRun(apiCase)" :tip="$t('api_test.run')" icon="el-icon-video-play"
-                       style="background-color: #409EFF;color: white" size="mini" :disabled="!apiCase.id" circle v-tester/>
-        <ms-tip-button @click="copyCase(apiCase)" :tip="$t('commons.copy')" icon="el-icon-document-copy"
-                       size="mini" :disabled="!apiCase.id || isCaseEdit" circle v-tester/>
-        <ms-tip-button @click="deleteCase(index,apiCase)" :tip="$t('commons.delete')" icon="el-icon-delete"
-                       size="mini" :disabled="!apiCase.id || isCaseEdit" circle v-tester/>
-        <ms-api-extend-btns :is-case-edit="isCaseEdit" :environment="environment" :row="apiCase" v-tester/>
-      </el-col>
+        <el-col :span="4">
+          <ms-input-tag class="tag-item" :currentScenario="apiCase" ref="tag" @keyup.enter.native="saveTestCase(apiCase)"/>
+        </el-col>
 
-      <el-col :span="3">
-        <el-link type="danger" v-if="apiCase.execResult && apiCase.execResult==='error'" @click="showExecResult(apiCase)">
-          {{ getResult(apiCase.execResult) }}
-        </el-link>
-        <el-link v-else-if="apiCase.execResult && apiCase.execResult==='success'" @click="showExecResult(apiCase)">
-          {{ getResult(apiCase.execResult) }}
-        </el-link>
-        <div v-else> {{ getResult(apiCase.execResult) }}</div>
+        <el-col :span="4">
+          <ms-tip-button @click="singleRun(apiCase)" :tip="$t('api_test.run')" icon="el-icon-video-play"
+                         style="background-color: #409EFF;color: white" size="mini" :disabled="!apiCase.id" circle v-tester/>
+          <ms-tip-button @click="copyCase(apiCase)" :tip="$t('commons.copy')" icon="el-icon-document-copy"
+                         size="mini" :disabled="!apiCase.id || isCaseEdit" circle v-tester/>
+          <ms-tip-button @click="deleteCase(index,apiCase)" :tip="$t('commons.delete')" icon="el-icon-delete"
+                         size="mini" :disabled="!apiCase.id || isCaseEdit" circle v-tester/>
+          <ms-api-extend-btns :is-case-edit="isCaseEdit" :environment="environment" :row="apiCase" v-tester/>
+        </el-col>
 
-        <div v-if="apiCase.id" style="color: #999999;font-size: 12px">
-          <span> {{ apiCase.execTime | timestampFormatDate }}</span>
-          {{ apiCase.updateUser }}
-        </div>
-      </el-col>
-    </el-row>
+        <el-col :span="3">
+          <el-link type="danger" v-if="apiCase.execResult && apiCase.execResult==='error'" @click="showExecResult(apiCase)">
+            {{ getResult(apiCase.execResult) }}
+          </el-link>
+          <el-link v-else-if="apiCase.execResult && apiCase.execResult==='success'" @click="showExecResult(apiCase)">
+            {{ getResult(apiCase.execResult) }}
+          </el-link>
+          <div v-else> {{ getResult(apiCase.execResult) }}</div>
+
+          <div v-if="apiCase.id" style="color: #999999;font-size: 12px">
+            <span> {{ apiCase.execTime | timestampFormatDate }}</span>
+            {{ apiCase.updateUser }}
+          </div>
+        </el-col>
+      </el-row>
+    </div>
+
     <!-- 请求参数-->
     <el-collapse-transition>
       <div v-if="apiCase.active">
+        <el-divider></el-divider>
+
         <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
 
         <ms-api-request-form :showScript="true" :is-read-only="isReadOnly" :headers="apiCase.request.headers " :request="apiCase.request" v-if="api.protocol==='HTTP'"/>
@@ -73,15 +83,10 @@
         <ms-dubbo-basis-parameters :showScript="true" :request="apiCase.request" v-if="api.protocol==='DUBBO'"/>
 
         <!-- HTTP 请求返回数据 -->
-        <p class="tip">
-          {{$t('api_test.definition.request.res_param')}}
-          <i class="icon el-icon-arrow-right" :class="{'is-responseActive': apiCase.responseActive}" @click="responseActive(apiCase)"/>
-        </p>
-        <el-collapse-transition>
-          <div v-if="apiCase.responseActive">
-            <ms-request-result-tail :response="responseData"/>
-          </div>
-        </el-collapse-transition>
+        <p class="tip">{{$t('api_test.definition.request.res_param')}}</p>
+        <api-response-component :api-item="apiCase"/>
+
+        <ms-jmx-step :request="apiCase.request" :response="apiCase.responseData"/>
         <!-- 保存操作 -->
         <el-button type="primary" size="small" style="margin: 20px; float: right" @click="saveTestCase(apiCase)" v-tester>
           {{ $t('commons.save') }}
@@ -105,10 +110,13 @@
   import MsApiExtendBtns from "../reference/ApiExtendBtns";
   import MsInputTag from "@/business/components/api/automation/scenario/MsInputTag";
   import MsRequestResultTail from "../response/RequestResultTail";
+  import MsJmxStep from "../step/JmxStep";
+  import ApiResponseComponent from "../../../automation/scenario/component/ApiResponseComponent";
 
   export default {
     name: "ApiCaseItem",
     components: {
+      ApiResponseComponent,
       MsInputTag,
       MsTag,
       MsTipButton,
@@ -119,7 +127,8 @@
       MsTcpBasisParameters,
       MsDubboBasisParameters,
       MsApiExtendBtns,
-      MsRequestResultTail
+      MsRequestResultTail,
+      MsJmxStep
     },
     data() {
       return {
@@ -173,19 +182,6 @@
             }
           }
         });
-
-      },
-      getExecResult() {
-        // 执行结果信息
-        if (this.apiCase) {
-          let url = "/api/definition/report/getReport/" + this.apiCase.id;
-          this.$get(url, response => {
-            if (response.data) {
-              let data = JSON.parse(response.data.content);
-              this.responseData = data;
-            }
-          });
-        }
       },
       singleRun(data) {
         data.message = true;
@@ -244,6 +240,7 @@
           row.updateTime = data.updateTime;
           if (!row.message) {
             this.$success(this.$t('commons.save_success'));
+            this.$emit('refresh');
           }
         });
       },
@@ -252,15 +249,12 @@
         this.isShowInput = true;
         row.active = true;
         this.active(row);
+        this.$nextTick(() => {
+          this.$refs.nameEdit.focus();
+        });
       },
       active(item) {
         item.active = !item.active;
-      },
-      responseActive(item) {
-        item.responseActive = !item.responseActive;
-        if (item.responseActive) {
-          this.getExecResult();
-        }
       },
       getResult(data) {
         if (RESULT_MAP.get(data)) {
@@ -310,14 +304,6 @@
     color: white;
   }
 
-  .icon.is-active {
-    transform: rotate(90deg);
-  }
-
-  .icon.is-responseActive {
-    transform: rotate(90deg);
-  }
-
   .tip {
     padding: 3px 5px;
     font-size: 16px;
@@ -328,5 +314,17 @@
 
   .is-selected {
     background: #EFF7FF;
+  }
+
+  .icon.is-active {
+    transform: rotate(90deg);
+  }
+
+  .item-select {
+    margin-right: 10px;
+  }
+
+  .tag-item {
+    margin-right: 30px;
   }
 </style>

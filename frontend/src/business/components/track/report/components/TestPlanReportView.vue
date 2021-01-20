@@ -19,12 +19,12 @@
             </div>
           </el-col>
           <el-col :span="12" class="head-right">
-            <el-button :disabled="!isTestManagerOrTestUser" plain size="mini" @click="handleSave">
-              {{$t('commons.save')}}
-            </el-button>
-            <el-button :disabled="!isTestManagerOrTestUser" plain size="mini" @click="handleEdit">
-              {{$t('test_track.plan_view.edit_component')}}
-            </el-button>
+<!--            <el-button :disabled="!isTestManagerOrTestUser" plain size="mini" @click="handleSave">-->
+<!--              {{$t('commons.save')}}-->
+<!--            </el-button>-->
+<!--            <el-button :disabled="!isTestManagerOrTestUser" plain size="mini" @click="handleEdit">-->
+<!--              {{$t('test_track.plan_view.edit_component')}}-->
+<!--            </el-button>-->
             <el-button :disabled="!isTestManagerOrTestUser" plain size="mini" @click="handleExport(report.name)">
               {{$t('test_track.plan_view.export_report')}}
             </el-button>

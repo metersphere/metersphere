@@ -110,6 +110,10 @@
               if (this.isNotRunning) {
                 try {
                   this.content = JSON.parse(this.report.content);
+                  console.log(this.content)
+                  if (!this.content) {
+                    this.content = {scenarios: []};
+                  }
                   this.$emit('refresh');
                 } catch (e) {
                   throw e;
@@ -130,21 +134,23 @@
         if (this.isNotRunning) {
           this.fails = [];
           this.totalTime = 0
-          this.content.scenarios.forEach((scenario) => {
-            this.totalTime = this.totalTime + Number(scenario.responseTime)
-            let failScenario = Object.assign({}, scenario);
-            if (scenario.error > 0) {
-              this.fails.push(failScenario);
-              failScenario.requestResults = [];
-              scenario.requestResults.forEach((request) => {
-                if (!request.success) {
-                  let failRequest = Object.assign({}, request);
-                  failScenario.requestResults.push(failRequest);
-                }
-              })
+          if (this.content.scenarios) {
+            this.content.scenarios.forEach((scenario) => {
+              this.totalTime = this.totalTime + Number(scenario.responseTime)
+              let failScenario = Object.assign({}, scenario);
+              if (scenario.error > 0) {
+                this.fails.push(failScenario);
+                failScenario.requestResults = [];
+                scenario.requestResults.forEach((request) => {
+                  if (!request.success) {
+                    let failRequest = Object.assign({}, request);
+                    failScenario.requestResults.push(failRequest);
+                  }
+                })
 
-            }
-          })
+              }
+            })
+          }
         }
       },
       requestResult(requestResult) {

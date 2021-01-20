@@ -39,6 +39,9 @@ public class MsJSR223Processor extends MsTestElement {
         } else {
             processor.setName("JSR223Processor");
         }
+        if (config != null && StringUtils.isNotEmpty(config.getStep())) {
+            processor.setName(this.getName() + "<->" + config.getStep());
+        }
         processor.setProperty(TestElement.TEST_CLASS, JSR223Sampler.class.getName());
         processor.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("TestBeanGUI"));
         processor.setProperty("cacheKey", "true");

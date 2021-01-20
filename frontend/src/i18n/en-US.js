@@ -127,6 +127,9 @@ export default {
     validate: "Validate",
     batch_add: "Batch add",
     check_project_tip: "Create or select the project first",
+    table: {
+      select_tip: "Item {0} data is selected"
+    },
     date: {
       select_date: 'Select date',
       start_date: 'Start date',

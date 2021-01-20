@@ -13,11 +13,11 @@
     <result column="update_time" jdbcType="BIGINT" property="updateTime" />
     <result column="num" jdbcType="INTEGER" property="num" />
     <result column="tags" jdbcType="VARCHAR" property="tags" />
+    <result column="last_result_id" jdbcType="VARCHAR" property="lastResultId" />
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.ApiTestCaseWithBLOBs">
     <result column="description" jdbcType="LONGVARCHAR" property="description" />
     <result column="request" jdbcType="LONGVARCHAR" property="request" />
-    <result column="response" jdbcType="LONGVARCHAR" property="response" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -79,10 +79,10 @@
   </sql>
   <sql id="Base_Column_List">
     id, project_id, `name`, priority, api_definition_id, create_user_id, update_user_id, 
-    create_time, update_time, num, tags
+    create_time, update_time, num, tags, last_result_id
   </sql>
   <sql id="Blob_Column_List">
-    description, request, response
+    description, request
   </sql>
   <select id="selectByExampleWithBLOBs" parameterType="io.metersphere.base.domain.ApiTestCaseExample" resultMap="ResultMapWithBLOBs">
     select
@@ -136,13 +136,13 @@
     insert into api_test_case (id, project_id, `name`, 
       priority, api_definition_id, create_user_id, 
       update_user_id, create_time, update_time, 
-      num, tags, description, 
-      request, response)
+      num, tags, last_result_id, 
+      description, request)
     values (#{id,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, 
       #{priority,jdbcType=VARCHAR}, #{apiDefinitionId,jdbcType=VARCHAR}, #{createUserId,jdbcType=VARCHAR}, 
       #{updateUserId,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, 
-      #{num,jdbcType=INTEGER}, #{tags,jdbcType=VARCHAR}, #{description,jdbcType=LONGVARCHAR}, 
-      #{request,jdbcType=LONGVARCHAR}, #{response,jdbcType=LONGVARCHAR})
+      #{num,jdbcType=INTEGER}, #{tags,jdbcType=VARCHAR}, #{lastResultId,jdbcType=VARCHAR}, 
+      #{description,jdbcType=LONGVARCHAR}, #{request,jdbcType=LONGVARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.ApiTestCaseWithBLOBs">
     insert into api_test_case
@@ -180,14 +180,14 @@
       <if test="tags != null">
         tags,
       </if>
+      <if test="lastResultId != null">
+        last_result_id,
+      </if>
       <if test="description != null">
         description,
       </if>
       <if test="request != null">
         request,
-      </if>
-      <if test="response != null">
-        response,
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -224,14 +224,14 @@
       <if test="tags != null">
         #{tags,jdbcType=VARCHAR},
       </if>
+      <if test="lastResultId != null">
+        #{lastResultId,jdbcType=VARCHAR},
+      </if>
       <if test="description != null">
         #{description,jdbcType=LONGVARCHAR},
       </if>
       <if test="request != null">
         #{request,jdbcType=LONGVARCHAR},
-      </if>
-      <if test="response != null">
-        #{response,jdbcType=LONGVARCHAR},
       </if>
     </trim>
   </insert>
@@ -277,14 +277,14 @@
       <if test="record.tags != null">
         tags = #{record.tags,jdbcType=VARCHAR},
       </if>
+      <if test="record.lastResultId != null">
+        last_result_id = #{record.lastResultId,jdbcType=VARCHAR},
+      </if>
       <if test="record.description != null">
         description = #{record.description,jdbcType=LONGVARCHAR},
       </if>
       <if test="record.request != null">
         request = #{record.request,jdbcType=LONGVARCHAR},
-      </if>
-      <if test="record.response != null">
-        response = #{record.response,jdbcType=LONGVARCHAR},
       </if>
     </set>
     <if test="_parameter != null">
@@ -304,9 +304,9 @@
       update_time = #{record.updateTime,jdbcType=BIGINT},
       num = #{record.num,jdbcType=INTEGER},
       tags = #{record.tags,jdbcType=VARCHAR},
+      last_result_id = #{record.lastResultId,jdbcType=VARCHAR},
       description = #{record.description,jdbcType=LONGVARCHAR},
-      request = #{record.request,jdbcType=LONGVARCHAR},
-      response = #{record.response,jdbcType=LONGVARCHAR}
+      request = #{record.request,jdbcType=LONGVARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -323,7 +323,8 @@
       create_time = #{record.createTime,jdbcType=BIGINT},
       update_time = #{record.updateTime,jdbcType=BIGINT},
       num = #{record.num,jdbcType=INTEGER},
-      tags = #{record.tags,jdbcType=VARCHAR}
+      tags = #{record.tags,jdbcType=VARCHAR},
+      last_result_id = #{record.lastResultId,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -361,14 +362,14 @@
       <if test="tags != null">
         tags = #{tags,jdbcType=VARCHAR},
       </if>
+      <if test="lastResultId != null">
+        last_result_id = #{lastResultId,jdbcType=VARCHAR},
+      </if>
       <if test="description != null">
         description = #{description,jdbcType=LONGVARCHAR},
       </if>
       <if test="request != null">
         request = #{request,jdbcType=LONGVARCHAR},
-      </if>
-      <if test="response != null">
-        response = #{response,jdbcType=LONGVARCHAR},
       </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
@@ -385,9 +386,9 @@
       update_time = #{updateTime,jdbcType=BIGINT},
       num = #{num,jdbcType=INTEGER},
       tags = #{tags,jdbcType=VARCHAR},
+      last_result_id = #{lastResultId,jdbcType=VARCHAR},
       description = #{description,jdbcType=LONGVARCHAR},
-      request = #{request,jdbcType=LONGVARCHAR},
-      response = #{response,jdbcType=LONGVARCHAR}
+      request = #{request,jdbcType=LONGVARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKey" parameterType="io.metersphere.base.domain.ApiTestCase">
@@ -401,7 +402,8 @@
       create_time = #{createTime,jdbcType=BIGINT},
       update_time = #{updateTime,jdbcType=BIGINT},
       num = #{num,jdbcType=INTEGER},
-      tags = #{tags,jdbcType=VARCHAR}
+      tags = #{tags,jdbcType=VARCHAR},
+      last_result_id = #{lastResultId,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

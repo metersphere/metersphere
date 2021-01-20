@@ -85,20 +85,34 @@ public class ApiDefinitionService {
     private static final String BODY_FILE_DIR = "/opt/metersphere/data/body";
 
     public List<ApiDefinitionResult> list(ApiDefinitionRequest request) {
-        request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
-
-        //判断是否查询本周数据
-        if (request.isSelectThisWeedData()) {
-            Map<String, Date> weekFirstTimeAndLastTime = DateUtils.getWeedFirstTimeAndLastTime(new Date());
-            Date weekFirstTime = weekFirstTimeAndLastTime.get("firstTime");
-            if (weekFirstTime != null) {
-                request.setCreateTime(weekFirstTime.getTime());
-            }
-        }
-
+        request = this.initRequest(request, true, true);
         List<ApiDefinitionResult> resList = extApiDefinitionMapper.list(request);
         calculateResult(resList);
         return resList;
+    }
+
+    /**
+     * 初始化部分参数
+     *
+     * @param request
+     * @param setDefultOrders
+     * @param checkThisWeekData
+     * @return
+     */
+    private ApiDefinitionRequest initRequest(ApiDefinitionRequest request, boolean setDefultOrders, boolean checkThisWeekData) {
+        if (setDefultOrders) {
+            request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
+        }
+        if (checkThisWeekData) {
+            if (request.isSelectThisWeedData()) {
+                Map<String, Date> weekFirstTimeAndLastTime = DateUtils.getWeedFirstTimeAndLastTime(new Date());
+                Date weekFirstTime = weekFirstTimeAndLastTime.get("firstTime");
+                if (weekFirstTime != null) {
+                    request.setCreateTime(weekFirstTime.getTime());
+                }
+            }
+        }
+        return request;
     }
 
     public ApiDefinition get(String id) {
@@ -330,7 +344,7 @@ public class ApiDefinitionService {
         createBodyFiles(bodyUploadIds, bodyFiles);
 
         HashTree hashTree = request.getTestElement().generateHashTree();
-        String runMode = ApiRunMode.DELIMIT.name();
+        String runMode = ApiRunMode.DEFINITION.name();
         if (StringUtils.isNotBlank(request.getType()) && StringUtils.equals(request.getType(), ApiRunMode.API_PLAN.name())) {
             runMode = ApiRunMode.API_PLAN.name();
         }
@@ -561,9 +575,16 @@ public class ApiDefinitionService {
             for (ApiDefinitionResult res : resList) {
                 ApiComputeResult compRes = resultMap.get(res.getId());
                 if (compRes != null) {
-                    res.setCaseTotal(compRes.getCaseTotal());
+                    res.setCaseTotal(String.valueOf(compRes.getCaseTotal()));
                     res.setCasePassingRate(compRes.getPassRate());
-                    res.setCaseStatus(compRes.getStatus());
+                    // 状态优先级 未执行，未通过，通过
+                    if ((compRes.getError() + compRes.getSuccess()) < compRes.getCaseTotal()) {
+                        res.setCaseStatus("未执行");
+                    } else if (compRes.getError() > 0) {
+                        res.setCaseStatus("未通过");
+                    } else {
+                        res.setCaseStatus("通过");
+                    }
                 } else {
                     res.setCaseTotal("-");
                     res.setCasePassingRate("-");

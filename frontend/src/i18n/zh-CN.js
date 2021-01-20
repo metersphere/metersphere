@@ -127,6 +127,9 @@ export default {
     validate: "校验",
     batch_add: "批量添加",
     check_project_tip: "请先创建或选择项目",
+    table: {
+      select_tip: "已选中 {0} 条数据"
+    },
     date: {
       select_date: '选择日期',
       start_date: '开始日期',
@@ -486,6 +489,7 @@ export default {
     export_config: "导出",
     enable_validate_tip: "没有可用请求",
     copy: "复制测试",
+    batch_add_parameter: "格式：参数名,必填,参数值,备注 <br/> 如：Accept-Encoding,必填,utf-8,编码",
     jar_config: {
       title: "jar包管理",
       jar_file: "jar包",

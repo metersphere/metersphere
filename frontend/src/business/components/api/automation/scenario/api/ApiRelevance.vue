@@ -86,6 +86,12 @@
           this.$refs.relevanceDialog.close();
         },
         open() {
+          if (this.$refs.apiList) {
+            this.$refs.apiList.clearSelection();
+          }
+          if (this.$refs.apiCaseList) {
+            this.$refs.apiCaseList.clearSelection();
+          }
           this.$refs.relevanceDialog.open();
         },
         isApiListEnableChange(data) {
