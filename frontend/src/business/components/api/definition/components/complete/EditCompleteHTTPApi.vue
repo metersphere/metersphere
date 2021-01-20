@@ -202,7 +202,7 @@ export default {
       if (!this.httpForm.path || this.httpForm.path.indexOf('?') === -1) return;
       let url = this.getURL(this.addProtocol(this.httpForm.path));
       if (url) {
-        this.httpForm.path = decodeURIComponent("/" + url.hostname + url.pathname);
+        this.httpForm.path = decodeURIComponent(this.httpForm.path.substr(0,this.httpForm.path.indexOf("?")));
       }
     },
     addProtocol(url) {

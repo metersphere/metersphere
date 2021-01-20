@@ -141,7 +141,7 @@ public class TestPlanTestJob extends MsScheduleJob {
             RunTestPlanRequest performanceRequest = new RunTestPlanRequest();
             performanceRequest.setId(caseID);
             performanceRequest.setTestPlanLoadId(caseID);
-            performanceRequest.setTriggerMode(ReportTriggerMode.SCHEDULE.name());
+            performanceRequest.setTriggerMode(ReportTriggerMode.TEST_PLAN_SCHEDULE.name());
 
             String reportId = null;
             try {

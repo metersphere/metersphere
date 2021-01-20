@@ -105,7 +105,7 @@ public class ShiroDBRealm extends AuthorizingRealm {
             if (user == null) {
                 msg = "The user does not exist: " + userId;
                 logger.warn(msg);
-                throw new UnknownAccountException(Translator.get("user_not_exist") + userId);
+                throw new UnknownAccountException(Translator.get("password_is_incorrect") + userId);
             }
         }
         return user;
@@ -119,7 +119,7 @@ public class ShiroDBRealm extends AuthorizingRealm {
             if (user == null) {
                 msg = "The user does not exist: " + userId;
                 logger.warn(msg);
-                throw new UnknownAccountException(Translator.get("user_not_exist") + userId);
+                throw new UnknownAccountException(Translator.get("password_is_incorrect") + userId);
             }
             userId = user.getId();
         }

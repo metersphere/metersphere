@@ -7,5 +7,6 @@ public enum ReportTriggerMode {
     /**
      * 性能测试用例执行触发报告
      */
-    CASE
+    CASE,
+    TEST_PLAN_SCHEDULE
 }

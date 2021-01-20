@@ -199,6 +199,7 @@ public class TestPlanReportService {
         QueryTestPlanRequest queryTestPlanRequest = new QueryTestPlanRequest();
         queryTestPlanRequest.setId(testPlanReport.getTestPlanId());
         TestPlanDTO testPlan = extTestPlanMapper.list(queryTestPlanRequest).get(0);
+        String issuesInfo = null;
 
         //因为接口案例的定时任务是单个案例开线程运行， 所以要检查是否都执行完成。全部执行完成时才会进行统一整理
         if (StringUtils.equals(ReportTriggerMode.SCHEDULE.name(),triggerMode)
@@ -209,6 +210,8 @@ public class TestPlanReportService {
                     return;
                 }
             }
+        }else if(StringUtils.equals(ReportTriggerMode.TEST_PLAN_SCHEDULE.name(),triggerMode)){
+            issuesInfo = ReportTriggerMode.TEST_PLAN_SCHEDULE.name();
         }
 
         testPlanReport.setEndTime(System.currentTimeMillis());
@@ -251,6 +254,9 @@ public class TestPlanReportService {
             testPlanReportData.setExecuteResult(JSONObject.toJSONString(testCaseReportMetricDTO.getExecuteResult()));
             testPlanReportData.setFailurTestCases(JSONObject.toJSONString(testCaseReportMetricDTO.getFailureTestCases()));
             testPlanReportData.setModuleExecuteResult(JSONArray.toJSONString(testCaseReportMetricDTO.getModuleExecuteResult()));
+            if(issuesInfo!=null){
+                testPlanReportData.setIssuesInfo(issuesInfo);
+            }
             testPlanReportDataMapper.updateByPrimaryKeyWithBLOBs(testPlanReportData);
         }
 
@@ -336,54 +342,11 @@ public class TestPlanReportService {
             models.setPerformanceInfo(JSONArray.toJSONString(performaneReportIDList));
             testPlanReportDataMapper.updateByPrimaryKeyWithBLOBs(models);
         }
-
-        /**
-         * 虽然kafka已经设置了topic推送，但是在1.18日测试时发现无法收到消息。
-         * 由于Tapd为完成任务较多，无法抽时间查看问题，暂时先保留以下逻辑，解决完Tpad任务之后查看原因，再删除以下代码
-         */
-        executorService.submit(() -> {
-            //错误数据检查集合。 如果错误数据出现超过20次，则取消该条数据的检查
-            Map<String,Integer> errorDataCheckMap = new HashMap<>();
-            while (performaneReportIDList.size()>0) {
-                List<String> selectList = new ArrayList<>(performaneReportIDList);
-                for (String loadTestReportId:selectList) {
-                    LoadTestReportWithBLOBs loadTestReportFromDatabase = loadTestReportMapper.selectByPrimaryKey(loadTestReportId);
-                    if(loadTestReportFromDatabase == null){
-                        //检查错误数据
-                        if(errorDataCheckMap.containsKey(loadTestReportId)){
-                            if(errorDataCheckMap.get(loadTestReportId)>20){
-                                performaneReportIDList.remove(loadTestReportId);
-                            }else {
-                                errorDataCheckMap.put(loadTestReportId,errorDataCheckMap.get(loadTestReportId)+1);
-                            }
-                        }else {
-                            errorDataCheckMap.put(loadTestReportId,1);
-                        }
-                    }else if (StringUtils.equalsAny(loadTestReportFromDatabase.getStatus(),
-                            PerformanceTestStatus.Completed.name(), PerformanceTestStatus.Error.name())) {
-                        performaneReportIDList.remove(loadTestReportId);
-                        System.out.println("over");
-                    }
-                }
-                if(performaneReportIDList.isEmpty()){
-                    List<String> testPlanReportList = new ArrayList<>();
-                    testPlanReportList.add(testPlanReport.getId());
-                    this.updateReport(testPlanReportList, ApiRunMode.SCHEDULE_PERFORMANCE_TEST.name(),triggerMode);
-                }else {
-                    try {
-                        //查询定时任务是否关闭
-                        Thread.sleep(1000 * 10);// 检查 loadtest 的状态
-                    } catch (InterruptedException e) {
-                    }
-                }
-            }
-            return true;
-        });
     }
 
-    public void updatePerformanceTestStatus(String reportId,String triggerMode) {
-        List<String> testPlanReportId = extTestPlanMapper.findIdByPerformanceReportId(reportId);
-        this.updateReport(testPlanReportId, ApiRunMode.SCHEDULE_PERFORMANCE_TEST.name(),triggerMode);
+    public void updatePerformanceTestStatus(TestPlanLoadCaseEventDTO eventDTO) {
+        List<String> testPlanReportId = extTestPlanMapper.findIdByPerformanceReportId(eventDTO.getReportId());
+        this.updateReport(testPlanReportId, ApiRunMode.SCHEDULE_PERFORMANCE_TEST.name(),eventDTO.getTriggerMode());
     }
 
     public void delete(List<String> testPlanReportIdList) {
