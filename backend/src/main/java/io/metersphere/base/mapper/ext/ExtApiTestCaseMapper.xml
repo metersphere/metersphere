@@ -15,7 +15,6 @@
     </resultMap>
     <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.ApiTestCase">
         <result column="request" jdbcType="LONGVARCHAR" property="request"/>
-        <result column="response" jdbcType="LONGVARCHAR" property="response"/>
     </resultMap>
     <sql id="Example_Where_Clause">
         <where>
@@ -200,7 +199,6 @@
             u2.name as updateUser,
             atc.description,
             atc.request,
-            atc.response,
             atc.create_user_id,
             atc.create_time,
             atc.update_user_id,

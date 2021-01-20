@@ -15,15 +15,15 @@ import io.metersphere.track.dto.TestPlanDTO;
 import io.metersphere.track.request.testcase.QueryTestPlanRequest;
 import io.metersphere.track.service.TestPlanApiCaseService;
 import io.metersphere.track.service.TestPlanService;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.ibatis.session.ExecutorType;
+import org.apache.ibatis.session.SqlSession;
+import org.apache.ibatis.session.SqlSessionFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
 import java.util.*;
 
 @Service
@@ -37,32 +37,39 @@ public class ApiDefinitionExecResultService {
     private TestPlanApiCaseService testPlanApiCaseService;
     @Resource
     private TestPlanService testPlanService;
-
+    @Resource
+    SqlSessionFactory sqlSessionFactory;
 
     public void saveApiResult(TestResult result, String type) {
-        result.getScenarios().get(0).getRequestResults().forEach(item -> {
-            ApiDefinitionExecResult saveResult = new ApiDefinitionExecResult();
-            saveResult.setId(UUID.randomUUID().toString());
-            saveResult.setCreateTime(System.currentTimeMillis());
-            saveResult.setUserId(Objects.requireNonNull(SessionUtils.getUser()).getId());
-            saveResult.setName(item.getName());
-            saveResult.setResourceId(item.getName());
-            saveResult.setContent(JSON.toJSONString(item));
-            saveResult.setStartTime(item.getStartTime());
-            String status = item.isSuccess() ? "success" : "error";
-            saveResult.setEndTime(item.getResponseResult().getResponseTime());
-            saveResult.setType(type);
-            saveResult.setStatus(status);
-            if (StringUtils.equals(type, ApiRunMode.API_PLAN.name())) {
-                testPlanApiCaseService.setExecResult(item.getName(), status);
-            }
-            apiDefinitionExecResultMapper.insert(saveResult);
-        });
+        if (CollectionUtils.isNotEmpty(result.getScenarios())) {
+            SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+            ApiDefinitionExecResultMapper definitionExecResultMapper = sqlSession.getMapper(ApiDefinitionExecResultMapper.class);
+            result.getScenarios().get(0).getRequestResults().forEach(item -> {
+                ApiDefinitionExecResult saveResult = new ApiDefinitionExecResult();
+                saveResult.setId(UUID.randomUUID().toString());
+                saveResult.setCreateTime(System.currentTimeMillis());
+                saveResult.setUserId(Objects.requireNonNull(SessionUtils.getUser()).getId());
+                saveResult.setName(item.getName());
+                saveResult.setResourceId(item.getName());
+                saveResult.setContent(JSON.toJSONString(item));
+                saveResult.setStartTime(item.getStartTime());
+                String status = item.isSuccess() ? "success" : "error";
+                saveResult.setEndTime(item.getResponseResult().getResponseTime());
+                saveResult.setType(type);
+                saveResult.setStatus(status);
+                if (StringUtils.equals(type, ApiRunMode.API_PLAN.name())) {
+                    testPlanApiCaseService.setExecResult(item.getName(), status);
+                }
+                definitionExecResultMapper.insert(saveResult);
+            });
+            sqlSession.flushStatements();
+        }
     }
 
     /**
      * 定时任务触发的保存逻辑
-     *      定时任务时，userID要改为定时任务中的用户
+     * 定时任务时，userID要改为定时任务中的用户
+     *
      * @param result
      * @param type
      */
@@ -87,7 +94,7 @@ public class ApiDefinitionExecResultService {
                 userID = scheduleCreateUser;
                 apiCase.setStatus(status);
                 testPlanApiCaseService.updateByPrimaryKeySelective(apiCase);
-            }else {
+            } else {
                 userID = Objects.requireNonNull(SessionUtils.getUser()).getId();
                 testPlanApiCaseService.setExecResult(item.getName(), status);
             }
@@ -144,26 +151,26 @@ public class ApiDefinitionExecResultService {
         if (startTime == null) {
             return new ArrayList<>(0);
         } else {
-            List<ExecutedCaseInfoResult>list =  extApiDefinitionExecResultMapper.findFaliureCaseInfoByProjectIDAndExecuteTimeAndLimitNumber(projectId, startTime.getTime());
+            List<ExecutedCaseInfoResult> list = extApiDefinitionExecResultMapper.findFaliureCaseInfoByProjectIDAndExecuteTimeAndLimitNumber(projectId, startTime.getTime());
 
             List<ExecutedCaseInfoResult> returnList = new ArrayList<>(limitNumber);
 
-            for(int i = 0;i<list.size();i++){
-                if(i<limitNumber){
+            for (int i = 0; i < list.size(); i++) {
+                if (i < limitNumber) {
                     //开始遍历查询TestPlan信息 --> 提供前台做超链接
                     ExecutedCaseInfoResult item = list.get(i);
 
                     QueryTestPlanRequest planRequest = new QueryTestPlanRequest();
                     planRequest.setProjectId(projectId);
-                    if("scenario".equals(item.getCaseType())){
+                    if ("scenario".equals(item.getCaseType())) {
                         planRequest.setScenarioId(item.getTestCaseID());
-                    }else if("apiCase".equals(item.getCaseType())){
+                    } else if ("apiCase".equals(item.getCaseType())) {
                         planRequest.setApiId(item.getTestCaseID());
                     }
                     List<TestPlanDTO> dtoList = testPlanService.selectTestPlanByRelevancy(planRequest);
                     item.setTestPlanDTOList(dtoList);
                     returnList.add(item);
-                }else {
+                } else {
                     break;
                 }
             }

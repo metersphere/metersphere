@@ -304,4 +304,8 @@
   .is-selected {
     background: #EFF7FF;
   }
+
+  .icon.is-active {
+    transform: rotate(90deg);
+  }
 </style>
