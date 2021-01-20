@@ -210,6 +210,9 @@
       <include refid="Example_Where_Clause" />
     </if>
   </select>
+  <select id="selectExecResult" resultType="java.lang.String">
+    select ader.status from api_definition_exec_result ader where ader.resource_id=#{resourceId}
+  </select>
   <update id="updateByExampleSelective" parameterType="map">
     update api_definition_exec_result
     <set>

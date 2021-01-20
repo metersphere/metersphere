@@ -4,7 +4,7 @@
       {{description}}
     </span>
     <div class="kv-row" v-for="(item, index) in items" :key="index">
-      <el-row type="flex" :gutter="20" justify="space-between" align="middle">
+      <el-row type="flex" :gutter="5" justify="space-between" align="middle">
         <el-col class="kv-checkbox">
           <input type="checkbox" v-if="!isDisable(index)" @change="change" :value="item.uuid" v-model="item.enable"
                  :disabled="isDisable(index) || isReadOnly"/>
@@ -17,6 +17,15 @@
         <el-col>
           <el-input :disabled="isReadOnly" v-model="item.value" size="small" @change="change"
                     :placeholder="$t('api_test.value')" show-word-limit/>
+        </el-col>
+        <el-col>
+          <el-input v-model="item.description" size="small" maxlength="200"
+                    :placeholder="$t('commons.description')" show-word-limit>
+          </el-input>
+        </el-col>
+        <el-col class="kv-copy">
+          <el-button size="mini" class="el-icon-document-copy" circle @click="copy(item, index)"
+                     :disabled="isDisable(index) || isReadOnly"/>
         </el-col>
         <el-col class="kv-delete">
           <el-button size="mini" class="el-icon-delete-solid" circle @click="remove(index)"
@@ -58,6 +67,11 @@
       remove: function (index) {
         this.items.splice(index, 1);
         this.$emit('change', this.items);
+      },
+      copy: function (item, index) {
+        let copy = {};
+        Object.assign(copy, item);
+        this.items.splice(index + 1, 0, copy);
       },
       change: function () {
         let isNeedCreate = true;
@@ -105,7 +119,7 @@
     margin-top: 10px;
   }
 
-  .kv-delete {
+  .kv-delete,.kv-copy {
     width: 60px;
   }
 </style>

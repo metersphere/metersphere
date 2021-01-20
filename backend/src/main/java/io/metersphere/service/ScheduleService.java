@@ -104,6 +104,7 @@ public class ScheduleService {
 
     public void startEnableSchedules() {
         List<Schedule> Schedules = getEnableSchedule();
+
         Schedules.forEach(schedule -> {
             try {
                 if (schedule.getEnable()) {
@@ -122,7 +123,7 @@ public class ScheduleService {
     public Schedule buildApiTestSchedule(Schedule request) {
         Schedule schedule = new Schedule();
         schedule.setResourceId(request.getResourceId());
-        schedule.setEnable(request.getEnable());
+        schedule.setEnable(true);
         schedule.setValue(request.getValue().trim());
         schedule.setKey(request.getResourceId());
         schedule.setUserId(SessionUtils.getUser().getId());

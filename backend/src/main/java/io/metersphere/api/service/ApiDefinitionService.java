@@ -24,10 +24,14 @@ import io.metersphere.base.mapper.ext.ExtApiScenarioMapper;
 import io.metersphere.base.mapper.ext.ExtTestPlanMapper;
 import io.metersphere.commons.constants.APITestStatus;
 import io.metersphere.commons.constants.ApiRunMode;
+import io.metersphere.commons.constants.ScheduleGroup;
+import io.metersphere.commons.constants.ScheduleType;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
 import io.metersphere.i18n.Translator;
+import io.metersphere.job.sechedule.SwaggerUrlImportJob;
 import io.metersphere.service.FileService;
+import io.metersphere.service.ScheduleService;
 import io.metersphere.track.request.testcase.ApiCaseRelevanceRequest;
 import io.metersphere.track.request.testcase.QueryTestPlanRequest;
 import org.apache.commons.collections.CollectionUtils;
@@ -73,6 +77,8 @@ public class ApiDefinitionService {
     private ExtTestPlanMapper extTestPlanMapper;
     @Resource
     private ProjectMapper projectMapper;
+    @Resource
+    private ScheduleService scheduleService;
 
     private static Cache cache = Cache.newHardMemoryCache(0, 3600 * 24);
 
@@ -586,5 +592,20 @@ public class ApiDefinitionService {
                 }
             }
         }
+    }
+
+    /*swagger定时导入*/
+    public void createSchedule(Schedule request) {
+        Schedule schedule = scheduleService.buildApiTestSchedule(request);
+        schedule.setJob(SwaggerUrlImportJob.class.getName());
+        schedule.setGroup(ScheduleGroup.SWAGGER_IMPORT.name());
+        schedule.setType(ScheduleType.CRON.name());
+        scheduleService.addSchedule(schedule);
+        this.addOrUpdateSwaggerImportCronJob(request);
+
+    }
+
+    private void addOrUpdateSwaggerImportCronJob(Schedule request) {
+        scheduleService.addOrUpdateCronJob(request, SwaggerUrlImportJob.getJobKey(request.getResourceId()), SwaggerUrlImportJob.getTriggerKey(request.getResourceId()), SwaggerUrlImportJob.class);
     }
 }

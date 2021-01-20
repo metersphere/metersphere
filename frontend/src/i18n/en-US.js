@@ -829,6 +829,9 @@ export default {
       swagger_export_tip: "Export jSON-formatted files via Swagger website",
       suffixFormatErr: "The file format does not meet the requirements",
       swagger_url_import: "Import using URL",
+      timing_synchronization:"Timing synchronization",
+      next_synchronization_time:"Next synchronization time",
+
     },
     home_page: {
       unit_of_measurement: "",
