@@ -83,20 +83,37 @@ public class ApiTestCaseService {
     }
 
     public List<ApiTestCaseDTO> listSimple(ApiTestCaseRequest request) {
-        request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
-        if (request.isSelectThisWeedData()) {
-            Map<String, Date> weekFirstTimeAndLastTime = DateUtils.getWeedFirstTimeAndLastTime(new Date());
-            Date weekFirstTime = weekFirstTimeAndLastTime.get("firstTime");
-            if (weekFirstTime != null) {
-                request.setCreateTime(weekFirstTime.getTime());
-            }
-        }
+        request = this.initRequest(request,true,true);
+
         List<ApiTestCaseDTO> apiTestCases = extApiTestCaseMapper.listSimple(request);
         if (CollectionUtils.isEmpty(apiTestCases)) {
             return apiTestCases;
         }
         buildUserInfo(apiTestCases);
         return apiTestCases;
+    }
+
+    /**
+     * 初始化部分参数
+     * @param request
+     * @param setDefultOrders
+     * @param checkThisWeekData
+     * @return
+     */
+    private ApiTestCaseRequest initRequest(ApiTestCaseRequest request, boolean setDefultOrders, boolean checkThisWeekData) {
+        if(setDefultOrders){
+            request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
+        }
+        if(checkThisWeekData){
+            if (request.isSelectThisWeedData()) {
+                Map<String, Date> weekFirstTimeAndLastTime = DateUtils.getWeedFirstTimeAndLastTime(new Date());
+                Date weekFirstTime = weekFirstTimeAndLastTime.get("firstTime");
+                if (weekFirstTime != null) {
+                    request.setCreateTime(weekFirstTime.getTime());
+                }
+            }
+        }
+        return request;
     }
 
     public void buildUserInfo(List<? extends ApiTestCaseDTO> apiTestCases) {
