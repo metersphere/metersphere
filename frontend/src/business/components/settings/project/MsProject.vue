@@ -271,7 +271,18 @@
         this.$refs.environmentConfig.open(project.id);
       },
       handleEvent(event) {
-        if (event.keyCode === 13) {
+        let enter = event.keyCode;
+        let ctrl = event.ctrlKey;
+        let shift = event.shiftKey;
+        let alt = event.altKey;
+        if(enter === 13 && ctrl && !shift && !alt) {
+          //ctrl + enter
+          this.form.description += '\n';
+        }
+        if(enter === 13 && !ctrl && shift && !alt) {
+          //shift + enter
+        }
+        if(enter === 13 && !ctrl && !shift && !alt) {
           this.submit('form')
         }
       },
