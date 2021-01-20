@@ -79,7 +79,7 @@ public class ApiDefinitionService {
     private static final String BODY_FILE_DIR = "/opt/metersphere/data/body";
 
     public List<ApiDefinitionResult> list(ApiDefinitionRequest request) {
-        request = this.initRequest(request,true,true);
+        request = this.initRequest(request, true, true);
         List<ApiDefinitionResult> resList = extApiDefinitionMapper.list(request);
         calculateResult(resList);
         return resList;
@@ -87,16 +87,17 @@ public class ApiDefinitionService {
 
     /**
      * 初始化部分参数
+     *
      * @param request
      * @param setDefultOrders
      * @param checkThisWeekData
      * @return
      */
-    private ApiDefinitionRequest initRequest(ApiDefinitionRequest request,boolean setDefultOrders, boolean checkThisWeekData) {
-        if(setDefultOrders){
+    private ApiDefinitionRequest initRequest(ApiDefinitionRequest request, boolean setDefultOrders, boolean checkThisWeekData) {
+        if (setDefultOrders) {
             request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
         }
-        if(checkThisWeekData){
+        if (checkThisWeekData) {
             if (request.isSelectThisWeedData()) {
                 Map<String, Date> weekFirstTimeAndLastTime = DateUtils.getWeedFirstTimeAndLastTime(new Date());
                 Date weekFirstTime = weekFirstTimeAndLastTime.get("firstTime");
@@ -568,9 +569,16 @@ public class ApiDefinitionService {
             for (ApiDefinitionResult res : resList) {
                 ApiComputeResult compRes = resultMap.get(res.getId());
                 if (compRes != null) {
-                    res.setCaseTotal(compRes.getCaseTotal());
+                    res.setCaseTotal(String.valueOf(compRes.getCaseTotal()));
                     res.setCasePassingRate(compRes.getPassRate());
-                    res.setCaseStatus(compRes.getStatus());
+                    // 状态优先级 未执行，未通过，通过
+                    if ((compRes.getError() + compRes.getSuccess()) < compRes.getCaseTotal()) {
+                        res.setCaseStatus("未执行");
+                    } else if (compRes.getError() > 0) {
+                        res.setCaseStatus("未通过");
+                    } else {
+                        res.setCaseStatus("通过");
+                    }
                 } else {
                     res.setCaseTotal("-");
                     res.setCasePassingRate("-");

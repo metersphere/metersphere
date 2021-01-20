@@ -7,7 +7,9 @@ import lombok.Setter;
 @Setter
 public class ApiComputeResult {
     private String apiDefinitionId;
-    private String caseTotal;
+    private int caseTotal;
     private String status;
     private String passRate;
+    private int success;
+    private int error;
 }
