@@ -13,7 +13,5 @@ public class ApiTestCaseWithBLOBs extends ApiTestCase implements Serializable {
 
     private String request;
 
-    private String response;
-
     private static final long serialVersionUID = 1L;
 }
