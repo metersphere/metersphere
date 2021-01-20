@@ -18,9 +18,9 @@
     </el-row>
     <el-row>
       <el-col :span="20" class="script-content">
-        <ms-code-edit v-if="isCodeEditAlive" :mode="jsr223ProcessorData.scriptLanguage"
+        <ms-code-edit v-if="isCodeEditAlive" :mode="codeEditModeMap[jsr223ProcessorData.scriptLanguage]"
                       :read-only="isReadOnly"
-                      :data.sync="jsr223ProcessorData.script" theme="eclipse" :modes="[]"
+                      :data.sync="jsr223ProcessorData.script" theme="eclipse" :modes="['java','python']"
                       ref="codeEdit"/>
       </el-col>
       <el-col :span="4" class="script-index">
@@ -81,11 +81,12 @@
         ],
         isCodeEditAlive: true,
         languages: [
-          'beanshell', "python"
+          'beanshell', "python", "groovy"
         ],
         codeEditModeMap: {
-          beanshell: 'beanshell',
-          python: 'python'
+          beanshell: 'java',
+          python: 'python',
+          groovy: 'java'
         }
       }
     },
