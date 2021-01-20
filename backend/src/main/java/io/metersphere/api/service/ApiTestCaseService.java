@@ -83,7 +83,7 @@ public class ApiTestCaseService {
     }
 
     public List<ApiTestCaseDTO> listSimple(ApiTestCaseRequest request) {
-        request = this.initRequest(request,true,true);
+        request = this.initRequest(request, true, true);
 
         List<ApiTestCaseDTO> apiTestCases = extApiTestCaseMapper.listSimple(request);
         if (CollectionUtils.isEmpty(apiTestCases)) {
@@ -95,16 +95,17 @@ public class ApiTestCaseService {
 
     /**
      * 初始化部分参数
+     *
      * @param request
      * @param setDefultOrders
      * @param checkThisWeekData
      * @return
      */
     private ApiTestCaseRequest initRequest(ApiTestCaseRequest request, boolean setDefultOrders, boolean checkThisWeekData) {
-        if(setDefultOrders){
+        if (setDefultOrders) {
             request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
         }
-        if(checkThisWeekData){
+        if (checkThisWeekData) {
             if (request.isSelectThisWeedData()) {
                 Map<String, Date> weekFirstTimeAndLastTime = DateUtils.getWeedFirstTimeAndLastTime(new Date());
                 Date weekFirstTime = weekFirstTimeAndLastTime.get("firstTime");
@@ -412,7 +413,7 @@ public class ApiTestCaseService {
             apiDefinitionWithBLOBs.setUpdateTime(System.currentTimeMillis());
             apiTestCaseMapper.updateByExampleSelective(apiDefinitionWithBLOBs, apiDefinitionExample);
         }
-        if ((StringUtils.isNotEmpty(request.getMethod()) || StringUtils.isNotEmpty(request.getPath())) && request.getProtocol().equals(RequestType.HTTP)) {
+        if ((StringUtils.isNotEmpty(request.getMethod()) || StringUtils.isNotEmpty(request.getPath())) && RequestType.HTTP.equals(request.getProtocol())) {
             List<ApiTestCaseWithBLOBs> bloBs = apiTestCaseMapper.selectByExampleWithBLOBs(apiDefinitionExample);
             SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
             ApiTestCaseMapper batchMapper = sqlSession.getMapper(ApiTestCaseMapper.class);
