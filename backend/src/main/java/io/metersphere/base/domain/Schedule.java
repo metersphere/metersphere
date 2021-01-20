@@ -1,7 +1,8 @@
 package io.metersphere.base.domain;
 
-import java.io.Serializable;
 import lombok.Data;
+
+import java.io.Serializable;
 
 @Data
 public class Schedule implements Serializable {
@@ -35,4 +36,6 @@ public class Schedule implements Serializable {
 
     //定时任务来源： 测试计划/测试场景
     private String scheduleFrom;
+
+    private String swaggerUrl;
 }

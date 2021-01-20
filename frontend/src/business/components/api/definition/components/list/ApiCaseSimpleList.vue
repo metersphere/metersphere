@@ -413,19 +413,6 @@
           this.initTable();
         });
         return;
-        // }
-        // this.$alert(this.$t('api_test.definition.request.delete_confirm') + ' ' + apiCase.name + " ？", '', {
-        //   confirmButtonText: this.$t('commons.confirm'),
-        //   callback: (action) => {
-        //     if (action === 'confirm') {
-        //       let ids = [apiCase.id];
-        //       this.$post('/api/testcase/removeToGc/', ids, () => {
-        //         this.$success(this.$t('commons.delete_success'));
-        //         this.initTable();
-        //       });
-        //     }
-        //   }
-        // });
       },
       setEnvironment(data) {
         this.environmentId = data.id;

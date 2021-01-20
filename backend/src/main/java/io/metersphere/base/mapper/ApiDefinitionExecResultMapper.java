@@ -33,4 +33,6 @@ public interface ApiDefinitionExecResultMapper {
     int updateByPrimaryKeyWithBLOBs(ApiDefinitionExecResult record);
 
     int updateByPrimaryKey(ApiDefinitionExecResult record);
+
+    String  selectExecResult(String resourceId);
 }
