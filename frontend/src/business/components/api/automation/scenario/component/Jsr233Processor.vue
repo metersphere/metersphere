@@ -81,12 +81,13 @@
         ],
         isCodeEditAlive: true,
         languages: [
-          'beanshell', "python", "groovy"
+          'beanshell', "python", "groovy", "javascript"
         ],
         codeEditModeMap: {
           beanshell: 'java',
           python: 'python',
-          groovy: 'java'
+          groovy: 'java',
+          javascript: 'javascript',
         }
       }
     },
