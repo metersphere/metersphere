@@ -23,6 +23,13 @@
                 </div>
               </el-tab-pane>
 
+              <el-tab-pane :label="$t('api_test.definition.request.pre_script')" name="script">
+                <jsr233-processor-content
+                  :jsr223-processor="request.tcpPreProcessor"
+                  :is-pre-processor="true"
+                  :is-read-only="isReadOnly"/>
+              </el-tab-pane>
+
               <el-tab-pane :label="$t('api_test.definition.request.other_config')" name="other" class="other-config">
                 <el-row>
                   <el-col :span="8">
@@ -138,11 +145,14 @@
   import {getCurrentProjectID, getUUID} from "@/common/js/utils";
   import MsApiVariable from "../../ApiVariable";
   import MsInstructionsIcon from "../../../../../common/components/MsInstructionsIcon";
+  import Jsr233ProcessorContent from "../../../../automation/scenario/common/Jsr233ProcessorContent";
+  import JSR223PreProcessor from "../../jmeter/components/pre-processors/jsr223-pre-processor";
 
 
   export default {
     name: "TcpBasisParameters",
     components: {
+      Jsr233ProcessorContent,
       MsInstructionsIcon,
       MsApiVariable,
       MsApiScenarioVariables,
@@ -177,6 +187,9 @@
       if (!this.request.parameters) {
         this.$set(this.request, 'parameters', []);
         this.request.parameters = [];
+      }
+      if (!this.request.tcpPreProcessor) {
+        this.$set(this.request, 'tcpPreProcessor', new JSR223PreProcessor())
       }
       this.getEnvironments();
     },
