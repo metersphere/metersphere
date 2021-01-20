@@ -10,6 +10,7 @@ import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.dto.definition.parse.ApiDefinitionImport;
 import io.metersphere.api.service.ApiDefinitionService;
 import io.metersphere.base.domain.ApiDefinition;
+import io.metersphere.base.domain.Schedule;
 import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.commons.json.JSONSchemaGenerator;
 import io.metersphere.commons.utils.PageUtils;
@@ -139,6 +140,11 @@ public class ApiDefinitionController {
         return apiDefinitionService.apiTestImport(file, request);
     }
 
+    @PostMapping(value = "/schedule/create")
+    public void createSchedule(@RequestBody Schedule request) {
+        apiDefinitionService.createSchedule(request);
+    }
+
     @PostMapping("/getReference")
     public ReferenceDTO getReference(@RequestBody ApiScenarioRequest request) {
         return apiDefinitionService.getReference(request);
@@ -165,5 +171,4 @@ public class ApiDefinitionController {
     public String preview(@RequestBody String jsonSchema) {
         return JSONSchemaGenerator.getJson(jsonSchema);
     }
-
 }

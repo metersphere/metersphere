@@ -47,18 +47,13 @@
           :active-text="$t('api_test.api_import.swagger_url_import')">
         </el-switch>
       </el-form-item>
+
       <el-form-item v-if="isSwagger2 && swaggerUrlEable">
         <el-switch
           v-model="swaggerSynchronization"
           @click.native="scheduleEdit"
           :active-text="$t('api_test.api_import.timing_synchronization')">
         </el-switch>
-        <span>
-          {{ $t('api_test.api_import.next_synchronization_time') }}：
-<!--          <span :class="{'disable-character': !schedule.enable}"
-                v-if="!schedule.enable">{{ $t('schedule.not_set') }}</span>
-          <crontab-result v-if="schedule.enable" :enable-simple-mode="true" :ex="schedule.value" ref="crontabResult"/>-->
-        </span>
       </el-form-item>
       <schedule-import ref="scheduleEdit"></schedule-import>
 
@@ -155,7 +150,7 @@ export default {
   methods: {
     scheduleEdit(){
       if(this.swaggerSynchronization){
-      /* this.$refs.scheduleEdit.open();*/
+       this.$refs.scheduleEdit.open(this.buildParam());
       }
     },
     open(module) {
