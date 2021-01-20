@@ -248,6 +248,7 @@
           this.$warning(this.$t('api_test.environment.select_environment'));
           return;
         }
+        this.runData = [];
         if (this.apiCaseList.length > 0) {
           this.apiCaseList.forEach(item => {
             if (item.selected && item.id) {
@@ -261,7 +262,7 @@
             /*触发执行操作*/
             this.reportId = getUUID().substring(0, 8);
           } else {
-            this.$warning("没有可执行的用例！");
+            this.$warning("请勾选要执行的用例！");
           }
         } else {
           this.$warning("没有可执行的用例！");
