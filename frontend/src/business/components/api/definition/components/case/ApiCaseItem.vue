@@ -233,6 +233,7 @@
           row.updateTime = data.updateTime;
           if (!row.message) {
             this.$success(this.$t('commons.save_success'));
+            this.$emit('refresh');
           }
         });
       },

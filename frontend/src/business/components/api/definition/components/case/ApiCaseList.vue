@@ -159,7 +159,7 @@
           })
         }
         this.$success(this.$t('schedule.event_success'));
-        this.getApiTest();
+        this.refresh();
       },
 
       refresh() {
