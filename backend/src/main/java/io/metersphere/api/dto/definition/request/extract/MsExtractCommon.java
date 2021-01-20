@@ -8,7 +8,7 @@ import org.apache.commons.lang3.StringUtils;
 @Data
 public class MsExtractCommon extends MsExtractType{
     private String variable;
-    private String value; // value: ${variable}
+    private String value;
     private String expression;
     private String description;
     private boolean multipleMatching;
