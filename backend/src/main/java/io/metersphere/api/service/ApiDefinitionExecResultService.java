@@ -5,8 +5,10 @@ import io.metersphere.api.dto.datacount.ExecutedCaseInfoResult;
 import io.metersphere.api.jmeter.TestResult;
 import io.metersphere.base.domain.ApiDefinitionExecResult;
 import io.metersphere.base.domain.ApiDefinitionExecResultExample;
+import io.metersphere.base.domain.ApiTestCaseWithBLOBs;
 import io.metersphere.base.domain.TestPlanApiCase;
 import io.metersphere.base.mapper.ApiDefinitionExecResultMapper;
+import io.metersphere.base.mapper.ApiTestCaseMapper;
 import io.metersphere.base.mapper.ext.ExtApiDefinitionExecResultMapper;
 import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.utils.DateUtils;
@@ -38,6 +40,9 @@ public class ApiDefinitionExecResultService {
     @Resource
     private TestPlanService testPlanService;
     @Resource
+    private ApiTestCaseMapper apiTestCaseMapper;
+
+    @Resource
     SqlSessionFactory sqlSessionFactory;
 
     public void saveApiResult(TestResult result, String type) {
@@ -60,6 +65,12 @@ public class ApiDefinitionExecResultService {
                 if (StringUtils.equals(type, ApiRunMode.API_PLAN.name())) {
                     testPlanApiCaseService.setExecResult(item.getName(), status);
                 }
+                // 更新用例最后执行结果
+                ApiTestCaseWithBLOBs apiTestCaseWithBLOBs = new ApiTestCaseWithBLOBs();
+                apiTestCaseWithBLOBs.setId(saveResult.getResourceId());
+                apiTestCaseWithBLOBs.setLastResultId(saveResult.getId());
+
+                apiTestCaseMapper.updateByPrimaryKeySelective(apiTestCaseWithBLOBs);
                 definitionExecResultMapper.insert(saveResult);
             });
             sqlSession.flushStatements();
