@@ -278,8 +278,9 @@
                 </include>
             </if>
             <if test="request.name != null">
-                and (test_case.name like CONCAT('%', #{request.name},'%') or test_case.num like CONCAT('%',
-                #{request.name},'%'))
+                and (test_case.name like CONCAT('%', #{request.name},'%')
+                    or test_case.num like CONCAT('%', #{request.name},'%')
+                    or test_case.tags like CONCAT('%', #{request.name},'%'))
             </if>
             <if test="request.nodeIds != null and request.nodeIds.size() > 0">
                 and test_case.node_id in

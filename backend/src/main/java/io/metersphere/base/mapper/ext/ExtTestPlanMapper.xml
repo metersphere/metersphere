@@ -238,6 +238,7 @@
     <select id="findIdByPerformanceReportId" resultType="java.lang.String">
         SELECT report.id FROM test_plan_report report INNER JOIN test_plan_report_data reportData ON report.id = reportData.test_plan_report_id
         WHERE reportData.performance_info like CONCAT('%', #{0},'%')
+          AND report.is_performance_executing = true;
     </select>
 
 </mapper>

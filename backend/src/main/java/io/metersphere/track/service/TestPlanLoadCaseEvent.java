@@ -7,6 +7,7 @@ import io.metersphere.commons.constants.PerformanceTestStatus;
 import io.metersphere.commons.constants.ReportTriggerMode;
 import io.metersphere.commons.consumer.LoadTestFinishEvent;
 import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.track.dto.TestPlanLoadCaseEventDTO;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
@@ -25,11 +26,12 @@ public class TestPlanLoadCaseEvent implements LoadTestFinishEvent {
     @Override
     public void execute(LoadTestReport loadTestReport) {
         LogUtil.info("PerformanceNoticeEvent OVER:" + loadTestReport.getTriggerMode()+";"+loadTestReport.getStatus());
-        if (StringUtils.equals(NoticeConstants.Mode.SCHEDULE, loadTestReport.getTriggerMode()) ) {
-            if (StringUtils.equalsAny(loadTestReport.getStatus(),
-                    PerformanceTestStatus.Completed.name(), PerformanceTestStatus.Error.name())) {
-                testPlanReportService.updatePerformanceTestStatus(loadTestReport.getId(), ReportTriggerMode.SCHEDULE.name());
-            }
+        if (StringUtils.equals(ReportTriggerMode.TEST_PLAN_SCHEDULE.name(), loadTestReport.getTriggerMode()) ) {
+            TestPlanLoadCaseEventDTO eventDTO = new TestPlanLoadCaseEventDTO();
+            eventDTO.setReportId(loadTestReport.getId());
+            eventDTO.setTriggerMode(ReportTriggerMode.SCHEDULE.name());
+            eventDTO.setStatus(loadTestReport.getStatus());
+            testPlanReportService.updatePerformanceTestStatus(eventDTO);
         }
     }
 }

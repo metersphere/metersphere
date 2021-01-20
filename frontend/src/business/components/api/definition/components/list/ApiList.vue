@@ -122,7 +122,7 @@
                          @keydown.enter.native.prevent
                          type="primary"
                          circle
-                         style="padding: 7px 0.5px;font-size: 0.5px;color:white"
+                         style="color:white;padding: 0px 0.1px;font-size: 11px;width: 28px;height: 28px;"
                          size="mini" >case
               </el-button>
             </el-tooltip>

@@ -114,7 +114,7 @@
             </if>
 
             <if test="request.name != null">
-                and api_scenario.name like CONCAT('%', #{request.name},'%')
+                and (api_scenario.name like CONCAT('%', #{request.name},'%') or api_scenario.tags like CONCAT('%', #{request.name},'%'))
             </if>
             <if test="request.workspaceId != null">
                 AND project.workspace_id = #{request.workspaceId}
