@@ -9,10 +9,10 @@
       <div v-for="row in request.hashTree" :key="row.id">
         <!--前置脚本-->
         <ms-jsr233-processor v-if="row.type==='JSR223PreProcessor'" @remove="remove" @copyRow="copyRow" :title="$t('api_test.definition.request.pre_script')"
-                             :jsr223-processor="row"/>
+                             :jsr223-processor="row" color="#B8741A" background-color="#F9F1EA"/>
         <!--后置脚本-->
         <ms-jsr233-processor v-if="row.label ==='JSR223 PostProcessor'" @copyRow="copyRow" @remove="remove" :is-read-only="false" :title="$t('api_test.definition.request.post_script')"
-                             :jsr223-processor="row"/>
+                             :jsr223-processor="row" color="#783887" background-color="#F2ECF3"/>
         <!--断言规则-->
         <div style="margin-top: 10px">
           <ms-api-assertions :response="response" v-if="row.type==='Assertions'" @copyRow="copyRow" @remove="remove" :is-read-only="isReadOnly" :assertions="row"/>

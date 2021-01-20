@@ -4,8 +4,8 @@
     @remove="remove"
     :data="jsr223ProcessorData"
     :draggable="draggable"
-    color="#B8741A"
-    background-color="#F9F1EA"
+    :color="color"
+    :background-color="backgroundColor"
     :title="title">
     <el-row style="margin:0px 10px 10px">
       <el-col>
@@ -111,7 +111,8 @@
           false
       },
       title: String,
-      styleType: String,
+      color: String,
+      backgroundColor: String,
       node: {},
     },
     watch: {
