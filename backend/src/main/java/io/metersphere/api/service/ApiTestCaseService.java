@@ -528,8 +528,6 @@ public class ApiTestCaseService {
         ApiDefinitionExecResultExample.Criteria criteria = apidefinitionexecresultexample.createCriteria();
         criteria.andResourceIdEqualTo(id);
         String status = apiDefinitionExecResultMapper.selectByExample(apidefinitionexecresultexample).get(0).getStatus();
-    public String getExecResult(String id){
-        String status=apiDefinitionExecResultMapper.selectExecResult(id);
         return status;
     }
 }
