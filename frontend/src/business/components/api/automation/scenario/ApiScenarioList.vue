@@ -30,10 +30,13 @@
         <el-table-column prop="level" :label="$t('api_test.automation.case_level')"
                          show-overflow-tooltip>
           <template v-slot:default="scope">
-            <ms-tag v-if="scope.row.level == 'P0'" type="info" effect="plain" content="P0"/>
-            <ms-tag v-if="scope.row.level == 'P1'" type="warning" effect="plain" content="P1"/>
-            <ms-tag v-if="scope.row.level == 'P2'" type="success" effect="plain" content="P2"/>
-            <ms-tag v-if="scope.row.level == 'P3'" type="danger" effect="plain" content="P3"/>
+            <priority-table-item :value="scope.row.level"/>
+          </template>
+        </el-table-column>
+        <el-table-column prop="status" :label="$t('test_track.plan.plan_status')"
+                         show-overflow-tooltip>
+          <template v-slot:default="scope">
+            <plan-status-table-item :value="scope.row.status"/>
           </template>
         </el-table-column>
         <el-table-column prop="tags" :label="$t('api_test.automation.tag')" width="200px">
@@ -115,10 +118,14 @@
   import MsTableSelectAll from "../../../common/components/table/MsTableSelectAll";
   import {API_CASE_CONFIGS} from "@/business/components/common/components/search/search-components";
   import MsTableOperatorButton from "@/business/components/common/components/MsTableOperatorButton";
+  import PriorityTableItem from "../../../track/common/tableItems/planview/PriorityTableItem";
+  import PlanStatusTableItem from "../../../track/common/tableItems/plan/PlanStatusTableItem";
 
   export default {
     name: "MsApiScenarioList",
     components: {
+      PlanStatusTableItem,
+      PriorityTableItem,
       MsTableSelectAll,
       MsTablePagination,
       MsTableMoreBtn,
