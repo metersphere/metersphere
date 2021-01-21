@@ -24,10 +24,7 @@ import io.metersphere.base.mapper.ext.ExtTestPlanMapper;
 import io.metersphere.base.mapper.ext.ExtTestPlanScenarioCaseMapper;
 import io.metersphere.commons.constants.*;
 import io.metersphere.commons.exception.MSException;
-import io.metersphere.commons.utils.DateUtils;
-import io.metersphere.commons.utils.LogUtil;
-import io.metersphere.commons.utils.ServiceUtils;
-import io.metersphere.commons.utils.SessionUtils;
+import io.metersphere.commons.utils.*;
 import io.metersphere.i18n.Translator;
 import io.metersphere.job.sechedule.ApiScenarioTestJob;
 import io.metersphere.service.ScheduleService;
@@ -35,6 +32,7 @@ import io.metersphere.track.dto.TestPlanDTO;
 import io.metersphere.track.request.testcase.ApiCaseRelevanceRequest;
 import io.metersphere.track.request.testcase.QueryTestPlanRequest;
 import io.metersphere.track.request.testplan.FileOperationRequest;
+import io.metersphere.track.service.TestPlanScenarioCaseService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
@@ -45,6 +43,7 @@ import org.apache.jorphan.collections.ListedHashTree;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -81,6 +80,9 @@ public class ApiAutomationService {
     SqlSessionFactory sqlSessionFactory;
     @Resource
     private ApiScenarioReportMapper apiScenarioReportMapper;
+    @Resource
+    @Lazy
+    private TestPlanScenarioCaseService testPlanScenarioCaseService;
 
     public List<ApiScenarioDTO> list(ApiScenarioRequest request) {
         request = this.initRequest(request,true,true);
@@ -199,6 +201,7 @@ public class ApiAutomationService {
     public void delete(String id) {
         //及连删除外键表
         this.preDelete(id);
+        testPlanScenarioCaseService.deleteByScenarioId(id);
         apiScenarioMapper.deleteByPrimaryKey(id);
     }
 
@@ -589,6 +592,12 @@ public class ApiAutomationService {
         return apiScenarioMapper.selectByExample(example);
     }
 
+    public List<ApiScenarioWithBLOBs> selectByIdsWithBLOBs(List<String> ids) {
+        ApiScenarioExample example = new ApiScenarioExample();
+        example.createCriteria().andIdIn(ids);
+        return apiScenarioMapper.selectByExampleWithBLOBs(example);
+    }
+
     public void createSchedule(Schedule request) {
         Schedule schedule = scheduleService.buildApiTestSchedule(request);
         schedule.setJob(ApiScenarioTestJob.class.getName());
@@ -640,5 +649,36 @@ public class ApiAutomationService {
         dto.setName(name);
         dto.setXml(jmx);
         return dto;
+    }
+
+    public void bathEdit(SaveApiScenarioRequest request) {
+        if (request.isSelectAllDate()) {
+            request.setScenarioIds(this.getAllScenarioIdsByFontedSelect(
+                    request.getModuleIds(), request.getName(), request.getProjectId(), request.getFilters(), request.getUnSelectIds()));
+        }
+        if (StringUtils.isNotBlank(request.getEnvironmentId())) {
+            bathEditEnv(request);
+            return;
+        }
+        ApiScenarioExample apiScenarioExample = new ApiScenarioExample();
+        apiScenarioExample.createCriteria().andIdIn(request.getScenarioIds());
+        ApiScenarioWithBLOBs apiScenarioWithBLOBs = new ApiScenarioWithBLOBs();
+        BeanUtils.copyBean(apiScenarioWithBLOBs, request);
+        apiScenarioWithBLOBs.setUpdateTime(System.currentTimeMillis());
+        apiScenarioMapper.updateByExampleSelective(
+                apiScenarioWithBLOBs,
+                apiScenarioExample);
+    }
+
+    public void bathEditEnv(SaveApiScenarioRequest request) {
+        if (StringUtils.isNotBlank(request.getEnvironmentId())) {
+            List<ApiScenarioWithBLOBs> apiScenarios = selectByIdsWithBLOBs(request.getScenarioIds());
+            apiScenarios.forEach(item -> {
+                JSONObject object = JSONObject.parseObject(item.getScenarioDefinition());
+                object.put("environmentId", request.getEnvironmentId());
+                item.setScenarioDefinition(JSONObject.toJSONString(object));
+                apiScenarioMapper.updateByPrimaryKeySelective(item);
+            });
+        }
     }
 }

@@ -19,6 +19,8 @@ public class SaveApiScenarioRequest {
 
     private String apiScenarioModuleId;
 
+    private String environmentId;
+
     private String modulePath;
 
     private String name;
@@ -40,4 +42,15 @@ public class SaveApiScenarioRequest {
     private MsTestElement scenarioDefinition;
 
     List<String> bodyUploadIds;
+
+    private List<String> scenarioIds;
+
+    private boolean isSelectAllDate;
+
+    private List<String> filters;
+
+    private List<String> moduleIds;
+
+    private List<String> unSelectIds;
+
 }
