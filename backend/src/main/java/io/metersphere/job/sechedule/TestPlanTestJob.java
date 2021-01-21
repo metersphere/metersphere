@@ -1,12 +1,7 @@
 package io.metersphere.job.sechedule;
 
 import io.metersphere.api.dto.automation.ExecuteType;
-import io.metersphere.api.dto.automation.RunScenarioRequest;
 import io.metersphere.api.dto.automation.SchedulePlanScenarioExecuteRequest;
-import io.metersphere.api.dto.definition.RunCaseRequest;
-import io.metersphere.api.dto.definition.RunDefinitionRequest;
-import io.metersphere.api.service.ApiAutomationService;
-import io.metersphere.api.service.ApiDefinitionService;
 import io.metersphere.api.service.ApiTestCaseService;
 import io.metersphere.base.domain.*;
 import io.metersphere.commons.constants.ApiRunMode;
@@ -19,13 +14,9 @@ import io.metersphere.track.dto.TestPlanLoadCaseDTO;
 import io.metersphere.track.request.testplan.LoadCaseRequest;
 import io.metersphere.track.request.testplan.RunTestPlanRequest;
 import io.metersphere.track.service.*;
-import org.python.antlr.ast.Str;
 import org.quartz.*;
 
-import javax.annotation.Resource;
 import java.util.*;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 /**
  * 情景测试Job
@@ -130,7 +121,7 @@ public class TestPlanTestJob extends MsScheduleJob {
         scenarioRequest.setTestPlanID(this.resourceId);
         scenarioRequest.setRunMode(ApiRunMode.SCHEDULE_SCENARIO_PLAN.name());
         scenarioRequest.setTestPlanReportId(testPlanReport.getId());
-        testPlanService.runApiCase(scenarioRequest);
+        testPlanService.runScenarioCase(scenarioRequest);
         LogUtil.info("-------------- testplan schedule ---------- scenario case over -----------------");
 
         //执行性能测试任务

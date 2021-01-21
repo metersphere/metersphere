@@ -164,7 +164,13 @@
             <if test="request.executeStatus == 'executePass'">
                 and api_scenario.last_result = 'Success'
             </if>
-
+            <if test="request.notInTestPlan == true ">
+                and api_scenario.id not in (
+                    select pc.api_scenario_id
+                    from test_plan_api_scenario pc
+                    where pc.test_plan_id = #{request.planId}
+                )
+            </if>
         </where>
         <if test="request.orders != null and request.orders.size() > 0">
             order by

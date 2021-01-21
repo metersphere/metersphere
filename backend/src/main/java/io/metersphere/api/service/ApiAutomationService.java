@@ -397,8 +397,19 @@ public class ApiAutomationService {
                 scenarios.add(scenario);
                 // 创建场景报告
                 if (reportIds != null) {
-                    createScenarioReport(group.getName(), item.getId(), item.getName(), request.getTriggerMode() == null ? ReportTriggerMode.MANUAL.name() : request.getTriggerMode(),
-                            request.getExecuteType(), item.getProjectId(), request.getReportUserID());
+                    //如果是测试计划页面触发的执行方式，生成报告时createScenarioReport第二个参数需要特殊处理
+                    if(StringUtils.equals(request.getRunMode(),ApiRunMode.SCENARIO_PLAN.name())){
+                        String testPlanScenarioId = item.getId();
+                        if(request.getScenarioTestPlanIdMap()!=null&&request.getScenarioTestPlanIdMap().containsKey(item.getId())){
+                            testPlanScenarioId = request.getScenarioTestPlanIdMap().get(item.getId());
+                        }
+                        createScenarioReport(group.getName(), testPlanScenarioId, item.getName(), request.getTriggerMode() == null ? ReportTriggerMode.MANUAL.name() : request.getTriggerMode(),
+                                request.getExecuteType(), item.getProjectId(), request.getReportUserID());
+                    }else{
+                        createScenarioReport(group.getName(), item.getId(), item.getName(), request.getTriggerMode() == null ? ReportTriggerMode.MANUAL.name() : request.getTriggerMode(),
+                                request.getExecuteType(), item.getProjectId(), request.getReportUserID());
+                    }
+
                     reportIds.add(group.getName());
                 }
                 group.setHashTree(scenarios);
