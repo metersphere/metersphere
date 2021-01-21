@@ -3,16 +3,16 @@
   <div class="card-container">
     <!-- HTTP 请求参数 -->
     <ms-edit-complete-http-api @runTest="runTest" @saveApi="saveApi" @createRootModelInTree="createRootModelInTree" :request="request" :response="response"
-                               :basisData="currentApi" :moduleOptions="moduleOptions" v-if="currentProtocol === 'HTTP'"/>
+                               :basisData="currentApi" :moduleOptions="moduleOptions" :syncTabs="syncTabs" v-if="currentProtocol === 'HTTP'"/>
     <!-- TCP -->
     <ms-edit-complete-tcp-api :request="request" @runTest="runTest" @createRootModelInTree="createRootModelInTree" @saveApi="saveApi" :basisData="currentApi"
-                              :moduleOptions="moduleOptions" v-if="currentProtocol === 'TCP'"/>
+                              :moduleOptions="moduleOptions" :syncTabs="syncTabs" v-if="currentProtocol === 'TCP'"/>
     <!--DUBBO-->
     <ms-edit-complete-dubbo-api :request="request" @runTest="runTest" @createRootModelInTree="createRootModelInTree" @saveApi="saveApi" :basisData="currentApi"
-                                :moduleOptions="moduleOptions" v-if="currentProtocol === 'DUBBO'"/>
+                                :moduleOptions="moduleOptions" :syncTabs="syncTabs" v-if="currentProtocol === 'DUBBO'"/>
     <!--SQL-->
     <ms-edit-complete-sql-api :request="request" @runTest="runTest" @createRootModelInTree="createRootModelInTree" @saveApi="saveApi" :basisData="currentApi"
-                              :moduleOptions="moduleOptions" v-if="currentProtocol === 'SQL'"/>
+                              :moduleOptions="moduleOptions" :syncTabs="syncTabs" v-if="currentProtocol === 'SQL'"/>
   </div>
 </template>
 
@@ -45,6 +45,7 @@
       currentApi: {},
       moduleOptions: {},
       currentProtocol: String,
+      syncTabs: Array,
     },
     created() {
       this.projectId = getCurrentProjectID();
@@ -75,7 +76,7 @@
           this.$emit('runTest', data);
         })
       },
-      createRootModelInTree(){
+      createRootModelInTree() {
         this.$emit("createRootModel");
       },
       getMaintainerOptions() {

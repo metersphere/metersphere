@@ -9,13 +9,12 @@
 
 <script>
     import MsDialogFooter from "../../../../common/components/MsDialogFooter";
-    import ApiEnvironmentConfig from "../ApiEnvironmentConfig";
     import {listenGoBack, removeGoBackListener} from "../../../../../../common/js/utils";
     import MsJarConfigList from "./JarConfigList";
     import MsJarConfigFrom from "./JarConfigFrom";
     export default {
       name: "MsJarConfig",
-      components: {MsJarConfigFrom, MsJarConfigList, ApiEnvironmentConfig, MsDialogFooter},
+      components: {MsJarConfigFrom, MsJarConfigList, MsDialogFooter},
       data() {
         return {
           visible: false,

@@ -3,6 +3,7 @@ package io.metersphere.api.dto.scenario;
 import io.metersphere.api.dto.scenario.request.BodyFile;
 import io.metersphere.commons.json.JSONSchemaGenerator;
 import lombok.Data;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.protocol.http.sampler.HTTPSamplerProxy;
 import org.apache.jmeter.protocol.http.util.HTTPFileArg;
@@ -81,12 +82,16 @@ public class Body {
 
     private HTTPFileArg[] httpFileArgs(String requestId) {
         List<HTTPFileArg> list = new ArrayList<>();
-        this.getKvs().stream().filter(KeyValue::isFile).filter(KeyValue::isEnable).forEach(keyValue -> {
-            setFileArg(list, keyValue.getFiles(), keyValue, requestId);
-        });
-        this.getBinary().stream().filter(KeyValue::isFile).filter(KeyValue::isEnable).forEach(keyValue -> {
-            setFileArg(list, keyValue.getFiles(), keyValue, requestId);
-        });
+        if (CollectionUtils.isNotEmpty(this.getKvs())) {
+            this.getKvs().stream().filter(KeyValue::isFile).filter(KeyValue::isEnable).forEach(keyValue -> {
+                setFileArg(list, keyValue.getFiles(), keyValue, requestId);
+            });
+        }
+        if (CollectionUtils.isNotEmpty(this.getBinary())) {
+            this.getBinary().stream().filter(KeyValue::isFile).filter(KeyValue::isEnable).forEach(keyValue -> {
+                setFileArg(list, keyValue.getFiles(), keyValue, requestId);
+            });
+        }
         return list.toArray(new HTTPFileArg[0]);
     }
 
