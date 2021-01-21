@@ -6,6 +6,7 @@ import io.metersphere.base.domain.TestResource;
 import io.metersphere.commons.constants.ResourceStatusEnum;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.CommonBeanFactory;
+import io.metersphere.commons.utils.UrlTestUtils;
 import io.metersphere.config.JmeterProperties;
 import io.metersphere.config.KafkaProperties;
 import io.metersphere.controller.ResultHolder;
@@ -15,6 +16,7 @@ import io.metersphere.i18n.Translator;
 import io.metersphere.performance.engine.AbstractEngine;
 import io.metersphere.performance.engine.request.StartTestRequest;
 import io.metersphere.service.SystemParameterService;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.client.RestTemplate;
 
 import java.util.HashMap;
@@ -77,6 +79,12 @@ public class DockerTestEngine extends AbstractEngine {
             metersphereUrl = baseInfo.getUrl();
         }
 
+        // docker 不能从 localhost 中下载文件
+        if (StringUtils.contains(metersphereUrl, "http://localhost")
+                || !UrlTestUtils.testUrlWithTimeOut(metersphereUrl, 1000)) {
+            MSException.throwException(Translator.get("run_load_test_file_init_error"));
+        }
+
         Map<String, String> env = new HashMap<>();
         env.put("RATIO", "" + ratio);
         env.put("RESOURCE_INDEX", "" + resourceIndex);
@@ -123,4 +131,5 @@ public class DockerTestEngine extends AbstractEngine {
             }
         });
     }
+
 }
