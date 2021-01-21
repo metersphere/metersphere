@@ -108,6 +108,8 @@
       </template>
     </batch-edit>
 
+    <batch-move @refresh="search" @moveSave="moveSave" ref="testBatchMove"/>
+
   </div>
 </template>
 
@@ -129,10 +131,12 @@
   import BatchEdit from "../../../track/case/components/BatchEdit";
   import {WORKSPACE_ID} from "../../../../../common/js/constants";
   import EnvironmentSelect from "../../definition/components/environment/EnvironmentSelect";
+  import BatchMove from "../../../track/case/components/BatchMove";
 
   export default {
     name: "MsApiScenarioList",
     components: {
+      BatchMove,
       EnvironmentSelect,
       BatchEdit,
       PlanStatusTableItem,
@@ -157,6 +161,18 @@
       trashEnable: {
         type: Boolean,
         default: false,
+      },
+      moduleTree: {
+        type: Array,
+        default() {
+          return []
+        },
+      },
+      moduleOptions: {
+        type: Array,
+        default() {
+          return []
+        },
       }
     },
     data() {
@@ -189,15 +205,14 @@
             name: this.$t('api_test.automation.batch_add_plan'), handleClick: this.handleBatchAddCase
           },
           {
+            name: this.$t('api_test.automation.batch_execute'), handleClick: this.handleBatchExecute
+          },
+          {
             name: this.$t('test_track.case.batch_edit_case'), handleClick: this.handleBatchEdit
           },
           {
-            name: this.$t('api_test.automation.batch_execute'), handleClick: this.handleBatchExecute
-          },
-
-          // {
-          //   name: this.$t('test_track.case.batch_move_case'), handleClick: this.handleBatchMove
-          // }
+            name: this.$t('test_track.case.batch_move_case'), handleClick: this.handleBatchMove
+          }
         ],
         isSelectAllDate: false,
         unSelection: [],
@@ -319,31 +334,22 @@
       handleBatchAddCase() {
         this.planVisible = true;
       },
-      handleDeleteBatch() {
-        this.$alert(this.$t('test_track.case.delete_confirm') + "？", '', {
-          confirmButtonText: this.$t('commons.confirm'),
-          callback: (action) => {
-            if (action === 'confirm') {
-              let ids = Array.from(this.selectRows).map(row => row.id);
-              this.$post('/test/case/batch/delete', {ids: ids}, () => {
-                this.selectRows.clear();
-                this.$emit("refresh");
-                this.$success(this.$t('commons.delete_success'));
-                // 发送广播，刷新 head 上的最新列表
-              });
-            }
-          }
-        });
-      },
       handleBatchEdit() {
         this.$refs.batchEdit.open(this.selectDataCounts);
       },
       handleBatchMove() {
-        this.$emit("batchMove", Array.from(this.selectRows).map(row => row.id));
+        this.$refs.testBatchMove.open(this.moduleTree, [], this.moduleOptions);
+      },
+      moveSave(param) {
+        this.buildBatchParam(param);
+        param.apiScenarioModuleId = param.nodeId;
+        this.$post('/api/automation/batch/edit', param, () => {
+          this.$success(this.$t('commons.save_success'));
+          this.$refs.testBatchMove.close();
+          this.search();
+        });
       },
       batchEdit(form) {
-        let arr = this.selection;
-        let ids = this.selection;
         let param = {};
         param[form.type] = form.value;
         this.buildBatchParam(param);

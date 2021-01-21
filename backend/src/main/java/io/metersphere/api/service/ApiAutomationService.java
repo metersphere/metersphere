@@ -652,6 +652,9 @@ public class ApiAutomationService {
     }
 
     public void bathEdit(SaveApiScenarioRequest request) {
+        if (CollectionUtils.isEmpty(request.getScenarioIds())) {
+            return;
+        }
         if (request.isSelectAllDate()) {
             request.setScenarioIds(this.getAllScenarioIdsByFontedSelect(
                     request.getModuleIds(), request.getName(), request.getProjectId(), request.getFilters(), request.getUnSelectIds()));

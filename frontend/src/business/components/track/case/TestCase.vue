@@ -35,7 +35,7 @@
 
     <test-case-move @refresh="refresh" ref="testCaseMove"/>
 
-    <batch-move @refresh="refresh" ref="testBatchMove"/>
+    <batch-move @refresh="refresh" @moveSave="moveSave" ref="testBatchMove"/>
 
   </ms-container>
 
@@ -54,6 +54,7 @@ import MsMainContainer from "../../common/components/MsMainContainer";
 import {checkoutTestManagerOrTestUser, getCurrentProjectID, hasRoles} from "../../../../common/js/utils";
 import BatchMove from "./components/BatchMove";
 import TestCaseNodeTree from "../common/TestCaseNodeTree";
+import {TrackEvent,LIST_CHANGE} from "@/business/components/common/head/ListEvent";
 
 export default {
   name: "TestCase",
@@ -163,6 +164,15 @@ export default {
     },
     setTreeNodes(data) {
       this.treeNodes = data;
+    },
+    moveSave(param) {
+      this.result = this.$post('/test/case/batch/edit', param, () => {
+        this.$success(this.$t('commons.save_success'));
+        this.$refs.testBatchMove.close();
+        // 发送广播，刷新 head 上的最新列表
+        TrackEvent.$emit(LIST_CHANGE);
+        this.refresh();
+      });
     }
   }
 }
