@@ -3,17 +3,23 @@
     <div @click="active(apiCase)">
       <el-row>
         <el-col :span="5">
-
-          <el-checkbox class="item-select" v-model="apiCase.selected"/>
-
-          <div class="el-step__icon is-text ms-api-col">
-            <div class="el-step__icon-inner">{{ index + 1 }}</div>
-          </div>
-
-          <label class="ms-api-label">{{ $t('test_track.case.priority') }}</label>
-          <el-select size="small" v-model="apiCase.priority" class="ms-api-select" @change="changePriority(apiCase)">
-            <el-option v-for="grd in priorities" :key="grd.id" :label="grd.name" :value="grd.id"/>
-          </el-select>
+          <el-row>
+            <el-col :span="2" style="margin-top: 5px">
+              <el-checkbox class="item-select" v-model="apiCase.selected"/>
+            </el-col>
+            <el-col :span="2" style="margin-top: 2px">
+              <show-more-btn :is-show="apiCase.selected" :buttons="buttons"/>
+            </el-col>
+            <el-col :span="20">
+              <div class="el-step__icon is-text ms-api-col">
+                <div class="el-step__icon-inner">{{ index + 1 }}</div>
+              </div>
+              <label class="ms-api-label">{{ $t('test_track.case.priority') }}</label>
+              <el-select size="small" v-model="apiCase.priority" class="ms-api-select" @change="changePriority(apiCase)">
+                <el-option v-for="grd in priorities" :key="grd.id" :label="grd.name" :value="grd.id"/>
+              </el-select>
+            </el-col>
+          </el-row>
         </el-col>
 
         <el-col :span="8">
@@ -41,7 +47,7 @@
 
         <el-col :span="4">
           <div class="tag-item">
-            <ms-input-tag  :currentScenario="apiCase" ref="tag" @keyup.enter.native="saveTestCase(apiCase)"/>
+            <ms-input-tag :currentScenario="apiCase" ref="tag" @keyup.enter.native="saveTestCase(apiCase)"/>
           </div>
         </el-col>
 
@@ -114,6 +120,7 @@
   import MsRequestResultTail from "../response/RequestResultTail";
   import MsJmxStep from "../step/JmxStep";
   import ApiResponseComponent from "../../../automation/scenario/component/ApiResponseComponent";
+  import ShowMoreBtn from "../../../../track/case/components/ShowMoreBtn";
 
   export default {
     name: "ApiCaseItem",
@@ -130,7 +137,8 @@
       MsDubboBasisParameters,
       MsApiExtendBtns,
       MsRequestResultTail,
-      MsJmxStep
+      MsJmxStep,
+      ShowMoreBtn
     },
     data() {
       return {
@@ -146,6 +154,10 @@
         condition: {},
         responseData: {type: 'HTTP', responseResult: {}, subRequestResults: []},
         isShowInput: false,
+        buttons: [
+          {name: this.$t('api_test.automation.batch_execute'), handleClick: this.handleRunBatch},
+          {name: this.$t('test_track.case.batch_edit_case'), handleClick: this.handleEditBatch}
+        ],
       }
     },
     props: {
@@ -172,6 +184,12 @@
     },
     watch: {},
     methods: {
+      handleRunBatch() {
+        this.$emit('batchRun');
+      },
+      handleEditBatch() {
+        this.$emit('batchEditCase');
+      },
       deleteCase(index, row) {
         this.$alert(this.$t('api_test.definition.request.delete_confirm') + ' ' + row.name + " ？", '', {
           confirmButtonText: this.$t('commons.confirm'),
@@ -325,6 +343,12 @@
 
   .item-select {
     margin-right: 10px;
+  }
+
+  .ms-opt-btn {
+    position: fixed;
+    left: 60px;
+    z-index: 1;
   }
 
   .tag-item {
