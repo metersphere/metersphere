@@ -65,11 +65,9 @@
         </el-table-column>
         <el-table-column prop="passRate" :label="$t('api_test.automation.passing_rate')"
                          show-overflow-tooltip/>
-        <el-table-column :label="$t('commons.operating')" width="200px" v-if="!referenced">
+        <el-table-column fixed="right" :label="$t('commons.operating')" width="200px" v-if="!referenced">
           <template v-slot:default="{row}">
             <div v-if="trashEnable">
-<!--              <el-button type="text" @click="reductionApi(row)" v-tester>{{ $t('commons.reduction') }}</el-button>-->
-<!--              <el-button type="text" @click="remove(row)" v-tester>{{ $t('api_test.automation.remove') }}</el-button>-->
               <ms-table-operator-button :tip="$t('commons.reduction')" icon="el-icon-refresh-left" @exec="reductionApi(row)" v-tester/>
               <ms-table-operator-button :tip="$t('api_test.automation.remove')" icon="el-icon-delete" @exec="remove(row)" type="danger" v-tester/>
             </div>
