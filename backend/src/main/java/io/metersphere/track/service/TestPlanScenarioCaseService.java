@@ -120,4 +120,16 @@ public class TestPlanScenarioCaseService {
         request.setPlanId(planId);
         deleteApiCaseBath(request);
     }
+
+    public void bathDeleteByScenarioIds(List<String> ids) {
+        TestPlanApiScenarioExample example = new TestPlanApiScenarioExample();
+        example.createCriteria().andApiScenarioIdIn(ids);
+        testPlanApiScenarioMapper.deleteByExample(example);
+    }
+
+    public void deleteByScenarioId(String id) {
+        TestPlanApiScenarioExample example = new TestPlanApiScenarioExample();
+        example.createCriteria().andApiScenarioIdEqualTo(id);
+        testPlanApiScenarioMapper.deleteByExample(example);
+    }
 }

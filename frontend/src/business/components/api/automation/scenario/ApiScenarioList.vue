@@ -102,6 +102,12 @@
       </div>
     </el-card>
 
+    <batch-edit ref="batchEdit" @batchEdit="batchEdit" :typeArr="typeArr" :value-arr="valueArr" :dialog-title="$t('test_track.case.batch_edit_case')">
+      <template v-slot:value>
+        <environment-select :current-data="{}" :project-id="projectId"/>
+      </template>
+    </batch-edit>
+
   </div>
 </template>
 
@@ -120,10 +126,15 @@
   import MsTableOperatorButton from "@/business/components/common/components/MsTableOperatorButton";
   import PriorityTableItem from "../../../track/common/tableItems/planview/PriorityTableItem";
   import PlanStatusTableItem from "../../../track/common/tableItems/plan/PlanStatusTableItem";
+  import BatchEdit from "../../../track/case/components/BatchEdit";
+  import {WORKSPACE_ID} from "../../../../../common/js/constants";
+  import EnvironmentSelect from "../../definition/components/environment/EnvironmentSelect";
 
   export default {
     name: "MsApiScenarioList",
     components: {
+      EnvironmentSelect,
+      BatchEdit,
       PlanStatusTableItem,
       PriorityTableItem,
       MsTableSelectAll,
@@ -176,13 +187,42 @@
         buttons: [
           {
             name: this.$t('api_test.automation.batch_add_plan'), handleClick: this.handleBatchAddCase
-          }, {
+          },
+          {
+            name: this.$t('test_track.case.batch_edit_case'), handleClick: this.handleBatchEdit
+          },
+          {
             name: this.$t('api_test.automation.batch_execute'), handleClick: this.handleBatchExecute
-          }
+          },
+
+          // {
+          //   name: this.$t('test_track.case.batch_move_case'), handleClick: this.handleBatchMove
+          // }
         ],
         isSelectAllDate: false,
         unSelection: [],
         selectDataCounts: 0,
+        typeArr: [
+          {id: 'level', name: this.$t('test_track.case.priority')},
+          {id: 'status', name: this.$t('test_track.plan.plan_status')},
+          {id: 'principal', name: this.$t('api_test.definition.request.responsible'), optionMethod: this.getPrincipalOptions},
+          {id: 'environmentId', name: this.$t('api_test.definition.request.run_env'), optionMethod: this.getEnvsOptions},
+        ],
+        valueArr: {
+          level: [
+            {name: 'P0', id: 'P0'},
+            {name: 'P1', id: 'P1'},
+            {name: 'P2', id: 'P2'},
+            {name: 'P3', id: 'P3'}
+          ],
+          status: [
+            {name: this.$t('test_track.plan.plan_status_prepare'), id: 'Prepare'},
+            {name: this.$t('test_track.plan.plan_status_running'), id: 'Underway'},
+            {name: this.$t('test_track.plan.plan_status_completed'), id: 'Completed'}
+          ],
+          principal: [],
+          environmentId: []
+        },
       }
     },
     created() {
@@ -279,6 +319,57 @@
       handleBatchAddCase() {
         this.planVisible = true;
       },
+      handleDeleteBatch() {
+        this.$alert(this.$t('test_track.case.delete_confirm') + "？", '', {
+          confirmButtonText: this.$t('commons.confirm'),
+          callback: (action) => {
+            if (action === 'confirm') {
+              let ids = Array.from(this.selectRows).map(row => row.id);
+              this.$post('/test/case/batch/delete', {ids: ids}, () => {
+                this.selectRows.clear();
+                this.$emit("refresh");
+                this.$success(this.$t('commons.delete_success'));
+                // 发送广播，刷新 head 上的最新列表
+              });
+            }
+          }
+        });
+      },
+      handleBatchEdit() {
+        this.$refs.batchEdit.open(this.selectDataCounts);
+      },
+      handleBatchMove() {
+        this.$emit("batchMove", Array.from(this.selectRows).map(row => row.id));
+      },
+      batchEdit(form) {
+        let arr = this.selection;
+        let ids = this.selection;
+        let param = {};
+        param[form.type] = form.value;
+        this.buildBatchParam(param);
+        this.$post('/api/automation/batch/edit', param, () => {
+          this.$success(this.$t('commons.save_success'));
+          this.search();
+        });
+      },
+      getPrincipalOptions(option) {
+        let workspaceId = localStorage.getItem(WORKSPACE_ID);
+        this.$post('/user/ws/member/tester/list', {workspaceId: workspaceId}, response => {
+          option.push(...response.data);
+        });
+      },
+      getEnvsOptions(option) {
+        this.$get('/api/environment/list/' + this.projectId, response => {
+          option.push(...response.data);
+          option.forEach(environment => {
+            if (!(environment.config instanceof Object)) {
+              environment.config = JSON.parse(environment.config);
+            }
+            environment.name = environment.name + (environment.config.httpConfig.socket ?
+              (': ' + environment.config.httpConfig.protocol + '://' + environment.config.httpConfig.socket) : '');
+          });
+        });
+      },
       addTestPlan(plans) {
         let obj = {planIds: plans, scenarioIds: this.selection};
 
@@ -316,18 +407,19 @@
           });
         }
       },
+      buildBatchParam(param) {
+        param.scenarioIds = this.selection;
+        param.projectId = getCurrentProjectID();
+        param.selectAllDate = this.isSelectAllDate;
+        param.unSelectIds = this.unSelection;
+        param = Object.assign(param, this.condition);
+      },
       handleBatchExecute() {
         this.infoDb = false;
         let url = "/api/automation/run/batch";
         let run = {};
-        let scenarioIds = this.selection;
         run.id = getUUID();
-        run.scenarioIds = scenarioIds;
-        run.projectId = getCurrentProjectID();
-        run.selectAllDate = this.isSelectAllDate;
-        run.unSelectIds = this.unSelection;
-
-        run = Object.assign(run, this.condition);
+        this.buildBatchParam(run);
         this.$post(url, run, response => {
           let data = response.data;
           this.runVisible = false;
