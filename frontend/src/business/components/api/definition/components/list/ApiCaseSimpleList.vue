@@ -51,6 +51,14 @@
           :label="$t('api_test.definition.api_path')"
           show-overflow-tooltip/>
 
+        <el-table-column prop="tags" :label="$t('commons.tag')">
+          <template v-slot:default="scope">
+            <div v-for="(itemName,index)  in scope.row.tags" :key="index">
+              <ms-tag type="success" effect="plain" :content="itemName"/>
+            </div>
+          </template>
+        </el-table-column>
+
         <el-table-column
           prop="createUser"
           :label="'创建人'"
@@ -100,35 +108,34 @@
 
 <script>
 
-  import MsTableOperator from "../../../../common/components/MsTableOperator";
-  import MsTableOperatorButton from "../../../../common/components/MsTableOperatorButton";
-  import {LIST_CHANGE, TrackEvent} from "@/business/components/common/head/ListEvent";
-  import MsTablePagination from "../../../../common/pagination/TablePagination";
-  import MsTag from "../../../../common/components/MsTag";
-  import MsApiCaseList from "../case/ApiCaseList";
-  import MsContainer from "../../../../common/components/MsContainer";
-  import MsBottomContainer from "../BottomContainer";
-  import ShowMoreBtn from "../../../../track/case/components/ShowMoreBtn";
-  import MsBatchEdit from "../basis/BatchEdit";
-  import {API_METHOD_COLOUR, CASE_PRIORITY, REQ_METHOD} from "../../model/JsonData";
+import MsTableOperator from "../../../../common/components/MsTableOperator";
+import MsTableOperatorButton from "../../../../common/components/MsTableOperatorButton";
+import MsTablePagination from "../../../../common/pagination/TablePagination";
+import MsTag from "../../../../common/components/MsTag";
+import MsApiCaseList from "../case/ApiCaseList";
+import ApiCaseList from "../case/ApiCaseList";
+import MsContainer from "../../../../common/components/MsContainer";
+import MsBottomContainer from "../BottomContainer";
+import ShowMoreBtn from "../../../../track/case/components/ShowMoreBtn";
+import MsBatchEdit from "../basis/BatchEdit";
+import {API_METHOD_COLOUR, CASE_PRIORITY, REQ_METHOD} from "../../model/JsonData";
 
-  import {getBodyUploadFiles, getCurrentProjectID} from "@/common/js/utils";
-  import ApiListContainer from "./ApiListContainer";
-  import PriorityTableItem from "../../../../track/common/tableItems/planview/PriorityTableItem";
-  import ApiCaseList from "../case/ApiCaseList";
-  import {_filter, _sort} from "../../../../../../common/js/utils";
-  import {_handleSelect, _handleSelectAll} from "../../../../../../common/js/tableUtils";
-  import MsApiCaseTableExtendBtns from "../reference/ApiCaseTableExtendBtns";
-  import MsReferenceView from "../reference/ReferenceView";
-  import MsSetEnvironment from "@/business/components/api/definition/components/basis/SetEnvironment";
-  import TestPlan from "@/business/components/api/definition/components/jmeter/components/test-plan";
-  import ThreadGroup from "@/business/components/api/definition/components/jmeter/components/thread-group";
-  import {parseEnvironment} from "@/business/components/api/test/model/EnvironmentModel";
-  import MsTableSelectAll from "../../../../common/components/table/MsTableSelectAll";
-  import MsTableAdvSearchBar from "@/business/components/common/components/search/MsTableAdvSearchBar";
-  import {API_CASE_CONFIGS} from "@/business/components/common/components/search/search-components";
+import {getBodyUploadFiles, getCurrentProjectID} from "@/common/js/utils";
+import ApiListContainer from "./ApiListContainer";
+import PriorityTableItem from "../../../../track/common/tableItems/planview/PriorityTableItem";
+import {_filter, _sort} from "../../../../../../common/js/utils";
+import {_handleSelect, _handleSelectAll} from "../../../../../../common/js/tableUtils";
+import MsApiCaseTableExtendBtns from "../reference/ApiCaseTableExtendBtns";
+import MsReferenceView from "../reference/ReferenceView";
+import MsSetEnvironment from "@/business/components/api/definition/components/basis/SetEnvironment";
+import TestPlan from "@/business/components/api/definition/components/jmeter/components/test-plan";
+import ThreadGroup from "@/business/components/api/definition/components/jmeter/components/thread-group";
+import {parseEnvironment} from "@/business/components/api/test/model/EnvironmentModel";
+import MsTableSelectAll from "../../../../common/components/table/MsTableSelectAll";
+import MsTableAdvSearchBar from "@/business/components/common/components/search/MsTableAdvSearchBar";
+import {API_CASE_CONFIGS} from "@/business/components/common/components/search/search-components";
 
-  export default {
+export default {
     name: "ApiCaseSimpleList",
     components: {
       MsTableSelectAll,
@@ -290,6 +297,12 @@
             this.total = response.data.itemCount;
             this.tableData = response.data.listObject;
             this.unSelection = response.data.listObject.map(s => s.id);
+
+            this.tableData.forEach(item => {
+              if (item.tags && item.tags.length > 0) {
+                item.tags = JSON.parse(item.tags);
+              }
+            })
           });
         }
       },

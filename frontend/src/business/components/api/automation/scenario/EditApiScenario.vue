@@ -218,7 +218,6 @@
   import MsApiReportDetail from "../report/ApiReportDetail";
   import MsVariableList from "./variable/VariableList";
   import ApiImport from "../../definition/components/import/ApiImport";
-  import InputTag from 'vue-input-tag'
   import "@/common/css/material-icons.css"
   import OutsideClick from "@/common/js/outside-click";
   import ScenarioApiRelevance from "./api/ApiRelevance";
@@ -240,7 +239,6 @@
       MsInputTag, MsRun,
       MsApiCustomize,
       ApiImport,
-      InputTag,
       MsComponentConfig,
     },
     data() {
