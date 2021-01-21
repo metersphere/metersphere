@@ -238,7 +238,7 @@
     <select id="listSimple" resultType="io.metersphere.api.dto.definition.ApiTestCaseDTO">
         select
           atc.id, atc.project_id, atc.name, atc.api_definition_id, atc.priority, atc.description, atc.create_user_id, atc.update_user_id, atc.create_time, atc.update_time, atc.num,
-          a.module_id, a.path, a.protocol
+          a.module_id, a.path, a.protocol, atc.tags
         from
           api_test_case atc
         inner join
