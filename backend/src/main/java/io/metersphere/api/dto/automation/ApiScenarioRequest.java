@@ -27,4 +27,5 @@ public class ApiScenarioRequest {
     private boolean isSelectThisWeedData;
     private long createTime = 0;
     private String executeStatus;
+    private boolean notInTestPlan;
 }

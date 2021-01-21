@@ -168,7 +168,7 @@ export default {
       deletePath: "/test/case/delete",
       selectRows: new Set(),
       buttons: [
-        {name: this.$t('api_test.definition.request.batch_delete'), handleClick: this.handleDeleteBatch},
+        {name: this.$t('test_track.case.batch_unlink'), handleClick: this.handleDeleteBatch},
         {name: this.$t('api_test.automation.batch_execute'), handleClick: this.handleBatchExecute}
       ],
       typeArr: [

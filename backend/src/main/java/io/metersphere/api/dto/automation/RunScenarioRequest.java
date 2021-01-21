@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.List;
+import java.util.Map;
 
 @Setter
 @Getter
@@ -31,6 +32,8 @@ public class RunScenarioRequest {
     private String reportUserID;
 
     private List<String> scenarioIds;
+
+    private Map<String,String> scenarioTestPlanIdMap;
 
     /**
      * isSelectAllDate：选择的数据是否是全部数据（全部数据是不受分页影响的数据）
