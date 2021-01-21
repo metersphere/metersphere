@@ -269,8 +269,9 @@
           return true;
         }
       },
-      showExecResult(data) {
-        this.$emit('showExecResult', data);
+      showExecResult(item) {
+        item.active = false;
+        item.isActive = true;
       },
       getBodyUploadFiles(row) {
         let bodyUploadFiles = [];
