@@ -89,7 +89,7 @@
         reportId: "",
       }
     },
-    props: {apiData: {}, currentProtocol: String,},
+    props: {apiData: {}, currentProtocol: String,syncTabs: Array},
     methods: {
       handleCommand(e) {
         switch (e) {
@@ -172,6 +172,9 @@
         let bodyFiles = this.getBodyUploadFiles();
         this.$fileUpload(url, null, bodyFiles, this.api, () => {
           this.$success(this.$t('commons.save_success'));
+          if (this.syncTabs.indexOf(this.api.id) === -1) {
+            this.syncTabs.push(this.api.id);
+          }
           this.$emit('saveApi', this.api);
         });
       },
@@ -227,7 +230,8 @@
       }
     },
     created() {
-      this.api = this.apiData;
+      // 深度复制
+      this.api = JSON.parse(JSON.stringify(this.apiData));
       this.api.protocol = this.currentProtocol;
       this.currentRequest = this.api.request;
       this.getEnvironments();

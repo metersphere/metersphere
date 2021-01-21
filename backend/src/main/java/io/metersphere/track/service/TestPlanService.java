@@ -751,7 +751,7 @@ public class TestPlanService {
      * @param request
      * @return
      */
-    public String runApiCase(SchedulePlanScenarioExecuteRequest request) {
+    public String runScenarioCase(SchedulePlanScenarioExecuteRequest request) {
         MsTestPlan testPlan = new MsTestPlan();
         testPlan.setHashTree(new LinkedList<>());
         HashTree jmeterHashTree = new ListedHashTree();

@@ -134,31 +134,41 @@ public class ApiScenarioReportService {
     }
 
     public ApiScenarioReport updatePlanCase(TestResult result) {
-        TestPlanApiScenario testPlanApiScenario = testPlanApiScenarioMapper.selectByPrimaryKey(result.getTestId());
-        ScenarioResult scenarioResult = result.getScenarios().get(0);
-        if (scenarioResult.getError() > 0) {
-            testPlanApiScenario.setLastResult(ScenarioStatus.Fail.name());
-        } else {
-            testPlanApiScenario.setLastResult(ScenarioStatus.Success.name());
+//        TestPlanApiScenario testPlanApiScenario = testPlanApiScenarioMapper.selectByPrimaryKey(result.getTestId());
+        List<ScenarioResult> scenarioResultList = result.getScenarios();
+        ApiScenarioReport returnReport = null;
+        for (ScenarioResult scenarioResult :
+                scenarioResultList) {
+            ApiScenarioReport report = editReport(scenarioResult);
+            // 报告详情内容
+            ApiScenarioReportDetail detail = new ApiScenarioReportDetail();
+            TestResult newResult = createTestResult(result.getTestId(), scenarioResult);
+            scenarioResult.setName(report.getScenarioName());
+            newResult.addScenario(scenarioResult);
+
+            detail.setContent(JSON.toJSONString(newResult).getBytes(StandardCharsets.UTF_8));
+            detail.setReportId(report.getId());
+            detail.setProjectId(report.getProjectId());
+            apiScenarioReportDetailMapper.insert(detail);
+
+            TestPlanApiScenario testPlanApiScenario = testPlanApiScenarioMapper.selectByPrimaryKey(report.getScenarioId());
+            if(testPlanApiScenario!=null){
+                report.setScenarioId(testPlanApiScenario.getApiScenarioId());
+                apiScenarioReportMapper.updateByPrimaryKeySelective(report);
+                if (scenarioResult.getError() > 0) {
+                    testPlanApiScenario.setLastResult(ScenarioStatus.Fail.name());
+                } else {
+                    testPlanApiScenario.setLastResult(ScenarioStatus.Success.name());
+                }
+                String passRate = new DecimalFormat("0%").format((float) scenarioResult.getSuccess() / (scenarioResult.getSuccess() + scenarioResult.getError()));
+                testPlanApiScenario.setPassRate(passRate);
+                testPlanApiScenario.setReportId(report.getId());
+                testPlanApiScenarioMapper.updateByPrimaryKeySelective(testPlanApiScenario);
+            }
+            returnReport = report;
         }
-        String passRate = new DecimalFormat("0%").format((float) scenarioResult.getSuccess() / (scenarioResult.getSuccess() + scenarioResult.getError()));
-        testPlanApiScenario.setPassRate(passRate);
-        // 存储场景报告
-        ApiScenarioReport report = editReport(scenarioResult);
-        // 报告详情内容
-        ApiScenarioReportDetail detail = new ApiScenarioReportDetail();
-        TestResult newResult = createTestResult(result.getTestId(), scenarioResult);
-        scenarioResult.setName(report.getScenarioName());
-        newResult.addScenario(scenarioResult);
 
-        detail.setContent(JSON.toJSONString(newResult).getBytes(StandardCharsets.UTF_8));
-        detail.setReportId(report.getId());
-        detail.setProjectId(report.getProjectId());
-        apiScenarioReportDetailMapper.insert(detail);
-
-        testPlanApiScenario.setReportId(report.getId());
-        testPlanApiScenarioMapper.updateByPrimaryKeySelective(testPlanApiScenario);
-        return report;
+        return returnReport;
     }
 
     public ApiScenarioReport updateSchedulePlanCase(TestResult result) {

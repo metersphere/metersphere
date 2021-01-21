@@ -113,7 +113,7 @@
         projectId: "",
       }
     },
-    props: {apiData: {}, currentProtocol: String,},
+    props: {apiData: {}, currentProtocol: String, syncTabs: Array},
     methods: {
       handleCommand(e) {
         switch (e) {
@@ -205,6 +205,9 @@
         this.$fileUpload(url, null, bodyFiles, this.api, () => {
           this.$success(this.$t('commons.save_success'));
           this.$emit('saveApi', this.api);
+          if (this.syncTabs.indexOf(this.api.id) === -1) {
+            this.syncTabs.push(this.api.id);
+          }
         });
       },
       selectTestCase(item) {
@@ -230,7 +233,8 @@
     },
     created() {
       this.projectId = getCurrentProjectID();
-      this.api = this.apiData;
+      // 深度复制
+      this.api = JSON.parse(JSON.stringify(this.apiData));
       this.api.protocol = this.currentProtocol;
       this.currentRequest = this.api.request;
       this.getResult();

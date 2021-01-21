@@ -149,7 +149,29 @@
         options: API_STATUS,
       }
     },
-    props: {moduleOptions: {}, request: {}, response: {}, basisData: {}},
+    props: {moduleOptions: {}, request: {}, response: {}, basisData: {}, syncTabs: Array},
+    watch: {
+      syncTabs() {
+        if (this.basisData && this.syncTabs && this.syncTabs.includes(this.basisData.id)) {
+          // 标示接口在其他地方更新过，当前页面需要同步
+          let url = "/api/definition/get/";
+          this.$get(url + this.basisData.id, response => {
+            if (response.data) {
+              let request = JSON.parse(response.data.request);
+              let index = this.syncTabs.findIndex(item => {
+                if (item === this.basisData.id) {
+                  return true;
+                }
+              })
+              this.syncTabs.splice(index, 1);
+              this.httpForm.path = response.data.path;
+              this.httpForm.method = response.data.method;
+              Object.assign(this.request, request);
+            }
+          });
+        }
+      }
+    },
     methods: {
       runTest() {
         this.$refs['httpForm'].validate((valid) => {
