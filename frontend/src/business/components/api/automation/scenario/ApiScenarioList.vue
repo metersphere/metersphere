@@ -463,9 +463,10 @@
         });
       },
       copy(row) {
-        row.copy = true;
-        row.name = 'copy_'+row.name;
-        this.$emit('edit', row);
+        let rowParam = JSON.parse(JSON.stringify(row));
+        rowParam.copy = true;
+        rowParam.name = 'copy_'+rowParam.name;
+        this.$emit('edit', rowParam);
       },
       showReport(row) {
         this.runVisible = true;
