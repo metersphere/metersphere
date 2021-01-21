@@ -4,6 +4,7 @@
         <el-col>
           <div class="document-url">
             <el-link href="https://jmeter.apache.org/usermanual/component_reference.html#BeanShell_PostProcessor"
+                     target="componentReferenceDoc"
                      type="primary">{{$t('commons.reference_documentation')}}
             </el-link>
           </div>
