@@ -145,37 +145,37 @@
     </sql>
     <sql id="combine">
         <if test='${condition}.name != null and (${name} == null or ${name} == "")'>
-            and atc.name
+            and t1.name
             <include refid="condition">
                 <property name="object" value="${condition}.name"/>
             </include>
         </if>
         <if test="${condition}.updateTime != null">
-            and atc.update_time
+            and t1.update_time
             <include refid="condition">
                 <property name="object" value="${condition}.updateTime"/>
             </include>
         </if>
          <if test="${condition}.createTime != null">
-            and atc.create_time
+            and t1.create_time
             <include refid="condition">
                 <property name="object" value="${condition}.createTime"/>
             </include>
         </if>
         <if test="${condition}.priority != null">
-            and atc.priority
+            and t1.priority
             <include refid="condition">
                 <property name="object" value="${condition}.priority"/>
             </include>
         </if>
         <if test="${condition}.creator != null">
-            and atc.user_id
+            and t1.user_id
             <include refid="condition">
                 <property name="object" value="${condition}.creator"/>
             </include>
         </if>
         <if test="${condition}.tags != null">
-            and atc.tags
+            and t1.tags
             <include refid="condition">
                 <property name="object" value="${condition}.tags"/>
             </include>
@@ -237,14 +237,14 @@
 
     <select id="listSimple" resultType="io.metersphere.api.dto.definition.ApiTestCaseDTO">
         select
-          atc.id, atc.project_id, atc.name, atc.api_definition_id, atc.priority, atc.description, atc.create_user_id, atc.update_user_id, atc.create_time, atc.update_time, atc.num,
-          a.module_id, a.path, a.protocol, atc.tags
+          t1.id, t1.project_id, t1.name, t1.api_definition_id, t1.priority, t1.description, t1.create_user_id, t1.update_user_id, t1.create_time, t1.update_time, t1.num,
+          a.module_id, a.path, a.protocol, t1.tags
         from
           api_test_case atc
         inner join
           api_definition a
         on
-          atc.api_definition_id = a.id
+          t1.api_definition_id = a.id
             <if test="request.protocol != null and request.protocol!=''">
                 and a.protocol = #{request.protocol}
             </if>
@@ -264,25 +264,25 @@
                 </include>
             </if>
             <if test="request.projectId != null and request.projectId!=''">
-                and atc.project_id = #{request.projectId}
+                and t1.project_id = #{request.projectId}
             </if>
             <if test="request.id != null and request.id!=''">
-                and atc.id = #{request.id}
+                and t1.id = #{request.id}
             </if>
             <if test="request.ids != null and request.ids.size() > 0">
                 <if test="request.projectId != null and request.projectId!=''">
                     and
                 </if>
-                atc.id in
+                t1.id in
                 <foreach collection="request.ids" item="caseId" separator="," open="(" close=")">
                     #{caseId}
                 </foreach>
             </if>
             <if test="request.name != null and request.name!=''">
-                and (atc.name like CONCAT('%', #{request.name},'%') or atc.tags like CONCAT('%', #{request.name},'%'))
+                and (t1.name like CONCAT('%', #{request.name},'%') or t1.tags like CONCAT('%', #{request.name},'%'))
             </if>
             <if test="request.createTime > 0">
-                and atc.create_time >= #{request.createTime}
+                and t1.create_time >= #{request.createTime}
             </if>
             <if test="request.moduleIds != null and request.moduleIds.size() > 0">
                 and a.module_id in
@@ -295,7 +295,7 @@
                     <if test="values != null and values.size() > 0">
                         <choose>
                             <when test="key == 'priority'">
-                                and atc.priority in
+                                and t1.priority in
                                 <foreach collection="values" item="value" separator="," open="(" close=")">
                                     #{value}
                                 </foreach>
