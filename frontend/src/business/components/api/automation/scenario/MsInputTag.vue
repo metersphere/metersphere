@@ -1,68 +1,165 @@
 <template>
-  <input-tag v-model="data" placeholder="输入回车添加标签" class="ms-tag-input ms-input-div ms-input-tag-wrapper ms-input ms-input-remove"></input-tag>
+  <div
+    class="el-input-tag input-tag-wrapper"
+    :class="[size ? 'el-input-tag--' + size : '']"
+    style="height: auto"
+    @click="foucusTagInput">
+    <el-tag
+      v-for="(tag, idx) in innerTags"
+      v-bind="$attrs"
+      type="info"
+      :key="tag"
+      :size="size"
+      :closable="!readOnly"
+      :disable-transitions="false"
+      @close="remove(idx)">
+      {{tag}}
+    </el-tag>
+    <input
+      v-if="!readOnly"
+      class="tag-input el-input"
+      v-model="newTag"
+      placeholder="输入回车添加"
+      @keydown.delete.stop="removeLastTag"
+      @keydown="addNew"
+      @blur="addNew"/>
+  </div>
 </template>
 
 <script>
-  import InputTag from 'vue-input-tag'
-
   export default {
-    name: "MsInputTag",
-    components: {InputTag},
-    props: {currentScenario: {}},
-    created() {
-      if (!this.currentScenario.tags) {
-        this.currentScenario.tags = [];
-      }
-      this.data = this.currentScenario.tags;
+    name: 'MsInputTag',
+    props: {
+      currentScenario: {},
+      addTagOnKeys: {
+        type: Array,
+        default: () => [13, 188, 9]
+      },
+      readOnly: {
+        type: Boolean,
+        default: false
+      },
+      size: {type: String, default: "small"}
     },
     data() {
       return {
-        data: [],
+        newTag: '',
+        innerTags: [...this.currentScenario.tags]
       }
     },
     watch: {
-      data() {
-        this.currentScenario.tags = this.data;
+      innerTags() {
+        this.currentScenario.tags = this.innerTags;
       }
     },
-    methods: {}
+    methods: {
+      foucusTagInput() {
+        if (this.readOnly || !this.$el.querySelector('.tag-input')) {
+          console.log()
+        } else {
+          this.$el.querySelector('.tag-input').focus()
+        }
+      },
+      addNew(e) {
+        if (e && (!this.addTagOnKeys.includes(e.keyCode)) && (e.type !== 'blur')) {
+          return
+        }
+        if (e) {
+          e.stopPropagation()
+          e.preventDefault()
+        }
+        let addSuucess = false
+        if (this.newTag.includes(',')) {
+          this.newTag.split(',').forEach(item => {
+            if (this.addTag(item.trim())) {
+              addSuucess = true
+            }
+          })
+        } else {
+          if (this.addTag(this.newTag.trim())) {
+            addSuucess = true
+          }
+        }
+        if (addSuucess) {
+          this.tagChange()
+          this.newTag = ''
+        }
+      },
+      addTag(tag) {
+        tag = tag.trim()
+        if (tag && !this.innerTags.includes(tag)) {
+          this.innerTags.push(tag)
+          return true
+        }
+        return false
+      },
+      remove(index) {
+        this.innerTags.splice(index, 1)
+        this.tagChange()
+      },
+      removeLastTag() {
+        if (this.newTag) {
+          return
+        }
+        this.innerTags.pop()
+        this.tagChange()
+      },
+      tagChange() {
+        this.$emit('input', this.innerTags)
+      }
+    }
   }
 </script>
 
 <style scoped>
-
-  .ms-input-tag-wrapper >>> .vue-input-tag-wrapper {
-    border-radius: 2px;
-    border: 1px solid #a5d24a;
-    color: #909399;
-    display: inline-block;
-  }
-
-  .ms-input-remove >>> .remove {
-    color: #909399;
-  }
-
-  .ms-input-div {
-    border-radius: 4px;
-  }
-
-  .ms-input >>> .input-tag {
-    display: inline-block;
-    font-size: 12px;
-    min-width: auto;
-    border-width: 1px;
-    border-style: solid;
-    border-radius: 4px;
-    -webkit-box-sizing: border-box;
-    box-sizing: border-box;
-    white-space: nowrap;
+  .input-tag-wrapper {
+    position: relative;
+    font-size: 14px;
     background-color: #fff;
-    border-color: #909399;
-    color: #909399;
-    width: auto;
+    background-image: none;
+    border-radius: 4px;
+    border: 1px solid #dcdfe6;
+    box-sizing: border-box;
+    color: #606266;
+    display: inline-block;
+    outline: none;
+    padding: 0 10px 0 5px;
+    transition: border-color .2s cubic-bezier(.645, .045, .355, 1);
+    width: 100%;
+  }
 
-    height: 23px;
-    padding: 0 5px;
-    line-height: 19px;
+  .el-tag {
+    margin-right: 4px;
+  }
+
+  .tag-input {
+    background: transparent;
+    border: 0;
+    color: #303133;
+    font-size: 12px;
+    font-family: "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", Arial, sans-serif;
+    outline: none;
+    padding-left: 0;
+    width: 100px;
+  }
+
+  .el-input-tag {
+    height: 40px;
+    line-height: 40px;
+  }
+
+  .el-input-tag--mini {
+    height: 28px;
+    line-height: 28px;
+    font-size: 12px;
+  }
+
+  .el-input-tag--small {
+    line-height: 30px;
+  }
+
+  .el-input-tag--medium {
+    height: 36px;
+    line-height: 36px;
   }
 </style>
