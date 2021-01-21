@@ -321,7 +321,7 @@ public class HistoricalDataUpgradeService {
         copyDir(dir, BODY_FILE_DIR);
     }
 
-    private void createApiScenarioWithBLOBs(SaveHistoricalDataUpgrade saveHistoricalDataUpgrade, Scenario oldScenario, String scenarioDefinition, ApiScenarioMapper mapper) {
+    private void createApiScenarioWithBLOBs(SaveHistoricalDataUpgrade saveHistoricalDataUpgrade, Scenario oldScenario, String scenarioDefinition, ApiScenarioMapper mapper, int num) {
         if (StringUtils.isEmpty(oldScenario.getName())) {
             oldScenario.setName("默认名称-" + DateUtils.getTimeStr(System.currentTimeMillis()));
         }
@@ -339,7 +339,6 @@ public class HistoricalDataUpgradeService {
             scenario.setUpdateTime(System.currentTimeMillis());
             scenario.setStatus(ScenarioStatus.Underway.name());
             scenario.setUserId(SessionUtils.getUserId());
-            scenario.setNum(getNextNum(saveHistoricalDataUpgrade.getProjectId()));
             mapper.updateByPrimaryKeySelective(scenario);
         } else {
             scenario = new ApiScenarioWithBLOBs();
@@ -357,7 +356,7 @@ public class HistoricalDataUpgradeService {
             scenario.setUpdateTime(System.currentTimeMillis());
             scenario.setStatus(ScenarioStatus.Underway.name());
             scenario.setUserId(SessionUtils.getUserId());
-            scenario.setNum(getNextNum(saveHistoricalDataUpgrade.getProjectId()));
+            scenario.setNum(num);
             mapper.insert(scenario);
         }
     }
@@ -371,6 +370,7 @@ public class HistoricalDataUpgradeService {
         List<ApiTest> blobs = apiTestMapper.selectByExampleWithBLOBs(example);
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
         ApiScenarioMapper mapper = sqlSession.getMapper(ApiScenarioMapper.class);
+        int num = getNextNum(saveHistoricalDataUpgrade.getProjectId());
         for (ApiTest test : blobs) {
             // 附件迁移
             createBodyFiles(test.getId());
@@ -381,7 +381,8 @@ public class HistoricalDataUpgradeService {
                 for (Scenario scenario : scenarios) {
                     MsScenario scenario1 = createScenario(scenario);
                     String scenarioDefinition = JSON.toJSONString(scenario1);
-                    createApiScenarioWithBLOBs(saveHistoricalDataUpgrade, scenario, scenarioDefinition, mapper);
+                    num++;
+                    createApiScenarioWithBLOBs(saveHistoricalDataUpgrade, scenario, scenarioDefinition, mapper, num);
                 }
             }
         }
