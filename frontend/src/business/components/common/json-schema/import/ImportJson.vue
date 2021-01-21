@@ -3,6 +3,7 @@
     title="导入"
     :visible.sync="importVisible"
     width="50%"
+    append-to-body
     show-close
     :close-on-click-modal="false"
     @closed="handleClose">
