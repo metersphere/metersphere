@@ -33,6 +33,9 @@
     },
     created() {
       this.getExecResult();
+      if (this.apiItem.isActive) {
+        this.isActive = true;
+      }
     },
     methods: {
       getExecResult() {

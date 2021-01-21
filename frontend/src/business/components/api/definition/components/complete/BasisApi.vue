@@ -53,12 +53,12 @@
       </el-row>
 
       <el-row>
-        <el-col :span="8">
+        <el-col :span="12">
           <el-form-item :label="$t('commons.tag')" prop="tag">
             <ms-input-tag :currentScenario="basicForm" ref="tag"/>
           </el-form-item>
         </el-col>
-        <el-col :span="16">
+        <el-col :span="12">
           <el-form-item :label="$t('commons.description')" prop="description">
             <el-input class="ms-http-textarea"
                       v-model="basicForm.description"

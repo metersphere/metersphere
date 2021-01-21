@@ -101,10 +101,10 @@
         this.mode = mode;
       },
       setBodyType() {
-        if (!this.response.headers) {
+        if (!this.response.responseResult.headers) {
           return;
         }
-        if (this.response.headers.indexOf("Content-Type: application/json") > 0) {
+        if (this.response.responseResult.headers.indexOf("Content-Type: application/json") > 0) {
           if (this.$refs.modeDropdown) {
             this.$refs.modeDropdown.handleCommand(BODY_FORMAT.JSON);
             this.msCodeReload();

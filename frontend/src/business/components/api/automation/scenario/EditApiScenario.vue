@@ -72,7 +72,7 @@
           </el-row>
           <el-row>
             <el-col :span="7">
-              <el-form-item label="Tag" prop="tags">
+              <el-form-item :label="$t('api_test.automation.tag')"  prop="tags">
                 <ms-input-tag :currentScenario="currentScenario" ref="tag"/>
               </el-form-item>
             </el-col>

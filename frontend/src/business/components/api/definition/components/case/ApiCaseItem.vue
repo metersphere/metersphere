@@ -40,7 +40,9 @@
         </el-col>
 
         <el-col :span="4">
-          <ms-input-tag class="tag-item" :currentScenario="apiCase" ref="tag" @keyup.enter.native="saveTestCase(apiCase)"/>
+          <div class="tag-item">
+            <ms-input-tag  :currentScenario="apiCase" ref="tag" @keyup.enter.native="saveTestCase(apiCase)"/>
+          </div>
         </el-col>
 
         <el-col :span="4">
@@ -269,8 +271,9 @@
           return true;
         }
       },
-      showExecResult(data) {
-        this.$emit('showExecResult', data);
+      showExecResult(item) {
+        item.active = false;
+        item.isActive = true;
       },
       getBodyUploadFiles(row) {
         let bodyUploadFiles = [];
@@ -325,6 +328,6 @@
   }
 
   .tag-item {
-    margin-right: 30px;
+    margin-right: 20px;
   }
 </style>
