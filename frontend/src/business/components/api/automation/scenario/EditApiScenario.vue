@@ -239,7 +239,6 @@
       MsInputTag, MsRun,
       MsApiCustomize,
       ApiImport,
-      InputTag,
       MsComponentConfig,
     },
     data() {
