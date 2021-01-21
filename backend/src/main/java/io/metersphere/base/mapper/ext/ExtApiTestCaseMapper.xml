@@ -279,7 +279,7 @@
                 </foreach>
             </if>
             <if test="request.name != null and request.name!=''">
-                and atc.name like CONCAT('%', #{request.name},'%')
+                and (atc.name like CONCAT('%', #{request.name},'%') or atc.tags like CONCAT('%', #{request.name},'%'))
             </if>
             <if test="request.createTime > 0">
                 and atc.create_time >= #{request.createTime}
