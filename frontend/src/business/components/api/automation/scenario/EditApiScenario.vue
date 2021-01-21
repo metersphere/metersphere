@@ -854,6 +854,7 @@
           this.result = this.$get("/api/automation/getApiScenario/" + this.currentScenario.id, response => {
             if (response.data) {
               this.path = "/api/automation/update";
+              this.currentScenario.description = response.data.description;
               if (response.data.scenarioDefinition != null) {
                 let obj = JSON.parse(response.data.scenarioDefinition);
                 if (obj) {

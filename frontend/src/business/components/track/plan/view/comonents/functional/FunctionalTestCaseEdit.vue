@@ -762,4 +762,8 @@ p {
   white-space: pre-line;
   line-height: 20px;
 }
+
+.head-bar {
+  z-index: 999;
+}
 </style>
