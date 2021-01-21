@@ -38,7 +38,6 @@
     "vue-echarts": "^4.1.0",
     "vue-float-action-button": "^0.6.6",
     "vue-i18n": "^8.15.3",
-    "vue-input-tag": "^2.0.7",
     "vue-jsonpath-picker": "^1.1.5",
     "vue-papa-parse": "^2.0.0",
     "vue-pdf": "^4.2.0",
