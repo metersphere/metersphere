@@ -41,10 +41,15 @@
       },
       size: {type: String, default: "small"}
     },
+    created() {
+      if (!this.currentScenario.tags) {
+        this.currentScenario.tags = [];
+      }
+    },
     data() {
       return {
         newTag: '',
-        innerTags: [...this.currentScenario.tags]
+        innerTags: this.currentScenario.tags ? [...this.currentScenario.tags] : []
       }
     },
     watch: {
