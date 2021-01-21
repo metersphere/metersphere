@@ -40,7 +40,9 @@
         </el-col>
 
         <el-col :span="4">
-          <ms-input-tag class="tag-item" :currentScenario="apiCase" ref="tag" @keyup.enter.native="saveTestCase(apiCase)"/>
+          <div class="tag-item">
+            <ms-input-tag  :currentScenario="apiCase" ref="tag" @keyup.enter.native="saveTestCase(apiCase)"/>
+          </div>
         </el-col>
 
         <el-col :span="4">
@@ -326,6 +328,6 @@
   }
 
   .tag-item {
-    margin-right: 30px;
+    margin-right: 20px;
   }
 </style>
