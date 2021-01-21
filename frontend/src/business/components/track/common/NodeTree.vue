@@ -137,7 +137,15 @@ export default {
       return false;
     },
     filter(val) {
-      this.$refs.tree.filter(val);
+      if (!val) {
+        val = this.filterText;
+      } else {
+        // 记录condition 的 filterText
+        this.filterText = val;
+      }
+      this.$nextTick(() => {
+        this.$refs.tree.filter(val);
+      });
     },
     nodeExpand(data) {
       if (data.id) {
@@ -149,10 +157,15 @@ export default {
         this.expandedNode.splice(this.expandedNode.indexOf(data.id), 1);
       }
     },
-    edit(node, data) {
+    edit(node, data, isAppend) {
       this.$set(data, 'isEdit', true);
       this.$nextTick(() => {
         this.$refs.nameInput.focus();
+        if (!isAppend) {
+          this.$nextTick(() => {
+            this.filter(this.filterText);
+          });
+        }
       });
     },
     append(node, data) {
@@ -166,7 +179,7 @@ export default {
         this.$set(data, 'children', [])
       }
       data.children.push(newChild);
-      this.edit(node, newChild);
+      this.edit(node, newChild, true);
       node.expanded = true;
       this.$nextTick(() => {
         this.$refs.nameInput.focus();

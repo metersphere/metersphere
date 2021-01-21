@@ -51,6 +51,9 @@
         if (this.projectId) {
           this.result = this.$get("/case/node/list/" + this.projectId, response => {
             this.treeNodes = response.data;
+            if (this.$refs.nodeTree) {
+              this.$refs.nodeTree.filter();
+            }
           });
         }
       },
