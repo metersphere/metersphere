@@ -29,6 +29,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.lang.reflect.Array;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -78,6 +79,13 @@ public class TestPlanReportService {
         return returnList;
     }
 
+    /**
+     * 生成测试计划
+     * @param planId
+     * @param userId
+     * @param triggerMode
+     * @return
+     */
     public TestPlanReport genTestPlanReport(String planId, String userId,String triggerMode) {
         TestPlan testPlan = testPlanMapper.selectByPrimaryKey(planId);
 
@@ -101,6 +109,7 @@ public class TestPlanReportService {
         TestPlanReport testPlanReport = new TestPlanReport();
         testPlanReport.setTestPlanId(planId);
         testPlanReport.setId(testPlanReportID);
+        testPlanReport.setStatus(APITestStatus.Starting.name());
         testPlanReport.setCreateTime(System.currentTimeMillis());
         testPlanReport.setUpdateTime(System.currentTimeMillis());
         try {
@@ -244,13 +253,13 @@ public class TestPlanReportService {
             component.afterBuild(testCaseReportMetricDTO);
         });
 
-        this.update(testPlanReport);
-
         TestPlanReportDataExample example = new TestPlanReportDataExample();
         example.createCriteria().andTestPlanReportIdEqualTo(planReportId);
         List<TestPlanReportDataWithBLOBs> testPlanReportDataList = testPlanReportDataMapper.selectByExampleWithBLOBs(example);
+
+        TestPlanReportDataWithBLOBs testPlanReportData = null;
         if (!testPlanReportDataList.isEmpty()) {
-            TestPlanReportDataWithBLOBs testPlanReportData = testPlanReportDataList.get(0);
+            testPlanReportData = testPlanReportDataList.get(0);
             testPlanReportData.setExecuteResult(JSONObject.toJSONString(testCaseReportMetricDTO.getExecuteResult()));
             testPlanReportData.setFailurTestCases(JSONObject.toJSONString(testCaseReportMetricDTO.getFailureTestCases()));
             testPlanReportData.setModuleExecuteResult(JSONArray.toJSONString(testCaseReportMetricDTO.getModuleExecuteResult()));
@@ -260,8 +269,49 @@ public class TestPlanReportService {
             testPlanReportDataMapper.updateByPrimaryKeyWithBLOBs(testPlanReportData);
         }
 
+        String testPlanStatus = this.getTestPlanReportStatus(testPlanReport,testPlanReportData);
+        testPlanReport.setStatus(testPlanStatus);
+        this.update(testPlanReport);
     }
 
+    /**
+     * 计算测试计划的状态
+     * @param testPlanReport
+     * @return
+     */
+    private String getTestPlanReportStatus(TestPlanReport testPlanReport, TestPlanReportDataWithBLOBs testPlanReportData) {
+        String status = TestPlanReportStatus.COMPLETED.name();
+        if(testPlanReport!=null){
+            if(testPlanReport.getIsApiCaseExecuting() || testPlanReport.getIsPerformanceExecuting() || testPlanReport.getIsScenarioExecuting()){
+                status = TestPlanReportStatus.RUNNING.name();
+            }else {
+                if(testPlanReportData == null){
+                    String failCaseString = testPlanReportData.getFailurTestCases();
+                    status = TestPlanReportStatus.SUCCESS.name();
+                    try {
+                        JSONObject failurCaseObject = JSONObject.parseObject(failCaseString);
+                        if(failurCaseObject.containsKey("apiTestCases")&&failurCaseObject.getJSONArray("apiTestCases").size()>=0){
+                            status = TestPlanReportStatus.FAILED.name();
+                            return status;
+                        }
+                        if(failurCaseObject.containsKey("loadTestCases")&&failurCaseObject.getJSONArray("loadTestCases").size()>=0){
+                            status = TestPlanReportStatus.FAILED.name();
+                            return status;
+                        }
+                        if(failurCaseObject.containsKey("scenarioTestCases")&&failurCaseObject.getJSONArray("scenarioTestCases").size()>=0){
+                            status = TestPlanReportStatus.FAILED.name();
+                            return status;
+                        }
+                    }catch (Exception e){
+                        status = TestPlanReportStatus.FAILED.name();
+                    }
+                }else {
+                    status = TestPlanReportStatus.COMPLETED.name();
+                }
+            }
+        }
+        return status;
+    }
 
     public void update(TestPlanReport report) {
         if (!report.getIsApiCaseExecuting() && !report.getIsPerformanceExecuting() && !report.getIsScenarioExecuting()) {
@@ -295,26 +345,26 @@ public class TestPlanReportService {
         String subject = "";
         String event = "";
 
-        successContext = "接口测试定时任务通知:'" + testPlan.getName() + "'执行成功" + "\n" + "请点击下面链接进入测试报告页面" + "\n" + url;
-        failedContext = "接口测试定时任务通知:'" + testPlan.getName() + "'执行失败" + "\n" + "请点击下面链接进入测试报告页面" + "\n" + url;
+        successContext = "测试计划定时任务通知:'" + testPlan.getName() + "'执行成功" + "\n" + "请点击下面链接进入测试报告页面" + "\n" + url;
+        failedContext = "测试计划定时任务通知:'" + testPlan.getName() + "'执行失败" + "\n" + "请点击下面链接进入测试报告页面" + "\n" + url;
         subject = Translator.get("task_notification");
 
-        if (StringUtils.equals("Success", testPlanReport.getStatus())) {
-            event = NoticeConstants.Event.EXECUTE_SUCCESSFUL;
-        } else {
+        if (StringUtils.equals(TestPlanReportStatus.FAILED.name(), testPlanReport.getStatus())) {
             event = NoticeConstants.Event.EXECUTE_FAILED;
+        } else {
+            event = NoticeConstants.Event.EXECUTE_SUCCESSFUL;
         }
         Map<String, Object> paramMap = new HashMap<>();
         paramMap.put("testName", testPlan.getName());
         paramMap.put("id", testPlanReport.getId());
-        paramMap.put("type", "api");
+        paramMap.put("type", "testPlan");
         paramMap.put("url", url);
         paramMap.put("status", testPlanReport.getStatus());
         NoticeModel noticeModel = NoticeModel.builder()
                 .successContext(successContext)
-                .successMailTemplate("ApiSuccessfulNotification")
+                .successMailTemplate("TestPlanSuccessfulNotification")
                 .failedContext(failedContext)
-                .failedMailTemplate("ApiFailedNotification")
+                .failedMailTemplate("TestPlanFailedNotification")
                 .testId(testPlan.getId())
                 .status(testPlanReport.getStatus())
                 .event(event)
