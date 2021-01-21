@@ -114,6 +114,7 @@ public class HistoricalDataUpgradeService {
                 }
                 if (request1.getBody() != null && request1.getBody().isOldKV()) {
                     request1.getBody().setType(Body.FORM_DATA);
+                    request1.getBody().setBinary(new ArrayList<>());
                 }
                 BeanUtils.copyBean(element, request1);
                 ((MsHTTPSamplerProxy) element).setProtocol(RequestType.HTTP);
