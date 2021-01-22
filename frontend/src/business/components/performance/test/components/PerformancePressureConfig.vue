@@ -58,6 +58,7 @@
                     v-model="threadGroup.rpsLimit"
                     @change="calculateChart(threadGroup)"
                     :min="1"
+                    :max="500"
                     size="mini"/>
                 </el-form-item>
                 <br>
@@ -87,6 +88,7 @@
                     :disabled="isReadOnly"
                     v-model="threadGroup.iterateNum"
                     :min="1"
+                    :max="10000"
                     @change="calculateChart(threadGroup)"
                     size="mini"/>
                 </el-form-item>
@@ -98,6 +100,7 @@
                     :disabled="isReadOnly || !threadGroup.rpsLimitEnable"
                     v-model="threadGroup.rpsLimit"
                     :min="1"
+                    :max="500"
                     size="mini"/>
                 </el-form-item>
                 <br>
