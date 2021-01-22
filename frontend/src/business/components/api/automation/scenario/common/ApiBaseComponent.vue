@@ -86,6 +86,11 @@
       if (!this.data.name) {
         this.isShowInput = true;
       }
+      if (this.$refs.nameEdit) {
+        this.$nextTick(() => {
+          this.$refs.nameEdit.focus();
+        });
+      }
     },
     methods: {
       active() {
