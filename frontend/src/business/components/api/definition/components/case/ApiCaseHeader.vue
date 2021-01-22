@@ -50,16 +50,8 @@
               @setEnvironment="setEnvironment"/>
           </div>
         </el-col>
-
         <el-col :span="1" v-if="!(isReadOnly || isCaseEdit)">
-          <el-dropdown size="small" split-button type="primary" class="ms-api-header-select" @click="addCase"
-                       @command="handleCommand" v-tester>
-            +{{$t('api_test.definition.request.case')}}
-            <el-dropdown-menu slot="dropdown">
-              <el-dropdown-item command="run">{{$t('api_test.automation.batch_execute')}}</el-dropdown-item>
-              <el-dropdown-item command="batch_edit_case">{{$t('test_track.case.batch_edit_case')}}</el-dropdown-item>
-            </el-dropdown-menu>
-          </el-dropdown>
+          <el-button size="small" type="primary" @click="addCase">+{{$t('api_test.definition.request.case')}}</el-button>
         </el-col>
       </el-row>
     </el-card>
@@ -165,14 +157,6 @@
       },
       addCase() {
         this.$emit('addCase');
-      },
-      handleCommand(e) {
-        if (e === "run") {
-          this.$emit('batchRun');
-        }
-        if (e === 'batch_edit_case') {
-          this.$emit('batchEditCase');
-        }
       },
       getColor(enable, method) {
         if (enable) {

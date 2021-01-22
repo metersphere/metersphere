@@ -286,12 +286,16 @@ export default {
     }
   },
   created: function () {
+    this.$emit('setCondition', this.condition);
     this.initTableData();
   },
   watch: {
     selectNodeIds() {
       this.currentPage = 1;
       this.initTableData();
+    },
+    condition() {
+      this.$emit('setCondition', this.condition);
     }
   },
   methods: {

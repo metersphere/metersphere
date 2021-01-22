@@ -52,10 +52,10 @@
     },
     methods: {
       remove() {
-        this.$emit('remove', this.jsr223ProcessorData, this.node);
+        this.$emit('remove', this.jsr223Processor, this.node);
       },
       copyRow() {
-        this.$emit('copyRow', this.jsr223ProcessorData, this.node);
+        this.$emit('copyRow', this.jsr223Processor, this.node);
       },
     }
   }

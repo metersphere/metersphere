@@ -6,6 +6,7 @@
         @refreshTable="refresh"
         @saveAsEdit="editScenario"
         @setModuleOptions="setModuleOptions"
+        @setNodeTree="setNodeTree"
         @enableTrash="enableTrash"
         :type="'edit'"
         ref="nodeTree"/>
@@ -15,6 +16,8 @@
       <el-tabs v-model="activeName" @tab-click="addTab" @tab-remove="removeTab">
         <el-tab-pane name="default" :label="$t('api_test.automation.scenario_test')">
           <ms-api-scenario-list
+            :module-tree="nodeTree"
+            :module-options="moduleOptions"
             :select-node-ids="selectNodeIds"
             :trash-enable="trashEnable"
             :checkRedirectID="checkRedirectID"
@@ -98,6 +101,7 @@
         tabs: [],
         trashEnable: false,
         selectNodeIds: [],
+        nodeTree: []
       }
     },
     watch: {
@@ -208,6 +212,9 @@
       },
       setModuleOptions(data) {
         this.moduleOptions = data;
+      },
+      setNodeTree(data) {
+        this.nodeTree = data;
       },
       changeSelectDataRangeAll(tableType) {
         this.$route.params.dataSelectRange = 'all';

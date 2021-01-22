@@ -22,7 +22,7 @@
 
     <!-- 请求参数 -->
     <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
-    <ms-basis-parameters :request="request"/>
+    <ms-basis-parameters :show-script="false" :request="request"/>
 
   </div>
 
@@ -42,14 +42,34 @@ export default {
     isReadOnly: {
       type: Boolean,
       default: false
-    }
+    },
+    syncTabs:Array,
   },
   data() {
     return {
       validated: false,
     }
   },
-
+  watch: {
+    syncTabs() {
+      if (this.basisData && this.syncTabs && this.syncTabs.includes(this.basisData.id)) {
+        // 标示接口在其他地方更新过，当前页面需要同步
+        let url = "/api/definition/get/";
+        this.$get(url + this.basisData.id, response => {
+          if (response.data) {
+            let request = JSON.parse(response.data.request);
+            let index = this.syncTabs.findIndex(item => {
+              if (item === this.basisData.id) {
+                return true;
+              }
+            })
+            this.syncTabs.splice(index, 1);
+            Object.assign(this.request, request);
+          }
+        });
+      }
+    }
+  },
   methods: {
     callback() {
       this.validated = true;

@@ -57,7 +57,7 @@
 
           <!-- 添加/编辑测试窗口-->
           <div v-else-if="item.type=== 'ADD'" class="ms-api-div">
-            <ms-api-config @runTest="runTest" @saveApi="saveApi" @createRootModel="createRootModel" ref="apiConfig"
+            <ms-api-config :syncTabs="syncTabs" @runTest="runTest" @saveApi="saveApi" @createRootModel="createRootModel" ref="apiConfig"
                            :current-api="item.api"
                            :currentProtocol="currentProtocol"
                            :moduleOptions="moduleOptions"/>
@@ -76,13 +76,13 @@
 
           <!-- 测试-->
           <div v-else-if="item.type=== 'TEST'" class="ms-api-div">
-            <ms-run-test-http-page :currentProtocol="currentProtocol" :api-data="item.api" @saveAsApi="editApi"
+            <ms-run-test-http-page :syncTabs="syncTabs" :currentProtocol="currentProtocol" :api-data="item.api" @saveAsApi="editApi"
                                    @refresh="refresh" v-if="currentProtocol==='HTTP'"/>
-            <ms-run-test-tcp-page :currentProtocol="currentProtocol" :api-data="item.api" @saveAsApi="editApi"
+            <ms-run-test-tcp-page :syncTabs="syncTabs" :currentProtocol="currentProtocol" :api-data="item.api" @saveAsApi="editApi"
                                   @refresh="refresh" v-if="currentProtocol==='TCP'"/>
-            <ms-run-test-sql-page :currentProtocol="currentProtocol" :api-data="item.api" @saveAsApi="editApi"
+            <ms-run-test-sql-page :syncTabs="syncTabs" :currentProtocol="currentProtocol" :api-data="item.api" @saveAsApi="editApi"
                                   @refresh="refresh" v-if="currentProtocol==='SQL'"/>
-            <ms-run-test-dubbo-page :currentProtocol="currentProtocol" :api-data="item.api" @saveAsApi="editApi"
+            <ms-run-test-dubbo-page :syncTabs="syncTabs" :currentProtocol="currentProtocol" :api-data="item.api" @saveAsApi="editApi"
                                     @refresh="refresh" v-if="currentProtocol==='DUBBO'"/>
           </div>
         </el-tab-pane>
@@ -184,7 +184,8 @@
           type: "list",
           closable: false
         }],
-        isApiListEnable: true
+        isApiListEnable: true,
+        syncTabs: [],
       }
     },
     watch: {
@@ -208,7 +209,7 @@
       },
       addTab(tab) {
         if (tab.name === 'add') {
-          this.handleCommand("ADD");
+          this.handleTabsEdit(this.$t('api_test.definition.request.fast_debug'), "debug");
         }
       },
       handleCommand(e) {

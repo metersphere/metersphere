@@ -922,12 +922,15 @@ export default {
         table_coloum: {
           index: "序號",
           scenario: "場景名稱",
+          task_type: "任務類型",
           run_rule: "運行規則",
           task_status: "任務狀態",
           next_execution_time: "下次執行時間",
           create_user: "創建人",
           update_time: "更新時間",
         },
+        scenario_schedule: "場景",
+        test_plan_schedule: "測試計畫",
         confirm: {
           close_title: "要關閉這條定時任務嗎？",
         }
@@ -1045,9 +1048,9 @@ export default {
       batch_operate: '批量操作',
       please_select_attr: '請選擇屬性',
       please_select_attr_value: '請選擇屬性對應的值',
-      batch_edit_case: '批量編輯用例',
-      batch_move_case: '批量移動用例',
-      batch_delete_case: '批量刪除用例',
+      batch_edit_case: '批量編輯',
+      batch_move_case: '批量移動',
+      batch_delete_case: '批量刪除',
       batch_unlink: '批量取消關聯',
       project_name: '所屬項目',
       status: '評審狀態',

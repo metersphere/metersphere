@@ -46,7 +46,7 @@
       <json-schema-editor :value="{items:pickValue.items}" :deep="deep+1" disabled isItem :root="false" class="children" :lang="lang" :custom="custom"/>
     </template>
     <!-- 高级设置-->
-    <el-dialog :close-on-click-modal="false" :title="$t('schema.adv_setting')" :visible.sync="modalVisible" :destroy-on-close="true"
+    <el-dialog append-to-body :close-on-click-modal="false" :title="$t('schema.adv_setting')" :visible.sync="modalVisible" :destroy-on-close="true"
                @close="handleClose">
       <p class="tip">基础设置 </p>
       <el-form :inline="true" v-model="advancedValue" class="ms-advanced-search-form">

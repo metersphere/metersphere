@@ -101,6 +101,12 @@ public class ApiAutomationController {
         return apiAutomationService.run(request);
     }
 
+    @PostMapping("/batch/edit")
+    @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
+    public void bathEdit(@RequestBody SaveApiScenarioRequest request) {
+        apiAutomationService.bathEdit(request);
+    }
+
     @PostMapping("/getReference")
     public ReferenceDTO getReference(@RequestBody ApiScenarioRequest request) {
         return apiAutomationService.getReference(request);

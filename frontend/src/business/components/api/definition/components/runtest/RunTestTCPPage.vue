@@ -2,33 +2,42 @@
 
   <div class="card-container">
     <el-card class="card-content" v-loading="loading">
-      <!-- 操作按钮 -->
-      <el-dropdown split-button type="primary" class="ms-api-buttion" @click="handleCommand('add')"
-                   @command="handleCommand" size="small" style="float: right;margin-right: 20px">
-        {{$t('commons.test')}}
-        <el-dropdown-menu slot="dropdown">
-          <el-dropdown-item command="load_case">{{$t('api_test.definition.request.load_case')}}
-          </el-dropdown-item>
-          <el-dropdown-item command="save_as_case">{{$t('api_test.definition.request.save_as_case')}}
-          </el-dropdown-item>
-          <el-dropdown-item command="update_api">{{$t('api_test.definition.request.update_api')}}</el-dropdown-item>
-          <el-dropdown-item command="save_as_api">{{$t('api_test.definition.request.save_as')}}</el-dropdown-item>
-        </el-dropdown-menu>
-      </el-dropdown>
 
-      <p class="tip">{{$t('test_track.plan_view.base_info')}} </p>
-      <!-- 执行环境 -->
-      {{$t('api_test.definition.request.run_env')}}：
-      <environment-select :type="'TCP'" :current-data="api" :project-id="projectId"/>
+      <el-form :model="api" :rules="rules" ref="apiData" :inline="true" label-position="right">
 
-      <p class="tip">{{$t('api_test.definition.request.req_param')}} </p>
-      <!-- TCP 请求参数 -->
-      <ms-basis-parameters :request="api.request" @callback="runTest" ref="requestForm"/>
+        <!-- 操作按钮 -->
+        <el-dropdown split-button type="primary" class="ms-api-buttion" @click="handleCommand('add')"
+                     @command="handleCommand" size="small" style="float: right;margin-right: 20px">
+          {{$t('commons.test')}}
+          <el-dropdown-menu slot="dropdown">
+            <el-dropdown-item command="load_case">{{$t('api_test.definition.request.load_case')}}
+            </el-dropdown-item>
+            <el-dropdown-item command="save_as_case">{{$t('api_test.definition.request.save_as_case')}}
+            </el-dropdown-item>
+            <el-dropdown-item command="update_api">{{$t('api_test.definition.request.update_api')}}</el-dropdown-item>
+            <el-dropdown-item command="save_as_api">{{$t('api_test.definition.request.save_as')}}</el-dropdown-item>
+          </el-dropdown-menu>
+        </el-dropdown>
+
+        <p class="tip">{{$t('test_track.plan_view.base_info')}} </p>
+        <!-- 执行环境 -->
+        <el-form-item prop="environmentId">
+          {{$t('api_test.definition.request.run_env')}}：
+          <environment-select :type="'TCP'" :current-data="api" :project-id="projectId"/>
+        </el-form-item>
+
+        <p class="tip">{{$t('api_test.definition.request.req_param')}} </p>
+        <!-- TCP 请求参数 -->
+        <ms-basis-parameters :request="api.request" @callback="runTest" ref="requestForm"/>
+
+      </el-form>
 
       <!--返回结果-->
       <!-- HTTP 请求返回数据 -->
       <p class="tip">{{$t('api_test.definition.request.res_param')}} </p>
       <ms-request-result-tail :response="responseData" ref="runResult"/>
+
+      <ms-jmx-step :request="api.request" :response="responseData"/>
 
     </el-card>
 
@@ -55,10 +64,12 @@
   import MsBasisParameters from "../request/tcp/TcpBasisParameters";
   import {REQ_METHOD} from "../../model/JsonData";
   import EnvironmentSelect from "../environment/EnvironmentSelect";
+  import MsJmxStep from "../step/JmxStep";
 
   export default {
     name: "RunTestTCPPage",
     components: {
+      MsJmxStep,
       EnvironmentSelect,
       MsApiRequestForm,
       MsApiCaseList,
@@ -81,8 +92,6 @@
         refreshSign: "",
         createCase: "",
         rules: {
-          method: [{required: true, message: this.$t('test_track.case.input_maintainer'), trigger: 'change'}],
-          url: [{required: true, message: this.$t('api_test.definition.request.path_info'), trigger: 'blur'}],
           environmentId: [{required: true, message: this.$t('api_test.definition.request.run_env'), trigger: 'change'}],
         },
         runData: [],
@@ -90,7 +99,7 @@
         projectId: ""
       }
     },
-    props: {apiData: {}, currentProtocol: String,},
+    props: {apiData: {}, currentProtocol: String,syncTabs: Array},
     methods: {
       handleCommand(e) {
         switch (e) {
@@ -110,13 +119,17 @@
         this.$emit('refresh');
       },
       runTest() {
-        this.loading = true;
-        this.api.request.name = this.api.id;
-        this.api.protocol = this.currentProtocol;
-        this.runData = [];
-        this.runData.push(this.api.request);
-        /*触发执行操作*/
-        this.reportId = getUUID().substring(0, 8);
+        this.$refs['apiData'].validate((valid) => {
+          if (valid) {
+            this.loading = true;
+            this.api.request.name = this.api.id;
+            this.api.protocol = this.currentProtocol;
+            this.runData = [];
+            this.runData.push(this.api.request);
+            /*触发执行操作*/
+            this.reportId = getUUID().substring(0, 8);
+          }
+        })
       },
       runRefresh(data) {
         this.responseData = data;
@@ -173,6 +186,9 @@
         let bodyFiles = this.getBodyUploadFiles();
         this.$fileUpload(url, null, bodyFiles, this.api, () => {
           this.$success(this.$t('commons.save_success'));
+          if (this.syncTabs.indexOf(this.api.id) === -1) {
+            this.syncTabs.push(this.api.id);
+          }
           this.$emit('saveApi', this.api);
         });
       },
@@ -194,7 +210,8 @@
       }
     },
     created() {
-      this.api = this.apiData;
+      // 深度复制
+      this.api = JSON.parse(JSON.stringify(this.apiData));
       this.api.protocol = this.currentProtocol;
       this.currentRequest = this.api.request;
       this.projectId = getCurrentProjectID();

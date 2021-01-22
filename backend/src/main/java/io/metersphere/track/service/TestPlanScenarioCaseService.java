@@ -22,9 +22,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -51,11 +49,12 @@ public class TestPlanScenarioCaseService {
     }
 
     public List<ApiScenarioDTO> relevanceList(ApiScenarioRequest request) {
-        List<String> ids = apiAutomationService.selectIdsNotExistsInPlan(request.getProjectId(), request.getPlanId());
-        if (CollectionUtils.isEmpty(ids)) {
-            return new ArrayList<>();
-        }
-        request.setIds(ids);
+//        List<String> ids = apiAutomationService.selectIdsNotExistsInPlan(request.getProjectId(), request.getPlanId());
+//        if (CollectionUtils.isEmpty(ids)) {
+//            return new ArrayList<>();
+//        }
+//        request.setIds(ids);
+        request.setNotInTestPlan(true);
         return apiAutomationService.list(request);
     }
 
@@ -88,11 +87,17 @@ public class TestPlanScenarioCaseService {
     public String run(RunScenarioRequest request) {
         TestPlanApiScenarioExample example = new TestPlanApiScenarioExample();
         example.createCriteria().andIdIn(request.getPlanCaseIds());
-        List<String> scenarioIds = testPlanApiScenarioMapper.selectByExample(example).stream()
-                .map(TestPlanApiScenario::getApiScenarioId)
-                .collect(Collectors.toList());
-        scenarioIds.addAll(scenarioIds);
+        List<TestPlanApiScenario> testPlanApiScenarioList = testPlanApiScenarioMapper.selectByExample(example);
+
+        List<String> scenarioIds = new ArrayList<>();
+        Map<String,String> scenarioIdApiScarionMap = new HashMap<>();
+        for (TestPlanApiScenario apiScenario:
+                testPlanApiScenarioList) {
+            scenarioIds.add(apiScenario.getApiScenarioId());
+            scenarioIdApiScarionMap.put(apiScenario.getApiScenarioId(),apiScenario.getId());
+        }
         request.setScenarioIds(scenarioIds);
+        request.setScenarioTestPlanIdMap(scenarioIdApiScarionMap);
         request.setRunMode(ApiRunMode.SCENARIO_PLAN.name());
         return apiAutomationService.run(request);
     }
@@ -119,5 +124,17 @@ public class TestPlanScenarioCaseService {
         request.setIds(extTestPlanScenarioCaseMapper.getNotRelevanceCaseIds(planId, relevanceProjectIds));
         request.setPlanId(planId);
         deleteApiCaseBath(request);
+    }
+
+    public void bathDeleteByScenarioIds(List<String> ids) {
+        TestPlanApiScenarioExample example = new TestPlanApiScenarioExample();
+        example.createCriteria().andApiScenarioIdIn(ids);
+        testPlanApiScenarioMapper.deleteByExample(example);
+    }
+
+    public void deleteByScenarioId(String id) {
+        TestPlanApiScenarioExample example = new TestPlanApiScenarioExample();
+        example.createCriteria().andApiScenarioIdEqualTo(id);
+        testPlanApiScenarioMapper.deleteByExample(example);
     }
 }

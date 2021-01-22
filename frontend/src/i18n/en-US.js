@@ -921,12 +921,15 @@ export default {
         table_coloum: {
           index: "Index",
           scenario: "Scene",
+          task_type: "Task Type",
           run_rule: "Rule",
           task_status: "Status",
           next_execution_time: "Next Execution Time",
           create_user: "Creator",
           update_time: "Update time",
         },
+        scenario_schedule: "Scenario",
+        test_plan_schedule: "Test plan",
         confirm: {
           close_title: "Do you want to close this scheduled task？",
         }
@@ -1044,7 +1047,7 @@ export default {
       batch_operate: 'Batch operation',
       please_select_attr: 'Please select attributes',
       please_select_attr_value: 'Please select the value corresponding to the attribute',
-      batch_edit_case: 'Batch editing test cases',
+      batch_edit_case: 'Batch editing',
       batch_move_case: 'Batch move',
       batch_delete_case: 'Batch delete',
       batch_unlink: 'Batch Unlink',

@@ -924,12 +924,15 @@ export default {
         table_coloum: {
           index: "序号",
           scenario: "场景名称",
+          task_type: "任务类型",
           run_rule: "运行规则",
           task_status: "任务状态",
           next_execution_time: "下次执行时间",
           create_user: "创建人",
           update_time: "更新时间",
         },
+        scenario_schedule: "场景",
+        test_plan_schedule: "测试计划",
         confirm: {
           close_title: "要关闭这条定时任务吗？",
         }
@@ -1047,9 +1050,9 @@ export default {
       batch_operate: '批量操作',
       please_select_attr: '请选择属性',
       please_select_attr_value: '请选择属性对应的值',
-      batch_edit_case: '批量编辑用例',
-      batch_move_case: '批量移动用例',
-      batch_delete_case: '批量删除用例',
+      batch_edit_case: '批量编辑',
+      batch_move_case: '批量移动',
+      batch_delete_case: '批量删除',
       batch_unlink: '批量取消关联',
       project_name: '所属项目',
       status: '评审状态',

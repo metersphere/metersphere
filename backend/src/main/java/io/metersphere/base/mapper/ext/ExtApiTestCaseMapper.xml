@@ -145,43 +145,43 @@
     </sql>
     <sql id="combine">
         <if test='${condition}.name != null and (${name} == null or ${name} == "")'>
-            and atc.name
+            and t1.name
             <include refid="condition">
                 <property name="object" value="${condition}.name"/>
             </include>
         </if>
         <if test="${condition}.updateTime != null">
-            and atc.update_time
+            and t1.update_time
             <include refid="condition">
                 <property name="object" value="${condition}.updateTime"/>
             </include>
         </if>
-         <if test="${condition}.createTime != null">
-            and atc.create_time
+        <if test="${condition}.createTime != null">
+            and t1.create_time
             <include refid="condition">
                 <property name="object" value="${condition}.createTime"/>
             </include>
         </if>
         <if test="${condition}.priority != null">
-            and atc.priority
+            and t1.priority
             <include refid="condition">
                 <property name="object" value="${condition}.priority"/>
             </include>
         </if>
         <if test="${condition}.creator != null">
-            and atc.user_id
+            and t1.user_id
             <include refid="condition">
                 <property name="object" value="${condition}.creator"/>
             </include>
         </if>
         <if test="${condition}.tags != null">
-            and atc.tags
+            and t1.tags
             <include refid="condition">
                 <property name="object" value="${condition}.tags"/>
             </include>
         </if>
         <if test="${condition}.status != null">
-            and ader.status
+            and t2.status
             <include refid="condition">
                 <property name="object" value="${condition}.status"/>
             </include>
@@ -190,17 +190,18 @@
     </sql>
     <select id="list" resultType="io.metersphere.api.dto.definition.ApiTestCaseResult">
         SELECT
-            t1.*,
-            t2.STATUS AS execResult,
-            t2.create_time AS execTime,
-            u2.NAME AS createUser,
-            u1.NAME AS updateUser
+        t1.*,
+        t2.STATUS AS execResult,
+        t2.create_time AS execTime,
+        u2.NAME AS createUser,
+        u1.NAME AS updateUser
         FROM
-            api_test_case t1
-            LEFT JOIN api_definition_exec_result t2 ON t1.last_result_id = t2.id
-            LEFT JOIN USER u1 ON t1.update_user_id = u1.id
-            LEFT JOIN USER u2 ON t1.create_user_id = u2.id
-            LEFT JOIN USER u3 ON t2.user_id = u3.id
+        api_test_case t1
+        LEFT JOIN api_definition_exec_result t2 ON t1.last_result_id = t2.id
+        inner join api_definition a on  t1.api_definition_id = a.id
+        LEFT JOIN USER u1 ON t1.update_user_id = u1.id
+        LEFT JOIN USER u2 ON t1.create_user_id = u2.id
+        LEFT JOIN USER u3 ON t2.user_id = u3.id
         <where>
             <if test="request.combine != null">
                 <include refid="combine">
@@ -224,38 +225,42 @@
             <if test="request.apiDefinitionId != null and request.apiDefinitionId!=''">
                 AND t1.api_definition_id = #{request.apiDefinitionId}
             </if>
+            <if test="request.moduleIds != null and request.moduleIds.size() > 0">
+                and a.module_id in
+                <foreach collection="request.moduleIds" item="nodeId" separator="," open="(" close=")">
+                    #{nodeId}
+                </foreach>
+            </if>
         </where>
 
         <if test="request.orders != null and request.orders.size() > 0">
             order by
             <foreach collection="request.orders" separator="," item="order">
                 t1.${order.name} ${order.type}
-             </foreach>
+            </foreach>
         </if>
 
     </select>
 
     <select id="listSimple" resultType="io.metersphere.api.dto.definition.ApiTestCaseDTO">
         select
-          atc.id, atc.project_id, atc.name, atc.api_definition_id, atc.priority, atc.description, atc.create_user_id, atc.update_user_id, atc.create_time, atc.update_time, atc.num,
-          a.module_id, a.path, a.protocol
+        t1.id, t1.project_id, t1.name, t1.api_definition_id, t1.priority, t1.description, t1.create_user_id, t1.update_user_id, t1.create_time, t1.update_time, t1.num,
+        a.module_id, a.path, a.protocol, t1.tags
         from
-          api_test_case atc
-        inner join
-          api_definition a
-        on
-          atc.api_definition_id = a.id
-            <if test="request.protocol != null and request.protocol!=''">
-                and a.protocol = #{request.protocol}
-            </if>
-            <choose>
-                <when test="request.status == 'Trash'">
-                    and a.status = 'Trash'
-                </when>
-                <otherwise>
-                    and a.status != 'Trash'
-                </otherwise>
-            </choose>
+        api_test_case t1
+        LEFT JOIN api_definition_exec_result t2 ON t1.last_result_id = t2.id
+        inner join api_definition a on  t1.api_definition_id = a.id
+        <if test="request.protocol != null and request.protocol!=''">
+            and a.protocol = #{request.protocol}
+        </if>
+        <choose>
+            <when test="request.status == 'Trash'">
+                and a.status = 'Trash'
+            </when>
+            <otherwise>
+                and a.status != 'Trash'
+            </otherwise>
+        </choose>
         <where>
             <if test="request.combine != null">
                 <include refid="combine">
@@ -264,25 +269,25 @@
                 </include>
             </if>
             <if test="request.projectId != null and request.projectId!=''">
-                and atc.project_id = #{request.projectId}
+                and t1.project_id = #{request.projectId}
             </if>
             <if test="request.id != null and request.id!=''">
-                and atc.id = #{request.id}
+                and t1.id = #{request.id}
             </if>
             <if test="request.ids != null and request.ids.size() > 0">
                 <if test="request.projectId != null and request.projectId!=''">
                     and
                 </if>
-                atc.id in
+                t1.id in
                 <foreach collection="request.ids" item="caseId" separator="," open="(" close=")">
                     #{caseId}
                 </foreach>
             </if>
             <if test="request.name != null and request.name!=''">
-                and atc.name like CONCAT('%', #{request.name},'%')
+                and (t1.name like CONCAT('%', #{request.name},'%') or t1.tags like CONCAT('%', #{request.name},'%'))
             </if>
             <if test="request.createTime > 0">
-                and atc.create_time >= #{request.createTime}
+                and t1.create_time >= #{request.createTime}
             </if>
             <if test="request.moduleIds != null and request.moduleIds.size() > 0">
                 and a.module_id in
@@ -295,7 +300,7 @@
                     <if test="values != null and values.size() > 0">
                         <choose>
                             <when test="key == 'priority'">
-                                and atc.priority in
+                                and t1.priority in
                                 <foreach collection="values" item="value" separator="," open="(" close=")">
                                     #{value}
                                 </foreach>

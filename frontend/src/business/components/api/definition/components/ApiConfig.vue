@@ -3,16 +3,16 @@
   <div class="card-container">
     <!-- HTTP 请求参数 -->
     <ms-edit-complete-http-api @runTest="runTest" @saveApi="saveApi" @createRootModelInTree="createRootModelInTree" :request="request" :response="response"
-                               :basisData="currentApi" :moduleOptions="moduleOptions" v-if="currentProtocol === 'HTTP'"/>
+                               :basisData="currentApi" :moduleOptions="moduleOptions" :syncTabs="syncTabs" v-if="currentProtocol === 'HTTP'"/>
     <!-- TCP -->
     <ms-edit-complete-tcp-api :request="request" @runTest="runTest" @createRootModelInTree="createRootModelInTree" @saveApi="saveApi" :basisData="currentApi"
-                              :moduleOptions="moduleOptions" v-if="currentProtocol === 'TCP'"/>
+                              :moduleOptions="moduleOptions" :syncTabs="syncTabs" v-if="currentProtocol === 'TCP'"/>
     <!--DUBBO-->
     <ms-edit-complete-dubbo-api :request="request" @runTest="runTest" @createRootModelInTree="createRootModelInTree" @saveApi="saveApi" :basisData="currentApi"
-                                :moduleOptions="moduleOptions" v-if="currentProtocol === 'DUBBO'"/>
+                                :moduleOptions="moduleOptions" :syncTabs="syncTabs" v-if="currentProtocol === 'DUBBO'"/>
     <!--SQL-->
     <ms-edit-complete-sql-api :request="request" @runTest="runTest" @createRootModelInTree="createRootModelInTree" @saveApi="saveApi" :basisData="currentApi"
-                              :moduleOptions="moduleOptions" v-if="currentProtocol === 'SQL'"/>
+                              :moduleOptions="moduleOptions" :syncTabs="syncTabs" v-if="currentProtocol === 'SQL'"/>
   </div>
 </template>
 
@@ -45,6 +45,7 @@
       currentApi: {},
       moduleOptions: {},
       currentProtocol: String,
+      syncTabs: Array,
     },
     created() {
       this.projectId = getCurrentProjectID();
@@ -75,7 +76,7 @@
           this.$emit('runTest', data);
         })
       },
-      createRootModelInTree(){
+      createRootModelInTree() {
         this.$emit("createRootModel");
       },
       getMaintainerOptions() {
@@ -168,8 +169,25 @@
         let bodyFiles = this.getBodyUploadFiles(data);
         this.$fileUpload(this.reqUrl, null, bodyFiles, data, () => {
           this.$success(this.$t('commons.save_success'));
+          if (this.reqUrl.endsWith('/create')) {
+            this.saveTestCase(data);
+          }
           this.reqUrl = "/api/definition/update";
           this.$emit('saveApi', data);
+        });
+      },
+      saveTestCase(row) {
+        let tmp = {request: JSON.parse(JSON.stringify(row.request))};
+        tmp.projectId = getCurrentProjectID();
+        tmp.active = true;
+        tmp.priority = "P0";
+        tmp.name = row.name;
+        tmp.request.path = row.path;
+        tmp.request.method = row.method;
+        tmp.apiDefinitionId = row.id;
+        let bodyFiles = this.getBodyUploadFiles(tmp);
+        let url = "/api/testcase/create";
+        this.$fileUpload(url, null, bodyFiles, tmp, (response) => {
         });
       },
       setParameters(data) {
@@ -184,6 +202,9 @@
           data.request.protocol = this.currentProtocol;
         }
         data.id = data.request.id;
+        if (!data.method) {
+          data.method = this.currentProtocol;
+        }
         data.response = this.response;
       },
       getBodyUploadFiles(data) {

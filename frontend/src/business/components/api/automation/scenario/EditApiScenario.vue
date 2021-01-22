@@ -71,7 +71,7 @@
           </el-row>
           <el-row>
             <el-col :span="7">
-              <el-form-item label="Tag" prop="tags">
+              <el-form-item :label="$t('api_test.automation.tag')" prop="tags">
                 <ms-input-tag :currentScenario="currentScenario" ref="tag"/>
               </el-form-item>
             </el-col>
@@ -217,7 +217,6 @@
   import MsApiReportDetail from "../report/ApiReportDetail";
   import MsVariableList from "./variable/VariableList";
   import ApiImport from "../../definition/components/import/ApiImport";
-  import InputTag from 'vue-input-tag'
   import "@/common/css/material-icons.css"
   import OutsideClick from "@/common/js/outside-click";
   import ScenarioApiRelevance from "./api/ApiRelevance";
@@ -239,7 +238,6 @@
       MsInputTag, MsRun,
       MsApiCustomize,
       ApiImport,
-      InputTag,
       MsComponentConfig,
     },
     data() {
@@ -616,7 +614,7 @@
         this.$refs.tag.open();
       },
       remove(row, node) {
-        let name = row.name === undefined ? "" : row.name;
+        let name = row === undefined || row.name === undefined ? "" : row.name;
         this.$alert(this.$t('api_test.definition.request.delete_confirm_step') + ' ' + name + " ？", '', {
           confirmButtonText: this.$t('commons.confirm'),
           callback: (action) => {
@@ -697,9 +695,9 @@
         }
       },
 
-      checkDataIsCopy(){
+      checkDataIsCopy() {
         //  如果是复制按钮创建的场景，直接进行保存
-        if(this.currentScenario.copy){
+        if (this.currentScenario.copy) {
           this.editScenario(false);
         }
       },

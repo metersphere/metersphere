@@ -126,6 +126,9 @@
               buildNodePath(node, {path: ''}, moduleOptions);
             });
             this.$emit('setModuleOptions', moduleOptions);
+            if (this.$refs.nodeTree) {
+              this.$refs.nodeTree.filter(this.condition.filterText);
+            }
           }
         });
       },

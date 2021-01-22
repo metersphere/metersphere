@@ -119,6 +119,10 @@
               buildNodePath(node, {path: ''}, moduleOptions);
             });
             this.$emit('setModuleOptions', moduleOptions);
+            this.$emit('setNodeTree', this.data);
+            if (this.$refs.nodeTree) {
+              this.$refs.nodeTree.filter(this.condition.filterText);
+            }
           }
         });
       },
@@ -142,6 +146,7 @@
         }, (error) => {
           this.list();
         });
+
       },
       remove(nodeIds) {
         this.$post("/api/automation/module/delete", nodeIds, () => {
