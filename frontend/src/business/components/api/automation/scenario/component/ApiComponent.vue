@@ -11,11 +11,11 @@
     :title="displayTitle">
 
     <template v-slot:behindHeaderLeft>
-        <el-tag size="mini" style="margin-left: 20px" v-if="request.referenced==='Deleted'" type="danger">{{$t('api_test.automation.reference_deleted')}}</el-tag>
-        <el-tag size="mini" style="margin-left: 20px" v-if="request.referenced==='Copy'">{{ $t('commons.copy') }}</el-tag>
-        <el-tag size="mini" style="margin-left: 20px" v-if="request.referenced ==='REF'">{{ $t('api_test.scenario.reference') }}</el-tag>
-        <ms-run :debug="false" :reportId="reportId" :run-data="runData"
-                @runRefresh="runRefresh" ref="runTest"/>
+      <el-tag size="mini" style="margin-left: 20px" v-if="request.referenced==='Deleted'" type="danger">{{$t('api_test.automation.reference_deleted')}}</el-tag>
+      <el-tag size="mini" style="margin-left: 20px" v-if="request.referenced==='Copy'">{{ $t('commons.copy') }}</el-tag>
+      <el-tag size="mini" style="margin-left: 20px" v-if="request.referenced ==='REF'">{{ $t('api_test.scenario.reference') }}</el-tag>
+      <ms-run :debug="false" :reportId="reportId" :run-data="runData"
+              @runRefresh="runRefresh" ref="runTest"/>
 
     </template>
 
@@ -42,7 +42,7 @@
     <ms-dubbo-basis-parameters :request="request" v-if="request.protocol==='DUBBO' || request.protocol==='dubbo://'|| request.type==='DubboSampler'" :showScript="false"/>
 
     <p class="tip">{{$t('api_test.definition.request.res_param')}} </p>
-    <ms-request-result-tail draggable :currentProtocol="request.protocol" :response="request.requestResult" ref="runResult"/>
+    <api-response-component :result="request.requestResult"/>
 
     <!-- 保存操作 -->
     <el-button type="primary" size="small" style="margin: 20px; float: right" @click="saveTestCase(item)" v-if="!request.referenced">
@@ -62,6 +62,8 @@
   import MsRun from "../../../definition/components/Run";
   import {getUUID} from "@/common/js/utils";
   import ApiBaseComponent from "../common/ApiBaseComponent";
+  import ApiResponseComponent from "./ApiResponseComponent";
+
   export default {
     name: "MsApiComponent",
     props: {
@@ -75,8 +77,9 @@
       currentEnvironmentId: String,
     },
     components: {
-      ApiBaseComponent,
-      MsSqlBasisParameters, MsTcpBasisParameters, MsDubboBasisParameters, MsApiRequestForm, MsRequestResultTail, MsRun},
+      ApiBaseComponent, ApiResponseComponent,
+      MsSqlBasisParameters, MsTcpBasisParameters, MsDubboBasisParameters, MsApiRequestForm, MsRequestResultTail, MsRun
+    },
     data() {
       return {
         loading: false,
@@ -129,31 +132,31 @@
           return this.$t('api_test.automation.api_list_import');
         } else if (this.isExternalImport) {
           return this.$t('api_test.automation.external_import');
-        } else if(this.isCustomizeReq) {
+        } else if (this.isCustomizeReq) {
           return this.$t('api_test.automation.customize_req');
         }
         return "";
       },
       isApiImport() {
-        if (this.request.referenced!=undefined && this.request.referenced==='Deleted' || this.request.referenced=='REF' || this.request.referenced==='Copy') {
+        if (this.request.referenced != undefined && this.request.referenced === 'Deleted' || this.request.referenced == 'REF' || this.request.referenced === 'Copy') {
           return true
         }
         return false;
       },
       isExternalImport() {
-        if (this.request.referenced!=undefined && this.request.referenced==='OT_IMPORT') {
+        if (this.request.referenced != undefined && this.request.referenced === 'OT_IMPORT') {
           return true
         }
         return false;
       },
       isCustomizeReq() {
-        if (this.request.referenced==undefined || this.request.referenced==='Created') {
+        if (this.request.referenced == undefined || this.request.referenced === 'Created') {
           return true
         }
         return false;
       },
       isDeletedOrRef() {
-        if (this.request.referenced!= undefined && this.request.referenced === 'Deleted' || this.request.referenced === 'REF') {
+        if (this.request.referenced != undefined && this.request.referenced === 'Deleted' || this.request.referenced === 'REF') {
           return true
         }
         return false;
@@ -218,6 +221,7 @@
           this.$error(this.$t('api_test.environment.select_environment'));
           return;
         }
+        this.request.active = true;
         this.loading = true;
         this.runData = [];
         this.request.useEnvironment = this.currentEnvironmentId;
@@ -250,9 +254,11 @@
     margin-right: 20px;
     color: #409EFF;
   }
+
   /deep/ .el-card__body {
     padding: 15px;
   }
+
   .tip {
     padding: 3px 5px;
     font-size: 16px;
@@ -260,12 +266,15 @@
     border-left: 4px solid #783887;
     margin: 20px 0;
   }
+
   .name-input {
     width: 30%;
   }
+
   .el-icon-arrow-right {
     margin-right: 5px;
   }
+
   .icon.is-active {
     transform: rotate(90deg);
   }

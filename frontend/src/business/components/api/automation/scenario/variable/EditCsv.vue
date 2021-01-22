@@ -84,6 +84,7 @@
         editFlag: false,
         previewData: [],
         columns: [],
+        allDatas: [],
         rule: {
           name: [
             {required: true, message: this.$t('api_test.variable_name'), trigger: 'blur'},
@@ -97,14 +98,20 @@
           this.$error(results.errors);
           return;
         }
-        if (results.data) {
-          this.columns = results.data[0];
-          this.previewData = results.data;
+        if (this.allDatas) {
+          this.columns = this.allDatas[0];
+          this.allDatas.splice(0, 1);
+          this.previewData = this.allDatas;
         }
         this.loading = false;
       },
+      step(results, parser) {
+        this.allDatas.push(results.data);
+      },
+
       handleClick() {
-        let config = {complete: this.complete};
+        let config = {complete: this.complete, step: this.step};
+        this.allDatas = [];
         // 本地文件
         if (this.editData.files && this.editData.files.length > 0 && this.editData.files[0].file) {
           this.loading = true;

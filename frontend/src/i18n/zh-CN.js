@@ -922,12 +922,15 @@ export default {
         table_coloum: {
           index: "序号",
           scenario: "场景名称",
+          task_type: "任务类型",
           run_rule: "运行规则",
           task_status: "任务状态",
           next_execution_time: "下次执行时间",
           create_user: "创建人",
           update_time: "更新时间",
         },
+        scenario_schedule: "场景",
+        test_plan_schedule: "测试计划",
         confirm: {
           close_title: "要关闭这条定时任务吗？",
         }

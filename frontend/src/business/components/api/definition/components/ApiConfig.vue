@@ -169,8 +169,25 @@
         let bodyFiles = this.getBodyUploadFiles(data);
         this.$fileUpload(this.reqUrl, null, bodyFiles, data, () => {
           this.$success(this.$t('commons.save_success'));
+          if (this.reqUrl.endsWith('/create')) {
+            this.saveTestCase(data);
+          }
           this.reqUrl = "/api/definition/update";
           this.$emit('saveApi', data);
+        });
+      },
+      saveTestCase(row) {
+        let tmp = {request: JSON.parse(JSON.stringify(row.request))};
+        tmp.projectId = getCurrentProjectID();
+        tmp.active = true;
+        tmp.priority = "P0";
+        tmp.name = row.name;
+        tmp.request.path = row.path;
+        tmp.request.method = row.method;
+        tmp.apiDefinitionId = row.id;
+        let bodyFiles = this.getBodyUploadFiles(tmp);
+        let url = "/api/testcase/create";
+        this.$fileUpload(url, null, bodyFiles, tmp, (response) => {
         });
       },
       setParameters(data) {
@@ -185,6 +202,9 @@
           data.request.protocol = this.currentProtocol;
         }
         data.id = data.request.id;
+        if (!data.method) {
+          data.method = this.currentProtocol;
+        }
         data.response = this.response;
       },
       getBodyUploadFiles(data) {

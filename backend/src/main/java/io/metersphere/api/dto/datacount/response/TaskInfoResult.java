@@ -13,8 +13,8 @@ public class TaskInfoResult {
     private int index;
     //任务ID
     private String taskID;
-    //场景名称
-    private String scenario;
+    //任务名称
+    private String name;
     //场景ID
     private String scenarioId;
     //规则

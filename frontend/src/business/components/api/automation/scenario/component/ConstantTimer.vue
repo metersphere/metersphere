@@ -10,7 +10,8 @@
     :title="$t('api_test.automation.wait_controller')">
 
     <template v-slot:headerLeft>
-      <el-input-number class="time-input" size="small" v-model="timer.delay" :min="0" :step="1000"/> ms
+      <el-input-number class="time-input" size="small" v-model="timer.delay" :min="0" :step="1000" ref="nameInput"/>
+      ms
     </template>
 
   </api-base-component>
@@ -18,6 +19,7 @@
 
 <script>
   import ApiBaseComponent from "../common/ApiBaseComponent";
+
   export default {
     name: "MsConstantTimer",
     components: {ApiBaseComponent},
@@ -31,6 +33,11 @@
     },
     data() {
       return {}
+    },
+    created() {
+      this.$nextTick(() => {
+        this.$refs.nameInput.focus();
+      });
     },
     methods: {
       remove() {
