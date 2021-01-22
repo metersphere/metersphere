@@ -12,7 +12,11 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.jmeter.control.*;
+import org.apache.jmeter.control.ForeachController;
+import org.apache.jmeter.control.LoopController;
+import org.apache.jmeter.control.RunTime;
+import org.apache.jmeter.control.WhileController;
+import org.apache.jmeter.modifiers.CounterConfig;
 import org.apache.jmeter.reporters.ResultAction;
 import org.apache.jmeter.save.SaveService;
 import org.apache.jmeter.testelement.TestElement;
@@ -43,8 +47,21 @@ public class MsLoopController extends MsTestElement {
         if (!this.isEnable()) {
             return;
         }
-        final HashTree groupTree = controller(tree);
+        if (StringUtils.equals(this.loopType, LoopConstants.WHILE.name()) && this.whileController != null) {
+            config.setStep("While 循环");
+        }
+        if (StringUtils.equals(this.loopType, LoopConstants.FOREACH.name()) && this.forEachController != null) {
+            config.setStep("ForEach 循环");
+        }
+        if (StringUtils.equals(this.loopType, LoopConstants.LOOP_COUNT.name()) && this.countController != null) {
+            config.setStep("次数循环");
+        }
 
+        config.setStepType("LOOP");
+
+        final HashTree groupTree = controller(tree);
+        // 循环下都增加一个计数器，用于结果统计
+        groupTree.add(addCounterConfig());
         // 不打开执行成功后轮询功能，则成功后就停止循环
         if (StringUtils.equals(this.loopType, LoopConstants.LOOP_COUNT.name()) && this.countController != null && !countController.isProceed()) {
             ResultAction resultAction = new ResultAction();
@@ -63,6 +80,18 @@ public class MsLoopController extends MsTestElement {
                 el.toHashTree(groupTree, el.getHashTree(), config);
             });
         }
+    }
+
+    private CounterConfig addCounterConfig() {
+        CounterConfig counterConfig = new CounterConfig();
+        counterConfig.setVarName("LoopCounterConfigXXX");
+        counterConfig.setName("LoopCounterConfigXXX");
+        counterConfig.setEnabled(true);
+        counterConfig.setProperty(TestElement.TEST_CLASS, CounterConfig.class.getName());
+        counterConfig.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("CounterConfigGui"));
+        counterConfig.setStart(1L);
+        counterConfig.setIncrement(1L);
+        return counterConfig;
     }
 
     private LoopController loopController() {

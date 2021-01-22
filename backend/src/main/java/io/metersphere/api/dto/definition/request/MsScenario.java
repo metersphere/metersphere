@@ -60,7 +60,7 @@ public class MsScenario extends MsTestElement {
             return;
         }
         config.setStep(this.name);
-        config.setStepType("");
+        config.setStepType("SCENARIO");
         config.setEnableCookieShare(enableCookieShare);
         if (StringUtils.isNotEmpty(environmentId)) {
             ApiTestEnvironmentService environmentService = CommonBeanFactory.getBean(ApiTestEnvironmentService.class);

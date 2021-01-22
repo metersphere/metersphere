@@ -99,7 +99,11 @@ public class MsTCPSampler extends MsTestElement {
         TCPSampler tcpSampler = new TCPSampler();
         tcpSampler.setName(this.getName());
         if (config != null && StringUtils.isNotEmpty(config.getStep())) {
-            tcpSampler.setName(this.getName() + "<->" + config.getStep());
+            if ("SCENARIO".equals(config.getStepType())) {
+                tcpSampler.setName(this.getName() + "<->" + config.getStep());
+            } else {
+                tcpSampler.setName(this.getName() + "<->" + config.getStep() + "-" + "${LoopCounterConfigXXX}");
+            }
         }
 
         tcpSampler.setProperty(TestElement.TEST_CLASS, TCPSampler.class.getName());

@@ -78,7 +78,11 @@ public class MsDubboSampler extends MsTestElement {
         DubboSample sampler = new DubboSample();
         sampler.setName(this.getName());
         if (config != null && StringUtils.isNotEmpty(config.getStep())) {
-            sampler.setName(this.getName() + "<->" + config.getStep());
+            if ("SCENARIO".equals(config.getStepType())) {
+                sampler.setName(this.getName() + "<->" + config.getStep());
+            } else {
+                sampler.setName(this.getName() + "<->" + config.getStep() + "-" + "${LoopCounterConfigXXX}");
+            }
         }
         sampler.setProperty(TestElement.TEST_CLASS, DubboSample.class.getName());
         sampler.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("DubboSampleGui"));
