@@ -4,7 +4,9 @@
     :class="[size ? 'el-input-tag--' + size : '']"
     style="height: auto"
     @click="foucusTagInput">
+
     <el-tag
+      class="ms-top"
       v-for="(tag, idx) in innerTags"
       v-bind="$attrs"
       type="info"
@@ -13,7 +15,7 @@
       :closable="!readOnly"
       :disable-transitions="false"
       @close="remove(idx)">
-      {{tag}}
+      {{tag && tag.length>10? tag.substring(0,10)+"...":tag}}
     </el-tag>
     <input
       v-if="!readOnly"
@@ -167,4 +169,5 @@
     height: 36px;
     line-height: 36px;
   }
+
 </style>

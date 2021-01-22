@@ -1028,4 +1028,16 @@
     right: 50px;
     z-index: 1;
   }
+
+  /deep/ .el-tree-node__expand-icon.expanded {
+    color: #7C3985;
+  }
+
+  /deep/ .el-icon-caret-right {
+    color: #7C3985;
+  }
+
+  /deep/ .is-leaf {
+    color: transparent;
+  }
 </style>
