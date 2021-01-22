@@ -15,7 +15,7 @@
           </div>
           <div class="form">
             <el-form-item v-slot:default>
-              <el-radio-group v-model="form.authenticate">
+              <el-radio-group v-model="form.authenticate" @change="redirectAuth(form.authenticate)">
                 <el-radio label="LDAP" size="mini" v-if="openLdap">LDAP</el-radio>
                 <el-radio label="LOCAL" size="mini" v-if="openLdap">普通登录</el-radio>
                 <el-radio :label="auth.id" size="mini" v-for="auth in authSources" :key="auth.id">{{ auth.type }} {{ auth.name }}</el-radio>
@@ -172,6 +172,27 @@ export default {
       } else {
         window.location.href = "/"
       }
+    },
+    redirectAuth(authId) {
+      if (authId === 'LDAP' || authId === 'LOCAL') {
+        return;
+      }
+      let source = this.authSources.filter(auth => auth.id === authId)[0];
+      if (source.type === 'CAS') {
+        return;
+      }
+      this.$confirm(this.$t('即将跳转到认证源页面进行认证'), '', {
+        confirmButtonText: this.$t('commons.confirm'),
+        cancelButtonText: this.$t('commons.cancel'),
+        type: 'warning'
+      }).then(() => {
+        let config = JSON.parse(source.configuration);
+        let url = config.authUrl + "/auth?client_id=" + config.clientId + "&redirect_uri=" + config.redirectUrl +
+          "&response_type=code&scope=openid+profile+email+offline_access&state=" + authId;
+        window.location.href = url;
+      }).catch(() => {
+        this.form.authenticate = 'LOCAL';
+      });
     }
   }
 }
