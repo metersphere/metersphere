@@ -22,6 +22,8 @@ public class QueryTestCaseRequest extends TestCase {
 
     private Map<String, List<String>> filters;
 
+    private List<String> selectFields;
+
     private String planId;
 
     private String workspaceId;

@@ -676,4 +676,19 @@ public class TestCaseService {
         editTestCase(request);
         return request.getId();
     }
+
+    public List<TestCaseDTO> listTestCaseIds(QueryTestCaseRequest request) {
+        List<OrderRequest> orderList = ServiceUtils.getDefaultOrder(request.getOrders());
+        OrderRequest order = new OrderRequest();
+        // 对模板导入的测试用例排序
+        order.setName("sort");
+        order.setType("desc");
+        orderList.add(order);
+        request.setOrders(orderList);
+        List<String> selectFields = new ArrayList<>();
+        selectFields.add("id");
+        selectFields.add("name");
+        request.setSelectFields(selectFields);
+        return extTestCaseMapper.list(request);
+    }
 }

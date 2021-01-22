@@ -14,10 +14,12 @@ import io.metersphere.excel.domain.ExcelResponse;
 import io.metersphere.service.CheckPermissionService;
 import io.metersphere.service.FileService;
 import io.metersphere.track.dto.TestCaseDTO;
+import io.metersphere.track.dto.TestPlanCaseDTO;
 import io.metersphere.track.request.testcase.EditTestCaseRequest;
 import io.metersphere.track.request.testcase.QueryTestCaseRequest;
 import io.metersphere.track.request.testcase.TestCaseBatchRequest;
 import io.metersphere.track.request.testplan.FileOperationRequest;
+import io.metersphere.track.request.testplancase.QueryTestPlanCaseRequest;
 import io.metersphere.track.service.TestCaseService;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
@@ -63,6 +65,11 @@ public class TestCaseController {
         QueryTestCaseRequest request = new QueryTestCaseRequest();
         request.setProjectId(projectId);
         return testCaseService.listTestCaseMthod(request);
+    }
+
+    @PostMapping("/list/ids")
+    public List<TestCaseDTO> getTestPlanCaseIds(@RequestBody QueryTestCaseRequest request) {
+        return testCaseService.listTestCaseIds(request);
     }
 
 

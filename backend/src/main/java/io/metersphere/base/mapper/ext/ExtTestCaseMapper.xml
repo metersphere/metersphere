@@ -268,7 +268,14 @@
 
     <select id="list" resultType="io.metersphere.track.dto.TestCaseDTO">
         select
-        <include refid="io.metersphere.base.mapper.TestCaseMapper.Base_Column_List"/>
+        <if test="request.selectFields != null and request.selectFields.size() > 0">
+            <foreach collection="request.selectFields" item="field" separator=",">
+                ${field}
+            </foreach>
+        </if>
+        <if test="request.selectFields == null or request.selectFields.size() == 0">
+            <include refid="io.metersphere.base.mapper.TestCaseMapper.Base_Column_List"/>
+        </if>
         from test_case
         <where>
             <if test="request.combine != null">
