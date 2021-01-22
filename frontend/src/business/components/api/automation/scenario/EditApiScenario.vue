@@ -72,7 +72,7 @@
           </el-row>
           <el-row>
             <el-col :span="7">
-              <el-form-item :label="$t('api_test.automation.tag')"  prop="tags">
+              <el-form-item :label="$t('api_test.automation.tag')" prop="tags">
                 <ms-input-tag :currentScenario="currentScenario" ref="tag"/>
               </el-form-item>
             </el-col>
@@ -615,7 +615,7 @@
         this.$refs.tag.open();
       },
       remove(row, node) {
-        let name = row.name === undefined ? "" : row.name;
+        let name = row === undefined || row.name === undefined ? "" : row.name;
         this.$alert(this.$t('api_test.definition.request.delete_confirm_step') + ' ' + name + " ？", '', {
           confirmButtonText: this.$t('commons.confirm'),
           callback: (action) => {
@@ -696,9 +696,9 @@
         }
       },
 
-      checkDataIsCopy(){
+      checkDataIsCopy() {
         //  如果是复制按钮创建的场景，直接进行保存
-        if(this.currentScenario.copy){
+        if (this.currentScenario.copy) {
           this.editScenario(false);
         }
       },
