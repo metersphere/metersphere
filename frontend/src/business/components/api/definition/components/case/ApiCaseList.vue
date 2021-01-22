@@ -184,7 +184,7 @@
             this.$set(item, 'selected', false);
           })
         }
-        this.$success(this.$t('schedule.event_success'));
+        this.$success(this.$t('organization.integration.successful_operation'));
         this.refresh();
       },
 
