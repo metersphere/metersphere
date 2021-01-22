@@ -24,7 +24,7 @@
   export default {
     name: "ApiResponseComponent",
     components: {ElCollapseTransition, MsRequestResultTail, ApiBaseComponent, MsRequestMetric},
-    props: ['apiItem'],
+    props: {apiItem: {}, result: {}},
     data() {
       return {
         isActive: false,
@@ -32,8 +32,13 @@
       }
     },
     created() {
-      this.getExecResult();
-      if (this.apiItem.isActive) {
+      if (!this.result) {
+        this.getExecResult();
+        if (this.apiItem.isActive) {
+          this.isActive = true;
+        }
+      } else {
+        this.response = this.result;
         this.isActive = true;
       }
     },
