@@ -1,5 +1,7 @@
 export default {
   commons: {
+    import_mode: 'Import mode',
+    import_module: 'Import module',
     please_fill_in_the_template: 'Please fill in the template',
     cut_back_old_version: 'Cut back to old version',
     cut_back_new_version: 'Switch back to new version',

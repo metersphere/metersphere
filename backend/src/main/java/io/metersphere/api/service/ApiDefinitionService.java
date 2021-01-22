@@ -604,6 +604,10 @@ public class ApiDefinitionService {
         this.addOrUpdateSwaggerImportCronJob(request);
 
     }
+    public void updateSchedule(Schedule request){
+        scheduleService.editSchedule(request);
+        this.addOrUpdateSwaggerImportCronJob(request);
+    }
 
     private void addOrUpdateSwaggerImportCronJob(Schedule request) {
         scheduleService.addOrUpdateCronJob(request, SwaggerUrlImportJob.getJobKey(request.getResourceId()), SwaggerUrlImportJob.getTriggerKey(request.getResourceId()), SwaggerUrlImportJob.class);

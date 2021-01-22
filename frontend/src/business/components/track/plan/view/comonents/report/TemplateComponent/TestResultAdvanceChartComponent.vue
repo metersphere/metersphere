@@ -119,7 +119,7 @@
           this.functionalCharData = [];
           if (this.executeResult.functionalResult) {
             this.executeResult.functionalResult.forEach(item => {
-              let data = this.dataMap.get(item.status);
+              let data = this.copyData(item.status);
               data.value = item.count;
               this.functionalCharData.push(data);
             });
@@ -129,7 +129,7 @@
           this.apiCharData = [];
           if (this.executeResult.apiResult) {
             this.executeResult.apiResult.forEach(item => {
-              let data = this.dataMap.get(item.status);
+              let data = this.copyData(item.status);
               data.value = item.count;
               this.apiCharData.push(data);
             });
@@ -139,7 +139,7 @@
           this.scenarioCharData = [];
           if (this.executeResult.apiResult) {
             this.executeResult.scenarioResult.forEach(item => {
-              let data = this.dataMap.get(item.status);
+              let data = this.copyData(item.status);
               data.value = item.count;
               this.scenarioCharData.push(data);
             });
@@ -149,11 +149,14 @@
           this.loadCharData = [];
           if (this.executeResult.loadResult) {
             this.executeResult.loadResult.forEach(item => {
-              let data = this.dataMap.get(item.status);
+              let data = this.copyData(item.status);
               data.value = item.count;
               this.loadCharData.push(data);
             });
           }
+        },
+        copyData(status) {
+          return JSON.parse(JSON.stringify(this.dataMap.get(status)))
         },
         reload() {
           this.isShow = false;

@@ -144,6 +144,10 @@ public class ApiDefinitionController {
     public void createSchedule(@RequestBody Schedule request) {
         apiDefinitionService.createSchedule(request);
     }
+    @PostMapping(value = "/schedule/update")
+    public void updateSchedule(@RequestBody Schedule request){
+        apiDefinitionService.updateSchedule(request);
+    }
 
     @PostMapping("/getReference")
     public ReferenceDTO getReference(@RequestBody ApiScenarioRequest request) {

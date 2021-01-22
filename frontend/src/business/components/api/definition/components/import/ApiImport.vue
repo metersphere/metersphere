@@ -19,43 +19,60 @@
     </div>
 
     <el-form :model="formData" :rules="rules" label-width="100px" v-loading="result.loading" ref="form">
+      <el-row>
+        <el-col :span="9">
+          <el-form-item :label="$t('commons.import_module')"
+                        v-if="selectedPlatformValue != 'Swagger2' || (selectedPlatformValue == 'Swagger2' && !swaggerUrlEable)">
+            <el-select size="small" v-model="formData.moduleId" class="project-select" clearable>
+              <el-option v-for="item in moduleOptions" :key="item.id" :label="item.path" :value="item.id"/>
+            </el-select>
+          </el-form-item>
+          <el-form-item :label="$t('commons.import_mode')"
+                        v-if="selectedPlatformValue != 'Swagger2' || (selectedPlatformValue == 'Swagger2' && !swaggerUrlEable)">
+            <el-select size="small" v-model="formData.modeId" class="project-select" clearable>
+              <el-option v-for="item in modeOptions" :key="item.id" :label="item.name" :value="item.id"/>
+            </el-select>
+          </el-form-item>
+        </el-col>
+        <el-col :span="10" style="margin-left: 20px">
+          <el-upload
+            v-if="selectedPlatformValue != 'Swagger2' || (selectedPlatformValue == 'Swagger2' && !swaggerUrlEable)"
+            class="api-upload"
+            drag
+            action=""
+            :http-request="upload"
+            :limit="1"
+            :beforeUpload="uploadValidate"
+            :on-remove="handleRemove"
+            :file-list="fileList"
+            :on-exceed="handleExceed"
+            multiple>
+            <i class="el-icon-upload"></i>
+            <div class="el-upload__text" v-html="$t('load_test.upload_tips')"></div>
+            <div class="el-upload__tip" slot="tip">{{ $t('api_test.api_import.file_size_limit') }}</div>
+          </el-upload>
+        </el-col>
 
-      <el-upload
-        v-if="selectedPlatformValue != 'Swagger2' || (selectedPlatformValue == 'Swagger2' && !swaggerUrlEable)"
-        class="api-upload"
-        drag
-        action=""
-        :http-request="upload"
-        :limit="1"
-        :beforeUpload="uploadValidate"
-        :on-remove="handleRemove"
-        :file-list="fileList"
-        :on-exceed="handleExceed"
-        multiple>
-        <i class="el-icon-upload"></i>
-        <div class="el-upload__text" v-html="$t('load_test.upload_tips')"></div>
-        <div class="el-upload__tip" slot="tip">{{ $t('api_test.api_import.file_size_limit') }}</div>
-      </el-upload>
+        <el-form-item :label="'Swagger URL'" prop="wgerUrl" v-if="isSwagger2 && swaggerUrlEable" class="swagger-url">
+          <el-input size="small" v-model="formData.swaggerUrl" clearable show-word-limit/>
+        </el-form-item>
+        <el-form-item v-if="isSwagger2" class="swagger-enable" :class="{'swagger-url-disable': !swaggerUrlEable}">
+          <el-switch
+            v-model="swaggerUrlEable"
+            :active-text="$t('api_test.api_import.swagger_url_import')">
+          </el-switch>
+        </el-form-item>
 
-      <el-form-item :label="'Swagger URL'" prop="wgerUrl" v-if="isSwagger2 && swaggerUrlEable" class="swagger-url">
-        <el-input size="small" v-model="formData.swaggerUrl" clearable show-word-limit/>
-      </el-form-item>
+        <el-form-item v-if="isSwagger2 && swaggerUrlEable">
+          <el-switch
+            v-model="swaggerSynchronization"
+            @click.native="scheduleEdit"
+            :active-text="$t('api_test.api_import.timing_synchronization')">
+          </el-switch>
+        </el-form-item>
+        <schedule-import ref="scheduleEdit"></schedule-import>
+      </el-row>
 
-      <el-form-item v-if="isSwagger2" class="swagger-enable" :class="{'swagger-url-disable': !swaggerUrlEable}">
-        <el-switch
-          v-model="swaggerUrlEable"
-          :active-text="$t('api_test.api_import.swagger_url_import')">
-        </el-switch>
-      </el-form-item>
-
-      <el-form-item v-if="isSwagger2 && swaggerUrlEable">
-        <el-switch
-          v-model="swaggerSynchronization"
-          @click.native="scheduleEdit"
-          :active-text="$t('api_test.api_import.timing_synchronization')">
-        </el-switch>
-      </el-form-item>
-      <schedule-import ref="scheduleEdit"></schedule-import>
 
     </el-form>
 
@@ -76,6 +93,8 @@ import MsDialogFooter from "../../../../common/components/MsDialogFooter";
 import {listenGoBack, removeGoBackListener} from "@/common/js/utils";
 import {getCurrentProjectID} from "../../../../../../common/js/utils";
 import ScheduleImport from "@/business/components/api/definition/components/import/ImportScheduleEdit";
+import {buildNodePath} from "@/business/components/api/definition/model/NodeTree";
+
 export default {
   name: "ApiImport",
   components: {ScheduleImport, MsDialogFooter},
@@ -83,14 +102,24 @@ export default {
     saved: {
       type: Boolean,
       default: true,
-    }
+    },
+    moduleOptions: {}
   },
   data() {
     return {
       visible: false,
       swaggerUrlEable: false,
-      swaggerSynchronization:false,
+      swaggerSynchronization: false,
       showEnvironmentSelect: true,
+      modeOptions: [{
+        id: 'fullCoverage',
+        name: '全量覆盖'
+      },
+        {
+          id: 'incrementalMerge',
+          name: '增量合并'
+        }],
+      protocol: "",
       platforms: [
         {
           name: 'Metersphere',
@@ -122,7 +151,9 @@ export default {
       useEnvironment: false,
       formData: {
         file: undefined,
-        swaggerUrl: ''
+        swaggerUrl: '',
+        modeId: '',
+        moduleId: ''
       },
       rules: {},
       currentModule: {},
@@ -148,15 +179,19 @@ export default {
     }
   },
   methods: {
-    scheduleEdit(){
-      if(this.swaggerSynchronization){
-       this.$refs.scheduleEdit.open(this.buildParam());
+    scheduleEdit() {
+      if (this.swaggerSynchronization) {
+        this.$refs.scheduleEdit.open(this.buildParam());
+      } else {
+        this.result = this.$post("/api/definition/schedule/update", this.schedule, response => {
+        });
       }
     },
     open(module) {
       this.currentModule = module;
       this.visible = true;
       listenGoBack(this.close);
+
     },
     upload(file) {
       this.formData.file = file.file;

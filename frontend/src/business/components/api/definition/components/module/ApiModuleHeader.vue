@@ -33,7 +33,7 @@
       @saveAsEdit="saveAsEdit"
       @refresh="refresh"
       ref="basisApi"/>
-    <api-import ref="apiImport" @refresh="$emit('refresh')"/>
+    <api-import ref="apiImport" :moduleOptions="moduleOptions" @refresh="$emit('refresh')"/>
   </div>
 </template>
 
@@ -43,6 +43,7 @@ import MsAddBasisApi from "../basis/AddBasisApi";
 import ApiImport from "../import/ApiImport";
 import ModuleTrashButton from "./ModuleTrashButton";
 import {getCurrentProjectID} from "../../../../../../common/js/utils";
+import {buildNodePath} from "@/business/components/api/definition/model/NodeTree";
 
 export default {
   name: "ApiModuleHeader",
@@ -50,6 +51,7 @@ export default {
   data() {
     return {
       options: OPTIONS,
+      moduleOptions: {}
     }
   },
   props: {
@@ -70,9 +72,10 @@ export default {
       default() {
         return false
       }
-    }
+    },
   },
   methods: {
+
     handleCommand(e) {
       switch (e) {
         case "debug":
@@ -88,6 +91,17 @@ export default {
             this.$warning(this.$t('commons.check_project_tip'));
             return;
           }
+          this.protocol = "HTTP";
+          this.result = this.$get("/api/module/list/" + getCurrentProjectID() + "/" + this.protocol, response => {
+            if (response.data != undefined && response.data != null) {
+              this.data = response.data;
+              let moduleOptions = [];
+              this.data.forEach(node => {
+                buildNodePath(node, {path: ''}, moduleOptions);
+              });
+              this.moduleOptions = moduleOptions
+            }
+          });
           this.$refs.apiImport.open(this.currentModule);
           break;
         default:
