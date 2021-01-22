@@ -314,7 +314,7 @@ public class ApiDefinitionService {
         } else {
             //如果存在则修改
             apiDefinition.setId(sameRequest.get(0).getId());
-            apiDefinitionMapper.updateByPrimaryKey(apiDefinition);
+            apiDefinitionMapper.updateByPrimaryKeyWithBLOBs(apiDefinition);
         }
         return apiDefinition;
     }
