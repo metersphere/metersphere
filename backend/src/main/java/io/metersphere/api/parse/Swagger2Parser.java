@@ -69,7 +69,7 @@ public class Swagger2Parser extends SwaggerAbstractParser {
                 ApiDefinitionResult apiDefinition = buildApiDefinition(request.getId(), operation, pathName, method.name());
                 parseParameters(operation, request);
                 apiDefinition.setRequest(JSON.toJSONString(request));
-                apiDefinition.setResponse(JSON.toJSONString(parseResponse(operation.getResponses())));
+                apiDefinition.setResponse(JSON.toJSONString(parseResponse(operation, operation.getResponses())));
                 buildModule(parentNode, apiDefinition, operation.getTags(), importRequest.isSaved());
                 results.add(apiDefinition);
             }
@@ -163,11 +163,13 @@ public class Swagger2Parser extends SwaggerAbstractParser {
                 "", parameter.getRequired());
     }
 
-    private HttpResponse parseResponse(Map<String, Response> responses) {
+    private HttpResponse parseResponse(Operation operation, Map<String, Response> responses) {
         HttpResponse msResponse = new HttpResponse();
         msResponse.setBody(new Body());
+        msResponse.getBody().setKvs(new ArrayList<>());
         msResponse.setHeaders(new ArrayList<>());
         msResponse.setType(RequestType.HTTP);
+        msResponse.getBody().setType(getBodyType(operation));
         // todo 状态码要调整？
         msResponse.setStatusCode(new ArrayList<>());
         if (responses != null) {
@@ -234,6 +236,15 @@ public class Swagger2Parser extends SwaggerAbstractParser {
                 }
             }
             return propertyList.toString();
+        } else if (schema instanceof ModelImpl) {
+            ModelImpl model = (ModelImpl) schema;
+            if (StringUtils.equals("object", model.getType())) {
+                model.getProperties();
+                if (model != null) {
+                    JSONObject bodyParameters = getBodyParameters(model.getProperties(), new HashSet<>());
+                    return bodyParameters.toJSONString();
+                }
+            }
         }
         return "";
     }
@@ -259,7 +270,12 @@ public class Swagger2Parser extends SwaggerAbstractParser {
                         refSet.add(simpleRef);
                         Model model = this.definitions.get(simpleRef);
                         JSONArray propertyList = new JSONArray();
-                        propertyList.add(getBodyParameters(model.getProperties(), refSet));
+                        if (model != null) {
+                            propertyList.add(getBodyParameters(model.getProperties(), refSet));
+                        } else {
+                            propertyList.add(new JSONObject());
+                        }
+
                         jsonObject.put(key, propertyList);
                     } else {
                         jsonObject.put(key, new ArrayList<>());

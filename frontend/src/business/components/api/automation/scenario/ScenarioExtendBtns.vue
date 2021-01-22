@@ -1,16 +1,19 @@
 <template>
-  <el-dropdown @command="handleCommand" class="scenario-ext-btn">
-    <el-link type="primary" :underline="false">
-      <el-icon class="el-icon-more"></el-icon>
-    </el-link>
-    <el-dropdown-menu slot="dropdown">
-      <el-dropdown-item command="ref">{{ $t('api_test.automation.view_ref') }}</el-dropdown-item>
-      <el-dropdown-item command="schedule" v-tester>{{ $t('api_test.automation.schedule') }}</el-dropdown-item>
-      <el-dropdown-item command="create_performance" v-tester>{{ $t('api_test.create_performance_test') }}</el-dropdown-item>
-    </el-dropdown-menu>
+  <div>
+    <el-dropdown @command="handleCommand" class="scenario-ext-btn">
+      <el-link type="primary" :underline="false">
+        <el-icon class="el-icon-more"></el-icon>
+      </el-link>
+      <el-dropdown-menu slot="dropdown">
+        <el-dropdown-item command="ref">{{ $t('api_test.automation.view_ref') }}</el-dropdown-item>
+        <el-dropdown-item command="schedule" v-tester>{{ $t('api_test.automation.schedule') }}</el-dropdown-item>
+        <el-dropdown-item command="create_performance" v-tester>{{ $t('api_test.create_performance_test') }}</el-dropdown-item>
+      </el-dropdown-menu>
+    </el-dropdown>
     <ms-reference-view ref="viewRef"/>
-    <ms-schedule-maintain ref="scheduleMaintain" @refreshTable="refreshTable" />
-  </el-dropdown>
+    <ms-schedule-maintain ref="scheduleMaintain" @refreshTable="refreshTable"/>
+
+  </div>
 </template>
 
 <script>
@@ -20,7 +23,7 @@
 
   export default {
     name: "MsScenarioExtendButtons",
-    components: { MsReferenceView,MsScheduleMaintain},
+    components: {MsReferenceView, MsScheduleMaintain},
     props: {
       row: Object
     },
@@ -61,7 +64,7 @@
           })
         });
       },
-      refreshTable(){
+      refreshTable() {
 
       }
     }

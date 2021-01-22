@@ -3,7 +3,7 @@
     <el-card class="table-card" v-loading="loading">
       <template v-slot:header>
         <ms-table-header :condition.sync="condition" @search="selectByParam" title=""
-                         :show-create="false" />
+                         :show-create="false"/>
       </template>
 
       <el-table ref="scenarioTable" border :data="tableData" class="adjust-table ms-select-all" @select-all="select" @select="select"
@@ -442,7 +442,8 @@
         return this.selection.includes(row.id)
       },
       edit(row) {
-        this.$emit('edit', row);
+        let data = JSON.parse(JSON.stringify(row));
+        this.$emit('edit', data);
       },
       reductionApi(row) {
         row.scenarioDefinition = null;
@@ -471,7 +472,7 @@
       copy(row) {
         let rowParam = JSON.parse(JSON.stringify(row));
         rowParam.copy = true;
-        rowParam.name = 'copy_'+rowParam.name;
+        rowParam.name = 'copy_' + rowParam.name;
         this.$emit('edit', rowParam);
       },
       showReport(row) {
@@ -538,6 +539,7 @@
   /deep/ .el-drawer__header {
     margin-bottom: 0px;
   }
+
   /deep/ .run-button {
     background-color: #409EFF;
     border-color: #409EFF;

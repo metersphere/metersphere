@@ -20,6 +20,7 @@ public class TestPlanReportDTO {
     private String creator;
     private long createTime;
     private String triggerMode;
+    private String status;
 
     private TestCaseReportAdvanceStatusResultDTO executeResult;
     private List<TestCaseReportModuleResultDTO> moduleExecuteResult;

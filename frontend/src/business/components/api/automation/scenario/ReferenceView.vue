@@ -1,6 +1,6 @@
 <template>
   <el-dialog :close-on-click-modal="false" :title="$t('api_test.automation.scenario_ref')" :visible.sync="visible"
-             width="45%" :destroy-on-close="true">
+             width="45%" :destroy-on-close="true" append-to-body>
     <span>{{ $t('api_test.automation.scenario_ref') }}：</span>
     <div class="refs" v-loading="scenarioLoading">
       <div v-for="(item, index) in scenarioRefs" :key="index" class="el-button--text">{{ item.name }}</div>
@@ -23,41 +23,41 @@
 
 <script>
 
-export default {
-  name: "MsReferenceView",
-  components: {},
-  data() {
-    return {
-      visible: false,
-      scenarioLoading: false,
-      scenarioRefs: [],
-      planRefs: []
-    }
-  },
-  methods: {
-    getReferenceData(row) {
-      this.scenarioLoading = true;
-      this.scenarioRefs = [];
-      this.$post("/api/automation/getReference/", row, response => {
-        this.scenarioRefs = response.data.scenarioList;
-        this.planRefs = response.data.testPlanList;
-        this.scenarioLoading = false;
-      })
+  export default {
+    name: "MsReferenceView",
+    components: {},
+    data() {
+      return {
+        visible: false,
+        scenarioLoading: false,
+        scenarioRefs: [],
+        planRefs: []
+      }
     },
-    open(row) {
-      this.getReferenceData(row);
-      this.visible = true
+    methods: {
+      getReferenceData(row) {
+        this.scenarioLoading = true;
+        this.scenarioRefs = [];
+        this.$post("/api/automation/getReference/", row, response => {
+          this.scenarioRefs = response.data.scenarioList;
+          this.planRefs = response.data.testPlanList;
+          this.scenarioLoading = false;
+        })
+      },
+      open(row) {
+        this.getReferenceData(row);
+        this.visible = true
+      }
     }
   }
-}
 </script>
 
 <style scoped>
-.refs {
-  min-height: 50px;
-  max-height: 200px;
-  overflow-y: auto;
-  font-size: 12px;
-  padding-bottom: 10px;
-}
+  .refs {
+    min-height: 50px;
+    max-height: 200px;
+    overflow-y: auto;
+    font-size: 12px;
+    padding-bottom: 10px;
+  }
 </style>

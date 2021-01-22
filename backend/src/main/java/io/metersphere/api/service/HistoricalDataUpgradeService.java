@@ -185,6 +185,9 @@ public class HistoricalDataUpgradeService {
                     CollectionUtils.isNotEmpty(request.getAssertions().getRegex()) || CollectionUtils.isNotEmpty(request.getAssertions().getXpath2()))) {
                 String assertions = JSON.toJSONString(request.getAssertions());
                 MsAssertions msAssertions = JSON.parseObject(assertions, MsAssertions.class);
+                if (StringUtils.isEmpty(msAssertions.getName())) {
+                    msAssertions.setName("Assertions");
+                }
                 msAssertions.setType("Assertions");
                 msAssertions.setIndex(index + "");
                 msAssertions.setResourceId(UUID.randomUUID().toString());
@@ -196,6 +199,9 @@ public class HistoricalDataUpgradeService {
                     CollectionUtils.isNotEmpty(request.getExtract().getRegex()) || CollectionUtils.isNotEmpty(request.getExtract().getXpath()))) {
                 String extractJson = JSON.toJSONString(request.getExtract());
                 MsExtract extract = JSON.parseObject(extractJson, MsExtract.class);
+                if (StringUtils.isEmpty(extract.getName())) {
+                    extract.setName("Extract");
+                }
                 extract.setType("Extract");
                 extract.setIndex(index + "");
                 extract.setHashTree(new LinkedList<>());
@@ -206,6 +212,9 @@ public class HistoricalDataUpgradeService {
             if (request.getJsr223PreProcessor() != null && StringUtils.isNotEmpty(request.getJsr223PreProcessor().getScript())) {
                 String preJson = JSON.toJSONString(request.getJsr223PreProcessor());
                 MsJSR223PreProcessor preProcessor = JSON.parseObject(preJson, MsJSR223PreProcessor.class);
+                if (StringUtils.isEmpty(preProcessor.getName())) {
+                    preProcessor.setName("JSR223PreProcessor");
+                }
                 preProcessor.setType("JSR223PreProcessor");
                 preProcessor.setIndex(index + "");
                 preProcessor.setHashTree(new LinkedList<>());
@@ -216,6 +225,9 @@ public class HistoricalDataUpgradeService {
             if (request.getJsr223PostProcessor() != null && StringUtils.isNotEmpty(request.getJsr223PostProcessor().getScript())) {
                 String preJson = JSON.toJSONString(request.getJsr223PostProcessor());
                 MsJSR223PostProcessor preProcessor = JSON.parseObject(preJson, MsJSR223PostProcessor.class);
+                if (StringUtils.isEmpty(preProcessor.getName())) {
+                    preProcessor.setName("JSR223PostProcessor");
+                }
                 preProcessor.setType("JSR223PostProcessor");
                 preProcessor.setIndex(index + "");
                 preProcessor.setHashTree(new LinkedList<>());

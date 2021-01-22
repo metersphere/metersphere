@@ -128,13 +128,13 @@
       },
       close() {
         this.visible = false;
+        let saveVariables = [];
         this.variables.forEach(item => {
-          if (item.name === undefined || item.name === "") {
-            const index = this.variables.findIndex(d => d.id === item.id);
-            this.variables.splice(index, 1);
+          if (item.name && item.name != "") {
+            saveVariables.push(item);
           }
         })
-        this.$emit('setVariables', this.variables);
+        this.$emit('setVariables', saveVariables);
       },
       deleteVariable() {
         let ids = Array.from(this.selection);

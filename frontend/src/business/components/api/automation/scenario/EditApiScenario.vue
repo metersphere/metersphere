@@ -91,7 +91,7 @@
       <!-- 场景步骤-->
       <div v-loading="loading">
         <div @click="showAll">
-          <p class="tip">{{ $t('api_test.automation.scenario_stepscenario_step') }} </p>
+          <p class="tip">{{ $t('api_test.automation.scenario_step') }} </p>
         </div>
         <el-row>
           <el-col :span="21">
@@ -1025,5 +1025,17 @@
     position: fixed;
     right: 50px;
     z-index: 1;
+  }
+
+  /deep/ .el-tree-node__expand-icon.expanded {
+    color: #7C3985;
+  }
+
+  /deep/ .el-icon-caret-right {
+    color: #7C3985;
+  }
+
+  /deep/ .is-leaf {
+    color: transparent;
   }
 </style>
