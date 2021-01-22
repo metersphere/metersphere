@@ -291,7 +291,7 @@ export default {
     },
     fileChange(threadGroups) {
       let handler = this.$refs.pressureConfig;
-      handler.threadGroups = threadGroups;
+
       threadGroups.forEach(tg => {
         tg.threadNumber = tg.threadNumber || 10;
         tg.duration = tg.duration || 10;
@@ -301,8 +301,13 @@ export default {
         tg.threadType = tg.threadType || 'DURATION';
         tg.iterateNum = tg.iterateNum || 1;
         tg.iterateRampUp = tg.iterateRampUp || 10;
-        handler.calculateChart(tg);
       });
+
+      this.$set(handler, "threadGroups", threadGroups);
+
+      threadGroups.forEach(tg => {
+        handler.calculateChart(tg);
+      })
     }
   }
 }
