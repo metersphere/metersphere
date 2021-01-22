@@ -13,7 +13,7 @@
          </span>
         </el-col>
         <el-col class="head-right" :span="19">
-          <ms-previous-next-button v-if="operationType = 'edit'" :index="index" @pre="handlePre" @next="handleNext" :list="testCases"/>
+          <ms-previous-next-button v-if="operationType == 'edit'" :index="index" @pre="handlePre" @next="handleNext" :list="testCases"/>
         </el-col>
       </el-row>
     </template>
