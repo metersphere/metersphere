@@ -71,35 +71,9 @@
 
           </el-tabs>
         </div>
-        <!--<div v-if="!referenced">-->
-          <!--<div v-for="row in request.hashTree" :key="row.id">-->
-            <!--&lt;!&ndash;前置脚本&ndash;&gt;-->
-            <!--<ms-jsr233-processor v-if="row.type==='JSR223PreProcessor'" @remove="remove" @copyRow="copyRow" :title="$t('api_test.definition.request.pre_script')"-->
-                                 <!--:jsr223-processor="row"/>-->
-            <!--&lt;!&ndash;后置脚本&ndash;&gt;-->
-            <!--<ms-jsr233-processor v-if="row.label ==='JSR223 PostProcessor'" @copyRow="copyRow" @remove="remove" :is-read-only="false" :title="$t('api_test.definition.request.post_script')"-->
-                                 <!--:jsr223-processor="row"/>-->
-            <!--&lt;!&ndash;断言规则&ndash;&gt;-->
-            <!--<div style="margin-top: 10px">-->
-              <!--<ms-api-assertions :response="response" v-if="row.type==='Assertions'" @copyRow="copyRow" @remove="remove" :is-read-only="isReadOnly" :assertions="row"/>-->
-            <!--</div>-->
-            <!--&lt;!&ndash;提取规则&ndash;&gt;-->
-            <!--<div style="margin-top: 10px">-->
-              <!--<ms-api-extract :response="response" :is-read-only="isReadOnly" @copyRow="copyRow" @remove="remove" v-if="row.type==='Extract'" :extract="row"/>-->
-            <!--</div>-->
-          <!--</div>-->
-        <!--</div>-->
       </el-col>
       <!--操作按钮-->
-      <el-col :span="3" class="ms-left-cell" v-if="!referenced && showScript">
-        <el-button class="ms-left-buttion" size="small" @click="addPre">+{{$t('api_test.definition.request.pre_script')}}</el-button>
-        <br/>
-        <el-button class="ms-left-buttion" size="small" @click="addPost">+{{$t('api_test.definition.request.post_script')}}</el-button>
-        <br/>
-        <el-button class="ms-left-buttion" size="small" @click="addAssertions">+{{$t('api_test.definition.request.assertions_rule')}}</el-button>
-        <br/>
-        <el-button class="ms-left-buttion" size="small" @click="addExtract">+{{$t('api_test.definition.request.extract_param')}}</el-button>
-      </el-col>
+      <api-definition-step-button :request="request" v-if="!referenced && showScript"/>
     </el-row>
     <batch-add-parameter @batchSave="batchSave" ref="batchAddParameter"/>
   </div>
@@ -120,10 +94,12 @@
   import BatchAddParameter from "../../basis/BatchAddParameter";
   import MsApiAdvancedConfig from "./ApiAdvancedConfig";
   import MsJsr233Processor from "../../../../automation/scenario/component/Jsr233Processor";
+  import ApiDefinitionStepButton from "../components/ApiDefinitionStepButton";
 
   export default {
     name: "MsApiHttpRequestForm",
     components: {
+      ApiDefinitionStepButton,
       MsJsr233Processor,
       MsApiAdvancedConfig,
       BatchAddParameter,
@@ -194,26 +170,6 @@
     },
 
     methods: {
-      addPre() {
-        let jsr223PreProcessor = createComponent("JSR223PreProcessor");
-        this.request.hashTree.push(jsr223PreProcessor);
-        this.reload();
-      },
-      addPost() {
-        let jsr223PostProcessor = createComponent("JSR223PostProcessor");
-        this.request.hashTree.push(jsr223PostProcessor);
-        this.reload();
-      },
-      addAssertions() {
-        let assertions = new Assertions();
-        this.request.hashTree.push(assertions);
-        this.reload();
-      },
-      addExtract() {
-        let jsonPostProcessor = new Extract();
-        this.request.hashTree.push(jsonPostProcessor);
-        this.reload();
-      },
       remove(row) {
         let index = this.request.hashTree.indexOf(row);
         this.request.hashTree.splice(index, 1);
@@ -289,13 +245,6 @@
 </script>
 
 <style scoped>
-  .ms-left-cell {
-    margin-top: 30px;
-  }
-
-  .ms-left-buttion {
-    margin: 6px 0px 8px 30px;
-  }
 
   .ms-query {
     background: #783887;
@@ -314,30 +263,6 @@
   .request-tabs {
     margin: 20px;
     min-height: 200px;
-  }
-
-  .ms-left-cell .el-button:nth-of-type(1) {
-    color: #B8741A;
-    background-color: #F9F1EA;
-    border: #F9F1EA;
-  }
-
-  .ms-left-cell .el-button:nth-of-type(2) {
-    color: #783887;
-    background-color: #F2ECF3;
-    border: #F2ECF3;
-  }
-
-  .ms-left-cell .el-button:nth-of-type(3) {
-    color: #A30014;
-    background-color: #F7E6E9;
-    border: #F7E6E9;
-  }
-
-  .ms-left-cell .el-button:nth-of-type(4) {
-    color: #015478;
-    background-color: #E6EEF2;
-    border: #E6EEF2;
   }
 
   .ms-el-link {
