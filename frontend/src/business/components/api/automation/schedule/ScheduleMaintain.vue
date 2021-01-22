@@ -1,5 +1,5 @@
 <template>
-  <el-dialog :close-on-click-modal="false" width="60%" class="schedule-edit" :visible.sync="dialogVisible"
+  <el-dialog :close-on-click-modal="false" width="60%" class="schedule-edit" :visible.sync="dialogVisible" :append-to-body='true'
              @close="close">
     <template>
       <div>
