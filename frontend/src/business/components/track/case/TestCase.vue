@@ -21,6 +21,7 @@
         @refresh="refresh"
         @refreshAll="refreshAll"
         @moveToNode="moveToNode"
+        @setCondition="setCondition"
         ref="testCaseList">
       </test-case-list>
     </ms-main-container>
@@ -30,6 +31,7 @@
       :read-only="testCaseReadOnly"
       :tree-nodes="treeNodes"
       :select-node="selectNode"
+      :select-condition="condition"
       ref="testCaseEditDialog">
     </test-case-edit>
 
@@ -73,6 +75,7 @@ export default {
       selectParentNodes: [],
       testCaseReadOnly: true,
       selectNode: {},
+      condition: {}
     }
   },
   mounted() {
@@ -164,6 +167,9 @@ export default {
     },
     setTreeNodes(data) {
       this.treeNodes = data;
+    },
+    setCondition(data) {
+      this.condition = data;
     },
     moveSave(param) {
       this.result = this.$post('/test/case/batch/edit', param, () => {

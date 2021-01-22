@@ -1,5 +1,7 @@
 export default {
   commons: {
+    import_mode: '導入模式',
+    import_module: '導入模塊',
     please_fill_in_the_template: '請填寫模版內容',
     cut_back_old_version: '切回舊版',
     cut_back_new_version: '切回新版',
@@ -920,12 +922,15 @@ export default {
         table_coloum: {
           index: "序號",
           scenario: "場景名稱",
+          task_type: "任務類型",
           run_rule: "運行規則",
           task_status: "任務狀態",
           next_execution_time: "下次執行時間",
           create_user: "創建人",
           update_time: "更新時間",
         },
+        scenario_schedule: "場景",
+        test_plan_schedule: "測試計畫",
         confirm: {
           close_title: "要關閉這條定時任務嗎？",
         }

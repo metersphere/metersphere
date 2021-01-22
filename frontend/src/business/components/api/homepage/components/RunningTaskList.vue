@@ -7,11 +7,17 @@
     </template>
     <el-table border :data="tableData" class="adjust-table table-content" height="300px">
       <el-table-column prop="index"  :label="$t('api_test.home_page.running_task_list.table_coloum.index')" width="80" show-overflow-tooltip/>
-      <el-table-column prop="scenario"  :label="$t('api_test.home_page.running_task_list.table_coloum.scenario')" width="200" >
+      <el-table-column prop="name"  :label="$t('commons.name')" width="200" >
         <template v-slot:default="{row}">
           <el-link type="info" @click="redirect(row)">
-            {{ row.scenario }}
+            {{ row.name }}
           </el-link>
+        </template>
+      </el-table-column>
+      <el-table-column prop="taskType"  :label="$t('api_test.home_page.running_task_list.table_coloum.task_type')" width="120" show-overflow-tooltip>
+        <template v-slot:default="scope">
+          <ms-tag v-if="scope.row.taskType == 'scenario'" type="success" effect="plain" :content="$t('api_test.home_page.running_task_list.scenario_schedule')"/>
+          <ms-tag v-if="scope.row.taskType == 'testPlan'" type="warning" effect="plain" :content="$t('api_test.home_page.running_task_list.test_plan_schedule')"/>
         </template>
       </el-table-column>
       <el-table-column prop="rule"  :label="$t('api_test.home_page.running_task_list.table_coloum.run_rule')" width="120" show-overflow-tooltip/>
@@ -46,9 +52,12 @@
 
 <script>
 import {getCurrentProjectID} from "@/common/js/utils";
+import MsTag from "@/business/components/common/components/MsTag";
 export default {
   name: "MsRunningTaskList",
-
+  components: {
+    MsTag
+  },
 
   data() {
     return {

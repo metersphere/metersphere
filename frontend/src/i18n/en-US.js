@@ -1,5 +1,7 @@
 export default {
   commons: {
+    import_mode: 'Import mode',
+    import_module: 'Import module',
     please_fill_in_the_template: 'Please fill in the template',
     cut_back_old_version: 'Cut back to old version',
     cut_back_new_version: 'Switch back to new version',
@@ -919,12 +921,15 @@ export default {
         table_coloum: {
           index: "Index",
           scenario: "Scene",
+          task_type: "Task Type",
           run_rule: "Rule",
           task_status: "Status",
           next_execution_time: "Next Execution Time",
           create_user: "Creator",
           update_time: "Update time",
         },
+        scenario_schedule: "Scenario",
+        test_plan_schedule: "Test plan",
         confirm: {
           close_title: "Do you want to close this scheduled task？",
         }

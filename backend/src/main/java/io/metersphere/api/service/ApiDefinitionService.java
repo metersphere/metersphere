@@ -314,7 +314,7 @@ public class ApiDefinitionService {
         } else {
             //如果存在则修改
             apiDefinition.setId(sameRequest.get(0).getId());
-            apiDefinitionMapper.updateByPrimaryKey(apiDefinition);
+            apiDefinitionMapper.updateByPrimaryKeyWithBLOBs(apiDefinition);
         }
         return apiDefinition;
     }
@@ -603,6 +603,10 @@ public class ApiDefinitionService {
         scheduleService.addSchedule(schedule);
         this.addOrUpdateSwaggerImportCronJob(request);
 
+    }
+    public void updateSchedule(Schedule request){
+        scheduleService.editSchedule(request);
+        this.addOrUpdateSwaggerImportCronJob(request);
     }
 
     private void addOrUpdateSwaggerImportCronJob(Schedule request) {

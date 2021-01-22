@@ -24,6 +24,8 @@ public class SwaggerUrlImportJob extends MsScheduleJob {
         ApiTestImportRequest request = new ApiTestImportRequest();
         request.setProjectId(resourceId);
         request.setSwaggerUrl(swaggerUrl);
+        request.setPlatform("Swagger2");
+        request.setSaved(true);
         apiDefinitionService.apiTestImport(null, request);
     }
 

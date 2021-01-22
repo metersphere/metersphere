@@ -5,6 +5,19 @@
              :title="operationType == 'edit' ? ( readOnly ? $t('test_track.case.view_case') : $t('test_track.case.edit_case')) : $t('test_track.case.create')"
              :visible.sync="dialogFormVisible" width="85%" v-if="dialogFormVisible">
 
+    <template v-slot:title>
+      <el-row>
+        <el-col :span="4">
+         <span>
+           {{operationType == 'edit' ? ( readOnly ? $t('test_track.case.view_case') : $t('test_track.case.edit_case')) : $t('test_track.case.create')}}
+         </span>
+        </el-col>
+        <el-col class="head-right" :span="19">
+          <ms-previous-next-button v-if="operationType == 'edit'" :index="index" @pre="handlePre" @next="handleNext" :list="testCases"/>
+        </el-col>
+      </el-row>
+    </template>
+
     <el-row :gutter="10">
       <div>
         <el-col :span="17">
@@ -279,10 +292,11 @@ import {getCurrentProjectID} from "../../../../../common/js/utils";
 import {buildNodePath} from "../../../api/definition/model/NodeTree";
 import CaseComment from "@/business/components/track/case/components/CaseComment";
 import MsInputTag from "@/business/components/api/automation/scenario/MsInputTag";
+import MsPreviousNextButton from "../../../common/components/MsPreviousNextButton";
 
 export default {
   name: "TestCaseEdit",
-  components: {MsInputTag, CaseComment, MsDialogFooter, TestCaseAttachment},
+  components: {MsPreviousNextButton, MsInputTag, CaseComment, MsDialogFooter, TestCaseAttachment},
   data() {
     return {
       result: {},
@@ -335,6 +349,8 @@ export default {
         {value: 'manual', label: this.$t('test_track.case.manual')}
       ],
       testCase: {},
+      testCases: [],
+      index: 0
     };
   },
   props: {
@@ -346,6 +362,9 @@ export default {
       default: true
     },
     selectNode: {
+      type: Object
+    },
+    selectCondition: {
       type: Object
     },
   },
@@ -363,18 +382,12 @@ export default {
       this.$nextTick(() => (this.isStepTableAlive = true));
     },
     open(testCase) {
-      this.testCase = {};
-      if (testCase) {
-        testCase.tags = JSON.parse(testCase.tags);
-        // 复制 不查询评论
-        this.testCase = testCase.isCopy ? {} : testCase;
-      }
-      this.resetForm();
       this.projectId = getCurrentProjectID();
       if (window.history && window.history.pushState) {
         history.pushState(null, null, document.URL);
         window.addEventListener('popstate', this.close);
       }
+      this.resetForm();
       listenGoBack(this.close);
       this.operationType = 'add';
       if (testCase) {
@@ -383,13 +396,13 @@ export default {
         //复制
         if (testCase.name === '') {
           this.operationType = 'add';
+          this.setFormData(testCase);
+          this.setTestCaseExtInfo(testCase);
+          this.getSelectOptions();
+          this.reload();
+        } else {
+          this.initTestCases(testCase);
         }
-        let tmp = {};
-        Object.assign(tmp, testCase);
-        tmp.steps = JSON.parse(testCase.steps);
-        Object.assign(this.form, tmp);
-        this.form.module = testCase.nodeId;
-        this.getFileMetaData(testCase);
       } else {
         if (this.selectNode.data) {
           this.form.module = this.selectNode.data.id;
@@ -403,11 +416,55 @@ export default {
         this.form.type = 'functional';
         this.form.method = 'manual';
         this.form.maintainer = user.id;
+        this.getSelectOptions();
+        this.reload();
       }
-
-      this.getSelectOptions();
-      this.reload();
       this.dialogFormVisible = true;
+    },
+    handlePre() {
+      this.index--;
+      this.getTestCase(this.index)
+    },
+    handleNext() {
+      this.index++;
+      this.getTestCase(this.index);
+    },
+    initTestCases(testCase) {
+      this.result = this.$post('/test/case/list/ids', this.selectCondition, response => {
+        this.testCases = response.data;
+        for (let i = 0; i < this.testCases.length; i++) {
+          if (this.testCases[i].id === testCase.id) {
+            this.index = i;
+            this.getTestCase(i);
+          }
+        }
+      });
+    },
+    getTestCase(index) {
+      let testCase = this.testCases[index];
+      this.result = this.$get('/test/case/get/' + testCase.id, response => {
+        let testCase = response.data;
+        this.setFormData(testCase);
+        this.setTestCaseExtInfo(testCase);
+        this.getSelectOptions();
+        this.reload();
+      })
+    },
+    setFormData(testCase) {
+      testCase.tags = JSON.parse(testCase.tags);
+      let tmp = {};
+      Object.assign(tmp, testCase);
+      tmp.steps = JSON.parse(testCase.steps);
+      Object.assign(this.form, tmp);
+      this.form.module = testCase.nodeId;
+      this.getFileMetaData(testCase);
+    },
+    setTestCaseExtInfo (testCase) {
+      this.testCase = {};
+      if (testCase) {
+        // 复制 不查询评论
+        this.testCase = testCase.isCopy ? {} : testCase;
+      }
     },
     getFileMetaData(testCase) {
       this.fileList = [];
@@ -607,27 +664,32 @@ export default {
       if (this.$refs['caseFrom']) {
         this.$refs['caseFrom'].validate((valid) => {
           this.$refs['caseFrom'].resetFields();
-          this.form.name = '';
-          this.form.module = '';
-          this.form.type = '';
-          this.form.method = '';
-          this.form.maintainer = '';
-          this.form.priority = '';
-          this.form.prerequisite = '';
-          this.form.remark = '';
-          this.form.testId = '';
-          this.form.testName = '';
-          this.form.steps = [{
-            num: 1,
-            desc: '',
-            result: ''
-          }];
-          this.uploadList = [];
-          this.fileList = [];
-          this.tableData = [];
+          this._resetForm();
           return true;
         });
+      } else {
+        this._resetForm();
       }
+    },
+    _resetForm() {
+      this.form.name = '';
+      this.form.module = '';
+      this.form.type = '';
+      this.form.method = '';
+      this.form.maintainer = '';
+      this.form.priority = '';
+      this.form.prerequisite = '';
+      this.form.remark = '';
+      this.form.testId = '';
+      this.form.testName = '';
+      this.form.steps = [{
+        num: 1,
+        desc: '',
+        result: ''
+      }];
+      this.uploadList = [];
+      this.fileList = [];
+      this.tableData = [];
     },
     handleExceed() {
       this.$error(this.$t('load_test.file_size_limit'));
@@ -746,6 +808,10 @@ export default {
 
 .comment-card >>> .el-card__body {
   height: calc(100vh - 120px);
+}
+
+.head-right {
+  text-align: right;
 }
 
 </style>
