@@ -72,7 +72,7 @@
         }
       },
       planId: String,
-      relevanceProjectId: String
+      relevanceProjectId: String,
     },
     computed: {
       isPlanModel() {

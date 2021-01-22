@@ -42,9 +42,14 @@
                   <div v-else>
                     <el-option :key="0" :value="''">
                       <div style="margin-left: 40px">
-                        <span style="font-size: 14px;color: #606266;font-weight: 48.93">{{ $t('api_test.definition.select_comp.no_data') }},
+                        <span style="font-size: 14px;color: #606266;font-weight: 48.93">{{
+                            $t('api_test.definition.select_comp.no_data')
+                          }},
                         </span>
-                        <el-link type="primary" @click="createModules">{{ $t('api_test.definition.select_comp.add_data') }}</el-link>
+                        <el-link type="primary" @click="createModules">{{
+                            $t('api_test.definition.select_comp.add_data')
+                          }}
+                        </el-link>
                       </div>
                     </el-option>
                   </div>
@@ -95,7 +100,8 @@
         <!-- 请求参数 -->
         <div>
           <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
-          <ms-api-request-form :showScript="false" :request="request" :headers="request.headers" :isShowEnable="isShowEnable"/>
+          <ms-api-request-form :showScript="false" :request="request" :headers="request.headers"
+                               :isShowEnable="isShowEnable"/>
         </div>
 
       </el-form>
@@ -202,7 +208,7 @@ export default {
       if (!this.httpForm.path || this.httpForm.path.indexOf('?') === -1) return;
       let url = this.getURL(this.addProtocol(this.httpForm.path));
       if (url) {
-        this.httpForm.path = decodeURIComponent(this.httpForm.path.substr(0,this.httpForm.path.indexOf("?")));
+        this.httpForm.path = decodeURIComponent(this.httpForm.path.substr(0, this.httpForm.path.indexOf("?")));
       }
     },
     addProtocol(url) {

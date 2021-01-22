@@ -80,10 +80,10 @@ public class DockerTestEngine extends AbstractEngine {
         }
 
         // docker 不能从 localhost 中下载文件
-        if (StringUtils.contains(metersphereUrl, "http://localhost")
+       /* if (StringUtils.contains(metersphereUrl, "http://localhost")
                 || !UrlTestUtils.testUrlWithTimeOut(metersphereUrl, 1000)) {
             MSException.throwException(Translator.get("run_load_test_file_init_error"));
-        }
+        }*/
 
         Map<String, String> env = new HashMap<>();
         env.put("RATIO", "" + ratio);

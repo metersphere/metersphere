@@ -1,5 +1,7 @@
 export default {
   commons: {
+    import_mode: '导入模式',
+    import_module: '导入模块',
     please_fill_in_the_template: '请填写模版内容',
     cut_back_old_version: '切回旧版',
     cut_back_new_version: '切回新版',

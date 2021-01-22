@@ -66,7 +66,6 @@
                     :value="item.id">
                   </el-option>
                 </el-select>
-
               </el-form-item>
             </el-col>
           </el-row>
@@ -92,7 +91,7 @@
       <!-- 场景步骤-->
       <div v-loading="loading">
         <div @click="showAll">
-          <p class="tip">{{$t('api_test.automation.scenario_step')}} </p>
+          <p class="tip">{{ $t('api_test.automation.scenario_stepscenario_step') }} </p>
         </div>
         <el-row>
           <el-col :span="21">
@@ -854,7 +853,6 @@
           this.result = this.$get("/api/automation/getApiScenario/" + this.currentScenario.id, response => {
             if (response.data) {
               this.path = "/api/automation/update";
-              this.currentScenario.description = response.data.description;
               if (response.data.scenarioDefinition != null) {
                 let obj = JSON.parse(response.data.scenarioDefinition);
                 if (obj) {
