@@ -1,30 +1,23 @@
 package io.metersphere.commons.utils;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.JSONPath;
 import org.apache.commons.lang3.StringUtils;
+
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class JsonPathUtils {
 
     public static List<HashMap> getListJson(String jsonString) {
 
-        JSONObject jsonObject = JSONObject.parseObject(jsonString);
+        JSON jsonObject = jsonString.startsWith("[")?JSONObject.parseArray(jsonString):JSONObject.parseObject(jsonString);
         List<HashMap> allJsons =new ArrayList<>();
 
         // 获取到所有jsonpath后，获取所有的key
-        List<String> jsonPaths = JSONPath.paths(jsonObject).keySet()
-            .stream()
-            .collect(Collectors.toList());
+        List<String> jsonPaths = new ArrayList<>(JSONPath.paths(jsonObject).keySet());
         //去掉根节点key
         List<String> parentNode = new ArrayList<>();
         //根节点key
