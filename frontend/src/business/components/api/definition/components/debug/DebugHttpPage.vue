@@ -19,7 +19,7 @@
                        @command="handleCommand" size="small" v-if="testCase===undefined && !scenario">
             {{$t('commons.test')}}
             <el-dropdown-menu slot="dropdown">
-              <el-dropdown-item command="save_as">{{$t('api_test.definition.request.save_as')}}</el-dropdown-item>
+              <el-dropdown-item command="save_as">{{$t('api_test.definition.request.save_as_case')}}</el-dropdown-item>
             </el-dropdown-menu>
           </el-dropdown>
         </el-form-item>
@@ -58,7 +58,7 @@
 
   export default {
     name: "ApiConfig",
-    components: {MsRequestResultTail, MsResponseResult, MsApiRequestForm, MsRequestMetric, MsResponseText, MsRun,MsJmxStep},
+    components: {MsRequestResultTail, MsResponseResult, MsApiRequestForm, MsRequestMetric, MsResponseText, MsRun, MsJmxStep},
     props: {
       currentProtocol: String,
       testCase: {},
@@ -155,6 +155,8 @@
       saveAs() {
         this.$refs['debugForm'].validate((valid) => {
           if (valid) {
+            this.debugForm.id = null;
+            this.request.id = getUUID();
             this.debugForm.request = this.request;
             this.debugForm.userId = getCurrentUser().id;
             this.debugForm.status = "Underway";

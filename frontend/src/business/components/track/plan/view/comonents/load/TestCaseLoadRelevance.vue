@@ -226,10 +226,7 @@ export default {
       if (projectId) {
         this.projectId = projectId;
       }
-      this.$refs.nodeTree.result = this.$post("/case/node/list/all/plan",
-        {testPlanId: this.planId, projectId: this.projectId}, response => {
-          this.treeNodes = response.data;
-        });
+      this.treeNodes = [];
       this.selectNodeIds = [];
     }
   }

@@ -209,7 +209,7 @@
       },
       addTab(tab) {
         if (tab.name === 'add') {
-          this.handleCommand("ADD");
+          this.handleTabsEdit(this.$t('api_test.definition.request.fast_debug'), "debug");
         }
       },
       handleCommand(e) {

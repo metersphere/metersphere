@@ -15,7 +15,7 @@
                        @command="handleCommand" size="small" style="float: right;margin-right: 20px">
             {{$t('commons.test')}}
             <el-dropdown-menu slot="dropdown">
-              <el-dropdown-item command="save_as">{{$t('api_test.definition.request.save_as')}}</el-dropdown-item>
+              <el-dropdown-item command="save_as">{{$t('api_test.definition.request.save_as_case')}}</el-dropdown-item>
             </el-dropdown-menu>
           </el-dropdown>
         </el-form-item>
@@ -131,6 +131,7 @@
       },
       saveAs() {
         let obj = {request: this.request};
+        obj.request.id = getUUID();
         this.$emit('saveAs', obj);
       }
     }
