@@ -1,10 +1,10 @@
 <template>
-  <div>
+  <div v-if="request.hashTree && request.hashTree.length > 0">
     <p class="tip">
       {{$t('test_track.plan_view.step')}}
     </p>
     <!-- HTTP 请求参数 -->
-    <div style="border:1px #DCDFE6 solid; height: 100%;border-radius: 4px ;width: 100%" v-loading="isReloadData" v-if="request.hashTree && request.hashTree.length>0">
+    <div style="height: 100%;border-radius: 4px ;width: 100%" v-loading="isReloadData" v-if="request.hashTree && request.hashTree.length>0">
 
       <div v-for="row in request.hashTree" :key="row.id">
         <!--前置脚本-->
