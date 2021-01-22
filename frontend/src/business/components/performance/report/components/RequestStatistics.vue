@@ -10,7 +10,21 @@
         <el-table-column
           prop="label"
           label="Label"
-          width="450"/>
+          width="450">
+          <template v-slot:header="{column}">
+            <span>Label</span>
+            <i class="el-icon-search" style="margin-left: 8px;cursor: pointer;font-weight: bold;" @click="click(column)"></i>
+            <el-input v-model="searchLabel"
+                      placeholder="请输入 Label 搜索"
+                      size="mini"
+                      class="search_input"
+                      style="width: 250px; margin-left: 5px"
+                      v-if="column.showSearch"
+                      clearable
+                      @clear="filterLabel"
+                      @keyup.enter.native="filterLabel"/>
+          </template>
+        </el-table-column>
       </el-table-column>
 
       <el-table-column label="Executions" align="center">
@@ -94,16 +108,34 @@ export default {
   data() {
     return {
       tableData: [],
-      id: ''
+      originalData: [],
+      id: '',
+      searchLabel: '',
+      showSearch: false,
+      showBtn: true,
     }
   },
   methods: {
     initTableData() {
       this.$get("/performance/report/content/" + this.id).then(res => {
         this.tableData = res.data.data;
+        this.originalData = res.data.data;
       }).catch(() => {
         this.tableData = [];
       })
+    },
+    click(column) {
+      this.searchLabel = '';
+      this.tableData = this.originalData;
+      this.$set(column, 'showSearch', !column.showSearch);
+    },
+    filterLabel() {
+      this.tableData = this.searchLabel ? this.originalData.filter(this.createFilter(this.searchLabel)) : this.originalData;
+    },
+    createFilter(queryString) {
+      return item => {
+        return (item.label.toLowerCase().indexOf(queryString.toLowerCase()) !== -1);
+      };
     },
   },
   watch: {
@@ -128,5 +160,7 @@ export default {
 </script>
 
 <style scoped>
-
+.search_input >>> .el-input__inner {
+  border-radius: 50px;
+}
 </style>
