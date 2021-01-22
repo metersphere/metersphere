@@ -17,6 +17,6 @@ public class ParameterConfig {
     // 步骤
     private String step;
 
-    private final String stepType = "STEP_GROUP";
+    private String stepType;
 
 }
