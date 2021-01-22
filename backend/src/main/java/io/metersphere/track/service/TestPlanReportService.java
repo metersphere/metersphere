@@ -109,7 +109,6 @@ public class TestPlanReportService {
         TestPlanReport testPlanReport = new TestPlanReport();
         testPlanReport.setTestPlanId(planId);
         testPlanReport.setId(testPlanReportID);
-        testPlanReport.setStatus(APITestStatus.Starting.name());
         testPlanReport.setCreateTime(System.currentTimeMillis());
         testPlanReport.setUpdateTime(System.currentTimeMillis());
         try {
@@ -136,6 +135,12 @@ public class TestPlanReportService {
             testPlanReport.setIsPerformanceExecuting(true);
         }
         testPlanReport.setPrincipal(testPlan.getPrincipal());
+
+        if(testPlanReport.getIsScenarioExecuting() || testPlanReport.getIsApiCaseExecuting() || testPlanReport.getIsPerformanceExecuting()){
+            testPlanReport.setStatus(APITestStatus.Starting.name());
+        }else {
+            testPlanReport.setStatus(APITestStatus.Completed.name());
+        }
         testPlanReportMapper.insert(testPlanReport);
 
         TestPlanReportDataWithBLOBs testPlanReportData = new TestPlanReportDataWithBLOBs();
@@ -327,6 +332,7 @@ public class TestPlanReportService {
             } catch (Exception e) {
 
             }
+        }else {
         }
         testPlanReportMapper.updateByPrimaryKey(report);
     }

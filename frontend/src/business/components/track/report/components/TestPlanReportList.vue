@@ -20,6 +20,16 @@
           <report-trigger-mode-item :trigger-mode="scope.row.triggerMode"/>
         </template>
       </el-table-column>
+      <el-table-column prop="status" :label="$t('commons.status')">
+        <template v-slot:default="scope">
+          <ms-tag v-if="scope.row.status == 'RUNNING'" type="success" effect="plain" :content="'Running'"/>
+          <ms-tag v-else-if="scope.row.status == 'COMPLETED'||scope.row.status == 'SUCCESS'||scope.row.status == 'FAILED'" type="info" effect="plain" :content="'Completed'"/>
+          <ms-tag v-else type="effect" effect="plain" :content="scope.row.status"/>
+<!--          <el-tag size="mini" type="success" v-if="row.status === 'Running'">{{ row.status }}</el-tag>-->
+<!--          <el-tag size="mini" type="info" v-else-if="row.status === 'Completed'">{{ row.status }}</el-tag>-->
+<!--          <el-tag size="mini" type="info" v-if="row.status === 'Completed'">{{ row.status }}</el-tag>-->
+        </template>
+      </el-table-column>
       <el-table-column min-width="150" :label="$t('commons.operating')">
         <template v-slot:default="scope">
           <ms-table-operator-button :tip="$t('test_track.plan_view.view_report')" icon="el-icon-document"
@@ -45,13 +55,14 @@ import {TEST_PLAN_REPORT_CONFIGS} from "../../../common/components/search/search
 import {getCurrentProjectID} from "../../../../../common/js/utils";
 import TestPlanReportView from "@/business/components/track/report/components/TestPlanReportView";
 import ReportTriggerModeItem from "@/business/components/common/tableItem/ReportTriggerModeItem";
+import MsTag from "@/business/components/common/components/MsTag";
 
 export default {
   name: "TestPlanReportList",
   components: {
     TestPlanReportView,
     MsTableOperator, MsTableOperatorButton, MsTableHeader, MsTablePagination,
-    ReportTriggerModeItem
+    ReportTriggerModeItem,MsTag
   },
   data() {
     return {
