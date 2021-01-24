@@ -3,16 +3,16 @@
   <div class="card-container">
     <!-- HTTP 请求参数 -->
     <ms-edit-complete-http-api @runTest="runTest" @saveApi="saveApi" @createRootModelInTree="createRootModelInTree" :request="request" :response="response"
-                               :basisData="currentApi" :moduleOptions="moduleOptions" :syncTabs="syncTabs" v-if="currentProtocol === 'HTTP'"/>
+                               :basisData="currentApi" :moduleOptions="moduleOptions" :syncTabs="syncTabs" v-if="currentProtocol === 'HTTP'" ref="httpApi"/>
     <!-- TCP -->
     <ms-edit-complete-tcp-api :request="request" @runTest="runTest" @createRootModelInTree="createRootModelInTree" @saveApi="saveApi" :basisData="currentApi"
-                              :moduleOptions="moduleOptions" :syncTabs="syncTabs" v-if="currentProtocol === 'TCP'"/>
+                              :moduleOptions="moduleOptions" :syncTabs="syncTabs" v-if="currentProtocol === 'TCP'" ref="tcpApi"/>
     <!--DUBBO-->
     <ms-edit-complete-dubbo-api :request="request" @runTest="runTest" @createRootModelInTree="createRootModelInTree" @saveApi="saveApi" :basisData="currentApi"
-                                :moduleOptions="moduleOptions" :syncTabs="syncTabs" v-if="currentProtocol === 'DUBBO'"/>
+                                :moduleOptions="moduleOptions" :syncTabs="syncTabs" v-if="currentProtocol === 'DUBBO'" ref="dubboApi"/>
     <!--SQL-->
     <ms-edit-complete-sql-api :request="request" @runTest="runTest" @createRootModelInTree="createRootModelInTree" @saveApi="saveApi" :basisData="currentApi"
-                              :moduleOptions="moduleOptions" :syncTabs="syncTabs" v-if="currentProtocol === 'SQL'"/>
+                              :moduleOptions="moduleOptions" :syncTabs="syncTabs" v-if="currentProtocol === 'SQL'" ref="sqlApi"/>
   </div>
 </template>
 
@@ -27,6 +27,7 @@
   import {createComponent, Request} from "./jmeter/components";
   import Sampler from "./jmeter/components/sampler/sampler";
   import {WORKSPACE_ID} from '@/common/js/constants';
+  import {handleCtrlSEvent} from "../../../../../common/js/utils";
 
   export default {
     name: "ApiConfig",
@@ -65,8 +66,30 @@
           break;
       }
       this.formatApi();
+      this.addListener();
     },
     methods: {
+      addListener() {
+        document.addEventListener("keydown", this.createCtrlSHandle);
+        // document.addEventListener("keydown", (even => handleCtrlSEvent(even, this.$refs.httpApi.saveApi)));
+      },
+      removeListener() {
+        document.removeEventListener("keydown", this.createCtrlSHandle);
+      },
+      createCtrlSHandle(event) {
+        if(this.$refs.httpApi) {
+          handleCtrlSEvent(event, this.$refs.httpApi.saveApi);
+        }
+        else if(this.$refs.tcpApi) {
+          handleCtrlSEvent(event, this.$refs.tcpApi.saveApi);
+        }
+        else if(this.$refs.dubboApi) {
+          handleCtrlSEvent(event, this.$refs.dubboApi.saveApi);
+        }
+        else if(this.$refs.sqlApi) {
+          handleCtrlSEvent(event, this.$refs.sqlApi.saveApi);
+        }
+      },
       runTest(data) {
         this.setParameters(data);
         let bodyFiles = this.getBodyUploadFiles(data);
