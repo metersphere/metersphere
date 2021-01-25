@@ -5,6 +5,7 @@ import io.metersphere.base.mapper.LoadTestMapper;
 import io.metersphere.base.mapper.LoadTestReportMapper;
 import io.metersphere.base.mapper.TestPlanLoadCaseMapper;
 import io.metersphere.base.mapper.ext.ExtTestPlanLoadCaseMapper;
+import io.metersphere.controller.request.OrderRequest;
 import io.metersphere.performance.service.PerformanceTestService;
 import io.metersphere.track.dto.TestPlanLoadCaseDTO;
 import io.metersphere.track.request.testplan.LoadCaseReportRequest;
@@ -50,6 +51,15 @@ public class TestPlanLoadCaseService {
     }
 
     public List<TestPlanLoadCaseDTO> list(LoadCaseRequest request) {
+        List<OrderRequest> orders = request.getOrders();
+        if (orders == null || orders.size() < 1) {
+            OrderRequest orderRequest = new OrderRequest();
+            orderRequest.setName("create_time");
+            orderRequest.setType("desc");
+            orders = new ArrayList<>();
+            orders.add(orderRequest);
+        }
+        request.setOrders(orders);
         return extTestPlanLoadCaseMapper.selectTestPlanLoadCaseList(request);
     }
 
