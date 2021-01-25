@@ -9,7 +9,9 @@
       <el-row>
         <el-col :span="4">
          <span>
-           {{operationType == 'edit' ? ( readOnly ? $t('test_track.case.view_case') : $t('test_track.case.edit_case')) : $t('test_track.case.create')}}
+           {{
+             operationType == 'edit' ? (readOnly ? $t('test_track.case.view_case') : $t('test_track.case.edit_case')) : $t('test_track.case.create')
+           }}
          </span>
         </el-col>
         <el-col class="head-right" :span="19">
@@ -82,7 +84,7 @@
               <el-row>
                 <el-col :span="10" :offset="1">
                   <el-form-item :label="$t('commons.tag')" :label-width="formLabelWidth" prop="tag">
-                    <ms-input-tag :currentScenario="form" ref="tag"/>
+                    <ms-input-tag :currentScenario="form" v-if="showInputTag" ref="tag"/>
                   </el-form-item>
                 </el-col>
               </el-row>
@@ -350,7 +352,8 @@ export default {
       ],
       testCase: {},
       testCases: [],
-      index: 0
+      index: 0,
+      showInputTag: false,
     };
   },
   props: {
@@ -441,6 +444,7 @@ export default {
       });
     },
     getTestCase(index) {
+      this.showInputTag = false;
       let testCase = this.testCases[index];
       this.result = this.$get('/test/case/get/' + testCase.id, response => {
         let testCase = response.data;
@@ -448,6 +452,9 @@ export default {
         this.setTestCaseExtInfo(testCase);
         this.getSelectOptions();
         this.reload();
+        this.$nextTick(() => {
+          this.showInputTag = true
+        })
       })
     },
     setFormData(testCase) {
@@ -459,7 +466,7 @@ export default {
       this.form.module = testCase.nodeId;
       this.getFileMetaData(testCase);
     },
-    setTestCaseExtInfo (testCase) {
+    setTestCaseExtInfo(testCase) {
       this.testCase = {};
       if (testCase) {
         // 复制 不查询评论
