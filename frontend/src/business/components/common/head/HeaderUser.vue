@@ -8,6 +8,7 @@
         <el-dropdown-item command="personal">{{ $t('commons.personal_information') }}</el-dropdown-item>
         <el-dropdown-item command="about">{{ $t('commons.about_us') }} <i class="el-icon-info"/></el-dropdown-item>
         <el-dropdown-item command="help">{{ $t('commons.help_documentation') }}</el-dropdown-item>
+        <el-dropdown-item command="ApiHelp">{{ $t('commons.api_help_documentation') }}</el-dropdown-item>
         <el-dropdown-item command="old" v-show=isReadOnly @click.native="changeBar('old')">
           {{ $t('commons.cut_back_old_version') }}
         </el-dropdown-item>
@@ -63,6 +64,9 @@ export default {
           break;
         case "help":
           window.location.href = "https://metersphere.io/docs/index.html";
+          break;
+        case "ApiHelp":
+          window.open('/swagger-ui/index.html?configUrl=/v3/api-docs/swagger-config', "_blank");
           break;
         default:
           break;
