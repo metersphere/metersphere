@@ -29,7 +29,7 @@
           <el-col :span="20">
             <el-autocomplete
               size="small"
-              class="inline-input"
+              style="width: 100%"
               v-model="editData.encoding"
               :fetch-suggestions="querySearch"
               :placeholder="$t('commons.input_content')"
@@ -110,7 +110,7 @@
       },
 
       handleClick() {
-        let config = {complete: this.complete, step: this.step};
+        let config = {complete: this.complete, step: this.step, delimiter: this.editData.delimiter ? this.editData.delimiter : ","};
         this.allDatas = [];
         // 本地文件
         if (this.editData.files && this.editData.files.length > 0 && this.editData.files[0].file) {
@@ -152,5 +152,7 @@
 </script>
 
 <style scoped>
-
+  ms-is-leaf >>> .is-leaf {
+    color: red;
+  }
 </style>

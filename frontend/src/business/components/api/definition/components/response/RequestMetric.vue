@@ -2,10 +2,6 @@
   <div class="metric-container">
     <el-row type="flex">
       <el-col>
-        <div style="font-size: 14px;color: #AAAAAA;float: left">请求名称 :</div>
-        <div style="font-size: 14px;color:#61C550;margin-top:2px;margin-left:10px;float: left">{{response.name}}</div>
-      </el-col>
-      <el-col>
         <div style="font-size: 14px;color: #AAAAAA;float: left">{{$t('api_report.response_code')}} :</div>
         <div style="font-size: 14px;color:#61C550;margin-top:2px;margin-left:10px;float: left">{{response.responseResult.responseCode ? response.responseResult.responseCode :'0'}}</div>
       </el-col>

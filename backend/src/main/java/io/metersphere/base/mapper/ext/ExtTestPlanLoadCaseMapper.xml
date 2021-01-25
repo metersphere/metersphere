@@ -62,4 +62,7 @@
             </foreach>
         </if>
     </select>
+    <select id="getStatusByTestPlanId" resultType="java.lang.String">
+        select status from test_plan_load_case tplc where tplc.test_plan_id = #{planId}
+    </select>
 </mapper>
