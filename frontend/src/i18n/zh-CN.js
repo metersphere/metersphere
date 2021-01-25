@@ -129,6 +129,7 @@ export default {
     validate: "校验",
     batch_add: "批量添加",
     check_project_tip: "请先创建或选择项目",
+    auth_redirect_tip: '即将跳转到认证源页面进行认证',
     table: {
       select_tip: "已选中 {0} 条数据"
     },
@@ -833,8 +834,8 @@ export default {
       swagger_export_tip: "通过 Swagger 页面导出",
       suffixFormatErr: "文件格式不符合要求",
       swagger_url_import: "使用URL导入",
-      timing_synchronization:"定时同步",
-      next_synchronization_time:"下次同步时间"
+      timing_synchronization: "定时同步",
+      next_synchronization_time: "下次同步时间"
 
 
     },

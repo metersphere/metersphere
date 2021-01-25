@@ -110,7 +110,6 @@
               if (this.isNotRunning) {
                 try {
                   this.content = JSON.parse(this.report.content);
-                  console.log(this.content)
                   if (!this.content) {
                     this.content = {scenarios: []};
                   }

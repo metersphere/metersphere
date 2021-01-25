@@ -7,4 +7,6 @@ public class MsForEachController {
     private String inputVal;
     private String returnVal;
     private String interval;
+    private Object requestResult;
+
 }
