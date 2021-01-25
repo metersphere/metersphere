@@ -1,96 +1,97 @@
 <template>
+  <div>
+    <ms-run :debug="true" :environment="currentEnvironmentId" :reportId="reportId" :run-data="debugData"
+            @runRefresh="runRefresh" ref="runTest"/>
+    <api-base-component
+      @copy="copyRow"
+      @remove="remove"
+      :data="controller"
+      :draggable="true"
+      color="#02A7F0"
+      background-color="#F4F4F5"
+      :title="$t('api_test.automation.loop_controller')" v-loading="loading">
 
-  <api-base-component
-    @copy="copyRow"
-    @remove="remove"
-    :data="controller"
-    :draggable="true"
-    color="#02A7F0"
-    background-color="#F4F4F5"
-    :title="$t('api_test.automation.loop_controller')" v-loading="loading">
+      <template v-slot:headerLeft>
+        <i class="icon el-icon-arrow-right" :class="{'is-active': controller.active}" @click="active(controller)" style="margin-right: 10px"/>
+        <el-radio @change="changeRadio" class="ms-radio" v-model="controller.loopType" label="LOOP_COUNT">{{$t('loop.loops_title')}}</el-radio>
+        <el-radio @change="changeRadio" class="ms-radio" v-model="controller.loopType" label="FOREACH">{{$t('loop.foreach')}}</el-radio>
+        <el-radio @change="changeRadio" class="ms-radio" v-model="controller.loopType" label="WHILE">{{$t('loop.while')}}</el-radio>
+      </template>
 
-    <template v-slot:headerLeft>
-      <i class="icon el-icon-arrow-right" :class="{'is-active': controller.active}" @click="active(controller)" style="margin-right: 10px"/>
-      <el-radio @change="changeRadio" class="ms-radio" v-model="controller.loopType" label="LOOP_COUNT">{{$t('loop.loops_title')}}</el-radio>
-      <el-radio @change="changeRadio" class="ms-radio" v-model="controller.loopType" label="FOREACH">{{$t('loop.foreach')}}</el-radio>
-      <el-radio @change="changeRadio" class="ms-radio" v-model="controller.loopType" label="WHILE">{{$t('loop.while')}}</el-radio>
-    </template>
-
-    <template v-slot:message>
+      <template v-slot:message>
       <span v-if="requestResult && requestResult.scenarios && requestResult.scenarios.length > 0 " style="color: #8c939d;margin-right: 10px">
         循环{{requestResult.scenarios.length}}次 成功{{success}}次 失败{{error}}次
       </span>
-    </template>
+      </template>
 
-    <template v-slot:button>
-      <el-button @click="runDebug" :tip="$t('api_test.run')" icon="el-icon-video-play" style="background-color: #409EFF;color: white;" size="mini" circle/>
-    </template>
-    <div v-if="controller.loopType==='LOOP_COUNT'" draggable>
-      <el-row>
-        <el-col :span="8">
-          <span class="ms-span ms-radio">{{$t('loop.loops')}}</span>
-          <el-input-number size="small" v-model="controller.countController.loops" :placeholder="$t('commons.millisecond')" :max="1000*10000000" :min="0"/>
-          <span class="ms-span ms-radio">次</span>
-        </el-col>
-        <el-col :span="8">
-          <span class="ms-span ms-radio">{{$t('loop.interval')}}</span>
-          <el-input-number size="small" v-model="controller.countController.interval" :placeholder="$t('commons.millisecond')" :max="1000*10000000" :min="0" :step="1000"/>
-          <span class="ms-span ms-radio">ms</span>
-        </el-col>
-        <el-col :span="8">
-          <span class="ms-span ms-radio">{{$t('loop.proceed')}}</span>
-          <el-tooltip class="item" effect="dark" content="默认为开启，当循环下只有一个请求时，可以开启/关闭;当循环下超过一个请求时，则只能开启。" placement="top">>
-            <el-switch v-model="controller.countController.proceed" @change="switchChange"/>
+      <template v-slot:button>
+        <el-button @click="runDebug" :tip="$t('api_test.run')" icon="el-icon-video-play" style="background-color: #409EFF;color: white;" size="mini" circle/>
+      </template>
+      <div v-if="controller.loopType==='LOOP_COUNT'" draggable>
+        <el-row>
+          <el-col :span="8">
+            <span class="ms-span ms-radio">{{$t('loop.loops')}}</span>
+            <el-input-number size="small" v-model="controller.countController.loops" :placeholder="$t('commons.millisecond')" :max="1000*10000000" :min="0"/>
+            <span class="ms-span ms-radio">次</span>
+          </el-col>
+          <el-col :span="8">
+            <span class="ms-span ms-radio">{{$t('loop.interval')}}</span>
+            <el-input-number size="small" v-model="controller.countController.interval" :placeholder="$t('commons.millisecond')" :max="1000*10000000" :min="0" :step="1000"/>
+            <span class="ms-span ms-radio">ms</span>
+          </el-col>
+          <el-col :span="8">
+            <span class="ms-span ms-radio">{{$t('loop.proceed')}}</span>
+            <el-tooltip class="item" effect="dark" content="默认为开启，当循环下只有一个请求时，可以开启/关闭;当循环下超过一个请求时，则只能开启。" placement="top">>
+              <el-switch v-model="controller.countController.proceed" @change="switchChange"/>
 
-          </el-tooltip>
-        </el-col>
-      </el-row>
-    </div>
+            </el-tooltip>
+          </el-col>
+        </el-row>
+      </div>
 
-    <div v-else-if="controller.loopType==='FOREACH'" draggable>
-      <el-row>
-        <el-col :span="8">
-          <el-input :placeholder="$t('api_test.request.condition_variable')" v-model="controller.forEachController.inputVal" size="small"/>
-        </el-col>
-        <el-col :span="1" style="margin-top: 6px">
-          <span style="margin:10px 10px 10px">in</span>
-        </el-col>
-        <el-col :span="8">
-          <el-input :placeholder="$t('api_test.request.condition_variable')" v-model="controller.forEachController.returnVal" size="small"/>
-        </el-col>
-        <el-col :span="7">
-          <span class="ms-span ms-radio">{{$t('loop.interval')}}</span>
-          <el-input-number size="small" v-model="controller.forEachController.interval" :placeholder="$t('commons.millisecond')" :max="1000*10000000" :min="0" :step="1000"/>
-          <span class="ms-span ms-radio">ms</span>
-        </el-col>
-      </el-row>
-    </div>
-    <div v-else draggable>
-      <el-input size="small" v-model="controller.whileController.variable" style="width: 20%" :placeholder="$t('api_test.request.condition_variable')"/>
+      <div v-else-if="controller.loopType==='FOREACH'" draggable>
+        <el-row>
+          <el-col :span="8">
+            <el-input placeholder="输出变量名称" v-model="controller.forEachController.returnVal" size="small"/>
+          </el-col>
+          <el-col :span="1" style="margin-top: 6px">
+            <span style="margin:10px 10px 10px">in</span>
+          </el-col>
+          <el-col :span="8">
+            <el-input placeholder="输入变量前缀" v-model="controller.forEachController.inputVal" size="small"/>
+          </el-col>
+          <el-col :span="7">
+            <span class="ms-span ms-radio">{{$t('loop.interval')}}</span>
+            <el-input-number size="small" v-model="controller.forEachController.interval" :placeholder="$t('commons.millisecond')" :max="1000*10000000" :min="0" :step="1000"/>
+            <span class="ms-span ms-radio">ms</span>
+          </el-col>
+        </el-row>
+      </div>
+      <div v-else draggable>
+        <el-input size="small" v-model="controller.whileController.variable" style="width: 20%" :placeholder="$t('api_test.request.condition_variable')"/>
 
-      <el-select v-model="controller.whileController.operator" :placeholder="$t('commons.please_select')" size="small"
-                 @change="change" style="width: 10%;margin-left: 10px">
-        <el-option v-for="o in operators" :key="o.value" :label="$t(o.label)" :value="o.value"/>
-      </el-select>
-      <el-input size="small" v-model="controller.whileController.value" :placeholder="$t('api_test.value')" v-if="!hasEmptyOperator" style="width: 20%;margin-left: 20px"/>
-      <span class="ms-span ms-radio">{{$t('loop.timeout')}}</span>
-      <el-input-number size="small" v-model="controller.whileController.timeout" :placeholder="$t('commons.millisecond')" :max="1000*10000000" :min="1" :step="1000"/>
-      <span class="ms-span ms-radio">ms</span>
-    </div>
+        <el-select v-model="controller.whileController.operator" :placeholder="$t('commons.please_select')" size="small"
+                   @change="change" style="width: 10%;margin-left: 10px">
+          <el-option v-for="o in operators" :key="o.value" :label="$t(o.label)" :value="o.value"/>
+        </el-select>
+        <el-input size="small" v-model="controller.whileController.value" :placeholder="$t('api_test.value')" v-if="!hasEmptyOperator" style="width: 20%;margin-left: 20px"/>
+        <span class="ms-span ms-radio">{{$t('loop.timeout')}}</span>
+        <el-input-number size="small" v-model="controller.whileController.timeout" :placeholder="$t('commons.millisecond')" :max="1000*10000000" :min="1" :step="1000"/>
+        <span class="ms-span ms-radio">ms</span>
+      </div>
 
-    <p class="tip">{{$t('api_test.definition.request.res_param')}} </p>
-    <el-tabs v-model="activeName">
-      <el-tab-pane :label="item.name" :name="item.name" v-for="(item,index) in requestResult.scenarios" :key="index">
-        <div v-for="(result,i) in item.requestResults" :key="i" style="margin-bottom: 5px">
-          <api-response-component :result="result"/>
-        </div>
-      </el-tab-pane>
-    </el-tabs>
+      <p class="tip">{{$t('api_test.definition.request.res_param')}} </p>
+      <el-tabs v-model="activeName">
+        <el-tab-pane :label="item.name" :name="item.name" v-for="(item,index) in requestResult.scenarios" :key="index">
+          <div v-for="(result,i) in item.requestResults" :key="i" style="margin-bottom: 5px">
+            <api-response-component :result="result"/>
+          </div>
+        </el-tab-pane>
+      </el-tabs>
 
-    <ms-run :debug="true" :environment="currentEnvironmentId" :reportId="reportId" :run-data="debugData"
-            @runRefresh="runRefresh" ref="runTest"/>
+    </api-base-component>
 
-  </api-base-component>
+  </div>
 </template>
 
 <script>
@@ -199,8 +200,8 @@
           this.$warning("当前循环下没有请求，不能执行")
           return;
         }
+        this.controller.active = true;
         this.loading = true;
-
         this.debugData = {
           id: this.currentScenario.id, name: this.currentScenario.name, type: "scenario",
           variables: this.currentScenario.variables, referenced: 'Created', enableCookieShare: this.enableCookieShare,

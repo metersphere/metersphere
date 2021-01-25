@@ -121,6 +121,14 @@ public class MsScenario extends MsTestElement {
             variables.stream().filter(ScenarioVariable::isConstantValid).forEach(keyValue ->
                     arguments.addArgument(keyValue.getName(), keyValue.getValue(), "=")
             );
+
+            List<ScenarioVariable> variableList = variables.stream().filter(ScenarioVariable::isListValid).collect(Collectors.toList());
+            variableList.forEach(item -> {
+                String[] arrays = item.getValue().split(",");
+                for (int i = 0; i < arrays.length; i++) {
+                    arguments.addArgument(item.getName() + "_" + (i + 1), arrays[i], "=");
+                }
+            });
         }
         if (config != null && config.getConfig() != null && config.getConfig().getCommonConfig() != null
                 && CollectionUtils.isNotEmpty(config.getConfig().getCommonConfig().getVariables())) {
