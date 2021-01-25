@@ -4,6 +4,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.List;
+import java.util.Map;
 
 @Getter
 @Setter
@@ -23,7 +24,7 @@ public class SaveApiPlanRequest {
      */
     private boolean isSelectAllDate;
 
-    private List<String> filters;
+    private Map<String, List<String>> filters;
 
     private String name;
 
