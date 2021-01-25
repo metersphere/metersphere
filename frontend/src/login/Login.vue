@@ -174,25 +174,9 @@ export default {
       }
     },
     redirectAuth(authId) {
-      if (authId === 'LDAP' || authId === 'LOCAL') {
-        return;
+      if (auth.default) {
+        auth.default.redirectAuth(this, authId);
       }
-      let source = this.authSources.filter(auth => auth.id === authId)[0];
-      if (source.type === 'CAS') {
-        return;
-      }
-      this.$confirm(this.$t('即将跳转到认证源页面进行认证'), '', {
-        confirmButtonText: this.$t('commons.confirm'),
-        cancelButtonText: this.$t('commons.cancel'),
-        type: 'warning'
-      }).then(() => {
-        let config = JSON.parse(source.configuration);
-        let url = config.authUrl + "/auth?client_id=" + config.clientId + "&redirect_uri=" + config.redirectUrl +
-          "&response_type=code&scope=openid+profile+email+offline_access&state=" + authId;
-        window.location.href = url;
-      }).catch(() => {
-        this.form.authenticate = 'LOCAL';
-      });
     }
   }
 }

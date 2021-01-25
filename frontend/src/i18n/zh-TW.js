@@ -129,6 +129,7 @@ export default {
     validate: "校驗",
     batch_add: "批量添加",
     check_project_tip: "請先創建或選擇項目",
+    auth_redirect_tip: '即將跳轉到認證源頁面進行認證',
     table: {
       select_tip: "已选中 {0} 条数据"
     },
@@ -256,8 +257,8 @@ export default {
       nail_robot: '釘釘機器人',
       enterprise_wechat_robot: '企業微信機器人',
       notes: '1.釘釘和企業群裏新建壹個自定義機器人，然後復制 webhook 地址在我們平臺上;\n' +
-      '       2.機器人選擇為群機器人，安全驗證選擇“自定義關鍵詞” ："任務通知";\n' +
-      '       3.選擇接收人時必須是妳所建的群裏包含的人,接收人手機號為必填項且為釘釘企業所使用的手機號,',
+        '       2.機器人選擇為群機器人，安全驗證選擇“自定義關鍵詞” ："任務通知";\n' +
+        '       3.選擇接收人時必須是妳所建的群裏包含的人,接收人手機號為必填項且為釘釘企業所使用的手機號,',
       message: '事件，接收人，接收方式為必填項',
       message_webhook: '接收方式為釘釘和企業機器人時，webhook為必填項',
       template: "模版"
@@ -832,8 +833,8 @@ export default {
       swagger_export_tip: "通過 Swagger 頁面導出",
       suffixFormatErr: "文件格式不符合要求",
       swagger_url_import: "使用URL導入",
-      timing_synchronization:"定時同步",
-      next_synchronization_time:"下次同步時間",
+      timing_synchronization: "定時同步",
+      next_synchronization_time: "下次同步時間",
 
     },
     home_page: {
