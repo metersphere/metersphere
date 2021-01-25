@@ -54,6 +54,12 @@ public class TestPlanReportController {
         testPlanReportService.delete(testPlanReportIdList);
     }
 
+    @PostMapping("/deleteBatchByParams")
+    public void deleteBatchByParams(@RequestBody QueryTestPlanReportRequest request) {
+        testPlanReportService.delete(request);
+    }
+
+
     @GetMapping("/apiExecuteFinish/{planId}/{userId}")
     public void apiExecuteFinish(@PathVariable String planId,@PathVariable String userId) {
         TestPlanReport report = testPlanReportService.genTestPlanReport(planId,userId,ReportTriggerMode.API.name());
