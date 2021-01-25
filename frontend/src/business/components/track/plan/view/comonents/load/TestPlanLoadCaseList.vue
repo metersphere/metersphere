@@ -284,15 +284,15 @@ export default {
     },
     sort(column) {
       // 每次只对一个字段排序
-      // if (this.condition.orders) {
-      //   this.condition.orders = [];
-      // }
-      // _sort(column, this.condition);
-      // this.initTable();
+      if (this.condition.orders) {
+        this.condition.orders = [];
+      }
+      _sort(column, this.condition);
+      this.initTable();
     },
     filter(filters) {
-      // _filter(filters, this.condition);
-      // this.initTable();
+      _filter(filters, this.condition);
+      this.initTable();
     },
     getReport(data) {
       const {loadReportId} = data;
