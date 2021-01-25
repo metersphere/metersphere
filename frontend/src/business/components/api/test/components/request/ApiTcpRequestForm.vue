@@ -120,7 +120,7 @@ import {Scenario, TCPConfig, TCPRequest} from "@/business/components/api/test/mo
 import MsApiAssertions from "@/business/components/api/test/components/assertion/ApiAssertions";
 import MsApiExtract from "@/business/components/api/test/components/extract/ApiExtract";
 import MsCodeEdit from "@/business/components/common/components/MsCodeEdit";
-import MsJsr233Processor from "../../../automation/scenario/component/Jsr233Processor";
+import MsJsr233Processor from "../processor/Jsr233Processor";
 
 export default {
   name: "MsApiTcpRequestForm",
