@@ -20,7 +20,9 @@
     </template>
 
     <template v-slot:button>
-      <el-button @click="run" :tip="$t('api_test.run')" icon="el-icon-video-play" style="background-color: #409EFF;color: white;" size="mini" circle/>
+      <el-tooltip :content="$t('api_test.run')" placement="top">
+        <el-button @click="run" icon="el-icon-video-play" style="background-color: #409EFF;color: white;" size="mini" circle/>
+      </el-tooltip>
     </template>
 
     <div v-if="request.protocol === 'HTTP'">
@@ -42,7 +44,7 @@
     <ms-dubbo-basis-parameters :request="request" v-if="request.protocol==='DUBBO' || request.protocol==='dubbo://'|| request.type==='DubboSampler'" :showScript="false"/>
 
     <p class="tip">{{$t('api_test.definition.request.res_param')}} </p>
-    <api-response-component :result="request.requestResult"/>
+    <api-response-component :currentProtocol="request.protocol" :result="request.requestResult"/>
 
     <!-- 保存操作 -->
     <el-button type="primary" size="small" style="margin: 20px; float: right" @click="saveTestCase(item)" v-if="!request.referenced">
@@ -86,7 +88,7 @@
         reqOptions: REQ_METHOD,
         reportId: "",
         runData: [],
-        isShowInput: false
+        isShowInput: false,
       }
     },
     created() {

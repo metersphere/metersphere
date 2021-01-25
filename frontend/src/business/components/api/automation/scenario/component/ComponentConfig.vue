@@ -31,7 +31,7 @@
     },
     data() {
       return {
-        title: this.$t('api_test.automation.customize_script'),
+        title: "",
         titleColor: "",
         backgroundColor: "",
       }
