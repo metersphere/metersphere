@@ -139,4 +139,8 @@ public class TestPlanLoadCaseService {
             testPlanLoadCaseMapper.updateByPrimaryKeySelective(testPlanLoadCase);
         }
     }
+
+    public List<String> getStatus(String planId) {
+        return extTestPlanLoadCaseMapper.getStatusByTestPlanId(planId);
+    }
 }
