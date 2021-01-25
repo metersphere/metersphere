@@ -8,4 +8,5 @@ public class MsWhileController {
     private String operator;
     private String value;
     private int timeout;
+    private Object requestResult;
 }

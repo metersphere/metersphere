@@ -64,11 +64,11 @@ export class HttpConfig extends BaseConfig {
   constructor(options = {}) {
     super();
 
-    this.socket = undefined;
-    this.domain = undefined;
+    this.socket = '';
+    this.domain = '';
     this.headers = [];
     this.protocol = 'https';
-    this.port = undefined;
+    this.port = '';
 
     this.set(options);
     this.sets({headers: KeyValue}, options);
