@@ -129,6 +129,7 @@ export default {
     validate: "Validate",
     batch_add: "Batch add",
     check_project_tip: "Create or select the project first",
+    auth_redirect_tip: 'Jump to the authentication source page for authentication',
     table: {
       select_tip: "Item {0} data is selected"
     },
@@ -831,8 +832,8 @@ export default {
       swagger_export_tip: "Export jSON-formatted files via Swagger website",
       suffixFormatErr: "The file format does not meet the requirements",
       swagger_url_import: "Import using URL",
-      timing_synchronization:"Timing synchronization",
-      next_synchronization_time:"Next synchronization time",
+      timing_synchronization: "Timing synchronization",
+      next_synchronization_time: "Next synchronization time",
 
     },
     home_page: {
@@ -1493,6 +1494,6 @@ export default {
     format: "Output format",
   },
   auth_source: {
-    delete_prompt:'This operation will delete the authentication source, do you want to continue? '
+    delete_prompt: 'This operation will delete the authentication source, do you want to continue? '
   }
 };
