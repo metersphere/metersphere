@@ -104,6 +104,8 @@ public class TestPlanService {
     private ExtTestPlanApiCaseMapper extTestPlanApiCaseMapper;
     @Resource
     private ExtTestPlanLoadCaseMapper extTestPlanLoadCaseMapper;
+    @Resource
+    private ExtTestPlanScenarioCaseMapper extTestPlanScenarioCaseMapper;
 
     public synchronized void addTestPlan(AddTestPlanRequest testPlan) {
         if (getTestPlanByName(testPlan.getName()).size() > 0) {
@@ -598,6 +600,14 @@ public class TestPlanService {
         List<String> apiStatusList = extTestPlanApiCaseMapper.getStatusByTestPlanId(planId);
         for (String apiStatus : apiStatusList) {
             if (apiStatus == null) {
+                return TestPlanStatus.Underway.name();
+            }
+        }
+
+        // test-plan-scenario-case status
+        List<String> scenarioStatusList = extTestPlanScenarioCaseMapper.getExecResultByPlanId(planId);
+        for (String scenarioStatus : scenarioStatusList) {
+            if (scenarioStatus == null) {
                 return TestPlanStatus.Underway.name();
             }
         }
