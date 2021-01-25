@@ -19,10 +19,7 @@ import io.metersphere.api.jmeter.JMeterService;
 import io.metersphere.api.service.ApiAutomationService;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
-import io.metersphere.base.mapper.ext.ExtApiScenarioMapper;
-import io.metersphere.base.mapper.ext.ExtTestCaseMapper;
-import io.metersphere.base.mapper.ext.ExtTestPlanMapper;
-import io.metersphere.base.mapper.ext.ExtTestPlanTestCaseMapper;
+import io.metersphere.base.mapper.ext.*;
 import io.metersphere.commons.constants.*;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.user.SessionUser;
@@ -103,6 +100,12 @@ public class TestPlanService {
     private JMeterService jMeterService;
     @Resource
     private ApiAutomationService apiAutomationService;
+    @Resource
+    private ExtTestPlanApiCaseMapper extTestPlanApiCaseMapper;
+    @Resource
+    private ExtTestPlanLoadCaseMapper extTestPlanLoadCaseMapper;
+    @Resource
+    private ExtTestPlanScenarioCaseMapper extTestPlanScenarioCaseMapper;
 
     public synchronized void addTestPlan(AddTestPlanRequest testPlan) {
         if (getTestPlanByName(testPlan.getName()).size() > 0) {
@@ -550,18 +553,10 @@ public class TestPlanService {
     }
 
     public void editTestPlanStatus(String planId) {
-        List<String> statusList = extTestPlanTestCaseMapper.getStatusByPlanId(planId);
         TestPlan testPlan = new TestPlan();
         testPlan.setId(planId);
-        for (String status : statusList) {
-            if (StringUtils.equals(status, TestPlanTestCaseStatus.Prepare.name())
-                    || StringUtils.equals(status, TestPlanTestCaseStatus.Underway.name())) {
-                testPlan.setStatus(TestPlanStatus.Underway.name());
-                testPlanMapper.updateByPrimaryKeySelective(testPlan);
-                return;
-            }
-        }
-        testPlan.setStatus(TestPlanStatus.Completed.name());
+        String status = calcTestPlanStatus(planId);
+        testPlan.setStatus(status);
         testPlanMapper.updateByPrimaryKeySelective(testPlan);
         TestPlan testPlans = getTestPlan(planId);
         List<String> userIds = new ArrayList<>();
@@ -588,6 +583,44 @@ public class TestPlanService {
             }
         }
 
+    }
+
+
+    private String calcTestPlanStatus(String planId) {
+        // test-plan-functional-case status
+        List<String> funcStatusList = extTestPlanTestCaseMapper.getStatusByPlanId(planId);
+        for (String funcStatus : funcStatusList) {
+            if (StringUtils.equals(funcStatus, TestPlanTestCaseStatus.Prepare.name())
+                    || StringUtils.equals(funcStatus, TestPlanTestCaseStatus.Underway.name())) {
+                return TestPlanStatus.Underway.name();
+            }
+        }
+
+        // test-plan-api-case status
+        List<String> apiStatusList = extTestPlanApiCaseMapper.getStatusByTestPlanId(planId);
+        for (String apiStatus : apiStatusList) {
+            if (apiStatus == null) {
+                return TestPlanStatus.Underway.name();
+            }
+        }
+
+        // test-plan-scenario-case status
+        List<String> scenarioStatusList = extTestPlanScenarioCaseMapper.getExecResultByPlanId(planId);
+        for (String scenarioStatus : scenarioStatusList) {
+            if (scenarioStatus == null) {
+                return TestPlanStatus.Underway.name();
+            }
+        }
+
+        // test-plan-load-case status
+        List<String> loadStatusList = extTestPlanLoadCaseMapper.getStatusByTestPlanId(planId);
+        for (String loadStatus : loadStatusList) {
+            if (loadStatus == null) {
+                return TestPlanStatus.Underway.name();
+            }
+        }
+
+        return TestPlanStatus.Completed.name();
     }
 
     public String getProjectNameByPlanId(String testPlanId) {
