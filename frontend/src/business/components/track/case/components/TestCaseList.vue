@@ -36,7 +36,7 @@
         @select="handleSelectionChange"
         @cell-mouse-enter="showPopover"
         row-key="id"
-        class="test-content adjust-table">
+        class="test-content adjust-table" @row-click="handleEdit">
         <el-table-column
           type="selection"/>
         <el-table-column width="40" :resizable="false" align="center">
