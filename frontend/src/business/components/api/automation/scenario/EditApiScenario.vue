@@ -5,7 +5,7 @@
 
         <!--操作按钮-->
         <div class="ms-opt-btn">
-          <el-button type="primary" size="small" @click="editScenario">{{$t('commons.save')}}</el-button>
+          <el-button type="primary" size="small" @click="editScenario" title="ctrl + s">{{$t('commons.save')}}</el-button>
         </div>
 
         <div class="tip">{{$t('test_track.plan_view.base_info')}}</div>
@@ -222,6 +222,7 @@
   import ScenarioApiRelevance from "./api/ApiRelevance";
   import ScenarioRelevance from "./api/ScenarioRelevance";
   import MsComponentConfig from "./component/ComponentConfig";
+  import {handleCtrlSEvent} from "../../../../../common/js/utils";
 
   export default {
     name: "EditApiScenario",
@@ -295,6 +296,7 @@
       this.operatingElements = ELEMENTS.get("ALL");
       this.getMaintainerOptions();
       this.getApiScenario();
+      this.addListener(); //  添加 ctrl s 监听
     },
     directives: {OutsideClick},
     computed: {
@@ -413,6 +415,17 @@
       }
     },
     methods: {
+      addListener() {
+        document.addEventListener("keydown", this.createCtrlSHandle);
+        // document.addEventListener("keydown", (even => handleCtrlSEvent(even, this.$refs.httpApi.saveApi)));
+      },
+      removeListener() {
+        document.removeEventListener("keydown", this.createCtrlSHandle);
+      },
+      createCtrlSHandle(event) {
+        console.log("create ctrl + s");
+        handleCtrlSEvent(event, this.editScenario);
+      },
       getIdx(index) {
         return index - 0.33
       },
@@ -822,15 +835,13 @@
         }
         return bodyUploadFiles;
       },
-      editScenario(showMessage) {
+      editScenario() {
         this.$refs['currentScenario'].validate((valid) => {
           if (valid) {
             this.setParameter();
             let bodyFiles = this.getBodyUploadFiles(this.currentScenario);
             this.$fileUpload(this.path, null, bodyFiles, this.currentScenario, response => {
-              if (showMessage) {
-                this.$success(this.$t('commons.save_success'));
-              }
+              this.$success(this.$t('commons.save_success'));
               this.path = "/api/automation/update";
               if (response.data) {
                 this.currentScenario.id = response.data.id;
