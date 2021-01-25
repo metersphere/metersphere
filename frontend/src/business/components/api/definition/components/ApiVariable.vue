@@ -3,85 +3,83 @@
     <span class="kv-description" v-if="description">
       {{ description }}
     </span>
-    <ms-draggable element="ul" @update="endChange"
-               v-model="keyValues" v-bind="{draggable:'.item'}">
 
-      <div class="item kv-row" v-for="(item, index) in keyValues" :key="index">
-        <el-row type="flex" :gutter="20" justify="space-between" align="middle">
-          <el-button icon="el-icon-sort" circle size="mini"/>
+    <div class="item kv-row" v-for="(item, index) in parameters" :key="index">
+      <el-row type="flex" :gutter="20" justify="space-between" align="middle">
+        <el-col class="kv-checkbox" v-if="isShowEnable">
+          <input type="checkbox" v-if="!isDisable(index)" v-model="item.enable"
+                 :disabled="isReadOnly"/>
+        </el-col>
+        <span style="margin-left: 10px" v-else></span>
+        <i class="el-icon-top" style="cursor:pointer" @click="moveTop(index)"/>
+        <i class="el-icon-bottom" style="cursor:pointer;" @click="moveBottom(index)"/>
 
-          <el-col class="kv-checkbox" v-if="isShowEnable">
-            <input type="checkbox" v-if="!isDisable(index)" v-model="item.enable"
-                   :disabled="isReadOnly"/>
-          </el-col>
+        <el-col class="item">
+          <el-input v-if="!suggestions" :disabled="isReadOnly" v-model="item.name" size="small" maxlength="200"
+                    @change="change" :placeholder="keyText" show-word-limit>
+            <template v-slot:prepend>
+              <el-select v-if="type === 'body'" :disabled="isReadOnly" class="kv-type" v-model="item.type"
+                         @change="typeChange(item)">
+                <el-option value="text"/>
+                <el-option value="file"/>
+              </el-select>
+            </template>
+          </el-input>
 
-          <el-col class="item">
-            <el-input v-if="!suggestions" :disabled="isReadOnly" v-model="item.name" size="small" maxlength="200"
-                      @change="change" :placeholder="keyText" show-word-limit>
-              <template v-slot:prepend>
-                <el-select v-if="type === 'body'" :disabled="isReadOnly" class="kv-type" v-model="item.type"
-                           @change="typeChange(item)">
-                  <el-option value="text"/>
-                  <el-option value="file"/>
-                </el-select>
-              </template>
-            </el-input>
+          <el-autocomplete :disabled="isReadOnly" v-if="suggestions" v-model="item.name" size="small"
+                           :fetch-suggestions="querySearch" @change="change" :placeholder="keyText" show-word-limit/>
 
-            <el-autocomplete :disabled="isReadOnly" v-if="suggestions" v-model="item.name" size="small"
-                             :fetch-suggestions="querySearch" @change="change" :placeholder="keyText" show-word-limit/>
+        </el-col>
 
-          </el-col>
+        <el-col class="item kv-select">
+          <el-select v-model="item.required" size="small">
+            <el-option v-for="req in requireds" :key="req.id" :label="req.name" :value="req.id"/>
+          </el-select>
+        </el-col>
 
-          <el-col class="item kv-select">
-            <el-select v-model="item.required" size="small">
-              <el-option v-for="req in requireds" :key="req.id" :label="req.name" :value="req.id"/>
-            </el-select>
-          </el-col>
+        <el-col class="item" v-if="item.type !== 'file'">
+          <el-autocomplete
+            :disabled="isReadOnly"
+            size="small"
+            class="input-with-autocomplete"
+            v-model="item.value"
+            :fetch-suggestions="funcSearch"
+            :placeholder="valueText"
+            value-key="name"
+            highlight-first-item
+            @select="change">
+            <i slot="suffix" class="el-input__icon el-icon-edit pointer" @click="advanced(item)"></i>
+          </el-autocomplete>
+        </el-col>
 
-          <el-col class="item" v-if="item.type !== 'file'">
-            <el-autocomplete
-              :disabled="isReadOnly"
-              size="small"
-              class="input-with-autocomplete"
-              v-model="item.value"
-              :fetch-suggestions="funcSearch"
-              :placeholder="valueText"
-              value-key="name"
-              highlight-first-item
-              @select="change">
-              <i slot="suffix" class="el-input__icon el-icon-edit pointer" @click="advanced(item)"></i>
-            </el-autocomplete>
-          </el-col>
+        <el-col class="item">
+          <el-input v-model="item.description" size="small" maxlength="200"
+                    :placeholder="$t('commons.description')" show-word-limit>
+          </el-input>
 
-          <el-col class="item">
-            <el-input v-model="item.description" size="small" maxlength="200"
-                      :placeholder="$t('commons.description')" show-word-limit>
-            </el-input>
+          <el-autocomplete :disabled="isReadOnly" v-if="suggestions" v-model="item.name" size="small"
+                           :fetch-suggestions="querySearch" @change="change" :placeholder="keyText" show-word-limit/>
 
-            <el-autocomplete :disabled="isReadOnly" v-if="suggestions" v-model="item.name" size="small"
-                             :fetch-suggestions="querySearch" @change="change" :placeholder="keyText" show-word-limit/>
+        </el-col>
 
-          </el-col>
+        <el-col v-if="item.type === 'file'" class="item">
+          <ms-api-body-file-upload :parameter="item"/>
+        </el-col>
 
-          <el-col v-if="item.type === 'file'" class="item">
-            <ms-api-body-file-upload :parameter="item"/>
-          </el-col>
+        <el-col v-if="type === 'body'" class="item kv-select">
+          <el-input :disabled="isReadOnly" v-model="item.contentType" size="small"
+                    @change="change" :placeholder="$t('api_test.request.content_type')" show-word-limit>
+          </el-input>
+        </el-col>
 
-          <el-col v-if="type === 'body'" class="item kv-select">
-            <el-input :disabled="isReadOnly" v-model="item.contentType" size="small"
-                      @change="change" :placeholder="$t('api_test.request.content_type')" show-word-limit>
-            </el-input>
-          </el-col>
-
-          <el-col class="item kv-delete">
-            <el-button size="mini" class="el-icon-delete-solid" circle @click="remove(index)"
-                       :disabled="isDisable(index) || isReadOnly"/>
-          </el-col>
+        <el-col class="item kv-delete">
+          <el-button size="mini" class="el-icon-delete-solid" circle @click="remove(index)"
+                     :disabled="isDisable(index) || isReadOnly"/>
+        </el-col>
 
 
-        </el-row>
-      </div>
-    </ms-draggable>
+      </el-row>
+    </div>
     <ms-api-variable-advance ref="variableAdvance" :environment="environment" :scenario="scenario"
                              :parameters="parameters"
                              :current-item="currentItem"/>
@@ -94,11 +92,11 @@
   import MsApiVariableAdvance from "./ApiVariableAdvance";
   import MsApiBodyFileUpload from "./body/ApiBodyFileUpload";
   import {REQUIRED} from "../model/JsonData";
-  import MsDraggable from 'vuedraggable'
+  import Vue from 'vue';
 
   export default {
     name: "MsApiVariable",
-    components: {MsApiBodyFileUpload, MsApiVariableAdvance, MsDraggable},
+    components: {MsApiBodyFileUpload, MsApiVariableAdvance},
     props: {
       keyPlaceholder: String,
       valuePlaceholder: String,
@@ -125,7 +123,6 @@
       return {
         currentItem: null,
         requireds: REQUIRED,
-        keyValues: [],
       }
     },
     computed: {
@@ -137,6 +134,25 @@
       }
     },
     methods: {
+      moveBottom(index) {
+        if (this.parameters.length < 2 || index === this.parameters.length - 2) {
+          return;
+        }
+        let thisRow = this.parameters[index];
+        let nextRow = this.parameters[index + 1];
+        Vue.set(this.parameters, index + 1, thisRow);
+        Vue.set(this.parameters, index, nextRow)
+      },
+      moveTop(index) {
+        if (index === 0) {
+          return;
+        }
+        let thisRow = this.parameters[index];
+        let lastRow = this.parameters[index - 1];
+        Vue.set(this.parameters, index - 1, thisRow);
+        Vue.set(this.parameters, index, lastRow)
+
+      },
       remove: function (index) {
         // 移除整行输入控件及内容
         this.parameters.splice(index, 1);
@@ -204,21 +220,6 @@
           item.contentType = 'text/plain';
         }
       },
-      endChange(env) {
-        if (env.newIndex == env.oldIndex) {
-          return;
-        }
-        let newItem = this.keyValues[env.newIndex];
-        let oldItem = this.keyValues[env.oldIndex];
-        this.$set(this.keyValues, env.oldIndex, oldItem);
-        this.$set(this.keyValues, env.newIndex, newItem)
-        this.parameters.forEach(item => {
-          this.parameters.splice(0);
-        })
-        this.keyValues.forEach(item => {
-          this.parameters.push(item);
-        })
-      }
     },
     created() {
       if (this.parameters.length === 0 || this.parameters[this.parameters.length - 1].name) {
@@ -230,7 +231,6 @@
           contentType: 'text/plain'
         }));
       }
-      this.keyValues = this.parameters;
     }
   }
 </script>

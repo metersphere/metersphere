@@ -43,7 +43,7 @@
 
         <p class="tip">{{$t('api_test.definition.request.req_param')}} </p>
         <!-- HTTP 请求参数 -->
-        <ms-api-request-form :headers="api.request.headers" :request="api.request"/>
+        <ms-api-request-form :isShowEnable="true" :headers="api.request.headers" :request="api.request"/>
 
       </el-form>
       <!--返回结果-->
