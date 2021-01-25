@@ -65,7 +65,7 @@
   import MsDubboRegistryCenter from "@/business/components/api/test/components/request/dubbo/RegistryCenter";
   import MsDubboConfigCenter from "@/business/components/api/test/components/request/dubbo/ConfigCenter";
   import MsDubboConsumerService from "@/business/components/api/test/components/request/dubbo/ConsumerAndService";
-  import MsJsr233Processor from "../../../automation/scenario/component/Jsr233Processor";
+  import MsJsr233Processor from "../processor/Jsr233Processor";
 
   export default {
     name: "MsApiDubboRequestForm",
