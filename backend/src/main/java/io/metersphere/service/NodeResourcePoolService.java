@@ -46,8 +46,21 @@ public class NodeResourcePoolService {
                 })
                 .distinct()
                 .collect(Collectors.toList());
-        if (nodeIps.size() < testResourcePool.getResources().size()) {
+        List<Integer> nodePorts = testResourcePool.getResources().stream()
+                .map(resource -> {
+                    NodeDTO nodeDTO = JSON.parseObject(resource.getConfiguration(), NodeDTO.class);
+                    return nodeDTO.getPort();
+                })
+                .distinct()
+                .collect(Collectors.toList());
+        if (nodeIps.size() < testResourcePool.getResources().size() && nodePorts.size() < testResourcePool.getResources().size()) {
+            MSException.throwException(Translator.get("duplicate_node_ip_port"));
+        }
+        else if (nodeIps.size() < testResourcePool.getResources().size()) {
             MSException.throwException(Translator.get("duplicate_node_ip"));
+        }
+        else if (nodePorts.size() < testResourcePool.getResources().size()) {
+            MSException.throwException(Translator.get("duplicate_node_port"));
         }
         testResourcePool.setStatus(VALID.name());
         boolean isValid = true;
