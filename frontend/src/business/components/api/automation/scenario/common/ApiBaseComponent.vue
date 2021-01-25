@@ -24,6 +24,7 @@
       </span>
 
       <div class="header-right" @click.stop>
+        <slot name="message"></slot>
         <el-switch v-model="data.enable" class="enable-switch"/>
         <slot name="button"></slot>
         <el-button size="mini" icon="el-icon-copy-document" circle @click="copyRow"/>
