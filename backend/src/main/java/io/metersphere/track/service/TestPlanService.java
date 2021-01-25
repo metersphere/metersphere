@@ -382,7 +382,17 @@ public class TestPlanService {
                 }
             });
 
-            testPlan.setTotal(apiExecResults.size() + scenarioExecResults.size() + functionalExecResults.size());
+            List<String> loadResults = testPlanLoadCaseService.getStatus(testPlan.getId());
+            loadResults.forEach(item -> {
+                if (StringUtils.isNotBlank(item)) {
+                    testPlan.setTested(testPlan.getTested() + 1);
+                    if (StringUtils.equals(item, "success")) {
+                        testPlan.setPassed(testPlan.getPassed() + 1);
+                    }
+                }
+            });
+
+            testPlan.setTotal(apiExecResults.size() + scenarioExecResults.size() + functionalExecResults.size() + loadResults.size());
 
             testPlan.setPassRate(MathUtils.getPercentWithDecimal(testPlan.getTested() == 0 ? 0 : testPlan.getPassed() * 1.0 / testPlan.getTested()));
             testPlan.setTestRate(MathUtils.getPercentWithDecimal(testPlan.getTotal() == 0 ? 0 : testPlan.getTested() * 1.0 / testPlan.getTotal()));
