@@ -49,8 +49,13 @@
       },
       methods: {
         validateSocket(socket) {
-          // if (!socket) return true;
-          if (socket !== ''){
+          if (!socket) {
+            this.httpConfig.domain = socket;
+            this.httpConfig.port = '';
+            this.httpConfig.socket = socket;
+            return true;
+          }
+
           let urlStr = this.httpConfig.protocol + '://' + socket;
           let url = {};
           try {
@@ -67,13 +72,6 @@
             this.httpConfig.socket = this.httpConfig.domain + path;
           }
           return true;
-          }else {
-            this.httpConfig.domain = socket;
-            this.httpConfig.port = '';
-            this.httpConfig.socket = socket;
-            return true;
-          }
-          
         },
         validate() {
           let isValidate = false;

@@ -275,7 +275,6 @@ public class Swagger2Parser extends SwaggerAbstractParser {
                         } else {
                             propertyList.add(new JSONObject());
                         }
-
                         jsonObject.put(key, propertyList);
                     } else {
                         jsonObject.put(key, new ArrayList<>());
