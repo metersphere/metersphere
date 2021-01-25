@@ -137,12 +137,6 @@ export default {
       return false;
     },
     filter(val) {
-      if (!val) {
-        val = this.filterText;
-      } else {
-        // 记录condition 的 filterText
-        this.filterText = val;
-      }
       this.$nextTick(() => {
         this.$refs.tree.filter(val);
       });
