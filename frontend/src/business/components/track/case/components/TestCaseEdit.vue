@@ -320,6 +320,7 @@ export default {
           result: ''
         }],
         remark: '',
+        tags: [],
       },
       moduleOptions: [],
       maintainerOptions: [],
@@ -353,7 +354,7 @@ export default {
       testCase: {},
       testCases: [],
       index: 0,
-      showInputTag: false,
+      showInputTag: true,
     };
   },
   props: {
@@ -419,6 +420,7 @@ export default {
         this.form.type = 'functional';
         this.form.method = 'manual';
         this.form.maintainer = user.id;
+        this.form.tags = [];
         this.getSelectOptions();
         this.reload();
       }
