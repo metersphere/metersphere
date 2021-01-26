@@ -290,7 +290,9 @@ public class Swagger2Parser extends SwaggerAbstractParser {
                     }
                     refSet.add(simpleRef);
                     Model model = definitions.get(simpleRef);
-                    jsonObject.put(key, getBodyParameters(model.getProperties(), refSet));
+                    if (model != null) {
+                        jsonObject.put(key, getBodyParameters(model.getProperties(), refSet));
+                    }
                 } else {
                     jsonObject.put(key, getDefaultValueByPropertyType(value));
                 }

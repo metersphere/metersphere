@@ -35,7 +35,7 @@
           closable>
           <div class="ms-api-scenario-div">
             <ms-edit-api-scenario @refresh="refresh" :currentScenario="item.currentScenario"
-                                  :moduleOptions="moduleOptions"/>
+                                  :moduleOptions="moduleOptions" ref="autoScenarioConfig"/>
           </div>
         </el-tab-pane>
 
@@ -111,6 +111,16 @@
           // 在 DOM 中添加 my-component 组件
           this.renderComponent = true;
         });
+      },
+      '$route'(to, from) {  //  路由改变时，把接口定义界面中的 ctrl s 保存快捷键监听移除
+        if (to.path.indexOf('/api/automation') == -1) {
+          if (this.$refs && this.$refs.autoScenarioConfig) {
+            console.log(this.$refs.autoScenarioConfig);
+            this.$refs.autoScenarioConfig.forEach(item => {
+              item.removeListener();
+            });
+          }
+        }
       }
     },
     methods: {
@@ -158,6 +168,20 @@
           label = tab.currentScenario.name;
           this.tabs.push({label: label, name: name, currentScenario: tab.currentScenario});
         }
+        if (this.$refs && this.$refs.autoScenarioConfig) {
+          this.$refs.autoScenarioConfig.forEach(item => {
+            item.removeListener();
+          });  //  删除所有tab的 ctrl + s 监听
+          this.addListener();
+        }
+      },
+      addListener() {
+        let index = this.tabs.findIndex(item => item.name === this.activeName); //  找到当前选中tab的index
+        if(index != -1) {   //  为当前选中的tab添加监听
+          this.$nextTick(()=>{
+            this.$refs.autoScenarioConfig[index].addListener();
+          });
+        }
       },
       handleTabClose() {
         this.tabs = [];
@@ -181,6 +205,7 @@
         this.tabs = this.tabs.filter(tab => tab.name !== targetName);
         if (this.tabs.length > 0) {
           this.activeName = this.tabs[this.tabs.length - 1].name;
+          this.addListener(); //  自动切换当前标签时，也添加监听
         } else {
           this.activeName = "default"
         }
