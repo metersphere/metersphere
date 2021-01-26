@@ -311,6 +311,15 @@
         </foreach>
     </update>
 
+    <update id="removeToGcByExample" parameterType="io.metersphere.base.domain.ApiDefinitionExample">
+        update api_definition
+        set
+        status = 'Trash', module_path = null, module_id = null
+        <if test="_parameter != null">
+            <include refid="Example_Where_Clause" />
+        </if>
+    </update>
+
     <update id="reduction">
         update api_definition
         set
