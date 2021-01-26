@@ -116,7 +116,7 @@
   }
 
   .search-bar {
-    width: 200px
+    width: 240px
   }
 
 </style>
