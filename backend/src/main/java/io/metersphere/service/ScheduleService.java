@@ -2,11 +2,10 @@ package io.metersphere.service;
 
 import com.alibaba.fastjson.JSON;
 import io.metersphere.api.dto.datacount.response.TaskInfoResult;
-import io.metersphere.base.domain.Schedule;
-import io.metersphere.base.domain.ScheduleExample;
-import io.metersphere.base.domain.User;
-import io.metersphere.base.domain.UserExample;
+import io.metersphere.api.dto.definition.ApiSwaggerUrlDTO;
+import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ScheduleMapper;
+import io.metersphere.base.mapper.SwaggerUrlProjectMapper;
 import io.metersphere.base.mapper.UserMapper;
 import io.metersphere.base.mapper.ext.ExtScheduleMapper;
 import io.metersphere.commons.constants.ScheduleGroup;
@@ -49,6 +48,8 @@ public class ScheduleService {
     private ExtScheduleMapper extScheduleMapper;
     @Resource
     private UserMapper userMapper;
+    @Resource
+    private SwaggerUrlProjectMapper swaggerUrlProjectMapper;
 
     public void addSchedule(Schedule schedule) {
         schedule.setId(UUID.randomUUID().toString());
@@ -56,6 +57,12 @@ public class ScheduleService {
         schedule.setCreateTime(System.currentTimeMillis());
         schedule.setUpdateTime(System.currentTimeMillis());
         scheduleMapper.insert(schedule);
+    }
+    public void addSwaggerUrlSchedule(SwaggerUrlProject swaggerUrlProject) {
+        swaggerUrlProjectMapper.insert(swaggerUrlProject);
+    }
+    public ApiSwaggerUrlDTO selectApiSwaggerUrlDTO(String id){
+        return extScheduleMapper.select(id);
     }
 
     public Schedule getSchedule(String ScheduleId) {
@@ -111,7 +118,7 @@ public class ScheduleService {
                     LogUtil.error("初始化任务：" + JSON.toJSONString(schedule));
                     scheduleManager.addOrUpdateCronJob(new JobKey(schedule.getKey(), schedule.getGroup()),
                             new TriggerKey(schedule.getKey(), schedule.getGroup()), Class.forName(schedule.getJob()), schedule.getValue(),
-                            scheduleManager.getDefaultJobDataMap(schedule.getResourceId(), schedule.getValue(), schedule.getUserId(),schedule.getSwaggerUrl()));
+                            scheduleManager.getDefaultJobDataMap(schedule.getResourceId(), schedule.getValue(), schedule.getUserId()));
                 }
             } catch (Exception e) {
                 LogUtil.error("初始化任务失败", e);
@@ -140,7 +147,7 @@ public class ScheduleService {
         if (enable != null && enable && StringUtils.isNotBlank(cronExpression)) {
             try {
                 scheduleManager.addOrUpdateCronJob(jobKey, triggerKey, clazz, cronExpression,
-                        scheduleManager.getDefaultJobDataMap(request.getResourceId(), cronExpression, SessionUtils.getUser().getId(),request.getSwaggerUrl()));
+                        scheduleManager.getDefaultJobDataMap(request.getResourceId(), cronExpression, SessionUtils.getUser().getId()));
             } catch (SchedulerException e) {
                 LogUtil.error(e.getMessage(), e);
                 MSException.throwException("定时任务开启异常");

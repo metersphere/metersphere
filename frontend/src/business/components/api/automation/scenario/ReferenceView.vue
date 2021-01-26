@@ -1,6 +1,6 @@
 <template>
   <el-dialog :close-on-click-modal="false" :title="$t('api_test.automation.scenario_ref')" :visible.sync="visible"
-             width="45%" :destroy-on-close="true" append-to-body>
+             width="45%" :destroy-on-close="true" >
     <span>{{ $t('api_test.automation.scenario_ref') }}：</span>
     <div class="refs" v-loading="scenarioLoading">
       <div v-for="(item, index) in scenarioRefs" :key="index" class="el-button--text">{{ item.name }}</div>

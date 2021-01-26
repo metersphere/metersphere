@@ -97,7 +97,7 @@ public class Swagger3Parser extends SwaggerAbstractParser {
                 Operation operation = operationsMap.get(method);
                 if (operation != null) {
                     MsHTTPSamplerProxy request = buildRequest(operation, pathName, method);
-                    ApiDefinitionResult apiDefinition = buildApiDefinition(request.getId(), operation, pathName, method);
+                    ApiDefinitionResult apiDefinition = buildApiDefinition(request.getId(), operation, pathName, method,importRequest);
                     parseParameters(operation, request);
                     parseRequestBody(operation.getRequestBody(), request.getBody());
                     addBodyHeader(request);
@@ -112,7 +112,7 @@ public class Swagger3Parser extends SwaggerAbstractParser {
         return results;
     }
 
-    private ApiDefinitionResult buildApiDefinition(String id, Operation operation, String path, String method) {
+    private ApiDefinitionResult buildApiDefinition(String id, Operation operation, String path, String method,ApiTestImportRequest importRequest) {
         String name = "";
         if (StringUtils.isNotBlank(operation.getSummary())) {
             name = operation.getSummary();
@@ -121,7 +121,7 @@ public class Swagger3Parser extends SwaggerAbstractParser {
         } else {
             name = path;
         }
-        return buildApiDefinition(id, name, path, method);
+        return buildApiDefinition(id, name, path, method,importRequest);
     }
 
     private MsHTTPSamplerProxy buildRequest(Operation operation, String path, String method) {
