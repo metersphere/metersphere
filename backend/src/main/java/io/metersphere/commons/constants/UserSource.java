@@ -1,5 +1,5 @@
 package io.metersphere.commons.constants;
 
 public enum UserSource {
-    LOCAL, LDAP
+    LOCAL, LDAP, CAS, OIDC
 }

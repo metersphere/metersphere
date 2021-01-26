@@ -10,6 +10,7 @@ import io.metersphere.commons.constants.UserStatus;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.user.SessionUser;
 import io.metersphere.commons.utils.CodingUtil;
+import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.controller.ResultHolder;
 import io.metersphere.controller.request.LoginRequest;
@@ -607,5 +608,12 @@ public class UserService {
 
     public List<User> searchUser(String condition) {
         return extUserMapper.searchUser(condition);
+    }
+
+    public void logout() throws Exception {
+        SSOService ssoService = CommonBeanFactory.getBean(SSOService.class);
+        if (ssoService != null) {
+            ssoService.logout();
+        }
     }
 }
