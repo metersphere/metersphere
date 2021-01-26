@@ -74,6 +74,7 @@ public class PostmanParser extends ApiImportAbstractParser {
         parseBody(request.getBody(), requestDesc);
         request.setArguments(parseKeyValue(url.getQuery()));
         request.setHeaders(parseKeyValue(requestDesc.getHeader()));
+        addBodyHeader(request);
         apiDefinition.setRequest(JSON.toJSONString(request));
         return apiDefinition;
     }

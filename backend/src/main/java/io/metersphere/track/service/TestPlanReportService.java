@@ -2,6 +2,8 @@ package io.metersphere.track.service;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import io.metersphere.api.dto.definition.ApiDefinitionRequest;
+import io.metersphere.api.dto.definition.ApiDefinitionResult;
 import io.metersphere.api.jmeter.TestResult;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
@@ -109,7 +111,6 @@ public class TestPlanReportService {
         TestPlanReport testPlanReport = new TestPlanReport();
         testPlanReport.setTestPlanId(planId);
         testPlanReport.setId(testPlanReportID);
-        testPlanReport.setStatus(APITestStatus.Starting.name());
         testPlanReport.setCreateTime(System.currentTimeMillis());
         testPlanReport.setUpdateTime(System.currentTimeMillis());
         try {
@@ -136,6 +137,12 @@ public class TestPlanReportService {
             testPlanReport.setIsPerformanceExecuting(true);
         }
         testPlanReport.setPrincipal(testPlan.getPrincipal());
+
+        if(testPlanReport.getIsScenarioExecuting() || testPlanReport.getIsApiCaseExecuting() || testPlanReport.getIsPerformanceExecuting()){
+            testPlanReport.setStatus(APITestStatus.Starting.name());
+        }else {
+            testPlanReport.setStatus(APITestStatus.Completed.name());
+        }
         testPlanReportMapper.insert(testPlanReport);
 
         TestPlanReportDataWithBLOBs testPlanReportData = new TestPlanReportDataWithBLOBs();
@@ -327,6 +334,7 @@ public class TestPlanReportService {
             } catch (Exception e) {
 
             }
+        }else {
         }
         testPlanReportMapper.updateByPrimaryKey(report);
     }
@@ -406,5 +414,34 @@ public class TestPlanReportService {
             example.createCriteria().andTestPlanReportIdEqualTo(testPlanReportId);
             testPlanReportDataMapper.deleteByExample(example);
         }
+    }
+
+    public void delete(QueryTestPlanReportRequest request) {
+        List<String> deleteReportIds = request.getDataIds();
+        if (request.isSelectAllDate()) {
+            deleteReportIds = this.getAllApiIdsByFontedSelect(request.getFilters(), request.getName(), request.getProjectId(), request.getUnSelectIds());
+        }
+        TestPlanReportExample deleteReportExample = new TestPlanReportExample();
+        deleteReportExample.createCriteria().andIdIn(deleteReportIds);
+        testPlanReportMapper.deleteByExample(deleteReportExample);
+
+        TestPlanReportDataExample example = new TestPlanReportDataExample();
+        example.createCriteria().andTestPlanReportIdIn(deleteReportIds);
+        testPlanReportDataMapper.deleteByExample(example);
+    }
+
+    private List<String> getAllApiIdsByFontedSelect(Map<String, List<String>> filters, String name, String projectId, List<String> unSelectIds) {
+        QueryTestPlanReportRequest request = new QueryTestPlanReportRequest();
+        request.setFilters(filters);
+        request.setName(name);
+        request.setProjectId(projectId);
+        request.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
+        List<TestPlanReportDTO> resList = extTestPlanReportMapper.list(request);
+        List<String> ids = new ArrayList<>(0);
+        if (!resList.isEmpty()) {
+            List<String> allIds = resList.stream().map(TestPlanReportDTO::getId).collect(Collectors.toList());
+            ids = allIds.stream().filter(id -> !unSelectIds.contains(id)).collect(Collectors.toList());
+        }
+        return ids;
     }
 }

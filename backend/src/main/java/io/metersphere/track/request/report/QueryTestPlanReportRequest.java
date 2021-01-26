@@ -25,5 +25,11 @@ public class QueryTestPlanReportRequest {
 
     private List<OrderRequest> orders;
     private Map<String, List<String>> filters;
-//    private Map<String, Object> combine;
+
+    /**
+     * 批量操作的参数，用于判断是前台表格的当前页数据还是全库数据
+     */
+    private boolean isSelectAllDate;
+    private List<String> unSelectIds;
+    private List<String> dataIds;
 }

@@ -100,6 +100,7 @@ public class Swagger3Parser extends SwaggerAbstractParser {
                     ApiDefinitionResult apiDefinition = buildApiDefinition(request.getId(), operation, pathName, method,importRequest);
                     parseParameters(operation, request);
                     parseRequestBody(operation.getRequestBody(), request.getBody());
+                    addBodyHeader(request);
                     apiDefinition.setRequest(JSON.toJSONString(request));
                     apiDefinition.setResponse(JSON.toJSONString(parseResponse(operation.getResponses())));
                     buildModule(parentNode, apiDefinition, operation.getTags(), importRequest.isSaved());

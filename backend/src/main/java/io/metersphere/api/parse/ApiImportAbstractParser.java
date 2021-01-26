@@ -126,6 +126,34 @@ public abstract class ApiImportAbstractParser implements ApiImportParser {
     }
 
     protected ApiDefinitionResult buildApiDefinition(String id, String name, String path, String method,ApiTestImportRequest importRequest) {
+    protected void addBodyHeader(MsHTTPSamplerProxy request) {
+        String contentType = "";
+        if (request.getBody() != null && StringUtils.isNotBlank(request.getBody().getType())) {
+            switch (request.getBody().getType()) {
+                case Body.WWW_FROM:
+                    contentType = "application/x-www-form-urlencoded";
+                    break;
+                case Body.JSON:
+                    contentType = "application/json";
+                    break;
+                case Body.XML:
+                    contentType = "application/xml";
+                    break;
+                case Body.BINARY:
+                    contentType = "application/octet-stream";
+                    break;
+            }
+            List<KeyValue> headers = request.getHeaders();
+            if (headers == null) {
+                headers = new ArrayList<>();
+                request.setHeaders(headers);
+            }
+            addContentType(request.getHeaders(), contentType);
+
+        }
+    }
+
+    protected ApiDefinitionResult buildApiDefinition(String id, String name, String path, String method) {
         ApiDefinitionResult apiDefinition = new ApiDefinitionResult();
         apiDefinition.setName(name);
         apiDefinition.setPath(formatPath(path));
@@ -172,8 +200,8 @@ public abstract class ApiImportAbstractParser implements ApiImportParser {
         return request;
     }
 
-    protected void addContentType(HttpRequest request, String contentType) {
-//        addHeader(request, "Content-Type", contentType);
+    protected void addContentType(List<KeyValue> headers, String contentType) {
+        addHeader(headers, "Content-Type", contentType);
     }
 
     protected void addCookie(List<KeyValue> headers, String key, String value) {

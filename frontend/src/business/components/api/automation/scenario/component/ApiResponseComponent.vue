@@ -8,7 +8,7 @@
     <el-collapse-transition>
       <div v-if="isActive">
         <el-divider></el-divider>
-        <ms-request-result-tail :show-metric="false" :response="response"/>
+        <ms-request-result-tail :currentProtocol="currentProtocol" :show-metric="false" :response="response"/>
       </div>
     </el-collapse-transition>
   </el-card>
@@ -24,7 +24,7 @@
   export default {
     name: "ApiResponseComponent",
     components: {ElCollapseTransition, MsRequestResultTail, ApiBaseComponent, MsRequestMetric},
-    props: {apiItem: {}, result: {}},
+    props: {apiItem: {}, result: {}, currentProtocol: String},
     data() {
       return {
         isActive: false,

@@ -15,7 +15,7 @@
           </div>
           <div class="form">
             <el-form-item v-slot:default>
-              <el-radio-group v-model="form.authenticate">
+              <el-radio-group v-model="form.authenticate" @change="redirectAuth(form.authenticate)">
                 <el-radio label="LDAP" size="mini" v-if="openLdap">LDAP</el-radio>
                 <el-radio label="LOCAL" size="mini" v-if="openLdap">普通登录</el-radio>
                 <el-radio :label="auth.id" size="mini" v-for="auth in authSources" :key="auth.id">{{ auth.type }} {{ auth.name }}</el-radio>
@@ -171,6 +171,11 @@ export default {
         })
       } else {
         window.location.href = "/"
+      }
+    },
+    redirectAuth(authId) {
+      if (auth.default) {
+        auth.default.redirectAuth(this, authId);
       }
     }
   }

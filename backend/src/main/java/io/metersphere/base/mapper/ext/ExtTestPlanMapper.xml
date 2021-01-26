@@ -240,5 +240,16 @@
         WHERE reportData.performance_info like CONCAT('%', #{0},'%')
           AND report.is_performance_executing = true;
     </select>
+    <select id="listRecent" resultType="io.metersphere.base.domain.TestPlan">
+        select distinct test_plan.*
+        from test_plan
+        <where>
+            <if test="projectId != null">
+                and test_plan.project_id = #{projectId}
+            </if>
+            and (test_plan.creator = #{userId}  or test_plan.principal = #{userId})
+        </where>
+        order by test_plan.update_time desc
+    </select>
 
 </mapper>

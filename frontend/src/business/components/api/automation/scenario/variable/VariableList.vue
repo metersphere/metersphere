@@ -107,6 +107,9 @@
       },
       addParameters(v) {
         v.id = getUUID();
+        if (v.type === 'CSV') {
+          v.delimiter = ",";
+        }
         this.variables.push(v);
         let index = 1;
         this.variables.forEach(item => {

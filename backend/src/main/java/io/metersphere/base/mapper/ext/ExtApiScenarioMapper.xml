@@ -150,9 +150,35 @@
                 </foreach>
             </if>
             <if test="request.filters != null and request.filters.size() > 0">
-                and api_scenario.status in
-                <foreach collection="request.filters" item="value" separator="," open="(" close=")">
-                    #{value}
+                <foreach collection="request.filters.entrySet()" index="key" item="values">
+                    <if test="values != null and values.size() > 0">
+                        <choose>
+                            <when test="key=='status'">
+                                and api_scenario.status in
+                                <foreach collection="values" item="value" separator="," open="(" close=")">
+                                    #{value}
+                                </foreach>
+                            </when>
+                            <when test="key=='user_id'">
+                                and api_scenario.user_id in
+                                <foreach collection="values" item="value" separator="," open="(" close=")">
+                                    #{value}
+                                </foreach>
+                            </when>
+                            <when test="key=='level'">
+                                and api_scenario.level in
+                                <foreach collection="values" item="value" separator="," open="(" close=")">
+                                    #{value}
+                                </foreach>
+                            </when>
+                            <when test="key=='last_result'">
+                                and api_scenario.last_result in
+                                <foreach collection="values" item="value" separator="," open="(" close=")">
+                                    #{value}
+                                </foreach>
+                            </when>
+                        </choose>
+                    </if>
                 </foreach>
             </if>
             <if test="request.executeStatus == 'unExecute'">

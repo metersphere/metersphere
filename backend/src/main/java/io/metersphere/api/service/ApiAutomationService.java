@@ -464,7 +464,7 @@ public class ApiAutomationService {
      * @param unSelectIds 未勾选ID_前台没有勾选的ID
      * @return
      */
-    private List<String> getAllScenarioIdsByFontedSelect(List<String> moduleIds, String name, String projectId, List<String> filters, List<String> unSelectIds) {
+    private List<String> getAllScenarioIdsByFontedSelect(List<String> moduleIds, String name, String projectId, Map<String, List<String>> filters, List<String> unSelectIds) {
         ApiScenarioRequest selectRequest = new ApiScenarioRequest();
         selectRequest.setModuleIds(moduleIds);
         selectRequest.setName(name);

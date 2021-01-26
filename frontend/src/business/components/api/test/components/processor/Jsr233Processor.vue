@@ -93,11 +93,13 @@ export default {
       ],
       isCodeEditAlive: true,
       languages: [
-        'beanshell', "python"
+        'beanshell', "python", "groovy", "javascript"
       ],
       codeEditModeMap: {
         beanshell: 'java',
-        python: 'python'
+        python: 'python',
+        groovy: 'java',
+        javascript: 'javascript',
       }
     }
   },

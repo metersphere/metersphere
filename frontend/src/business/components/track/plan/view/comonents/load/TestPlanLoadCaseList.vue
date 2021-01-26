@@ -75,6 +75,9 @@
             <el-tag size="mini" type="success" v-else-if="row.caseStatus === 'success'">
               {{ row.caseStatus }}
             </el-tag>
+            <el-tag size="mini" v-else-if="row.caseStatus === 'run'">
+              {{ row.caseStatus }}
+            </el-tag>
             <span v-else>-</span>
           </template>
         </el-table-column>
@@ -264,16 +267,21 @@ export default {
           title: loadCase.caseName,
           message: this.$t('test_track.plan.load_case.exec').toString()
         });
-        this.initTable();
+        this.updateStatus(loadCase, 'run');
       }).catch(() => {
-        this.$post('/test/plan/load/case/update', {id: loadCase.id, status: "error"}, () => {
-          this.initTable();
-        });
+        this.updateStatus(loadCase, 'error');
         this.$notify.error({
           title: loadCase.caseName,
           message: this.$t('test_track.plan.load_case.error').toString()
         });
       })
+    },
+    updateStatus(loadCase, status) {
+      this.$post('/test/plan/load/case/update', {id: loadCase.id, status: status}, () => {
+        this.$post('/test/plan/edit/status/' + loadCase.testPlanId, {},() => {
+          this.initTable();
+        });
+      });
     },
     handleDelete(loadCase) {
       this.result = this.$get('/test/plan/load/case/delete/' + loadCase.id, () => {
@@ -284,15 +292,15 @@ export default {
     },
     sort(column) {
       // 每次只对一个字段排序
-      // if (this.condition.orders) {
-      //   this.condition.orders = [];
-      // }
-      // _sort(column, this.condition);
-      // this.initTable();
+      if (this.condition.orders) {
+        this.condition.orders = [];
+      }
+      _sort(column, this.condition);
+      this.initTable();
     },
     filter(filters) {
-      // _filter(filters, this.condition);
-      // this.initTable();
+      _filter(filters, this.condition);
+      this.initTable();
     },
     getReport(data) {
       const {loadReportId} = data;

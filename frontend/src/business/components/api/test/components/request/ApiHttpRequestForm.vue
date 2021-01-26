@@ -94,7 +94,7 @@ import ApiRequestMethodSelect from "../collapse/ApiRequestMethodSelect";
 import {REQUEST_HEADERS} from "@/common/js/constants";
 import MsApiVariable from "@/business/components/api/test/components/ApiVariable";
 import MsApiAdvancedConfig from "../ApiAdvancedConfig";
-import MsJsr233Processor from "../../../automation/scenario/component/Jsr233Processor";
+import MsJsr233Processor from "../processor/Jsr233Processor";
 
 export default {
   name: "MsApiHttpRequestForm",

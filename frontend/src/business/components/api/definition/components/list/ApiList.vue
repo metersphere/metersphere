@@ -317,6 +317,15 @@
           case 'coverage':
             this.condition.apiCaseCoverage = 'coverage';
             break;
+          case 'Prepare':
+            this.condition.filters.status = [this.selectDataRange];
+            break;
+          case 'Completed':
+            this.condition.filters.status = [this.selectDataRange];
+            break;
+          case 'Underway':
+            this.condition.filters.status = [this.selectDataRange];
+            break;
         }
         if (this.condition.projectId) {
           this.result = this.$post("/api/definition/list/" + this.currentPage + "/" + this.pageSize, this.condition, response => {

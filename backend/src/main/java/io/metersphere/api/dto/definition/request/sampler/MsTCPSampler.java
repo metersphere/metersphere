@@ -65,6 +65,8 @@ public class MsTCPSampler extends MsTestElement {
     private String useEnvironment;
     @JSONField(ordinal = 37)
     private MsJSR223PreProcessor tcpPreProcessor;
+    @JSONField(ordinal = 38)
+    private String protocol = "TCP";
 
     @Override
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, ParameterConfig config) {
@@ -99,7 +101,11 @@ public class MsTCPSampler extends MsTestElement {
         TCPSampler tcpSampler = new TCPSampler();
         tcpSampler.setName(this.getName());
         if (config != null && StringUtils.isNotEmpty(config.getStep())) {
-            tcpSampler.setName(this.getName() + "<->" + config.getStep());
+            if ("SCENARIO".equals(config.getStepType())) {
+                tcpSampler.setName(this.getName() + "<->" + config.getStep());
+            } else {
+                tcpSampler.setName(this.getName() + "<->" + config.getStep() + "-" + "${LoopCounterConfigXXX}");
+            }
         }
 
         tcpSampler.setProperty(TestElement.TEST_CLASS, TCPSampler.class.getName());
@@ -128,10 +134,12 @@ public class MsTCPSampler extends MsTestElement {
         userParameters.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("UserParametersGui"));
         List<StringProperty> names = new ArrayList<>();
         List<StringProperty> threadValues = new ArrayList<>();
-        this.parameters.forEach(item -> {
-            names.add(new StringProperty(new Integer(new Random().nextInt(1000000)).toString(), item.getName()));
-            threadValues.add(new StringProperty(new Integer(new Random().nextInt(1000000)).toString(), item.getValue()));
-        });
+        if (CollectionUtils.isNotEmpty(this.parameters)) {
+            this.parameters.forEach(item -> {
+                names.add(new StringProperty(new Integer(new Random().nextInt(1000000)).toString(), item.getName()));
+                threadValues.add(new StringProperty(new Integer(new Random().nextInt(1000000)).toString(), item.getValue()));
+            });
+        }
         userParameters.setNames(new CollectionProperty(UserParameters.NAMES, names));
         List<CollectionProperty> collectionPropertyList = new ArrayList<>();
         collectionPropertyList.add(new CollectionProperty(new Integer(new Random().nextInt(1000000)).toString(), threadValues));

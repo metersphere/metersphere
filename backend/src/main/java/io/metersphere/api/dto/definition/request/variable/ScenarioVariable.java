@@ -41,8 +41,7 @@ public class ScenarioVariable {
     private String maxNumber;
 
     public boolean isConstantValid() {
-        if ((StringUtils.equals(this.type, VariableTypeConstants.CONSTANT.name())
-                || StringUtils.equals(this.type, VariableTypeConstants.LIST.name())) && StringUtils.isNotEmpty(name) && StringUtils.isNotEmpty(value)) {
+        if (StringUtils.equals(this.type, VariableTypeConstants.CONSTANT.name()) && StringUtils.isNotEmpty(name) && StringUtils.isNotEmpty(value)) {
             return true;
         }
         return false;
@@ -50,6 +49,13 @@ public class ScenarioVariable {
 
     public boolean isCSVValid() {
         if (StringUtils.equals(this.type, VariableTypeConstants.CSV.name()) && StringUtils.isNotEmpty(name)) {
+            return true;
+        }
+        return false;
+    }
+
+    public boolean isListValid() {
+        if (StringUtils.equals(this.type, VariableTypeConstants.LIST.name()) && StringUtils.isNotEmpty(name) && StringUtils.isNotEmpty(value) && value.indexOf(",") != -1) {
             return true;
         }
         return false;

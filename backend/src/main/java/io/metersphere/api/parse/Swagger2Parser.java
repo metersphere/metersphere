@@ -68,6 +68,7 @@ public class Swagger2Parser extends SwaggerAbstractParser {
                 MsHTTPSamplerProxy request = buildRequest(operation, pathName, method.name());
                 ApiDefinitionResult apiDefinition = buildApiDefinition(request.getId(), operation, pathName, method.name(),importRequest);
                 parseParameters(operation, request);
+                addBodyHeader(request);
                 apiDefinition.setRequest(JSON.toJSONString(request));
                 apiDefinition.setResponse(JSON.toJSONString(parseResponse(operation, operation.getResponses())));
                 buildModule(parentNode, apiDefinition, operation.getTags(), importRequest.isSaved());
@@ -275,7 +276,6 @@ public class Swagger2Parser extends SwaggerAbstractParser {
                         } else {
                             propertyList.add(new JSONObject());
                         }
-
                         jsonObject.put(key, propertyList);
                     } else {
                         jsonObject.put(key, new ArrayList<>());

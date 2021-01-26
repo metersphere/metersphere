@@ -143,7 +143,7 @@
                        highlight-current
                        @node-expand="nodeExpand"
                        @node-collapse="nodeCollapse"
-                       :allow-drop="allowDrop" @node-drag-end="allowDrag" @node-click="nodeClick" v-if="!loading" draggable>
+                       :allow-drop="allowDrop" @node-drag-end="allowDrag" @node-click="nodeClick" v-if="!loading" draggable class="ms-is-leaf">
                     <span class="custom-tree-node father" slot-scope="{ node, data}" style="width: 96%">
                       <!-- 步骤组件-->
                        <ms-component-config :type="data.type" :scenario="data" :response="response" :currentScenario="currentScenario"
@@ -873,6 +873,7 @@
                   }
                   this.enableCookieShare = obj.enableCookieShare;
                   this.scenarioDefinition = obj.hashTree;
+                  console.log(this.scenarioDefinition)
                 }
               }
               if (this.currentScenario.copy) {
@@ -1035,7 +1036,7 @@
     color: #7C3985;
   }
 
-  /deep/ .is-leaf {
+  .ms-is-leaf >>> .is-leaf {
     color: transparent;
   }
 </style>
