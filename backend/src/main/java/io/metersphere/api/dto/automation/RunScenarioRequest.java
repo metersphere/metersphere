@@ -45,7 +45,7 @@ public class RunScenarioRequest {
      */
     private boolean isSelectAllDate;
 
-    private List<String> filters;
+    private Map<String, List<String>> filters;
 
     private String name;
 

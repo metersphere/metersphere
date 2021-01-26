@@ -22,7 +22,6 @@ import io.metersphere.base.mapper.ext.ExtApiDefinitionExecResultMapper;
 import io.metersphere.base.mapper.ext.ExtApiTestCaseMapper;
 import io.metersphere.base.mapper.ext.ExtTestPlanApiCaseMapper;
 import io.metersphere.base.mapper.ext.ExtTestPlanTestCaseMapper;
-import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
 import io.metersphere.i18n.Translator;
@@ -470,9 +469,11 @@ public class ApiTestCaseService {
         if (testCaseWithBLOBs != null && StringUtils.isNotEmpty(testCaseWithBLOBs.getRequest())) {
             try {
                 HashTree jmeterHashTree = this.generateHashTree(request, testCaseWithBLOBs);
-                String runMode = ApiRunMode.DEFINITION.name();
+/*
+                String runMode = ApiRunMode.JENKINS.name();
+*/
                 // 调用执行方法
-                jMeterService.runDefinition(request.getReportId(), jmeterHashTree, request.getReportId(), runMode);
+                jMeterService.runDefinition(request.getReportId(), jmeterHashTree, request.getReportId(), request.getRunMode());
 
             } catch (Exception ex) {
                 LogUtil.error(ex.getMessage());
@@ -540,10 +541,7 @@ public class ApiTestCaseService {
     }
 
     public String getExecResult(String id) {
-        ApiDefinitionExecResultExample apidefinitionexecresultexample = new ApiDefinitionExecResultExample();
-        ApiDefinitionExecResultExample.Criteria criteria = apidefinitionexecresultexample.createCriteria();
-        criteria.andResourceIdEqualTo(id);
-        String status = apiDefinitionExecResultMapper.selectByExample(apidefinitionexecresultexample).get(0).getStatus();
+        String status = apiDefinitionExecResultMapper.selectExecResult(id);
         return status;
     }
 }

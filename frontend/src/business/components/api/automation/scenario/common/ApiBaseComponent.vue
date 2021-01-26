@@ -25,10 +25,16 @@
 
       <div class="header-right" @click.stop>
         <slot name="message"></slot>
-        <el-switch v-model="data.enable" class="enable-switch"/>
+        <el-tooltip :content="$t('test_resource_pool.enable_disable')" placement="top">
+          <el-switch v-model="data.enable" class="enable-switch"/>
+        </el-tooltip>
         <slot name="button"></slot>
-        <el-button size="mini" icon="el-icon-copy-document" circle @click="copyRow"/>
-        <el-button size="mini" icon="el-icon-delete" type="danger" circle @click="remove"/>
+        <el-tooltip content="Copy" placement="top">
+          <el-button size="mini" icon="el-icon-copy-document" circle @click="copyRow"/>
+        </el-tooltip>
+        <el-tooltip :content="$t('commons.remove')" placement="top">
+          <el-button size="mini" icon="el-icon-delete" type="danger" circle @click="remove"/>
+        </el-tooltip>
       </div>
     </div>
 

@@ -76,7 +76,7 @@ public class MsParser extends ApiImportAbstractParser {
                 String method = requestObject.getString("method");
 
                 MsHTTPSamplerProxy request = buildRequest(requestName, path, method);
-                ApiDefinitionResult apiDefinition = buildApiDefinition(request.getId(), requestName, path, method);
+                ApiDefinitionResult apiDefinition = buildApiDefinition(request.getId(), requestName, path, method,importRequest);
                 apiDefinition.setModuleId(module.getId());
                 apiDefinition.setProjectId(this.projectId);
                 parseBody(requestObject, request.getBody());

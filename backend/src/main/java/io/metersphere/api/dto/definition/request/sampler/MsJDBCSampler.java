@@ -50,6 +50,8 @@ public class MsJDBCSampler extends MsTestElement {
     private Object requestResult;
     @JSONField(ordinal = 28)
     private String dataSourceId;
+    @JSONField(ordinal = 29)
+    private String protocol="SQL";
 
     @Override
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, ParameterConfig config) {

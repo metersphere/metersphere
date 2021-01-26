@@ -174,6 +174,9 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
             if (StringUtils.isBlank(debugReportId)) {
                 apiDefinitionExecResultService.saveApiResult(testResult, ApiRunMode.DEFINITION.name());
             }
+        } else if (StringUtils.equals(this.runMode, ApiRunMode.JENKINS.name())) {
+            apiDefinitionService.addResult(testResult);
+            apiDefinitionExecResultService.saveApiResult(testResult, ApiRunMode.DEFINITION.name());
         } else if (StringUtils.equalsAny(this.runMode, ApiRunMode.API_PLAN.name(), ApiRunMode.SCHEDULE_API_PLAN.name())) {
             apiDefinitionService.addResult(testResult);
 

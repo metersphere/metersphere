@@ -66,9 +66,8 @@ public class TestPlanController {
 
     @GetMapping("recent/{count}")
     public List<TestPlan> recentTestPlans(@PathVariable int count) {
-        String currentWorkspaceId = SessionUtils.getCurrentWorkspaceId();
         PageHelper.startPage(1, count, true);
-        return testPlanService.recentTestPlans(currentWorkspaceId);
+        return testPlanService.recentTestPlans();
     }
 
     @PostMapping("/get/{testPlanId}")

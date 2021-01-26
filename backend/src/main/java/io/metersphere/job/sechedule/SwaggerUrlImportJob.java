@@ -1,9 +1,12 @@
 package io.metersphere.job.sechedule;
 
 import io.metersphere.api.dto.ApiTestImportRequest;
+import io.metersphere.api.dto.definition.ApiSwaggerUrlDTO;
 import io.metersphere.api.service.ApiDefinitionService;
+import io.metersphere.base.domain.SwaggerUrlProject;
 import io.metersphere.commons.constants.ScheduleGroup;
 import io.metersphere.commons.utils.CommonBeanFactory;
+import io.metersphere.service.ScheduleService;
 import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobKey;
@@ -20,12 +23,15 @@ public class SwaggerUrlImportJob extends MsScheduleJob {
     void businessExecute(JobExecutionContext context) {
         JobDataMap jobDataMap = context.getJobDetail().getJobDataMap();
         String resourceId = jobDataMap.getString("resourceId");
-        String swaggerUrl = jobDataMap.getString("swaggerUrl");
+        SwaggerUrlProject swaggerUrlProject=apiDefinitionService.getSwaggerInfo(resourceId);
         ApiTestImportRequest request = new ApiTestImportRequest();
-        request.setProjectId(resourceId);
-        request.setSwaggerUrl(swaggerUrl);
+        request.setProjectId(swaggerUrlProject.getProjectId());
+        request.setSwaggerUrl(swaggerUrlProject.getSwaggerUrl());
+        request.setModuleId(swaggerUrlProject.getModuleId());
         request.setPlatform("Swagger2");
         request.setSaved(true);
+        request.setUserId(jobDataMap.getString("userId"));
+        request.setType("schedule");
         apiDefinitionService.apiTestImport(null, request);
     }
 
