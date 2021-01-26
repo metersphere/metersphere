@@ -55,6 +55,9 @@ public class ApiDefinitionExecResultService {
                 saveResult.setCreateTime(System.currentTimeMillis());
                 saveResult.setUserId(Objects.requireNonNull(SessionUtils.getUser()).getId());
                 saveResult.setName(item.getName());
+                if (item.getName().indexOf("<->") != -1) {
+                    saveResult.setName(item.getName().substring(0, item.getName().indexOf("<->")));
+                }
                 saveResult.setResourceId(item.getName());
                 saveResult.setContent(JSON.toJSONString(item));
                 saveResult.setStartTime(item.getStartTime());

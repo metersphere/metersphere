@@ -233,6 +233,8 @@ public class TestPlanReportService {
         testPlanReport.setEndTime(System.currentTimeMillis());
         testPlanReport.setUpdateTime(System.currentTimeMillis());
 
+        //手动触发的需要保存手工执行的信息
+
         JSONObject content = JSONObject.parseObject("{\"components\":[1,2,3,4,5]}");
         JSONArray componentIds = content.getJSONArray("components");
         List<ReportComponent> components = ReportComponentFactory.createComponents(componentIds.toJavaList(String.class), testPlan);

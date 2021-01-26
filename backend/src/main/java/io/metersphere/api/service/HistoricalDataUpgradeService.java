@@ -145,7 +145,7 @@ public class HistoricalDataUpgradeService {
                                 }
                             }
                             if (!isJsonType) {
-                                request1.getHeaders().add(new KeyValue("Content-Type", "application/json"));
+                                request1.getHeaders().set(request1.getHeaders().size() - 1, new KeyValue("Content-Type", "application/json"));
                             }
                         }
                     }
@@ -412,6 +412,7 @@ public class HistoricalDataUpgradeService {
                     MsScenario step = new MsScenario();
                     step.setId(scenario1.getId());
                     step.setName(scenario1.getName());
+                    step.setEnable(scenario.isEnable());
                     step.setType("scenario");
                     step.setResourceId(UUID.randomUUID().toString());
                     step.setReferenced("REF");

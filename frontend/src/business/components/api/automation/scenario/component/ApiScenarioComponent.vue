@@ -38,11 +38,15 @@
     },
     watch: {},
     created() {
-      if (this.scenario.id && this.scenario.referenced === 'REF') {
+      if (this.scenario.id && this.scenario.referenced === 'REF' && !this.scenario.loaded) {
         this.result = this.$get("/api/automation/getApiScenario/" + this.scenario.id, response => {
           if (response.data) {
+            this.scenario.loaded = true;
+            if (response.data.scenarioDefinition) {
+              this.scenario.hashTree = JSON.parse(response.data.scenarioDefinition).hashTree;
+            }
             this.scenario.name = response.data.name;
-            this.reload();
+            this.$emit('refReload');
           } else {
             this.scenario.referenced = "Deleted";
           }
@@ -58,7 +62,7 @@
     },
     computed: {
       isDeletedOrRef() {
-        if (this.scenario.referenced!= undefined && this.scenario.referenced === 'Deleted' || this.scenario.referenced === 'REF') {
+        if (this.scenario.referenced != undefined && this.scenario.referenced === 'Deleted' || this.scenario.referenced === 'REF') {
           return true
         }
         return false;

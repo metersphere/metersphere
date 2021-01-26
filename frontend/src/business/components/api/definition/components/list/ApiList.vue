@@ -13,12 +13,12 @@
                 border
                 @sort-change="sort"
                 @filter-change="filter"
-                :data="tableData" row-key="id" class="test-content adjust-table ms-select-all"
+                :data="tableData" row-key="id" class="test-content adjust-table ms-select-all-fixed"
                 @select-all="handleSelectAll"
                 @select="handleSelect" :height="screenHeight">
         <el-table-column width="50" type="selection"/>
 
-        <ms-table-select-all
+        <ms-table-header-select-popover v-show="total>0"
           :page-size="pageSize>total?total:pageSize"
           :total="total"
           @selectPageAll="isSelectDataAll(false)"
@@ -160,7 +160,8 @@
   import {_filter, _sort, getCurrentProjectID} from "@/common/js/utils";
   import {WORKSPACE_ID} from '@/common/js/constants';
   import ApiListContainer from "./ApiListContainer";
-  import MsTableSelectAll from "../../../../common/components/table/MsTableSelectAll";
+  // import MsTableSelectAll from "../../../../common/components/table/MsTableSelectAll";
+  import MsTableHeaderSelectPopover from "@/business/components/common/components/table/MsTableHeaderSelectPopover";
   import ApiStatus from "@/business/components/api/definition/components/list/ApiStatus";
   import MsTableAdvSearchBar from "@/business/components/common/components/search/MsTableAdvSearchBar";
   import {API_DEFINITION_CONFIGS} from "@/business/components/common/components/search/search-components";
@@ -170,7 +171,7 @@
     name: "ApiList",
     components: {
       ApiStatus,
-      MsTableSelectAll,
+      MsTableHeaderSelectPopover,
       ApiListContainer,
       MsTableButton,
       MsTableOperatorButton,
