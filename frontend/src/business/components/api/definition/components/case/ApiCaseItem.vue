@@ -95,7 +95,7 @@
 
         <!-- HTTP 请求返回数据 -->
         <p class="tip">{{$t('api_test.definition.request.res_param')}}</p>
-        <api-response-component :api-item="apiCase"/>
+        <api-response-component :currentProtocol="apiCase.request.protocol" :api-item="apiCase"/>
 
         <ms-jmx-step :request="apiCase.request" :response="apiCase.responseData"/>
         <!-- 保存操作 -->
