@@ -7,6 +7,35 @@
         <result column="project_name" property="projectName"/>
         <result column="user_name" property="userName"/>
     </resultMap>
+    <sql id="Example_Where_Clause">
+        <where>
+            <foreach collection="oredCriteria" item="criteria" separator="or">
+                <if test="criteria.valid">
+                    <trim prefix="(" prefixOverrides="and" suffix=")">
+                        <foreach collection="criteria.criteria" item="criterion">
+                            <choose>
+                                <when test="criterion.noValue">
+                                    and ${criterion.condition}
+                                </when>
+                                <when test="criterion.singleValue">
+                                    and ${criterion.condition} #{criterion.value}
+                                </when>
+                                <when test="criterion.betweenValue">
+                                    and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                                </when>
+                                <when test="criterion.listValue">
+                                    and ${criterion.condition}
+                                    <foreach close=")" collection="criterion.value" item="listItem" open="(" separator=",">
+                                        #{listItem}
+                                    </foreach>
+                                </when>
+                            </choose>
+                        </foreach>
+                    </trim>
+                </if>
+            </foreach>
+        </where>
+    </sql>
     <sql id="condition">
         <choose>
             <when test='${object}.operator == "like"'>
@@ -241,6 +270,15 @@
         <foreach collection="ids" item="v" separator="," open="(" close=")">
             #{v}
         </foreach>
+    </update>
+
+    <update id="removeToGcByExample" parameterType="io.metersphere.base.domain.ApiScenarioExample">
+        update api_scenario
+        set
+        status = 'Trash', module_path = null, api_scenario_module_id = null
+        <if test="_parameter != null">
+            <include refid="Example_Where_Clause" />
+        </if>
     </update>
 
     <update id="reduction">

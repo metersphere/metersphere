@@ -124,6 +124,12 @@ public class ApiAutomationService {
         apiScenarioMapper.deleteByExample(example);
     }
 
+    public void removeToGcByIds(List<String> nodeIds) {
+        ApiScenarioExample example = new ApiScenarioExample();
+        example.createCriteria().andApiScenarioModuleIdIn(nodeIds);
+        extApiScenarioMapper.removeToGcByExample(example);
+    }
+
     public ApiScenario create(SaveApiScenarioRequest request, List<MultipartFile> bodyFiles) {
         request.setId(UUID.randomUUID().toString());
         checkNameExist(request);
