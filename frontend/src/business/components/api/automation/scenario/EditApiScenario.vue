@@ -873,6 +873,7 @@
                   }
                   this.enableCookieShare = obj.enableCookieShare;
                   this.scenarioDefinition = obj.hashTree;
+                  console.log(this.scenarioDefinition)
                 }
               }
               if (this.currentScenario.copy) {

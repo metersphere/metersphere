@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="io.metersphere.base.mapper.ext.ExtSwaggerUrlScheduleMapper">
+    <select id="getSwaggerTaskList" resultType="io.metersphere.api.dto.swaggerurl.SwaggerTaskResult"
+            parameterType="java.lang.String">
+        SELECT sup.id as SwaggerUrlId,
+               sup.swagger_url as swaggerUrl,
+               sup.module_path as modulePath,
+               sch.value as rule,
+               sch.enable as taskStatus,
+               sch.id as taskId
+        FROM swagger_url_project sup
+                 INNER JOIN schedule sch ON sup.id = sch.resource_id
+        WHERE sup.project_id = #{projectId}
+    </select>
+</mapper>

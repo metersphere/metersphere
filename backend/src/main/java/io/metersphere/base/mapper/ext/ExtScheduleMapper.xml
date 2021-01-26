@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="io.metersphere.base.mapper.ext.ExtScheduleMapper">
+    <insert id="insert" parameterType="io.metersphere.api.dto.definition.ApiSwaggerUrlDTO">
+        insert into swagger_url_project (id, `project_id`, `swagger_url`,
+                                         `schedule_id`)
+        values (#{apiSwaggerUrlDTO.id,jdbcType=VARCHAR}, #{apiSwaggerUrlDTO.projectId,jdbcType=VARCHAR}, #{apiSwaggerUrlDTO.swaggerUrl,jdbcType=VARCHAR},
+                #{apiSwaggerUrlDTO.scheduleId,jdbcType=VARCHAR})
+    </insert>
     <select id="list" resultType="io.metersphere.dto.ScheduleDao">
         select schedule.* from schedule
         <where>
@@ -37,31 +43,53 @@
     </select>
 
     <select id="countTaskByProjectId" resultType="java.lang.Long">
-        SELECT COUNT(id) AS countNumber FROM `schedule` WHERE resource_id IN (
+        SELECT COUNT(id) AS countNumber
+        FROM `schedule`
+        WHERE resource_id IN (
             SELECT id FROM api_scenario WHERE project_id = #{0,jdbcType=VARCHAR} AND status != 'Trash'
-            )
+        )
     </select>
     <select id="countTaskByProjectIdAndCreateTimeRange" resultType="java.lang.Long">
-        SELECT COUNT(id) AS countNumber FROM `schedule`
+        SELECT COUNT(id) AS countNumber
+        FROM `schedule`
         WHERE resource_id IN (
-            SELECT scene.id FROM api_scenario scene
-            WHERE scene.project_id = #{projectId,jdbcType=VARCHAR} AND scene.status != 'Trash'
+            SELECT scene.id
+            FROM api_scenario scene
+            WHERE scene.project_id = #{projectId,jdbcType=VARCHAR}
+              AND scene.status != 'Trash'
         )
-        AND create_time BETWEEN #{startTime} and #{endTime}
+          AND create_time BETWEEN #{startTime} and #{endTime}
     </select>
     <select id="findRunningTaskInfoByProjectID" resultType="io.metersphere.api.dto.datacount.response.TaskInfoResult">
-        SELECT apiScene.id AS scenarioId,apiScene.`name` AS `name` ,sch.id AS taskID,sch.`value` AS rule,sch.`enable` AS `taskStatus`,u.`name` AS creator,sch.update_time AS updateTime,
-               'scenario' AS taskType
+        SELECT apiScene.id     AS scenarioId,
+               apiScene.`name` AS `name`,
+               sch.id          AS taskID,
+               sch.`value`     AS rule,
+               sch.`enable`    AS `taskStatus`,
+               u.`name`        AS creator,
+               sch.update_time AS updateTime,
+               'scenario'      AS taskType
         FROM api_scenario apiScene
-         INNER JOIN `schedule` sch ON apiScene.id = sch.resource_id
-         INNER JOIN `user` u ON u.id = sch.user_id
-        WHERE sch.`enable` = true AND apiScene.project_id = #{0,jdbcType=VARCHAR}
+                 INNER JOIN `schedule` sch ON apiScene.id = sch.resource_id
+                 INNER JOIN `user` u ON u.id = sch.user_id
+        WHERE sch.`enable` = true
+          AND apiScene.project_id = #{0,jdbcType=VARCHAR}
         UNION
-        SELECT testPlan.id AS scenarioId,testPlan.`name` AS `name`,sch.id AS taskID,sch.`value` AS rule,sch.`enable` AS `taskStatus`,u.`name` AS creator,sch.update_time AS updateTime,
-               'testPlan' AS taskType
+        SELECT testPlan.id     AS scenarioId,
+               testPlan.`name` AS `name`,
+               sch.id          AS taskID,
+               sch.`value`     AS rule,
+               sch.`enable`    AS `taskStatus`,
+               u.`name`        AS creator,
+               sch.update_time AS updateTime,
+               'testPlan'      AS taskType
         FROM test_plan testPlan
-         INNER JOIN `schedule` sch ON testPlan.id = sch.resource_id
-         INNER JOIN `user` u ON u.id = sch.user_id
-        WHERE sch.`enable` = true AND testPlan.project_id = #{0,jdbcType=VARCHAR}
+                 INNER JOIN `schedule` sch ON testPlan.id = sch.resource_id
+                 INNER JOIN `user` u ON u.id = sch.user_id
+        WHERE sch.`enable` = true
+          AND testPlan.project_id = #{0,jdbcType=VARCHAR}
+    </select>
+    <select id="select" resultType="io.metersphere.api.dto.definition.ApiSwaggerUrlDTO">
+        select * from swagger_url_project where id=#{id}
     </select>
 </mapper>

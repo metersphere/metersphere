@@ -104,6 +104,8 @@ public class TestPlanService {
     private ExtTestPlanApiCaseMapper extTestPlanApiCaseMapper;
     @Resource
     private ExtTestPlanLoadCaseMapper extTestPlanLoadCaseMapper;
+    @Resource
+    private ExtTestPlanScenarioCaseMapper extTestPlanScenarioCaseMapper;
 
     public synchronized void addTestPlan(AddTestPlanRequest testPlan) {
         if (getTestPlanByName(testPlan.getName()).size() > 0) {
@@ -380,7 +382,17 @@ public class TestPlanService {
                 }
             });
 
-            testPlan.setTotal(apiExecResults.size() + scenarioExecResults.size() + functionalExecResults.size());
+            List<String> loadResults = testPlanLoadCaseService.getStatus(testPlan.getId());
+            loadResults.forEach(item -> {
+                if (StringUtils.isNotBlank(item)) {
+                    testPlan.setTested(testPlan.getTested() + 1);
+                    if (StringUtils.equals(item, "success")) {
+                        testPlan.setPassed(testPlan.getPassed() + 1);
+                    }
+                }
+            });
+
+            testPlan.setTotal(apiExecResults.size() + scenarioExecResults.size() + functionalExecResults.size() + loadResults.size());
 
             testPlan.setPassRate(MathUtils.getPercentWithDecimal(testPlan.getTested() == 0 ? 0 : testPlan.getPassed() * 1.0 / testPlan.getTested()));
             testPlan.setTestRate(MathUtils.getPercentWithDecimal(testPlan.getTotal() == 0 ? 0 : testPlan.getTested() * 1.0 / testPlan.getTotal()));
@@ -455,26 +467,8 @@ public class TestPlanService {
         }
     }
 
-    public List<TestPlan> recentTestPlans(String currentWorkspaceId) {
-        if (StringUtils.isBlank(currentWorkspaceId)) {
-            return null;
-        }
-        if (StringUtils.isNotBlank(SessionUtils.getCurrentProjectId())) {
-            TestPlanExample testPlanExample = new TestPlanExample();
-            TestPlanExample.Criteria criteria = testPlanExample.createCriteria();
-            criteria.andProjectIdEqualTo(SessionUtils.getCurrentProjectId());
-            List<TestPlan> testPlans = testPlanMapper.selectByExample(testPlanExample);
-            if (!CollectionUtils.isEmpty(testPlans)) {
-                List<String> testPlanIds = testPlans.stream().map(TestPlan::getId).collect(Collectors.toList());
-                TestPlanExample testPlanTestCaseExample = new TestPlanExample();
-                testPlanTestCaseExample.createCriteria().andWorkspaceIdEqualTo(currentWorkspaceId)
-                        .andIdIn(testPlanIds)
-                        .andPrincipalEqualTo(SessionUtils.getUserId());
-                testPlanTestCaseExample.setOrderByClause("update_time desc");
-                return testPlanMapper.selectByExample(testPlanTestCaseExample);
-            }
-        }
-        return new ArrayList<>();
+    public List<TestPlan> recentTestPlans() {
+        return extTestPlanMapper.listRecent(SessionUtils.getUserId(), SessionUtils.getCurrentProjectId());
     }
 
     public List<TestPlan> listTestAllPlan(String currentWorkspaceId) {
@@ -598,6 +592,14 @@ public class TestPlanService {
         List<String> apiStatusList = extTestPlanApiCaseMapper.getStatusByTestPlanId(planId);
         for (String apiStatus : apiStatusList) {
             if (apiStatus == null) {
+                return TestPlanStatus.Underway.name();
+            }
+        }
+
+        // test-plan-scenario-case status
+        List<String> scenarioStatusList = extTestPlanScenarioCaseMapper.getExecResultByPlanId(planId);
+        for (String scenarioStatus : scenarioStatusList) {
+            if (scenarioStatus == null) {
                 return TestPlanStatus.Underway.name();
             }
         }
