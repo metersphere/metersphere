@@ -469,7 +469,10 @@ export default {
         return ids;
       },
       showCaseRef(row) {
-        this.$refs.viewRef.open(row);
+        let param = {};
+        Object.assign(param, row);
+        param.moduleId = undefined;
+        this.$refs.viewRef.open(param);
       },
       showEnvironment(row) {
 
