@@ -2,7 +2,7 @@
   <div class="request-form">
     <component :is="component" :scenario="scenario" :controller="scenario" :timer="scenario" :assertions="scenario" :extract="scenario" :jsr223-processor="scenario" :request="scenario" :currentScenario="currentScenario" :currentEnvironmentId="currentEnvironmentId" :node="node"
                :draggable="true" :title="title" :color="titleColor" :background-color="backgroundColor" @suggestClick="suggestClick(node)" :response="response"
-               @remove="remove" @copyRow="copyRow"/>
+               @remove="remove" @copyRow="copyRow" @refReload="refReload"/>
   </div>
 </template>
 
@@ -107,6 +107,9 @@
       suggestClick(node) {
         this.$emit('suggestClick', node);
       },
+      refReload(){
+        this.$emit('refReload');
+      }
     }
   }
 </script>
