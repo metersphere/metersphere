@@ -33,6 +33,7 @@
               <i class="el-icon-edit" style="cursor:pointer" @click="showInput(apiCase)" v-tester/>
             </span>
           </span>
+
           <div v-if="apiCase.id" style="color: #999999;font-size: 12px">
           <span>
             {{ apiCase.createTime | timestampFormatDate }}
@@ -46,26 +47,28 @@
         </el-col>
 
         <el-col :span="4">
-          <div class="tag-item">
+          <div class="tag-item" @click.stop>
             <ms-input-tag :currentScenario="apiCase" ref="tag" @keyup.enter.native="saveTestCase(apiCase)"/>
           </div>
         </el-col>
 
         <el-col :span="4">
-          <ms-tip-button @click="singleRun(apiCase)" :tip="$t('api_test.run')" icon="el-icon-video-play"
-                         style="background-color: #409EFF;color: white" size="mini" :disabled="!apiCase.id" circle v-tester/>
-          <ms-tip-button @click="copyCase(apiCase)" :tip="$t('commons.copy')" icon="el-icon-document-copy"
-                         size="mini" :disabled="!apiCase.id || isCaseEdit" circle v-tester/>
-          <ms-tip-button @click="deleteCase(index,apiCase)" :tip="$t('commons.delete')" icon="el-icon-delete"
-                         size="mini" :disabled="!apiCase.id || isCaseEdit" circle v-tester/>
-          <ms-api-extend-btns :is-case-edit="isCaseEdit" :environment="environment" :row="apiCase" v-tester/>
+          <span @click.stop>
+            <ms-tip-button @click="singleRun(apiCase)" :tip="$t('api_test.run')" icon="el-icon-video-play"
+                           style="background-color: #409EFF;color: white" size="mini" :disabled="!apiCase.id" circle v-tester/>
+            <ms-tip-button @click="copyCase(apiCase)" :tip="$t('commons.copy')" icon="el-icon-document-copy"
+                           size="mini" :disabled="!apiCase.id || isCaseEdit" circle v-tester/>
+            <ms-tip-button @click="deleteCase(index,apiCase)" :tip="$t('commons.delete')" icon="el-icon-delete"
+                           size="mini" :disabled="!apiCase.id || isCaseEdit" circle v-tester/>
+            <ms-api-extend-btns :is-case-edit="isCaseEdit" :environment="environment" :row="apiCase" v-tester/>
+          </span>
         </el-col>
 
         <el-col :span="3">
-          <el-link type="danger" v-if="apiCase.execResult && apiCase.execResult==='error'" @click="showExecResult(apiCase)">
+          <el-link @click.stop type="danger" v-if="apiCase.execResult && apiCase.execResult==='error'" @click="showExecResult(apiCase)">
             {{ getResult(apiCase.execResult) }}
           </el-link>
-          <el-link v-else-if="apiCase.execResult && apiCase.execResult==='success'" @click="showExecResult(apiCase)">
+          <el-link @click.stop v-else-if="apiCase.execResult && apiCase.execResult==='success'" @click="showExecResult(apiCase)">
             {{ getResult(apiCase.execResult) }}
           </el-link>
           <div v-else> {{ getResult(apiCase.execResult) }}</div>
