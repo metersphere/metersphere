@@ -145,7 +145,7 @@ public class HistoricalDataUpgradeService {
                                 }
                             }
                             if (!isJsonType) {
-                                request1.getHeaders().add(new KeyValue("Content-Type", "application/json"));
+                                request1.getHeaders().set(request1.getHeaders().size() - 1, new KeyValue("Content-Type", "application/json"));
                             }
                         }
                     }
