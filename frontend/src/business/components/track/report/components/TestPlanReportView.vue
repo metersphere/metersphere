@@ -19,12 +19,6 @@
             </div>
           </el-col>
           <el-col :span="12" class="head-right">
-<!--            <el-button :disabled="!isTestManagerOrTestUser" plain size="mini" @click="handleSave">-->
-<!--              {{$t('commons.save')}}-->
-<!--            </el-button>-->
-<!--            <el-button :disabled="!isTestManagerOrTestUser" plain size="mini" @click="handleEdit">-->
-<!--              {{$t('test_track.plan_view.edit_component')}}-->
-<!--            </el-button>-->
             <el-button :disabled="!isTestManagerOrTestUser" plain size="mini" @click="handleExport(report.name)">
               {{$t('test_track.plan_view.export_report')}}
             </el-button>
@@ -148,44 +142,14 @@
         this.$emit('refresh');
         this.showDialog = false;
       },
-      handleEdit() {
-        this.$refs.templateEdit.open(this.reportId, true);
-      },
-      handleSave() {
-        let param = {};
-        this.buildParam(param);
-        this.result = this.$post('/case/report/edit', param, () => {
-          this.$success(this.$t('commons.save_success'));
-        });
-      },
-      buildParam(param) {
-        let content = {};
-        content.components = [];
-        this.previews.forEach(item => {
-          content.components.push(item.id);
-          if (!this.componentMap.get(item.id)) {
-            content.customComponent = new Map();
-            content.customComponent.set(item.id, {title: item.title, content: item.content})
-          }
-        });
-        param.name = this.report.name;
-        if (content.customComponent) {
-          content.customComponent = mapToJson(content.customComponent);
-        }
-        param.content = JSON.stringify(content);
-        param.id = this.report.id;
-        if (this.metric.startTime) {
-          param.startTime = this.metric.startTime.getTime();
-        }
-        if (this.metric.endTime) {
-          param.endTime = this.metric.endTime.getTime();
-        }
-      },
       getMetric() {
         this.result = this.$get('/test/plan/report/getMetric/' + this.reportId, response => {
           this.metric = response.data;
           let components = response.data.reportComponents;
           this.planId = response.data.testPlanId;
+          this.report.name = response.data.name;
+          this.report.startTime = response.data.startTime;
+          this.report.endTime = response.data.endTime;
           if(components === null || components === ''){
             this.reportComponents = [1,3,4];
           }else {

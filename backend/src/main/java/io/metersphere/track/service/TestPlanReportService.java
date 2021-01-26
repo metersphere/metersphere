@@ -196,6 +196,9 @@ public class TestPlanReportService {
             }
         }
         returnDTO.setId(report.getId());
+        returnDTO.setName(report.getName());
+        returnDTO.setStartTime(report.getStartTime());
+        returnDTO.setEndTime(report.getEndTime());
         returnDTO.setTestPlanId(report.getTestPlanId());
         returnDTO.setReportComponents(report.getComponents());
         return returnDTO;
