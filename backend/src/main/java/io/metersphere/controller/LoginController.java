@@ -56,13 +56,9 @@ public class LoginController {
     }
 
     @GetMapping(value = "/signout")
-    public ResultHolder logout() {
-        String ssoMode = env.getProperty("sso.mode");
-        if (ssoMode != null && StringUtils.equalsIgnoreCase(SsoMode.CAS.name(), ssoMode)) {
-            return ResultHolder.error("sso");
-        } else {
-            SecurityUtils.getSubject().logout();
-        }
+    public ResultHolder logout() throws Exception {
+        userService.logout();
+        SecurityUtils.getSubject().logout();
         return ResultHolder.success("");
     }
 
