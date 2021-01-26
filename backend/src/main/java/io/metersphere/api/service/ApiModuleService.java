@@ -235,7 +235,7 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
     public int deleteNode(List<String> nodeIds) {
         ApiDefinitionExample apiDefinitionExample = new ApiDefinitionExample();
         apiDefinitionExample.createCriteria().andModuleIdIn(nodeIds);
-        apiDefinitionMapper.deleteByExample(apiDefinitionExample);
+        extApiDefinitionMapper.removeToGcByExample(apiDefinitionExample);   //  删除模块，则模块下的接口放入回收站
 
         ApiModuleExample apiDefinitionNodeExample = new ApiModuleExample();
         apiDefinitionNodeExample.createCriteria().andIdIn(nodeIds);
