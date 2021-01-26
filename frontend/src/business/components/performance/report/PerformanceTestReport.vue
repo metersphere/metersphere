@@ -201,6 +201,13 @@ export default {
         }
       });
     },
+    _handleDeleteNoMsg(report) {
+      this.result = this.$post(this.deletePath + report.id, {}, () => {
+        this.initTableData();
+        // 发送广播，刷新 head 上的最新列表
+        PerformanceEvent.$emit(LIST_CHANGE);
+      });
+    },
     _handleDelete(report) {
       this.result = this.$post(this.deletePath + report.id, {}, () => {
         this.$success(this.$t('commons.delete_success'));
@@ -245,10 +252,11 @@ export default {
         callback: (action) => {
           if (action === 'confirm') {
             this.selectRows.forEach(row => {
-              this._handleDelete(row);
-            })
+              this._handleDeleteNoMsg(row);
+            });
+            this.$success(this.$t('commons.delete_success'));
           }
-        }
+        },
       });
     }
   }
