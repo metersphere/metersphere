@@ -20,7 +20,7 @@
 
       <el-container v-loading="result.loading">
         <el-main>
-          <div v-for="(item,index) in apiCaseList" :key="index">
+          <div v-for="(item,index) in apiCaseList" :key="getRandomID()">
             <api-case-item v-loading="singleLoading && singleRunId === item.id || batchLoadingIds.indexOf(item.id) > -1"
                            @refresh="refresh"
                            @singleRun="singleRun"
@@ -242,7 +242,9 @@
           this.apiCaseList.unshift(obj);
         }
       },
-
+      getRandomID() {
+        return getUUID();
+      },
       copyCase(data) {
         this.apiCaseList.unshift(data);
       },
