@@ -40,8 +40,10 @@
 
     <el-collapse-transition>
       <div v-if="data.active && showCollapse" :draggable="draggable">
-        <el-divider></el-divider>
-        <slot></slot>
+        <fieldset :disabled="data.disabled" style="border: 0px">
+          <el-divider></el-divider>
+          <slot></slot>
+        </fieldset>
       </div>
     </el-collapse-transition>
   </el-card>

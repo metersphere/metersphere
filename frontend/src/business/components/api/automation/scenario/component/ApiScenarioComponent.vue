@@ -6,6 +6,7 @@
     :data="scenario"
     :show-collapse="false"
     :is-show-name-input="!isDeletedOrRef"
+    :is-disabled="true"
     color="#606266"
     background-color="#F4F4F5"
     :title="$t('api_test.automation.scenario_import')">
@@ -45,6 +46,10 @@
             if (response.data.scenarioDefinition) {
               this.scenario.hashTree = JSON.parse(response.data.scenarioDefinition).hashTree;
             }
+            if (this.scenario.hashTree) {
+              this.setDisabled(this.scenario.hashTree);
+            }
+            this.scenario.disabled = true;
             this.scenario.name = response.data.name;
             this.$emit('refReload');
           } else {
@@ -84,6 +89,22 @@
         this.$nextTick(() => {
           this.loading = false
         })
+      },
+      recursive(arr) {
+        for (let i in arr) {
+          arr[i].disabled = true;
+          if (arr[i].hashTree != undefined && arr[i].hashTree.length > 0) {
+            this.recursive(arr[i].hashTree);
+          }
+        }
+      },
+      setDisabled(scenarioDefinition) {
+        for (let i in scenarioDefinition) {
+          scenarioDefinition[i].disabled = true;
+          if (scenarioDefinition[i].hashTree != undefined && scenarioDefinition[i].hashTree.length > 0) {
+            this.recursive(scenarioDefinition[i].hashTree);
+          }
+        }
       },
     }
   }
