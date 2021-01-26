@@ -6,6 +6,26 @@
         <el-button icon="el-icon-circle-plus-outline" plain size="mini" @click="handleAddTaskModel">
           {{ $t('organization.message.create_new_notification') }}
         </el-button>
+        <el-popover
+          placement="right-end"
+          title="示例"
+          width="400"
+          trigger="click"
+          :content="title">
+          <el-button icon="el-icon-warning" plain size="mini" slot="reference">
+            {{ $t('organization.message.mail_template_example') }}
+          </el-button>
+        </el-popover>
+        <el-popover
+          placement="right-end"
+          title="示例"
+          width="400"
+          trigger="click"
+          :content="robotTitle">
+          <el-button icon="el-icon-warning" plain size="mini" slot="reference">
+            {{ $t('organization.message.robot_template') }}
+          </el-button>
+        </el-popover>
       </el-col>
     </el-row>
     <el-row>
@@ -130,6 +150,27 @@ export default {
   },
   data() {
     return {
+      title: "<!DOCTYPE html>\n" +
+        "<html lang=\"en\">\n" +
+        "<head>\n" +
+        "    <meta charset=\"UTF-8\">\n" +
+        "    <title>MeterSphere</title>\n" +
+        "</head>\n" +
+        "<body>\n" +
+        "<div>\n" +
+        "    <p style=\"text-align: left\">${creator} 创建的:<br>\n" +
+        "        ${testPlanName}<br>\n" +
+        "        计划开始时间是:${start}<br>\n" +
+        "        计划结束时间为:${end}<br>\n" +
+        "        请跟进！<br>\n" +
+        "        点击下面链接进入测试计划页面</p>\n" +
+        "    <a href=\"${url}/#/track/plan/all\">${url}/#/track/plan/all</a>\n" +
+        "</div>\n" +
+        "</body>\n" +
+        "</html>",
+      robotTitle:
+        "   【任务通知】:${creator} 创建的:${testPlanName}计划开始时间是:${start}计划结束时间是：${end}请跟进！/ ${status}！" +
+        "点击下面链接进入测试计划页面${url}/#/track/plan/all",
       testCasePlanTask: [{
         taskType: "testPlanTask",
         event: "",
