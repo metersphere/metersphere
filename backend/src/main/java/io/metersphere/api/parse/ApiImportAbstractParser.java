@@ -7,7 +7,6 @@ import io.metersphere.api.dto.definition.request.sampler.MsHTTPSamplerProxy;
 import io.metersphere.api.dto.scenario.Body;
 import io.metersphere.api.dto.scenario.KeyValue;
 import io.metersphere.api.dto.scenario.Scenario;
-import io.metersphere.api.dto.scenario.request.HttpRequest;
 import io.metersphere.api.dto.scenario.request.RequestType;
 import io.metersphere.api.service.ApiModuleService;
 import io.metersphere.base.domain.ApiModule;
@@ -125,7 +124,6 @@ public abstract class ApiImportAbstractParser implements ApiImportParser {
         return bodyType;
     }
 
-    protected ApiDefinitionResult buildApiDefinition(String id, String name, String path, String method,ApiTestImportRequest importRequest) {
     protected void addBodyHeader(MsHTTPSamplerProxy request) {
         String contentType = "";
         if (request.getBody() != null && StringUtils.isNotBlank(request.getBody().getType())) {
@@ -153,7 +151,7 @@ public abstract class ApiImportAbstractParser implements ApiImportParser {
         }
     }
 
-    protected ApiDefinitionResult buildApiDefinition(String id, String name, String path, String method) {
+    protected ApiDefinitionResult buildApiDefinition(String id, String name, String path, String method, ApiTestImportRequest importRequest) {
         ApiDefinitionResult apiDefinition = new ApiDefinitionResult();
         apiDefinition.setName(name);
         apiDefinition.setPath(formatPath(path));
@@ -161,9 +159,9 @@ public abstract class ApiImportAbstractParser implements ApiImportParser {
         apiDefinition.setMethod(method);
         apiDefinition.setId(id);
         apiDefinition.setProjectId(this.projectId);
-        if(StringUtils.equalsIgnoreCase("schedule",importRequest.getType())){
+        if (StringUtils.equalsIgnoreCase("schedule", importRequest.getType())) {
             apiDefinition.setUserId(importRequest.getUserId());
-        }else{
+        } else {
             apiDefinition.setUserId(SessionUtils.getUserId());
         }
         return apiDefinition;
