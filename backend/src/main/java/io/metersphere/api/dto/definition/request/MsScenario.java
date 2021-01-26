@@ -59,6 +59,20 @@ public class MsScenario extends MsTestElement {
         if (!this.isEnable()) {
             return;
         }
+        if (this.getReferenced() != null && this.getReferenced().equals("Deleted")) {
+            return;
+        } else if (this.getReferenced() != null && this.getReferenced().equals("REF")) {
+            try {
+                ApiAutomationService apiAutomationService = CommonBeanFactory.getBean(ApiAutomationService.class);
+                ObjectMapper mapper = new ObjectMapper();
+                mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+                ApiScenarioWithBLOBs scenario = apiAutomationService.getApiScenario(this.getId());
+                JSONObject element = JSON.parseObject(scenario.getScenarioDefinition());
+                hashTree = mapper.readValue(element.getString("hashTree"), new TypeReference<LinkedList<MsTestElement>>() {});
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
+        }
         config.setStep(this.name);
         config.setStepType("SCENARIO");
         config.setEnableCookieShare(enableCookieShare);
@@ -71,26 +85,6 @@ public class MsScenario extends MsTestElement {
         }
         if (CollectionUtils.isNotEmpty(this.getVariables())) {
             config.setVariables(this.variables);
-        }
-        if (this.getReferenced() != null && this.getReferenced().equals("Deleted")) {
-            return;
-        } else if (this.getReferenced() != null && this.getReferenced().equals("REF")) {
-            try {
-                ApiAutomationService apiAutomationService = CommonBeanFactory.getBean(ApiAutomationService.class);
-                ObjectMapper mapper = new ObjectMapper();
-                mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-                ApiScenarioWithBLOBs scenario = apiAutomationService.getApiScenario(this.getId());
-                JSONObject element = JSON.parseObject(scenario.getScenarioDefinition());
-                LinkedList<MsTestElement> elements = mapper.readValue(element.getString("hashTree"), new TypeReference<LinkedList<MsTestElement>>() {
-                });
-                if (hashTree == null) {
-                    hashTree = elements;
-                } else {
-                    hashTree.addAll(elements);
-                }
-            } catch (Exception ex) {
-                ex.printStackTrace();
-            }
         }
         // 场景变量和环境变量
         tree.add(arguments(config));
