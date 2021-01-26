@@ -5,14 +5,9 @@
     </el-link>
     <el-dropdown-menu slot="dropdown">
       <el-dropdown-item command="ref">{{ $t('api_test.automation.view_ref') }}</el-dropdown-item>
-<!--      <el-dropdown-item :disabled="isCaseEdit" command="add_plan">{{ $t('api_test.automation.batch_add_plan') }}</el-dropdown-item>-->
       <el-dropdown-item :disabled="isCaseEdit" command="create_performance">{{ $t('api_test.create_performance_test') }}</el-dropdown-item>
     </el-dropdown-menu>
     <ms-reference-view ref="viewRef"/>
-    <!--测试计划-->
-    <el-drawer :visible.sync="planVisible" :destroy-on-close="true" direction="ltr" :withHeader="false" :title="$t('test_track.plan_view.test_result')" :modal="false" size="90%">
-      <ms-test-plan-list @addTestPlan="addTestPlan"/>
-    </el-drawer>
   </el-dropdown>
 </template>
 
@@ -36,16 +31,12 @@
         planVisible: false,
       }
     },
-
     methods: {
       handleCommand(cmd) {
         if (this.row.id) {
           switch (cmd) {
             case  "ref":
               this.$refs.viewRef.open(this.row);
-              break;
-            case  "add_plan":
-              this.addCaseToPlan();
               break;
             case "create_performance":
               this.createPerformance(this.row);
@@ -113,16 +104,6 @@
           this.$emit('runRefresh', {});
         });
 
-      },
-      addCaseToPlan() {
-        this.planVisible = true;
-      },
-      addTestPlan(plans) {
-        let obj = {planIds: plans, apiIds: [this.row.id]};
-        this.planVisible = false;
-        this.$post("/api/automation/scenario/plan", obj, response => {
-          this.$success(this.$t("commons.save_success"));
-        });
       }
     }
   }

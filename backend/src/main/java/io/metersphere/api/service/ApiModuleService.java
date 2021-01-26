@@ -174,6 +174,11 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
             ApiModuleExample.Criteria criteria = example.createCriteria();
             criteria.andNameEqualTo(node.getName())
                     .andProjectIdEqualTo(node.getProjectId());
+
+            if (StringUtils.isNotBlank(node.getProtocol())) {
+                criteria.andProtocolEqualTo(node.getProtocol());
+            }
+
             if (StringUtils.isNotBlank(node.getParentId())) {
                 criteria.andParentIdEqualTo(node.getParentId());
             } else {

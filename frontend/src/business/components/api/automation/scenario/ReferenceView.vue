@@ -3,12 +3,20 @@
              width="45%" :destroy-on-close="true" >
     <span>{{ $t('api_test.automation.scenario_ref') }}：</span>
     <div class="refs" v-loading="scenarioLoading">
-      <div v-for="(item, index) in scenarioRefs" :key="index" class="el-button--text">{{ item.name }}</div>
+      <div v-for="(item, index) in scenarioRefs" :key="index" class="el-button--text">
+        <el-link @click="openScenario(item)">
+          {{ item.name }}
+        </el-link>
+      </div>
     </div>
 
     <span>{{ $t('api_test.automation.plan_ref') }}：</span>
     <div class="refs">
-      <div v-for="(item, index) in planRefs" :key="index" class="el-button--text">{{ item.name }}</div>
+      <div v-for="(item, index) in planRefs" :key="index" class="el-button--text">
+        <router-link :to="'/track/plan/view/' + item.id">
+          {{ item.name }}
+        </router-link>
+      </div>
     </div>
 
     <template v-slot:footer>
@@ -47,6 +55,10 @@
       open(row) {
         this.getReferenceData(row);
         this.visible = true
+      },
+      openScenario(item) {
+        this.$emit('openScenario', item);
+        this.visible = false;
       }
     }
   }
