@@ -169,3 +169,36 @@ html,body {
   width: 30px;
 }
 /* 表格全选样式 --> */
+
+/* <-- 表格全选样式 (列固定表格样式) */
+.ms-select-all-fixed th:first-child.el-table-column--selection {
+  border: 1px solid #DCDFE6;
+  border-radius:5px;
+  padding: 0px;
+  margin-top: 10px;
+  display: inline-block;
+  /*margin-top: 25px;*/
+  width: 50px;
+}
+
+.ms-select-all-fixed th:nth-child(2) {
+  overflow: visible;
+}
+
+.ms-select-all-fixed th:first-child.el-table-column--selection>.cell {
+  padding: 5px;
+  width: 35px;
+}
+
+.ms-select-all-fixed th:nth-child(2)>.cell {
+  overflow: visible;
+}
+
+.ms-select-all-fixed th:nth-child(2) .el-icon-arrow-down {
+  position: absolute;
+  display: inline-block;
+  top: -4px;
+  left: -30px;
+  width: 30px;
+}
+/* 表格全选样式 --> */

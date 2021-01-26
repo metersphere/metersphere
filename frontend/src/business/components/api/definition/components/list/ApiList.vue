@@ -110,7 +110,7 @@
           :label="$t('api_test.definition.api_case_passing_rate')"
           show-overflow-tooltip/>
 
-        <el-table-column v-if="!isReadOnly" :label="$t('commons.operating')" min-width="130" align="center">
+        <el-table-column fixed="right" v-if="!isReadOnly" :label="$t('commons.operating')" min-width="130" align="center">
           <template v-slot:default="scope">
             <ms-table-operator-button :tip="$t('commons.reduction')" icon="el-icon-refresh-left" @exec="reductionApi(scope.row)" v-if="trashEnable" v-tester/>
             <ms-table-operator-button :tip="$t('commons.edit')" icon="el-icon-edit" @exec="editApi(scope.row)" v-else v-tester/>

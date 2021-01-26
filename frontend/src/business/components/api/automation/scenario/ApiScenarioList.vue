@@ -6,12 +6,12 @@
                          :show-create="false"/>
       </template>
 
-      <el-table ref="scenarioTable" border :data="tableData" class="adjust-table ms-select-all" @select-all="select" @select="select"
+      <el-table ref="scenarioTable" border :data="tableData" class="adjust-table ms-select-all-fixed" @select-all="select" @select="select"
                 v-loading="loading">
 
         <el-table-column type="selection" width="50"/>
 
-        <ms-table-select-all v-if="!referenced"
+        <ms-table-header-select-popover v-show="total>0"
                              :page-size="pageSize>total?total:pageSize"
                              :total="total"
                              @selectPageAll="isSelectDataAll(false)"
@@ -121,7 +121,8 @@
   import MsTableMoreBtn from "./TableMoreBtn";
   import MsScenarioExtendButtons from "@/business/components/api/automation/scenario/ScenarioExtendBtns";
   import MsTestPlanList from "./testplan/TestPlanList";
-  import MsTableSelectAll from "../../../common/components/table/MsTableSelectAll";
+  // import MsTableSelectAll from "../../../common/components/table/MsTableSelectAll";
+  import MsTableHeaderSelectPopover from "@/business/components/common/components/table/MsTableHeaderSelectPopover";
   import {API_CASE_CONFIGS} from "@/business/components/common/components/search/search-components";
   import MsTableOperatorButton from "@/business/components/common/components/MsTableOperatorButton";
   import PriorityTableItem from "../../../track/common/tableItems/planview/PriorityTableItem";
@@ -139,7 +140,7 @@
       BatchEdit,
       PlanStatusTableItem,
       PriorityTableItem,
-      MsTableSelectAll,
+      MsTableHeaderSelectPopover,
       MsTablePagination,
       MsTableMoreBtn,
       ShowMoreBtn,
@@ -544,4 +545,16 @@
     background-color: #409EFF;
     border-color: #409EFF;
   }
+  /deep/ .el-table__fixed-body-wrapper {
+    z-index: auto !important;
+  }
+  /deep/ el-table__fixed-right{
+
+  }
+    /deep/ .el-table__fixed-right {
+      height: 100% !important;
+    }
+    /deep/ .el-table__fixed {
+      height: 110px !important;
+    }
 </style>
