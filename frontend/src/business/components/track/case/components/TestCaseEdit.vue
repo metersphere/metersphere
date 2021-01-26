@@ -375,6 +375,9 @@ export default {
     treeNodes() {
       this.getModuleOptions();
     },
+    moduleOptions() {
+      this.$emit('setModuleOptions', this.moduleOptions);
+    }
   },
   methods: {
     reload() {

@@ -528,6 +528,7 @@ public class TestCaseService {
 
 
     public void editTestCaseBath(TestCaseBatchRequest request) {
+        getSelectAllIds(request);
         TestCaseExample testCaseExample = new TestCaseExample();
         testCaseExample.createCriteria().andIdIn(request.getIds());
 
@@ -541,10 +542,19 @@ public class TestCaseService {
     }
 
     public void deleteTestCaseBath(TestCaseBatchRequest request) {
+        getSelectAllIds(request);
         deleteTestPlanTestCaseBath(request.getIds());
         TestCaseExample example = new TestCaseExample();
         example.createCriteria().andIdIn(request.getIds());
         testCaseMapper.deleteByExample(example);
+    }
+
+    public void getSelectAllIds(TestCaseBatchRequest request) {
+        if (request.getCondition().isSelectAll()) {
+            ServiceUtils.getSelectAllIds(request.getCondition(),
+                    (query) -> extTestCaseMapper.selectIds(query));
+            request.setIds(request.getCondition().getIds());
+        }
     }
 
     public void deleteTestPlanTestCaseBath(List<String> caseIds) {

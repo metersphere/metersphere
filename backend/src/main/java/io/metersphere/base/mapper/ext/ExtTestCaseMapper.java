@@ -1,6 +1,7 @@
 package io.metersphere.base.mapper.ext;
 
 import io.metersphere.base.domain.TestCase;
+import io.metersphere.controller.request.BaseQueryRequest;
 import io.metersphere.track.dto.TestCaseDTO;
 import io.metersphere.track.request.testcase.QueryTestCaseRequest;
 import io.metersphere.track.request.testcase.TestCaseBatchRequest;
@@ -46,4 +47,5 @@ public interface ExtTestCaseMapper {
      */
     int checkIsHave(@Param("caseId") String caseId, @Param("workspaceIds") Set<String> workspaceIds);
 
+    List<String> selectIds(@Param("request") BaseQueryRequest condition);
 }
