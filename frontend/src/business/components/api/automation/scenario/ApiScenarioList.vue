@@ -28,7 +28,13 @@
 
         <el-table-column prop="num" label="ID"
                          sortable="custom"
-                         show-overflow-tooltip/>
+                         show-overflow-tooltip>
+          <template slot-scope="scope">
+            <el-tooltip content="编辑">
+              <a style="cursor:pointer" @click="edit(scope.row)"> {{ scope.row.num }} </a>
+            </el-tooltip>
+          </template>
+        </el-table-column>
         <el-table-column prop="name"
                          sortable="custom"
                          :label="$t('api_test.automation.scenario_name')"
