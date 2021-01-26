@@ -10,9 +10,9 @@ import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.dto.NodeDTO;
 import io.metersphere.dto.TestResourcePoolDTO;
 import io.metersphere.i18n.Translator;
-import javafx.util.Pair;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -40,10 +40,10 @@ public class NodeResourcePoolService {
         }
 
         deleteTestResource(testResourcePool.getId());
-        List Ip_Port = testResourcePool.getResources().stream()
+        List<ImmutablePair> Ip_Port = testResourcePool.getResources().stream()
                 .map(resource -> {
                     NodeDTO nodeDTO = JSON.parseObject(resource.getConfiguration(), NodeDTO.class);
-                    return new Pair(nodeDTO.getIp(), nodeDTO.getPort());
+                    return new ImmutablePair(nodeDTO.getIp(), nodeDTO.getPort());
                 })
                 .distinct()
                 .collect(Collectors.toList());
