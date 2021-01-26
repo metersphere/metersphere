@@ -100,7 +100,7 @@
               <ms-table-operator-button :tip="$t('api_test.automation.copy')" icon="el-icon-document-copy" type=""
                                         @exec="copy(row)"/>
               <ms-table-operator-button :tip="$t('api_test.automation.remove')" icon="el-icon-delete" @exec="remove(row)" type="danger" v-tester/>
-              <ms-scenario-extend-buttons :row="row"/>
+              <ms-scenario-extend-buttons @openScenario="openScenario" :row="row"/>
             </div>
           </template>
         </el-table-column>
@@ -588,6 +588,9 @@ export default {
     filter(filters) {
       _filter(filters, this.condition);
       this.search();
+    },
+    openScenario (item) {
+      this.$emit('openScenario', item)
     },
   }
 }
