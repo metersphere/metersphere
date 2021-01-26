@@ -45,8 +45,8 @@
 
         <el-tab-pane v-if="activeName == 'body'" :disabled="true" name="mode" class="pane assertions">
           <template v-slot:label>
-            <ms-dropdown v-if="!isSqlType" :commands="modes" :default-command="mode" @command="modeChange"/>
-            <ms-dropdown v-if="isSqlType" :commands="sqlModes" :default-command="mode" @command="sqlModeChange"/>
+            <ms-dropdown v-if="request.method==='SQL'" :commands="sqlModes" :default-command="mode" @command="sqlModeChange"/>
+            <ms-dropdown v-else :commands="modes" :default-command="mode" @command="modeChange" ref="modeDropdown"/>
           </template>
         </el-tab-pane>
       </el-tabs>
@@ -110,7 +110,7 @@
 
     computed: {
       isSqlType() {
-        return (this.requestType === RequestFactory.TYPES.SQL && this.response.responseCode === '200');
+        return ((this.requestType === RequestFactory.TYPES.SQL || this.request.method === RequestFactory.TYPES.SQL) && this.response.responseCode === '200'&& this.mode === 'table');
       }
     }
   }
