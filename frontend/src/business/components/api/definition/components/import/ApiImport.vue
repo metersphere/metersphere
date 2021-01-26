@@ -181,7 +181,7 @@ export default {
   methods: {
     scheduleEdit() {
       if (!this.formData.swaggerUrl) {
-        this.$warning(this.$t('commons.please_upload'));
+        this.$warning(this.$t('commons.please_fill_path'));
         this.swaggerSynchronization = !this.swaggerSynchronization
       } else {
         if (this.swaggerSynchronization) {

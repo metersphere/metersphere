@@ -148,7 +148,7 @@
                       <!-- 步骤组件-->
                        <ms-component-config :type="data.type" :scenario="data" :response="response" :currentScenario="currentScenario"
                                             :currentEnvironmentId="currentEnvironmentId" :node="node"
-                                            @remove="remove" @copyRow="copyRow" @suggestClick="suggestClick"/>
+                                            @remove="remove" @copyRow="copyRow" @suggestClick="suggestClick" @refReload="reload"/>
                     </span>
               </el-tree>
             </div>
@@ -423,7 +423,6 @@
         document.removeEventListener("keydown", this.createCtrlSHandle);
       },
       createCtrlSHandle(event) {
-        console.log("create ctrl + s");
         handleCtrlSEvent(event, this.editScenario);
       },
       getIdx(index) {
@@ -884,7 +883,6 @@
                   }
                   this.enableCookieShare = obj.enableCookieShare;
                   this.scenarioDefinition = obj.hashTree;
-                  console.log(this.scenarioDefinition)
                 }
               }
               if (this.currentScenario.copy) {
