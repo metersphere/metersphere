@@ -243,21 +243,23 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
 
         BaseSystemConfigDTO baseSystemConfigDTO = systemParameterService.getBaseInfo();
         String url = reportUrl;
+        String url2 = reportUrl;
         if (StringUtils.isEmpty(url)) {
             url = baseSystemConfigDTO.getUrl() + "/#/api/report/view/" + report.getId();
+            url2 = baseSystemConfigDTO.getUrl() + "/#/api/automation/report";
         }
         String successContext = "";
         String failedContext = "";
         String subject = "";
         String event = "";
         if (StringUtils.equals(ReportTriggerMode.API.name(), report.getTriggerMode())) {
-            successContext = "接口测试 API任务通知:'" + report.getName() + "'执行成功" + "\n" + "请点击下面链接进入测试报告页面" + "\n" + url;
-            failedContext = "接口测试 API任务通知:'" + report.getName() + "'执行失败" + "\n" + "请点击下面链接进入测试报告页面" + "\n" + url;
+            successContext = "接口测试 API任务通知:'" + report.getName() + "'执行成功" + "\n" + "请点击下面链接进入测试报告页面" + "\n" + "旧版接口测试路径" + url + "\n" + "新版接口测试路径" + url2;
+            failedContext = "接口测试 API任务通知:'" + report.getName() + "'执行失败" + "\n" + "请点击下面链接进入测试报告页面" + "\n" + "旧版接口测试路径" + url + "\n" + "新版接口测试路径" + url2;
             subject = Translator.get("task_notification_jenkins");
         }
         if (StringUtils.equals(ReportTriggerMode.SCHEDULE.name(), report.getTriggerMode())) {
-            successContext = "接口测试定时任务通知:'" + report.getName() + "'执行成功" + "\n" + "请点击下面链接进入测试报告页面" + "\n" + url;
-            failedContext = "接口测试定时任务通知:'" + report.getName() + "'执行失败" + "\n" + "请点击下面链接进入测试报告页面" + "\n" + url;
+            successContext = "接口测试定时任务通知:'" + report.getName() + "'执行成功" + "\n" + "请点击下面链接进入测试报告页面" + "\n" + "旧版接口测试路径" + url + "\n" + "新版接口测试路径" + url2;
+            failedContext = "接口测试定时任务通知:'" + report.getName() + "'执行失败" + "\n" + "请点击下面链接进入测试报告页面" + "\n" + "旧版接口测试路径" + url + "\n" + "新版接口测试路径" + url2;
             subject = Translator.get("task_notification");
         }
         if (StringUtils.equals("Success", report.getStatus())) {

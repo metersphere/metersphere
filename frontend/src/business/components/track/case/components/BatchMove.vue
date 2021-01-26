@@ -1,5 +1,5 @@
 <template>
-  <div class="batch-move" v-loading="result.loading">
+  <div v-if="dialogVisible" class="batch-move" v-loading="result.loading">
     <el-dialog :title="this.$t('test_track.case.select_catalog')"
                :visible.sync="dialogVisible"
                :before-close="close"
@@ -25,15 +25,15 @@
             </span>
             <span class="node-title">{{node.label}}</span>
           </span>
-          </template>
-        </el-tree>
-      </div>
-      <template v-slot:footer>
-        <ms-dialog-footer
-          @cancel="close"
-          @confirm="save"/>
-      </template>
-    </el-dialog>
+        </template>
+      </el-tree>
+    </div>
+    <template v-slot:footer>
+      <ms-dialog-footer
+        @cancel="close"
+        @confirm="save"/>
+    </template>
+  </el-dialog>
   </div>
 </template>
 

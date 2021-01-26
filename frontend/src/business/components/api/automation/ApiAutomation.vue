@@ -22,6 +22,7 @@
             :trash-enable="trashEnable"
             :checkRedirectID="checkRedirectID"
             :isRedirectEdit="isRedirectEdit"
+            @openScenario="editScenario"
             @edit="editScenario"
             @changeSelectDataRangeAll="changeSelectDataRangeAll"
             ref="apiScenarioList"/>

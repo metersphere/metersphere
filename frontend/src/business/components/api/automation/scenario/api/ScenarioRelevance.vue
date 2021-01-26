@@ -1,5 +1,5 @@
 <template>
-  <relevance-dialog :title="'场景导入'" ref="relevanceDialog">
+  <relevance-dialog :title="$t('api_test.automation.scenario_import')" ref="relevanceDialog">
 
     <template v-slot:aside>
         <ms-api-scenario-module
@@ -19,8 +19,8 @@
       ref="apiScenarioList"/>
 
     <template v-slot:footer>
-      <el-button type="primary" @click="copy" @keydown.enter.native.prevent>复制</el-button>
-      <el-button type="primary" @click="reference" @keydown.enter.native.prevent>引用</el-button>
+      <el-button type="primary" @click="copy" @keydown.enter.native.prevent>{{$t('commons.copy')}}</el-button>
+      <el-button type="primary" @click="reference" @keydown.enter.native.prevent> {{ $t('api_test.scenario.reference') }}</el-button>
     </template>
 
   </relevance-dialog>

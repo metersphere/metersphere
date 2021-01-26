@@ -1013,6 +1013,76 @@ public class TestPlanReportExample {
             addCriterion("principal not between", value1, value2, "principal");
             return (Criteria) this;
         }
+
+        public Criteria andComponentsIsNull() {
+            addCriterion("components is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andComponentsIsNotNull() {
+            addCriterion("components is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andComponentsEqualTo(String value) {
+            addCriterion("components =", value, "components");
+            return (Criteria) this;
+        }
+
+        public Criteria andComponentsNotEqualTo(String value) {
+            addCriterion("components <>", value, "components");
+            return (Criteria) this;
+        }
+
+        public Criteria andComponentsGreaterThan(String value) {
+            addCriterion("components >", value, "components");
+            return (Criteria) this;
+        }
+
+        public Criteria andComponentsGreaterThanOrEqualTo(String value) {
+            addCriterion("components >=", value, "components");
+            return (Criteria) this;
+        }
+
+        public Criteria andComponentsLessThan(String value) {
+            addCriterion("components <", value, "components");
+            return (Criteria) this;
+        }
+
+        public Criteria andComponentsLessThanOrEqualTo(String value) {
+            addCriterion("components <=", value, "components");
+            return (Criteria) this;
+        }
+
+        public Criteria andComponentsLike(String value) {
+            addCriterion("components like", value, "components");
+            return (Criteria) this;
+        }
+
+        public Criteria andComponentsNotLike(String value) {
+            addCriterion("components not like", value, "components");
+            return (Criteria) this;
+        }
+
+        public Criteria andComponentsIn(List<String> values) {
+            addCriterion("components in", values, "components");
+            return (Criteria) this;
+        }
+
+        public Criteria andComponentsNotIn(List<String> values) {
+            addCriterion("components not in", values, "components");
+            return (Criteria) this;
+        }
+
+        public Criteria andComponentsBetween(String value1, String value2) {
+            addCriterion("components between", value1, value2, "components");
+            return (Criteria) this;
+        }
+
+        public Criteria andComponentsNotBetween(String value1, String value2) {
+            addCriterion("components not between", value1, value2, "components");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {

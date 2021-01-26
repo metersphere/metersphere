@@ -14,6 +14,7 @@ import io.metersphere.api.dto.scenario.request.RequestType;
 import io.metersphere.api.dto.swaggerurl.SwaggerTaskResult;
 import io.metersphere.api.dto.swaggerurl.SwaggerUrlRequest;
 import io.metersphere.api.jmeter.JMeterService;
+import io.metersphere.api.jmeter.RequestResult;
 import io.metersphere.api.jmeter.TestResult;
 import io.metersphere.api.parse.ApiImportParser;
 import io.metersphere.api.parse.ApiImportParserFactory;
@@ -297,7 +298,7 @@ public class ApiDefinitionService {
         }
     }
 
-    private ApiDefinition importCreate(ApiDefinitionResult request, ApiDefinitionMapper batchMapper,ApiTestImportRequest apiTestImportRequest) {
+    private ApiDefinition importCreate(ApiDefinitionResult request, ApiDefinitionMapper batchMapper, ApiTestImportRequest apiTestImportRequest) {
         SaveApiDefinitionRequest saveReq = new SaveApiDefinitionRequest();
         BeanUtils.copyBean(saveReq, request);
         final ApiDefinitionWithBLOBs apiDefinition = new ApiDefinitionWithBLOBs();
@@ -313,7 +314,7 @@ public class ApiDefinitionService {
         apiDefinition.setDescription(request.getDescription());
 
         List<ApiDefinition> sameRequest = getSameRequest(saveReq);
-        if(StringUtils.equals("fullCoverage",apiTestImportRequest.getModeId())){
+        if (StringUtils.equals("fullCoverage", apiTestImportRequest.getModeId())) {
             if (CollectionUtils.isEmpty(sameRequest)) {
                 batchMapper.insert(apiDefinition);
             } else {
@@ -321,9 +322,9 @@ public class ApiDefinitionService {
                 apiDefinition.setId(sameRequest.get(0).getId());
                 apiDefinitionMapper.updateByPrimaryKeyWithBLOBs(apiDefinition);
             }
-        }else if(StringUtils.equals("incrementalMerge",apiTestImportRequest.getModeId())){
+        } else if (StringUtils.equals("incrementalMerge", apiTestImportRequest.getModeId())) {
             batchMapper.insert(apiDefinition);
-        }else{
+        } else {
             if (CollectionUtils.isEmpty(sameRequest)) {
                 batchMapper.insert(apiDefinition);
             } else {
@@ -372,7 +373,11 @@ public class ApiDefinitionService {
 
     public void addResult(TestResult res) {
         if (!res.getScenarios().isEmpty() && !res.getScenarios().get(0).getRequestResults().isEmpty()) {
-            cache.put(res.getTestId(), res.getScenarios().get(0).getRequestResults().get(0));
+            RequestResult result = res.getScenarios().get(0).getRequestResults().get(0);
+            if (result.getName().indexOf("<->") != -1) {
+                result.setName(result.getName().substring(0, result.getName().indexOf("<->")));
+            }
+            cache.put(res.getTestId(), result);
         } else {
             MSException.throwException(Translator.get("test_not_found"));
         }
@@ -451,7 +456,7 @@ public class ApiDefinitionService {
                 item.setName(item.getName().substring(0, 255));
             }
             item.setNum(num++);
-            importCreate(item, batchMapper,request);
+            importCreate(item, batchMapper, request);
             if (i % 300 == 0) {
                 sqlSession.flushStatements();
             }
@@ -614,7 +619,7 @@ public class ApiDefinitionService {
     /*swagger定时导入*/
     public void createSchedule(Schedule request) {
         /*保存swaggerUrl*/
-        SwaggerUrlProject swaggerUrlProject=new SwaggerUrlProject();
+        SwaggerUrlProject swaggerUrlProject = new SwaggerUrlProject();
         swaggerUrlProject.setId(UUID.randomUUID().toString());
         swaggerUrlProject.setProjectId(request.getProjectId());
         swaggerUrlProject.setSwaggerUrl(request.getResourceId());
@@ -631,33 +636,38 @@ public class ApiDefinitionService {
         this.addOrUpdateSwaggerImportCronJob(request);
 
     }
+
     //关闭
-    public void updateSchedule(Schedule request){
+    public void updateSchedule(Schedule request) {
         scheduleService.editSchedule(request);
         this.addOrUpdateSwaggerImportCronJob(request);
     }
+
     //删除
-    public void deleteSchedule(ScheduleInfoSwaggerUrlRequest request){
+    public void deleteSchedule(ScheduleInfoSwaggerUrlRequest request) {
         swaggerUrlProjectMapper.deleteByPrimaryKey(request.getId());
         scheduleMapper.deleteByPrimaryKey(request.getTaskId());
 
     }
+
     //查询swaggerUrl详情
-    public SwaggerUrlProject getSwaggerInfo(String resourceId){
+    public SwaggerUrlProject getSwaggerInfo(String resourceId) {
         return swaggerUrlProjectMapper.selectByPrimaryKey(resourceId);
     }
-    public String getResourceId(SwaggerUrlRequest swaggerUrlRequest){
-        SwaggerUrlProjectExample swaggerUrlProjectExample=new SwaggerUrlProjectExample();
-        SwaggerUrlProjectExample.Criteria criteria=swaggerUrlProjectExample.createCriteria();
+
+    public String getResourceId(SwaggerUrlRequest swaggerUrlRequest) {
+        SwaggerUrlProjectExample swaggerUrlProjectExample = new SwaggerUrlProjectExample();
+        SwaggerUrlProjectExample.Criteria criteria = swaggerUrlProjectExample.createCriteria();
         criteria.andProjectIdEqualTo(swaggerUrlRequest.getProjectId()).andSwaggerUrlEqualTo(swaggerUrlRequest.getSwaggerUrl()).andModuleIdEqualTo(swaggerUrlRequest.getModuleId());
-        List<SwaggerUrlProject>  list=swaggerUrlProjectMapper.selectByExample(swaggerUrlProjectExample);
-        String resourceId="";
-        if(list.size()==1){
-            resourceId=list.get(0).getId();
+        List<SwaggerUrlProject> list = swaggerUrlProjectMapper.selectByExample(swaggerUrlProjectExample);
+        String resourceId = "";
+        if (list.size() == 1) {
+            resourceId = list.get(0).getId();
         }
         return resourceId;
     }
-    public List<SwaggerTaskResult>  getSwaggerScheduleList(String projectId){
+
+    public List<SwaggerTaskResult> getSwaggerScheduleList(String projectId) {
         return extSwaggerUrlScheduleMapper.getSwaggerTaskList(projectId);
     }
 
