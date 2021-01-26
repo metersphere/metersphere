@@ -1,40 +1,38 @@
 <template>
-  <div class="batch-move" v-loading="result.loading">
-    <el-dialog :title="this.$t('test_track.case.select_catalog')"
-               :visible.sync="dialogVisible"
-               :before-close="close"
-               :destroy-on-close="true"
-               width="20%"
-    >
-      <div>
-        <el-input :placeholder="$t('test_track.module.search')" v-model="filterText" size="small"/>
-        <el-tree
-          class="filter-tree node-tree"
-          :data="treeNodes"
-          node-key="id"
-          :filter-node-method="filterNode"
-          :expand-on-click-node="false"
-          highlight-current
-          @node-click="nodeClick"
-          ref="tree"
-        >
-          <template v-slot:default="{node}">
+  <el-dialog :title="this.$t('test_track.case.select_catalog')"
+             :visible.sync="dialogVisible"
+             :before-close="close"
+             :destroy-on-close="true"
+             width="40%"
+  >
+    <div>
+      <el-input :placeholder="$t('test_track.module.search')" v-model="filterText" size="small"/>
+      <el-tree
+        class="filter-tree node-tree"
+        :data="treeNodes"
+        node-key="id"
+        :filter-node-method="filterNode"
+        :expand-on-click-node="false"
+        highlight-current
+        @node-click="nodeClick"
+        ref="tree"
+      >
+        <template v-slot:default="{node}">
           <span>
             <span class="node-icon">
               <i class="el-icon-folder"/>
             </span>
             <span class="node-title">{{node.label}}</span>
           </span>
-          </template>
-        </el-tree>
-      </div>
-      <template v-slot:footer>
-        <ms-dialog-footer
-          @cancel="close"
-          @confirm="save"/>
-      </template>
-    </el-dialog>
-  </div>
+        </template>
+      </el-tree>
+    </div>
+    <template v-slot:footer>
+      <ms-dialog-footer
+        @cancel="close"
+        @confirm="save"/>
+    </template>
+  </el-dialog>
 </template>
 
 <script>
