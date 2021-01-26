@@ -11,6 +11,7 @@
     <ms-node-tree
       v-loading="result.loading"
       :tree-nodes="data"
+      allLabel="默认模块"
       @add="add"
       :type="'edit'"
       @edit="edit"
@@ -95,6 +96,11 @@
       confirm() {
         if (!this.currentModule) {
           this.$warning("请选择一个模块");
+          return;
+        }
+        console.log(this.currentModule)
+        if (this.currentModule.id === "root") {
+          this.$warning("不能选默认模块，请重新选择一个模块");
           return;
         }
         this.loading = true;
