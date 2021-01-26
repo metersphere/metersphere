@@ -42,6 +42,12 @@
         this.isActive = true;
       }
     },
+    watch: {
+      result() {
+        this.response = this.result;
+        this.isActive = true;
+      }
+    },
     methods: {
       getExecResult() {
         // 执行结果信息

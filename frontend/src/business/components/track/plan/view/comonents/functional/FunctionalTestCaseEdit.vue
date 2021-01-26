@@ -257,9 +257,10 @@
                         <el-table-column prop="description" :label="$t('test_track.issue.description')">
                           <template v-slot:default="scope">
                             <el-popover
-                              placement="left"
-                              width="400"
+                              placement="right"
+                              width="500"
                               trigger="hover"
+                              popper-class="issues-popover"
                             >
                               <ckeditor :editor="editor" disabled :config="readConfig"
                                         v-model="scope.row.description"/>
@@ -746,5 +747,12 @@ p {
 
 .head-bar {
   z-index: 999;
+}
+</style>
+
+<style>
+.issues-popover {
+  height: 550px;
+  overflow: auto;
 }
 </style>

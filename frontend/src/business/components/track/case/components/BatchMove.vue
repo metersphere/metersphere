@@ -25,15 +25,15 @@
             </span>
             <span class="node-title">{{node.label}}</span>
           </span>
-          </template>
-        </el-tree>
-      </div>
-      <template v-slot:footer>
-        <ms-dialog-footer
-          @cancel="close"
-          @confirm="save"/>
-      </template>
-    </el-dialog>
+        </template>
+      </el-tree>
+    </div>
+    <template v-slot:footer>
+      <ms-dialog-footer
+        @cancel="close"
+        @confirm="save"/>
+    </template>
+  </el-dialog>
   </div>
 </template>
 
