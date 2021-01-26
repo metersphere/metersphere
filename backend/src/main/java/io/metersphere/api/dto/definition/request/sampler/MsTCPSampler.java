@@ -82,7 +82,7 @@ public class MsTCPSampler extends MsTestElement {
         samplerHashTree.add(tcpConfig());
         tree.set(tcpSampler(config), samplerHashTree);
         setUserParameters(samplerHashTree);
-        if (tcpPreProcessor != null) {
+        if (tcpPreProcessor != null && StringUtils.isNotBlank(tcpPreProcessor.getScript())) {
             samplerHashTree.add(tcpPreProcessor.getJSR223PreProcessor());
         }
         if (CollectionUtils.isNotEmpty(hashTree)) {
