@@ -222,7 +222,6 @@
         }
         if (this.$refs.apiConfig) {
           this.$refs.apiConfig.forEach(item => {
-            console.log(item);
             item.removeListener();
           }); //  删除所有tab的 ctrl + s 监听
           let tabs = this.apiTabs;
