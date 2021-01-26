@@ -290,12 +290,11 @@ public class ScheduleManager {
         addOrUpdateCronJob(jobKey, triggerKey, jobClass, cron, null);
     }
 
-    public JobDataMap getDefaultJobDataMap(String resourceId, String expression, String userId,String swaggerUrl) {
+    public JobDataMap getDefaultJobDataMap(String resourceId, String expression, String userId) {
         JobDataMap jobDataMap = new JobDataMap();
         jobDataMap.put("resourceId", resourceId);
         jobDataMap.put("expression", expression);
         jobDataMap.put("userId", userId);
-        jobDataMap.put("swaggerUrl",swaggerUrl);
         return jobDataMap;
     }
 

@@ -28,6 +28,9 @@
                        ref="crontab"/>
             </el-dialog>
           </el-tab-pane>
+          <el-tab-pane :label="$t('api_test.home_page.running_task_list.title')" name="second">
+            <swagger-task-list></swagger-task-list>
+          </el-tab-pane>
         </el-tabs>
       </div>
     </template>
@@ -35,10 +38,17 @@
 </template>
 
 <script>
-import {checkoutTestManagerOrTestUser, getCurrentUser, listenGoBack, removeGoBackListener} from "@/common/js/utils";
+import {
+  checkoutTestManagerOrTestUser,
+  getCurrentProjectID,
+  getCurrentUser,
+  listenGoBack,
+  removeGoBackListener
+} from "@/common/js/utils";
 import Crontab from "@/business/components/common/cron/Crontab";
 import CrontabResult from "@/business/components/common/cron/CrontabResult";
 import {cronValidate} from "@/common/js/cron";
+import SwaggerTaskList from "@/business/components/api/definition/components/import/SwaggerTaskList";
 
 function defaultCustomValidate() {
   return {pass: true};
@@ -46,7 +56,7 @@ function defaultCustomValidate() {
 
 export default {
   name: "ImportScheduleEdit",
-  components: {CrontabResult, Crontab},
+  components: {SwaggerTaskList, CrontabResult, Crontab},
 
   props: {
     customValidate: {
@@ -89,8 +99,12 @@ export default {
         cronValue: ""
       },
       activeName: 'first',
-      swaggerUrl:String,
-      projectId:String,
+      swaggerUrl: String,
+      projectId: String,
+      moduleId: String,
+      paramSwaggerUrlId: String,
+      modulePath: String,
+      modeId: String,
       rules: {
         cronValue: [{required: true, validator: validateCron, trigger: 'blur'}],
       }
@@ -101,20 +115,30 @@ export default {
       return getCurrentUser();
     },
     open(param) {
-      let paramTestId = "";
-      paramTestId=param.projectId
-      this.findSchedule(paramTestId);
-      this.project=param.projectId;
-      this.swaggerUrl=param.swaggerUrl;
-      this.dialogVisible = true;
-      this.form.cronValue = this.schedule.value;
-      listenGoBack(this.close);
+      this.$post("/api/definition/getResourceId", param, response => {
+        this.paramSwaggerUrlId = response.data
+        if (this.paramSwaggerUrlId === "" || this.paramSwaggerUrlId === null || this.paramSwaggerUrlId === undefined) {
+          console.log(this.paramSwaggerUrlId)
+        } else {
+          this.findSchedule(this.paramSwaggerUrlId);
+
+        }
+        this.project = param.projectId;
+        this.swaggerUrl = param.swaggerUrl;
+        this.dialogVisible = true;
+        this.form.cronValue = this.schedule.value;
+        this.moduleId = param.moduleId;
+        this.modulePath = param.modulePath;
+        this.modeId = param.modeId;
+        listenGoBack(this.close);
+      })
+
       this.activeName = 'first';
-      },
-    findSchedule(paramTestId) {
-      let scheduleResourceID = paramTestId;
-      let taskType="SWAGGER_IMPORT";
-      this.result = this.$get("/schedule/findOne/" + scheduleResourceID + "/" +taskType, response => {
+    },
+    findSchedule(paramSwaggerUrlId) {
+      let scheduleResourceID = paramSwaggerUrlId;
+      let taskType = "SWAGGER_IMPORT";
+      this.result = this.$get("/schedule/findOne/" + scheduleResourceID + "/" + taskType, response => {
         if (response.data != null) {
           this.schedule = response.data;
         } else {
@@ -150,9 +174,17 @@ export default {
       this.checkScheduleEdit();
       let param = {};
       param = this.schedule;
-      param.resourceId =this.project;
-      param.swaggerUrl=this.swaggerUrl;
-      let url = '/api/definition/schedule/create';
+      param.resourceId = this.swaggerUrl;
+      param.projectId = getCurrentProjectID();
+      param.moduleId = this.moduleId;
+      param.modulePath = this.modulePath;
+      param.modeId = this.modeId;
+      let url = '';
+      if (this.paramSwaggerUrlId) {
+        url = '/api/definition/schedule/update';
+      } else {
+        url = '/api/definition/schedule/create';
+      }
       this.$post(url, param, () => {
         this.$success(this.$t('commons.save_success'));
       });

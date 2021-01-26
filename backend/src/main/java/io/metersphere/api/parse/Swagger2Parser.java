@@ -66,7 +66,7 @@ public class Swagger2Parser extends SwaggerAbstractParser {
             for (HttpMethod method : httpMethods) {
                 Operation operation = operationMap.get(method);
                 MsHTTPSamplerProxy request = buildRequest(operation, pathName, method.name());
-                ApiDefinitionResult apiDefinition = buildApiDefinition(request.getId(), operation, pathName, method.name());
+                ApiDefinitionResult apiDefinition = buildApiDefinition(request.getId(), operation, pathName, method.name(),importRequest);
                 parseParameters(operation, request);
                 apiDefinition.setRequest(JSON.toJSONString(request));
                 apiDefinition.setResponse(JSON.toJSONString(parseResponse(operation, operation.getResponses())));
@@ -79,7 +79,7 @@ public class Swagger2Parser extends SwaggerAbstractParser {
         return results;
     }
 
-    private ApiDefinitionResult buildApiDefinition(String id, Operation operation, String path, String method) {
+    private ApiDefinitionResult buildApiDefinition(String id, Operation operation, String path, String method,ApiTestImportRequest importRequest) {
         String name = "";
         if (StringUtils.isNotBlank(operation.getSummary())) {
             name = operation.getSummary();
@@ -88,7 +88,7 @@ public class Swagger2Parser extends SwaggerAbstractParser {
         } else {
             name = path;
         }
-        return buildApiDefinition(id, name, path, method);
+        return buildApiDefinition(id, name, path, method,importRequest);
     }
 
     private MsHTTPSamplerProxy buildRequest(Operation operation, String path, String method) {

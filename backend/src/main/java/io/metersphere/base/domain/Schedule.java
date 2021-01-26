@@ -37,5 +37,11 @@ public class Schedule implements Serializable {
     //定时任务来源： 测试计划/测试场景
     private String scheduleFrom;
 
-    private String swaggerUrl;
+    private String projectId;
+
+    private String moduleId;
+
+    private String modulePath;
+
+    private String modeId;
 }
