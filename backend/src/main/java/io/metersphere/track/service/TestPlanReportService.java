@@ -27,6 +27,7 @@ import io.metersphere.track.request.report.QueryTestPlanReportRequest;
 import io.metersphere.track.request.testcase.QueryTestPlanRequest;
 import io.metersphere.track.request.testplan.LoadCaseRequest;
 import org.apache.commons.lang3.StringUtils;
+import org.python.bouncycastle.pqc.math.linearalgebra.IntUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -194,6 +195,9 @@ public class TestPlanReportService {
                 returnDTO.setProjectName(testProject);
             }
         }
+        returnDTO.setId(report.getId());
+        returnDTO.setTestPlanId(report.getTestPlanId());
+        returnDTO.setReportComponents(report.getComponents());
         return returnDTO;
     }
 
@@ -227,20 +231,32 @@ public class TestPlanReportService {
                 }
             }
         }else if(StringUtils.equals(ReportTriggerMode.TEST_PLAN_SCHEDULE.name(),triggerMode)){
-            issuesInfo = ReportTriggerMode.TEST_PLAN_SCHEDULE.name();
         }
 
         testPlanReport.setEndTime(System.currentTimeMillis());
         testPlanReport.setUpdateTime(System.currentTimeMillis());
 
         //手动触发的需要保存手工执行的信息
+        int [] componentIndexArr = null;
+        if(StringUtils.equals(ReportTriggerMode.MANUAL.name(),triggerMode)){
+            componentIndexArr = new int[]{1,2,3,4,5};
+        }else {
+            componentIndexArr = new int[]{1,3,4};
+        }
+        testPlanReport.setComponents(JSONArray.toJSONString(componentIndexArr));
 
-        JSONObject content = JSONObject.parseObject("{\"components\":[1,2,3,4,5]}");
-        JSONArray componentIds = content.getJSONArray("components");
+//        JSONObject content = JSONObject.parseObject("{\"components\":[1,2,3,4,5]}");
+        JSONArray componentIds = JSONArray.parseArray(testPlanReport.getComponents());
         List<ReportComponent> components = ReportComponentFactory.createComponents(componentIds.toJavaList(String.class), testPlan);
         testPlanService.buildApiCaseReport(testPlanReport.getTestPlanId(), components);
         testPlanService.buildScenarioCaseReport(testPlanReport.getTestPlanId(), components);
         testPlanService.buildLoadCaseReport(testPlanReport.getTestPlanId(), components);
+
+        if(StringUtils.equals(ReportTriggerMode.MANUAL.name(),triggerMode)){
+            List<Issues> issues = testPlanService.buildFunctionalCaseReport(testPlanReport.getTestPlanId(), components);
+            issuesInfo = JSONArray.toJSONString(issues);
+        }
+
 
         //只针对定时任务做处理
         if (StringUtils.equals(ReportTriggerMode.SCHEDULE.name(),triggerMode)

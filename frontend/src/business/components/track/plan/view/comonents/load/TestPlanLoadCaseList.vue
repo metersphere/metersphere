@@ -140,6 +140,7 @@ export default {
       currentPage: 1,
       pageSize: 10,
       total: 0,
+      status: 'default',
       screenHeight: document.documentElement.clientHeight - 330,//屏幕高度
       buttons: [
         // {
@@ -171,7 +172,8 @@ export default {
       type: Boolean,
       default: false
     },
-    planId: String
+    planId: String,
+    clickType: String,
   },
   created() {
     this.initTable();
@@ -187,11 +189,18 @@ export default {
   },
   methods: {
     initTable() {
-      console.log('init')
       this.selectRows = new Set();
       this.condition.testPlanId = this.planId;
       if (this.selectProjectId && this.selectProjectId !== 'root') {
         this.condition.projectId = this.selectProjectId;
+      }
+      if (this.clickType) {
+        if (this.status == 'default') {
+          this.condition.status = this.clickType;
+        }else{
+          this.condition.status = null;
+        }
+        this.status = 'all';
       }
       this.$post("/test/plan/load/case/list/" + this.currentPage + "/" + this.pageSize, this.condition, response => {
         let data = response.data;
@@ -278,7 +287,7 @@ export default {
     },
     updateStatus(loadCase, status) {
       this.$post('/test/plan/load/case/update', {id: loadCase.id, status: status}, () => {
-        this.$post('/test/plan/edit/status/' + loadCase.testPlanId, {},() => {
+        this.$post('/test/plan/edit/status/' + loadCase.testPlanId, {}, () => {
           this.initTable();
         });
       });

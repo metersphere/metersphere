@@ -1,7 +1,7 @@
 <template>
 
   <div>
-    <ms-chart :options="options">
+    <ms-chart :options="options" @onClick="onClick">
     </ms-chart>
   </div>
 
@@ -107,7 +107,10 @@ export default {
           itemNames.push(item.name);
         });
         this.dataNames = itemNames;
-      }
+      },
+      onClick(params){
+        this.$emit('onClick', params);
+      },
     }
   }
 </script>

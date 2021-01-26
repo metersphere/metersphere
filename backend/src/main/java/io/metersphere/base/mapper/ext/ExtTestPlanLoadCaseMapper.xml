@@ -40,6 +40,9 @@
             <if test="request.name != null">
                 and (lt.name like CONCAT('%', #{request.name},'%') or lt.num like CONCAT('%', #{request.name},'%'))
             </if>
+            <if test="request.status != null">
+                and tplc.status like CONCAT('%', #{request.status},'%')
+            </if>
             <if test="request.filters != null and request.filters.size() > 0">
                 <foreach collection="request.filters.entrySet()" index="key" item="values">
                     <if test="values != null and values.size() > 0">

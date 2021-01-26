@@ -14,6 +14,7 @@
         @openTestCaseRelevanceDialog="openTestCaseRelevanceDialog"
         @refresh="refresh"
         :plan-id="planId"
+        :clickType="clickType"
         :select-node-ids="selectNodeIds"
         :select-parent-nodes="selectParentNodes"
         ref="testPlanTestCaseList"/>
@@ -52,9 +53,16 @@
         }
       },
       props: [
-        'planId'
+        'planId',
+        'redirectCharType',
+        'clickType'
       ],
-      mounted() {
+      // activated() {
+      //   this.search();
+      //   this.checkTipsType();
+      // },
+      // mounted() {
+      activated(){
         this.initData();
         this.openTestCaseEdit(this.$route.path);
       },
@@ -88,7 +96,11 @@
         },
         getNodeTreeByPlanId() {
           if (this.planId) {
-            this.result = this.$get("/case/node/list/plan/" + this.planId, response => {
+            let url = "/case/node/list/plan/" + this.planId;
+            if(this.clickType){
+              url = url+"/"+this.clickType;
+            }
+            this.result = this.$get(url, response => {
               this.treeNodes = response.data;
             });
           }

@@ -46,6 +46,11 @@
     <if test="request.name != null and request.name!=''">
       and c.name like CONCAT('%', #{request.name},'%')
     </if>
+    <if test="request.status != null and request.status!=''">
+      and t.last_result like CONCAT('%', #{request.status},'%')
+    </if>
+
+
     <if test="request.moduleIds != null and request.moduleIds.size() > 0">
       and c.api_scenario_module_id in
       <foreach collection="request.moduleIds" item="nodeId" separator="," open="(" close=")">
