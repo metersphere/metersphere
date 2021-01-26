@@ -33,7 +33,7 @@
                          sortable="custom"
                          :label="$t('api_test.automation.scenario_name')"
                          show-overflow-tooltip
-                         min-width="100px"/>
+                         min-width="120px"/>
         <el-table-column prop="level"
                          sortable="custom"
                          column-key="level"
@@ -64,6 +64,7 @@
                          :filters="userFilters"
                          column-key="user_id"
                          sortable="custom"
+                         min-width="100px"
                          show-overflow-tooltip/>
         <el-table-column prop="updateTime" :label="$t('api_test.automation.update_time')" sortable="custom" width="180">
           <template v-slot:default="scope">

@@ -197,7 +197,7 @@ html,body {
 .ms-select-all-fixed th:nth-child(2) .el-icon-arrow-down {
   position: absolute;
   display: inline-block;
-  top: -4px;
+  top: -9px;
   left: -30px;
   width: 30px;
 }
