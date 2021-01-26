@@ -32,7 +32,7 @@
         @cell-mouse-enter="showPopover"
         row-key="id"
         class="test-content adjust-table ms-select-all"
-        ref="table">
+        ref="table" @row-click="handleEdit">
 
         <el-table-column
           width="50"
