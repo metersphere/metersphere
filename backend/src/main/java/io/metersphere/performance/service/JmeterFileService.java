@@ -50,6 +50,10 @@ public class JmeterFileService {
     }
 
     private void setThreadNum(LoadTestWithBLOBs t, Integer limit) {
+        // 传入limit才去改这个值
+        if (limit <= 0) {
+            return;
+        }
         String loadConfiguration = t.getLoadConfiguration();
         JSONArray jsonArray = JSON.parseArray(loadConfiguration);
         for (int i = 0; i < jsonArray.size(); i++) {
