@@ -194,7 +194,7 @@ public class ApiScenarioModuleService extends NodeTreeService<ApiScenarioModuleD
     }
 
     public int deleteNode(List<String> nodeIds) {
-        apiAutomationService.deleteByIds(nodeIds);
+        apiAutomationService.removeToGcByIds(nodeIds);
 
         ApiScenarioModuleExample apiScenarioModuleExample = new ApiScenarioModuleExample();
         apiScenarioModuleExample.createCriteria().andIdIn(nodeIds);

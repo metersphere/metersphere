@@ -3,7 +3,7 @@
                    :condition="condition"
                    @search="$emit('refresh')"
                    :show-create="false"
-                   :tip="$t('commons.search_by_name_or_id')">
+                   :tip="$t('commons.search_by_id_name_tag')">
     <template v-slot:title>
        接口用例
     </template>

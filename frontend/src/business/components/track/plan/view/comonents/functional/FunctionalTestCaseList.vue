@@ -3,7 +3,7 @@
     <el-card class="card-content" v-loading="result.loading">
       <template v-slot:header>
         <ms-table-header :is-tester-permission="true" :condition.sync="condition" @search="initTableData"
-                         :show-create="false" :tip="$t('commons.search_by_name_or_id')">
+                         :show-create="false" :tip="$t('commons.search_by_id_name_tag')">
           <template v-slot:title>
             <node-breadcrumb class="table-title" :nodes="selectParentNodes" @refresh="breadcrumbRefresh"/>
           </template>

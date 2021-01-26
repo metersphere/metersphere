@@ -28,7 +28,13 @@
 
         <el-table-column prop="num" label="ID"
                          sortable="custom"
-                         show-overflow-tooltip/>
+                         show-overflow-tooltip>
+          <template slot-scope="scope">
+            <el-tooltip content="编辑">
+              <a style="cursor:pointer" @click="edit(scope.row)"> {{ scope.row.num }} </a>
+            </el-tooltip>
+          </template>
+        </el-table-column>
         <el-table-column prop="name"
                          sortable="custom"
                          :label="$t('api_test.automation.scenario_name')"
@@ -100,7 +106,7 @@
               <ms-table-operator-button :tip="$t('api_test.automation.copy')" icon="el-icon-document-copy" type=""
                                         @exec="copy(row)"/>
               <ms-table-operator-button :tip="$t('api_test.automation.remove')" icon="el-icon-delete" @exec="remove(row)" type="danger" v-tester/>
-              <ms-scenario-extend-buttons :row="row"/>
+              <ms-scenario-extend-buttons @openScenario="openScenario" :row="row"/>
             </div>
           </template>
         </el-table-column>
@@ -588,6 +594,9 @@ export default {
     filter(filters) {
       _filter(filters, this.condition);
       this.search();
+    },
+    openScenario (item) {
+      this.$emit('openScenario', item)
     },
   }
 }

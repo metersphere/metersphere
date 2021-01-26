@@ -6,6 +6,8 @@ import io.metersphere.api.dto.definition.ApiDefinitionRequest;
 import io.metersphere.api.dto.definition.ApiDefinitionResult;
 import io.metersphere.api.dto.definition.ApiSwaggerUrlDTO;
 import io.metersphere.base.domain.ApiDefinition;
+import io.metersphere.base.domain.ApiDefinitionExample;
+import io.metersphere.base.domain.ApiModuleExample;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -18,6 +20,8 @@ public interface ExtApiDefinitionMapper {
     List<ApiComputeResult> selectByIds(@Param("ids") List<String> ids);
 
     int removeToGc(@Param("ids") List<String> ids);
+
+    int removeToGcByExample(ApiDefinitionExample example);
 
     int reduction(@Param("ids") List<String> ids);
 

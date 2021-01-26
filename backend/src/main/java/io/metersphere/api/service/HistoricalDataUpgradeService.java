@@ -39,8 +39,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import java.io.*;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.net.URL;
+import java.nio.channels.FileChannel;
 import java.util.*;
 
 @Service
@@ -276,45 +279,12 @@ public class HistoricalDataUpgradeService {
     private static final String BODY_FILE_DIR = "/opt/metersphere/data/body";
 
     //文件的拷贝
-    private static void copyFile(String sourcePath, String newPath) {
-        File readfile = new File(sourcePath);
-        File newFile = new File(newPath);
-        BufferedWriter bufferedWriter = null;
-        Writer writer = null;
-        FileOutputStream fileOutputStream = null;
-        BufferedReader bufferedReader = null;
-        try {
-            fileOutputStream = new FileOutputStream(newFile, true);
-            writer = new OutputStreamWriter(fileOutputStream, "UTF-8");
-            bufferedWriter = new BufferedWriter(writer);
-
-            bufferedReader = new BufferedReader(new FileReader(readfile));
-
-            String line = null;
-            while ((line = bufferedReader.readLine()) != null) {
-                bufferedWriter.write(line);
-                bufferedWriter.newLine();
-                bufferedWriter.flush();
-            }
-        } catch (IOException e) {
+    public static void copyFile(String sourcePath, String newPath) {
+        try (FileChannel inChannel = new FileInputStream(new File(sourcePath)).getChannel();
+             FileChannel outChannel = new FileOutputStream(new File(newPath)).getChannel();) {
+            inChannel.transferTo(0, inChannel.size(), outChannel);
+        } catch (Exception e) {
             e.printStackTrace();
-        } finally {
-            try {
-                if (bufferedWriter != null) {
-                    bufferedWriter.close();
-                }
-                if (bufferedReader != null) {
-                    bufferedReader.close();
-                }
-                if (writer != null) {
-                    writer.close();
-                }
-                if (fileOutputStream != null) {
-                    fileOutputStream.close();
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
         }
     }
 

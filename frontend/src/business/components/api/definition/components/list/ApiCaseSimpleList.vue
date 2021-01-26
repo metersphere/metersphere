@@ -31,7 +31,13 @@
           </template>
         </el-table-column>
 
-        <el-table-column prop="num" label="ID" show-overflow-tooltip/>
+        <el-table-column prop="num" label="ID" show-overflow-tooltip>
+          <template slot-scope="scope">
+            <el-tooltip content="编辑">
+              <a style="cursor:pointer" @click="handleTestCase(scope.row)"> {{ scope.row.num }} </a>
+            </el-tooltip>
+          </template>
+        </el-table-column>
         <el-table-column prop="name" :label="$t('test_track.case.name')" show-overflow-tooltip/>
 
         <el-table-column
@@ -469,7 +475,10 @@ export default {
         return ids;
       },
       showCaseRef(row) {
-        this.$refs.viewRef.open(row);
+        let param = {};
+        Object.assign(param, row);
+        param.moduleId = undefined;
+        this.$refs.viewRef.open(param);
       },
       showEnvironment(row) {
 

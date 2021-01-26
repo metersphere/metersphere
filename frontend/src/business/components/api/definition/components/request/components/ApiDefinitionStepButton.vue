@@ -27,18 +27,30 @@
       methods: {
         addPre() {
           let jsr223PreProcessor = createComponent("JSR223PreProcessor");
+          if (!this.request.hashTree) {
+            this.request.hashTree = [];
+          }
           this.request.hashTree.push(jsr223PreProcessor);
         },
         addPost() {
           let jsr223PostProcessor = createComponent("JSR223PostProcessor");
+          if (!this.request.hashTree) {
+            this.request.hashTree = [];
+          }
           this.request.hashTree.push(jsr223PostProcessor);
         },
         addAssertions() {
           let assertions = new Assertions();
+          if (!this.request.hashTree) {
+            this.request.hashTree = [];
+          }
           this.request.hashTree.push(assertions);
         },
         addExtract() {
           let jsonPostProcessor = new Extract();
+          if (!this.request.hashTree) {
+            this.request.hashTree = [];
+          }
           this.request.hashTree.push(jsonPostProcessor);
         },
       }
