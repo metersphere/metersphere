@@ -104,7 +104,8 @@
       search() {
         this.selectRows = new Set();
         this.loading = true;
-        this.condition.filters = ["Prepare", "Underway", "Completed"];
+
+        this.condition.filters = {status: ["Prepare", "Underway", "Completed"]};
 
         this.condition.moduleIds = this.selectNodeIds;
 

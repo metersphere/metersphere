@@ -20,19 +20,13 @@
 
     <el-form :model="formData" :rules="rules" label-width="100px" v-loading="result.loading" ref="form">
       <el-row>
-        <el-form-item :label="'Swagger URL'" prop="swaggerUrl" v-if="isSwagger2 && swaggerUrlEable" class="swagger-url">
-          <el-input size="small" v-model="formData.swaggerUrl" clearable show-word-limit/>
-        </el-form-item>
-
         <el-col :span="11">
-          <el-form-item :label="$t('commons.import_module')"
-                        v-if="selectedPlatformValue != 'Swagger2' || (selectedPlatformValue == 'Swagger2' && !swaggerUrlEable)">
+          <el-form-item :label="$t('commons.import_module')">
             <el-select size="small" v-model="formData.moduleId" class="project-select" clearable>
               <el-option v-for="item in moduleOptions" :key="item.id" :label="item.path" :value="item.id"/>
             </el-select>
           </el-form-item>
-          <el-form-item :label="$t('commons.import_mode')"
-                        v-if="selectedPlatformValue != 'Swagger2' || (selectedPlatformValue == 'Swagger2' && !swaggerUrlEable)">
+          <el-form-item :label="$t('commons.import_mode')">
             <el-select size="small" v-model="formData.modeId" class="project-select" clearable>
               <el-option v-for="item in modeOptions" :key="item.id" :label="item.name" :value="item.id"/>
             </el-select>
@@ -43,17 +37,22 @@
               :active-text="$t('api_test.api_import.swagger_url_import')">
             </el-switch>
           </el-form-item>
-          <el-form-item v-show="isSwagger2 && swaggerUrlEable">
+
+        </el-col>
+        <el-col :span="1">
+          <el-divider direction="vertical"/>
+        </el-col>
+        <el-col :span="12" v-show="isSwagger2 && swaggerUrlEable" style="margin-top: 40px">
+          <el-form-item :label="'Swagger URL'" prop="swaggerUrl" class="swagger-url">
+            <el-input size="small" v-model="formData.swaggerUrl" clearable show-word-limit/>
+          </el-form-item>
+          <el-form-item>
             <el-switch
               v-model="swaggerSynchronization"
               @click.native="scheduleEdit"
               :active-text="$t('api_test.api_import.timing_synchronization')">
             </el-switch>
           </el-form-item>
-        </el-col>
-        <el-col :span="1"
-                v-if="selectedPlatformValue != 'Swagger2' || (selectedPlatformValue == 'Swagger2' && !swaggerUrlEable)">
-          <el-divider direction="vertical"/>
         </el-col>
         <el-col :span="12"
                 v-if="selectedPlatformValue != 'Swagger2' || (selectedPlatformValue == 'Swagger2' && !swaggerUrlEable)">
