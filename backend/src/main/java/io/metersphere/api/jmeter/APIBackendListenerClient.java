@@ -356,6 +356,8 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
                 return protocol.toUpperCase();
             }
             return RequestType.DUBBO;
+        } else if (StringUtils.contains(result.getResponseHeaders(), "url:jdbc")) {
+            return "SQL";
         } else {
             // Http Method
             String method = StringUtils.substringBefore(body, " ");

@@ -97,7 +97,8 @@
         default: false,
       },
       selectNodeIds: Array,
-      planId: String
+      planId: String,
+      clickType:String
     },
     data() {
       return {
@@ -111,6 +112,7 @@
         pageSize: 10,
         total: 0,
         reportId: "",
+        status:'default',
         infoDb: false,
         runVisible: false,
         projectId: "",
@@ -144,7 +146,14 @@
         this.loading = true;
         this.condition.moduleIds = this.selectNodeIds;
         this.condition.planId = this.planId;
-
+        if(this.clickType){
+          if(this.status =='default'){
+            this.condition.status = this.clickType;
+          }else{
+            this.condition.status = null;
+          }
+          this.status = 'all';
+        }
         let url = "/test/plan/scenario/case/list/" + this.currentPage + "/" + this.pageSize;
         this.$post(url, this.condition, response => {
           let data = response.data;

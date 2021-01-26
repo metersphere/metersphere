@@ -6,6 +6,7 @@ import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtTestCaseMapper;
 import io.metersphere.base.mapper.ext.ExtTestCaseNodeMapper;
+import io.metersphere.base.mapper.ext.ExtTestPlanTestCaseMapper;
 import io.metersphere.commons.constants.TestCaseConstants;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.exception.ExcelException;
@@ -13,9 +14,11 @@ import io.metersphere.i18n.Translator;
 import io.metersphere.service.NodeTreeService;
 import io.metersphere.track.dto.TestCaseDTO;
 import io.metersphere.track.dto.TestCaseNodeDTO;
+import io.metersphere.track.dto.TestPlanCaseDTO;
 import io.metersphere.track.request.testcase.DragNodeRequest;
 import io.metersphere.track.request.testcase.QueryNodeRequest;
 import io.metersphere.track.request.testcase.QueryTestCaseRequest;
+import io.metersphere.track.request.testplancase.QueryTestPlanCaseRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
@@ -42,6 +45,8 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
     TestPlanMapper testPlanMapper;
     @Resource
     TestPlanTestCaseMapper testPlanTestCaseMapper;
+    @Resource
+    ExtTestPlanTestCaseMapper extTestPlanTestCaseMapper;
     @Resource
     ExtTestCaseMapper extTestCaseMapper;
     @Resource
@@ -140,6 +145,32 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
      * 获取当前计划下
      * 有关联数据的节点
      *
+     * @param request
+     * @return List<TestCaseNodeDTO>
+     */
+    public List<TestCaseNodeDTO> getNodeByQueryRequest(QueryTestPlanCaseRequest request) {
+
+        List<TestCaseNodeDTO> list = new ArrayList<>();
+        List<String> projectIds = testPlanProjectService.getProjectIdsByPlanId(request.getPlanId());
+        projectIds.forEach(id -> {
+            Project project = projectMapper.selectByPrimaryKey(id);
+            String name = project.getName();
+            List<TestCaseNodeDTO> nodeList = getNodeDTO(id, request);
+            TestCaseNodeDTO testCaseNodeDTO = new TestCaseNodeDTO();
+            testCaseNodeDTO.setId(project.getId());
+            testCaseNodeDTO.setName(name);
+            testCaseNodeDTO.setLabel(name);
+            testCaseNodeDTO.setChildren(nodeList);
+            list.add(testCaseNodeDTO);
+        });
+
+        return list;
+    }
+
+    /**
+     * 获取当前计划下
+     * 有关联数据的节点
+     *
      * @param planId plan id
      * @return List<TestCaseNodeDTO>
      */
@@ -185,6 +216,37 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
         });
         return list;
 
+    }
+
+    private List<TestCaseNodeDTO> getNodeDTO(String projectId, QueryTestPlanCaseRequest request) {
+        List<TestPlanCaseDTO> testPlanTestCases = extTestPlanTestCaseMapper.listByPlanId(request);
+        if (testPlanTestCases.isEmpty()) {
+            return null;
+        }
+
+        List<TestCaseNodeDTO> testCaseNodes = extTestCaseNodeMapper.getNodeTreeByProjectId(projectId);
+
+        List<String> caseIds = testPlanTestCases.stream()
+                .map(TestPlanCaseDTO::getCaseId)
+                .collect(Collectors.toList());
+
+        TestCaseExample testCaseExample = new TestCaseExample();
+        testCaseExample.createCriteria().andIdIn(caseIds);
+        List<String> dataNodeIds = testCaseMapper.selectByExample(testCaseExample).stream()
+                .map(TestCase::getNodeId)
+                .collect(Collectors.toList());
+
+        List<TestCaseNodeDTO> nodeTrees = getNodeTrees(testCaseNodes);
+
+        Iterator<TestCaseNodeDTO> iterator = nodeTrees.iterator();
+        while (iterator.hasNext()) {
+            TestCaseNodeDTO rootNode = iterator.next();
+            if (pruningTree(rootNode, dataNodeIds)) {
+                iterator.remove();
+            }
+        }
+
+        return nodeTrees;
     }
 
     private List<TestCaseNodeDTO> getNodeDTO(String projectId, String planId) {

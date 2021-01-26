@@ -18,7 +18,7 @@
       <base-info-component id="baseInfoComponent" :report-info="metric" v-if="preview.id == 1"/>
       <test-result-component id="testResultComponent" :test-results="metric.moduleExecuteResult" v-if="preview.id == 2"/>
       <!--<test-result-chart-component id="resultChartComponent" :execute-result="metric.executeResult" v-if="preview.id == 3"/>-->
-      <test-result-advance-chart-component id="resultChartComponent" :execute-result="metric.executeResult" v-if="preview.id == 3"/>
+      <test-result-advance-chart-component id="resultChartComponent" :execute-result="metric.executeResult" :source="source" :planId="planId" v-if="preview.id == 3"/>
       <!--<failure-result-component id="failureResultComponent" :failure-test-cases="metric.failureTestCases" v-if="preview.id == 4"/>-->
       <failure-result-advance-component id="failureResultComponent" :failure-test-cases="metric.failureTestCases" v-if="preview.id == 4"/>
       <defect-list-component id="defectListComponent" :defect-list="metric.issues" v-if="preview.id == 5"/>
@@ -53,6 +53,8 @@
         metric: {
           type: Object
         },
+        source:String,
+        planId:String,
         isReport: {
           type: Boolean,
           default: true

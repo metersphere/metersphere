@@ -74,7 +74,10 @@
           this.$nextTick(function () {
             this.isShow = true;
           })
-        }
+        },
+        onClick(params){
+          this.$emit('onClick', params)
+        },
       }
     }
 </script>

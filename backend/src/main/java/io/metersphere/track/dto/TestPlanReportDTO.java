@@ -15,12 +15,14 @@ import java.util.List;
 @Setter
 public class TestPlanReportDTO {
     private String id;
+    private String testPlanId;
     private String name;
     private String testPlanName;
     private String creator;
     private long createTime;
     private String triggerMode;
     private String status;
+    private String reportComponents;
 
     private TestCaseReportAdvanceStatusResultDTO executeResult;
     private List<TestCaseReportModuleResultDTO> moduleExecuteResult;

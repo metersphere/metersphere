@@ -165,6 +165,7 @@ export default {
       selectCase: {},
       result: {},
       moduleId: "",
+      status:'default',
       deletePath: "/test/case/delete",
       selectRows: new Set(),
       buttons: [
@@ -224,11 +225,15 @@ export default {
         'api'
       }
     },
-    planId: String
+    planId: String,
+    clickType:String
   },
   created: function () {
     this.getMaintainerOptions();
     this.initTable();
+  },
+  activated() {
+    this.status ='default'
   },
   watch: {
     selectNodeIds() {
@@ -277,6 +282,14 @@ export default {
 
       if (this.currentProtocol != null) {
         this.condition.protocol = this.currentProtocol;
+      }
+      if(this.clickType){
+        if(this.status =='default'){
+          this.condition.status = this.clickType;
+        }else{
+          this.condition.status = null;
+        }
+        this.status = 'all';
       }
       this.result = this.$post('/test/plan/api/case/list/' + this.currentPage + "/" + this.pageSize, this.condition, response => {
         this.total = response.data.itemCount;

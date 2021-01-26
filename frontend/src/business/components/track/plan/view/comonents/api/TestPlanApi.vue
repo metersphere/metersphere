@@ -10,6 +10,7 @@
         @setModuleOptions="setModuleOptions"
         :plan-id="planId"
         :is-read-only="true"
+        :redirectCharType="redirectCharType"
         ref="apiNodeTree">
         <template v-slot:header>
           <div class="model-change-radio">
@@ -48,6 +49,7 @@
         :is-case-relevance="true"
         :model="'plan'"
         :plan-id="planId"
+        :clickType="clickType"
         @refresh="refreshTree"
         @relevanceCase="openTestCaseRelevanceDialog"
         ref="apiCaseList"/>
@@ -57,6 +59,7 @@
         :select-node-ids="selectNodeIds"
         :trash-enable="trashEnable"
         :plan-id="planId"
+        :clickType="clickType"
         @refresh="refreshTree"
         @relevanceCase="openTestCaseRelevanceDialog"
         ref="apiScenarioList"/>
@@ -119,18 +122,34 @@
         }
       },
       props: [
-        'planId'
+        'planId',
+        'redirectCharType',
+        'clickType'
       ],
       mounted() {
-
+        this.checkRedirectCharType();
       },
       watch: {
         model() {
           this.selectNodeIds = [];
           this.moduleOptions = {};
+        },
+        redirectCharType(){
+          if(this.redirectCharType=='scenario'){
+            this.model = 'scenario';
+          }else{
+            this.model = 'api';
+          }
         }
       },
       methods: {
+        checkRedirectCharType(){
+          if(this.redirectCharType=='scenario'){
+            this.model = 'scenario';
+          }else{
+            this.model = 'api';
+          }
+        },
         refresh() {
           this.refreshTree();
           this.refreshTable();

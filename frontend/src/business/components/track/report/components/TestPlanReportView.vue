@@ -34,7 +34,7 @@
         <div class="container" ref="resume" id="app">
           <el-main>
             <div v-for="(item, index) in previews" :key="item.id">
-              <template-component :isReportView="true" :metric="metric" :preview="item" :index="index" ref="templateComponent"/>
+              <template-component :source="source" :isReportView="true" :metric="metric" :planId="planId" :preview="item" :index="index" ref="templateComponent"/>
             </div>
           </el-main>
         </div>
@@ -80,6 +80,7 @@
         previews: [],
         report: {},
         reportId: '',
+        source:"ReportView",
         reportComponents:[1,3,4],
         metric: {},
         planId: '',
@@ -100,6 +101,11 @@
     mounted() {
       this.isTestManagerOrTestUser = checkoutTestManagerOrTestUser();
     },
+    watch: {
+      reportComponents() {
+        this.initPreviews();
+      }
+    },
     methods: {
       listenGoBack() {
         //监听浏览器返回操作，关闭该对话框
@@ -118,13 +124,6 @@
         this.listenGoBack();
       },
       getReport() {
-        // this.result = this.$get('/case/report/get/' + this.reportId, response => {
-        //   this.report = response.data;
-        //   this.report.content = JSON.parse(response.data.content);
-        //   if (this.report.content.customComponent) {
-        //     this.report.content.customComponent = jsonToMap(this.report.content.customComponent);
-        //   }
-        // });
         this.getMetric();
         this.initPreviews();
       },
@@ -185,6 +184,13 @@
       getMetric() {
         this.result = this.$get('/test/plan/report/getMetric/' + this.reportId, response => {
           this.metric = response.data;
+          let components = response.data.reportComponents;
+          this.planId = response.data.testPlanId;
+          if(components === null || components === ''){
+            this.reportComponents = [1,3,4];
+          }else {
+            this.reportComponents = JSON.parse(components);
+          }
 
           if (!this.metric.failureTestCases) {
             this.metric.failureTestCases = [];
