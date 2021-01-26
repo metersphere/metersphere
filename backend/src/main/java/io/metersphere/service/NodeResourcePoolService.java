@@ -10,6 +10,7 @@ import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.dto.NodeDTO;
 import io.metersphere.dto.TestResourcePoolDTO;
 import io.metersphere.i18n.Translator;
+import javafx.util.Pair;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpStatus;
@@ -39,25 +40,15 @@ public class NodeResourcePoolService {
         }
 
         deleteTestResource(testResourcePool.getId());
-        List<String> nodeIps = testResourcePool.getResources().stream()
+        List Ip_Port = testResourcePool.getResources().stream()
                 .map(resource -> {
                     NodeDTO nodeDTO = JSON.parseObject(resource.getConfiguration(), NodeDTO.class);
-                    return nodeDTO.getIp();
+                    return new Pair(nodeDTO.getIp(), nodeDTO.getPort());
                 })
                 .distinct()
                 .collect(Collectors.toList());
-        List<Integer> nodePorts = testResourcePool.getResources().stream()
-                .map(resource -> {
-                    NodeDTO nodeDTO = JSON.parseObject(resource.getConfiguration(), NodeDTO.class);
-                    return nodeDTO.getPort();
-                })
-                .distinct()
-                .collect(Collectors.toList());
-        if (nodeIps.size() < testResourcePool.getResources().size() && nodePorts.size() < testResourcePool.getResources().size()) {
+        if (Ip_Port.size() < testResourcePool.getResources().size()) {
             MSException.throwException(Translator.get("duplicate_node_ip_port"));
-        }
-        else if (nodeIps.size() < testResourcePool.getResources().size()) {
-            MSException.throwException(Translator.get("duplicate_node_ip"));
         }
         else if (nodePorts.size() < testResourcePool.getResources().size()) {
             MSException.throwException(Translator.get("duplicate_node_port"));
