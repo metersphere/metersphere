@@ -50,7 +50,7 @@ public class TestPlanController {
         QueryTestPlanRequest request = new QueryTestPlanRequest();
         request.setWorkspaceId(workspaceId);
         request.setProjectId(projectId);
-        return testPlanService.listTestPlan(request);
+        return testPlanService.listTestPlanByProject(request);
     }
 
     @PostMapping("/list/all")

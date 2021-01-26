@@ -4,6 +4,7 @@ import io.metersphere.api.dto.automation.ApiScenarioDTO;
 import io.metersphere.api.dto.automation.ApiScenarioRequest;
 import io.metersphere.api.dto.datacount.ApiDataCountResult;
 import io.metersphere.base.domain.ApiScenario;
+import io.metersphere.base.domain.ApiScenarioExample;
 import io.metersphere.base.domain.ApiScenarioWithBLOBs;
 import org.apache.ibatis.annotations.Param;
 
@@ -19,6 +20,8 @@ public interface ExtApiScenarioMapper {
     List<ApiScenario> selectReference(@Param("request") ApiScenarioRequest request);
 
     int removeToGc(@Param("ids") List<String> ids);
+
+    int removeToGcByExample(ApiScenarioExample example);
 
     int reduction(@Param("ids") List<String> ids);
 
