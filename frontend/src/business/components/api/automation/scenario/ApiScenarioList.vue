@@ -6,7 +6,7 @@
                          :show-create="false"/>
       </template>
 
-      <el-table ref="scenarioTable" border :data="tableData" class="adjust-table ms-select-all"
+      <el-table ref="scenarioTable" border :data="tableData" class="adjust-table ms-select-all-fixed"
                 @sort-change="sort"
                 @filter-change="filter"
                 @select-all="select" @select="select"
@@ -14,7 +14,7 @@
 
         <el-table-column type="selection" width="50"/>
 
-        <ms-table-select-all v-if="!referenced"
+        <ms-table-header-select-popover v-show="total>0"
                              :page-size="pageSize>total?total:pageSize"
                              :total="total"
                              @selectPageAll="isSelectDataAll(false)"
@@ -28,12 +28,18 @@
 
         <el-table-column prop="num" label="ID"
                          sortable="custom"
-                         show-overflow-tooltip/>
+                         show-overflow-tooltip>
+          <template slot-scope="scope">
+            <el-tooltip content="编辑">
+              <a style="cursor:pointer" @click="edit(scope.row)"> {{ scope.row.num }} </a>
+            </el-tooltip>
+          </template>
+        </el-table-column>
         <el-table-column prop="name"
                          sortable="custom"
                          :label="$t('api_test.automation.scenario_name')"
                          show-overflow-tooltip
-                         min-width="100px"/>
+                         min-width="120px"/>
         <el-table-column prop="level"
                          sortable="custom"
                          column-key="level"
@@ -64,6 +70,7 @@
                          :filters="userFilters"
                          column-key="user_id"
                          sortable="custom"
+                         min-width="100px"
                          show-overflow-tooltip/>
         <el-table-column prop="updateTime" :label="$t('api_test.automation.update_time')" sortable="custom" width="180">
           <template v-slot:default="scope">
@@ -99,7 +106,7 @@
               <ms-table-operator-button :tip="$t('api_test.automation.copy')" icon="el-icon-document-copy" type=""
                                         @exec="copy(row)"/>
               <ms-table-operator-button :tip="$t('api_test.automation.remove')" icon="el-icon-delete" @exec="remove(row)" type="danger" v-tester/>
-              <ms-scenario-extend-buttons :row="row"/>
+              <ms-scenario-extend-buttons @openScenario="openScenario" :row="row"/>
             </div>
           </template>
         </el-table-column>
@@ -141,7 +148,7 @@ import MsApiReportDetail from "../report/ApiReportDetail";
 import MsTableMoreBtn from "./TableMoreBtn";
 import MsScenarioExtendButtons from "@/business/components/api/automation/scenario/ScenarioExtendBtns";
 import MsTestPlanList from "./testplan/TestPlanList";
-import MsTableSelectAll from "../../../common/components/table/MsTableSelectAll";
+import MsTableHeaderSelectPopover from "@/business/components/common/components/table/MsTableHeaderSelectPopover";
 import {API_CASE_CONFIGS} from "@/business/components/common/components/search/search-components";
 import MsTableOperatorButton from "@/business/components/common/components/MsTableOperatorButton";
 import PriorityTableItem from "../../../track/common/tableItems/planview/PriorityTableItem";
@@ -159,7 +166,7 @@ export default {
     BatchEdit,
     PlanStatusTableItem,
     PriorityTableItem,
-    MsTableSelectAll,
+    MsTableHeaderSelectPopover,
     MsTablePagination,
     MsTableMoreBtn,
     ShowMoreBtn,
@@ -588,6 +595,9 @@ export default {
       _filter(filters, this.condition);
       this.search();
     },
+    openScenario (item) {
+      this.$emit('openScenario', item)
+    },
   }
 }
 </script>
@@ -601,4 +611,17 @@ export default {
   background-color: #409EFF;
   border-color: #409EFF;
 }
+
+  /deep/ .el-table__fixed-body-wrapper {
+    z-index: auto !important;
+  }
+  /deep/ el-table__fixed-right{
+
+  }
+    /deep/ .el-table__fixed-right {
+      height: 100% !important;
+    }
+    /deep/ .el-table__fixed {
+      height: 110px !important;
+    }
 </style>

@@ -50,6 +50,9 @@ public class NodeResourcePoolService {
         if (Ip_Port.size() < testResourcePool.getResources().size()) {
             MSException.throwException(Translator.get("duplicate_node_ip_port"));
         }
+        else if (nodePorts.size() < testResourcePool.getResources().size()) {
+            MSException.throwException(Translator.get("duplicate_node_port"));
+        }
         testResourcePool.setStatus(VALID.name());
         boolean isValid = true;
         for (TestResource resource : testResourcePool.getResources()) {

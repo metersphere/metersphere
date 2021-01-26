@@ -174,6 +174,11 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
             ApiModuleExample.Criteria criteria = example.createCriteria();
             criteria.andNameEqualTo(node.getName())
                     .andProjectIdEqualTo(node.getProjectId());
+
+            if (StringUtils.isNotBlank(node.getProtocol())) {
+                criteria.andProtocolEqualTo(node.getProtocol());
+            }
+
             if (StringUtils.isNotBlank(node.getParentId())) {
                 criteria.andParentIdEqualTo(node.getParentId());
             } else {
@@ -235,7 +240,7 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
     public int deleteNode(List<String> nodeIds) {
         ApiDefinitionExample apiDefinitionExample = new ApiDefinitionExample();
         apiDefinitionExample.createCriteria().andModuleIdIn(nodeIds);
-        apiDefinitionMapper.deleteByExample(apiDefinitionExample);
+        extApiDefinitionMapper.removeToGcByExample(apiDefinitionExample);   //  删除模块，则模块下的接口放入回收站
 
         ApiModuleExample apiDefinitionNodeExample = new ApiModuleExample();
         apiDefinitionNodeExample.createCriteria().andIdIn(nodeIds);

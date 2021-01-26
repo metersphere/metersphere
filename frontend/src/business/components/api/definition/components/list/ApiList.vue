@@ -13,12 +13,12 @@
                 border
                 @sort-change="sort"
                 @filter-change="filter"
-                :data="tableData" row-key="id" class="test-content adjust-table ms-select-all"
+                :data="tableData" row-key="id" class="test-content adjust-table ms-select-all-fixed"
                 @select-all="handleSelectAll"
                 @select="handleSelect" :height="screenHeight">
         <el-table-column width="50" type="selection"/>
 
-        <ms-table-select-all
+        <ms-table-header-select-popover v-show="total>0"
           :page-size="pageSize>total?total:pageSize"
           :total="total"
           @selectPageAll="isSelectDataAll(false)"
@@ -31,7 +31,13 @@
         </el-table-column>
 
         <el-table-column prop="num" label="ID" show-overflow-tooltip
-                         sortable="custom"/>
+                         sortable="custom">
+          <template slot-scope="scope">
+            <el-tooltip content="编辑">
+              <a style="cursor:pointer" @click="editApi(scope.row)"> {{ scope.row.num }} </a>
+            </el-tooltip>
+          </template>
+        </el-table-column>
         <el-table-column prop="name" :label="$t('api_test.definition.api_name')"
                          show-overflow-tooltip
                          sortable="custom" min-width="120px"/>
@@ -110,7 +116,7 @@
           :label="$t('api_test.definition.api_case_passing_rate')"
           show-overflow-tooltip/>
 
-        <el-table-column v-if="!isReadOnly" :label="$t('commons.operating')" min-width="130" align="center">
+        <el-table-column fixed="right" v-if="!isReadOnly" :label="$t('commons.operating')" min-width="130" align="center">
           <template v-slot:default="scope">
             <ms-table-operator-button :tip="$t('commons.reduction')" icon="el-icon-refresh-left" @exec="reductionApi(scope.row)" v-if="trashEnable" v-tester/>
             <ms-table-operator-button :tip="$t('commons.edit')" icon="el-icon-edit" @exec="editApi(scope.row)" v-else v-tester/>
@@ -160,7 +166,8 @@
   import {_filter, _sort, getCurrentProjectID} from "@/common/js/utils";
   import {WORKSPACE_ID} from '@/common/js/constants';
   import ApiListContainer from "./ApiListContainer";
-  import MsTableSelectAll from "../../../../common/components/table/MsTableSelectAll";
+  // import MsTableSelectAll from "../../../../common/components/table/MsTableSelectAll";
+  import MsTableHeaderSelectPopover from "@/business/components/common/components/table/MsTableHeaderSelectPopover";
   import ApiStatus from "@/business/components/api/definition/components/list/ApiStatus";
   import MsTableAdvSearchBar from "@/business/components/common/components/search/MsTableAdvSearchBar";
   import {API_DEFINITION_CONFIGS} from "@/business/components/common/components/search/search-components";
@@ -170,7 +177,7 @@
     name: "ApiList",
     components: {
       ApiStatus,
-      MsTableSelectAll,
+      MsTableHeaderSelectPopover,
       ApiListContainer,
       MsTableButton,
       MsTableOperatorButton,

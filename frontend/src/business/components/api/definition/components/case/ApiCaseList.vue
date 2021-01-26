@@ -234,6 +234,9 @@
           } else {
             request = JSON.parse(this.api.request);
           }
+          if (!request.hashTree) {
+            request.hashTree = [];
+          }
           let obj = {apiDefinitionId: this.api.id, name: '', priority: 'P0', active: true, tags: []};
           obj.request = request;
           this.apiCaseList.unshift(obj);

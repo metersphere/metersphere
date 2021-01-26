@@ -105,21 +105,33 @@
     methods: {
       addPre() {
         let jsr223PreProcessor = createComponent("JSR223PreProcessor");
+        if (!this.request.hashTree) {
+          this.request.hashTree = [];
+        }
         this.request.hashTree.push(jsr223PreProcessor);
         this.reload();
       },
       addPost() {
         let jsr223PostProcessor = createComponent("JSR223PostProcessor");
+        if (!this.request.hashTree) {
+          this.request.hashTree = [];
+        }
         this.request.hashTree.push(jsr223PostProcessor);
         this.reload();
       },
       addAssertions() {
         let assertions = new Assertions();
+        if (!this.request.hashTree) {
+          this.request.hashTree = [];
+        }
         this.request.hashTree.push(assertions);
         this.reload();
       },
       addExtract() {
         let jsonPostProcessor = new Extract();
+        if (!this.request.hashTree) {
+          this.request.hashTree = [];
+        }
         this.request.hashTree.push(jsonPostProcessor);
         this.reload();
       },

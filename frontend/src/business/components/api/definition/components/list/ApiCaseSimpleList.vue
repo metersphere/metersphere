@@ -11,7 +11,7 @@
       <el-table v-loading="result.loading"
                 ref="caseTable"
                 border
-                :data="tableData" row-key="id" class="test-content adjust-table ms-select-all"
+                :data="tableData" row-key="id" class="test-content adjust-table ms-select-all-fixed"
                 @select-all="handleSelectAll"
                 @filter-change="filter"
                 @sort-change="sort"
@@ -19,7 +19,7 @@
 
         <el-table-column type="selection" width="50"/>
 
-        <ms-table-select-all
+        <ms-table-header-select-popover v-show="total>0"
           :page-size="pageSize>total?total:pageSize"
           :total="total"
           @selectPageAll="isSelectDataAll(false)"
@@ -31,7 +31,13 @@
           </template>
         </el-table-column>
 
-        <el-table-column prop="num" label="ID" show-overflow-tooltip/>
+        <el-table-column prop="num" label="ID" show-overflow-tooltip>
+          <template slot-scope="scope">
+            <el-tooltip content="编辑">
+              <a style="cursor:pointer" @click="handleTestCase(scope.row)"> {{ scope.row.num }} </a>
+            </el-tooltip>
+          </template>
+        </el-table-column>
         <el-table-column prop="name" :label="$t('test_track.case.name')" show-overflow-tooltip/>
 
         <el-table-column
@@ -74,7 +80,7 @@
           </template>
         </el-table-column>
 
-        <el-table-column v-if="!isReadOnly" :label="$t('commons.operating')" min-width="130" align="center">
+        <el-table-column fixed="right" v-if="!isReadOnly" :label="$t('commons.operating')" min-width="130" align="center">
           <template v-slot:default="scope">
             <!--<el-button type="text" @click="reductionApi(scope.row)" v-if="trashEnable">{{$t('commons.reduction')}}</el-button>-->
 <!--            <el-button type="text" @click="handleTestCase(scope.row)" v-if="!trashEnable">{{ $t('commons.edit') }}-->
@@ -131,14 +137,15 @@ import MsSetEnvironment from "@/business/components/api/definition/components/ba
 import TestPlan from "@/business/components/api/definition/components/jmeter/components/test-plan";
 import ThreadGroup from "@/business/components/api/definition/components/jmeter/components/thread-group";
 import {parseEnvironment} from "@/business/components/api/test/model/EnvironmentModel";
-import MsTableSelectAll from "../../../../common/components/table/MsTableSelectAll";
+// import MsTableSelectAll from "../../../../common/components/table/MsTableSelectAll";
+import MsTableHeaderSelectPopover from "@/business/components/common/components/table/MsTableHeaderSelectPopover";
 import MsTableAdvSearchBar from "@/business/components/common/components/search/MsTableAdvSearchBar";
 import {API_CASE_CONFIGS} from "@/business/components/common/components/search/search-components";
 
 export default {
     name: "ApiCaseSimpleList",
     components: {
-      MsTableSelectAll,
+      MsTableHeaderSelectPopover,
       MsSetEnvironment,
       ApiCaseList,
       PriorityTableItem,
@@ -468,7 +475,10 @@ export default {
         return ids;
       },
       showCaseRef(row) {
-        this.$refs.viewRef.open(row);
+        let param = {};
+        Object.assign(param, row);
+        param.moduleId = undefined;
+        this.$refs.viewRef.open(param);
       },
       showEnvironment(row) {
 

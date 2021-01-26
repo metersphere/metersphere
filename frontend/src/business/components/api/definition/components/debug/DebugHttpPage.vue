@@ -7,7 +7,7 @@
 
         <el-form-item :label="$t('api_report.request')" prop="url">
           <el-input :placeholder="$t('api_test.definition.request.path_all_info')" v-model="debugForm.url"
-                    class="ms-http-input" size="small" :disabled="testCase!=undefined">
+                    class="ms-http-input" size="small" :disabled="testCase!=undefined" @blur="urlChange">
             <el-select v-model="debugForm.method" slot="prepend" style="width: 100px" size="small">
               <el-option v-for="item in reqOptions" :key="item.id" :label="item.label" :value="item.id"/>
             </el-select>
@@ -55,6 +55,7 @@
   import {REQ_METHOD} from "../../model/JsonData";
   import MsRequestResultTail from "../response/RequestResultTail";
   import MsJmxStep from "../step/JmxStep";
+  import {KeyValue} from "../../model/ApiTestModel";
 
   export default {
     name: "ApiConfig",
@@ -167,7 +168,35 @@
             return false;
           }
         })
-      }
+      },
+      urlChange() {
+        if (!this.debugForm.url || this.debugForm.url.indexOf('?') === -1) return;
+        let url = this.getURL(this.addProtocol(this.debugForm.url));
+        if (url) {
+          this.debugForm.url = decodeURIComponent(this.debugForm.url.substr(0, this.debugForm.url.indexOf("?")));
+        }
+      },
+      addProtocol(url) {
+        if (url) {
+          if (!url.toLowerCase().startsWith("https") && !url.toLowerCase().startsWith("http")) {
+            return "https://" + url;
+          }
+        }
+        return url;
+      },
+      getURL(urlStr) {
+        try {
+          let url = new URL(urlStr);
+          url.searchParams.forEach((value, key) => {
+            if (key && value) {
+              this.request.arguments.splice(0, 0, new KeyValue({name: key, required: false, value: value}));
+            }
+          });
+          return url;
+        } catch (e) {
+          this.$error(this.$t('api_test.request.url_invalid'), 2000);
+        }
+      },
     }
   }
 </script>

@@ -12,7 +12,7 @@
       <span @click.stop>
         <slot name="headerLeft">
           <i class="icon el-icon-arrow-right" :class="{'is-active': data.active}"
-             @click="active(data)"/>
+             @click="active(data)" v-if="data.type!='scenario'"/>
           <el-input :draggable="draggable" v-if="isShowInput && isShowNameInput" size="small" v-model="data.name" class="name-input"
                     @blur="isShowInput = false" :placeholder="$t('commons.input_name')" ref="nameEdit"/>
           <span v-else>

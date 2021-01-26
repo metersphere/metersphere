@@ -6,6 +6,26 @@
                    @click="handleAddTaskModel">
           {{ $t('organization.message.create_new_notification') }}
         </el-button>
+        <el-popover
+          placement="right-end"
+          title="示例"
+          width="400"
+          trigger="click"
+          :content="title">
+          <el-button icon="el-icon-warning" plain size="mini" slot="reference">
+            {{ $t('organization.message.mail_template_example') }}
+          </el-button>
+        </el-popover>
+        <el-popover
+          placement="right-end"
+          title="示例"
+          width="400"
+          trigger="click"
+          :content="robotTitle">
+          <el-button icon="el-icon-warning" plain size="mini" slot="reference">
+            {{ $t('organization.message.robot_template') }}
+          </el-button>
+        </el-popover>
       </el-col>
     </el-row>
     <el-row>
@@ -135,7 +155,35 @@ export default {
   },
   data() {
     return {
-
+      title: '<!DOCTYPE html>\n' +
+        '<html lang="en">\n' +
+        '<head>\n' +
+        '    <meta charset="UTF-8">\n' +
+        '    <title>MeterSphere</title>\n' +
+        '</head>\n' +
+        '<body>\n' +
+        '<div>\n' +
+        '    <div style="text-align: left">\n' +
+        '        <p>尊敬的用户：</p>\n' +
+        '        <p style="margin-left: 60px">您好:\n' +
+        '    </div>\n' +
+        '    <div style="margin-left: 100px">\n' +
+        '        <p>您所执行的 ${testName} 接口测试运行失败<br/>\n' +
+        '            请点击下面链接进入测试报告页面</p>\n' +
+        '        <a href="${url}/#/${type}/report/view/${id}">${url}/#/${type}/report/view/${id}</a>\n' +
+        '        <p>新版接口测试报告路径</p>\n' +
+        '        <a href="${url}/#/api/automation">${url}/#/api/automation</a>\n' +
+        '    </div>\n' +
+        '\n' +
+        '</div>\n' +
+        '</body>\n' +
+        '</html>',
+      robotTitle:
+        "测试【任务通知】:'您所执行的 ${testName} ${type}测试运行${status}\n" +
+        "请点击下面链接进入测试报告页面\n" +
+        "${url}/#/${type}/report/view/${id}" +
+        "新版接口测试报告路径\n" +
+        "${url}/#/api/automation",
       scheduleTask: [{
         taskType: "scheduleTask",
         event: "",

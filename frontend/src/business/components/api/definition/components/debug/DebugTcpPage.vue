@@ -29,6 +29,8 @@
       <p class="tip">{{$t('api_test.definition.request.res_param')}} </p>
       <ms-request-result-tail :response="responseData" :currentProtocol="currentProtocol" ref="debugResult"/>
 
+      <ms-jmx-step :request="request" :response="responseData"/>
+
       <!-- 执行组件 -->
       <ms-run :debug="true" :reportId="reportId" :run-data="runData" @runRefresh="runRefresh" ref="runTest"/>
     </el-card>
@@ -50,10 +52,12 @@
   import {REQ_METHOD} from "../../model/JsonData";
   import MsRequestResultTail from "../response/RequestResultTail";
   import TcpBasisParameters from "../request/tcp/TcpBasisParameters";
+  import MsJmxStep from "../step/JmxStep";
 
   export default {
     name: "ApiConfig",
     components: {
+      MsJmxStep,
       TcpBasisParameters,
       MsRequestResultTail, MsResponseResult, MsApiRequestForm, MsRequestMetric, MsResponseText, MsRun},
     props: {

@@ -10,7 +10,7 @@
         <el-dropdown-item command="create_performance" v-tester>{{ $t('api_test.create_performance_test') }}</el-dropdown-item>
       </el-dropdown-menu>
     </el-dropdown>
-    <ms-reference-view ref="viewRef"/>
+    <ms-reference-view @openScenario="openScenario" ref="viewRef"/>
     <ms-schedule-maintain ref="scheduleMaintain" @refreshTable="refreshTable"/>
 
   </div>
@@ -63,6 +63,9 @@
             path: "/performance/test/create"
           })
         });
+      },
+      openScenario (item) {
+        this.$emit('openScenario', item)
       },
       refreshTable() {
 

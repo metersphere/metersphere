@@ -20,7 +20,11 @@
 
     <el-form :model="formData" :rules="rules" label-width="100px" v-loading="result.loading" ref="form">
       <el-row>
-        <el-col :span="9">
+        <el-form-item :label="'Swagger URL'" prop="swaggerUrl" v-if="isSwagger2 && swaggerUrlEable" class="swagger-url">
+          <el-input size="small" v-model="formData.swaggerUrl" clearable show-word-limit/>
+        </el-form-item>
+
+        <el-col :span="11">
           <el-form-item :label="$t('commons.import_module')"
                         v-if="selectedPlatformValue != 'Swagger2' || (selectedPlatformValue == 'Swagger2' && !swaggerUrlEable)">
             <el-select size="small" v-model="formData.moduleId" class="project-select" clearable>
@@ -33,10 +37,27 @@
               <el-option v-for="item in modeOptions" :key="item.id" :label="item.name" :value="item.id"/>
             </el-select>
           </el-form-item>
+          <el-form-item v-if="isSwagger2">
+            <el-switch
+              v-model="swaggerUrlEable"
+              :active-text="$t('api_test.api_import.swagger_url_import')">
+            </el-switch>
+          </el-form-item>
+          <el-form-item v-show="isSwagger2 && swaggerUrlEable">
+            <el-switch
+              v-model="swaggerSynchronization"
+              @click.native="scheduleEdit"
+              :active-text="$t('api_test.api_import.timing_synchronization')">
+            </el-switch>
+          </el-form-item>
         </el-col>
-        <el-col :span="10" style="margin-left: 20px">
+        <el-col :span="1"
+                v-if="selectedPlatformValue != 'Swagger2' || (selectedPlatformValue == 'Swagger2' && !swaggerUrlEable)">
+          <el-divider direction="vertical"/>
+        </el-col>
+        <el-col :span="12"
+                v-if="selectedPlatformValue != 'Swagger2' || (selectedPlatformValue == 'Swagger2' && !swaggerUrlEable)">
           <el-upload
-            v-if="selectedPlatformValue != 'Swagger2' || (selectedPlatformValue == 'Swagger2' && !swaggerUrlEable)"
             class="api-upload"
             drag
             action=""
@@ -52,28 +73,7 @@
             <div class="el-upload__tip" slot="tip">{{ $t('api_test.api_import.file_size_limit') }}</div>
           </el-upload>
         </el-col>
-
-        <el-form-item :label="'Swagger URL'" prop="wgerUrl" v-if="isSwagger2 && swaggerUrlEable" class="swagger-url">
-          <el-input size="small" v-model="formData.swaggerUrl" clearable show-word-limit/>
-        </el-form-item>
-        <el-form-item v-if="isSwagger2" class="swagger-enable" :class="{'swagger-url-disable': !swaggerUrlEable}">
-          <el-switch
-            v-model="swaggerUrlEable"
-            :active-text="$t('api_test.api_import.swagger_url_import')">
-          </el-switch>
-        </el-form-item>
-
-        <el-form-item v-if="isSwagger2 && swaggerUrlEable">
-          <el-switch
-            v-model="swaggerSynchronization"
-            @click.native="scheduleEdit"
-            :active-text="$t('api_test.api_import.timing_synchronization')">
-          </el-switch>
-        </el-form-item>
-        <schedule-import ref="scheduleEdit"></schedule-import>
       </el-row>
-
-
     </el-form>
 
     <div class="format-tip">
@@ -84,7 +84,7 @@
         <span>{{ $t('api_test.api_import.export_tip') }}：{{ selectedPlatform.exportTip }}</span>
       </div>
     </div>
-
+    <schedule-import ref="scheduleEdit"></schedule-import>
   </el-dialog>
 </template>
 
@@ -180,11 +180,13 @@ export default {
   },
   methods: {
     scheduleEdit() {
-      if (this.swaggerSynchronization) {
-        this.$refs.scheduleEdit.open(this.buildParam());
+      if (!this.formData.swaggerUrl) {
+        this.$warning(this.$t('commons.please_fill_path'));
+        this.swaggerSynchronization = !this.swaggerSynchronization
       } else {
-        this.result = this.$post("/api/definition/schedule/update", this.schedule, response => {
-        });
+        if (this.swaggerSynchronization) {
+          this.$refs.scheduleEdit.open(this.buildParam());
+        }
       }
     },
     open(module) {
@@ -238,9 +240,15 @@ export default {
       Object.assign(param, this.formData);
       param.platform = this.selectedPlatformValue;
       param.saved = this.saved;
+      console.log(this.formData.moduleId)
       if (this.currentModule) {
-        param.moduleId = this.currentModule.id;
-        param.modulePath = this.currentModule.path;
+        param.moduleId = this.formData.moduleId
+        this.moduleOptions.filter(item => {
+          if (item.id === this.formData.moduleId) {
+            param.modulePath = item.path
+          }
+        })
+        param.modeId = this.formData.modeId
       }
       param.projectId = getCurrentProjectID();
       if (!this.swaggerUrlEable) {
@@ -324,6 +332,10 @@ export default {
   margin-top: 10px;
 
   margin-left: 80px;
+}
+
+.el-divider {
+  height: 200px;
 }
 
 </style>

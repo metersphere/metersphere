@@ -1,6 +1,7 @@
 package io.metersphere.base.mapper.ext;
 
 import io.metersphere.api.dto.datacount.response.TaskInfoResult;
+import io.metersphere.api.dto.definition.ApiSwaggerUrlDTO;
 import io.metersphere.controller.request.QueryScheduleRequest;
 import io.metersphere.dto.ScheduleDao;
 import org.apache.ibatis.annotations.Param;
@@ -15,4 +16,9 @@ public interface ExtScheduleMapper {
     long countTaskByProjectIdAndCreateTimeRange(@Param("projectId")String projectId, @Param("startTime") long startTime, @Param("endTime") long endTime);
 
     List<TaskInfoResult> findRunningTaskInfoByProjectID(String workspaceID);
+
+    void insert(@Param("apiSwaggerUrlDTO") ApiSwaggerUrlDTO apiSwaggerUrlDTO);
+
+    ApiSwaggerUrlDTO  select(String id);
+
 }

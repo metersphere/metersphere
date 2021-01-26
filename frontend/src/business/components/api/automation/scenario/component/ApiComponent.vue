@@ -14,7 +14,7 @@
       <el-tag size="mini" style="margin-left: 20px" v-if="request.referenced==='Deleted'" type="danger">{{$t('api_test.automation.reference_deleted')}}</el-tag>
       <el-tag size="mini" style="margin-left: 20px" v-if="request.referenced==='Copy'">{{ $t('commons.copy') }}</el-tag>
       <el-tag size="mini" style="margin-left: 20px" v-if="request.referenced ==='REF'">{{ $t('api_test.scenario.reference') }}</el-tag>
-      <ms-run :debug="false" :reportId="reportId" :run-data="runData"
+      <ms-run :debug="true" :reportId="reportId" :run-data="runData"
               @runRefresh="runRefresh" ref="runTest"/>
 
     </template>

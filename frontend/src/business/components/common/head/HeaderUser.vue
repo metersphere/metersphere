@@ -8,6 +8,7 @@
         <el-dropdown-item command="personal">{{ $t('commons.personal_information') }}</el-dropdown-item>
         <el-dropdown-item command="about">{{ $t('commons.about_us') }} <i class="el-icon-info"/></el-dropdown-item>
         <el-dropdown-item command="help">{{ $t('commons.help_documentation') }}</el-dropdown-item>
+        <el-dropdown-item command="ApiHelp">{{ $t('commons.api_help_documentation') }}</el-dropdown-item>
         <el-dropdown-item command="old" v-show=isReadOnly @click.native="changeBar('old')">
           {{ $t('commons.cut_back_old_version') }}
         </el-dropdown-item>
@@ -27,6 +28,9 @@ import {getCurrentUser} from "@/common/js/utils";
 import AboutUs from "./AboutUs";
 import axios from "axios";
 
+const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
+const auth = requireComponent.keys().length > 0 ? requireComponent("./auth/Auth.vue") : {};
+
 export default {
   name: "MsUser",
   components: {AboutUs},
@@ -41,6 +45,17 @@ export default {
     }
   },
   methods: {
+    logout: function () {
+      axios.get("/signout").then(response => {
+        if (response.data.success) {
+          localStorage.clear();
+          window.location.href = "/login";
+        }
+      }).catch(error => {
+        localStorage.clear();
+        window.location.href = "/login";
+      });
+    },
     handleCommand(command) {
       switch (command) {
         case "personal":
@@ -48,21 +63,16 @@ export default {
           this.$router.push('/setting/personsetting').catch(error => error);
           break;
         case "logout":
-          axios.get("/signout").then(response => {
-            if (response.data.success) {
-              localStorage.clear();
-              window.location.href = "/login";
-            }
-          }).catch(error => {
-            localStorage.clear();
-            window.location.href = "/login";
-          });
+          this.logout();
           break;
         case "about":
           this.$refs.aboutUs.open();
           break;
         case "help":
           window.location.href = "https://metersphere.io/docs/index.html";
+          break;
+        case "ApiHelp":
+          window.open('/swagger-ui/index.html?configUrl=/v3/api-docs/swagger-config', "_blank");
           break;
         default:
           break;
