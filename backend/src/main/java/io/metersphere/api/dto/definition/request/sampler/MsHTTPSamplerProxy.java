@@ -18,6 +18,7 @@ import org.apache.jmeter.protocol.http.control.Header;
 import org.apache.jmeter.protocol.http.control.HeaderManager;
 import org.apache.jmeter.protocol.http.sampler.HTTPSamplerProxy;
 import org.apache.jmeter.protocol.http.util.HTTPArgument;
+import org.apache.jmeter.protocol.http.util.HTTPConstants;
 import org.apache.jmeter.save.SaveService;
 import org.apache.jmeter.testelement.TestElement;
 import org.apache.jorphan.collections.HashTree;
@@ -152,7 +153,14 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                     sampler.setPath(envPath);
                 }
                 if (CollectionUtils.isNotEmpty(this.getArguments())) {
-                    sampler.setPath(getPostQueryParameters(URLDecoder.decode(envPath, "UTF-8")));
+                    String path = getPostQueryParameters(URLDecoder.decode(envPath, "UTF-8"));
+                    if (HTTPConstants.DELETE.equals(this.getMethod())) {
+                        if (!path.startsWith("/")) {
+                            path = "/" + path;
+                        }
+                        path = sampler.getProtocol() + "://" + sampler.getDomain() + ":" + sampler.getPort() + path;
+                    }
+                    sampler.setPath(path);
                 }
             } else {
                 String url = this.getUrl();
