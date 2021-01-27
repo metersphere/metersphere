@@ -4,7 +4,7 @@
     <span v-if="triggerMode === 'SCHEDULE'">{{$t('commons.trigger_mode.schedule')}}</span>
     <span v-if="triggerMode === 'TEST_PLAN_SCHEDULE'">{{$t('commons.trigger_mode.schedule')}}</span>
     <span v-if="triggerMode === 'API'">{{$t('commons.trigger_mode.api')}}</span>
-    <span v-if="triggerMode === 'CASE'">用例触发</span>
+    <span v-if="triggerMode === 'CASE'">{{$t('commons.trigger_mode.case')}}</span>
   </span>
 </template>
 

@@ -14,7 +14,7 @@
 
     <ms-main-container>
       <el-tabs v-model="activeName" @tab-click="addTab" @tab-remove="removeTab">
-        <el-tab-pane name="default" :label="$t('api_test.automation.scenario_test')">
+        <el-tab-pane name="default" :label="$t('api_test.automation.scenario_list')">
           <ms-api-scenario-list
             :module-tree="nodeTree"
             :module-options="moduleOptions"
