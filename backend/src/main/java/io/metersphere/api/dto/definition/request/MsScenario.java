@@ -20,9 +20,6 @@ import lombok.EqualsAndHashCode;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.config.Arguments;
-import org.apache.jmeter.config.CSVDataSet;
-import org.apache.jmeter.config.RandomVariableConfig;
-import org.apache.jmeter.modifiers.CounterConfig;
 import org.apache.jmeter.save.SaveService;
 import org.apache.jmeter.testelement.TestElement;
 import org.apache.jorphan.collections.HashTree;
@@ -68,7 +65,8 @@ public class MsScenario extends MsTestElement {
                 mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
                 ApiScenarioWithBLOBs scenario = apiAutomationService.getApiScenario(this.getId());
                 JSONObject element = JSON.parseObject(scenario.getScenarioDefinition());
-                hashTree = mapper.readValue(element.getString("hashTree"), new TypeReference<LinkedList<MsTestElement>>() {});
+                hashTree = mapper.readValue(element.getString("hashTree"), new TypeReference<LinkedList<MsTestElement>>() {
+                });
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
@@ -88,9 +86,9 @@ public class MsScenario extends MsTestElement {
         }
         // 场景变量和环境变量
         tree.add(arguments(config));
-        addCsvDataSet(tree);
-        addCounter(tree);
-        addRandom(tree);
+        this.addCsvDataSet(tree, variables);
+        this.addCounter(tree, variables);
+        this.addRandom(tree, variables);
         if (CollectionUtils.isNotEmpty(hashTree)) {
             for (MsTestElement el : hashTree) {
                 el.toHashTree(tree, el.getHashTree(), config);
@@ -133,71 +131,5 @@ public class MsScenario extends MsTestElement {
         return arguments;
     }
 
-    private void addCsvDataSet(HashTree tree) {
-        if (CollectionUtils.isNotEmpty(this.getVariables())) {
-            List<ScenarioVariable> list = variables.stream().filter(ScenarioVariable::isCSVValid).collect(Collectors.toList());
-            if (CollectionUtils.isNotEmpty(list)) {
-                list.forEach(item -> {
-                    CSVDataSet csvDataSet = new CSVDataSet();
-                    csvDataSet.setEnabled(true);
-                    csvDataSet.setProperty(TestElement.TEST_CLASS, CSVDataSet.class.getName());
-                    csvDataSet.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("TestBeanGUI"));
-                    csvDataSet.setName(item.getName());
-                    csvDataSet.setProperty("fileEncoding", item.getEncoding());
-                    csvDataSet.setProperty("variableNames", item.getName());
-                    if (CollectionUtils.isNotEmpty(item.getFiles())) {
-                        csvDataSet.setProperty("filename", BODY_FILE_DIR + "/" + item.getFiles().get(0).getId() + "_" + item.getFiles().get(0).getName());
-                    }
-                    csvDataSet.setIgnoreFirstLine(false);
-                    csvDataSet.setProperty("delimiter", item.getDelimiter());
-                    csvDataSet.setComment(item.getDescription());
-                    tree.add(csvDataSet);
-                });
-            }
-        }
-    }
-
-    private void addCounter(HashTree tree) {
-        if (CollectionUtils.isNotEmpty(this.getVariables())) {
-            List<ScenarioVariable> list = variables.stream().filter(ScenarioVariable::isCounterValid).collect(Collectors.toList());
-            if (CollectionUtils.isNotEmpty(list)) {
-                list.forEach(item -> {
-                    CounterConfig counterConfig = new CounterConfig();
-                    counterConfig.setEnabled(true);
-                    counterConfig.setProperty(TestElement.TEST_CLASS, CounterConfig.class.getName());
-                    counterConfig.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("CounterConfigGui"));
-                    counterConfig.setName(item.getName());
-                    counterConfig.setStart(item.getStartNumber());
-                    counterConfig.setEnd(item.getEndNumber());
-                    counterConfig.setVarName(item.getName());
-                    counterConfig.setIncrement(item.getIncrement());
-                    counterConfig.setFormat(item.getValue());
-                    counterConfig.setComment(item.getDescription());
-                    tree.add(counterConfig);
-                });
-            }
-        }
-    }
-
-    private void addRandom(HashTree tree) {
-        if (CollectionUtils.isNotEmpty(this.getVariables())) {
-            List<ScenarioVariable> list = variables.stream().filter(ScenarioVariable::isRandom).collect(Collectors.toList());
-            if (CollectionUtils.isNotEmpty(list)) {
-                list.forEach(item -> {
-                    RandomVariableConfig randomVariableConfig = new RandomVariableConfig();
-                    randomVariableConfig.setEnabled(true);
-                    randomVariableConfig.setProperty(TestElement.TEST_CLASS, RandomVariableConfig.class.getName());
-                    randomVariableConfig.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("TestBeanGUI"));
-                    randomVariableConfig.setName(item.getName());
-                    randomVariableConfig.setProperty("variableName", item.getName());
-                    randomVariableConfig.setProperty("outputFormat", item.getValue());
-                    randomVariableConfig.setProperty("minimumValue", item.getMinNumber());
-                    randomVariableConfig.setProperty("maximumValue", item.getMaxNumber());
-                    randomVariableConfig.setComment(item.getDescription());
-                    tree.add(randomVariableConfig);
-                });
-            }
-        }
-    }
 
 }

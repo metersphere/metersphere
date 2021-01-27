@@ -60,6 +60,12 @@ public class MsLoopController extends MsTestElement {
         config.setStepType("LOOP");
 
         final HashTree groupTree = controller(tree);
+        if (CollectionUtils.isNotEmpty(config.getVariables())) {
+            this.addCsvDataSet(groupTree, config.getVariables());
+            this.addCounter(groupTree, config.getVariables());
+            this.addRandom(groupTree, config.getVariables());
+        }
+
         // 循环下都增加一个计数器，用于结果统计
         groupTree.add(addCounterConfig());
         // 不打开执行成功后轮询功能，则成功后就停止循环
