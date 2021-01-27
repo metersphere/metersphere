@@ -150,6 +150,7 @@ public class TestPlanService {
     public List<TestPlan> getTestPlanByName(String name) {
         TestPlanExample example = new TestPlanExample();
         example.createCriteria().andWorkspaceIdEqualTo(SessionUtils.getCurrentWorkspaceId())
+                .andProjectIdEqualTo(SessionUtils.getCurrentProjectId())
                 .andNameEqualTo(name);
         return testPlanMapper.selectByExample(example);
     }
