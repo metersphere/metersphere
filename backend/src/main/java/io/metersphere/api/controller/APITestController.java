@@ -393,14 +393,28 @@ public class APITestController {
         String jmxString = runRequest.getTestElement().getJmx(hashTree);
 
         String testName = runRequest.getName();
-        //将ThreadGroup的testname改为接口名称
-        Document doc = DocumentHelper.parseText(jmxString);// 获取可续保保单列表报文模板
-        Element root = doc.getRootElement();
-        Element rootHashTreeElement = root.element("hashTree");
-        Element innerHashTreeElement = rootHashTreeElement.elements("hashTree").get(0);
-        Element theadGroupElement = innerHashTreeElement.elements("ThreadGroup").get(0);
-        theadGroupElement.attribute("testname").setText(testName);
-        jmxString = root.asXML();
+
+        try{
+            //将ThreadGroup的testname改为接口名称
+            Document doc = DocumentHelper.parseText(jmxString);// 获取可续保保单列表报文模板
+            Element root = doc.getRootElement();
+            Element rootHashTreeElement = root.element("hashTree");
+            Element innerHashTreeElement = rootHashTreeElement.elements("hashTree").get(0);
+            Element theadGroupElement = innerHashTreeElement.elements("ThreadGroup").get(0);
+            theadGroupElement.attribute("testname").setText(testName);
+
+            List<Element> thirdHashTreeElementList =innerHashTreeElement.elements("hashTree");
+            for (Element element:thirdHashTreeElementList) {
+                List<Element> sampleProxyElementList = element.elements("HTTPSamplerProxy");
+                for (Element itemElement: sampleProxyElementList) {
+                    itemElement.attribute("testname").setText(testName);
+                }
+            }
+
+            jmxString = root.asXML();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
 
         JmxInfoDTO dto = new JmxInfoDTO();
         dto.setName(runRequest.getName()+".jmx");
