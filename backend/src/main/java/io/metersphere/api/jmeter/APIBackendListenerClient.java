@@ -297,6 +297,7 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
         requestResult.setHeaders(result.getRequestHeaders());
         requestResult.setRequestSize(result.getSentBytes());
         requestResult.setStartTime(result.getStartTime());
+        requestResult.setEndTime(result.getEndTime());
         requestResult.setTotalAssertions(result.getAssertionResults().length);
         requestResult.setSuccess(result.isSuccessful());
         requestResult.setError(result.getErrorCount());
