@@ -24,7 +24,6 @@ import org.apache.jmeter.testelement.TestElement;
 import org.apache.jorphan.collections.HashTree;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -51,7 +50,7 @@ public class MsJDBCSampler extends MsTestElement {
     @JSONField(ordinal = 28)
     private String dataSourceId;
     @JSONField(ordinal = 29)
-    private String protocol="SQL";
+    private String protocol = "SQL";
 
     @Override
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, ParameterConfig config) {
@@ -62,7 +61,8 @@ public class MsJDBCSampler extends MsTestElement {
             this.getRefElement(this);
         }
         if (StringUtils.isNotEmpty(dataSourceId)) {
-            initDataSource();
+            this.dataSource = null;
+            this.initDataSource();
         }
         if (this.dataSource == null) {
             MSException.throwException("数据源为空无法执行");
@@ -79,14 +79,16 @@ public class MsJDBCSampler extends MsTestElement {
 
     private void initDataSource() {
         ApiTestEnvironmentService environmentService = CommonBeanFactory.getBean(ApiTestEnvironmentService.class);
-        ApiTestEnvironmentWithBLOBs environment = environmentService.get(this.dataSourceId);
+        ApiTestEnvironmentWithBLOBs environment = environmentService.get(environmentId);
         if (environment != null && environment.getConfig() != null) {
-            EnvironmentConfig config = JSONObject.parseObject(environment.getConfig(), EnvironmentConfig.class);
-            if (CollectionUtils.isNotEmpty(config.getDatabaseConfigs())) {
-                List<DatabaseConfig> databaseConfigs = config.getDatabaseConfigs().stream().filter((DatabaseConfig d) -> this.dataSourceId.equals(d.getId())).collect(Collectors.toList());
-                if (CollectionUtils.isNotEmpty(databaseConfigs)) {
-                    this.dataSource = databaseConfigs.get(0);
-                }
+            EnvironmentConfig envConfig = JSONObject.parseObject(environment.getConfig(), EnvironmentConfig.class);
+            if (CollectionUtils.isNotEmpty(envConfig.getDatabaseConfigs())) {
+                envConfig.getDatabaseConfigs().forEach(item -> {
+                    if (item.getId().equals(this.dataSourceId)) {
+                        this.dataSource = item;
+                        return;
+                    }
+                });
             }
         }
     }

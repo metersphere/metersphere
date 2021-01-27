@@ -5,7 +5,7 @@
       @isApiListEnableChange="isApiListEnableChange">
 
       <el-link type="primary" @click="open" style="float: right;margin-top: 5px">{{$t('commons.adv_search.title')}}</el-link>
-      <el-input :placeholder="$t('api_monitor.please_search')" @blur="search" class="search-input" size="small" @keyup.enter.native="search"
+      <el-input :placeholder="$t('commons.search_by_id_name_tag')" @blur="search" class="search-input" size="small" @keyup.enter.native="search"
                 v-model="condition.name"/>
 
       <el-table v-loading="result.loading"
@@ -274,7 +274,12 @@
       },
     },
     created: function () {
-      this.condition.filters = {status: ["Prepare", "Underway", "Completed"]};
+      if (this.trashEnable) {
+        this.condition.filters = {status: ["Trash"]};
+      }
+      else {
+        this.condition.filters = {status: ["Prepare", "Underway", "Completed"]};
+      }
       this.initTable();
       this.getMaintainerOptions();
     },

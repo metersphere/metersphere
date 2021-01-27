@@ -323,7 +323,9 @@ public class ApiDefinitionService {
                 apiDefinitionMapper.updateByPrimaryKeyWithBLOBs(apiDefinition);
             }
         } else if (StringUtils.equals("incrementalMerge", apiTestImportRequest.getModeId())) {
-            batchMapper.insert(apiDefinition);
+            if (CollectionUtils.isEmpty(sameRequest)) {
+                batchMapper.insert(apiDefinition);
+            }
         } else {
             if (CollectionUtils.isEmpty(sameRequest)) {
                 batchMapper.insert(apiDefinition);

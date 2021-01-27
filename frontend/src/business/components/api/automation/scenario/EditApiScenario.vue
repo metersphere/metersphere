@@ -848,7 +848,7 @@
               if (this.currentScenario.tags instanceof String) {
                 this.currentScenario.tags = JSON.parse(this.currentScenario.tags);
               }
-              this.$emit('refresh');
+              this.$emit('refresh',this.currentScenario);
             })
           }
         })

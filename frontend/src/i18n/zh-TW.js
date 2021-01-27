@@ -151,7 +151,8 @@ export default {
       name: "觸發方式",
       manual: "手動觸發",
       schedule: "定時任務",
-      api: "API調用"
+      api: "API調用",
+      case: "用例觸發"
     },
     adv_search: {
       title: '高級搜索',
@@ -602,6 +603,7 @@ export default {
       customize_req: "自定義請求",
       reference_info: "請選擇接口或用例",
       scenario_test: "場景",
+      scenario_list: "場景列表",
       add_scenario: "創建場景",
       scenario_name: "場景名稱",
       case_level: "用例等級",
@@ -1500,6 +1502,7 @@ export default {
     format: "輸出格式",
   },
   auth_source: {
-    delete_prompt: '此操作會刪除認證源，是否繼續？ '
+    delete_prompt: '此操作會刪除認證源，是否繼續？ ',
+    title: '認證設置'
   }
 };
