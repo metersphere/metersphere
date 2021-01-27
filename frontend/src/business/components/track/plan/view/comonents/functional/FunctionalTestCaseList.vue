@@ -78,10 +78,9 @@
 
         <el-table-column prop="tags" :label="$t('commons.tag')">
           <template v-slot:default="scope">
-            <ms-tag v-for="(tag, index) in scope.row.showTags"
-                    :key="tag + '_' + index"
-                    type="success" effect="plain"
-                    :content="tag"/>
+            <div v-for="(tag, index) in scope.row.showTags" :key="tag + '_' + index">
+              <ms-tag type="success" effect="plain" :content="tag"/>
+            </div>
           </template>
         </el-table-column>
 
@@ -188,8 +187,9 @@
           </template>
         </el-table-column>
         <el-table-column
-            min-width="100"
-            :label="$t('commons.operating')">
+          fixed="right"
+          min-width="100"
+          :label="$t('commons.operating')">
           <template v-slot:default="scope">
             <ms-table-operator-button :is-tester-permission="true" :tip="$t('commons.edit')" icon="el-icon-edit"
                                       @exec="handleEdit(scope.row)"/>
@@ -267,7 +267,7 @@ export default {
       currentPage: 1,
       pageSize: 10,
       total: 0,
-      status:'default',
+      status: 'default',
       selectRows: new Set(),
       testPlan: {},
       isReadOnly: false,
@@ -329,7 +329,7 @@ export default {
     planId: {
       type: String
     },
-    clickType:String,
+    clickType: String,
     selectNodeIds: {
       type: Array
     },
@@ -364,10 +364,10 @@ export default {
         // param.planId = this.planId;
         this.condition.planId = this.planId;
       }
-      if(this.clickType){
-        if(this.status =='default'){
+      if (this.clickType) {
+        if (this.status == 'default') {
           this.condition.status = this.clickType;
-        }else{
+        } else {
           this.condition.status = null;
         }
         this.status = 'all';
@@ -392,7 +392,11 @@ export default {
                   this.$set(this.tableData[i], "issuesContent", issues);
                 }
               }).catch(() => {
-                this.$set(this.tableData[i], "issuesContent", [{title: '获取缺陷失败',description: '获取缺陷失败',platform: '获取缺陷失败' }]);
+                this.$set(this.tableData[i], "issuesContent", [{
+                  title: '获取缺陷失败',
+                  description: '获取缺陷失败',
+                  platform: '获取缺陷失败'
+                }]);
               })
             }
           }
