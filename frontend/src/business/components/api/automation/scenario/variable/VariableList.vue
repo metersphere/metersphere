@@ -37,7 +37,7 @@
       <div style="margin:20px">
         <el-button style="margin-right:10px" @click="deleteVariable">{{$t('commons.delete')}}</el-button>
 
-        <el-dropdown split-button type="primary" @command="handleClick" placement="top-end">
+        <el-dropdown split-button type="primary" @command="handleClick" @click="handleClick('CONSTANT')" placement="top-end">
           {{$t('commons.add')}}
           <el-dropdown-menu slot="dropdown">
             <el-dropdown-item command="CONSTANT">常量</el-dropdown-item>

@@ -144,6 +144,12 @@
         this.getApiTest(true);
         this.visible = true;
       },
+      saveApiAndCase(api) {
+        this.visible = true;
+        this.api = api;
+        console.log(api)
+        this.addCase();
+      },
       setEnvironment(environment) {
         this.environment = environment;
       },

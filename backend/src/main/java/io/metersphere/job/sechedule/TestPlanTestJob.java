@@ -133,7 +133,6 @@ public class TestPlanTestJob extends MsScheduleJob {
             performanceRequest.setId(caseID);
             performanceRequest.setTestPlanLoadId(caseID);
             performanceRequest.setTriggerMode(ReportTriggerMode.TEST_PLAN_SCHEDULE.name());
-
             String reportId = null;
             try {
                 reportId = performanceTestService.run(performanceRequest);
@@ -148,6 +147,11 @@ public class TestPlanTestJob extends MsScheduleJob {
             }catch (Exception e){
                 e.printStackTrace();
             }
+            //更新关联处的报告
+            TestPlanLoadCase loadCase = new TestPlanLoadCaseDTO();
+            loadCase.setId(id);
+            loadCase.setLoadReportId(reportId);
+            testPlanLoadCaseService.update(loadCase);
         }
 
         if(!performaneReportIDList.isEmpty()){
