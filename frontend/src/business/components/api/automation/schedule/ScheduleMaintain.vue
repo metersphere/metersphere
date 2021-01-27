@@ -8,12 +8,22 @@
             <el-form :model="form" :rules="rules" ref="from">
               <el-form-item
                 prop="cronValue">
-                <el-input :disabled="isReadOnly" v-model="form.cronValue" class="inp"
-                          :placeholder="$t('schedule.please_input_cron_expression')"/>
-                <el-button :disabled="isReadOnly" type="primary" @click="saveCron" v-tester>{{
-                    $t('commons.save')
-                  }}
-                </el-button>
+                <el-row>
+                  <el-col :span="18">
+                    <el-input :disabled="isReadOnly" v-model="form.cronValue" class="inp"
+                              :placeholder="$t('schedule.please_input_cron_expression')"/>
+                    <el-button :disabled="isReadOnly" type="primary" @click="saveCron" v-tester>{{
+                        $t('commons.save')
+                      }}
+                    </el-button>
+                  </el-col>
+                  <el-col :span="6">
+                    <schedule-switch :schedule="schedule" @scheduleChange="scheduleChange"></schedule-switch>
+                  </el-col>
+                </el-row>
+
+
+
               </el-form-item>
               <el-form-item>
                 <el-link :disabled="isReadOnly" type="primary" @click="showCronDialog">
@@ -44,6 +54,7 @@ import Crontab from "@/business/components/common/cron/Crontab";
 import CrontabResult from "@/business/components/common/cron/CrontabResult";
 import {cronValidate} from "@/common/js/cron";
 import MsScheduleNotification from "./ScheduleNotification";
+import ScheduleSwitch from "@/business/components/api/automation/schedule/ScheduleSwitch";
 
 function defaultCustomValidate() {
   return {pass: true};
@@ -55,7 +66,7 @@ const noticeTemplate = requireComponent.keys().length > 0 ? requireComponent("./
 
 export default {
   name: "MsScheduleMaintain",
-  components: {CrontabResult, Crontab, MsScheduleNotification, "NoticeTemplate": noticeTemplate.default},
+  components: {CrontabResult, ScheduleSwitch,Crontab, MsScheduleNotification, "NoticeTemplate": noticeTemplate.default},
 
   props: {
     customValidate: {
@@ -100,6 +111,7 @@ export default {
       form: {
         cronValue: ""
       },
+      paramRow:{},
       activeName: 'first',
       rules: {
         cronValue: [{required: true, validator: validateCron, trigger: 'blur'}],
@@ -109,6 +121,35 @@ export default {
   methods: {
     currentUser: () => {
       return getCurrentUser();
+    },
+    scheduleChange(){
+      let flag = this.schedule.enable;
+      this.$confirm(this.$t('api_test.home_page.running_task_list.confirm.close_title'), this.$t('commons.prompt'), {
+        confirmButtonText: this.$t('commons.confirm'),
+        cancelButtonText: this.$t('commons.cancel'),
+        type: 'warning'
+      }).then(() => {
+        let param = {};
+        param.taskID = this.schedule.id;
+        param.enable = flag;
+        this.updateTask(param);
+      }).catch(() => {
+      });
+
+    },
+    updateTask(param){
+      this.result = this.$post('/api/schedule/updateEnableByPrimyKey', param, response => {
+        let paramTestId = "";
+        if (this.paramRow.redirectFrom == 'testPlan') {
+          paramTestId = this.paramRow.id;
+          this.scheduleTaskType = "TEST_PLAN_TEST";
+        } else {
+          paramTestId = this.paramRow.id;
+          this.scheduleTaskType = "API_SCENARIO_TEST";
+        }
+        this.taskID = paramTestId;
+        this.findSchedule(paramTestId);
+      });
     },
     initUserList() {
       let param = {
@@ -132,6 +173,7 @@ export default {
     open(row) {
       //测试计划页面跳转来的
       let paramTestId = "";
+      this.paramRow = row;
       if (row.redirectFrom == 'testPlan') {
         paramTestId = row.id;
         this.scheduleTaskType = "TEST_PLAN_TEST";
