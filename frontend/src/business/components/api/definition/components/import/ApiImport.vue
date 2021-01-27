@@ -50,8 +50,9 @@
             <el-switch
               v-model="swaggerSynchronization"
               @click.native="scheduleEdit"
-              :active-text="$t('api_test.api_import.timing_synchronization')">
+              >
             </el-switch>
+            <span style="color: #6C317C;cursor: pointer;font-weight: bold;margin-left: 10px" @click="scheduleEditByText">{{$t('api_test.api_import.timing_synchronization')}}</span>
           </el-form-item>
         </el-col>
         <el-col :span="12"
@@ -187,6 +188,9 @@ export default {
           this.$refs.scheduleEdit.open(this.buildParam());
         }
       }
+    },
+    scheduleEditByText(){
+      this.$refs.scheduleEdit.open(this.buildParam());
     },
     open(module) {
       this.currentModule = module;
