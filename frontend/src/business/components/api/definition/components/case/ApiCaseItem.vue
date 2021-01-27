@@ -326,7 +326,7 @@
         }
       },
       showExecResult(item) {
-        item.active = false;
+        item.active = true;
         item.isActive = true;
       },
       getBodyUploadFiles(row) {
