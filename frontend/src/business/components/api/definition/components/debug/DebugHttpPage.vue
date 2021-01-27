@@ -41,6 +41,8 @@
     <div v-if="scenario">
       <el-button style="float: right;margin: 20px" type="primary" @click="handleCommand('save_as')"> {{$t('commons.save')}}</el-button>
     </div>
+    <!-- 加载用例 -->
+    <ms-api-case-list :loaded="false" ref="caseList"/>
   </div>
 </template>
 
@@ -56,10 +58,11 @@
   import MsRequestResultTail from "../response/RequestResultTail";
   import MsJmxStep from "../step/JmxStep";
   import {KeyValue} from "../../model/ApiTestModel";
+  import MsApiCaseList from "../case/ApiCaseList";
 
   export default {
     name: "ApiConfig",
-    components: {MsRequestResultTail, MsResponseResult, MsApiRequestForm, MsRequestMetric, MsResponseText, MsRun, MsJmxStep},
+    components: {MsRequestResultTail, MsResponseResult, MsApiRequestForm, MsRequestMetric, MsResponseText, MsRun, MsJmxStep, MsApiCaseList},
     props: {
       currentProtocol: String,
       testCase: {},
@@ -92,6 +95,7 @@
         runData: [],
         reportId: "",
         reqOptions: REQ_METHOD,
+        createCase: "",
         request: {},
       }
     },
@@ -156,13 +160,17 @@
       saveAs() {
         this.$refs['debugForm'].validate((valid) => {
           if (valid) {
-            this.debugForm.id = null;
             this.request.id = getUUID();
+            this.request.method = this.debugForm.method;
+            this.request.path = this.debugForm.path;
+            this.protocol = this.currentProtocol;
+            this.debugForm.id = this.request.id;
             this.debugForm.request = this.request;
             this.debugForm.userId = getCurrentUser().id;
             this.debugForm.status = "Underway";
             this.debugForm.protocol = this.currentProtocol;
-            this.$emit('saveAs', this.debugForm);
+            this.debugForm.saved = true;
+            this.$refs.caseList.saveApiAndCase(this.debugForm);
           }
           else {
             return false;
@@ -170,10 +178,13 @@
         })
       },
       urlChange() {
-        if (!this.debugForm.url || this.debugForm.url.indexOf('?') === -1) return;
+        if (!this.debugForm.url) return;
         let url = this.getURL(this.addProtocol(this.debugForm.url));
         if (url) {
-          this.debugForm.url = decodeURIComponent(this.debugForm.url.substr(0, this.debugForm.url.indexOf("?")));
+          if (this.debugForm.url.indexOf('?') != -1) {
+            this.debugForm.url = decodeURIComponent(this.debugForm.url.substr(0, this.debugForm.url.indexOf("?")));
+          }
+          this.debugForm.path = url.pathname;
         }
       },
       addProtocol(url) {
