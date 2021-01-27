@@ -24,7 +24,7 @@
       <ms-run :debug="true" :reportId="reportId" :run-data="runData" @runRefresh="runRefresh" ref="runTest"/>
     </el-card>
     <div v-if="scenario">
-      <el-button style="float: right;margin: 20px" type="primary" @click="handleCommand('save_as')"> {{$t('commons.save')}}</el-button>
+      <el-button style="float: right;margin: 20px" type="primary" @click="handleCommand('save_as_api')"> {{$t('commons.save')}}</el-button>
     </div>
     <!-- 加载用例 -->
     <ms-api-case-list :loaded="false" ref="caseList"/>
@@ -103,7 +103,10 @@
       handleCommand(e) {
         if (e === "save_as") {
           this.saveAs();
-        } else {
+        } else if (e === 'save_as_api') {
+          this.saveAsApi();
+        }
+        else {
           this.runDebug();
         }
       },
@@ -120,6 +123,11 @@
         this.responseData = data;
         this.loading = false;
         this.$refs.debugResult.reload();
+      },
+      saveAsApi() {
+        let obj = {request: this.request};
+        obj.request.id = getUUID();
+        this.$emit('saveAs', obj);
       },
       saveAs() {
         let obj = {request: this.request};

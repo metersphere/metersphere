@@ -143,7 +143,7 @@
                        highlight-current
                        @node-expand="nodeExpand"
                        @node-collapse="nodeCollapse"
-                       :allow-drop="allowDrop" @node-drag-end="allowDrag" @node-click="nodeClick" v-if="!loading" draggable class="ms-is-leaf">
+                       :allow-drop="allowDrop" @node-drag-end="allowDrag" @node-click="nodeClick" v-if="!loading" draggable>
                     <span class="custom-tree-node father" slot-scope="{ node, data}" style="width: 96%">
                       <!-- 步骤组件-->
                        <ms-component-config :type="data.type" :scenario="data" :response="response" :currentScenario="currentScenario"
@@ -1037,11 +1037,11 @@
     z-index: 1;
   }
 
-  /deep/ .el-tree-node__expand-icon.expanded {
+  .ms-expanded >>> .el-tree-node__expand-icon.expanded {
     color: #7C3985;
   }
 
-  /deep/ .el-icon-caret-right {
+  .ms-el-icon-caret-right .el-icon-caret-right {
     color: #7C3985;
   }
 

@@ -150,7 +150,8 @@ export default {
       name: "Trigger Mode",
       manual: "Manual trigger",
       schedule: "Scheduled Task",
-      api: "API call"
+      api: "API call",
+      case: "Case"
     },
     adv_search: {
       title: 'Advanced Search',

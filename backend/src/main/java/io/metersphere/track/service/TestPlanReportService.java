@@ -281,6 +281,18 @@ public class TestPlanReportService {
             component.afterBuild(testCaseReportMetricDTO);
         });
 
+        if (StringUtils.equals(ReportTriggerMode.SCHEDULE.name(),triggerMode)
+                &&StringUtils.equals(resourceRunMode, ApiRunMode.SCHEDULE_PERFORMANCE_TEST.name())) {
+            //如果是性能测试作为触发，由于延迟原因可能会出现报告已经结束但是状态还是进行中的状态
+            List<TestCaseReportStatusResultDTO> loadResult = testCaseReportMetricDTO.getExecuteResult().getLoadResult();
+            for (TestCaseReportStatusResultDTO  dto: loadResult) {
+                if(StringUtils.equals(dto.getStatus(),TestPlanTestCaseStatus.Underway.name())){
+                    dto.setStatus(TestPlanTestCaseStatus.Pass.name());
+                }
+            }
+            testCaseReportMetricDTO.getExecuteResult().setLoadResult(loadResult);
+        }
+
         TestPlanReportDataExample example = new TestPlanReportDataExample();
         example.createCriteria().andTestPlanReportIdEqualTo(planReportId);
         List<TestPlanReportDataWithBLOBs> testPlanReportDataList = testPlanReportDataMapper.selectByExampleWithBLOBs(example);
@@ -421,6 +433,53 @@ public class TestPlanReportService {
             models.setPerformanceInfo(JSONArray.toJSONString(performaneReportIDList));
             testPlanReportDataMapper.updateByPrimaryKeyWithBLOBs(models);
         }
+
+        /**
+         * 虽然kafka已经设置了topic推送，但是当执行机器性能不够时会影响到报告状态当修改
+         * 同时如果执行过程中报告删除，那么此时也应当记为失败。
+         */
+        List<String> updatePerformaneReportIDList = new ArrayList<>(performaneReportIDList);
+        executorService.submit(() -> {
+            //错误数据检查集合。 如果错误数据出现超过20次，则取消该条数据的检查
+            Map<String,Integer> errorDataCheckMap = new HashMap<>();
+            while (performaneReportIDList.size()>0) {
+                List<String> selectList = new ArrayList<>(performaneReportIDList);
+                for (String loadTestReportId:selectList) {
+                    LoadTestReportWithBLOBs loadTestReportFromDatabase = loadTestReportMapper.selectByPrimaryKey(loadTestReportId);
+                    if(loadTestReportFromDatabase == null){
+                        //检查错误数据
+                        if(errorDataCheckMap.containsKey(loadTestReportId)){
+                            if(errorDataCheckMap.get(loadTestReportId)>10){
+                                performaneReportIDList.remove(loadTestReportId);
+                            }else {
+                                errorDataCheckMap.put(loadTestReportId,errorDataCheckMap.get(loadTestReportId)+1);
+                            }
+                        }else {
+                            errorDataCheckMap.put(loadTestReportId,1);
+                        }
+                    }else if (StringUtils.equalsAny(loadTestReportFromDatabase.getStatus(),
+                            PerformanceTestStatus.Completed.name(), PerformanceTestStatus.Error.name())) {
+                        performaneReportIDList.remove(loadTestReportId);
+                    }
+                }
+                if(performaneReportIDList.isEmpty()){
+                    for (String string: updatePerformaneReportIDList) {
+                        TestPlanLoadCaseEventDTO eventDTO = new TestPlanLoadCaseEventDTO();
+                        eventDTO.setReportId(string);
+                        eventDTO.setTriggerMode(ReportTriggerMode.SCHEDULE.name());
+                        eventDTO.setStatus(PerformanceTestStatus.Completed.name());
+                        this.updatePerformanceTestStatus(eventDTO);
+                    }
+                }else {
+                    try {
+                        //查询定时任务是否关闭
+                        Thread.sleep(1000 * 10);// 检查 loadtest 的状态
+                    } catch (InterruptedException e) {
+                    }
+                }
+            }
+            return true;
+        });
     }
 
     public void updatePerformanceTestStatus(TestPlanLoadCaseEventDTO eventDTO) {

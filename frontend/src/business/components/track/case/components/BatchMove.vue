@@ -15,6 +15,7 @@
           :filter-node-method="filterNode"
           :expand-on-click-node="false"
           highlight-current
+          style="overflow: auto"
           @node-click="nodeClick"
           ref="tree"
         >

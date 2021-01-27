@@ -115,6 +115,7 @@ public class TestPlanApiCaseService {
         TestPlanApiCase apiCase = new TestPlanApiCase();
         apiCase.setId(id);
         apiCase.setStatus(status);
+        apiCase.setUpdateTime(System.currentTimeMillis());
         testPlanApiCaseMapper.updateByPrimaryKeySelective(apiCase);
     }
 
