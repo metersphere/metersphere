@@ -21,7 +21,7 @@
       v-if="!readOnly"
       class="tag-input el-input"
       v-model="newTag"
-      placeholder="输入回车添加"
+      placeholder="$t('commons.tag_tip)"
       @keydown.delete.stop="removeLastTag"
       @keydown="addNew"
       @blur="addNew"/>

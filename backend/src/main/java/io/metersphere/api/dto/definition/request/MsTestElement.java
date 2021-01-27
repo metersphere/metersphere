@@ -22,6 +22,7 @@ import io.metersphere.api.dto.definition.request.sampler.MsHTTPSamplerProxy;
 import io.metersphere.api.dto.definition.request.sampler.MsJDBCSampler;
 import io.metersphere.api.dto.definition.request.sampler.MsTCPSampler;
 import io.metersphere.api.dto.definition.request.timer.MsConstantTimer;
+import io.metersphere.api.dto.definition.request.variable.ScenarioVariable;
 import io.metersphere.api.dto.scenario.KeyValue;
 import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
 import io.metersphere.api.service.ApiDefinitionService;
@@ -33,6 +34,9 @@ import io.metersphere.commons.utils.LogUtil;
 import lombok.Data;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.jmeter.config.Arguments;
+import org.apache.jmeter.config.CSVDataSet;
+import org.apache.jmeter.config.RandomVariableConfig;
+import org.apache.jmeter.modifiers.CounterConfig;
 import org.apache.jmeter.protocol.http.control.AuthManager;
 import org.apache.jmeter.save.SaveService;
 import org.apache.jmeter.testelement.TestElement;
@@ -42,6 +46,7 @@ import org.apache.jorphan.collections.ListedHashTree;
 import java.io.ByteArrayOutputStream;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "type")
 @JsonSubTypes({
@@ -91,6 +96,7 @@ public abstract class MsTestElement {
     @JSONField(ordinal = 10)
     private LinkedList<MsTestElement> hashTree;
 
+    private static final String BODY_FILE_DIR = "/opt/metersphere/data/body";
     // 公共环境逐层传递，如果自身有环境 以自身引用环境为准否则以公共环境作为请求环境
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, ParameterConfig config) {
         for (MsTestElement el : hashTree) {
@@ -166,6 +172,74 @@ public abstract class MsTestElement {
         }
         return null;
     }
+
+    protected void addCsvDataSet(HashTree tree,List<ScenarioVariable> variables) {
+        if (CollectionUtils.isNotEmpty(variables)) {
+            List<ScenarioVariable> list = variables.stream().filter(ScenarioVariable::isCSVValid).collect(Collectors.toList());
+            if (CollectionUtils.isNotEmpty(list)) {
+                list.forEach(item -> {
+                    CSVDataSet csvDataSet = new CSVDataSet();
+                    csvDataSet.setEnabled(true);
+                    csvDataSet.setProperty(TestElement.TEST_CLASS, CSVDataSet.class.getName());
+                    csvDataSet.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("TestBeanGUI"));
+                    csvDataSet.setName(item.getName());
+                    csvDataSet.setProperty("fileEncoding", item.getEncoding());
+                    csvDataSet.setProperty("variableNames", item.getName());
+                    if (CollectionUtils.isNotEmpty(item.getFiles())) {
+                        csvDataSet.setProperty("filename", BODY_FILE_DIR + "/" + item.getFiles().get(0).getId() + "_" + item.getFiles().get(0).getName());
+                    }
+                    csvDataSet.setIgnoreFirstLine(false);
+                    csvDataSet.setProperty("delimiter", item.getDelimiter());
+                    csvDataSet.setComment(item.getDescription());
+                    tree.add(csvDataSet);
+                });
+            }
+        }
+    }
+
+    protected void addCounter(HashTree tree,List<ScenarioVariable> variables) {
+        if (CollectionUtils.isNotEmpty(variables)) {
+            List<ScenarioVariable> list = variables.stream().filter(ScenarioVariable::isCounterValid).collect(Collectors.toList());
+            if (CollectionUtils.isNotEmpty(list)) {
+                list.forEach(item -> {
+                    CounterConfig counterConfig = new CounterConfig();
+                    counterConfig.setEnabled(true);
+                    counterConfig.setProperty(TestElement.TEST_CLASS, CounterConfig.class.getName());
+                    counterConfig.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("CounterConfigGui"));
+                    counterConfig.setName(item.getName());
+                    counterConfig.setStart(item.getStartNumber());
+                    counterConfig.setEnd(item.getEndNumber());
+                    counterConfig.setVarName(item.getName());
+                    counterConfig.setIncrement(item.getIncrement());
+                    counterConfig.setFormat(item.getValue());
+                    counterConfig.setComment(item.getDescription());
+                    tree.add(counterConfig);
+                });
+            }
+        }
+    }
+
+    protected void addRandom(HashTree tree,List<ScenarioVariable> variables) {
+        if (CollectionUtils.isNotEmpty(variables)) {
+            List<ScenarioVariable> list = variables.stream().filter(ScenarioVariable::isRandom).collect(Collectors.toList());
+            if (CollectionUtils.isNotEmpty(list)) {
+                list.forEach(item -> {
+                    RandomVariableConfig randomVariableConfig = new RandomVariableConfig();
+                    randomVariableConfig.setEnabled(true);
+                    randomVariableConfig.setProperty(TestElement.TEST_CLASS, RandomVariableConfig.class.getName());
+                    randomVariableConfig.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("TestBeanGUI"));
+                    randomVariableConfig.setName(item.getName());
+                    randomVariableConfig.setProperty("variableName", item.getName());
+                    randomVariableConfig.setProperty("outputFormat", item.getValue());
+                    randomVariableConfig.setProperty("minimumValue", item.getMinNumber());
+                    randomVariableConfig.setProperty("maximumValue", item.getMaxNumber());
+                    randomVariableConfig.setComment(item.getDescription());
+                    tree.add(randomVariableConfig);
+                });
+            }
+        }
+    }
+
 }
 
 
