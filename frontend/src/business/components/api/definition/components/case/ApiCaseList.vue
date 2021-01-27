@@ -20,7 +20,7 @@
 
       <el-container v-loading="result.loading">
         <el-main>
-          <div v-for="(item,index) in apiCaseList" :key="index">
+          <div v-for="(item,index) in apiCaseList" :key="item.id ? item.id : item.uuid">
             <api-case-item v-loading="singleLoading && singleRunId === item.id || batchLoadingIds.indexOf(item.id) > -1"
                            @refresh="refresh"
                            @singleRun="singleRun"
@@ -243,7 +243,8 @@
           if (!request.hashTree) {
             request.hashTree = [];
           }
-          let obj = {apiDefinitionId: this.api.id, name: '', priority: 'P0', active: true, tags: []};
+          let uuid = getUUID();
+          let obj = {apiDefinitionId: this.api.id, name: '', priority: 'P0', active: true, tags: [], uuid: uuid};
           obj.request = request;
           this.apiCaseList.unshift(obj);
         }

@@ -5,7 +5,7 @@
       @isApiListEnableChange="isApiListEnableChange">
       <el-link type="primary" style="float:right;margin-top: 5px" @click="open">{{$t('commons.adv_search.title')}}</el-link>
 
-      <el-input placeholder="搜索" @blur="search" @keyup.enter.native="search" class="search-input" size="small"
+      <el-input :placeholder="$t('commons.search_by_id_name_tag')" @blur="search" @keyup.enter.native="search" class="search-input" size="small"
                 v-model="condition.name"/>
 
       <el-table v-loading="result.loading"

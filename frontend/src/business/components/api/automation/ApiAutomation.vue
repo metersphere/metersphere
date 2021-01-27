@@ -97,6 +97,7 @@
         renderComponent: true,
         isHide: true,
         activeName: 'default',
+        redirectFlag: 'none',
         currentModule: null,
         moduleOptions: [],
         tabs: [],
@@ -150,6 +151,15 @@
       },
       changeRedirectParam(redirectIDParam) {
         this.redirectID = redirectIDParam;
+        if(redirectIDParam!=null){
+          if(this.redirectFlag == "none"){
+            this.activeName = "default";
+            this.addListener();
+            this.redirectFlag = "redirected";
+          }
+        }else{
+          this.redirectFlag = "none";
+        }
       },
       addTab(tab) {
         if (!getCurrentProjectID()) {

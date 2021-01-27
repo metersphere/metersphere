@@ -151,7 +151,8 @@ export default {
       name: "觸發方式",
       manual: "手動觸發",
       schedule: "定時任務",
-      api: "API調用"
+      api: "API調用",
+      case: "用例觸發"
     },
     adv_search: {
       title: '高級搜索',

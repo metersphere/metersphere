@@ -281,6 +281,18 @@ public class TestPlanReportService {
             component.afterBuild(testCaseReportMetricDTO);
         });
 
+        if (StringUtils.equals(ReportTriggerMode.SCHEDULE.name(),triggerMode)
+                &&StringUtils.equals(resourceRunMode, ApiRunMode.SCHEDULE_PERFORMANCE_TEST.name())) {
+            //如果是性能测试作为触发，由于延迟原因可能会出现报告已经结束但是状态还是进行中的状态
+            List<TestCaseReportStatusResultDTO> loadResult = testCaseReportMetricDTO.getExecuteResult().getLoadResult();
+            for (TestCaseReportStatusResultDTO  dto: loadResult) {
+                if(StringUtils.equals(dto.getStatus(),TestPlanTestCaseStatus.Underway.name())){
+                    dto.setStatus(TestPlanTestCaseStatus.Pass.name());
+                }
+            }
+            testCaseReportMetricDTO.getExecuteResult().setLoadResult(loadResult);
+        }
+
         TestPlanReportDataExample example = new TestPlanReportDataExample();
         example.createCriteria().andTestPlanReportIdEqualTo(planReportId);
         List<TestPlanReportDataWithBLOBs> testPlanReportDataList = testPlanReportDataMapper.selectByExampleWithBLOBs(example);
@@ -437,7 +449,7 @@ public class TestPlanReportService {
                     if(loadTestReportFromDatabase == null){
                         //检查错误数据
                         if(errorDataCheckMap.containsKey(loadTestReportId)){
-                            if(errorDataCheckMap.get(loadTestReportId)>20){
+                            if(errorDataCheckMap.get(loadTestReportId)>10){
                                 performaneReportIDList.remove(loadTestReportId);
                             }else {
                                 errorDataCheckMap.put(loadTestReportId,errorDataCheckMap.get(loadTestReportId)+1);
