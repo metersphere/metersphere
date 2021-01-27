@@ -449,7 +449,7 @@ public class TestPlanReportService {
                     if(loadTestReportFromDatabase == null){
                         //检查错误数据
                         if(errorDataCheckMap.containsKey(loadTestReportId)){
-                            if(errorDataCheckMap.get(loadTestReportId)>20){
+                            if(errorDataCheckMap.get(loadTestReportId)>10){
                                 performaneReportIDList.remove(loadTestReportId);
                             }else {
                                 errorDataCheckMap.put(loadTestReportId,errorDataCheckMap.get(loadTestReportId)+1);
