@@ -180,10 +180,10 @@
         }
       },
       //创建根目录的模块---供父类使用
-      createRootModel(){
+      createRootModel() {
         let dataArr = this.$refs.nodeTree.extendTreeNodes;
-        if(dataArr.length>0){
-          this.$refs.nodeTree.append({},dataArr[0]);
+        if (dataArr.length > 0) {
+          this.$refs.nodeTree.append({}, dataArr[0]);
         }
       },
       exportAPI() {
@@ -197,7 +197,6 @@
       },
       refresh() {
         this.list();
-        this.$emit("refreshTable");
       },
     }
   }
