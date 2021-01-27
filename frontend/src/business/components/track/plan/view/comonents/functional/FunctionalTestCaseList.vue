@@ -76,6 +76,15 @@
           </template>
         </el-table-column>
 
+        <el-table-column prop="tags" :label="$t('commons.tag')">
+          <template v-slot:default="scope">
+            <ms-tag v-for="(tag, index) in scope.row.showTags"
+                    :key="tag + '_' + index"
+                    type="success" effect="plain"
+                    :content="tag"/>
+          </template>
+        </el-table-column>
+
         <el-table-column
           prop="method"
           :filters="methodFilters"
@@ -231,6 +240,7 @@ import ShowMoreBtn from "../../../../case/components/ShowMoreBtn";
 import BatchEdit from "../../../../case/components/BatchEdit";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 import {hub} from "@/business/components/track/plan/event-bus";
+import MsTag from "@/business/components/common/components/MsTag";
 
 export default {
   name: "FunctionalTestCaseList",
@@ -243,7 +253,7 @@ export default {
     StatusTableItem,
     PriorityTableItem, StatusEdit, ExecutorEdit, MsTipButton, MsTablePagination,
     MsTableHeader, NodeBreadcrumb, MsTableButton, ShowMoreBtn,
-    BatchEdit
+    BatchEdit, MsTag
   },
   data() {
     return {
@@ -373,6 +383,7 @@ export default {
           this.tableData = data.listObject;
           for (let i = 0; i < this.tableData.length; i++) {
             if (this.tableData[i]) {
+              this.$set(this.tableData[i], "showTags", JSON.parse(this.tableData[i].tags));
               this.$set(this.tableData[i], "issuesSize", 0);
               this.$get("/issues/get/" + this.tableData[i].caseId).then(response => {
                 let issues = response.data.data;
@@ -597,4 +608,7 @@ export default {
   cursor: pointer;
 }
 
+.el-tag {
+  margin-left: 10px;
+}
 </style>
