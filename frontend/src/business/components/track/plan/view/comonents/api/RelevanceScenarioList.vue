@@ -19,8 +19,8 @@
         </el-table-column>
         <el-table-column prop="tagNames" :label="$t('api_test.automation.tag')" width="200px">
           <template v-slot:default="scope">
-            <div v-for="itemName in scope.row.tagNames" :key="itemName">
-              <ms-tag type="success" effect="plain" :content="itemName"/>
+            <div v-for="itemName in getTagString(scope.row.tags)" :key="itemName">
+              <ms-tag type="success" effect="plain" :content="itemName.substring(1, itemName.length-1)"/>
             </div>
           </template>
         </el-table-column>
@@ -101,6 +101,15 @@
       },
     },
     methods: {
+      getTagString(tagsString) {
+        // if(tagsString.length == 2) {
+        if(tagsString.length >= 2 && tagsString[0] == '[' && tagsString[1] == ']') {
+          return null;
+        }
+        tagsString = tagsString.substring(1, tagsString.length - 1);
+        let tagList = tagsString.split(',');
+        return tagList;
+      },
       search() {
         this.selectRows = new Set();
         this.loading = true;

@@ -274,7 +274,12 @@
       },
     },
     created: function () {
-      this.condition.filters = {status: ["Prepare", "Underway", "Completed"]};
+      if (this.trashEnable) {
+        this.condition.filters = {status: ["Trash"]};
+      }
+      else {
+        this.condition.filters = {status: ["Prepare", "Underway", "Completed"]};
+      }
       this.initTable();
       this.getMaintainerOptions();
     },
