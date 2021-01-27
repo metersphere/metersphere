@@ -12,6 +12,7 @@
         class="table-list"
         @refresh="refresh"
         :plan-id="planId"
+        :clickType="clickType"
         :select-project-id="selectProjectId"
         :select-parent-nodes="selectParentNodes"
         @relevanceCase="openTestCaseRelevanceDialog"
@@ -51,7 +52,9 @@ export default {
     }
   },
   props: [
-    'planId'
+    'planId',
+    'redirectCharType',
+    'clickType'
   ],
   watch: {
     planId() {

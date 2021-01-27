@@ -22,7 +22,7 @@ export default {
     return {}
   },
   activated() {
-    // this.refreshTestPlanList();
+    this.refreshTestPlanList();
   },
   mounted() {
     this.refreshTestPlanList();

@@ -92,7 +92,7 @@
         </el-table-column>
         <el-table-column prop="passRate" :label="$t('api_test.automation.passing_rate')"
                          show-overflow-tooltip/>
-        <el-table-column fixed="right" :label="$t('commons.operating')" width="200px" v-if="!referenced">
+        <el-table-column fixed="right" :label="$t('commons.operating')" width="190px" v-if="!referenced">
           <template v-slot:default="{row}">
             <div v-if="trashEnable">
               <ms-table-operator-button :tip="$t('commons.reduction')" icon="el-icon-refresh-left" @exec="reductionApi(row)" v-tester/>
@@ -106,7 +106,7 @@
               <ms-table-operator-button :tip="$t('api_test.automation.copy')" icon="el-icon-document-copy" type=""
                                         @exec="copy(row)"/>
               <ms-table-operator-button :tip="$t('api_test.automation.remove')" icon="el-icon-delete" @exec="remove(row)" type="danger" v-tester/>
-              <ms-scenario-extend-buttons @openScenario="openScenario" :row="row"/>
+              <ms-scenario-extend-buttons  style="display: contents" @openScenario="openScenario" :row="row"/>
             </div>
           </template>
         </el-table-column>

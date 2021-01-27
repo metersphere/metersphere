@@ -39,8 +39,17 @@
       <when test="request.status == 'Trash'">
         and a.status = 'Trash'
       </when>
-      <otherwise>
+      <when test="request.status == null">
         and a.status != 'Trash'
+      </when>
+      <when test="request.status == ''">
+        and a.status != 'Trash'
+      </when>
+      <when test="request.status == 'running'">
+        and t.status IS NULL
+      </when>
+      <otherwise>
+        and t.status = #{request.status}
       </otherwise>
     </choose>
     where 1

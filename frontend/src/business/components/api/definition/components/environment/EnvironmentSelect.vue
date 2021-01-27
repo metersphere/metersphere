@@ -25,7 +25,7 @@
 
 <script>
     import {parseEnvironment} from "../../model/EnvironmentModel";
-    import ApiEnvironmentConfig from "../../../test/components/ApiEnvironmentConfig";
+    import ApiEnvironmentConfig from "../../../definition/components/environment/ApiEnvironmentConfig";
 
     export default {
       name: "EnvironmentSelect",

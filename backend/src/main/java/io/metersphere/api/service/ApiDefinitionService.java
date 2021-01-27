@@ -487,7 +487,7 @@ public class ApiDefinitionService {
     public void editApiByParam(ApiBatchRequest request) {
         List<String> ids = request.getIds();
         if (request.isSelectAllDate()) {
-            ids = this.getAllApiIdsByFontedSelect(request.getFilters(), request.getName(), request.getModuleIds(), request.getProjectId(), request.getUnSelectIds());
+            ids = this.getAllApiIdsByFontedSelect(request.getFilters(), request.getName(), request.getModuleIds(), request.getProjectId(), request.getUnSelectIds(),request.getProtocol());
         }
         //name在这里只是查询参数
         request.setName(null);
@@ -551,20 +551,21 @@ public class ApiDefinitionService {
     public void deleteByParams(ApiDefinitionBatchProcessingRequest request) {
         List<String> apiIds = request.getDataIds();
         if (request.isSelectAllDate()) {
-            apiIds = this.getAllApiIdsByFontedSelect(request.getFilters(), request.getName(), request.getModuleIds(), request.getProjectId(), request.getUnSelectIds());
+            apiIds = this.getAllApiIdsByFontedSelect(request.getFilters(), request.getName(), request.getModuleIds(), request.getProjectId(), request.getUnSelectIds(),request.getProtocol());
         }
         ApiDefinitionExample example = new ApiDefinitionExample();
         example.createCriteria().andIdIn(apiIds);
         apiDefinitionMapper.deleteByExample(example);
     }
 
-    private List<String> getAllApiIdsByFontedSelect(Map<String, List<String>> filters, String name, List<String> moduleIds, String projectId, List<String> unSelectIds) {
+    private List<String> getAllApiIdsByFontedSelect(Map<String, List<String>> filters, String name, List<String> moduleIds, String projectId, List<String> unSelectIds,String protocol) {
         ApiDefinitionRequest request = new ApiDefinitionRequest();
         request.setFilters(filters);
         request.setName(name);
         request.setModuleIds(moduleIds);
         request.setProjectId(projectId);
         request.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
+        request.setProtocol(protocol);
         List<ApiDefinitionResult> resList = extApiDefinitionMapper.list(request);
         List<String> ids = new ArrayList<>(0);
         if (!resList.isEmpty()) {
@@ -577,7 +578,7 @@ public class ApiDefinitionService {
     public void removeToGcByParams(ApiDefinitionBatchProcessingRequest request) {
         List<String> apiIds = request.getDataIds();
         if (request.isSelectAllDate()) {
-            apiIds = this.getAllApiIdsByFontedSelect(request.getFilters(), request.getName(), request.getModuleIds(), request.getProjectId(), request.getUnSelectIds());
+            apiIds = this.getAllApiIdsByFontedSelect(request.getFilters(), request.getName(), request.getModuleIds(), request.getProjectId(), request.getUnSelectIds(),request.getProtocol());
         }
         extApiDefinitionMapper.removeToGc(apiIds);
     }

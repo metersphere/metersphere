@@ -37,4 +37,6 @@ public class ApiDefinitionBatchProcessingRequest {
 
     private List<String> dataIds;
 
+    private String protocol;
+
 }

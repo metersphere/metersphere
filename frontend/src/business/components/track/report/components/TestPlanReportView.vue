@@ -19,12 +19,6 @@
             </div>
           </el-col>
           <el-col :span="12" class="head-right">
-<!--            <el-button :disabled="!isTestManagerOrTestUser" plain size="mini" @click="handleSave">-->
-<!--              {{$t('commons.save')}}-->
-<!--            </el-button>-->
-<!--            <el-button :disabled="!isTestManagerOrTestUser" plain size="mini" @click="handleEdit">-->
-<!--              {{$t('test_track.plan_view.edit_component')}}-->
-<!--            </el-button>-->
             <el-button :disabled="!isTestManagerOrTestUser" plain size="mini" @click="handleExport(report.name)">
               {{$t('test_track.plan_view.export_report')}}
             </el-button>
@@ -34,7 +28,7 @@
         <div class="container" ref="resume" id="app">
           <el-main>
             <div v-for="(item, index) in previews" :key="item.id">
-              <template-component :isReportView="true" :metric="metric" :preview="item" :index="index" ref="templateComponent"/>
+              <template-component :source="source" :isReportView="true" :metric="metric" :planId="planId" :preview="item" :index="index" ref="templateComponent"/>
             </div>
           </el-main>
         </div>
@@ -80,6 +74,7 @@
         previews: [],
         report: {},
         reportId: '',
+        source:"ReportView",
         reportComponents:[1,3,4],
         metric: {},
         planId: '',
@@ -100,6 +95,11 @@
     mounted() {
       this.isTestManagerOrTestUser = checkoutTestManagerOrTestUser();
     },
+    watch: {
+      reportComponents() {
+        this.initPreviews();
+      }
+    },
     methods: {
       listenGoBack() {
         //监听浏览器返回操作，关闭该对话框
@@ -118,13 +118,6 @@
         this.listenGoBack();
       },
       getReport() {
-        // this.result = this.$get('/case/report/get/' + this.reportId, response => {
-        //   this.report = response.data;
-        //   this.report.content = JSON.parse(response.data.content);
-        //   if (this.report.content.customComponent) {
-        //     this.report.content.customComponent = jsonToMap(this.report.content.customComponent);
-        //   }
-        // });
         this.getMetric();
         this.initPreviews();
       },
@@ -149,42 +142,19 @@
         this.$emit('refresh');
         this.showDialog = false;
       },
-      handleEdit() {
-        this.$refs.templateEdit.open(this.reportId, true);
-      },
-      handleSave() {
-        let param = {};
-        this.buildParam(param);
-        this.result = this.$post('/case/report/edit', param, () => {
-          this.$success(this.$t('commons.save_success'));
-        });
-      },
-      buildParam(param) {
-        let content = {};
-        content.components = [];
-        this.previews.forEach(item => {
-          content.components.push(item.id);
-          if (!this.componentMap.get(item.id)) {
-            content.customComponent = new Map();
-            content.customComponent.set(item.id, {title: item.title, content: item.content})
-          }
-        });
-        param.name = this.report.name;
-        if (content.customComponent) {
-          content.customComponent = mapToJson(content.customComponent);
-        }
-        param.content = JSON.stringify(content);
-        param.id = this.report.id;
-        if (this.metric.startTime) {
-          param.startTime = this.metric.startTime.getTime();
-        }
-        if (this.metric.endTime) {
-          param.endTime = this.metric.endTime.getTime();
-        }
-      },
       getMetric() {
         this.result = this.$get('/test/plan/report/getMetric/' + this.reportId, response => {
           this.metric = response.data;
+          let components = response.data.reportComponents;
+          this.planId = response.data.testPlanId;
+          this.report.name = response.data.name;
+          this.report.startTime = response.data.startTime;
+          this.report.endTime = response.data.endTime;
+          if(components === null || components === ''){
+            this.reportComponents = [1,3,4];
+          }else {
+            this.reportComponents = JSON.parse(components);
+          }
 
           if (!this.metric.failureTestCases) {
             this.metric.failureTestCases = [];

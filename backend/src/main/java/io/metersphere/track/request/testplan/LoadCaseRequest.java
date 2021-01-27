@@ -14,6 +14,7 @@ public class LoadCaseRequest extends TestPlanLoadCase {
     private String projectId;
     private List<String> caseIds;
     private String name;
+    private String status;
     private Map<String, List<String>> filters;
     private List<OrderRequest> orders;
 }

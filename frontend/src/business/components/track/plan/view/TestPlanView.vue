@@ -19,9 +19,9 @@
         </el-menu>
       </template>
     </ms-test-plan-header-bar>
-    <test-plan-functional v-if="activeIndex === 'functional'" :plan-id="planId"/>
-    <test-plan-api v-if="activeIndex === 'api'" :plan-id="planId"/>
-    <test-plan-load v-if="activeIndex === 'load'" :plan-id="planId"/>
+    <test-plan-functional v-if="activeIndex === 'functional'" :redirectCharType="redirectCharType" :clickType="clickType" :plan-id="planId"/>
+    <test-plan-api v-if="activeIndex === 'api'" :redirectCharType="redirectCharType" :clickType="clickType" :plan-id="planId"/>
+    <test-plan-load v-if="activeIndex === 'load'" :redirectCharType="redirectCharType" :clickType="clickType" :plan-id="planId"/>
     <test-case-statistics-report-view :test-plan="currentPlan" v-if="activeIndex === 'report'"/>
 
     <test-report-template-list @openReport="openReport" ref="testReportTemplateList"/>
@@ -61,7 +61,11 @@
           testPlans: [],
           currentPlan: {},
           activeIndex: "functional",
-          isMenuShow: true
+          isMenuShow: true,
+          //报表跳转过来的参数-通过哪个图表跳转的
+          redirectCharType:'',
+          //报表跳转过来的参数-通过哪种数据跳转的
+          clickType:'',
         }
       },
       computed: {
@@ -71,14 +75,30 @@
       },
       watch: {
         '$route.params.planId'() {
-          this.activeIndex = "functional";
+          this.genRedirectParam();
           this.getTestPlans();
         }
       },
       mounted() {
         this.getTestPlans();
       },
+      activated() {
+        this.genRedirectParam();
+      },
       methods: {
+        genRedirectParam(){
+          this.redirectCharType = this.$route.params.charType;
+          this.clickType = this.$route.params.clickType;
+          if(this.redirectCharType != ""){
+            if(this.redirectCharType=='scenario'){
+              this.activeIndex = 'api';
+            }else if(this.redirectCharType != null && this.redirectCharType != ''){
+              this.activeIndex = this.redirectCharType;
+            }
+          }else{
+            this.activeIndex = "functional";
+          }
+        },
         getTestPlans() {
           this.$post('/test/plan/list/all', {}, response => {
             this.testPlans = response.data;

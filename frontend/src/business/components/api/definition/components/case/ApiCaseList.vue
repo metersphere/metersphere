@@ -242,7 +242,6 @@
           this.apiCaseList.unshift(obj);
         }
       },
-
       copyCase(data) {
         this.apiCaseList.unshift(data);
       },

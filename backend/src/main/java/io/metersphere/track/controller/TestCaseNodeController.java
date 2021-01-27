@@ -6,6 +6,7 @@ import io.metersphere.service.CheckPermissionService;
 import io.metersphere.track.dto.TestCaseNodeDTO;
 import io.metersphere.track.request.testcase.DragNodeRequest;
 import io.metersphere.track.request.testcase.QueryNodeRequest;
+import io.metersphere.track.request.testplancase.QueryTestPlanCaseRequest;
 import io.metersphere.track.service.TestCaseNodeService;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
@@ -45,6 +46,15 @@ public class TestCaseNodeController {
     public List<TestCaseNodeDTO> getNodeByPlanId(@PathVariable String planId) {
         checkPermissionService.checkTestPlanOwner(planId);
         return testCaseNodeService.getNodeByPlanId(planId);
+    }
+
+    @GetMapping("/list/plan/{planId}/{runResult}")
+    public List<TestCaseNodeDTO> getNodeByPlanIdAndRunResult(@PathVariable String planId,@PathVariable String runResult) {
+        checkPermissionService.checkTestPlanOwner(planId);
+        QueryTestPlanCaseRequest request = new QueryTestPlanCaseRequest();
+        request.setPlanId(planId);
+        request.setStatus(runResult);
+        return testCaseNodeService.getNodeByQueryRequest(request);
     }
 
     @GetMapping("/list/review/{reviewId}")

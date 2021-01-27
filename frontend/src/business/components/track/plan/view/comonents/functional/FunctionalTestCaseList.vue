@@ -257,6 +257,7 @@ export default {
       currentPage: 1,
       pageSize: 10,
       total: 0,
+      status:'default',
       selectRows: new Set(),
       testPlan: {},
       isReadOnly: false,
@@ -318,6 +319,7 @@ export default {
     planId: {
       type: String
     },
+    clickType:String,
     selectNodeIds: {
       type: Array
     },
@@ -351,6 +353,14 @@ export default {
       if (this.planId) {
         // param.planId = this.planId;
         this.condition.planId = this.planId;
+      }
+      if(this.clickType){
+        if(this.status =='default'){
+          this.condition.status = this.clickType;
+        }else{
+          this.condition.status = null;
+        }
+        this.status = 'all';
       }
       if (this.selectNodeIds && this.selectNodeIds.length > 0) {
         // param.nodeIds = this.selectNodeIds;

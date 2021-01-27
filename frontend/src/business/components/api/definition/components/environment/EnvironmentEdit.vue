@@ -21,7 +21,7 @@
           <ms-database-config :configs="environment.config.databaseConfigs"/>
         </el-tab-pane>
         <el-tab-pane :label="$t('api_test.environment.tcp_config')" name="tcp">
-          <ms-tcp-config :config="environment.config.tcpConfig"/>
+          <environment-tcp-config :config="environment.config.tcpConfig"/>
         </el-tab-pane>
       </el-tabs>
 
@@ -44,12 +44,12 @@
   import MsDatabaseConfig from "../request/database/DatabaseConfig";
   import MsEnvironmentHttpConfig from "./EnvironmentHttpConfig";
   import MsEnvironmentCommonConfig from "./EnvironmentCommonConfig";
-  import MsTcpConfig from "../request/tcp/TcpConfig";
+  import EnvironmentTcpConfig from "./EnvironmentTcpConfig";
 
   export default {
     name: "EnvironmentEdit",
     components: {
-      MsTcpConfig,
+      EnvironmentTcpConfig,
       MsEnvironmentCommonConfig,
       MsEnvironmentHttpConfig,
       MsDatabaseConfig, MsApiHostTable, MsDialogFooter, MsApiKeyValue, MsApiScenarioVariables},
