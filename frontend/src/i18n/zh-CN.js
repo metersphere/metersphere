@@ -1504,6 +1504,7 @@ export default {
     format: "输出格式",
   },
   auth_source: {
-    delete_prompt: '此操作会删除认证源，是否继续？'
+    delete_prompt: '此操作会删除认证源，是否继续？',
+    title: '认证设置'
   }
 };
