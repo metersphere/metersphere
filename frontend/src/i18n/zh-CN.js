@@ -604,6 +604,7 @@ export default {
       customize_req: "自定义请求",
       reference_info: "请选择接口或用例",
       scenario_test: "场景",
+      scenario_list: "场景列表",
       add_scenario: "创建场景",
       scenario_name: "场景名称",
       case_level: "用例等级",
