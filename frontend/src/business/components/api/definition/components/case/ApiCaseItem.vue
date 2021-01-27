@@ -212,7 +212,8 @@
         this.$emit('singleRun', data);
       },
       copyCase(data) {
-        let obj = {name: "copy_" + data.name, priority: data.priority, active: true, request: data.request};
+        let uuid = getUUID();
+        let obj = {name: "copy_" + data.name, priority: data.priority, active: true, request: data.request, uuid: uuid};
         this.$emit('copyCase', obj);
       },
       selectTestCase(item, $event) {
