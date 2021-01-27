@@ -133,6 +133,7 @@ export default {
     batch_add: "批量添加",
     check_project_tip: "請先創建或選擇項目",
     auth_redirect_tip: '即將跳轉到認證源頁面進行認證',
+    tag_tip: "輸入回車添加標簽",
     table: {
       select_tip: "已选中 {0} 条数据"
     },
