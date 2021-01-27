@@ -603,6 +603,7 @@ export default {
       customize_req: "Customize req",
       reference_info: "Reference info",
       scenario_test: "Scenario test",
+      scenario_list: "Scenario List",
       add_scenario: "Add scenario",
       scenario_name: "Scenario name",
       case_level: "Case level",
