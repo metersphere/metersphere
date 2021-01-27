@@ -271,12 +271,13 @@
         let bodyFiles = this.getBodyUploadFiles(tmp);
         tmp.projectId = getCurrentProjectID();
         tmp.active = true;
-        tmp.request.path = this.api.path;
-        tmp.request.method = this.api.method;
         tmp.apiDefinitionId = tmp.apiDefinitionId || this.api.id;
         let url = "/api/testcase/create";
         if (tmp.id) {
           url = "/api/testcase/update";
+        } else {
+          tmp.request.path = this.api.path;
+          tmp.request.method = this.api.method;
         }
         if (tmp.tags instanceof Array) {
           tmp.tags = JSON.stringify(tmp.tags);
