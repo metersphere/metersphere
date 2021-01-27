@@ -5,15 +5,11 @@
 
           <div class="title">
             <div class="title-img">
-              <!--<div class="logo">-->
               <img :src="'/display/file/loginLogo'" alt="">
-              <!--</div>-->
-              <!--<span id="s1">{{ loginTitle }}</span>-->
             </div>
             <div class="welcome">
-              <!--{{ $t('commons.welcome') }}-->
               <span>Metersphere</span>
-              <span>一站式开源持续测试平台</span>
+              <span>{{ $t('commons.welcome') }}</span>
             </div>
           </div>
 
@@ -201,6 +197,18 @@ export default {
     height: 568px;
     margin: calc((100vh - 568px) / 2) auto 0;
     background-color: #FFFFFF;
+  }
+
+  .image {
+    background: url(../assets/info.png);
+  }
+
+  .login-logo {
+    background: url(../assets/logo-dark-MeterSphere.svg);
+  }
+
+  .logo-header {
+    background: url(../assets/logo-light-MeterSphere.svg);
   }
 
   .el-col {
