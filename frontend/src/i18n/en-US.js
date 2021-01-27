@@ -132,6 +132,7 @@ export default {
     batch_add: "Batch add",
     check_project_tip: "Create or select the project first",
     auth_redirect_tip: 'Jump to the authentication source page for authentication',
+    tag_tip: "Enter Enter to Add Label",
     table: {
       select_tip: "Item {0} data is selected"
     },
