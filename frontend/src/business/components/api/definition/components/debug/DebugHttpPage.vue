@@ -39,7 +39,7 @@
     </el-card>
 
     <div v-if="scenario">
-      <el-button style="float: right;margin: 20px" type="primary" @click="handleCommand('save_as')"> {{$t('commons.save')}}</el-button>
+      <el-button style="float: right;margin: 20px" type="primary" @click="handleCommand('save_as_api')"> {{$t('commons.save')}}</el-button>
     </div>
     <!-- 加载用例 -->
     <ms-api-case-list :loaded="false" ref="caseList"/>
@@ -131,7 +131,10 @@
       handleCommand(e) {
         if (e === "save_as") {
           this.saveAs();
-        } else {
+        } else if (e === 'save_as_api') {
+          this.saveAsApi();
+        }
+        else {
           this.runDebug();
         }
       },
@@ -156,6 +159,22 @@
         this.responseData = data;
         this.loading = false;
         this.$refs.debugResult.reload();
+      },
+      saveAsApi() {
+        this.$refs['debugForm'].validate((valid) => {
+          if (valid) {
+            this.debugForm.id = null;
+            this.request.id = getUUID();
+            this.debugForm.request = this.request;
+            this.debugForm.userId = getCurrentUser().id;
+            this.debugForm.status = "Underway";
+            this.debugForm.protocol = this.currentProtocol;
+            this.$emit('saveAs', this.debugForm);
+          }
+          else {
+            return false;
+          }
+        })
       },
       saveAs() {
         this.$refs['debugForm'].validate((valid) => {
