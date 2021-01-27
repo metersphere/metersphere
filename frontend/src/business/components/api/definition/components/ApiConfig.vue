@@ -77,16 +77,16 @@
         document.removeEventListener("keydown", this.createCtrlSHandle);
       },
       createCtrlSHandle(event) {
-        if(this.$refs.httpApi) {
+        if (this.$refs.httpApi) {
           handleCtrlSEvent(event, this.$refs.httpApi.saveApi);
         }
-        else if(this.$refs.tcpApi) {
+        else if (this.$refs.tcpApi) {
           handleCtrlSEvent(event, this.$refs.tcpApi.saveApi);
         }
-        else if(this.$refs.dubboApi) {
+        else if (this.$refs.dubboApi) {
           handleCtrlSEvent(event, this.$refs.dubboApi.saveApi);
         }
-        else if(this.$refs.sqlApi) {
+        else if (this.$refs.sqlApi) {
           handleCtrlSEvent(event, this.$refs.sqlApi.saveApi);
         }
       },
@@ -192,25 +192,8 @@
         let bodyFiles = this.getBodyUploadFiles(data);
         this.$fileUpload(this.reqUrl, null, bodyFiles, data, () => {
           this.$success(this.$t('commons.save_success'));
-          if (this.reqUrl.endsWith('/create')) {
-            this.saveTestCase(data);
-          }
           this.reqUrl = "/api/definition/update";
           this.$emit('saveApi', data);
-        });
-      },
-      saveTestCase(row) {
-        let tmp = {request: JSON.parse(JSON.stringify(row.request))};
-        tmp.projectId = getCurrentProjectID();
-        tmp.active = true;
-        tmp.priority = "P0";
-        tmp.name = row.name;
-        tmp.request.path = row.path;
-        tmp.request.method = row.method;
-        tmp.apiDefinitionId = row.id;
-        let bodyFiles = this.getBodyUploadFiles(tmp);
-        let url = "/api/testcase/create";
-        this.$fileUpload(url, null, bodyFiles, tmp, (response) => {
         });
       },
       setParameters(data) {

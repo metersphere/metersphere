@@ -108,7 +108,7 @@
 </template>
 
 <script>
-  import {_getBodyUploadFiles, getCurrentProjectID} from "../../../../../../common/js/utils";
+  import {_getBodyUploadFiles, getCurrentProjectID, getUUID} from "@/common/js/utils";
   import {PRIORITY, RESULT_MAP} from "../../model/JsonData";
   import MsTag from "../../../../common/components/MsTag";
   import MsTipButton from "../../../../common/components/MsTipButton";
@@ -236,7 +236,32 @@
           this.saveTestCase(row);
         }
       },
-      saveTestCase(row) {
+      setParameters(data) {
+        data.projectId = getCurrentProjectID();
+        data.request.name = data.name;
+        if (data.protocol === "DUBBO" || data.protocol === "dubbo://") {
+          data.request.protocol = "dubbo://";
+        } else {
+          data.request.protocol = data.protocol;
+        }
+        data.id = data.request.id;
+        if (!data.method) {
+          data.method = data.protocol;
+        }
+      },
+      saveApi(row) {
+        let data = this.api;
+        data.name = this.apiCase.name;
+        this.setParameters(data);
+        let bodyFiles = this.getBodyUploadFiles(data);
+        this.$fileUpload("/api/definition/create", null, bodyFiles, data, () => {
+          if (row) {
+            this.api.saved = false;
+            this.saveCase(row);
+          }
+        });
+      },
+      saveCase(row) {
         let tmp = JSON.parse(JSON.stringify(row));
         this.isShowInput = false;
         if (this.validate(tmp)) {
@@ -266,6 +291,14 @@
             this.$emit('refresh');
           }
         });
+      },
+      saveTestCase(row) {
+        if (this.api.saved) {
+          this.saveApi(row);
+        } else {
+          this.saveCase(row);
+        }
+
       },
       showInput(row) {
         // row.type = "create";
