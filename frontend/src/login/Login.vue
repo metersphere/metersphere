@@ -2,48 +2,60 @@
   <div class="container" v-loading="result.loading" v-if="ready">
     <el-row type="flex">
       <el-col :span="12">
-        <el-form :model="form" :rules="rules" ref="form">
-          <div class="logo">
-            <img :src="'/display/file/loginLogo'" style="width: 224px;height: 45px;" alt="">
-          </div>
+
           <div class="title">
-            <span id="s1">{{ loginTitle }}</span>
+            <div class="title-img">
+              <!--<div class="logo">-->
+              <img :src="'/display/file/loginLogo'" alt="">
+              <!--</div>-->
+              <!--<span id="s1">{{ loginTitle }}</span>-->
+            </div>
+            <div class="welcome">
+              <!--{{ $t('commons.welcome') }}-->
+              <span>Metersphere</span>
+              <span>一站式开源持续测试平台</span>
+            </div>
           </div>
-          <div class="border"></div>
-          <div class="welcome">
-            {{ $t('commons.welcome') }}
+
+          <div class="content">
+            <div class="form">
+                <el-form :model="form" :rules="rules" ref="form">
+                <el-form-item v-slot:default>
+                  <el-radio-group v-model="form.authenticate" @change="redirectAuth(form.authenticate)">
+                    <el-radio label="LDAP" size="mini" v-if="openLdap">LDAP</el-radio>
+                    <el-radio label="LOCAL" size="mini" v-if="openLdap">普通登录</el-radio>
+                    <el-radio :label="auth.id" size="mini" v-for="auth in authSources" :key="auth.id">{{ auth.type }} {{ auth.name }}</el-radio>
+                  </el-radio-group>
+                </el-form-item>
+                <el-form-item prop="username">
+                  <el-input v-model="form.username" :placeholder="$t('commons.login_username')" autofocus
+                            autocomplete="off"/>
+                </el-form-item>
+                <el-form-item prop="password">
+                  <el-input v-model="form.password" :placeholder="$t('commons.password')" show-password autocomplete="off"
+                            maxlength="30" show-word-limit/>
+                </el-form-item>
+              </el-form>
+            </div>
+            <div class="btn">
+              <el-button type="primary" class="submit" @click="submit('form')">
+                {{ $t('commons.login') }}
+              </el-button>
+            </div>
+            <div class="msg">
+              {{ msg }}
+            </div>
           </div>
-          <div class="form">
-            <el-form-item v-slot:default>
-              <el-radio-group v-model="form.authenticate" @change="redirectAuth(form.authenticate)">
-                <el-radio label="LDAP" size="mini" v-if="openLdap">LDAP</el-radio>
-                <el-radio label="LOCAL" size="mini" v-if="openLdap">普通登录</el-radio>
-                <el-radio :label="auth.id" size="mini" v-for="auth in authSources" :key="auth.id">{{ auth.type }} {{ auth.name }}</el-radio>
-              </el-radio-group>
-            </el-form-item>
-            <el-form-item prop="username">
-              <el-input v-model="form.username" :placeholder="$t('commons.login_username')" autofocus
-                        autocomplete="off"/>
-            </el-form-item>
-            <el-form-item prop="password">
-              <el-input v-model="form.password" :placeholder="$t('commons.password')" show-password autocomplete="off"
-                        maxlength="30" show-word-limit/>
-            </el-form-item>
-          </div>
-          <div class="btn">
-            <el-button type="primary" class="submit" @click="submit('form')">
-              {{ $t('commons.login') }}
-            </el-button>
-          </div>
-          <div class="msg">
-            {{ msg }}
-          </div>
-        </el-form>
       </el-col>
+
+      <div class="divider"/>
+
       <el-col :span="12">
-        <img :src="'/display/file/loginImage'" style="height: 560px; width: 100%">
+        <img :src="'/display/file/loginImage'" style="height: 568px; width: 100%">
       </el-col>
+
     </el-row>
+
   </div>
 </template>
 
@@ -183,96 +195,111 @@ export default {
 </script>
 
 <style scoped>
-.container {
-  min-width: 800px;
-  max-width: 1440px;
-  height: 560px;
-  margin: calc((100vh - 560px) / 2) auto 0;
-  background-color: #FFFFFF;
-}
+  .container {
+    min-width: 800px;
+    max-width: 1440px;
+    height: 568px;
+    margin: calc((100vh - 568px) / 2) auto 0;
+    background-color: #FFFFFF;
+  }
 
-.logo {
-  margin: 30px 30px 0;
-}
+  .el-col {
+    height: 568px;
+  }
 
-.title {
-  margin-top: 50px;
-  font-size: 32px;
-  letter-spacing: 0;
-  text-align: center;
-}
+  .title-img {
+    font-size: 32px;
+    letter-spacing: 0;
+    text-align: center;
+  }
 
-.title > #s1 {
-  color: #999999;
-}
+  .welcome {
+    margin-top: 10px;
+    margin-bottom: 50px;
+    font-size: 18px;
+    color: #843697;
+    line-height: 18px;
+    text-align: center;
+  }
 
-.title > #s2 {
-  color: #151515;
-}
+  .form {
+    padding: 0 40px;
+  }
 
-.border {
-  height: 2px;
-  margin: 20px auto 20px;
-  position: relative;
-  width: 80px;
-  background: #8B479B;
-}
+  .title {
+    height: 50%;
+  }
 
-.welcome {
-  margin-top: 50px;
-  font-size: 14px;
-  color: #999999;
-  letter-spacing: 0;
-  line-height: 18px;
-  text-align: center;
-}
+  .content {
+    height: 50%;
+    padding: 0px 90px;
+    margin-top: -20px;
+  }
 
-.form {
-  margin-top: 30px;
-  padding: 0 40px;
-}
+  .btn {
+    margin-top: 40px;
+    padding: 0 40px;
+  }
 
-.btn {
-  margin-top: 40px;
-  padding: 0 40px;
-}
+  .btn > .submit {
+    width: 100%;
+    border-radius: 50px;
+    border-color: #8B479B;
+    background-color: #8B479B;
+  }
 
-.btn > .submit {
-  width: 100%;
-  border-radius: 0;
-  border-color: #8B479B;
-  background-color: #8B479B;
-}
+  .btn > .submit:hover {
+    border-color: rgba(139, 71, 155, 0.9);
+    background-color: rgba(139, 71, 155, 0.9);
+  }
 
-.btn > .submit:hover {
-  border-color: rgba(139, 71, 155, 0.9);
-  background-color: rgba(139, 71, 155, 0.9);
-}
+  .btn > .submit:active {
+    border-color: rgba(139, 71, 155, 0.8);
+    background-color: rgba(139, 71, 155, 0.8);
+  }
 
-.btn > .submit:active {
-  border-color: rgba(139, 71, 155, 0.8);
-  background-color: rgba(139, 71, 155, 0.8);
-}
+  .msg {
+    margin-top: 10px;
+    padding: 0 40px;
+    color: red;
+    text-align: center;
+  }
 
-.msg {
-  margin-top: 10px;
-  padding: 0 40px;
-  color: red;
-  text-align: center;
-}
+  /deep/ .el-radio__input.is-checked .el-radio__inner {
+    background-color: #783887;
+    background: #783887;
+    border-color: #783887;
+  }
 
-.image {
-  background: url(../assets/info.png);
-  height: 560px;
-}
+  /deep/ .el-radio__input.is-checked+.el-radio__label {
+    color: #783887;
+  }
 
-.login-logo {
-  background: url(../assets/logo-dark-MeterSphere.svg);
-}
+  /deep/ .el-input__inner {
+    background: #f6f3f8 !important;
+    border-color: #f6f3f8;
+    border-radius: 50px !important;
+  }
 
-.logo-header {
-  background: url(../assets/logo-light-MeterSphere.svg);
-}
+  /deep/ .el-input__inner:focus {
+    border: 1px solid #783887;
+  }
+
+  .divider {
+    border: 1px solid #f6f3f8;
+    margin: 20px;
+  }
+
+  .title img {
+    height: 60px;
+    margin-top: 120px;
+  }
+
+  .welcome span:first-child {
+    font-weight: bold;
+    margin-right: 3px;
+  }
+
 </style>
 
 <style>
