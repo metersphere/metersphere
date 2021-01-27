@@ -3,7 +3,7 @@
     <el-dialog
       :title="$t('api_test.environment.select_environment')"
       :visible.sync="dialogVisible"
-      width="20%"
+      width="15%"
       :destroy-on-close="true"
       @close="handleClose"
     >
