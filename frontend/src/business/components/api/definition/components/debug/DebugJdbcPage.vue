@@ -27,6 +27,8 @@
     <div v-if="scenario">
       <el-button style="float: right;margin: 20px" type="primary" @click="handleCommand('save_as')"> {{$t('commons.save')}}</el-button>
     </div>
+    <!-- 加载用例 -->
+    <ms-api-case-list :loaded="false" ref="caseList"/>
 
   </div>
 
@@ -43,10 +45,11 @@
   import MsRequestResultTail from "../response/RequestResultTail";
   import MsBasisParameters from "../request/database/BasisParameters";
   import MsJmxStep from "../step/JmxStep";
+  import MsApiCaseList from "../case/ApiCaseList";
 
   export default {
     name: "ApiConfig",
-    components: {MsRequestResultTail, MsResponseResult, MsRequestMetric, MsResponseText, MsRun, MsBasisParameters, MsJmxStep},
+    components: {MsRequestResultTail, MsResponseResult, MsRequestMetric, MsResponseText, MsRun, MsBasisParameters, MsJmxStep,MsApiCaseList},
     props: {
       currentProtocol: String,
       scenario: Boolean,
@@ -123,7 +126,11 @@
       saveAs() {
         let obj = {request: this.request};
         obj.request.id = getUUID();
-        this.$emit('saveAs', obj);
+        obj.saved = true;
+        obj.protocol = this.currentProtocol;
+        obj.status = "Underway";
+        obj.method = this.currentProtocol;
+        this.$refs.caseList.saveApiAndCase(obj);
       }
     }
   }

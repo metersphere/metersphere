@@ -21,9 +21,8 @@ public class JmeterFileController {
     @GetMapping("download")
     public ResponseEntity<byte[]> downloadJmeterFiles(@RequestParam("testId") String testId, @RequestParam("resourceId") String resourceId,
                                                       @RequestParam("ratio") double ratio, @RequestParam("startTime") long startTime,
-                                                      @RequestParam("reportId") String reportId, @RequestParam("resourceIndex") int resourceIndex,
-                                                      @RequestParam("threadNum") int threadNum)  {
-        byte[] bytes = jmeterFileService.downloadZip(testId, resourceId, ratio, startTime, reportId, resourceIndex, threadNum);
+                                                      @RequestParam("reportId") String reportId, @RequestParam("resourceIndex") int resourceIndex) {
+        byte[] bytes = jmeterFileService.downloadZip(testId, resourceId, ratio, startTime, reportId, resourceIndex);
         return ResponseEntity.ok()
                 .contentType(MediaType.parseMediaType("application/octet-stream"))
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + testId + ".zip\"")
