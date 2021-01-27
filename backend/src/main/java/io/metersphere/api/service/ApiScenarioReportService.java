@@ -163,6 +163,7 @@ public class ApiScenarioReportService {
                 String passRate = new DecimalFormat("0%").format((float) scenarioResult.getSuccess() / (scenarioResult.getSuccess() + scenarioResult.getError()));
                 testPlanApiScenario.setPassRate(passRate);
                 testPlanApiScenario.setReportId(report.getId());
+                testPlanApiScenario.setUpdateTime(System.currentTimeMillis());
                 testPlanApiScenarioMapper.updateByPrimaryKeySelective(testPlanApiScenario);
             }
             returnReport = report;
@@ -220,6 +221,7 @@ public class ApiScenarioReportService {
             apiScenarioReportDetailMapper.insert(detail);
 
             testPlanApiScenario.setReportId(report.getId());
+            testPlanApiScenario.setUpdateTime(System.currentTimeMillis());
             testPlanApiScenarioMapper.updateByPrimaryKeySelective(testPlanApiScenario);
 
             lastReport = report;
