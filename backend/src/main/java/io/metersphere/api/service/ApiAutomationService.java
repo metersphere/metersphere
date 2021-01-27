@@ -27,6 +27,7 @@ import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
 import io.metersphere.i18n.Translator;
 import io.metersphere.job.sechedule.ApiScenarioTestJob;
+import io.metersphere.job.sechedule.TestPlanTestJob;
 import io.metersphere.service.ScheduleService;
 import io.metersphere.track.dto.TestPlanDTO;
 import io.metersphere.track.request.testcase.ApiCaseRelevanceRequest;
@@ -630,8 +631,14 @@ public class ApiAutomationService {
     }
 
     private void addOrUpdateApiScenarioCronJob(Schedule request) {
-        scheduleService.addOrUpdateCronJob(
-                request, ApiScenarioTestJob.getJobKey(request.getResourceId()), ApiScenarioTestJob.getTriggerKey(request.getResourceId()), ApiScenarioTestJob.class);
+        if(StringUtils.equals(request.getGroup(),ScheduleGroup.TEST_PLAN_TEST.name())){
+            scheduleService.addOrUpdateCronJob(
+                    request, TestPlanTestJob.getJobKey(request.getResourceId()), TestPlanTestJob.getTriggerKey(request.getResourceId()), TestPlanTestJob.class);
+        }else{
+            scheduleService.addOrUpdateCronJob(
+                    request, ApiScenarioTestJob.getJobKey(request.getResourceId()), ApiScenarioTestJob.getTriggerKey(request.getResourceId()), ApiScenarioTestJob.class);
+        }
+
     }
 
     public JmxInfoDTO genPerformanceTestJmx(RunScenarioRequest request) throws Exception {
