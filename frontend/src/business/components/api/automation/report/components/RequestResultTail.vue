@@ -1,16 +1,20 @@
 <template>
   <div class="request-result">
     <div>
-      <el-row :gutter="10" type="flex" align="middle" class="info">
+      <el-row :gutter="8" type="flex" align="middle" class="info">
         <el-col :span="2">
           <div class="method">
             {{request.method}}
           </div>
         </el-col>
-        <el-col :span="10">
+        <el-col :span="8">
           <el-tooltip effect="dark" :content="request.url" placement="bottom" :open-delay="800">
             <div class="url">{{request.url}}</div>
           </el-tooltip>
+        </el-col>
+        <el-col :span="8">
+          <div class="url"> {{$t('api_report.start_time')}}：{{request.startTime | timestampFormatDate(true) }}
+          </div>
         </el-col>
       </el-row>
     </div>
@@ -19,7 +23,7 @@
         <el-tabs v-model="activeName" v-show="isActive" v-if="hasSub">
           <el-tab-pane :label="$t('api_report.sub_result')" name="sub">
             <ms-request-sub-result class="sub-result" v-for="(sub, index) in request.subRequestResults"
-                               :key="index" :indexNumber="index" :request="sub"/>
+                                   :key="index" :indexNumber="index" :request="sub"/>
           </el-tab-pane>
           <el-tab-pane :label="$t('api_report.request_result')" name="result">
             <ms-response-text :request-type="requestType" :response="request.responseResult" :request="request"/>
@@ -43,7 +47,7 @@
 
   export default {
     name: "MsRequestResultTail",
-    components: {MsResponseText, MsRequestText, MsAssertionResults, MsRequestMetric, MsRequestResult,MsRequestSubResult},
+    components: {MsResponseText, MsRequestText, MsAssertionResults, MsRequestMetric, MsRequestResult, MsRequestSubResult},
     props: {
       request: Object,
       scenarioName: String,

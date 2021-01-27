@@ -118,6 +118,7 @@
                   throw e;
                 }
                 this.getFails();
+                this.computeTotalTime();
                 this.loading = false;
               } else {
                 setTimeout(this.getReport, 2000)
@@ -146,9 +147,27 @@
                     failScenario.requestResults.push(failRequest);
                   }
                 })
-
               }
             })
+          }
+        }
+      },
+      computeTotalTime() {
+        if (this.content.scenarios) {
+          let startTime = 99991611737506593;
+          let endTime = 0;
+          this.content.scenarios.forEach((scenario) => {
+            scenario.requestResults.forEach((request) => {
+              if (request.startTime && Number(request.startTime) < startTime) {
+                startTime = request.startTime;
+              }
+              if (request.endTime && Number(request.endTime) > endTime) {
+                endTime = request.endTime;
+              }
+            })
+          })
+          if (startTime < endTime) {
+            this.totalTime = endTime - startTime + 100;
           }
         }
       },
