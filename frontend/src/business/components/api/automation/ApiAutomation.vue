@@ -237,7 +237,17 @@
         this.$refs.apiScenarioList.search(data);
       },
       refresh(data) {
+        this.setTabTitle(data);
         this.$refs.apiScenarioList.search(data);
+      },
+      setTabTitle(data) {
+        for (let index in this.tabs) {
+          let tab = this.tabs[index];
+          if (tab.name === this.activeName) {
+            tab.label = data.name;
+            break;
+          }
+        }
       },
       editScenario(row) {
         this.addTab({name: 'edit', currentScenario: row});
