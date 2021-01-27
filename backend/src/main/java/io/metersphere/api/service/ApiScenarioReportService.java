@@ -343,13 +343,41 @@ public class ApiScenarioReportService {
             ids = allIds.stream().filter(id -> !reportRequest.getUnSelectIds().contains(id)).collect(Collectors.toList());
         }
 
-        ApiScenarioReportDetailExample detailExample = new ApiScenarioReportDetailExample();
-        detailExample.createCriteria().andReportIdIn(ids);
-        apiScenarioReportDetailMapper.deleteByExample(detailExample);
+        //为预防数量太多，调用删除方法时引起SQL过长的Bug，此处采取分批执行的方式。
+        //每次处理的数据数量
+        int handleCount = 7000;
+        //每次处理的集合
+        List<String> handleIdList = new ArrayList<>(handleCount);
+        while (ids.size() > handleCount){
+            handleIdList = new ArrayList<>(handleCount);
+            List<String> otherIdList = new ArrayList<>();
+            for (int index = 0;index < ids.size();index++){
+                if(index<handleCount){
+                    handleIdList.add(ids.get(index));
+                }else{
+                    otherIdList.add(ids.get(index));
+                }
+            }
+            //处理本次的数据
+            ApiScenarioReportDetailExample detailExample = new ApiScenarioReportDetailExample();
+            detailExample.createCriteria().andReportIdIn(handleIdList);
+            apiScenarioReportDetailMapper.deleteByExample(detailExample);
+            ApiScenarioReportExample apiTestReportExample = new ApiScenarioReportExample();
+            apiTestReportExample.createCriteria().andIdIn(handleIdList);
+            apiScenarioReportMapper.deleteByExample(apiTestReportExample);
+            //转存剩余的数据
+            ids = otherIdList;
+        }
 
-        ApiScenarioReportExample apiTestReportExample = new ApiScenarioReportExample();
-        apiTestReportExample.createCriteria().andIdIn(ids);
-        apiScenarioReportMapper.deleteByExample(apiTestReportExample);
+        //处理最后剩余的数据
+        if(!ids.isEmpty()){
+            ApiScenarioReportDetailExample detailExample = new ApiScenarioReportDetailExample();
+            detailExample.createCriteria().andReportIdIn(ids);
+            apiScenarioReportDetailMapper.deleteByExample(detailExample);
+            ApiScenarioReportExample apiTestReportExample = new ApiScenarioReportExample();
+            apiTestReportExample.createCriteria().andIdIn(ids);
+            apiScenarioReportMapper.deleteByExample(apiTestReportExample);
+        }
     }
 
     public long countByProjectID(String projectId) {
