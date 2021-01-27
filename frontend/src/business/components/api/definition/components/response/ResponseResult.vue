@@ -15,7 +15,9 @@
       <!--</el-tab-pane>-->
 
       <el-tab-pane :label="$t('api_test.definition.request.console')" name="console" class="pane">
-        <pre>{{response.responseResult.console}}</pre>
+        <div style="width: 400px">
+          <pre>{{response.responseResult.console}}</pre>
+        </div>
       </el-tab-pane>
 
       <el-tab-pane :label="$t('api_report.assertions')" name="assertions" class="pane assertions">
