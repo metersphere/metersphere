@@ -263,7 +263,6 @@
         this.apiTabs = [];
         this.apiDefaultTab = tabs.name;
         this.apiTabs.push(tabs);
-        this.refresh();
       },
       handleTabRemove(targetName) {
         let tabs = this.apiTabs;

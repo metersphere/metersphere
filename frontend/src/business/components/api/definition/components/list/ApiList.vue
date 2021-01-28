@@ -341,16 +341,58 @@
         }
         if (this.condition.projectId) {
           this.result = this.$post("/api/definition/list/" + this.currentPage + "/" + this.pageSize, this.condition, response => {
+            this.genProtocalFilter(this.condition.protocol);
             this.total = response.data.itemCount;
             this.tableData = response.data.listObject;
             this.unSelection = response.data.listObject.map(s => s.id);
-
             this.tableData.forEach(item => {
               if (item.tags && item.tags.length > 0) {
                 item.tags = JSON.parse(item.tags);
               }
             })
           });
+        }
+      },
+      genProtocalFilter(protocalType){
+        if(protocalType === "HTTP"){
+          this.methodFilters = [
+            {text: 'GET', value: 'GET'},
+            {text: 'POST', value: 'POST'},
+            {text: 'PUT', value: 'PUT'},
+            {text: 'PATCH', value: 'PATCH'},
+            {text: 'DELETE', value: 'DELETE'},
+            {text: 'OPTIONS', value: 'OPTIONS'},
+            {text: 'HEAD', value: 'HEAD'},
+            {text: 'CONNECT', value: 'CONNECT'},
+          ];
+        }else if(protocalType === "TCP"){
+          this.methodFilters = [
+            {text: 'TCP', value: 'TCP'},
+          ];
+        }else if(protocalType === "SQL"){
+          this.methodFilters = [
+            {text: 'SQL', value: 'SQL'},
+          ];
+        }else if(protocalType === "DUBBO"){
+          this.methodFilters = [
+            {text: 'DUBBO', value: 'DUBBO'},
+            {text: 'dubbo://', value: 'dubbo://'},
+          ];
+        }else{
+          this.methodFilters = [
+            {text: 'GET', value: 'GET'},
+            {text: 'POST', value: 'POST'},
+            {text: 'PUT', value: 'PUT'},
+            {text: 'PATCH', value: 'PATCH'},
+            {text: 'DELETE', value: 'DELETE'},
+            {text: 'OPTIONS', value: 'OPTIONS'},
+            {text: 'HEAD', value: 'HEAD'},
+            {text: 'CONNECT', value: 'CONNECT'},
+            {text: 'DUBBO', value: 'DUBBO'},
+            {text: 'dubbo://', value: 'dubbo://'},
+            {text: 'SQL', value: 'SQL'},
+            {text: 'TCP', value: 'TCP'},
+          ];
         }
       },
       getMaintainerOptions() {
