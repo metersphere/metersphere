@@ -227,12 +227,7 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
                 LogUtil.error(e.getMessage(), e);
             }
         }
-        try {
             sendTask(report, reportUrl, testResult);
-        } catch (Exception e) {
-            LogUtil.error(e.getMessage(), e);
-        }
-
     }
 
     private static void sendTask(ApiTestReport report, String reportUrl, TestResult testResult) {
@@ -297,6 +292,7 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
         requestResult.setHeaders(result.getRequestHeaders());
         requestResult.setRequestSize(result.getSentBytes());
         requestResult.setStartTime(result.getStartTime());
+        requestResult.setEndTime(result.getEndTime());
         requestResult.setTotalAssertions(result.getAssertionResults().length);
         requestResult.setSuccess(result.isSuccessful());
         requestResult.setError(result.getErrorCount());
@@ -336,7 +332,7 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
                 requestResult.addPassAssertions();
             }
             //xpath 提取错误会添加断言错误
-            if (StringUtils.isBlank(responseAssertionResult.getMessage()) || !responseAssertionResult.getMessage().contains("The required item type of the first operand of")) {
+            if (StringUtils.isBlank(responseAssertionResult.getMessage()) || !responseAssertionResult.getName().endsWith("XPath2Extractor")) {
                 responseResult.getAssertions().add(responseAssertionResult);
             }
         }

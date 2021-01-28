@@ -3,13 +3,13 @@
     <el-dialog
       :title="$t('api_test.environment.select_environment')"
       :visible.sync="dialogVisible"
-      width="25%"
+      width="15%"
       :destroy-on-close="true"
       @close="handleClose"
     >
-      <el-form label-position="right" label-width="150px" size="medium" ref="form">
+      <el-form  ref="form">
         <el-form-item prop="type">
-          <el-select v-model="environmentId" value-key="id" size="small" class="ms-htt-width"
+          <el-select v-model="environmentId" value-key="id"  class="ms-htt-width"
                      :placeholder="$t('api_test.definition.request.run_env')"
                      clearable>
             <el-option v-for="(environment, index) in environments" :key="index"
@@ -22,6 +22,7 @@
           </el-select>
         </el-form-item>
       </el-form>
+
       <template v-slot:footer>
         <!--        <el-button onclick="this.handleClose">{{ $t('commons.cancel') }}</el-button>-->
         <el-button type="primary" @click="createPerformance" @keydown.enter.native.prevent>

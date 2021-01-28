@@ -53,14 +53,14 @@ public class MailService {
                     props.put("mail.smtp.starttls.enable", result);
                     props.put("mail.smtp.starttls.required", result);
                     break;
-                case "smtp.anon":
+             /*   case "smtp.anon":
                     boolean isAnon = BooleanUtils.toBoolean(p.getParamValue());
                     if (isAnon) {
                         props.put("mail.smtp.auth", "false");
                         javaMailSender.setUsername(null);
                         javaMailSender.setPassword(null);
                     }
-                    break;
+                    break;*/
                 default:
                     break;
             }

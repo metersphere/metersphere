@@ -14,7 +14,7 @@
 
     <ms-main-container>
       <el-tabs v-model="activeName" @tab-click="addTab" @tab-remove="removeTab">
-        <el-tab-pane name="default" :label="$t('api_test.automation.scenario_test')">
+        <el-tab-pane name="default" :label="$t('api_test.automation.scenario_list')">
           <ms-api-scenario-list
             :module-tree="nodeTree"
             :module-options="moduleOptions"
@@ -97,6 +97,7 @@
         renderComponent: true,
         isHide: true,
         activeName: 'default',
+        redirectFlag: 'none',
         currentModule: null,
         moduleOptions: [],
         tabs: [],
@@ -150,6 +151,15 @@
       },
       changeRedirectParam(redirectIDParam) {
         this.redirectID = redirectIDParam;
+        if(redirectIDParam!=null){
+          if(this.redirectFlag == "none"){
+            this.activeName = "default";
+            this.addListener();
+            this.redirectFlag = "redirected";
+          }
+        }else{
+          this.redirectFlag = "none";
+        }
       },
       addTab(tab) {
         if (!getCurrentProjectID()) {
@@ -227,7 +237,17 @@
         this.$refs.apiScenarioList.search(data);
       },
       refresh(data) {
+        this.setTabTitle(data);
         this.$refs.apiScenarioList.search(data);
+      },
+      setTabTitle(data) {
+        for (let index in this.tabs) {
+          let tab = this.tabs[index];
+          if (tab.name === this.activeName) {
+            tab.label = data.name;
+            break;
+          }
+        }
       },
       editScenario(row) {
         this.addTab({name: 'edit', currentScenario: row});

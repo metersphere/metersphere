@@ -35,7 +35,6 @@
         this.$refs.nameInput.focus();
       }
     }
-
   }
 </script>
 

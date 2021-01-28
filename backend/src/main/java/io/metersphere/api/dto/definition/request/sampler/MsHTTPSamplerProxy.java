@@ -158,7 +158,8 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                         if (!path.startsWith("/")) {
                             path = "/" + path;
                         }
-                        path = sampler.getProtocol() + "://" + sampler.getDomain() + ":" + sampler.getPort() + path;
+                        String port = sampler.getPort() != 80 ? ":" + sampler.getPort() : "";
+                        path = sampler.getProtocol() + "://" + sampler.getDomain() + port + path;
                     }
                     sampler.setPath(path);
                 }

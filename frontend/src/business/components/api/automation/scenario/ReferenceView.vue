@@ -72,4 +72,11 @@
     font-size: 12px;
     padding-bottom: 10px;
   }
+
+  .el-button--text .el-link.el-link--default {
+    font-size: 12px;
+    color: #4b1980;
+    font-weight: 400;
+    text-decoration: underline;
+  }
 </style>

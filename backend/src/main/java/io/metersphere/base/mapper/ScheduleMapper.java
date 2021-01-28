@@ -33,5 +33,4 @@ public interface ScheduleMapper {
     int updateByPrimaryKeyWithBLOBs(Schedule record);
 
     int updateByPrimaryKey(Schedule record);
-
 }

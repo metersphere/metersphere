@@ -5,7 +5,7 @@
       @isApiListEnableChange="isApiListEnableChange">
       <el-link type="primary" style="float:right;margin-top: 5px" @click="open">{{$t('commons.adv_search.title')}}</el-link>
 
-      <el-input placeholder="搜索" @blur="search" @keyup.enter.native="search" class="search-input" size="small"
+      <el-input :placeholder="$t('commons.search_by_id_name_tag')" @blur="search" @keyup.enter.native="search" class="search-input" size="small"
                 v-model="condition.name"/>
 
       <el-table v-loading="result.loading"
@@ -124,7 +124,7 @@ import MsContainer from "../../../../common/components/MsContainer";
 import MsBottomContainer from "../BottomContainer";
 import ShowMoreBtn from "../../../../track/case/components/ShowMoreBtn";
 import MsBatchEdit from "../basis/BatchEdit";
-import {API_METHOD_COLOUR, CASE_PRIORITY, REQ_METHOD} from "../../model/JsonData";
+import {API_METHOD_COLOUR, CASE_PRIORITY, DUBBO_METHOD, REQ_METHOD, SQL_METHOD, TCP_METHOD} from "../../model/JsonData";
 
 import {getBodyUploadFiles, getCurrentProjectID} from "@/common/js/utils";
 import ApiListContainer from "./ApiListContainer";
@@ -409,6 +409,15 @@ export default {
         // }
       },
       handleEditBatch() {
+        if(this.currentProtocol =='HTTP'){
+          this.valueArr.method = REQ_METHOD;
+        }else if(this.currentProtocol =='TCP'){
+          this.valueArr.method = TCP_METHOD;
+        }else if(this.currentProtocol =='SQL'){
+          this.valueArr.method = SQL_METHOD;
+        }else if(this.currentProtocol =='DUBBO'){
+          this.valueArr.method = DUBBO_METHOD;
+        }
         this.$refs.batchEdit.open();
       },
       batchEdit(form) {
