@@ -4,6 +4,7 @@ import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.annotation.JSONType;
 import io.metersphere.api.dto.definition.request.MsTestElement;
 import io.metersphere.api.dto.definition.request.ParameterConfig;
+import io.metersphere.api.dto.definition.request.auth.MsAuthManager;
 import io.metersphere.api.dto.definition.request.dns.MsDNSCacheManager;
 import io.metersphere.api.dto.scenario.Body;
 import io.metersphere.api.dto.scenario.KeyValue;
@@ -86,6 +87,9 @@ public class MsHTTPSamplerProxy extends MsTestElement {
 
     @JSONField(ordinal = 35)
     private Object requestResult;
+
+    @JSONField(ordinal = 36)
+    private MsAuthManager authManager;
 
     @Override
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, ParameterConfig config) {
@@ -222,6 +226,9 @@ public class MsHTTPSamplerProxy extends MsTestElement {
             for (MsTestElement el : hashTree) {
                 el.toHashTree(httpSamplerTree, el.getHashTree(), config);
             }
+        }
+        if (this.authManager != null) {
+            this.authManager.toHashTree(tree, hashTree, config);
         }
     }
 

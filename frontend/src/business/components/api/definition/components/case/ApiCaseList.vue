@@ -147,7 +147,6 @@
       saveApiAndCase(api) {
         this.visible = true;
         this.api = api;
-        console.log(api)
         this.addCase();
       },
       setEnvironment(environment) {
