@@ -143,7 +143,12 @@
       copyRow(row) {
         let obj = JSON.parse(JSON.stringify(row));
         obj.id = getUUID();
-        this.request.hashTree.push(obj);
+        const index = this.request.hashTree.findIndex(d => d.id === row.id);
+        if (index != -1) {
+          this.request.hashTree.splice(index, 0, obj);
+        } else {
+          this.request.hashTree.push(obj);
+        }
         this.reload();
       },
       reload() {

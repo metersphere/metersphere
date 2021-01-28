@@ -44,7 +44,7 @@
 </template>
 
 <script>
-  import {downloadFile, getUUID, getCurrentProjectID} from "@/common/js/utils";
+  import {downloadFile, getUUID} from "@/common/js/utils";
   import MsApiCaseList from "../case/ApiCaseList";
   import MsContainer from "../../../../common/components/MsContainer";
   import MsBottomContainer from "../BottomContainer";
@@ -89,7 +89,7 @@
         reportId: "",
       }
     },
-    props: {apiData: {}, currentProtocol: String,syncTabs: Array},
+    props: {apiData: {}, currentProtocol: String,syncTabs: Array, projectId: String},
     methods: {
       handleCommand(e) {
         switch (e) {
@@ -186,7 +186,7 @@
         }
       },
       getEnvironments() {
-        this.$get('/api/environment/list/' + getCurrentProjectID(), response => {
+        this.$get('/api/environment/list/' + this.projectId, response => {
           this.environments = response.data;
           this.environments.forEach(environment => {
             parseEnvironment(environment);
@@ -206,7 +206,7 @@
         });
       },
       openEnvironmentConfig() {
-        this.$refs.environmentConfig.open(getCurrentProjectID());
+        this.$refs.environmentConfig.open(this.projectId);
       },
       environmentChange(value) {
         for (let i in this.environments) {

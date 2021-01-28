@@ -96,10 +96,9 @@
         },
         runData: [],
         reportId: "",
-        projectId: ""
       }
     },
-    props: {apiData: {}, currentProtocol: String,syncTabs: Array},
+    props: {apiData: {}, currentProtocol: String,syncTabs: Array, projectId: String},
     methods: {
       handleCommand(e) {
         switch (e) {
@@ -214,7 +213,6 @@
       this.api = JSON.parse(JSON.stringify(this.apiData));
       this.api.protocol = this.currentProtocol;
       this.currentRequest = this.api.request;
-      this.projectId = getCurrentProjectID();
       this.getResult();
     }
   }

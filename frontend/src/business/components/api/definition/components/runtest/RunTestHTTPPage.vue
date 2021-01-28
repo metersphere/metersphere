@@ -110,10 +110,9 @@
         },
         runData: [],
         reportId: "",
-        projectId: "",
       }
     },
-    props: {apiData: {}, currentProtocol: String, syncTabs: Array},
+    props: {apiData: {}, currentProtocol: String, syncTabs: Array, projectId: String},
     methods: {
       handleCommand(e) {
         switch (e) {
@@ -232,7 +231,6 @@
       }
     },
     created() {
-      this.projectId = getCurrentProjectID();
       // 深度复制
       this.api = JSON.parse(JSON.stringify(this.apiData));
       this.api.protocol = this.currentProtocol;

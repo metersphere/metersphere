@@ -530,7 +530,7 @@ export default {
       request: {
         grade_info: "按等级筛选",
         grade_order_asc: "按用例等级从高到低",
-        grade_order_desc: "按用例等级从高到低",
+        grade_order_desc: "按用例等级从低到高",
         create_time_order_asc: "按创建时间从前到后",
         create_time_order_desc: "按创建时间从后到前",
         update_time_order_asc: "按更新时间从前到后",

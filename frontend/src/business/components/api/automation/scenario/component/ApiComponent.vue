@@ -107,6 +107,15 @@
             this.request.url = undefined;
           }
         }
+        // 历史数据 auth 处理
+        if (this.request.hashTree) {
+          for (let index in this.request.hashTree) {
+            if (this.request.hashTree[index].type == 'AuthManager') {
+              this.request.authManager = this.request.hashTree[index];
+              this.request.hashTree.splice(index, 1);
+            }
+          }
+        }
       }
     },
     computed: {
