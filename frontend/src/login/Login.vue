@@ -3,45 +3,45 @@
     <el-row type="flex">
       <el-col :span="12">
 
-          <div class="title">
-            <div class="title-img">
-              <img :src="'/display/file/loginLogo'" alt="">
-            </div>
-            <div class="welcome">
-              <span>Metersphere</span>
-              <span>{{ $t('commons.welcome') }}</span>
-            </div>
+        <div class="title">
+          <div class="title-img">
+            <img :src="'/display/file/loginLogo'" alt="">
           </div>
+          <div class="welcome">
+            <span>Metersphere</span>
+            <span>{{ $t('commons.welcome') }}</span>
+          </div>
+        </div>
 
-          <div class="content">
-            <div class="form">
-                <el-form :model="form" :rules="rules" ref="form">
-                <el-form-item v-slot:default>
-                  <el-radio-group v-model="form.authenticate" @change="redirectAuth(form.authenticate)">
-                    <el-radio label="LDAP" size="mini" v-if="openLdap">LDAP</el-radio>
-                    <el-radio label="LOCAL" size="mini" v-if="openLdap">普通登录</el-radio>
-                    <el-radio :label="auth.id" size="mini" v-for="auth in authSources" :key="auth.id">{{ auth.type }} {{ auth.name }}</el-radio>
-                  </el-radio-group>
-                </el-form-item>
-                <el-form-item prop="username">
-                  <el-input v-model="form.username" :placeholder="$t('commons.login_username')" autofocus
-                            autocomplete="off"/>
-                </el-form-item>
-                <el-form-item prop="password">
-                  <el-input v-model="form.password" :placeholder="$t('commons.password')" show-password autocomplete="off"
-                            maxlength="30" show-word-limit/>
-                </el-form-item>
-              </el-form>
-            </div>
-            <div class="btn">
-              <el-button type="primary" class="submit" @click="submit('form')">
-                {{ $t('commons.login') }}
-              </el-button>
-            </div>
-            <div class="msg">
-              {{ msg }}
-            </div>
+        <div class="content">
+          <div class="form">
+            <el-form :model="form" :rules="rules" ref="form">
+              <el-form-item v-slot:default>
+                <el-radio-group v-model="form.authenticate" @change="redirectAuth(form.authenticate)">
+                  <el-radio label="LDAP" size="mini" v-if="openLdap">LDAP</el-radio>
+                  <el-radio label="LOCAL" size="mini" v-if="openLdap">普通登录</el-radio>
+                  <el-radio :label="auth.id" size="mini" v-for="auth in authSources" :key="auth.id">{{ auth.type }} {{ auth.name }}</el-radio>
+                </el-radio-group>
+              </el-form-item>
+              <el-form-item prop="username">
+                <el-input v-model="form.username" :placeholder="$t('commons.login_username')" autofocus
+                          autocomplete="off"/>
+              </el-form-item>
+              <el-form-item prop="password">
+                <el-input v-model="form.password" :placeholder="$t('commons.password')" show-password autocomplete="off"
+                          maxlength="30" show-word-limit/>
+              </el-form-item>
+            </el-form>
           </div>
+          <div class="btn">
+            <el-button type="primary" class="submit" @click="submit('form')">
+              {{ $t('commons.login') }}
+            </el-button>
+          </div>
+          <div class="msg">
+            {{ msg }}
+          </div>
+        </div>
       </el-col>
 
       <div class="divider"/>
@@ -62,6 +62,7 @@ import {DEFAULT_LANGUAGE} from "@/common/js/constants";
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
 const display = requireComponent.keys().length > 0 ? requireComponent("./display/Display.vue") : {};
 const auth = requireComponent.keys().length > 0 ? requireComponent("./auth/Auth.vue") : {};
+const license = requireComponent.keys().length > 0 ? requireComponent("./license/LicenseMessage.vue") : null;
 
 export default {
   name: "Login",
@@ -117,6 +118,10 @@ export default {
   created: function () {
     // 主页添加键盘事件,注意,不能直接在焦点事件上添加回车
     document.addEventListener("keydown", this.watchEnter);
+    //
+    if (license.default) {
+      license.default.valid(this)
+    }
   },
 
   destroyed() {
@@ -182,106 +187,106 @@ export default {
 </script>
 
 <style scoped>
-  .container {
-    width: 1440px;
-    height: 810px;
-    margin: calc((100vh - 810px) / 2) auto 0;
-    background-color: #FFFFFF;
-  }
+.container {
+  width: 1440px;
+  height: 810px;
+  margin: calc((100vh - 810px) / 2) auto 0;
+  background-color: #FFFFFF;
+}
 
-  .el-col:nth-child(3) {
-    align-items: center;
-    display: flex;
-  }
+.el-col:nth-child(3) {
+  align-items: center;
+  display: flex;
+}
 
-  .title img {
-    width: 293px;
-    margin-top: 165px;
-  }
+.title img {
+  width: 293px;
+  margin-top: 165px;
+}
 
-  .title-img {
-    letter-spacing: 0;
-    text-align: center;
-  }
+.title-img {
+  letter-spacing: 0;
+  text-align: center;
+}
 
-  .login-image {
-    height: 365px;
-    width: 567px;
-    margin: auto;
-    display: block;
-  }
+.login-image {
+  height: 365px;
+  width: 567px;
+  margin: auto;
+  display: block;
+}
 
-  .welcome {
-    margin-top: 12px;
-    margin-bottom: 75px;
-    font-size: 14px;
-    color: #843697;
-    line-height: 14px;
-    text-align: center;
-  }
+.welcome {
+  margin-top: 12px;
+  margin-bottom: 75px;
+  font-size: 14px;
+  color: #843697;
+  line-height: 14px;
+  text-align: center;
+}
 
-  .form,.btn {
-    padding: 0;
-    width: 443px;
-    margin: auto;
-  }
+.form, .btn {
+  padding: 0;
+  width: 443px;
+  margin: auto;
+}
 
-  .btn > .submit {
-    border-radius: 70px;
-    border-color: #8B479B;
-    background-color: #8B479B;
-  }
+.btn > .submit {
+  border-radius: 70px;
+  border-color: #8B479B;
+  background-color: #8B479B;
+}
 
-  .btn > .submit:hover {
-    border-color: rgba(139, 71, 155, 0.9);
-    background-color: rgba(139, 71, 155, 0.9);
-  }
+.btn > .submit:hover {
+  border-color: rgba(139, 71, 155, 0.9);
+  background-color: rgba(139, 71, 155, 0.9);
+}
 
-  .btn > .submit:active {
-    border-color: rgba(139, 71, 155, 0.8);
-    background-color: rgba(139, 71, 155, 0.8);
-  }
+.btn > .submit:active {
+  border-color: rgba(139, 71, 155, 0.8);
+  background-color: rgba(139, 71, 155, 0.8);
+}
 
-  .el-form-item:first-child {
-    margin-top: 60px;
-  }
+.el-form-item:first-child {
+  margin-top: 60px;
+}
 
-  /deep/ .el-radio__input.is-checked .el-radio__inner {
-    background-color: #783887;
-    background: #783887;
-    border-color: #783887;
-  }
+/deep/ .el-radio__input.is-checked .el-radio__inner {
+  background-color: #783887;
+  background: #783887;
+  border-color: #783887;
+}
 
-  /deep/ .el-radio__input.is-checked+.el-radio__label {
-    color: #783887;
-  }
+/deep/ .el-radio__input.is-checked + .el-radio__label {
+  color: #783887;
+}
 
-  /deep/ .el-input__inner {
-    border-radius: 70px !important;
-    background: #f6f3f8 !important;
-    border-color: #f6f3f8 !important;
-    /*谷歌浏览器默认填充的颜色无法替换，使用下列样式填充*/
-    box-shadow: inset 0 0 0 1000px #f6f3f8 !important;
-  }
+/deep/ .el-input__inner {
+  border-radius: 70px !important;
+  background: #f6f3f8 !important;
+  border-color: #f6f3f8 !important;
+  /*谷歌浏览器默认填充的颜色无法替换，使用下列样式填充*/
+  box-shadow: inset 0 0 0 1000px #f6f3f8 !important;
+}
 
-  .el-input,.el-button {
-    width: 443px;
-  }
+.el-input, .el-button {
+  width: 443px;
+}
 
-  /deep/ .el-input__inner:focus {
-    border: 1px solid #783887 !important;
-  }
+/deep/ .el-input__inner:focus {
+  border: 1px solid #783887 !important;
+}
 
-  .divider {
-    border: 1px solid #f6f3f8;
-    height: 480px;
-    margin: 165px 0px;
-  }
+.divider {
+  border: 1px solid #f6f3f8;
+  height: 480px;
+  margin: 165px 0px;
+}
 
-  .welcome span:first-child {
-    font-weight: bold;
-    margin-right: 3px;
-  }
+.welcome span:first-child {
+  font-weight: bold;
+  margin-right: 3px;
+}
 
 </style>
 
