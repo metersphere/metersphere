@@ -162,11 +162,10 @@
   import MsBottomContainer from "../BottomContainer";
   import ShowMoreBtn from "../../../../track/case/components/ShowMoreBtn";
   import MsBatchEdit from "../basis/BatchEdit";
-  import {API_METHOD_COLOUR, API_STATUS, REQ_METHOD} from "../../model/JsonData";
+  import {API_METHOD_COLOUR, API_STATUS, REQ_METHOD,TCP_METHOD,SQL_METHOD,DUBBO_METHOD} from "../../model/JsonData";
   import {_filter, _sort, getCurrentProjectID} from "@/common/js/utils";
   import {WORKSPACE_ID} from '@/common/js/constants';
   import ApiListContainer from "./ApiListContainer";
-  // import MsTableSelectAll from "../../../../common/components/table/MsTableSelectAll";
   import MsTableHeaderSelectPopover from "@/business/components/common/components/table/MsTableHeaderSelectPopover";
   import ApiStatus from "@/business/components/api/definition/components/list/ApiStatus";
   import MsTableAdvSearchBar from "@/business/components/common/components/search/MsTableAdvSearchBar";
@@ -513,6 +512,15 @@
         }
       },
       handleEditBatch() {
+        if(this.currentProtocol =='HTTP'){
+          this.valueArr.method = REQ_METHOD;
+        }else if(this.currentProtocol =='TCP'){
+          this.valueArr.method = TCP_METHOD;
+        }else if(this.currentProtocol =='SQL'){
+          this.valueArr.method = SQL_METHOD;
+        }else if(this.currentProtocol =='DUBBO'){
+          this.valueArr.method = DUBBO_METHOD;
+        }
         this.$refs.batchEdit.open();
       },
       batchEdit(form) {
