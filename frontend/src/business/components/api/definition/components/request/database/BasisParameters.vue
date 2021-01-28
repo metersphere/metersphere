@@ -235,14 +235,21 @@
         this.$refs.environmentConfig.open(getCurrentProjectID());
       },
       initDataSource() {
+        let flag = false;
         for (let i in this.environments) {
           if (this.environments[i].id === this.request.environmentId) {
             this.databaseConfigsOptions = [];
             this.environments[i].config.databaseConfigs.forEach(item => {
+              if (item.id === this.request.dataSourceId) {
+                flag = true;
+              }
               this.databaseConfigsOptions.push(item);
             });
             break;
           }
+        }
+        if (!flag) {
+          this.request.dataSourceId = undefined;
         }
       },
       setDataSource() {
