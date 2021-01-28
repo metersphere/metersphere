@@ -1502,6 +1502,7 @@ export default {
   },
   auth_source: {
     delete_prompt: 'This operation will delete the authentication source, do you want to continue? ',
-    title: 'Auth Source'
+    title: 'Auth Source',
+    auth_name_valid: 'Name does not support special characters',
   }
 };
