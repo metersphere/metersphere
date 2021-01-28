@@ -97,7 +97,10 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         HTTPSamplerProxy sampler = new HTTPSamplerProxy();
         sampler.setEnabled(true);
         sampler.setName(this.getName());
-        if (config != null && StringUtils.isNotEmpty(config.getStep())) {
+        String name = this.getParentName(this.getParent());
+        if (StringUtils.isNotEmpty(name)) {
+            sampler.setName(this.getName() + "<->" + name);
+        } else if (config != null && StringUtils.isNotEmpty(config.getStep())) {
             if ("SCENARIO".equals(config.getStepType())) {
                 sampler.setName(this.getName() + "<->" + config.getStep());
             } else {

@@ -102,7 +102,10 @@ public class MsTCPSampler extends MsTestElement {
     private TCPSampler tcpSampler(ParameterConfig config) {
         TCPSampler tcpSampler = new TCPSampler();
         tcpSampler.setName(this.getName());
-        if (config != null && StringUtils.isNotEmpty(config.getStep())) {
+        String name = this.getParentName(this.getParent());
+        if (StringUtils.isNotEmpty(name)) {
+            tcpSampler.setName(this.getName() + "<->" + name);
+        } else if (config != null && StringUtils.isNotEmpty(config.getStep())) {
             if ("SCENARIO".equals(config.getStepType())) {
                 tcpSampler.setName(this.getName() + "<->" + config.getStep());
             } else {

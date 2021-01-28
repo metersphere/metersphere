@@ -77,7 +77,10 @@ public class MsDubboSampler extends MsTestElement {
     private DubboSample dubboSample(ParameterConfig config) {
         DubboSample sampler = new DubboSample();
         sampler.setName(this.getName());
-        if (config != null && StringUtils.isNotEmpty(config.getStep())) {
+        String name = this.getParentName(this.getParent());
+        if (StringUtils.isNotEmpty(name)) {
+            sampler.setName(this.getName() + "<->" + name);
+        } else if (config != null && StringUtils.isNotEmpty(config.getStep())) {
             if ("SCENARIO".equals(config.getStepType())) {
                 sampler.setName(this.getName() + "<->" + config.getStep());
             } else {
