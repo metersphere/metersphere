@@ -29,10 +29,13 @@ import io.metersphere.api.service.ApiDefinitionService;
 import io.metersphere.api.service.ApiTestEnvironmentService;
 import io.metersphere.base.domain.ApiDefinitionWithBLOBs;
 import io.metersphere.base.domain.ApiTestEnvironmentWithBLOBs;
+import io.metersphere.commons.constants.LoopConstants;
+import io.metersphere.commons.constants.MsTestElementConstants;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
 import lombok.Data;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.config.Arguments;
 import org.apache.jmeter.config.CSVDataSet;
 import org.apache.jmeter.config.RandomVariableConfig;
@@ -96,7 +99,10 @@ public abstract class MsTestElement {
     @JSONField(ordinal = 10)
     private LinkedList<MsTestElement> hashTree;
 
+    private MsTestElement parent;
+
     private static final String BODY_FILE_DIR = "/opt/metersphere/data/body";
+
     // 公共环境逐层传递，如果自身有环境 以自身引用环境为准否则以公共环境作为请求环境
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, ParameterConfig config) {
         for (MsTestElement el : hashTree) {
@@ -173,7 +179,7 @@ public abstract class MsTestElement {
         return null;
     }
 
-    protected void addCsvDataSet(HashTree tree,List<ScenarioVariable> variables) {
+    protected void addCsvDataSet(HashTree tree, List<ScenarioVariable> variables) {
         if (CollectionUtils.isNotEmpty(variables)) {
             List<ScenarioVariable> list = variables.stream().filter(ScenarioVariable::isCSVValid).collect(Collectors.toList());
             if (CollectionUtils.isNotEmpty(list)) {
@@ -197,7 +203,7 @@ public abstract class MsTestElement {
         }
     }
 
-    protected void addCounter(HashTree tree,List<ScenarioVariable> variables) {
+    protected void addCounter(HashTree tree, List<ScenarioVariable> variables) {
         if (CollectionUtils.isNotEmpty(variables)) {
             List<ScenarioVariable> list = variables.stream().filter(ScenarioVariable::isCounterValid).collect(Collectors.toList());
             if (CollectionUtils.isNotEmpty(list)) {
@@ -219,7 +225,7 @@ public abstract class MsTestElement {
         }
     }
 
-    protected void addRandom(HashTree tree,List<ScenarioVariable> variables) {
+    protected void addRandom(HashTree tree, List<ScenarioVariable> variables) {
         if (CollectionUtils.isNotEmpty(variables)) {
             List<ScenarioVariable> list = variables.stream().filter(ScenarioVariable::isRandom).collect(Collectors.toList());
             if (CollectionUtils.isNotEmpty(list)) {
@@ -240,6 +246,44 @@ public abstract class MsTestElement {
         }
     }
 
+    public MsTestElement getRootParent(MsTestElement element) {
+        if (element.getParent() == null) {
+            return element;
+        }
+        if (MsTestElementConstants.LoopController.name().equals(element.getType())) {
+            return element;
+        }
+        return getRootParent(element.getParent());
+    }
+
+    protected String getParentName(MsTestElement element, ParameterConfig config) {
+        if (element != null) {
+            MsTestElement parent = this.getRootParent(element);
+            if (parent != null) {
+                if (MsTestElementConstants.LoopController.name().equals(parent.getType())) {
+                    MsLoopController loopController = (MsLoopController) parent;
+                    if (StringUtils.equals(loopController.getLoopType(), LoopConstants.WHILE.name()) && loopController.getWhileController() != null) {
+                        return "While 循环-" + "${LoopCounterConfigXXX}";
+                    }
+                    if (StringUtils.equals(loopController.getLoopType(), LoopConstants.FOREACH.name()) && loopController.getForEachController() != null) {
+                        return "ForEach 循环-" + "${LoopCounterConfigXXX}";
+                    }
+                    if (StringUtils.equals(loopController.getLoopType(), LoopConstants.LOOP_COUNT.name()) && loopController.getCountController() != null) {
+                        return "次数循环-" + "${LoopCounterConfigXXX}";
+                    }
+                }
+                return parent.getName();
+            }
+            return element.getName();
+        } else if (config != null && StringUtils.isNotEmpty(config.getStep())) {
+            if (MsTestElementConstants.SCENARIO.name().equals(config.getStepType())) {
+                return config.getStep();
+            } else {
+                return config.getStep() + "-" + "${LoopCounterConfigXXX}";
+            }
+        }
+        return "";
+    }
 }
 
 

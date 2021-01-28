@@ -71,6 +71,7 @@ public class MsScenario extends MsTestElement {
                 ex.printStackTrace();
             }
         }
+
         config.setStep(this.name);
         config.setStepType("SCENARIO");
         config.setEnableCookieShare(enableCookieShare);
@@ -91,6 +92,8 @@ public class MsScenario extends MsTestElement {
         this.addRandom(tree, variables);
         if (CollectionUtils.isNotEmpty(hashTree)) {
             for (MsTestElement el : hashTree) {
+                // 给所有孩子加一个父亲标志
+                el.setParent(this);
                 el.toHashTree(tree, el.getHashTree(), config);
             }
         }

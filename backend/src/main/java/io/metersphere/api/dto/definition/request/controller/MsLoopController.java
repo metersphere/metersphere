@@ -83,6 +83,8 @@ public class MsLoopController extends MsTestElement {
 
         if (CollectionUtils.isNotEmpty(hashTree)) {
             hashTree.forEach(el -> {
+                // 给所有孩子加一个父亲标志
+                el.setParent(this);
                 el.toHashTree(groupTree, el.getHashTree(), config);
             });
         }

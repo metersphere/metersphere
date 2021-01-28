@@ -39,12 +39,9 @@ public class MsJSR223Processor extends MsTestElement {
         } else {
             processor.setName("JSR223Processor");
         }
-        if (config != null && StringUtils.isNotEmpty(config.getStep())) {
-            if ("SCENARIO".equals(config.getStepType())) {
-                processor.setName(this.getName() + "<->" + config.getStep());
-            } else {
-                processor.setName(this.getName() + "<->" + config.getStep() + "-" + "${LoopCounterConfigXXX}");
-            }
+        String name = this.getParentName(this.getParent(), config);
+        if (StringUtils.isNotEmpty(name)) {
+            processor.setName(this.getName() + "<->" + name);
         }
         processor.setProperty(TestElement.TEST_CLASS, JSR223Sampler.class.getName());
         processor.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("TestBeanGUI"));

@@ -7,6 +7,7 @@ import io.metersphere.api.dto.definition.request.ParameterConfig;
 import io.metersphere.api.dto.definition.request.dns.MsDNSCacheManager;
 import io.metersphere.api.dto.scenario.Body;
 import io.metersphere.api.dto.scenario.KeyValue;
+import io.metersphere.commons.constants.MsTestElementConstants;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.ScriptEngineUtils;
 import lombok.Data;
@@ -91,20 +92,16 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         if (!this.isEnable()) {
             return;
         }
-        if (this.getReferenced() != null && "REF".equals(this.getReferenced())) {
+        if (this.getReferenced() != null && MsTestElementConstants.REF.name().equals(this.getReferenced())) {
             this.getRefElement(this);
         }
         HTTPSamplerProxy sampler = new HTTPSamplerProxy();
         sampler.setEnabled(true);
         sampler.setName(this.getName());
-        if (config != null && StringUtils.isNotEmpty(config.getStep())) {
-            if ("SCENARIO".equals(config.getStepType())) {
-                sampler.setName(this.getName() + "<->" + config.getStep());
-            } else {
-                sampler.setName(this.getName() + "<->" + config.getStep() + "-" + "${LoopCounterConfigXXX}");
-            }
+        String name = this.getParentName(this.getParent(), config);
+        if (StringUtils.isNotEmpty(name)) {
+            sampler.setName(this.getName() + "<->" + name);
         }
-
         sampler.setProperty(TestElement.TEST_CLASS, HTTPSamplerProxy.class.getName());
         sampler.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("HttpTestSampleGui"));
         sampler.setMethod(this.getMethod());

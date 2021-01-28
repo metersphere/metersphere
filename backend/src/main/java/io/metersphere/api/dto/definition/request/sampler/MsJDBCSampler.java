@@ -10,6 +10,7 @@ import io.metersphere.api.dto.scenario.KeyValue;
 import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
 import io.metersphere.api.service.ApiTestEnvironmentService;
 import io.metersphere.base.domain.ApiTestEnvironmentWithBLOBs;
+import io.metersphere.commons.constants.MsTestElementConstants;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import lombok.Data;
@@ -57,7 +58,7 @@ public class MsJDBCSampler extends MsTestElement {
         if (!this.isEnable()) {
             return;
         }
-        if (this.getReferenced() != null && "REF".equals(this.getReferenced())) {
+        if (this.getReferenced() != null && MsTestElementConstants.REF.name().equals(this.getReferenced())) {
             this.getRefElement(this);
         }
         if (StringUtils.isNotEmpty(dataSourceId)) {
@@ -110,12 +111,9 @@ public class MsJDBCSampler extends MsTestElement {
     private JDBCSampler jdbcSampler(ParameterConfig config) {
         JDBCSampler sampler = new JDBCSampler();
         sampler.setName(this.getName());
-        if (config != null && StringUtils.isNotEmpty(config.getStep())) {
-            if ("SCENARIO".equals(config.getStepType())) {
-                sampler.setName(this.getName() + "<->" + config.getStep());
-            } else {
-                sampler.setName(this.getName() + "<->" + config.getStep() + "-" + "${LoopCounterConfigXXX}");
-            }
+        String name = this.getParentName(this.getParent(), config);
+        if (StringUtils.isNotEmpty(name)) {
+            sampler.setName(this.getName() + "<->" + name);
         }
         sampler.setProperty(TestElement.TEST_CLASS, JDBCSampler.class.getName());
         sampler.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("TestBeanGUI"));
