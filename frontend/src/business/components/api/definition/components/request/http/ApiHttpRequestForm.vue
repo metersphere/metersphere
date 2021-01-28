@@ -86,10 +86,9 @@
   import ApiRequestMethodSelect from "../../collapse/ApiRequestMethodSelect";
   import {REQUEST_HEADERS} from "@/common/js/constants";
   import MsApiVariable from "../../ApiVariable";
-  import {createComponent} from "../../jmeter/components";
   import MsApiAssertions from "../../assertion/ApiAssertions";
   import MsApiExtract from "../../extract/ApiExtract";
-  import {Assertions, Body, Extract, KeyValue} from "../../../model/ApiTestModel";
+  import {Body, KeyValue} from "../../../model/ApiTestModel";
   import {getUUID} from "@/common/js/utils";
   import BatchAddParameter from "../../basis/BatchAddParameter";
   import MsApiAdvancedConfig from "./ApiAdvancedConfig";
