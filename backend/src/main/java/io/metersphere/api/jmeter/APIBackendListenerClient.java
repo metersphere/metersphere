@@ -227,12 +227,7 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
                 LogUtil.error(e.getMessage(), e);
             }
         }
-        try {
             sendTask(report, reportUrl, testResult);
-        } catch (Exception e) {
-            LogUtil.error(e.getMessage(), e);
-        }
-
     }
 
     private static void sendTask(ApiTestReport report, String reportUrl, TestResult testResult) {
