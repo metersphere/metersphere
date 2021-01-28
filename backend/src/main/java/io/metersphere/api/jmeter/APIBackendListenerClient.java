@@ -180,6 +180,7 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
             apiTestService.changeStatus(testId, APITestStatus.Completed);
             report = apiReportService.getRunningReport(testResult.getTestId());
             apiReportService.complete(testResult, report);
+            apiDefinitionExecResultService.saveApiResult(testResult, ApiRunMode.API_PLAN.name());
         } else if (StringUtils.equalsAny(this.runMode, ApiRunMode.API_PLAN.name(), ApiRunMode.SCHEDULE_API_PLAN.name())) {
             apiDefinitionService.addResult(testResult);
 
