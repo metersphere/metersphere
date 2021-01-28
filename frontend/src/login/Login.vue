@@ -8,7 +8,6 @@
             <img :src="'/display/file/loginLogo'" alt="">
           </div>
           <div class="welcome">
-            <span>Metersphere</span>
             <span>{{ $t('commons.welcome') }}</span>
           </div>
         </div>
@@ -281,11 +280,6 @@ export default {
   border: 1px solid #f6f3f8;
   height: 480px;
   margin: 165px 0px;
-}
-
-.welcome span:first-child {
-  font-weight: bold;
-  margin-right: 3px;
 }
 
 </style>
