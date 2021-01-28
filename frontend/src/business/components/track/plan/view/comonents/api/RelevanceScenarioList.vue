@@ -19,7 +19,7 @@
         </el-table-column>
         <el-table-column prop="tagNames" :label="$t('api_test.automation.tag')" width="200px">
           <template v-slot:default="scope">
-            <div v-for="itemName in scope.row.tagNames" :key="itemName">
+            <div v-for="itemName in scope.row.tags" :key="itemName">
               <ms-tag type="success" effect="plain" :content="itemName"/>
             </div>
           </template>
@@ -89,9 +89,6 @@
         selectRows: new Set()
       }
     },
-    created() {
-      this.search();
-    },
     watch: {
       selectNodeIds() {
         this.search();
@@ -102,6 +99,9 @@
     },
     methods: {
       search() {
+        if (!this.projectId) {
+          return;
+        }
         this.selectRows = new Set();
         this.loading = true;
 
@@ -122,6 +122,11 @@
           let data = response.data;
           this.total = data.itemCount;
           this.tableData = data.listObject;
+          this.tableData.forEach(item => {
+            if (item.tags && item.tags.length > 0) {
+              item.tags = JSON.parse(item.tags);
+            }
+          });
         });
       },
       handleSelectAll(selection) {

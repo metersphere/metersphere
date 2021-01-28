@@ -137,7 +137,7 @@
             </div>
             <!-- 场景步骤内容 -->
             <div v-loading="loading">
-              <el-tree node-key="resourceId" :props="props" :data="scenarioDefinition"
+              <el-tree node-key="resourceId" :props="props" :data="scenarioDefinition" class="ms-tree"
                        :default-expanded-keys="expandedNode"
                        :expand-on-click-node="false"
                        highlight-current
@@ -286,8 +286,7 @@
         },
         response: {}
       }
-    }
-    ,
+    },
     created() {
       if (!this.currentScenario.apiScenarioModuleId) {
         this.currentScenario.apiScenarioModuleId = "";
@@ -848,7 +847,7 @@
               if (this.currentScenario.tags instanceof String) {
                 this.currentScenario.tags = JSON.parse(this.currentScenario.tags);
               }
-              this.$emit('refresh');
+              this.$emit('refresh', this.currentScenario);
             })
           }
         })
@@ -856,6 +855,9 @@
       getApiScenario() {
         if (this.currentScenario.tags != undefined && !(this.currentScenario.tags instanceof Array)) {
           this.currentScenario.tags = JSON.parse(this.currentScenario.tags);
+        }
+        if (!this.currentScenario.variables) {
+          this.currentScenario.variables = [];
         }
         if (this.currentScenario.id) {
           this.result = this.$get("/api/automation/getApiScenario/" + this.currentScenario.id, response => {
@@ -1037,15 +1039,27 @@
     z-index: 1;
   }
 
-  .ms-expanded >>> .el-tree-node__expand-icon.expanded {
-    color: #7C3985;
+  .ms-tree >>> .el-tree-node__expand-icon.expanded {
+    -webkit-transform: rotate(0deg);
+    transform: rotate(0deg);
   }
 
-  .ms-el-icon-caret-right .el-icon-caret-right {
-    color: #7C3985;
+  .ms-tree >>> .el-icon-caret-right:before {
+    content: '\e723';
+    font-size: 20px;
   }
 
-  .ms-is-leaf >>> .is-leaf {
+  .ms-tree >>> .el-tree-node__expand-icon.is-leaf {
     color: transparent;
+  }
+
+  .ms-tree >>> .el-tree-node__expand-icon {
+    color: #7C3985;
+  }
+
+  .ms-tree >>> .el-tree-node__expand-icon.expanded.el-icon-caret-right:before {
+    color: #7C3985;
+    content: "\e722";
+    font-size: 20px;
   }
 </style>

@@ -32,7 +32,7 @@ export default {
     operating: 'Operating',
     input_limit: 'Within {0} and {1} characters',
     login: 'Sign In',
-    welcome: 'Welcome back, please enter username and password to log in',
+    welcome: 'One-stop open source continuous testing platform',
     username: 'Username',
     password: 'Password',
     input_username: 'Please enter username',
@@ -150,7 +150,8 @@ export default {
       name: "Trigger Mode",
       manual: "Manual trigger",
       schedule: "Scheduled Task",
-      api: "API call"
+      api: "API call",
+      case: "Case"
     },
     adv_search: {
       title: 'Advanced Search',
@@ -602,6 +603,7 @@ export default {
       customize_req: "Customize req",
       reference_info: "Reference info",
       scenario_test: "Scenario test",
+      scenario_list: "Scenario List",
       add_scenario: "Add scenario",
       scenario_name: "Scenario name",
       case_level: "Case level",
@@ -1499,6 +1501,7 @@ export default {
     format: "Output format",
   },
   auth_source: {
-    delete_prompt: 'This operation will delete the authentication source, do you want to continue? '
+    delete_prompt: 'This operation will delete the authentication source, do you want to continue? ',
+    title: 'Auth Source'
   }
 };

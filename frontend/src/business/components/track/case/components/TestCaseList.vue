@@ -31,14 +31,14 @@
         @select="handleSelect"
         @cell-mouse-enter="showPopover"
         row-key="id"
-        class="test-content adjust-table ms-select-all"
+        class="test-content adjust-table ms-select-all-fixed"
         ref="table" @row-click="handleEdit">
 
         <el-table-column
           width="50"
           type="selection"/>
 
-        <ms-table-select-all
+        <ms-table-header-select-popover v-show="total>0"
           :page-size="pageSize > total ? total : pageSize"
           :total="total"
           @selectPageAll="isSelectDataAll(false)"
@@ -46,7 +46,7 @@
 
         <el-table-column width="40" :resizable="false" align="center">
           <template v-slot:default="scope">
-            <show-more-btn :is-show="scope.row.showMore" :buttons="buttons" :size="selectRows.size"/>
+            <show-more-btn :is-show="scope.row.showMore" :buttons="buttons" :size="selectDataCounts"/>
           </template>
         </el-table-column>
         <el-table-column
@@ -78,6 +78,7 @@
           prop="priority"
           :filters="priorityFilters"
           column-key="priority"
+          min-width="100px"
           :label="$t('test_track.case.priority')"
           show-overflow-tooltip>
           <template v-slot:default="scope">
@@ -98,6 +99,7 @@
           prop="method"
           column-key="method"
           :filters="methodFilters"
+          min-width="100px"
           :label="$t('test_track.case.method')"
           show-overflow-tooltip>
           <template v-slot:default="scope">
@@ -108,6 +110,7 @@
         <el-table-column
           :filters="statusFilters"
           column-key="status"
+          min-width="100px"
           :label="$t('test_track.case.status')">
           <template v-slot:default="scope">
             <span class="el-dropdown-link">
@@ -127,6 +130,7 @@
         <el-table-column
           prop="nodePath"
           :label="$t('test_track.case.module')"
+          min-width="150px"
           show-overflow-tooltip>
         </el-table-column>
 
@@ -134,12 +138,13 @@
           prop="updateTime"
           sortable="custom"
           :label="$t('commons.update_time')"
+          min-width="150px"
           show-overflow-tooltip>
           <template v-slot:default="scope">
             <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
           </template>
         </el-table-column>
-        <el-table-column
+        <el-table-column fixed="right"
           :label="$t('commons.operating')" min-width="150">
           <template v-slot:default="scope">
             <ms-table-operator :is-tester-permission="true" @editClick="handleEdit(scope.row)"
@@ -169,6 +174,7 @@
 <script>
 
 import MsCreateBox from '../../../settings/CreateBox';
+import MsTableHeaderSelectPopover from "@/business/components/common/components/table/MsTableHeaderSelectPopover";
 import TestCaseImport from '../components/TestCaseImport';
 import TestCaseExport from '../components/TestCaseExport';
 import MsTablePagination from '../../../../components/common/pagination/TablePagination';
@@ -191,7 +197,6 @@ import TestCaseDetail from "./TestCaseDetail";
 import ReviewStatus from "@/business/components/track/case/components/ReviewStatus";
 import {getCurrentProjectID} from "../../../../../common/js/utils";
 import MsTag from "@/business/components/common/components/MsTag";
-import MsTableSelectAll from "../../../common/components/table/MsTableSelectAll";
 import {_handleSelect, _handleSelectAll} from "../../../../../common/js/tableUtils";
 import BatchMove from "./BatchMove";
 
@@ -199,7 +204,7 @@ export default {
   name: "TestCaseList",
   components: {
     BatchMove,
-    MsTableSelectAll,
+    MsTableHeaderSelectPopover,
     MsTableButton,
     MsTableOperatorButton,
     MsTableOperator,
@@ -287,6 +292,7 @@ export default {
       },
       currentCaseId: null,
       projectId: "",
+      selectDataCounts: 0,
     }
   },
   props: {
@@ -323,6 +329,7 @@ export default {
       this.condition.nodeIds = [];
       this.condition.selectAll = false;
       this.condition.unSelectIds = [];
+      this.selectDataCounts = 0;
       if (this.planId) {
         // param.planId = this.planId;
         this.condition.planId = this.planId;
@@ -430,6 +437,7 @@ export default {
       _handleSelect(this, selection, row, this.selectRows);
       this.setUnSelectIds();
     },
+
     importTestCase() {
       if (!getCurrentProjectID()) {
         this.$warning(this.$t('commons.check_project_tip'));
@@ -548,6 +556,11 @@ export default {
       this.condition.unSelectIds = allIDs.filter(function (val) {
         return ids.indexOf(val) === -1
       });
+      if (this.condition.selectAll) {
+        this.selectDataCounts = this.total - this.condition.unSelectIds.length;
+      } else {
+        this.selectDataCounts = this.selectRows.size;
+      }
     },
     moveSave(param) {
       param.condition = this.condition;

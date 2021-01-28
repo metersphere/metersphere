@@ -14,7 +14,7 @@
       <el-tab-pane v-if="hasLicense()" :label="$t('display.title')" name="display">
         <ms-display/>
       </el-tab-pane>
-      <el-tab-pane v-if="hasLicense()" :label="'认证设置'" name="auth">
+      <el-tab-pane v-if="hasLicense()" :label="$t('auth_source.title')" name="auth">
         <ms-auth/>
       </el-tab-pane>
     </el-tabs>

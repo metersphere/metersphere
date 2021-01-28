@@ -5,7 +5,7 @@
       @isApiListEnableChange="isApiListEnableChange">
 
       <el-link type="primary" @click="open" style="float: right;margin-top: 5px">{{$t('commons.adv_search.title')}}</el-link>
-      <el-input :placeholder="$t('api_monitor.please_search')" @blur="search" class="search-input" size="small" @keyup.enter.native="search"
+      <el-input :placeholder="$t('commons.search_by_id_name_tag')" @blur="search" class="search-input" size="small" @keyup.enter.native="search"
                 v-model="condition.name"/>
 
       <el-table v-loading="result.loading"
@@ -162,11 +162,10 @@
   import MsBottomContainer from "../BottomContainer";
   import ShowMoreBtn from "../../../../track/case/components/ShowMoreBtn";
   import MsBatchEdit from "../basis/BatchEdit";
-  import {API_METHOD_COLOUR, API_STATUS, REQ_METHOD} from "../../model/JsonData";
+  import {API_METHOD_COLOUR, API_STATUS, REQ_METHOD,TCP_METHOD,SQL_METHOD,DUBBO_METHOD} from "../../model/JsonData";
   import {_filter, _sort, getCurrentProjectID} from "@/common/js/utils";
   import {WORKSPACE_ID} from '@/common/js/constants';
   import ApiListContainer from "./ApiListContainer";
-  // import MsTableSelectAll from "../../../../common/components/table/MsTableSelectAll";
   import MsTableHeaderSelectPopover from "@/business/components/common/components/table/MsTableHeaderSelectPopover";
   import ApiStatus from "@/business/components/api/definition/components/list/ApiStatus";
   import MsTableAdvSearchBar from "@/business/components/common/components/search/MsTableAdvSearchBar";
@@ -274,7 +273,12 @@
       },
     },
     created: function () {
-      this.condition.filters = {status: ["Prepare", "Underway", "Completed"]};
+      if (this.trashEnable) {
+        this.condition.filters = {status: ["Trash"]};
+      }
+      else {
+        this.condition.filters = {status: ["Prepare", "Underway", "Completed"]};
+      }
       this.initTable();
       this.getMaintainerOptions();
     },
@@ -336,16 +340,58 @@
         }
         if (this.condition.projectId) {
           this.result = this.$post("/api/definition/list/" + this.currentPage + "/" + this.pageSize, this.condition, response => {
+            this.genProtocalFilter(this.condition.protocol);
             this.total = response.data.itemCount;
             this.tableData = response.data.listObject;
             this.unSelection = response.data.listObject.map(s => s.id);
-
             this.tableData.forEach(item => {
               if (item.tags && item.tags.length > 0) {
                 item.tags = JSON.parse(item.tags);
               }
             })
           });
+        }
+      },
+      genProtocalFilter(protocalType){
+        if(protocalType === "HTTP"){
+          this.methodFilters = [
+            {text: 'GET', value: 'GET'},
+            {text: 'POST', value: 'POST'},
+            {text: 'PUT', value: 'PUT'},
+            {text: 'PATCH', value: 'PATCH'},
+            {text: 'DELETE', value: 'DELETE'},
+            {text: 'OPTIONS', value: 'OPTIONS'},
+            {text: 'HEAD', value: 'HEAD'},
+            {text: 'CONNECT', value: 'CONNECT'},
+          ];
+        }else if(protocalType === "TCP"){
+          this.methodFilters = [
+            {text: 'TCP', value: 'TCP'},
+          ];
+        }else if(protocalType === "SQL"){
+          this.methodFilters = [
+            {text: 'SQL', value: 'SQL'},
+          ];
+        }else if(protocalType === "DUBBO"){
+          this.methodFilters = [
+            {text: 'DUBBO', value: 'DUBBO'},
+            {text: 'dubbo://', value: 'dubbo://'},
+          ];
+        }else{
+          this.methodFilters = [
+            {text: 'GET', value: 'GET'},
+            {text: 'POST', value: 'POST'},
+            {text: 'PUT', value: 'PUT'},
+            {text: 'PATCH', value: 'PATCH'},
+            {text: 'DELETE', value: 'DELETE'},
+            {text: 'OPTIONS', value: 'OPTIONS'},
+            {text: 'HEAD', value: 'HEAD'},
+            {text: 'CONNECT', value: 'CONNECT'},
+            {text: 'DUBBO', value: 'DUBBO'},
+            {text: 'dubbo://', value: 'dubbo://'},
+            {text: 'SQL', value: 'SQL'},
+            {text: 'TCP', value: 'TCP'},
+          ];
         }
       },
       getMaintainerOptions() {
@@ -466,6 +512,15 @@
         }
       },
       handleEditBatch() {
+        if(this.currentProtocol =='HTTP'){
+          this.valueArr.method = REQ_METHOD;
+        }else if(this.currentProtocol =='TCP'){
+          this.valueArr.method = TCP_METHOD;
+        }else if(this.currentProtocol =='SQL'){
+          this.valueArr.method = SQL_METHOD;
+        }else if(this.currentProtocol =='DUBBO'){
+          this.valueArr.method = DUBBO_METHOD;
+        }
         this.$refs.batchEdit.open();
       },
       batchEdit(form) {

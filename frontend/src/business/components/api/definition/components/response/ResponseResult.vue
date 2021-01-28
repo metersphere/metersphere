@@ -8,7 +8,9 @@
       </el-tab-pane>
 
       <el-tab-pane :label="$t('api_test.definition.request.response_header')" name="headers" class="pane">
-        <pre>{{ response.responseResult.headers }}</pre>
+        <div style="width: 400px">
+          <pre>{{ response.responseResult.headers }}</pre>
+        </div>
       </el-tab-pane>
       <!--<el-tab-pane label="Cookie" name="cookie" class="pane cookie">-->
       <!--<pre>{{response.cookies}}</pre>-->
@@ -25,7 +27,9 @@
       </el-tab-pane>
 
       <el-tab-pane :label="$t('api_test.request.extract.label')" name="label" class="pane">
-        <pre>{{response.responseResult.vars}}</pre>
+        <div style="width: 400px">
+          <pre>{{response.responseResult.vars}}</pre>
+        </div>
       </el-tab-pane>
 
       <el-tab-pane :label="$t('api_report.request_body')" name="request_body" class="pane">

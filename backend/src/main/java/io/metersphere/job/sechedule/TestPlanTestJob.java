@@ -105,25 +105,27 @@ public class TestPlanTestJob extends MsScheduleJob {
             //需要更新这里来保证PlanCase的状态能正常更改
             apiTestCaseService.run(blobs,UUID.randomUUID().toString(),testPlanReport.getId(),this.resourceId,ApiRunMode.SCHEDULE_API_PLAN.name());
         }
-        LogUtil.info("-------------- testplan schedule ---------- api case over -----------------");
-        //执行场景执行任务
-        SchedulePlanScenarioExecuteRequest scenarioRequest = new SchedulePlanScenarioExecuteRequest();
-        String senarionReportID = UUID.randomUUID().toString();
-        scenarioRequest.setId(senarionReportID);
-        scenarioRequest.setReportId(senarionReportID);
-        scenarioRequest.setProjectId(projectID);
-        scenarioRequest.setTriggerMode(ReportTriggerMode.SCHEDULE.name());
-        scenarioRequest.setExecuteType(ExecuteType.Saved.name());
-        Map<String, Map<String,String>> testPlanScenarioIdMap = new HashMap<>();
-        testPlanScenarioIdMap.put(resourceId, this.planScenarioIdMap);
-        scenarioRequest.setTestPlanScenarioIDMap(testPlanScenarioIdMap);
-        scenarioRequest.setReportUserID(this.userId);
-        scenarioRequest.setTestPlanID(this.resourceId);
-        scenarioRequest.setRunMode(ApiRunMode.SCHEDULE_SCENARIO_PLAN.name());
-        scenarioRequest.setTestPlanReportId(testPlanReport.getId());
-        testPlanService.runScenarioCase(scenarioRequest);
-        LogUtil.info("-------------- testplan schedule ---------- scenario case over -----------------");
 
+        //执行场景执行任务
+        if(!planScenarioIdMap.isEmpty()){
+            LogUtil.info("-------------- testplan schedule ---------- api case over -----------------");
+            SchedulePlanScenarioExecuteRequest scenarioRequest = new SchedulePlanScenarioExecuteRequest();
+            String senarionReportID = UUID.randomUUID().toString();
+            scenarioRequest.setId(senarionReportID);
+            scenarioRequest.setReportId(senarionReportID);
+            scenarioRequest.setProjectId(projectID);
+            scenarioRequest.setTriggerMode(ReportTriggerMode.SCHEDULE.name());
+            scenarioRequest.setExecuteType(ExecuteType.Saved.name());
+            Map<String, Map<String,String>> testPlanScenarioIdMap = new HashMap<>();
+            testPlanScenarioIdMap.put(resourceId, this.planScenarioIdMap);
+            scenarioRequest.setTestPlanScenarioIDMap(testPlanScenarioIdMap);
+            scenarioRequest.setReportUserID(this.userId);
+            scenarioRequest.setTestPlanID(this.resourceId);
+            scenarioRequest.setRunMode(ApiRunMode.SCHEDULE_SCENARIO_PLAN.name());
+            scenarioRequest.setTestPlanReportId(testPlanReport.getId());
+            testPlanService.runScenarioCase(scenarioRequest);
+            LogUtil.info("-------------- testplan schedule ---------- scenario case over -----------------");
+        }
         //执行性能测试任务
         List<String> performaneReportIDList = new ArrayList<>();
         for (Map.Entry<String,String> entry: this.performanceIdMap.entrySet()) {

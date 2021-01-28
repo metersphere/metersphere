@@ -193,7 +193,10 @@ export default {
       }
       if (this.currentProtocol != null) {
         this.condition.protocol = this.currentProtocol;
+      }else{
+        this.condition.protocol = "HTTP";
       }
+
       let url = '/api/definition/list/';
       if (this.isTestPlan) {
         url = '/api/definition/list/relevance/';

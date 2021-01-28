@@ -35,8 +35,8 @@
       </el-table-column>
     </el-table>
 
-    <el-button class="ht-btn-add" size="mini" p="$t('commons.add')" icon="el-icon-circle-plus-outline" @click="add">添加
-    </el-button>
+    <el-button class="ht-btn-add" size="mini" p="$t('commons.add')" icon="el-icon-circle-plus-outline" @click="add">{{$t("commons.add")}}</el-button>
+    <el-button class="ht-btn-add" size="mini" p="$t('commons.add')" icon="el-icon-files" @click="copy">{{$t("commons.copy")}}</el-button>
   </div>
 </template>
 
@@ -68,6 +68,16 @@
         this.$emit('change', this.hostTable);
       },
       add: function (r) {
+        let row = {
+          ip: '',
+          domain: '',
+          status: 'edit',
+          annotation: '',
+          uuid: this.uuid(),
+        }
+        this.hostTable.push(row);
+      },
+      copy: function (r) {
         let row = {
           ip: '',
           domain: '',

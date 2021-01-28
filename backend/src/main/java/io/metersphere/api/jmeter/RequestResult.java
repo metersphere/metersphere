@@ -18,6 +18,8 @@ public class RequestResult {
 
     private long startTime;
 
+    private long endTime;
+
     private int error;
 
     private boolean success;

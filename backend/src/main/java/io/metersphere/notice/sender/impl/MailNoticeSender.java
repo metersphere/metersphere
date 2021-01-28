@@ -20,10 +20,13 @@ public class MailNoticeSender extends AbstractNoticeSender {
     private MailService mailService;
 
     private void sendMail(MessageDetail messageDetail, String context, NoticeModel noticeModel) throws MessagingException {
+        LogUtil.info("发送邮件开始 ");
         JavaMailSenderImpl javaMailSender = mailService.getMailSender();
         MimeMessage mimeMessage = javaMailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true);
         helper.setFrom(javaMailSender.getUsername());
+        LogUtil.info("发件人地址"+javaMailSender.getUsername());
+        LogUtil.info("helper"+helper);
         helper.setSubject("MeterSphere " + noticeModel.getSubject());
         List<String> emails = super.getUserEmails(messageDetail.getUserIds());
         String[] users = emails.toArray(new String[0]);
@@ -38,6 +41,7 @@ public class MailNoticeSender extends AbstractNoticeSender {
         String context = super.getHtmlContext(messageDetail, noticeModel);
         try {
             sendMail(messageDetail, context, noticeModel);
+            LogUtil.info("发送邮件结束");
         } catch (Exception e) {
             LogUtil.error(e);
         }

@@ -33,7 +33,7 @@ export default {
     operating: '操作',
     input_limit: '长度在 {0} 到 {1} 个字符',
     login: '登录',
-    welcome: '欢迎回来，请输入用户名和密码登录',
+    welcome: '一站式开源持续测试平台',
     username: '姓名',
     password: '密码',
     input_username: '请输入用户姓名',
@@ -151,7 +151,8 @@ export default {
       name: "触发方式",
       manual: "手动触发",
       schedule: "定时任务",
-      api: "API调用"
+      api: "API调用",
+      case: "用例触发"
     },
     adv_search: {
       title: '高级搜索',
@@ -603,6 +604,7 @@ export default {
       customize_req: "自定义请求",
       reference_info: "请选择接口或用例",
       scenario_test: "场景",
+      scenario_list: "场景列表",
       add_scenario: "创建场景",
       scenario_name: "场景名称",
       case_level: "用例等级",
@@ -1502,6 +1504,7 @@ export default {
     format: "输出格式",
   },
   auth_source: {
-    delete_prompt: '此操作会删除认证源，是否继续？'
+    delete_prompt: '此操作会删除认证源，是否继续？',
+    title: '认证设置'
   }
 };
