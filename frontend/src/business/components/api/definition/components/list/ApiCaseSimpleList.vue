@@ -124,7 +124,7 @@ import MsContainer from "../../../../common/components/MsContainer";
 import MsBottomContainer from "../BottomContainer";
 import ShowMoreBtn from "../../../../track/case/components/ShowMoreBtn";
 import MsBatchEdit from "../basis/BatchEdit";
-import {API_METHOD_COLOUR, CASE_PRIORITY, REQ_METHOD} from "../../model/JsonData";
+import {API_METHOD_COLOUR, CASE_PRIORITY, DUBBO_METHOD, REQ_METHOD, SQL_METHOD, TCP_METHOD} from "../../model/JsonData";
 
 import {getBodyUploadFiles, getCurrentProjectID} from "@/common/js/utils";
 import ApiListContainer from "./ApiListContainer";
@@ -409,6 +409,15 @@ export default {
         // }
       },
       handleEditBatch() {
+        if(this.currentProtocol =='HTTP'){
+          this.valueArr.method = REQ_METHOD;
+        }else if(this.currentProtocol =='TCP'){
+          this.valueArr.method = TCP_METHOD;
+        }else if(this.currentProtocol =='SQL'){
+          this.valueArr.method = SQL_METHOD;
+        }else if(this.currentProtocol =='DUBBO'){
+          this.valueArr.method = DUBBO_METHOD;
+        }
         this.$refs.batchEdit.open();
       },
       batchEdit(form) {
