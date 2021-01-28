@@ -38,7 +38,6 @@
         request: Sampler,
         config: {},
         response: {},
-        projectId: "",
         maintainerOptions: [],
       }
     },
@@ -47,9 +46,9 @@
       moduleOptions: {},
       currentProtocol: String,
       syncTabs: Array,
+      projectId: String
     },
     created() {
-      this.projectId = getCurrentProjectID();
       this.getMaintainerOptions();
       switch (this.currentProtocol) {
         case Request.TYPES.SQL:
