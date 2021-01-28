@@ -7,16 +7,14 @@ import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.metersphere.api.dto.automation.ApiScenarioDTO;
-import io.metersphere.api.dto.automation.ScenarioStatus;
-import io.metersphere.api.dto.automation.SchedulePlanScenarioExecuteRequest;
-import io.metersphere.api.dto.automation.TestPlanScenarioRequest;
+import io.metersphere.api.dto.automation.*;
 import io.metersphere.api.dto.definition.ApiTestCaseRequest;
 import io.metersphere.api.dto.definition.TestPlanApiCaseDTO;
 import io.metersphere.api.dto.definition.request.*;
 import io.metersphere.api.dto.definition.request.variable.ScenarioVariable;
 import io.metersphere.api.jmeter.JMeterService;
 import io.metersphere.api.service.ApiAutomationService;
+import io.metersphere.api.service.ApiTestCaseService;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.*;
@@ -28,6 +26,7 @@ import io.metersphere.dto.BaseSystemConfigDTO;
 import io.metersphere.i18n.Translator;
 import io.metersphere.notice.sender.NoticeModel;
 import io.metersphere.notice.service.NoticeSendService;
+import io.metersphere.performance.service.PerformanceTestService;
 import io.metersphere.service.ScheduleService;
 import io.metersphere.service.SystemParameterService;
 import io.metersphere.track.Factory.ReportComponentFactory;
@@ -37,6 +36,7 @@ import io.metersphere.track.request.testcase.PlanCaseRelevanceRequest;
 import io.metersphere.track.request.testcase.QueryTestPlanRequest;
 import io.metersphere.track.request.testplan.AddTestPlanRequest;
 import io.metersphere.track.request.testplan.LoadCaseRequest;
+import io.metersphere.track.request.testplan.RunTestPlanRequest;
 import io.metersphere.track.request.testplancase.QueryTestPlanCaseRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.annotations.Param;
@@ -109,6 +109,10 @@ public class TestPlanService {
     private ExtTestPlanLoadCaseMapper extTestPlanLoadCaseMapper;
     @Resource
     private ExtTestPlanScenarioCaseMapper extTestPlanScenarioCaseMapper;
+    @Resource
+    private ApiTestCaseService apiTestCaseService;
+    @Resource
+    private PerformanceTestService performanceTestService;
 
     public synchronized void addTestPlan(AddTestPlanRequest testPlan) {
         if (getTestPlanByName(testPlan.getName()).size() > 0) {
@@ -857,5 +861,101 @@ public class TestPlanService {
         // 调用执行方法
         jMeterService.runDefinition(request.getId(), jmeterHashTree, request.getReportId(), runMode);
         return request.getId();
+    }
+
+    public void run(String testPlanID,String projectID,String userId,String triggerMode){
+        Map<String,String> planScenarioIdMap;
+        Map<String,String> apiTestCaseIdMap;
+        Map<String,String> performanceIdMap;
+
+        planScenarioIdMap = new LinkedHashMap<>();
+        apiTestCaseIdMap = new LinkedHashMap<>();
+        performanceIdMap = new LinkedHashMap<>();
+
+        List<TestPlanApiScenario> testPlanApiScenarioList = testPlanScenarioCaseService.getCasesByPlanId(testPlanID);
+        for (TestPlanApiScenario model :testPlanApiScenarioList) {
+            planScenarioIdMap.put(model.getApiScenarioId(),model.getId());
+        }
+        List<TestPlanApiCase> testPlanApiCaseList = testPlanApiCaseService.getCasesByPlanId(testPlanID);
+        for (TestPlanApiCase model :
+                testPlanApiCaseList) {
+            apiTestCaseIdMap.put(model.getApiCaseId(),model.getId());
+        }
+
+        LoadCaseRequest loadCaseRequest = new LoadCaseRequest();
+        loadCaseRequest.setTestPlanId(testPlanID);
+        loadCaseRequest.setProjectId(projectID);
+        List<TestPlanLoadCaseDTO> testPlanLoadCaseDTOList = testPlanLoadCaseService.list(loadCaseRequest);
+        for (TestPlanLoadCaseDTO dto : testPlanLoadCaseDTOList) {
+            performanceIdMap.put(dto.getId(),dto.getLoadCaseId());
+        }
+
+        LogUtil.info("-------------- start testplan schedule ----------");
+        TestPlanReportService testPlanReportService = CommonBeanFactory.getBean(TestPlanReportService.class);
+        //首先创建testPlanReport，然后返回的ID重新赋值为resourceID，作为后续的参数
+        TestPlanReport testPlanReport = testPlanReportService.genTestPlanReport(testPlanID,userId,triggerMode);
+        //执行接口案例任务
+        for (Map.Entry<String,String> entry: apiTestCaseIdMap.entrySet()) {
+            String apiCaseID = entry.getKey();
+            String planCaseID = entry.getValue();
+            ApiTestCaseWithBLOBs blobs = apiTestCaseService.get(apiCaseID);
+            //需要更新这里来保证PlanCase的状态能正常更改
+            apiTestCaseService.run(blobs,UUID.randomUUID().toString(),testPlanReport.getId(),testPlanID,ApiRunMode.SCHEDULE_API_PLAN.name());
+        }
+
+        //执行场景执行任务
+        if(!planScenarioIdMap.isEmpty()){
+            LogUtil.info("-------------- testplan schedule ---------- api case over -----------------");
+            SchedulePlanScenarioExecuteRequest scenarioRequest = new SchedulePlanScenarioExecuteRequest();
+            String senarionReportID = UUID.randomUUID().toString();
+            scenarioRequest.setId(senarionReportID);
+            scenarioRequest.setReportId(senarionReportID);
+            scenarioRequest.setProjectId(projectID);
+            scenarioRequest.setTriggerMode(ReportTriggerMode.SCHEDULE.name());
+            scenarioRequest.setExecuteType(ExecuteType.Saved.name());
+            Map<String, Map<String,String>> testPlanScenarioIdMap = new HashMap<>();
+            testPlanScenarioIdMap.put(testPlanID, planScenarioIdMap);
+            scenarioRequest.setTestPlanScenarioIDMap(testPlanScenarioIdMap);
+            scenarioRequest.setReportUserID(userId);
+            scenarioRequest.setTestPlanID(testPlanID);
+            scenarioRequest.setRunMode(ApiRunMode.SCHEDULE_SCENARIO_PLAN.name());
+            scenarioRequest.setTestPlanReportId(testPlanReport.getId());
+            this.runScenarioCase(scenarioRequest);
+            LogUtil.info("-------------- testplan schedule ---------- scenario case over -----------------");
+        }
+        //执行性能测试任务
+        List<String> performaneReportIDList = new ArrayList<>();
+        for (Map.Entry<String,String> entry: performanceIdMap.entrySet()) {
+            String id = entry.getKey();
+            String caseID = entry.getValue();
+            RunTestPlanRequest performanceRequest = new RunTestPlanRequest();
+            performanceRequest.setId(caseID);
+            performanceRequest.setTestPlanLoadId(caseID);
+            performanceRequest.setTriggerMode(ReportTriggerMode.TEST_PLAN_SCHEDULE.name());
+            String reportId = null;
+            try {
+                reportId = performanceTestService.run(performanceRequest);
+                if(reportId!=null){
+                    performaneReportIDList.add(reportId);
+
+                    TestPlanLoadCase testPlanLoadCase = new TestPlanLoadCase();
+                    testPlanLoadCase.setId(performanceRequest.getTestPlanLoadId());
+                    testPlanLoadCase.setLoadReportId(reportId);
+                    testPlanLoadCaseService.update(testPlanLoadCase);
+                }
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+            //更新关联处的报告
+            TestPlanLoadCase loadCase = new TestPlanLoadCaseDTO();
+            loadCase.setId(id);
+            loadCase.setLoadReportId(reportId);
+            testPlanLoadCaseService.update(loadCase);
+        }
+
+        if(!performaneReportIDList.isEmpty()){
+            //性能测试时保存性能测试报告ID，在结果返回时用于捕捉并进行
+            testPlanReportService.updatePerformanceInfo(testPlanReport,performaneReportIDList,ReportTriggerMode.SCHEDULE.name());
+        }
     }
 }
