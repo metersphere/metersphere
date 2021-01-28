@@ -44,6 +44,15 @@ export const REQ_METHOD = [
   {id: 'HEAD', label: 'HEAD'},
   {id: 'CONNECT', label: 'CONNECT'}
 ]
+export const TCP_METHOD = [
+  {id: 'TCP', label: 'TCP'}
+]
+export const SQL_METHOD = [
+  {id: 'SQL', label: 'SQL'}
+]
+export const DUBBO_METHOD = [
+  {id: 'dubbo://', label: 'dubbo://'},
+]
 
 export const CASE_PRIORITY = [
   {id: 'P0', label: 'P0'},

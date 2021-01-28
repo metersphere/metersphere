@@ -28,6 +28,7 @@ import io.metersphere.dto.BaseSystemConfigDTO;
 import io.metersphere.i18n.Translator;
 import io.metersphere.notice.sender.NoticeModel;
 import io.metersphere.notice.service.NoticeSendService;
+import io.metersphere.service.ScheduleService;
 import io.metersphere.service.SystemParameterService;
 import io.metersphere.track.Factory.ReportComponentFactory;
 import io.metersphere.track.domain.ReportComponent;
@@ -61,6 +62,8 @@ public class TestPlanService {
     TestPlanMapper testPlanMapper;
     @Resource
     ExtTestPlanMapper extTestPlanMapper;
+    @Resource
+    ScheduleService scheduleService;
     @Resource
     ExtTestPlanTestCaseMapper extTestPlanTestCaseMapper;
     @Resource
@@ -315,6 +318,10 @@ public class TestPlanService {
         testPlanProjectService.deleteTestPlanProjectByPlanId(planId);
         testPlanApiCaseService.deleteByPlanId(planId);
         testPlanScenarioCaseService.deleteByPlanId(planId);
+
+        //删除定时任务
+        scheduleService.deleteScheduleAndJobByResourceId(planId,ScheduleGroup.TEST_PLAN_TEST.name());
+
         int num = testPlanMapper.deleteByPrimaryKey(planId);
         List<String> relatedUsers = new ArrayList<>();
         AddTestPlanRequest testPlans = new AddTestPlanRequest();
