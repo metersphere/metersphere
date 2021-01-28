@@ -20,7 +20,7 @@
         <el-table-column prop="tagNames" :label="$t('api_test.automation.tag')" width="200px">
           <template v-slot:default="scope">
             <div v-for="itemName in scope.row.tags" :key="itemName">
-              <ms-tag type="success" effect="plain" :content="itemName.substring(1, itemName.length-1)"/>
+              <ms-tag type="success" effect="plain" :content="itemName"/>
             </div>
           </template>
         </el-table-column>
