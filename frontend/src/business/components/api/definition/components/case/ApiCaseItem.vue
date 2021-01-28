@@ -250,9 +250,19 @@
           data.method = data.protocol;
         }
       },
-      saveApi(row) {
+      addModule(row) {
+        let url = '/api/module/getModuleByName/' + getCurrentProjectID() + "/" + this.api.protocol;
+        this.$get(url, response => {
+          if (response.data) {
+            this.saveApi(row, response.data);
+          }
+        });
+      },
+      saveApi(row, module) {
         let data = this.api;
         data.name = this.apiCase.name;
+        data.moduleId = module.id;
+        data.modulePath = '/bug';
         this.setParameters(data);
         let bodyFiles = this.getBodyUploadFiles(data);
         this.$fileUpload("/api/definition/create", null, bodyFiles, data, () => {
@@ -296,7 +306,7 @@
       },
       saveTestCase(row) {
         if (this.api.saved) {
-          this.saveApi(row);
+          this.addModule(row);
         } else {
           this.saveCase(row);
         }

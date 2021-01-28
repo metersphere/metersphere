@@ -332,5 +332,27 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
         sqlSession.flushStatements();
     }
 
-
+    public ApiModule getModuleByName(String projectId, String protocol) {
+        ApiModuleExample example = new ApiModuleExample();
+        ApiModuleExample.Criteria criteria = example.createCriteria();
+        criteria.andNameEqualTo("bug")
+                .andProjectIdEqualTo(projectId).andProtocolEqualTo(protocol);
+        List<ApiModule> modules = apiModuleMapper.selectByExample(example);
+        if (CollectionUtils.isNotEmpty(modules)) {
+            return modules.get(0);
+        } else {
+            ApiModule node = new ApiModule();
+            node.setName("bug");
+            node.setLevel(1);
+            node.setPos(0.0);
+            node.setParentId(null);
+            node.setProjectId(projectId);
+            node.setProtocol(protocol);
+            node.setCreateTime(System.currentTimeMillis());
+            node.setUpdateTime(System.currentTimeMillis());
+            node.setId(UUID.randomUUID().toString());
+            apiModuleMapper.insertSelective(node);
+            return node;
+        }
+    }
 }
