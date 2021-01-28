@@ -12,6 +12,7 @@ import io.metersphere.api.dto.definition.request.sampler.dubbo.MsConfigCenter;
 import io.metersphere.api.dto.definition.request.sampler.dubbo.MsConsumerAndService;
 import io.metersphere.api.dto.definition.request.sampler.dubbo.MsRegistryCenter;
 import io.metersphere.api.dto.scenario.KeyValue;
+import io.metersphere.commons.constants.MsTestElementConstants;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.collections.CollectionUtils;
@@ -62,7 +63,7 @@ public class MsDubboSampler extends MsTestElement {
         if (this.getReferenced() != null && "Deleted".equals(this.getReferenced())) {
             return;
         }
-        if (this.getReferenced() != null && "REF".equals(this.getReferenced())) {
+        if (this.getReferenced() != null && MsTestElementConstants.REF.name().equals(this.getReferenced())) {
             this.getRefElement(this);
         }
 
@@ -77,15 +78,9 @@ public class MsDubboSampler extends MsTestElement {
     private DubboSample dubboSample(ParameterConfig config) {
         DubboSample sampler = new DubboSample();
         sampler.setName(this.getName());
-        String name = this.getParentName(this.getParent());
+        String name = this.getParentName(this.getParent(), config);
         if (StringUtils.isNotEmpty(name)) {
             sampler.setName(this.getName() + "<->" + name);
-        } else if (config != null && StringUtils.isNotEmpty(config.getStep())) {
-            if ("SCENARIO".equals(config.getStepType())) {
-                sampler.setName(this.getName() + "<->" + config.getStep());
-            } else {
-                sampler.setName(this.getName() + "<->" + config.getStep() + "-" + "${LoopCounterConfigXXX}");
-            }
         }
         sampler.setProperty(TestElement.TEST_CLASS, DubboSample.class.getName());
         sampler.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("DubboSampleGui"));

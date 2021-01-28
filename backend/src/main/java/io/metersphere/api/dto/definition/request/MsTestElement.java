@@ -30,6 +30,7 @@ import io.metersphere.api.service.ApiTestEnvironmentService;
 import io.metersphere.base.domain.ApiDefinitionWithBLOBs;
 import io.metersphere.base.domain.ApiTestEnvironmentWithBLOBs;
 import io.metersphere.commons.constants.LoopConstants;
+import io.metersphere.commons.constants.MsTestElementConstants;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
 import lombok.Data;
@@ -249,17 +250,17 @@ public abstract class MsTestElement {
         if (element.getParent() == null) {
             return element;
         }
-        if ("LoopController".equals(element.getType())) {
+        if (MsTestElementConstants.LoopController.name().equals(element.getType())) {
             return element;
         }
         return getRootParent(element.getParent());
     }
 
-    protected String getParentName(MsTestElement element) {
+    protected String getParentName(MsTestElement element, ParameterConfig config) {
         if (element != null) {
             MsTestElement parent = this.getRootParent(element);
             if (parent != null) {
-                if ("LoopController".equals(parent.getType())) {
+                if (MsTestElementConstants.LoopController.name().equals(parent.getType())) {
                     MsLoopController loopController = (MsLoopController) parent;
                     if (StringUtils.equals(loopController.getLoopType(), LoopConstants.WHILE.name()) && loopController.getWhileController() != null) {
                         return "While 循环-" + "${LoopCounterConfigXXX}";
@@ -274,6 +275,12 @@ public abstract class MsTestElement {
                 return parent.getName();
             }
             return element.getName();
+        } else if (config != null && StringUtils.isNotEmpty(config.getStep())) {
+            if (MsTestElementConstants.SCENARIO.name().equals(config.getStepType())) {
+                return config.getStep();
+            } else {
+                return config.getStep() + "-" + "${LoopCounterConfigXXX}";
+            }
         }
         return "";
     }

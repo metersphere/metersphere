@@ -7,6 +7,7 @@ import io.metersphere.api.dto.definition.request.ParameterConfig;
 import io.metersphere.api.dto.definition.request.processors.pre.MsJSR223PreProcessor;
 import io.metersphere.api.dto.scenario.KeyValue;
 import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
+import io.metersphere.commons.constants.MsTestElementConstants;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.collections.CollectionUtils;
@@ -73,7 +74,7 @@ public class MsTCPSampler extends MsTestElement {
         if (!this.isEnable()) {
             return;
         }
-        if (this.getReferenced() != null && this.getReferenced().equals("REF")) {
+        if (this.getReferenced() != null && MsTestElementConstants.REF.name().equals(this.getReferenced())) {
             this.getRefElement(this);
         }
         config.setConfig(getEnvironmentConfig(useEnvironment));
@@ -102,15 +103,9 @@ public class MsTCPSampler extends MsTestElement {
     private TCPSampler tcpSampler(ParameterConfig config) {
         TCPSampler tcpSampler = new TCPSampler();
         tcpSampler.setName(this.getName());
-        String name = this.getParentName(this.getParent());
+        String name = this.getParentName(this.getParent(), config);
         if (StringUtils.isNotEmpty(name)) {
             tcpSampler.setName(this.getName() + "<->" + name);
-        } else if (config != null && StringUtils.isNotEmpty(config.getStep())) {
-            if ("SCENARIO".equals(config.getStepType())) {
-                tcpSampler.setName(this.getName() + "<->" + config.getStep());
-            } else {
-                tcpSampler.setName(this.getName() + "<->" + config.getStep() + "-" + "${LoopCounterConfigXXX}");
-            }
         }
 
         tcpSampler.setProperty(TestElement.TEST_CLASS, TCPSampler.class.getName());
