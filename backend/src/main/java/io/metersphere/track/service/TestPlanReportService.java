@@ -362,8 +362,12 @@ public class TestPlanReportService {
                     testPlan.setStatus(TestPlanStatus.Completed.name());
                     testPlanMapper.updateByPrimaryKeySelective(testPlan);
                 }
-                //发送通知
-                sendMessage(report);
+
+                if(StringUtils.equalsAny(report.getTriggerMode(),ReportTriggerMode.SCHEDULE.name())){
+                    //发送通知
+                    sendMessage(report);
+                }
+
             } catch (Exception e) {
 
             }
@@ -401,11 +405,20 @@ public class TestPlanReportService {
         paramMap.put("type", "testPlan");
         paramMap.put("url", url);
         paramMap.put("status", testPlanReport.getStatus());
+
+        String successfulMailTemplate = "";
+        String errfoMailTemplate = "";
+
+        if(StringUtils.equals(testPlanReport.getTriggerMode(),ReportTriggerMode.SCHEDULE.name())){
+            successfulMailTemplate = "TestPlanSuccessfulNotification";
+            errfoMailTemplate = "TestPlanFailedNotification";
+        }
+
         NoticeModel noticeModel = NoticeModel.builder()
                 .successContext(successContext)
-                .successMailTemplate("TestPlanSuccessfulNotification")
+                .successMailTemplate(successfulMailTemplate)
                 .failedContext(failedContext)
-                .failedMailTemplate("TestPlanFailedNotification")
+                .failedMailTemplate(errfoMailTemplate)
                 .testId(testPlan.getId())
                 .status(testPlanReport.getStatus())
                 .event(event)
