@@ -198,22 +198,18 @@
       },
       urlChange() {
         if (!this.debugForm.url) return;
-        let url = this.getURL(this.addProtocol(this.debugForm.url));
-        if (url) {
+        let url = this.getURL(this.debugForm.url);
+        if (url && url.pathname) {
           if (this.debugForm.url.indexOf('?') != -1) {
             this.debugForm.url = decodeURIComponent(this.debugForm.url.substr(0, this.debugForm.url.indexOf("?")));
           }
           this.debugForm.path = url.pathname;
+        } else {
+          this.debugForm.path = url;
         }
+
       },
-      addProtocol(url) {
-        if (url) {
-          if (!url.toLowerCase().startsWith("https") && !url.toLowerCase().startsWith("http")) {
-            return "https://" + url;
-          }
-        }
-        return url;
-      },
+
       getURL(urlStr) {
         try {
           let url = new URL(urlStr);
@@ -224,7 +220,7 @@
           });
           return url;
         } catch (e) {
-          this.$error(this.$t('api_test.request.url_invalid'), 2000);
+          return urlStr;
         }
       },
     }

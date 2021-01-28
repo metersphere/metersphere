@@ -3,7 +3,7 @@
     <!-- 认证-->
     <el-tab-pane :label="$t('api_test.definition.request.verified')" name="verified">
 
-      <el-form :model="authConfig" size="small" :rules="rule" ref="authConfig">
+      <el-form :model="authConfig" :rules="rule" ref="authConfig" label-position="right" label-width="80px">
         <el-form-item :label="$t('api_test.definition.request.verification_method')" prop="verification">
           <el-select v-model="authConfig.verification" @change="change"
                      :placeholder="$t('api_test.definition.request.verification_method')" filterable size="small">
@@ -50,9 +50,7 @@
           </el-select>
         </el-form-item>
       </el-form>
-
     </el-tab-pane>
-
   </el-tabs>
 </template>
 
@@ -66,10 +64,16 @@
       request: {},
     },
     created() {
-      for (let index in this.request.hashTree) {
-        if (this.request.hashTree[index].type == 'AuthManager') {
-          this.authConfig = this.request.hashTree[index];
+      if (this.request.hashTree) {
+        for (let index in this.request.hashTree) {
+          if (this.request.hashTree[index].type == 'AuthManager') {
+            this.request.authManager = this.request.hashTree[index];
+            this.request.hashTree.splice(index, 1);
+          }
         }
+      }
+      if (this.request.authManager) {
+        this.authConfig = this.request.authManager;
       }
     },
     data() {

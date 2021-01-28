@@ -88,6 +88,12 @@ public class ApiDefinitionExecResultService {
      * @param type
      */
     public void saveApiResultByScheduleTask(TestResult result, String type) {
+        String saveResultType = type;
+        if(StringUtils.equalsAny(ApiRunMode.SCHEDULE_API_PLAN.name(),saveResultType)){
+            saveResultType = ApiRunMode.API_PLAN.name();
+        }
+
+        String finalSaveResultType = saveResultType;
         result.getScenarios().get(0).getRequestResults().forEach(item -> {
             ApiDefinitionExecResult saveResult = new ApiDefinitionExecResult();
             saveResult.setId(UUID.randomUUID().toString());
@@ -98,7 +104,7 @@ public class ApiDefinitionExecResultService {
             saveResult.setStartTime(item.getStartTime());
             String status = item.isSuccess() ? "success" : "error";
             saveResult.setEndTime(item.getResponseResult().getResponseTime());
-            saveResult.setType(type);
+            saveResult.setType(finalSaveResultType);
             saveResult.setStatus(status);
 
             String userID = null;
@@ -107,6 +113,7 @@ public class ApiDefinitionExecResultService {
                 String scheduleCreateUser = testPlanService.findScheduleCreateUserById(apiCase.getTestPlanId());
                 userID = scheduleCreateUser;
                 apiCase.setStatus(status);
+                apiCase.setUpdateTime(System.currentTimeMillis());
                 testPlanApiCaseService.updateByPrimaryKeySelective(apiCase);
             } else {
                 userID = Objects.requireNonNull(SessionUtils.getUser()).getId();
