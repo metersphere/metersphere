@@ -15,6 +15,7 @@
             <show-more-btn :is-show="isSelect(row)" :buttons="buttons" :size="selectRows.length"/>
           </template>
         </el-table-column>
+        <el-table-column prop="num" label="ID"/>
         <el-table-column prop="name" :label="$t('api_test.automation.scenario_name')"
                          show-overflow-tooltip/>
         <el-table-column prop="level" :label="$t('api_test.automation.case_level')"
@@ -29,7 +30,7 @@
         </el-table-column>
         <el-table-column prop="tagNames" :label="$t('api_test.automation.tag')" width="200px">
           <template v-slot:default="scope">
-            <div v-for="itemName in scope.row.tagNames" :key="itemName">
+            <div v-for="(itemName,index) in scope.row.tags" :key="index">
               <ms-tag type="success" effect="plain" :content="itemName"/>
             </div>
           </template>
@@ -159,6 +160,11 @@
           let data = response.data;
           this.total = data.itemCount;
           this.tableData = data.listObject;
+          this.tableData.forEach(item => {
+            if (item.tags && item.tags.length > 0) {
+              item.tags = JSON.parse(item.tags);
+            }
+          });
           this.loading = false;
         });
       },

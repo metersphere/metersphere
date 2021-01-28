@@ -19,7 +19,7 @@
     select
       t.id, t.environment_id, t.create_time, t.update_time, t.last_result, t.pass_rate, t.report_id,
       c.id as case_id, c.project_id, c.user_id,c.api_scenario_module_id, c.module_path, c.name, c.level,
-      c.status, c.principal, c.step_total, c.follow_people, c.schedule, c.description,
+      c.status, c.principal, c.step_total, c.follow_people, c.schedule, c.description, c.tags, c.num,
       p.name as project_name, p.id as project_id, u.name as user_name
     from
       test_plan_api_scenario t
@@ -44,7 +44,9 @@
       </foreach>
     </if>
     <if test="request.name != null and request.name!=''">
-      and c.name like CONCAT('%', #{request.name},'%')
+      and (c.name like CONCAT('%', #{request.name},'%')
+            or c.num like CONCAT('%', #{request.name},'%')
+            or c.tags like CONCAT('%', #{request.name},'%'))
     </if>
     <if test="request.status != null and request.status!=''">
       and t.last_result like CONCAT('%', #{request.status},'%')
