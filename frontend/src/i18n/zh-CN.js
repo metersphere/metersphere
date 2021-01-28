@@ -1505,6 +1505,7 @@ export default {
   },
   auth_source: {
     delete_prompt: '此操作会删除认证源，是否继续？',
-    title: '认证设置'
+    title: '认证设置',
+    auth_name_valid: '名称不支持特殊字符',
   }
 };

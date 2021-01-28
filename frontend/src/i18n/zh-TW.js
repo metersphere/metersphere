@@ -1503,6 +1503,7 @@ export default {
   },
   auth_source: {
     delete_prompt: '此操作會刪除認證源，是否繼續？ ',
-    title: '認證設置'
+    title: '認證設置',
+    auth_name_valid: '名稱不支持特殊字符',
   }
 };

@@ -59,6 +59,7 @@
           <div v-else-if="item.type=== 'ADD'" class="ms-api-div">
             <ms-api-config :syncTabs="syncTabs" @runTest="runTest" @saveApi="saveApi" @createRootModel="createRootModel" ref="apiConfig"
                            :current-api="item.api"
+                           :project-id="projectId"
                            :currentProtocol="currentProtocol"
                            :moduleOptions="moduleOptions"/>
           </div>
@@ -76,14 +77,14 @@
 
           <!-- 测试-->
           <div v-else-if="item.type=== 'TEST'" class="ms-api-div">
-            <ms-run-test-http-page :syncTabs="syncTabs" :currentProtocol="currentProtocol" :api-data="item.api" @saveAsApi="editApi"
-                                   @refresh="refresh" v-if="currentProtocol==='HTTP'"/>
-            <ms-run-test-tcp-page :syncTabs="syncTabs" :currentProtocol="currentProtocol" :api-data="item.api" @saveAsApi="editApi"
-                                  @refresh="refresh" v-if="currentProtocol==='TCP'"/>
-            <ms-run-test-sql-page :syncTabs="syncTabs" :currentProtocol="currentProtocol" :api-data="item.api" @saveAsApi="editApi"
-                                  @refresh="refresh" v-if="currentProtocol==='SQL'"/>
-            <ms-run-test-dubbo-page :syncTabs="syncTabs" :currentProtocol="currentProtocol" :api-data="item.api" @saveAsApi="editApi"
-                                    @refresh="refresh" v-if="currentProtocol==='DUBBO'"/>
+            <ms-run-test-http-page :syncTabs="syncTabs" :currentProtocol="currentProtocol" :api-data="item.api" :project-id="projectId"
+                                   @saveAsApi="editApi" @refresh="refresh" v-if="currentProtocol==='HTTP'"/>
+            <ms-run-test-tcp-page :syncTabs="syncTabs" :currentProtocol="currentProtocol" :api-data="item.api" :project-id="projectId"
+                                  @saveAsApi="editApi" @refresh="refresh" v-if="currentProtocol==='TCP'"/>
+            <ms-run-test-sql-page :syncTabs="syncTabs" :currentProtocol="currentProtocol" :api-data="item.api" :project-id="projectId"
+                                  @saveAsApi="editApi" @refresh="refresh" v-if="currentProtocol==='SQL'"/>
+            <ms-run-test-dubbo-page :syncTabs="syncTabs" :currentProtocol="currentProtocol" :api-data="item.api" :project-id="projectId"
+                                    @saveAsApi="editApi" @refresh="refresh" v-if="currentProtocol==='DUBBO'"/>
           </div>
         </el-tab-pane>
 
@@ -186,7 +187,11 @@
         }],
         isApiListEnable: true,
         syncTabs: [],
+        projectId: ""
       }
+    },
+    mounted() {
+      this.projectId = getCurrentProjectID();
     },
     watch: {
       currentProtocol() {
@@ -248,7 +253,7 @@
         }
       },
       handleTabAdd(e) {
-        if (!getCurrentProjectID()) {
+        if (!this.projectId) {
           this.$warning(this.$t('commons.check_project_tip'));
           return;
         }
@@ -286,7 +291,7 @@
         this.$refs.nodeTree.createRootModel();
       },
       handleTabsEdit(targetName, action, api) {
-        if (!getCurrentProjectID()) {
+        if (!this.projectId) {
           this.$warning(this.$t('commons.check_project_tip'));
           return;
         }
@@ -325,7 +330,7 @@
           this.$warning('用例列表暂不支持导出，请切换成接口列表');
           return;
         }
-        let obj = {projectName: getCurrentProjectID(), protocol: this.currentProtocol}
+        let obj = {projectName: this.projectId, protocol: this.currentProtocol}
         if (this.$refs.apiList[0].selectRows && this.$refs.apiList[0].selectRows.size > 0) {
           let arr = Array.from(this.$refs.apiList[0].selectRows);
           obj.data = arr;
@@ -339,7 +344,7 @@
               ["status", ["Prepare", "Underway", "Completed"]],
             ]
           );
-          condition.projectId = getCurrentProjectID();
+          condition.projectId = this.projectId;
           this.$post(url, condition, response => {
             obj.data = response.data;
             this.buildApiPath(obj.data);
