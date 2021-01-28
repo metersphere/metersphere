@@ -1,15 +1,17 @@
 <template>
   <el-card class="api-component">
-    <div class="header" @click="active(data)">
+    <fieldset :disabled="data.disabled" class="ms-fieldset">
 
-      <slot name="beforeHeaderLeft">
-        <div v-if="data.index" class="el-step__icon is-text" style="margin-right: 10px;" :style="{'color': color, 'background-color': backgroundColor}">
-          <div class="el-step__icon-inner">{{data.index}}</div>
-        </div>
-        <el-button class="ms-left-buttion" size="small" :style="{'color': color, 'background-color': backgroundColor}">{{title}}</el-button>
-      </slot>
+      <div class="header" @click="active(data)">
 
-      <span @click.stop>
+        <slot name="beforeHeaderLeft">
+          <div v-if="data.index" class="el-step__icon is-text" style="margin-right: 10px;" :style="{'color': color, 'background-color': backgroundColor}">
+            <div class="el-step__icon-inner">{{data.index}}</div>
+          </div>
+          <el-button class="ms-left-buttion" size="small" :style="{'color': color, 'background-color': backgroundColor}">{{title}}</el-button>
+        </slot>
+
+        <span @click.stop>
         <slot name="headerLeft">
           <i class="icon el-icon-arrow-right" :class="{'is-active': data.active}"
              @click="active(data)" v-if="data.type!='scenario'"/>
@@ -17,36 +19,35 @@
                     @blur="isShowInput = false" :placeholder="$t('commons.input_name')" ref="nameEdit"/>
           <span v-else>
             {{data.name}}
-            <i class="el-icon-edit" style="cursor:pointer" @click="editName" v-tester v-if="data.referenced!='REF'"/>
+            <i class="el-icon-edit" style="cursor:pointer" @click="editName" v-tester v-if="data.referenced!='REF' && !data.disabled"/>
           </span>
         </slot>
         <slot name="behindHeaderLeft"></slot>
       </span>
 
-      <div class="header-right" @click.stop>
-        <slot name="message"></slot>
-        <el-tooltip :content="$t('test_resource_pool.enable_disable')" placement="top">
-          <el-switch v-model="data.enable" class="enable-switch"/>
-        </el-tooltip>
-        <slot name="button"></slot>
-        <el-tooltip content="Copy" placement="top">
-          <el-button size="mini" icon="el-icon-copy-document" circle @click="copyRow"/>
-        </el-tooltip>
-        <el-tooltip :content="$t('commons.remove')" placement="top">
-          <el-button size="mini" icon="el-icon-delete" type="danger" circle @click="remove"/>
-        </el-tooltip>
+        <div class="header-right" @click.stop>
+          <slot name="message"></slot>
+          <el-tooltip :content="$t('test_resource_pool.enable_disable')" placement="top">
+            <el-switch v-model="data.enable" class="enable-switch"/>
+          </el-tooltip>
+          <slot name="button"></slot>
+          <el-tooltip content="Copy" placement="top">
+            <el-button size="mini" icon="el-icon-copy-document" circle @click="copyRow"/>
+          </el-tooltip>
+          <el-tooltip :content="$t('commons.remove')" placement="top">
+            <el-button size="mini" icon="el-icon-delete" type="danger" circle @click="remove"/>
+          </el-tooltip>
+        </div>
       </div>
-    </div>
-    <div class="header">
-      <el-collapse-transition>
-        <div v-if="data.active && showCollapse" :draggable="draggable">
-          <fieldset :disabled="data.disabled" class="ms-fieldset">
+      <div class="header">
+        <el-collapse-transition>
+          <div v-if="data.active && showCollapse" :draggable="draggable">
             <el-divider></el-divider>
             <slot></slot>
-          </fieldset>
-        </div>
-      </el-collapse-transition>
-    </div>
+          </div>
+        </el-collapse-transition>
+      </div>
+    </fieldset>
 
   </el-card>
 </template>
@@ -150,6 +151,7 @@
   .enable-switch {
     margin-right: 10px;
   }
+
   fieldset {
     padding: 0px;
     margin: 0px;
