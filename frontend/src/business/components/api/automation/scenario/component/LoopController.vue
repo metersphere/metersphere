@@ -76,18 +76,20 @@
         </el-select>
         <el-input size="small" v-model="controller.whileController.value" :placeholder="$t('api_test.value')" v-if="!hasEmptyOperator" style="width: 20%;margin-left: 20px"/>
         <span class="ms-span ms-radio">{{$t('loop.timeout')}}</span>
-        <el-input-number size="small" v-model="controller.whileController.timeout" :placeholder="$t('commons.millisecond')" :max="1000*10000000" :min="1" :step="1000"/>
+        <el-input-number size="small" v-model="controller.whileController.timeout" :placeholder="$t('commons.millisecond')" :max="1000*10000000" :min="3000" :step="1000"/>
         <span class="ms-span ms-radio">ms</span>
       </div>
-
       <p class="tip">{{$t('api_test.definition.request.res_param')}} </p>
-      <el-tabs v-model="activeName">
-        <el-tab-pane :label="item.name" :name="item.name" v-for="(item,index) in requestResult.scenarios" :key="index">
-          <div v-for="(result,i) in item.requestResults" :key="i" style="margin-bottom: 5px">
-            <api-response-component :result="result"/>
-          </div>
-        </el-tab-pane>
-      </el-tabs>
+      <div>
+        <el-tabs v-model="activeName" closable class="ms-tabs">
+          <el-tab-pane :label="item.name" :name="item.name" v-for="(item,index) in requestResult.scenarios" :key="index">
+            <div v-for="(result,i) in item.requestResults" :key="i" style="margin-bottom: 5px">
+              <api-response-component :result="result"/>
+            </div>
+          </el-tab-pane>
+        </el-tabs>
+
+      </div>
 
     </api-base-component>
 
@@ -329,6 +331,11 @@
     border-radius: 4px;
     border-left: 4px solid #783887;
     margin: 20px 0;
+  }
+
+  .ms-tabs >>> .el-icon-close:before {
+    content: "";
+
   }
 
   .icon.is-active {

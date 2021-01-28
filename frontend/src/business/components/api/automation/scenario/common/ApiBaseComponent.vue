@@ -37,15 +37,17 @@
         </el-tooltip>
       </div>
     </div>
+    <div class="header">
+      <el-collapse-transition>
+        <div v-if="data.active && showCollapse" :draggable="draggable">
+          <fieldset :disabled="data.disabled" class="ms-fieldset">
+            <el-divider></el-divider>
+            <slot></slot>
+          </fieldset>
+        </div>
+      </el-collapse-transition>
+    </div>
 
-    <el-collapse-transition>
-      <div v-if="data.active && showCollapse" :draggable="draggable">
-        <fieldset :disabled="data.disabled" style="border: 0px">
-          <el-divider></el-divider>
-          <slot></slot>
-        </fieldset>
-      </div>
-    </el-collapse-transition>
   </el-card>
 </template>
 
@@ -147,6 +149,13 @@
 
   .enable-switch {
     margin-right: 10px;
+  }
+  fieldset {
+    padding: 0px;
+    margin: 0px;
+    min-width: 100%;
+    min-inline-size: 0px;
+    border: 0px;
   }
 
 </style>
