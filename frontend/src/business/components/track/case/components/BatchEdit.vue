@@ -81,7 +81,8 @@
         if (size) {
           this.size = size;
         } else {
-          this.size = this.$parent.selectRows.size;
+          // this.size = this.$parent.selectRows.size;
+          this.size = this.$parent.selectDataCounts;
         }
         listenGoBack(this.handleClose);
       },

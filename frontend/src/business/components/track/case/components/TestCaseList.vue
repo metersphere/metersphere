@@ -46,7 +46,7 @@
 
         <el-table-column width="40" :resizable="false" align="center">
           <template v-slot:default="scope">
-            <show-more-btn :is-show="scope.row.showMore" :buttons="buttons" :size="selectRows.size"/>
+            <show-more-btn :is-show="scope.row.showMore" :buttons="buttons" :size="selectDataCounts"/>
           </template>
         </el-table-column>
         <el-table-column
@@ -292,6 +292,7 @@ export default {
       },
       currentCaseId: null,
       projectId: "",
+      selectDataCounts: 0,
     }
   },
   props: {
@@ -328,6 +329,7 @@ export default {
       this.condition.nodeIds = [];
       this.condition.selectAll = false;
       this.condition.unSelectIds = [];
+      this.selectDataCounts = 0;
       if (this.planId) {
         // param.planId = this.planId;
         this.condition.planId = this.planId;
@@ -435,6 +437,7 @@ export default {
       _handleSelect(this, selection, row, this.selectRows);
       this.setUnSelectIds();
     },
+
     importTestCase() {
       if (!getCurrentProjectID()) {
         this.$warning(this.$t('commons.check_project_tip'));
@@ -553,6 +556,11 @@ export default {
       this.condition.unSelectIds = allIDs.filter(function (val) {
         return ids.indexOf(val) === -1
       });
+      if (this.condition.selectAll) {
+        this.selectDataCounts = this.total - this.condition.unSelectIds.length;
+      } else {
+        this.selectDataCounts = this.selectRows.size;
+      }
     },
     moveSave(param) {
       param.condition = this.condition;
