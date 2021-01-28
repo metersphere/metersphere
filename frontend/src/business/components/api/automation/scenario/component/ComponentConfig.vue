@@ -70,6 +70,8 @@
           case ELEMENT_TYPE.scenario:
             name = "MsApiScenarioComponent";
             break;
+          case "AuthManager":
+            break;
           default:
             name = "MsApiComponent";
             break;
@@ -107,7 +109,7 @@
       suggestClick(node) {
         this.$emit('suggestClick', node);
       },
-      refReload(){
+      refReload() {
         this.$emit('refReload');
       }
     }
