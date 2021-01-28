@@ -18,10 +18,7 @@ import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.controller.request.OrderRequest;
 import io.metersphere.controller.request.QueryScheduleRequest;
 import io.metersphere.dto.ScheduleDao;
-import io.metersphere.job.sechedule.ApiScenarioTestJob;
-import io.metersphere.job.sechedule.ApiTestJob;
-import io.metersphere.job.sechedule.ScheduleManager;
-import io.metersphere.job.sechedule.TestPlanTestJob;
+import io.metersphere.job.sechedule.*;
 import org.apache.commons.lang3.StringUtils;
 import org.quartz.JobKey;
 import org.quartz.SchedulerException;
@@ -96,6 +93,25 @@ public class ScheduleService {
         scheduleExample.createCriteria().andResourceIdEqualTo(resourceId);
         removeJob(resourceId);
         return scheduleMapper.deleteByExample(scheduleExample);
+    }
+
+    public int deleteScheduleAndJobByResourceId(String resourceId,String group) {
+        ScheduleExample scheduleExample = new ScheduleExample();
+        scheduleExample.createCriteria().andResourceIdEqualTo(resourceId);
+        removeJob(resourceId,group);
+        return scheduleMapper.deleteByExample(scheduleExample);
+    }
+
+    public void removeJob(String resourceId,String group) {
+        if(StringUtils.equals(ScheduleGroup.API_SCENARIO_TEST.name(),group)){
+            scheduleManager.removeJob(ApiScenarioTestJob.getJobKey(resourceId), ApiScenarioTestJob.getTriggerKey(resourceId));
+        }else if(StringUtils.equals(ScheduleGroup.TEST_PLAN_TEST.name(),group)){
+            scheduleManager.removeJob(TestPlanTestJob.getJobKey(resourceId), TestPlanTestJob.getTriggerKey(resourceId));
+        }else if(StringUtils.equals(ScheduleGroup.SWAGGER_IMPORT.name(),group)){
+            scheduleManager.removeJob(SwaggerUrlImportJob.getJobKey(resourceId), SwaggerUrlImportJob.getTriggerKey(resourceId));
+        }else{
+            scheduleManager.removeJob(ApiTestJob.getJobKey(resourceId), ApiTestJob.getTriggerKey(resourceId));
+        }
     }
 
     public List<Schedule> listSchedule() {
