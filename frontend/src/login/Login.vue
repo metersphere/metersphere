@@ -47,7 +47,7 @@
       <div class="divider"/>
 
       <el-col :span="12">
-        <img :src="'/display/file/loginImage'" style="height: 568px; width: 100%">
+        <img class="login-image" :src="'/display/file/loginImage'">
       </el-col>
 
     </el-row>
@@ -66,15 +66,6 @@ const auth = requireComponent.keys().length > 0 ? requireComponent("./auth/Auth.
 export default {
   name: "Login",
   data() {
-    /*let validateEmail = (rule, value, callback) => {
-      // eslint-disable-next-line no-useless-escape
-      let EMAIL_REGEX = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/;
-      if (!EMAIL_REGEX.test(value)) {
-        callback(new Error('邮箱格式不正确'));
-      } else {
-        callback();
-      }
-    };*/
     return {
       result: {},
       form: {
@@ -192,66 +183,51 @@ export default {
 
 <style scoped>
   .container {
-    min-width: 800px;
-    max-width: 1440px;
-    height: 568px;
-    margin: calc((100vh - 568px) / 2) auto 0;
+    width: 1440px;
+    height: 810px;
+    margin: calc((100vh - 810px) / 2) auto 0;
     background-color: #FFFFFF;
   }
 
-  .image {
-    background: url(../assets/info.png);
+  .el-col:nth-child(3) {
+    align-items: center;
+    display: flex;
   }
 
-  .login-logo {
-    background: url(../assets/logo-dark-MeterSphere.svg);
-  }
-
-  .logo-header {
-    background: url(../assets/logo-light-MeterSphere.svg);
-  }
-
-  .el-col {
-    height: 568px;
+  .title img {
+    width: 293px;
+    margin-top: 165px;
   }
 
   .title-img {
-    font-size: 32px;
     letter-spacing: 0;
     text-align: center;
   }
 
+  .login-image {
+    height: 365px;
+    width: 567px;
+    margin: auto;
+    display: block;
+  }
+
   .welcome {
-    margin-top: 10px;
-    margin-bottom: 50px;
-    font-size: 18px;
+    margin-top: 12px;
+    margin-bottom: 75px;
+    font-size: 14px;
     color: #843697;
-    line-height: 18px;
+    line-height: 14px;
     text-align: center;
   }
 
-  .form {
-    padding: 0 40px;
-  }
-
-  .title {
-    height: 50%;
-  }
-
-  .content {
-    height: 50%;
-    padding: 0px 90px;
-    margin-top: -20px;
-  }
-
-  .btn {
-    margin-top: 40px;
-    padding: 0 40px;
+  .form,.btn {
+    padding: 0;
+    width: 443px;
+    margin: auto;
   }
 
   .btn > .submit {
-    width: 100%;
-    border-radius: 50px;
+    border-radius: 70px;
     border-color: #8B479B;
     background-color: #8B479B;
   }
@@ -266,11 +242,8 @@ export default {
     background-color: rgba(139, 71, 155, 0.8);
   }
 
-  .msg {
-    margin-top: 10px;
-    padding: 0 40px;
-    color: red;
-    text-align: center;
+  .el-form-item:first-child {
+    margin-top: 60px;
   }
 
   /deep/ .el-radio__input.is-checked .el-radio__inner {
@@ -284,23 +257,25 @@ export default {
   }
 
   /deep/ .el-input__inner {
+    border-radius: 70px !important;
     background: #f6f3f8 !important;
-    border-color: #f6f3f8;
-    border-radius: 50px !important;
+    border-color: #f6f3f8 !important;
+    /*谷歌浏览器默认填充的颜色无法替换，使用下列样式填充*/
+    box-shadow: inset 0 0 0 1000px #f6f3f8 !important;
+  }
+
+  .el-input,.el-button {
+    width: 443px;
   }
 
   /deep/ .el-input__inner:focus {
-    border: 1px solid #783887;
+    border: 1px solid #783887 !important;
   }
 
   .divider {
     border: 1px solid #f6f3f8;
-    margin: 20px;
-  }
-
-  .title img {
-    height: 60px;
-    margin-top: 120px;
+    height: 480px;
+    margin: 165px 0px;
   }
 
   .welcome span:first-child {
@@ -314,7 +289,7 @@ export default {
 body {
   font-family: -apple-system, BlinkMacSystemFont, "Neue Haas Grotesk Text Pro", "Arial Nova", "Segoe UI", "Helvetica Neue", ".PingFang SC", "PingFang SC", "Source Han Sans SC", "Noto Sans CJK SC", "Source Han Sans CN", "Noto Sans SC", "Source Han Sans TC", "Noto Sans CJK TC", "Hiragino Sans GB", sans-serif;
   font-size: 14px;
-  background-color: #F5F5F5;
+  /*background-color: #F5F5F5;*/
   line-height: 26px;
   color: #2B415C;
   -webkit-font-smoothing: antialiased;

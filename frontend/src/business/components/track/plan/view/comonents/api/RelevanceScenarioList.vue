@@ -89,9 +89,6 @@
         selectRows: new Set()
       }
     },
-    created() {
-      this.search();
-    },
     watch: {
       selectNodeIds() {
         this.search();
@@ -102,6 +99,9 @@
     },
     methods: {
       search() {
+        if (!this.projectId) {
+          return;
+        }
         this.selectRows = new Set();
         this.loading = true;
 
