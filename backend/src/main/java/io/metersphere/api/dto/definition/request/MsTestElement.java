@@ -256,25 +256,21 @@ public abstract class MsTestElement {
         return getRootParent(element.getParent());
     }
 
-    protected String getParentName(MsTestElement element, ParameterConfig config) {
-        if (element != null) {
-            MsTestElement parent = this.getRootParent(element);
-            if (parent != null) {
-                if (MsTestElementConstants.LoopController.name().equals(parent.getType())) {
-                    MsLoopController loopController = (MsLoopController) parent;
-                    if (StringUtils.equals(loopController.getLoopType(), LoopConstants.WHILE.name()) && loopController.getWhileController() != null) {
-                        return "While 循环-" + "${LoopCounterConfigXXX}";
-                    }
-                    if (StringUtils.equals(loopController.getLoopType(), LoopConstants.FOREACH.name()) && loopController.getForEachController() != null) {
-                        return "ForEach 循环-" + "${LoopCounterConfigXXX}";
-                    }
-                    if (StringUtils.equals(loopController.getLoopType(), LoopConstants.LOOP_COUNT.name()) && loopController.getCountController() != null) {
-                        return "次数循环-" + "${LoopCounterConfigXXX}";
-                    }
+    protected String getParentName(MsTestElement parent, ParameterConfig config) {
+        if (parent != null) {
+            if (MsTestElementConstants.LoopController.name().equals(parent.getType())) {
+                MsLoopController loopController = (MsLoopController) parent;
+                if (StringUtils.equals(loopController.getLoopType(), LoopConstants.WHILE.name()) && loopController.getWhileController() != null) {
+                    return "While 循环-" + "${LoopCounterConfigXXX}";
                 }
-                return parent.getName();
+                if (StringUtils.equals(loopController.getLoopType(), LoopConstants.FOREACH.name()) && loopController.getForEachController() != null) {
+                    return "ForEach 循环-" + "${LoopCounterConfigXXX}";
+                }
+                if (StringUtils.equals(loopController.getLoopType(), LoopConstants.LOOP_COUNT.name()) && loopController.getCountController() != null) {
+                    return "次数循环-" + "${LoopCounterConfigXXX}";
+                }
             }
-            return element.getName();
+            return parent.getName();
         } else if (config != null && StringUtils.isNotEmpty(config.getStep())) {
             if (MsTestElementConstants.SCENARIO.name().equals(config.getStepType())) {
                 return config.getStep();
