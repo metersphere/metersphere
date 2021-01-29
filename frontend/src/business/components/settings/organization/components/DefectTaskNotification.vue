@@ -274,4 +274,7 @@ export default {
 .el-row {
   margin-bottom: 10px;
 }
+.el-button {
+  margin-left: 10px;
+}
 </style>
