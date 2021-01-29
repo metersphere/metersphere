@@ -2,6 +2,7 @@ package io.metersphere.api.jmeter;
 
 import io.metersphere.api.dto.scenario.request.RequestType;
 import io.metersphere.api.service.*;
+import io.metersphere.base.domain.ApiDefinitionExecResult;
 import io.metersphere.base.domain.ApiScenarioReport;
 import io.metersphere.base.domain.ApiTestReport;
 import io.metersphere.commons.constants.*;
@@ -177,10 +178,17 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
         } else if (StringUtils.equals(this.runMode, ApiRunMode.JENKINS.name())) {
             apiDefinitionService.addResult(testResult);
             apiDefinitionExecResultService.saveApiResult(testResult, ApiRunMode.DEFINITION.name());
-            apiTestService.changeStatus(testId, APITestStatus.Completed);
-            report = apiReportService.getRunningReport(testResult.getTestId());
-            apiReportService.complete(testResult, report);
+
+        } else if (StringUtils.equals(this.runMode, ApiRunMode.JENKINS_API_PLAN.name())) {
+            apiDefinitionService.addResult(testResult);
             apiDefinitionExecResultService.saveApiResult(testResult, ApiRunMode.API_PLAN.name());
+            ApiDefinitionExecResult result = new ApiDefinitionExecResult();
+            result = apiDefinitionService.getResultByJenkins(debugReportId, ApiRunMode.API_PLAN.name());
+            report = new ApiTestReport();
+            report.setStatus(result.getStatus());
+            report.setId(result.getId());
+            report.setTriggerMode(ApiRunMode.API.name());
+            report.setName(apiDefinitionService.getApiCaseInfo(testId).getName());
         } else if (StringUtils.equalsAny(this.runMode, ApiRunMode.API_PLAN.name(), ApiRunMode.SCHEDULE_API_PLAN.name())) {
             apiDefinitionService.addResult(testResult);
 
@@ -264,7 +272,13 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
         if (StringUtils.equals("Success", report.getStatus())) {
             event = NoticeConstants.Event.EXECUTE_SUCCESSFUL;
         }
+        if (StringUtils.equals("success", report.getStatus())) {
+            event = NoticeConstants.Event.EXECUTE_SUCCESSFUL;
+        }
         if (StringUtils.equals("Error", report.getStatus())) {
+            event = NoticeConstants.Event.EXECUTE_FAILED;
+        }
+        if (StringUtils.equals("error", report.getStatus())) {
             event = NoticeConstants.Event.EXECUTE_FAILED;
         }
         Map<String, Object> paramMap = new HashMap<>();
