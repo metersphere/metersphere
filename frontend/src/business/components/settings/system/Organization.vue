@@ -252,9 +252,6 @@ export default {
   activated() {
     this.initTableData();
   },
-  created() {
-    this.list()
-  },
   methods: {
     create() {
       this.dialogOrgAddVisible = true;
