@@ -377,6 +377,8 @@ public class HistoricalDataUpgradeService {
             if (CollectionUtils.isNotEmpty(scenarios)) {
                 // 批量处理
                 for (Scenario scenario : scenarios) {
+                    scenario.setId(test.getId() + "=" + scenario.getId());
+                    scenario.setName(test.getName() + "_" + scenario.getName());
                     MsScenario scenario1 = createScenario(scenario);
                     String scenarioDefinition = JSON.toJSONString(scenario1);
                     num++;
