@@ -152,8 +152,8 @@ export default {
       formData: {
         file: undefined,
         swaggerUrl: '',
-        modeId: '',
-        moduleId: this.$t('commons.not.cover')
+        modeId: this.$t('commons.not.cover'),
+        moduleId: '',
       },
       rules: {},
       currentModule: {},
