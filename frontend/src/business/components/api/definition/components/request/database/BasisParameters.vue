@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div v-loading="isReloadData">
     <el-row>
       <el-col :span="21" style="padding-bottom: 20px">
         <div style="border:1px #DCDFE6 solid; height: 100%;border-radius: 4px ;width: 100% ;margin: 20px">
@@ -28,7 +28,7 @@
               </el-col>
               <el-col :span="8">
                 <el-form-item :label="$t('api_test.request.sql.dataSource')" prop="dataSourceId" style="margin-left: 10px">
-                  <el-select v-model="request.dataSourceId" size="small">
+                  <el-select v-model="request.dataSourceId" size="small" @change="reload">
                     <el-option v-for="(item, index) in databaseConfigsOptions" :key="index" :value="item.id" :label="item.name"/>
                   </el-select>
                 </el-form-item>
@@ -143,7 +143,7 @@
         activeName: "variables",
         rules: {
           environmentId: [{required: true, message: this.$t('api_test.definition.request.run_env'), trigger: 'change'}],
-          dataSourceId: [{required: true, message: this.$t('api_test.request.sql.dataSource'), trigger: 'change'}],
+          dataSourceId: [{required: true, message: this.$t('api_test.request.sql.dataSource'), trigger: 'blur'}],
         },
       }
     },
