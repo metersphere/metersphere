@@ -136,21 +136,21 @@ public class HistoricalDataUpgradeService {
                     if ("json".equals(request1.getBody().getFormat())) {
                         if ("Raw".equals(request1.getBody().getType())) {
                             request1.getBody().setType(Body.JSON);
-                        }
-                        if (CollectionUtils.isEmpty(request1.getHeaders())) {
-                            List<KeyValue> headers = new LinkedList<>();
-                            headers.add(new KeyValue("Content-Type", "application/json"));
-                            request1.setHeaders(headers);
-                        } else {
-                            boolean isJsonType = false;
-                            for (KeyValue keyValue : request1.getHeaders()) {
-                                if ("Content-Type".equals(keyValue.getName())) {
-                                    isJsonType = true;
-                                    break;
+                            if (CollectionUtils.isEmpty(request1.getHeaders())) {
+                                List<KeyValue> headers = new LinkedList<>();
+                                headers.add(new KeyValue("Content-Type", "application/json"));
+                                request1.setHeaders(headers);
+                            } else {
+                                boolean isJsonType = false;
+                                for (KeyValue keyValue : request1.getHeaders()) {
+                                    if ("Content-Type".equals(keyValue.getName())) {
+                                        isJsonType = true;
+                                        break;
+                                    }
                                 }
-                            }
-                            if (!isJsonType) {
-                                request1.getHeaders().set(request1.getHeaders().size() - 1, new KeyValue("Content-Type", "application/json"));
+                                if (!isJsonType) {
+                                    request1.getHeaders().set(request1.getHeaders().size() - 1, new KeyValue("Content-Type", "application/json"));
+                                }
                             }
                         }
                     }
@@ -318,9 +318,6 @@ public class HistoricalDataUpgradeService {
     }
 
     private void createApiScenarioWithBLOBs(SaveHistoricalDataUpgrade saveHistoricalDataUpgrade, String id, String name, int total, String scenarioDefinition, ApiScenarioMapper mapper, int num) {
-        if (StringUtils.isEmpty(name)) {
-            name = "默认名称-" + DateUtils.getTimeStr(System.currentTimeMillis());
-        }
         ApiScenarioWithBLOBs scenario = getScenario(id, mapper);
         if (scenario != null) {
             scenario.setName(name);
@@ -377,6 +374,11 @@ public class HistoricalDataUpgradeService {
             if (CollectionUtils.isNotEmpty(scenarios)) {
                 // 批量处理
                 for (Scenario scenario : scenarios) {
+                    if (StringUtils.isEmpty(scenario.getName())) {
+                        scenario.setName("默认名称-" + DateUtils.getTimeStr(System.currentTimeMillis()));
+                    }
+                    scenario.setId(test.getId() + "=" + scenario.getId());
+                    scenario.setName(test.getName() + "_" + scenario.getName());
                     MsScenario scenario1 = createScenario(scenario);
                     String scenarioDefinition = JSON.toJSONString(scenario1);
                     num++;
