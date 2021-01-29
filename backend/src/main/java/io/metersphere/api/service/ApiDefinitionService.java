@@ -661,7 +661,10 @@ public class ApiDefinitionService {
     public String getResourceId(SwaggerUrlRequest swaggerUrlRequest) {
         SwaggerUrlProjectExample swaggerUrlProjectExample = new SwaggerUrlProjectExample();
         SwaggerUrlProjectExample.Criteria criteria = swaggerUrlProjectExample.createCriteria();
-        criteria.andProjectIdEqualTo(swaggerUrlRequest.getProjectId()).andSwaggerUrlEqualTo(swaggerUrlRequest.getSwaggerUrl()).andModuleIdEqualTo(swaggerUrlRequest.getModuleId());
+        criteria.andProjectIdEqualTo(swaggerUrlRequest.getProjectId()).andSwaggerUrlEqualTo(swaggerUrlRequest.getSwaggerUrl());
+        if (StringUtils.isNotBlank(swaggerUrlRequest.getModuleId())) {
+            criteria.andModuleIdEqualTo(swaggerUrlRequest.getModuleId());
+        }
         List<SwaggerUrlProject> list = swaggerUrlProjectMapper.selectByExample(swaggerUrlProjectExample);
         String resourceId = "";
         if (list.size() == 1) {
