@@ -28,7 +28,6 @@ import io.metersphere.base.mapper.ApiTestMapper;
 import io.metersphere.base.mapper.ext.ExtApiScenarioMapper;
 import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.commons.utils.DateUtils;
-import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.SessionUtils;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -42,7 +41,6 @@ import javax.annotation.Resource;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
-import java.net.URL;
 import java.nio.channels.FileChannel;
 import java.util.*;
 
@@ -116,18 +114,6 @@ public class HistoricalDataUpgradeService {
             if (request instanceof HttpRequest) {
                 element = new MsHTTPSamplerProxy();
                 HttpRequest request1 = (HttpRequest) request;
-                if (StringUtils.isEmpty(request1.getPath()) && StringUtils.isNotEmpty(request1.getUrl())) {
-                    try {
-                        URL urlObject = new URL(request1.getUrl());
-                        String envPath = StringUtils.equals(urlObject.getPath(), "/") ? "" : urlObject.getPath();
-                        request1.setPath(envPath);
-                        request1.setUrl(null);
-                    } catch (Exception ex) {
-                        LogUtil.error(ex.getMessage());
-                    }
-                } else {
-                    request1.setUrl(null);
-                }
                 if (request1.getBody() != null) {
                     request1.getBody().setBinary(new ArrayList<>());
                     if (request1.getBody().isOldKV()) {
@@ -161,6 +147,13 @@ public class HistoricalDataUpgradeService {
                 BeanUtils.copyBean(element, request1);
                 ((MsHTTPSamplerProxy) element).setProtocol(RequestType.HTTP);
                 ((MsHTTPSamplerProxy) element).setArguments(request1.getParameters());
+                if (StringUtils.isNotEmpty(request1.getPath()) && request1.isUseEnvironment()) {
+                    ((MsHTTPSamplerProxy) element).setPath(request1.getPath());
+                    ((MsHTTPSamplerProxy) element).setUrl(null);
+                } else {
+                    ((MsHTTPSamplerProxy) element).setPath(null);
+                    ((MsHTTPSamplerProxy) element).setUrl(request1.getUrl());
+                }
                 List<KeyValue> keyValues = new LinkedList<>();
                 keyValues.add(new KeyValue("", ""));
                 ((MsHTTPSamplerProxy) element).setRest(keyValues);
