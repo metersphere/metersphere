@@ -113,11 +113,11 @@ export default {
       showEnvironmentSelect: true,
       modeOptions: [{
         id: 'fullCoverage',
-        name: '全量覆盖'
+        name: this.$t('commons.cover')
       },
         {
           id: 'incrementalMerge',
-          name: '增量合并'
+          name: this.$t('commons.not.cover')
         }],
       protocol: "",
       platforms: [
@@ -153,7 +153,7 @@ export default {
         file: undefined,
         swaggerUrl: '',
         modeId: '',
-        moduleId: ''
+        moduleId: this.$t('commons.not.cover')
       },
       rules: {},
       currentModule: {},

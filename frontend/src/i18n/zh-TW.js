@@ -1,5 +1,7 @@
 export default {
   commons: {
+    cover:'覆蓋',
+    not_cover:'不覆蓋',
     import_mode: '導入模式',
     import_module: '導入模塊',
     please_fill_in_the_template: '請填寫模版內容',

@@ -1,5 +1,7 @@
 export default {
   commons: {
+    cover:'Cover',
+    not_cover:'Not Cover',
     import_mode: 'Import mode',
     import_module: 'Import module',
     please_fill_in_the_template: 'Please fill in the template',
