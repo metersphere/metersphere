@@ -117,7 +117,7 @@ export default {
       },
         {
           id: 'incrementalMerge',
-          name: this.$t('commons.not.cover')
+          name: this.$t('commons.not_cover')
         }],
       protocol: "",
       platforms: [
@@ -152,7 +152,7 @@ export default {
       formData: {
         file: undefined,
         swaggerUrl: '',
-        modeId: this.$t('commons.not.cover'),
+        modeId: this.$t('commons.not_cover'),
         moduleId: '',
       },
       rules: {},
