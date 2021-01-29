@@ -1,14 +1,22 @@
 <template>
   <el-dialog :title="$t('api_test.scenario.variables')" :close-on-click-modal="false"
-             :visible.sync="visible" class="environment-dialog" width="60%"
-             @close="close">
+             :visible.sync="visible" class="environment-dialog" width="850px"
+             @close="close" v-loading="loading">
     <div>
+      <el-input placeholder="变量名称搜索" style="width: 50%;margin: 0px 0px 20px" v-model="selectVariable" size="small" @change="filter" @keyup.enter="filter">
+        <el-select v-model="searchType" slot="prepend" placeholder="类型" style="width: 90px" @change="filter">
+          <el-option value="CONSTANT" label="常量"></el-option>
+          <el-option value="LIST" label="列表"></el-option>
+          <el-option value="CSV" label="CSV"></el-option>
+          <el-option value="COUNTER" label="计数器"></el-option>
+          <el-option value="RANDOM" label="随机数"></el-option>
+        </el-select>
+      </el-input>
       <el-row>
         <el-col :span="12">
           <div style="border:1px #DCDFE6 solid; min-height: 400px;border-radius: 4px ;width: 100% ;">
-
             <el-table ref="table" border :data="variables" class="adjust-table" @select-all="select" @select="select"
-                      v-loading="loading" @row-click="edit">
+                      v-loading="loading" @row-click="edit" height="400px" :row-class-name="tableRowClassName">
               <el-table-column type="selection" width="38"/>
               <el-table-column prop="num" label="ID" sortable/>
               <el-table-column prop="name" :label="$t('api_test.variable_name')" sortable show-overflow-tooltip/>
@@ -49,8 +57,6 @@
         </el-dropdown>
       </div>
     </template>
-
-
   </el-dialog>
 </template>
 
@@ -63,7 +69,7 @@
   import MsEditRandom from "./EditRandom";
   import MsEditListValue from "./EditListValue";
   import MsEditCsv from "./EditCsv";
-  import {getUUID} from "@/common/js/utils";
+  import {_filter, getUUID} from "@/common/js/utils";
 
   export default {
     name: "MsVariableList",
@@ -80,6 +86,9 @@
     data() {
       return {
         variables: [],
+        searchType: "",
+        selectVariable: "",
+        condition: {},
         types: new Map([
           ['CONSTANT', '常量'],
           ['LIST', '列表'],
@@ -104,6 +113,12 @@
       },
       edit(row) {
         this.editData = row;
+      },
+      tableRowClassName(row) {
+        if (row.row.hidden) {
+          return 'ms-variable-hidden-row';
+        }
+        return '';
       },
       addParameters(v) {
         v.id = getUUID();
@@ -133,10 +148,13 @@
         this.visible = false;
         let saveVariables = [];
         this.variables.forEach(item => {
+          item.hidden = undefined;
           if (item.name && item.name != "") {
             saveVariables.push(item);
           }
         })
+        this.selectVariable = "";
+        this.searchType = "";
         this.$emit('setVariables', saveVariables);
       },
       deleteVariable() {
@@ -149,11 +167,46 @@
           const index = this.variables.findIndex(d => d.id === row);
           this.variables.splice(index, 1);
         })
-      }
+      },
+      filter() {
+        let datas = [];
+        this.variables.forEach(item => {
+          if (this.searchType && this.searchType != "" && this.selectVariable && this.selectVariable != "") {
+            if ((item.type && item.type.toLowerCase().indexOf(this.searchType.toLowerCase()) == -1) || (item.name && item.name.toLowerCase().indexOf(this.selectVariable.toLowerCase()) == -1)) {
+              item.hidden = true;
+            } else {
+              item.hidden = undefined;
+            }
+          }
+          else if (this.selectVariable && this.selectVariable != "") {
+            if (item.name && item.name.toLowerCase().indexOf(this.selectVariable.toLowerCase()) == -1) {
+              item.hidden = true;
+            } else {
+              item.hidden = undefined;
+            }
+          }
+          else if (this.searchType && this.searchType != "") {
+            if (item.type && item.type.toLowerCase().indexOf(this.searchType.toLowerCase()) == -1) {
+              item.hidden = true;
+            } else {
+              item.hidden = undefined;
+            }
+          }
+          datas.push(item);
+        })
+        this.variables = datas;
+      },
+      createFilter(queryString) {
+        return item => {
+          return (item.type && item.type.toLowerCase().indexOf(queryString.toLowerCase()) !== -1);
+        };
+      },
     }
   }
 </script>
 
-<style scoped>
-
+<style>
+  .ms-variable-hidden-row {
+    display: none;
+  }
 </style>
