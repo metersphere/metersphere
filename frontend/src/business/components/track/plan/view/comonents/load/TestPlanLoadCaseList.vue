@@ -48,14 +48,6 @@
             <span>{{ scope.row.createTime | timestampFormatDate }}</span>
           </template>
         </el-table-column>
-        <!--        <el-table-column-->
-        <!--          sortable-->
-        <!--          prop="updateTime"-->
-        <!--          :label="$t('commons.update_time')">-->
-        <!--          <template v-slot:default="scope">-->
-        <!--            <span>{{ scope.row.updateTime | timestampFormatDate }}</span>-->
-        <!--          </template>-->
-        <!--        </el-table-column>-->
         <el-table-column
           prop="status"
           column-key="status"
@@ -143,9 +135,6 @@ export default {
       status: 'default',
       screenHeight: document.documentElement.clientHeight - 330,//屏幕高度
       buttons: [
-        // {
-        //   name: "批量编辑用例", handleClick: this.handleBatchEdit
-        // },
         {
           name: this.$t('test_track.plan.load_case.unlink_in_bulk'), handleClick: this.handleDeleteBatch
         },
@@ -238,9 +227,6 @@ export default {
         this.selectRows.add(row);
       }
     },
-    // handleBatchEdit() {
-    //
-    // },
     handleDeleteBatch() {
       this.$alert(this.$t('test_track.plan_view.confirm_cancel_relevance') + "？", '', {
         confirmButtonText: this.$t('commons.confirm'),
@@ -325,7 +311,6 @@ export default {
           this.$refs.loadCaseReport.drawer = true;
         } else {
           this.$warning(this.$t('test_track.plan.load_case.report_not_found'));
-          // this.initTable();
         }
       })
     },

@@ -5,7 +5,7 @@
                    :show-create="false"
                    :tip="$t('commons.search_by_name_or_id')">
     <template v-slot:title>
-      性能用例
+      {{ $t('test_track.plan.load_case.case') }}
     </template>
     <template v-slot:button>
       <ms-table-button :is-tester-permission="true" icon="el-icon-connection"
