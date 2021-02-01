@@ -122,7 +122,7 @@
         <!--测试计划-->
         <el-drawer :visible.sync="planVisible" :destroy-on-close="true" direction="ltr" :withHeader="false"
                    :title="$t('test_track.plan_view.test_result')" :modal="false" size="90%">
-          <ms-test-plan-list @addTestPlan="addTestPlan"/>
+          <ms-test-plan-list @addTestPlan="addTestPlan" @cancel="cancel"/>
         </el-drawer>
       </div>
     </el-card>
@@ -425,6 +425,9 @@
               (': ' + environment.config.httpConfig.protocol + '://' + environment.config.httpConfig.socket) : '');
           });
         });
+      },
+      cancel(){
+        this.planVisible = false;
       },
       addTestPlan(plans) {
         let obj = {planIds: plans, scenarioIds: this.selection};

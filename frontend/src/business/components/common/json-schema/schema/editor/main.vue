@@ -3,8 +3,8 @@
     <el-row class="row" :gutter="20">
       <el-col :span="8" class="ms-col-name">
         <div :style="{marginLeft:`${10*deep}px`}" class="ms-col-name-c"/>
-        <span v-if="pickValue.type==='object'" :class="hidden? 'el-tree-node__expand-icon el-icon-caret-right':
-            'expanded el-tree-node__expand-icon el-icon-caret-right'" @click="hidden = !hidden"/>
+        <span v-if="pickValue.type==='object'" :class="hidden? 'el-icon-caret-left ms-transform':
+            'el-icon-caret-bottom'" @click="hidden = !hidden"/>
         <span v-else style="width:10px;display:inline-block"></span>
         <input class="el-input el-input__inner" style="height: 32px" :disabled="disabled || root" :value="pickKey" @blur="onInputName" size="small"/>
 
@@ -392,5 +392,9 @@
     border-radius: 4px;
     border-left: 4px solid #783887;
     margin: 0px 0px 10px;
+  }
+  .ms-transform {
+    transform: rotate(-180deg);
+    transition: 0ms;
   }
 </style>

@@ -98,15 +98,8 @@
       // 加载引用对象数据
       this.getApiInfo();
       if (this.request.protocol === 'HTTP') {
-        try {
-          let urlObject = new URL(this.request.url);
-          let url = urlObject.protocol + "//" + urlObject.host + "/";
-        } catch (e) {
-          if (this.request.url) {
-            this.request.path = this.request.url;
-            this.request.url = undefined;
-          }
-        }
+        this.setUrl(this.request.url);
+        this.setUrl(this.request.path);
         // 历史数据 auth 处理
         if (this.request.hashTree) {
           for (let index in this.request.hashTree) {
@@ -180,6 +173,17 @@
       copyRow() {
         this.$emit('copyRow', this.request, this.node);
       },
+      setUrl(url) {
+        try {
+          new URL(url);
+          this.request.url = url;
+        } catch (e) {
+          if (url) {
+            this.request.path = url;
+            this.request.url = undefined;
+          }
+        }
+      },
       getApiInfo() {
         if (this.request.id && this.request.referenced === 'REF') {
           let requestResult = this.request.requestResult;
@@ -192,7 +196,8 @@
               this.request.enable = enable;
               if (response.data.path && response.data.path != null) {
                 this.request.path = response.data.path;
-                this.request.url = response.data.path;
+                this.request.url = response.data.url;
+                this.setUrl(this.request.path);
               }
               if (response.data.method && response.data.method != null) {
                 this.request.method = response.data.method;
