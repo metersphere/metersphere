@@ -240,10 +240,6 @@
           variables: this.currentScenario.variables, referenced: 'Created', enableCookieShare: this.enableCookieShare,
           environmentId: this.currentEnvironmentId, hashTree: [this.request]
         };
-        if (this.isCustomizeReq) {
-          debugData.environmentId = null;
-          this.request.useEnvironment = null;
-        }
         this.runData.push(debugData);
         /*触发执行操作*/
         this.reportId = getUUID().substring(0, 8);
