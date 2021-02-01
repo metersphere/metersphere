@@ -13,7 +13,6 @@
                  ref="nodeTree"/>
     </template>
 
-<!--    <ms-table-header :condition.sync="condition" @search="search" title="" :show-create="false"/>-->
 
     <el-table
       v-loading="result.loading"
@@ -30,11 +29,6 @@
         :label="$t('commons.name')"
         show-overflow-tooltip>
       </el-table-column>
-<!--      <el-table-column-->
-<!--        prop="userName"-->
-<!--        :label="$t('load_test.user_name')"-->
-<!--        show-overflow-tooltip>-->
-<!--      </el-table-column>-->
       <el-table-column
         prop="status"
         column-key="status"

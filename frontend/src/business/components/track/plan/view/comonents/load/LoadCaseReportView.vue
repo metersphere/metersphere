@@ -18,20 +18,12 @@
                          @click="dialogFormVisible=true">
                 {{ $t('report.test_stop_now') }}
               </el-button>
-<!--              <el-button :disabled="isReadOnly || report.status !== 'Completed'" type="success" plain size="mini"-->
-<!--                         @click="rerun(testId)">-->
-<!--                {{ $t('report.test_execute_again') }}-->
-<!--              </el-button>-->
               <el-button :disabled="isReadOnly" type="info" plain size="mini" @click="handleExport(reportName)">
                 {{ $t('test_track.plan_view.export_report') }}
               </el-button>
               <el-button :disabled="isReadOnly" type="warning" plain size="mini" @click="downloadJtl()">
                 {{ $t('report.downloadJtl') }}
               </el-button>
-
-              <!--<el-button :disabled="isReadOnly" type="warning" plain size="mini">-->
-              <!--{{$t('report.compare')}}-->
-              <!--</el-button>-->
             </el-row>
           </el-col>
           <el-col :span="8">
@@ -159,7 +151,6 @@ export default {
             this.testName = data.testName;
             this.projectId = data.projectId;
             this.projectName = data.projectName;
-            //
             if (callback) callback(res);
           } else {
             this.$error(this.$t('report.not_exist'));

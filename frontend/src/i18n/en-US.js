@@ -1131,6 +1131,7 @@ export default {
       plan_delete_tip: "The test plan is under way, please confirm and delete it!",
       plan_delete: "Delete test plan",
       load_case: {
+        case: "Load Case",
         execution_status: "Execution status",
         report: "report",
         view_report: "View report",

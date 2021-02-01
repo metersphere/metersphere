@@ -1135,6 +1135,7 @@ export default {
       plan_delete_tip: "该测试计划正在进行中，请确认再删除！",
       plan_delete: "删除计划",
       load_case: {
+        case: "性能用例",
         execution_status: "执行状态",
         report: "报告",
         view_report: "查看报告",
