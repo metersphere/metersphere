@@ -98,6 +98,8 @@ public abstract class MsTestElement {
     private String refType;
     @JSONField(ordinal = 10)
     private LinkedList<MsTestElement> hashTree;
+    @JSONField(ordinal = 11)
+    private boolean customizeReq;
 
     private MsTestElement parent;
 
