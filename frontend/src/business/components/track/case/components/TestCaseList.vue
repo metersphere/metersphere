@@ -562,6 +562,13 @@ export default {
         this.selectDataCounts = this.selectRows.size;
       }
     },
+    labelHead(h,{column,index}){
+      if(column.minWidth>column.realWidth){
+        column.realWidth = column.minWidth;
+        column.width = column.minWidth;
+      }
+      return column.label;
+    },
     moveSave(param) {
       param.condition = this.condition;
       this.result = this.$post('/test/case/batch/edit', param, () => {
