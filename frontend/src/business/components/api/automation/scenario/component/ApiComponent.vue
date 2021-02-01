@@ -25,18 +25,8 @@
       </el-tooltip>
     </template>
 
-    <div v-if="request.protocol === 'HTTP'">
-      <el-input :placeholder="$t('api_test.definition.request.path_all_info')" v-if="request.url" v-model="request.url" style="width: 85%;margin-top: 10px" size="small">
-        <el-select v-model="request.method" slot="prepend" style="width: 100px" size="small">
-          <el-option v-for="item in reqOptions" :key="item.id" :label="item.label" :value="item.id"/>
-        </el-select>
-      </el-input>
-      <el-input :placeholder="$t('api_test.definition.request.path_all_info')" v-else v-model="request.path" style="width: 85%;margin-top: 10px" size="small">
-        <el-select v-model="request.method" slot="prepend" style="width: 100px" size="small">
-          <el-option v-for="item in reqOptions" :key="item.id" :label="item.label" :value="item.id"/>
-        </el-select>
-      </el-input>
-    </div>
+    <customize-req-info :is-customize-req="isCustomizeReq" :request="request"/>
+
     <p class="tip">{{$t('api_test.definition.request.req_param')}} </p>
     <ms-api-request-form :isShowEnable="true" :referenced="true" :headers="request.headers " :request="request" v-if="request.protocol==='HTTP' || request.type==='HTTPSamplerProxy'"/>
     <ms-tcp-basis-parameters :request="request" v-if="request.protocol==='TCP'|| request.type==='TCPSampler'"/>
@@ -65,6 +55,7 @@
   import {getUUID} from "@/common/js/utils";
   import ApiBaseComponent from "../common/ApiBaseComponent";
   import ApiResponseComponent from "./ApiResponseComponent";
+  import CustomizeReqInfo from "@/business/components/api/automation/scenario/common/CustomizeReqInfo";
 
   export default {
     name: "MsApiComponent",
@@ -79,13 +70,13 @@
       currentEnvironmentId: String,
     },
     components: {
+      CustomizeReqInfo,
       ApiBaseComponent, ApiResponseComponent,
       MsSqlBasisParameters, MsTcpBasisParameters, MsDubboBasisParameters, MsApiRequestForm, MsRequestResultTail, MsRun
     },
     data() {
       return {
         loading: false,
-        reqOptions: REQ_METHOD,
         reportId: "",
         runData: [],
         isShowInput: false,
@@ -249,6 +240,10 @@
           variables: this.currentScenario.variables, referenced: 'Created', enableCookieShare: this.enableCookieShare,
           environmentId: this.currentEnvironmentId, hashTree: [this.request]
         };
+        if (this.isCustomizeReq) {
+          debugData.environmentId = null;
+          this.request.useEnvironment = null;
+        }
         this.runData.push(debugData);
         /*触发执行操作*/
         this.reportId = getUUID().substring(0, 8);
