@@ -208,8 +208,8 @@ export default {
   display: {
     title: 'Theme',
     logo: 'System LOGO',
-    loginLogo: 'Picture on the right side of the login page',
-    loginImage: 'Login page upper left corner LOGO',
+    loginLogo: 'Login page upper left corner LOGO',
+    loginImage: 'Picture on the right side of the login page',
     loginTitle: 'Login page prompt information',
     pageTitle: 'Page Title',
   },

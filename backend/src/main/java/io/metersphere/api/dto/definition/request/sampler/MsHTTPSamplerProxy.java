@@ -272,10 +272,14 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         StringBuffer stringBuffer = new StringBuffer();
         stringBuffer.append(path);
         stringBuffer.append("?");
-        this.getArguments().stream().filter(KeyValue::isEnable).filter(KeyValue::isValid).forEach(keyValue ->
-                stringBuffer.append(keyValue.getName()).append("=").append(keyValue.getValue() != null && keyValue.getValue().startsWith("@") ?
-                        ScriptEngineUtils.calculate(keyValue.getValue()) : keyValue.getValue()).append("&")
-        );
+        this.getArguments().stream().filter(KeyValue::isEnable).filter(KeyValue::isValid).forEach(keyValue -> {
+            stringBuffer.append(keyValue.getName());
+            if (keyValue.getValue() != null) {
+                stringBuffer.append("=").append(keyValue.getValue().startsWith("@") ?
+                        ScriptEngineUtils.calculate(keyValue.getValue()) : keyValue.getValue());
+            }
+            stringBuffer.append("&");
+        });
         return stringBuffer.substring(0, stringBuffer.length() - 1);
     }
 
