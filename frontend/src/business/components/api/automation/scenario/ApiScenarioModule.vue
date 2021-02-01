@@ -15,11 +15,28 @@
       ref="nodeTree">
 
       <template v-slot:header>
-        <el-input :placeholder="$t('test_track.module.search')" v-model="condition.filterText" size="small">
+        <!--<el-input :placeholder="$t('test_track.module.search')" v-model="condition.filterText" size="small">-->
+        <!--<template v-slot:append>-->
+        <!--<el-button v-if="!isReadOnly" icon="el-icon-folder-add" @click="addScenario" v-tester/>-->
+        <!--</template>-->
+        <!--</el-input>-->
+
+        <el-input class="filter-input" :class="{'read-only': isReadOnly}" :placeholder="$t('test_track.module.search')" v-model="condition.filterText"
+                  size="small">
           <template v-slot:append>
-            <el-button v-if="!isReadOnly" icon="el-icon-folder-add" @click="addScenario" v-tester/>
+            <el-dropdown v-if="!isReadOnly" size="small" split-button type="primary" class="ms-api-button" @click="handleCommand('add-api')"
+                         v-tester
+                         @command="handleCommand">
+              <el-button icon="el-icon-folder-add" @click="addScenario"></el-button>
+              <el-dropdown-menu slot="dropdown">
+                <el-dropdown-item command="add-scenario">{{ $t('api_test.automation.add_scenario') }}</el-dropdown-item>
+                <el-dropdown-item command="import">{{ $t('api_test.api_import.label') }}</el-dropdown-item>
+                <el-dropdown-item command="export">{{ $t('report.export') }}</el-dropdown-item>
+              </el-dropdown-menu>
+            </el-dropdown>
           </template>
         </el-input>
+
         <module-trash-button v-if="!isReadOnly" :condition="condition" :exe="enableTrash"/>
       </template>
 
@@ -29,8 +46,9 @@
       @saveAsEdit="saveAsEdit"
       @refresh="refresh"
       ref="basisScenario"/>
-  </div>
 
+    <api-import ref="apiImport" :moduleOptions="moduleOptions" @refresh="$emit('refresh')"/>
+  </div>
 </template>
 
 <script>
@@ -40,6 +58,7 @@
   import MsNodeTree from "../../../track/common/NodeTree";
   import {buildNodePath} from "../../definition/model/NodeTree";
   import ModuleTrashButton from "../../definition/components/module/ModuleTrashButton";
+  import ApiImport from "./common/ScenarioImport";
 
   export default {
     name: 'MsApiScenarioModule',
@@ -48,6 +67,7 @@
       MsNodeTree,
       MsAddBasisScenario,
       SelectMenu,
+      ApiImport
     },
     props: {
       isReadOnly: {
@@ -77,6 +97,7 @@
         projectId: "",
         data: [],
         currentModule: undefined,
+        moduleOptions: [],
       }
     },
     mounted() {
@@ -98,7 +119,28 @@
       }
     },
     methods: {
-
+      handleCommand(e) {
+        switch (e) {
+          case "add-scenario":
+            this.addScenario();
+            break;
+          case "import":
+            this.result = this.$get("/api/automation/module/list/" + getCurrentProjectID(), response => {
+              if (response.data != undefined && response.data != null) {
+                this.data = response.data;
+                let moduleOptions = [];
+                this.data.forEach(node => {
+                  buildNodePath(node, {path: ''}, moduleOptions);
+                });
+                this.moduleOptions = moduleOptions
+              }
+            });
+            this.$refs.apiImport.open(this.currentModule);
+            break;
+          case "export":
+            break;
+        }
+      },
       list() {
         let url = undefined;
         if (this.isPlanModel) {
