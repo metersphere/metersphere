@@ -209,8 +209,8 @@ export default {
   display: {
     title: '显示设置',
     logo: '系统 LOGO',
-    loginLogo: '登陆页面右侧图片',
-    loginImage: '登录页左上角 LOGO',
+    loginLogo: '登录页左上角 LOGO',
+    loginImage: '登陆页面右侧图片',
     loginTitle: '登陆页面提示信息',
     pageTitle: '页面 Title',
   },

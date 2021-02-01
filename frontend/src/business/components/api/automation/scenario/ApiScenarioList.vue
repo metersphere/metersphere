@@ -20,7 +20,7 @@
                                         @selectPageAll="isSelectDataAll(false)"
                                         @selectAll="isSelectDataAll(true)"/>
 
-        <el-table-column v-if="!referenced" width="30" :resizable="false" align="center">
+        <el-table-column v-if="!referenced" width="30" min-width="30" :render-header="labelHead" :resizable="false" align="center">
           <template v-slot:default="scope">
             <show-more-btn :is-show="isSelect(scope.row)" :buttons="buttons" :size="selectDataCounts"/>
           </template>
@@ -28,6 +28,7 @@
 
         <el-table-column prop="num" label="ID"
                          sortable="custom"
+                         min-width="120px" :render-header="labelHead"
                          show-overflow-tooltip>
           <template slot-scope="scope">
             <el-tooltip content="编辑">
@@ -39,13 +40,16 @@
                          sortable="custom"
                          :label="$t('api_test.automation.scenario_name')"
                          show-overflow-tooltip
+                         :render-header="labelHead"
                          min-width="120px"/>
         <el-table-column prop="level"
                          sortable="custom"
                          column-key="level"
                          :filters="levelFilters"
+                         min-width="120px"
+                         :render-header="labelHead"
                          :label="$t('api_test.automation.case_level')"
-                         show-overflow-tooltip min-width="120px">
+                         show-overflow-tooltip>
           <template v-slot:default="scope">
             <priority-table-item :value="scope.row.level"/>
           </template>
@@ -54,32 +58,37 @@
                          sortable="custom"
                          column-key="status"
                          :filters="statusFilters"
+                         :render-header="labelHead"
                          show-overflow-tooltip min-width="120px">
           <template v-slot:default="scope">
             <plan-status-table-item :value="scope.row.status"/>
           </template>
         </el-table-column>
-        <el-table-column prop="tags" :label="$t('api_test.automation.tag')">
+        <el-table-column prop="tags" min-width="120px"
+                         :render-header="labelHead" :label="$t('api_test.automation.tag')">
           <template v-slot:default="scope">
             <div v-for="(itemName,index)  in scope.row.tags" :key="index">
               <ms-tag type="success" effect="plain" :content="itemName"/>
             </div>
           </template>
         </el-table-column>
-        <el-table-column prop="userId" :label="$t('api_test.automation.creator')"
+        <el-table-column prop="userId" min-width="120px"
+                         :render-header="labelHead" :label="$t('api_test.automation.creator')"
                          :filters="userFilters"
                          column-key="user_id"
                          sortable="custom"
-                         min-width="100px"
                          show-overflow-tooltip/>
-        <el-table-column prop="updateTime" :label="$t('api_test.automation.update_time')" sortable="custom" width="180">
+        <el-table-column prop="updateTime" :label="$t('api_test.automation.update_time')" sortable="custom"  min-width="180px"
+                         :render-header="labelHead">
           <template v-slot:default="scope">
             <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
           </template>
         </el-table-column>
-        <el-table-column prop="stepTotal" :label="$t('api_test.automation.step')" show-overflow-tooltip/>
+        <el-table-column prop="stepTotal" :label="$t('api_test.automation.step')" min-width="80px"
+                         :render-header="labelHead" show-overflow-tooltip/>
         <el-table-column prop="lastResult" :label="$t('api_test.automation.last_result')"
                          :filters="resultFilters"
+                         :render-header="labelHead"
                          sortable="custom" column-key="last_result" min-width="120px">
           <template v-slot:default="{row}">
             <el-link type="success" @click="showReport(row)" v-if="row.lastResult === 'Success'">
@@ -91,6 +100,8 @@
           </template>
         </el-table-column>
         <el-table-column prop="passRate" :label="$t('api_test.automation.passing_rate')"
+                         min-width="120px"
+                         :render-header="labelHead"
                          show-overflow-tooltip/>
         <el-table-column fixed="right" :label="$t('commons.operating')" width="190px" v-if="!referenced">
           <template v-slot:default="{row}">
@@ -597,6 +608,13 @@
       filter(filters) {
         _filter(filters, this.condition);
         this.search();
+      },
+      labelHead(h,{column,index}){
+        if(column.minWidth>column.realWidth){
+          column.realWidth = column.minWidth;
+          column.width = column.minWidth;
+        }
+        return column.label;
       },
       openScenario(item) {
         this.$emit('openScenario', item)
