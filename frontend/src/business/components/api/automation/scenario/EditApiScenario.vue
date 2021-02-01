@@ -5,7 +5,7 @@
 
         <!--操作按钮-->
         <div class="ms-opt-btn">
-          <el-button type="primary" size="small" @click="editScenario" title="ctrl + s">{{$t('commons.save')}}</el-button>
+          <el-button id="inputDelay" type="primary" size="small" @click="editScenario" title="ctrl + s">{{$t('commons.save')}}</el-button>
         </div>
 
         <div class="tip">{{$t('test_track.plan_view.base_info')}}</div>
@@ -834,6 +834,7 @@
         return bodyUploadFiles;
       },
       editScenario() {
+        document.getElementById("inputDelay").focus();  //  保存前在input框自动失焦，以免保存失败
         this.$refs['currentScenario'].validate((valid) => {
           if (valid) {
             this.setParameter();
