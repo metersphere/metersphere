@@ -257,7 +257,17 @@ export default {
     statusChange(param) {
       this.$post('/test/plan/edit', param, () => {
         for (let i = 0; i < this.tableData.length; i++) {
-          if (this.tableData[i].id == param.id) {
+          if (this.tableData[i].id == param.id) { //  手动修改当前状态后，前端结束时间先用当前时间，等刷新后变成后台数据（相等）
+            if (this.tableData[i].status !== "Completed" && param.status === "Completed") {
+              this.tableData[i].actualEndTime = new Date();
+            } //  非完成->已完成，结束时间=null
+            else if (this.tableData[i].status !== "Underway" && param.status === "Underway") {
+              this.tableData[i].actualStartTime = new Date();
+              this.tableData[i].actualEndTime = "";
+            } //  非进行中->进行中，结束时间=null
+            else if (this.tableData[i].status !== "Prepare" && param.status === "Prepare") {
+              this.tableData[i].actualStartTime = this.tableData[i].actualEndTime = "";
+            } //  非未开始->未开始，结束时间=null
             this.tableData[i].status = param.status;
             break;
           }
