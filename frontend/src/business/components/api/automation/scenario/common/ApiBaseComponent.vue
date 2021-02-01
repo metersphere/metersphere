@@ -1,15 +1,16 @@
 <template>
   <el-card class="api-component">
-    <fieldset :disabled="data.disabled" class="ms-fieldset">
 
       <div class="header" @click="active(data)">
 
-        <slot name="beforeHeaderLeft">
-          <div v-if="data.index" class="el-step__icon is-text" style="margin-right: 10px;" :style="{'color': color, 'background-color': backgroundColor}">
-            <div class="el-step__icon-inner">{{data.index}}</div>
-          </div>
-          <el-button class="ms-left-buttion" size="small" :style="{'color': color, 'background-color': backgroundColor}">{{title}}</el-button>
-        </slot>
+        <fieldset :disabled="data.disabled" class="ms-fieldset">
+          <slot name="beforeHeaderLeft">
+            <div v-if="data.index" class="el-step__icon is-text" style="margin-right: 10px;" :style="{'color': color, 'background-color': backgroundColor}">
+              <div class="el-step__icon-inner">{{data.index}}</div>
+            </div>
+            <el-button class="ms-left-buttion" size="small" :style="{'color': color, 'background-color': backgroundColor}">{{title}}</el-button>
+          </slot>
+        </fieldset>
 
         <span @click.stop>
         <slot name="headerLeft">
@@ -39,13 +40,15 @@
           </el-tooltip>
         </div>
       </div>
+
+    <fieldset :disabled="data.disabled" class="ms-fieldset">
       <div class="header">
-        <el-collapse-transition>
-          <div v-if="data.active && showCollapse" :draggable="draggable">
-            <el-divider></el-divider>
-            <slot></slot>
-          </div>
-        </el-collapse-transition>
+          <el-collapse-transition>
+            <div v-if="data.active && showCollapse" :draggable="draggable">
+              <el-divider></el-divider>
+              <slot></slot>
+            </div>
+          </el-collapse-transition>
       </div>
     </fieldset>
 
@@ -158,6 +161,10 @@
     min-width: 100%;
     min-inline-size: 0px;
     border: 0px;
+  }
+
+  .ms-fieldset {
+    display: contents;
   }
 
 </style>
