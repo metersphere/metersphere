@@ -114,9 +114,7 @@ export default {
           }
         ],
         phone: [
-          {required: true, message: this.$t('user.input_phone'), trigger: 'blur'},
           {
-            required: false,
             pattern: PHONE_REGEX,
             message: this.$t('member.mobile_number_format_is_incorrect'),
             trigger: 'blur'

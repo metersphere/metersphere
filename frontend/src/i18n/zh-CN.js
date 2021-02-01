@@ -584,6 +584,7 @@ export default {
         create_info: '创建',
         update_info: '更新',
         batch_edit: "批量编辑",
+        batch_move:"批量移动",
         path_valid_info: "请求路径无效",
         other_config: "其他设置",
         message_template: "报文模版",
