@@ -29,6 +29,12 @@ public class ApiModuleController {
         return apiModuleService.getNodeTreeByProjectId(projectId,protocol);
     }
 
+    @GetMapping("/getModuleByName/{projectId}/{protocol}")
+    public ApiModule getModuleByName(@PathVariable String projectId,@PathVariable String protocol) {
+        checkPermissionService.checkProjectOwner(projectId);
+        return apiModuleService.getModuleByName(projectId,protocol);
+    }
+
     @GetMapping("/list/plan/{planId}/{protocol}")
     public List<ApiModuleDTO> getNodeByPlanId(@PathVariable String planId, @PathVariable String protocol) {
         checkPermissionService.checkTestPlanOwner(planId);

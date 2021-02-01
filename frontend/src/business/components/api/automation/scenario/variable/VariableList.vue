@@ -149,6 +149,7 @@
           const index = this.variables.findIndex(d => d.id === row);
           this.variables.splice(index, 1);
         })
+        this.selection = [];
       }
     }
   }
