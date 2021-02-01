@@ -583,6 +583,7 @@ export default {
         create_info: '創建',
         update_info: '更新',
         batch_edit: "批量編輯",
+        batch_move:"批量移動",
         path_valid_info: "請求路徑無效",
         other_config: "其他設置",
         message_template: "報文模版",

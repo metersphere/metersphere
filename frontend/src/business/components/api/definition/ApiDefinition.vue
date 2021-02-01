@@ -1,4 +1,5 @@
 <template>
+  <div>
   <ms-container v-if="renderComponent">
     <ms-aside-container>
       <ms-api-module
@@ -9,6 +10,7 @@
         @debug="debug"
         @saveAsEdit="editApi"
         @setModuleOptions="setModuleOptions"
+        @setNodeTree="setNodeTree"
         @enableTrash="enableTrash"
         :type="'edit'"
         ref="nodeTree"/>
@@ -25,6 +27,8 @@
           <!-- 列表集合 -->
           <ms-api-list
             v-if="item.type === 'list' && isApiListEnable"
+            :module-tree="nodeTree"
+            :module-options="moduleOptions"
             :current-protocol="currentProtocol"
             :visible="visible"
             :currentRow="currentRow"
@@ -102,8 +106,12 @@
           </template>
         </el-tab-pane>
       </el-tabs>
+
+
     </ms-main-container>
   </ms-container>
+
+  </div>
 </template>
 <script>
   import MsApiList from './components/list/ApiList';
@@ -177,7 +185,7 @@
         currentModule: null,
         selectNodeIds: [],
         currentApi: {},
-        moduleOptions: {},
+        moduleOptions: [],
         trashEnable: false,
         apiTabs: [{
           title: this.$t('api_test.definition.api_title'),
@@ -187,7 +195,8 @@
         }],
         isApiListEnable: true,
         syncTabs: [],
-        projectId: ""
+        projectId: "",
+        nodeTree: []
       }
     },
     mounted() {
@@ -215,6 +224,7 @@
       }
     },
     methods: {
+
       changeRedirectParam(redirectIDParam) {
         this.redirectID = redirectIDParam;
       },
@@ -393,6 +403,10 @@
       },
       setModuleOptions(data) {
         this.moduleOptions = data;
+      },
+      setNodeTree(data) {
+        this.nodeTree = data;
+        console.log( this.nodeTree)
       },
       changeSelectDataRangeAll(tableType) {
         this.$route.params.dataSelectRange = 'all';

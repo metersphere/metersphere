@@ -583,6 +583,7 @@ export default {
         create_info: 'Create',
         update_info: 'Update',
         batch_edit: "Batch edit",
+        batch_move:"Batch move",
         path_valid_info: "The request path is invalid",
         other_config: "Other Config",
         message_template: "Message Template",
