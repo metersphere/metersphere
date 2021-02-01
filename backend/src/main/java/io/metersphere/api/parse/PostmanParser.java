@@ -5,6 +5,8 @@ import com.alibaba.fastjson.JSONObject;
 import io.metersphere.api.dto.ApiTestImportRequest;
 import io.metersphere.api.dto.definition.ApiDefinitionResult;
 import io.metersphere.api.dto.definition.parse.ApiDefinitionImport;
+import io.metersphere.api.dto.definition.request.MsTestElement;
+import io.metersphere.api.dto.definition.request.processors.pre.MsJSR223PreProcessor;
 import io.metersphere.api.dto.definition.request.sampler.MsHTTPSamplerProxy;
 import io.metersphere.api.dto.parse.postman.*;
 import io.metersphere.api.dto.scenario.Body;
@@ -12,11 +14,14 @@ import io.metersphere.api.dto.scenario.KeyValue;
 import io.metersphere.base.domain.ApiModule;
 import io.metersphere.commons.constants.MsRequestBodyType;
 import io.metersphere.commons.constants.PostmanRequestBodyMode;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class PostmanParser extends ApiImportAbstractParser {
 
@@ -75,8 +80,35 @@ public class PostmanParser extends ApiImportAbstractParser {
         request.setArguments(parseKeyValue(url.getQuery()));
         request.setHeaders(parseKeyValue(requestDesc.getHeader()));
         addBodyHeader(request);
+        addPreScript(request, requestItem.getEvent());
         apiDefinition.setRequest(JSON.toJSONString(request));
         return apiDefinition;
+    }
+
+    private void addPreScript(MsHTTPSamplerProxy request, List<PostmanEvent> event) {
+        if (CollectionUtils.isNotEmpty(event)) {
+            StringBuilder scriptStr = new StringBuilder();
+            event = event.stream()
+                    .filter(item -> item.getScript() != null)
+                    .collect(Collectors.toList());
+            event.forEach(item -> {
+                PostmanScript script = item.getScript();
+                List<String> exec = script.getExec();
+                if (CollectionUtils.isNotEmpty(exec)) {
+                    exec.forEach(col -> {
+                        scriptStr.append(col + "/n");
+                    });
+                }
+            });
+            if (StringUtils.isNotBlank(scriptStr)) {
+                MsJSR223PreProcessor jsr223PreProcessor = new MsJSR223PreProcessor();
+                jsr223PreProcessor.setScriptLanguage("javascript");
+                jsr223PreProcessor.setScript(scriptStr.toString());
+                LinkedList<MsTestElement> hashTree = new LinkedList<>();
+                hashTree.add(jsr223PreProcessor);
+                request.setHashTree(hashTree);
+            }
+        }
     }
 
     private List<KeyValue> parseKeyValue(List<PostmanKeyValue> postmanKeyValues) {

@@ -37,6 +37,7 @@
           <el-button size="mini" icon="el-icon-delete" type="danger" circle @click="remove"/>
         </el-tooltip>
       </div>
+
     </div>
     <div class="header">
       <fieldset :disabled="data.disabled" class="ms-fieldset">

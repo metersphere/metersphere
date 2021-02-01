@@ -13,6 +13,7 @@ import io.metersphere.api.dto.scenario.KeyValue;
 import io.metersphere.api.dto.scenario.request.RequestType;
 import io.metersphere.api.service.ApiModuleService;
 import io.metersphere.base.domain.ApiModule;
+import io.metersphere.commons.constants.ApiImportPlatform;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
 import org.apache.commons.collections.CollectionUtils;
@@ -34,6 +35,7 @@ public class MsParser extends ApiImportAbstractParser {
         if (testObject.get("projectName") != null) {
             return parseMsFormat(testStr, request);
         } else {
+            request.setPlatform(ApiImportPlatform.Plugin.name());
             return parsePluginFormat(testObject, request);
         }
     }

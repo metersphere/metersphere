@@ -25,25 +25,28 @@
           @selectPageAll="isSelectDataAll(false)"
           @selectAll="isSelectDataAll(true)"/>
 
-        <el-table-column width="30" :resizable="false" align="center">
+        <el-table-column width="30" :resizable="false" min-width="30px" :render-header="labelHead" align="center">
           <template v-slot:default="scope">
             <show-more-btn :is-show="scope.row.showMore" :buttons="buttons" :size="selectDataCounts"/>
           </template>
         </el-table-column>
 
-        <el-table-column prop="num" label="ID" show-overflow-tooltip>
+        <el-table-column prop="num" label="ID" min-width="120px" :render-header="labelHead" show-overflow-tooltip>
           <template slot-scope="scope">
             <el-tooltip content="编辑">
               <a style="cursor:pointer" @click="handleTestCase(scope.row)"> {{ scope.row.num }} </a>
             </el-tooltip>
           </template>
         </el-table-column>
-        <el-table-column prop="name" :label="$t('test_track.case.name')" show-overflow-tooltip/>
+
+        <el-table-column prop="name" min-width="160px" :render-header="labelHead" :label="$t('test_track.case.name')" show-overflow-tooltip/>
 
         <el-table-column
           prop="priority"
           :filters="priorityFilters"
           column-key="priority"
+          min-width="120px"
+          :render-header="labelHead"
           :label="$t('test_track.case.priority')"
           show-overflow-tooltip>
           <template v-slot:default="scope">
@@ -54,10 +57,12 @@
         <el-table-column
           sortable="custom"
           prop="path"
+          min-width="180px"
           :label="$t('api_test.definition.api_path')"
+          :render-header="labelHead"
           show-overflow-tooltip/>
 
-        <el-table-column prop="tags" :label="$t('commons.tag')">
+        <el-table-column prop="tags" min-width="120px" :render-header="labelHead" :label="$t('commons.tag')">
           <template v-slot:default="scope">
             <div v-for="(itemName,index)  in scope.row.tags" :key="index">
               <ms-tag type="success" effect="plain" :content="itemName"/>
@@ -68,12 +73,14 @@
         <el-table-column
           prop="createUser"
           :label="'创建人'"
+          :render-header="labelHead"
           show-overflow-tooltip/>
 
         <el-table-column
           sortable="custom"
-          width="160"
+          min-width="160"
           :label="$t('api_test.definition.api_last_time')"
+          :render-header="labelHead"
           prop="updateTime">
           <template v-slot:default="scope">
             <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
@@ -82,11 +89,6 @@
 
         <el-table-column fixed="right" v-if="!isReadOnly" :label="$t('commons.operating')" min-width="130" align="center">
           <template v-slot:default="scope">
-            <!--<el-button type="text" @click="reductionApi(scope.row)" v-if="trashEnable">{{$t('commons.reduction')}}</el-button>-->
-<!--            <el-button type="text" @click="handleTestCase(scope.row)" v-if="!trashEnable">{{ $t('commons.edit') }}-->
-<!--            </el-button>-->
-<!--            <el-button type="text" @click="handleDelete(scope.row)" style="color: #F56C6C">{{ $t('commons.delete') }}-->
-<!--            </el-button>-->
             <ms-table-operator-button :tip="$t('commons.edit')" icon="el-icon-edit" @exec="handleTestCase(scope.row)" v-tester/>
             <ms-table-operator-button :tip="$t('commons.delete')" icon="el-icon-delete" @exec="handleDelete(scope.row)" type="danger" v-tester/>
             <ms-api-case-table-extend-btns @showCaseRef="showCaseRef" @showEnvironment="showEnvironment" @createPerformance="createPerformance" :row="scope.row" v-tester/>
@@ -504,6 +506,13 @@ export default {
         }
         this.clickRow = row;
         this.$refs.setEnvironment.open(row);
+      },
+      labelHead(h,{column,index}){
+        if(column.minWidth>column.realWidth){
+          column.realWidth = column.minWidth;
+          column.width = column.minWidth;
+        }
+        return column.label;
       },
       createPerformance(row, environment) {
         /**

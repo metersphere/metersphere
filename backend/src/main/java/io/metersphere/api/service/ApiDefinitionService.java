@@ -10,6 +10,7 @@ import io.metersphere.api.dto.datacount.ApiDataCountResult;
 import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.dto.definition.parse.ApiDefinitionImport;
 import io.metersphere.api.dto.definition.request.ScheduleInfoSwaggerUrlRequest;
+import io.metersphere.api.dto.definition.request.sampler.MsHTTPSamplerProxy;
 import io.metersphere.api.dto.scenario.request.RequestType;
 import io.metersphere.api.dto.swaggerurl.SwaggerTaskResult;
 import io.metersphere.api.dto.swaggerurl.SwaggerUrlRequest;
@@ -21,10 +22,7 @@ import io.metersphere.api.parse.ApiImportParserFactory;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.*;
-import io.metersphere.commons.constants.APITestStatus;
-import io.metersphere.commons.constants.ApiRunMode;
-import io.metersphere.commons.constants.ScheduleGroup;
-import io.metersphere.commons.constants.ScheduleType;
+import io.metersphere.commons.constants.*;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
 import io.metersphere.i18n.Translator;
@@ -300,7 +298,7 @@ public class ApiDefinitionService {
         }
     }
 
-    private ApiDefinition importCreate(ApiDefinitionResult request, ApiDefinitionMapper batchMapper, ApiTestImportRequest apiTestImportRequest) {
+    private ApiDefinition importCreate(ApiDefinitionResult request, ApiDefinitionMapper batchMapper, ApiTestCaseMapper apiTestCaseMapper, ApiTestImportRequest apiTestImportRequest) {
         SaveApiDefinitionRequest saveReq = new SaveApiDefinitionRequest();
         BeanUtils.copyBean(saveReq, request);
         final ApiDefinitionWithBLOBs apiDefinition = new ApiDefinitionWithBLOBs();
@@ -317,30 +315,72 @@ public class ApiDefinitionService {
 
         List<ApiDefinition> sameRequest = getSameRequest(saveReq);
         if (StringUtils.equals("fullCoverage", apiTestImportRequest.getModeId())) {
-            if (CollectionUtils.isEmpty(sameRequest)) {
-                batchMapper.insert(apiDefinition);
-            } else {
-                //如果存在则修改
-                apiDefinition.setId(sameRequest.get(0).getId());
-                apiDefinitionMapper.updateByPrimaryKeyWithBLOBs(apiDefinition);
-            }
+            _importCreate(sameRequest, batchMapper, apiDefinition, apiTestCaseMapper, apiTestImportRequest);
         } else if (StringUtils.equals("incrementalMerge", apiTestImportRequest.getModeId())) {
             if (CollectionUtils.isEmpty(sameRequest)) {
+                //postman 可能含有前置脚本，接口定义去掉脚本
+                String requestStr = setImportHashTree(apiDefinition);
                 batchMapper.insert(apiDefinition);
+                apiDefinition.setRequest(requestStr);
+                importApiCase(apiDefinition, apiTestCaseMapper, apiTestImportRequest, true);
             }
         } else {
-            if (CollectionUtils.isEmpty(sameRequest)) {
-                batchMapper.insert(apiDefinition);
-            } else {
-                //如果存在则修改
-                apiDefinition.setId(sameRequest.get(0).getId());
-                apiDefinitionMapper.updateByPrimaryKeyWithBLOBs(apiDefinition);
-            }
+            _importCreate(sameRequest, batchMapper, apiDefinition, apiTestCaseMapper, apiTestImportRequest);
         }
-
         return apiDefinition;
     }
 
+    private void _importCreate(List<ApiDefinition> sameRequest, ApiDefinitionMapper batchMapper, ApiDefinitionWithBLOBs apiDefinition,
+                               ApiTestCaseMapper apiTestCaseMapper, ApiTestImportRequest apiTestImportRequest) {
+        if (CollectionUtils.isEmpty(sameRequest)) {
+            String request = setImportHashTree(apiDefinition);
+            batchMapper.insert(apiDefinition);
+            apiDefinition.setRequest(request);
+            importApiCase(apiDefinition, apiTestCaseMapper, apiTestImportRequest, true);
+        } else {
+            //如果存在则修改
+            apiDefinition.setId(sameRequest.get(0).getId());
+            String request = setImportHashTree(apiDefinition);
+            apiDefinitionMapper.updateByPrimaryKeyWithBLOBs(apiDefinition);
+            apiDefinition.setRequest(request);
+            importApiCase(apiDefinition, apiTestCaseMapper, apiTestImportRequest, false);
+        }
+    }
+
+    private String setImportHashTree(ApiDefinitionWithBLOBs apiDefinition) {
+        String request = apiDefinition.getRequest();
+        MsHTTPSamplerProxy msHTTPSamplerProxy = JSONObject.parseObject(request, MsHTTPSamplerProxy.class);
+        msHTTPSamplerProxy.setHashTree(null);
+        apiDefinition.setRequest(JSONObject.toJSONString(msHTTPSamplerProxy));
+        return request;
+    }
+
+   /**
+    * 导入是插件或者postman时创建用例
+    * postman考虑是否有前置脚本
+    */
+    private void importApiCase(ApiDefinitionWithBLOBs apiDefinition, ApiTestCaseMapper apiTestCaseMapper,
+                               ApiTestImportRequest apiTestImportRequest, Boolean isInsert) {
+        try {
+            if (StringUtils.equalsAnyIgnoreCase(apiTestImportRequest.getPlatform(), ApiImportPlatform.Plugin.name(), ApiImportPlatform.Postman.name())) {
+                ApiTestCaseWithBLOBs apiTestCase = new ApiTestCaseWithBLOBs();
+                BeanUtils.copyBean(apiTestCase, apiDefinition);
+                apiTestCase.setId(UUID.randomUUID().toString());
+                apiTestCase.setApiDefinitionId(apiDefinition.getId());
+                apiTestCase.setCreateTime(System.currentTimeMillis());
+                apiTestCase.setUpdateTime(System.currentTimeMillis());
+                apiTestCase.setCreateUserId(SessionUtils.getUserId());
+                apiTestCase.setUpdateUserId(SessionUtils.getUserId());
+                apiTestCase.setPriority("P0");
+                if (!isInsert) {
+                    apiTestCase.setName(apiTestCase.getName() + "_" + apiTestCase.getId().substring(0, 5));
+                }
+                apiTestCaseMapper.insert(apiTestCase);
+            }
+        } catch (Exception e) {
+            LogUtil.error("导入创建用例异常", e);
+        }
+    }
 
     private void deleteFileByTestId(String apiId) {
         ApiTestFileExample apiTestFileExample = new ApiTestFileExample();
@@ -457,6 +497,7 @@ public class ApiDefinitionService {
     private void importApi(ApiTestImportRequest request, ApiDefinitionImport apiImport) {
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
         ApiDefinitionMapper batchMapper = sqlSession.getMapper(ApiDefinitionMapper.class);
+        ApiTestCaseMapper apiTestCaseMapper = sqlSession.getMapper(ApiTestCaseMapper.class);
         List<ApiDefinitionResult> data = apiImport.getData();
         int num = 0;
         if (!CollectionUtils.isEmpty(data) && data.get(0) != null && data.get(0).getProjectId() != null) {
@@ -468,7 +509,7 @@ public class ApiDefinitionService {
                 item.setName(item.getName().substring(0, 255));
             }
             item.setNum(num++);
-            importCreate(item, batchMapper, request);
+            importCreate(item, batchMapper, apiTestCaseMapper, request);
             if (i % 300 == 0) {
                 sqlSession.flushStatements();
             }

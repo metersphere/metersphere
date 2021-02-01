@@ -33,6 +33,8 @@
         </el-table-column>
 
         <el-table-column prop="num" label="ID" show-overflow-tooltip
+                         min-width="80px"
+                         :render-header="labelHead"
                          sortable="custom">
           <template slot-scope="scope">
             <el-tooltip content="编辑">
@@ -42,12 +44,14 @@
         </el-table-column>
         <el-table-column prop="name" :label="$t('api_test.definition.api_name')"
                          show-overflow-tooltip
+                         :render-header="labelHead"
                          sortable="custom" min-width="120px"/>
         <el-table-column
           prop="status"
           column-key="status"
           sortable="custom"
           :filters="statusFilters"
+          :render-header="labelHead"
           :label="$t('api_test.definition.api_status')" min-width="120px">
           <template v-slot:default="scope">
             <span class="el-dropdown-link">
@@ -61,6 +65,7 @@
           sortable="custom"
           column-key="method"
           :filters="methodFilters"
+          :render-header="labelHead"
           :label="$t('api_test.definition.api_type')"
           show-overflow-tooltip min-width="120px">
           <template v-slot:default="scope" class="request-method">
@@ -77,15 +82,19 @@
           sortable="custom"
           :filters="userFilters"
           column-key="user_id"
+          :render-header="labelHead"
           :label="$t('api_test.definition.api_principal')"
           show-overflow-tooltip min-width="100px"/>
 
         <el-table-column
           prop="path"
+          min-width="120px"
+          :render-header="labelHead"
           :label="$t('api_test.definition.api_path')"
           show-overflow-tooltip/>
 
-        <el-table-column prop="tags" :label="$t('commons.tag')">
+        <el-table-column prop="tags" :label="$t('commons.tag')" min-width="80px"
+                         :render-header="labelHead">
           <template v-slot:default="scope">
             <div v-for="(itemName,index)  in scope.row.tags" :key="index">
               <ms-tag type="success" effect="plain" :content="itemName"/>
@@ -97,6 +106,8 @@
           width="160"
           :label="$t('api_test.definition.api_last_time')"
           sortable="custom"
+          min-width="160px"
+          :render-header="labelHead"
           prop="updateTime">
           <template v-slot:default="scope">
             <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
@@ -105,17 +116,23 @@
 
         <el-table-column
           prop="caseTotal"
+          min-width="80px"
+          :render-header="labelHead"
           :label="$t('api_test.definition.api_case_number')"
           show-overflow-tooltip/>
 
         <el-table-column
           prop="caseStatus"
+          min-width="80px"
+          :render-header="labelHead"
           :label="$t('api_test.definition.api_case_status')"
           show-overflow-tooltip/>
 
         <el-table-column
           prop="casePassingRate"
           :width="100"
+          min-width="100px"
+          :render-header="labelHead"
           :label="$t('api_test.definition.api_case_passing_rate')"
           show-overflow-tooltip/>
 
@@ -676,6 +693,117 @@ export default {
     }
   },
 }
+        this.$post('/api/definition/batch/editByParams', param, () => {
+          this.$success(this.$t('commons.save_success'));
+          this.initTable();
+        });
+      },
+      handleTestCase(api) {
+        this.selectApi = api;
+        let request = {};
+        if (Object.prototype.toString.call(api.request).match(/\[object (\w+)\]/)[1].toLowerCase() === 'object') {
+          request = api.request;
+        } else {
+          request = JSON.parse(api.request);
+        }
+        if (!request.hashTree) {
+          request.hashTree = [];
+        }
+        this.selectApi.url = request.path;
+        this.$refs.caseList.open(this.selectApi);
+      },
+      handleDelete(api) {
+        if (this.trashEnable) {
+          this.$get('/api/definition/delete/' + api.id, () => {
+            this.$success(this.$t('commons.delete_success'));
+            this.initTable();
+          });
+          return;
+        }
+        this.$alert(this.$t('api_test.definition.request.delete_confirm') + ' ' + api.name + " ？", '', {
+          confirmButtonText: this.$t('commons.confirm'),
+          callback: (action) => {
+            if (action === 'confirm') {
+              let ids = [api.id];
+              this.$post('/api/definition/removeToGc/', ids, () => {
+                this.$success(this.$t('commons.delete_success'));
+                this.initTable();
+                this.$refs.caseList.apiCaseClose();
+              });
+            }
+          }
+        });
+      },
+      getColor(enable, method) {
+        if (enable) {
+          return this.methodColorMap.get(method);
+        }
+      },
+      showExecResult(row) {
+        this.$emit('showExecResult', row);
+      },
+      selectRowsCount(selection) {
+        let selectedIDs = this.getIds(selection);
+        let allIDs = this.tableData.map(s => s.id);
+        this.unSelection = allIDs.filter(function (val) {
+          return selectedIDs.indexOf(val) === -1
+        });
+        if (this.isSelectAllDate) {
+          this.selectDataCounts = this.total - this.unSelection.length;
+        } else {
+          this.selectDataCounts = selection.size;
+        }
+      },
+      isSelectDataAll(dataType) {
+        this.isSelectAllDate = dataType;
+        this.selectRowsCount(this.selectRows)
+        //如果已经全选，不需要再操作了
+        if (this.selectRows.size != this.tableData.length) {
+          this.$refs.apiDefinitionTable.toggleAllSelection(true);
+        }
+      },
+      //判断是否只显示本周的数据。  从首页跳转过来的请求会带有相关参数
+      getSelectDataRange() {
+        let dataRange = this.$route.params.dataSelectRange;
+        let dataType = this.$route.params.dataType;
+        if (dataType === 'api') {
+          this.selectDataRange = dataRange;
+        } else {
+          this.selectDataRange = 'all';
+        }
+      },
+      changeSelectDataRangeAll() {
+        this.$emit("changeSelectDataRangeAll", "api");
+      },
+      getIds(rowSets) {
+        let rowArray = Array.from(rowSets)
+        let ids = rowArray.map(s => s.id);
+        return ids;
+      },
+      sort(column) {
+        // 每次只对一个字段排序
+        if (this.condition.orders) {
+          this.condition.orders = [];
+        }
+        _sort(column, this.condition);
+        this.initTable();
+      },
+      filter(filters) {
+        _filter(filters, this.condition);
+        this.initTable();
+      },
+      labelHead(h,{column,index}){
+        if(column.minWidth>column.realWidth){
+          column.realWidth = column.minWidth;
+          column.width = column.minWidth;
+        }
+        return column.label;
+      },
+      open() {
+        this.$refs.searchBar.open();
+      }
+    },
+  }
 </script>
 
 <style scoped>

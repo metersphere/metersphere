@@ -7,6 +7,7 @@ import java.util.List;
 @Data
 public class PostmanItem {
     private String name;
+    private List<PostmanEvent> event;
     private PostmanRequest request;
     private List<PostmanItem> item;
 }
