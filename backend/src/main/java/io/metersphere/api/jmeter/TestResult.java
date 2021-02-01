@@ -60,6 +60,18 @@ public class TestResult {
                     item.getSubRequestResults().forEach(subItem -> {
                         subItem.setName(item.getName());
                     });
+                } else {
+                    if (requestResultMap.containsKey(result.getName())) {
+                        requestResultMap.get(result.getName()).add(item);
+                    } else {
+                        List<RequestResult> requestResults = new LinkedList<>();
+                        requestResults.add(item);
+                        requestResultMap.put(result.getName(), requestResults);
+                    }
+                    item.getSubRequestResults().forEach(subItem -> {
+                        subItem.setName(item.getName());
+                    });
+
                 }
             });
         }
