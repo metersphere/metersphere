@@ -31,19 +31,21 @@
           </template>
         </el-table-column>
 
-        <el-table-column prop="num" label="ID" show-overflow-tooltip>
+        <el-table-column prop="num" label="ID" min-width="120px" show-overflow-tooltip>
           <template slot-scope="scope">
             <el-tooltip content="编辑">
               <a style="cursor:pointer" @click="handleTestCase(scope.row)"> {{ scope.row.num }} </a>
             </el-tooltip>
           </template>
         </el-table-column>
-        <el-table-column prop="name" :label="$t('test_track.case.name')" show-overflow-tooltip/>
+
+        <el-table-column prop="name" min-width="160px" :label="$t('test_track.case.name')" show-overflow-tooltip/>
 
         <el-table-column
           prop="priority"
           :filters="priorityFilters"
           column-key="priority"
+          min-width="120px"
           :label="$t('test_track.case.priority')"
           show-overflow-tooltip>
           <template v-slot:default="scope">
@@ -54,10 +56,11 @@
         <el-table-column
           sortable="custom"
           prop="path"
+          min-width="180px"
           :label="$t('api_test.definition.api_path')"
           show-overflow-tooltip/>
 
-        <el-table-column prop="tags" :label="$t('commons.tag')">
+        <el-table-column prop="tags" min-width="120px" :label="$t('commons.tag')">
           <template v-slot:default="scope">
             <div v-for="(itemName,index)  in scope.row.tags" :key="index">
               <ms-tag type="success" effect="plain" :content="itemName"/>
