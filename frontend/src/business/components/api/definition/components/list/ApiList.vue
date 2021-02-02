@@ -17,6 +17,7 @@
                 @filter-change="filter"
                 :data="tableData" row-key="id" class="test-content adjust-table ms-select-all-fixed"
                 @select-all="handleSelectAll"
+                @header-dragend="headerDragend"
                 @select="handleSelect" :height="screenHeight">
         <el-table-column width="50" type="selection"/>
 
@@ -34,7 +35,7 @@
 
         <el-table-column prop="num" label="ID" show-overflow-tooltip
                          min-width="80px"
-                         :render-header="labelHead"
+
                          sortable="custom">
           <template slot-scope="scope">
             <el-tooltip content="编辑">
@@ -44,14 +45,14 @@
         </el-table-column>
         <el-table-column prop="name" :label="$t('api_test.definition.api_name')"
                          show-overflow-tooltip
-                         :render-header="labelHead"
+
                          sortable="custom" min-width="120px"/>
         <el-table-column
           prop="status"
           column-key="status"
           sortable="custom"
           :filters="statusFilters"
-          :render-header="labelHead"
+
           :label="$t('api_test.definition.api_status')" min-width="120px">
           <template v-slot:default="scope">
             <span class="el-dropdown-link">
@@ -65,7 +66,7 @@
           sortable="custom"
           column-key="method"
           :filters="methodFilters"
-          :render-header="labelHead"
+
           :label="$t('api_test.definition.api_type')"
           show-overflow-tooltip min-width="120px">
           <template v-slot:default="scope" class="request-method">
@@ -82,19 +83,19 @@
           sortable="custom"
           :filters="userFilters"
           column-key="user_id"
-          :render-header="labelHead"
+
           :label="$t('api_test.definition.api_principal')"
           show-overflow-tooltip min-width="100px"/>
 
         <el-table-column
           prop="path"
           min-width="120px"
-          :render-header="labelHead"
+
           :label="$t('api_test.definition.api_path')"
           show-overflow-tooltip/>
 
         <el-table-column prop="tags" :label="$t('commons.tag')" min-width="80px"
-                         :render-header="labelHead">
+                         >
           <template v-slot:default="scope">
             <div v-for="(itemName,index)  in scope.row.tags" :key="index">
               <ms-tag type="success" effect="plain" :content="itemName"/>
@@ -107,7 +108,7 @@
           :label="$t('api_test.definition.api_last_time')"
           sortable="custom"
           min-width="160px"
-          :render-header="labelHead"
+
           prop="updateTime">
           <template v-slot:default="scope">
             <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
@@ -117,14 +118,14 @@
         <el-table-column
           prop="caseTotal"
           min-width="80px"
-          :render-header="labelHead"
+
           :label="$t('api_test.definition.api_case_number')"
           show-overflow-tooltip/>
 
         <el-table-column
           prop="caseStatus"
           min-width="80px"
-          :render-header="labelHead"
+
           :label="$t('api_test.definition.api_case_status')"
           show-overflow-tooltip/>
 
@@ -132,7 +133,7 @@
           prop="casePassingRate"
           :width="100"
           min-width="100px"
-          :render-header="labelHead"
+
           :label="$t('api_test.definition.api_case_passing_rate')"
           show-overflow-tooltip/>
 
@@ -693,12 +694,13 @@ export default {
       _filter(filters, this.condition);
       this.initTable();
     },
-    labelHead(h,{column,index}){
-      if(column.minWidth>column.realWidth){
-        column.realWidth = column.minWidth;
-        column.width = column.minWidth;
+    headerDragend(newWidth,oldWidth,column,event){
+      let finalWidth = newWidth;
+      if(column.minWidth>finalWidth){
+        finalWidth = column.minWidth;
       }
-      return column.label;
+      column.width = finalWidth;
+      column.realWidth = finalWidth;
     },
     open() {
       this.$refs.searchBar.open();

@@ -35,6 +35,7 @@
         @select="handleSelectionChange"
         row-key="id"
         @row-click="showDetail"
+        @header-dragend="headerDragend"
         :data="tableData">
 
         <el-table-column
@@ -49,14 +50,14 @@
           sortable="custom"
           :label="$t('commons.id')"
           min-width="120px"
-          :render-header="labelHead"
+
           show-overflow-tooltip>
         </el-table-column>
         <el-table-column
           prop="name"
           :label="$t('commons.name')"
           min-width="120px"
-          :render-header="labelHead"
+
           show-overflow-tooltip>
         </el-table-column>
         <el-table-column
@@ -64,7 +65,7 @@
           :filters="priorityFilters"
           column-key="priority"
           min-width="100px"
-          :render-header="labelHead"
+
           :label="$t('test_track.case.priority')">
           <template v-slot:default="scope">
             <priority-table-item :value="scope.row.priority" ref="priority"/>
@@ -77,7 +78,7 @@
           column-key="type"
           :label="$t('test_track.case.type')"
           min-width="80px"
-          :render-header="labelHead"
+
           show-overflow-tooltip>
           <template v-slot:default="scope">
             <type-table-item :value="scope.row.type"/>
@@ -85,7 +86,7 @@
         </el-table-column>
 
         <el-table-column prop="tags" :label="$t('commons.tag')" min-width="120px"
-                         :render-header="labelHead">
+                         >
           <template v-slot:default="scope">
             <div v-for="(tag, index) in scope.row.showTags" :key="tag + '_' + index">
               <ms-tag type="success" effect="plain" :content="tag"/>
@@ -99,7 +100,7 @@
           column-key="method"
           :label="$t('test_track.case.method')"
           min-width="100px"
-          :render-header="labelHead"
+
           show-overflow-tooltip>
           <template v-slot:default="scope">
             <method-table-item :value="scope.row.method"/>
@@ -110,7 +111,7 @@
           prop="nodePath"
           :label="$t('test_track.case.module')"
           min-width="120px"
-          :render-header="labelHead"
+
           show-overflow-tooltip>
         </el-table-column>
 
@@ -118,14 +119,14 @@
           prop="projectName"
           :label="$t('test_track.plan.plan_project')"
           min-width="120px"
-          :render-header="labelHead"
+
           show-overflow-tooltip>
         </el-table-column>
 
         <el-table-column
           :label="$t('test_track.issue.issue')"
           min-width="80px"
-          :render-header="labelHead"
+
           show-overflow-tooltip>
           <template v-slot:default="scope">
             <el-popover
@@ -159,7 +160,7 @@
           prop="executorName"
           :filters="executorFilters"
           min-width="100px"
-          :render-header="labelHead"
+
           column-key="executor"
           :label="$t('test_track.plan_view.executor')">
         </el-table-column>
@@ -169,7 +170,7 @@
           :filters="statusFilters"
           column-key="status"
           min-width="100px"
-          :render-header="labelHead"
+
           :label="$t('test_track.plan_view.execute_result')">
           <template v-slot:default="scope">
             <span @click.stop="clickt = 'stop'">
@@ -203,7 +204,7 @@
           prop="updateTime"
           :label="$t('commons.update_time')"
           min-width="120px"
-          :render-header="labelHead"
+
           show-overflow-tooltip>
           <template v-slot:default="scope">
             <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
@@ -595,12 +596,13 @@ export default {
       _sort(column, this.condition);
       this.initTableData();
     },
-    labelHead(h,{column,index}){
-      if(column.minWidth>column.realWidth){
-        column.realWidth = column.minWidth;
-        column.width = column.minWidth;
+    headerDragend(newWidth,oldWidth,column,event){
+      let finalWidth = newWidth;
+      if(column.minWidth>finalWidth){
+        finalWidth = column.minWidth;
       }
-      return column.label;
+      column.width = finalWidth;
+      column.realWidth = finalWidth;
     },
     batchEdit(form) {
       let param = {};
