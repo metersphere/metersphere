@@ -60,9 +60,23 @@
       name: "ApiFailureCasesList",
       components: {MsTag, PriorityTableItem, TypeTableItem, MethodTableItem, StatusTableItem},
       props: ['apiTestCases'],
+      watch: {
+        apiTestCases() {
+          this.parseTags();
+        }
+      },
       methods: {
         goFailureTestCase(row) {
           this.$emit("openFailureTestCase", row);
+        },
+        parseTags() {
+          if (this.apiTestCases) {
+            this.apiTestCases.forEach(item => {
+              if (item.tags && item.tags.length > 0) {
+                item.tags = JSON.parse(item.tags);
+              }
+            });
+          }
         }
       }
     }
@@ -70,4 +84,4 @@
 
 <style scoped>
 
-</style>
+</style>k
