@@ -79,13 +79,13 @@ public class MsIfController extends MsTestElement {
         }
 
         if (StringUtils.equals(operator, "is empty")) {
-            variable = "empty(" + variable + ")";
+            variable = "!empty(" + variable + ")";
             operator = "";
             value = "";
         }
 
         if (StringUtils.equals(operator, "is not empty")) {
-            variable = "!empty(" + variable + ")";
+            variable = "empty(" + variable + ")";
             operator = "";
             value = "";
         }

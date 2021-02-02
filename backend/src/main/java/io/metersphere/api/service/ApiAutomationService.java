@@ -516,7 +516,6 @@ public class ApiAutomationService {
         ParameterConfig config = new ParameterConfig();
         config.setConfig(envConfig);
         HashTree hashTree = request.getTestElement().generateHashTree(config);
-
         // 调用执行方法
         createScenarioReport(request.getId(), request.getScenarioId(), request.getScenarioName(), ReportTriggerMode.MANUAL.name(), request.getExecuteType(), request.getProjectId(),
                 SessionUtils.getUserId());
@@ -717,7 +716,9 @@ public class ApiAutomationService {
             apiScenarios.forEach(item -> {
                 JSONObject object = JSONObject.parseObject(item.getScenarioDefinition());
                 object.put("environmentId", request.getEnvironmentId());
-                item.setScenarioDefinition(JSONObject.toJSONString(object));
+                if (object != null) {
+                    item.setScenarioDefinition(JSONObject.toJSONString(object));
+                }
                 apiScenarioMapper.updateByPrimaryKeySelective(item);
             });
         }

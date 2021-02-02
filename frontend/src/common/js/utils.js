@@ -322,21 +322,23 @@ export function _getBodyUploadFiles(request, bodyUploadFiles, obj) {
     body = request.body;
   }
   if (body) {
-    body.kvs.forEach(param => {
-      if (param.files) {
-        param.files.forEach(item => {
-          if (item.file) {
-            if (!item.id) {
-              let fileId = getUUID().substring(0, 12);
-              item.name = item.file.name;
-              item.id = fileId;
+    if (body.kvs) {
+      body.kvs.forEach(param => {
+        if (param.files) {
+          param.files.forEach(item => {
+            if (item.file) {
+              if (!item.id) {
+                let fileId = getUUID().substring(0, 12);
+                item.name = item.file.name;
+                item.id = fileId;
+              }
+              obj.bodyUploadIds.push(item.id);
+              bodyUploadFiles.push(item.file);
             }
-            obj.bodyUploadIds.push(item.id);
-            bodyUploadFiles.push(item.file);
-          }
-        });
-      }
-    });
+          });
+        }
+      });
+    }
     if (body.binary) {
       body.binary.forEach(param => {
         if (param.files) {

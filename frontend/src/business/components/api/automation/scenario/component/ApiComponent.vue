@@ -235,6 +235,7 @@
         this.loading = true;
         this.runData = [];
         this.request.useEnvironment = this.currentEnvironmentId;
+        this.request.customizeReq = this.isCustomizeReq;
         let debugData = {
           id: this.currentScenario.id, name: this.currentScenario.name, type: "scenario",
           variables: this.currentScenario.variables, referenced: 'Created', enableCookieShare: this.enableCookieShare,

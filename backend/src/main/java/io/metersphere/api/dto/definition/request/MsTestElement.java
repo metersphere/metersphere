@@ -98,6 +98,8 @@ public abstract class MsTestElement {
     private String refType;
     @JSONField(ordinal = 10)
     private LinkedList<MsTestElement> hashTree;
+    @JSONField(ordinal = 11)
+    private boolean customizeReq;
 
     private MsTestElement parent;
 
@@ -188,15 +190,14 @@ public abstract class MsTestElement {
                     csvDataSet.setEnabled(true);
                     csvDataSet.setProperty(TestElement.TEST_CLASS, CSVDataSet.class.getName());
                     csvDataSet.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("TestBeanGUI"));
-                    csvDataSet.setName(item.getName());
-                    csvDataSet.setProperty("fileEncoding", item.getEncoding());
-                    csvDataSet.setProperty("variableNames", item.getName());
+                    csvDataSet.setName(StringUtils.isEmpty(item.getName()) ? "CSVDataSet" : item.getName());
+                    csvDataSet.setProperty("fileEncoding", StringUtils.isEmpty(item.getEncoding()) ? "UTF-8" : item.getEncoding());
                     if (CollectionUtils.isNotEmpty(item.getFiles())) {
                         csvDataSet.setProperty("filename", BODY_FILE_DIR + "/" + item.getFiles().get(0).getId() + "_" + item.getFiles().get(0).getName());
                     }
                     csvDataSet.setIgnoreFirstLine(false);
                     csvDataSet.setProperty("delimiter", item.getDelimiter());
-                    csvDataSet.setComment(item.getDescription());
+                    csvDataSet.setComment(StringUtils.isEmpty(item.getDescription()) ? "" : item.getDescription());
                     tree.add(csvDataSet);
                 });
             }
@@ -218,7 +219,7 @@ public abstract class MsTestElement {
                     counterConfig.setVarName(item.getName());
                     counterConfig.setIncrement(item.getIncrement());
                     counterConfig.setFormat(item.getValue());
-                    counterConfig.setComment(item.getDescription());
+                    counterConfig.setComment(StringUtils.isEmpty(item.getDescription()) ? "" : item.getDescription());
                     tree.add(counterConfig);
                 });
             }
