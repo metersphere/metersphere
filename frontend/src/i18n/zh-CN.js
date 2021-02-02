@@ -312,6 +312,7 @@ export default {
     delete_confirm: '确定要删除这个项目吗?',
     delete_tip: '删除该项目，会删除该项目下所有测试资源，确定要删除吗?',
     search_by_name: '根据名称搜索',
+    search_by_name_jar: '根据 名称 / jar包 搜索',
     input_name: '请输入项目名称',
     owning_workspace: '所属工作空间',
     please_choose_workspace: '请选择工作空间',
