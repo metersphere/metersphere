@@ -30,11 +30,6 @@
         this.$refs.nameInput.focus();
       });
     },
-    watch: {
-      editData() {
-        this.$refs.nameInput.focus();
-      }
-    }
   }
 </script>
 
