@@ -406,7 +406,6 @@
       },
       setNodeTree(data) {
         this.nodeTree = data;
-        console.log( this.nodeTree)
       },
       changeSelectDataRangeAll(tableType) {
         this.$route.params.dataSelectRange = 'all';

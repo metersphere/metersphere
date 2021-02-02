@@ -278,7 +278,9 @@
           url = "/api/testcase/update";
         } else {
           tmp.request.path = this.api.path;
-          tmp.request.method = this.api.method;
+          if (tmp.request.protocol != "dubbo://" && tmp.request.protocol != "DUBBO") {
+            tmp.request.method = this.api.method;
+          }
         }
         if (tmp.tags instanceof Array) {
           tmp.tags = JSON.stringify(tmp.tags);

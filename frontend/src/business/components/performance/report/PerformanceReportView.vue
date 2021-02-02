@@ -293,12 +293,12 @@ export default {
       };
       this.result = this.$request(config).then(response => {
         const content = response.data;
-        const blob = new Blob([content]);
+        const blob = new Blob([content], {type: "application/octet-stream"});
         if ("download" in document.createElement("a")) {
           // 非IE下载
           //  chrome/firefox
           let aTag = document.createElement('a');
-          aTag.download = this.reportId + ".jtl";
+          aTag.download = this.reportId + ".zip";
           aTag.href = URL.createObjectURL(blob);
           aTag.click();
           URL.revokeObjectURL(aTag.href)

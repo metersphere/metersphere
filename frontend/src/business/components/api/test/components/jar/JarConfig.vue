@@ -72,4 +72,9 @@
 
 <style scoped>
 
+   .jar-config-list {
+     max-height: 600px;
+     overflow: scroll;
+   }
+
 </style>

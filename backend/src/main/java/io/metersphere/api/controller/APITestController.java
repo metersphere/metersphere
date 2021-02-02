@@ -314,11 +314,7 @@ public class APITestController {
         apiCountResult.setThisWeekExecutedCount(executedInThisWeekCountNumber);
 
         //统计 失败 成功 以及总数
-//        List<ApiDataCountResult> api_allExecuteResult = apiReportService.countByProjectIdGroupByExecuteResult(projectId);
         List<ApiDataCountResult> allExecuteResult = apiScenarioReportService.countByProjectIdGroupByExecuteResult(projectId);
-//        List<ApiDataCountResult> allExecuteResult = new ArrayList<>();
-//        allExecuteResult.addAll(api_allExecuteResult);
-//        allExecuteResult.addAll(scene_allExecuteResult);
         apiCountResult.countScheduleExecute(allExecuteResult);
 
         long allCount = apiCountResult.getExecutedCount();

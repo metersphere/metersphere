@@ -103,6 +103,15 @@ public class ApiAutomationService {
         if (setDefultOrders) {
             request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
         }
+        if(StringUtils.isNotEmpty(request.getExecuteStatus())){
+            Map<String,List<String>> statusFilter = new HashMap<>();
+            List<String> list = new ArrayList<>();
+            list.add("Prepare");
+            list.add("Underway");
+            list.add("Completed");
+            statusFilter.put("status",list);
+            request.setFilters(statusFilter);
+        }
         if (checkThisWeekData) {
             if (request.isSelectThisWeedData()) {
                 Map<String, Date> weekFirstTimeAndLastTime = DateUtils.getWeedFirstTimeAndLastTime(new Date());
@@ -507,7 +516,6 @@ public class ApiAutomationService {
         ParameterConfig config = new ParameterConfig();
         config.setConfig(envConfig);
         HashTree hashTree = request.getTestElement().generateHashTree(config);
-
         // 调用执行方法
         createScenarioReport(request.getId(), request.getScenarioId(), request.getScenarioName(), ReportTriggerMode.MANUAL.name(), request.getExecuteType(), request.getProjectId(),
                 SessionUtils.getUserId());
@@ -708,7 +716,9 @@ public class ApiAutomationService {
             apiScenarios.forEach(item -> {
                 JSONObject object = JSONObject.parseObject(item.getScenarioDefinition());
                 object.put("environmentId", request.getEnvironmentId());
-                item.setScenarioDefinition(JSONObject.toJSONString(object));
+                if (object != null) {
+                    item.setScenarioDefinition(JSONObject.toJSONString(object));
+                }
                 apiScenarioMapper.updateByPrimaryKeySelective(item);
             });
         }
