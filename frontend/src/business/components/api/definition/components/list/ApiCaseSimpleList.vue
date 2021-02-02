@@ -25,13 +25,13 @@
           @selectPageAll="isSelectDataAll(false)"
           @selectAll="isSelectDataAll(true)"/>
 
-        <el-table-column width="30" :resizable="false" min-width="30px" :render-header="labelHead" align="center">
+        <el-table-column width="30" :resizable="false" min-width="30px"  align="center">
           <template v-slot:default="scope">
             <show-more-btn :is-show="scope.row.showMore" :buttons="buttons" :size="selectDataCounts"/>
           </template>
         </el-table-column>
 
-        <el-table-column prop="num" label="ID" min-width="120px" :render-header="labelHead" show-overflow-tooltip>
+        <el-table-column prop="num" label="ID" min-width="120px"  show-overflow-tooltip>
           <template slot-scope="scope">
             <el-tooltip content="编辑">
               <a style="cursor:pointer" @click="handleTestCase(scope.row)"> {{ scope.row.num }} </a>
@@ -39,14 +39,14 @@
           </template>
         </el-table-column>
 
-        <el-table-column prop="name" min-width="160px" :render-header="labelHead" :label="$t('test_track.case.name')" show-overflow-tooltip/>
+        <el-table-column prop="name" min-width="160px"  :label="$t('test_track.case.name')" show-overflow-tooltip/>
 
         <el-table-column
           prop="priority"
           :filters="priorityFilters"
           column-key="priority"
           min-width="120px"
-          :render-header="labelHead"
+
           :label="$t('test_track.case.priority')"
           show-overflow-tooltip>
           <template v-slot:default="scope">
@@ -59,10 +59,10 @@
           prop="path"
           min-width="180px"
           :label="$t('api_test.definition.api_path')"
-          :render-header="labelHead"
+
           show-overflow-tooltip/>
 
-        <el-table-column prop="tags" min-width="120px" :render-header="labelHead" :label="$t('commons.tag')">
+        <el-table-column prop="tags" min-width="120px"  :label="$t('commons.tag')">
           <template v-slot:default="scope">
             <div v-for="(itemName,index)  in scope.row.tags" :key="index">
               <ms-tag type="success" effect="plain" :content="itemName"/>
@@ -73,14 +73,14 @@
         <el-table-column
           prop="createUser"
           :label="'创建人'"
-          :render-header="labelHead"
+
           show-overflow-tooltip/>
 
         <el-table-column
           sortable="custom"
           min-width="160"
           :label="$t('api_test.definition.api_last_time')"
-          :render-header="labelHead"
+
           prop="updateTime">
           <template v-slot:default="scope">
             <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
