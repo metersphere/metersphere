@@ -146,6 +146,9 @@
         @refreshTable="search"/>
 
     </el-card>
+
+    <batch-edit ref="batchEdit" @batchEdit="batchEdit"
+                :type-arr="typeArr" :value-arr="valueArr" :dialog-title="$t('test_track.case.batch_edit_case')"/>
   </div>
 </template>
 
@@ -215,20 +218,20 @@ export default {
       showMore: false,
       buttons: [
         {
+          name: this.$t('test_track.case.batch_edit_case'), handleClick: this.handleEditBatch
+        },
+        {
           name: this.$t('test_track.case.batch_unlink'), handleClick: this.handleDeleteBatch
         }
       ],
       typeArr: [
-        {id: 'status', name: this.$t('test_track.plan_view.execute_result')},
-        {id: 'executor', name: this.$t('test_track.plan_view.executor')},
+        {id: 'status', name: this.$t('test_track.review_view.execute_result')},
       ],
       valueArr: {
-        executor: [],
         status: [
-          {name: this.$t('test_track.plan_view.pass'), id: 'Pass'},
-          {name: this.$t('test_track.plan_view.failure'), id: 'Failure'},
-          {name: this.$t('test_track.plan_view.blocking'), id: 'Blocking'},
-          {name: this.$t('test_track.plan_view.skip'), id: 'Skip'}
+          {name: this.$t('test_track.case.status_prepare'), id: 'Prepare'},
+          {name: this.$t('test_track.case.status_pass'), id: 'Pass'},
+          {name: this.$t('test_track.case.status_un_pass'), id: 'UnPass'},
         ]
       },
     }
@@ -337,6 +340,23 @@ export default {
       this.$post('/test/review/case/delete', {id: testCaseId, reviewId: testCase.reviewId}, () => {
         this.$emit("refresh");
         this.$success(this.$t('test_track.cancel_relevance_success'));
+      });
+    },
+    handleEditBatch() {
+      this.$refs.batchEdit.open(this.selectRows.size);
+    },
+    batchEdit(form) {
+      let reviewId = this.reviewId;
+      let param = {};
+      param[form.type] = form.value;
+      param.ids = Array.from(this.selectRows).map(row => row.caseId);
+      param.reviewId = reviewId;
+      this.$post('/test/review/case/batch/edit/status', param, () => {
+        this.selectRows.clear();
+        this.status = '';
+        this.$post('/test/case/review/edit/status/' + reviewId);
+        this.$success(this.$t('commons.save_success'));
+        this.$emit('refresh');
       });
     },
     handleSelectAll(selection) {
