@@ -1,7 +1,7 @@
 <template>
   <div class="failure-cases-list">
     <div class="failure-cases-list-header">
-      接口测试用例
+      {{$t('test_track.plan.api_case')}}
     </div>
 
     <el-table
@@ -28,7 +28,7 @@
 
       <el-table-column
         prop="createUser"
-        :label="'创建人'"
+        :label="$t('api_test.automation.creator')"
         show-overflow-tooltip/>
 
       <el-table-column prop="lastResult" :label="$t('api_test.automation.last_result')">

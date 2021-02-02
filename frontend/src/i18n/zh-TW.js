@@ -1135,6 +1135,8 @@ export default {
       plan_delete_confirm: "將刪除該測試計劃下所有用例，確認刪除測試計劃: ",
       plan_delete_tip: "該測試計劃正在進行中，請確認再刪除！",
       plan_delete: "刪除計劃",
+      api_case: "接口測試用例",
+      scenario_case: "場景測試用例",
       load_case: {
         execution_status: "執行狀態",
         report: "報告",

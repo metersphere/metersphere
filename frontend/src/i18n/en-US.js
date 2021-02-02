@@ -1133,6 +1133,8 @@ export default {
       plan_delete_confirm: "All use cases under this plan will be deleted,confirm delete test plan: ",
       plan_delete_tip: "The test plan is under way, please confirm and delete it!",
       plan_delete: "Delete test plan",
+      api_case: "Api case",
+      scenario_case: "Scenario case",
       load_case: {
         execution_status: "Execution status",
         report: "report",
