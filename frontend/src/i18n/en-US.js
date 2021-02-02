@@ -187,7 +187,11 @@ export default {
       review: "all"
     },
     image: 'Image',
-    tag: 'Tag'
+    tag: 'Tag',
+    module: {
+      select_module: "Select module",
+      default_module: "Default module",
+    }
   },
   license: {
     title: 'Authorization management',

@@ -188,7 +188,11 @@ export default {
       review: "全部评审"
     },
     image: '镜像',
-    tag: '标签'
+    tag: '标签',
+    module: {
+      select_module: "选择模块",
+      default_module: "默认模块",
+    }
   },
   license: {
     title: '授权管理',
