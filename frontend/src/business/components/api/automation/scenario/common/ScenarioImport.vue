@@ -35,6 +35,23 @@
         <el-col :span="1">
           <el-divider direction="vertical"/>
         </el-col>
+        <el-col :span="12">
+          <el-upload
+            class="api-upload"
+            drag
+            action=""
+            :http-request="upload"
+            :limit="1"
+            :beforeUpload="uploadValidate"
+            :on-remove="handleRemove"
+            :file-list="fileList"
+            :on-exceed="handleExceed"
+            multiple>
+            <i class="el-icon-upload"></i>
+            <div class="el-upload__text" v-html="$t('load_test.upload_tips')"></div>
+            <div class="el-upload__tip" slot="tip">{{ $t('api_test.api_import.file_size_limit') }}</div>
+          </el-upload>
+        </el-col>
 
       </el-row>
     </el-form>
@@ -182,7 +199,7 @@
               return;
             }
             let param = this.buildParam();
-            this.result = this.$fileUpload('/api/definition/import', param.file, null, this.buildParam(), response => {
+            this.result = this.$fileUpload('/api/automation/import', param.file, null, this.buildParam(), response => {
               let res = response.data;
               this.$success(this.$t('test_track.case.import.success'));
               this.visible = false;

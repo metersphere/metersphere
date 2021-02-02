@@ -138,6 +138,7 @@
             this.$refs.apiImport.open(this.currentModule);
             break;
           case "export":
+            this.$emit('exportAPI');
             break;
         }
       },
