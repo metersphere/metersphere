@@ -188,7 +188,11 @@ export default {
       review: "全部評審"
     },
     image: '鏡像',
-    tag: '標簽'
+    tag: '標簽',
+    module: {
+      select_module: "選擇模塊",
+      default_module: "默認模塊",
+    }
   },
   license: {
     title: '授權管理',

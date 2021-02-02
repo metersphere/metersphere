@@ -1,6 +1,6 @@
 <template>
   <el-dialog
-    title="选则模块"
+    :title="$t('commons.module.select_module')"
     :visible.sync="oneClickOperationVisible"
     width="600px"
     left
@@ -11,7 +11,7 @@
     <ms-node-tree
       v-loading="result.loading"
       :tree-nodes="data"
-      allLabel="默认模块"
+      :allLabel="$t('commons.module.default_module')"
       @add="add"
       :type="'edit'"
       @edit="edit"
