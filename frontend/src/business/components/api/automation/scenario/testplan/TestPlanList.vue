@@ -203,8 +203,9 @@
       confirm() {
         if (this.selection.length==0) {
           this.$warning(this.$t("api_test.definition.request.test_plan_select"));
+        }else{
+          this.$emit('addTestPlan', this.selection);
         }
-        this.$emit('addTestPlan', this.selection);
       },
       cancel(){
         this.$emit('cancel');
