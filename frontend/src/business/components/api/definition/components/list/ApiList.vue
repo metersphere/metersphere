@@ -17,6 +17,7 @@
                 @filter-change="filter"
                 :data="tableData" row-key="id" class="test-content adjust-table ms-select-all-fixed"
                 @select-all="handleSelectAll"
+                @header-dragend="headerDragend"
                 @select="handleSelect" :height="screenHeight">
         <el-table-column width="50" type="selection"/>
 
@@ -693,12 +694,13 @@ export default {
       _filter(filters, this.condition);
       this.initTable();
     },
-    labelHead(h,{column,index}){
-      if(column.minWidth>column.realWidth){
-        column.realWidth = column.minWidth;
-        column.width = column.minWidth;
+    headerDragend(newWidth,oldWidth,column,event){
+      let finalWidth = newWidth;
+      if(column.minWidth>finalWidth){
+        finalWidth = column.minWidth;
       }
-      return column.label;
+      column.width = finalWidth;
+      column.realWidth = finalWidth;
     },
     open() {
       this.$refs.searchBar.open();

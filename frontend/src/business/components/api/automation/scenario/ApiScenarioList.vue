@@ -10,6 +10,7 @@
                 @sort-change="sort"
                 @filter-change="filter"
                 @select-all="select" @select="select"
+                @header-dragend="headerDragend"
                 v-loading="loading">
 
         <el-table-column type="selection" width="50"/>
@@ -40,7 +41,6 @@
                          sortable="custom"
                          :label="$t('api_test.automation.scenario_name')"
                          show-overflow-tooltip
-
                          min-width="120px"/>
         <el-table-column prop="level"
                          sortable="custom"
@@ -609,13 +609,13 @@
         _filter(filters, this.condition);
         this.search();
       },
-      labelHead(h,{column,index}){
-        // alert(column.minWidth+":"+column.realWidth+":"+column.width);
-        if(column.minWidth>column.realWidth){
-          column.realWidth = column.minWidth;
-          column.width = column.minWidth;
+      headerDragend(newWidth,oldWidth,column,event){
+        let finalWidth = newWidth;
+        if(column.minWidth>finalWidth){
+          finalWidth = column.minWidth;
         }
-        return column.label;
+        column.width = finalWidth;
+        column.realWidth = finalWidth;
       },
       openScenario(item) {
         this.$emit('openScenario', item)

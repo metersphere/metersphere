@@ -35,6 +35,7 @@
         @select="handleSelectionChange"
         row-key="id"
         @row-click="showDetail"
+        @header-dragend="headerDragend"
         :data="tableData">
 
         <el-table-column
@@ -595,12 +596,13 @@ export default {
       _sort(column, this.condition);
       this.initTableData();
     },
-    labelHead(h,{column,index}){
-      if(column.minWidth>column.realWidth){
-        column.realWidth = column.minWidth;
-        column.width = column.minWidth;
+    headerDragend(newWidth,oldWidth,column,event){
+      let finalWidth = newWidth;
+      if(column.minWidth>finalWidth){
+        finalWidth = column.minWidth;
       }
-      return column.label;
+      column.width = finalWidth;
+      column.realWidth = finalWidth;
     },
     batchEdit(form) {
       let param = {};

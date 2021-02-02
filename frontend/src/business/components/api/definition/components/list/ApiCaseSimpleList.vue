@@ -15,6 +15,7 @@
                 @select-all="handleSelectAll"
                 @filter-change="filter"
                 @sort-change="sort"
+                @header-dragend="headerDragend"
                 @select="handleSelect" :height="screenHeight">
 
         <el-table-column type="selection" width="50"/>
@@ -507,12 +508,13 @@ export default {
         this.clickRow = row;
         this.$refs.setEnvironment.open(row);
       },
-      labelHead(h,{column,index}){
-        if(column.minWidth>column.realWidth){
-          column.realWidth = column.minWidth;
-          column.width = column.minWidth;
+      headerDragend(newWidth,oldWidth,column,event){
+        let finalWidth = newWidth;
+        if(column.minWidth>finalWidth){
+          finalWidth = column.minWidth;
         }
-        return column.label;
+        column.width = finalWidth;
+        column.realWidth = finalWidth;
       },
       createPerformance(row, environment) {
         /**
