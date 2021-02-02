@@ -263,7 +263,6 @@
         });
       },
       saveCase(row) {
-        console.log(row)
         let tmp = JSON.parse(JSON.stringify(row));
         this.isShowInput = false;
         if (this.validate(tmp)) {
