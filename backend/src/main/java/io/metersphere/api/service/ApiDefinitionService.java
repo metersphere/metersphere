@@ -350,7 +350,8 @@ public class ApiDefinitionService {
     private String setImportHashTree(ApiDefinitionWithBLOBs apiDefinition) {
         String request = apiDefinition.getRequest();
         MsHTTPSamplerProxy msHTTPSamplerProxy = JSONObject.parseObject(request, MsHTTPSamplerProxy.class);
-        msHTTPSamplerProxy.setHashTree(null);
+        msHTTPSamplerProxy.setId(apiDefinition.getId());
+        msHTTPSamplerProxy.setHashTree(new LinkedList<>());
         apiDefinition.setRequest(JSONObject.toJSONString(msHTTPSamplerProxy));
         return request;
     }
