@@ -459,6 +459,8 @@ public class ApiAutomationService {
             ids = this.getAllScenarioIdsByFontedSelect(
                     request.getModuleIds(), request.getName(), request.getProjectId(), request.getFilters(), request.getUnSelectIds());
         }
+        //检查是否有正在执行中的情景
+        this.checkScenarioIsRunnng(ids);
         List<ApiScenarioWithBLOBs> apiScenarios = extApiScenarioMapper.selectIds(ids);
 
         String runMode = ApiRunMode.SCENARIO.name();
@@ -473,6 +475,15 @@ public class ApiAutomationService {
         HashTree hashTree = generateHashTree(apiScenarios, request, reportIds);
         jMeterService.runDefinition(JSON.toJSONString(reportIds), hashTree, request.getReportId(), runMode);
         return request.getId();
+    }
+
+    public void checkScenarioIsRunnng(List<String> ids) {
+        List<ApiScenarioReport> lastReportStatusByIds = apiReportService.selectLastReportByIds(ids);
+        for (ApiScenarioReport report : lastReportStatusByIds) {
+            if(StringUtils.equals(report.getStatus(),APITestStatus.Running.name())){
+                MSException.throwException(report.getName()+" Is Running!");
+            }
+        }
     }
 
     /**
