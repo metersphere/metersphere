@@ -103,6 +103,15 @@ public class ApiAutomationService {
         if (setDefultOrders) {
             request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
         }
+        if(StringUtils.isNotEmpty(request.getExecuteStatus())){
+            Map<String,List<String>> statusFilter = new HashMap<>();
+            List<String> list = new ArrayList<>();
+            list.add("Prepare");
+            list.add("Underway");
+            list.add("Completed");
+            statusFilter.put("status",list);
+            request.setFilters(statusFilter);
+        }
         if (checkThisWeekData) {
             if (request.isSelectThisWeedData()) {
                 Map<String, Date> weekFirstTimeAndLastTime = DateUtils.getWeedFirstTimeAndLastTime(new Date());
