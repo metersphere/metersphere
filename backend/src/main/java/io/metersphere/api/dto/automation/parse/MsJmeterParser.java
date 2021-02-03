@@ -1,0 +1,224 @@
+package io.metersphere.api.dto.automation.parse;
+
+import io.metersphere.api.dto.ApiTestImportRequest;
+import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.commons.utils.ScriptEngineUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
+import java.util.HashMap;
+import java.util.Map;
+
+public class MsJmeterParser extends ScenarioImportAbstractParser {
+    private final static String HASH_TREE_ELEMENT = "hashTree";
+    private final static String STRING_PROP = "stringProp";
+    private final static String ARGUMENTS = "Arguments";
+    private final static String COLLECTION_PROP = "collectionProp";
+    private final static String HTTP_SAMPLER_PROXY = "HTTPSamplerProxy";
+    private final static String ELEMENT_PROP = "elementProp";
+
+    @Override
+    public ScenarioImport parse(InputStream inputSource, ApiTestImportRequest request) {
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        try {
+            DocumentBuilder docBuilder = factory.newDocumentBuilder();
+            final Document document = docBuilder.parse(inputSource);
+            final Element jmeterTestPlan = document.getDocumentElement();
+            NodeList childNodes = jmeterTestPlan.getChildNodes();
+            for (int i = 0; i < childNodes.getLength(); i++) {
+                Node node = childNodes.item(i);
+                if (node instanceof Element) {
+                    Element ele = (Element) node;
+                    parseHashTree(ele);
+                }
+            }
+            return null;
+        } catch (Exception e) {
+            LogUtil.error(e.getMessage(), e);
+            return null;
+        }
+    }
+    private static void parseHashTree(Element hashTree) {
+        if (invalid(hashTree)) {
+            return;
+        }
+
+        if (hashTree.getChildNodes().getLength() > 0) {
+            final NodeList childNodes = hashTree.getChildNodes();
+            for (int i = 0; i < childNodes.getLength(); i++) {
+                Node node = childNodes.item(i);
+                if (node instanceof Element) {
+                    Element ele = (Element) node;
+                    if (invalid(ele)) {
+                        continue;
+                    }
+                    if (nodeNameEquals(ele, HASH_TREE_ELEMENT)) {
+                        parseHashTree(ele);
+                    } else if (nodeNameEquals(ele, ARGUMENTS)) {
+                        processArguments(ele);
+                    } else if (nodeNameEquals(ele, HTTP_SAMPLER_PROXY)) {
+                        processHttpSamplerProxy(ele);
+                    }
+                }
+            }
+        }
+    }
+
+    private static void processHttpSamplerProxy(Element ele) {
+        if (invalid(ele)) {
+            return;
+        }
+        NodeList childNodes = ele.getChildNodes();
+        for (int i = 0; i < childNodes.getLength(); i++) {
+            Node item = childNodes.item(i);
+            if (!(item instanceof Element)) {
+                continue;
+            }
+            Element element = (Element) item;
+            if (nodeNameEquals(element, ELEMENT_PROP) && "HTTPsampler.Arguments".equals(element.getAttribute("name"))) {
+                processArguments(element);
+            } else if ("HTTPSampler.path".equals(element.getAttribute("name"))) {
+                processStringProp(element);
+            }
+        }
+    }
+
+    private static void processArguments(Element ele) {
+        if (invalid(ele)) {
+            return;
+        }
+        NodeList childNodes = ele.getChildNodes();
+        for (int i = 0; i < childNodes.getLength(); i++) {
+            Node item = childNodes.item(i);
+            if (!(item instanceof Element)) {
+                continue;
+            }
+            Element element = (Element) item;
+            if (nodeNameEquals(item, COLLECTION_PROP) && "Arguments.arguments".equals(element.getAttribute("name"))) {
+                NodeList elementProps = item.getChildNodes();
+                for (int j = 0; j < elementProps.getLength(); j++) {
+                    Node elementProp = elementProps.item(j);
+                    if (!(elementProp instanceof Element)) {
+                        continue;
+                    }
+                    NodeList stringProps = elementProp.getChildNodes();
+                    for (int k = 0; k < stringProps.getLength(); k++) {
+                        Node stringProp = stringProps.item(k);
+                        if (!(stringProp instanceof Element)) {
+                            continue;
+                        }
+                        processStringProp((Element) stringProp);
+                    }
+                }
+            }
+        }
+    }
+
+    private static void processStringProp(Element ele) {
+        String name = ele.getAttribute("name");
+        switch (name) {
+            case "HTTPSampler.path":
+                String path = ele.getTextContent();
+                Map<String, String> parser = parserUrl(path);
+                String url = parser.get("URL");
+                String params = parser.keySet().stream().filter(k -> !"URL".equals(k)).reduce("?", (u, k) -> {
+                    String v = parser.get(k);
+                    if (!StringUtils.equals("?", u)) {
+                        u += "&";
+                    }
+                    v = ScriptEngineUtils.calculate(v);
+                    // urlencoder
+                    try {
+                        v = URLEncoder.encode(v, "UTF-8");
+                    } catch (UnsupportedEncodingException e) {
+                        LogUtil.error(e);
+                    }
+                    u += k + "=" + v;
+                    return u;
+                });
+                //rest参数处理
+                if (url.contains("@")) {
+                    String vars[] = url.split("@");
+                    for (String item : vars) {
+                        if (item.endsWith("/")) {
+                            item = item.substring(0, item.length() - 1);
+                        }
+                        url = url.replace("@" + item, ScriptEngineUtils.calculate("@" + item));
+                    }
+                }
+                ele.setTextContent(url + ((params != null && !params.equals("?")) ? params : ""));
+                break;
+            case "Argument.value":
+                String textContent = ele.getTextContent();
+                if (StringUtils.startsWith(textContent, "@")) {
+                    ele.setTextContent(ScriptEngineUtils.calculate(textContent));
+                }
+                break;
+            default:
+                break;
+        }
+    }
+
+    private static boolean nodeNameEquals(Node node, String desiredName) {
+        return desiredName.equals(node.getNodeName()) || desiredName.equals(node.getLocalName());
+    }
+
+    private static boolean invalid(Element ele) {
+        return !StringUtils.isBlank(ele.getAttribute("enabled")) && !Boolean.parseBoolean(ele.getAttribute("enabled"));
+    }
+
+    private static Map<String, String> parserUrl(String url) {
+//		传递的URL参数
+        Map<String, String> strUrlParas = new HashMap<>();
+
+        String strUrl;
+        String strUrlParams;
+
+
+//		解析访问地址
+        if (url.contains("?")) {
+            String[] strUrlPatten = url.split("\\?");
+            strUrl = strUrlPatten[0];
+            strUrlParams = strUrlPatten[1];
+
+        } else {
+            strUrl = url;
+            strUrlParams = url;
+        }
+
+        strUrlParas.put("URL", strUrl);
+//		解析参数
+        String[] params = null;
+
+        if (strUrlParams.contains("&")) {
+            params = strUrlParams.split("&");
+        } else {
+            params = new String[]{strUrlParams};
+        }
+
+//		保存参数到参数容器
+        for (String p : params) {
+            if (p.contains("=")) {
+                String[] param = p.split("=");
+                if (param.length == 1) {
+                    strUrlParas.put(param[0], "");
+                } else {
+
+                    String key = param[0];
+                    String value = param[1];
+
+                    strUrlParas.put(key, value);
+                }
+            }
+        }
+        return strUrlParas;
+    }
+}
