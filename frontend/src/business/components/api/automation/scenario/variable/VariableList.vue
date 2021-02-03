@@ -1,9 +1,9 @@
 <template>
   <el-dialog :title="$t('api_test.scenario.variables')" :close-on-click-modal="false"
-             :visible.sync="visible" class="environment-dialog" width="850px"
+             :visible.sync="visible" class="visible-dialog" width="60%"
              @close="close" v-loading="loading">
     <div>
-      <el-input placeholder="变量名称搜索" style="width: 50%;margin: 0px 0px 20px" v-model="selectVariable" size="small" @change="filter" @keyup.enter="filter">
+      <el-input placeholder="变量名称搜索" style="width: 50%;margin: 0px 0px 10px" v-model="selectVariable" size="small" @change="filter" @keyup.enter="filter">
         <el-select v-model="searchType" slot="prepend" placeholder="类型" style="width: 90px" @change="filter">
           <el-option value="CONSTANT" label="常量"></el-option>
           <el-option value="LIST" label="列表"></el-option>
@@ -36,15 +36,12 @@
           <ms-edit-list-value v-if="editData.type=='LIST'" ref="listValue" :editData="editData"/>
           <ms-edit-csv v-if="editData.type=='CSV'" ref="csv" :editData.sync="editData"/>
         </el-col>
-
       </el-row>
-
     </div>
 
     <template v-slot:footer>
-      <div style="margin:20px">
+      <div>
         <el-button style="margin-right:10px" @click="deleteVariable">{{$t('commons.delete')}}</el-button>
-
         <el-dropdown split-button type="primary" @command="handleClick" @click="handleClick('CONSTANT')" placement="top-end">
           {{$t('commons.add')}}
           <el-dropdown-menu slot="dropdown">
@@ -205,8 +202,12 @@
   }
 </script>
 
-<style>
+<style scoped>
   .ms-variable-hidden-row {
     display: none;
+  }
+
+  /deep/ .el-dialog__body {
+    padding: 10px 10px;
   }
 </style>

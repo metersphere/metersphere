@@ -11,6 +11,7 @@
                 @filter-change="filter"
                 @select-all="select" @select="select"
                 @header-dragend="headerDragend"
+                :height="screenHeight"
                 v-loading="loading">
 
         <el-table-column type="selection" width="50"/>
@@ -21,7 +22,7 @@
                                         @selectPageAll="isSelectDataAll(false)"
                                         @selectAll="isSelectDataAll(true)"/>
 
-        <el-table-column v-if="!referenced" width="30" min-width="30"  :resizable="false" align="center">
+        <el-table-column v-if="!referenced" width="30" min-width="30" :resizable="false" align="center">
           <template v-slot:default="scope">
             <show-more-btn :is-show="isSelect(scope.row)" :buttons="buttons" :size="selectDataCounts"/>
           </template>
@@ -65,7 +66,7 @@
           </template>
         </el-table-column>
         <el-table-column prop="tags" min-width="120px"
-                          :label="$t('api_test.automation.tag')">
+                         :label="$t('api_test.automation.tag')">
           <template v-slot:default="scope">
             <div v-for="(itemName,index)  in scope.row.tags" :key="index">
               <ms-tag type="success" effect="plain" :content="itemName"/>
@@ -73,19 +74,19 @@
           </template>
         </el-table-column>
         <el-table-column prop="userId" min-width="120px"
-                          :label="$t('api_test.automation.creator')"
+                         :label="$t('api_test.automation.creator')"
                          :filters="userFilters"
                          column-key="user_id"
                          sortable="custom"
                          show-overflow-tooltip/>
-        <el-table-column prop="updateTime" :label="$t('api_test.automation.update_time')" sortable="custom"  min-width="180px"
-                         >
+        <el-table-column prop="updateTime" :label="$t('api_test.automation.update_time')" sortable="custom" min-width="180px"
+        >
           <template v-slot:default="scope">
             <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
           </template>
         </el-table-column>
         <el-table-column prop="stepTotal" :label="$t('api_test.automation.step')" min-width="80px"
-                          show-overflow-tooltip/>
+                         show-overflow-tooltip/>
         <el-table-column prop="lastResult" :label="$t('api_test.automation.last_result')"
                          :filters="resultFilters"
 
@@ -214,6 +215,7 @@
     data() {
       return {
         loading: false,
+        screenHeight: document.documentElement.clientHeight - 280,//屏幕高度,
         condition: {
           components: API_SCENARIO_CONFIGS
         },
@@ -437,7 +439,7 @@
           });
         });
       },
-      cancel(){
+      cancel() {
         this.planVisible = false;
       },
       addTestPlan(plans) {
@@ -609,9 +611,9 @@
         _filter(filters, this.condition);
         this.search();
       },
-      headerDragend(newWidth,oldWidth,column,event){
+      headerDragend(newWidth, oldWidth, column, event) {
         let finalWidth = newWidth;
-        if(column.minWidth>finalWidth){
+        if (column.minWidth > finalWidth) {
           finalWidth = column.minWidth;
         }
         column.width = finalWidth;
@@ -648,5 +650,9 @@
 
   /deep/ .el-table__fixed {
     height: 110px !important;
+  }
+
+  /deep/ .el-card__header {
+    padding: 10px;
   }
 </style>

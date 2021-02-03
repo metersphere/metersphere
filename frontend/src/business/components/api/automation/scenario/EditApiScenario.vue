@@ -250,7 +250,7 @@
         rules: {
           name: [
             {required: true, message: this.$t('test_track.case.input_name'), trigger: 'blur'},
-            {max: 50, message: this.$t('test_track.length_less_than') + '50', trigger: 'blur'}
+            {max: 100, message: this.$t('test_track.length_less_than') + '100', trigger: 'blur'}
           ],
           userId: [{required: true, message: this.$t('test_track.case.input_maintainer'), trigger: 'change'}],
           apiScenarioModuleId: [{required: true, message: this.$t('test_track.case.input_module'), trigger: 'change'}],

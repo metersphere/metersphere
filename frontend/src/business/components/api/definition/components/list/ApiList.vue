@@ -273,7 +273,7 @@ export default {
       currentPage: 1,
       pageSize: 10,
       total: 0,
-      screenHeight: document.documentElement.clientHeight - 330,//屏幕高度,
+      screenHeight: document.documentElement.clientHeight - 270,//屏幕高度,
       environmentId: undefined,
       selectAll: false,
       unSelection: [],
