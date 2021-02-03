@@ -29,6 +29,7 @@
         @filter-change="filter"
         @select-all="handleSelectAll"
         @select="handleSelect"
+        @header-dragend="headerDragend"
         @cell-mouse-enter="showPopover"
         row-key="id"
         class="test-content adjust-table ms-select-all-fixed"
@@ -561,6 +562,14 @@ export default {
       } else {
         this.selectDataCounts = this.selectRows.size;
       }
+    },
+    headerDragend(newWidth,oldWidth,column,event){
+      let finalWidth = newWidth;
+      if(column.minWidth>finalWidth){
+        finalWidth = column.minWidth;
+      }
+      column.width = finalWidth;
+      column.realWidth = finalWidth;
     },
     moveSave(param) {
       param.condition = this.condition;

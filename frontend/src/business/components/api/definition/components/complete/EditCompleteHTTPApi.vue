@@ -109,29 +109,29 @@
 
 <script>
 
-  import MsApiRequestForm from "../request/http/ApiHttpRequestForm";
-  import MsResponseText from "../response/ResponseText";
-  import {WORKSPACE_ID} from '../../../../../../common/js/constants';
-  import {API_STATUS, REQ_METHOD} from "../../model/JsonData";
-  import {KeyValue} from "../../model/ApiTestModel";
-  import MsInputTag from "@/business/components/api/automation/scenario/MsInputTag";
-  import MsJsr233Processor from "../../../automation/scenario/component/Jsr233Processor";
+import MsApiRequestForm from "../request/http/ApiHttpRequestForm";
+import MsResponseText from "../response/ResponseText";
+import {WORKSPACE_ID} from '../../../../../../common/js/constants';
+import {API_STATUS, REQ_METHOD} from "../../model/JsonData";
+import {KeyValue} from "../../model/ApiTestModel";
+import MsInputTag from "@/business/components/api/automation/scenario/MsInputTag";
+import MsJsr233Processor from "../../../automation/scenario/component/Jsr233Processor";
 
-  export default {
-    name: "MsAddCompleteHttpApi",
-    components: {MsJsr233Processor, MsResponseText, MsApiRequestForm, MsInputTag},
-    data() {
-      let validateURL = (rule, value, callback) => {
-        if (!this.httpForm.path.startsWith("/") || this.httpForm.path.match(/\s/) != null) {
-          callback(this.$t('api_test.definition.request.path_valid_info'));
-        }
-        callback();
-      };
-      return {
+export default {
+  name: "MsAddCompleteHttpApi",
+  components: {MsJsr233Processor, MsResponseText, MsApiRequestForm, MsInputTag},
+  data() {
+    let validateURL = (rule, value, callback) => {
+      if (!this.httpForm.path.startsWith("/") || this.httpForm.path.match(/\s/) != null) {
+        callback(this.$t('api_test.definition.request.path_valid_info'));
+      }
+      callback();
+    };
+    return {
         rule: {
           name: [
             {required: true, message: this.$t('test_track.case.input_name'), trigger: 'blur'},
-            {max: 50, message: this.$t('test_track.length_less_than') + '50', trigger: 'blur'}
+            {max: 100, message: this.$t('test_track.length_less_than') + '100', trigger: 'blur'}
           ],
           path: [{required: true, message: this.$t('api_test.definition.request.path_info'), trigger: 'blur'}, {
             validator: validateURL,

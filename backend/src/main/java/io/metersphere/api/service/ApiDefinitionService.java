@@ -82,6 +82,8 @@ public class ApiDefinitionService {
     private ExtSwaggerUrlScheduleMapper extSwaggerUrlScheduleMapper;
     @Resource
     private ScheduleMapper scheduleMapper;
+    @Resource
+    private ApiTestCaseMapper apiTestCaseMapper;
 
     private static Cache cache = Cache.newHardMemoryCache(0, 3600 * 24);
 
@@ -348,7 +350,8 @@ public class ApiDefinitionService {
     private String setImportHashTree(ApiDefinitionWithBLOBs apiDefinition) {
         String request = apiDefinition.getRequest();
         MsHTTPSamplerProxy msHTTPSamplerProxy = JSONObject.parseObject(request, MsHTTPSamplerProxy.class);
-        msHTTPSamplerProxy.setHashTree(null);
+        msHTTPSamplerProxy.setId(apiDefinition.getId());
+        msHTTPSamplerProxy.setHashTree(new LinkedList<>());
         apiDefinition.setRequest(JSONObject.toJSONString(msHTTPSamplerProxy));
         return request;
     }
@@ -466,6 +469,14 @@ public class ApiDefinitionService {
     public APIReportResult getDbResult(String testId, String type) {
         ApiDefinitionExecResult result = extApiDefinitionExecResultMapper.selectMaxResultByResourceIdAndType(testId, type);
         return buildAPIReportResult(result);
+    }
+
+    public ApiDefinitionExecResult getResultByJenkins(String testId, String type) {
+        return extApiDefinitionExecResultMapper.selectMaxResultByResourceIdAndType(testId, type);
+    }
+
+    public ApiTestCaseWithBLOBs getApiCaseInfo(String apiCaseId) {
+        return apiTestCaseMapper.selectByPrimaryKey(apiCaseId);
     }
 
 

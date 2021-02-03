@@ -1,7 +1,7 @@
 <template>
   <div class="failure-cases-list">
     <div class="failure-cases-list-header">
-      场景测试用例
+      {{$t('test_track.plan.scenario_case')}}
     </div>
 
     <el-table
@@ -64,9 +64,21 @@
       name: "ScenarioFailureCasesList",
       components: {MsTag, PriorityTableItem, TypeTableItem, MethodTableItem, StatusTableItem},
       props: ['scenarioTestCases'],
+      watch: {
+        scenarioTestCases() {
+          this.parseTags();
+        }
+      },
       methods: {
         goFailureTestCase(row) {
           this.$emit("openFailureTestCase", row);
+        },
+        parseTags() {
+          this.scenarioTestCases.forEach(item => {
+            if (item.tags && item.tags.length > 0) {
+              item.tags = JSON.parse(item.tags);
+            }
+          });
         }
       }
     }

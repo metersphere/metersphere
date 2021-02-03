@@ -172,6 +172,22 @@ export const API_CASE_RESULT = {
   }
 }
 
+export const API_SCENARIO_RESULT = {
+  key: "status",
+  name: 'MsTableSearchSelect',
+  label: 'test_track.plan_view.execute_result',
+  operator: {
+    options: [OPERATORS.IN, OPERATORS.NOT_IN]
+  },
+  options: [
+    {value: 'Success', label: 'api_test.automation.success'},
+    {value: 'Fail', label: 'api_test.automation.fail'}
+  ],
+  props: { // 尾部控件的props，一般为element ui控件的props
+    multiple: true
+  }
+}
+
 export const API_METHOD = {
   key: "method",
   name: 'MsTableSearchSelect',
@@ -441,5 +457,7 @@ export const TEST_PLAN_CONFIGS = [NAME, UPDATE_TIME, CREATE_TIME, PRINCIPAL, TES
 export const API_DEFINITION_CONFIGS = [NAME, API_METHOD, API_PATH, API_STATUS, API_TAGS, UPDATE_TIME, CREATE_TIME, CREATOR];
 
 export const API_CASE_CONFIGS = [NAME, API_CASE_PRIORITY, API_TAGS, API_CASE_RESULT, UPDATE_TIME, CREATE_TIME, CREATOR];
+
+export const API_SCENARIO_CONFIGS = [NAME, API_CASE_PRIORITY, API_TAGS, API_SCENARIO_RESULT, UPDATE_TIME, CREATE_TIME, CREATOR];
 
 export const TEST_PLAN_REPORT_CONFIGS = [NAME, TEST_PLAN_NAME,CREATOR, CREATE_TIME, TEST_PLAN_TRIGGER_MODE, TEST_PLAN_STATUS];

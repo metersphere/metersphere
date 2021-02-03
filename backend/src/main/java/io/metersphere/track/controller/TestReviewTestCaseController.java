@@ -39,8 +39,14 @@ public class TestReviewTestCaseController {
 
     @PostMapping("/batch/delete")
     @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
-    public void deleteTestCaseBath(@RequestBody TestReviewCaseBatchRequest request) {
-        testReviewTestCaseService.deleteTestCaseBath(request);
+    public void deleteTestCaseBatch(@RequestBody TestReviewCaseBatchRequest request) {
+        testReviewTestCaseService.deleteTestCaseBatch(request);
+    }
+
+    @PostMapping("/batch/edit/status")
+    @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
+    public void editTestCaseBatch(@RequestBody TestReviewCaseBatchRequest request) {
+        testReviewTestCaseService.editTestCaseBatchStatus(request);
     }
 
     @PostMapping("/list/all")

@@ -96,7 +96,7 @@ public class MsJDBCSampler extends MsTestElement {
 
     private Arguments arguments(String name, List<KeyValue> variables) {
         Arguments arguments = new Arguments();
-        if (!variables.isEmpty()) {
+        if (CollectionUtils.isNotEmpty(variables)) {
             arguments.setEnabled(true);
             arguments.setName(name);
             arguments.setProperty(TestElement.TEST_CLASS, Arguments.class.getName());

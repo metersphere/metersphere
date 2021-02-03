@@ -127,7 +127,7 @@
     </ms-delete-confirm>
 
     <ms-dialog-footer style="float: right;margin: 20px"
-                      @confirm="confirm">
+                      @confirm="confirm" @cancel="cancel">
     </ms-dialog-footer>
 
   </el-card>
@@ -203,8 +203,12 @@
       confirm() {
         if (this.selection.length==0) {
           this.$warning(this.$t("api_test.definition.request.test_plan_select"));
+        }else{
+          this.$emit('addTestPlan', this.selection);
         }
-        this.$emit('addTestPlan', this.selection);
+      },
+      cancel(){
+        this.$emit('cancel');
       },
       select(selection) {
         this.selection = selection.map(s => s.id);

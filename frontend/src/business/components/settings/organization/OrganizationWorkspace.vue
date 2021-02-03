@@ -10,8 +10,9 @@
         <el-table-column prop="description" :label="$t('commons.description')"/>
         <el-table-column :label="$t('commons.member')">
           <template v-slot:default="scope">
-            <el-button type="text" class="member-size" @click="cellClick(scope.row)">{{scope.row.memberSize}}
-            </el-button>
+            <el-link type="primary" class="member-size" @click="cellClick(scope.row)">
+              {{ scope.row.memberSize }}
+            </el-link>
           </template>
         </el-table-column>
         <el-table-column :label="$t('commons.operating')">
@@ -506,7 +507,6 @@
 
   .member-size {
     text-decoration: underline;
-    cursor: pointer;
   }
 
   .select-width {

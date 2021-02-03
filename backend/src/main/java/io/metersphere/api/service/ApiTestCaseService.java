@@ -473,7 +473,7 @@ public class ApiTestCaseService {
                 String runMode = ApiRunMode.JENKINS.name();
 */
                 // 调用执行方法
-                jMeterService.runDefinition(request.getReportId(), jmeterHashTree, request.getReportId(), request.getRunMode());
+                jMeterService.runDefinition(request.getCaseId(), jmeterHashTree, request.getReportId(), request.getRunMode());
 
             } catch (Exception ex) {
                 LogUtil.error(ex.getMessage());

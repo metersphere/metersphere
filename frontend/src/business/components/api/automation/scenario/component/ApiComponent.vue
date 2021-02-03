@@ -25,18 +25,8 @@
       </el-tooltip>
     </template>
 
-    <div v-if="request.protocol === 'HTTP'">
-      <el-input :placeholder="$t('api_test.definition.request.path_all_info')" v-if="request.url" v-model="request.url" style="width: 85%;margin-top: 10px" size="small">
-        <el-select v-model="request.method" slot="prepend" style="width: 100px" size="small">
-          <el-option v-for="item in reqOptions" :key="item.id" :label="item.label" :value="item.id"/>
-        </el-select>
-      </el-input>
-      <el-input :placeholder="$t('api_test.definition.request.path_all_info')" v-else v-model="request.path" style="width: 85%;margin-top: 10px" size="small">
-        <el-select v-model="request.method" slot="prepend" style="width: 100px" size="small">
-          <el-option v-for="item in reqOptions" :key="item.id" :label="item.label" :value="item.id"/>
-        </el-select>
-      </el-input>
-    </div>
+    <customize-req-info :is-customize-req="isCustomizeReq" :request="request"/>
+
     <p class="tip">{{$t('api_test.definition.request.req_param')}} </p>
     <ms-api-request-form :isShowEnable="true" :referenced="true" :headers="request.headers " :request="request" v-if="request.protocol==='HTTP' || request.type==='HTTPSamplerProxy'"/>
     <ms-tcp-basis-parameters :request="request" v-if="request.protocol==='TCP'|| request.type==='TCPSampler'"/>
@@ -65,6 +55,7 @@
   import {getUUID} from "@/common/js/utils";
   import ApiBaseComponent from "../common/ApiBaseComponent";
   import ApiResponseComponent from "./ApiResponseComponent";
+  import CustomizeReqInfo from "@/business/components/api/automation/scenario/common/CustomizeReqInfo";
 
   export default {
     name: "MsApiComponent",
@@ -79,13 +70,13 @@
       currentEnvironmentId: String,
     },
     components: {
+      CustomizeReqInfo,
       ApiBaseComponent, ApiResponseComponent,
       MsSqlBasisParameters, MsTcpBasisParameters, MsDubboBasisParameters, MsApiRequestForm, MsRequestResultTail, MsRun
     },
     data() {
       return {
         loading: false,
-        reqOptions: REQ_METHOD,
         reportId: "",
         runData: [],
         isShowInput: false,
@@ -98,15 +89,8 @@
       // 加载引用对象数据
       this.getApiInfo();
       if (this.request.protocol === 'HTTP') {
-        try {
-          let urlObject = new URL(this.request.url);
-          let url = urlObject.protocol + "//" + urlObject.host + "/";
-        } catch (e) {
-          if (this.request.url) {
-            this.request.path = this.request.url;
-            this.request.url = undefined;
-          }
-        }
+        this.setUrl(this.request.url);
+        this.setUrl(this.request.path);
         // 历史数据 auth 处理
         if (this.request.hashTree) {
           for (let index in this.request.hashTree) {
@@ -180,6 +164,17 @@
       copyRow() {
         this.$emit('copyRow', this.request, this.node);
       },
+      setUrl(url) {
+        try {
+          new URL(url);
+          this.request.url = url;
+        } catch (e) {
+          if (url) {
+            this.request.path = url;
+            this.request.url = undefined;
+          }
+        }
+      },
       getApiInfo() {
         if (this.request.id && this.request.referenced === 'REF') {
           let requestResult = this.request.requestResult;
@@ -192,7 +187,8 @@
               this.request.enable = enable;
               if (response.data.path && response.data.path != null) {
                 this.request.path = response.data.path;
-                this.request.url = response.data.path;
+                this.request.url = response.data.url;
+                this.setUrl(this.request.path);
               }
               if (response.data.method && response.data.method != null) {
                 this.request.method = response.data.method;
@@ -239,6 +235,7 @@
         this.loading = true;
         this.runData = [];
         this.request.useEnvironment = this.currentEnvironmentId;
+        this.request.customizeReq = this.isCustomizeReq;
         let debugData = {
           id: this.currentScenario.id, name: this.currentScenario.name, type: "scenario",
           variables: this.currentScenario.variables, referenced: 'Created', enableCookieShare: this.enableCookieShare,

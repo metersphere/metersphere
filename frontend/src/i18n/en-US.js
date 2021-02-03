@@ -187,7 +187,11 @@ export default {
       review: "all"
     },
     image: 'Image',
-    tag: 'Tag'
+    tag: 'Tag',
+    module: {
+      select_module: "Select module",
+      default_module: "Default module",
+    }
   },
   license: {
     title: 'Authorization management',
@@ -208,8 +212,8 @@ export default {
   display: {
     title: 'Theme',
     logo: 'System LOGO',
-    loginLogo: 'Picture on the right side of the login page',
-    loginImage: 'Login page upper left corner LOGO',
+    loginLogo: 'Login page upper left corner LOGO',
+    loginImage: 'Picture on the right side of the login page',
     loginTitle: 'Login page prompt information',
     pageTitle: 'Page Title',
   },
@@ -528,6 +532,7 @@ export default {
       api_case_status: "Ise case status",
       api_case_passing_rate: "Use case pass rate",
       create_tip: "Note: Detailed interface information can be filled out on the edit page",
+      api_import: "Api Import",
       select_comp: {
         no_data: "No Data",
         add_data: "Add Data"
@@ -586,6 +591,7 @@ export default {
         create_info: 'Create',
         update_info: 'Update',
         batch_edit: "Batch edit",
+        batch_move:"Batch move",
         path_valid_info: "The request path is invalid",
         other_config: "Other Config",
         message_template: "Message Template",
@@ -1131,6 +1137,8 @@ export default {
       plan_delete_confirm: "All use cases under this plan will be deleted,confirm delete test plan: ",
       plan_delete_tip: "The test plan is under way, please confirm and delete it!",
       plan_delete: "Delete test plan",
+      api_case: "Api case",
+      scenario_case: "Scenario case",
       load_case: {
         case: "Load Case",
         execution_status: "Execution status",
