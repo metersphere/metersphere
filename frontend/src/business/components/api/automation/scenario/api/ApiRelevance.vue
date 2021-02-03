@@ -1,5 +1,5 @@
 <template>
-  <relevance-dialog :title="'接口导入'" ref="relevanceDialog">
+  <relevance-dialog :title="$t('api_test.definition.api_import')" ref="relevanceDialog">
 
     <template v-slot:aside>
       <ms-api-module
@@ -28,32 +28,36 @@
       ref="apiCaseList"/>
 
     <template v-slot:footer>
-      <el-button type="primary" @click="copy" @keydown.enter.native.prevent>复制</el-button>
-      <el-button v-if="!isApiListEnable" type="primary" @click="reference" @keydown.enter.native.prevent>引用</el-button>
+      <el-button type="primary" @click="copy" @keydown.enter.native.prevent>{{ $t('commons.copy') }}</el-button>
+      <el-button v-if="!isApiListEnable" type="primary" @click="reference" @keydown.enter.native.prevent>
+        {{ $t('api_test.scenario.reference') }}
+      </el-button>
     </template>
 
   </relevance-dialog>
 </template>
 
 <script>
-    import ScenarioRelevanceCaseList from "./RelevanceCaseList";
-    import MsApiModule from "../../../definition/components/module/ApiModule";
-    import MsContainer from "../../../../common/components/MsContainer";
-    import MsAsideContainer from "../../../../common/components/MsAsideContainer";
-    import MsMainContainer from "../../../../common/components/MsMainContainer";
-    import ScenarioRelevanceApiList from "./RelevanceApiList";
-    import RelevanceDialog from "../../../../track/plan/view/comonents/base/RelevanceDialog";
-    export default {
-      name: "ApiRelevance",
-      components: {
-        RelevanceDialog,
-        ScenarioRelevanceApiList,
-        MsMainContainer, MsAsideContainer, MsContainer, MsApiModule, ScenarioRelevanceCaseList},
-      data() {
-          return {
-            result: {},
-            currentProtocol: null,
-            selectNodeIds: [],
+import ScenarioRelevanceCaseList from "./RelevanceCaseList";
+import MsApiModule from "../../../definition/components/module/ApiModule";
+import MsContainer from "../../../../common/components/MsContainer";
+import MsAsideContainer from "../../../../common/components/MsAsideContainer";
+import MsMainContainer from "../../../../common/components/MsMainContainer";
+import ScenarioRelevanceApiList from "./RelevanceApiList";
+import RelevanceDialog from "../../../../track/plan/view/comonents/base/RelevanceDialog";
+
+export default {
+  name: "ApiRelevance",
+  components: {
+    RelevanceDialog,
+    ScenarioRelevanceApiList,
+    MsMainContainer, MsAsideContainer, MsContainer, MsApiModule, ScenarioRelevanceCaseList
+  },
+  data() {
+    return {
+      result: {},
+      currentProtocol: null,
+      selectNodeIds: [],
             moduleOptions: {},
             isApiListEnable: true,
           }
@@ -118,4 +122,7 @@
 </script>
 
 <style scoped>
+/deep/ .filter-input {
+  width: 140px !important;
+}
 </style>

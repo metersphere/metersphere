@@ -529,6 +529,7 @@ export default {
       api_case_status: "Ise case status",
       api_case_passing_rate: "Use case pass rate",
       create_tip: "Note: Detailed interface information can be filled out on the edit page",
+      api_import: "Api Import",
       select_comp: {
         no_data: "No Data",
         add_data: "Add Data"
