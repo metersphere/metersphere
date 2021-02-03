@@ -516,6 +516,8 @@ export default {
     },
     definition: {
       api_title: "接口列表",
+      case_title: "用例列表",
+      doc_title: "文档",
       api_name: "接口名称",
       api_status: "接口状态",
       api_type: "请求类型",

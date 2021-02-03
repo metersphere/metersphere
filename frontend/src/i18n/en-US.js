@@ -516,6 +516,8 @@ export default {
     },
     definition: {
       api_title: "Api test",
+      case_title: "Test Case",
+      doc_title: "Document",
       api_name: "Api name",
       api_status: "Api status",
       api_type: "Api type",
