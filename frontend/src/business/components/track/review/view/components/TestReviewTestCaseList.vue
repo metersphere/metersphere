@@ -261,9 +261,7 @@ export default {
       if (this.reviewId) {
         this.condition.reviewId = this.reviewId;
       }
-      if (this.selectNodeIds && this.selectNodeIds.length > 0) {
-        this.condition.nodeIds = this.selectNodeIds;
-      }
+      this.condition.nodeIds = this.selectNodeIds;
       if (this.reviewId) {
         this.result = this.$post(this.buildPagePath('/test/review/case/list'), this.condition, response => {
           let data = response.data;
