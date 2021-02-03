@@ -244,7 +244,7 @@
       getFails() {
         this.error = 0;
         this.success = 0;
-        if (this.requestResult.scenarios) {
+        if (this.requestResult.scenarios && this.requestResult.scenarios != null) {
           this.requestResult.scenarios.forEach((scenario) => {
             if (scenario.requestResults) {
               scenario.requestResults.forEach(item => {
@@ -255,7 +255,7 @@
               })
             }
           })
-          this.success = this.requestResult.scenarios.length - this.error;
+          this.success = this.requestResult.scenarios && this.requestResult.scenarios != null ? this.requestResult.scenarios.length - this.error : 0;
         }
       },
       getReport() {
@@ -267,6 +267,9 @@
               if (this.isNotRunning) {
                 try {
                   this.requestResult = JSON.parse(this.report.content);
+                  if (!this.requestResult) {
+                    this.requestResult = {scenarios: []};
+                  }
                   this.controller.requestResult = this.requestResult;
                   switch (this.controller.loopType) {
                     case "LOOP_COUNT":
@@ -282,14 +285,11 @@
                       break;
                   }
                   this.getFails();
-                  if (!this.requestResult) {
-                    this.requestResult = {scenarios: []};
-                  }
                 } catch (e) {
                   throw e;
                 }
                 this.loading = false;
-                this.activeName = this.requestResult && this.requestResult.scenarios ? this.requestResult.scenarios[0].name : "";
+                this.activeName = this.requestResult && this.requestResult.scenarios && this.requestResult.scenarios != null && this.requestResult.scenarios.length > 0 ? this.requestResult.scenarios[0].name : "";
               } else {
                 setTimeout(this.getReport, 2000)
               }
