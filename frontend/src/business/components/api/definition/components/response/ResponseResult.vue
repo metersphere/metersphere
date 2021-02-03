@@ -63,23 +63,23 @@
 </template>
 
 <script>
-  import MsAssertionResults from "./AssertionResults";
-  import MsCodeEdit from "../MsCodeEdit";
-  import MsDropdown from "../../../../common/components/MsDropdown";
-  import {BODY_FORMAT} from "../../model/ApiTestModel";
-  import MsSqlResultTable from "./SqlResultTable";
+import MsAssertionResults from "./AssertionResults";
+import MsCodeEdit from "../MsCodeEdit";
+import MsDropdown from "../../../../common/components/MsDropdown";
+import {BODY_FORMAT} from "../../model/ApiTestModel";
+import MsSqlResultTable from "./SqlResultTable";
 
-  export default {
-    name: "MsResponseResult",
+export default {
+  name: "MsResponseResult",
 
-    components: {
-      MsDropdown,
-      MsCodeEdit,
-      MsAssertionResults,
-      MsSqlResultTable
-    },
+  components: {
+    MsDropdown,
+    MsCodeEdit,
+    MsAssertionResults,
+    MsSqlResultTable
+  },
 
-    props: {
+  props: {
       response: Object,
       currentProtocol: String,
     },
@@ -107,7 +107,7 @@
         this.mode = mode;
       },
       setBodyType() {
-        if (!this.response.responseResult.headers) {
+        if (!this.response.responseResult || !this.response.responseResult.headers) {
           return;
         }
         if (this.response.responseResult.headers.indexOf("Content-Type: application/json") > 0) {
