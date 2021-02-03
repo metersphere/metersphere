@@ -151,36 +151,37 @@
 </template>
 
 <script>
-  import MsTableHeader from "@/business/components/common/components/MsTableHeader";
-  import MsTablePagination from "@/business/components/common/pagination/TablePagination";
-  import ShowMoreBtn from "@/business/components/track/case/components/ShowMoreBtn";
-  import MsTag from "../../../common/components/MsTag";
-  import {_filter, _sort, getCurrentProjectID, getUUID} from "@/common/js/utils";
-  import MsApiReportDetail from "../report/ApiReportDetail";
-  import MsTableMoreBtn from "./TableMoreBtn";
-  import MsScenarioExtendButtons from "@/business/components/api/automation/scenario/ScenarioExtendBtns";
-  import MsTestPlanList from "./testplan/TestPlanList";
-  import MsTableHeaderSelectPopover from "@/business/components/common/components/table/MsTableHeaderSelectPopover";
-  import {API_SCENARIO_CONFIGS} from "@/business/components/common/components/search/search-components";
-  import MsTableOperatorButton from "@/business/components/common/components/MsTableOperatorButton";
-  import PriorityTableItem from "../../../track/common/tableItems/planview/PriorityTableItem";
-  import PlanStatusTableItem from "../../../track/common/tableItems/plan/PlanStatusTableItem";
-  import BatchEdit from "../../../track/case/components/BatchEdit";
-  import {WORKSPACE_ID} from "../../../../../common/js/constants";
-  import EnvironmentSelect from "../../definition/components/environment/EnvironmentSelect";
-  import BatchMove from "../../../track/case/components/BatchMove";
+import MsTableHeader from "@/business/components/common/components/MsTableHeader";
+import MsTablePagination from "@/business/components/common/pagination/TablePagination";
+import ShowMoreBtn from "@/business/components/track/case/components/ShowMoreBtn";
+import MsTag from "../../../common/components/MsTag";
+import {getCurrentProjectID, getUUID} from "@/common/js/utils";
+import MsApiReportDetail from "../report/ApiReportDetail";
+import MsTableMoreBtn from "./TableMoreBtn";
+import MsScenarioExtendButtons from "@/business/components/api/automation/scenario/ScenarioExtendBtns";
+import MsTestPlanList from "./testplan/TestPlanList";
+import MsTableHeaderSelectPopover from "@/business/components/common/components/table/MsTableHeaderSelectPopover";
+import {API_SCENARIO_CONFIGS} from "@/business/components/common/components/search/search-components";
+import MsTableOperatorButton from "@/business/components/common/components/MsTableOperatorButton";
+import PriorityTableItem from "../../../track/common/tableItems/planview/PriorityTableItem";
+import PlanStatusTableItem from "../../../track/common/tableItems/plan/PlanStatusTableItem";
+import BatchEdit from "../../../track/case/components/BatchEdit";
+import {WORKSPACE_ID} from "../../../../../common/js/constants";
+import EnvironmentSelect from "../../definition/components/environment/EnvironmentSelect";
+import BatchMove from "../../../track/case/components/BatchMove";
+import {_filter, _sort} from "@/common/js/tableUtils";
 
-  export default {
-    name: "MsApiScenarioList",
-    components: {
-      BatchMove,
-      EnvironmentSelect,
-      BatchEdit,
-      PlanStatusTableItem,
-      PriorityTableItem,
-      MsTableHeaderSelectPopover,
-      MsTablePagination,
-      MsTableMoreBtn,
+export default {
+  name: "MsApiScenarioList",
+  components: {
+    BatchMove,
+    EnvironmentSelect,
+    BatchEdit,
+    PlanStatusTableItem,
+    PriorityTableItem,
+    MsTableHeaderSelectPopover,
+    MsTablePagination,
+    MsTableMoreBtn,
       ShowMoreBtn,
       MsTableHeader,
       MsTag,

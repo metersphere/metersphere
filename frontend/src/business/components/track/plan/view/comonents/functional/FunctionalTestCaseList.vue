@@ -250,21 +250,21 @@ import MsTableButton from '../../../../../common/components/MsTableButton';
 import NodeBreadcrumb from '../../../../common/NodeBreadcrumb';
 
 import {ROLE_TEST_MANAGER, ROLE_TEST_USER, TokenKey, WORKSPACE_ID} from "@/common/js/constants";
-import {_filter, _sort, checkoutTestManagerOrTestUser, hasRoles} from "@/common/js/utils";
+import {checkoutTestManagerOrTestUser, hasRoles} from "@/common/js/utils";
 import PriorityTableItem from "../../../../common/tableItems/planview/PriorityTableItem";
 import StatusTableItem from "../../../../common/tableItems/planview/StatusTableItem";
 import TypeTableItem from "../../../../common/tableItems/planview/TypeTableItem";
 import MethodTableItem from "../../../../common/tableItems/planview/MethodTableItem";
 import MsTableOperator from "../../../../../common/components/MsTableOperator";
 import MsTableOperatorButton from "../../../../../common/components/MsTableOperatorButton";
-import TestReportTemplateList from "../TestReportTemplateList";
-import TestCaseReportView from "../report/TestCaseReportView";
 import {TEST_CASE_CONFIGS} from "../../../../../common/components/search/search-components";
 import ShowMoreBtn from "../../../../case/components/ShowMoreBtn";
 import BatchEdit from "../../../../case/components/BatchEdit";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 import {hub} from "@/business/components/track/plan/event-bus";
 import MsTag from "@/business/components/common/components/MsTag";
+import {_filter, _sort} from "@/common/js/tableUtils";
+
 
 export default {
   name: "FunctionalTestCaseList",

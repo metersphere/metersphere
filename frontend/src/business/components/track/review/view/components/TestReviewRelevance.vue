@@ -94,31 +94,32 @@
 
 <script>
 
-  import NodeTree from "../../../common/NodeTree";
-  import MsDialogFooter from "../../../../common/components/MsDialogFooter";
-  import PriorityTableItem from "../../../common/tableItems/planview/PriorityTableItem";
-  import TypeTableItem from "../../../common/tableItems/planview/TypeTableItem";
-  import MsTableSearchBar from "../../../../common/components/MsTableSearchBar";
-  import MsTableAdvSearchBar from "../../../../common/components/search/MsTableAdvSearchBar";
-  import MsTableHeader from "../../../../common/components/MsTableHeader";
-  import SwitchProject from "../../../case/components/SwitchProject";
-  import {TEST_CASE_CONFIGS} from "../../../../common/components/search/search-components";
-  import {_filter} from "../../../../../../common/js/utils";
-  import ReviewStatus from "@/business/components/track/case/components/ReviewStatus";
-  import elTableInfiniteScroll from 'el-table-infinite-scroll';
-  import SelectMenu from "../../../common/SelectMenu";
+import NodeTree from "../../../common/NodeTree";
+import MsDialogFooter from "../../../../common/components/MsDialogFooter";
+import PriorityTableItem from "../../../common/tableItems/planview/PriorityTableItem";
+import TypeTableItem from "../../../common/tableItems/planview/TypeTableItem";
+import MsTableSearchBar from "../../../../common/components/MsTableSearchBar";
+import MsTableAdvSearchBar from "../../../../common/components/search/MsTableAdvSearchBar";
+import MsTableHeader from "../../../../common/components/MsTableHeader";
+import SwitchProject from "../../../case/components/SwitchProject";
+import {TEST_CASE_CONFIGS} from "../../../../common/components/search/search-components";
+import ReviewStatus from "@/business/components/track/case/components/ReviewStatus";
+import elTableInfiniteScroll from 'el-table-infinite-scroll';
+import SelectMenu from "../../../common/SelectMenu";
+import {_filter} from "@/common/js/tableUtils";
 
-  export default {
-    name: "TestReviewRelevance",
-    components: {
-      SelectMenu,
-      NodeTree,
-      MsDialogFooter,
-      PriorityTableItem,
-      TypeTableItem,
-      MsTableSearchBar,
-      MsTableAdvSearchBar,
-      MsTableHeader,
+
+export default {
+  name: "TestReviewRelevance",
+  components: {
+    SelectMenu,
+    NodeTree,
+    MsDialogFooter,
+    PriorityTableItem,
+    TypeTableItem,
+    MsTableSearchBar,
+    MsTableAdvSearchBar,
+    MsTableHeader,
       SwitchProject,
       ReviewStatus
 

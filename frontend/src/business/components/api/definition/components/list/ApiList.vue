@@ -187,8 +187,8 @@ import MsContainer from "../../../../common/components/MsContainer";
 import MsBottomContainer from "../BottomContainer";
 import ShowMoreBtn from "../../../../track/case/components/ShowMoreBtn";
 import MsBatchEdit from "../basis/BatchEdit";
-import {API_METHOD_COLOUR, API_STATUS, REQ_METHOD, TCP_METHOD, SQL_METHOD, DUBBO_METHOD} from "../../model/JsonData";
-import {_filter, _sort, getCurrentProjectID} from "@/common/js/utils";
+import {API_METHOD_COLOUR, API_STATUS, DUBBO_METHOD, REQ_METHOD, SQL_METHOD, TCP_METHOD} from "../../model/JsonData";
+import {getCurrentProjectID} from "@/common/js/utils";
 import {WORKSPACE_ID} from '@/common/js/constants';
 import ApiListContainer from "./ApiListContainer";
 import MsTableHeaderSelectPopover from "@/business/components/common/components/table/MsTableHeaderSelectPopover";
@@ -197,6 +197,8 @@ import MsTableAdvSearchBar from "@/business/components/common/components/search/
 import {API_DEFINITION_CONFIGS} from "@/business/components/common/components/search/search-components";
 import MsTipButton from "@/business/components/common/components/MsTipButton";
 import CaseBatchMove from "@/business/components/api/definition/components/basis/BatchMove";
+import {_filter, _sort} from "@/common/js/tableUtils";
+
 
 export default {
   name: "ApiList",
