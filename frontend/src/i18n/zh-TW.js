@@ -316,6 +316,7 @@ export default {
     delete_confirm: '確定要刪除這個項目嗎?',
     delete_tip: '刪除該項目，會刪除該項目下所有測試資源，確定要刪除嗎?',
     search_by_name: '根據名稱搜索',
+    search_by_name_jar: '根據名稱/jar包搜索',
     input_name: '請輸入項目名稱',
     owning_workspace: '所屬工作空間',
     please_choose_workspace: '請選擇工作空間',

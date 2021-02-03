@@ -16,8 +16,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import java.io.*;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -40,6 +40,23 @@ public class JarConfigService {
         }
         example.setOrderByClause("update_time desc");
         return jarConfigMapper.selectByExample(example);
+    }
+
+    public List<JarConfig> searchList(JarConfig jarConfig) {
+        JarConfigExample nameExample = new JarConfigExample();
+        JarConfigExample jarExample = new JarConfigExample();
+        if (StringUtils.isNotBlank(jarConfig.getName())) {
+            nameExample.createCriteria().andNameLike("%" + jarConfig.getName() + "%");
+            jarExample.createCriteria().andFileNameLike("%" + jarConfig.getName() + "%");
+        }   //  根据jar包的文件名和自定义名称查找
+        nameExample.setOrderByClause("update_time desc");
+        jarExample.setOrderByClause("update_time desc");
+        List<JarConfig> jarConfigList = jarConfigMapper.selectByExample(jarExample);
+        //  合并两个查找结果并去重，按时间降序
+        jarConfigList.addAll(jarConfigMapper.selectByExample(nameExample));
+        jarConfigList = jarConfigList.stream().distinct().collect(Collectors.toList());
+        Collections.sort(jarConfigList, Comparator.comparing(JarConfig::getUpdateTime).reversed());
+        return jarConfigList;
     }
 
     public JarConfig get(String id) {

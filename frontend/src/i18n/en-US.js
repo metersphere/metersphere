@@ -318,6 +318,7 @@ export default {
     delete_confirm: 'Deleting this project will delete all test resources under this project. Are you sure you want to delete?',
     delete_tip: 'Deleting this project will delete all test resources under this project. Are you sure you want to delete?',
     search_by_name: 'Search by name',
+    search_by_name_jar: 'Search by name/jar',
     input_name: 'Please enter a workspace name',
     owning_workspace: 'Owning Workspace',
     please_choose_workspace: 'Please select Workspace',
