@@ -145,7 +145,7 @@
             <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
           </template>
         </el-table-column>
-        <el-table-column fixed="right"
+        <el-table-column
           :label="$t('commons.operating')" min-width="150">
           <template v-slot:default="scope">
             <ms-table-operator :is-tester-permission="true" @editClick="handleEdit(scope.row)"
@@ -198,7 +198,13 @@ import TestCaseDetail from "./TestCaseDetail";
 import ReviewStatus from "@/business/components/track/case/components/ReviewStatus";
 import {getCurrentProjectID} from "../../../../../common/js/utils";
 import MsTag from "@/business/components/common/components/MsTag";
-import {_handleSelect, _handleSelectAll} from "../../../../../common/js/tableUtils";
+import {
+  _handleSelect,
+  _handleSelectAll,
+  getSelectDataCounts,
+  setUnSelectIds,
+  toggleAllSelection
+} from "../../../../../common/js/tableUtils";
 import BatchMove from "./BatchMove";
 
 export default {
@@ -432,13 +438,14 @@ export default {
     },
     handleSelectAll(selection) {
       _handleSelectAll(this, selection, this.tableData, this.selectRows);
-      this.setUnSelectIds();
+      setUnSelectIds(this.tableData, this.condition, this.selectRows);
+      this.selectDataCounts = getSelectDataCounts(this.condition, this.total, this.selectRows);
     },
     handleSelect(selection, row) {
       _handleSelect(this, selection, row, this.selectRows);
-      this.setUnSelectIds();
+      setUnSelectIds(this.tableData, this.condition, this.selectRows);
+      this.selectDataCounts = getSelectDataCounts(this.condition, this.total, this.selectRows);
     },
-
     importTestCase() {
       if (!getCurrentProjectID()) {
         this.$warning(this.$t('commons.check_project_tip'));
@@ -545,23 +552,9 @@ export default {
     },
     isSelectDataAll(data) {
       this.condition.selectAll = data;
-      this.setUnSelectIds();
-      //如果已经全选，不需要再操作了
-      if (this.selectRows.size != this.tableData.length) {
-        this.$refs.table.toggleAllSelection(true);
-      }
-    },
-    setUnSelectIds() {
-      let ids = Array.from(this.selectRows).map(o => o.id);
-      let allIDs = this.tableData.map(o => o.id);
-      this.condition.unSelectIds = allIDs.filter(function (val) {
-        return ids.indexOf(val) === -1
-      });
-      if (this.condition.selectAll) {
-        this.selectDataCounts = this.total - this.condition.unSelectIds.length;
-      } else {
-        this.selectDataCounts = this.selectRows.size;
-      }
+      setUnSelectIds(this.tableData, this.condition, this.selectRows);
+      this.selectDataCounts = getSelectDataCounts(this.condition, this.total, this.selectRows);
+      toggleAllSelection(this.$refs.table, this.tableData, this.selectRows);
     },
     headerDragend(newWidth,oldWidth,column,event){
       let finalWidth = newWidth;
