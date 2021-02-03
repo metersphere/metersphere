@@ -1,7 +1,7 @@
 <template>
   <div class="failure-cases-list">
     <div class="failure-cases-list-header">
-      场景测试用例
+      {{$t('test_track.plan.scenario_case')}}
     </div>
 
     <el-table
