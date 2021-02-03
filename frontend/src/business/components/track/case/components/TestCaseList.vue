@@ -187,7 +187,6 @@ import MethodTableItem from "../../common/tableItems/planview/MethodTableItem";
 import MsTableOperator from "../../../common/components/MsTableOperator";
 import MsTableOperatorButton from "../../../common/components/MsTableOperatorButton";
 import MsTableButton from "../../../common/components/MsTableButton";
-import {_filter, _sort} from "@/common/js/utils";
 import {TEST_CASE_CONFIGS} from "../../../common/components/search/search-components";
 import ShowMoreBtn from "./ShowMoreBtn";
 import BatchEdit from "./BatchEdit";
@@ -199,12 +198,14 @@ import ReviewStatus from "@/business/components/track/case/components/ReviewStat
 import {getCurrentProjectID} from "../../../../../common/js/utils";
 import MsTag from "@/business/components/common/components/MsTag";
 import {
+  _filter,
   _handleSelect,
   _handleSelectAll,
+  _sort,
   getSelectDataCounts,
   setUnSelectIds,
   toggleAllSelection
-} from "../../../../../common/js/tableUtils";
+} from "@/common/js/tableUtils";
 import BatchMove from "./BatchMove";
 
 export default {

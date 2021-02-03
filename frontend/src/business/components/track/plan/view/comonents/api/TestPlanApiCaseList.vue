@@ -132,13 +132,15 @@ import {API_METHOD_COLOUR, CASE_PRIORITY, RESULT_MAP} from "../../../../../api/d
 import {getCurrentProjectID} from "@/common/js/utils";
 import ApiListContainer from "../../../../../api/definition/components/list/ApiListContainer";
 import PriorityTableItem from "../../../../common/tableItems/planview/PriorityTableItem";
-import {_filter, _sort, getBodyUploadFiles, getUUID} from "../../../../../../../common/js/utils";
+import {getBodyUploadFiles, getUUID} from "../../../../../../../common/js/utils";
 import TestPlanCaseListHeader from "./TestPlanCaseListHeader";
 import MsRun from "../../../../../api/definition/components/Run";
 import TestPlanApiCaseResult from "./TestPlanApiCaseResult";
 import TestPlan from "../../../../../api/definition/components/jmeter/components/test-plan";
 import ThreadGroup from "../../../../../api/definition/components/jmeter/components/thread-group";
 import {WORKSPACE_ID} from "@/common/js/constants";
+import {_filter, _sort} from "@/common/js/tableUtils";
+
 
 export default {
   name: "TestPlanApiCaseList",

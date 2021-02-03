@@ -64,7 +64,7 @@ import MsTablePagination from '../../../../components/common/pagination/TablePag
 import MsTableHeader from "@/business/components/common/components/MsTableHeader";
 import MsTableOperatorButton from "../../../common/components/MsTableOperatorButton";
 import MsTableOperator from "../../../common/components/MsTableOperator";
-import {_filter, _sort, checkoutTestManagerOrTestUser} from "@/common/js/utils";
+import {checkoutTestManagerOrTestUser} from "@/common/js/utils";
 import {TEST_PLAN_REPORT_CONFIGS} from "../../../common/components/search/search-components";
 import {getCurrentProjectID} from "../../../../../common/js/utils";
 import TestPlanReportView from "@/business/components/track/report/components/TestPlanReportView";
@@ -72,14 +72,16 @@ import ReportTriggerModeItem from "@/business/components/common/tableItem/Report
 import MsTag from "@/business/components/common/components/MsTag";
 import ShowMoreBtn from "@/business/components/track/case/components/ShowMoreBtn";
 import MsTableSelectAll from "@/business/components/common/components/table/MsTableSelectAll";
+import {_filter, _sort} from "@/common/js/tableUtils";
+
 
 export default {
   name: "TestPlanReportList",
   components: {
     TestPlanReportView,
     MsTableOperator, MsTableOperatorButton, MsTableHeader, MsTablePagination,
-    ReportTriggerModeItem,MsTag,
-    ShowMoreBtn,MsTableSelectAll,
+    ReportTriggerModeItem, MsTag,
+    ShowMoreBtn, MsTableSelectAll,
   },
   data() {
     return {

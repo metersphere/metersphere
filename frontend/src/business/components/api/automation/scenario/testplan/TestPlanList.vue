@@ -134,33 +134,35 @@
 </template>
 
 <script>
-  import MsCreateBox from '../../../../settings/CreateBox';
-  import MsTablePagination from '../../../../../components/common/pagination/TablePagination';
-  import MsTableHeader from "../../../../common/components/MsTableHeader";
-  import MsDialogFooter from "../../../../common/components/MsDialogFooter";
-  import MsTableOperatorButton from "../../../../common/components/MsTableOperatorButton";
-  import MsTableOperator from "../../../../common/components/MsTableOperator";
-  import PlanStatusTableItem from "../../../../track/common/tableItems/plan/PlanStatusTableItem";
-  import PlanStageTableItem from "../../../../track/common/tableItems/plan/PlanStageTableItem";
-  import {_filter, _sort, checkoutTestManagerOrTestUser} from "@/common/js/utils";
-  import TestReportTemplateList from "../../../../track/plan/view/comonents/TestReportTemplateList";
-  import TestCaseReportView from "../../../../track/plan/view/comonents/report/TestCaseReportView";
-  import MsDeleteConfirm from "../../../../common/components/MsDeleteConfirm";
-  import {TEST_PLAN_CONFIGS} from "../../../../common/components/search/search-components";
-  import {LIST_CHANGE, TrackEvent} from "@/business/components/common/head/ListEvent";
-  import {getCurrentProjectID} from "../../../../../../common/js/utils";
+import MsCreateBox from '../../../../settings/CreateBox';
+import MsTablePagination from '../../../../../components/common/pagination/TablePagination';
+import MsTableHeader from "../../../../common/components/MsTableHeader";
+import MsDialogFooter from "../../../../common/components/MsDialogFooter";
+import MsTableOperatorButton from "../../../../common/components/MsTableOperatorButton";
+import MsTableOperator from "../../../../common/components/MsTableOperator";
+import PlanStatusTableItem from "../../../../track/common/tableItems/plan/PlanStatusTableItem";
+import PlanStageTableItem from "../../../../track/common/tableItems/plan/PlanStageTableItem";
+import {checkoutTestManagerOrTestUser} from "@/common/js/utils";
+import TestReportTemplateList from "../../../../track/plan/view/comonents/TestReportTemplateList";
+import TestCaseReportView from "../../../../track/plan/view/comonents/report/TestCaseReportView";
+import MsDeleteConfirm from "../../../../common/components/MsDeleteConfirm";
+import {TEST_PLAN_CONFIGS} from "../../../../common/components/search/search-components";
+import {LIST_CHANGE, TrackEvent} from "@/business/components/common/head/ListEvent";
+import {getCurrentProjectID} from "../../../../../../common/js/utils";
+import {_filter, _sort} from "@/common/js/tableUtils";
 
-  export default {
-    name: "TestPlanList",
-    components: {
-      MsDeleteConfirm,
-      TestCaseReportView,
-      TestReportTemplateList,
-      PlanStageTableItem,
-      PlanStatusTableItem,
-      MsTableOperator, MsTableOperatorButton, MsDialogFooter, MsTableHeader, MsCreateBox, MsTablePagination
-    },
-    data() {
+
+export default {
+  name: "TestPlanList",
+  components: {
+    MsDeleteConfirm,
+    TestCaseReportView,
+    TestReportTemplateList,
+    PlanStageTableItem,
+    PlanStatusTableItem,
+    MsTableOperator, MsTableOperatorButton, MsDialogFooter, MsTableHeader, MsCreateBox, MsTablePagination
+  },
+  data() {
       return {
         result: {},
         selection: [],

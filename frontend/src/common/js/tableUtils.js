@@ -1,3 +1,4 @@
+import {humpToLine} from "@/common/js/utils";
 
 export function _handleSelectAll(component, selection, tableData, selectRows) {
   if (selection.length > 0) {
@@ -59,6 +60,47 @@ export function toggleAllSelection(table, tableData, selectRows) {
     table.toggleAllSelection(true);
   }
 }
+
+
+//表格数据过滤
+export function _filter(filters, condition) {
+  if (!condition.filters) {
+    condition.filters = {};
+  }
+  for (let filter in filters) {
+    if (filters.hasOwnProperty(filter)) {
+      if (filters[filter] && filters[filter].length > 0) {
+        condition.filters[humpToLine(filter)] = filters[filter];
+      } else {
+        condition.filters[humpToLine(filter)] = null;
+      }
+    }
+  }
+}
+
+//表格数据排序
+export function _sort(column, condition) {
+  column.prop = humpToLine(column.prop);
+  if (column.order === 'descending') {
+    column.order = 'desc';
+  } else {
+    column.order = 'asc';
+  }
+  if (!condition.orders) {
+    condition.orders = [];
+  }
+  let hasProp = false;
+  condition.orders.forEach(order => {
+    if (order.name === column.prop) {
+      order.type = column.order;
+      hasProp = true;
+    }
+  });
+  if (!hasProp) {
+    condition.orders.push({name: column.prop, type: column.order});
+  }
+}
+
 
 
 
