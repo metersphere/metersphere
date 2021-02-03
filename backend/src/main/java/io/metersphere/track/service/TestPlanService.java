@@ -171,32 +171,31 @@ public class TestPlanService {
         checkTestPlanExist(testPlan);
         TestPlan res = testPlanMapper.selectByPrimaryKey(testPlan.getId()); //  先查一次库
         if (!res.getStatus().equals(testPlan.getStatus())) {    //  若有改变才更新时间
-            res.setUpdateTime(System.currentTimeMillis());
+            testPlan.setUpdateTime(System.currentTimeMillis());
             if (TestPlanStatus.Underway.name().equals(testPlan.getStatus())) {
                 if (res.getStatus().equals(TestPlanStatus.Prepare.name())) {
-                    res.setActualStartTime(System.currentTimeMillis());
+                    testPlan.setActualStartTime(System.currentTimeMillis());
                 }   //  未开始->进行中，写入实际开始时间
                 else if (res.getStatus().equals(TestPlanStatus.Completed.name())) {
-                    res.setActualEndTime(null);
+                    testPlan.setActualEndTime(null);
                 }   //  已完成->进行中，结束时间置空
             }
             else if (!res.getStatus().equals(TestPlanStatus.Prepare.name()) &&
                     testPlan.getStatus().equals(TestPlanStatus.Prepare.name())) {
-                res.setActualStartTime(null);
-                res.setActualEndTime(null);
+                testPlan.setActualStartTime(null);
+                testPlan.setActualEndTime(null);
             }   //  非未开始->未开始，时间都置空
             else if (TestPlanStatus.Completed.name().equals(testPlan.getStatus()) &&
                     !TestPlanStatus.Completed.name().equals(res.getStatus())) {
                 //已完成，写入实际完成时间
-                res.setActualEndTime(System.currentTimeMillis());
+                testPlan.setActualEndTime(System.currentTimeMillis());
             }
-            res.setStatus(testPlan.getStatus());
         }
 
         List<String> userIds = new ArrayList<>();
         userIds.add(testPlan.getPrincipal());
         AddTestPlanRequest testPlans = new AddTestPlanRequest();
-        int i = testPlanMapper.updateByPrimaryKey(res); //  更新
+        int i = testPlanMapper.updateByPrimaryKey(testPlan); //  更新
         if (!StringUtils.isBlank(testPlan.getStatus())) {
             BeanUtils.copyBean(testPlans, getTestPlan(testPlan.getId()));
             String context = getTestPlanContext(testPlans, NoticeConstants.Event.UPDATE);
