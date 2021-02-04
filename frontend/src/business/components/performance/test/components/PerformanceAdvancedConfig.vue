@@ -128,7 +128,7 @@ export default {
   components: {MsTableOperatorButton},
   data() {
     return {
-      timeout: 2000,
+      timeout: 60000,
       responseTimeout: null,
       statusCode: [],
       domains: [],
