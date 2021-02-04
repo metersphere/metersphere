@@ -1,5 +1,6 @@
 import {
   Arguments,
+  ConstantTimer as JMXConstantTimer,
   CookieManager,
   DNSCacheManager,
   DubboSample,
@@ -10,6 +11,7 @@ import {
   HTTPSamplerArguments,
   HTTPsamplerFiles,
   HTTPSamplerProxy,
+  IfController as JMXIfController,
   JDBCDataSource,
   JDBCSampler,
   JSONPathAssertion,
@@ -20,12 +22,11 @@ import {
   ResponseCodeAssertion,
   ResponseDataAssertion,
   ResponseHeadersAssertion,
+  TCPSampler,
   TestElement,
   TestPlan,
   ThreadGroup,
   XPath2Extractor,
-  IfController as JMXIfController,
-  ConstantTimer as JMXConstantTimer, TCPSampler,
 } from "./JMX";
 import Mock from "mockjs";
 import {funcFilters} from "@/common/js/func-filter";
@@ -807,12 +808,12 @@ export class AssertionJSR223 extends AssertionType {
 
     this.name = undefined;
     this.script = undefined;
-    this.language = "beanshell";
+    this.scriptLanguage = "beanshell";
     this.set(options);
   }
 
   isValid() {
-    return !!this.script && !!this.language;
+    return !!this.script && !!this.scriptLanguage;
   }
 }
 
