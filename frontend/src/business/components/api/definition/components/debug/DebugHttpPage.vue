@@ -15,6 +15,7 @@
         </el-form-item>
 
         <el-form-item>
+          <el-button v-if="scenario" size="small" type="primary" @click="handleCommand"> {{$t('commons.test')}}</el-button>
           <el-dropdown split-button type="primary" class="ms-api-buttion" @click="handleCommand"
                        @command="handleCommand" size="small" v-if="testCase===undefined && !scenario">
             {{$t('commons.test')}}

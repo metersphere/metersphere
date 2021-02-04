@@ -11,7 +11,9 @@
           <el-input-number v-model="request.port" controls-position="right" :min="0" :max="65535" size="small"/>
         </el-form-item>
         <el-form-item>
-          <el-dropdown split-button type="primary" class="ms-api-buttion" @click="handleCommand"
+          <el-button v-if="scenario" size="small" type="primary" @click="handleCommand"> {{$t('commons.test')}}</el-button>
+
+          <el-dropdown v-else split-button type="primary" class="ms-api-buttion" @click="handleCommand"
                        @command="handleCommand" size="small" style="float: right;margin-right: 20px">
             {{$t('commons.test')}}
             <el-dropdown-menu slot="dropdown">

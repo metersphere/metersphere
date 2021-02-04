@@ -2,7 +2,9 @@
 
   <div class="card-container" v-loading="loading">
     <el-card class="card-content">
-      <el-dropdown split-button type="primary" class="ms-api-buttion" @click="handleCommand"
+      <el-button v-if="scenario" style="float: right;margin-right: 20px" size="small" type="primary" @click="handleCommand"> {{$t('commons.test')}}</el-button>
+
+      <el-dropdown v-else split-button type="primary" class="ms-api-buttion" @click="handleCommand"
                    @command="handleCommand" size="small" style="float: right;margin-right: 20px">
         {{$t('commons.test')}}
         <el-dropdown-menu slot="dropdown">
@@ -49,7 +51,7 @@
 
   export default {
     name: "ApiConfig",
-    components: {MsRequestResultTail, MsResponseResult, MsRequestMetric, MsResponseText, MsRun, MsBasisParameters, MsJmxStep,MsApiCaseList},
+    components: {MsRequestResultTail, MsResponseResult, MsRequestMetric, MsResponseText, MsRun, MsBasisParameters, MsJmxStep, MsApiCaseList},
     props: {
       currentProtocol: String,
       scenario: Boolean,
