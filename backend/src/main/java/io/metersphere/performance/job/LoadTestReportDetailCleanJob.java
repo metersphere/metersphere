@@ -23,7 +23,7 @@ public class LoadTestReportDetailCleanJob {
      * 每天处理一次清理任务
      */
     @QuartzScheduled(cron = "0 0 1 * * ?")
-    public void test() {
+    public void cleanCompletedTestDetail() {
         LoadTestReportExample example = new LoadTestReportExample();
         example.createCriteria().andStatusEqualTo(PerformanceTestStatus.Completed.name());
         List<LoadTestReport> loadTestReports = loadTestReportMapper.selectByExample(example);
