@@ -22,6 +22,7 @@ import io.metersphere.api.dto.definition.request.sampler.MsHTTPSamplerProxy;
 import io.metersphere.api.dto.definition.request.sampler.MsJDBCSampler;
 import io.metersphere.api.dto.definition.request.sampler.MsTCPSampler;
 import io.metersphere.api.dto.definition.request.timer.MsConstantTimer;
+import io.metersphere.api.dto.definition.request.unknown.MsJmeterElement;
 import io.metersphere.api.dto.definition.request.variable.ScenarioVariable;
 import io.metersphere.api.dto.scenario.KeyValue;
 import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
@@ -70,11 +71,12 @@ import java.util.stream.Collectors;
         @JsonSubTypes.Type(value = MsIfController.class, name = "IfController"),
         @JsonSubTypes.Type(value = MsScenario.class, name = "scenario"),
         @JsonSubTypes.Type(value = MsLoopController.class, name = "LoopController"),
+        @JsonSubTypes.Type(value = MsJmeterElement.class, name = "JmeterElement"),
 
 })
 @JSONType(seeAlso = {MsHTTPSamplerProxy.class, MsHeaderManager.class, MsJSR223Processor.class, MsJSR223PostProcessor.class,
         MsJSR223PreProcessor.class, MsTestPlan.class, MsThreadGroup.class, AuthManager.class, MsAssertions.class,
-        MsExtract.class, MsTCPSampler.class, MsDubboSampler.class, MsJDBCSampler.class, MsConstantTimer.class, MsIfController.class, MsScenario.class, MsLoopController.class}, typeKey = "type")
+        MsExtract.class, MsTCPSampler.class, MsDubboSampler.class, MsJDBCSampler.class, MsConstantTimer.class, MsIfController.class, MsScenario.class, MsLoopController.class, MsJmeterElement.class}, typeKey = "type")
 @Data
 public abstract class MsTestElement {
     private String type;
@@ -103,7 +105,9 @@ public abstract class MsTestElement {
 
     private static final String BODY_FILE_DIR = "/opt/metersphere/data/body";
 
-    // 公共环境逐层传递，如果自身有环境 以自身引用环境为准否则以公共环境作为请求环境
+    /**
+     * todo 公共环境逐层传递，如果自身有环境 以自身引用环境为准否则以公共环境作为请求环境
+     */
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, ParameterConfig config) {
         for (MsTestElement el : hashTree) {
             el.toHashTree(tree, el.hashTree, config);

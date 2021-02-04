@@ -9,10 +9,9 @@ public class ScenarioImportParserFactory {
             return new MsScenarioParser();
         } else if (StringUtils.equals(ApiImportPlatform.Postman.name(), platform)) {
             return new MsPostmanParser();
+        } else if (StringUtils.equals(ApiImportPlatform.Jmeter.name(), platform)) {
+            return new MsJmeterParser();
         }
-//        else if (StringUtils.equals(ApiImportPlatform.Swagger2.name(), platform)) {
-//            return new Swagger2Parser();
-//        }
         return null;
     }
 }
