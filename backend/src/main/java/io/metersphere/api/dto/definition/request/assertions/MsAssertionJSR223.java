@@ -13,13 +13,13 @@ public class MsAssertionJSR223 extends MsAssertionType {
     private String desc;
     private String name;
     private String script;
-    private String language;
+    private String scriptLanguage;
 
     public MsAssertionJSR223() {
         setType(MsAssertionType.JSR223);
     }
 
     public boolean isValid() {
-        return StringUtils.isNotBlank(script) && StringUtils.isNotBlank(language);
+        return StringUtils.isNotBlank(script) && StringUtils.isNotBlank(scriptLanguage);
     }
 }
