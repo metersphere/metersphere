@@ -387,7 +387,7 @@ public class JmeterDocumentParser implements DocumentParser {
         element.appendChild(createStringProp(document, "HTTPSampler.contentEncoding", ""));
         element.appendChild(createStringProp(document, "HTTPSampler.path", ""));
         element.appendChild(createStringProp(document, "HTTPSampler.concurrentPool", "6"));
-        element.appendChild(createStringProp(document, "HTTPSampler.connect_timeout", ""));
+        element.appendChild(createStringProp(document, "HTTPSampler.connect_timeout", "60000"));
         element.appendChild(createStringProp(document, "HTTPSampler.response_timeout", ""));
         hashTree.appendChild(element);
         // 空的 hashTree
