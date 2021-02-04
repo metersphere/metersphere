@@ -290,6 +290,9 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         Arguments arguments = new Arguments();
         list.stream().filter(KeyValue::isValid).filter(KeyValue::isEnable).forEach(keyValue -> {
                     HTTPArgument httpArgument = new HTTPArgument(keyValue.getName(), StringUtils.isNotEmpty(keyValue.getValue()) && keyValue.getValue().startsWith("@") ? ScriptEngineUtils.calculate(keyValue.getValue()) : keyValue.getValue());
+                    if (keyValue.getValue() == null) {
+                        httpArgument.setValue("");
+                    }
                     httpArgument.setAlwaysEncoded(keyValue.isEncode());
                     if (StringUtils.isNotBlank(keyValue.getContentType())) {
                         httpArgument.setContentType(keyValue.getContentType());

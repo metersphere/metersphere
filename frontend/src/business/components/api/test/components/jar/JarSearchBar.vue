@@ -1,10 +1,10 @@
 <template>
   <el-input class="jar-header-search"
-            v-model="searchCondition"
+            v-model="condition.name"
             type="text"
             size="small"
             prefix-icon="el-icon-search"
-            @keyup.enter.native="search"
+            @blur="search"
             :placeholder="$t('project.search_by_name_jar')" clearable/>
 </template>
 
@@ -19,19 +19,9 @@
           },
         },
       },
-      data() {
-        return {
-          searchCondition: this.condition
-        };
-      },
-      watch: {
-        inputCondition(value) {
-          this.searchCondition = value;
-        }
-      },
       methods: {
         search() {
-          this.$emit('refresh', this.searchCondition);
+          this.$emit('search', true);
         }
       },
     }

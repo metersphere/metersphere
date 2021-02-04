@@ -132,18 +132,16 @@ import {API_METHOD_COLOUR, CASE_PRIORITY, DUBBO_METHOD, REQ_METHOD, SQL_METHOD, 
 import {getBodyUploadFiles, getCurrentProjectID} from "@/common/js/utils";
 import ApiListContainer from "./ApiListContainer";
 import PriorityTableItem from "../../../../track/common/tableItems/planview/PriorityTableItem";
-import {_filter, _sort} from "../../../../../../common/js/utils";
-import {_handleSelect, _handleSelectAll} from "../../../../../../common/js/tableUtils";
 import MsApiCaseTableExtendBtns from "../reference/ApiCaseTableExtendBtns";
 import MsReferenceView from "../reference/ReferenceView";
 import MsSetEnvironment from "@/business/components/api/definition/components/basis/SetEnvironment";
 import TestPlan from "@/business/components/api/definition/components/jmeter/components/test-plan";
 import ThreadGroup from "@/business/components/api/definition/components/jmeter/components/thread-group";
 import {parseEnvironment} from "@/business/components/api/test/model/EnvironmentModel";
-// import MsTableSelectAll from "../../../../common/components/table/MsTableSelectAll";
 import MsTableHeaderSelectPopover from "@/business/components/common/components/table/MsTableHeaderSelectPopover";
 import MsTableAdvSearchBar from "@/business/components/common/components/search/MsTableAdvSearchBar";
 import {API_CASE_CONFIGS} from "@/business/components/common/components/search/search-components";
+import {_filter, _handleSelect, _handleSelectAll, _sort,} from "@/common/js/tableUtils";
 
 export default {
     name: "ApiCaseSimpleList",

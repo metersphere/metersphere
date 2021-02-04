@@ -66,7 +66,7 @@
   import MsEditRandom from "./EditRandom";
   import MsEditListValue from "./EditListValue";
   import MsEditCsv from "./EditCsv";
-  import {_filter, getUUID} from "@/common/js/utils";
+  import {getUUID} from "@/common/js/utils";
 
   export default {
     name: "MsVariableList",
@@ -188,6 +188,8 @@
             } else {
               item.hidden = undefined;
             }
+          } else {
+            item.hidden = undefined;
           }
           datas.push(item);
         })
@@ -202,12 +204,8 @@
   }
 </script>
 
-<style scoped>
+<style>
   .ms-variable-hidden-row {
     display: none;
-  }
-
-  /deep/ .el-dialog__body {
-    padding: 10px 10px;
   }
 </style>

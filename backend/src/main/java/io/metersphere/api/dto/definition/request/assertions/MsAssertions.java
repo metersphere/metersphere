@@ -130,7 +130,7 @@ public class MsAssertions extends MsTestElement {
         assertion.setProperty(TestElement.TEST_CLASS, JSR223Assertion.class.getName());
         assertion.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("TestBeanGUI"));
         assertion.setProperty("cacheKey", "true");
-        assertion.setProperty("scriptLanguage", assertionJSR223.getLanguage());
+        assertion.setProperty("scriptLanguage", assertionJSR223.getScriptLanguage());
         assertion.setProperty("script", assertionJSR223.getScript());
         return assertion;
     }

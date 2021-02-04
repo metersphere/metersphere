@@ -61,31 +61,31 @@
 </template>
 
 <script>
-  import OneClickOperation from './OneClickOperation';
-  import MsTablePagination from "../../common/pagination/TablePagination";
-  import MsTableHeader from "../../common/components/MsTableHeader";
-  import MsTableOperator from "../../common/components/MsTableOperator";
-  import MsContainer from "../../common/components/MsContainer";
-  import MsMainContainer from "../../common/components/MsMainContainer";
-  import MsApiTestStatus from "./ApiTestStatus";
-  import MsTableOperators from "../../common/components/MsTableOperators";
-  import {_filter, _sort} from "@/common/js/utils";
-  import {TEST_CONFIGS} from "../../common/components/search/search-components";
-  import {ApiEvent, LIST_CHANGE} from "@/business/components/common/head/ListEvent";
-  import ApiCopyDialog from "./components/ApiCopyDialog";
-  import MsUpgrade from "./Upgrade";
+import OneClickOperation from './OneClickOperation';
+import MsTablePagination from "../../common/pagination/TablePagination";
+import MsTableHeader from "../../common/components/MsTableHeader";
+import MsTableOperator from "../../common/components/MsTableOperator";
+import MsContainer from "../../common/components/MsContainer";
+import MsMainContainer from "../../common/components/MsMainContainer";
+import MsApiTestStatus from "./ApiTestStatus";
+import MsTableOperators from "../../common/components/MsTableOperators";
+import {TEST_CONFIGS} from "../../common/components/search/search-components";
+import {ApiEvent, LIST_CHANGE} from "@/business/components/common/head/ListEvent";
+import ApiCopyDialog from "./components/ApiCopyDialog";
+import MsUpgrade from "./Upgrade";
+import {_filter, _sort} from "@/common/js/tableUtils";
 
-  export default {
-    components: {
-      ApiCopyDialog,
-      OneClickOperation,
-      MsTableOperators,
-      MsApiTestStatus, MsMainContainer, MsContainer, MsTableHeader, MsTablePagination, MsTableOperator, MsUpgrade
-    },
-    data() {
-      return {
-        result: {},
-        condition: {
+export default {
+  components: {
+    ApiCopyDialog,
+    OneClickOperation,
+    MsTableOperators,
+    MsApiTestStatus, MsMainContainer, MsContainer, MsTableHeader, MsTablePagination, MsTableOperator, MsUpgrade
+  },
+  data() {
+    return {
+      result: {},
+      condition: {
           components: TEST_CONFIGS
         },
         projectId: null,

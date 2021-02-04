@@ -88,10 +88,9 @@ import {API_METHOD_COLOUR, CASE_PRIORITY} from "../../../definition/model/JsonDa
 import {getCurrentProjectID} from "@/common/js/utils";
 import ApiListContainer from "../../../definition/components/list/ApiListContainer";
 import PriorityTableItem from "../../../../track/common/tableItems/planview/PriorityTableItem";
-import {_filter, _sort} from "../../../../../../common/js/utils";
-import {_handleSelect, _handleSelectAll} from "../../../../../../common/js/tableUtils";
 import MsEnvironmentSelect from "../../../definition/components/case/MsEnvironmentSelect";
 import TableSelectCountBar from "./TableSelectCountBar";
+import {_filter, _handleSelect, _handleSelectAll, _sort,} from "@/common/js/tableUtils";
 
 export default {
   name: "RelevanceApiList",
