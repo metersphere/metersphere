@@ -34,7 +34,16 @@
     <ms-dubbo-basis-parameters :request="request" v-if="request.protocol==='DUBBO' || request.protocol==='dubbo://'|| request.type==='DubboSampler'" :showScript="false"/>
 
     <p class="tip">{{$t('api_test.definition.request.res_param')}} </p>
-    <api-response-component :currentProtocol="request.protocol" :result="request.requestResult"/>
+    <div v-if="request.result">
+      <el-tabs v-model="request.activeName" closable class="ms-tabs">
+        <el-tab-pane :label="item.name" :name="item.name" v-for="(item,index) in request.result.scenarios" :key="index">
+          <div v-for="(result,i) in item.requestResults" :key="i" style="margin-bottom: 5px">
+            <api-response-component v-if="result.name===request.name" :result="result"/>
+          </div>
+        </el-tab-pane>
+      </el-tabs>
+    </div>
+    <api-response-component :currentProtocol="request.protocol" :result="request.requestResult" v-else/>
 
     <!-- 保存操作 -->
     <el-button type="primary" size="small" style="margin: 20px; float: right" @click="saveTestCase(item)" v-if="!request.referenced">
@@ -86,6 +95,7 @@
       if (!this.request.requestResult) {
         this.request.requestResult = {responseResult: {}};
       }
+      console.log(this.request)
       // 加载引用对象数据
       this.getApiInfo();
       if (this.request.protocol === 'HTTP') {
@@ -155,7 +165,7 @@
           return true
         }
         return false;
-      }
+      },
     },
     methods: {
       remove() {
@@ -247,6 +257,7 @@
       },
       runRefresh(data) {
         this.request.requestResult = data;
+        this.request.result = undefined;
         this.loading = false;
       },
       reload() {
@@ -288,5 +299,10 @@
 
   .icon.is-active {
     transform: rotate(90deg);
+  }
+
+  .ms-tabs >>> .el-icon-close:before {
+    content: "";
+
   }
 </style>
