@@ -145,8 +145,8 @@
             <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
           </template>
         </el-table-column>
-        <el-table-column
-          :label="$t('commons.operating')" min-width="150">
+        <el-table-column fixed="right"
+                         :label="$t('commons.operating')" min-width="150">
           <template v-slot:default="scope">
             <ms-table-operator :is-tester-permission="true" @editClick="handleEdit(scope.row)"
                                @deleteClick="handleDelete(scope.row)">
