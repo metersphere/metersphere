@@ -171,11 +171,15 @@ public class HistoricalDataUpgradeService {
                 element = new MsJDBCSampler();
                 SqlRequest request1 = (SqlRequest) request;
                 BeanUtils.copyBean(element, request1);
+
                 EnvironmentDTO dto = environmentDTOMap.get(request1.getDataSource());
                 if (dto != null) {
                     ((MsJDBCSampler) element).setEnvironmentId(dto.getEnvironmentId());
                     ((MsJDBCSampler) element).setDataSourceId(dto.getDatabaseConfig().getId());
                     ((MsJDBCSampler) element).setDataSource(dto.getDatabaseConfig());
+                }
+                if (CollectionUtils.isEmpty(request1.getVariables())) {
+                    ((MsJDBCSampler) element).setVariables(new ArrayList<>());
                 }
                 element.setType("JDBCSampler");
             }
