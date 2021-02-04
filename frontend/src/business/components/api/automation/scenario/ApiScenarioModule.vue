@@ -11,6 +11,7 @@
       @edit="edit"
       @drag="drag"
       @remove="remove"
+      @refresh="list"
       @nodeSelectEvent="nodeChange"
       ref="nodeTree">
 
@@ -34,24 +35,24 @@
 </template>
 
 <script>
-  import SelectMenu from "../../../track/common/SelectMenu";
-  import MsAddBasisScenario from "@/business/components/api/automation/scenario/AddBasisScenario";
-  import {getCurrentProjectID} from "@/common/js/utils";
-  import MsNodeTree from "../../../track/common/NodeTree";
-  import {buildNodePath} from "../../definition/model/NodeTree";
-  import ModuleTrashButton from "../../definition/components/module/ModuleTrashButton";
+import SelectMenu from "../../../track/common/SelectMenu";
+import MsAddBasisScenario from "@/business/components/api/automation/scenario/AddBasisScenario";
+import {getCurrentProjectID} from "@/common/js/utils";
+import MsNodeTree from "../../../track/common/NodeTree";
+import {buildNodePath} from "../../definition/model/NodeTree";
+import ModuleTrashButton from "../../definition/components/module/ModuleTrashButton";
 
-  export default {
-    name: 'MsApiScenarioModule',
-    components: {
-      ModuleTrashButton,
-      MsNodeTree,
-      MsAddBasisScenario,
-      SelectMenu,
-    },
-    props: {
-      isReadOnly: {
-        type: Boolean,
+export default {
+  name: 'MsApiScenarioModule',
+  components: {
+    ModuleTrashButton,
+    MsNodeTree,
+    MsAddBasisScenario,
+    SelectMenu,
+  },
+  props: {
+    isReadOnly: {
+      type: Boolean,
         default() {
           return false
         }
