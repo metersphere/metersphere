@@ -58,27 +58,27 @@
 </template>
 
 <script>
-import MsEditConstant from "./EditConstant";
-import MsDialogFooter from "../../../../common/components/MsDialogFooter";
-import MsTableHeader from "@/business/components/common/components/MsTableHeader";
-import MsTablePagination from "@/business/components/common/pagination/TablePagination";
-import MsEditCounter from "./EditCounter";
-import MsEditRandom from "./EditRandom";
-import MsEditListValue from "./EditListValue";
-import MsEditCsv from "./EditCsv";
-import {getUUID} from "@/common/js/utils";
+  import MsEditConstant from "./EditConstant";
+  import MsDialogFooter from "../../../../common/components/MsDialogFooter";
+  import MsTableHeader from "@/business/components/common/components/MsTableHeader";
+  import MsTablePagination from "@/business/components/common/pagination/TablePagination";
+  import MsEditCounter from "./EditCounter";
+  import MsEditRandom from "./EditRandom";
+  import MsEditListValue from "./EditListValue";
+  import MsEditCsv from "./EditCsv";
+  import {getUUID} from "@/common/js/utils";
 
-export default {
-  name: "MsVariableList",
-  components: {
-    MsEditConstant,
-    MsDialogFooter,
-    MsTableHeader,
-    MsTablePagination,
-    MsEditCounter,
-    MsEditRandom,
-    MsEditListValue,
-    MsEditCsv
+  export default {
+    name: "MsVariableList",
+    components: {
+      MsEditConstant,
+      MsDialogFooter,
+      MsTableHeader,
+      MsTablePagination,
+      MsEditCounter,
+      MsEditRandom,
+      MsEditListValue,
+      MsEditCsv
     },
     data() {
       return {
@@ -188,6 +188,8 @@ export default {
             } else {
               item.hidden = undefined;
             }
+          } else {
+            item.hidden = undefined;
           }
           datas.push(item);
         })
@@ -202,12 +204,8 @@ export default {
   }
 </script>
 
-<style scoped>
+<style>
   .ms-variable-hidden-row {
     display: none;
-  }
-
-  /deep/ .el-dialog__body {
-    padding: 10px 10px;
   }
 </style>
