@@ -11,5 +11,9 @@ public enum ResourceStatusEnum {
     /**
      * 有效
      */
-    VALID
+    VALID,
+    /**
+     * 删除
+     */
+    DELETE
 }
