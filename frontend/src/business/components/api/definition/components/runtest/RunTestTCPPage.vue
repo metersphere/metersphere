@@ -54,29 +54,29 @@
 </template>
 
 <script>
-  import MsApiRequestForm from "../request/http/ApiHttpRequestForm";
-  import {downloadFile, getUUID, getCurrentProjectID} from "@/common/js/utils";
-  import MsApiCaseList from "../case/ApiCaseList";
-  import MsContainer from "../../../../common/components/MsContainer";
-  import MsBottomContainer from "../BottomContainer";
-  import MsRequestResultTail from "../response/RequestResultTail";
-  import MsRun from "../Run";
-  import MsBasisParameters from "../request/tcp/TcpBasisParameters";
-  import {REQ_METHOD} from "../../model/JsonData";
-  import EnvironmentSelect from "../environment/EnvironmentSelect";
-  import MsJmxStep from "../step/JmxStep";
+import MsApiRequestForm from "../request/http/ApiHttpRequestForm";
+import {getUUID, uuid} from "@/common/js/utils";
+import MsApiCaseList from "../case/ApiCaseList";
+import MsContainer from "../../../../common/components/MsContainer";
+import MsBottomContainer from "../BottomContainer";
+import MsRequestResultTail from "../response/RequestResultTail";
+import MsRun from "../Run";
+import MsBasisParameters from "../request/tcp/TcpBasisParameters";
+import {REQ_METHOD} from "../../model/JsonData";
+import EnvironmentSelect from "../environment/EnvironmentSelect";
+import MsJmxStep from "../step/JmxStep";
 
-  export default {
-    name: "RunTestTCPPage",
-    components: {
-      MsJmxStep,
-      EnvironmentSelect,
-      MsApiRequestForm,
-      MsApiCaseList,
-      MsContainer,
-      MsBottomContainer,
-      MsRequestResultTail,
-      MsRun,
+export default {
+  name: "RunTestTCPPage",
+  components: {
+    MsJmxStep,
+    EnvironmentSelect,
+    MsApiRequestForm,
+    MsApiCaseList,
+    MsContainer,
+    MsBottomContainer,
+    MsRequestResultTail,
+    MsRun,
       MsBasisParameters
     },
     data() {
@@ -173,12 +173,14 @@
       },
       saveAsApi() {
         let data = {};
+        this.api.request.id = uuid();
         data.request = JSON.stringify(this.api.request);
         data.method = this.api.method;
         data.status = this.api.status;
         data.userId = this.api.userId;
         data.description = this.api.description;
         this.$emit('saveAsApi', data);
+        this.$emit('refresh');
       },
       updateApi() {
         let url = "/api/definition/update";
