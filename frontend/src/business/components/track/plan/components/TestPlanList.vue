@@ -37,15 +37,15 @@
                 <plan-status-table-item :value="scope.row.status"/>
               </span>
               <el-dropdown-menu slot="dropdown" chang>
-                <el-dropdown-item :disabled="!isTestManagerOrTestUser" :command="{id: scope.row.id, status: 'Prepare'}">
+                <el-dropdown-item :disabled="!isTestManagerOrTestUser" :command="{item: scope.row, status: 'Prepare'}">
                   {{ $t('test_track.plan.plan_status_prepare') }}
                 </el-dropdown-item>
                 <el-dropdown-item :disabled="!isTestManagerOrTestUser"
-                                  :command="{id: scope.row.id, status: 'Underway'}">
+                                  :command="{item: scope.row, status: 'Underway'}">
                   {{ $t('test_track.plan.plan_status_running') }}
                 </el-dropdown-item>
                 <el-dropdown-item :disabled="!isTestManagerOrTestUser"
-                                  :command="{id: scope.row.id, status: 'Completed'}">
+                                  :command="{item: scope.row, status: 'Completed'}">
                   {{ $t('test_track.plan.plan_status_completed') }}
                 </el-dropdown-item>
               </el-dropdown-menu>
@@ -257,20 +257,25 @@ export default {
       this.$emit('testPlanEdit', testPlan);
     },
     statusChange(param) {
+      console.log(this.tableData);
+      let oldStatus = param.item.status;
+      let newStatus = param.status;
+      param = param.item;
+      param.status = newStatus;
       this.$post('/test/plan/edit', param, () => {
         for (let i = 0; i < this.tableData.length; i++) {
           if (this.tableData[i].id == param.id) { //  手动修改当前状态后，前端结束时间先用当前时间，等刷新后变成后台数据（相等）
-            if (this.tableData[i].status !== "Completed" && param.status === "Completed") {
-              this.tableData[i].actualEndTime = new Date();
+            if (oldStatus !== "Completed" && newStatus === "Completed") {
+              this.tableData[i].actualEndTime = Date.now();
             } //  非完成->已完成，结束时间=null
-            else if (this.tableData[i].status !== "Underway" && param.status === "Underway") {
-              this.tableData[i].actualStartTime = new Date();
+            else if (oldStatus !== "Underway" && newStatus === "Underway") {
+              this.tableData[i].actualStartTime = Date.now();
               this.tableData[i].actualEndTime = "";
             } //  非进行中->进行中，结束时间=null
-            else if (this.tableData[i].status !== "Prepare" && param.status === "Prepare") {
+            else if (oldStatus !== "Prepare" && newStatus === "Prepare") {
               this.tableData[i].actualStartTime = this.tableData[i].actualEndTime = "";
             } //  非未开始->未开始，结束时间=null
-            this.tableData[i].status = param.status;
+            this.tableData[i].status = newStatus;
             break;
           }
         }
