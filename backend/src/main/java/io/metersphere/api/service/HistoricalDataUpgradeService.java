@@ -178,7 +178,9 @@ public class HistoricalDataUpgradeService {
                     ((MsJDBCSampler) element).setDataSourceId(dto.getDatabaseConfig().getId());
                     ((MsJDBCSampler) element).setDataSource(dto.getDatabaseConfig());
                 }
-                ((MsJDBCSampler) element).setVariables(new ArrayList<>());
+                if (CollectionUtils.isEmpty(request1.getVariables())) {
+                    ((MsJDBCSampler) element).setVariables(new ArrayList<>());
+                }
                 element.setType("JDBCSampler");
             }
             if (request instanceof TCPRequest) {
