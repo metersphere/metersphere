@@ -54,7 +54,8 @@
   import {CASE_ORDER} from "../../model/JsonData";
   import {API_CASE_CONFIGS} from "@/business/components/common/components/search/search-components";
   import MsBatchEdit from "../basis/BatchEdit";
-  import {CASE_PRIORITY, REQ_METHOD} from "../../model/JsonData";
+  // import {CASE_PRIORITY, REQ_METHOD} from "../../model/JsonData";
+  import {CASE_PRIORITY,API_METHOD_COLOUR, API_STATUS, REQ_METHOD, TCP_METHOD, SQL_METHOD, DUBBO_METHOD} from "../../model/JsonData";
 
   export default {
     name: 'ApiCaseList',
@@ -313,6 +314,17 @@
           this.$warning("请选择用例！");
           return;
         }
+        // //根据不同的接口，注入不同的参数
+        if (this.currentApi.protocol == 'HTTP') {
+          this.valueArr.method = REQ_METHOD;
+        } else if (this.currentApi.protocol == 'TCP') {
+          this.valueArr.method = TCP_METHOD;
+        } else if (this.currentApi.protocol == 'SQL') {
+          this.valueArr.method = SQL_METHOD;
+        } else if (this.currentApi.protocol == 'DUBBO') {
+          this.valueArr.method = DUBBO_METHOD;
+        }
+
         this.$refs.batchEdit.open();
       },
       batchEdit(form) {
