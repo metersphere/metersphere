@@ -220,6 +220,10 @@ export default {
       if (dropType === "none" || dropType === undefined) {
         return;
       }
+      if (dropNode.data.id === 'root' && dropType === 'before') {
+        this.$emit('refresh');
+        return false;
+      }
       let param = this.buildParam(draggingNode, dropNode, dropType);
       let list = [];
       this.getNodeTree(this.treeNodes, draggingNode.data.id, list);

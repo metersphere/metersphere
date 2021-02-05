@@ -11,6 +11,7 @@
       @edit="edit"
       @drag="drag"
       @remove="remove"
+      @refresh="list"
       @nodeSelectEvent="nodeChange"
       ref="nodeTree">
 
@@ -33,26 +34,26 @@
 </template>
 
 <script>
-  import MsAddBasisApi from "../basis/AddBasisApi";
-  import SelectMenu from "../../../../track/common/SelectMenu";
-  import {OPTIONS} from "../../model/JsonData";
-  import ApiImport from "../import/ApiImport";
-  import {getCurrentProjectID} from "@/common/js/utils";
-  import MsNodeTree from "../../../../track/common/NodeTree";
-  import ApiModuleHeader from "./ApiModuleHeader";
-  import {buildNodePath} from "../../model/NodeTree";
+import MsAddBasisApi from "../basis/AddBasisApi";
+import SelectMenu from "../../../../track/common/SelectMenu";
+import {OPTIONS} from "../../model/JsonData";
+import ApiImport from "../import/ApiImport";
+import {getCurrentProjectID} from "@/common/js/utils";
+import MsNodeTree from "../../../../track/common/NodeTree";
+import ApiModuleHeader from "./ApiModuleHeader";
+import {buildNodePath} from "../../model/NodeTree";
 
-  export default {
-    name: 'MsApiModule',
-    components: {
-      ApiModuleHeader,
-      MsNodeTree,
-      MsAddBasisApi,
-      SelectMenu,
-      ApiImport
-    },
-    data() {
-      return {
+export default {
+  name: 'MsApiModule',
+  components: {
+    ApiModuleHeader,
+    MsNodeTree,
+    MsAddBasisApi,
+    SelectMenu,
+    ApiImport
+  },
+  data() {
+    return {
         result: {},
         condition: {
           protocol: OPTIONS[0].value,
