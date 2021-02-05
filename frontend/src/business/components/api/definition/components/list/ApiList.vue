@@ -188,8 +188,8 @@ import MsBottomContainer from "../BottomContainer";
 import ShowMoreBtn from "../../../../track/case/components/ShowMoreBtn";
 import MsBatchEdit from "../basis/BatchEdit";
 import {API_METHOD_COLOUR, API_STATUS, DUBBO_METHOD, REQ_METHOD, SQL_METHOD, TCP_METHOD} from "../../model/JsonData";
-import {getCurrentProjectID} from "@/common/js/utils";
-import {WORKSPACE_ID} from '@/common/js/constants';
+import {downloadFile, getCurrentProjectID} from "@/common/js/utils";
+import {PROJECT_NAME, WORKSPACE_ID} from '@/common/js/constants';
 import ApiListContainer from "./ApiListContainer";
 import MsTableHeaderSelectPopover from "@/business/components/common/components/table/MsTableHeaderSelectPopover";
 import ApiStatus from "@/business/components/api/definition/components/list/ApiStatus";
@@ -499,12 +499,7 @@ export default {
           confirmButtonText: this.$t('commons.confirm'),
           callback: (action) => {
             if (action === 'confirm') {
-              let deleteParam = {};
-              let ids = Array.from(this.selectRows).map(row => row.id);
-              deleteParam.dataIds = ids;
-              deleteParam.projectId = getCurrentProjectID();
-              deleteParam.condition = this.condition;
-              this.$post('/api/definition/deleteBatchByParams/', deleteParam, () => {
+              this.$post('/api/definition/deleteBatchByParams/', this.buildBatchParam(), () => {
                 this.selectRows.clear();
                 this.initTable();
                 this.$success(this.$t('commons.delete_success'));
@@ -517,12 +512,7 @@ export default {
           confirmButtonText: this.$t('commons.confirm'),
           callback: (action) => {
             if (action === 'confirm') {
-              let ids = Array.from(this.selectRows).map(row => row.id);
-              let deleteParam = {};
-              deleteParam.dataIds = ids;
-              deleteParam.projectId = getCurrentProjectID();
-              deleteParam.condition = this.condition;
-              this.$post('/api/definition/removeToGcByParams/', deleteParam, () => {
+              this.$post('/api/definition/removeToGcByParams/', this.buildBatchParam(), () => {
                 this.selectRows.clear();
                 this.initTable();
                 this.$success(this.$t('commons.delete_success'));
@@ -546,17 +536,19 @@ export default {
       this.$refs.batchEdit.open();
     },
     batchEdit(form) {
-      let arr = Array.from(this.selectRows);
-      let ids = arr.map(row => row.id);
-      let param = {};
+      let param = this.buildBatchParam();
       param[form.type] = form.value;
-      param.ids = ids;
-      param.projectId = getCurrentProjectID();
-      param.condition = this.condition;
       this.$post('/api/definition/batch/editByParams', param, () => {
         this.$success(this.$t('commons.save_success'));
         this.initTable();
       });
+    },
+    buildBatchParam() {
+      let param = {};
+      param.ids = Array.from(this.selectRows).map(row => row.id);
+      param.projectId = getCurrentProjectID();
+      param.condition = this.condition;
+      return param;
     },
     moveSave(param) {
       let arr = Array.from(this.selectRows);
@@ -632,6 +624,25 @@ export default {
       let rowArray = Array.from(rowSets)
       let ids = rowArray.map(s => s.id);
       return ids;
+    },
+    exportApi() {
+      let param = this.buildBatchParam();
+      param.protocol = this.currentProtocol;
+      this.result = this.$post("/api/definition/export", param, response => {
+        let obj = response.data;
+        obj.protocol = this.currentProtocol;
+        this.buildApiPath(obj.data);
+        downloadFile("Metersphere_Api_" + localStorage.getItem(PROJECT_NAME) + ".json", JSON.stringify(obj));
+      });
+    },
+    buildApiPath(apis) {
+      apis.forEach((api) => {
+        this.moduleOptions.forEach(item => {
+          if (api.moduleId === item.id) {
+            api.modulePath = item.path;
+          }
+        });
+      });
     },
     sort(column) {
       // 每次只对一个字段排序

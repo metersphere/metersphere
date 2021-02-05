@@ -386,6 +386,12 @@ public class ApiTestCaseService {
         return apiTestCaseMapper.selectByExample(example);
     }
 
+    public List<ApiTestCaseWithBLOBs> selectCasesBydApiIds(List<String> apiIds) {
+        ApiTestCaseExample example = new ApiTestCaseExample();
+        example.createCriteria().andApiDefinitionIdIn(apiIds);
+        return apiTestCaseMapper.selectByExampleWithBLOBs(example);
+    }
+
     public Map<String, String> getRequest(ApiTestCaseRequest request) {
         List<ApiTestCaseWithBLOBs> list = extApiTestCaseMapper.getRequest(request);
         return list.stream().collect(Collectors.toMap(ApiTestCaseWithBLOBs::getId, ApiTestCaseWithBLOBs::getRequest));

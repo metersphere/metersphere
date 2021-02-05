@@ -199,6 +199,7 @@ export default {
       },
       refresh() {
         this.list();
+        this.$emit('refreshTable');
       },
     }
   }

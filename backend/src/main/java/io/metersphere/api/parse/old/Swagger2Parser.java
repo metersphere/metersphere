@@ -4,7 +4,6 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import io.metersphere.api.dto.ApiTestImportRequest;
-import io.metersphere.api.dto.definition.ApiDefinitionResult;
 import io.metersphere.api.dto.definition.parse.ApiDefinitionImport;
 import io.metersphere.api.dto.definition.request.MsTestElement;
 import io.metersphere.api.dto.definition.request.configurations.MsHeaderManager;
@@ -16,6 +15,7 @@ import io.metersphere.api.dto.scenario.Scenario;
 import io.metersphere.api.dto.scenario.request.HttpRequest;
 import io.metersphere.api.dto.scenario.request.Request;
 import io.metersphere.api.dto.scenario.request.RequestType;
+import io.metersphere.base.domain.ApiDefinitionWithBLOBs;
 import io.metersphere.commons.constants.MsRequestBodyType;
 import io.metersphere.commons.constants.SwaggerParameterType;
 import io.swagger.models.*;
@@ -54,13 +54,13 @@ public class Swagger2Parser extends ApiImportAbstractParser {
         return definitionImport;
     }
 
-    private List<ApiDefinitionResult> parseSwagger(ApiImport apiImport) {
-        List<ApiDefinitionResult> results = new LinkedList<>();
+    private List<ApiDefinitionWithBLOBs> parseSwagger(ApiImport apiImport) {
+        List<ApiDefinitionWithBLOBs> results = new LinkedList<>();
         apiImport.getScenarios().forEach(item -> {
             item.getRequests().forEach(childItem -> {
                 if (childItem instanceof HttpRequest) {
                     HttpRequest res = (HttpRequest) childItem;
-                    ApiDefinitionResult request = new ApiDefinitionResult();
+                    ApiDefinitionWithBLOBs request = new ApiDefinitionWithBLOBs();
                     request.setName(res.getName());
                     request.setPath(res.getPath());
                     request.setMethod(res.getMethod());
