@@ -1,4 +1,4 @@
-package io.metersphere.track.issue;
+package io.metersphere.track.issue.domain;
 
 import lombok.Data;
 

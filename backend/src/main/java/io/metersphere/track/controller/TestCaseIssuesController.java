@@ -1,8 +1,8 @@
 package io.metersphere.track.controller;
 
 import io.metersphere.base.domain.Issues;
-import io.metersphere.track.issue.PlatformUser;
-import io.metersphere.track.issue.ZentaoBuild;
+import io.metersphere.track.issue.domain.PlatformUser;
+import io.metersphere.track.issue.domain.ZentaoBuild;
 import io.metersphere.track.service.IssuesService;
 import io.metersphere.track.request.testcase.IssuesRequest;
 import org.springframework.web.bind.annotation.*;

@@ -7,6 +7,7 @@ import io.metersphere.commons.constants.IssuesManagePlatform;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.EncryptUtils;
 import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.track.issue.domain.PlatformUser;
 import io.metersphere.track.request.testcase.IssuesRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.commonmark.node.Node;
