@@ -95,16 +95,6 @@ public class ApiAutomationService {
         return list;
     }
 
-    public List<ApiScenarioWithBLOBs> get(ApiScenarioRequest request) {
-        ApiScenarioExample example = new ApiScenarioExample();
-        if (CollectionUtils.isNotEmpty(request.getIds())) {
-            example.createCriteria().andIdIn(request.getIds());
-        } else {
-            example.createCriteria().andProjectIdEqualTo(request.getProjectId());
-        }
-        return apiScenarioMapper.selectByExampleWithBLOBs(example);
-    }
-
     /**
      * 初始化部分参数
      *
@@ -541,7 +531,6 @@ public class ApiAutomationService {
         ParameterConfig config = new ParameterConfig();
         config.setConfig(envConfig);
         HashTree hashTree = request.getTestElement().generateHashTree(config);
-
         // 调用执行方法
         createScenarioReport(request.getId(), request.getScenarioId(), request.getScenarioName(), ReportTriggerMode.MANUAL.name(), request.getExecuteType(), request.getProjectId(),
                 SessionUtils.getUserId());
@@ -748,6 +737,16 @@ public class ApiAutomationService {
                 apiScenarioMapper.updateByPrimaryKeySelective(item);
             });
         }
+    }
+
+    public List<ApiScenarioWithBLOBs> get(ApiScenarioRequest request) {
+        ApiScenarioExample example = new ApiScenarioExample();
+        if (CollectionUtils.isNotEmpty(request.getIds())) {
+            example.createCriteria().andIdIn(request.getIds());
+        } else {
+            example.createCriteria().andProjectIdEqualTo(request.getProjectId());
+        }
+        return apiScenarioMapper.selectByExampleWithBLOBs(example);
     }
 
     public List<ApiScenarioWithBLOBs> getWithBLOBs(ApiScenarioWithBLOBs request) {
