@@ -95,7 +95,7 @@ public class MsScenario extends MsTestElement {
         }
         // 场景变量和环境变量
         tree.add(arguments(config));
-        this.addCsvDataSet(tree, variables);
+        //this.addCsvDataSet(tree, variables);
         this.addCounter(tree, variables);
         this.addRandom(tree, variables);
         if (CollectionUtils.isNotEmpty(hashTree)) {

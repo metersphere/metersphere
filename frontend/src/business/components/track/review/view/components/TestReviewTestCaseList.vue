@@ -146,6 +146,9 @@
         @refreshTable="search"/>
 
     </el-card>
+
+    <batch-edit ref="batchEdit" @batchEdit="batchEdit"
+                :type-arr="typeArr" :value-arr="valueArr" :dialog-title="$t('test_track.case.batch_edit_case')"/>
   </div>
 </template>
 
@@ -166,11 +169,12 @@ import MsTableButton from "../../../../common/components/MsTableButton";
 import ShowMoreBtn from "../../../case/components/ShowMoreBtn";
 import BatchEdit from "../../../case/components/BatchEdit";
 import MsTablePagination from '../../../../common/pagination/TablePagination';
-import {_filter, _sort, checkoutTestManagerOrTestUser, hasRoles} from "../../../../../../common/js/utils";
+import {checkoutTestManagerOrTestUser, hasRoles} from "../../../../../../common/js/utils";
 import {TEST_CASE_CONFIGS} from "../../../../common/components/search/search-components";
 import {ROLE_TEST_MANAGER, ROLE_TEST_USER} from "../../../../../../common/js/constants";
 import TestReviewTestCaseEdit from "./TestReviewTestCaseEdit";
 import ReviewStatus from "@/business/components/track/case/components/ReviewStatus";
+import {_filter, _sort} from "@/common/js/tableUtils";
 
 export default {
   name: "TestReviewTestCaseList",
@@ -215,20 +219,20 @@ export default {
       showMore: false,
       buttons: [
         {
+          name: this.$t('test_track.case.batch_edit_case'), handleClick: this.handleEditBatch
+        },
+        {
           name: this.$t('test_track.case.batch_unlink'), handleClick: this.handleDeleteBatch
         }
       ],
       typeArr: [
-        {id: 'status', name: this.$t('test_track.plan_view.execute_result')},
-        {id: 'executor', name: this.$t('test_track.plan_view.executor')},
+        {id: 'status', name: this.$t('test_track.review_view.execute_result')},
       ],
       valueArr: {
-        executor: [],
         status: [
-          {name: this.$t('test_track.plan_view.pass'), id: 'Pass'},
-          {name: this.$t('test_track.plan_view.failure'), id: 'Failure'},
-          {name: this.$t('test_track.plan_view.blocking'), id: 'Blocking'},
-          {name: this.$t('test_track.plan_view.skip'), id: 'Skip'}
+          {name: this.$t('test_track.case.status_prepare'), id: 'Prepare'},
+          {name: this.$t('test_track.case.status_pass'), id: 'Pass'},
+          {name: this.$t('test_track.case.status_un_pass'), id: 'UnPass'},
         ]
       },
     }
@@ -261,9 +265,7 @@ export default {
       if (this.reviewId) {
         this.condition.reviewId = this.reviewId;
       }
-      if (this.selectNodeIds && this.selectNodeIds.length > 0) {
-        this.condition.nodeIds = this.selectNodeIds;
-      }
+      this.condition.nodeIds = this.selectNodeIds;
       if (this.reviewId) {
         this.result = this.$post(this.buildPagePath('/test/review/case/list'), this.condition, response => {
           let data = response.data;
@@ -337,6 +339,23 @@ export default {
       this.$post('/test/review/case/delete', {id: testCaseId, reviewId: testCase.reviewId}, () => {
         this.$emit("refresh");
         this.$success(this.$t('test_track.cancel_relevance_success'));
+      });
+    },
+    handleEditBatch() {
+      this.$refs.batchEdit.open(this.selectRows.size);
+    },
+    batchEdit(form) {
+      let reviewId = this.reviewId;
+      let param = {};
+      param[form.type] = form.value;
+      param.ids = Array.from(this.selectRows).map(row => row.caseId);
+      param.reviewId = reviewId;
+      this.$post('/test/review/case/batch/edit/status', param, () => {
+        this.selectRows.clear();
+        this.status = '';
+        this.$post('/test/case/review/edit/status/' + reviewId);
+        this.$success(this.$t('commons.save_success'));
+        this.$emit('refresh');
       });
     },
     handleSelectAll(selection) {

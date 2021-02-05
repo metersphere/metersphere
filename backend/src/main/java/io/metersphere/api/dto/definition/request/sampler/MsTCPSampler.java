@@ -12,6 +12,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.jmeter.config.Arguments;
 import org.apache.jmeter.config.ConfigTestElement;
 import org.apache.jmeter.modifiers.UserParameters;
 import org.apache.jmeter.protocol.tcp.sampler.TCPSampler;
@@ -79,6 +80,13 @@ public class MsTCPSampler extends MsTestElement {
         }
         config.setConfig(getEnvironmentConfig(useEnvironment));
         parseEnvironment(config.getConfig());
+
+        // 添加环境中的公共变量
+        Arguments arguments = this.addArguments(config);
+        if (arguments != null) {
+            tree.add(this.addArguments(config));
+        }
+
         final HashTree samplerHashTree = new ListedHashTree();
         samplerHashTree.add(tcpConfig());
         tree.set(tcpSampler(config), samplerHashTree);
@@ -94,7 +102,7 @@ public class MsTCPSampler extends MsTestElement {
     }
 
     private void parseEnvironment(EnvironmentConfig config) {
-        if (config != null && config.getTcpConfig() != null) {
+        if (!isCustomizeReq() && config != null && config.getTcpConfig() != null) {
             this.server = config.getTcpConfig().getServer();
             this.port = config.getTcpConfig().getPort();
         }

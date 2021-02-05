@@ -15,6 +15,7 @@
                 @select-all="handleSelectAll"
                 @filter-change="filter"
                 @sort-change="sort"
+                @header-dragend="headerDragend"
                 @select="handleSelect" :height="screenHeight">
 
         <el-table-column type="selection" width="50"/>
@@ -25,25 +26,28 @@
           @selectPageAll="isSelectDataAll(false)"
           @selectAll="isSelectDataAll(true)"/>
 
-        <el-table-column width="30" :resizable="false" align="center">
+        <el-table-column width="30" :resizable="false" min-width="30px"  align="center">
           <template v-slot:default="scope">
             <show-more-btn :is-show="scope.row.showMore" :buttons="buttons" :size="selectDataCounts"/>
           </template>
         </el-table-column>
 
-        <el-table-column prop="num" label="ID" show-overflow-tooltip>
+        <el-table-column prop="num" label="ID" min-width="120px"  show-overflow-tooltip>
           <template slot-scope="scope">
             <el-tooltip content="编辑">
               <a style="cursor:pointer" @click="handleTestCase(scope.row)"> {{ scope.row.num }} </a>
             </el-tooltip>
           </template>
         </el-table-column>
-        <el-table-column prop="name" :label="$t('test_track.case.name')" show-overflow-tooltip/>
+
+        <el-table-column prop="name" min-width="160px"  :label="$t('test_track.case.name')" show-overflow-tooltip/>
 
         <el-table-column
           prop="priority"
           :filters="priorityFilters"
           column-key="priority"
+          min-width="120px"
+
           :label="$t('test_track.case.priority')"
           show-overflow-tooltip>
           <template v-slot:default="scope">
@@ -54,10 +58,12 @@
         <el-table-column
           sortable="custom"
           prop="path"
+          min-width="180px"
           :label="$t('api_test.definition.api_path')"
+
           show-overflow-tooltip/>
 
-        <el-table-column prop="tags" :label="$t('commons.tag')">
+        <el-table-column prop="tags" min-width="120px"  :label="$t('commons.tag')">
           <template v-slot:default="scope">
             <div v-for="(itemName,index)  in scope.row.tags" :key="index">
               <ms-tag type="success" effect="plain" :content="itemName"/>
@@ -68,12 +74,14 @@
         <el-table-column
           prop="createUser"
           :label="'创建人'"
+
           show-overflow-tooltip/>
 
         <el-table-column
           sortable="custom"
-          width="160"
+          min-width="160"
           :label="$t('api_test.definition.api_last_time')"
+
           prop="updateTime">
           <template v-slot:default="scope">
             <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
@@ -82,11 +90,6 @@
 
         <el-table-column fixed="right" v-if="!isReadOnly" :label="$t('commons.operating')" min-width="130" align="center">
           <template v-slot:default="scope">
-            <!--<el-button type="text" @click="reductionApi(scope.row)" v-if="trashEnable">{{$t('commons.reduction')}}</el-button>-->
-<!--            <el-button type="text" @click="handleTestCase(scope.row)" v-if="!trashEnable">{{ $t('commons.edit') }}-->
-<!--            </el-button>-->
-<!--            <el-button type="text" @click="handleDelete(scope.row)" style="color: #F56C6C">{{ $t('commons.delete') }}-->
-<!--            </el-button>-->
             <ms-table-operator-button :tip="$t('commons.edit')" icon="el-icon-edit" @exec="handleTestCase(scope.row)" v-tester/>
             <ms-table-operator-button :tip="$t('commons.delete')" icon="el-icon-delete" @exec="handleDelete(scope.row)" type="danger" v-tester/>
             <ms-api-case-table-extend-btns @showCaseRef="showCaseRef" @showEnvironment="showEnvironment" @createPerformance="createPerformance" :row="scope.row" v-tester/>
@@ -129,18 +132,16 @@ import {API_METHOD_COLOUR, CASE_PRIORITY, DUBBO_METHOD, REQ_METHOD, SQL_METHOD, 
 import {getBodyUploadFiles, getCurrentProjectID} from "@/common/js/utils";
 import ApiListContainer from "./ApiListContainer";
 import PriorityTableItem from "../../../../track/common/tableItems/planview/PriorityTableItem";
-import {_filter, _sort} from "../../../../../../common/js/utils";
-import {_handleSelect, _handleSelectAll} from "../../../../../../common/js/tableUtils";
 import MsApiCaseTableExtendBtns from "../reference/ApiCaseTableExtendBtns";
 import MsReferenceView from "../reference/ReferenceView";
 import MsSetEnvironment from "@/business/components/api/definition/components/basis/SetEnvironment";
 import TestPlan from "@/business/components/api/definition/components/jmeter/components/test-plan";
 import ThreadGroup from "@/business/components/api/definition/components/jmeter/components/thread-group";
 import {parseEnvironment} from "@/business/components/api/test/model/EnvironmentModel";
-// import MsTableSelectAll from "../../../../common/components/table/MsTableSelectAll";
 import MsTableHeaderSelectPopover from "@/business/components/common/components/table/MsTableHeaderSelectPopover";
 import MsTableAdvSearchBar from "@/business/components/common/components/search/MsTableAdvSearchBar";
 import {API_CASE_CONFIGS} from "@/business/components/common/components/search/search-components";
+import {_filter, _handleSelect, _handleSelectAll, _sort,} from "@/common/js/tableUtils";
 
 export default {
     name: "ApiCaseSimpleList",
@@ -504,6 +505,14 @@ export default {
         }
         this.clickRow = row;
         this.$refs.setEnvironment.open(row);
+      },
+      headerDragend(newWidth,oldWidth,column,event){
+        let finalWidth = newWidth;
+        if(column.minWidth>finalWidth){
+          finalWidth = column.minWidth;
+        }
+        column.width = finalWidth;
+        column.realWidth = finalWidth;
       },
       createPerformance(row, environment) {
         /**

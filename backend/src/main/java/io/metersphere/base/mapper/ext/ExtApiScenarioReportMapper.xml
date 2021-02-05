@@ -194,4 +194,26 @@
         WHERE acr.project_id = #{projectId} AND ar.trigger_mode = 'SCHEDULE'
         GROUP BY groupField;
     </select>
+    <select id="selectLastReportByIds" resultType="io.metersphere.base.domain.ApiScenarioReport">
+        SELECT report.* FROM api_scenario_report  report
+        INNER JOIN (
+        SELECT a.id,a.createTime,a.scenario_id FROM
+            (
+                SELECT id AS id,create_time AS createTime, scenario_id AS scenario_id FROM api_scenario_report
+                WHERE scenario_id in
+                    <foreach collection="scenarioIdList" item="value" separator="," open="(" close=")">
+                        #{value}
+                    </foreach>
+                UNION
+                SELECT report.id AS id,report.create_time AS createTime,planScenario.api_scenario_id AS scenario_id FROM api_scenario_report report
+                INNER JOIN test_plan_api_scenario planScenario ON report.scenario_id = planScenario.id
+                WHERE planScenario.api_scenario_id in
+                    <foreach collection="scenarioIdList" item="value" separator="," open="(" close=")">
+                        #{value}
+                    </foreach>
+                ORDER BY createTime DESC
+            ) a GROUP BY a.scenario_id
+        ) orderData ON orderData.id = report.id;
+    </select>
+
 </mapper>

@@ -29,7 +29,7 @@ public class TestPlanTestJob extends MsScheduleJob {
     private String projectID;
 
 
-//    private PerformanceTestService performanceTestService;
+    //    private PerformanceTestService performanceTestService;
 //    private TestPlanScenarioCaseService testPlanScenarioCaseService;
 //    private TestPlanApiCaseService testPlanApiCaseService;
 //    private ApiTestCaseService apiTestCaseService;
@@ -66,13 +66,12 @@ public class TestPlanTestJob extends MsScheduleJob {
         this.projectID = jobDataMap.getString("projectId");
 
 
-
         businessExecute(context);
     }
 
     @Override
     void businessExecute(JobExecutionContext context) {
-        testPlanService.run(this.resourceId,this.projectID,this.userId,ReportTriggerMode.SCHEDULE.name());
+        testPlanService.run(this.resourceId, this.projectID, this.userId, ReportTriggerMode.SCHEDULE.name());
     }
 
     public static JobKey getJobKey(String testId) {

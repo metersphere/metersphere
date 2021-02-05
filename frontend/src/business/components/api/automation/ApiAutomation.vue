@@ -297,5 +297,7 @@
 </script>
 
 <style scoped>
-
+  /deep/ .el-tabs__header {
+    margin: 0 0 0px;
+  }
 </style>

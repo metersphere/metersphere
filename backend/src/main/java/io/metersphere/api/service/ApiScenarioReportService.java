@@ -415,4 +415,12 @@ public class ApiScenarioReportService {
     public List<ApiDataCountResult> countByProjectIdGroupByExecuteResult(String projectId) {
         return extApiScenarioReportMapper.countByProjectIdGroupByExecuteResult(projectId);
     }
+
+    public List<ApiScenarioReport> selectLastReportByIds(List<String> ids) {
+        if(!ids.isEmpty()){
+            return extApiScenarioReportMapper.selectLastReportByIds(ids);
+        }else {
+            return new ArrayList<>(0);
+        }
+    }
 }

@@ -16,7 +16,6 @@
   import MsApiComponent from "./ApiComponent";
   import MsLoopController from "./LoopController";
   import MsApiScenarioComponent from "./ApiScenarioComponent";
-  import {getUUID} from "@/common/js/utils";
 
   export default {
     name: "ComponentConfig",

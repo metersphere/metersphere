@@ -24,8 +24,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import static io.metersphere.commons.constants.ResourceStatusEnum.INVALID;
-import static io.metersphere.commons.constants.ResourceStatusEnum.VALID;
+import static io.metersphere.commons.constants.ResourceStatusEnum.*;
 
 /**
  * @author dongbin
@@ -38,8 +37,6 @@ public class TestResourcePoolService {
     private TestResourcePoolMapper testResourcePoolMapper;
     @Resource
     private TestResourceMapper testResourceMapper;
-    @Resource
-    private LoadTestMapper loadTestMapper;
     @Resource
     private NodeResourcePoolService nodeResourcePoolService;
 
@@ -55,25 +52,7 @@ public class TestResourcePoolService {
     }
 
     public void deleteTestResourcePool(String testResourcePoolId) {
-        // check test is Running Starting Error
-        checkTestStatus(testResourcePoolId);
-        deleteTestResource(testResourcePoolId);
-        testResourcePoolMapper.deleteByPrimaryKey(testResourcePoolId);
-    }
-
-    public void checkTestStatus(String testResourcePoolId) {
-        LoadTestExample example = new LoadTestExample();
-        example.createCriteria()
-                .andTestResourcePoolIdEqualTo(testResourcePoolId);
-        List<LoadTest> loadTests = loadTestMapper.selectByExample(example);
-        StringBuilder loadTestNames = new StringBuilder();
-        if (loadTests.size() > 0) {
-            for (LoadTest loadTest : loadTests) {
-                loadTestNames = loadTestNames.append(loadTest.getName()).append(",");
-            }
-            String str = loadTestNames.substring(0, loadTestNames.length() - 1);
-            MSException.throwException(Translator.get("load_test") + " " + str + " " + Translator.get("test_resource_pool_is_use"));
-        }
+        updateTestResourcePoolStatus(testResourcePoolId, DELETE.name());
     }
 
     public void updateTestResourcePool(TestResourcePoolDTO testResourcePool) {
@@ -109,8 +88,8 @@ public class TestResourcePoolService {
         }
         testResourcePool.setUpdateTime(System.currentTimeMillis());
         testResourcePool.setStatus(status);
-        // 禁用资源池
-        if (INVALID.name().equals(status)) {
+        // 禁用/删除 资源池
+        if (INVALID.name().equals(status) || DELETE.name().equals(status)) {
             testResourcePoolMapper.updateByPrimaryKeySelective(testResourcePool);
             return;
         }
@@ -140,6 +119,7 @@ public class TestResourcePoolService {
         if (StringUtils.isNotBlank(request.getStatus())) {
             criteria.andStatusEqualTo(request.getStatus());
         }
+        criteria.andStatusNotEqualTo(DELETE.name());
         example.setOrderByClause("update_time desc");
         List<TestResourcePool> testResourcePools = testResourcePoolMapper.selectByExample(example);
         List<TestResourcePoolDTO> testResourcePoolDTOS = new ArrayList<>();

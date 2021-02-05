@@ -57,11 +57,9 @@
         'redirectCharType',
         'clickType'
       ],
-      // activated() {
-      //   this.search();
-      //   this.checkTipsType();
-      // },
-      // mounted() {
+      mounted() {
+        this.initData();
+      },
       activated(){
         this.initData();
         this.openTestCaseEdit(this.$route.path);

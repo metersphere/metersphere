@@ -1,23 +1,21 @@
 <template>
   <el-card class="api-component">
 
-      <div class="header" @click="active(data)">
+    <div class="header" @click="active(data)">
 
-        <fieldset :disabled="data.disabled" class="ms-fieldset">
-          <slot name="beforeHeaderLeft">
-            <div v-if="data.index" class="el-step__icon is-text" style="margin-right: 10px;" :style="{'color': color, 'background-color': backgroundColor}">
-              <div class="el-step__icon-inner">{{data.index}}</div>
-            </div>
-            <el-button class="ms-left-buttion" size="small" :style="{'color': color, 'background-color': backgroundColor}">{{title}}</el-button>
-          </slot>
-        </fieldset>
+      <slot name="beforeHeaderLeft">
+        <div v-if="data.index" class="el-step__icon is-text" style="margin-right: 10px;" :style="{'color': color, 'background-color': backgroundColor}">
+          <div class="el-step__icon-inner">{{data.index}}</div>
+        </div>
+        <el-button class="ms-left-buttion" size="small" :style="{'color': color, 'background-color': backgroundColor}">{{title}}</el-button>
+      </slot>
 
-        <span @click.stop>
+      <span @click.stop>
         <slot name="headerLeft">
           <i class="icon el-icon-arrow-right" :class="{'is-active': data.active}"
              @click="active(data)" v-if="data.type!='scenario'"/>
           <el-input :draggable="draggable" v-if="isShowInput && isShowNameInput" size="small" v-model="data.name" class="name-input"
-                    @blur="isShowInput = false" :placeholder="$t('commons.input_name')" ref="nameEdit"/>
+                    @blur="isShowInput = false" :placeholder="$t('commons.input_name')" ref="nameEdit" :disabled="data.disabled"/>
           <span v-else>
             {{data.name}}
             <i class="el-icon-edit" style="cursor:pointer" @click="editName" v-tester v-if="data.referenced!='REF' && !data.disabled"/>
@@ -26,31 +24,31 @@
         <slot name="behindHeaderLeft"></slot>
       </span>
 
-        <div class="header-right" @click.stop>
-          <slot name="message"></slot>
-          <el-tooltip :content="$t('test_resource_pool.enable_disable')" placement="top">
-            <el-switch v-model="data.enable" class="enable-switch"/>
-          </el-tooltip>
-          <slot name="button"></slot>
-          <el-tooltip content="Copy" placement="top">
-            <el-button size="mini" icon="el-icon-copy-document" circle @click="copyRow"/>
-          </el-tooltip>
-          <el-tooltip :content="$t('commons.remove')" placement="top">
-            <el-button size="mini" icon="el-icon-delete" type="danger" circle @click="remove"/>
-          </el-tooltip>
-        </div>
+      <div class="header-right" @click.stop>
+        <slot name="message"></slot>
+        <el-tooltip :content="$t('test_resource_pool.enable_disable')" placement="top">
+          <el-switch v-model="data.enable" class="enable-switch"/>
+        </el-tooltip>
+        <slot name="button"></slot>
+        <el-tooltip content="Copy" placement="top">
+          <el-button size="mini" icon="el-icon-copy-document" circle @click="copyRow"/>
+        </el-tooltip>
+        <el-tooltip :content="$t('commons.remove')" placement="top">
+          <el-button size="mini" icon="el-icon-delete" type="danger" circle @click="remove"/>
+        </el-tooltip>
       </div>
 
-    <fieldset :disabled="data.disabled" class="ms-fieldset">
-      <div class="header">
-          <el-collapse-transition>
-            <div v-if="data.active && showCollapse" :draggable="draggable">
-              <el-divider></el-divider>
-              <slot></slot>
-            </div>
-          </el-collapse-transition>
-      </div>
-    </fieldset>
+    </div>
+    <div class="header">
+      <fieldset :disabled="data.disabled" class="ms-fieldset">
+        <el-collapse-transition>
+          <div v-if="data.active && showCollapse" :draggable="draggable">
+            <el-divider></el-divider>
+            <slot></slot>
+          </div>
+        </el-collapse-transition>
+      </fieldset>
+    </div>
 
   </el-card>
 </template>
@@ -161,10 +159,6 @@
     min-width: 100%;
     min-inline-size: 0px;
     border: 0px;
-  }
-
-  .ms-fieldset {
-    display: contents;
   }
 
 </style>

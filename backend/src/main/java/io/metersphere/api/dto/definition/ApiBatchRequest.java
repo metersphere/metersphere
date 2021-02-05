@@ -33,4 +33,6 @@ public class ApiBatchRequest extends ApiDefinitionWithBLOBs {
 
     private List<String> unSelectIds;
 
+    private String moduleId;
+
 }

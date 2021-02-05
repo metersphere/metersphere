@@ -207,13 +207,16 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         }
 
         final HashTree httpSamplerTree = tree.add(sampler);
+
+        // 注意顺序，放在config前面，会优先于环境的请求头生效
+        if (CollectionUtils.isNotEmpty(this.headers)) {
+            setHeader(httpSamplerTree, this.headers);
+        }
+
         // 通用请求Headers
         if (config != null && config.getConfig() != null && config.getConfig().getHttpConfig() != null
                 && CollectionUtils.isNotEmpty(config.getConfig().getHttpConfig().getHeaders())) {
             setHeader(httpSamplerTree, config.getConfig().getHttpConfig().getHeaders());
-        }
-        if (CollectionUtils.isNotEmpty(this.headers)) {
-            setHeader(httpSamplerTree, this.headers);
         }
 
         //判断是否要开启DNS
@@ -287,6 +290,9 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         Arguments arguments = new Arguments();
         list.stream().filter(KeyValue::isValid).filter(KeyValue::isEnable).forEach(keyValue -> {
                     HTTPArgument httpArgument = new HTTPArgument(keyValue.getName(), StringUtils.isNotEmpty(keyValue.getValue()) && keyValue.getValue().startsWith("@") ? ScriptEngineUtils.calculate(keyValue.getValue()) : keyValue.getValue());
+                    if (keyValue.getValue() == null) {
+                        httpArgument.setValue("");
+                    }
                     httpArgument.setAlwaysEncoded(keyValue.isEncode());
                     if (StringUtils.isNotBlank(keyValue.getContentType())) {
                         httpArgument.setContentType(keyValue.getContentType());

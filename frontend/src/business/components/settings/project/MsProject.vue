@@ -92,33 +92,35 @@
 </template>
 
 <script>
-  import MsCreateBox from "../CreateBox";
-  import {Message} from "element-ui";
-  import MsTablePagination from "../../common/pagination/TablePagination";
-  import MsTableHeader from "../../common/components/MsTableHeader";
-  import MsTableOperator from "../../common/components/MsTableOperator";
-  import MsDialogFooter from "../../common/components/MsDialogFooter";
-  import {_sort, getCurrentProjectID, getCurrentUser, listenGoBack, removeGoBackListener} from "@/common/js/utils";
-  import MsContainer from "../../common/components/MsContainer";
-  import MsMainContainer from "../../common/components/MsMainContainer";
-  import MsDeleteConfirm from "../../common/components/MsDeleteConfirm";
-  import MsTableOperatorButton from "../../common/components/MsTableOperatorButton";
-  import ApiEnvironmentConfig from "../../api/test/components/ApiEnvironmentConfig";
-  import TemplateComponent from "../../track/plan/view/comonents/report/TemplateComponent/TemplateComponent";
-  import {PROJECT_ID} from "@/common/js/constants";
-  import MsJarConfig from "../../api/test/components/jar/JarConfig";
-  import MsTableButton from "../../common/components/MsTableButton";
-  export default {
-    name: "MsProject",
-    components: {
-      MsTableButton,
-      MsJarConfig,
-      TemplateComponent,
-      ApiEnvironmentConfig,
-      MsTableOperatorButton,
-      MsDeleteConfirm,
-      MsMainContainer,
-      MsContainer, MsTableOperator, MsCreateBox, MsTablePagination, MsTableHeader, MsDialogFooter
+import MsCreateBox from "../CreateBox";
+import {Message} from "element-ui";
+import MsTablePagination from "../../common/pagination/TablePagination";
+import MsTableHeader from "../../common/components/MsTableHeader";
+import MsTableOperator from "../../common/components/MsTableOperator";
+import MsDialogFooter from "../../common/components/MsDialogFooter";
+import {getCurrentProjectID, getCurrentUser, listenGoBack, removeGoBackListener} from "@/common/js/utils";
+import MsContainer from "../../common/components/MsContainer";
+import MsMainContainer from "../../common/components/MsMainContainer";
+import MsDeleteConfirm from "../../common/components/MsDeleteConfirm";
+import MsTableOperatorButton from "../../common/components/MsTableOperatorButton";
+import ApiEnvironmentConfig from "../../api/test/components/ApiEnvironmentConfig";
+import TemplateComponent from "../../track/plan/view/comonents/report/TemplateComponent/TemplateComponent";
+import {PROJECT_ID} from "@/common/js/constants";
+import MsJarConfig from "../../api/test/components/jar/JarConfig";
+import MsTableButton from "../../common/components/MsTableButton";
+import {_sort} from "@/common/js/tableUtils";
+
+export default {
+  name: "MsProject",
+  components: {
+    MsTableButton,
+    MsJarConfig,
+    TemplateComponent,
+    ApiEnvironmentConfig,
+    MsTableOperatorButton,
+    MsDeleteConfirm,
+    MsMainContainer,
+    MsContainer, MsTableOperator, MsCreateBox, MsTablePagination, MsTableHeader, MsDialogFooter
     },
     data() {
       return {

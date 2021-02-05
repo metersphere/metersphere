@@ -1,7 +1,7 @@
 export default {
   commons: {
-    cover:'Cover',
-    not_cover:'Not Cover',
+    cover: 'Cover',
+    not_cover: 'Not Cover',
     import_mode: 'Import mode',
     import_module: 'Import module',
     please_fill_in_the_template: 'Please fill in the template',
@@ -187,7 +187,11 @@ export default {
       review: "all"
     },
     image: 'Image',
-    tag: 'Tag'
+    tag: 'Tag',
+    module: {
+      select_module: "Select module",
+      default_module: "Default module",
+    }
   },
   license: {
     title: 'Authorization management',
@@ -208,8 +212,8 @@ export default {
   display: {
     title: 'Theme',
     logo: 'System LOGO',
-    loginLogo: 'Picture on the right side of the login page',
-    loginImage: 'Login page upper left corner LOGO',
+    loginLogo: 'Login page upper left corner LOGO',
+    loginImage: 'Picture on the right side of the login page',
     loginTitle: 'Login page prompt information',
     pageTitle: 'Page Title',
   },
@@ -516,6 +520,8 @@ export default {
     },
     definition: {
       api_title: "Api test",
+      case_title: "Test Case",
+      doc_title: "Document",
       api_name: "Api name",
       api_status: "Api status",
       api_type: "Api type",
@@ -526,18 +532,19 @@ export default {
       api_case_status: "Ise case status",
       api_case_passing_rate: "Use case pass rate",
       create_tip: "Note: Detailed interface information can be filled out on the edit page",
+      api_import: "Api Import",
       select_comp: {
         no_data: "No Data",
         add_data: "Add Data"
       },
       request: {
         grade_info: "Filter by rank",
-        grade_order_asc: "from high to low by use case level",
-        grade_order_desc: "from low to high by use case level,",
+        grade_order_asc: "from low to high by use case level",
+        grade_order_desc: "from high to low by use case level",
         create_time_order_asc: "by creation time from front to back",
-        create_time_order_desc: "from back to front by creation time,",
+        create_time_order_desc: "from back to front by creation time",
         update_time_order_asc: "by update time from front to back",
-        update_time_order_desc: "from back to front by update time,",
+        update_time_order_desc: "from back to front by update time",
         run_env: "Operating environment",
         select_case: "Search use cases",
         case: "Case",
@@ -584,6 +591,7 @@ export default {
         create_info: 'Create',
         update_info: 'Update',
         batch_edit: "Batch edit",
+        batch_move: "Batch move",
         path_valid_info: "The request path is invalid",
         other_config: "Other Config",
         message_template: "Message Template",
@@ -1131,6 +1139,8 @@ export default {
       plan_delete_confirm: "All use cases under this plan will be deleted,confirm delete test plan: ",
       plan_delete_tip: "The test plan is under way, please confirm and delete it!",
       plan_delete: "Delete test plan",
+      api_case: "Api case",
+      scenario_case: "Scenario case",
       load_case: {
         case: "Load Case",
         execution_status: "Execution status",

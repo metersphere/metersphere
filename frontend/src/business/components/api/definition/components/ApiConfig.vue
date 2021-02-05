@@ -127,6 +127,9 @@
           this.request = createComponent("JDBCSampler");
           this.currentApi.request = this.request;
         }
+        if (!this.currentApi.request.variables) {
+          this.currentApi.request.variables = [];
+        }
       },
       initDubbo() {
         if (!this.setRequest()) {

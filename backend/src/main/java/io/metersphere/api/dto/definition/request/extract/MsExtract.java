@@ -57,7 +57,7 @@ public class MsExtract extends MsTestElement {
         if (Optional.ofNullable(extract).orElse(extract).length() > 0) {
             JSR223PostProcessor shell = new JSR223PostProcessor();
             shell.setEnabled(true);
-            shell.setName(this.getName());
+            shell.setName(StringUtils.isEmpty(this.getName()) ? "JSR223PostProcessor" : this.getName());
             shell.setProperty(TestElement.TEST_CLASS, JSR223PostProcessor.class.getName());
             shell.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("TestBeanGUI"));
             shell.setProperty("script", "io.metersphere.api.jmeter.JMeterVars.addVars(prev.hashCode(),vars," + "\"" + extract.toString() + "\"" + ");");

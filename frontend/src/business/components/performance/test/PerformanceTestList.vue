@@ -89,11 +89,12 @@ import MsContainer from "../../common/components/MsContainer";
 import MsMainContainer from "../../common/components/MsMainContainer";
 import MsPerformanceTestStatus from "./PerformanceTestStatus";
 import MsTableOperators from "../../common/components/MsTableOperators";
-import {_filter, _sort, getCurrentProjectID} from "@/common/js/utils";
+import {getCurrentProjectID} from "@/common/js/utils";
 import MsTableHeader from "../../common/components/MsTableHeader";
 import {TEST_CONFIGS} from "../../common/components/search/search-components";
 import {LIST_CHANGE, PerformanceEvent} from "@/business/components/common/head/ListEvent";
 import {WORKSPACE_ID} from "@/common/js/constants";
+import {_filter, _sort} from "@/common/js/tableUtils";
 
 export default {
   components: {

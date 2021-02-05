@@ -117,6 +117,15 @@ public class ApiAutomationService {
         if (setDefultOrders) {
             request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
         }
+        if (StringUtils.isNotEmpty(request.getExecuteStatus())) {
+            Map<String, List<String>> statusFilter = new HashMap<>();
+            List<String> list = new ArrayList<>();
+            list.add("Prepare");
+            list.add("Underway");
+            list.add("Completed");
+            statusFilter.put("status", list);
+            request.setFilters(statusFilter);
+        }
         if (checkThisWeekData) {
             if (request.isSelectThisWeedData()) {
                 Map<String, Date> weekFirstTimeAndLastTime = DateUtils.getWeedFirstTimeAndLastTime(new Date());
@@ -387,7 +396,7 @@ public class ApiAutomationService {
         try {
             boolean isFirst = true;
             for (ApiScenarioWithBLOBs item : apiScenarios) {
-                if (item.getStepTotal() == 0) {
+                if (item.getStepTotal() == null || item.getStepTotal() == 0) {
                     // 只有一个场景且没有测试步骤，则提示
                     if (apiScenarios.size() == 1) {
                         MSException.throwException((item.getName() + "，" + Translator.get("automation_exec_info")));
@@ -464,6 +473,8 @@ public class ApiAutomationService {
             ids = this.getAllScenarioIdsByFontedSelect(
                     request.getModuleIds(), request.getName(), request.getProjectId(), request.getFilters(), request.getUnSelectIds());
         }
+        //检查是否有正在执行中的情景
+        this.checkScenarioIsRunnng(ids);
         List<ApiScenarioWithBLOBs> apiScenarios = extApiScenarioMapper.selectIds(ids);
 
         String runMode = ApiRunMode.SCENARIO.name();
@@ -478,6 +489,15 @@ public class ApiAutomationService {
         HashTree hashTree = generateHashTree(apiScenarios, request, reportIds);
         jMeterService.runDefinition(JSON.toJSONString(reportIds), hashTree, request.getReportId(), runMode);
         return request.getId();
+    }
+
+    public void checkScenarioIsRunnng(List<String> ids) {
+        List<ApiScenarioReport> lastReportStatusByIds = apiReportService.selectLastReportByIds(ids);
+        for (ApiScenarioReport report : lastReportStatusByIds) {
+            if (StringUtils.equals(report.getStatus(), APITestStatus.Running.name())) {
+                MSException.throwException(report.getName() + " Is Running!");
+            }
+        }
     }
 
     /**
@@ -722,7 +742,9 @@ public class ApiAutomationService {
             apiScenarios.forEach(item -> {
                 JSONObject object = JSONObject.parseObject(item.getScenarioDefinition());
                 object.put("environmentId", request.getEnvironmentId());
-                item.setScenarioDefinition(JSONObject.toJSONString(object));
+                if (object != null) {
+                    item.setScenarioDefinition(JSONObject.toJSONString(object));
+                }
                 apiScenarioMapper.updateByPrimaryKeySelective(item);
             });
         }

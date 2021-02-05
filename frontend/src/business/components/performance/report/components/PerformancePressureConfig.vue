@@ -14,11 +14,11 @@
             <el-form :inline="true">
               <el-form-item :label="$t('load_test.thread_num')">
                 <el-input-number
-                  :disabled="true"
-                  :placeholder="$t('load_test.input_thread_num')"
-                  v-model="threadGroup.threadNumber"
-                  :min="1"
-                  size="mini"/>
+                    :disabled="true"
+                    :placeholder="$t('load_test.input_thread_num')"
+                    v-model="threadGroup.threadNumber"
+                    :min="1"
+                    size="mini"/>
               </el-form-item>
               <br>
               <el-form-item>
@@ -31,72 +31,72 @@
               <div v-if="threadGroup.threadType === 'DURATION'">
                 <el-form-item :label="$t('load_test.duration')">
                   <el-input-number
-                    :disabled="true"
-                    v-model="threadGroup.duration"
-                    :min="1"
-                    @change="calculateChart(threadGroup)"
-                    size="mini"/>
+                      :disabled="true"
+                      v-model="threadGroup.duration"
+                      :min="1"
+                      @change="calculateChart(threadGroup)"
+                      size="mini"/>
                 </el-form-item>
                 <br>
                 <el-form-item :label="$t('load_test.rps_limit')">
                   <el-switch v-model="threadGroup.rpsLimitEnable" @change="calculateTotalChart()"/>
                   &nbsp;
                   <el-input-number
-                    :disabled="true "
-                    v-model="threadGroup.rpsLimit"
-                    @change="calculateChart(threadGroup)"
-                    :min="1"
-                    size="mini"/>
+                      :disabled="true "
+                      v-model="threadGroup.rpsLimit"
+                      @change="calculateChart(threadGroup)"
+                      :min="1"
+                      size="mini"/>
                 </el-form-item>
                 <br>
                 <el-form-item :label="$t('load_test.ramp_up_time_within')">
                   <el-input-number
-                    :disabled="true"
-                    :min="1"
-                    :max="threadGroup.duration"
-                    v-model="threadGroup.rampUpTime"
-                    @change="calculateChart(threadGroup)"
-                    size="mini"/>
+                      :disabled="true"
+                      :min="1"
+                      :max="threadGroup.duration"
+                      v-model="threadGroup.rampUpTime"
+                      @change="calculateChart(threadGroup)"
+                      size="mini"/>
                 </el-form-item>
                 <el-form-item :label="$t('load_test.ramp_up_time_minutes')">
                   <el-input-number
-                    :disabled="true"
-                    :min="1"
-                    :max="Math.min(threadGroup.threadNumber, threadGroup.rampUpTime)"
-                    v-model="threadGroup.step"
-                    @change="calculateChart(threadGroup)"
-                    size="mini"/>
+                      :disabled="true"
+                      :min="1"
+                      :max="Math.min(threadGroup.threadNumber, threadGroup.rampUpTime)"
+                      v-model="threadGroup.step"
+                      @change="calculateChart(threadGroup)"
+                      size="mini"/>
                 </el-form-item>
                 <el-form-item :label="$t('load_test.ramp_up_time_times')"/>
               </div>
               <div v-if="threadGroup.threadType === 'ITERATION'">
                 <el-form-item :label="$t('load_test.iterate_num')">
                   <el-input-number
-                    :disabled="true"
-                    v-model="threadGroup.iterateNum"
-                    :min="1"
-                    @change="calculateChart(threadGroup)"
-                    size="mini"/>
+                      :disabled="true"
+                      v-model="threadGroup.iterateNum"
+                      :min="1"
+                      @change="calculateChart(threadGroup)"
+                      size="mini"/>
                 </el-form-item>
                 <br>
                 <el-form-item :label="$t('load_test.rps_limit')">
                   <el-switch v-model="threadGroup.rpsLimitEnable" @change="calculateTotalChart()"/>
                   &nbsp;
                   <el-input-number
-                    :disabled="true || !threadGroup.rpsLimitEnable"
-                    v-model="threadGroup.rpsLimit"
-                    @change="calculateChart(threadGroup)"
-                    :min="1"
-                    size="mini"/>
+                      :disabled="true || !threadGroup.rpsLimitEnable"
+                      v-model="threadGroup.rpsLimit"
+                      @change="calculateChart(threadGroup)"
+                      :min="1"
+                      size="mini"/>
                 </el-form-item>
                 <br>
                 <el-form-item :label="$t('load_test.ramp_up_time_within')">
                   <el-input-number
-                    :disabled="true"
-                    :min="1"
-                    v-model="threadGroup.iterateRampUp"
-                    @change="calculateChart(threadGroup)"
-                    size="mini"/>
+                      :disabled="true"
+                      :min="1"
+                      v-model="threadGroup.iterateRampUp"
+                      @change="calculateChart(threadGroup)"
+                      size="mini"/>
                 </el-form-item>
                 <el-form-item :label="$t('load_test.ramp_up_time_seconds')"/>
               </div>
@@ -129,11 +129,11 @@ const ITERATE_RAMP_UP = "iterateRampUpTime";
 
 const hexToRgba = function (hex, opacity) {
   return 'rgba(' + parseInt('0x' + hex.slice(1, 3)) + ',' + parseInt('0x' + hex.slice(3, 5)) + ','
-    + parseInt('0x' + hex.slice(5, 7)) + ',' + opacity + ')';
+      + parseInt('0x' + hex.slice(5, 7)) + ',' + opacity + ')';
 }
 const hexToRgb = function (hex) {
   return 'rgb(' + parseInt('0x' + hex.slice(1, 3)) + ',' + parseInt('0x' + hex.slice(3, 5))
-    + ',' + parseInt('0x' + hex.slice(5, 7)) + ')';
+      + ',' + parseInt('0x' + hex.slice(5, 7)) + ')';
 }
 
 export default {
@@ -469,11 +469,12 @@ export default {
     },
   },
   watch: {
-    'report.testId': {
+    report: {
       handler() {
         this.getJmxContent();
       },
-    }
+      deep: true
+    },
   }
 }
 </script>

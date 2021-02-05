@@ -8,7 +8,7 @@
             <img :src="'/display/file/loginLogo'" alt="">
           </div>
           <div class="welcome">
-            <span>{{ $t('commons.welcome') }}</span>
+            <span>{{ loginTitle }}</span>
           </div>
         </div>
 
@@ -46,7 +46,7 @@
       <div class="divider"/>
 
       <el-col :span="12">
-        <img class="login-image" :src="'/display/file/loginImage'">
+        <img class="login-image" :src="'/display/file/loginImage'" alt="">
       </el-col>
 
     </el-row>
@@ -85,7 +85,7 @@ export default {
       msg: '',
       ready: false,
       openLdap: false,
-      loginTitle: this.$t("commons.login") + " MeterSphere",
+      loginTitle: this.$t("commons.welcome"),
       authSources: [],
       loginUrl: 'signin',
     }
@@ -200,6 +200,7 @@ export default {
 
 .title img {
   width: 293px;
+  max-height: 60px;
   margin-top: 165px;
 }
 
