@@ -88,12 +88,11 @@ import MsTableHeader from "../../../common/components/MsTableHeader";
 import MsCreateBox from "../../../settings/CreateBox";
 import MsTablePagination from "../../../common/pagination/TablePagination";
 import {
-  _filter,
-  _sort,
   checkoutTestManagerOrTestUser,
   getCurrentProjectID,
   getCurrentWorkspaceId
 } from "../../../../../common/js/utils";
+import {_filter, _sort} from "@/common/js/tableUtils";
 import PlanStatusTableItem from "../../common/tableItems/plan/PlanStatusTableItem";
 
 export default {

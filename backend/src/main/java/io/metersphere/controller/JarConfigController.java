@@ -2,6 +2,7 @@ package io.metersphere.controller;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import io.metersphere.api.dto.definition.ApiTestCaseRequest;
 import io.metersphere.base.domain.JarConfig;
 import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.commons.utils.PageUtils;
@@ -33,6 +34,11 @@ public class JarConfigController {
     @GetMapping("list/all")
     public List<JarConfig> listAll() {
         return JarConfigService.list();
+    }
+
+    @PostMapping("list")
+    public List<JarConfig> list(@RequestBody JarConfig jarConfig) {
+        return JarConfigService.searchList(jarConfig);
     }
 
     @GetMapping("/get/{id}")

@@ -42,10 +42,10 @@ public class MsIfController extends MsTestElement {
     private IfController ifController() {
         IfController ifController = new IfController();
         ifController.setEnabled(true);
-        ifController.setName(this.getLabelName());
-        ifController.setCondition(this.getCondition());
+        ifController.setName(StringUtils.isEmpty(this.getName()) ? "IfController" : this.getName());
         ifController.setProperty(TestElement.TEST_CLASS, IfController.class.getName());
         ifController.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("IfControllerPanel"));
+        ifController.setCondition(this.getCondition());
         ifController.setEvaluateAll(false);
         ifController.setUseExpression(true);
         return ifController;
@@ -79,13 +79,13 @@ public class MsIfController extends MsTestElement {
         }
 
         if (StringUtils.equals(operator, "is empty")) {
-            variable = "empty(" + variable + ")";
+            variable = "!empty(" + variable + ")";
             operator = "";
             value = "";
         }
 
         if (StringUtils.equals(operator, "is not empty")) {
-            variable = "!empty(" + variable + ")";
+            variable = "empty(" + variable + ")";
             operator = "";
             value = "";
         }

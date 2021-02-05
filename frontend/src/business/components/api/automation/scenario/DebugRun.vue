@@ -67,6 +67,19 @@
             });
           }
         }
+        if (item && item.files) {
+          item.files.forEach(fileItem => {
+            if (fileItem.file) {
+              if (!fileItem.id) {
+                let fileId = getUUID().substring(0, 12);
+                fileItem.name = fileItem.file.name;
+                fileItem.id = fileId;
+              }
+              obj.bodyUploadIds.push(fileItem.id);
+              bodyUploadFiles.push(fileItem.file);
+            }
+          });
+        }
       },
       recursiveFile(arr, bodyUploadFiles, obj) {
         arr.forEach(item => {
@@ -86,6 +99,11 @@
             this.recursiveFile(item.hashTree, bodyUploadFiles, obj);
           }
         })
+        if (request.variables) {
+          request.variables.forEach(item => {
+            this.setFiles(item, bodyUploadFiles, obj);
+          })
+        }
         return bodyUploadFiles;
       },
       run() {

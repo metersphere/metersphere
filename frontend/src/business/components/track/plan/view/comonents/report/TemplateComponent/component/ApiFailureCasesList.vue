@@ -1,7 +1,7 @@
 <template>
   <div class="failure-cases-list">
     <div class="failure-cases-list-header">
-      接口测试用例
+      {{$t('test_track.plan.api_case')}}
     </div>
 
     <el-table
@@ -28,7 +28,7 @@
 
       <el-table-column
         prop="createUser"
-        :label="'创建人'"
+        :label="$t('api_test.automation.creator')"
         show-overflow-tooltip/>
 
       <el-table-column prop="lastResult" :label="$t('api_test.automation.last_result')">
@@ -60,9 +60,23 @@
       name: "ApiFailureCasesList",
       components: {MsTag, PriorityTableItem, TypeTableItem, MethodTableItem, StatusTableItem},
       props: ['apiTestCases'],
+      watch: {
+        apiTestCases() {
+          this.parseTags();
+        }
+      },
       methods: {
         goFailureTestCase(row) {
           this.$emit("openFailureTestCase", row);
+        },
+        parseTags() {
+          if (this.apiTestCases) {
+            this.apiTestCases.forEach(item => {
+              if (item.tags && item.tags.length > 0) {
+                item.tags = JSON.parse(item.tags);
+              }
+            });
+          }
         }
       }
     }

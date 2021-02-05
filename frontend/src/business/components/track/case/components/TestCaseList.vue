@@ -29,6 +29,7 @@
         @filter-change="filter"
         @select-all="handleSelectAll"
         @select="handleSelect"
+        @header-dragend="headerDragend"
         @cell-mouse-enter="showPopover"
         row-key="id"
         class="test-content adjust-table ms-select-all-fixed"
@@ -144,6 +145,8 @@
             <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
           </template>
         </el-table-column>
+        <el-table-column fixed="right"
+                         :label="$t('commons.operating')" min-width="150">
         <el-table-column fixed="right" min-width="150">
           <template slot="header">
             <span>{{ $t('commons.operating') }}
@@ -192,7 +195,6 @@ import MethodTableItem from "../../common/tableItems/planview/MethodTableItem";
 import MsTableOperator from "../../../common/components/MsTableOperator";
 import MsTableOperatorButton from "../../../common/components/MsTableOperatorButton";
 import MsTableButton from "../../../common/components/MsTableButton";
-import {_filter, _sort} from "@/common/js/utils";
 import {TEST_CASE_CONFIGS} from "../../../common/components/search/search-components";
 import ShowMoreBtn from "./ShowMoreBtn";
 import BatchEdit from "./BatchEdit";
@@ -203,7 +205,15 @@ import TestCaseDetail from "./TestCaseDetail";
 import ReviewStatus from "@/business/components/track/case/components/ReviewStatus";
 import {getCurrentProjectID} from "../../../../../common/js/utils";
 import MsTag from "@/business/components/common/components/MsTag";
-import {_handleSelect, _handleSelectAll} from "../../../../../common/js/tableUtils";
+import {
+  _filter,
+  _handleSelect,
+  _handleSelectAll,
+  _sort,
+  getSelectDataCounts,
+  setUnSelectIds,
+  toggleAllSelection
+} from "@/common/js/tableUtils";
 import BatchMove from "./BatchMove";
 import CustomHeader from "@/business/components/track/case/components/CustomHeader";
 
@@ -448,13 +458,14 @@ export default {
     },
     handleSelectAll(selection) {
       _handleSelectAll(this, selection, this.tableData, this.selectRows);
-      this.setUnSelectIds();
+      setUnSelectIds(this.tableData, this.condition, this.selectRows);
+      this.selectDataCounts = getSelectDataCounts(this.condition, this.total, this.selectRows);
     },
     handleSelect(selection, row) {
       _handleSelect(this, selection, row, this.selectRows);
-      this.setUnSelectIds();
+      setUnSelectIds(this.tableData, this.condition, this.selectRows);
+      this.selectDataCounts = getSelectDataCounts(this.condition, this.total, this.selectRows);
     },
-
     importTestCase() {
       if (!getCurrentProjectID()) {
         this.$warning(this.$t('commons.check_project_tip'));
@@ -561,23 +572,17 @@ export default {
     },
     isSelectDataAll(data) {
       this.condition.selectAll = data;
-      this.setUnSelectIds();
-      //如果已经全选，不需要再操作了
-      if (this.selectRows.size != this.tableData.length) {
-        this.$refs.table.toggleAllSelection(true);
-      }
+      setUnSelectIds(this.tableData, this.condition, this.selectRows);
+      this.selectDataCounts = getSelectDataCounts(this.condition, this.total, this.selectRows);
+      toggleAllSelection(this.$refs.table, this.tableData, this.selectRows);
     },
-    setUnSelectIds() {
-      let ids = Array.from(this.selectRows).map(o => o.id);
-      let allIDs = this.tableData.map(o => o.id);
-      this.condition.unSelectIds = allIDs.filter(function (val) {
-        return ids.indexOf(val) === -1
-      });
-      if (this.condition.selectAll) {
-        this.selectDataCounts = this.total - this.condition.unSelectIds.length;
-      } else {
-        this.selectDataCounts = this.selectRows.size;
+    headerDragend(newWidth,oldWidth,column,event){
+      let finalWidth = newWidth;
+      if(column.minWidth>finalWidth){
+        finalWidth = column.minWidth;
       }
+      column.width = finalWidth;
+      column.realWidth = finalWidth;
     },
     moveSave(param) {
       param.condition = this.condition;

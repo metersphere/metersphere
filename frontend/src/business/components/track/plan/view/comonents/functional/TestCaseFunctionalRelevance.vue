@@ -70,28 +70,29 @@
 
 <script>
 
-  import NodeTree from '../../../../common/NodeTree';
-  import PriorityTableItem from "../../../../common/tableItems/planview/PriorityTableItem";
-  import TypeTableItem from "../../../../common/tableItems/planview/TypeTableItem";
-  import MsTableSearchBar from "../../../../../common/components/MsTableSearchBar";
-  import MsTableAdvSearchBar from "../../../../../common/components/search/MsTableAdvSearchBar";
-  import MsTableHeader from "../../../../../common/components/MsTableHeader";
-  import {TEST_CASE_CONFIGS} from "../../../../../common/components/search/search-components";
-  import elTableInfiniteScroll from 'el-table-infinite-scroll';
-  import TestCaseRelevanceBase from "../base/TestCaseRelevanceBase";
-  import {_filter} from "../../../../../../../common/js/utils";
+import NodeTree from '../../../../common/NodeTree';
+import PriorityTableItem from "../../../../common/tableItems/planview/PriorityTableItem";
+import TypeTableItem from "../../../../common/tableItems/planview/TypeTableItem";
+import MsTableSearchBar from "../../../../../common/components/MsTableSearchBar";
+import MsTableAdvSearchBar from "../../../../../common/components/search/MsTableAdvSearchBar";
+import MsTableHeader from "../../../../../common/components/MsTableHeader";
+import {TEST_CASE_CONFIGS} from "../../../../../common/components/search/search-components";
+import elTableInfiniteScroll from 'el-table-infinite-scroll';
+import TestCaseRelevanceBase from "../base/TestCaseRelevanceBase";
+import {_filter} from "@/common/js/tableUtils";
 
-  export default {
-    name: "TestCaseFunctionalRelevance",
-    components: {
-      TestCaseRelevanceBase,
-      NodeTree,
-      PriorityTableItem,
-      TypeTableItem,
-      MsTableSearchBar,
-      MsTableAdvSearchBar,
-      MsTableHeader,
-    },
+
+export default {
+  name: "TestCaseFunctionalRelevance",
+  components: {
+    TestCaseRelevanceBase,
+    NodeTree,
+    PriorityTableItem,
+    TypeTableItem,
+    MsTableSearchBar,
+    MsTableAdvSearchBar,
+    MsTableHeader,
+  },
     directives: {
       'el-table-infinite-scroll': elTableInfiniteScroll
     },

@@ -1,13 +1,13 @@
 import {
   LicenseKey,
+  PROJECT_ID,
   REFRESH_SESSION_USER_URL,
   ROLE_ADMIN,
   ROLE_ORG_ADMIN,
   ROLE_TEST_MANAGER,
   ROLE_TEST_USER,
   ROLE_TEST_VIEWER,
-  TokenKey,
-  PROJECT_ID
+  TokenKey
 } from "./constants";
 import axios from "axios";
 import {jsPDF} from "jspdf";
@@ -136,45 +136,6 @@ export function mapToJson(strMap) {
 // 驼峰转换下划线
 export function humpToLine(name) {
   return name.replace(/([A-Z])/g, "_$1").toLowerCase();
-}
-
-//表格数据过滤
-export function _filter(filters, condition) {
-  if (!condition.filters) {
-    condition.filters = {};
-  }
-  for (let filter in filters) {
-    if (filters.hasOwnProperty(filter)) {
-      if (filters[filter] && filters[filter].length > 0) {
-        condition.filters[humpToLine(filter)] = filters[filter];
-      } else {
-        condition.filters[humpToLine(filter)] = null;
-      }
-    }
-  }
-}
-
-//表格数据排序
-export function _sort(column, condition) {
-  column.prop = humpToLine(column.prop);
-  if (column.order === 'descending') {
-    column.order = 'desc';
-  } else {
-    column.order = 'asc';
-  }
-  if (!condition.orders) {
-    condition.orders = [];
-  }
-  let hasProp = false;
-  condition.orders.forEach(order => {
-    if (order.name === column.prop) {
-      order.type = column.order;
-      hasProp = true;
-    }
-  });
-  if (!hasProp) {
-    condition.orders.push({name: column.prop, type: column.order});
-  }
 }
 
 export function downloadFile(name, content) {
@@ -322,21 +283,23 @@ export function _getBodyUploadFiles(request, bodyUploadFiles, obj) {
     body = request.body;
   }
   if (body) {
-    body.kvs.forEach(param => {
-      if (param.files) {
-        param.files.forEach(item => {
-          if (item.file) {
-            if (!item.id) {
-              let fileId = getUUID().substring(0, 12);
-              item.name = item.file.name;
-              item.id = fileId;
+    if (body.kvs) {
+      body.kvs.forEach(param => {
+        if (param.files) {
+          param.files.forEach(item => {
+            if (item.file) {
+              if (!item.id) {
+                let fileId = getUUID().substring(0, 12);
+                item.name = item.file.name;
+                item.id = fileId;
+              }
+              obj.bodyUploadIds.push(item.id);
+              bodyUploadFiles.push(item.file);
             }
-            obj.bodyUploadIds.push(item.id);
-            bodyUploadFiles.push(item.file);
-          }
-        });
-      }
-    });
+          });
+        }
+      });
+    }
     if (body.binary) {
       body.binary.forEach(param => {
         if (param.files) {

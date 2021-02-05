@@ -6,6 +6,7 @@ import io.metersphere.api.dto.definition.request.ParameterConfig;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.assertions.*;
 import org.apache.jmeter.save.SaveService;
 import org.apache.jmeter.testelement.TestElement;
@@ -89,7 +90,7 @@ public class MsAssertions extends MsTestElement {
     private JSONPathAssertion jsonPathAssertion(MsAssertionJsonPath assertionJsonPath) {
         JSONPathAssertion assertion = new JSONPathAssertion();
         assertion.setEnabled(true);
-        assertion.setName(assertionJsonPath.getDescription());
+        assertion.setName(StringUtils.isEmpty(assertionJsonPath.getDescription()) ? "JSONPathAssertion" : assertionJsonPath.getDescription());
         assertion.setProperty(TestElement.TEST_CLASS, JSONPathAssertion.class.getName());
         assertion.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("JSONPathAssertionGui"));
         assertion.setJsonPath(assertionJsonPath.getExpression());
@@ -104,7 +105,7 @@ public class MsAssertions extends MsTestElement {
     private XPath2Assertion xPath2Assertion(MsAssertionXPath2 assertionXPath2) {
         XPath2Assertion assertion = new XPath2Assertion();
         assertion.setEnabled(true);
-        assertion.setName(assertionXPath2.getExpression());
+        assertion.setName(StringUtils.isEmpty(assertionXPath2.getExpression()) ? "XPath2Assertion" : assertionXPath2.getExpression());
         assertion.setProperty(TestElement.TEST_CLASS, XPath2Assertion.class.getName());
         assertion.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("XPath2AssertionGui"));
         assertion.setXPathString(assertionXPath2.getExpression());
@@ -125,11 +126,11 @@ public class MsAssertions extends MsTestElement {
     private JSR223Assertion jsr223Assertion(MsAssertionJSR223 assertionJSR223) {
         JSR223Assertion assertion = new JSR223Assertion();
         assertion.setEnabled(true);
-        assertion.setName(assertionJSR223.getDesc());
+        assertion.setName(StringUtils.isEmpty(assertionJSR223.getDesc()) ? "JSR223Assertion" : assertionJSR223.getDesc());
         assertion.setProperty(TestElement.TEST_CLASS, JSR223Assertion.class.getName());
         assertion.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("TestBeanGUI"));
         assertion.setProperty("cacheKey", "true");
-        assertion.setProperty("scriptLanguage", assertionJSR223.getLanguage());
+        assertion.setProperty("scriptLanguage", assertionJSR223.getScriptLanguage());
         assertion.setProperty("script", assertionJSR223.getScript());
         return assertion;
     }

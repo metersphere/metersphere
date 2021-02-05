@@ -86,23 +86,33 @@ public class ApiAutomationService {
     private TestPlanScenarioCaseService testPlanScenarioCaseService;
 
     public List<ApiScenarioDTO> list(ApiScenarioRequest request) {
-        request = this.initRequest(request,true,true);
+        request = this.initRequest(request, true, true);
         List<ApiScenarioDTO> list = extApiScenarioMapper.list(request);
         return list;
     }
 
     /**
      * 初始化部分参数
+     *
      * @param request
      * @param setDefultOrders
      * @param checkThisWeekData
      * @return
      */
-    private ApiScenarioRequest initRequest(ApiScenarioRequest request,boolean setDefultOrders, boolean checkThisWeekData) {
-        if(setDefultOrders){
+    private ApiScenarioRequest initRequest(ApiScenarioRequest request, boolean setDefultOrders, boolean checkThisWeekData) {
+        if (setDefultOrders) {
             request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
         }
-        if(checkThisWeekData){
+        if(StringUtils.isNotEmpty(request.getExecuteStatus())){
+            Map<String,List<String>> statusFilter = new HashMap<>();
+            List<String> list = new ArrayList<>();
+            list.add("Prepare");
+            list.add("Underway");
+            list.add("Completed");
+            statusFilter.put("status",list);
+            request.setFilters(statusFilter);
+        }
+        if (checkThisWeekData) {
             if (request.isSelectThisWeedData()) {
                 Map<String, Date> weekFirstTimeAndLastTime = DateUtils.getWeedFirstTimeAndLastTime(new Date());
                 Date weekFirstTime = weekFirstTimeAndLastTime.get("firstTime");
@@ -217,7 +227,7 @@ public class ApiAutomationService {
         ids.add(scenarioId);
         deleteApiScenarioReport(ids);
 
-        scheduleService.deleteScheduleAndJobByResourceId(scenarioId,ScheduleGroup.API_SCENARIO_TEST.name());
+        scheduleService.deleteScheduleAndJobByResourceId(scenarioId, ScheduleGroup.API_SCENARIO_TEST.name());
         TestPlanApiScenarioExample example = new TestPlanApiScenarioExample();
         example.createCriteria().andApiScenarioIdEqualTo(scenarioId);
         List<TestPlanApiScenario> testPlanApiScenarioList = testPlanApiScenarioMapper.selectByExample(example);
@@ -284,7 +294,7 @@ public class ApiAutomationService {
         extApiScenarioMapper.removeToGc(apiIds);
         //将这些场景的定时任务删除掉
         for (String id : apiIds) {
-            scheduleService.deleteScheduleAndJobByResourceId(id,ScheduleGroup.API_SCENARIO_TEST.name());
+            scheduleService.deleteScheduleAndJobByResourceId(id, ScheduleGroup.API_SCENARIO_TEST.name());
         }
     }
 
@@ -372,7 +382,7 @@ public class ApiAutomationService {
         try {
             boolean isFirst = true;
             for (ApiScenarioWithBLOBs item : apiScenarios) {
-                if (item.getStepTotal() == 0) {
+                if (item.getStepTotal() == null || item.getStepTotal() == 0) {
                     // 只有一个场景且没有测试步骤，则提示
                     if (apiScenarios.size() == 1) {
                         MSException.throwException((item.getName() + "，" + Translator.get("automation_exec_info")));
@@ -412,14 +422,14 @@ public class ApiAutomationService {
                 // 创建场景报告
                 if (reportIds != null) {
                     //如果是测试计划页面触发的执行方式，生成报告时createScenarioReport第二个参数需要特殊处理
-                    if(StringUtils.equals(request.getRunMode(),ApiRunMode.SCENARIO_PLAN.name())){
+                    if (StringUtils.equals(request.getRunMode(), ApiRunMode.SCENARIO_PLAN.name())) {
                         String testPlanScenarioId = item.getId();
-                        if(request.getScenarioTestPlanIdMap()!=null&&request.getScenarioTestPlanIdMap().containsKey(item.getId())){
+                        if (request.getScenarioTestPlanIdMap() != null && request.getScenarioTestPlanIdMap().containsKey(item.getId())) {
                             testPlanScenarioId = request.getScenarioTestPlanIdMap().get(item.getId());
                         }
                         createScenarioReport(group.getName(), testPlanScenarioId, item.getName(), request.getTriggerMode() == null ? ReportTriggerMode.MANUAL.name() : request.getTriggerMode(),
                                 request.getExecuteType(), item.getProjectId(), request.getReportUserID());
-                    }else{
+                    } else {
                         createScenarioReport(group.getName(), item.getId(), item.getName(), request.getTriggerMode() == null ? ReportTriggerMode.MANUAL.name() : request.getTriggerMode(),
                                 request.getExecuteType(), item.getProjectId(), request.getReportUserID());
                     }
@@ -449,6 +459,8 @@ public class ApiAutomationService {
             ids = this.getAllScenarioIdsByFontedSelect(
                     request.getModuleIds(), request.getName(), request.getProjectId(), request.getFilters(), request.getUnSelectIds());
         }
+        //检查是否有正在执行中的情景
+        this.checkScenarioIsRunnng(ids);
         List<ApiScenarioWithBLOBs> apiScenarios = extApiScenarioMapper.selectIds(ids);
 
         String runMode = ApiRunMode.SCENARIO.name();
@@ -463,6 +475,15 @@ public class ApiAutomationService {
         HashTree hashTree = generateHashTree(apiScenarios, request, reportIds);
         jMeterService.runDefinition(JSON.toJSONString(reportIds), hashTree, request.getReportId(), runMode);
         return request.getId();
+    }
+
+    public void checkScenarioIsRunnng(List<String> ids) {
+        List<ApiScenarioReport> lastReportStatusByIds = apiReportService.selectLastReportByIds(ids);
+        for (ApiScenarioReport report : lastReportStatusByIds) {
+            if(StringUtils.equals(report.getStatus(),APITestStatus.Running.name())){
+                MSException.throwException(report.getName()+" Is Running!");
+            }
+        }
     }
 
     /**
@@ -506,7 +527,6 @@ public class ApiAutomationService {
         ParameterConfig config = new ParameterConfig();
         config.setConfig(envConfig);
         HashTree hashTree = request.getTestElement().generateHashTree(config);
-
         // 调用执行方法
         createScenarioReport(request.getId(), request.getScenarioId(), request.getScenarioName(), ReportTriggerMode.MANUAL.name(), request.getExecuteType(), request.getProjectId(),
                 SessionUtils.getUserId());
@@ -635,10 +655,10 @@ public class ApiAutomationService {
     }
 
     private void addOrUpdateApiScenarioCronJob(Schedule request) {
-        if(StringUtils.equals(request.getGroup(),ScheduleGroup.TEST_PLAN_TEST.name())){
+        if (StringUtils.equals(request.getGroup(), ScheduleGroup.TEST_PLAN_TEST.name())) {
             scheduleService.addOrUpdateCronJob(
                     request, TestPlanTestJob.getJobKey(request.getResourceId()), TestPlanTestJob.getTriggerKey(request.getResourceId()), TestPlanTestJob.class);
-        }else{
+        } else {
             scheduleService.addOrUpdateCronJob(
                     request, ApiScenarioTestJob.getJobKey(request.getResourceId()), ApiScenarioTestJob.getTriggerKey(request.getResourceId()), ApiScenarioTestJob.class);
         }
@@ -707,7 +727,9 @@ public class ApiAutomationService {
             apiScenarios.forEach(item -> {
                 JSONObject object = JSONObject.parseObject(item.getScenarioDefinition());
                 object.put("environmentId", request.getEnvironmentId());
-                item.setScenarioDefinition(JSONObject.toJSONString(object));
+                if (object != null) {
+                    item.setScenarioDefinition(JSONObject.toJSONString(object));
+                }
                 apiScenarioMapper.updateByPrimaryKeySelective(item);
             });
         }

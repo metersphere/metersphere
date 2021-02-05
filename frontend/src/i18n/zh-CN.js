@@ -188,7 +188,11 @@ export default {
       review: "全部评审"
     },
     image: '镜像',
-    tag: '标签'
+    tag: '标签',
+    module: {
+      select_module: "选择模块",
+      default_module: "默认模块",
+    }
   },
   license: {
     title: '授权管理',
@@ -209,8 +213,8 @@ export default {
   display: {
     title: '显示设置',
     logo: '系统 LOGO',
-    loginLogo: '登陆页面右侧图片',
-    loginImage: '登录页左上角 LOGO',
+    loginLogo: '登录页左上角 LOGO',
+    loginImage: '登陆页面右侧图片',
     loginTitle: '登陆页面提示信息',
     pageTitle: '页面 Title',
   },
@@ -312,6 +316,7 @@ export default {
     delete_confirm: '确定要删除这个项目吗?',
     delete_tip: '删除该项目，会删除该项目下所有测试资源，确定要删除吗?',
     search_by_name: '根据名称搜索',
+    search_by_name_jar: '根据 名称 / jar包 搜索',
     input_name: '请输入项目名称',
     owning_workspace: '所属工作空间',
     please_choose_workspace: '请选择工作空间',
@@ -515,6 +520,8 @@ export default {
     },
     definition: {
       api_title: "接口列表",
+      case_title: "用例列表",
+      doc_title: "文档",
       api_name: "接口名称",
       api_status: "接口状态",
       api_type: "请求类型",
@@ -525,14 +532,15 @@ export default {
       api_case_status: "用例状态",
       api_case_passing_rate: "用例通过率",
       create_tip: "注: 详细的接口信息可以在编辑页面填写",
+      api_import: "接口导入",
       select_comp: {
         no_data: "无数据",
         add_data: "去添加"
       },
       request: {
         grade_info: "按等级筛选",
-        grade_order_asc: "按用例等级从高到低",
-        grade_order_desc: "按用例等级从低到高",
+        grade_order_asc: "按用例等级从低到高",
+        grade_order_desc: "按用例等级从高到低",
         create_time_order_asc: "按创建时间从前到后",
         create_time_order_desc: "按创建时间从后到前",
         update_time_order_asc: "按更新时间从前到后",
@@ -584,6 +592,7 @@ export default {
         create_info: '创建',
         update_info: '更新',
         batch_edit: "批量编辑",
+        batch_move:"批量移动",
         path_valid_info: "请求路径无效",
         other_config: "其他设置",
         message_template: "报文模版",
@@ -1132,6 +1141,8 @@ export default {
       plan_delete_confirm: "将删除该测试计划下所有用例，确认删除测试计划: ",
       plan_delete_tip: "该测试计划正在进行中，请确认再删除！",
       plan_delete: "删除计划",
+      api_case: "接口测试用例",
+      scenario_case: "场景测试用例",
       load_case: {
         case: "性能用例",
         execution_status: "执行状态",

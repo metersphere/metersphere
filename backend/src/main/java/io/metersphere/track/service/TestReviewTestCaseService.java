@@ -18,6 +18,7 @@ import io.metersphere.track.request.testreview.QueryCaseReviewRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
@@ -97,7 +98,7 @@ public class TestReviewTestCaseService {
         }
     }
 
-    public void deleteTestCaseBath(TestReviewCaseBatchRequest request) {
+    public void deleteTestCaseBatch(TestReviewCaseBatchRequest request) {
         checkReviewer(request.getReviewId());
         TestCaseReviewTestCaseExample example = new TestCaseReviewTestCaseExample();
         example.createCriteria().andIdIn(request.getIds());
@@ -105,15 +106,7 @@ public class TestReviewTestCaseService {
     }
 
     public void editTestCase(TestCaseReviewTestCase testCaseReviewTestCase) {
-        String currentUserId = SessionUtils.getUser().getId();
-        String reviewId = testCaseReviewTestCase.getReviewId();
-        TestCaseReviewUsersExample testCaseReviewUsersExample = new TestCaseReviewUsersExample();
-        testCaseReviewUsersExample.createCriteria().andReviewIdEqualTo(reviewId);
-        List<TestCaseReviewUsers> testCaseReviewUsers = testCaseReviewUsersMapper.selectByExample(testCaseReviewUsersExample);
-        List<String> reviewIds = testCaseReviewUsers.stream().map(TestCaseReviewUsers::getUserId).collect(Collectors.toList());
-        if (!reviewIds.contains(currentUserId)) {
-            MSException.throwException("非此用例的评审人员！");
-        }
+        checkReviewCase(testCaseReviewTestCase.getReviewId());
 
         // 记录测试用例评审状态变更
         testCaseReviewTestCase.setStatus(testCaseReviewTestCase.getStatus());
@@ -136,5 +129,38 @@ public class TestReviewTestCaseService {
 
     public TestReviewCaseDTO get(String reviewId) {
         return extTestReviewCaseMapper.get(reviewId);
+    }
+
+    public void editTestCaseBatchStatus(TestReviewCaseBatchRequest request) {
+        List<String> ids = request.getIds();
+        if (CollectionUtils.isEmpty(ids)) {
+            return;
+        }
+
+        if (StringUtils.isBlank(request.getReviewId())) {
+            return;
+        } else {
+            checkReviewCase(request.getReviewId());
+        }
+
+        // 更新状态
+        if (StringUtils.isNotBlank(request.getStatus())) {
+            TestCaseExample example = new TestCaseExample();
+            example.createCriteria().andIdIn(ids);
+            TestCaseWithBLOBs testCase = new TestCaseWithBLOBs();
+            testCase.setReviewStatus(request.getStatus());
+            testCaseMapper.updateByExampleSelective(testCase, example);
+        }
+    }
+
+    private void checkReviewCase(String reviewId) {
+        String currentUserId = SessionUtils.getUser().getId();
+        TestCaseReviewUsersExample testCaseReviewUsersExample = new TestCaseReviewUsersExample();
+        testCaseReviewUsersExample.createCriteria().andReviewIdEqualTo(reviewId);
+        List<TestCaseReviewUsers> testCaseReviewUsers = testCaseReviewUsersMapper.selectByExample(testCaseReviewUsersExample);
+        List<String> reviewIds = testCaseReviewUsers.stream().map(TestCaseReviewUsers::getUserId).collect(Collectors.toList());
+        if (!reviewIds.contains(currentUserId)) {
+            MSException.throwException("非此用例的评审人员！");
+        }
     }
 }

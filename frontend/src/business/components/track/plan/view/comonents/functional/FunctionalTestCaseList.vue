@@ -35,6 +35,7 @@
         @select="handleSelectionChange"
         row-key="id"
         @row-click="showDetail"
+        @header-dragend="headerDragend"
         :data="tableData">
 
         <el-table-column
@@ -48,17 +49,23 @@
           prop="num"
           sortable="custom"
           :label="$t('commons.id')"
+          min-width="120px"
+
           show-overflow-tooltip>
         </el-table-column>
         <el-table-column
           prop="name"
           :label="$t('commons.name')"
+          min-width="120px"
+
           show-overflow-tooltip>
         </el-table-column>
         <el-table-column
           prop="priority"
           :filters="priorityFilters"
           column-key="priority"
+          min-width="100px"
+
           :label="$t('test_track.case.priority')">
           <template v-slot:default="scope">
             <priority-table-item :value="scope.row.priority" ref="priority"/>
@@ -70,13 +77,16 @@
           :filters="typeFilters"
           column-key="type"
           :label="$t('test_track.case.type')"
+          min-width="80px"
+
           show-overflow-tooltip>
           <template v-slot:default="scope">
             <type-table-item :value="scope.row.type"/>
           </template>
         </el-table-column>
 
-        <el-table-column prop="tags" :label="$t('commons.tag')">
+        <el-table-column prop="tags" :label="$t('commons.tag')" min-width="120px"
+                         >
           <template v-slot:default="scope">
             <div v-for="(tag, index) in scope.row.showTags" :key="tag + '_' + index">
               <ms-tag type="success" effect="plain" :content="tag"/>
@@ -89,6 +99,8 @@
           :filters="methodFilters"
           column-key="method"
           :label="$t('test_track.case.method')"
+          min-width="100px"
+
           show-overflow-tooltip>
           <template v-slot:default="scope">
             <method-table-item :value="scope.row.method"/>
@@ -98,17 +110,23 @@
         <el-table-column
           prop="nodePath"
           :label="$t('test_track.case.module')"
+          min-width="120px"
+
           show-overflow-tooltip>
         </el-table-column>
 
         <el-table-column
           prop="projectName"
           :label="$t('test_track.plan.plan_project')"
+          min-width="120px"
+
           show-overflow-tooltip>
         </el-table-column>
 
         <el-table-column
           :label="$t('test_track.issue.issue')"
+          min-width="80px"
+
           show-overflow-tooltip>
           <template v-slot:default="scope">
             <el-popover
@@ -141,6 +159,8 @@
         <el-table-column
           prop="executorName"
           :filters="executorFilters"
+          min-width="100px"
+
           column-key="executor"
           :label="$t('test_track.plan_view.executor')">
         </el-table-column>
@@ -149,6 +169,8 @@
           prop="status"
           :filters="statusFilters"
           column-key="status"
+          min-width="100px"
+
           :label="$t('test_track.plan_view.execute_result')">
           <template v-slot:default="scope">
             <span @click.stop="clickt = 'stop'">
@@ -181,6 +203,8 @@
           sortable
           prop="updateTime"
           :label="$t('commons.update_time')"
+          min-width="120px"
+
           show-overflow-tooltip>
           <template v-slot:default="scope">
             <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
@@ -226,21 +250,21 @@ import MsTableButton from '../../../../../common/components/MsTableButton';
 import NodeBreadcrumb from '../../../../common/NodeBreadcrumb';
 
 import {ROLE_TEST_MANAGER, ROLE_TEST_USER, TokenKey, WORKSPACE_ID} from "@/common/js/constants";
-import {_filter, _sort, checkoutTestManagerOrTestUser, hasRoles} from "@/common/js/utils";
+import {checkoutTestManagerOrTestUser, hasRoles} from "@/common/js/utils";
 import PriorityTableItem from "../../../../common/tableItems/planview/PriorityTableItem";
 import StatusTableItem from "../../../../common/tableItems/planview/StatusTableItem";
 import TypeTableItem from "../../../../common/tableItems/planview/TypeTableItem";
 import MethodTableItem from "../../../../common/tableItems/planview/MethodTableItem";
 import MsTableOperator from "../../../../../common/components/MsTableOperator";
 import MsTableOperatorButton from "../../../../../common/components/MsTableOperatorButton";
-import TestReportTemplateList from "../TestReportTemplateList";
-import TestCaseReportView from "../report/TestCaseReportView";
 import {TEST_CASE_CONFIGS} from "../../../../../common/components/search/search-components";
 import ShowMoreBtn from "../../../../case/components/ShowMoreBtn";
 import BatchEdit from "../../../../case/components/BatchEdit";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 import {hub} from "@/business/components/track/plan/event-bus";
 import MsTag from "@/business/components/common/components/MsTag";
+import {_filter, _sort} from "@/common/js/tableUtils";
+
 
 export default {
   name: "FunctionalTestCaseList",
@@ -571,6 +595,14 @@ export default {
       }
       _sort(column, this.condition);
       this.initTableData();
+    },
+    headerDragend(newWidth,oldWidth,column,event){
+      let finalWidth = newWidth;
+      if(column.minWidth>finalWidth){
+        finalWidth = column.minWidth;
+      }
+      column.width = finalWidth;
+      column.realWidth = finalWidth;
     },
     batchEdit(form) {
       let param = {};

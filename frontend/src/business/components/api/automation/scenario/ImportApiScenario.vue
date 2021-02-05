@@ -68,7 +68,7 @@
           if (response.data) {
             response.data.forEach(item => {
               let scenarioDefinition = JSON.parse(item.scenarioDefinition);
-              let obj = {id: item.id, name: item.name, type: "scenario", referenced: 'Copy', resourceId: getUUID(), hashTree: scenarioDefinition.hashTree};
+              let obj = {id: item.id, name: item.name, type: "scenario", referenced: 'Copy', resourceId: getUUID(), hashTree: scenarioDefinition && scenarioDefinition.hashTree ? scenarioDefinition.hashTree : []};
               scenarios.push(obj);
             })
             this.$emit('addScenario', scenarios);

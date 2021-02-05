@@ -147,8 +147,6 @@
       },
       saveAs() {
         let obj = {request: this.request};
-        obj.request.server = this.debugForm.server;
-        obj.request.port = this.debugForm.port;
         obj.server = this.debugForm.server;
         obj.port = this.debugForm.port;
         obj.request.id = getUUID();

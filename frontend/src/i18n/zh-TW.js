@@ -188,7 +188,11 @@ export default {
       review: "全部評審"
     },
     image: '鏡像',
-    tag: '標簽'
+    tag: '標簽',
+    module: {
+      select_module: "選擇模塊",
+      default_module: "默認模塊",
+    }
   },
   license: {
     title: '授權管理',
@@ -209,8 +213,8 @@ export default {
   display: {
     title: '顯示設置',
     logo: '系統 LOGO',
-    loginLogo: '登陸頁面右側圖片',
-    loginImage: '登錄頁左上角 LOGO',
+    loginLogo: '登錄頁左上角 LOGO',
+    loginImage: '登陸頁面右側圖片',
     loginTitle: '登陸頁面提示信息',
     pageTitle: '頁面 Title',
   },
@@ -312,6 +316,7 @@ export default {
     delete_confirm: '確定要刪除這個項目嗎?',
     delete_tip: '刪除該項目，會刪除該項目下所有測試資源，確定要刪除嗎?',
     search_by_name: '根據名稱搜索',
+    search_by_name_jar: '根據名稱/jar包搜索',
     input_name: '請輸入項目名稱',
     owning_workspace: '所屬工作空間',
     please_choose_workspace: '請選擇工作空間',
@@ -514,6 +519,8 @@ export default {
     },
     definition: {
       api_title: "接口列表",
+      case_title: "用例列表",
+      doc_title: "文檔",
       api_name: "接口名稱",
       api_status: "接口狀態",
       api_type: "請求類型",
@@ -524,14 +531,15 @@ export default {
       api_case_status: "用例狀態",
       api_case_passing_rate: "用例通過率",
       create_tip: "註: 詳細的接口信息可以在編輯頁面填寫",
+      api_import: "接口導入",
       select_comp: {
         no_data: "無數據",
         add_data: "去添加"
       },
       request: {
         grade_info: "按等級篩選",
-        grade_order_asc: "按用例等級從高到低",
-        grade_order_desc: "按用例等級從低到高",
+        grade_order_asc: "按用例等級從低到高",
+        grade_order_desc: "按用例等級從高到低",
         create_time_order_asc: "按創建時間從前到後",
         create_time_order_desc: "按創建時間從後到前",
         update_time_order_asc: "按更新時間從前到後",
@@ -583,6 +591,7 @@ export default {
         create_info: '創建',
         update_info: '更新',
         batch_edit: "批量編輯",
+        batch_move:"批量移動",
         path_valid_info: "請求路徑無效",
         other_config: "其他設置",
         message_template: "報文模版",
@@ -1130,6 +1139,8 @@ export default {
       plan_delete_confirm: "將刪除該測試計劃下所有用例，確認刪除測試計劃: ",
       plan_delete_tip: "該測試計劃正在進行中，請確認再刪除！",
       plan_delete: "刪除計劃",
+      api_case: "接口測試用例",
+      scenario_case: "場景測試用例",
       load_case: {
         case: "性能用例",
         execution_status: "執行狀態",

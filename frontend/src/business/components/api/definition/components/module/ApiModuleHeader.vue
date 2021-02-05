@@ -145,7 +145,7 @@ export default {
 }
 
 .filter-input {
-  width: 175px;
+  width: 174px;
   padding-left: 3px;
 }
 

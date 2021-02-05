@@ -339,7 +339,8 @@
         where plan_id = #{planId}
     </select>
     <select id="listByPlanId" resultType="io.metersphere.track.dto.TestPlanCaseDTO">
-        SELECT test_plan_api_case.api_case_id as id,"definition" as type,api_test_case.name,test_plan_api_case.status
+        SELECT test_plan_api_case.id as reportId,test_plan_api_case.api_case_id as id,"definition" as
+        type,api_test_case.name,test_plan_api_case.status
         from test_plan_api_case left join api_test_case on test_plan_api_case.api_case_id=api_test_case.id
         inner join
         api_definition a
@@ -352,7 +353,7 @@
             </if>
         </where>
         UNION ALL
-        SELECT test_plan_api_scenario.api_scenario_id as id,"scenario" as
+        SELECT test_plan_api_scenario.id as reportId,test_plan_api_scenario.api_scenario_id as id,"scenario" as
         type,api_scenario.name,test_plan_api_scenario.status
         from test_plan_api_scenario
         left join
@@ -366,7 +367,8 @@
             </if>
         </where>
         UNION ALL
-        select load_test.id as id,"perform" as type,load_test.name as name,test_plan_load_case.status from test_plan_load_case inner join
+        select test_plan_load_case.id as reportId,load_test.id as id,"perform" as type,load_test.name as
+        name,test_plan_load_case.status from test_plan_load_case inner join
         load_test on
         test_plan_load_case.load_case_id =load_test.id
         <where>
@@ -375,7 +377,8 @@
             </if>
         </where>
         UNION ALL
-        SELECT test_case.test_id as id,test_case.type as type,test_case.name,test_plan_test_case.status
+        SELECT test_case.id as reportId,test_case.test_id as id,test_case.type as
+        type,test_case.name,test_plan_test_case.status
         from test_plan_test_case left join test_case on test_plan_test_case.case_id =test_case.id
         <where>
             <if test="request.planId != null">

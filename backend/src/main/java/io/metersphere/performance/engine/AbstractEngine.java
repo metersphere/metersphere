@@ -8,6 +8,7 @@ import io.metersphere.base.domain.TestResource;
 import io.metersphere.base.domain.TestResourcePool;
 import io.metersphere.commons.constants.PerformanceTestStatus;
 import io.metersphere.commons.constants.ResourcePoolTypeEnum;
+import io.metersphere.commons.constants.ResourceStatusEnum;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.config.JmeterProperties;
@@ -55,12 +56,15 @@ public abstract class AbstractEngine implements Engine {
             MSException.throwException("Resource Pool ID is empty");
         }
         TestResourcePool resourcePool = testResourcePoolService.getResourcePool(resourcePoolId);
-        if (resourcePool == null) {
+        if (resourcePool == null || StringUtils.equals(resourcePool.getStatus(), ResourceStatusEnum.DELETE.name())) {
             MSException.throwException("Resource Pool is empty");
         }
         if (!ResourcePoolTypeEnum.K8S.name().equals(resourcePool.getType())
                 && !ResourcePoolTypeEnum.NODE.name().equals(resourcePool.getType())) {
             MSException.throwException("Invalid Resource Pool type.");
+        }
+        if (!StringUtils.equals(resourcePool.getStatus(), ResourceStatusEnum.VALID.name())) {
+            MSException.throwException("Resource Pool Status is not VALID");
         }
         // image
         String image = resourcePool.getImage();
