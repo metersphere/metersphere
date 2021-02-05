@@ -23,7 +23,6 @@ import io.metersphere.api.dto.scenario.KeyValue;
 import io.metersphere.api.dto.scenario.request.RequestType;
 import io.metersphere.base.domain.ApiScenarioModule;
 import io.metersphere.base.domain.ApiScenarioWithBLOBs;
-import io.metersphere.base.domain.TestPlan;
 import io.metersphere.commons.utils.BeanUtils;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.jmeter.config.ConfigTestElement;
@@ -34,7 +33,7 @@ import org.apache.jmeter.protocol.http.util.HTTPFileArg;
 import org.apache.jmeter.protocol.java.sampler.JSR223Sampler;
 import org.apache.jmeter.protocol.tcp.sampler.TCPSampler;
 import org.apache.jmeter.save.SaveService;
-import org.apache.jmeter.testelement.TestElement;
+import org.apache.jmeter.testelement.TestPlan;
 import org.apache.jorphan.collections.HashTree;
 
 import java.io.InputStream;
@@ -51,13 +50,16 @@ public class MsJmeterParser extends ScenarioImportAbstractParser {
             Object scriptWrapper = SaveService.loadElement(inputSource);
             HashTree testPlan = this.getHashTree(scriptWrapper);
             MsScenario scenario = new MsScenario();
-            scenario.setHashTree(new LinkedList<>());
+            scenario.setReferenced("REF");
+            LinkedList<MsTestElement> hashTrees = new LinkedList<>();
+            scenario.setHashTree(hashTrees);
             getTree(testPlan, scenario);
-
+            this.projectId = request.getProjectId();
 
             ScenarioImport scenarioImport = new ScenarioImport();
             scenarioImport.setData(paseObj(scenario, request));
             scenarioImport.setProjectid(request.getProjectId());
+            return scenarioImport;
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -141,47 +143,52 @@ public class MsJmeterParser extends ScenarioImportAbstractParser {
         msTCPSampler.setPassword(tcpSampler.getProperty(ConfigTestElement.PASSWORD).getStringValue());
     }
 
-    private void getTree(HashTree tree, MsScenario scenario) {
+    private void getTree(HashTree tree, MsTestElement scenario) {
         for (Object key : tree.keySet()) {
+            MsTestElement elementNode = null;
+            if (CollectionUtils.isEmpty(scenario.getHashTree())) {
+                scenario.setHashTree(new LinkedList<>());
+            }
             if (key instanceof TestPlan) {
                 scenario.setName(((TestPlan) key).getName());
+                elementNode = new MsJmeterElement();
+                JSONObject jsonObject = JSON.parseObject(JSON.toJSONString(key));
+                elementNode.setName(jsonObject.get("name") == null ? "" : jsonObject.get("name").toString());
+                ((MsJmeterElement) elementNode).setJmeterElement(key);
+                scenario.getHashTree().add(elementNode);
             } else if (key instanceof ThreadGroup) {
-                MsScenario msScenario = new MsScenario(((ThreadGroup) key).getName());
-                if (CollectionUtils.isEmpty(scenario.getHashTree())) {
-                    List<MsTestElement> msTestElementList = new LinkedList<>();
-                    msTestElementList.add(msScenario);
-                }
-                scenario.getHashTree().add(msScenario);
+                elementNode = new MsScenario(((ThreadGroup) key).getName());
+                scenario.getHashTree().add(elementNode);
             } else if (key instanceof HTTPSamplerProxy) {
-                MsHTTPSamplerProxy element = new MsHTTPSamplerProxy();
-                element.setBody(new Body());
+                elementNode = new MsHTTPSamplerProxy();
+                ((MsHTTPSamplerProxy) elementNode).setBody(new Body());
                 HTTPSamplerProxy request = (HTTPSamplerProxy) key;
-                convertHttpSampler(element, request);
-                scenario.getHashTree().add(element);
+                convertHttpSampler((MsHTTPSamplerProxy) elementNode, request);
+                scenario.getHashTree().add(elementNode);
             } else if (key instanceof TCPSampler) {
-                MsTCPSampler msTCPSampler = new MsTCPSampler();
+                elementNode = new MsTCPSampler();
                 TCPSampler tcpSampler = (TCPSampler) key;
-                convertTCPSampler(msTCPSampler, tcpSampler);
-                scenario.getHashTree().add(msTCPSampler);
+                convertTCPSampler((MsTCPSampler) elementNode, tcpSampler);
+                scenario.getHashTree().add(elementNode);
             } else if (key instanceof MsDubboSampler) {
 
             } else if (key instanceof MsJDBCSampler) {
 
             } else if (key instanceof JSR223Sampler) {
                 JSR223Sampler jsr223Sampler = (JSR223Sampler) key;
-                MsJSR223Processor processor = new MsJSR223Processor();
-                BeanUtils.copyBean(processor, jsr223Sampler);
-                scenario.getHashTree().add(processor);
+                elementNode = new MsJSR223Processor();
+                BeanUtils.copyBean(elementNode, jsr223Sampler);
+                scenario.getHashTree().add(elementNode);
             } else if (key instanceof JSR223PostProcessor) {
                 JSR223PostProcessor jsr223Sampler = (JSR223PostProcessor) key;
-                MsJSR223PostProcessor processor = new MsJSR223PostProcessor();
-                BeanUtils.copyBean(processor, jsr223Sampler);
-                scenario.getHashTree().add(processor);
+                elementNode = new MsJSR223PostProcessor();
+                BeanUtils.copyBean(elementNode, jsr223Sampler);
+                scenario.getHashTree().add(elementNode);
             } else if (key instanceof JSR223PreProcessor) {
                 JSR223PreProcessor jsr223Sampler = (JSR223PreProcessor) key;
-                MsJSR223PreProcessor processor = new MsJSR223PreProcessor();
-                BeanUtils.copyBean(processor, jsr223Sampler);
-                scenario.getHashTree().add(processor);
+                elementNode = new MsJSR223PreProcessor();
+                BeanUtils.copyBean(elementNode, jsr223Sampler);
+                scenario.getHashTree().add(elementNode);
             } else if (key instanceof MsAssertions) {
 
             } else if (key instanceof MsExtract) {
@@ -193,15 +200,15 @@ public class MsJmeterParser extends ScenarioImportAbstractParser {
             } else if (key instanceof MsLoopController) {
 
             } else {
-                MsJmeterElement jmeterElement = new MsJmeterElement();
+                elementNode = new MsJmeterElement();
                 JSONObject jsonObject = JSON.parseObject(JSON.toJSONString(key));
-                jmeterElement.setName(jsonObject.get(TestElement.NAME) == null ? "" : jsonObject.get(TestElement.NAME).toString());
-                jmeterElement.setJmeterElement(key);
-                scenario.getHashTree().add(jmeterElement);
+                elementNode.setName(jsonObject.get("name") == null ? "" : jsonObject.get("name").toString());
+                ((MsJmeterElement) elementNode).setJmeterElement(key);
+                scenario.getHashTree().add(elementNode);
             }
             HashTree node = tree.get(key);
             if (node != null) {
-                getTree(node, scenario);
+                getTree(node, elementNode);
             }
         }
     }

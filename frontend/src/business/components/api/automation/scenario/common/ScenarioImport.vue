@@ -117,7 +117,7 @@
             value: 'Jmeter',
             tip: this.$t('api_test.api_import.jmeter_tip'),
             exportTip: this.$t('api_test.api_import.jmeter_export_tip'),
-            suffixes: new Set(['json'])
+            suffixes: new Set(['jmx'])
           }
         ],
         selectedPlatform: {},
@@ -194,10 +194,6 @@
       save() {
         this.$refs.form.validate(valid => {
           if (valid) {
-            if ((this.selectedPlatformValue != 'Swagger2' || (this.selectedPlatformValue == 'Swagger2' && !this.swaggerUrlEable)) && !this.formData.file) {
-              this.$warning(this.$t('commons.please_upload'));
-              return;
-            }
             let param = this.buildParam();
             this.result = this.$fileUpload('/api/automation/import', param.file, null, this.buildParam(), response => {
               let res = response.data;
