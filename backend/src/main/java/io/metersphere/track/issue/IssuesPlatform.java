@@ -1,6 +1,7 @@
 package io.metersphere.track.issue;
 
 import io.metersphere.base.domain.Issues;
+import io.metersphere.track.issue.domain.PlatformUser;
 import io.metersphere.track.request.testcase.IssuesRequest;
 
 import java.util.List;
