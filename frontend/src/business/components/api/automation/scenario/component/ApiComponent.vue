@@ -3,6 +3,7 @@
     v-loading="loading"
     @copy="copyRow"
     @remove="remove"
+    @active="active"
     :is-show-name-input="!isDeletedOrRef"
     :data="request"
     :draggable="true"
@@ -95,7 +96,6 @@
       if (!this.request.requestResult) {
         this.request.requestResult = {responseResult: {}};
       }
-      console.log(this.request)
       // 加载引用对象数据
       this.getApiInfo();
       if (this.request.protocol === 'HTTP') {

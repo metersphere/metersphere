@@ -2,12 +2,13 @@
   <api-base-component
     @copy="copyRow"
     @remove="remove"
+    @active="active"
     :data="extract"
     :draggable="draggable"
     color="#015478"
     background-color="#E6EEF2"
     :title="$t('api_test.definition.request.extract_param')">
-    <div style="margin: 20px">
+    <div style="margin: 20px" v-loading="loading">
       <div class="extract-description">
         {{$t('api_test.request.extract.description')}}
       </div>
@@ -99,8 +100,8 @@
           this.loading = false
         })
       },
-      active(item) {
-        item.active = !item.active;
+      active() {
+        this.extract.active = !this.extract.active;
         this.reload();
       },
       suggestJsonOpen() {
@@ -155,6 +156,10 @@
     border: #DCDFE6 solid 1px;
     margin: 5px 0;
     border-radius: 5px;
+  }
+
+  .icon.is-active {
+    transform: rotate(90deg);
   }
 
   /deep/ .el-card__body {

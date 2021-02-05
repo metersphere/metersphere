@@ -301,6 +301,7 @@
                   this.activeName = this.requestResult && this.requestResult.scenarios && this.requestResult.scenarios != null && this.requestResult.scenarios.length > 0 ? this.requestResult.scenarios[0].name : "";
                   // 把请求结果分给各个请求
                   this.setResult(this.controller.hashTree);
+                  this.$emit('refReload');
                 } catch (e) {
                   throw e;
                 }

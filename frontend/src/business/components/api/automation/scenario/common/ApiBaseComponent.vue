@@ -107,7 +107,8 @@
     },
     methods: {
       active() {
-        this.$set(this.data, 'active', !this.data.active);
+        // 这种写法性能极差，不要再放开了
+        //this.$set(this.data, 'active', !this.data.active);
         this.$emit('active');
       },
       copyRow() {

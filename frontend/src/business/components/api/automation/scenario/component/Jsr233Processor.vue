@@ -2,6 +2,7 @@
   <api-base-component
     @copy="copyRow"
     @remove="remove"
+    @active="active"
     :data="jsr223Processor"
     :draggable="draggable"
     :color="color"
@@ -56,6 +57,10 @@
       },
       copyRow() {
         this.$emit('copyRow', this.jsr223Processor, this.node);
+      },
+      active() {
+        this.jsr223Processor.active = !this.jsr223Processor.active;
+        this.reload();
       },
     }
   }
