@@ -92,7 +92,7 @@ public class ApiDefinitionController {
     }
 
     @PostMapping("/deleteBatchByParams")
-    public void deleteBatchByParams(@RequestBody ApiDefinitionBatchProcessingRequest request) {
+    public void deleteBatchByParams(@RequestBody ApiBatchRequest request) {
         apiDefinitionService.deleteByParams(request);
     }
 
@@ -104,7 +104,7 @@ public class ApiDefinitionController {
 
     @PostMapping("/removeToGcByParams")
     @RequiresRoles(value = {RoleConstants.TEST_MANAGER, RoleConstants.TEST_USER}, logical = Logical.OR)
-    public void removeToGcByParams(@RequestBody ApiDefinitionBatchProcessingRequest request) {
+    public void removeToGcByParams(@RequestBody ApiBatchRequest request) {
         apiDefinitionService.removeToGcByParams(request);
     }
 

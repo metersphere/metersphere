@@ -539,20 +539,12 @@ public class ApiDefinitionService {
     }
 
     public void editApiByParam(ApiBatchRequest request) {
-        List<String> ids = request.getIds();
-        if (request.isSelectAllDate()) {
-            ids = this.getAllApiIdsByFontedSelect(request.getFilters(), request.getName(), request.getModuleIds(), request.getProjectId(), request.getUnSelectIds(),request.getProtocol());
-        }
         //name在这里只是查询参数
         request.setName(null);
-
-        ApiDefinitionExample definitionExample = new ApiDefinitionExample();
-        definitionExample.createCriteria().andIdIn(ids);
-
         ApiDefinitionWithBLOBs definitionWithBLOBs = new ApiDefinitionWithBLOBs();
         BeanUtils.copyBean(definitionWithBLOBs, request);
         definitionWithBLOBs.setUpdateTime(System.currentTimeMillis());
-        apiDefinitionMapper.updateByExampleSelective(definitionWithBLOBs, definitionExample);
+        apiDefinitionMapper.updateByExampleSelective(definitionWithBLOBs, getBatchExample(request));
     }
 
     public void testPlanRelevance(ApiCaseRelevanceRequest request) {
@@ -602,39 +594,22 @@ public class ApiDefinitionService {
         return apiDefinitionMapper.selectByExample(example);
     }
 
-    public void deleteByParams(ApiDefinitionBatchProcessingRequest request) {
-        List<String> apiIds = request.getDataIds();
-        if (request.isSelectAllDate()) {
-            apiIds = this.getAllApiIdsByFontedSelect(request.getFilters(), request.getName(), request.getModuleIds(), request.getProjectId(), request.getUnSelectIds(),request.getProtocol());
-        }
+    public void deleteByParams(ApiBatchRequest request) {
+        apiDefinitionMapper.deleteByExample(getBatchExample(request));
+    }
+
+    public ApiDefinitionExample getBatchExample(ApiBatchRequest request) {
+        ServiceUtils.getSelectAllIds(request, request.getCondition(),
+                (query) -> extApiDefinitionMapper.selectIds(query));
         ApiDefinitionExample example = new ApiDefinitionExample();
-        example.createCriteria().andIdIn(apiIds);
-        apiDefinitionMapper.deleteByExample(example);
+        example.createCriteria().andIdIn(request.getIds());
+        return example;
     }
 
-    private List<String> getAllApiIdsByFontedSelect(Map<String, List<String>> filters, String name, List<String> moduleIds, String projectId, List<String> unSelectIds,String protocol) {
-        ApiDefinitionRequest request = new ApiDefinitionRequest();
-        request.setFilters(filters);
-        request.setName(name);
-        request.setModuleIds(moduleIds);
-        request.setProjectId(projectId);
-        request.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
-        request.setProtocol(protocol);
-        List<ApiDefinitionResult> resList = extApiDefinitionMapper.list(request);
-        List<String> ids = new ArrayList<>(0);
-        if (!resList.isEmpty()) {
-            List<String> allIds = resList.stream().map(ApiDefinitionResult::getId).collect(Collectors.toList());
-            ids = allIds.stream().filter(id -> !unSelectIds.contains(id)).collect(Collectors.toList());
-        }
-        return ids;
-    }
-
-    public void removeToGcByParams(ApiDefinitionBatchProcessingRequest request) {
-        List<String> apiIds = request.getDataIds();
-        if (request.isSelectAllDate()) {
-            apiIds = this.getAllApiIdsByFontedSelect(request.getFilters(), request.getName(), request.getModuleIds(), request.getProjectId(), request.getUnSelectIds(),request.getProtocol());
-        }
-        extApiDefinitionMapper.removeToGc(apiIds);
+    public void removeToGcByParams(ApiBatchRequest request) {
+        ServiceUtils.getSelectAllIds(request, request.getCondition(),
+                (query) -> extApiDefinitionMapper.selectIds(query));
+        extApiDefinitionMapper.removeToGc(request.getIds());
     }
 
     public List<ApiDefinitionResult> listRelevance(ApiDefinitionRequest request) {

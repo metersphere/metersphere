@@ -5,6 +5,7 @@ import com.alibaba.excel.EasyExcelFactory;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.github.pagehelper.PageHelper;
+import io.metersphere.api.dto.definition.ApiBatchRequest;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtTestCaseMapper;
@@ -528,33 +529,25 @@ public class TestCaseService {
 
 
     public void editTestCaseBath(TestCaseBatchRequest request) {
-        getSelectAllIds(request);
-        TestCaseExample testCaseExample = new TestCaseExample();
-        testCaseExample.createCriteria().andIdIn(request.getIds());
-
+        TestCaseExample example = this.getBatchExample(request);
         TestCaseWithBLOBs testCase = new TestCaseWithBLOBs();
         BeanUtils.copyBean(testCase, request);
         testCase.setUpdateTime(System.currentTimeMillis());
-        testCaseMapper.updateByExampleSelective(
-                testCase,
-                testCaseExample);
-
+        testCaseMapper.updateByExampleSelective(testCase, example);
     }
 
     public void deleteTestCaseBath(TestCaseBatchRequest request) {
-        getSelectAllIds(request);
+        TestCaseExample example = this.getBatchExample(request);
         deleteTestPlanTestCaseBath(request.getIds());
-        TestCaseExample example = new TestCaseExample();
-        example.createCriteria().andIdIn(request.getIds());
         testCaseMapper.deleteByExample(example);
     }
 
-    public void getSelectAllIds(TestCaseBatchRequest request) {
-        if (request.getCondition().isSelectAll()) {
-            ServiceUtils.getSelectAllIds(request.getCondition(),
-                    (query) -> extTestCaseMapper.selectIds(query));
-            request.setIds(request.getCondition().getIds());
-        }
+    public TestCaseExample getBatchExample(TestCaseBatchRequest request) {
+        ServiceUtils.getSelectAllIds(request, request.getCondition(),
+                (query) -> extTestCaseMapper.selectIds(query));
+        TestCaseExample example = new TestCaseExample();
+        example.createCriteria().andIdIn(request.getIds());
+        return example;
     }
 
     public void deleteTestPlanTestCaseBath(List<String> caseIds) {

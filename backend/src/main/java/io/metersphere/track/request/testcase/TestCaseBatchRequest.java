@@ -1,7 +1,6 @@
 package io.metersphere.track.request.testcase;
 
 import io.metersphere.base.domain.TestCaseWithBLOBs;
-import io.metersphere.controller.request.BaseQueryRequest;
 import io.metersphere.controller.request.OrderRequest;
 import lombok.Getter;
 import lombok.Setter;
@@ -15,5 +14,5 @@ public class TestCaseBatchRequest extends TestCaseWithBLOBs {
     private List<OrderRequest> orders;
     private String projectId;
 
-    private BaseQueryRequest condition;
+    private QueryTestCaseRequest condition;
 }

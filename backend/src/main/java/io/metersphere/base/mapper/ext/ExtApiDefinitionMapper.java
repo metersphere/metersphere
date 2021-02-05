@@ -7,7 +7,7 @@ import io.metersphere.api.dto.definition.ApiDefinitionResult;
 import io.metersphere.api.dto.definition.ApiSwaggerUrlDTO;
 import io.metersphere.base.domain.ApiDefinition;
 import io.metersphere.base.domain.ApiDefinitionExample;
-import io.metersphere.base.domain.ApiModuleExample;
+import io.metersphere.controller.request.BaseQueryRequest;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -36,4 +36,6 @@ public interface ExtApiDefinitionMapper {
     ApiDefinition getNextNum(@Param("projectId") String projectId);
 
     List<ApiDefinitionResult> listRelevance(@Param("request")ApiDefinitionRequest request);
+
+    List<String> selectIds(@Param("request") BaseQueryRequest query);
 }
