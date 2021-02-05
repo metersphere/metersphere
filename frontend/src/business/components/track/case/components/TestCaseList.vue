@@ -39,10 +39,10 @@
           type="selection"/>
 
         <ms-table-header-select-popover v-show="total>0"
-          :page-size="pageSize > total ? total : pageSize"
-          :total="total"
-          @selectPageAll="isSelectDataAll(false)"
-          @selectAll="isSelectDataAll(true)"/>
+                                        :page-size="pageSize > total ? total : pageSize"
+                                        :total="total"
+                                        @selectPageAll="isSelectDataAll(false)"
+                                        @selectAll="isSelectDataAll(true)"/>
 
         <el-table-column width="40" :resizable="false" align="center">
           <template v-slot:default="scope">
@@ -144,8 +144,12 @@
             <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
           </template>
         </el-table-column>
-        <el-table-column fixed="right"
-          :label="$t('commons.operating')" min-width="150">
+        <el-table-column fixed="right" min-width="150">
+          <template slot="header">
+            <span>{{ $t('commons.operating') }}
+             <i class='el-icon-setting' style="color:#7834c1; margin-left:10px" @click="customHeader"> </i>
+            </span>
+          </template>
           <template v-slot:default="scope">
             <ms-table-operator :is-tester-permission="true" @editClick="handleEdit(scope.row)"
                                @deleteClick="handleDelete(scope.row)">
@@ -157,8 +161,9 @@
             </ms-table-operator>
           </template>
         </el-table-column>
-      </el-table>
 
+      </el-table>
+      <custom-header ref="customHeader"/>
       <ms-table-pagination :change="initTableData" :current-page.sync="currentPage" :page-size.sync="pageSize"
                            :total="total"/>
 
@@ -169,6 +174,7 @@
 
     <batch-move @refresh="refresh" @moveSave="moveSave" ref="testBatchMove"/>
   </div>
+
 </template>
 
 <script>
@@ -199,10 +205,12 @@ import {getCurrentProjectID} from "../../../../../common/js/utils";
 import MsTag from "@/business/components/common/components/MsTag";
 import {_handleSelect, _handleSelectAll} from "../../../../../common/js/tableUtils";
 import BatchMove from "./BatchMove";
+import CustomHeader from "@/business/components/track/case/components/CustomHeader";
 
 export default {
   name: "TestCaseList",
   components: {
+    CustomHeader,
     BatchMove,
     MsTableHeaderSelectPopover,
     MsTableButton,
@@ -226,6 +234,11 @@ export default {
   },
   data() {
     return {
+      cols: [{label: "id", prop: "num"},
+        {label: "名称", prop: "name"},
+        {label: "级别", prop: "priority"},
+        {label: "类型", prop: "type"},
+        {label: "测试方式", prop: "method"}],
       result: {},
       deletePath: "/test/case/delete",
       condition: {
@@ -323,7 +336,11 @@ export default {
     }
   },
   methods: {
+    customHeader() {
+      this.$refs.customHeader.open()
+    },
     initTableData() {
+
       this.projectId = getCurrentProjectID();
       this.condition.planId = "";
       this.condition.nodeIds = [];
