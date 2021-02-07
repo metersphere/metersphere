@@ -72,8 +72,11 @@
             break;
           case "AuthManager":
             break;
-          default:
+          case "JmeterElement":
             name = "JmeterElementComponent";
+            break;
+          default:
+            name = "MsApiComponent";
             break;
         }
         return name;

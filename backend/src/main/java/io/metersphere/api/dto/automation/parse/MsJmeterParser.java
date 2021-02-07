@@ -8,7 +8,11 @@ import io.metersphere.api.dto.definition.request.MsTestElement;
 import io.metersphere.api.dto.definition.request.assertions.MsAssertions;
 import io.metersphere.api.dto.definition.request.controller.MsIfController;
 import io.metersphere.api.dto.definition.request.controller.MsLoopController;
+import io.metersphere.api.dto.definition.request.controller.loop.CountController;
+import io.metersphere.api.dto.definition.request.controller.loop.MsForEachController;
+import io.metersphere.api.dto.definition.request.controller.loop.MsWhileController;
 import io.metersphere.api.dto.definition.request.extract.MsExtract;
+import io.metersphere.api.dto.definition.request.extract.MsExtractRegex;
 import io.metersphere.api.dto.definition.request.processors.MsJSR223Processor;
 import io.metersphere.api.dto.definition.request.processors.post.MsJSR223PostProcessor;
 import io.metersphere.api.dto.definition.request.processors.pre.MsJSR223PreProcessor;
@@ -23,10 +27,18 @@ import io.metersphere.api.dto.scenario.KeyValue;
 import io.metersphere.api.dto.scenario.request.RequestType;
 import io.metersphere.base.domain.ApiScenarioModule;
 import io.metersphere.base.domain.ApiScenarioWithBLOBs;
+import io.metersphere.commons.constants.LoopConstants;
 import io.metersphere.commons.utils.BeanUtils;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.jmeter.config.ConfigTestElement;
+import org.apache.jmeter.control.ForeachController;
+import org.apache.jmeter.control.IfController;
+import org.apache.jmeter.control.LoopController;
+import org.apache.jmeter.control.WhileController;
 import org.apache.jmeter.extractor.JSR223PostProcessor;
+import org.apache.jmeter.extractor.RegexExtractor;
+import org.apache.jmeter.extractor.XPath2Extractor;
+import org.apache.jmeter.extractor.json.jsonpath.JSONPostProcessor;
 import org.apache.jmeter.modifiers.JSR223PreProcessor;
 import org.apache.jmeter.protocol.http.sampler.HTTPSamplerProxy;
 import org.apache.jmeter.protocol.http.util.HTTPFileArg;
@@ -34,6 +46,7 @@ import org.apache.jmeter.protocol.java.sampler.JSR223Sampler;
 import org.apache.jmeter.protocol.tcp.sampler.TCPSampler;
 import org.apache.jmeter.save.SaveService;
 import org.apache.jmeter.testelement.TestPlan;
+import org.apache.jmeter.timers.ConstantTimer;
 import org.apache.jorphan.collections.HashTree;
 
 import java.io.InputStream;
@@ -130,6 +143,7 @@ public class MsJmeterParser extends ScenarioImportAbstractParser {
 
     private void convertTCPSampler(MsTCPSampler msTCPSampler, TCPSampler tcpSampler) {
         tcpSampler.setName(tcpSampler.getName());
+        msTCPSampler.setType("TCPSampler");
         msTCPSampler.setServer(tcpSampler.getServer());
         msTCPSampler.setPort(tcpSampler.getPort() + "");
         msTCPSampler.setCtimeout(tcpSampler.getConnectTimeout() + "");
@@ -144,6 +158,12 @@ public class MsJmeterParser extends ScenarioImportAbstractParser {
     }
 
     private void getTree(HashTree tree, MsTestElement scenario) {
+        // 提取数据单独处理
+        MsExtract extract = new MsExtract();
+        extract.setType("Extract");
+        extract.setJson(new LinkedList<>());
+        extract.setRegex(new LinkedList<>());
+        extract.setXpath(new LinkedList<>());
         for (Object key : tree.keySet()) {
             MsTestElement elementNode = null;
             if (CollectionUtils.isEmpty(scenario.getHashTree())) {
@@ -155,21 +175,16 @@ public class MsJmeterParser extends ScenarioImportAbstractParser {
                 JSONObject jsonObject = JSON.parseObject(JSON.toJSONString(key));
                 elementNode.setName(jsonObject.get("name") == null ? "" : jsonObject.get("name").toString());
                 ((MsJmeterElement) elementNode).setJmeterElement(key);
-                scenario.getHashTree().add(elementNode);
             } else if (key instanceof ThreadGroup) {
                 elementNode = new MsScenario(((ThreadGroup) key).getName());
-                scenario.getHashTree().add(elementNode);
             } else if (key instanceof HTTPSamplerProxy) {
                 elementNode = new MsHTTPSamplerProxy();
                 ((MsHTTPSamplerProxy) elementNode).setBody(new Body());
-                HTTPSamplerProxy request = (HTTPSamplerProxy) key;
-                convertHttpSampler((MsHTTPSamplerProxy) elementNode, request);
-                scenario.getHashTree().add(elementNode);
+                convertHttpSampler((MsHTTPSamplerProxy) elementNode, (HTTPSamplerProxy) key);
             } else if (key instanceof TCPSampler) {
                 elementNode = new MsTCPSampler();
                 TCPSampler tcpSampler = (TCPSampler) key;
                 convertTCPSampler((MsTCPSampler) elementNode, tcpSampler);
-                scenario.getHashTree().add(elementNode);
             } else if (key instanceof MsDubboSampler) {
 
             } else if (key instanceof MsJDBCSampler) {
@@ -178,34 +193,85 @@ public class MsJmeterParser extends ScenarioImportAbstractParser {
                 JSR223Sampler jsr223Sampler = (JSR223Sampler) key;
                 elementNode = new MsJSR223Processor();
                 BeanUtils.copyBean(elementNode, jsr223Sampler);
-                scenario.getHashTree().add(elementNode);
             } else if (key instanceof JSR223PostProcessor) {
                 JSR223PostProcessor jsr223Sampler = (JSR223PostProcessor) key;
                 elementNode = new MsJSR223PostProcessor();
                 BeanUtils.copyBean(elementNode, jsr223Sampler);
-                scenario.getHashTree().add(elementNode);
             } else if (key instanceof JSR223PreProcessor) {
                 JSR223PreProcessor jsr223Sampler = (JSR223PreProcessor) key;
                 elementNode = new MsJSR223PreProcessor();
                 BeanUtils.copyBean(elementNode, jsr223Sampler);
-                scenario.getHashTree().add(elementNode);
             } else if (key instanceof MsAssertions) {
 
-            } else if (key instanceof MsExtract) {
+            } else if (key instanceof RegexExtractor) {
+                MsExtractRegex regex = new MsExtractRegex();
+                RegexExtractor regexExtractor = (RegexExtractor) key;
+                if (regexExtractor.useRequestHeaders()) {
+                    regex.setUseHeaders("request_headers");
+                } else if (regexExtractor.useBody()) {
+                    regex.setUseHeaders("false");
+                } else if (regexExtractor.useUnescapedBody()) {
+                    regex.setUseHeaders("unescaped");
+                } else if (regexExtractor.useBodyAsDocument()) {
+                    regex.setUseHeaders("as_document");
+                } else if (regexExtractor.useUrl()) {
+                    regex.setUseHeaders("URL");
+                }
+                regex.setType("Regex");
+                regex.setExpression(regexExtractor.getRegex());
+                regex.setVariable(regexExtractor.getRefName());
 
-            } else if (key instanceof MsConstantTimer) {
+            } else if (key instanceof XPath2Extractor) {
 
-            } else if (key instanceof MsIfController) {
+            } else if (key instanceof JSONPostProcessor) {
 
-            } else if (key instanceof MsLoopController) {
-
+            } else if (key instanceof ConstantTimer) {
+                elementNode = new MsConstantTimer();
+                BeanUtils.copyBean(elementNode, key);
+                elementNode.setType("ConstantTimer");
+            } else if (key instanceof IfController) {
+                elementNode = new MsIfController();
+                BeanUtils.copyBean(elementNode, key);
+                elementNode.setType("IfController");
+            } else if (key instanceof LoopController) {
+                elementNode = new MsLoopController();
+                BeanUtils.copyBean(elementNode, key);
+                elementNode.setType("LoopController");
+                ((MsLoopController) elementNode).setLoopType(LoopConstants.LOOP_COUNT.name());
+                LoopController loopController = (LoopController) key;
+                CountController countController = new CountController();
+                countController.setLoops(loopController.getLoops());
+                countController.setProceed(true);
+                ((MsLoopController) elementNode).setCountController(countController);
+            } else if (key instanceof WhileController) {
+                elementNode = new MsLoopController();
+                BeanUtils.copyBean(elementNode, key);
+                elementNode.setType("LoopController");
+                ((MsLoopController) elementNode).setLoopType(LoopConstants.WHILE.name());
+                WhileController whileController = (WhileController) key;
+                MsWhileController countController = new MsWhileController();
+                countController.setValue(whileController.getCondition());
+                ((MsLoopController) elementNode).setWhileController(countController);
+            } else if (key instanceof ForeachController) {
+                elementNode = new MsLoopController();
+                BeanUtils.copyBean(elementNode, key);
+                elementNode.setType("LoopController");
+                ((MsLoopController) elementNode).setLoopType(LoopConstants.FOREACH.name());
+                ForeachController foreachController = (ForeachController) key;
+                MsForEachController countController = new MsForEachController();
+                countController.setInputVal(foreachController.getInputValString());
+                countController.setReturnVal(foreachController.getReturnValString());
+                ((MsLoopController) elementNode).setForEachController(countController);
             } else {
                 elementNode = new MsJmeterElement();
+                elementNode.setType("JmeterElement");
                 JSONObject jsonObject = JSON.parseObject(JSON.toJSONString(key));
                 elementNode.setName(jsonObject.get("name") == null ? "" : jsonObject.get("name").toString());
                 ((MsJmeterElement) elementNode).setJmeterElement(key);
-                scenario.getHashTree().add(elementNode);
             }
+            elementNode.setResourceId(UUID.randomUUID().toString());
+            elementNode.setId(UUID.randomUUID().toString());
+            scenario.getHashTree().add(elementNode);
             HashTree node = tree.get(key);
             if (node != null) {
                 getTree(node, elementNode);
