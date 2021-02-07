@@ -89,7 +89,7 @@
         reportId: "",
       }
     },
-    props: {apiData: {}, currentProtocol: String,syncTabs: Array, projectId: String},
+    props: {apiData: {}, currentProtocol: String, syncTabs: Array, projectId: String},
     methods: {
       handleCommand(e) {
         switch (e) {
@@ -105,7 +105,7 @@
             return this.runTest();
         }
       },
-      refresh(){
+      refresh() {
         this.$emit('refresh');
       },
       runTest() {
@@ -161,7 +161,9 @@
       },
       saveAsApi() {
         let data = {};
-        data.request = JSON.stringify(this.api.request);
+        let req = this.api.request;
+        req.id = getUUID();
+        data.request = JSON.stringify(req);
         data.method = this.api.method;
         data.status = this.api.status;
         data.userId = this.api.userId;
