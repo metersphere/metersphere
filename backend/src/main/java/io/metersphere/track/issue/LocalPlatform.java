@@ -5,6 +5,7 @@ import io.metersphere.base.domain.TestCaseIssues;
 import io.metersphere.commons.constants.IssuesManagePlatform;
 import io.metersphere.commons.user.SessionUser;
 import io.metersphere.commons.utils.SessionUtils;
+import io.metersphere.track.issue.domain.PlatformUser;
 import io.metersphere.track.request.testcase.IssuesRequest;
 
 import java.util.List;

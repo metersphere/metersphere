@@ -1,7 +1,6 @@
 package io.metersphere.api.parse;
 
 import io.metersphere.api.dto.ApiTestImportRequest;
-import io.metersphere.api.dto.definition.ApiDefinitionResult;
 import io.metersphere.api.dto.definition.ApiModuleDTO;
 import io.metersphere.api.dto.definition.request.sampler.MsHTTPSamplerProxy;
 import io.metersphere.api.dto.scenario.Body;
@@ -9,6 +8,7 @@ import io.metersphere.api.dto.scenario.KeyValue;
 import io.metersphere.api.dto.scenario.Scenario;
 import io.metersphere.api.dto.scenario.request.RequestType;
 import io.metersphere.api.service.ApiModuleService;
+import io.metersphere.base.domain.ApiDefinitionWithBLOBs;
 import io.metersphere.base.domain.ApiModule;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.BeanUtils;
@@ -151,8 +151,8 @@ public abstract class ApiImportAbstractParser implements ApiImportParser {
         }
     }
 
-    protected ApiDefinitionResult buildApiDefinition(String id, String name, String path, String method, ApiTestImportRequest importRequest) {
-        ApiDefinitionResult apiDefinition = new ApiDefinitionResult();
+    protected ApiDefinitionWithBLOBs buildApiDefinition(String id, String name, String path, String method, ApiTestImportRequest importRequest) {
+        ApiDefinitionWithBLOBs apiDefinition = new ApiDefinitionWithBLOBs();
         apiDefinition.setName(name);
         apiDefinition.setPath(formatPath(path));
         apiDefinition.setProtocol(RequestType.HTTP);

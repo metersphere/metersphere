@@ -202,7 +202,7 @@ import {
   _handleSelect,
   _handleSelectAll,
   _sort,
-  getSelectDataCounts,
+  getSelectDataCounts, initCondition,
   setUnSelectIds,
   toggleAllSelection
 } from "@/common/js/tableUtils";
@@ -335,8 +335,7 @@ export default {
       this.projectId = getCurrentProjectID();
       this.condition.planId = "";
       this.condition.nodeIds = [];
-      this.condition.selectAll = false;
-      this.condition.unSelectIds = [];
+      initCondition(this.condition);
       this.selectDataCounts = 0;
       if (this.planId) {
         // param.planId = this.planId;

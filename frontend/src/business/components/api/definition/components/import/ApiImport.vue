@@ -243,7 +243,6 @@ export default {
       Object.assign(param, this.formData);
       param.platform = this.selectedPlatformValue;
       param.saved = this.saved;
-      console.log(this.formData.moduleId)
       if (this.currentModule) {
         param.moduleId = this.formData.moduleId
         this.moduleOptions.filter(item => {

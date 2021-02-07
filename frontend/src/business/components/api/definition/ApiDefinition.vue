@@ -114,26 +114,25 @@
   </div>
 </template>
 <script>
-  import MsApiList from './components/list/ApiList';
-  import MsContainer from "../../common/components/MsContainer";
-  import MsMainContainer from "../../common/components/MsMainContainer";
-  import MsAsideContainer from "../../common/components/MsAsideContainer";
-  import MsApiConfig from "./components/ApiConfig";
-  import MsDebugHttpPage from "./components/debug/DebugHttpPage";
-  import MsDebugJdbcPage from "./components/debug/DebugJdbcPage";
-  import MsDebugTcpPage from "./components/debug/DebugTcpPage";
-  import MsDebugDubboPage from "./components/debug/DebugDubboPage";
+import MsApiList from './components/list/ApiList';
+import MsContainer from "../../common/components/MsContainer";
+import MsMainContainer from "../../common/components/MsMainContainer";
+import MsAsideContainer from "../../common/components/MsAsideContainer";
+import MsApiConfig from "./components/ApiConfig";
+import MsDebugHttpPage from "./components/debug/DebugHttpPage";
+import MsDebugJdbcPage from "./components/debug/DebugJdbcPage";
+import MsDebugTcpPage from "./components/debug/DebugTcpPage";
+import MsDebugDubboPage from "./components/debug/DebugDubboPage";
 
-  import MsRunTestHttpPage from "./components/runtest/RunTestHTTPPage";
-  import MsRunTestTcpPage from "./components/runtest/RunTestTCPPage";
-  import MsRunTestSqlPage from "./components/runtest/RunTestSQLPage";
-  import MsRunTestDubboPage from "./components/runtest/RunTestDubboPage";
-  import {downloadFile, getCurrentUser, getUUID, getCurrentProjectID} from "@/common/js/utils";
-  import MsApiModule from "./components/module/ApiModule";
-  import ApiCaseSimpleList from "./components/list/ApiCaseSimpleList";
-  import {PROJECT_NAME} from "../../../../common/js/constants";
+import MsRunTestHttpPage from "./components/runtest/RunTestHTTPPage";
+import MsRunTestTcpPage from "./components/runtest/RunTestTCPPage";
+import MsRunTestSqlPage from "./components/runtest/RunTestSQLPage";
+import MsRunTestDubboPage from "./components/runtest/RunTestDubboPage";
+import {getCurrentProjectID, getCurrentUser, getUUID} from "@/common/js/utils";
+import MsApiModule from "./components/module/ApiModule";
+import ApiCaseSimpleList from "./components/list/ApiCaseSimpleList";
 
-  export default {
+export default {
     name: "ApiDefinition",
     computed: {
       queryDataType: function () {
@@ -340,36 +339,7 @@
           this.$warning('用例列表暂不支持导出，请切换成接口列表');
           return;
         }
-        let obj = {projectName: this.projectId, protocol: this.currentProtocol}
-        if (this.$refs.apiList[0].selectRows && this.$refs.apiList[0].selectRows.size > 0) {
-          let arr = Array.from(this.$refs.apiList[0].selectRows);
-          obj.data = arr;
-          this.buildApiPath(obj.data);
-          downloadFile("Metersphere_Api_" + localStorage.getItem(PROJECT_NAME) + ".json", JSON.stringify(obj));
-        } else {
-          let condition = {};
-          let url = "/api/definition/list/all";
-          condition.filters = new Map(
-            [
-              ["status", ["Prepare", "Underway", "Completed"]],
-            ]
-          );
-          condition.projectId = this.projectId;
-          this.$post(url, condition, response => {
-            obj.data = response.data;
-            this.buildApiPath(obj.data);
-            downloadFile("Metersphere_Api_" + localStorage.getItem(PROJECT_NAME) + ".json", JSON.stringify(obj));
-          });
-        }
-      },
-      buildApiPath(apis) {
-        apis.forEach((api) => {
-          this.moduleOptions.forEach(item => {
-            if (api.moduleId === item.id) {
-              api.modulePath = item.path;
-            }
-          });
-        });
+        this.$refs.apiList[0].exportApi();
       },
       refresh(data) {
         this.$refs.apiList[0].initTable(data);

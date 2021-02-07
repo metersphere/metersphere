@@ -1,11 +1,11 @@
-package io.metersphere.track.domain;
+package io.metersphere.track.issue.domain;
 
 import lombok.Data;
-import java.io.Serializable;
+
 import java.util.List;
 
 @Data
-public class TapdUser implements Serializable {
+public class PlatformUser {
     private List<String> roleId;
     private String name;
     private String user;

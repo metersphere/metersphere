@@ -16,6 +16,8 @@ import io.metersphere.notice.service.NoticeSendService;
 import io.metersphere.service.IntegrationService;
 import io.metersphere.service.ProjectService;
 import io.metersphere.track.issue.*;
+import io.metersphere.track.issue.domain.PlatformUser;
+import io.metersphere.track.issue.domain.ZentaoBuild;
 import io.metersphere.track.request.testcase.IssuesRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;

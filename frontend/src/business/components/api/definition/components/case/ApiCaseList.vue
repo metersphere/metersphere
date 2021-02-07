@@ -54,8 +54,7 @@
   import {CASE_ORDER} from "../../model/JsonData";
   import {API_CASE_CONFIGS} from "@/business/components/common/components/search/search-components";
   import MsBatchEdit from "../basis/BatchEdit";
-  // import {CASE_PRIORITY, REQ_METHOD} from "../../model/JsonData";
-  import {CASE_PRIORITY,API_METHOD_COLOUR, API_STATUS, REQ_METHOD, TCP_METHOD, SQL_METHOD, DUBBO_METHOD} from "../../model/JsonData";
+  import {CASE_PRIORITY, REQ_METHOD, TCP_METHOD, SQL_METHOD, DUBBO_METHOD} from "../../model/JsonData";
 
   export default {
     name: 'ApiCaseList',
@@ -270,10 +269,13 @@
         this.singleLoading = true;
         this.singleRunId = row.id;
         row.request.name = row.id;
-        row.request.useEnvironment = this.environment.id;
-        this.runData.push(row.request);
-        /*触发执行操作*/
-        this.reportId = getUUID().substring(0, 8);
+        this.$get('/api/definition/get/' + row.request.id, response => {
+          row.request.path = response.data.path;  //  取的path是对应接口的path，因此查库以获得
+          row.request.useEnvironment = this.environment.id;
+          this.runData.push(row.request);
+          /*触发执行操作*/
+          this.reportId = getUUID().substring(0, 8);
+        });
       },
 
       batchRun() {

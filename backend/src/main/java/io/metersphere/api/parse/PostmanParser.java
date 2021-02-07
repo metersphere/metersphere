@@ -3,7 +3,6 @@ package io.metersphere.api.parse;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import io.metersphere.api.dto.ApiTestImportRequest;
-import io.metersphere.api.dto.definition.ApiDefinitionResult;
 import io.metersphere.api.dto.definition.parse.ApiDefinitionImport;
 import io.metersphere.api.dto.definition.request.MsTestElement;
 import io.metersphere.api.dto.definition.request.processors.pre.MsJSR223PreProcessor;
@@ -11,6 +10,7 @@ import io.metersphere.api.dto.definition.request.sampler.MsHTTPSamplerProxy;
 import io.metersphere.api.dto.parse.postman.*;
 import io.metersphere.api.dto.scenario.Body;
 import io.metersphere.api.dto.scenario.KeyValue;
+import io.metersphere.base.domain.ApiDefinitionWithBLOBs;
 import io.metersphere.base.domain.ApiModule;
 import io.metersphere.commons.constants.MsRequestBodyType;
 import io.metersphere.commons.constants.PostmanRequestBodyMode;
@@ -32,20 +32,20 @@ public class PostmanParser extends ApiImportAbstractParser {
         PostmanCollection postmanCollection = JSON.parseObject(testStr, PostmanCollection.class);
         List<PostmanKeyValue> variables = postmanCollection.getVariable();
         ApiDefinitionImport apiImport = new ApiDefinitionImport();
-        List<ApiDefinitionResult> results = new ArrayList<>();
+        List<ApiDefinitionWithBLOBs> results = new ArrayList<>();
         parseItem(postmanCollection.getItem(), variables, results, buildModule(getSelectModule(request.getModuleId()), postmanCollection.getInfo().getName(), request.isSaved()), request.isSaved());
         apiImport.setData(results);
         return apiImport;
     }
 
-    private void parseItem(List<PostmanItem> items, List<PostmanKeyValue> variables, List<ApiDefinitionResult> results, ApiModule parentModule, boolean isSaved) {
+    private void parseItem(List<PostmanItem> items, List<PostmanKeyValue> variables, List<ApiDefinitionWithBLOBs> results, ApiModule parentModule, boolean isSaved) {
         for (PostmanItem item : items) {
             List<PostmanItem> childItems = item.getItem();
             if (childItems != null) {
                 ApiModule module = buildModule(parentModule, item.getName() , isSaved);
                 parseItem(childItems, variables, results, module, isSaved);
             } else {
-                ApiDefinitionResult request = parsePostman(item);
+                ApiDefinitionWithBLOBs request = parsePostman(item);
                 if (request != null) {
                     results.add(request);
                 }
@@ -56,7 +56,7 @@ public class PostmanParser extends ApiImportAbstractParser {
         }
     }
 
-    private ApiDefinitionResult parsePostman(PostmanItem requestItem) {
+    private ApiDefinitionWithBLOBs parsePostman(PostmanItem requestItem) {
         PostmanRequest requestDesc = requestItem.getRequest();
         if (requestDesc == null) {
             return null;
@@ -64,7 +64,7 @@ public class PostmanParser extends ApiImportAbstractParser {
         requestDesc.getAuth(); // todo 认证方式等待优化
         PostmanUrl url = requestDesc.getUrl();
         MsHTTPSamplerProxy request = buildRequest(requestItem.getName(), url.getRaw(), requestDesc.getMethod());
-        ApiDefinitionResult apiDefinition =
+        ApiDefinitionWithBLOBs apiDefinition =
                 buildApiDefinition(request.getId(), requestItem.getName(), url.getRaw(), requestDesc.getMethod(),new ApiTestImportRequest());
         if (StringUtils.isNotBlank(request.getPath())) {
             String path = request.getPath().split("\\?")[0];
