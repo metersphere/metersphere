@@ -46,17 +46,11 @@
 </template>
 
 <script>
-import SelectMenu from "../../../track/common/SelectMenu";
-import MsAddBasisScenario from "@/business/components/api/automation/scenario/AddBasisScenario";
-import {getCurrentProjectID} from "@/common/js/utils";
-import MsNodeTree from "../../../track/common/NodeTree";
-import {buildNodePath} from "../../definition/model/NodeTree";
-import ModuleTrashButton from "../../definition/components/module/ModuleTrashButton";
+  import {getCurrentProjectID} from "@/common/js/utils";
+  import {buildNodePath} from "../../definition/model/NodeTree";
   import SelectMenu from "../../../track/common/SelectMenu";
   import MsAddBasisScenario from "@/business/components/api/automation/scenario/AddBasisScenario";
-  import {getCurrentProjectID} from "@/common/js/utils";
   import MsNodeTree from "../../../track/common/NodeTree";
-  import {buildNodePath} from "../../definition/model/NodeTree";
   import ModuleTrashButton from "../../definition/components/module/ModuleTrashButton";
   import ApiImport from "./common/ScenarioImport";
 
