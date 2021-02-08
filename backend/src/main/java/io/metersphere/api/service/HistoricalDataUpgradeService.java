@@ -84,6 +84,7 @@ public class HistoricalDataUpgradeService {
         scenario.setReferenced("Upgrade");
         scenario.setId(oldScenario.getId());
         scenario.setResourceId(UUID.randomUUID().toString());
+        scenario.setHeaders(oldScenario.getHeaders());
         LinkedList<MsTestElement> testElements = new LinkedList<>();
         int index = 1;
         for (Request request : oldScenario.getRequests()) {

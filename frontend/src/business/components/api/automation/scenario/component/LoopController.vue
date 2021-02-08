@@ -205,8 +205,8 @@
         this.loading = true;
         this.debugData = {
           id: this.currentScenario.id, name: this.currentScenario.name, type: "scenario",
-          variables: this.currentScenario.variables, referenced: 'Created', enableCookieShare: this.enableCookieShare,
-          environmentId: this.currentEnvironmentId, hashTree: [this.controller]
+          variables: this.currentScenario.variables, headers: this.currentScenario.headers,
+          referenced: 'Created', enableCookieShare: this.enableCookieShare, environmentId: this.currentEnvironmentId, hashTree: [this.controller]
         };
         this.reportId = getUUID().substring(0, 8);
       },
