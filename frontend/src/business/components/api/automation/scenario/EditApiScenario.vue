@@ -196,7 +196,7 @@
       </el-drawer>
 
       <!--场景公共参数-->
-      <ms-variable-list @setVariables="setVariables" ref="scenarioParameters"/>
+      <ms-variable-list @setVariables="setVariables" ref="scenarioParameters" class="ms-sc-variable-header"/>
       <!--外部导入-->
       <api-import ref="apiImport" :saved="false" @refresh="apiImport"/>
     </div>
@@ -1083,5 +1083,8 @@
     color: #7C3985;
     content: "\e722";
     font-size: 20px;
+  }
+  .ms-sc-variable-header >>> .el-dialog__body {
+    padding: 0px 20px;
   }
 </style>

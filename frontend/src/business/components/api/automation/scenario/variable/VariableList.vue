@@ -66,13 +66,13 @@
         <!-- 请求头-->
         <el-tooltip class="item-tabs" effect="dark" :content="$t('api_test.request.headers')" placement="top-start" slot="label">
           <span>{{$t('api_test.request.headers')}}
-            <div class="el-step__icon is-text ms-api-col ms-header" v-if="headers.length>1">
+            <div class="el-step__icon is-text ms-api-col ms-variable-header" v-if="headers.length>1">
               <div class="el-step__icon-inner">{{headers.length-1}}</div>
             </div>
           </span>
         </el-tooltip>
         <el-row>
-          <el-link class="ms-el-link" @click="batchAdd" style="color: #783887"> {{$t("commons.batch_add")}}</el-link>
+          <el-link class="ms-variable-link" @click="batchAdd" style="color: #783887"> {{$t("commons.batch_add")}}</el-link>
         </el-row>
         <div style="min-height: 400px">
           <ms-api-key-value :items="headers"/>
@@ -271,26 +271,14 @@
     display: none;
   }
 
-  .ms-query {
+  .ms-variable-header {
     background: #783887;
     color: white;
     height: 18px;
     border-radius: 42%;
   }
 
-  .ms-header {
-    background: #783887;
-    color: white;
-    height: 18px;
-    border-radius: 42%;
-  }
-
-  .request-tabs {
-    margin: 20px;
-    min-height: 200px;
-  }
-
-  .ms-el-link {
+  .ms-variable-link {
     float: right;
     margin-right: 45px;
   }
