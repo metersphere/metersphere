@@ -384,12 +384,16 @@ export default {
       param.userId=getCurrentUser().id;
       param.type=TEST_CASE_LIST
       this.result=this.$post('/system/header/info',param,response=>{
-        console.log(response.data)
-        /*if(response.data){
-          this.tableLabel=response.data.props
+        if(response.data){
+          response.data.map((v,i)=>{
+            if(this.tableLabel [i]){
+              this.tableLabel [i].prop=v
+            }
+          })
+          console.log(this.tableLabel)
         }else{
           this.tableLabel=Track_Test_Case
-        }*/
+        }
 
       })
     },
