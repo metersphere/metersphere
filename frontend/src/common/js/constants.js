@@ -1,3 +1,4 @@
+export const TEST_CASE_LIST='test_case_list'
 export const TokenKey = 'Admin-Token';
 export const LicenseKey = 'License';
 export const DEFAULT_LANGUAGE = 'default_language';

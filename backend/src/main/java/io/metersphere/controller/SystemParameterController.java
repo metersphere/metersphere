@@ -1,8 +1,10 @@
 package io.metersphere.controller;
 
 import io.metersphere.base.domain.SystemParameter;
+import io.metersphere.base.domain.UserHeader;
 import io.metersphere.commons.constants.ParamConstants;
 import io.metersphere.commons.constants.RoleConstants;
+import io.metersphere.controller.request.HeaderRequest;
 import io.metersphere.dto.BaseSystemConfigDTO;
 import io.metersphere.ldap.domain.LdapInfo;
 import io.metersphere.notice.domain.MailInfo;
@@ -67,4 +69,13 @@ public class SystemParameterController {
         return SystemParameterService.getLdapInfo(ParamConstants.Classify.LDAP.getValue());
     }
 
+    @PostMapping("save/header")
+    public void saveHeader(@RequestBody UserHeader userHeader) {
+        SystemParameterService.saveHeader(userHeader);
+    }
+
+    @PostMapping("/header/info")
+    public UserHeader getHeaderInfo(@RequestBody HeaderRequest headerRequest) {
+        return SystemParameterService.queryUserHeader(headerRequest);
+    }
 }
