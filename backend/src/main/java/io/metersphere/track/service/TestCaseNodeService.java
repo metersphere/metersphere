@@ -180,14 +180,16 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
         List<String> projectIds = testPlanProjectService.getProjectIdsByPlanId(planId);
         projectIds.forEach(id -> {
             Project project = projectMapper.selectByPrimaryKey(id);
-            String name = project.getName();
-            List<TestCaseNodeDTO> nodeList = getNodeDTO(id, planId);
-            TestCaseNodeDTO testCaseNodeDTO = new TestCaseNodeDTO();
-            testCaseNodeDTO.setId(project.getId());
-            testCaseNodeDTO.setName(name);
-            testCaseNodeDTO.setLabel(name);
-            testCaseNodeDTO.setChildren(nodeList);
-            list.add(testCaseNodeDTO);
+            if (project != null) {
+                String name = project.getName();
+                List<TestCaseNodeDTO> nodeList = getNodeDTO(id, planId);
+                TestCaseNodeDTO testCaseNodeDTO = new TestCaseNodeDTO();
+                testCaseNodeDTO.setId(project.getId());
+                testCaseNodeDTO.setName(name);
+                testCaseNodeDTO.setLabel(name);
+                testCaseNodeDTO.setChildren(nodeList);
+                list.add(testCaseNodeDTO);
+            }
         });
 
         return list;
