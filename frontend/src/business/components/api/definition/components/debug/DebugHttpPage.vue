@@ -199,7 +199,7 @@
       },
       urlChange() {
         if (!this.debugForm.url) return;
-        let url = this.getURL(this.debugForm.url);
+        let url = this.getURL(this.addProtocol(this.debugForm.url));
         if (url && url.pathname) {
           if (this.debugForm.url.indexOf('?') != -1) {
             this.debugForm.url = decodeURIComponent(this.debugForm.url.substr(0, this.debugForm.url.indexOf("?")));
@@ -210,7 +210,14 @@
         }
 
       },
-
+      addProtocol(url) {
+        if (url) {
+          if (!url.toLowerCase().startsWith("https") && !url.toLowerCase().startsWith("http")) {
+            return "https://" + url;
+          }
+        }
+        return url;
+      },
       getURL(urlStr) {
         try {
           let url = new URL(urlStr);
