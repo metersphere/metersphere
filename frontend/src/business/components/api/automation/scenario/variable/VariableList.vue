@@ -83,7 +83,6 @@
     <template v-slot:footer>
       <div>
         <el-button type="primary" @click="save">{{$t('commons.confirm')}}</el-button>
-        <el-button style="margin-right:10px" @click="save">{{$t('commons.cancel')}}</el-button>
       </div>
     </template>
   </el-dialog>
