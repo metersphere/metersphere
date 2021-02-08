@@ -26,7 +26,7 @@
             <ms-api-extract-common :is-read-only="isReadOnly" :extract-type="type" :list="list" v-if="type" :callback="after"/>
           </el-col>
 
-          <el-button v-if="!type" :disabled="true" type="primary" size="small">Add</el-button>
+          <el-button v-if="!type" :disabled="true" type="primary" size="small">{{$t('commons.add')}}</el-button>
         </el-row>
       </div>
 
