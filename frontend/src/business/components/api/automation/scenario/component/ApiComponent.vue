@@ -248,8 +248,8 @@
         this.request.customizeReq = this.isCustomizeReq;
         let debugData = {
           id: this.currentScenario.id, name: this.currentScenario.name, type: "scenario",
-          variables: this.currentScenario.variables, referenced: 'Created', enableCookieShare: this.enableCookieShare,
-          environmentId: this.currentEnvironmentId, hashTree: [this.request]
+          variables: this.currentScenario.variables, referenced: 'Created', headers: this.currentScenario.headers,
+          enableCookieShare: this.enableCookieShare, environmentId: this.currentEnvironmentId, hashTree: [this.request]
         };
         this.runData.push(debugData);
         /*触发执行操作*/

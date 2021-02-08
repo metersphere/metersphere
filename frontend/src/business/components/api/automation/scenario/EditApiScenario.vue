@@ -106,7 +106,7 @@
                 </el-col>
                 <el-col :span="3" class="ms-col-one ms-font">
                   <el-link class="head" @click="showScenarioParameters">{{$t('api_test.automation.scenario_total')}}</el-link>
-                  ：{{this.currentScenario.variables!=undefined?this.currentScenario.variables.length: 0}}
+                  ：{{getVariableSize()}}
                 </el-col>
                 <el-col :span="3" class="ms-col-one ms-font">
                   <el-checkbox v-model="enableCookieShare">共享cookie</el-checkbox>
@@ -427,8 +427,9 @@
       getIdx(index) {
         return index - 0.33
       },
-      setVariables(v) {
+      setVariables(v, headers) {
         this.currentScenario.variables = v;
+        this.currentScenario.headers = headers;
         if (this.path.endsWith("/update")) {
           // 直接更新场景防止编辑内容丢失
           this.editScenario();
@@ -679,7 +680,7 @@
             this.editScenario();
             this.debugData = {
               id: this.currentScenario.id, name: this.currentScenario.name, type: "scenario",
-              variables: this.currentScenario.variables, referenced: 'Created', enableCookieShare: this.enableCookieShare,
+              variables: this.currentScenario.variables, referenced: 'Created', enableCookieShare: this.enableCookieShare, headers: this.currentScenario.headers,
               environmentId: this.currentEnvironmentId, hashTree: this.scenarioDefinition
             };
             this.reportId = getUUID().substring(0, 8);
@@ -863,6 +864,9 @@
         if (!this.currentScenario.variables) {
           this.currentScenario.variables = [];
         }
+        if (!this.currentScenario.headers) {
+          this.currentScenario.headers = [];
+        }
         if (this.currentScenario.id) {
           this.result = this.$get("/api/automation/getApiScenario/" + this.currentScenario.id, response => {
             if (response.data) {
@@ -887,6 +891,9 @@
                       }
                     })
                   }
+                  if (obj.headers) {
+                    this.currentScenario.headers = obj.headers;
+                  }
                   this.enableCookieShare = obj.enableCookieShare;
                   this.scenarioDefinition = obj.hashTree;
                 }
@@ -905,8 +912,9 @@
         this.currentScenario.modulePath = this.getPath(this.currentScenario.apiScenarioModuleId);
         // 构建一个场景对象 方便引用处理
         let scenario = {
-          id: this.currentScenario.id, enableCookieShare: this.enableCookieShare, name: this.currentScenario.name, variables: this.currentScenario.variables,
-          type: "scenario", referenced: 'Created', environmentId: this.currentEnvironmentId, hashTree: this.scenarioDefinition
+          id: this.currentScenario.id, enableCookieShare: this.enableCookieShare, name: this.currentScenario.name, type: "scenario",
+          variables: this.currentScenario.variables, headers: this.currentScenario.headers,
+          referenced: 'Created', environmentId: this.currentEnvironmentId, hashTree: this.scenarioDefinition
         };
         this.currentScenario.scenarioDefinition = scenario;
         if (this.currentScenario.tags instanceof Array) {
@@ -924,7 +932,7 @@
         this.loading = false;
       },
       showScenarioParameters() {
-        this.$refs.scenarioParameters.open(this.currentScenario.variables);
+        this.$refs.scenarioParameters.open(this.currentScenario.variables, this.currentScenario.headers);
       },
       apiImport(importData) {
         if (importData && importData.data) {
@@ -934,6 +942,16 @@
           this.sort();
           this.reload();
         }
+      },
+      getVariableSize() {
+        let size = 0;
+        if (this.currentScenario.variables) {
+          size += this.currentScenario.variables.length;
+        }
+        if (this.currentScenario.headers && this.currentScenario.headers.length > 1) {
+          size += this.currentScenario.headers.length - 1;
+        }
+        return size;
       }
     }
   }
