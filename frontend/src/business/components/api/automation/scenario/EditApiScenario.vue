@@ -393,7 +393,7 @@
           },
           {
             title: this.$t('api_test.automation.scenario_import'),
-            show: this.operatingElements.indexOf('scenario') === 0,
+            show: this.operatingElements && this.operatingElements.indexOf('scenario') === 0,
             titleColor: "#606266",
             titleBgColor: "#F4F4F5",
             icon: "movie",
@@ -437,7 +437,7 @@
       },
       showButton(...names) {
         for (const name of names) {
-          if (this.operatingElements.includes(name)) {
+          if (name && this.operatingElements && this.operatingElements.includes(name)) {
             return true;
           }
         }

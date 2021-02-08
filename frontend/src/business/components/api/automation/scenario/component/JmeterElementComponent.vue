@@ -34,7 +34,7 @@
       request: {
         type: Object,
       },
-      defTitle: {type: String, default: "Jmeter组建"},
+      defTitle: {type: String, default: "Jmeter组件"},
       defColor: {type: String, default: "#606260"},
       defBackgroundColor: {type: String, default: "#F4F4FF"},
       node: {},
