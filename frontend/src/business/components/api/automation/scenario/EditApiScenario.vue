@@ -503,7 +503,7 @@
         this.sort();
       },
       nodeClick(data, node) {
-        if (data.referenced != 'REF' && data.referenced != 'Deleted') {
+        if (data.referenced != 'REF' && data.referenced != 'Deleted' && !data.disabled) {
           this.operatingElements = ELEMENTS.get(data.type);
         } else {
           this.operatingElements = [];
