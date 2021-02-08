@@ -148,7 +148,9 @@ export default {
           },
           tooltip: {
             show: true,
-            trigger: 'axis'
+            trigger: 'axis',
+            // extraCssText: 'z-index: 999;',
+            confine: true,
           },
           legend: {},
           xAxis: {},
@@ -226,7 +228,8 @@ export default {
           tooltip: {
             show: true,
             trigger: 'axis',
-            extraCssText: 'z-index: 999;',
+            // extraCssText: 'z-index: 999;',
+            confine: true,
             formatter: function (params, ticket, callback) {
               let result = "";
               let name = params[0].name;
@@ -306,7 +309,8 @@ export default {
           tooltip: {
             show: true,
             trigger: 'axis',
-            extraCssText: 'z-index: 999;',
+            // extraCssText: 'z-index: 999;',
+            confine: true,
             formatter: function (params, ticket, callback) {
               let result = "";
               let name = params[0].name;
@@ -376,7 +380,8 @@ export default {
           tooltip: {
             show: true,
             trigger: 'axis',
-            extraCssText: 'z-index: 999;',
+            // extraCssText: 'z-index: 999;',
+            confine: true,
             formatter: function (params, ticket, callback) {
               let result = "";
               let name = params[0].name;
