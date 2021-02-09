@@ -332,7 +332,7 @@ public class MsJmeterParser extends ScenarioImportAbstractParser {
 
     private void jmterHashTree(HashTree tree, MsTestElement scenario) {
         for (Object key : tree.keySet()) {
-            MsTestElement elementNode = null;
+            MsTestElement elementNode;
             if (CollectionUtils.isEmpty(scenario.getHashTree())) {
                 scenario.setHashTree(new LinkedList<>());
             }
