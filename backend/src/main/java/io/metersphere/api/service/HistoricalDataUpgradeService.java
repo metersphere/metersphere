@@ -7,6 +7,7 @@ import io.metersphere.api.dto.SaveHistoricalDataUpgrade;
 import io.metersphere.api.dto.automation.ScenarioStatus;
 import io.metersphere.api.dto.definition.request.MsScenario;
 import io.metersphere.api.dto.definition.request.MsTestElement;
+import io.metersphere.api.dto.definition.request.assertions.MsAssertionDuration;
 import io.metersphere.api.dto.definition.request.assertions.MsAssertions;
 import io.metersphere.api.dto.definition.request.controller.MsIfController;
 import io.metersphere.api.dto.definition.request.extract.MsExtract;
@@ -203,6 +204,23 @@ public class HistoricalDataUpgradeService {
                 if (StringUtils.isEmpty(msAssertions.getName())) {
                     msAssertions.setName("Assertions");
                 }
+                // 给初始值
+                if (msAssertions.getDuration() == null) {
+                    msAssertions.setDuration(new MsAssertionDuration());
+                }
+                if (CollectionUtils.isEmpty(msAssertions.getJsr223())) {
+                    msAssertions.setJsr223(new LinkedList<>());
+                }
+                if (CollectionUtils.isEmpty(msAssertions.getXpath2())) {
+                    msAssertions.setXpath2(new LinkedList<>());
+                }
+                if (CollectionUtils.isEmpty(msAssertions.getJsonPath())) {
+                    msAssertions.setJsonPath(new LinkedList<>());
+                }
+                if (CollectionUtils.isEmpty(msAssertions.getRegex())) {
+                    msAssertions.setRegex(new LinkedList<>());
+                }
+
                 msAssertions.setType("Assertions");
                 msAssertions.setIndex(index + "");
                 msAssertions.setResourceId(UUID.randomUUID().toString());
@@ -216,6 +234,16 @@ public class HistoricalDataUpgradeService {
                 MsExtract extract = JSON.parseObject(extractJson, MsExtract.class);
                 if (StringUtils.isEmpty(extract.getName())) {
                     extract.setName("Extract");
+                }
+                // 默认给初始值
+                if (CollectionUtils.isEmpty(extract.getJson())) {
+                    extract.setJson(new LinkedList<>());
+                }
+                if (CollectionUtils.isEmpty(extract.getXpath())) {
+                    extract.setXpath(new LinkedList<>());
+                }
+                if (CollectionUtils.isEmpty(extract.getRegex())) {
+                    extract.setRegex(new LinkedList<>());
                 }
                 extract.setType("Extract");
                 extract.setIndex(index + "");
