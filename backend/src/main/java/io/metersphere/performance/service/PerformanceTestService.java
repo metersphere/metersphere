@@ -21,6 +21,7 @@ import io.metersphere.i18n.Translator;
 import io.metersphere.job.sechedule.PerformanceTestJob;
 import io.metersphere.performance.engine.Engine;
 import io.metersphere.performance.engine.EngineFactory;
+import io.metersphere.performance.engine.producer.LoadTestProducer;
 import io.metersphere.service.FileService;
 import io.metersphere.service.QuotaService;
 import io.metersphere.service.ScheduleService;
@@ -75,6 +76,8 @@ public class PerformanceTestService {
     private TestCaseService testCaseService;
     @Resource
     private TestResourcePoolMapper testResourcePoolMapper;
+    @Resource
+    private LoadTestProducer loadTestProducer;
 
     public List<LoadTestDTO> list(QueryTestPlanRequest request) {
         request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
@@ -437,6 +440,8 @@ public class PerformanceTestService {
             reportService.deleteReport(reportId);
         } else {
             stopEngine(reportId);
+            // 发送测试停止消息
+            loadTestProducer.sendMessage(reportId);
             // 停止测试之后设置报告的状态
             reportService.updateStatus(reportId, PerformanceTestStatus.Completed.name());
         }
