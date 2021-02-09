@@ -31,13 +31,13 @@ import io.metersphere.api.dto.definition.request.timer.MsConstantTimer;
 import io.metersphere.api.dto.definition.request.unknown.MsJmeterElement;
 import io.metersphere.api.dto.scenario.Body;
 import io.metersphere.api.dto.scenario.KeyValue;
+import io.metersphere.api.dto.scenario.request.BodyFile;
 import io.metersphere.api.dto.scenario.request.RequestType;
 import io.metersphere.base.domain.ApiScenarioModule;
 import io.metersphere.base.domain.ApiScenarioWithBLOBs;
 import io.metersphere.commons.constants.LoopConstants;
 import io.metersphere.commons.utils.BeanUtils;
 import org.apache.commons.collections.CollectionUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.assertions.*;
 import org.apache.jmeter.config.ConfigTestElement;
 import org.apache.jmeter.control.ForeachController;
@@ -121,21 +121,37 @@ public class MsJmeterParser extends ScenarioImportAbstractParser {
                 samplerProxy.getBody().setType(Body.FORM_DATA);
                 List<KeyValue> keyValues = new LinkedList<>();
                 for (HTTPFileArg arg : source.getHTTPFiles()) {
-                    KeyValue keyValue = new KeyValue(arg.getProperty("Argument.name").toString(), arg.getProperty("Argument.value").toString());
+                    List<BodyFile> files = new LinkedList<>();
+                    BodyFile file = new BodyFile();
+                    file.setId(arg.getParamName());
+                    file.setName(arg.getPath());
+                    files.add(file);
+
+                    KeyValue keyValue = new KeyValue(arg.getParamName(), arg.getParamName());
                     keyValue.setContentType(arg.getProperty("HTTPArgument.content_type").toString());
+                    keyValue.setType("file");
+                    keyValue.setFiles(files);
                     keyValues.add(keyValue);
                 }
                 samplerProxy.getBody().setKvs(keyValues);
             }
             samplerProxy.setProtocol(RequestType.HTTP);
+            samplerProxy.setPort(source.getPort() + "");
             if (source.getArguments() != null) {
-                List<KeyValue> keyValues = new LinkedList<>();
-                source.getArguments().getArgumentsAsMap().forEach((k, v) -> {
-                    KeyValue keyValue = new KeyValue(k, v);
-                    keyValues.add(keyValue);
-                });
-                if (CollectionUtils.isNotEmpty(keyValues)) {
-                    samplerProxy.setArguments(keyValues);
+                if (source.getPostBodyRaw()) {
+                    samplerProxy.getBody().setType(Body.RAW);
+                    source.getArguments().getArgumentsAsMap().forEach((k, v) -> {
+                        samplerProxy.getBody().setRaw(v);
+                    });
+                } else {
+                    List<KeyValue> keyValues = new LinkedList<>();
+                    source.getArguments().getArgumentsAsMap().forEach((k, v) -> {
+                        KeyValue keyValue = new KeyValue(k, v);
+                        keyValues.add(keyValue);
+                    });
+                    if (CollectionUtils.isNotEmpty(keyValues)) {
+                        samplerProxy.setArguments(keyValues);
+                    }
                 }
             }
             samplerProxy.setPath(source.getPath());
@@ -151,7 +167,7 @@ public class MsJmeterParser extends ScenarioImportAbstractParser {
     }
 
     private void convertTCPSampler(MsTCPSampler msTCPSampler, TCPSampler tcpSampler) {
-        tcpSampler.setName(tcpSampler.getName());
+        msTCPSampler.setName(tcpSampler.getName());
         msTCPSampler.setType("TCPSampler");
         msTCPSampler.setServer(tcpSampler.getServer());
         msTCPSampler.setPort(tcpSampler.getPort() + "");
@@ -226,10 +242,11 @@ public class MsJmeterParser extends ScenarioImportAbstractParser {
         msJDBCSampler.setType("JDBCSampler");
         msJDBCSampler.setName(jdbcSampler.getName());
         msJDBCSampler.setProtocol("SQL");
-        msJDBCSampler.setQuery(jdbcSampler.getQuery());
-        msJDBCSampler.setQueryTimeout(StringUtils.isNotEmpty(jdbcSampler.getQueryTimeout()) ? Long.parseLong(jdbcSampler.getQueryTimeout()) : 0L);
-        msJDBCSampler.setResultVariable(jdbcSampler.getResultVariable());
-        msJDBCSampler.setVariableNames(jdbcSampler.getVariableNames());
+        msJDBCSampler.setQuery(jdbcSampler.getPropertyAsString("query"));
+        msJDBCSampler.setQueryTimeout(jdbcSampler.getPropertyAsInt("queryTimeout"));
+        msJDBCSampler.setResultVariable(jdbcSampler.getPropertyAsString("resultVariable"));
+        msJDBCSampler.setVariableNames(jdbcSampler.getPropertyAsString("variableNames"));
+        msJDBCSampler.setVariables(new LinkedList<>());
     }
 
     private void convertMsExtract(MsExtract extract, Object key) {
@@ -370,22 +387,30 @@ public class MsJmeterParser extends ScenarioImportAbstractParser {
                 elementNode = new MsJDBCSampler();
                 JDBCSampler jdbcSampler = (JDBCSampler) key;
                 convertJDBCSampler((MsJDBCSampler) elementNode, jdbcSampler);
-            } else if (key instanceof JSR223Sampler) {
+            }
+            // JSR自定义脚本
+            else if (key instanceof JSR223Sampler) {
                 JSR223Sampler jsr223Sampler = (JSR223Sampler) key;
                 elementNode = new MsJSR223Processor();
                 BeanUtils.copyBean(elementNode, jsr223Sampler);
+                ((MsJSR223Processor) elementNode).setScript(jsr223Sampler.getPropertyAsString("script"));
+                ((MsJSR223Processor) elementNode).setScriptLanguage(jsr223Sampler.getPropertyAsString("scriptLanguage"));
             }
             // 后置脚本
             else if (key instanceof JSR223PostProcessor) {
                 JSR223PostProcessor jsr223Sampler = (JSR223PostProcessor) key;
                 elementNode = new MsJSR223PostProcessor();
                 BeanUtils.copyBean(elementNode, jsr223Sampler);
+                ((MsJSR223Processor) elementNode).setScript(jsr223Sampler.getPropertyAsString("script"));
+                ((MsJSR223Processor) elementNode).setScriptLanguage(jsr223Sampler.getPropertyAsString("scriptLanguage"));
             }
             // 前置脚本
             else if (key instanceof JSR223PreProcessor) {
                 JSR223PreProcessor jsr223Sampler = (JSR223PreProcessor) key;
                 elementNode = new MsJSR223PreProcessor();
                 BeanUtils.copyBean(elementNode, jsr223Sampler);
+                ((MsJSR223Processor) elementNode).setScript(jsr223Sampler.getPropertyAsString("script"));
+                ((MsJSR223Processor) elementNode).setScriptLanguage(jsr223Sampler.getPropertyAsString("scriptLanguage"));
             }
             // 提取参数
             else if (key instanceof ResponseAssertion || key instanceof JSONPathAssertion || key instanceof XPath2Assertion || key instanceof JSR223Assertion || key instanceof DurationAssertion) {
