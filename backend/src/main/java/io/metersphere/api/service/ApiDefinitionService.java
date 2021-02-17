@@ -550,10 +550,6 @@ public class ApiDefinitionService {
     }
 
     public void editApiByParam(ApiBatchRequest request) {
-        List<String> ids = request.getIds();
-        if (request.isSelectAllDate()) {
-            ids = this.getAllApiIdsByFontedSelect(request.getFilters(), request.getName(), request.getModuleIds(), request.getProjectId(), request.getUnSelectIds(), request.getProtocol());
-        }
         //name在这里只是查询参数
         request.setName(null);
         ApiDefinitionWithBLOBs definitionWithBLOBs = new ApiDefinitionWithBLOBs();
@@ -609,15 +605,6 @@ public class ApiDefinitionService {
         return apiDefinitionMapper.selectByExample(example);
     }
 
-    public void deleteByParams(ApiDefinitionBatchProcessingRequest request) {
-        List<String> apiIds = request.getDataIds();
-        if (request.isSelectAllDate()) {
-            apiIds = this.getAllApiIdsByFontedSelect(request.getFilters(), request.getName(), request.getModuleIds(), request.getProjectId(), request.getUnSelectIds(), request.getProtocol());
-        }
-        ApiDefinitionExample example = new ApiDefinitionExample();
-        example.createCriteria().andIdIn(apiIds);
-        apiDefinitionMapper.deleteByExample(example);
-    }
     public void deleteByParams(ApiBatchRequest request) {
         apiDefinitionMapper.deleteByExample(getBatchExample(request));
     }
@@ -647,16 +634,11 @@ public class ApiDefinitionService {
         return ids;
     }
 
-    public void removeToGcByParams(ApiDefinitionBatchProcessingRequest request) {
-        List<String> apiIds = request.getDataIds();
-        if (request.isSelectAllDate()) {
-            apiIds = this.getAllApiIdsByFontedSelect(request.getFilters(), request.getName(), request.getModuleIds(), request.getProjectId(), request.getUnSelectIds(), request.getProtocol());
-        }
-        extApiDefinitionMapper.removeToGc(apiIds);
+    public void removeToGcByParams(ApiBatchRequest request) {
+        ServiceUtils.getSelectAllIds(request, request.getCondition(),
+                (query) -> extApiDefinitionMapper.selectIds(query));
+        extApiDefinitionMapper.removeToGc(request.getIds());
     }
-    ApiDefinitionExample example = new ApiDefinitionExample();
-        example.createCriteria().andIdIn(apiIds);
-        apiDefinitionMapper.deleteByExample(example);
 
     public List<ApiDefinitionResult> listRelevance(ApiDefinitionRequest request) {
         request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
