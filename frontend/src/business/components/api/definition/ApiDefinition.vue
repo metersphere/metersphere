@@ -26,7 +26,7 @@
                      :name="item.name">
           <!-- 列表集合 -->
           <ms-api-list
-            v-if="item.type === 'list' && isApiListEnable"
+            v-if="item.type === 'list' && activeDom==='api' "
             :module-tree="nodeTree"
             :module-options="moduleOptions"
             :current-protocol="currentProtocol"
@@ -35,29 +35,42 @@
             :select-node-ids="selectNodeIds"
             :trash-enable="trashEnable"
             :is-api-list-enable="isApiListEnable"
+            :active-dom="activeDom"
             :queryDataType="queryDataType"
             :selectDataRange="selectDataRange"
             @changeSelectDataRangeAll="changeSelectDataRangeAll"
             @editApi="editApi"
             @handleCase="handleCase"
             @showExecResult="showExecResult"
+            @activeDomChange="activeDomChange"
             @isApiListEnableChange="isApiListEnableChange"
             ref="apiList"/>
           <!--测试用例列表-->
           <api-case-simple-list
-            v-if="item.type === 'list' && !isApiListEnable"
+            v-if="item.type === 'list' && activeDom==='testCase' "
             :current-protocol="currentProtocol"
             :visible="visible"
             :currentRow="currentRow"
             :select-node-ids="selectNodeIds"
             :trash-enable="trashEnable"
             :is-api-list-enable="isApiListEnable"
+            :active-dom="activeDom"
             :queryDataType="queryDataType"
             @changeSelectDataRangeAll="changeSelectDataRangeAll"
             @isApiListEnableChange="isApiListEnableChange"
+            @activeDomChange="activeDomChange"
             @handleCase="handleCase"
             @showExecResult="showExecResult"
             ref="apiList"/>
+          <api-documents-page class="api-doc-page"
+            v-if="item.type === 'list' && activeDom==='doc' "
+            :is-api-list-enable="isApiListEnable"
+            :active-dom="activeDom"
+            :project-id="projectId"
+            :module-ids="selectNodeIds"
+            @activeDomChange="activeDomChange"
+            @isApiListEnableChange="isApiListEnableChange"
+          />
 
           <!-- 添加/编辑测试窗口-->
           <div v-else-if="item.type=== 'ADD'" class="ms-api-div">
@@ -132,7 +145,9 @@ import {getCurrentProjectID, getCurrentUser, getUUID} from "@/common/js/utils";
 import MsApiModule from "./components/module/ApiModule";
 import ApiCaseSimpleList from "./components/list/ApiCaseSimpleList";
 
-export default {
+  import ApiDocumentsPage from "@/business/components/api/definition/components/list/ApiDocumentsPage";
+
+  export default {
     name: "ApiDefinition",
     computed: {
       queryDataType: function () {
@@ -141,8 +156,10 @@ export default {
         this.changeRedirectParam(redirectIDParam);
         if (routeParam === 'apiTestCase') {
           this.isApiListEnableChange(false);
+          this.activeDomChange("testCase");
         } else {
           this.isApiListEnableChange(true);
+          this.activeDomChange("api");
         }
         return routeParam;
       },
@@ -162,7 +179,8 @@ export default {
       MsDebugDubboPage,
       MsRunTestTcpPage,
       MsRunTestSqlPage,
-      MsRunTestDubboPage
+      MsRunTestDubboPage,
+      ApiDocumentsPage
     },
     props: {
       visible: {
@@ -193,6 +211,7 @@ export default {
           closable: false
         }],
         isApiListEnable: true,
+        activeDom: "testCase",
         syncTabs: [],
         projectId: "",
         nodeTree: []
@@ -229,6 +248,9 @@ export default {
       },
       isApiListEnableChange(data) {
         this.isApiListEnable = data;
+      },
+      activeDomChange(tabType){
+        this.activeDom = tabType;
       },
       addTab(tab) {
         if (tab.name === 'add') {
