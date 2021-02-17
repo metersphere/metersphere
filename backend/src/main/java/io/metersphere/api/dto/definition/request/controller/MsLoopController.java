@@ -123,13 +123,13 @@ public class MsLoopController extends MsTestElement {
         }
 
         if (StringUtils.equals(operator, "is empty")) {
-            variable = "!empty(" + variable + ")";
+            variable = variable + "==" + "\"\\" + this.whileController.getVariable() + "\"" + "|| empty(" + variable + ")";
             operator = "";
             value = "";
         }
 
         if (StringUtils.equals(operator, "is not empty")) {
-            variable = "empty(" + variable + ")";
+            variable = variable + "!=" + "\"\\" + this.whileController.getVariable() + "\"" + "&& !empty(" + variable + ")";
             operator = "";
             value = "";
         }

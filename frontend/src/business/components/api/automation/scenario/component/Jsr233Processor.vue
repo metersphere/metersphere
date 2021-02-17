@@ -2,11 +2,12 @@
   <api-base-component
     @copy="copyRow"
     @remove="remove"
+    @active="active"
     :data="jsr223Processor"
     :draggable="draggable"
     :color="color"
     :background-color="backgroundColor"
-    :title="title">
+    :title="title" v-loading="loading">
 
     <jsr233-processor-content
       :jsr223-processor="jsr223Processor"
@@ -50,12 +51,25 @@
       backgroundColor: String,
       node: {},
     },
+    data() {
+      return {loading: false}
+    },
     methods: {
       remove() {
         this.$emit('remove', this.jsr223Processor, this.node);
       },
       copyRow() {
         this.$emit('copyRow', this.jsr223Processor, this.node);
+      },
+      reload() {
+        this.loading = true
+        this.$nextTick(() => {
+          this.loading = false
+        })
+      },
+      active() {
+        this.jsr223Processor.active = !this.jsr223Processor.active;
+        this.reload();
       },
     }
   }

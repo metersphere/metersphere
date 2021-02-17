@@ -3,6 +3,7 @@
     v-loading="loading"
     @copy="copyRow"
     @remove="remove"
+    @active="active"
     :data="scenario"
     :show-collapse="false"
     :is-show-name-input="!isDeletedOrRef"

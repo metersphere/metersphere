@@ -38,7 +38,7 @@ import org.apache.jorphan.collections.ListedHashTree;
 import org.aspectj.util.FileUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
+import org.apache.commons.collections.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
@@ -72,7 +72,7 @@ public class ApiTestCaseService {
     @Resource
     private ApiDefinitionExecResultMapper apiDefinitionExecResultMapper;
     @Resource
-    TestPlanApiCaseMapper testPlanApiCaseMapper;
+    private TestPlanApiCaseMapper testPlanApiCaseMapper;
 
     private static final String BODY_FILE_DIR = "/opt/metersphere/data/body";
 
@@ -136,7 +136,7 @@ public class ApiTestCaseService {
     public ApiTestCase create(SaveApiTestCaseRequest request, List<MultipartFile> bodyFiles) {
         List<String> bodyUploadIds = new ArrayList<>(request.getBodyUploadIds());
         ApiTestCase test = createTest(request);
-        createBodyFiles(test, bodyUploadIds, bodyFiles);
+        FileUtils.createBodyFiles(bodyUploadIds, bodyFiles);
         return test;
     }
 
@@ -152,29 +152,8 @@ public class ApiTestCaseService {
         List<String> bodyUploadIds = new ArrayList<>(request.getBodyUploadIds());
         request.setBodyUploadIds(null);
         ApiTestCase test = updateTest(request);
-        createBodyFiles(test, bodyUploadIds, bodyFiles);
+        FileUtils.createBodyFiles(bodyUploadIds, bodyFiles);
         return test;
-    }
-
-    private void createBodyFiles(ApiTestCase test, List<String> bodyUploadIds, List<MultipartFile> bodyFiles) {
-        if (bodyUploadIds.size() > 0) {
-            String dir = BODY_FILE_DIR + "/" + test.getId();
-            File testDir = new File(dir);
-            if (!testDir.exists()) {
-                testDir.mkdirs();
-            }
-            for (int i = 0; i < bodyUploadIds.size(); i++) {
-                MultipartFile item = bodyFiles.get(i);
-                File file = new File(testDir + "/" + bodyUploadIds.get(i) + "_" + item.getOriginalFilename());
-                try (InputStream in = item.getInputStream(); OutputStream out = new FileOutputStream(file)) {
-                    file.createNewFile();
-                    FileUtil.copyStream(in, out);
-                } catch (IOException e) {
-                    LogUtil.error(e);
-                    MSException.throwException(Translator.get("upload_fail"));
-                }
-            }
-        }
     }
 
     public void delete(String testId) {
@@ -279,19 +258,14 @@ public class ApiTestCaseService {
         }
     }
 
-    private void saveFile(String testId, MultipartFile file) {
-        final FileMetadata fileMetadata = fileService.saveFile(file);
-        ApiTestFile apiTestFile = new ApiTestFile();
-        apiTestFile.setTestId(testId);
-        apiTestFile.setFileId(fileMetadata.getId());
-        apiTestFileMapper.insert(apiTestFile);
-    }
 
     private void deleteFileByTestId(String testId) {
         ApiTestFileExample ApiTestFileExample = new ApiTestFileExample();
         ApiTestFileExample.createCriteria().andTestIdEqualTo(testId);
         final List<ApiTestFile> ApiTestFiles = apiTestFileMapper.selectByExample(ApiTestFileExample);
-        apiTestFileMapper.deleteByExample(ApiTestFileExample);
+        if (CollectionUtils.isNotEmpty(ApiTestFiles)) {
+            apiTestFileMapper.deleteByExample(ApiTestFileExample);
+        }
 
         if (!CollectionUtils.isEmpty(ApiTestFiles)) {
             final List<String> fileIds = ApiTestFiles.stream().map(ApiTestFile::getFileId).collect(Collectors.toList());

@@ -186,11 +186,11 @@
       },
       saveAsApi() {
         let data = {};
-        data.request = JSON.stringify(this.api.request);
+        let req = this.api.request;
+        req.id = getUUID();
+        data.request = JSON.stringify(req);
         data.method = this.api.method;
         data.url = this.api.url;
-        let id = getUUID();
-        data.id = id;
         data.status = this.api.status;
         data.userId = this.api.userId;
         data.description = this.api.description;
