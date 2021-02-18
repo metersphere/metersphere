@@ -7,7 +7,7 @@
           <el-input v-model="form.account" :placeholder="$t('organization.integration.input_api_account')"/>
         </el-form-item>
         <el-form-item :label="$t('organization.integration.password')" prop="password">
-          <el-input v-model="form.password" auto-complete="new-password"
+          <el-input v-model="form.password" auto-complete="new-password" v-if="showInput"
                     :placeholder="$t('organization.integration.input_api_password')" show-password/>
         </el-form-item>
         <el-form-item :label="$t('organization.integration.zentao_url')" prop="url">
@@ -20,6 +20,7 @@
                     @init="init"
                     @testConnection="testConnection"
                     @cancelIntegration="cancelIntegration"
+                    @reloadPassInput="reloadPassInput"
                     :form="form"
                     :show.sync="show"
                     ref="bugBtn"/>
@@ -55,6 +56,7 @@ export default {
   data() {
     return {
       show: true,
+      showInput: true,
       form: {},
       rules: {
         account: {
@@ -99,6 +101,7 @@ export default {
             this.$refs.bugBtn.showEdit = true;
             this.$refs.bugBtn.showSave = false;
             this.$refs.bugBtn.showCancel = false;
+            this.reloadPassInput();
             this.init();
             this.$success(this.$t('commons.save_success'));
           });
@@ -168,6 +171,12 @@ export default {
       } else {
         this.$warning(this.$t('organization.integration.not_integrated'));
       }
+    },
+    reloadPassInput() {
+      this.showInput = false;
+      this.$nextTick(function () {
+        this.showInput = true;
+      });
     }
   }
 }
