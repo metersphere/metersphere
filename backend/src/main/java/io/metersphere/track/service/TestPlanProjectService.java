@@ -62,15 +62,16 @@ public class TestPlanProjectService {
     }
 
     public List<String> getPlanIdByProjectId(String projectId) {
-        TestPlanProjectExample testPlanProjectExample = new TestPlanProjectExample();
-        testPlanProjectExample.createCriteria().andProjectIdEqualTo(projectId);
-        List<TestPlanProject> testPlanProjects = testPlanProjectMapper.selectByExample(testPlanProjectExample);
-        if (CollectionUtils.isEmpty(testPlanProjects)) {
+        TestPlanExample testPlanExample = new TestPlanExample();
+        testPlanExample.createCriteria().andProjectIdEqualTo(projectId);
+        List<TestPlan> testPlans = testPlanMapper.selectByExample(testPlanExample);
+
+        if (CollectionUtils.isEmpty(testPlans)) {
             return null;
         }
-        return testPlanProjects
+        return testPlans
                 .stream()
-                .map(TestPlanProject::getTestPlanId)
+                .map(TestPlan::getId)
                 .collect(Collectors.toList());
     }
 }

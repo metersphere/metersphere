@@ -79,17 +79,17 @@
         <el-input-number size="small" v-model="controller.whileController.timeout" :placeholder="$t('commons.millisecond')" :max="1000*10000000" :min="3000" :step="1000"/>
         <span class="ms-span ms-radio">ms</span>
       </div>
-      <p class="tip">{{$t('api_test.definition.request.res_param')}} </p>
-      <div>
-        <el-tabs v-model="activeName" closable class="ms-tabs">
-          <el-tab-pane :label="item.name" :name="item.name" v-for="(item,index) in requestResult.scenarios" :key="index">
-            <div v-for="(result,i) in item.requestResults" :key="i" style="margin-bottom: 5px">
-              <api-response-component :result="result"/>
-            </div>
-          </el-tab-pane>
-        </el-tabs>
+      <!--<p class="tip">{{$t('api_test.definition.request.res_param')}} </p>-->
+      <!--<div>-->
+      <!--<el-tabs v-model="activeName" closable class="ms-tabs">-->
+      <!--<el-tab-pane :label="item.name" :name="item.name" v-for="(item,index) in requestResult.scenarios" :key="index">-->
+      <!--<div v-for="(result,i) in item.requestResults" :key="i" style="margin-bottom: 5px">-->
+      <!--<api-response-component :result="result"/>-->
+      <!--</div>-->
+      <!--</el-tab-pane>-->
+      <!--</el-tabs>-->
 
-      </div>
+      <!--</div>-->
 
     </api-base-component>
 
@@ -117,7 +117,7 @@
       },
     },
     created() {
-      this.initResult();
+      // this.initResult();
     },
     data() {
       return {
@@ -202,12 +202,11 @@
           this.$warning("当前循环下没有请求，不能执行")
           return;
         }
-        this.controller.active = true;
         this.loading = true;
         this.debugData = {
           id: this.currentScenario.id, name: this.currentScenario.name, type: "scenario",
-          variables: this.currentScenario.variables, referenced: 'Created', enableCookieShare: this.enableCookieShare,
-          environmentId: this.currentEnvironmentId, hashTree: [this.controller]
+          variables: this.currentScenario.variables, headers: this.currentScenario.headers,
+          referenced: 'Created', enableCookieShare: this.enableCookieShare, environmentId: this.currentEnvironmentId, hashTree: [this.controller]
         };
         this.reportId = getUUID().substring(0, 8);
       },
@@ -224,7 +223,7 @@
       },
       changeRadio() {
         this.controller.active = true;
-        this.initResult();
+        //this.initResult();
         this.reload();
       },
       change(value) {
@@ -258,6 +257,20 @@
           this.success = this.requestResult.scenarios && this.requestResult.scenarios != null ? this.requestResult.scenarios.length - this.error : 0;
         }
       },
+      setResult(hashTree) {
+        if (hashTree) {
+          hashTree.forEach(item => {
+            if (item.type === "HTTPSamplerProxy" || item.type === "DubboSampler" || item.type === "JDBCSampler" || item.type === "TCPSampler") {
+              item.result = this.requestResult;
+              item.activeName = this.activeName;
+              item.requestResult = undefined;
+            }
+            if (item.hashTree && item.hashTree.length > 0) {
+              this.setResult(item.hashTree);
+            }
+          })
+        }
+      },
       getReport() {
         if (this.reportId) {
           let url = "/api/scenario/report/get/" + this.reportId;
@@ -285,11 +298,15 @@
                       break;
                   }
                   this.getFails();
+                  this.activeName = this.requestResult && this.requestResult.scenarios && this.requestResult.scenarios != null && this.requestResult.scenarios.length > 0 ? this.requestResult.scenarios[0].name : "";
+                  // 把请求结果分给各个请求
+                  this.setResult(this.controller.hashTree);
+                  this.$emit('refReload');
                 } catch (e) {
                   throw e;
                 }
                 this.loading = false;
-                this.activeName = this.requestResult && this.requestResult.scenarios && this.requestResult.scenarios != null && this.requestResult.scenarios.length > 0 ? this.requestResult.scenarios[0].name : "";
+                this.reload();
               } else {
                 setTimeout(this.getReport, 2000)
               }
@@ -331,11 +348,6 @@
     border-radius: 4px;
     border-left: 4px solid #783887;
     margin: 20px 0;
-  }
-
-  .ms-tabs >>> .el-icon-close:before {
-    content: "";
-
   }
 
   .icon.is-active {

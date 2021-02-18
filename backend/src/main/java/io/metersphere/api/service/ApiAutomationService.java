@@ -66,8 +66,6 @@ public class ApiAutomationService {
     @Resource
     private ApiScenarioMapper apiScenarioMapper;
     @Resource
-    private ApiDefinitionService apiDefinitionService;
-    @Resource
     private ExtApiScenarioMapper extApiScenarioMapper;
     @Resource
     private TestPlanApiScenarioMapper testPlanApiScenarioMapper;
@@ -178,7 +176,7 @@ public class ApiAutomationService {
         apiScenarioMapper.insert(scenario);
 
         List<String> bodyUploadIds = request.getBodyUploadIds();
-        apiDefinitionService.createBodyFiles(bodyUploadIds, bodyFiles);
+        FileUtils.createBodyFiles(bodyUploadIds, bodyFiles);
         return scenario;
     }
 
@@ -194,7 +192,7 @@ public class ApiAutomationService {
     public void update(SaveApiScenarioRequest request, List<MultipartFile> bodyFiles) {
         checkNameExist(request);
         List<String> bodyUploadIds = request.getBodyUploadIds();
-        apiDefinitionService.createBodyFiles(bodyUploadIds, bodyFiles);
+        FileUtils.createBodyFiles(bodyUploadIds, bodyFiles);
 
         final ApiScenarioWithBLOBs scenario = new ApiScenarioWithBLOBs();
         scenario.setId(request.getId());
@@ -522,7 +520,7 @@ public class ApiAutomationService {
      */
     public String debugRun(RunDefinitionRequest request, List<MultipartFile> bodyFiles) {
         List<String> bodyUploadIds = new ArrayList<>(request.getBodyUploadIds());
-        apiDefinitionService.createBodyFiles(bodyUploadIds, bodyFiles);
+        FileUtils.createBodyFiles(bodyUploadIds, bodyFiles);
         EnvironmentConfig envConfig = null;
         if (request.getEnvironmentId() != null) {
             ApiTestEnvironmentWithBLOBs environment = environmentService.get(request.getEnvironmentId());

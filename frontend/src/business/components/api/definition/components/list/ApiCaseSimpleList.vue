@@ -1,7 +1,9 @@
 <template>
   <div>
-    <api-list-container
+    <api-list-container-with-doc
       :is-api-list-enable="isApiListEnable"
+      :active-dom="activeDom"
+      @activeDomChange="activeDomChange"
       @isApiListEnableChange="isApiListEnableChange">
       <el-link type="primary" style="float:right;margin-top: 5px" @click="open">{{$t('commons.adv_search.title')}}</el-link>
 
@@ -99,7 +101,7 @@
       </el-table>
       <ms-table-pagination :change="initTable" :current-page.sync="currentPage" :page-size.sync="pageSize"
                            :total="total"/>
-    </api-list-container>
+    </api-list-container-with-doc>
 
     <api-case-list @showExecResult="showExecResult" @refresh="initTable" :currentApi="selectCase" ref="caseList"/>
     <!--批量编辑-->
@@ -130,7 +132,8 @@ import MsBatchEdit from "../basis/BatchEdit";
 import {API_METHOD_COLOUR, CASE_PRIORITY, DUBBO_METHOD, REQ_METHOD, SQL_METHOD, TCP_METHOD} from "../../model/JsonData";
 
 import {getBodyUploadFiles, getCurrentProjectID} from "@/common/js/utils";
-import ApiListContainer from "./ApiListContainer";
+// import ApiListContainer from "./ApiListContainer";
+import ApiListContainerWithDoc from "@/business/components/api/definition/components/list/ApiListContainerWithDoc";
 import PriorityTableItem from "../../../../track/common/tableItems/planview/PriorityTableItem";
 import MsApiCaseTableExtendBtns from "../reference/ApiCaseTableExtendBtns";
 import MsReferenceView from "../reference/ReferenceView";
@@ -150,7 +153,7 @@ export default {
       MsSetEnvironment,
       ApiCaseList,
       PriorityTableItem,
-      ApiListContainer,
+      ApiListContainerWithDoc,
       MsTableOperatorButton,
       MsTableOperator,
       MsTablePagination,
@@ -211,6 +214,7 @@ export default {
     props: {
       currentProtocol: String,
       selectNodeIds: Array,
+      activeDom:String,
       visible: {
         type: Boolean,
         default: false,
@@ -269,6 +273,9 @@ export default {
     methods: {
       isApiListEnableChange(data) {
         this.$emit('isApiListEnableChange', data);
+      },
+      activeDomChange(tabType){
+        this.$emit("activeDomChange",tabType);
       },
       initTable() {
         this.selectRows = new Set();

@@ -277,12 +277,16 @@ public class XmindCaseParser {
 
         String tc = title.replace("：", ":");
         String[] tcArr = tc.split(":");
-        if (tcArr.length != 2) {
+        if (tcArr.length < 1) {
             process.add(Translator.get("test_case_name") + Translator.get("incorrect_format"), title);
             return;
         }
         // 用例名称
-        testCase.setName(this.replace(tcArr[1], TC_REGEX));
+        StringBuffer name = new StringBuffer();
+        for (int i = 1; i < tcArr.length; i++) {
+            name.append(tcArr[i]);
+        }
+        testCase.setName(name.toString());
         testCase.setNodePath(nodePath);
 
         // 用例等级和用例性质处理

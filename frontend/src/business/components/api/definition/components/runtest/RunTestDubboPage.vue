@@ -89,7 +89,7 @@ export default {
         reportId: "",
       }
     },
-    props: {apiData: {}, currentProtocol: String,syncTabs: Array, projectId: String},
+    props: {apiData: {}, currentProtocol: String, syncTabs: Array, projectId: String},
     methods: {
       handleCommand(e) {
         switch (e) {
@@ -105,7 +105,7 @@ export default {
             return this.runTest();
         }
       },
-      refresh(){
+      refresh() {
         this.$emit('refresh');
       },
       runTest() {
