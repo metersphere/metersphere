@@ -67,7 +67,11 @@ export default {
           if (userLastProjectId) {
             // id 是否存在
             if (this.searchArray.length > 0 && this.searchArray.map(p => p.id).indexOf(userLastProjectId) !== -1) {
-              localStorage.setItem(PROJECT_ID, userLastProjectId);
+              let projectId = localStorage.getItem(PROJECT_ID);
+              if (!projectId || projectId != userLastProjectId) {
+                localStorage.setItem(PROJECT_ID, userLastProjectId);
+                window.location.reload();
+              }
             }
           }
           let projectId = getCurrentProjectID();
@@ -155,3 +159,4 @@ export default {
   margin-left: 10px;
 }
 </style>
+k
