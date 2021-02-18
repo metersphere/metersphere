@@ -71,27 +71,27 @@
 </template>
 
 <script>
-  import MsApiRequestForm from "../request/http/ApiHttpRequestForm";
-  import {downloadFile, getUUID, getCurrentProjectID} from "@/common/js/utils";
-  import MsApiCaseList from "../case/ApiCaseList";
-  import MsContainer from "../../../../common/components/MsContainer";
-  import MsRequestResultTail from "../response/RequestResultTail";
-  import MsRun from "../Run";
-  import {REQ_METHOD} from "../../model/JsonData";
-  import EnvironmentSelect from "../environment/EnvironmentSelect";
-  import MsJmxStep from "../step/JmxStep";
+import MsApiRequestForm from "../request/http/ApiHttpRequestForm";
+import {getUUID} from "@/common/js/utils";
+import MsApiCaseList from "../case/ApiCaseList";
+import MsContainer from "../../../../common/components/MsContainer";
+import MsRequestResultTail from "../response/RequestResultTail";
+import MsRun from "../Run";
+import {REQ_METHOD} from "../../model/JsonData";
+import EnvironmentSelect from "../environment/EnvironmentSelect";
+import MsJmxStep from "../step/JmxStep";
 
-  export default {
-    name: "RunTestHTTPPage",
-    components: {
-      EnvironmentSelect,
-      MsApiRequestForm,
-      MsApiCaseList,
-      MsContainer,
-      MsRequestResultTail,
-      MsRun,
-      MsJmxStep
-    },
+export default {
+  name: "RunTestHTTPPage",
+  components: {
+    EnvironmentSelect,
+    MsApiRequestForm,
+    MsApiCaseList,
+    MsContainer,
+    MsRequestResultTail,
+    MsRun,
+    MsJmxStep
+  },
     data() {
       return {
         visible: false,
@@ -186,11 +186,11 @@
       },
       saveAsApi() {
         let data = {};
-        data.request = JSON.stringify(this.api.request);
+        let req = this.api.request;
+        req.id = getUUID();
+        data.request = JSON.stringify(req);
         data.method = this.api.method;
         data.url = this.api.url;
-        let id = getUUID();
-        data.id = id;
         data.status = this.api.status;
         data.userId = this.api.userId;
         data.description = this.api.description;

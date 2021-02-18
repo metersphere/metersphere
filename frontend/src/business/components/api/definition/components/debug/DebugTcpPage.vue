@@ -11,11 +11,15 @@
           <el-input-number v-model="request.port" controls-position="right" :min="0" :max="65535" size="small"/>
         </el-form-item>
         <el-form-item>
-          <el-dropdown split-button type="primary" class="ms-api-buttion" @click="handleCommand"
+          <el-button v-if="scenario" size="small" type="primary" @click="handleCommand"> {{ $t('commons.test') }}
+          </el-button>
+
+          <el-dropdown v-else split-button type="primary" class="ms-api-buttion" @click="handleCommand"
                        @command="handleCommand" size="small" style="float: right;margin-right: 20px">
-            {{$t('commons.test')}}
+            {{ $t('commons.test') }}
             <el-dropdown-menu slot="dropdown">
-              <el-dropdown-item command="save_as">{{$t('api_test.definition.request.save_as_case')}}</el-dropdown-item>
+              <el-dropdown-item command="save_as">{{ $t('api_test.definition.request.save_as_case') }}
+              </el-dropdown-item>
             </el-dropdown-menu>
           </el-dropdown>
         </el-form-item>
@@ -45,30 +49,30 @@
 </template>
 
 <script>
-  import MsApiRequestForm from "../request/http/ApiHttpRequestForm";
-  import MsResponseResult from "../response/ResponseResult";
-  import MsRequestMetric from "../response/RequestMetric";
-  import {getUUID, getCurrentUser} from "@/common/js/utils";
-  import MsResponseText from "../response/ResponseText";
-  import MsRun from "../Run";
-  import {createComponent} from "../jmeter/components";
-  import {REQ_METHOD} from "../../model/JsonData";
-  import MsRequestResultTail from "../response/RequestResultTail";
-  import TcpBasisParameters from "../request/tcp/TcpBasisParameters";
-  import MsJmxStep from "../step/JmxStep";
-  import MsApiCaseList from "../case/ApiCaseList";
+import MsApiRequestForm from "../request/http/ApiHttpRequestForm";
+import MsResponseResult from "../response/ResponseResult";
+import MsRequestMetric from "../response/RequestMetric";
+import {getUUID} from "@/common/js/utils";
+import MsResponseText from "../response/ResponseText";
+import MsRun from "../Run";
+import {createComponent} from "../jmeter/components";
+import {REQ_METHOD} from "../../model/JsonData";
+import MsRequestResultTail from "../response/RequestResultTail";
+import TcpBasisParameters from "../request/tcp/TcpBasisParameters";
+import MsJmxStep from "../step/JmxStep";
+import MsApiCaseList from "../case/ApiCaseList";
 
-  export default {
-    name: "ApiConfig",
-    components: {
-      MsJmxStep,
-      TcpBasisParameters,
-      MsRequestResultTail, MsResponseResult, MsApiRequestForm, MsRequestMetric, MsResponseText, MsRun, MsApiCaseList
-    },
-    props: {
-      currentProtocol: String,
-      scenario: Boolean,
-      testCase: {},
+export default {
+  name: "ApiConfig",
+  components: {
+    MsJmxStep,
+    TcpBasisParameters,
+    MsRequestResultTail, MsResponseResult, MsApiRequestForm, MsRequestMetric, MsResponseText, MsRun, MsApiCaseList
+  },
+  props: {
+    currentProtocol: String,
+    scenario: Boolean,
+    testCase: {},
     },
     data() {
       return {

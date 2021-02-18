@@ -62,8 +62,6 @@ public class ApiAutomationService {
     @Resource
     private ApiScenarioMapper apiScenarioMapper;
     @Resource
-    private ApiDefinitionService apiDefinitionService;
-    @Resource
     private ExtApiScenarioMapper extApiScenarioMapper;
     @Resource
     private TestPlanApiScenarioMapper testPlanApiScenarioMapper;
@@ -103,13 +101,13 @@ public class ApiAutomationService {
         if (setDefultOrders) {
             request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
         }
-        if(StringUtils.isNotEmpty(request.getExecuteStatus())){
-            Map<String,List<String>> statusFilter = new HashMap<>();
+        if (StringUtils.isNotEmpty(request.getExecuteStatus())) {
+            Map<String, List<String>> statusFilter = new HashMap<>();
             List<String> list = new ArrayList<>();
             list.add("Prepare");
             list.add("Underway");
             list.add("Completed");
-            statusFilter.put("status",list);
+            statusFilter.put("status", list);
             request.setFilters(statusFilter);
         }
         if (checkThisWeekData) {
@@ -174,7 +172,7 @@ public class ApiAutomationService {
         apiScenarioMapper.insert(scenario);
 
         List<String> bodyUploadIds = request.getBodyUploadIds();
-        apiDefinitionService.createBodyFiles(bodyUploadIds, bodyFiles);
+        FileUtils.createBodyFiles(bodyUploadIds, bodyFiles);
         return scenario;
     }
 
@@ -190,7 +188,7 @@ public class ApiAutomationService {
     public void update(SaveApiScenarioRequest request, List<MultipartFile> bodyFiles) {
         checkNameExist(request);
         List<String> bodyUploadIds = request.getBodyUploadIds();
-        apiDefinitionService.createBodyFiles(bodyUploadIds, bodyFiles);
+        FileUtils.createBodyFiles(bodyUploadIds, bodyFiles);
 
         final ApiScenarioWithBLOBs scenario = new ApiScenarioWithBLOBs();
         scenario.setId(request.getId());
@@ -480,8 +478,8 @@ public class ApiAutomationService {
     public void checkScenarioIsRunnng(List<String> ids) {
         List<ApiScenarioReport> lastReportStatusByIds = apiReportService.selectLastReportByIds(ids);
         for (ApiScenarioReport report : lastReportStatusByIds) {
-            if(StringUtils.equals(report.getStatus(),APITestStatus.Running.name())){
-                MSException.throwException(report.getName()+" Is Running!");
+            if (StringUtils.equals(report.getStatus(), APITestStatus.Running.name())) {
+                MSException.throwException(report.getName() + " Is Running!");
             }
         }
     }
@@ -518,7 +516,7 @@ public class ApiAutomationService {
      */
     public String debugRun(RunDefinitionRequest request, List<MultipartFile> bodyFiles) {
         List<String> bodyUploadIds = new ArrayList<>(request.getBodyUploadIds());
-        apiDefinitionService.createBodyFiles(bodyUploadIds, bodyFiles);
+        FileUtils.createBodyFiles(bodyUploadIds, bodyFiles);
         EnvironmentConfig envConfig = null;
         if (request.getEnvironmentId() != null) {
             ApiTestEnvironmentWithBLOBs environment = environmentService.get(request.getEnvironmentId());

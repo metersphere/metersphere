@@ -44,7 +44,7 @@ import org.springframework.web.multipart.MultipartFile;
 import sun.security.util.Cache;
 
 import javax.annotation.Resource;
-import java.io.*;
+import java.io.File;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -131,7 +131,7 @@ public class ApiDefinitionService {
     public void create(SaveApiDefinitionRequest request, List<MultipartFile> bodyFiles) {
         List<String> bodyUploadIds = new ArrayList<>(request.getBodyUploadIds());
         createTest(request);
-        createBodyFiles(bodyUploadIds, bodyFiles);
+        FileUtils.createBodyFiles(bodyUploadIds, bodyFiles);
     }
 
     public void update(SaveApiDefinitionRequest request, List<MultipartFile> bodyFiles) {
@@ -141,27 +141,7 @@ public class ApiDefinitionService {
         List<String> bodyUploadIds = request.getBodyUploadIds();
         request.setBodyUploadIds(null);
         updateTest(request);
-        createBodyFiles(bodyUploadIds, bodyFiles);
-    }
-
-    public void createBodyFiles(List<String> bodyUploadIds, List<MultipartFile> bodyFiles) {
-        if (CollectionUtils.isNotEmpty(bodyUploadIds) && CollectionUtils.isNotEmpty(bodyFiles)) {
-            File testDir = new File(BODY_FILE_DIR);
-            if (!testDir.exists()) {
-                testDir.mkdirs();
-            }
-            for (int i = 0; i < bodyUploadIds.size(); i++) {
-                MultipartFile item = bodyFiles.get(i);
-                File file = new File(BODY_FILE_DIR + "/" + bodyUploadIds.get(i) + "_" + item.getOriginalFilename());
-                try (InputStream in = item.getInputStream(); OutputStream out = new FileOutputStream(file)) {
-                    file.createNewFile();
-                    FileUtil.copyStream(in, out);
-                } catch (IOException e) {
-                    LogUtil.error(e);
-                    MSException.throwException(Translator.get("upload_fail"));
-                }
-            }
-        }
+        FileUtils.createBodyFiles(bodyUploadIds, bodyFiles);
     }
 
     public void delete(String apiId) {
@@ -356,10 +336,10 @@ public class ApiDefinitionService {
         return request;
     }
 
-   /**
-    * 导入是插件或者postman时创建用例
-    * postman考虑是否有前置脚本
-    */
+    /**
+     * 导入是插件或者postman时创建用例
+     * postman考虑是否有前置脚本
+     */
     private void importApiCase(ApiDefinitionWithBLOBs apiDefinition, ApiTestCaseMapper apiTestCaseMapper,
                                ApiTestImportRequest apiTestImportRequest, Boolean isInsert) {
         try {
@@ -404,7 +384,7 @@ public class ApiDefinitionService {
      */
     public String run(RunDefinitionRequest request, List<MultipartFile> bodyFiles) {
         List<String> bodyUploadIds = new ArrayList<>(request.getBodyUploadIds());
-        createBodyFiles(bodyUploadIds, bodyFiles);
+        FileUtils.createBodyFiles(bodyUploadIds, bodyFiles);
 
         HashTree hashTree = request.getTestElement().generateHashTree();
         String runMode = ApiRunMode.DEFINITION.name();
@@ -541,7 +521,7 @@ public class ApiDefinitionService {
     public void editApiByParam(ApiBatchRequest request) {
         List<String> ids = request.getIds();
         if (request.isSelectAllDate()) {
-            ids = this.getAllApiIdsByFontedSelect(request.getFilters(), request.getName(), request.getModuleIds(), request.getProjectId(), request.getUnSelectIds(),request.getProtocol());
+            ids = this.getAllApiIdsByFontedSelect(request.getFilters(), request.getName(), request.getModuleIds(), request.getProjectId(), request.getUnSelectIds(), request.getProtocol());
         }
         //name在这里只是查询参数
         request.setName(null);
@@ -605,14 +585,14 @@ public class ApiDefinitionService {
     public void deleteByParams(ApiDefinitionBatchProcessingRequest request) {
         List<String> apiIds = request.getDataIds();
         if (request.isSelectAllDate()) {
-            apiIds = this.getAllApiIdsByFontedSelect(request.getFilters(), request.getName(), request.getModuleIds(), request.getProjectId(), request.getUnSelectIds(),request.getProtocol());
+            apiIds = this.getAllApiIdsByFontedSelect(request.getFilters(), request.getName(), request.getModuleIds(), request.getProjectId(), request.getUnSelectIds(), request.getProtocol());
         }
         ApiDefinitionExample example = new ApiDefinitionExample();
         example.createCriteria().andIdIn(apiIds);
         apiDefinitionMapper.deleteByExample(example);
     }
 
-    private List<String> getAllApiIdsByFontedSelect(Map<String, List<String>> filters, String name, List<String> moduleIds, String projectId, List<String> unSelectIds,String protocol) {
+    private List<String> getAllApiIdsByFontedSelect(Map<String, List<String>> filters, String name, List<String> moduleIds, String projectId, List<String> unSelectIds, String protocol) {
         ApiDefinitionRequest request = new ApiDefinitionRequest();
         request.setFilters(filters);
         request.setName(name);
@@ -632,7 +612,7 @@ public class ApiDefinitionService {
     public void removeToGcByParams(ApiDefinitionBatchProcessingRequest request) {
         List<String> apiIds = request.getDataIds();
         if (request.isSelectAllDate()) {
-            apiIds = this.getAllApiIdsByFontedSelect(request.getFilters(), request.getName(), request.getModuleIds(), request.getProjectId(), request.getUnSelectIds(),request.getProtocol());
+            apiIds = this.getAllApiIdsByFontedSelect(request.getFilters(), request.getName(), request.getModuleIds(), request.getProjectId(), request.getUnSelectIds(), request.getProtocol());
         }
         extApiDefinitionMapper.removeToGc(apiIds);
     }
