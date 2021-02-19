@@ -162,25 +162,26 @@
               <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
             </template>
           </el-table-column>
-          <el-table-column v-if="item.prop=='operating'" fixed="right" min-width="150" :key="index">
-            <template slot="header">
+        </template>
+        <el-table-column fixed="right" min-width="150">
+          <template slot="header">
             <span>{{ $t('commons.operating') }}
              <i class='el-icon-setting' style="color:#7834c1; margin-left:10px" @click="customHeader"> </i>
             </span>
-            </template>
-            <template v-slot:default="scope">
-              <ms-table-operator :is-tester-permission="true" @editClick="handleEdit(scope.row)"
-                                 @deleteClick="handleDelete(scope.row)">
-                <template v-slot:middle>
-                  <ms-table-operator-button :is-tester-permission="true" :tip="$t('commons.copy')"
+          </template>
+          <template v-slot:default="scope">
+            <ms-table-operator :is-tester-permission="true" @editClick="handleEdit(scope.row)"
+                               @deleteClick="handleDelete(scope.row)">
+              <template v-slot:middle>
+                <ms-table-operator-button :is-tester-permission="true" :tip="$t('commons.copy')"
                                             icon="el-icon-document-copy"
                                             type="success" @exec="handleCopy(scope.row)"/>
                 </template>
               </ms-table-operator>
             </template>
           </el-table-column>
-        </template>
-        <header-custom ref="headerCustom"></header-custom>
+        <header-custom ref="headerCustom" :initTableData="initTableData" :optionalFields=headerItems
+                       :type=type></header-custom>
         <ms-table-pagination :change="initTableData" :current-page.sync="currentPage" :page-size.sync="pageSize"
                              :total="total"/>
       </el-table>
@@ -231,6 +232,7 @@ import {
 import BatchMove from "./BatchMove";
 import {Track_Test_Case} from "@/business/components/common/model/JsonData";
 import HeaderCustom from "@/business/components/common/head/HeaderCustom";
+import i18n from "@/i18n/i18n";
 
 export default {
   name: "TestCaseList",
@@ -259,8 +261,9 @@ export default {
   },
   data() {
     return {
-      // 子组件的表头数据
-      tableLabel:Track_Test_Case,
+      type: TEST_CASE_LIST,
+      headerItems: Track_Test_Case,
+      tableLabel: Track_Test_Case,
       result: {},
       deletePath: "/test/case/delete",
       condition: {
@@ -383,18 +386,18 @@ export default {
       let param={}
       param.userId=getCurrentUser().id;
       param.type=TEST_CASE_LIST
-      this.result=this.$post('/system/header/info',param,response=>{
-        if(response.data){
-          response.data.map((v,i)=>{
-            if(this.tableLabel [i]){
-              this.tableLabel [i].prop=v
-            }
-          })
-          console.log(this.tableLabel)
-        }else{
-          this.tableLabel=Track_Test_Case
+      this.result=this.$post('/system/header/info',param,response=> {
+        if (response.data != null) {
+          let arry = eval(response.data.props);
+          let obj = {};
+          for (let key in arry) {
+            obj[key] = arry[key];
+          }
+          let newObj = Object.keys(obj).map(val => ({
+            prop: obj[val]
+          }))
+          this.tableLabel = newObj
         }
-
       })
     },
     getData() {

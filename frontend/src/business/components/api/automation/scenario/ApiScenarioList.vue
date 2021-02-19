@@ -27,92 +27,106 @@
             <show-more-btn :is-show="isSelect(scope.row)" :buttons="buttons" :size="selectDataCounts"/>
           </template>
         </el-table-column>
+        <template v-for="(item, index) in tableLabel">
+          <el-table-column v-if="item.prop == 'num'" prop="num" label="ID"
+                           sortable="custom"
+                           min-width="120px"
+                           show-overflow-tooltip :key="index">
+            <template slot-scope="scope">
+              <el-tooltip content="编辑">
+                <a style="cursor:pointer" @click="edit(scope.row)"> {{ scope.row.num }} </a>
+              </el-tooltip>
+            </template>
+          </el-table-column>
+          <el-table-column v-if="item.prop == 'name'" prop="name"
+                           sortable="custom"
+                           :label="$t('api_test.automation.scenario_name')"
+                           show-overflow-tooltip
+                           min-width="120px"
+                           :key="index"
+          />
+          <el-table-column v-if="item.prop == 'level'" prop="level"
+                           sortable="custom"
+                           column-key="level"
+                           :filters="levelFilters"
+                           min-width="120px"
+                           :label="$t('api_test.automation.case_level')"
+                           show-overflow-tooltip :key="index">
+            <template v-slot:default="scope">
+              <priority-table-item :value="scope.row.level"/>
+            </template>
+          </el-table-column>
+          <el-table-column v-if="item.prop == 'status'" prop="status" :label="$t('test_track.plan.plan_status')"
+                           sortable="custom"
+                           column-key="status"
+                           :filters="statusFilters"
+                           show-overflow-tooltip min-width="120px" :key="index">
+            <template v-slot:default="scope">
+              <plan-status-table-item :value="scope.row.status"/>
+            </template>
+          </el-table-column>
+          <el-table-column v-if="item.prop == 'tags'" prop="tags" min-width="120px"
+                           :label="$t('api_test.automation.tag')" :key="index">
+            <template v-slot:default="scope">
+              <div v-for="(itemName,index)  in scope.row.tags" :key="index">
+                <ms-tag type="success" effect="plain" :content="itemName"/>
+              </div>
+            </template>
+          </el-table-column>
+          <el-table-column v-if="item.prop == 'userId'" prop="userId" min-width="120px"
+                           :label="$t('api_test.automation.creator')"
+                           :filters="userFilters"
+                           column-key="user_id"
+                           sortable="custom"
+                           show-overflow-tooltip
+                           :key="index"/>
+          <el-table-column v-if="item.prop == 'updateTime'" prop="updateTime"
+                           :label="$t('api_test.automation.update_time')" sortable="custom" min-width="180px"
+                           :key="index">
+            <template v-slot:default="scope">
+              <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column v-if="item.prop == 'stepTotal'" prop="stepTotal" :label="$t('api_test.automation.step')"
+                           min-width="80px"
+                           show-overflow-tooltip :key="index"/>
+          <el-table-column v-if="item.prop == 'lastResult'" prop="lastResult"
+                           :label="$t('api_test.automation.last_result')"
+                           :filters="resultFilters"
 
-        <el-table-column prop="num" label="ID"
-                         sortable="custom"
-                         min-width="120px"
-                         show-overflow-tooltip>
-          <template slot-scope="scope">
-            <el-tooltip content="编辑">
-              <a style="cursor:pointer" @click="edit(scope.row)"> {{ scope.row.num }} </a>
-            </el-tooltip>
-          </template>
-        </el-table-column>
-        <el-table-column prop="name"
-                         sortable="custom"
-                         :label="$t('api_test.automation.scenario_name')"
-                         show-overflow-tooltip
-                         min-width="120px"/>
-        <el-table-column prop="level"
-                         sortable="custom"
-                         column-key="level"
-                         :filters="levelFilters"
-                         min-width="120px"
-
-                         :label="$t('api_test.automation.case_level')"
-                         show-overflow-tooltip>
-          <template v-slot:default="scope">
-            <priority-table-item :value="scope.row.level"/>
-          </template>
-        </el-table-column>
-        <el-table-column prop="status" :label="$t('test_track.plan.plan_status')"
-                         sortable="custom"
-                         column-key="status"
-                         :filters="statusFilters"
-
-                         show-overflow-tooltip min-width="120px">
-          <template v-slot:default="scope">
-            <plan-status-table-item :value="scope.row.status"/>
-          </template>
-        </el-table-column>
-        <el-table-column prop="tags" min-width="120px"
-                         :label="$t('api_test.automation.tag')">
-          <template v-slot:default="scope">
-            <div v-for="(itemName,index)  in scope.row.tags" :key="index">
-              <ms-tag type="success" effect="plain" :content="itemName"/>
-            </div>
-          </template>
-        </el-table-column>
-        <el-table-column prop="userId" min-width="120px"
-                         :label="$t('api_test.automation.creator')"
-                         :filters="userFilters"
-                         column-key="user_id"
-                         sortable="custom"
-                         show-overflow-tooltip/>
-        <el-table-column prop="updateTime" :label="$t('api_test.automation.update_time')" sortable="custom" min-width="180px"
-        >
-          <template v-slot:default="scope">
-            <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
-          </template>
-        </el-table-column>
-        <el-table-column prop="stepTotal" :label="$t('api_test.automation.step')" min-width="80px"
-                         show-overflow-tooltip/>
-        <el-table-column prop="lastResult" :label="$t('api_test.automation.last_result')"
-                         :filters="resultFilters"
-
-                         sortable="custom" column-key="last_result" min-width="120px">
-          <template v-slot:default="{row}">
-            <el-link type="success" @click="showReport(row)" v-if="row.lastResult === 'Success'">
-              {{ $t('api_test.automation.success') }}
-            </el-link>
-            <el-link type="danger" @click="showReport(row)" v-if="row.lastResult === 'Fail'">
-              {{ $t('api_test.automation.fail') }}
-            </el-link>
-          </template>
-        </el-table-column>
-        <el-table-column prop="passRate" :label="$t('api_test.automation.passing_rate')"
-                         min-width="120px"
-
-                         show-overflow-tooltip/>
+                           sortable="custom" column-key="last_result" min-width="120px" :key="index">
+            <template v-slot:default="{row}">
+              <el-link type="success" @click="showReport(row)" v-if="row.lastResult === 'Success'">
+                {{ $t('api_test.automation.success') }}
+              </el-link>
+              <el-link type="danger" @click="showReport(row)" v-if="row.lastResult === 'Fail'">
+                {{ $t('api_test.automation.fail') }}
+              </el-link>
+            </template>
+          </el-table-column>
+          <el-table-column v-if="item.prop == 'passRate'" prop="passRate"
+                           :label="$t('api_test.automation.passing_rate')"
+                           min-width="120px"
+                           show-overflow-tooltip :key="index"/>
+        </template>
         <el-table-column fixed="right" :label="$t('commons.operating')" width="190px" v-if="!referenced">
+          <template slot="header">
+            <span>{{ $t('commons.operating') }}
+             <i class='el-icon-setting' style="color:#7834c1; margin-left:10px" @click="customHeader"> </i>
+            </span>
+          </template>
           <template v-slot:default="{row}">
             <div v-if="trashEnable">
-              <ms-table-operator-button :tip="$t('commons.reduction')" icon="el-icon-refresh-left" @exec="reductionApi(row)" v-tester/>
-              <ms-table-operator-button :tip="$t('api_test.automation.remove')" icon="el-icon-delete" @exec="remove(row)" type="danger" v-tester/>
+              <ms-table-operator-button :tip="$t('commons.reduction')" icon="el-icon-refresh-left"
+                                        @exec="reductionApi(row)" v-tester/>
+              <ms-table-operator-button :tip="$t('api_test.automation.remove')" icon="el-icon-delete"
+                                        @exec="remove(row)" type="danger" v-tester/>
             </div>
             <div v-else>
-              <ms-table-operator-button :tip="$t('api_test.automation.edit')" icon="el-icon-edit" @exec="edit(row)" v-tester/>
-              <ms-table-operator-button class="run-button" :is-tester-permission="true" :tip="$t('api_test.automation.execute')"
+              <ms-table-operator-button :tip="$t('api_test.automation.edit')" icon="el-icon-edit" @exec="edit(row)"
+                                        v-tester/>
+              <ms-table-operator-button class="run-button" :is-tester-permission="true"
+                                        :tip="$t('api_test.automation.execute')"
                                         icon="el-icon-video-play"
                                         @exec="execute(row)" v-tester/>
               <ms-table-operator-button :tip="$t('api_test.automation.copy')" icon="el-icon-document-copy" type=""
@@ -123,6 +137,7 @@
           </template>
         </el-table-column>
       </el-table>
+      <header-custom ref="headerCustom" :initTableData="search" :optionalFields=headerItems :type=type></header-custom>
       <ms-table-pagination :change="search" :current-page.sync="currentPage" :page-size.sync="pageSize"
                            :total="total"/>
       <div>
@@ -155,7 +170,7 @@ import MsTableHeader from "@/business/components/common/components/MsTableHeader
 import MsTablePagination from "@/business/components/common/pagination/TablePagination";
 import ShowMoreBtn from "@/business/components/track/case/components/ShowMoreBtn";
 import MsTag from "../../../common/components/MsTag";
-import {getCurrentProjectID, getUUID} from "@/common/js/utils";
+import {getCurrentProjectID, getCurrentUser, getUUID} from "@/common/js/utils";
 import MsApiReportDetail from "../report/ApiReportDetail";
 import MsTableMoreBtn from "./TableMoreBtn";
 import MsScenarioExtendButtons from "@/business/components/api/automation/scenario/ScenarioExtendBtns";
@@ -166,14 +181,17 @@ import MsTableOperatorButton from "@/business/components/common/components/MsTab
 import PriorityTableItem from "../../../track/common/tableItems/planview/PriorityTableItem";
 import PlanStatusTableItem from "../../../track/common/tableItems/plan/PlanStatusTableItem";
 import BatchEdit from "../../../track/case/components/BatchEdit";
-import {WORKSPACE_ID} from "../../../../../common/js/constants";
+import {API_SCENARIO_LIST, TEST_CASE_LIST, TEST_PLAN_LIST, WORKSPACE_ID} from "../../../../../common/js/constants";
 import EnvironmentSelect from "../../definition/components/environment/EnvironmentSelect";
 import BatchMove from "../../../track/case/components/BatchMove";
 import {_filter, _sort} from "@/common/js/tableUtils";
+import {Api_Scenario_List, Track_Test_Case} from "@/business/components/common/model/JsonData";
+import HeaderCustom from "@/business/components/common/head/HeaderCustom";
 
 export default {
   name: "MsApiScenarioList",
   components: {
+    HeaderCustom,
     BatchMove,
     EnvironmentSelect,
     BatchEdit,
@@ -182,8 +200,8 @@ export default {
     MsTableHeaderSelectPopover,
     MsTablePagination,
     MsTableMoreBtn,
-      ShowMoreBtn,
-      MsTableHeader,
+    ShowMoreBtn,
+    MsTableHeader,
       MsTag,
       MsApiReportDetail,
       MsScenarioExtendButtons,
@@ -215,6 +233,9 @@ export default {
     },
     data() {
       return {
+        type: API_SCENARIO_LIST,
+        headerItems: Api_Scenario_List,
+        tableLabel: Api_Scenario_List,
         loading: false,
         screenHeight: document.documentElement.clientHeight - 280,//屏幕高度,
         condition: {
@@ -326,11 +347,15 @@ export default {
       }
     },
     methods: {
+      customHeader() {
+        this.$refs.headerCustom.open(this.tableLabel)
+      },
       selectByParam() {
         this.changeSelectDataRangeAll();
         this.search();
       },
       search() {
+        this.getLabel()
         this.condition.moduleIds = this.selectNodeIds;
         if (this.trashEnable) {
           this.condition.filters = {status: ["Trash"]};
@@ -379,6 +404,24 @@ export default {
             this.unSelection = data.listObject.map(s => s.id);
           });
         }
+      },
+      getLabel() {
+        let param = {}
+        param.userId = getCurrentUser().id;
+        param.type = API_SCENARIO_LIST
+        this.result = this.$post('/system/header/info', param, response => {
+          if (response.data != null) {
+            let arry = eval(response.data.props);
+            let obj = {};
+            for (let key in arry) {
+              obj[key] = arry[key];
+            }
+            let newObj = Object.keys(obj).map(val => ({
+              prop: obj[val]
+            }))
+            this.tableLabel = newObj
+          }
+        })
       },
       handleCommand(cmd) {
         let table = this.$refs.scenarioTable;

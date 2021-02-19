@@ -9,7 +9,8 @@
            label: 'label'
           }"
         :data="optionalField"
-        ></el-transfer>
+        style="margin-left: 10%"
+      ></el-transfer>
     </template>
     <template v-slot:footer>
       <ms-dialog-footer
@@ -24,36 +25,46 @@
 import MsDialogFooter from "@/business/components/common/components/MsDialogFooter";
 import {getCurrentUser} from "@/common/js/utils";
 import {TEST_CASE_LIST} from "@/common/js/constants";
+import {Track_Test_Case} from "@/business/components/common/model/JsonData";
 export default {
   name: "HeaderCustom",
   components: {MsDialogFooter},
   data() {
     return {
       dialogTableVisible: false,
-      optionalField: [],
+      optionalField: this.optionalFields,
       value: [],
-      fieldSelected:[]
+      fieldSelected: []
     }
+  },
+  props: {
+    initTableData: {
+      type: Function,
+      default: null
+    },
+    optionalFields: Array,
+    type: String
   },
   methods: {
     open(items) {
-      console.log(items)
       this.dialogTableVisible = true
-      this.optionalField = items
+      /*this.optionalField = items*/
     },
     saveHeader() {
-      let param={
-        userId:getCurrentUser().id,
-        type:TEST_CASE_LIST,
-        props:JSON.stringify(this.value)
+      console.log(this.type)
+      let param = {
+        userId: getCurrentUser().id,
+        type: this.type,
+        props: JSON.stringify(this.value)
       }
-      this.$post("/system/save/header",param,response=>{
+      this.$post("/system/save/header", param, response => {
         this.$success(this.$t("commons.save_success"));
         this.dialogTableVisible = false
+        this.initTableData()
       })
     },
     close() {
-
+      this.dialogTableVisible = false
     }
   }
 }
