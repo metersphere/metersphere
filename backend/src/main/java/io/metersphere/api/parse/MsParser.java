@@ -39,7 +39,7 @@ public class MsParser extends ApiImportAbstractParser {
             return parseMsFormat(testStr, request);
         } else {
             request.setPlatform(ApiImportPlatform.Plugin.name());
-            return parsePluginFormat(testObject, request);
+            return parsePluginFormat(testObject, request, true);
         }
     }
 
@@ -65,17 +65,20 @@ public class MsParser extends ApiImportAbstractParser {
         apiDefinition.setRequest(JSONObject.toJSONString(requestObj));
     }
 
-    private ApiDefinitionImport parsePluginFormat(JSONObject testObject,  ApiTestImportRequest importRequest) {
+    protected ApiDefinitionImport parsePluginFormat(JSONObject testObject,  ApiTestImportRequest importRequest, Boolean isCreateModule) {
         List<ApiDefinitionWithBLOBs> results = new ArrayList<>();
         ApiDefinitionImport apiImport = new ApiDefinitionImport();
         apiImport.setProtocol(RequestType.HTTP);
         apiImport.setData(results);
         testObject.keySet().forEach(tag -> {
 
-            ApiModule parentModule = getSelectModule(importRequest.getModuleId());
-            ApiModule module = buildModule(parentModule, tag);
-
+            ApiModule module = null;
+            if (isCreateModule) {
+                module = buildModule(getSelectModule(importRequest.getModuleId()), tag);
+            }
             JSONObject requests = testObject.getJSONObject(tag);
+            String moduleId = module.getId();
+
             requests.keySet().forEach(requestName -> {
 
                 JSONObject requestObject = requests.getJSONObject(requestName);
@@ -84,7 +87,7 @@ public class MsParser extends ApiImportAbstractParser {
 
                 MsHTTPSamplerProxy request = buildRequest(requestName, path, method);
                 ApiDefinitionWithBLOBs apiDefinition = buildApiDefinition(request.getId(), requestName, path, method,importRequest);
-                apiDefinition.setModuleId(module.getId());
+                apiDefinition.setModuleId(moduleId);
                 apiDefinition.setProjectId(this.projectId);
                 parseBody(requestObject, request.getBody());
                 parseHeader(requestObject, request.getHeaders());
