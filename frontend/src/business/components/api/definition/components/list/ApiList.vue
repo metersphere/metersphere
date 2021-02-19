@@ -34,113 +34,142 @@
             <show-more-btn :is-show="scope.row.showMore" :buttons="buttons" :size="selectDataCounts"/>
           </template>
         </el-table-column>
-
-        <el-table-column prop="num" label="ID" show-overflow-tooltip
-                         min-width="80px"
-
-                         sortable="custom">
-          <template slot-scope="scope">
-            <el-tooltip content="编辑">
-              <a style="cursor:pointer" @click="editApi(scope.row)"> {{ scope.row.num }} </a>
-            </el-tooltip>
-          </template>
-        </el-table-column>
-        <el-table-column prop="name" :label="$t('api_test.definition.api_name')"
-                         show-overflow-tooltip
-
-                         sortable="custom" min-width="120px"/>
-        <el-table-column
-          prop="status"
-          column-key="status"
-          sortable="custom"
-          :filters="statusFilters"
-
-          :label="$t('api_test.definition.api_status')" min-width="120px">
-          <template v-slot:default="scope">
+        <template v-for="(item, index) in tableLabel">
+          <el-table-column
+            v-if="item.prop == 'num'"
+            prop="num"
+            label="ID"
+            show-overflow-tooltip
+            min-width="80px"
+            sortable="custom"
+            :key="index">
+            <template slot-scope="scope">
+              <el-tooltip content="编辑">
+                <a style="cursor:pointer" @click="editApi(scope.row)"> {{ scope.row.num }} </a>
+              </el-tooltip>
+            </template>
+          </el-table-column>
+          <el-table-column
+            v-if="item.prop == 'name'"
+            prop="name"
+            :label="$t('api_test.definition.api_name')"
+            show-overflow-tooltip
+            sortable="custom"
+            min-width="120px"
+            :key="index"/>
+          <el-table-column
+            v-if="item.prop == 'status'"
+            prop="status"
+            column-key="status"
+            sortable="custom"
+            :filters="statusFilters"
+            :label="$t('api_test.definition.api_status')"
+            min-width="120px"
+            :key="index">
+            <template v-slot:default="scope">
             <span class="el-dropdown-link">
               <api-status :value="scope.row.status"/>
             </span>
-          </template>
-        </el-table-column>
+            </template>
+          </el-table-column>
 
-        <el-table-column
-          prop="method"
-          sortable="custom"
-          column-key="method"
-          :filters="methodFilters"
+          <el-table-column
+            v-if="item.prop == 'method'"
+            prop="method"
+            sortable="custom"
+            column-key="method"
+            :filters="methodFilters"
+            :label="$t('api_test.definition.api_type')"
+            show-overflow-tooltip min-width="120px"
+            :key="index">
+            <template v-slot:default="scope" class="request-method">
+              <el-tag size="mini"
+                      :style="{'background-color': getColor(true, scope.row.method), border: getColor(true, scope.row.method)}"
+                      class="api-el-tag">
+                {{ scope.row.method }}
+              </el-tag>
+            </template>
+          </el-table-column>
 
-          :label="$t('api_test.definition.api_type')"
-          show-overflow-tooltip min-width="120px">
-          <template v-slot:default="scope" class="request-method">
-            <el-tag size="mini"
-                    :style="{'background-color': getColor(true, scope.row.method), border: getColor(true, scope.row.method)}"
-                    class="api-el-tag">
-              {{ scope.row.method }}
-            </el-tag>
-          </template>
-        </el-table-column>
+          <el-table-column
+            v-if="item.prop == 'userName'"
+            prop="userName"
+            sortable="custom"
+            :filters="userFilters"
+            column-key="user_id"
+            :label="$t('api_test.definition.api_principal')"
+            show-overflow-tooltip
+            min-width="100px"
+            :key="index"/>
 
-        <el-table-column
-          prop="userName"
-          sortable="custom"
-          :filters="userFilters"
-          column-key="user_id"
+          <el-table-column
+            v-if="item.prop == 'path'"
+            prop="path"
+            min-width="120px"
+            :label="$t('api_test.definition.api_path')"
+            show-overflow-tooltip
+            :key="index"/>
 
-          :label="$t('api_test.definition.api_principal')"
-          show-overflow-tooltip min-width="100px"/>
+          <el-table-column
+            v-if="item.prop == 'tags'"
+            prop="tags"
+            :label="$t('commons.tag')"
+            min-width="80px"
+            :key="index"
+          >
+            <template v-slot:default="scope">
+              <div v-for="(itemName,index)  in scope.row.tags" :key="index">
+                <ms-tag type="success" effect="plain" :content="itemName"/>
+              </div>
+            </template>
+          </el-table-column>
 
-        <el-table-column
-          prop="path"
-          min-width="120px"
+          <el-table-column
+            v-if="item.prop == 'updateTime'"
+            width="160"
+            :label="$t('api_test.definition.api_last_time')"
+            sortable="custom"
+            min-width="160px"
+            prop="updateTime"
+            :key="index">
+            <template v-slot:default="scope">
+              <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
+            </template>
+          </el-table-column>
 
-          :label="$t('api_test.definition.api_path')"
-          show-overflow-tooltip/>
+          <el-table-column
+            v-if="item.prop == 'caseTotal'"
+            prop="caseTotal"
+            min-width="80px"
+            :label="$t('api_test.definition.api_case_number')"
+            show-overflow-tooltip
+            :key="index"/>
 
-        <el-table-column prop="tags" :label="$t('commons.tag')" min-width="80px"
-                         >
-          <template v-slot:default="scope">
-            <div v-for="(itemName,index)  in scope.row.tags" :key="index">
-              <ms-tag type="success" effect="plain" :content="itemName"/>
-            </div>
-          </template>
-        </el-table-column>
+          <el-table-column
+            v-if="item.prop == 'caseStatus'"
+            prop="caseStatus"
+            min-width="80px"
+            :label="$t('api_test.definition.api_case_status')"
+            show-overflow-tooltip
+            :key="index"/>
 
-        <el-table-column
-          width="160"
-          :label="$t('api_test.definition.api_last_time')"
-          sortable="custom"
-          min-width="160px"
-
-          prop="updateTime">
-          <template v-slot:default="scope">
-            <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
-          </template>
-        </el-table-column>
-
-        <el-table-column
-          prop="caseTotal"
-          min-width="80px"
-
-          :label="$t('api_test.definition.api_case_number')"
-          show-overflow-tooltip/>
-
-        <el-table-column
-          prop="caseStatus"
-          min-width="80px"
-
-          :label="$t('api_test.definition.api_case_status')"
-          show-overflow-tooltip/>
-
-        <el-table-column
-          prop="casePassingRate"
-          :width="100"
-          min-width="100px"
-
-          :label="$t('api_test.definition.api_case_passing_rate')"
-          show-overflow-tooltip/>
+          <el-table-column
+            v-if="item.prop == 'casePassingRate'"
+            prop="casePassingRate"
+            :width="100"
+            min-width="100px"
+            :label="$t('api_test.definition.api_case_passing_rate')"
+            show-overflow-tooltip
+            :key="index"/>
+        </template>
 
         <el-table-column fixed="right" v-if="!isReadOnly" :label="$t('commons.operating')" min-width="130"
                          align="center">
+          <template slot="header">
+            <span>{{ $t('commons.operating') }}
+             <i class='el-icon-setting' style="color:#7834c1; margin-left:10px" @click="customHeader"> </i>
+            </span>
+          </template>
           <template v-slot:default="scope">
             <ms-table-operator-button :tip="$t('commons.reduction')" icon="el-icon-refresh-left"
                                       @exec="reductionApi(scope.row)" v-if="trashEnable" v-tester/>
@@ -162,6 +191,8 @@
                                       type="danger" v-tester/>
           </template>
         </el-table-column>
+        <header-custom ref="headerCustom" :initTableData="initTable" :optionalFields=headerItems
+                       :type=type></header-custom>
       </el-table>
       <ms-table-pagination :change="initTable" :current-page.sync="currentPage" :page-size.sync="pageSize"
                            :total="total"/>
@@ -190,8 +221,10 @@ import MsBottomContainer from "../BottomContainer";
 import ShowMoreBtn from "../../../../track/case/components/ShowMoreBtn";
 import MsBatchEdit from "../basis/BatchEdit";
 import {API_METHOD_COLOUR, API_STATUS, DUBBO_METHOD, REQ_METHOD, SQL_METHOD, TCP_METHOD} from "../../model/JsonData";
-import {downloadFile, getCurrentProjectID} from "@/common/js/utils";
-import {PROJECT_NAME, WORKSPACE_ID} from '@/common/js/constants';
+import {downloadFile} from "@/common/js/utils";
+import {PROJECT_NAME} from '@/common/js/constants';
+import {getCurrentProjectID, getCurrentUser} from "@/common/js/utils";
+import {API_LIST, TEST_CASE_LIST, WORKSPACE_ID} from '@/common/js/constants';
 import ApiListContainer from "./ApiListContainer";
 import MsTableHeaderSelectPopover from "@/business/components/common/components/table/MsTableHeaderSelectPopover";
 import ApiStatus from "@/business/components/api/definition/components/list/ApiStatus";
@@ -201,18 +234,20 @@ import MsTipButton from "@/business/components/common/components/MsTipButton";
 import CaseBatchMove from "@/business/components/api/definition/components/basis/BatchMove";
 import ApiListContainerWithDoc from "@/business/components/api/definition/components/list/ApiListContainerWithDoc";
 import {
-  _filter,
   _handleSelect,
   _handleSelectAll,
-  _sort,
   getSelectDataCounts, initCondition,
   setUnSelectIds, toggleAllSelection
 } from "@/common/js/tableUtils";
+import {_filter, _sort} from "@/common/js/tableUtils";
+import {Api_List, Track_Test_Case} from "@/business/components/common/model/JsonData";
+import HeaderCustom from "@/business/components/common/head/HeaderCustom";
 
 
 export default {
   name: "ApiList",
   components: {
+    HeaderCustom,
     CaseBatchMove,
     ApiStatus,
     MsTableHeaderSelectPopover,
@@ -233,6 +268,9 @@ export default {
   },
   data() {
     return {
+      type: API_LIST,
+      headerItems: Api_List,
+      tableLabel: Api_List,
       condition: {
         components: API_DEFINITION_CONFIGS
       },
@@ -352,6 +390,9 @@ export default {
     }
   },
   methods: {
+    customHeader() {
+      this.$refs.headerCustom.open(this.tableLabel)
+    },
     handleBatchMove() {
       this.$refs.testCaseBatchMove.open(this.moduleTree, [], this.moduleOptions);
     },
@@ -362,6 +403,7 @@ export default {
       this.$emit("activeDomChange",tabType);
     },
     initTable() {
+      this.getLabel()
       this.selectRows = new Set();
       initCondition(this.condition);
       this.selectDataCounts = 0;
@@ -407,6 +449,25 @@ export default {
           })
         });
       }
+    },
+    getLabel() {
+      let param = {}
+      param.userId = getCurrentUser().id;
+      param.type = API_LIST
+      this.result = this.$post('/system/header/info', param, response => {
+        if (response.data != null) {
+          let arry = eval(response.data.props);
+          let obj = {};
+          for (let key in arry) {
+            obj[key] = arry[key];
+          }
+          let newObj = Object.keys(obj).map(val => ({
+            prop: obj[val]
+          }))
+          this.tableLabel = newObj
+        }
+
+      })
     },
     genProtocalFilter(protocalType) {
       if (protocalType === "HTTP") {
@@ -563,6 +624,10 @@ export default {
       param.projectId = getCurrentProjectID();
       param.moduleId=param.nodeId;
       param.condition = this.condition;
+      param.selectAllDate = this.isSelectAllDate;
+      param.unSelectIds = this.unSelection;
+      param = Object.assign(param, this.condition);
+      param.moduleId = param.nodeId;
       this.$post('/api/definition/batch/editByParams', param, () => {
         this.$success(this.$t('commons.save_success'));
         this.$refs.testCaseBatchMove.close();
@@ -662,9 +727,9 @@ export default {
       _filter(filters, this.condition);
       this.initTable();
     },
-    headerDragend(newWidth,oldWidth,column,event){
+    headerDragend(newWidth, oldWidth, column, event) {
       let finalWidth = newWidth;
-      if(column.minWidth>finalWidth){
+      if (column.minWidth > finalWidth) {
         finalWidth = column.minWidth;
       }
       column.width = finalWidth;
@@ -674,7 +739,7 @@ export default {
       this.$refs.searchBar.open();
     }
   },
-  }
+}
 </script>
 
 <style scoped>

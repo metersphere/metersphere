@@ -48,7 +48,7 @@
         let scenarioIds = [];
         scenarioIds.push(row.id);
         run.projectId = getCurrentProjectID();
-        run.scenarioIds = scenarioIds;
+        run.ids = scenarioIds;
         run.id = getUUID();
         run.name = row.name;
         this.$post(url, run, response => {

@@ -3,10 +3,10 @@
     <el-card class="card-content" v-loading="result.loading">
       <template v-slot:header>
         <test-plan-load-case-list-header
-          :condition="condition"
-          :plan-id="planId"
-          @refresh="initTable"
-          @relevanceCase="$emit('relevanceCase')"
+            :condition="condition"
+            :plan-id="planId"
+            @refresh="initTable"
+            @relevanceCase="$emit('relevanceCase')"
         />
       </template>
 
@@ -23,69 +23,89 @@
             <show-more-btn :is-show="scope.row.showMore && !isReadOnly" :buttons="buttons" :size="selectRows.size"/>
           </template>
         </el-table-column>
-
-        <el-table-column prop="num" label="ID" show-overflow-tooltip/>
-        <el-table-column
-          prop="caseName"
-          :label="$t('commons.name')"
-          show-overflow-tooltip>
-        </el-table-column>
-        <el-table-column
-          prop="projectName"
-          :label="$t('load_test.project_name')"
-          show-overflow-tooltip>
-        </el-table-column>
-        <el-table-column
-          prop="userName"
-          :label="$t('load_test.user_name')"
-          show-overflow-tooltip>
-        </el-table-column>
-        <el-table-column
-          sortable
-          prop="createTime"
-          :label="$t('commons.create_time')">
-          <template v-slot:default="scope">
-            <span>{{ scope.row.createTime | timestampFormatDate }}</span>
-          </template>
-        </el-table-column>
-        <el-table-column
-          prop="status"
-          column-key="status"
-          :filters="statusFilters"
-          :label="$t('commons.status')">
-          <template v-slot:default="{row}">
-            <ms-performance-test-status :row="row"/>
-          </template>
-        </el-table-column>
-        <el-table-column
-          prop="caseStatus"
-          :label="$t('test_track.plan.load_case.execution_status')">
-          <template v-slot:default="{row}">
-            <el-tag size="mini" type="danger" v-if="row.caseStatus === 'error'">
-              {{ row.caseStatus }}
-            </el-tag>
-            <el-tag size="mini" type="success" v-else-if="row.caseStatus === 'success'">
-              {{ row.caseStatus }}
-            </el-tag>
-            <el-tag size="mini" v-else-if="row.caseStatus === 'run'">
-              {{ row.caseStatus }}
-            </el-tag>
-            <span v-else>-</span>
-          </template>
-        </el-table-column>
-        <el-table-column
-          :label="$t('test_track.plan.load_case.report')"
-          show-overflow-tooltip>
-          <template v-slot:default="scope">
-            <div v-loading="loading === scope.row.id">
-              <el-link type="info" @click="getReport(scope.row)" v-if="scope.row.loadReportId">
-                {{ $t('test_track.plan.load_case.view_report') }}
-              </el-link>
-              <span v-else> - </span>
-            </div>
-          </template>
-        </el-table-column>
+        <template v-for="(item, index) in tableLabel">
+          <el-table-column v-if="item.prop == 'num'" prop="num" label="ID" show-overflow-tooltip :key="index"/>
+          <el-table-column
+              v-if="item.prop == 'caseName'"
+              prop="caseName"
+              :label="$t('commons.name')"
+              show-overflow-tooltip
+              :key="index">
+          </el-table-column>
+          <el-table-column
+              v-if="item.prop == 'projectName'"
+              prop="projectName"
+              :label="$t('load_test.project_name')"
+              show-overflow-tooltip
+              :key="index">
+          </el-table-column>
+          <el-table-column
+              v-if="item.prop == 'userName'"
+              prop="userName"
+              :label="$t('load_test.user_name')"
+              show-overflow-tooltip
+              :key="index">
+          </el-table-column>
+          <el-table-column
+              v-if="item.prop == 'createTime'"
+              sortable
+              prop="createTime"
+              :label="$t('commons.create_time')"
+              :key="index">
+            <template v-slot:default="scope">
+              <span>{{ scope.row.createTime | timestampFormatDate }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column
+              v-if="item.prop == 'status'"
+              prop="status"
+              column-key="status"
+              :filters="statusFilters"
+              :label="$t('commons.status')"
+              :key="index">
+            <template v-slot:default="{row}">
+              <ms-performance-test-status :row="row"/>
+            </template>
+          </el-table-column>
+          <el-table-column
+              v-if="item.prop == 'caseStatus'"
+              prop="caseStatus"
+              :label="$t('test_track.plan.load_case.execution_status')"
+              :key="index">
+            <template v-slot:default="{row}">
+              <el-tag size="mini" type="danger" v-if="row.caseStatus === 'error'">
+                {{ row.caseStatus }}
+              </el-tag>
+              <el-tag size="mini" type="success" v-else-if="row.caseStatus === 'success'">
+                {{ row.caseStatus }}
+              </el-tag>
+              <el-tag size="mini" v-else-if="row.caseStatus === 'run'">
+                {{ row.caseStatus }}
+              </el-tag>
+              <span v-else>-</span>
+            </template>
+          </el-table-column>
+          <el-table-column
+              v-if="item.prop == 'loadReportId'"
+              :label="$t('test_track.plan.load_case.report')"
+              show-overflow-tooltip
+              :key="index">
+            <template v-slot:default="scope">
+              <div v-loading="loading === scope.row.id">
+                <el-link type="info" @click="getReport(scope.row)" v-if="scope.row.loadReportId">
+                  {{ $t('test_track.plan.load_case.view_report') }}
+                </el-link>
+                <span v-else> - </span>
+              </div>
+            </template>
+          </el-table-column>
+        </template>
         <el-table-column v-if="!isReadOnly" :label="$t('commons.operating')" align="center">
+          <template slot="header">
+            <span>{{ $t('commons.operating') }}
+             <i class='el-icon-setting' style="color:#7834c1; margin-left:10px" @click="customHeader"> </i>
+            </span>
+          </template>
           <template v-slot:default="scope">
             <ms-table-operator-button class="run-button" :is-tester-permission="true" :tip="$t('api_test.run')"
                                       icon="el-icon-video-play"
@@ -95,6 +115,8 @@
           </template>
         </el-table-column>
       </el-table>
+      <header-custom ref="headerCustom" :initTableData="initTable" :optionalFields=headerItems
+                     :type=type></header-custom>
       <ms-table-pagination :change="initTable" :current-page.sync="currentPage" :page-size.sync="pageSize"
                            :total="total"/>
     </el-card>
@@ -112,10 +134,15 @@ import MsPerformanceTestStatus from "@/business/components/performance/test/Perf
 import MsTableOperatorButton from "@/business/components/common/components/MsTableOperatorButton";
 import LoadCaseReport from "@/business/components/track/plan/view/comonents/load/LoadCaseReport";
 import {_filter, _sort} from "@/common/js/tableUtils";
+import HeaderCustom from "@/business/components/common/head/HeaderCustom";
+import {TEST_CASE_LIST, TEST_PLAN_LOAD_CASE} from "@/common/js/constants";
+import {Test_Plan_Load_Case, Track_Test_Case} from "@/business/components/common/model/JsonData";
+import {getCurrentUser} from "@/common/js/utils";
 
 export default {
   name: "TestPlanLoadCaseList",
   components: {
+    HeaderCustom,
     LoadCaseReport,
     TestPlanLoadCaseListHeader,
     ShowMoreBtn,
@@ -125,6 +152,9 @@ export default {
   },
   data() {
     return {
+      type: TEST_PLAN_LOAD_CASE,
+      headerItems: Test_Plan_Load_Case,
+      tableLabel: Test_Plan_Load_Case,
       condition: {},
       result: {},
       tableData: [],
@@ -177,7 +207,11 @@ export default {
     }
   },
   methods: {
+    customHeader() {
+      this.$refs.headerCustom.open(this.tableLabel)
+    },
     initTable() {
+      this.getLabel()
       this.selectRows = new Set();
       this.condition.testPlanId = this.planId;
       if (this.selectProjectId && this.selectProjectId !== 'root') {
@@ -186,7 +220,7 @@ export default {
       if (this.clickType) {
         if (this.status == 'default') {
           this.condition.status = this.clickType;
-        }else{
+        } else {
           this.condition.status = null;
         }
         this.status = 'all';
@@ -196,6 +230,24 @@ export default {
         let {itemCount, listObject} = data;
         this.total = itemCount;
         this.tableData = listObject;
+      })
+    },
+    getLabel() {
+      let param = {}
+      param.userId = getCurrentUser().id;
+      param.type = TEST_PLAN_LOAD_CASE
+      this.result = this.$post('/system/header/info', param, response => {
+        if (response.data != null) {
+          let arry = eval(response.data.props);
+          let obj = {};
+          for (let key in arry) {
+            obj[key] = arry[key];
+          }
+          let newObj = Object.keys(obj).map(val => ({
+            prop: obj[val]
+          }))
+          this.tableLabel = newObj
+        }
       })
     },
     refreshStatus() {

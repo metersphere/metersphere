@@ -79,8 +79,8 @@ function checkField(secondsField, minimal, maximal) {
     try {
       var startVal = parseInt(startValue, 10);
       var endVal = parseInt(endValue, 10);
-
-      return endVal > startVal;
+      //return endVal > startVal;
+      return true;
     } catch (e) {
       return false;
     }

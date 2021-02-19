@@ -52,31 +52,31 @@
 </template>
 
 <script>
-  import MsApiAssertionText from "./ApiAssertionText";
-  import MsApiAssertionRegex from "./ApiAssertionRegex";
-  import MsApiAssertionDuration from "./ApiAssertionDuration";
-  import {ASSERTION_TYPE, JSONPath} from "../../model/ApiTestModel";
-  import MsApiAssertionsEdit from "./ApiAssertionsEdit";
-  import MsApiAssertionJsonPath from "./ApiAssertionJsonPath";
-  import MsApiAssertionJsr223 from "./ApiAssertionJsr223";
-  import MsApiJsonpathSuggestList from "./ApiJsonpathSuggestList";
-  import MsApiAssertionXPath2 from "./ApiAssertionXPath2";
-  import {getUUID} from "@/common/js/utils";
-  import ApiJsonPathSuggestButton from "./ApiJsonPathSuggestButton";
-  import MsApiJsonpathSuggest from "./ApiJsonpathSuggest";
-  import ApiBaseComponent from "../../../automation/scenario/common/ApiBaseComponent";
+import MsApiAssertionText from "./ApiAssertionText";
+import MsApiAssertionRegex from "./ApiAssertionRegex";
+import MsApiAssertionDuration from "./ApiAssertionDuration";
+import {ASSERTION_TYPE, JSONPath} from "../../model/ApiTestModel";
+import MsApiAssertionsEdit from "./ApiAssertionsEdit";
+import MsApiAssertionJsonPath from "./ApiAssertionJsonPath";
+import MsApiAssertionJsr223 from "./ApiAssertionJsr223";
+import MsApiJsonpathSuggestList from "./ApiJsonpathSuggestList";
+import MsApiAssertionXPath2 from "./ApiAssertionXPath2";
+import {getUUID} from "@/common/js/utils";
+import ApiJsonPathSuggestButton from "./ApiJsonPathSuggestButton";
+import MsApiJsonpathSuggest from "./ApiJsonpathSuggest";
+import ApiBaseComponent from "../../../automation/scenario/common/ApiBaseComponent";
 
-  export default {
-    name: "MsApiAssertions",
-    components: {
-      ApiBaseComponent,
-      MsApiJsonpathSuggest,
-      ApiJsonPathSuggestButton,
-      MsApiAssertionXPath2,
-      MsApiAssertionJsr223,
-      MsApiJsonpathSuggestList,
-      MsApiAssertionJsonPath,
-      MsApiAssertionsEdit, MsApiAssertionDuration, MsApiAssertionRegex, MsApiAssertionText
+export default {
+  name: "MsApiAssertions",
+  components: {
+    ApiBaseComponent,
+    MsApiJsonpathSuggest,
+    ApiJsonPathSuggestButton,
+    MsApiAssertionXPath2,
+    MsApiAssertionJsr223,
+    MsApiJsonpathSuggestList,
+    MsApiAssertionJsonPath,
+    MsApiAssertionsEdit, MsApiAssertionDuration, MsApiAssertionRegex, MsApiAssertionText
     },
     props: {
       draggable: {

@@ -13,8 +13,6 @@ public class ApiTestImportRequest {
     private String projectId;
     private String platform;
     private Boolean useEnvironment;
-    // 来自场景的导入不需要存储
-    private boolean saved = true;
     private String swaggerUrl;
     //导入策略
     private String modeId;

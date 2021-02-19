@@ -71,7 +71,7 @@ public class Swagger2Parser extends SwaggerAbstractParser {
                 addBodyHeader(request);
                 apiDefinition.setRequest(JSON.toJSONString(request));
                 apiDefinition.setResponse(JSON.toJSONString(parseResponse(operation, operation.getResponses())));
-                buildModule(parentNode, apiDefinition, operation.getTags(), importRequest.isSaved());
+                buildModule(parentNode, apiDefinition, operation.getTags());
                 results.add(apiDefinition);
             }
         }

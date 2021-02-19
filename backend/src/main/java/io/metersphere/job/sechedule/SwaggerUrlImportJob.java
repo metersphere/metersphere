@@ -29,7 +29,6 @@ public class SwaggerUrlImportJob extends MsScheduleJob {
         request.setSwaggerUrl(swaggerUrlProject.getSwaggerUrl());
         request.setModuleId(swaggerUrlProject.getModuleId());
         request.setPlatform("Swagger2");
-        request.setSaved(true);
         request.setUserId(jobDataMap.getString("userId"));
         request.setType("schedule");
         apiDefinitionService.apiTestImport(null, request);

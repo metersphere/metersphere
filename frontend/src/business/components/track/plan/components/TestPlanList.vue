@@ -14,23 +14,30 @@
       @filter-change="filter"
       @sort-change="sort"
       @row-click="intoPlan">
-      <el-table-column
-        prop="name"
-        :label="$t('commons.name')"
-        show-overflow-tooltip>
-      </el-table-column>
-      <el-table-column
-        prop="userName"
-        :label="$t('test_track.plan.plan_principal')"
-        show-overflow-tooltip>
-      </el-table-column>
-      <el-table-column
-        prop="status"
-        column-key="status"
-        :filters="statusFilters"
-        :label="$t('test_track.plan.plan_status')"
-        show-overflow-tooltip>
-        <template v-slot:default="scope">
+      <template v-for="(item, index) in tableLabel">
+        <el-table-column
+          v-if="item.prop == 'name'"
+          prop="name"
+          :label="$t('commons.name')"
+          show-overflow-tooltip
+          :key="index">
+        </el-table-column>
+        <el-table-column
+          v-if="item.prop == 'userName'"
+          prop="userName"
+          :label="$t('test_track.plan.plan_principal')"
+          show-overflow-tooltip
+          :key="index">
+        </el-table-column>
+        <el-table-column
+          v-if="item.prop == 'status'"
+          prop="status"
+          column-key="status"
+          :filters="statusFilters"
+          :label="$t('test_track.plan.plan_status')"
+          show-overflow-tooltip
+          :key="index">
+          <template v-slot:default="scope">
           <span @click.stop="clickt = 'stop'">
             <el-dropdown class="test-case-status" @command="statusChange">
               <span class="el-dropdown-link">
@@ -51,76 +58,98 @@
               </el-dropdown-menu>
             </el-dropdown>
           </span>
-        </template>
-      </el-table-column>
-      <el-table-column
-        prop="stage"
-        column-key="stage"
-        :filters="stageFilters"
-        :label="$t('test_track.plan.plan_stage')"
-        show-overflow-tooltip>
-        <template v-slot:default="scope">
-          <plan-stage-table-item :stage="scope.row.stage"/>
-        </template>
-      </el-table-column>
-      <el-table-column
-        prop="projectName"
-        :label="$t('test_track.home.test_rate')"
-        min-width="100"
-        show-overflow-tooltip>
-        <template v-slot:default="scope">
-          <el-progress :percentage="scope.row.testRate"></el-progress>
-        </template>
-      </el-table-column>
-      <el-table-column
-        prop="projectName"
-        :label="$t('test_track.plan.plan_project')"
-        show-overflow-tooltip>
-      </el-table-column>
-      <el-table-column
-        sortable
-        prop="plannedStartTime"
-        :label="$t('test_track.plan.planned_start_time')"
-        show-overflow-tooltip>
-        <template v-slot:default="scope">
-          <span>{{ scope.row.plannedStartTime | timestampFormatDate }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column
-        sortable
-        prop="plannedEndTime"
-        :label="$t('test_track.plan.planned_end_time')"
-        show-overflow-tooltip>
-        <template v-slot:default="scope">
-          <span>{{ scope.row.plannedEndTime | timestampFormatDate }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column
-        sortable
-        prop="actualStartTime"
-        :label="$t('test_track.plan.actual_start_time')"
-        show-overflow-tooltip>
-        <template v-slot:default="scope">
-          <span>{{ scope.row.actualStartTime | timestampFormatDate }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column
-        sortable
-        prop="actualEndTime"
-        :label="$t('test_track.plan.actual_end_time')"
-        show-overflow-tooltip>
-        <template v-slot:default="scope">
-          <span>{{ scope.row.actualEndTime | timestampFormatDate }}</span>
-        </template>
-      </el-table-column>
+          </template>
+        </el-table-column>
+        <el-table-column
+          v-if="item.prop == 'stage'"
+          prop="stage"
+          column-key="stage"
+          :filters="stageFilters"
+          :label="$t('test_track.plan.plan_stage')"
+          show-overflow-tooltip
+          :key="index">
+          <template v-slot:default="scope">
+            <plan-stage-table-item :stage="scope.row.stage"/>
+          </template>
+        </el-table-column>
+        <el-table-column
+          v-if="item.prop == 'testRate'"
+          prop="testRate"
+          :label="$t('test_track.home.test_rate')"
+          min-width="100"
+          show-overflow-tooltip
+          :key="index">
+          <template v-slot:default="scope">
+            <el-progress :percentage="scope.row.testRate"></el-progress>
+          </template>
+        </el-table-column>
+        <el-table-colum
+          v-if="item.prop == 'projectName'"
+          prop="projectName"
+          :label="$t('test_track.plan.plan_project')"
+          show-overflow-tooltip
+          :key="index">
+        </el-table-colum>
+        <el-table-column
+          v-if="item.prop == 'plannedStartTime'"
+          sortable
+          prop="plannedStartTime"
+          :label="$t('test_track.plan.planned_start_time')"
+          show-overflow-tooltip
+          :key="index">
+          <template v-slot:default="scope">
+            <span>{{ scope.row.plannedStartTime | timestampFormatDate }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column
+          v-if="item.prop == 'plannedEndTime'"
+          sortable
+          prop="plannedEndTime"
+          :label="$t('test_track.plan.planned_end_time')"
+          show-overflow-tooltip
+          :key="index">
+          <template v-slot:default="scope">
+            <span>{{ scope.row.plannedEndTime | timestampFormatDate }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column
+          v-if="item.prop == 'actualStartTime'"
+          sortable
+          prop="actualStartTime"
+          :label="$t('test_track.plan.actual_start_time')"
+          show-overflow-tooltip
+          :key="index">
+          <template v-slot:default="scope">
+            <span>{{ scope.row.actualStartTime | timestampFormatDate }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column
+          v-if="item.prop == 'actualEndTime'"
+          sortable
+          prop="actualEndTime"
+          :label="$t('test_track.plan.actual_end_time')"
+          show-overflow-tooltip
+          :key="index">
+          <template v-slot:default="scope">
+            <span>{{ scope.row.actualEndTime | timestampFormatDate }}</span>
+          </template>
+        </el-table-column>
+      </template>
       <el-table-column
         min-width="150"
         :label="$t('commons.operating')">
+        <template slot="header">
+            <span>{{ $t('commons.operating') }}
+             <i class='el-icon-setting' style="color:#7834c1; margin-left:10px" @click="customHeader"> </i>
+            </span>
+        </template>
         <template v-slot:default="scope">
           <ms-table-operator :is-tester-permission="true" @editClick="handleEdit(scope.row)"
                              @deleteClick="handleDelete(scope.row)">
             <template v-slot:middle>
-              <ms-table-operator-button :isTesterPermission="true" style="background-color: #85888E;border-color: #85888E" v-if="!scope.row.reportId"
+              <ms-table-operator-button :isTesterPermission="true"
+                                        style="background-color: #85888E;border-color: #85888E"
+                                        v-if="!scope.row.reportId"
                                         :tip="$t('test_track.plan_view.create_report')" icon="el-icon-s-data"
                                         @exec="openTestReportTemplate(scope.row)"/>
               <ms-table-operator-button v-if="scope.row.reportId"
@@ -128,24 +157,30 @@
                                         @exec="openReport(scope.row.id, scope.row.reportId)"/>
             </template>
           </ms-table-operator>
-          <ms-table-operator-button style="margin-left: 10px;color:#85888E;border-color: #85888E; border-width: thin;" v-if="!scope.row.scheduleOpen" type="text"
+          <ms-table-operator-button style="margin-left: 10px;color:#85888E;border-color: #85888E; border-width: thin;"
+                                    v-if="!scope.row.scheduleOpen" type="text"
                                     :tip="$t('commons.trigger_mode.schedule')" icon="el-icon-time"
                                     @exec="scheduleTask(scope.row)"/>
-          <ms-table-operator-button style="margin-left: 10px;color:#6C317C; border-color: #6C317C; border-width: thin;" v-if="scope.row.scheduleOpen" type="text"
+          <ms-table-operator-button style="margin-left: 10px;color:#6C317C; border-color: #6C317C; border-width: thin;"
+                                    v-if="scope.row.scheduleOpen" type="text"
                                     :tip="$t('commons.trigger_mode.schedule')" icon="el-icon-time"
                                     @exec="scheduleTask(scope.row)"/>
         </template>
       </el-table-column>
     </el-table>
+    <header-custom ref="headerCustom" :initTableData="initTableData" :optionalFields=headerItems
+                   :type=type></header-custom>
+
 
     <ms-table-pagination :change="initTableData" :current-page.sync="currentPage" :page-size.sync="pageSize"
                          :total="total"/>
     <test-report-template-list @openReport="openReport" ref="testReportTemplateList"/>
     <test-case-report-view @refresh="initTableData" ref="testCaseReportView"/>
-    <ms-delete-confirm :title="$t('test_track.plan.plan_delete')" @delete="_handleDelete" ref="deleteConfirm" :with-tip="enableDeleteTip">
-      {{$t('test_track.plan.plan_delete_tip')}}
+    <ms-delete-confirm :title="$t('test_track.plan.plan_delete')" @delete="_handleDelete" ref="deleteConfirm"
+                       :with-tip="enableDeleteTip">
+      {{ $t('test_track.plan.plan_delete_tip') }}
     </ms-delete-confirm>
-    <ms-schedule-maintain ref="scheduleMaintain" @refreshTable="initTableData" />
+    <ms-schedule-maintain ref="scheduleMaintain" @refreshTable="initTableData"/>
   </el-card>
 </template>
 
@@ -158,7 +193,7 @@ import MsTableOperatorButton from "../../../common/components/MsTableOperatorBut
 import MsTableOperator from "../../../common/components/MsTableOperator";
 import PlanStatusTableItem from "../../common/tableItems/plan/PlanStatusTableItem";
 import PlanStageTableItem from "../../common/tableItems/plan/PlanStageTableItem";
-import {checkoutTestManagerOrTestUser} from "@/common/js/utils";
+import {checkoutTestManagerOrTestUser, getCurrentUser} from "@/common/js/utils";
 import TestReportTemplateList from "../view/comonents/TestReportTemplateList";
 import TestCaseReportView from "../view/comonents/report/TestCaseReportView";
 import MsDeleteConfirm from "../../../common/components/MsDeleteConfirm";
@@ -167,11 +202,15 @@ import {LIST_CHANGE, TrackEvent} from "@/business/components/common/head/ListEve
 import {getCurrentProjectID} from "../../../../../common/js/utils";
 import MsScheduleMaintain from "@/business/components/api/automation/schedule/ScheduleMaintain"
 import {_filter, _sort} from "@/common/js/tableUtils";
+import {TEST_CASE_LIST, TEST_PLAN_LIST} from "@/common/js/constants";
+import {Test_Plan_List, Track_Test_Case} from "@/business/components/common/model/JsonData";
+import HeaderCustom from "@/business/components/common/head/HeaderCustom";
 
 
 export default {
   name: "TestPlanList",
   components: {
+    HeaderCustom,
     MsDeleteConfirm,
     TestCaseReportView,
     TestReportTemplateList,
@@ -182,6 +221,9 @@ export default {
   },
   data() {
     return {
+      type: TEST_PLAN_LIST,
+      headerItems: Test_Plan_List,
+      tableLabel: Test_Plan_List,
       result: {},
       enableDeleteTip: false,
       queryPath: "/test/plan/list",
@@ -219,7 +261,11 @@ export default {
     this.initTableData();
   },
   methods: {
+    customHeader() {
+      this.$refs.headerCustom.open(this.tableLabel)
+    },
     initTableData() {
+      this.getLabel()
       if (this.planId) {
         this.condition.planId = this.planId;
       }
@@ -235,13 +281,31 @@ export default {
         this.tableData = data.listObject;
         for (let i = 0; i < this.tableData.length; i++) {
           let path = "/test/plan/project";
-          this.$post(path,{planId: this.tableData[i].id}, res => {
+          this.$post(path, {planId: this.tableData[i].id}, res => {
             let arr = res.data;
             let projectIds = arr.filter(d => d.id !== this.tableData[i].projectId).map(data => data.id);
             this.$set(this.tableData[i], "projectIds", projectIds);
           })
         }
       });
+    },
+    getLabel() {
+      let param = {}
+      param.userId = getCurrentUser().id;
+      param.type = TEST_PLAN_LIST
+      this.result = this.$post('/system/header/info', param, response => {
+        if (response.data != null) {
+          let arry = eval(response.data.props);
+          let obj = {};
+          for (let key in arry) {
+            obj[key] = arry[key];
+          }
+          let newObj = Object.keys(obj).map(val => ({
+            prop: obj[val]
+          }))
+          this.tableLabel = newObj
+        }
+      })
     },
     buildPagePath(path) {
       return path + "/" + this.currentPage + "/" + this.pageSize;

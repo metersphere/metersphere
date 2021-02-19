@@ -16,12 +16,15 @@
       ref="nodeTree">
 
       <template v-slot:header>
-        <el-input :placeholder="$t('test_track.module.search')" v-model="condition.filterText" size="small">
-          <template v-slot:append>
-            <el-button v-if="!isReadOnly" icon="el-icon-folder-add" @click="addScenario" v-tester/>
-          </template>
-        </el-input>
-        <module-trash-button v-if="!isReadOnly" :condition="condition" :exe="enableTrash"/>
+        <api-scenario-module-header
+          :condition="condition"
+          :current-module="currentModule"
+          :is-read-only="isReadOnly"
+          :project-id="projectId"
+          @exportAPI="exportAPI"
+          @addScenario="addScenario"
+          @refreshTable="$emit('refreshTable')"
+          @refresh="refresh"/>
       </template>
 
     </ms-node-tree>
@@ -41,10 +44,12 @@ import {getCurrentProjectID} from "@/common/js/utils";
 import MsNodeTree from "../../../track/common/NodeTree";
 import {buildNodePath} from "../../definition/model/NodeTree";
 import ModuleTrashButton from "../../definition/components/module/ModuleTrashButton";
+import ApiScenarioModuleHeader from "@/business/components/api/automation/scenario/module/ApiScenarioModuleHeader";
 
 export default {
   name: 'MsApiScenarioModule',
   components: {
+    ApiScenarioModuleHeader,
     ModuleTrashButton,
     MsNodeTree,
     MsAddBasisScenario,
@@ -175,9 +180,9 @@ export default {
           this.$emit("nodeSelectEvent", node, nodeIds, pNodes);
         }
       },
-      // exportAPI() {
-      //   this.$emit('exportAPI');
-      // },
+      exportAPI() {
+        this.$emit('exportAPI');
+      },
       // debug() {
       //   this.$emit('debug');
       // },

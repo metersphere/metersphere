@@ -44,7 +44,7 @@ import org.springframework.web.multipart.MultipartFile;
 import sun.security.util.Cache;
 
 import javax.annotation.Resource;
-import java.io.*;
+import java.io.File;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -498,9 +498,7 @@ public class ApiDefinitionService {
             LogUtil.error(e.getMessage(), e);
             MSException.throwException(Translator.get("parse_data_error"));
         }
-        if (request.isSaved()) {
-            importApi(request, apiImport);
-        }
+        importApi(request, apiImport);
         return apiImport;
     }
 

@@ -1,7 +1,7 @@
 export default {
   commons: {
-    cover:'覆盖',
-    not_cover:'不覆盖',
+    cover: '覆盖',
+    not_cover: '不覆盖',
     import_mode: '导入模式',
     import_module: '导入模块',
     please_fill_in_the_template: '请填写模版内容',
@@ -592,7 +592,7 @@ export default {
         create_info: '创建',
         update_info: '更新',
         batch_edit: "批量编辑",
-        batch_move:"批量移动",
+        batch_move: "批量移动",
         path_valid_info: "请求路径无效",
         other_config: "其他设置",
         message_template: "报文模版",
@@ -675,7 +675,8 @@ export default {
         select_principal: "请选择责任人",
         follow_people: "关注人",
         select_table: "选择可见数据",
-        select_all: "选择全部数据"
+        select_all: "选择全部数据",
+        check_case: "请勾选场景用例"
       },
       report_name_info: '请输入报告名称',
       save_case_info: '请先保存用例',
@@ -1357,6 +1358,7 @@ export default {
     status_change_success: '状态修改成功!',
     status_change_failed: '状态修改失败, 校验不通过!',
     check_in: '校验中',
+    node_selector_invalid: 'nodeSelector 必须是有效的JSON'
   },
   system_parameter_setting: {
     mailbox_service_settings: '邮件设置',
