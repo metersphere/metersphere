@@ -119,15 +119,6 @@ public class TestPlanService {
         }
 
         String testPlanId = UUID.randomUUID().toString();
-
-        List<String> projectIds = testPlan.getProjectIds();
-        projectIds.forEach(id -> {
-            TestPlanProject testPlanProject = new TestPlanProject();
-            testPlanProject.setProjectId(id);
-            testPlanProject.setTestPlanId(testPlanId);
-            testPlanProjectMapper.insertSelective(testPlanProject);
-        });
-
         testPlan.setId(testPlanId);
         testPlan.setStatus(TestPlanStatus.Prepare.name());
         testPlan.setCreateTime(System.currentTimeMillis());
@@ -166,7 +157,6 @@ public class TestPlanService {
     }
 
     public int editTestPlan(TestPlanDTO testPlan) {
-        editTestPlanProject(testPlan);
         checkTestPlanExist(testPlan);
         TestPlan res = testPlanMapper.selectByPrimaryKey(testPlan.getId()); //  先查一次库
         if (!res.getStatus().equals(testPlan.getStatus())) {    //  若有改变才更新时间
@@ -211,70 +201,6 @@ public class TestPlanService {
             noticeSendService.send(NoticeConstants.TaskType.TEST_PLAN_TASK, noticeModel);
         }
         return i;
-    }
-
-    private void editTestPlanProject(TestPlanDTO testPlan) {
-        // 将要进行关联的项目ID
-        List<String> projectIds = testPlan.getProjectIds();
-        // 如果将要关联的项目ID中包含测试计划所属ID则进行剔除
-        if (!CollectionUtils.isEmpty(projectIds)) {
-            if (projectIds.contains(testPlan.getProjectId())) {
-                projectIds.remove(testPlan.getProjectId());
-            }
-        }
-        // todo 优化； TestPlanList intoPlan 方法会触发此更新
-        if (StringUtils.isNotBlank(testPlan.getProjectId())) {
-            TestPlanProjectExample testPlanProjectExample1 = new TestPlanProjectExample();
-            testPlanProjectExample1.createCriteria().andTestPlanIdEqualTo(testPlan.getId());
-            List<TestPlanProject> testPlanProjects = testPlanProjectMapper.selectByExample(testPlanProjectExample1);
-            // 已经关联的项目idList
-            List<String> dbProjectIds = testPlanProjects.stream().map(TestPlanProject::getProjectId).collect(Collectors.toList());
-            // 修改后传过来的项目idList，如果还未关联，进行关联
-            projectIds.forEach(projectId -> {
-                if (!dbProjectIds.contains(projectId)) {
-                    TestPlanProject testPlanProject = new TestPlanProject();
-                    testPlanProject.setTestPlanId(testPlan.getId());
-                    testPlanProject.setProjectId(projectId);
-                    testPlanProjectMapper.insert(testPlanProject);
-                }
-            });
-
-            TestPlanProjectExample testPlanProjectExample = new TestPlanProjectExample();
-            TestPlanProjectExample.Criteria criteria1 = testPlanProjectExample.createCriteria();
-            criteria1.andTestPlanIdEqualTo(testPlan.getId());
-            if (!CollectionUtils.isEmpty(projectIds)) {
-                criteria1.andProjectIdNotIn(projectIds);
-            }
-            testPlanProjectMapper.deleteByExample(testPlanProjectExample);
-
-            // 关联的项目下的用例idList
-            List<String> caseIds = null;
-            // 测试计划所属项目下的用例不解除关联
-            projectIds.add(testPlan.getProjectId());
-            if (!CollectionUtils.isEmpty(projectIds)) {
-                TestCaseExample example = new TestCaseExample();
-                example.createCriteria().andProjectIdIn(projectIds);
-                List<TestCase> caseList = testCaseMapper.selectByExample(example);
-                caseIds = caseList.stream().map(TestCase::getId).collect(Collectors.toList());
-            }
-
-            // 取消关联项目下的用例和计划的关系
-            TestPlanTestCaseExample testPlanTestCaseExample = new TestPlanTestCaseExample();
-            TestPlanTestCaseExample.Criteria criteria = testPlanTestCaseExample.createCriteria().andPlanIdEqualTo(testPlan.getId());
-            if (!CollectionUtils.isEmpty(caseIds)) {
-                criteria.andCaseIdNotIn(caseIds);
-            }
-            testPlanTestCaseMapper.deleteByExample(testPlanTestCaseExample);
-
-            List<String> relevanceProjectIds = new ArrayList<>();
-            relevanceProjectIds.add(testPlan.getProjectId());
-            if (!CollectionUtils.isEmpty(testPlan.getProjectIds())) {
-                relevanceProjectIds.addAll(testPlan.getProjectIds());
-            }
-            testPlanApiCaseService.deleteByRelevanceProjectIds(testPlan.getId(), relevanceProjectIds);
-            testPlanScenarioCaseService.deleteByRelevanceProjectIds(testPlan.getId(), relevanceProjectIds);
-            testPlanLoadCaseService.deleteByRelevanceProjectIds(testPlan.getId(), relevanceProjectIds);
-        }
     }
 
     //计划内容
@@ -331,7 +257,6 @@ public class TestPlanService {
     public int deleteTestPlan(String planId) {
         TestPlan testPlan = getTestPlan(planId);
         deleteTestCaseByPlanId(planId);
-        testPlanProjectService.deleteTestPlanProjectByPlanId(planId);
         testPlanApiCaseService.deleteByPlanId(planId);
         testPlanScenarioCaseService.deleteByPlanId(planId);
 

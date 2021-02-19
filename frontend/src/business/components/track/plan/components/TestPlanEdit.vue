@@ -19,30 +19,6 @@
               <el-input v-model="form.name" :placeholder="$t('test_track.plan.input_plan_name')"></el-input>
             </el-form-item>
           </el-col>
-
-          <el-col :span="11" :offset="2">
-            <el-form-item :label-width="formLabelWidth" prop="projectIds">
-              <template slot="label">
-                <el-tooltip class="item" effect="dark" :content="$t('test_track.plan.related_tip')" placement="top">
-                  <i class="el-icon-warning"/>
-                </el-tooltip>
-                {{ $t('test_track.plan.related_project') }}
-              </template>
-              <el-select
-                v-model="form.projectIds"
-                :placeholder="$t('test_track.plan.input_related_project')"
-                multiple
-                style="width: 100%"
-                filterable>
-                <el-option
-                  v-for="item in projects"
-                  :key="item.id"
-                  :label="item.name"
-                  :value="item.id">
-                </el-option>
-              </el-select>
-            </el-form-item>
-          </el-col>
         </el-row>
 
         <el-row>
@@ -164,21 +140,18 @@ export default {
           {required: true, message: this.$t('test_track.plan.input_plan_name'), trigger: 'blur'},
           {max: 30, message: this.$t('test_track.length_less_than') + '30', trigger: 'blur'}
         ],
-        // projectIds: [{required: true, message: this.$t('test_track.plan.input_plan_project'), trigger: 'change'}],
         principal: [{required: true, message: this.$t('test_track.plan.input_plan_principal'), trigger: 'change'}],
         stage: [{required: true, message: this.$t('test_track.plan.input_plan_stage'), trigger: 'change'}],
         description: [{max: 200, message: this.$t('test_track.length_less_than') + '200', trigger: 'blur'}]
       },
       formLabelWidth: "120px",
       operationType: '',
-      projects: [],
       principalOptions: []
     };
   },
   methods: {
     openTestPlanEditDialog(testPlan) {
       this.resetForm();
-      this.getProjects();
       this.setPrincipalOptions();
       this.operationType = 'add';
       if (testPlan) {
@@ -198,34 +171,18 @@ export default {
           let param = {};
           Object.assign(param, this.form);
           param.name = param.name.trim();
-          if (!this.validate(param)) {
+          if (param.name === '') {
+            this.$warning(this.$t('test_track.plan.input_plan_name'));
             return;
           }
           param.workspaceId = localStorage.getItem(WORKSPACE_ID);
-
-          if (this.operationType === 'edit') {
-            const nowIds = param.projectIds;
-            let sign = true;
-            this.dbProjectIds.forEach(dbId => {
-              if (nowIds.indexOf(dbId) === -1 && sign) {
-                sign = false;
-                this.$confirm(this.$t('test_track.case.cancel_relevance_project'), this.$t('commons.prompt'), {
-                  confirmButtonText: this.$t('commons.confirm'),
-                  cancelButtonText: this.$t('commons.cancel'),
-                  type: 'warning'
-                }).then(() => {
-                  this.editTestPlan(param);
-                }).catch(() => {
-                  this.$info(this.$t('commons.cancel'))
-                });
-              }
-            });
-            if (sign) {
-              this.editTestPlan(param);
-            }
-          } else {
-            this.editTestPlan(param);
-          }
+          this.$post('/test/plan/' + this.operationType, param, () => {
+            this.$success(this.$t('commons.save_success'));
+            this.dialogFormVisible = false;
+            this.$emit("refresh");
+            // 发送广播，刷新 head 上的最新列表
+            TrackEvent.$emit(LIST_CHANGE);
+          });
         } else {
           return false;
         }
@@ -241,24 +198,6 @@ export default {
         return false;
       }
       return true;
-    },
-    editTestPlan(param) {
-      this.$post('/test/plan/' + this.operationType, param, () => {
-        this.$success(this.$t('commons.save_success'));
-        this.dialogFormVisible = false;
-        this.$emit("refresh");
-        // 发送广播，刷新 head 上的最新列表
-        TrackEvent.$emit(LIST_CHANGE);
-      });
-    },
-    getProjects() {
-      this.$get("/project/listAll", (response) => {
-        if (response.success) {
-          this.projects = response.data.filter(da => da.id !== getCurrentProjectID());
-        } else {
-          this.$warning()(response.message);
-        }
-      });
     },
     setPrincipalOptions() {
       let workspaceId = localStorage.getItem(WORKSPACE_ID);
