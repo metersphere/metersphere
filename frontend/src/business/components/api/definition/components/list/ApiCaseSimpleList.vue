@@ -150,7 +150,6 @@ import {API_METHOD_COLOUR, CASE_PRIORITY, DUBBO_METHOD, REQ_METHOD, SQL_METHOD, 
 
 import {getBodyUploadFiles, getCurrentProjectID, getCurrentUser} from "@/common/js/utils";
 import ApiListContainer from "./ApiListContainer";
-import {getBodyUploadFiles, getCurrentProjectID} from "@/common/js/utils";
 // import ApiListContainer from "./ApiListContainer";
 import ApiListContainerWithDoc from "@/business/components/api/definition/components/list/ApiListContainerWithDoc";
 import PriorityTableItem from "../../../../track/common/tableItems/planview/PriorityTableItem";
@@ -249,7 +248,7 @@ export default {
     props: {
       currentProtocol: String,
       selectNodeIds: Array,
-      activeDom:String,
+      activeDom: String,
       visible: {
         type: Boolean,
         default: false,
@@ -312,8 +311,8 @@ export default {
       isApiListEnableChange(data) {
         this.$emit('isApiListEnableChange', data);
       },
-      activeDomChange(tabType){
-        this.$emit("activeDomChange",tabType);
+      activeDomChange(tabType) {
+        this.$emit("activeDomChange", tabType);
       },
       initTable() {
         this.getLabel()
@@ -474,13 +473,13 @@ export default {
         // }
       },
       handleEditBatch() {
-        if(this.currentProtocol =='HTTP'){
+        if (this.currentProtocol == 'HTTP') {
           this.valueArr.method = REQ_METHOD;
-        }else if(this.currentProtocol =='TCP'){
+        } else if (this.currentProtocol == 'TCP') {
           this.valueArr.method = TCP_METHOD;
-        }else if(this.currentProtocol =='SQL'){
+        } else if (this.currentProtocol == 'SQL') {
           this.valueArr.method = SQL_METHOD;
-        }else if(this.currentProtocol =='DUBBO'){
+        } else if (this.currentProtocol == 'DUBBO') {
           this.valueArr.method = DUBBO_METHOD;
         }
         this.$refs.batchEdit.open();
@@ -570,9 +569,9 @@ export default {
         this.clickRow = row;
         this.$refs.setEnvironment.open(row);
       },
-      headerDragend(newWidth,oldWidth,column,event){
+      headerDragend(newWidth, oldWidth, column, event) {
         let finalWidth = newWidth;
-        if(column.minWidth>finalWidth){
+        if (column.minWidth > finalWidth) {
           finalWidth = column.minWidth;
         }
         column.width = finalWidth;
@@ -637,7 +636,8 @@ export default {
         });
       },
     },
-  }
+  },
+}
 </script>
 
 <style scoped>

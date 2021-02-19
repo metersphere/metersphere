@@ -171,8 +171,7 @@ import MsTableHeader from "@/business/components/common/components/MsTableHeader
 import MsTablePagination from "@/business/components/common/pagination/TablePagination";
 import ShowMoreBtn from "@/business/components/track/case/components/ShowMoreBtn";
 import MsTag from "../../../common/components/MsTag";
-import {downloadFile, getCurrentProjectID, getUUID} from "@/common/js/utils";
-import {getCurrentProjectID, getCurrentUser, getUUID} from "@/common/js/utils";
+import {downloadFile, getCurrentProjectID, getCurrentUser, getUUID} from "@/common/js/utils";
 import MsApiReportDetail from "../report/ApiReportDetail";
 import MsTableMoreBtn from "./TableMoreBtn";
 import MsScenarioExtendButtons from "@/business/components/api/automation/scenario/ScenarioExtendBtns";
@@ -184,17 +183,16 @@ import PriorityTableItem from "../../../track/common/tableItems/planview/Priorit
 import PlanStatusTableItem from "../../../track/common/tableItems/plan/PlanStatusTableItem";
 import BatchEdit from "../../../track/case/components/BatchEdit";
 import {API_SCENARIO_LIST, TEST_CASE_LIST, TEST_PLAN_LIST, WORKSPACE_ID} from "../../../../../common/js/constants";
-import {PROJECT_NAME, WORKSPACE_ID} from "../../../../../common/js/constants";
+import {PROJECT_NAME} from "../../../../../common/js/constants";
 import EnvironmentSelect from "../../definition/components/environment/EnvironmentSelect";
 import BatchMove from "../../../track/case/components/BatchMove";
-import {_filter, _sort} from "@/common/js/tableUtils";
+import {_sort} from "@/common/js/tableUtils";
 import {Api_Scenario_List, Track_Test_Case} from "@/business/components/common/model/JsonData";
 import HeaderCustom from "@/business/components/common/head/HeaderCustom";
 import {
   _filter,
   _handleSelect,
   _handleSelectAll,
-  _sort,
   getSelectDataCounts,
   setUnSelectIds, toggleAllSelection
 } from "@/common/js/tableUtils";

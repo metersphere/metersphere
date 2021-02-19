@@ -221,8 +221,8 @@ import MsBottomContainer from "../BottomContainer";
 import ShowMoreBtn from "../../../../track/case/components/ShowMoreBtn";
 import MsBatchEdit from "../basis/BatchEdit";
 import {API_METHOD_COLOUR, API_STATUS, DUBBO_METHOD, REQ_METHOD, SQL_METHOD, TCP_METHOD} from "../../model/JsonData";
-import {downloadFile, getCurrentProjectID} from "@/common/js/utils";
-import {PROJECT_NAME, WORKSPACE_ID} from '@/common/js/constants';
+import {downloadFile} from "@/common/js/utils";
+import {PROJECT_NAME} from '@/common/js/constants';
 import {getCurrentProjectID, getCurrentUser} from "@/common/js/utils";
 import {API_LIST, TEST_CASE_LIST, WORKSPACE_ID} from '@/common/js/constants';
 import ApiListContainer from "./ApiListContainer";
@@ -234,10 +234,8 @@ import MsTipButton from "@/business/components/common/components/MsTipButton";
 import CaseBatchMove from "@/business/components/api/definition/components/basis/BatchMove";
 import ApiListContainerWithDoc from "@/business/components/api/definition/components/list/ApiListContainerWithDoc";
 import {
-  _filter,
   _handleSelect,
   _handleSelectAll,
-  _sort,
   getSelectDataCounts, initCondition,
   setUnSelectIds, toggleAllSelection
 } from "@/common/js/tableUtils";
