@@ -21,30 +21,6 @@
               <el-input v-model="form.name"/>
             </el-form-item>
           </el-col>
-
-          <el-col :span="11" :offset="2">
-            <el-form-item :label-width="formLabelWidth" prop="projectIds">
-              <template slot="label">
-                <el-tooltip class="item" effect="dark" :content="$t('test_track.review.related_tip')" placement="top">
-                  <i class="el-icon-warning"/>
-                </el-tooltip>
-                {{ $t('test_track.review.related_project') }}
-              </template>
-              <el-select
-                v-model="form.projectIds"
-                :placeholder="$t('test_track.review.input_review_project')"
-                multiple
-                style="width: 100%"
-                filterable>
-                <el-option
-                  v-for="item in projects"
-                  :key="item.id"
-                  :label="item.name"
-                  :value="item.id">
-                </el-option>
-              </el-select>
-            </el-form-item>
-          </el-col>
         </el-row>
 
         <el-row>
@@ -148,14 +124,12 @@ export default {
       },
       formLabelWidth: "120px",
       operationType: '',
-      projects: [],
       reviewerOptions: []
     };
   },
   methods: {
     openCaseReviewEditDialog(caseReview) {
       this.resetForm();
-      this.getProjects();
       this.setReviewerOptions();
       this.operationType = 'save';
       if (caseReview) {
@@ -184,49 +158,14 @@ export default {
             return false;
           }
 
-          if (this.operationType === 'edit') {
-            const nowIds = param.projectIds;
-            let sign = true;
-            this.dbProjectIds.forEach(dbId => {
-              if (nowIds.indexOf(dbId) === -1 && sign) {
-                sign = false;
-                this.$confirm(this.$t('test_track.case.cancel_relevance_project'), this.$t('commons.prompt'), {
-                  confirmButtonText: this.$t('commons.confirm'),
-                  cancelButtonText: this.$t('commons.cancel'),
-                  type: 'warning'
-                }).then(() => {
-                  this.editTestReview(param);
-                }).catch(() => {
-                  this.$info(this.$t('commons.cancel'))
-                });
-              }
-            });
-            if (sign) {
-              this.editTestReview(param);
-            }
-          } else {
-            this.editTestReview(param);
-          }
-
+          this.result = this.$post('/test/case/review/' + this.operationType, param, () => {
+            this.$success(this.$t('commons.save_success'));
+            this.dialogFormVisible = false;
+            this.$emit("refresh");
+          });
 
         } else {
           return false;
-        }
-      });
-    },
-    editTestReview(param) {
-      this.result = this.$post('/test/case/review/' + this.operationType, param, () => {
-        this.$success(this.$t('commons.save_success'));
-        this.dialogFormVisible = false;
-        this.$emit("refresh");
-      });
-    },
-    getProjects() {
-      this.result = this.$get("/project/listAll", (response) => {
-        if (response.success) {
-          this.projects = response.data.filter(da => da.id !== getCurrentProjectID());
-        } else {
-          this.$warning(response.message);
         }
       });
     },
