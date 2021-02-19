@@ -1323,6 +1323,7 @@ export default {
     status_change_success: 'Successfully changed the status!',
     status_change_failed: 'Failed to change the status, resource pool is invalid!',
     check_in: 'Check in',
+    node_selector_invalid: 'nodeSelector must be JSON'
   },
   system_parameter_setting: {
     mailbox_service_settings: 'Mailbox Settings',
