@@ -10,6 +10,7 @@ import io.metersphere.api.dto.DeleteAPIReportRequest;
 import io.metersphere.api.dto.JmxInfoDTO;
 import io.metersphere.api.dto.automation.*;
 import io.metersphere.api.dto.datacount.ApiDataCountResult;
+import io.metersphere.api.dto.definition.ApiExportResult;
 import io.metersphere.api.dto.definition.RunDefinitionRequest;
 import io.metersphere.api.dto.definition.parse.ApiDefinitionImport;
 import io.metersphere.api.dto.definition.request.*;
@@ -443,11 +444,11 @@ public class ApiAutomationService {
      * @return
      */
     public String run(RunScenarioRequest request) {
-        List<String> ids = request.getScenarioIds();
-        if (request.isSelectAllDate()) {
-            ids = this.getAllScenarioIdsByFontedSelect(
-                    request.getModuleIds(), request.getName(), request.getProjectId(), request.getFilters(), request.getUnSelectIds());
-        }
+
+        ServiceUtils.getSelectAllIds(request, request.getCondition(),
+                (query) -> extApiScenarioMapper.selectIdsByQuery((ApiScenarioRequest) query));
+
+        List<String> ids = request.getIds();
         //检查是否有正在执行中的情景
         this.checkScenarioIsRunnng(ids);
         List<ApiScenarioWithBLOBs> apiScenarios = extApiScenarioMapper.selectIds(ids);
@@ -656,11 +657,7 @@ public class ApiAutomationService {
 
     public JmxInfoDTO genPerformanceTestJmx(RunScenarioRequest request) throws Exception {
         List<ApiScenarioWithBLOBs> apiScenarios = null;
-        List<String> ids = request.getScenarioIds();
-        if (request.isSelectAllDate()) {
-            ids = this.getAllScenarioIdsByFontedSelect(
-                    request.getModuleIds(), request.getName(), request.getProjectId(), request.getFilters(), request.getUnSelectIds());
-        }
+        List<String> ids = request.getIds();
         apiScenarios = extApiScenarioMapper.selectIds(ids);
         String testName = "";
         if (!apiScenarios.isEmpty()) {
@@ -742,5 +739,18 @@ public class ApiAutomationService {
         }
         create(saveReq, new ArrayList<>());
         return apiImport;
+    }
+
+    public ApiScenrioExportResult export(ApiScenarioBatchRequest request) {
+        ServiceUtils.getSelectAllIds(request, request.getCondition(),
+                (query) -> extApiScenarioMapper.selectIdsByQuery((ApiScenarioRequest) query));
+        ApiScenarioExample example = new ApiScenarioExample();
+        example.createCriteria().andIdIn(request.getIds());
+        List<ApiScenarioWithBLOBs> apiScenarioWithBLOBs = apiScenarioMapper.selectByExampleWithBLOBs(example);
+        ApiScenrioExportResult result =  new ApiScenrioExportResult();
+        result.setData(apiScenarioWithBLOBs);
+        result.setProjectId(request.getProjectId());
+        result.setVersion(System.getenv("MS_VERSION"));
+        return result;
     }
 }

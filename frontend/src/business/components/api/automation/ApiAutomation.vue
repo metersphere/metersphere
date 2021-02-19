@@ -270,7 +270,7 @@
         this.trashEnable = data;
       },
       exportAPI() {
-        this.$refs.apiScenarioList[0].exportApi();
+        this.$refs.apiScenarioList.exportApi();
       }
     }
   }

@@ -645,7 +645,8 @@ export default {
         select_principal: "请选择责任人",
         follow_people: "关注人",
         select_table: "选择可见数据",
-        select_all: "选择全部数据"
+        select_all: "选择全部数据",
+        check_case: "请勾选场景用例"
       },
       report_name_info: '请输入报告名称',
       save_case_info: '请先保存用例',

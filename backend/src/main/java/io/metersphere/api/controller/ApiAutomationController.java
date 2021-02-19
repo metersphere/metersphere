@@ -5,6 +5,8 @@ import com.github.pagehelper.PageHelper;
 import io.metersphere.api.dto.ApiTestImportRequest;
 import io.metersphere.api.dto.JmxInfoDTO;
 import io.metersphere.api.dto.automation.*;
+import io.metersphere.api.dto.definition.ApiBatchRequest;
+import io.metersphere.api.dto.definition.ApiExportResult;
 import io.metersphere.api.dto.definition.RunDefinitionRequest;
 import io.metersphere.api.dto.definition.parse.ApiDefinitionImport;
 import io.metersphere.api.service.ApiAutomationService;
@@ -154,5 +156,12 @@ public class ApiAutomationController {
     public ApiDefinitionImport testCaseImport(@RequestPart(value = "file", required = false) MultipartFile file, @RequestPart("request") ApiTestImportRequest request) {
         return apiAutomationService.scenarioImport(file, request);
     }
+
+    @PostMapping(value = "/export")
+    @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
+    public ApiScenrioExportResult export(@RequestBody ApiScenarioBatchRequest request) {
+        return apiAutomationService.export(request);
+    }
+
 }
 

@@ -644,7 +644,8 @@ export default {
         select_principal: "Select principal",
         follow_people: "Follow people",
         select_table: "Select table",
-        select_all: "Select all"
+        select_all: "Select all",
+        check_case: "Please check the Scene Use Case"
       },
       report_name_info: 'Please enter the registration name',
       save_case_info: 'Please save the use case first',
