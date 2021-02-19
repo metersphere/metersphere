@@ -1,0 +1,2 @@
+ALTER TABLE schedule
+    MODIFY COLUMN `key` VARCHAR(255);
