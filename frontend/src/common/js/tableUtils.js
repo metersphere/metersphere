@@ -101,6 +101,11 @@ export function _sort(column, condition) {
   }
 }
 
+export function initCondition(condition) {
+  condition.selectAll = false;
+  condition.unSelectIds = [];
+}
+
 
 
 

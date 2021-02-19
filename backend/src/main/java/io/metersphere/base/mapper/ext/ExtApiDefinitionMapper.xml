@@ -210,85 +210,7 @@
         from api_definition
         left join project on api_definition.project_id = project.id
         left join user on api_definition.user_id = user.id
-        <where>
-            <if test="request.combine != null">
-                <include refid="combine">
-                    <property name="condition" value="request.combine"/>
-                    <property name="name" value="request.name"/>
-                </include>
-            </if>
-            <if test="request.name != null">
-                and (api_definition.name like CONCAT('%', #{request.name},'%')
-                    or api_definition.tags like CONCAT('%', #{request.name},'%')
-                    or api_definition.num like CONCAT('%', #{request.name},'%'))
-            </if>
-            <if test="request.protocol != null">
-                AND api_definition.protocol = #{request.protocol}
-            </if>
-            <if test="request.workspaceId != null">
-                AND project.workspace_id = #{request.workspaceId}
-            </if>
-            <if test="request.projectId != null">
-                AND project.id = #{request.projectId}
-            </if>
-            <if test="request.id != null">
-                AND api_definition.id = #{request.id}
-            </if>
-            <if test="request.userId != null">
-                AND api_definition.user_id = #{request.userId}
-            </if>
-            <if test="request.createTime >0">
-                AND api_definition.create_time >= #{request.createTime}
-            </if>
-            <if test="request.moduleId != null">
-                AND api_definition.module_id = #{request.moduleId}
-            </if>
-            <if test="request.projectId != null">
-                AND api_definition.project_id = #{request.projectId}
-            </if>
-            <if test="request.moduleIds != null and request.moduleIds.size() > 0">
-                AND api_definition.module_id in
-                <foreach collection="request.moduleIds" item="nodeId" separator="," open="(" close=")">
-                    #{nodeId}
-                </foreach>
-            </if>
-            <if test="request.filters != null and request.filters.size() > 0">
-                <foreach collection="request.filters.entrySet()" index="key" item="values">
-                    <if test="values != null and values.size() > 0">
-                        <choose>
-                            <when test="key=='status'">
-                                and api_definition.status in
-                                <foreach collection="values" item="value" separator="," open="(" close=")">
-                                    #{value}
-                                </foreach>
-                            </when>
-                            <when test="key=='method'">
-                                and api_definition.method in
-                                <foreach collection="values" item="value" separator="," open="(" close=")">
-                                    #{value}
-                                </foreach>
-                            </when>
-                            <when test="key=='user_id'">
-                                and api_definition.user_id in
-                                <foreach collection="values" item="value" separator="," open="(" close=")">
-                                    #{value}
-                                </foreach>
-                            </when>
-                        </choose>
-                    </if>
-                </foreach>
-            </if>
-            <if test="request.apiCaseCoverage == 'uncoverage' ">
-                and api_definition.id not in
-                (SELECT api_definition_id FROM api_test_case)
-            </if>
-            <if test="request.apiCaseCoverage == 'coverage' ">
-                and api_definition.id in
-                (SELECT api_definition_id FROM api_test_case)
-            </if>
-
-
-        </where>
+        <include refid="queryWhereCondition"/>
         <if test="request.orders != null and request.orders.size() > 0">
             order by
             <foreach collection="request.orders" separator="," item="order">
@@ -446,4 +368,93 @@
         WHERE sch.`enable` = true
           AND apiScene.project_id = #{0,jdbcType=VARCHAR}
     </select>
+    <select id="selectIds" resultType="java.lang.String">
+        select api_definition.id
+        from api_definition
+        left join project on api_definition.project_id = project.id
+        <include refid="queryWhereCondition"/>
+        <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
+    </select>
+
+    <sql id="queryWhereCondition">
+        <where>
+            <if test="request.combine != null">
+                <include refid="combine">
+                    <property name="condition" value="request.combine"/>
+                    <property name="name" value="request.name"/>
+                </include>
+            </if>
+            <if test="request.name != null">
+                and (api_definition.name like CONCAT('%', #{request.name},'%')
+                or api_definition.tags like CONCAT('%', #{request.name},'%')
+                or api_definition.num like CONCAT('%', #{request.name},'%'))
+            </if>
+            <if test="request.protocol != null">
+                AND api_definition.protocol = #{request.protocol}
+            </if>
+            <if test="request.workspaceId != null">
+                AND project.workspace_id = #{request.workspaceId}
+            </if>
+            <if test="request.projectId != null">
+                AND project.id = #{request.projectId}
+            </if>
+            <if test="request.id != null">
+                AND api_definition.id = #{request.id}
+            </if>
+            <if test="request.userId != null">
+                AND api_definition.user_id = #{request.userId}
+            </if>
+            <if test="request.createTime >0">
+                AND api_definition.create_time >= #{request.createTime}
+            </if>
+            <if test="request.moduleId != null">
+                AND api_definition.module_id = #{request.moduleId}
+            </if>
+            <if test="request.projectId != null">
+                AND api_definition.project_id = #{request.projectId}
+            </if>
+            <if test="request.moduleIds != null and request.moduleIds.size() > 0">
+                AND api_definition.module_id in
+                <foreach collection="request.moduleIds" item="nodeId" separator="," open="(" close=")">
+                    #{nodeId}
+                </foreach>
+            </if>
+            <if test="request.filters != null and request.filters.size() > 0">
+                <foreach collection="request.filters.entrySet()" index="key" item="values">
+                    <if test="values != null and values.size() > 0">
+                        <choose>
+                            <when test="key=='status'">
+                                and api_definition.status in
+                                <foreach collection="values" item="value" separator="," open="(" close=")">
+                                    #{value}
+                                </foreach>
+                            </when>
+                            <when test="key=='method'">
+                                and api_definition.method in
+                                <foreach collection="values" item="value" separator="," open="(" close=")">
+                                    #{value}
+                                </foreach>
+                            </when>
+                            <when test="key=='user_id'">
+                                and api_definition.user_id in
+                                <foreach collection="values" item="value" separator="," open="(" close=")">
+                                    #{value}
+                                </foreach>
+                            </when>
+                        </choose>
+                    </if>
+                </foreach>
+            </if>
+            <if test="request.apiCaseCoverage == 'uncoverage' ">
+                and api_definition.id not in
+                (SELECT api_definition_id FROM api_test_case)
+            </if>
+            <if test="request.apiCaseCoverage == 'coverage' ">
+                and api_definition.id in
+                (SELECT api_definition_id FROM api_test_case)
+            </if>
+
+
+        </where>
+    </sql>
 </mapper>

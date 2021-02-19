@@ -11,6 +11,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -26,23 +27,15 @@ public class TestPlanProjectService {
     private TestPlanMapper testPlanMapper;
 
     public List<String> getProjectIdsByPlanId(String planId) {
-        TestPlan testPlan = testPlanMapper.selectByPrimaryKey(planId);
-        TestPlanProjectExample example = new TestPlanProjectExample();
-        example.createCriteria().andTestPlanIdEqualTo(planId);
-        List<String> projectIds = testPlanProjectMapper.selectByExample(example)
-                .stream()
-                .map(TestPlanProject::getProjectId)
-                .collect(Collectors.toList());
-        if (testPlan != null && StringUtils.isNotBlank(testPlan.getProjectId())) {
-            if (!projectIds.contains(testPlan.getProjectId())) {
-                projectIds.add(testPlan.getProjectId());
-            }
+        TestPlan plan = testPlanMapper.selectByPrimaryKey(planId);
+        String workspaceId = plan.getWorkspaceId();
+        if (StringUtils.isNotBlank(workspaceId)) {
+            ProjectExample example = new ProjectExample();
+            example.createCriteria().andWorkspaceIdEqualTo(workspaceId);
+            List<Project> projects = projectMapper.selectByExample(example);
+            return projects.stream().map(Project::getId).collect(Collectors.toList());
         }
-        if (projectIds.isEmpty()) {
-            return null;
-        }
-
-        return projectIds;
+        return new ArrayList<>();
     }
 
     public List<Project> getProjectByPlanId(TestCaseRelevanceRequest request) {
@@ -62,15 +55,16 @@ public class TestPlanProjectService {
     }
 
     public List<String> getPlanIdByProjectId(String projectId) {
-        TestPlanProjectExample testPlanProjectExample = new TestPlanProjectExample();
-        testPlanProjectExample.createCriteria().andProjectIdEqualTo(projectId);
-        List<TestPlanProject> testPlanProjects = testPlanProjectMapper.selectByExample(testPlanProjectExample);
-        if (CollectionUtils.isEmpty(testPlanProjects)) {
+        TestPlanExample testPlanExample = new TestPlanExample();
+        testPlanExample.createCriteria().andProjectIdEqualTo(projectId);
+        List<TestPlan> testPlans = testPlanMapper.selectByExample(testPlanExample);
+
+        if (CollectionUtils.isEmpty(testPlans)) {
             return null;
         }
-        return testPlanProjects
+        return testPlans
                 .stream()
-                .map(TestPlanProject::getTestPlanId)
+                .map(TestPlan::getId)
                 .collect(Collectors.toList());
     }
 }

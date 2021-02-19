@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.sql.SQLException;
 
 
 @RestControllerAdvice
@@ -29,6 +30,12 @@ public class RestControllerExceptionHandler {
         return ResultHolder.error(exception.getMessage());
     }
 
+
+    @ExceptionHandler(SQLException.class)
+    public ResultHolder sqlExceptionHandler(HttpServletRequest request, HttpServletResponse response, MSException e) {
+        response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+        return ResultHolder.error("SQL error happened, please check logs.");
+    }
 
     @ExceptionHandler(MSException.class)
     public ResultHolder msExceptionHandler(HttpServletRequest request, HttpServletResponse response, MSException e) {

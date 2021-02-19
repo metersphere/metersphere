@@ -56,7 +56,7 @@ public class ApiScenarioTestJob extends   MsScheduleJob {
         request.setProjectId(projectID);
         request.setTriggerMode(ReportTriggerMode.SCHEDULE.name());
         request.setExecuteType(ExecuteType.Saved.name());
-        request.setScenarioIds(this.scenarioIds);
+        request.setIds(this.scenarioIds);
         request.setReportUserID(this.userId);
 
         apiAutomationService.run(request);

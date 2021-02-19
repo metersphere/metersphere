@@ -8,25 +8,26 @@
     @drag="drag"
     @remove="remove"
     @nodeSelectEvent="nodeChange"
+    @refresh="list"
     ref="nodeTree"/>
 </template>
 
 <script>
-  import NodeEdit from "./NodeEdit";
-  import {getCurrentProjectID} from "../../../../common/js/utils";
-  import MsNodeTree from "./NodeTree";
+import NodeEdit from "./NodeEdit";
+import {getCurrentProjectID} from "../../../../common/js/utils";
+import MsNodeTree from "./NodeTree";
 
-  export default {
-    name: "TestCaseNodeTree",
-    components: {MsNodeTree, NodeEdit },
-    data() {
-      return {
-        defaultProps: {
-          children: "children",
-          label: "label"
-        },
-        result: {},
-        treeNodes: [],
+export default {
+  name: "TestCaseNodeTree",
+  components: {MsNodeTree, NodeEdit},
+  data() {
+    return {
+      defaultProps: {
+        children: "children",
+        label: "label"
+      },
+      result: {},
+      treeNodes: [],
         projectId: ""
       };
     },

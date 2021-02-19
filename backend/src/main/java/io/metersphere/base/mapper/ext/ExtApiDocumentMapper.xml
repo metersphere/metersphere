@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.metersphere.base.mapper.ext.ExtApiDocumentMapper">
+    <select id="findApiDocumentSimpleInfoByRequest" resultType="io.metersphere.api.dto.ApiDocumentSimpleInfoDTO">
+        SELECT api.id,api.name FROM Api_definition api
+        <where>
+            <if test="request.projectId != null">
+                api.project_Id = #{request.projectId}
+            </if>
+            <if test="request.moduleIds != null and request.moduleIds.size() > 0">
+                AND api.module_id in
+                <foreach collection="request.moduleIds" item="nodeId" separator="," open="(" close=")">
+                    #{nodeId}
+                </foreach>
+            </if>
+        </where>
+        ORDER BY api.create_time DESC
+    </select>
+</mapper>

@@ -7,9 +7,9 @@ import io.metersphere.base.domain.*;
 import io.metersphere.commons.constants.IssuesManagePlatform;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.LogUtil;
-import io.metersphere.commons.utils.RestTemplateUtils;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.controller.ResultHolder;
+import io.metersphere.track.issue.domain.PlatformUser;
 import io.metersphere.track.request.testcase.IssuesRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpEntity;
@@ -194,9 +194,9 @@ public class TapdPlatform extends AbstractIssuePlatform {
         HttpHeaders header = auth(account, password);
 
         if (httpMethod.equals(HttpMethod.GET)) {
-            responseJson = RestTemplateUtils.get(url, header);
+            responseJson = TapdRestUtils.get(url, header);
         } else {
-            responseJson = RestTemplateUtils.post(url, params, header);
+            responseJson = TapdRestUtils.post(url, params, header);
         }
 
         ResultHolder result = JSON.parseObject(responseJson, ResultHolder.class);

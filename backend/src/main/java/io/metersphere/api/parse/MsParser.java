@@ -6,13 +6,16 @@ import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.parser.Feature;
 import io.metersphere.api.dto.ApiTestImportRequest;
 import io.metersphere.api.dto.definition.ApiDefinitionResult;
+import io.metersphere.api.dto.definition.ApiExportResult;
 import io.metersphere.api.dto.definition.parse.ApiDefinitionImport;
 import io.metersphere.api.dto.definition.request.sampler.MsHTTPSamplerProxy;
 import io.metersphere.api.dto.scenario.Body;
 import io.metersphere.api.dto.scenario.KeyValue;
 import io.metersphere.api.dto.scenario.request.RequestType;
 import io.metersphere.api.service.ApiModuleService;
+import io.metersphere.base.domain.ApiDefinitionWithBLOBs;
 import io.metersphere.base.domain.ApiModule;
+import io.metersphere.base.domain.ApiTestCaseWithBLOBs;
 import io.metersphere.commons.constants.ApiImportPlatform;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
@@ -41,34 +44,36 @@ public class MsParser extends ApiImportAbstractParser {
     }
 
     private ApiDefinitionImport parseMsFormat(String testStr, ApiTestImportRequest importRequest) {
-
         ApiDefinitionImport apiDefinitionImport = JSON.parseObject(testStr, ApiDefinitionImport.class);
-        List<ApiDefinitionResult> data = apiDefinitionImport.getData();
-        data.forEach(apiDefinition -> {
-            String id = UUID.randomUUID().toString();
-            if (StringUtils.isBlank(apiDefinition.getModulePath())) {
-                apiDefinition.setModuleId(null);
-            }
-            parseModule(apiDefinition, importRequest);
-            apiDefinition.setId(id);
-            apiDefinition.setProjectId(this.projectId);
-            String request = apiDefinition.getRequest();
-            JSONObject requestObj = JSONObject.parseObject(request);
-            requestObj.put("id", id);
-            apiDefinition.setRequest(JSONObject.toJSONString(requestObj));
+        apiDefinitionImport.getData().forEach(apiDefinition -> {
+            parseApiDefinition(apiDefinition, importRequest);
         });
         return apiDefinitionImport;
     }
 
+    private void parseApiDefinition(ApiDefinitionWithBLOBs apiDefinition, ApiTestImportRequest importRequest) {
+        String id = UUID.randomUUID().toString();
+        if (StringUtils.isBlank(apiDefinition.getModulePath())) {
+            apiDefinition.setModuleId(null);
+        }
+        parseModule(apiDefinition, importRequest);
+        apiDefinition.setId(id);
+        apiDefinition.setProjectId(this.projectId);
+        String request = apiDefinition.getRequest();
+        JSONObject requestObj = JSONObject.parseObject(request);
+        requestObj.put("id", id);
+        apiDefinition.setRequest(JSONObject.toJSONString(requestObj));
+    }
+
     private ApiDefinitionImport parsePluginFormat(JSONObject testObject,  ApiTestImportRequest importRequest) {
-        List<ApiDefinitionResult> results = new ArrayList<>();
+        List<ApiDefinitionWithBLOBs> results = new ArrayList<>();
         ApiDefinitionImport apiImport = new ApiDefinitionImport();
         apiImport.setProtocol(RequestType.HTTP);
         apiImport.setData(results);
         testObject.keySet().forEach(tag -> {
 
             ApiModule parentModule = getSelectModule(importRequest.getModuleId());
-            ApiModule module = buildModule(parentModule, tag, importRequest.isSaved());
+            ApiModule module = buildModule(parentModule, tag);
 
             JSONObject requests = testObject.getJSONObject(tag);
             requests.keySet().forEach(requestName -> {
@@ -78,7 +83,7 @@ public class MsParser extends ApiImportAbstractParser {
                 String method = requestObject.getString("method");
 
                 MsHTTPSamplerProxy request = buildRequest(requestName, path, method);
-                ApiDefinitionResult apiDefinition = buildApiDefinition(request.getId(), requestName, path, method,importRequest);
+                ApiDefinitionWithBLOBs apiDefinition = buildApiDefinition(request.getId(), requestName, path, method,importRequest);
                 apiDefinition.setModuleId(module.getId());
                 apiDefinition.setProjectId(this.projectId);
                 parseBody(requestObject, request.getBody());
@@ -91,7 +96,7 @@ public class MsParser extends ApiImportAbstractParser {
         return apiImport;
     }
 
-    private void parsePath(MsHTTPSamplerProxy request, ApiDefinitionResult apiDefinition) {
+    private void parsePath(MsHTTPSamplerProxy request, ApiDefinitionWithBLOBs apiDefinition) {
         if (StringUtils.isNotBlank(request.getPath())) {
             String[] split = request.getPath().split("\\?");
             String path = split[0];
@@ -160,7 +165,7 @@ public class MsParser extends ApiImportAbstractParser {
     }
 
 
-    private void parseModule(ApiDefinitionResult apiDefinition, ApiTestImportRequest importRequest) {
+    private void parseModule(ApiDefinitionWithBLOBs apiDefinition, ApiTestImportRequest importRequest) {
         String modulePath = apiDefinition.getModulePath();
         if (StringUtils.isBlank(modulePath)) {
             return;
@@ -176,7 +181,7 @@ public class MsParser extends ApiImportAbstractParser {
         Iterator<String> iterator = modules.iterator();
         while (iterator.hasNext()) {
             String item = iterator.next();
-            parent = buildModule(parent, item, importRequest.isSaved());
+            parent = buildModule(parent, item);
             if (!iterator.hasNext()) {
                 apiDefinition.setModuleId(parent.getId());
             }

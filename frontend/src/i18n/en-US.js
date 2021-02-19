@@ -644,7 +644,8 @@ export default {
         select_principal: "Select principal",
         follow_people: "Follow people",
         select_table: "Select table",
-        select_all: "Select all"
+        select_all: "Select all",
+        check_case: "Please check the Scene Use Case"
       },
       report_name_info: 'Please enter the registration name',
       save_case_info: 'Please save the use case first',
@@ -1323,6 +1324,7 @@ export default {
     status_change_success: 'Successfully changed the status!',
     status_change_failed: 'Failed to change the status, resource pool is invalid!',
     check_in: 'Check in',
+    node_selector_invalid: 'nodeSelector must be JSON'
   },
   system_parameter_setting: {
     mailbox_service_settings: 'Mailbox Settings',

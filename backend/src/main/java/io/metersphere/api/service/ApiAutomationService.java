@@ -5,15 +5,20 @@ import com.alibaba.fastjson.JSONObject;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.metersphere.api.dto.ApiTestImportRequest;
 import io.metersphere.api.dto.DeleteAPIReportRequest;
 import io.metersphere.api.dto.JmxInfoDTO;
 import io.metersphere.api.dto.automation.*;
 import io.metersphere.api.dto.datacount.ApiDataCountResult;
+import io.metersphere.api.dto.definition.ApiExportResult;
 import io.metersphere.api.dto.definition.RunDefinitionRequest;
+import io.metersphere.api.dto.definition.parse.ApiDefinitionImport;
 import io.metersphere.api.dto.definition.request.*;
 import io.metersphere.api.dto.definition.request.variable.ScenarioVariable;
 import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
 import io.metersphere.api.jmeter.JMeterService;
+import io.metersphere.api.parse.ApiImportParser;
+import io.metersphere.api.parse.ApiScenarioImportParserFactory;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ApiScenarioMapper;
 import io.metersphere.base.mapper.ApiScenarioReportMapper;
@@ -62,8 +67,6 @@ public class ApiAutomationService {
     @Resource
     private ApiScenarioMapper apiScenarioMapper;
     @Resource
-    private ApiDefinitionService apiDefinitionService;
-    @Resource
     private ExtApiScenarioMapper extApiScenarioMapper;
     @Resource
     private TestPlanApiScenarioMapper testPlanApiScenarioMapper;
@@ -103,13 +106,13 @@ public class ApiAutomationService {
         if (setDefultOrders) {
             request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
         }
-        if(StringUtils.isNotEmpty(request.getExecuteStatus())){
-            Map<String,List<String>> statusFilter = new HashMap<>();
+        if (StringUtils.isNotEmpty(request.getExecuteStatus())) {
+            Map<String, List<String>> statusFilter = new HashMap<>();
             List<String> list = new ArrayList<>();
             list.add("Prepare");
             list.add("Underway");
             list.add("Completed");
-            statusFilter.put("status",list);
+            statusFilter.put("status", list);
             request.setFilters(statusFilter);
         }
         if (checkThisWeekData) {
@@ -145,36 +148,15 @@ public class ApiAutomationService {
         request.setId(UUID.randomUUID().toString());
         checkNameExist(request);
 
-        final ApiScenarioWithBLOBs scenario = new ApiScenarioWithBLOBs();
-        scenario.setId(request.getId());
-        scenario.setName(request.getName());
-        scenario.setProjectId(request.getProjectId());
-        scenario.setTags(request.getTags());
-        scenario.setApiScenarioModuleId(request.getApiScenarioModuleId());
-        scenario.setModulePath(request.getModulePath());
-        scenario.setLevel(request.getLevel());
-        scenario.setFollowPeople(request.getFollowPeople());
-        scenario.setPrincipal(request.getPrincipal());
-        scenario.setStepTotal(request.getStepTotal());
-        scenario.setScenarioDefinition(JSON.toJSONString(request.getScenarioDefinition()));
+        final ApiScenarioWithBLOBs scenario = buildSaveScenario(request);
+
         scenario.setCreateTime(System.currentTimeMillis());
-        scenario.setUpdateTime(System.currentTimeMillis());
         scenario.setNum(getNextNum(request.getProjectId()));
-        if (StringUtils.isNotEmpty(request.getStatus())) {
-            scenario.setStatus(request.getStatus());
-        } else {
-            scenario.setStatus(ScenarioStatus.Underway.name());
-        }
-        if (request.getUserId() == null) {
-            scenario.setUserId(SessionUtils.getUserId());
-        } else {
-            scenario.setUserId(request.getUserId());
-        }
-        scenario.setDescription(request.getDescription());
+
         apiScenarioMapper.insert(scenario);
 
         List<String> bodyUploadIds = request.getBodyUploadIds();
-        apiDefinitionService.createBodyFiles(bodyUploadIds, bodyFiles);
+        FileUtils.createBodyFiles(bodyUploadIds, bodyFiles);
         return scenario;
     }
 
@@ -190,9 +172,14 @@ public class ApiAutomationService {
     public void update(SaveApiScenarioRequest request, List<MultipartFile> bodyFiles) {
         checkNameExist(request);
         List<String> bodyUploadIds = request.getBodyUploadIds();
-        apiDefinitionService.createBodyFiles(bodyUploadIds, bodyFiles);
+        FileUtils.createBodyFiles(bodyUploadIds, bodyFiles);
 
-        final ApiScenarioWithBLOBs scenario = new ApiScenarioWithBLOBs();
+        final ApiScenarioWithBLOBs scenario = buildSaveScenario(request);
+        apiScenarioMapper.updateByPrimaryKeySelective(scenario);
+    }
+
+    public ApiScenarioWithBLOBs buildSaveScenario(SaveApiScenarioRequest request) {
+        ApiScenarioWithBLOBs scenario = new ApiScenarioWithBLOBs();
         scenario.setId(request.getId());
         scenario.setName(request.getName());
         scenario.setProjectId(request.getProjectId());
@@ -203,16 +190,19 @@ public class ApiAutomationService {
         scenario.setFollowPeople(request.getFollowPeople());
         scenario.setPrincipal(request.getPrincipal());
         scenario.setStepTotal(request.getStepTotal());
-        scenario.setScenarioDefinition(JSON.toJSONString(request.getScenarioDefinition()));
         scenario.setUpdateTime(System.currentTimeMillis());
+        scenario.setScenarioDefinition(JSON.toJSONString(request.getScenarioDefinition()));
         if (StringUtils.isNotEmpty(request.getStatus())) {
             scenario.setStatus(request.getStatus());
         } else {
             scenario.setStatus(ScenarioStatus.Underway.name());
         }
-        scenario.setUserId(request.getUserId());
-        scenario.setDescription(request.getDescription());
-        apiScenarioMapper.updateByPrimaryKeySelective(scenario);
+        if (request.getUserId() == null) {
+            scenario.setUserId(SessionUtils.getUserId());
+        } else {
+            scenario.setUserId(request.getUserId());
+        }
+        return scenario;
     }
 
     public void delete(String id) {
@@ -454,11 +444,11 @@ public class ApiAutomationService {
      * @return
      */
     public String run(RunScenarioRequest request) {
-        List<String> ids = request.getScenarioIds();
-        if (request.isSelectAllDate()) {
-            ids = this.getAllScenarioIdsByFontedSelect(
-                    request.getModuleIds(), request.getName(), request.getProjectId(), request.getFilters(), request.getUnSelectIds());
-        }
+
+        ServiceUtils.getSelectAllIds(request, request.getCondition(),
+                (query) -> extApiScenarioMapper.selectIdsByQuery((ApiScenarioRequest) query));
+
+        List<String> ids = request.getIds();
         //检查是否有正在执行中的情景
         this.checkScenarioIsRunnng(ids);
         List<ApiScenarioWithBLOBs> apiScenarios = extApiScenarioMapper.selectIds(ids);
@@ -480,8 +470,8 @@ public class ApiAutomationService {
     public void checkScenarioIsRunnng(List<String> ids) {
         List<ApiScenarioReport> lastReportStatusByIds = apiReportService.selectLastReportByIds(ids);
         for (ApiScenarioReport report : lastReportStatusByIds) {
-            if(StringUtils.equals(report.getStatus(),APITestStatus.Running.name())){
-                MSException.throwException(report.getName()+" Is Running!");
+            if (StringUtils.equals(report.getStatus(), APITestStatus.Running.name())) {
+                MSException.throwException(report.getName() + " Is Running!");
             }
         }
     }
@@ -518,7 +508,7 @@ public class ApiAutomationService {
      */
     public String debugRun(RunDefinitionRequest request, List<MultipartFile> bodyFiles) {
         List<String> bodyUploadIds = new ArrayList<>(request.getBodyUploadIds());
-        apiDefinitionService.createBodyFiles(bodyUploadIds, bodyFiles);
+        FileUtils.createBodyFiles(bodyUploadIds, bodyFiles);
         EnvironmentConfig envConfig = null;
         if (request.getEnvironmentId() != null) {
             ApiTestEnvironmentWithBLOBs environment = environmentService.get(request.getEnvironmentId());
@@ -667,11 +657,7 @@ public class ApiAutomationService {
 
     public JmxInfoDTO genPerformanceTestJmx(RunScenarioRequest request) throws Exception {
         List<ApiScenarioWithBLOBs> apiScenarios = null;
-        List<String> ids = request.getScenarioIds();
-        if (request.isSelectAllDate()) {
-            ids = this.getAllScenarioIdsByFontedSelect(
-                    request.getModuleIds(), request.getName(), request.getProjectId(), request.getFilters(), request.getUnSelectIds());
-        }
+        List<String> ids = request.getIds();
         apiScenarios = extApiScenarioMapper.selectIds(ids);
         String testName = "";
         if (!apiScenarios.isEmpty()) {
@@ -699,20 +685,17 @@ public class ApiAutomationService {
         return dto;
     }
 
-    public void bathEdit(SaveApiScenarioRequest request) {
-        if (CollectionUtils.isEmpty(request.getScenarioIds())) {
-            return;
-        }
-        if (request.isSelectAllDate()) {
-            request.setScenarioIds(this.getAllScenarioIdsByFontedSelect(
-                    request.getModuleIds(), request.getName(), request.getProjectId(), request.getFilters(), request.getUnSelectIds()));
-        }
+    public void bathEdit(ApiScenarioBatchRequest request) {
+
+        ServiceUtils.getSelectAllIds(request, request.getCondition(),
+                (query) -> extApiScenarioMapper.selectIdsByQuery((ApiScenarioRequest) query));
+
         if (StringUtils.isNotBlank(request.getEnvironmentId())) {
             bathEditEnv(request);
             return;
         }
         ApiScenarioExample apiScenarioExample = new ApiScenarioExample();
-        apiScenarioExample.createCriteria().andIdIn(request.getScenarioIds());
+        apiScenarioExample.createCriteria().andIdIn(request.getIds());
         ApiScenarioWithBLOBs apiScenarioWithBLOBs = new ApiScenarioWithBLOBs();
         BeanUtils.copyBean(apiScenarioWithBLOBs, request);
         apiScenarioWithBLOBs.setUpdateTime(System.currentTimeMillis());
@@ -721,9 +704,9 @@ public class ApiAutomationService {
                 apiScenarioExample);
     }
 
-    public void bathEditEnv(SaveApiScenarioRequest request) {
+    public void bathEditEnv(ApiScenarioBatchRequest request) {
         if (StringUtils.isNotBlank(request.getEnvironmentId())) {
-            List<ApiScenarioWithBLOBs> apiScenarios = selectByIdsWithBLOBs(request.getScenarioIds());
+            List<ApiScenarioWithBLOBs> apiScenarios = selectByIdsWithBLOBs(request.getIds());
             apiScenarios.forEach(item -> {
                 JSONObject object = JSONObject.parseObject(item.getScenarioDefinition());
                 object.put("environmentId", request.getEnvironmentId());
@@ -733,5 +716,41 @@ public class ApiAutomationService {
                 apiScenarioMapper.updateByPrimaryKeySelective(item);
             });
         }
+    }
+
+    public ApiDefinitionImport scenarioImport(MultipartFile file, ApiTestImportRequest request) {
+        ApiImportParser apiImportParser = ApiScenarioImportParserFactory.getApiImportParser(request.getPlatform());
+        ApiDefinitionImport apiImport = null;
+        try {
+            apiImport = apiImportParser.parse(file == null ? null : file.getInputStream(), request);
+        } catch (Exception e) {
+            LogUtil.error(e.getMessage(), e);
+            MSException.throwException(Translator.get("parse_data_error"));
+        }
+        SaveApiScenarioRequest saveReq = new SaveApiScenarioRequest();
+        saveReq.setScenarioDefinition(apiImport.getScenarioDefinition());
+        saveReq.setName(saveReq.getScenarioDefinition().getName());
+        saveReq.setProjectId(request.getProjectId());
+        saveReq.setApiScenarioModuleId(request.getModuleId());
+        if (StringUtils.isNotBlank(request.getUserId())) {
+            saveReq.setPrincipal(request.getUserId());
+        } else {
+            saveReq.setPrincipal(SessionUtils.getUserId());
+        }
+        create(saveReq, new ArrayList<>());
+        return apiImport;
+    }
+
+    public ApiScenrioExportResult export(ApiScenarioBatchRequest request) {
+        ServiceUtils.getSelectAllIds(request, request.getCondition(),
+                (query) -> extApiScenarioMapper.selectIdsByQuery((ApiScenarioRequest) query));
+        ApiScenarioExample example = new ApiScenarioExample();
+        example.createCriteria().andIdIn(request.getIds());
+        List<ApiScenarioWithBLOBs> apiScenarioWithBLOBs = apiScenarioMapper.selectByExampleWithBLOBs(example);
+        ApiScenrioExportResult result =  new ApiScenrioExportResult();
+        result.setData(apiScenarioWithBLOBs);
+        result.setProjectId(request.getProjectId());
+        result.setVersion(System.getenv("MS_VERSION"));
+        return result;
     }
 }

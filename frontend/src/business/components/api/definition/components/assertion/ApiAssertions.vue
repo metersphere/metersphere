@@ -131,7 +131,7 @@
         })
       },
       active() {
-        // item.active = !item.active;
+        this.assertions.active = !this.assertions.active;
         this.reload();
       },
       remove() {

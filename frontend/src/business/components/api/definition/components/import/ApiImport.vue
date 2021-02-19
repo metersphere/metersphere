@@ -5,7 +5,9 @@
     <div class="header-bar">
       <div>{{ $t('api_test.api_import.data_format') }}</div>
       <el-radio-group v-model="selectedPlatformValue">
-        <el-radio v-for="(item, index) in platforms" :key="index" :label="item.value">{{ item.name }}</el-radio>
+        <span v-for="(item, index) in platforms" :key="index">
+          <el-radio v-if="!isScenarioModel || item.name != 'Swagger'" :label="item.value">{{ item.name }}</el-radio>
+        </span>
       </el-radio-group>
 
       <div class="operate-button">
@@ -26,14 +28,14 @@
               <el-option v-for="item in moduleOptions" :key="item.id" :label="item.path" :value="item.id"/>
             </el-select>
           </el-form-item>
-          <el-form-item :label="$t('commons.import_mode')">
+          <el-form-item v-if="!isScenarioModel" :label="$t('commons.import_mode')">
             <el-select size="small" v-model="formData.modeId" class="project-select" clearable>
               <el-option v-for="item in modeOptions" :key="item.id" :label="item.name" :value="item.id"/>
             </el-select>
           </el-form-item>
           <el-form-item v-if="isSwagger2">
             <el-switch
-              v-model="swaggerUrlEable"
+              v-model="swaggerUrlEnable"
               :active-text="$t('api_test.api_import.swagger_url_import')">
             </el-switch>
           </el-form-item>
@@ -42,7 +44,7 @@
         <el-col :span="1">
           <el-divider direction="vertical"/>
         </el-col>
-        <el-col :span="12" v-show="isSwagger2 && swaggerUrlEable" style="margin-top: 40px">
+        <el-col :span="12" v-show="isSwagger2 && swaggerUrlEnable" style="margin-top: 40px">
           <el-form-item :label="'Swagger URL'" prop="swaggerUrl" class="swagger-url">
             <el-input size="small" v-model="formData.swaggerUrl" clearable show-word-limit/>
           </el-form-item>
@@ -56,7 +58,7 @@
           </el-form-item>
         </el-col>
         <el-col :span="12"
-                v-if="selectedPlatformValue != 'Swagger2' || (selectedPlatformValue == 'Swagger2' && !swaggerUrlEable)">
+                v-if="selectedPlatformValue != 'Swagger2' || (selectedPlatformValue == 'Swagger2' && !swaggerUrlEnable)">
           <el-upload
             class="api-upload"
             drag
@@ -93,7 +95,6 @@ import MsDialogFooter from "../../../../common/components/MsDialogFooter";
 import {listenGoBack, removeGoBackListener} from "@/common/js/utils";
 import {getCurrentProjectID} from "../../../../../../common/js/utils";
 import ScheduleImport from "@/business/components/api/definition/components/import/ImportScheduleEdit";
-import {buildNodePath} from "@/business/components/api/definition/model/NodeTree";
 
 export default {
   name: "ApiImport",
@@ -103,12 +104,16 @@ export default {
       type: Boolean,
       default: true,
     },
-    moduleOptions: {}
+    moduleOptions: {},
+    model: {
+      type: String,
+      default: 'definition'
+    }
   },
   data() {
     return {
       visible: false,
-      swaggerUrlEable: false,
+      swaggerUrlEnable: false,
       swaggerSynchronization: false,
       showEnvironmentSelect: true,
       modeOptions: [{
@@ -176,6 +181,9 @@ export default {
   computed: {
     isSwagger2() {
       return this.selectedPlatformValue === 'Swagger2';
+    },
+    isScenarioModel() {
+      return this.model === 'scenario';
     }
   },
   methods: {
@@ -222,12 +230,16 @@ export default {
     save() {
       this.$refs.form.validate(valid => {
         if (valid) {
-          if ((this.selectedPlatformValue != 'Swagger2' || (this.selectedPlatformValue == 'Swagger2' && !this.swaggerUrlEable)) && !this.formData.file) {
+          if ((this.selectedPlatformValue != 'Swagger2' || (this.selectedPlatformValue == 'Swagger2' && !this.swaggerUrlEnable)) && !this.formData.file) {
             this.$warning(this.$t('commons.please_upload'));
             return;
           }
+          let url = '/api/definition/import';
+          if (this.isScenarioModel) {
+            url = '/api/automation/import';
+          }
           let param = this.buildParam();
-          this.result = this.$fileUpload('/api/definition/import', param.file, null, this.buildParam(), response => {
+          this.result = this.$fileUpload(url, param.file, null, this.buildParam(), response => {
             let res = response.data;
             this.$success(this.$t('test_track.case.import.success'));
             this.visible = false;
@@ -243,7 +255,7 @@ export default {
       Object.assign(param, this.formData);
       param.platform = this.selectedPlatformValue;
       param.saved = this.saved;
-      console.log(this.formData.moduleId)
+      param.model = this.model;
       if (this.currentModule) {
         param.moduleId = this.formData.moduleId
         this.moduleOptions.filter(item => {
@@ -254,7 +266,7 @@ export default {
         param.modeId = this.formData.modeId
       }
       param.projectId = getCurrentProjectID();
-      if (!this.swaggerUrlEable) {
+      if (!this.swaggerUrlEnable) {
         param.swaggerUrl = undefined;
       }
       return param;
@@ -298,6 +310,10 @@ export default {
 
 .el-radio-group {
   margin: 10px 0;
+}
+
+.el-radio {
+  margin-right: 20px;
 }
 
 .header-bar, .format-tip, .el-form {

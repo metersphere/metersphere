@@ -1,7 +1,9 @@
 <template>
   <div>
-    <api-list-container
+    <api-list-container-with-doc
       :is-api-list-enable="isApiListEnable"
+      :active-dom="activeDom"
+      @activeDomChange="activeDomChange"
       @isApiListEnableChange="isApiListEnableChange">
       <el-link type="primary" style="float:right;margin-top: 5px" @click="open">{{$t('commons.adv_search.title')}}</el-link>
 
@@ -116,7 +118,7 @@
                      :type=type></header-custom>
       <ms-table-pagination :change="initTable" :current-page.sync="currentPage" :page-size.sync="pageSize"
                            :total="total"/>
-    </api-list-container>
+    </api-list-container-with-doc>
 
     <api-case-list @showExecResult="showExecResult" @refresh="initTable" :currentApi="selectCase" ref="caseList"/>
     <!--批量编辑-->
@@ -148,6 +150,9 @@ import {API_METHOD_COLOUR, CASE_PRIORITY, DUBBO_METHOD, REQ_METHOD, SQL_METHOD, 
 
 import {getBodyUploadFiles, getCurrentProjectID, getCurrentUser} from "@/common/js/utils";
 import ApiListContainer from "./ApiListContainer";
+import {getBodyUploadFiles, getCurrentProjectID} from "@/common/js/utils";
+// import ApiListContainer from "./ApiListContainer";
+import ApiListContainerWithDoc from "@/business/components/api/definition/components/list/ApiListContainerWithDoc";
 import PriorityTableItem from "../../../../track/common/tableItems/planview/PriorityTableItem";
 import MsApiCaseTableExtendBtns from "../reference/ApiCaseTableExtendBtns";
 import MsReferenceView from "../reference/ReferenceView";
@@ -177,6 +182,18 @@ export default {
     MsTablePagination,
     MsTag,
     MsApiCaseList,
+    name: "ApiCaseSimpleList",
+    components: {
+      MsTableHeaderSelectPopover,
+      MsSetEnvironment,
+      ApiCaseList,
+      PriorityTableItem,
+      ApiListContainerWithDoc,
+      MsTableOperatorButton,
+      MsTableOperator,
+      MsTablePagination,
+      MsTag,
+      MsApiCaseList,
       MsContainer,
       MsBottomContainer,
       ShowMoreBtn,
@@ -187,9 +204,6 @@ export default {
     },
     data() {
       return {
-        type: API_CASE_LIST,
-        headerItems: Api_Case_List,
-        tableLabel: Api_Case_List,
         condition: {
           components: API_CASE_CONFIGS
         },
@@ -235,6 +249,7 @@ export default {
     props: {
       currentProtocol: String,
       selectNodeIds: Array,
+      activeDom:String,
       visible: {
         type: Boolean,
         default: false,
@@ -296,6 +311,9 @@ export default {
       },
       isApiListEnableChange(data) {
         this.$emit('isApiListEnableChange', data);
+      },
+      activeDomChange(tabType){
+        this.$emit("activeDomChange",tabType);
       },
       initTable() {
         this.getLabel()

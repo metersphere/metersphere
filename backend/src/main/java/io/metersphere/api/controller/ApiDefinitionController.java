@@ -6,8 +6,6 @@ import io.metersphere.api.dto.APIReportResult;
 import io.metersphere.api.dto.ApiTestImportRequest;
 import io.metersphere.api.dto.automation.ApiScenarioRequest;
 import io.metersphere.api.dto.automation.ReferenceDTO;
-import io.metersphere.api.dto.datacount.request.ScheduleInfoRequest;
-import io.metersphere.api.dto.datacount.response.TaskInfoResult;
 import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.dto.definition.parse.ApiDefinitionImport;
 import io.metersphere.api.dto.definition.request.ScheduleInfoSwaggerUrlRequest;
@@ -92,7 +90,7 @@ public class ApiDefinitionController {
     }
 
     @PostMapping("/deleteBatchByParams")
-    public void deleteBatchByParams(@RequestBody ApiDefinitionBatchProcessingRequest request) {
+    public void deleteBatchByParams(@RequestBody ApiBatchRequest request) {
         apiDefinitionService.deleteByParams(request);
     }
 
@@ -104,7 +102,7 @@ public class ApiDefinitionController {
 
     @PostMapping("/removeToGcByParams")
     @RequiresRoles(value = {RoleConstants.TEST_MANAGER, RoleConstants.TEST_USER}, logical = Logical.OR)
-    public void removeToGcByParams(@RequestBody ApiDefinitionBatchProcessingRequest request) {
+    public void removeToGcByParams(@RequestBody ApiBatchRequest request) {
         apiDefinitionService.removeToGcByParams(request);
     }
 
@@ -149,6 +147,13 @@ public class ApiDefinitionController {
     public ApiDefinitionImport testCaseImport(@RequestPart(value = "file", required = false) MultipartFile file, @RequestPart("request") ApiTestImportRequest request) {
         return apiDefinitionService.apiTestImport(file, request);
     }
+
+    @PostMapping(value = "/export")
+    @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
+    public ApiExportResult export(@RequestBody ApiBatchRequest request) {
+        return apiDefinitionService.export(request);
+    }
+
     //定时任务创建
     @PostMapping(value = "/schedule/create")
     public void createSchedule(@RequestBody Schedule request) {

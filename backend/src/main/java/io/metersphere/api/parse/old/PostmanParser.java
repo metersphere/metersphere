@@ -3,7 +3,6 @@ package io.metersphere.api.parse.old;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import io.metersphere.api.dto.ApiTestImportRequest;
-import io.metersphere.api.dto.definition.ApiDefinitionResult;
 import io.metersphere.api.dto.definition.parse.ApiDefinitionImport;
 import io.metersphere.api.dto.definition.request.MsTestElement;
 import io.metersphere.api.dto.definition.request.configurations.MsHeaderManager;
@@ -16,6 +15,7 @@ import io.metersphere.api.dto.scenario.Scenario;
 import io.metersphere.api.dto.scenario.request.HttpRequest;
 import io.metersphere.api.dto.scenario.request.Request;
 import io.metersphere.api.dto.scenario.request.RequestType;
+import io.metersphere.base.domain.ApiDefinitionWithBLOBs;
 import io.metersphere.commons.constants.MsRequestBodyType;
 import io.metersphere.commons.constants.PostmanRequestBodyMode;
 import org.apache.commons.lang3.StringUtils;
@@ -54,20 +54,20 @@ public class PostmanParser extends ApiImportAbstractParser {
         PostmanCollection postmanCollection = JSON.parseObject(testStr, PostmanCollection.class);
         List<PostmanKeyValue> variables = postmanCollection.getVariable();
         ApiDefinitionImport apiImport = new ApiDefinitionImport();
-        List<ApiDefinitionResult> requests = new ArrayList<>();
+        List<ApiDefinitionWithBLOBs> requests = new ArrayList<>();
 
         parseItem(postmanCollection.getItem(), variables, requests);
         apiImport.setData(requests);
         return apiImport;
     }
 
-    private void parseItem(List<PostmanItem> items, List<PostmanKeyValue> variables, List<ApiDefinitionResult> scenarios) {
+    private void parseItem(List<PostmanItem> items, List<PostmanKeyValue> variables, List<ApiDefinitionWithBLOBs> scenarios) {
         for (PostmanItem item : items) {
             List<PostmanItem> childItems = item.getItem();
             if (childItems != null) {
                 parseItem(childItems, variables, scenarios);
             } else {
-                ApiDefinitionResult request = parsePostman(item);
+                ApiDefinitionWithBLOBs request = parsePostman(item);
                 if (request != null) {
                     scenarios.add(request);
                 }
@@ -75,13 +75,13 @@ public class PostmanParser extends ApiImportAbstractParser {
         }
     }
 
-    private ApiDefinitionResult parsePostman(PostmanItem requestItem) {
+    private ApiDefinitionWithBLOBs parsePostman(PostmanItem requestItem) {
         PostmanRequest requestDesc = requestItem.getRequest();
         if (requestDesc == null) {
             return null;
         }
         PostmanUrl url = requestDesc.getUrl();
-        ApiDefinitionResult request = new ApiDefinitionResult();
+        ApiDefinitionWithBLOBs request = new ApiDefinitionWithBLOBs();
         request.setName(requestItem.getName());
         request.setPath(url.getRaw());
         request.setMethod(requestDesc.getMethod());

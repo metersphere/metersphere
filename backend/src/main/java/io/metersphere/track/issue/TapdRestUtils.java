@@ -1,6 +1,8 @@
-package io.metersphere.commons.utils;
+package io.metersphere.track.issue;
 
 import io.metersphere.commons.exception.MSException;
+import io.metersphere.commons.utils.CommonBeanFactory;
+import io.metersphere.commons.utils.LogUtil;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -8,7 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
-public class RestTemplateUtils {
+public class TapdRestUtils {
 
     private static RestTemplate restTemplate;
 

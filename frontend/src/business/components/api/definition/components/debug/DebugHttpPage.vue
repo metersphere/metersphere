@@ -15,6 +15,7 @@
         </el-form-item>
 
         <el-form-item>
+          <el-button v-if="scenario" size="small" type="primary" @click="handleCommand"> {{$t('commons.test')}}</el-button>
           <el-dropdown split-button type="primary" class="ms-api-buttion" @click="handleCommand"
                        @command="handleCommand" size="small" v-if="testCase===undefined && !scenario">
             {{$t('commons.test')}}
@@ -198,7 +199,7 @@
       },
       urlChange() {
         if (!this.debugForm.url) return;
-        let url = this.getURL(this.debugForm.url);
+        let url = this.getURL(this.addProtocol(this.debugForm.url));
         if (url && url.pathname) {
           if (this.debugForm.url.indexOf('?') != -1) {
             this.debugForm.url = decodeURIComponent(this.debugForm.url.substr(0, this.debugForm.url.indexOf("?")));
@@ -209,7 +210,14 @@
         }
 
       },
-
+      addProtocol(url) {
+        if (url) {
+          if (!url.toLowerCase().startsWith("https") && !url.toLowerCase().startsWith("http")) {
+            return "https://" + url;
+          }
+        }
+        return url;
+      },
       getURL(urlStr) {
         try {
           let url = new URL(urlStr);

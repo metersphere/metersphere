@@ -49,6 +49,9 @@ public class MsScenario extends MsTestElement {
     @JSONField(ordinal = 24)
     private boolean enableCookieShare;
 
+    @JSONField(ordinal = 26)
+    private List<KeyValue> headers;
+
     private static final String BODY_FILE_DIR = "/opt/metersphere/data/body";
 
     @Override
@@ -87,7 +90,7 @@ public class MsScenario extends MsTestElement {
         }
         // 场景变量和环境变量
         tree.add(arguments(config));
-        //this.addCsvDataSet(tree, variables);
+        this.addCsvDataSet(tree, variables);
         this.addCounter(tree, variables);
         this.addRandom(tree, variables);
         if (CollectionUtils.isNotEmpty(hashTree)) {
@@ -131,6 +134,12 @@ public class MsScenario extends MsTestElement {
                     arguments.addArgument(keyValue.getName(), keyValue.getValue(), "=")
             );
         }
+        if (CollectionUtils.isNotEmpty(this.headers)) {
+            this.headers.stream().filter(KeyValue::isValid).filter(KeyValue::isEnable).forEach(keyValue ->
+                    arguments.addArgument(keyValue.getName(), keyValue.getValue(), "=")
+            );
+        }
+
         return arguments;
     }
 
