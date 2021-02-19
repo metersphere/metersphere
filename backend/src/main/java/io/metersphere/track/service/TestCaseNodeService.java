@@ -9,6 +9,7 @@ import io.metersphere.base.mapper.ext.ExtTestCaseNodeMapper;
 import io.metersphere.base.mapper.ext.ExtTestPlanTestCaseMapper;
 import io.metersphere.commons.constants.TestCaseConstants;
 import io.metersphere.commons.exception.MSException;
+import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.exception.ExcelException;
 import io.metersphere.i18n.Translator;
 import io.metersphere.service.NodeTreeService;
@@ -197,10 +198,11 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
 
     public List<TestCaseNodeDTO> getNodeByReviewId(String reviewId) {
         List<TestCaseNodeDTO> list = new ArrayList<>();
-        TestCaseReview testCaseReview = new TestCaseReview();
-        testCaseReview.setId(reviewId);
-        List<Project> project = testCaseReviewService.getProjectByReviewId(testCaseReview);
-        List<String> projectIds = project.stream().map(Project::getId).collect(Collectors.toList());
+        ProjectExample example = new ProjectExample();
+        example.createCriteria().andWorkspaceIdEqualTo(SessionUtils.getCurrentWorkspaceId());
+        List<Project> projects = projectMapper.selectByExample(example);
+        List<String> projectIds = projects.stream().map(Project::getId).collect(Collectors.toList());
+
         projectIds.forEach(id -> {
             String name = projectMapper.selectByPrimaryKey(id).getName();
 

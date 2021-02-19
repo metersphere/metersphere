@@ -1,3 +1,15 @@
+export const TEST_CASE_LIST = 'test_case_list'
+export const TEST_CASE_REVIEW_LIST = 'test_case_review_list'
+export const API_LIST = 'api_list'
+export const API_CASE_LIST = 'api_case_list'
+export const API_SCENARIO_LIST = 'api_scenario_list'
+export const TEST_CASE_REVIEW_CASE_LIST = 'test_case_review_case_list'
+export const TEST_PLAN_LIST = 'test_plan_list'
+export const TEST_PLAN_FUNCTION_TEST_CASE = 'test_plan_function_test_case'
+export const TEST_PLAN_API_CASE = 'test_plan_api_case'
+export const TEST_PLAN_LOAD_CASE = 'test_plan_load_case'
+export const TEST_PLAN_SCENARIO_CASE = 'test_plan_scenario_case'
+
 export const TokenKey = 'Admin-Token';
 export const LicenseKey = 'License';
 export const DEFAULT_LANGUAGE = 'default_language';

@@ -91,14 +91,14 @@ public class TestCaseReviewController {
 
     @PostMapping("/projects")
     public List<Project> getProjectByReviewId(@RequestBody TestReviewRelevanceRequest request) {
-        List<String> projectIds = testReviewProjectService.getProjectIdsByReviewId(request.getReviewId());
+        List<String> projectIds = testReviewProjectService.getProjectIdsByReviewId();
         request.setProjectIds(projectIds);
         return testReviewProjectService.getProject(request);
     }
 
     @PostMapping("/project/{goPage}/{pageSize}")
     public Pager<List<Project>> getProjectByReviewId(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody TestReviewRelevanceRequest request) {
-        List<String> projectIds = testReviewProjectService.getProjectIdsByReviewId(request.getReviewId());
+        List<String> projectIds = testReviewProjectService.getProjectIdsByReviewId();
         request.setProjectIds(projectIds);
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, testReviewProjectService.getProject(request));
