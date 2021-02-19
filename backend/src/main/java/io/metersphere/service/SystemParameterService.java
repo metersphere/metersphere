@@ -241,13 +241,26 @@ public class SystemParameterService {
 
     //保存表头
     public void saveHeader(UserHeader userHeader) {
-        userHeader.setId(UUID.randomUUID().toString());
-        userHeaderMapper.insert(userHeader);
+        UserHeaderExample example=new UserHeaderExample();
+        example.createCriteria().andUserIdEqualTo(userHeader.getUserId()).andTypeEqualTo(userHeader.getType());
+       if(userHeaderMapper.countByExample(example)>0){
+           userHeaderMapper.deleteByExample(example);
+           userHeader.setId(UUID.randomUUID().toString());
+           userHeaderMapper.insert(userHeader);
+       }else{
+           userHeader.setId(UUID.randomUUID().toString());
+           userHeaderMapper.insert(userHeader);
+       }
+        example.clear();
     }
 
     public UserHeader queryUserHeader(HeaderRequest headerRequest) {
         UserHeaderExample example = new UserHeaderExample();
         example.createCriteria().andUserIdEqualTo(headerRequest.getUserId()).andTypeEqualTo(headerRequest.getType());
-        return userHeaderMapper.selectByExample(example).get(0);
+        List<UserHeader> list = userHeaderMapper.selectByExample(example);
+        if (list.size() > 0) {
+            return list.get(0);
+        }
+        return null;
     }
 }
