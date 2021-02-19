@@ -1,10 +1,12 @@
 package io.metersphere.api.dto.automation.parse;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import io.github.ningyu.jmeter.plugin.dubbo.sample.DubboSample;
 import io.github.ningyu.jmeter.plugin.dubbo.sample.MethodArgument;
 import io.github.ningyu.jmeter.plugin.util.Constants;
 import io.metersphere.api.dto.ApiTestImportRequest;
+import io.metersphere.api.dto.automation.ImportPoolsDTO;
 import io.metersphere.api.dto.definition.request.MsScenario;
 import io.metersphere.api.dto.definition.request.MsTestElement;
 import io.metersphere.api.dto.definition.request.assertions.*;
@@ -30,13 +32,20 @@ import io.metersphere.api.dto.definition.request.sampler.dubbo.MsRegistryCenter;
 import io.metersphere.api.dto.definition.request.timer.MsConstantTimer;
 import io.metersphere.api.dto.definition.request.unknown.MsJmeterElement;
 import io.metersphere.api.dto.scenario.Body;
+import io.metersphere.api.dto.scenario.DatabaseConfig;
 import io.metersphere.api.dto.scenario.KeyValue;
+import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
 import io.metersphere.api.dto.scenario.request.BodyFile;
 import io.metersphere.api.dto.scenario.request.RequestType;
+import io.metersphere.api.service.ApiTestEnvironmentService;
 import io.metersphere.base.domain.ApiScenarioModule;
 import io.metersphere.base.domain.ApiScenarioWithBLOBs;
+import io.metersphere.base.domain.ApiTestEnvironmentExample;
+import io.metersphere.base.domain.ApiTestEnvironmentWithBLOBs;
 import io.metersphere.commons.constants.LoopConstants;
 import io.metersphere.commons.utils.BeanUtils;
+import io.metersphere.commons.utils.CommonBeanFactory;
+import io.metersphere.commons.utils.LogUtil;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.jmeter.assertions.*;
 import org.apache.jmeter.config.ConfigTestElement;
@@ -52,6 +61,7 @@ import org.apache.jmeter.modifiers.JSR223PreProcessor;
 import org.apache.jmeter.protocol.http.sampler.HTTPSamplerProxy;
 import org.apache.jmeter.protocol.http.util.HTTPFileArg;
 import org.apache.jmeter.protocol.java.sampler.JSR223Sampler;
+import org.apache.jmeter.protocol.jdbc.config.DataSourceElement;
 import org.apache.jmeter.protocol.jdbc.sampler.JDBCSampler;
 import org.apache.jmeter.protocol.tcp.sampler.TCPSampler;
 import org.apache.jmeter.save.SaveService;
@@ -60,24 +70,26 @@ import org.apache.jmeter.testelement.TestPlan;
 import org.apache.jmeter.timers.ConstantTimer;
 import org.apache.jorphan.collections.HashTree;
 
+import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 public class MsJmeterParser extends ScenarioImportAbstractParser {
+    private final String ENV_NAME = "导入数据环境";
+
     @Override
     public ScenarioImport parse(InputStream inputSource, ApiTestImportRequest request) {
         try {
             Object scriptWrapper = SaveService.loadElement(inputSource);
             HashTree testPlan = this.getHashTree(scriptWrapper);
+            // 优先初始化数据源
+            preInitPool(request.getProjectId(), testPlan);
+
             MsScenario scenario = new MsScenario();
             scenario.setReferenced("REF");
             jmterHashTree(testPlan, scenario);
             this.projectId = request.getProjectId();
-
             ScenarioImport scenarioImport = new ScenarioImport();
             scenarioImport.setData(paseObj(scenario, request));
             scenarioImport.setProjectid(request.getProjectId());
@@ -157,7 +169,7 @@ public class MsJmeterParser extends ScenarioImportAbstractParser {
             samplerProxy.setPath(source.getPath());
             samplerProxy.setMethod(source.getMethod());
             if (source.getUrl() != null) {
-                samplerProxy.setUrl(source.getUrl().toString());
+                // samplerProxy.setUrl(source.getUrl().toString());
             }
             samplerProxy.setId(UUID.randomUUID().toString());
             samplerProxy.setType("HTTPSamplerProxy");
@@ -238,6 +250,87 @@ public class MsJmeterParser extends ScenarioImportAbstractParser {
         }
     }
 
+    /**
+     * 优先初始化数据池
+     */
+    private void preInitPool(String projectId, HashTree hashTree) {
+        // 初始化已有数据池
+        initDataSource(projectId, ENV_NAME);
+        // 添加当前jmx 中新的数据池
+        preCreatePool(hashTree);
+        // 更新数据源
+        ApiTestEnvironmentService environmentService = CommonBeanFactory.getBean(ApiTestEnvironmentService.class);
+        if (dataPools.getIsCreate()) {
+            dataPools.getTestEnvironmentWithBLOBs().setConfig(JSON.toJSONString(dataPools.getDataSources().values()));
+            environmentService.add(dataPools.getTestEnvironmentWithBLOBs());
+        } else {
+            dataPools.getTestEnvironmentWithBLOBs().setConfig(JSON.toJSONString(dataPools.getDataSources().values()));
+            environmentService.update(dataPools.getTestEnvironmentWithBLOBs());
+        }
+    }
+
+    private void preCreatePool(HashTree tree) {
+        for (Object key : tree.keySet()) {
+            // JDBC 数据池
+            if (key instanceof DataSourceElement) {
+                DataSourceElement dataSourceElement = (DataSourceElement) key;
+                if (dataPools != null && dataPools.getDataSources().containsKey(dataSourceElement.getDataSource())) {
+                    DatabaseConfig config = dataPools.getDataSources().get(dataSourceElement.getDataSource());
+                    DatabaseConfig newConfig = new DatabaseConfig();
+                    BeanUtils.copyBean(newConfig, dataSourceElement);
+                    newConfig.setId(config.getId());
+                    dataPools.getDataSources().put(dataSourceElement.getDataSource(), newConfig);
+                } else {
+                    DatabaseConfig newConfig = new DatabaseConfig();
+                    BeanUtils.copyBean(newConfig, dataSourceElement);
+                    newConfig.setId(UUID.randomUUID().toString());
+                    dataPools.getDataSources().put(dataSourceElement.getDataSource(), newConfig);
+                }
+            }
+
+            // 递归子项
+            HashTree node = tree.get(key);
+            if (node != null) {
+                preCreatePool(node);
+            }
+        }
+    }
+
+    private ImportPoolsDTO dataPools;
+
+    private void initDataSource(String projectId, String name) {
+        ApiTestEnvironmentService environmentService = CommonBeanFactory.getBean(ApiTestEnvironmentService.class);
+        ApiTestEnvironmentExample example = new ApiTestEnvironmentExample();
+        example.createCriteria().andProjectIdEqualTo(projectId).andNameEqualTo(name);
+
+        List<ApiTestEnvironmentWithBLOBs> environments = environmentService.selectByExampleWithBLOBs(example);
+        dataPools = new ImportPoolsDTO();
+        if (CollectionUtils.isNotEmpty(environments)) {
+            dataPools.setIsCreate(false);
+            dataPools.setTestEnvironmentWithBLOBs(environments.get(0));
+            Map<String, DatabaseConfig> dataSources = new HashMap<>();
+            environments.forEach(environment -> {
+                if (environment != null && environment.getConfig() != null) {
+                    EnvironmentConfig envConfig = JSONObject.parseObject(environment.getConfig(), EnvironmentConfig.class);
+                    if (envConfig != null && CollectionUtils.isNotEmpty(envConfig.getDatabaseConfigs())) {
+                        envConfig.getDatabaseConfigs().forEach(item -> {
+                            dataSources.put(item.getName(), item);
+                        });
+                    }
+                }
+                dataPools.setEnvId(environment.getId());
+                dataPools.setDataSources(dataSources);
+            });
+        } else {
+            dataPools.setIsCreate(true);
+            ApiTestEnvironmentWithBLOBs apiTestEnvironmentWithBLOBs = new ApiTestEnvironmentWithBLOBs();
+            apiTestEnvironmentWithBLOBs.setId(UUID.randomUUID().toString());
+            apiTestEnvironmentWithBLOBs.setName(ENV_NAME);
+            apiTestEnvironmentWithBLOBs.setProjectId(projectId);
+            dataPools.setTestEnvironmentWithBLOBs(apiTestEnvironmentWithBLOBs);
+        }
+    }
+
     private void convertJDBCSampler(MsJDBCSampler msJDBCSampler, JDBCSampler jdbcSampler) {
         msJDBCSampler.setType("JDBCSampler");
         msJDBCSampler.setName(jdbcSampler.getName());
@@ -303,7 +396,9 @@ public class MsJmeterParser extends ScenarioImportAbstractParser {
             ResponseAssertion assertion = (ResponseAssertion) key;
             assertionRegex.setDescription(assertion.getName());
             assertionRegex.setAssumeSuccess(assertion.getAssumeSuccess());
-            assertionRegex.setExpression(assertion.getTestStrings().getStringValue());
+            if (assertion.getTestStrings() != null && !assertion.getTestStrings().isEmpty()) {
+                assertionRegex.setExpression(assertion.getTestStrings().get(0).getStringValue());
+            }
             if (assertion.isTestFieldRequestData()) {
                 assertionRegex.setSubject("Response Data");
             }
@@ -333,8 +428,9 @@ public class MsJmeterParser extends ScenarioImportAbstractParser {
             MsAssertionJSR223 msAssertionJSR223 = new MsAssertionJSR223();
             JSR223Assertion jsr223Assertion = (JSR223Assertion) key;
             msAssertionJSR223.setName(jsr223Assertion.getName());
-            msAssertionJSR223.setScript(jsr223Assertion.getScript());
-            msAssertionJSR223.setScriptLanguage(jsr223Assertion.getScriptLanguage());
+            msAssertionJSR223.setDesc(jsr223Assertion.getName());
+            msAssertionJSR223.setScript(jsr223Assertion.getPropertyAsString("script"));
+            msAssertionJSR223.setScriptLanguage(jsr223Assertion.getPropertyAsString("scriptLanguage"));
             assertions.setName(jsr223Assertion.getName());
 
             assertions.getJsr223().add(msAssertionJSR223);
@@ -345,6 +441,23 @@ public class MsJmeterParser extends ScenarioImportAbstractParser {
             assertions.setName(durationAssertion.getName());
             assertions.setDuration(assertionDuration);
         }
+    }
+
+    /**
+     * 把节点对象转成XML，不然执行时无法正常转换
+     *
+     * @param obj
+     * @return
+     */
+    public static String objToXml(Object obj) {
+        try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
+            SaveService.saveElement(obj, baos);
+            return baos.toString();
+        } catch (Exception e) {
+            e.printStackTrace();
+            LogUtil.warn("HashTree error, can't log jmx scenarioDefinition");
+        }
+        return null;
     }
 
     private void jmterHashTree(HashTree tree, MsTestElement scenario) {
@@ -358,7 +471,7 @@ public class MsJmeterParser extends ScenarioImportAbstractParser {
                 scenario.setName(((TestPlan) key).getName());
                 elementNode = new MsJmeterElement();
                 elementNode.setName(((TestPlan) key).getName());
-                ((MsJmeterElement) elementNode).setJmeterElement(key);
+                ((MsJmeterElement) elementNode).setJmeterElement(objToXml(key));
             }
             // 线程组
             else if (key instanceof ThreadGroup) {
@@ -412,12 +525,12 @@ public class MsJmeterParser extends ScenarioImportAbstractParser {
                 ((MsJSR223PreProcessor) elementNode).setScript(jsr223Sampler.getPropertyAsString("script"));
                 ((MsJSR223PreProcessor) elementNode).setScriptLanguage(jsr223Sampler.getPropertyAsString("scriptLanguage"));
             }
-            // 提取参数
+            // 断言规则
             else if (key instanceof ResponseAssertion || key instanceof JSONPathAssertion || key instanceof XPath2Assertion || key instanceof JSR223Assertion || key instanceof DurationAssertion) {
                 elementNode = new MsAssertions();
                 convertMsAssertions((MsAssertions) elementNode, key);
             }
-            // 断言规则
+            // 提取参数
             else if (key instanceof RegexExtractor || key instanceof XPath2Extractor || key instanceof JSONPostProcessor) {
                 elementNode = new MsExtract();
                 convertMsExtract((MsExtract) elementNode, key);
@@ -475,8 +588,9 @@ public class MsJmeterParser extends ScenarioImportAbstractParser {
                 elementNode.setType("JmeterElement");
                 TestElement testElement = (TestElement) key;
                 elementNode.setName(testElement.getName());
-                ((MsJmeterElement) elementNode).setJmeterElement(key);
+                ((MsJmeterElement) elementNode).setJmeterElement(objToXml(key));
             }
+            elementNode.setEnable(((TestElement) key).isEnabled());
             elementNode.setResourceId(UUID.randomUUID().toString());
             elementNode.setId(UUID.randomUUID().toString());
             elementNode.setIndex(scenario.getHashTree().size() + 1 + "");

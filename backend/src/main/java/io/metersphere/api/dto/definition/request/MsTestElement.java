@@ -111,8 +111,10 @@ public abstract class MsTestElement {
      * todo 公共环境逐层传递，如果自身有环境 以自身引用环境为准否则以公共环境作为请求环境
      */
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, ParameterConfig config) {
-        for (MsTestElement el : hashTree) {
-            el.toHashTree(tree, el.hashTree, config);
+        if (CollectionUtils.isNotEmpty(hashTree)) {
+            for (MsTestElement el : hashTree) {
+                el.toHashTree(tree, el.hashTree, config);
+            }
         }
     }
 

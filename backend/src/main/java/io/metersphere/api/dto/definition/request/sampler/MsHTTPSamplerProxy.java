@@ -148,6 +148,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                 String envPath = StringUtils.equals(urlObject.getPath(), "/") ? "" : urlObject.getPath();
                 if (StringUtils.isNotBlank(this.getPath()) && !isUrl) {
                     envPath += this.getPath();
+                    sampler.setPath(envPath);
                 }
                 if (CollectionUtils.isNotEmpty(this.getRest()) && this.isRest()) {
                     envPath = getRestParameters(URLDecoder.decode(envPath, "UTF-8"));
