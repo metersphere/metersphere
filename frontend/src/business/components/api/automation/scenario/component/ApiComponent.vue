@@ -28,13 +28,17 @@
 
     <customize-req-info :is-customize-req="isCustomizeReq" :request="request"/>
 
-    <p class="tip">{{$t('api_test.definition.request.req_param')}} </p>
-    <ms-api-request-form :isShowEnable="true" :referenced="true" :headers="request.headers " :request="request" v-if="request.protocol==='HTTP' || request.type==='HTTPSamplerProxy'"/>
+    <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
+    <ms-api-request-form :isShowEnable="true" :referenced="true" :headers="request.headers " :request="request"
+                         v-if="request.protocol==='HTTP' || request.type==='HTTPSamplerProxy'"/>
     <ms-tcp-basis-parameters :request="request" v-if="request.protocol==='TCP'|| request.type==='TCPSampler'"/>
-    <ms-sql-basis-parameters :request="request" v-if="request.protocol==='SQL'|| request.type==='JDBCSampler'" :showScript="false"/>
-    <ms-dubbo-basis-parameters :request="request" v-if="request.protocol==='DUBBO' || request.protocol==='dubbo://'|| request.type==='DubboSampler'" :showScript="false"/>
+    <ms-sql-basis-parameters :request="request" v-if="request.protocol==='SQL'|| request.type==='JDBCSampler'"
+                             :showScript="false"/>
+    <ms-dubbo-basis-parameters :request="request"
+                               v-if="request.protocol==='DUBBO' || request.protocol==='dubbo://'|| request.type==='DubboSampler'"
+                               :showScript="false"/>
 
-    <p class="tip">{{$t('api_test.definition.request.res_param')}} </p>
+    <p class="tip">{{ $t('api_test.definition.request.res_param') }} </p>
     <div v-if="request.result">
       <el-tabs v-model="request.activeName" closable class="ms-tabs">
         <el-tab-pane :label="item.name" :name="item.name" v-for="(item,index) in request.result.scenarios" :key="index">
@@ -47,37 +51,37 @@
     <api-response-component :currentProtocol="request.protocol" :result="request.requestResult" v-else/>
 
     <!-- 保存操作 -->
-    <el-button type="primary" size="small" style="margin: 20px; float: right" @click="saveTestCase(item)" v-if="!request.referenced">
-      {{$t('commons.save')}}
+    <el-button type="primary" size="small" style="margin: 20px; float: right" @click="saveTestCase(item)"
+               v-if="!request.referenced">
+      {{ $t('commons.save') }}
     </el-button>
 
   </api-base-component>
 </template>
 
 <script>
-  import MsSqlBasisParameters from "../../../definition/components/request/database/BasisParameters";
-  import MsTcpBasisParameters from "../../../definition/components/request/tcp/TcpBasisParameters";
-  import MsDubboBasisParameters from "../../../definition/components/request/dubbo/BasisParameters";
-  import MsApiRequestForm from "../../../definition/components/request/http/ApiHttpRequestForm";
-  import {REQ_METHOD} from "../../../definition/model/JsonData";
-  import MsRequestResultTail from "../../../definition/components/response/RequestResultTail";
-  import MsRun from "../../../definition/components/Run";
-  import {getUUID} from "@/common/js/utils";
-  import ApiBaseComponent from "../common/ApiBaseComponent";
-  import ApiResponseComponent from "./ApiResponseComponent";
-  import CustomizeReqInfo from "@/business/components/api/automation/scenario/common/CustomizeReqInfo";
+import MsSqlBasisParameters from "../../../definition/components/request/database/BasisParameters";
+import MsTcpBasisParameters from "../../../definition/components/request/tcp/TcpBasisParameters";
+import MsDubboBasisParameters from "../../../definition/components/request/dubbo/BasisParameters";
+import MsApiRequestForm from "../../../definition/components/request/http/ApiHttpRequestForm";
+import MsRequestResultTail from "../../../definition/components/response/RequestResultTail";
+import MsRun from "../../../definition/components/Run";
+import {getUUID} from "@/common/js/utils";
+import ApiBaseComponent from "../common/ApiBaseComponent";
+import ApiResponseComponent from "./ApiResponseComponent";
+import CustomizeReqInfo from "@/business/components/api/automation/scenario/common/CustomizeReqInfo";
 
-  export default {
-    name: "MsApiComponent",
-    props: {
-      request: {},
-      currentScenario: {},
-      node: {},
-      draggable: {
-        type: Boolean,
-        default: false,
-      },
-      currentEnvironmentId: String,
+export default {
+  name: "MsApiComponent",
+  props: {
+    request: {},
+    currentScenario: {},
+    node: {},
+    draggable: {
+      type: Boolean,
+      default: false,
+    },
+    currentEnvironmentId: String,
     },
     components: {
       CustomizeReqInfo,

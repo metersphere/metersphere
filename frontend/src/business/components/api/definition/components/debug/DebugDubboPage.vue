@@ -2,16 +2,18 @@
 
   <div class="card-container" v-loading="loading">
     <el-card class="card-content">
-      <el-button v-if="scenario"  style="float: right;margin-right: 20px" size="small" type="primary" @click="handleCommand"> {{$t('commons.test')}}</el-button>
+      <el-button v-if="scenario" style="float: right;margin-right: 20px" size="small" type="primary"
+                 @click="handleCommand"> {{ $t('commons.test') }}
+      </el-button>
       <el-dropdown v-else split-button type="primary" class="ms-api-buttion" @click="handleCommand"
                    @command="handleCommand" size="small" style="float: right;margin-right: 20px">
-        {{$t('commons.test')}}
+        {{ $t('commons.test') }}
         <el-dropdown-menu slot="dropdown">
-          <el-dropdown-item command="save_as">{{$t('api_test.definition.request.save_as_case')}}</el-dropdown-item>
+          <el-dropdown-item command="save_as">{{ $t('api_test.definition.request.save_as_case') }}</el-dropdown-item>
         </el-dropdown-menu>
       </el-dropdown>
 
-      <p class="tip">{{$t('api_test.definition.request.req_param')}} </p>
+      <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
       <!-- 请求参数 -->
       <ms-basis-parameters :request="request" ref="requestForm"/>
 
@@ -34,29 +36,38 @@
 </template>
 
 <script>
-  import MsResponseResult from "../response/ResponseResult";
-  import MsRequestMetric from "../response/RequestMetric";
-  import {getUUID, getCurrentUser} from "@/common/js/utils";
-  import MsResponseText from "../response/ResponseText";
-  import MsRun from "../Run";
-  import {createComponent} from "../jmeter/components";
-  import {REQ_METHOD} from "../../model/JsonData";
-  import MsRequestResultTail from "../response/RequestResultTail";
-  import MsBasisParameters from "../request/dubbo/BasisParameters";
-  import MsJmxStep from "../step/JmxStep";
-  import MsApiCaseList from "../case/ApiCaseList";
+import MsResponseResult from "../response/ResponseResult";
+import MsRequestMetric from "../response/RequestMetric";
+import {getUUID} from "@/common/js/utils";
+import MsResponseText from "../response/ResponseText";
+import MsRun from "../Run";
+import {createComponent} from "../jmeter/components";
+import {REQ_METHOD} from "../../model/JsonData";
+import MsRequestResultTail from "../response/RequestResultTail";
+import MsBasisParameters from "../request/dubbo/BasisParameters";
+import MsJmxStep from "../step/JmxStep";
+import MsApiCaseList from "../case/ApiCaseList";
 
-  export default {
-    name: "ApiConfig",
-    components: {MsRequestResultTail, MsResponseResult, MsRequestMetric, MsResponseText, MsRun, MsBasisParameters, MsJmxStep, MsApiCaseList},
-    props: {
-      currentProtocol: String,
-      scenario: Boolean,
-      testCase: {},
-    },
-    data() {
-      return {
-        rules: {
+export default {
+  name: "ApiConfig",
+  components: {
+    MsRequestResultTail,
+    MsResponseResult,
+    MsRequestMetric,
+    MsResponseText,
+    MsRun,
+    MsBasisParameters,
+    MsJmxStep,
+    MsApiCaseList
+  },
+  props: {
+    currentProtocol: String,
+    scenario: Boolean,
+    testCase: {},
+  },
+  data() {
+    return {
+      rules: {
           method: [{required: true, message: this.$t('test_track.case.input_maintainer'), trigger: 'change'}],
           url: [{required: true, message: this.$t('api_test.definition.request.path_all_info'), trigger: 'blur'}],
         },

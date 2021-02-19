@@ -15,7 +15,8 @@
         </el-form-item>
 
         <el-form-item>
-          <el-button v-if="scenario" size="small" type="primary" @click="handleCommand"> {{$t('commons.test')}}</el-button>
+          <el-button v-if="scenario" size="small" type="primary" @click="handleCommand"> {{ $t('commons.test') }}
+          </el-button>
           <el-dropdown split-button type="primary" class="ms-api-buttion" @click="handleCommand"
                        @command="handleCommand" size="small" v-if="testCase===undefined && !scenario">
             {{$t('commons.test')}}
@@ -48,30 +49,39 @@
 </template>
 
 <script>
-  import MsApiRequestForm from "../request/http/ApiHttpRequestForm";
-  import MsResponseResult from "../response/ResponseResult";
-  import MsRequestMetric from "../response/RequestMetric";
-  import {getUUID, getCurrentUser} from "@/common/js/utils";
-  import MsResponseText from "../response/ResponseText";
-  import MsRun from "../Run";
-  import {createComponent} from "../jmeter/components";
-  import {REQ_METHOD} from "../../model/JsonData";
-  import MsRequestResultTail from "../response/RequestResultTail";
-  import MsJmxStep from "../step/JmxStep";
-  import {KeyValue} from "../../model/ApiTestModel";
-  import MsApiCaseList from "../case/ApiCaseList";
+import MsApiRequestForm from "../request/http/ApiHttpRequestForm";
+import MsResponseResult from "../response/ResponseResult";
+import MsRequestMetric from "../response/RequestMetric";
+import {getCurrentUser, getUUID} from "@/common/js/utils";
+import MsResponseText from "../response/ResponseText";
+import MsRun from "../Run";
+import {createComponent} from "../jmeter/components";
+import {REQ_METHOD} from "../../model/JsonData";
+import MsRequestResultTail from "../response/RequestResultTail";
+import MsJmxStep from "../step/JmxStep";
+import {KeyValue} from "../../model/ApiTestModel";
+import MsApiCaseList from "../case/ApiCaseList";
 
-  export default {
-    name: "ApiConfig",
-    components: {MsRequestResultTail, MsResponseResult, MsApiRequestForm, MsRequestMetric, MsResponseText, MsRun, MsJmxStep, MsApiCaseList},
-    props: {
-      currentProtocol: String,
-      testCase: {},
-      scenario: Boolean,
-    },
-    data() {
-      let validateURL = (rule, value, callback) => {
-        try {
+export default {
+  name: "ApiConfig",
+  components: {
+    MsRequestResultTail,
+    MsResponseResult,
+    MsApiRequestForm,
+    MsRequestMetric,
+    MsResponseText,
+    MsRun,
+    MsJmxStep,
+    MsApiCaseList
+  },
+  props: {
+    currentProtocol: String,
+    testCase: {},
+    scenario: Boolean,
+  },
+  data() {
+    let validateURL = (rule, value, callback) => {
+      try {
           new URL(this.debugForm.url);
           callback();
         } catch (e) {
