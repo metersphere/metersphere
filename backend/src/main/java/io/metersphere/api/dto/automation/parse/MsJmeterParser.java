@@ -260,11 +260,13 @@ public class MsJmeterParser extends ScenarioImportAbstractParser {
         preCreatePool(hashTree);
         // 更新数据源
         ApiTestEnvironmentService environmentService = CommonBeanFactory.getBean(ApiTestEnvironmentService.class);
+        dataPools.getEnvConfig().setDatabaseConfigs(new ArrayList<>(dataPools.getDataSources().values()));
         if (dataPools.getIsCreate()) {
-            dataPools.getTestEnvironmentWithBLOBs().setConfig(JSON.toJSONString(dataPools.getDataSources().values()));
-            environmentService.add(dataPools.getTestEnvironmentWithBLOBs());
+            dataPools.getTestEnvironmentWithBLOBs().setConfig(JSON.toJSONString(dataPools.getEnvConfig()));
+            String id = environmentService.add(dataPools.getTestEnvironmentWithBLOBs());
+            dataPools.setEnvId(id);
         } else {
-            dataPools.getTestEnvironmentWithBLOBs().setConfig(JSON.toJSONString(dataPools.getDataSources().values()));
+            dataPools.getTestEnvironmentWithBLOBs().setConfig(JSON.toJSONString(dataPools.getEnvConfig()));
             environmentService.update(dataPools.getTestEnvironmentWithBLOBs());
         }
     }
@@ -274,17 +276,32 @@ public class MsJmeterParser extends ScenarioImportAbstractParser {
             // JDBC 数据池
             if (key instanceof DataSourceElement) {
                 DataSourceElement dataSourceElement = (DataSourceElement) key;
-                if (dataPools != null && dataPools.getDataSources().containsKey(dataSourceElement.getDataSource())) {
-                    DatabaseConfig config = dataPools.getDataSources().get(dataSourceElement.getDataSource());
+                if (dataPools != null && dataPools.getDataSources() != null && dataPools.getDataSources().containsKey(dataSourceElement.getPropertyAsString("dataSource"))) {
+                    DatabaseConfig config = dataPools.getDataSources().get(dataSourceElement.getPropertyAsString("dataSource"));
                     DatabaseConfig newConfig = new DatabaseConfig();
-                    BeanUtils.copyBean(newConfig, dataSourceElement);
+                    newConfig.setUsername(dataSourceElement.getPropertyAsString("username"));
+                    newConfig.setPassword(dataSourceElement.getPropertyAsString("password"));
+                    newConfig.setDriver(dataSourceElement.getPropertyAsString("driver"));
+                    newConfig.setDbUrl(dataSourceElement.getPropertyAsString("dbUrl"));
+                    newConfig.setName(dataSourceElement.getPropertyAsString("dataSource"));
+                    newConfig.setPoolMax(dataSourceElement.getPropertyAsInt("poolMax"));
+                    newConfig.setTimeout(dataSourceElement.getPropertyAsInt("timeout"));
                     newConfig.setId(config.getId());
-                    dataPools.getDataSources().put(dataSourceElement.getDataSource(), newConfig);
+                    dataPools.getDataSources().put(dataSourceElement.getPropertyAsString("dataSource"), newConfig);
                 } else {
                     DatabaseConfig newConfig = new DatabaseConfig();
-                    BeanUtils.copyBean(newConfig, dataSourceElement);
                     newConfig.setId(UUID.randomUUID().toString());
-                    dataPools.getDataSources().put(dataSourceElement.getDataSource(), newConfig);
+                    newConfig.setUsername(dataSourceElement.getPropertyAsString("username"));
+                    newConfig.setPassword(dataSourceElement.getPropertyAsString("password"));
+                    newConfig.setDriver(dataSourceElement.getPropertyAsString("driver"));
+                    newConfig.setDbUrl(dataSourceElement.getPropertyAsString("dbUrl"));
+                    newConfig.setName(dataSourceElement.getPropertyAsString("dataSource"));
+                    newConfig.setPoolMax(dataSourceElement.getPropertyAsInt("poolMax"));
+                    newConfig.setTimeout(dataSourceElement.getPropertyAsInt("timeout"));
+                    if (dataPools.getDataSources() == null) {
+                        dataPools.setDataSources(new HashMap<>());
+                    }
+                    dataPools.getDataSources().put(dataSourceElement.getPropertyAsString("dataSource"), newConfig);
                 }
             }
 
@@ -302,7 +319,7 @@ public class MsJmeterParser extends ScenarioImportAbstractParser {
         ApiTestEnvironmentService environmentService = CommonBeanFactory.getBean(ApiTestEnvironmentService.class);
         ApiTestEnvironmentExample example = new ApiTestEnvironmentExample();
         example.createCriteria().andProjectIdEqualTo(projectId).andNameEqualTo(name);
-
+        // 这里的数据只有一条，如果多条则有问题
         List<ApiTestEnvironmentWithBLOBs> environments = environmentService.selectByExampleWithBLOBs(example);
         dataPools = new ImportPoolsDTO();
         if (CollectionUtils.isNotEmpty(environments)) {
@@ -312,6 +329,7 @@ public class MsJmeterParser extends ScenarioImportAbstractParser {
             environments.forEach(environment -> {
                 if (environment != null && environment.getConfig() != null) {
                     EnvironmentConfig envConfig = JSONObject.parseObject(environment.getConfig(), EnvironmentConfig.class);
+                    dataPools.setEnvConfig(envConfig);
                     if (envConfig != null && CollectionUtils.isNotEmpty(envConfig.getDatabaseConfigs())) {
                         envConfig.getDatabaseConfigs().forEach(item -> {
                             dataSources.put(item.getName(), item);
@@ -325,6 +343,8 @@ public class MsJmeterParser extends ScenarioImportAbstractParser {
             dataPools.setIsCreate(true);
             ApiTestEnvironmentWithBLOBs apiTestEnvironmentWithBLOBs = new ApiTestEnvironmentWithBLOBs();
             apiTestEnvironmentWithBLOBs.setId(UUID.randomUUID().toString());
+            dataPools.setEnvId(apiTestEnvironmentWithBLOBs.getId());
+            dataPools.setEnvConfig(new EnvironmentConfig());
             apiTestEnvironmentWithBLOBs.setName(ENV_NAME);
             apiTestEnvironmentWithBLOBs.setProjectId(projectId);
             dataPools.setTestEnvironmentWithBLOBs(apiTestEnvironmentWithBLOBs);
@@ -339,6 +359,10 @@ public class MsJmeterParser extends ScenarioImportAbstractParser {
         msJDBCSampler.setQueryTimeout(jdbcSampler.getPropertyAsInt("queryTimeout"));
         msJDBCSampler.setResultVariable(jdbcSampler.getPropertyAsString("resultVariable"));
         msJDBCSampler.setVariableNames(jdbcSampler.getPropertyAsString("variableNames"));
+        msJDBCSampler.setEnvironmentId(dataPools.getEnvId());
+        if (dataPools.getDataSources() != null && dataPools.getDataSources().get(jdbcSampler.getPropertyAsString("dataSource")) != null) {
+            msJDBCSampler.setDataSourceId(dataPools.getDataSources().get(jdbcSampler.getPropertyAsString("dataSource")).getId());
+        }
         msJDBCSampler.setVariables(new LinkedList<>());
     }
 
