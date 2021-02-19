@@ -596,6 +596,36 @@ export default {
         other_config: "其他設置",
         message_template: "報文模版",
         tcp_parameter_tip: "請求參數可以在請求模版通過${xxx}引用",
+      },
+      document: {
+        order: "排序方式",
+        create_time_sort: "按創建時間從後到前",
+        edit_time_positive_sequence: "按更新時間從前到後",
+        edit_time_Reverse_order: "按更新時間從後到前",
+        request_method: "請求方式",
+        request_interface: "請求接口e",
+        search_by_api_name : "API名稱搜索",
+        request_info: "請求信息",
+        request_head: "請求頭",
+        request_param: "參數",
+        request_body: "請求體",
+        example_presentation: "範例展示",
+        response_info: "響應信息",
+        response_head: "響應頭",
+        response_body: "響應體",
+        response_code: "響應碼",
+        table_coloum:{
+          name: "名稱",
+          value: "值",
+          is_required: "是否必填",
+          desc: "描述",
+          type: "類型",
+          default_value: "默認值",
+        },
+        data_set: {
+          all: "全部",
+          none: "無"
+        },
       }
     },
     automation: {

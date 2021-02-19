@@ -16,4 +16,7 @@ public class ApiDocumentRequest {
     private String projectId;
     private List<String> moduleIds;
     private String shareId;
+    private String name;
+    private String type;
+    private String orderCondition;
 }
