@@ -498,9 +498,7 @@ public class ApiDefinitionService {
             LogUtil.error(e.getMessage(), e);
             MSException.throwException(Translator.get("parse_data_error"));
         }
-        if (request.isSaved()) {
-            importApi(request, apiImport);
-        }
+        importApi(request, apiImport);
         return apiImport;
     }
 
