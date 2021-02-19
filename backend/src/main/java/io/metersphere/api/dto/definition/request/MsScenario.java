@@ -20,6 +20,8 @@ import lombok.EqualsAndHashCode;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.config.Arguments;
+import org.apache.jmeter.protocol.http.control.Header;
+import org.apache.jmeter.protocol.http.control.HeaderManager;
 import org.apache.jmeter.save.SaveService;
 import org.apache.jmeter.testelement.TestElement;
 import org.apache.jorphan.collections.HashTree;
@@ -100,12 +102,29 @@ public class MsScenario extends MsTestElement {
                 el.toHashTree(tree, el.getHashTree(), config);
             }
         }
+        if (CollectionUtils.isNotEmpty(this.headers)) {
+            setHeader(tree, this.headers);
+        }
     }
 
     public void setOldVariables(List<KeyValue> oldVariables) {
         if (CollectionUtils.isNotEmpty(oldVariables)) {
             String json = JSON.toJSONString(oldVariables);
             this.variables = JSON.parseArray(json, ScenarioVariable.class);
+        }
+    }
+
+    public void setHeader(HashTree tree, List<KeyValue> headers) {
+        if (CollectionUtils.isNotEmpty(headers)) {
+            HeaderManager headerManager = new HeaderManager();
+            headerManager.setEnabled(true);
+            headerManager.setName(this.getName() + "场景Headers");
+            headerManager.setProperty(TestElement.TEST_CLASS, HeaderManager.class.getName());
+            headerManager.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("HeaderPanel"));
+            headers.stream().filter(KeyValue::isValid).filter(KeyValue::isEnable).forEach(keyValue ->
+                    headerManager.add(new Header(keyValue.getName(), keyValue.getValue()))
+            );
+            tree.add(headerManager);
         }
     }
 
@@ -131,11 +150,6 @@ public class MsScenario extends MsTestElement {
         if (config != null && config.getConfig() != null && config.getConfig().getCommonConfig() != null
                 && CollectionUtils.isNotEmpty(config.getConfig().getCommonConfig().getVariables())) {
             config.getConfig().getCommonConfig().getVariables().stream().filter(KeyValue::isValid).filter(KeyValue::isEnable).forEach(keyValue ->
-                    arguments.addArgument(keyValue.getName(), keyValue.getValue(), "=")
-            );
-        }
-        if (CollectionUtils.isNotEmpty(this.headers)) {
-            this.headers.stream().filter(KeyValue::isValid).filter(KeyValue::isEnable).forEach(keyValue ->
                     arguments.addArgument(keyValue.getName(), keyValue.getValue(), "=")
             );
         }
