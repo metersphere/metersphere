@@ -688,20 +688,17 @@ public class ApiAutomationService {
         return dto;
     }
 
-    public void bathEdit(SaveApiScenarioRequest request) {
-        if (CollectionUtils.isEmpty(request.getScenarioIds())) {
-            return;
-        }
-        if (request.isSelectAllDate()) {
-            request.setScenarioIds(this.getAllScenarioIdsByFontedSelect(
-                    request.getModuleIds(), request.getName(), request.getProjectId(), request.getFilters(), request.getUnSelectIds()));
-        }
+    public void bathEdit(ApiScenarioBatchRequest request) {
+
+        ServiceUtils.getSelectAllIds(request, request.getCondition(),
+                (query) -> extApiScenarioMapper.selectIdsByQuery((ApiScenarioRequest) query));
+
         if (StringUtils.isNotBlank(request.getEnvironmentId())) {
             bathEditEnv(request);
             return;
         }
         ApiScenarioExample apiScenarioExample = new ApiScenarioExample();
-        apiScenarioExample.createCriteria().andIdIn(request.getScenarioIds());
+        apiScenarioExample.createCriteria().andIdIn(request.getIds());
         ApiScenarioWithBLOBs apiScenarioWithBLOBs = new ApiScenarioWithBLOBs();
         BeanUtils.copyBean(apiScenarioWithBLOBs, request);
         apiScenarioWithBLOBs.setUpdateTime(System.currentTimeMillis());
@@ -710,9 +707,9 @@ public class ApiAutomationService {
                 apiScenarioExample);
     }
 
-    public void bathEditEnv(SaveApiScenarioRequest request) {
+    public void bathEditEnv(ApiScenarioBatchRequest request) {
         if (StringUtils.isNotBlank(request.getEnvironmentId())) {
-            List<ApiScenarioWithBLOBs> apiScenarios = selectByIdsWithBLOBs(request.getScenarioIds());
+            List<ApiScenarioWithBLOBs> apiScenarios = selectByIdsWithBLOBs(request.getIds());
             apiScenarios.forEach(item -> {
                 JSONObject object = JSONObject.parseObject(item.getScenarioDefinition());
                 object.put("environmentId", request.getEnvironmentId());

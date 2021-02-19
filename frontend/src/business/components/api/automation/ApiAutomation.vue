@@ -8,6 +8,7 @@
         @setModuleOptions="setModuleOptions"
         @setNodeTree="setNodeTree"
         @enableTrash="enableTrash"
+        @exportAPI="exportAPI"
         :type="'edit'"
         ref="nodeTree"/>
     </ms-aside-container>
@@ -267,6 +268,9 @@
       },
       enableTrash(data) {
         this.trashEnable = data;
+      },
+      exportAPI() {
+        this.$refs.apiScenarioList[0].exportApi();
       }
     }
   }

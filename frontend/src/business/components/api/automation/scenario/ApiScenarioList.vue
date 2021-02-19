@@ -9,7 +9,8 @@
       <el-table ref="scenarioTable" border :data="tableData" class="adjust-table ms-select-all-fixed"
                 @sort-change="sort"
                 @filter-change="filter"
-                @select-all="select" @select="select"
+                @select-all="handleSelectAll"
+                @select="handleSelect"
                 @header-dragend="headerDragend"
                 :height="screenHeight"
                 v-loading="loading">
@@ -24,7 +25,7 @@
 
         <el-table-column v-if="!referenced" width="30" min-width="30" :resizable="false" align="center">
           <template v-slot:default="scope">
-            <show-more-btn :is-show="isSelect(scope.row)" :buttons="buttons" :size="selectDataCounts"/>
+            <show-more-btn :is-show="scope.row.showMore" :buttons="buttons" :size="selectDataCounts"/>
           </template>
         </el-table-column>
 
@@ -155,7 +156,7 @@ import MsTableHeader from "@/business/components/common/components/MsTableHeader
 import MsTablePagination from "@/business/components/common/pagination/TablePagination";
 import ShowMoreBtn from "@/business/components/track/case/components/ShowMoreBtn";
 import MsTag from "../../../common/components/MsTag";
-import {getCurrentProjectID, getUUID} from "@/common/js/utils";
+import {downloadFile, getCurrentProjectID, getUUID} from "@/common/js/utils";
 import MsApiReportDetail from "../report/ApiReportDetail";
 import MsTableMoreBtn from "./TableMoreBtn";
 import MsScenarioExtendButtons from "@/business/components/api/automation/scenario/ScenarioExtendBtns";
@@ -166,10 +167,17 @@ import MsTableOperatorButton from "@/business/components/common/components/MsTab
 import PriorityTableItem from "../../../track/common/tableItems/planview/PriorityTableItem";
 import PlanStatusTableItem from "../../../track/common/tableItems/plan/PlanStatusTableItem";
 import BatchEdit from "../../../track/case/components/BatchEdit";
-import {WORKSPACE_ID} from "../../../../../common/js/constants";
+import {PROJECT_NAME, WORKSPACE_ID} from "../../../../../common/js/constants";
 import EnvironmentSelect from "../../definition/components/environment/EnvironmentSelect";
 import BatchMove from "../../../track/case/components/BatchMove";
-import {_filter, _sort} from "@/common/js/tableUtils";
+import {
+  _filter,
+  _handleSelect,
+  _handleSelectAll,
+  _sort,
+  getSelectDataCounts,
+  setUnSelectIds, toggleAllSelection
+} from "@/common/js/tableUtils";
 
 export default {
   name: "MsApiScenarioList",
@@ -255,7 +263,7 @@ export default {
           }
         ],
         isSelectAllDate: false,
-        unSelection: [],
+        selectRows: new Set(),
         selectDataCounts: 0,
         typeArr: [
           {id: 'level', name: this.$t('test_track.case.priority')},
@@ -331,6 +339,7 @@ export default {
         this.search();
       },
       search() {
+        this.selectRows = new Set();
         this.condition.moduleIds = this.selectNodeIds;
         if (this.trashEnable) {
           this.condition.filters = {status: ["Trash"]};
@@ -481,11 +490,9 @@ export default {
         }
       },
       buildBatchParam(param) {
-        param.scenarioIds = this.selection;
+        param.ids = Array.from(this.selectRows).map(row => row.id);
         param.projectId = getCurrentProjectID();
-        param.selectAllDate = this.isSelectAllDate;
-        param.unSelectIds = this.unSelection;
-        param = Object.assign(param, this.condition);
+        param.condition = this.condition;
       },
       handleBatchExecute() {
         this.infoDb = false;
@@ -499,16 +506,21 @@ export default {
           this.batchReportId = run.id;
         });
       },
-      select(selection) {
-        this.selection = selection.map(s => s.id);
-
-        //统计应当展示选择了多少行
-        this.selectRowsCount(this.selection)
-
-        this.$emit('selection', selection);
+      handleSelectAll(selection) {
+        _handleSelectAll(this, selection, this.tableData, this.selectRows);
+        setUnSelectIds(this.tableData, this.condition, this.selectRows);
+        this.selectDataCounts = getSelectDataCounts(this.condition, this.total, this.selectRows);
       },
-      isSelect(row) {
-        return this.selection.includes(row.id)
+      handleSelect(selection, row) {
+        _handleSelect(this, selection, row, this.selectRows);
+        setUnSelectIds(this.tableData, this.condition, this.selectRows);
+        this.selectDataCounts = getSelectDataCounts(this.condition, this.total, this.selectRows);
+      },
+      isSelectDataAll(data) {
+        this.condition.selectAll = data;
+        setUnSelectIds(this.tableData, this.condition, this.selectRows);
+        this.selectDataCounts = getSelectDataCounts(this.condition, this.total, this.selectRows);
+        toggleAllSelection(this.$refs.scenarioTable, this.tableData, this.selectRows);
       },
       edit(row) {
         let data = JSON.parse(JSON.stringify(row));
@@ -548,28 +560,6 @@ export default {
         this.runVisible = true;
         this.infoDb = true;
         this.reportId = row.reportId;
-      },
-      //是否选择了全部数据
-      isSelectDataAll(dataType) {
-        this.isSelectAllDate = dataType;
-        this.selectRowsCount(this.selection);
-        //如果已经全选，不需要再操作了
-        if (this.selection.length != this.tableData.length) {
-          this.$refs.scenarioTable.toggleAllSelection(true);
-        }
-      },
-      //选择数据数量统计
-      selectRowsCount(selection) {
-        let selectedIDs = selection;
-        let allIDs = this.tableData.map(s => s.id);
-        this.unSelection = allIDs.filter(function (val) {
-          return selectedIDs.indexOf(val) === -1
-        });
-        if (this.isSelectAllDate) {
-          this.selectDataCounts = this.total - this.unSelection.length;
-        } else {
-          this.selectDataCounts = this.selection.length;
-        }
       },
       //判断是否只显示本周的数据。  从首页跳转过来的请求会带有相关参数
       isSelectThissWeekData() {
@@ -623,6 +613,16 @@ export default {
       openScenario(item) {
         this.$emit('openScenario', item)
       },
+      exportApi() {
+        let param = this.buildBatchParam();
+        param.protocol = this.currentProtocol;
+        this.result = this.$post("/api/definition/export", param, response => {
+          let obj = response.data;
+          obj.protocol = this.currentProtocol;
+          this.buildApiPath(obj.data);
+          downloadFile("Metersphere_Api_" + localStorage.getItem(PROJECT_NAME) + ".json", JSON.stringify(obj));
+        });
+      }
     }
   }
 </script>

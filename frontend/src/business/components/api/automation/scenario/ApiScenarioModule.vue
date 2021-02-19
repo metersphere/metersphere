@@ -20,6 +20,7 @@
           :condition="condition"
           :current-module="currentModule"
           :is-read-only="isReadOnly"
+          :project-id="projectId"
           @exportAPI="exportAPI"
           @addScenario="addScenario"
           @refreshTable="$emit('refreshTable')"

@@ -105,7 +105,7 @@ public class ApiAutomationController {
 
     @PostMapping("/batch/edit")
     @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
-    public void bathEdit(@RequestBody SaveApiScenarioRequest request) {
+    public void bathEdit(@RequestBody ApiScenarioBatchRequest request) {
         apiAutomationService.bathEdit(request);
     }
 

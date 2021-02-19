@@ -21,7 +21,6 @@
   </div>
 </template>
 <script>
-import {getCurrentProjectID} from "../../../../../../common/js/utils";
 import {buildNodePath} from "@/business/components/api/definition/model/NodeTree";
 import ModuleTrashButton from "@/business/components/api/definition/components/module/ModuleTrashButton";
 import ApiImport from "@/business/components/api/definition/components/import/ApiImport";
@@ -31,7 +30,6 @@ export default {
   components: {ApiImport, ModuleTrashButton},
   data() {
     return {
-      // options: OPTIONS,
       moduleOptions: {}
     }
   },
@@ -54,16 +52,17 @@ export default {
         return false
       }
     },
+    projectId: String
   },
   methods: {
     handleCommand(e) {
       switch (e) {
         case "import":
-          if (!getCurrentProjectID()) {
+          if (!this.projectId) {
             this.$warning(this.$t('commons.check_project_tip'));
             return;
           }
-          this.result = this.$get("/api/automation/module/list/" + getCurrentProjectID() + "/", response => {
+          this.result = this.$get("/api/automation/module/list/" + this.projectId + "/", response => {
             if (response.data != undefined && response.data != null) {
               this.data = response.data;
               let moduleOptions = [];
@@ -76,7 +75,7 @@ export default {
           this.$refs.apiImport.open(this.currentModule);
           break;
         default:
-          if (!getCurrentProjectID()) {
+          if (!this.projectId) {
             this.$warning(this.$t('commons.check_project_tip'));
             return;
           }

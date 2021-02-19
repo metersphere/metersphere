@@ -5,7 +5,9 @@
     <div class="header-bar">
       <div>{{ $t('api_test.api_import.data_format') }}</div>
       <el-radio-group v-model="selectedPlatformValue">
-        <el-radio v-for="(item, index) in platforms" v-if="!isScenarioModel || item.name != 'Swagger'" :key="index" :label="item.value">{{ item.name }}</el-radio>
+        <span v-for="(item, index) in platforms" :key="index">
+          <el-radio v-if="!isScenarioModel || item.name != 'Swagger'" :label="item.value">{{ item.name }}</el-radio>
+        </span>
       </el-radio-group>
 
       <div class="operate-button">
@@ -308,6 +310,10 @@ export default {
 
 .el-radio-group {
   margin: 10px 0;
+}
+
+.el-radio {
+  margin-right: 20px;
 }
 
 .header-bar, .format-tip, .el-form {
