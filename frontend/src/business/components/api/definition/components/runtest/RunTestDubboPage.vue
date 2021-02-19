@@ -44,29 +44,29 @@
 </template>
 
 <script>
-  import {downloadFile, getUUID} from "@/common/js/utils";
-  import MsApiCaseList from "../case/ApiCaseList";
-  import MsContainer from "../../../../common/components/MsContainer";
-  import MsBottomContainer from "../BottomContainer";
-  import {parseEnvironment} from "../../model/EnvironmentModel";
-  import ApiEnvironmentConfig from "../environment/ApiEnvironmentConfig";
-  import MsRequestResultTail from "../response/RequestResultTail";
-  import MsRun from "../Run";
-  import MsBasisParameters from "../request/dubbo/BasisParameters";
-  import {REQ_METHOD} from "../../model/JsonData";
-  import MsJmxStep from "../step/JmxStep";
+import {getUUID} from "@/common/js/utils";
+import MsApiCaseList from "../case/ApiCaseList";
+import MsContainer from "../../../../common/components/MsContainer";
+import MsBottomContainer from "../BottomContainer";
+import {parseEnvironment} from "../../model/EnvironmentModel";
+import ApiEnvironmentConfig from "../environment/ApiEnvironmentConfig";
+import MsRequestResultTail from "../response/RequestResultTail";
+import MsRun from "../Run";
+import MsBasisParameters from "../request/dubbo/BasisParameters";
+import {REQ_METHOD} from "../../model/JsonData";
+import MsJmxStep from "../step/JmxStep";
 
-  export default {
-    name: "RunTestDubboPage",
-    components: {
-      MsApiCaseList,
-      MsContainer,
-      MsBottomContainer,
-      MsRequestResultTail,
-      ApiEnvironmentConfig,
-      MsRun,
-      MsBasisParameters,
-      MsJmxStep
+export default {
+  name: "RunTestDubboPage",
+  components: {
+    MsApiCaseList,
+    MsContainer,
+    MsBottomContainer,
+    MsRequestResultTail,
+    ApiEnvironmentConfig,
+    MsRun,
+    MsBasisParameters,
+    MsJmxStep
     },
     data() {
       return {
@@ -89,25 +89,25 @@
         reportId: "",
       }
     },
-    props: {apiData: {}, currentProtocol: String, syncTabs: Array, projectId: String},
-    methods: {
-      handleCommand(e) {
-        switch (e) {
-          case "load_case":
-            return this.loadCase();
-          case "save_as_case":
-            return this.saveAsCase();
-          case "update_api":
-            return this.updateApi();
-          case "save_as_api":
+  props: {apiData: {}, currentProtocol: String, syncTabs: Array, projectId: String},
+  methods: {
+    handleCommand(e) {
+      switch (e) {
+        case "load_case":
+          return this.loadCase();
+        case "save_as_case":
+          return this.saveAsCase();
+        case "update_api":
+          return this.updateApi();
+        case "save_as_api":
             return this.saveAsApi();
           default:
             return this.runTest();
         }
       },
-      refresh() {
-        this.$emit('refresh');
-      },
+    refresh() {
+      this.$emit('refresh');
+    },
       runTest() {
         this.loading = true;
         this.api.request.name = this.api.id;
@@ -169,6 +169,7 @@
         data.userId = this.api.userId;
         data.description = this.api.description;
         this.$emit('saveAsApi', data);
+        this.$emit('refresh');
       },
       updateApi() {
         let url = "/api/definition/update";

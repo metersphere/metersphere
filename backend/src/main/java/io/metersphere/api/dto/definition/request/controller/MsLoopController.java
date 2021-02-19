@@ -102,7 +102,7 @@ public class MsLoopController extends MsTestElement {
         return counterConfig;
     }
 
-    private LoopController loopController() {
+    private LoopController initLoopController() {
         LoopController loopController = new LoopController();
         loopController.setEnabled(true);
         loopController.setName("LoopController");
@@ -113,7 +113,7 @@ public class MsLoopController extends MsTestElement {
         return loopController;
     }
 
-    public String getCondition() {
+    private String getCondition() {
         String variable = "\"" + this.whileController.getVariable() + "\"";
         String operator = this.whileController.getOperator();
         String value = "\"" + this.whileController.getValue() + "\"";
@@ -136,7 +136,7 @@ public class MsLoopController extends MsTestElement {
         return "${__jexl3(" + variable + operator + value + ")}";
     }
 
-    private WhileController whileController() {
+    private WhileController initWhileController() {
         String condition = getCondition();
         if (StringUtils.isEmpty(condition)) {
             return null;
@@ -150,7 +150,7 @@ public class MsLoopController extends MsTestElement {
         return controller;
     }
 
-    private ForeachController foreachController() {
+    private ForeachController initForeachController() {
         ForeachController controller = new ForeachController();
         controller.setEnabled(true);
         controller.setName("ForeachController");
@@ -175,13 +175,13 @@ public class MsLoopController extends MsTestElement {
             runTime.setRuntime(timeout);
             // 添加超时处理，防止死循环
             HashTree hashTree = tree.add(runTime);
-            return hashTree.add(whileController());
+            return hashTree.add(initWhileController());
         }
         if (StringUtils.equals(this.loopType, LoopConstants.FOREACH.name()) && this.forEachController != null) {
-            return tree.add(foreachController());
+            return tree.add(initForeachController());
         }
         if (StringUtils.equals(this.loopType, LoopConstants.LOOP_COUNT.name()) && this.countController != null) {
-            return tree.add(loopController());
+            return tree.add(initLoopController());
         }
         return null;
     }

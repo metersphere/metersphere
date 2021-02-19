@@ -7,7 +7,8 @@
         <div style="margin-top: 10px">
           <el-row style="margin-bottom: 10px">
             <el-col :span="8">
-              <el-input placeholder="变量名称搜索" v-model="selectVariable" size="small" @change="filter" @keyup.enter="filter">
+              <el-input placeholder="变量名称搜索" v-model="selectVariable" size="small" @change="filter"
+                        @keyup.enter="filter">
                 <el-select v-model="searchType" slot="prepend" placeholder="类型" style="width: 90px" @change="filter">
                   <el-option value="CONSTANT" label="常量"></el-option>
                   <el-option value="LIST" label="列表"></el-option>
@@ -19,8 +20,9 @@
             </el-col>
 
             <el-col :span="6">
-              <el-dropdown split-button type="primary" @command="handleClick" @click="handleClick('CONSTANT')" size="small" style="margin-left: 10px">
-                {{$t('commons.add')}}
+              <el-dropdown split-button type="primary" @command="handleClick" @click="handleClick('CONSTANT')"
+                           size="small" style="margin-left: 10px">
+                {{ $t('commons.add') }}
                 <el-dropdown-menu slot="dropdown">
                   <el-dropdown-item command="CONSTANT">常量</el-dropdown-item>
                   <el-dropdown-item command="LIST">列表</el-dropdown-item>
@@ -29,21 +31,23 @@
                   <el-dropdown-item command="RANDOM">随机数</el-dropdown-item>
                 </el-dropdown-menu>
               </el-dropdown>
-              <el-button size="small" style="margin-left: 10px" @click="deleteVariable">{{$t('commons.delete')}}</el-button>
+              <el-button size="small" style="margin-left: 10px" @click="deleteVariable">{{ $t('commons.delete') }}
+              </el-button>
 
             </el-col>
           </el-row>
           <el-row>
             <el-col :span="12">
               <div style="border:1px #DCDFE6 solid; min-height: 400px;border-radius: 4px ;width: 100% ;">
-                <el-table ref="table" border :data="variables" class="adjust-table" @select-all="select" @select="select"
+                <el-table ref="table" border :data="variables" class="adjust-table" @select-all="select"
+                          @select="select"
                           v-loading="loading" @row-click="edit" height="400px" :row-class-name="tableRowClassName">
                   <el-table-column type="selection" width="38"/>
                   <el-table-column prop="num" label="ID" sortable/>
                   <el-table-column prop="name" :label="$t('api_test.variable_name')" sortable show-overflow-tooltip/>
                   <el-table-column prop="type" :label="$t('test_track.case.type')">
                     <template v-slot:default="scope">
-                      <span>{{types.get(scope.row.type)}}</span>
+                      <span>{{ types.get(scope.row.type) }}</span>
                     </template>
                   </el-table-column>
                   <el-table-column prop="value" :label="$t('api_test.value')" show-overflow-tooltip/>
@@ -64,15 +68,17 @@
       </el-tab-pane>
       <el-tab-pane :label="$t('api_test.scenario.headers')" name="headers">
         <!-- 请求头-->
-        <el-tooltip class="item-tabs" effect="dark" :content="$t('api_test.request.headers')" placement="top-start" slot="label">
-          <span>{{$t('api_test.request.headers')}}
+        <el-tooltip class="item-tabs" effect="dark" :content="$t('api_test.request.headers')" placement="top-start"
+                    slot="label">
+          <span>{{ $t('api_test.request.headers') }}
             <div class="el-step__icon is-text ms-api-col ms-variable-header" v-if="headers.length>1">
-              <div class="el-step__icon-inner">{{headers.length-1}}</div>
+              <div class="el-step__icon-inner">{{ headers.length - 1 }}</div>
             </div>
           </span>
         </el-tooltip>
         <el-row>
-          <el-link class="ms-variable-link" @click="batchAdd" style="color: #783887"> {{$t("commons.batch_add")}}</el-link>
+          <el-link class="ms-variable-link" @click="batchAdd" style="color: #783887"> {{ $t("commons.batch_add") }}
+          </el-link>
         </el-row>
         <div style="min-height: 400px">
           <ms-api-key-value :items="headers"/>
@@ -82,40 +88,40 @@
     </el-tabs>
     <template v-slot:footer>
       <div>
-        <el-button type="primary" @click="save">{{$t('commons.confirm')}}</el-button>
+        <el-button type="primary" @click="save">{{ $t('commons.confirm') }}</el-button>
       </div>
     </template>
   </el-dialog>
 </template>
 
 <script>
-  import MsEditConstant from "./EditConstant";
-  import MsDialogFooter from "../../../../common/components/MsDialogFooter";
-  import MsTableHeader from "@/business/components/common/components/MsTableHeader";
-  import MsTablePagination from "@/business/components/common/pagination/TablePagination";
-  import MsEditCounter from "./EditCounter";
-  import MsEditRandom from "./EditRandom";
-  import MsEditListValue from "./EditListValue";
-  import MsEditCsv from "./EditCsv";
-  import {getUUID} from "@/common/js/utils";
-  import MsApiKeyValue from "../../../definition/components/ApiKeyValue";
-  import BatchAddParameter from "../../../definition/components/basis/BatchAddParameter";
-  import {KeyValue} from "../../../definition/model/ApiTestModel";
+import MsEditConstant from "./EditConstant";
+import MsDialogFooter from "../../../../common/components/MsDialogFooter";
+import MsTableHeader from "@/business/components/common/components/MsTableHeader";
+import MsTablePagination from "@/business/components/common/pagination/TablePagination";
+import MsEditCounter from "./EditCounter";
+import MsEditRandom from "./EditRandom";
+import MsEditListValue from "./EditListValue";
+import MsEditCsv from "./EditCsv";
+import {getUUID} from "@/common/js/utils";
+import MsApiKeyValue from "../../../definition/components/ApiKeyValue";
+import BatchAddParameter from "../../../definition/components/basis/BatchAddParameter";
+import {KeyValue} from "../../../definition/model/ApiTestModel";
 
-  export default {
-    name: "MsVariableList",
-    components: {
-      MsEditConstant,
-      MsDialogFooter,
-      MsTableHeader,
-      MsTablePagination,
-      MsEditCounter,
-      MsEditRandom,
-      MsEditListValue,
-      MsEditCsv,
-      MsApiKeyValue,
-      BatchAddParameter
-    },
+export default {
+  name: "MsVariableList",
+  components: {
+    MsEditConstant,
+    MsDialogFooter,
+    MsTableHeader,
+    MsTablePagination,
+    MsEditCounter,
+    MsEditRandom,
+    MsEditListValue,
+    MsEditCsv,
+    MsApiKeyValue,
+    BatchAddParameter
+  },
     data() {
       return {
         variables: [],
@@ -154,7 +160,18 @@
             if (line[1] === '必填' || line[1] === 'true') {
               required = true;
             }
-            keyValues.push(new KeyValue({name: line[0], required: required, value: line[2], description: line[3], type: "text", valid: false, file: false, encode: true, enable: true, contentType: "text/plain"}));
+            keyValues.push(new KeyValue({
+              name: line[0],
+              required: required,
+              value: line[2],
+              description: line[3],
+              type: "text",
+              valid: false,
+              file: false,
+              encode: true,
+              enable: true,
+              contentType: "text/plain"
+            }));
           })
           keyValues.forEach(item => {
             this.headers.unshift(item);
@@ -267,19 +284,19 @@
 </script>
 
 <style>
-  .ms-variable-hidden-row {
-    display: none;
-  }
+.ms-variable-hidden-row {
+  display: none;
+}
 
-  .ms-variable-header {
-    background: #783887;
-    color: white;
-    height: 18px;
-    border-radius: 42%;
-  }
+.ms-variable-header {
+  background: #783887;
+  color: white;
+  height: 18px;
+  border-radius: 42%;
+}
 
-  .ms-variable-link {
-    float: right;
-    margin-right: 45px;
-  }
+.ms-variable-link {
+  float: right;
+  margin-right: 45px;
+}
 </style>

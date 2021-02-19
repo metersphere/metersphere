@@ -54,29 +54,29 @@
 </template>
 
 <script>
-  import MsApiRequestForm from "../request/http/ApiHttpRequestForm";
-  import {downloadFile, getUUID, getCurrentProjectID} from "@/common/js/utils";
-  import MsApiCaseList from "../case/ApiCaseList";
-  import MsContainer from "../../../../common/components/MsContainer";
-  import MsBottomContainer from "../BottomContainer";
-  import MsRequestResultTail from "../response/RequestResultTail";
-  import MsRun from "../Run";
-  import MsBasisParameters from "../request/tcp/TcpBasisParameters";
-  import {REQ_METHOD} from "../../model/JsonData";
-  import EnvironmentSelect from "../environment/EnvironmentSelect";
-  import MsJmxStep from "../step/JmxStep";
+import MsApiRequestForm from "../request/http/ApiHttpRequestForm";
+import {getUUID} from "@/common/js/utils";
+import MsApiCaseList from "../case/ApiCaseList";
+import MsContainer from "../../../../common/components/MsContainer";
+import MsBottomContainer from "../BottomContainer";
+import MsRequestResultTail from "../response/RequestResultTail";
+import MsRun from "../Run";
+import MsBasisParameters from "../request/tcp/TcpBasisParameters";
+import {REQ_METHOD} from "../../model/JsonData";
+import EnvironmentSelect from "../environment/EnvironmentSelect";
+import MsJmxStep from "../step/JmxStep";
 
-  export default {
-    name: "RunTestTCPPage",
-    components: {
-      MsJmxStep,
-      EnvironmentSelect,
-      MsApiRequestForm,
-      MsApiCaseList,
-      MsContainer,
-      MsBottomContainer,
-      MsRequestResultTail,
-      MsRun,
+export default {
+  name: "RunTestTCPPage",
+  components: {
+    MsJmxStep,
+    EnvironmentSelect,
+    MsApiRequestForm,
+    MsApiCaseList,
+    MsContainer,
+    MsBottomContainer,
+    MsRequestResultTail,
+    MsRun,
       MsBasisParameters
     },
     data() {
@@ -98,25 +98,25 @@
         reportId: "",
       }
     },
-    props: {apiData: {}, currentProtocol: String, syncTabs: Array, projectId: String},
-    methods: {
-      handleCommand(e) {
-        switch (e) {
-          case "load_case":
-            return this.loadCase();
-          case "save_as_case":
-            return this.saveAsCase();
-          case "update_api":
-            return this.updateApi();
-          case "save_as_api":
+  props: {apiData: {}, currentProtocol: String, syncTabs: Array, projectId: String},
+  methods: {
+    handleCommand(e) {
+      switch (e) {
+        case "load_case":
+          return this.loadCase();
+        case "save_as_case":
+          return this.saveAsCase();
+        case "update_api":
+          return this.updateApi();
+        case "save_as_api":
             return this.saveAsApi();
           default:
             return this.$refs['requestForm'].validate();
         }
       },
-      refresh() {
-        this.$emit('refresh');
-      },
+    refresh() {
+      this.$emit('refresh');
+    },
       runTest() {
         this.$refs['apiData'].validate((valid) => {
           if (valid) {
@@ -181,6 +181,7 @@
         data.userId = this.api.userId;
         data.description = this.api.description;
         this.$emit('saveAsApi', data);
+        this.$emit('refresh');
       },
       updateApi() {
         let url = "/api/definition/update";

@@ -19,59 +19,59 @@
 </template>
 
 <script>
-  import MsCodeEdit from "../../../../common/components/MsCodeEdit";
-  import MsInstructionsIcon from "../../../../common/components/MsInstructionsIcon";
-  import MsDropdown from "../../../../common/components/MsDropdown";
-  import ApiBaseComponent from "../common/ApiBaseComponent";
-  import Jsr233ProcessorContent from "../common/Jsr233ProcessorContent";
+import MsCodeEdit from "../../../../common/components/MsCodeEdit";
+import MsInstructionsIcon from "../../../../common/components/MsInstructionsIcon";
+import MsDropdown from "../../../../common/components/MsDropdown";
+import ApiBaseComponent from "../common/ApiBaseComponent";
+import Jsr233ProcessorContent from "../common/Jsr233ProcessorContent";
 
-  export default {
-    name: "MsJsr233Processor",
-    components: {Jsr233ProcessorContent, ApiBaseComponent, MsDropdown, MsInstructionsIcon, MsCodeEdit},
-    props: {
-      draggable: {
-        type: Boolean,
-        default: false,
-      },
-      isReadOnly: {
-        type: Boolean,
-        default:
+export default {
+  name: "MsJsr233Processor",
+  components: {Jsr233ProcessorContent, ApiBaseComponent, MsDropdown, MsInstructionsIcon, MsCodeEdit},
+  props: {
+    draggable: {
+      type: Boolean,
+      default: false,
+    },
+    isReadOnly: {
+      type: Boolean,
+      default:
           false
       },
       jsr223Processor: {
         type: Object,
       },
-      isPreProcessor: {
-        type: Boolean,
-        default:
-          false
-      },
-      title: String,
-      color: String,
-      backgroundColor: String,
-      node: {},
+    isPreProcessor: {
+      type: Boolean,
+      default:
+        false
     },
-    data() {
-      return {loading: false}
+    title: String,
+    color: String,
+    backgroundColor: String,
+    node: {},
+  },
+  data() {
+    return {loading: false}
+  },
+  methods: {
+    remove() {
+      this.$emit('remove', this.jsr223Processor, this.node);
     },
-    methods: {
-      remove() {
-        this.$emit('remove', this.jsr223Processor, this.node);
-      },
-      copyRow() {
-        this.$emit('copyRow', this.jsr223Processor, this.node);
-      },
-      reload() {
-        this.loading = true
-        this.$nextTick(() => {
-          this.loading = false
-        })
-      },
-      active() {
-        this.jsr223Processor.active = !this.jsr223Processor.active;
-        this.reload();
-      },
-    }
+    copyRow() {
+      this.$emit('copyRow', this.jsr223Processor, this.node);
+    },
+    reload() {
+      this.loading = true
+      this.$nextTick(() => {
+        this.loading = false
+      })
+    },
+    active() {
+      this.jsr223Processor.active = !this.jsr223Processor.active;
+      this.reload();
+    },
+  }
   }
 </script>
 
