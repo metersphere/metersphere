@@ -1,7 +1,7 @@
 export default {
   commons: {
-    cover:'覆蓋',
-    not_cover:'不覆蓋',
+    cover: '覆蓋',
+    not_cover: '不覆蓋',
     import_mode: '導入模式',
     import_module: '導入模塊',
     please_fill_in_the_template: '請填寫模版內容',
@@ -591,7 +591,7 @@ export default {
         create_info: '創建',
         update_info: '更新',
         batch_edit: "批量編輯",
-        batch_move:"批量移動",
+        batch_move: "批量移動",
         path_valid_info: "請求路徑無效",
         other_config: "其他設置",
         message_template: "報文模版",
@@ -1325,6 +1325,7 @@ export default {
     status_change_success: '狀態修改成功!',
     status_change_failed: '狀態修改失敗, 校驗不通過!',
     check_in: '校驗中',
+    node_selector_invalid: 'nodeSelector 必須是有效的JSON'
   },
   system_parameter_setting: {
     mailbox_service_settings: '郵件設置',

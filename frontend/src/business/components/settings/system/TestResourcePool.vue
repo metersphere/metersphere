@@ -105,6 +105,13 @@
                 </el-form-item>
               </el-col>
             </el-row>
+            <el-row>
+              <el-col>
+                <el-form-item label="nodeSelector">
+                  <el-input v-model="item.nodeSelector" placeholder='{"disktype": "ssd",...}'/>
+                </el-form-item>
+              </el-col>
+            </el-row>
           </div>
           <div class="node-line" v-if="form.type === 'NODE'">
             <el-row>
@@ -243,9 +250,9 @@ export default {
       if (this.infoList.length <= 0) {
         return {validate: false, msg: this.$t('test_resource_pool.cannot_empty')}
       }
-
+      let resourcePoolType = this.form.type;
       let resultValidate = {validate: true, msg: this.$t('test_resource_pool.fill_the_data')};
-      this.infoList.forEach(function (info) {
+      this.infoList.forEach(info => {
         for (let key in info) {
           if (info[key] != '0' && !info[key]) {
             resultValidate.validate = false
@@ -256,6 +263,13 @@ export default {
         if (!info.maxConcurrency) {
           resultValidate.validate = false
           return false;
+        }
+        if (resourcePoolType === 'K8S' && info.nodeSelector) {
+          let validate = this.isJsonString(info.nodeSelector);
+          if (!validate) {
+            resultValidate.validate = false;
+            resultValidate.msg = this.$t('test_resource_pool.node_selector_invalid');
+          }
         }
       });
 
@@ -380,6 +394,16 @@ export default {
         row.status = 'INVALID';
         this.result.loading = false;
       })
+    },
+    isJsonString(str) {
+      try {
+        if (typeof JSON.parse(str) == "object") {
+          return true;
+        }
+      } catch (e) {
+        console.log('json invalid');
+      }
+      return false;
     }
   }
 }
