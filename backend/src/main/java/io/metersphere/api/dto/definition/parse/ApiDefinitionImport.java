@@ -1,5 +1,6 @@
 package io.metersphere.api.dto.definition.parse;
 
+import io.metersphere.api.dto.definition.request.MsScenario;
 import io.metersphere.base.domain.ApiDefinitionWithBLOBs;
 import io.metersphere.base.domain.ApiTestCaseWithBLOBs;
 import lombok.Data;
@@ -11,6 +12,9 @@ public class ApiDefinitionImport {
     private String projectName;
     private String protocol;
     private List<ApiDefinitionWithBLOBs> data;
+
+    //导入场景
+    private MsScenario scenarioDefinition;
 
     // 新版本带用例导出
     private List<ApiTestCaseWithBLOBs> cases;

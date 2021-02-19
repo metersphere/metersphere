@@ -73,7 +73,7 @@ public class MsParser extends ApiImportAbstractParser {
         testObject.keySet().forEach(tag -> {
 
             ApiModule parentModule = getSelectModule(importRequest.getModuleId());
-            ApiModule module = buildModule(parentModule, tag, importRequest.isSaved());
+            ApiModule module = buildModule(parentModule, tag);
 
             JSONObject requests = testObject.getJSONObject(tag);
             requests.keySet().forEach(requestName -> {
@@ -181,7 +181,7 @@ public class MsParser extends ApiImportAbstractParser {
         Iterator<String> iterator = modules.iterator();
         while (iterator.hasNext()) {
             String item = iterator.next();
-            parent = buildModule(parent, item, importRequest.isSaved());
+            parent = buildModule(parent, item);
             if (!iterator.hasNext()) {
                 apiDefinition.setModuleId(parent.getId());
             }
