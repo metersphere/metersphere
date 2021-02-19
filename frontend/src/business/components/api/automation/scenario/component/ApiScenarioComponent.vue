@@ -22,23 +22,23 @@
 </template>
 
 <script>
-  import MsSqlBasisParameters from "../../../definition/components/request/database/BasisParameters";
-  import MsTcpBasisParameters from "../../../definition/components/request/tcp/TcpBasisParameters";
-  import MsDubboBasisParameters from "../../../definition/components/request/dubbo/BasisParameters";
-  import MsApiRequestForm from "../../../definition/components/request/http/ApiHttpRequestForm";
-  import ApiBaseComponent from "../common/ApiBaseComponent";
+import MsSqlBasisParameters from "../../../definition/components/request/database/BasisParameters";
+import MsTcpBasisParameters from "../../../definition/components/request/tcp/TcpBasisParameters";
+import MsDubboBasisParameters from "../../../definition/components/request/dubbo/BasisParameters";
+import MsApiRequestForm from "../../../definition/components/request/http/ApiHttpRequestForm";
+import ApiBaseComponent from "../common/ApiBaseComponent";
 
-  export default {
-    name: "ApiScenarioComponent",
-    props: {
-      scenario: {},
-      node: {},
-      draggable: {
-        type: Boolean,
-        default: false,
-      },
+export default {
+  name: "ApiScenarioComponent",
+  props: {
+    scenario: {},
+    node: {},
+    draggable: {
+      type: Boolean,
+      default: false,
     },
-    watch: {},
+  },
+  watch: {},
     created() {
       if (this.scenario.id && this.scenario.referenced === 'REF' && !this.scenario.loaded) {
         this.result = this.$get("/api/automation/getApiScenario/" + this.scenario.id, response => {

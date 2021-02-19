@@ -407,6 +407,10 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
 
         TestCaseNodeDTO nodeTree = request.getNodeTree();
 
+        if (nodeTree == null) {
+            return;
+        }
+
         List<TestCaseNode> updateNodes = new ArrayList<>();
 
         buildUpdateTestCase(nodeTree, testCases, updateNodes, "/", "0", 1);

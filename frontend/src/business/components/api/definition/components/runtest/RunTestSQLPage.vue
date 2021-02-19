@@ -44,7 +44,7 @@
 </template>
 
 <script>
-import {getUUID, uuid} from "@/common/js/utils";
+import {getUUID} from "@/common/js/utils";
 import MsApiCaseList from "../case/ApiCaseList";
 import MsContainer from "../../../../common/components/MsContainer";
 import MsBottomContainer from "../BottomContainer";
@@ -160,8 +160,9 @@ export default {
       },
       saveAsApi() {
         let data = {};
-        this.api.request.id = uuid();
-        data.request = JSON.stringify(this.api.request);
+        let req = this.api.request;
+        req.id = getUUID();
+        data.request = JSON.stringify(req);
         data.method = this.api.method;
         data.status = this.api.status;
         data.userId = this.api.userId;

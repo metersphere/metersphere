@@ -106,7 +106,7 @@
                 </el-col>
                 <el-col :span="3" class="ms-col-one ms-font">
                   <el-link class="head" @click="showScenarioParameters">{{$t('api_test.automation.scenario_total')}}</el-link>
-                  ：{{getVariableSize()}}
+                  ：{{ getVariableSize() }}
                 </el-col>
                 <el-col :span="3" class="ms-col-one ms-font">
                   <el-checkbox v-model="enableCookieShare">共享cookie</el-checkbox>
@@ -204,37 +204,44 @@
 </template>
 
 <script>
-  import {API_STATUS, PRIORITY} from "../../definition/model/JsonData";
-  import {WORKSPACE_ID} from '@/common/js/constants';
-  import {Assertions, Extract, IfController, JSR223Processor, ConstantTimer, LoopController} from "../../definition/model/ApiTestModel";
-  import {parseEnvironment} from "../../definition/model/EnvironmentModel";
-  import {ELEMENTS, ELEMENT_TYPE} from "./Setting";
-  import MsApiCustomize from "./ApiCustomize";
-  import {getUUID, getCurrentProjectID} from "@/common/js/utils";
-  import ApiEnvironmentConfig from "../../definition/components/environment/ApiEnvironmentConfig";
-  import MsInputTag from "./MsInputTag";
-  import MsRun from "./DebugRun";
-  import MsApiReportDetail from "../report/ApiReportDetail";
-  import MsVariableList from "./variable/VariableList";
-  import ApiImport from "../../definition/components/import/ApiImport";
-  import "@/common/css/material-icons.css"
-  import OutsideClick from "@/common/js/outside-click";
-  import ScenarioApiRelevance from "./api/ApiRelevance";
-  import ScenarioRelevance from "./api/ScenarioRelevance";
-  import MsComponentConfig from "./component/ComponentConfig";
-  import {handleCtrlSEvent} from "../../../../../common/js/utils";
+import {API_STATUS, PRIORITY} from "../../definition/model/JsonData";
+import {WORKSPACE_ID} from '@/common/js/constants';
+import {
+  Assertions,
+  ConstantTimer,
+  Extract,
+  IfController,
+  JSR223Processor,
+  LoopController
+} from "../../definition/model/ApiTestModel";
+import {parseEnvironment} from "../../definition/model/EnvironmentModel";
+import {ELEMENT_TYPE, ELEMENTS} from "./Setting";
+import MsApiCustomize from "./ApiCustomize";
+import {getCurrentProjectID, getUUID} from "@/common/js/utils";
+import ApiEnvironmentConfig from "../../definition/components/environment/ApiEnvironmentConfig";
+import MsInputTag from "./MsInputTag";
+import MsRun from "./DebugRun";
+import MsApiReportDetail from "../report/ApiReportDetail";
+import MsVariableList from "./variable/VariableList";
+import ApiImport from "../../definition/components/import/ApiImport";
+import "@/common/css/material-icons.css"
+import OutsideClick from "@/common/js/outside-click";
+import ScenarioApiRelevance from "./api/ApiRelevance";
+import ScenarioRelevance from "./api/ScenarioRelevance";
+import MsComponentConfig from "./component/ComponentConfig";
+import {handleCtrlSEvent} from "../../../../../common/js/utils";
 
-  export default {
-    name: "EditApiScenario",
-    props: {
-      moduleOptions: Array,
-      currentScenario: {},
-    },
-    components: {
-      MsVariableList,
-      ScenarioRelevance,
-      ScenarioApiRelevance,
-      ApiEnvironmentConfig,
+export default {
+  name: "EditApiScenario",
+  props: {
+    moduleOptions: Array,
+    currentScenario: {},
+  },
+  components: {
+    MsVariableList,
+    ScenarioRelevance,
+    ScenarioApiRelevance,
+    ApiEnvironmentConfig,
       MsApiReportDetail,
       MsInputTag, MsRun,
       MsApiCustomize,
@@ -679,9 +686,15 @@
           if (valid) {
             this.editScenario();
             this.debugData = {
-              id: this.currentScenario.id, name: this.currentScenario.name, type: "scenario",
-              variables: this.currentScenario.variables, referenced: 'Created', enableCookieShare: this.enableCookieShare, headers: this.currentScenario.headers,
-              environmentId: this.currentEnvironmentId, hashTree: this.scenarioDefinition
+              id: this.currentScenario.id,
+              name: this.currentScenario.name,
+              type: "scenario",
+              variables: this.currentScenario.variables,
+              referenced: 'Created',
+              enableCookieShare: this.enableCookieShare,
+              headers: this.currentScenario.headers,
+              environmentId: this.currentEnvironmentId,
+              hashTree: this.scenarioDefinition
             };
             this.reportId = getUUID().substring(0, 8);
           }
@@ -912,9 +925,15 @@
         this.currentScenario.modulePath = this.getPath(this.currentScenario.apiScenarioModuleId);
         // 构建一个场景对象 方便引用处理
         let scenario = {
-          id: this.currentScenario.id, enableCookieShare: this.enableCookieShare, name: this.currentScenario.name, type: "scenario",
-          variables: this.currentScenario.variables, headers: this.currentScenario.headers,
-          referenced: 'Created', environmentId: this.currentEnvironmentId, hashTree: this.scenarioDefinition
+          id: this.currentScenario.id,
+          enableCookieShare: this.enableCookieShare,
+          name: this.currentScenario.name,
+          type: "scenario",
+          variables: this.currentScenario.variables,
+          headers: this.currentScenario.headers,
+          referenced: 'Created',
+          environmentId: this.currentEnvironmentId,
+          hashTree: this.scenarioDefinition
         };
         this.currentScenario.scenarioDefinition = scenario;
         if (this.currentScenario.tags instanceof Array) {
@@ -1084,6 +1103,7 @@
     content: "\e722";
     font-size: 20px;
   }
+
   .ms-sc-variable-header >>> .el-dialog__body {
     padding: 0px 20px;
   }
