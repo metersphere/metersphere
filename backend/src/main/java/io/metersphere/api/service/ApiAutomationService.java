@@ -720,16 +720,6 @@ public class ApiAutomationService {
         }
     }
 
-    public List<ApiScenarioWithBLOBs> get(ApiScenarioRequest request) {
-        ApiScenarioExample example = new ApiScenarioExample();
-        if (CollectionUtils.isNotEmpty(request.getIds())) {
-            example.createCriteria().andIdIn(request.getIds());
-        } else {
-            example.createCriteria().andProjectIdEqualTo(request.getProjectId());
-        }
-        return apiScenarioMapper.selectByExampleWithBLOBs(example);
-    }
-
     public List<ApiScenarioWithBLOBs> getWithBLOBs(ApiScenarioWithBLOBs request) {
         ApiScenarioExample example = new ApiScenarioExample();
         example.createCriteria().andNameEqualTo(request.getName()).andProjectIdEqualTo(request.getProjectId()).andStatusNotEqualTo("Trash").andIdNotEqualTo(request.getId());

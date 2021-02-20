@@ -5,13 +5,13 @@
         SELECT api.id,api.name FROM Api_definition api
         <where>
             <if test="request.projectId != null">
-                api.project_Id = #{request.projectId}
+                AND api.project_Id = #{request.projectId}
             </if>
-            <if test="request.name != null">
-                api.project_Id like CONCAT('%', #{request.name},'%')
+            <if test="request.name != null and request.name != '' ">
+                AND api.name like CONCAT('%', #{request.name},'%')
             </if>
-            <if test="request.type != null">
-                api.method = #{request.type}
+            <if test="request.type != null and request.type != '' and request.type != 'ALL' ">
+                AND  api.method = #{request.type}
             </if>
 
             <if test="request.moduleIds != null and request.moduleIds.size() > 0">
