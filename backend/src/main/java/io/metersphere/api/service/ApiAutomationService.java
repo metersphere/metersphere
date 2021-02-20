@@ -668,7 +668,7 @@ public class ApiAutomationService {
         HashTree jmeterHashTree = generateHashTree(apiScenarios, request, null);
         String jmx = testPlan.getJmx(jmeterHashTree);
 
-        jmx = apiTestService.updateJmxString(jmx,testName,false);
+        jmx = apiTestService.updateJmxString(jmx,testName,true);
 
         //将ThreadGroup的testname改为接口名称
 //        Document doc = DocumentHelper.parseText(jmx);// 获取可续保保单列表报文模板
