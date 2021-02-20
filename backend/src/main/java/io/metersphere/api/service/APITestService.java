@@ -463,33 +463,69 @@ public class APITestService {
 
     /**
      * @param jmxString      原JMX文件
-     * @param testName       某些节点要替换的testName
+     * @param testNameParam       某些节点要替换的testName
      * @param isFromScenario 是否来源于场景 （来源于场景的话，testName要进行处理）
      * @return
      */
-    public String updateJmxString(String jmxString, String testName, boolean isFromScenario) {
-        if (isFromScenario) {
-            //如果调用源来自场景， 原testName是 案例<->场景 ，需要进行切分，只保留案例名
-            String[] testNameArr = testName.split("<->");
-            if (testNameArr.length > 0) {
-                testName = testNameArr[0];
-            }
-        }
+    public String updateJmxString(String jmxString, String testNameParam, boolean isFromScenario) {
         try {
             //将ThreadGroup的testname改为接口名称
             Document doc = DocumentHelper.parseText(jmxString);// 获取可续保保单列表报文模板
             Element root = doc.getRootElement();
             Element rootHashTreeElement = root.element("hashTree");
             Element innerHashTreeElement = rootHashTreeElement.elements("hashTree").get(0);
-            Element theadGroupElement = innerHashTreeElement.elements("ThreadGroup").get(0);
-            theadGroupElement.attribute("testname").setText(testName);
-
             List<Element> thirdHashTreeElementList = innerHashTreeElement.elements("hashTree");
+
+            Element theadGroupElement = innerHashTreeElement.elements("ThreadGroup").get(0);
+            theadGroupElement.attribute("testname").setText(testNameParam);
+
             for (Element element : thirdHashTreeElementList) {
+                String testName = testNameParam;
                 List<Element> sampleProxyElementList = element.elements("HTTPSamplerProxy");
                 for (Element itemElement : sampleProxyElementList) {
+                    if(isFromScenario){
+                        testName = itemElement.attributeValue("testname");
+                        String[] testNameArr = testName.split("<->");
+                        if (testNameArr.length > 0) {
+                            testName = testNameArr[0];
+                        }
+                    }
                     itemElement.attribute("testname").setText(testName);
                 }
+                List<Element> tcpSamplerList = element.elements("TCPSampler");
+                for (Element itemElement : tcpSamplerList) {
+                    if(isFromScenario){
+                        testName = itemElement.attributeValue("testname");
+                        String[] testNameArr = testName.split("<->");
+                        if (testNameArr.length > 0) {
+                            testName = testNameArr[0];
+                        }
+                    }
+                    itemElement.attribute("testname").setText(testName);
+                }
+                List<Element> jdbcSamplerList = element.elements("JDBCSampler");
+                for (Element itemElement : jdbcSamplerList) {
+                    if(isFromScenario){
+                        testName = itemElement.attributeValue("testname");
+                        String[] testNameArr = testName.split("<->");
+                        if (testNameArr.length > 0) {
+                            testName = testNameArr[0];
+                        }
+                    }
+                    itemElement.attribute("testname").setText(testName);
+                }
+                List<Element> dubboSampleList = element.elements("DubboSample");
+                for (Element itemElement : dubboSampleList) {
+                    if(isFromScenario){
+                        testName = itemElement.attributeValue("testname");
+                        String[] testNameArr = testName.split("<->");
+                        if (testNameArr.length > 0) {
+                            testName = testNameArr[0];
+                        }
+                    }
+                    itemElement.attribute("testname").setText(testName);
+                }
+
                 //检查有没有自定义参数
                 List<Element> scriptHashTreeElementList = element.elements("hashTree");
                 for (Element scriptHashTreeElement : scriptHashTreeElementList) {
