@@ -18,6 +18,7 @@ import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
 import io.metersphere.api.jmeter.JMeterService;
 import io.metersphere.api.parse.ApiImportParser;
 import io.metersphere.api.parse.ApiScenarioImportParserFactory;
+import io.metersphere.api.parse.ScenarioPostmanParser;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ApiScenarioMapper;
 import io.metersphere.base.mapper.ApiScenarioReportMapper;
@@ -726,18 +727,44 @@ public class ApiAutomationService {
             LogUtil.error(e.getMessage(), e);
             MSException.throwException(Translator.get("parse_data_error"));
         }
-        SaveApiScenarioRequest saveReq = new SaveApiScenarioRequest();
-        saveReq.setScenarioDefinition(apiImport.getScenarioDefinition());
-        saveReq.setName(saveReq.getScenarioDefinition().getName());
-        saveReq.setProjectId(request.getProjectId());
-        saveReq.setApiScenarioModuleId(request.getModuleId());
-        if (StringUtils.isNotBlank(request.getUserId())) {
-            saveReq.setPrincipal(request.getUserId());
-        } else {
-            saveReq.setPrincipal(SessionUtils.getUserId());
-        }
-        create(saveReq, new ArrayList<>());
+        createScenarioImport(file, request, apiImport);
         return apiImport;
+    }
+
+    public void createScenarioImport(MultipartFile file, ApiTestImportRequest request, ApiDefinitionImport apiImport) {
+        if (CollectionUtils.isNotEmpty(apiImport.getScenarioDefinitionData())) {
+            List<ApiScenarioWithBLOBs> scenarioDefinitionData = apiImport.getScenarioDefinitionData();
+            scenarioDefinitionData.forEach(scenario -> {
+                SaveApiScenarioRequest saveRequest = new SaveApiScenarioRequest();
+                scenario.setProjectId(request.getProjectId());
+                BeanUtils.copyBean(saveRequest, scenario);
+                checkNameExist(saveRequest);
+                scenario.setCreateTime(System.currentTimeMillis());
+                scenario.setUpdateTime(System.currentTimeMillis());
+                scenario.setNum(getNextNum(request.getProjectId()));
+                if (StringUtils.isNotBlank(request.getUserId())) {
+                    scenario.setPrincipal(request.getUserId());
+                } else {
+                    scenario.setPrincipal(SessionUtils.getUserId());
+                }
+                apiScenarioMapper.insert(scenario);
+            });
+        } else {
+            SaveApiScenarioRequest saveReq = new SaveApiScenarioRequest();
+            if (StringUtils.equals(ApiImportPlatform.Postman.name(), request.getPlatform())) {
+                saveReq.getScenarioDefinition().setName(file.getName());
+            }
+            saveReq.setScenarioDefinition(apiImport.getScenarioDefinition());
+            saveReq.setName(saveReq.getScenarioDefinition().getName());
+            saveReq.setProjectId(request.getProjectId());
+            saveReq.setApiScenarioModuleId(request.getModuleId());
+            if (StringUtils.isNotBlank(request.getUserId())) {
+                saveReq.setPrincipal(request.getUserId());
+            } else {
+                saveReq.setPrincipal(SessionUtils.getUserId());
+            }
+            create(saveReq, new ArrayList<>());
+        }
     }
 
     public ApiScenrioExportResult export(ApiScenarioBatchRequest request) {

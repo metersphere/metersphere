@@ -660,17 +660,27 @@ export default {
       exportApi() {
         let param = {};
         this.buildBatchParam(param);
-        this.loading = true;
         if (param.ids === undefined || param.ids.length < 1) {
           this.$warning(this.$t("api_test.automation.scenario.check_case"));
           return;
         }
+        this.loading = true;
         this.result = this.$post("/api/automation/export", param, response => {
           this.loading = false;
           let obj = response.data;
+          this.buildApiPath(obj.data);
           downloadFile("Metersphere_Scenario_" + localStorage.getItem(PROJECT_NAME) + ".json", JSON.stringify(obj));
         });
-      }
+      },
+      buildApiPath(scenarios) {
+        scenarios.forEach((scenario) => {
+          this.moduleOptions.forEach(item => {
+            if (scenario.moduleId === item.id) {
+              scenario.modulePath = item.path;
+            }
+          });
+        });
+      },
     }
   }
 </script>

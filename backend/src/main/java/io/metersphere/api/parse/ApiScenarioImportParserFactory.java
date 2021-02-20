@@ -6,7 +6,7 @@ import org.apache.commons.lang3.StringUtils;
 public class ApiScenarioImportParserFactory {
     public static ApiImportParser getApiImportParser(String platform) {
         if (StringUtils.equals(ApiImportPlatform.Metersphere.name(), platform)) {
-            return new MsParser();
+            return new ScenarioMsParser();
         } else if (StringUtils.equals(ApiImportPlatform.Postman.name(), platform)) {
             return new ScenarioPostmanParser();
         }
