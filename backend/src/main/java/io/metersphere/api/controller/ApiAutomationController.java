@@ -111,7 +111,7 @@ public class ApiAutomationController {
 
     @PostMapping("/batch/edit")
     @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
-    public void bathEdit(@RequestBody SaveApiScenarioRequest request) {
+    public void bathEdit(@RequestBody ApiScenarioBatchRequest request) {
         apiAutomationService.bathEdit(request);
     }
 
@@ -162,11 +162,11 @@ public class ApiAutomationController {
     }
 
 
-    @PostMapping(value = "/import", consumes = {"multipart/form-data"})
-    @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
-    public ApiDefinitionImport testCaseImport(@RequestPart(value = "file", required = false) MultipartFile file, @RequestPart("request") ApiTestImportRequest request) {
-        return apiAutomationService.scenarioImport(file, request);
-    }
+//    @PostMapping(value = "/import", consumes = {"multipart/form-data"})
+//    @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
+//    public ApiDefinitionImport testCaseImport(@RequestPart(value = "file", required = false) MultipartFile file, @RequestPart("request") ApiTestImportRequest request) {
+//        return apiAutomationService.scenarioImport(file, request);
+//    }
 
     @PostMapping(value = "/export")
     @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)

@@ -14,13 +14,10 @@ import io.metersphere.api.dto.automation.parse.ScenarioImportParser;
 import io.metersphere.api.dto.automation.parse.ScenarioImportParserFactory;
 import io.metersphere.api.dto.datacount.ApiDataCountResult;
 import io.metersphere.api.dto.definition.RunDefinitionRequest;
-import io.metersphere.api.dto.definition.parse.ApiDefinitionImport;
 import io.metersphere.api.dto.definition.request.*;
 import io.metersphere.api.dto.definition.request.variable.ScenarioVariable;
 import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
 import io.metersphere.api.jmeter.JMeterService;
-import io.metersphere.api.parse.ApiImportParser;
-import io.metersphere.api.parse.ApiScenarioImportParserFactory;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ApiScenarioMapper;
 import io.metersphere.base.mapper.ApiScenarioReportMapper;
@@ -816,28 +813,28 @@ public class ApiAutomationService {
         return apiImport;
     }
 
-    public ApiDefinitionImport scenarioImport(MultipartFile file, ApiTestImportRequest request) {
-        ApiImportParser apiImportParser = ApiScenarioImportParserFactory.getApiImportParser(request.getPlatform());
-        ApiDefinitionImport apiImport = null;
-        try {
-            apiImport = apiImportParser.parse(file == null ? null : file.getInputStream(), request);
-        } catch (Exception e) {
-            LogUtil.error(e.getMessage(), e);
-            MSException.throwException(Translator.get("parse_data_error"));
-        }
-        SaveApiScenarioRequest saveReq = new SaveApiScenarioRequest();
-        saveReq.setScenarioDefinition(apiImport.getScenarioDefinition());
-        saveReq.setName(saveReq.getScenarioDefinition().getName());
-        saveReq.setProjectId(request.getProjectId());
-        saveReq.setApiScenarioModuleId(request.getModuleId());
-        if (StringUtils.isNotBlank(request.getUserId())) {
-            saveReq.setPrincipal(request.getUserId());
-        } else {
-            saveReq.setPrincipal(SessionUtils.getUserId());
-        }
-        create(saveReq, new ArrayList<>());
-        return apiImport;
-    }
+//    public ApiDefinitionImport scenarioImport(MultipartFile file, ApiTestImportRequest request) {
+//        ApiImportParser apiImportParser = ApiScenarioImportParserFactory.getApiImportParser(request.getPlatform());
+//        ApiDefinitionImport apiImport = null;
+//        try {
+//            apiImport = apiImportParser.parse(file == null ? null : file.getInputStream(), request);
+//        } catch (Exception e) {
+//            LogUtil.error(e.getMessage(), e);
+//            MSException.throwException(Translator.get("parse_data_error"));
+//        }
+//        SaveApiScenarioRequest saveReq = new SaveApiScenarioRequest();
+//        saveReq.setScenarioDefinition(apiImport.getScenarioDefinition());
+//        saveReq.setName(saveReq.getScenarioDefinition().getName());
+//        saveReq.setProjectId(request.getProjectId());
+//        saveReq.setApiScenarioModuleId(request.getModuleId());
+//        if (StringUtils.isNotBlank(request.getUserId())) {
+//            saveReq.setPrincipal(request.getUserId());
+//        } else {
+//            saveReq.setPrincipal(SessionUtils.getUserId());
+//        }
+//        create(saveReq, new ArrayList<>());
+//        return apiImport;
+//    }
 
     public ApiScenrioExportResult export(ApiScenarioBatchRequest request) {
         ServiceUtils.getSelectAllIds(request, request.getCondition(),

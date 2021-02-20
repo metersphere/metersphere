@@ -62,11 +62,12 @@ import MsNodeTree from "../../../track/common/NodeTree";
 import {buildNodePath} from "../../definition/model/NodeTree";
 import ModuleTrashButton from "../../definition/components/module/ModuleTrashButton";
 import ApiScenarioModuleHeader from "@/business/components/api/automation/scenario/module/ApiScenarioModuleHeader";
+import ApiImport from "./common/ScenarioImport";
 
 export default {
   name: 'MsApiScenarioModule',
   components: {
-    ApiScenarioModuleHeader,
+    ApiImport,
     ModuleTrashButton,
     MsNodeTree,
     MsAddBasisScenario,
