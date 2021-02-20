@@ -384,6 +384,7 @@ export default {
       }
 
       let simpleInfoUrl = "/api/document/selectApiSimpleInfo";
+      this.apiSimpleInfoArray = [];
       this.$post(simpleInfoUrl, simpleRequest, response => {
         this.apiSimpleInfoArray = response.data;
         this.apiStepIndex = 0;
