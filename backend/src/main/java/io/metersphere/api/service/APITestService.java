@@ -461,7 +461,20 @@ public class APITestService {
         });
     }
 
-    public String updateJmxString(String jmxString,String testName,boolean updateHTTPSamplerProxyName) {
+    /**
+     * @param jmxString      原JMX文件
+     * @param testName       某些节点要替换的testName
+     * @param isFromScenario 是否来源于场景 （来源于场景的话，testName要进行处理）
+     * @return
+     */
+    public String updateJmxString(String jmxString, String testName, boolean isFromScenario) {
+        if (isFromScenario) {
+            //如果调用源来自场景， 原testName是 案例<->场景 ，需要进行切分，只保留案例名
+            String[] testNameArr = testName.split("<->");
+            if (testNameArr.length > 0) {
+                testName = testNameArr[0];
+            }
+        }
         try {
             //将ThreadGroup的testname改为接口名称
             Document doc = DocumentHelper.parseText(jmxString);// 获取可续保保单列表报文模板
@@ -473,11 +486,9 @@ public class APITestService {
 
             List<Element> thirdHashTreeElementList = innerHashTreeElement.elements("hashTree");
             for (Element element : thirdHashTreeElementList) {
-                if(updateHTTPSamplerProxyName){
-                    List<Element> sampleProxyElementList = element.elements("HTTPSamplerProxy");
-                    for (Element itemElement : sampleProxyElementList) {
-                        itemElement.attribute("testname").setText(testName);
-                    }
+                List<Element> sampleProxyElementList = element.elements("HTTPSamplerProxy");
+                for (Element itemElement : sampleProxyElementList) {
+                    itemElement.attribute("testname").setText(testName);
                 }
                 //检查有没有自定义参数
                 List<Element> scriptHashTreeElementList = element.elements("hashTree");
