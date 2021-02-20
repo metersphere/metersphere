@@ -31,15 +31,16 @@
           </template>
         </el-input>
         <module-trash-button v-if="!isReadOnly" :condition="condition" :exe="enableTrash"/>
-        <api-scenario-module-header
-          :condition="condition"
-          :current-module="currentModule"
-          :is-read-only="isReadOnly"
-          :project-id="projectId"
-          @exportAPI="exportAPI"
-          @addScenario="addScenario"
-          @refreshTable="$emit('refreshTable')"
-          @refresh="refresh"/>
+        <!-- 是否保留这个 -->
+        <!--<api-scenario-module-header-->
+          <!--:condition="condition"-->
+          <!--:current-module="currentModule"-->
+          <!--:is-read-only="isReadOnly"-->
+          <!--:project-id="projectId"-->
+          <!--@exportAPI="exportAPI"-->
+          <!--@addScenario="addScenario"-->
+          <!--@refreshTable="$emit('refreshTable')"-->
+          <!--@refresh="refresh"/>-->
       </template>
 
     </ms-node-tree>
