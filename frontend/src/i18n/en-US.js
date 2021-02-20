@@ -596,6 +596,36 @@ export default {
         other_config: "Other Config",
         message_template: "Message Template",
         tcp_parameter_tip: "The request parameters can be referenced in the request template ${XXX}",
+      },
+      document: {
+        order: "Order",
+        create_time_sort: "From back to front by create time",
+        edit_time_positive_sequence: "From front to back by update time",
+        edit_time_Reverse_order: "From back to front by update time",
+        request_method: "Request method",
+        request_interface: "Request interface",
+        search_by_api_name : "Search by api name",
+        request_info: "Request info",
+        request_head: "Request head",
+        request_param: "Param",
+        request_body: "Request body",
+        example_presentation: "Example presentation",
+        response_info: "Response info",
+        response_head: "Response head",
+        response_body: "Response body",
+        response_code: "Response code",
+        table_coloum:{
+          name: "name",
+          value: "value",
+          is_required: "Is it required",
+          desc: "Description",
+          type: "Type",
+          default_value: "Default value",
+        },
+        data_set: {
+          all: "All",
+          none: "None"
+        },
       }
     },
     automation: {
@@ -644,7 +674,8 @@ export default {
         select_principal: "Select principal",
         follow_people: "Follow people",
         select_table: "Select table",
-        select_all: "Select all"
+        select_all: "Select all",
+        check_case: "Please check the Scene Use Case"
       },
       report_name_info: 'Please enter the registration name',
       save_case_info: 'Please save the use case first',
@@ -1325,6 +1356,7 @@ export default {
     status_change_success: 'Successfully changed the status!',
     status_change_failed: 'Failed to change the status, resource pool is invalid!',
     check_in: 'Check in',
+    node_selector_invalid: 'nodeSelector must be JSON'
   },
   system_parameter_setting: {
     mailbox_service_settings: 'Mailbox Settings',

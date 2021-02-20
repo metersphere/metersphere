@@ -97,22 +97,22 @@
 </template>
 
 <script>
-  import ApiBaseComponent from "../common/ApiBaseComponent";
-  import ApiResponseComponent from "./ApiResponseComponent";
-  import MsRun from "../DebugRun";
-  import {getUUID, getCurrentProjectID} from "@/common/js/utils";
+import ApiBaseComponent from "../common/ApiBaseComponent";
+import ApiResponseComponent from "./ApiResponseComponent";
+import MsRun from "../DebugRun";
+import {getUUID} from "@/common/js/utils";
 
-  export default {
-    name: "MsLoopController",
-    components: {ApiBaseComponent, ApiResponseComponent, MsRun},
-    props: {
-      controller: {},
-      currentEnvironmentId: String,
-      currentScenario: {},
-      node: {},
-      index: Object,
-      draggable: {
-        type: Boolean,
+export default {
+  name: "MsLoopController",
+  components: {ApiBaseComponent, ApiResponseComponent, MsRun},
+  props: {
+    controller: {},
+    currentEnvironmentId: String,
+    currentScenario: {},
+    node: {},
+    index: Object,
+    draggable: {
+      type: Boolean,
         default: false,
       },
     },
@@ -204,9 +204,15 @@
         }
         this.loading = true;
         this.debugData = {
-          id: this.currentScenario.id, name: this.currentScenario.name, type: "scenario",
-          variables: this.currentScenario.variables, headers: this.currentScenario.headers,
-          referenced: 'Created', enableCookieShare: this.enableCookieShare, environmentId: this.currentEnvironmentId, hashTree: [this.controller]
+          id: this.currentScenario.id,
+          name: this.currentScenario.name,
+          type: "scenario",
+          variables: this.currentScenario.variables,
+          headers: this.currentScenario.headers,
+          referenced: 'Created',
+          enableCookieShare: this.enableCookieShare,
+          environmentId: this.currentEnvironmentId,
+          hashTree: [this.controller]
         };
         this.reportId = getUUID().substring(0, 8);
       },

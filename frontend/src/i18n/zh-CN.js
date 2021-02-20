@@ -592,11 +592,41 @@ export default {
         create_info: '创建',
         update_info: '更新',
         batch_edit: "批量编辑",
-        batch_move:"批量移动",
+        batch_move: "批量移动",
         path_valid_info: "请求路径无效",
         other_config: "其他设置",
         message_template: "报文模版",
         tcp_parameter_tip: "请求参数可以在请求模版通过${xxx}引用",
+      },
+      document: {
+        order: "排序方式",
+        create_time_sort: "按创建时间从后到前",
+        edit_time_positive_sequence: "按更新时间从前到后",
+        edit_time_Reverse_order: "按更新时间从后到前",
+        request_method: "请求方式",
+        request_interface: "请求接口",
+        search_by_api_name : "名称搜索",
+        request_info: "请求信息",
+        request_head: "请求头",
+        request_param: "参数",
+        request_body: "请求体",
+        example_presentation: "范例展示",
+        response_info: "响应信息",
+        response_head: "响应头",
+        response_body: "响应体",
+        response_code: "响应码",
+        table_coloum:{
+          name: "名称",
+          value: "值",
+          is_required: "是否必填",
+          desc: "描述",
+          type: "类型",
+          default_value: "默认值",
+        },
+        data_set: {
+          all: "全部",
+          none: "无"
+        },
       }
     },
     automation: {
@@ -645,7 +675,8 @@ export default {
         select_principal: "请选择责任人",
         follow_people: "关注人",
         select_table: "选择可见数据",
-        select_all: "选择全部数据"
+        select_all: "选择全部数据",
+        check_case: "请勾选场景用例"
       },
       report_name_info: '请输入报告名称',
       save_case_info: '请先保存用例',
@@ -714,7 +745,7 @@ export default {
       jmeter_func: "Jmeter 方法",
       parameters_filter_example: "示例",
       parameters_filter_tips: "只支持 MockJs 函数结果预览",
-      parameters_advance: "高级参数设置",
+      parameters_advance: "return",
       parameters_preview: "预览",
       parameters_mock_filter_tips: "请输入关键字进行过滤",
       parameters_pre_request: "前置请求提取",
@@ -1329,6 +1360,7 @@ export default {
     status_change_success: '状态修改成功!',
     status_change_failed: '状态修改失败, 校验不通过!',
     check_in: '校验中',
+    node_selector_invalid: 'nodeSelector 必须是有效的JSON'
   },
   system_parameter_setting: {
     mailbox_service_settings: '邮件设置',

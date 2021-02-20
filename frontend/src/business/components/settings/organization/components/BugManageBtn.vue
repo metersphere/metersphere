@@ -51,6 +51,7 @@ export default {
       this.showCancel = false;
       this.showSave = false;
       this.$emit("update:show", true);
+      this.$emit("reloadPassInput");
       this.init();
     },
     init() {

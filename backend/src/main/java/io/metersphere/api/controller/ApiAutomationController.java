@@ -161,5 +161,18 @@ public class ApiAutomationController {
         return apiAutomationService.scenarioImport(file, request);
     }
 
+
+    @PostMapping(value = "/import", consumes = {"multipart/form-data"})
+    @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
+    public ApiDefinitionImport testCaseImport(@RequestPart(value = "file", required = false) MultipartFile file, @RequestPart("request") ApiTestImportRequest request) {
+        return apiAutomationService.scenarioImport(file, request);
+    }
+
+    @PostMapping(value = "/export")
+    @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
+    public ApiScenrioExportResult export(@RequestBody ApiScenarioBatchRequest request) {
+        return apiAutomationService.export(request);
+    }
+
 }
 

@@ -75,7 +75,7 @@ public abstract class ApiImportAbstractParser implements ApiImportParser {
         return null;
     }
 
-    protected ApiModule buildModule(ApiModule parentModule, String name, boolean isSaved) {
+    protected ApiModule buildModule(ApiModule parentModule, String name) {
         apiModuleService = CommonBeanFactory.getBean(ApiModuleService.class);
         ApiModule module;
         if (parentModule != null) {
@@ -84,9 +84,7 @@ public abstract class ApiImportAbstractParser implements ApiImportParser {
         } else {
             module = apiModuleService.getNewModule(name, this.projectId, 1);
         }
-        if (isSaved) {
-            createModule(module);
-        }
+        createModule(module);
         return module;
     }
 

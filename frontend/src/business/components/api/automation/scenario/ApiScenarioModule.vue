@@ -31,6 +31,15 @@
           </template>
         </el-input>
         <module-trash-button v-if="!isReadOnly" :condition="condition" :exe="enableTrash"/>
+        <api-scenario-module-header
+          :condition="condition"
+          :current-module="currentModule"
+          :is-read-only="isReadOnly"
+          :project-id="projectId"
+          @exportAPI="exportAPI"
+          @addScenario="addScenario"
+          @refreshTable="$emit('refreshTable')"
+          @refresh="refresh"/>
       </template>
 
     </ms-node-tree>
@@ -46,26 +55,26 @@
 </template>
 
 <script>
-  import {getCurrentProjectID} from "@/common/js/utils";
-  import {buildNodePath} from "../../definition/model/NodeTree";
-  import SelectMenu from "../../../track/common/SelectMenu";
-  import MsAddBasisScenario from "@/business/components/api/automation/scenario/AddBasisScenario";
-  import MsNodeTree from "../../../track/common/NodeTree";
-  import ModuleTrashButton from "../../definition/components/module/ModuleTrashButton";
-  import ApiImport from "./common/ScenarioImport";
+import SelectMenu from "../../../track/common/SelectMenu";
+import MsAddBasisScenario from "@/business/components/api/automation/scenario/AddBasisScenario";
+import {getCurrentProjectID} from "@/common/js/utils";
+import MsNodeTree from "../../../track/common/NodeTree";
+import {buildNodePath} from "../../definition/model/NodeTree";
+import ModuleTrashButton from "../../definition/components/module/ModuleTrashButton";
+import ApiScenarioModuleHeader from "@/business/components/api/automation/scenario/module/ApiScenarioModuleHeader";
 
-  export default {
-    name: 'MsApiScenarioModule',
-    components: {
-      ModuleTrashButton,
-      MsNodeTree,
-      MsAddBasisScenario,
-      SelectMenu,
-      ApiImport
-    },
-    props: {
-      isReadOnly: {
-        type: Boolean,
+export default {
+  name: 'MsApiScenarioModule',
+  components: {
+    ApiScenarioModuleHeader,
+    ModuleTrashButton,
+    MsNodeTree,
+    MsAddBasisScenario,
+    SelectMenu,
+  },
+  props: {
+    isReadOnly: {
+      type: Boolean,
         default() {
           return false
         }
@@ -211,9 +220,9 @@
           this.$emit("nodeSelectEvent", node, nodeIds, pNodes);
         }
       },
-      // exportAPI() {
-      //   this.$emit('exportAPI');
-      // },
+      exportAPI() {
+        this.$emit('exportAPI');
+      },
       // debug() {
       //   this.$emit('debug');
       // },

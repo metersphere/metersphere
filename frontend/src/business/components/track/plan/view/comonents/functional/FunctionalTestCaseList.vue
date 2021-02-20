@@ -45,134 +45,146 @@
             <show-more-btn :is-show="scope.row.showMore" :buttons="buttons" :size="selectRows.size"/>
           </template>
         </el-table-column>
-        <el-table-column
-          prop="num"
-          sortable="custom"
-          :label="$t('commons.id')"
-          min-width="120px"
+        <template v-for="(item, index) in tableLabel">
+          <el-table-column
+            v-if="item.prop == 'num'"
+            prop="num"
+            sortable="custom"
+            :label="$t('commons.id')"
+            min-width="120px"
+            show-overflow-tooltip
+            :key="index">
+          </el-table-column>
+          <el-table-column
+            v-if="item.prop=='name'"
+            prop="name"
+            :label="$t('commons.name')"
+            min-width="120px"
+            :key="index"
+            show-overflow-tooltip>
+          </el-table-column>
+          <el-table-column
+            v-if="item.prop=='priority'"
+            prop="priority"
+            :filters="priorityFilters"
+            column-key="priority"
+            min-width="100px"
+            :key="index"
+            :label="$t('test_track.case.priority')">
+            <template v-slot:default="scope">
+              <priority-table-item :value="scope.row.priority" ref="priority"/>
+            </template>
+          </el-table-column>
 
-          show-overflow-tooltip>
-        </el-table-column>
-        <el-table-column
-          prop="name"
-          :label="$t('commons.name')"
-          min-width="120px"
+          <el-table-column
+            v-if="item.prop=='type'"
+            prop="type"
+            :filters="typeFilters"
+            column-key="type"
+            :label="$t('test_track.case.type')"
+            min-width="80px"
+            :key="index"
+            show-overflow-tooltip>
+            <template v-slot:default="scope">
+              <type-table-item :value="scope.row.type"/>
+            </template>
+          </el-table-column>
 
-          show-overflow-tooltip>
-        </el-table-column>
-        <el-table-column
-          prop="priority"
-          :filters="priorityFilters"
-          column-key="priority"
-          min-width="100px"
+          <el-table-column v-if="item.prop=='tags'" prop="tags" :label="$t('commons.tag')" min-width="120px"
+                           :key="index"
+          >
+            <template v-slot:default="scope">
+              <div v-for="(tag, index) in scope.row.showTags" :key="tag + '_' + index">
+                <ms-tag type="success" effect="plain" :content="tag"/>
+              </div>
+            </template>
+          </el-table-column>
 
-          :label="$t('test_track.case.priority')">
-          <template v-slot:default="scope">
-            <priority-table-item :value="scope.row.priority" ref="priority"/>
-          </template>
-        </el-table-column>
+          <el-table-column
+            v-if="item.prop=='method'"
+            prop="method"
+            :filters="methodFilters"
+            column-key="method"
+            :label="$t('test_track.case.method')"
+            min-width="100px"
+            :key="index"
+            show-overflow-tooltip>
+            <template v-slot:default="scope">
+              <method-table-item :value="scope.row.method"/>
+            </template>
+          </el-table-column>
 
-        <el-table-column
-          prop="type"
-          :filters="typeFilters"
-          column-key="type"
-          :label="$t('test_track.case.type')"
-          min-width="80px"
+          <el-table-column
+            v-if="item.prop=='nodePath'"
+            prop="nodePath"
+            :label="$t('test_track.case.module')"
+            min-width="120px"
+            :key="index"
+            show-overflow-tooltip>
+          </el-table-column>
 
-          show-overflow-tooltip>
-          <template v-slot:default="scope">
-            <type-table-item :value="scope.row.type"/>
-          </template>
-        </el-table-column>
+          <el-table-column
+            v-if="item.prop=='projectName'"
+            prop="projectName"
+            :label="$t('test_track.plan.plan_project')"
+            min-width="120px"
+            :key="index"
+            show-overflow-tooltip>
+          </el-table-column>
 
-        <el-table-column prop="tags" :label="$t('commons.tag')" min-width="120px"
-                         >
-          <template v-slot:default="scope">
-            <div v-for="(tag, index) in scope.row.showTags" :key="tag + '_' + index">
-              <ms-tag type="success" effect="plain" :content="tag"/>
-            </div>
-          </template>
-        </el-table-column>
-
-        <el-table-column
-          prop="method"
-          :filters="methodFilters"
-          column-key="method"
-          :label="$t('test_track.case.method')"
-          min-width="100px"
-
-          show-overflow-tooltip>
-          <template v-slot:default="scope">
-            <method-table-item :value="scope.row.method"/>
-          </template>
-        </el-table-column>
-
-        <el-table-column
-          prop="nodePath"
-          :label="$t('test_track.case.module')"
-          min-width="120px"
-
-          show-overflow-tooltip>
-        </el-table-column>
-
-        <el-table-column
-          prop="projectName"
-          :label="$t('test_track.plan.plan_project')"
-          min-width="120px"
-
-          show-overflow-tooltip>
-        </el-table-column>
-
-        <el-table-column
-          :label="$t('test_track.issue.issue')"
-          min-width="80px"
-
-          show-overflow-tooltip>
-          <template v-slot:default="scope">
-            <el-popover
-              placement="right"
-              width="400"
-              trigger="hover">
-              <el-table border class="adjust-table" :data="scope.row.issuesContent" style="width: 100%">
-                <el-table-column prop="title" :label="$t('test_track.issue.title')" show-overflow-tooltip/>
-                <el-table-column prop="description" :label="$t('test_track.issue.description')">
-                  <template v-slot:default="scope">
-                    <el-popover
-                      placement="left"
-                      width="400"
-                      trigger="hover"
-                    >
-                      <ckeditor :editor="editor" disabled :config="editorConfig"
-                                v-model="scope.row.description"/>
-                      <el-button slot="reference" type="text">{{ $t('test_track.issue.preview') }}</el-button>
-                    </el-popover>
-                  </template>
-                </el-table-column>
-                <el-table-column prop="platform" :label="$t('test_track.issue.platform')"/>
-              </el-table>
-              <el-button slot="reference" type="text">{{ scope.row.issuesSize }}</el-button>
-            </el-popover>
-          </template>
-        </el-table-column>
+          <el-table-column
+            v-if="item.prop=='issuesContent'"
+            :label="$t('test_track.issue.issue')"
+            min-width="80px"
+            show-overflow-tooltip
+            :key="index">
+            <template v-slot:default="scope">
+              <el-popover
+                placement="right"
+                width="400"
+                trigger="hover">
+                <el-table border class="adjust-table" :data="scope.row.issuesContent" style="width: 100%">
+                  <el-table-column prop="title" :label="$t('test_track.issue.title')" show-overflow-tooltip/>
+                  <el-table-column prop="description" :label="$t('test_track.issue.description')">
+                    <template v-slot:default="scope">
+                      <el-popover
+                        placement="left"
+                        width="400"
+                        trigger="hover"
+                      >
+                        <ckeditor :editor="editor" disabled :config="editorConfig"
+                                  v-model="scope.row.description"/>
+                        <el-button slot="reference" type="text">{{ $t('test_track.issue.preview') }}</el-button>
+                      </el-popover>
+                    </template>
+                  </el-table-column>
+                  <el-table-column prop="platform" :label="$t('test_track.issue.platform')"/>
+                </el-table>
+                <el-button slot="reference" type="text">{{ scope.row.issuesSize }}</el-button>
+              </el-popover>
+            </template>
+          </el-table-column>
 
 
-        <el-table-column
-          prop="executorName"
-          :filters="executorFilters"
-          min-width="100px"
+          <el-table-column
+            v-if="item.prop == 'executorName'"
+            prop="executorName"
+            :filters="executorFilters"
+            min-width="100px"
+            :key="index"
+            column-key="executor"
+            :label="$t('test_track.plan_view.executor')">
+          </el-table-column>
 
-          column-key="executor"
-          :label="$t('test_track.plan_view.executor')">
-        </el-table-column>
-
-        <el-table-column
-          prop="status"
-          :filters="statusFilters"
-          column-key="status"
-          min-width="100px"
-
-          :label="$t('test_track.plan_view.execute_result')">
-          <template v-slot:default="scope">
+          <el-table-column
+            v-if="item.prop == 'status'"
+            prop="status"
+            :filters="statusFilters"
+            column-key="status"
+            min-width="100px"
+            :key="index"
+            :label="$t('test_track.plan_view.execute_result')">
+            <template v-slot:default="scope">
             <span @click.stop="clickt = 'stop'">
               <el-dropdown class="test-case-status" @command="statusChange">
                 <span class="el-dropdown-link">
@@ -196,24 +208,32 @@
                 </el-dropdown-menu>
               </el-dropdown>
             </span>
-          </template>
-        </el-table-column>
+            </template>
+          </el-table-column>
 
-        <el-table-column
-          sortable
-          prop="updateTime"
-          :label="$t('commons.update_time')"
-          min-width="120px"
+          <el-table-column
+            v-if="item.prop == 'updateTime'"
 
-          show-overflow-tooltip>
-          <template v-slot:default="scope">
-            <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
-          </template>
-        </el-table-column>
+            sortable
+            prop="updateTime"
+            :label="$t('commons.update_time')"
+            min-width="120px"
+            :key="index"
+            show-overflow-tooltip>
+            <template v-slot:default="scope">
+              <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
+            </template>
+          </el-table-column>
+        </template>
         <el-table-column
           fixed="right"
           min-width="100"
           :label="$t('commons.operating')">
+          <template slot="header">
+            <span>{{ $t('commons.operating') }}
+             <i class='el-icon-setting' style="color:#7834c1; margin-left:10px" @click="customHeader"> </i>
+            </span>
+          </template>
           <template v-slot:default="scope">
             <ms-table-operator-button :is-tester-permission="true" :tip="$t('commons.edit')" icon="el-icon-edit"
                                       @exec="handleEdit(scope.row)"/>
@@ -222,7 +242,8 @@
           </template>
         </el-table-column>
       </el-table>
-
+      <header-custom ref="headerCustom" :initTableData="initTableData" :optionalFields=headerItems
+                     :type=type></header-custom>
       <ms-table-pagination :change="search" :current-page.sync="currentPage" :page-size.sync="pageSize"
                            :total="total"/>
 
@@ -249,8 +270,15 @@ import MsTableHeader from '../../../../../common/components/MsTableHeader';
 import MsTableButton from '../../../../../common/components/MsTableButton';
 import NodeBreadcrumb from '../../../../common/NodeBreadcrumb';
 
-import {ROLE_TEST_MANAGER, ROLE_TEST_USER, TokenKey, WORKSPACE_ID} from "@/common/js/constants";
-import {checkoutTestManagerOrTestUser, hasRoles} from "@/common/js/utils";
+import {
+  ROLE_TEST_MANAGER,
+  ROLE_TEST_USER,
+  TEST_CASE_LIST,
+  TEST_PLAN_FUNCTION_TEST_CASE,
+  TokenKey,
+  WORKSPACE_ID
+} from "@/common/js/constants";
+import {checkoutTestManagerOrTestUser, getCurrentUser, hasRoles} from "@/common/js/utils";
 import PriorityTableItem from "../../../../common/tableItems/planview/PriorityTableItem";
 import StatusTableItem from "../../../../common/tableItems/planview/StatusTableItem";
 import TypeTableItem from "../../../../common/tableItems/planview/TypeTableItem";
@@ -264,11 +292,14 @@ import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 import {hub} from "@/business/components/track/plan/event-bus";
 import MsTag from "@/business/components/common/components/MsTag";
 import {_filter, _sort} from "@/common/js/tableUtils";
+import HeaderCustom from "@/business/components/common/head/HeaderCustom";
+import {Test_Plan_Function_Test_Case} from "@/business/components/common/model/JsonData";
 
 
 export default {
   name: "FunctionalTestCaseList",
   components: {
+    HeaderCustom,
     FunctionalTestCaseEdit,
     MsTableOperatorButton,
     MsTableOperator,
@@ -281,6 +312,9 @@ export default {
   },
   data() {
     return {
+      type: TEST_PLAN_FUNCTION_TEST_CASE,
+      headerItems: Test_Plan_Function_Test_Case,
+      tableLabel: Test_Plan_Function_Test_Case,
       result: {},
       deletePath: "/test/case/delete",
       condition: {
@@ -383,7 +417,12 @@ export default {
     hub.$off("openFailureTestCase");
   },
   methods: {
+    customHeader() {
+      this.$refs.headerCustom.open(this.tableLabel)
+    },
+
     initTableData() {
+      this.getLabel()
       if (this.planId) {
         // param.planId = this.planId;
         this.condition.planId = this.planId;
@@ -427,6 +466,24 @@ export default {
           this.selectRows.clear();
         });
       }
+    },
+    getLabel() {
+      let param = {}
+      param.userId = getCurrentUser().id;
+      param.type = TEST_PLAN_FUNCTION_TEST_CASE
+      this.result = this.$post('/system/header/info', param, response => {
+        if (response.data != null) {
+          let arry = eval(response.data.props);
+          let obj = {};
+          for (let key in arry) {
+            obj[key] = arry[key];
+          }
+          let newObj = Object.keys(obj).map(val => ({
+            prop: obj[val]
+          }))
+          this.tableLabel = newObj
+        }
+      })
     },
     showDetail(row, event, column) {
       this.isReadOnly = true;
@@ -596,9 +653,9 @@ export default {
       _sort(column, this.condition);
       this.initTableData();
     },
-    headerDragend(newWidth,oldWidth,column,event){
+    headerDragend(newWidth, oldWidth, column, event) {
       let finalWidth = newWidth;
-      if(column.minWidth>finalWidth){
+      if (column.minWidth > finalWidth) {
         finalWidth = column.minWidth;
       }
       column.width = finalWidth;

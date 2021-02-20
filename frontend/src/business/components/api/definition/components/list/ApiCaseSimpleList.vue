@@ -23,82 +23,99 @@
         <el-table-column type="selection" width="50"/>
 
         <ms-table-header-select-popover v-show="total>0"
-          :page-size="pageSize>total?total:pageSize"
-          :total="total"
-          @selectPageAll="isSelectDataAll(false)"
-          @selectAll="isSelectDataAll(true)"/>
+                                        :page-size="pageSize>total?total:pageSize"
+                                        :total="total"
+                                        @selectPageAll="isSelectDataAll(false)"
+                                        @selectAll="isSelectDataAll(true)"/>
 
-        <el-table-column width="30" :resizable="false" min-width="30px"  align="center">
+        <el-table-column width="30" :resizable="false" min-width="30px" align="center">
           <template v-slot:default="scope">
             <show-more-btn :is-show="scope.row.showMore" :buttons="buttons" :size="selectDataCounts"/>
           </template>
         </el-table-column>
+        <template v-for="(item, index) in tableLabel">
+          <el-table-column v-if="item.prop == 'num'" prop="num" label="ID" min-width="120px" show-overflow-tooltip
+                           :key="index">
+            <template slot-scope="scope">
+              <el-tooltip content="编辑">
+                <a style="cursor:pointer" @click="handleTestCase(scope.row)"> {{ scope.row.num }} </a>
+              </el-tooltip>
+            </template>
+          </el-table-column>
 
-        <el-table-column prop="num" label="ID" min-width="120px"  show-overflow-tooltip>
-          <template slot-scope="scope">
-            <el-tooltip content="编辑">
-              <a style="cursor:pointer" @click="handleTestCase(scope.row)"> {{ scope.row.num }} </a>
-            </el-tooltip>
+          <el-table-column v-if="item.prop == 'name'" prop="name" min-width="160px" :label="$t('test_track.case.name')"
+                           show-overflow-tooltip :key="index"/>
+
+          <el-table-column
+            v-if="item.prop == 'priority'"
+            prop="priority"
+            :filters="priorityFilters"
+            column-key="priority"
+            min-width="120px"
+            :label="$t('test_track.case.priority')"
+            show-overflow-tooltip
+            :key="index">
+            <template v-slot:default="scope">
+              <priority-table-item :value="scope.row.priority"/>
+            </template>
+          </el-table-column>
+
+          <el-table-column
+            v-if="item.prop == 'custom'"
+            sortable="custom"
+            prop="path"
+            min-width="180px"
+            :label="$t('api_test.definition.api_path')"
+            show-overflow-tooltip
+            :key="index"/>
+
+          <el-table-column v-if="item.prop=='tags'" prop="tags" min-width="120px" :label="$t('commons.tag')"
+                           :key="index">
+            <template v-slot:default="scope">
+              <div v-for="(itemName,index)  in scope.row.tags" :key="index">
+                <ms-tag type="success" effect="plain" :content="itemName"/>
+              </div>
+            </template>
+          </el-table-column>
+
+          <el-table-column
+            v-if="item.prop=='createUser'"
+            prop="createUser"
+            :label="'创建人'"
+            show-overflow-tooltip
+            :key="index"/>
+
+          <el-table-column
+            v-if="item.prop=='custom'"
+            sortable="custom"
+            min-width="160"
+            :label="$t('api_test.definition.api_last_time')"
+            prop="updateTime"
+            :key="index">
+            <template v-slot:default="scope">
+              <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
+            </template>
+          </el-table-column>
+        </template>
+        <el-table-column fixed="right" v-if="!isReadOnly" :label="$t('commons.operating')" min-width="130"
+                         align="center">
+          <template slot="header">
+            <span>{{ $t('commons.operating') }}
+             <i class='el-icon-setting' style="color:#7834c1; margin-left:10px" @click="customHeader"> </i>
+            </span>
           </template>
-        </el-table-column>
-
-        <el-table-column prop="name" min-width="160px"  :label="$t('test_track.case.name')" show-overflow-tooltip/>
-
-        <el-table-column
-          prop="priority"
-          :filters="priorityFilters"
-          column-key="priority"
-          min-width="120px"
-
-          :label="$t('test_track.case.priority')"
-          show-overflow-tooltip>
           <template v-slot:default="scope">
-            <priority-table-item :value="scope.row.priority"/>
+            <ms-table-operator-button :tip="$t('commons.edit')" icon="el-icon-edit" @exec="handleTestCase(scope.row)"
+                                      v-tester/>
+            <ms-table-operator-button :tip="$t('commons.delete')" icon="el-icon-delete" @exec="handleDelete(scope.row)"
+                                      type="danger" v-tester/>
+            <ms-api-case-table-extend-btns @showCaseRef="showCaseRef" @showEnvironment="showEnvironment"
+                                           @createPerformance="createPerformance" :row="scope.row" v-tester/>
           </template>
         </el-table-column>
-
-        <el-table-column
-          sortable="custom"
-          prop="path"
-          min-width="180px"
-          :label="$t('api_test.definition.api_path')"
-
-          show-overflow-tooltip/>
-
-        <el-table-column prop="tags" min-width="120px"  :label="$t('commons.tag')">
-          <template v-slot:default="scope">
-            <div v-for="(itemName,index)  in scope.row.tags" :key="index">
-              <ms-tag type="success" effect="plain" :content="itemName"/>
-            </div>
-          </template>
-        </el-table-column>
-
-        <el-table-column
-          prop="createUser"
-          :label="'创建人'"
-
-          show-overflow-tooltip/>
-
-        <el-table-column
-          sortable="custom"
-          min-width="160"
-          :label="$t('api_test.definition.api_last_time')"
-
-          prop="updateTime">
-          <template v-slot:default="scope">
-            <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
-          </template>
-        </el-table-column>
-
-        <el-table-column fixed="right" v-if="!isReadOnly" :label="$t('commons.operating')" min-width="130" align="center">
-          <template v-slot:default="scope">
-            <ms-table-operator-button :tip="$t('commons.edit')" icon="el-icon-edit" @exec="handleTestCase(scope.row)" v-tester/>
-            <ms-table-operator-button :tip="$t('commons.delete')" icon="el-icon-delete" @exec="handleDelete(scope.row)" type="danger" v-tester/>
-            <ms-api-case-table-extend-btns @showCaseRef="showCaseRef" @showEnvironment="showEnvironment" @createPerformance="createPerformance" :row="scope.row" v-tester/>
-          </template>
-        </el-table-column>
-
       </el-table>
+      <header-custom ref="headerCustom" :initTableData="initTable" :optionalFields=headerItems
+                     :type=type></header-custom>
       <ms-table-pagination :change="initTable" :current-page.sync="currentPage" :page-size.sync="pageSize"
                            :total="total"/>
     </api-list-container-with-doc>
@@ -131,7 +148,8 @@ import ShowMoreBtn from "../../../../track/case/components/ShowMoreBtn";
 import MsBatchEdit from "../basis/BatchEdit";
 import {API_METHOD_COLOUR, CASE_PRIORITY, DUBBO_METHOD, REQ_METHOD, SQL_METHOD, TCP_METHOD} from "../../model/JsonData";
 
-import {getBodyUploadFiles, getCurrentProjectID} from "@/common/js/utils";
+import {getBodyUploadFiles, getCurrentProjectID, getCurrentUser} from "@/common/js/utils";
+import ApiListContainer from "./ApiListContainer";
 // import ApiListContainer from "./ApiListContainer";
 import ApiListContainerWithDoc from "@/business/components/api/definition/components/list/ApiListContainerWithDoc";
 import PriorityTableItem from "../../../../track/common/tableItems/planview/PriorityTableItem";
@@ -145,30 +163,38 @@ import MsTableHeaderSelectPopover from "@/business/components/common/components/
 import MsTableAdvSearchBar from "@/business/components/common/components/search/MsTableAdvSearchBar";
 import {API_CASE_CONFIGS} from "@/business/components/common/components/search/search-components";
 import {_filter, _handleSelect, _handleSelectAll, _sort,} from "@/common/js/tableUtils";
+import {API_CASE_LIST, API_LIST, API_SCENARIO_LIST, TEST_CASE_LIST} from "@/common/js/constants";
+import {Api_Case_List, Api_List, Track_Test_Case} from "@/business/components/common/model/JsonData";
+import HeaderCustom from "@/business/components/common/head/HeaderCustom";
 
 export default {
-    name: "ApiCaseSimpleList",
-    components: {
-      MsTableHeaderSelectPopover,
-      MsSetEnvironment,
-      ApiCaseList,
-      PriorityTableItem,
-      ApiListContainerWithDoc,
-      MsTableOperatorButton,
-      MsTableOperator,
-      MsTablePagination,
-      MsTag,
-      MsApiCaseList,
-      MsContainer,
-      MsBottomContainer,
-      ShowMoreBtn,
-      MsBatchEdit,
-      MsApiCaseTableExtendBtns,
+  name: "ApiCaseSimpleList",
+  components: {
+    ApiListContainerWithDoc,
+    HeaderCustom,
+    MsTableHeaderSelectPopover,
+    MsSetEnvironment,
+    ApiCaseList,
+    PriorityTableItem,
+    ApiListContainer,
+    MsTableOperatorButton,
+    MsTableOperator,
+    MsTablePagination,
+    MsTag,
+    MsApiCaseList,
+    MsContainer,
+    MsBottomContainer,
+    ShowMoreBtn,
+    MsBatchEdit,
+    MsApiCaseTableExtendBtns,
       MsReferenceView,
       MsTableAdvSearchBar
     },
     data() {
       return {
+        type: API_CASE_LIST,
+        headerItems: Api_Case_List,
+        tableLabel: Api_Case_List,
         condition: {
           components: API_CASE_CONFIGS
         },
@@ -214,7 +240,7 @@ export default {
     props: {
       currentProtocol: String,
       selectNodeIds: Array,
-      activeDom:String,
+      activeDom: String,
       visible: {
         type: Boolean,
         default: false,
@@ -271,13 +297,17 @@ export default {
       },
     },
     methods: {
+      customHeader() {
+        this.$refs.headerCustom.open(this.tableLabel)
+      },
       isApiListEnableChange(data) {
         this.$emit('isApiListEnableChange', data);
       },
-      activeDomChange(tabType){
-        this.$emit("activeDomChange",tabType);
+      activeDomChange(tabType) {
+        this.$emit("activeDomChange", tabType);
       },
       initTable() {
+        this.getLabel()
         this.selectRows = new Set();
         this.condition.status = "";
         this.condition.moduleIds = this.selectNodeIds;
@@ -320,6 +350,24 @@ export default {
             })
           });
         }
+      },
+      getLabel() {
+        let param = {}
+        param.userId = getCurrentUser().id;
+        param.type = API_CASE_LIST
+        this.result = this.$post('/system/header/info', param, response => {
+          if (response.data != null) {
+            let arry = eval(response.data.props);
+            let obj = {};
+            for (let key in arry) {
+              obj[key] = arry[key];
+            }
+            let newObj = Object.keys(obj).map(val => ({
+              prop: obj[val]
+            }))
+            this.tableLabel = newObj
+          }
+        })
       },
       open() {
         this.$refs.searchBar.open();
@@ -417,13 +465,13 @@ export default {
         // }
       },
       handleEditBatch() {
-        if(this.currentProtocol =='HTTP'){
+        if (this.currentProtocol == 'HTTP') {
           this.valueArr.method = REQ_METHOD;
-        }else if(this.currentProtocol =='TCP'){
+        } else if (this.currentProtocol == 'TCP') {
           this.valueArr.method = TCP_METHOD;
-        }else if(this.currentProtocol =='SQL'){
+        } else if (this.currentProtocol == 'SQL') {
           this.valueArr.method = SQL_METHOD;
-        }else if(this.currentProtocol =='DUBBO'){
+        } else if (this.currentProtocol == 'DUBBO') {
           this.valueArr.method = DUBBO_METHOD;
         }
         this.$refs.batchEdit.open();
@@ -513,9 +561,9 @@ export default {
         this.clickRow = row;
         this.$refs.setEnvironment.open(row);
       },
-      headerDragend(newWidth,oldWidth,column,event){
+      headerDragend(newWidth, oldWidth, column, event) {
         let finalWidth = newWidth;
-        if(column.minWidth>finalWidth){
+        if (column.minWidth > finalWidth) {
           finalWidth = column.minWidth;
         }
         column.width = finalWidth;
@@ -580,7 +628,7 @@ export default {
         });
       },
     },
-  }
+}
 </script>
 
 <style scoped>

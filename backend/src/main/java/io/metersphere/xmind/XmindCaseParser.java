@@ -276,22 +276,19 @@ public class XmindCaseParser {
         testCase.setType("functional");
 
         String tc = title.replace("：", ":");
-        String[] tcArr = tc.split(":");
-        if (tcArr.length < 1) {
+        String[] tcArrs = tc.split(":");
+        if (tcArrs.length < 1) {
             process.add(Translator.get("test_case_name") + Translator.get("incorrect_format"), title);
             return;
         }
         // 用例名称
-        StringBuffer name = new StringBuffer();
-        for (int i = 1; i < tcArr.length; i++) {
-            name.append(tcArr[i]);
-        }
-        testCase.setName(name.toString());
+        String name = title.replace(tcArrs[0] + "：", "").replace(tcArrs[0] + ":", "");
+        testCase.setName(name);
         testCase.setNodePath(nodePath);
 
         // 用例等级和用例性质处理
-        if (tcArr[0].indexOf("-") != -1) {
-            for (String item : tcArr[0].split("-")) {
+        if (tcArrs[0].indexOf("-") != -1) {
+            for (String item : tcArrs[0].split("-")) {
                 if (isAvailable(item, TC_REGEX)) {
                     continue;
                 } else if (item.toUpperCase().startsWith("P")) {

@@ -7,6 +7,13 @@
             <if test="request.projectId != null">
                 api.project_Id = #{request.projectId}
             </if>
+            <if test="request.name != null">
+                api.project_Id like CONCAT('%', #{request.name},'%')
+            </if>
+            <if test="request.type != null">
+                api.method = #{request.type}
+            </if>
+
             <if test="request.moduleIds != null and request.moduleIds.size() > 0">
                 AND api.module_id in
                 <foreach collection="request.moduleIds" item="nodeId" separator="," open="(" close=")">
@@ -14,6 +21,14 @@
                 </foreach>
             </if>
         </where>
-        ORDER BY api.create_time DESC
+        <if test="request.orderCondition == 'createTimeDesc'">
+            ORDER BY api.create_time DESC
+        </if>
+        <if test="request.orderCondition == 'editTimeAsc'">
+            ORDER BY api.update_time
+        </if>
+        <if test="request.orderCondition == 'editTimeDesc'">
+            ORDER BY api.update_time DESC
+        </if>
     </select>
 </mapper>

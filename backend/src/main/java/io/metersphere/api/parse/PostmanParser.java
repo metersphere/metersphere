@@ -33,17 +33,20 @@ public class PostmanParser extends ApiImportAbstractParser {
         List<PostmanKeyValue> variables = postmanCollection.getVariable();
         ApiDefinitionImport apiImport = new ApiDefinitionImport();
         List<ApiDefinitionWithBLOBs> results = new ArrayList<>();
-        parseItem(postmanCollection.getItem(), variables, results, buildModule(getSelectModule(request.getModuleId()), postmanCollection.getInfo().getName(), request.isSaved()), request.isSaved());
+        parseItem(postmanCollection.getItem(), variables, results, buildModule(getSelectModule(request.getModuleId()), postmanCollection.getInfo().getName()), true);
         apiImport.setData(results);
         return apiImport;
     }
 
-    private void parseItem(List<PostmanItem> items, List<PostmanKeyValue> variables, List<ApiDefinitionWithBLOBs> results, ApiModule parentModule, boolean isSaved) {
+    protected void parseItem(List<PostmanItem> items, List<PostmanKeyValue> variables, List<ApiDefinitionWithBLOBs> results, ApiModule parentModule, Boolean isCreateModule) {
         for (PostmanItem item : items) {
             List<PostmanItem> childItems = item.getItem();
             if (childItems != null) {
-                ApiModule module = buildModule(parentModule, item.getName() , isSaved);
-                parseItem(childItems, variables, results, module, isSaved);
+                ApiModule module = null;
+                if (isCreateModule) {
+                    module = buildModule(parentModule, item.getName());
+                }
+                parseItem(childItems, variables, results, module, isCreateModule);
             } else {
                 ApiDefinitionWithBLOBs request = parsePostman(item);
                 if (request != null) {

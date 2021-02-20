@@ -1,7 +1,7 @@
 export default {
   commons: {
-    cover:'覆蓋',
-    not_cover:'不覆蓋',
+    cover: '覆蓋',
+    not_cover: '不覆蓋',
     import_mode: '導入模式',
     import_module: '導入模塊',
     please_fill_in_the_template: '請填寫模版內容',
@@ -591,11 +591,41 @@ export default {
         create_info: '創建',
         update_info: '更新',
         batch_edit: "批量編輯",
-        batch_move:"批量移動",
+        batch_move: "批量移動",
         path_valid_info: "請求路徑無效",
         other_config: "其他設置",
         message_template: "報文模版",
         tcp_parameter_tip: "請求參數可以在請求模版通過${xxx}引用",
+      },
+      document: {
+        order: "排序方式",
+        create_time_sort: "按創建時間從後到前",
+        edit_time_positive_sequence: "按更新時間從前到後",
+        edit_time_Reverse_order: "按更新時間從後到前",
+        request_method: "請求方式",
+        request_interface: "請求接口e",
+        search_by_api_name : "API名稱搜索",
+        request_info: "請求信息",
+        request_head: "請求頭",
+        request_param: "參數",
+        request_body: "請求體",
+        example_presentation: "範例展示",
+        response_info: "響應信息",
+        response_head: "響應頭",
+        response_body: "響應體",
+        response_code: "響應碼",
+        table_coloum:{
+          name: "名稱",
+          value: "值",
+          is_required: "是否必填",
+          desc: "描述",
+          type: "類型",
+          default_value: "默認值",
+        },
+        data_set: {
+          all: "全部",
+          none: "無"
+        },
       }
     },
     automation: {
@@ -644,7 +674,8 @@ export default {
         select_principal: "請選擇責任人",
         follow_people: "關註人",
         select_table: "選擇可見數據",
-        select_all: "選擇全部數據"
+        select_all: "選擇全部數據",
+        check_case: "請勾選場景用例"
       },
       report_name_info: '請輸入報告名稱',
       save_case_info: '請先保存用例',
@@ -1327,6 +1358,7 @@ export default {
     status_change_success: '狀態修改成功!',
     status_change_failed: '狀態修改失敗, 校驗不通過!',
     check_in: '校驗中',
+    node_selector_invalid: 'nodeSelector 必須是有效的JSON'
   },
   system_parameter_setting: {
     mailbox_service_settings: '郵件設置',

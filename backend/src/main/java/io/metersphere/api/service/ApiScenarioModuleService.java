@@ -46,10 +46,6 @@ public class ApiScenarioModuleService extends NodeTreeService<ApiScenarioModuleD
     @Resource
     TestPlanProjectService testPlanProjectService;
     @Resource
-    private ApiTestCaseService apiTestCaseService;
-    @Resource
-    private ApiDefinitionService apiDefinitionService;
-    @Resource
     private ProjectService projectService;
 
     public ApiScenarioModuleService() {

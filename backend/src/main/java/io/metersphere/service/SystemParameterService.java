@@ -2,12 +2,16 @@ package io.metersphere.service;
 
 import io.metersphere.base.domain.SystemParameter;
 import io.metersphere.base.domain.SystemParameterExample;
+import io.metersphere.base.domain.UserHeader;
+import io.metersphere.base.domain.UserHeaderExample;
 import io.metersphere.base.mapper.SystemParameterMapper;
+import io.metersphere.base.mapper.UserHeaderMapper;
 import io.metersphere.base.mapper.ext.ExtSystemParameterMapper;
 import io.metersphere.commons.constants.ParamConstants;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.EncryptUtils;
 import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.controller.request.HeaderRequest;
 import io.metersphere.dto.BaseSystemConfigDTO;
 import io.metersphere.i18n.Translator;
 import io.metersphere.ldap.domain.LdapInfo;
@@ -29,7 +33,8 @@ import java.util.*;
 @Service
 @Transactional(rollbackFor = Exception.class)
 public class SystemParameterService {
-
+    @Resource
+    private UserHeaderMapper userHeaderMapper;
     @Resource
     private SystemParameterMapper systemParameterMapper;
     @Resource
@@ -232,5 +237,30 @@ public class SystemParameterService {
             }
             example.clear();
         });
+    }
+
+    //保存表头
+    public void saveHeader(UserHeader userHeader) {
+        UserHeaderExample example=new UserHeaderExample();
+        example.createCriteria().andUserIdEqualTo(userHeader.getUserId()).andTypeEqualTo(userHeader.getType());
+       if(userHeaderMapper.countByExample(example)>0){
+           userHeaderMapper.deleteByExample(example);
+           userHeader.setId(UUID.randomUUID().toString());
+           userHeaderMapper.insert(userHeader);
+       }else{
+           userHeader.setId(UUID.randomUUID().toString());
+           userHeaderMapper.insert(userHeader);
+       }
+        example.clear();
+    }
+
+    public UserHeader queryUserHeader(HeaderRequest headerRequest) {
+        UserHeaderExample example = new UserHeaderExample();
+        example.createCriteria().andUserIdEqualTo(headerRequest.getUserId()).andTypeEqualTo(headerRequest.getType());
+        List<UserHeader> list = userHeaderMapper.selectByExample(example);
+        if (list.size() > 0) {
+            return list.get(0);
+        }
+        return null;
     }
 }
