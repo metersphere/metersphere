@@ -192,6 +192,15 @@
         return true;
       },
       save() {
+        if (!this.formData.file) {
+          this.$warning("请添加一个文件");
+          return;
+        }
+        let suffix = this.formData.file.name.substring(this.formData.file.name.lastIndexOf('.') + 1);
+        if (this.selectedPlatform.suffixes && !this.selectedPlatform.suffixes.has(suffix)) {
+          this.$warning(this.$t('api_test.api_import.suffixFormatErr'));
+          return false;
+        }
         this.$refs.form.validate(valid => {
           if (valid) {
             let param = this.buildParam();
@@ -199,7 +208,7 @@
               let res = response.data;
               this.$success(this.$t('test_track.case.import.success'));
               this.visible = false;
-              this.$emit('refresh', res);
+              this.$emit('refreshAll', res);
             });
           } else {
             return false;
@@ -211,7 +220,6 @@
         Object.assign(param, this.formData);
         param.platform = this.selectedPlatformValue;
         param.saved = this.saved;
-        console.log(this.formData.moduleId)
         if (this.currentModule) {
           param.moduleId = this.formData.moduleId
           this.moduleOptions.filter(item => {

@@ -43,6 +43,7 @@ import io.metersphere.base.domain.ApiScenarioWithBLOBs;
 import io.metersphere.base.domain.ApiTestEnvironmentExample;
 import io.metersphere.base.domain.ApiTestEnvironmentWithBLOBs;
 import io.metersphere.commons.constants.LoopConstants;
+import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
@@ -96,6 +97,7 @@ public class MsJmeterParser extends ScenarioImportAbstractParser {
             return scenarioImport;
         } catch (Exception e) {
             e.printStackTrace();
+            MSException.throwException("当前JMX版本不兼容");
         }
         return null;
     }
@@ -195,6 +197,7 @@ public class MsJmeterParser extends ScenarioImportAbstractParser {
     }
 
     private void convertDubboSample(MsDubboSampler elementNode, DubboSample sampler) {
+        elementNode.setName(sampler.getName());
         elementNode.setType("DubboSampler");
         elementNode.setProtocol("dubbo://");
         elementNode.set_interface(sampler.getPropertyAsString("FIELD_DUBBO_INTERFACE"));

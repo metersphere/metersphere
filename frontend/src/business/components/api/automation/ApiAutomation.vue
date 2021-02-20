@@ -9,6 +9,7 @@
         @setNodeTree="setNodeTree"
         @enableTrash="enableTrash"
         @exportAPI="exportAPI"
+        @refreshAll="refreshAll"
         :type="'edit'"
         ref="nodeTree"/>
     </ms-aside-container>
@@ -263,6 +264,10 @@
       refresh(data) {
         this.setTabTitle(data);
         this.$refs.apiScenarioList.search(data);
+      },
+      refreshAll() {
+        this.$refs.nodeTree.list();
+        this.$refs.apiScenarioList.search();
       },
       setTabTitle(data) {
         for (let index in this.tabs) {

@@ -40,7 +40,7 @@
       @refresh="refresh"
       ref="basisScenario"/>
 
-    <api-import ref="apiImport" :moduleOptions="moduleOptions" @refresh="$emit('refresh')"/>
+    <api-import ref="apiImport" :moduleOptions="moduleOptions" @refreshAll="$emit('refreshAll')"/>
   </div>
 
 </template>
