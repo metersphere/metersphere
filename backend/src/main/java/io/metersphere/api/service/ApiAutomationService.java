@@ -556,7 +556,6 @@ public class ApiAutomationService {
         ParameterConfig config = new ParameterConfig();
         config.setConfig(envConfig);
         HashTree hashTree = request.getTestElement().generateHashTree(config);
-        System.out.println(request.getTestElement().getJmx(hashTree));
         // 调用执行方法
         createScenarioReport(request.getId(), request.getScenarioId(), request.getScenarioName(), ReportTriggerMode.MANUAL.name(), request.getExecuteType(), request.getProjectId(),
                 SessionUtils.getUserId());
@@ -709,7 +708,7 @@ public class ApiAutomationService {
         HashTree jmeterHashTree = generateHashTree(apiScenarios, request, null);
         String jmx = testPlan.getJmx(jmeterHashTree);
 
-        jmx = apiTestService.updateJmxString(jmx,testName,true);
+        jmx = apiTestService.updateJmxString(jmx, testName, true);
 
         //将ThreadGroup的testname改为接口名称
 //        Document doc = DocumentHelper.parseText(jmx);// 获取可续保保单列表报文模板
@@ -868,7 +867,7 @@ public class ApiAutomationService {
         // 生成jmx
         List<ApiScenrioExportJmx> resList = new ArrayList<>();
         apiScenarioWithBLOBs.forEach(item -> {
-            ApiScenrioExportJmx scenrioExportJmx = new ApiScenrioExportJmx(item.getName(), generateJmx(item));
+            ApiScenrioExportJmx scenrioExportJmx = new ApiScenrioExportJmx(item.getName(), apiTestService.updateJmxString(generateJmx(item), item.getName(), true));
             resList.add(scenrioExportJmx);
         });
         return resList;

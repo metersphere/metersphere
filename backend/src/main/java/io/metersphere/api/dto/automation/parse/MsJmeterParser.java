@@ -88,7 +88,7 @@ public class MsJmeterParser extends ScenarioImportAbstractParser {
             preInitPool(request.getProjectId(), testPlan);
 
             MsScenario scenario = new MsScenario();
-            scenario.setReferenced("REF");
+            scenario.setReferenced("IMPORT");
             jmterHashTree(testPlan, scenario);
             this.projectId = request.getProjectId();
             ScenarioImport scenarioImport = new ScenarioImport();

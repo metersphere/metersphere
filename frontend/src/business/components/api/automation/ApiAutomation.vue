@@ -9,6 +9,7 @@
         @setNodeTree="setNodeTree"
         @enableTrash="enableTrash"
         @exportAPI="exportAPI"
+        @exportJmx="exportJmx"
         @refreshAll="refreshAll"
         :type="'edit'"
         ref="nodeTree"/>
@@ -69,7 +70,6 @@
   import MsApiScenarioModule from "@/business/components/api/automation/scenario/ApiScenarioModule";
   import MsEditApiScenario from "./scenario/EditApiScenario";
   import {getCurrentProjectID} from "../../../../common/js/utils";
-  import {PROJECT_NAME} from "../../../../common/js/constants";
 
   export default {
     name: "ApiAutomation",
@@ -132,6 +132,9 @@
     methods: {
       exportAPI() {
         this.$refs.apiScenarioList.exportApi();
+      },
+      exportJmx(){
+        this.$refs.apiScenarioList.exportJmx();
       },
       checkRedirectEditPage(redirectParam) {
         if (redirectParam != null) {
