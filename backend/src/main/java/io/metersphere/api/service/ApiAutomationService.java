@@ -62,6 +62,8 @@ public class ApiAutomationService {
     @Resource
     private ApiScenarioMapper apiScenarioMapper;
     @Resource
+    private APITestService apiTestService;
+    @Resource
     private ExtApiScenarioMapper extApiScenarioMapper;
     @Resource
     private TestPlanApiScenarioMapper testPlanApiScenarioMapper;
@@ -680,14 +682,17 @@ public class ApiAutomationService {
 
         HashTree jmeterHashTree = generateHashTree(apiScenarios, request, null);
         String jmx = testPlan.getJmx(jmeterHashTree);
+
+        jmx = apiTestService.updateJmxString(jmx,testName,false);
+
         //将ThreadGroup的testname改为接口名称
-        Document doc = DocumentHelper.parseText(jmx);// 获取可续保保单列表报文模板
-        Element root = doc.getRootElement();
-        Element rootHashTreeElement = root.element("hashTree");
-        Element innerHashTreeElement = rootHashTreeElement.elements("hashTree").get(0);
-        Element theadGroupElement = innerHashTreeElement.elements("ThreadGroup").get(0);
-        theadGroupElement.attribute("testname").setText(testName);
-        jmx = root.asXML();
+//        Document doc = DocumentHelper.parseText(jmx);// 获取可续保保单列表报文模板
+//        Element root = doc.getRootElement();
+//        Element rootHashTreeElement = root.element("hashTree");
+//        Element innerHashTreeElement = rootHashTreeElement.elements("hashTree").get(0);
+//        Element theadGroupElement = innerHashTreeElement.elements("ThreadGroup").get(0);
+//        theadGroupElement.attribute("testname").setText(testName);
+//        jmx = root.asXML();
 
         String name = request.getName() + ".jmx";
 
