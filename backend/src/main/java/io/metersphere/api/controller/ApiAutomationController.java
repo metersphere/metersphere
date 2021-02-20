@@ -160,5 +160,11 @@ public class ApiAutomationController {
         return apiAutomationService.export(request);
     }
 
+    @PostMapping(value = "/export/jmx")
+    @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
+    public List<ApiScenrioExportJmx> exportJmx(@RequestBody ApiScenarioBatchRequest request) {
+        return apiAutomationService.exportJmx(request);
+    }
+
 }
 
