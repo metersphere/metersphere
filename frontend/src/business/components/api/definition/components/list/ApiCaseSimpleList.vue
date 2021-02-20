@@ -163,13 +163,14 @@ import MsTableHeaderSelectPopover from "@/business/components/common/components/
 import MsTableAdvSearchBar from "@/business/components/common/components/search/MsTableAdvSearchBar";
 import {API_CASE_CONFIGS} from "@/business/components/common/components/search/search-components";
 import {_filter, _handleSelect, _handleSelectAll, _sort,} from "@/common/js/tableUtils";
-import {API_CASE_LIST, TEST_CASE_LIST} from "@/common/js/constants";
-import {Api_Case_List, Track_Test_Case} from "@/business/components/common/model/JsonData";
+import {API_CASE_LIST, API_LIST, API_SCENARIO_LIST, TEST_CASE_LIST} from "@/common/js/constants";
+import {Api_Case_List, Api_List, Track_Test_Case} from "@/business/components/common/model/JsonData";
 import HeaderCustom from "@/business/components/common/head/HeaderCustom";
 
 export default {
   name: "ApiCaseSimpleList",
   components: {
+    ApiListContainerWithDoc,
     HeaderCustom,
     MsTableHeaderSelectPopover,
     MsSetEnvironment,
@@ -181,28 +182,19 @@ export default {
     MsTablePagination,
     MsTag,
     MsApiCaseList,
-    name: "ApiCaseSimpleList",
-    components: {
-      MsTableHeaderSelectPopover,
-      MsSetEnvironment,
-      ApiCaseList,
-      PriorityTableItem,
-      ApiListContainerWithDoc,
-      MsTableOperatorButton,
-      MsTableOperator,
-      MsTablePagination,
-      MsTag,
-      MsApiCaseList,
-      MsContainer,
-      MsBottomContainer,
-      ShowMoreBtn,
-      MsBatchEdit,
-      MsApiCaseTableExtendBtns,
+    MsContainer,
+    MsBottomContainer,
+    ShowMoreBtn,
+    MsBatchEdit,
+    MsApiCaseTableExtendBtns,
       MsReferenceView,
       MsTableAdvSearchBar
     },
     data() {
       return {
+        type: API_CASE_LIST,
+        headerItems: Api_Case_List,
+        tableLabel: Api_Case_List,
         condition: {
           components: API_CASE_CONFIGS
         },
@@ -636,7 +628,6 @@ export default {
         });
       },
     },
-  },
 }
 </script>
 

@@ -93,14 +93,16 @@ public class MsDubboSampler extends MsTestElement {
         Constants.setInterfaceName(this.get_interface(), sampler);
         Constants.setMethod(this.getMethod(), sampler);
 
-        List<MethodArgument> methodArgs = this.getArgs().stream().filter(KeyValue::isValid).filter(KeyValue::isEnable)
-                .map(keyValue -> new MethodArgument(keyValue.getName(), keyValue.getValue())).collect(Collectors.toList());
-        Constants.setMethodArgs(methodArgs, sampler);
-
-        List<MethodArgument> attachmentArgs = this.getAttachmentArgs().stream().filter(KeyValue::isValid).filter(KeyValue::isEnable)
-                .map(keyValue -> new MethodArgument(keyValue.getName(), keyValue.getValue())).collect(Collectors.toList());
-        Constants.setAttachmentArgs(attachmentArgs, sampler);
-
+        if (CollectionUtils.isNotEmpty(this.getArgs())) {
+            List<MethodArgument> methodArgs = this.getArgs().stream().filter(KeyValue::isValid).filter(KeyValue::isEnable)
+                    .map(keyValue -> new MethodArgument(keyValue.getName(), keyValue.getValue())).collect(Collectors.toList());
+            Constants.setMethodArgs(methodArgs, sampler);
+        }
+        if (CollectionUtils.isNotEmpty(this.getAttachmentArgs())) {
+            List<MethodArgument> attachmentArgs = this.getAttachmentArgs().stream().filter(KeyValue::isValid).filter(KeyValue::isEnable)
+                    .map(keyValue -> new MethodArgument(keyValue.getName(), keyValue.getValue())).collect(Collectors.toList());
+            Constants.setAttachmentArgs(attachmentArgs, sampler);
+        }
         return sampler;
     }
 

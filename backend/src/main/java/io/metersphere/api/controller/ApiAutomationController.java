@@ -5,15 +5,12 @@ import com.github.pagehelper.PageHelper;
 import io.metersphere.api.dto.ApiTestImportRequest;
 import io.metersphere.api.dto.JmxInfoDTO;
 import io.metersphere.api.dto.automation.*;
-import io.metersphere.api.dto.definition.ApiBatchRequest;
-import io.metersphere.api.dto.definition.ApiExportResult;
+import io.metersphere.api.dto.automation.parse.ScenarioImport;
 import io.metersphere.api.dto.definition.RunDefinitionRequest;
-import io.metersphere.api.dto.definition.parse.ApiDefinitionImport;
 import io.metersphere.api.service.ApiAutomationService;
 import io.metersphere.base.domain.ApiScenario;
 import io.metersphere.base.domain.ApiScenarioWithBLOBs;
 import io.metersphere.base.domain.Schedule;
-import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
@@ -45,6 +42,13 @@ public class ApiAutomationController {
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         request.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
         return PageUtils.setPageInfo(page, apiAutomationService.list(request));
+    }
+
+    @PostMapping("/list/all")
+    @RequiresRoles(value = {RoleConstants.TEST_MANAGER, RoleConstants.TEST_USER, RoleConstants.TEST_VIEWER}, logical = Logical.OR)
+    public List<ApiScenarioWithBLOBs> list(@RequestBody ApiScenarioRequest request) {
+        request.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
+        return apiAutomationService.get(request);
     }
 
     @PostMapping(value = "/create")
@@ -153,7 +157,7 @@ public class ApiAutomationController {
 
     @PostMapping(value = "/import", consumes = {"multipart/form-data"})
     @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
-    public ApiDefinitionImport testCaseImport(@RequestPart(value = "file", required = false) MultipartFile file, @RequestPart("request") ApiTestImportRequest request) {
+    public ScenarioImport scenarioImport(@RequestPart(value = "file", required = false) MultipartFile file, @RequestPart("request") ApiTestImportRequest request) {
         return apiAutomationService.scenarioImport(file, request);
     }
 

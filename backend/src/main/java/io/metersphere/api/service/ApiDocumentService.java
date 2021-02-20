@@ -35,6 +35,7 @@ public class ApiDocumentService {
 
     public ApiDocumentInfoDTO conversionModelToDTO(ApiDefinitionWithBLOBs apiModel) {
         ApiDocumentInfoDTO apiInfoDTO = new ApiDocumentInfoDTO();
+        JSONObject previewObj = new JSONObject();
         if (apiModel != null) {
             apiInfoDTO.setId(apiModel.getId());
             apiInfoDTO.setName(apiModel.getName());
@@ -43,7 +44,6 @@ public class ApiDocumentService {
             apiInfoDTO.setStatus(apiModel.getStatus());
 
             JSONObject requestJsonObj = JSONObject.parseObject(apiModel.getRequest());
-
             //head赋值
             if (requestJsonObj.containsKey("headers")) {
                 JSONArray requestHeadDataArr = new JSONArray();
@@ -55,9 +55,8 @@ public class ApiDocumentService {
                         requestHeadDataArr.add(headObj);
                     }
                 }
-            apiInfoDTO.setRequestHead(requestHeadDataArr.toJSONString());
+                apiInfoDTO.setRequestHead(requestHeadDataArr.toJSONString());
             }
-
             //url参数赋值
             JSONArray urlParamArr = new JSONArray();
             if (requestJsonObj.containsKey("arguments")) {
@@ -81,17 +80,43 @@ public class ApiDocumentService {
                 }
             }
             apiInfoDTO.setUrlParams(urlParamArr.toJSONString());
-
             //请求体参数类型
             if (requestJsonObj.containsKey("body")) {
                 JSONObject bodyObj = requestJsonObj.getJSONObject("body");
                 if (bodyObj.containsKey("type")) {
                     String type = bodyObj.getString("type");
-                    apiInfoDTO.setRequestBodyParamType(type);
-                    if (StringUtils.equalsAny(type, "JSON", "XML", "Raw")) {
+                    if(StringUtils.equals(type,"WWW_FORM")){
+                        apiInfoDTO.setRequestBodyParamType("x-www-from-urlencoded");
+                    }else if(StringUtils.equals(type,"Form Data")) {
+                        apiInfoDTO.setRequestBodyParamType("form-data");
+                    }else {
+                        apiInfoDTO.setRequestBodyParamType(type);
+                    }
+
+                    if (StringUtils.equals(type, "JSON")) {
+                        //判断是否是JsonSchema
+                        boolean isJsonSchema = false;
+                        if(bodyObj.containsKey("format")){
+                            String foramtValue = String.valueOf(bodyObj.get("format"));
+                            if(StringUtils.equals("JSON-SCHEMA",foramtValue)){
+                                isJsonSchema = true;
+                            }
+                        }
+                        if(isJsonSchema){
+                            apiInfoDTO.setRequestBodyParamType("JSON-SCHEMA");
+                            apiInfoDTO.setJsonSchemaBody(bodyObj);
+                        }else {
+                            if (bodyObj.containsKey("raw")) {
+                                String raw = bodyObj.getString("raw");
+                                apiInfoDTO.setRequestBodyStrutureData(raw);
+                                previewObj = JSONObject.parseObject(raw);
+                            }
+                        }
+                    } else if (StringUtils.equalsAny(type, "XML", "Raw")) {
                         if (bodyObj.containsKey("raw")) {
                             String raw = bodyObj.getString("raw");
                             apiInfoDTO.setRequestBodyStrutureData(raw);
+                            previewObj = JSONObject.parseObject(raw);
                         }
                     } else if (StringUtils.equalsAny(type, "Form Data", "WWW_FORM")) {
                         if (bodyObj.containsKey("kvs")) {
@@ -99,8 +124,9 @@ public class ApiDocumentService {
                             JSONArray kvsArr = bodyObj.getJSONArray("kvs");
                             for (int i = 0; i < kvsArr.size(); i++) {
                                 JSONObject kv = kvsArr.getJSONObject(i);
-                                if (kv.containsKey("name")) {
+                                if (kv.containsKey("name")&&kv.containsKey("value")) {
                                     bodyParamArr.add(kv);
+                                    previewObj.put(String.valueOf(kv.get("name")),String.valueOf(kv.get("value")));
                                 }
                             }
                             apiInfoDTO.setRequestBodyFormData(bodyParamArr.toJSONString());
@@ -108,12 +134,11 @@ public class ApiDocumentService {
                     } else if (StringUtils.equals(type, "BINARY")) {
                         if (bodyObj.containsKey("binary")) {
                             List<Map<String, String>> bodyParamList = new ArrayList<>();
-                            JSONArray kvsArr = bodyObj.getJSONArray("kvs");
+                            JSONArray kvsArr = bodyObj.getJSONArray("binary");
                             for (int i = 0; i < kvsArr.size(); i++) {
                                 JSONObject kv = kvsArr.getJSONObject(i);
                                 if (kv.containsKey("description") && kv.containsKey("files")) {
                                     Map<String, String> bodyMap = new HashMap<>();
-
                                     String name = kv.getString("description");
                                     JSONArray fileArr = kv.getJSONArray("files");
                                     String value = "";
@@ -123,11 +148,12 @@ public class ApiDocumentService {
                                             value += fileObj.getString("name") + " ;";
                                         }
                                     }
-
                                     bodyMap.put("name", name);
                                     bodyMap.put("value", value);
-
+                                    bodyMap.put("contentType", "File");
                                     bodyParamList.add(bodyMap);
+
+                                    previewObj.put(String.valueOf(name),String.valueOf(value));
                                 }
                             }
                             apiInfoDTO.setRequestBodyFormData(JSONArray.toJSONString(bodyParamList));
@@ -135,7 +161,6 @@ public class ApiDocumentService {
                     }
                 }
             }
-
             JSONObject responseJsonObj = JSONObject.parseObject(apiModel.getResponse());
             //赋值响应头
             if (responseJsonObj.containsKey("headers")) {
@@ -149,13 +174,18 @@ public class ApiDocumentService {
                 }
                 apiInfoDTO.setResponseHead(responseHeadDataArr.toJSONString());
             }
-
             // 赋值响应体
             if (responseJsonObj.containsKey("body")) {
                 JSONObject bodyObj = responseJsonObj.getJSONObject("body");
                 if (bodyObj.containsKey("type")) {
                     String type = bodyObj.getString("type");
-                    apiInfoDTO.setResponseBodyParamType(type);
+                    if(StringUtils.equals(type,"WWW_FORM")){
+                        apiInfoDTO.setResponseBodyParamType("x-www-from-urlencoded");
+                    }else if(StringUtils.equals(type,"Form Data")) {
+                        apiInfoDTO.setResponseBodyParamType("form-data");
+                    }else {
+                        apiInfoDTO.setResponseBodyParamType(type);
+                    }
                     if (StringUtils.equalsAny(type, "JSON", "XML", "Raw")) {
                         if (bodyObj.containsKey("raw")) {
                             String raw = bodyObj.getString("raw");
@@ -191,10 +221,8 @@ public class ApiDocumentService {
                                             value += fileObj.getString("name") + " ;";
                                         }
                                     }
-
                                     bodyMap.put("name", name);
                                     bodyMap.put("value", value);
-
                                     bodyParamList.add(bodyMap);
                                 }
                             }
@@ -203,7 +231,6 @@ public class ApiDocumentService {
                     }
                 }
             }
-
             // 赋值响应码
             if (responseJsonObj.containsKey("statusCode")) {
                 JSONArray responseStatusDataArr = new JSONArray();
@@ -217,6 +244,7 @@ public class ApiDocumentService {
                 apiInfoDTO.setResponseCode(responseStatusDataArr.toJSONString());
             }
         }
+        apiInfoDTO.setRequestPreviewData(previewObj);
         return apiInfoDTO;
     }
 }

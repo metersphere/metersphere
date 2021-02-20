@@ -1,5 +1,5 @@
 <template>
-  <ms-container v-if="renderComponent">
+  <ms-container v-if="renderComponent" v-loading="loading">
     <ms-aside-container>
       <ms-api-scenario-module
         @nodeSelectEvent="nodeChange"
@@ -9,6 +9,7 @@
         @setNodeTree="setNodeTree"
         @enableTrash="enableTrash"
         @exportAPI="exportAPI"
+        @refreshAll="refreshAll"
         :type="'edit'"
         ref="nodeTree"/>
     </ms-aside-container>
@@ -64,10 +65,11 @@
   import MsAsideContainer from "@/business/components/common/components/MsAsideContainer";
   import MsMainContainer from "@/business/components/common/components/MsMainContainer";
   import MsApiScenarioList from "@/business/components/api/automation/scenario/ApiScenarioList";
-  import {getUUID} from "@/common/js/utils";
+  import {getUUID, downloadFile} from "@/common/js/utils";
   import MsApiScenarioModule from "@/business/components/api/automation/scenario/ApiScenarioModule";
   import MsEditApiScenario from "./scenario/EditApiScenario";
   import {getCurrentProjectID} from "../../../../common/js/utils";
+  import {PROJECT_NAME} from "../../../../common/js/constants";
 
   export default {
     name: "ApiAutomation",
@@ -102,6 +104,7 @@
         currentModule: null,
         moduleOptions: [],
         tabs: [],
+        loading: false,
         trashEnable: false,
         selectNodeIds: [],
         nodeTree: []
@@ -127,6 +130,27 @@
       }
     },
     methods: {
+      exportAPI() {
+        let obj = {projectName: localStorage.getItem(PROJECT_NAME)}
+        let condition = {projectId: getCurrentProjectID(), ids: this.$refs.apiScenarioList.selection};
+        let url = "/api/automation/list/all";
+        this.loading = true;
+        this.$post(url, condition, response => {
+          obj.data = response.data;
+          this.buildApiPath(obj.data);
+          this.loading = false;
+          downloadFile("Metersphere_Scenario_" + localStorage.getItem(PROJECT_NAME) + ".json", JSON.stringify(obj));
+        });
+      },
+      buildApiPath(apis) {
+        apis.forEach((api) => {
+          this.moduleOptions.forEach(item => {
+            if (api.moduleId === item.id) {
+              api.modulePath = item.path;
+            }
+          });
+        });
+      },
       checkRedirectEditPage(redirectParam) {
         if (redirectParam != null) {
           let selectParamArr = redirectParam.split("edit:");
@@ -152,13 +176,13 @@
       },
       changeRedirectParam(redirectIDParam) {
         this.redirectID = redirectIDParam;
-        if(redirectIDParam!=null){
-          if(this.redirectFlag == "none"){
+        if (redirectIDParam != null) {
+          if (this.redirectFlag == "none") {
             this.activeName = "default";
             this.addListener();
             this.redirectFlag = "redirected";
           }
-        }else{
+        } else {
           this.redirectFlag = "none";
         }
       },
@@ -189,8 +213,8 @@
       },
       addListener() {
         let index = this.tabs.findIndex(item => item.name === this.activeName); //  找到当前选中tab的index
-        if(index != -1) {   //  为当前选中的tab添加监听
-          this.$nextTick(()=>{
+        if (index != -1) {   //  为当前选中的tab添加监听
+          this.$nextTick(() => {
             this.$refs.autoScenarioConfig[index].addListener();
           });
         }
@@ -241,6 +265,10 @@
         this.setTabTitle(data);
         this.$refs.apiScenarioList.search(data);
       },
+      refreshAll() {
+        this.$refs.nodeTree.list();
+        this.$refs.apiScenarioList.search();
+      },
       setTabTitle(data) {
         for (let index in this.tabs) {
           let tab = this.tabs[index];
@@ -268,9 +296,6 @@
       },
       enableTrash(data) {
         this.trashEnable = data;
-      },
-      exportAPI() {
-        this.$refs.apiScenarioList.exportApi();
       }
     }
   }

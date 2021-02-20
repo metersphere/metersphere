@@ -32,6 +32,9 @@ import io.metersphere.track.service.TestCaseService;
 import org.apache.dubbo.common.URL;
 import org.apache.dubbo.common.constants.CommonConstants;
 import org.aspectj.util.FileUtil;
+import org.dom4j.Document;
+import org.dom4j.DocumentHelper;
+import org.dom4j.Element;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -456,5 +459,64 @@ public class APITestService {
         selectIds.forEach(sourceId -> {
             copyBodyFiles(test.getId(), sourceId);
         });
+    }
+
+    public String updateJmxString(String jmxString,String testName,boolean updateHTTPSamplerProxyName) {
+        try {
+            //将ThreadGroup的testname改为接口名称
+            Document doc = DocumentHelper.parseText(jmxString);// 获取可续保保单列表报文模板
+            Element root = doc.getRootElement();
+            Element rootHashTreeElement = root.element("hashTree");
+            Element innerHashTreeElement = rootHashTreeElement.elements("hashTree").get(0);
+            Element theadGroupElement = innerHashTreeElement.elements("ThreadGroup").get(0);
+            theadGroupElement.attribute("testname").setText(testName);
+
+            List<Element> thirdHashTreeElementList = innerHashTreeElement.elements("hashTree");
+            for (Element element : thirdHashTreeElementList) {
+                if(updateHTTPSamplerProxyName){
+                    List<Element> sampleProxyElementList = element.elements("HTTPSamplerProxy");
+                    for (Element itemElement : sampleProxyElementList) {
+                        itemElement.attribute("testname").setText(testName);
+                    }
+                }
+                //检查有没有自定义参数
+                List<Element> scriptHashTreeElementList = element.elements("hashTree");
+                for (Element scriptHashTreeElement : scriptHashTreeElementList) {
+                    boolean isRemove = false;
+                    List<Element> removeElement = new ArrayList<>();
+                    List<Element> scriptElementItemList = scriptHashTreeElement.elements();
+                    for (Element hashTreeItemElement : scriptElementItemList) {
+                        String className = hashTreeItemElement.attributeValue("testclass");
+                        String qname = hashTreeItemElement.getQName().getName();
+
+                        if (isRemove) {
+                            if (org.apache.commons.lang3.StringUtils.equals("hashTree", qname)) {
+                                removeElement.add(hashTreeItemElement);
+                            }
+                        }
+                        isRemove = false;
+                        if (org.apache.commons.lang3.StringUtils.equals(className, "JSR223PostProcessor")) {
+                            List<Element> scriptElements = hashTreeItemElement.elements("stringProp");
+                            for (Element scriptElement : scriptElements) {
+                                String scriptName = scriptElement.attributeValue("name");
+                                String contentValue = scriptElement.getStringValue();
+
+                                if ("script".equals(scriptName) && contentValue.startsWith("io.metersphere.api.jmeter.JMeterVars.addVars")) {
+                                    isRemove = true;
+                                    removeElement.add(hashTreeItemElement);
+                                }
+                            }
+                        }
+                    }
+                    for (Element itemElement : removeElement) {
+                        scriptHashTreeElement.remove(itemElement);
+                    }
+                }
+            }
+            jmxString = root.asXML();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return jmxString;
     }
 }

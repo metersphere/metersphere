@@ -14,6 +14,7 @@ export const ELEMENTS = new Map([
   ['JSR223PostProcessor', []],
   ['Assertions', []],
   ['Extract', []],
+  ['JmeterElement', []],
   ['CustomizeReq', ["ConstantTimer", "JSR223PreProcessor", "JSR223PostProcessor", "Assertions", "Extract"]],
 ])
 

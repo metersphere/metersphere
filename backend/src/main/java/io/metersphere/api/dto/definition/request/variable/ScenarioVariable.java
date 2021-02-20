@@ -40,6 +40,13 @@ public class ScenarioVariable {
     private String minNumber;
     private String maxNumber;
 
+    public ScenarioVariable(String key, String value, String description, String type) {
+        this.name = key;
+        this.value = value;
+        this.description = description;
+        this.type = type;
+    }
+
     public boolean isConstantValid() {
         if (StringUtils.equals(this.type, VariableTypeConstants.CONSTANT.name()) && StringUtils.isNotEmpty(name) && StringUtils.isNotEmpty(value)) {
             return true;

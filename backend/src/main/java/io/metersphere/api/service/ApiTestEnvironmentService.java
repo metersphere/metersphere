@@ -26,6 +26,11 @@ public class ApiTestEnvironmentService {
         return apiTestEnvironmentMapper.selectByExampleWithBLOBs(example);
     }
 
+    public List<ApiTestEnvironmentWithBLOBs> selectByExampleWithBLOBs(ApiTestEnvironmentExample example) {
+        return apiTestEnvironmentMapper.selectByExampleWithBLOBs(example);
+    }
+
+
     public ApiTestEnvironmentWithBLOBs get(String id) {
         return apiTestEnvironmentMapper.selectByPrimaryKey(id);
     }
