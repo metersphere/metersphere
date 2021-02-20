@@ -187,7 +187,7 @@ import {PROJECT_NAME} from "../../../../../common/js/constants";
 import EnvironmentSelect from "../../definition/components/environment/EnvironmentSelect";
 import BatchMove from "../../../track/case/components/BatchMove";
 import {_sort} from "@/common/js/tableUtils";
-import {Api_Scenario_List, Track_Test_Case} from "@/business/components/common/model/JsonData";
+import {Api_Scenario_List} from "@/business/components/common/model/JsonData";
 import HeaderCustom from "@/business/components/common/head/HeaderCustom";
 import {
   _filter,

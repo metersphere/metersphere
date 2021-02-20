@@ -131,25 +131,7 @@
     },
     methods: {
       exportAPI() {
-        let obj = {projectName: localStorage.getItem(PROJECT_NAME)}
-        let condition = {projectId: getCurrentProjectID(), ids: this.$refs.apiScenarioList.selection};
-        let url = "/api/automation/list/all";
-        this.loading = true;
-        this.$post(url, condition, response => {
-          obj.data = response.data;
-          this.buildApiPath(obj.data);
-          this.loading = false;
-          downloadFile("Metersphere_Scenario_" + localStorage.getItem(PROJECT_NAME) + ".json", JSON.stringify(obj));
-        });
-      },
-      buildApiPath(apis) {
-        apis.forEach((api) => {
-          this.moduleOptions.forEach(item => {
-            if (api.moduleId === item.id) {
-              api.modulePath = item.path;
-            }
-          });
-        });
+        this.$refs.apiScenarioList.exportApi();
       },
       checkRedirectEditPage(redirectParam) {
         if (redirectParam != null) {
