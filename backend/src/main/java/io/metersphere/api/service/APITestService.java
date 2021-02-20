@@ -35,6 +35,7 @@ import org.aspectj.util.FileUtil;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
+import org.dom4j.QName;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -524,6 +525,12 @@ public class APITestService {
                         }
                     }
                     itemElement.attribute("testname").setText(testName);
+
+                    //dubbo节点要更新 标签、guiClass 和 testClass
+                    itemElement.setName("io.github.ningyu.jmeter.plugin.dubbo.sample.DubboSample");
+                    itemElement.attribute("testclass").setText("io.github.ningyu.jmeter.plugin.dubbo.sample.DubboSample");
+                    itemElement.attribute("guiclass").setText("io.github.ningyu.jmeter.plugin.dubbo.gui.DubboSampleGui");
+
                 }
 
                 //检查有没有自定义参数
