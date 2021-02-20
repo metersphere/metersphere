@@ -39,7 +39,6 @@ public class ScenarioMsParser extends MsParser {
             });
             msScenario.setHashTree(msHTTPSamplerProxies);
             msScenario.setType("scenario");
-            msScenario.setName("test");
             apiDefinitionImport.setScenarioDefinition(msScenario);
             return apiDefinitionImport;
         }
@@ -60,12 +59,13 @@ public class ScenarioMsParser extends MsParser {
         if (StringUtils.isBlank(scenario.getModulePath())) {
             scenario.setApiScenarioModuleId(null);
         }
-//        parseModule(scenario, importRequest);
+//        parseModule(scenario.getModulePath(), importRequest, scenario::setApiScenarioModuleId);
         scenario.setId(id);
         scenario.setProjectId(this.projectId);
         String scenarioDefinition = scenario.getScenarioDefinition();
         JSONObject scenarioDefinitionObj = JSONObject.parseObject(scenarioDefinition);
         scenarioDefinitionObj.put("id", id);
+        scenarioDefinitionObj.put("name", scenario.getName());
         scenario.setScenarioDefinition(JSONObject.toJSONString(scenarioDefinitionObj));
     }
 }

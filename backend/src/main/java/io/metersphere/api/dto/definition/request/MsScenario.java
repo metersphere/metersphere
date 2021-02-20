@@ -36,8 +36,6 @@ import java.util.stream.Collectors;
 public class MsScenario extends MsTestElement {
 
     private String type = "scenario";
-    @JSONField(ordinal = 20)
-    private String name;
 
     @JSONField(ordinal = 21)
     private String referenced;
@@ -55,6 +53,16 @@ public class MsScenario extends MsTestElement {
     private List<KeyValue> headers;
 
     private static final String BODY_FILE_DIR = "/opt/metersphere/data/body";
+
+    public MsScenario() {
+    }
+
+    public MsScenario(String name) {
+        if (StringUtils.isEmpty(name)) {
+            this.setName("Scenario");
+        }
+        this.setName(name);
+    }
 
     @Override
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, ParameterConfig config) {
@@ -77,7 +85,7 @@ public class MsScenario extends MsTestElement {
             }
         }
 
-        config.setStep(this.name);
+        config.setStep(this.getName());
         config.setStepType("SCENARIO");
         config.setEnableCookieShare(enableCookieShare);
         if (StringUtils.isNotEmpty(environmentId)) {
@@ -131,7 +139,7 @@ public class MsScenario extends MsTestElement {
     private Arguments arguments(ParameterConfig config) {
         Arguments arguments = new Arguments();
         arguments.setEnabled(true);
-        arguments.setName(name + "Variables");
+        arguments.setName(this.getName() + "Variables");
         arguments.setProperty(TestElement.TEST_CLASS, Arguments.class.getName());
         arguments.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("ArgumentsPanel"));
         if (CollectionUtils.isNotEmpty(this.getVariables())) {

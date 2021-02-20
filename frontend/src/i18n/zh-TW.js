@@ -881,6 +881,8 @@ export default {
       swagger_tip: "支持 Swagger 2.0 與 3.0 版本的 json 文件",
       post_export_tip: "通過 Postman 導出測試集合",
       swagger_export_tip: "通過 Swagger 頁面導出",
+      jmeter_export_tip: "通過 Jmeter 生成JMX文件",
+      jmeter_tip: "支持 Jmeter 5.2版本的JMX 文件",
       suffixFormatErr: "文件格式不符合要求",
       swagger_url_import: "使用URL導入",
       timing_synchronization: "定時同步",

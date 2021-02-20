@@ -16,10 +16,11 @@
   import MsApiComponent from "./ApiComponent";
   import MsLoopController from "./LoopController";
   import MsApiScenarioComponent from "./ApiScenarioComponent";
+  import JmeterElementComponent from "./JmeterElementComponent";
 
   export default {
     name: "ComponentConfig",
-    components: {MsConstantTimer, MsIfController, MsJsr233Processor, MsApiAssertions, MsApiExtract, MsApiComponent, MsLoopController, MsApiScenarioComponent},
+    components: {MsConstantTimer, MsIfController, MsJsr233Processor, MsApiAssertions, MsApiExtract, MsApiComponent, MsLoopController, MsApiScenarioComponent, JmeterElementComponent},
     props: {
       type: String,
       scenario: {},
@@ -70,6 +71,9 @@
             name = "MsApiScenarioComponent";
             break;
           case "AuthManager":
+            break;
+          case "JmeterElement":
+            name = "JmeterElementComponent";
             break;
           default:
             name = "MsApiComponent";

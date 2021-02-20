@@ -879,6 +879,8 @@ export default {
       postman_tip: "Only Postman Collection V2.1 json files are supported",
       postman_export_tip: "Export the test collection by Postman",
       swagger_export_tip: "Export jSON-formatted files via Swagger website",
+      jmeter_export_tip: "Generating JMX file through JMeter",
+      jmeter_tip: "JMX files supporting JMeter 5.2",
       suffixFormatErr: "The file format does not meet the requirements",
       swagger_url_import: "Import using URL",
       timing_synchronization: "Timing synchronization",
