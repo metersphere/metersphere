@@ -473,12 +473,37 @@ public class APITestService {
 
             List<Element> thirdHashTreeElementList = innerHashTreeElement.elements("hashTree");
             for (Element element : thirdHashTreeElementList) {
-                if(updateHTTPSamplerProxyName){
-                    List<Element> sampleProxyElementList = element.elements("HTTPSamplerProxy");
-                    for (Element itemElement : sampleProxyElementList) {
+                List<Element> sampleProxyElementList = element.elements("HTTPSamplerProxy");
+                for (Element itemElement : sampleProxyElementList) {
+                    if(updateHTTPSamplerProxyName){
                         itemElement.attribute("testname").setText(testName);
                     }
                 }
+                List<Element> tcpSamplerList = element.elements("TCPSampler");
+                for (Element itemElement : tcpSamplerList) {
+                    if(updateHTTPSamplerProxyName){
+                        itemElement.attribute("testname").setText(testName);
+                    }
+                }
+                List<Element> jdbcSamplerList = element.elements("JDBCSampler");
+                for (Element itemElement : jdbcSamplerList) {
+                    if(updateHTTPSamplerProxyName){
+                        itemElement.attribute("testname").setText(testName);
+                    }
+                }
+                List<Element> dubboSampleList = element.elements("DubboSample");
+                for (Element itemElement : dubboSampleList) {
+                    if(updateHTTPSamplerProxyName){
+                        itemElement.attribute("testname").setText(testName);
+                    }
+
+                    //dubbo节点要更新 标签、guiClass 和 testClass
+                    itemElement.setName("io.github.ningyu.jmeter.plugin.dubbo.sample.DubboSample");
+                    itemElement.attribute("testclass").setText("io.github.ningyu.jmeter.plugin.dubbo.sample.DubboSample");
+                    itemElement.attribute("guiclass").setText("io.github.ningyu.jmeter.plugin.dubbo.gui.DubboSampleGui");
+
+                }
+
                 //检查有没有自定义参数
                 List<Element> scriptHashTreeElementList = element.elements("hashTree");
                 for (Element scriptHashTreeElement : scriptHashTreeElementList) {
