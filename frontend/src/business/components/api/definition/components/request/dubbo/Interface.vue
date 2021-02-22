@@ -117,7 +117,7 @@
 
 <style scoped>
   .get-provider {
-    margin-bottom: 22px;
+    margin: 5px 5px 10px;
   }
 
   .select-100 {

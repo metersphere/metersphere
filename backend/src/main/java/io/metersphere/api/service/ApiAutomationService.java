@@ -435,6 +435,47 @@ public class ApiAutomationService {
         return jmeterHashTree;
     }
 
+    private String generateJmx(ApiScenarioWithBLOBs apiScenario) {
+        HashTree jmeterHashTree = new ListedHashTree();
+        MsTestPlan testPlan = new MsTestPlan();
+        testPlan.setHashTree(new LinkedList<>());
+        try {
+            MsThreadGroup group = new MsThreadGroup();
+            group.setLabel(apiScenario.getName());
+            group.setName(apiScenario.getName());
+
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+            JSONObject element = JSON.parseObject(apiScenario.getScenarioDefinition());
+            MsScenario scenario = JSONObject.parseObject(apiScenario.getScenarioDefinition(), MsScenario.class);
+
+            // 多态JSON普通转换会丢失内容，需要通过 ObjectMapper 获取
+            if (element != null && StringUtils.isNotEmpty(element.getString("hashTree"))) {
+                LinkedList<MsTestElement> elements = mapper.readValue(element.getString("hashTree"),
+                        new TypeReference<LinkedList<MsTestElement>>() {
+                        });
+                scenario.setHashTree(elements);
+            }
+            if (StringUtils.isNotEmpty(element.getString("variables"))) {
+                LinkedList<ScenarioVariable> variables = mapper.readValue(element.getString("variables"),
+                        new TypeReference<LinkedList<ScenarioVariable>>() {
+                        });
+                scenario.setVariables(variables);
+            }
+            group.setEnableCookieShare(scenario.isEnableCookieShare());
+            group.setHashTree(new LinkedList<MsTestElement>() {{
+                this.add(scenario);
+            }});
+
+            testPlan.getHashTree().add(group);
+        } catch (Exception ex) {
+            MSException.throwException(ex.getMessage());
+        }
+
+        testPlan.toHashTree(jmeterHashTree, testPlan.getHashTree(), new ParameterConfig());
+        return testPlan.getJmx(jmeterHashTree);
+    }
+
     /**
      * 场景测试执行
      *
@@ -515,7 +556,6 @@ public class ApiAutomationService {
         ParameterConfig config = new ParameterConfig();
         config.setConfig(envConfig);
         HashTree hashTree = request.getTestElement().generateHashTree(config);
-        System.out.println(request.getTestElement().getJmx(hashTree));
         // 调用执行方法
         createScenarioReport(request.getId(), request.getScenarioId(), request.getScenarioName(), ReportTriggerMode.MANUAL.name(), request.getExecuteType(), request.getProjectId(),
                 SessionUtils.getUserId());
@@ -668,7 +708,7 @@ public class ApiAutomationService {
         HashTree jmeterHashTree = generateHashTree(apiScenarios, request, null);
         String jmx = testPlan.getJmx(jmeterHashTree);
 
-        jmx = apiTestService.updateJmxString(jmx,testName,false);
+        jmx = apiTestService.updateJmxString(jmx, testName, true);
 
         //将ThreadGroup的testname改为接口名称
 //        Document doc = DocumentHelper.parseText(jmx);// 获取可续保保单列表报文模板
@@ -807,16 +847,32 @@ public class ApiAutomationService {
         return apiImport;
     }
 
-    public ApiScenrioExportResult export(ApiScenarioBatchRequest request) {
+    private List<ApiScenarioWithBLOBs> getExportResult(ApiScenarioBatchRequest request) {
         ServiceUtils.getSelectAllIds(request, request.getCondition(),
                 (query) -> extApiScenarioMapper.selectIdsByQuery((ApiScenarioRequest) query));
         ApiScenarioExample example = new ApiScenarioExample();
         example.createCriteria().andIdIn(request.getIds());
         List<ApiScenarioWithBLOBs> apiScenarioWithBLOBs = apiScenarioMapper.selectByExampleWithBLOBs(example);
-        ApiScenrioExportResult result =  new ApiScenrioExportResult();
-        result.setData(apiScenarioWithBLOBs);
+        return apiScenarioWithBLOBs;
+    }
+
+    public ApiScenrioExportResult export(ApiScenarioBatchRequest request) {
+        ApiScenrioExportResult result = new ApiScenrioExportResult();
+        result.setData(getExportResult(request));
         result.setProjectId(request.getProjectId());
         result.setVersion(System.getenv("MS_VERSION"));
         return result;
     }
+
+    public List<ApiScenrioExportJmx> exportJmx(ApiScenarioBatchRequest request) {
+        List<ApiScenarioWithBLOBs> apiScenarioWithBLOBs = getExportResult(request);
+        // 生成jmx
+        List<ApiScenrioExportJmx> resList = new ArrayList<>();
+        apiScenarioWithBLOBs.forEach(item -> {
+            ApiScenrioExportJmx scenrioExportJmx = new ApiScenrioExportJmx(item.getName(), apiTestService.updateJmxString(generateJmx(item), item.getName(), true));
+            resList.add(scenrioExportJmx);
+        });
+        return resList;
+    }
+
 }

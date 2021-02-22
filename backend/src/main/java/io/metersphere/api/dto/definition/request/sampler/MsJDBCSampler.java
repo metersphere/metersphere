@@ -95,17 +95,18 @@ public class MsJDBCSampler extends MsTestElement {
     }
 
     private Arguments arguments(String name, List<KeyValue> variables) {
-        Arguments arguments = new Arguments();
         if (CollectionUtils.isNotEmpty(variables)) {
+            Arguments arguments = new Arguments();
             arguments.setEnabled(true);
-            arguments.setName(name);
+            arguments.setName(name + "JDBC_Argument");
             arguments.setProperty(TestElement.TEST_CLASS, Arguments.class.getName());
             arguments.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("ArgumentsPanel"));
             variables.stream().filter(KeyValue::isValid).filter(KeyValue::isEnable).forEach(keyValue ->
                     arguments.addArgument(keyValue.getName(), keyValue.getValue(), "=")
             );
+            return arguments;
         }
-        return arguments;
+        return null;
     }
 
     private JDBCSampler jdbcSampler(ParameterConfig config) {

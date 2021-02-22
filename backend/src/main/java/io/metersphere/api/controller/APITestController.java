@@ -10,16 +10,11 @@ import io.metersphere.api.dto.datacount.response.ApiDataCountDTO;
 import io.metersphere.api.dto.datacount.response.ExecutedCaseInfoDTO;
 import io.metersphere.api.dto.datacount.response.TaskInfoResult;
 import io.metersphere.api.dto.definition.RunDefinitionRequest;
-import io.metersphere.api.dto.definition.request.MsTestElement;
 import io.metersphere.api.dto.scenario.request.dubbo.RegistryCenter;
 import io.metersphere.api.service.*;
-import io.metersphere.base.domain.ApiDefinition;
 import io.metersphere.base.domain.ApiTest;
-import io.metersphere.base.domain.LoadTest;
 import io.metersphere.base.domain.Schedule;
-import io.metersphere.commons.constants.PerformanceTestStatus;
 import io.metersphere.commons.constants.RoleConstants;
-import io.metersphere.commons.constants.ScheduleGroup;
 import io.metersphere.commons.utils.CronUtils;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
@@ -28,24 +23,14 @@ import io.metersphere.controller.request.QueryScheduleRequest;
 import io.metersphere.dto.ScheduleDao;
 import io.metersphere.performance.service.PerformanceTestService;
 import io.metersphere.service.CheckPermissionService;
-import io.metersphere.service.FileService;
 import io.metersphere.service.ScheduleService;
-import io.metersphere.track.request.testplan.SaveTestPlanRequest;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.http.entity.ContentType;
 import org.apache.jorphan.collections.HashTree;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
-import org.dom4j.Document;
-import org.dom4j.DocumentException;
-import org.dom4j.DocumentHelper;
-import org.dom4j.Element;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
-import java.io.ByteArrayInputStream;
-import java.io.InputStream;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -393,7 +378,7 @@ public class APITestController {
         String testName = runRequest.getName();
 
         //将jmx处理封装为通用方法
-        jmxString = apiTestService.updateJmxString(jmxString,testName,true);
+        jmxString = apiTestService.updateJmxString(jmxString,testName,false);
 
         JmxInfoDTO dto = new JmxInfoDTO();
         dto.setName(runRequest.getName() + ".jmx");
