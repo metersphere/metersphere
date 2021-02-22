@@ -66,9 +66,6 @@ public class MsScenario extends MsTestElement {
 
     @Override
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, ParameterConfig config) {
-        if (!this.isEnable()) {
-            return;
-        }
         if (this.getReferenced() != null && this.getReferenced().equals("Deleted")) {
             return;
         } else if (this.getReferenced() != null && this.getReferenced().equals("REF")) {
@@ -103,15 +100,15 @@ public class MsScenario extends MsTestElement {
         this.addCsvDataSet(tree, variables);
         this.addCounter(tree, variables);
         this.addRandom(tree, variables);
+        if (CollectionUtils.isNotEmpty(this.headers)) {
+            setHeader(tree, this.headers);
+        }
         if (CollectionUtils.isNotEmpty(hashTree)) {
             for (MsTestElement el : hashTree) {
                 // 给所有孩子加一个父亲标志
                 el.setParent(this);
                 el.toHashTree(tree, el.getHashTree(), config);
             }
-        }
-        if (CollectionUtils.isNotEmpty(this.headers)) {
-            setHeader(tree, this.headers);
         }
     }
 

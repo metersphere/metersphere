@@ -10,7 +10,6 @@ import io.metersphere.api.dto.automation.ImportPoolsDTO;
 import io.metersphere.api.dto.definition.request.MsScenario;
 import io.metersphere.api.dto.definition.request.MsTestElement;
 import io.metersphere.api.dto.definition.request.assertions.*;
-import io.metersphere.api.dto.definition.request.controller.MsIfController;
 import io.metersphere.api.dto.definition.request.controller.MsLoopController;
 import io.metersphere.api.dto.definition.request.controller.loop.CountController;
 import io.metersphere.api.dto.definition.request.controller.loop.MsForEachController;
@@ -51,7 +50,6 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.jmeter.assertions.*;
 import org.apache.jmeter.config.ConfigTestElement;
 import org.apache.jmeter.control.ForeachController;
-import org.apache.jmeter.control.IfController;
 import org.apache.jmeter.control.LoopController;
 import org.apache.jmeter.control.WhileController;
 import org.apache.jmeter.extractor.JSR223PostProcessor;
@@ -568,12 +566,12 @@ public class MsJmeterParser extends ScenarioImportAbstractParser {
                 BeanUtils.copyBean(elementNode, key);
                 elementNode.setType("ConstantTimer");
             }
-            // IF条件控制器
-            else if (key instanceof IfController) {
-                elementNode = new MsIfController();
-                BeanUtils.copyBean(elementNode, key);
-                elementNode.setType("IfController");
-            }
+            // IF条件控制器，这里平台方式和jmeter 不同，暂时不处理
+//            else if (key instanceof IfController) {
+//                elementNode = new MsIfController();
+//                BeanUtils.copyBean(elementNode, key);
+//                elementNode.setType("IfController");
+//            }
             // 次数循环控制器
             else if (key instanceof LoopController) {
                 elementNode = new MsLoopController();

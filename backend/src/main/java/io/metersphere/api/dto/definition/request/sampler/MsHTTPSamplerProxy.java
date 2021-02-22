@@ -93,17 +93,15 @@ public class MsHTTPSamplerProxy extends MsTestElement {
 
     @Override
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, ParameterConfig config) {
-        if (!this.isEnable()) {
-            return;
-        }
+
         if (this.getReferenced() != null && MsTestElementConstants.REF.name().equals(this.getReferenced())) {
             this.getRefElement(this);
         }
         HTTPSamplerProxy sampler = new HTTPSamplerProxy();
-        sampler.setEnabled(true);
+        sampler.setEnabled(this.isEnable());
         sampler.setName(this.getName());
         String name = this.getParentName(this.getParent(), config);
-        if (StringUtils.isNotEmpty(name)) {
+        if (StringUtils.isNotEmpty(name) && !config.isOperating()) {
             sampler.setName(this.getName() + "<->" + name);
         }
         sampler.setProperty(TestElement.TEST_CLASS, HTTPSamplerProxy.class.getName());
@@ -124,7 +122,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         // 添加环境中的公共变量
         Arguments arguments = this.addArguments(config);
         if (arguments != null) {
-            tree.add(this.addArguments(config));
+            tree.add(arguments);
         }
         try {
             if (config != null && config.getConfig() != null) {

@@ -55,9 +55,6 @@ public class MsJDBCSampler extends MsTestElement {
 
     @Override
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, ParameterConfig config) {
-        if (!this.isEnable()) {
-            return;
-        }
         if (this.getReferenced() != null && MsTestElementConstants.REF.name().equals(this.getReferenced())) {
             this.getRefElement(this);
         }
@@ -70,7 +67,10 @@ public class MsJDBCSampler extends MsTestElement {
         }
         final HashTree samplerHashTree = tree.add(jdbcSampler(config));
         tree.add(jdbcDataSource());
-        tree.add(arguments(this.getName() + " Variables", this.getVariables()));
+        Arguments arguments = arguments(this.getName() + " Variables", this.getVariables());
+        if (arguments != null) {
+            tree.add(arguments);
+        }
         if (CollectionUtils.isNotEmpty(hashTree)) {
             hashTree.forEach(el -> {
                 el.toHashTree(samplerHashTree, el.getHashTree(), config);
@@ -111,9 +111,10 @@ public class MsJDBCSampler extends MsTestElement {
 
     private JDBCSampler jdbcSampler(ParameterConfig config) {
         JDBCSampler sampler = new JDBCSampler();
+        sampler.setEnabled(this.isEnable());
         sampler.setName(this.getName());
         String name = this.getParentName(this.getParent(), config);
-        if (StringUtils.isNotEmpty(name)) {
+        if (StringUtils.isNotEmpty(name) && !config.isOperating()) {
             sampler.setName(this.getName() + "<->" + name);
         }
         sampler.setProperty(TestElement.TEST_CLASS, JDBCSampler.class.getName());

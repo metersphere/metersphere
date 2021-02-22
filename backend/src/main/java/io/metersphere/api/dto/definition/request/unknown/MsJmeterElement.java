@@ -29,17 +29,17 @@ public class MsJmeterElement extends MsTestElement {
 
     @Override
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, ParameterConfig config) {
-        if (!this.isEnable()) {
-            return;
-        }
         try {
             InputStream inputSource = getStrToStream(jmeterElement);
             if (inputSource != null) {
                 Object scriptWrapper = SaveService.loadElement(inputSource);
                 HashTree elementTree = tree;
-                if (!(scriptWrapper instanceof TestPlan) && !(scriptWrapper instanceof ThreadGroup)) {
+                if (config.isOperating()) {
+                    elementTree = tree.add(scriptWrapper);
+                } else if (!(scriptWrapper instanceof TestPlan) && !(scriptWrapper instanceof ThreadGroup)) {
                     elementTree = tree.add(scriptWrapper);
                 }
+
                 if (CollectionUtils.isNotEmpty(hashTree)) {
                     for (MsTestElement el : hashTree) {
                         el.toHashTree(elementTree, el.getHashTree(), config);

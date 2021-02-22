@@ -15,6 +15,7 @@ import io.metersphere.api.dto.automation.parse.ScenarioImportParserFactory;
 import io.metersphere.api.dto.datacount.ApiDataCountResult;
 import io.metersphere.api.dto.definition.RunDefinitionRequest;
 import io.metersphere.api.dto.definition.request.*;
+import io.metersphere.api.dto.definition.request.unknown.MsJmeterElement;
 import io.metersphere.api.dto.definition.request.variable.ScenarioVariable;
 import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
 import io.metersphere.api.jmeter.JMeterService;
@@ -438,11 +439,11 @@ public class ApiAutomationService {
     private String generateJmx(ApiScenarioWithBLOBs apiScenario) {
         HashTree jmeterHashTree = new ListedHashTree();
         MsTestPlan testPlan = new MsTestPlan();
+        testPlan.setName(apiScenario.getName());
         testPlan.setHashTree(new LinkedList<>());
+        ParameterConfig config = new ParameterConfig();
+        config.setOperating(true);
         try {
-            MsThreadGroup group = new MsThreadGroup();
-            group.setLabel(apiScenario.getName());
-            group.setName(apiScenario.getName());
 
             ObjectMapper mapper = new ObjectMapper();
             mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
@@ -462,17 +463,26 @@ public class ApiAutomationService {
                         });
                 scenario.setVariables(variables);
             }
-            group.setEnableCookieShare(scenario.isEnableCookieShare());
-            group.setHashTree(new LinkedList<MsTestElement>() {{
-                this.add(scenario);
-            }});
+            // 针对导入的jmx 处理
+            if (CollectionUtils.isNotEmpty(scenario.getHashTree()) && (scenario.getHashTree().get(0) instanceof MsJmeterElement)) {
+                scenario.toHashTree(jmeterHashTree, scenario.getHashTree(), config);
+                return scenario.getJmx(jmeterHashTree);
+            } else {
+                MsThreadGroup group = new MsThreadGroup();
+                group.setLabel(apiScenario.getName());
+                group.setName(apiScenario.getName());
+                group.setEnableCookieShare(scenario.isEnableCookieShare());
+                group.setHashTree(new LinkedList<MsTestElement>() {{
+                    this.add(scenario);
+                }});
+                testPlan.getHashTree().add(group);
+            }
 
-            testPlan.getHashTree().add(group);
         } catch (Exception ex) {
+            ex.printStackTrace();
             MSException.throwException(ex.getMessage());
         }
-
-        testPlan.toHashTree(jmeterHashTree, testPlan.getHashTree(), new ParameterConfig());
+        testPlan.toHashTree(jmeterHashTree, testPlan.getHashTree(), config);
         return testPlan.getJmx(jmeterHashTree);
     }
 
@@ -867,7 +877,8 @@ public class ApiAutomationService {
         // 生成jmx
         List<ApiScenrioExportJmx> resList = new ArrayList<>();
         apiScenarioWithBLOBs.forEach(item -> {
-            ApiScenrioExportJmx scenrioExportJmx = new ApiScenrioExportJmx(item.getName(), apiTestService.updateJmxString(generateJmx(item), item.getName(), true));
+            String jmx = generateJmx(item);
+            ApiScenrioExportJmx scenrioExportJmx = new ApiScenrioExportJmx(item.getName(), apiTestService.updateJmxString(jmx, null, true));
             resList.add(scenrioExportJmx);
         });
         return resList;

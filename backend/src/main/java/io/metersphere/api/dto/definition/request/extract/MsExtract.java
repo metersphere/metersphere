@@ -30,9 +30,6 @@ public class MsExtract extends MsTestElement {
 
     @Override
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, ParameterConfig config) {
-        if (!this.isEnable()) {
-            return;
-        }
         addRequestExtractors(tree);
     }
 
@@ -68,7 +65,7 @@ public class MsExtract extends MsTestElement {
     private RegexExtractor regexExtractor(MsExtractRegex extractRegex, StringJoiner extract) {
 
         RegexExtractor extractor = new RegexExtractor();
-        extractor.setEnabled(true);
+        extractor.setEnabled(this.isEnable());
         extractor.setName(extractRegex.getVariable() + " RegexExtractor");
         extractor.setProperty(TestElement.TEST_CLASS, RegexExtractor.class.getName());
         extractor.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("RegexExtractorGui"));
@@ -86,7 +83,7 @@ public class MsExtract extends MsTestElement {
 
     private XPath2Extractor xPath2Extractor(MsExtractXPath extractXPath, StringJoiner extract) {
         XPath2Extractor extractor = new XPath2Extractor();
-        extractor.setEnabled(true);
+        extractor.setEnabled(this.isEnable());
         extractor.setName(extractXPath.getVariable() + " XPath2Extractor");
         extractor.setProperty(TestElement.TEST_CLASS, XPath2Extractor.class.getName());
         extractor.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("XPath2ExtractorGui"));
@@ -101,7 +98,7 @@ public class MsExtract extends MsTestElement {
 
     private JSONPostProcessor jsonPostProcessor(MsExtractJSONPath extractJSONPath, StringJoiner extract) {
         JSONPostProcessor extractor = new JSONPostProcessor();
-        extractor.setEnabled(true);
+        extractor.setEnabled(this.isEnable());
         extractor.setName(extractJSONPath.getVariable() + " JSONExtractor");
         extractor.setProperty(TestElement.TEST_CLASS, JSONPostProcessor.class.getName());
         extractor.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("JSONPostProcessorGui"));

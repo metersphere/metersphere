@@ -26,9 +26,6 @@ public class MsIfController extends MsTestElement {
 
     @Override
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, ParameterConfig config) {
-        if (!this.isEnable()) {
-            return;
-        }
         final HashTree groupTree = tree.add(ifController());
         if (CollectionUtils.isNotEmpty(hashTree)) {
             hashTree.forEach(el -> {
@@ -41,7 +38,7 @@ public class MsIfController extends MsTestElement {
 
     private IfController ifController() {
         IfController ifController = new IfController();
-        ifController.setEnabled(true);
+        ifController.setEnabled(this.isEnable());
         ifController.setName(StringUtils.isEmpty(this.getName()) ? "IfController" : this.getName());
         ifController.setProperty(TestElement.TEST_CLASS, IfController.class.getName());
         ifController.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("IfControllerPanel"));

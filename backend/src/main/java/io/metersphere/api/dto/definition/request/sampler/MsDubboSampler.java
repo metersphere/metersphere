@@ -57,9 +57,6 @@ public class MsDubboSampler extends MsTestElement {
 
     @Override
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, ParameterConfig config) {
-        if (!this.isEnable()) {
-            return;
-        }
         if (this.getReferenced() != null && "Deleted".equals(this.getReferenced())) {
             return;
         }
@@ -77,9 +74,10 @@ public class MsDubboSampler extends MsTestElement {
 
     private DubboSample dubboSample(ParameterConfig config) {
         DubboSample sampler = new DubboSample();
+        sampler.setEnabled(this.isEnable());
         sampler.setName(this.getName());
         String name = this.getParentName(this.getParent(), config);
-        if (StringUtils.isNotEmpty(name)) {
+        if (StringUtils.isNotEmpty(name) && !config.isOperating()) {
             sampler.setName(this.getName() + "<->" + name);
         }
         sampler.setProperty(TestElement.TEST_CLASS, DubboSample.class.getName());
