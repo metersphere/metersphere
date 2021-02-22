@@ -747,6 +747,8 @@ public class ApiDefinitionService {
         apiExportResult.setCases(apiTestCaseService.selectCasesBydApiIds(request.getIds()));
         apiExportResult.setProjectName(request.getProjectId());
         apiExportResult.setProtocol(request.getProtocol());
+        apiExportResult.setProjectId(request.getProjectId());
+        apiExportResult.setVersion(System.getenv("MS_VERSION"));
         return apiExportResult;
     }
 }
