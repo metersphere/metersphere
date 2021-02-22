@@ -37,6 +37,7 @@ import io.metersphere.api.dto.scenario.KeyValue;
 import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
 import io.metersphere.api.dto.scenario.request.BodyFile;
 import io.metersphere.api.dto.scenario.request.RequestType;
+import io.metersphere.api.parse.ApiImportAbstractParser;
 import io.metersphere.api.service.ApiTestEnvironmentService;
 import io.metersphere.base.domain.ApiScenarioModule;
 import io.metersphere.base.domain.ApiScenarioWithBLOBs;
@@ -76,7 +77,7 @@ import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.util.*;
 
-public class MsJmeterParser extends ScenarioImportAbstractParser {
+public class MsJmeterParser extends ApiImportAbstractParser<ScenarioImport> {
     private final String ENV_NAME = "导入数据环境";
 
     @Override
@@ -93,7 +94,7 @@ public class MsJmeterParser extends ScenarioImportAbstractParser {
             this.projectId = request.getProjectId();
             ScenarioImport scenarioImport = new ScenarioImport();
             scenarioImport.setData(paseObj(scenario, request));
-            scenarioImport.setProjectid(request.getProjectId());
+            scenarioImport.setProjectId(request.getProjectId());
             return scenarioImport;
         } catch (Exception e) {
             e.printStackTrace();
@@ -105,7 +106,7 @@ public class MsJmeterParser extends ScenarioImportAbstractParser {
     private List<ApiScenarioWithBLOBs> paseObj(MsScenario msScenario, ApiTestImportRequest request) {
         List<ApiScenarioWithBLOBs> scenarioWithBLOBsList = new ArrayList<>();
         ApiScenarioWithBLOBs scenarioWithBLOBs = new ApiScenarioWithBLOBs();
-        ApiScenarioModule module = buildModule(getSelectModule(request.getModuleId()), msScenario.getName());
+        ApiScenarioModule module = ApiScenarioImportUtil.buildModule(ApiScenarioImportUtil.getSelectModule(request.getModuleId()), msScenario.getName(), this.projectId);
         scenarioWithBLOBs.setName(msScenario.getName());
         scenarioWithBLOBs.setProjectId(request.getProjectId());
         if (msScenario != null && CollectionUtils.isNotEmpty(msScenario.getHashTree())) {
