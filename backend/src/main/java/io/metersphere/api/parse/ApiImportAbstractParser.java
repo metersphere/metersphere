@@ -1,18 +1,16 @@
 package io.metersphere.api.parse;
 
+import com.alibaba.fastjson.JSON;
 import io.metersphere.api.dto.ApiTestImportRequest;
-import io.metersphere.api.dto.definition.ApiModuleDTO;
+import io.metersphere.api.dto.definition.request.MsScenario;
 import io.metersphere.api.dto.definition.request.sampler.MsHTTPSamplerProxy;
 import io.metersphere.api.dto.scenario.Body;
 import io.metersphere.api.dto.scenario.KeyValue;
 import io.metersphere.api.dto.scenario.Scenario;
 import io.metersphere.api.dto.scenario.request.RequestType;
-import io.metersphere.api.service.ApiModuleService;
 import io.metersphere.base.domain.ApiDefinitionWithBLOBs;
-import io.metersphere.base.domain.ApiModule;
+import io.metersphere.base.domain.ApiScenarioWithBLOBs;
 import io.metersphere.commons.exception.MSException;
-import io.metersphere.commons.utils.BeanUtils;
-import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.SessionUtils;
 import org.apache.commons.collections.CollectionUtils;
@@ -29,10 +27,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-public abstract class ApiImportAbstractParser implements ApiImportParser {
+public abstract class ApiImportAbstractParser<T> implements ApiImportParser<T> {
 
     protected String projectId;
-    protected ApiModuleService apiModuleService;
 
     protected String getApiTestStr(InputStream source) {
         StringBuilder testStr = null;
@@ -47,7 +44,9 @@ public abstract class ApiImportAbstractParser implements ApiImportParser {
             LogUtil.error(e.getMessage(), e);
         } finally {
             try {
-                source.close();
+                if (source != null) {
+                    source.close();
+                }
             } catch (IOException e) {
                 MSException.throwException(e.getMessage());
                 LogUtil.error(e.getMessage(), e);
@@ -59,42 +58,6 @@ public abstract class ApiImportAbstractParser implements ApiImportParser {
     protected void setScenarioByRequest(Scenario scenario, ApiTestImportRequest request) {
         if (request.getUseEnvironment()) {
             scenario.setEnvironmentId(request.getEnvironmentId());
-        }
-    }
-
-    protected ApiModule getSelectModule(String moduleId) {
-        apiModuleService = CommonBeanFactory.getBean(ApiModuleService.class);
-        if (StringUtils.isNotBlank(moduleId) && !StringUtils.equals("root", moduleId)) {
-            ApiModule module = new ApiModule();
-            ApiModuleDTO moduleDTO = apiModuleService.getNode(moduleId);
-            if (moduleDTO != null) {
-                BeanUtils.copyBean(module, moduleDTO);
-            }
-            return module;
-        }
-        return null;
-    }
-
-    protected ApiModule buildModule(ApiModule parentModule, String name) {
-        apiModuleService = CommonBeanFactory.getBean(ApiModuleService.class);
-        ApiModule module;
-        if (parentModule != null) {
-            module = apiModuleService.getNewModule(name, this.projectId, parentModule.getLevel() + 1);
-            module.setParentId(parentModule.getId());
-        } else {
-            module = apiModuleService.getNewModule(name, this.projectId, 1);
-        }
-        createModule(module);
-        return module;
-    }
-
-    protected void createModule(ApiModule module) {
-        module.setProtocol(RequestType.HTTP);
-        List<ApiModule> apiModules = apiModuleService.selectSameModule(module);
-        if (CollectionUtils.isEmpty(apiModules)) {
-            apiModuleService.addNode(module);
-        } else {
-            module.setId(apiModules.get(0).getId());
         }
     }
 
@@ -232,5 +195,23 @@ public abstract class ApiImportAbstractParser implements ApiImportParser {
         if (!hasContentType) {
             headers.add(new KeyValue(key, value, description, contentType, required));
         }
+    }
+
+    protected ApiScenarioWithBLOBs parseScenario(MsScenario msScenario) {
+//        ApiScenarioModule module = ApiScenarioImportUtil.buildModule(ApiScenarioImportUtil.getSelectModule(request.getModuleId()), msScenario.getName(), this.projectId);
+        ApiScenarioWithBLOBs scenarioWithBLOBs = new ApiScenarioWithBLOBs();
+        scenarioWithBLOBs.setName(msScenario.getName());
+        scenarioWithBLOBs.setProjectId(this.projectId);
+        if (msScenario != null && CollectionUtils.isNotEmpty(msScenario.getHashTree())) {
+            scenarioWithBLOBs.setStepTotal(msScenario.getHashTree().size());
+        }
+//        if (module != null) {
+//            scenarioWithBLOBs.setApiScenarioModuleId(module.getId());
+//            scenarioWithBLOBs.setModulePath("/" + module.getName());
+//        }
+        scenarioWithBLOBs.setId(UUID.randomUUID().toString());
+        scenarioWithBLOBs.setScenarioDefinition(JSON.toJSONString(msScenario));
+        return scenarioWithBLOBs;
+//        scenarioWithBLOBsList.add(scenarioWithBLOBs);
     }
 }

@@ -81,7 +81,7 @@
           </el-link>
         </el-row>
         <div style="min-height: 400px">
-          <ms-api-key-value :items="headers"/>
+          <ms-api-key-value :items="headers" :suggestions="headerSuggestions"/>
           <batch-add-parameter @batchSave="batchSave" ref="batchAddParameter"/>
         </div>
       </el-tab-pane>
@@ -95,33 +95,34 @@
 </template>
 
 <script>
-import MsEditConstant from "./EditConstant";
-import MsDialogFooter from "../../../../common/components/MsDialogFooter";
-import MsTableHeader from "@/business/components/common/components/MsTableHeader";
-import MsTablePagination from "@/business/components/common/pagination/TablePagination";
-import MsEditCounter from "./EditCounter";
-import MsEditRandom from "./EditRandom";
-import MsEditListValue from "./EditListValue";
-import MsEditCsv from "./EditCsv";
-import {getUUID} from "@/common/js/utils";
-import MsApiKeyValue from "../../../definition/components/ApiKeyValue";
-import BatchAddParameter from "../../../definition/components/basis/BatchAddParameter";
-import {KeyValue} from "../../../definition/model/ApiTestModel";
+  import MsEditConstant from "./EditConstant";
+  import MsDialogFooter from "../../../../common/components/MsDialogFooter";
+  import MsTableHeader from "@/business/components/common/components/MsTableHeader";
+  import MsTablePagination from "@/business/components/common/pagination/TablePagination";
+  import MsEditCounter from "./EditCounter";
+  import MsEditRandom from "./EditRandom";
+  import MsEditListValue from "./EditListValue";
+  import MsEditCsv from "./EditCsv";
+  import {getUUID} from "@/common/js/utils";
+  import MsApiKeyValue from "../../../definition/components/ApiKeyValue";
+  import BatchAddParameter from "../../../definition/components/basis/BatchAddParameter";
+  import {KeyValue} from "../../../definition/model/ApiTestModel";
+  import {REQUEST_HEADERS} from "@/common/js/constants";
 
-export default {
-  name: "MsVariableList",
-  components: {
-    MsEditConstant,
-    MsDialogFooter,
-    MsTableHeader,
-    MsTablePagination,
-    MsEditCounter,
-    MsEditRandom,
-    MsEditListValue,
-    MsEditCsv,
-    MsApiKeyValue,
-    BatchAddParameter
-  },
+  export default {
+    name: "MsVariableList",
+    components: {
+      MsEditConstant,
+      MsDialogFooter,
+      MsTableHeader,
+      MsTablePagination,
+      MsEditCounter,
+      MsEditRandom,
+      MsEditListValue,
+      MsEditCsv,
+      MsApiKeyValue,
+      BatchAddParameter
+    },
     data() {
       return {
         variables: [],
@@ -144,6 +145,7 @@ export default {
         editData: {},
         pageSize: 10,
         total: 0,
+        headerSuggestions: REQUEST_HEADERS,
       }
     },
     methods: {
@@ -285,19 +287,19 @@ export default {
 </script>
 
 <style>
-.ms-variable-hidden-row {
-  display: none;
-}
+  .ms-variable-hidden-row {
+    display: none;
+  }
 
-.ms-variable-header {
-  background: #783887;
-  color: white;
-  height: 18px;
-  border-radius: 42%;
-}
+  .ms-variable-header {
+    background: #783887;
+    color: white;
+    height: 18px;
+    border-radius: 42%;
+  }
 
-.ms-variable-link {
-  float: right;
-  margin-right: 45px;
-}
+  .ms-variable-link {
+    float: right;
+    margin-right: 45px;
+  }
 </style>

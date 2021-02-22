@@ -14,10 +14,6 @@ public class ApiDefinitionImport {
     private String protocol;
     private List<ApiDefinitionWithBLOBs> data;
 
-    //导入场景
-    private MsScenario scenarioDefinition;
-    private List<ApiScenarioWithBLOBs> scenarioDefinitionData;
-
     // 新版本带用例导出
     private List<ApiTestCaseWithBLOBs> cases;
 }

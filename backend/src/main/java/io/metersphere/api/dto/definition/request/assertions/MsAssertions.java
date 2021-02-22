@@ -27,9 +27,7 @@ public class MsAssertions extends MsTestElement {
 
     @Override
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, ParameterConfig config) {
-        if (this.isEnable()) {
-            addAssertions(tree);
-        }
+        addAssertions(tree);
     }
 
     private void addAssertions(HashTree hashTree) {
@@ -64,7 +62,7 @@ public class MsAssertions extends MsTestElement {
 
     private ResponseAssertion responseAssertion(MsAssertionRegex assertionRegex) {
         ResponseAssertion assertion = new ResponseAssertion();
-        assertion.setEnabled(true);
+        assertion.setEnabled(this.isEnable());
         assertion.setName(assertionRegex.getDescription());
         assertion.setProperty(TestElement.TEST_CLASS, ResponseAssertion.class.getName());
         assertion.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("AssertionGui"));
@@ -89,7 +87,7 @@ public class MsAssertions extends MsTestElement {
 
     private JSONPathAssertion jsonPathAssertion(MsAssertionJsonPath assertionJsonPath) {
         JSONPathAssertion assertion = new JSONPathAssertion();
-        assertion.setEnabled(true);
+        assertion.setEnabled(this.isEnable());
         assertion.setName(StringUtils.isEmpty(assertionJsonPath.getDescription()) ? "JSONPathAssertion" : assertionJsonPath.getDescription());
         assertion.setProperty(TestElement.TEST_CLASS, JSONPathAssertion.class.getName());
         assertion.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("JSONPathAssertionGui"));
@@ -104,7 +102,7 @@ public class MsAssertions extends MsTestElement {
 
     private XPath2Assertion xPath2Assertion(MsAssertionXPath2 assertionXPath2) {
         XPath2Assertion assertion = new XPath2Assertion();
-        assertion.setEnabled(true);
+        assertion.setEnabled(this.isEnable());
         assertion.setName(StringUtils.isEmpty(assertionXPath2.getExpression()) ? "XPath2Assertion" : assertionXPath2.getExpression());
         assertion.setProperty(TestElement.TEST_CLASS, XPath2Assertion.class.getName());
         assertion.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("XPath2AssertionGui"));
@@ -115,7 +113,7 @@ public class MsAssertions extends MsTestElement {
 
     private DurationAssertion durationAssertion(MsAssertionDuration assertionDuration) {
         DurationAssertion assertion = new DurationAssertion();
-        assertion.setEnabled(true);
+        assertion.setEnabled(this.isEnable());
         assertion.setName("Response In Time: " + assertionDuration.getValue());
         assertion.setProperty(TestElement.TEST_CLASS, DurationAssertion.class.getName());
         assertion.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("DurationAssertionGui"));
@@ -125,7 +123,7 @@ public class MsAssertions extends MsTestElement {
 
     private JSR223Assertion jsr223Assertion(MsAssertionJSR223 assertionJSR223) {
         JSR223Assertion assertion = new JSR223Assertion();
-        assertion.setEnabled(true);
+        assertion.setEnabled(this.isEnable());
         assertion.setName(StringUtils.isEmpty(assertionJSR223.getDesc()) ? "JSR223Assertion" : assertionJSR223.getDesc());
         assertion.setProperty(TestElement.TEST_CLASS, JSR223Assertion.class.getName());
         assertion.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("TestBeanGUI"));

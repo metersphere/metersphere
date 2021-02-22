@@ -686,7 +686,6 @@
         this.result = this.$post("/api/automation/export/jmx", param, response => {
           this.loading = false;
           let obj = response.data;
-          console.log(obj)
           if (obj && obj.length > 0) {
             obj.forEach(item => {
               downloadFile(item.name + ".jmx", item.jmx);

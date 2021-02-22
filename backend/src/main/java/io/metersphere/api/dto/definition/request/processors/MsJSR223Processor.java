@@ -29,18 +29,15 @@ public class MsJSR223Processor extends MsTestElement {
 
     @Override
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, ParameterConfig config) {
-        if (!this.isEnable()) {
-            return;
-        }
         JSR223Sampler processor = new JSR223Sampler();
-        processor.setEnabled(true);
+        processor.setEnabled(this.isEnable());
         if (StringUtils.isNotEmpty(this.getName())) {
             processor.setName(this.getName());
         } else {
             processor.setName("JSR223Processor");
         }
         String name = this.getParentName(this.getParent(), config);
-        if (StringUtils.isNotEmpty(name)) {
+        if (StringUtils.isNotEmpty(name) && !config.isOperating()) {
             processor.setName(this.getName() + "<->" + name);
         }
         processor.setProperty(TestElement.TEST_CLASS, JSR223Sampler.class.getName());

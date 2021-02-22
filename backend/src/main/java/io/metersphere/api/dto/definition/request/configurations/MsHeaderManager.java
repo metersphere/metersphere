@@ -27,11 +27,8 @@ public class MsHeaderManager extends MsTestElement {
 
     @Override
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, ParameterConfig config) {
-        if (!this.isEnable()) {
-            return;
-        }
         HeaderManager headerManager = new HeaderManager();
-        headerManager.setEnabled(true);
+        headerManager.setEnabled(this.isEnable());
         headerManager.setName(this.getName() + "Headers");
         headerManager.setProperty(TestElement.TEST_CLASS, HeaderManager.class.getName());
         headerManager.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("HeaderPanel"));
