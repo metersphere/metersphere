@@ -603,6 +603,7 @@ export default {
         request.enable === undefined ? request.enable = true : request.enable;
         request.active = false;
         request.resourceId = getUUID();
+        request.projectId = item.projectId;
         if (!request.url) {
           request.url = "";
         }
@@ -933,7 +934,8 @@ export default {
           headers: this.currentScenario.headers,
           referenced: 'Created',
           environmentId: this.currentEnvironmentId,
-          hashTree: this.scenarioDefinition
+          hashTree: this.scenarioDefinition,
+          projectId: this.projectId
         };
         this.currentScenario.scenarioDefinition = scenario;
         if (this.currentScenario.tags instanceof Array) {

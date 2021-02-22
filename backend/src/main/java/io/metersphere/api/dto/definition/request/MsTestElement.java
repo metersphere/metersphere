@@ -102,6 +102,8 @@ public abstract class MsTestElement {
     private LinkedList<MsTestElement> hashTree;
     @JSONField(ordinal = 11)
     private boolean customizeReq;
+    @JSONField(ordinal = 12)
+    private String projectId;
 
     private MsTestElement parent;
 
