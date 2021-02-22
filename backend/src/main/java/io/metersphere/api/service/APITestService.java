@@ -464,18 +464,19 @@ public class APITestService {
 
     /**
      * 更新jmx数据，处理jmx里的各种参数
-     *
+     * <p>
      * 注： 与1.7分支合并时，如果该方法产生冲突，请以master为准
-     * @author song tianyang
+     *
      * @param jmxString      原JMX文件
-     * @param testNameParam       某些节点要替换的testName
+     * @param testNameParam  某些节点要替换的testName
      * @param isFromScenario 是否来源于场景 （来源于场景的话，testName要进行处理）
      * @return
+     * @author song tianyang
      */
     public String updateJmxString(String jmxString, String testNameParam, boolean isFromScenario) {
         //注： 与1.7分支合并时，如果该方法产生冲突，请以master为准
         String attribute_testName = "testname";
-        String [] requestElementNameArr = new String[]{"HTTPSamplerProxy","TCPSampler","JDBCSampler","DubboSample"};
+        String[] requestElementNameArr = new String[]{"HTTPSamplerProxy", "TCPSampler", "JDBCSampler", "DubboSample"};
 
         try {
             //将ThreadGroup的testname改为接口名称
@@ -485,28 +486,54 @@ public class APITestService {
 
             List<Element> innerHashTreeElementList = rootHashTreeElement.elements("hashTree");
             for (Element innerHashTreeElement : innerHashTreeElementList) {
-                List<Element> thirdHashTreeElementList = innerHashTreeElement.elements("hashTree");
+                //转换DubboDefaultConfigGui
+                List<Element> configTestElementList = innerHashTreeElement.elements("ConfigTestElement");
+                for (Element configTestElement : configTestElementList) {
+                    this.updateDubboDefaultConfigGuiElement(configTestElement);
+                }
+
                 List<Element> theadGroupElementList = innerHashTreeElement.elements("ThreadGroup");
                 for (Element theadGroupElement : theadGroupElementList) {
-                    if(StringUtils.isNotEmpty(testNameParam)){
+                    if (StringUtils.isNotEmpty(testNameParam)) {
                         theadGroupElement.attribute(attribute_testName).setText(testNameParam);
                     }
                 }
-
+                List<Element> thirdHashTreeElementList = innerHashTreeElement.elements("hashTree");
                 for (Element element : thirdHashTreeElementList) {
                     String testName = testNameParam;
 
                     //更新请求类节点的部份属性
-                    this.updateRequestElementInfo(element,testNameParam,requestElementNameArr,isFromScenario);
+                    this.updateRequestElementInfo(element, testNameParam, requestElementNameArr, isFromScenario);
                     //检查有无jmeter不是别的自定义参数
                     this.checkPrivateFunctionNode(element);
+
+                    //转换DubboDefaultConfigGui
+                    List<Element> hashTreeConfigTestElementList = element.elements("ConfigTestElement");
+                    for (Element configTestElement : hashTreeConfigTestElementList) {
+                        this.updateDubboDefaultConfigGuiElement(configTestElement);
+                    }
                 }
             }
             jmxString = root.asXML();
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        if (!jmxString.startsWith("<?xml version=\"1.0\" encoding=\"UTF-8\"?>")) {
+            jmxString = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" + jmxString;
+        }
         return jmxString;
+    }
+
+    private void updateDubboDefaultConfigGuiElement(Element configTestElement) {
+        String dubboDefaultConfigGuiClassName = "io.github.ningyu.jmeter.plugin.dubbo.gui.DubboDefaultConfigGui";
+        if (configTestElement == null) {
+            return;
+        }
+        String guiClassValue = configTestElement.attributeValue("guiclass");
+        if (StringUtils.equals(guiClassValue, "DubboDefaultConfigGui")) {
+            configTestElement.attribute("guiclass").setText(dubboDefaultConfigGuiClassName);
+        }
     }
 
     private void checkPrivateFunctionNode(Element element) {
@@ -545,15 +572,15 @@ public class APITestService {
         }
     }
 
-    private void updateRequestElementInfo(Element element,String testNameParam,String [] requestElementNameArr,boolean isFromScenario){
+    private void updateRequestElementInfo(Element element, String testNameParam, String[] requestElementNameArr, boolean isFromScenario) {
         String attribute_testName = "testname";
         String scenarioCaseNameSplit = "<->";
         String testName = testNameParam;
 
-        for(String requestElementName : requestElementNameArr){
+        for (String requestElementName : requestElementNameArr) {
             List<Element> sampleProxyElementList = element.elements(requestElementName);
             for (Element itemElement : sampleProxyElementList) {
-                if(isFromScenario){
+                if (isFromScenario) {
                     testName = itemElement.attributeValue(attribute_testName);
                     String[] testNameArr = testName.split(scenarioCaseNameSplit);
                     if (testNameArr.length > 0) {
@@ -563,7 +590,7 @@ public class APITestService {
                 itemElement.attribute(attribute_testName).setText(testName);
 
                 //double的话有额外处理方式
-                if(StringUtils.equals(requestElementName,"DubboSample")){
+                if (StringUtils.equals(requestElementName, "DubboSample")) {
                     //dubbo节点要更新 标签、guiClass 和 testClass
                     itemElement.setName("io.github.ningyu.jmeter.plugin.dubbo.sample.DubboSample");
                     itemElement.attribute("testclass").setText("io.github.ningyu.jmeter.plugin.dubbo.sample.DubboSample");
