@@ -699,6 +699,10 @@ export default {
     exportApi() {
       let param = this.buildBatchParam();
       param.protocol = this.currentProtocol;
+      if (param.ids === undefined || param.ids.length < 1) {
+        this.$warning(this.$t("api_test.definition.check_select"));
+        return;
+      }
       this.result = this.$post("/api/definition/export", param, response => {
         let obj = response.data;
         obj.protocol = this.currentProtocol;

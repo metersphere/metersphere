@@ -1,26 +1,49 @@
 package io.metersphere.api.dto.automation.parse;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.parser.Feature;
 import io.metersphere.api.dto.ApiTestImportRequest;
+import io.metersphere.api.dto.definition.request.MsScenario;
+import io.metersphere.api.dto.definition.request.MsTestElement;
+import io.metersphere.api.parse.MsAbstractParser;
 import io.metersphere.base.domain.ApiScenarioModule;
 import io.metersphere.base.domain.ApiScenarioWithBLOBs;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.InputStream;
-import java.util.Arrays;
-import java.util.Iterator;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
-public class MsScenarioParser extends ScenarioImportAbstractParser {
+public class MsScenarioParser extends MsAbstractParser<ScenarioImport> {
 
     @Override
     public ScenarioImport parse(InputStream source, ApiTestImportRequest request) {
         String testStr = getApiTestStr(source);
         this.projectId = request.getProjectId();
-        ScenarioImport scenarioImport = parseMsFormat(testStr, request);
-        return scenarioImport;
+        JSONObject testObject = JSONObject.parseObject(testStr, Feature.OrderedField);
+        if (testObject.get("projectName") != null || testObject.get("projectId") != null ) {
+            return parseMsFormat(testStr, request);
+        } else {
+            ScenarioImport apiImport = new ScenarioImport();
+            ArrayList<ApiScenarioWithBLOBs> apiScenarioWithBLOBs = new ArrayList<>();
+            apiScenarioWithBLOBs.add(parsePluginFormat(testObject, request));
+            apiImport.setData(apiScenarioWithBLOBs);
+            return apiImport;
+        }
+    }
+
+    protected ApiScenarioWithBLOBs parsePluginFormat(JSONObject testObject, ApiTestImportRequest importRequest) {
+        LinkedList<MsTestElement> results = new LinkedList<>();
+        testObject.keySet().forEach(tag -> {
+            results.addAll(parseMsHTTPSamplerProxy(testObject, tag));
+        });
+        MsScenario msScenario = new MsScenario();
+        msScenario.setName(importRequest.getFileName());
+        msScenario.setHashTree(results);
+        ApiScenarioWithBLOBs scenarioWithBLOBs = parseScenario(msScenario);
+        scenarioWithBLOBs.setApiScenarioModuleId(importRequest.getModuleId());
+        return scenarioWithBLOBs;
     }
 
     private ScenarioImport parseMsFormat(String testStr, ApiTestImportRequest importRequest) {
@@ -31,7 +54,7 @@ public class MsScenarioParser extends ScenarioImportAbstractParser {
                 if (StringUtils.isBlank(item.getModulePath())) {
                     item.setApiScenarioModuleId(null);
                 }
-                parseModule(item, importRequest);
+                parseModule(item.getModulePath(), importRequest, item);
                 item.setId(UUID.randomUUID().toString());
                 item.setProjectId(this.projectId);
             });
@@ -39,8 +62,7 @@ public class MsScenarioParser extends ScenarioImportAbstractParser {
         return apiDefinitionImport;
     }
 
-    private void parseModule(ApiScenarioWithBLOBs apiDefinition, ApiTestImportRequest importRequest) {
-        String modulePath = apiDefinition.getModulePath();
+    protected void parseModule(String modulePath, ApiTestImportRequest importRequest, ApiScenarioWithBLOBs apiScenarioWithBLOBs) {
         if (StringUtils.isEmpty(modulePath)) {
             return;
         }
@@ -51,15 +73,14 @@ public class MsScenarioParser extends ScenarioImportAbstractParser {
             modulePath = modulePath.substring(0, modulePath.length() - 1);
         }
         List<String> modules = Arrays.asList(modulePath.split("/"));
-        ApiScenarioModule parent = getSelectModule(importRequest.getModuleId());
+        ApiScenarioModule parent = ApiScenarioImportUtil.getSelectModule(importRequest.getModuleId());
         Iterator<String> iterator = modules.iterator();
         while (iterator.hasNext()) {
             String item = iterator.next();
-            parent = buildModule(parent, item);
+            parent = ApiScenarioImportUtil.buildModule(parent, item, this.projectId);
             if (!iterator.hasNext()) {
-                apiDefinition.setApiScenarioModuleId(parent.getId());
+                apiScenarioWithBLOBs.setApiScenarioModuleId(parent.getId());
             }
         }
     }
-
 }

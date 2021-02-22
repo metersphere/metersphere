@@ -532,6 +532,7 @@ export default {
       api_case_passing_rate: "用例通過率",
       create_tip: "註: 詳細的接口信息可以在編輯頁面填寫",
       api_import: "接口導入",
+      check_select: "請勾選接口",
       select_comp: {
         no_data: "無數據",
         add_data: "去添加"
