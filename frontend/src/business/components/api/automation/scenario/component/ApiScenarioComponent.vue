@@ -16,6 +16,8 @@
       <el-tag size="mini" style="margin-left: 20px" v-if="scenario.referenced==='Deleted'" type="danger">{{$t('api_test.automation.reference_deleted')}}</el-tag>
       <el-tag size="mini" style="margin-left: 20px" v-if="scenario.referenced==='Copy'">{{ $t('commons.copy') }}</el-tag>
       <el-tag size="mini" style="margin-left: 20px" v-if="scenario.referenced==='REF'">{{ $t('api_test.scenario.reference') }}</el-tag>
+
+      <span style="margin-left: 20px;">{{scenario.projectName}}</span>
     </template>
 
   </api-base-component>
@@ -41,6 +43,7 @@
     watch: {},
     created() {
       if (this.scenario.id && this.scenario.referenced === 'REF' && !this.scenario.loaded) {
+        this.getWsProjects();
         this.result = this.$get("/api/automation/getApiScenario/" + this.scenario.id, response => {
           if (response.data) {
             this.scenario.loaded = true;
@@ -52,6 +55,8 @@
             }
             this.scenario.disabled = true;
             this.scenario.name = response.data.name;
+            const project = this.projects.find(p => p.id === this.scenario.projectId);
+            this.scenario.projectName = project.name;
             this.$emit('refReload');
           } else {
             this.scenario.referenced = "Deleted";
@@ -63,7 +68,8 @@
     data() {
       return {
         loading: false,
-        isShowInput: false
+        isShowInput: false,
+        projects: []
       }
     },
     computed: {
@@ -109,6 +115,11 @@
           }
         }
       },
+      getWsProjects() {
+        this.$get("/project/listAll", res => {
+          this.projects = res.data;
+        })
+      }
     }
   }
 </script>

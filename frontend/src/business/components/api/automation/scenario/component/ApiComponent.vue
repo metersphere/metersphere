@@ -15,6 +15,7 @@
       <el-tag size="mini" style="margin-left: 20px" v-if="request.referenced==='Deleted'" type="danger">{{$t('api_test.automation.reference_deleted')}}</el-tag>
       <el-tag size="mini" style="margin-left: 20px" v-if="request.referenced==='Copy'">{{ $t('commons.copy') }}</el-tag>
       <el-tag size="mini" style="margin-left: 20px" v-if="request.referenced ==='REF'">{{ $t('api_test.scenario.reference') }}</el-tag>
+      <span style="margin-left: 20px;">{{getProjectName(request.projectId)}}</span>
       <ms-run :debug="true" :reportId="reportId" :run-data="runData"
               @runRefresh="runRefresh" ref="runTest"/>
 
@@ -94,6 +95,7 @@ export default {
         reportId: "",
         runData: [],
         isShowInput: false,
+        projects: []
       }
     },
     created() {
@@ -102,6 +104,7 @@ export default {
       }
       // 加载引用对象数据
       this.getApiInfo();
+      this.getWsProjects();
       if (this.request.protocol === 'HTTP') {
         this.setUrl(this.request.url);
         this.setUrl(this.request.path);
@@ -270,6 +273,18 @@ export default {
           this.loading = false
         })
       },
+      getWsProjects() {
+        this.$get("/project/listAll", res => {
+          this.projects = res.data;
+        })
+      },
+      getProjectName(id) {
+        const project = this.projects.find(p => p.id === id);
+        if (project) {
+          return project.name;
+        }
+        return '';
+      }
     }
   }
 </script>
