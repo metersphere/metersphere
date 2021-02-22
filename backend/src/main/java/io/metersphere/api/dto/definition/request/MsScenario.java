@@ -74,9 +74,11 @@ public class MsScenario extends MsTestElement {
                 ObjectMapper mapper = new ObjectMapper();
                 mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
                 ApiScenarioWithBLOBs scenario = apiAutomationService.getApiScenario(this.getId());
-                JSONObject element = JSON.parseObject(scenario.getScenarioDefinition());
-                hashTree = mapper.readValue(element.getString("hashTree"), new TypeReference<LinkedList<MsTestElement>>() {
-                });
+                if (scenario != null && StringUtils.isNotEmpty(scenario.getScenarioDefinition())) {
+                    JSONObject element = JSON.parseObject(scenario.getScenarioDefinition());
+                    hashTree = mapper.readValue(element.getString("hashTree"), new TypeReference<LinkedList<MsTestElement>>() {
+                    });
+                }
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
