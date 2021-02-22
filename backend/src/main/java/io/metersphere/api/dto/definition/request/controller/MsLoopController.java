@@ -44,18 +44,6 @@ public class MsLoopController extends MsTestElement {
 
     @Override
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, ParameterConfig config) {
-        if (StringUtils.equals(this.loopType, LoopConstants.WHILE.name()) && this.whileController != null) {
-            config.setStep("While 循环");
-        }
-        if (StringUtils.equals(this.loopType, LoopConstants.FOREACH.name()) && this.forEachController != null) {
-            config.setStep("ForEach 循环");
-        }
-        if (StringUtils.equals(this.loopType, LoopConstants.LOOP_COUNT.name()) && this.countController != null) {
-            config.setStep("次数循环");
-        }
-
-        config.setStepType("LOOP");
-
         final HashTree groupTree = controller(tree);
         if (CollectionUtils.isNotEmpty(config.getVariables())) {
             this.addCsvDataSet(groupTree, config.getVariables());

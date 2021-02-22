@@ -20,12 +20,6 @@ public class ParameterConfig {
      * 公共Cookie
      */
     private boolean enableCookieShare;
-    /**
-     * 步骤
-     */
-    private String step;
-
-    private String stepType;
 
     /**
      * 是否是导入/导出操作

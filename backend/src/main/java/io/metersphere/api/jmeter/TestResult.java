@@ -48,8 +48,8 @@ public class TestResult {
             result.getRequestResults().forEach(item -> {
                 if (StringUtils.isNotEmpty(item.getName()) && item.getName().indexOf(SEPARATOR) != -1) {
                     String array[] = item.getName().split(SEPARATOR);
-                    String scenarioName = array[array.length - 1];
-                    item.setName(item.getName().replace(SEPARATOR + scenarioName, ""));
+                    String scenarioName = item.getName().replace(array[0] + SEPARATOR, "");
+                    item.setName(array[0]);
                     if (requestResultMap.containsKey(scenarioName)) {
                         requestResultMap.get(scenarioName).add(item);
                     } else {
@@ -80,6 +80,9 @@ public class TestResult {
                 ScenarioResult scenarioResult = new ScenarioResult();
                 BeanUtils.copyBean(scenarioResult, result);
                 scenarioResult.setName(k);
+                if (k.indexOf(SEPARATOR) != -1) {
+                    scenarioResult.setName(k.split(SEPARATOR)[1]);
+                }
                 scenarioResult.setRequestResults(v);
                 scenarios.add(scenarioResult);
             });
