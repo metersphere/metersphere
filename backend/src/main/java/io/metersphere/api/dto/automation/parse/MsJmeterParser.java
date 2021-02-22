@@ -88,7 +88,7 @@ public class MsJmeterParser extends ScenarioImportAbstractParser {
             preInitPool(request.getProjectId(), testPlan);
 
             MsScenario scenario = new MsScenario();
-            scenario.setReferenced("REF");
+            scenario.setReferenced("IMPORT");
             jmterHashTree(testPlan, scenario);
             this.projectId = request.getProjectId();
             ScenarioImport scenarioImport = new ScenarioImport();
@@ -233,24 +233,24 @@ public class MsJmeterParser extends ScenarioImportAbstractParser {
         elementNode.setConsumerAndService(consumerAndService);
 
         List<MethodArgument> methodArguments = Constants.getMethodArgs(sampler);
+        List<KeyValue> methodArgs = new LinkedList<>();
         if (CollectionUtils.isNotEmpty(methodArguments)) {
-            List<KeyValue> methodArgs = new LinkedList<>();
             methodArguments.forEach(item -> {
                 KeyValue keyValue = new KeyValue(item.getParamType(), item.getParamValue());
                 methodArgs.add(keyValue);
             });
-            elementNode.setArgs(methodArgs);
         }
+        elementNode.setArgs(methodArgs);
 
         List<MethodArgument> arguments = Constants.getAttachmentArgs(sampler);
+        List<KeyValue> attachmentArgs = new LinkedList<>();
         if (CollectionUtils.isNotEmpty(arguments)) {
-            List<KeyValue> methodArgs = new LinkedList<>();
             arguments.forEach(item -> {
                 KeyValue keyValue = new KeyValue(item.getParamType(), item.getParamValue());
-                methodArgs.add(keyValue);
+                attachmentArgs.add(keyValue);
             });
-            elementNode.setAttachmentArgs(methodArgs);
         }
+        elementNode.setAttachmentArgs(attachmentArgs);
     }
 
     /**
