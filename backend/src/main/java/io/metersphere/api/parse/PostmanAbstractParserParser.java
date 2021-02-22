@@ -53,12 +53,12 @@ public abstract class PostmanAbstractParserParser<T> extends ApiImportAbstractPa
                     .collect(Collectors.toList());
             event.forEach(item -> {
                 PostmanScript script = item.getScript();
-                if (script != null) {
+                if (script != null && item.getListen().contains("prerequest")) {
                     List<String> exec = script.getExec();
                     if (CollectionUtils.isNotEmpty(exec)) {
                         exec.forEach(col -> {
                             if (StringUtils.isNotEmpty(col)) {
-                                scriptStr.append(col + "/n");
+                                scriptStr.append(col + "\n");
                             }
                         });
                     }
