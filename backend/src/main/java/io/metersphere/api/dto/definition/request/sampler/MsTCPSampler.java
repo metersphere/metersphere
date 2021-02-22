@@ -59,8 +59,8 @@ public class MsTCPSampler extends MsTestElement {
     private String password = "";
     @JSONField(ordinal = 33)
     private String request;
-    @JSONField(ordinal = 34)
-    private Object requestResult;
+//    @JSONField(ordinal = 34)
+//    private Object requestResult;
     @JSONField(ordinal = 35)
     private List<KeyValue> parameters;
     @JSONField(ordinal = 36)

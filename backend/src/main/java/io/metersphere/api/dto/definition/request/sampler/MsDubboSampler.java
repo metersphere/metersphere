@@ -52,8 +52,8 @@ public class MsDubboSampler extends MsTestElement {
     @JSONField(ordinal = 59)
     private List<KeyValue> attachmentArgs;
 
-    @JSONField(ordinal = 60)
-    private Object requestResult;
+//    @JSONField(ordinal = 60)
+//    private Object requestResult;
 
     @Override
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, ParameterConfig config) {

@@ -46,8 +46,8 @@ public class MsJDBCSampler extends MsTestElement {
     private List<KeyValue> variables;
     @JSONField(ordinal = 26)
     private String environmentId;
-    @JSONField(ordinal = 27)
-    private Object requestResult;
+//    @JSONField(ordinal = 27)
+//    private Object requestResult;
     @JSONField(ordinal = 28)
     private String dataSourceId;
     @JSONField(ordinal = 29)
