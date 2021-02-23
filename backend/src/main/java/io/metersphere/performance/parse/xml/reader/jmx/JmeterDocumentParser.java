@@ -566,17 +566,17 @@ public class JmeterDocumentParser implements DocumentParser {
     }
 
     private Element createBoolProp(Document document, String name, boolean value) {
-        Element tearDownSwitch = document.createElement("boolProp");
-        tearDownSwitch.setAttribute("name", name);
-        tearDownSwitch.appendChild(document.createTextNode(String.valueOf(value)));
-        return tearDownSwitch;
+        Element boolProp = document.createElement("boolProp");
+        boolProp.setAttribute("name", name);
+        boolProp.appendChild(document.createTextNode(String.valueOf(value)));
+        return boolProp;
     }
 
     private Element createIntProp(Document document, String name, int value) {
-        Element tearDownSwitch = document.createElement("intProp");
-        tearDownSwitch.setAttribute("name", name);
-        tearDownSwitch.appendChild(document.createTextNode(String.valueOf(value)));
-        return tearDownSwitch;
+        Element intProp = document.createElement("intProp");
+        intProp.setAttribute("name", name);
+        intProp.appendChild(document.createTextNode(String.valueOf(value)));
+        return intProp;
     }
 
     private void processBackendListener(Element backendListener) {
