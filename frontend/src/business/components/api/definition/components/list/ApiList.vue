@@ -163,7 +163,7 @@
             :key="index"/>
         </template>
 
-        <el-table-column fixed="right" v-if="!isReadOnly" :label="$t('commons.operating')" min-width="130"
+        <el-table-column fixed="right" v-if="!isReadOnly" :label="$t('commons.operating')" min-width="180"
                          align="center">
           <template slot="header">
             <span>{{ $t('commons.operating') }}
@@ -171,6 +171,10 @@
             </span>
           </template>
           <template v-slot:default="scope">
+            <ms-table-operator-button class="run-button" :is-tester-permission="true"
+                                      :tip="$t('api_test.automation.execute')"
+                                      icon="el-icon-video-play"
+                                      @exec="execute" v-tester/>
             <ms-table-operator-button :tip="$t('commons.reduction')" icon="el-icon-refresh-left"
                                       @exec="reductionApi(scope.row)" v-if="trashEnable" v-tester/>
             <ms-table-operator-button :tip="$t('commons.edit')" icon="el-icon-edit" @exec="editApi(scope.row)" v-else
@@ -221,7 +225,7 @@ import MsBottomContainer from "../BottomContainer";
 import ShowMoreBtn from "../../../../track/case/components/ShowMoreBtn";
 import MsBatchEdit from "../basis/BatchEdit";
 import {API_METHOD_COLOUR, API_STATUS, DUBBO_METHOD, REQ_METHOD, SQL_METHOD, TCP_METHOD} from "../../model/JsonData";
-import {downloadFile} from "@/common/js/utils";
+import {downloadFile, getUUID} from "@/common/js/utils";
 import {PROJECT_NAME} from '@/common/js/constants';
 import {getCurrentProjectID, getCurrentUser} from "@/common/js/utils";
 import {API_LIST, TEST_CASE_LIST, WORKSPACE_ID} from '@/common/js/constants';
@@ -242,6 +246,7 @@ import {
 import {_filter, _sort} from "@/common/js/tableUtils";
 import {Api_List, Track_Test_Case} from "@/business/components/common/model/JsonData";
 import HeaderCustom from "@/business/components/common/head/HeaderCustom";
+import {createComponent} from "@/business/components/api/definition/components/jmeter/components";
 
 
 export default {
@@ -268,6 +273,7 @@ export default {
   },
   data() {
     return {
+      basisData: {},
       type: API_LIST,
       headerItems: Api_List,
       tableLabel: Api_List,
@@ -390,6 +396,81 @@ export default {
     }
   },
   methods: {
+    execute() {
+      this.basisData.method = "TCP";
+      this.request = createComponent("HTTPSamplerProxy");
+      this.currentApi.request = this.request;
+      this.basisData.request = this.request;
+      if (this.basisData.tags instanceof Array) {
+        this.basisData.tags = JSON.stringify(this.basisData.tags);
+      }
+      this.runTest(this.basisData)
+    },
+    runTest(data) {
+      this.setParameters(data);
+      let bodyFiles = this.getBodyUploadFiles(data);
+      this.$fileUpload(this.reqUrl, null, bodyFiles, data, () => {
+        this.$success(this.$t('commons.save_success'));
+        this.reqUrl = "/api/definition/update";
+        this.$emit('runTest', data);
+      })
+    },
+    setParameters(data) {
+      data.projectId = this.projectId;
+      this.request.name = this.currentApi.name;
+      data.protocol = this.currentProtocol;
+      data.request = this.request;
+      data.request.name = data.name;
+      if (this.currentProtocol === "DUBBO" || this.currentProtocol === "dubbo://") {
+        data.request.protocol = "dubbo://";
+      } else {
+        data.request.protocol = this.currentProtocol;
+      }
+      data.id = data.request.id;
+      if (!data.method) {
+        data.method = this.currentProtocol;
+      }
+      data.response = this.response;
+    },
+    getBodyUploadFiles(data) {
+      let bodyUploadFiles = [];
+      data.bodyUploadIds = [];
+      let request = data.request;
+      if (request.body) {
+        if (request.body.kvs) {
+          request.body.kvs.forEach(param => {
+            if (param.files) {
+              param.files.forEach(item => {
+                if (item.file) {
+                  let fileId = getUUID().substring(0, 8);
+                  item.name = item.file.name;
+                  item.id = fileId;
+                  data.bodyUploadIds.push(fileId);
+                  bodyUploadFiles.push(item.file);
+                }
+              });
+            }
+          });
+        }
+        if (request.body.binary) {
+          request.body.binary.forEach(param => {
+            if (param.files) {
+              param.files.forEach(item => {
+                if (item.file) {
+                  let fileId = getUUID().substring(0, 8);
+                  item.name = item.file.name;
+                  item.id = fileId;
+                  data.bodyUploadIds.push(fileId);
+                  bodyUploadFiles.push(item.file);
+                }
+              });
+            }
+          });
+        }
+      }
+      return bodyUploadFiles;
+    },
+
     customHeader() {
       this.$refs.headerCustom.open(this.tableLabel)
     },

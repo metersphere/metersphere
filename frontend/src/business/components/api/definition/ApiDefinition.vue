@@ -27,6 +27,7 @@
           <!-- 列表集合 -->
           <ms-api-list
             v-if="item.type === 'list' && activeDom==='api' "
+            @runTest="runTest"
             :module-tree="nodeTree"
             :module-options="moduleOptions"
             :current-protocol="currentProtocol"
