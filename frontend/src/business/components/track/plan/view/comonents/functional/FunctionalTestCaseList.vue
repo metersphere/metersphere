@@ -47,7 +47,7 @@
         </el-table-column>
         <template v-for="(item, index) in tableLabel">
           <el-table-column
-            v-if="item.prop == 'num'"
+            v-if="item.id == 'num'"
             prop="num"
             sortable="custom"
             :label="$t('commons.id')"
@@ -56,7 +56,7 @@
             :key="index">
           </el-table-column>
           <el-table-column
-            v-if="item.prop=='name'"
+            v-if="item.id=='name'"
             prop="name"
             :label="$t('commons.name')"
             min-width="120px"
@@ -64,7 +64,7 @@
             show-overflow-tooltip>
           </el-table-column>
           <el-table-column
-            v-if="item.prop=='priority'"
+            v-if="item.id=='priority'"
             prop="priority"
             :filters="priorityFilters"
             column-key="priority"
@@ -77,7 +77,7 @@
           </el-table-column>
 
           <el-table-column
-            v-if="item.prop=='type'"
+            v-if="item.id=='type'"
             prop="type"
             :filters="typeFilters"
             column-key="type"
@@ -90,7 +90,7 @@
             </template>
           </el-table-column>
 
-          <el-table-column v-if="item.prop=='tags'" prop="tags" :label="$t('commons.tag')" min-width="120px"
+          <el-table-column v-if="item.id=='tags'" prop="tags" :label="$t('commons.tag')" min-width="120px"
                            :key="index"
           >
             <template v-slot:default="scope">
@@ -101,7 +101,7 @@
           </el-table-column>
 
           <el-table-column
-            v-if="item.prop=='method'"
+            v-if="item.id=='method'"
             prop="method"
             :filters="methodFilters"
             column-key="method"
@@ -115,7 +115,7 @@
           </el-table-column>
 
           <el-table-column
-            v-if="item.prop=='nodePath'"
+            v-if="item.id=='nodePath'"
             prop="nodePath"
             :label="$t('test_track.case.module')"
             min-width="120px"
@@ -124,7 +124,7 @@
           </el-table-column>
 
           <el-table-column
-            v-if="item.prop=='projectName'"
+            v-if="item.id=='projectName'"
             prop="projectName"
             :label="$t('test_track.plan.plan_project')"
             min-width="120px"
@@ -133,7 +133,7 @@
           </el-table-column>
 
           <el-table-column
-            v-if="item.prop=='issuesContent'"
+            v-if="item.id=='issuesContent'"
             :label="$t('test_track.issue.issue')"
             min-width="80px"
             show-overflow-tooltip
@@ -167,7 +167,7 @@
 
 
           <el-table-column
-            v-if="item.prop == 'executorName'"
+            v-if="item.id == 'executorName'"
             prop="executorName"
             :filters="executorFilters"
             min-width="100px"
@@ -177,7 +177,7 @@
           </el-table-column>
 
           <el-table-column
-            v-if="item.prop == 'status'"
+            v-if="item.id == 'status'"
             prop="status"
             :filters="statusFilters"
             column-key="status"
@@ -212,7 +212,7 @@
           </el-table-column>
 
           <el-table-column
-            v-if="item.prop == 'updateTime'"
+            v-if="item.id == 'updateTime'"
 
             sortable
             prop="updateTime"
@@ -291,7 +291,7 @@ import BatchEdit from "../../../../case/components/BatchEdit";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 import {hub} from "@/business/components/track/plan/event-bus";
 import MsTag from "@/business/components/common/components/MsTag";
-import {_filter, _sort} from "@/common/js/tableUtils";
+import {_filter, _sort, getLabel} from "@/common/js/tableUtils";
 import HeaderCustom from "@/business/components/common/head/HeaderCustom";
 import {Test_Plan_Function_Test_Case} from "@/business/components/common/model/JsonData";
 
@@ -422,7 +422,7 @@ export default {
     },
 
     initTableData() {
-      this.getLabel()
+      getLabel(this, TEST_PLAN_FUNCTION_TEST_CASE);
       if (this.planId) {
         // param.planId = this.planId;
         this.condition.planId = this.planId;
@@ -466,24 +466,6 @@ export default {
           this.selectRows.clear();
         });
       }
-    },
-    getLabel() {
-      let param = {}
-      param.userId = getCurrentUser().id;
-      param.type = TEST_PLAN_FUNCTION_TEST_CASE
-      this.result = this.$post('/system/header/info', param, response => {
-        if (response.data != null) {
-          let arry = eval(response.data.props);
-          let obj = {};
-          for (let key in arry) {
-            obj[key] = arry[key];
-          }
-          let newObj = Object.keys(obj).map(val => ({
-            prop: obj[val]
-          }))
-          this.tableLabel = newObj
-        }
-      })
     },
     showDetail(row, event, column) {
       this.isReadOnly = true;

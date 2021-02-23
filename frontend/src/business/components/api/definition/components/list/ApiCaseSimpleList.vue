@@ -34,7 +34,7 @@
           </template>
         </el-table-column>
         <template v-for="(item, index) in tableLabel">
-          <el-table-column v-if="item.prop == 'num'" prop="num" label="ID" min-width="120px" show-overflow-tooltip
+          <el-table-column v-if="item.id == 'num'" prop="num" label="ID" min-width="120px" show-overflow-tooltip
                            :key="index">
             <template slot-scope="scope">
               <el-tooltip content="编辑">
@@ -43,11 +43,11 @@
             </template>
           </el-table-column>
 
-          <el-table-column v-if="item.prop == 'name'" prop="name" min-width="160px" :label="$t('test_track.case.name')"
+          <el-table-column v-if="item.id == 'name'" prop="name" min-width="160px" :label="$t('test_track.case.name')"
                            show-overflow-tooltip :key="index"/>
 
           <el-table-column
-            v-if="item.prop == 'priority'"
+            v-if="item.id == 'priority'"
             prop="priority"
             :filters="priorityFilters"
             column-key="priority"
@@ -61,7 +61,7 @@
           </el-table-column>
 
           <el-table-column
-            v-if="item.prop == 'custom'"
+            v-if="item.id == 'custom'"
             sortable="custom"
             prop="path"
             min-width="180px"
@@ -69,7 +69,7 @@
             show-overflow-tooltip
             :key="index"/>
 
-          <el-table-column v-if="item.prop=='tags'" prop="tags" min-width="120px" :label="$t('commons.tag')"
+          <el-table-column v-if="item.id=='tags'" prop="tags" min-width="120px" :label="$t('commons.tag')"
                            :key="index">
             <template v-slot:default="scope">
               <div v-for="(itemName,index)  in scope.row.tags" :key="index">
@@ -79,14 +79,14 @@
           </el-table-column>
 
           <el-table-column
-            v-if="item.prop=='createUser'"
+            v-if="item.id=='createUser'"
             prop="createUser"
             :label="'创建人'"
             show-overflow-tooltip
             :key="index"/>
 
           <el-table-column
-            v-if="item.prop=='custom'"
+            v-if="item.id=='custom'"
             sortable="custom"
             min-width="160"
             :label="$t('api_test.definition.api_last_time')"
@@ -162,7 +162,7 @@ import {parseEnvironment} from "@/business/components/api/test/model/Environment
 import MsTableHeaderSelectPopover from "@/business/components/common/components/table/MsTableHeaderSelectPopover";
 import MsTableAdvSearchBar from "@/business/components/common/components/search/MsTableAdvSearchBar";
 import {API_CASE_CONFIGS} from "@/business/components/common/components/search/search-components";
-import {_filter, _handleSelect, _handleSelectAll, _sort,} from "@/common/js/tableUtils";
+import {_filter, _handleSelect, _handleSelectAll, _sort, getLabel,} from "@/common/js/tableUtils";
 import {API_CASE_LIST, API_LIST, API_SCENARIO_LIST, TEST_CASE_LIST} from "@/common/js/constants";
 import {Api_Case_List, Api_List, Track_Test_Case} from "@/business/components/common/model/JsonData";
 import HeaderCustom from "@/business/components/common/head/HeaderCustom";
@@ -307,7 +307,7 @@ export default {
         this.$emit("activeDomChange", tabType);
       },
       initTable() {
-        this.getLabel()
+        getLabel(this, API_CASE_LIST);
         this.selectRows = new Set();
         this.condition.status = "";
         this.condition.moduleIds = this.selectNodeIds;
@@ -350,24 +350,6 @@ export default {
             })
           });
         }
-      },
-      getLabel() {
-        let param = {}
-        param.userId = getCurrentUser().id;
-        param.type = API_CASE_LIST
-        this.result = this.$post('/system/header/info', param, response => {
-          if (response.data != null) {
-            let arry = eval(response.data.props);
-            let obj = {};
-            for (let key in arry) {
-              obj[key] = arry[key];
-            }
-            let newObj = Object.keys(obj).map(val => ({
-              prop: obj[val]
-            }))
-            this.tableLabel = newObj
-          }
-        })
       },
       open() {
         this.$refs.searchBar.open();

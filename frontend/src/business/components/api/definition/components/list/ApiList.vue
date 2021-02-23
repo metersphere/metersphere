@@ -36,7 +36,7 @@
         </el-table-column>
         <template v-for="(item, index) in tableLabel">
           <el-table-column
-            v-if="item.prop == 'num'"
+            v-if="item.id == 'num'"
             prop="num"
             label="ID"
             show-overflow-tooltip
@@ -50,7 +50,7 @@
             </template>
           </el-table-column>
           <el-table-column
-            v-if="item.prop == 'name'"
+            v-if="item.id == 'name'"
             prop="name"
             :label="$t('api_test.definition.api_name')"
             show-overflow-tooltip
@@ -58,7 +58,7 @@
             min-width="120px"
             :key="index"/>
           <el-table-column
-            v-if="item.prop == 'status'"
+            v-if="item.id == 'status'"
             prop="status"
             column-key="status"
             sortable="custom"
@@ -74,7 +74,7 @@
           </el-table-column>
 
           <el-table-column
-            v-if="item.prop == 'method'"
+            v-if="item.id == 'method'"
             prop="method"
             sortable="custom"
             column-key="method"
@@ -92,7 +92,7 @@
           </el-table-column>
 
           <el-table-column
-            v-if="item.prop == 'userName'"
+            v-if="item.id == 'userName'"
             prop="userName"
             sortable="custom"
             :filters="userFilters"
@@ -103,7 +103,7 @@
             :key="index"/>
 
           <el-table-column
-            v-if="item.prop == 'path'"
+            v-if="item.id == 'path'"
             prop="path"
             min-width="120px"
             :label="$t('api_test.definition.api_path')"
@@ -111,7 +111,7 @@
             :key="index"/>
 
           <el-table-column
-            v-if="item.prop == 'tags'"
+            v-if="item.id == 'tags'"
             prop="tags"
             :label="$t('commons.tag')"
             min-width="80px"
@@ -125,7 +125,7 @@
           </el-table-column>
 
           <el-table-column
-            v-if="item.prop == 'updateTime'"
+            v-if="item.id == 'updateTime'"
             width="160"
             :label="$t('api_test.definition.api_last_time')"
             sortable="custom"
@@ -138,7 +138,7 @@
           </el-table-column>
 
           <el-table-column
-            v-if="item.prop == 'caseTotal'"
+            v-if="item.id == 'caseTotal'"
             prop="caseTotal"
             min-width="80px"
             :label="$t('api_test.definition.api_case_number')"
@@ -146,7 +146,7 @@
             :key="index"/>
 
           <el-table-column
-            v-if="item.prop == 'caseStatus'"
+            v-if="item.id == 'caseStatus'"
             prop="caseStatus"
             min-width="80px"
             :label="$t('api_test.definition.api_case_status')"
@@ -154,7 +154,7 @@
             :key="index"/>
 
           <el-table-column
-            v-if="item.prop == 'casePassingRate'"
+            v-if="item.id == 'casePassingRate'"
             prop="casePassingRate"
             :width="100"
             min-width="100px"
@@ -235,7 +235,7 @@ import CaseBatchMove from "@/business/components/api/definition/components/basis
 import ApiListContainerWithDoc from "@/business/components/api/definition/components/list/ApiListContainerWithDoc";
 import {
   _handleSelect,
-  _handleSelectAll,
+  _handleSelectAll, getLabel,
   getSelectDataCounts, initCondition,
   setUnSelectIds, toggleAllSelection
 } from "@/common/js/tableUtils";
@@ -403,7 +403,7 @@ export default {
       this.$emit("activeDomChange",tabType);
     },
     initTable() {
-      this.getLabel()
+      getLabel(this, API_LIST);
       this.selectRows = new Set();
       initCondition(this.condition);
       this.selectDataCounts = 0;
@@ -449,25 +449,6 @@ export default {
           })
         });
       }
-    },
-    getLabel() {
-      let param = {}
-      param.userId = getCurrentUser().id;
-      param.type = API_LIST
-      this.result = this.$post('/system/header/info', param, response => {
-        if (response.data != null) {
-          let arry = eval(response.data.props);
-          let obj = {};
-          for (let key in arry) {
-            obj[key] = arry[key];
-          }
-          let newObj = Object.keys(obj).map(val => ({
-            prop: obj[val]
-          }))
-          this.tableLabel = newObj
-        }
-
-      })
     },
     genProtocalFilter(protocalType) {
       if (protocalType === "HTTP") {

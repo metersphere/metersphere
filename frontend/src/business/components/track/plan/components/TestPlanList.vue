@@ -16,21 +16,21 @@
       @row-click="intoPlan">
       <template v-for="(item, index) in tableLabel">
         <el-table-column
-          v-if="item.prop == 'name'"
+          v-if="item.id == 'name'"
           prop="name"
           :label="$t('commons.name')"
           show-overflow-tooltip
           :key="index">
         </el-table-column>
         <el-table-column
-          v-if="item.prop == 'userName'"
+          v-if="item.id == 'userName'"
           prop="userName"
           :label="$t('test_track.plan.plan_principal')"
           show-overflow-tooltip
           :key="index">
         </el-table-column>
         <el-table-column
-          v-if="item.prop == 'status'"
+          v-if="item.id == 'status'"
           prop="status"
           column-key="status"
           :filters="statusFilters"
@@ -61,7 +61,7 @@
           </template>
         </el-table-column>
         <el-table-column
-          v-if="item.prop == 'stage'"
+          v-if="item.id == 'stage'"
           prop="stage"
           column-key="stage"
           :filters="stageFilters"
@@ -73,7 +73,7 @@
           </template>
         </el-table-column>
         <el-table-column
-          v-if="item.prop == 'testRate'"
+          v-if="item.id == 'testRate'"
           prop="testRate"
           :label="$t('test_track.home.test_rate')"
           min-width="100"
@@ -84,14 +84,14 @@
           </template>
         </el-table-column>
         <el-table-colum
-          v-if="item.prop == 'projectName'"
+          v-if="item.id == 'projectName'"
           prop="projectName"
           :label="$t('test_track.plan.plan_project')"
           show-overflow-tooltip
           :key="index">
         </el-table-colum>
         <el-table-column
-          v-if="item.prop == 'plannedStartTime'"
+          v-if="item.id == 'plannedStartTime'"
           sortable
           prop="plannedStartTime"
           :label="$t('test_track.plan.planned_start_time')"
@@ -102,7 +102,7 @@
           </template>
         </el-table-column>
         <el-table-column
-          v-if="item.prop == 'plannedEndTime'"
+          v-if="item.id == 'plannedEndTime'"
           sortable
           prop="plannedEndTime"
           :label="$t('test_track.plan.planned_end_time')"
@@ -113,7 +113,7 @@
           </template>
         </el-table-column>
         <el-table-column
-          v-if="item.prop == 'actualStartTime'"
+          v-if="item.id == 'actualStartTime'"
           sortable
           prop="actualStartTime"
           :label="$t('test_track.plan.actual_start_time')"
@@ -124,7 +124,7 @@
           </template>
         </el-table-column>
         <el-table-column
-          v-if="item.prop == 'actualEndTime'"
+          v-if="item.id == 'actualEndTime'"
           sortable
           prop="actualEndTime"
           :label="$t('test_track.plan.actual_end_time')"
@@ -201,7 +201,7 @@ import {TEST_PLAN_CONFIGS} from "../../../common/components/search/search-compon
 import {LIST_CHANGE, TrackEvent} from "@/business/components/common/head/ListEvent";
 import {getCurrentProjectID} from "../../../../../common/js/utils";
 import MsScheduleMaintain from "@/business/components/api/automation/schedule/ScheduleMaintain"
-import {_filter, _sort} from "@/common/js/tableUtils";
+import {_filter, _sort, getLabel} from "@/common/js/tableUtils";
 import {TEST_CASE_LIST, TEST_PLAN_LIST} from "@/common/js/constants";
 import {Test_Plan_List, Track_Test_Case} from "@/business/components/common/model/JsonData";
 import HeaderCustom from "@/business/components/common/head/HeaderCustom";
@@ -265,7 +265,7 @@ export default {
       this.$refs.headerCustom.open(this.tableLabel)
     },
     initTableData() {
-      this.getLabel()
+      getLabel(this, TEST_PLAN_LIST);
       if (this.planId) {
         this.condition.planId = this.planId;
       }
@@ -288,24 +288,6 @@ export default {
           })
         }
       });
-    },
-    getLabel() {
-      let param = {}
-      param.userId = getCurrentUser().id;
-      param.type = TEST_PLAN_LIST
-      this.result = this.$post('/system/header/info', param, response => {
-        if (response.data != null) {
-          let arry = eval(response.data.props);
-          let obj = {};
-          for (let key in arry) {
-            obj[key] = arry[key];
-          }
-          let newObj = Object.keys(obj).map(val => ({
-            prop: obj[val]
-          }))
-          this.tableLabel = newObj
-        }
-      })
     },
     buildPagePath(path) {
       return path + "/" + this.currentPage + "/" + this.pageSize;
