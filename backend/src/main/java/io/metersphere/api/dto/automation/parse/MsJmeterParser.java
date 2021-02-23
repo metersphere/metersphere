@@ -198,7 +198,6 @@ public class MsJmeterParser extends ApiImportAbstractParser<ScenarioImport> {
     private void convertDubboSample(MsDubboSampler elementNode, DubboSample sampler) {
         elementNode.setName(sampler.getName());
         elementNode.setType("DubboSampler");
-        elementNode.setProtocol("dubbo://");
         elementNode.set_interface(sampler.getPropertyAsString("FIELD_DUBBO_INTERFACE"));
         elementNode.setMethod(sampler.getPropertyAsString("FIELD_DUBBO_METHOD"));
 
