@@ -33,7 +33,7 @@ public class MsDubboSampler extends MsTestElement {
     private String type = "DubboSampler";
 
     @JSONField(ordinal = 52)
-    private String protocol = "DUBBO";
+    private final String protocol = "dubbo://";
     @JsonProperty(value = "interface")
     @JSONField(ordinal = 53, name = "interface")
     private String _interface;
@@ -52,14 +52,11 @@ public class MsDubboSampler extends MsTestElement {
     @JSONField(ordinal = 59)
     private List<KeyValue> attachmentArgs;
 
-    @JSONField(ordinal = 60)
-    private Object requestResult;
+//    @JSONField(ordinal = 60)
+//    private Object requestResult;
 
     @Override
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, ParameterConfig config) {
-        if (!this.isEnable()) {
-            return;
-        }
         if (this.getReferenced() != null && "Deleted".equals(this.getReferenced())) {
             return;
         }
@@ -77,9 +74,10 @@ public class MsDubboSampler extends MsTestElement {
 
     private DubboSample dubboSample(ParameterConfig config) {
         DubboSample sampler = new DubboSample();
+        sampler.setEnabled(this.isEnable());
         sampler.setName(this.getName());
         String name = this.getParentName(this.getParent(), config);
-        if (StringUtils.isNotEmpty(name)) {
+        if (StringUtils.isNotEmpty(name) && !config.isOperating()) {
             sampler.setName(this.getName() + "<->" + name);
         }
         sampler.setProperty(TestElement.TEST_CLASS, DubboSample.class.getName());

@@ -9,6 +9,7 @@
         @setNodeTree="setNodeTree"
         @enableTrash="enableTrash"
         @exportAPI="exportAPI"
+        @exportJmx="exportJmx"
         @refreshAll="refreshAll"
         :type="'edit'"
         ref="nodeTree"/>
@@ -69,7 +70,6 @@
   import MsApiScenarioModule from "@/business/components/api/automation/scenario/ApiScenarioModule";
   import MsEditApiScenario from "./scenario/EditApiScenario";
   import {getCurrentProjectID} from "../../../../common/js/utils";
-  import {PROJECT_NAME} from "../../../../common/js/constants";
 
   export default {
     name: "ApiAutomation",
@@ -131,25 +131,10 @@
     },
     methods: {
       exportAPI() {
-        let obj = {projectName: localStorage.getItem(PROJECT_NAME)}
-        let condition = {projectId: getCurrentProjectID(), ids: this.$refs.apiScenarioList.selection};
-        let url = "/api/automation/list/all";
-        this.loading = true;
-        this.$post(url, condition, response => {
-          obj.data = response.data;
-          this.buildApiPath(obj.data);
-          this.loading = false;
-          downloadFile("Metersphere_Scenario_" + localStorage.getItem(PROJECT_NAME) + ".json", JSON.stringify(obj));
-        });
+        this.$refs.apiScenarioList.exportApi();
       },
-      buildApiPath(apis) {
-        apis.forEach((api) => {
-          this.moduleOptions.forEach(item => {
-            if (api.moduleId === item.id) {
-              api.modulePath = item.path;
-            }
-          });
-        });
+      exportJmx(){
+        this.$refs.apiScenarioList.exportJmx();
       },
       checkRedirectEditPage(redirectParam) {
         if (redirectParam != null) {

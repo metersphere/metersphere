@@ -10,14 +10,15 @@ import io.metersphere.api.dto.DeleteAPIReportRequest;
 import io.metersphere.api.dto.JmxInfoDTO;
 import io.metersphere.api.dto.automation.*;
 import io.metersphere.api.dto.automation.parse.ScenarioImport;
-import io.metersphere.api.dto.automation.parse.ScenarioImportParser;
 import io.metersphere.api.dto.automation.parse.ScenarioImportParserFactory;
 import io.metersphere.api.dto.datacount.ApiDataCountResult;
 import io.metersphere.api.dto.definition.RunDefinitionRequest;
 import io.metersphere.api.dto.definition.request.*;
+import io.metersphere.api.dto.definition.request.unknown.MsJmeterElement;
 import io.metersphere.api.dto.definition.request.variable.ScenarioVariable;
 import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
 import io.metersphere.api.jmeter.JMeterService;
+import io.metersphere.api.parse.ApiImportParser;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ApiScenarioMapper;
 import io.metersphere.base.mapper.ApiScenarioReportMapper;
@@ -435,6 +436,56 @@ public class ApiAutomationService {
         return jmeterHashTree;
     }
 
+    private String generateJmx(ApiScenarioWithBLOBs apiScenario) {
+        HashTree jmeterHashTree = new ListedHashTree();
+        MsTestPlan testPlan = new MsTestPlan();
+        testPlan.setName(apiScenario.getName());
+        testPlan.setHashTree(new LinkedList<>());
+        ParameterConfig config = new ParameterConfig();
+        config.setOperating(true);
+        try {
+
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+            JSONObject element = JSON.parseObject(apiScenario.getScenarioDefinition());
+            MsScenario scenario = JSONObject.parseObject(apiScenario.getScenarioDefinition(), MsScenario.class);
+
+            // 多态JSON普通转换会丢失内容，需要通过 ObjectMapper 获取
+            if (element != null && StringUtils.isNotEmpty(element.getString("hashTree"))) {
+                LinkedList<MsTestElement> elements = mapper.readValue(element.getString("hashTree"),
+                        new TypeReference<LinkedList<MsTestElement>>() {
+                        });
+                scenario.setHashTree(elements);
+            }
+            if (StringUtils.isNotEmpty(element.getString("variables"))) {
+                LinkedList<ScenarioVariable> variables = mapper.readValue(element.getString("variables"),
+                        new TypeReference<LinkedList<ScenarioVariable>>() {
+                        });
+                scenario.setVariables(variables);
+            }
+            // 针对导入的jmx 处理
+            if (CollectionUtils.isNotEmpty(scenario.getHashTree()) && (scenario.getHashTree().get(0) instanceof MsJmeterElement)) {
+                scenario.toHashTree(jmeterHashTree, scenario.getHashTree(), config);
+                return scenario.getJmx(jmeterHashTree);
+            } else {
+                MsThreadGroup group = new MsThreadGroup();
+                group.setLabel(apiScenario.getName());
+                group.setName(apiScenario.getName());
+                group.setEnableCookieShare(scenario.isEnableCookieShare());
+                group.setHashTree(new LinkedList<MsTestElement>() {{
+                    this.add(scenario);
+                }});
+                testPlan.getHashTree().add(group);
+            }
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            MSException.throwException(ex.getMessage());
+        }
+        testPlan.toHashTree(jmeterHashTree, testPlan.getHashTree(), config);
+        return testPlan.getJmx(jmeterHashTree);
+    }
+
     /**
      * 场景测试执行
      *
@@ -515,7 +566,6 @@ public class ApiAutomationService {
         ParameterConfig config = new ParameterConfig();
         config.setConfig(envConfig);
         HashTree hashTree = request.getTestElement().generateHashTree(config);
-        System.out.println(request.getTestElement().getJmx(hashTree));
         // 调用执行方法
         createScenarioReport(request.getId(), request.getScenarioId(), request.getScenarioName(), ReportTriggerMode.MANUAL.name(), request.getExecuteType(), request.getProjectId(),
                 SessionUtils.getUserId());
@@ -668,7 +718,7 @@ public class ApiAutomationService {
         HashTree jmeterHashTree = generateHashTree(apiScenarios, request, null);
         String jmx = testPlan.getJmx(jmeterHashTree);
 
-        jmx = apiTestService.updateJmxString(jmx,testName,false);
+        jmx = apiTestService.updateJmxString(jmx, testName, true);
 
         //将ThreadGroup的testname改为接口名称
 //        Document doc = DocumentHelper.parseText(jmx);// 获取可续保保单列表报文模板
@@ -718,16 +768,6 @@ public class ApiAutomationService {
                 apiScenarioMapper.updateByPrimaryKeySelective(item);
             });
         }
-    }
-
-    public List<ApiScenarioWithBLOBs> get(ApiScenarioRequest request) {
-        ApiScenarioExample example = new ApiScenarioExample();
-        if (CollectionUtils.isNotEmpty(request.getIds())) {
-            example.createCriteria().andIdIn(request.getIds());
-        } else {
-            example.createCriteria().andProjectIdEqualTo(request.getProjectId());
-        }
-        return apiScenarioMapper.selectByExampleWithBLOBs(example);
     }
 
     public List<ApiScenarioWithBLOBs> getWithBLOBs(ApiScenarioWithBLOBs request) {
@@ -801,10 +841,12 @@ public class ApiAutomationService {
     }
 
     public ScenarioImport scenarioImport(MultipartFile file, ApiTestImportRequest request) {
-        ScenarioImportParser apiImportParser = ScenarioImportParserFactory.getImportParser(request.getPlatform());
+        ApiImportParser apiImportParser = ScenarioImportParserFactory.getImportParser(request.getPlatform());
         ScenarioImport apiImport = null;
+        Optional.ofNullable(file)
+                .ifPresent(item -> request.setFileName(file.getOriginalFilename().substring(0, file.getOriginalFilename().lastIndexOf("."))));
         try {
-            apiImport = Objects.requireNonNull(apiImportParser).parse(file == null ? null : file.getInputStream(), request);
+            apiImport = (ScenarioImport) Objects.requireNonNull(apiImportParser).parse(file == null ? null : file.getInputStream(), request);
         } catch (Exception e) {
             LogUtil.error(e.getMessage(), e);
             MSException.throwException(Translator.get("parse_data_error"));
@@ -815,16 +857,33 @@ public class ApiAutomationService {
         return apiImport;
     }
 
-    public ApiScenrioExportResult export(ApiScenarioBatchRequest request) {
+    private List<ApiScenarioWithBLOBs> getExportResult(ApiScenarioBatchRequest request) {
         ServiceUtils.getSelectAllIds(request, request.getCondition(),
                 (query) -> extApiScenarioMapper.selectIdsByQuery((ApiScenarioRequest) query));
         ApiScenarioExample example = new ApiScenarioExample();
         example.createCriteria().andIdIn(request.getIds());
         List<ApiScenarioWithBLOBs> apiScenarioWithBLOBs = apiScenarioMapper.selectByExampleWithBLOBs(example);
-        ApiScenrioExportResult result =  new ApiScenrioExportResult();
-        result.setData(apiScenarioWithBLOBs);
+        return apiScenarioWithBLOBs;
+    }
+
+    public ApiScenrioExportResult export(ApiScenarioBatchRequest request) {
+        ApiScenrioExportResult result = new ApiScenrioExportResult();
+        result.setData(getExportResult(request));
         result.setProjectId(request.getProjectId());
         result.setVersion(System.getenv("MS_VERSION"));
         return result;
     }
+
+    public List<ApiScenrioExportJmx> exportJmx(ApiScenarioBatchRequest request) {
+        List<ApiScenarioWithBLOBs> apiScenarioWithBLOBs = getExportResult(request);
+        // 生成jmx
+        List<ApiScenrioExportJmx> resList = new ArrayList<>();
+        apiScenarioWithBLOBs.forEach(item -> {
+            String jmx = generateJmx(item);
+            ApiScenrioExportJmx scenrioExportJmx = new ApiScenrioExportJmx(item.getName(), apiTestService.updateJmxString(jmx, null, true));
+            resList.add(scenrioExportJmx);
+        });
+        return resList;
+    }
+
 }

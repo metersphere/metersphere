@@ -10,7 +10,6 @@ import io.metersphere.api.dto.automation.ImportPoolsDTO;
 import io.metersphere.api.dto.definition.request.MsScenario;
 import io.metersphere.api.dto.definition.request.MsTestElement;
 import io.metersphere.api.dto.definition.request.assertions.*;
-import io.metersphere.api.dto.definition.request.controller.MsIfController;
 import io.metersphere.api.dto.definition.request.controller.MsLoopController;
 import io.metersphere.api.dto.definition.request.controller.loop.CountController;
 import io.metersphere.api.dto.definition.request.controller.loop.MsForEachController;
@@ -37,6 +36,7 @@ import io.metersphere.api.dto.scenario.KeyValue;
 import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
 import io.metersphere.api.dto.scenario.request.BodyFile;
 import io.metersphere.api.dto.scenario.request.RequestType;
+import io.metersphere.api.parse.ApiImportAbstractParser;
 import io.metersphere.api.service.ApiTestEnvironmentService;
 import io.metersphere.base.domain.ApiScenarioModule;
 import io.metersphere.base.domain.ApiScenarioWithBLOBs;
@@ -51,7 +51,6 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.jmeter.assertions.*;
 import org.apache.jmeter.config.ConfigTestElement;
 import org.apache.jmeter.control.ForeachController;
-import org.apache.jmeter.control.IfController;
 import org.apache.jmeter.control.LoopController;
 import org.apache.jmeter.control.WhileController;
 import org.apache.jmeter.extractor.JSR223PostProcessor;
@@ -76,7 +75,7 @@ import java.io.InputStream;
 import java.lang.reflect.Field;
 import java.util.*;
 
-public class MsJmeterParser extends ScenarioImportAbstractParser {
+public class MsJmeterParser extends ApiImportAbstractParser<ScenarioImport> {
     private final String ENV_NAME = "导入数据环境";
 
     @Override
@@ -88,12 +87,12 @@ public class MsJmeterParser extends ScenarioImportAbstractParser {
             preInitPool(request.getProjectId(), testPlan);
 
             MsScenario scenario = new MsScenario();
-            scenario.setReferenced("REF");
+            scenario.setReferenced("IMPORT");
             jmterHashTree(testPlan, scenario);
             this.projectId = request.getProjectId();
             ScenarioImport scenarioImport = new ScenarioImport();
             scenarioImport.setData(paseObj(scenario, request));
-            scenarioImport.setProjectid(request.getProjectId());
+            scenarioImport.setProjectId(request.getProjectId());
             return scenarioImport;
         } catch (Exception e) {
             e.printStackTrace();
@@ -105,7 +104,7 @@ public class MsJmeterParser extends ScenarioImportAbstractParser {
     private List<ApiScenarioWithBLOBs> paseObj(MsScenario msScenario, ApiTestImportRequest request) {
         List<ApiScenarioWithBLOBs> scenarioWithBLOBsList = new ArrayList<>();
         ApiScenarioWithBLOBs scenarioWithBLOBs = new ApiScenarioWithBLOBs();
-        ApiScenarioModule module = buildModule(getSelectModule(request.getModuleId()), msScenario.getName());
+        ApiScenarioModule module = ApiScenarioImportUtil.buildModule(ApiScenarioImportUtil.getSelectModule(request.getModuleId()), msScenario.getName(), this.projectId);
         scenarioWithBLOBs.setName(msScenario.getName());
         scenarioWithBLOBs.setProjectId(request.getProjectId());
         if (msScenario != null && CollectionUtils.isNotEmpty(msScenario.getHashTree())) {
@@ -199,7 +198,6 @@ public class MsJmeterParser extends ScenarioImportAbstractParser {
     private void convertDubboSample(MsDubboSampler elementNode, DubboSample sampler) {
         elementNode.setName(sampler.getName());
         elementNode.setType("DubboSampler");
-        elementNode.setProtocol("dubbo://");
         elementNode.set_interface(sampler.getPropertyAsString("FIELD_DUBBO_INTERFACE"));
         elementNode.setMethod(sampler.getPropertyAsString("FIELD_DUBBO_METHOD"));
 
@@ -233,24 +231,24 @@ public class MsJmeterParser extends ScenarioImportAbstractParser {
         elementNode.setConsumerAndService(consumerAndService);
 
         List<MethodArgument> methodArguments = Constants.getMethodArgs(sampler);
+        List<KeyValue> methodArgs = new LinkedList<>();
         if (CollectionUtils.isNotEmpty(methodArguments)) {
-            List<KeyValue> methodArgs = new LinkedList<>();
             methodArguments.forEach(item -> {
                 KeyValue keyValue = new KeyValue(item.getParamType(), item.getParamValue());
                 methodArgs.add(keyValue);
             });
-            elementNode.setArgs(methodArgs);
         }
+        elementNode.setArgs(methodArgs);
 
         List<MethodArgument> arguments = Constants.getAttachmentArgs(sampler);
+        List<KeyValue> attachmentArgs = new LinkedList<>();
         if (CollectionUtils.isNotEmpty(arguments)) {
-            List<KeyValue> methodArgs = new LinkedList<>();
             arguments.forEach(item -> {
                 KeyValue keyValue = new KeyValue(item.getParamType(), item.getParamValue());
-                methodArgs.add(keyValue);
+                attachmentArgs.add(keyValue);
             });
-            elementNode.setAttachmentArgs(methodArgs);
         }
+        elementNode.setAttachmentArgs(attachmentArgs);
     }
 
     /**
@@ -568,12 +566,12 @@ public class MsJmeterParser extends ScenarioImportAbstractParser {
                 BeanUtils.copyBean(elementNode, key);
                 elementNode.setType("ConstantTimer");
             }
-            // IF条件控制器
-            else if (key instanceof IfController) {
-                elementNode = new MsIfController();
-                BeanUtils.copyBean(elementNode, key);
-                elementNode.setType("IfController");
-            }
+            // IF条件控制器，这里平台方式和jmeter 不同，暂时不处理
+//            else if (key instanceof IfController) {
+//                elementNode = new MsIfController();
+//                BeanUtils.copyBean(elementNode, key);
+//                elementNode.setType("IfController");
+//            }
             // 次数循环控制器
             else if (key instanceof LoopController) {
                 elementNode = new MsLoopController();

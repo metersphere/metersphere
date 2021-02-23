@@ -7,6 +7,6 @@ import java.util.List;
 
 @Data
 public class ScenarioImport {
-    private String projectid;
+    private String projectId;
     private List<ApiScenarioWithBLOBs> data;
 }

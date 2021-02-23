@@ -164,9 +164,9 @@ public abstract class MsTestElement {
     }
 
     public Arguments addArguments(ParameterConfig config) {
-        Arguments arguments = new Arguments();
         if (config != null && config.getConfig() != null && config.getConfig().getCommonConfig() != null
                 && CollectionUtils.isNotEmpty(config.getConfig().getCommonConfig().getVariables())) {
+            Arguments arguments = new Arguments();
             arguments.setEnabled(true);
             arguments.setName(name + "Variables");
             arguments.setProperty(TestElement.TEST_CLASS, Arguments.class.getName());
@@ -174,8 +174,9 @@ public abstract class MsTestElement {
             config.getConfig().getCommonConfig().getVariables().stream().filter(KeyValue::isValid).filter(KeyValue::isEnable).forEach(keyValue ->
                     arguments.addArgument(keyValue.getName(), keyValue.getValue(), "=")
             );
+            return arguments;
         }
-        return arguments;
+        return null;
     }
 
     protected EnvironmentConfig getEnvironmentConfig(String environmentId) {
@@ -255,14 +256,15 @@ public abstract class MsTestElement {
         }
     }
 
-    public MsTestElement getRootParent(MsTestElement element) {
+    public void getFullPath(MsTestElement element, StringBuilder path) {
         if (element.getParent() == null) {
-            return element;
+            return;
         }
         if (MsTestElementConstants.LoopController.name().equals(element.getType())) {
-            return element;
+            return;
         }
-        return getRootParent(element.getParent());
+        path.append(element.getResourceId()).append("/");
+        getFullPath(element.getParent(), path);
     }
 
     protected String getParentName(MsTestElement parent, ParameterConfig config) {
@@ -279,13 +281,11 @@ public abstract class MsTestElement {
                     return "次数循环-" + "${LoopCounterConfigXXX}";
                 }
             }
-            return parent.getName();
-        } else if (config != null && StringUtils.isNotEmpty(config.getStep())) {
-            if (MsTestElementConstants.SCENARIO.name().equals(config.getStepType())) {
-                return config.getStep();
-            } else {
-                return config.getStep() + "-" + "${LoopCounterConfigXXX}";
-            }
+            // 获取全路径以备后面使用
+            StringBuilder fullPath = new StringBuilder();
+            getFullPath(parent, fullPath);
+
+            return fullPath + "<->" + parent.getName();
         }
         return "";
     }

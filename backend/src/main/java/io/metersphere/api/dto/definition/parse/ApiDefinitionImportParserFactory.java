@@ -1,14 +1,15 @@
-package io.metersphere.api.parse;
+package io.metersphere.api.dto.definition.parse;
 
+import io.metersphere.api.parse.ApiImportParser;
 import io.metersphere.commons.constants.ApiImportPlatform;
 import org.apache.commons.lang3.StringUtils;
 
-public class ApiImportParserFactory {
+public class ApiDefinitionImportParserFactory {
     public static ApiImportParser getApiImportParser(String platform) {
         if (StringUtils.equals(ApiImportPlatform.Metersphere.name(), platform)) {
-            return new MsParser();
+            return new MsDefinitionParser();
         } else if (StringUtils.equals(ApiImportPlatform.Postman.name(), platform)) {
-            return new PostmanParser();
+            return new PostmanDefinitionParser();
         } else if (StringUtils.equals(ApiImportPlatform.Swagger2.name(), platform)) {
             return new Swagger2Parser();
         }

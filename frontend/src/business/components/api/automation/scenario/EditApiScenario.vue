@@ -204,44 +204,44 @@
 </template>
 
 <script>
-import {API_STATUS, PRIORITY} from "../../definition/model/JsonData";
-import {WORKSPACE_ID} from '@/common/js/constants';
-import {
-  Assertions,
-  ConstantTimer,
-  Extract,
-  IfController,
-  JSR223Processor,
-  LoopController
-} from "../../definition/model/ApiTestModel";
-import {parseEnvironment} from "../../definition/model/EnvironmentModel";
-import {ELEMENT_TYPE, ELEMENTS} from "./Setting";
-import MsApiCustomize from "./ApiCustomize";
-import {getCurrentProjectID, getUUID} from "@/common/js/utils";
-import ApiEnvironmentConfig from "../../definition/components/environment/ApiEnvironmentConfig";
-import MsInputTag from "./MsInputTag";
-import MsRun from "./DebugRun";
-import MsApiReportDetail from "../report/ApiReportDetail";
-import MsVariableList from "./variable/VariableList";
-import ApiImport from "../../definition/components/import/ApiImport";
-import "@/common/css/material-icons.css"
-import OutsideClick from "@/common/js/outside-click";
-import ScenarioApiRelevance from "./api/ApiRelevance";
-import ScenarioRelevance from "./api/ScenarioRelevance";
-import MsComponentConfig from "./component/ComponentConfig";
-import {handleCtrlSEvent} from "../../../../../common/js/utils";
+  import {API_STATUS, PRIORITY} from "../../definition/model/JsonData";
+  import {WORKSPACE_ID} from '@/common/js/constants';
+  import {
+    Assertions,
+    ConstantTimer,
+    Extract,
+    IfController,
+    JSR223Processor,
+    LoopController
+  } from "../../definition/model/ApiTestModel";
+  import {parseEnvironment} from "../../definition/model/EnvironmentModel";
+  import {ELEMENT_TYPE, ELEMENTS} from "./Setting";
+  import MsApiCustomize from "./ApiCustomize";
+  import {getCurrentProjectID, getUUID} from "@/common/js/utils";
+  import ApiEnvironmentConfig from "../../definition/components/environment/ApiEnvironmentConfig";
+  import MsInputTag from "./MsInputTag";
+  import MsRun from "./DebugRun";
+  import MsApiReportDetail from "../report/ApiReportDetail";
+  import MsVariableList from "./variable/VariableList";
+  import ApiImport from "../../definition/components/import/ApiImport";
+  import "@/common/css/material-icons.css"
+  import OutsideClick from "@/common/js/outside-click";
+  import ScenarioApiRelevance from "./api/ApiRelevance";
+  import ScenarioRelevance from "./api/ScenarioRelevance";
+  import MsComponentConfig from "./component/ComponentConfig";
+  import {handleCtrlSEvent} from "../../../../../common/js/utils";
 
-export default {
-  name: "EditApiScenario",
-  props: {
-    moduleOptions: Array,
-    currentScenario: {},
-  },
-  components: {
-    MsVariableList,
-    ScenarioRelevance,
-    ScenarioApiRelevance,
-    ApiEnvironmentConfig,
+  export default {
+    name: "EditApiScenario",
+    props: {
+      moduleOptions: Array,
+      currentScenario: {},
+    },
+    components: {
+      MsVariableList,
+      ScenarioRelevance,
+      ScenarioApiRelevance,
+      ApiEnvironmentConfig,
       MsApiReportDetail,
       MsInputTag, MsRun,
       MsApiCustomize,
@@ -595,6 +595,9 @@ export default {
         }
         if (item.protocol) {
           request.protocol = item.protocol;
+        }
+        if (request.protocol === "DUBBO") {
+          request.protocol = "dubbo://";
         }
         request.id = item.id;
         request.name = item.name;

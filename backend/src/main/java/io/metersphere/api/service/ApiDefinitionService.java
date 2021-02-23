@@ -18,7 +18,7 @@ import io.metersphere.api.jmeter.JMeterService;
 import io.metersphere.api.jmeter.RequestResult;
 import io.metersphere.api.jmeter.TestResult;
 import io.metersphere.api.parse.ApiImportParser;
-import io.metersphere.api.parse.ApiImportParserFactory;
+import io.metersphere.api.dto.definition.parse.ApiDefinitionImportParserFactory;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.*;
@@ -130,6 +130,9 @@ public class ApiDefinitionService {
 
     public void create(SaveApiDefinitionRequest request, List<MultipartFile> bodyFiles) {
         List<String> bodyUploadIds = new ArrayList<>(request.getBodyUploadIds());
+        if (StringUtils.equals(request.getProtocol(), "DUBBO")) {
+            request.setMethod("dubbo://");
+        }
         createTest(request);
         FileUtils.createBodyFiles(bodyUploadIds, bodyFiles);
     }
@@ -140,6 +143,9 @@ public class ApiDefinitionService {
         }
         List<String> bodyUploadIds = request.getBodyUploadIds();
         request.setBodyUploadIds(null);
+        if (StringUtils.equals(request.getProtocol(), "DUBBO")) {
+            request.setMethod("dubbo://");
+        }
         updateTest(request);
         FileUtils.createBodyFiles(bodyUploadIds, bodyFiles);
     }
@@ -382,6 +388,9 @@ public class ApiDefinitionService {
                 apiTestCase.setUpdateUserId(SessionUtils.getUserId());
                 apiTestCase.setNum(getNextNum(apiTestCase.getApiDefinitionId()));
                 apiTestCase.setPriority("P0");
+                if (apiTestCase.getName().length() > 255) {
+                    apiTestCase.setName(apiTestCase.getName().substring(0, 255));
+                }
                 if (!isInsert) {
                     apiTestCase.setName(apiTestCase.getName() + "_" + apiTestCase.getId().substring(0, 5));
                 }
@@ -490,10 +499,10 @@ public class ApiDefinitionService {
 
 
     public ApiDefinitionImport apiTestImport(MultipartFile file, ApiTestImportRequest request) {
-        ApiImportParser apiImportParser = ApiImportParserFactory.getApiImportParser(request.getPlatform());
+        ApiImportParser apiImportParser = ApiDefinitionImportParserFactory.getApiImportParser(request.getPlatform());
         ApiDefinitionImport apiImport = null;
         try {
-            apiImport = Objects.requireNonNull(apiImportParser).parse(file == null ? null : file.getInputStream(), request);
+            apiImport = (ApiDefinitionImport) Objects.requireNonNull(apiImportParser).parse(file == null ? null : file.getInputStream(), request);
         } catch (Exception e) {
             LogUtil.error(e.getMessage(), e);
             MSException.throwException(Translator.get("parse_data_error"));
@@ -615,7 +624,7 @@ public class ApiDefinitionService {
         return example;
     }
 
-    private List<String> getAllApiIdsByFontedSelect(Map<String, List<String>> filters, String name, List<String> moduleIds, String projectId, List<String> unSelectIds,String protocol) {
+    private List<String> getAllApiIdsByFontedSelect(Map<String, List<String>> filters, String name, List<String> moduleIds, String projectId, List<String> unSelectIds, String protocol) {
         ApiDefinitionRequest request = new ApiDefinitionRequest();
         request.setFilters(filters);
         request.setName(name);
@@ -744,6 +753,8 @@ public class ApiDefinitionService {
         apiExportResult.setCases(apiTestCaseService.selectCasesBydApiIds(request.getIds()));
         apiExportResult.setProjectName(request.getProjectId());
         apiExportResult.setProtocol(request.getProtocol());
+        apiExportResult.setProjectId(request.getProjectId());
+        apiExportResult.setVersion(System.getenv("MS_VERSION"));
         return apiExportResult;
     }
 }

@@ -254,8 +254,12 @@ export default {
       let resultValidate = {validate: true, msg: this.$t('test_resource_pool.fill_the_data')};
       this.infoList.forEach(info => {
         for (let key in info) {
+          // 排除非必填项
+          if (key === 'nodeSelector') {
+            continue;
+          }
           if (info[key] != '0' && !info[key]) {
-            resultValidate.validate = false
+            resultValidate.validate = false;
             return false;
           }
         }

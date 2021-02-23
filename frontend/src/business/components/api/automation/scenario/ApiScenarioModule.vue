@@ -25,7 +25,8 @@
               <el-dropdown-menu slot="dropdown">
                 <el-dropdown-item command="add-scenario">{{ $t('api_test.automation.add_scenario') }}</el-dropdown-item>
                 <el-dropdown-item command="import">{{ $t('api_test.api_import.label') }}</el-dropdown-item>
-                <el-dropdown-item command="export">{{ $t('report.export') }}</el-dropdown-item>
+                <el-dropdown-item command="export">{{ $t('report.export') }}MS</el-dropdown-item>
+                <el-dropdown-item command="exportJmx">{{ $t('report.export') }}JMX</el-dropdown-item>
               </el-dropdown-menu>
             </el-dropdown>
           </template>
@@ -33,14 +34,14 @@
         <module-trash-button v-if="!isReadOnly" :condition="condition" :exe="enableTrash"/>
         <!-- 是否保留这个 -->
         <!--<api-scenario-module-header-->
-          <!--:condition="condition"-->
-          <!--:current-module="currentModule"-->
-          <!--:is-read-only="isReadOnly"-->
-          <!--:project-id="projectId"-->
-          <!--@exportAPI="exportAPI"-->
-          <!--@addScenario="addScenario"-->
-          <!--@refreshTable="$emit('refreshTable')"-->
-          <!--@refresh="refresh"/>-->
+        <!--:condition="condition"-->
+        <!--:current-module="currentModule"-->
+        <!--:is-read-only="isReadOnly"-->
+        <!--:project-id="projectId"-->
+        <!--@exportAPI="exportAPI"-->
+        <!--@addScenario="addScenario"-->
+        <!--@refreshTable="$emit('refreshTable')"-->
+        <!--@refresh="refresh"/>-->
       </template>
 
     </ms-node-tree>
@@ -56,27 +57,26 @@
 </template>
 
 <script>
-import SelectMenu from "../../../track/common/SelectMenu";
-import MsAddBasisScenario from "@/business/components/api/automation/scenario/AddBasisScenario";
-import {getCurrentProjectID} from "@/common/js/utils";
-import MsNodeTree from "../../../track/common/NodeTree";
-import {buildNodePath} from "../../definition/model/NodeTree";
-import ModuleTrashButton from "../../definition/components/module/ModuleTrashButton";
-import ApiScenarioModuleHeader from "@/business/components/api/automation/scenario/module/ApiScenarioModuleHeader";
-import ApiImport from "./common/ScenarioImport";
+  import SelectMenu from "../../../track/common/SelectMenu";
+  import MsAddBasisScenario from "@/business/components/api/automation/scenario/AddBasisScenario";
+  import {getCurrentProjectID} from "@/common/js/utils";
+  import MsNodeTree from "../../../track/common/NodeTree";
+  import {buildNodePath} from "../../definition/model/NodeTree";
+  import ModuleTrashButton from "../../definition/components/module/ModuleTrashButton";
+  import ApiImport from "./common/ScenarioImport";
 
-export default {
-  name: 'MsApiScenarioModule',
-  components: {
-    ApiImport,
-    ModuleTrashButton,
-    MsNodeTree,
-    MsAddBasisScenario,
-    SelectMenu,
-  },
-  props: {
-    isReadOnly: {
-      type: Boolean,
+  export default {
+    name: 'MsApiScenarioModule',
+    components: {
+      ApiImport,
+      ModuleTrashButton,
+      MsNodeTree,
+      MsAddBasisScenario,
+      SelectMenu,
+    },
+    props: {
+      isReadOnly: {
+        type: Boolean,
         default() {
           return false
         }
@@ -144,6 +144,9 @@ export default {
             break;
           case "export":
             this.$emit('exportAPI');
+            break;
+          case "exportJmx":
+            this.$emit('exportJmx');
             break;
         }
       },

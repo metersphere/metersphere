@@ -167,50 +167,50 @@
 </template>
 
 <script>
-import MsTableHeader from "@/business/components/common/components/MsTableHeader";
-import MsTablePagination from "@/business/components/common/pagination/TablePagination";
-import ShowMoreBtn from "@/business/components/track/case/components/ShowMoreBtn";
-import MsTag from "../../../common/components/MsTag";
-import {downloadFile, getCurrentProjectID, getCurrentUser, getUUID} from "@/common/js/utils";
-import MsApiReportDetail from "../report/ApiReportDetail";
-import MsTableMoreBtn from "./TableMoreBtn";
-import MsScenarioExtendButtons from "@/business/components/api/automation/scenario/ScenarioExtendBtns";
-import MsTestPlanList from "./testplan/TestPlanList";
-import MsTableHeaderSelectPopover from "@/business/components/common/components/table/MsTableHeaderSelectPopover";
-import {API_SCENARIO_CONFIGS} from "@/business/components/common/components/search/search-components";
-import MsTableOperatorButton from "@/business/components/common/components/MsTableOperatorButton";
-import PriorityTableItem from "../../../track/common/tableItems/planview/PriorityTableItem";
-import PlanStatusTableItem from "../../../track/common/tableItems/plan/PlanStatusTableItem";
-import BatchEdit from "../../../track/case/components/BatchEdit";
-import {API_SCENARIO_LIST, TEST_CASE_LIST, TEST_PLAN_LIST, WORKSPACE_ID} from "../../../../../common/js/constants";
-import {PROJECT_NAME} from "../../../../../common/js/constants";
-import EnvironmentSelect from "../../definition/components/environment/EnvironmentSelect";
-import BatchMove from "../../../track/case/components/BatchMove";
-import {_sort} from "@/common/js/tableUtils";
-import {Api_Scenario_List, Track_Test_Case} from "@/business/components/common/model/JsonData";
-import HeaderCustom from "@/business/components/common/head/HeaderCustom";
-import {
-  _filter,
-  _handleSelect,
-  _handleSelectAll,
-  getSelectDataCounts,
-  setUnSelectIds, toggleAllSelection
-} from "@/common/js/tableUtils";
+  import MsTableHeader from "@/business/components/common/components/MsTableHeader";
+  import MsTablePagination from "@/business/components/common/pagination/TablePagination";
+  import ShowMoreBtn from "@/business/components/track/case/components/ShowMoreBtn";
+  import MsTag from "../../../common/components/MsTag";
+  import {downloadFile, getCurrentProjectID, getCurrentUser, getUUID} from "@/common/js/utils";
+  import MsApiReportDetail from "../report/ApiReportDetail";
+  import MsTableMoreBtn from "./TableMoreBtn";
+  import MsScenarioExtendButtons from "@/business/components/api/automation/scenario/ScenarioExtendBtns";
+  import MsTestPlanList from "./testplan/TestPlanList";
+  import MsTableHeaderSelectPopover from "@/business/components/common/components/table/MsTableHeaderSelectPopover";
+  import {API_SCENARIO_CONFIGS} from "@/business/components/common/components/search/search-components";
+  import MsTableOperatorButton from "@/business/components/common/components/MsTableOperatorButton";
+  import PriorityTableItem from "../../../track/common/tableItems/planview/PriorityTableItem";
+  import PlanStatusTableItem from "../../../track/common/tableItems/plan/PlanStatusTableItem";
+  import BatchEdit from "../../../track/case/components/BatchEdit";
+  import {API_SCENARIO_LIST, TEST_CASE_LIST, TEST_PLAN_LIST, WORKSPACE_ID} from "../../../../../common/js/constants";
+  import {PROJECT_NAME} from "../../../../../common/js/constants";
+  import EnvironmentSelect from "../../definition/components/environment/EnvironmentSelect";
+  import BatchMove from "../../../track/case/components/BatchMove";
+  import {_sort} from "@/common/js/tableUtils";
+  import {Api_Scenario_List} from "@/business/components/common/model/JsonData";
+  import HeaderCustom from "@/business/components/common/head/HeaderCustom";
+  import {
+    _filter,
+    _handleSelect,
+    _handleSelectAll,
+    getSelectDataCounts,
+    setUnSelectIds, toggleAllSelection
+  } from "@/common/js/tableUtils";
 
-export default {
-  name: "MsApiScenarioList",
-  components: {
-    HeaderCustom,
-    BatchMove,
-    EnvironmentSelect,
-    BatchEdit,
-    PlanStatusTableItem,
-    PriorityTableItem,
-    MsTableHeaderSelectPopover,
-    MsTablePagination,
-    MsTableMoreBtn,
-    ShowMoreBtn,
-    MsTableHeader,
+  export default {
+    name: "MsApiScenarioList",
+    components: {
+      HeaderCustom,
+      BatchMove,
+      EnvironmentSelect,
+      BatchEdit,
+      PlanStatusTableItem,
+      PriorityTableItem,
+      MsTableHeaderSelectPopover,
+      MsTablePagination,
+      MsTableMoreBtn,
+      ShowMoreBtn,
+      MsTableHeader,
       MsTag,
       MsApiReportDetail,
       MsScenarioExtendButtons,
@@ -554,12 +554,15 @@ export default {
         _handleSelectAll(this, selection, this.tableData, this.selectRows);
         setUnSelectIds(this.tableData, this.condition, this.selectRows);
         this.selectDataCounts = getSelectDataCounts(this.condition, this.total, this.selectRows);
+        this.$emit('selection', selection);
       },
       handleSelect(selection, row) {
         _handleSelect(this, selection, row, this.selectRows);
         setUnSelectIds(this.tableData, this.condition, this.selectRows);
         this.selectDataCounts = getSelectDataCounts(this.condition, this.total, this.selectRows);
+        this.$emit('selection', selection);
       },
+
       isSelectDataAll(data) {
         this.condition.selectAll = data;
         setUnSelectIds(this.tableData, this.condition, this.selectRows);
@@ -587,7 +590,7 @@ export default {
         scenarioIds.push(row.id);
         run.id = getUUID();
         run.projectId = getCurrentProjectID();
-        run.scenarioIds = scenarioIds;
+        run.ids = scenarioIds;
         this.$post(url, run, response => {
           let data = response.data;
           this.runVisible = true;
@@ -670,6 +673,24 @@ export default {
           let obj = response.data;
           this.buildApiPath(obj.data);
           downloadFile("Metersphere_Scenario_" + localStorage.getItem(PROJECT_NAME) + ".json", JSON.stringify(obj));
+        });
+      },
+      exportJmx() {
+        let param = {};
+        this.buildBatchParam(param);
+        if (param.ids === undefined || param.ids.length < 1) {
+          this.$warning(this.$t("api_test.automation.scenario.check_case"));
+          return;
+        }
+        this.loading = true;
+        this.result = this.$post("/api/automation/export/jmx", param, response => {
+          this.loading = false;
+          let obj = response.data;
+          if (obj && obj.length > 0) {
+            obj.forEach(item => {
+              downloadFile(item.name + ".jmx", item.jmx);
+            })
+          }
         });
       },
       buildApiPath(scenarios) {

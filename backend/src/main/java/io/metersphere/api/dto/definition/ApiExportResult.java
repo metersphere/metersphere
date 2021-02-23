@@ -12,6 +12,8 @@ import java.util.List;
 public class ApiExportResult {
     private String projectName;
     private String protocol;
+    private String projectId;
+    private String version;
     private List<ApiDefinitionWithBLOBs> data;
     private List<ApiTestCaseWithBLOBs> cases;
 }
