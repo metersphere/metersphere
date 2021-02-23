@@ -10,7 +10,6 @@ import io.metersphere.api.dto.automation.ImportPoolsDTO;
 import io.metersphere.api.dto.definition.request.MsScenario;
 import io.metersphere.api.dto.definition.request.MsTestElement;
 import io.metersphere.api.dto.definition.request.assertions.*;
-import io.metersphere.api.dto.definition.request.controller.MsIfController;
 import io.metersphere.api.dto.definition.request.controller.MsLoopController;
 import io.metersphere.api.dto.definition.request.controller.loop.CountController;
 import io.metersphere.api.dto.definition.request.controller.loop.MsForEachController;
@@ -52,7 +51,6 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.jmeter.assertions.*;
 import org.apache.jmeter.config.ConfigTestElement;
 import org.apache.jmeter.control.ForeachController;
-import org.apache.jmeter.control.IfController;
 import org.apache.jmeter.control.LoopController;
 import org.apache.jmeter.control.WhileController;
 import org.apache.jmeter.extractor.JSR223PostProcessor;
@@ -60,6 +58,7 @@ import org.apache.jmeter.extractor.RegexExtractor;
 import org.apache.jmeter.extractor.XPath2Extractor;
 import org.apache.jmeter.extractor.json.jsonpath.JSONPostProcessor;
 import org.apache.jmeter.modifiers.JSR223PreProcessor;
+import org.apache.jmeter.protocol.http.control.HeaderManager;
 import org.apache.jmeter.protocol.http.sampler.HTTPSamplerProxy;
 import org.apache.jmeter.protocol.http.util.HTTPFileArg;
 import org.apache.jmeter.protocol.java.sampler.JSR223Sampler;
@@ -79,13 +78,17 @@ import java.util.*;
 
 public class MsJmeterParser extends ApiImportAbstractParser<ScenarioImport> {
     private final String ENV_NAME = "导入数据环境";
+    /**
+     * todo 存放单个请求下的Header 为了和平台对应
+     */
+    private Map<Integer, List<Object>> headerMap = new HashMap<>();
 
     @Override
     public ScenarioImport parse(InputStream inputSource, ApiTestImportRequest request) {
         try {
             Object scriptWrapper = SaveService.loadElement(inputSource);
             HashTree testPlan = this.getHashTree(scriptWrapper);
-            // 优先初始化数据源
+            // 优先初始化数据源及部分参数
             preInitPool(request.getProjectId(), testPlan);
 
             MsScenario scenario = new MsScenario();
@@ -128,8 +131,9 @@ public class MsJmeterParser extends ApiImportAbstractParser<ScenarioImport> {
         return (HashTree) field.get(scriptWrapper);
     }
 
-    private void convertHttpSampler(MsHTTPSamplerProxy samplerProxy, HTTPSamplerProxy source) {
+    private void convertHttpSampler(MsHTTPSamplerProxy samplerProxy, Object key) {
         try {
+            HTTPSamplerProxy source = (HTTPSamplerProxy) key;
             BeanUtils.copyBean(samplerProxy, source);
             if (source != null && source.getHTTPFiles().length > 0) {
                 samplerProxy.getBody().setBinary(new ArrayList<>());
@@ -172,10 +176,23 @@ public class MsJmeterParser extends ApiImportAbstractParser<ScenarioImport> {
             samplerProxy.setPath(source.getPath());
             samplerProxy.setMethod(source.getMethod());
             if (source.getUrl() != null) {
-                // samplerProxy.setUrl(source.getUrl().toString());
+                samplerProxy.setUrl(source.getUrl().toString());
             }
             samplerProxy.setId(UUID.randomUUID().toString());
             samplerProxy.setType("HTTPSamplerProxy");
+            // 处理HTTP协议的请求头
+            if (headerMap.containsKey(key.hashCode())) {
+                List<KeyValue> keyValues = new LinkedList<>();
+                headerMap.get(key.hashCode()).forEach(item -> {
+                    HeaderManager headerManager = (HeaderManager) item;
+                    if (headerManager.getHeaders() != null) {
+                        for (int i = 0; i < headerManager.getHeaders().size(); i++) {
+                            keyValues.add(new KeyValue(headerManager.getHeader(i).getName(), headerManager.getHeader(i).getValue()));
+                        }
+                    }
+                });
+                samplerProxy.setHeaders(keyValues);
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -200,7 +217,6 @@ public class MsJmeterParser extends ApiImportAbstractParser<ScenarioImport> {
     private void convertDubboSample(MsDubboSampler elementNode, DubboSample sampler) {
         elementNode.setName(sampler.getName());
         elementNode.setType("DubboSampler");
-        elementNode.setProtocol("dubbo://");
         elementNode.set_interface(sampler.getPropertyAsString("FIELD_DUBBO_INTERFACE"));
         elementNode.setMethod(sampler.getPropertyAsString("FIELD_DUBBO_METHOD"));
 
@@ -261,7 +277,7 @@ public class MsJmeterParser extends ApiImportAbstractParser<ScenarioImport> {
         // 初始化已有数据池
         initDataSource(projectId, ENV_NAME);
         // 添加当前jmx 中新的数据池
-        preCreatePool(hashTree);
+        preCreate(hashTree);
         // 更新数据源
         ApiTestEnvironmentService environmentService = CommonBeanFactory.getBean(ApiTestEnvironmentService.class);
         dataPools.getEnvConfig().setDatabaseConfigs(new ArrayList<>(dataPools.getDataSources().values()));
@@ -275,7 +291,7 @@ public class MsJmeterParser extends ApiImportAbstractParser<ScenarioImport> {
         }
     }
 
-    private void preCreatePool(HashTree tree) {
+    private void preCreate(HashTree tree) {
         for (Object key : tree.keySet()) {
             // JDBC 数据池
             if (key instanceof DataSourceElement) {
@@ -307,12 +323,29 @@ public class MsJmeterParser extends ApiImportAbstractParser<ScenarioImport> {
                     }
                     dataPools.getDataSources().put(dataSourceElement.getPropertyAsString("dataSource"), newConfig);
                 }
+            } else if (key instanceof HTTPSamplerProxy) {
+                // 把HTTP 请求下的HeaderManager 取出来
+                HashTree node = tree.get(key);
+                if (node != null) {
+                    for (Object nodeKey : node.keySet()) {
+                        if (nodeKey instanceof HeaderManager) {
+                            if (headerMap.containsKey(key.hashCode())) {
+                                headerMap.get(key.hashCode()).add(nodeKey);
+                            } else {
+                                List<Object> objects = new LinkedList<Object>() {{
+                                    this.add(nodeKey);
+                                }};
+                                headerMap.put(key.hashCode(), objects);
+                            }
+                        }
+                    }
+                }
             }
 
             // 递归子项
             HashTree node = tree.get(key);
             if (node != null) {
-                preCreatePool(node);
+                preCreate(node);
             }
         }
     }
@@ -500,6 +533,7 @@ public class MsJmeterParser extends ApiImportAbstractParser<ScenarioImport> {
                 elementNode = new MsJmeterElement();
                 elementNode.setName(((TestPlan) key).getName());
                 ((MsJmeterElement) elementNode).setJmeterElement(objToXml(key));
+                ((MsJmeterElement) elementNode).setElementType(key.getClass().getSimpleName());
             }
             // 线程组
             else if (key instanceof ThreadGroup) {
@@ -509,7 +543,7 @@ public class MsJmeterParser extends ApiImportAbstractParser<ScenarioImport> {
             else if (key instanceof HTTPSamplerProxy) {
                 elementNode = new MsHTTPSamplerProxy();
                 ((MsHTTPSamplerProxy) elementNode).setBody(new Body());
-                convertHttpSampler((MsHTTPSamplerProxy) elementNode, (HTTPSamplerProxy) key);
+                convertHttpSampler((MsHTTPSamplerProxy) elementNode, key);
             }
             // TCP请求
             else if (key instanceof TCPSampler) {
@@ -569,12 +603,12 @@ public class MsJmeterParser extends ApiImportAbstractParser<ScenarioImport> {
                 BeanUtils.copyBean(elementNode, key);
                 elementNode.setType("ConstantTimer");
             }
-            // IF条件控制器
-            else if (key instanceof IfController) {
-                elementNode = new MsIfController();
-                BeanUtils.copyBean(elementNode, key);
-                elementNode.setType("IfController");
-            }
+            // IF条件控制器，这里平台方式和jmeter 不同，暂时不处理
+//            else if (key instanceof IfController) {
+//                elementNode = new MsIfController();
+//                BeanUtils.copyBean(elementNode, key);
+//                elementNode.setType("IfController");
+//            }
             // 次数循环控制器
             else if (key instanceof LoopController) {
                 elementNode = new MsLoopController();
@@ -612,11 +646,16 @@ public class MsJmeterParser extends ApiImportAbstractParser<ScenarioImport> {
             }
             // 平台不能识别的Jmeter步骤
             else {
+                // HTTP 请求下的所有HeaderManager已经加到请求中
+                if (scenario instanceof MsHTTPSamplerProxy && key instanceof HeaderManager) {
+                    continue;
+                }
                 elementNode = new MsJmeterElement();
                 elementNode.setType("JmeterElement");
                 TestElement testElement = (TestElement) key;
                 elementNode.setName(testElement.getName());
                 ((MsJmeterElement) elementNode).setJmeterElement(objToXml(key));
+                ((MsJmeterElement) elementNode).setElementType(key.getClass().getSimpleName());
             }
             elementNode.setEnable(((TestElement) key).isEnabled());
             elementNode.setResourceId(UUID.randomUUID().toString());

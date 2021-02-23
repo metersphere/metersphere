@@ -59,8 +59,8 @@ public class MsTCPSampler extends MsTestElement {
     private String password = "";
     @JSONField(ordinal = 33)
     private String request;
-    @JSONField(ordinal = 34)
-    private Object requestResult;
+//    @JSONField(ordinal = 34)
+//    private Object requestResult;
     @JSONField(ordinal = 35)
     private List<KeyValue> parameters;
     @JSONField(ordinal = 36)
@@ -72,9 +72,6 @@ public class MsTCPSampler extends MsTestElement {
 
     @Override
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, ParameterConfig config) {
-        if (!this.isEnable()) {
-            return;
-        }
         if (this.getReferenced() != null && MsTestElementConstants.REF.name().equals(this.getReferenced())) {
             this.getRefElement(this);
         }
@@ -84,7 +81,7 @@ public class MsTCPSampler extends MsTestElement {
         // 添加环境中的公共变量
         Arguments arguments = this.addArguments(config);
         if (arguments != null) {
-            tree.add(this.addArguments(config));
+            tree.add(arguments);
         }
 
         final HashTree samplerHashTree = new ListedHashTree();
@@ -110,9 +107,10 @@ public class MsTCPSampler extends MsTestElement {
 
     private TCPSampler tcpSampler(ParameterConfig config) {
         TCPSampler tcpSampler = new TCPSampler();
+        tcpSampler.setEnabled(this.isEnable());
         tcpSampler.setName(this.getName());
         String name = this.getParentName(this.getParent(), config);
-        if (StringUtils.isNotEmpty(name)) {
+        if (StringUtils.isNotEmpty(name) && !config.isOperating()) {
             tcpSampler.setName(this.getName() + "<->" + name);
         }
 

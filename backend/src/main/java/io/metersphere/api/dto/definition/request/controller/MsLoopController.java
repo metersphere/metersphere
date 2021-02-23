@@ -44,21 +44,6 @@ public class MsLoopController extends MsTestElement {
 
     @Override
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, ParameterConfig config) {
-        if (!this.isEnable()) {
-            return;
-        }
-        if (StringUtils.equals(this.loopType, LoopConstants.WHILE.name()) && this.whileController != null) {
-            config.setStep("While 循环");
-        }
-        if (StringUtils.equals(this.loopType, LoopConstants.FOREACH.name()) && this.forEachController != null) {
-            config.setStep("ForEach 循环");
-        }
-        if (StringUtils.equals(this.loopType, LoopConstants.LOOP_COUNT.name()) && this.countController != null) {
-            config.setStep("次数循环");
-        }
-
-        config.setStepType("LOOP");
-
         final HashTree groupTree = controller(tree);
         if (CollectionUtils.isNotEmpty(config.getVariables())) {
             this.addCsvDataSet(groupTree, config.getVariables());
@@ -93,7 +78,7 @@ public class MsLoopController extends MsTestElement {
     private CounterConfig addCounterConfig() {
         CounterConfig counterConfig = new CounterConfig();
         counterConfig.setVarName("LoopCounterConfigXXX");
-        counterConfig.setName("LoopCounterConfigXXX");
+        counterConfig.setName("数循结果统计计数器");
         counterConfig.setEnabled(true);
         counterConfig.setProperty(TestElement.TEST_CLASS, CounterConfig.class.getName());
         counterConfig.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("CounterConfigGui"));
@@ -104,7 +89,7 @@ public class MsLoopController extends MsTestElement {
 
     private LoopController initLoopController() {
         LoopController loopController = new LoopController();
-        loopController.setEnabled(true);
+        loopController.setEnabled(this.isEnable());
         loopController.setName("LoopController");
         loopController.setProperty(TestElement.TEST_CLASS, LoopController.class.getName());
         loopController.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("LoopControlPanel"));
@@ -142,7 +127,7 @@ public class MsLoopController extends MsTestElement {
             return null;
         }
         WhileController controller = new WhileController();
-        controller.setEnabled(true);
+        controller.setEnabled(this.isEnable());
         controller.setName("WhileController");
         controller.setProperty(TestElement.TEST_CLASS, WhileController.class.getName());
         controller.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("WhileControllerGui"));
@@ -152,7 +137,7 @@ public class MsLoopController extends MsTestElement {
 
     private ForeachController initForeachController() {
         ForeachController controller = new ForeachController();
-        controller.setEnabled(true);
+        controller.setEnabled(this.isEnable());
         controller.setName("ForeachController");
         controller.setProperty(TestElement.TEST_CLASS, ForeachController.class.getName());
         controller.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("ForeachControlPanel"));
@@ -188,7 +173,7 @@ public class MsLoopController extends MsTestElement {
 
     private ConstantTimer getCnstantTimer() {
         ConstantTimer constantTimer = new ConstantTimer();
-        constantTimer.setEnabled(true);
+        constantTimer.setEnabled(this.isEnable());
         constantTimer.setProperty(TestElement.TEST_CLASS, ConstantTimer.class.getName());
         constantTimer.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("ConstantTimerGui"));
         if (StringUtils.equals(this.loopType, LoopConstants.WHILE.name()) && this.whileController != null) {

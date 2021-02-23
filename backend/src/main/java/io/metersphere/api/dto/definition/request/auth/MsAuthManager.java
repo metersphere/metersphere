@@ -11,6 +11,7 @@ import io.metersphere.base.domain.ApiTestEnvironmentWithBLOBs;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.protocol.http.control.AuthManager;
 import org.apache.jmeter.protocol.http.control.Authorization;
 import org.apache.jmeter.save.SaveService;
@@ -58,7 +59,7 @@ public class MsAuthManager extends MsTestElement {
         }
         AuthManager authManager = new AuthManager();
         authManager.setEnabled(true);
-        authManager.setName(this.getUsername() + "AuthManager");
+        authManager.setName(StringUtils.isNotEmpty(this.getName()) ? this.getName() : "AuthManager");
         authManager.setProperty(TestElement.TEST_CLASS, AuthManager.class.getName());
         authManager.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("AuthPanel"));
         Authorization auth = new Authorization();

@@ -40,6 +40,10 @@ public class ScenarioVariable {
     private String minNumber;
     private String maxNumber;
 
+    public ScenarioVariable() {
+
+    }
+
     public ScenarioVariable(String key, String value, String description, String type) {
         this.name = key;
         this.value = value;

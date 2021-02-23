@@ -12,8 +12,7 @@
                 @select-all="handleSelectAll"
                 @select="handleSelect"
                 @header-dragend="headerDragend"
-                :height="screenHeight"
-                v-loading="loading">
+                :height="screenHeight">
 
         <el-table-column type="selection" width="50"/>
 
@@ -572,7 +571,7 @@
         scenarioIds.push(row.id);
         run.id = getUUID();
         run.projectId = getCurrentProjectID();
-        run.scenarioIds = scenarioIds;
+        run.ids = scenarioIds;
         this.$post(url, run, response => {
           let data = response.data;
           this.runVisible = true;
@@ -668,7 +667,6 @@
         this.result = this.$post("/api/automation/export/jmx", param, response => {
           this.loading = false;
           let obj = response.data;
-          console.log(obj)
           if (obj && obj.length > 0) {
             obj.forEach(item => {
               downloadFile(item.name + ".jmx", item.jmx);

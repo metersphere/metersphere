@@ -66,9 +66,6 @@ public class MsScenario extends MsTestElement {
 
     @Override
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, ParameterConfig config) {
-        if (!this.isEnable()) {
-            return;
-        }
         if (this.getReferenced() != null && this.getReferenced().equals("Deleted")) {
             return;
         } else if (this.getReferenced() != null && this.getReferenced().equals("REF")) {
@@ -77,16 +74,15 @@ public class MsScenario extends MsTestElement {
                 ObjectMapper mapper = new ObjectMapper();
                 mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
                 ApiScenarioWithBLOBs scenario = apiAutomationService.getApiScenario(this.getId());
-                JSONObject element = JSON.parseObject(scenario.getScenarioDefinition());
-                hashTree = mapper.readValue(element.getString("hashTree"), new TypeReference<LinkedList<MsTestElement>>() {
-                });
+                if (scenario != null && StringUtils.isNotEmpty(scenario.getScenarioDefinition())) {
+                    JSONObject element = JSON.parseObject(scenario.getScenarioDefinition());
+                    hashTree = mapper.readValue(element.getString("hashTree"), new TypeReference<LinkedList<MsTestElement>>() {
+                    });
+                }
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
         }
-
-        config.setStep(this.getName());
-        config.setStepType("SCENARIO");
         config.setEnableCookieShare(enableCookieShare);
         if (StringUtils.isNotEmpty(environmentId)) {
             ApiTestEnvironmentService environmentService = CommonBeanFactory.getBean(ApiTestEnvironmentService.class);
@@ -99,19 +95,22 @@ public class MsScenario extends MsTestElement {
             config.setVariables(this.variables);
         }
         // 场景变量和环境变量
-        tree.add(arguments(config));
+        Arguments arguments = arguments(config);
+        if (arguments != null) {
+            tree.add(arguments);
+        }
         this.addCsvDataSet(tree, variables);
         this.addCounter(tree, variables);
         this.addRandom(tree, variables);
+        if (CollectionUtils.isNotEmpty(this.headers)) {
+            setHeader(tree, this.headers);
+        }
         if (CollectionUtils.isNotEmpty(hashTree)) {
             for (MsTestElement el : hashTree) {
                 // 给所有孩子加一个父亲标志
                 el.setParent(this);
                 el.toHashTree(tree, el.getHashTree(), config);
             }
-        }
-        if (CollectionUtils.isNotEmpty(this.headers)) {
-            setHeader(tree, this.headers);
         }
     }
 
@@ -139,15 +138,15 @@ public class MsScenario extends MsTestElement {
     private Arguments arguments(ParameterConfig config) {
         Arguments arguments = new Arguments();
         arguments.setEnabled(true);
-        arguments.setName(this.getName() + "Variables");
+        arguments.setName(StringUtils.isNotEmpty(this.getName()) ? this.getName() : "Arguments");
         arguments.setProperty(TestElement.TEST_CLASS, Arguments.class.getName());
         arguments.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("ArgumentsPanel"));
         if (CollectionUtils.isNotEmpty(this.getVariables())) {
-            variables.stream().filter(ScenarioVariable::isConstantValid).forEach(keyValue ->
+            this.getVariables().stream().filter(ScenarioVariable::isConstantValid).forEach(keyValue ->
                     arguments.addArgument(keyValue.getName(), keyValue.getValue(), "=")
             );
 
-            List<ScenarioVariable> variableList = variables.stream().filter(ScenarioVariable::isListValid).collect(Collectors.toList());
+            List<ScenarioVariable> variableList = this.getVariables().stream().filter(ScenarioVariable::isListValid).collect(Collectors.toList());
             variableList.forEach(item -> {
                 String[] arrays = item.getValue().split(",");
                 for (int i = 0; i < arrays.length; i++) {
@@ -161,8 +160,10 @@ public class MsScenario extends MsTestElement {
                     arguments.addArgument(keyValue.getName(), keyValue.getValue(), "=")
             );
         }
-
-        return arguments;
+        if (arguments.getArguments() != null && arguments.getArguments().size() > 0) {
+            return arguments;
+        }
+        return null;
     }
 
 

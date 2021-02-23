@@ -85,25 +85,23 @@ public class MsHTTPSamplerProxy extends MsTestElement {
     @JSONField(ordinal = 34)
     private List<KeyValue> arguments;
 
-    @JSONField(ordinal = 35)
-    private Object requestResult;
+//    @JSONField(ordinal = 35)
+//    private Object requestResult;
 
     @JSONField(ordinal = 36)
     private MsAuthManager authManager;
 
     @Override
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, ParameterConfig config) {
-        if (!this.isEnable()) {
-            return;
-        }
+
         if (this.getReferenced() != null && MsTestElementConstants.REF.name().equals(this.getReferenced())) {
             this.getRefElement(this);
         }
         HTTPSamplerProxy sampler = new HTTPSamplerProxy();
-        sampler.setEnabled(true);
+        sampler.setEnabled(this.isEnable());
         sampler.setName(this.getName());
         String name = this.getParentName(this.getParent(), config);
-        if (StringUtils.isNotEmpty(name)) {
+        if (StringUtils.isNotEmpty(name) && !config.isOperating()) {
             sampler.setName(this.getName() + "<->" + name);
         }
         sampler.setProperty(TestElement.TEST_CLASS, HTTPSamplerProxy.class.getName());
@@ -124,7 +122,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         // 添加环境中的公共变量
         Arguments arguments = this.addArguments(config);
         if (arguments != null) {
-            tree.add(this.addArguments(config));
+            tree.add(arguments);
         }
         try {
             if (config != null && config.getConfig() != null) {
@@ -175,6 +173,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                 sampler.setPort(urlObject.getPort());
                 sampler.setProtocol(urlObject.getProtocol());
                 String envPath = StringUtils.equals(urlObject.getPath(), "/") ? "" : urlObject.getPath();
+                sampler.setPath(envPath);
                 if (CollectionUtils.isNotEmpty(this.getRest()) && this.isRest()) {
                     envPath = getRestParameters(URLDecoder.decode(envPath, "UTF-8"));
                     sampler.setPath(envPath);
@@ -307,7 +306,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
     public void setHeader(HashTree tree, List<KeyValue> headers) {
         HeaderManager headerManager = new HeaderManager();
         headerManager.setEnabled(true);
-        headerManager.setName(this.getName() + "Headers");
+        headerManager.setName(StringUtils.isNotEmpty(this.getName()) ? this.getName() : "HeaderManager");
         headerManager.setProperty(TestElement.TEST_CLASS, HeaderManager.class.getName());
         headerManager.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("HeaderPanel"));
         headers.stream().filter(KeyValue::isValid).filter(KeyValue::isEnable).forEach(keyValue ->

@@ -130,6 +130,9 @@ public class ApiDefinitionService {
 
     public void create(SaveApiDefinitionRequest request, List<MultipartFile> bodyFiles) {
         List<String> bodyUploadIds = new ArrayList<>(request.getBodyUploadIds());
+        if (StringUtils.equals(request.getProtocol(), "DUBBO")) {
+            request.setMethod("dubbo://");
+        }
         createTest(request);
         FileUtils.createBodyFiles(bodyUploadIds, bodyFiles);
     }
@@ -140,6 +143,9 @@ public class ApiDefinitionService {
         }
         List<String> bodyUploadIds = request.getBodyUploadIds();
         request.setBodyUploadIds(null);
+        if (StringUtils.equals(request.getProtocol(), "DUBBO")) {
+            request.setMethod("dubbo://");
+        }
         updateTest(request);
         FileUtils.createBodyFiles(bodyUploadIds, bodyFiles);
     }
@@ -618,7 +624,7 @@ public class ApiDefinitionService {
         return example;
     }
 
-    private List<String> getAllApiIdsByFontedSelect(Map<String, List<String>> filters, String name, List<String> moduleIds, String projectId, List<String> unSelectIds,String protocol) {
+    private List<String> getAllApiIdsByFontedSelect(Map<String, List<String>> filters, String name, List<String> moduleIds, String projectId, List<String> unSelectIds, String protocol) {
         ApiDefinitionRequest request = new ApiDefinitionRequest();
         request.setFilters(filters);
         request.setName(name);
