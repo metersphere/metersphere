@@ -50,6 +50,7 @@ import org.apache.jorphan.collections.ListedHashTree;
 import java.io.ByteArrayOutputStream;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "type")
@@ -104,6 +105,8 @@ public abstract class MsTestElement {
     private boolean customizeReq;
     @JSONField(ordinal = 12)
     private String projectId;
+    @JSONField(ordinal = 13)
+    private Map<String, String> environmentMap;
 
     private MsTestElement parent;
 
@@ -181,9 +184,10 @@ public abstract class MsTestElement {
         return null;
     }
 
-    protected EnvironmentConfig getEnvironmentConfig(String environmentId) {
+    protected EnvironmentConfig getEnvironmentConfig(String projectId) {
+        String env = environmentMap.get(projectId);
         ApiTestEnvironmentService environmentService = CommonBeanFactory.getBean(ApiTestEnvironmentService.class);
-        ApiTestEnvironmentWithBLOBs environment = environmentService.get(environmentId);
+        ApiTestEnvironmentWithBLOBs environment = environmentService.get(env);
         if (environment != null && environment.getConfig() != null) {
             return JSONObject.parseObject(environment.getConfig(), EnvironmentConfig.class);
         }

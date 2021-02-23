@@ -29,6 +29,7 @@
   import MsDubboBasisParameters from "../../../definition/components/request/dubbo/BasisParameters";
   import MsApiRequestForm from "../../../definition/components/request/http/ApiHttpRequestForm";
   import ApiBaseComponent from "../common/ApiBaseComponent";
+  import {getProject} from "@/business/components/api/automation/scenario/event";
 
   export default {
     name: "ApiScenarioComponent",
@@ -39,6 +40,7 @@
         type: Boolean,
         default: false,
       },
+      currentEnvironmentId: String,
     },
     watch: {},
     created() {
@@ -56,7 +58,8 @@
             this.scenario.disabled = true;
             this.scenario.name = response.data.name;
             const project = this.projects.find(p => p.id === this.scenario.projectId);
-            this.scenario.projectName = project.name;
+            getProject.$emit('addProjectEnv', this.scenario.projectId, this.currentEnvironmentId);
+            this.scenario.projectName = project ? project.name : '';
             this.$emit('refReload');
           } else {
             this.scenario.referenced = "Deleted";

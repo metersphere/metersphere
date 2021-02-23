@@ -363,7 +363,7 @@
         this.changeSelectDataRangeAll();
         this.search();
       },
-      search() {
+      search(projectId) {
         this.selectRows = new Set();
         this.getLabel()
         this.condition.moduleIds = this.selectNodeIds;
@@ -372,7 +372,10 @@
           this.condition.moduleIds = [];
         }
 
-        if (this.projectId != null) {
+        // todo
+        if (projectId != null) {
+          this.condition.projectId = projectId;
+        } else if (this.projectId != null) {
           this.condition.projectId = this.projectId;
         }
 

@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.List;
+import java.util.Map;
 
 @Setter
 @Getter
@@ -34,4 +35,6 @@ public class RunDefinitionRequest {
     private Response response;
 
     private List<String> bodyUploadIds;
+
+    private Map<String, String> environmentMap;
 }

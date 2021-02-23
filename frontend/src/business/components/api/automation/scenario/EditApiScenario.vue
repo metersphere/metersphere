@@ -111,24 +111,26 @@
                 <el-col :span="3" class="ms-col-one ms-font">
                   <el-checkbox v-model="enableCookieShare">共享cookie</el-checkbox>
                 </el-col>
-                <el-col :span="7" class="ms-font">
-                  <el-select v-model="currentEnvironmentId" size="small" class="ms-htt-width"
-                             :placeholder="$t('api_test.definition.request.run_env')"
-                             clearable>
-                    <el-option v-for="(environment, index) in environments" :key="index"
-                               :label="environment.name + (environment.config.httpConfig.socket ? (': ' + environment.config.httpConfig.protocol + '://' + environment.config.httpConfig.socket) : '')"
-                               :value="environment.id"/>
-                    <el-button class="ms-scenario-button" size="mini" type="primary" @click="openEnvironmentConfig">
-                      {{ $t('api_test.environment.environment_config') }}
-                    </el-button>
-                    <template v-slot:empty>
-                      <div class="empty-environment">
-                        <el-button class="ms-scenario-button" size="mini" type="primary" @click="openEnvironmentConfig">
-                          {{ $t('api_test.environment.environment_config') }}
-                        </el-button>
-                      </div>
-                    </template>
-                  </el-select>
+                <el-col :span="7" class="ms-col-one ms-font">
+                  <el-link type="primary" @click="handleEnv">环境配置</el-link>
+<!--                  <el-select v-model="currentEnvironmentId" size="small" class="ms-htt-width"-->
+<!--                             :placeholder="$t('api_test.definition.request.run_env')"-->
+<!--                             clearable>-->
+<!--                    <el-option v-for="(environment, index) in environments" :key="index"-->
+<!--                               :label="environment.name + (environment.config.httpConfig.socket ? (': ' + environment.config.httpConfig.protocol + '://' + environment.config.httpConfig.socket) : '')"-->
+<!--                               :value="environment.id"/>-->
+<!--                    <el-button class="ms-scenario-button" size="mini" type="primary" @click="openEnvironmentConfig">-->
+<!--                      {{ $t('api_test.environment.environment_config') }}-->
+<!--                    </el-button>-->
+<!--                    <template v-slot:empty>-->
+<!--                      <div class="empty-environment">-->
+<!--                        <el-button class="ms-scenario-button" size="mini" type="primary" @click="openEnvironmentConfig">-->
+<!--                          {{ $t('api_test.environment.environment_config') }}-->
+<!--                        </el-button>-->
+<!--                      </div>-->
+<!--                    </template>-->
+<!--                  </el-select>-->
+
                 </el-col>
                 <el-col :span="2">
                   <el-button :disabled="scenarioDefinition.length < 1" size="small" type="primary" @click="runDebug">{{$t('api_test.request.debug')}}</el-button>
@@ -184,11 +186,13 @@
       <!--场景导入 -->
       <scenario-relevance @save="addScenario" ref="scenarioRelevance"/>
 
+      <api-scenario-env :project-ids="projectIds" ref="apiScenarioEnv" @setProjectEnvMap="setProjectEnvMap"/>
+
       <!-- 环境 -->
       <api-environment-config ref="environmentConfig" @close="environmentConfigClose"/>
 
       <!--执行组件-->
-      <ms-run :debug="true" :environment="currentEnvironmentId" :reportId="reportId" :run-data="debugData"
+      <ms-run :debug="true" :environment="projectEnvMap" :reportId="reportId" :run-data="debugData"
               @runRefresh="runRefresh" ref="runTest"/>
       <!-- 调试结果 -->
       <el-drawer :visible.sync="debugVisible" :destroy-on-close="true" direction="ltr" :withHeader="true" :modal="false" size="90%">
@@ -230,6 +234,8 @@ import ScenarioApiRelevance from "./api/ApiRelevance";
 import ScenarioRelevance from "./api/ScenarioRelevance";
 import MsComponentConfig from "./component/ComponentConfig";
 import {handleCtrlSEvent} from "../../../../../common/js/utils";
+import {getProject} from "@/business/components/api/automation/scenario/event";
+import ApiScenarioEnv from "@/business/components/api/automation/scenario/ApiScenarioEnv";
 
 export default {
   name: "EditApiScenario",
@@ -238,6 +244,7 @@ export default {
     currentScenario: {},
   },
   components: {
+    ApiScenarioEnv,
     MsVariableList,
     ScenarioRelevance,
     ScenarioApiRelevance,
@@ -291,7 +298,9 @@ export default {
         globalOptions: {
           spacing: 30
         },
-        response: {}
+        response: {},
+        projectIds: new Set,
+        projectEnvMap: new Map
       }
     },
     created() {
@@ -304,7 +313,13 @@ export default {
       this.getApiScenario();
       this.addListener(); //  添加 ctrl s 监听
     },
-    directives: {OutsideClick},
+    mounted() {
+      getProject.$on('addProjectEnv', (projectId, projectEnv) => {
+        this.projectIds.add(projectId);
+        this.projectEnvMap.set(projectId, projectEnv);
+      })
+    },
+  directives: {OutsideClick},
     computed: {
       buttons() {
         let buttons = [
@@ -679,9 +694,16 @@ export default {
       },
       runDebug() {
         /*触发执行操作*/
-        if (!this.currentEnvironmentId) {
-          this.$error(this.$t('api_test.environment.select_environment'));
-          return;
+        // if (!this.currentEnvironmentId) {
+        //   this.$error(this.$t('api_test.environment.select_environment'));
+        //   return;
+        // }
+        let iter = this.projectEnvMap.values();
+        for (let i of iter) {
+          if (!i) {
+            this.$warning("请为每个项目选择一个运行环境！");
+            return;
+          }
         }
         this.$refs['currentScenario'].validate((valid) => {
           if (valid) {
@@ -694,7 +716,7 @@ export default {
               referenced: 'Created',
               enableCookieShare: this.enableCookieShare,
               headers: this.currentScenario.headers,
-              environmentId: this.currentEnvironmentId,
+              environmentMap: this.projectEnvMap,
               hashTree: this.scenarioDefinition
             };
             this.reportId = getUUID().substring(0, 8);
@@ -933,7 +955,7 @@ export default {
           variables: this.currentScenario.variables,
           headers: this.currentScenario.headers,
           referenced: 'Created',
-          environmentId: this.currentEnvironmentId,
+          environmentMap: this.projectEnvMap,
           hashTree: this.scenarioDefinition,
           projectId: this.projectId
         };
@@ -973,6 +995,15 @@ export default {
           size += this.currentScenario.headers.length - 1;
         }
         return size;
+      },
+      beforeDestroy() {
+        getProject.$off('addProjectEnv');
+      },
+      handleEnv() {
+        this.$refs.apiScenarioEnv.open();
+      },
+      setProjectEnvMap(projectEnvMap) {
+        this.projectEnvMap = projectEnvMap;
       }
     }
   }

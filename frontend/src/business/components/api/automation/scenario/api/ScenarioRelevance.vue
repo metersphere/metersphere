@@ -1,6 +1,7 @@
 <template>
-  <relevance-dialog :title="$t('api_test.automation.scenario_import')" ref="relevanceDialog">
-
+  <test-case-relevance-base
+    @setProject="setProject"
+    ref="baseRelevance">
     <template v-slot:aside>
       <ms-api-scenario-module
         @nodeSelectEvent="nodeChange"
@@ -22,8 +23,7 @@
       <el-button type="primary" @click="copy" @keydown.enter.native.prevent>{{$t('commons.copy')}}</el-button>
       <el-button type="primary" @click="reference" @keydown.enter.native.prevent> {{ $t('api_test.scenario.reference') }}</el-button>
     </template>
-
-  </relevance-dialog>
+  </test-case-relevance-base>
 </template>
 
 <script>
@@ -37,10 +37,12 @@
   import MsApiScenarioList from "../ApiScenarioList";
   import {getUUID} from "../../../../../../common/js/utils";
   import RelevanceDialog from "../../../../track/plan/view/comonents/base/RelevanceDialog";
+  import TestCaseRelevanceBase from "@/business/components/track/plan/view/comonents/base/TestCaseRelevanceBase";
 
   export default {
     name: "ScenarioRelevance",
     components: {
+      TestCaseRelevanceBase,
       RelevanceDialog,
       MsApiScenarioList,
       MsApiScenarioModule,
@@ -55,6 +57,12 @@
         isApiListEnable: true,
         currentScenario: [],
         currentScenarioIds: [],
+        projectId: ''
+      }
+    },
+    watch: {
+      projectId() {
+        this.$refs.apiScenarioList.search(this.projectId);
       }
     },
     methods: {
@@ -69,7 +77,7 @@
           scenarios.push(obj);
         });
         this.$emit('save', scenarios);
-        this.close();
+        this.$refs.baseRelevance.close();
       },
       copy() {
         let scenarios = [];
@@ -87,7 +95,7 @@
               }
             });
             this.$emit('save', scenarios);
-            this.close();
+            this.$refs.baseRelevance.close();
           }
         })
       },
@@ -96,9 +104,9 @@
         this.$refs.relevanceDialog.close();
       },
       open() {
-        this.$refs.relevanceDialog.open();
+        this.$refs.baseRelevance.open();
         if (this.$refs.apiScenarioList) {
-          this.$refs.apiScenarioList.search();
+          this.$refs.apiScenarioList.search(this.projectId);
         }
       },
       nodeChange(node, nodeIds, pNodes) {
@@ -116,6 +124,9 @@
       setData(data) {
         this.currentScenario = Array.from(data).map(row => row);
         this.currentScenarioIds = Array.from(data).map(row => row.id);
+      },
+      setProject(projectId) {
+        this.projectId = projectId;
       },
     }
   }
