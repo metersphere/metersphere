@@ -16,28 +16,28 @@
       @row-click="intoReview">
       <template v-for="(item, index) in tableLabel">
         <el-table-column
-          v-if="item.prop=='name'"
+          v-if="item.id=='name'"
           prop="name"
           :label="$t('test_track.review.review_name')"
           show-overflow-tooltip
           :key="index">
         </el-table-column>
         <el-table-column
-          v-if="item.prop=='reviewer'"
+          v-if="item.id=='reviewer'"
           prop="reviewer"
           :label="$t('test_track.review.reviewer')"
           show-overflow-tooltip
           :key="index">
         </el-table-column>
         <el-table-column
-          v-if="item.prop=='projectName'"
+          v-if="item.id=='projectName'"
           prop="projectName"
           :label="$t('test_track.review.review_project')"
           show-overflow-tooltip
           :key="index">
         </el-table-column>
         <el-table-column
-          v-if="item.prop=='creatorName'"
+          v-if="item.id=='creatorName'"
           prop="creatorName"
           :label="$t('test_track.review.review_creator')"
           show-overflow-tooltip
@@ -45,7 +45,7 @@
         >
         </el-table-column>
         <el-table-column
-          v-if="item.prop=='status'"
+          v-if="item.id=='status'"
           prop="status"
           column-key="status"
           :label="$t('test_track.review.review_status')"
@@ -59,7 +59,7 @@
           </template>
         </el-table-column>
         <el-table-column
-          v-if="item.prop=='createTime'"
+          v-if="item.id=='createTime'"
           prop="createTime"
           :label="$t('commons.create_time')"
           show-overflow-tooltip
@@ -70,7 +70,7 @@
           </template>
         </el-table-column>
         <el-table-column
-          v-if="item.prop=='endTime'"
+          v-if="item.id=='endTime'"
           prop="endTime"
           :label="$t('test_track.review.end_time')"
           show-overflow-tooltip
@@ -118,7 +118,7 @@ import {
   getCurrentProjectID, getCurrentUser,
   getCurrentWorkspaceId
 } from "../../../../../common/js/utils";
-import {_filter, _sort} from "@/common/js/tableUtils";
+import {_filter, _sort, getLabel} from "@/common/js/tableUtils";
 import PlanStatusTableItem from "../../common/tableItems/plan/PlanStatusTableItem";
 import {Test_Case_Review} from "@/business/components/common/model/JsonData";
 import {TEST_CASE_LIST, TEST_CASE_REVIEW_LIST} from "@/common/js/constants";
@@ -173,7 +173,7 @@ export default {
     },
 
     initTableData() {
-      this.getLabel()
+      getLabel(this, TEST_CASE_REVIEW_LIST);
       let lastWorkspaceId = getCurrentWorkspaceId();
       this.condition.workspaceId = lastWorkspaceId;
       if (!getCurrentProjectID()) {
@@ -200,24 +200,6 @@ export default {
           })
         }
       });
-    },
-    getLabel() {
-      let param = {}
-      param.userId = getCurrentUser().id;
-      param.type = TEST_CASE_REVIEW_LIST
-      this.result = this.$post('/system/header/info', param, response => {
-        if (response.data != null) {
-          let arry = eval(response.data.props);
-          let obj = {};
-          for (let key in arry) {
-            obj[key] = arry[key];
-          }
-          let newObj = Object.keys(obj).map(val => ({
-            prop: obj[val]
-          }))
-          this.tableLabel = newObj
-        }
-      })
     },
     intoReview(row) {
       this.$router.push('/track/review/view/' + row.id);

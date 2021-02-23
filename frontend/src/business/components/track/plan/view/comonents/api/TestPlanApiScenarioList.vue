@@ -18,13 +18,13 @@
         </el-table-column>
         <template v-for="(item, index) in tableLabel">
           <el-table-column
-            v-if="item.prop == 'num'"
+            v-if="item.id == 'num'"
             prop="num"
             label="ID"
             :key="index"/>
-          <el-table-column v-if="item.prop == 'name'" prop="name" :label="$t('api_test.automation.scenario_name')"
+          <el-table-column v-if="item.id == 'name'" prop="name" :label="$t('api_test.automation.scenario_name')"
                            show-overflow-tooltip :key="index"/>
-          <el-table-column v-if="item.prop == 'level'" prop="level" :label="$t('api_test.automation.case_level')"
+          <el-table-column v-if="item.id == 'level'" prop="level" :label="$t('api_test.automation.case_level')"
                            show-overflow-tooltip :key="index">
             <template v-slot:default="scope">
               <ms-tag v-if="scope.row.level == 'P0'" type="info" effect="plain" content="P0"/>
@@ -34,7 +34,7 @@
             </template>
 
           </el-table-column>
-          <el-table-column v-if="item.prop == 'tagNames'" prop="tagNames" :label="$t('api_test.automation.tag')"
+          <el-table-column v-if="item.id == 'tagNames'" prop="tagNames" :label="$t('api_test.automation.tag')"
                            width="200px" :key="index">
             <template v-slot:default="scope">
               <div v-for="(itemName,index) in scope.row.tags" :key="index">
@@ -42,17 +42,17 @@
               </div>
             </template>
           </el-table-column>
-          <el-table-column v-if="item.prop == 'userId'" prop="userId" :label="$t('api_test.automation.creator')"
+          <el-table-column v-if="item.id == 'userId'" prop="userId" :label="$t('api_test.automation.creator')"
                            show-overflow-tooltip :key="index"/>
-          <el-table-column v-if="item.prop == 'updateTime'" prop="updateTime"
+          <el-table-column v-if="item.id == 'updateTime'" prop="updateTime"
                            :label="$t('api_test.automation.update_time')" width="180" :key="index">
             <template v-slot:default="scope">
               <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
             </template>
           </el-table-column>
-          <el-table-column v-if="item.prop == 'stepTotal'" prop="stepTotal" :label="$t('api_test.automation.step')"
+          <el-table-column v-if="item.id == 'stepTotal'" prop="stepTotal" :label="$t('api_test.automation.step')"
                            show-overflow-tooltip :key="index"/>
-          <el-table-column v-if="item.prop == 'lastResult'" prop="lastResult"
+          <el-table-column v-if="item.id == 'lastResult'" prop="lastResult"
                            :label="$t('api_test.automation.last_result')" :key="index">
             <template v-slot:default="{row}">
               <el-link type="success" @click="showReport(row)" v-if="row.lastResult === 'Success'">
@@ -63,7 +63,7 @@
               </el-link>
             </template>
           </el-table-column>
-          <el-table-column v-if="item.prop == 'passRate'" prop="passRate"
+          <el-table-column v-if="item.id == 'passRate'" prop="passRate"
                            :label="$t('api_test.automation.passing_rate')"
                            show-overflow-tooltip :key="index"/>
         </template>
@@ -108,7 +108,7 @@ import MsTableMoreBtn from "../../../../../api/automation/scenario/TableMoreBtn"
 import MsScenarioExtendButtons from "@/business/components/api/automation/scenario/ScenarioExtendBtns";
 import MsTestPlanList from "../../../../../api/automation/scenario/testplan/TestPlanList";
 import TestPlanScenarioListHeader from "./TestPlanScenarioListHeader";
-import {_handleSelect, _handleSelectAll} from "../../../../../../../common/js/tableUtils";
+import {_handleSelect, _handleSelectAll, getLabel} from "../../../../../../../common/js/tableUtils";
 import MsTableOperatorButton from "../../../../../common/components/MsTableOperatorButton";
 import HeaderCustom from "@/business/components/common/head/HeaderCustom";
 import {TEST_CASE_LIST, TEST_PLAN_SCENARIO_CASE} from "@/common/js/constants";
@@ -186,7 +186,7 @@ export default {
       this.$refs.headerCustom.open(this.tableLabel)
     },
     search() {
-      this.getLabel()
+      getLabel(this, TEST_PLAN_SCENARIO_CASE);
       this.selectRows = new Set();
       this.loading = true;
       this.condition.moduleIds = this.selectNodeIds;
@@ -211,25 +211,6 @@ export default {
         });
         this.loading = false;
       });
-    },
-    getLabel() {
-      let param = {}
-      param.userId = getCurrentUser().id;
-      param.type = TEST_PLAN_SCENARIO_CASE
-      this.result = this.$post('/system/header/info', param, response => {
-        if (response.data != null) {
-
-          let arry = eval(response.data.props);
-          let obj = {};
-          for (let key in arry) {
-            obj[key] = arry[key];
-          }
-          let newObj = Object.keys(obj).map(val => ({
-            prop: obj[val]
-          }))
-          this.tableLabel = newObj
-        }
-      })
     },
     reductionApi(row) {
       row.scenarioDefinition = null;

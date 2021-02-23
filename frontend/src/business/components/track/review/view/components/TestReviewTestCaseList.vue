@@ -43,7 +43,7 @@
         </el-table-column>
         <template v-for="(item, index) in tableLabel">
           <el-table-column
-            v-if="item.prop == 'num'"
+            v-if="item.id == 'num'"
             prop="num"
             sortable="custom"
             :label="$t('commons.id')"
@@ -52,7 +52,7 @@
           >
           </el-table-column>
           <el-table-column
-            v-if="item.prop == 'name'"
+            v-if="item.id == 'name'"
             prop="name"
             :label="$t('commons.name')"
             show-overflow-tooltip
@@ -60,7 +60,7 @@
           >
           </el-table-column>
           <el-table-column
-            v-if="item.prop == 'priority'"
+            v-if="item.id == 'priority'"
             prop="priority"
             :filters="priorityFilters"
             column-key="priority"
@@ -72,7 +72,7 @@
           </el-table-column>
 
           <el-table-column
-            v-if="item.prop == 'type'"
+            v-if="item.id == 'type'"
             prop="type"
             :filters="typeFilters"
             column-key="type"
@@ -85,7 +85,7 @@
           </el-table-column>
 
           <el-table-column
-            v-if="item.prop=='method'"
+            v-if="item.id=='method'"
             prop="method"
             :filters="methodFilters"
             column-key="method"
@@ -98,7 +98,7 @@
           </el-table-column>
 
           <el-table-column
-            v-if="item.prop=='nodePath'"
+            v-if="item.id=='nodePath'"
             prop="nodePath"
             :label="$t('test_track.case.module')"
             show-overflow-tooltip
@@ -107,7 +107,7 @@
           </el-table-column>
 
           <el-table-column
-            v-if="item.prop=='projectName'"
+            v-if="item.id=='projectName'"
             prop="projectName"
             :label="$t('test_track.review.review_project')"
             show-overflow-tooltip
@@ -115,7 +115,7 @@
           </el-table-column>
 
           <el-table-column
-            v-if="item.prop=='reviewerName'"
+            v-if="item.id=='reviewerName'"
             prop="reviewerName"
             :label="$t('test_track.review.reviewer')"
             show-overflow-tooltip
@@ -124,7 +124,7 @@
           </el-table-column>
 
           <el-table-column
-            v-if="item.prop=='reviewStatus'"
+            v-if="item.id=='reviewStatus'"
             :filters="statusFilters"
             column-key="status"
             :label="$t('test_track.review_view.execute_result')"
@@ -137,7 +137,7 @@
           </el-table-column>
 
           <el-table-column
-            v-if="item.prop=='updateTime'"
+            v-if="item.id=='updateTime'"
             sortable
             prop="updateTime"
             :label="$t('commons.update_time')"
@@ -212,7 +212,7 @@ import {
 } from "../../../../../../common/js/constants";
 import TestReviewTestCaseEdit from "./TestReviewTestCaseEdit";
 import ReviewStatus from "@/business/components/track/case/components/ReviewStatus";
-import {_filter, _sort} from "@/common/js/tableUtils";
+import {_filter, _sort, getLabel} from "@/common/js/tableUtils";
 import HeaderCustom from "@/business/components/common/head/HeaderCustom";
 import {Test_Case_Review_Case_List, Track_Test_Case} from "@/business/components/common/model/JsonData";
 
@@ -309,7 +309,7 @@ export default {
       this.$refs.headerCustom.open(this.tableLabel)
     },
     initTableData() {
-      this.getLabel()
+      getLabel(this, TEST_CASE_REVIEW_CASE_LIST);
       if (this.reviewId) {
         this.condition.reviewId = this.reviewId;
       }
@@ -322,24 +322,6 @@ export default {
           this.selectRows.clear();
         });
       }
-    },
-    getLabel() {
-      let param = {}
-      param.userId = getCurrentUser().id;
-      param.type = TEST_CASE_REVIEW_CASE_LIST
-      this.result = this.$post('/system/header/info', param, response => {
-        if (response.data != null) {
-          let arry = eval(response.data.props);
-          let obj = {};
-          for (let key in arry) {
-            obj[key] = arry[key];
-          }
-          let newObj = Object.keys(obj).map(val => ({
-            prop: obj[val]
-          }))
-          this.tableLabel = newObj
-        }
-      })
     },
     showDetail(row, event, column) {
       this.isReadOnly = true;
