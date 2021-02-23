@@ -173,6 +173,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                 sampler.setPort(urlObject.getPort());
                 sampler.setProtocol(urlObject.getProtocol());
                 String envPath = StringUtils.equals(urlObject.getPath(), "/") ? "" : urlObject.getPath();
+                sampler.setPath(envPath);
                 if (CollectionUtils.isNotEmpty(this.getRest()) && this.isRest()) {
                     envPath = getRestParameters(URLDecoder.decode(envPath, "UTF-8"));
                     sampler.setPath(envPath);
@@ -305,7 +306,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
     public void setHeader(HashTree tree, List<KeyValue> headers) {
         HeaderManager headerManager = new HeaderManager();
         headerManager.setEnabled(true);
-        headerManager.setName(this.getName() + "Headers");
+        headerManager.setName(StringUtils.isNotEmpty(this.getName()) ? this.getName() : "HeaderManager");
         headerManager.setProperty(TestElement.TEST_CLASS, HeaderManager.class.getName());
         headerManager.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("HeaderPanel"));
         headers.stream().filter(KeyValue::isValid).filter(KeyValue::isEnable).forEach(keyValue ->

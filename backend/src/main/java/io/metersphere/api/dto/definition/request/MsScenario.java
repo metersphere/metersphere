@@ -95,7 +95,10 @@ public class MsScenario extends MsTestElement {
             config.setVariables(this.variables);
         }
         // 场景变量和环境变量
-        tree.add(arguments(config));
+        Arguments arguments = arguments(config);
+        if (arguments != null) {
+            tree.add(arguments);
+        }
         this.addCsvDataSet(tree, variables);
         this.addCounter(tree, variables);
         this.addRandom(tree, variables);
@@ -135,15 +138,15 @@ public class MsScenario extends MsTestElement {
     private Arguments arguments(ParameterConfig config) {
         Arguments arguments = new Arguments();
         arguments.setEnabled(true);
-        arguments.setName(this.getName() + "Variables");
+        arguments.setName(StringUtils.isNotEmpty(this.getName()) ? this.getName() : "Arguments");
         arguments.setProperty(TestElement.TEST_CLASS, Arguments.class.getName());
         arguments.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("ArgumentsPanel"));
         if (CollectionUtils.isNotEmpty(this.getVariables())) {
-            variables.stream().filter(ScenarioVariable::isConstantValid).forEach(keyValue ->
+            this.getVariables().stream().filter(ScenarioVariable::isConstantValid).forEach(keyValue ->
                     arguments.addArgument(keyValue.getName(), keyValue.getValue(), "=")
             );
 
-            List<ScenarioVariable> variableList = variables.stream().filter(ScenarioVariable::isListValid).collect(Collectors.toList());
+            List<ScenarioVariable> variableList = this.getVariables().stream().filter(ScenarioVariable::isListValid).collect(Collectors.toList());
             variableList.forEach(item -> {
                 String[] arrays = item.getValue().split(",");
                 for (int i = 0; i < arrays.length; i++) {
@@ -157,8 +160,10 @@ public class MsScenario extends MsTestElement {
                     arguments.addArgument(keyValue.getName(), keyValue.getValue(), "=")
             );
         }
-
-        return arguments;
+        if (arguments.getArguments() != null && arguments.getArguments().size() > 0) {
+            return arguments;
+        }
+        return null;
     }
 
 

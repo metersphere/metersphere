@@ -168,7 +168,7 @@ public abstract class MsTestElement {
                 && CollectionUtils.isNotEmpty(config.getConfig().getCommonConfig().getVariables())) {
             Arguments arguments = new Arguments();
             arguments.setEnabled(true);
-            arguments.setName(name + "Variables");
+            arguments.setName(StringUtils.isNoneBlank(this.getName()) ? this.getName() : "Arguments");
             arguments.setProperty(TestElement.TEST_CLASS, Arguments.class.getName());
             arguments.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("ArgumentsPanel"));
             config.getConfig().getCommonConfig().getVariables().stream().filter(KeyValue::isValid).filter(KeyValue::isEnable).forEach(keyValue ->

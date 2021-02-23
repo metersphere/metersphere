@@ -24,30 +24,30 @@
           </template>
         </el-table-column>
         <template v-for="(item, index) in tableLabel">
-          <el-table-column v-if="item.prop == 'num'" prop="num" label="ID" show-overflow-tooltip :key="index"/>
+          <el-table-column v-if="item.id == 'num'" prop="num" label="ID" show-overflow-tooltip :key="index"/>
           <el-table-column
-              v-if="item.prop == 'caseName'"
+              v-if="item.id == 'caseName'"
               prop="caseName"
               :label="$t('commons.name')"
               show-overflow-tooltip
               :key="index">
           </el-table-column>
           <el-table-column
-              v-if="item.prop == 'projectName'"
+              v-if="item.id == 'projectName'"
               prop="projectName"
               :label="$t('load_test.project_name')"
               show-overflow-tooltip
               :key="index">
           </el-table-column>
           <el-table-column
-              v-if="item.prop == 'userName'"
+              v-if="item.id == 'userName'"
               prop="userName"
               :label="$t('load_test.user_name')"
               show-overflow-tooltip
               :key="index">
           </el-table-column>
           <el-table-column
-              v-if="item.prop == 'createTime'"
+              v-if="item.id == 'createTime'"
               sortable
               prop="createTime"
               :label="$t('commons.create_time')"
@@ -57,7 +57,7 @@
             </template>
           </el-table-column>
           <el-table-column
-              v-if="item.prop == 'status'"
+              v-if="item.id == 'status'"
               prop="status"
               column-key="status"
               :filters="statusFilters"
@@ -68,7 +68,7 @@
             </template>
           </el-table-column>
           <el-table-column
-              v-if="item.prop == 'caseStatus'"
+              v-if="item.id == 'caseStatus'"
               prop="caseStatus"
               :label="$t('test_track.plan.load_case.execution_status')"
               :key="index">
@@ -86,7 +86,7 @@
             </template>
           </el-table-column>
           <el-table-column
-              v-if="item.prop == 'loadReportId'"
+              v-if="item.id == 'loadReportId'"
               :label="$t('test_track.plan.load_case.report')"
               show-overflow-tooltip
               :key="index">
@@ -133,7 +133,7 @@ import MsTablePagination from "@/business/components/common/pagination/TablePagi
 import MsPerformanceTestStatus from "@/business/components/performance/test/PerformanceTestStatus";
 import MsTableOperatorButton from "@/business/components/common/components/MsTableOperatorButton";
 import LoadCaseReport from "@/business/components/track/plan/view/comonents/load/LoadCaseReport";
-import {_filter, _sort} from "@/common/js/tableUtils";
+import {_filter, _sort, getLabel} from "@/common/js/tableUtils";
 import HeaderCustom from "@/business/components/common/head/HeaderCustom";
 import {TEST_CASE_LIST, TEST_PLAN_LOAD_CASE} from "@/common/js/constants";
 import {Test_Plan_Load_Case, Track_Test_Case} from "@/business/components/common/model/JsonData";
@@ -211,7 +211,7 @@ export default {
       this.$refs.headerCustom.open(this.tableLabel)
     },
     initTable() {
-      this.getLabel()
+      getLabel(this, TEST_PLAN_LOAD_CASE);
       this.selectRows = new Set();
       this.condition.testPlanId = this.planId;
       if (this.selectProjectId && this.selectProjectId !== 'root') {
@@ -230,24 +230,6 @@ export default {
         let {itemCount, listObject} = data;
         this.total = itemCount;
         this.tableData = listObject;
-      })
-    },
-    getLabel() {
-      let param = {}
-      param.userId = getCurrentUser().id;
-      param.type = TEST_PLAN_LOAD_CASE
-      this.result = this.$post('/system/header/info', param, response => {
-        if (response.data != null) {
-          let arry = eval(response.data.props);
-          let obj = {};
-          for (let key in arry) {
-            obj[key] = arry[key];
-          }
-          let newObj = Object.keys(obj).map(val => ({
-            prop: obj[val]
-          }))
-          this.tableLabel = newObj
-        }
       })
     },
     refreshStatus() {

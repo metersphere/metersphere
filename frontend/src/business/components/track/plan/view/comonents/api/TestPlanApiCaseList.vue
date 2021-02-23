@@ -26,13 +26,13 @@
           </template>
         </el-table-column>
         <template v-for="(item, index) in tableLabel">
-          <el-table-column v-if="item.prop == 'num'" prop="num" sortable="custom" label="ID" show-overflow-tooltip
+          <el-table-column v-if="item.id == 'num'" prop="num" sortable="custom" label="ID" show-overflow-tooltip
                            :key="index"/>
-          <el-table-column v-if="item.prop == 'name'" prop="name" sortable="custom"
+          <el-table-column v-if="item.id == 'name'" prop="name" sortable="custom"
                            :label="$t('api_test.definition.api_name')" show-overflow-tooltip :key="index"/>
 
           <el-table-column
-            v-if="item.prop == 'priority'"
+            v-if="item.id == 'priority'"
             prop="priority"
             :filters="priorityFilters"
             sortable="custom"
@@ -46,14 +46,14 @@
           </el-table-column>
 
           <el-table-column
-            v-if="item.prop == 'path'"
+            v-if="item.id == 'path'"
             prop="path"
             :label="$t('api_test.definition.api_path')"
             show-overflow-tooltip
             :key="index"/>
 
           <el-table-column
-            v-if="item.prop == 'createUser'"
+            v-if="item.id == 'createUser'"
             prop="createUser"
             column-key="user_id"
             sortable="custom"
@@ -63,7 +63,7 @@
             :key="index"/>
 
           <el-table-column
-            v-if="item.prop == 'custom'"
+            v-if="item.id == 'custom'"
             sortable="custom"
             width="160"
             :label="$t('api_test.definition.api_last_time')"
@@ -75,7 +75,7 @@
           </el-table-column>
 
           <el-table-column
-            v-if="item.prop == 'tags'"
+            v-if="item.id == 'tags'"
             prop="tags"
             :label="$t('commons.tag')"
             :key="index">
@@ -86,7 +86,7 @@
             </template>
           </el-table-column>
 
-          <el-table-column v-if="item.prop == 'execResult'" :label="'执行状态'" min-width="130" align="center" :key="index">
+          <el-table-column v-if="item.id == 'execResult'" :label="'执行状态'" min-width="130" align="center" :key="index">
             <template v-slot:default="scope">
               <div v-loading="rowLoading === scope.row.id">
                 <el-link type="danger"
@@ -161,7 +161,7 @@ import TestPlanApiCaseResult from "./TestPlanApiCaseResult";
 import TestPlan from "../../../../../api/definition/components/jmeter/components/test-plan";
 import ThreadGroup from "../../../../../api/definition/components/jmeter/components/thread-group";
 import {TEST_CASE_LIST, TEST_PLAN_API_CASE, WORKSPACE_ID} from "@/common/js/constants";
-import {_filter, _sort} from "@/common/js/tableUtils";
+import {_filter, _sort, getLabel} from "@/common/js/tableUtils";
 import HeaderCustom from "@/business/components/common/head/HeaderCustom";
 import {Test_Plan_Api_Case, Track_Test_Case} from "@/business/components/common/model/JsonData";
 
@@ -307,7 +307,7 @@ export default {
       this.$emit('isApiListEnableChange', data);
     },
     initTable() {
-      this.getLabel()
+      getLabel(this, TEST_PLAN_API_CASE);
       this.selectRows = new Set();
       this.condition.status = "";
       this.condition.moduleIds = this.selectNodeIds;
@@ -334,25 +334,6 @@ export default {
           }
         })
       });
-    },
-    getLabel() {
-      let param = {}
-      param.userId = getCurrentUser().id;
-      param.type = TEST_PLAN_API_CASE
-      this.result = this.$post('/system/header/info', param, response => {
-        if (response.data != null) {
-
-          let arry = eval(response.data.props);
-          let obj = {};
-          for (let key in arry) {
-            obj[key] = arry[key];
-          }
-          let newObj = Object.keys(obj).map(val => ({
-            prop: obj[val]
-          }))
-          this.tableLabel = newObj
-        }
-      })
     },
     handleSelect(selection, row) {
       row.hashTree = [];

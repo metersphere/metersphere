@@ -1,4 +1,5 @@
-import {humpToLine} from "@/common/js/utils";
+import {getCurrentUser, humpToLine} from "@/common/js/utils";
+import {TEST_CASE_LIST} from "@/common/js/constants";
 
 export function _handleSelectAll(component, selection, tableData, selectRows) {
   if (selection.length > 0) {
@@ -104,6 +105,17 @@ export function _sort(column, condition) {
 export function initCondition(condition) {
   condition.selectAll = false;
   condition.unSelectIds = [];
+}
+
+export function getLabel(vueObj, type) {
+  let param = {}
+  param.userId = getCurrentUser().id;
+  param.type = type;
+  vueObj.result = vueObj.$post('/system/header/info', param, response => {
+    if (response.data != null) {
+      vueObj.tableLabel = eval(response.data.props);
+    }
+  })
 }
 
 
