@@ -12,8 +12,7 @@
                 @select-all="handleSelectAll"
                 @select="handleSelect"
                 @header-dragend="headerDragend"
-                :height="screenHeight"
-                v-loading="loading">
+                :height="screenHeight">
 
         <el-table-column type="selection" width="50"/>
 

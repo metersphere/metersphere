@@ -31,7 +31,7 @@
     <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
     <ms-api-request-form :isShowEnable="true" :referenced="true" :headers="request.headers " :request="request"
                          v-if="request.protocol==='HTTP' || request.type==='HTTPSamplerProxy'"/>
-    <ms-tcp-basis-parameters :request="request" v-if="request.protocol==='TCP'|| request.type==='TCPSampler'"/>
+    <ms-tcp-basis-parameters :request="request" v-if="request.protocol==='TCP'|| request.type==='TCPSampler'" :showScript="false"/>
     <ms-sql-basis-parameters :request="request" v-if="request.protocol==='SQL'|| request.type==='JDBCSampler'"
                              :showScript="false"/>
     <ms-dubbo-basis-parameters :request="request"
