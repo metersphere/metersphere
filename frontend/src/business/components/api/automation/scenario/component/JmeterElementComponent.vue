@@ -6,7 +6,7 @@
     :draggable="draggable"
     :color="defColor"
     :background-color="defBackgroundColor"
-    :title="defTitle">
+    :title="request.elementType">
 
   </api-base-component>
 </template>

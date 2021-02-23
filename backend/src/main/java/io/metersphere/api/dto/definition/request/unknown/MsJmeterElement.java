@@ -24,7 +24,7 @@ import java.util.List;
 @JSONType(typeName = "JmeterElement")
 public class MsJmeterElement extends MsTestElement {
     private String type = "JmeterElement";
-
+    private String elementType;
     private String jmeterElement;
 
     @Override
@@ -34,6 +34,7 @@ public class MsJmeterElement extends MsTestElement {
             if (inputSource != null) {
                 Object scriptWrapper = SaveService.loadElement(inputSource);
                 HashTree elementTree = tree;
+                this.setElementType(scriptWrapper.getClass().getName());
                 if (config.isOperating()) {
                     elementTree = tree.add(scriptWrapper);
                 } else if (!(scriptWrapper instanceof TestPlan) && !(scriptWrapper instanceof ThreadGroup)) {

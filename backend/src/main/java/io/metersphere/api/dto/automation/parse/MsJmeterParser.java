@@ -497,6 +497,7 @@ public class MsJmeterParser extends ApiImportAbstractParser<ScenarioImport> {
                 elementNode = new MsJmeterElement();
                 elementNode.setName(((TestPlan) key).getName());
                 ((MsJmeterElement) elementNode).setJmeterElement(objToXml(key));
+                ((MsJmeterElement) elementNode).setElementType(key.getClass().getSimpleName());
             }
             // 线程组
             else if (key instanceof ThreadGroup) {
@@ -614,6 +615,7 @@ public class MsJmeterParser extends ApiImportAbstractParser<ScenarioImport> {
                 TestElement testElement = (TestElement) key;
                 elementNode.setName(testElement.getName());
                 ((MsJmeterElement) elementNode).setJmeterElement(objToXml(key));
+                ((MsJmeterElement) elementNode).setElementType(key.getClass().getSimpleName());
             }
             elementNode.setEnable(((TestElement) key).isEnabled());
             elementNode.setResourceId(UUID.randomUUID().toString());

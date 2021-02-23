@@ -305,7 +305,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
     public void setHeader(HashTree tree, List<KeyValue> headers) {
         HeaderManager headerManager = new HeaderManager();
         headerManager.setEnabled(true);
-        headerManager.setName(this.getName() + "Headers");
+        headerManager.setName(StringUtils.isNotEmpty(this.getName()) ? this.getName() : "HeaderManager");
         headerManager.setProperty(TestElement.TEST_CLASS, HeaderManager.class.getName());
         headerManager.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("HeaderPanel"));
         headers.stream().filter(KeyValue::isValid).filter(KeyValue::isEnable).forEach(keyValue ->

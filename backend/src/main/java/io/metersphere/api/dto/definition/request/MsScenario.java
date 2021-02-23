@@ -135,7 +135,7 @@ public class MsScenario extends MsTestElement {
     private Arguments arguments(ParameterConfig config) {
         Arguments arguments = new Arguments();
         arguments.setEnabled(true);
-        arguments.setName(this.getName() + "Variables");
+        arguments.setName(StringUtils.isNotEmpty(this.getName()) ? this.getName() : "Arguments");
         arguments.setProperty(TestElement.TEST_CLASS, Arguments.class.getName());
         arguments.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("ArgumentsPanel"));
         if (CollectionUtils.isNotEmpty(this.getVariables())) {

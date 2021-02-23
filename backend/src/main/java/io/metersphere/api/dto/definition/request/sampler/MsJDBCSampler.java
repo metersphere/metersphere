@@ -46,7 +46,7 @@ public class MsJDBCSampler extends MsTestElement {
     private List<KeyValue> variables;
     @JSONField(ordinal = 26)
     private String environmentId;
-//    @JSONField(ordinal = 27)
+    //    @JSONField(ordinal = 27)
 //    private Object requestResult;
     @JSONField(ordinal = 28)
     private String dataSourceId;
@@ -67,7 +67,7 @@ public class MsJDBCSampler extends MsTestElement {
         }
         final HashTree samplerHashTree = tree.add(jdbcSampler(config));
         tree.add(jdbcDataSource());
-        Arguments arguments = arguments(this.getName() + " Variables", this.getVariables());
+        Arguments arguments = arguments(StringUtils.isNotEmpty(this.getName()) ? this.getName() : "Arguments", this.getVariables());
         if (arguments != null) {
             tree.add(arguments);
         }
