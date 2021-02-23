@@ -74,14 +74,14 @@ public class DockerTestEngine extends AbstractEngine {
         BaseSystemConfigDTO baseInfo = CommonBeanFactory.getBean(SystemParameterService.class).getBaseInfo();
         KafkaProperties kafkaProperties = CommonBeanFactory.getBean(KafkaProperties.class);
         JmeterProperties jmeterProperties = CommonBeanFactory.getBean(JmeterProperties.class);
-        String metersphereUrl = "http://localhost:8081";
+        String metersphereUrl = "http://localhost:8081"; // 占位符
         if (baseInfo != null) {
             metersphereUrl = baseInfo.getUrl();
         }
-
+        String jmeterPingUrl = metersphereUrl + "/jmeter/ping"; // 检查下载地址是否正确
         // docker 不能从 localhost 中下载文件
         if (StringUtils.contains(metersphereUrl, "http://localhost")
-                || !UrlTestUtils.testUrlWithTimeOut(metersphereUrl, 1000)) {
+                || !UrlTestUtils.testUrlWithTimeOut(jmeterPingUrl, 1000)) {
             MSException.throwException(Translator.get("run_load_test_file_init_error"));
         }
 
