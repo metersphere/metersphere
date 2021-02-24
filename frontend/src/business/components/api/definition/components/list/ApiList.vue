@@ -174,7 +174,7 @@
             <ms-table-operator-button class="run-button" :is-tester-permission="true"
                                       :tip="$t('api_test.automation.execute')"
                                       icon="el-icon-video-play"
-                                      @exec="execute" v-tester/>
+                                      @exec="runApi(scope.row)"/>
             <ms-table-operator-button :tip="$t('commons.reduction')" icon="el-icon-refresh-left"
                                       @exec="reductionApi(scope.row)" v-if="trashEnable" v-tester/>
             <ms-table-operator-button :tip="$t('commons.edit')" icon="el-icon-edit" @exec="editApi(scope.row)" v-else
@@ -396,81 +396,6 @@ export default {
     }
   },
   methods: {
-    execute() {
-      this.basisData.method = "TCP";
-      this.request = createComponent("HTTPSamplerProxy");
-      this.currentApi.request = this.request;
-      this.basisData.request = this.request;
-      if (this.basisData.tags instanceof Array) {
-        this.basisData.tags = JSON.stringify(this.basisData.tags);
-      }
-      this.runTest(this.basisData)
-    },
-    runTest(data) {
-      this.setParameters(data);
-      let bodyFiles = this.getBodyUploadFiles(data);
-      this.$fileUpload(this.reqUrl, null, bodyFiles, data, () => {
-        this.$success(this.$t('commons.save_success'));
-        this.reqUrl = "/api/definition/update";
-        this.$emit('runTest', data);
-      })
-    },
-    setParameters(data) {
-      data.projectId = this.projectId;
-      this.request.name = this.currentApi.name;
-      data.protocol = this.currentProtocol;
-      data.request = this.request;
-      data.request.name = data.name;
-      if (this.currentProtocol === "DUBBO" || this.currentProtocol === "dubbo://") {
-        data.request.protocol = "dubbo://";
-      } else {
-        data.request.protocol = this.currentProtocol;
-      }
-      data.id = data.request.id;
-      if (!data.method) {
-        data.method = this.currentProtocol;
-      }
-      data.response = this.response;
-    },
-    getBodyUploadFiles(data) {
-      let bodyUploadFiles = [];
-      data.bodyUploadIds = [];
-      let request = data.request;
-      if (request.body) {
-        if (request.body.kvs) {
-          request.body.kvs.forEach(param => {
-            if (param.files) {
-              param.files.forEach(item => {
-                if (item.file) {
-                  let fileId = getUUID().substring(0, 8);
-                  item.name = item.file.name;
-                  item.id = fileId;
-                  data.bodyUploadIds.push(fileId);
-                  bodyUploadFiles.push(item.file);
-                }
-              });
-            }
-          });
-        }
-        if (request.body.binary) {
-          request.body.binary.forEach(param => {
-            if (param.files) {
-              param.files.forEach(item => {
-                if (item.file) {
-                  let fileId = getUUID().substring(0, 8);
-                  item.name = item.file.name;
-                  item.id = fileId;
-                  data.bodyUploadIds.push(fileId);
-                  bodyUploadFiles.push(item.file);
-                }
-              });
-            }
-          });
-        }
-      }
-      return bodyUploadFiles;
-    },
-
     customHeader() {
       this.$refs.headerCustom.open(this.tableLabel)
     },
@@ -608,6 +533,11 @@ export default {
 
     editApi(row) {
       this.$emit('editApi', row);
+    },
+    runApi(row) {
+      let request = JSON.parse(row.request);
+      row.request = request
+      this.$emit('runTest', row);
     },
     reductionApi(row) {
       let tmp = JSON.parse(JSON.stringify(row));
