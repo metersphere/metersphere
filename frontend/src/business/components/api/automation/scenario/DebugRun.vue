@@ -113,7 +113,7 @@
         threadGroup.name = this.reportId;
         threadGroup.enableCookieShare = this.runData.enableCookieShare;
         let map = this.environment;
-        this.runData.environmentMap = this.strMapToObj(map);
+        this.runData.projectId = getCurrentProjectID();
         threadGroup.hashTree.push(this.runData);
         testPlan.hashTree.push(threadGroup);
         let reqObj = {id: this.reportId, reportId: this.reportId, scenarioName: this.runData.name,

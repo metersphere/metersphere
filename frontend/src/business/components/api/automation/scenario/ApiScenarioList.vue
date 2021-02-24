@@ -373,7 +373,7 @@
         }
 
         // todo
-        if (projectId != null) {
+        if (projectId != null && typeof projectId === 'string') {
           this.condition.projectId = projectId;
         } else if (this.projectId != null) {
           this.condition.projectId = this.projectId;

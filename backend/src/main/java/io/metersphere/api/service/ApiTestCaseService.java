@@ -513,9 +513,9 @@ public class ApiTestCaseService {
         ApiTestEnvironmentService environmentService = CommonBeanFactory.getBean(ApiTestEnvironmentService.class);
         ApiTestEnvironmentWithBLOBs environment = environmentService.get(request.getEnvironmentId());
         ParameterConfig parameterConfig = new ParameterConfig();
-        if (environment != null && environment.getConfig() != null) {
-            parameterConfig.setConfig(JSONObject.parseObject(environment.getConfig(), EnvironmentConfig.class));
-        }
+//        if (environment != null && environment.getConfig() != null) {
+//            parameterConfig.setConfig(JSONObject.parseObject(environment.getConfig(), EnvironmentConfig.class));
+//        }
         testPlan.toHashTree(jmeterHashTree, testPlan.getHashTree(), parameterConfig);
         return jmeterHashTree;
     }

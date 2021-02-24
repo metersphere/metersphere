@@ -186,7 +186,7 @@
       <!--场景导入 -->
       <scenario-relevance @save="addScenario" ref="scenarioRelevance"/>
 
-      <api-scenario-env :project-ids="projectIds" ref="apiScenarioEnv" @setProjectEnvMap="setProjectEnvMap"/>
+      <api-scenario-env :project-ids="projectIds" :env-map="projectEnvMap" ref="apiScenarioEnv" @setProjectEnvMap="setProjectEnvMap"/>
 
       <!-- 环境 -->
       <api-environment-config ref="environmentConfig" @close="environmentConfigClose"/>
@@ -316,7 +316,7 @@ export default {
     mounted() {
       getProject.$on('addProjectEnv', (projectId, projectEnv) => {
         this.projectIds.add(projectId);
-        this.projectEnvMap.set(projectId, projectEnv);
+        // this.projectEnvMap.set(projectId, projectEnv);
       })
     },
   directives: {OutsideClick},
@@ -660,6 +660,9 @@ export default {
               const parent = node.parent
               const hashTree = parent.data.hashTree || parent.data;
               const index = hashTree.findIndex(d => d.resourceId != undefined && row.resourceId != undefined && d.resourceId === row.resourceId)
+              if (hashTree[index] && hashTree[index].projectId) {
+                this.projectIds.delete(hashTree[index].projectId);
+              }
               hashTree.splice(index, 1);
               this.sort();
               this.reload();
@@ -893,6 +896,14 @@ export default {
           }
         })
       },
+      objToStrMap(obj) {
+        let strMap = new Map();
+        for (let k of Object.keys(obj)) {
+          strMap.set(k, obj[k]);
+        }
+        return strMap;
+      },
+
       getApiScenario() {
         if (this.currentScenario.tags != undefined && !(this.currentScenario.tags instanceof Array)) {
           this.currentScenario.tags = JSON.parse(this.currentScenario.tags);
@@ -911,6 +922,7 @@ export default {
                 let obj = JSON.parse(response.data.scenarioDefinition);
                 if (obj) {
                   this.currentEnvironmentId = obj.environmentId;
+                  this.projectEnvMap = this.objToStrMap(obj.environmentMap);
                   this.currentScenario.variables = [];
                   let index = 1;
                   if (obj.variables) {
@@ -942,6 +954,13 @@ export default {
           })
         }
       },
+      strMapToObj(strMap){
+        let obj= Object.create(null);
+        for (let[k,v] of strMap) {
+          obj[k] = v;
+        }
+        return obj;
+      },
       setParameter() {
         this.currentScenario.stepTotal = this.scenarioDefinition.length;
         this.currentScenario.projectId = getCurrentProjectID();
@@ -955,9 +974,9 @@ export default {
           variables: this.currentScenario.variables,
           headers: this.currentScenario.headers,
           referenced: 'Created',
-          environmentMap: this.projectEnvMap,
+          environmentMap: this.strMapToObj(this.projectEnvMap),
           hashTree: this.scenarioDefinition,
-          projectId: this.projectId
+          projectId: this.projectId,
         };
         this.currentScenario.scenarioDefinition = scenario;
         if (this.currentScenario.tags instanceof Array) {

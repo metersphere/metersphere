@@ -69,6 +69,8 @@ public class MsTCPSampler extends MsTestElement {
     private MsJSR223PreProcessor tcpPreProcessor;
     @JSONField(ordinal = 38)
     private String protocol = "TCP";
+    @JSONField(ordinal = 39)
+    private String projectId;
 
     @Override
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, ParameterConfig config) {
@@ -78,8 +80,8 @@ public class MsTCPSampler extends MsTestElement {
         if (this.getReferenced() != null && MsTestElementConstants.REF.name().equals(this.getReferenced())) {
             this.getRefElement(this);
         }
-        config.setConfig(getEnvironmentConfig(useEnvironment));
-        parseEnvironment(config.getConfig());
+//        config.setConfig(getEnvironmentConfig(useEnvironment));
+        parseEnvironment(config.getConfig().get(this.projectId));
 
         // 添加环境中的公共变量
         Arguments arguments = this.addArguments(config);

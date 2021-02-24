@@ -118,7 +118,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         if (config != null && config.getConfig() != null) {
             config.setConfig(config.getConfig());
         } else {
-            config.setConfig(getEnvironmentConfig(useEnvironment));
+//            config.setConfig(getEnvironmentConfig(useEnvironment));
         }
 
         // 添加环境中的公共变量
@@ -128,7 +128,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         }
         try {
             if (config != null && config.getConfig() != null) {
-                String url = config.getConfig().getHttpConfig().getProtocol() + "://" + config.getConfig().getHttpConfig().getSocket();
+                String url = config.getConfig().get(this.getProjectId()).getHttpConfig().getProtocol() + "://" + config.getConfig().get(this.getProjectId()).getHttpConfig().getSocket();
                 // 补充如果是完整URL 则用自身URL
                 boolean isUrl = false;
                 if (StringUtils.isNotEmpty(this.getUrl()) && isURL(this.getUrl())) {
@@ -141,9 +141,9 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                     sampler.setPort(urlObject.getPort());
                     sampler.setProtocol(urlObject.getProtocol());
                 } else {
-                    sampler.setDomain(config.getConfig().getHttpConfig().getDomain());
-                    sampler.setPort(config.getConfig().getHttpConfig().getPort());
-                    sampler.setProtocol(config.getConfig().getHttpConfig().getProtocol());
+                    sampler.setDomain(config.getConfig().get(this.getProjectId()).getHttpConfig().getDomain());
+                    sampler.setPort(config.getConfig().get(this.getProjectId()).getHttpConfig().getPort());
+                    sampler.setProtocol(config.getConfig().get(this.getProjectId()).getHttpConfig().getProtocol());
                 }
                 String envPath = StringUtils.equals(urlObject.getPath(), "/") ? "" : urlObject.getPath();
                 if (StringUtils.isNotBlank(this.getPath()) && !isUrl) {
@@ -215,16 +215,16 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         }
 
         // 通用请求Headers
-        if (config != null && config.getConfig() != null && config.getConfig().getHttpConfig() != null
-                && CollectionUtils.isNotEmpty(config.getConfig().getHttpConfig().getHeaders())) {
-            setHeader(httpSamplerTree, config.getConfig().getHttpConfig().getHeaders());
+        if (config != null && config.getConfig() != null && config.getConfig().get(this.getProjectId()).getHttpConfig() != null
+                && CollectionUtils.isNotEmpty(config.getConfig().get(this.getProjectId()).getHttpConfig().getHeaders())) {
+            setHeader(httpSamplerTree, config.getConfig().get(this.getProjectId()).getHttpConfig().getHeaders());
         }
 
         //判断是否要开启DNS
-        if (config != null && config.getConfig() != null && config.getConfig().getCommonConfig() != null
-                && config.getConfig().getCommonConfig().isEnableHost()) {
-            MsDNSCacheManager.addEnvironmentVariables(httpSamplerTree, this.getName(), config.getConfig());
-            MsDNSCacheManager.addEnvironmentDNS(httpSamplerTree, this.getName(), config.getConfig());
+        if (config != null && config.getConfig() != null && config.getConfig().get(this.getProjectId()).getCommonConfig() != null
+                && config.getConfig().get(this.getProjectId()).getCommonConfig().isEnableHost()) {
+            MsDNSCacheManager.addEnvironmentVariables(httpSamplerTree, this.getName(), config.getConfig().get(this.getProjectId()));
+            MsDNSCacheManager.addEnvironmentDNS(httpSamplerTree, this.getName(), config.getConfig().get(this.getProjectId()));
         }
         if (CollectionUtils.isNotEmpty(hashTree)) {
             for (MsTestElement el : hashTree) {

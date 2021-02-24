@@ -105,8 +105,6 @@ public abstract class MsTestElement {
     private boolean customizeReq;
     @JSONField(ordinal = 12)
     private String projectId;
-    @JSONField(ordinal = 13)
-    private Map<String, String> environmentMap;
 
     private MsTestElement parent;
 
@@ -169,14 +167,14 @@ public abstract class MsTestElement {
     }
 
     public Arguments addArguments(ParameterConfig config) {
-        if (config != null && config.getConfig() != null && config.getConfig().getCommonConfig() != null
-                && CollectionUtils.isNotEmpty(config.getConfig().getCommonConfig().getVariables())) {
+        if (config != null && config.getConfig() != null && config.getConfig().get(this.getProjectId()).getCommonConfig() != null
+                && CollectionUtils.isNotEmpty(config.getConfig().get(this.getProjectId()).getCommonConfig().getVariables())) {
             Arguments arguments = new Arguments();
             arguments.setEnabled(true);
             arguments.setName(name + "Variables");
             arguments.setProperty(TestElement.TEST_CLASS, Arguments.class.getName());
             arguments.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("ArgumentsPanel"));
-            config.getConfig().getCommonConfig().getVariables().stream().filter(KeyValue::isValid).filter(KeyValue::isEnable).forEach(keyValue ->
+            config.getConfig().get(this.getProjectId()).getCommonConfig().getVariables().stream().filter(KeyValue::isValid).filter(KeyValue::isEnable).forEach(keyValue ->
                     arguments.addArgument(keyValue.getName(), keyValue.getValue(), "=")
             );
             return arguments;
@@ -184,10 +182,9 @@ public abstract class MsTestElement {
         return null;
     }
 
-    protected EnvironmentConfig getEnvironmentConfig(String projectId) {
-        String env = environmentMap.get(projectId);
+    protected EnvironmentConfig getEnvironmentConfig(String environmentId) {
         ApiTestEnvironmentService environmentService = CommonBeanFactory.getBean(ApiTestEnvironmentService.class);
-        ApiTestEnvironmentWithBLOBs environment = environmentService.get(env);
+        ApiTestEnvironmentWithBLOBs environment = environmentService.get(environmentId);
         if (environment != null && environment.getConfig() != null) {
             return JSONObject.parseObject(environment.getConfig(), EnvironmentConfig.class);
         }

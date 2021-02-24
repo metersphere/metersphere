@@ -223,7 +223,6 @@ export class Scenario extends BaseConfig {
     this.headers = [];
     this.requests = [];
     this.environmentId = undefined;
-    this.environmentMap = undefined;
     this.dubboConfig = undefined;
     this.environment = undefined;
     this.enableCookieShare = false;

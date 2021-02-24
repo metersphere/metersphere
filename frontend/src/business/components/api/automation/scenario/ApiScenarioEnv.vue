@@ -39,7 +39,8 @@ import {parseEnvironment} from "@/business/components/api/test/model/Environment
 export default {
   name: "ApiScenarioEnv",
   props: {
-    projectIds: Set
+    projectIds: Set,
+    envMap: Map
   },
   data() {
     return {
@@ -72,7 +73,7 @@ export default {
           let item = {};
           item.id = id;
           item.envs = envs;
-          item.selectEnv = '';
+          item.selectEnv = this.envMap.get(id);
           this.data.push(item)
         })
       })
@@ -80,7 +81,9 @@ export default {
     open() {
       this.data = [];
       this.dialogVisible = true;
-      this.init();
+      if (this.projectIds.size > 0) {
+        this.init();
+      }
     },
     getWsProjects() {
       this.$get("/project/listAll", res => {
