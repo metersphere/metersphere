@@ -78,11 +78,28 @@ public class MsScenario extends MsTestElement {
                     JSONObject element = JSON.parseObject(scenario.getScenarioDefinition());
                     hashTree = mapper.readValue(element.getString("hashTree"), new TypeReference<LinkedList<MsTestElement>>() {
                     });
+                    // 场景变量
+                    if (StringUtils.isNotEmpty(element.getString("variables"))) {
+                        LinkedList<ScenarioVariable> variables = mapper.readValue(element.getString("variables"),
+                                new TypeReference<LinkedList<ScenarioVariable>>() {
+                                });
+                        this.setVariables(variables);
+                    }
+                    // 场景请求头
+                    if (StringUtils.isNotEmpty(element.getString("headers"))) {
+                        LinkedList<KeyValue> headers = mapper.readValue(element.getString("headers"),
+                                new TypeReference<LinkedList<KeyValue>>() {
+                                });
+                        this.setHeaders(headers);
+                    }
+
                 }
+
             } catch (Exception ex) {
                 ex.printStackTrace();
             }
         }
+        // 设置共享cookie
         config.setEnableCookieShare(enableCookieShare);
         if (StringUtils.isNotEmpty(environmentId)) {
             ApiTestEnvironmentService environmentService = CommonBeanFactory.getBean(ApiTestEnvironmentService.class);
