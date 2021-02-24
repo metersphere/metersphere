@@ -31,10 +31,10 @@
         </el-tooltip>
         <slot name="button"></slot>
         <el-tooltip content="Copy" placement="top">
-          <el-button size="mini" icon="el-icon-copy-document" circle @click="copyRow"/>
+          <el-button size="mini" icon="el-icon-copy-document" circle @click="copyRow" :disabled="data.referenced==='REF' || data.disabled"/>
         </el-tooltip>
         <el-tooltip :content="$t('commons.remove')" placement="top">
-          <el-button size="mini" icon="el-icon-delete" type="danger" circle @click="remove"/>
+          <el-button size="mini" icon="el-icon-delete" type="danger" circle @click="remove" :disabled="data.referenced==='REF' || data.disabled"/>
         </el-tooltip>
       </div>
 
