@@ -7,6 +7,7 @@ exemptLabels:
   - lifecycle/frozen
   - pinned
   - security
+  - plan
 staleLabel: stale
 # Comment to post when marking an issue as stale. Set to `false` to disable
 markComment: >
