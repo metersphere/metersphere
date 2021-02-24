@@ -135,9 +135,7 @@
 
           <el-table-column v-if="item.id=='tags'" prop="tags" :label="$t('commons.tag')" :key="index">
             <template v-slot:default="scope">
-              <div v-for="(itemName,index)  in scope.row.tags" :key="index">
-                <ms-tag type="success" effect="plain" :content="itemName"/>
-              </div>
+                <ms-tag v-for="(itemName,index)  in scope.row.tags" :key="index" type="success" effect="plain" :content="itemName" style="margin-left: 5px"/>
             </template>
           </el-table-column>
 

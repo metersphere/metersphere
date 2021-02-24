@@ -90,7 +90,6 @@ public class JmeterDocumentParser implements DocumentParser {
                         parseHashTree(ele);
                     } else if (nodeNameEquals(ele, TEST_PLAN)) {
                         processSetupTestPlan(ele);
-                        processTearDownTestPlan(ele);
                         processCheckoutConfigTestElement(ele);
                         processCheckoutDnsCacheManager(ele);
                         processCheckoutArguments(ele);
@@ -566,105 +565,18 @@ public class JmeterDocumentParser implements DocumentParser {
         }
     }
 
-    private void processTearDownTestPlan(Element ele) {
-        /*<boolProp name="TestPlan.tearDown_on_shutdown">true</boolProp>*/
-        Document document = ele.getOwnerDocument();
-        Element tearDownSwitch = createBoolProp(document, "TestPlan.tearDown_on_shutdown", true);
-        ele.appendChild(tearDownSwitch);
-
-        Node hashTree = ele.getNextSibling();
-        while (!(hashTree instanceof Element)) {
-            hashTree = hashTree.getNextSibling();
-        }
-        /*
-        <PostThreadGroup guiclass="PostThreadGroupGui" testclass="PostThreadGroup" testname="tearDown Thread Group" enabled="true">
-        <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
-        <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
-          <boolProp name="LoopController.continue_forever">false</boolProp>
-          <stringProp name="LoopController.loops">1</stringProp>
-        </elementProp>
-        <stringProp name="ThreadGroup.num_threads">1</stringProp>
-        <stringProp name="ThreadGroup.ramp_time">1</stringProp>
-        <boolProp name="ThreadGroup.scheduler">false</boolProp>
-        <stringProp name="ThreadGroup.duration"></stringProp>
-        <stringProp name="ThreadGroup.delay"></stringProp>
-        <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
-      </PostThreadGroup>
-         */
-        Element tearDownElement = document.createElement("PostThreadGroup");
-        tearDownElement.setAttribute("guiclass", "PostThreadGroupGui");
-        tearDownElement.setAttribute("testclass", "PostThreadGroup");
-        tearDownElement.setAttribute("testname", "tearDown Thread Group");
-        tearDownElement.setAttribute("enabled", "true");
-        tearDownElement.appendChild(createStringProp(document, "ThreadGroup.on_sample_error", "continue"));
-        tearDownElement.appendChild(createStringProp(document, "ThreadGroup.num_threads", "1"));
-        tearDownElement.appendChild(createStringProp(document, "ThreadGroup.ramp_time", "1"));
-        tearDownElement.appendChild(createStringProp(document, "ThreadGroup.duration", ""));
-        tearDownElement.appendChild(createStringProp(document, "ThreadGroup.delay", ""));
-        tearDownElement.appendChild(createBoolProp(document, "ThreadGroup.scheduler", false));
-        tearDownElement.appendChild(createBoolProp(document, "ThreadGroup.same_user_on_next_iteration", true));
-        Element elementProp = document.createElement("elementProp");
-        elementProp.setAttribute("name", "ThreadGroup.main_controller");
-        elementProp.setAttribute("elementType", "LoopController");
-        elementProp.setAttribute("guiclass", "LoopControlPanel");
-        elementProp.setAttribute("testclass", "LoopController");
-        elementProp.setAttribute("testname", "Loop Controller");
-        elementProp.setAttribute("enabled", "true");
-        elementProp.appendChild(createBoolProp(document, "LoopController.continue_forever", false));
-        elementProp.appendChild(createStringProp(document, "LoopController.loops", "1"));
-        tearDownElement.appendChild(elementProp);
-        hashTree.appendChild(tearDownElement);
-
-        Element tearDownHashTree = document.createElement(HASH_TREE_ELEMENT);
-        /*
-        <OnceOnlyController guiclass="OnceOnlyControllerGui" testclass="OnceOnlyController" testname="Once Only Controller" enabled="true"/>
-         */
-        Element onceOnlyController = document.createElement("OnceOnlyController");
-        onceOnlyController.setAttribute("guiclass", "OnceOnlyControllerGui");
-        onceOnlyController.setAttribute("testclass", "OnceOnlyController");
-        onceOnlyController.setAttribute("testname", "Once Only Controller");
-        onceOnlyController.setAttribute("enabled", "true");
-        tearDownHashTree.appendChild(onceOnlyController);
-         /*
-                <hashTree>
-          <DebugSampler guiclass="TestBeanGUI" testclass="DebugSampler" testname="Debug Sampler" enabled="true">
-            <boolProp name="displayJMeterProperties">false</boolProp>
-            <boolProp name="displayJMeterVariables">true</boolProp>
-            <boolProp name="displaySystemProperties">false</boolProp>
-          </DebugSampler>
-          <hashTree/>
-        </hashTree>
-         */
-        Element onceOnlyHashTree = document.createElement(HASH_TREE_ELEMENT);
-        Element debugSampler = document.createElement("DebugSampler");
-        debugSampler.setAttribute("guiclass", "TestBeanGUI");
-        debugSampler.setAttribute("testclass", "DebugSampler");
-        debugSampler.setAttribute("testname", "Debug Sampler");
-        debugSampler.setAttribute("enabled", "true");
-        debugSampler.appendChild(createBoolProp(document, "displayJMeterProperties", false));
-        debugSampler.appendChild(createBoolProp(document, "displayJMeterVariables", true));
-        debugSampler.appendChild(createBoolProp(document, "displaySystemProperties", false));
-        onceOnlyHashTree.appendChild(debugSampler);
-        // 添加空的 hashTree
-        onceOnlyHashTree.appendChild(document.createElement(HASH_TREE_ELEMENT));
-        tearDownHashTree.appendChild(onceOnlyHashTree);
-        hashTree.appendChild(tearDownHashTree);
-        // 添加backend listener
-        processCheckoutBackendListener(tearDownElement);
-    }
-
     private Element createBoolProp(Document document, String name, boolean value) {
-        Element tearDownSwitch = document.createElement("boolProp");
-        tearDownSwitch.setAttribute("name", name);
-        tearDownSwitch.appendChild(document.createTextNode(String.valueOf(value)));
-        return tearDownSwitch;
+        Element boolProp = document.createElement("boolProp");
+        boolProp.setAttribute("name", name);
+        boolProp.appendChild(document.createTextNode(String.valueOf(value)));
+        return boolProp;
     }
 
     private Element createIntProp(Document document, String name, int value) {
-        Element tearDownSwitch = document.createElement("intProp");
-        tearDownSwitch.setAttribute("name", name);
-        tearDownSwitch.appendChild(document.createTextNode(String.valueOf(value)));
-        return tearDownSwitch;
+        Element intProp = document.createElement("intProp");
+        intProp.setAttribute("name", name);
+        intProp.appendChild(document.createTextNode(String.valueOf(value)));
+        return intProp;
     }
 
     private void processBackendListener(Element backendListener) {

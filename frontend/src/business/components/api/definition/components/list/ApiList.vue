@@ -114,13 +114,10 @@
             v-if="item.id == 'tags'"
             prop="tags"
             :label="$t('commons.tag')"
-            min-width="80px"
-            :key="index"
-          >
+            min-width="120px"
+            :key="index">
             <template v-slot:default="scope">
-              <div v-for="(itemName,index)  in scope.row.tags" :key="index">
-                <ms-tag type="success" effect="plain" :content="itemName"/>
-              </div>
+              <ms-tag v-for="(itemName,index)  in scope.row.tags" :key="index" type="success" effect="plain" :content="itemName" style="margin-left: 5px"/>
             </template>
           </el-table-column>
 
@@ -225,7 +222,7 @@ import MsBottomContainer from "../BottomContainer";
 import ShowMoreBtn from "../../../../track/case/components/ShowMoreBtn";
 import MsBatchEdit from "../basis/BatchEdit";
 import {API_METHOD_COLOUR, API_STATUS, DUBBO_METHOD, REQ_METHOD, SQL_METHOD, TCP_METHOD} from "../../model/JsonData";
-import {downloadFile, getUUID} from "@/common/js/utils";
+import {downloadFile} from "@/common/js/utils";
 import {PROJECT_NAME} from '@/common/js/constants';
 import {getCurrentProjectID, getCurrentUser} from "@/common/js/utils";
 import {API_LIST, TEST_CASE_LIST, WORKSPACE_ID} from '@/common/js/constants';
@@ -246,7 +243,6 @@ import {
 import {_filter, _sort} from "@/common/js/tableUtils";
 import {Api_List, Track_Test_Case} from "@/business/components/common/model/JsonData";
 import HeaderCustom from "@/business/components/common/head/HeaderCustom";
-import {createComponent} from "@/business/components/api/definition/components/jmeter/components";
 
 
 export default {
@@ -273,7 +269,6 @@ export default {
   },
   data() {
     return {
-      basisData: {},
       type: API_LIST,
       headerItems: Api_List,
       tableLabel: Api_List,
@@ -739,36 +734,36 @@ export default {
 </script>
 
 <style scoped>
-.operate-button > div {
-  display: inline-block;
-  margin-left: 10px;
-}
+  .operate-button > div {
+    display: inline-block;
+    margin-left: 10px;
+  }
 
-.request-method {
-  padding: 0 5px;
-  color: #1E90FF;
-}
+  .request-method {
+    padding: 0 5px;
+    color: #1E90FF;
+  }
 
-.api-el-tag {
-  color: white;
-}
+  .api-el-tag {
+    color: white;
+  }
 
-.search-input {
-  float: right;
-  width: 300px;
-  margin-right: 10px;
-}
+  .search-input {
+    float: right;
+    width: 300px;
+    margin-right: 10px;
+  }
 
-.el-tag {
-  margin-left: 10px;
-}
+  .el-tag {
+    margin-left: 10px;
+  }
 
-.ms-select-all >>> th:first-child {
-  margin-top: 20px;
-}
+  .ms-select-all >>> th:first-child {
+    margin-top: 20px;
+  }
 
-.ms-select-all >>> th:nth-child(2) .el-icon-arrow-down {
-  top: -2px;
-}
+  .ms-select-all >>> th:nth-child(2) .el-icon-arrow-down {
+    top: -2px;
+  }
 
 </style>
