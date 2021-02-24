@@ -457,11 +457,14 @@ public class ApiAutomationService {
                         });
                 scenario.setHashTree(elements);
             }
-            if (StringUtils.isNotEmpty(element.getString("variables"))) {
+            if (element != null && StringUtils.isNotEmpty(element.getString("variables"))) {
                 LinkedList<ScenarioVariable> variables = mapper.readValue(element.getString("variables"),
                         new TypeReference<LinkedList<ScenarioVariable>>() {
                         });
                 scenario.setVariables(variables);
+            }
+            if (scenario == null) {
+                return null;
             }
             // 针对导入的jmx 处理
             if (CollectionUtils.isNotEmpty(scenario.getHashTree()) && (scenario.getHashTree().get(0) instanceof MsJmeterElement)) {
@@ -879,9 +882,13 @@ public class ApiAutomationService {
         // 生成jmx
         List<ApiScenrioExportJmx> resList = new ArrayList<>();
         apiScenarioWithBLOBs.forEach(item -> {
-            String jmx = generateJmx(item);
-            ApiScenrioExportJmx scenrioExportJmx = new ApiScenrioExportJmx(item.getName(), apiTestService.updateJmxString(jmx, null, true));
-            resList.add(scenrioExportJmx);
+            if (StringUtils.isNotEmpty(item.getScenarioDefinition())) {
+                String jmx = generateJmx(item);
+                if (StringUtils.isNotEmpty(jmx)) {
+                    ApiScenrioExportJmx scenrioExportJmx = new ApiScenrioExportJmx(item.getName(), apiTestService.updateJmxString(jmx, null, true));
+                    resList.add(scenrioExportJmx);
+                }
+            }
         });
         return resList;
     }
