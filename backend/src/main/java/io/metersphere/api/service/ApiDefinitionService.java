@@ -391,9 +391,12 @@ public class ApiDefinitionService {
                 if (apiTestCase.getName().length() > 255) {
                     apiTestCase.setName(apiTestCase.getName().substring(0, 255));
                 }
-                if (!isInsert) {
+               /* if (!isInsert) {
                     apiTestCase.setName(apiTestCase.getName() + "_" + apiTestCase.getId().substring(0, 5));
-                }
+                }*/
+                ApiTestCaseExample example = new ApiTestCaseExample();
+                example.createCriteria().andApiDefinitionIdEqualTo(apiDefinition.getId());
+                apiTestCaseMapper.deleteByExample(example);
                 apiTestCaseMapper.insert(apiTestCase);
             }
         } catch (Exception e) {

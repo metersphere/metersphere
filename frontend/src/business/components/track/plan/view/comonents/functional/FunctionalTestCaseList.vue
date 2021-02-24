@@ -228,9 +228,7 @@
           min-width="100"
           :label="$t('commons.operating')">
           <template slot="header">
-            <span>{{ $t('commons.operating') }}
-             <i class='el-icon-setting' style="color:#7834c1; margin-left:10px" @click="customHeader"> </i>
-            </span>
+            <header-label-operate @exec="customHeader"/>
           </template>
           <template v-slot:default="scope">
             <ms-table-operator-button :is-tester-permission="true" :tip="$t('commons.edit')" icon="el-icon-edit"
@@ -292,11 +290,13 @@ import MsTag from "@/business/components/common/components/MsTag";
 import {_filter, _sort, getLabel} from "@/common/js/tableUtils";
 import HeaderCustom from "@/business/components/common/head/HeaderCustom";
 import {Test_Plan_Function_Test_Case} from "@/business/components/common/model/JsonData";
+import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOperate";
 
 
 export default {
   name: "FunctionalTestCaseList",
   components: {
+    HeaderLabelOperate,
     HeaderCustom,
     FunctionalTestCaseEdit,
     MsTableOperatorButton,

@@ -163,9 +163,7 @@
         </template>
         <el-table-column fixed="right" min-width="150">
           <template slot="header">
-            <span>{{ $t('commons.operating') }}
-             <i class='el-icon-setting' style="color:#7834c1; margin-left:10px" @click="customHeader"> </i>
-            </span>
+            <header-label-operate @exec="customHeader"/>
           </template>
           <template v-slot:default="scope">
             <ms-table-operator :is-tester-permission="true" @editClick="handleEdit(scope.row)"
@@ -231,10 +229,12 @@ import BatchMove from "./BatchMove";
 import {Track_Test_Case} from "@/business/components/common/model/JsonData";
 import HeaderCustom from "@/business/components/common/head/HeaderCustom";
 import i18n from "@/i18n/i18n";
+import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOperate";
 
 export default {
   name: "TestCaseList",
   components: {
+    HeaderLabelOperate,
     HeaderCustom,
     BatchMove,
     MsTableHeaderSelectPopover,

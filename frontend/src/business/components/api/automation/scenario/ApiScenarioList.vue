@@ -109,9 +109,7 @@
         </template>
         <el-table-column fixed="right" :label="$t('commons.operating')" width="190px" v-if="!referenced">
           <template slot="header">
-            <span>{{ $t('commons.operating') }}
-             <i class='el-icon-setting' style="color:#7834c1; margin-left:10px" @click="customHeader"> </i>
-            </span>
+            <header-label-operate @exec="customHeader"/>
           </template>
           <template v-slot:default="{row}">
             <div v-if="trashEnable">
@@ -193,10 +191,12 @@
     getSelectDataCounts,
     setUnSelectIds, toggleAllSelection
   } from "@/common/js/tableUtils";
+  import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOperate";
 
   export default {
     name: "MsApiScenarioList",
     components: {
+      HeaderLabelOperate,
       HeaderCustom,
       BatchMove,
       EnvironmentSelect,

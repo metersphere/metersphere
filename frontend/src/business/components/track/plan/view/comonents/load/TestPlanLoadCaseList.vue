@@ -102,9 +102,7 @@
         </template>
         <el-table-column v-if="!isReadOnly" :label="$t('commons.operating')" align="center">
           <template slot="header">
-            <span>{{ $t('commons.operating') }}
-             <i class='el-icon-setting' style="color:#7834c1; margin-left:10px" @click="customHeader"> </i>
-            </span>
+            <header-label-operate @exec="customHeader"/>
           </template>
           <template v-slot:default="scope">
             <ms-table-operator-button class="run-button" :is-tester-permission="true" :tip="$t('api_test.run')"
@@ -138,10 +136,12 @@ import HeaderCustom from "@/business/components/common/head/HeaderCustom";
 import {TEST_CASE_LIST, TEST_PLAN_LOAD_CASE} from "@/common/js/constants";
 import {Test_Plan_Load_Case, Track_Test_Case} from "@/business/components/common/model/JsonData";
 import {getCurrentUser} from "@/common/js/utils";
+import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOperate";
 
 export default {
   name: "TestPlanLoadCaseList",
   components: {
+    HeaderLabelOperate,
     HeaderCustom,
     LoadCaseReport,
     TestPlanLoadCaseListHeader,
