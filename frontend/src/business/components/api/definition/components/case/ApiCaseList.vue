@@ -207,9 +207,11 @@
           this.condition.projectId = this.projectId;
           if (this.isCaseEdit) {
             this.condition.id = this.testCaseId;
-          } else {
+          }
+          if(this.api){
             this.condition.apiDefinitionId = this.api.id;
           }
+
           this.result = this.$post("/api/testcase/list", this.condition, response => {
             this.apiCaseList = response.data;
             this.apiCaseList.forEach(apiCase => {

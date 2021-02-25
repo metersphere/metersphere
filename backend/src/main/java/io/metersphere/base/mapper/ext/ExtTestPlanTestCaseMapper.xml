@@ -100,6 +100,20 @@
                 <property name="object" value="${condition}.executor"/>
             </include>
         </if>
+        <if test='${condition}.tags != null and ${objectKey}.operator == "not like"'>
+            and (test_case.tags is null or test_case.tags
+            <include refid="condition">
+                <property name="object" value="${condition}.tags"/>
+            </include>
+            )
+        </if>
+        <if test='${condition}.tags != null and ${objectKey}.operator == "like"'>
+            and test_case.tags
+            <include refid="condition">
+                <property name="object" value="${condition}.tags"/>
+            </include>
+        </if>
+
     </sql>
 
     <select id="getReportMetric" parameterType="java.lang.String"
@@ -135,6 +149,7 @@
                 <include refid="combine">
                     <property name="condition" value="request.combine"/>
                     <property name="name" value="request.name"/>
+                    <property name="objectKey" value="request.combine.tags"/>
                 </include>
             </if>
             <if test="request.name != null">
