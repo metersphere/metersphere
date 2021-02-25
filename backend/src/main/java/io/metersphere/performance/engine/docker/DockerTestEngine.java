@@ -7,7 +7,6 @@ import io.metersphere.commons.constants.ResourceStatusEnum;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.UrlTestUtils;
-import io.metersphere.config.JmeterProperties;
 import io.metersphere.config.KafkaProperties;
 import io.metersphere.controller.ResultHolder;
 import io.metersphere.dto.BaseSystemConfigDTO;
@@ -73,15 +72,14 @@ public class DockerTestEngine extends AbstractEngine {
 
         BaseSystemConfigDTO baseInfo = CommonBeanFactory.getBean(SystemParameterService.class).getBaseInfo();
         KafkaProperties kafkaProperties = CommonBeanFactory.getBean(KafkaProperties.class);
-        JmeterProperties jmeterProperties = CommonBeanFactory.getBean(JmeterProperties.class);
-        String metersphereUrl = "http://localhost:8081";
+        String metersphereUrl = "http://localhost:8081"; // 占位符
         if (baseInfo != null) {
             metersphereUrl = baseInfo.getUrl();
         }
-
+        String jmeterPingUrl = metersphereUrl + "/jmeter/ping"; // 检查下载地址是否正确
         // docker 不能从 localhost 中下载文件
         if (StringUtils.contains(metersphereUrl, "http://localhost")
-                || !UrlTestUtils.testUrlWithTimeOut(metersphereUrl, 1000)) {
+                || !UrlTestUtils.testUrlWithTimeOut(jmeterPingUrl, 1000)) {
             MSException.throwException(Translator.get("run_load_test_file_init_error"));
         }
 
@@ -96,7 +94,8 @@ public class DockerTestEngine extends AbstractEngine {
         env.put("LOG_TOPIC", kafkaProperties.getLog().getTopic());
         env.put("RESOURCE_ID", resource.getId());
         env.put("THREAD_NUM", "0");// 传入0表示不用修改线程数
-        env.put("HEAP", jmeterProperties.getHeap());
+        env.put("HEAP", HEAP);
+        env.put("GC_ALGO", GC_ALGO);
 
 
         StartTestRequest startTestRequest = new StartTestRequest();

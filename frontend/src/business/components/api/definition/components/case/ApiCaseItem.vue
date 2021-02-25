@@ -35,13 +35,13 @@
           </span>
 
           <div v-if="apiCase.id" style="color: #999999;font-size: 12px">
-          <span>
-            {{ apiCase.createTime | timestampFormatDate }}
-            {{ apiCase.createUser }} {{ $t('api_test.definition.request.create_info') }}
-          </span>
             <span>
-            {{ apiCase.updateTime | timestampFormatDate }}
-            {{ apiCase.updateUser }} {{ $t('api_test.definition.request.update_info') }}
+              {{ apiCase.createTime | timestampFormatDate }}
+              {{ apiCase.createUser }} {{ $t('api_test.definition.request.create_info') }}
+            </span>
+            <span style="margin-left: 10px">
+              {{ apiCase.updateTime | timestampFormatDate }}
+              {{ apiCase.updateUser }} {{ $t('api_test.definition.request.update_info') }}
           </span>
           </div>
         </el-col>

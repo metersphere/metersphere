@@ -35,7 +35,6 @@ import org.aspectj.util.FileUtil;
 import org.dom4j.Document;
 import org.dom4j.DocumentHelper;
 import org.dom4j.Element;
-import org.dom4j.QName;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -582,9 +581,11 @@ public class APITestService {
             for (Element itemElement : sampleProxyElementList) {
                 if (isFromScenario) {
                     testName = itemElement.attributeValue(attribute_testName);
-                    String[] testNameArr = testName.split(scenarioCaseNameSplit);
-                    if (testNameArr.length > 0) {
-                        testName = testNameArr[0];
+                    if (StringUtils.isNotBlank(testName)) {
+                        String[] testNameArr = testName.split(scenarioCaseNameSplit);
+                        if (testNameArr.length > 0) {
+                            testName = testNameArr[0];
+                        }
                     }
                 }
                 itemElement.attribute(attribute_testName).setText(testName);

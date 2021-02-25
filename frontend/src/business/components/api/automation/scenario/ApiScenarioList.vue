@@ -12,8 +12,7 @@
                 @select-all="handleSelectAll"
                 @select="handleSelect"
                 @header-dragend="headerDragend"
-                :height="screenHeight"
-                v-loading="loading">
+                :height="screenHeight">
 
         <el-table-column type="selection" width="50"/>
 
@@ -29,7 +28,7 @@
           </template>
         </el-table-column>
         <template v-for="(item, index) in tableLabel">
-          <el-table-column v-if="item.prop == 'num'" prop="num" label="ID"
+          <el-table-column v-if="item.id == 'num'" prop="num" label="ID"
                            sortable="custom"
                            min-width="120px"
                            show-overflow-tooltip :key="index">
@@ -39,14 +38,14 @@
               </el-tooltip>
             </template>
           </el-table-column>
-          <el-table-column v-if="item.prop == 'name'" prop="name"
+          <el-table-column v-if="item.id == 'name'" prop="name"
                            sortable="custom"
                            :label="$t('api_test.automation.scenario_name')"
                            show-overflow-tooltip
                            min-width="120px"
                            :key="index"
           />
-          <el-table-column v-if="item.prop == 'level'" prop="level"
+          <el-table-column v-if="item.id == 'level'" prop="level"
                            sortable="custom"
                            column-key="level"
                            :filters="levelFilters"
@@ -57,7 +56,7 @@
               <priority-table-item :value="scope.row.level"/>
             </template>
           </el-table-column>
-          <el-table-column v-if="item.prop == 'status'" prop="status" :label="$t('test_track.plan.plan_status')"
+          <el-table-column v-if="item.id == 'status'" prop="status" :label="$t('test_track.plan.plan_status')"
                            sortable="custom"
                            column-key="status"
                            :filters="statusFilters"
@@ -66,32 +65,30 @@
               <plan-status-table-item :value="scope.row.status"/>
             </template>
           </el-table-column>
-          <el-table-column v-if="item.prop == 'tags'" prop="tags" min-width="120px"
+          <el-table-column v-if="item.id == 'tags'" prop="tags" min-width="120px"
                            :label="$t('api_test.automation.tag')" :key="index">
             <template v-slot:default="scope">
-              <div v-for="(itemName,index)  in scope.row.tags" :key="index">
-                <ms-tag type="success" effect="plain" :content="itemName"/>
-              </div>
+              <ms-tag v-for="(itemName,index)  in scope.row.tags" :key="index" type="success" effect="plain" :content="itemName" style="margin-left: 5px"/>
             </template>
           </el-table-column>
-          <el-table-column v-if="item.prop == 'userId'" prop="userId" min-width="120px"
+          <el-table-column v-if="item.id == 'userId'" prop="userId" min-width="120px"
                            :label="$t('api_test.automation.creator')"
                            :filters="userFilters"
                            column-key="user_id"
                            sortable="custom"
                            show-overflow-tooltip
                            :key="index"/>
-          <el-table-column v-if="item.prop == 'updateTime'" prop="updateTime"
+          <el-table-column v-if="item.id == 'updateTime'" prop="updateTime"
                            :label="$t('api_test.automation.update_time')" sortable="custom" min-width="180px"
                            :key="index">
             <template v-slot:default="scope">
               <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
             </template>
           </el-table-column>
-          <el-table-column v-if="item.prop == 'stepTotal'" prop="stepTotal" :label="$t('api_test.automation.step')"
+          <el-table-column v-if="item.id == 'stepTotal'" prop="stepTotal" :label="$t('api_test.automation.step')"
                            min-width="80px"
                            show-overflow-tooltip :key="index"/>
-          <el-table-column v-if="item.prop == 'lastResult'" prop="lastResult"
+          <el-table-column v-if="item.id == 'lastResult'" prop="lastResult"
                            :label="$t('api_test.automation.last_result')"
                            :filters="resultFilters"
 
@@ -105,16 +102,14 @@
               </el-link>
             </template>
           </el-table-column>
-          <el-table-column v-if="item.prop == 'passRate'" prop="passRate"
+          <el-table-column v-if="item.id == 'passRate'" prop="passRate"
                            :label="$t('api_test.automation.passing_rate')"
                            min-width="120px"
                            show-overflow-tooltip :key="index"/>
         </template>
         <el-table-column fixed="right" :label="$t('commons.operating')" width="190px" v-if="!referenced">
           <template slot="header">
-            <span>{{ $t('commons.operating') }}
-             <i class='el-icon-setting' style="color:#7834c1; margin-left:10px" @click="customHeader"> </i>
-            </span>
+            <header-label-operate @exec="customHeader"/>
           </template>
           <template v-slot:default="{row}">
             <div v-if="trashEnable">
@@ -186,7 +181,7 @@
   import {PROJECT_NAME} from "../../../../../common/js/constants";
   import EnvironmentSelect from "../../definition/components/environment/EnvironmentSelect";
   import BatchMove from "../../../track/case/components/BatchMove";
-  import {_sort} from "@/common/js/tableUtils";
+  import {_sort, getLabel} from "@/common/js/tableUtils";
   import {Api_Scenario_List} from "@/business/components/common/model/JsonData";
   import HeaderCustom from "@/business/components/common/head/HeaderCustom";
   import {
@@ -196,10 +191,12 @@
     getSelectDataCounts,
     setUnSelectIds, toggleAllSelection
   } from "@/common/js/tableUtils";
+  import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOperate";
 
   export default {
     name: "MsApiScenarioList",
     components: {
+      HeaderLabelOperate,
       HeaderCustom,
       BatchMove,
       EnvironmentSelect,
@@ -365,7 +362,7 @@
       },
       search() {
         this.selectRows = new Set();
-        this.getLabel()
+        getLabel(this, API_SCENARIO_LIST);
         this.condition.moduleIds = this.selectNodeIds;
         if (this.trashEnable) {
           this.condition.filters = {status: ["Trash"]};
@@ -414,24 +411,6 @@
             this.unSelection = data.listObject.map(s => s.id);
           });
         }
-      },
-      getLabel() {
-        let param = {}
-        param.userId = getCurrentUser().id;
-        param.type = API_SCENARIO_LIST
-        this.result = this.$post('/system/header/info', param, response => {
-          if (response.data != null) {
-            let arry = eval(response.data.props);
-            let obj = {};
-            for (let key in arry) {
-              obj[key] = arry[key];
-            }
-            let newObj = Object.keys(obj).map(val => ({
-              prop: obj[val]
-            }))
-            this.tableLabel = newObj
-          }
-        })
       },
       handleCommand(cmd) {
         let table = this.$refs.scenarioTable;

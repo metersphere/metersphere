@@ -52,7 +52,7 @@
         <template v-for="(item, index) in tableLabel">
 
           <el-table-column
-            v-if="item.prop == 'num'"
+            v-if="item.id == 'num'"
             prop="num"
             sortable="custom"
             :label="$t('commons.id')"
@@ -60,7 +60,7 @@
             show-overflow-tooltip>
           </el-table-column>
           <el-table-column
-            v-if="item.prop == 'name'"
+            v-if="item.id == 'name'"
             prop="name"
             :label="$t('commons.name')"
             show-overflow-tooltip
@@ -81,7 +81,7 @@
             </template>
           </el-table-column>
           <el-table-column
-            v-if="item.prop == 'priority'"
+            v-if="item.id == 'priority'"
             prop="priority"
             :filters="priorityFilters"
             column-key="priority"
@@ -94,7 +94,7 @@
             </template>
           </el-table-column>
           <el-table-column
-            v-if="item.prop == 'type'"
+            v-if="item.id == 'type'"
             prop="type"
             :filters="typeFilters"
             column-key="type"
@@ -106,7 +106,7 @@
             </template>
           </el-table-column>
           <el-table-column
-            v-if="item.prop=='method'"
+            v-if="item.id=='method'"
             prop="method"
             column-key="method"
             :filters="methodFilters"
@@ -120,7 +120,7 @@
           </el-table-column>
 
           <el-table-column
-            v-if="item.prop=='status'"
+            v-if="item.id=='status'"
             :filters="statusFilters"
             column-key="status"
             min-width="100px"
@@ -133,16 +133,14 @@
             </template>
           </el-table-column>
 
-          <el-table-column v-if="item.prop=='tags'" prop="tags" :label="$t('commons.tag')" :key="index">
+          <el-table-column v-if="item.id=='tags'" prop="tags" :label="$t('commons.tag')" :key="index">
             <template v-slot:default="scope">
-              <div v-for="(itemName,index)  in scope.row.tags" :key="index">
-                <ms-tag type="success" effect="plain" :content="itemName"/>
-              </div>
+                <ms-tag v-for="(itemName,index)  in scope.row.tags" :key="index" type="success" effect="plain" :content="itemName" style="margin-left: 5px"/>
             </template>
           </el-table-column>
 
           <el-table-column
-            v-if="item.prop=='nodePath'"
+            v-if="item.id=='nodePath'"
             prop="nodePath"
             :label="$t('test_track.case.module')"
             min-width="150px"
@@ -151,7 +149,7 @@
           </el-table-column>
 
           <el-table-column
-            v-if="item.prop=='updateTime'"
+            v-if="item.id=='updateTime'"
             prop="updateTime"
             sortable="custom"
             :label="$t('commons.update_time')"
@@ -165,9 +163,7 @@
         </template>
         <el-table-column fixed="right" min-width="150">
           <template slot="header">
-            <span>{{ $t('commons.operating') }}
-             <i class='el-icon-setting' style="color:#7834c1; margin-left:10px" @click="customHeader"> </i>
-            </span>
+            <header-label-operate @exec="customHeader"/>
           </template>
           <template v-slot:default="scope">
             <ms-table-operator :is-tester-permission="true" @editClick="handleEdit(scope.row)"
@@ -224,7 +220,7 @@ import {
   _filter,
   _handleSelect,
   _handleSelectAll,
-  _sort,
+  _sort, getLabel,
   getSelectDataCounts, initCondition,
   setUnSelectIds,
   toggleAllSelection
@@ -233,10 +229,12 @@ import BatchMove from "./BatchMove";
 import {Track_Test_Case} from "@/business/components/common/model/JsonData";
 import HeaderCustom from "@/business/components/common/head/HeaderCustom";
 import i18n from "@/i18n/i18n";
+import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOperate";
 
 export default {
   name: "TestCaseList",
   components: {
+    HeaderLabelOperate,
     HeaderCustom,
     BatchMove,
     MsTableHeaderSelectPopover,
@@ -378,26 +376,8 @@ export default {
         // param.nodeIds = this.selectNodeIds;
         this.condition.nodeIds = this.selectNodeIds;
       }
-      this.getLabel()
+      getLabel(this, TEST_CASE_LIST);
       this.getData();
-    },
-    getLabel(){
-      let param={}
-      param.userId=getCurrentUser().id;
-      param.type=TEST_CASE_LIST
-      this.result=this.$post('/system/header/info',param,response=> {
-        if (response.data != null) {
-          let arry = eval(response.data.props);
-          let obj = {};
-          for (let key in arry) {
-            obj[key] = arry[key];
-          }
-          let newObj = Object.keys(obj).map(val => ({
-            prop: obj[val]
-          }))
-          this.tableLabel = newObj
-        }
-      })
     },
     getData() {
       if (this.projectId) {

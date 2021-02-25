@@ -41,7 +41,6 @@ import org.apache.jmeter.config.Arguments;
 import org.apache.jmeter.config.CSVDataSet;
 import org.apache.jmeter.config.RandomVariableConfig;
 import org.apache.jmeter.modifiers.CounterConfig;
-import org.apache.jmeter.protocol.http.control.AuthManager;
 import org.apache.jmeter.save.SaveService;
 import org.apache.jmeter.testelement.TestElement;
 import org.apache.jorphan.collections.HashTree;
@@ -75,7 +74,7 @@ import java.util.stream.Collectors;
 
 })
 @JSONType(seeAlso = {MsHTTPSamplerProxy.class, MsHeaderManager.class, MsJSR223Processor.class, MsJSR223PostProcessor.class,
-        MsJSR223PreProcessor.class, MsTestPlan.class, MsThreadGroup.class, AuthManager.class, MsAssertions.class,
+        MsJSR223PreProcessor.class, MsTestPlan.class, MsThreadGroup.class, MsAuthManager.class, MsAssertions.class,
         MsExtract.class, MsTCPSampler.class, MsDubboSampler.class, MsJDBCSampler.class, MsConstantTimer.class, MsIfController.class, MsScenario.class, MsLoopController.class, MsJmeterElement.class}, typeKey = "type")
 @Data
 public abstract class MsTestElement {
@@ -152,7 +151,7 @@ public abstract class MsTestElement {
             ApiDefinitionService apiDefinitionService = CommonBeanFactory.getBean(ApiDefinitionService.class);
             ObjectMapper mapper = new ObjectMapper();
             mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-            ApiDefinitionWithBLOBs apiDefinition = apiDefinitionService.getBLOBs(this.getId());
+            ApiDefinitionWithBLOBs apiDefinition = apiDefinitionService.getBLOBs(element.getId());
             if (apiDefinition != null) {
                 element = mapper.readValue(apiDefinition.getRequest(), new TypeReference<MsTestElement>() {
                 });
@@ -160,6 +159,7 @@ public abstract class MsTestElement {
             }
         } catch (Exception ex) {
             ex.printStackTrace();
+            LogUtil.error(ex.getMessage());
         }
     }
 

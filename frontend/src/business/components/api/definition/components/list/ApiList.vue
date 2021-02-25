@@ -36,7 +36,7 @@
         </el-table-column>
         <template v-for="(item, index) in tableLabel">
           <el-table-column
-            v-if="item.prop == 'num'"
+            v-if="item.id == 'num'"
             prop="num"
             label="ID"
             show-overflow-tooltip
@@ -50,7 +50,7 @@
             </template>
           </el-table-column>
           <el-table-column
-            v-if="item.prop == 'name'"
+            v-if="item.id == 'name'"
             prop="name"
             :label="$t('api_test.definition.api_name')"
             show-overflow-tooltip
@@ -58,7 +58,7 @@
             min-width="120px"
             :key="index"/>
           <el-table-column
-            v-if="item.prop == 'status'"
+            v-if="item.id == 'status'"
             prop="status"
             column-key="status"
             sortable="custom"
@@ -74,7 +74,7 @@
           </el-table-column>
 
           <el-table-column
-            v-if="item.prop == 'method'"
+            v-if="item.id == 'method'"
             prop="method"
             sortable="custom"
             column-key="method"
@@ -92,7 +92,7 @@
           </el-table-column>
 
           <el-table-column
-            v-if="item.prop == 'userName'"
+            v-if="item.id == 'userName'"
             prop="userName"
             sortable="custom"
             :filters="userFilters"
@@ -103,7 +103,7 @@
             :key="index"/>
 
           <el-table-column
-            v-if="item.prop == 'path'"
+            v-if="item.id == 'path'"
             prop="path"
             min-width="120px"
             :label="$t('api_test.definition.api_path')"
@@ -111,21 +111,18 @@
             :key="index"/>
 
           <el-table-column
-            v-if="item.prop == 'tags'"
+            v-if="item.id == 'tags'"
             prop="tags"
             :label="$t('commons.tag')"
-            min-width="80px"
-            :key="index"
-          >
+            min-width="120px"
+            :key="index">
             <template v-slot:default="scope">
-              <div v-for="(itemName,index)  in scope.row.tags" :key="index">
-                <ms-tag type="success" effect="plain" :content="itemName"/>
-              </div>
+              <ms-tag v-for="(itemName,index)  in scope.row.tags" :key="index" type="success" effect="plain" :content="itemName" style="margin-left: 5px"/>
             </template>
           </el-table-column>
 
           <el-table-column
-            v-if="item.prop == 'updateTime'"
+            v-if="item.id == 'updateTime'"
             width="160"
             :label="$t('api_test.definition.api_last_time')"
             sortable="custom"
@@ -138,7 +135,7 @@
           </el-table-column>
 
           <el-table-column
-            v-if="item.prop == 'caseTotal'"
+            v-if="item.id == 'caseTotal'"
             prop="caseTotal"
             min-width="80px"
             :label="$t('api_test.definition.api_case_number')"
@@ -146,7 +143,7 @@
             :key="index"/>
 
           <el-table-column
-            v-if="item.prop == 'caseStatus'"
+            v-if="item.id == 'caseStatus'"
             prop="caseStatus"
             min-width="80px"
             :label="$t('api_test.definition.api_case_status')"
@@ -154,7 +151,7 @@
             :key="index"/>
 
           <el-table-column
-            v-if="item.prop == 'casePassingRate'"
+            v-if="item.id == 'casePassingRate'"
             prop="casePassingRate"
             :width="100"
             min-width="100px"
@@ -163,14 +160,18 @@
             :key="index"/>
         </template>
 
-        <el-table-column fixed="right" v-if="!isReadOnly" :label="$t('commons.operating')" min-width="130"
+        <el-table-column fixed="right" v-if="!isReadOnly" min-width="180"
                          align="center">
+
           <template slot="header">
-            <span>{{ $t('commons.operating') }}
-             <i class='el-icon-setting' style="color:#7834c1; margin-left:10px" @click="customHeader"> </i>
-            </span>
+            <header-label-operate @exec="customHeader"/>
           </template>
+
           <template v-slot:default="scope">
+            <ms-table-operator-button class="run-button" :is-tester-permission="true"
+                                      :tip="$t('api_test.automation.execute')"
+                                      icon="el-icon-video-play"
+                                      @exec="runApi(scope.row)"/>
             <ms-table-operator-button :tip="$t('commons.reduction')" icon="el-icon-refresh-left"
                                       @exec="reductionApi(scope.row)" v-if="trashEnable" v-tester/>
             <ms-table-operator-button :tip="$t('commons.edit')" icon="el-icon-edit" @exec="editApi(scope.row)" v-else
@@ -235,18 +236,20 @@ import CaseBatchMove from "@/business/components/api/definition/components/basis
 import ApiListContainerWithDoc from "@/business/components/api/definition/components/list/ApiListContainerWithDoc";
 import {
   _handleSelect,
-  _handleSelectAll,
+  _handleSelectAll, getLabel,
   getSelectDataCounts, initCondition,
   setUnSelectIds, toggleAllSelection
 } from "@/common/js/tableUtils";
 import {_filter, _sort} from "@/common/js/tableUtils";
 import {Api_List, Track_Test_Case} from "@/business/components/common/model/JsonData";
 import HeaderCustom from "@/business/components/common/head/HeaderCustom";
+import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOperate";
 
 
 export default {
   name: "ApiList",
   components: {
+    HeaderLabelOperate,
     HeaderCustom,
     CaseBatchMove,
     ApiStatus,
@@ -403,7 +406,7 @@ export default {
       this.$emit("activeDomChange",tabType);
     },
     initTable() {
-      this.getLabel()
+      getLabel(this, API_LIST);
       this.selectRows = new Set();
       initCondition(this.condition);
       this.selectDataCounts = 0;
@@ -449,25 +452,6 @@ export default {
           })
         });
       }
-    },
-    getLabel() {
-      let param = {}
-      param.userId = getCurrentUser().id;
-      param.type = API_LIST
-      this.result = this.$post('/system/header/info', param, response => {
-        if (response.data != null) {
-          let arry = eval(response.data.props);
-          let obj = {};
-          for (let key in arry) {
-            obj[key] = arry[key];
-          }
-          let newObj = Object.keys(obj).map(val => ({
-            prop: obj[val]
-          }))
-          this.tableLabel = newObj
-        }
-
-      })
     },
     genProtocalFilter(protocalType) {
       if (protocalType === "HTTP") {
@@ -546,6 +530,11 @@ export default {
 
     editApi(row) {
       this.$emit('editApi', row);
+    },
+    runApi(row) {
+      let request = JSON.parse(row.request);
+      row.request = request
+      this.$emit('runTest', row);
     },
     reductionApi(row) {
       let tmp = JSON.parse(JSON.stringify(row));
@@ -747,36 +736,36 @@ export default {
 </script>
 
 <style scoped>
-.operate-button > div {
-  display: inline-block;
-  margin-left: 10px;
-}
+  .operate-button > div {
+    display: inline-block;
+    margin-left: 10px;
+  }
 
-.request-method {
-  padding: 0 5px;
-  color: #1E90FF;
-}
+  .request-method {
+    padding: 0 5px;
+    color: #1E90FF;
+  }
 
-.api-el-tag {
-  color: white;
-}
+  .api-el-tag {
+    color: white;
+  }
 
-.search-input {
-  float: right;
-  width: 300px;
-  margin-right: 10px;
-}
+  .search-input {
+    float: right;
+    width: 300px;
+    margin-right: 10px;
+  }
 
-.el-tag {
-  margin-left: 10px;
-}
+  .el-tag {
+    margin-left: 10px;
+  }
 
-.ms-select-all >>> th:first-child {
-  margin-top: 20px;
-}
+  .ms-select-all >>> th:first-child {
+    margin-top: 20px;
+  }
 
-.ms-select-all >>> th:nth-child(2) .el-icon-arrow-down {
-  top: -2px;
-}
+  .ms-select-all >>> th:nth-child(2) .el-icon-arrow-down {
+    top: -2px;
+  }
 
 </style>
