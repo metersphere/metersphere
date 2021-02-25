@@ -12,7 +12,7 @@ import javax.annotation.Resource;
 @Service
 public class LoadTestProducer {
 
-    @Value("${kafka.topic}")
+    @Value("${kafka.log.topic}")
     private String topic;
     @Resource
     private KafkaTemplate<String, Object> kafkaTemplate;
@@ -20,11 +20,15 @@ public class LoadTestProducer {
     private ObjectMapper objectMapper;
 
     public void sendMessage(String reportId) {
-        Metric metric = new Metric();
-        metric.setReportId(reportId);
-        metric.setThreadName("tearDown Thread Group"); // 发送停止消息
+        Log log = Log.builder()
+                .reportId(reportId)
+                .resourceId("none")
+                .resourceIndex(0)
+                .content("Notifying test listeners of end of test")
+                .build();
+
         try {
-            this.kafkaTemplate.send(topic, objectMapper.writeValueAsString(metric));
+            this.kafkaTemplate.send(topic, objectMapper.writeValueAsString(log));
         } catch (JsonProcessingException e) {
             LogUtil.error("发送停止消息失败", e);
         }
