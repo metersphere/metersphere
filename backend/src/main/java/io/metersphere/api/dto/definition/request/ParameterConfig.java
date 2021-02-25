@@ -5,13 +5,14 @@ import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
 import lombok.Data;
 
 import java.util.List;
+import java.util.Map;
 
 @Data
 public class ParameterConfig {
     /**
      * 环境配置
      */
-    private EnvironmentConfig config;
+    private Map<String,EnvironmentConfig> config;
     /**
      * 公共场景参数
      */

@@ -22,5 +22,9 @@ public class TestResourcePool implements Serializable {
 
     private String image;
 
+    private String heap;
+
+    private String gcAlgo;
+
     private static final long serialVersionUID = 1L;
 }

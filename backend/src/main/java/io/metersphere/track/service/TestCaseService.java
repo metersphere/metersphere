@@ -457,6 +457,8 @@ public class TestCaseService {
     }
 
     private List<TestCaseExcelData> generateTestCaseExcel(TestCaseBatchRequest request) {
+        ServiceUtils.getSelectAllIds(request, request.getCondition(),
+                (query) -> extTestCaseMapper.selectIds(query));
         List<OrderRequest> orderList = ServiceUtils.getDefaultOrder(request.getOrders());
         OrderRequest order = new OrderRequest();
         order.setName("sort");

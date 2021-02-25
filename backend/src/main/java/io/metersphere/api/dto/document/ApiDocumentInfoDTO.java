@@ -1,4 +1,4 @@
-package io.metersphere.api.dto;
+package io.metersphere.api.dto.document;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -13,6 +13,7 @@ import lombok.Setter;
 public class ApiDocumentInfoDTO {
     private String id;
     private String method;
+    private boolean selectedFlag;
     private String uri;
     private String name;
     private String status;
@@ -32,5 +33,6 @@ public class ApiDocumentInfoDTO {
     private String responseBodyStrutureData;
 
     private String responseCode;
+    private boolean sharePopoverVisible = false;
 
 }

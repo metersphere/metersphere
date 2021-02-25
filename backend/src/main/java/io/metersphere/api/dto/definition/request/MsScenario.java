@@ -15,6 +15,7 @@ import io.metersphere.api.service.ApiTestEnvironmentService;
 import io.metersphere.base.domain.ApiScenarioWithBLOBs;
 import io.metersphere.base.domain.ApiTestEnvironmentWithBLOBs;
 import io.metersphere.commons.utils.CommonBeanFactory;
+import io.metersphere.commons.utils.SessionUtils;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.collections.CollectionUtils;
@@ -26,8 +27,10 @@ import org.apache.jmeter.save.SaveService;
 import org.apache.jmeter.testelement.TestElement;
 import org.apache.jorphan.collections.HashTree;
 
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Data
@@ -51,6 +54,9 @@ public class MsScenario extends MsTestElement {
 
     @JSONField(ordinal = 26)
     private List<KeyValue> headers;
+
+    @JSONField(ordinal = 27)
+    private Map<String, String> environmentMap;
 
     private static final String BODY_FILE_DIR = "/opt/metersphere/data/body";
 
@@ -101,12 +107,24 @@ public class MsScenario extends MsTestElement {
         }
         // 设置共享cookie
         config.setEnableCookieShare(enableCookieShare);
-        if (StringUtils.isNotEmpty(environmentId)) {
-            ApiTestEnvironmentService environmentService = CommonBeanFactory.getBean(ApiTestEnvironmentService.class);
-            ApiTestEnvironmentWithBLOBs environment = environmentService.get(environmentId);
-            if (environment != null && environment.getConfig() != null) {
-                config.setConfig(JSONObject.parseObject(environment.getConfig(), EnvironmentConfig.class));
+        Map<String,EnvironmentConfig> envConfig = new HashMap<>(16);
+        // 兼容历史数据
+        if (environmentMap == null || environmentMap.isEmpty()) {
+            environmentMap = new HashMap<>(16);
+            if (StringUtils.isNotBlank(environmentId)) {
+                environmentMap.put(SessionUtils.getCurrentProjectId(), environmentId);
             }
+        }
+        if (environmentMap != null && !environmentMap.isEmpty()) {
+            environmentMap.keySet().forEach(projectId -> {
+                ApiTestEnvironmentService environmentService = CommonBeanFactory.getBean(ApiTestEnvironmentService.class);
+                ApiTestEnvironmentWithBLOBs environment = environmentService.get(environmentMap.get(projectId));
+                if (environment != null && environment.getConfig() != null) {
+                    EnvironmentConfig env = JSONObject.parseObject(environment.getConfig(), EnvironmentConfig.class);
+                    envConfig.put(projectId, env);
+                }
+            });
+            config.setConfig(envConfig);
         }
         if (CollectionUtils.isNotEmpty(this.getVariables())) {
             config.setVariables(this.variables);
@@ -171,9 +189,9 @@ public class MsScenario extends MsTestElement {
                 }
             });
         }
-        if (config != null && config.getConfig() != null && config.getConfig().getCommonConfig() != null
-                && CollectionUtils.isNotEmpty(config.getConfig().getCommonConfig().getVariables())) {
-            config.getConfig().getCommonConfig().getVariables().stream().filter(KeyValue::isValid).filter(KeyValue::isEnable).forEach(keyValue ->
+        if (config != null && config.getConfig() != null && config.getConfig().get(this.getProjectId()).getCommonConfig() != null
+                && CollectionUtils.isNotEmpty(config.getConfig().get(this.getProjectId()).getCommonConfig().getVariables())) {
+            config.getConfig().get(this.getProjectId()).getCommonConfig().getVariables().stream().filter(KeyValue::isValid).filter(KeyValue::isEnable).forEach(keyValue ->
                     arguments.addArgument(keyValue.getName(), keyValue.getValue(), "=")
             );
         }

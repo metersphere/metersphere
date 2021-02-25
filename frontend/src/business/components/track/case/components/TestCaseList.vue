@@ -178,9 +178,10 @@
           </el-table-column>
         <header-custom ref="headerCustom" :initTableData="initTableData" :optionalFields=headerItems
                        :type=type></header-custom>
-        <ms-table-pagination :change="initTableData" :current-page.sync="currentPage" :page-size.sync="pageSize"
-                             :total="total"/>
       </el-table>
+
+      <ms-table-pagination :change="initTableData" :current-page.sync="currentPage" :page-size.sync="pageSize"
+                           :total="total"/>
     </el-card>
 
     <batch-edit ref="batchEdit" @batchEdit="batchEdit"
@@ -209,18 +210,18 @@ import MsTableButton from "../../../common/components/MsTableButton";
 import {TEST_CASE_CONFIGS} from "../../../common/components/search/search-components";
 import ShowMoreBtn from "./ShowMoreBtn";
 import BatchEdit from "./BatchEdit";
-import {TEST_CASE_LIST, WORKSPACE_ID} from "@/common/js/constants";
+import {PROJECT_NAME, TEST_CASE_LIST, WORKSPACE_ID} from "@/common/js/constants";
 import {LIST_CHANGE, TrackEvent} from "@/business/components/common/head/ListEvent";
 import StatusTableItem from "@/business/components/track/common/tableItems/planview/StatusTableItem";
 import TestCaseDetail from "./TestCaseDetail";
 import ReviewStatus from "@/business/components/track/case/components/ReviewStatus";
-import {getCurrentProjectID, getCurrentUser} from "../../../../../common/js/utils";
+import {downloadFile, getCurrentProjectID, getCurrentUser} from "../../../../../common/js/utils";
 import MsTag from "@/business/components/common/components/MsTag";
 import {
   _filter,
   _handleSelect,
   _handleSelectAll,
-  _sort, getLabel,
+  _sort, buildBatchParam, getLabel,
   getSelectDataCounts, initCondition,
   setUnSelectIds,
   toggleAllSelection
@@ -490,16 +491,21 @@ export default {
         this.$warning(this.$t('commons.check_project_tip'));
         return;
       }
-      let ids = Array.from(this.selectRows).map(row => row.id);
+
       let config = {
         url: '/test/case/export/testcase',
         method: 'post',
         responseType: 'blob',
-        // data: {ids: [...this.selectIds]}
-        data: {ids: ids, projectId: this.projectId}
+        data: buildBatchParam(this)
       };
+
+      if (config.data.ids === undefined || config.data.ids.length < 1) {
+        this.$warning(this.$t("test_track.case.check_select"));
+        return;
+      }
+
       this.result = this.$request(config).then(response => {
-        const filename = this.$t('test_track.case.test_case') + ".xlsx";
+        const filename = "Metersphere_case_" + localStorage.getItem(PROJECT_NAME) + ".xlsx";
         const blob = new Blob([response.data]);
         if ("download" in document.createElement("a")) {
           let aTag = document.createElement('a');
@@ -515,14 +521,7 @@ export default {
     handleBatch(type) {
       if (this.selectRows.size < 1) {
         if (type === 'export') {
-          this.$alert(this.$t('test_track.case.export_all_cases'), '', {
-            confirmButtonText: this.$t('commons.confirm'),
-            callback: (action) => {
-              if (action === 'confirm') {
-                this.exportTestCase();
-              }
-            }
-          })
+          this.exportTestCase();
           return;
         } else {
           this.$warning(this.$t('test_track.plan_view.select_manipulate'));

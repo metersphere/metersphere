@@ -1,17 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="io.metersphere.base.mapper.TestResourcePoolMapper">
-  <resultMap id="BaseResultMap" type="io.metersphere.base.domain.TestResourcePool">
+<mapper namespace="io.metersphere.base.mapper.ApiDocumentShareMapper">
+  <resultMap id="BaseResultMap" type="io.metersphere.base.domain.ApiDocumentShare">
     <id column="id" jdbcType="VARCHAR" property="id" />
-    <result column="name" jdbcType="VARCHAR" property="name" />
-    <result column="type" jdbcType="VARCHAR" property="type" />
-    <result column="description" jdbcType="VARCHAR" property="description" />
-    <result column="status" jdbcType="VARCHAR" property="status" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
+    <result column="create_user_id" jdbcType="VARCHAR" property="createUserId" />
     <result column="update_time" jdbcType="BIGINT" property="updateTime" />
-    <result column="image" jdbcType="VARCHAR" property="image" />
-    <result column="heap" jdbcType="VARCHAR" property="heap" />
-    <result column="gc_algo" jdbcType="VARCHAR" property="gcAlgo" />
+    <result column="share_type" jdbcType="VARCHAR" property="shareType" />
+  </resultMap>
+  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.ApiDocumentShare">
+    <result column="share_api_id" jdbcType="LONGVARCHAR" property="shareApiId" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -72,16 +70,20 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, `name`, `type`, description, `status`, create_time, update_time, image, `heap`, 
-    gc_algo
+    id, create_time, create_user_id, update_time, share_type
   </sql>
-  <select id="selectByExample" parameterType="io.metersphere.base.domain.TestResourcePoolExample" resultMap="BaseResultMap">
+  <sql id="Blob_Column_List">
+    share_api_id
+  </sql>
+  <select id="selectByExampleWithBLOBs" parameterType="io.metersphere.base.domain.ApiDocumentShareExample" resultMap="ResultMapWithBLOBs">
     select
     <if test="distinct">
       distinct
     </if>
     <include refid="Base_Column_List" />
-    from test_resource_pool
+    ,
+    <include refid="Blob_Column_List" />
+    from api_document_share
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
@@ -89,203 +91,180 @@
       order by ${orderByClause}
     </if>
   </select>
-  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+  <select id="selectByExample" parameterType="io.metersphere.base.domain.ApiDocumentShareExample" resultMap="BaseResultMap">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from api_document_share
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="ResultMapWithBLOBs">
     select 
     <include refid="Base_Column_List" />
-    from test_resource_pool
+    ,
+    <include refid="Blob_Column_List" />
+    from api_document_share
     where id = #{id,jdbcType=VARCHAR}
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
-    delete from test_resource_pool
+    delete from api_document_share
     where id = #{id,jdbcType=VARCHAR}
   </delete>
-  <delete id="deleteByExample" parameterType="io.metersphere.base.domain.TestResourcePoolExample">
-    delete from test_resource_pool
+  <delete id="deleteByExample" parameterType="io.metersphere.base.domain.ApiDocumentShareExample">
+    delete from api_document_share
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </delete>
-  <insert id="insert" parameterType="io.metersphere.base.domain.TestResourcePool">
-    insert into test_resource_pool (id, `name`, `type`, 
-      description, `status`, create_time, 
-      update_time, image, `heap`, 
-      gc_algo)
-    values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR}, 
-      #{description,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, 
-      #{updateTime,jdbcType=BIGINT}, #{image,jdbcType=VARCHAR}, #{heap,jdbcType=VARCHAR}, 
-      #{gcAlgo,jdbcType=VARCHAR})
+  <insert id="insert" parameterType="io.metersphere.base.domain.ApiDocumentShare">
+    insert into api_document_share (id, create_time, create_user_id, 
+      update_time, share_type, share_api_id
+      )
+    values (#{id,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{createUserId,jdbcType=VARCHAR}, 
+      #{updateTime,jdbcType=BIGINT}, #{shareType,jdbcType=VARCHAR}, #{shareApiId,jdbcType=LONGVARCHAR}
+      )
   </insert>
-  <insert id="insertSelective" parameterType="io.metersphere.base.domain.TestResourcePool">
-    insert into test_resource_pool
+  <insert id="insertSelective" parameterType="io.metersphere.base.domain.ApiDocumentShare">
+    insert into api_document_share
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="id != null">
         id,
       </if>
-      <if test="name != null">
-        `name`,
-      </if>
-      <if test="type != null">
-        `type`,
-      </if>
-      <if test="description != null">
-        description,
-      </if>
-      <if test="status != null">
-        `status`,
-      </if>
       <if test="createTime != null">
         create_time,
+      </if>
+      <if test="createUserId != null">
+        create_user_id,
       </if>
       <if test="updateTime != null">
         update_time,
       </if>
-      <if test="image != null">
-        image,
+      <if test="shareType != null">
+        share_type,
       </if>
-      <if test="heap != null">
-        `heap`,
-      </if>
-      <if test="gcAlgo != null">
-        gc_algo,
+      <if test="shareApiId != null">
+        share_api_id,
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
         #{id,jdbcType=VARCHAR},
       </if>
-      <if test="name != null">
-        #{name,jdbcType=VARCHAR},
-      </if>
-      <if test="type != null">
-        #{type,jdbcType=VARCHAR},
-      </if>
-      <if test="description != null">
-        #{description,jdbcType=VARCHAR},
-      </if>
-      <if test="status != null">
-        #{status,jdbcType=VARCHAR},
-      </if>
       <if test="createTime != null">
         #{createTime,jdbcType=BIGINT},
+      </if>
+      <if test="createUserId != null">
+        #{createUserId,jdbcType=VARCHAR},
       </if>
       <if test="updateTime != null">
         #{updateTime,jdbcType=BIGINT},
       </if>
-      <if test="image != null">
-        #{image,jdbcType=VARCHAR},
+      <if test="shareType != null">
+        #{shareType,jdbcType=VARCHAR},
       </if>
-      <if test="heap != null">
-        #{heap,jdbcType=VARCHAR},
-      </if>
-      <if test="gcAlgo != null">
-        #{gcAlgo,jdbcType=VARCHAR},
+      <if test="shareApiId != null">
+        #{shareApiId,jdbcType=LONGVARCHAR},
       </if>
     </trim>
   </insert>
-  <select id="countByExample" parameterType="io.metersphere.base.domain.TestResourcePoolExample" resultType="java.lang.Long">
-    select count(*) from test_resource_pool
+  <select id="countByExample" parameterType="io.metersphere.base.domain.ApiDocumentShareExample" resultType="java.lang.Long">
+    select count(*) from api_document_share
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </select>
   <update id="updateByExampleSelective" parameterType="map">
-    update test_resource_pool
+    update api_document_share
     <set>
       <if test="record.id != null">
         id = #{record.id,jdbcType=VARCHAR},
       </if>
-      <if test="record.name != null">
-        `name` = #{record.name,jdbcType=VARCHAR},
-      </if>
-      <if test="record.type != null">
-        `type` = #{record.type,jdbcType=VARCHAR},
-      </if>
-      <if test="record.description != null">
-        description = #{record.description,jdbcType=VARCHAR},
-      </if>
-      <if test="record.status != null">
-        `status` = #{record.status,jdbcType=VARCHAR},
-      </if>
       <if test="record.createTime != null">
         create_time = #{record.createTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.createUserId != null">
+        create_user_id = #{record.createUserId,jdbcType=VARCHAR},
       </if>
       <if test="record.updateTime != null">
         update_time = #{record.updateTime,jdbcType=BIGINT},
       </if>
-      <if test="record.image != null">
-        image = #{record.image,jdbcType=VARCHAR},
+      <if test="record.shareType != null">
+        share_type = #{record.shareType,jdbcType=VARCHAR},
       </if>
-      <if test="record.heap != null">
-        `heap` = #{record.heap,jdbcType=VARCHAR},
-      </if>
-      <if test="record.gcAlgo != null">
-        gc_algo = #{record.gcAlgo,jdbcType=VARCHAR},
+      <if test="record.shareApiId != null">
+        share_api_id = #{record.shareApiId,jdbcType=LONGVARCHAR},
       </if>
     </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExampleWithBLOBs" parameterType="map">
+    update api_document_share
+    set id = #{record.id,jdbcType=VARCHAR},
+      create_time = #{record.createTime,jdbcType=BIGINT},
+      create_user_id = #{record.createUserId,jdbcType=VARCHAR},
+      update_time = #{record.updateTime,jdbcType=BIGINT},
+      share_type = #{record.shareType,jdbcType=VARCHAR},
+      share_api_id = #{record.shareApiId,jdbcType=LONGVARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
   </update>
   <update id="updateByExample" parameterType="map">
-    update test_resource_pool
+    update api_document_share
     set id = #{record.id,jdbcType=VARCHAR},
-      `name` = #{record.name,jdbcType=VARCHAR},
-      `type` = #{record.type,jdbcType=VARCHAR},
-      description = #{record.description,jdbcType=VARCHAR},
-      `status` = #{record.status,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
+      create_user_id = #{record.createUserId,jdbcType=VARCHAR},
       update_time = #{record.updateTime,jdbcType=BIGINT},
-      image = #{record.image,jdbcType=VARCHAR},
-      `heap` = #{record.heap,jdbcType=VARCHAR},
-      gc_algo = #{record.gcAlgo,jdbcType=VARCHAR}
+      share_type = #{record.shareType,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
   </update>
-  <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.base.domain.TestResourcePool">
-    update test_resource_pool
+  <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.base.domain.ApiDocumentShare">
+    update api_document_share
     <set>
-      <if test="name != null">
-        `name` = #{name,jdbcType=VARCHAR},
-      </if>
-      <if test="type != null">
-        `type` = #{type,jdbcType=VARCHAR},
-      </if>
-      <if test="description != null">
-        description = #{description,jdbcType=VARCHAR},
-      </if>
-      <if test="status != null">
-        `status` = #{status,jdbcType=VARCHAR},
-      </if>
       <if test="createTime != null">
         create_time = #{createTime,jdbcType=BIGINT},
+      </if>
+      <if test="createUserId != null">
+        create_user_id = #{createUserId,jdbcType=VARCHAR},
       </if>
       <if test="updateTime != null">
         update_time = #{updateTime,jdbcType=BIGINT},
       </if>
-      <if test="image != null">
-        image = #{image,jdbcType=VARCHAR},
+      <if test="shareType != null">
+        share_type = #{shareType,jdbcType=VARCHAR},
       </if>
-      <if test="heap != null">
-        `heap` = #{heap,jdbcType=VARCHAR},
-      </if>
-      <if test="gcAlgo != null">
-        gc_algo = #{gcAlgo,jdbcType=VARCHAR},
+      <if test="shareApiId != null">
+        share_api_id = #{shareApiId,jdbcType=LONGVARCHAR},
       </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
-  <update id="updateByPrimaryKey" parameterType="io.metersphere.base.domain.TestResourcePool">
-    update test_resource_pool
-    set `name` = #{name,jdbcType=VARCHAR},
-      `type` = #{type,jdbcType=VARCHAR},
-      description = #{description,jdbcType=VARCHAR},
-      `status` = #{status,jdbcType=VARCHAR},
-      create_time = #{createTime,jdbcType=BIGINT},
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.metersphere.base.domain.ApiDocumentShare">
+    update api_document_share
+    set create_time = #{createTime,jdbcType=BIGINT},
+      create_user_id = #{createUserId,jdbcType=VARCHAR},
       update_time = #{updateTime,jdbcType=BIGINT},
-      image = #{image,jdbcType=VARCHAR},
-      `heap` = #{heap,jdbcType=VARCHAR},
-      gc_algo = #{gcAlgo,jdbcType=VARCHAR}
+      share_type = #{shareType,jdbcType=VARCHAR},
+      share_api_id = #{shareApiId,jdbcType=LONGVARCHAR}
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="io.metersphere.base.domain.ApiDocumentShare">
+    update api_document_share
+    set create_time = #{createTime,jdbcType=BIGINT},
+      create_user_id = #{createUserId,jdbcType=VARCHAR},
+      update_time = #{updateTime,jdbcType=BIGINT},
+      share_type = #{shareType,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

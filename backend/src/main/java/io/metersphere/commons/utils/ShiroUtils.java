@@ -38,6 +38,9 @@ public class ShiroUtils {
 
         filterChainDefinitionMap.put("/403", "anon");
         filterChainDefinitionMap.put("/anonymous/**", "anon");
+
+        //api-对外文档页面提供的查询接口
+        filterChainDefinitionMap.put("/api/document/**", "anon");
     }
 
     public static Cookie getSessionIdCookie(){
