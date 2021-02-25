@@ -51,7 +51,7 @@ public class ApiDocumentService {
                 List<String> shareIdList = this.selectShareIdByApiDocumentShareId(request.getShareId());
                 request.setApiIdList(shareIdList);
                 return extApiDocumentMapper.findApiDocumentSimpleInfoByRequest(request);
-            }else {
+            } else {
                 return extApiDocumentMapper.findApiDocumentSimpleInfoByRequest(request);
             }
         } else {
@@ -62,14 +62,14 @@ public class ApiDocumentService {
     private List<String> selectShareIdByApiDocumentShareId(String shareId) {
         List<String> shareApiIdList = new ArrayList<>();
         ApiDocumentShare share = apiDocumentShareMapper.selectByPrimaryKey(shareId);
-        if(share!=null){
-            try{
+        if (share != null) {
+            try {
                 JSONArray jsonArray = JSONArray.parseArray(share.getShareApiId());
                 for (int i = 0; i < jsonArray.size(); i++) {
                     String apiId = jsonArray.getString(i);
                     shareApiIdList.add(apiId);
                 }
-            }catch (Exception e){
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }
@@ -86,14 +86,13 @@ public class ApiDocumentService {
 
     public ApiDocumentInfoDTO conversionModelToDTO(ApiDefinitionWithBLOBs apiModel) {
         ApiDocumentInfoDTO apiInfoDTO = new ApiDocumentInfoDTO();
-        JSONObject previewObj = new JSONObject();
+        JSONArray previewJsonArray = new JSONArray();
         if (apiModel != null) {
             apiInfoDTO.setId(apiModel.getId());
             apiInfoDTO.setName(apiModel.getName());
             apiInfoDTO.setMethod(apiModel.getMethod());
             apiInfoDTO.setUri(apiModel.getPath());
             apiInfoDTO.setStatus(apiModel.getStatus());
-
 
             if (apiModel.getRequest() != null) {
                 JSONObject requestJsonObj = JSONObject.parseObject(apiModel.getRequest());
@@ -162,32 +161,38 @@ public class ApiDocumentService {
                                 if (bodyObj.containsKey("raw")) {
                                     String raw = bodyObj.getString("raw");
                                     apiInfoDTO.setRequestBodyStrutureData(raw);
-                                    previewObj = JSONObject.parseObject(raw);
+                                    //转化jsonObje 或者 jsonArray
+                                    this.setPreviewData(previewJsonArray, raw);
                                 }
                             }
                         } else if (StringUtils.equalsAny(type, "XML", "Raw")) {
                             if (bodyObj.containsKey("raw")) {
                                 String raw = bodyObj.getString("raw");
                                 apiInfoDTO.setRequestBodyStrutureData(raw);
-                                previewObj = JSONObject.parseObject(raw);
+                                JSONObject previewObj = JSONObject.parseObject(raw);
+                                this.setPreviewData(previewJsonArray, raw);
                             }
                         } else if (StringUtils.equalsAny(type, "Form Data", "WWW_FORM")) {
                             if (bodyObj.containsKey("kvs")) {
                                 JSONArray bodyParamArr = new JSONArray();
                                 JSONArray kvsArr = bodyObj.getJSONArray("kvs");
+                                Map<String, String> previewObjMap = new LinkedHashMap<>();
                                 for (int i = 0; i < kvsArr.size(); i++) {
                                     JSONObject kv = kvsArr.getJSONObject(i);
                                     if (kv.containsKey("name") && kv.containsKey("value")) {
                                         bodyParamArr.add(kv);
-                                        previewObj.put(String.valueOf(kv.get("name")), String.valueOf(kv.get("value")));
+                                        previewObjMap.put(String.valueOf(kv.get("name")), String.valueOf(kv.get("value")));
                                     }
                                 }
+                                this.setPreviewData(previewJsonArray, JSONObject.toJSONString(previewObjMap));
                                 apiInfoDTO.setRequestBodyFormData(bodyParamArr.toJSONString());
                             }
                         } else if (StringUtils.equals(type, "BINARY")) {
                             if (bodyObj.containsKey("binary")) {
                                 List<Map<String, String>> bodyParamList = new ArrayList<>();
                                 JSONArray kvsArr = bodyObj.getJSONArray("binary");
+
+                                Map<String, String> previewObjMap = new LinkedHashMap<>();
                                 for (int i = 0; i < kvsArr.size(); i++) {
                                     JSONObject kv = kvsArr.getJSONObject(i);
                                     if (kv.containsKey("description") && kv.containsKey("files")) {
@@ -206,9 +211,11 @@ public class ApiDocumentService {
                                         bodyMap.put("contentType", "File");
                                         bodyParamList.add(bodyMap);
 
-                                        previewObj.put(String.valueOf(name), String.valueOf(value));
+                                        previewObjMap.put(String.valueOf(name), String.valueOf(value));
+
                                     }
                                 }
+                                this.setPreviewData(previewJsonArray, JSONObject.toJSONString(previewObjMap));
                                 apiInfoDTO.setRequestBodyFormData(JSONArray.toJSONString(bodyParamList));
                             }
                         }
@@ -301,24 +308,37 @@ public class ApiDocumentService {
                 }
             }
         }
-        apiInfoDTO.setRequestPreviewData(previewObj);
+        apiInfoDTO.setRequestPreviewData(previewJsonArray);
         return apiInfoDTO;
+    }
+
+    private void setPreviewData(JSONArray previewArray, String data) {
+        try {
+            JSONObject previewObj = JSONObject.parseObject(data);
+            previewArray.add(previewObj);
+        } catch (Exception e) {
+        }
+        try {
+            previewArray = JSONArray.parseArray(data);
+        } catch (Exception e) {
+        }
     }
 
     /**
      * 生成 api接口文档分享信息
-     *      根据要分享的api_id和分享方式来进行完全匹配搜索。
-     *      搜索的到就返回那条数据，搜索不到就新增一条信息
+     * 根据要分享的api_id和分享方式来进行完全匹配搜索。
+     * 搜索的到就返回那条数据，搜索不到就新增一条信息
+     *
      * @param request 入参
-     * @return  ApiDocumentShare数据对象
+     * @return ApiDocumentShare数据对象
      */
     public ApiDocumentShare generateApiDocumentShare(ApiDocumentShareRequest request) {
         ApiDocumentShare apiDocumentShare = null;
         if (request.getShareApiIdList() != null && !request.getShareApiIdList().isEmpty()
-                &&StringUtils.equalsAny(request.getShareType(), ApiDocumentShareType.Single.name(),ApiDocumentShareType.Batch.name())) {
+                && StringUtils.equalsAny(request.getShareType(), ApiDocumentShareType.Single.name(), ApiDocumentShareType.Batch.name())) {
             //将ID进行排序
-            List<ApiDocumentShare> apiDocumentShareList = this.findByShareTypeAndShareApiIdWithBLOBs(request.getShareType(),request.getShareApiIdList());
-            if(apiDocumentShareList.isEmpty()){
+            List<ApiDocumentShare> apiDocumentShareList = this.findByShareTypeAndShareApiIdWithBLOBs(request.getShareType(), request.getShareApiIdList());
+            if (apiDocumentShareList.isEmpty()) {
                 String shareApiIdJsonArrayString = this.genShareIdJsonString(request.getShareApiIdList());
                 long createTime = System.currentTimeMillis();
 
@@ -330,12 +350,12 @@ public class ApiDocumentService {
                 apiDocumentShare.setUpdateTime(createTime);
                 apiDocumentShare.setShareType(request.getShareType());
                 apiDocumentShareMapper.insert(apiDocumentShare);
-            }else {
+            } else {
                 return apiDocumentShareList.get(0);
             }
         }
 
-        if(apiDocumentShare==null){
+        if (apiDocumentShare == null) {
             apiDocumentShare = new ApiDocumentShare();
         }
         return apiDocumentShare;
@@ -343,13 +363,14 @@ public class ApiDocumentService {
 
     private List<ApiDocumentShare> findByShareTypeAndShareApiIdWithBLOBs(String shareType, List<String> shareApiIdList) {
         String shareApiIdString = this.genShareIdJsonString(shareApiIdList);
-        return extApiDocumentShareMapper.selectByShareTypeAndShareApiIdWithBLOBs(shareType,shareApiIdString);
+        return extApiDocumentShareMapper.selectByShareTypeAndShareApiIdWithBLOBs(shareType, shareApiIdString);
     }
 
     /**
      * 根据treeSet排序生成apiId的Jsonarray字符串
+     *
      * @param shareApiIdList 要分享的ID集合
-     * @return  要分享的ID JSON格式字符串
+     * @return 要分享的ID JSON格式字符串
      */
     private String genShareIdJsonString(Collection<String> shareApiIdList) {
         TreeSet<String> treeSet = new TreeSet<>(shareApiIdList);
@@ -358,7 +379,7 @@ public class ApiDocumentService {
 
     public ApiDocumentShareDTO conversionApiDocumentShareToDTO(ApiDocumentShare apiShare) {
         ApiDocumentShareDTO returnDTO = new ApiDocumentShareDTO();
-        if(!StringUtils.isEmpty(apiShare.getShareApiId())){
+        if (!StringUtils.isEmpty(apiShare.getShareApiId())) {
             BaseSystemConfigDTO baseSystemConfigDTO = systemParameterService.getBaseInfo();
             String url = "/#/apiDocumentInfo?documentId=" + apiShare.getId();
             returnDTO.setId(apiShare.getId());

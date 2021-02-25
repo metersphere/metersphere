@@ -56,7 +56,7 @@
             <el-row class="apiInfoRow">
               <div class="simpleFontClass">
                 <el-tag size="medium"
-                        :style="{'background-color': getColor(apiInfo.method), border: getColor(apiInfo.method),borderRadius:'0px', marginRight:'20px'}">
+                        :style="{'background-color': getColor(true,apiInfo.method), border: getColor(true,apiInfo.method),borderRadius:'0px', marginRight:'20px',color:'white'}">
                   {{ apiInfo.method }}
                 </el-tag>
                 {{ apiInfo.uri }}
@@ -452,9 +452,8 @@ export default {
     selectApiInfo(index,apiId) {
       let simpleInfoUrl = "/api/document/selectApiInfoById/" + apiId;
       this.$get(simpleInfoUrl, response => {
-        //this.apiInfoObj = response.data;
-        //this.apiInfoArray.push(response.data);
-        this.$set(this.apiInfoArray,index,response.data);
+        let returnData = response.data;
+        this.$set(this.apiInfoArray,index,returnData);
       });
     },
     clickStep(apiId) {
@@ -558,11 +557,6 @@ export default {
       this.$message.error(this.$t('api_report.error'));
     },
     handleScroll(){
-      // let itemHeight = 0;
-      // if(this.$refs.apiDocInfoDivItem.length>0){
-      //   //子元素高度为 item的高度+20(20是margin距离)
-      //   itemHeight = this.$refs.apiDocInfoDivItem[0].offsetHeight+20;
-      // }
 
       //apiDocInfoDiv的总高度，是(每个item的高度+20)数量
       let apiDocDivScrollTop = this.$refs.apiDocInfoDiv.scrollTop;
@@ -600,19 +594,33 @@ export default {
       let beforeNodeIndex = itemIndex<3?0:(itemIndex-3);
       let afterNodeIndex = (itemIndex+3)<this.apiInfoArray.length?(itemIndex+3):this.apiInfoArray.length;
 
-      for(let i = itemIndex;i < afterNodeIndex;i++){
-        let apiInfo = this.apiInfoArray[i];
+      for(let beforeIndex = itemIndex;beforeIndex < afterNodeIndex;beforeIndex++){
+        let apiInfo = this.apiInfoArray[beforeIndex];
+        if(apiInfo==null){
+          continue;
+        }
         if(apiInfo == null || !apiInfo.selectedFlag){
           let apiId = apiInfo.id;
-          this.selectApiInfo(i,apiId);
+          console.log(apiInfo.isSearching+":"+apiId);
+          if(!apiInfo.isSearching){
+            apiInfo.isSearching = true;
+            this.selectApiInfo(beforeIndex,apiId);
+          }
         }
       }
 
-      for(let i = beforeNodeIndex;i <itemIndex;i++){
-        let apiInfo = this.apiInfoArray[i];
+      for(let afterIndex = beforeNodeIndex;afterIndex <itemIndex;afterIndex++){
+        let apiInfo = this.apiInfoArray[afterIndex];
+        if(apiInfo==null){
+          continue;
+        }
         if(apiInfo == null || !apiInfo.selectedFlag){
           let apiId = apiInfo.id;
-          this.selectApiInfo(i,apiId);
+          console.log(apiInfo.isSearching+":"+apiId);
+          if(!apiInfo.isSearching) {
+            apiInfo.isSearching = true;
+            this.selectApiInfo(afterIndex,apiId);
+          }
         }
       }
     }
