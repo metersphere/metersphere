@@ -98,9 +98,7 @@
         <el-table-column fixed="right" v-if="!isReadOnly" :label="$t('commons.operating')" min-width="130"
                          align="center">
           <template slot="header">
-            <span>{{ $t('commons.operating') }}
-             <i class='el-icon-setting' style="color:#7834c1; margin-left:10px" @click="customHeader"> </i>
-            </span>
+            <header-label-operate @exec="customHeader"/>
           </template>
           <template v-slot:default="scope">
             <ms-table-operator-button :tip="$t('commons.edit')" icon="el-icon-edit" @exec="handleTestCase(scope.row)"
@@ -164,10 +162,12 @@ import {_filter, _handleSelect, _handleSelectAll, _sort, getLabel,} from "@/comm
 import {API_CASE_LIST, API_LIST, API_SCENARIO_LIST, TEST_CASE_LIST} from "@/common/js/constants";
 import {Api_Case_List, Api_List, Track_Test_Case} from "@/business/components/common/model/JsonData";
 import HeaderCustom from "@/business/components/common/head/HeaderCustom";
+import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOperate";
 
 export default {
   name: "ApiCaseSimpleList",
   components: {
+    HeaderLabelOperate,
     ApiListContainerWithDoc,
     HeaderCustom,
     MsTableHeaderSelectPopover,

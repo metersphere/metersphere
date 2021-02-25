@@ -67,9 +67,7 @@
         </template>
         <el-table-column :label="$t('commons.operating')" width="200px" v-if="!referenced">
           <template slot="header">
-            <span>{{ $t('commons.operating') }}
-             <i class='el-icon-setting' style="color:#7834c1; margin-left:10px" @click="customHeader"> </i>
-            </span>
+            <header-label-operate @exec="customHeader"/>
           </template>
           <template v-slot:default="{row}">
             <ms-table-operator-button class="run-button" :is-tester-permission="true" :tip="$t('api_test.run')"
@@ -111,10 +109,12 @@ import MsTableOperatorButton from "../../../../../common/components/MsTableOpera
 import HeaderCustom from "@/business/components/common/head/HeaderCustom";
 import {TEST_CASE_LIST, TEST_PLAN_SCENARIO_CASE} from "@/common/js/constants";
 import {Test_Plan_Scenario_Case, Track_Test_Case} from "@/business/components/common/model/JsonData";
+import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOperate";
 
 export default {
   name: "MsTestPlanApiScenarioList",
   components: {
+    HeaderLabelOperate,
     HeaderCustom,
     MsTableOperatorButton,
     TestPlanScenarioListHeader,

@@ -84,9 +84,7 @@
         min-width="100"
         :label="$t('commons.operating')">
         <template slot="header">
-            <span>{{ $t('commons.operating') }}
-             <i class='el-icon-setting' style="color:#7834c1; margin-left:10px" @click="customHeader"> </i>
-            </span>
+          <header-label-operate @exec="customHeader"/>
         </template>
         <template v-slot:default="scope">
           <ms-table-operator :is-tester-permission="true" @editClick="handleEdit(scope.row)"
@@ -123,10 +121,12 @@ import PlanStatusTableItem from "../../common/tableItems/plan/PlanStatusTableIte
 import {Test_Case_Review} from "@/business/components/common/model/JsonData";
 import {TEST_CASE_LIST, TEST_CASE_REVIEW_LIST} from "@/common/js/constants";
 import HeaderCustom from "@/business/components/common/head/HeaderCustom";
+import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOperate";
 
 export default {
   name: "TestCaseReviewList",
   components: {
+    HeaderLabelOperate,
     HeaderCustom,
     MsDeleteConfirm,
     MsTableOperator,

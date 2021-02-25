@@ -49,6 +49,8 @@ export default {
         props: JSON.stringify(this.fieldSelected)
       }
       this.$post("/system/save/header", param, response => {
+        console.log(this.optionalFields)
+        console.log(this.fieldSelected)
         this.$success(this.$t("commons.save_success"));
         this.dialogTableVisible = false
         this.initTableData()

@@ -151,7 +151,7 @@ public abstract class MsTestElement {
             ApiDefinitionService apiDefinitionService = CommonBeanFactory.getBean(ApiDefinitionService.class);
             ObjectMapper mapper = new ObjectMapper();
             mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-            ApiDefinitionWithBLOBs apiDefinition = apiDefinitionService.getBLOBs(this.getId());
+            ApiDefinitionWithBLOBs apiDefinition = apiDefinitionService.getBLOBs(element.getId());
             if (apiDefinition != null) {
                 element = mapper.readValue(apiDefinition.getRequest(), new TypeReference<MsTestElement>() {
                 });
@@ -159,6 +159,7 @@ public abstract class MsTestElement {
             }
         } catch (Exception ex) {
             ex.printStackTrace();
+            LogUtil.error(ex.getMessage());
         }
     }
 
