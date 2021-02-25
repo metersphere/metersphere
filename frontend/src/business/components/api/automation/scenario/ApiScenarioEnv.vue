@@ -119,12 +119,17 @@ export default {
     },
     checkEnv() {
       let sign = true;
-      this.data.forEach(dt => {
-        if (!dt.selectEnv) {
-          sign = false;
-          return;
-        }
-      })
+      if (this.data.length > 0) {
+        this.data.forEach(dt => {
+          if (!dt.selectEnv) {
+            sign = false;
+            return;
+          }
+        })
+      } else {
+        sign = false;
+      }
+
       if (!sign) {
         this.$warning("请为每个项目选择一个运行环境！");
         return false;
