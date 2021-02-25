@@ -1,8 +1,8 @@
 <template>
   <div>
     <el-container>
-      <el-main style="padding-top: 0px">
-        <el-row>
+      <el-main style="padding-top: 0px;padding-bottom: 0px">
+        <el-row style="margin-top: 10px">
           <el-select size="small" :placeholder="$t('api_test.definition.document.order')" v-model="apiSearch.orderCondition" style="float: right;width: 180px;margin-right: 5px"
                      class="ms-api-header-select" @change="initApiDocSimpleList" clearable>
             <el-option key="createTimeDesc" :label="$t('api_test.definition.document.create_time_sort')" value="createTimeDesc" />
@@ -24,12 +24,25 @@
           </el-select>
           <el-input :placeholder="$t('api_test.definition.document.search_by_api_name')" @blur="initApiDocSimpleList()" style="float: right;width: 180px;margin-right: 5px" size="small"
                     @keyup.enter.native="initApiDocSimpleList()" v-model="apiSearch.name"/>
+          <api-document-batch-share v-xpack @shareApiDocument="shareApiDocument" :project-id="projectId" :share-url="batchShareUrl" style="float: right;margin: 6px;font-size: 17px"/>
         </el-row>
         <el-divider></el-divider>
-        <div ref="apiDocInfoDiv">
-          <div style="margin-bottom: 50px">
+        <div ref="apiDocInfoDiv" @scroll="handleScroll" >
+          <div v-for="(apiInfo) in apiInfoArray" :key="apiInfo.id" ref="apiDocInfoDivItem">
             <div style="font-size: 17px">
-              <i class="el-icon-share"></i>{{ apiInfo.name }}
+              <el-popover
+                v-if="projectId"
+                placement="right"
+                width="260"
+                @show="shareApiDocument('false')">
+                <p>{{shareUrl}}</p>
+                <div style="text-align: right; margin: 0">
+                  <el-button type="primary" size="mini"
+                             v-clipboard:copy="shareUrl">{{ $t("commons.copy") }}</el-button>
+                </div>
+                <i class="el-icon-share" slot="reference" style="margin-right: 10px;cursor: pointer"></i>
+              </el-popover>
+              {{ apiInfo.name }}
               <span class="apiStatusTag">
               <api-status :value="apiInfo.status"/>
             </span>
@@ -54,7 +67,9 @@
               <div class="blackFontClass">
                 {{ $t('api_test.definition.document.request_head') }}：
                 <div v-if="getJsonArr(apiInfo.requestHead).length==0">
-                  {{ $t('api_test.definition.document.data_set.none') }}
+                  <div class="simpleFontClass" style="margin-top: 10px">
+                    {{ $t('api_test.definition.document.data_set.none') }}
+                  </div>
                 </div>
                 <div v-else>
                   <el-table border :show-header="false"
@@ -74,7 +89,9 @@
               <div class="blackFontClass">
                 URL{{ $t('api_test.definition.document.request_param') }}：
                 <div v-if="getJsonArr(apiInfo.urlParams).length==0">
-                  {{ $t('api_test.definition.document.data_set.none') }}
+                  <div class="simpleFontClass" style="margin-top: 10px">
+                    {{ $t('api_test.definition.document.data_set.none') }}
+                  </div>
                 </div>
                 <div v-else>
                   <el-table border
@@ -133,7 +150,7 @@
                                    min-width="120px"
                                    show-overflow-tooltip/>
                 </el-table>
-                <div v-else-if="apiInfo.requestBodyParamType == 'JSON-SCHEMA'">
+                <div v-else-if="apiInfo.requestBodyParamType == 'JSON-SCHEMA'" style="margin-left: 10px">
                   <ms-json-code-edit :body="apiInfo.jsonSchemaBody" ref="jsonCodeEdit"/>
                 </div>
                 <div v-else class="showDataDiv">
@@ -247,7 +264,7 @@
       <el-aside width="200px" style="margin-top: 70px;">
         <div ref="apiDocList" >
           <el-steps style="height: 40%" direction="vertical" :active="apiStepIndex">
-            <el-step v-for="(apiInfo) in apiSimpleInfoArray" :key="apiInfo.id" @click.native="clickStep(apiInfo.id)">
+            <el-step v-for="(apiInfo) in apiInfoArray" :key="apiInfo.id" @click.native="clickStep(apiInfo.id)">
               <el-link slot="title">{{ apiInfo.name }}</el-link>
             </el-step>
           </el-steps>
@@ -265,18 +282,25 @@ import {formatJson,} from "@/common/js/format-utils";
 import ApiStatus from "@/business/components/api/definition/components/list/ApiStatus";
 import {calculate} from "@/business/components/api/definition/model/ApiTestModel";
 import MsJsonCodeEdit from "@/business/components/common/json-schema/JsonSchemaEditor";
+import Api from "@/business/components/api/router";
 
+const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
+const apiDocumentBatchShare = requireComponent.keys().length > 0 ? requireComponent("./share/ApiDocumentBatchShare.vue") : {};
 
 export default {
   name: "ApiDocumentItem",
   components: {
+    Api,
     MsJsonCodeEdit,
     MsAnchor, ApiStatus, MsCodeEdit,
+    "ApiDocumentBatchShare": apiDocumentBatchShare.default
   },
   data() {
     return {
+      shareUrl:"",
+      batchShareUrl:"",
       apiStepIndex: 0,
-      apiSimpleInfoArray: [],
+      apiInfoArray: [],
       modes: ['text', 'json', 'xml', 'html'],
       formParamTypes: ['form-data', 'x-www-from-urlencoded', 'BINARY'],
       mockVariableFuncs: [],
@@ -285,7 +309,8 @@ export default {
         type:"ALL",
         orderCondition:"createTimeDesc",
       },
-      apiInfo: {
+      apiInfoBaseObj: {
+        selectedFlag:false,
         method: "无",
         uri: "无",
         name: "无",
@@ -295,6 +320,7 @@ export default {
         requestBodyParamType: "无",
         requestBodyFormData: '[]',
         requestBodyStrutureData: "",
+        sharePopoverVisible:false,
         jsonSchemaBody: {},
         responseHead: "无",
         responseBody: "",
@@ -309,7 +335,9 @@ export default {
   },
   props: {
     projectId: String,
+    documentId: String,
     moduleIds: Array,
+    pageHeaderHeight:Number,
   },
   activated() {
     this.initApiDocSimpleList();
@@ -327,27 +355,21 @@ export default {
     window.onresize = function () {
       this.clientHeight = `${document.documentElement.clientHeight}`;
       this.changeFixed(this.clientHeight);
-    }
+    };
+    window.addEventListener('scroll',that.handleScroll);
   },
   mounted() {
     let that = this;
     window.onresize = function () {
-      this.clientHeight = `${document.documentElement.clientHeight}`;
-      if (that.$refs.apiDocInfoDiv) {
-        that.$refs.apiDocInfoDiv.style.minHeight = this.clientHeight - 300 + 'px';
-        that.$refs.apiDocList.style.minHeight = this.clientHeight - 300 + 'px';
-
-      }
-    }
+      that.clientHeight = `${document.documentElement.clientHeight}`;
+      that.changeFixed(that.clientHeight);
+    };
+    // 监听滚动事件，然后用handleScroll这个方法进行相应的处理
+    window.addEventListener('scroll',this.handleScroll);
   },
   computed: {
-    documentId: function () {
-      return this.$route.params.documentId;
-    }
   },
   watch: {
-    '$route.params.documentId'() {
-    },
     moduleIds() {
       this.initApiDocSimpleList();
     },
@@ -365,10 +387,14 @@ export default {
     },
     changeFixed(clientHeight) {
       if (this.$refs.apiDocInfoDiv) {
-        this.$refs.apiDocInfoDiv.style.height = clientHeight - 350 + 'px';
-        this.$refs.apiDocInfoDiv.style.overflow = 'auto';
-        this.$refs.apiDocList.style.height = clientHeight - 350 + 'px';
+        let countPageHeight = 350;
+        if(this.pageHeaderHeight!=0 && this.pageHeaderHeight != null){
+          countPageHeight = this.pageHeaderHeight
+        }
 
+        this.$refs.apiDocInfoDiv.style.height = clientHeight - countPageHeight + 'px';
+        this.$refs.apiDocInfoDiv.style.overflow = 'auto';
+        this.$refs.apiDocList.style.height = clientHeight - countPageHeight + 'px';
       }
     },
     initApiDocSimpleList() {
@@ -377,36 +403,71 @@ export default {
         simpleRequest.projectId = this.projectId;
       }
       if (this.documentId != null && this.documentId != "") {
-        simpleRequest.documentId = this.documentId;
+        simpleRequest.shareId = this.documentId;
       }
       if (this.moduleIds.length > 0) {
         simpleRequest.moduleIds = this.moduleIds;
       }
 
       let simpleInfoUrl = "/api/document/selectApiSimpleInfo";
-      this.apiSimpleInfoArray = [];
+      this.apiInfoArray = [];
       this.$post(simpleInfoUrl, simpleRequest, response => {
-        this.apiSimpleInfoArray = response.data;
+        this.apiInfoArray = response.data;
         this.apiStepIndex = 0;
-        if (this.apiSimpleInfoArray.length > 0) {
-          this.selectApiInfo(this.apiSimpleInfoArray[0].id);
+        if (this.apiInfoArray.length > 0) {
+          this.checkApiInfoNode(this.apiStepIndex);
         }
       });
     },
-    selectApiInfo(apiId) {
+    shareApiDocument(isBatchShare){
+      let thisHost = window.location.host;
+      this.shareUrl = "";
+      this.batchShareUrl = "";
+      let shareIdArr = [];
+      let shareType = "Single";
+      if(isBatchShare == 'true'){
+        this.apiInfoArray.forEach(f => {
+          if (!f.id) {
+            return;
+          }
+          shareIdArr.push(f.id);
+        });
+        shareType = "Batch";
+      }else{
+        shareIdArr.push(this.apiInfoArray[this.apiStepIndex].id);
+      }
+      let genShareInfoParam = {};
+      genShareInfoParam.shareApiIdList = shareIdArr;
+      genShareInfoParam.shareType = shareType;
+
+      this.$post("/api/document/generateApiDocumentShareInfo", genShareInfoParam, res => {
+        if(shareType == "Batch"){
+          this.batchShareUrl = "http://"+thisHost+"/document"+res.data.shareUrl;
+        }else{
+          this.shareUrl = "http://"+thisHost+"/document"+res.data.shareUrl;
+        }
+      }, (error) => {
+      });
+    },
+    selectApiInfo(index,apiId) {
       let simpleInfoUrl = "/api/document/selectApiInfoById/" + apiId;
       this.$get(simpleInfoUrl, response => {
-        this.apiInfo = response.data;
+        //this.apiInfoObj = response.data;
+        //this.apiInfoArray.push(response.data);
+        this.$set(this.apiInfoArray,index,response.data);
       });
     },
     clickStep(apiId) {
-      for (let index = 0; index < this.apiSimpleInfoArray.length; index++) {
-        if (apiId == this.apiSimpleInfoArray[index].id) {
+      for (let index = 0; index < this.apiInfoArray.length; index++) {
+        if (apiId == this.apiInfoArray[index].id) {
           this.apiStepIndex = index;
           break;
         }
       }
-      this.selectApiInfo(apiId);
+      //检查数据
+      this.checkApiInfoNode(this.apiStepIndex);
+      //进行跳转
+      this.redirectScroll(this.apiStepIndex);
     },
     stepClick(stepIndex) {
       this.apiStepIndex = stepIndex;
@@ -422,11 +483,10 @@ export default {
         ret = "否"
       }
       return ret;
-
     },
     getJsonArr(jsonString) {
       let returnJsonArr = [];
-      if (jsonString == '无') {
+      if (jsonString == '无' || jsonString == null) {
         return returnJsonArr;
       }
 
@@ -447,8 +507,10 @@ export default {
         for (var key in previewData) {
           // showDataObj.set(key,previewData[key]);
           let value = previewData[key];
-          if (value.indexOf("@") >= 0) {
-            value = this.showPreview(value);
+          if(typeof(value)=='string'){
+            if (value.indexOf("@") >= 0) {
+              value = this.showPreview(value);
+            }
           }
           showDataObj[key] = value;
         }
@@ -480,13 +542,89 @@ export default {
       itemValue = calculate(itemValue);
       return itemValue;
     },
+    onCopySuccess: function (e) {
+      if(this.apiStepIndex < this.apiInfoArray.length){
+        this.apiInfoArray[this.apiStepIndex].sharePopoverVisible = false;
+      }
+      this.$message({
+        message: this.$t('commons.copy_success'),
+        type: 'success'
+      });
+    },
+    onCopyError: function (e) {
+      if(this.apiStepIndex < this.apiInfoArray.length){
+        this.apiInfoArray[this.apiStepIndex].sharePopoverVisible = false;
+      }
+      this.$message.error(this.$t('api_report.error'));
+    },
+    handleScroll(){
+      // let itemHeight = 0;
+      // if(this.$refs.apiDocInfoDivItem.length>0){
+      //   //子元素高度为 item的高度+20(20是margin距离)
+      //   itemHeight = this.$refs.apiDocInfoDivItem[0].offsetHeight+20;
+      // }
+
+      //apiDocInfoDiv的总高度，是(每个item的高度+20)数量
+      let apiDocDivScrollTop = this.$refs.apiDocInfoDiv.scrollTop;
+      let apiDocDivClientTop = this.$refs.apiDocInfoDiv.clientHeight;
+
+      let scrolledHeigh = apiDocDivScrollTop+apiDocDivClientTop;
+      let lastIndex = 0;
+      for (let index = 0; index < this.apiInfoArray.length; index++) {
+        //判断移动到了第几个元素. 公式: 移动过的高度+页面显示高度-第index子元素的高度(含20px)>0 的 index最大值
+        if(scrolledHeigh>0){
+          lastIndex = index;
+          let itemHeight = this.$refs.apiDocInfoDivItem[index].offsetHeight+20;
+          scrolledHeigh = scrolledHeigh - itemHeight;
+        }else{
+          break;
+        }
+      }
+      this.apiStepIndex = lastIndex;
+      //检查上下文 3个以内的节点有没有查询出来
+      this.checkApiInfoNode(this.apiStepIndex);
+    },
+    redirectScroll(itemIndex){
+      //滚动条跳转：将滚动条下拉到显示对应对api接口的位置
+      // let apiDocDivClientTop = this.$refs.apiDocInfoDiv.clientHeight;
+      let apiDocDivClientTop = 0;
+      let itemHeightCount = 0;
+      for (let i = 0; i <= itemIndex-1; i++) {
+        let itemHeight = this.$refs.apiDocInfoDivItem[i].offsetHeight+20;
+        itemHeightCount+=itemHeight;
+      }
+      this.$refs.apiDocInfoDiv.scrollTop = (apiDocDivClientTop+itemHeightCount);
+    },
+    checkApiInfoNode(itemIndex){
+      //检查要展示的api信息节点，和上下个3个及以内的范围内数据有没有查询过
+      let beforeNodeIndex = itemIndex<3?0:(itemIndex-3);
+      let afterNodeIndex = (itemIndex+3)<this.apiInfoArray.length?(itemIndex+3):this.apiInfoArray.length;
+
+      for(let i = itemIndex;i < afterNodeIndex;i++){
+        let apiInfo = this.apiInfoArray[i];
+        if(apiInfo == null || !apiInfo.selectedFlag){
+          let apiId = apiInfo.id;
+          this.selectApiInfo(i,apiId);
+        }
+      }
+
+      for(let i = beforeNodeIndex;i <itemIndex;i++){
+        let apiInfo = this.apiInfoArray[i];
+        if(apiInfo == null || !apiInfo.selectedFlag){
+          let apiId = apiInfo.id;
+          this.selectApiInfo(i,apiId);
+        }
+      }
+    }
   },
 }
 </script>
 
 <style scoped>
 .simpleFontClass {
+  font-weight: normal;
   font-size: 14px;
+  margin-left: 10px;
 }
 
 .blackFontClass {
@@ -496,7 +634,7 @@ export default {
 
 .smallFontClass {
   font-size: 13px;
-  margin: 20px 0px;
+  margin: 20px 10px;
 }
 
 .tip {
@@ -516,7 +654,7 @@ export default {
 
 .showDataDiv {
   background-color: #F5F7F9;
-  margin: 20px 0px;
+  margin: 20px 10px;
 }
 
 /*

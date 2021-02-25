@@ -643,6 +643,146 @@ public class TestResourcePoolExample {
             addCriterion("image not between", value1, value2, "image");
             return (Criteria) this;
         }
+
+        public Criteria andHeapIsNull() {
+            addCriterion("`heap` is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andHeapIsNotNull() {
+            addCriterion("`heap` is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andHeapEqualTo(String value) {
+            addCriterion("`heap` =", value, "heap");
+            return (Criteria) this;
+        }
+
+        public Criteria andHeapNotEqualTo(String value) {
+            addCriterion("`heap` <>", value, "heap");
+            return (Criteria) this;
+        }
+
+        public Criteria andHeapGreaterThan(String value) {
+            addCriterion("`heap` >", value, "heap");
+            return (Criteria) this;
+        }
+
+        public Criteria andHeapGreaterThanOrEqualTo(String value) {
+            addCriterion("`heap` >=", value, "heap");
+            return (Criteria) this;
+        }
+
+        public Criteria andHeapLessThan(String value) {
+            addCriterion("`heap` <", value, "heap");
+            return (Criteria) this;
+        }
+
+        public Criteria andHeapLessThanOrEqualTo(String value) {
+            addCriterion("`heap` <=", value, "heap");
+            return (Criteria) this;
+        }
+
+        public Criteria andHeapLike(String value) {
+            addCriterion("`heap` like", value, "heap");
+            return (Criteria) this;
+        }
+
+        public Criteria andHeapNotLike(String value) {
+            addCriterion("`heap` not like", value, "heap");
+            return (Criteria) this;
+        }
+
+        public Criteria andHeapIn(List<String> values) {
+            addCriterion("`heap` in", values, "heap");
+            return (Criteria) this;
+        }
+
+        public Criteria andHeapNotIn(List<String> values) {
+            addCriterion("`heap` not in", values, "heap");
+            return (Criteria) this;
+        }
+
+        public Criteria andHeapBetween(String value1, String value2) {
+            addCriterion("`heap` between", value1, value2, "heap");
+            return (Criteria) this;
+        }
+
+        public Criteria andHeapNotBetween(String value1, String value2) {
+            addCriterion("`heap` not between", value1, value2, "heap");
+            return (Criteria) this;
+        }
+
+        public Criteria andGcAlgoIsNull() {
+            addCriterion("gc_algo is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andGcAlgoIsNotNull() {
+            addCriterion("gc_algo is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andGcAlgoEqualTo(String value) {
+            addCriterion("gc_algo =", value, "gcAlgo");
+            return (Criteria) this;
+        }
+
+        public Criteria andGcAlgoNotEqualTo(String value) {
+            addCriterion("gc_algo <>", value, "gcAlgo");
+            return (Criteria) this;
+        }
+
+        public Criteria andGcAlgoGreaterThan(String value) {
+            addCriterion("gc_algo >", value, "gcAlgo");
+            return (Criteria) this;
+        }
+
+        public Criteria andGcAlgoGreaterThanOrEqualTo(String value) {
+            addCriterion("gc_algo >=", value, "gcAlgo");
+            return (Criteria) this;
+        }
+
+        public Criteria andGcAlgoLessThan(String value) {
+            addCriterion("gc_algo <", value, "gcAlgo");
+            return (Criteria) this;
+        }
+
+        public Criteria andGcAlgoLessThanOrEqualTo(String value) {
+            addCriterion("gc_algo <=", value, "gcAlgo");
+            return (Criteria) this;
+        }
+
+        public Criteria andGcAlgoLike(String value) {
+            addCriterion("gc_algo like", value, "gcAlgo");
+            return (Criteria) this;
+        }
+
+        public Criteria andGcAlgoNotLike(String value) {
+            addCriterion("gc_algo not like", value, "gcAlgo");
+            return (Criteria) this;
+        }
+
+        public Criteria andGcAlgoIn(List<String> values) {
+            addCriterion("gc_algo in", values, "gcAlgo");
+            return (Criteria) this;
+        }
+
+        public Criteria andGcAlgoNotIn(List<String> values) {
+            addCriterion("gc_algo not in", values, "gcAlgo");
+            return (Criteria) this;
+        }
+
+        public Criteria andGcAlgoBetween(String value1, String value2) {
+            addCriterion("gc_algo between", value1, value2, "gcAlgo");
+            return (Criteria) this;
+        }
+
+        public Criteria andGcAlgoNotBetween(String value1, String value2) {
+            addCriterion("gc_algo not between", value1, value2, "gcAlgo");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {
