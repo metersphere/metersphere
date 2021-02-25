@@ -10,6 +10,8 @@
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
     <result column="update_time" jdbcType="BIGINT" property="updateTime" />
     <result column="image" jdbcType="VARCHAR" property="image" />
+    <result column="heap" jdbcType="VARCHAR" property="heap" />
+    <result column="gc_algo" jdbcType="VARCHAR" property="gcAlgo" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -70,7 +72,8 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, `name`, `type`, description, `status`, create_time, update_time, image
+    id, `name`, `type`, description, `status`, create_time, update_time, image, `heap`, 
+    gc_algo
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.base.domain.TestResourcePoolExample" resultMap="BaseResultMap">
     select
@@ -105,10 +108,12 @@
   <insert id="insert" parameterType="io.metersphere.base.domain.TestResourcePool">
     insert into test_resource_pool (id, `name`, `type`, 
       description, `status`, create_time, 
-      update_time, image)
+      update_time, image, `heap`, 
+      gc_algo)
     values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR}, 
       #{description,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, 
-      #{updateTime,jdbcType=BIGINT}, #{image,jdbcType=VARCHAR})
+      #{updateTime,jdbcType=BIGINT}, #{image,jdbcType=VARCHAR}, #{heap,jdbcType=VARCHAR}, 
+      #{gcAlgo,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.TestResourcePool">
     insert into test_resource_pool
@@ -137,6 +142,12 @@
       <if test="image != null">
         image,
       </if>
+      <if test="heap != null">
+        `heap`,
+      </if>
+      <if test="gcAlgo != null">
+        gc_algo,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -162,6 +173,12 @@
       </if>
       <if test="image != null">
         #{image,jdbcType=VARCHAR},
+      </if>
+      <if test="heap != null">
+        #{heap,jdbcType=VARCHAR},
+      </if>
+      <if test="gcAlgo != null">
+        #{gcAlgo,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
@@ -198,6 +215,12 @@
       <if test="record.image != null">
         image = #{record.image,jdbcType=VARCHAR},
       </if>
+      <if test="record.heap != null">
+        `heap` = #{record.heap,jdbcType=VARCHAR},
+      </if>
+      <if test="record.gcAlgo != null">
+        gc_algo = #{record.gcAlgo,jdbcType=VARCHAR},
+      </if>
     </set>
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -212,7 +235,9 @@
       `status` = #{record.status,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
       update_time = #{record.updateTime,jdbcType=BIGINT},
-      image = #{record.image,jdbcType=VARCHAR}
+      image = #{record.image,jdbcType=VARCHAR},
+      `heap` = #{record.heap,jdbcType=VARCHAR},
+      gc_algo = #{record.gcAlgo,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -241,6 +266,12 @@
       <if test="image != null">
         image = #{image,jdbcType=VARCHAR},
       </if>
+      <if test="heap != null">
+        `heap` = #{heap,jdbcType=VARCHAR},
+      </if>
+      <if test="gcAlgo != null">
+        gc_algo = #{gcAlgo,jdbcType=VARCHAR},
+      </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
@@ -252,7 +283,9 @@
       `status` = #{status,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
       update_time = #{updateTime,jdbcType=BIGINT},
-      image = #{image,jdbcType=VARCHAR}
+      image = #{image,jdbcType=VARCHAR},
+      `heap` = #{heap,jdbcType=VARCHAR},
+      gc_algo = #{gcAlgo,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

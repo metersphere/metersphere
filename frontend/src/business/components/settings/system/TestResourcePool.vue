@@ -53,7 +53,7 @@
       :destroy-on-close="true"
       v-loading="result.loading"
     >
-      <el-form :model="form" label-position="right" label-width="120px" size="small" :rules="rule"
+      <el-form :model="form" label-position="right" label-width="140px" size="small" :rules="rule"
                ref="testResourcePoolForm">
         <el-form-item :label="$t('commons.name')" prop="name">
           <el-input v-model="form.name" autocomplete="off"/>
@@ -62,7 +62,13 @@
           <el-input v-model="form.description" autocomplete="off"/>
         </el-form-item>
         <el-form-item :label="$t('commons.image')" prop="image">
-          <el-input v-model="form.image" autocomplete="off"/>
+          <el-input v-model="form.image"/>
+        </el-form-item>
+        <el-form-item label="Jmeter HEAP" prop="HEAP">
+          <el-input v-model="form.heap" placeholder="-Xms1g -Xmx1g -XX:MaxMetaspaceSize=256m"/>
+        </el-form-item>
+        <el-form-item label="Jmeter GC_ALGO" prop="GC_ALGO">
+          <el-input v-model="form.gcAlgo" placeholder="-XX:+UseG1GC -XX:MaxGCPauseMillis=100 -XX:G1ReservePercent=20"/>
         </el-form-item>
         <el-form-item :label="$t('test_resource_pool.type')" prop="type">
           <el-select v-model="form.type" :placeholder="$t('test_resource_pool.select_pool_type')"
