@@ -30,6 +30,7 @@
   import MsApiRequestForm from "../../../definition/components/request/http/ApiHttpRequestForm";
   import ApiBaseComponent from "../common/ApiBaseComponent";
   import {getProject} from "@/business/components/api/automation/scenario/event";
+  import {getCurrentProjectID} from "@/common/js/utils";
 
   export default {
     name: "ApiScenarioComponent",
@@ -45,6 +46,7 @@
     watch: {},
     created() {
       this.getWsProjects();
+      this.scenario.projectId = getCurrentProjectID();
       getProject.$emit('addProjectEnv', this.scenario.projectId, this.currentEnvironmentId);
       if (this.scenario.id && this.scenario.referenced === 'REF' && !this.scenario.loaded) {
         this.result = this.$get("/api/automation/getApiScenario/" + this.scenario.id, response => {
@@ -58,6 +60,10 @@
             }
             this.scenario.disabled = true;
             this.scenario.name = response.data.name;
+            if (!this.scenario.projectId) {
+              this.scenario.projectId = response.data.projectId;
+            }
+
             this.$emit('refReload');
           } else {
             this.scenario.referenced = "Deleted";
