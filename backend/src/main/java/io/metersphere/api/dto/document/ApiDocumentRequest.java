@@ -1,4 +1,4 @@
-package io.metersphere.api.dto;
+package io.metersphere.api.dto.document;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -19,4 +19,5 @@ public class ApiDocumentRequest {
     private String name;
     private String type;
     private String orderCondition;
+    private List<String> apiIdList;
 }

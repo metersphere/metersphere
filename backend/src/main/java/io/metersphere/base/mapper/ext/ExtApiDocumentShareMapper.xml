@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.metersphere.base.mapper.ext.ExtApiDocumentShareMapper">
+    <resultMap id="BaseResultMap" type="io.metersphere.base.domain.ApiDocumentShare">
+        <id column="id" jdbcType="VARCHAR" property="id" />
+        <result column="create_time" jdbcType="BIGINT" property="createTime" />
+        <result column="create_user_id" jdbcType="VARCHAR" property="createUserId" />
+        <result column="update_time" jdbcType="BIGINT" property="updateTime" />
+        <result column="share_type" jdbcType="VARCHAR" property="shareType" />
+    </resultMap>
+    <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.ApiDocumentShare">
+        <result column="share_api_id" jdbcType="LONGVARCHAR" property="shareApiId" />
+    </resultMap>
+
+    <select id="selectByShareTypeAndShareApiIdWithBLOBs" resultMap="ResultMapWithBLOBs">
+        SELECT id,share_type,share_api_id FROM api_document_share
+        <where>
+            share_type = #{shareType} AND share_api_id = #{shareApiId}
+        </where>
+    </select>
+</mapper>
