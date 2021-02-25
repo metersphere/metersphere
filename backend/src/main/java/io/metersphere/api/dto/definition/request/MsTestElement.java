@@ -49,7 +49,6 @@ import org.apache.jorphan.collections.ListedHashTree;
 import java.io.ByteArrayOutputStream;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "type")
@@ -167,7 +166,7 @@ public abstract class MsTestElement {
     }
 
     public Arguments addArguments(ParameterConfig config) {
-        if (config != null && config.getConfig() != null && config.getConfig().get(this.getProjectId()).getCommonConfig() != null
+        if (config != null && config.getConfig() != null && config.getConfig().get(this.getProjectId()) != null && config.getConfig().get(this.getProjectId()).getCommonConfig() != null
                 && CollectionUtils.isNotEmpty(config.getConfig().get(this.getProjectId()).getCommonConfig().getVariables())) {
             Arguments arguments = new Arguments();
             arguments.setEnabled(true);

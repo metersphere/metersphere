@@ -9,6 +9,8 @@ import io.metersphere.api.dto.automation.ReferenceDTO;
 import io.metersphere.api.dto.datacount.ApiDataCountResult;
 import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.dto.definition.parse.ApiDefinitionImport;
+import io.metersphere.api.dto.definition.parse.ApiDefinitionImportParserFactory;
+import io.metersphere.api.dto.definition.request.ParameterConfig;
 import io.metersphere.api.dto.definition.request.ScheduleInfoSwaggerUrlRequest;
 import io.metersphere.api.dto.definition.request.sampler.MsHTTPSamplerProxy;
 import io.metersphere.api.dto.scenario.request.RequestType;
@@ -18,7 +20,6 @@ import io.metersphere.api.jmeter.JMeterService;
 import io.metersphere.api.jmeter.RequestResult;
 import io.metersphere.api.jmeter.TestResult;
 import io.metersphere.api.parse.ApiImportParser;
-import io.metersphere.api.dto.definition.parse.ApiDefinitionImportParserFactory;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.*;
@@ -426,8 +427,9 @@ public class ApiDefinitionService {
     public String run(RunDefinitionRequest request, List<MultipartFile> bodyFiles) {
         List<String> bodyUploadIds = new ArrayList<>(request.getBodyUploadIds());
         FileUtils.createBodyFiles(bodyUploadIds, bodyFiles);
-
-        HashTree hashTree = request.getTestElement().generateHashTree();
+        ParameterConfig config = new ParameterConfig();
+        config.setProjectId(request.getProjectId());
+        HashTree hashTree = request.getTestElement().generateHashTree(config);
         String runMode = ApiRunMode.DEFINITION.name();
         if (StringUtils.isNotBlank(request.getType()) && StringUtils.equals(request.getType(), ApiRunMode.API_PLAN.name())) {
             runMode = ApiRunMode.API_PLAN.name();

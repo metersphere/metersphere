@@ -2,7 +2,7 @@
   <span></span>
 </template>
 <script>
-  import {getUUID, getBodyUploadFiles} from "@/common/js/utils";
+  import {getUUID, getBodyUploadFiles,getCurrentProjectID} from "@/common/js/utils";
   import ThreadGroup from "./jmeter/components/thread-group";
   import TestPlan from "./jmeter/components/test-plan";
 
@@ -64,7 +64,7 @@
         this.runData.forEach(item => {
           threadGroup.hashTree.push(item);
         })
-        let reqObj = {id: this.reportId, testElement: testPlan, type: this.type};
+        let reqObj = {id: this.reportId, testElement: testPlan, type: this.type,projectId:getCurrentProjectID()};
         let bodyFiles = getBodyUploadFiles(reqObj, this.runData);
         let url = "";
         if (this.debug) {

@@ -8,6 +8,7 @@ import io.metersphere.api.dto.definition.request.auth.MsAuthManager;
 import io.metersphere.api.dto.definition.request.dns.MsDNSCacheManager;
 import io.metersphere.api.dto.scenario.Body;
 import io.metersphere.api.dto.scenario.KeyValue;
+import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
 import io.metersphere.commons.constants.MsTestElementConstants;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.ScriptEngineUtils;
@@ -116,7 +117,11 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         if (config != null && config.getConfig() != null) {
             config.setConfig(config.getConfig());
         } else {
-//            config.setConfig(getEnvironmentConfig(useEnvironment));
+            // 单独接口执行
+            this.setProjectId(config.getProjectId());
+            Map<String, EnvironmentConfig> map = new HashMap<>();
+            map.put(this.getProjectId(), getEnvironmentConfig(useEnvironment));
+            config.setConfig(map);
         }
 
         // 添加环境中的公共变量
@@ -125,7 +130,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
             tree.add(arguments);
         }
         try {
-            if (config != null && config.getConfig() != null) {
+            if (config != null && config.getConfig() != null && config.getConfig().get(this.getProjectId()) != null) {
                 String url = config.getConfig().get(this.getProjectId()).getHttpConfig().getProtocol() + "://" + config.getConfig().get(this.getProjectId()).getHttpConfig().getSocket();
                 // 补充如果是完整URL 则用自身URL
                 boolean isUrl = false;
@@ -214,13 +219,13 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         }
 
         // 通用请求Headers
-        if (config != null && config.getConfig() != null && config.getConfig().get(this.getProjectId()).getHttpConfig() != null
+        if (config != null && config.getConfig() != null && config.getConfig().get(this.getProjectId()) != null && config.getConfig().get(this.getProjectId()).getHttpConfig() != null
                 && CollectionUtils.isNotEmpty(config.getConfig().get(this.getProjectId()).getHttpConfig().getHeaders())) {
             setHeader(httpSamplerTree, config.getConfig().get(this.getProjectId()).getHttpConfig().getHeaders());
         }
 
         //判断是否要开启DNS
-        if (config != null && config.getConfig() != null && config.getConfig().get(this.getProjectId()).getCommonConfig() != null
+        if (config != null && config.getConfig() != null && config.getConfig().get(this.getProjectId()) != null && config.getConfig().get(this.getProjectId()).getCommonConfig() != null
                 && config.getConfig().get(this.getProjectId()).getCommonConfig().isEnableHost()) {
             MsDNSCacheManager.addEnvironmentVariables(httpSamplerTree, this.getName(), config.getConfig().get(this.getProjectId()));
             MsDNSCacheManager.addEnvironmentDNS(httpSamplerTree, this.getName(), config.getConfig().get(this.getProjectId()));

@@ -12,7 +12,7 @@ public class ParameterConfig {
     /**
      * 环境配置
      */
-    private Map<String,EnvironmentConfig> config;
+    private Map<String, EnvironmentConfig> config;
     /**
      * 公共场景参数
      */
@@ -26,4 +26,8 @@ public class ParameterConfig {
      * 是否是导入/导出操作
      */
     private boolean isOperating;
+    /**
+     * 项目ID，支持单接口执行
+     */
+    private String projectId;
 }
