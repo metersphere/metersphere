@@ -17,4 +17,5 @@ public class JmeterProperties {
     private String home;
 
     private String heap = "-Xms1g -Xmx1g -XX:MaxMetaspaceSize=256m";
+    private String gcAlgo = "-XX:+UseG1GC -XX:MaxGCPauseMillis=100 -XX:G1ReservePercent=20";
 }
