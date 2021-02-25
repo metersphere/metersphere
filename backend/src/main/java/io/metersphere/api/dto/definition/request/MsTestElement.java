@@ -49,6 +49,7 @@ import org.apache.jorphan.collections.ListedHashTree;
 import java.io.ByteArrayOutputStream;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "type")
@@ -101,6 +102,8 @@ public abstract class MsTestElement {
     private LinkedList<MsTestElement> hashTree;
     @JSONField(ordinal = 11)
     private boolean customizeReq;
+    @JSONField(ordinal = 12)
+    private String projectId;
 
     private MsTestElement parent;
 
@@ -164,14 +167,14 @@ public abstract class MsTestElement {
     }
 
     public Arguments addArguments(ParameterConfig config) {
-        if (config != null && config.getConfig() != null && config.getConfig().getCommonConfig() != null
-                && CollectionUtils.isNotEmpty(config.getConfig().getCommonConfig().getVariables())) {
+        if (config != null && config.getConfig() != null && config.getConfig().get(this.getProjectId()).getCommonConfig() != null
+                && CollectionUtils.isNotEmpty(config.getConfig().get(this.getProjectId()).getCommonConfig().getVariables())) {
             Arguments arguments = new Arguments();
             arguments.setEnabled(true);
             arguments.setName(StringUtils.isNoneBlank(this.getName()) ? this.getName() : "Arguments");
             arguments.setProperty(TestElement.TEST_CLASS, Arguments.class.getName());
             arguments.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("ArgumentsPanel"));
-            config.getConfig().getCommonConfig().getVariables().stream().filter(KeyValue::isValid).filter(KeyValue::isEnable).forEach(keyValue ->
+            config.getConfig().get(this.getProjectId()).getCommonConfig().getVariables().stream().filter(KeyValue::isValid).filter(KeyValue::isEnable).forEach(keyValue ->
                     arguments.addArgument(keyValue.getName(), keyValue.getValue(), "=")
             );
             return arguments;

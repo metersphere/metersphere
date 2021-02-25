@@ -561,10 +561,14 @@ public class ApiAutomationService {
     public String debugRun(RunDefinitionRequest request, List<MultipartFile> bodyFiles) {
         List<String> bodyUploadIds = new ArrayList<>(request.getBodyUploadIds());
         FileUtils.createBodyFiles(bodyUploadIds, bodyFiles);
-        EnvironmentConfig envConfig = null;
-        if (request.getEnvironmentId() != null) {
-            ApiTestEnvironmentWithBLOBs environment = environmentService.get(request.getEnvironmentId());
-            envConfig = JSONObject.parseObject(environment.getConfig(), EnvironmentConfig.class);
+        Map<String,EnvironmentConfig> envConfig = new HashMap<>();
+        Map<String, String> map = request.getEnvironmentMap();
+        if (map != null) {
+            map.keySet().forEach(id -> {
+                ApiTestEnvironmentWithBLOBs environment = environmentService.get(map.get(id));
+                EnvironmentConfig env = JSONObject.parseObject(environment.getConfig(), EnvironmentConfig.class);
+                envConfig.put(id, env);
+            });
         }
         ParameterConfig config = new ParameterConfig();
         config.setConfig(envConfig);
