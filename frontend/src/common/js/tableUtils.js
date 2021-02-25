@@ -1,4 +1,4 @@
-import {getCurrentUser, humpToLine} from "@/common/js/utils";
+import {getCurrentProjectID, getCurrentUser, humpToLine} from "@/common/js/utils";
 import {TEST_CASE_LIST} from "@/common/js/constants";
 
 export function _handleSelectAll(component, selection, tableData, selectRows) {
@@ -119,5 +119,12 @@ export function getLabel(vueObj, type) {
 }
 
 
+export function buildBatchParam(vueObj) {
+  let param = {};
+  param.ids = Array.from(vueObj.selectRows).map(row => row.id);
+  param.projectId = getCurrentProjectID();
+  param.condition = vueObj.condition;
+  return param;
+}
 
 

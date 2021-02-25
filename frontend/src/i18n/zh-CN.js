@@ -1056,6 +1056,7 @@ export default {
     cancel_relevance_success: "取消关联成功",
     switch_project: "切换项目",
     case: {
+      check_select: "请勾选用例",
       export_all_cases: '确定要导出全部用例吗?',
       input_test_case: '请输入关联用例名称',
       test_name: '测试名称',
