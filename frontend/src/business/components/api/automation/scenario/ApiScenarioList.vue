@@ -360,7 +360,7 @@
         this.changeSelectDataRangeAll();
         this.search();
       },
-      search() {
+      search(projectId) {
         this.selectRows = new Set();
         getLabel(this, API_SCENARIO_LIST);
         this.condition.moduleIds = this.selectNodeIds;
@@ -369,7 +369,10 @@
           this.condition.moduleIds = [];
         }
 
-        if (this.projectId != null) {
+        // todo
+        if (projectId != null && typeof projectId === 'string') {
+          this.condition.projectId = projectId;
+        } else if (this.projectId != null) {
           this.condition.projectId = this.projectId;
         }
 

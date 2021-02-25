@@ -14,11 +14,12 @@
     <slot></slot>
 
     <template v-slot:footer>
-      <ms-dialog-footer @cancel="close" @confirm="save"/>
-    </template>
-
-    <template v-slot:footer>
-      <ms-dialog-footer @cancel="close" @confirm="save"/>
+      <div v-if="$slots.footer">
+        <slot name="footer"></slot>
+      </div>
+      <div v-else>
+        <ms-dialog-footer @cancel="close" @confirm="save"/>
+      </div>
     </template>
 
   </relevance-dialog>
@@ -75,17 +76,15 @@
       },
 
       getProject() {
-        if (this.planId) {
-          this.result = this.$post("/test/plan/project/", {planId: this.planId}, res => {
-            let data = res.data;
-            if (data) {
-              this.projects = data;
-              this.projectId = data[0].id;
-              this.projectName = data[0].name;
-              this.changeProject(data[0]);
-            }
-          })
-        }
+        this.result = this.$get("/project/listAll", res => {
+          let data = res.data;
+          if (data) {
+            this.projects = data;
+            this.projectId = data[0].id;
+            this.projectName = data[0].name;
+            this.changeProject(data[0]);
+          }
+        })
       },
 
       changeProject(project) {
