@@ -3,21 +3,23 @@
     title="环境选择"
     :visible.sync="dialogVisible"
     width="30%"
+    :destroy-on-close="true"
     :before-close="handleClose">
 
     <div v-for="pe in data" :key="pe.id">
       <div>
         {{ getProjectName(pe.id) }}
-        <el-select v-model="pe['selectEnv']" placeholder="请选择环境" style="margin-left:10px; margin-top: 10px;" size="small">
+        <el-select v-model="pe['selectEnv']" placeholder="请选择环境" style="margin-left:10px; margin-top: 10px;"
+                   size="small">
           <el-option v-for="(environment, index) in pe.envs" :key="index"
                      :label="environment.name + (environment.config.httpConfig.socket ? (': ' + environment.config.httpConfig.protocol + '://' + environment.config.httpConfig.socket) : '')"
                      :value="environment.id"/>
-          <el-button class="ms-scenario-button" size="mini" type="primary" @click="openEnvironmentConfig">
+          <el-button class="ms-scenario-button" size="mini" type="primary" @click="openEnvironmentConfig(pe.id)">
             {{ $t('api_test.environment.environment_config') }}
           </el-button>
           <template v-slot:empty>
             <div class="empty-environment">
-              <el-button class="ms-scenario-button" size="mini" type="primary" @click="openEnvironmentConfig">
+              <el-button class="ms-scenario-button" size="mini" type="primary" @click="openEnvironmentConfig(pe.id)">
                 {{ $t('api_test.environment.environment_config') }}
               </el-button>
             </div>
@@ -30,14 +32,16 @@
     <el-button @click="dialogVisible = false" size="small">取 消</el-button>
     <el-button type="primary" @click="handleConfirm" size="small">确 定</el-button>
   </span>
+    <api-environment-config ref="environmentConfig" @close="environmentConfigClose"/>
   </el-dialog>
 </template>
 
 <script>
 import {parseEnvironment} from "@/business/components/api/test/model/EnvironmentModel";
-
+import ApiEnvironmentConfig from "@/business/components/api/definition/components/environment/ApiEnvironmentConfig";
 export default {
   name: "ApiScenarioEnv",
+  components: {ApiEnvironmentConfig},
   props: {
     projectIds: Set,
     envMap: Map
@@ -55,13 +59,8 @@ export default {
     this.getWsProjects();
   },
   methods: {
-    handleClose(done) {
-      this.$confirm('确认关闭？')
-        .then(_ => {
-          done();
-        })
-        .catch(_ => {
-        });
+    handleClose() {
+      this.dialogVisible = false;
     },
     init() {
       this.projectIds.forEach(id => {
@@ -92,20 +91,14 @@ export default {
     },
     getProjectName(id) {
       const project = this.projects.find(p => p.id === id);
-      if (project) {
-        return project.name;
-      }
-      return '';
+      return project ? project.name : "";
     },
-    openEnvironmentConfig() {
-      if (!this.projectId) {
+    openEnvironmentConfig(projectId) {
+      if (!projectId) {
         this.$error(this.$t('api_test.select_project'));
         return;
       }
-      this.$refs.environmentConfig.open(this.projectId);
-    },
-    getProjectEnvMap() {
-
+      this.$refs.environmentConfig.open(projectId);
     },
     handleConfirm() {
       let map = new Map();
@@ -123,6 +116,23 @@ export default {
       }
       this.$emit('setProjectEnvMap', map);
       this.dialogVisible = false;
+    },
+    checkEnv() {
+      let sign = true;
+      this.data.forEach(dt => {
+        if (!dt.selectEnv) {
+          sign = false;
+          return;
+        }
+      })
+      if (!sign) {
+        this.$warning("请为每个项目选择一个运行环境！");
+        return false;
+      }
+      return true;
+    },
+    environmentConfigClose(id) {
+      // todo
     }
   }
 }

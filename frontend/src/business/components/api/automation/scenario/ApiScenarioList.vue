@@ -593,7 +593,7 @@
         scenarioIds.push(row.id);
         run.id = getUUID();
         run.projectId = getCurrentProjectID();
-        run.scenarioIds = scenarioIds;
+        run.ids = scenarioIds;
         this.$post(url, run, response => {
           let data = response.data;
           this.runVisible = true;

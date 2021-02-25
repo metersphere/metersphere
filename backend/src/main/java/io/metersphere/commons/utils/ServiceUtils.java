@@ -32,7 +32,7 @@ public class ServiceUtils {
      * @return
      */
     public static<T> void getSelectAllIds( T batchRequest, BaseQueryRequest queryRequest, Function<BaseQueryRequest, List<String>> func) {
-        if (queryRequest.isSelectAll()) {
+        if (queryRequest != null && queryRequest.isSelectAll()) {
             List<String> ids = func.apply(queryRequest);
             if (!ids.isEmpty()) {
                 ids = ids.stream()

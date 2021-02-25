@@ -17,7 +17,7 @@
       <el-tag size="mini" style="margin-left: 20px" v-if="scenario.referenced==='Copy'">{{ $t('commons.copy') }}</el-tag>
       <el-tag size="mini" style="margin-left: 20px" v-if="scenario.referenced==='REF'">{{ $t('api_test.scenario.reference') }}</el-tag>
 
-      <span style="margin-left: 20px;">{{scenario.projectName}}</span>
+      <span style="margin-left: 20px;">{{getProjectName(scenario.projectId)}}</span>
     </template>
 
   </api-base-component>
@@ -44,8 +44,9 @@
     },
     watch: {},
     created() {
+      this.getWsProjects();
+      getProject.$emit('addProjectEnv', this.scenario.projectId, this.currentEnvironmentId);
       if (this.scenario.id && this.scenario.referenced === 'REF' && !this.scenario.loaded) {
-        this.getWsProjects();
         this.result = this.$get("/api/automation/getApiScenario/" + this.scenario.id, response => {
           if (response.data) {
             this.scenario.loaded = true;
@@ -57,9 +58,6 @@
             }
             this.scenario.disabled = true;
             this.scenario.name = response.data.name;
-            const project = this.projects.find(p => p.id === this.scenario.projectId);
-            getProject.$emit('addProjectEnv', this.scenario.projectId, this.currentEnvironmentId);
-            this.scenario.projectName = project ? project.name : '';
             this.$emit('refReload');
           } else {
             this.scenario.referenced = "Deleted";
@@ -122,6 +120,13 @@
         this.$get("/project/listAll", res => {
           this.projects = res.data;
         })
+      },
+      getProjectName(id) {
+        const project = this.projects.find(p => p.id === id);
+        if (project) {
+          return project.name;
+        }
+        return '';
       }
     }
   }

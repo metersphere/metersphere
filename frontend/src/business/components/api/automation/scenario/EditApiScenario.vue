@@ -662,6 +662,9 @@ export default {
               const index = hashTree.findIndex(d => d.resourceId != undefined && row.resourceId != undefined && d.resourceId === row.resourceId)
               if (hashTree[index] && hashTree[index].projectId) {
                 this.projectIds.delete(hashTree[index].projectId);
+                if (this.projectEnvMap.has(hashTree[index].projectId)) {
+                  this.projectEnvMap.delete(hashTree[index].projectId);
+                }
               }
               hashTree.splice(index, 1);
               this.sort();
@@ -701,12 +704,9 @@ export default {
         //   this.$error(this.$t('api_test.environment.select_environment'));
         //   return;
         // }
-        let iter = this.projectEnvMap.values();
-        for (let i of iter) {
-          if (!i) {
-            this.$warning("请为每个项目选择一个运行环境！");
-            return;
-          }
+        let sign = this.$refs.apiScenarioEnv.checkEnv();
+        if (!sign) {
+          return;
         }
         this.$refs['currentScenario'].validate((valid) => {
           if (valid) {
