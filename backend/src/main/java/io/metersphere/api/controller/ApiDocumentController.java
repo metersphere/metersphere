@@ -6,7 +6,7 @@ import io.metersphere.api.dto.document.ApiDocumentInfoDTO;
 import io.metersphere.api.dto.document.ApiDocumentRequest;
 import io.metersphere.api.dto.document.ApiDocumentShareRequest;
 import io.metersphere.api.dto.document.ApiDocumentSimpleInfoDTO;
-import io.metersphere.api.dto.swaggerurl.ApiDocumentShareDTO;
+import io.metersphere.api.dto.document.ApiDocumentShareDTO;
 import io.metersphere.api.service.APITestService;
 import io.metersphere.api.service.ApiDefinitionService;
 import io.metersphere.api.service.ApiDocumentService;

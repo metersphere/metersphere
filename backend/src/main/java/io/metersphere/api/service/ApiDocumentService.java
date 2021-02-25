@@ -8,7 +8,7 @@ import io.metersphere.api.dto.document.ApiDocumentRequest;
 import io.metersphere.api.dto.document.ApiDocumentShareRequest;
 import io.metersphere.api.dto.document.ApiDocumentSimpleInfoDTO;
 import io.metersphere.api.dto.document.ApiDocumentShareType;
-import io.metersphere.api.dto.swaggerurl.ApiDocumentShareDTO;
+import io.metersphere.api.dto.document.ApiDocumentShareDTO;
 import io.metersphere.base.domain.ApiDefinitionWithBLOBs;
 import io.metersphere.base.domain.ApiDocumentShare;
 import io.metersphere.base.domain.ApiDocumentShareExample;
