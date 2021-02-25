@@ -15,6 +15,7 @@ import io.metersphere.api.service.ApiTestEnvironmentService;
 import io.metersphere.base.domain.ApiScenarioWithBLOBs;
 import io.metersphere.base.domain.ApiTestEnvironmentWithBLOBs;
 import io.metersphere.commons.utils.CommonBeanFactory;
+import io.metersphere.commons.utils.SessionUtils;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.collections.CollectionUtils;
@@ -93,7 +94,14 @@ public class MsScenario extends MsTestElement {
         config.setStep(this.getName());
         config.setStepType("SCENARIO");
         config.setEnableCookieShare(enableCookieShare);
-        Map<String,EnvironmentConfig> envConfig = new HashMap<>();
+        Map<String,EnvironmentConfig> envConfig = new HashMap<>(16);
+        // 兼容历史数据
+        if (environmentMap == null || environmentMap.isEmpty()) {
+            environmentMap = new HashMap<>(16);
+            if (StringUtils.isNotBlank(environmentId)) {
+                environmentMap.put(SessionUtils.getCurrentProjectId(), environmentId);
+            }
+        }
         if (environmentMap != null && !environmentMap.isEmpty()) {
             environmentMap.keySet().forEach(projectId -> {
                 ApiTestEnvironmentService environmentService = CommonBeanFactory.getBean(ApiTestEnvironmentService.class);

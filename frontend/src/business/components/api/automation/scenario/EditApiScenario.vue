@@ -922,7 +922,12 @@ export default {
                 let obj = JSON.parse(response.data.scenarioDefinition);
                 if (obj) {
                   this.currentEnvironmentId = obj.environmentId;
-                  this.projectEnvMap = this.objToStrMap(obj.environmentMap);
+                  if (obj.environmentMap) {
+                    this.projectEnvMap = this.objToStrMap(obj.environmentMap);
+                  } else {
+                    // 兼容历史数据
+                    this.projectEnvMap.set(getCurrentProjectID(), obj.environmentId);
+                  }
                   this.currentScenario.variables = [];
                   let index = 1;
                   if (obj.variables) {
