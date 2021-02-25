@@ -148,12 +148,21 @@
                 <property name="object" value="${condition}.method"/>
             </include>
         </if>
-        <if test="${condition}.tags != null">
+
+        <if test='${condition}.tags != null and ${objectKey}.operator == "not like"'>
+            and (api_definition.tags is null or api_definition.tags
+                <include refid="condition">
+                    <property name="object" value="${condition}.tags"/>
+                </include>
+            )
+        </if>
+        <if test='${condition}.tags != null and ${objectKey}.operator == "like"'>
             and api_definition.tags
             <include refid="condition">
                 <property name="object" value="${condition}.tags"/>
             </include>
         </if>
+
 
     </sql>
 
@@ -284,6 +293,7 @@
                 <include refid="combine">
                     <property name="condition" value="request.combine"/>
                     <property name="name" value="request.name"/>
+                    <property name="objectKey" value="request.combine.tags"/>
                 </include>
             </if>
 
@@ -382,6 +392,7 @@
                 <include refid="combine">
                     <property name="condition" value="request.combine"/>
                     <property name="name" value="request.name"/>
+                    <property name="objectKey" value="request.combine.tags"/>
                 </include>
             </if>
             <if test="request.name != null">
