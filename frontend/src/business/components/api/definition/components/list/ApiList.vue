@@ -236,7 +236,7 @@ import CaseBatchMove from "@/business/components/api/definition/components/basis
 import ApiListContainerWithDoc from "@/business/components/api/definition/components/list/ApiListContainerWithDoc";
 import {
   _handleSelect,
-  _handleSelectAll, getLabel,
+  _handleSelectAll, buildBatchParam, getLabel,
   getSelectDataCounts, initCondition,
   setUnSelectIds, toggleAllSelection
 } from "@/common/js/tableUtils";
@@ -555,7 +555,7 @@ export default {
           confirmButtonText: this.$t('commons.confirm'),
           callback: (action) => {
             if (action === 'confirm') {
-              this.$post('/api/definition/deleteBatchByParams/', this.buildBatchParam(), () => {
+              this.$post('/api/definition/deleteBatchByParams/', buildBatchParam(this), () => {
                 this.selectRows.clear();
                 this.initTable();
                 this.$success(this.$t('commons.delete_success'));
@@ -568,7 +568,7 @@ export default {
           confirmButtonText: this.$t('commons.confirm'),
           callback: (action) => {
             if (action === 'confirm') {
-              this.$post('/api/definition/removeToGcByParams/', this.buildBatchParam(), () => {
+              this.$post('/api/definition/removeToGcByParams/', buildBatchParam(this), () => {
                 this.selectRows.clear();
                 this.initTable();
                 this.$success(this.$t('commons.delete_success'));
@@ -592,19 +592,12 @@ export default {
       this.$refs.batchEdit.open();
     },
     batchEdit(form) {
-      let param = this.buildBatchParam();
+      let param = buildBatchParam(this);
       param[form.type] = form.value;
       this.$post('/api/definition/batch/editByParams', param, () => {
         this.$success(this.$t('commons.save_success'));
         this.initTable();
       });
-    },
-    buildBatchParam() {
-      let param = {};
-      param.ids = Array.from(this.selectRows).map(row => row.id);
-      param.projectId = getCurrentProjectID();
-      param.condition = this.condition;
-      return param;
     },
     moveSave(param) {
       let arr = Array.from(this.selectRows);
@@ -686,7 +679,7 @@ export default {
       return ids;
     },
     exportApi() {
-      let param = this.buildBatchParam();
+      let param = buildBatchParam(this);
       param.protocol = this.currentProtocol;
       if (param.ids === undefined || param.ids.length < 1) {
         this.$warning(this.$t("api_test.definition.check_select"));
