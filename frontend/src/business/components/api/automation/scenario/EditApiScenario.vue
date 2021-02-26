@@ -149,7 +149,7 @@
                     <span class="custom-tree-node father" slot-scope="{ node, data}" style="width: 96%">
                       <!-- 步骤组件-->
                        <ms-component-config :type="data.type" :scenario="data" :response="response" :currentScenario="currentScenario"
-                                            :currentEnvironmentId="currentEnvironmentId" :node="node"
+                                            :currentEnvironmentId="currentEnvironmentId" :node="node" :project-list="projectList"
                                             @remove="remove" @copyRow="copyRow" @suggestClick="suggestClick" @refReload="reload"/>
                     </span>
               </el-tree>
@@ -300,7 +300,8 @@ export default {
         },
         response: {},
         projectIds: new Set,
-        projectEnvMap: new Map
+        projectEnvMap: new Map,
+        projectList: []
       }
     },
     created() {
@@ -309,6 +310,7 @@ export default {
       }
       this.projectId = getCurrentProjectID();
       this.operatingElements = ELEMENTS.get("ALL");
+      this.getWsProjects();
       this.getMaintainerOptions();
       this.getApiScenario();
       this.addListener(); //  添加 ctrl s 监听
@@ -1031,7 +1033,12 @@ export default {
       },
       setProjectEnvMap(projectEnvMap) {
         this.projectEnvMap = projectEnvMap;
-      }
+      },
+      getWsProjects() {
+        this.$get("/project/listAll", res => {
+          this.projectList = res.data;
+        })
+      },
     }
   }
 </script>
