@@ -84,6 +84,7 @@
         default: false,
       },
       currentEnvironmentId: String,
+      projectList: Array
     },
     components: {
       CustomizeReqInfo,
@@ -96,7 +97,6 @@
         reportId: "",
         runData: [],
         isShowInput: false,
-        projects: []
       }
     },
     created() {
@@ -106,7 +106,6 @@
       this.request.projectId = getCurrentProjectID();
       // 加载引用对象数据
       this.getApiInfo();
-      this.getWsProjects();
       if (this.request.protocol === 'HTTP') {
         this.setUrl(this.request.url);
         this.setUrl(this.request.path);
@@ -279,17 +278,9 @@
           this.loading = false
         })
       },
-      getWsProjects() {
-        this.$get("/project/listAll", res => {
-          this.projects = res.data;
-        })
-      },
       getProjectName(id) {
-        const project = this.projects.find(p => p.id === id);
-        if (project) {
-          return project.name;
-        }
-        return '';
+        const project = this.projectList.find(p => p.id === id);
+        return project ? project.name : "";
       }
     }
   }

@@ -42,11 +42,13 @@
         default: false,
       },
       currentEnvironmentId: String,
+      projectList: Array
     },
     watch: {},
     created() {
-      this.getWsProjects();
-      this.scenario.projectId = getCurrentProjectID();
+      if (!this.scenario.projectId) {
+        this.scenario.projectId = getCurrentProjectID();
+      }
       getProject.$emit('addProjectEnv', this.scenario.projectId, this.currentEnvironmentId);
       if (this.scenario.id && this.scenario.referenced === 'REF' && !this.scenario.loaded) {
         this.result = this.$get("/api/automation/getApiScenario/" + this.scenario.id, response => {
@@ -76,7 +78,6 @@
       return {
         loading: false,
         isShowInput: false,
-        projects: []
       }
     },
     computed: {
@@ -122,17 +123,9 @@
           }
         }
       },
-      getWsProjects() {
-        this.$get("/project/listAll", res => {
-          this.projects = res.data;
-        })
-      },
       getProjectName(id) {
-        const project = this.projects.find(p => p.id === id);
-        if (project) {
-          return project.name;
-        }
-        return '';
+        const project = this.projectList.find(p => p.id === id) ;
+        return project ? project.name : "";
       }
     }
   }
