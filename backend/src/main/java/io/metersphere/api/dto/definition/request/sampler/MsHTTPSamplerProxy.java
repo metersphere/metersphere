@@ -114,7 +114,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         sampler.setFollowRedirects(this.isFollowRedirects());
         sampler.setUseKeepAlive(true);
         sampler.setDoMultipart(this.isDoMultipartPost());
-        if (config != null && config.getConfig() != null) {
+        if (config != null && config.getConfig() != null && !config.getConfig().isEmpty()) {
             config.setConfig(config.getConfig());
         } else {
             // 单独接口执行

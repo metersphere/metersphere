@@ -13,6 +13,7 @@ import io.metersphere.api.dto.definition.parse.ApiDefinitionImportParserFactory;
 import io.metersphere.api.dto.definition.request.ParameterConfig;
 import io.metersphere.api.dto.definition.request.ScheduleInfoSwaggerUrlRequest;
 import io.metersphere.api.dto.definition.request.sampler.MsHTTPSamplerProxy;
+import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
 import io.metersphere.api.dto.scenario.request.RequestType;
 import io.metersphere.api.dto.swaggerurl.SwaggerTaskResult;
 import io.metersphere.api.dto.swaggerurl.SwaggerUrlRequest;
@@ -85,6 +86,8 @@ public class ApiDefinitionService {
     private ScheduleMapper scheduleMapper;
     @Resource
     private ApiTestCaseMapper apiTestCaseMapper;
+    @Resource
+    private ApiTestEnvironmentService environmentService;
 
     private static Cache cache = Cache.newHardMemoryCache(0, 3600 * 24);
 
@@ -427,8 +430,21 @@ public class ApiDefinitionService {
     public String run(RunDefinitionRequest request, List<MultipartFile> bodyFiles) {
         List<String> bodyUploadIds = new ArrayList<>(request.getBodyUploadIds());
         FileUtils.createBodyFiles(bodyUploadIds, bodyFiles);
+
         ParameterConfig config = new ParameterConfig();
         config.setProjectId(request.getProjectId());
+
+        Map<String, EnvironmentConfig> envConfig = new HashMap<>();
+        Map<String, String> map = request.getEnvironmentMap();
+        if (map != null) {
+            map.keySet().forEach(id -> {
+                ApiTestEnvironmentWithBLOBs environment = environmentService.get(map.get(id));
+                EnvironmentConfig env = JSONObject.parseObject(environment.getConfig(), EnvironmentConfig.class);
+                envConfig.put(id, env);
+            });
+            config.setConfig(envConfig);
+        }
+
         HashTree hashTree = request.getTestElement().generateHashTree(config);
         String runMode = ApiRunMode.DEFINITION.name();
         if (StringUtils.isNotBlank(request.getType()) && StringUtils.equals(request.getType(), ApiRunMode.API_PLAN.name())) {
