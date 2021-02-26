@@ -150,14 +150,14 @@
             break;
         }
       },
-      list() {
+      list(projectId) {
         let url = undefined;
         if (this.isPlanModel) {
           url = '/api/automation/module/list/plan/' + this.planId;
         } else if (this.isRelevanceModel) {
           url = "/api/automation/module/list/" + this.relevanceProjectId;
         } else {
-          url = "/api/automation/module/list/" + this.projectId;
+          url = "/api/automation/module/list/" + (projectId ? projectId : this.projectId);
           if (!this.projectId) {
             return;
           }

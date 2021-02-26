@@ -1,5 +1,5 @@
 <template>
-  <relevance-dialog :title="$t('test_track.plan_view.relevance_test_case')"  ref="relevanceDialog">
+  <relevance-dialog :title="dialogTitle"  ref="relevanceDialog">
 
     <template v-slot:aside>
       <select-menu
@@ -51,6 +51,12 @@
     props: {
       planId: {
         type: String
+      },
+      dialogTitle: {
+        type: String,
+        default() {
+          return this.$t('test_track.plan_view.relevance_test_case');
+        }
       }
     },
     watch: {
