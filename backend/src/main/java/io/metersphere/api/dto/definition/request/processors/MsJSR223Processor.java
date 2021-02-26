@@ -36,7 +36,7 @@ public class MsJSR223Processor extends MsTestElement {
         } else {
             processor.setName("JSR223Processor");
         }
-        String name = this.getParentName(this.getParent(), config);
+        String name = this.getParentName(this.getParent());
         if (StringUtils.isNotEmpty(name) && !config.isOperating()) {
             processor.setName(this.getName() + "<->" + name);
         }

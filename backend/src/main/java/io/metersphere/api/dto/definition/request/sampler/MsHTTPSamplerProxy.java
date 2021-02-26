@@ -8,7 +8,6 @@ import io.metersphere.api.dto.definition.request.auth.MsAuthManager;
 import io.metersphere.api.dto.definition.request.dns.MsDNSCacheManager;
 import io.metersphere.api.dto.scenario.Body;
 import io.metersphere.api.dto.scenario.KeyValue;
-import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
 import io.metersphere.commons.constants.MsTestElementConstants;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.ScriptEngineUtils;
@@ -101,7 +100,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         HTTPSamplerProxy sampler = new HTTPSamplerProxy();
         sampler.setEnabled(this.isEnable());
         sampler.setName(this.getName());
-        String name = this.getParentName(this.getParent(), config);
+        String name = this.getParentName(this.getParent());
         if (StringUtils.isNotEmpty(name) && !config.isOperating()) {
             sampler.setName(this.getName() + "<->" + name);
         }
@@ -114,14 +113,10 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         sampler.setFollowRedirects(this.isFollowRedirects());
         sampler.setUseKeepAlive(true);
         sampler.setDoMultipart(this.isDoMultipartPost());
-        if (config != null && config.getConfig() != null) {
-            config.setConfig(config.getConfig());
-        } else {
+        if (config.getConfig() == null) {
             // 单独接口执行
             this.setProjectId(config.getProjectId());
-            Map<String, EnvironmentConfig> map = new HashMap<>();
-            map.put(this.getProjectId(), getEnvironmentConfig(useEnvironment));
-            config.setConfig(map);
+            config.setConfig(getEnvironmentConfig(useEnvironment));
         }
 
         // 添加环境中的公共变量
@@ -130,7 +125,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
             tree.add(arguments);
         }
         try {
-            if (config != null && config.getConfig() != null && config.getConfig().get(this.getProjectId()) != null) {
+            if (config.isEffective(this.getProjectId())) {
                 String url = config.getConfig().get(this.getProjectId()).getHttpConfig().getProtocol() + "://" + config.getConfig().get(this.getProjectId()).getHttpConfig().getSocket();
                 // 补充如果是完整URL 则用自身URL
                 boolean isUrl = false;
@@ -219,13 +214,13 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         }
 
         // 通用请求Headers
-        if (config != null && config.getConfig() != null && config.getConfig().get(this.getProjectId()) != null && config.getConfig().get(this.getProjectId()).getHttpConfig() != null
+        if (config.isEffective(this.getProjectId()) && config.getConfig().get(this.getProjectId()).getHttpConfig() != null
                 && CollectionUtils.isNotEmpty(config.getConfig().get(this.getProjectId()).getHttpConfig().getHeaders())) {
             setHeader(httpSamplerTree, config.getConfig().get(this.getProjectId()).getHttpConfig().getHeaders());
         }
 
         //判断是否要开启DNS
-        if (config != null && config.getConfig() != null && config.getConfig().get(this.getProjectId()) != null && config.getConfig().get(this.getProjectId()).getCommonConfig() != null
+        if (config.isEffective(this.getProjectId()) && config.getConfig().get(this.getProjectId()).getCommonConfig() != null
                 && config.getConfig().get(this.getProjectId()).getCommonConfig().isEnableHost()) {
             MsDNSCacheManager.addEnvironmentVariables(httpSamplerTree, this.getName(), config.getConfig().get(this.getProjectId()));
             MsDNSCacheManager.addEnvironmentDNS(httpSamplerTree, this.getName(), config.getConfig().get(this.getProjectId()));
