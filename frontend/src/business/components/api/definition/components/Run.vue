@@ -2,7 +2,7 @@
   <span></span>
 </template>
 <script>
-import {getUUID, getBodyUploadFiles, getCurrentProjectID, strMapToObj} from "@/common/js/utils";
+  import {getUUID, getBodyUploadFiles, getCurrentProjectID, strMapToObj} from "@/common/js/utils";
   import ThreadGroup from "./jmeter/components/thread-group";
   import TestPlan from "./jmeter/components/test-plan";
 
@@ -74,7 +74,7 @@ import {getUUID, getBodyUploadFiles, getCurrentProjectID, strMapToObj} from "@/c
           // 场景步骤下接口调用
           projectId = this.runData.projectId;
         }
-        let reqObj = {id: this.reportId, testElement: testPlan, type: this.type,projectId:getCurrentProjectID(), environmentMap: strMapToObj(this.envMap)};
+        let reqObj = {id: this.reportId, testElement: testPlan, type: this.type, projectId: getCurrentProjectID(), environmentMap: strMapToObj(this.envMap)};
         let bodyFiles = getBodyUploadFiles(reqObj, this.runData);
         let url = "";
         if (this.debug) {
