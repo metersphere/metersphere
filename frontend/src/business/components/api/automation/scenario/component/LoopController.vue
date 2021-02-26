@@ -1,6 +1,6 @@
 <template>
   <div>
-    <ms-run :debug="true" :environment="currentEnvironmentId" :reportId="reportId" :run-data="debugData"
+    <ms-run :debug="true" :environment="envMap" :reportId="reportId" :run-data="debugData"
             @runRefresh="runRefresh" ref="runTest"/>
     <api-base-component
       @copy="copyRow"
@@ -115,6 +115,7 @@ export default {
       type: Boolean,
         default: false,
       },
+    envMap: Map
     },
     created() {
       // this.initResult();
@@ -193,11 +194,6 @@ export default {
         }
       },
       runDebug() {
-        /*触发执行操作*/
-        if (!this.currentEnvironmentId) {
-          this.$error(this.$t('api_test.environment.select_environment'));
-          return;
-        }
         if (!this.controller.hashTree || this.controller.hashTree.length < 1) {
           this.$warning("当前循环下没有请求，不能执行")
           return;
