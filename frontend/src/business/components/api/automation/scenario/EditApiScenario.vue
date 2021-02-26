@@ -221,7 +221,7 @@ import {
 import {parseEnvironment} from "../../definition/model/EnvironmentModel";
 import {ELEMENT_TYPE, ELEMENTS} from "./Setting";
 import MsApiCustomize from "./ApiCustomize";
-import {getCurrentProjectID, getUUID} from "@/common/js/utils";
+import {getCurrentProjectID, getUUID, objToStrMap, strMapToObj} from "@/common/js/utils";
 import ApiEnvironmentConfig from "../../definition/components/environment/ApiEnvironmentConfig";
 import MsInputTag from "./MsInputTag";
 import MsRun from "./DebugRun";
@@ -901,14 +901,6 @@ export default {
           }
         })
       },
-      objToStrMap(obj) {
-        let strMap = new Map();
-        for (let k of Object.keys(obj)) {
-          strMap.set(k, obj[k]);
-        }
-        return strMap;
-      },
-
       getApiScenario() {
         if (this.currentScenario.tags != undefined && !(this.currentScenario.tags instanceof Array)) {
           this.currentScenario.tags = JSON.parse(this.currentScenario.tags);
@@ -928,7 +920,7 @@ export default {
                 if (obj) {
                   this.currentEnvironmentId = obj.environmentId;
                   if (obj.environmentMap) {
-                    this.projectEnvMap = this.objToStrMap(obj.environmentMap);
+                    this.projectEnvMap = objToStrMap(obj.environmentMap);
                   } else {
                     // 兼容历史数据
                     this.projectEnvMap.set(getCurrentProjectID(), obj.environmentId);
@@ -964,13 +956,6 @@ export default {
           })
         }
       },
-      strMapToObj(strMap){
-        let obj= Object.create(null);
-        for (let[k,v] of strMap) {
-          obj[k] = v;
-        }
-        return obj;
-      },
       setParameter() {
         this.currentScenario.stepTotal = this.scenarioDefinition.length;
         this.currentScenario.projectId = getCurrentProjectID();
@@ -984,7 +969,7 @@ export default {
           variables: this.currentScenario.variables,
           headers: this.currentScenario.headers,
           referenced: 'Created',
-          environmentMap: this.strMapToObj(this.projectEnvMap),
+          environmentMap: strMapToObj(this.projectEnvMap),
           hashTree: this.scenarioDefinition,
           projectId: this.projectId,
         };

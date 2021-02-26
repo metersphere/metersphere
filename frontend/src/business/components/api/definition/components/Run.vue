@@ -86,7 +86,7 @@
         this.$fileUpload(url, null, bodyFiles, reqObj, response => {
           this.runId = response.data;
           this.getResult();
-        }, erro => {
+        }, error => {
           this.$emit('runRefresh', {});
         });
       }
