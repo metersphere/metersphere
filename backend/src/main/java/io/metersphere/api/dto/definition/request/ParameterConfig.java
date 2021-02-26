@@ -30,4 +30,11 @@ public class ParameterConfig {
      * 项目ID，支持单接口执行
      */
     private String projectId;
+
+    public boolean isEffective(String projectId) {
+        if (this.config != null && this.config.get(projectId) != null) {
+            return true;
+        }
+        return false;
+    }
 }

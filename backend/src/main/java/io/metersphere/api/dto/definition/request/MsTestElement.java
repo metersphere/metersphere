@@ -47,8 +47,10 @@ import org.apache.jorphan.collections.HashTree;
 import org.apache.jorphan.collections.ListedHashTree;
 
 import java.io.ByteArrayOutputStream;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.EXISTING_PROPERTY, property = "type")
@@ -166,7 +168,7 @@ public abstract class MsTestElement {
     }
 
     public Arguments addArguments(ParameterConfig config) {
-        if (config != null && config.getConfig() != null && config.getConfig().get(this.getProjectId()) != null && config.getConfig().get(this.getProjectId()).getCommonConfig() != null
+        if (config.isEffective(this.getProjectId()) && config.getConfig().get(this.getProjectId()).getCommonConfig() != null
                 && CollectionUtils.isNotEmpty(config.getConfig().get(this.getProjectId()).getCommonConfig().getVariables())) {
             Arguments arguments = new Arguments();
             arguments.setEnabled(true);
@@ -181,11 +183,14 @@ public abstract class MsTestElement {
         return null;
     }
 
-    protected EnvironmentConfig getEnvironmentConfig(String environmentId) {
+    protected Map<String, EnvironmentConfig> getEnvironmentConfig(String environmentId) {
         ApiTestEnvironmentService environmentService = CommonBeanFactory.getBean(ApiTestEnvironmentService.class);
         ApiTestEnvironmentWithBLOBs environment = environmentService.get(environmentId);
         if (environment != null && environment.getConfig() != null) {
-            return JSONObject.parseObject(environment.getConfig(), EnvironmentConfig.class);
+            // 单独接口执行
+            Map<String, EnvironmentConfig> map = new HashMap<>();
+            map.put(this.getProjectId(), JSONObject.parseObject(environment.getConfig(), EnvironmentConfig.class));
+            return map;
         }
         return null;
     }
@@ -269,7 +274,7 @@ public abstract class MsTestElement {
         getFullPath(element.getParent(), path);
     }
 
-    protected String getParentName(MsTestElement parent, ParameterConfig config) {
+    protected String getParentName(MsTestElement parent) {
         if (parent != null) {
             if (MsTestElementConstants.LoopController.name().equals(parent.getType())) {
                 MsLoopController loopController = (MsLoopController) parent;
