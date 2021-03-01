@@ -44,7 +44,7 @@
       <el-input size="small" v-model="assertion.desc" :placeholder="$t('api_test.request.assertions.script_name')"
                 class="quick-script-block"/>
       <ms-jsr233-processor ref="jsr233" :is-read-only="isReadOnly" :jsr223-processor="assertion" :templates="templates"
-                           :height="300"/>
+                           :height="300" @languageChange="quickScript"/>
       <template v-slot:footer v-if="!edit">
         <ms-dialog-footer
           @cancel="close"
@@ -145,7 +145,7 @@
         }
         this.quickScript();
       },
-      quickScript() {
+      beanShellOrGroovyScript() {
         if (this.assertion.variable && this.assertion.operator) {
           let variable = this.assertion.variable;
           let operator = this.assertion.operator;
@@ -184,7 +184,7 @@
               script += "result = value != void && value.length() > 0;\n";
               break;
           }
-          let msg = "assertion [" + desc + "]: false;"
+          let msg = (operator != "is empty" && operator != "is not empty") ? "assertion [" + desc + "]: false;" : "value " + operator
           script += "if (!result){\n" +
             "\tmsg = \"" + msg + "\";\n" +
             "\tAssertionResult.setFailureMessage(msg);\n" +
@@ -196,6 +196,68 @@
           this.$refs.jsr233.reload();
         }
 
+      },
+      pythonScript() {
+        if (this.assertion.variable && this.assertion.operator) {
+          let variable = this.assertion.variable;
+          let operator = this.assertion.operator;
+          let value = this.assertion.value || "";
+          let desc = "${" + variable + "} " + operator + " '" + value + "'";
+          let msg = "";
+          let script = "value = vars.get(\"" + variable + "\");\n"
+          switch (this.assertion.operator) {
+            case "==":
+              script += "if value != \"" + value + "\" :\n";
+              break;
+            case "!=":
+              script += "if value == \"" + value + "\" :\n";
+              break;
+            case "contains":
+              script += "if value.find(\"" + value + "\") != -1:\n";
+              msg = "value " + operator + " " + value + ": false;";
+              break;
+            case "not contains":
+              script += "if value.find(\"" + value + "\") == -1:\n";
+              msg = "value " + operator + " " + ": false;";
+              break;
+            case ">":
+              desc = "${" + variable + "} " + operator + " " + value;
+              script += "if value is None or int(value) < " + value + ":\n";
+              msg = "value " + operator + " " + value + ": false;";
+              break;
+            case "<":
+              desc = "${" + variable + "} " + operator + " " + value;
+              script += "if value is None or int(value) > " + value + ":\n";
+              msg = "value " + operator + " " + value + ": false;";
+              break;
+            case "is empty":
+              desc = "${" + variable + "} " + operator
+              script += "if value is not None:\n";
+              msg = "value " + operator + ": false;";
+              break;
+            case "is not empty":
+              desc = "${" + variable + "} " + operator
+              script += "if value is None:\n";
+              msg = "value " + operator + ": false;";
+              break;
+          }
+          script +=
+            "\tmsg = \" " + msg + "\";" +
+            "\tAssertionResult.setFailureMessage(msg);" +
+            "\tAssertionResult.setFailure(true);";
+
+          this.assertion.desc = desc;
+          this.assertion.script = script;
+          this.$refs.jsr233.reload();
+        }
+
+      },
+      quickScript() {
+        if (this.assertion.scriptLanguage == 'beanshell' || this.assertion.scriptLanguage == 'groovy' || this.assertion.scriptLanguage == 'javascript') {
+          this.beanShellOrGroovyScript();
+        } else {
+          this.pythonScript();
+        }
       },
       detail() {
         this.visible = true;

@@ -113,23 +113,23 @@
                 </el-col>
                 <el-col :span="7" class="ms-col-one ms-font">
                   <el-link type="primary" @click="handleEnv">环境配置</el-link>
-<!--                  <el-select v-model="currentEnvironmentId" size="small" class="ms-htt-width"-->
-<!--                             :placeholder="$t('api_test.definition.request.run_env')"-->
-<!--                             clearable>-->
-<!--                    <el-option v-for="(environment, index) in environments" :key="index"-->
-<!--                               :label="environment.name + (environment.config.httpConfig.socket ? (': ' + environment.config.httpConfig.protocol + '://' + environment.config.httpConfig.socket) : '')"-->
-<!--                               :value="environment.id"/>-->
-<!--                    <el-button class="ms-scenario-button" size="mini" type="primary" @click="openEnvironmentConfig">-->
-<!--                      {{ $t('api_test.environment.environment_config') }}-->
-<!--                    </el-button>-->
-<!--                    <template v-slot:empty>-->
-<!--                      <div class="empty-environment">-->
-<!--                        <el-button class="ms-scenario-button" size="mini" type="primary" @click="openEnvironmentConfig">-->
-<!--                          {{ $t('api_test.environment.environment_config') }}-->
-<!--                        </el-button>-->
-<!--                      </div>-->
-<!--                    </template>-->
-<!--                  </el-select>-->
+                  <!--                  <el-select v-model="currentEnvironmentId" size="small" class="ms-htt-width"-->
+                  <!--                             :placeholder="$t('api_test.definition.request.run_env')"-->
+                  <!--                             clearable>-->
+                  <!--                    <el-option v-for="(environment, index) in environments" :key="index"-->
+                  <!--                               :label="environment.name + (environment.config.httpConfig.socket ? (': ' + environment.config.httpConfig.protocol + '://' + environment.config.httpConfig.socket) : '')"-->
+                  <!--                               :value="environment.id"/>-->
+                  <!--                    <el-button class="ms-scenario-button" size="mini" type="primary" @click="openEnvironmentConfig">-->
+                  <!--                      {{ $t('api_test.environment.environment_config') }}-->
+                  <!--                    </el-button>-->
+                  <!--                    <template v-slot:empty>-->
+                  <!--                      <div class="empty-environment">-->
+                  <!--                        <el-button class="ms-scenario-button" size="mini" type="primary" @click="openEnvironmentConfig">-->
+                  <!--                          {{ $t('api_test.environment.environment_config') }}-->
+                  <!--                        </el-button>-->
+                  <!--                      </div>-->
+                  <!--                    </template>-->
+                  <!--                  </el-select>-->
 
                 </el-col>
                 <el-col :span="2">
@@ -208,47 +208,47 @@
 </template>
 
 <script>
-import {API_STATUS, PRIORITY} from "../../definition/model/JsonData";
-import {WORKSPACE_ID} from '@/common/js/constants';
-import {
-  Assertions,
-  ConstantTimer,
-  Extract,
-  IfController,
-  JSR223Processor,
-  LoopController
-} from "../../definition/model/ApiTestModel";
-import {parseEnvironment} from "../../definition/model/EnvironmentModel";
-import {ELEMENT_TYPE, ELEMENTS} from "./Setting";
-import MsApiCustomize from "./ApiCustomize";
-import {getCurrentProjectID, getUUID, objToStrMap, strMapToObj} from "@/common/js/utils";
-import ApiEnvironmentConfig from "../../definition/components/environment/ApiEnvironmentConfig";
-import MsInputTag from "./MsInputTag";
-import MsRun from "./DebugRun";
-import MsApiReportDetail from "../report/ApiReportDetail";
-import MsVariableList from "./variable/VariableList";
-import ApiImport from "../../definition/components/import/ApiImport";
-import "@/common/css/material-icons.css"
-import OutsideClick from "@/common/js/outside-click";
-import ScenarioApiRelevance from "./api/ApiRelevance";
-import ScenarioRelevance from "./api/ScenarioRelevance";
-import MsComponentConfig from "./component/ComponentConfig";
-import {handleCtrlSEvent} from "../../../../../common/js/utils";
-import {getProject} from "@/business/components/api/automation/scenario/event";
-import ApiScenarioEnv from "@/business/components/api/automation/scenario/ApiScenarioEnv";
+  import {API_STATUS, PRIORITY} from "../../definition/model/JsonData";
+  import {WORKSPACE_ID} from '@/common/js/constants';
+  import {
+    Assertions,
+    ConstantTimer,
+    Extract,
+    IfController,
+    JSR223Processor,
+    LoopController
+  } from "../../definition/model/ApiTestModel";
+  import {parseEnvironment} from "../../definition/model/EnvironmentModel";
+  import {ELEMENT_TYPE, ELEMENTS} from "./Setting";
+  import MsApiCustomize from "./ApiCustomize";
+  import {getCurrentProjectID, getUUID, objToStrMap, strMapToObj} from "@/common/js/utils";
+  import ApiEnvironmentConfig from "../../definition/components/environment/ApiEnvironmentConfig";
+  import MsInputTag from "./MsInputTag";
+  import MsRun from "./DebugRun";
+  import MsApiReportDetail from "../report/ApiReportDetail";
+  import MsVariableList from "./variable/VariableList";
+  import ApiImport from "../../definition/components/import/ApiImport";
+  import "@/common/css/material-icons.css"
+  import OutsideClick from "@/common/js/outside-click";
+  import ScenarioApiRelevance from "./api/ApiRelevance";
+  import ScenarioRelevance from "./api/ScenarioRelevance";
+  import MsComponentConfig from "./component/ComponentConfig";
+  import {handleCtrlSEvent} from "../../../../../common/js/utils";
+  import {getProject} from "@/business/components/api/automation/scenario/event";
+  import ApiScenarioEnv from "@/business/components/api/automation/scenario/ApiScenarioEnv";
 
-export default {
-  name: "EditApiScenario",
-  props: {
-    moduleOptions: Array,
-    currentScenario: {},
-  },
-  components: {
-    ApiScenarioEnv,
-    MsVariableList,
-    ScenarioRelevance,
-    ScenarioApiRelevance,
-    ApiEnvironmentConfig,
+  export default {
+    name: "EditApiScenario",
+    props: {
+      moduleOptions: Array,
+      currentScenario: {},
+    },
+    components: {
+      ApiScenarioEnv,
+      MsVariableList,
+      ScenarioRelevance,
+      ScenarioApiRelevance,
+      ApiEnvironmentConfig,
       MsApiReportDetail,
       MsInputTag, MsRun,
       MsApiCustomize,
@@ -321,7 +321,7 @@ export default {
         // this.projectEnvMap.set(projectId, projectEnv);
       })
     },
-  directives: {OutsideClick},
+    directives: {OutsideClick},
     computed: {
       buttons() {
         let buttons = [
@@ -543,8 +543,10 @@ export default {
         }
       },
       showAll() {
-        this.operatingElements = ELEMENTS.get("ALL");
-        this.selectedTreeNode = undefined;
+        if (!this.customizeVisible) {
+          this.operatingElements = ELEMENTS.get("ALL");
+          this.selectedTreeNode = undefined;
+        }
         //this.reload();
       },
       apiListImport() {

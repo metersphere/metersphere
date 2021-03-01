@@ -124,6 +124,7 @@
         },
         languageChange(language) {
           this.jsr223ProcessorData.scriptLanguage = language;
+          this.$emit("languageChange");
         },
       }
     }

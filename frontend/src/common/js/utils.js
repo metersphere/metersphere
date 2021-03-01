@@ -319,6 +319,7 @@ export function _getBodyUploadFiles(request, bodyUploadFiles, obj) {
     }
   }
 }
+
 export function handleCtrlSEvent(event, func) {
   if (event.keyCode === 83 && event.ctrlKey) {
     // console.log('拦截到 ctrl + s');//ctrl+s
@@ -329,12 +330,15 @@ export function handleCtrlSEvent(event, func) {
   }
 }
 
-export function strMapToObj(strMap){
-  let obj= Object.create(null);
-  for (let[k,v] of strMap) {
-    obj[k] = v;
+export function strMapToObj(strMap) {
+  if (strMap) {
+    let obj = Object.create(null);
+    for (let [k, v] of strMap) {
+      obj[k] = v;
+    }
+    return obj;
   }
-  return obj;
+  return null;
 }
 
 export function objToStrMap(obj) {
