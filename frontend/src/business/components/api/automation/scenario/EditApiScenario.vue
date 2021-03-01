@@ -186,7 +186,8 @@
       <!--场景导入 -->
       <scenario-relevance @save="addScenario" ref="scenarioRelevance"/>
 
-      <api-scenario-env :project-ids="projectIds" :env-map="projectEnvMap" ref="apiScenarioEnv" @setProjectEnvMap="setProjectEnvMap"/>
+      <api-scenario-env :project-ids="projectIds" :env-map="projectEnvMap"
+                        ref="apiScenarioEnv" @setProjectEnvMap="setProjectEnvMap" :project-list="projectList"/>
 
       <!-- 环境 -->
       <api-environment-config ref="environmentConfig" @close="environmentConfigClose"/>
