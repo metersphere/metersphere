@@ -71,9 +71,13 @@ public class MsAuthManager extends MsTestElement {
                 ApiTestEnvironmentWithBLOBs environmentWithBLOBs = environmentService.get(environment);
                 EnvironmentConfig envConfig = JSONObject.parseObject(environmentWithBLOBs.getConfig(), EnvironmentConfig.class);
                 this.url = envConfig.getHttpConfig().getProtocol() + "://" + envConfig.getHttpConfig().getSocket();
+            } else if (config != null && config.isEffective(this.getProjectId())) {
+                if (config.isEffective(this.getProjectId())) {
+                    String url = config.getConfig().get(this.getProjectId()).getHttpConfig().getProtocol() + "://" + config.getConfig().get(this.getProjectId()).getHttpConfig().getSocket();
+                    auth.setURL(url);
+                }
             }
         }
-        auth.setDomain(this.domain);
         auth.setUser(this.username);
         auth.setPass(this.password);
         auth.setMechanism(AuthManager.Mechanism.DIGEST);
