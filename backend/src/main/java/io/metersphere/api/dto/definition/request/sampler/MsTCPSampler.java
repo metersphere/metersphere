@@ -23,9 +23,7 @@ import org.apache.jmeter.testelement.property.StringProperty;
 import org.apache.jorphan.collections.HashTree;
 import org.apache.jorphan.collections.ListedHashTree;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -59,7 +57,7 @@ public class MsTCPSampler extends MsTestElement {
     private String password = "";
     @JSONField(ordinal = 33)
     private String request;
-//    @JSONField(ordinal = 34)
+    //    @JSONField(ordinal = 34)
 //    private Object requestResult;
     @JSONField(ordinal = 35)
     private List<KeyValue> parameters;
@@ -77,7 +75,11 @@ public class MsTCPSampler extends MsTestElement {
         if (this.getReferenced() != null && MsTestElementConstants.REF.name().equals(this.getReferenced())) {
             this.getRefElement(this);
         }
-//        config.setConfig(getEnvironmentConfig(useEnvironment));
+        if (config.getConfig() == null) {
+            // 单独接口执行
+            this.setProjectId(config.getProjectId());
+            config.setConfig(getEnvironmentConfig(useEnvironment));
+        }
         parseEnvironment(config.getConfig().get(this.projectId));
 
         // 添加环境中的公共变量
@@ -111,7 +113,7 @@ public class MsTCPSampler extends MsTestElement {
         TCPSampler tcpSampler = new TCPSampler();
         tcpSampler.setEnabled(this.isEnable());
         tcpSampler.setName(this.getName());
-        String name = this.getParentName(this.getParent(), config);
+        String name = this.getParentName(this.getParent());
         if (StringUtils.isNotEmpty(name) && !config.isOperating()) {
             tcpSampler.setName(this.getName() + "<->" + name);
         }

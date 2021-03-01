@@ -38,7 +38,7 @@
     </ms-drawer>
 
     <!-- 执行组件 -->
-    <ms-run :debug="false" :environment="environment" :reportId="reportId" :run-data="runData"
+    <ms-run :debug="false" :environment="environment" :reportId="reportId" :run-data="runData" :env-map="envMap"
             @runRefresh="runRefresh" ref="runTest"/>
     <!--批量编辑-->
     <ms-batch-edit ref="batchEdit" @batchEdit="batchEdit" :typeArr="typeArr" :value-arr="valueArr"/>
@@ -111,6 +111,7 @@
           priority: CASE_PRIORITY,
           method: REQ_METHOD,
         },
+        envMap: new Map
       }
     },
     watch: {
@@ -274,6 +275,7 @@
         this.$get('/api/definition/get/' + row.request.id, response => {
           row.request.path = response.data.path;  //  取的path是对应接口的path，因此查库以获得
           row.request.useEnvironment = this.environment.id;
+          row.request.projectId = getCurrentProjectID();
           this.runData.push(row.request);
           /*触发执行操作*/
           this.reportId = getUUID().substring(0, 8);

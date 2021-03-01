@@ -64,7 +64,7 @@
                       ref="caseList"/>
 
     <!-- 执行组件 -->
-    <ms-run :debug="false" :environment="api.environment" :reportId="reportId" :run-data="runData"
+    <ms-run :debug="false" :environment="api.environment" :reportId="reportId" :run-data="runData" :env-map="envMap"
             @runRefresh="runRefresh" ref="runTest"/>
 
   </div>
@@ -110,6 +110,7 @@ export default {
         },
         runData: [],
         reportId: "",
+        envMap: new Map
       }
     },
     props: {apiData: {}, currentProtocol: String, syncTabs: Array, projectId: String},

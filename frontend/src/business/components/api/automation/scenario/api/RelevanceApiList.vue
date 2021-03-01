@@ -178,18 +178,19 @@ export default {
     isApiListEnableChange(data) {
       this.$emit('isApiListEnableChange', data);
     },
-    initTable() {
+    initTable(projectId) {
       this.condition.filters = {status: ["Prepare", "Underway", "Completed"]};
       this.condition.moduleIds = this.selectNodeIds;
       if (this.trashEnable) {
         this.condition.filters = {status: ["Trash"]};
         this.condition.moduleIds = [];
       }
-      if (this.projectId != null) {
+      if (projectId != null && typeof projectId === 'string') {
+        this.condition.projectId = projectId;
+      } else if (this.projectId != null) {
         this.condition.projectId = this.projectId;
-      } else {
-        this.condition.projectId = getCurrentProjectID();
       }
+
       if (this.currentProtocol != null) {
         this.condition.protocol = this.currentProtocol;
       }else{

@@ -16,7 +16,7 @@
       <el-tag size="mini" style="margin-left: 20px" v-if="request.referenced==='Copy'">{{ $t('commons.copy') }}</el-tag>
       <el-tag size="mini" style="margin-left: 20px" v-if="request.referenced ==='REF'">{{ $t('api_test.scenario.reference') }}</el-tag>
       <span style="margin-left: 20px;">{{getProjectName(request.projectId)}}</span>
-      <ms-run :debug="true" :reportId="reportId" :run-data="runData"
+      <ms-run :debug="true" :reportId="reportId" :run-data="runData" :env-map="envMap"
               @runRefresh="runRefresh" ref="runTest"/>
 
     </template>
@@ -84,7 +84,8 @@
         default: false,
       },
       currentEnvironmentId: String,
-      projectList: Array
+      projectList: Array,
+      envMap: Map
     },
     components: {
       CustomizeReqInfo,
@@ -103,7 +104,10 @@
       if (!this.request.requestResult) {
         this.request.requestResult = {responseResult: {}};
       }
-      this.request.projectId = getCurrentProjectID();
+      // 跨项目关联，如果没有ID，则赋值本项目ID
+      if (!this.request.projectId) {
+        this.request.projectId = getCurrentProjectID();
+      }
       // 加载引用对象数据
       this.getApiInfo();
       if (this.request.protocol === 'HTTP') {
@@ -249,13 +253,20 @@
         this.reload();
       },
       run() {
-        if (!this.currentEnvironmentId) {
-          this.$error(this.$t('api_test.environment.select_environment'));
-          return;
+        if (!this.envMap || this.envMap.size === 0) {
+          this.$warning("请在环境配置中为该步骤所属项目选择运行环境！");
+          return false;
+        } else if (this.envMap && this.envMap.size > 0) {
+          const env = this.envMap.get(this.request.projectId);
+          if (!env) {
+            this.$warning("请在环境配置中为该步骤所属项目选择运行环境！");
+            return false;
+          }
         }
         this.request.active = true;
         this.loading = true;
         this.runData = [];
+        this.runData.projectId = this.request.projectId;
         this.request.useEnvironment = this.currentEnvironmentId;
         this.request.customizeReq = this.isCustomizeReq;
         let debugData = {

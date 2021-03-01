@@ -1,8 +1,11 @@
 <template>
-  <relevance-dialog :title="$t('api_test.definition.api_import')" ref="relevanceDialog">
-
+  <test-case-relevance-base
+    @setProject="setProject"
+    :dialog-title="$t('api_test.definition.api_import')"
+    ref="baseRelevance">
     <template v-slot:aside>
       <ms-api-module
+        style="margin-top: 5px;"
         @nodeSelectEvent="nodeChange"
         @protocolChange="handleProtocolChange"
         @refreshTable="refresh"
@@ -13,6 +16,7 @@
 
     <scenario-relevance-api-list
       v-if="isApiListEnable"
+      :project-id="projectId"
       :current-protocol="currentProtocol"
       :select-node-ids="selectNodeIds"
       :is-api-list-enable="isApiListEnable"
@@ -21,6 +25,7 @@
 
     <scenario-relevance-case-list
       v-if="!isApiListEnable"
+      :project-id="projectId"
       :current-protocol="currentProtocol"
       :select-node-ids="selectNodeIds"
       :is-api-list-enable="isApiListEnable"
@@ -33,8 +38,7 @@
         {{ $t('api_test.scenario.reference') }}
       </el-button>
     </template>
-
-  </relevance-dialog>
+  </test-case-relevance-base>
 </template>
 
 <script>
@@ -45,10 +49,12 @@ import MsAsideContainer from "../../../../common/components/MsAsideContainer";
 import MsMainContainer from "../../../../common/components/MsMainContainer";
 import ScenarioRelevanceApiList from "./RelevanceApiList";
 import RelevanceDialog from "../../../../track/plan/view/comonents/base/RelevanceDialog";
+import TestCaseRelevanceBase from "@/business/components/track/plan/view/comonents/base/TestCaseRelevanceBase";
 
 export default {
   name: "ApiRelevance",
   components: {
+    TestCaseRelevanceBase,
     RelevanceDialog,
     ScenarioRelevanceApiList,
     MsMainContainer, MsAsideContainer, MsContainer, MsApiModule, ScenarioRelevanceCaseList
@@ -58,67 +64,82 @@ export default {
       result: {},
       currentProtocol: null,
       selectNodeIds: [],
-            moduleOptions: {},
-            isApiListEnable: true,
-          }
-      },
-      methods: {
-        reference() {
-          this.save('REF');
-        },
-        copy() {
-          this.save('Copy');
-        },
-        save(reference) {
-          if (this.isApiListEnable) {
-            this.$emit('save', this.$refs.apiList.selectRows, 'API', reference);
-            this.close();
-          } else {
-            let apiCases = this.$refs.apiCaseList.selectRows;
-            let ids = Array.from(apiCases).map(row => row.id);
-            this.result = this.$post("/api/testcase/get/request", {ids: ids}, (response) => {
-              apiCases.forEach((item) => {
-                item.request = response.data[item.id];
-              });
-              this.$emit('save', apiCases, 'CASE', reference);
-              this.close();
-            });
-          }
-        },
-        close() {
-          this.refresh();
-          this.$refs.relevanceDialog.close();
-        },
-        open() {
-          if (this.$refs.apiList) {
-            this.$refs.apiList.clearSelection();
-          }
-          if (this.$refs.apiCaseList) {
-            this.$refs.apiCaseList.clearSelection();
-          }
-          this.$refs.relevanceDialog.open();
-        },
-        isApiListEnableChange(data) {
-          this.isApiListEnable = data;
-        },
-        nodeChange(node, nodeIds, pNodes) {
-          this.selectNodeIds = nodeIds;
-        },
-        handleProtocolChange(protocol) {
-          this.currentProtocol = protocol;
-        },
-        setModuleOptions(data) {
-          this.moduleOptions = data;
-        },
-        refresh() {
-          if (this.isApiListEnable) {
-            this.$refs.apiList.initTable();
-          } else {
-            this.$refs.apiCaseList.initTable();
-          }
-        },
-      }
+      moduleOptions: {},
+      isApiListEnable: true,
+      projectId: ""
     }
+  },
+  watch: {
+    projectId() {
+      this.refresh();
+      this.$refs.nodeTree.list(this.projectId);
+    }
+  },
+  methods: {
+    reference() {
+      this.save('REF');
+    },
+    copy() {
+      this.save('Copy');
+    },
+    save(reference) {
+      if (this.isApiListEnable) {
+        let apis = this.$refs.apiList.selectRows;
+        apis.forEach(api => {
+          api.projectId = this.projectId;
+        })
+        this.$emit('save', this.$refs.apiList.selectRows, 'API', reference);
+        this.$refs.baseRelevance.close();
+      } else {
+        let apiCases = this.$refs.apiCaseList.selectRows;
+        let ids = Array.from(apiCases).map(row => row.id);
+        this.result = this.$post("/api/testcase/get/request", {ids: ids}, (response) => {
+          apiCases.forEach((item) => {
+            item.request = response.data[item.id];
+            item.projectId = this.projectId;
+          });
+          this.$emit('save', apiCases, 'CASE', reference);
+          this.$refs.baseRelevance.close();
+        });
+      }
+    },
+    close() {
+      this.refresh();
+      this.$refs.relevanceDialog.close();
+    },
+    open() {
+      if (this.$refs.apiList) {
+        this.$refs.apiList.clearSelection();
+      }
+      if (this.$refs.apiCaseList) {
+        this.$refs.apiCaseList.clearSelection();
+      }
+      this.$refs.baseRelevance.open();
+    },
+    isApiListEnableChange(data) {
+      this.isApiListEnable = data;
+    },
+    nodeChange(node, nodeIds, pNodes) {
+      this.selectNodeIds = nodeIds;
+    },
+    handleProtocolChange(protocol) {
+      this.currentProtocol = protocol;
+    },
+    setModuleOptions(data) {
+      this.moduleOptions = data;
+    },
+    refresh() {
+      if (this.isApiListEnable) {
+        this.$refs.apiList.initTable(this.projectId);
+      } else {
+        this.$refs.apiCaseList.initTable(this.projectId);
+      }
+    },
+    setProject(projectId) {
+      this.projectId = projectId;
+    },
+  }
+}
 </script>
 
 <style scoped>
