@@ -21,6 +21,11 @@
               <el-input v-model="form.name"/>
             </el-form-item>
           </el-col>
+          <el-col :span="10" :offset="1">
+            <el-form-item :label="$t('commons.tag')" :label-width="formLabelWidth" prop="tag">
+              <ms-input-tag :currentScenario="form" ref="tag"/>
+            </el-form-item>
+          </el-col>
         </el-row>
 
         <el-row>
@@ -94,10 +99,11 @@
 import TestPlanStatusButton from "../../plan/common/TestPlanStatusButton";
 import {WORKSPACE_ID} from "@/common/js/constants";
 import {getCurrentProjectID, listenGoBack, removeGoBackListener} from "@/common/js/utils";
+import MsInputTag from "@/business/components/api/automation/scenario/MsInputTag";
 
 export default {
   name: "TestCaseReviewEdit",
-  components: {TestPlanStatusButton},
+  components: {MsInputTag, TestPlanStatusButton},
   data() {
     return {
       dialogFormVisible: false,
@@ -149,6 +155,10 @@ export default {
           let param = {};
           Object.assign(param, this.form);
           param.name = param.name.trim();
+          if (this.form.tags instanceof Array) {
+            this.form.tags = JSON.stringify(this.form.tags);
+          }
+          param.tags = this.form.tags;
           if (param.name === '') {
             this.$warning(this.$t('test_track.plan.input_plan_name'));
             return;

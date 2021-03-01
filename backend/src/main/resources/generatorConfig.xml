@@ -70,6 +70,7 @@
         <!--<table tableName="test_plan_api_scenario"/>-->
         <!--<table tableName="test_plan"/>-->
         <!--<table tableName="api_scenario_report"/>-->
+        <table tableName="test_case_review"/>
 
     </context>
 </generatorConfiguration>

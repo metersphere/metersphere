@@ -222,7 +222,7 @@ import MsBottomContainer from "../BottomContainer";
 import ShowMoreBtn from "../../../../track/case/components/ShowMoreBtn";
 import MsBatchEdit from "../basis/BatchEdit";
 import {API_METHOD_COLOUR, API_STATUS, DUBBO_METHOD, REQ_METHOD, SQL_METHOD, TCP_METHOD} from "../../model/JsonData";
-import {downloadFile} from "@/common/js/utils";
+import {downloadFile, getUUID} from "@/common/js/utils";
 import {PROJECT_NAME} from '@/common/js/constants';
 import {getCurrentProjectID, getCurrentUser} from "@/common/js/utils";
 import {API_LIST, TEST_CASE_LIST, WORKSPACE_ID} from '@/common/js/constants';
@@ -244,6 +244,7 @@ import {_filter, _sort} from "@/common/js/tableUtils";
 import {Api_List, Track_Test_Case} from "@/business/components/common/model/JsonData";
 import HeaderCustom from "@/business/components/common/head/HeaderCustom";
 import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOperate";
+import {Body} from "@/business/components/api/definition/model/ApiTestModel";
 
 
 export default {
@@ -533,7 +534,35 @@ export default {
     },
     runApi(row) {
       let request = JSON.parse(row.request);
+      if (row.tags instanceof Array) {
+        row.tags = JSON.stringify(row.tags);
+      }
+      let response = ""
+      if (row.response != null && row.response != 'null' && row.response != undefined) {
+        if (Object.prototype.toString.call(row.response).match(/\[object (\w+)\]/)[1].toLowerCase() === 'object') {
+          response = row.response;
+        } else {
+          response = JSON.parse(row.response);
+        }
+      } else {
+        response = {headers: [], body: new Body(), statusCode: [], type: "HTTP"};
+      }
+      if (response.body) {
+        let body = new Body();
+        Object.assign(body, response.body);
+        if (!body.binary) {
+          body.binary = [];
+        }
+        if (!body.kvs) {
+          body.kvs = [];
+        }
+        if (!body.binary) {
+          body.binary = [];
+        }
+        response.body = body;
+      }
       row.request = request
+      row.response = response
       this.$emit('runTest', row);
     },
     reductionApi(row) {

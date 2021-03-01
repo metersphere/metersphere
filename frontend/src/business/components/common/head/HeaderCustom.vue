@@ -6,9 +6,9 @@
                    :to_data='fieldSelected'
                    :defaultProps="{label:'label'}"
                    :mode='mode' height='540px' filter openAll/>
-        <template v-slot:footer>
-          <ms-dialog-footer @cancel="close" @confirm="saveHeader"/>
-        </template>
+    <template v-slot:footer>
+      <ms-dialog-footer @cancel="close" @confirm="saveHeader"/>
+    </template>
   </el-dialog>
 </template>
 

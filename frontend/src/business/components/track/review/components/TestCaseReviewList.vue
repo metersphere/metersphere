@@ -58,6 +58,13 @@
           </span>
           </template>
         </el-table-column>
+        <el-table-column v-if="item.id == 'tags'" prop="tags"
+                         :label="$t('api_test.automation.tag')" :key="index">
+          <template v-slot:default="scope">
+            <ms-tag v-for="(itemName,index)  in scope.row.tags" :key="index" type="success" effect="plain"
+                    :content="itemName" style="margin-left: 5px"></ms-tag>
+          </template>
+        </el-table-column>
         <el-table-column
           v-if="item.id=='createTime'"
           prop="createTime"
@@ -122,10 +129,12 @@ import {Test_Case_Review} from "@/business/components/common/model/JsonData";
 import {TEST_CASE_LIST, TEST_CASE_REVIEW_LIST} from "@/common/js/constants";
 import HeaderCustom from "@/business/components/common/head/HeaderCustom";
 import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOperate";
+import MsTag from "@/business/components/common/components/MsTag";
 
 export default {
   name: "TestCaseReviewList",
   components: {
+    MsTag,
     HeaderLabelOperate,
     HeaderCustom,
     MsDeleteConfirm,
@@ -184,6 +193,11 @@ export default {
         let data = response.data;
         this.total = data.itemCount;
         this.tableData = data.listObject;
+        this.tableData.forEach(item => {
+          if (item.tags && item.tags.length > 0) {
+            item.tags = JSON.parse(item.tags);
+          }
+        })
         for (let i = 0; i < this.tableData.length; i++) {
           let path = "/test/case/review/project";
           this.$post(path, {id: this.tableData[i].id}, res => {

@@ -201,6 +201,8 @@ export default {
         let bodyFiles = this.getBodyUploadFiles();
         this.api.method = this.api.request.method;
         this.api.path = this.api.request.path;
+        console.log(this.api)
+        console.log(typeof (bodyFiles))
         this.$fileUpload(url, null, bodyFiles, this.api, () => {
           this.$success(this.$t('commons.save_success'));
           this.$emit('saveApi', this.api);
