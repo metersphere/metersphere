@@ -437,11 +437,9 @@ public class ApiDefinitionService {
         Map<String, EnvironmentConfig> envConfig = new HashMap<>();
         Map<String, String> map = request.getEnvironmentMap();
         if (map != null && map.size() > 0) {
-            map.keySet().forEach(id -> {
-                ApiTestEnvironmentWithBLOBs environment = environmentService.get(map.get(id));
-                EnvironmentConfig env = JSONObject.parseObject(environment.getConfig(), EnvironmentConfig.class);
-                envConfig.put(id, env);
-            });
+            ApiTestEnvironmentWithBLOBs environment = environmentService.get(map.get(request.getProjectId()));
+            EnvironmentConfig env = JSONObject.parseObject(environment.getConfig(), EnvironmentConfig.class);
+            envConfig.put(request.getProjectId(), env);
             config.setConfig(envConfig);
         }
 

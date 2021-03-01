@@ -1,9 +1,11 @@
 <template>
   <test-case-relevance-base
+    :dialog-title="$t('api_test.automation.scenario_import')"
     @setProject="setProject"
     ref="baseRelevance">
     <template v-slot:aside>
       <ms-api-scenario-module
+        style="margin-top: 5px;"
         @nodeSelectEvent="nodeChange"
         @refreshTable="refresh"
         @setModuleOptions="setModuleOptions"
@@ -27,12 +29,9 @@
 </template>
 
 <script>
-  import ScenarioRelevanceCaseList from "./RelevanceCaseList";
-  import MsApiModule from "../../../definition/components/module/ApiModule";
   import MsContainer from "../../../../common/components/MsContainer";
   import MsAsideContainer from "../../../../common/components/MsAsideContainer";
   import MsMainContainer from "../../../../common/components/MsMainContainer";
-  import ScenarioRelevanceApiList from "./RelevanceApiList";
   import MsApiScenarioModule from "../ApiScenarioModule";
   import MsApiScenarioList from "../ApiScenarioList";
   import {getUUID} from "../../../../../../common/js/utils";
@@ -63,6 +62,7 @@
     watch: {
       projectId() {
         this.$refs.apiScenarioList.search(this.projectId);
+        this.$refs.nodeTree.list(this.projectId);
       }
     },
     methods: {

@@ -104,7 +104,10 @@
       if (!this.request.requestResult) {
         this.request.requestResult = {responseResult: {}};
       }
-      this.request.projectId = getCurrentProjectID();
+      // 跨项目关联，如果没有ID，则赋值本项目ID
+      if (!this.request.projectId) {
+        this.request.projectId = getCurrentProjectID();
+      }
       // 加载引用对象数据
       this.getApiInfo();
       if (this.request.protocol === 'HTTP') {
