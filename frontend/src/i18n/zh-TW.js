@@ -1041,6 +1041,7 @@ export default {
     test_track: "測試跟蹤",
     confirm: "確 定",
     cancel: "取 消",
+    planning_execution: "規劃&執行",
     project: "項目",
     save: "保 存",
     return: "返 回",
