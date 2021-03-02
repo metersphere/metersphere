@@ -135,8 +135,9 @@ export default {
       }
       return true;
     },
-    environmentConfigClose(id) {
-      // todo 关闭时刷新环境列表
+    environmentConfigClose() {
+      this.data = [];
+      this.init();
     }
   }
 }
