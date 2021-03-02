@@ -22,6 +22,7 @@ import io.metersphere.base.mapper.ext.ExtApiDefinitionExecResultMapper;
 import io.metersphere.base.mapper.ext.ExtApiTestCaseMapper;
 import io.metersphere.base.mapper.ext.ExtTestPlanApiCaseMapper;
 import io.metersphere.base.mapper.ext.ExtTestPlanTestCaseMapper;
+import io.metersphere.commons.constants.TestPlanStatus;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
 import io.metersphere.i18n.Translator;
@@ -49,6 +50,8 @@ import java.util.stream.Collectors;
 @Service
 @Transactional(rollbackFor = Exception.class)
 public class ApiTestCaseService {
+    @Resource
+    TestPlanMapper testPlanMapper;
     @Resource
     private ApiTestCaseMapper apiTestCaseMapper;
     @Resource
@@ -330,6 +333,14 @@ public class ApiTestCaseService {
             testPlanApiCase.setUpdateTime(System.currentTimeMillis());
             batchMapper.insertIfNotExists(testPlanApiCase);
         });
+        TestPlan testPlan = testPlanMapper.selectByPrimaryKey(request.getPlanId());
+        if (StringUtils.equals(testPlan.getStatus(), TestPlanStatus.Prepare.name())
+                || StringUtils.equals(testPlan.getStatus(), TestPlanStatus.Completed.name())) {
+            testPlan.setStatus(TestPlanStatus.Underway.name());
+            testPlan.setActualStartTime(System.currentTimeMillis());  // 将状态更新为进行中时，开始时间也要更新
+            testPlan.setActualEndTime(null);
+            testPlanMapper.updateByPrimaryKey(testPlan);
+        }
         sqlSession.flushStatements();
     }
 
