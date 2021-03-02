@@ -111,26 +111,9 @@
                 <el-col :span="3" class="ms-col-one ms-font">
                   <el-checkbox v-model="enableCookieShare">共享cookie</el-checkbox>
                 </el-col>
-                <el-col :span="7" class="ms-col-one ms-font">
-                  <el-link type="primary" @click="handleEnv">环境配置</el-link>
-                  <!--                  <el-select v-model="currentEnvironmentId" size="small" class="ms-htt-width"-->
-                  <!--                             :placeholder="$t('api_test.definition.request.run_env')"-->
-                  <!--                             clearable>-->
-                  <!--                    <el-option v-for="(environment, index) in environments" :key="index"-->
-                  <!--                               :label="environment.name + (environment.config.httpConfig.socket ? (': ' + environment.config.httpConfig.protocol + '://' + environment.config.httpConfig.socket) : '')"-->
-                  <!--                               :value="environment.id"/>-->
-                  <!--                    <el-button class="ms-scenario-button" size="mini" type="primary" @click="openEnvironmentConfig">-->
-                  <!--                      {{ $t('api_test.environment.environment_config') }}-->
-                  <!--                    </el-button>-->
-                  <!--                    <template v-slot:empty>-->
-                  <!--                      <div class="empty-environment">-->
-                  <!--                        <el-button class="ms-scenario-button" size="mini" type="primary" @click="openEnvironmentConfig">-->
-                  <!--                          {{ $t('api_test.environment.environment_config') }}-->
-                  <!--                        </el-button>-->
-                  <!--                      </div>-->
-                  <!--                    </template>-->
-                  <!--                  </el-select>-->
-
+                <el-col :span="7">
+                  <env-popover :env-map="projectEnvMap" :project-ids="projectIds" @setProjectEnvMap="setProjectEnvMap"
+                               :project-list="projectList" ref="envPopover"/>
                 </el-col>
                 <el-col :span="2">
                   <el-button :disabled="scenarioDefinition.length < 1" size="small" type="primary" @click="runDebug">{{$t('api_test.request.debug')}}</el-button>
@@ -186,9 +169,6 @@
       <!--场景导入 -->
       <scenario-relevance @save="addScenario" ref="scenarioRelevance"/>
 
-      <api-scenario-env :project-ids="projectIds" :env-map="projectEnvMap"
-                        ref="apiScenarioEnv" @setProjectEnvMap="setProjectEnvMap" :project-list="projectList"/>
-
       <!-- 环境 -->
       <api-environment-config ref="environmentConfig" @close="environmentConfigClose"/>
 
@@ -236,8 +216,7 @@
   import MsComponentConfig from "./component/ComponentConfig";
   import {handleCtrlSEvent} from "../../../../../common/js/utils";
   import {getProject} from "@/business/components/api/automation/scenario/event";
-  import ApiScenarioEnv from "@/business/components/api/automation/scenario/ApiScenarioEnv";
-
+  import EnvPopover from "@/business/components/api/automation/scenario/EnvPopover";
   export default {
     name: "EditApiScenario",
     props: {
@@ -245,7 +224,6 @@
       currentScenario: {},
     },
     components: {
-      ApiScenarioEnv,
       MsVariableList,
       ScenarioRelevance,
       ScenarioApiRelevance,
@@ -255,6 +233,7 @@
       MsApiCustomize,
       ApiImport,
       MsComponentConfig,
+      EnvPopover
     },
     data() {
       return {
@@ -712,7 +691,7 @@
         //   this.$error(this.$t('api_test.environment.select_environment'));
         //   return;
         // }
-        let sign = this.$refs.apiScenarioEnv.checkEnv();
+        let sign = this.$refs.envPopover.checkEnv();
         if (!sign) {
           return;
         }
