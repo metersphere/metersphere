@@ -280,7 +280,9 @@ public class MsJmeterParser extends ApiImportAbstractParser<ScenarioImport> {
         preCreate(hashTree);
         // 更新数据源
         ApiTestEnvironmentService environmentService = CommonBeanFactory.getBean(ApiTestEnvironmentService.class);
-        dataPools.getEnvConfig().setDatabaseConfigs(new ArrayList<>(dataPools.getDataSources().values()));
+        if (dataPools.getDataSources() != null) {
+            dataPools.getEnvConfig().setDatabaseConfigs(new ArrayList<>(dataPools.getDataSources().values()));
+        }
         if (dataPools.getIsCreate()) {
             dataPools.getTestEnvironmentWithBLOBs().setConfig(JSON.toJSONString(dataPools.getEnvConfig()));
             String id = environmentService.add(dataPools.getTestEnvironmentWithBLOBs());
