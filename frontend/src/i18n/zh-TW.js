@@ -418,6 +418,8 @@ export default {
     delete_batch_confirm: '確認批量刪除報告',
   },
   load_test: {
+    test: '測試',
+    name: '測試名稱',
     same_project_test: '只能運行同壹項目內的測試',
     already_exists: '測試名稱不能重復',
     operating: '操作',
@@ -487,7 +489,18 @@ export default {
     user_name: '創建人',
     special_characters_are_not_supported: '測試名稱不支持特殊字符',
     pressure_config_params_is_empty: '壓力配置參數不能為空!',
-    schedule_tip: '間隔時間不能小於壓測時長'
+    schedule_tip: '間隔時間不能小於壓測時長',
+    delete_threadgroup_confirm: '確認刪除場景: ',
+    scenario_list: '場景列表',
+    scenario_name: '場景名稱',
+    upload_jmx: '上傳 JMX文件',
+    exist_jmx: '已存在的文件',
+    other_resource: '其他資源',
+    upload_file: '上傳新文件',
+    load_exist_file: '加載已有文件',
+    load_exist_jmx: '加載已有 JMX 文件',
+    threadgroup_at_least_one: '至少啟用一個線程組',
+    load_api_automation_jmx: '引用接口自動化場景',
   },
   api_test: {
     creator: "創建人",
@@ -605,7 +618,7 @@ export default {
         edit_time_Reverse_order: "按更新時間從後到前",
         request_method: "請求方式",
         request_interface: "請求接口e",
-        search_by_api_name : "API名稱搜索",
+        search_by_api_name: "API名稱搜索",
         request_info: "請求信息",
         request_head: "請求頭",
         request_param: "參數",
@@ -615,7 +628,7 @@ export default {
         response_head: "響應頭",
         response_body: "響應體",
         response_code: "響應碼",
-        table_coloum:{
+        table_coloum: {
           name: "名稱",
           value: "值",
           is_required: "是否必填",
