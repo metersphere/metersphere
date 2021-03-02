@@ -8,6 +8,7 @@ import com.alibaba.excel.util.StringUtils;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.excel.domain.ExcelErrData;
 import io.metersphere.excel.domain.TestCaseExcelData;
+import io.metersphere.excel.domain.UserExcelData;
 import io.metersphere.excel.utils.ExcelValidateHelper;
 import io.metersphere.i18n.Translator;
 
@@ -139,5 +140,4 @@ public abstract class EasyExcelListener<T> extends AnalysisEventListener<T> {
     public List<ExcelErrData<T>> getErrList() {
         return errList;
     }
-
 }

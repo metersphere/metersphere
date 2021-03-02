@@ -1,5 +1,6 @@
 package io.metersphere.service;
 
+import com.sun.corba.se.spi.orbutil.threadpool.Work;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ProjectMapper;
 import io.metersphere.base.mapper.UserMapper;
@@ -283,5 +284,9 @@ public class WorkspaceService {
         ProjectExample projectExample = new ProjectExample();
         projectExample.createCriteria().andWorkspaceIdEqualTo(workspaceId);
         return projectMapper.selectByExample(projectExample);
+    }
+
+    public List<WorkspaceDTO> findAllIdAndName(){
+        return extWorkspaceMapper.findAllIdAndName();
     }
 }

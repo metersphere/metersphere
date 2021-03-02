@@ -2,8 +2,11 @@ export default {
   commons: {
     cover: '覆盖',
     not_cover: '不覆盖',
+    import: '导入',
+    import_success: '导入成功',
     import_mode: '导入模式',
     import_module: '导入模块',
+    import_user: '导入用户',
     please_fill_in_the_template: '请填写模版内容',
     cut_back_old_version: '切回旧版',
     cut_back_new_version: '切回新版',

@@ -256,7 +256,7 @@ public abstract class MsTestElement {
                     randomVariableConfig.setProperty("outputFormat", item.getValue());
                     randomVariableConfig.setProperty("minimumValue", item.getMinNumber());
                     randomVariableConfig.setProperty("maximumValue", item.getMaxNumber());
-                    randomVariableConfig.setComment(item.getDescription());
+                    randomVariableConfig.setComment(StringUtils.isEmpty(item.getDescription()) ? "" : item.getDescription());
                     tree.add(randomVariableConfig);
                 });
             }

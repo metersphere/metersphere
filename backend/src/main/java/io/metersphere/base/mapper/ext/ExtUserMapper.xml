@@ -72,4 +72,8 @@
         </foreach>
     </select>
 
+    <select id="selectAllId" resultType="java.lang.String">
+        select id from `user`
+    </select>
+
 </mapper>

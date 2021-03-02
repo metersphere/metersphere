@@ -3,8 +3,9 @@
 
     <el-card class="table-card">
       <template v-slot:header>
-        <ms-table-header :condition.sync="condition" @search="search" @create="create"
-                         :create-tip="$t('user.create')" :title="$t('commons.user')"/>
+        <ms-table-header :condition.sync="condition" @search="search" @create="create" @import="importUserDialogOpen"
+                         :create-tip="$t('user.create')" :show-import="true" :import-tip="$t('commons.import_user')" :title="$t('commons.user')"/>
+
       </template>
 
       <el-table border class="adjust-table" :data="tableData" style="width: 100%">
@@ -323,7 +324,7 @@
           @confirm="editUserPassword('editPasswordForm')"/>
       </span>
     </el-dialog>
-
+    <user-import ref="userImportDialog" @refreshAll="search"></user-import>
   </div>
 </template>
 
@@ -339,6 +340,7 @@ import MsRolesTag from "../../common/components/MsRolesTag";
 import {ROLE_ADMIN} from "@/common/js/constants";
 import {getCurrentUser} from "../../../../common/js/utils";
 import {PHONE_REGEX} from "@/common/js/regex";
+import UserImport from "@/business/components/settings/system/components/UserImport";
 
 export default {
   name: "MsUser",
@@ -349,7 +351,8 @@ export default {
     MsTableOperator,
     MsDialogFooter,
     MsTableOperatorButton,
-    MsRolesTag
+    MsRolesTag,
+    UserImport
   },
   data() {
     return {
@@ -578,6 +581,9 @@ export default {
       this.$get("/role/all", response => {
         this.userRole = response.data;
       })
+    },
+    importUserDialogOpen(){
+      this.$refs.userImportDialog.open();
     },
     addRole(validForm) {
       this.$refs[validForm].validate(valid => {

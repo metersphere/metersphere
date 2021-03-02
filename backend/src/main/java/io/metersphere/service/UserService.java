@@ -1,16 +1,20 @@
 package io.metersphere.service;
 
+import com.alibaba.excel.EasyExcelFactory;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
+import io.metersphere.base.mapper.ext.ExtOrganizationMapper;
 import io.metersphere.base.mapper.ext.ExtUserMapper;
 import io.metersphere.base.mapper.ext.ExtUserRoleMapper;
 import io.metersphere.commons.constants.RoleConstants;
+import io.metersphere.commons.constants.TestCaseConstants;
 import io.metersphere.commons.constants.UserSource;
 import io.metersphere.commons.constants.UserStatus;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.user.SessionUser;
 import io.metersphere.commons.utils.CodingUtil;
 import io.metersphere.commons.utils.CommonBeanFactory;
+import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.controller.ResultHolder;
 import io.metersphere.controller.request.LoginRequest;
@@ -20,11 +24,20 @@ import io.metersphere.controller.request.member.QueryMemberRequest;
 import io.metersphere.controller.request.member.UserRequest;
 import io.metersphere.controller.request.organization.AddOrgMemberRequest;
 import io.metersphere.controller.request.organization.QueryOrgMemberRequest;
+import io.metersphere.dto.OrganizationMemberDTO;
 import io.metersphere.dto.UserDTO;
 import io.metersphere.dto.UserRoleDTO;
+import io.metersphere.dto.WorkspaceDTO;
+import io.metersphere.excel.domain.*;
+import io.metersphere.excel.listener.EasyExcelListener;
+import io.metersphere.excel.listener.TestCaseDataListener;
+import io.metersphere.excel.listener.UserDataListener;
+import io.metersphere.excel.utils.EasyExcelExporter;
 import io.metersphere.i18n.Translator;
 import io.metersphere.notice.domain.UserDetail;
 import io.metersphere.security.MsUserToken;
+import io.metersphere.track.request.testcase.QueryTestCaseRequest;
+import io.metersphere.xmind.XmindCaseParser;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.*;
@@ -35,8 +48,10 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -63,6 +78,8 @@ public class UserService {
     @Lazy
     @Resource
     private WorkspaceService workspaceService;
+    @Resource
+    private ExtOrganizationMapper extOrganizationMapper;
 
     public List<UserDetail> queryTypeByIds(List<String> userIds) {
         return extUserMapper.queryTypeByIds(userIds);
@@ -615,5 +632,94 @@ public class UserService {
         if (ssoService != null) {
             ssoService.logout();
         }
+    }
+
+    public void userTemplateExport(HttpServletResponse response) {
+        try {
+            EasyExcelExporter easyExcelExporter = new EasyExcelExporter(new UserExcelDataFactory().getExcelDataByLocal());
+            easyExcelExporter.export(response, generateExportTemplate(),
+                    Translator.get("user_import_template_name"), Translator.get("user_import_template_sheet"));
+        } catch (Exception e) {
+            MSException.throwException(e);
+        }
+    }
+
+    private List<UserExcelData> generateExportTemplate() {
+        List<UserExcelData> list = new ArrayList<>();
+        List<String> types = TestCaseConstants.Type.getValues();
+        List<String> methods = TestCaseConstants.Method.getValues();
+        SessionUser user = SessionUtils.getUser();
+        for (int i = 1; i <= 2; i++) {
+            UserExcelData data = new UserExcelData();
+            data.setId("user_id_"+i);
+            data.setName(Translator.get("user") + i);
+            String workspace = "";
+            for (int workspaceIndex = 1; workspaceIndex <= i; workspaceIndex++) {
+                if (workspaceIndex == 1) {
+                    workspace = "workspace" + workspaceIndex;
+                } else {
+                    workspace = workspace + "\n" + "workspace" + workspaceIndex;
+                }
+            }
+            data.setUserIsAdmin(Translator.get("options_no"));
+            data.setUserIsTester(Translator.get("options_no"));
+            data.setUserIsOrgMember(Translator.get("options_no"));
+            data.setUserIsViewer(Translator.get("options_no"));
+            data.setUserIsTestManager(Translator.get("options_no"));
+            data.setUserIsOrgAdmin(Translator.get("options_yes"));
+            data.setOrgAdminOrganization(workspace);
+            list.add(data);
+        }
+
+        list.add(new UserExcelData());
+        UserExcelData explain = new UserExcelData();
+        explain.setName(Translator.get("do_not_modify_header_order"));
+        explain.setOrgAdminOrganization("多个工作空间请换行展示");
+        list.add(explain);
+        return list;
+    }
+
+    public ExcelResponse userImport(MultipartFile multipartFile, String userId) {
+
+        ExcelResponse excelResponse = new ExcelResponse();
+        String currentWorkspaceId = SessionUtils.getCurrentWorkspaceId();
+        List<ExcelErrData<TestCaseExcelData>> errList = null;
+        if (multipartFile == null) {
+            MSException.throwException(Translator.get("upload_fail"));
+        }
+        try {
+            Class clazz = new UserExcelDataFactory().getExcelDataByLocal();
+
+            Map<String,String> orgNameMap = new HashMap<>();
+            Map<String,String> workspaceNameMap = new HashMap<>();
+
+            List<OrganizationMemberDTO> organizationList = extOrganizationMapper.findAllIdAndName();
+            for (OrganizationMemberDTO model : organizationList) {
+                orgNameMap.put(model.getName(),model.getId());
+            }
+            List<WorkspaceDTO> workspaceList = workspaceService.findAllIdAndName();
+            for (WorkspaceDTO model : workspaceList) {
+                workspaceNameMap.put(model.getName(),model.getId());
+            }
+            EasyExcelListener easyExcelListener = new UserDataListener(clazz,workspaceNameMap,orgNameMap);
+            EasyExcelFactory.read(multipartFile.getInputStream(), clazz, easyExcelListener).sheet().doRead();
+            errList = easyExcelListener.getErrList();
+        } catch (Exception e) {
+            LogUtil.error(e.getMessage(), e);
+            MSException.throwException(e.getMessage());
+        }
+
+        //如果包含错误信息就导出错误信息
+        if (!errList.isEmpty()) {
+            excelResponse.setSuccess(false);
+            excelResponse.setErrList(errList);
+        } else {
+            excelResponse.setSuccess(true);
+        }
+        return excelResponse;
+    }
+
+    public List<String> selectAllId() {
+        return extUserMapper.selectAllId();
     }
 }

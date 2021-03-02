@@ -2,8 +2,11 @@ export default {
   commons: {
     cover: 'Cover',
     not_cover: 'Not Cover',
+    import: 'Import',
+    import_success: 'Import success',
     import_mode: 'Import mode',
     import_module: 'Import module',
+    import_user: 'Import user',
     please_fill_in_the_template: 'Please fill in the template',
     cut_back_old_version: 'Cut back to old version',
     cut_back_new_version: 'Switch back to new version',
