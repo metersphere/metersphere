@@ -1042,6 +1042,7 @@ export default {
     test_track: "Track",
     confirm: "Confirm",
     cancel: "Cancel",
+    planning_execution: "Planning&Execution",
     project: "Project",
     save: "Save",
     return: "Return",

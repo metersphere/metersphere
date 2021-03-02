@@ -1,37 +1,31 @@
 <template>
-  <ms-container>
+  <div>
+    <ms-test-plan-header-bar>
+      <template v-slot:info>
+        <select-menu
+          :data="testReviews"
+          :current-data="currentReview"
+          :title="$t('test_track.review_view.review')"
+          @dataChange="changeReview"/>
+      </template>
+      <template v-slot:menu>
+        <el-menu v-if="isMenuShow" active-text-color="#6d317c"
+                 class="el-menu-demo header-menu" mode="horizontal" @select="handleSelect">
+          <el-menu-item index="functional">功能测试用例</el-menu-item>
+          <el-menu-item index="api">接口测试用例</el-menu-item>
+          <el-menu-item index="load">性能测试用例</el-menu-item>
+          <el-menu-item index="report">报告统计</el-menu-item>
+        </el-menu>
+      </template>
+    </ms-test-plan-header-bar>
+    <test-review-function v-if="activeIndex === 'functional'" :redirectCharType="redirectCharType"
+                          :clickType="clickType" :review-id="reviewId"></test-review-function>
+    <test-review-api v-if="activeIndex === 'api'" :redirectCharType="redirectCharType" :clickType="clickType"
+                     :review-id="reviewId"></test-review-api>
+    <test-review-load v-if="activeIndex === 'load'" :redirectCharType="redirectCharType" :clickType="clickType"
+                      :review-id="reviewId"></test-review-load>
+  </div>
 
-    <ms-aside-container>
-      <select-menu
-        :data="testReviews"
-        :current-data="currentReview"
-        :title="$t('test_track.review_view.review')"
-        @dataChange="changeReview"/>
-      <node-tree class="node-tree"
-                 :all-label="$t('commons.all_label.review')"
-                 v-loading="result.loading"
-                 @nodeSelectEvent="nodeChange"
-                 :tree-nodes="treeNodes"
-                 ref="nodeTree"/>
-    </ms-aside-container>
-
-    <ms-main-container>
-      <test-review-test-case-list
-        class="table-list"
-        @openTestReviewRelevanceDialog="openTestReviewRelevanceDialog"
-        @refresh="refresh"
-        :review-id="reviewId"
-        :select-node-ids="selectNodeIds"
-        :select-parent-nodes="selectParentNodes"
-        ref="testPlanTestCaseList"/>
-    </ms-main-container>
-
-    <test-review-relevance
-      @refresh="refresh"
-      :review-id="reviewId"
-      ref="testReviewRelevance"/>
-
-  </ms-container>
 </template>
 
 <script>
@@ -44,10 +38,18 @@ import NodeTree from "../../common/NodeTree";
 import TestReviewTestCaseList from "./components/TestReviewTestCaseList";
 import SelectMenu from "../../common/SelectMenu";
 import TestReviewRelevance from "./components/TestReviewRelevance";
+import MsTestPlanHeaderBar from "@/business/components/track/plan/view/comonents/head/TestPlanHeaderBar";
+import TestReviewFunction from "@/business/components/track/review/view/components/TestReviewFunction";
+import TestReviewApi from "@/business/components/track/review/view/components/TestReviewApi";
+import TestReviewLoad from "@/business/components/track/review/view/components/TestReviewLoad";
 
 export default {
   name: "TestCaseReviewView",
   components: {
+    TestReviewLoad,
+    TestReviewApi,
+    TestReviewFunction,
+    MsTestPlanHeaderBar,
     MsMainContainer,
     MsAsideContainer,
     MsContainer,
@@ -63,7 +65,14 @@ export default {
       currentReview: {},
       selectNodeIds: [],
       selectParentNodes: [],
-      treeNodes: []
+      treeNodes: [],
+      currentPlan: {},
+      activeIndex: "functional",
+      isMenuShow: true,
+      //报表跳转过来的参数-通过哪个图表跳转的
+      redirectCharType: '',
+      //报表跳转过来的参数-通过哪种数据跳转的
+      clickType: '',
     }
   },
   computed: {
@@ -83,12 +92,25 @@ export default {
       this.initData();
     }
   },
+  activated() {
+    this.genRedirectParam();
+  },
   methods: {
-    refresh() {
-      this.selectNodeIds = [];
-      this.selectParentNodes = [];
-      this.$refs.testReviewRelevance.search();
-      this.getNodeTreeByReviewId();
+    handleSelect(key) {
+      this.activeIndex = key;
+    },
+    genRedirectParam() {
+      this.redirectCharType = this.$route.params.charType;
+      this.clickType = this.$route.params.clickType;
+      if (this.redirectCharType != "") {
+        if (this.redirectCharType == 'scenario') {
+          this.activeIndex = 'api';
+        } else if (this.redirectCharType != null && this.redirectCharType != '') {
+          this.activeIndex = this.redirectCharType;
+        }
+      } else {
+        this.activeIndex = "functional";
+      }
     },
     initData() {
       this.getTestReviews();
@@ -133,6 +155,12 @@ export default {
           }
         });
       }
+    },
+    reloadMenu() {
+      this.isMenuShow = false;
+      this.$nextTick(() => {
+        this.isMenuShow = true;
+      });
     }
   }
 }

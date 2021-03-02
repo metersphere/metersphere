@@ -83,13 +83,13 @@
             <el-progress :percentage="scope.row.testRate"></el-progress>
           </template>
         </el-table-column>
-        <el-table-colum
+        <el-table-column
           v-if="item.id == 'projectName'"
           prop="projectName"
           :label="$t('test_track.plan.plan_project')"
           show-overflow-tooltip
           :key="index">
-        </el-table-colum>
+        </el-table-column>
         <el-table-column
           v-if="item.id == 'plannedStartTime'"
           sortable

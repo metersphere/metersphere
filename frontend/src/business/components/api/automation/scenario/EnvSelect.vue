@@ -1,42 +1,31 @@
 <template>
-  <el-dialog
-    title="环境选择"
-    :visible.sync="dialogVisible"
-    width="30%"
-    :destroy-on-close="true"
-    :before-close="handleClose">
-
-    <div v-loading="result.loading">
-      <div v-for="pe in data" :key="pe.id" style="margin-left: 20px;">
+  <div v-loading="result.loading">
+    <div v-for="pe in data" :key="pe.id" style="margin-left: 20px;">
+      <el-select v-model="pe['selectEnv']" placeholder="请选择环境" style="margin-top: 8px;width: 200px;" size="small">
+        <el-option v-for="(environment, index) in pe.envs" :key="index"
+                   :label="environment.name + (environment.config.httpConfig.socket ? (': ' + environment.config.httpConfig.protocol + '://' + environment.config.httpConfig.socket) : '')"
+                   :value="environment.id"/>
+        <el-button class="ms-scenario-button" size="mini" type="primary" @click="openEnvironmentConfig(pe.id)">
+          {{ $t('api_test.environment.environment_config') }}
+        </el-button>
+        <template v-slot:empty>
+          <div class="empty-environment">
+            <el-button class="ms-scenario-button" size="mini" type="primary" @click="openEnvironmentConfig(pe.id)">
+              {{ $t('api_test.environment.environment_config') }}
+            </el-button>
+          </div>
+        </template>
+      </el-select>
+      <span class="project-name" :title="getProjectName(pe.id)">
         {{ getProjectName(pe.id) }}
-        <el-select v-model="pe['selectEnv']" placeholder="请选择环境" style="margin-left:10px; margin-top: 10px;"
-                   size="small">
-          <el-option v-for="(environment, index) in pe.envs" :key="index"
-                     :label="environment.name + (environment.config.httpConfig.socket ? (': ' + environment.config.httpConfig.protocol + '://' + environment.config.httpConfig.socket) : '')"
-                     :value="environment.id"/>
-          <el-button class="ms-scenario-button" size="mini" type="primary" @click="openEnvironmentConfig(pe.id)">
-            {{ $t('api_test.environment.environment_config') }}
-          </el-button>
-          <template v-slot:empty>
-            <div class="empty-environment">
-              <el-button class="ms-scenario-button" size="mini" type="primary" @click="openEnvironmentConfig(pe.id)">
-                {{ $t('api_test.environment.environment_config') }}
-              </el-button>
-            </div>
-          </template>
-        </el-select>
-      </div>
+      </span>
     </div>
 
-    <span slot="footer" class="dialog-footer">
-      <el-button @click="dialogVisible = false" size="small">取 消</el-button>
-      <el-button type="primary" @click="handleConfirm" size="small">确 定</el-button>
-    </span>
+    <el-button type="primary" @click="handleConfirm" size="small" class="env-confirm">确 定</el-button>
 
     <!-- 环境配置 -->
     <api-environment-config ref="environmentConfig" @close="environmentConfigClose"/>
-
-  </el-dialog>
+  </div>
 </template>
 
 <script>
@@ -44,7 +33,7 @@ import {parseEnvironment} from "@/business/components/api/test/model/Environment
 import ApiEnvironmentConfig from "@/business/components/api/definition/components/environment/ApiEnvironmentConfig";
 
 export default {
-  name: "ApiScenarioEnv",
+  name: "EnvironmentSelect",
   components: {ApiEnvironmentConfig},
   props: {
     envMap: Map,
@@ -56,15 +45,11 @@ export default {
       data: [],
       result: {},
       projects: [],
-      environmentId: '',
       environments: [],
       dialogVisible: false
     }
   },
   methods: {
-    handleClose() {
-      this.dialogVisible = false;
-    },
     init() {
       this.projectIds.forEach(id => {
         let item = {id: id, envs: [], selectEnv: ""};
@@ -83,7 +68,6 @@ export default {
     },
     open() {
       this.data = [];
-      this.dialogVisible = true;
       if (this.projectIds.size > 0) {
         this.init();
       }
@@ -114,7 +98,7 @@ export default {
         return;
       }
       this.$emit('setProjectEnvMap', map);
-      this.dialogVisible = false;
+      this.$emit('close');
     },
     checkEnv() {
       let sign = true;
@@ -136,8 +120,7 @@ export default {
       return true;
     },
     environmentConfigClose() {
-      this.data = [];
-      this.init();
+      // todo 关闭处理
     }
   }
 }
@@ -146,5 +129,21 @@ export default {
 <style scoped>
 .ms-scenario-button {
   margin-left: 20px;
+}
+
+.env-confirm {
+  margin-left: 20px;
+  width: 360px;
+  margin-top: 10px;
+}
+
+.project-name {
+  display:inline-block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 150px;
+  margin-left: 8px;
+  vertical-align:middle;
 }
 </style>

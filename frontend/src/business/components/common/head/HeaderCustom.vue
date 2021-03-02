@@ -5,10 +5,13 @@
                    :draggable="true"
                    :to_data='fieldSelected'
                    :defaultProps="{label:'label'}"
+                   :allow-drop="allowDrop"
+                   :default-checked-keys="defaultCheckedKeys"
+                   :default-transfer="defaultTransfer"
                    :mode='mode' height='540px' filter openAll/>
-        <template v-slot:footer>
-          <ms-dialog-footer @cancel="close" @confirm="saveHeader"/>
-        </template>
+    <template v-slot:footer>
+      <ms-dialog-footer @cancel="close" @confirm="saveHeader"/>
+    </template>
   </el-dialog>
 </template>
 
@@ -25,6 +28,8 @@ export default {
       dialogTableVisible: false,
       value: [],
       fieldSelected: [],
+      defaultCheckedKeys: [],
+      defaultTransfer: true,
       mode: "transfer", // transfer addressList
     }
   },
@@ -37,8 +42,15 @@ export default {
     type: String
   },
   methods: {
+    allowDrop(draggingNode, dropNode, type) {
+      return type !== 'inner';
+    },
     open(items) {
       this.dialogTableVisible = true
+      items.forEach(i => {
+          this.defaultCheckedKeys.push(i.id)
+        }
+      )
       /*this.optionalField = items*/
     },
     saveHeader() {

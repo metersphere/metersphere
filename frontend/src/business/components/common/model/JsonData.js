@@ -21,6 +21,7 @@ export const Test_Case_Review = [
   {id: 'status', label: i18n.t('test_track.review.review_status')},
   {id: 'createTime', label: i18n.t('commons.create_time')},
   {id: 'endTime', label: i18n.t('test_track.review.end_time')},
+  {id: 'tags', label: '标签'},
 ]
 //测试计划-测试用例
 export const Test_Plan_List = [

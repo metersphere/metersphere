@@ -1044,6 +1044,7 @@ export default {
   },
   test_track: {
     test_track: "测试跟踪",
+    planning_execution: "规划&执行",
     confirm: "确 定",
     cancel: "取 消",
     project: "项目",

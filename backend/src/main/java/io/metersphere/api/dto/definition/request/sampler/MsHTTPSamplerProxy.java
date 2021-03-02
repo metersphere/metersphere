@@ -8,7 +8,6 @@ import io.metersphere.api.dto.definition.request.auth.MsAuthManager;
 import io.metersphere.api.dto.definition.request.dns.MsDNSCacheManager;
 import io.metersphere.api.dto.scenario.Body;
 import io.metersphere.api.dto.scenario.KeyValue;
-import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
 import io.metersphere.commons.constants.MsTestElementConstants;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.ScriptEngineUtils;
@@ -232,7 +231,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
             }
         }
         if (this.authManager != null) {
-            this.authManager.toHashTree(tree, hashTree, config);
+            this.authManager.setAuth(tree, this.authManager, sampler);
         }
     }
 
