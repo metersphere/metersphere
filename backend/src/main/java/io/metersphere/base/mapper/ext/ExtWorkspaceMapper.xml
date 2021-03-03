@@ -18,4 +18,8 @@
         where organization_id = #{orgId}
     </select>
 
+    <select id="findAllIdAndName" resultType="io.metersphere.dto.WorkspaceDTO">
+        select id,name from workspace
+    </select>
+
 </mapper>

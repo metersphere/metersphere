@@ -23,4 +23,6 @@ public interface ExtUserMapper {
 
     @MapKey("id")
     Map<String, User> queryNameByIds(List<String> userIds);
+
+    List<String> selectAllId();
 }

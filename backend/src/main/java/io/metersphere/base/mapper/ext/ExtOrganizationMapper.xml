@@ -10,4 +10,8 @@
            and ur.role_id = #{roleId}
     </select>
 
+
+    <select id="findAllIdAndName" resultType="io.metersphere.dto.OrganizationMemberDTO">
+        select id,name from Organization
+    </select>
 </mapper>

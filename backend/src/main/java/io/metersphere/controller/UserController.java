@@ -17,7 +17,9 @@ import io.metersphere.controller.request.organization.AddOrgMemberRequest;
 import io.metersphere.controller.request.organization.QueryOrgMemberRequest;
 import io.metersphere.dto.UserDTO;
 import io.metersphere.dto.UserRoleDTO;
+import io.metersphere.excel.domain.ExcelResponse;
 import io.metersphere.i18n.Translator;
+import io.metersphere.service.CheckPermissionService;
 import io.metersphere.service.OrganizationService;
 import io.metersphere.service.UserService;
 import io.metersphere.service.WorkspaceService;
@@ -25,8 +27,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 @RequestMapping("user")
@@ -39,6 +43,8 @@ public class UserController {
     private OrganizationService organizationService;
     @Resource
     private WorkspaceService workspaceService;
+    @Resource
+    private CheckPermissionService checkPermissionService;
 
     @PostMapping("/special/add")
     @RequiresRoles(RoleConstants.ADMIN)
@@ -298,4 +304,15 @@ public class UserController {
         return userService.searchUser(condition);
     }
 
+    @GetMapping("/export/template")
+    @RequiresRoles(value = {RoleConstants.ADMIN, RoleConstants.ORG_ADMIN, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
+    public void testCaseTemplateExport(HttpServletResponse response) {
+        userService.userTemplateExport(response);
+    }
+
+    @PostMapping("/import/{userId}")
+    @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
+    public ExcelResponse testCaseImport(MultipartFile file, @PathVariable String userId) {
+        return userService.userImport(file, userId);
+    }
 }
