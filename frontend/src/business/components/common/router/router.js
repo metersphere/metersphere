@@ -5,7 +5,10 @@ import Setting from "@/business/components/settings/router";
 import API from "@/business/components/api/router";
 import Performance from "@/business/components/performance/router";
 import Track from "@/business/components/track/router";
+
 const requireContext = require.context('@/business/components/xpack/', true, /router\.js$/)
+const Report = requireContext.keys().map(key => requireContext(key).report);
+const ReportObj = Report && Report != null && Report.length > 0 && Report[0] != undefined ? Report : [{path: "/sidebar"}];
 
 Vue.use(VueRouter);
 
@@ -22,7 +25,7 @@ const router = new VueRouter({
     API,
     Performance,
     Track,
-    ...requireContext.keys().map(key => requireContext(key).report),
+    ...ReportObj
   ]
 });
 

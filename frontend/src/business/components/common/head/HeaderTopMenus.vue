@@ -29,15 +29,15 @@
 </template>
 
 <script>
-  const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
-  const report = requireComponent.keys().length > 0 ? requireComponent("./report/ReportAnalysis.vue") : null;
-
+  const requireContext = require.context('@/business/components/xpack/', true, /router\.js$/)
+  const report = requireContext.keys().map(key => requireContext(key).report);
+  const isReport = report && report != null && report.length > 0 && report[0] != undefined ? true : false;
   export default {
     name: "MsTopMenus",
     data() {
       return {
         activeIndex: '/',
-        isReport: report
+        isReport: isReport
       }
     },
     watch: {
