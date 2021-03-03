@@ -122,7 +122,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         // 添加环境中的公共变量
         Arguments arguments = this.addArguments(config);
         if (arguments != null) {
-            tree.add(arguments);
+            tree.add(config.valueSupposeMock(arguments));
         }
         try {
             if (config.isEffective(this.getProjectId())) {
