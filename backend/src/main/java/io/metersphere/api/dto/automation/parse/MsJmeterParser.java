@@ -472,13 +472,13 @@ public class MsJmeterParser extends ApiImportAbstractParser<ScenarioImport> {
             if (assertion.getTestStrings() != null && !assertion.getTestStrings().isEmpty()) {
                 assertionRegex.setExpression(assertion.getTestStrings().get(0).getStringValue());
             }
-            if (assertion.isTestFieldRequestData()) {
+            if (assertion.isTestFieldResponseData()) {
                 assertionRegex.setSubject("Response Data");
             }
             if (assertion.isTestFieldResponseCode()) {
                 assertionRegex.setSubject("Response Code");
             }
-            if (assertion.isTestFieldRequestHeaders()) {
+            if (assertion.isTestFieldResponseHeaders()) {
                 assertionRegex.setSubject("Response Headers");
             }
             assertions.setName(assertion.getName());
