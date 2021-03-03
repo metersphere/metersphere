@@ -133,7 +133,7 @@
                       <!-- 步骤组件-->
                        <ms-component-config :type="data.type" :scenario="data" :response="response" :currentScenario="currentScenario"
                                             :currentEnvironmentId="currentEnvironmentId" :node="node" :project-list="projectList" :env-map="projectEnvMap"
-                                            @remove="remove" @copyRow="copyRow" @suggestClick="suggestClick" @refReload="reload"/>
+                                            @remove="remove" @copyRow="copyRow" @suggestClick="suggestClick" @refReload="refReload"/>
                     </span>
               </el-tree>
             </div>
@@ -215,8 +215,8 @@
   import ScenarioRelevance from "./api/ScenarioRelevance";
   import MsComponentConfig from "./component/ComponentConfig";
   import {handleCtrlSEvent} from "../../../../../common/js/utils";
-  import {getProject} from "@/business/components/api/automation/scenario/event";
   import EnvPopover from "@/business/components/api/automation/scenario/EnvPopover";
+  let jsonPath = require('jsonpath');
   export default {
     name: "EditApiScenario",
     props: {
@@ -294,12 +294,6 @@
       this.getMaintainerOptions();
       this.getApiScenario();
       this.addListener(); //  添加 ctrl s 监听
-    },
-    mounted() {
-      getProject.$on('addProjectEnv', (projectId, projectEnv) => {
-        this.projectIds.add(projectId);
-        // this.projectEnvMap.set(projectId, projectEnv);
-      })
     },
     directives: {OutsideClick},
     computed: {
@@ -583,6 +577,7 @@
         }
         this.sort();
         this.reload();
+        this.initProjectIds();
         this.scenarioVisible = false;
       },
       setApiParameter(item, refType, referenced) {
@@ -624,6 +619,7 @@
         });
         this.sort();
         this.reload();
+        this.initProjectIds();
       },
       getMaintainerOptions() {
         let workspaceId = localStorage.getItem(WORKSPACE_ID);
@@ -647,15 +643,10 @@
               const parent = node.parent
               const hashTree = parent.data.hashTree || parent.data;
               const index = hashTree.findIndex(d => d.resourceId != undefined && row.resourceId != undefined && d.resourceId === row.resourceId)
-              if (hashTree[index] && hashTree[index].projectId) {
-                this.projectIds.delete(hashTree[index].projectId);
-                if (this.projectEnvMap.has(hashTree[index].projectId)) {
-                  this.projectEnvMap.delete(hashTree[index].projectId);
-                }
-              }
               hashTree.splice(index, 1);
               this.sort();
               this.reload();
+              this.initProjectIds();
             }
           }
         });
@@ -992,9 +983,6 @@
         }
         return size;
       },
-      beforeDestroy() {
-        getProject.$off('addProjectEnv');
-      },
       handleEnv() {
         this.$refs.apiScenarioEnv.open();
       },
@@ -1006,6 +994,17 @@
           this.projectList = res.data;
         })
       },
+      refReload() {
+        this.initProjectIds();
+        this.reload();
+      },
+      initProjectIds() {
+        this.projectIds.clear();
+        this.scenarioDefinition.forEach(data=>{
+          let arr = jsonPath.query(data, "$..projectId");
+          arr.forEach(a => this.projectIds.add(a));
+        })
+      }
     }
   }
 </script>

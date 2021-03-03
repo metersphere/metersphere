@@ -71,7 +71,6 @@
   import ApiBaseComponent from "../common/ApiBaseComponent";
   import ApiResponseComponent from "./ApiResponseComponent";
   import CustomizeReqInfo from "@/business/components/api/automation/scenario/common/CustomizeReqInfo";
-  import {getProject} from "@/business/components/api/automation/scenario/event";
 
   export default {
     name: "MsApiComponent",
@@ -123,7 +122,6 @@
           }
         }
       }
-      getProject.$emit('addProjectEnv', this.request.projectId, this.currentEnvironmentId);
     },
     computed: {
       displayColor() {
