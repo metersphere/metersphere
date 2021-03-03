@@ -5,8 +5,17 @@ let travel = function (elements, threadGroups) {
     return;
   }
   for (let element of elements) {
-    if (element.name === 'ThreadGroup') {
-      threadGroups.push(element);
+    switch (element.name) {
+      case "ThreadGroup":
+      case "kg.apc.jmeter.threads.UltimateThreadGroup":
+      case "com.blazemeter.jmeter.threads.concurrency.ConcurrencyThreadGroup":
+      case "com.blazemeter.jmeter.threads.arrivals.FreeFormArrivalsThreadGroup":
+      case "com.blazemeter.jmeter.threads.arrivals.ArrivalsThreadGroup":
+      case "com.octoperf.jmeter.OctoPerfThreadGroup":
+        threadGroups.push(element);
+        break;
+      default:
+        break;
     }
     travel(element.elements, threadGroups)
   }
@@ -16,6 +25,10 @@ export function findThreadGroup(jmxContent) {
   let jmxJson = JSON.parse(xml2json(jmxContent));
   let threadGroups = [];
   travel(jmxJson.elements, threadGroups);
+  threadGroups.forEach(tg => {
+    tg.deleted = 'false';
+    tg.enabled = tg.attributes.enabled;
+  })
   return threadGroups;
 }
 

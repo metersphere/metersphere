@@ -16,7 +16,7 @@ public class TestPlanRequest {
 
     private String description;
 
-    private String scenarioDefinition;
+    private String jmx;
 
     private Long createTime;
 
