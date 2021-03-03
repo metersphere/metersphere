@@ -16,6 +16,7 @@ import io.metersphere.controller.request.OrderRequest;
 import io.metersphere.controller.request.QueryScheduleRequest;
 import io.metersphere.dto.DashboardTestDTO;
 import io.metersphere.dto.LoadTestDTO;
+import io.metersphere.dto.LoadTestFileDTO;
 import io.metersphere.dto.ScheduleDao;
 import io.metersphere.i18n.Translator;
 import io.metersphere.job.sechedule.PerformanceTestJob;
@@ -38,6 +39,7 @@ import javax.annotation.Resource;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
@@ -126,19 +128,52 @@ public class PerformanceTestService {
     }
 
     public String save(SaveTestPlanRequest request, List<MultipartFile> files) {
-        if (files == null) {
-            throw new IllegalArgumentException(Translator.get("file_cannot_be_null"));
-        }
         checkQuota(request, true);
-        final LoadTestWithBLOBs loadTest = saveLoadTest(request);
-        files.forEach(file -> {
-            final FileMetadata fileMetadata = fileService.saveFile(file);
+        LoadTestWithBLOBs loadTest = saveLoadTest(request);
+
+        // 新选择了一个文件，删除原来的文件
+        List<FileMetadata> importFiles = request.getUpdatedFileList();
+        List<String> importFileIds = importFiles.stream().map(FileMetadata::getId).collect(Collectors.toList());
+        // 导入项目里其他的文件
+        this.importFiles(importFileIds, loadTest.getId());
+        // 保存上传的问题件
+        this.saveUploadFiles(files, loadTest.getId());
+        // 直接上传了jmx，用于API导入的场景
+        String jmx = request.getJmx();
+        if (StringUtils.isNotBlank(jmx)) {
+            byte[] bytes = jmx.getBytes(StandardCharsets.UTF_8);
+            FileMetadata fileMetadata = fileService.saveFile(bytes, request.getName() + ".jmx", (long) bytes.length);
             LoadTestFile loadTestFile = new LoadTestFile();
             loadTestFile.setTestId(loadTest.getId());
             loadTestFile.setFileId(fileMetadata.getId());
             loadTestFileMapper.insert(loadTestFile);
-        });
+        }
         return loadTest.getId();
+    }
+
+    private void saveUploadFiles(List<MultipartFile> files, String testId) {
+        if (files != null) {
+            files.forEach(file -> {
+                final FileMetadata fileMetadata = fileService.saveFile(file);
+                LoadTestFile loadTestFile = new LoadTestFile();
+                loadTestFile.setTestId(testId);
+                loadTestFile.setFileId(fileMetadata.getId());
+                loadTestFileMapper.insert(loadTestFile);
+            });
+        }
+    }
+
+    private void importFiles(List<String> importFileIds, String testId) {
+        importFileIds.forEach(fileId -> {
+            if (StringUtils.isBlank(fileId)) {
+                return;
+            }
+            FileMetadata fileMetadata = fileService.copyFile(fileId);
+            LoadTestFile loadTestFile = new LoadTestFile();
+            loadTestFile.setTestId(testId);
+            loadTestFile.setFileId(fileMetadata.getId());
+            loadTestFileMapper.insert(loadTestFile);
+        });
     }
 
     private LoadTestWithBLOBs saveLoadTest(SaveTestPlanRequest request) {
@@ -183,15 +218,19 @@ public class PerformanceTestService {
         // 相减
         List<String> deleteFileIds = ListUtils.subtract(originFileIds, updatedFileIds);
         fileService.deleteFileByIds(deleteFileIds);
-
-        if (files != null) {
-            files.forEach(file -> {
-                final FileMetadata fileMetadata = fileService.saveFile(file);
-                LoadTestFile loadTestFile = new LoadTestFile();
-                loadTestFile.setTestId(request.getId());
-                loadTestFile.setFileId(fileMetadata.getId());
-                loadTestFileMapper.insert(loadTestFile);
-            });
+        // 导入项目里其他的文件
+        List<String> addFileIds = ListUtils.subtract(updatedFileIds, originFileIds);
+        this.importFiles(addFileIds, request.getId());
+        this.saveUploadFiles(files, request.getId());
+        // 直接上传了jmx，用于API导入的场景
+        String jmx = request.getJmx();
+        if (StringUtils.isNotBlank(jmx)) {
+            byte[] bytes = jmx.getBytes(StandardCharsets.UTF_8);
+            FileMetadata fileMetadata = fileService.saveFile(bytes, request.getName() + ".jmx", (long) bytes.length);
+            LoadTestFile loadTestFile = new LoadTestFile();
+            loadTestFile.setTestId(request.getId());
+            loadTestFile.setFileId(fileMetadata.getId());
+            loadTestFileMapper.insert(loadTestFile);
         }
 
         loadTest.setName(request.getName());
@@ -507,5 +546,15 @@ public class PerformanceTestService {
         } else {
             return Optional.of(loadTest.getNum() + 1).orElse(100001);
         }
+    }
+
+    public List<LoadTestFileDTO> getProjectFiles(String projectId, String loadType) {
+        List<String> loadTypes = new ArrayList<>();
+        loadTypes.add(StringUtils.upperCase(loadType));
+        if (StringUtils.equalsIgnoreCase(loadType, "resource")) {
+            loadTypes.add(FileType.CSV.name());
+            loadTypes.add(FileType.JAR.name());
+        }
+        return extLoadTestMapper.getProjectFiles(projectId, loadTypes);
     }
 }

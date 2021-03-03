@@ -169,4 +169,10 @@ public class FileService {
     public FileMetadata getFileMetadataById(String fileId) {
         return fileMetadataMapper.selectByPrimaryKey(fileId);
     }
+
+    public List<FileMetadata> getProjectJMXs(String projectId) {
+        FileMetadataExample example = new FileMetadataExample();
+        fileMetadataMapper.selectByExample(example);
+        return null;
+    }
 }

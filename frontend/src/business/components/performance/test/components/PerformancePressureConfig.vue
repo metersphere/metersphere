@@ -20,7 +20,7 @@
     <el-row>
       <el-collapse v-model="activeNames">
         <el-collapse-item :title="threadGroup.attributes.testname" :name="index"
-                          v-for="(threadGroup, index) in threadGroups"
+                          v-for="(threadGroup, index) in threadGroups.filter(th=>th.enabled === 'true' && th.deleted=='false')"
                           :key="index">
           <el-col :span="10">
             <el-form :inline="true">
@@ -140,6 +140,8 @@ const RPS_LIMIT_ENABLE = "rpsLimitEnable";
 const HOLD = "Hold";
 const THREAD_TYPE = "threadType";
 const ITERATE_NUM = "iterateNum";
+const ENABLED = "enabled";
+const DELETED = "deleted";
 
 const hexToRgba = function (hex, opacity) {
   return 'rgba(' + parseInt('0x' + hex.slice(1, 3)) + ',' + parseInt('0x' + hex.slice(3, 5)) + ','
@@ -221,90 +223,57 @@ export default {
           let data = JSON.parse(response.data);
           for (let i = 0; i < data.length; i++) {
             let d = data[i];
-            if (d instanceof Array) {
-              d.forEach(item => {
-                switch (item.key) {
-                  case TARGET_LEVEL:
-                    this.threadGroups[i].threadNumber = item.value;
-                    break;
-                  case RAMP_UP:
-                    this.threadGroups[i].rampUpTime = item.value;
-                    break;
-                  case ITERATE_RAMP_UP:
-                    this.threadGroups[i].iterateRampUp = item.value;
-                    break;
-                  case DURATION:
-                    if (item.unit) {
-                      this.threadGroups[i].duration = item.value;
-                    } else {
-                      this.threadGroups[i].duration = item.value * 60;
-                    }
-                    break;
-                  case STEPS:
-                    this.threadGroups[i].step = item.value;
-                    break;
-                  case RPS_LIMIT:
-                    this.threadGroups[i].rpsLimit = item.value;
-                    break;
-                  case RPS_LIMIT_ENABLE:
-                    this.threadGroups[i].rpsLimitEnable = item.value;
-                    break;
-                  case THREAD_TYPE:
-                    this.threadGroups[i].threadType = item.value;
-                    break;
-                  case ITERATE_NUM:
-                    this.threadGroups[i].iterateNum = item.value;
-                    break;
-                  default:
-                    break;
-                }
-                //
-                this.$set(this.threadGroups[i], "threadType", this.threadGroups[i].threadType || 'DURATION');
-                this.$set(this.threadGroups[i], "iterateNum", this.threadGroups[i].iterateNum || 1);
-                this.$set(this.threadGroups[i], "iterateRampUp", this.threadGroups[i].iterateRampUp || 10);
-              })
-              this.calculateChart(this.threadGroups[i]);
-            } else {
-              switch (d.key) {
+            d.forEach(item => {
+              switch (item.key) {
                 case TARGET_LEVEL:
-                  this.threadGroups[0].threadNumber = d.value;
+                  this.threadGroups[i].threadNumber = item.value;
                   break;
                 case RAMP_UP:
-                  this.threadGroups[0].rampUpTime = d.value;
+                  this.threadGroups[i].rampUpTime = item.value;
                   break;
                 case ITERATE_RAMP_UP:
-                  this.threadGroups[0].iterateRampUp = d.value;
+                  this.threadGroups[i].iterateRampUp = item.value;
                   break;
                 case DURATION:
-                  if (d.unit) {
-                    this.threadGroups[0].duration = d.value;
+                  if (item.unit) {
+                    this.threadGroups[i].duration = item.value;
                   } else {
-                    this.threadGroups[0].duration = d.value * 60;
+                    this.threadGroups[i].duration = item.value * 60;
                   }
                   break;
                 case STEPS:
-                  this.threadGroups[0].step = d.value;
+                  this.threadGroups[i].step = item.value;
                   break;
                 case RPS_LIMIT:
-                  this.threadGroups[0].rpsLimit = d.value;
+                  this.threadGroups[i].rpsLimit = item.value;
                   break;
                 case RPS_LIMIT_ENABLE:
-                  this.threadGroups[0].rpsLimitEnable = d.value;
+                  this.threadGroups[i].rpsLimitEnable = item.value;
                   break;
                 case THREAD_TYPE:
-                  this.threadGroups[0].threadType = d.value;
+                  this.threadGroups[i].threadType = item.value;
                   break;
                 case ITERATE_NUM:
-                  this.threadGroups[0].iterateNum = d.value;
+                  this.threadGroups[i].iterateNum = item.value;
+                  break;
+                case ENABLED:
+                  this.threadGroups[i].enabled = item.value;
+                  break;
+                case DELETED:
+                  this.threadGroups[i].deleted = item.value;
                   break;
                 default:
                   break;
               }
-              this.$set(this.threadGroups[0], "threadType", this.threadGroups[0].threadType || 'DURATION');
-              this.$set(this.threadGroups[0], "iterateNum", this.threadGroups[0].iterateNum || 1);
-              this.$set(this.threadGroups[0], "iterateRampUp", this.threadGroups[0].iterateRampUp || 10);
-              this.calculateChart(this.threadGroups[0]);
-            }
+              //
+              this.$set(this.threadGroups[i], "threadType", this.threadGroups[i].threadType || 'DURATION');
+              this.$set(this.threadGroups[i], "iterateNum", this.threadGroups[i].iterateNum || 1);
+              this.$set(this.threadGroups[i], "iterateRampUp", this.threadGroups[i].iterateRampUp || 10);
+              this.$set(this.threadGroups[i], "enabled", this.threadGroups[i].enabled || 'true');
+              this.$set(this.threadGroups[i], "deleted", this.threadGroups[i].deleted || 'false');
+            })
+            this.calculateChart(this.threadGroups[i]);
+
           }
           this.calculateTotalChart();
         }
@@ -324,6 +293,7 @@ export default {
             this.threadGroups.forEach(tg => {
               tg.options = {};
             });
+            this.$emit('fileChange', this.threadGroups);
             this.getLoadConfig();
           }
         });
@@ -355,6 +325,9 @@ export default {
       };
 
       for (let i = 0; i < handler.threadGroups.length; i++) {
+        if (handler.threadGroups[i].enabled === 'false' || handler.threadGroups[i].deleted === 'true') {
+          continue;
+        }
         let seriesData = {
           name: handler.threadGroups[i].attributes.testname,
           data: [],
@@ -560,6 +533,8 @@ export default {
           {key: THREAD_TYPE, value: this.threadGroups[i].threadType},
           {key: ITERATE_NUM, value: this.threadGroups[i].iterateNum},
           {key: ITERATE_RAMP_UP, value: this.threadGroups[i].iterateRampUp},
+          {key: ENABLED, value: this.threadGroups[i].enabled},
+          {key: DELETED, value: this.threadGroups[i].deleted},
         ]);
       }
       return result;

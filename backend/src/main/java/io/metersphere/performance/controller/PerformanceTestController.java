@@ -12,6 +12,7 @@ import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.controller.request.QueryScheduleRequest;
 import io.metersphere.dto.DashboardTestDTO;
 import io.metersphere.dto.LoadTestDTO;
+import io.metersphere.dto.LoadTestFileDTO;
 import io.metersphere.dto.ScheduleDao;
 import io.metersphere.performance.service.PerformanceTestService;
 import io.metersphere.service.CheckPermissionService;
@@ -110,6 +111,14 @@ public class PerformanceTestController {
     public String getJmxContent(@PathVariable String testId) {
         checkPermissionService.checkPerformanceTestOwner(testId);
         return performanceTestService.getJmxContent(testId);
+    }
+
+    @GetMapping("/project/{loadType}/{projectId}/{goPage}/{pageSize}")
+    public Pager<List<LoadTestFileDTO>> getProjectFiles(@PathVariable String projectId, @PathVariable String loadType,
+                                                        @PathVariable int goPage, @PathVariable int pageSize) {
+        checkPermissionService.checkProjectOwner(projectId);
+        Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
+        return PageUtils.setPageInfo(page, performanceTestService.getProjectFiles(projectId, loadType));
     }
 
     @PostMapping("/delete")

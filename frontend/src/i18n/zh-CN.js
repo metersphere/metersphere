@@ -424,6 +424,8 @@ export default {
     delete_batch_confirm: '确认批量删除报告',
   },
   load_test: {
+    test: '测试',
+    name: '测试名称',
     same_project_test: '只能运行同一项目内的测试',
     already_exists: '测试名称不能重复',
     operating: '操作',
@@ -493,7 +495,18 @@ export default {
     user_name: '创建人',
     special_characters_are_not_supported: '测试名称不支持特殊字符',
     pressure_config_params_is_empty: '压力配置参数不能为空!',
-    schedule_tip: '间隔时间不能小于压测时长'
+    schedule_tip: '间隔时间不能小于压测时长',
+    delete_threadgroup_confirm: '确认删除场景',
+    scenario_list: '场景列表',
+    scenario_name: "场景名称",
+    upload_jmx: '上传 JMX 文件',
+    exist_jmx: '已存在的文件',
+    other_resource: '其他资源',
+    upload_file: '上传新文件',
+    load_exist_file: '加载已有文件',
+    load_exist_jmx: '加载已有 JMX 文件',
+    threadgroup_at_least_one: '至少启用一个线程组',
+    load_api_automation_jmx: '引用接口自动化场景',
   },
   api_test: {
     creator: "创建人",
