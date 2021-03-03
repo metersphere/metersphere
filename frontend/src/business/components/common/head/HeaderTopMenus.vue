@@ -18,6 +18,10 @@
                   v-permission="['test_manager','test_user','test_viewer']">
       {{ $t('commons.performance') }}
     </el-menu-item>
+    <el-menu-item index="/reportForm" v-permission="['test_manager','test_user','test_viewer']" v-if="isReport">
+      {{ $t('commons.report_statistics.title') }}
+    </el-menu-item>
+
     <el-menu-item index="/setting" onselectstart="return false">
       {{ $t('commons.system_setting') }}
     </el-menu-item>
@@ -25,11 +29,15 @@
 </template>
 
 <script>
+  const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
+  const report = requireComponent.keys().length > 0 ? requireComponent("./report/ReportAnalysis.vue") : null;
+
   export default {
     name: "MsTopMenus",
     data() {
       return {
-        activeIndex: '/'
+        activeIndex: '/',
+        isReport: report
       }
     },
     watch: {
