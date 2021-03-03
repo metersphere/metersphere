@@ -192,6 +192,9 @@ export default {
     module: {
       select_module: "选择模块",
       default_module: "默认模块",
+    },
+    report_statistics: {
+      title: "报表统计"
     }
   },
   license: {
@@ -606,7 +609,7 @@ export default {
         edit_time_Reverse_order: "按更新时间从后到前",
         request_method: "请求方式",
         request_interface: "请求接口",
-        search_by_api_name : "名称搜索",
+        search_by_api_name: "名称搜索",
         request_info: "请求信息",
         request_head: "请求头",
         request_param: "参数",
@@ -616,7 +619,7 @@ export default {
         response_head: "响应头",
         response_body: "响应体",
         response_code: "响应码",
-        table_coloum:{
+        table_coloum: {
           name: "名称",
           value: "值",
           is_required: "是否必填",
