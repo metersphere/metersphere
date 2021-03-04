@@ -475,9 +475,16 @@ export default {
       },
       handleDelete(apiCase) {
         // if (this.trashEnable) {
-        this.$get('/api/testcase/delete/' + apiCase.id, () => {
-          this.$success(this.$t('commons.delete_success'));
-          this.initTable();
+        this.$alert(this.$t('api_test.definition.request.delete_confirm') + ' ' + apiCase.name + " ？", '', {
+          confirmButtonText: this.$t('commons.confirm'),
+          callback: (action) => {
+            if (action === 'confirm') {
+              this.$get('/api/testcase/delete/' + apiCase.id, () => {
+                this.$success(this.$t('commons.delete_success'));
+                this.initTable();
+              });
+            }
+          }
         });
         return;
       },
