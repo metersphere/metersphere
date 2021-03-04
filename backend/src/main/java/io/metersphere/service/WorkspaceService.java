@@ -286,7 +286,11 @@ public class WorkspaceService {
         return projectMapper.selectByExample(projectExample);
     }
 
-    public List<WorkspaceDTO> findAllIdAndName(){
-        return extWorkspaceMapper.findAllIdAndName();
+    public String getOrganizationIdById(String resourceID) {
+        return extWorkspaceMapper.getOrganizationIdById(resourceID);
+    }
+
+    public List<WorkspaceDTO> findIdAndNameByOrganizationId(String organizationId) {
+        return extWorkspaceMapper.findIdAndNameByOrganizationId(organizationId);
     }
 }

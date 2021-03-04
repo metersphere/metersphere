@@ -10,5 +10,5 @@ public interface ExtOrganizationMapper {
 
     int checkSourceRole(@Param("sourceId") String sourceId,@Param("userId") String userId,@Param("roleId") String roleId);
 
-    List<OrganizationMemberDTO> findAllIdAndName();
+    List<OrganizationMemberDTO> findIdAndNameByOrganizationId(@Param("organizationId")String organizationID);
 }

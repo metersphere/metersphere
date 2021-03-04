@@ -1,5 +1,6 @@
 package io.metersphere.excel.listener;
 
+import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.controller.request.member.UserRequest;
@@ -176,37 +177,37 @@ public class UserDataListener extends EasyExcelListener<UserExcelData> {
         if (StringUtils.equalsIgnoreCase(Translator.get("options_yes"), data.getUserIsAdmin())) {
             List<String> adminIdList = new ArrayList<>();
             adminIdList.add("adminSourceId");
-            Map<String, Object> adminRoleMap = this.genRoleMap("admin", adminIdList);
+            Map<String, Object> adminRoleMap = this.genRoleMap(RoleConstants.ADMIN, adminIdList);
             roleMapList.add(adminRoleMap);
         }
         //判断组织管理员
         List<String> orgManagerOrdIdList = this.getIdByExcelInfoAndIdDic(data.getUserIsOrgAdmin(), data.getOrgAdminOrganization(), orgNameMap);
         if (!orgManagerOrdIdList.isEmpty()) {
-            Map<String, Object> orgAdminRoleMap = this.genRoleMap("org_admin", orgManagerOrdIdList);
+            Map<String, Object> orgAdminRoleMap = this.genRoleMap(RoleConstants.ORG_ADMIN, orgManagerOrdIdList);
             roleMapList.add(orgAdminRoleMap);
         }
         //判断组织成员
         List<String> orgMemberOrdIdList = this.getIdByExcelInfoAndIdDic(data.getUserIsOrgMember(), data.getOrgMemberOrganization(), orgNameMap);
         if (!orgMemberOrdIdList.isEmpty()) {
-            Map<String, Object> orgMemberRoleMap = this.genRoleMap("org_member", orgMemberOrdIdList);
+            Map<String, Object> orgMemberRoleMap = this.genRoleMap(RoleConstants.ORG_MEMBER, orgMemberOrdIdList);
             roleMapList.add(orgMemberRoleMap);
         }
         //判断测试经理
         List<String> testManagerWorkspaceIdList = this.getIdByExcelInfoAndIdDic(data.getUserIsTestManager(), data.getTestManagerWorkspace(), workspaceNameMap);
         if (!testManagerWorkspaceIdList.isEmpty()) {
-            Map<String, Object> testManagerRoleMap = this.genRoleMap("test_manager", testManagerWorkspaceIdList);
+            Map<String, Object> testManagerRoleMap = this.genRoleMap(RoleConstants.TEST_MANAGER, testManagerWorkspaceIdList);
             roleMapList.add(testManagerRoleMap);
         }
         //判断测试人员
         List<String> testgerWorkspaceIdList = this.getIdByExcelInfoAndIdDic(data.getUserIsTester(), data.getTesterWorkspace(), workspaceNameMap);
         if (!testgerWorkspaceIdList.isEmpty()) {
-            Map<String, Object> testerRoleMap = this.genRoleMap("test_user", testgerWorkspaceIdList);
+            Map<String, Object> testerRoleMap = this.genRoleMap(RoleConstants.TEST_USER, testgerWorkspaceIdList);
             roleMapList.add(testerRoleMap);
         }
         //判断只读用户
         List<String> viewerWorkspaceIdList = this.getIdByExcelInfoAndIdDic(data.getUserIsViewer(), data.getViewerWorkspace(), workspaceNameMap);
         if (!viewerWorkspaceIdList.isEmpty()) {
-            Map<String, Object> testViewerRoleMap = this.genRoleMap("test_viewer", viewerWorkspaceIdList);
+            Map<String, Object> testViewerRoleMap = this.genRoleMap(RoleConstants.TEST_VIEWER, viewerWorkspaceIdList);
             roleMapList.add(testViewerRoleMap);
         }
         request.setRoles(roleMapList);
