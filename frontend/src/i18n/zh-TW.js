@@ -195,6 +195,9 @@ export default {
     module: {
       select_module: "選擇模塊",
       default_module: "默認模塊",
+    },
+    report_statistics: {
+      title: "報表統計"
     }
   },
   license: {
