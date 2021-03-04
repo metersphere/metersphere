@@ -194,6 +194,9 @@ export default {
     module: {
       select_module: "Select module",
       default_module: "Default module",
+    },
+    report_statistics: {
+      title: "Report statistics"
     }
   },
   license: {
