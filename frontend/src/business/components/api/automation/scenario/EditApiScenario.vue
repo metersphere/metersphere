@@ -919,6 +919,7 @@
                   }
                   this.enableCookieShare = obj.enableCookieShare;
                   this.scenarioDefinition = obj.hashTree;
+                  this.initProjectIds();
                 }
               }
               if (this.currentScenario.copy) {
@@ -999,6 +1000,7 @@
         this.reload();
       },
       initProjectIds() {
+        // 加载环境配置
         this.projectIds.clear();
         this.scenarioDefinition.forEach(data=>{
           let arr = jsonPath.query(data, "$..projectId");
