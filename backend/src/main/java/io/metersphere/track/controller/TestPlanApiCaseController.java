@@ -50,4 +50,10 @@ public class TestPlanApiCaseController {
         testPlanApiCaseService.deleteApiCaseBath(request);
     }
 
+    @PostMapping("/batch/update/env")
+    @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
+    public void batchUpdateEnv(@RequestBody TestPlanApiCaseBatchRequest request) {
+        testPlanApiCaseService.batchUpdateEnv(request);
+    }
+
 }
