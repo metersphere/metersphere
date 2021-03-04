@@ -128,8 +128,9 @@
 <script>
 import echarts from "echarts";
 import MsChart from "@/business/components/common/chart/MsChart";
-import {findTestPlan, findThreadGroup} from "@/business/components/performance/test/model/ThreadGroup";
+import {findThreadGroup} from "@/business/components/performance/test/model/ThreadGroup";
 
+const HANDLER = "handler";
 const TARGET_LEVEL = "TargetLevel";
 const RAMP_UP = "RampUp";
 const ITERATE_RAMP_UP = "iterateRampUpTime";
@@ -181,7 +182,6 @@ export default {
       resourcePools: [],
       activeNames: ["0"],
       threadGroups: [],
-      serializeThreadgroups: false,
       resourcePoolResourceLength: 1
     }
   },
@@ -262,6 +262,9 @@ export default {
                 case DELETED:
                   this.threadGroups[i].deleted = item.value;
                   break;
+                case HANDLER:
+                  this.threadGroups[i].handler = item.value;
+                  break;
                 default:
                   break;
               }
@@ -281,21 +284,17 @@ export default {
     },
     getJmxContent() {
       if (this.testId) {
+        let threadGroups = [];
         this.$get('/performance/get-jmx-content/' + this.testId, (response) => {
-          if (response.data) {
-            let testPlan = findTestPlan(response.data);
-            testPlan.elements.forEach(e => {
-              if (e.attributes.name === 'TestPlan.serialize_threadgroups') {
-                this.serializeThreadgroups = Boolean(e.elements[0].text);
-              }
-            });
-            this.threadGroups = findThreadGroup(response.data);
-            this.threadGroups.forEach(tg => {
+          response.data.forEach(d => {
+            threadGroups = threadGroups.concat(findThreadGroup(d.jmx, d.name));
+            threadGroups.forEach(tg => {
               tg.options = {};
             });
-            this.$emit('fileChange', this.threadGroups);
-            this.getLoadConfig();
-          }
+          });
+          this.threadGroups = threadGroups;
+          this.$emit('fileChange', threadGroups);
+          this.getLoadConfig();
         });
       }
     },
@@ -523,6 +522,7 @@ export default {
       let result = [];
       for (let i = 0; i < this.threadGroups.length; i++) {
         result.push([
+          {key: HANDLER, value: this.threadGroups[i].handler},
           {key: TARGET_LEVEL, value: this.threadGroups[i].threadNumber},
           {key: RAMP_UP, value: this.threadGroups[i].rampUpTime},
           {key: STEPS, value: this.threadGroups[i].step},

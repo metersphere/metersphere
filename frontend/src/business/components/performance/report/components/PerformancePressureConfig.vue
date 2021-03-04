@@ -117,6 +117,7 @@ import echarts from "echarts";
 import MsChart from "@/business/components/common/chart/MsChart";
 import {findThreadGroup} from "@/business/components/performance/test/model/ThreadGroup";
 
+const HANDLER = "handler";
 const TARGET_LEVEL = "TargetLevel";
 const RAMP_UP = "RampUp";
 const STEPS = "Steps";
@@ -204,6 +205,9 @@ export default {
             case DELETED:
               this.threadGroups[i].deleted = item.value;
               break;
+            case HANDLER:
+              this.threadGroups[i].handler = item.value;
+              break;
             default:
               break;
           }
@@ -241,13 +245,13 @@ export default {
         return;
       }
       this.result = this.$get('/performance/get-jmx-content/' + this.report.testId, (response) => {
-        if (response.data) {
-          this.threadGroups = findThreadGroup(response.data);
+        response.data.forEach(d => {
+          this.threadGroups = this.threadGroups.concat(findThreadGroup(d.jmx, d.name));
           this.threadGroups.forEach(tg => {
             tg.options = {};
           });
-          this.getLoadConfig();
-        }
+        });
+        this.getLoadConfig();
       });
     },
     calculateTotalChart() {

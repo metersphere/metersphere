@@ -16,10 +16,11 @@ import io.metersphere.controller.request.OrderRequest;
 import io.metersphere.controller.request.QueryScheduleRequest;
 import io.metersphere.dto.DashboardTestDTO;
 import io.metersphere.dto.LoadTestDTO;
-import io.metersphere.dto.LoadTestFileDTO;
 import io.metersphere.dto.ScheduleDao;
 import io.metersphere.i18n.Translator;
 import io.metersphere.job.sechedule.PerformanceTestJob;
+import io.metersphere.performance.dto.LoadTestExportJmx;
+import io.metersphere.performance.dto.LoadTestFileDTO;
 import io.metersphere.performance.engine.Engine;
 import io.metersphere.performance.engine.EngineFactory;
 import io.metersphere.performance.engine.producer.LoadTestProducer;
@@ -131,23 +132,13 @@ public class PerformanceTestService {
         checkQuota(request, true);
         LoadTestWithBLOBs loadTest = saveLoadTest(request);
 
-        // 新选择了一个文件，删除原来的文件
         List<FileMetadata> importFiles = request.getUpdatedFileList();
         List<String> importFileIds = importFiles.stream().map(FileMetadata::getId).collect(Collectors.toList());
         // 导入项目里其他的文件
         this.importFiles(importFileIds, loadTest.getId());
-        // 保存上传的问题件
+        // 保存上传的文件
         this.saveUploadFiles(files, loadTest.getId());
-        // 直接上传了jmx，用于API导入的场景
-        String jmx = request.getJmx();
-        if (StringUtils.isNotBlank(jmx)) {
-            byte[] bytes = jmx.getBytes(StandardCharsets.UTF_8);
-            FileMetadata fileMetadata = fileService.saveFile(bytes, request.getName() + ".jmx", (long) bytes.length);
-            LoadTestFile loadTestFile = new LoadTestFile();
-            loadTestFile.setTestId(loadTest.getId());
-            loadTestFile.setFileId(fileMetadata.getId());
-            loadTestFileMapper.insert(loadTestFile);
-        }
+
         return loadTest.getId();
     }
 
@@ -222,16 +213,6 @@ public class PerformanceTestService {
         List<String> addFileIds = ListUtils.subtract(updatedFileIds, originFileIds);
         this.importFiles(addFileIds, request.getId());
         this.saveUploadFiles(files, request.getId());
-        // 直接上传了jmx，用于API导入的场景
-        String jmx = request.getJmx();
-        if (StringUtils.isNotBlank(jmx)) {
-            byte[] bytes = jmx.getBytes(StandardCharsets.UTF_8);
-            FileMetadata fileMetadata = fileService.saveFile(bytes, request.getName() + ".jmx", (long) bytes.length);
-            LoadTestFile loadTestFile = new LoadTestFile();
-            loadTestFile.setTestId(request.getId());
-            loadTestFile.setFileId(fileMetadata.getId());
-            loadTestFileMapper.insert(loadTestFile);
-        }
 
         loadTest.setName(request.getName());
         loadTest.setProjectId(request.getProjectId());
@@ -391,15 +372,16 @@ public class PerformanceTestService {
         return Optional.ofNullable(loadTestWithBLOBs).orElse(new LoadTestWithBLOBs()).getLoadConfiguration();
     }
 
-    public String getJmxContent(String testId) {
+    public List<LoadTestExportJmx> getJmxContent(String testId) {
         List<FileMetadata> fileMetadataList = fileService.getFileMetadataByTestId(testId);
+        List<LoadTestExportJmx> results = new ArrayList<>();
         for (FileMetadata metadata : fileMetadataList) {
             if (FileType.JMX.name().equals(metadata.getType())) {
                 FileContent fileContent = fileService.getFileContent(metadata.getId());
-                return new String(fileContent.getFile());
+                results.add(new LoadTestExportJmx(metadata.getName(), new String(fileContent.getFile(), StandardCharsets.UTF_8)));
             }
         }
-        return null;
+        return results;
     }
 
     public List<LoadTestWithBLOBs> selectByTestResourcePoolId(String resourcePoolId) {
@@ -556,5 +538,19 @@ public class PerformanceTestService {
             loadTypes.add(FileType.JAR.name());
         }
         return extLoadTestMapper.getProjectFiles(projectId, loadTypes);
+    }
+
+    public List<LoadTestExportJmx> exportJmx(List<String> fileIds) {
+        if (CollectionUtils.isEmpty(fileIds)) {
+            return null;
+        }
+        List<LoadTestExportJmx> results = new ArrayList<>();
+        fileIds.forEach(id -> {
+            FileMetadata fileMetadata = fileService.getFileMetadataById(id);
+            FileContent fileContent = fileService.getFileContent(id);
+            results.add(new LoadTestExportJmx(fileMetadata.getName(), new String(fileContent.getFile(), StandardCharsets.UTF_8)));
+        });
+
+        return results;
     }
 }

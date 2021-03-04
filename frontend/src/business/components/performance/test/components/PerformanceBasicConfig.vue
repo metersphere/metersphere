@@ -8,6 +8,7 @@
         style="padding-right: 10px;"
         accept=".jmx"
         action=""
+        multiple
         :limit="fileNumLimit"
         :show-file-list="false"
         :before-upload="beforeUploadJmx"
@@ -83,7 +84,7 @@
       <ms-table-button :is-tester-permission="true" icon="el-icon-circle-plus-outline"
                        :content="$t('load_test.load_exist_file')" @click="loadFile()"/>
     </el-row>
-    <el-table class="basic-config" :data="tableData.filter(f => !f.name.toUpperCase().endsWith('.JMX'))">
+    <el-table class="basic-config" :data="tableData">
       <el-table-column
         prop="name"
         :label="$t('load_test.file_name')">
@@ -116,79 +117,36 @@
       </el-table-column>
     </el-table>
 
-    <el-dialog :title="$t('load_test.exist_jmx')" width="70%" :visible.sync="loadFileVisible">
+    <exist-files ref="existFiles"
+                 @fileChange="fileChange"
+                 :file-list="fileList"
+                 :table-data="tableData"
+                 :upload-list="uploadList"
+                 :scenarios="threadGroups"/>
 
-      <el-table class="basic-config" :data="existFiles" v-loading="projectLoadingResult.loading">
-        <el-table-column
-          prop="testName"
-          :label="$t('load_test.test')">
-        </el-table-column>
-        <el-table-column
-          prop="name"
-          :label="$t('load_test.file_name')">
-        </el-table-column>
-        <el-table-column
-          prop="type"
-          :label="$t('load_test.file_type')">
-        </el-table-column>
-        <el-table-column
-          :label="$t('load_test.last_modify_time')">
-          <template v-slot:default="scope">
-            <i class="el-icon-time"/>
-            <span class="last-modified">{{ scope.row.updateTime | timestampFormatDate }}</span>
-          </template>
-        </el-table-column>
-        <el-table-column
-          :label="$t('commons.operating')">
-          <template v-slot:default="scope">
-            <ms-table-operator-button :is-tester-permission="true"
-                                      :tip="$t('api_test.api_import.label')"
-                                      icon="el-icon-upload"
-                                      @exec="handleImport(scope.row)"/>
-          </template>
-        </el-table-column>
-      </el-table>
-      <ms-table-pagination :change="getProjectFiles" :current-page.sync="currentPage" :page-size.sync="pageSize"
-                           :total="total"/>
-    </el-dialog>
-    <el-dialog :title="$t('load_test.scenario_list')" width="60%" :visible.sync="loadApiAutomationVisible">
+    <exist-scenarios ref="existScenarios"
+                     @fileChange="fileChange"
+                     :file-list="fileList"
+                     :table-data="tableData"
+                     :upload-list="uploadList"
+                     :scenarios="threadGroups"/>
 
-      <el-table class="basic-config" :data="apiScenarios" v-loading="projectLoadingResult.loading">
-        <el-table-column
-          prop="num"
-          label="ID">
-        </el-table-column>
-        <el-table-column
-          prop="name"
-          :label="$t('load_test.scenario_name')">
-        </el-table-column>
-        <el-table-column
-          :label="$t('commons.operating')">
-          <template v-slot:default="scope">
-            <ms-table-operator-button :is-tester-permission="true"
-                                      :tip="$t('api_test.api_import.label')"
-                                      icon="el-icon-upload"
-                                      @exec="handleImportApi(scope.row)"/>
-          </template>
-        </el-table-column>
-      </el-table>
-      <ms-table-pagination :change="getProjectFiles" :current-page.sync="currentPage" :page-size.sync="pageSize"
-                           :total="total"/>
-    </el-dialog>
   </div>
 </template>
 
 <script>
 import {Message} from "element-ui";
-import {findTestPlan, findThreadGroup} from "@/business/components/performance/test/model/ThreadGroup";
+import {findThreadGroup} from "@/business/components/performance/test/model/ThreadGroup";
 import MsTableButton from "@/business/components/common/components/MsTableButton";
-import {getCurrentProjectID} from "@/common/js/utils";
 import MsTablePagination from "@/business/components/common/pagination/TablePagination";
 import MsTableOperatorButton from "@/business/components/common/components/MsTableOperatorButton";
+import MsDialogFooter from "@/business/components/common/components/MsDialogFooter";
+import ExistFiles from "@/business/components/performance/test/components/ExistFiles";
+import ExistScenarios from "@/business/components/performance/test/components/ExistScenarios";
 
 export default {
   name: "PerformanceBasicConfig",
-  components: {MsTableOperatorButton, MsTablePagination, MsTableButton},
+  components: {ExistScenarios, ExistFiles, MsDialogFooter, MsTableOperatorButton, MsTablePagination, MsTableButton},
   props: {
     test: {
       type: Object
@@ -215,9 +173,9 @@ export default {
       pageSize: 5,
       total: 0,
       existFiles: [],
-      loadType: 'jmx',
       apiScenarios: [],
       loadApiAutomationVisible: false,
+      selectIds: new Set(),
     };
   },
   created() {
@@ -229,19 +187,6 @@ export default {
     test() {
       if (this.test.id) {
         this.getFileMetadata(this.test)
-      }
-    },
-    uploadList() {
-      let self = this;
-      let fileList = self.uploadList.filter(f => f.name.endsWith(".jmx"));
-      if (fileList.length > 0) {
-        let file = fileList[0];
-        let jmxReader = new FileReader();
-        jmxReader.onload = (event) => {
-          self.threadGroups = findThreadGroup(event.target.result);
-          self.$emit('fileChange', self.threadGroups);
-        };
-        jmxReader.readAsText(file);
       }
     }
   },
@@ -256,7 +201,6 @@ export default {
           Message.error({message: this.$t('load_test.related_file_not_found'), showClose: true});
           return;
         }
-        console.log(files);
         // deep copy
         this.fileList = JSON.parse(JSON.stringify(files));
         this.tableData = JSON.parse(JSON.stringify(files));
@@ -265,40 +209,12 @@ export default {
         });
       })
     },
-    deleteExistJmx: function () {
-      // 只能上传一个jmx
-      let jmxs = this.tableData.filter(f => {
-        let type = f.name.substring(f.name.lastIndexOf(".") + 1);
-        return type.toUpperCase() === 'JMX';
-      });
-      for (let i = 0; i < jmxs.length; i++) {
-        let index = this.tableData.indexOf(jmxs[i]);
-        if (index > -1) {
-          this.tableData.splice(index, 1);
-        }
-        let index2 = this.uploadList.indexOf(jmxs[i]);
-        if (index2 > -1) {
-          this.uploadList.splice(index2, 1);
-        }
-      }
 
-      jmxs = this.fileList.filter(f => {
-        let type = f.name.substring(f.name.lastIndexOf(".") + 1);
-        return type.toUpperCase() === 'JMX';
-      });
-      for (let i = 0; i < jmxs.length; i++) {
-        let index3 = this.fileList.indexOf(jmxs[i]);
-        if (index3 > -1) {
-          this.fileList.splice(index3, 1);
-        }
-      }
-    },
     beforeUploadJmx(file) {
       if (!this.fileValidator(file)) {
         /// todo: 显示错误信息
         return false;
       }
-      this.deleteExistJmx();
       if (this.tableData.filter(f => f.name === file.name).length > 0) {
         this.$error(this.$t('load_test.delete_file'));
         return false;
@@ -337,7 +253,16 @@ export default {
       return true;
     },
     handleUpload(uploadResources) {
-      this.uploadList.push(uploadResources.file);
+      let self = this;
+      let file = uploadResources.file;
+      self.uploadList.push(file);
+
+      let jmxReader = new FileReader();
+      jmxReader.onload = (event) => {
+        self.threadGroups = self.threadGroups.concat(findThreadGroup(event.target.result, file.name));
+        self.$emit('fileChange', self.threadGroups);
+      };
+      jmxReader.readAsText(file);
     },
     handleDownload(file) {
       let data = {
@@ -369,78 +294,6 @@ export default {
         Message.error({message: e.message, showClose: true});
       });
     },
-    handleImport(row) {
-      if (this.tableData.filter(f => f.name === row.name).length > 0) {
-        this.$error(this.$t('load_test.delete_file'));
-        return;
-      }
-      if (this.loadType === 'resource') {
-        this.fileList.push(row);
-        this.tableData.push(row);
-        this.$success(this.$t('test_track.case.import.success'));
-        this.loadFileVisible = false;
-        return;
-      }
-      this.result = this.$get('/performance/get-jmx-content/' + row.testId, (response) => {
-        if (response.data) {
-          let testPlan = findTestPlan(response.data);
-          testPlan.elements.forEach(e => {
-            if (e.attributes.name === 'TestPlan.serialize_threadgroups') {
-              this.serializeThreadgroups = Boolean(e.elements[0].text);
-            }
-          });
-          this.threadGroups = findThreadGroup(response.data);
-          this.threadGroups.forEach(tg => {
-            tg.options = {};
-          });
-          this.$emit('fileChange', this.threadGroups);
-        }
-        this.deleteExistJmx();
-        this.fileList.push(row);
-        this.tableData.push(row);
-        this.$success(this.$t('test_track.case.import.success'));
-        this.loadFileVisible = false;
-      });
-    },
-    countStrToBit(str) {
-      let count = 0
-      const arr = str.split('')
-      arr.forEach(item => {
-        count += Math.ceil(item.charCodeAt().toString(2).length / 8)
-      })
-      return count
-    },
-    handleImportApi(row) {
-      let condition = {
-        projectId: getCurrentProjectID(),
-        ids: [row.id]
-      };
-      this.projectLoadingResult = this.$post('api/automation/export/jmx', condition, response => {
-        let data = response.data[0];
-        this.threadGroups = findThreadGroup(data.jmx);
-        this.threadGroups.forEach(tg => {
-          tg.options = {};
-        });
-        this.$emit('fileChange', this.threadGroups);
-        this.deleteExistJmx();
-        let bytes = this.countStrToBit(data.jmx);
-        this.fileList.push({
-          name: this.test.name + ".jmx",
-          size: bytes,
-          type: "JMX",
-          updateTime: new Date().getTime(),
-        });
-        this.tableData.push({
-          name: this.test.name + ".jmx",
-          size: (bytes / 1024).toFixed(2) + ' KB',
-          type: "JMX",
-          updateTime: new Date().getTime(),
-        });
-        this.test.jmx = data.jmx;
-        this.$success(this.$t('test_track.case.import.success'));
-        this.loadApiAutomationVisible = false;
-      })
-    },
     handleDelete(file) {
       this.$alert(this.$t('load_test.delete_file_confirm') + file.name + "？", '', {
         confirmButtonText: this.$t('commons.confirm'),
@@ -464,6 +317,12 @@ export default {
       let i = this.uploadList.findIndex(upLoadFile => upLoadFile.name === file.name);
       if (i > -1) {
         this.uploadList.splice(i, 1);
+      }
+
+      let jmxIndex = this.threadGroups.findIndex(tg => tg.handler === file.name);
+      while (jmxIndex !== -1) {
+        this.threadGroups.splice(jmxIndex, 1);
+        jmxIndex = this.threadGroups.findIndex(tg => tg.handler === file.name);
       }
     },
     handleDeleteThreadGroup(tg) {
@@ -490,74 +349,23 @@ export default {
       return this.fileList;// 表示修改了已经上传的文件列表
     },
     loadJMX() {
-      this.loadFileVisible = true;
-      this.loadType = "jmx";
-      this.getProjectFiles();
+      this.$refs.existFiles.open('jmx');
     },
     loadFile() {
-      this.loadFileVisible = true;
-      this.loadType = "resource";
-      this.getProjectFiles();
+      this.$refs.existFiles.open('resource');
     },
     loadApiAutomation() {
-      this.loadApiAutomationVisible = true;
-      this.getProjectScenarios();
+      this.$refs.existScenarios.open();
     },
-    getProjectFiles() {
-      this.projectLoadingResult = this.$get('/performance/project/' + this.loadType + '/' + getCurrentProjectID() + "/" + this.currentPage + "/" + this.pageSize, res => {
-        let data = res.data;
-        this.total = data.itemCount;
-        this.existFiles = data.listObject;
-      })
+    fileChange(threadGroups) {
+      this.$emit('fileChange', threadGroups);
     },
-    getProjectScenarios() {
-      let condition = {
-        projectId: getCurrentProjectID(),
-        filters: {status: ["Prepare", "Underway", "Completed"]}
-      }
-      this.projectLoadingResult = this.$post('/api/automation/list/' + this.currentPage + "/" + this.pageSize, condition, res => {
-        let data = res.data;
-        this.total = data.itemCount;
-        this.apiScenarios = data.listObject;
-      })
-    },
-
     validConfig() {
-      let newJmxNum = 0, oldJmxNum = 0, newCsvNum = 0, oldCsvNum = 0, newJarNum = 0, oldJarNum = 0;
-      if (this.uploadList.length > 0) {
-        this.uploadList.forEach(f => {
-          if (f.name.toLowerCase().endsWith(".jmx")) {
-            newJmxNum++;
-          }
-          if (f.name.toLowerCase().endsWith(".csv")) {
-            newCsvNum++;
-          }
-          if (f.name.toLowerCase().endsWith(".jar")) {
-            newJarNum++;
-          }
-        });
-      }
-      if (this.fileList.length > 0) {
-        this.fileList.forEach(f => {
-          if (f.name.toLowerCase().endsWith(".jmx")) {
-            oldJmxNum++;
-          }
-          if (f.name.toLowerCase().endsWith(".csv")) {
-            oldCsvNum++;
-          }
-          if (f.name.toLowerCase().endsWith(".jar")) {
-            oldJarNum++;
-          }
-        });
-      }
-      if (newCsvNum + oldCsvNum + newJarNum + oldJarNum > this.fileNumLimit - 1) {
+      if (this.uploadList.length + this.fileList.length > this.fileNumLimit) {
         this.handleExceed();
         return false;
       }
-      if (newJmxNum + oldJmxNum !== 1) {
-        this.$error(this.$t('load_test.jmx_is_null'));
-        return false;
-      }
+
       if (this.threadGroups.filter(tg => tg.attributes.enabled == 'true').length === 0) {
         this.$error(this.$t('load_test.threadgroup_at_least_one'));
         return false;

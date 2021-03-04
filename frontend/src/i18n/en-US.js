@@ -499,7 +499,7 @@ export default {
     scenario_name: 'Scenario Name',
     upload_jmx: 'Upload JMX',
     exist_jmx: 'Existed Files',
-    other_resource: 'Other Files',
+    other_resource: 'Resource Files',
     upload_file: 'Upload Files',
     load_exist_file: 'Load Project Files',
     load_exist_jmx: 'Load Project JMX',

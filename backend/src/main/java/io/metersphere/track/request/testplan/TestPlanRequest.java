@@ -16,8 +16,6 @@ public class TestPlanRequest {
 
     private String description;
 
-    private String jmx;
-
     private Long createTime;
 
     private Long updateTime;
