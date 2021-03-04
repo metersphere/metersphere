@@ -486,6 +486,7 @@ public class ApiTestCaseService {
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         MsTestElement element = mapper.readValue(testCaseWithBLOBs.getRequest(), new TypeReference<MsTestElement>() {
         });
+        element.setProjectId(testCaseWithBLOBs.getProjectId());
         if (StringUtils.isBlank(request.getEnvironmentId())) {
             TestPlanApiCaseExample example = new TestPlanApiCaseExample();
             example.createCriteria().andTestPlanIdEqualTo(request.getTestPlanId()).andApiCaseIdEqualTo(request.getCaseId());
@@ -513,9 +514,14 @@ public class ApiTestCaseService {
         ApiTestEnvironmentService environmentService = CommonBeanFactory.getBean(ApiTestEnvironmentService.class);
         ApiTestEnvironmentWithBLOBs environment = environmentService.get(request.getEnvironmentId());
         ParameterConfig parameterConfig = new ParameterConfig();
-//        if (environment != null && environment.getConfig() != null) {
-//            parameterConfig.setConfig(JSONObject.parseObject(environment.getConfig(), EnvironmentConfig.class));
-//        }
+
+        Map<String, EnvironmentConfig> envConfig = new HashMap<>(16);
+        if (environment != null && environment.getConfig() != null) {
+            EnvironmentConfig environmentConfig = JSONObject.parseObject(environment.getConfig(), EnvironmentConfig.class);
+            envConfig.put(testCaseWithBLOBs.getProjectId(), environmentConfig);
+            parameterConfig.setConfig(envConfig);
+        }
+
         testPlan.toHashTree(jmeterHashTree, testPlan.getHashTree(), parameterConfig);
         return jmeterHashTree;
     }

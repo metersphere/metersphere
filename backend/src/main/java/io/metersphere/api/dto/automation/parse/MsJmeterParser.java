@@ -48,6 +48,7 @@ import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.assertions.*;
 import org.apache.jmeter.config.ConfigTestElement;
 import org.apache.jmeter.control.ForeachController;
@@ -280,7 +281,9 @@ public class MsJmeterParser extends ApiImportAbstractParser<ScenarioImport> {
         preCreate(hashTree);
         // 更新数据源
         ApiTestEnvironmentService environmentService = CommonBeanFactory.getBean(ApiTestEnvironmentService.class);
-        dataPools.getEnvConfig().setDatabaseConfigs(new ArrayList<>(dataPools.getDataSources().values()));
+        if (dataPools.getDataSources() != null) {
+            dataPools.getEnvConfig().setDatabaseConfigs(new ArrayList<>(dataPools.getDataSources().values()));
+        }
         if (dataPools.getIsCreate()) {
             dataPools.getTestEnvironmentWithBLOBs().setConfig(JSON.toJSONString(dataPools.getEnvConfig()));
             String id = environmentService.add(dataPools.getTestEnvironmentWithBLOBs());
@@ -437,11 +440,20 @@ public class MsJmeterParser extends ApiImportAbstractParser<ScenarioImport> {
             extract.getXpath().add(xPath);
         } else if (key instanceof JSONPostProcessor) {
             JSONPostProcessor jsonPostProcessor = (JSONPostProcessor) key;
-            MsExtractJSONPath jsonPath = new MsExtractJSONPath();
-            jsonPath.setVariable(jsonPostProcessor.getRefNames());
-            jsonPath.setExpression(jsonPostProcessor.getJsonPathExpressions());
-            extract.setName(jsonPostProcessor.getName());
-            extract.getJson().add(jsonPath);
+            String[] names = StringUtils.isNotEmpty(jsonPostProcessor.getRefNames()) ? jsonPostProcessor.getRefNames().split(";") : null;
+            String[] values = StringUtils.isNotEmpty(jsonPostProcessor.getJsonPathExpressions()) ? jsonPostProcessor.getJsonPathExpressions().split(";") : null;
+            if (names != null) {
+                for (int i = 0; i < names.length; i++) {
+                    MsExtractJSONPath jsonPath = new MsExtractJSONPath();
+                    jsonPath.setVariable(names[i]);
+                    if (values != null && values.length > i) {
+                        jsonPath.setExpression(values[i]);
+                    }
+                    jsonPath.setMultipleMatching(jsonPostProcessor.getComputeConcatenation());
+                    extract.setName(jsonPostProcessor.getName());
+                    extract.getJson().add(jsonPath);
+                }
+            }
         }
     }
 
@@ -460,13 +472,13 @@ public class MsJmeterParser extends ApiImportAbstractParser<ScenarioImport> {
             if (assertion.getTestStrings() != null && !assertion.getTestStrings().isEmpty()) {
                 assertionRegex.setExpression(assertion.getTestStrings().get(0).getStringValue());
             }
-            if (assertion.isTestFieldRequestData()) {
+            if (assertion.isTestFieldResponseData()) {
                 assertionRegex.setSubject("Response Data");
             }
             if (assertion.isTestFieldResponseCode()) {
                 assertionRegex.setSubject("Response Code");
             }
-            if (assertion.isTestFieldRequestHeaders()) {
+            if (assertion.isTestFieldResponseHeaders()) {
                 assertionRegex.setSubject("Response Headers");
             }
             assertions.setName(assertion.getName());

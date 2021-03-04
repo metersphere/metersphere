@@ -8,7 +8,7 @@
                       class="input-with-select"
                       maxlength="30" show-word-limit
             >
-              <template slot="prepend">测试名称</template>
+              <template slot="prepend">{{ $t('load_test.name') }}</template>
             </el-input>
           </el-col>
           <el-col :span="12" :offset="2">
@@ -32,6 +32,7 @@
           </el-tab-pane>
           <el-tab-pane :label="$t('load_test.pressure_config')">
             <performance-pressure-config :is-read-only="isReadOnly" :test="test" :test-id="testId"
+                                         @fileChange="fileChange"
                                          ref="pressureConfig" @changeActive="changeTabActive"/>
           </el-tab-pane>
           <el-tab-pane :label="$t('load_test.advanced_config')" class="advanced-config">
@@ -305,6 +306,9 @@ export default {
 
       this.$set(handler, "threadGroups", threadGroups);
 
+      this.$refs.basicConfig.threadGroups = threadGroups;
+      this.$refs.pressureConfig.threadGroups = threadGroups;
+
       threadGroups.forEach(tg => {
         handler.calculateChart(tg);
       })
@@ -317,7 +321,6 @@ export default {
 
 .testplan-config {
   margin-top: 15px;
-  text-align: center;
 }
 
 .el-select {

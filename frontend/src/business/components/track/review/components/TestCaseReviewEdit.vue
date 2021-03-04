@@ -85,6 +85,9 @@
           <el-button type="primary" @click="saveReview">
             {{ $t('test_track.confirm') }}
           </el-button>
+          <el-button type="primary" @click="reviewInfo('form')">
+            {{ $t('test_track.planning_execution') }}
+          </el-button>
         </div>
       </template>
     </el-dialog>
@@ -134,6 +137,34 @@ export default {
     };
   },
   methods: {
+    reviewInfo(form) {
+      this.$refs['reviewForm'].validate((valid) => {
+        if (valid) {
+          let param = {};
+          Object.assign(param, this.form);
+          param.name = param.name.trim();
+          if (this.form.tags instanceof Array) {
+            this.form.tags = JSON.stringify(this.form.tags);
+          }
+          param.tags = this.form.tags;
+          if (param.name === '') {
+            this.$warning(this.$t('test_track.plan.input_plan_name'));
+            return;
+          }
+
+          if (!this.compareTime(new Date().getTime(), this.form.endTime)) {
+            return false;
+          }
+
+          this.result = this.$post('/test/case/review/' + this.operationType, param, response => {
+            this.dialogFormVisible = false;
+            this.$router.push('/track/review/view/' + response.data);
+          });
+        } else {
+          return false;
+        }
+      });
+    },
     openCaseReviewEditDialog(caseReview) {
       this.resetForm();
       this.setReviewerOptions();

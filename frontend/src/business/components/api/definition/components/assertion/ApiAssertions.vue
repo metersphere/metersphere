@@ -16,6 +16,7 @@
           <el-select :disabled="isReadOnly" class="assertion-item" v-model="type"
                      :placeholder="$t('api_test.request.assertions.select_type')"
                      size="small">
+            <el-option :label="$t('api_test.request.assertions.text')" :value="options.TEXT"/>
             <el-option :label="$t('api_test.request.assertions.regex')" :value="options.REGEX"/>
             <el-option :label="'JSONPath'" :value="options.JSON_PATH"/>
             <el-option :label="'XPath'" :value="options.XPATH2"/>
@@ -24,6 +25,9 @@
           </el-select>
         </el-col>
         <el-col :span="20">
+          <ms-api-assertion-text :is-read-only="isReadOnly" :list="assertions.regex" v-if="type === options.TEXT"
+                                 :callback="after"/>
+
           <ms-api-assertion-regex :is-read-only="isReadOnly" :list="assertions.regex" v-if="type === options.REGEX"
                                   :callback="after"/>
           <ms-api-assertion-json-path :is-read-only="isReadOnly" :list="assertions.jsonPath"

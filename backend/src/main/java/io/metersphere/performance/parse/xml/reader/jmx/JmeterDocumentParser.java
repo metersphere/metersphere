@@ -9,6 +9,7 @@ import io.metersphere.config.KafkaProperties;
 import io.metersphere.i18n.Translator;
 import io.metersphere.performance.engine.EngineContext;
 import io.metersphere.performance.parse.xml.reader.DocumentParser;
+import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
@@ -638,6 +639,25 @@ public class JmeterDocumentParser implements DocumentParser {
             Object o = ((List<?>) holds).get(0);
             ((List<?>) holds).remove(0);
             hold = o.toString();
+        }
+        Object deleteds = context.getProperty("deleted");
+        String deleted = "false";
+        if (deleteds instanceof List) {
+            Object o = ((List<?>) deleteds).get(0);
+            ((List<?>) deleteds).remove(0);
+            deleted = o.toString();
+        }
+        Object enableds = context.getProperty("enabled");
+        String enabled = "true";
+        if (enableds instanceof List) {
+            Object o = ((List<?>) enableds).get(0);
+            ((List<?>) enableds).remove(0);
+            enabled = o.toString();
+        }
+
+        threadGroup.setAttribute("enabled", enabled);
+        if (BooleanUtils.toBoolean(deleted)) {
+            threadGroup.setAttribute("enabled", "false");
         }
         Element elementProp = document.createElement("elementProp");
         elementProp.setAttribute("name", "ThreadGroup.main_controller");
