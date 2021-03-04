@@ -11,5 +11,7 @@ public interface ExtWorkspaceMapper {
     List<WorkspaceDTO> getWorkspaceWithOrg(@Param("request") WorkspaceRequest request);
     List<String> getWorkspaceIdsByOrgId(@Param("orgId") String orgId);
 
-    List<WorkspaceDTO> findAllIdAndName();
+    String getOrganizationIdById(String resourceID);
+
+    List<WorkspaceDTO> findIdAndNameByOrganizationId(@Param("organizationId") String organizationId);
 }

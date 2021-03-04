@@ -326,6 +326,7 @@ export default {
     input_name: '请输入项目名称',
     owning_workspace: '所属工作空间',
     please_choose_workspace: '请选择工作空间',
+    batch_choose_workspace: '批量选择工作空间',
     special_characters_are_not_supported: '格式错误(不支持特殊字符，且不能以\'-\'开头结尾)',
     tapd_id: 'TAPD项目ID',
     jira_key: 'JIRA项目key',
@@ -373,7 +374,11 @@ export default {
     delete_confirm: '这个用户确定要删除吗?',
     apikey_delete_confirm: '这个 API Key 确定要删除吗?',
     input_id_placeholder: '请输入ID (不支持中文)',
-    source: '用户来源'
+    source: '用户来源',
+    button:{
+      add_workspace_batch: '批量添加到工作空间',
+      add_user_role_batch: '批量添加角色',
+    }
   },
   role: {
     please_choose_role: '请选择角色',
