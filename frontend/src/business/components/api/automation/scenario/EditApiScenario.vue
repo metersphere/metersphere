@@ -640,6 +640,7 @@
         }
       },
       pushApiOrCase(data, refType, referenced) {
+        alert("add")
         data.forEach(item => {
           this.setApiParameter(item, refType, referenced);
         });
@@ -692,7 +693,7 @@
         }
         const index = hashTree.findIndex(d => d.resourceId === row.resourceId);
         if (index != -1) {
-          hashTree.splice(index, 0, obj);
+          hashTree.splice(index+1, 0, obj);
         } else {
           hashTree.push(obj);
         }
