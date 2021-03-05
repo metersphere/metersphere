@@ -3,7 +3,15 @@
     <span class="kv-description" v-if="description">
       {{ description }}
     </span>
-
+    <el-dropdown>
+      <span class="el-dropdown-link">
+        全选/反选<i class="el-icon-arrow-down el-icon--right"></i>
+      </span>
+      <el-dropdown-menu slot="dropdown">
+        <el-dropdown-item @click.native="selectAll">全选</el-dropdown-item>
+        <el-dropdown-item @click.native="invertSelect">反选</el-dropdown-item>
+      </el-dropdown-menu>
+    </el-dropdown>
     <div class="item kv-row" v-for="(item, index) in parameters" :key="index">
       <el-row type="flex" :gutter="20" justify="space-between" align="middle">
         <el-col class="kv-checkbox" v-if="isShowEnable">
@@ -219,6 +227,16 @@
         } else {
           item.contentType = 'text/plain';
         }
+      },
+      selectAll() {
+        this.parameters.forEach(item => {
+          item.enable = true;
+        });
+      },
+      invertSelect() {
+        this.parameters.forEach(item => {
+          item.enable = !item.enable;
+        });
       },
     },
     created() {
