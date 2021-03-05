@@ -1,6 +1,6 @@
 <template>
   <div class="variable-input">
-    <el-input class="el-input__inner_pd" :disabled="isReadOnly" :value="value" v-bind="$attrs" :size="size" @change="change" @input="input"/>
+    <el-input :disabled="isReadOnly" :value="value" v-bind="$attrs" :size="size" @change="change" @input="input"/>
     <div :class="{'hidden': !showVariable}" class="variable-combine" v-if="value">
       <div v-if="showCopy" class="variable">{{variable}}</div>
       <el-tooltip v-if="showCopy" :content="$t('api_test.copied')" manual v-model="visible" placement="top" :visible-arrow="false">
