@@ -391,7 +391,7 @@
           },
           {
             title: this.$t('api_test.automation.scenario_import'),
-            show: this.operatingElements && this.operatingElements.indexOf('scenario') === 0,
+            show:this.showButton("scenario"),
             titleColor: "#606266",
             titleBgColor: "#F4F4F5",
             icon: "movie",
@@ -919,6 +919,7 @@
                   }
                   this.enableCookieShare = obj.enableCookieShare;
                   this.scenarioDefinition = obj.hashTree;
+                  this.initProjectIds();
                 }
               }
               if (this.currentScenario.copy) {
@@ -999,6 +1000,7 @@
         this.reload();
       },
       initProjectIds() {
+        // 加载环境配置
         this.projectIds.clear();
         this.scenarioDefinition.forEach(data=>{
           let arr = jsonPath.query(data, "$..projectId");

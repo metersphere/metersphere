@@ -195,6 +195,9 @@ export default {
     module: {
       select_module: "選擇模塊",
       default_module: "默認模塊",
+    },
+    report_statistics: {
+      title: "報表統計"
     }
   },
   license: {
@@ -323,6 +326,7 @@ export default {
     input_name: '請輸入項目名稱',
     owning_workspace: '所屬工作空間',
     please_choose_workspace: '請選擇工作空間',
+    batch_choose_workspace: '批量選擇工作空間',
     special_characters_are_not_supported: '格式錯誤(不支持特殊字符，且不能以\'-\'開頭結尾)',
     tapd_id: 'TAPD項目ID',
     jira_key: 'JIRA項目key',
@@ -370,7 +374,11 @@ export default {
     delete_confirm: '這個用戶確定要刪除嗎?',
     apikey_delete_confirm: '這個 API Key 確定要刪除嗎?',
     input_id_placeholder: '請輸入ID (不支持中文)',
-    source: '用戶來源'
+    source: '用戶來源',
+    button:{
+      add_workspace_batch: '批量添加到工作空間',
+      add_user_role_batch: '批量添加角色',
+    }
   },
   role: {
     please_choose_role: '請選擇角色',

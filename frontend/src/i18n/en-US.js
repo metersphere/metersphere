@@ -194,6 +194,9 @@ export default {
     module: {
       select_module: "Select module",
       default_module: "Default module",
+    },
+    report_statistics: {
+      title: "Report statistics"
     }
   },
   license: {
@@ -237,6 +240,7 @@ export default {
     search_by_name: 'Search by name',
     organization_name: 'Organization Name',
     please_choose_organization: 'Please Choose Organization',
+    batch_choose_workspace: 'Please choose organizations',
     please_select_a_workspace_first: 'Please select a workspace first!',
     none: 'None Workspace',
     select: 'Select Workspace',
@@ -372,7 +376,11 @@ export default {
     delete_confirm: 'Are you sure you want to delete this User?',
     apikey_delete_confirm: 'Are you sure you want to delete this API Key?',
     input_id_placeholder: 'Please enter ID (Chinese characters are not supported)',
-    source: 'Source'
+    source: 'Source',
+    button:{
+      add_workspace_batch: 'Batch add user to workspace',
+      add_user_role_batch: 'Batch add user role',
+    }
   },
   role: {
     please_choose_role: 'Please Choose Role',

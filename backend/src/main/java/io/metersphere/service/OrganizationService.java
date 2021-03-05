@@ -179,7 +179,7 @@ public class OrganizationService {
         }
     }
 
-    public List<OrganizationMemberDTO> findAllIdAndName(){
-        return  extOrganizationMapper.findAllIdAndName();
+    public List<OrganizationMemberDTO> findIdAndNameByOrganizationId(String OrganizationID){
+        return  extOrganizationMapper.findIdAndNameByOrganizationId(OrganizationID);
     }
 }
