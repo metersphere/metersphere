@@ -258,13 +258,15 @@ export default {
       if (!this.report.testId) {
         return;
       }
+      let threadGroups = [];
       this.result = this.$get('/performance/get-jmx-content/' + this.report.testId, (response) => {
         response.data.forEach(d => {
-          this.threadGroups = this.threadGroups.concat(findThreadGroup(d.jmx, d.name));
-          this.threadGroups.forEach(tg => {
+          threadGroups = threadGroups.concat(findThreadGroup(d.jmx, d.name));
+          threadGroups.forEach(tg => {
             tg.options = {};
           });
         });
+        this.threadGroups = threadGroups;
         this.getLoadConfig();
       });
     },
