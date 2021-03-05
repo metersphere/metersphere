@@ -1,14 +1,13 @@
 package io.metersphere.track.service;
 
-import io.metersphere.api.dto.DeleteAPIReportRequest;
+import com.alibaba.fastjson.JSON;
 import io.metersphere.api.dto.automation.ApiScenarioDTO;
 import io.metersphere.api.dto.automation.ApiScenarioRequest;
 import io.metersphere.api.dto.automation.RunScenarioRequest;
 import io.metersphere.api.dto.automation.TestPlanScenarioRequest;
+import io.metersphere.api.dto.definition.RunDefinitionRequest;
 import io.metersphere.api.service.ApiAutomationService;
 import io.metersphere.api.service.ApiScenarioReportService;
-import io.metersphere.base.domain.TestPlanApiCase;
-import io.metersphere.base.domain.TestPlanApiCaseExample;
 import io.metersphere.base.domain.TestPlanApiScenario;
 import io.metersphere.base.domain.TestPlanApiScenarioExample;
 import io.metersphere.base.mapper.TestPlanApiScenarioMapper;
@@ -20,7 +19,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
-
 import javax.annotation.Resource;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -49,13 +47,24 @@ public class TestPlanScenarioCaseService {
     }
 
     public List<ApiScenarioDTO> relevanceList(ApiScenarioRequest request) {
-//        List<String> ids = apiAutomationService.selectIdsNotExistsInPlan(request.getProjectId(), request.getPlanId());
-//        if (CollectionUtils.isEmpty(ids)) {
-//            return new ArrayList<>();
-//        }
-//        request.setIds(ids);
         request.setNotInTestPlan(true);
-        return apiAutomationService.list(request);
+        List<ApiScenarioDTO> list = apiAutomationService.list(request);
+        list.forEach(data -> {
+            String definition = data.getScenarioDefinition();
+            RunDefinitionRequest d = JSON.parseObject(definition, RunDefinitionRequest.class);
+            Map<String, String> map = d.getEnvironmentMap();
+            List<String> idList = new ArrayList<>();
+            if (map != null) {
+                Set<String> set = d.getEnvironmentMap().keySet();
+                idList = new ArrayList<>(set);
+            } else {
+                if (org.apache.commons.lang3.StringUtils.isNotBlank(d.getEnvironmentId())) {
+                    idList.add(d.getEnvironmentId());
+                }
+            }
+            data.setProjectIds(idList);
+        });
+        return list;
     }
 
     public int delete(String id) {
