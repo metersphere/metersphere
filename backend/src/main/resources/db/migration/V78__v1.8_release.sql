@@ -27,5 +27,8 @@ CREATE TABLE IF NOT EXISTS `api_document_share`  (
      INDEX `share_api_id`(`share_api_id`(125)) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
 
--- test_case_review add coloumn
+-- test_case_review add column
 ALTER TABLE test_case_review ADD tags VARCHAR(2000) NULL;
+
+-- file add sort column
+alter table file_metadata add sort int default 0;

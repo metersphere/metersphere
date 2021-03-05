@@ -121,7 +121,6 @@ export default {
 
       if (this.loadType === 'resource') {
         rows.forEach(row => {
-          this.fileList.push(row);
           this.tableData.push(row);
         })
         this.$success(this.$t('test_track.case.import.success'));
@@ -142,7 +141,6 @@ export default {
             this.scenarios.push(tg);
           });
           let file = new File([d.jmx], d.name);
-          this.fileList.push(file);
           this.uploadList.push(file);
           this.tableData.push({
             name: file.name,

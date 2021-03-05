@@ -348,6 +348,13 @@ export default {
     updatedFileList() {
       return this.fileList;// 表示修改了已经上传的文件列表
     },
+    fileSorts() {
+      let fileSorts = {};
+      this.tableData.forEach((f, index) => {
+        fileSorts[f.name] = index;
+      });
+      return fileSorts;
+    },
     loadJMX() {
       this.$refs.existFiles.open('jmx');
     },

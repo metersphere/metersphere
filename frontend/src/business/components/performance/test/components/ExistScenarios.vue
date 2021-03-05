@@ -138,7 +138,6 @@ export default {
             this.scenarios.push(tg);
           });
           let file = new File([d.jmx], d.name + ".jmx");
-          this.fileList.push(file);
           this.uploadList.push(file);
           this.tableData.push({
             name: file.name,
