@@ -100,6 +100,8 @@ public class TestCaseService {
         testCase.setUpdateTime(System.currentTimeMillis());
         testCase.setNum(getNextNum(testCase.getProjectId()));
         testCase.setReviewStatus(TestCaseReviewStatus.Prepare.name());
+        testCase.setDemandId(testCase.getDemandId());
+        testCase.setDemandName(testCase.getDemandName());
         testCaseMapper.insert(testCase);
         return testCase;
     }

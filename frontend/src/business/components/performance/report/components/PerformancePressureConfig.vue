@@ -49,25 +49,39 @@
                     size="mini"/>
                 </el-form-item>
                 <br>
-                <el-form-item :label="$t('load_test.ramp_up_time_within')">
-                  <el-input-number
-                    :disabled="true"
-                    :min="1"
-                    :max="threadGroup.duration"
-                    v-model="threadGroup.rampUpTime"
-                    @change="calculateChart(threadGroup)"
-                    size="mini"/>
-                </el-form-item>
-                <el-form-item :label="$t('load_test.ramp_up_time_minutes')">
-                  <el-input-number
-                    :disabled="true"
-                    :min="1"
-                    :max="Math.min(threadGroup.threadNumber, threadGroup.rampUpTime)"
-                    v-model="threadGroup.step"
-                    @change="calculateChart(threadGroup)"
-                    size="mini"/>
-                </el-form-item>
-                <el-form-item :label="$t('load_test.ramp_up_time_times')"/>
+                <div v-if="threadGroup.tgType === 'com.blazemeter.jmeter.threads.concurrency.ConcurrencyThreadGroup'">
+                  <el-form-item :label="$t('load_test.ramp_up_time_within')">
+                    <el-input-number
+                      :disabled="true"
+                      :min="1"
+                      :max="threadGroup.duration"
+                      v-model="threadGroup.rampUpTime"
+                      @change="calculateChart(threadGroup)"
+                      size="mini"/>
+                  </el-form-item>
+                  <el-form-item :label="$t('load_test.ramp_up_time_minutes')">
+                    <el-input-number
+                      :disabled="true"
+                      :min="1"
+                      :max="Math.min(threadGroup.threadNumber, threadGroup.rampUpTime)"
+                      v-model="threadGroup.step"
+                      @change="calculateChart(threadGroup)"
+                      size="mini"/>
+                  </el-form-item>
+                  <el-form-item :label="$t('load_test.ramp_up_time_times')"/>
+                </div>
+
+                <div v-if="threadGroup.tgType === 'ThreadGroup'">
+                  <el-form-item :label="$t('load_test.ramp_up_time_within')">
+                    <el-input-number
+                      :disabled="true"
+                      :min="1"
+                      v-model="threadGroup.rampUpTime"
+                      size="mini"/>
+                  </el-form-item>
+                  <el-form-item :label="$t('load_test.ramp_up_time_seconds')"/>
+                </div>
+
               </div>
               <div v-if="threadGroup.threadType === 'ITERATION'">
                 <el-form-item :label="$t('load_test.iterate_num')">

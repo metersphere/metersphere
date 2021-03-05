@@ -44,7 +44,7 @@ public class ApiTestCaseController {
         if(!list.isEmpty()){
             return  list.get(0);
         }else {
-            return  null;
+            return null;
         }
     }
 
@@ -53,6 +53,14 @@ public class ApiTestCaseController {
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         request.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
         return PageUtils.setPageInfo(page, apiTestCaseService.listSimple(request));
+    }
+
+    @GetMapping("/list/{projectId}")
+    public List<ApiTestCaseDTO> list(@PathVariable String projectId) {
+        ApiTestCaseRequest request = new ApiTestCaseRequest();
+        request.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
+        request.setProjectId(projectId);
+        return apiTestCaseService.listSimple(request);
     }
 
     @PostMapping("/get/request")

@@ -135,36 +135,37 @@ public class PerformanceTestService {
         List<FileMetadata> importFiles = request.getUpdatedFileList();
         List<String> importFileIds = importFiles.stream().map(FileMetadata::getId).collect(Collectors.toList());
         // 导入项目里其他的文件
-        this.importFiles(importFileIds, loadTest.getId());
+        this.importFiles(importFileIds, loadTest.getId(), request.getFileSorts());
         // 保存上传的文件
-        this.saveUploadFiles(files, loadTest.getId());
+        this.saveUploadFiles(files, loadTest.getId(), request.getFileSorts());
 
         return loadTest.getId();
     }
 
-    private void saveUploadFiles(List<MultipartFile> files, String testId) {
+    private void saveUploadFiles(List<MultipartFile> files, String testId, Map<String, Integer> fileSorts) {
         if (files != null) {
-            files.forEach(file -> {
-                final FileMetadata fileMetadata = fileService.saveFile(file);
+            for (int i = 0; i < files.size(); i++) {
+                MultipartFile file = files.get(i);
+                final FileMetadata fileMetadata = fileService.saveFile(file, fileSorts.getOrDefault(file.getOriginalFilename(), i));
                 LoadTestFile loadTestFile = new LoadTestFile();
                 loadTestFile.setTestId(testId);
                 loadTestFile.setFileId(fileMetadata.getId());
                 loadTestFileMapper.insert(loadTestFile);
-            });
+            }
         }
     }
 
-    private void importFiles(List<String> importFileIds, String testId) {
-        importFileIds.forEach(fileId -> {
-            if (StringUtils.isBlank(fileId)) {
-                return;
-            }
+    private void importFiles(List<String> importFileIds, String testId, Map<String, Integer> fileSorts) {
+        for (int i = 0; i < importFileIds.size(); i++) {
+            String fileId = importFileIds.get(i);
             FileMetadata fileMetadata = fileService.copyFile(fileId);
+            fileMetadata.setSort(fileSorts.getOrDefault(fileMetadata.getName(), i));
+            fileService.updateFileMetadata(fileMetadata);
             LoadTestFile loadTestFile = new LoadTestFile();
             loadTestFile.setTestId(testId);
             loadTestFile.setFileId(fileMetadata.getId());
             loadTestFileMapper.insert(loadTestFile);
-        });
+        }
     }
 
     private LoadTestWithBLOBs saveLoadTest(SaveTestPlanRequest request) {
@@ -211,8 +212,8 @@ public class PerformanceTestService {
         fileService.deleteFileByIds(deleteFileIds);
         // 导入项目里其他的文件
         List<String> addFileIds = ListUtils.subtract(updatedFileIds, originFileIds);
-        this.importFiles(addFileIds, request.getId());
-        this.saveUploadFiles(files, request.getId());
+        this.importFiles(addFileIds, request.getId(), request.getFileSorts());
+        this.saveUploadFiles(files, request.getId(), request.getFileSorts());
 
         loadTest.setName(request.getName());
         loadTest.setProjectId(request.getProjectId());
