@@ -29,3 +29,6 @@ CREATE TABLE IF NOT EXISTS `api_document_share`  (
 
 -- test_case_review add coloumn
 ALTER TABLE test_case_review ADD tags VARCHAR(2000) NULL;
+
+-- alter test_plan_api_scenario
+alter table test_plan_api_scenario change environment_id environment longtext null comment 'Relevance environment';

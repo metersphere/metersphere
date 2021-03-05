@@ -16,15 +16,21 @@ public interface TestPlanApiScenarioMapper {
 
     int insertSelective(TestPlanApiScenario record);
 
+    List<TestPlanApiScenario> selectByExampleWithBLOBs(TestPlanApiScenarioExample example);
+
     List<TestPlanApiScenario> selectByExample(TestPlanApiScenarioExample example);
 
     TestPlanApiScenario selectByPrimaryKey(String id);
 
     int updateByExampleSelective(@Param("record") TestPlanApiScenario record, @Param("example") TestPlanApiScenarioExample example);
 
+    int updateByExampleWithBLOBs(@Param("record") TestPlanApiScenario record, @Param("example") TestPlanApiScenarioExample example);
+
     int updateByExample(@Param("record") TestPlanApiScenario record, @Param("example") TestPlanApiScenarioExample example);
 
     int updateByPrimaryKeySelective(TestPlanApiScenario record);
+
+    int updateByPrimaryKeyWithBLOBs(TestPlanApiScenario record);
 
     int updateByPrimaryKey(TestPlanApiScenario record);
 }
