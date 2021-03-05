@@ -1,22 +1,10 @@
 package io.metersphere.job.sechedule;
 
-import io.metersphere.api.dto.automation.ExecuteType;
-import io.metersphere.api.dto.automation.SchedulePlanScenarioExecuteRequest;
-import io.metersphere.api.service.ApiTestCaseService;
-import io.metersphere.base.domain.*;
-import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.constants.ReportTriggerMode;
 import io.metersphere.commons.constants.ScheduleGroup;
 import io.metersphere.commons.utils.CommonBeanFactory;
-import io.metersphere.commons.utils.LogUtil;
-import io.metersphere.performance.service.PerformanceTestService;
-import io.metersphere.track.dto.TestPlanLoadCaseDTO;
-import io.metersphere.track.request.testplan.LoadCaseRequest;
-import io.metersphere.track.request.testplan.RunTestPlanRequest;
-import io.metersphere.track.service.*;
+import io.metersphere.track.service.TestPlanService;
 import org.quartz.*;
-
-import java.util.*;
 
 /**
  * 情景测试Job

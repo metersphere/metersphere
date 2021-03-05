@@ -1,4 +1,4 @@
-package io.metersphere.track.request.testplan;
+package io.metersphere.performance.request;
 
 import lombok.Getter;
 import lombok.Setter;
