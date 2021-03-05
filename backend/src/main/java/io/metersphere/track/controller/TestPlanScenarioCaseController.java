@@ -7,6 +7,7 @@ import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.commons.utils.SessionUtils;
+import io.metersphere.track.dto.RelevanceScenarioRequest;
 import io.metersphere.track.request.testcase.TestPlanApiCaseBatchRequest;
 import io.metersphere.track.service.TestPlanScenarioCaseService;
 import org.apache.shiro.authz.annotation.Logical;
@@ -52,5 +53,11 @@ public class TestPlanScenarioCaseController {
     public String run(@RequestBody RunScenarioRequest request) {
         request.setExecuteType(ExecuteType.Completed.name());
         return testPlanScenarioCaseService.run(request);
+    }
+
+    @PostMapping("/batch/update/env")
+    @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
+    public void batchUpdateEnv(@RequestBody RelevanceScenarioRequest request) {
+        testPlanScenarioCaseService.batchUpdateEnv(request);
     }
 }
