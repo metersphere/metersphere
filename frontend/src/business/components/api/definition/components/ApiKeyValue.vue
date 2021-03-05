@@ -3,6 +3,15 @@
     <span class="kv-description" v-if="description">
       {{ description }}
     </span>
+    <el-dropdown>
+      <span class="el-dropdown-link">
+        全选/反选<i class="el-icon-arrow-down el-icon--right"></i>
+      </span>
+      <el-dropdown-menu slot="dropdown">
+        <el-dropdown-item @click.native="selectAll">全选</el-dropdown-item>
+        <el-dropdown-item @click.native="invertSelect">反选</el-dropdown-item>
+      </el-dropdown-menu>
+    </el-dropdown>
     <div class="kv-row item" v-for="(item, index) in items" :key="index">
       <el-row type="flex" :gutter="20" justify="space-between" align="middle">
         <el-col class="kv-checkbox" v-if="isShowEnable">
@@ -19,7 +28,7 @@
           <el-input v-if="!suggestions" :disabled="isReadOnly" v-model="item.name" size="small" maxlength="200"
                     @change="change"
                     :placeholder="keyText" show-word-limit/>
-          <el-autocomplete :disabled="isReadOnly" :maxlength="200" v-if="suggestions" v-model="item.name" size="small"
+          <el-autocomplete :disabled="isReadOnly" :maxlength="400" v-if="suggestions" v-model="item.name" size="small"
                            :fetch-suggestions="querySearch" @change="change" :placeholder="keyText"
                            show-word-limit/>
 
@@ -137,6 +146,16 @@
         return (restaurant) => {
           return (restaurant.value.toLowerCase().indexOf(queryString.toLowerCase()) === 0);
         };
+      },
+      selectAll() {
+        this.items.forEach(item => {
+          item.enable = true;
+        });
+      },
+      invertSelect() {
+        this.items.forEach(item => {
+          item.enable = !item.enable;
+        });
       },
     },
     created() {

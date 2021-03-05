@@ -12,12 +12,14 @@ import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.controller.request.QueryScheduleRequest;
 import io.metersphere.dto.DashboardTestDTO;
 import io.metersphere.dto.LoadTestDTO;
-import io.metersphere.dto.LoadTestFileDTO;
 import io.metersphere.dto.ScheduleDao;
+import io.metersphere.performance.dto.LoadTestExportJmx;
+import io.metersphere.performance.dto.LoadTestFileDTO;
+import io.metersphere.performance.request.*;
 import io.metersphere.performance.service.PerformanceTestService;
 import io.metersphere.service.CheckPermissionService;
 import io.metersphere.service.FileService;
-import io.metersphere.track.request.testplan.*;
+import io.metersphere.track.request.testplan.FileOperationRequest;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.http.HttpHeaders;
@@ -108,9 +110,14 @@ public class PerformanceTestController {
     }
 
     @GetMapping("/get-jmx-content/{testId}")
-    public String getJmxContent(@PathVariable String testId) {
+    public List<LoadTestExportJmx> getJmxContent(@PathVariable String testId) {
         checkPermissionService.checkPerformanceTestOwner(testId);
         return performanceTestService.getJmxContent(testId);
+    }
+
+    @PostMapping("/export/jmx")
+    public List<LoadTestExportJmx> exportJmx(@RequestBody List<String> fileIds) {
+        return performanceTestService.exportJmx(fileIds);
     }
 
     @GetMapping("/project/{loadType}/{projectId}/{goPage}/{pageSize}")

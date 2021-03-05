@@ -37,7 +37,8 @@
           <el-table-column v-if="item.id == 'tagNames'" prop="tagNames" :label="$t('api_test.automation.tag')"
                            width="200px" :key="index">
             <template v-slot:default="scope">
-                <ms-tag v-for="(itemName,index) in scope.row.tags" :key="index" type="success" effect="plain" :content="itemName" style="margin-left: 5px"/>
+              <ms-tag v-for="(itemName,index) in scope.row.tags" :key="index" type="success" effect="plain"
+                      :content="itemName" style="margin-left: 5px"/>
             </template>
           </el-table-column>
           <el-table-column v-if="item.id == 'userId'" prop="userId" :label="$t('api_test.automation.creator')"
@@ -90,6 +91,10 @@
       </div>
     </el-card>
 
+    <!-- 批量编辑 -->
+    <batch-edit :dialog-title="$t('test_track.case.batch_edit_case')" :type-arr="typeArr" :value-arr="valueArr"
+                :select-row="selectRows" ref="batchEdit" @batchEdit="batchEdit"/>
+
   </div>
 </template>
 
@@ -98,7 +103,7 @@ import MsTableHeader from "@/business/components/common/components/MsTableHeader
 import MsTablePagination from "@/business/components/common/pagination/TablePagination";
 import ShowMoreBtn from "@/business/components/track/case/components/ShowMoreBtn";
 import MsTag from "../../../../../common/components/MsTag";
-import {getUUID, getCurrentProjectID, getCurrentUser} from "@/common/js/utils";
+import {getUUID, getCurrentProjectID, getCurrentUser, strMapToObj} from "@/common/js/utils";
 import MsApiReportDetail from "../../../../../api/automation/report/ApiReportDetail";
 import MsTableMoreBtn from "../../../../../api/automation/scenario/TableMoreBtn";
 import MsScenarioExtendButtons from "@/business/components/api/automation/scenario/ScenarioExtendBtns";
@@ -110,6 +115,7 @@ import HeaderCustom from "@/business/components/common/head/HeaderCustom";
 import {TEST_CASE_LIST, TEST_PLAN_SCENARIO_CASE} from "@/common/js/constants";
 import {Test_Plan_Scenario_Case, Track_Test_Case} from "@/business/components/common/model/JsonData";
 import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOperate";
+import BatchEdit from "@/business/components/track/case/components/BatchEdit";
 
 export default {
   name: "MsTestPlanApiScenarioList",
@@ -125,7 +131,8 @@ export default {
     MsTag,
     MsApiReportDetail,
     MsScenarioExtendButtons,
-    MsTestPlanList
+    MsTestPlanList,
+    BatchEdit
   },
   props: {
     referenced: {
@@ -162,9 +169,16 @@ export default {
         },
         {
           name: this.$t('api_test.automation.batch_execute'), handleClick: this.handleBatchExecute
-        }
+        },
+        {name: this.$t('test_track.case.batch_edit_case'), handleClick: this.handleBatchEdit}
       ],
-      selectRows: new Set()
+      selectRows: new Set(),
+      typeArr: [
+        {id: 'projectEnv', name: this.$t('api_test.definition.request.run_env')},
+      ],
+      valueArr: {
+        projectEnv: []
+      },
     }
   },
   created() {
@@ -284,7 +298,24 @@ export default {
           }
         }
       });
-    }
+    },
+    handleBatchEdit() {
+      this.$refs.batchEdit.open(this.selectRows.size);
+      this.$refs.batchEdit.setScenarioSelectRows(this.selectRows);
+    },
+    batchEdit(form) {
+      let param = {};
+      let map = new Map();
+      this.selectRows.forEach(row => {
+        map.set(row.id, row.projectIds);
+      })
+      param.mapping = strMapToObj(map);
+      param.envMap = strMapToObj(form.projectEnvMap);
+      this.$post('/test/plan/scenario/case/batch/update/env', param, () => {
+        this.$success(this.$t('commons.save_success'));
+        this.search();
+      })
+    },
   }
 }
 </script>

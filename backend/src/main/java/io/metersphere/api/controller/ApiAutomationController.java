@@ -44,6 +44,15 @@ public class ApiAutomationController {
         return PageUtils.setPageInfo(page, apiAutomationService.list(request));
     }
 
+    @GetMapping("/list/{projectId}")
+    @RequiresRoles(value = {RoleConstants.TEST_MANAGER, RoleConstants.TEST_USER, RoleConstants.TEST_VIEWER}, logical = Logical.OR)
+    public List<ApiScenarioDTO> list(@PathVariable String projectId) {
+        ApiScenarioRequest request = new ApiScenarioRequest();
+        request.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
+        request.setProjectId(projectId);
+        return apiAutomationService.list(request);
+    }
+
     @PostMapping(value = "/create")
     public ApiScenario create(@RequestPart("request") SaveApiScenarioRequest request, @RequestPart(value = "files") List<MultipartFile> bodyFiles) {
         return apiAutomationService.create(request, bodyFiles);

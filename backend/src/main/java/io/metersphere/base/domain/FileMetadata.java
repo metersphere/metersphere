@@ -18,5 +18,7 @@ public class FileMetadata implements Serializable {
 
     private Long size;
 
+    private Integer sort;
+
     private static final long serialVersionUID = 1L;
 }

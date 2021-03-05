@@ -15,6 +15,7 @@ import io.metersphere.api.service.ApiTestEnvironmentService;
 import io.metersphere.base.domain.ApiScenarioWithBLOBs;
 import io.metersphere.base.domain.ApiTestEnvironmentWithBLOBs;
 import io.metersphere.commons.utils.CommonBeanFactory;
+import io.metersphere.commons.utils.ScriptEngineUtils;
 import io.metersphere.commons.utils.SessionUtils;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -132,7 +133,7 @@ public class MsScenario extends MsTestElement {
         // 场景变量和环境变量
         Arguments arguments = arguments(config);
         if (arguments != null) {
-            tree.add(arguments);
+            tree.add(config.valueSupposeMock(arguments));
         }
         this.addCsvDataSet(tree, variables);
         this.addCounter(tree, variables);

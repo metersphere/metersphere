@@ -519,7 +519,7 @@ export default {
     scenario_name: '場景名稱',
     upload_jmx: '上傳 JMX文件',
     exist_jmx: '已存在的文件',
-    other_resource: '其他資源',
+    other_resource: '資源文件',
     upload_file: '上傳新文件',
     load_exist_file: '加載已有文件',
     load_exist_jmx: '加載已有 JMX 文件',

@@ -42,5 +42,9 @@ public class TestCase implements Serializable {
 
     private String tags;
 
+    private String demandId;
+
+    private String demandName;
+
     private static final long serialVersionUID = 1L;
 }

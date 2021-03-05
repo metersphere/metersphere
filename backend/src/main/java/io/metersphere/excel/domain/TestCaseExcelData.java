@@ -19,6 +19,8 @@ public class TestCaseExcelData {
     @ExcelIgnore
     private String priority;
     @ExcelIgnore
+    private String tags;
+    @ExcelIgnore
     private String method;
     @ExcelIgnore
     private String prerequisite;
