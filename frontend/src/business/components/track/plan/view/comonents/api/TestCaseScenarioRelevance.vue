@@ -31,7 +31,7 @@
 
   import TestCaseRelevanceBase from "../base/TestCaseRelevanceBase";
   import MsApiModule from "../../../../../api/definition/components/module/ApiModule";
-  import {getCurrentProjectID} from "../../../../../../../common/js/utils";
+  import {getCurrentProjectID, strMapToObj} from "../../../../../../../common/js/utils";
   import ApiList from "../../../../../api/definition/components/list/ApiList";
   import ApiCaseSimpleList from "../../../../../api/definition/components/list/ApiCaseSimpleList";
   import MsApiScenarioList from "../../../../../api/automation/scenario/ApiScenarioList";
@@ -98,13 +98,21 @@
       },
 
       saveCaseRelevance() {
+        const sign = this.$refs.apiScenarioList.checkEnv();
+        if (!sign) {
+          return false;
+        }
         let param = {};
-        let url = '';
-        let selectIds = [];
-        url = '/api/automation/relevance';
-        selectIds = Array.from(this.$refs.apiScenarioList.selectRows).map(row => row.id);
+        let url = '/api/automation/relevance';
+        let rows = this.$refs.apiScenarioList.selectRows;
+        const envMap = this.$refs.apiScenarioList.projectEnvMap;
+        let map = new Map();
+        rows.forEach(row => {
+          map.set(row.id, row.projectIds);
+        })
         param.planId = this.planId;
-        param.selectIds = selectIds;
+        param.mapping = strMapToObj(map);
+        param.envMap = strMapToObj(envMap);
 
         this.result = this.$post(url, param, () => {
           this.$success(this.$t('commons.save_success'));

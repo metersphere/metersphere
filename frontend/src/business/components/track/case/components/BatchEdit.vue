@@ -112,6 +112,13 @@
           this.projectIds.add(row.projectId)
         })
       },
+      setScenarioSelectRows(rows) {
+        this.selectRows = rows;
+        this.projectIds.clear();
+        this.selectRows.forEach(row => {
+          row.projectIds.forEach(id => this.projectIds.add(id));
+        })
+      },
       handleClose() {
         this.form = {};
         this.options = [];

@@ -483,6 +483,7 @@ public class TestCaseService {
             data.setType(t.getType());
             data.setMethod(t.getMethod());
             data.setPrerequisite(t.getPrerequisite());
+            data.setTags(t.getTags());
             if (t.getMethod().equals("manual")) {
                 String steps = t.getSteps();
                 String setp = "";

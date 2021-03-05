@@ -6,12 +6,14 @@
     <result column="test_plan_id" jdbcType="VARCHAR" property="testPlanId" />
     <result column="api_scenario_id" jdbcType="VARCHAR" property="apiScenarioId" />
     <result column="status" jdbcType="VARCHAR" property="status" />
-    <result column="environment_id" jdbcType="VARCHAR" property="environmentId" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
     <result column="update_time" jdbcType="BIGINT" property="updateTime" />
     <result column="pass_rate" jdbcType="VARCHAR" property="passRate" />
     <result column="last_result" jdbcType="VARCHAR" property="lastResult" />
     <result column="report_id" jdbcType="VARCHAR" property="reportId" />
+  </resultMap>
+  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.TestPlanApiScenario">
+    <result column="environment" jdbcType="LONGVARCHAR" property="environment" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -72,9 +74,28 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, test_plan_id, api_scenario_id, `status`, environment_id, create_time, update_time, 
-    pass_rate, last_result, report_id
+    id, test_plan_id, api_scenario_id, `status`, create_time, update_time, pass_rate, 
+    last_result, report_id
   </sql>
+  <sql id="Blob_Column_List">
+    environment
+  </sql>
+  <select id="selectByExampleWithBLOBs" parameterType="io.metersphere.base.domain.TestPlanApiScenarioExample" resultMap="ResultMapWithBLOBs">
+    select
+    <if test="distinct">
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
+    from test_plan_api_scenario
+    <if test="_parameter != null">
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
+  </select>
   <select id="selectByExample" parameterType="io.metersphere.base.domain.TestPlanApiScenarioExample" resultMap="BaseResultMap">
     select
     <if test="distinct">
@@ -89,9 +110,11 @@
       order by ${orderByClause}
     </if>
   </select>
-  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="BaseResultMap">
+  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="ResultMapWithBLOBs">
     select 
     <include refid="Base_Column_List" />
+    ,
+    <include refid="Blob_Column_List" />
     from test_plan_api_scenario
     where id = #{id,jdbcType=VARCHAR}
   </select>
@@ -107,13 +130,13 @@
   </delete>
   <insert id="insert" parameterType="io.metersphere.base.domain.TestPlanApiScenario">
     insert into test_plan_api_scenario (id, test_plan_id, api_scenario_id, 
-      `status`, environment_id, create_time, 
-      update_time, pass_rate, last_result, 
-      report_id)
+      `status`, create_time, update_time, 
+      pass_rate, last_result, report_id, 
+      environment)
     values (#{id,jdbcType=VARCHAR}, #{testPlanId,jdbcType=VARCHAR}, #{apiScenarioId,jdbcType=VARCHAR}, 
-      #{status,jdbcType=VARCHAR}, #{environmentId,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, 
-      #{updateTime,jdbcType=BIGINT}, #{passRate,jdbcType=VARCHAR}, #{lastResult,jdbcType=VARCHAR}, 
-      #{reportId,jdbcType=VARCHAR})
+      #{status,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, 
+      #{passRate,jdbcType=VARCHAR}, #{lastResult,jdbcType=VARCHAR}, #{reportId,jdbcType=VARCHAR}, 
+      #{environment,jdbcType=LONGVARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.TestPlanApiScenario">
     insert into test_plan_api_scenario
@@ -130,9 +153,6 @@
       <if test="status != null">
         `status`,
       </if>
-      <if test="environmentId != null">
-        environment_id,
-      </if>
       <if test="createTime != null">
         create_time,
       </if>
@@ -148,6 +168,9 @@
       <if test="reportId != null">
         report_id,
       </if>
+      <if test="environment != null">
+        environment,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -161,9 +184,6 @@
       </if>
       <if test="status != null">
         #{status,jdbcType=VARCHAR},
-      </if>
-      <if test="environmentId != null">
-        #{environmentId,jdbcType=VARCHAR},
       </if>
       <if test="createTime != null">
         #{createTime,jdbcType=BIGINT},
@@ -179,6 +199,9 @@
       </if>
       <if test="reportId != null">
         #{reportId,jdbcType=VARCHAR},
+      </if>
+      <if test="environment != null">
+        #{environment,jdbcType=LONGVARCHAR},
       </if>
     </trim>
   </insert>
@@ -203,9 +226,6 @@
       <if test="record.status != null">
         `status` = #{record.status,jdbcType=VARCHAR},
       </if>
-      <if test="record.environmentId != null">
-        environment_id = #{record.environmentId,jdbcType=VARCHAR},
-      </if>
       <if test="record.createTime != null">
         create_time = #{record.createTime,jdbcType=BIGINT},
       </if>
@@ -221,7 +241,26 @@
       <if test="record.reportId != null">
         report_id = #{record.reportId,jdbcType=VARCHAR},
       </if>
+      <if test="record.environment != null">
+        environment = #{record.environment,jdbcType=LONGVARCHAR},
+      </if>
     </set>
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExampleWithBLOBs" parameterType="map">
+    update test_plan_api_scenario
+    set id = #{record.id,jdbcType=VARCHAR},
+      test_plan_id = #{record.testPlanId,jdbcType=VARCHAR},
+      api_scenario_id = #{record.apiScenarioId,jdbcType=VARCHAR},
+      `status` = #{record.status,jdbcType=VARCHAR},
+      create_time = #{record.createTime,jdbcType=BIGINT},
+      update_time = #{record.updateTime,jdbcType=BIGINT},
+      pass_rate = #{record.passRate,jdbcType=VARCHAR},
+      last_result = #{record.lastResult,jdbcType=VARCHAR},
+      report_id = #{record.reportId,jdbcType=VARCHAR},
+      environment = #{record.environment,jdbcType=LONGVARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -232,7 +271,6 @@
       test_plan_id = #{record.testPlanId,jdbcType=VARCHAR},
       api_scenario_id = #{record.apiScenarioId,jdbcType=VARCHAR},
       `status` = #{record.status,jdbcType=VARCHAR},
-      environment_id = #{record.environmentId,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
       update_time = #{record.updateTime,jdbcType=BIGINT},
       pass_rate = #{record.passRate,jdbcType=VARCHAR},
@@ -254,9 +292,6 @@
       <if test="status != null">
         `status` = #{status,jdbcType=VARCHAR},
       </if>
-      <if test="environmentId != null">
-        environment_id = #{environmentId,jdbcType=VARCHAR},
-      </if>
       <if test="createTime != null">
         create_time = #{createTime,jdbcType=BIGINT},
       </if>
@@ -272,7 +307,23 @@
       <if test="reportId != null">
         report_id = #{reportId,jdbcType=VARCHAR},
       </if>
+      <if test="environment != null">
+        environment = #{environment,jdbcType=LONGVARCHAR},
+      </if>
     </set>
+    where id = #{id,jdbcType=VARCHAR}
+  </update>
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.metersphere.base.domain.TestPlanApiScenario">
+    update test_plan_api_scenario
+    set test_plan_id = #{testPlanId,jdbcType=VARCHAR},
+      api_scenario_id = #{apiScenarioId,jdbcType=VARCHAR},
+      `status` = #{status,jdbcType=VARCHAR},
+      create_time = #{createTime,jdbcType=BIGINT},
+      update_time = #{updateTime,jdbcType=BIGINT},
+      pass_rate = #{passRate,jdbcType=VARCHAR},
+      last_result = #{lastResult,jdbcType=VARCHAR},
+      report_id = #{reportId,jdbcType=VARCHAR},
+      environment = #{environment,jdbcType=LONGVARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKey" parameterType="io.metersphere.base.domain.TestPlanApiScenario">
@@ -280,7 +331,6 @@
     set test_plan_id = #{testPlanId,jdbcType=VARCHAR},
       api_scenario_id = #{apiScenarioId,jdbcType=VARCHAR},
       `status` = #{status,jdbcType=VARCHAR},
-      environment_id = #{environmentId,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
       update_time = #{updateTime,jdbcType=BIGINT},
       pass_rate = #{passRate,jdbcType=VARCHAR},
