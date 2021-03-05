@@ -642,12 +642,12 @@ public class JmeterDocumentParser implements DocumentParser {
             ((List<?>) rampUps).remove(0);
             rampUp = o.toString();
         }
-        Object holds = context.getProperty("Hold");
-        String hold = "2";
-        if (holds instanceof List) {
-            Object o = ((List<?>) holds).get(0);
-            ((List<?>) holds).remove(0);
-            hold = o.toString();
+        Object durations = context.getProperty("duration");
+        String duration = "2";
+        if (durations instanceof List) {
+            Object o = ((List<?>) durations).get(0);
+            ((List<?>) durations).remove(0);
+            duration = o.toString();
         }
         Object deleteds = context.getProperty("deleted");
         String deleted = "false";
@@ -681,7 +681,7 @@ public class JmeterDocumentParser implements DocumentParser {
         threadGroup.appendChild(createStringProp(document, "ThreadGroup.on_sample_error", "continue"));
         threadGroup.appendChild(createStringProp(document, "ThreadGroup.num_threads", threads));
         threadGroup.appendChild(createStringProp(document, "ThreadGroup.ramp_time", rampUp));
-        threadGroup.appendChild(createStringProp(document, "ThreadGroup.duration", hold));
+        threadGroup.appendChild(createStringProp(document, "ThreadGroup.duration", duration));
         threadGroup.appendChild(createStringProp(document, "ThreadGroup.delay", "0"));
         threadGroup.appendChild(createBoolProp(document, "ThreadGroup.scheduler", true));
         threadGroup.appendChild(createBoolProp(document, "ThreadGroup.same_user_on_next_iteration", true));

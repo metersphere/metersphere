@@ -110,15 +110,6 @@ public class EngineFactory {
             final JSONArray jsonArray = JSONObject.parseArray(loadTest.getLoadConfiguration());
 
             for (int i = 0; i < jsonArray.size(); i++) {
-                if (jsonArray.get(i) instanceof Map) {
-                    JSONObject o = jsonArray.getJSONObject(i);
-                    String key = o.getString("key");
-                    if ("TargetLevel".equals(key)) {
-                        engineContext.addProperty(key, Math.round(((Integer) o.get("value")) * ratio));
-                    } else {
-                        engineContext.addProperty(key, o.get("value"));
-                    }
-                }
                 if (jsonArray.get(i) instanceof List) {
                     JSONArray o = jsonArray.getJSONArray(i);
                     for (int j = 0; j < o.size(); j++) {
