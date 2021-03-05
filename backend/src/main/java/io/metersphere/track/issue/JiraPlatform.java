@@ -7,6 +7,7 @@ import io.metersphere.commons.constants.IssuesManagePlatform;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.EncryptUtils;
 import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.track.dto.DemandDTO;
 import io.metersphere.track.issue.domain.PlatformUser;
 import io.metersphere.track.request.testcase.IssuesRequest;
 import org.apache.commons.lang3.StringUtils;
@@ -76,6 +77,11 @@ public class JiraPlatform extends AbstractIssuePlatform {
             }
         });
         return list;
+    }
+
+    @Override
+    public List<DemandDTO> getDemandList(String projectId) {
+        return null;
     }
 
     @Override
