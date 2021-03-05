@@ -51,7 +51,7 @@
     </sql>
 
     <select id="list" resultMap="BaseResultMap"
-            parameterType="io.metersphere.track.request.testplan.QueryTestPlanRequest">
+            parameterType="io.metersphere.performance.request.QueryTestPlanRequest">
         SELECT load_test.*, project.name AS project_name, user.name AS user_name
         FROM load_test
                      LEFT JOIN project ON load_test.project_id = project.id
