@@ -44,3 +44,8 @@ alter table test_case
 
 alter table test_case
     add demand_name varchar(999) null;
+-- test_case_review add column
+ALTER TABLE test_case_review ADD tags VARCHAR(2000) NULL;
+
+-- file add sort column
+alter table file_metadata add sort int default 0;

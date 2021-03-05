@@ -2,8 +2,11 @@ export default {
   commons: {
     cover: '覆盖',
     not_cover: '不覆盖',
+    import: '导入',
+    import_success: '导入成功',
     import_mode: '导入模式',
     import_module: '导入模块',
+    import_user: '导入用户',
     please_fill_in_the_template: '请填写模版内容',
     cut_back_old_version: '切回旧版',
     cut_back_new_version: '切回新版',
@@ -192,6 +195,9 @@ export default {
     module: {
       select_module: "选择模块",
       default_module: "默认模块",
+    },
+    report_statistics: {
+      title: "报表统计"
     }
   },
   license: {
@@ -320,6 +326,7 @@ export default {
     input_name: '请输入项目名称',
     owning_workspace: '所属工作空间',
     please_choose_workspace: '请选择工作空间',
+    batch_choose_workspace: '批量选择工作空间',
     special_characters_are_not_supported: '格式错误(不支持特殊字符，且不能以\'-\'开头结尾)',
     tapd_id: 'TAPD项目ID',
     jira_key: 'JIRA项目key',
@@ -367,7 +374,11 @@ export default {
     delete_confirm: '这个用户确定要删除吗?',
     apikey_delete_confirm: '这个 API Key 确定要删除吗?',
     input_id_placeholder: '请输入ID (不支持中文)',
-    source: '用户来源'
+    source: '用户来源',
+    button:{
+      add_workspace_batch: '批量添加到工作空间',
+      add_user_role_batch: '批量添加角色',
+    }
   },
   role: {
     please_choose_role: '请选择角色',
@@ -418,6 +429,8 @@ export default {
     delete_batch_confirm: '确认批量删除报告',
   },
   load_test: {
+    test: '测试',
+    name: '测试名称',
     same_project_test: '只能运行同一项目内的测试',
     already_exists: '测试名称不能重复',
     operating: '操作',
@@ -487,7 +500,18 @@ export default {
     user_name: '创建人',
     special_characters_are_not_supported: '测试名称不支持特殊字符',
     pressure_config_params_is_empty: '压力配置参数不能为空!',
-    schedule_tip: '间隔时间不能小于压测时长'
+    schedule_tip: '间隔时间不能小于压测时长',
+    delete_threadgroup_confirm: '确认删除场景',
+    scenario_list: '场景列表',
+    scenario_name: "场景名称",
+    upload_jmx: '上传 JMX 文件',
+    exist_jmx: '已存在的文件',
+    other_resource: '资源文件',
+    upload_file: '上传新文件',
+    load_exist_file: '加载已有文件',
+    load_exist_jmx: '加载已有 JMX 文件',
+    threadgroup_at_least_one: '至少启用一个线程组',
+    load_api_automation_jmx: '引用接口自动化场景',
   },
   api_test: {
     creator: "创建人",
@@ -606,7 +630,7 @@ export default {
         edit_time_Reverse_order: "按更新时间从后到前",
         request_method: "请求方式",
         request_interface: "请求接口",
-        search_by_api_name : "名称搜索",
+        search_by_api_name: "名称搜索",
         request_info: "请求信息",
         request_head: "请求头",
         request_param: "参数",
@@ -616,7 +640,7 @@ export default {
         response_head: "响应头",
         response_body: "响应体",
         response_code: "响应码",
-        table_coloum:{
+        table_coloum: {
           name: "名称",
           value: "值",
           is_required: "是否必填",

@@ -10,8 +10,8 @@ import io.metersphere.base.mapper.ext.ExtApiTestReportMapper;
 import io.metersphere.base.mapper.ext.ExtLoadTestMapper;
 import io.metersphere.commons.constants.ScheduleGroup;
 import io.metersphere.dto.LoadTestDTO;
+import io.metersphere.performance.request.QueryTestPlanRequest;
 import io.metersphere.service.ScheduleService;
-import io.metersphere.track.request.testplan.QueryTestPlanRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 

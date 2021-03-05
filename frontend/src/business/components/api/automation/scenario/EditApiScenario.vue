@@ -111,26 +111,9 @@
                 <el-col :span="3" class="ms-col-one ms-font">
                   <el-checkbox v-model="enableCookieShare">共享cookie</el-checkbox>
                 </el-col>
-                <el-col :span="7" class="ms-col-one ms-font">
-                  <el-link type="primary" @click="handleEnv">环境配置</el-link>
-                  <!--                  <el-select v-model="currentEnvironmentId" size="small" class="ms-htt-width"-->
-                  <!--                             :placeholder="$t('api_test.definition.request.run_env')"-->
-                  <!--                             clearable>-->
-                  <!--                    <el-option v-for="(environment, index) in environments" :key="index"-->
-                  <!--                               :label="environment.name + (environment.config.httpConfig.socket ? (': ' + environment.config.httpConfig.protocol + '://' + environment.config.httpConfig.socket) : '')"-->
-                  <!--                               :value="environment.id"/>-->
-                  <!--                    <el-button class="ms-scenario-button" size="mini" type="primary" @click="openEnvironmentConfig">-->
-                  <!--                      {{ $t('api_test.environment.environment_config') }}-->
-                  <!--                    </el-button>-->
-                  <!--                    <template v-slot:empty>-->
-                  <!--                      <div class="empty-environment">-->
-                  <!--                        <el-button class="ms-scenario-button" size="mini" type="primary" @click="openEnvironmentConfig">-->
-                  <!--                          {{ $t('api_test.environment.environment_config') }}-->
-                  <!--                        </el-button>-->
-                  <!--                      </div>-->
-                  <!--                    </template>-->
-                  <!--                  </el-select>-->
-
+                <el-col :span="7">
+                  <env-popover :env-map="projectEnvMap" :project-ids="projectIds" @setProjectEnvMap="setProjectEnvMap"
+                               :project-list="projectList" ref="envPopover"/>
                 </el-col>
                 <el-col :span="2">
                   <el-button :disabled="scenarioDefinition.length < 1" size="small" type="primary" @click="runDebug">{{$t('api_test.request.debug')}}</el-button>
@@ -150,7 +133,7 @@
                       <!-- 步骤组件-->
                        <ms-component-config :type="data.type" :scenario="data" :response="response" :currentScenario="currentScenario"
                                             :currentEnvironmentId="currentEnvironmentId" :node="node" :project-list="projectList" :env-map="projectEnvMap"
-                                            @remove="remove" @copyRow="copyRow" @suggestClick="suggestClick" @refReload="reload"/>
+                                            @remove="remove" @copyRow="copyRow" @suggestClick="suggestClick" @refReload="refReload"/>
                     </span>
               </el-tree>
             </div>
@@ -185,9 +168,6 @@
       </el-drawer>
       <!--场景导入 -->
       <scenario-relevance @save="addScenario" ref="scenarioRelevance"/>
-
-      <api-scenario-env :project-ids="projectIds" :env-map="projectEnvMap"
-                        ref="apiScenarioEnv" @setProjectEnvMap="setProjectEnvMap" :project-list="projectList"/>
 
       <!-- 环境 -->
       <api-environment-config ref="environmentConfig" @close="environmentConfigClose"/>
@@ -235,9 +215,8 @@
   import ScenarioRelevance from "./api/ScenarioRelevance";
   import MsComponentConfig from "./component/ComponentConfig";
   import {handleCtrlSEvent} from "../../../../../common/js/utils";
-  import {getProject} from "@/business/components/api/automation/scenario/event";
-  import ApiScenarioEnv from "@/business/components/api/automation/scenario/ApiScenarioEnv";
-
+  import EnvPopover from "@/business/components/api/automation/scenario/EnvPopover";
+  let jsonPath = require('jsonpath');
   export default {
     name: "EditApiScenario",
     props: {
@@ -245,7 +224,6 @@
       currentScenario: {},
     },
     components: {
-      ApiScenarioEnv,
       MsVariableList,
       ScenarioRelevance,
       ScenarioApiRelevance,
@@ -255,6 +233,7 @@
       MsApiCustomize,
       ApiImport,
       MsComponentConfig,
+      EnvPopover
     },
     data() {
       return {
@@ -315,12 +294,6 @@
       this.getMaintainerOptions();
       this.getApiScenario();
       this.addListener(); //  添加 ctrl s 监听
-    },
-    mounted() {
-      getProject.$on('addProjectEnv', (projectId, projectEnv) => {
-        this.projectIds.add(projectId);
-        // this.projectEnvMap.set(projectId, projectEnv);
-      })
     },
     directives: {OutsideClick},
     computed: {
@@ -418,7 +391,7 @@
           },
           {
             title: this.$t('api_test.automation.scenario_import'),
-            show: this.operatingElements && this.operatingElements.indexOf('scenario') === 0,
+            show:this.showButton("scenario"),
             titleColor: "#606266",
             titleBgColor: "#F4F4F5",
             icon: "movie",
@@ -604,6 +577,7 @@
         }
         this.sort();
         this.reload();
+        this.initProjectIds();
         this.scenarioVisible = false;
       },
       setApiParameter(item, refType, referenced) {
@@ -645,6 +619,7 @@
         });
         this.sort();
         this.reload();
+        this.initProjectIds();
       },
       getMaintainerOptions() {
         let workspaceId = localStorage.getItem(WORKSPACE_ID);
@@ -668,15 +643,10 @@
               const parent = node.parent
               const hashTree = parent.data.hashTree || parent.data;
               const index = hashTree.findIndex(d => d.resourceId != undefined && row.resourceId != undefined && d.resourceId === row.resourceId)
-              if (hashTree[index] && hashTree[index].projectId) {
-                this.projectIds.delete(hashTree[index].projectId);
-                if (this.projectEnvMap.has(hashTree[index].projectId)) {
-                  this.projectEnvMap.delete(hashTree[index].projectId);
-                }
-              }
               hashTree.splice(index, 1);
               this.sort();
               this.reload();
+              this.initProjectIds();
             }
           }
         });
@@ -712,7 +682,7 @@
         //   this.$error(this.$t('api_test.environment.select_environment'));
         //   return;
         // }
-        let sign = this.$refs.apiScenarioEnv.checkEnv();
+        let sign = this.$refs.envPopover.checkEnv();
         if (!sign) {
           return;
         }
@@ -949,6 +919,7 @@
                   }
                   this.enableCookieShare = obj.enableCookieShare;
                   this.scenarioDefinition = obj.hashTree;
+                  this.initProjectIds();
                 }
               }
               if (this.currentScenario.copy) {
@@ -1013,9 +984,6 @@
         }
         return size;
       },
-      beforeDestroy() {
-        getProject.$off('addProjectEnv');
-      },
       handleEnv() {
         this.$refs.apiScenarioEnv.open();
       },
@@ -1027,6 +995,18 @@
           this.projectList = res.data;
         })
       },
+      refReload() {
+        this.initProjectIds();
+        this.reload();
+      },
+      initProjectIds() {
+        // 加载环境配置
+        this.projectIds.clear();
+        this.scenarioDefinition.forEach(data=>{
+          let arr = jsonPath.query(data, "$..projectId");
+          arr.forEach(a => this.projectIds.add(a));
+        })
+      }
     }
   }
 </script>

@@ -84,8 +84,7 @@ public class MsAuthManager extends MsTestElement {
             authManager.setProperty(TestElement.TEST_CLASS, AuthManager.class.getName());
             authManager.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("AuthPanel"));
             Authorization auth = new Authorization();
-            auth.setURL(samplerProxy.getUrl().toString());
-            auth.setDomain(samplerProxy.getDomain());
+            auth.setURL(samplerProxy.getProtocol() + "://" + samplerProxy.getDomain());
             auth.setUser(msAuthManager.getUsername());
             auth.setPass(msAuthManager.getPassword());
             auth.setMechanism(AuthManager.Mechanism.DIGEST);

@@ -1,17 +1,16 @@
 package io.metersphere.service;
 
+import com.alibaba.excel.EasyExcelFactory;
+import io.metersphere.api.dto.automation.ApiScenarioRequest;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
+import io.metersphere.base.mapper.ext.ExtOrganizationMapper;
 import io.metersphere.base.mapper.ext.ExtUserMapper;
 import io.metersphere.base.mapper.ext.ExtUserRoleMapper;
-import io.metersphere.commons.constants.RoleConstants;
-import io.metersphere.commons.constants.UserSource;
-import io.metersphere.commons.constants.UserStatus;
+import io.metersphere.commons.constants.*;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.user.SessionUser;
-import io.metersphere.commons.utils.CodingUtil;
-import io.metersphere.commons.utils.CommonBeanFactory;
-import io.metersphere.commons.utils.SessionUtils;
+import io.metersphere.commons.utils.*;
 import io.metersphere.controller.ResultHolder;
 import io.metersphere.controller.request.LoginRequest;
 import io.metersphere.controller.request.member.AddMemberRequest;
@@ -20,23 +19,36 @@ import io.metersphere.controller.request.member.QueryMemberRequest;
 import io.metersphere.controller.request.member.UserRequest;
 import io.metersphere.controller.request.organization.AddOrgMemberRequest;
 import io.metersphere.controller.request.organization.QueryOrgMemberRequest;
+import io.metersphere.controller.request.resourcepool.UserBatchProcessRequest;
+import io.metersphere.dto.OrganizationMemberDTO;
 import io.metersphere.dto.UserDTO;
 import io.metersphere.dto.UserRoleDTO;
+import io.metersphere.dto.WorkspaceDTO;
+import io.metersphere.excel.domain.*;
+import io.metersphere.excel.listener.EasyExcelListener;
+import io.metersphere.excel.listener.TestCaseDataListener;
+import io.metersphere.excel.listener.UserDataListener;
+import io.metersphere.excel.utils.EasyExcelExporter;
 import io.metersphere.i18n.Translator;
 import io.metersphere.notice.domain.UserDetail;
 import io.metersphere.security.MsUserToken;
+import io.metersphere.track.request.testcase.QueryTestCaseRequest;
+import io.metersphere.xmind.XmindCaseParser;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.*;
 import org.apache.shiro.authz.UnauthorizedException;
 import org.apache.shiro.subject.Subject;
+import org.python.antlr.ast.Str;
 import org.springframework.beans.BeanUtils;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -63,6 +75,8 @@ public class UserService {
     @Lazy
     @Resource
     private WorkspaceService workspaceService;
+    @Resource
+    private ExtOrganizationMapper extOrganizationMapper;
 
     public List<UserDetail> queryTypeByIds(List<String> userIds) {
         return extUserMapper.queryTypeByIds(userIds);
@@ -296,7 +310,6 @@ public class UserService {
         userRoleExample.createCriteria().andUserIdEqualTo(userId);
         List<UserRole> userRoles = userRoleMapper.selectByExample(userRoleExample);
         List<String> list = userRoles.stream().map(UserRole::getSourceId).collect(Collectors.toList());
-
         if (!CollectionUtils.isEmpty(list)) {
             if (list.contains(user.getLastWorkspaceId()) || list.contains(user.getLastOrganizationId())) {
                 user.setLastOrganizationId("");
@@ -318,7 +331,6 @@ public class UserService {
         if (userMapper.countByExample(example) > 0) {
             MSException.throwException(Translator.get("user_email_already_exists"));
         }
-
         user.setUpdateTime(System.currentTimeMillis());
         userMapper.updateByPrimaryKeySelective(user);
     }
@@ -614,6 +626,225 @@ public class UserService {
         SSOService ssoService = CommonBeanFactory.getBean(SSOService.class);
         if (ssoService != null) {
             ssoService.logout();
+        }
+    }
+
+    public void userTemplateExport(HttpServletResponse response) {
+        try {
+            EasyExcelExporter easyExcelExporter = new EasyExcelExporter(new UserExcelDataFactory().getExcelDataByLocal());
+            easyExcelExporter.export(response, generateExportTemplate(),
+                    Translator.get("user_import_template_name"), Translator.get("user_import_template_sheet"));
+        } catch (Exception e) {
+            MSException.throwException(e);
+        }
+    }
+
+    private List<UserExcelData> generateExportTemplate() {
+        List<UserExcelData> list = new ArrayList<>();
+        List<String> types = TestCaseConstants.Type.getValues();
+        List<String> methods = TestCaseConstants.Method.getValues();
+        SessionUser user = SessionUtils.getUser();
+        for (int i = 1; i <= 2; i++) {
+            UserExcelData data = new UserExcelData();
+            data.setId("user_id_" + i);
+            data.setName(Translator.get("user") + i);
+            String workspace = "";
+            for (int workspaceIndex = 1; workspaceIndex <= i; workspaceIndex++) {
+                if (workspaceIndex == 1) {
+                    workspace = "workspace" + workspaceIndex;
+                } else {
+                    workspace = workspace + "\n" + "workspace" + workspaceIndex;
+                }
+            }
+            data.setUserIsAdmin(Translator.get("options_no"));
+            data.setUserIsTester(Translator.get("options_no"));
+            data.setUserIsOrgMember(Translator.get("options_no"));
+            data.setUserIsViewer(Translator.get("options_no"));
+            data.setUserIsTestManager(Translator.get("options_no"));
+            data.setUserIsOrgAdmin(Translator.get("options_yes"));
+            data.setOrgAdminOrganization(workspace);
+            list.add(data);
+        }
+
+        list.add(new UserExcelData());
+        UserExcelData explain = new UserExcelData();
+        explain.setName(Translator.get("do_not_modify_header_order"));
+        explain.setOrgAdminOrganization("多个工作空间请换行展示");
+        list.add(explain);
+        return list;
+    }
+
+    public ExcelResponse userImport(MultipartFile multipartFile, String userId) {
+
+        ExcelResponse excelResponse = new ExcelResponse();
+        String currentWorkspaceId = SessionUtils.getCurrentWorkspaceId();
+        List<ExcelErrData<TestCaseExcelData>> errList = null;
+        if (multipartFile == null) {
+            MSException.throwException(Translator.get("upload_fail"));
+        }
+        try {
+            Class clazz = new UserExcelDataFactory().getExcelDataByLocal();
+
+            Map<String, String> orgNameMap = new HashMap<>();
+            Map<String, String> workspaceNameMap = new HashMap<>();
+
+            List<OrganizationMemberDTO> organizationList = extOrganizationMapper.findIdAndNameByOrganizationId("All");
+            for (OrganizationMemberDTO model : organizationList) {
+                orgNameMap.put(model.getName(), model.getId());
+            }
+            List<WorkspaceDTO> workspaceList = workspaceService.findIdAndNameByOrganizationId("All");
+            for (WorkspaceDTO model : workspaceList) {
+                workspaceNameMap.put(model.getName(), model.getId());
+            }
+            EasyExcelListener easyExcelListener = new UserDataListener(clazz, workspaceNameMap, orgNameMap);
+            EasyExcelFactory.read(multipartFile.getInputStream(), clazz, easyExcelListener).sheet().doRead();
+            errList = easyExcelListener.getErrList();
+        } catch (Exception e) {
+            LogUtil.error(e.getMessage(), e);
+            MSException.throwException(e.getMessage());
+        }
+
+        //如果包含错误信息就导出错误信息
+        if (!errList.isEmpty()) {
+            excelResponse.setSuccess(false);
+            excelResponse.setErrList(errList);
+        } else {
+            excelResponse.setSuccess(true);
+        }
+        return excelResponse;
+    }
+
+    public List<String> selectAllId() {
+        return extUserMapper.selectAllId();
+    }
+
+    /**
+     * 批量处理用户信息:
+     * 添加用户到工作空间；
+     * 添加用户权限
+     *
+     * @param request
+     */
+    public void batchProcessUserInfo(UserBatchProcessRequest request) {
+        List<String> userIdList = this.selectIdByUserRequest(request);
+        String batchType = request.getBatchType();
+        for (String userID : userIdList) {
+            Map<String, List<String>> roleResourceIdMap = new HashMap<>();
+            if (StringUtils.equals(BatchProcessUserInfoType.ADD_WORKSPACE.name(), batchType)) {
+                //添加工作空间时，默认赋予只读用户权限
+                String userRole = RoleConstants.TEST_VIEWER;
+                List<String> workspaceID = request.getBatchProcessValue();
+                if (workspaceID != null && !workspaceID.isEmpty()) {
+                    roleResourceIdMap.put(userRole, workspaceID);
+                }
+            } else if (StringUtils.equals(BatchProcessUserInfoType.ADD_USER_ROLE.name(), batchType)) {
+                roleResourceIdMap = this.genRoleResourceMap(request.getBatchProcessValue());
+            }
+            if (!roleResourceIdMap.isEmpty()) {
+                UserRoleExample userRoleExample = new UserRoleExample();
+                userRoleExample.createCriteria().andUserIdEqualTo(userID);
+                List<UserRole> userRoles = userRoleMapper.selectByExample(userRoleExample);
+                UserRequest user = this.convert2UserRequest(userID, roleResourceIdMap, userRoles);
+                this.addUserWorkspaceAndRole(user, userRoles);
+            }
+        }
+    }
+
+    private List<String> selectIdByUserRequest(UserBatchProcessRequest request) {
+
+        if (request.getCondition() != null && request.getCondition().isSelectAll()) {
+            List<String> userIdList = new ArrayList<>();
+            if(StringUtils.isEmpty(request.getOrganizationId())){
+                userIdList = extUserMapper.selectIdsByQuery(request.getCondition());
+            }else{
+                //组织->成员 页面发起的请求
+                userIdList = extUserRoleMapper.selectIdsByQuery(request.getOrganizationId(),request.getCondition());
+            }
+
+            return userIdList;
+        } else {
+            return request.getIds();
+        }
+
+    }
+
+    private Map<String, List<String>> genRoleResourceMap(List<String> batchProcessValue) {
+        Map<String, List<String>> returnMap = new HashMap<>();
+        Map<String, String> workspaceToOrgMap = new HashMap<>();
+        for (String string : batchProcessValue) {
+            String[] stringArr = string.split("<->");
+            // string格式： 资源ID<->权限<->workspace/org
+            if (stringArr.length == 3) {
+                String resourceID = stringArr[0];
+                String role = stringArr[1];
+                String sourceType = stringArr[2];
+                String finalResourceId = resourceID;
+                if (StringUtils.equalsIgnoreCase(sourceType, "workspace")) {
+                    if (StringUtils.equalsAnyIgnoreCase(role, RoleConstants.ORG_ADMIN, RoleConstants.ORG_MEMBER)) {
+                        finalResourceId = workspaceToOrgMap.get(resourceID);
+                        if (finalResourceId == null) {
+                            finalResourceId = workspaceService.getOrganizationIdById(resourceID);
+                            workspaceToOrgMap.put(resourceID, finalResourceId);
+                        }
+                    }
+                }
+                if (StringUtils.isNotEmpty(finalResourceId)) {
+                    if (returnMap.containsKey(role)) {
+                        if (!returnMap.get(role).contains(finalResourceId)) {
+                            returnMap.get(role).add(finalResourceId);
+                        }
+
+                    } else {
+                        List<String> list = new ArrayList<>();
+                        list.add(finalResourceId);
+                        returnMap.put(role, list);
+                    }
+                }
+            }
+        }
+        return returnMap;
+    }
+
+    private UserRequest convert2UserRequest(String userID, Map<String, List<String>> roleIdMap, List<UserRole> userRoles) {
+        Map<String, List<String>> userRoleAndResourceMap = userRoles.stream().collect(
+                Collectors.groupingBy(UserRole::getRoleId, Collectors.mapping(UserRole::getSourceId, Collectors.toList())));
+        List<Map<String, Object>> roles = new ArrayList<>();
+        for (Map.Entry<String, List<String>> entry : roleIdMap.entrySet()) {
+            String role = entry.getKey();
+            List<String> rawResourceIDList = entry.getValue();
+            List<String> resourceIDList = new ArrayList<>();
+            for (String resourceID : rawResourceIDList) {
+                if (userRoleAndResourceMap.containsKey(role) && userRoleAndResourceMap.get(role).contains(resourceID)) {
+                    continue;
+                }
+                resourceIDList.add(resourceID);
+            }
+            if (resourceIDList.isEmpty()) {
+                continue;
+            }
+            Map<String, Object> roleMap = new HashMap<>();
+            roleMap.put("id", role);
+            roleMap.put("ids", resourceIDList);
+            roles.add(roleMap);
+        }
+        UserRequest request = new UserRequest();
+        request.setId(userID);
+        request.setRoles(roles);
+        return request;
+    }
+
+    public void addUserWorkspaceAndRole(UserRequest user, List<UserRole> userRoles) {
+        List<Map<String, Object>> roles = user.getRoles();
+        if (!roles.isEmpty()) {
+            insertUserRole(roles, user.getId());
+        }
+        List<String> list = userRoles.stream().map(UserRole::getSourceId).collect(Collectors.toList());
+        if (!CollectionUtils.isEmpty(list)) {
+            if (list.contains(user.getLastWorkspaceId()) || list.contains(user.getLastOrganizationId())) {
+                user.setLastOrganizationId("");
+                user.setLastWorkspaceId("");
+                userMapper.updateByPrimaryKeySelective(user);
+            }
         }
     }
 }

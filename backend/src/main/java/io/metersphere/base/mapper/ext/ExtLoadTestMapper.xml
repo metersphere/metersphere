@@ -51,7 +51,7 @@
     </sql>
 
     <select id="list" resultMap="BaseResultMap"
-            parameterType="io.metersphere.track.request.testplan.QueryTestPlanRequest">
+            parameterType="io.metersphere.performance.request.QueryTestPlanRequest">
         SELECT load_test.*, project.name AS project_name, user.name AS user_name
         FROM load_test
                      LEFT JOIN project ON load_test.project_id = project.id
@@ -130,5 +130,17 @@
     </select>
     <select id="getNextNum" resultType="io.metersphere.base.domain.LoadTest">
         select * from load_test lt where lt.project_id = #{projectId} ORDER BY num DESC LIMIT 1;
+    </select>
+
+    <select id="getProjectFiles" resultType="io.metersphere.performance.dto.LoadTestFileDTO">
+        SELECT file_metadata.*, load_test.id as testId, load_test.name as testName
+        FROM load_test
+                     JOIN load_test_file ON load_test.id = load_test_file.test_id
+                     JOIN file_metadata ON load_test_file.file_id = file_metadata.id
+        WHERE file_metadata.type IN
+        <foreach collection="loadTypes" item="id" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+        AND project_id = #{projectId,jdbcType=VARCHAR}
     </select>
 </mapper>

@@ -20,7 +20,7 @@
     <el-row>
       <el-collapse v-model="activeNames">
         <el-collapse-item :title="threadGroup.attributes.testname" :name="index"
-                          v-for="(threadGroup, index) in threadGroups"
+                          v-for="(threadGroup, index) in threadGroups.filter(th=>th.enabled === 'true' && th.deleted=='false')"
                           :key="index">
           <el-col :span="10">
             <el-form :inline="true">
@@ -62,25 +62,39 @@
                     size="mini"/>
                 </el-form-item>
                 <br>
-                <el-form-item :label="$t('load_test.ramp_up_time_within')">
-                  <el-input-number
-                    :disabled="isReadOnly"
-                    :min="1"
-                    :max="threadGroup.duration"
-                    v-model="threadGroup.rampUpTime"
-                    @change="calculateChart(threadGroup)"
-                    size="mini"/>
-                </el-form-item>
-                <el-form-item :label="$t('load_test.ramp_up_time_minutes')">
-                  <el-input-number
-                    :disabled="isReadOnly"
-                    :min="1"
-                    :max="Math.min(threadGroup.threadNumber, threadGroup.rampUpTime)"
-                    v-model="threadGroup.step"
-                    @change="calculateChart(threadGroup)"
-                    size="mini"/>
-                </el-form-item>
-                <el-form-item :label="$t('load_test.ramp_up_time_times')"/>
+                <div v-if="threadGroup.tgType === 'com.blazemeter.jmeter.threads.concurrency.ConcurrencyThreadGroup'">
+                  <el-form-item :label="$t('load_test.ramp_up_time_within')">
+                    <el-input-number
+                      :disabled="isReadOnly"
+                      :min="1"
+                      :max="threadGroup.duration"
+                      v-model="threadGroup.rampUpTime"
+                      @change="calculateChart(threadGroup)"
+                      size="mini"/>
+                  </el-form-item>
+                  <el-form-item :label="$t('load_test.ramp_up_time_minutes')">
+                    <el-input-number
+                      :disabled="isReadOnly"
+                      :min="1"
+                      :max="Math.min(threadGroup.threadNumber, threadGroup.rampUpTime)"
+                      v-model="threadGroup.step"
+                      @change="calculateChart(threadGroup)"
+                      size="mini"/>
+                  </el-form-item>
+                  <el-form-item :label="$t('load_test.ramp_up_time_times')"/>
+                </div>
+
+                <div v-if="threadGroup.tgType === 'ThreadGroup'">
+                  <el-form-item :label="$t('load_test.ramp_up_time_within')">
+                    <el-input-number
+                      :disabled="isReadOnly"
+                      :min="1"
+                      v-model="threadGroup.rampUpTime"
+                      size="mini"/>
+                  </el-form-item>
+                  <el-form-item :label="$t('load_test.ramp_up_time_seconds')"/>
+                </div>
+
               </div>
               <div v-if="threadGroup.threadType === 'ITERATION'">
                 <el-form-item :label="$t('load_test.iterate_num')">
@@ -128,8 +142,10 @@
 <script>
 import echarts from "echarts";
 import MsChart from "@/business/components/common/chart/MsChart";
-import {findTestPlan, findThreadGroup} from "@/business/components/performance/test/model/ThreadGroup";
+import {findThreadGroup} from "@/business/components/performance/test/model/ThreadGroup";
 
+const HANDLER = "handler";
+const THREAD_GROUP_TYPE = "tgType";
 const TARGET_LEVEL = "TargetLevel";
 const RAMP_UP = "RampUp";
 const ITERATE_RAMP_UP = "iterateRampUpTime";
@@ -140,6 +156,8 @@ const RPS_LIMIT_ENABLE = "rpsLimitEnable";
 const HOLD = "Hold";
 const THREAD_TYPE = "threadType";
 const ITERATE_NUM = "iterateNum";
+const ENABLED = "enabled";
+const DELETED = "deleted";
 
 const hexToRgba = function (hex, opacity) {
   return 'rgba(' + parseInt('0x' + hex.slice(1, 3)) + ',' + parseInt('0x' + hex.slice(3, 5)) + ','
@@ -179,7 +197,6 @@ export default {
       resourcePools: [],
       activeNames: ["0"],
       threadGroups: [],
-      serializeThreadgroups: false,
       resourcePoolResourceLength: 1
     }
   },
@@ -221,90 +238,63 @@ export default {
           let data = JSON.parse(response.data);
           for (let i = 0; i < data.length; i++) {
             let d = data[i];
-            if (d instanceof Array) {
-              d.forEach(item => {
-                switch (item.key) {
-                  case TARGET_LEVEL:
-                    this.threadGroups[i].threadNumber = item.value;
-                    break;
-                  case RAMP_UP:
-                    this.threadGroups[i].rampUpTime = item.value;
-                    break;
-                  case ITERATE_RAMP_UP:
-                    this.threadGroups[i].iterateRampUp = item.value;
-                    break;
-                  case DURATION:
-                    if (item.unit) {
-                      this.threadGroups[i].duration = item.value;
-                    } else {
-                      this.threadGroups[i].duration = item.value * 60;
-                    }
-                    break;
-                  case STEPS:
-                    this.threadGroups[i].step = item.value;
-                    break;
-                  case RPS_LIMIT:
-                    this.threadGroups[i].rpsLimit = item.value;
-                    break;
-                  case RPS_LIMIT_ENABLE:
-                    this.threadGroups[i].rpsLimitEnable = item.value;
-                    break;
-                  case THREAD_TYPE:
-                    this.threadGroups[i].threadType = item.value;
-                    break;
-                  case ITERATE_NUM:
-                    this.threadGroups[i].iterateNum = item.value;
-                    break;
-                  default:
-                    break;
-                }
-                //
-                this.$set(this.threadGroups[i], "threadType", this.threadGroups[i].threadType || 'DURATION');
-                this.$set(this.threadGroups[i], "iterateNum", this.threadGroups[i].iterateNum || 1);
-                this.$set(this.threadGroups[i], "iterateRampUp", this.threadGroups[i].iterateRampUp || 10);
-              })
-              this.calculateChart(this.threadGroups[i]);
-            } else {
-              switch (d.key) {
+            d.forEach(item => {
+              switch (item.key) {
                 case TARGET_LEVEL:
-                  this.threadGroups[0].threadNumber = d.value;
+                  this.threadGroups[i].threadNumber = item.value;
                   break;
                 case RAMP_UP:
-                  this.threadGroups[0].rampUpTime = d.value;
+                  this.threadGroups[i].rampUpTime = item.value;
                   break;
                 case ITERATE_RAMP_UP:
-                  this.threadGroups[0].iterateRampUp = d.value;
+                  this.threadGroups[i].iterateRampUp = item.value;
                   break;
                 case DURATION:
-                  if (d.unit) {
-                    this.threadGroups[0].duration = d.value;
+                  if (item.unit) {
+                    this.threadGroups[i].duration = item.value;
                   } else {
-                    this.threadGroups[0].duration = d.value * 60;
+                    this.threadGroups[i].duration = item.value * 60;
                   }
                   break;
                 case STEPS:
-                  this.threadGroups[0].step = d.value;
+                  this.threadGroups[i].step = item.value;
                   break;
                 case RPS_LIMIT:
-                  this.threadGroups[0].rpsLimit = d.value;
+                  this.threadGroups[i].rpsLimit = item.value;
                   break;
                 case RPS_LIMIT_ENABLE:
-                  this.threadGroups[0].rpsLimitEnable = d.value;
+                  this.threadGroups[i].rpsLimitEnable = item.value;
                   break;
                 case THREAD_TYPE:
-                  this.threadGroups[0].threadType = d.value;
+                  this.threadGroups[i].threadType = item.value;
                   break;
                 case ITERATE_NUM:
-                  this.threadGroups[0].iterateNum = d.value;
+                  this.threadGroups[i].iterateNum = item.value;
+                  break;
+                case ENABLED:
+                  this.threadGroups[i].enabled = item.value;
+                  break;
+                case DELETED:
+                  this.threadGroups[i].deleted = item.value;
+                  break;
+                case HANDLER:
+                  this.threadGroups[i].handler = item.value;
+                  break;
+                case THREAD_GROUP_TYPE:
+                  this.threadGroups[i].tgType = item.value;
                   break;
                 default:
                   break;
               }
-              this.$set(this.threadGroups[0], "threadType", this.threadGroups[0].threadType || 'DURATION');
-              this.$set(this.threadGroups[0], "iterateNum", this.threadGroups[0].iterateNum || 1);
-              this.$set(this.threadGroups[0], "iterateRampUp", this.threadGroups[0].iterateRampUp || 10);
-              this.calculateChart(this.threadGroups[0]);
-            }
+              //
+              this.$set(this.threadGroups[i], "threadType", this.threadGroups[i].threadType || 'DURATION');
+              this.$set(this.threadGroups[i], "iterateNum", this.threadGroups[i].iterateNum || 1);
+              this.$set(this.threadGroups[i], "iterateRampUp", this.threadGroups[i].iterateRampUp || 10);
+              this.$set(this.threadGroups[i], "enabled", this.threadGroups[i].enabled || 'true');
+              this.$set(this.threadGroups[i], "deleted", this.threadGroups[i].deleted || 'false');
+            })
+            this.calculateChart(this.threadGroups[i]);
+
           }
           this.calculateTotalChart();
         }
@@ -312,20 +302,17 @@ export default {
     },
     getJmxContent() {
       if (this.testId) {
+        let threadGroups = [];
         this.$get('/performance/get-jmx-content/' + this.testId, (response) => {
-          if (response.data) {
-            let testPlan = findTestPlan(response.data);
-            testPlan.elements.forEach(e => {
-              if (e.attributes.name === 'TestPlan.serialize_threadgroups') {
-                this.serializeThreadgroups = Boolean(e.elements[0].text);
-              }
-            });
-            this.threadGroups = findThreadGroup(response.data);
-            this.threadGroups.forEach(tg => {
+          response.data.forEach(d => {
+            threadGroups = threadGroups.concat(findThreadGroup(d.jmx, d.name));
+            threadGroups.forEach(tg => {
               tg.options = {};
             });
-            this.getLoadConfig();
-          }
+          });
+          this.threadGroups = threadGroups;
+          this.$emit('fileChange', threadGroups);
+          this.getLoadConfig();
         });
       }
     },
@@ -355,6 +342,9 @@ export default {
       };
 
       for (let i = 0; i < handler.threadGroups.length; i++) {
+        if (handler.threadGroups[i].enabled === 'false' || handler.threadGroups[i].deleted === 'true') {
+          continue;
+        }
         let seriesData = {
           name: handler.threadGroups[i].attributes.testname,
           data: [],
@@ -550,6 +540,7 @@ export default {
       let result = [];
       for (let i = 0; i < this.threadGroups.length; i++) {
         result.push([
+          {key: HANDLER, value: this.threadGroups[i].handler},
           {key: TARGET_LEVEL, value: this.threadGroups[i].threadNumber},
           {key: RAMP_UP, value: this.threadGroups[i].rampUpTime},
           {key: STEPS, value: this.threadGroups[i].step},
@@ -560,6 +551,9 @@ export default {
           {key: THREAD_TYPE, value: this.threadGroups[i].threadType},
           {key: ITERATE_NUM, value: this.threadGroups[i].iterateNum},
           {key: ITERATE_RAMP_UP, value: this.threadGroups[i].iterateRampUp},
+          {key: ENABLED, value: this.threadGroups[i].enabled},
+          {key: DELETED, value: this.threadGroups[i].deleted},
+          {key: THREAD_GROUP_TYPE, value: this.threadGroups[i].tgType},
         ]);
       }
       return result;

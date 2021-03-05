@@ -47,6 +47,7 @@ public class FileService {
         List<String> fileIds = loadTestFiles.stream().map(LoadTestFile::getFileId).collect(Collectors.toList());
         FileMetadataExample example = new FileMetadataExample();
         example.createCriteria().andIdIn(fileIds);
+        example.setOrderByClause("sort asc"); // 安装顺序排序
         return fileMetadataMapper.selectByExample(example);
     }
 
@@ -85,6 +86,10 @@ public class FileService {
     }
 
     public FileMetadata saveFile(MultipartFile file) {
+        return saveFile(file, 0);
+    }
+
+    public FileMetadata saveFile(MultipartFile file, Integer sort) {
         final FileMetadata fileMetadata = new FileMetadata();
         fileMetadata.setId(UUID.randomUUID().toString());
         fileMetadata.setName(file.getOriginalFilename());
@@ -93,6 +98,7 @@ public class FileService {
         fileMetadata.setUpdateTime(System.currentTimeMillis());
         FileType fileType = getFileType(fileMetadata.getName());
         fileMetadata.setType(fileType.name());
+        fileMetadata.setSort(sort);
         fileMetadataMapper.insert(fileMetadata);
 
         FileContent fileContent = new FileContent();
@@ -107,7 +113,7 @@ public class FileService {
         return fileMetadata;
     }
 
-    public FileMetadata saveFile(byte[] fileByte,String fileName,Long fileSize) {
+    public FileMetadata saveFile(byte[] fileByte, String fileName, Long fileSize) {
         final FileMetadata fileMetadata = new FileMetadata();
         fileMetadata.setId(UUID.randomUUID().toString());
         fileMetadata.setName(fileName);
@@ -168,5 +174,15 @@ public class FileService {
 
     public FileMetadata getFileMetadataById(String fileId) {
         return fileMetadataMapper.selectByPrimaryKey(fileId);
+    }
+
+    public List<FileMetadata> getProjectJMXs(String projectId) {
+        FileMetadataExample example = new FileMetadataExample();
+        fileMetadataMapper.selectByExample(example);
+        return null;
+    }
+
+    public void updateFileMetadata(FileMetadata fileMetadata) {
+        fileMetadataMapper.updateByPrimaryKeySelective(fileMetadata);
     }
 }

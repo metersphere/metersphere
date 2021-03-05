@@ -2,8 +2,11 @@ export default {
   commons: {
     cover: 'Cover',
     not_cover: 'Not Cover',
+    import: 'Import',
+    import_success: 'Import success',
     import_mode: 'Import mode',
     import_module: 'Import module',
+    import_user: 'Import user',
     please_fill_in_the_template: 'Please fill in the template',
     cut_back_old_version: 'Cut back to old version',
     cut_back_new_version: 'Switch back to new version',
@@ -191,6 +194,9 @@ export default {
     module: {
       select_module: "Select module",
       default_module: "Default module",
+    },
+    report_statistics: {
+      title: "Report statistics"
     }
   },
   license: {
@@ -234,6 +240,7 @@ export default {
     search_by_name: 'Search by name',
     organization_name: 'Organization Name',
     please_choose_organization: 'Please Choose Organization',
+    batch_choose_workspace: 'Please choose organizations',
     please_select_a_workspace_first: 'Please select a workspace first!',
     none: 'None Workspace',
     select: 'Select Workspace',
@@ -369,7 +376,11 @@ export default {
     delete_confirm: 'Are you sure you want to delete this User?',
     apikey_delete_confirm: 'Are you sure you want to delete this API Key?',
     input_id_placeholder: 'Please enter ID (Chinese characters are not supported)',
-    source: 'Source'
+    source: 'Source',
+    button:{
+      add_workspace_batch: 'Batch add user to workspace',
+      add_user_role_batch: 'Batch add user role',
+    }
   },
   role: {
     please_choose_role: 'Please Choose Role',
@@ -420,6 +431,8 @@ export default {
     delete_batch_confirm: 'Confirm batch delete report',
   },
   load_test: {
+    test: 'Test',
+    name: 'Test Name',
     same_project_test: 'Only tests within the same project can be run',
     run: 'One click operation',
     operating: 'Operating',
@@ -488,7 +501,18 @@ export default {
     user_name: 'Creator',
     special_characters_are_not_supported: 'Test name does not support special characters',
     pressure_config_params_is_empty: 'Pressure configuration parameters cannot be empty!',
-    schedule_tip: 'The interval must not be less than the pressure measuring time'
+    schedule_tip: 'The interval must not be less than the pressure measuring time',
+    delete_threadgroup_confirm: 'Confirm delete scenario: ',
+    scenario_list: 'Scenario List',
+    scenario_name: 'Scenario Name',
+    upload_jmx: 'Upload JMX',
+    exist_jmx: 'Existed Files',
+    other_resource: 'Resource Files',
+    upload_file: 'Upload Files',
+    load_exist_file: 'Load Project Files',
+    load_exist_jmx: 'Load Project JMX',
+    threadgroup_at_least_one: 'At least one ThreadGroup is enabled',
+    load_api_automation_jmx: 'Import API automation scenario',
   },
   api_test: {
     creator: "Creator",
@@ -605,7 +629,7 @@ export default {
         edit_time_Reverse_order: "From back to front by update time",
         request_method: "Request method",
         request_interface: "Request interface",
-        search_by_api_name : "Search by api name",
+        search_by_api_name: "Search by api name",
         request_info: "Request info",
         request_head: "Request head",
         request_param: "Param",
@@ -615,7 +639,7 @@ export default {
         response_head: "Response head",
         response_body: "Response body",
         response_code: "Response code",
-        table_coloum:{
+        table_coloum: {
           name: "name",
           value: "value",
           is_required: "Is it required",

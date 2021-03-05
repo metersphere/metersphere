@@ -19,13 +19,15 @@ import io.metersphere.dto.LoadTestDTO;
 import io.metersphere.dto.ScheduleDao;
 import io.metersphere.i18n.Translator;
 import io.metersphere.job.sechedule.PerformanceTestJob;
+import io.metersphere.performance.dto.LoadTestExportJmx;
+import io.metersphere.performance.dto.LoadTestFileDTO;
 import io.metersphere.performance.engine.Engine;
 import io.metersphere.performance.engine.EngineFactory;
 import io.metersphere.performance.engine.producer.LoadTestProducer;
+import io.metersphere.performance.request.*;
 import io.metersphere.service.FileService;
 import io.metersphere.service.QuotaService;
 import io.metersphere.service.ScheduleService;
-import io.metersphere.track.request.testplan.*;
 import io.metersphere.track.service.TestCaseService;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -38,6 +40,7 @@ import javax.annotation.Resource;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
@@ -126,19 +129,43 @@ public class PerformanceTestService {
     }
 
     public String save(SaveTestPlanRequest request, List<MultipartFile> files) {
-        if (files == null) {
-            throw new IllegalArgumentException(Translator.get("file_cannot_be_null"));
-        }
         checkQuota(request, true);
-        final LoadTestWithBLOBs loadTest = saveLoadTest(request);
-        files.forEach(file -> {
-            final FileMetadata fileMetadata = fileService.saveFile(file);
+        LoadTestWithBLOBs loadTest = saveLoadTest(request);
+
+        List<FileMetadata> importFiles = request.getUpdatedFileList();
+        List<String> importFileIds = importFiles.stream().map(FileMetadata::getId).collect(Collectors.toList());
+        // 导入项目里其他的文件
+        this.importFiles(importFileIds, loadTest.getId(), request.getFileSorts());
+        // 保存上传的文件
+        this.saveUploadFiles(files, loadTest.getId(), request.getFileSorts());
+
+        return loadTest.getId();
+    }
+
+    private void saveUploadFiles(List<MultipartFile> files, String testId, Map<String, Integer> fileSorts) {
+        if (files != null) {
+            for (int i = 0; i < files.size(); i++) {
+                MultipartFile file = files.get(i);
+                final FileMetadata fileMetadata = fileService.saveFile(file, fileSorts.getOrDefault(file.getOriginalFilename(), i));
+                LoadTestFile loadTestFile = new LoadTestFile();
+                loadTestFile.setTestId(testId);
+                loadTestFile.setFileId(fileMetadata.getId());
+                loadTestFileMapper.insert(loadTestFile);
+            }
+        }
+    }
+
+    private void importFiles(List<String> importFileIds, String testId, Map<String, Integer> fileSorts) {
+        for (int i = 0; i < importFileIds.size(); i++) {
+            String fileId = importFileIds.get(i);
+            FileMetadata fileMetadata = fileService.copyFile(fileId);
+            fileMetadata.setSort(fileSorts.getOrDefault(fileMetadata.getName(), i));
+            fileService.updateFileMetadata(fileMetadata);
             LoadTestFile loadTestFile = new LoadTestFile();
-            loadTestFile.setTestId(loadTest.getId());
+            loadTestFile.setTestId(testId);
             loadTestFile.setFileId(fileMetadata.getId());
             loadTestFileMapper.insert(loadTestFile);
-        });
-        return loadTest.getId();
+        }
     }
 
     private LoadTestWithBLOBs saveLoadTest(SaveTestPlanRequest request) {
@@ -183,16 +210,10 @@ public class PerformanceTestService {
         // 相减
         List<String> deleteFileIds = ListUtils.subtract(originFileIds, updatedFileIds);
         fileService.deleteFileByIds(deleteFileIds);
-
-        if (files != null) {
-            files.forEach(file -> {
-                final FileMetadata fileMetadata = fileService.saveFile(file);
-                LoadTestFile loadTestFile = new LoadTestFile();
-                loadTestFile.setTestId(request.getId());
-                loadTestFile.setFileId(fileMetadata.getId());
-                loadTestFileMapper.insert(loadTestFile);
-            });
-        }
+        // 导入项目里其他的文件
+        List<String> addFileIds = ListUtils.subtract(updatedFileIds, originFileIds);
+        this.importFiles(addFileIds, request.getId(), request.getFileSorts());
+        this.saveUploadFiles(files, request.getId(), request.getFileSorts());
 
         loadTest.setName(request.getName());
         loadTest.setProjectId(request.getProjectId());
@@ -352,15 +373,16 @@ public class PerformanceTestService {
         return Optional.ofNullable(loadTestWithBLOBs).orElse(new LoadTestWithBLOBs()).getLoadConfiguration();
     }
 
-    public String getJmxContent(String testId) {
+    public List<LoadTestExportJmx> getJmxContent(String testId) {
         List<FileMetadata> fileMetadataList = fileService.getFileMetadataByTestId(testId);
+        List<LoadTestExportJmx> results = new ArrayList<>();
         for (FileMetadata metadata : fileMetadataList) {
             if (FileType.JMX.name().equals(metadata.getType())) {
                 FileContent fileContent = fileService.getFileContent(metadata.getId());
-                return new String(fileContent.getFile());
+                results.add(new LoadTestExportJmx(metadata.getName(), new String(fileContent.getFile(), StandardCharsets.UTF_8)));
             }
         }
-        return null;
+        return results;
     }
 
     public List<LoadTestWithBLOBs> selectByTestResourcePoolId(String resourcePoolId) {
@@ -507,5 +529,29 @@ public class PerformanceTestService {
         } else {
             return Optional.of(loadTest.getNum() + 1).orElse(100001);
         }
+    }
+
+    public List<LoadTestFileDTO> getProjectFiles(String projectId, String loadType) {
+        List<String> loadTypes = new ArrayList<>();
+        loadTypes.add(StringUtils.upperCase(loadType));
+        if (StringUtils.equalsIgnoreCase(loadType, "resource")) {
+            loadTypes.add(FileType.CSV.name());
+            loadTypes.add(FileType.JAR.name());
+        }
+        return extLoadTestMapper.getProjectFiles(projectId, loadTypes);
+    }
+
+    public List<LoadTestExportJmx> exportJmx(List<String> fileIds) {
+        if (CollectionUtils.isEmpty(fileIds)) {
+            return null;
+        }
+        List<LoadTestExportJmx> results = new ArrayList<>();
+        fileIds.forEach(id -> {
+            FileMetadata fileMetadata = fileService.getFileMetadataById(id);
+            FileContent fileContent = fileService.getFileContent(id);
+            results.add(new LoadTestExportJmx(fileMetadata.getName(), new String(fileContent.getFile(), StandardCharsets.UTF_8)));
+        });
+
+        return results;
     }
 }

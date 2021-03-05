@@ -3,13 +3,30 @@
 
     <el-card class="table-card">
       <template v-slot:header>
-        <ms-table-header :condition.sync="condition" @search="search" @create="create"
-                         :create-tip="$t('user.create')" :title="$t('commons.user')"/>
+        <ms-table-header :condition.sync="condition" @search="search" @create="create" @import="importUserDialogOpen"
+                         :create-tip="$t('user.create')" :show-import="true" :import-tip="$t('commons.import_user')" :title="$t('commons.user')"/>
+
       </template>
 
-      <el-table border class="adjust-table" :data="tableData" style="width: 100%">
+      <el-table border class="adjust-table ms-select-all-fixed" :data="tableData" style="width: 100%"
+                @select-all="handleSelectAll"
+                @select="handleSelect"
+                ref="userTable">
+        <el-table-column type="selection" width="50"/>
+        <ms-table-header-select-popover v-show="total>0"
+                                        :page-size="pageSize>total?total:pageSize"
+                                        :total="total"
+                                        @selectPageAll="isSelectDataAll(false)"
+                                        @selectAll="isSelectDataAll(true)"/>
+        <el-table-column v-if="!referenced" width="30" min-width="30" :resizable="false" align="center">
+          <template v-slot:default="scope">
+            <show-more-btn :is-show="scope.row.showMore" :buttons="buttons" :size="selectDataCounts"/>
+          </template>
+        </el-table-column>
+
         <el-table-column prop="id" label="ID"/>
         <el-table-column prop="name" :label="$t('commons.name')" width="200"/>
+
         <el-table-column :label="$t('commons.role')" width="120">
           <template v-slot:default="scope">
             <ms-roles-tag :roles="scope.row.roles"/>
@@ -323,7 +340,8 @@
           @confirm="editUserPassword('editPasswordForm')"/>
       </span>
     </el-dialog>
-
+    <user-import ref="userImportDialog" @refreshAll="search"></user-import>
+    <user-cascader :lable="batchAddLable" :title="batchAddTitle" @confirm="cascaderConfirm" ref="cascaderDialog"></user-cascader>
   </div>
 </template>
 
@@ -334,11 +352,22 @@ import MsTableHeader from "../../common/components/MsTableHeader";
 import MsTableOperator from "../../common/components/MsTableOperator";
 import MsDialogFooter from "../../common/components/MsDialogFooter";
 import MsTableOperatorButton from "../../common/components/MsTableOperatorButton";
-import {hasRole, listenGoBack, removeGoBackListener} from "@/common/js/utils";
+import {getCurrentProjectID, getUUID, hasRole, listenGoBack, removeGoBackListener} from "@/common/js/utils";
 import MsRolesTag from "../../common/components/MsRolesTag";
 import {ROLE_ADMIN} from "@/common/js/constants";
 import {getCurrentUser} from "../../../../common/js/utils";
 import {PHONE_REGEX} from "@/common/js/regex";
+import UserImport from "@/business/components/settings/system/components/UserImport";
+import MsTableHeaderSelectPopover from "@/business/components/common/components/table/MsTableHeaderSelectPopover";
+import {
+  _handleSelect,
+  _handleSelectAll,
+  getSelectDataCounts,
+  setUnSelectIds,
+  toggleAllSelection
+} from "@/common/js/tableUtils";
+import UserCascader from "@/business/components/settings/system/components/UserCascader";
+import ShowMoreBtn from "@/business/components/track/case/components/ShowMoreBtn";
 
 export default {
   name: "MsUser",
@@ -349,19 +378,29 @@ export default {
     MsTableOperator,
     MsDialogFooter,
     MsTableOperatorButton,
-    MsRolesTag
+    MsRolesTag,
+    UserImport,
+    MsTableHeaderSelectPopover,
+    UserCascader,
+    ShowMoreBtn
   },
   data() {
     return {
+      referenced: false,
       queryPath: '/user/special/list',
       deletePath: '/user/special/delete/',
       createPath: '/user/special/add',
       updatePath: '/user/special/update',
       editPasswordPath: '/user/special/password',
+      batchAddLable: this.$t('project.please_choose_workspace'),
+      batchAddTitle: this.$t('project.batch_choose_workspace'),
+      batchAddWorkspaceOptions:[],
+      batchAddUserRoleOptions:[],
       result: {},
       currentUserId: '',
       createVisible: false,
       updateVisible: false,
+      selectDataCounts: 0,
       editPasswordVisible: false,
       btnAddRole: false,
       multipleSelection: [],
@@ -370,6 +409,7 @@ export default {
       pageSize: 10,
       total: 0,
       condition: {},
+      selectRows: new Set(),
       tableData: [],
       form: {
         roles: [{
@@ -378,6 +418,14 @@ export default {
       },
       checkPasswordForm: {},
       ruleForm: {},
+      buttons: [
+        {
+          name: this.$t('user.button.add_workspace_batch'), handleClick: this.addWorkspaceBatch
+        },
+        {
+          name: this.$t('user.button.add_user_role_batch'), handleClick: this.addUserRoleBatch
+        }
+      ],
       rule: {
         id: [
           {required: true, message: this.$t('user.input_id'), trigger: 'blur'},
@@ -527,6 +575,8 @@ export default {
       if (!hasRole(ROLE_ADMIN)) {
         return;
       }
+      this.selectRows = new Set();
+      this.condition.selectAll = false;
       this.result = this.$post(this.buildPagePath(this.queryPath), this.condition, response => {
         let data = response.data;
         this.total = data.itemCount;
@@ -579,6 +629,9 @@ export default {
         this.userRole = response.data;
       })
     },
+    importUserDialogOpen(){
+      this.$refs.userImportDialog.open();
+    },
     addRole(validForm) {
       this.$refs[validForm].validate(valid => {
         if (valid) {
@@ -623,10 +676,89 @@ export default {
         }
         return value;
       })
-    }
+    },
+    initWorkspaceBatchProcessDataStruct(isShow){
+      this.$get("/user/getWorkspaceDataStruct/All", response => {
+        this.batchAddWorkspaceOptions = response.data;
+        if(isShow){
+          this.$refs.cascaderDialog.open('ADD_WORKSPACE',this.batchAddWorkspaceOptions);
+        }
+      });
+    },
+    initRoleBatchProcessDataStruct(isShow){
+      this.$get("/user/getUserRoleDataStruct/All", response => {
+        this.batchAddUserRoleOptions = response.data;
+        if(isShow){
+          this.$refs.cascaderDialog.open('ADD_USER_ROLE',this.batchAddUserRoleOptions);
+        }
+      });
+    },
+    handleSelectAll(selection) {
+      _handleSelectAll(this, selection, this.tableData, this.selectRows);
+      setUnSelectIds(this.tableData, this.condition, this.selectRows);
+      this.selectDataCounts = getSelectDataCounts(this.condition, this.total, this.selectRows);
+      this.$emit('selection', selection);
+    },
+    handleSelect(selection, row) {
+      _handleSelect(this, selection, row, this.selectRows);
+      setUnSelectIds(this.tableData, this.condition, this.selectRows);
+      this.selectDataCounts = getSelectDataCounts(this.condition, this.total, this.selectRows);
+      this.$emit('selection', selection);
+    },
+    isSelectDataAll(data) {
+      this.condition.selectAll = data;
+      setUnSelectIds(this.tableData, this.condition, this.selectRows);
+      this.selectDataCounts = getSelectDataCounts(this.condition, this.total, this.selectRows);
+      toggleAllSelection(this.$refs.userTable, this.tableData, this.selectRows);
+    },
+    addWorkspaceBatch(){
+      if(this.batchAddWorkspaceOptions.length == 0){
+        this.initWorkspaceBatchProcessDataStruct(true);
+      }else{
+        this.$refs.cascaderDialog.open('ADD_WORKSPACE',this.batchAddWorkspaceOptions);
+      }
+    },
+    addUserRoleBatch(){
+      if(this.batchAddUserRoleOptions.length == 0){
+        this.initRoleBatchProcessDataStruct(true);
+      }else{
+        this.$refs.cascaderDialog.open('ADD_USER_ROLE',this.batchAddUserRoleOptions);
+      }
+    },
+    cascaderConfirm(batchProcessTypeParam,selectValueArr){
+      if(selectValueArr.length == 0){
+        this.$success(this.$t('commons.modify_success'));
+      }
+      let params = {};
+      params = this.buildBatchParam(params);
+      params.batchType = batchProcessTypeParam;
+      params.batchProcessValue = selectValueArr;
+      this.$post('/user/special/batchProcessUserInfo', params, () => {
+        this.$success(this.$t('commons.modify_success'));
+        this.search();
+        this.$refs.cascaderDialog.close();
+      });
+    },
+    buildBatchParam(param) {
+      param.ids = Array.from(this.selectRows).map(row => row.id);
+      param.projectId = getCurrentProjectID();
+      param.condition = this.condition;
+      return param;
+    },
   }
 }
 </script>
 
 <style scoped>
+/deep/ .el-table__fixed-right {
+  height: 100% !important;
+}
+
+/deep/ .el-table__fixed {
+  height: 110px !important;
+}
+
+/deep/ .ms-select-all-fixed th:nth-child(2) .el-icon-arrow-down {
+  top: -5px;
+}
 </style>

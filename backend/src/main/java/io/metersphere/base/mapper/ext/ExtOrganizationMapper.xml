@@ -10,4 +10,13 @@
            and ur.role_id = #{roleId}
     </select>
 
+
+    <select id="findIdAndNameByOrganizationId" resultType="io.metersphere.dto.OrganizationMemberDTO">
+        select id,name from Organization
+        <where>
+            <if test="organizationId != 'All'">
+                AND id = #{organizationId}
+            </if>
+        </where>
+    </select>
 </mapper>
