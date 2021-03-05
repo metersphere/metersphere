@@ -197,7 +197,20 @@ export default {
       default_module: "默认模块",
     },
     report_statistics: {
-      title: "报表统计"
+      title: "报表统计",
+      test_case_analysis: "测试用例分析",
+      test_case_activity: "测试用例活动情况",
+      name: "报表",
+      excel: "表格",
+      add_case: "新增用例",
+      change_case: "变更用例",
+      type: "类别",
+      options: "选项",
+      chart: "图表",
+      line: "折线图",
+      bar: "柱状图",
+      desc: "总数从高到低",
+      asc: "总数从低到高",
     }
   },
   license: {
@@ -375,7 +388,7 @@ export default {
     apikey_delete_confirm: '这个 API Key 确定要删除吗?',
     input_id_placeholder: '请输入ID (不支持中文)',
     source: '用户来源',
-    button:{
+    button: {
       add_workspace_batch: '批量添加到工作空间',
       add_user_role_batch: '批量添加角色',
     }

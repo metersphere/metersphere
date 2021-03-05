@@ -197,7 +197,20 @@ export default {
       default_module: "默認模塊",
     },
     report_statistics: {
-      title: "報表統計"
+      title: "報表統計",
+      test_case_analysis: "測試用例分析",
+      test_case_activity: "測試用例活動情況",
+      name: "報表",
+      excel: "表格",
+      add_case: "新增用例",
+      change_case: "變更用例",
+      type: "類別",
+      options: "選項",
+      chart: "圖表",
+      line: "折線圖",
+      bar: "柱狀圖",
+      desc: "總數從高到低",
+      asc: "總數從低到高",
     }
   },
   license: {

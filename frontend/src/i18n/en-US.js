@@ -196,7 +196,20 @@ export default {
       default_module: "Default module",
     },
     report_statistics: {
-      title: "Report statistics"
+      title: "Report statistics",
+      test_case_analysis: "Test case analysis",
+      test_case_activity: "Test case activity",
+      name: "Report",
+      excel: "Excel",
+      add_case: "Add case",
+      change_case: "Change case",
+      type: "Type",
+      options: "Options",
+      chart: "Chart",
+      line: "Line",
+      bar: "Bar",
+      desc: "Desc",
+      asc: "Asc",
     }
   },
   license: {
@@ -377,7 +390,7 @@ export default {
     apikey_delete_confirm: 'Are you sure you want to delete this API Key?',
     input_id_placeholder: 'Please enter ID (Chinese characters are not supported)',
     source: 'Source',
-    button:{
+    button: {
       add_workspace_batch: 'Batch add user to workspace',
       add_user_role_batch: 'Batch add user role',
     }
