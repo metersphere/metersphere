@@ -29,6 +29,8 @@ export function findThreadGroup(jmxContent, handler) {
     tg.deleted = 'false';
     tg.handler = handler;
     tg.enabled = tg.attributes.enabled;
+    tg.tgType = tg.name;
+    tg.threadType = 'DURATION';
   })
   return threadGroups;
 }

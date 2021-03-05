@@ -594,6 +594,81 @@ public class JmeterDocumentParser implements DocumentParser {
         if (!hashTree.hasChildNodes()) {
             MSException.throwException(Translator.get("jmx_content_valid"));
         }
+        Object tgTypes = context.getProperty("tgType");
+        String tgType = "ThreadGroup";
+        if (tgTypes instanceof List) {
+            Object o = ((List<?>) tgTypes).get(0);
+            ((List<?>) tgTypes).remove(0);
+            tgType = o.toString();
+        }
+        if (StringUtils.equals(tgType, THREAD_GROUP)) {
+            processBaseThreadGroup(threadGroup);
+        }
+        if (StringUtils.equals(tgType, CONCURRENCY_THREAD_GROUP)) {
+            processConcurrencyThreadGroup(threadGroup);
+        }
+
+    }
+
+    private void processBaseThreadGroup(Element threadGroup) {
+        /*
+        <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="登录" enabled="true">
+        <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
+        <elementProp name="ThreadGroup.main_controller" elementType="LoopController" guiclass="LoopControlPanel" testclass="LoopController" testname="Loop Controller" enabled="true">
+          <boolProp name="LoopController.continue_forever">false</boolProp>
+          <stringProp name="LoopController.loops">1</stringProp>
+        </elementProp>
+        <stringProp name="ThreadGroup.num_threads">1</stringProp>
+        <stringProp name="ThreadGroup.ramp_time">1</stringProp>
+        <boolProp name="ThreadGroup.scheduler">false</boolProp>
+        <stringProp name="ThreadGroup.duration"></stringProp>
+        <stringProp name="ThreadGroup.delay"></stringProp>
+        <boolProp name="ThreadGroup.same_user_on_next_iteration">true</boolProp>
+      </ThreadGroup>
+         */
+        removeChildren(threadGroup);
+        Document document = threadGroup.getOwnerDocument();
+        Object targetLevels = context.getProperty("TargetLevel");
+        String threads = "10";
+        if (targetLevels instanceof List) {
+            Object o = ((List<?>) targetLevels).get(0);
+            ((List<?>) targetLevels).remove(0);
+            threads = o.toString();
+        }
+        Object rampUps = context.getProperty("RampUp");
+        String rampUp = "1";
+        if (rampUps instanceof List) {
+            Object o = ((List<?>) rampUps).get(0);
+            ((List<?>) rampUps).remove(0);
+            rampUp = o.toString();
+        }
+        Object holds = context.getProperty("Hold");
+        String hold = "2";
+        if (holds instanceof List) {
+            Object o = ((List<?>) holds).get(0);
+            ((List<?>) holds).remove(0);
+            hold = o.toString();
+        }
+        Element elementProp = document.createElement("elementProp");
+        elementProp.setAttribute("name", "ThreadGroup.main_controller");
+        elementProp.setAttribute("elementType", "LoopController");
+        elementProp.setAttribute("guiclass", "LoopControlPanel");
+        elementProp.setAttribute("testclass", "LoopController");
+        elementProp.setAttribute("testname", "Loop Controller");
+        elementProp.setAttribute("enabled", "true");
+        elementProp.appendChild(createBoolProp(document, "LoopController.continue_forever", false));
+        elementProp.appendChild(createStringProp(document, "LoopController.loops", "-1"));
+        threadGroup.appendChild(elementProp);
+        threadGroup.appendChild(createStringProp(document, "ThreadGroup.on_sample_error", "continue"));
+        threadGroup.appendChild(createStringProp(document, "ThreadGroup.num_threads", threads));
+        threadGroup.appendChild(createStringProp(document, "ThreadGroup.ramp_time", rampUp));
+        threadGroup.appendChild(createStringProp(document, "ThreadGroup.duration", hold));
+        threadGroup.appendChild(createStringProp(document, "ThreadGroup.delay", "0"));
+        threadGroup.appendChild(createBoolProp(document, "ThreadGroup.scheduler", true));
+        threadGroup.appendChild(createBoolProp(document, "ThreadGroup.same_user_on_next_iteration", true));
+    }
+
+    private void processConcurrencyThreadGroup(Element threadGroup) {
         // 重命名 tagName
         Document document = threadGroup.getOwnerDocument();
         document.renameNode(threadGroup, threadGroup.getNamespaceURI(), CONCURRENCY_THREAD_GROUP);
