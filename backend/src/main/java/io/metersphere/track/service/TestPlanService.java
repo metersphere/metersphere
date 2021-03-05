@@ -159,8 +159,8 @@ public class TestPlanService {
     public int editTestPlan(TestPlanDTO testPlan) {
         checkTestPlanExist(testPlan);
         TestPlan res = testPlanMapper.selectByPrimaryKey(testPlan.getId()); //  先查一次库
+        testPlan.setUpdateTime(System.currentTimeMillis());
         if (!res.getStatus().equals(testPlan.getStatus())) {    //  若有改变才更新时间
-            testPlan.setUpdateTime(System.currentTimeMillis());
             if (TestPlanStatus.Underway.name().equals(testPlan.getStatus())) {
                 if (res.getStatus().equals(TestPlanStatus.Prepare.name())) {
                     testPlan.setActualStartTime(System.currentTimeMillis());
@@ -183,7 +183,13 @@ public class TestPlanService {
         List<String> userIds = new ArrayList<>();
         userIds.add(testPlan.getPrincipal());
         AddTestPlanRequest testPlans = new AddTestPlanRequest();
-        int i = testPlanMapper.updateByPrimaryKeySelective(testPlan); //  更新
+        int i;
+        if(testPlan.getName() == null) {//  若是点击该测试计划，则仅更新了updateTime，其它字段全为null，使用updateByPrimaryKeySelective
+            i = testPlanMapper.updateByPrimaryKeySelective(testPlan);
+        }
+        else {  //  有修改字段的调用，为保证将某些时间置null的情况，使用updateByPrimaryKey
+            i = testPlanMapper.updateByPrimaryKey(testPlan); //  更新
+        }
         if (!StringUtils.isBlank(testPlan.getStatus())) {
             BeanUtils.copyBean(testPlans, getTestPlan(testPlan.getId()));
             String context = getTestPlanContext(testPlans, NoticeConstants.Event.UPDATE);
@@ -412,6 +418,8 @@ public class TestPlanService {
         if (StringUtils.equals(testPlan.getStatus(), TestPlanStatus.Prepare.name())
                 || StringUtils.equals(testPlan.getStatus(), TestPlanStatus.Completed.name())) {
             testPlan.setStatus(TestPlanStatus.Underway.name());
+            testPlan.setActualStartTime(System.currentTimeMillis());  // 将状态更新为进行中时，开始时间也要更新
+            testPlan.setActualEndTime(null);
             testPlanMapper.updateByPrimaryKey(testPlan);
         }
     }
