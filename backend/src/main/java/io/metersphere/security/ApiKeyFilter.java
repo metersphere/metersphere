@@ -16,9 +16,15 @@ public class ApiKeyFilter extends AnonymousFilter {
     @Override
     protected boolean onPreHandle(ServletRequest request, ServletResponse response, Object mappedValue) {
         try {
-            HttpServletRequest httpServlet = WebUtils.toHttp(request);
-            String url = httpServlet.getRequestURL().toString();
-            LogUtil.info("Url message : "+url);
+            try{
+                //这部分代码是为了测试打包完成之后能否访问文档相关路径，封版之前要删除
+                HttpServletRequest httpServlet = WebUtils.toHttp(request);
+                String url = httpServlet.getRequestURL().toString();
+                LogUtil.info("Url message : "+url);
+            }catch (Exception e){
+
+            }
+
             if (!SecurityUtils.getSubject().isAuthenticated()) {
                 String userId = ApiKeyHandler.getUser(WebUtils.toHttp(request));
                 if (StringUtils.isNotBlank(userId)) {
