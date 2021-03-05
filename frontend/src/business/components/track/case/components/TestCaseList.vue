@@ -3,40 +3,25 @@
   <div class="card-container">
     <el-card class="card-content" v-loading="result.loading">
       <template v-slot:header>
-
         <ms-table-header :is-tester-permission="true" :condition.sync="condition" @search="initTableData"
-                         :tip="$t('commons.search_by_name_or_id')"
-                         :create-tip="$t('test_track.case.create')" @create="testCaseCreate">
-          <template v-slot:title>
-            <node-breadcrumb class="table-title" :nodes="selectParentNodes" @refresh="refresh"/>
-          </template>
-          <template v-slot:button>
-            <ms-table-button :is-tester-permission="true" icon="el-icon-download"
-                             :content="$t('test_track.case.import.import')" @click="importTestCase"/>
-            <ms-table-button :is-tester-permission="true" icon="el-icon-upload2"
-                             :content="$t('test_track.case.export.export')" @click="handleBatch('export')"/>
-          </template>
-        </ms-table-header>
-
+                         :tip="$t('commons.search_by_name_or_id')" title="" :show-create="false"
+        />
       </template>
-
-      <test-case-import @refreshAll="refreshAll" ref="testCaseImport"/>
-
       <el-table
-        border
-        :data="tableData"
-        @sort-change="sort"
-        @filter-change="filter"
-        @select-all="handleSelectAll"
-        @select="handleSelect"
-        @header-dragend="headerDragend"
-        @cell-mouse-enter="showPopover"
-        row-key="id"
-        class="test-content adjust-table ms-select-all-fixed"
-        ref="table" @row-click="handleEdit">
+          border
+          :data="tableData"
+          @sort-change="sort"
+          @filter-change="filter"
+          @select-all="handleSelectAll"
+          @select="handleSelect"
+          @header-dragend="headerDragend"
+          @cell-mouse-enter="showPopover"
+          row-key="id"
+          class="test-content adjust-table ms-select-all-fixed"
+          ref="table" @row-click="handleEdit">
         <el-table-column
-          width="50"
-          type="selection"/>
+            width="50"
+            type="selection"/>
 
         <ms-table-header-select-popover v-show="total>0"
                                         :page-size="pageSize > total ? total : pageSize"
@@ -52,80 +37,80 @@
         <template v-for="(item, index) in tableLabel">
 
           <el-table-column
-            v-if="item.id == 'num'"
-            prop="num"
-            sortable="custom"
-            :label="$t('commons.id')"
-            :key="index"
-            show-overflow-tooltip>
+              v-if="item.id == 'num'"
+              prop="num"
+              sortable="custom"
+              :label="$t('commons.id')"
+              :key="index"
+              show-overflow-tooltip>
           </el-table-column>
           <el-table-column
-            v-if="item.id == 'name'"
-            prop="name"
-            :label="$t('commons.name')"
-            show-overflow-tooltip
-            :key="index"
+              v-if="item.id == 'name'"
+              prop="name"
+              :label="$t('commons.name')"
+              show-overflow-tooltip
+              :key="index"
           >
-            <template v-slot:default="scope">
-              <!--<div @mouseover="showDetail(scope.row)">
+<!--            <template v-slot:default="scope">
+              &lt;!&ndash;<div @mouseover="showDetail(scope.row)">
                 <p>{{ scope.row.name }}</p>
-              </div>-->
+              </div>&ndash;&gt;
               <el-popover
-                placement="right-end"
-                :title="$t('test_track.case.view_case')"
-                trigger="hover"
+                  placement="right-end"
+                  :title="$t('test_track.case.view_case')"
+                  trigger="hover"
               >
                 <test-case-detail v-if="currentCaseId === scope.row.id" :test-case-id="currentCaseId"/>
                 <span slot="reference">{{ scope.row.name }}</span>
               </el-popover>
-            </template>
+            </template>-->
           </el-table-column>
           <el-table-column
-            v-if="item.id == 'priority'"
-            prop="priority"
-            :filters="priorityFilters"
-            column-key="priority"
-            min-width="100px"
-            :label="$t('test_track.case.priority')"
-            show-overflow-tooltip
-            :key="index">
+              v-if="item.id == 'priority'"
+              prop="priority"
+              :filters="priorityFilters"
+              column-key="priority"
+              min-width="100px"
+              :label="$t('test_track.case.priority')"
+              show-overflow-tooltip
+              :key="index">
             <template v-slot:default="scope">
               <priority-table-item :value="scope.row.priority"/>
             </template>
           </el-table-column>
-          <el-table-column
-            v-if="item.id == 'type'"
-            prop="type"
-            :filters="typeFilters"
-            column-key="type"
-            :label="$t('test_track.case.type')"
-            show-overflow-tooltip
-            :key="index">
+<!--          <el-table-column
+              v-if="item.id == 'type'"
+              prop="type"
+              :filters="typeFilters"
+              column-key="type"
+              :label="$t('test_track.case.type')"
+              show-overflow-tooltip
+              :key="index">
             <template v-slot:default="scope">
               <type-table-item :value="scope.row.type"/>
             </template>
-          </el-table-column>
-          <el-table-column
-            v-if="item.id=='method'"
-            prop="method"
-            column-key="method"
-            :filters="methodFilters"
-            min-width="100px"
-            :label="$t('test_track.case.method')"
-            show-overflow-tooltip
-            :key="index">
+          </el-table-column>-->
+<!--          <el-table-column
+              v-if="item.id=='method'"
+              prop="method"
+              column-key="method"
+              :filters="methodFilters"
+              min-width="100px"
+              :label="$t('test_track.case.method')"
+              show-overflow-tooltip
+              :key="index">
             <template v-slot:default="scope">
               <method-table-item :value="scope.row.method"/>
             </template>
-          </el-table-column>
+          </el-table-column>-->
 
           <el-table-column
-            v-if="item.id=='status'"
-            :filters="statusFilters"
-            column-key="status"
-            min-width="100px"
-            :label="$t('test_track.case.status')"
-            :key="index">
+              v-if="item.id=='status'"
+              :filters="statusFilters"
+              column-key="status"
+              min-width="100px"
+              :label="$t('test_track.case.status')"
+              :key="index">
             <template v-slot:default="scope">
             <span class="el-dropdown-link">
               <review-status :value="scope.row.reviewStatus"/>
@@ -135,27 +120,28 @@
 
           <el-table-column v-if="item.id=='tags'" prop="tags" :label="$t('commons.tag')" :key="index">
             <template v-slot:default="scope">
-                <ms-tag v-for="(itemName,index)  in scope.row.tags" :key="index" type="success" effect="plain" :content="itemName" style="margin-left: 5px"/>
+              <ms-tag v-for="(itemName,index)  in scope.row.tags" :key="index" type="success" effect="plain"
+                      :content="itemName" style="margin-left: 5px"/>
             </template>
           </el-table-column>
 
           <el-table-column
-            v-if="item.id=='nodePath'"
-            prop="nodePath"
-            :label="$t('test_track.case.module')"
-            min-width="150px"
-            show-overflow-tooltip
-            :key="index">
+              v-if="item.id=='nodePath'"
+              prop="nodePath"
+              :label="$t('test_track.case.module')"
+              min-width="150px"
+              show-overflow-tooltip
+              :key="index">
           </el-table-column>
 
           <el-table-column
-            v-if="item.id=='updateTime'"
-            prop="updateTime"
-            sortable="custom"
-            :label="$t('commons.update_time')"
-            min-width="150px"
-            show-overflow-tooltip
-            :key="index">
+              v-if="item.id=='updateTime'"
+              prop="updateTime"
+              sortable="custom"
+              :label="$t('commons.update_time')"
+              min-width="150px"
+              show-overflow-tooltip
+              :key="index">
             <template v-slot:default="scope">
               <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
             </template>
@@ -170,12 +156,12 @@
                                @deleteClick="handleDelete(scope.row)">
               <template v-slot:middle>
                 <ms-table-operator-button :is-tester-permission="true" :tip="$t('commons.copy')"
-                                            icon="el-icon-document-copy"
-                                            type="success" @exec="handleCopy(scope.row)"/>
-                </template>
-              </ms-table-operator>
-            </template>
-          </el-table-column>
+                                          icon="el-icon-document-copy"
+                                          type="success" @exec="handleCopy(scope.row)"/>
+              </template>
+            </ms-table-operator>
+          </template>
+        </el-table-column>
         <header-custom ref="headerCustom" :initTableData="initTableData" :optionalFields=headerItems
                        :type=type></header-custom>
       </el-table>
@@ -415,6 +401,7 @@ export default {
     handleCopy(testCase) {
       this.$get('test/case/get/' + testCase.id, response => {
         let testCase = response.data;
+        testCase.name='copy_'+testCase.name
         this.$emit('testCaseCopy', testCase);
       });
     },

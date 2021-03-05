@@ -9,6 +9,7 @@ import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.controller.ResultHolder;
+import io.metersphere.track.dto.DemandDTO;
 import io.metersphere.track.issue.domain.PlatformUser;
 import io.metersphere.track.request.testcase.IssuesRequest;
 import org.apache.commons.lang3.StringUtils;
@@ -62,6 +63,23 @@ public class TapdPlatform extends AbstractIssuePlatform {
             }
         });
         return list;
+    }
+
+    @Override
+    public List<DemandDTO> getDemandList(String projectId) {
+        System.out.println(projectId);
+        List<DemandDTO> demandList = new ArrayList<>();
+        String url = "https://api.tapd.cn/stories?workspace_id=" + projectId;
+        ResultHolder call = call(url);
+        String listJson = JSON.toJSONString(call.getData());
+        JSONArray jsonArray = JSON.parseArray(listJson);
+        System.out.println(jsonArray);
+        for (int i = 0; i < jsonArray.size(); i++) {
+            JSONObject o = jsonArray.getJSONObject(i);
+            DemandDTO demand = o.getObject("Story", DemandDTO.class);
+            demandList.add(demand);
+        }
+        return demandList;
     }
 
     private Issues getTapdIssues(String projectId, String issuesId) {
@@ -207,5 +225,6 @@ public class TapdPlatform extends AbstractIssuePlatform {
         return JSON.parseObject(responseJson, ResultHolder.class);
 
     }
+
 
 }

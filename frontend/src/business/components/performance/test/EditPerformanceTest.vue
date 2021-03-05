@@ -190,6 +190,7 @@ export default {
       }
       // 基本配置
       this.test.updatedFileList = this.$refs.basicConfig.updatedFileList();
+      this.test.fileSorts = this.$refs.basicConfig.fileSorts();
       // 压力配置
       this.test.loadConfiguration = JSON.stringify(this.$refs.pressureConfig.convertProperty());
       this.test.testResourcePoolId = this.$refs.pressureConfig.resourcePool;

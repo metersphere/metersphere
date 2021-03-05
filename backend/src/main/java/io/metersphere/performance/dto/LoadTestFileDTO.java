@@ -1,4 +1,4 @@
-package io.metersphere.dto;
+package io.metersphere.performance.dto;
 
 import io.metersphere.base.domain.FileMetadata;
 import lombok.Getter;

@@ -2,8 +2,8 @@ package io.metersphere.base.mapper.ext;
 
 import io.metersphere.base.domain.LoadTest;
 import io.metersphere.dto.LoadTestDTO;
-import io.metersphere.dto.LoadTestFileDTO;
-import io.metersphere.track.request.testplan.QueryTestPlanRequest;
+import io.metersphere.performance.dto.LoadTestFileDTO;
+import io.metersphere.performance.request.QueryTestPlanRequest;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;

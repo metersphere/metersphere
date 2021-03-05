@@ -654,24 +654,29 @@ public class ApiAutomationService {
     }
 
     public void relevance(ApiCaseRelevanceRequest request) {
-        List<String> ids = request.getSelectIds();
-        if (CollectionUtils.isEmpty(ids)) {
+        Map<String, List<String>> mapping = request.getMapping();
+        Map<String, String> envMap = request.getEnvMap();
+        Set<String> set = mapping.keySet();
+        if (set.isEmpty()) {
             return;
         }
-        List<ApiScenario> apiScenarios = selectByIds(ids);
-        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
-
-        ExtTestPlanScenarioCaseMapper batchMapper = sqlSession.getMapper(ExtTestPlanScenarioCaseMapper.class);
-        apiScenarios.forEach(scenario -> {
+        set.forEach(id -> {
+            Map<String, String> newEnvMap = new HashMap<>(16);
+            if (envMap != null && !envMap.isEmpty()) {
+                List<String> list = mapping.get(id);
+                list.forEach(l -> {
+                    newEnvMap.put(l, envMap.get(l));
+                });
+            }
             TestPlanApiScenario testPlanApiScenario = new TestPlanApiScenario();
             testPlanApiScenario.setId(UUID.randomUUID().toString());
-            testPlanApiScenario.setApiScenarioId(scenario.getId());
+            testPlanApiScenario.setApiScenarioId(id);
             testPlanApiScenario.setTestPlanId(request.getPlanId());
             testPlanApiScenario.setCreateTime(System.currentTimeMillis());
             testPlanApiScenario.setUpdateTime(System.currentTimeMillis());
-            batchMapper.insertIfNotExists(testPlanApiScenario);
+            testPlanApiScenario.setEnvironment(JSON.toJSONString(newEnvMap));
+            testPlanApiScenarioMapper.insert(testPlanApiScenario);
         });
-        sqlSession.flushStatements();
     }
 
     public List<ApiScenario> selectByIds(List<String> ids) {

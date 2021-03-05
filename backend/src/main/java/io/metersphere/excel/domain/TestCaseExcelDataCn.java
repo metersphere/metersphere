@@ -38,6 +38,11 @@ public class TestCaseExcelDataCn extends TestCaseExcelData {
     @Pattern(regexp = "(^P0$)|(^P1$)|(^P2$)|(^P3$)", message = "{test_case_priority_validate}")
     private String priority;
 
+    @ColumnWidth(50)
+    @ExcelProperty("标签")
+    @Length(min = 0, max = 1000)
+    private String tags;
+
     @NotBlank(message = "{cannot_be_null}")
     @ExcelProperty("测试方式")
     @Pattern(regexp = "(^manual$)|(^auto$)", message = "{test_case_method_validate}")

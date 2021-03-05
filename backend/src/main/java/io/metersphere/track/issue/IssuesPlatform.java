@@ -1,6 +1,7 @@
 package io.metersphere.track.issue;
 
 import io.metersphere.base.domain.Issues;
+import io.metersphere.track.dto.DemandDTO;
 import io.metersphere.track.issue.domain.PlatformUser;
 import io.metersphere.track.request.testcase.IssuesRequest;
 
@@ -10,18 +11,24 @@ public interface IssuesPlatform {
 
     /**
      * 获取平台相关联的缺陷
+     *
      * @return platform issues list
      */
     List<Issues> getIssue();
 
+    /*获取平台相关需求*/
+    List<DemandDTO> getDemandList(String projectId);
+
     /**
      * 添加缺陷到缺陷平台
+     *
      * @param issuesRequest issueRequest
      */
     void addIssue(IssuesRequest issuesRequest);
 
     /**
      * 删除缺陷平台缺陷
+     *
      * @param id issue id
      */
     void deleteIssue(String id);

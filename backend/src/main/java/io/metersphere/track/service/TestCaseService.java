@@ -100,6 +100,8 @@ public class TestCaseService {
         testCase.setUpdateTime(System.currentTimeMillis());
         testCase.setNum(getNextNum(testCase.getProjectId()));
         testCase.setReviewStatus(TestCaseReviewStatus.Prepare.name());
+        testCase.setDemandId(testCase.getDemandId());
+        testCase.setDemandName(testCase.getDemandName());
         testCaseMapper.insert(testCase);
         return testCase;
     }
@@ -154,11 +156,15 @@ public class TestCaseService {
 
             // 如果上边字段全部相同，去检查 steps 和 remark
             boolean isExt = false;
+            String caseRemark = testCase.getRemark();
+            if (StringUtils.isBlank(caseRemark)) {
+                caseRemark = "";
+            }
             if (!CollectionUtils.isEmpty(caseList)) {
                 for (TestCaseWithBLOBs tc : caseList) {
                     String steps = tc.getSteps();
                     String remark = tc.getRemark();
-                    if (StringUtils.equals(steps, testCase.getSteps()) && StringUtils.equals(remark, testCase.getRemark())) {
+                    if (StringUtils.equals(steps, testCase.getSteps()) && StringUtils.equals(remark, caseRemark)) {
                         // MSException.throwException(Translator.get("test_case_already_exists"));
                         isExt = true;
                     }
@@ -477,6 +483,7 @@ public class TestCaseService {
             data.setType(t.getType());
             data.setMethod(t.getMethod());
             data.setPrerequisite(t.getPrerequisite());
+            data.setTags(t.getTags());
             if (t.getMethod().equals("manual")) {
                 String steps = t.getSteps();
                 String setp = "";
