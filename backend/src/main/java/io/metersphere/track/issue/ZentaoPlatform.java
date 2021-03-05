@@ -7,6 +7,7 @@ import io.metersphere.base.domain.*;
 import io.metersphere.commons.constants.IssuesManagePlatform;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.track.dto.DemandDTO;
 import io.metersphere.track.issue.domain.PlatformUser;
 import io.metersphere.track.issue.domain.ZentaoBuild;
 import io.metersphere.track.request.testcase.IssuesRequest;
@@ -83,6 +84,11 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
         });
         return list;
 
+    }
+
+    @Override
+    public List<DemandDTO> getDemandList(String projectId) {
+        return null;
     }
 
     private Issues getZentaoIssues(String bugId) {
