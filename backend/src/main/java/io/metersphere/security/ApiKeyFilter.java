@@ -8,6 +8,7 @@ import org.apache.shiro.web.util.WebUtils;
 
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 public class ApiKeyFilter extends AnonymousFilter {
@@ -15,6 +16,9 @@ public class ApiKeyFilter extends AnonymousFilter {
     @Override
     protected boolean onPreHandle(ServletRequest request, ServletResponse response, Object mappedValue) {
         try {
+            HttpServletRequest httpServlet = WebUtils.toHttp(request);
+            String url = httpServlet.getRequestURL().toString();
+            LogUtil.info("Url message : "+url);
             if (!SecurityUtils.getSubject().isAuthenticated()) {
                 String userId = ApiKeyHandler.getUser(WebUtils.toHttp(request));
                 if (StringUtils.isNotBlank(userId)) {
