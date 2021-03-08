@@ -1001,10 +1001,12 @@
       },
       initProjectIds() {
         // 加载环境配置
-        this.projectIds.clear();
-        this.scenarioDefinition.forEach(data=>{
-          let arr = jsonPath.query(data, "$..projectId");
-          arr.forEach(a => this.projectIds.add(a));
+        this.$nextTick(() => {
+          this.projectIds.clear();
+          this.scenarioDefinition.forEach(data=>{
+            let arr = jsonPath.query(data, "$..projectId");
+            arr.forEach(a => this.projectIds.add(a));
+          })
         })
       }
     }
