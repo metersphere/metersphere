@@ -82,7 +82,7 @@
     computed: {
       isShow() {
         let rt = this.assertions.duration;
-        return rt.value !== undefined;
+        return rt.value !== undefined && rt.value !== 0;
       }
     },
     watch: {
