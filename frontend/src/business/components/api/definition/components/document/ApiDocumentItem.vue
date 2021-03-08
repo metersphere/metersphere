@@ -24,7 +24,8 @@
           </el-select>
           <el-input :placeholder="$t('api_test.definition.document.search_by_api_name')" @blur="initApiDocSimpleList()" style="float: right;width: 180px;margin-right: 5px" size="small"
                     @keyup.enter.native="initApiDocSimpleList()" v-model="apiSearch.name"/>
-          <api-document-batch-share v-xpack @shareApiDocument="shareApiDocument" :project-id="projectId" :share-url="batchShareUrl" style="float: right;margin: 6px;font-size: 17px"/>
+          <api-document-batch-share v-xpack v-if="showXpackCompnent" @shareApiDocument="shareApiDocument" :project-id="projectId" :share-url="batchShareUrl" style="float: right;margin: 6px;font-size: 17px"/>
+          <!--          <api-document-batch-share v-xpack v-if="showXpackCompnent"/>-->
         </el-row>
         <el-divider></el-divider>
         <div ref="apiDocInfoDiv" @scroll="handleScroll" >
@@ -300,6 +301,7 @@ export default {
       shareUrl:"",
       batchShareUrl:"",
       apiStepIndex: 0,
+      showXpackCompnent:false,
       apiInfoArray: [],
       modes: ['text', 'json', 'xml', 'html'],
       formParamTypes: ['form-data', 'x-www-from-urlencoded', 'BINARY'],
@@ -349,6 +351,9 @@ export default {
     }
   },
   created: function () {
+    if(requireComponent!=null && JSON.stringify(apiDocumentBatchShare) != '{}'){
+      this.showXpackCompnent = true;
+    }
     this.initApiDocSimpleList();
     this.clientHeight = `${document.documentElement.clientHeight}`;//获取浏览器可视区域高度
     let that = this;
@@ -601,7 +606,6 @@ export default {
         }
         if(apiInfo == null || !apiInfo.selectedFlag){
           let apiId = apiInfo.id;
-          console.log(apiInfo.isSearching+":"+apiId);
           if(!apiInfo.isSearching){
             apiInfo.isSearching = true;
             this.selectApiInfo(beforeIndex,apiId);
@@ -616,7 +620,6 @@ export default {
         }
         if(apiInfo == null || !apiInfo.selectedFlag){
           let apiId = apiInfo.id;
-          console.log(apiInfo.isSearching+":"+apiId);
           if(!apiInfo.isSearching) {
             apiInfo.isSearching = true;
             this.selectApiInfo(afterIndex,apiId);
