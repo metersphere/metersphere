@@ -117,6 +117,12 @@ public class ApiAutomationController {
         apiAutomationService.bathEdit(request);
     }
 
+    @PostMapping("/batch/update/env")
+    @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
+    public void batchUpdateEnv(@RequestBody ApiScenarioBatchRequest request) {
+        apiAutomationService.batchUpdateEnv(request);
+    }
+
     @PostMapping("/getReference")
     public ReferenceDTO getReference(@RequestBody ApiScenarioRequest request) {
         return apiAutomationService.getReference(request);
