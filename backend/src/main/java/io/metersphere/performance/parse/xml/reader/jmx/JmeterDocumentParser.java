@@ -132,9 +132,42 @@ public class JmeterDocumentParser implements DocumentParser {
                     } else if (nodeNameEquals(ele, CSV_DATA_SET)) {
                         processCsvDataSet(ele);
                     }
+                    // 处理http上传的附件
+                    if (isHTTPFileArg(ele)) {
+                        processArgumentFiles(ele);
+                    }
                 }
             }
         }
+    }
+
+    private void processArgumentFiles(Element element) {
+        NodeList childNodes = element.getChildNodes();
+        for (int i = 0; i < childNodes.getLength(); i++) {
+            Node item = childNodes.item(i);
+            if (item instanceof Element && nodeNameEquals(item, STRING_PROP)) {
+                String filenameTag = ((Element) item).getAttribute("name");
+                if (StringUtils.equals(filenameTag, "File.path")) {
+                    // 截取文件名
+                    handleFilename(item);
+                    break;
+                }
+            }
+        }
+    }
+
+    private void handleFilename(Node item) {
+        String separator = "/";
+        String filename = item.getTextContent();
+        if (!StringUtils.contains(filename, "/")) {
+            separator = "\\";
+        }
+        filename = filename.substring(filename.lastIndexOf(separator) + 1);
+        item.setTextContent(filename);
+    }
+
+    private boolean isHTTPFileArg(Element ele) {
+        return "HTTPFileArg".equals(ele.getAttribute("elementType"));
     }
 
     private void processCsvDataSet(Element element) {
@@ -145,13 +178,7 @@ public class JmeterDocumentParser implements DocumentParser {
                 String filenameTag = ((Element) item).getAttribute("name");
                 if (StringUtils.equals(filenameTag, "filename")) {
                     // 截取文件名
-                    String separator = "/";
-                    String filename = item.getTextContent();
-                    if (!StringUtils.contains(filename, "/")) {
-                        separator = "\\";
-                    }
-                    filename = filename.substring(filename.lastIndexOf(separator) + 1);
-                    item.setTextContent(filename);
+                    handleFilename(item);
                     break;
                 }
             }
