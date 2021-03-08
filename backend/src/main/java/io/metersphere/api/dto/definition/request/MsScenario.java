@@ -15,6 +15,7 @@ import io.metersphere.api.service.ApiTestEnvironmentService;
 import io.metersphere.base.domain.ApiScenarioWithBLOBs;
 import io.metersphere.base.domain.ApiTestEnvironmentWithBLOBs;
 import io.metersphere.commons.utils.CommonBeanFactory;
+import io.metersphere.commons.utils.FileUtils;
 import io.metersphere.commons.utils.SessionUtils;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -58,7 +59,7 @@ public class MsScenario extends MsTestElement {
     @JSONField(ordinal = 27)
     private Map<String, String> environmentMap;
 
-    private static final String BODY_FILE_DIR = "/opt/metersphere/data/body";
+    private static final String BODY_FILE_DIR = FileUtils.BODY_FILE_DIR;
 
     public MsScenario() {
     }
