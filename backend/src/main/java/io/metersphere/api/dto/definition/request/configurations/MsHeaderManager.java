@@ -30,7 +30,7 @@ public class MsHeaderManager extends MsTestElement {
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, ParameterConfig config) {
         HeaderManager headerManager = new HeaderManager();
         headerManager.setEnabled(this.isEnable());
-        headerManager.setName(StringUtils.isNotEmpty(this.getName()) ? this.getName() : "HeaderManager");
+        headerManager.setName(StringUtils.isNotEmpty(this.getName()) ? this.getName() + "HeaderManager" : "HeaderManager");
         headerManager.setProperty(TestElement.TEST_CLASS, HeaderManager.class.getName());
         headerManager.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("HeaderPanel"));
         headers.stream().filter(KeyValue::isValid).filter(KeyValue::isEnable).forEach(keyValue ->
