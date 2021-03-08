@@ -127,7 +127,7 @@ export default {
         this.$set(this.test, "name", apiTest.name);
         let blob = new Blob([apiTest.jmx.xml], {type: "application/octet-stream"});
         let file = new File([blob], apiTest.jmx.name);
-        this.$refs.basicConfig.beforeUpload(file);
+        this.$refs.basicConfig.beforeUploadJmx(file);
         this.$refs.basicConfig.handleUpload({file: file});
         this.active = '1';
         this.$store.commit("clearTest");
