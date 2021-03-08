@@ -97,6 +97,7 @@
       },
       open(size) {
         this.dialogVisible = true;
+        this.projectEnvMap.clear();
         if (size) {
           this.size = size;
         } else {

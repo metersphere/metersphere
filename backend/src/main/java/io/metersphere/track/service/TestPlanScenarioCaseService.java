@@ -59,9 +59,8 @@ public class TestPlanScenarioCaseService {
                 Set<String> set = d.getEnvironmentMap().keySet();
                 idList = new ArrayList<>(set);
             } else {
-                if (org.apache.commons.lang3.StringUtils.isNotBlank(d.getEnvironmentId())) {
-                    idList.add(d.getEnvironmentId());
-                }
+                // 兼容历史数据，无EnvironmentMap直接赋值场景所属项目
+                idList.add(data.getProjectId());
             }
             data.setProjectIds(idList);
         });

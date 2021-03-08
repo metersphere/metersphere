@@ -151,9 +151,6 @@
     </el-card>
 
     <batch-edit ref="batchEdit" @batchEdit="batchEdit" :typeArr="typeArr" :value-arr="valueArr" :dialog-title="$t('test_track.case.batch_edit_case')">
-      <template v-slot:value>
-        <environment-select :current-data="{}" :project-id="projectId"/>
-      </template>
     </batch-edit>
 
     <batch-move @refresh="search" @moveSave="moveSave" ref="testBatchMove"/>
@@ -166,7 +163,7 @@
   import MsTablePagination from "@/business/components/common/pagination/TablePagination";
   import ShowMoreBtn from "@/business/components/track/case/components/ShowMoreBtn";
   import MsTag from "../../../common/components/MsTag";
-  import {downloadFile, getCurrentProjectID, getCurrentUser, getUUID} from "@/common/js/utils";
+  import {downloadFile, getCurrentProjectID, getCurrentUser, getUUID, strMapToObj} from "@/common/js/utils";
   import MsApiReportDetail from "../report/ApiReportDetail";
   import MsTableMoreBtn from "./TableMoreBtn";
   import MsScenarioExtendButtons from "@/business/components/api/automation/scenario/ScenarioExtendBtns";
@@ -288,7 +285,8 @@
           {id: 'level', name: this.$t('test_track.case.priority')},
           {id: 'status', name: this.$t('test_track.plan.plan_status')},
           {id: 'principal', name: this.$t('api_test.definition.request.responsible'), optionMethod: this.getPrincipalOptions},
-          {id: 'environmentId', name: this.$t('api_test.definition.request.run_env'), optionMethod: this.getEnvsOptions},
+          // {id: 'environmentId', name: this.$t('api_test.definition.request.run_env'), optionMethod: this.getEnvsOptions},
+          {id: 'projectEnv', name: this.$t('api_test.definition.request.run_env')},
         ],
         statusFilters: [
           {text: this.$t('test_track.plan.plan_status_prepare'), value: 'Prepare'},
@@ -319,7 +317,8 @@
             {name: this.$t('test_track.plan.plan_status_completed'), id: 'Completed'}
           ],
           principal: [],
-          environmentId: []
+          environmentId: [],
+          projectEnv: []
         },
       }
     },
@@ -432,6 +431,7 @@
       },
       handleBatchEdit() {
         this.$refs.batchEdit.open(this.selectDataCounts);
+        this.$refs.batchEdit.setScenarioSelectRows(this.selectRows);
       },
       handleBatchMove() {
         this.$refs.testBatchMove.open(this.moduleTree, [], this.moduleOptions);
@@ -446,13 +446,31 @@
         });
       },
       batchEdit(form) {
-        let param = {};
-        param[form.type] = form.value;
-        this.buildBatchParam(param);
-        this.$post('/api/automation/batch/edit', param, () => {
-          this.$success(this.$t('commons.save_success'));
-          this.search();
-        });
+        // 批量修改环境
+        if (form.type === 'projectEnv') {
+          let param = {};
+          let map = new Map();
+          this.selectRows.forEach(row => {
+            map.set(row.id, row.projectIds);
+          })
+          param.mapping = strMapToObj(map);
+          param.envMap = strMapToObj(form.projectEnvMap);
+          this.$post('/api/automation/batch/update/env', param, () => {
+            this.$success(this.$t('commons.save_success'));
+            this.search();
+          })
+        } else {
+          // 批量修改其它
+          let param = {};
+          param[form.type] = form.value;
+          this.buildBatchParam(param);
+          this.$post('/api/automation/batch/edit', param, () => {
+            this.$success(this.$t('commons.save_success'));
+            this.search();
+          });
+        }
+
+
       },
       getPrincipalOptions(option) {
         let workspaceId = localStorage.getItem(WORKSPACE_ID);

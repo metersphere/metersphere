@@ -90,7 +90,26 @@ public class ApiAutomationService {
     public List<ApiScenarioDTO> list(ApiScenarioRequest request) {
         request = this.initRequest(request, true, true);
         List<ApiScenarioDTO> list = extApiScenarioMapper.list(request);
+        setApiScenarioProjectIds(list);
         return list;
+    }
+
+    private void setApiScenarioProjectIds(List<ApiScenarioDTO> list) {
+        // 如果场景步骤涉及多项目，则把涉及到的项目ID保存在projectIds属性
+        list.forEach(data -> {
+            String definition = data.getScenarioDefinition();
+            RunDefinitionRequest d = JSON.parseObject(definition, RunDefinitionRequest.class);
+            Map<String, String> map = d.getEnvironmentMap();
+            List<String> idList = new ArrayList<>();
+            if (map != null) {
+                Set<String> set = d.getEnvironmentMap().keySet();
+                idList = new ArrayList<>(set);
+            } else {
+                // 兼容历史数据，无EnvironmentMap直接赋值场景所属项目
+                idList.add(data.getProjectId());
+            }
+            data.setProjectIds(idList);
+        });
     }
 
     /**
@@ -415,6 +434,12 @@ public class ApiAutomationService {
                         String testPlanScenarioId = item.getId();
                         if (request.getScenarioTestPlanIdMap() != null && request.getScenarioTestPlanIdMap().containsKey(item.getId())) {
                             testPlanScenarioId = request.getScenarioTestPlanIdMap().get(item.getId());
+                            // 获取场景用例单独的执行环境
+                            TestPlanApiScenario planApiScenario = testPlanApiScenarioMapper.selectByPrimaryKey(testPlanScenarioId);
+                            String environment = planApiScenario.getEnvironment();
+                            if (StringUtils.isNotBlank(environment)) {
+                                scenario.setEnvironmentMap(JSON.parseObject(environment, Map.class));
+                            }
                         }
                         createScenarioReport(group.getName(), testPlanScenarioId, item.getName(), request.getTriggerMode() == null ? ReportTriggerMode.MANUAL.name() : request.getTriggerMode(),
                                 request.getExecuteType(), item.getProjectId(), request.getReportUserID());
@@ -902,4 +927,28 @@ public class ApiAutomationService {
         return resList;
     }
 
+    public void batchUpdateEnv(ApiScenarioBatchRequest request) {
+        Map<String, String> envMap = request.getEnvMap();
+        Map<String, List<String>> mapping = request.getMapping();
+        Set<String> set = mapping.keySet();
+        if (set.isEmpty()) { return; }
+        set.forEach(id -> {
+            Map<String, String> newEnvMap = new HashMap<>(16);
+            if (envMap != null && !envMap.isEmpty()) {
+                List<String> list = mapping.get(id);
+                list.forEach(l -> {
+                    newEnvMap.put(l, envMap.get(l));
+                });
+            }
+            if (!newEnvMap.isEmpty()) {
+                ApiScenarioWithBLOBs scenario = apiScenarioMapper.selectByPrimaryKey(id);
+                String definition = scenario.getScenarioDefinition();
+                JSONObject object = JSON.parseObject(definition);
+                object.put("environmentMap", newEnvMap);
+                String newDefinition = JSON.toJSONString(object);
+                scenario.setScenarioDefinition(newDefinition);
+                apiScenarioMapper.updateByPrimaryKeySelective(scenario);
+            }
+        });
+    }
 }
