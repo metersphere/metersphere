@@ -415,6 +415,12 @@ public class ApiAutomationService {
                         String testPlanScenarioId = item.getId();
                         if (request.getScenarioTestPlanIdMap() != null && request.getScenarioTestPlanIdMap().containsKey(item.getId())) {
                             testPlanScenarioId = request.getScenarioTestPlanIdMap().get(item.getId());
+                            // 获取场景用例单独的执行环境
+                            TestPlanApiScenario planApiScenario = testPlanApiScenarioMapper.selectByPrimaryKey(testPlanScenarioId);
+                            String environment = planApiScenario.getEnvironment();
+                            if (StringUtils.isNotBlank(environment)) {
+                                scenario.setEnvironmentMap(JSON.parseObject(environment, Map.class));
+                            }
                         }
                         createScenarioReport(group.getName(), testPlanScenarioId, item.getName(), request.getTriggerMode() == null ? ReportTriggerMode.MANUAL.name() : request.getTriggerMode(),
                                 request.getExecuteType(), item.getProjectId(), request.getReportUserID());
