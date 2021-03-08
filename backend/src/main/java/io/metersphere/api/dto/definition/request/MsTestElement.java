@@ -178,7 +178,9 @@ public abstract class MsTestElement {
             config.getConfig().get(this.getProjectId()).getCommonConfig().getVariables().stream().filter(KeyValue::isValid).filter(KeyValue::isEnable).forEach(keyValue ->
                     arguments.addArgument(keyValue.getName(), keyValue.getValue(), "=")
             );
-            return arguments;
+            if (arguments.getArguments().size() > 0) {
+                return arguments;
+            }
         }
         return null;
     }

@@ -15,7 +15,6 @@ import io.metersphere.api.service.ApiTestEnvironmentService;
 import io.metersphere.base.domain.ApiScenarioWithBLOBs;
 import io.metersphere.base.domain.ApiTestEnvironmentWithBLOBs;
 import io.metersphere.commons.utils.CommonBeanFactory;
-import io.metersphere.commons.utils.ScriptEngineUtils;
 import io.metersphere.commons.utils.SessionUtils;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -108,7 +107,7 @@ public class MsScenario extends MsTestElement {
         }
         // 设置共享cookie
         config.setEnableCookieShare(enableCookieShare);
-        Map<String,EnvironmentConfig> envConfig = new HashMap<>(16);
+        Map<String, EnvironmentConfig> envConfig = new HashMap<>(16);
         // 兼容历史数据
         if (environmentMap == null || environmentMap.isEmpty()) {
             environmentMap = new HashMap<>(16);
@@ -167,7 +166,9 @@ public class MsScenario extends MsTestElement {
             headers.stream().filter(KeyValue::isValid).filter(KeyValue::isEnable).forEach(keyValue ->
                     headerManager.add(new Header(keyValue.getName(), keyValue.getValue()))
             );
-            tree.add(headerManager);
+            if (headerManager.getHeaders().size() > 0) {
+                tree.add(headerManager);
+            }
         }
     }
 
