@@ -2,6 +2,7 @@ package io.metersphere.api.service;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.JSONPath;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -102,8 +103,13 @@ public class ApiAutomationService {
             Map<String, String> map = d.getEnvironmentMap();
             List<String> idList = new ArrayList<>();
             if (map != null) {
-                Set<String> set = d.getEnvironmentMap().keySet();
-                idList = new ArrayList<>(set);
+                if (map.isEmpty()) {
+                    List<String> ids = (List<String>) JSONPath.read(definition, "$..projectId");
+                    idList.addAll(new HashSet<>(ids));
+                } else {
+                    Set<String> set = d.getEnvironmentMap().keySet();
+                    idList = new ArrayList<>(set);
+                }
             } else {
                 // 兼容历史数据，无EnvironmentMap直接赋值场景所属项目
                 idList.add(data.getProjectId());
