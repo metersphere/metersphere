@@ -23,9 +23,22 @@ import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.reflections8.Reflections;
 import org.springframework.stereotype.Service;
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
 
 import javax.annotation.Resource;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.transform.Transformer;
+import javax.xml.transform.TransformerException;
+import javax.xml.transform.TransformerFactory;
+import javax.xml.transform.dom.DOMSource;
+import javax.xml.transform.stream.StreamResult;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -77,22 +90,17 @@ public class EngineFactory {
         if (org.springframework.util.CollectionUtils.isEmpty(fileMetadataList)) {
             MSException.throwException(Translator.get("run_load_test_file_not_found") + loadTest.getId());
         }
-        FileMetadata jmxFile = fileMetadataList.stream().filter(f -> StringUtils.equalsIgnoreCase(f.getType(), FileType.JMX.name()))
-                .findFirst().orElseGet(() -> {
-                    throw new RuntimeException(Translator.get("run_load_test_file_not_found") + loadTest.getId());
-                });
 
+        List<FileMetadata> jmxFiles = fileMetadataList.stream().filter(f -> StringUtils.equalsIgnoreCase(f.getType(), FileType.JMX.name())).collect(Collectors.toList());
         List<FileMetadata> csvFiles = fileMetadataList.stream().filter(f -> StringUtils.equalsIgnoreCase(f.getType(), FileType.CSV.name())).collect(Collectors.toList());
         List<FileMetadata> jarFiles = fileMetadataList.stream().filter(f -> StringUtils.equalsIgnoreCase(f.getType(), FileType.JAR.name())).collect(Collectors.toList());
-        final FileContent fileContent = fileService.getFileContent(jmxFile.getId());
-        if (fileContent == null) {
-            MSException.throwException(Translator.get("run_load_test_file_content_not_found") + loadTest.getId());
-        }
+        // 合并上传的jmx
+        byte[] jmxBytes = mergeJmx(jmxFiles);
         final EngineContext engineContext = new EngineContext();
         engineContext.setTestId(loadTest.getId());
         engineContext.setTestName(loadTest.getName());
         engineContext.setNamespace(loadTest.getProjectId());
-        engineContext.setFileType(jmxFile.getType());
+        engineContext.setFileType(FileType.JMX.name());
         engineContext.setResourcePoolId(loadTest.getTestResourcePoolId());
         engineContext.setStartTime(startTime);
         engineContext.setReportId(reportId);
@@ -102,15 +110,6 @@ public class EngineFactory {
             final JSONArray jsonArray = JSONObject.parseArray(loadTest.getLoadConfiguration());
 
             for (int i = 0; i < jsonArray.size(); i++) {
-                if (jsonArray.get(i) instanceof Map) {
-                    JSONObject o = jsonArray.getJSONObject(i);
-                    String key = o.getString("key");
-                    if ("TargetLevel".equals(key)) {
-                        engineContext.addProperty(key, Math.round(((Integer) o.get("value")) * ratio));
-                    } else {
-                        engineContext.addProperty(key, o.get("value"));
-                    }
-                }
                 if (jsonArray.get(i) instanceof List) {
                     JSONArray o = jsonArray.getJSONArray(i);
                     for (int j = 0; j < o.size(); j++) {
@@ -146,7 +145,7 @@ public class EngineFactory {
             MSException.throwException("File type unknown");
         }
 
-        try (ByteArrayInputStream source = new ByteArrayInputStream(fileContent.getFile())) {
+        try (ByteArrayInputStream source = new ByteArrayInputStream(jmxBytes)) {
             String content = engineSourceParser.parse(engineContext, source);
             engineContext.setContent(content);
         } catch (MSException e) {
@@ -178,6 +177,63 @@ public class EngineFactory {
         return engineContext;
     }
 
+    public static byte[] mergeJmx(List<FileMetadata> jmxFiles) {
+        try {
+            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder docBuilder = factory.newDocumentBuilder();
+            Element hashTree = null;
+            Document rootDocument = null;
+            for (FileMetadata fileMetadata : jmxFiles) {
+                FileContent fileContent = fileService.getFileContent(fileMetadata.getId());
+                final InputSource inputSource = new InputSource(new ByteArrayInputStream(fileContent.getFile()));
+                if (hashTree == null) {
+                    rootDocument = docBuilder.parse(inputSource);
+                    Element jmeterTestPlan = rootDocument.getDocumentElement();
+                    NodeList childNodes = jmeterTestPlan.getChildNodes();
+                    for (int i = 0; i < childNodes.getLength(); i++) {
+                        Node node = childNodes.item(i);
+                        if (node instanceof Element) {
+                            // jmeterTestPlan的子元素肯定是<hashTree></hashTree>
+                            hashTree = (Element) node;
+                            break;
+                        }
+                    }
+                } else {
+                    Document document = docBuilder.parse(inputSource);
+                    Element jmeterTestPlan = document.getDocumentElement();
+                    NodeList childNodes = jmeterTestPlan.getChildNodes();
+                    for (int i = 0; i < childNodes.getLength(); i++) {
+                        Node node = childNodes.item(i);
+                        if (node instanceof Element) {
+                            // jmeterTestPlan的子元素肯定是<hashTree></hashTree>
+                            Element secondHashTree = (Element) node;
+                            NodeList secondChildNodes = secondHashTree.getChildNodes();
+                            for (int j = 0; j < secondChildNodes.getLength(); j++) {
+                                Node item = secondChildNodes.item(j);
+                                Node newNode = item.cloneNode(true);
+                                rootDocument.adoptNode(newNode);
+                                hashTree.appendChild(newNode);
+                            }
+                        }
+                    }
+                }
+            }
+            return documentToBytes(rootDocument);
+        } catch (Exception e) {
+            MSException.throwException(e);
+        }
+        return new byte[0];
+    }
+
+    private static byte[] documentToBytes(Document document) throws TransformerException {
+        DOMSource domSource = new DOMSource(document);
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        StreamResult result = new StreamResult(out);
+        TransformerFactory tf = TransformerFactory.newInstance();
+        Transformer transformer = tf.newTransformer();
+        transformer.transform(domSource, result);
+        return out.toByteArray();
+    }
 
     @Resource
     private void setFileService(FileService fileService) {

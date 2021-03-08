@@ -197,7 +197,20 @@ export default {
       default_module: "默认模块",
     },
     report_statistics: {
-      title: "报表统计"
+      title: "报表统计",
+      test_case_analysis: "测试用例分析",
+      test_case_activity: "测试用例活动情况",
+      name: "报表",
+      excel: "表格",
+      add_case: "新增用例",
+      change_case: "变更用例",
+      type: "类别",
+      options: "选项",
+      chart: "图表",
+      line: "折线图",
+      bar: "柱状图",
+      desc: "总数从高到低",
+      asc: "总数从低到高",
     }
   },
   license: {
@@ -326,6 +339,7 @@ export default {
     input_name: '请输入项目名称',
     owning_workspace: '所属工作空间',
     please_choose_workspace: '请选择工作空间',
+    batch_choose_workspace: '批量选择工作空间',
     special_characters_are_not_supported: '格式错误(不支持特殊字符，且不能以\'-\'开头结尾)',
     tapd_id: 'TAPD项目ID',
     jira_key: 'JIRA项目key',
@@ -373,7 +387,11 @@ export default {
     delete_confirm: '这个用户确定要删除吗?',
     apikey_delete_confirm: '这个 API Key 确定要删除吗?',
     input_id_placeholder: '请输入ID (不支持中文)',
-    source: '用户来源'
+    source: '用户来源',
+    button: {
+      add_workspace_batch: '批量添加到工作空间',
+      add_user_role_batch: '批量添加角色',
+    }
   },
   role: {
     please_choose_role: '请选择角色',
@@ -501,7 +519,7 @@ export default {
     scenario_name: "场景名称",
     upload_jmx: '上传 JMX 文件',
     exist_jmx: '已存在的文件',
-    other_resource: '其他资源',
+    other_resource: '资源文件',
     upload_file: '上传新文件',
     load_exist_file: '加载已有文件',
     load_exist_jmx: '加载已有 JMX 文件',

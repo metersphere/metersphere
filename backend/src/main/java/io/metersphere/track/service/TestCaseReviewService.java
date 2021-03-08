@@ -78,7 +78,7 @@ public class TestCaseReviewService {
     @Resource
     private SystemParameterService systemParameterService;
 
-    public void saveTestCaseReview(SaveTestCaseReviewRequest reviewRequest) {
+    public String saveTestCaseReview(SaveTestCaseReviewRequest reviewRequest) {
         checkCaseReviewExist(reviewRequest);
         String reviewId = UUID.randomUUID().toString();
         List<String> userIds = reviewRequest.getUserIds();//执行人
@@ -109,6 +109,7 @@ public class TestCaseReviewService {
                 .event(NoticeConstants.Event.CREATE)
                 .build();
         noticeSendService.send(NoticeConstants.TaskType.REVIEW_TASK, noticeModel);
+        return reviewRequest.getId();
     }
 
     //评审内容

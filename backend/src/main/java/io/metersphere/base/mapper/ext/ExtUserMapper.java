@@ -1,7 +1,9 @@
 package io.metersphere.base.mapper.ext;
 
+import io.metersphere.api.dto.automation.ApiScenarioRequest;
 import io.metersphere.base.domain.User;
 import io.metersphere.controller.request.UserRequest;
+import io.metersphere.controller.request.resourcepool.UserBatchProcessRequest;
 import io.metersphere.notice.domain.UserDetail;
 import org.apache.ibatis.annotations.MapKey;
 import org.apache.ibatis.annotations.Param;
@@ -25,4 +27,6 @@ public interface ExtUserMapper {
     Map<String, User> queryNameByIds(List<String> userIds);
 
     List<String> selectAllId();
+
+    List<String> selectIdsByQuery(@Param("request") UserRequest request);
 }

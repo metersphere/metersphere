@@ -41,7 +41,9 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
     protected String getPlatformConfig(String platform) {
         SessionUser user = SessionUtils.getUser();
         String orgId = user.getLastOrganizationId();
-
+/*
+        String orgId = "88aceecf-5764-4094-96a9-f82bd52e77ad";
+*/
         IntegrationRequest request = new IntegrationRequest();
         if (StringUtils.isBlank(orgId)) {
             MSException.throwException("organization id is null");

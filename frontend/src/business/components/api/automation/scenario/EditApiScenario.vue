@@ -391,7 +391,7 @@
           },
           {
             title: this.$t('api_test.automation.scenario_import'),
-            show: this.operatingElements && this.operatingElements.indexOf('scenario') === 0,
+            show:this.showButton("scenario"),
             titleColor: "#606266",
             titleBgColor: "#F4F4F5",
             icon: "movie",
@@ -662,7 +662,7 @@
         }
         const index = hashTree.findIndex(d => d.resourceId === row.resourceId);
         if (index != -1) {
-          hashTree.splice(index, 0, obj);
+          hashTree.splice(index+1, 0, obj);
         } else {
           hashTree.push(obj);
         }

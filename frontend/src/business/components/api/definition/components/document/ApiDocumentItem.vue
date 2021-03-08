@@ -285,7 +285,7 @@ import MsJsonCodeEdit from "@/business/components/common/json-schema/JsonSchemaE
 import Api from "@/business/components/api/router";
 
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
-const apiDocumentBatchShare = requireComponent.keys().length > 0 ? requireComponent("./share/ApiDocumentBatchShare.vue") : {};
+const apiDocumentBatchShare = (requireComponent!=null&&requireComponent.keys().length) > 0 ? requireComponent("./share/ApiDocumentBatchShare.vue") : {};
 
 export default {
   name: "ApiDocumentItem",
@@ -442,9 +442,9 @@ export default {
 
       this.$post("/api/document/generateApiDocumentShareInfo", genShareInfoParam, res => {
         if(shareType == "Batch"){
-          this.batchShareUrl = "http://"+thisHost+"/document"+res.data.shareUrl;
+          this.batchShareUrl = thisHost+"/document"+res.data.shareUrl;
         }else{
-          this.shareUrl = "http://"+thisHost+"/document"+res.data.shareUrl;
+          this.shareUrl = thisHost+"/document"+res.data.shareUrl;
         }
       }, (error) => {
       });

@@ -21,13 +21,16 @@ let travel = function (elements, threadGroups) {
   }
 }
 
-export function findThreadGroup(jmxContent) {
+export function findThreadGroup(jmxContent, handler) {
   let jmxJson = JSON.parse(xml2json(jmxContent));
   let threadGroups = [];
   travel(jmxJson.elements, threadGroups);
   threadGroups.forEach(tg => {
     tg.deleted = 'false';
+    tg.handler = handler;
     tg.enabled = tg.attributes.enabled;
+    tg.tgType = tg.name;
+    tg.threadType = 'DURATION';
   })
   return threadGroups;
 }

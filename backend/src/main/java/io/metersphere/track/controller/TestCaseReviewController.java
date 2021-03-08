@@ -45,8 +45,8 @@ public class TestCaseReviewController {
 
     @PostMapping("/save")
     @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
-    public void saveCaseReview(@RequestBody SaveTestCaseReviewRequest reviewRequest) {
-        testCaseReviewService.saveTestCaseReview(reviewRequest);
+    public String saveCaseReview(@RequestBody SaveTestCaseReviewRequest reviewRequest) {
+        return testCaseReviewService.saveTestCaseReview(reviewRequest);
     }
 
     @PostMapping("/project")

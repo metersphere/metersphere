@@ -2,6 +2,9 @@
   <div>
     <el-card class="table-card" v-loading="result.loading">
 
+      <env-popover :env-map="projectEnvMap" :project-ids="projectIds" @setProjectEnvMap="setProjectEnvMap"
+                   :project-list="projectList" ref="envPopover" class="env-popover"/>
+
       <el-table ref="scenarioTable" border :data="tableData" class="adjust-table" @select-all="handleSelectAll" @select="handleSelect">
         <el-table-column type="selection"/>
 
@@ -56,10 +59,12 @@
   import MsTestPlanList from "../../../../../api/automation/scenario/testplan/TestPlanList";
   import TestPlanScenarioListHeader from "./TestPlanScenarioListHeader";
   import {_handleSelect, _handleSelectAll} from "../../../../../../../common/js/tableUtils";
+  import EnvPopover from "@/business/components/api/automation/scenario/EnvPopover";
 
   export default {
     name: "RelevanceScenarioList",
     components: {
+      EnvPopover,
       TestPlanScenarioListHeader,
       MsTablePagination, MsTableMoreBtn, ShowMoreBtn, MsTableHeader, MsTag, MsApiReportDetail, MsTestPlanList},
     props: {
@@ -84,7 +89,10 @@
         total: 0,
         reportId: "",
         infoDb: false,
-        selectRows: new Set()
+        selectRows: new Set(),
+        projectEnvMap: new Map(),
+        projectList: [],
+        projectIds: new Set(),
       }
     },
     watch: {
@@ -95,8 +103,13 @@
         this.search();
       },
     },
+    created() {
+      this.getWsProjects();
+    },
     methods: {
       search() {
+        this.projectEnvMap.clear();
+        this.projectIds.clear();
         if (!this.projectId) {
           return;
         }
@@ -129,10 +142,31 @@
       },
       handleSelectAll(selection) {
         _handleSelectAll(this, selection, this.tableData, this.selectRows);
+        this.initProjectIds();
       },
       handleSelect(selection, row) {
         _handleSelect(this, selection, row, this.selectRows);
+        this.initProjectIds();
       },
+      setProjectEnvMap(projectEnvMap) {
+        this.projectEnvMap = projectEnvMap;
+      },
+      getWsProjects() {
+        this.$get("/project/listAll", res => {
+          this.projectList = res.data;
+        })
+      },
+      initProjectIds() {
+        this.projectIds.clear();
+        this.selectRows.forEach(row => {
+          row.projectIds.forEach(id => {
+            this.projectIds.add(id);
+          })
+        })
+      },
+      checkEnv() {
+        return this.$refs.envPopover.checkEnv();
+      }
     }
   }
 </script>
@@ -140,5 +174,10 @@
 <style scoped>
   /deep/ .el-drawer__header {
     margin-bottom: 0px;
+  }
+
+  .env-popover {
+    float: right;
+    margin-top: 4px;
   }
 </style>

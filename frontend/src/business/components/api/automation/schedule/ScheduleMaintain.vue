@@ -124,18 +124,22 @@ export default {
     },
     scheduleChange(){
       let flag = this.schedule.enable;
-      this.$confirm(this.$t('api_test.home_page.running_task_list.confirm.close_title'), this.$t('commons.prompt'), {
-        confirmButtonText: this.$t('commons.confirm'),
-        cancelButtonText: this.$t('commons.cancel'),
-        type: 'warning'
-      }).then(() => {
-        let param = {};
-        param.taskID = this.schedule.id;
-        param.enable = flag;
+      let param = {};
+      param.taskID = this.schedule.id;
+      param.enable = flag;
+      if(flag == false) {
+        this.$confirm(this.$t('api_test.home_page.running_task_list.confirm.close_title'), this.$t('commons.prompt'), {
+          confirmButtonText: this.$t('commons.confirm'),
+          cancelButtonText: this.$t('commons.cancel'),
+          type: 'warning'
+        }).then(() => {
+          this.updateTask(param);
+        }).catch(() => {
+        });
+      }
+      else {
         this.updateTask(param);
-      }).catch(() => {
-      });
-
+      }
     },
     updateTask(param){
       this.result = this.$post('/api/schedule/updateEnableByPrimyKey', param, response => {
