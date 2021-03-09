@@ -157,17 +157,6 @@ public class ApiAutomationService {
         return request;
     }
 
-
-    public List<String> selectIdsNotExistsInPlan(String projectId, String planId) {
-        return extApiScenarioMapper.selectIdsNotExistsInPlan(projectId, planId);
-    }
-
-    public void deleteByIds(List<String> nodeIds) {
-        ApiScenarioExample example = new ApiScenarioExample();
-        example.createCriteria().andApiScenarioModuleIdIn(nodeIds);
-        apiScenarioMapper.deleteByExample(example);
-    }
-
     public void removeToGcByIds(List<String> nodeIds) {
         ApiScenarioExample example = new ApiScenarioExample();
         example.createCriteria().andApiScenarioModuleIdIn(nodeIds);
@@ -387,7 +376,7 @@ public class ApiAutomationService {
         return report;
     }
 
-    private void pase(String scenarioDefinition, MsScenario scenario) {
+    private void parse(String scenarioDefinition, MsScenario scenario) {
         ObjectMapper mapper = new ObjectMapper();
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         try {
@@ -424,7 +413,7 @@ public class ApiAutomationService {
             if (planEnvMap.size() > 0) {
                 scenario.setEnvironmentMap(planEnvMap);
             }
-            pase(item.getScenarioDefinition(), scenario);
+            parse(item.getScenarioDefinition(), scenario);
 
             group.setEnableCookieShare(scenario.isEnableCookieShare());
             LinkedList<MsTestElement> scenarios = new LinkedList<>();
@@ -453,7 +442,7 @@ public class ApiAutomationService {
             if (scenario == null) {
                 return null;
             }
-            pase(apiScenario.getScenarioDefinition(), scenario);
+            parse(apiScenario.getScenarioDefinition(), scenario);
             // 针对导入的jmx 处理
             if (CollectionUtils.isNotEmpty(scenario.getHashTree()) && (scenario.getHashTree().get(0) instanceof MsJmeterElement)) {
                 scenario.toHashTree(jmeterHashTree, scenario.getHashTree(), config);
@@ -527,11 +516,12 @@ public class ApiAutomationService {
                 report = createScenarioReport(reportId, item.getId(), item.getName(), request.getTriggerMode(),
                         request.getExecuteType(), item.getProjectId(), request.getReportUserID());
             }
-            //存储报告
-            batchMapper.insert(report);
 
             // 生成报告和HashTree
             HashTree hashTree = generateHashTree(item, reportId, planEnvMap);
+
+            //存储报告
+            batchMapper.insert(report);
 
             // 调用执行方法
             jMeterService.runDefinition(report.getId(), hashTree, request.getReportId(), request.getRunMode());
