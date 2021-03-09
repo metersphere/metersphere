@@ -1,55 +1,52 @@
 <template>
   <ms-test-plan-common-component>
     <template v-slot:aside>
-      <ms-node-tree
+      <node-tree
         class="node-tree"
-        :all-label="$t('commons.all_label.review')"
         v-loading="result.loading"
         @nodeSelectEvent="nodeChange"
         :tree-nodes="treeNodes"
         ref="nodeTree"/>
     </template>
     <template v-slot:main>
-      <test-review-test-case-list
+      <test-plan-load-case-list
         class="table-list"
-        @openTestReviewRelevanceDialog="openTestReviewRelevanceDialog"
         @refresh="refresh"
         :review-id="reviewId"
-        :select-node-ids="selectNodeIds"
-        :select-parent-nodes="selectParentNodes"
         :clickType="clickType"
-        ref="testPlanTestCaseList"/>
+        :select-project-id="selectProjectId"
+        :select-parent-nodes="selectParentNodes"
+        @relevanceCase="openTestCaseRelevanceDialog"
+        ref="testPlanLoadCaseList"/>
     </template>
-    <test-review-relevance
+    <test-case-load-relevance
       @refresh="refresh"
       :review-id="reviewId"
-      ref="testReviewRelevance"/>
+      ref="testCaseLoadRelevance"/>
   </ms-test-plan-common-component>
 
 </template>
 
 <script>
 import MsTestPlanCommonComponent from "@/business/components/track/plan/view/comonents/base/TestPlanCommonComponent";
-import FunctionalTestCaseList from "@/business/components/track/plan/view/comonents/functional/FunctionalTestCaseList";
-import MsNodeTree from "@/business/components/track/common/NodeTree";
-import TestReviewRelevance from "@/business/components/track/review/view/components/TestReviewRelevance";
-import TestReviewTestCaseList from "@/business/components/track/review/view/components/TestReviewTestCaseList";
-
+import NodeTree from "@/business/components/track/common/NodeTree";
+import TestPlanLoadCaseList from "@/business/components/track/plan/view/comonents/load/TestPlanLoadCaseList";
+import TestCaseLoadRelevance from "@/business/components/track/plan/view/comonents/load/TestCaseLoadRelevance";
 export default {
   name: "TestReviewLoad",
   components: {
-    TestReviewTestCaseList,
-    TestReviewRelevance, MsNodeTree, FunctionalTestCaseList, MsTestPlanCommonComponent
+    MsTestPlanCommonComponent,
+    NodeTree,
+    TestPlanLoadCaseList,
+    TestCaseLoadRelevance,
   },
   data() {
     return {
       result: {},
-      testReviews: [],
-      currentReview: {},
       selectNodeIds: [],
       selectParentNodes: [],
+      selectProjectId: "",
       treeNodes: [],
-      isMenuShow: true,
     }
   },
   props: [
@@ -57,33 +54,41 @@ export default {
     'redirectCharType',
     'clickType'
   ],
-  mounted() {
-    this.getNodeTreeByReviewId()
+  watch: {
+    planId() {
+      this.initData();
+    }
   },
-  activated() {
-    this.getNodeTreeByReviewId()
-
+  mounted() {
+    this.initData();
   },
   methods: {
     refresh() {
-      this.selectNodeIds = [];
+      this.selectProjectId = '';
       this.selectParentNodes = [];
-      this.$refs.testReviewRelevance.search();
-      this.getNodeTreeByReviewId();
+      this.$refs.testPlanLoadCaseList.initTable();
+      this.getNodeTreeByPlanId();
+    },
+    initData() {
+      this.getNodeTreeByPlanId();
+    },
+    openTestCaseRelevanceDialog() {
+      this.$refs.testCaseLoadRelevance.open();
     },
     nodeChange(node, nodeIds, pNodes) {
-      this.selectNodeIds = nodeIds;
-      this.selectParentNodes = pNodes;
+      this.selectProjectId = node.key;
+      // 切换node后，重置分页数
+      this.$refs.testPlanLoadCaseList.currentPage = 1;
+      this.$refs.testPlanLoadCaseList.pageSize = 10;
     },
-    getNodeTreeByReviewId() {
-      if (this.reviewId) {
-        this.result = this.$get("/case/node/list/review/" + this.reviewId, response => {
+    getNodeTreeByPlanId() {
+      if (this.planId) {
+        this.result = this.$get("/case/node/list/plan/" + this.planId, response => {
           this.treeNodes = response.data;
+          // 性能测试与模块无关，过滤项目下模块
+          this.treeNodes.map(node => node.children = null);
         });
       }
-    },
-    openTestReviewRelevanceDialog() {
-      this.$refs.testReviewRelevance.openTestReviewRelevanceDialog();
     },
   }
 }

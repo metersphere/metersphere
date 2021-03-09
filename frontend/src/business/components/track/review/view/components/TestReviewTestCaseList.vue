@@ -84,7 +84,7 @@
             </template>
           </el-table-column>
 
-          <el-table-column
+<!--          <el-table-column
             v-if="item.id=='method'"
             prop="method"
             :filters="methodFilters"
@@ -95,7 +95,7 @@
             <template v-slot:default="scope">
               <method-table-item :value="scope.row.method"/>
             </template>
-          </el-table-column>
+          </el-table-column>-->
 
           <el-table-column
             v-if="item.id=='nodePath'"

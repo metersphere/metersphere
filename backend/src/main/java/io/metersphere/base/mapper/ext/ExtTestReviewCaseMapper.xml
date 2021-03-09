@@ -100,7 +100,7 @@
         select test_case_review_test_case.id as id, test_case.id as caseId, test_case.name, test_case.priority,
         test_case.type, test_case.node_path, test_case.method, test_case.num, test_case_review_test_case.reviewer,
         test_case.review_status, test_case_review_test_case.update_time, test_case_node.name as model,
-        project.name as projectName, test_case_review_test_case.review_id as reviewId
+        project.name as projectName, test_case_review_test_case.review_id as reviewId,test_case.test_id as testId
         from test_case_review_test_case
         inner join test_case on test_case_review_test_case.case_id = test_case.id
         left join test_case_node on test_case_node.id=test_case.node_id
