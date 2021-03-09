@@ -532,6 +532,9 @@
           if (arr[i].type === ELEMENT_TYPE.LoopController && arr[i].hashTree && arr[i].hashTree.length > 1) {
             arr[i].countController.proceed = true;
           }
+          if (!arr[i].projectId) {
+            arr[i].projectId = getCurrentProjectID();
+          }
           if (arr[i].hashTree != undefined && arr[i].hashTree.length > 0) {
             this.recursiveSorting(arr[i].hashTree);
           }
@@ -543,6 +546,9 @@
           if (this.scenarioDefinition[i].type === ELEMENT_TYPE.LoopController && this.scenarioDefinition[i].hashTree
             && this.scenarioDefinition[i].hashTree.length > 1) {
             this.scenarioDefinition[i].countController.proceed = true;
+          }
+          if (!this.scenarioDefinition[i].projectId) {
+            this.scenarioDefinition.projectId = getCurrentProjectID();
           }
           if (this.scenarioDefinition[i].hashTree != undefined && this.scenarioDefinition[i].hashTree.length > 0) {
             this.recursiveSorting(this.scenarioDefinition[i].hashTree);
@@ -919,14 +925,15 @@
                   }
                   this.enableCookieShare = obj.enableCookieShare;
                   this.scenarioDefinition = obj.hashTree;
-                  this.initProjectIds();
                 }
               }
               if (this.currentScenario.copy) {
                 this.path = "/api/automation/create";
               }
             }
-            this.getEnvironments();
+            this.sort();
+            this.initProjectIds();
+            // this.getEnvironments();
           })
         }
       },
