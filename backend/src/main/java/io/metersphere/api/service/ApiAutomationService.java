@@ -347,7 +347,7 @@ public class ApiAutomationService {
     }
 
     public byte[] loadFileAsBytes(FileOperationRequest fileOperationRequest) {
-        File file = new File("/opt/metersphere/data/body/" + fileOperationRequest.getId() + "_" + fileOperationRequest.getName());
+        File file = new File(FileUtils.BODY_FILE_DIR + fileOperationRequest.getId() + "_" + fileOperationRequest.getName());
         try (FileInputStream fis = new FileInputStream(file);
              ByteArrayOutputStream bos = new ByteArrayOutputStream(1000);) {
             byte[] b = new byte[1000];
@@ -362,7 +362,7 @@ public class ApiAutomationService {
         return null;
     }
 
-    public void createScenarioReport(String id, String scenarioId, String scenarioName, String triggerMode, String execType, String projectId, String userID) {
+    public APIScenarioReportResult createScenarioReport(String id, String scenarioId, String scenarioName, String triggerMode, String execType, String projectId, String userID) {
         APIScenarioReportResult report = new APIScenarioReportResult();
         report.setId(id);
         report.setTestId(id);
@@ -384,87 +384,54 @@ public class ApiAutomationService {
         report.setProjectId(projectId);
         report.setScenarioName(scenarioName);
         report.setScenarioId(scenarioId);
-        apiScenarioReportMapper.insert(report);
+        return report;
     }
 
-    /**
-     * 生成HashTree
-     *
-     * @param apiScenarios 场景
-     * @param request      请求参数
-     * @param reportIds    报告ID
-     * @return hashTree
-     */
-    private HashTree generateHashTree(List<ApiScenarioWithBLOBs> apiScenarios, RunScenarioRequest request, List<String> reportIds) {
-        HashTree jmeterHashTree = new ListedHashTree();
+    private void pase(String scenarioDefinition, MsScenario scenario) {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        try {
+            JSONObject element = JSON.parseObject(scenarioDefinition);
+            // 多态JSON普通转换会丢失内容，需要通过 ObjectMapper 获取
+            if (element != null && StringUtils.isNotEmpty(element.getString("hashTree"))) {
+                LinkedList<MsTestElement> elements = mapper.readValue(element.getString("hashTree"),
+                        new TypeReference<LinkedList<MsTestElement>>() {
+                        });
+                scenario.setHashTree(elements);
+            }
+            if (element != null && StringUtils.isNotEmpty(element.getString("variables"))) {
+                LinkedList<ScenarioVariable> variables = mapper.readValue(element.getString("variables"),
+                        new TypeReference<LinkedList<ScenarioVariable>>() {
+                        });
+                scenario.setVariables(variables);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            LogUtil.error(e.getMessage());
+        }
+    }
+
+    private HashTree generateHashTree(ApiScenarioWithBLOBs item, String reportId, Map<String, String> planEnvMap) {
+        HashTree jmeterHashTree = new HashTree();
         MsTestPlan testPlan = new MsTestPlan();
         testPlan.setHashTree(new LinkedList<>());
         try {
-            boolean isFirst = true;
-            for (ApiScenarioWithBLOBs item : apiScenarios) {
-                if (item.getStepTotal() == null || item.getStepTotal() == 0) {
-                    // 只有一个场景且没有测试步骤，则提示
-                    if (apiScenarios.size() == 1) {
-                        MSException.throwException((item.getName() + "，" + Translator.get("automation_exec_info")));
-                    }
-                    LogUtil.warn(item.getName() + "，" + Translator.get("automation_exec_info"));
-                    continue;
-                }
-                MsThreadGroup group = new MsThreadGroup();
-                group.setLabel(item.getName());
-                group.setName(UUID.randomUUID().toString());
-                // 批量执行的结果直接存储为报告
-                if (isFirst) {
-                    group.setName(request.getId());
-                    isFirst = false;
-                }
-                ObjectMapper mapper = new ObjectMapper();
-                mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-                JSONObject element = JSON.parseObject(item.getScenarioDefinition());
-                MsScenario scenario = JSONObject.parseObject(item.getScenarioDefinition(), MsScenario.class);
+            MsThreadGroup group = new MsThreadGroup();
+            group.setLabel(item.getName());
+            group.setName(reportId);
 
-                // 多态JSON普通转换会丢失内容，需要通过 ObjectMapper 获取
-                if (element != null && StringUtils.isNotEmpty(element.getString("hashTree"))) {
-                    LinkedList<MsTestElement> elements = mapper.readValue(element.getString("hashTree"),
-                            new TypeReference<LinkedList<MsTestElement>>() {
-                            });
-                    scenario.setHashTree(elements);
-                }
-                if (StringUtils.isNotEmpty(element.getString("variables"))) {
-                    LinkedList<ScenarioVariable> variables = mapper.readValue(element.getString("variables"),
-                            new TypeReference<LinkedList<ScenarioVariable>>() {
-                            });
-                    scenario.setVariables(variables);
-                }
-                group.setEnableCookieShare(scenario.isEnableCookieShare());
-                LinkedList<MsTestElement> scenarios = new LinkedList<>();
-                scenarios.add(scenario);
-                // 创建场景报告
-                if (reportIds != null) {
-                    //如果是测试计划页面触发的执行方式，生成报告时createScenarioReport第二个参数需要特殊处理
-                    if (StringUtils.equals(request.getRunMode(), ApiRunMode.SCENARIO_PLAN.name())) {
-                        String testPlanScenarioId = item.getId();
-                        if (request.getScenarioTestPlanIdMap() != null && request.getScenarioTestPlanIdMap().containsKey(item.getId())) {
-                            testPlanScenarioId = request.getScenarioTestPlanIdMap().get(item.getId());
-                            // 获取场景用例单独的执行环境
-                            TestPlanApiScenario planApiScenario = testPlanApiScenarioMapper.selectByPrimaryKey(testPlanScenarioId);
-                            String environment = planApiScenario.getEnvironment();
-                            if (StringUtils.isNotBlank(environment)) {
-                                scenario.setEnvironmentMap(JSON.parseObject(environment, Map.class));
-                            }
-                        }
-                        createScenarioReport(group.getName(), testPlanScenarioId, item.getName(), request.getTriggerMode() == null ? ReportTriggerMode.MANUAL.name() : request.getTriggerMode(),
-                                request.getExecuteType(), item.getProjectId(), request.getReportUserID());
-                    } else {
-                        createScenarioReport(group.getName(), item.getId(), item.getName(), request.getTriggerMode() == null ? ReportTriggerMode.MANUAL.name() : request.getTriggerMode(),
-                                request.getExecuteType(), item.getProjectId(), request.getReportUserID());
-                    }
-
-                    reportIds.add(group.getName());
-                }
-                group.setHashTree(scenarios);
-                testPlan.getHashTree().add(group);
+            MsScenario scenario = JSONObject.parseObject(item.getScenarioDefinition(), MsScenario.class);
+            if (planEnvMap.size() > 0) {
+                scenario.setEnvironmentMap(planEnvMap);
             }
+            pase(item.getScenarioDefinition(), scenario);
+
+            group.setEnableCookieShare(scenario.isEnableCookieShare());
+            LinkedList<MsTestElement> scenarios = new LinkedList<>();
+            scenarios.add(scenario);
+
+            group.setHashTree(scenarios);
+            testPlan.getHashTree().add(group);
         } catch (Exception ex) {
             MSException.throwException(ex.getMessage());
         }
@@ -482,27 +449,11 @@ public class ApiAutomationService {
         config.setOperating(true);
         try {
 
-            ObjectMapper mapper = new ObjectMapper();
-            mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-            JSONObject element = JSON.parseObject(apiScenario.getScenarioDefinition());
             MsScenario scenario = JSONObject.parseObject(apiScenario.getScenarioDefinition(), MsScenario.class);
-
-            // 多态JSON普通转换会丢失内容，需要通过 ObjectMapper 获取
-            if (element != null && StringUtils.isNotEmpty(element.getString("hashTree"))) {
-                LinkedList<MsTestElement> elements = mapper.readValue(element.getString("hashTree"),
-                        new TypeReference<LinkedList<MsTestElement>>() {
-                        });
-                scenario.setHashTree(elements);
-            }
-            if (element != null && StringUtils.isNotEmpty(element.getString("variables"))) {
-                LinkedList<ScenarioVariable> variables = mapper.readValue(element.getString("variables"),
-                        new TypeReference<LinkedList<ScenarioVariable>>() {
-                        });
-                scenario.setVariables(variables);
-            }
             if (scenario == null) {
                 return null;
             }
+            pase(apiScenario.getScenarioDefinition(), scenario);
             // 针对导入的jmx 处理
             if (CollectionUtils.isNotEmpty(scenario.getHashTree()) && (scenario.getHashTree().get(0) instanceof MsJmeterElement)) {
                 scenario.toHashTree(jmeterHashTree, scenario.getHashTree(), config);
@@ -533,26 +484,61 @@ public class ApiAutomationService {
      * @return
      */
     public String run(RunScenarioRequest request) {
-
         ServiceUtils.getSelectAllIds(request, request.getCondition(),
                 (query) -> extApiScenarioMapper.selectIdsByQuery((ApiScenarioRequest) query));
 
         List<String> ids = request.getIds();
         //检查是否有正在执行中的情景
         this.checkScenarioIsRunning(ids);
-        List<ApiScenarioWithBLOBs> apiScenarios = extApiScenarioMapper.selectIds(ids);
 
-        String runMode = ApiRunMode.SCENARIO.name();
-        if (StringUtils.isNotBlank(request.getRunMode()) && StringUtils.equals(request.getRunMode(), ApiRunMode.SCENARIO_PLAN.name())) {
-            runMode = ApiRunMode.SCENARIO_PLAN.name();
+        List<ApiScenarioWithBLOBs> apiScenarios = extApiScenarioMapper.selectIds(ids);
+        // 只有一个场景且没有测试步骤，则提示
+        if (apiScenarios != null && apiScenarios.size() == 1 && (apiScenarios.get(0).getStepTotal() == null || apiScenarios.get(0).getStepTotal() == 0)) {
+            MSException.throwException((apiScenarios.get(0).getName() + "，" + Translator.get("automation_exec_info")));
         }
-        if (StringUtils.isNotBlank(request.getRunMode()) && StringUtils.equals(request.getRunMode(), ApiRunMode.DEFINITION.name())) {
-            runMode = ApiRunMode.DEFINITION.name();
+        if (StringUtils.isEmpty(request.getTriggerMode())) {
+            request.setTriggerMode(ReportTriggerMode.MANUAL.name());
         }
-        // 调用执行方法
-        List<String> reportIds = new LinkedList<>();
-        HashTree hashTree = generateHashTree(apiScenarios, request, reportIds);
-        jMeterService.runDefinition(JSON.toJSONString(reportIds), hashTree, request.getReportId(), runMode);
+        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+        ApiScenarioReportMapper batchMapper = sqlSession.getMapper(ApiScenarioReportMapper.class);
+        String reportId = request.getId();
+        // 按照场景执行
+        for (ApiScenarioWithBLOBs item : apiScenarios) {
+            if (item.getStepTotal() == null || item.getStepTotal() == 0) {
+                continue;
+            }
+            APIScenarioReportResult report;
+            Map<String, String> planEnvMap = new HashMap<>();
+            //如果是测试计划页面触发的执行方式，生成报告时createScenarioReport第二个参数需要特殊处理
+            if (StringUtils.equals(request.getRunMode(), ApiRunMode.SCENARIO_PLAN.name())) {
+                String testPlanScenarioId = item.getId();
+                if (request.getScenarioTestPlanIdMap() != null && request.getScenarioTestPlanIdMap().containsKey(item.getId())) {
+                    testPlanScenarioId = request.getScenarioTestPlanIdMap().get(item.getId());
+                    // 获取场景用例单独的执行环境
+                    TestPlanApiScenario planApiScenario = testPlanApiScenarioMapper.selectByPrimaryKey(testPlanScenarioId);
+                    String environment = planApiScenario.getEnvironment();
+                    if (StringUtils.isNotBlank(environment)) {
+                        planEnvMap = JSON.parseObject(environment, Map.class);
+                    }
+                }
+                report = createScenarioReport(reportId, testPlanScenarioId, item.getName(), request.getTriggerMode(),
+                        request.getExecuteType(), item.getProjectId(), request.getReportUserID());
+            } else {
+                report = createScenarioReport(reportId, item.getId(), item.getName(), request.getTriggerMode(),
+                        request.getExecuteType(), item.getProjectId(), request.getReportUserID());
+            }
+            //存储报告
+            batchMapper.insert(report);
+
+            // 生成报告和HashTree
+            HashTree hashTree = generateHashTree(item, reportId, planEnvMap);
+
+            // 调用执行方法
+            jMeterService.runDefinition(report.getId(), hashTree, request.getReportId(), request.getRunMode());
+            // 重置报告ID
+            reportId = UUID.randomUUID().toString();
+        }
+        sqlSession.flushStatements();
         return request.getId();
     }
 
@@ -598,7 +584,7 @@ public class ApiAutomationService {
     public String debugRun(RunDefinitionRequest request, List<MultipartFile> bodyFiles) {
         List<String> bodyUploadIds = new ArrayList<>(request.getBodyUploadIds());
         FileUtils.createBodyFiles(bodyUploadIds, bodyFiles);
-        Map<String,EnvironmentConfig> envConfig = new HashMap<>();
+        Map<String, EnvironmentConfig> envConfig = new HashMap<>();
         Map<String, String> map = request.getEnvironmentMap();
         if (map != null) {
             map.keySet().forEach(id -> {
@@ -611,8 +597,9 @@ public class ApiAutomationService {
         config.setConfig(envConfig);
         HashTree hashTree = request.getTestElement().generateHashTree(config);
         // 调用执行方法
-        createScenarioReport(request.getId(), request.getScenarioId(), request.getScenarioName(), ReportTriggerMode.MANUAL.name(), request.getExecuteType(), request.getProjectId(),
+        APIScenarioReportResult reportResult = createScenarioReport(request.getId(), request.getScenarioId(), request.getScenarioName(), ReportTriggerMode.MANUAL.name(), request.getExecuteType(), request.getProjectId(),
                 SessionUtils.getUserId());
+        apiScenarioReportMapper.insert(reportResult);
         // 调用执行方法
         jMeterService.runDefinition(request.getId(), hashTree, request.getReportId(), ApiRunMode.SCENARIO.name());
         return request.getId();
@@ -761,25 +748,14 @@ public class ApiAutomationService {
         if (!apiScenarios.isEmpty()) {
             testName = apiScenarios.get(0).getName();
         }
+        if (CollectionUtils.isEmpty(apiScenarios)) {
+            return null;
+        }
         MsTestPlan testPlan = new MsTestPlan();
         testPlan.setHashTree(new LinkedList<>());
-
-        HashTree jmeterHashTree = generateHashTree(apiScenarios, request, null);
-        String jmx = testPlan.getJmx(jmeterHashTree);
-
-        jmx = apiTestService.updateJmxString(jmx, testName, true);
-
-        //将ThreadGroup的testname改为接口名称
-//        Document doc = DocumentHelper.parseText(jmx);// 获取可续保保单列表报文模板
-//        Element root = doc.getRootElement();
-//        Element rootHashTreeElement = root.element("hashTree");
-//        Element innerHashTreeElement = rootHashTreeElement.elements("hashTree").get(0);
-//        Element theadGroupElement = innerHashTreeElement.elements("ThreadGroup").get(0);
-//        theadGroupElement.attribute("testname").setText(testName);
-//        jmx = root.asXML();
+        String jmx = apiTestService.updateJmxString(generateJmx(apiScenarios.get(0)), testName, true);
 
         String name = request.getName() + ".jmx";
-
         JmxInfoDTO dto = new JmxInfoDTO();
         dto.setName(name);
         dto.setXml(jmx);
@@ -943,7 +919,9 @@ public class ApiAutomationService {
         Map<String, String> envMap = request.getEnvMap();
         Map<String, List<String>> mapping = request.getMapping();
         Set<String> set = mapping.keySet();
-        if (set.isEmpty()) { return; }
+        if (set.isEmpty()) {
+            return;
+        }
         set.forEach(id -> {
             Map<String, String> newEnvMap = new HashMap<>(16);
             if (envMap != null && !envMap.isEmpty()) {
