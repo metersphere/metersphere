@@ -203,7 +203,7 @@ public class TestCaseReviewService {
         return extTestCaseReviewMapper.listByWorkspaceId(currentWorkspaceId, SessionUtils.getUserId(), SessionUtils.getCurrentProjectId());
     }
 
-    public void editCaseReview(SaveTestCaseReviewRequest testCaseReview) {
+    public String editCaseReview(SaveTestCaseReviewRequest testCaseReview) {
         editCaseReviewer(testCaseReview);
         testCaseReview.setUpdateTime(System.currentTimeMillis());
         checkCaseReviewExist(testCaseReview);
@@ -221,6 +221,7 @@ public class TestCaseReviewService {
                 .event(NoticeConstants.Event.UPDATE)
                 .build();
         noticeSendService.send(NoticeConstants.TaskType.REVIEW_TASK, noticeModel);
+        return testCaseReview.getId();
     }
 
     private void editCaseReviewer(SaveTestCaseReviewRequest testCaseReview) {

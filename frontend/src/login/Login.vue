@@ -187,7 +187,7 @@ export default {
 
 <style scoped>
 .container {
-  width: 1440px;
+  width: 1200px;
   height: 810px;
   margin: calc((100vh - 810px) / 2) auto 0;
   background-color: #FFFFFF;
@@ -294,6 +294,7 @@ body {
   color: #2B415C;
   -webkit-font-smoothing: antialiased;
   margin: 0;
+  height: auto;
 }
 
 .form .el-input > .el-input__inner {

@@ -96,7 +96,7 @@ public class MsAssertions extends MsTestElement {
         assertion.setJsonValidationBool(true);
         assertion.setExpectNull(false);
         assertion.setInvert(false);
-        assertion.setIsRegex(false);
+        assertion.setIsRegex(true);
         return assertion;
     }
 
