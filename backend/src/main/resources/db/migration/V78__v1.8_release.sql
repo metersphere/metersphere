@@ -33,7 +33,7 @@ alter table swagger_url_project
 
 -- add_test_case
 alter table test_case
-    add demand_id varchar(50) null;
+    add demand_id varchar(120) null;
 
 alter table test_case
     add demand_name varchar(999) null;
