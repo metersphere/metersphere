@@ -186,8 +186,8 @@ public class JiraPlatform extends AbstractIssuePlatform {
             String url = object.getString("url");
             HttpHeaders headers = auth(account, password);
             HttpEntity<MultiValueMap> requestEntity = new HttpEntity<>(headers);
-            RestTemplate restTemplate = new RestTemplate();
-            restTemplate.exchange(url + "rest/api/2/issue/createmeta", HttpMethod.GET, requestEntity, String.class);
+            // 忽略ssl
+            restTemplateIgnoreSSL.exchange(url + "rest/api/2/issue/createmeta", HttpMethod.GET, requestEntity, String.class);
         } catch (Exception e) {
             LogUtil.error(e.getMessage(), e);
             MSException.throwException("验证失败！");
