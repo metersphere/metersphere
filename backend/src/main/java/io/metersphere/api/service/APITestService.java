@@ -472,10 +472,12 @@ public class APITestService {
      * @return
      * @author song tianyang
      */
-    public String updateJmxString(String jmxString, String testNameParam, boolean isFromScenario) {
+    public JmxInfoDTO updateJmxString(String jmxString, String testNameParam, boolean isFromScenario) {
         //注： 与1.7分支合并时，如果该方法产生冲突，请以master为准
         String attribute_testName = "testname";
         String[] requestElementNameArr = new String[]{"HTTPSamplerProxy", "TCPSampler", "JDBCSampler", "DubboSample"};
+
+        List<String> attachmentFilePathList = new ArrayList<>();
 
         try {
             //将ThreadGroup的testname改为接口名称
@@ -511,6 +513,9 @@ public class APITestService {
                     for (Element configTestElement : hashTreeConfigTestElementList) {
                         this.updateDubboDefaultConfigGuiElement(configTestElement);
                     }
+
+                    //HTTPSamplerProxy， 进行附件转化： 1.elementProp里去掉路径； 2。elementProp->filePath获取路径并读出来
+                    attachmentFilePathList.addAll(this.parseAttachmentFileInfo(element));
                 }
             }
             jmxString = root.asXML();
@@ -521,7 +526,60 @@ public class APITestService {
         if (!jmxString.startsWith("<?xml version=\"1.0\" encoding=\"UTF-8\"?>")) {
             jmxString = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" + jmxString;
         }
-        return jmxString;
+
+        //处理附件
+        Map<String, String> attachmentFiles = new HashMap<>();
+        int fileIndex = 0;
+        for (String filePath: attachmentFilePathList) {
+            File file  = new File(filePath);
+            if(file.exists() && file.isFile()){
+                try{
+                    FileMetadata fileMetadata = fileService.saveFile(file,FileUtil.readAsByteArray(file),fileIndex++);
+                    attachmentFiles.put(fileMetadata.getId(),fileMetadata.getName());
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        JmxInfoDTO returnDTO = new JmxInfoDTO("Demo.jmx",jmxString,attachmentFiles);
+
+        return returnDTO;
+    }
+
+    private List<String> parseAttachmentFileInfo(Element parentHashTreeElement) {
+        List<String> attachmentFilePathList = new ArrayList<>();
+        List<Element> parentElementList = parentHashTreeElement.elements();
+        for (Element parentElement: parentElementList) {
+            String qname = parentElement.getQName().getName();
+            if (StringUtils.equals(qname,"HTTPSamplerProxy")){
+                List<Element> elementPropElementList = parentElement.elements("elementProp");
+                for (Element element : elementPropElementList) {
+                    if(StringUtils.equals(element.attributeValue("name"),"HTTPsampler.Files")){
+                        String name = element.getName();
+                        List<Element> collectionPropList = element.elements("collectionProp");
+                        for (Element prop: collectionPropList) {
+                            List<Element> elementProps = prop.elements();
+                            for (Element elementProp: elementProps) {
+                                if(StringUtils.equals(elementProp.attributeValue("elementType"),"HTTPFileArg")){
+                                    try{
+                                        String filePath = elementProp.attributeValue("name");
+                                        File file = new File(filePath);
+                                        if(file.exists() && file.isFile()){
+                                            attachmentFilePathList.add(filePath);
+                                            String fileName = file.getName();
+                                            elementProp.attribute("name").setText(fileName);
+                                        }
+                                    }catch (Exception e){
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return attachmentFilePathList;
     }
 
     private void updateDubboDefaultConfigGuiElement(Element configTestElement) {
