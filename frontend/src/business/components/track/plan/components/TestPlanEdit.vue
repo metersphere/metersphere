@@ -134,7 +134,6 @@ export default {
         plannedStartTime: '',
         plannedEndTime: ''
       },
-      dbProjectIds: [],
       rules: {
         name: [
           {required: true, message: this.$t('test_track.plan.input_plan_name'), trigger: 'blur'},
@@ -160,7 +159,6 @@ export default {
         let tmp = {};
         Object.assign(tmp, testPlan);
         Object.assign(this.form, tmp);
-        this.dbProjectIds = JSON.parse(JSON.stringify(this.form.projectIds));
       }
       listenGoBack(this.close);
       this.dialogFormVisible = true;

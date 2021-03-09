@@ -231,14 +231,6 @@ export default {
           let data = response.data;
           this.total = data.itemCount;
           this.tableData = data.listObject;
-          for (let i = 0; i < this.tableData.length; i++) {
-            let path = "/test/plan/project";
-            this.$post(path, {planId: this.tableData[i].id}, res => {
-              let arr = res.data;
-              let projectIds = arr.map(data => data.id);
-              this.$set(this.tableData[i], "projectIds", projectIds);
-            })
-          }
         });
       },
       buildPagePath(path) {
