@@ -59,6 +59,9 @@ public class CsrfFilter extends AnonymousFilter {
     }
 
     private void validateToken(String csrfToken) {
+        if (StringUtils.isBlank(csrfToken)) {
+            throw new RuntimeException("csrf token is empty");
+        }
         csrfToken = CodingUtil.aesDecrypt(csrfToken, SessionUser.secret, SessionUser.iv);
 
         String[] signatureArray = StringUtils.split(StringUtils.trimToNull(csrfToken), "|");
