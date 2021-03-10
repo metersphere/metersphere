@@ -357,12 +357,12 @@ import ApiCaseSimpleList from "./components/list/ApiCaseSimpleList";
       apiCaseClose() {
         this.showCasePage = true;
       },
-      exportAPI() {
+      exportAPI(type) {
         if (!this.isApiListEnable) {
           this.$warning('用例列表暂不支持导出，请切换成接口列表');
           return;
         }
-        this.$refs.apiList[0].exportApi();
+        this.$refs.apiList[0].exportApi(type);
       },
       refresh(data) {
         this.$refs.apiList[0].initTable(data);

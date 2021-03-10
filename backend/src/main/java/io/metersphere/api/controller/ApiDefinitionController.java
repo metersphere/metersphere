@@ -148,10 +148,10 @@ public class ApiDefinitionController {
         return apiDefinitionService.apiTestImport(file, request);
     }
 
-    @PostMapping(value = "/export")
+    @PostMapping(value = "/export/{type}")
     @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
-    public ApiExportResult export(@RequestBody ApiBatchRequest request) {
-        return apiDefinitionService.export(request);
+    public ApiExportResult export(@RequestBody ApiBatchRequest request, @PathVariable String type) {
+        return apiDefinitionService.export(request, type);
     }
 
     //定时任务创建
