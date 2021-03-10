@@ -224,6 +224,7 @@
   import MsComponentConfig from "./component/ComponentConfig";
   import {handleCtrlSEvent} from "../../../../../common/js/utils";
   import EnvPopover from "@/business/components/api/automation/scenario/EnvPopover";
+
   let jsonPath = require('jsonpath');
   export default {
     name: "EditApiScenario",
@@ -400,7 +401,7 @@
           },
           {
             title: this.$t('api_test.automation.scenario_import'),
-            show:this.showButton("scenario"),
+            show: this.showButton("scenario"),
             titleColor: "#606266",
             titleBgColor: "#F4F4F5",
             icon: "movie",
@@ -557,7 +558,7 @@
             this.scenarioDefinition[i].countController.proceed = true;
           }
           if (!this.scenarioDefinition[i].projectId) {
-            this.scenarioDefinition.projectId = getCurrentProjectID();
+            this.scenarioDefinition[i].projectId = getCurrentProjectID();
           }
           if (this.scenarioDefinition[i].hashTree != undefined && this.scenarioDefinition[i].hashTree.length > 0) {
             this.recursiveSorting(this.scenarioDefinition[i].hashTree);
@@ -677,7 +678,7 @@
         }
         const index = hashTree.findIndex(d => d.resourceId === row.resourceId);
         if (index != -1) {
-          hashTree.splice(index+1, 0, obj);
+          hashTree.splice(index + 1, 0, obj);
         } else {
           hashTree.push(obj);
         }
@@ -1019,7 +1020,7 @@
         // 加载环境配置
         this.$nextTick(() => {
           this.projectIds.clear();
-          this.scenarioDefinition.forEach(data=>{
+          this.scenarioDefinition.forEach(data => {
             let arr = jsonPath.query(data, "$..projectId");
             arr.forEach(a => this.projectIds.add(a));
           })

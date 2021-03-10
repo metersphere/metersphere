@@ -1,13 +1,24 @@
 <template>
-  <div>
+  <div v-loading="loading">
     <el-row :gutter="10" type="flex" justify="space-between" align="middle">
       <el-col>
         <el-input :disabled="isReadOnly" v-model="jsonPath.expression" maxlength="200" size="small" show-word-limit
                   :placeholder="$t('api_test.request.extract.json_path_expression')"/>
       </el-col>
       <el-col>
+        <el-select v-model="jsonPath.option" class="ms-col-type" size="small" style="width:40%;margin-right: 10px" @change="reload">
+          <el-option :label="$t('api_test.request.assertions.contains')" value="CONTAINS"/>
+          <el-option :label="$t('api_test.request.assertions.not_contains')" value="NOT_CONTAINS"/>
+          <el-option :label="$t('api_test.request.assertions.equals')" value="EQUALS"/>
+          <el-option :label="$t('commons.adv_search.operators.not_equals')" value="NOT_EQUALS"/>
+          <el-option label="正则匹配" value="REGEX"/>
+        </el-select>
         <el-input :disabled="isReadOnly" v-model="jsonPath.expect" size="small" show-word-limit
-                  :placeholder="$t('api_test.request.assertions.expect')"/>
+                  :placeholder="$t('api_test.request.assertions.expect')" style="width: 50%"/>
+        <el-tooltip placement="top" v-if="jsonPath.option === 'REGEX'">
+          <div slot="content">特殊字符"$ ( ) * + . [ ] \ ^ { } |"需转义为"\ "+"特殊字符",如"\$"</div>
+          <i class="el-icon-question" style="cursor: pointer"/>
+        </el-tooltip>
       </el-col>
       <el-col class="assertion-btn">
         <el-button :disabled="isReadOnly" type="danger" size="mini" icon="el-icon-delete" circle @click="remove" v-if="edit"/>
@@ -44,8 +55,15 @@
       }
     },
 
+    created() {
+      if (!this.jsonPath.option) {
+        this.jsonPath.option = "REGEX";
+      }
+    },
+
     data() {
       return {
+        loading: false
       }
     },
 
@@ -70,6 +88,12 @@
         let jsonPath = new JSONPath(this.jsonPath);
         jsonPath.description = jsonPath.expression + " expect: " + (jsonPath.expect ? jsonPath.expect : '');
         return jsonPath;
+      },
+      reload() {
+        this.loading = true
+        this.$nextTick(() => {
+          this.loading = false
+        })
       },
       setJSONPathDescription() {
         this.jsonPath.description = this.jsonPath.expression + " expect: " + (this.jsonPath.expect ? this.jsonPath.expect : '');
