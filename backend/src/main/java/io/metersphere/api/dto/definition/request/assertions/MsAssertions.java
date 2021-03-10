@@ -96,7 +96,12 @@ public class MsAssertions extends MsTestElement {
         assertion.setJsonValidationBool(true);
         assertion.setExpectNull(false);
         assertion.setInvert(false);
-        assertion.setIsRegex(true);
+        assertion.setProperty("ASS_OPTION",assertionJsonPath.getOption());
+        if (StringUtils.isEmpty(assertionJsonPath.getOption()) || "REGEX".equals(assertionJsonPath.getOption())) {
+            assertion.setIsRegex(true);
+        } else {
+            assertion.setIsRegex(false);
+        }
         return assertion;
     }
 

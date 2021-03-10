@@ -14,7 +14,7 @@
           <el-menu-item index="functional">功能测试用例</el-menu-item>
           <el-menu-item index="api">接口测试用例</el-menu-item>
           <el-menu-item index="load">性能测试用例</el-menu-item>
-          <el-menu-item index="report">报告统计</el-menu-item>
+<!--          <el-menu-item index="report">报告统计</el-menu-item>-->
         </el-menu>
       </template>
     </ms-test-plan-header-bar>
@@ -24,6 +24,7 @@
                      :review-id="reviewId"></test-review-api>
     <test-review-load v-if="activeIndex === 'load'" :redirectCharType="redirectCharType" :clickType="clickType"
                       :review-id="reviewId"></test-review-load>
+
   </div>
 
 </template>

@@ -1,7 +1,10 @@
 package io.metersphere.api.dto;
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.util.Map;
 
 /**
  * @author song.tianyang
@@ -10,7 +13,9 @@ import lombok.Setter;
  */
 @Getter
 @Setter
+@AllArgsConstructor
 public class JmxInfoDTO {
     private String name;
     private String xml;
+    private Map<String, String> attachFiles;
 }

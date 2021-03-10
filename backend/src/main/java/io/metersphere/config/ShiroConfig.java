@@ -2,6 +2,7 @@ package io.metersphere.config;
 
 import io.metersphere.commons.utils.ShiroUtils;
 import io.metersphere.security.ApiKeyFilter;
+import io.metersphere.security.CsrfFilter;
 import io.metersphere.security.UserModularRealmAuthenticator;
 import io.metersphere.security.realm.LdapRealm;
 import io.metersphere.security.realm.ShiroDBRealm;
@@ -44,10 +45,12 @@ public class ShiroConfig implements EnvironmentAware {
         shiroFilterFactoryBean.setSuccessUrl("/");
 
         shiroFilterFactoryBean.getFilters().put("apikey", new ApiKeyFilter());
+        shiroFilterFactoryBean.getFilters().put("csrf", new CsrfFilter());
         Map<String, String> filterChainDefinitionMap = shiroFilterFactoryBean.getFilterChainDefinitionMap();
         ShiroUtils.loadBaseFilterChain(filterChainDefinitionMap);
 
-        filterChainDefinitionMap.put("/**", "apikey, authc");
+        filterChainDefinitionMap.put("/", "apikey, authc"); // 跳转到 / 不用校验 csrf
+        filterChainDefinitionMap.put("/**", "apikey, csrf, authc");
         return shiroFilterFactoryBean;
     }
 

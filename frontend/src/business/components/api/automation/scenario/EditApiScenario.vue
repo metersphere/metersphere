@@ -1,15 +1,18 @@
 <template>
   <el-card>
     <div class="card-content">
-      <div class="ms-main-div" @click="showAll">
+      <div class="ms-main-div" @click="showAll" v-if="type!=='detail'">
 
         <!--操作按钮-->
         <div class="ms-opt-btn">
-          <el-button id="inputDelay" type="primary" size="small" @click="editScenario" title="ctrl + s">{{$t('commons.save')}}</el-button>
+          <el-button id="inputDelay" type="primary" size="small" @click="editScenario" title="ctrl + s">
+            {{ $t('commons.save') }}
+          </el-button>
         </div>
 
-        <div class="tip">{{$t('test_track.plan_view.base_info')}}</div>
-        <el-form :model="currentScenario" label-position="right" label-width="80px" size="small" :rules="rules" ref="currentScenario" style="margin-right: 20px">
+        <div class="tip">{{ $t('test_track.plan_view.base_info') }}</div>
+        <el-form :model="currentScenario" label-position="right" label-width="80px" size="small" :rules="rules"
+                 ref="currentScenario" style="margin-right: 20px">
           <!-- 基础信息 -->
           <el-row>
             <el-col :span="7">
@@ -99,7 +102,7 @@
             <div class="ms-debug-div" @click="showAll">
               <el-row style="margin: 5px">
                 <el-col :span="6" class="ms-col-one ms-font">
-                  {{currentScenario.name ===undefined || ''? $t('api_test.scenario.name') : currentScenario.name}}
+                  {{ currentScenario.name === undefined || '' ? $t('api_test.scenario.name') : currentScenario.name }}
                 </el-col>
                 <el-col :span="3" class="ms-col-one ms-font">
                   {{$t('api_test.automation.step_total')}}：{{scenarioDefinition.length}}
@@ -160,30 +163,35 @@
       </div>
 
       <!--接口列表-->
-      <scenario-api-relevance @save="pushApiOrCase" ref="scenarioApiRelevance"/>
+      <scenario-api-relevance @save="pushApiOrCase" ref="scenarioApiRelevance" v-if="type!=='detail'"/>
 
       <!--自定义接口-->
-      <el-drawer :visible.sync="customizeVisible" :destroy-on-close="true" direction="ltr" :withHeader="false" :title="$t('api_test.automation.customize_req')" style="overflow: auto" :modal="false" size="90%">
+      <el-drawer v-if="type!=='detail'" :visible.sync="customizeVisible" :destroy-on-close="true" direction="ltr"
+                 :withHeader="false" :title="$t('api_test.automation.customize_req')" style="overflow: auto"
+                 :modal="false" size="90%">
         <ms-api-customize :request="customizeRequest" @addCustomizeApi="addCustomizeApi"/>
       </el-drawer>
       <!--场景导入 -->
-      <scenario-relevance @save="addScenario" ref="scenarioRelevance"/>
+      <scenario-relevance v-if="type!=='detail'" @save="addScenario" ref="scenarioRelevance"/>
 
       <!-- 环境 -->
-      <api-environment-config ref="environmentConfig" @close="environmentConfigClose"/>
+      <api-environment-config v-if="type!=='detail'" ref="environmentConfig" @close="environmentConfigClose"/>
 
       <!--执行组件-->
-      <ms-run :debug="true" :environment="projectEnvMap" :reportId="reportId" :run-data="debugData"
+      <ms-run :debug="true" v-if="type!=='detail'" :environment="projectEnvMap" :reportId="reportId"
+              :run-data="debugData"
               @runRefresh="runRefresh" ref="runTest"/>
       <!-- 调试结果 -->
-      <el-drawer :visible.sync="debugVisible" :destroy-on-close="true" direction="ltr" :withHeader="true" :modal="false" size="90%">
+      <el-drawer v-if="type!=='detail'" :visible.sync="debugVisible" :destroy-on-close="true" direction="ltr"
+                 :withHeader="true" :modal="false" size="90%">
         <ms-api-report-detail :report-id="reportId" :debug="true" :currentProjectId="projectId"/>
       </el-drawer>
 
       <!--场景公共参数-->
-      <ms-variable-list @setVariables="setVariables" ref="scenarioParameters" class="ms-sc-variable-header"/>
+      <ms-variable-list v-if="type!=='detail'" @setVariables="setVariables" ref="scenarioParameters"
+                        class="ms-sc-variable-header"/>
       <!--外部导入-->
-      <api-import ref="apiImport" :saved="false" @refresh="apiImport"/>
+      <api-import v-if="type!=='detail'" ref="apiImport" :saved="false" @refresh="apiImport"/>
     </div>
   </el-card>
 </template>
@@ -216,12 +224,14 @@
   import MsComponentConfig from "./component/ComponentConfig";
   import {handleCtrlSEvent} from "../../../../../common/js/utils";
   import EnvPopover from "@/business/components/api/automation/scenario/EnvPopover";
+
   let jsonPath = require('jsonpath');
   export default {
     name: "EditApiScenario",
     props: {
       moduleOptions: Array,
       currentScenario: {},
+      type: String
     },
     components: {
       MsVariableList,
@@ -391,7 +401,7 @@
           },
           {
             title: this.$t('api_test.automation.scenario_import'),
-            show:this.showButton("scenario"),
+            show: this.showButton("scenario"),
             titleColor: "#606266",
             titleBgColor: "#F4F4F5",
             icon: "movie",
@@ -532,6 +542,9 @@
           if (arr[i].type === ELEMENT_TYPE.LoopController && arr[i].hashTree && arr[i].hashTree.length > 1) {
             arr[i].countController.proceed = true;
           }
+          if (!arr[i].projectId) {
+            arr[i].projectId = getCurrentProjectID();
+          }
           if (arr[i].hashTree != undefined && arr[i].hashTree.length > 0) {
             this.recursiveSorting(arr[i].hashTree);
           }
@@ -543,6 +556,9 @@
           if (this.scenarioDefinition[i].type === ELEMENT_TYPE.LoopController && this.scenarioDefinition[i].hashTree
             && this.scenarioDefinition[i].hashTree.length > 1) {
             this.scenarioDefinition[i].countController.proceed = true;
+          }
+          if (!this.scenarioDefinition[i].projectId) {
+            this.scenarioDefinition[i].projectId = getCurrentProjectID();
           }
           if (this.scenarioDefinition[i].hashTree != undefined && this.scenarioDefinition[i].hashTree.length > 0) {
             this.recursiveSorting(this.scenarioDefinition[i].hashTree);
@@ -560,6 +576,7 @@
         this.customizeRequest = {};
         this.sort();
         this.reload();
+        this.initProjectIds();
       },
       addScenario(arr) {
         if (arr && arr.length > 0) {
@@ -662,7 +679,7 @@
         }
         const index = hashTree.findIndex(d => d.resourceId === row.resourceId);
         if (index != -1) {
-          hashTree.splice(index+1, 0, obj);
+          hashTree.splice(index + 1, 0, obj);
         } else {
           hashTree.push(obj);
         }
@@ -919,14 +936,15 @@
                   }
                   this.enableCookieShare = obj.enableCookieShare;
                   this.scenarioDefinition = obj.hashTree;
-                  this.initProjectIds();
                 }
               }
               if (this.currentScenario.copy) {
                 this.path = "/api/automation/create";
               }
             }
-            this.getEnvironments();
+            this.sort();
+            this.initProjectIds();
+            // this.getEnvironments();
           })
         }
       },
@@ -1001,10 +1019,12 @@
       },
       initProjectIds() {
         // 加载环境配置
-        this.projectIds.clear();
-        this.scenarioDefinition.forEach(data=>{
-          let arr = jsonPath.query(data, "$..projectId");
-          arr.forEach(a => this.projectIds.add(a));
+        this.$nextTick(() => {
+          this.projectIds.clear();
+          this.scenarioDefinition.forEach(data => {
+            let arr = jsonPath.query(data, "$..projectId");
+            arr.forEach(a => this.projectIds.add(a));
+          })
         })
       }
     }

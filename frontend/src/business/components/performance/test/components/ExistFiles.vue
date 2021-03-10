@@ -121,7 +121,13 @@ export default {
 
       if (this.loadType === 'resource') {
         rows.forEach(row => {
-          this.tableData.push(row);
+          this.fileList.push(row);
+          this.tableData.push({
+            name: row.name,
+            size: (row.size / 1024).toFixed(2) + ' KB',
+            type: 'JMX',
+            updateTime: row.lastModified,
+          });
         })
         this.$success(this.$t('test_track.case.import.success'));
         this.loadFileVisible = false;

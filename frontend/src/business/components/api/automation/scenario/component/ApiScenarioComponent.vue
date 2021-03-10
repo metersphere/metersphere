@@ -108,6 +108,9 @@
       recursive(arr) {
         for (let i in arr) {
           arr[i].disabled = true;
+          if (!arr[i].projectId) {
+            arr[i].projectId = getCurrentProjectID();
+          }
           if (arr[i].hashTree != undefined && arr[i].hashTree.length > 0) {
             this.recursive(arr[i].hashTree);
           }
@@ -116,6 +119,9 @@
       setDisabled(scenarioDefinition) {
         for (let i in scenarioDefinition) {
           scenarioDefinition[i].disabled = true;
+          if (!scenarioDefinition[i].projectId) {
+            scenarioDefinition[i].projectId = getCurrentProjectID();
+          }
           if (scenarioDefinition[i].hashTree != undefined && scenarioDefinition[i].hashTree.length > 0) {
             this.recursive(scenarioDefinition[i].hashTree);
           }

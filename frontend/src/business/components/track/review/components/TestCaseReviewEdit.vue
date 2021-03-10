@@ -85,7 +85,7 @@
           <el-button type="primary" @click="saveReview">
             {{ $t('test_track.confirm') }}
           </el-button>
-          <el-button type="primary" @click="reviewInfo('form')">
+          <el-button type="primary" @click="reviewInfo">
             {{ $t('test_track.planning_execution') }}
           </el-button>
         </div>
@@ -137,7 +137,23 @@ export default {
     };
   },
   methods: {
-    reviewInfo(form) {
+    openCaseReviewEditDialog(caseReview) {
+      this.resetForm();
+      this.setReviewerOptions();
+      this.operationType = 'save';
+      if (caseReview) {
+        //修改
+        this.operationType = 'edit';
+        let tmp = {};
+        Object.assign(tmp, caseReview);
+        Object.assign(this.form, tmp);
+        this.dbProjectIds = JSON.parse(JSON.stringify(this.form.projectIds));
+      }
+      listenGoBack(this.close);
+      this.dialogFormVisible = true;
+    },
+    reviewInfo() {
+
       this.$refs['reviewForm'].validate((valid) => {
         if (valid) {
           let param = {};
@@ -155,7 +171,6 @@ export default {
           if (!this.compareTime(new Date().getTime(), this.form.endTime)) {
             return false;
           }
-
           this.result = this.$post('/test/case/review/' + this.operationType, param, response => {
             this.dialogFormVisible = false;
             this.$router.push('/track/review/view/' + response.data);
@@ -165,21 +180,7 @@ export default {
         }
       });
     },
-    openCaseReviewEditDialog(caseReview) {
-      this.resetForm();
-      this.setReviewerOptions();
-      this.operationType = 'save';
-      if (caseReview) {
-        //修改
-        this.operationType = 'edit';
-        let tmp = {};
-        Object.assign(tmp, caseReview);
-        Object.assign(this.form, tmp);
-        this.dbProjectIds = JSON.parse(JSON.stringify(this.form.projectIds));
-      }
-      listenGoBack(this.close);
-      this.dialogFormVisible = true;
-    },
+
     saveReview() {
       this.$refs['reviewForm'].validate((valid) => {
         if (valid) {

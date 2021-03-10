@@ -1,5 +1,6 @@
 package io.metersphere.xmind;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.google.common.collect.ImmutableMap;
@@ -73,6 +74,7 @@ public class XmindCaseParser {
     private static final String TC_REGEX = "(?:tc:|tc：|tc)";
     private static final String PC_REGEX = "(?:pc:|pc：|pc)";
     private static final String RC_REGEX = "(?:rc:|rc：|rc)";
+    private static final String TAG_REGEX = "(?:tag:|tag：|tag)";
 
     public void clear() {
         compartDatas.clear();
@@ -134,8 +136,8 @@ public class XmindCaseParser {
         data.setNodePath(nodePath);
 
 
-        if (data.getName().length() > 50) {
-            process.add(Translator.get("test_case") + Translator.get("test_track.length_less_than") + "50", nodePath + data.getName());
+        if (data.getName().length() > 200) {
+            process.add(Translator.get("test_case") + Translator.get("test_track.length_less_than") + "200", nodePath + data.getName());
         }
 
         if (!StringUtils.isEmpty(nodePath)) {
@@ -302,6 +304,7 @@ public class XmindCaseParser {
         // 测试步骤处理
         List<Attached> steps = new LinkedList<>();
         StringBuilder rc = new StringBuilder();
+        List<String> tags = new LinkedList<>();
         if (attacheds != null && !attacheds.isEmpty()) {
             attacheds.forEach(item -> {
                 if (isAvailable(item.getTitle(), PC_REGEX)) {
@@ -309,12 +312,15 @@ public class XmindCaseParser {
                 } else if (isAvailable(item.getTitle(), RC_REGEX)) {
                     rc.append(replace(item.getTitle(), RC_REGEX));
                     rc.append("\n");
+                } else if (isAvailable(item.getTitle(), TAG_REGEX)) {
+                    tags.add(replace(item.getTitle(), TAG_REGEX));
                 } else {
                     steps.add(item);
                 }
             });
         }
         testCase.setRemark(rc.toString());
+        testCase.setTags(JSON.toJSONString(tags));
         testCase.setSteps(this.getSteps(steps));
         // 校验合规性
         if (validate(testCase)) {

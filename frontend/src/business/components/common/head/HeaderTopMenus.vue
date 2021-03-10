@@ -18,7 +18,7 @@
                   v-permission="['test_manager','test_user','test_viewer']">
       {{ $t('commons.performance') }}
     </el-menu-item>
-    <el-menu-item index="/reportForm" v-permission="['test_manager','test_user','test_viewer']" v-if="isReport">
+    <el-menu-item index="/report" v-permission="['test_manager','test_user','test_viewer']" v-if="isReport">
       {{ $t('commons.report_statistics.title') }}
     </el-menu-item>
 

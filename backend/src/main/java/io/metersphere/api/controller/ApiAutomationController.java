@@ -11,6 +11,7 @@ import io.metersphere.api.service.ApiAutomationService;
 import io.metersphere.base.domain.ApiScenario;
 import io.metersphere.base.domain.ApiScenarioWithBLOBs;
 import io.metersphere.base.domain.Schedule;
+import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
@@ -102,12 +103,16 @@ public class ApiAutomationController {
     @PostMapping(value = "/run")
     public String run(@RequestBody RunScenarioRequest request) {
         request.setExecuteType(ExecuteType.Completed.name());
+        request.setTriggerMode(ApiRunMode.SCENARIO.name());
+        request.setRunMode(ApiRunMode.SCENARIO.name());
         return apiAutomationService.run(request);
     }
 
     @PostMapping(value = "/run/batch")
     public String runBatch(@RequestBody RunScenarioRequest request) {
         request.setExecuteType(ExecuteType.Saved.name());
+        request.setTriggerMode(ApiRunMode.SCENARIO.name());
+        request.setRunMode(ApiRunMode.SCENARIO.name());
         return apiAutomationService.run(request);
     }
 
@@ -115,6 +120,12 @@ public class ApiAutomationController {
     @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
     public void bathEdit(@RequestBody ApiScenarioBatchRequest request) {
         apiAutomationService.bathEdit(request);
+    }
+
+    @PostMapping("/batch/update/env")
+    @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
+    public void batchUpdateEnv(@RequestBody ApiScenarioBatchRequest request) {
+        apiAutomationService.batchUpdateEnv(request);
     }
 
     @PostMapping("/getReference")
