@@ -28,7 +28,7 @@
 
 <script>
 export default {
-  name: "ApiListContainerWithDoc",
+  name: "MsTabButton",
   data() {
     return {
       isShow: true,

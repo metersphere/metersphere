@@ -24,9 +24,8 @@
                      :label="item.title"
                      :closable="item.closable"
                      :name="item.name">
-          <api-list-container-with-doc
+          <ms-tab-button
             v-if="item.type === 'list'"
-            :is-api-list-enable="isApiListEnable"
             :active-dom.sync="activeDom"
             :left-tip="$t('api_test.definition.api_title')"
             :right-tip="$t('api_test.definition.doc_title')"
@@ -45,7 +44,6 @@
               :currentRow="currentRow"
               :select-node-ids="selectNodeIds"
               :trash-enable="trashEnable"
-              :is-api-list-enable="isApiListEnable"
               :queryDataType="queryDataType"
               :selectDataRange="selectDataRange"
               @changeSelectDataRangeAll="changeSelectDataRangeAll"
@@ -70,7 +68,7 @@
               v-if="activeDom==='right'"
               :project-id="projectId"
               :module-ids="selectNodeIds"/>
-          </api-list-container-with-doc>
+          </ms-tab-button>
           <!-- 添加/编辑测试窗口-->
           <div v-if="item.type=== 'ADD'" class="ms-api-div">
             <ms-api-config :syncTabs="syncTabs" @runTest="runTest" @saveApi="saveApi" @createRootModel="createRootModel" ref="apiConfig"
@@ -146,7 +144,7 @@ import ApiCaseSimpleList from "./components/list/ApiCaseSimpleList";
 
   import ApiDocumentsPage from "@/business/components/api/definition/components/list/ApiDocumentsPage";
 import MsTableButton from "@/business/components/common/components/MsTableButton";
-import ApiListContainerWithDoc from "@/business/components/common/components/MsTabButton";
+import MsTabButton from "@/business/components/common/components/MsTabButton";
 
   export default {
     name: "ApiDefinition",
@@ -159,7 +157,7 @@ import ApiListContainerWithDoc from "@/business/components/common/components/MsT
       },
     },
     components: {
-      ApiListContainerWithDoc,
+      MsTabButton,
       MsTableButton,
       ApiCaseSimpleList,
       MsApiModule,
@@ -206,7 +204,6 @@ import ApiListContainerWithDoc from "@/business/components/common/components/MsT
           type: "list",
           closable: false
         }],
-        isApiListEnable: true,
         activeDom: "left",
         syncTabs: [],
         projectId: "",

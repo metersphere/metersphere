@@ -238,10 +238,6 @@ export default {
         type: Boolean,
         default: false,
       },
-      isApiListEnable: {
-        type: Boolean,
-        default: false,
-      },
       isReadOnly: {
         type: Boolean,
         default: false

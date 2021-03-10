@@ -21,10 +21,6 @@ export default {
     projectId:String,
     moduleIds:Array,
     activeDom:String,
-    isApiListEnable: {
-      type: Boolean,
-      default: false,
-    },
   },
   created: function () {
   },
