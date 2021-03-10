@@ -132,7 +132,8 @@
       isReadOnly: {
         type: Boolean,
         default: false
-      }
+      },
+      type: String,
     },
 
     data() {

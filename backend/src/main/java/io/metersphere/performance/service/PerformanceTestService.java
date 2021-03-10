@@ -138,8 +138,33 @@ public class PerformanceTestService {
         this.importFiles(importFileIds, loadTest.getId(), request.getFileSorts());
         // 保存上传的文件
         this.saveUploadFiles(files, loadTest.getId(), request.getFileSorts());
-
+        //关联转化的文件
+        this.conversionFiles(loadTest.getId(),request.getConversionFileIdList());
         return loadTest.getId();
+    }
+
+    private void conversionFiles(String id, List<String> conversionFileIdList) {
+        for (String metaFileId : conversionFileIdList) {
+            if(!this.loadTestFileExsits(id,metaFileId)){
+                LoadTestFile loadTestFile = new LoadTestFile();
+                loadTestFile.setTestId(id);
+                loadTestFile.setFileId(metaFileId);
+                loadTestFileMapper.insert(loadTestFile);
+            }
+        }
+    }
+
+    private boolean loadTestFileExsits(String testId, String metaFileId) {
+        boolean fileExsits = fileService.isFileExsits(metaFileId);
+        LoadTestFileExample example = new LoadTestFileExample();
+        example.createCriteria().andTestIdEqualTo(testId).andFileIdEqualTo(metaFileId);
+        long loadTestFiles = loadTestFileMapper.countByExample(example);
+
+        if(!fileExsits && loadTestFiles>0){
+            return false;
+        }else {
+            return  true;
+        }
     }
 
     private void saveUploadFiles(List<MultipartFile> files, String testId, Map<String, Integer> fileSorts) {

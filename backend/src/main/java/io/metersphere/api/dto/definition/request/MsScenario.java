@@ -85,6 +85,7 @@ public class MsScenario extends MsTestElement {
                     JSONObject element = JSON.parseObject(scenario.getScenarioDefinition());
                     hashTree = mapper.readValue(element.getString("hashTree"), new TypeReference<LinkedList<MsTestElement>>() {
                     });
+                    OldVersionUtil.transferHashTree(hashTree);
                     // 场景变量
                     if (StringUtils.isNotEmpty(element.getString("variables"))) {
                         LinkedList<ScenarioVariable> variables = mapper.readValue(element.getString("variables"),

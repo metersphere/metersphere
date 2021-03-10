@@ -47,7 +47,8 @@
         label="ThreadGroup">
         <template v-slot:default="{row}">
           <el-select v-model="row.tgType" :placeholder="$t('commons.please_select')" size="small">
-            <el-option v-for="tg in threadGroupForSelect" :key="tg.tagName" :label="tg.name" :value="tg.testclass"></el-option>
+            <el-option v-for="tg in threadGroupForSelect" :key="tg.tagName" :label="tg.name"
+                       :value="tg.testclass"></el-option>
           </el-select>
         </template>
       </el-table-column>
@@ -163,11 +164,13 @@ export default {
       result: {},
       projectLoadingResult: {},
       getFileMetadataPath: "/performance/file/metadata",
+      getFileMetadataById: "/performance/file/getMetadataById",
       jmxDownloadPath: '/performance/file/download',
       jmxDeletePath: '/performance/file/delete',
       fileList: [],
       tableData: [],
       uploadList: [],
+      metadataIdList:[],
       fileNumLimit: 10,
       threadGroups: [],
       loadFileVisible: false,
@@ -211,6 +214,7 @@ export default {
       this.fileList = [];
       this.tableData = [];
       this.uploadList = [];
+      this.metadataIdList = [];
       this.result = this.$get(this.getFileMetadataPath + "/" + test.id, response => {
         let files = response.data;
         if (!files) {
@@ -279,6 +283,22 @@ export default {
         self.$emit('fileChange', self.threadGroups);
       };
       jmxReader.readAsText(file);
+    },
+    selectAttachFileById(metadataIdArr) {
+      this.metadataIdList = metadataIdArr;
+      for (let i = 0; i < metadataIdArr.length; i++) {
+        let id = metadataIdArr[i];
+        this.result = this.$get(this.getFileMetadataById + "/" + id, response => {
+          let files = response.data;
+          if (files) {
+            this.fileList.push(JSON.parse(JSON.stringify(files)));
+            this.tableData.push(JSON.parse(JSON.stringify(files)));
+            this.tableData.map(f => {
+              f.size = (f.size / 1024).toFixed(2) + ' KB';
+            });
+          }
+        })
+      }
     },
     handleDownload(file) {
       let data = {
@@ -363,6 +383,9 @@ export default {
     },
     updatedFileList() {
       return this.fileList;// 表示修改了已经上传的文件列表
+    },
+    conversionMetadataIdList() {
+      return this.metadataIdList;// 表示修改了已经上传的文件列表
     },
     fileSorts() {
       let fileSorts = {};

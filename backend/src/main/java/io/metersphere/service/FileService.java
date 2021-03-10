@@ -12,6 +12,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -113,6 +114,26 @@ public class FileService {
         return fileMetadata;
     }
 
+    public FileMetadata saveFile(File file, byte[] fileByte, Integer sort) {
+        final FileMetadata fileMetadata = new FileMetadata();
+        fileMetadata.setId(UUID.randomUUID().toString());
+        fileMetadata.setName(file.getName());
+        fileMetadata.setSize(file.length());
+        fileMetadata.setCreateTime(System.currentTimeMillis());
+        fileMetadata.setUpdateTime(System.currentTimeMillis());
+        FileType fileType = getFileType(fileMetadata.getName());
+        fileMetadata.setType(fileType.name());
+        fileMetadata.setSort(sort);
+        fileMetadataMapper.insert(fileMetadata);
+
+        FileContent fileContent = new FileContent();
+        fileContent.setFileId(fileMetadata.getId());
+        fileContent.setFile(fileByte);
+        fileContentMapper.insert(fileContent);
+
+        return fileMetadata;
+    }
+
     public FileMetadata saveFile(byte[] fileByte, String fileName, Long fileSize) {
         final FileMetadata fileMetadata = new FileMetadata();
         fileMetadata.setId(UUID.randomUUID().toString());
@@ -184,5 +205,16 @@ public class FileService {
 
     public void updateFileMetadata(FileMetadata fileMetadata) {
         fileMetadataMapper.updateByPrimaryKeySelective(fileMetadata);
+    }
+
+    public boolean isFileExsits(String fileId) {
+        FileMetadataExample example = new FileMetadataExample();
+        example.createCriteria().andIdEqualTo(fileId);
+        long fileCount = fileMetadataMapper.countByExample(example);
+        if(fileCount>0){
+            return  true;
+        }else {
+            return  false;
+        }
     }
 }

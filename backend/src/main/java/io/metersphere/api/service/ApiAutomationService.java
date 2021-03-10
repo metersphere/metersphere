@@ -376,6 +376,7 @@ public class ApiAutomationService {
         return report;
     }
 
+
     private void parse(String scenarioDefinition, MsScenario scenario) {
         ObjectMapper mapper = new ObjectMapper();
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
@@ -743,12 +744,10 @@ public class ApiAutomationService {
         }
         MsTestPlan testPlan = new MsTestPlan();
         testPlan.setHashTree(new LinkedList<>());
-        String jmx = apiTestService.updateJmxString(generateJmx(apiScenarios.get(0)), testName, true);
+        JmxInfoDTO dto = apiTestService.updateJmxString(generateJmx(apiScenarios.get(0)), testName, true);
 
         String name = request.getName() + ".jmx";
-        JmxInfoDTO dto = new JmxInfoDTO();
         dto.setName(name);
-        dto.setXml(jmx);
         return dto;
     }
 
@@ -897,7 +896,7 @@ public class ApiAutomationService {
             if (StringUtils.isNotEmpty(item.getScenarioDefinition())) {
                 String jmx = generateJmx(item);
                 if (StringUtils.isNotEmpty(jmx)) {
-                    ApiScenrioExportJmx scenrioExportJmx = new ApiScenrioExportJmx(item.getName(), apiTestService.updateJmxString(jmx, null, true));
+                    ApiScenrioExportJmx scenrioExportJmx = new ApiScenrioExportJmx(item.getName(), apiTestService.updateJmxString(jmx, null, true).getXml());
                     resList.add(scenrioExportJmx);
                 }
             }
