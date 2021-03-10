@@ -145,7 +145,7 @@
         <!--测试计划-->
         <el-drawer :visible.sync="planVisible" :destroy-on-close="true" direction="ltr" :withHeader="false"
                    :title="$t('test_track.plan_view.test_result')" :modal="false" size="90%">
-          <ms-test-plan-list @addTestPlan="addTestPlan" @cancel="cancel"/>
+          <ms-test-plan-list @addTestPlan="addTestPlan(arguments)" @cancel="cancel" ref="testPlanList" :row="selectRows"/>
         </el-drawer>
       </div>
     </el-card>
@@ -318,7 +318,7 @@
           ],
           principal: [],
           environmentId: [],
-          projectEnv: []
+          projectEnv: [],
         },
       }
     },
@@ -496,17 +496,31 @@
       cancel() {
         this.planVisible = false;
       },
-      addTestPlan(plans) {
-        let obj = {planIds: plans, scenarioIds: this.selection};
+      addTestPlan(params) {
+        let obj = {planIds: params[0], scenarioIds: this.selection};
 
-        obj.projectId = getCurrentProjectID();
-        obj.selectAllDate = this.isSelectAllDate;
-        obj.unSelectIds = this.unSelection;
-        obj = Object.assign(obj, this.condition);
+        // obj.projectId = getCurrentProjectID();
+        // obj.selectAllDate = this.isSelectAllDate;
+        // obj.unSelectIds = this.unSelection;
+        // obj = Object.assign(obj, this.condition);
+
+        // todo 选取全部数据
+        if (this.isSelectAllDate) {
+          this.$warning("暂不支持批量添加所有场景到测试计划！");
+        }
 
         this.planVisible = false;
+
+        let map = new Map();
+        this.selectRows.forEach(row => {
+          map.set(row.id, row.projectIds);
+        })
+        obj.mapping = strMapToObj(map);
+        obj.envMap = strMapToObj(params[1]);
+
         this.$post("/api/automation/scenario/plan", obj, response => {
           this.$success(this.$t("commons.save_success"));
+          this.search();
         });
       },
       getReport() {
