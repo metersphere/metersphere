@@ -30,6 +30,7 @@ import MsUser from "./components/common/head/HeaderUser";
 import MsHeaderOrgWs from "./components/common/head/HeaderOrgWs";
 import MsLanguageSwitch from "./components/common/head/LanguageSwitch";
 import {saveLocalStorage} from "@/common/js/utils";
+import {registerRequestHeaders} from "@/common/js/ajax";
 
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
 const header = requireComponent.keys().length > 0 ? requireComponent("./license/LicenseMessage.vue") : {};
@@ -53,6 +54,7 @@ export default {
     window.addEventListener("beforeunload", () => {
       localStorage.setItem("store", JSON.stringify(this.$store.state))
     })
+    registerRequestHeaders();
   },
   beforeCreate() {
     this.$get("/isLogin").then(response => {
