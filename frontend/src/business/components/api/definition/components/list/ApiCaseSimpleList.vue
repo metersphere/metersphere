@@ -30,14 +30,17 @@
 
         <el-table-column width="30" :resizable="false" min-width="30px" align="center">
           <template v-slot:default="scope">
-            <show-more-btn :is-show="scope.row.showMore" :buttons="buttons" :size="selectDataCounts"/>
+            <!-- 选中后浮现提供批量操作的按钮-->
+            <show-more-btn :is-show="scope.row.showMore" :buttons="buttons" :size="selectDataCounts" v-tester/>
           </template>
         </el-table-column>
         <template v-for="(item, index) in tableLabel">
           <el-table-column v-if="item.id == 'num'" prop="num" label="ID" min-width="120px" show-overflow-tooltip
                            :key="index">
             <template slot-scope="scope">
-              <el-tooltip content="编辑">
+              <!-- 为只读用户的话不能编辑 -->
+              <span style="cursor:pointer" v-if="isReadOnly"> {{ scope.row.num }} </span>
+              <el-tooltip content="编辑" v-else>
                 <a style="cursor:pointer" @click="handleTestCase(scope.row)"> {{ scope.row.num }} </a>
               </el-tooltip>
             </template>

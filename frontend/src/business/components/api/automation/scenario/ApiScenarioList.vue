@@ -24,7 +24,7 @@
 
         <el-table-column v-if="!referenced" width="30" min-width="30" :resizable="false" align="center">
           <template v-slot:default="scope">
-            <show-more-btn :is-show="scope.row.showMore" :buttons="buttons" :size="selectDataCounts"/>
+            <show-more-btn :is-show="scope.row.showMore" :buttons="buttons" :size="selectDataCounts" v-tester/>
           </template>
         </el-table-column>
         <template v-for="(item, index) in tableLabel">
@@ -33,7 +33,8 @@
                            min-width="120px"
                            show-overflow-tooltip :key="index">
             <template slot-scope="scope">
-              <el-tooltip content="编辑">
+              <span style="cursor:pointer" v-if="isReadOnly"> {{ scope.row.num }} </span>
+              <el-tooltip v-else content="编辑">
                 <a style="cursor:pointer" @click="edit(scope.row)"> {{ scope.row.num }} </a>
               </el-tooltip>
             </template>
@@ -107,7 +108,7 @@
                            min-width="120px"
                            show-overflow-tooltip :key="index"/>
         </template>
-        <el-table-column fixed="right" :label="$t('commons.operating')" width="190px" v-if="!referenced">
+        <el-table-column fixed="right" :label="$t('commons.operating')" width="190px" v-if="!referenced && !isReadOnly">
           <template slot="header">
             <header-label-operate @exec="customHeader"/>
           </template>
@@ -232,6 +233,11 @@
         default() {
           return []
         },
+      },
+      //用于判断是否是只读用户
+      isReadOnly: {
+        type: Boolean,
+        default: false,
       }
     },
     data() {

@@ -39,6 +39,7 @@
             :active-dom="activeDom"
             :queryDataType="queryDataType"
             :selectDataRange="selectDataRange"
+            :is-read-only="isReadOnly"
             @changeSelectDataRangeAll="changeSelectDataRangeAll"
             @editApi="editApi"
             @handleCase="handleCase"
@@ -57,6 +58,7 @@
             :is-api-list-enable="isApiListEnable"
             :active-dom="activeDom"
             :queryDataType="queryDataType"
+            :is-read-only="isReadOnly"
             @changeSelectDataRangeAll="changeSelectDataRangeAll"
             @isApiListEnableChange="isApiListEnableChange"
             @activeDomChange="activeDomChange"
@@ -142,7 +144,7 @@ import MsRunTestHttpPage from "./components/runtest/RunTestHTTPPage";
 import MsRunTestTcpPage from "./components/runtest/RunTestTCPPage";
 import MsRunTestSqlPage from "./components/runtest/RunTestSQLPage";
 import MsRunTestDubboPage from "./components/runtest/RunTestDubboPage";
-import {getCurrentProjectID, getCurrentUser, getUUID} from "@/common/js/utils";
+import {checkoutTestManagerOrTestUser, getCurrentProjectID, getCurrentUser, getUUID} from "@/common/js/utils";
 import MsApiModule from "./components/module/ApiModule";
 import ApiCaseSimpleList from "./components/list/ApiCaseSimpleList";
 
@@ -164,6 +166,9 @@ import ApiCaseSimpleList from "./components/list/ApiCaseSimpleList";
         }
         return routeParam;
       },
+      isReadOnly(){
+        return !checkoutTestManagerOrTestUser();
+      }
     },
     components: {
       ApiCaseSimpleList,
