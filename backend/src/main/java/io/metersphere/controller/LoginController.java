@@ -1,6 +1,5 @@
 package io.metersphere.controller;
 
-import io.metersphere.commons.constants.SsoMode;
 import io.metersphere.commons.constants.UserSource;
 import io.metersphere.commons.user.SessionUser;
 import io.metersphere.commons.utils.SessionUtils;
@@ -10,7 +9,6 @@ import io.metersphere.service.UserService;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.springframework.context.i18n.LocaleContextHolder;
-import org.springframework.core.env.Environment;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,8 +22,6 @@ public class LoginController {
     @Resource
     private UserService userService;
     @Resource
-    private Environment env;
-    @Resource
     private BaseDisplayService baseDisplayService;
 
     @GetMapping(value = "/isLogin")
@@ -36,10 +32,6 @@ public class LoginController {
                 user.setLanguage(LocaleContextHolder.getLocale().toString());
             }
             return ResultHolder.success(user);
-        }
-        String ssoMode = env.getProperty("sso.mode");
-        if (ssoMode != null && StringUtils.equalsIgnoreCase(SsoMode.CAS.name(), ssoMode)) {
-            return ResultHolder.error("sso");
         }
         return ResultHolder.error("");
     }

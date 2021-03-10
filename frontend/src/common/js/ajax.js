@@ -1,13 +1,13 @@
 import {Message, MessageBox} from 'element-ui';
 import axios from "axios";
 import i18n from '../../i18n/i18n'
-
+import {TokenKey} from "@/common/js/constants";
 
 export default {
   install(Vue) {
 
     // 登入请求不重定向
-    let unRedirectUrls = new Set(['signin','ldap/signin','/signin', '/ldap/signin']);
+    let unRedirectUrls = new Set(['signin', 'ldap/signin', '/signin', '/ldap/signin']);
 
     if (!axios) {
       window.console.error('You have to install axios');
@@ -39,6 +39,15 @@ export default {
     }, error => {
       return Promise.reject(error);
     });
+
+    axios.interceptors.request.use(config => {
+      let user = JSON.parse(localStorage.getItem(TokenKey));
+      if (user && user.csrfToken) {
+        config.headers['CSRF-TOKEN'] = user.csrfToken;
+      }
+      return config;
+    });
+
 
     function then(success, response, result) {
       if (!response.data) {
