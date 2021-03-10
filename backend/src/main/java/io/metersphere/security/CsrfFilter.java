@@ -26,6 +26,7 @@ public class CsrfFilter extends AnonymousFilter {
 
         if (!SecurityUtils.getSubject().isAuthenticated()) {
             ((HttpServletResponse) response).setHeader("Authentication-Status", "invalid");
+            return true;
         }
         // api 过来的请求
         if (ApiKeyHandler.isApiKeyCall(WebUtils.toHttp(request))) {
