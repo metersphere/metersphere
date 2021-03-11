@@ -28,7 +28,7 @@
               <el-option v-for="item in moduleOptions" :key="item.id" :label="item.path" :value="item.id"/>
             </el-select>
           </el-form-item>
-          <el-form-item v-if="!isScenarioModel" :label="$t('commons.import_mode')">
+          <el-form-item v-if="!isScenarioModel&&!isHar" :label="$t('commons.import_mode')">
             <el-select size="small" v-model="formData.modeId" class="project-select" clearable>
               <el-option v-for="item in modeOptions" :key="item.id" :label="item.name" :value="item.id"/>
             </el-select>
@@ -146,7 +146,14 @@ export default {
           tip: this.$t('api_test.api_import.swagger_tip'),
           exportTip: this.$t('api_test.api_import.swagger_export_tip'),
           suffixes: new Set(['json'])
-        }
+        },
+        {
+          name: 'Har',
+          value: 'Har',
+          tip: this.$t('api_test.api_import.Har_tip'),
+          exportTip: this.$t('api_test.api_import.har_export_tip'),
+          suffixes: new Set(['har'])
+        },
       ],
       selectedPlatform: {},
       selectedPlatformValue: 'Metersphere',
@@ -181,6 +188,9 @@ export default {
   computed: {
     isSwagger2() {
       return this.selectedPlatformValue === 'Swagger2';
+    },
+    isHar() {
+      return this.selectedPlatformValue === 'Har';
     },
     isScenarioModel() {
       return this.model === 'scenario';
