@@ -12,4 +12,5 @@ import java.util.Map;
 public class SaveTestPlanRequest extends TestPlanRequest {
     private List<FileMetadata> updatedFileList;
     private Map<String, Integer> fileSorts;
+    private List<String> conversionFileIdList;
 }

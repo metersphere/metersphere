@@ -46,8 +46,9 @@
       <el-table-column
         label="ThreadGroup">
         <template v-slot:default="{row}">
-          <el-select v-model="row.tgType" :placeholder="$t('commons.please_select')" size="small">
-            <el-option v-for="tg in threadGroupForSelect" :key="tg.tagName" :label="tg.name" :value="tg.testclass"></el-option>
+          <el-select v-model="row.tgType" :placeholder="$t('commons.please_select')" size="small" @change="tgTypeChange(row)">
+            <el-option v-for="tg in threadGroupForSelect" :key="tg.tagName" :label="tg.name"
+                       :value="tg.testclass"></el-option>
           </el-select>
         </template>
       </el-table-column>
@@ -69,7 +70,7 @@
     <el-row type="flex" justify="start" align="middle">
       <el-upload
         style="padding-right: 10px;"
-        accept=".jar,.csv"
+        accept=".jar,.csv,.json,.pdf,.jpg,.png,.jpeg,.doc,.docx,.xlsx"
         action=""
         :limit="fileNumLimit"
         multiple
@@ -163,11 +164,13 @@ export default {
       result: {},
       projectLoadingResult: {},
       getFileMetadataPath: "/performance/file/metadata",
+      getFileMetadataById: "/performance/file/getMetadataById",
       jmxDownloadPath: '/performance/file/download',
       jmxDeletePath: '/performance/file/delete',
       fileList: [],
       tableData: [],
       uploadList: [],
+      metadataIdList: [],
       fileNumLimit: 10,
       threadGroups: [],
       loadFileVisible: false,
@@ -211,6 +214,7 @@ export default {
       this.fileList = [];
       this.tableData = [];
       this.uploadList = [];
+      this.metadataIdList = [];
       this.result = this.$get(this.getFileMetadataPath + "/" + test.id, response => {
         let files = response.data;
         if (!files) {
@@ -272,13 +276,32 @@ export default {
       let self = this;
       let file = uploadResources.file;
       self.uploadList.push(file);
-
+      let type = file.name.substring(file.name.lastIndexOf(".") + 1);
+      if (type.toLowerCase() !== 'jmx') {
+        return;
+      }
       let jmxReader = new FileReader();
       jmxReader.onload = (event) => {
         self.threadGroups = self.threadGroups.concat(findThreadGroup(event.target.result, file.name));
         self.$emit('fileChange', self.threadGroups);
       };
       jmxReader.readAsText(file);
+    },
+    selectAttachFileById(metadataIdArr) {
+      this.metadataIdList = metadataIdArr;
+      for (let i = 0; i < metadataIdArr.length; i++) {
+        let id = metadataIdArr[i];
+        this.result = this.$get(this.getFileMetadataById + "/" + id, response => {
+          let files = response.data;
+          if (files) {
+            this.fileList.push(JSON.parse(JSON.stringify(files)));
+            this.tableData.push(JSON.parse(JSON.stringify(files)));
+            this.tableData.map(f => {
+              f.size = (f.size / 1024).toFixed(2) + ' KB';
+            });
+          }
+        })
+      }
     },
     handleDownload(file) {
       let data = {
@@ -354,6 +377,9 @@ export default {
     threadGroupDisable(row) {
       return this.threadGroups.filter(tg => tg.enabled == 'true').length === 1 && row.enabled == 'true';
     },
+    tgTypeChange(row) {
+      this.$emit("tgTypeChange", row);
+    },
     handleExceed() {
       this.$error(this.$t('load_test.file_size_limit'));
     },
@@ -363,6 +389,9 @@ export default {
     },
     updatedFileList() {
       return this.fileList;// 表示修改了已经上传的文件列表
+    },
+    conversionMetadataIdList() {
+      return this.metadataIdList;// 表示修改了已经上传的文件列表
     },
     fileSorts() {
       let fileSorts = {};

@@ -62,14 +62,14 @@ public class SessionUtils {
     }
 
     public static String getCurrentWorkspaceId() {
-        return Optional.ofNullable(getUser()).orElse(new SessionUser()).getLastWorkspaceId();
+        return getUser().getLastWorkspaceId();
     }
 
     public static String getCurrentOrganizationId() {
-        return Optional.ofNullable(getUser()).orElse(new SessionUser()).getLastOrganizationId();
+        return getUser().getLastOrganizationId();
     }
 
     public static String getCurrentProjectId() {
-        return Optional.ofNullable(getUser()).orElse(new SessionUser()).getLastProjectId();
+        return getUser().getLastProjectId();
     }
 }

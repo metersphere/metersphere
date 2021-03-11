@@ -43,5 +43,7 @@ public class ApiScenario implements Serializable {
 
     private Integer num;
 
+    private String originalState;
+
     private static final long serialVersionUID = 1L;
 }

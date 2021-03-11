@@ -3,9 +3,11 @@
     <template v-slot:header>
       <ms-table-header :is-tester-permission="true" :condition.sync="condition"
                        @search="initTableData" :showCreate="false"
-                       :title="$t('test_track.plan.test_plan')"/>
+                       :title="$t('test_track.plan.test_plan')">
+      </ms-table-header>
     </template>
-
+    <env-popover :env-map="projectEnvMap" :project-ids="projectIds" @setProjectEnvMap="setProjectEnvMap"
+                 :project-list="projectList" ref="envPopover" class="env-popover" style="float: right; margin-top: 4px;"/>
     <el-table
       border
       class="adjust-table"
@@ -142,7 +144,7 @@ import MsTableOperatorButton from "../../../../common/components/MsTableOperator
 import MsTableOperator from "../../../../common/components/MsTableOperator";
 import PlanStatusTableItem from "../../../../track/common/tableItems/plan/PlanStatusTableItem";
 import PlanStageTableItem from "../../../../track/common/tableItems/plan/PlanStageTableItem";
-import {checkoutTestManagerOrTestUser} from "@/common/js/utils";
+import {checkoutTestManagerOrTestUser, strMapToObj} from "@/common/js/utils";
 import TestReportTemplateList from "../../../../track/plan/view/comonents/TestReportTemplateList";
 import TestCaseReportView from "../../../../track/plan/view/comonents/report/TestCaseReportView";
 import MsDeleteConfirm from "../../../../common/components/MsDeleteConfirm";
@@ -150,6 +152,7 @@ import {TEST_PLAN_CONFIGS} from "../../../../common/components/search/search-com
 import {LIST_CHANGE, TrackEvent} from "@/business/components/common/head/ListEvent";
 import {getCurrentProjectID} from "../../../../../../common/js/utils";
 import {_filter, _sort} from "@/common/js/tableUtils";
+import EnvPopover from "@/business/components/api/automation/scenario/EnvPopover";
 
 
 export default {
@@ -160,7 +163,10 @@ export default {
     TestReportTemplateList,
     PlanStageTableItem,
     PlanStatusTableItem,
-    MsTableOperator, MsTableOperatorButton, MsDialogFooter, MsTableHeader, MsCreateBox, MsTablePagination
+    MsTableOperator, MsTableOperatorButton, MsDialogFooter, MsTableHeader, MsCreateBox, MsTablePagination, EnvPopover
+  },
+  props: {
+    row: Set
   },
   data() {
       return {
@@ -187,6 +193,9 @@ export default {
           {text: this.$t('test_track.plan.system_test'), value: 'system'},
           {text: this.$t('test_track.plan.regression_test'), value: 'regression'},
         ],
+        projectEnvMap: new Map(),
+        projectList: [],
+        projectIds: new Set()
       }
     },
     watch: {
@@ -200,21 +209,36 @@ export default {
       this.projectId = this.$route.params.projectId;
       this.isTestManagerOrTestUser = checkoutTestManagerOrTestUser();
       this.initTableData();
+      this.setScenarioSelectRows(this.row);
+      this.getWsProjects();
     },
     methods: {
       confirm() {
         if (this.selection.length==0) {
           this.$warning(this.$t("api_test.definition.request.test_plan_select"));
         }else{
-          this.$emit('addTestPlan', this.selection);
+          const sign = this.checkEnv();
+          if (!sign) {
+            return false;
+          }
+          this.$emit('addTestPlan', this.selection, this.projectEnvMap);
         }
       },
       cancel(){
         this.$emit('cancel');
       },
+      setProjectEnvMap(projectEnvMap) {
+        this.projectEnvMap = projectEnvMap;
+      },
       select(selection) {
         this.selection = selection.map(s => s.id);
         this.$emit('selection', selection);
+      },
+      setScenarioSelectRows(rows) {
+        this.projectIds.clear();
+        rows.forEach(row => {
+          row.projectIds.forEach(id => this.projectIds.add(id));
+        })
       },
       initTableData() {
         if (this.planId) {
@@ -231,14 +255,6 @@ export default {
           let data = response.data;
           this.total = data.itemCount;
           this.tableData = data.listObject;
-          for (let i = 0; i < this.tableData.length; i++) {
-            let path = "/test/plan/project";
-            this.$post(path, {planId: this.tableData[i].id}, res => {
-              let arr = res.data;
-              let projectIds = arr.map(data => data.id);
-              this.$set(this.tableData[i], "projectIds", projectIds);
-            })
-          }
         });
       },
       buildPagePath(path) {
@@ -291,6 +307,14 @@ export default {
         if (reportId) {
           this.$refs.testCaseReportView.open(planId, reportId);
         }
+      },
+      checkEnv() {
+        return this.$refs.envPopover.checkEnv();
+      },
+      getWsProjects() {
+        this.$get("/project/listAll", res => {
+          this.projectList = res.data;
+        })
       },
     }
   }

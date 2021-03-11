@@ -14,7 +14,15 @@
     <ms-main-container>
       <el-tabs v-model="activeName" @tab-click="addTab" @tab-remove="removeTab">
         <el-tab-pane name="default" :label="$t('api_test.definition.case_title')">
+          <ms-tab-button
+            :active-dom.sync="activeDom"
+            :left-tip="'用例列表'"
+            :left-content="'CASE'"
+            :right-tip="'脑图'"
+            :right-content="'脑图'"
+            :middle-button-enable="false">
           <test-case-list
+            v-if="activeDom === 'left'"
             :checkRedirectID="checkRedirectID"
             :module-options="moduleOptions"
             :select-node-ids="selectNodeIds"
@@ -29,6 +37,11 @@
             @setCondition="setCondition"
             ref="testCaseList">
           </test-case-list>
+          <testcase-minder
+            :tree-nodes="treeNodes"
+            v-if="activeDom === 'right'"
+            ref="testCaseList"/>
+          </ms-tab-button>
         </el-tab-pane>
         <el-tab-pane
           :key="item.name"
@@ -85,10 +98,14 @@ import MsMainContainer from "../../common/components/MsMainContainer";
 import {checkoutTestManagerOrTestUser, getCurrentProjectID, getUUID, hasRoles} from "../../../../common/js/utils";
 import TestCaseNodeTree from "../common/TestCaseNodeTree";
 import {TrackEvent,LIST_CHANGE} from "@/business/components/common/head/ListEvent";
+import TestcaseMinder from "@/business/components/common/components/MsModuleMinder";
+import MsTabButton from "@/business/components/common/components/MsTabButton";
 
 export default {
   name: "TestCase",
   components: {
+    MsTabButton,
+    TestcaseMinder,
     TestCaseNodeTree,
     MsMainContainer,
     MsAsideContainer, MsContainer, TestCaseList, NodeTree, TestCaseEdit, SelectMenu
@@ -109,8 +126,8 @@ export default {
       tabs: [],
       renderComponent:true,
       loading: false,
-      type:''
-
+      type:'',
+      activeDom: 'left'
     }
   },
   mounted() {
@@ -347,6 +364,10 @@ export default {
 
 .el-main {
   padding: 15px;
+}
+
+/deep/ .el-button-group>.el-button:first-child {
+  padding: 4px 1px !important;
 }
 
 </style>

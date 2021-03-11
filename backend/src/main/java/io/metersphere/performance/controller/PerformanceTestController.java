@@ -150,6 +150,11 @@ public class PerformanceTestController {
         return fileService.getFileMetadataByTestId(testId);
     }
 
+    @GetMapping("/file/getMetadataById/{metadataId}")
+    public FileMetadata getMetadataById(@PathVariable String metadataId) {
+        return fileService.getFileMetadataById(metadataId);
+    }
+
     @PostMapping("/file/download")
     public ResponseEntity<byte[]> downloadJmx(@RequestBody FileOperationRequest fileOperationRequest) {
         byte[] bytes = fileService.loadFileAsBytes(fileOperationRequest.getId());

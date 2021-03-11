@@ -489,6 +489,7 @@ public class MsJmeterParser extends ApiImportAbstractParser<ScenarioImport> {
             assertionJsonPath.setDescription(jsonPathAssertion.getName());
             assertionJsonPath.setExpression(jsonPathAssertion.getJsonPath());
             assertionJsonPath.setExpect(jsonPathAssertion.getExpectedValue());
+            assertionJsonPath.setOption(jsonPathAssertion.getPropertyAsString("ASS_OPTION"));
             assertions.setName(jsonPathAssertion.getName());
             assertions.getJsonPath().add(assertionJsonPath);
         } else if (key instanceof XPath2Assertion) {

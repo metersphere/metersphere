@@ -1,6 +1,6 @@
 <template>
   <el-card style="margin-top: 5px" @click.native="selectTestCase(apiCase,$event)">
-    <div @click="active(apiCase)">
+    <div @click="active(apiCase)" v-if="type!=='detail'">
       <el-row>
         <el-col :span="5">
           <el-row>
@@ -79,15 +79,13 @@
           </div>
         </el-col>
       </el-row>
+      <el-divider></el-divider>
     </div>
 
     <!-- 请求参数-->
     <el-collapse-transition>
-      <div v-if="apiCase.active">
-        <el-divider></el-divider>
-
+      <div v-if="apiCase.active||type==='detail'">
         <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
-
         <ms-api-request-form :isShowEnable="true" :showScript="true" :is-read-only="isReadOnly" :headers="apiCase.request.headers " :request="apiCase.request" v-if="api.protocol==='HTTP'"/>
         <ms-tcp-basis-parameters :showScript="true" :request="apiCase.request" v-if="api.protocol==='TCP'"/>
         <ms-sql-basis-parameters :showScript="true" :request="apiCase.request" v-if="api.protocol==='SQL'"/>
@@ -99,12 +97,13 @@
 
         <ms-jmx-step :request="apiCase.request" :response="apiCase.responseData"/>
         <!-- 保存操作 -->
-        <el-button type="primary" size="small" style="margin: 20px; float: right" @click="saveTestCase(apiCase)" v-tester>
+        <el-button type="primary" size="small" style="margin: 20px; float: right" @click="saveTestCase(apiCase)" v-tester v-if="type!=='detail'">
           {{ $t('commons.save') }}
         </el-button>
       </div>
     </el-collapse-transition>
   </el-card>
+
 </template>
 
 <script>
@@ -170,7 +169,7 @@
           return {}
         },
       },
-      environment: {},
+      environment: String,
       index: {
         type: Number,
         default() {
@@ -183,6 +182,7 @@
           return {}
         }
       },
+      type: String,
       isCaseEdit: Boolean,
     },
     watch: {},
@@ -207,7 +207,12 @@
         });
       },
       singleRun(data) {
+        if (!this.environment) {
+          this.$warning(this.$t('api_test.environment.select_environment'));
+          return;
+        }
         data.message = true;
+        data.request.useEnvironment = this.environment;
         this.saveTestCase(data);
         this.$emit('singleRun', data);
       },

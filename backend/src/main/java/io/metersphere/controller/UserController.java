@@ -1,11 +1,8 @@
 package io.metersphere.controller;
 
-import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
-import io.metersphere.base.domain.Organization;
 import io.metersphere.base.domain.User;
-import io.metersphere.base.domain.Workspace;
 import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.user.SessionUser;
@@ -29,7 +26,6 @@ import io.metersphere.service.WorkspaceService;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
-import org.checkerframework.checker.units.qual.C;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 

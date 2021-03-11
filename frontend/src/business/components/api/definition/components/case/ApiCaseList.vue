@@ -13,6 +13,7 @@
           :apiCaseList="apiCaseList"
           :is-read-only="isReadOnly"
           :project-id="projectId"
+          :useEnvironment="useEnvironment"
           :is-case-edit="isCaseEdit"
           ref="header"
         />
@@ -38,7 +39,7 @@
     </ms-drawer>
 
     <!-- 执行组件 -->
-    <ms-run :debug="false" :environment="environment" :reportId="reportId" :run-data="runData" :env-map="envMap"
+    <ms-run :debug="false" :reportId="reportId" :run-data="runData" :env-map="envMap"
             @runRefresh="runRefresh" ref="runTest"/>
     <!--批量编辑-->
     <ms-batch-edit ref="batchEdit" @batchEdit="batchEdit" :typeArr="typeArr" :value-arr="valueArr"/>
@@ -77,7 +78,7 @@
       return {
         result: {},
         grades: [],
-        environment: {},
+        environment: "",
         isReadOnly: false,
         selectedEvent: Object,
         priorities: CASE_ORDER,
@@ -111,7 +112,8 @@
           priority: CASE_PRIORITY,
           method: REQ_METHOD,
         },
-        envMap: new Map
+        envMap: new Map,
+        useEnvironment: "",
       }
     },
     watch: {
@@ -190,8 +192,13 @@
             this.$set(item, 'selected', false);
           })
         }
-        this.$success(this.$t('organization.integration.successful_operation'));
+        // 更新最后一条的环境
+        let cases = this.apiCaseList[0];
+        cases.request.useEnvironment = this.environment;
+        cases.message = true;
+        this.$refs.apiCaseItem[0].saveCase(cases);
         this.refresh();
+        this.$success(this.$t('organization.integration.successful_operation'));
       },
 
       refresh() {
@@ -204,12 +211,13 @@
         })
       },
       getApiTest(addCase) {
+        this.useEnvironment = "";
         if (this.api) {
           this.condition.projectId = this.projectId;
           if (this.isCaseEdit) {
             this.condition.id = this.testCaseId;
           }
-          if(this.api){
+          if (this.api) {
             this.condition.apiDefinitionId = this.api.id;
           }
 
@@ -226,7 +234,12 @@
               if (!apiCase.request.hashTree) {
                 apiCase.request.hashTree = [];
               }
+
             })
+            if (!this.useEnvironment && this.apiCaseList[0].request && this.apiCaseList[0].request.useEnvironment) {
+              this.useEnvironment = this.apiCaseList[0].request.useEnvironment;
+              this.environment = this.useEnvironment;
+            }
             if (addCase && this.apiCaseList.length == 0 && !this.loaded) {
               this.addCase();
             }
@@ -264,7 +277,7 @@
       },
 
       singleRun(row) {
-        if (!this.environment || !this.environment) {
+        if (!this.environment) {
           this.$warning(this.$t('api_test.environment.select_environment'));
           return;
         }
@@ -274,7 +287,7 @@
         row.request.name = row.id;
         this.$get('/api/definition/get/' + row.request.id, response => {
           row.request.path = response.data.path;  //  取的path是对应接口的path，因此查库以获得
-          row.request.useEnvironment = this.environment.id;
+          row.request.useEnvironment = this.environment;
           row.request.projectId = getCurrentProjectID();
           this.runData.push(row.request);
           /*触发执行操作*/
@@ -293,7 +306,7 @@
           this.apiCaseList.forEach(item => {
             if (item.selected && item.id) {
               item.request.name = item.id;
-              item.request.useEnvironment = this.environment.id;
+              item.request.useEnvironment = this.environment;
               this.runData.push(item.request);
               this.batchLoadingIds.push(item.id);
             }

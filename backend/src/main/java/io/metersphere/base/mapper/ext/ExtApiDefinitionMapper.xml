@@ -235,7 +235,7 @@
 
     <update id="removeToGc">
         update api_definition
-        set
+        set original_state=status,
         status = 'Trash'
         where id in
         <foreach collection="ids" item="v" separator="," open="(" close=")">
@@ -245,7 +245,7 @@
 
     <update id="removeToGcByExample" parameterType="io.metersphere.base.domain.ApiDefinitionExample">
         update api_definition
-        set
+        set original_state=status,
         status = 'Trash', module_path = null, module_id = null
         <if test="_parameter != null">
             <include refid="Example_Where_Clause" />
@@ -255,7 +255,7 @@
     <update id="reduction">
         update api_definition
         set
-        status = 'Underway'
+        status = original_state
         where id in
         <foreach collection="ids" item="v" separator="," open="(" close=")">
             #{v}

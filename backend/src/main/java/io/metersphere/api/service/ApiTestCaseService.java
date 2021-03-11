@@ -77,7 +77,7 @@ public class ApiTestCaseService {
     @Resource
     private TestPlanApiCaseMapper testPlanApiCaseMapper;
 
-    private static final String BODY_FILE_DIR = "/opt/metersphere/data/body";
+    private static final String BODY_FILE_DIR = FileUtils.BODY_FILE_DIR;
 
     public List<ApiTestCaseResult> list(ApiTestCaseRequest request) {
         request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));

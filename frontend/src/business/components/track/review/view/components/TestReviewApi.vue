@@ -1,55 +1,116 @@
 <template>
   <ms-test-plan-common-component>
     <template v-slot:aside>
-      <ms-node-tree
-        class="node-tree"
-        :all-label="$t('commons.all_label.review')"
-        v-loading="result.loading"
+      <ms-api-module
+        v-if="model === 'api'"
         @nodeSelectEvent="nodeChange"
-        :tree-nodes="treeNodes"
-        ref="nodeTree"/>
+        @protocolChange="handleProtocolChange"
+        @refreshTable="refreshTable"
+        @setModuleOptions="setModuleOptions"
+        :review-id="reviewId"
+        :is-read-only="true"
+        :redirectCharType="redirectCharType"
+        ref="apiNodeTree"
+      >
+      <template v-slot:header>
+        <div class="model-change-radio">
+          <el-radio v-model="model" label="api">接口用例</el-radio>
+          <el-radio v-model="model" label="scenario">场景用例</el-radio>
+        </div>
+      </template>
+      </ms-api-module>
+
+      <ms-api-scenario-module
+        v-if="model === 'scenario'"
+        @nodeSelectEvent="nodeChange"
+        @refreshTable="refreshTable"
+        @setModuleOptions="setModuleOptions"
+        :is-read-only="true"
+        :review-id="reviewId"
+        ref="scenarioNodeTree">
+        <template v-slot:header>
+          <div class="model-change-radio">
+            <el-radio v-model="model" label="api">接口用例</el-radio>
+            <el-radio v-model="model" label="scenario">场景用例</el-radio>
+          </div>
+        </template>
+      </ms-api-scenario-module>
     </template>
     <template v-slot:main>
-      <test-review-test-case-list
-        class="table-list"
-        @openTestReviewRelevanceDialog="openTestReviewRelevanceDialog"
-        @refresh="refresh"
-        :review-id="reviewId"
+     <test-plan-api-case-list
+       v-if="model === 'api'"
+       :current-protocol="currentProtocol"
+       :currentRow="currentRow"
+       :select-node-ids="selectNodeIds"
+       :trash-enable="trashEnable"
+       :is-case-relevance="true"
+       :model="'plan'"
+       :review-id="reviewId"
+       :clickType="clickType"
+       @refresh="refreshTree"
+       @relevanceCase="openTestCaseRelevanceDialog"
+       ref="apiCaseList"/>
+
+      <ms-test-plan-api-scenario-list
+        v-if="model === 'scenario'"
         :select-node-ids="selectNodeIds"
-        :select-parent-nodes="selectParentNodes"
+        :trash-enable="trashEnable"
+        :review-id="reviewId"
         :clickType="clickType"
-        ref="testPlanTestCaseList"/>
+        @refresh="refreshTree"
+        @relevanceCase="openTestCaseRelevanceDialog"
+        ref="apiScenarioList"/>
     </template>
-    <test-review-relevance
+    <test-case-api-relevance
       @refresh="refresh"
       :review-id="reviewId"
-      ref="testReviewRelevance"/>
+      :model="model"
+      ref="apiCaseRelevance"/>
+    <test-case-scenario-relevance
+      @refresh="refresh"
+      :review-id="reviewId"
+      :model="model"
+      ref="scenarioCaseRelevance"/>
   </ms-test-plan-common-component>
-
 </template>
 
 <script>
 import MsTestPlanCommonComponent from "@/business/components/track/plan/view/comonents/base/TestPlanCommonComponent";
-import FunctionalTestCaseList from "@/business/components/track/plan/view/comonents/functional/FunctionalTestCaseList";
-import MsNodeTree from "@/business/components/track/common/NodeTree";
-import TestReviewRelevance from "@/business/components/track/review/view/components/TestReviewRelevance";
-import TestReviewTestCaseList from "@/business/components/track/review/view/components/TestReviewTestCaseList";
+import TestCaseScenarioRelevance from "@/business/components/track/plan/view/comonents/api/TestCaseScenarioRelevance";
+import MsTestPlanApiScenarioList from "@/business/components/track/plan/view/comonents/api/TestPlanApiScenarioList";
+import MsApiScenarioModule from "@/business/components/api/automation/scenario/ApiScenarioModule";
+import ApiCaseSimpleList from "@/business/components/api/definition/components/list/ApiCaseSimpleList";
+import TestCaseApiRelevance from "@/business/components/track/plan/view/comonents/api/TestCaseApiRelevance";
+import TestPlanApiCaseList from "@/business/components/track/plan/view/comonents/api/TestPlanApiCaseList";
+import TestCaseRelevance from "@/business/components/track/plan/view/comonents/functional/TestCaseFunctionalRelevance";
+import NodeTree from "@/business/components/track/common/NodeTree";
+import MsApiModule from "../../../../api/definition/components/module/ApiModule"
 
 export default {
   name: "TestReviewApi",
   components: {
-    TestReviewTestCaseList,
-    TestReviewRelevance, MsNodeTree, FunctionalTestCaseList, MsTestPlanCommonComponent
+    TestCaseScenarioRelevance,
+    MsTestPlanApiScenarioList,
+    MsApiScenarioModule,
+    ApiCaseSimpleList,
+    TestCaseApiRelevance,
+    TestPlanApiCaseList,
+    MsTestPlanCommonComponent,
+    TestCaseRelevance,
+    NodeTree,
+    MsApiModule,
   },
   data() {
     return {
       result: {},
-      testReviews: [],
-      currentReview: {},
-      selectNodeIds: [],
-      selectParentNodes: [],
       treeNodes: [],
-      isMenuShow: true,
+      currentRow: "",
+      trashEnable: false,
+      currentProtocol: null,
+      currentModule: null,
+      selectNodeIds: [],
+      moduleOptions: {},
+      model: 'api'
     }
   },
   props: [
@@ -58,32 +119,66 @@ export default {
     'clickType'
   ],
   mounted() {
-    this.getNodeTreeByReviewId()
+    this.checkRedirectCharType();
   },
-  activated() {
-    this.getNodeTreeByReviewId()
-
+  watch: {
+    model() {
+      this.selectNodeIds = [];
+      this.moduleOptions = {};
+    },
+    redirectCharType(){
+      if(this.redirectCharType=='scenario'){
+        this.model = 'scenario';
+      }else{
+        this.model = 'api';
+      }
+    }
   },
   methods: {
-    refresh() {
-      this.selectNodeIds = [];
-      this.selectParentNodes = [];
-      this.$refs.testReviewRelevance.search();
-      this.getNodeTreeByReviewId();
-    },
-    nodeChange(node, nodeIds, pNodes) {
-      this.selectNodeIds = nodeIds;
-      this.selectParentNodes = pNodes;
-    },
-    getNodeTreeByReviewId() {
-      if (this.reviewId) {
-        this.result = this.$get("/case/node/list/review/" + this.reviewId, response => {
-          this.treeNodes = response.data;
-        });
+    checkRedirectCharType(){
+      if(this.redirectCharType=='scenario'){
+        this.model = 'scenario';
+      }else{
+        this.model = 'api';
       }
     },
-    openTestReviewRelevanceDialog() {
-      this.$refs.testReviewRelevance.openTestReviewRelevanceDialog();
+    refresh() {
+      this.refreshTree();
+      this.refreshTable();
+    },
+    refreshTable() {
+      if (this.$refs.apiCaseList) {
+        this.$refs.apiCaseList.initTable();
+      }
+      if (this.$refs.apiScenarioList) {
+        this.$refs.apiScenarioList.search();
+      }
+    },
+    refreshTree() {
+      if (this.$refs.apiNodeTree) {
+        this.$refs.apiNodeTree.list();
+      }
+      if (this.$refs.scenarioNodeTree) {
+        this.$refs.scenarioNodeTree.list();
+      }
+    },
+
+    nodeChange(node, nodeIds, pNodes) {
+      this.selectNodeIds = nodeIds;
+    },
+    handleProtocolChange(protocol) {
+      this.currentProtocol = protocol;
+    },
+    setModuleOptions(data) {
+      this.moduleOptions = data;
+    },
+
+    openTestCaseRelevanceDialog(model) {
+      if (model === 'scenario') {
+        this.$refs.scenarioCaseRelevance.open();
+      } else {
+        this.$refs.apiCaseRelevance.open();
+      }
     },
   }
 }

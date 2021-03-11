@@ -22,7 +22,7 @@
               </el-form-item>
               <br>
               <el-form-item>
-                <el-radio-group v-model="threadGroup.threadType">
+                <el-radio-group v-model="threadGroup.threadType" :disabled="true">
                   <el-radio label="DURATION">{{ $t('load_test.by_duration') }}</el-radio>
                   <el-radio label="ITERATION">{{ $t('load_test.by_iteration') }}</el-radio>
                 </el-radio-group>
@@ -178,8 +178,11 @@ export default {
   },
   methods: {
     calculateLoadConfiguration: function (data) {
-      for (let i = 0; i < data.length; i++) {
+      for (let i = 0; i < this.threadGroups.length; i++) {
         let d = data[i];
+        if (!d) {
+          return;
+        }
         d.forEach(item => {
           switch (item.key) {
             case TARGET_LEVEL:
@@ -225,7 +228,7 @@ export default {
             default:
               break;
           }
-        })
+        });
         this.calculateChart(this.threadGroups[i]);
 
       }
@@ -345,25 +348,45 @@ export default {
         let threadInc2 = Math.ceil(tg.threadNumber / tg.step);
         let inc2count = tg.threadNumber - tg.step * threadInc1;
         for (let j = 0; j <= tg.duration; j++) {
-
-          if (j > timePeriod) {
-            timePeriod += timeInc;
-            if (inc2count > 0) {
-              threadPeriod = threadPeriod + threadInc2;
-              inc2count--;
-            } else {
-              threadPeriod = threadPeriod + threadInc1;
-            }
-            if (threadPeriod > tg.threadNumber) {
-              threadPeriod = tg.threadNumber;
-            }
-          }
           // x 轴
           let xAxis = handler.options.xAxis.data;
           if (xAxis.indexOf(j) < 0) {
             xAxis.push(j);
           }
-          seriesData.data.push(threadPeriod);
+
+          if (tg.tgType === 'ThreadGroup') {
+            seriesData.step = undefined;
+
+            if (j === 0) {
+              seriesData.data.push([0, 0]);
+            }
+            if (j > tg.rampUpTime) {
+              xAxis.push(tg.duration);
+
+              seriesData.data.push([j, tg.threadNumber]);
+              seriesData.data.push([tg.duration, tg.threadNumber]);
+              break;
+            }
+          } else {
+            seriesData.step = 'start';
+            if (j > timePeriod) {
+              timePeriod += timeInc;
+              if (inc2count > 0) {
+                threadPeriod = threadPeriod + threadInc2;
+                inc2count--;
+              } else {
+                threadPeriod = threadPeriod + threadInc1;
+              }
+              if (threadPeriod > tg.threadNumber) {
+                threadPeriod = tg.threadNumber;
+                // 预热结束
+                xAxis.push(tg.duration);
+                seriesData.data.push([tg.duration, threadPeriod]);
+                break;
+              }
+            }
+            seriesData.data.push([j, threadPeriod]);
+          }
         }
         handler.options.series.push(seriesData);
       }
@@ -442,20 +465,39 @@ export default {
       for (let i = 0; i <= handler.duration; i++) {
         // x 轴
         handler.options.xAxis.data.push(i);
-        if (i > timePeriod) {
-          timePeriod += timeInc;
-          if (inc2count > 0) {
-            threadPeriod = threadPeriod + threadInc2;
-            inc2count--;
-          } else {
-            threadPeriod = threadPeriod + threadInc1;
+        if (handler.tgType === 'ThreadGroup') {
+          handler.options.series[0].step = undefined;
+
+          if (i === 0) {
+            handler.options.series[0].data.push([0, 0]);
           }
-          if (threadPeriod > handler.threadNumber) {
-            threadPeriod = handler.threadNumber;
+          if (i > handler.rampUpTime) {
+            handler.options.xAxis.data.push(handler.duration);
+
+            handler.options.series[0].data.push([i, handler.threadNumber]);
+            handler.options.series[0].data.push([handler.duration, handler.threadNumber]);
+            break;
           }
-          handler.options.series[0].data.push(threadPeriod);
         } else {
-          handler.options.series[0].data.push(threadPeriod);
+          handler.options.series[0].step = 'start';
+          if (i > timePeriod) {
+            timePeriod += timeInc;
+            if (inc2count > 0) {
+              threadPeriod = threadPeriod + threadInc2;
+              inc2count--;
+            } else {
+              threadPeriod = threadPeriod + threadInc1;
+            }
+            if (threadPeriod > handler.threadNumber) {
+              threadPeriod = handler.threadNumber;
+              handler.options.xAxis.data.push(handler.duration);
+              handler.options.series[0].data.push([handler.duration, handler.threadNumber]);
+              break;
+            }
+            handler.options.series[0].data.push([i, threadPeriod]);
+          } else {
+            handler.options.series[0].data.push([i, threadPeriod]);
+          }
         }
       }
       this.calculateTotalChart();

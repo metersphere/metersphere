@@ -91,7 +91,7 @@ public class ApiDefinitionService {
 
     private static Cache cache = Cache.newHardMemoryCache(0, 3600 * 24);
 
-    private static final String BODY_FILE_DIR = "/opt/metersphere/data/body";
+    private static final String BODY_FILE_DIR = FileUtils.BODY_FILE_DIR;
 
     public List<ApiDefinitionResult> list(ApiDefinitionRequest request) {
         request = this.initRequest(request, true, true);
