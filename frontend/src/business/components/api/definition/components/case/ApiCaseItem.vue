@@ -79,14 +79,14 @@
           </div>
         </el-col>
       </el-row>
-      <el-divider ></el-divider>
+      <el-divider></el-divider>
     </div>
 
     <!-- 请求参数-->
     <el-collapse-transition>
       <div v-if="apiCase.active||type==='detail'">
         <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
-        <ms-api-request-form  :isShowEnable="true" :showScript="true" :is-read-only="isReadOnly" :headers="apiCase.request.headers " :request="apiCase.request" v-if="api.protocol==='HTTP'"/>
+        <ms-api-request-form :isShowEnable="true" :showScript="true" :is-read-only="isReadOnly" :headers="apiCase.request.headers " :request="apiCase.request" v-if="api.protocol==='HTTP'"/>
         <ms-tcp-basis-parameters :showScript="true" :request="apiCase.request" v-if="api.protocol==='TCP'"/>
         <ms-sql-basis-parameters :showScript="true" :request="apiCase.request" v-if="api.protocol==='SQL'"/>
         <ms-dubbo-basis-parameters :showScript="true" :request="apiCase.request" v-if="api.protocol==='DUBBO'"/>
@@ -169,7 +169,7 @@
           return {}
         },
       },
-      environment: {},
+      environment: String,
       index: {
         type: Number,
         default() {
@@ -182,7 +182,7 @@
           return {}
         }
       },
-      type:String,
+      type: String,
       isCaseEdit: Boolean,
     },
     watch: {},
@@ -207,7 +207,12 @@
         });
       },
       singleRun(data) {
+        if (!this.environment) {
+          this.$warning(this.$t('api_test.environment.select_environment'));
+          return;
+        }
         data.message = true;
+        data.request.useEnvironment = this.environment;
         this.saveTestCase(data);
         this.$emit('singleRun', data);
       },

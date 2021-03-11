@@ -52,6 +52,9 @@ public class MsDubboSampler extends MsTestElement {
     @JSONField(ordinal = 59)
     private List<KeyValue> attachmentArgs;
 
+    @JSONField(ordinal = 60)
+    private String useEnvironment;
+
 //    @JSONField(ordinal = 60)
 //    private Object requestResult;
 
