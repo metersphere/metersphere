@@ -147,7 +147,7 @@ export default {
 .count-number{
   font-family:'ArialMT', 'Arial', sans-serif;
   font-size:33px;
-  color: #6C317C;
+  color: var(--count_number);
 }
 
 .main-number-show {
@@ -155,7 +155,7 @@ export default {
   height: 100px;
   border-style: solid;
   border-width: 7px;
-  border-color: #CDB9D2;
+  border-color: var(--count_number_shallow);
   border-radius:50%;
 
 }

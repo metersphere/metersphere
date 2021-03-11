@@ -28,6 +28,7 @@
         <el-tabs class="testplan-config" v-model="active" type="border-card" :stretch="true">
           <el-tab-pane :label="$t('load_test.basic_config')">
             <performance-basic-config :is-read-only="isReadOnly" :test="test" ref="basicConfig"
+                                      @tgTypeChange="tgTypeChange"
                                       @fileChange="fileChange"/>
           </el-tab-pane>
           <el-tab-pane :label="$t('load_test.pressure_config')">
@@ -129,12 +130,12 @@ export default {
         let file = new File([blob], apiTest.jmx.name);
         this.$refs.basicConfig.beforeUploadJmx(file);
         this.$refs.basicConfig.handleUpload({file: file});
-        if(JSON.stringify(apiTest.jmx.attachFiles) != "{}"){
+        if (JSON.stringify(apiTest.jmx.attachFiles) != "{}") {
           let attachFiles = [];
-            for(let fileID in apiTest.jmx.attachFiles){
-              attachFiles.push(fileID);
-            }
-          if(attachFiles.length > 0){
+          for (let fileID in apiTest.jmx.attachFiles) {
+            attachFiles.push(fileID);
+          }
+          if (attachFiles.length > 0) {
             this.$refs.basicConfig.selectAttachFileById(attachFiles);
           }
         }
@@ -229,18 +230,18 @@ export default {
       var bytes = new Array();
       var len, c;
       len = str.length;
-      for(var i = 0; i < len; i++) {
+      for (var i = 0; i < len; i++) {
         c = str.charCodeAt(i);
-        if(c >= 0x010000 && c <= 0x10FFFF) {
+        if (c >= 0x010000 && c <= 0x10FFFF) {
           bytes.push(((c >> 18) & 0x07) | 0xF0);
           bytes.push(((c >> 12) & 0x3F) | 0x80);
           bytes.push(((c >> 6) & 0x3F) | 0x80);
           bytes.push((c & 0x3F) | 0x80);
-        } else if(c >= 0x000800 && c <= 0x00FFFF) {
+        } else if (c >= 0x000800 && c <= 0x00FFFF) {
           bytes.push(((c >> 12) & 0x0F) | 0xE0);
           bytes.push(((c >> 6) & 0x3F) | 0x80);
           bytes.push((c & 0x3F) | 0x80);
-        } else if(c >= 0x000080 && c <= 0x0007FF) {
+        } else if (c >= 0x000080 && c <= 0x0007FF) {
           bytes.push(((c >> 6) & 0x1F) | 0xC0);
           bytes.push((c & 0x3F) | 0x80);
         } else {
@@ -347,6 +348,10 @@ export default {
       threadGroups.forEach(tg => {
         handler.calculateChart(tg);
       })
+    },
+    tgTypeChange(threadGroup) {
+      let handler = this.$refs.pressureConfig;
+      handler.calculateChart(threadGroup);
     }
   }
 }

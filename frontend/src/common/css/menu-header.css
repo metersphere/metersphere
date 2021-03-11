@@ -16,7 +16,6 @@
   color: inherit;
 }
 
-
 .header-top-menus.el-menu--horizontal > li {
   height: 40px;
   line-height: 40px;
@@ -30,9 +29,9 @@
 }
 
 .header-top-menus.el-menu--horizontal > li.is-active {
-  background: #595591 !important;
+  background: var(--color_shallow) !important;
 }
 
 .el-menu.el-menu--horizontal {
-   border-bottom: none;
+   border-bottom: none !important;
  }

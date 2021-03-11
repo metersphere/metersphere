@@ -1,6 +1,6 @@
 <template>
   <el-menu mode="horizontal" menu-trigger="click"
-           background-color="#2c2a48"
+           :background-color="color"
            class="header-top-menus"
            text-color="#F2F2F2"
            active-text-color="#fff"
@@ -39,6 +39,9 @@
         activeIndex: '/',
         isReport: isReport
       }
+    },
+    props: {
+      color: String
     },
     watch: {
       '$route'(to) {
