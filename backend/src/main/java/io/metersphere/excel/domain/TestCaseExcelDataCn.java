@@ -50,7 +50,7 @@ public class TestCaseExcelDataCn extends TestCaseExcelData {
 
     @ColumnWidth(50)
     @ExcelProperty("前置条件")
-    @Length(min = 0, max = 1000)
+    @Length(min = 0, max = 500)
     private String prerequisite;
 
     @ColumnWidth(50)
