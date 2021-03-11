@@ -178,8 +178,11 @@ export default {
   },
   methods: {
     calculateLoadConfiguration: function (data) {
-      for (let i = 0; i < data.length; i++) {
+      for (let i = 0; i < this.threadGroups.length; i++) {
         let d = data[i];
+        if (!d) {
+          return;
+        }
         d.forEach(item => {
           switch (item.key) {
             case TARGET_LEVEL:
@@ -225,7 +228,7 @@ export default {
             default:
               break;
           }
-        })
+        });
         this.calculateChart(this.threadGroups[i]);
 
       }

@@ -136,8 +136,8 @@ public class XmindCaseParser {
         data.setNodePath(nodePath);
 
 
-        if (data.getName().length() > 50) {
-            process.add(Translator.get("test_case") + Translator.get("test_track.length_less_than") + "50", nodePath + data.getName());
+        if (data.getName().length() > 200) {
+            process.add(Translator.get("test_case") + Translator.get("test_track.length_less_than") + "200", nodePath + data.getName());
         }
 
         if (!StringUtils.isEmpty(nodePath)) {

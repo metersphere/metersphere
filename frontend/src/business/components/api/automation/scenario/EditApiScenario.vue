@@ -184,7 +184,7 @@
       <!-- 调试结果 -->
       <el-drawer v-if="type!=='detail'" :visible.sync="debugVisible" :destroy-on-close="true" direction="ltr"
                  :withHeader="true" :modal="false" size="90%">
-        <ms-api-report-detail :report-id="reportId" :debug="true" :currentProjectId="projectId"/>
+        <ms-api-report-detail :report-id="reportId" :debug="true" :currentProjectId="projectId" @refresh="detailRefresh"/>
       </el-drawer>
 
       <!--场景公共参数-->
@@ -224,6 +224,7 @@
   import MsComponentConfig from "./component/ComponentConfig";
   import {handleCtrlSEvent} from "../../../../../common/js/utils";
   import EnvPopover from "@/business/components/api/automation/scenario/EnvPopover";
+
   let jsonPath = require('jsonpath');
   export default {
     name: "EditApiScenario",
@@ -290,7 +291,8 @@
         response: {},
         projectIds: new Set,
         projectEnvMap: new Map,
-        projectList: []
+        projectList: [],
+        debugResult: new Map,
       }
     },
     created() {
@@ -400,7 +402,7 @@
           },
           {
             title: this.$t('api_test.automation.scenario_import'),
-            show:this.showButton("scenario"),
+            show: this.showButton("scenario"),
             titleColor: "#606266",
             titleBgColor: "#F4F4F5",
             icon: "movie",
@@ -547,20 +549,31 @@
           if (arr[i].hashTree != undefined && arr[i].hashTree.length > 0) {
             this.recursiveSorting(arr[i].hashTree);
           }
+          // 添加debug结果
+          if (this.debugResult && this.debugResult.get(arr[i].id)) {
+            arr[i].requestResult = this.debugResult.get(arr[i].id);
+          }
         }
       },
       sort() {
         for (let i in this.scenarioDefinition) {
+          // 排序
           this.scenarioDefinition[i].index = Number(i) + 1;
+          // 设置循环控制
           if (this.scenarioDefinition[i].type === ELEMENT_TYPE.LoopController && this.scenarioDefinition[i].hashTree
             && this.scenarioDefinition[i].hashTree.length > 1) {
             this.scenarioDefinition[i].countController.proceed = true;
           }
+          // 设置项目ID
           if (!this.scenarioDefinition[i].projectId) {
-            this.scenarioDefinition.projectId = getCurrentProjectID();
+            this.scenarioDefinition[i].projectId = getCurrentProjectID();
           }
           if (this.scenarioDefinition[i].hashTree != undefined && this.scenarioDefinition[i].hashTree.length > 0) {
             this.recursiveSorting(this.scenarioDefinition[i].hashTree);
+          }
+          // 添加debug结果
+          if (this.debugResult && this.debugResult.get(this.scenarioDefinition[i].id)) {
+            this.scenarioDefinition[i].requestResult = this.debugResult.get(this.scenarioDefinition[i].id);
           }
         }
       },
@@ -575,6 +588,7 @@
         this.customizeRequest = {};
         this.sort();
         this.reload();
+        this.initProjectIds();
       },
       addScenario(arr) {
         if (arr && arr.length > 0) {
@@ -677,7 +691,7 @@
         }
         const index = hashTree.findIndex(d => d.resourceId === row.resourceId);
         if (index != -1) {
-          hashTree.splice(index+1, 0, obj);
+          hashTree.splice(index + 1, 0, obj);
         } else {
           hashTree.push(obj);
         }
@@ -1019,11 +1033,16 @@
         // 加载环境配置
         this.$nextTick(() => {
           this.projectIds.clear();
-          this.scenarioDefinition.forEach(data=>{
+          this.scenarioDefinition.forEach(data => {
             let arr = jsonPath.query(data, "$..projectId");
             arr.forEach(a => this.projectIds.add(a));
           })
         })
+      },
+      detailRefresh(result) {
+        // 把执行结果分发给各个请求
+        this.debugResult = result;
+        this.sort()
       }
     }
   }

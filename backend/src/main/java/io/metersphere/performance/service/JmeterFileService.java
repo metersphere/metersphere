@@ -51,17 +51,9 @@ public class JmeterFileService {
 
         //  每个测试生成一个文件夹
         files.put(fileName, context.getContent().getBytes(StandardCharsets.UTF_8));
-        // 保存测试数据文件
-        Map<String, String> testData = context.getTestData();
-        if (!CollectionUtils.isEmpty(testData)) {
-            for (String k : testData.keySet()) {
-                String v = testData.get(k);
-                files.put(k, v.getBytes(StandardCharsets.UTF_8));
-            }
-        }
 
-        // 保存 byte[] jar
-        Map<String, byte[]> jarFiles = context.getTestJars();
+        // 保存 byte[]
+        Map<String, byte[]> jarFiles = context.getTestResourceFiles();
         if (!CollectionUtils.isEmpty(jarFiles)) {
             for (String k : jarFiles.keySet()) {
                 byte[] v = jarFiles.get(k);
