@@ -698,18 +698,23 @@ export default {
       let ids = rowArray.map(s => s.id);
       return ids;
     },
-    exportApi() {
+    exportApi(type) {
       let param = buildBatchParam(this);
       param.protocol = this.currentProtocol;
       if (param.ids === undefined || param.ids.length < 1) {
         this.$warning(this.$t("api_test.definition.check_select"));
         return;
       }
-      this.result = this.$post("/api/definition/export", param, response => {
+      this.result = this.$post("/api/definition/export/" + type, param, response => {
         let obj = response.data;
-        obj.protocol = this.currentProtocol;
-        this.buildApiPath(obj.data);
-        downloadFile("Metersphere_Api_" + localStorage.getItem(PROJECT_NAME) + ".json", JSON.stringify(obj));
+        if(type == 'MS') {
+          obj.protocol = this.currentProtocol;
+          this.buildApiPath(obj.data);
+          downloadFile("Metersphere_Api_" + localStorage.getItem(PROJECT_NAME) + ".json", JSON.stringify(obj));
+        }
+        else {
+          downloadFile("Swagger_Api_" + localStorage.getItem(PROJECT_NAME) + ".json", JSON.stringify(obj));
+        }
       });
     },
     buildApiPath(apis) {
