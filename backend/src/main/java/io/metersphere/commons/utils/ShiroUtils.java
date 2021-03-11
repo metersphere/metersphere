@@ -44,6 +44,10 @@ public class ShiroUtils {
 //        filterChainDefinitionMap.put("/document/**", "anon");
     }
 
+    public static void ignoreCsrfFilter(Map<String, String> filterChainDefinitionMap) {
+        filterChainDefinitionMap.put("/", "apikey, authc"); // 跳转到 / 不用校验 csrf
+    }
+
     public static Cookie getSessionIdCookie(){
         SimpleCookie sessionIdCookie = new SimpleCookie();
         sessionIdCookie.setPath("/");

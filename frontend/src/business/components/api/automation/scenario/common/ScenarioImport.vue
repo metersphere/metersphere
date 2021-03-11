@@ -26,7 +26,7 @@
               <el-option v-for="item in moduleOptions" :key="item.id" :label="item.path" :value="item.id"/>
             </el-select>
           </el-form-item>
-          <el-form-item :label="$t('commons.import_mode')">
+          <el-form-item   v-if="!isHar" :label="$t('commons.import_mode')">
             <el-select size="small" v-model="formData.modeId" class="project-select" clearable>
               <el-option v-for="item in modeOptions" :key="item.id" :label="item.name" :value="item.id"/>
             </el-select>
@@ -118,6 +118,13 @@
             tip: this.$t('api_test.api_import.jmeter_tip'),
             exportTip: this.$t('api_test.api_import.jmeter_export_tip'),
             suffixes: new Set(['jmx'])
+          },
+          {
+            name: 'Har',
+            value: 'Har',
+            tip: this.$t('api_test.api_import.har_tip'),
+            exportTip: this.$t('api_test.api_import.har_export_tip'),
+            suffixes: new Set(['har'])
           }
         ],
         selectedPlatform: {},
@@ -148,6 +155,11 @@
             break;
           }
         }
+      },
+    },
+    computed: {
+      isHar() {
+        return this.selectedPlatformValue === 'Har';
       },
     },
     methods: {

@@ -100,6 +100,19 @@
       active() {
         this.isActive = !this.isActive;
       },
+      formatResult(res) {
+        let resMap = new Map;
+        if (res && res.scenarios) {
+          res.scenarios.forEach(item => {
+            if (item && item.requestResults) {
+              item.requestResults.forEach(req => {
+                resMap.set(req.id, req);
+              })
+            }
+          })
+        }
+        this.$emit('refresh', resMap);
+      },
       getReport() {
         this.init();
         if (this.reportId) {
@@ -113,7 +126,7 @@
                   if (!this.content) {
                     this.content = {scenarios: []};
                   }
-                  this.$emit('refresh');
+                  this.formatResult(this.content);
                 } catch (e) {
                   throw e;
                 }

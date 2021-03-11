@@ -611,27 +611,38 @@ public class ApiAutomationService {
         if (CollectionUtils.isEmpty(request.getPlanIds())) {
             MSException.throwException(Translator.get("plan id is null "));
         }
-        List<String> scenarioIds = request.getScenarioIds();
-        if (request.isSelectAllDate()) {
-            scenarioIds = this.getAllScenarioIdsByFontedSelect(
-                    request.getModuleIds(), request.getName(), request.getProjectId(), request.getFilters(), request.getUnSelectIds());
-        }
+//        List<String> scenarioIds = request.getScenarioIds();
+//        if (request.isSelectAllDate()) {
+//            scenarioIds = this.getAllScenarioIdsByFontedSelect(
+//                    request.getModuleIds(), request.getName(), request.getProjectId(), request.getFilters(), request.getUnSelectIds());
+//        }
+        Map<String, List<String>> mapping = request.getMapping();
+        Map<String, String> envMap = request.getEnvMap();
+        Set<String> set = mapping.keySet();
         List<TestPlanDTO> list = extTestPlanMapper.selectByIds(request.getPlanIds());
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
         ExtTestPlanScenarioCaseMapper scenarioBatchMapper = sqlSession.getMapper(ExtTestPlanScenarioCaseMapper.class);
         ExtTestPlanApiCaseMapper apiCaseBatchMapper = sqlSession.getMapper(ExtTestPlanApiCaseMapper.class);
 
         for (TestPlanDTO testPlan : list) {
-            if (scenarioIds != null) {
-                for (String scenarioId : scenarioIds) {
+            if (!set.isEmpty()) {
+                set.forEach(id -> {
+                    Map<String, String> newEnvMap = new HashMap<>(16);
+                    if (envMap != null && !envMap.isEmpty()) {
+                        List<String> lt = mapping.get(id);
+                        lt.forEach(l -> {
+                            newEnvMap.put(l, envMap.get(l));
+                        });
+                    }
                     TestPlanApiScenario testPlanApiScenario = new TestPlanApiScenario();
                     testPlanApiScenario.setId(UUID.randomUUID().toString());
-                    testPlanApiScenario.setApiScenarioId(scenarioId);
+                    testPlanApiScenario.setApiScenarioId(id);
                     testPlanApiScenario.setTestPlanId(testPlan.getId());
                     testPlanApiScenario.setCreateTime(System.currentTimeMillis());
                     testPlanApiScenario.setUpdateTime(System.currentTimeMillis());
+                    testPlanApiScenario.setEnvironment(JSON.toJSONString(newEnvMap));
                     scenarioBatchMapper.insertIfNotExists(testPlanApiScenario);
-                }
+                });
             }
             if (request.getApiIds() != null) {
                 for (String caseId : request.getApiIds()) {

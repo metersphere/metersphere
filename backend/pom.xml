@@ -422,6 +422,12 @@
             <version>${jmeter.version}</version>
         </dependency>
         <!-- 添加jmeter包支持导入的jmx能正常执行 -->
+        <dependency>
+            <groupId>com.jayway.jsonpath</groupId>
+            <artifactId>json-path</artifactId>
+            <version>2.5.0</version>
+        </dependency>
+
     </dependencies>
 
     <build>

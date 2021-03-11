@@ -85,8 +85,8 @@ public class MsHTTPSamplerProxy extends MsTestElement {
     @JSONField(ordinal = 34)
     private List<KeyValue> arguments;
 
-//    @JSONField(ordinal = 35)
-//    private Object requestResult;
+    @JSONField(ordinal = 35)
+    private Object requestResult;
 
     @JSONField(ordinal = 36)
     private MsAuthManager authManager;
@@ -106,6 +106,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         }
         sampler.setProperty(TestElement.TEST_CLASS, HTTPSamplerProxy.class.getName());
         sampler.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("HttpTestSampleGui"));
+        sampler.setProperty("MS-ID", this.getId());
         sampler.setMethod(this.getMethod());
         sampler.setContentEncoding("UTF-8");
         sampler.setConnectTimeout(this.getConnectTimeout() == null ? "6000" : this.getConnectTimeout());

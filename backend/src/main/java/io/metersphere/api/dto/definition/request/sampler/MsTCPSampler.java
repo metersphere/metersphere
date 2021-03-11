@@ -117,6 +117,7 @@ public class MsTCPSampler extends MsTestElement {
         if (StringUtils.isNotEmpty(name) && !config.isOperating()) {
             tcpSampler.setName(this.getName() + "<->" + name);
         }
+        tcpSampler.setProperty("MS-ID", this.getId());
 
         tcpSampler.setProperty(TestElement.TEST_CLASS, TCPSampler.class.getName());
         tcpSampler.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("TCPSamplerGui"));

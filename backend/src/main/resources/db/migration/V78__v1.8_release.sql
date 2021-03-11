@@ -45,3 +45,9 @@ alter table test_plan_api_scenario change environment_id environment longtext nu
 
 -- file add sort column
 alter table file_metadata add sort int default 0;
+
+-- add Original state
+alter table api_definition add original_state varchar(64);
+alter table api_scenario add original_state varchar(64);
+update api_definition set original_state='Underway';
+update api_scenario set original_state='Underway';
