@@ -17,8 +17,8 @@
           <ms-tab-button
             :active-dom.sync="activeDom"
             :left-tip="'用例列表'"
-            :left-content="'CAS'"
-            :right-tip="'E脑图'"
+            :left-content="'CASE'"
+            :right-tip="'脑图'"
             :right-content="'脑图'"
             :middle-button-enable="false">
           <test-case-list
@@ -38,6 +38,7 @@
             ref="testCaseList">
           </test-case-list>
           <testcase-minder
+            :tree-nodes="treeNodes"
             v-if="activeDom === 'right'"
             ref="testCaseList"/>
           </ms-tab-button>
@@ -97,7 +98,7 @@ import MsMainContainer from "../../common/components/MsMainContainer";
 import {checkoutTestManagerOrTestUser, getCurrentProjectID, getUUID, hasRoles} from "../../../../common/js/utils";
 import TestCaseNodeTree from "../common/TestCaseNodeTree";
 import {TrackEvent,LIST_CHANGE} from "@/business/components/common/head/ListEvent";
-import TestcaseMinder from "@/business/components/track/case/components/minder/TestcaseMinder";
+import TestcaseMinder from "@/business/components/common/components/MsModuleMinder";
 import MsTabButton from "@/business/components/common/components/MsTabButton";
 
 export default {
@@ -363,6 +364,10 @@ export default {
 
 .el-main {
   padding: 15px;
+}
+
+/deep/ .el-button-group>.el-button:first-child {
+  padding: 4px 1px !important;
 }
 
 </style>
