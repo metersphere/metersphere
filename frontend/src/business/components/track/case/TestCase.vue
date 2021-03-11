@@ -7,8 +7,10 @@
         @refreshTable="refresh"
         @setTreeNodes="setTreeNodes"
         @exportTestCase="exportTestCase"
+        @saveAsEdit="editTestCase"
         :type="'edit'"
-        ref="nodeTree"/>
+        ref="nodeTree"
+      />
     </ms-aside-container>
 
     <ms-main-container>
@@ -144,7 +146,6 @@ export default {
     },
     isRedirectEdit: function () {
       let redirectParam = this.$route.params.dataSelectRange;
-      this.checkRedirectEditPage(redirectParam);
       return redirectParam;
     }
   },
@@ -172,29 +173,6 @@ export default {
         }
       } else {
         this.redirectFlag = "none";
-      }
-    },
-    checkRedirectEditPage(redirectParam) {
-      if (redirectParam != null) {
-        let selectParamArr = redirectParam.split("edit:");
-        if (selectParamArr.length == 2) {
-          let scenarioId = selectParamArr[1];
-          let projectId = getCurrentProjectID();
-          //查找单条数据，跳转修改页面
-         /* let url = "/api/automation/list/" + 1 + "/" + 1;
-          this.$post(url, {id: scenarioId, projectId: projectId}, response => {
-            let data = response.data;
-            if (data != null) {
-              //如果树未加载
-              if (JSON.stringify(this.moduleOptions) === '{}') {
-                this.$refs.nodeTree.list();
-              }
-              let row = data.listObject[0];
-              row.tags = JSON.parse(row.tags);
-              this.editScenario(row);
-            }
-          });*/
-        }
       }
     },
     addTab(tab) {
@@ -284,25 +262,17 @@ export default {
         return;
       }
       this.addTab({name: 'edit', testCaseInfo: testCase});
-
-
     },
+
     copyTestCase(testCase) {
       this.type="copy"
       this.testCaseReadOnly = false;
       let item = {};
       testCase.isCopy = true;
       this.addTab({name: 'edit', testCaseInfo: testCase});
-
-/*
-      this.$refs.testCaseEditDialog.open(item);
-*/
     },
     showTestCaseDetail(testCase) {
       this.testCaseReadOnly = true;
-/*
-      this.$refs.testCaseEditDialog.open(testCase);
-*/
     },
     refresh() {
       this.selectNodeIds = [];
