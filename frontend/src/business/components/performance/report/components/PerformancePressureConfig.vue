@@ -22,7 +22,7 @@
               </el-form-item>
               <br>
               <el-form-item>
-                <el-radio-group v-model="threadGroup.threadType">
+                <el-radio-group v-model="threadGroup.threadType" :disabled="true">
                   <el-radio label="DURATION">{{ $t('load_test.by_duration') }}</el-radio>
                   <el-radio label="ITERATION">{{ $t('load_test.by_iteration') }}</el-radio>
                 </el-radio-group>
