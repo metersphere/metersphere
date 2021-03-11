@@ -1,7 +1,5 @@
 <template>
   <div class="minder">
-<!--    <testcase-minder-header/>-->
-<!--    <div id="minder-container"></div>-->
     <minder-editor class="minder-container" :import-json="importJson"/>
   </div>
 </template>
@@ -40,17 +38,4 @@ export default {
 </script>
 
 <style scoped>
-  .minder-container {
-    width: 100%;
-    height: 600px;
-  }
-
-  .minder-container >>> .mind-editor {
-    position: revert;
-    height: 600px;
-  }
-
-  .minder {
-    padding: 20px;
-  }
 </style>
