@@ -1,8 +1,7 @@
 package io.metersphere.base.domain;
 
-import lombok.Data;
-
 import java.io.Serializable;
+import lombok.Data;
 
 @Data
 public class ApiDefinition implements Serializable {
@@ -37,6 +36,8 @@ public class ApiDefinition implements Serializable {
     private Integer num;
 
     private String tags;
+
+    private String originalState;
 
     private static final long serialVersionUID = 1L;
 }

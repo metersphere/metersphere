@@ -1,10 +1,6 @@
 <template>
   <div>
-    <api-list-container-with-doc
-      :is-api-list-enable="isApiListEnable"
-      :active-dom="activeDom"
-      @activeDomChange="activeDomChange"
-      @isApiListEnableChange="isApiListEnableChange">
+    <div>
       <el-link type="primary" style="float:right;margin-top: 5px" @click="open">{{$t('commons.adv_search.title')}}</el-link>
 
       <el-input :placeholder="$t('commons.search_by_id_name_tag')" @blur="search" @keyup.enter.native="search" class="search-input" size="small"
@@ -114,7 +110,7 @@
                      :type=type></header-custom>
       <ms-table-pagination :change="initTable" :current-page.sync="currentPage" :page-size.sync="pageSize"
                            :total="total"/>
-    </api-list-container-with-doc>
+    </div>
 
     <api-case-list @showExecResult="showExecResult" @refresh="initTable" :currentApi="selectCase" ref="caseList"/>
     <!--批量编辑-->
@@ -145,9 +141,6 @@ import MsBatchEdit from "../basis/BatchEdit";
 import {API_METHOD_COLOUR, CASE_PRIORITY, DUBBO_METHOD, REQ_METHOD, SQL_METHOD, TCP_METHOD} from "../../model/JsonData";
 
 import {getBodyUploadFiles, getCurrentProjectID, getCurrentUser} from "@/common/js/utils";
-import ApiListContainer from "./ApiListContainer";
-// import ApiListContainer from "./ApiListContainer";
-import ApiListContainerWithDoc from "@/business/components/api/definition/components/list/ApiListContainerWithDoc";
 import PriorityTableItem from "../../../../track/common/tableItems/planview/PriorityTableItem";
 import MsApiCaseTableExtendBtns from "../reference/ApiCaseTableExtendBtns";
 import MsReferenceView from "../reference/ReferenceView";
@@ -159,8 +152,8 @@ import MsTableHeaderSelectPopover from "@/business/components/common/components/
 import MsTableAdvSearchBar from "@/business/components/common/components/search/MsTableAdvSearchBar";
 import {API_CASE_CONFIGS} from "@/business/components/common/components/search/search-components";
 import {_filter, _handleSelect, _handleSelectAll, _sort, getLabel,} from "@/common/js/tableUtils";
-import {API_CASE_LIST, API_LIST, API_SCENARIO_LIST, TEST_CASE_LIST} from "@/common/js/constants";
-import {Api_Case_List, Api_List, Track_Test_Case} from "@/business/components/common/model/JsonData";
+import {API_CASE_LIST} from "@/common/js/constants";
+import {Api_Case_List} from "@/business/components/common/model/JsonData";
 import HeaderCustom from "@/business/components/common/head/HeaderCustom";
 import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOperate";
 
@@ -168,13 +161,11 @@ export default {
   name: "ApiCaseSimpleList",
   components: {
     HeaderLabelOperate,
-    ApiListContainerWithDoc,
     HeaderCustom,
     MsTableHeaderSelectPopover,
     MsSetEnvironment,
     ApiCaseList,
     PriorityTableItem,
-    ApiListContainer,
     MsTableOperatorButton,
     MsTableOperator,
     MsTablePagination,
@@ -247,10 +238,6 @@ export default {
         type: Boolean,
         default: false,
       },
-      isApiListEnable: {
-        type: Boolean,
-        default: false,
-      },
       isReadOnly: {
         type: Boolean,
         default: false
@@ -297,12 +284,6 @@ export default {
     methods: {
       customHeader() {
         this.$refs.headerCustom.open(this.tableLabel)
-      },
-      isApiListEnableChange(data) {
-        this.$emit('isApiListEnableChange', data);
-      },
-      activeDomChange(tabType) {
-        this.$emit("activeDomChange", tabType);
       },
       initTable() {
         getLabel(this, API_CASE_LIST);

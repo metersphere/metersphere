@@ -1,5 +1,6 @@
 import {
-  LicenseKey,
+  COUNT_NUMBER, COUNT_NUMBER_SHALLOW,
+  LicenseKey, ORIGIN_COLOR, ORIGIN_COLOR_SHALLOW,
   PROJECT_ID,
   REFRESH_SESSION_USER_URL,
   ROLE_ADMIN,
@@ -347,4 +348,19 @@ export function objToStrMap(obj) {
     strMap.set(k, obj[k]);
   }
   return strMap;
+}
+
+export function getColor() {
+  return localStorage.getItem('color');
+}
+
+export function setColor(a, b, c, d) {
+  document.body.style.setProperty('--color', a);
+  document.body.style.setProperty('--color_shallow', b);
+  document.body.style.setProperty('--count_number', c);
+  document.body.style.setProperty('--count_number_shallow', d);
+}
+
+export function setOriginColor() {
+  setColor(ORIGIN_COLOR, ORIGIN_COLOR_SHALLOW, COUNT_NUMBER, COUNT_NUMBER_SHALLOW);
 }

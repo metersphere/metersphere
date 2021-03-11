@@ -22,6 +22,9 @@ import {left2RightDrag, bottom2TopDrag, right2LeftDrag} from "../common/js/direc
 import JsonSchemaEditor from './components/common/json-schema/schema/index';
 import JSONPathPicker from 'vue-jsonpath-picker';
 import VueClipboard from 'vue-clipboard2'
+import vueMinderEditor from 'vue-minder-editor-plus'
+Vue.use(vueMinderEditor)
+
 Vue.use(JsonSchemaEditor);
 import VuePapaParse from 'vue-papa-parse'
 Vue.use(VuePapaParse)

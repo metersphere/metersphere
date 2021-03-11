@@ -1,10 +1,6 @@
 <template>
   <div>
-    <api-list-container-with-doc
-      :is-api-list-enable="isApiListEnable"
-      :active-dom="activeDom"
-      @activeDomChange="activeDomChange"
-      @isApiListEnableChange="isApiListEnableChange">
+    <div>
 
       <el-link type="primary" @click="open" style="float: right;margin-top: 5px">{{ $t('commons.adv_search.title') }}
       </el-link>
@@ -197,7 +193,7 @@
       </el-table>
       <ms-table-pagination :change="initTable" :current-page.sync="currentPage" :page-size.sync="pageSize"
                            :total="total"/>
-    </api-list-container-with-doc>
+    </div>
     <ms-api-case-list @refresh="initTable" @showExecResult="showExecResult" :currentApi="selectApi" ref="caseList"/>
     <!--批量编辑-->
     <ms-batch-edit ref="batchEdit" @batchEdit="batchEdit" :typeArr="typeArr" :value-arr="valueArr"/>
@@ -226,14 +222,12 @@ import {downloadFile, getUUID} from "@/common/js/utils";
 import {PROJECT_NAME} from '@/common/js/constants';
 import {getCurrentProjectID, getCurrentUser} from "@/common/js/utils";
 import {API_LIST, TEST_CASE_LIST, WORKSPACE_ID} from '@/common/js/constants';
-import ApiListContainer from "./ApiListContainer";
 import MsTableHeaderSelectPopover from "@/business/components/common/components/table/MsTableHeaderSelectPopover";
 import ApiStatus from "@/business/components/api/definition/components/list/ApiStatus";
 import MsTableAdvSearchBar from "@/business/components/common/components/search/MsTableAdvSearchBar";
 import {API_DEFINITION_CONFIGS} from "@/business/components/common/components/search/search-components";
 import MsTipButton from "@/business/components/common/components/MsTipButton";
 import CaseBatchMove from "@/business/components/api/definition/components/basis/BatchMove";
-import ApiListContainerWithDoc from "@/business/components/api/definition/components/list/ApiListContainerWithDoc";
 import {
   _handleSelect,
   _handleSelectAll, buildBatchParam, getLabel,
@@ -241,7 +235,7 @@ import {
   setUnSelectIds, toggleAllSelection
 } from "@/common/js/tableUtils";
 import {_filter, _sort} from "@/common/js/tableUtils";
-import {Api_List, Track_Test_Case} from "@/business/components/common/model/JsonData";
+import {Api_List} from "@/business/components/common/model/JsonData";
 import HeaderCustom from "@/business/components/common/head/HeaderCustom";
 import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOperate";
 import {Body} from "@/business/components/api/definition/model/ApiTestModel";
@@ -255,7 +249,6 @@ export default {
     CaseBatchMove,
     ApiStatus,
     MsTableHeaderSelectPopover,
-    ApiListContainerWithDoc,
     MsTableButton,
     MsTableOperatorButton,
     MsTableOperator,
@@ -349,7 +342,6 @@ export default {
       type: Boolean,
       default: false,
     },
-    isApiListEnable: Boolean,
     isReadOnly: {
       type: Boolean,
       default: false
@@ -399,12 +391,6 @@ export default {
     },
     handleBatchMove() {
       this.$refs.testCaseBatchMove.open(this.moduleTree, [], this.moduleOptions);
-    },
-    isApiListEnableChange(data) {
-      this.$emit('isApiListEnableChange', data);
-    },
-    activeDomChange(tabType){
-      this.$emit("activeDomChange",tabType);
     },
     initTable() {
       getLabel(this, API_LIST);

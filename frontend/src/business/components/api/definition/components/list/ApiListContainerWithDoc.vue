@@ -74,16 +74,16 @@ export default {
 
 .active {
   border: solid 1px #6d317c;
-  background-color: #7C3985;
+  background-color: var(--color);
   color: #FFFFFF;
 }
 
 .case-button {
-  border-left: solid 1px #6d317c;
+  border-left: solid 1px var(--color);
 }
 
 .item{
-  border: solid 1px #6d317c;
+  border: solid 1px var(--color);
 }
 
 </style>

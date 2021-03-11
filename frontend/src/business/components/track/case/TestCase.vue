@@ -16,7 +16,15 @@
     <ms-main-container>
       <el-tabs v-model="activeName" @tab-click="addTab" @tab-remove="removeTab">
         <el-tab-pane name="default" :label="$t('api_test.definition.case_title')">
+          <ms-tab-button
+            :active-dom.sync="activeDom"
+            :left-tip="'用例列表'"
+            :left-content="'CAS'"
+            :right-tip="'E脑图'"
+            :right-content="'脑图'"
+            :middle-button-enable="false">
           <test-case-list
+            v-if="activeDom === 'left'"
             :checkRedirectID="checkRedirectID"
             :module-options="moduleOptions"
             :select-node-ids="selectNodeIds"
@@ -31,6 +39,10 @@
             @setCondition="setCondition"
             ref="testCaseList">
           </test-case-list>
+          <testcase-minder
+            v-if="activeDom === 'right'"
+            ref="testCaseList"/>
+          </ms-tab-button>
         </el-tab-pane>
         <el-tab-pane
           :key="item.name"
@@ -87,10 +99,14 @@ import MsMainContainer from "../../common/components/MsMainContainer";
 import {checkoutTestManagerOrTestUser, getCurrentProjectID, getUUID, hasRoles} from "../../../../common/js/utils";
 import TestCaseNodeTree from "../common/TestCaseNodeTree";
 import {TrackEvent,LIST_CHANGE} from "@/business/components/common/head/ListEvent";
+import TestcaseMinder from "@/business/components/track/case/components/minder/TestcaseMinder";
+import MsTabButton from "@/business/components/common/components/MsTabButton";
 
 export default {
   name: "TestCase",
   components: {
+    MsTabButton,
+    TestcaseMinder,
     TestCaseNodeTree,
     MsMainContainer,
     MsAsideContainer, MsContainer, TestCaseList, NodeTree, TestCaseEdit, SelectMenu
@@ -111,8 +127,8 @@ export default {
       tabs: [],
       renderComponent:true,
       loading: false,
-      type:''
-
+      type:'',
+      activeDom: 'left'
     }
   },
   mounted() {
