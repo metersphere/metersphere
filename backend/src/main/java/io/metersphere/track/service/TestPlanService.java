@@ -179,7 +179,7 @@ public class TestPlanService {
                     testPlan.setActualEndTime(null);
                 }   //  已完成->进行中，结束时间置空
             } else if (!res.getStatus().equals(TestPlanStatus.Prepare.name()) &&
-                    testPlan.getStatus().equals(TestPlanStatus.Prepare.name())) {
+                    TestPlanStatus.Prepare.name().equals(testPlan.getStatus())) {
                 testPlan.setActualStartTime(null);
                 testPlan.setActualEndTime(null);
             }   //  非未开始->未开始，时间都置空
@@ -193,7 +193,7 @@ public class TestPlanService {
         List<String> userIds = new ArrayList<>();
         userIds.add(testPlan.getPrincipal());
         AddTestPlanRequest testPlans = new AddTestPlanRequest();
-        int i = testPlanMapper.updateByPrimaryKey(testPlan); //  更新
+        int i = testPlanMapper.updateByPrimaryKeySelective(testPlan); //  更新
         if (!StringUtils.isBlank(testPlan.getStatus())) {
             BeanUtils.copyBean(testPlans, getTestPlan(testPlan.getId()));
             String context = getTestPlanContext(testPlans, NoticeConstants.Event.UPDATE);
