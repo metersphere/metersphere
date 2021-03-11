@@ -22,8 +22,10 @@ import {left2RightDrag, bottom2TopDrag, right2LeftDrag} from "../common/js/direc
 import JsonSchemaEditor from './components/common/json-schema/schema/index';
 import JSONPathPicker from 'vue-jsonpath-picker';
 import VueClipboard from 'vue-clipboard2'
+
 Vue.use(JsonSchemaEditor);
 import VuePapaParse from 'vue-papa-parse'
+
 Vue.use(VuePapaParse)
 
 Vue.config.productionTip = false;
@@ -56,6 +58,19 @@ Vue.directive('tester', tester);
 Vue.directive('left-to-right-drag', left2RightDrag);
 Vue.directive('right-to-left-drag', right2LeftDrag);
 Vue.directive('bottom-to-top-drag', bottom2TopDrag);
+// 防止重复点击
+Vue.directive('preventReClick', {
+  inserted(el, binding) {
+    el.addEventListener('click', () => {
+      if (!el.disabled) {
+        el.disabled = true
+        setTimeout(() => {
+          el.disabled = false
+        }, binding.value || 2000)
+      }
+    })
+  }
+})
 
 new Vue({
   el: '#app',
