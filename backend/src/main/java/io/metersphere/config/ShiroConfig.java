@@ -47,16 +47,13 @@ public class ShiroConfig implements EnvironmentAware {
         shiroFilterFactoryBean.getFilters().put("apikey", new ApiKeyFilter());
         shiroFilterFactoryBean.getFilters().put("csrf", new CsrfFilter());
         Map<String, String> filterChainDefinitionMap = shiroFilterFactoryBean.getFilterChainDefinitionMap();
+
         ShiroUtils.loadBaseFilterChain(filterChainDefinitionMap);
 
-        ignoreCsrfFilter(filterChainDefinitionMap);
+        ShiroUtils.ignoreCsrfFilter(filterChainDefinitionMap);
+
         filterChainDefinitionMap.put("/**", "apikey, csrf, authc");
         return shiroFilterFactoryBean;
-    }
-
-    private void ignoreCsrfFilter(Map<String, String> filterChainDefinitionMap) {
-        filterChainDefinitionMap.put("/", "apikey, authc"); // 跳转到 / 不用校验 csrf
-        filterChainDefinitionMap.put("/performance/report/*", "apikey, authc"); // socket 不用校验 csrf
     }
 
     @Bean(name = "shiroFilter")
