@@ -19,7 +19,8 @@ import io.metersphere.service.FileService;
 import io.metersphere.service.KubernetesTestEngine;
 import io.metersphere.service.TestResourcePoolService;
 import org.apache.commons.beanutils.ConstructorUtils;
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.reflections8.Reflections;
 import org.springframework.stereotype.Service;
@@ -92,7 +93,7 @@ public class EngineFactory {
         }
 
         List<FileMetadata> jmxFiles = fileMetadataList.stream().filter(f -> StringUtils.equalsIgnoreCase(f.getType(), FileType.JMX.name())).collect(Collectors.toList());
-        List<FileMetadata> resourceFiles = fileMetadataList.stream().filter(f -> !StringUtils.equalsIgnoreCase(f.getType(), FileType.JMX.name())).collect(Collectors.toList());
+        List<FileMetadata> resourceFiles = ListUtils.subtract(fileMetadataList, jmxFiles);
         // 合并上传的jmx
         byte[] jmxBytes = mergeJmx(jmxFiles);
         final EngineContext engineContext = new EngineContext();
