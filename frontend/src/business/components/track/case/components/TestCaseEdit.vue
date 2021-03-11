@@ -382,7 +382,7 @@ export default {
         priority: [{required: true, message: this.$t('test_track.case.input_priority'), trigger: 'change'}],
         method: [{required: true, message: this.$t('test_track.case.input_method'), trigger: 'change'}],
         prerequisite: [{max: 500, message: this.$t('test_track.length_less_than') + '500', trigger: 'blur'}],
-        remark: [{max: 500, message: this.$t('test_track.length_less_than') + '500', trigger: 'blur'}]
+        remark: [{max: 1000, message: this.$t('test_track.length_less_than') + '1000', trigger: 'blur'}]
       },
       formLabelWidth: "120px",
       operationType: '',
@@ -778,7 +778,7 @@ export default {
       this.getModuleOptions();
       this.getMaintainerOptions();
       this.getTestOptions();
-      this.getDemandOptions()
+      // this.getDemandOptions()
     },
 
     resetForm() {

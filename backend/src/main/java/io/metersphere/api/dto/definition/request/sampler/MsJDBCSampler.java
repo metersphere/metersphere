@@ -53,6 +53,9 @@ public class MsJDBCSampler extends MsTestElement {
     @JSONField(ordinal = 29)
     private String protocol = "SQL";
 
+    @JSONField(ordinal = 30)
+    private String useEnvironment;
+
     @Override
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, ParameterConfig config) {
         if (this.getReferenced() != null && MsTestElementConstants.REF.name().equals(this.getReferenced())) {

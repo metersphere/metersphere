@@ -35,7 +35,7 @@
           environmentId: ""
         }
       },
-      props:['projectId','isReadOnly'],
+      props:['projectId','isReadOnly','useEnvironment'],
       created() {
         this.getEnvironments();
       },
@@ -49,6 +49,9 @@
         environmentId() {
           this.environmentChange(this.environmentId);
         },
+        useEnvironment(){
+          this.environmentId = this.useEnvironment;
+        }
         // planEnvironmentId() {
         //   this.environmentId = this.planEnvironmentId;
         // }
@@ -60,9 +63,9 @@
               this.environments = response.data;
               this.environments.forEach(environment => {
                 parseEnvironment(environment);
-                // if (this.planEnvironmentId && environment.id === this.planEnvironmentId) {
-                //   this.planEnvironmentId = environment.id;
-                // }
+                if (this.useEnvironment && this.useEnvironment.id === environment.id) {
+                  this.environmentId = this.useEnvironment;
+                }
               });
             });
           } else {

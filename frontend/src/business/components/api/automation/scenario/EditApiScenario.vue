@@ -5,7 +5,7 @@
 
         <!--操作按钮-->
         <div class="ms-opt-btn">
-          <el-button id="inputDelay" type="primary" size="small" @click="editScenario" title="ctrl + s">
+          <el-button id="inputDelay" type="primary" size="small" v-prevent-re-click @click="editScenario" title="ctrl + s">
             {{ $t('commons.save') }}
           </el-button>
         </div>
@@ -119,7 +119,7 @@
                                :project-list="projectList" ref="envPopover"/>
                 </el-col>
                 <el-col :span="2">
-                  <el-button :disabled="scenarioDefinition.length < 1" size="small" type="primary" @click="runDebug">{{$t('api_test.request.debug')}}</el-button>
+                  <el-button :disabled="scenarioDefinition.length < 1" size="small" type="primary" v-prevent-re-click @click="runDebug">{{$t('api_test.request.debug')}}</el-button>
                 </el-col>
               </el-row>
             </div>
@@ -707,29 +707,29 @@
       },
       runDebug() {
         /*触发执行操作*/
-        // if (!this.currentEnvironmentId) {
-        //   this.$error(this.$t('api_test.environment.select_environment'));
-        //   return;
-        // }
         let sign = this.$refs.envPopover.checkEnv();
         if (!sign) {
           return;
         }
         this.$refs['currentScenario'].validate((valid) => {
           if (valid) {
-            this.editScenario();
-            this.debugData = {
-              id: this.currentScenario.id,
-              name: this.currentScenario.name,
-              type: "scenario",
-              variables: this.currentScenario.variables,
-              referenced: 'Created',
-              enableCookieShare: this.enableCookieShare,
-              headers: this.currentScenario.headers,
-              environmentMap: this.projectEnvMap,
-              hashTree: this.scenarioDefinition
-            };
-            this.reportId = getUUID().substring(0, 8);
+            Promise.all([
+              this.editScenario()]).then(val => {
+              if (val) {
+                this.debugData = {
+                  id: this.currentScenario.id,
+                  name: this.currentScenario.name,
+                  type: "scenario",
+                  variables: this.currentScenario.variables,
+                  referenced: 'Created',
+                  enableCookieShare: this.enableCookieShare,
+                  headers: this.currentScenario.headers,
+                  environmentMap: this.projectEnvMap,
+                  hashTree: this.scenarioDefinition
+                };
+                this.reportId = getUUID().substring(0, 8);
+              }
+            });
           }
         })
       },
@@ -884,24 +884,27 @@
         return bodyUploadFiles;
       },
       editScenario() {
-        document.getElementById("inputDelay").focus();  //  保存前在input框自动失焦，以免保存失败
-        this.$refs['currentScenario'].validate((valid) => {
-          if (valid) {
-            this.setParameter();
-            let bodyFiles = this.getBodyUploadFiles(this.currentScenario);
-            this.$fileUpload(this.path, null, bodyFiles, this.currentScenario, response => {
-              this.$success(this.$t('commons.save_success'));
-              this.path = "/api/automation/update";
-              if (response.data) {
-                this.currentScenario.id = response.data.id;
-              }
-              if (this.currentScenario.tags instanceof String) {
-                this.currentScenario.tags = JSON.parse(this.currentScenario.tags);
-              }
-              this.$emit('refresh', this.currentScenario);
-            })
-          }
-        })
+        return new Promise((resolve, reject) => {
+          document.getElementById("inputDelay").focus();  //  保存前在input框自动失焦，以免保存失败
+          this.$refs['currentScenario'].validate((valid) => {
+            if (valid) {
+              this.setParameter();
+              let bodyFiles = this.getBodyUploadFiles(this.currentScenario);
+              this.$fileUpload(this.path, null, bodyFiles, this.currentScenario, response => {
+                this.$success(this.$t('commons.save_success'));
+                this.path = "/api/automation/update";
+                if (response.data) {
+                  this.currentScenario.id = response.data.id;
+                }
+                if (this.currentScenario.tags instanceof String) {
+                  this.currentScenario.tags = JSON.parse(this.currentScenario.tags);
+                }
+                this.$emit('refresh', this.currentScenario);
+                resolve();
+              })
+            }
+          })
+        });
       },
       getApiScenario() {
         if (this.currentScenario.tags != undefined && !(this.currentScenario.tags instanceof Array)) {
