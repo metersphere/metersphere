@@ -46,7 +46,7 @@
       <el-table-column
         label="ThreadGroup">
         <template v-slot:default="{row}">
-          <el-select v-model="row.tgType" :placeholder="$t('commons.please_select')" size="small">
+          <el-select v-model="row.tgType" :placeholder="$t('commons.please_select')" size="small" @change="tgTypeChange(row)">
             <el-option v-for="tg in threadGroupForSelect" :key="tg.tagName" :label="tg.name"
                        :value="tg.testclass"></el-option>
           </el-select>
@@ -376,6 +376,9 @@ export default {
     },
     threadGroupDisable(row) {
       return this.threadGroups.filter(tg => tg.enabled == 'true').length === 1 && row.enabled == 'true';
+    },
+    tgTypeChange(row) {
+      this.$emit("tgTypeChange", row);
     },
     handleExceed() {
       this.$error(this.$t('load_test.file_size_limit'));
