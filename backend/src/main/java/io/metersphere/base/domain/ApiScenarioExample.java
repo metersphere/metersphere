@@ -1393,6 +1393,76 @@ public class ApiScenarioExample {
             addCriterion("num not between", value1, value2, "num");
             return (Criteria) this;
         }
+
+        public Criteria andOriginalStateIsNull() {
+            addCriterion("original_state is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andOriginalStateIsNotNull() {
+            addCriterion("original_state is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andOriginalStateEqualTo(String value) {
+            addCriterion("original_state =", value, "originalState");
+            return (Criteria) this;
+        }
+
+        public Criteria andOriginalStateNotEqualTo(String value) {
+            addCriterion("original_state <>", value, "originalState");
+            return (Criteria) this;
+        }
+
+        public Criteria andOriginalStateGreaterThan(String value) {
+            addCriterion("original_state >", value, "originalState");
+            return (Criteria) this;
+        }
+
+        public Criteria andOriginalStateGreaterThanOrEqualTo(String value) {
+            addCriterion("original_state >=", value, "originalState");
+            return (Criteria) this;
+        }
+
+        public Criteria andOriginalStateLessThan(String value) {
+            addCriterion("original_state <", value, "originalState");
+            return (Criteria) this;
+        }
+
+        public Criteria andOriginalStateLessThanOrEqualTo(String value) {
+            addCriterion("original_state <=", value, "originalState");
+            return (Criteria) this;
+        }
+
+        public Criteria andOriginalStateLike(String value) {
+            addCriterion("original_state like", value, "originalState");
+            return (Criteria) this;
+        }
+
+        public Criteria andOriginalStateNotLike(String value) {
+            addCriterion("original_state not like", value, "originalState");
+            return (Criteria) this;
+        }
+
+        public Criteria andOriginalStateIn(List<String> values) {
+            addCriterion("original_state in", values, "originalState");
+            return (Criteria) this;
+        }
+
+        public Criteria andOriginalStateNotIn(List<String> values) {
+            addCriterion("original_state not in", values, "originalState");
+            return (Criteria) this;
+        }
+
+        public Criteria andOriginalStateBetween(String value1, String value2) {
+            addCriterion("original_state between", value1, value2, "originalState");
+            return (Criteria) this;
+        }
+
+        public Criteria andOriginalStateNotBetween(String value1, String value2) {
+            addCriterion("original_state not between", value1, value2, "originalState");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {
