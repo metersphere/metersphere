@@ -33,6 +33,7 @@
     </ms-node-tree>
     <test-case-import @refreshAll="refreshAll" ref="testCaseImport"></test-case-import>
     <test-case-create
+      :tree-nodes="treeNodes"
       @saveAsEdit="saveAsEdit"
       @refresh="refresh"
       ref="testCaseCreate"
@@ -76,7 +77,10 @@ export default {
   watch: {
     treeNodes() {
       this.$emit('setTreeNodes', this.treeNodes);
-    }
+    },
+    'condition.filterText'(val) {
+      this.$refs.nodeTree.filter(val);
+    },
   },
   mounted() {
     this.projectId = getCurrentProjectID();
@@ -165,6 +169,12 @@ export default {
     },
     nodeChange(node, nodeIds, pNodes) {
       this.$emit("nodeSelectEvent", node, nodeIds, pNodes);
+      this.currentModule = node.data;
+      if (node.data.id === 'root') {
+        this.$emit("nodeSelectEvent", node, [], pNodes);
+      } else {
+        this.$emit("nodeSelectEvent", node, nodeIds, pNodes);
+      }
     },
   }
 };
