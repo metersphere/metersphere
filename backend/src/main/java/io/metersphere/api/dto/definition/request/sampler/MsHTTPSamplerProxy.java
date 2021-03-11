@@ -85,8 +85,8 @@ public class MsHTTPSamplerProxy extends MsTestElement {
     @JSONField(ordinal = 34)
     private List<KeyValue> arguments;
 
-//    @JSONField(ordinal = 35)
-//    private Object requestResult;
+    @JSONField(ordinal = 35)
+    private Object requestResult;
 
     @JSONField(ordinal = 36)
     private MsAuthManager authManager;

@@ -150,7 +150,7 @@ export default {
         {
           name: 'Har',
           value: 'Har',
-          tip: this.$t('api_test.api_import.Har_tip'),
+          tip: this.$t('api_test.api_import.har_tip'),
           exportTip: this.$t('api_test.api_import.har_export_tip'),
           suffixes: new Set(['har'])
         },

@@ -16,7 +16,6 @@ import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.XMLUtils;
 import io.swagger.models.Model;
-import io.swagger.v3.oas.models.media.BinarySchema;
 import io.swagger.v3.oas.models.media.Schema;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -95,8 +94,6 @@ public class HarParser extends HarAbstractParser {
     }
 
     private void parseParameters(HarRequest harRequest, MsHTTPSamplerProxy request) {
-
-//        parsePathParameters(parameter, request.getRest());
         List<HarQueryParm> queryStringList = harRequest.queryString;
         queryStringList.forEach(harQueryParm -> {
             parseQueryParameters(harQueryParm, request.getArguments());
@@ -161,7 +158,6 @@ public class HarParser extends HarAbstractParser {
         if (!StringUtils.equalsIgnoreCase("GET", requestBody.method) || requestBody.postData == null) {
             return;
         }
-        // 多个contentType ，优先取json
         String contentType = content.mimeType;
         if (StringUtils.isEmpty(contentType)) {
             body.setRaw(content.text);
@@ -202,7 +198,6 @@ public class HarParser extends HarAbstractParser {
         body.setType(getBodyType(contentType));
     }
 
-
     private void parseResponseBody(HarContent content, Body body) {
         if (content == null) {
             return;
@@ -212,89 +207,12 @@ public class HarParser extends HarAbstractParser {
         body.setRaw(content.text);
     }
 
-    private void parseKvBody(Schema schema, Body body, Object data, Map<String, Schema> infoMap) {
-        if (data instanceof JSONObject) {
-            ((JSONObject) data).forEach((k, v) -> {
-                KeyValue kv = new KeyValue(k, v.toString());
-                Schema schemaInfo = infoMap.get(k);
-                if (schemaInfo != null) {
-                    kv.setDescription(schemaInfo.getDescription());
-//                    kv.setRequired(schemaInfo.getRequired());
-                    if (schemaInfo instanceof BinarySchema) {
-                        kv.setType("file");
-                    }
-                }
-                body.getKvs().add(kv);
-            });
-        } else {
-            KeyValue kv = new KeyValue(schema.getName(), data.toString(), schema.getDescription());
-            Schema schemaInfo = infoMap.get(schema.getName());
-            if (schemaInfo != null) {
-                kv.setDescription(schemaInfo.getDescription());
-                if (schemaInfo instanceof BinarySchema) {
-                    kv.setType("file");
-                }
-            }
-            body.getKvs().add(kv);
-        }
-    }
-
     private String parseXmlBody(String xmlString) {
         JSONObject object = JSONObject.parseObject(getDefaultStringValue(xmlString));
         return XMLUtils.jsonToXmlStr(object);
     }
 
-//    private Schema getModelByRef(String ref) {
-//        if (StringUtils.isBlank(ref)) {
-//            return null;
-//        }
-//        if (ref.split("/").length > 3) {
-//            ref = ref.replace("#/components/schemas/", "");
-//        }
-//        return this.components.getSchemas().get(ref);
-//    }
-
-//    private Object parseSchema(Schema schema, Set<String> refSet, Map<String, Schema> infoMap) {
-//        infoMap.put(schema.getName(), schema);
-//        if (StringUtils.isNotBlank(schema.get$ref())) {
-//            if (refSet.contains(schema.get$ref())) {
-//                return new JSONObject();
-//            }
-//            refSet.add(schema.get$ref());
-//            Object propertiesResult = parseSchemaProperties(getModelByRef(schema.get$ref()), refSet, infoMap);
-//            return propertiesResult == null ? getDefaultValueByPropertyType(schema) : propertiesResult;
-//        } else if (schema instanceof ArraySchema) {
-//            JSONArray jsonArray = new JSONArray();
-//            Schema items = ((ArraySchema) schema).getItems();
-//            parseSchema(items, refSet, infoMap);
-//            jsonArray.add(parseSchema(items, refSet, infoMap));
-//            return jsonArray;
-//        } else if (schema instanceof BinarySchema) {
-//            return getDefaultValueByPropertyType(schema);
-//        } else {
-//            Object propertiesResult = parseSchemaProperties(schema, refSet, infoMap);
-//            return propertiesResult == null ? getDefaultValueByPropertyType(schema) : propertiesResult;
-//        }
-//    }
-
-//    private Object parseSchemaProperties(Schema schema, Set<String> refSet, Map<String, Schema> infoMap) {
-//        if (schema == null) {
-//            return null;
-//        }
-//        Map<String, Schema> properties = schema.getProperties();
-//        if (MapUtils.isEmpty(properties)) {
-//            return null;
-//        }
-//        JSONObject jsonObject = new JSONObject();
-//        properties.forEach((key, value) -> {
-//            jsonObject.put(key, parseSchema(value, refSet, infoMap));
-//        });
-//        return jsonObject;
-//    }
-
-
     private void parseQueryParameters(HarQueryParm harQueryParm, List<KeyValue> arguments) {
-//        io.swagger.v3.oas.models.parameters.QueryParameter queryParameter = (QueryParameter) parameter;
         arguments.add(new KeyValue(harQueryParm.name, harQueryParm.value, harQueryParm.comment, false));
     }
 }

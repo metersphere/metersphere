@@ -915,7 +915,7 @@ export default {
       ms_export_tip: "Export jSON-formatted files via MeterSphere website or browser plug-ins",
       har_export_tip: "Export Har files by browser dev-tool",
       swagger_tip: "Swagger 2.0 and 3.0 json files are supported",
-      Har_tip: "Only Har files are supported",
+      har_tip: "Only Har files are supported",
       postman_tip: "Only Postman Collection V2.1 json files are supported",
       postman_export_tip: "Export the test collection by Postman",
       swagger_export_tip: "Export jSON-formatted files via Swagger website",
