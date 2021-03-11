@@ -92,8 +92,7 @@ public class EngineFactory {
         }
 
         List<FileMetadata> jmxFiles = fileMetadataList.stream().filter(f -> StringUtils.equalsIgnoreCase(f.getType(), FileType.JMX.name())).collect(Collectors.toList());
-        List<FileMetadata> csvFiles = fileMetadataList.stream().filter(f -> StringUtils.equalsIgnoreCase(f.getType(), FileType.CSV.name())).collect(Collectors.toList());
-        List<FileMetadata> jarFiles = fileMetadataList.stream().filter(f -> StringUtils.equalsIgnoreCase(f.getType(), FileType.JAR.name())).collect(Collectors.toList());
+        List<FileMetadata> resourceFiles = fileMetadataList.stream().filter(f -> !StringUtils.equalsIgnoreCase(f.getType(), FileType.JMX.name())).collect(Collectors.toList());
         // 合并上传的jmx
         byte[] jmxBytes = mergeJmx(jmxFiles);
         final EngineContext engineContext = new EngineContext();
@@ -156,22 +155,13 @@ public class EngineFactory {
             MSException.throwException(e);
         }
 
-        if (CollectionUtils.isNotEmpty(csvFiles)) {
-            Map<String, String> data = new HashMap<>();
-            csvFiles.forEach(cf -> {
-                FileContent csvContent = fileService.getFileContent(cf.getId());
-                data.put(cf.getName(), new String(csvContent.getFile()));
-            });
-            engineContext.setTestData(data);
-        }
-
-        if (CollectionUtils.isNotEmpty(jarFiles)) {
+        if (CollectionUtils.isNotEmpty(resourceFiles)) {
             Map<String, byte[]> data = new HashMap<>();
-            jarFiles.forEach(jf -> {
-                FileContent content = fileService.getFileContent(jf.getId());
-                data.put(jf.getName(), content.getFile());
+            resourceFiles.forEach(cf -> {
+                FileContent csvContent = fileService.getFileContent(cf.getId());
+                data.put(cf.getName(), csvContent.getFile());
             });
-            engineContext.setTestJars(data);
+            engineContext.setTestResourceFiles(data);
         }
 
         return engineContext;
