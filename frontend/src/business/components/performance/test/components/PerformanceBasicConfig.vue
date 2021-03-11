@@ -70,7 +70,7 @@
     <el-row type="flex" justify="start" align="middle">
       <el-upload
         style="padding-right: 10px;"
-        accept=".jar,.csv"
+        accept=".jar,.csv,.json,.pdf,.jpg,.png,.jpeg,.doc,.docx,.xlsx"
         action=""
         :limit="fileNumLimit"
         multiple
@@ -170,7 +170,7 @@ export default {
       fileList: [],
       tableData: [],
       uploadList: [],
-      metadataIdList:[],
+      metadataIdList: [],
       fileNumLimit: 10,
       threadGroups: [],
       loadFileVisible: false,
@@ -276,7 +276,10 @@ export default {
       let self = this;
       let file = uploadResources.file;
       self.uploadList.push(file);
-
+      let type = file.name.substring(file.name.lastIndexOf(".") + 1);
+      if (type.toLowerCase() !== 'jmx') {
+        return;
+      }
       let jmxReader = new FileReader();
       jmxReader.onload = (event) => {
         self.threadGroups = self.threadGroups.concat(findThreadGroup(event.target.result, file.name));

@@ -276,7 +276,9 @@
           },
           {
             name: this.$t('test_track.case.batch_move_case'), handleClick: this.handleBatchMove
-          }
+          },
+          {name: this.$t('api_test.definition.request.batch_delete'), handleClick: this.handleDeleteBatch},
+
         ],
         isSelectAllDate: false,
         selectRows: new Set(),
@@ -596,6 +598,29 @@
           this.search();
         })
       },
+      handleDeleteBatch(row) {
+        if (this.trashEnable) {
+          let ids = Array.from(this.selectRows).map(row => row.id);
+          this.$post('/api/automation/deleteBatch/', ids, () => {
+            this.$success(this.$t('commons.delete_success'));
+            this.search();
+          });
+          return;
+        }
+        this.$alert(this.$t('api_test.definition.request.delete_confirm') + " ？", '', {
+          confirmButtonText: this.$t('commons.confirm'),
+          callback: (action) => {
+            if (action === 'confirm') {
+              let ids = Array.from(this.selectRows).map(row => row.id);
+              this.$post('/api/automation/removeToGc/', ids, () => {
+                this.$success(this.$t('commons.delete_success'));
+                this.search();
+              });
+            }
+          }
+        });
+      },
+
       execute(row) {
         this.infoDb = false;
         let url = "/api/automation/run";
