@@ -59,6 +59,19 @@ Vue.directive('tester', tester);
 Vue.directive('left-to-right-drag', left2RightDrag);
 Vue.directive('right-to-left-drag', right2LeftDrag);
 Vue.directive('bottom-to-top-drag', bottom2TopDrag);
+// 防止重复点击
+Vue.directive('preventReClick', {
+  inserted(el, binding) {
+    el.addEventListener('click', () => {
+      if (!el.disabled) {
+        el.disabled = true
+        setTimeout(() => {
+          el.disabled = false
+        }, binding.value || 2000)
+      }
+    })
+  }
+})
 
 new Vue({
   el: '#app',

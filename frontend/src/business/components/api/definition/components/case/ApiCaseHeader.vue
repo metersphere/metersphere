@@ -47,6 +47,7 @@
             <ms-environment-select
               :project-id="projectId"
               :is-read-only="isReadOnly"
+              :useEnvironment='useEnvironment'
               @setEnvironment="setEnvironment"/>
           </div>
         </el-col>
@@ -65,7 +66,6 @@
 <script>
 
   import ApiEnvironmentConfig from "../../../test/components/ApiEnvironmentConfig";
-  import {parseEnvironment} from "../../../test/model/EnvironmentModel";
   import MsTag from "../../../../common/components/MsTag";
   import MsEnvironmentSelect from "./MsEnvironmentSelect";
   import {API_METHOD_COLOUR} from "../../model/JsonData";
@@ -76,8 +76,6 @@
     components: {MsEnvironmentSelect, MsTag, ApiEnvironmentConfig, MsTableAdvSearchBar},
     data() {
       return {
-        environments: [],
-        environment: {},
         methodColorMap: new Map(API_METHOD_COLOUR),
         isSelectAll: false
       }
@@ -88,6 +86,7 @@
       priorities: Array,
       apiCaseList: Array,
       isReadOnly: Boolean,
+      useEnvironment: String,
       isCaseEdit: Boolean,
       condition: {
         type: Object,
@@ -97,50 +96,15 @@
       }
     },
     created() {
-      this.environment = undefined;
-      this.getEnvironments();
     },
     watch: {
-      environment() {
-        this.$emit('setEnvironment', this.environment);
-      },
       isSelectAll() {
         this.$emit('selectAll', this.isSelectAll);
-      }
+      },
     },
     methods: {
-      getEnvironments() {
-        if (this.projectId) {
-          this.$get('/api/environment/list/' + this.projectId, response => {
-            this.environments = response.data;
-            this.environments.forEach(environment => {
-              parseEnvironment(environment);
-            });
-          });
-        } else {
-          this.environment = undefined;
-        }
-      },
-      openEnvironmentConfig() {
-        if (!this.projectId) {
-          this.$error(this.$t('api_test.select_project'));
-          return;
-        }
-        this.$refs.environmentConfig.open(this.projectId);
-      },
-      environmentChange(value) {
-        for (let i in this.environments) {
-          if (this.environments[i].id === value) {
-            this.environment = this.environments[i];
-            break;
-          }
-        }
-      },
-      environmentConfigClose() {
-        this.getEnvironments();
-      },
       setEnvironment(data) {
-        this.$emit('setEnvironment', data);
+        this.$emit('setEnvironment', data.id);
       },
       search() {
         if (this.priorities && this.condition.order) {
