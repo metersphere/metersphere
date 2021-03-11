@@ -27,7 +27,8 @@
 
         <el-table-column width="30" :resizable="false" align="center">
           <template v-slot:default="scope">
-            <show-more-btn :is-show="scope.row.showMore" :buttons="buttons" :size="selectDataCounts"/>
+            <!-- 选中记录后浮现的按钮，提供对记录的批量操作 -->
+            <show-more-btn :is-show="scope.row.showMore" :buttons="buttons" :size="selectDataCounts" v-tester/>
           </template>
         </el-table-column>
         <template v-for="(item, index) in tableLabel">
@@ -40,9 +41,11 @@
             sortable="custom"
             :key="index">
             <template slot-scope="scope">
-              <el-tooltip content="编辑">
+              <!-- 判断为只读用户的话不可点击ID进行编辑操作 -->
+              <span style="cursor:pointer" v-if="isReadOnly"> {{ scope.row.num }} </span>
+              <el-tooltip v-else content="编辑">
                 <a style="cursor:pointer" @click="editApi(scope.row)"> {{ scope.row.num }} </a>
-              </el-tooltip>
+              </el-tooltip >
             </template>
           </el-table-column>
           <el-table-column
@@ -155,7 +158,7 @@
             show-overflow-tooltip
             :key="index"/>
         </template>
-
+        <!-- 操作 -->
         <el-table-column fixed="right" v-if="!isReadOnly" min-width="180"
                          align="center">
 
@@ -168,6 +171,7 @@
                                       :tip="$t('api_test.automation.execute')"
                                       icon="el-icon-video-play"
                                       @exec="runApi(scope.row)"/>
+            <!-- 回收站的恢复按钮 -->
             <ms-table-operator-button :tip="$t('commons.reduction')" icon="el-icon-refresh-left"
                                       @exec="reductionApi(scope.row)" v-if="trashEnable" v-tester/>
             <ms-table-operator-button :tip="$t('commons.edit')" icon="el-icon-edit" @exec="editApi(scope.row)" v-else
@@ -179,6 +183,7 @@
               <el-button @click="handleTestCase(scope.row)"
                          @keydown.enter.native.prevent
                          type="primary"
+                         :disabled="isReadOnly"
                          circle
                          style="color:white;padding: 0px 0.1px;font-size: 11px;width: 28px;height: 28px;"
                          size="mini">case
@@ -218,7 +223,7 @@ import MsBottomContainer from "../BottomContainer";
 import ShowMoreBtn from "../../../../track/case/components/ShowMoreBtn";
 import MsBatchEdit from "../basis/BatchEdit";
 import {API_METHOD_COLOUR, API_STATUS, DUBBO_METHOD, REQ_METHOD, SQL_METHOD, TCP_METHOD} from "../../model/JsonData";
-import {downloadFile, getUUID} from "@/common/js/utils";
+import {checkoutTestManagerOrTestUser, downloadFile, getUUID} from "@/common/js/utils";
 import {PROJECT_NAME} from '@/common/js/constants';
 import {getCurrentProjectID, getCurrentUser} from "@/common/js/utils";
 import {API_LIST, TEST_CASE_LIST, WORKSPACE_ID} from '@/common/js/constants';
