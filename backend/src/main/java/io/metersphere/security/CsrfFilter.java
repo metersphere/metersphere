@@ -32,6 +32,12 @@ public class CsrfFilter extends AnonymousFilter {
         if (ApiKeyHandler.isApiKeyCall(WebUtils.toHttp(request))) {
             return true;
         }
+        // websocket 不需要csrf
+        String websocketKey = httpServletRequest.getHeader("Sec-WebSocket-Key");
+        if (StringUtils.isNotBlank(websocketKey)) {
+            return true;
+        }
+
         // 请求头取出的token value
         String csrfToken = httpServletRequest.getHeader(TOKEN_NAME);
         // 校验 token
