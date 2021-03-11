@@ -9,23 +9,70 @@ CREATE TABLE IF NOT EXISTS `user_header`
         primary key (id)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
-
+-- create table test_case_review_api_case
+create table test_case_review_api_case
+(
+    id                  varchar(50) not null,
+    test_case_review_id varchar(50) null,
+    api_case_id         varchar(50) null,
+    status              varchar(50) null,
+    environment_id      varchar(50) null,
+    create_time         bigint(13)  null,
+    update_time         bigint(13)  null,
+    primary key (id)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4;
+-- create table test_case_review_scenario
+create table test_case_review_scenario
+(
+    id                  varchar(50)  not null,
+    test_case_review_id varchar(50)  null,
+    api_scenario_id     varchar(50)  null,
+    status              varchar(50)  null,
+    environment         varchar(50)  null,
+    create_time         bigint(13)   null,
+    update_time         bigint(13)   null,
+    pass_rate           varchar(100) null,
+    last_result         varchar(100) null,
+    report_id           varchar(50)  null,
+    primary key (id)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4;
+-- create table test_case_review_load
+create table test_case_review_load
+(
+    id                  varchar(50) not null,
+    test_case_review_id varchar(50) null,
+    load_case_id        varchar(50) null,
+    status              varchar(50) null,
+    create_time         bigint(13)  null,
+    update_time         bigint(13)  null,
+    load_report_id      varchar(50) null,
+    primary key (id)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4;
 -- test_resource_pool add column
-ALTER TABLE test_resource_pool ADD heap VARCHAR(200) NULL;
-ALTER TABLE test_resource_pool ADD gc_algo VARCHAR(200) NULL;
+ALTER TABLE test_resource_pool
+    ADD heap VARCHAR(200) NULL;
+ALTER TABLE test_resource_pool
+    ADD gc_algo VARCHAR(200) NULL;
 
 -- create tale api_document_share
-CREATE TABLE IF NOT EXISTS `api_document_share`  (
-     `id` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT 'Api Document Share Info ID',
-     `create_time` BIGINT ( 13 ) NOT NULL COMMENT 'Create timestamp',
-     `create_user_id` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
-     `update_time` BIGINT ( 13 ) NOT NULL COMMENT 'last visit timestamp',
-     `share_type` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT 'single or batch',
-     `share_api_id` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT 'APiDefinition.id (JSONArray format. Order by TreeSet)',
-     PRIMARY KEY (`id`) USING BTREE,
-     INDEX `share_type`(`share_type`) USING BTREE,
-     INDEX `share_api_id`(`share_api_id`(125)) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+CREATE TABLE IF NOT EXISTS `api_document_share`
+(
+    `id`             varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT 'Api Document Share Info ID',
+    `create_time`    BIGINT(13)                                                   NOT NULL COMMENT 'Create timestamp',
+    `create_user_id` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
+    `update_time`    BIGINT(13)                                                   NOT NULL COMMENT 'last visit timestamp',
+    `share_type`     varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT 'single or batch',
+    `share_api_id`   longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci    NULL DEFAULT NULL COMMENT 'APiDefinition.id (JSONArray format. Order by TreeSet)',
+    PRIMARY KEY (`id`) USING BTREE,
+    INDEX `share_type` (`share_type`) USING BTREE,
+    INDEX `share_api_id` (`share_api_id`(125)) USING BTREE
+) ENGINE = InnoDB
+  CHARACTER SET = utf8mb4
+  COLLATE = utf8mb4_general_ci
+  ROW_FORMAT = Dynamic;
 
 -- swagger_url_project
 alter table swagger_url_project
