@@ -123,8 +123,14 @@ public class ApiTestCaseService {
         if (!CollectionUtils.isEmpty(userIds)) {
             Map<String, User> userMap = userService.queryNameByIds(userIds);
             apiTestCases.forEach(caseResult -> {
-                caseResult.setCreateUser(userMap.get(caseResult.getCreateUserId()).getName());
-                caseResult.setUpdateUser(userMap.get(caseResult.getUpdateUserId()).getName());
+                User createUser = userMap.get(caseResult.getCreateUserId());
+                if (createUser != null) {
+                    caseResult.setCreateUser(createUser.getName());
+                }
+                User updateUser = userMap.get(caseResult.getUpdateUserId());
+                if (updateUser != null) {
+                    caseResult.setUpdateUser(updateUser.getName());
+                }
             });
         }
     }
