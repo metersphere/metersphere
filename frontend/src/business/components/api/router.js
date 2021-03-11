@@ -64,6 +64,12 @@ export default {
       component: () => import('@/business/components/api/automation/report/ApiReportList'),
     },
     {
+      path:"automation/report/view/:reportId",
+      name:"ApiReportView",
+      component: () => import('@/business/components/api/automation/report/ApiReportView'),
+
+    },
+    {
       path: 'monitor/view',
       name: 'ApiMonitor',
       component: () => import('@/business/components/api/monitor/ApiMonitor'),
