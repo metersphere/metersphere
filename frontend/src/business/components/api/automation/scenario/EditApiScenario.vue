@@ -184,7 +184,7 @@
       <!-- 调试结果 -->
       <el-drawer v-if="type!=='detail'" :visible.sync="debugVisible" :destroy-on-close="true" direction="ltr"
                  :withHeader="true" :modal="false" size="90%">
-        <ms-api-report-detail :report-id="reportId" :debug="true" :currentProjectId="projectId"/>
+        <ms-api-report-detail :report-id="reportId" :debug="true" :currentProjectId="projectId" @refresh="detailRefresh"/>
       </el-drawer>
 
       <!--场景公共参数-->
@@ -291,7 +291,8 @@
         response: {},
         projectIds: new Set,
         projectEnvMap: new Map,
-        projectList: []
+        projectList: [],
+        debugResult: new Map,
       }
     },
     created() {
@@ -548,20 +549,31 @@
           if (arr[i].hashTree != undefined && arr[i].hashTree.length > 0) {
             this.recursiveSorting(arr[i].hashTree);
           }
+          // 添加debug结果
+          if (this.debugResult && this.debugResult.get(arr[i].id)) {
+            arr[i].requestResult = this.debugResult.get(arr[i].id);
+          }
         }
       },
       sort() {
         for (let i in this.scenarioDefinition) {
+          // 排序
           this.scenarioDefinition[i].index = Number(i) + 1;
+          // 设置循环控制
           if (this.scenarioDefinition[i].type === ELEMENT_TYPE.LoopController && this.scenarioDefinition[i].hashTree
             && this.scenarioDefinition[i].hashTree.length > 1) {
             this.scenarioDefinition[i].countController.proceed = true;
           }
+          // 设置项目ID
           if (!this.scenarioDefinition[i].projectId) {
             this.scenarioDefinition[i].projectId = getCurrentProjectID();
           }
           if (this.scenarioDefinition[i].hashTree != undefined && this.scenarioDefinition[i].hashTree.length > 0) {
             this.recursiveSorting(this.scenarioDefinition[i].hashTree);
+          }
+          // 添加debug结果
+          if (this.debugResult && this.debugResult.get(this.scenarioDefinition[i].id)) {
+            this.scenarioDefinition[i].requestResult = this.debugResult.get(this.scenarioDefinition[i].id);
           }
         }
       },
@@ -1026,6 +1038,11 @@
             arr.forEach(a => this.projectIds.add(a));
           })
         })
+      },
+      detailRefresh(result) {
+        // 把执行结果分发给各个请求
+        this.debugResult = result;
+        this.sort()
       }
     }
   }

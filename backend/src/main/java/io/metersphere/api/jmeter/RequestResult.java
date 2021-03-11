@@ -7,6 +7,8 @@ import java.util.List;
 
 @Data
 public class RequestResult {
+    // 请求ID
+    private String id;
 
     private String name;
 

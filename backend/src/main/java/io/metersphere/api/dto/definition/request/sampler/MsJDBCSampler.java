@@ -119,6 +119,8 @@ public class MsJDBCSampler extends MsTestElement {
         }
         sampler.setProperty(TestElement.TEST_CLASS, JDBCSampler.class.getName());
         sampler.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("TestBeanGUI"));
+        sampler.setProperty("MS-ID", this.getId());
+
         // request.getDataSource() 是ID，需要转换为Name
         sampler.setProperty("dataSource", this.dataSource.getName());
         sampler.setProperty("query", this.getQuery());
