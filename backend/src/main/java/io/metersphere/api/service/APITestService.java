@@ -21,6 +21,7 @@ import io.metersphere.commons.constants.ScheduleType;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
 import io.metersphere.controller.request.QueryScheduleRequest;
+import io.metersphere.controller.request.ScheduleRequest;
 import io.metersphere.dto.ScheduleDao;
 import io.metersphere.i18n.Translator;
 import io.metersphere.job.sechedule.ApiTestJob;
@@ -328,12 +329,12 @@ public class APITestService {
         addOrUpdateApiTestCronJob(request);
     }
 
-    public void createSchedule(Schedule request) {
+    public void createSchedule(ScheduleRequest request) {
         scheduleService.addSchedule(buildApiTestSchedule(request));
         addOrUpdateApiTestCronJob(request);
     }
 
-    private Schedule buildApiTestSchedule(Schedule request) {
+    private Schedule buildApiTestSchedule(ScheduleRequest request) {
         Schedule schedule = scheduleService.buildApiTestSchedule(request);
         schedule.setJob(ApiTestJob.class.getName());
         schedule.setGroup(ScheduleGroup.API_TEST.name());

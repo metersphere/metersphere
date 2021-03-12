@@ -46,6 +46,7 @@ public class ShiroUtils {
 
     public static void ignoreCsrfFilter(Map<String, String> filterChainDefinitionMap) {
         filterChainDefinitionMap.put("/", "apikey, authc"); // 跳转到 / 不用校验 csrf
+        filterChainDefinitionMap.put("/document", "apikey, authc"); // 跳转到 /document 不用校验 csrf
     }
 
     public static Cookie getSessionIdCookie(){

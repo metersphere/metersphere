@@ -20,6 +20,7 @@ import io.metersphere.commons.utils.CronUtils;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.commons.utils.SessionUtils;
+import io.metersphere.controller.request.ScheduleRequest;
 import io.metersphere.service.CheckPermissionService;
 import io.metersphere.service.ScheduleService;
 import io.metersphere.track.request.testcase.ApiCaseRelevanceRequest;
@@ -156,7 +157,7 @@ public class ApiDefinitionController {
 
     //定时任务创建
     @PostMapping(value = "/schedule/create")
-    public void createSchedule(@RequestBody Schedule request) {
+    public void createSchedule(@RequestBody ScheduleRequest request) {
         apiDefinitionService.createSchedule(request);
     }
     @PostMapping(value = "/schedule/update")
