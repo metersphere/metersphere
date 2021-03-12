@@ -2,6 +2,8 @@ package io.metersphere.controller;
 
 import io.metersphere.commons.constants.UserSource;
 import io.metersphere.commons.user.SessionUser;
+import io.metersphere.commons.utils.RsaKey;
+import io.metersphere.commons.utils.RsaUtil;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.controller.request.LoginRequest;
 import io.metersphere.service.BaseDisplayService;
@@ -23,6 +25,8 @@ public class LoginController {
     private UserService userService;
     @Resource
     private BaseDisplayService baseDisplayService;
+    @Resource
+    private RsaKey rsaKey;
 
     @GetMapping(value = "/isLogin")
     public ResultHolder isLogin() {
@@ -33,7 +37,7 @@ public class LoginController {
             }
             return ResultHolder.success(user);
         }
-        return ResultHolder.error("");
+        return ResultHolder.error(rsaKey.getPublicKey());
     }
 
     @PostMapping(value = "/signin")
