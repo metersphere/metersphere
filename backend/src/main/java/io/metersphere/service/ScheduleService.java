@@ -17,6 +17,7 @@ import io.metersphere.commons.utils.ServiceUtils;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.controller.request.OrderRequest;
 import io.metersphere.controller.request.QueryScheduleRequest;
+import io.metersphere.controller.request.ScheduleRequest;
 import io.metersphere.dto.ScheduleDao;
 import io.metersphere.job.sechedule.*;
 import org.apache.commons.lang3.StringUtils;
@@ -143,7 +144,7 @@ public class ScheduleService {
         });
     }
 
-    public Schedule buildApiTestSchedule(Schedule request) {
+    public Schedule buildApiTestSchedule(ScheduleRequest request) {
         Schedule schedule = new Schedule();
         schedule.setResourceId(request.getResourceId());
         schedule.setEnable(true);
@@ -218,7 +219,7 @@ public class ScheduleService {
         return  runningTaskInfoList;
     }
 
-    public void createSchedule(Schedule request) {
+    public void createSchedule(ScheduleRequest request) {
         Schedule schedule = this.buildApiTestSchedule(request);
         schedule.setJob(ApiScenarioTestJob.class.getName());
 
