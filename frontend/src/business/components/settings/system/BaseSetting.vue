@@ -42,7 +42,7 @@ export default {
         url: [
           {
             required: true,
-            message: this.$t('system_par'),
+            message: this.$t('system_config.base.url_is_null'),
             trigger: ['change', 'blur']
           },
         ],
