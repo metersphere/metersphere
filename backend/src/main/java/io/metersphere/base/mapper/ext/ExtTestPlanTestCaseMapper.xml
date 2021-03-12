@@ -299,8 +299,8 @@
         select test_plan_test_case.*, test_case.*
         from test_plan_test_case
         inner join test_case on test_plan_test_case.case_id = test_case.id
-        where status != 'Prepare'
-        and status != 'Underway'
+        where test_plan_test_case.status != 'Prepare'
+        and test_plan_test_case.status != 'Underway'
         and test_plan_test_case.Executor = #{request.executor}
         and test_plan_test_case.plan_id in
         <foreach collection="request.planIds" item="planId" separator="," open="(" close=")">
