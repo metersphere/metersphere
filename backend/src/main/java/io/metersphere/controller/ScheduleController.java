@@ -5,6 +5,7 @@ import com.github.pagehelper.PageHelper;
 import io.metersphere.api.service.ApiAutomationService;
 import io.metersphere.base.domain.Schedule;
 import io.metersphere.controller.request.QueryScheduleRequest;
+import io.metersphere.controller.request.ScheduleRequest;
 import io.metersphere.dto.ScheduleDao;
 import io.metersphere.service.ScheduleService;
 import org.springframework.web.bind.annotation.*;
@@ -38,7 +39,7 @@ public class ScheduleController {
     }
 
     @PostMapping(value = "/create")
-    public void createSchedule(@RequestBody Schedule request) {
+    public void createSchedule(@RequestBody ScheduleRequest request) {
         scheduleService.createSchedule(request);
     }
 

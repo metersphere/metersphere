@@ -78,14 +78,19 @@ alter table test_case
 
 alter table test_case
     add demand_name varchar(999) null;
+alter table test_case
+    add follow_people varchar(100) null;
 -- test_case_review add column
-ALTER TABLE test_case_review ADD tags VARCHAR(2000) NULL;
+ALTER TABLE test_case_review
+    ADD tags VARCHAR(2000) NULL;
 
 -- alter test_plan_api_scenario
-alter table test_plan_api_scenario change environment_id environment longtext null comment 'Relevance environment';
+alter table test_plan_api_scenario
+    change environment_id environment longtext null comment 'Relevance environment';
 
 -- file add sort column
-alter table file_metadata add sort int default 0;
+alter table file_metadata
+    add sort int default 0;
 
 -- add Original state
 alter table api_definition add original_state varchar(64);
