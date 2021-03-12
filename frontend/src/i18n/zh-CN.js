@@ -241,7 +241,8 @@ export default {
     base_config: '基本配置',
     base: {
       url: '当前站点URL',
-      url_tip: '例如：http://localhost:8081'
+      url_tip: '例如：http://localhost:8081',
+      url_is_null: '当前站点URL不能为空'
     }
   },
   workspace: {
