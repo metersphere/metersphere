@@ -319,4 +319,18 @@
         </where>
     </sql>
 
+    <select id="countPriority" resultType="io.metersphere.track.response.TrackCountResult">
+        SELECT test_case.priority as groupField,count(id) AS countNumber FROM test_case WHERE project_id = #{projectId} GROUP BY test_case.priority
+    </select>
+
+    <!-- todo 排除删除的用例统计-->
+    <select id="countCreatedThisWeek" resultType="java.lang.Long">
+        SELECT count(id) AS countNumber FROM test_case WHERE test_case.project_id = #{projectId}
+          AND create_time BETWEEN #{firstDayTimestamp} AND #{lastDayTimestamp}
+    </select>
+
+    <select id="countStatus" resultType="io.metersphere.track.response.TrackCountResult">
+        SELECT review_status AS groupField,count(id) AS countNumber FROM test_case  WHERE project_id = #{projectId} GROUP BY test_case.review_status;
+    </select>
+
 </mapper>
