@@ -141,6 +141,7 @@ export default {
 .header-top-menus {
   display: inline-block;
   border: 0;
+  position: absolute;
 }
 
 .menus > a {
