@@ -46,6 +46,7 @@
               :trash-enable="trashEnable"
               :queryDataType="queryDataType"
               :selectDataRange="selectDataRange"
+              :is-read-only="isReadOnly"
               @changeSelectDataRangeAll="changeSelectDataRangeAll"
               @editApi="editApi"
               @handleCase="handleCase"
@@ -60,6 +61,7 @@
               :select-node-ids="selectNodeIds"
               :trash-enable="trashEnable"
               :queryDataType="queryDataType"
+              :is-read-only="isReadOnly"
               @changeSelectDataRangeAll="changeSelectDataRangeAll"
               @handleCase="handleCase"
               @showExecResult="showExecResult"
@@ -138,7 +140,7 @@ import MsRunTestHttpPage from "./components/runtest/RunTestHTTPPage";
 import MsRunTestTcpPage from "./components/runtest/RunTestTCPPage";
 import MsRunTestSqlPage from "./components/runtest/RunTestSQLPage";
 import MsRunTestDubboPage from "./components/runtest/RunTestDubboPage";
-import {getCurrentProjectID, getCurrentUser, getUUID} from "@/common/js/utils";
+import {checkoutTestManagerOrTestUser, getCurrentProjectID, getCurrentUser, getUUID} from "@/common/js/utils";
 import MsApiModule from "./components/module/ApiModule";
 import ApiCaseSimpleList from "./components/list/ApiCaseSimpleList";
 
@@ -155,6 +157,9 @@ import MsTabButton from "@/business/components/common/components/MsTabButton";
         this.changeRedirectParam(redirectIDParam);
         return routeParam;
       },
+      isReadOnly(){
+        return !checkoutTestManagerOrTestUser();
+      }
     },
     components: {
       MsTabButton,
@@ -343,12 +348,12 @@ import MsTabButton from "@/business/components/common/components/MsTabButton";
       apiCaseClose() {
         this.showCasePage = true;
       },
-      exportAPI() {
+      exportAPI(type) {
         if (!this.isApiListEnable) {
           this.$warning('用例列表暂不支持导出，请切换成接口列表');
           return;
         }
-        this.$refs.apiList[0].exportApi();
+        this.$refs.apiList[0].exportApi(type);
       },
       refresh(data) {
         this.$refs.apiList[0].initTable(data);

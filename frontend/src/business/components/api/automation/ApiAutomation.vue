@@ -25,6 +25,7 @@
             :trash-enable="trashEnable"
             :checkRedirectID="checkRedirectID"
             :isRedirectEdit="isRedirectEdit"
+            :is-read-only="isReadOnly"
             @openScenario="editScenario"
             @edit="editScenario"
             @changeSelectDataRangeAll="changeSelectDataRangeAll"
@@ -66,7 +67,7 @@
   import MsAsideContainer from "@/business/components/common/components/MsAsideContainer";
   import MsMainContainer from "@/business/components/common/components/MsMainContainer";
   import MsApiScenarioList from "@/business/components/api/automation/scenario/ApiScenarioList";
-  import {getUUID, downloadFile} from "@/common/js/utils";
+  import {getUUID, downloadFile, checkoutTestManagerOrTestUser} from "@/common/js/utils";
   import MsApiScenarioModule from "@/business/components/api/automation/scenario/ApiScenarioModule";
   import MsEditApiScenario from "./scenario/EditApiScenario";
   import {getCurrentProjectID} from "../../../../common/js/utils";
@@ -92,6 +93,9 @@
         let redirectParam = this.$route.params.dataSelectRange;
         this.checkRedirectEditPage(redirectParam);
         return redirectParam;
+      },
+      isReadOnly(){
+        return !checkoutTestManagerOrTestUser();
       }
     },
     data() {
