@@ -5,7 +5,7 @@
 
         <!--操作按钮-->
         <div class="ms-opt-btn">
-          <el-button id="inputDelay" type="primary" size="small" @click="editScenario" title="ctrl + s">
+          <el-button id="inputDelay" type="primary" size="small" v-prevent-re-click @click="editScenario" title="ctrl + s">
             {{ $t('commons.save') }}
           </el-button>
         </div>
@@ -119,7 +119,7 @@
                                :project-list="projectList" ref="envPopover"/>
                 </el-col>
                 <el-col :span="2">
-                  <el-button :disabled="scenarioDefinition.length < 1" size="small" type="primary" @click="runDebug">{{$t('api_test.request.debug')}}</el-button>
+                  <el-button :disabled="scenarioDefinition.length < 1" size="small" type="primary" v-prevent-re-click @click="runDebug">{{$t('api_test.request.debug')}}</el-button>
                 </el-col>
               </el-row>
             </div>
@@ -184,7 +184,7 @@
       <!-- 调试结果 -->
       <el-drawer v-if="type!=='detail'" :visible.sync="debugVisible" :destroy-on-close="true" direction="ltr"
                  :withHeader="true" :modal="false" size="90%">
-        <ms-api-report-detail :report-id="reportId" :debug="true" :currentProjectId="projectId"/>
+        <ms-api-report-detail :report-id="reportId" :debug="true" :currentProjectId="projectId" @refresh="detailRefresh"/>
       </el-drawer>
 
       <!--场景公共参数-->
@@ -291,7 +291,8 @@
         response: {},
         projectIds: new Set,
         projectEnvMap: new Map,
-        projectList: []
+        projectList: [],
+        debugResult: new Map,
       }
     },
     created() {
@@ -548,20 +549,31 @@
           if (arr[i].hashTree != undefined && arr[i].hashTree.length > 0) {
             this.recursiveSorting(arr[i].hashTree);
           }
+          // 添加debug结果
+          if (this.debugResult && this.debugResult.get(arr[i].id)) {
+            arr[i].requestResult = this.debugResult.get(arr[i].id);
+          }
         }
       },
       sort() {
         for (let i in this.scenarioDefinition) {
+          // 排序
           this.scenarioDefinition[i].index = Number(i) + 1;
+          // 设置循环控制
           if (this.scenarioDefinition[i].type === ELEMENT_TYPE.LoopController && this.scenarioDefinition[i].hashTree
             && this.scenarioDefinition[i].hashTree.length > 1) {
             this.scenarioDefinition[i].countController.proceed = true;
           }
+          // 设置项目ID
           if (!this.scenarioDefinition[i].projectId) {
             this.scenarioDefinition[i].projectId = getCurrentProjectID();
           }
           if (this.scenarioDefinition[i].hashTree != undefined && this.scenarioDefinition[i].hashTree.length > 0) {
             this.recursiveSorting(this.scenarioDefinition[i].hashTree);
+          }
+          // 添加debug结果
+          if (this.debugResult && this.debugResult.get(this.scenarioDefinition[i].id)) {
+            this.scenarioDefinition[i].requestResult = this.debugResult.get(this.scenarioDefinition[i].id);
           }
         }
       },
@@ -695,29 +707,29 @@
       },
       runDebug() {
         /*触发执行操作*/
-        // if (!this.currentEnvironmentId) {
-        //   this.$error(this.$t('api_test.environment.select_environment'));
-        //   return;
-        // }
         let sign = this.$refs.envPopover.checkEnv();
         if (!sign) {
           return;
         }
         this.$refs['currentScenario'].validate((valid) => {
           if (valid) {
-            this.editScenario();
-            this.debugData = {
-              id: this.currentScenario.id,
-              name: this.currentScenario.name,
-              type: "scenario",
-              variables: this.currentScenario.variables,
-              referenced: 'Created',
-              enableCookieShare: this.enableCookieShare,
-              headers: this.currentScenario.headers,
-              environmentMap: this.projectEnvMap,
-              hashTree: this.scenarioDefinition
-            };
-            this.reportId = getUUID().substring(0, 8);
+            Promise.all([
+              this.editScenario()]).then(val => {
+              if (val) {
+                this.debugData = {
+                  id: this.currentScenario.id,
+                  name: this.currentScenario.name,
+                  type: "scenario",
+                  variables: this.currentScenario.variables,
+                  referenced: 'Created',
+                  enableCookieShare: this.enableCookieShare,
+                  headers: this.currentScenario.headers,
+                  environmentMap: this.projectEnvMap,
+                  hashTree: this.scenarioDefinition
+                };
+                this.reportId = getUUID().substring(0, 8);
+              }
+            });
           }
         })
       },
@@ -872,24 +884,27 @@
         return bodyUploadFiles;
       },
       editScenario() {
-        document.getElementById("inputDelay").focus();  //  保存前在input框自动失焦，以免保存失败
-        this.$refs['currentScenario'].validate((valid) => {
-          if (valid) {
-            this.setParameter();
-            let bodyFiles = this.getBodyUploadFiles(this.currentScenario);
-            this.$fileUpload(this.path, null, bodyFiles, this.currentScenario, response => {
-              this.$success(this.$t('commons.save_success'));
-              this.path = "/api/automation/update";
-              if (response.data) {
-                this.currentScenario.id = response.data.id;
-              }
-              if (this.currentScenario.tags instanceof String) {
-                this.currentScenario.tags = JSON.parse(this.currentScenario.tags);
-              }
-              this.$emit('refresh', this.currentScenario);
-            })
-          }
-        })
+        return new Promise((resolve, reject) => {
+          document.getElementById("inputDelay").focus();  //  保存前在input框自动失焦，以免保存失败
+          this.$refs['currentScenario'].validate((valid) => {
+            if (valid) {
+              this.setParameter();
+              let bodyFiles = this.getBodyUploadFiles(this.currentScenario);
+              this.$fileUpload(this.path, null, bodyFiles, this.currentScenario, response => {
+                this.$success(this.$t('commons.save_success'));
+                this.path = "/api/automation/update";
+                if (response.data) {
+                  this.currentScenario.id = response.data.id;
+                }
+                if (this.currentScenario.tags instanceof String) {
+                  this.currentScenario.tags = JSON.parse(this.currentScenario.tags);
+                }
+                this.$emit('refresh', this.currentScenario);
+                resolve();
+              })
+            }
+          })
+        });
       },
       getApiScenario() {
         if (this.currentScenario.tags != undefined && !(this.currentScenario.tags instanceof Array)) {
@@ -1026,6 +1041,11 @@
             arr.forEach(a => this.projectIds.add(a));
           })
         })
+      },
+      detailRefresh(result) {
+        // 把执行结果分发给各个请求
+        this.debugResult = result;
+        this.sort()
       }
     }
   }

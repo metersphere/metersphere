@@ -5,11 +5,11 @@
     </span>
     <el-dropdown>
       <span class="el-dropdown-link">
-        全选/反选<i class="el-icon-arrow-down el-icon--right"></i>
+        {{ $t('api_test.select_or_invert') }} <i class="el-icon-arrow-down el-icon--right"></i>
       </span>
       <el-dropdown-menu slot="dropdown">
-        <el-dropdown-item @click.native="selectAll">全选</el-dropdown-item>
-        <el-dropdown-item @click.native="invertSelect">反选</el-dropdown-item>
+        <el-dropdown-item @click.native="selectAll">{{ $t('api_test.select_all') }}</el-dropdown-item>
+        <el-dropdown-item @click.native="invertSelect">{{ $t('api_test.invert_select') }}</el-dropdown-item>
       </el-dropdown-menu>
     </el-dropdown>
     <div class="item kv-row" v-for="(item, index) in parameters" :key="index">

@@ -92,7 +92,7 @@ public class TestCaseService {
     @Resource
     TestCaseFileMapper testCaseFileMapper;
 
-    private TestCaseWithBLOBs addTestCase(TestCaseWithBLOBs testCase) {
+    public TestCaseWithBLOBs addTestCase(TestCaseWithBLOBs testCase) {
         testCase.setName(testCase.getName());
         checkTestCaseExist(testCase);
         testCase.setId(UUID.randomUUID().toString());
@@ -102,6 +102,7 @@ public class TestCaseService {
         testCase.setReviewStatus(TestCaseReviewStatus.Prepare.name());
         testCase.setDemandId(testCase.getDemandId());
         testCase.setDemandName(testCase.getDemandName());
+
         testCaseMapper.insert(testCase);
         return testCase;
     }
@@ -703,4 +704,5 @@ public class TestCaseService {
         request.setSelectFields(selectFields);
         return extTestCaseMapper.list(request);
     }
+
 }

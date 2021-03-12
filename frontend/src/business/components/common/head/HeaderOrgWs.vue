@@ -1,7 +1,7 @@
 <template>
   <el-menu :unique-opened="true" mode="horizontal" router
            class="header-user-menu align-right"
-           background-color="#2c2a48"
+           :background-color="color"
            active-text-color="#fff"
            default-active="1"
            text-color="#fff">
@@ -80,7 +80,10 @@ export default {
   computed: {
     currentUser: () => {
       return getCurrentUser();
-    }
+    },
+  },
+  props: {
+    color: String
   },
   watch: {
     searchOrg(val) {
@@ -189,7 +192,7 @@ export default {
 
 ::-webkit-scrollbar-thumb {
   border-radius: 1em;
-  background-color: #595591;
+  background-color: var(--color_shallow);
   position: fixed;
 }
 
@@ -207,12 +210,12 @@ export default {
 .search-input {
   padding: 0;
   margin-top: -4px;
-  background-color: #595591;
+  background-color: var(--color_shallow);
 }
 
 .search-input >>> .el-input__inner {
   border-radius: 0;
-  background-color: #2d2a49;
+  background-color: var(--color);
   color: #d2ced8;
   border-color: #b4aebe;
 }

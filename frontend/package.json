@@ -17,7 +17,6 @@
     "@fortawesome/vue-fontawesome": "^0.1.9",
     "axios": "^0.21.1",
     "core-js": "^3.4.3",
-    "default-passive-events": "^2.0.0",
     "diffable-html": "^4.0.0",
     "echarts": "^4.6.0",
     "el-table-infinite-scroll": "^1.0.10",
@@ -49,7 +48,8 @@
     "vuex": "^3.1.2",
     "xml-js": "^1.6.11",
     "yan-progress": "^1.0.3",
-    "jsonpath": "^1.1.0"
+    "jsonpath": "^1.1.0",
+    "vue-minder-editor-plus": "^1.0.14"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "^4.1.0",

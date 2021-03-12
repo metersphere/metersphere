@@ -188,8 +188,8 @@ export default {
           this.$refs.nodeTree.append({}, dataArr[0]);
         }
       },
-      exportAPI() {
-        this.$emit('exportAPI');
+      exportAPI(type) {
+        this.$emit('exportAPI', type);
       },
       debug() {
         this.$emit('debug');

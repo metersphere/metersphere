@@ -24,57 +24,55 @@
                      :label="item.title"
                      :closable="item.closable"
                      :name="item.name">
-          <!-- 列表集合 -->
-          <ms-api-list
-            v-if="item.type === 'list' && activeDom==='api' "
-            @runTest="runTest"
-            :module-tree="nodeTree"
-            :module-options="moduleOptions"
-            :current-protocol="currentProtocol"
-            :visible="visible"
-            :currentRow="currentRow"
-            :select-node-ids="selectNodeIds"
-            :trash-enable="trashEnable"
-            :is-api-list-enable="isApiListEnable"
-            :active-dom="activeDom"
-            :queryDataType="queryDataType"
-            :selectDataRange="selectDataRange"
-            @changeSelectDataRangeAll="changeSelectDataRangeAll"
-            @editApi="editApi"
-            @handleCase="handleCase"
-            @showExecResult="showExecResult"
-            @activeDomChange="activeDomChange"
-            @isApiListEnableChange="isApiListEnableChange"
-            ref="apiList"/>
-          <!--测试用例列表-->
-          <api-case-simple-list
-            v-if="item.type === 'list' && activeDom==='testCase' "
-            :current-protocol="currentProtocol"
-            :visible="visible"
-            :currentRow="currentRow"
-            :select-node-ids="selectNodeIds"
-            :trash-enable="trashEnable"
-            :is-api-list-enable="isApiListEnable"
-            :active-dom="activeDom"
-            :queryDataType="queryDataType"
-            @changeSelectDataRangeAll="changeSelectDataRangeAll"
-            @isApiListEnableChange="isApiListEnableChange"
-            @activeDomChange="activeDomChange"
-            @handleCase="handleCase"
-            @showExecResult="showExecResult"
-            ref="apiList"/>
-          <api-documents-page class="api-doc-page"
-            v-if="item.type === 'list' && activeDom==='doc' "
-            :is-api-list-enable="isApiListEnable"
-            :active-dom="activeDom"
-            :project-id="projectId"
-            :module-ids="selectNodeIds"
-            @activeDomChange="activeDomChange"
-            @isApiListEnableChange="isApiListEnableChange"
-          />
-
+          <ms-tab-button
+            v-if="item.type === 'list'"
+            :active-dom.sync="activeDom"
+            :left-tip="$t('api_test.definition.api_title')"
+            :right-tip="$t('api_test.definition.doc_title')"
+            :middle-tip="$t('api_test.definition.case_title')"
+            left-content="API"
+            middle-content="CASE"
+            :right-content="$t('api_test.definition.doc_title')">
+            <!-- 列表集合 -->
+            <ms-api-list
+              v-if="activeDom==='left'"
+              @runTest="runTest"
+              :module-tree="nodeTree"
+              :module-options="moduleOptions"
+              :current-protocol="currentProtocol"
+              :visible="visible"
+              :currentRow="currentRow"
+              :select-node-ids="selectNodeIds"
+              :trash-enable="trashEnable"
+              :queryDataType="queryDataType"
+              :selectDataRange="selectDataRange"
+              :is-read-only="isReadOnly"
+              @changeSelectDataRangeAll="changeSelectDataRangeAll"
+              @editApi="editApi"
+              @handleCase="handleCase"
+              @showExecResult="showExecResult"
+              ref="apiList"/>
+            <!--测试用例列表-->
+            <api-case-simple-list
+              v-if="activeDom==='middle'"
+              :current-protocol="currentProtocol"
+              :visible="visible"
+              :currentRow="currentRow"
+              :select-node-ids="selectNodeIds"
+              :trash-enable="trashEnable"
+              :queryDataType="queryDataType"
+              :is-read-only="isReadOnly"
+              @changeSelectDataRangeAll="changeSelectDataRangeAll"
+              @handleCase="handleCase"
+              @showExecResult="showExecResult"
+              ref="apiList"/>
+            <api-documents-page class="api-doc-page"
+              v-if="activeDom==='right'"
+              :project-id="projectId"
+              :module-ids="selectNodeIds"/>
+          </ms-tab-button>
           <!-- 添加/编辑测试窗口-->
-          <div v-else-if="item.type=== 'ADD'" class="ms-api-div">
+          <div v-if="item.type=== 'ADD'" class="ms-api-div">
             <ms-api-config :syncTabs="syncTabs" @runTest="runTest" @saveApi="saveApi" @createRootModel="createRootModel" ref="apiConfig"
                            :current-api="item.api"
                            :project-id="projectId"
@@ -142,11 +140,13 @@ import MsRunTestHttpPage from "./components/runtest/RunTestHTTPPage";
 import MsRunTestTcpPage from "./components/runtest/RunTestTCPPage";
 import MsRunTestSqlPage from "./components/runtest/RunTestSQLPage";
 import MsRunTestDubboPage from "./components/runtest/RunTestDubboPage";
-import {getCurrentProjectID, getCurrentUser, getUUID} from "@/common/js/utils";
+import {checkoutTestManagerOrTestUser, getCurrentProjectID, getCurrentUser, getUUID} from "@/common/js/utils";
 import MsApiModule from "./components/module/ApiModule";
 import ApiCaseSimpleList from "./components/list/ApiCaseSimpleList";
 
   import ApiDocumentsPage from "@/business/components/api/definition/components/list/ApiDocumentsPage";
+import MsTableButton from "@/business/components/common/components/MsTableButton";
+import MsTabButton from "@/business/components/common/components/MsTabButton";
 
   export default {
     name: "ApiDefinition",
@@ -155,17 +155,15 @@ import ApiCaseSimpleList from "./components/list/ApiCaseSimpleList";
         let routeParam = this.$route.params.dataType;
         let redirectIDParam = this.$route.params.redirectID;
         this.changeRedirectParam(redirectIDParam);
-        if (routeParam === 'apiTestCase') {
-          this.isApiListEnableChange(false);
-          this.activeDomChange("testCase");
-        } else {
-          this.isApiListEnableChange(true);
-          this.activeDomChange("api");
-        }
         return routeParam;
       },
+      isReadOnly(){
+        return !checkoutTestManagerOrTestUser();
+      }
     },
     components: {
+      MsTabButton,
+      MsTableButton,
       ApiCaseSimpleList,
       MsApiModule,
       MsApiList,
@@ -211,8 +209,7 @@ import ApiCaseSimpleList from "./components/list/ApiCaseSimpleList";
           type: "list",
           closable: false
         }],
-        isApiListEnable: true,
-        activeDom: "testCase",
+        activeDom: "left",
         syncTabs: [],
         projectId: "",
         nodeTree: []
@@ -246,12 +243,6 @@ import ApiCaseSimpleList from "./components/list/ApiCaseSimpleList";
 
       changeRedirectParam(redirectIDParam) {
         this.redirectID = redirectIDParam;
-      },
-      isApiListEnableChange(data) {
-        this.isApiListEnable = data;
-      },
-      activeDomChange(tabType){
-        this.activeDom = tabType;
       },
       addTab(tab) {
         if (tab.name === 'add') {
@@ -357,12 +348,12 @@ import ApiCaseSimpleList from "./components/list/ApiCaseSimpleList";
       apiCaseClose() {
         this.showCasePage = true;
       },
-      exportAPI() {
+      exportAPI(type) {
         if (!this.isApiListEnable) {
           this.$warning('用例列表暂不支持导出，请切换成接口列表');
           return;
         }
-        this.$refs.apiList[0].exportApi();
+        this.$refs.apiList[0].exportApi(type);
       },
       refresh(data) {
         this.$refs.apiList[0].initTable(data);

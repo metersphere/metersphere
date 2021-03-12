@@ -239,7 +239,7 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
                 LogUtil.error(e.getMessage(), e);
             }
         }
-            sendTask(report, reportUrl, testResult);
+        sendTask(report, reportUrl, testResult);
     }
 
     private static void sendTask(ApiTestReport report, String reportUrl, TestResult testResult) {
@@ -253,7 +253,7 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
         String url2 = reportUrl;
         if (StringUtils.isEmpty(url)) {
             url = baseSystemConfigDTO.getUrl() + "/#/api/report/view/" + report.getId();
-            url2 = baseSystemConfigDTO.getUrl() + "/#/api/automation/report";
+            url2 = baseSystemConfigDTO.getUrl() + "/#/api/automation/report/view/" + report.getId();
         }
         String successContext = "";
         String failedContext = "";
@@ -303,6 +303,7 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
 
     private RequestResult getRequestResult(SampleResult result) {
         RequestResult requestResult = new RequestResult();
+        requestResult.setId(result.getSamplerId());
         requestResult.setName(result.getSampleLabel());
         requestResult.setUrl(result.getUrlAsString());
         requestResult.setMethod(getMethod(result));

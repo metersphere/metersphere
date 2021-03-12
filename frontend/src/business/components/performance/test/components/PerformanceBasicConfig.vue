@@ -46,7 +46,7 @@
       <el-table-column
         label="ThreadGroup">
         <template v-slot:default="{row}">
-          <el-select v-model="row.tgType" :placeholder="$t('commons.please_select')" size="small">
+          <el-select v-model="row.tgType" :placeholder="$t('commons.please_select')" size="small" @change="tgTypeChange(row)">
             <el-option v-for="tg in threadGroupForSelect" :key="tg.tagName" :label="tg.name"
                        :value="tg.testclass"></el-option>
           </el-select>
@@ -70,7 +70,7 @@
     <el-row type="flex" justify="start" align="middle">
       <el-upload
         style="padding-right: 10px;"
-        accept=".jar,.csv"
+        accept=".jar,.csv,.json,.pdf,.jpg,.png,.jpeg,.doc,.docx,.xlsx"
         action=""
         :limit="fileNumLimit"
         multiple
@@ -170,7 +170,7 @@ export default {
       fileList: [],
       tableData: [],
       uploadList: [],
-      metadataIdList:[],
+      metadataIdList: [],
       fileNumLimit: 10,
       threadGroups: [],
       loadFileVisible: false,
@@ -276,7 +276,10 @@ export default {
       let self = this;
       let file = uploadResources.file;
       self.uploadList.push(file);
-
+      let type = file.name.substring(file.name.lastIndexOf(".") + 1);
+      if (type.toLowerCase() !== 'jmx') {
+        return;
+      }
       let jmxReader = new FileReader();
       jmxReader.onload = (event) => {
         self.threadGroups = self.threadGroups.concat(findThreadGroup(event.target.result, file.name));
@@ -373,6 +376,9 @@ export default {
     },
     threadGroupDisable(row) {
       return this.threadGroups.filter(tg => tg.enabled == 'true').length === 1 && row.enabled == 'true';
+    },
+    tgTypeChange(row) {
+      this.$emit("tgTypeChange", row);
     },
     handleExceed() {
       this.$error(this.$t('load_test.file_size_limit'));

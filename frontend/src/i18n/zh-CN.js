@@ -241,7 +241,8 @@ export default {
     base_config: '基本配置',
     base: {
       url: '当前站点URL',
-      url_tip: '例如：http://localhost:8081'
+      url_tip: '例如：http://localhost:8081',
+      url_is_null: '当前站点URL不能为空'
     }
   },
   workspace: {
@@ -425,6 +426,8 @@ export default {
     test_execute_again: '再次执行',
     downloadJtl: '下载JTL',
     export: '导出',
+    export_to_ms_format: '导出 Metersphere 格式',
+    export_to_swagger3_format: '导出 Swagger3.0 格式',
     compare: '比较',
     generation_error: '报告生成错误, 无法查看, 请检查日志详情!',
     being_generated: '报告正在生成中...',
@@ -475,7 +478,8 @@ export default {
     delete_file: "文件已存在，请先删除同名文件！",
     thread_num: '并发用户数：',
     input_thread_num: '请输入线程数',
-    duration: '压测时长（秒）：',
+    duration: '压测时长（秒）',
+    granularity: '聚合时间（秒）',
     input_duration: '请输入时长',
     rps_limit: 'RPS上限：',
     input_rps_limit: '请输入限制',
@@ -532,6 +536,9 @@ export default {
     run: "执行",
     running: "正在执行",
     reset: "重置",
+    select_all: "全选",
+    invert_select: "反选",
+    select_or_invert: "全选/反选",
     input_name: "请输入测试名称",
     select_project: "请选择项目",
     variable_name: "变量名",
@@ -597,7 +604,7 @@ export default {
         save_as_case: "另存为新用例",
         update_api: "更新接口",
         body_form_data: "form-data",
-        body_x_www_from_urlencoded: "x-www-from-urlencoded",
+        body_x_www_from_urlencoded: "x-www-form-urlencoded",
         body_raw: "raw",
         body_binary: "binary",
         body_json: "json",
@@ -916,8 +923,10 @@ export default {
       export_tip: "导出方法",
       ms_tip: "支持 Metersphere json 格式",
       ms_export_tip: "通过 Metersphere 接口测试页面或者浏览器插件导出 json 格式文件",
+      har_export_tip: "通过 浏览器的开发者工具 导出 Har 格式文件",
       postman_tip: "只支持 Postman Collection v2.1 格式的 json 文件",
       swagger_tip: "支持 Swagger 2.0 与 3.0 版本的 json 文件",
+      har_tip: "只支持 Har 文件",
       post_export_tip: "通过 Postman 导出测试集合",
       swagger_export_tip: "通过 Swagger 页面导出",
       jmeter_export_tip: "通过 Jmeter 生成JMX文件",

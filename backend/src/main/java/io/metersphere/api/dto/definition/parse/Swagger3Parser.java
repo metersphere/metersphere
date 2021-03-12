@@ -4,14 +4,18 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import io.metersphere.api.dto.ApiTestImportRequest;
+import io.metersphere.api.dto.definition.SwaggerApiExportResult;
+import io.metersphere.api.dto.definition.parse.swagger.*;
 import io.metersphere.api.dto.definition.request.sampler.MsHTTPSamplerProxy;
 import io.metersphere.api.dto.definition.response.HttpResponse;
 import io.metersphere.api.dto.scenario.Body;
 import io.metersphere.api.dto.scenario.KeyValue;
 import io.metersphere.api.dto.scenario.request.RequestType;
+import io.metersphere.api.service.ApiModuleService;
 import io.metersphere.base.domain.ApiDefinitionWithBLOBs;
 import io.metersphere.base.domain.ApiModule;
 import io.metersphere.commons.exception.MSException;
+import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.XMLUtils;
 import io.swagger.parser.OpenAPIParser;
@@ -361,5 +365,120 @@ public class Swagger3Parser extends SwaggerAbstractParser {
     private void parseQueryParameters(Parameter parameter, List<KeyValue> arguments) {
         QueryParameter queryParameter = (QueryParameter) parameter;
         arguments.add(new KeyValue(queryParameter.getName(), "", getDefaultStringValue(queryParameter.getDescription()), parameter.getRequired()));
+    }
+/*    导出的 swagger json描述文件样例
+{
+    "openapi":"3.0.1",
+    "info":{},
+    "externalDocs":{},
+    "servers":{},
+    "tags":{},
+    "paths":{	//	对应 SwaggerApiExportResult 类的paths
+        "/lzx/test/{ball}":{	//	key
+            "get":{	//	对应 SwaggerPath 类的 JSONObject 类型的成员，”get“为key
+                "tags":[
+                "subModule2"
+                ],
+                "summary":"API",
+                "parameters":[
+                    {
+                        "name":"ballName",
+                        "in":"query",//	path,header,query都可选。
+                        "description":"描述param",
+                        "required":true	//	是否必填参数
+                    }
+                ],
+                "requestBody":{
+                    "content":{
+                        "application/octet-stream":{    //  type
+                            "schema":{
+                                "type":null,
+                                "format":null
+                            }
+                        }
+                    }
+                }
+            }	//	SwaggerApiInfo类，为 value
+        }
+    },
+    "components":{}
+}       */
+    public SwaggerApiExportResult swagger3Export(List<ApiDefinitionWithBLOBs> apiDefinitionList) {
+        SwaggerApiExportResult result = new SwaggerApiExportResult();
+
+        result.setOpenapi("3.0.1");
+        result.setInfo(new SwaggerInfo());
+        result.setServers(new ArrayList<>());
+        result.setTags(new ArrayList<>());
+        result.setComponents(new ArrayList<>());
+
+        JSONObject paths = new JSONObject();
+        JSONObject swaggerPath = new JSONObject();
+        for(ApiDefinitionWithBLOBs apiDefinition : apiDefinitionList) {
+            SwaggerApiInfo swaggerApiInfo = new SwaggerApiInfo();   //  {tags:, summary:, description:, parameters:}
+            swaggerApiInfo.setSummary(apiDefinition.getName());
+            //  设置导入后的模块名 （根据 api 的 moduleID 查库获得所属模块，作为导出的模块名）
+            ApiModuleService apiModuleService = CommonBeanFactory.getBean(ApiModuleService.class);
+            String moduleName = apiModuleService.getNode(apiDefinition.getModuleId()).getName();
+            swaggerApiInfo.setTags(Arrays.asList(moduleName));
+            //  设置请求体
+            JSONObject requestObject = JSON.parseObject(apiDefinition.getRequest());    //  将api的request属性转换成JSON对象以便获得参数
+            JSONObject requestBody = buildRequestBody(requestObject);
+            swaggerApiInfo.setRequestBody(requestBody);
+            //  设置请求参数列表
+            List<JSONObject> paramsList = buildParameters(requestObject);
+            swaggerApiInfo.setParameters(paramsList);
+            swaggerPath.put(apiDefinition.getMethod().toLowerCase(), JSON.parseObject(JSON.toJSONString(swaggerApiInfo)));   //  设置api的请求类型和api定义、参数
+            paths.put(apiDefinition.getPath(), swaggerPath);
+        }
+        result.setPaths(paths);
+        return result;
+    }
+
+    private List<JSONObject> buildParameters(JSONObject request) {
+        List<JSONObject> paramsList = new ArrayList<>();
+        Hashtable<String, String> typeMap = new Hashtable<String, String>() {{
+            put("headers", "header");
+            put("rest", "path");
+            put("arguments", "query");
+        }};
+        Set<String> typeKeys = typeMap.keySet();
+        for(String type : typeKeys) {
+            JSONArray params = request.getJSONArray(type);  //  获得请求参数列表
+            if(params != null) {
+                for(int i = 0; i < params.size(); ++i) {
+                    JSONObject param = params.getJSONObject(i); //  对于每个参数:
+                    SwaggerParams swaggerParam = new SwaggerParams();
+                    swaggerParam.setIn(typeMap.get(type));  //  利用 map，根据 request 的 key 设置对应的参数类型
+                    swaggerParam.setDescription((String) param.get("description"));
+                    swaggerParam.setName((String) param.get("name"));
+                    swaggerParam.setRequired((boolean) param.get("required"));
+                    paramsList.add(JSON.parseObject(JSON.toJSONString(swaggerParam)));
+                }
+            }
+        }
+        return paramsList;
+    }
+
+    private JSONObject buildRequestBody(JSONObject request) {
+        Hashtable<String, String> typeMap = new Hashtable<String, String>() {{
+            put("XML", org.springframework.http.MediaType.APPLICATION_XML_VALUE);
+            put("JSON", org.springframework.http.MediaType.APPLICATION_JSON_VALUE);
+            put("Raw", "application/urlencoded");
+            put("BINARY", org.springframework.http.MediaType.APPLICATION_OCTET_STREAM_VALUE);
+            put("Form Data", org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE);
+            put("WWW_FORM", org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED_VALUE);
+        }};
+        String type = request.getJSONObject("body").getString("type");
+        JSONObject requestBody = new JSONObject();
+        JSONObject schema = new JSONObject();
+        JSONObject typeName = new JSONObject();
+        schema.put("type", null);
+        schema.put("format", null);
+        typeName.put("schema", schema);
+        JSONObject content = new JSONObject();
+        content.put(typeMap.get(type), typeName);
+        requestBody.put("content", content);
+        return requestBody;
     }
 }

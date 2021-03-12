@@ -190,4 +190,9 @@ public class TestCaseController {
                 .body(bytes);
     }
 
+    @PostMapping("/save")
+    public TestCaseWithBLOBs saveTestCase(@RequestBody TestCaseWithBLOBs testCaseWithBLOBs) {
+        return testCaseService.addTestCase(testCaseWithBLOBs);
+    }
+
 }

@@ -58,7 +58,7 @@
             if (this.scenario.hashTree) {
               this.setDisabled(this.scenario.hashTree);
             }
-            this.scenario.disabled = true;
+            //this.scenario.disabled = true;
             this.scenario.name = response.data.name;
             if (!this.scenario.projectId) {
               this.scenario.projectId = response.data.projectId;

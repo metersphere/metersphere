@@ -8,7 +8,7 @@
         <el-input v-model="testCaseForm.name" autocomplete="off" :placeholder="$t('commons.name')"/>
       </el-form-item>
 
-      <el-form-item :label="$t('api_test.automation.scenario.principal')" prop="principal">
+      <el-form-item :label="$t('api_test.automation.scenario.principal')" prop="maintainer">
         <el-select v-model="testCaseForm.maintainer"
                    :placeholder="$t('api_test.automation.scenario.principal')" filterable size="small"
                    style="width: 100%">
@@ -61,59 +61,87 @@
 import {getCurrentProjectID, getCurrentUser, getUUID} from "@/common/js/utils";
 import {WORKSPACE_ID} from "@/common/js/constants";
 import MsDialogFooter from "@/business/components/common/components/MsDialogFooter";
+import {buildNodePath} from "@/business/components/api/definition/model/NodeTree";
 
 export default {
-name: "TestCaseCreate",
+  name: "TestCaseCreate",
   components: {MsDialogFooter},
-  data(){
-  return{
-    testCaseForm:{},
-    visible: false,
-    currentModule: {},
-    userOptions: [],
-    rule: {
-      name: [
-        {required: true, message: this.$t('test_track.case.input_name'), trigger: 'blur'},
-        {max: 100, message: this.$t('test_track.length_less_than') + '100', trigger: 'blur'}
-      ],
-      principal: [{
-        required: true,
-        message: this.$t('api_test.automation.scenario.select_principal'),
-        trigger: 'change'
-      }],
-    },
-  }
+  data() {
+    return {
+      testCaseForm: {},
+      visible: false,
+      currentModule: {},
+      userOptions: [],
+      rule: {
+        name: [
+          {required: true, message: this.$t('test_track.case.input_name'), trigger: 'blur'},
+          {max: 100, message: this.$t('test_track.length_less_than') + '100', trigger: 'blur'}
+        ],
+        maintainer: [{
+          required: true,
+          message: this.$t('api_test.automation.scenario.select_principal'),
+          trigger: 'change'
+        }],
+
+
+      },
+    }
   },
-  methods:{
-    saveTestCase(){
+  props: {
+    treeNodes: {
+      type: Array
+    },
+  },
+  watch: {
+    treeNodes() {
+      this.getModuleOptions();
+    },
+  },
+  methods: {
+    saveTestCase(saveAs) {
       this.$refs['testCaseForm'].validate((valid) => {
         if (valid) {
-          let path = "/api/automation/create";
-          this.setParameter();
-         /* this.$fileUpload(path, null, [], this.scenarioForm, () => {
+          let path = "/test/case/save";
+          this.testCaseForm.projectId = getCurrentProjectID();
+          this.testCaseForm.type = "";
+          this.testCaseForm.priority = "P0";
+          this.testCaseForm.method = "manual";
+          if(this.currentModule!==undefined){
+            this.testCaseForm.nodePath = this.currentModule.path;
+            this.testCaseForm.nodeId = this.currentModule.id;
+          }else{
+            this.testCaseForm.nodePath="/全部用例"
+            this.testCaseForm.nodeId="root"
+          }
+          this.result = this.$post(path, this.testCaseForm, response => {
+            this.testCaseForm.id=response.data.id
+            this.$success(this.$t('commons.save_success'));
             this.visible = false;
             if (saveAs) {
-              this.scenarioForm.request = JSON.stringify(this.scenarioForm.request);
-              this.$emit('saveAsEdit', this.scenarioForm);
+              this.$emit('saveAsEdit', this.testCaseForm);
             } else {
               this.$emit('refresh');
             }
-          });*/
+          })
         } else {
           return false;
         }
       })
     },
-    setParameter() {
-      this.scenarioForm.projectId = getCurrentProjectID();
-      this.scenarioForm.id = getUUID().substring(0, 8);
-      this.scenarioForm.protocol = this.currentProtocol;
-
-      if (this.currentModule && this.currentModule.id != "root") {
-        this.scenarioForm.modulePath = this.currentModule.method !== undefined ? this.currentModule.method : null;
-        this.scenarioForm.apiScenarioModuleId = this.currentModule.id;
+    getModuleOptions() {
+      let moduleOptions = [];
+      this.treeNodes.forEach(node => {
+        buildNodePath(node, {path: ''}, moduleOptions);
+      });
+      if(this.currentModule!==undefined){
+        moduleOptions.forEach(item => {
+          if (this.currentModule.id === item.id) {
+            this.currentModule.path = item.path;
+          }
+        });
       }
     },
+
     getMaintainerOptions() {
       let workspaceId = localStorage.getItem(WORKSPACE_ID);
       this.$post('/user/ws/member/tester/list', {workspaceId: workspaceId}, response => {
@@ -121,10 +149,11 @@ name: "TestCaseCreate",
       });
     },
     open(currentModule) {
-      this.scenarioForm = {principal: getCurrentUser().id};
+      this.testCaseForm = {maintainer: getCurrentUser().id};
       this.currentModule = currentModule;
       this.getMaintainerOptions();
       this.visible = true;
+      this.getModuleOptions()
     }
   }
 }

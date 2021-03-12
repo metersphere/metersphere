@@ -240,7 +240,8 @@ export default {
     base_config: 'Base Config',
     base: {
       url: 'Website URL',
-      url_tip: 'example：http://localhost:8081'
+      url_tip: 'example：http://localhost:8081',
+      url_is_null: 'The current site URL cannot be empty'
     }
   },
   workspace: {
@@ -427,6 +428,8 @@ export default {
     downloadJtl: 'Download JTL',
     test_execute_again: 'Test Execute Again',
     export: 'Export',
+    export_to_ms_format: 'Export to Metersphere format',
+    export_to_swagger3_format: 'Export to Swagger3.0 format',
     compare: 'Compare',
     generation_error: 'Report generation error, unable to view, please check log details!',
     being_generated: 'Report is being generated...',
@@ -478,7 +481,8 @@ export default {
     delete_file: "The file already exists, please delete the file with the same name first!",
     thread_num: 'Concurrent users:',
     input_thread_num: 'Please enter the number of threads',
-    duration: 'Duration time (seconds):',
+    duration: 'Duration time (seconds)',
+    granularity: 'Aggregation time (seconds)',
     input_duration: 'Please enter a duration',
     rps_limit: 'RPS Limit:',
     input_rps_limit: 'Please enter a limit',
@@ -533,6 +537,9 @@ export default {
     run: "Run",
     running: "Running",
     reset: "Rest",
+    select_all: "Select all",
+    invert_select: "Invert select",
+    select_or_invert: "Select all/Invert select",
     input_name: "Please enter the test name",
     select_project: "Please select project",
     variable_name: "Variable name",
@@ -596,7 +603,7 @@ export default {
         save_as_case: "Save as new use case",
         update_api: "Update interface",
         body_form_data: "form-data",
-        body_x_www_from_urlencoded: "x-www-from-urlencoded",
+        body_x_www_from_urlencoded: "x-www-form-urlencoded",
         body_raw: "raw",
         body_binary: "binary",
         body_json: "json",
@@ -913,7 +920,9 @@ export default {
       export_tip: "Export Tip",
       ms_tip: "Support for MeterSphere JSON format",
       ms_export_tip: "Export jSON-formatted files via MeterSphere website or browser plug-ins",
+      har_export_tip: "Export Har files by browser dev-tool",
       swagger_tip: "Swagger 2.0 and 3.0 json files are supported",
+      har_tip: "Only Har files are supported",
       postman_tip: "Only Postman Collection V2.1 json files are supported",
       postman_export_tip: "Export the test collection by Postman",
       swagger_export_tip: "Export jSON-formatted files via Swagger website",

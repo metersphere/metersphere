@@ -1,10 +1,6 @@
 <template>
   <div>
-    <api-list-container-with-doc
-      :is-api-list-enable="isApiListEnable"
-      :active-dom="activeDom"
-      @activeDomChange="activeDomChange"
-      @isApiListEnableChange="isApiListEnableChange">
+    <div>
 
       <el-link type="primary" @click="open" style="float: right;margin-top: 5px">{{ $t('commons.adv_search.title') }}
       </el-link>
@@ -31,7 +27,8 @@
 
         <el-table-column width="30" :resizable="false" align="center">
           <template v-slot:default="scope">
-            <show-more-btn :is-show="scope.row.showMore" :buttons="buttons" :size="selectDataCounts"/>
+            <!-- 选中记录后浮现的按钮，提供对记录的批量操作 -->
+            <show-more-btn :is-show="scope.row.showMore" :buttons="buttons" :size="selectDataCounts" v-tester/>
           </template>
         </el-table-column>
         <template v-for="(item, index) in tableLabel">
@@ -44,9 +41,11 @@
             sortable="custom"
             :key="index">
             <template slot-scope="scope">
-              <el-tooltip content="编辑">
+              <!-- 判断为只读用户的话不可点击ID进行编辑操作 -->
+              <span style="cursor:pointer" v-if="isReadOnly"> {{ scope.row.num }} </span>
+              <el-tooltip v-else content="编辑">
                 <a style="cursor:pointer" @click="editApi(scope.row)"> {{ scope.row.num }} </a>
-              </el-tooltip>
+              </el-tooltip >
             </template>
           </el-table-column>
           <el-table-column
@@ -159,7 +158,7 @@
             show-overflow-tooltip
             :key="index"/>
         </template>
-
+        <!-- 操作 -->
         <el-table-column fixed="right" v-if="!isReadOnly" min-width="180"
                          align="center">
 
@@ -172,6 +171,7 @@
                                       :tip="$t('api_test.automation.execute')"
                                       icon="el-icon-video-play"
                                       @exec="runApi(scope.row)"/>
+            <!-- 回收站的恢复按钮 -->
             <ms-table-operator-button :tip="$t('commons.reduction')" icon="el-icon-refresh-left"
                                       @exec="reductionApi(scope.row)" v-if="trashEnable" v-tester/>
             <ms-table-operator-button :tip="$t('commons.edit')" icon="el-icon-edit" @exec="editApi(scope.row)" v-else
@@ -183,6 +183,7 @@
               <el-button @click="handleTestCase(scope.row)"
                          @keydown.enter.native.prevent
                          type="primary"
+                         :disabled="isReadOnly"
                          circle
                          style="color:white;padding: 0px 0.1px;font-size: 11px;width: 28px;height: 28px;"
                          size="mini">case
@@ -197,7 +198,7 @@
       </el-table>
       <ms-table-pagination :change="initTable" :current-page.sync="currentPage" :page-size.sync="pageSize"
                            :total="total"/>
-    </api-list-container-with-doc>
+    </div>
     <ms-api-case-list @refresh="initTable" @showExecResult="showExecResult" :currentApi="selectApi" ref="caseList"/>
     <!--批量编辑-->
     <ms-batch-edit ref="batchEdit" @batchEdit="batchEdit" :typeArr="typeArr" :value-arr="valueArr"/>
@@ -222,18 +223,16 @@ import MsBottomContainer from "../BottomContainer";
 import ShowMoreBtn from "../../../../track/case/components/ShowMoreBtn";
 import MsBatchEdit from "../basis/BatchEdit";
 import {API_METHOD_COLOUR, API_STATUS, DUBBO_METHOD, REQ_METHOD, SQL_METHOD, TCP_METHOD} from "../../model/JsonData";
-import {downloadFile, getUUID} from "@/common/js/utils";
+import {checkoutTestManagerOrTestUser, downloadFile, getUUID} from "@/common/js/utils";
 import {PROJECT_NAME} from '@/common/js/constants';
 import {getCurrentProjectID, getCurrentUser} from "@/common/js/utils";
 import {API_LIST, TEST_CASE_LIST, WORKSPACE_ID} from '@/common/js/constants';
-import ApiListContainer from "./ApiListContainer";
 import MsTableHeaderSelectPopover from "@/business/components/common/components/table/MsTableHeaderSelectPopover";
 import ApiStatus from "@/business/components/api/definition/components/list/ApiStatus";
 import MsTableAdvSearchBar from "@/business/components/common/components/search/MsTableAdvSearchBar";
 import {API_DEFINITION_CONFIGS} from "@/business/components/common/components/search/search-components";
 import MsTipButton from "@/business/components/common/components/MsTipButton";
 import CaseBatchMove from "@/business/components/api/definition/components/basis/BatchMove";
-import ApiListContainerWithDoc from "@/business/components/api/definition/components/list/ApiListContainerWithDoc";
 import {
   _handleSelect,
   _handleSelectAll, buildBatchParam, getLabel,
@@ -241,7 +240,7 @@ import {
   setUnSelectIds, toggleAllSelection
 } from "@/common/js/tableUtils";
 import {_filter, _sort} from "@/common/js/tableUtils";
-import {Api_List, Track_Test_Case} from "@/business/components/common/model/JsonData";
+import {Api_List} from "@/business/components/common/model/JsonData";
 import HeaderCustom from "@/business/components/common/head/HeaderCustom";
 import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOperate";
 import {Body} from "@/business/components/api/definition/model/ApiTestModel";
@@ -255,7 +254,6 @@ export default {
     CaseBatchMove,
     ApiStatus,
     MsTableHeaderSelectPopover,
-    ApiListContainerWithDoc,
     MsTableButton,
     MsTableOperatorButton,
     MsTableOperator,
@@ -327,7 +325,7 @@ export default {
       currentPage: 1,
       pageSize: 10,
       total: 0,
-      screenHeight: document.documentElement.clientHeight - 270,//屏幕高度,
+      screenHeight: document.documentElement.clientHeight - 310,//屏幕高度,
       environmentId: undefined,
       selectDataCounts: 0,
     }
@@ -349,7 +347,6 @@ export default {
       type: Boolean,
       default: false,
     },
-    isApiListEnable: Boolean,
     isReadOnly: {
       type: Boolean,
       default: false
@@ -399,12 +396,6 @@ export default {
     },
     handleBatchMove() {
       this.$refs.testCaseBatchMove.open(this.moduleTree, [], this.moduleOptions);
-    },
-    isApiListEnableChange(data) {
-      this.$emit('isApiListEnableChange', data);
-    },
-    activeDomChange(tabType){
-      this.$emit("activeDomChange",tabType);
     },
     initTable() {
       getLabel(this, API_LIST);
@@ -707,18 +698,23 @@ export default {
       let ids = rowArray.map(s => s.id);
       return ids;
     },
-    exportApi() {
+    exportApi(type) {
       let param = buildBatchParam(this);
       param.protocol = this.currentProtocol;
       if (param.ids === undefined || param.ids.length < 1) {
         this.$warning(this.$t("api_test.definition.check_select"));
         return;
       }
-      this.result = this.$post("/api/definition/export", param, response => {
+      this.result = this.$post("/api/definition/export/" + type, param, response => {
         let obj = response.data;
-        obj.protocol = this.currentProtocol;
-        this.buildApiPath(obj.data);
-        downloadFile("Metersphere_Api_" + localStorage.getItem(PROJECT_NAME) + ".json", JSON.stringify(obj));
+        if(type == 'MS') {
+          obj.protocol = this.currentProtocol;
+          this.buildApiPath(obj.data);
+          downloadFile("Metersphere_Api_" + localStorage.getItem(PROJECT_NAME) + ".json", JSON.stringify(obj));
+        }
+        else {
+          downloadFile("Swagger_Api_" + localStorage.getItem(PROJECT_NAME) + ".json", JSON.stringify(obj));
+        }
       });
     },
     buildApiPath(apis) {

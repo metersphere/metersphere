@@ -9,7 +9,11 @@
       <el-table-column prop="index"  :label="$t('api_test.home_page.running_task_list.table_coloum.index')" width="80" show-overflow-tooltip/>
       <el-table-column prop="name"  :label="$t('commons.name')" width="200" >
         <template v-slot:default="{row}">
-          <el-link type="info" @click="redirect(row)">
+          <!-- 若为只读用户不可点击之后跳转-->
+          <span v-if="isReadOnly">
+            {{ row.name }}
+          </span>
+          <el-link v-else type="info" @click="redirect(row)">
             {{ row.name }}
           </el-link>
         </template>
@@ -25,9 +29,10 @@
         <template v-slot:default="scope">
           <div>
             <el-switch
+              :disabled="isReadOnly"
               v-model="scope.row.taskStatus"
               class="captcha-img"
-              @click.native="closeTaskConfirm(scope.row)"
+              @change="closeTaskConfirm(scope.row)"
             ></el-switch>
           </div>
         </template>
@@ -51,7 +56,7 @@
 </template>
 
 <script>
-import {getCurrentProjectID} from "@/common/js/utils";
+import {checkoutTestManagerOrTestUser, getCurrentProjectID} from "@/common/js/utils";
 import MsTag from "@/business/components/common/components/MsTag";
 export default {
   name: "MsRunningTaskList",
@@ -66,6 +71,12 @@ export default {
       tableData: [],
       visible: false,
       loading: false
+    }
+  },
+
+  computed:{
+    isReadOnly(){
+      return !checkoutTestManagerOrTestUser();
     }
   },
 

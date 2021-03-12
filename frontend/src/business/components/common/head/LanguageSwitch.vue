@@ -1,7 +1,7 @@
 <template>
   <el-menu :unique-opened="true" class="header-user-menu align-right"
            mode="horizontal"
-           background-color="#2c2a48"
+           :background-color="color"
            text-color="#fff"
            active-text-color="#fff"
   >
@@ -18,8 +18,8 @@
 </template>
 
 <script>
-  import {DEFAULT_LANGUAGE, EN_US, TokenKey, ZH_CN, ZH_TW} from '../../../../common/js/constants';
-  import {getCurrentUser} from "../../../../common/js/utils";
+import {DEFAULT_LANGUAGE, EN_US, TokenKey, ZH_CN, ZH_TW} from '../../../../common/js/constants';
+import {getCurrentUser} from "../../../../common/js/utils";
 
   export default {
     name: "MsLanguageSwitch",
@@ -33,6 +33,9 @@
           [ZH_TW]: '繁體中文',
         }
       };
+    },
+    props: {
+      color: String
     },
     created() {
       let lang = this.currentUser().language;

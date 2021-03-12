@@ -216,7 +216,7 @@
               }
               this.request.requestResult = requestResult;
               this.request.id = response.data.id;
-              this.request.disabled = true;
+              //this.request.disabled = true;
               if (!this.request.projectId) {
                 this.request.projectId = response.data.projectId;
               }
