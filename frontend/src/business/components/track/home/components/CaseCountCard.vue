@@ -68,7 +68,7 @@
           <el-aside width="60%" class="count-number-show" style="margin-bottom: 0px;margin-top: 0px">
             <el-container>
               <el-aside width="30%">
-                {{$t('api_test.home_page.detail_card.rate.completion')+":"}}
+                评审率:
               </el-aside>
               <el-main style="padding: 0px 0px 0px 0px; line-height: 100px; text-align: center;">
                 <span class="count-number">

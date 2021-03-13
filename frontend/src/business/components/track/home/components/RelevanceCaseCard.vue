@@ -2,7 +2,7 @@
   <el-card class="table-card" v-loading="result.loading" body-style="padding:10px;">
     <div slot="header" >
       <span class="title">
-        用例数量统计
+        关联用例数量统计
       </span>
     </div>
 
@@ -10,7 +10,7 @@
       <el-aside width="120px">
         <div class="main-number-show">
           <span class="count-number">
-            {{caseCountData}}
+            {{relevanceCountData.allRelevanceCaseCount}}
           </span>
           <span style="color: #6C317C;">
             {{$t('api_test.home_page.unit_of_measurement')}}
@@ -18,34 +18,17 @@
         </div>
       </el-aside>
       <el-main style="padding-left: 0px;padding-right: 0px;">
-        <div style="width: 200px;margin:0 auto">
+        <div style="width: 300px;margin:0 auto">
 
-          <el-row align="center" class="hidden-lg-and-down">
-            <el-col :span="6" style="padding: 5px;border-right-style: solid;border-right-width: 1px;border-right-color: #ECEEF4;">
-              <div class="count-info-div" v-html="1"></div>
+          <el-row align="center">
+            <el-col :span="6" style="width:90px;padding: 5px;border-right-style: solid;border-right-width: 1px;border-right-color: #ECEEF4;">
+              <div class="count-info-div" v-html="relevanceCountData.apiCaseCountStr"></div>
             </el-col>
-            <el-col :span="6" style="padding: 5px;border-right-style: solid;border-right-width: 1px;border-right-color: #ECEEF4;">
-              <div class="count-info-div" v-html="2"></div>
+            <el-col :span="6" style="width:90px;padding: 5px;border-right-style: solid;border-right-width: 1px;border-right-color: #ECEEF4;">
+              <div class="count-info-div" v-html="relevanceCountData.scenarioCaseStr"></div>
             </el-col>
-            <el-col :span="6" style="padding: 5px;border-right-style: solid;border-right-width: 1px;border-right-color: #ECEEF4;">
-              <div class="count-info-div" v-html="3"></div>
-            </el-col>
-            <el-col :span="6" style="padding: 5px;">
-              <div class="count-info-div" v-html="4"></div>
-            </el-col>
-          </el-row>
-          <el-row align="right" style="margin-left: 20px" class="hidden-xl-only">
-            <el-col :span="6" style="padding: 5px;border-right-style: solid;border-right-width: 1px;border-right-color: #ECEEF4;">
-              <div class="count-info-div" v-html="5"></div>
-            </el-col>
-            <el-col :span="6" style="padding: 5px;border-right-style: solid;border-right-width: 1px;border-right-color: #ECEEF4;">
-              <div class="count-info-div" v-html="6"></div>
-            </el-col>
-            <el-col :span="6" style="padding: 5px;border-right-style: solid;border-right-width: 1px;border-right-color: #ECEEF4;">
-              <div class="count-info-div" v-html="7"></div>
-            </el-col>
-            <el-col :span="6" style="padding: 5px;">
-              <div class="count-info-div" v-html="8"></div>
+            <el-col :span="6" style="width:90px;padding: 5px;">
+              <div class="count-info-div" v-html="relevanceCountData.performanceCaseCountStr"></div>
             </el-col>
           </el-row>
         </div>
@@ -57,7 +40,7 @@
         <el-row>
           <el-col>
             {{$t('api_test.home_page.api_details_card.this_week_add')}}
-            <el-link type="info" @click="redirectPage('thisWeekCount')" target="_blank" style="color: #000000">{{caseCountData}}
+            <el-link type="info" @click="redirectPage('thisWeekCount')" target="_blank" style="color: #000000">{{relevanceCountData.thisWeekAddedCount}}
             </el-link>
             {{$t('api_test.home_page.unit_of_measurement')}}
           </el-col>
@@ -68,11 +51,11 @@
           <el-aside width="60%" class="count-number-show" style="margin-bottom: 0px;margin-top: 0px">
             <el-container>
               <el-aside width="30%">
-                {{$t('api_test.home_page.detail_card.rate.completion')+":"}}
+                覆盖率:
               </el-aside>
               <el-main style="padding: 0px 0px 0px 0px; line-height: 100px; text-align: center;">
                 <span class="count-number">
-                {{caseCountData}}
+                {{relevanceCountData.coverageRage}}
               </span>
               </el-main>
             </el-container>
@@ -83,28 +66,19 @@
                 <el-row>
                   <el-col>
                     <span class="default-property">
-                      {{$t('api_test.home_page.detail_card.running')}}
+                      未覆盖
                       {{"\xa0\xa0"}}
                       <el-link type="info" @click="redirectPage('Underway')" target="_blank" style="color: #000000">
-                        {{caseCountData}}
-                      </el-link>
-                    </span>
-                  </el-col>
-                  <el-col style="margin-top: 5px;">
-                    <span class="default-property">
-                      {{$t('api_test.home_page.detail_card.not_started')}}
-                      {{"\xa0\xa0"}}
-                      <el-link type="info" @click="redirectPage('Prepare')" target="_blank" style="color: #000000">
-                        {{caseCountData}}
+                        {{relevanceCountData.uncoverageCount}}
                       </el-link>
                     </span>
                   </el-col>
                   <el-col style="margin-top: 5px;">
                     <span class="main-property">
-                      {{$t('api_test.home_page.detail_card.finished')}}
+                      已覆盖
                       {{"\xa0\xa0"}}
-                      <el-link type="info" @click="redirectPage('Completed')" target="_blank" style="color: #000000">
-                        {{caseCountData}}
+                      <el-link type="info" @click="redirectPage('Prepare')" target="_blank" style="color: #000000">
+                        {{relevanceCountData.coverageCount}}
                       </el-link>
                     </span>
                   </el-col>
@@ -122,7 +96,7 @@
 export default {
   name: "RelevanceCaseCard",
   props:{
-    caseCountData:{},
+    relevanceCountData:{},
   },
   data() {
     return {

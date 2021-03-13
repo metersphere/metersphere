@@ -60,4 +60,16 @@ public interface ExtTestCaseMapper {
     long countCreatedThisWeek(@Param("projectId") String projectId, @Param("firstDayTimestamp") long firstDayTimestamp, @Param("lastDayTimestamp") long lastDayTimestamp);
 
     List<TrackCountResult> countStatus(@Param("projectId") String projectId);
+
+    List<TrackCountResult> countRelevance(@Param("projectId") String projectId);
+
+    long countRelevanceCreatedThisWeek(@Param("projectId") String projectId,@Param("firstDayTimestamp") long firstDayTimestamp, @Param("lastDayTimestamp") long lastDayTimestamp);
+
+    List<TrackCountResult> countCoverage(@Param("projectId") String projectId);
+
+    List<TrackCountResult> countFuncMaintainer(@Param("projectId") String projectId);
+
+    List<TrackCountResult> countRelevanceMaintainer(@Param("projectId") String projectId);
+
+
 }

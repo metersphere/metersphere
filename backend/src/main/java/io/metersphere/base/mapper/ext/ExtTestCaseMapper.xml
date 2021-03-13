@@ -328,9 +328,33 @@
         SELECT count(id) AS countNumber FROM test_case WHERE test_case.project_id = #{projectId}
           AND create_time BETWEEN #{firstDayTimestamp} AND #{lastDayTimestamp}
     </select>
-
+    <!-- todo 排除删除的用例统计-->
     <select id="countStatus" resultType="io.metersphere.track.response.TrackCountResult">
-        SELECT review_status AS groupField,count(id) AS countNumber FROM test_case  WHERE project_id = #{projectId} GROUP BY test_case.review_status;
+        SELECT review_status AS groupField,count(id) AS countNumber FROM test_case  WHERE project_id = #{projectId} GROUP BY test_case.review_status
     </select>
+
+    <select id="countRelevance" resultType="io.metersphere.track.response.TrackCountResult">
+        SELECT type AS groupField, count(id) AS countNumber FROM test_case WHERE test_case.project_id = #{projectId} GROUP BY test_case.type
+    </select>
+    <select id="countRelevanceCreatedThisWeek" resultType="java.lang.Long">
+        SELECT count(id) AS countNumber FROM test_case WHERE test_case.project_id = #{projectId}
+        AND create_time BETWEEN #{firstDayTimestamp} AND #{lastDayTimestamp}
+    </select>
+
+    <select id="countCoverage" resultType="io.metersphere.track.response.TrackCountResult">
+        SELECT count(test_case.id) AS countNumber, if(test_case.test_id is null,"uncoverage","coverage") AS groupField
+        FROM test_case WHERE test_case.project_id=#{projectId} GROUP BY groupField
+    </select>
+    <select id="countFuncMaintainer" resultType="io.metersphere.track.response.TrackCountResult">
+        select count(tc.id) as countNumber, user.name as groupField from test_case tc right join user on tc.maintainer = user.id
+        where tc.project_id = #{projectId}
+        group by tc.maintainer
+    </select>
+    <select id="countRelevanceMaintainer" resultType="io.metersphere.track.response.TrackCountResult">
+        select count(tc.id) as countNumber, user.name as groupField from test_case tc right join user on tc.maintainer = user.id
+        where tc.project_id = #{projectId} and tc.test_id is not null
+        group by tc.maintainer
+    </select>
+
 
 </mapper>

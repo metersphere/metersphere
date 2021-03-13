@@ -1,7 +1,8 @@
 package io.metersphere.track.response;
 
+import io.metersphere.api.dto.datacount.ApiDataCountResult;
 import io.metersphere.commons.constants.TestReviewCaseStatus;
-import io.metersphere.track.request.testcase.CasePriority;
+import io.metersphere.track.request.testcase.TrackCount;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -47,7 +48,7 @@ public class TrackStatisticsDTO {
     /**
      * 关联用例数量统计
      */
-    private long relevanceCaseCount = 0;
+    private long allRelevanceCaseCount = 0;
 
     /**
      * 接口用例数量统计
@@ -110,16 +111,16 @@ public class TrackStatisticsDTO {
     public void countPriority(List<TrackCountResult> trackCountResults) {
         for (TrackCountResult countResult : trackCountResults) {
             switch (countResult.getGroupField().toUpperCase()){
-                case CasePriority.P0:
+                case TrackCount.P0:
                     this.p0CaseCountNumber += countResult.getCountNumber();
                     break;
-                case CasePriority.P1:
+                case TrackCount.P1:
                     this.p1CaseCountNumber += countResult.getCountNumber();
                     break;
-                case CasePriority.P2:
+                case TrackCount.P2:
                     this.p2CaseCountNumber += countResult.getCountNumber();
                     break;
-                case CasePriority.P3:
+                case TrackCount.P3:
                     this.p3CaseCountNumber += countResult.getCountNumber();
                     break;
                 default:
@@ -137,6 +138,35 @@ public class TrackStatisticsDTO {
                 this.passCount += countResult.getCountNumber();
             }else if(TestReviewCaseStatus.UnPass.name().equals(countResult.getGroupField())){
                 this.unPassCount += countResult.getCountNumber();
+            }
+        }
+    }
+
+    public void countRelevance(List<TrackCountResult> relevanceResults) {
+        for (TrackCountResult countResult : relevanceResults) {
+            switch (countResult.getGroupField().toUpperCase()){
+                case TrackCount.API:
+                    this.apiCaseCount += countResult.getCountNumber();
+                    break;
+                case TrackCount.PERFORMANCE:
+                    this.performanceCaseCount += countResult.getCountNumber();
+                    break;
+                case TrackCount.AUTOMATION:
+                    this.scenarioCaseCount += countResult.getCountNumber();
+                    break;
+                default:
+                    break;
+            }
+            this.allRelevanceCaseCount += countResult.getCountNumber();
+        }
+    }
+
+    public void countCoverage(List<TrackCountResult> coverageResults) {
+        for (TrackCountResult countResult : coverageResults) {
+            if("coverage".equals(countResult.getGroupField())){
+                this.coverageCount+= countResult.getCountNumber();
+            }else if("uncoverage".equals(countResult.getGroupField())){
+                this.uncoverageCount+= countResult.getCountNumber();
             }
         }
     }
