@@ -2,14 +2,14 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="io.metersphere.base.mapper.TestCaseMapper">
   <resultMap id="BaseResultMap" type="io.metersphere.base.domain.TestCase">
-    <id column="id" jdbcType="VARCHAR" property="id" />
-    <result column="node_id" jdbcType="VARCHAR" property="nodeId" />
-    <result column="node_path" jdbcType="VARCHAR" property="nodePath" />
-    <result column="project_id" jdbcType="VARCHAR" property="projectId" />
-    <result column="name" jdbcType="VARCHAR" property="name" />
-    <result column="type" jdbcType="VARCHAR" property="type" />
-    <result column="maintainer" jdbcType="VARCHAR" property="maintainer" />
-    <result column="priority" jdbcType="VARCHAR" property="priority" />
+    <id column="id" jdbcType="VARCHAR" property="id"/>
+    <result column="node_id" jdbcType="VARCHAR" property="nodeId"/>
+    <result column="node_path" jdbcType="VARCHAR" property="nodePath"/>
+    <result column="project_id" jdbcType="VARCHAR" property="projectId"/>
+    <result column="name" jdbcType="VARCHAR" property="name"/>
+    <result column="type" jdbcType="VARCHAR" property="type"/>
+    <result column="maintainer" jdbcType="VARCHAR" property="maintainer"/>
+    <result column="priority" jdbcType="VARCHAR" property="priority"/>
     <result column="method" jdbcType="VARCHAR" property="method"/>
     <result column="prerequisite" jdbcType="VARCHAR" property="prerequisite"/>
     <result column="create_time" jdbcType="BIGINT" property="createTime"/>
@@ -22,6 +22,8 @@
     <result column="tags" jdbcType="VARCHAR" property="tags"/>
     <result column="demand_id" jdbcType="VARCHAR" property="demandId"/>
     <result column="demand_name" jdbcType="VARCHAR" property="demandName"/>
+    <result column="follow_people" jdbcType="VARCHAR" property="followPeople"/>
+    <result column="status" jdbcType="VARCHAR" property="status"/>
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.TestCaseWithBLOBs">
     <result column="remark" jdbcType="LONGVARCHAR" property="remark" />
@@ -88,7 +90,7 @@
   <sql id="Base_Column_List">
     id, node_id, node_path, project_id, `name`, `type`, maintainer, priority, `method`, 
     prerequisite, create_time, update_time, test_id, sort, num, other_test_name, review_status, 
-    tags, demand_id, demand_name
+    tags, demand_id, demand_name, follow_people, `status`
   </sql>
   <sql id="Blob_Column_List">
     remark, steps
@@ -148,16 +150,16 @@
                            prerequisite, create_time, update_time,
                            test_id, sort, num,
                            other_test_name, review_status, tags,
-                           demand_id, demand_name, remark,
-                           steps)
+                           demand_id, demand_name, follow_people,
+                           `status`, remark, steps)
     values (#{id,jdbcType=VARCHAR}, #{nodeId,jdbcType=VARCHAR}, #{nodePath,jdbcType=VARCHAR},
             #{projectId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR},
             #{maintainer,jdbcType=VARCHAR}, #{priority,jdbcType=VARCHAR}, #{method,jdbcType=VARCHAR},
             #{prerequisite,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT},
             #{testId,jdbcType=VARCHAR}, #{sort,jdbcType=INTEGER}, #{num,jdbcType=INTEGER},
             #{otherTestName,jdbcType=VARCHAR}, #{reviewStatus,jdbcType=VARCHAR}, #{tags,jdbcType=VARCHAR},
-            #{demandId,jdbcType=VARCHAR}, #{demandName,jdbcType=VARCHAR}, #{remark,jdbcType=LONGVARCHAR},
-            #{steps,jdbcType=LONGVARCHAR})
+            #{demandId,jdbcType=VARCHAR}, #{demandName,jdbcType=VARCHAR}, #{followPeople,jdbcType=VARCHAR},
+            #{status,jdbcType=VARCHAR}, #{remark,jdbcType=LONGVARCHAR}, #{steps,jdbcType=LONGVARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.TestCaseWithBLOBs">
     insert into test_case
@@ -221,6 +223,12 @@
       </if>
       <if test="demandName != null">
         demand_name,
+      </if>
+      <if test="followPeople != null">
+        follow_people,
+      </if>
+      <if test="status != null">
+        `status`,
       </if>
       <if test="remark != null">
         remark,
@@ -289,6 +297,12 @@
       </if>
       <if test="demandName != null">
         #{demandName,jdbcType=VARCHAR},
+      </if>
+      <if test="followPeople != null">
+        #{followPeople,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        #{status,jdbcType=VARCHAR},
       </if>
       <if test="remark != null">
         #{remark,jdbcType=LONGVARCHAR},
@@ -367,6 +381,12 @@
       <if test="record.demandName != null">
         demand_name = #{record.demandName,jdbcType=VARCHAR},
       </if>
+      <if test="record.followPeople != null">
+        follow_people = #{record.followPeople,jdbcType=VARCHAR},
+      </if>
+      <if test="record.status != null">
+        `status` = #{record.status,jdbcType=VARCHAR},
+      </if>
       <if test="record.remark != null">
         remark = #{record.remark,jdbcType=LONGVARCHAR},
       </if>
@@ -381,40 +401,12 @@
   <update id="updateByExampleWithBLOBs" parameterType="map">
     update test_case
     set id = #{record.id,jdbcType=VARCHAR},
-      node_id = #{record.nodeId,jdbcType=VARCHAR},
-      node_path = #{record.nodePath,jdbcType=VARCHAR},
-      project_id = #{record.projectId,jdbcType=VARCHAR},
-      `name` = #{record.name,jdbcType=VARCHAR},
-      `type` = #{record.type,jdbcType=VARCHAR},
-      maintainer = #{record.maintainer,jdbcType=VARCHAR},
-      priority = #{record.priority,jdbcType=VARCHAR},
-    `method` = #{record.method,jdbcType=VARCHAR},
-    prerequisite = #{record.prerequisite,jdbcType=VARCHAR},
-    create_time = #{record.createTime,jdbcType=BIGINT},
-    update_time = #{record.updateTime,jdbcType=BIGINT},
-    test_id = #{record.testId,jdbcType=VARCHAR},
-    sort = #{record.sort,jdbcType=INTEGER},
-    num = #{record.num,jdbcType=INTEGER},
-    other_test_name = #{record.otherTestName,jdbcType=VARCHAR},
-    review_status = #{record.reviewStatus,jdbcType=VARCHAR},
-    tags = #{record.tags,jdbcType=VARCHAR},
-    demand_id = #{record.demandId,jdbcType=VARCHAR},
-    demand_name = #{record.demandName,jdbcType=VARCHAR},
-    remark = #{record.remark,jdbcType=LONGVARCHAR},
-    steps = #{record.steps,jdbcType=LONGVARCHAR}
-    <if test="_parameter != null">
-      <include refid="Update_By_Example_Where_Clause" />
-    </if>
-  </update>
-  <update id="updateByExample" parameterType="map">
-    update test_case
-    set id = #{record.id,jdbcType=VARCHAR},
-      node_id = #{record.nodeId,jdbcType=VARCHAR},
-      node_path = #{record.nodePath,jdbcType=VARCHAR},
-      project_id = #{record.projectId,jdbcType=VARCHAR},
-      `name` = #{record.name,jdbcType=VARCHAR},
-      `type` = #{record.type,jdbcType=VARCHAR},
-      maintainer = #{record.maintainer,jdbcType=VARCHAR},
+    node_id = #{record.nodeId,jdbcType=VARCHAR},
+    node_path = #{record.nodePath,jdbcType=VARCHAR},
+    project_id = #{record.projectId,jdbcType=VARCHAR},
+    `name` = #{record.name,jdbcType=VARCHAR},
+    `type` = #{record.type,jdbcType=VARCHAR},
+    maintainer = #{record.maintainer,jdbcType=VARCHAR},
     priority = #{record.priority,jdbcType=VARCHAR},
     `method` = #{record.method,jdbcType=VARCHAR},
     prerequisite = #{record.prerequisite,jdbcType=VARCHAR},
@@ -427,7 +419,39 @@
     review_status = #{record.reviewStatus,jdbcType=VARCHAR},
     tags = #{record.tags,jdbcType=VARCHAR},
     demand_id = #{record.demandId,jdbcType=VARCHAR},
-    demand_name = #{record.demandName,jdbcType=VARCHAR}
+    demand_name = #{record.demandName,jdbcType=VARCHAR},
+    follow_people = #{record.followPeople,jdbcType=VARCHAR},
+    `status` = #{record.status,jdbcType=VARCHAR},
+    remark = #{record.remark,jdbcType=LONGVARCHAR},
+    steps = #{record.steps,jdbcType=LONGVARCHAR}
+    <if test="_parameter != null">
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map">
+    update test_case
+    set id = #{record.id,jdbcType=VARCHAR},
+    node_id = #{record.nodeId,jdbcType=VARCHAR},
+    node_path = #{record.nodePath,jdbcType=VARCHAR},
+    project_id = #{record.projectId,jdbcType=VARCHAR},
+    `name` = #{record.name,jdbcType=VARCHAR},
+    `type` = #{record.type,jdbcType=VARCHAR},
+    maintainer = #{record.maintainer,jdbcType=VARCHAR},
+    priority = #{record.priority,jdbcType=VARCHAR},
+    `method` = #{record.method,jdbcType=VARCHAR},
+    prerequisite = #{record.prerequisite,jdbcType=VARCHAR},
+    create_time = #{record.createTime,jdbcType=BIGINT},
+    update_time = #{record.updateTime,jdbcType=BIGINT},
+    test_id = #{record.testId,jdbcType=VARCHAR},
+    sort = #{record.sort,jdbcType=INTEGER},
+    num = #{record.num,jdbcType=INTEGER},
+    other_test_name = #{record.otherTestName,jdbcType=VARCHAR},
+    review_status = #{record.reviewStatus,jdbcType=VARCHAR},
+    tags = #{record.tags,jdbcType=VARCHAR},
+    demand_id = #{record.demandId,jdbcType=VARCHAR},
+    demand_name = #{record.demandName,jdbcType=VARCHAR},
+    follow_people = #{record.followPeople,jdbcType=VARCHAR},
+    `status` = #{record.status,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -492,6 +516,12 @@
       <if test="demandName != null">
         demand_name = #{demandName,jdbcType=VARCHAR},
       </if>
+      <if test="followPeople != null">
+        follow_people = #{followPeople,jdbcType=VARCHAR},
+      </if>
+      <if test="status != null">
+        `status` = #{status,jdbcType=VARCHAR},
+      </if>
       <if test="remark != null">
         remark = #{remark,jdbcType=LONGVARCHAR},
       </if>
@@ -522,6 +552,8 @@
         tags            = #{tags,jdbcType=VARCHAR},
         demand_id       = #{demandId,jdbcType=VARCHAR},
         demand_name     = #{demandName,jdbcType=VARCHAR},
+        follow_people   = #{followPeople,jdbcType=VARCHAR},
+        `status`        = #{status,jdbcType=VARCHAR},
         remark          = #{remark,jdbcType=LONGVARCHAR},
         steps           = #{steps,jdbcType=LONGVARCHAR}
     where id = #{id,jdbcType=VARCHAR}
@@ -546,7 +578,9 @@
         review_status   = #{reviewStatus,jdbcType=VARCHAR},
         tags            = #{tags,jdbcType=VARCHAR},
         demand_id       = #{demandId,jdbcType=VARCHAR},
-        demand_name     = #{demandName,jdbcType=VARCHAR}
+        demand_name     = #{demandName,jdbcType=VARCHAR},
+        follow_people   = #{followPeople,jdbcType=VARCHAR},
+        `status`        = #{status,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

@@ -14,6 +14,7 @@ import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.config.KafkaProperties;
 import io.metersphere.controller.request.OrderRequest;
 import io.metersphere.controller.request.QueryScheduleRequest;
+import io.metersphere.controller.request.ScheduleRequest;
 import io.metersphere.dto.DashboardTestDTO;
 import io.metersphere.dto.LoadTestDTO;
 import io.metersphere.dto.ScheduleDao;
@@ -465,12 +466,12 @@ public class PerformanceTestService {
         addOrUpdatePerformanceTestCronJob(request);
     }
 
-    public void createSchedule(Schedule request) {
+    public void createSchedule(ScheduleRequest request) {
         scheduleService.addSchedule(buildPerformanceTestSchedule(request));
         addOrUpdatePerformanceTestCronJob(request);
     }
 
-    private Schedule buildPerformanceTestSchedule(Schedule request) {
+    private Schedule buildPerformanceTestSchedule(ScheduleRequest request) {
         Schedule schedule = scheduleService.buildApiTestSchedule(request);
         schedule.setJob(PerformanceTestJob.class.getName());
         schedule.setGroup(ScheduleGroup.PERFORMANCE_TEST.name());

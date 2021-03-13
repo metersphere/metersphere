@@ -13,11 +13,11 @@
     :title="$t('api_test.automation.scenario_import')">
 
     <template v-slot:behindHeaderLeft>
-      <el-tag size="mini" style="margin-left: 20px" v-if="scenario.referenced==='Deleted'" type="danger">{{$t('api_test.automation.reference_deleted')}}</el-tag>
-      <el-tag size="mini" style="margin-left: 20px" v-if="scenario.referenced==='Copy'">{{ $t('commons.copy') }}</el-tag>
-      <el-tag size="mini" style="margin-left: 20px" v-if="scenario.referenced==='REF'">{{ $t('api_test.scenario.reference') }}</el-tag>
+      <el-tag size="mini" class="ms-tag" v-if="scenario.referenced==='Deleted'" type="danger">{{$t('api_test.automation.reference_deleted')}}</el-tag>
+      <el-tag size="mini" class="ms-tag" v-if="scenario.referenced==='Copy'">{{ $t('commons.copy') }}</el-tag>
+      <el-tag size="mini" class="ms-tag" v-if="scenario.referenced==='REF'">{{ $t('api_test.scenario.reference') }}</el-tag>
 
-      <span style="margin-left: 20px;">{{getProjectName(scenario.projectId)}}</span>
+      <span class="ms-tag">{{getProjectName(scenario.projectId)}}</span>
     </template>
 
   </api-base-component>
@@ -58,7 +58,7 @@
             if (this.scenario.hashTree) {
               this.setDisabled(this.scenario.hashTree);
             }
-            this.scenario.disabled = true;
+            //this.scenario.disabled = true;
             this.scenario.name = response.data.name;
             if (!this.scenario.projectId) {
               this.scenario.projectId = response.data.projectId;
@@ -128,7 +128,7 @@
         }
       },
       getProjectName(id) {
-        const project = this.projectList.find(p => p.id === id) ;
+        const project = this.projectList.find(p => p.id === id);
         return project ? project.name : "";
       }
     }
@@ -145,4 +145,7 @@
     transform: rotate(90deg);
   }
 
+  .ms-tag {
+    margin-left: 20px;
+  }
 </style>

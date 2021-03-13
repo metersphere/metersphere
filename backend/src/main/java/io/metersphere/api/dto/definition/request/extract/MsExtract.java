@@ -66,7 +66,7 @@ public class MsExtract extends MsTestElement {
 
         RegexExtractor extractor = new RegexExtractor();
         extractor.setEnabled(this.isEnable());
-        extractor.setName(extractRegex.getVariable() + " RegexExtractor");
+        extractor.setName(StringUtils.isNotEmpty(this.getName()) ? this.getName() : " RegexExtractor");
         extractor.setProperty(TestElement.TEST_CLASS, RegexExtractor.class.getName());
         extractor.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("RegexExtractorGui"));
         extractor.setRefName(extractRegex.getVariable());
@@ -84,7 +84,7 @@ public class MsExtract extends MsTestElement {
     private XPath2Extractor xPath2Extractor(MsExtractXPath extractXPath, StringJoiner extract) {
         XPath2Extractor extractor = new XPath2Extractor();
         extractor.setEnabled(this.isEnable());
-        extractor.setName(extractXPath.getVariable() + " XPath2Extractor");
+        extractor.setName(StringUtils.isNotEmpty(this.getName()) ? this.getName() : " XPath2Extractor");
         extractor.setProperty(TestElement.TEST_CLASS, XPath2Extractor.class.getName());
         extractor.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("XPath2ExtractorGui"));
         extractor.setRefName(extractXPath.getVariable());
@@ -99,7 +99,7 @@ public class MsExtract extends MsTestElement {
     private JSONPostProcessor jsonPostProcessor(MsExtractJSONPath extractJSONPath, StringJoiner extract) {
         JSONPostProcessor extractor = new JSONPostProcessor();
         extractor.setEnabled(this.isEnable());
-        extractor.setName(extractJSONPath.getVariable() + " JSONExtractor");
+        extractor.setName(StringUtils.isNotEmpty(this.getName()) ? this.getName() : " JSONExtractor");
         extractor.setProperty(TestElement.TEST_CLASS, JSONPostProcessor.class.getName());
         extractor.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("JSONPostProcessorGui"));
         extractor.setRefNames(extractJSONPath.getVariable());

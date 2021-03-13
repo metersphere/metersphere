@@ -9,7 +9,48 @@ CREATE TABLE IF NOT EXISTS `user_header`
         primary key (id)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
-
+-- create table test_case_review_api_case
+create table test_case_review_api_case
+(
+    id                  varchar(50) not null,
+    test_case_review_id varchar(50) null,
+    api_case_id         varchar(50) null,
+    status              varchar(50) null,
+    environment_id      varchar(50) null,
+    create_time         bigint(13)  null,
+    update_time         bigint(13)  null,
+    primary key (id)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4;
+-- create table test_case_review_scenario
+create table test_case_review_scenario
+(
+    id                  varchar(50)  not null,
+    test_case_review_id varchar(50)  null,
+    api_scenario_id     varchar(50)  null,
+    status              varchar(50)  null,
+    environment         varchar(50)  null,
+    create_time         bigint(13)   null,
+    update_time         bigint(13)   null,
+    pass_rate           varchar(100) null,
+    last_result         varchar(100) null,
+    report_id           varchar(50)  null,
+    primary key (id)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4;
+-- create table test_case_review_load
+create table test_case_review_load
+(
+    id                  varchar(50) not null,
+    test_case_review_id varchar(50) null,
+    load_case_id        varchar(50) null,
+    status              varchar(50) null,
+    create_time         bigint(13)  null,
+    update_time         bigint(13)  null,
+    load_report_id      varchar(50) null,
+    primary key (id)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4;
 -- test_resource_pool add column
 ALTER TABLE test_resource_pool ADD heap VARCHAR(200) NULL;
 ALTER TABLE test_resource_pool ADD gc_algo VARCHAR(200) NULL;
@@ -37,14 +78,19 @@ alter table test_case
 
 alter table test_case
     add demand_name varchar(999) null;
+alter table test_case
+    add follow_people varchar(100) null;
 -- test_case_review add column
-ALTER TABLE test_case_review ADD tags VARCHAR(2000) NULL;
+ALTER TABLE test_case_review
+    ADD tags VARCHAR(2000) NULL;
 
 -- alter test_plan_api_scenario
-alter table test_plan_api_scenario change environment_id environment longtext null comment 'Relevance environment';
+alter table test_plan_api_scenario
+    change environment_id environment longtext null comment 'Relevance environment';
 
 -- file add sort column
-alter table file_metadata add sort int default 0;
+alter table file_metadata
+    add sort int default 0;
 
 -- add Original state
 alter table api_definition add original_state varchar(64);

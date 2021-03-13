@@ -55,7 +55,7 @@
 </template>
 
 <script>
-import {saveLocalStorage} from '@/common/js/utils';
+import {publicKeyEncrypt, saveLocalStorage} from '@/common/js/utils';
 import {DEFAULT_LANGUAGE} from "@/common/js/constants";
 
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
@@ -103,6 +103,8 @@ export default {
 
       if (!response.data.success) {
         this.ready = true;
+        // 保存公钥
+        localStorage.setItem("publicKey", response.data.message);
       } else {
         let user = response.data.data;
         saveLocalStorage(response.data);
@@ -159,7 +161,15 @@ export default {
       });
     },
     doLogin() {
-      this.result = this.$post(this.loginUrl, this.form, response => {
+      let publicKey = localStorage.getItem("publicKey");
+
+      let form = {
+        username: publicKeyEncrypt(this.form.username, publicKey),
+        password: publicKeyEncrypt(this.form.password, publicKey),
+        authenticate: this.form.authenticate
+      };
+
+      this.result = this.$post(this.loginUrl, form, response => {
         saveLocalStorage(response);
         sessionStorage.setItem('loginSuccess', 'true');
         this.getLanguage(response.data.language);

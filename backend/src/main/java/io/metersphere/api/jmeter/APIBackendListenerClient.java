@@ -253,7 +253,7 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
         String url2 = reportUrl;
         if (StringUtils.isEmpty(url)) {
             url = baseSystemConfigDTO.getUrl() + "/#/api/report/view/" + report.getId();
-            url2 = baseSystemConfigDTO.getUrl() + "/#/api/automation/report";
+            url2 = baseSystemConfigDTO.getUrl() + "/#/api/automation/report/view/" + report.getId();
         }
         String successContext = "";
         String failedContext = "";

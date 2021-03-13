@@ -132,6 +132,7 @@ import MsChart from "@/business/components/common/chart/MsChart";
 import {findThreadGroup} from "@/business/components/performance/test/model/ThreadGroup";
 
 const HANDLER = "handler";
+const THREAD_GROUP_TYPE = "tgType";
 const TARGET_LEVEL = "TargetLevel";
 const RAMP_UP = "RampUp";
 const STEPS = "Steps";
@@ -224,6 +225,9 @@ export default {
               break;
             case HANDLER:
               this.threadGroups[i].handler = item.value;
+              break;
+            case THREAD_GROUP_TYPE:
+              this.threadGroups[i].tgType = item.value;
               break;
             default:
               break;
@@ -360,7 +364,7 @@ export default {
             if (j === 0) {
               seriesData.data.push([0, 0]);
             }
-            if (j > tg.rampUpTime) {
+            if (j >= tg.rampUpTime) {
               xAxis.push(tg.duration);
 
               seriesData.data.push([j, tg.threadNumber]);
@@ -471,7 +475,7 @@ export default {
           if (i === 0) {
             handler.options.series[0].data.push([0, 0]);
           }
-          if (i > handler.rampUpTime) {
+          if (i >= handler.rampUpTime) {
             handler.options.xAxis.data.push(handler.duration);
 
             handler.options.series[0].data.push([i, handler.threadNumber]);

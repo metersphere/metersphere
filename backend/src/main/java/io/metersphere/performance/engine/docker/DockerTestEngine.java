@@ -103,12 +103,18 @@ public class DockerTestEngine extends AbstractEngine {
         startTestRequest.setEnv(env);
 
         String uri = String.format(BASE_URL + "/jmeter/container/start", nodeIp, port);
-        ResultHolder result = restTemplate.postForObject(uri, startTestRequest, ResultHolder.class);
-        if (result == null) {
-            MSException.throwException(Translator.get("start_engine_fail"));
-        }
-        if (!result.isSuccess()) {
-            MSException.throwException(result.getMessage());
+        try {
+            ResultHolder result = restTemplate.postForObject(uri, startTestRequest, ResultHolder.class);
+            if (result == null) {
+                MSException.throwException(Translator.get("start_engine_fail"));
+            }
+            if (!result.isSuccess()) {
+                MSException.throwException(result.getMessage());
+            }
+        } catch (MSException e) {
+            throw e;
+        } catch (Exception e) {
+            MSException.throwException("Please check node-controller status.");
         }
     }
 
