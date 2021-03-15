@@ -83,27 +83,27 @@
                 <el-row>
                   <el-col>
                     <span class="default-property">
-                      {{$t('api_test.home_page.detail_card.running')}}
+                      未评审
                       {{"\xa0\xa0"}}
-                      <el-link type="info" @click="redirectPage('Underway')" target="_blank" style="color: #000000">
+                      <el-link type="info" @click="redirectPage('Prepare')" target="_blank" style="color: #000000">
                         {{trackCountData.prepareCount}}
                       </el-link>
                     </span>
                   </el-col>
                   <el-col style="margin-top: 5px;">
                     <span class="default-property">
-                      {{$t('api_test.home_page.detail_card.not_started')}}
+                      未通过
                       {{"\xa0\xa0"}}
-                      <el-link type="info" @click="redirectPage('Prepare')" target="_blank" style="color: #000000">
+                      <el-link type="info" @click="redirectPage('Pass')" target="_blank" style="color: #000000">
                         {{trackCountData.passCount}}
                       </el-link>
                     </span>
                   </el-col>
                   <el-col style="margin-top: 5px;">
                     <span class="main-property">
-                      {{$t('api_test.home_page.detail_card.finished')}}
+                      已通过
                       {{"\xa0\xa0"}}
-                      <el-link type="info" @click="redirectPage('Completed')" target="_blank" style="color: #000000">
+                      <el-link type="info" @click="redirectPage('UnPass')" target="_blank" style="color: #000000">
                         {{trackCountData.unPassCount}}
                       </el-link>
                     </span>
@@ -133,7 +133,7 @@ export default {
   },
   methods: {
     redirectPage(clickType){
-      this.$emit("redirectPage","api","api",clickType);
+      this.$emit("redirectPage","case", "case",clickType);
     }
   }
 }

@@ -5,7 +5,6 @@ import com.alibaba.excel.EasyExcelFactory;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.github.pagehelper.PageHelper;
-import io.metersphere.api.dto.definition.ApiBatchRequest;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtTestCaseMapper;
@@ -14,10 +13,7 @@ import io.metersphere.commons.constants.TestCaseConstants;
 import io.metersphere.commons.constants.TestCaseReviewStatus;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.user.SessionUser;
-import io.metersphere.commons.utils.BeanUtils;
-import io.metersphere.commons.utils.LogUtil;
-import io.metersphere.commons.utils.ServiceUtils;
-import io.metersphere.commons.utils.SessionUtils;
+import io.metersphere.commons.utils.*;
 import io.metersphere.controller.request.OrderRequest;
 import io.metersphere.excel.domain.ExcelErrData;
 import io.metersphere.excel.domain.ExcelResponse;
@@ -188,6 +184,7 @@ public class TestCaseService {
     }
 
     public List<TestCaseDTO> listTestCase(QueryTestCaseRequest request) {
+        this.initRequest(request, true);
         List<OrderRequest> orderList = ServiceUtils.getDefaultOrder(request.getOrders());
         OrderRequest order = new OrderRequest();
         // 对模板导入的测试用例排序
@@ -196,6 +193,25 @@ public class TestCaseService {
         orderList.add(order);
         request.setOrders(orderList);
         return extTestCaseMapper.list(request);
+    }
+
+    /**
+     * 初始化部分参数
+     *
+     * @param request
+     * @param checkThisWeekData
+     * @return
+     */
+    private void initRequest(QueryTestCaseRequest request, boolean checkThisWeekData) {
+        if (checkThisWeekData) {
+            if (request.isSelectThisWeedData()) {
+                Map<String, Date> weekFirstTimeAndLastTime = DateUtils.getWeedFirstTimeAndLastTime(new Date());
+                Date weekFirstTime = weekFirstTimeAndLastTime.get("firstTime");
+                if (weekFirstTime != null) {
+                    request.setCreateTime(weekFirstTime.getTime());
+                }
+            }
+        }
     }
 
     public List<TestCaseDTO> listTestCaseMthod(QueryTestCaseRequest request) {
