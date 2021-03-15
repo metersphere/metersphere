@@ -42,6 +42,8 @@ public class ShiroUtils {
         //api-对外文档页面提供的查询接口
         filterChainDefinitionMap.put("/api/document/**", "anon");
 //        filterChainDefinitionMap.put("/document/**", "anon");
+        filterChainDefinitionMap.put("/system/theme", "anon");
+
     }
 
     public static void ignoreCsrfFilter(Map<String, String> filterChainDefinitionMap) {

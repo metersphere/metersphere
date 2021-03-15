@@ -56,7 +56,7 @@
 
 <script>
 import {publicKeyEncrypt, saveLocalStorage} from '@/common/js/utils';
-import {DEFAULT_LANGUAGE} from "@/common/js/constants";
+import {DEFAULT_LANGUAGE, PRIMARY_COLOR} from "@/common/js/constants";
 
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
 const display = requireComponent.keys().length > 0 ? requireComponent("./display/Display.vue") : {};
@@ -91,6 +91,10 @@ export default {
     }
   },
   beforeCreate() {
+    this.$get('/system/theme', res => {
+      this.color = res.data ? res.data : PRIMARY_COLOR;
+      document.body.style.setProperty('--primary_color', this.color);
+    })
     this.result = this.$get("/isLogin").then(response => {
 
       if (display.default !== undefined) {
@@ -230,7 +234,7 @@ export default {
   margin-top: 12px;
   margin-bottom: 75px;
   font-size: 14px;
-  color: #843697;
+  color: var(--primary_color);
   line-height: 14px;
   text-align: center;
 }
@@ -243,18 +247,18 @@ export default {
 
 .btn > .submit {
   border-radius: 70px;
-  border-color: #8B479B;
-  background-color: #8B479B;
+  border-color: var(--primary_color);
+  background-color: var(--primary_color);
 }
 
 .btn > .submit:hover {
-  border-color: rgba(139, 71, 155, 0.9);
-  background-color: rgba(139, 71, 155, 0.9);
+  border-color: var(--primary_color);
+  background-color: var(--primary_color);
 }
 
 .btn > .submit:active {
-  border-color: rgba(139, 71, 155, 0.8);
-  background-color: rgba(139, 71, 155, 0.8);
+  border-color: var(--primary_color);
+  background-color: var(--primary_color);
 }
 
 .el-form-item:first-child {
@@ -262,13 +266,13 @@ export default {
 }
 
 /deep/ .el-radio__input.is-checked .el-radio__inner {
-  background-color: #783887;
-  background: #783887;
-  border-color: #783887;
+  background-color: var(--primary_color);
+  background: var(--primary_color);
+  border-color: var(--primary_color);
 }
 
 /deep/ .el-radio__input.is-checked + .el-radio__label {
-  color: #783887;
+  color: var(--primary_color);
 }
 
 /deep/ .el-input__inner {
@@ -284,7 +288,7 @@ export default {
 }
 
 /deep/ .el-input__inner:focus {
-  border: 1px solid #783887 !important;
+  border: 1px solid var(--primary_color) !important;
 }
 
 .divider {

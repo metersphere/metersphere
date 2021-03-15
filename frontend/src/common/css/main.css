@@ -17,6 +17,7 @@ body {
   /*--color: #2c2a48;*/
   /*--color_shallow: #595591;*/
   --color: '';
+  --primary_color: '';
   --color_shallow: '';
   --count_number: '';
   --count_number_shallow: '';
