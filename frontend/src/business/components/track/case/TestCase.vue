@@ -102,7 +102,7 @@ import {checkoutTestManagerOrTestUser, getCurrentProjectID, getUUID} from "../..
 import TestCaseNodeTree from "../common/TestCaseNodeTree";
 
 import MsTabButton from "@/business/components/common/components/MsTabButton";
-import TestCaseMinder from "@/business/components/track/case/components/minder/TestCaseMinder";
+import TestCaseMinder from "@/business/components/track/common/minder/TestCaseMinder";
 
 export default {
   name: "TestCase",

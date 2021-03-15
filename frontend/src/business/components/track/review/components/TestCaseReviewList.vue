@@ -1,12 +1,9 @@
 <template>
-  <el-card class="table-card" v-loading="result.loading">
-    <template v-slot:header>
+  <div class="table-card" v-loading="result.loading">
       <ms-table-header :is-tester-permission="true" :condition.sync="condition"
                        @search="initTableData" @create="testCaseReviewCreate"
                        :create-tip="$t('test_track.review.create_review')"
                        :title="$t('test_track.review.test_review')"/>
-    </template>
-
     <el-table
       border
       class="adjust-table"
@@ -106,8 +103,7 @@
     <ms-table-pagination :change="initTableData" :current-page.sync="currentPage" :page-size.sync="pageSize"
                          :total="total"/>
     <ms-delete-confirm :title="$t('test_track.review.delete')" @delete="_handleDelete" ref="deleteConfirm"/>
-
-  </el-card>
+  </div>
 </template>
 
 <script>

@@ -5,6 +5,7 @@
       class="minder-container"
       :import-json="importJson"
       :height="700"
+      :progress-enable="false"
       @save="save"
     />
   </div>

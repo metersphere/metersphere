@@ -9,6 +9,7 @@
 
 <script>
 import MsModuleMinder from "@/business/components/common/components/MsModuleMinder";
+import {getTestCaseDataMap} from "@/business/components/track/common/minder/minderUtils";
 export default {
 name: "TestCaseMinder",
   components: {MsModuleMinder},
@@ -39,7 +40,7 @@ name: "TestCaseMinder",
       if (this.projectId) {
         this.result = this.$get('/test/case/list/detail/' + this.projectId,response => {
           this.testCase = response.data;
-          this.parse();
+          this.dataMap = getTestCaseDataMap(this.testCase);
         });
       }
     },
@@ -113,63 +114,7 @@ name: "TestCaseMinder",
         saveCases.push(testCase);
       }
     },
-    parse() {
-      let dataMap = new Map();
-      this.testCase.forEach(item => {
-        item.steps = JSON.parse(item.steps);
-        // if (item.tags && item.tags.length > 0) {
-        //   item.tags = JSON.parse(item.tags);
-        // }
-        let mapItem = dataMap.get(item.nodeId);
-        let nodeItem = {
-          data: {
-            id: item.id,
-            text: item.name,
-            priority: Number.parseInt(item.priority.substring(item.priority.length - 1 )),
-            resource: ["用例"],
-            type: item.type,
-            method: item.method,
-            maintainer: item.maintainer
-          }
-        }
-        this.parseChildren(nodeItem, item);
-        if (mapItem) {
-          mapItem.push(nodeItem);
-        } else {
-          mapItem = [];
-          mapItem.push(nodeItem);
-          dataMap.set(item.nodeId, mapItem);
-        }
-      })
-      this.dataMap = dataMap;
-    },
-    parseChildren(nodeItem, item) {
-      nodeItem.children = [];
-      let children = [];
-      this._parseChildren(children, item.prerequisite, "前置条件");
-      item.steps.forEach((step) => {
-        let descNode = this._parseChildren(children, step.desc, "测试步骤");
-        if (descNode) {
-          descNode.data.num = step.num;
-          descNode.children = [];
-          this._parseChildren(descNode.children, step.result, "预期结果");
-        }
-      });
-      this._parseChildren(children, item.remark, "备注");
-      nodeItem.children = children;
-    },
-    _parseChildren(children, k, v) {
-      if (k) {
-        let node = {
-          data: {
-            text: k,
-            resource: [v]
-          }
-        }
-        children.push(node);
-        return node;
-      }
-    }
+
   }
 }
 </script>
