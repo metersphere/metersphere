@@ -97,3 +97,44 @@ alter table api_definition add original_state varchar(64);
 alter table api_scenario add original_state varchar(64);
 update api_definition set original_state='Underway';
 update api_scenario set original_state='Underway';
+
+-- schedule table add project_id column
+alter table schedule add project_id varchar(50) NULL;
+-- set values for new colums of exitsting data
+update schedule sch inner join test_plan testPlan on
+      testPlan.id = sch.resource_id
+      set sch.project_id = testPlan.project_id where
+            sch.resource_id = testPlan.id;
+update schedule sch inner join swagger_url_project sup on
+      sup.id = sch.resource_id
+      set sch.project_id = sup.project_id where
+            sch.resource_id = sup.id;
+update schedule sch inner join api_scenario apiScene on
+      apiScene.id = sch.resource_id
+      set sch.project_id = apiScene.project_id where
+            sch.resource_id = apiScene.id;
+update schedule sch inner join load_test ldt on
+      ldt.id = sch.resource_id
+      set sch.project_id = ldt.project_id where
+            sch.resource_id = ldt.id;
+update schedule sch inner join api_test apiTest on
+      apiTest.id = sch.resource_id
+      set sch.project_id = apiTest.project_id where
+            sch.resource_id = apiTest.id;
+-- schedule table add name column
+alter table schedule add name varchar(100) NULL;
+-- set values for new colums of exitsting data
+update schedule sch inner join api_scenario apiScene on
+	apiScene.id = sch.resource_id
+	set sch.name = apiScene.name;
+update schedule sch inner join test_plan testPlan on
+	testPlan.id = sch.resource_id
+	set sch.name = testPlan.name;
+update schedule sch inner join load_test ldt on
+	ldt.id = sch.resource_id
+	set sch.name = ldt.name;
+update schedule sch inner join api_test apiTest on
+	apiTest.id = sch.resource_id
+	set sch.name = apiTest.name;
+-- delete an unused colum
+alter table schedule drop column custom_data;
