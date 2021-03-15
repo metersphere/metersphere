@@ -136,5 +136,8 @@ update schedule sch inner join load_test ldt on
 update schedule sch inner join api_test apiTest on
 	apiTest.id = sch.resource_id
 	set sch.name = apiTest.name;
+update schedule sch inner join swagger_url_project sup on
+	sup.id = sch.resource_id
+	set sch.name = LEFT(SUBSTRING_INDEX(sup.swagger_url, '/', 3), 100);
 -- delete an unused colum
 alter table schedule drop column custom_data;
