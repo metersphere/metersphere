@@ -50,11 +50,23 @@ const IsReadOnly = {
   }
 }
 
+const Theme = {
+  state: {
+    theme: undefined
+  },
+  mutations: {
+    setTheme(state, value) {
+      state.theme = value;
+    }
+  }
+}
+
 export default new Vuex.Store({
   modules: {
     api: API,
     common: Common,
     switch: Switch,
     isReadOnly: IsReadOnly,
+    theme: Theme
   }
 })
