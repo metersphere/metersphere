@@ -5,6 +5,7 @@
     :data="timer"
     :draggable="true"
     :show-collapse="false"
+    :is-max="isMax"
     color="#67C23A"
     background-color="#F2F9EE"
     :title="$t('api_test.automation.wait_controller')">
@@ -26,6 +27,14 @@
     props: {
       timer: {},
       node: {},
+      isMax: {
+        type: Boolean,
+        default: false,
+      },
+      showBtn: {
+        type: Boolean,
+        default: true,
+      },
       draggable: {
         type: Boolean,
         default: false,

@@ -49,6 +49,7 @@ import sun.security.util.Cache;
 
 import javax.annotation.Resource;
 import java.io.File;
+import java.net.MalformedURLException;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -215,7 +216,6 @@ public class ApiDefinitionService {
         ApiDefinitionExample example = new ApiDefinitionExample();
         if (request.getProtocol().equals(RequestType.HTTP)) {
             example.createCriteria().andMethodEqualTo(request.getMethod()).andStatusNotEqualTo("Trash")
-                    .andProtocolEqualTo(request.getProtocol()).andPathEqualTo(request.getPath())
                     .andProjectIdEqualTo(request.getProjectId()).andIdNotEqualTo(request.getId());
             return apiDefinitionMapper.selectByExample(example);
         } else {
@@ -703,7 +703,7 @@ public class ApiDefinitionService {
     }
 
     /*swagger定时导入*/
-    public void createSchedule(ScheduleRequest request) {
+    public void createSchedule(ScheduleRequest request) throws MalformedURLException {
         /*保存swaggerUrl*/
         SwaggerUrlProject swaggerUrlProject = new SwaggerUrlProject();
         swaggerUrlProject.setId(UUID.randomUUID().toString());
@@ -715,6 +715,9 @@ public class ApiDefinitionService {
         scheduleService.addSwaggerUrlSchedule(swaggerUrlProject);
         request.setResourceId(swaggerUrlProject.getId());
         Schedule schedule = scheduleService.buildApiTestSchedule(request);
+        schedule.setProjectId(swaggerUrlProject.getProjectId());
+        java.net.URL swaggerUrl = new java.net.URL(swaggerUrlProject.getSwaggerUrl());
+        schedule.setName(swaggerUrl.getHost()); //  swagger 定时任务的 name 设置为 swaggerURL 的域名
         schedule.setJob(SwaggerUrlImportJob.class.getName());
         schedule.setGroup(ScheduleGroup.SWAGGER_IMPORT.name());
         schedule.setType(ScheduleType.CRON.name());

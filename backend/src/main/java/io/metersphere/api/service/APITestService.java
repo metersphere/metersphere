@@ -339,6 +339,8 @@ public class APITestService {
         schedule.setJob(ApiTestJob.class.getName());
         schedule.setGroup(ScheduleGroup.API_TEST.name());
         schedule.setType(ScheduleType.CRON.name());
+        schedule.setProjectId(request.getProjectId());
+        schedule.setName(request.getName());
         return schedule;
     }
 

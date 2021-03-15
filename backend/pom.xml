@@ -541,6 +541,11 @@
                                         <include name="*.html"/>
                                     </fileset>
                                 </move>
+                                <copy todir="src/main/resources/static/css">
+                                    <fileset dir="../frontend/src/assets/theme">
+                                        <include name="index.css"/>
+                                    </fileset>
+                                </copy>
                             </target>
                         </configuration>
                         <goals>

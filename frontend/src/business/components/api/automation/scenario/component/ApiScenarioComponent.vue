@@ -8,6 +8,8 @@
     :show-collapse="false"
     :is-show-name-input="!isDeletedOrRef"
     :is-disabled="true"
+    :is-max="isMax"
+    :show-btn="showBtn"
     color="#606266"
     background-color="#F4F4F5"
     :title="$t('api_test.automation.scenario_import')">
@@ -36,6 +38,14 @@
     props: {
       scenario: {},
       node: {},
+      isMax: {
+        type: Boolean,
+        default: false,
+      },
+      showBtn: {
+        type: Boolean,
+        default: true,
+      },
       draggable: {
         type: Boolean,
         default: false,
