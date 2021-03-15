@@ -32,6 +32,7 @@ import io.metersphere.track.dto.TestCaseDTO;
 import io.metersphere.track.request.testcase.EditTestCaseRequest;
 import io.metersphere.track.request.testcase.QueryTestCaseRequest;
 import io.metersphere.track.request.testcase.TestCaseBatchRequest;
+import io.metersphere.track.request.testcase.TestCaseMinderEditRequest;
 import io.metersphere.xmind.XmindCaseParser;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -705,4 +706,23 @@ public class TestCaseService {
         return extTestCaseMapper.list(request);
     }
 
+    public List<TestCaseWithBLOBs> listTestCaseDetail(String projectId) {
+        TestCaseExample testCaseExample = new TestCaseExample();
+        testCaseExample.createCriteria().andProjectIdEqualTo(projectId);
+        return testCaseMapper.selectByExampleWithBLOBs(testCaseExample);
+    }
+
+    public void minderEdit(TestCaseMinderEditRequest request) {
+        List<TestCaseWithBLOBs> data = request.getData();
+        data.forEach(item -> {
+            item.setProjectId(request.getProjectId());
+            if (StringUtils.isBlank(item.getId()) || item.getId().length() < 20) {
+                item.setId(UUID.randomUUID().toString());
+                item.setMaintainer(SessionUtils.getUserId());
+                addTestCase(item);
+            } else {
+                editTestCase(item);
+            }
+        });
+    }
 }
