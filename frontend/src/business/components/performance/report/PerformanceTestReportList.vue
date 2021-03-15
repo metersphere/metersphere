@@ -55,7 +55,7 @@
               <span>{{ scope.row.createTime | timestampFormatDate }}</span>
             </template>
           </el-table-column>
-          <el-table-column prop="triggerMode" width="150" :label="'触发方式'" column-key="triggerMode"
+          <el-table-column prop="triggerMode" width="150" :label="$t('test_track.report.list.trigger_mode')" column-key="triggerMode"
                            :filters="triggerFilters">
             <template v-slot:default="scope">
               <report-trigger-mode-item :trigger-mode="scope.row.triggerMode"/>
@@ -76,6 +76,8 @@
             <template v-slot:default="scope">
               <ms-table-operator-button :tip="$t('api_report.detail')" icon="el-icon-s-data"
                                         @exec="handleEdit(scope.row)" type="primary"/>
+              <ms-table-operator-button :tip="$t('load_test.report.diff')" icon="el-icon-more"
+                                        @exec="handleDiff(scope.row)" type="success"/>
               <ms-table-operator-button :is-tester-permission="true" :tip="$t('api_report.delete')"
                                         icon="el-icon-delete" @exec="handleDelete(scope.row)" type="danger"/>
             </template>
@@ -93,7 +95,7 @@ import MsTablePagination from "../../common/pagination/TablePagination";
 import MsContainer from "../../common/components/MsContainer";
 import MsMainContainer from "../../common/components/MsMainContainer";
 import MsPerformanceReportStatus from "./PerformanceReportStatus";
-import {getCurrentProjectID} from "../../../../common/js/utils";
+import {getCurrentProjectID} from "@/common/js/utils";
 import MsTableOperatorButton from "../../common/components/MsTableOperatorButton";
 import ReportTriggerModeItem from "../../common/tableItem/ReportTriggerModeItem";
 import {REPORT_CONFIGS} from "../../common/components/search/search-components";
@@ -104,7 +106,7 @@ import {_filter, _sort} from "@/common/js/tableUtils";
 
 
 export default {
-  name: "PerformanceTestReport",
+  name: "PerformanceTestReportList",
   components: {
     MsTableHeader,
     ReportTriggerModeItem,
@@ -203,6 +205,9 @@ export default {
           }
         }
       });
+    },
+    handleDiff(report) {
+      console.log("aaa");
     },
     _handleDeleteNoMsg(report) {
       this.result = this.$post(this.deletePath + report.id, {}, () => {

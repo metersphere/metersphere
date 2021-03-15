@@ -530,6 +530,9 @@ export default {
     load_exist_jmx: 'Load Project JMX',
     threadgroup_at_least_one: 'At least one ThreadGroup is enabled',
     load_api_automation_jmx: 'Import API automation scenario',
+    report: {
+      diff: "Compare"
+    }
   },
   api_test: {
     creator: "Creator",

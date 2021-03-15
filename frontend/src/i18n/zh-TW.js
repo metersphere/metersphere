@@ -529,6 +529,9 @@ export default {
     load_exist_jmx: '加載已有 JMX 文件',
     threadgroup_at_least_one: '至少啟用一個線程組',
     load_api_automation_jmx: '引用接口自動化場景',
+    report: {
+      diff: "對比"
+    }
   },
   api_test: {
     creator: "創建人",
