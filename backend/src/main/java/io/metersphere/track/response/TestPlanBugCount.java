@@ -8,7 +8,7 @@ import lombok.Setter;
 public class TestPlanBugCount {
     private int index;
     private String planName;
-    private long creatTime;
+    private long createTime;
     private String status;
     private int caseSize;
     private int bugSize;
