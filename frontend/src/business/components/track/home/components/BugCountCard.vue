@@ -15,18 +15,19 @@
             {{ $t('api_test.home_page.unit_of_measurement') }}
           </span>
           <div>
-            占比:
-            <el-link type="info" @click="redirectPage('thisWeekCount')" target="_blank" style="color: #000000">{{ rage }}
-            </el-link>
+            占比
+            <span class="rage">
+                {{rage}}
+            </span>
           </div>
         </div>
       </el-aside>
       <el-table border :data="tableData" class="adjust-table table-content" height="300">
         <el-table-column prop="index" label="序号"
-                         width="100" show-overflow-tooltip/>
+                         width="60" show-overflow-tooltip/>
         <el-table-column prop="planName" label="测试计划名称"
                          width="130" show-overflow-tooltip/>
-        <el-table-column prop="createTime" :label="$t('commons.create_time')" width="130">
+        <el-table-column prop="createTime" :label="$t('commons.create_time')" width="180" show-overflow-tooltip>
           <template v-slot:default="scope">
             <span>{{ scope.row.createTime | timestampFormatDate }}</span>
           </template>
@@ -35,6 +36,7 @@
           prop="status"
           column-key="status"
           :label="$t('test_track.plan.plan_status')"
+          width="100"
           show-overflow-tooltip>
           <template v-slot:default="scope">
           <span @click.stop="clickt = 'stop'">
@@ -103,6 +105,12 @@ export default {
 .count-number {
   font-family: 'ArialMT', 'Arial', sans-serif;
   font-size: 33px;
+  color: var(--count_number);
+}
+
+.rage {
+  font-family: 'ArialMT', 'Arial', sans-serif;
+  font-size: 18px;
   color: var(--count_number);
 }
 

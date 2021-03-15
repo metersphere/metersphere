@@ -5,6 +5,8 @@
     @active="active"
     :data="extract"
     :draggable="draggable"
+    :is-max="isMax"
+    :show-btn="showBtn"
     color="#015478"
     background-color="#E6EEF2"
     :title="$t('api_test.definition.request.extract_param')">
@@ -41,26 +43,26 @@
 </template>
 
 <script>
-import {EXTRACT_TYPE} from "../../model/ApiTestModel";
-import MsApiExtractEdit from "./ApiExtractEdit";
-import MsApiExtractCommon from "./ApiExtractCommon";
-import {getUUID} from "@/common/js/utils";
-import ApiJsonPathSuggestButton from "../assertion/ApiJsonPathSuggestButton";
-import MsApiJsonpathSuggest from "../assertion/ApiJsonpathSuggest";
-import {ExtractJSONPath} from "../../../test/model/ScenarioModel";
-import ApiBaseComponent from "../../../automation/scenario/common/ApiBaseComponent";
+  import {EXTRACT_TYPE} from "../../model/ApiTestModel";
+  import MsApiExtractEdit from "./ApiExtractEdit";
+  import MsApiExtractCommon from "./ApiExtractCommon";
+  import {getUUID} from "@/common/js/utils";
+  import ApiJsonPathSuggestButton from "../assertion/ApiJsonPathSuggestButton";
+  import MsApiJsonpathSuggest from "../assertion/ApiJsonpathSuggest";
+  import {ExtractJSONPath} from "../../../test/model/ScenarioModel";
+  import ApiBaseComponent from "../../../automation/scenario/common/ApiBaseComponent";
 
-export default {
-  name: "MsApiExtract",
-  components: {
-    ApiBaseComponent,
-    MsApiJsonpathSuggest,
-    ApiJsonPathSuggestButton,
-    MsApiExtractCommon,
-    MsApiExtractEdit,
-  },
-  props: {
-    extract: {},
+  export default {
+    name: "MsApiExtract",
+    components: {
+      ApiBaseComponent,
+      MsApiJsonpathSuggest,
+      ApiJsonPathSuggestButton,
+      MsApiExtractCommon,
+      MsApiExtractEdit,
+    },
+    props: {
+      extract: {},
       response: {},
       node: {},
       customizeStyle: {
@@ -74,7 +76,15 @@ export default {
       draggable: {
         type: Boolean,
         default: false,
-      }
+      },
+      isMax: {
+        type: Boolean,
+        default: false,
+      },
+      showBtn: {
+        type: Boolean,
+        default: true,
+      },
     },
     data() {
       return {

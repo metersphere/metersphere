@@ -48,6 +48,7 @@ public class ShiroUtils {
 
     public static void ignoreCsrfFilter(Map<String, String> filterChainDefinitionMap) {
         filterChainDefinitionMap.put("/", "apikey, authc"); // 跳转到 / 不用校验 csrf
+        filterChainDefinitionMap.put("/language", "apikey, authc");// 跳转到 /language 不用校验 csrf
         filterChainDefinitionMap.put("/document", "apikey, authc"); // 跳转到 /document 不用校验 csrf
     }
 

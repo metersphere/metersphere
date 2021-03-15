@@ -5,6 +5,8 @@
     :data="controller"
     :show-collapse="false"
     :draggable="true"
+    :is-max="isMax"
+    :show-btn="showBtn"
     color="#E6A23C"
     background-color="#FCF6EE"
     :title="$t('api_test.automation.if_controller')">
@@ -33,6 +35,14 @@
     props: {
       controller: {},
       node: {},
+      isMax: {
+        type: Boolean,
+        default: false,
+      },
+      showBtn: {
+        type: Boolean,
+        default: true,
+      },
       index: Object,
       draggable: {
         type: Boolean,

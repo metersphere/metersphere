@@ -130,7 +130,7 @@
                 <el-table :data="granularityData">
                   <el-table-column property="start" :label="$t('load_test.duration')">
                     <template v-slot:default="scope">
-                      <span>{{ scope.row.start }} - {{ scope.row.end }}</span>
+                      <span>{{ scope.row.start }}S - {{ scope.row.end }}S</span>
                     </template>
                   </el-table-column>
                   <el-table-column property="granularity" :label="$t('load_test.granularity')"/>

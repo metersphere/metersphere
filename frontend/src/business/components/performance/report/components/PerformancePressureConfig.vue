@@ -37,6 +37,13 @@
                     @change="calculateChart(threadGroup)"
                     size="mini"/>
                 </el-form-item>
+                <el-form-item>
+                  <el-radio-group v-model="threadGroup.unit" :disabled="true">
+                    <el-radio label="S">{{ $t('schedule.cron.seconds') }}</el-radio>
+                    <el-radio label="M">{{ $t('schedule.cron.minutes') }}</el-radio>
+                    <el-radio label="H">{{ $t('schedule.cron.hours') }}</el-radio>
+                  </el-radio-group>
+                </el-form-item>
                 <br>
                 <el-form-item :label="$t('load_test.rps_limit')">
                   <el-switch v-model="threadGroup.rpsLimitEnable" @change="calculateTotalChart()"/>
@@ -59,7 +66,7 @@
                       @change="calculateChart(threadGroup)"
                       size="mini"/>
                   </el-form-item>
-                  <el-form-item :label="$t('load_test.ramp_up_time_minutes')">
+                  <el-form-item :label="$t('load_test.ramp_up_time_minutes', [getUnitLabel(threadGroup)])">
                     <el-input-number
                       :disabled="true"
                       :min="1"
@@ -79,7 +86,7 @@
                       v-model="threadGroup.rampUpTime"
                       size="mini"/>
                   </el-form-item>
-                  <el-form-item :label="$t('load_test.ramp_up_time_seconds')"/>
+                  <el-form-item :label="$t('load_test.ramp_up_time_seconds', [getUnitLabel(threadGroup)])"/>
                 </div>
 
               </div>
@@ -112,7 +119,7 @@
                     @change="calculateChart(threadGroup)"
                     size="mini"/>
                 </el-form-item>
-                <el-form-item :label="$t('load_test.ramp_up_time_seconds')"/>
+                <el-form-item :label="$t('load_test.ramp_up_time_seconds', [getUnitLabel(threadGroup)])"/>
               </div>
             </el-form>
           </el-col>
@@ -137,6 +144,7 @@ const TARGET_LEVEL = "TargetLevel";
 const RAMP_UP = "RampUp";
 const STEPS = "Steps";
 const DURATION = "duration";
+const UNIT = "unit";
 const RPS_LIMIT = "rpsLimit";
 const RPS_LIMIT_ENABLE = "rpsLimitEnable";
 const THREAD_TYPE = "threadType";
@@ -196,11 +204,10 @@ export default {
               this.threadGroups[i].iterateRampUp = item.value;
               break;
             case DURATION:
-              if (item.unit) {
-                this.threadGroups[i].duration = item.value;
-              } else {
-                this.threadGroups[i].duration = item.value * 60;
-              }
+              this.threadGroups[i].duration = item.value;
+              break;
+            case UNIT:
+              this.threadGroups[i].unit = item.value;
               break;
             case STEPS:
               this.threadGroups[i].step = item.value;
@@ -505,6 +512,18 @@ export default {
         }
       }
       this.calculateTotalChart();
+    },
+    getUnitLabel(tg) {
+      if (tg.unit === 'S') {
+        return this.$t('schedule.cron.seconds');
+      }
+      if (tg.unit === 'M') {
+        return this.$t('schedule.cron.minutes');
+      }
+      if (tg.unit === 'H') {
+        return this.$t('schedule.cron.hours');
+      }
+      return this.$t('schedule.cron.seconds');
     },
   },
   watch: {

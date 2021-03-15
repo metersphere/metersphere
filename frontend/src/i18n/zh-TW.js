@@ -478,7 +478,7 @@ export default {
     delete_file: "文件已存在，請先刪除同名文件！",
     thread_num: '並發用戶數：',
     input_thread_num: '請輸入線程數',
-    duration: '壓測時長（秒）',
+    duration: '壓測時長',
     granularity: '聚合時間（秒）',
     input_duration: '請輸入時長',
     rps_limit: 'RPS上限：',
