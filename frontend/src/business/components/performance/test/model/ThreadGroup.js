@@ -31,6 +31,7 @@ export function findThreadGroup(jmxContent, handler) {
     tg.enabled = tg.attributes.enabled;
     tg.tgType = tg.name;
     tg.threadType = 'DURATION';
+    tg.unit = 'S';
   })
   return threadGroups;
 }
