@@ -198,7 +198,7 @@ public class ApiDefinitionService {
                     .andProtocolEqualTo(request.getProtocol()).andPathEqualTo(request.getPath())
                     .andProjectIdEqualTo(request.getProjectId()).andIdNotEqualTo(request.getId());
             Project project = projectMapper.selectByPrimaryKey(request.getProjectId());
-            if (apiDefinitionMapper.countByExample(example) > 0 && (project.getRepeatable() == null || !project.getRepeatable())) {
+            if (apiDefinitionMapper.countByExample(example) > 0 && (project == null || project.getRepeatable() == null || !project.getRepeatable())) {
                 MSException.throwException(Translator.get("api_definition_url_not_repeating"));
             }
         } else {

@@ -364,7 +364,7 @@ export default {
             if (j === 0) {
               seriesData.data.push([0, 0]);
             }
-            if (j > tg.rampUpTime) {
+            if (j >= tg.rampUpTime) {
               xAxis.push(tg.duration);
 
               seriesData.data.push([j, tg.threadNumber]);
@@ -475,7 +475,7 @@ export default {
           if (i === 0) {
             handler.options.series[0].data.push([0, 0]);
           }
-          if (i > handler.rampUpTime) {
+          if (i >= handler.rampUpTime) {
             handler.options.xAxis.data.push(handler.duration);
 
             handler.options.series[0].data.push([i, handler.threadNumber]);

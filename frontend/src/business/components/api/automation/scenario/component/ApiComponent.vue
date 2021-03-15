@@ -12,10 +12,10 @@
     :title="displayTitle">
 
     <template v-slot:behindHeaderLeft>
-      <el-tag size="mini" style="margin-left: 20px" v-if="request.referenced==='Deleted'" type="danger">{{$t('api_test.automation.reference_deleted')}}</el-tag>
-      <el-tag size="mini" style="margin-left: 20px" v-if="request.referenced==='Copy'">{{ $t('commons.copy') }}</el-tag>
-      <el-tag size="mini" style="margin-left: 20px" v-if="request.referenced ==='REF'">{{ $t('api_test.scenario.reference') }}</el-tag>
-      <span style="margin-left: 20px;">{{getProjectName(request.projectId)}}</span>
+      <el-tag size="mini" class="ms-tag" v-if="request.referenced==='Deleted'" type="danger">{{$t('api_test.automation.reference_deleted')}}</el-tag>
+      <el-tag size="mini" class="ms-tag" v-if="request.referenced==='Copy'">{{ $t('commons.copy') }}</el-tag>
+      <el-tag size="mini" class="ms-tag" v-if="request.referenced ==='REF'">{{ $t('api_test.scenario.reference') }}</el-tag>
+      <span class="ms-tag">{{getProjectName(request.projectId)}}</span>
       <ms-run :debug="true" :reportId="reportId" :run-data="runData" :env-map="envMap"
               @runRefresh="runRefresh" ref="runTest"/>
 
@@ -23,7 +23,7 @@
 
     <template v-slot:button>
       <el-tooltip :content="$t('api_test.run')" placement="top">
-        <el-button @click="run" icon="el-icon-video-play" style="background-color: #409EFF;color: white;" size="mini" circle/>
+        <el-button @click="run" icon="el-icon-video-play" class="ms-btn" size="mini" circle/>
       </el-tooltip>
     </template>
 
@@ -52,7 +52,7 @@
     <api-response-component :currentProtocol="request.protocol" :result="request.requestResult" v-else/>
 
     <!-- 保存操作 -->
-    <el-button type="primary" size="small" style="margin: 20px; float: right" @click="saveTestCase(item)"
+    <el-button type="primary" size="small" class="ms-btn-flot" @click="saveTestCase(item)"
                v-if="!request.referenced">
       {{ $t('commons.save') }}
     </el-button>
@@ -67,7 +67,7 @@
   import MsApiRequestForm from "../../../definition/components/request/http/ApiHttpRequestForm";
   import MsRequestResultTail from "../../../definition/components/response/RequestResultTail";
   import MsRun from "../../../definition/components/Run";
-  import {getUUID,getCurrentProjectID} from "@/common/js/utils";
+  import {getUUID, getCurrentProjectID} from "@/common/js/utils";
   import ApiBaseComponent from "../common/ApiBaseComponent";
   import ApiResponseComponent from "./ApiResponseComponent";
   import CustomizeReqInfo from "@/business/components/api/automation/scenario/common/CustomizeReqInfo";
@@ -332,5 +332,19 @@
   .ms-tabs >>> .el-icon-close:before {
     content: "";
 
+  }
+
+  .ms-btn {
+    background-color: #409EFF;
+    color: white;
+  }
+
+  .ms-btn-flot {
+    margin: 20px;
+    float: right;
+  }
+
+  .ms-tag {
+    margin-left: 20px;
   }
 </style>
