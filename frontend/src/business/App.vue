@@ -62,6 +62,7 @@ export default {
       this.$get('/system/theme', res => {
         this.color = res.data ? res.data : ORIGIN_COLOR;
         setColor(this.color, this.color, this.color, this.color);
+        this.$store.commit('setTheme', res.data);
       })
     }
     if (localStorage.getItem("store")) {

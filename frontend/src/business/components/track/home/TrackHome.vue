@@ -169,7 +169,7 @@ export default {
           type: 'bar',
           itemStyle: {
             normal: {
-              color: COUNT_NUMBER
+              color: this.$store.state.theme.theme ? this.$store.state.theme.theme : COUNT_NUMBER
             }
           }
         },
@@ -179,7 +179,7 @@ export default {
             type: 'bar',
             itemStyle: {
               normal: {
-                color: COUNT_NUMBER_SHALLOW
+                color: this.$store.state.theme.theme ? this.$store.state.theme.theme : COUNT_NUMBER_SHALLOW
               }
             }
           }]
