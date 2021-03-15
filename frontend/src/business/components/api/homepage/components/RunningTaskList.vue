@@ -20,8 +20,9 @@
       </el-table-column>
       <el-table-column prop="taskType"  :label="$t('api_test.home_page.running_task_list.table_coloum.task_type')" width="120" show-overflow-tooltip>
         <template v-slot:default="scope">
-          <ms-tag v-if="scope.row.taskType == 'scenario'" type="success" effect="plain" :content="$t('api_test.home_page.running_task_list.scenario_schedule')"/>
-          <ms-tag v-if="scope.row.taskType == 'testPlan'" type="warning" effect="plain" :content="$t('api_test.home_page.running_task_list.test_plan_schedule')"/>
+          <ms-tag v-if="scope.row.taskGroup == 'API_SCENARIO_TEST'" type="success" effect="plain" :content="$t('api_test.home_page.running_task_list.scenario_schedule')"/>
+          <ms-tag v-if="scope.row.taskGroup == 'TEST_PLAN_TEST'" type="warning" effect="plain" :content="$t('api_test.home_page.running_task_list.test_plan_schedule')"/>
+          <ms-tag v-if="scope.row.taskGroup == 'SWAGGER_IMPORT'" type="danger" effect="plain" :content="$t('api_test.home_page.running_task_list.swagger_schedule')"/>
         </template>
       </el-table-column>
       <el-table-column prop="rule"  :label="$t('api_test.home_page.running_task_list.table_coloum.run_rule')" width="120" show-overflow-tooltip/>

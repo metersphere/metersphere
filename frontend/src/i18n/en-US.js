@@ -1029,6 +1029,7 @@ export default {
         },
         scenario_schedule: "Scenario",
         test_plan_schedule: "Test plan",
+        swagger_schedule: "swagger",
         confirm: {
           close_title: "Do you want to close this scheduled task？",
         }
