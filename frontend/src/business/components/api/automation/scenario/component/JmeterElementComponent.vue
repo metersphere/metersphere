@@ -5,6 +5,8 @@
     :data="request"
     :draggable="draggable"
     :color="defColor"
+    :is-max="isMax"
+    :show-btn="showBtn"
     :background-color="defBackgroundColor"
     :title="request.elementType">
 
@@ -30,6 +32,14 @@
         type: Boolean,
         default:
           false
+      },
+      isMax: {
+        type: Boolean,
+        default: false,
+      },
+      showBtn: {
+        type: Boolean,
+        default: true,
       },
       request: {
         type: Object,

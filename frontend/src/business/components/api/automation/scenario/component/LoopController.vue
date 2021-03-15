@@ -7,12 +7,14 @@
       @remove="remove"
       :data="controller"
       :draggable="true"
+      :is-max="isMax"
+      :show-btn="showBtn"
       color="#02A7F0"
       background-color="#F4F4F5"
       :title="$t('api_test.automation.loop_controller')" v-loading="loading">
 
       <template v-slot:headerLeft>
-        <i class="icon el-icon-arrow-right" :class="{'is-active': controller.active}" @click="active(controller)" style="margin-right: 10px"/>
+        <i class="icon el-icon-arrow-right" :class="{'is-active': controller.active}" @click="active(controller)" style="margin-right: 10px" v-if="!isMax"/>
         <el-radio @change="changeRadio" class="ms-radio" v-model="controller.loopType" label="LOOP_COUNT">{{$t('loop.loops_title')}}</el-radio>
         <el-radio @change="changeRadio" class="ms-radio" v-model="controller.loopType" label="FOREACH">{{$t('loop.foreach')}}</el-radio>
         <el-radio @change="changeRadio" class="ms-radio" v-model="controller.loopType" label="WHILE">{{$t('loop.while')}}</el-radio>
@@ -97,6 +99,14 @@ export default {
     currentEnvironmentId: String,
     currentScenario: {},
     node: {},
+    isMax: {
+      type: Boolean,
+      default: false,
+    },
+    showBtn: {
+      type: Boolean,
+      default: true,
+    },
     index: Object,
     draggable: {
       type: Boolean,
