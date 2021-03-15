@@ -3,19 +3,13 @@
     <span class="kv-description" v-if="description">
       {{ description }}
     </span>
-    <el-dropdown>
-      <span class="el-dropdown-link">
-        {{ $t('api_test.select_or_invert') }} <i class="el-icon-arrow-down el-icon--right"></i>
-      </span>
-      <el-dropdown-menu slot="dropdown">
-        <el-dropdown-item @click.native="selectAll">{{ $t('api_test.select_all') }}</el-dropdown-item>
-        <el-dropdown-item @click.native="invertSelect">{{ $t('api_test.invert_select') }}</el-dropdown-item>
-      </el-dropdown-menu>
-    </el-dropdown>
+    <el-row>
+      <el-checkbox v-model="isSelectAll" v-if="parameters.length > 1"/>
+    </el-row>
     <div class="item kv-row" v-for="(item, index) in parameters" :key="index">
       <el-row type="flex" :gutter="20" justify="space-between" align="middle">
         <el-col class="kv-checkbox" v-if="isShowEnable">
-          <input type="checkbox" v-if="!isDisable(index)" v-model="item.enable"
+          <el-checkbox v-if="!isDisable(index)" v-model="item.enable"
                  :disabled="isReadOnly"/>
         </el-col>
         <span style="margin-left: 10px" v-else></span>
@@ -131,7 +125,17 @@
       return {
         currentItem: null,
         requireds: REQUIRED,
+        isSelectAll: true,
       }
+    },
+    watch: {
+      isSelectAll: function(to, from) {
+        if(from == false && to == true) {
+          this.selectAll();
+        } else if(from == true && to == false) {
+          this.invertSelect();
+        }
+      },
     },
     computed: {
       keyText() {
@@ -191,7 +195,7 @@
         // TODO 检查key重复
       },
       isDisable: function (index) {
-        return this.parameters.length - 1 === index;
+        return this.parameters.length - 1 == index;
       },
       querySearch(queryString, cb) {
         let suggestions = this.suggestions;
@@ -235,7 +239,7 @@
       },
       invertSelect() {
         this.parameters.forEach(item => {
-          item.enable = !item.enable;
+          item.enable = false;
         });
       },
     },

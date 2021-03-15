@@ -3,21 +3,14 @@
     <span class="kv-description" v-if="description">
       {{ description }}
     </span>
-    <el-dropdown>
-      <span class="el-dropdown-link">
-        {{ $t('api_test.select_or_invert') }} <i class="el-icon-arrow-down el-icon--right"></i>
-      </span>
-      <el-dropdown-menu slot="dropdown">
-        <el-dropdown-item @click.native="selectAll">{{ $t('api_test.select_all') }}</el-dropdown-item>
-        <el-dropdown-item @click.native="invertSelect">{{ $t('api_test.invert_select') }}</el-dropdown-item>
-      </el-dropdown-menu>
-    </el-dropdown>
+    <el-row>
+      <el-checkbox v-model="isSelectAll" v-if="items.length > 1"/>
+    </el-row>
     <div class="kv-row item" v-for="(item, index) in items" :key="index">
       <el-row type="flex" :gutter="20" justify="space-between" align="middle">
         <el-col class="kv-checkbox" v-if="isShowEnable">
-          <input type="checkbox" v-if="!isDisable(index)" v-model="item.enable"
+          <el-checkbox v-if="!isDisable(index)" v-model="item.enable"
                  :disabled="isReadOnly"/>
-
         </el-col>
         <span style="margin-left: 10px" v-else></span>
 
@@ -59,7 +52,7 @@
       valuePlaceholder: String,
       isShowEnable: {
         type: Boolean,
-        default: false
+        default: true
       },
       description: String,
       items: Array,
@@ -73,6 +66,7 @@
       return {
         keyValues: [],
         loading: false,
+        isSelectAll: true
       }
     },
     computed: {
@@ -83,7 +77,15 @@
         return this.valuePlaceholder || this.$t("api_test.value");
       }
     },
-
+    watch: {
+      isSelectAll: function(to, from) {
+        if(from == false && to == true) {
+          this.selectAll();
+        } else if(from == true && to == false) {
+          this.invertSelect();
+        }
+      }
+    },
     methods: {
       moveBottom(index) {
         if (this.items.length < 2 || index === this.items.length - 2) {
@@ -154,7 +156,7 @@
       },
       invertSelect() {
         this.items.forEach(item => {
-          item.enable = !item.enable;
+          item.enable = false;
         });
       },
     },
