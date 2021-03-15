@@ -1033,6 +1033,7 @@ export default {
         },
         scenario_schedule: "场景",
         test_plan_schedule: "测试计划",
+        swagger_schedule: "swagger",
         confirm: {
           close_title: "要关闭这条定时任务吗？",
         }

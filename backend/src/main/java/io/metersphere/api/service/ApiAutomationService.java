@@ -24,10 +24,7 @@ import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ApiScenarioMapper;
 import io.metersphere.base.mapper.ApiScenarioReportMapper;
 import io.metersphere.base.mapper.TestPlanApiScenarioMapper;
-import io.metersphere.base.mapper.ext.ExtApiScenarioMapper;
-import io.metersphere.base.mapper.ext.ExtTestPlanApiCaseMapper;
-import io.metersphere.base.mapper.ext.ExtTestPlanMapper;
-import io.metersphere.base.mapper.ext.ExtTestPlanScenarioCaseMapper;
+import io.metersphere.base.mapper.ext.*;
 import io.metersphere.commons.constants.*;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
@@ -63,6 +60,8 @@ import java.util.stream.Collectors;
 @Service
 @Transactional(rollbackFor = Exception.class)
 public class ApiAutomationService {
+    @Resource
+    private ExtScheduleMapper extScheduleMapper;
     @Resource
     private ApiScenarioMapper apiScenarioMapper;
     @Resource
@@ -196,6 +195,7 @@ public class ApiAutomationService {
 
         final ApiScenarioWithBLOBs scenario = buildSaveScenario(request);
         apiScenarioMapper.updateByPrimaryKeySelective(scenario);
+        extScheduleMapper.updateNameByResourceID(request.getId(), request.getName());//  修改场景name，同步到修改首页定时任务
     }
 
     public ApiScenarioWithBLOBs buildSaveScenario(SaveApiScenarioRequest request) {
@@ -720,6 +720,9 @@ public class ApiAutomationService {
 
     public void createSchedule(ScheduleRequest request) {
         Schedule schedule = scheduleService.buildApiTestSchedule(request);
+        ApiScenarioWithBLOBs apiScene = apiScenarioMapper.selectByPrimaryKey(request.getResourceId());
+        schedule.setName(apiScene.getName());   //  add场景定时任务时，设置新增的数据库表字段的值
+        schedule.setProjectId(apiScene.getProjectId());
         schedule.setJob(ApiScenarioTestJob.class.getName());
         schedule.setGroup(ScheduleGroup.API_SCENARIO_TEST.name());
         schedule.setType(ScheduleType.CRON.name());
