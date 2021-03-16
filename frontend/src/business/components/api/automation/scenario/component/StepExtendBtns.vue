@@ -13,7 +13,7 @@
       </el-dropdown-menu>
     </el-dropdown>
     <ms-variable-list ref="scenarioParameters"/>
-
+    <ms-add-basis-api ref="api"/>
   </div>
 </template>
 
@@ -21,10 +21,11 @@
   import {getCurrentProjectID, getUUID} from "@/common/js/utils";
   import {ELEMENTS} from "../Setting";
   import MsVariableList from "../variable/VariableList";
+  import MsAddBasisApi from "../api/AddBasisApi";
 
   export default {
     name: "StepExtendBtns",
-    components: {ELEMENTS, MsVariableList},
+    components: {ELEMENTS, MsVariableList, MsAddBasisApi},
     props: {
       data: Object,
     },
@@ -46,13 +47,25 @@
             this.$refs.scenarioParameters.open(this.data.variables, this.data.headers, true);
             break;
           case "openScenario":
-            this.$emit('openScenario', this.data);
+            this.getScenario();
             break;
           case "saveAs":
-            this.$emit('copy');
+            this.saveAsApi();
             break;
         }
       },
+      getScenario() {
+        this.result = this.$get("/api/automation/getApiScenario/" + this.data.id, response => {
+          if (response.data) {
+            this.$emit('openScenario', response.data);
+          } else {
+            this.$error("引用场景已经被删除");
+          }
+        });
+      },
+      saveAsApi(){
+        this.$refs.api.open(this.data);
+      }
     }
   }
 </script>

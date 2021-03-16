@@ -119,7 +119,7 @@
                                :project-list="projectList" ref="envPopover"/>
                 </el-col>
                 <el-col :span="3">
-                  <el-button :disabled="scenarioDefinition.length < 1" size="small" type="primary" v-prevent-re-click @click="runDebug">{{$t('api_test.request.debug')}}</el-button>
+                  <el-button :disabled="scenarioDefinition.length < 1" size="mini" type="primary" v-prevent-re-click @click="runDebug">{{$t('api_test.request.debug')}}</el-button>
                   <font-awesome-icon class="alt-ico" :icon="['fa', 'expand-alt']" size="lg" @click="fullScreen"/>
                 </el-col>
               </el-row>
@@ -201,7 +201,7 @@
                            @closePage="close" @showAllBtn="showAllBtn" @runDebug="runDebug" @setProjectEnvMap="setProjectEnvMap" @showScenarioParameters="showScenarioParameters" ref="maximizeHeader"/>
         </template>
 
-        <maximize-scenario :scenario-definition="scenarioDefinition" :moduleOptions="moduleOptions" :currentScenario="currentScenario" :type="type" ref="maximizeScenario"/>
+        <maximize-scenario :scenario-definition="scenarioDefinition" :moduleOptions="moduleOptions" :currentScenario="currentScenario" :type="type" ref="maximizeScenario" @openScenario="openScenario"/>
       </ms-drawer>
 
     </div>
@@ -731,9 +731,6 @@
         this.$nextTick(() => {
           this.loading = false
         })
-      },
-      runDebugMax() {
-        this.$refs.maximizeScenario.runDebug();
       },
       runDebug() {
         /*触发执行操作*/

@@ -6,7 +6,7 @@
     @active="active"
     :is-show-name-input="!isDeletedOrRef"
     :data="request"
-    :draggable="true"
+    :draggable="draggable"
     :color="displayColor.color"
     :background-color="displayColor.backgroundColor"
     :is-max="isMax"
@@ -328,7 +328,7 @@
   }
 
   /deep/ .el-card__body {
-    padding: 15px;
+    padding: 10px;
   }
 
   .tip {
@@ -337,14 +337,6 @@
     border-radius: 4px;
     border-left: 4px solid #783887;
     margin: 20px 0;
-  }
-
-  .name-input {
-    width: 30%;
-  }
-
-  .el-icon-arrow-right {
-    margin-right: 5px;
   }
 
   .icon.is-active {

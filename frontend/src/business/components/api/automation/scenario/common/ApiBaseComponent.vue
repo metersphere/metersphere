@@ -5,7 +5,7 @@
         <div v-if="data.index" class="el-step__icon is-text" style="margin-right: 10px;" :style="{'color': color, 'background-color': backgroundColor}">
           <div class="el-step__icon-inner">{{data.index}}</div>
         </div>
-        <el-button class="ms-left-buttion" size="mini" :style="{'color': color, 'background-color': backgroundColor}">{{title}}</el-button>
+        <el-tag class="ms-left-buttion" size="small" :style="{'color': color, 'background-color': backgroundColor}">{{title}}</el-tag>
         <el-tag size="mini" v-if="data.method">{{data.method}}</el-tag>
       </slot>
 
@@ -15,12 +15,6 @@
              @click="active(data)" v-if="data.type!='scenario'  && !isMax "/>
           <el-input :draggable="draggable" v-if="isShowInput && isShowNameInput" size="mini" v-model="data.name" class="name-input"
                     @blur="isShowInput = false" :placeholder="$t('commons.input_name')" ref="nameEdit" :disabled="data.disabled"/>
-          <!--最大化显示-->
-          <span v-else-if="isMax">
-             <el-tooltip :content="data.name" placement="top">
-              <span>{{data.name}}</span>
-            </el-tooltip>
-          </span>
           <span v-else>
             {{data.name}}
             <i class="el-icon-edit" style="cursor:pointer" @click="editName" v-tester v-if="data.referenced!='REF' && !data.disabled"/>
@@ -32,7 +26,7 @@
       <div class="header-right" @click.stop>
         <slot name="message"></slot>
         <el-tooltip :content="$t('test_resource_pool.enable_disable')" placement="top" v-if="showBtn">
-          <el-switch v-model="data.enable" class="enable-switch"/>
+          <el-switch v-model="data.enable" class="enable-switch" size="mini"/>
         </el-tooltip>
         <slot name="button"></slot>
         <step-extend-btns style="display: contents" :data="data" @copy="copyRow" @remove="remove" @openScenario="openScenario" v-if="showBtn"/>
@@ -56,6 +50,7 @@
 
 <script>
   import StepExtendBtns from "../component/StepExtendBtns";
+  import {ELEMENTS} from "../Setting";
 
   export default {
     name: "ApiBaseComponent",
@@ -118,6 +113,11 @@
       }
       if (this.data && this.data.type === "JmeterElement") {
         this.data.active = false;
+      }
+      if (this.data && ELEMENTS.get("AllSamplerProxy").indexOf(this.data.type) != -1) {
+        if (!this.data.method) {
+          this.data.method = this.data.protocol;
+        }
       }
     },
     methods: {
@@ -182,6 +182,12 @@
     vertical-align: middle;
     white-space: nowrap;
     width: 100px;
+  }
+
+  /deep/ .el-step__icon {
+    width: 20px;
+    height: 20px;
+    font-size: 12px;
   }
 
   fieldset {
