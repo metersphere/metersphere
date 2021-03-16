@@ -127,7 +127,7 @@ public class TestPlanService {
     @Resource
     private ApiScenarioMapper apiScenarioMapper;
 
-    public synchronized void addTestPlan(AddTestPlanRequest testPlan) {
+    public synchronized String addTestPlan(AddTestPlanRequest testPlan) {
         if (getTestPlanByName(testPlan.getName()).size() > 0) {
             MSException.throwException(Translator.get("plan_name_already_exists"));
         }
@@ -156,6 +156,7 @@ public class TestPlanService {
                 .event(NoticeConstants.Event.CREATE)
                 .build();
         noticeSendService.send(NoticeConstants.TaskType.TEST_PLAN_TASK, noticeModel);
+        return testPlan.getId();
     }
 
     public List<TestPlan> getTestPlanByName(String name) {
