@@ -15,6 +15,7 @@ import io.metersphere.i18n.Translator;
 import io.metersphere.performance.engine.docker.DockerTestEngine;
 import io.metersphere.performance.parse.EngineSourceParser;
 import io.metersphere.performance.parse.EngineSourceParserFactory;
+import io.metersphere.performance.service.PerformanceTestService;
 import io.metersphere.service.FileService;
 import io.metersphere.service.KubernetesTestEngine;
 import io.metersphere.service.TestResourcePoolService;
@@ -46,6 +47,7 @@ import java.util.stream.Collectors;
 @Service
 public class EngineFactory {
     private static FileService fileService;
+    private static PerformanceTestService performanceTestService;
     private static TestResourcePoolService testResourcePoolService;
     private static Class<? extends KubernetesTestEngine> kubernetesTestEngineClass;
 
@@ -87,7 +89,7 @@ public class EngineFactory {
     }
 
     public static EngineContext createContext(LoadTestWithBLOBs loadTest, String resourceId, double ratio, long startTime, String reportId, int resourceIndex) {
-        final List<FileMetadata> fileMetadataList = fileService.getFileMetadataByTestId(loadTest.getId());
+        final List<FileMetadata> fileMetadataList = performanceTestService.getFileMetadataByTestId(loadTest.getId());
         if (org.springframework.util.CollectionUtils.isEmpty(fileMetadataList)) {
             MSException.throwException(Translator.get("run_load_test_file_not_found") + loadTest.getId());
         }
@@ -234,5 +236,10 @@ public class EngineFactory {
     @Resource
     public void setTestResourcePoolService(TestResourcePoolService testResourcePoolService) {
         EngineFactory.testResourcePoolService = testResourcePoolService;
+    }
+
+    @Resource
+    public void setPerformanceTestService(PerformanceTestService performanceTestService) {
+        EngineFactory.performanceTestService = performanceTestService;
     }
 }

@@ -14,6 +14,7 @@ import io.metersphere.service.ProjectService;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -84,4 +85,13 @@ public class ProjectController {
         projectService.updateProject(Project);
     }
 
+    @PostMapping(value = "upload/files/{projectId}", consumes = {"multipart/form-data"})
+    public void uploadFiles(@PathVariable String projectId, @RequestPart(value = "file") List<MultipartFile> files) {
+        projectService.uploadFiles(projectId, files);
+    }
+
+    @GetMapping(value = "delete/file/{fileId}")
+    public void deleteFile(@PathVariable String fileId) {
+        projectService.deleteFile(fileId);
+    }
 }

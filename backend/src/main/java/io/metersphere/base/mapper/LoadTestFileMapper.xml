@@ -4,6 +4,7 @@
   <resultMap id="BaseResultMap" type="io.metersphere.base.domain.LoadTestFile">
     <result column="test_id" jdbcType="VARCHAR" property="testId" />
     <result column="file_id" jdbcType="VARCHAR" property="fileId" />
+    <result column="sort" jdbcType="INTEGER" property="sort" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -64,7 +65,7 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    test_id, file_id
+    test_id, file_id, sort
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.base.domain.LoadTestFileExample" resultMap="BaseResultMap">
     select
@@ -87,8 +88,10 @@
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.base.domain.LoadTestFile">
-    insert into load_test_file (test_id, file_id)
-    values (#{testId,jdbcType=VARCHAR}, #{fileId,jdbcType=VARCHAR})
+    insert into load_test_file (test_id, file_id, sort
+      )
+    values (#{testId,jdbcType=VARCHAR}, #{fileId,jdbcType=VARCHAR}, #{sort,jdbcType=INTEGER}
+      )
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.LoadTestFile">
     insert into load_test_file
@@ -99,6 +102,9 @@
       <if test="fileId != null">
         file_id,
       </if>
+      <if test="sort != null">
+        sort,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="testId != null">
@@ -106,6 +112,9 @@
       </if>
       <if test="fileId != null">
         #{fileId,jdbcType=VARCHAR},
+      </if>
+      <if test="sort != null">
+        #{sort,jdbcType=INTEGER},
       </if>
     </trim>
   </insert>
@@ -124,6 +133,9 @@
       <if test="record.fileId != null">
         file_id = #{record.fileId,jdbcType=VARCHAR},
       </if>
+      <if test="record.sort != null">
+        sort = #{record.sort,jdbcType=INTEGER},
+      </if>
     </set>
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -132,7 +144,8 @@
   <update id="updateByExample" parameterType="map">
     update load_test_file
     set test_id = #{record.testId,jdbcType=VARCHAR},
-      file_id = #{record.fileId,jdbcType=VARCHAR}
+      file_id = #{record.fileId,jdbcType=VARCHAR},
+      sort = #{record.sort,jdbcType=INTEGER}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>

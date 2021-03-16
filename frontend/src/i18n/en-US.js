@@ -338,6 +338,7 @@ export default {
     delete: 'Delete project',
     delete_confirm: 'Deleting this project will delete all test resources under this project. Are you sure you want to delete?',
     delete_tip: 'Deleting this project will delete all test resources under this project. Are you sure you want to delete?',
+    file_delete_tip: 'Deleting this project file: {0}？',
     search_by_name: 'Search by name',
     search_by_name_jar: 'Search by name/jar',
     input_name: 'Please enter a workspace name',
@@ -530,6 +531,7 @@ export default {
     load_exist_jmx: 'Load Project JMX',
     threadgroup_at_least_one: 'At least one ThreadGroup is enabled',
     load_api_automation_jmx: 'Import API automation scenario',
+    project_file_exist: "The file already exists in the project, please import it directly"
   },
   api_test: {
     creator: "Creator",
