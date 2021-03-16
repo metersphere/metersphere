@@ -109,9 +109,9 @@ export default {
       });
     },
     redirect(param){
-      if(param.taskType === 'testPlan'){
+      if(param.taskGroup === 'TEST_PLAN_TEST'){
         this.$emit('redirectPage','testPlanEdit','', param.scenarioId);
-      }else{
+      }else if(param.taskGroup === 'API_SCENARIO_TEST') {
         this.$emit('redirectPage','scenario','scenario', 'edit:'+param.scenarioId);
       }
     }
