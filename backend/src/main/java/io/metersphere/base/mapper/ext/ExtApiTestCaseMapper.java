@@ -20,6 +20,8 @@ public interface ExtApiTestCaseMapper {
     List<ApiTestCaseDTO> listSimple(@Param("request") ApiTestCaseRequest request);
 
     List<String> selectIdsNotExistsInPlan(@Param("projectId") String projectId, @Param("planId") String planId);
+    List<String> selectIdsNotExistsInReview(@Param("projectId") String projectId, @Param("reviewId") String reviewId);
+
 
     List<ApiDataCountResult> countProtocolByProjectID(String projectId);
 

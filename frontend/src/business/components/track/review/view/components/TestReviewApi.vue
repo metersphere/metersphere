@@ -61,39 +61,43 @@
         @relevanceCase="openTestCaseRelevanceDialog"
         ref="apiScenarioList"/>
     </template>
-    <test-case-api-relevance
+    <test-review-relevance-api
       @refresh="refresh"
       :review-id="reviewId"
       :model="model"
-      ref="apiCaseRelevance"/>
-    <test-case-scenario-relevance
+      ref="apiCaseRelevance"
+    />
+    <test-review-relevance-scenario
       @refresh="refresh"
       :review-id="reviewId"
       :model="model"
-      ref="scenarioCaseRelevance"/>
+      ref="scenarioCaseRelevance"
+    />
+
   </ms-test-plan-common-component>
 </template>
 
 <script>
 import MsTestPlanCommonComponent from "@/business/components/track/plan/view/comonents/base/TestPlanCommonComponent";
-import TestCaseScenarioRelevance from "@/business/components/track/plan/view/comonents/api/TestCaseScenarioRelevance";
 import MsTestPlanApiScenarioList from "@/business/components/track/plan/view/comonents/api/TestPlanApiScenarioList";
 import MsApiScenarioModule from "@/business/components/api/automation/scenario/ApiScenarioModule";
 import ApiCaseSimpleList from "@/business/components/api/definition/components/list/ApiCaseSimpleList";
-import TestCaseApiRelevance from "@/business/components/track/plan/view/comonents/api/TestCaseApiRelevance";
 import TestPlanApiCaseList from "@/business/components/track/plan/view/comonents/api/TestPlanApiCaseList";
 import TestCaseRelevance from "@/business/components/track/plan/view/comonents/functional/TestCaseFunctionalRelevance";
 import NodeTree from "@/business/components/track/common/NodeTree";
 import MsApiModule from "../../../../api/definition/components/module/ApiModule"
+import TestReviewRelevanceApi from "@/business/components/track/review/view/components/TestReviewRelevanceApi";
+import TestReviewRelevanceScenario
+  from "@/business/components/track/review/view/components/TestReviewRelevanceScenario";
 
 export default {
   name: "TestReviewApi",
   components: {
-    TestCaseScenarioRelevance,
+    TestReviewRelevanceScenario,
+    TestReviewRelevanceApi,
     MsTestPlanApiScenarioList,
     MsApiScenarioModule,
     ApiCaseSimpleList,
-    TestCaseApiRelevance,
     TestPlanApiCaseList,
     MsTestPlanCommonComponent,
     TestCaseRelevance,
@@ -185,5 +189,15 @@ export default {
 </script>
 
 <style scoped>
+.model-change-radio {
+  height: 25px;
+  line-height: 25px;
+  margin: 5px 10px;
+}
+
+/deep/ .run-button {
+  background-color: #409EFF;
+  border-color: #409EFF;
+}
 
 </style>

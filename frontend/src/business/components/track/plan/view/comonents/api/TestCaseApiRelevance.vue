@@ -8,6 +8,7 @@
 
     <template v-slot:aside>
       <ms-api-module
+        :relevance-project-id="projectId"
         @nodeSelectEvent="nodeChange"
         @protocolChange="handleProtocolChange"
         @refreshTable="refresh"
@@ -132,6 +133,7 @@
           url = '/api/definition/relevance';
           environmentId = this.$refs.apiList.environmentId;
           selectIds = Array.from(this.$refs.apiList.selectRows).map(row => row.id);
+
         } else {
           url = '/api/testcase/relevance';
           environmentId = this.$refs.apiCaseList.environmentId;

@@ -36,4 +36,8 @@ public class ApiCaseRelevanceRequest {
      * 用例的环境的对应关系
      */
     private Map<String, List<String>> mapping;
+    /**
+     *测试评审ID
+     */
+    private String reviewId;
 }
