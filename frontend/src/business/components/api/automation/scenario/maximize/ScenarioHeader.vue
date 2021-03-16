@@ -16,7 +16,7 @@
       </el-row>
     </div>
     <div class="ms-header-right">
-      <el-checkbox v-model="cookieShare" class="ms-right">共享cookie</el-checkbox>
+      <el-checkbox v-model="cookieShare" class="ms-right" @change="setCookieShare">共享cookie</el-checkbox>
       <env-popover :env-map="envMap" :project-ids="projectIds" @setProjectEnvMap="setProjectEnvMap"
                    :project-list="projectList" ref="envPopover" class="ms-right"/>
       <el-button :disabled="scenarioDefinition.length < 1" size="mini" type="primary" v-prevent-re-click @click="runDebug">{{$t('api_test.request.debug')}}</el-button>
@@ -70,6 +70,9 @@
       runDebug() {
         this.$emit('runDebug');
       },
+      setCookieShare(){
+        this.$emit('setCookieShare',this.cookieShare);
+      },
       showScenarioParameters() {
         this.$emit('showScenarioParameters');
       },
@@ -91,7 +94,7 @@
         })
       },
       setProjectEnvMap(projectEnvMap) {
-        this.$emit('setProjectEnvMap',projectEnvMap);
+        this.$emit('setProjectEnvMap', projectEnvMap);
         this.envMap = projectEnvMap;
       }
     },

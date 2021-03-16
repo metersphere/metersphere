@@ -198,7 +198,7 @@
       <ms-drawer :visible="drawer" :size="100" @close="close" direction="right" :show-full-screen="false" :is-show-close="false" style="overflow: hidden">
         <template v-slot:header>
           <scenario-header :currentScenario="currentScenario" :projectEnvMap="projectEnvMap" :projectIds="projectIds" :projectList="projectList" :scenarioDefinition="scenarioDefinition" :enableCookieShare="enableCookieShare"
-                           @closePage="close" @showAllBtn="showAllBtn" @runDebug="runDebug" @setProjectEnvMap="setProjectEnvMap" @showScenarioParameters="showScenarioParameters" ref="maximizeHeader"/>
+                           @closePage="close" @showAllBtn="showAllBtn" @runDebug="runDebug" @setProjectEnvMap="setProjectEnvMap" @showScenarioParameters="showScenarioParameters" @setCookieShare="setCookieShare" ref="maximizeHeader"/>
         </template>
 
         <maximize-scenario :scenario-definition="scenarioDefinition" :moduleOptions="moduleOptions" :currentScenario="currentScenario" :type="type" ref="maximizeScenario" @openScenario="openScenario"/>
@@ -445,6 +445,9 @@
       openScenario(data) {
         this.$emit('openScenario', data);
       },
+      setCookieShare(cookie) {
+        this.enableCookieShare = cookie;
+      },
       showAllBtn() {
         this.$refs.maximizeScenario.showAll();
       },
@@ -560,7 +563,6 @@
           this.operatingElements = ELEMENTS.get("ALL");
           this.selectedTreeNode = undefined;
         }
-        //this.reload();
       },
       apiListImport() {
         this.$refs.scenarioApiRelevance.open();
