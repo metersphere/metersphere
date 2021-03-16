@@ -144,6 +144,11 @@ public class ApiAutomationController {
         apiAutomationService.relevance(request);
     }
 
+    @PostMapping("/relevance/review")
+    public  void testCaseReviewRelevance(@RequestBody ApiCaseRelevanceRequest request){
+        apiAutomationService.relevanceReview(request);
+    }
+
     @PostMapping(value = "/schedule/update")
     public void updateSchedule(@RequestBody Schedule request) {
         apiAutomationService.updateSchedule(request);

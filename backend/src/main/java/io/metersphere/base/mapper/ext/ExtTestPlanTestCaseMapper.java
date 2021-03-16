@@ -45,4 +45,6 @@ public interface ExtTestPlanTestCaseMapper {
     void deleteByTestCaseID(String id);
 
     List<String> getExecResultByPlanId(String planId);
+
+    List<TestPlanCaseDTO> listForMinder(@Param("planId") String planId);
 }

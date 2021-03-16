@@ -82,6 +82,10 @@
       </el-container>
 
       <template v-slot:footer>
+        <div style="margin-bottom: 15px">
+          <el-checkbox v-model="checked">同步添加关联的接口和性能测试</el-checkbox>
+        </div>
+
         <ms-dialog-footer @cancel="dialogFormVisible = false" @confirm="saveReviewRelevance"/>
       </template>
 

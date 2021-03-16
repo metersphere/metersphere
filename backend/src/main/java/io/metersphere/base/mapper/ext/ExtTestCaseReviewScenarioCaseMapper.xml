@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.metersphere.base.mapper.ext.ExtTestCaseReviewScenarioCaseMapper">
+    <insert id="insertIfNotExists" parameterType="io.metersphere.base.domain.TestPlanApiScenario">
+        -- 查询没有数据再插入
+        INSERT INTO test_case_review_scenario(id, test_case_review_id, api_scenario_id, create_time, update_time, environment)
+        SELECT #{request.id}, #{request.reviewId}, #{request.apiScenarioId}, #{request.createTime}, #{request.updateTime}, #{request.environment}
+        FROM DUAL
+        WHERE NOT EXISTS(
+                SELECT id FROM
+                    test_case_review_scenario
+                WHERE test_case_review_id = #{request.reviewId} and api_scenario_id = #{request.apiScenarioId}
+            )
+    </insert>
+
+    <select id="list" resultType="io.metersphere.api.dto.automation.ApiScenarioDTO">
+        select
+        t.id, t.environment, t.create_time, t.update_time, t.last_result, t.pass_rate, t.report_id, c.scenario_definition,
+        c.id as case_id, c.project_id, c.user_id,c.api_scenario_module_id, c.module_path, c.name, c.level,
+        c.status, c.principal, c.step_total, c.follow_people, c.schedule, c.description, c.tags, c.num,
+        p.name as project_name, p.id as project_id, u.name as user_name
+        from
+        test_case_review_scenario t
+        inner join
+        api_scenario c
+        on t.api_scenario_id = c.id and c.status != 'Trash'
+        <if test="request.reviewId != null and request.reviewId!=''">
+            and t.test_case_review_id = #{request.reviewId}
+        </if>
+        left join project p
+        on c.project_id = p.id
+        left join user u
+        on c.user_id = u.id
+        where 1
+        <if test="request.ids != null and request.ids.size() > 0">
+            <if test="request.projectId != null and request.projectId!=''">
+                and
+            </if>
+            t.id in
+            <foreach collection="request.ids" item="caseId" separator="," open="(" close=")">
+                #{caseId}
+            </foreach>
+        </if>
+        <if test="request.name != null and request.name!=''">
+            and (c.name like CONCAT('%', #{request.name},'%')
+            or c.num like CONCAT('%', #{request.name},'%')
+            or c.tags like CONCAT('%', #{request.name},'%'))
+        </if>
+        <if test="request.status != null and request.status!=''">
+            and t.last_result like CONCAT('%', #{request.status},'%')
+        </if>
+
+
+        <if test="request.moduleIds != null and request.moduleIds.size() > 0">
+            and c.api_scenario_module_id in
+            <foreach collection="request.moduleIds" item="nodeId" separator="," open="(" close=")">
+                #{nodeId}
+            </foreach>
+        </if>
+        <if test="request.filters != null and request.filters.size() > 0">
+            <foreach collection="request.filters.entrySet()" index="key" item="values">
+                <if test="values != null and values.size() > 0">
+                    <choose>
+                        <when test="key == 'priority'">
+                            and c.priority in
+                            <foreach collection="values" item="value" separator="," open="(" close=")">
+                                #{value}
+                            </foreach>
+                        </when>
+                    </choose>
+                </if>
+            </foreach>
+        </if>
+        <if test="request.orders != null and request.orders.size() > 0">
+            order by
+            <foreach collection="request.orders" separator="," item="order">
+                <choose>
+                    <when test="order.name == 'update_time'">
+                        t.${order.name} ${order.type}
+                    </when>
+                    <otherwise>
+                        ${order.name} ${order.type}
+                    </otherwise>
+                </choose>
+            </foreach>
+        </if>
+    </select>
+    <select id="getExecResultByReviewId" resultType="java.lang.String">
+        select last_result
+        from
+            test_case_review_scenario
+        where test_case_review_id = #{reviewId}
+    </select>
+    <select id="getIdsByReviewId" resultType="java.lang.String">
+        select id
+        from test_case_review_scenario
+        where test_case_review_id = #{reviewId}
+    </select>
+
+    <select id="getNotRelevanceCaseIds" resultType="java.lang.String">
+        select t.id
+        from test_case_review_scenario t
+        inner join api_scenario c
+        on c.id = t.api_scenario_id
+        <if test="relevanceProjectIds != null and relevanceProjectIds.size() > 0">
+            and c.project_id not in
+            <foreach collection="relevanceProjectIds" item="projectId" separator="," open="(" close=")">
+                #{projectId}
+            </foreach>
+        </if>
+        where t.test_case_review_id = #{reviewId}
+    </select>
+
+</mapper>

@@ -80,6 +80,8 @@ alter table test_case
     add demand_name varchar(999) null;
 alter table test_case
     add follow_people varchar(100) null;
+alter table test_case
+    add status varchar(25) null;
 -- test_case_review add column
 ALTER TABLE test_case_review
     ADD tags VARCHAR(2000) NULL;
@@ -93,6 +95,10 @@ alter table api_definition add original_state varchar(64);
 alter table api_scenario add original_state varchar(64);
 update api_definition set original_state='Underway';
 update api_scenario set original_state='Underway';
+
+-- alter test_case_review_scenario
+alter table test_case_review_scenario modify environment longtext null;
+
 
 -- schedule table add project_id column
 alter table schedule add project_id varchar(50) NULL;

@@ -112,7 +112,9 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
             apiModuleDTO.setName(name);
             apiModuleDTO.setLabel(name);
             apiModuleDTO.setChildren(nodeList);
-            list.add(apiModuleDTO);
+            if (!org.springframework.util.CollectionUtils.isEmpty(nodeList)) {
+                list.add(apiModuleDTO);
+            }
         });
         return list;
     }

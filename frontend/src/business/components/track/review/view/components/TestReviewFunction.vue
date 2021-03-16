@@ -44,7 +44,6 @@
 
 <script>
 import MsTestPlanCommonComponent from "@/business/components/track/plan/view/comonents/base/TestPlanCommonComponent";
-import FunctionalTestCaseList from "@/business/components/track/plan/view/comonents/functional/FunctionalTestCaseList";
 import MsNodeTree from "@/business/components/track/common/NodeTree";
 import TestReviewRelevance from "@/business/components/track/review/view/components/TestReviewRelevance";
 import TestReviewTestCaseList from "@/business/components/track/review/view/components/TestReviewTestCaseList";
@@ -58,7 +57,7 @@ export default {
     TestReviewMinder,
     MsTabButton,
     TestReviewTestCaseList,
-    TestReviewRelevance, MsNodeTree, FunctionalTestCaseList, MsTestPlanCommonComponent
+    TestReviewRelevance, MsNodeTree, MsTestPlanCommonComponent
   },
   data() {
     return {

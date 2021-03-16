@@ -189,7 +189,9 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
                 testCaseNodeDTO.setName(name);
                 testCaseNodeDTO.setLabel(name);
                 testCaseNodeDTO.setChildren(nodeList);
-                list.add(testCaseNodeDTO);
+                if (!CollectionUtils.isEmpty(nodeList)) {
+                    list.add(testCaseNodeDTO);
+                }
             }
         });
 

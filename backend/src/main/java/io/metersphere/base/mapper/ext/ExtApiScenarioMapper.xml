@@ -337,5 +337,118 @@
         <include refid="queryWhereCondition"/>
         <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
     </select>
+    <select id="listReview" resultMap="BaseResultMap">
+        select api_scenario.id, api_scenario.project_id, api_scenario.tags, api_scenario.user_id, api_scenario.num,
+        api_scenario.scenario_definition,
+        api_scenario.api_scenario_module_id,api_scenario.module_path, api_scenario.name, api_scenario.level,
+        api_scenario.status, api_scenario.principal, api_scenario.step_total, api_scenario.follow_people,
+        api_scenario.last_result,api_scenario.pass_rate,api_scenario.report_id,
+        api_scenario.schedule, api_scenario.description, api_scenario.create_time, api_scenario.update_time,
+        project.name as project_name, user.name as user_name
+        from api_scenario
+        left join project on api_scenario.project_id = project.id
+        left join user on api_scenario.user_id = user.id
+        <include refid="queryWhereConditionReview"/>
+        <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
+    </select>
+
+    <sql id="queryWhereConditionReview">
+        <where>
+            <if test="request.combine != null">
+                <include refid="combine">
+                    <property name="condition" value="request.combine"/>
+                    <property name="name" value="request.name"/>
+                    <property name="objectKey" value="request.combine.tags"/>
+                </include>
+            </if>
+
+            <if test="request.name != null">
+                and (api_scenario.name like CONCAT('%', #{request.name},'%')
+                or api_scenario.tags like CONCAT('%', #{request.name},'%')
+                or api_scenario.num like CONCAT('%', #{request.name},'%'))
+            </if>
+            <if test="request.workspaceId != null">
+                AND project.workspace_id = #{request.workspaceId}
+            </if>
+            <if test="request.projectId != null">
+                AND project.id = #{request.projectId}
+            </if>
+            <if test="request.id != null">
+                AND api_scenario.id = #{request.id}
+            </if>
+            <if test="request.userId != null">
+                AND api_scenario.user_id = #{request.userId}
+            </if>
+            <if test="request.moduleId != null">
+                AND api_scenario.api_scenario_module_id = #{request.moduleId}
+            </if>
+            <if test="request.projectId != null">
+                AND api_scenario.project_id = #{request.projectId}
+            </if>
+            <if test="request.createTime >0 ">
+                AND api_scenario.create_time >= #{request.createTime}
+            </if>
+            <if test="request.ids != null and request.ids.size() > 0">
+                AND api_scenario.id in
+                <foreach collection="request.ids" item="itemId" separator="," open="(" close=")">
+                    #{itemId}
+                </foreach>
+            </if>
+            <if test="request.moduleIds != null and request.moduleIds.size() > 0">
+                AND api_scenario.api_scenario_module_id in
+                <foreach collection="request.moduleIds" item="nodeId" separator="," open="(" close=")">
+                    #{nodeId}
+                </foreach>
+            </if>
+            <if test="request.filters != null and request.filters.size() > 0">
+                <foreach collection="request.filters.entrySet()" index="key" item="values">
+                    <if test="values != null and values.size() > 0">
+                        <choose>
+                            <when test="key=='status'">
+                                and api_scenario.status in
+                                <foreach collection="values" item="value" separator="," open="(" close=")">
+                                    #{value}
+                                </foreach>
+                            </when>
+                            <when test="key=='user_id'">
+                                and api_scenario.user_id in
+                                <foreach collection="values" item="value" separator="," open="(" close=")">
+                                    #{value}
+                                </foreach>
+                            </when>
+                            <when test="key=='level'">
+                                and api_scenario.level in
+                                <foreach collection="values" item="value" separator="," open="(" close=")">
+                                    #{value}
+                                </foreach>
+                            </when>
+                            <when test="key=='last_result'">
+                                and api_scenario.last_result in
+                                <foreach collection="values" item="value" separator="," open="(" close=")">
+                                    #{value}
+                                </foreach>
+                            </when>
+                        </choose>
+                    </if>
+                </foreach>
+            </if>
+            <if test="request.executeStatus == 'unExecute'">
+                and api_scenario.last_result IS NULL
+            </if>
+            <if test="request.executeStatus == 'executeFailed'">
+                and api_scenario.last_result = 'Fail'
+            </if>
+            <if test="request.executeStatus == 'executePass'">
+                and api_scenario.last_result = 'Success'
+            </if>
+            <if test="request.notInTestPlan == true ">
+                and api_scenario.id not in (
+                select pc.api_scenario_id
+                from test_case_review_scenario pc
+                where pc.test_case_review_id = #{request.reviewId}
+                )
+            </if>
+        </where>
+    </sql>
 
 </mapper>

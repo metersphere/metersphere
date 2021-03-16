@@ -23,6 +23,7 @@ import io.metersphere.api.parse.ApiImportParser;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ApiScenarioMapper;
 import io.metersphere.base.mapper.ApiScenarioReportMapper;
+import io.metersphere.base.mapper.TestCaseReviewScenarioMapper;
 import io.metersphere.base.mapper.TestPlanApiScenarioMapper;
 import io.metersphere.base.mapper.ext.*;
 import io.metersphere.commons.constants.*;
@@ -71,6 +72,8 @@ public class ApiAutomationService {
     @Resource
     private TestPlanApiScenarioMapper testPlanApiScenarioMapper;
     @Resource
+    private TestCaseReviewScenarioMapper  testCaseReviewScenarioMapper;
+    @Resource
     private JMeterService jMeterService;
     @Resource
     private ApiTestEnvironmentService environmentService;
@@ -94,7 +97,12 @@ public class ApiAutomationService {
         setApiScenarioProjectIds(list);
         return list;
     }
-
+    public List<ApiScenarioDTO> listReview(ApiScenarioRequest request) {
+        request = this.initRequest(request, true, true);
+        List<ApiScenarioDTO> list = extApiScenarioMapper.listReview(request);
+        setApiScenarioProjectIds(list);
+        return list;
+    }
     private void setApiScenarioProjectIds(List<ApiScenarioDTO> list) {
         // 如果场景步骤涉及多项目，则把涉及到的项目ID保存在projectIds属性
         list.forEach(data -> {
@@ -705,7 +713,32 @@ public class ApiAutomationService {
             testPlanApiScenarioMapper.insert(testPlanApiScenario);
         });
     }
+    public void relevanceReview(ApiCaseRelevanceRequest request){
+        Map<String, List<String>> mapping = request.getMapping();
+        Map<String, String> envMap = request.getEnvMap();
+        Set<String> set = mapping.keySet();
+        if (set.isEmpty()) {
+            return;
+        }
+        set.forEach(id->{
+            Map<String, String> newEnvMap = new HashMap<>(16);
+            if (envMap != null && !envMap.isEmpty()) {
+                List<String> list = mapping.get(id);
+                list.forEach(l -> {
+                    newEnvMap.put(l, envMap.get(l));
+                });
+            }
+            TestCaseReviewScenario testCaseReviewScenario=new TestCaseReviewScenario();
+            testCaseReviewScenario.setId(UUID.randomUUID().toString());
+            testCaseReviewScenario.setApiScenarioId(id);
+            testCaseReviewScenario.setTestCaseReviewId(request.getReviewId());
+            testCaseReviewScenario.setCreateTime(System.currentTimeMillis());
+            testCaseReviewScenario.setUpdateTime(System.currentTimeMillis());
+            testCaseReviewScenario.setEnvironment(JSON.toJSONString(newEnvMap));
+            testCaseReviewScenarioMapper.insert(testCaseReviewScenario);
 
+        });
+    }
     public List<ApiScenario> selectByIds(List<String> ids) {
         ApiScenarioExample example = new ApiScenarioExample();
         example.createCriteria().andIdIn(ids);

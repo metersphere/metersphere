@@ -405,6 +405,23 @@
         </where>
     </select>
 
+    <select id="listForMinder" resultType="io.metersphere.track.dto.TestPlanCaseDTO">
+        select pc.id as id,
+               pc.executor, pc.status,
+               pc.update_time,
+               pc.plan_id as planId,
+               t.name, t.priority,
+               t.type, t.node_id,
+               t.steps, t.prerequisite,
+               t.remark,
+               t.node_path, t.method, t.num
+        from test_plan_test_case pc
+        inner join test_case t on pc.case_id = t.id
+        <where>
+            pc.plan_id = #{planId}
+        </where>
+    </select>
+
     <update id="updateTestCaseStates" parameterType="java.lang.String">
         update test_plan_test_case
         <set>
