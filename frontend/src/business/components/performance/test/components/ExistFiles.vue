@@ -199,7 +199,7 @@ export default {
       });
 
     },
-    beforeUploadFile(file) {
+    async beforeUploadFile(file) {
       if (!this.fileValidator(file)) {
         /// todo: 显示错误信息
         return false;
@@ -215,7 +215,8 @@ export default {
       async function f() {
         return await axios.post('/performance/file/' + getCurrentProjectID() + '/getMetadataByName', {filename: file.name})
       }
-      f().then(res => {
+
+      await f().then(res => {
         let response = res.data;
         if (response.data.length === 0) {
           let type = file.name.substring(file.name.lastIndexOf(".") + 1);
