@@ -39,8 +39,9 @@
             @setCondition="setCondition"
             ref="testCaseList">
           </test-case-list>
-          <testcase-minder
+          <test-case-minder
             :tree-nodes="treeNodes"
+            :project-id="projectId"
             v-if="activeDom === 'right'"
             ref="testCaseList"/>
           </ms-tab-button>
@@ -97,17 +98,17 @@ import SelectMenu from "../common/SelectMenu";
 import MsContainer from "../../common/components/MsContainer";
 import MsAsideContainer from "../../common/components/MsAsideContainer";
 import MsMainContainer from "../../common/components/MsMainContainer";
-import {checkoutTestManagerOrTestUser, getCurrentProjectID, getUUID, hasRoles} from "../../../../common/js/utils";
+import {checkoutTestManagerOrTestUser, getCurrentProjectID, getUUID} from "../../../../common/js/utils";
 import TestCaseNodeTree from "../common/TestCaseNodeTree";
-import {TrackEvent,LIST_CHANGE} from "@/business/components/common/head/ListEvent";
-import TestcaseMinder from "@/business/components/common/components/MsModuleMinder";
+
 import MsTabButton from "@/business/components/common/components/MsTabButton";
+import TestCaseMinder from "@/business/components/track/common/minder/TestCaseMinder";
 
 export default {
   name: "TestCase",
   components: {
+    TestCaseMinder,
     MsTabButton,
-    TestcaseMinder,
     TestCaseNodeTree,
     MsMainContainer,
     MsAsideContainer, MsContainer, TestCaseList, NodeTree, TestCaseEdit, SelectMenu
@@ -129,11 +130,13 @@ export default {
       renderComponent:true,
       loading: false,
       type:'',
-      activeDom: 'left'
+      activeDom: 'left',
+      projectId: ""
     }
   },
   mounted() {
     this.init(this.$route);
+    this.projectId = getCurrentProjectID();
   },
   watch: {
     redirectID() {
@@ -193,7 +196,7 @@ export default {
       }
     },
     addTab(tab) {
-      if (!getCurrentProjectID()) {
+      if (!this.projectId) {
         this.$warning(this.$t('commons.check_project_tip'));
         return;
       }
@@ -253,7 +256,7 @@ export default {
           this.testCaseReadOnly = true;
         }
         let caseId = this.$route.params.caseId;
-        if (!getCurrentProjectID()) {
+        if (!this.projectId) {
           this.$warning(this.$t('commons.check_project_tip'));
           return;
         }

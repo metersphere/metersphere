@@ -9,6 +9,8 @@
     :draggable="true"
     :color="displayColor.color"
     :background-color="displayColor.backgroundColor"
+    :is-max="isMax"
+    :show-btn="showBtn"
     :title="displayTitle">
 
     <template v-slot:behindHeaderLeft>
@@ -71,6 +73,7 @@
   import ApiBaseComponent from "../common/ApiBaseComponent";
   import ApiResponseComponent from "./ApiResponseComponent";
   import CustomizeReqInfo from "@/business/components/api/automation/scenario/common/CustomizeReqInfo";
+  import {ELEMENTS} from "../Setting";
 
   export default {
     name: "MsApiComponent",
@@ -81,6 +84,14 @@
       draggable: {
         type: Boolean,
         default: false,
+      },
+      isMax: {
+        type: Boolean,
+        default: false,
+      },
+      showBtn: {
+        type: Boolean,
+        default: true,
       },
       currentEnvironmentId: String,
       projectList: Array,
@@ -122,6 +133,11 @@
           }
         }
       }
+      // if (this.isMax && this.request && ELEMENTS.get("AllSamplerProxy").indexOf(this.request.type) != -1
+      //   && this.request.hashTree && this.request.hashTree != null && this.request.hashTree.length > 0) {
+      //   this.request.hashTrees = JSON.parse(JSON.stringify(this.request.hashTree));
+      //   this.request.hashTree = undefined;
+      // }
     },
     computed: {
       displayColor() {
@@ -220,6 +236,12 @@
               if (!this.request.projectId) {
                 this.request.projectId = response.data.projectId;
               }
+              // if (this.isMax && this.request && ELEMENTS.get("AllSamplerProxy").indexOf(this.request.type) != -1) {
+              //   this.request.hashTrees = [];
+              //   Object.assign(this.request.hashTrees, this.request.hashTree);
+              //   this.request.hashTree = [];
+              // }
+
               this.reload();
               this.sort();
             } else {

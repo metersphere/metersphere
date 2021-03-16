@@ -29,12 +29,12 @@
       <el-row :gutter="10">
         <el-col :span="6">
           <div class="square">
-            <case-count-card :track-count-data="trackCountData" class="track-card"/>
+            <case-count-card :track-count-data="trackCountData" class="track-card" @redirectPage="redirectPage"/>
           </div>
         </el-col>
         <el-col :span="6">
           <div class="square">
-            <relevance-case-card :relevance-count-data="relevanceCountData" class="track-card"/>
+            <relevance-case-card :relevance-count-data="relevanceCountData" class="track-card" @redirectPage="redirectPage"/>
           </div>
         </el-col>
         <el-col :span="12">
@@ -73,7 +73,7 @@ import MsMainContainer from "@/business/components/common/components/MsMainConta
 import MsContainer from "@/business/components/common/components/MsContainer";
 import CaseCountCard from "@/business/components/track/home/components/CaseCountCard";
 import RelevanceCaseCard from "@/business/components/track/home/components/RelevanceCaseCard";
-import {getCurrentProjectID} from "@/common/js/utils";
+import {getCurrentProjectID, getUUID} from "@/common/js/utils";
 import CaseMaintenance from "@/business/components/track/home/components/CaseMaintenance";
 import {COUNT_NUMBER, COUNT_NUMBER_SHALLOW} from "@/common/js/constants";
 import BugCountCard from "@/business/components/track/home/components/BugCountCard";
@@ -169,7 +169,7 @@ export default {
           type: 'bar',
           itemStyle: {
             normal: {
-              color: COUNT_NUMBER
+              color: this.$store.state.theme.theme ? this.$store.state.theme.theme : COUNT_NUMBER
             }
           }
         },
@@ -179,14 +179,20 @@ export default {
             type: 'bar',
             itemStyle: {
               normal: {
-                color: COUNT_NUMBER_SHALLOW
+                color: this.$store.state.theme.theme ? this.$store.state.theme.theme : COUNT_NUMBER_SHALLOW
               }
             }
           }]
       };
       this.caseOption = option;
+    },
+    redirectPage(page,dataType,selectType){
+      switch (page){
+        case "case":
+          this.$router.push({name:'testCase',params:{dataType:dataType,dataSelectRange:selectType, projectId: getCurrentProjectID()}});
+          break;
+      }
     }
-
   }
 }
 </script>

@@ -31,7 +31,7 @@ import MsView from "./components/common/router/View";
 import MsUser from "./components/common/head/HeaderUser";
 import MsHeaderOrgWs from "./components/common/head/HeaderOrgWs";
 import MsLanguageSwitch from "./components/common/head/LanguageSwitch";
-import {hasLicense, saveLocalStorage, setColor, setOriginColor} from "@/common/js/utils";
+import {hasLicense, saveLocalStorage, setColor, setDefaultTheme} from "@/common/js/utils";
 import {registerRequestHeaders} from "@/common/js/ajax";
 import {ORIGIN_COLOR} from "@/common/js/constants";
 
@@ -55,13 +55,14 @@ export default {
   created() {
     registerRequestHeaders();
     if (!hasLicense()) {
-      setOriginColor()
+      setDefaultTheme();
       this.color = ORIGIN_COLOR;
     } else {
       //
       this.$get('/system/theme', res => {
         this.color = res.data ? res.data : ORIGIN_COLOR;
-        setColor(this.color, this.color, this.color, this.color);
+        setColor(this.color, this.color, this.color, this.color, this.color);
+        this.$store.commit('setTheme', res.data);
       })
     }
     if (localStorage.getItem("store")) {

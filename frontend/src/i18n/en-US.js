@@ -481,7 +481,7 @@ export default {
     delete_file: "The file already exists, please delete the file with the same name first!",
     thread_num: 'Concurrent users:',
     input_thread_num: 'Please enter the number of threads',
-    duration: 'Duration time (seconds)',
+    duration: 'Duration time',
     granularity: 'Aggregation time (seconds)',
     input_duration: 'Please enter a duration',
     rps_limit: 'RPS Limit:',
@@ -1029,6 +1029,7 @@ export default {
         },
         scenario_schedule: "Scenario",
         test_plan_schedule: "Test plan",
+        swagger_schedule: "swagger",
         confirm: {
           close_title: "Do you want to close this scheduled task？",
         }

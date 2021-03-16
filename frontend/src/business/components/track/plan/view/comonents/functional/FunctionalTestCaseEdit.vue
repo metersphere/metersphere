@@ -664,8 +664,9 @@ export default {
       }
     },
     deleteIssue(row) {
-      this.result = this.$get("/issues/delete/" + row.id, () => {
-        this.getIssues(this.testCase.caseId);
+      let caseId = this.testCase.caseId;
+      this.result = this.$post("/issues/delete", {id: row.id, caseId: caseId}, () => {
+        this.getIssues(caseId);
         this.$success(this.$t('commons.delete_success'));
       })
     },

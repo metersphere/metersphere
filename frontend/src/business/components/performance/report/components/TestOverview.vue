@@ -467,7 +467,8 @@ export default {
         let items = {
           name: name,
           type: 'line',
-          data: d
+          data: d,
+          smooth: true
         };
         let seriesArrayNames = seriesArray.map(m => m.name);
         if (seriesArrayNames.includes(name)) {

@@ -15,6 +15,7 @@ import io.metersphere.api.service.*;
 import io.metersphere.base.domain.ApiTest;
 import io.metersphere.base.domain.Schedule;
 import io.metersphere.commons.constants.RoleConstants;
+import io.metersphere.commons.constants.ScheduleGroup;
 import io.metersphere.commons.utils.CronUtils;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
@@ -28,15 +29,13 @@ import io.metersphere.service.ScheduleService;
 import org.apache.jorphan.collections.HashTree;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
+import org.python.core.AstList;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 import static io.metersphere.commons.utils.JsonPathUtils.getListJson;
 
@@ -345,8 +344,11 @@ public class APITestController {
 
     @GetMapping("/runningTask/{projectID}")
     public List<TaskInfoResult> runningTask(@PathVariable String projectID) {
-
-        List<TaskInfoResult> resultList = scheduleService.findRunningTaskInfoByProjectID(projectID);
+        List<String> typeFilter = Arrays.asList(   //  首页显示的运行中定时任务，只要这3种，不需要 性能测试、api_test(旧版)
+                ScheduleGroup.API_SCENARIO_TEST.name(),
+                ScheduleGroup.SWAGGER_IMPORT.name(),
+                ScheduleGroup.TEST_PLAN_TEST.name());
+        List<TaskInfoResult> resultList = scheduleService.findRunningTaskInfoByProjectID(projectID, typeFilter);
         int dataIndex = 1;
         for (TaskInfoResult taskInfo :
                 resultList) {

@@ -68,7 +68,7 @@
                     <span class="default-property">
                       未覆盖
                       {{"\xa0\xa0"}}
-                      <el-link type="info" @click="redirectPage('Underway')" target="_blank" style="color: #000000">
+                      <el-link type="info" @click="redirectPage('uncoverage')" target="_blank" style="color: #000000">
                         {{relevanceCountData.uncoverageCount}}
                       </el-link>
                     </span>
@@ -77,7 +77,7 @@
                     <span class="main-property">
                       已覆盖
                       {{"\xa0\xa0"}}
-                      <el-link type="info" @click="redirectPage('Prepare')" target="_blank" style="color: #000000">
+                      <el-link type="info" @click="redirectPage('coverage')" target="_blank" style="color: #000000">
                         {{relevanceCountData.coverageCount}}
                       </el-link>
                     </span>
@@ -107,7 +107,7 @@ export default {
   },
   methods: {
     redirectPage(clickType){
-      this.$emit("redirectPage","api","api",clickType);
+      this.$emit("redirectPage","case","case",clickType);
     }
   }
 }

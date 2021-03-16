@@ -10,15 +10,30 @@
         ref="nodeTree"/>
     </template>
     <template v-slot:main>
-      <test-review-test-case-list
-        class="table-list"
-        @openTestReviewRelevanceDialog="openTestReviewRelevanceDialog"
-        @refresh="refresh"
-        :review-id="reviewId"
-        :select-node-ids="selectNodeIds"
-        :select-parent-nodes="selectParentNodes"
-        :clickType="clickType"
-        ref="testPlanTestCaseList"/>
+      <ms-tab-button
+        :active-dom.sync="activeDom"
+        :left-tip="'用例列表'"
+        :left-content="'CASE'"
+        :right-tip="'脑图'"
+        :right-content="'脑图'"
+        :middle-button-enable="false">
+        <test-review-test-case-list
+          class="table-list"
+          v-if="activeDom === 'left'"
+          @openTestReviewRelevanceDialog="openTestReviewRelevanceDialog"
+          @refresh="refresh"
+          :review-id="reviewId"
+          :select-node-ids="selectNodeIds"
+          :select-parent-nodes="selectParentNodes"
+          :clickType="clickType"
+          ref="testPlanTestCaseList"/>
+        <test-review-minder
+          :tree-nodes="treeNodes"
+          :project-id="projectId"
+          :review-id="reviewId"
+          v-if="activeDom === 'right'"
+        />
+      </ms-tab-button>
     </template>
     <test-review-relevance
       @refresh="refresh"
@@ -29,16 +44,20 @@
 
 <script>
 import MsTestPlanCommonComponent from "@/business/components/track/plan/view/comonents/base/TestPlanCommonComponent";
-import FunctionalTestCaseList from "@/business/components/track/plan/view/comonents/functional/FunctionalTestCaseList";
 import MsNodeTree from "@/business/components/track/common/NodeTree";
 import TestReviewRelevance from "@/business/components/track/review/view/components/TestReviewRelevance";
 import TestReviewTestCaseList from "@/business/components/track/review/view/components/TestReviewTestCaseList";
+import MsTabButton from "@/business/components/common/components/MsTabButton";
+import TestReviewMinder from "@/business/components/track/common/minder/TestReviewMinder";
+import {getCurrentProjectID} from "@/common/js/utils";
 
 export default {
   name: "TestReviewFunction",
   components: {
+    TestReviewMinder,
+    MsTabButton,
     TestReviewTestCaseList,
-    TestReviewRelevance, MsNodeTree, FunctionalTestCaseList, MsTestPlanCommonComponent
+    TestReviewRelevance, MsNodeTree, MsTestPlanCommonComponent
   },
   data() {
     return {
@@ -49,15 +68,18 @@ export default {
       selectParentNodes: [],
       treeNodes: [],
       isMenuShow: true,
+      activeDom: 'left',
+      projectId: ""
     }
   },
   props: [
     'reviewId',
     'redirectCharType',
-    'clickType'
+    'clickType',
   ],
   mounted() {
     this.getNodeTreeByReviewId()
+    this.projectId = getCurrentProjectID();
   },
   activated() {
     this.getNodeTreeByReviewId()
@@ -89,5 +111,7 @@ export default {
 </script>
 
 <style scoped>
-
+/deep/ .el-button-group>.el-button:first-child {
+  padding: 4px 1px !important;
+}
 </style>

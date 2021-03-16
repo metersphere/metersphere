@@ -472,7 +472,6 @@ export default {
     reload() {
       this.isStepTableAlive = false;
       this.$nextTick(() => (this.isStepTableAlive = true));
-      console.log(this.form)
     },
     open(testCase) {
       this.projectId = getCurrentProjectID();
@@ -552,9 +551,7 @@ export default {
       let tmp = {};
       Object.assign(tmp, testCase);
       tmp.steps = JSON.parse(testCase.steps);
-      console.log(tmp)
       Object.assign(this.form, tmp);
-      console.log(this.form)
       this.form.module = testCase.nodeId;
       this.getFileMetaData(testCase);
     },
@@ -631,7 +628,6 @@ export default {
           let param = this.buildParam();
           if (this.validate(param)) {
             let option = this.getOption(param);
-            console.log(option)
             this.result = this.$request(option, () => {
               this.$success(this.$t('commons.save_success'));
               if (this.operationType == 'add' && this.isCreateContinue) {

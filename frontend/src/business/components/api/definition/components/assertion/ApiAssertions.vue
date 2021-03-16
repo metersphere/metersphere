@@ -6,6 +6,8 @@
     @active="active"
     :data="assertions"
     :draggable="draggable"
+    :is-max="isMax"
+    :show-btn="showBtn"
     color="#A30014"
     background-color="#F7E6E9"
     :title="$t('api_test.definition.request.assertions_rule')">
@@ -86,6 +88,14 @@
       draggable: {
         type: Boolean,
         default: false,
+      },
+      isMax: {
+        type: Boolean,
+        default: false,
+      },
+      showBtn: {
+        type: Boolean,
+        default: true,
       },
       assertions: {},
       node: {},

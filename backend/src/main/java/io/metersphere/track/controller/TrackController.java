@@ -87,7 +87,7 @@ public class TrackController {
     }
 
     @GetMapping("/bug/count/{projectId}")
-    public BugStatustics getBugStatustics(@PathVariable String projectId) {
-        return trackService.getBugStatustics(projectId);
+    public BugStatustics getBugStatistics(@PathVariable String projectId) {
+        return trackService.getBugStatistics(projectId);
     }
 }
