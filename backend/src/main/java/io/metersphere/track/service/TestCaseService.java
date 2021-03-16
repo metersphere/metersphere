@@ -662,7 +662,7 @@ public class TestCaseService {
         }
 
         files.forEach(file -> {
-            final FileMetadata fileMetadata = fileService.saveFile(file);
+            final FileMetadata fileMetadata = fileService.saveFile(file, testCaseWithBLOBs.getProjectId());
             TestCaseFile testCaseFile = new TestCaseFile();
             testCaseFile.setCaseId(testCaseWithBLOBs.getId());
             testCaseFile.setFileId(fileMetadata.getId());
@@ -695,7 +695,7 @@ public class TestCaseService {
 
         if (files != null) {
             files.forEach(file -> {
-                final FileMetadata fileMetadata = fileService.saveFile(file);
+                final FileMetadata fileMetadata = fileService.saveFile(file,testCaseWithBLOBs.getProjectId());
                 TestCaseFile testCaseFile = new TestCaseFile();
                 testCaseFile.setFileId(fileMetadata.getId());
                 testCaseFile.setCaseId(request.getId());
