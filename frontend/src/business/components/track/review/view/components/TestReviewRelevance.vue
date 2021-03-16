@@ -133,6 +133,7 @@ export default {
     },
     data() {
       return {
+        checked: true,
         result: {},
         currentProject: {},
         dialogFormVisible: false,
