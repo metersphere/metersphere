@@ -15,6 +15,7 @@
              @click="active(data)" v-if="data.type!='scenario'  && !isMax "/>
           <el-input :draggable="draggable" v-if="isShowInput && isShowNameInput" size="mini" v-model="data.name" class="name-input"
                     @blur="isShowInput = false" :placeholder="$t('commons.input_name')" ref="nameEdit" :disabled="data.disabled"/>
+          <!--最大化显示-->
           <span v-else-if="isMax">
              <el-tooltip :content="data.name" placement="top">
               <span>{{data.name}}</span>
@@ -34,13 +35,14 @@
           <el-switch v-model="data.enable" class="enable-switch"/>
         </el-tooltip>
         <slot name="button"></slot>
-        <step-extend-btns style="display: contents" @copy="copyRow" @remove="remove" v-if="showBtn"/>
+        <step-extend-btns style="display: contents" :data="data" @copy="copyRow" @remove="remove" @openScenario="openScenario" v-if="showBtn"/>
       </div>
 
     </div>
+    <!--最大化不显示具体内容-->
     <div class="header" v-if="!isMax">
       <fieldset :disabled="data.disabled" class="ms-fieldset">
-        <el-collapse-transition>6.
+        <el-collapse-transition>
           <div v-if="data.active && showCollapse" :draggable="draggable">
             <el-divider></el-divider>
             <slot></slot>
@@ -130,6 +132,9 @@
       remove() {
         this.$emit('remove');
       },
+      openScenario(data) {
+        this.$emit('openScenario', data);
+      },
       editName() {
         this.isShowInput = true;
         this.$nextTick(() => {
@@ -159,7 +164,7 @@
   }
 
   .header-right {
-    margin-top: 5px;
+    margin-top: 0px;
     float: right;
     z-index: 1;
   }

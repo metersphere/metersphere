@@ -39,7 +39,7 @@
           :name="item.name"
           closable>
           <div class="ms-api-scenario-div">
-            <ms-edit-api-scenario @refresh="refresh" :currentScenario="item.currentScenario"
+            <ms-edit-api-scenario @refresh="refresh" @openScenario="editScenario" :currentScenario="item.currentScenario"
                                   :moduleOptions="moduleOptions" ref="autoScenarioConfig"/>
           </div>
         </el-tab-pane>
