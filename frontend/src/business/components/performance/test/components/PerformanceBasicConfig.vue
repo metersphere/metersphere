@@ -4,21 +4,6 @@
       <h4>{{ $t('load_test.scenario_list') }}</h4>
     </el-row>
     <el-row type="flex" justify="start" align="middle">
-      <el-upload
-        style="padding-right: 10px;"
-        accept=".jmx"
-        action=""
-        multiple
-        :limit="fileNumLimit"
-        :show-file-list="false"
-        :before-upload="beforeUploadJmx"
-        :http-request="handleUpload"
-        :on-exceed="handleExceed"
-        :disabled="isReadOnly"
-        :file-list="fileList">
-        <ms-table-button :is-tester-permission="true" icon="el-icon-upload2"
-                         :content="$t('load_test.upload_jmx')"/>
-      </el-upload>
       <ms-table-button :is-tester-permission="true" icon="el-icon-circle-plus-outline"
                        :content="$t('load_test.load_exist_jmx')" @click="loadJMX()"/>
       <ms-table-button :is-tester-permission="true" icon="el-icon-share"
@@ -68,21 +53,6 @@
       <h4>{{ $t('load_test.other_resource') }}</h4>
     </el-row>
     <el-row type="flex" justify="start" align="middle">
-      <el-upload
-        style="padding-right: 10px;"
-        accept=".jar,.csv,.json,.pdf,.jpg,.png,.jpeg,.doc,.docx,.xlsx"
-        action=""
-        :limit="fileNumLimit"
-        multiple
-        :show-file-list="false"
-        :before-upload="beforeUploadFile"
-        :http-request="handleUpload"
-        :on-exceed="handleExceed"
-        :disabled="isReadOnly"
-        :file-list="fileList">
-        <ms-table-button :is-tester-permission="true" icon="el-icon-upload2"
-                         :content="$t('load_test.upload_file')"/>
-      </el-upload>
 
       <ms-table-button :is-tester-permission="true" icon="el-icon-circle-plus-outline"
                        :content="$t('load_test.load_exist_file')" @click="loadFile()"/>
@@ -125,6 +95,7 @@
                  :file-list="fileList"
                  :table-data="tableData"
                  :upload-list="uploadList"
+                 :is-read-only="isReadOnly"
                  :scenarios="threadGroups"/>
 
     <exist-scenarios ref="existScenarios"
@@ -139,7 +110,6 @@
 
 <script>
 import {Message} from "element-ui";
-import {findThreadGroup} from "@/business/components/performance/test/model/ThreadGroup";
 import MsTableButton from "@/business/components/common/components/MsTableButton";
 import MsTablePagination from "@/business/components/common/pagination/TablePagination";
 import MsTableOperatorButton from "@/business/components/common/components/MsTableOperatorButton";
@@ -228,64 +198,6 @@ export default {
           f.size = (f.size / 1024).toFixed(2) + ' KB';
         });
       })
-    },
-
-    beforeUploadJmx(file) {
-      if (!this.fileValidator(file)) {
-        /// todo: 显示错误信息
-        return false;
-      }
-      if (this.tableData.filter(f => f.name === file.name).length > 0) {
-        this.$error(this.$t('load_test.delete_file'));
-        return false;
-      }
-
-      let type = file.name.substring(file.name.lastIndexOf(".") + 1);
-
-      this.tableData.push({
-        name: file.name,
-        size: (file.size / 1024).toFixed(2) + ' KB',
-        type: type.toUpperCase(),
-        updateTime: file.lastModified,
-      });
-
-      return true;
-    },
-    beforeUploadFile(file) {
-      if (!this.fileValidator(file)) {
-        /// todo: 显示错误信息
-        return false;
-      }
-      if (this.tableData.filter(f => f.name === file.name).length > 0) {
-        this.$error(this.$t('load_test.delete_file'));
-        return false;
-      }
-
-      let type = file.name.substring(file.name.lastIndexOf(".") + 1);
-
-      this.tableData.push({
-        name: file.name,
-        size: (file.size / 1024).toFixed(2) + ' KB',
-        type: type.toUpperCase(),
-        updateTime: file.lastModified,
-      });
-
-      return true;
-    },
-    handleUpload(uploadResources) {
-      let self = this;
-      let file = uploadResources.file;
-      self.uploadList.push(file);
-      let type = file.name.substring(file.name.lastIndexOf(".") + 1);
-      if (type.toLowerCase() !== 'jmx') {
-        return;
-      }
-      let jmxReader = new FileReader();
-      jmxReader.onload = (event) => {
-        self.threadGroups = self.threadGroups.concat(findThreadGroup(event.target.result, file.name));
-        self.$emit('fileChange', self.threadGroups);
-      };
-      jmxReader.readAsText(file);
     },
     selectAttachFileById(metadataIdArr) {
       this.metadataIdList = metadataIdArr;
@@ -380,13 +292,6 @@ export default {
     tgTypeChange(row) {
       this.$emit("tgTypeChange", row);
     },
-    handleExceed() {
-      this.$error(this.$t('load_test.file_size_limit'));
-    },
-    fileValidator(file) {
-      /// todo: 是否需要对文件内容和大小做限制
-      return file.size > 0;
-    },
     updatedFileList() {
       return this.fileList;// 表示修改了已经上传的文件列表
     },
@@ -414,7 +319,7 @@ export default {
     },
     validConfig() {
       if (this.uploadList.length + this.fileList.length > this.fileNumLimit) {
-        this.handleExceed();
+        this.$refs.existFiles.handleExceed();
         return false;
       }
 
