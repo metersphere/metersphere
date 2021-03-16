@@ -19,6 +19,11 @@
               <el-input v-model="form.name" :placeholder="$t('test_track.plan.input_plan_name')"></el-input>
             </el-form-item>
           </el-col>
+          <el-col :span="10" :offset="1">
+            <el-form-item :label="$t('commons.tag')" :label-width="formLabelWidth" prop="tag">
+              <ms-input-tag :currentScenario="form" ref="tag"/>
+            </el-form-item>
+          </el-col>
         </el-row>
 
         <el-row>
@@ -93,6 +98,7 @@
       </el-form>
 
       <template v-slot:footer>
+
         <div class="dialog-footer">
           <el-button
             @click="dialogFormVisible = false">
@@ -118,10 +124,11 @@ import {WORKSPACE_ID} from '@/common/js/constants';
 import TestPlanStatusButton from "../common/TestPlanStatusButton";
 import {getCurrentProjectID, listenGoBack, removeGoBackListener} from "@/common/js/utils";
 import {LIST_CHANGE, TrackEvent} from "@/business/components/common/head/ListEvent";
+import MsInputTag from "@/business/components/api/automation/scenario/MsInputTag";
 
 export default {
   name: "TestPlanEdit",
-  components: {TestPlanStatusButton},
+  components: {TestPlanStatusButton, MsInputTag},
   data() {
     return {
       dialogFormVisible: false,
@@ -174,6 +181,10 @@ export default {
             return;
           }
           param.workspaceId = localStorage.getItem(WORKSPACE_ID);
+          if (this.form.tags instanceof Array) {
+            this.form.tags = JSON.stringify(this.form.tags);
+          }
+          param.tags = this.form.tags;
           this.$post('/test/plan/' + this.operationType, param, () => {
             this.$success(this.$t('commons.save_success'));
             this.dialogFormVisible = false;

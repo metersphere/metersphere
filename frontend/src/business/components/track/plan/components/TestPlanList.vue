@@ -3,8 +3,10 @@
     <template v-slot:header>
       <ms-table-header :is-tester-permission="true" :condition.sync="condition"
                        @search="initTableData" @create="testPlanCreate"
-                       :create-tip="$t('test_track.plan.create_plan')"
-                       :title="$t('test_track.plan.test_plan')"/>
+                       :title="$t('test_track.plan.test_plan')"
+                       :show-create="false"/>
+      <el-button type="primary" plain icon="el-icon-plus" size="mini" v-tester @click="testPlanCreate"/>
+
     </template>
 
     <el-table

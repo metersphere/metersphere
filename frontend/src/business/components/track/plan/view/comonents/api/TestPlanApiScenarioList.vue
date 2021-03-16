@@ -140,6 +140,7 @@ export default {
       default: false,
     },
     selectNodeIds: Array,
+    reviewId: String,
     planId: String,
     clickType: String
   },
@@ -202,7 +203,6 @@ export default {
       this.selectRows = new Set();
       this.loading = true;
       this.condition.moduleIds = this.selectNodeIds;
-      this.condition.planId = this.planId;
       if (this.clickType) {
         if (this.status == 'default') {
           this.condition.status = this.clickType;
@@ -211,18 +211,37 @@ export default {
         }
         this.status = 'all';
       }
-      let url = "/test/plan/scenario/case/list/" + this.currentPage + "/" + this.pageSize;
-      this.$post(url, this.condition, response => {
-        let data = response.data;
-        this.total = data.itemCount;
-        this.tableData = data.listObject;
-        this.tableData.forEach(item => {
-          if (item.tags && item.tags.length > 0) {
-            item.tags = JSON.parse(item.tags);
-          }
+      if (this.planId) {
+        this.condition.planId = this.planId;
+        let url = "/test/plan/scenario/case/list/" + this.currentPage + "/" + this.pageSize;
+        this.$post(url, this.condition, response => {
+          let data = response.data;
+          this.total = data.itemCount;
+          this.tableData = data.listObject;
+          this.tableData.forEach(item => {
+            if (item.tags && item.tags.length > 0) {
+              item.tags = JSON.parse(item.tags);
+            }
+          });
+          this.loading = false;
         });
-        this.loading = false;
-      });
+      }
+      if (this.reviewId) {
+        this.condition.reviewId = this.reviewId;
+        let url = "/test/case/review/scenario/case/list/" + this.currentPage + "/" + this.pageSize;
+        this.$post(url, this.condition, response => {
+          let data = response.data;
+          this.total = data.itemCount;
+          this.tableData = data.listObject;
+          this.tableData.forEach(item => {
+            if (item.tags && item.tags.length > 0) {
+              item.tags = JSON.parse(item.tags);
+            }
+          });
+          this.loading = false;
+        });
+      }
+
     },
     reductionApi(row) {
       row.scenarioDefinition = null;
@@ -233,21 +252,39 @@ export default {
       })
     },
     handleBatchExecute() {
-      this.selectRows.forEach(row => {
-        let param = this.buildExecuteParam(row);
-        this.$post("/test/plan/scenario/case/run", param, response => {
+      if (this.reviewId) {
+        this.selectRows.forEach(row => {
+          let param = this.buildExecuteParam(row);
+          this.$post("/test/case/review/scenario/case/run", param, response => {
+          });
         });
-      });
+      }
+      if (this.planId) {
+        this.selectRows.forEach(row => {
+          let param = this.buildExecuteParam(row);
+          this.$post("/test/plan/scenario/case/run", param, response => {
+          });
+        });
+      }
       this.$message('任务执行中，请稍后刷新查看结果');
       this.search();
     },
     execute(row) {
       this.infoDb = false;
       let param = this.buildExecuteParam(row);
-      this.$post("/test/plan/scenario/case/run", param, response => {
-        this.runVisible = true;
-        this.reportId = response.data;
-      });
+
+      if (this.planId) {
+        this.$post("/test/plan/scenario/case/run", param, response => {
+          this.runVisible = true;
+          this.reportId = response.data;
+        });
+      }
+      if (this.reviewId) {
+        this.$post("/test/case/review/scenario/case/run", param, response => {
+          this.runVisible = true;
+          this.reportId = response.data;
+        });
+      }
     },
     buildExecuteParam(row) {
       let param = {};
@@ -265,11 +302,20 @@ export default {
       this.reportId = row.reportId;
     },
     remove(row) {
-      this.$get('/test/plan/scenario/case/delete/' + row.id, () => {
-        this.$success(this.$t('test_track.cancel_relevance_success'));
-        this.$emit('refresh');
-        this.search();
-      });
+      if (this.planId) {
+        this.$get('/test/plan/scenario/case/delete/' + row.id, () => {
+          this.$success(this.$t('test_track.cancel_relevance_success'));
+          this.$emit('refresh');
+          this.search();
+        });
+      }
+      if (this.reviewId) {
+        this.$get('/test/case/review/scenario/case/delete/' + row.id, () => {
+          this.$success(this.$t('test_track.cancel_relevance_success'));
+          this.$emit('refresh');
+          this.search();
+        });
+      }
       return;
     },
     isSelect(row) {
@@ -288,13 +334,24 @@ export default {
           if (action === 'confirm') {
             let param = {};
             param.ids = Array.from(this.selectRows).map(row => row.id);
-            param.planId = this.planId;
-            this.$post('/test/plan/scenario/case/batch/delete', param, () => {
-              this.selectRows.clear();
-              this.search();
-              this.$success(this.$t('test_track.cancel_relevance_success'));
-              this.$emit('refresh');
-            });
+            if (this.planId) {
+              param.planId = this.planId;
+              this.$post('/test/plan/scenario/case/batch/delete', param, () => {
+                this.selectRows.clear();
+                this.search();
+                this.$success(this.$t('test_track.cancel_relevance_success'));
+                this.$emit('refresh');
+              });
+            }
+            if (this.reviewId) {
+              param.reviewId = this.reviewId;
+              this.$post('/test/case/review/scenario/case/batch/delete', param, () => {
+                this.selectRows.clear();
+                this.search();
+                this.$success(this.$t('test_track.cancel_relevance_success'));
+                this.$emit('refresh');
+              });
+            }
           }
         }
       });
@@ -311,10 +368,19 @@ export default {
       })
       param.mapping = strMapToObj(map);
       param.envMap = strMapToObj(form.projectEnvMap);
-      this.$post('/test/plan/scenario/case/batch/update/env', param, () => {
-        this.$success(this.$t('commons.save_success'));
-        this.search();
-      })
+      if (this.planId) {
+        this.$post('/test/plan/scenario/case/batch/update/env', param, () => {
+          this.$success(this.$t('commons.save_success'));
+          this.search();
+        })
+      }
+      if (this.reviewId) {
+        this.$post('/test/case/review/scenario/case/batch/update/env', param, () => {
+          this.$success(this.$t('commons.save_success'));
+          this.search();
+        })
+      }
+
     },
   }
 }

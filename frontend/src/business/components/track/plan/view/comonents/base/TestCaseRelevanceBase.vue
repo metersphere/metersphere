@@ -14,7 +14,8 @@
     <slot></slot>
 
     <template v-slot:footer>
-      <div v-if="$slots.footer">
+
+    <div v-if="$slots.footer">
         <slot name="footer"></slot>
       </div>
       <div v-else>

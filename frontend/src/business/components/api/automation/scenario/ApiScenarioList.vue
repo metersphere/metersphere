@@ -765,9 +765,6 @@
     z-index: auto !important;
   }
 
-  /deep/ el-table__fixed-right {
-
-  }
 
   /deep/ .el-table__fixed-right {
     height: 100% !important;

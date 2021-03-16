@@ -20,4 +20,5 @@ public class ApiDefinitionRequest extends BaseQueryRequest {
     private long createTime = 0;
     private String status;
     private String apiCaseCoverage;
+    private String reviewId;
 }
