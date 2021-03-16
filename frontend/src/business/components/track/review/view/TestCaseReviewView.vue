@@ -20,7 +20,7 @@
       </template>
     </ms-test-plan-header-bar>
     <test-review-function v-if="activeIndex === 'functional'" :redirectCharType="redirectCharType"
-                          :click Type="clickType" :review-id="reviewId"></test-review-function>
+                          :clickType="clickType" :review-id="reviewId"></test-review-function>
     <test-review-api v-if="activeIndex === 'api'" :review-id="reviewId"></test-review-api>
     <test-review-load v-if="activeIndex === 'load'" :review-id="reviewId"></test-review-load>
 
