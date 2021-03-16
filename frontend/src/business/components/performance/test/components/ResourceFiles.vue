@@ -139,8 +139,8 @@ export default {
       }).then(() => {
         this.$get('/project/delete/file/' + row.id, response => {
           Message.success(this.$t('commons.delete_success'));
+          this.getProjectFiles();
         });
-        this.getProjectFiles();
       }).catch(() => {
 
       });
