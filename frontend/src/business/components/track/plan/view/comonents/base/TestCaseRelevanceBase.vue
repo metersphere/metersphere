@@ -74,7 +74,7 @@
       },
 
       save() {
-        this.$emit('save');
+        this.$emit('save', this.checked);
       },
 
       close() {
