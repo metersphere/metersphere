@@ -64,7 +64,9 @@ export default {
   components: {
     MsTag
   },
-
+  props: {
+    callFrom: String,
+  },
   data() {
     return {
       value: '100',
@@ -84,7 +86,7 @@ export default {
   methods: {
     search() {
       let projectID = getCurrentProjectID();
-      this.result = this.$get("/api/runningTask/"+projectID, response => {
+      this.result = this.$get("/api/runningTask/"+projectID+"/"+this.callFrom, response => {
         this.tableData = response.data;
       });
     },

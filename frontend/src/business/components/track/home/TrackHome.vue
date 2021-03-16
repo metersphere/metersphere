@@ -58,7 +58,7 @@
           <review-list class="track-card"/>
         </el-col>
         <el-col :span="12">
-          <ms-running-task-list class="track-card"/>
+          <ms-running-task-list :call-from="'track_home'" class="track-card" @redirectPage="redirectPage"/>
         </el-col>
       </el-row>
 
@@ -73,7 +73,7 @@ import MsMainContainer from "@/business/components/common/components/MsMainConta
 import MsContainer from "@/business/components/common/components/MsContainer";
 import CaseCountCard from "@/business/components/track/home/components/CaseCountCard";
 import RelevanceCaseCard from "@/business/components/track/home/components/RelevanceCaseCard";
-import {getCurrentProjectID} from "@/common/js/utils";
+import {getCurrentProjectID,getUUID} from "@/common/js/utils";
 import CaseMaintenance from "@/business/components/track/home/components/CaseMaintenance";
 import {COUNT_NUMBER, COUNT_NUMBER_SHALLOW} from "@/common/js/constants";
 import BugCountCard from "@/business/components/track/home/components/BugCountCard";
@@ -185,7 +185,11 @@ export default {
           }]
       };
       this.caseOption = option;
-    }
+    },
+    redirectPage(page,dataType,selectType){
+      //test_plan 页面跳转
+      this.$router.push('/track/plan/view/'+selectType);
+    },
 
   }
 }
