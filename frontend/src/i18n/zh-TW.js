@@ -1031,6 +1031,7 @@ export default {
         },
         scenario_schedule: "場景",
         test_plan_schedule: "測試計畫",
+        swagger_schedule: "swagger",
         confirm: {
           close_title: "要關閉這條定時任務嗎？",
         }

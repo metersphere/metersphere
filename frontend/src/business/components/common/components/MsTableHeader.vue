@@ -1,6 +1,6 @@
 <template>
 
-  <div>
+  <div class="ms-table-header">
     <el-row v-if="title" class="table-title" type="flex" justify="space-between" align="middle">
       <slot name="title">
         {{title}}

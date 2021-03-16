@@ -1,7 +1,5 @@
 <template>
   <div class="card-container">
-    <el-card class="card-content" v-loading="result.loading">
-      <template v-slot:header>
         <ms-table-header :is-tester-permission="true" :condition.sync="condition" @search="initTableData"
                          :show-create="false" :tip="$t('commons.search_by_name_or_id')">
           <template v-slot:title>
@@ -16,7 +14,6 @@
                              @click="$emit('openTestReviewRelevanceDialog')"/>
           </template>
         </ms-table-header>
-      </template>
 
       <executor-edit ref="executorEdit" :select-ids="new Set(Array.from(this.selectRows).map(row => row.id))"
                      @refresh="initTableData"/>
@@ -176,7 +173,6 @@
         :is-read-only="isReadOnly"
         @refreshTable="search"/>
 
-    </el-card>
 
     <batch-edit ref="batchEdit" @batchEdit="batchEdit"
                 :type-arr="typeArr" :value-arr="valueArr" :dialog-title="$t('test_track.case.batch_edit_case')"/>
@@ -472,6 +468,8 @@ export default {
 </script>
 
 <style scoped>
-
+.ms-table-header {
+  margin: 20px;
+}
 </style>
 

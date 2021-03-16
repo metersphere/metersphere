@@ -150,4 +150,8 @@ public class TestPlanTestCaseService {
     public int updateTestCaseStates(List<String> ids, String reportStatus) {
         return extTestPlanTestCaseMapper.updateTestCaseStates(ids, reportStatus);
     }
+
+    public List<TestPlanCaseDTO> listForMinder(String planId) {
+        return extTestPlanTestCaseMapper.listForMinder(planId);
+    }
 }

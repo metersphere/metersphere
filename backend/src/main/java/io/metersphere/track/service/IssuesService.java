@@ -1,10 +1,8 @@
 package io.metersphere.track.service;
 
-import io.metersphere.base.domain.Issues;
-import io.metersphere.base.domain.Project;
-import io.metersphere.base.domain.ServiceIntegration;
-import io.metersphere.base.domain.TestCaseWithBLOBs;
+import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.IssuesMapper;
+import io.metersphere.base.mapper.TestCaseIssuesMapper;
 import io.metersphere.commons.constants.IssuesManagePlatform;
 import io.metersphere.commons.constants.NoticeConstants;
 import io.metersphere.commons.user.SessionUser;
@@ -43,6 +41,8 @@ public class IssuesService {
     private IssuesMapper issuesMapper;
     @Resource
     private NoticeSendService noticeSendService;
+    @Resource
+    private TestCaseIssuesMapper testCaseIssuesMapper;
 
     public void testAuth(String platform) {
         AbstractIssuePlatform abstractPlatform = IssueFactory.createPlatform(platform, new IssuesRequest());
@@ -202,8 +202,14 @@ public class IssuesService {
         return platform.getPlatformUser();
     }
 
-    public void deleteIssue(String id) {
+    public void deleteIssue(IssuesRequest request) {
+        String caseId = request.getCaseId();
+        String id = request.getId();
         issuesMapper.deleteByPrimaryKey(id);
+
+        TestCaseIssuesExample example = new TestCaseIssuesExample();
+        example.createCriteria().andTestCaseIdEqualTo(caseId).andIssuesIdEqualTo(id);
+        testCaseIssuesMapper.deleteByExample(example);
     }
 
     private static String getIssuesContext(SessionUser user, IssuesRequest issuesRequest, String type) {

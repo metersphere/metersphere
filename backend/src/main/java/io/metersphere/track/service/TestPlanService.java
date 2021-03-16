@@ -58,6 +58,8 @@ import java.util.stream.Collectors;
 @Transactional(rollbackFor = Exception.class)
 public class TestPlanService {
     @Resource
+    ExtScheduleMapper extScheduleMapper;
+    @Resource
     TestPlanMapper testPlanMapper;
     @Resource
     ExtTestPlanMapper extTestPlanMapper;
@@ -179,6 +181,7 @@ public class TestPlanService {
                 testPlan.setActualEndTime(System.currentTimeMillis());
             }
         }
+        extScheduleMapper.updateNameByResourceID(testPlan.getId(), testPlan.getName());//   同步更新该测试的定时任务的name
 
         List<String> userIds = new ArrayList<>();
         userIds.add(testPlan.getPrincipal());
