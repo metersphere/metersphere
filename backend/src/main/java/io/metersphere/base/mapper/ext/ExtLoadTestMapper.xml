@@ -102,7 +102,12 @@
         <if test="request.orders != null and request.orders.size() > 0">
             ORDER BY
             <foreach collection="request.orders" separator="," item="order">
-                load_test.${order.name} ${order.type}
+                <if test="order.name == 'user_name'">
+                    user_name ${order.type}
+                </if>
+                <if test="order.name != 'user_name'">
+                    load_test.${order.name} ${order.type}
+                </if>
             </foreach>
         </if>
     </select>
