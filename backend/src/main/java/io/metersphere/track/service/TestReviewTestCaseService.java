@@ -172,6 +172,8 @@ public class TestReviewTestCaseService {
                 testCase.setId(item.getCaseId());
                 testCase.setReviewStatus(item.getStatus());
                 testCaseList.add(testCase);
+                testCase.setUpdateTime(System.currentTimeMillis());
+                item.setUpdateTime(System.currentTimeMillis());
                 testCaseReviewTestCaseMapper.updateByPrimaryKeySelective(item);
             });
             testCaseList.forEach(testCaseMapper::updateByPrimaryKeySelective);

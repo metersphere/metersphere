@@ -101,6 +101,12 @@ public class TestPlanTestCaseController {
         testPlanTestCaseService.editTestCase(testPlanTestCase);
     }
 
+    @PostMapping("/minder/edit")
+    @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
+    public void editTestCaseForMinder(@RequestBody List<TestPlanTestCaseWithBLOBs> testPlanTestCases) {
+        testPlanTestCaseService.editTestCaseForMinder(testPlanTestCases);
+    }
+
     @PostMapping("/batch/edit")
     @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
     public void editTestCaseBath(@RequestBody TestPlanCaseBatchRequest request) {

@@ -154,4 +154,11 @@ public class TestPlanTestCaseService {
     public List<TestPlanCaseDTO> listForMinder(String planId) {
         return extTestPlanTestCaseMapper.listForMinder(planId);
     }
+
+    public void editTestCaseForMinder(List<TestPlanTestCaseWithBLOBs> testPlanTestCases) {
+        testPlanTestCases.forEach(item -> {
+            item.setUpdateTime(System.currentTimeMillis());
+            testPlanTestCaseMapper.updateByPrimaryKeySelective(item);
+        });
+    }
 }
