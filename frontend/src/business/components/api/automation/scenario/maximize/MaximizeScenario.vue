@@ -150,6 +150,7 @@
       currentScenario: {},
       type: String,
       scenarioDefinition: Array,
+      envMap: Map,
     },
     components: {
       MsVariableList,
@@ -221,6 +222,7 @@
       }
       this.projectId = getCurrentProjectID();
       this.operatingElements = ELEMENTS.get("ALL");
+      this.projectEnvMap = this.envMap;
     },
     directives: {OutsideClick},
     computed: {
@@ -1074,6 +1076,7 @@
     margin-left: 20px;
     border: 1px solid #EBEEF5;
   }
+
   .scenario-list {
     overflow-y: auto;
     position: absolute;
@@ -1082,8 +1085,6 @@
     right: 0;
     bottom: 28px;
   }
-
-
 
   .father:hover .child {
     display: block;

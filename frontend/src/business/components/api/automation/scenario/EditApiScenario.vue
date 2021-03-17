@@ -201,7 +201,7 @@
                            @closePage="close" @showAllBtn="showAllBtn" @runDebug="runDebug" @setProjectEnvMap="setProjectEnvMap" @showScenarioParameters="showScenarioParameters" @setCookieShare="setCookieShare" ref="maximizeHeader"/>
         </template>
 
-        <maximize-scenario :scenario-definition="scenarioDefinition" :moduleOptions="moduleOptions" :currentScenario="currentScenario" :type="type" ref="maximizeScenario" @openScenario="openScenario"/>
+        <maximize-scenario :scenario-definition="scenarioDefinition" :envMap="projectEnvMap" :moduleOptions="moduleOptions" :currentScenario="currentScenario" :type="type" ref="maximizeScenario" @openScenario="openScenario"/>
       </ms-drawer>
 
     </div>
