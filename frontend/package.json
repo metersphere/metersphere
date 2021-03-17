@@ -49,7 +49,7 @@
     "xml-js": "^1.6.11",
     "yan-progress": "^1.0.3",
     "jsonpath": "^1.1.0",
-    "vue-minder-editor-plus": "^1.0.16",
+    "vue-minder-editor-plus": "^1.0.18",
     "jsencrypt": "^3.1.0"
   },
   "devDependencies": {

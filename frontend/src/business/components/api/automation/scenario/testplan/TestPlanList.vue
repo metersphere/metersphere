@@ -195,7 +195,8 @@ export default {
         ],
         projectEnvMap: new Map(),
         projectList: [],
-        projectIds: new Set()
+        projectIds: new Set(),
+        map: new Map(),
       }
     },
     watch: {
@@ -221,7 +222,7 @@ export default {
           if (!sign) {
             return false;
           }
-          this.$emit('addTestPlan', this.selection, this.projectEnvMap);
+          this.$emit('addTestPlan', this.selection, this.projectEnvMap, this.map);
         }
       },
       cancel(){
@@ -237,7 +238,11 @@ export default {
       setScenarioSelectRows(rows) {
         this.projectIds.clear();
         rows.forEach(row => {
-          row.projectIds.forEach(id => this.projectIds.add(id));
+          this.result = this.$get('/api/automation/getApiScenario/' + row.id, res => {
+            let data = res.data;
+            data.projectIds.forEach(d => this.projectIds.add(d));
+            this.map.set(row.id, data.projectIds);
+          })
         })
       },
       initTableData() {

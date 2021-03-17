@@ -102,6 +102,7 @@
         projectEnvMap: new Map(),
         projectList: [],
         projectIds: new Set(),
+        map: new Map()
       }
     },
     watch: {
@@ -168,8 +169,10 @@
       initProjectIds() {
         this.projectIds.clear();
         this.selectRows.forEach(row => {
-          row.projectIds.forEach(id => {
-            this.projectIds.add(id);
+          this.result = this.$get('/api/automation/getApiScenario/' + row.id, res => {
+            let data = res.data;
+            data.projectIds.forEach(d => this.projectIds.add(d));
+            this.map.set(row.id, data.projectIds);
           })
         })
       },

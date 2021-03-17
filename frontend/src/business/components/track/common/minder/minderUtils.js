@@ -1,4 +1,4 @@
-export function getTestCaseDataMap(testCase) {
+export function getTestCaseDataMap(testCase, isDisable, setParamCallback) {
   let dataMap = new Map();
   testCase.forEach(item => {
     item.steps = JSON.parse(item.steps);
@@ -17,7 +17,15 @@ export function getTestCaseDataMap(testCase) {
         maintainer: item.maintainer
       }
     }
-    parseChildren(nodeItem, item);
+    if (setParamCallback) {
+      setParamCallback(nodeItem.data, item);
+    }
+    if (isDisable) {
+      nodeItem.data.disable = true;
+      // 用例节点可以打标签
+      nodeItem.data.allowDisabledTag = true;
+    }
+    parseChildren(nodeItem, item, isDisable);
     if (mapItem) {
       mapItem.push(nodeItem);
     } else {
@@ -29,29 +37,32 @@ export function getTestCaseDataMap(testCase) {
   return dataMap;
 }
 
-function parseChildren(nodeItem, item) {
+function parseChildren(nodeItem, item, isDisable) {
   nodeItem.children = [];
   let children = [];
-  _parseChildren(children, item.prerequisite, "前置条件");
+  _parseChildren(children, item.prerequisite, "前置条件", isDisable);
   item.steps.forEach((step) => {
-    let descNode = _parseChildren(children, step.desc, "测试步骤");
+    let descNode = _parseChildren(children, step.desc, undefined, isDisable);
     if (descNode) {
       descNode.data.num = step.num;
       descNode.children = [];
-      _parseChildren(descNode.children, step.result, "预期结果");
+      _parseChildren(descNode.children, step.result, undefined, isDisable);
     }
   });
-  _parseChildren(children, item.remark, "备注");
+  _parseChildren(children, item.remark, "备注", isDisable);
   nodeItem.children = children;
 }
 
-function _parseChildren(children, k, v) {
+function _parseChildren(children, k, v, isDisable) {
   if (k) {
     let node = {
       data: {
         text: k,
-        resource: [v]
+        resource: v ? [v] : []
       }
+    }
+    if (isDisable) {
+      node.data.disable = true;
     }
     children.push(node);
     return node;

@@ -679,8 +679,6 @@ export default {
       return param;
     },
     getOption(param) {
-      console.log(this.type)
-      console.log("3452")
       let formData = new FormData();
       let type = this.type
       if (this.type === 'copy') {

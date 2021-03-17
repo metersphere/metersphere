@@ -3,6 +3,8 @@
     v-loading="result.loading"
     :tree-nodes="treeNodes"
     :data-map="dataMap"
+    :tags="tags"
+    :distinct-tags="[...tags, '未开始']"
     @save="save"
   />
 </template>
@@ -15,9 +17,9 @@ name: "TestPlanMinder",
   components: {MsModuleMinder},
   data() {
     return{
-      testCase: [],
       dataMap: new Map(),
-      result: {}
+      result: {},
+      tags: ['通过', '失败', '阻塞', '跳过'],
     }
   },
   props: {
@@ -44,24 +46,30 @@ name: "TestPlanMinder",
     getTestCases() {
       if (this.projectId) {
         this.result = this.$get('/test/plan/case/list/minder/' + this.planId, response => {
-          this.testCase = response.data;
-          this.dataMap = getTestCaseDataMap(this.testCase);
+          this.dataMap = getTestCaseDataMap(response.data, true, (data, item) => {
+            if (item.stats === 'Pass') {
+              data.resource.push("通过");
+            } else if (item.reviewStatus === 'Failure') {
+              data.resource.push("失败");
+            } else if (item.reviewStatus === 'Blocking') {
+              data.resource.push("阻塞");
+            } else if (item.reviewStatus === 'Skip') {
+              data.resource.push("跳过");
+            } else {
+              data.resource.push("未开始");
+            }
+          });
         });
       }
     },
     save(data) {
-      // let saveCases = [];
-      // this.buildSaveCase(data.root, saveCases, undefined);
-      // console.log(saveCases);
-      // let param = {
-      //   projectId: this.projectId,
-      //   data: saveCases
-      // }
-      // this.result = this.$post('/test/case/minder/edit', param, () => {
-      //   this.$success(this.$t('commons.save_success'));
-      // });
+      let saveCases = [];
+      this.buildSaveCase(data.root, saveCases);
+      this.result = this.$post('/test/plan/case/minder/edit', saveCases, () => {
+        this.$success(this.$t('commons.save_success'));
+      });
     },
-    buildSaveCase(root, saveCases, parent) {
+    buildSaveCase(root, saveCases) {
       let data = root.data;
       if (data.resource && data.resource.indexOf("用例") > -1) {
         this._buildSaveCase(root, saveCases, parent);
@@ -73,52 +81,27 @@ name: "TestPlanMinder",
         }
       }
     },
-    _buildSaveCase(node, saveCases, parent) {
+    _buildSaveCase(node, saveCases) {
       let data = node.data;
-      let isChange = false;
+      if (!data.changed) {
+        return;
+      }
       let testCase = {
         id: data.id,
-        name: data.text,
-        nodeId: parent ? parent.id : "",
-        nodePath: parent ? parent.path : "",
-        type: data.type ? data.type : 'functional',
-        method: data.method ? data.method : 'manual',
-        maintainer: data.maintainer,
-        priority: 'P' + data.priority,
       };
-      if (data.changed) isChange = true;
-      let steps = [];
-      let stepNum = 1;
-      if (node.children) {
-        node.children.forEach((childNode) => {
-          let childData = childNode.data;
-          if (childData.resource && childData.resource.indexOf('前置条件') > -1) {
-            testCase.prerequisite = childData.text;
-          } else if (childData.resource && childData.resource.indexOf('备注') > -1) {
-            testCase.remark = childData.text;
-          } else {
-            // 测试步骤
-            let step = {};
-            step.num = stepNum++;
-            step.desc = childData.text;
-            if (childNode.children) {
-              let result = "";
-              childNode.children.forEach((child) => {
-                result += child.data.text;
-                if (child.data.changed) isChange = true;
-              })
-              step.result = result;
-            }
-            steps.push(step);
-          }
-          if (childData.changed) isChange = true;
-        })
+      if (data.resource.length > 1) {
+        if (data.resource.indexOf('失败') > -1) {
+          testCase.status = 'Failure';
+        } else if (data.resource.indexOf('通过') > -1) {
+          testCase.status = 'Pass';
+        } else if (data.resource.indexOf('阻塞') > -1) {
+          testCase.status = 'Blocking';
+        } else if (data.resource.indexOf('跳过') > -1) {
+          testCase.status = 'Skip';
+        }
       }
-      testCase.steps = JSON.stringify(steps);
-      if (isChange) {
-        saveCases.push(testCase);
-      }
-    },
+      saveCases.push(testCase);
+    }
   }
 }
 </script>

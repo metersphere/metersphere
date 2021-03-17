@@ -4,7 +4,7 @@
              @close="close"
              width="60%" v-loading="result.loading"
              :close-on-click-modal="false"
-             top="50px">
+             top="50px" append-to-body>
 
     <el-container class="main-content">
 

@@ -3,7 +3,7 @@
     @copy="copyRow"
     @remove="remove"
     :data="timer"
-    :draggable="true"
+    :draggable="draggable"
     :show-collapse="false"
     :is-max="isMax"
     color="#67C23A"
@@ -11,7 +11,7 @@
     :title="$t('api_test.automation.wait_controller')">
 
     <template v-slot:headerLeft>
-      <el-input-number class="time-input" size="small" v-model="timer.delay" :min="0" :step="1000" ref="nameInput"/>
+      <el-input-number class="time-input" size="mini" v-model="timer.delay" :min="0" :step="1000" ref="nameInput"/>
       ms
     </template>
 

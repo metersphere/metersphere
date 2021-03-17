@@ -731,6 +731,9 @@ public class TestCaseService {
     public void minderEdit(TestCaseMinderEditRequest request) {
         List<TestCaseWithBLOBs> data = request.getData();
         data.forEach(item -> {
+            if (StringUtils.isBlank(item.getNodeId()) || item.getNodeId().equals("root")) {
+                item.setNodeId("");
+            }
             item.setProjectId(request.getProjectId());
             if (StringUtils.isBlank(item.getId()) || item.getId().length() < 20) {
                 item.setId(UUID.randomUUID().toString());

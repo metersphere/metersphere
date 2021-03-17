@@ -163,4 +163,20 @@ public class TestReviewTestCaseService {
             MSException.throwException("非此用例的评审人员！");
         }
     }
+
+    public void editTestCaseForMinder(List<TestCaseReviewTestCase> testCaseReviewTestCases) {
+        if (!CollectionUtils.isEmpty(testCaseReviewTestCases)) {
+            List<TestCaseWithBLOBs> testCaseList = new ArrayList<>();
+            testCaseReviewTestCases.forEach((item) -> {
+                TestCaseWithBLOBs testCase = new TestCaseWithBLOBs();
+                testCase.setId(item.getCaseId());
+                testCase.setReviewStatus(item.getStatus());
+                testCaseList.add(testCase);
+                testCase.setUpdateTime(System.currentTimeMillis());
+                item.setUpdateTime(System.currentTimeMillis());
+                testCaseReviewTestCaseMapper.updateByPrimaryKeySelective(item);
+            });
+            testCaseList.forEach(testCaseMapper::updateByPrimaryKeySelective);
+        }
+    }
 }

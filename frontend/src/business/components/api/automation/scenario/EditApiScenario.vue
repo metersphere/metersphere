@@ -119,7 +119,7 @@
                                :project-list="projectList" ref="envPopover"/>
                 </el-col>
                 <el-col :span="3">
-                  <el-button :disabled="scenarioDefinition.length < 1" size="small" type="primary" v-prevent-re-click @click="runDebug">{{$t('api_test.request.debug')}}</el-button>
+                  <el-button :disabled="scenarioDefinition.length < 1" size="mini" type="primary" v-prevent-re-click @click="runDebug">{{$t('api_test.request.debug')}}</el-button>
                   <font-awesome-icon class="alt-ico" :icon="['fa', 'expand-alt']" size="lg" @click="fullScreen"/>
                 </el-col>
               </el-row>
@@ -137,7 +137,7 @@
                       <!-- 步骤组件-->
                        <ms-component-config :type="data.type" :scenario="data" :response="response" :currentScenario="currentScenario"
                                             :currentEnvironmentId="currentEnvironmentId" :node="node" :project-list="projectList" :env-map="projectEnvMap"
-                                            @remove="remove" @copyRow="copyRow" @suggestClick="suggestClick" @refReload="refReload"/>
+                                            @remove="remove" @copyRow="copyRow" @suggestClick="suggestClick" @refReload="refReload" @openScenario="openScenario"/>
                     </span>
               </el-tree>
             </div>
@@ -198,10 +198,10 @@
       <ms-drawer :visible="drawer" :size="100" @close="close" direction="right" :show-full-screen="false" :is-show-close="false" style="overflow: hidden">
         <template v-slot:header>
           <scenario-header :currentScenario="currentScenario" :projectEnvMap="projectEnvMap" :projectIds="projectIds" :projectList="projectList" :scenarioDefinition="scenarioDefinition" :enableCookieShare="enableCookieShare"
-                           @closePage="close" @showAllBtn="showAllBtn" @runDebug="runDebug" @showScenarioParameters="showScenarioParameters" ref="maximizeHeader"/>
+                           @closePage="close" @unFullScreen="unFullScreen" @showAllBtn="showAllBtn" @runDebug="runDebug" @setProjectEnvMap="setProjectEnvMap" @showScenarioParameters="showScenarioParameters" @setCookieShare="setCookieShare" ref="maximizeHeader"/>
         </template>
 
-        <maximize-scenario :scenario-definition="scenarioDefinition" :moduleOptions="moduleOptions" :currentScenario="currentScenario" :type="type" ref="maximizeScenario"/>
+        <maximize-scenario :scenario-definition="scenarioDefinition" :envMap="projectEnvMap" :moduleOptions="moduleOptions" :currentScenario="currentScenario" :type="type" ref="maximizeScenario" @openScenario="openScenario"/>
       </ms-drawer>
 
     </div>
@@ -222,7 +222,7 @@
   import {parseEnvironment} from "../../definition/model/EnvironmentModel";
   import {ELEMENT_TYPE, ELEMENTS} from "./Setting";
   import MsApiCustomize from "./ApiCustomize";
-  import {getCurrentProjectID, getUUID, objToStrMap, strMapToObj} from "@/common/js/utils";
+  import {getCurrentProjectID, getUUID, objToStrMap, strMapToObj, handleCtrlSEvent} from "@/common/js/utils";
   import ApiEnvironmentConfig from "../../definition/components/environment/ApiEnvironmentConfig";
   import MsInputTag from "./MsInputTag";
   import MsRun from "./DebugRun";
@@ -234,7 +234,6 @@
   import ScenarioApiRelevance from "./api/ApiRelevance";
   import ScenarioRelevance from "./api/ScenarioRelevance";
   import MsComponentConfig from "./component/ComponentConfig";
-  import {handleCtrlSEvent} from "../../../../../common/js/utils";
   import EnvPopover from "@/business/components/api/automation/scenario/EnvPopover";
   import MaximizeScenario from "./maximize/MaximizeScenario";
   import ScenarioHeader from "./maximize/ScenarioHeader";
@@ -442,6 +441,13 @@
       }
     },
     methods: {
+      // 打开引用的场景
+      openScenario(data) {
+        this.$emit('openScenario', data);
+      },
+      setCookieShare(cookie) {
+        this.enableCookieShare = cookie;
+      },
       showAllBtn() {
         this.$refs.maximizeScenario.showAll();
       },
@@ -465,7 +471,9 @@
           // 直接更新场景防止编辑内容丢失
           this.editScenario();
         }
-        this.$refs.maximizeHeader.getVariableSize();
+        if (this.$refs.maximizeHeader) {
+          this.$refs.maximizeHeader.getVariableSize();
+        }
         this.reload();
       },
       showButton(...names) {
@@ -555,7 +563,6 @@
           this.operatingElements = ELEMENTS.get("ALL");
           this.selectedTreeNode = undefined;
         }
-        //this.reload();
       },
       apiListImport() {
         this.$refs.scenarioApiRelevance.open();
@@ -1072,10 +1079,13 @@
       fullScreen() {
         this.drawer = true;
       },
-      close() {
+      unFullScreen() {
         this.drawer = false;
+      },
+      close(name) {
+        this.drawer = false;
+        this.$emit('closePage', name);
       }
-
     }
   }
 </script>
@@ -1214,7 +1224,8 @@
 
   .alt-ico {
     font-size: 15px;
-    margin: 0px 10px 0px;
+    margin: 5px 10px 0px;
+    float: right;
     color: #8c939d;
   }
 
