@@ -49,6 +49,12 @@ public class TestReviewTestCaseController {
         testReviewTestCaseService.editTestCaseBatchStatus(request);
     }
 
+    @PostMapping("/minder/edit")
+    @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
+    public void editTestCaseForMinder(@RequestBody List<TestCaseReviewTestCase> testCases) {
+        testReviewTestCaseService.editTestCaseForMinder(testCases);
+    }
+
     @PostMapping("/list/all")
     public List<TestReviewCaseDTO> getTestReviewCases(@RequestBody QueryCaseReviewRequest request) {
         return testReviewTestCaseService.list(request);

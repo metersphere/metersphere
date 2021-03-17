@@ -3,6 +3,7 @@
     v-loading="result.loading"
     :tree-nodes="treeNodes"
     :data-map="dataMap"
+    :tags="tags"
     @save="save"
   />
 </template>
@@ -17,6 +18,7 @@ name: "TestReviewMinder",
     return{
       testCase: [],
       dataMap: new Map(),
+      tags: ['通过', '不通过'],
       result: {}
     }
   },
@@ -44,27 +46,32 @@ name: "TestReviewMinder",
     getTestCases() {
       if (this.projectId) {
         this.result = this.$post('/test/review/case/list/all', {reviewId: this.reviewId}, response => {
-          this.testCase = response.data;
-          this.dataMap = getTestCaseDataMap(this.testCase);
+          this.dataMap = getTestCaseDataMap(response.data, true, (data, item) => {
+            if (item.reviewStatus === 'Pass') {
+              data.resource.push("通过");
+            } else if (item.reviewStatus === 'UnPass') {
+              data.resource.push("不通过");
+            } else {
+              data.resource.push("未开始");
+            }
+            data.caseId = item.caseId;
+          });
         });
       }
     },
     save(data) {
-      // let saveCases = [];
-      // this.buildSaveCase(data.root, saveCases, undefined);
-      // console.log(saveCases);
-      // let param = {
-      //   projectId: this.projectId,
-      //   data: saveCases
-      // }
-      // this.result = this.$post('/test/case/minder/edit', param, () => {
-      //   this.$success(this.$t('commons.save_success'));
-      // });
+      console.log(data);
+      let saveCases = [];
+      this.buildSaveCase(data.root, saveCases);
+      console.log(saveCases);
+      this.result = this.$post('/test/review/case/minder/edit', saveCases, () => {
+        this.$success(this.$t('commons.save_success'));
+      });
     },
-    buildSaveCase(root, saveCases, parent) {
+    buildSaveCase(root, saveCases) {
       let data = root.data;
       if (data.resource && data.resource.indexOf("用例") > -1) {
-        this._buildSaveCase(root, saveCases, parent);
+        this._buildSaveCase(root, saveCases);
       } else {
         if (root.children) {
           root.children.forEach((childNode) => {
@@ -73,51 +80,24 @@ name: "TestReviewMinder",
         }
       }
     },
-    _buildSaveCase(node, saveCases, parent) {
+    _buildSaveCase(node, saveCases) {
       let data = node.data;
-      let isChange = false;
+      if (!data.changed) {
+        return;
+      }
       let testCase = {
-        id: data.id,
-        name: data.text,
-        nodeId: parent ? parent.id : "",
-        nodePath: parent ? parent.path : "",
-        type: data.type ? data.type : 'functional',
-        method: data.method ? data.method : 'manual',
-        maintainer: data.maintainer,
-        priority: 'P' + data.priority,
+        caseId: data.caseId,
+        id: data.id
+        // name: data.text,
       };
-      if (data.changed) isChange = true;
-      let steps = [];
-      let stepNum = 1;
-      if (node.children) {
-        node.children.forEach((childNode) => {
-          let childData = childNode.data;
-          if (childData.resource && childData.resource.indexOf('前置条件') > -1) {
-            testCase.prerequisite = childData.text;
-          } else if (childData.resource && childData.resource.indexOf('备注') > -1) {
-            testCase.remark = childData.text;
-          } else {
-            // 测试步骤
-            let step = {};
-            step.num = stepNum++;
-            step.desc = childData.text;
-            if (childNode.children) {
-              let result = "";
-              childNode.children.forEach((child) => {
-                result += child.data.text;
-                if (child.data.changed) isChange = true;
-              })
-              step.result = result;
-            }
-            steps.push(step);
-          }
-          if (childData.changed) isChange = true;
-        })
+      if (data.resource.length > 1) {
+        if (data.resource.indexOf('不通过')) {
+          testCase.status = 'UnPass';
+        } else if (data.resource.indexOf('通过')) {
+          testCase.status = 'Pass';
+        }
       }
-      testCase.steps = JSON.stringify(steps);
-      if (isChange) {
-        saveCases.push(testCase);
-      }
+      saveCases.push(testCase);
     },
   }
 }

@@ -6,6 +6,7 @@
       :import-json="importJson"
       :height="700"
       :progress-enable="false"
+      :tags="tags"
       @save="save"
     />
   </div>
@@ -28,7 +29,13 @@ export default {
       default() {
         return new Map();
       }
-    }
+    },
+    tags: {
+      type: Array,
+      default() {
+        return []
+      }
+    },
   },
   data() {
     return {
