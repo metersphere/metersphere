@@ -42,11 +42,11 @@ function parseChildren(nodeItem, item, isDisable) {
   let children = [];
   _parseChildren(children, item.prerequisite, "前置条件", isDisable);
   item.steps.forEach((step) => {
-    let descNode = _parseChildren(children, step.desc, "测试步骤", isDisable);
+    let descNode = _parseChildren(children, step.desc, undefined, isDisable);
     if (descNode) {
       descNode.data.num = step.num;
       descNode.children = [];
-      _parseChildren(descNode.children, step.result, "预期结果", isDisable);
+      _parseChildren(descNode.children, step.result, undefined, isDisable);
     }
   });
   _parseChildren(children, item.remark, "备注", isDisable);
@@ -58,7 +58,7 @@ function _parseChildren(children, k, v, isDisable) {
     let node = {
       data: {
         text: k,
-        resource: [v]
+        resource: v ? [v] : []
       }
     }
     if (isDisable) {

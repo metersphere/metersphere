@@ -7,6 +7,7 @@
       class="batch-edit-dialog"
       :destroy-on-close="true"
       @close="handleClose"
+      v-loading="result.loading"
     >
       <el-form :model="form" label-position="right" label-width="150px" size="medium" ref="form" :rules="rules">
         <el-form-item :label="$t('test_track.case.batch_update', [size])" prop="type">
@@ -72,7 +73,10 @@
         projectList: [],
         projectIds: new Set(),
         selectRows: new Set(),
-        projectEnvMap: new Map()
+        projectEnvMap: new Map(),
+        map: new Map(),
+        isScenario: '',
+        result: {}
       }
     },
     methods: {
@@ -84,6 +88,7 @@
               if (!this.$refs.envPopover.checkEnv()) {
                 return false;
               }
+              this.form.map = this.map;
             }
             this.$emit("batchEdit", this.form);
             this.dialogVisible = false;
@@ -113,12 +118,9 @@
           this.projectIds.add(row.projectId)
         })
       },
-      setScenarioSelectRows(rows) {
+      setScenarioSelectRows(rows, sign) {
         this.selectRows = rows;
-        this.projectIds.clear();
-        this.selectRows.forEach(row => {
-          row.projectIds.forEach(id => this.projectIds.add(id));
-        })
+        this.isScenario = sign;
       },
       handleClose() {
         this.form = {};
@@ -127,6 +129,17 @@
       },
       changeType(val) {
         this.$set(this.form, "value", "");
+        if (val === 'projectEnv' && this.isScenario !== '') {
+          this.projectIds.clear();
+          this.selectRows.forEach(row => {
+            let id = this.isScenario === 'scenario' ? row.id : row.caseId;
+            this.result = this.$get('/api/automation/getApiScenario/' + id, res => {
+              let data = res.data;
+              data.projectIds.forEach(d => this.projectIds.add(d));
+              this.map.set(row.id, data.projectIds);
+            })
+          })
+        }
         this.filterable = val === "maintainer" || val === "executor";
         this.options = this.valueArr[val];
         this.typeArr.forEach(item => {

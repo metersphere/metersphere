@@ -7,6 +7,7 @@
       :height="700"
       :progress-enable="false"
       :tags="tags"
+      :distinct-tags="distinctTags"
       @save="save"
     />
   </div>
@@ -36,6 +37,12 @@ export default {
         return []
       }
     },
+    distinctTags: {
+      type: Array,
+      default() {
+        return []
+      }
+    }
   },
   data() {
     return {
