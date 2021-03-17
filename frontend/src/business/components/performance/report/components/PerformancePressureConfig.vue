@@ -46,10 +46,10 @@
                 </el-form-item>
                 <br>
                 <el-form-item :label="$t('load_test.rps_limit')">
-                  <el-switch v-model="threadGroup.rpsLimitEnable" @change="calculateTotalChart()"/>
+                  <el-switch v-model="threadGroup.rpsLimitEnable" :disabled="true" @change="calculateTotalChart()"/>
                   &nbsp;
                   <el-input-number
-                    :disabled="true "
+                    :disabled="true"
                     v-model="threadGroup.rpsLimit"
                     @change="calculateChart(threadGroup)"
                     :min="1"
@@ -101,7 +101,7 @@
                 </el-form-item>
                 <br>
                 <el-form-item :label="$t('load_test.rps_limit')">
-                  <el-switch v-model="threadGroup.rpsLimitEnable" @change="calculateTotalChart()"/>
+                  <el-switch v-model="threadGroup.rpsLimitEnable" :disabled="true" @change="calculateTotalChart()"/>
                   &nbsp;
                   <el-input-number
                     :disabled="true || !threadGroup.rpsLimitEnable"

@@ -4,6 +4,7 @@
     :tree-nodes="treeNodes"
     :data-map="dataMap"
     :tags="tags"
+    :distinct-tags="[...tags, '未开始']"
     @save="save"
   />
 </template>
@@ -16,7 +17,6 @@ name: "TestReviewMinder",
   components: {MsModuleMinder},
   data() {
     return{
-      testCase: [],
       dataMap: new Map(),
       tags: ['通过', '不通过'],
       result: {}
@@ -60,10 +60,8 @@ name: "TestReviewMinder",
       }
     },
     save(data) {
-      console.log(data);
       let saveCases = [];
       this.buildSaveCase(data.root, saveCases);
-      console.log(saveCases);
       this.result = this.$post('/test/review/case/minder/edit', saveCases, () => {
         this.$success(this.$t('commons.save_success'));
       });
@@ -91,9 +89,9 @@ name: "TestReviewMinder",
         // name: data.text,
       };
       if (data.resource.length > 1) {
-        if (data.resource.indexOf('不通过')) {
+        if (data.resource.indexOf('不通过') > -1) {
           testCase.status = 'UnPass';
-        } else if (data.resource.indexOf('通过')) {
+        } else if (data.resource.indexOf('通过') > -1) {
           testCase.status = 'Pass';
         }
       }

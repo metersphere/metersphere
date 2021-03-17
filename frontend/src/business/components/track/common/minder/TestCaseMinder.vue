@@ -3,6 +3,7 @@
     v-loading="result.loading"
     :tree-nodes="treeNodes"
     :data-map="dataMap"
+    :tags="tags"
     @save="save"
   />
 </template>
@@ -17,6 +18,7 @@ name: "TestCaseMinder",
     return{
       testCase: [],
       dataMap: new Map(),
+      tags: ['用例', '前置条件', '备注'],
       result: {}
     }
   },
@@ -45,9 +47,9 @@ name: "TestCaseMinder",
       }
     },
     save(data) {
+      console.log(this.dataMap);
       let saveCases = [];
       this.buildSaveCase(data.root, saveCases, undefined);
-      console.log(saveCases);
       let param = {
         projectId: this.projectId,
         data: saveCases
@@ -70,6 +72,9 @@ name: "TestCaseMinder",
     },
     _buildSaveCase(node, saveCases, parent) {
       let data = node.data;
+      if (!data.text) {
+        return;
+      }
       let isChange = false;
       let testCase = {
         id: data.id,
@@ -79,7 +84,7 @@ name: "TestCaseMinder",
         type: data.type ? data.type : 'functional',
         method: data.method ? data.method: 'manual',
         maintainer: data.maintainer,
-        priority: 'P' + data.priority,
+        priority: 'P' + (data.priority ? data.priority : 0),
       };
       if (data.changed) isChange = true;
       let steps = [];
