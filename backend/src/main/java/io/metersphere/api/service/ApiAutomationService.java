@@ -94,42 +94,38 @@ public class ApiAutomationService {
     public List<ApiScenarioDTO> list(ApiScenarioRequest request) {
         request = this.initRequest(request, true, true);
         List<ApiScenarioDTO> list = extApiScenarioMapper.list(request);
-        setApiScenarioProjectIds(list);
         return list;
     }
     public List<ApiScenarioDTO> listReview(ApiScenarioRequest request) {
         request = this.initRequest(request, true, true);
         List<ApiScenarioDTO> list = extApiScenarioMapper.listReview(request);
-        setApiScenarioProjectIds(list);
         return list;
     }
-    private void setApiScenarioProjectIds(List<ApiScenarioDTO> list) {
+    private void setApiScenarioProjectIds(ApiScenarioDTO data) {
         // 如果场景步骤涉及多项目，则把涉及到的项目ID保存在projectIds属性
-        list.forEach(data -> {
-            List<String> idList = new ArrayList<>();
-            String definition = data.getScenarioDefinition();
-            if (StringUtils.isNotBlank(definition)) {
-                RunDefinitionRequest d = JSON.parseObject(definition, RunDefinitionRequest.class);
+        List<String> idList = new ArrayList<>();
+        String definition = data.getScenarioDefinition();
+        if (StringUtils.isNotBlank(definition)) {
+            RunDefinitionRequest d = JSON.parseObject(definition, RunDefinitionRequest.class);
 
-                if (d != null) {
-                    Map<String, String> map = d.getEnvironmentMap();
-                    if (map != null) {
-                        if (map.isEmpty()) {
-                            List<String> ids = (List<String>) JSONPath.read(definition, "$..projectId");
-                            idList.addAll(new HashSet<>(ids));
-                        } else {
-                            Set<String> set = d.getEnvironmentMap().keySet();
-                            idList = new ArrayList<>(set);
-                        }
+            if (d != null) {
+                Map<String, String> map = d.getEnvironmentMap();
+                if (map != null) {
+                    if (map.isEmpty()) {
+                        List<String> ids = (List<String>) JSONPath.read(definition, "$..projectId");
+                        idList.addAll(new HashSet<>(ids));
                     } else {
-                        // 兼容历史数据，无EnvironmentMap直接赋值场景所属项目
-                        idList.add(data.getProjectId());
+                        Set<String> set = d.getEnvironmentMap().keySet();
+                        idList = new ArrayList<>(set);
                     }
+                } else {
+                    // 兼容历史数据，无EnvironmentMap直接赋值场景所属项目
+                    idList.add(data.getProjectId());
                 }
-
             }
-            data.setProjectIds(idList);
-        });
+
+        }
+        data.setProjectIds(idList);
     }
 
     /**
@@ -333,8 +329,12 @@ public class ApiAutomationService {
         }
     }
 
-    public ApiScenarioWithBLOBs getApiScenario(String id) {
-        return apiScenarioMapper.selectByPrimaryKey(id);
+    public ApiScenarioDTO getApiScenario(String id) {
+        ApiScenarioDTO apiScenarioDTO = new ApiScenarioDTO();
+        ApiScenarioWithBLOBs scenarioWithBLOBs = apiScenarioMapper.selectByPrimaryKey(id);
+        BeanUtils.copyBean(apiScenarioDTO, scenarioWithBLOBs);
+        setApiScenarioProjectIds(apiScenarioDTO);
+        return apiScenarioDTO;
     }
 
     public List<ApiScenarioWithBLOBs> getApiScenarios(List<String> ids) {
