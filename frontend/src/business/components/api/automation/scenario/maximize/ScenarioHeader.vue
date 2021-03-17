@@ -16,12 +16,16 @@
       </el-row>
     </div>
     <div class="ms-header-right">
-      <el-checkbox v-model="cookieShare" class="ms-right" @change="setCookieShare">共享cookie</el-checkbox>
+      <el-checkbox v-model="cookieShare" @change="setCookieShare" style="margin-right: 20px">共享cookie</el-checkbox>
+
       <env-popover :env-map="envMap" :project-ids="projectIds" @setProjectEnvMap="setProjectEnvMap"
                    :project-list="projectList" ref="envPopover" class="ms-right"/>
+
       <el-button :disabled="scenarioDefinition.length < 1" size="mini" type="primary" v-prevent-re-click @click="runDebug">{{$t('api_test.request.debug')}}</el-button>
+
+      <font-awesome-icon class="alt-ico" :icon="['fa', 'compress-alt']" size="lg" @click="unFullScreen"/>
       ｜
-      <i class="el-icon-close alt-ico" @click="close"/>
+      <i class="el-icon-close alt-ico-close" @click="close"/>
     </div>
   </div>
 </template>
@@ -65,13 +69,16 @@
         this.$emit('showAllBtn');
       },
       close() {
-        this.$emit('closePage');
+        this.$emit('closePage', this.currentScenario.name);
+      },
+      unFullScreen() {
+        this.$emit('unFullScreen');
       },
       runDebug() {
         this.$emit('runDebug');
       },
-      setCookieShare(){
-        this.$emit('setCookieShare',this.cookieShare);
+      setCookieShare() {
+        this.$emit('setCookieShare', this.cookieShare);
       },
       showScenarioParameters() {
         this.$emit('showScenarioParameters');
@@ -110,7 +117,7 @@
 
   .ms-div {
     float: left;
-    width: 80%;
+    width: 60%;
     margin-left: 20px;
     margin-top: 12px;
   }
@@ -119,20 +126,29 @@
     float: right;
     margin-top: 2px;
     position: fixed;
-    right: 40px;
+    right: 20px;
     z-index: 1;
 
   }
 
   .alt-ico {
+    font-size: 16px;
+    margin: 10px 10px 0px;
+  }
+
+  .alt-ico-close {
     font-size: 18px;
-    margin: 10px 0px 0px;
+    margin: 10px 10px 10px;
+  }
+
+  .alt-ico-close:hover {
+    color: black;
+    cursor: pointer;
   }
 
   .alt-ico:hover {
     color: black;
     cursor: pointer;
-    font-size: 18px;
   }
 
   .ms-header-margin {
@@ -141,5 +157,12 @@
 
   .ms-right {
     margin-right: 40px;
+  }
+
+  .head {
+    border-bottom: 1px solid #303133;
+    color: #303133;
+    font-family: "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", Arial, sans-serif;
+    font-size: 13px;
   }
 </style>

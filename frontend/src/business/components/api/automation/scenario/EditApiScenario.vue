@@ -198,7 +198,7 @@
       <ms-drawer :visible="drawer" :size="100" @close="close" direction="right" :show-full-screen="false" :is-show-close="false" style="overflow: hidden">
         <template v-slot:header>
           <scenario-header :currentScenario="currentScenario" :projectEnvMap="projectEnvMap" :projectIds="projectIds" :projectList="projectList" :scenarioDefinition="scenarioDefinition" :enableCookieShare="enableCookieShare"
-                           @closePage="close" @showAllBtn="showAllBtn" @runDebug="runDebug" @setProjectEnvMap="setProjectEnvMap" @showScenarioParameters="showScenarioParameters" @setCookieShare="setCookieShare" ref="maximizeHeader"/>
+                           @closePage="close" @unFullScreen="unFullScreen" @showAllBtn="showAllBtn" @runDebug="runDebug" @setProjectEnvMap="setProjectEnvMap" @showScenarioParameters="showScenarioParameters" @setCookieShare="setCookieShare" ref="maximizeHeader"/>
         </template>
 
         <maximize-scenario :scenario-definition="scenarioDefinition" :envMap="projectEnvMap" :moduleOptions="moduleOptions" :currentScenario="currentScenario" :type="type" ref="maximizeScenario" @openScenario="openScenario"/>
@@ -1079,10 +1079,13 @@
       fullScreen() {
         this.drawer = true;
       },
-      close() {
+      unFullScreen() {
         this.drawer = false;
+      },
+      close(name) {
+        this.drawer = false;
+        this.$emit('closePage', name);
       }
-
     }
   }
 </script>
@@ -1221,7 +1224,8 @@
 
   .alt-ico {
     font-size: 15px;
-    margin: 0px 10px 0px;
+    margin: 5px 10px 0px;
+    float: right;
     color: #8c939d;
   }
 
