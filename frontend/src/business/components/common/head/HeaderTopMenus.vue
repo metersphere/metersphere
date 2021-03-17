@@ -29,6 +29,8 @@
 </template>
 
 <script>
+  import {LicenseKey} from '@/common/js/constants';
+
   const requireContext = require.context('@/business/components/xpack/', true, /router\.js$/)
   const report = requireContext.keys().map(key => requireContext(key).report);
   const isReport = report && report != null && report.length > 0 && report[0] != undefined ? true : false;
@@ -54,6 +56,10 @@
     mounted() {
       if (this.$route.matched.length > 0) {
         this.activeIndex = this.$route.matched[0].path;
+      }
+      let license = localStorage.getItem(LicenseKey);
+      if (license != "valid") {
+        this.isReport = false;
       }
     },
     methods: {

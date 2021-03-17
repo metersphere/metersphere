@@ -6,7 +6,7 @@
       @copy="copyRow"
       @remove="remove"
       :data="controller"
-      :draggable="true"
+      :draggable="draggable"
       :is-max="isMax"
       :show-btn="showBtn"
       color="#02A7F0"
@@ -15,9 +15,9 @@
 
       <template v-slot:headerLeft>
         <i class="icon el-icon-arrow-right" :class="{'is-active': controller.active}" @click="active(controller)" style="margin-right: 10px" v-if="!isMax"/>
-        <el-radio @change="changeRadio" class="ms-radio" v-model="controller.loopType" label="LOOP_COUNT">{{$t('loop.loops_title')}}</el-radio>
-        <el-radio @change="changeRadio" class="ms-radio" v-model="controller.loopType" label="FOREACH">{{$t('loop.foreach')}}</el-radio>
-        <el-radio @change="changeRadio" class="ms-radio" v-model="controller.loopType" label="WHILE">{{$t('loop.while')}}</el-radio>
+        <el-radio @change="changeRadio" class="ms-radio ms-radio-margin" v-model="controller.loopType" label="LOOP_COUNT">{{$t('loop.loops_title')}}</el-radio>
+        <el-radio @change="changeRadio" class="ms-radio ms-radio-margin" v-model="controller.loopType" label="FOREACH">{{$t('loop.foreach')}}</el-radio>
+        <el-radio @change="changeRadio" class="ms-radio ms-radio-margin" v-model="controller.loopType" label="WHILE">{{$t('loop.while')}}</el-radio>
       </template>
 
       <template v-slot:message>
@@ -86,36 +86,33 @@
 </template>
 
 <script>
-import ApiBaseComponent from "../common/ApiBaseComponent";
-import ApiResponseComponent from "./ApiResponseComponent";
-import MsRun from "../DebugRun";
-import {getUUID} from "@/common/js/utils";
+  import ApiBaseComponent from "../common/ApiBaseComponent";
+  import ApiResponseComponent from "./ApiResponseComponent";
+  import MsRun from "../DebugRun";
+  import {getUUID} from "@/common/js/utils";
 
-export default {
-  name: "MsLoopController",
-  components: {ApiBaseComponent, ApiResponseComponent, MsRun},
-  props: {
-    controller: {},
-    currentEnvironmentId: String,
-    currentScenario: {},
-    node: {},
-    isMax: {
-      type: Boolean,
-      default: false,
-    },
-    showBtn: {
-      type: Boolean,
-      default: true,
-    },
-    index: Object,
-    draggable: {
-      type: Boolean,
+  export default {
+    name: "MsLoopController",
+    components: {ApiBaseComponent, ApiResponseComponent, MsRun},
+    props: {
+      controller: {},
+      currentEnvironmentId: String,
+      currentScenario: {},
+      node: {},
+      isMax: {
+        type: Boolean,
         default: false,
       },
-    envMap: Map
-    },
-    created() {
-      // this.initResult();
+      showBtn: {
+        type: Boolean,
+        default: true,
+      },
+      index: Object,
+      draggable: {
+        type: Boolean,
+        default: false,
+      },
+      envMap: Map
     },
     data() {
       return {
@@ -343,5 +340,9 @@ export default {
 
   .icon.is-active {
     transform: rotate(90deg);
+  }
+
+  /deep/ .el-radio {
+    margin-right: 5px;
   }
 </style>

@@ -2,7 +2,7 @@
   <div>
     <!-- 场景步骤-->
     <ms-container>
-      <ms-aside-container width="600px" class="scenario-aside">
+      <ms-aside-container>
         <!-- 场景步骤内容 -->
         <div v-loading="loading">
           <el-tree node-key="resourceId" :props="props" :data="scenarioDefinition"
@@ -16,7 +16,7 @@
                       <!-- 步骤组件-->
                        <ms-component-config :isMax="true" :type="data.type" :scenario="data" :response="response" :currentScenario="currentScenario"
                                             :currentEnvironmentId="currentEnvironmentId" :node="node" :project-list="projectList" :env-map="projectEnvMap"
-                                            @remove="remove" @copyRow="copyRow" @suggestClick="suggestClick" @refReload="refReload"/>
+                                            @remove="remove" @copyRow="copyRow" @suggestClick="suggestClick" @refReload="refReload" @openScenario="openScenario"/>
                     </span>
           </el-tree>
 
@@ -41,15 +41,35 @@
 
       <ms-main-container>
         <!-- 第一层当前节点内容-->
-        <ms-component-config :isMax="false" :showBtn="false" :type="selectedTreeNode.type" :scenario="selectedTreeNode" :response="response" :currentScenario="currentScenario"
-                             :currentEnvironmentId="currentEnvironmentId" :node="selectedNode" :project-list="projectList" :env-map="projectEnvMap"
-                             @remove="remove" @copyRow="copyRow" @suggestClick="suggestClick" @refReload="refReload" v-if="selectedTreeNode && selectedNode"/>
+        <ms-component-config :isMax="false"
+                             :showBtn="false"
+                             :type="selectedTreeNode.type"
+                             :scenario="selectedTreeNode"
+                             :response="response"
+                             :currentScenario="currentScenario"
+                             :currentEnvironmentId="currentEnvironmentId"
+                             :node="selectedNode"
+                             :project-list="projectList"
+                             :env-map="projectEnvMap"
+                             :draggable="false"
+                             @remove="remove" @copyRow="copyRow" @suggestClick="suggestClick" @refReload="refReload" @openScenario="openScenario"
+                             v-if="selectedTreeNode && selectedNode"/>
         <!-- 请求下还有的子步骤-->
         <div v-if="selectedTreeNode && selectedTreeNode.hashTree && showNode(selectedTreeNode)">
           <div v-for="item in selectedTreeNode.hashTree" :key="item.id" class="ms-col-one">
-            <ms-component-config :showBtn="false" :isMax="false" :type="item.type" :scenario="item" :response="response" :currentScenario="currentScenario"
-                                 :currentEnvironmentId="currentEnvironmentId" :project-list="projectList" :env-map="projectEnvMap"
-                                 @remove="remove" @copyRow="copyRow" @suggestClick="suggestClick" @refReload="refReload" v-if="selectedTreeNode && selectedNode"/>
+            <ms-component-config :showBtn="false"
+                                 :isMax="false"
+                                 :type="item.type"
+                                 :scenario="item"
+                                 :response="response"
+                                 :currentScenario="currentScenario"
+                                 :currentEnvironmentId="currentEnvironmentId"
+                                 :project-list="projectList"
+                                 :env-map="projectEnvMap"
+                                 :draggable="false"
+                                 @remove="remove" @copyRow="copyRow" @suggestClick="suggestClick"
+                                 @refReload="refReload" @openScenario="openScenario"
+                                 v-if="selectedTreeNode && selectedNode"/>
 
           </div>
         </div>
@@ -120,7 +140,7 @@
   import EnvPopover from "@/business/components/api/automation/scenario/EnvPopover";
   import MsContainer from "../../../../common/components/MsContainer";
   import MsMainContainer from "../../../../common/components/MsMainContainer";
-  import MsAsideContainer from "../../../../common/components/MsAsideContainer";
+  import MsAsideContainer from "./MsLeftContainer";
 
   let jsonPath = require('jsonpath');
   export default {
@@ -130,6 +150,7 @@
       currentScenario: {},
       type: String,
       scenarioDefinition: Array,
+      envMap: Map,
     },
     components: {
       MsVariableList,
@@ -201,6 +222,7 @@
       }
       this.projectId = getCurrentProjectID();
       this.operatingElements = ELEMENTS.get("ALL");
+      this.projectEnvMap = this.envMap;
     },
     directives: {OutsideClick},
     computed: {
@@ -319,6 +341,10 @@
       }
     },
     methods: {
+      // 打开引用的场景
+      openScenario(data) {
+        this.$emit('openScenario', data);
+      },
       removeListener() {
         document.removeEventListener("keydown", this.createCtrlSHandle);
       },
@@ -1038,10 +1064,26 @@
   }
 
   .scenario-aside {
+    min-width: 400px;
     position: relative;
     border-radius: 4px;
     border: 1px solid #EBEEF5;
     box-sizing: border-box;
+  }
+
+  .scenario-main {
+    position: relative;
+    margin-left: 20px;
+    border: 1px solid #EBEEF5;
+  }
+
+  .scenario-list {
+    overflow-y: auto;
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 28px;
   }
 
   .father:hover .child {
