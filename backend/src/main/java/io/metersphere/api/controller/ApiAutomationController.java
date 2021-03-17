@@ -86,7 +86,7 @@ public class ApiAutomationController {
     }
 
     @GetMapping("/getApiScenario/{id}")
-    public ApiScenario getScenarioDefinition(@PathVariable String id) {
+    public ApiScenarioDTO getScenarioDefinition(@PathVariable String id) {
         return apiAutomationService.getApiScenario(id);
     }
 

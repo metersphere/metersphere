@@ -358,15 +358,11 @@ export default {
     },
     handleBatchEdit() {
       this.$refs.batchEdit.open(this.selectRows.size);
-      this.$refs.batchEdit.setScenarioSelectRows(this.selectRows);
+      this.$refs.batchEdit.setScenarioSelectRows(this.selectRows, "planScenario");
     },
     batchEdit(form) {
       let param = {};
-      let map = new Map();
-      this.selectRows.forEach(row => {
-        map.set(row.id, row.projectIds);
-      })
-      param.mapping = strMapToObj(map);
+      param.mapping = strMapToObj(form.map);
       param.envMap = strMapToObj(form.projectEnvMap);
       if (this.planId) {
         this.$post('/test/plan/scenario/case/batch/update/env', param, () => {

@@ -104,12 +104,8 @@
         }
         let param = {};
         let url = '/api/automation/relevance';
-        let rows = this.$refs.apiScenarioList.selectRows;
         const envMap = this.$refs.apiScenarioList.projectEnvMap;
-        let map = new Map();
-        rows.forEach(row => {
-          map.set(row.id, row.projectIds);
-        })
+        let map = this.$refs.apiScenarioList.map;
         param.planId = this.planId;
         param.mapping = strMapToObj(map);
         param.envMap = strMapToObj(envMap);
