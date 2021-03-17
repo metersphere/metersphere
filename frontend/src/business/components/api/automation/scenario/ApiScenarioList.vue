@@ -439,7 +439,7 @@
       },
       handleBatchEdit() {
         this.$refs.batchEdit.open(this.selectDataCounts);
-        this.$refs.batchEdit.setScenarioSelectRows(this.selectRows);
+        this.$refs.batchEdit.setScenarioSelectRows(this.selectRows, "scenario");
       },
       handleBatchMove() {
         this.$refs.testBatchMove.open(this.moduleTree, [], this.moduleOptions);
@@ -457,11 +457,7 @@
         // 批量修改环境
         if (form.type === 'projectEnv') {
           let param = {};
-          let map = new Map();
-          this.selectRows.forEach(row => {
-            map.set(row.id, row.projectIds);
-          })
-          param.mapping = strMapToObj(map);
+          param.mapping = strMapToObj(form.map);
           param.envMap = strMapToObj(form.projectEnvMap);
           this.$post('/api/automation/batch/update/env', param, () => {
             this.$success(this.$t('commons.save_success'));
@@ -519,11 +515,7 @@
 
         this.planVisible = false;
 
-        let map = new Map();
-        this.selectRows.forEach(row => {
-          map.set(row.id, row.projectIds);
-        })
-        obj.mapping = strMapToObj(map);
+        obj.mapping = strMapToObj(params[2]);
         obj.envMap = strMapToObj(params[1]);
 
         this.$post("/api/automation/scenario/plan", obj, response => {
