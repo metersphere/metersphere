@@ -2,6 +2,7 @@ package io.metersphere.api.dto.scenario;
 
 import io.metersphere.api.dto.scenario.request.BodyFile;
 import io.metersphere.commons.json.JSONSchemaGenerator;
+import io.metersphere.commons.utils.FileUtils;
 import lombok.Data;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -96,11 +97,10 @@ public class Body {
     }
 
     private void setFileArg(List<HTTPFileArg> list, List<BodyFile> files, KeyValue keyValue, String requestId) {
-        final String BODY_FILE_DIR = "/opt/metersphere/data/body";
         if (files != null) {
             files.forEach(file -> {
                 String paramName = keyValue.getName() == null ? requestId : keyValue.getName();
-                String path = BODY_FILE_DIR + '/' + file.getId() + '_' + file.getName();
+                String path = FileUtils.BODY_FILE_DIR + '/' + file.getId() + '_' + file.getName();
                 String mimetype = keyValue.getContentType();
                 list.add(new HTTPFileArg(path, paramName, mimetype));
             });

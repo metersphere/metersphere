@@ -15,6 +15,7 @@ import io.metersphere.commons.utils.DateUtils;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.track.dto.TestPlanDTO;
 import io.metersphere.track.request.testcase.QueryTestPlanRequest;
+import io.metersphere.track.service.TestCaseReviewApiCaseService;
 import io.metersphere.track.service.TestPlanApiCaseService;
 import io.metersphere.track.service.TestPlanService;
 import org.apache.commons.collections4.CollectionUtils;
@@ -41,6 +42,8 @@ public class ApiDefinitionExecResultService {
     private TestPlanService testPlanService;
     @Resource
     private ApiTestCaseMapper apiTestCaseMapper;
+    @Resource
+    private TestCaseReviewApiCaseService  testCaseReviewApiCaseService;
 
     @Resource
     SqlSessionFactory sqlSessionFactory;
@@ -67,6 +70,8 @@ public class ApiDefinitionExecResultService {
                 saveResult.setStatus(status);
                 if (StringUtils.equals(type, ApiRunMode.API_PLAN.name())) {
                     testPlanApiCaseService.setExecResult(item.getName(), status);
+                    testCaseReviewApiCaseService.setExecResult(item.getName(), status);
+
                 }
                 // 更新用例最后执行结果
                 ApiTestCaseWithBLOBs apiTestCaseWithBLOBs = new ApiTestCaseWithBLOBs();
@@ -118,6 +123,7 @@ public class ApiDefinitionExecResultService {
             } else {
                 userID = Objects.requireNonNull(SessionUtils.getUser()).getId();
                 testPlanApiCaseService.setExecResult(item.getName(), status);
+                testCaseReviewApiCaseService.setExecResult(item.getName(), status);
             }
 
             saveResult.setUserId(userID);

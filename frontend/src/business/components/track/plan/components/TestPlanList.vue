@@ -4,7 +4,9 @@
       <ms-table-header :is-tester-permission="true" :condition.sync="condition"
                        @search="initTableData" @create="testPlanCreate"
                        :create-tip="$t('test_track.plan.create_plan')"
-                       :title="$t('test_track.plan.test_plan')"/>
+                       :title="$t('test_track.plan.test_plan')"
+      />
+
     </template>
 
     <el-table
@@ -279,14 +281,6 @@ export default {
         let data = response.data;
         this.total = data.itemCount;
         this.tableData = data.listObject;
-        for (let i = 0; i < this.tableData.length; i++) {
-          let path = "/test/plan/project";
-          this.$post(path, {planId: this.tableData[i].id}, res => {
-            let arr = res.data;
-            let projectIds = arr.filter(d => d.id !== this.tableData[i].projectId).map(data => data.id);
-            this.$set(this.tableData[i], "projectIds", projectIds);
-          })
-        }
       });
     },
     buildPagePath(path) {

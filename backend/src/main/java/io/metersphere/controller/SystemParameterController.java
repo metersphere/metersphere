@@ -39,6 +39,11 @@ public class SystemParameterController {
         return SystemParameterService.getVersion();
     }
 
+    @GetMapping("/theme")
+    public String getTheme() {
+        return SystemParameterService.getValue("ui.theme");
+    }
+
     @GetMapping("/mail/info")
     @RequiresRoles(value = {RoleConstants.ADMIN})
     public MailInfo mailInfo() {

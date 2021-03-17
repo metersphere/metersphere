@@ -20,6 +20,7 @@ import io.metersphere.commons.utils.CronUtils;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.commons.utils.SessionUtils;
+import io.metersphere.controller.request.ScheduleRequest;
 import io.metersphere.service.CheckPermissionService;
 import io.metersphere.service.ScheduleService;
 import io.metersphere.track.request.testcase.ApiCaseRelevanceRequest;
@@ -29,6 +30,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import java.net.MalformedURLException;
 import java.util.Date;
 import java.util.List;
 
@@ -56,6 +58,12 @@ public class ApiDefinitionController {
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         request.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
         return PageUtils.setPageInfo(page, apiDefinitionService.listRelevance(request));
+    }
+    @PostMapping("/list/relevance/review/{goPage}/{pageSize}")
+    public Pager<List<ApiDefinitionResult>> listRelevanceReview(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody ApiDefinitionRequest request) {
+        Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
+        request.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
+        return PageUtils.setPageInfo(page, apiDefinitionService.listRelevanceReview(request));
     }
 
     @PostMapping("/list/all")
@@ -148,15 +156,15 @@ public class ApiDefinitionController {
         return apiDefinitionService.apiTestImport(file, request);
     }
 
-    @PostMapping(value = "/export")
+    @PostMapping(value = "/export/{type}")
     @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
-    public ApiExportResult export(@RequestBody ApiBatchRequest request) {
-        return apiDefinitionService.export(request);
+    public ApiExportResult export(@RequestBody ApiBatchRequest request, @PathVariable String type) {
+        return apiDefinitionService.export(request, type);
     }
 
     //定时任务创建
     @PostMapping(value = "/schedule/create")
-    public void createSchedule(@RequestBody Schedule request) {
+    public void createSchedule(@RequestBody ScheduleRequest request) throws MalformedURLException {
         apiDefinitionService.createSchedule(request);
     }
     @PostMapping(value = "/schedule/update")
@@ -215,6 +223,10 @@ public class ApiDefinitionController {
     @PostMapping("/relevance")
     public void testPlanRelevance(@RequestBody ApiCaseRelevanceRequest request) {
         apiDefinitionService.testPlanRelevance(request);
+    }
+    @PostMapping("/relevance/review")
+    public void testCaseReviewRelevance(@RequestBody ApiCaseRelevanceRequest request){
+        apiDefinitionService.testCaseReviewRelevance(request);
     }
 
     @PostMapping("/preview")

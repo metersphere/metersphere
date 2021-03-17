@@ -42,6 +42,14 @@ public class ShiroUtils {
         //api-对外文档页面提供的查询接口
         filterChainDefinitionMap.put("/api/document/**", "anon");
 //        filterChainDefinitionMap.put("/document/**", "anon");
+        filterChainDefinitionMap.put("/system/theme", "anon");
+
+    }
+
+    public static void ignoreCsrfFilter(Map<String, String> filterChainDefinitionMap) {
+        filterChainDefinitionMap.put("/", "apikey, authc"); // 跳转到 / 不用校验 csrf
+        filterChainDefinitionMap.put("/language", "apikey, authc");// 跳转到 /language 不用校验 csrf
+        filterChainDefinitionMap.put("/document", "apikey, authc"); // 跳转到 /document 不用校验 csrf
     }
 
     public static Cookie getSessionIdCookie(){

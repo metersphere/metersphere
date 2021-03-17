@@ -48,15 +48,24 @@
               </el-form-item>
             </el-col>
             <el-col :span="7">
-              <el-form-item label="状态" :label-width="formLabelWidth" prop="reviewStatus">
-                <el-select size="small" v-model="form.reviewStatus" class="ms-case-input">
-                  <el-option v-for="item in options" :key="item.id" :label="item.label" :value="item.id"/>
+              <el-form-item label="状态" :label-width="formLabelWidth" prop="status">
+                <el-select size="small" v-model="form.status" class="ms-case-input">
+                  <el-option v-for="item in statuOptions" :key="item.id" :label="item.label" :value="item.id">
+                  </el-option>
                 </el-select>
               </el-form-item>
             </el-col>
           </el-row>
 
           <el-row>
+            <el-col :span="7">
+              <el-form-item label="评审状态" :label-width="formLabelWidth" prop="reviewStatus">
+                <el-select size="small" v-model="form.reviewStatus" class="ms-case-input">
+                  <el-option v-for="item in options" :key="item.id" :label="item.label" :value="item.id">
+                  </el-option>
+                </el-select>
+              </el-form-item>
+            </el-col>
             <el-col :span="7">
               <el-form-item :label="$t('commons.tag')" :label-width="formLabelWidth" prop="tag">
                 <ms-input-tag :currentScenario="form" v-if="showInputTag" ref="tag" class="ms-case-input"/>
@@ -76,7 +85,8 @@
               </el-form-item>
 
             </el-col>
-
+          </el-row>
+          <el-row>
             <el-col :span="7">
               <el-form-item :label="$t('test_track.case.priority')" :label-width="formLabelWidth" prop="priority">
                 <el-select :disabled="readOnly" v-model="form.priority" clearable
@@ -88,8 +98,6 @@
                 </el-select>
               </el-form-item>
             </el-col>
-          </el-row>
-          <el-row>
             <el-col :span="7">
               <el-form-item :label="$t('test_track.case.type')" :label-width="formLabelWidth" prop="type">
                 <el-select @change="typeChange" :disabled="readOnly" v-model="form.type"
@@ -305,7 +313,7 @@
 
 import {TokenKey, WORKSPACE_ID} from '@/common/js/constants';
 import MsDialogFooter from '../../../common/components/MsDialogFooter'
-import {listenGoBack, removeGoBackListener} from "@/common/js/utils";
+import {getCurrentUser, listenGoBack, removeGoBackListener} from "@/common/js/utils";
 import {LIST_CHANGE, TrackEvent} from "@/business/components/common/head/ListEvent";
 import {Message} from "element-ui";
 import TestCaseAttachment from "@/business/components/track/case/components/TestCaseAttachment";
@@ -328,6 +336,7 @@ export default {
   data() {
     return {
       options: REVIEW_STATUS,
+      statuOptions:API_STATUS,
       comments: [],
       result: {},
       projectId: "",
@@ -335,8 +344,8 @@ export default {
       form: {
         name: '',
         module: '',
-        maintainer: '',
-        priority: '',
+        maintainer: getCurrentUser().id,
+        priority: 'P0',
         type: '',
         method: '',
         prerequisite: '',
@@ -351,6 +360,8 @@ export default {
         tags: [],
         demandId: '',
         demandName: '',
+        status:'Prepare',
+        reviewStatus:'Prepare',
       },
       readOnly: false,
       moduleOptions: [],
@@ -369,11 +380,9 @@ export default {
         module: [{required: true, message: this.$t('test_track.case.input_module'), trigger: 'change'}],
         maintainer: [{required: true, message: this.$t('test_track.case.input_maintainer'), trigger: 'change'}],
         priority: [{required: true, message: this.$t('test_track.case.input_priority'), trigger: 'change'}],
-        type: [{required: true, message: this.$t('test_track.case.input_type'), trigger: 'change'}],
-        testId: [{required: true, message: this.$t('commons.please_select'), trigger: 'change'}],
         method: [{required: true, message: this.$t('test_track.case.input_method'), trigger: 'change'}],
         prerequisite: [{max: 500, message: this.$t('test_track.length_less_than') + '500', trigger: 'blur'}],
-        remark: [{max: 500, message: this.$t('test_track.length_less_than') + '500', trigger: 'blur'}]
+        remark: [{max: 1000, message: this.$t('test_track.length_less_than') + '1000', trigger: 'blur'}]
       },
       formLabelWidth: "120px",
       operationType: '',
@@ -463,7 +472,6 @@ export default {
     reload() {
       this.isStepTableAlive = false;
       this.$nextTick(() => (this.isStepTableAlive = true));
-      console.log(this.form)
     },
     open(testCase) {
       this.projectId = getCurrentProjectID();
@@ -620,7 +628,6 @@ export default {
           let param = this.buildParam();
           if (this.validate(param)) {
             let option = this.getOption(param);
-            console.log(option)
             this.result = this.$request(option, () => {
               this.$success(this.$t('commons.save_success'));
               if (this.operationType == 'add' && this.isCreateContinue) {
@@ -767,7 +774,7 @@ export default {
       this.getModuleOptions();
       this.getMaintainerOptions();
       this.getTestOptions();
-      this.getDemandOptions()
+      // this.getDemandOptions()
     },
 
     resetForm() {

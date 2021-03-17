@@ -8,16 +8,18 @@
     :show-collapse="false"
     :is-show-name-input="!isDeletedOrRef"
     :is-disabled="true"
+    :is-max="isMax"
+    :show-btn="showBtn"
     color="#606266"
     background-color="#F4F4F5"
     :title="$t('api_test.automation.scenario_import')">
 
     <template v-slot:behindHeaderLeft>
-      <el-tag size="mini" style="margin-left: 20px" v-if="scenario.referenced==='Deleted'" type="danger">{{$t('api_test.automation.reference_deleted')}}</el-tag>
-      <el-tag size="mini" style="margin-left: 20px" v-if="scenario.referenced==='Copy'">{{ $t('commons.copy') }}</el-tag>
-      <el-tag size="mini" style="margin-left: 20px" v-if="scenario.referenced==='REF'">{{ $t('api_test.scenario.reference') }}</el-tag>
+      <el-tag size="mini" class="ms-tag" v-if="scenario.referenced==='Deleted'" type="danger">{{$t('api_test.automation.reference_deleted')}}</el-tag>
+      <el-tag size="mini" class="ms-tag" v-if="scenario.referenced==='Copy'">{{ $t('commons.copy') }}</el-tag>
+      <el-tag size="mini" class="ms-tag" v-if="scenario.referenced==='REF'">{{ $t('api_test.scenario.reference') }}</el-tag>
 
-      <span style="margin-left: 20px;">{{getProjectName(scenario.projectId)}}</span>
+      <span class="ms-tag">{{getProjectName(scenario.projectId)}}</span>
     </template>
 
   </api-base-component>
@@ -36,6 +38,14 @@
     props: {
       scenario: {},
       node: {},
+      isMax: {
+        type: Boolean,
+        default: false,
+      },
+      showBtn: {
+        type: Boolean,
+        default: true,
+      },
       draggable: {
         type: Boolean,
         default: false,
@@ -58,7 +68,7 @@
             if (this.scenario.hashTree) {
               this.setDisabled(this.scenario.hashTree);
             }
-            this.scenario.disabled = true;
+            //this.scenario.disabled = true;
             this.scenario.name = response.data.name;
             if (!this.scenario.projectId) {
               this.scenario.projectId = response.data.projectId;
@@ -108,6 +118,9 @@
       recursive(arr) {
         for (let i in arr) {
           arr[i].disabled = true;
+          if (!arr[i].projectId) {
+            arr[i].projectId = getCurrentProjectID();
+          }
           if (arr[i].hashTree != undefined && arr[i].hashTree.length > 0) {
             this.recursive(arr[i].hashTree);
           }
@@ -116,13 +129,16 @@
       setDisabled(scenarioDefinition) {
         for (let i in scenarioDefinition) {
           scenarioDefinition[i].disabled = true;
+          if (!scenarioDefinition[i].projectId) {
+            scenarioDefinition[i].projectId = getCurrentProjectID();
+          }
           if (scenarioDefinition[i].hashTree != undefined && scenarioDefinition[i].hashTree.length > 0) {
             this.recursive(scenarioDefinition[i].hashTree);
           }
         }
       },
       getProjectName(id) {
-        const project = this.projectList.find(p => p.id === id) ;
+        const project = this.projectList.find(p => p.id === id);
         return project ? project.name : "";
       }
     }
@@ -139,4 +155,7 @@
     transform: rotate(90deg);
   }
 
+  .ms-tag {
+    margin-left: 20px;
+  }
 </style>

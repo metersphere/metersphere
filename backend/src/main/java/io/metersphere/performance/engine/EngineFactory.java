@@ -15,11 +15,13 @@ import io.metersphere.i18n.Translator;
 import io.metersphere.performance.engine.docker.DockerTestEngine;
 import io.metersphere.performance.parse.EngineSourceParser;
 import io.metersphere.performance.parse.EngineSourceParserFactory;
+import io.metersphere.performance.service.PerformanceTestService;
 import io.metersphere.service.FileService;
 import io.metersphere.service.KubernetesTestEngine;
 import io.metersphere.service.TestResourcePoolService;
 import org.apache.commons.beanutils.ConstructorUtils;
-import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.reflections8.Reflections;
 import org.springframework.stereotype.Service;
@@ -45,6 +47,7 @@ import java.util.stream.Collectors;
 @Service
 public class EngineFactory {
     private static FileService fileService;
+    private static PerformanceTestService performanceTestService;
     private static TestResourcePoolService testResourcePoolService;
     private static Class<? extends KubernetesTestEngine> kubernetesTestEngineClass;
 
@@ -86,14 +89,13 @@ public class EngineFactory {
     }
 
     public static EngineContext createContext(LoadTestWithBLOBs loadTest, String resourceId, double ratio, long startTime, String reportId, int resourceIndex) {
-        final List<FileMetadata> fileMetadataList = fileService.getFileMetadataByTestId(loadTest.getId());
+        final List<FileMetadata> fileMetadataList = performanceTestService.getFileMetadataByTestId(loadTest.getId());
         if (org.springframework.util.CollectionUtils.isEmpty(fileMetadataList)) {
             MSException.throwException(Translator.get("run_load_test_file_not_found") + loadTest.getId());
         }
 
         List<FileMetadata> jmxFiles = fileMetadataList.stream().filter(f -> StringUtils.equalsIgnoreCase(f.getType(), FileType.JMX.name())).collect(Collectors.toList());
-        List<FileMetadata> csvFiles = fileMetadataList.stream().filter(f -> StringUtils.equalsIgnoreCase(f.getType(), FileType.CSV.name())).collect(Collectors.toList());
-        List<FileMetadata> jarFiles = fileMetadataList.stream().filter(f -> StringUtils.equalsIgnoreCase(f.getType(), FileType.JAR.name())).collect(Collectors.toList());
+        List<FileMetadata> resourceFiles = ListUtils.subtract(fileMetadataList, jmxFiles);
         // 合并上传的jmx
         byte[] jmxBytes = mergeJmx(jmxFiles);
         final EngineContext engineContext = new EngineContext();
@@ -156,22 +158,13 @@ public class EngineFactory {
             MSException.throwException(e);
         }
 
-        if (CollectionUtils.isNotEmpty(csvFiles)) {
-            Map<String, String> data = new HashMap<>();
-            csvFiles.forEach(cf -> {
-                FileContent csvContent = fileService.getFileContent(cf.getId());
-                data.put(cf.getName(), new String(csvContent.getFile()));
-            });
-            engineContext.setTestData(data);
-        }
-
-        if (CollectionUtils.isNotEmpty(jarFiles)) {
+        if (CollectionUtils.isNotEmpty(resourceFiles)) {
             Map<String, byte[]> data = new HashMap<>();
-            jarFiles.forEach(jf -> {
-                FileContent content = fileService.getFileContent(jf.getId());
-                data.put(jf.getName(), content.getFile());
+            resourceFiles.forEach(cf -> {
+                FileContent csvContent = fileService.getFileContent(cf.getId());
+                data.put(cf.getName(), csvContent.getFile());
             });
-            engineContext.setTestJars(data);
+            engineContext.setTestResourceFiles(data);
         }
 
         return engineContext;
@@ -243,5 +236,10 @@ public class EngineFactory {
     @Resource
     public void setTestResourcePoolService(TestResourcePoolService testResourcePoolService) {
         EngineFactory.testResourcePoolService = testResourcePoolService;
+    }
+
+    @Resource
+    public void setPerformanceTestService(PerformanceTestService performanceTestService) {
+        EngineFactory.performanceTestService = performanceTestService;
     }
 }

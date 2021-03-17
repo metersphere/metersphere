@@ -189,7 +189,9 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
                 testCaseNodeDTO.setName(name);
                 testCaseNodeDTO.setLabel(name);
                 testCaseNodeDTO.setChildren(nodeList);
-                list.add(testCaseNodeDTO);
+                if (!CollectionUtils.isEmpty(nodeList)) {
+                    list.add(testCaseNodeDTO);
+                }
             }
         });
 
@@ -212,11 +214,14 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
             List<String> caseIds = testCaseReviewTestCases.stream().map(TestCaseReviewTestCase::getCaseId).collect(Collectors.toList());
 
             List<TestCaseNodeDTO> nodeList = getReviewNodeDTO(id, caseIds);
-            TestCaseNodeDTO testCaseNodeDTO = new TestCaseNodeDTO();
-            testCaseNodeDTO.setName(name);
-            testCaseNodeDTO.setLabel(name);
-            testCaseNodeDTO.setChildren(nodeList);
-            list.add(testCaseNodeDTO);
+            if (!CollectionUtils.isEmpty(nodeList)) {
+                TestCaseNodeDTO testCaseNodeDTO = new TestCaseNodeDTO();
+                testCaseNodeDTO.setName(name);
+                testCaseNodeDTO.setLabel(name);
+                testCaseNodeDTO.setChildren(nodeList);
+                testCaseNodeDTO.setProjectId(id);
+                list.add(testCaseNodeDTO);
+            }
         });
         return list;
 

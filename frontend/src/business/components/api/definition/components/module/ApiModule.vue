@@ -74,6 +74,7 @@ export default {
       },
       planId: String,
       relevanceProjectId: String,
+      reviewId: String
     },
     computed: {
       isPlanModel() {
@@ -81,6 +82,9 @@ export default {
       },
       isRelevanceModel() {
         return this.relevanceProjectId ? true : false;
+      },
+      isReviewModel() {
+        return this.reviewId ? true : false;
       }
     },
     mounted() {
@@ -103,6 +107,9 @@ export default {
         this.list();
       },
       relevanceProjectId() {
+        this.list();
+      },
+      reviewId() {
         this.list();
       }
     },
@@ -188,8 +195,8 @@ export default {
           this.$refs.nodeTree.append({}, dataArr[0]);
         }
       },
-      exportAPI() {
-        this.$emit('exportAPI');
+      exportAPI(type) {
+        this.$emit('exportAPI', type);
       },
       debug() {
         this.$emit('debug');

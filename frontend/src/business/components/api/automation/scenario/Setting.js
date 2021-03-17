@@ -6,8 +6,8 @@ export const ELEMENTS = new Map([
   ['JDBCSampler', ["ConstantTimer", "JSR223PreProcessor", "JSR223PostProcessor", "Assertions", "Extract"]],
   ['TCPSampler', ["ConstantTimer", "JSR223PreProcessor", "JSR223PostProcessor", "Assertions", "Extract"]],
   ['OT_IMPORT', ["ConstantTimer", "JSR223PreProcessor", "JSR223PostProcessor", "Assertions", "Extract"]],
-  ['IfController', ["IfController","scenario", "HTTPSamplerProxy", "DubboSampler", "JDBCSampler", "TCPSampler", "OT_IMPORT", "ConstantTimer", "JSR223Processor", "JSR223PreProcessor", "JSR223PostProcessor", "Assertions", "Extract", "CustomizeReq"]],
-  ['LoopController', ["IfController", "HTTPSamplerProxy", "DubboSampler", "JDBCSampler", "TCPSampler", "OT_IMPORT", "ConstantTimer", "JSR223Processor", "JSR223PreProcessor", "JSR223PostProcessor", "Assertions", "Extract", "CustomizeReq"]],
+  ['IfController', ["IfController", "scenario", "HTTPSamplerProxy", "DubboSampler", "JDBCSampler", "TCPSampler", "OT_IMPORT", "ConstantTimer", "JSR223Processor", "JSR223PreProcessor", "JSR223PostProcessor", "Assertions", "Extract", "CustomizeReq"]],
+  ['LoopController', ["IfController", "scenario", "HTTPSamplerProxy", "DubboSampler", "JDBCSampler", "TCPSampler", "OT_IMPORT", "ConstantTimer", "JSR223Processor", "JSR223PreProcessor", "JSR223PostProcessor", "Assertions", "Extract", "CustomizeReq"]],
   ['ConstantTimer', []],
   ['JSR223Processor', ["ConstantTimer", "JSR223PreProcessor", "JSR223PostProcessor", "Assertions", "Extract"]],
   ['JSR223PreProcessor', []],
@@ -16,6 +16,9 @@ export const ELEMENTS = new Map([
   ['Extract', []],
   ['JmeterElement', []],
   ['CustomizeReq', ["ConstantTimer", "JSR223PreProcessor", "JSR223PostProcessor", "Assertions", "Extract"]],
+  ['MaxSamplerProxy', ["JSR223PreProcessor", "JSR223PostProcessor", "Assertions", "Extract"]],
+  ['AllSamplerProxy', ["HTTPSamplerProxy", "DubboSampler", "JDBCSampler", "TCPSampler"]],
+
 ])
 
 export const ELEMENT_TYPE = {

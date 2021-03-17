@@ -18,6 +18,7 @@ import io.metersphere.track.dto.TestPlanCaseDTO;
 import io.metersphere.track.request.testcase.EditTestCaseRequest;
 import io.metersphere.track.request.testcase.QueryTestCaseRequest;
 import io.metersphere.track.request.testcase.TestCaseBatchRequest;
+import io.metersphere.track.request.testcase.TestCaseMinderEditRequest;
 import io.metersphere.track.request.testplan.FileOperationRequest;
 import io.metersphere.track.request.testplancase.QueryTestPlanCaseRequest;
 import io.metersphere.track.service.TestCaseService;
@@ -57,6 +58,12 @@ public class TestCaseController {
         QueryTestCaseRequest request = new QueryTestCaseRequest();
         request.setProjectId(projectId);
         return testCaseService.listTestCase(request);
+    }
+
+    @GetMapping("/list/detail/{projectId}")
+    public List<TestCaseWithBLOBs> listDetail(@PathVariable String projectId) {
+        checkPermissionService.checkProjectOwner(projectId);
+        return testCaseService.listTestCaseDetail(projectId);
     }
 
    /*jenkins项目下所有接口和性能测试用例*/
@@ -189,5 +196,17 @@ public class TestCaseController {
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileId + "\"")
                 .body(bytes);
     }
+
+    @PostMapping("/save")
+    public TestCaseWithBLOBs saveTestCase(@RequestBody TestCaseWithBLOBs testCaseWithBLOBs) {
+        return testCaseService.addTestCase(testCaseWithBLOBs);
+    }
+
+    @PostMapping("/minder/edit")
+    @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
+    public void minderEdit(@RequestBody TestCaseMinderEditRequest request) {
+        testCaseService.minderEdit(request);
+    }
+
 
 }

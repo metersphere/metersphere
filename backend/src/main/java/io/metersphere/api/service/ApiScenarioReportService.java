@@ -152,7 +152,7 @@ public class ApiScenarioReportService {
             apiScenarioReportDetailMapper.insert(detail);
 
             TestPlanApiScenario testPlanApiScenario = testPlanApiScenarioMapper.selectByPrimaryKey(report.getScenarioId());
-            if(testPlanApiScenario!=null){
+            if (testPlanApiScenario != null) {
                 report.setScenarioId(testPlanApiScenario.getApiScenarioId());
                 apiScenarioReportMapper.updateByPrimaryKeySelective(report);
                 if (scenarioResult.getError() > 0) {
@@ -236,17 +236,12 @@ public class ApiScenarioReportService {
     /**
      * 批量更新状态，防止重复刷新报告
      *
-     * @param reportIds
+     * @param reportId
      */
-    private void updateScenarioStatus(String reportIds) {
-
-        if (StringUtils.isNotEmpty(reportIds)) {
+    private void updateScenarioStatus(String reportId) {
+        if (StringUtils.isNotEmpty(reportId)) {
             List<String> list = new ArrayList<>();
-            try {
-                list = JSON.parseArray(reportIds, String.class);
-            } catch (Exception e) {
-                list.add(reportIds);
-            }
+            list.add(reportId);
             ApiScenarioReportExample scenarioReportExample = new ApiScenarioReportExample();
             scenarioReportExample.createCriteria().andIdIn(list);
             List<ApiScenarioReport> reportList = apiScenarioReportMapper.selectByExample(scenarioReportExample);
@@ -350,13 +345,13 @@ public class ApiScenarioReportService {
         int handleCount = 7000;
         //每次处理的集合
         List<String> handleIdList = new ArrayList<>(handleCount);
-        while (ids.size() > handleCount){
+        while (ids.size() > handleCount) {
             handleIdList = new ArrayList<>(handleCount);
             List<String> otherIdList = new ArrayList<>();
-            for (int index = 0;index < ids.size();index++){
-                if(index<handleCount){
+            for (int index = 0; index < ids.size(); index++) {
+                if (index < handleCount) {
                     handleIdList.add(ids.get(index));
-                }else{
+                } else {
                     otherIdList.add(ids.get(index));
                 }
             }
@@ -372,7 +367,7 @@ public class ApiScenarioReportService {
         }
 
         //处理最后剩余的数据
-        if(!ids.isEmpty()){
+        if (!ids.isEmpty()) {
             ApiScenarioReportDetailExample detailExample = new ApiScenarioReportDetailExample();
             detailExample.createCriteria().andReportIdIn(ids);
             apiScenarioReportDetailMapper.deleteByExample(detailExample);
@@ -417,9 +412,9 @@ public class ApiScenarioReportService {
     }
 
     public List<ApiScenarioReport> selectLastReportByIds(List<String> ids) {
-        if(!ids.isEmpty()){
+        if (!ids.isEmpty()) {
             return extApiScenarioReportMapper.selectLastReportByIds(ids);
-        }else {
+        } else {
             return new ArrayList<>(0);
         }
     }

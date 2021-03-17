@@ -241,7 +241,8 @@ export default {
     base_config: '基本配置',
     base: {
       url: '當前站點URL',
-      url_tip: '例如：http://localhost:8081'
+      url_tip: '例如：http://localhost:8081',
+      url_is_null: '當前站點URL不能為空'
     }
   },
   workspace: {
@@ -334,6 +335,7 @@ export default {
     delete: '刪除項目',
     delete_confirm: '確定要刪除這個項目嗎?',
     delete_tip: '刪除該項目，會刪除該項目下所有測試資源，確定要刪除嗎?',
+    file_delete_tip: '刪除該項目的文件: {0}？',
     search_by_name: '根據名稱搜索',
     search_by_name_jar: '根據名稱/jar包搜索',
     input_name: '請輸入項目名稱',
@@ -425,6 +427,8 @@ export default {
     test_execute_again: '再次執行',
     downloadJtl: '下載JTL',
     export: '導出',
+    export_to_ms_format: '導出 Metersphere 格式',
+    export_to_swagger3_format: '導出 Swagger3.0 格式',
     compare: '比較',
     generation_error: '報告生成錯誤, 無法查看, 請檢查日誌詳情!',
     being_generated: '報告正在生成中...',
@@ -475,7 +479,8 @@ export default {
     delete_file: "文件已存在，請先刪除同名文件！",
     thread_num: '並發用戶數：',
     input_thread_num: '請輸入線程數',
-    duration: '壓測時長（秒）：',
+    duration: '壓測時長',
+    granularity: '聚合時間（秒）',
     input_duration: '請輸入時長',
     rps_limit: 'RPS上限：',
     input_rps_limit: '請輸入限制',
@@ -521,10 +526,11 @@ export default {
     exist_jmx: '已存在的文件',
     other_resource: '資源文件',
     upload_file: '上傳新文件',
-    load_exist_file: '加載已有文件',
-    load_exist_jmx: '加載已有 JMX 文件',
+    load_exist_file: '加載文件',
+    load_exist_jmx: '加載 JMX 文件',
     threadgroup_at_least_one: '至少啟用一個線程組',
     load_api_automation_jmx: '引用接口自動化場景',
+    project_file_exist: "項目中已存在該文件，請直接引用"
   },
   api_test: {
     creator: "創建人",
@@ -532,6 +538,9 @@ export default {
     run: "執行",
     running: "正在執行",
     reset: "重置",
+    select_all: "全選",
+    invert_select: "反選",
+    select_or_invert: "全選/反選",
     input_name: "請輸入測試名稱",
     select_project: "請選擇項目",
     variable_name: "變量名",
@@ -596,7 +605,7 @@ export default {
         save_as_case: "另存為新用例",
         update_api: "更新接口",
         body_form_data: "form-data",
-        body_x_www_from_urlencoded: "x-www-from-urlencoded",
+        body_x_www_from_urlencoded: "x-www-form-urlencoded",
         body_raw: "raw",
         body_binary: "binary",
         body_json: "json",
@@ -915,8 +924,10 @@ export default {
       export_tip: "導出方法",
       ms_tip: "支持 Metersphere json 格式",
       ms_export_tip: "通過 Metersphere 接口測試頁面或者瀏覽器插件導出 json 格式文件",
+      har_export_tip: "通过 瀏覽器到開發者工具 导出 Har 格式文件",
       postman_tip: "只支持 Postman Collection v2.1 格式的 json 文件",
       swagger_tip: "支持 Swagger 2.0 與 3.0 版本的 json 文件",
+      har_tip: "只支持 Har 文件",
       post_export_tip: "通過 Postman 導出測試集合",
       swagger_export_tip: "通過 Swagger 頁面導出",
       jmeter_export_tip: "通過 Jmeter 生成JMX文件",
@@ -1022,6 +1033,7 @@ export default {
         },
         scenario_schedule: "場景",
         test_plan_schedule: "測試計畫",
+        swagger_schedule: "swagger",
         confirm: {
           close_title: "要關閉這條定時任務嗎？",
         }

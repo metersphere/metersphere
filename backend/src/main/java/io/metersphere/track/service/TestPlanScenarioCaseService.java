@@ -1,6 +1,7 @@
 package io.metersphere.track.service;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONPath;
 import io.metersphere.api.dto.automation.ApiScenarioDTO;
 import io.metersphere.api.dto.automation.ApiScenarioRequest;
 import io.metersphere.api.dto.automation.RunScenarioRequest;
@@ -51,16 +52,27 @@ public class TestPlanScenarioCaseService {
     private void setApiScenarioProjectIds(List<ApiScenarioDTO> list) {
         // 如果场景步骤涉及多项目，则把涉及到的项目ID保存在projectIds属性
         list.forEach(data -> {
-            String definition = data.getScenarioDefinition();
-            RunDefinitionRequest d = JSON.parseObject(definition, RunDefinitionRequest.class);
-            Map<String, String> map = d.getEnvironmentMap();
             List<String> idList = new ArrayList<>();
-            if (map != null) {
-                Set<String> set = d.getEnvironmentMap().keySet();
-                idList = new ArrayList<>(set);
-            } else {
-                // 兼容历史数据，无EnvironmentMap直接赋值场景所属项目
-                idList.add(data.getProjectId());
+            String definition = data.getScenarioDefinition();
+            if (org.apache.commons.lang3.StringUtils.isNotBlank(definition)) {
+                RunDefinitionRequest d = JSON.parseObject(definition, RunDefinitionRequest.class);
+
+                if (d != null) {
+                    Map<String, String> map = d.getEnvironmentMap();
+                    if (map != null) {
+                        if (map.isEmpty()) {
+                            List<String> ids = (List<String>) JSONPath.read(definition, "$..projectId");
+                            idList.addAll(new HashSet<>(ids));
+                        } else {
+                            Set<String> set = d.getEnvironmentMap().keySet();
+                            idList = new ArrayList<>(set);
+                        }
+                    } else {
+                        // 兼容历史数据，无EnvironmentMap直接赋值场景所属项目
+                        idList.add(data.getProjectId());
+                    }
+                }
+
             }
             data.setProjectIds(idList);
         });

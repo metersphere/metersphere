@@ -2,7 +2,7 @@
   <div>
     <template>
             <span>{{ $t('commons.operating') }}
-             <i class='el-icon-setting' style="color:#7834c1; margin-left:10px" @click="customHeader"> </i>
+             <i class='el-icon-setting operator-color' @click="customHeader"> </i>
             </span>
     </template>
   </div>
@@ -21,5 +21,8 @@ export default {
 </script>
 
 <style scoped>
-
+.operator-color {
+  color: var(--count_number);
+  margin-left:10px;
+}
 </style>

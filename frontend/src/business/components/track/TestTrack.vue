@@ -16,14 +16,17 @@
   import TrackHeaderMenus from "./head/TrackHeaderMenus";
 
   export default {
-      name: "TrackHome",
-      components: {TrackHeaderMenus},
-      data() {
-        return {
-          baseUrl: "track"
-        }
+    name: "TrackHome",
+    components: {TrackHeaderMenus},
+    data() {
+      return {
+        baseUrl: "track"
       }
+    },
+    activated() {
+      this.$refs.table.doLayout()
     }
+  }
 </script>
 
 

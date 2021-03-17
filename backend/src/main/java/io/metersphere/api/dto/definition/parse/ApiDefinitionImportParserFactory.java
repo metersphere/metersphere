@@ -12,6 +12,8 @@ public class ApiDefinitionImportParserFactory {
             return new PostmanDefinitionParser();
         } else if (StringUtils.equals(ApiImportPlatform.Swagger2.name(), platform)) {
             return new Swagger2Parser();
+        }else if (StringUtils.equals(ApiImportPlatform.Har.name(), platform)) {
+            return new HarParser();
         }
         return null;
     }

@@ -30,14 +30,14 @@ public class Swagger2Parser extends SwaggerAbstractParser {
     public ApiDefinitionImport parse(InputStream source, ApiTestImportRequest request) {
         Swagger swagger;
         String sourceStr = "";
-        if (StringUtils.isNotBlank(request.getSwaggerUrl())) {
+        if (StringUtils.isNotBlank(request.getSwaggerUrl())) {  //  使用 url 导入 swagger
             swagger = new SwaggerParser().read(request.getSwaggerUrl());
         } else {
-            sourceStr = getApiTestStr(source);
+            sourceStr = getApiTestStr(source);  //  导入的二进制文件转换为 String
             swagger = new SwaggerParser().readWithInfo(sourceStr).getSwagger();
         }
 
-        if (swagger == null || swagger.getSwagger() == null) {
+        if (swagger == null || swagger.getSwagger() == null) {  //  不是 2.0 版本，则尝试转换 3.0
             Swagger3Parser swagger3Parser = new Swagger3Parser();
             return swagger3Parser.parse(sourceStr, request);
         }

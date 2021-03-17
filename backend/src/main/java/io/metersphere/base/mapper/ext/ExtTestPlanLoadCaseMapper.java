@@ -12,4 +12,5 @@ public interface ExtTestPlanLoadCaseMapper {
     List<TestPlanLoadCaseDTO> selectTestPlanLoadCaseList(@Param("request") LoadCaseRequest request);
     void updateCaseStatus(@Param("reportId") String reportId, @Param("status") String status);
     List<String> getStatusByTestPlanId(@Param("planId") String planId);
+
 }

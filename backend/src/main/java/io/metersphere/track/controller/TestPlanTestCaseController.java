@@ -39,6 +39,13 @@ public class TestPlanTestCaseController {
         return testPlanTestCaseService.listByPlanId(request);
     }
 
+    @GetMapping("/list/minder/{planId}")
+    public List<TestPlanCaseDTO> listForMinder(@PathVariable String planId) {
+        QueryTestPlanCaseRequest request = new QueryTestPlanCaseRequest();
+        request.setPlanId(planId);
+        return testPlanTestCaseService.listForMinder(planId);
+    }
+
     @GetMapping("/list/node/{planId}/{nodePaths}")
     public List<TestPlanCaseDTO> getTestPlanCasesByNodePath(@PathVariable String planId, @PathVariable String nodePaths) {
         String nodePath = nodePaths.replace("f", "/");

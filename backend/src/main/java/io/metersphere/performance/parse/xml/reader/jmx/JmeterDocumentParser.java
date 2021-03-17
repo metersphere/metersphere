@@ -132,9 +132,42 @@ public class JmeterDocumentParser implements DocumentParser {
                     } else if (nodeNameEquals(ele, CSV_DATA_SET)) {
                         processCsvDataSet(ele);
                     }
+                    // 处理http上传的附件
+                    if (isHTTPFileArg(ele)) {
+                        processArgumentFiles(ele);
+                    }
                 }
             }
         }
+    }
+
+    private void processArgumentFiles(Element element) {
+        NodeList childNodes = element.getChildNodes();
+        for (int i = 0; i < childNodes.getLength(); i++) {
+            Node item = childNodes.item(i);
+            if (item instanceof Element && nodeNameEquals(item, STRING_PROP)) {
+                String filenameTag = ((Element) item).getAttribute("name");
+                if (StringUtils.equals(filenameTag, "File.path")) {
+                    // 截取文件名
+                    handleFilename(item);
+                    break;
+                }
+            }
+        }
+    }
+
+    private void handleFilename(Node item) {
+        String separator = "/";
+        String filename = item.getTextContent();
+        if (!StringUtils.contains(filename, "/")) {
+            separator = "\\";
+        }
+        filename = filename.substring(filename.lastIndexOf(separator) + 1);
+        item.setTextContent(filename);
+    }
+
+    private boolean isHTTPFileArg(Element ele) {
+        return "HTTPFileArg".equals(ele.getAttribute("elementType"));
     }
 
     private void processCsvDataSet(Element element) {
@@ -145,13 +178,7 @@ public class JmeterDocumentParser implements DocumentParser {
                 String filenameTag = ((Element) item).getAttribute("name");
                 if (StringUtils.equals(filenameTag, "filename")) {
                     // 截取文件名
-                    String separator = "/";
-                    String filename = item.getTextContent();
-                    if (!StringUtils.contains(filename, "/")) {
-                        separator = "\\";
-                    }
-                    filename = filename.substring(filename.lastIndexOf(separator) + 1);
-                    item.setTextContent(filename);
+                    handleFilename(item);
                     break;
                 }
             }
@@ -649,6 +676,13 @@ public class JmeterDocumentParser implements DocumentParser {
             ((List<?>) durations).remove(0);
             duration = o.toString();
         }
+        Object units = context.getProperty("unit");
+        String unit = "S";
+        if (units instanceof List) {
+            Object o = ((List<?>) units).get(0);
+            ((List<?>) units).remove(0);
+            unit = o.toString();
+        }
         Object deleteds = context.getProperty("deleted");
         String deleted = "false";
         if (deleteds instanceof List) {
@@ -662,6 +696,17 @@ public class JmeterDocumentParser implements DocumentParser {
             Object o = ((List<?>) enableds).get(0);
             ((List<?>) enableds).remove(0);
             enabled = o.toString();
+        }
+
+        switch (unit) {
+            case "M":
+                duration = String.valueOf(Long.parseLong(duration) * 60);
+                break;
+            case "H":
+                duration = String.valueOf(Long.parseLong(duration) * 60 * 60);
+                break;
+            default:
+                break;
         }
 
         threadGroup.setAttribute("enabled", enabled);
@@ -734,6 +779,13 @@ public class JmeterDocumentParser implements DocumentParser {
             ((List<?>) holds).remove(0);
             hold = o.toString();
         }
+        Object units = context.getProperty("unit");
+        String unit = "S";
+        if (units instanceof List) {
+            Object o = ((List<?>) units).get(0);
+            ((List<?>) units).remove(0);
+            unit = o.toString();
+        }
         Object deleteds = context.getProperty("deleted");
         String deleted = "false";
         if (deleteds instanceof List) {
@@ -747,6 +799,17 @@ public class JmeterDocumentParser implements DocumentParser {
             Object o = ((List<?>) enableds).get(0);
             ((List<?>) enableds).remove(0);
             enabled = o.toString();
+        }
+
+        switch (unit) {
+            case "M":
+                hold = String.valueOf(Long.parseLong(hold) * 60);
+                break;
+            case "H":
+                hold = String.valueOf(Long.parseLong(hold) * 60 * 60);
+                break;
+            default:
+                break;
         }
 
         threadGroup.setAttribute("enabled", enabled);
@@ -901,10 +964,10 @@ public class JmeterDocumentParser implements DocumentParser {
     }
 
     private Element createStringProp(Document document, String name, String value) {
-        Element unit = document.createElement(STRING_PROP);
-        unit.setAttribute("name", name);
-        unit.appendChild(document.createTextNode(value));
-        return unit;
+        Element element = document.createElement(STRING_PROP);
+        element.setAttribute("name", name);
+        element.appendChild(document.createTextNode(value));
+        return element;
     }
 
     private void processThreadGroupName(Element threadGroup) {

@@ -112,7 +112,17 @@ export default {
           }
         })
       } else {
-        sign = false;
+        // 如果有环境，检查环境
+        if (this.envMap && this.envMap.size > 0) {
+          this.projectIds.forEach(id => {
+            if (!this.envMap.get(id)) {
+              sign = false;
+              return false;
+            }
+          })
+        } else {
+          sign = false;
+        }
       }
 
       if (!sign) {

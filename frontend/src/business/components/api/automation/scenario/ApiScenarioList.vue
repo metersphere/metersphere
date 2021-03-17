@@ -146,7 +146,7 @@
         <!--测试计划-->
         <el-drawer :visible.sync="planVisible" :destroy-on-close="true" direction="ltr" :withHeader="false"
                    :title="$t('test_track.plan_view.test_result')" :modal="false" size="90%">
-          <ms-test-plan-list @addTestPlan="addTestPlan" @cancel="cancel"/>
+          <ms-test-plan-list @addTestPlan="addTestPlan(arguments)" @cancel="cancel" ref="testPlanList" :row="selectRows"/>
         </el-drawer>
       </div>
     </el-card>
@@ -282,7 +282,9 @@
           },
           {
             name: this.$t('test_track.case.batch_move_case'), handleClick: this.handleBatchMove
-          }
+          },
+          {name: this.$t('api_test.definition.request.batch_delete'), handleClick: this.handleDeleteBatch},
+
         ],
         isSelectAllDate: false,
         selectRows: new Set(),
@@ -324,7 +326,7 @@
           ],
           principal: [],
           environmentId: [],
-          projectEnv: []
+          projectEnv: [],
         },
       }
     },
@@ -502,17 +504,31 @@
       cancel() {
         this.planVisible = false;
       },
-      addTestPlan(plans) {
-        let obj = {planIds: plans, scenarioIds: this.selection};
+      addTestPlan(params) {
+        let obj = {planIds: params[0], scenarioIds: this.selection};
 
-        obj.projectId = getCurrentProjectID();
-        obj.selectAllDate = this.isSelectAllDate;
-        obj.unSelectIds = this.unSelection;
-        obj = Object.assign(obj, this.condition);
+        // obj.projectId = getCurrentProjectID();
+        // obj.selectAllDate = this.isSelectAllDate;
+        // obj.unSelectIds = this.unSelection;
+        // obj = Object.assign(obj, this.condition);
+
+        // todo 选取全部数据
+        if (this.isSelectAllDate) {
+          this.$warning("暂不支持批量添加所有场景到测试计划！");
+        }
 
         this.planVisible = false;
+
+        let map = new Map();
+        this.selectRows.forEach(row => {
+          map.set(row.id, row.projectIds);
+        })
+        obj.mapping = strMapToObj(map);
+        obj.envMap = strMapToObj(params[1]);
+
         this.$post("/api/automation/scenario/plan", obj, response => {
           this.$success(this.$t("commons.save_success"));
+          this.search();
         });
       },
       getReport() {
@@ -588,6 +604,29 @@
           this.search();
         })
       },
+      handleDeleteBatch(row) {
+        if (this.trashEnable) {
+          let ids = Array.from(this.selectRows).map(row => row.id);
+          this.$post('/api/automation/deleteBatch/', ids, () => {
+            this.$success(this.$t('commons.delete_success'));
+            this.search();
+          });
+          return;
+        }
+        this.$alert(this.$t('api_test.definition.request.delete_confirm') + " ？", '', {
+          confirmButtonText: this.$t('commons.confirm'),
+          callback: (action) => {
+            if (action === 'confirm') {
+              let ids = Array.from(this.selectRows).map(row => row.id);
+              this.$post('/api/automation/removeToGc/', ids, () => {
+                this.$success(this.$t('commons.delete_success'));
+                this.search();
+              });
+            }
+          }
+        });
+      },
+
       execute(row) {
         this.infoDb = false;
         let url = "/api/automation/run";
@@ -726,9 +765,6 @@
     z-index: auto !important;
   }
 
-  /deep/ el-table__fixed-right {
-
-  }
 
   /deep/ .el-table__fixed-right {
     height: 100% !important;

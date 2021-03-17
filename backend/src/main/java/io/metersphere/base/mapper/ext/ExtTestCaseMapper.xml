@@ -306,6 +306,9 @@
                 or test_case.num like CONCAT('%', #{request.name},'%')
                 or test_case.tags like CONCAT('%', #{request.name},'%'))
             </if>
+            <if test="request.createTime >0">
+                AND test_case.create_time >= #{request.createTime}
+            </if>
             <if test="request.nodeIds != null and request.nodeIds.size() > 0">
                 and test_case.node_id in
                 <foreach collection="request.nodeIds" item="nodeId" separator="," open="(" close=")">
@@ -316,7 +319,96 @@
                 and test_case.project_id = #{request.projectId}
             </if>
             <include refid="filters"/>
+            <if test="request.caseCoverage == 'uncoverage' ">
+                and test_case.test_id is null and test_case.type != 'functional'
+            </if>
+            <if test="request.caseCoverage == 'coverage' ">
+                and test_case.test_id is not null and test_case.type != 'functional'
+            </if>
         </where>
     </sql>
+
+    <select id="countPriority" resultType="io.metersphere.track.response.TrackCountResult">
+        SELECT test_case.priority as groupField,count(id) AS countNumber FROM test_case WHERE project_id = #{projectId} GROUP BY test_case.priority
+    </select>
+
+    <!-- todo 排除删除的用例统计-->
+    <select id="countCreatedThisWeek" resultType="java.lang.Long">
+        SELECT count(id) AS countNumber FROM test_case WHERE test_case.project_id = #{projectId}
+          AND create_time BETWEEN #{firstDayTimestamp} AND #{lastDayTimestamp}
+    </select>
+    <!-- todo 排除删除的用例统计-->
+    <select id="countStatus" resultType="io.metersphere.track.response.TrackCountResult">
+        SELECT review_status AS groupField,count(id) AS countNumber FROM test_case  WHERE project_id = #{projectId} GROUP BY test_case.review_status
+    </select>
+
+    <select id="countRelevance" resultType="io.metersphere.track.response.TrackCountResult">
+        SELECT type AS groupField, count(id) AS countNumber FROM test_case WHERE test_case.project_id = #{projectId} GROUP BY test_case.type
+    </select>
+    <select id="countRelevanceCreatedThisWeek" resultType="java.lang.Long">
+        SELECT count(id) AS countNumber FROM test_case WHERE test_case.project_id = #{projectId}
+        AND create_time BETWEEN #{firstDayTimestamp} AND #{lastDayTimestamp}
+    </select>
+
+    <select id="countCoverage" resultType="io.metersphere.track.response.TrackCountResult">
+        SELECT count(test_case.id) AS countNumber,
+               if(test_case.test_id is null,"uncoverage","coverage") AS groupField
+        FROM test_case WHERE test_case.project_id=#{projectId} and test_case.type != 'functional' GROUP BY groupField
+    </select>
+    <select id="countFuncMaintainer" resultType="io.metersphere.track.response.TrackCountResult">
+        select count(tc.id) as countNumber, user.name as groupField from test_case tc right join user on tc.maintainer = user.id
+        where tc.project_id = #{projectId}
+        group by tc.maintainer
+    </select>
+    <select id="countRelevanceMaintainer" resultType="io.metersphere.track.response.TrackCountResult">
+        select count(tc.id) as countNumber, user.name as groupField from test_case tc right join user on tc.maintainer = user.id
+        where tc.project_id = #{projectId} and tc.test_id is not null
+        group by tc.maintainer
+    </select>
+    <select id="getTestPlanBug" resultType="int">
+        select count(tci.issues_id) from test_plan_test_case tptc join test_case_issues tci on tptc.case_id = tci.test_case_id
+        where tptc.plan_id = #{planId};
+    </select>
+    <select id="getTestPlanCase" resultType="int">
+        select count(s)
+        from (
+                 select id as s
+                 from test_plan_test_case tptc
+                 where tptc.plan_id = #{planId}
+                 union all
+                 select id as s
+                 from test_plan_api_scenario tpas
+                 where tpas.test_plan_id = #{planId}
+                 union all
+                 select id as s
+                 from test_plan_api_case tpac
+                 where tpac.test_plan_id = #{planId}
+                 union all
+                 select id as s
+                 from test_plan_load_case tplc
+                 where tplc.test_plan_id = #{planId}
+             ) as temp
+    </select>
+    <select id="getTestPlanPassCase" resultType="int">
+        select count(s)
+        from (
+                 select id as s
+                 from test_plan_test_case tptc
+                 where tptc.plan_id = #{planId} and tptc.status = 'Pass'
+                 union all
+                 select id as s
+                 from test_plan_api_scenario tpas
+                 where tpas.test_plan_id = #{planId} and tpas.last_result = 'Success'
+                 union all
+                 select id as s
+                 from test_plan_api_case tpac
+                 where tpac.test_plan_id = #{planId} and tpac.status = 'success'
+                 union all
+                 select id as s
+                 from test_plan_load_case tplc
+                 where tplc.test_plan_id = #{planId} and tplc.status = 'success'
+             ) as temp
+    </select>
+
 
 </mapper>

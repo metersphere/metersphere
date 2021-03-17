@@ -10,6 +10,7 @@ public class MsAssertionJsonPath extends MsAssertionType {
     private String expect;
     private String expression;
     private String description;
+    private String option = "REGEX";
 
     public MsAssertionJsonPath() {
         setType(MsAssertionType.JSON_PATH);

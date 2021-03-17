@@ -15,7 +15,7 @@ import io.metersphere.api.service.ApiTestEnvironmentService;
 import io.metersphere.base.domain.ApiScenarioWithBLOBs;
 import io.metersphere.base.domain.ApiTestEnvironmentWithBLOBs;
 import io.metersphere.commons.utils.CommonBeanFactory;
-import io.metersphere.commons.utils.ScriptEngineUtils;
+import io.metersphere.commons.utils.FileUtils;
 import io.metersphere.commons.utils.SessionUtils;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -59,7 +59,7 @@ public class MsScenario extends MsTestElement {
     @JSONField(ordinal = 27)
     private Map<String, String> environmentMap;
 
-    private static final String BODY_FILE_DIR = "/opt/metersphere/data/body";
+    private static final String BODY_FILE_DIR = FileUtils.BODY_FILE_DIR;
 
     public MsScenario() {
     }
@@ -85,6 +85,7 @@ public class MsScenario extends MsTestElement {
                     JSONObject element = JSON.parseObject(scenario.getScenarioDefinition());
                     hashTree = mapper.readValue(element.getString("hashTree"), new TypeReference<LinkedList<MsTestElement>>() {
                     });
+                    OldVersionUtil.transferHashTree(hashTree);
                     // 场景变量
                     if (StringUtils.isNotEmpty(element.getString("variables"))) {
                         LinkedList<ScenarioVariable> variables = mapper.readValue(element.getString("variables"),
@@ -108,7 +109,7 @@ public class MsScenario extends MsTestElement {
         }
         // 设置共享cookie
         config.setEnableCookieShare(enableCookieShare);
-        Map<String,EnvironmentConfig> envConfig = new HashMap<>(16);
+        Map<String, EnvironmentConfig> envConfig = new HashMap<>(16);
         // 兼容历史数据
         if (environmentMap == null || environmentMap.isEmpty()) {
             environmentMap = new HashMap<>(16);
@@ -167,7 +168,9 @@ public class MsScenario extends MsTestElement {
             headers.stream().filter(KeyValue::isValid).filter(KeyValue::isEnable).forEach(keyValue ->
                     headerManager.add(new Header(keyValue.getName(), keyValue.getValue()))
             );
-            tree.add(headerManager);
+            if (headerManager.getHeaders().size() > 0) {
+                tree.add(headerManager);
+            }
         }
     }
 

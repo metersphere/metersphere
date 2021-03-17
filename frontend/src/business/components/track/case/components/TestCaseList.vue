@@ -1,12 +1,9 @@
 <template>
 
-  <div class="card-container">
-    <el-card class="card-content" v-loading="result.loading">
-      <template v-slot:header>
-        <ms-table-header :is-tester-permission="true" :condition.sync="condition" @search="initTableData"
-                         :tip="$t('commons.search_by_name_or_id')" title="" :show-create="false"
-        />
-      </template>
+  <div class="card-container" v-loading="result.loading">
+
+      <ms-table-header :is-tester-permission="true" :condition.sync="condition" @search="initTableData"
+                       :tip="$t('commons.search_by_name_or_id')" title="" :show-create="false"/>
       <el-table
           border
           :data="tableData"
@@ -168,7 +165,6 @@
 
       <ms-table-pagination :change="initTableData" :current-page.sync="currentPage" :page-size.sync="pageSize"
                            :total="total"/>
-    </el-card>
 
     <batch-edit ref="batchEdit" @batchEdit="batchEdit"
                 :typeArr="typeArr" :value-arr="valueArr" :dialog-title="$t('test_track.case.batch_edit_case')"/>
@@ -316,6 +312,7 @@ export default {
       currentCaseId: null,
       projectId: "",
       selectDataCounts: 0,
+      selectDataRange: "all"
     }
   },
   props: {
@@ -330,10 +327,27 @@ export default {
     },
     moduleOptions: {
       type: Array
+    },
+    trashEnable: {
+      type: Boolean,
+      default: false,
     }
   },
   created: function () {
     this.$emit('setCondition', this.condition);
+    if (this.trashEnable) {
+      this.condition.filters = {status: ["Trash"]};
+    } else {
+      this.condition.filters = {status: ["Prepare", "Pass", "UnPass"]};
+    }
+    this.initTableData();
+  },
+  activated() {
+    if (this.trashEnable) {
+      this.condition.filters = {status: ["Trash"]};
+    } else {
+      this.condition.filters = {status: ["Prepare", "Pass", "UnPass"]};
+    }
     this.initTableData();
   },
   watch: {
@@ -348,6 +362,11 @@ export default {
   methods: {
     customHeader() {
       this.$refs.headerCustom.open(this.tableLabel)
+    },
+    getSelectDataRange() {
+      let dataRange = this.$route.params.dataSelectRange;
+      let dataType = this.$route.params.dataType;
+      this.selectDataRange = dataType === 'case' ? dataRange : 'all';
     },
     initTableData() {
       this.projectId = getCurrentProjectID();
@@ -367,6 +386,29 @@ export default {
       this.getData();
     },
     getData() {
+      this.getSelectDataRange();
+      this.condition.selectThisWeedData = false;
+      this.condition.caseCoverage = null;
+      switch (this.selectDataRange) {
+        case 'thisWeekCount':
+          this.condition.selectThisWeedData = true;
+          break;
+        case 'uncoverage':
+          this.condition.caseCoverage = 'uncoverage';
+          break;
+        case 'coverage':
+          this.condition.caseCoverage = 'coverage';
+          break;
+        case 'Prepare':
+          this.condition.filters.status = [this.selectDataRange];
+          break;
+        case 'Pass':
+          this.condition.filters.status = [this.selectDataRange];
+          break;
+        case 'UnPass':
+          this.condition.filters.status = [this.selectDataRange];
+          break;
+      }
       if (this.projectId) {
         this.condition.projectId = this.projectId;
         this.result = this.$post(this.buildPagePath('/test/case/list'), this.condition, response => {

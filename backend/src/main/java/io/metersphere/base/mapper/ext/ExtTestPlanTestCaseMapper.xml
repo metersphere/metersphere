@@ -299,8 +299,8 @@
         select test_plan_test_case.*, test_case.*
         from test_plan_test_case
         inner join test_case on test_plan_test_case.case_id = test_case.id
-        where status != 'Prepare'
-        and status != 'Underway'
+        where test_plan_test_case.status != 'Prepare'
+        and test_plan_test_case.status != 'Underway'
         and test_plan_test_case.Executor = #{request.executor}
         and test_plan_test_case.plan_id in
         <foreach collection="request.planIds" item="planId" separator="," open="(" close=")">
@@ -402,6 +402,23 @@
             <if test="request.method != null">
                 and test_case.method = #{request.method}
             </if>
+        </where>
+    </select>
+
+    <select id="listForMinder" resultType="io.metersphere.track.dto.TestPlanCaseDTO">
+        select pc.id as id,
+               pc.executor, pc.status,
+               pc.update_time,
+               pc.plan_id as planId,
+               t.name, t.priority,
+               t.type, t.node_id,
+               t.steps, t.prerequisite,
+               t.remark,
+               t.node_path, t.method, t.num
+        from test_plan_test_case pc
+        inner join test_case t on pc.case_id = t.id
+        <where>
+            pc.plan_id = #{planId}
         </where>
     </select>
 

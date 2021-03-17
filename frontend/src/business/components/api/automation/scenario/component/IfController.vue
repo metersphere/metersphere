@@ -5,6 +5,8 @@
     :data="controller"
     :show-collapse="false"
     :draggable="true"
+    :is-max="isMax"
+    :show-btn="showBtn"
     color="#E6A23C"
     background-color="#FCF6EE"
     :title="$t('api_test.automation.if_controller')">
@@ -14,11 +16,11 @@
       <el-input draggable size="small" v-model="controller.variable" style="width: 20%" :placeholder="$t('api_test.request.condition_variable')"/>
 
       <el-select v-model="controller.operator" :placeholder="$t('commons.please_select')" size="small"
-                 @change="change" style="width: 10%;margin-left: 10px">
+                 @change="change" class="ms-select">
         <el-option v-for="o in operators" :key="o.value" :label="$t(o.label)" :value="o.value"/>
       </el-select>
 
-      <el-input draggable size="small" v-model="controller.value" :placeholder="$t('api_test.value')" v-if="!hasEmptyOperator" style="width: 20%;margin-left: 20px"/>
+      <el-input draggable size="small" v-model="controller.value" :placeholder="$t('api_test.value')" v-if="!hasEmptyOperator" class="ms-btn"/>
     </template>
 
   </api-base-component>
@@ -26,12 +28,21 @@
 
 <script>
   import ApiBaseComponent from "../common/ApiBaseComponent";
+
   export default {
     name: "MsIfController",
     components: {ApiBaseComponent},
     props: {
       controller: {},
       node: {},
+      isMax: {
+        type: Boolean,
+        default: false,
+      },
+      showBtn: {
+        type: Boolean,
+        default: true,
+      },
       index: Object,
       draggable: {
         type: Boolean,
@@ -98,4 +109,13 @@
 </script>
 
 <style scoped>
+  .ms-btn {
+    width: 20%;
+    margin-left: 20px;
+  }
+
+  .ms-select {
+    width: 10%;
+    margin-left: 10px;
+  }
 </style>

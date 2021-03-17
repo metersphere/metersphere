@@ -52,6 +52,9 @@ public class MsDubboSampler extends MsTestElement {
     @JSONField(ordinal = 59)
     private List<KeyValue> attachmentArgs;
 
+    @JSONField(ordinal = 60)
+    private String useEnvironment;
+
 //    @JSONField(ordinal = 60)
 //    private Object requestResult;
 
@@ -82,6 +85,7 @@ public class MsDubboSampler extends MsTestElement {
         }
         sampler.setProperty(TestElement.TEST_CLASS, DubboSample.class.getName());
         sampler.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("DubboSampleGui"));
+        sampler.setProperty("MS-ID", this.getId());
 
         sampler.addTestElement(configCenter(this.getConfigCenter()));
         sampler.addTestElement(registryCenter(this.getRegistryCenter()));

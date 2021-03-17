@@ -11,10 +11,12 @@ import io.metersphere.api.service.ApiAutomationService;
 import io.metersphere.base.domain.ApiScenario;
 import io.metersphere.base.domain.ApiScenarioWithBLOBs;
 import io.metersphere.base.domain.Schedule;
+import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.commons.utils.SessionUtils;
+import io.metersphere.controller.request.ScheduleRequest;
 import io.metersphere.track.request.testcase.ApiCaseRelevanceRequest;
 import io.metersphere.track.request.testplan.FileOperationRequest;
 import org.apache.shiro.authz.annotation.Logical;
@@ -102,12 +104,16 @@ public class ApiAutomationController {
     @PostMapping(value = "/run")
     public String run(@RequestBody RunScenarioRequest request) {
         request.setExecuteType(ExecuteType.Completed.name());
+        request.setTriggerMode(ApiRunMode.SCENARIO.name());
+        request.setRunMode(ApiRunMode.SCENARIO.name());
         return apiAutomationService.run(request);
     }
 
     @PostMapping(value = "/run/batch")
     public String runBatch(@RequestBody RunScenarioRequest request) {
         request.setExecuteType(ExecuteType.Saved.name());
+        request.setTriggerMode(ApiRunMode.SCENARIO.name());
+        request.setRunMode(ApiRunMode.SCENARIO.name());
         return apiAutomationService.run(request);
     }
 
@@ -138,13 +144,18 @@ public class ApiAutomationController {
         apiAutomationService.relevance(request);
     }
 
+    @PostMapping("/relevance/review")
+    public  void testCaseReviewRelevance(@RequestBody ApiCaseRelevanceRequest request){
+        apiAutomationService.relevanceReview(request);
+    }
+
     @PostMapping(value = "/schedule/update")
     public void updateSchedule(@RequestBody Schedule request) {
         apiAutomationService.updateSchedule(request);
     }
 
     @PostMapping(value = "/schedule/create")
-    public void createSchedule(@RequestBody Schedule request) {
+    public void createSchedule(@RequestBody ScheduleRequest request) {
         apiAutomationService.createSchedule(request);
     }
 

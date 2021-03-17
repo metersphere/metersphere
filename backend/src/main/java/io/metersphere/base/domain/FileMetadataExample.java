@@ -494,63 +494,73 @@ public class FileMetadataExample {
             return (Criteria) this;
         }
 
-        public Criteria andSortIsNull() {
-            addCriterion("sort is null");
+        public Criteria andProjectIdIsNull() {
+            addCriterion("project_id is null");
             return (Criteria) this;
         }
 
-        public Criteria andSortIsNotNull() {
-            addCriterion("sort is not null");
+        public Criteria andProjectIdIsNotNull() {
+            addCriterion("project_id is not null");
             return (Criteria) this;
         }
 
-        public Criteria andSortEqualTo(Integer value) {
-            addCriterion("sort =", value, "sort");
+        public Criteria andProjectIdEqualTo(String value) {
+            addCriterion("project_id =", value, "projectId");
             return (Criteria) this;
         }
 
-        public Criteria andSortNotEqualTo(Integer value) {
-            addCriterion("sort <>", value, "sort");
+        public Criteria andProjectIdNotEqualTo(String value) {
+            addCriterion("project_id <>", value, "projectId");
             return (Criteria) this;
         }
 
-        public Criteria andSortGreaterThan(Integer value) {
-            addCriterion("sort >", value, "sort");
+        public Criteria andProjectIdGreaterThan(String value) {
+            addCriterion("project_id >", value, "projectId");
             return (Criteria) this;
         }
 
-        public Criteria andSortGreaterThanOrEqualTo(Integer value) {
-            addCriterion("sort >=", value, "sort");
+        public Criteria andProjectIdGreaterThanOrEqualTo(String value) {
+            addCriterion("project_id >=", value, "projectId");
             return (Criteria) this;
         }
 
-        public Criteria andSortLessThan(Integer value) {
-            addCriterion("sort <", value, "sort");
+        public Criteria andProjectIdLessThan(String value) {
+            addCriterion("project_id <", value, "projectId");
             return (Criteria) this;
         }
 
-        public Criteria andSortLessThanOrEqualTo(Integer value) {
-            addCriterion("sort <=", value, "sort");
+        public Criteria andProjectIdLessThanOrEqualTo(String value) {
+            addCriterion("project_id <=", value, "projectId");
             return (Criteria) this;
         }
 
-        public Criteria andSortIn(List<Integer> values) {
-            addCriterion("sort in", values, "sort");
+        public Criteria andProjectIdLike(String value) {
+            addCriterion("project_id like", value, "projectId");
             return (Criteria) this;
         }
 
-        public Criteria andSortNotIn(List<Integer> values) {
-            addCriterion("sort not in", values, "sort");
+        public Criteria andProjectIdNotLike(String value) {
+            addCriterion("project_id not like", value, "projectId");
             return (Criteria) this;
         }
 
-        public Criteria andSortBetween(Integer value1, Integer value2) {
-            addCriterion("sort between", value1, value2, "sort");
+        public Criteria andProjectIdIn(List<String> values) {
+            addCriterion("project_id in", values, "projectId");
             return (Criteria) this;
         }
 
-        public Criteria andSortNotBetween(Integer value1, Integer value2) {
-            addCriterion("sort not between", value1, value2, "sort");
+        public Criteria andProjectIdNotIn(List<String> values) {
+            addCriterion("project_id not in", values, "projectId");
+            return (Criteria) this;
+        }
+
+        public Criteria andProjectIdBetween(String value1, String value2) {
+            addCriterion("project_id between", value1, value2, "projectId");
+            return (Criteria) this;
+        }
+
+        public Criteria andProjectIdNotBetween(String value1, String value2) {
+            addCriterion("project_id not between", value1, value2, "projectId");
             return (Criteria) this;
         }
     }

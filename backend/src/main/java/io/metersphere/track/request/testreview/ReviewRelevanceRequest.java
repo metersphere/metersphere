@@ -24,4 +24,6 @@ public class ReviewRelevanceRequest {
      * 具体选择要关联的用例
      */
     private List<String> testCaseIds = new ArrayList<>();
+
+    private  Boolean checked;
 }

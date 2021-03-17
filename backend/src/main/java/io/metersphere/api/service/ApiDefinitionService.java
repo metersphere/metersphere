@@ -10,6 +10,7 @@ import io.metersphere.api.dto.datacount.ApiDataCountResult;
 import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.dto.definition.parse.ApiDefinitionImport;
 import io.metersphere.api.dto.definition.parse.ApiDefinitionImportParserFactory;
+import io.metersphere.api.dto.definition.parse.Swagger3Parser;
 import io.metersphere.api.dto.definition.request.ParameterConfig;
 import io.metersphere.api.dto.definition.request.ScheduleInfoSwaggerUrlRequest;
 import io.metersphere.api.dto.definition.request.sampler.MsHTTPSamplerProxy;
@@ -27,6 +28,7 @@ import io.metersphere.base.mapper.ext.*;
 import io.metersphere.commons.constants.*;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
+import io.metersphere.controller.request.ScheduleRequest;
 import io.metersphere.i18n.Translator;
 import io.metersphere.job.sechedule.SwaggerUrlImportJob;
 import io.metersphere.service.FileService;
@@ -47,6 +49,7 @@ import sun.security.util.Cache;
 
 import javax.annotation.Resource;
 import java.io.File;
+import java.net.MalformedURLException;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -91,7 +94,7 @@ public class ApiDefinitionService {
 
     private static Cache cache = Cache.newHardMemoryCache(0, 3600 * 24);
 
-    private static final String BODY_FILE_DIR = "/opt/metersphere/data/body";
+    private static final String BODY_FILE_DIR = FileUtils.BODY_FILE_DIR;
 
     public List<ApiDefinitionResult> list(ApiDefinitionRequest request) {
         request = this.initRequest(request, true, true);
@@ -196,7 +199,7 @@ public class ApiDefinitionService {
                     .andProtocolEqualTo(request.getProtocol()).andPathEqualTo(request.getPath())
                     .andProjectIdEqualTo(request.getProjectId()).andIdNotEqualTo(request.getId());
             Project project = projectMapper.selectByPrimaryKey(request.getProjectId());
-            if (apiDefinitionMapper.countByExample(example) > 0 && (project.getRepeatable() == null || !project.getRepeatable())) {
+            if (apiDefinitionMapper.countByExample(example) > 0 && (project == null || project.getRepeatable() == null || !project.getRepeatable())) {
                 MSException.throwException(Translator.get("api_definition_url_not_repeating"));
             }
         } else {
@@ -213,7 +216,6 @@ public class ApiDefinitionService {
         ApiDefinitionExample example = new ApiDefinitionExample();
         if (request.getProtocol().equals(RequestType.HTTP)) {
             example.createCriteria().andMethodEqualTo(request.getMethod()).andStatusNotEqualTo("Trash")
-                    .andProtocolEqualTo(request.getProtocol()).andPathEqualTo(request.getPath())
                     .andProjectIdEqualTo(request.getProjectId()).andIdNotEqualTo(request.getId());
             return apiDefinitionMapper.selectByExample(example);
         } else {
@@ -588,6 +590,10 @@ public class ApiDefinitionService {
         apiTestCaseService.relevanceByApi(request);
     }
 
+    public void testCaseReviewRelevance(ApiCaseRelevanceRequest request) {
+        apiTestCaseService.relevanceByApiByReview(request);
+    }
+
     /**
      * 数据统计-接口类型
      *
@@ -672,6 +678,12 @@ public class ApiDefinitionService {
         calculateResult(resList);
         return resList;
     }
+    public List<ApiDefinitionResult> listRelevanceReview(ApiDefinitionRequest request) {
+        request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
+        List<ApiDefinitionResult> resList = extApiDefinitionMapper.listRelevanceReview(request);
+        calculateResult(resList);
+        return resList;
+    }
 
     public void calculateResult(List<ApiDefinitionResult> resList) {
         if (!resList.isEmpty()) {
@@ -701,7 +713,7 @@ public class ApiDefinitionService {
     }
 
     /*swagger定时导入*/
-    public void createSchedule(Schedule request) {
+    public void createSchedule(ScheduleRequest request) throws MalformedURLException {
         /*保存swaggerUrl*/
         SwaggerUrlProject swaggerUrlProject = new SwaggerUrlProject();
         swaggerUrlProject.setId(UUID.randomUUID().toString());
@@ -713,6 +725,9 @@ public class ApiDefinitionService {
         scheduleService.addSwaggerUrlSchedule(swaggerUrlProject);
         request.setResourceId(swaggerUrlProject.getId());
         Schedule schedule = scheduleService.buildApiTestSchedule(request);
+        schedule.setProjectId(swaggerUrlProject.getProjectId());
+        java.net.URL swaggerUrl = new java.net.URL(swaggerUrlProject.getSwaggerUrl());
+        schedule.setName(swaggerUrl.getHost()); //  swagger 定时任务的 name 设置为 swaggerURL 的域名
         schedule.setJob(SwaggerUrlImportJob.class.getName());
         schedule.setGroup(ScheduleGroup.SWAGGER_IMPORT.name());
         schedule.setType(ScheduleType.CRON.name());
@@ -762,18 +777,27 @@ public class ApiDefinitionService {
         scheduleService.addOrUpdateCronJob(request, SwaggerUrlImportJob.getJobKey(request.getResourceId()), SwaggerUrlImportJob.getTriggerKey(request.getResourceId()), SwaggerUrlImportJob.class);
     }
 
-    public ApiExportResult export(ApiBatchRequest request) {
+    public ApiExportResult export(ApiBatchRequest request, String type) {
+        ApiExportResult apiExportResult;
         ServiceUtils.getSelectAllIds(request, request.getCondition(),
                 (query) -> extApiDefinitionMapper.selectIds(query));
         ApiDefinitionExample example = new ApiDefinitionExample();
         example.createCriteria().andIdIn(request.getIds());
-        ApiExportResult apiExportResult = new ApiExportResult();
-        apiExportResult.setData(apiDefinitionMapper.selectByExampleWithBLOBs(example));
-        apiExportResult.setCases(apiTestCaseService.selectCasesBydApiIds(request.getIds()));
-        apiExportResult.setProjectName(request.getProjectId());
-        apiExportResult.setProtocol(request.getProtocol());
-        apiExportResult.setProjectId(request.getProjectId());
-        apiExportResult.setVersion(System.getenv("MS_VERSION"));
+
+        if (StringUtils.equals(type, "MS")) { //  导出为 Metersphere 格式
+            apiExportResult = new MsApiExportResult();
+            ((MsApiExportResult) apiExportResult).setData(apiDefinitionMapper.selectByExampleWithBLOBs(example));
+            ((MsApiExportResult) apiExportResult).setCases(apiTestCaseService.selectCasesBydApiIds(request.getIds()));
+            ((MsApiExportResult) apiExportResult).setProjectName(request.getProjectId());
+            ((MsApiExportResult) apiExportResult).setProtocol(request.getProtocol());
+            ((MsApiExportResult) apiExportResult).setProjectId(request.getProjectId());
+            ((MsApiExportResult) apiExportResult).setVersion(System.getenv("MS_VERSION"));
+        }
+        else { //  导出为 Swagger 格式
+            Swagger3Parser swagger3Parser = new Swagger3Parser();
+            System.out.println(apiDefinitionMapper.selectByExampleWithBLOBs(example));
+            apiExportResult = swagger3Parser.swagger3Export(apiDefinitionMapper.selectByExampleWithBLOBs(example));
+        }
         return apiExportResult;
     }
 }

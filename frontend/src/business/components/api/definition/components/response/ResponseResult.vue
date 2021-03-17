@@ -151,7 +151,7 @@
           }
           this.reqMessages = this.$t('api_test.request.address') + ":\n" + this.response.url + "\n" +
             this.$t('api_test.scenario.headers') + ":\n" + this.response.headers + "\n" + "Cookies :\n" +
-            this.response.cookies + "\n" + "Bpdy:" + "\n" + this.response.body;
+            this.response.cookies + "\n" + "Body:" + "\n" + this.response.body;
         }
       },
     },

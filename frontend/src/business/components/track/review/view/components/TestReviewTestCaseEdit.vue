@@ -39,11 +39,14 @@
                       <el-divider direction="vertical"></el-divider>
 
                       <el-button type="success" size="mini"
-                                 :disabled="isReadOnly" :icon="testCase.reviewStatus === 'Pass' ? 'el-icon-check' : ''" @click="saveCase('Pass')">
+                                 :disabled="isReadOnly" :icon="testCase.reviewStatus === 'Pass' ? 'el-icon-check' : ''"
+                                 @click="saveCase('Pass')">
                         {{ $t('test_track.review.pass') }}
                       </el-button>
                       <el-button type="danger" size="mini"
-                                 :disabled="isReadOnly" :icon="testCase.reviewStatus === 'UnPass' ? 'el-icon-check' : ''" @click="saveCase('UnPass')">
+                                 :disabled="isReadOnly"
+                                 :icon="testCase.reviewStatus === 'UnPass' ? 'el-icon-check' : ''"
+                                 @click="saveCase('UnPass')">
                         {{ $t('test_track.review.un_pass') }}
                       </el-button>
                     </el-col>
@@ -66,28 +69,21 @@
                     </el-col>
                     <el-col :span="5">
                       <span class="cast_label">{{ $t('test_track.case.case_type') }}：</span>
-                      <span class="cast_item" v-if="testCase.type === 'functional'">{{
-                          $t('commons.functional')
-                        }}</span>
+                      <span class="cast_item" v-if="testCase.type === 'automation'">
+                         场景用例
+                      </span>
                       <span class="cast_item"
                             v-if="testCase.type === 'performance'">{{ $t('commons.performance') }}</span>
                       <span class="cast_item" v-if="testCase.type === 'api'">{{ $t('commons.api') }}</span>
+                      <span class="cast_item" v-if="testCase.type === 'testcase'">接口用例</span>
+
                     </el-col>
                   </el-row>
 
                   <el-row>
-                    <el-col :span="4" :offset="1">
-                      <span class="cast_label">{{ $t('test_track.case.method') }}：</span>
-                      <span v-if="testCase.method === 'manual'">{{ $t('test_track.case.manual') }}</span>
-                      <span v-if="testCase.method === 'auto'">{{ $t('test_track.case.auto') }}</span>
-                    </el-col>
-                    <el-col :span="5">
+                    <el-col :offset="1">
                       <span class="cast_label">{{ $t('test_track.case.module') }}：</span>
                       <span class="cast_item">{{ testCase.nodePath }}</span>
-                    </el-col>
-                    <el-col :span="4" :offset="1">
-                      <span class="cast_label">{{ $t('test_track.plan.plan_project') }}：</span>
-                      <span class="cast_item">{{ testCase.projectName }}</span>
                     </el-col>
                   </el-row>
 
@@ -98,7 +94,7 @@
                     </el-col>
                   </el-row>
 
-                  <el-row v-if="testCase.method === 'auto' && testCase.testId">
+                  <el-row>
                     <el-col class="test-detail" :span="20" :offset="1">
                       <el-tabs v-model="activeTab" type="border-card">
                         <el-tab-pane name="detail" :label="$t('test_track.plan_view.test_detail')">
@@ -108,12 +104,17 @@
                                                    :is-read-only="true"
                                                    :id="testCase.testId"
                                                    ref="performanceTestDetail"/>
+                          <api-case-item :type="mark" :api="api" :api-case="apiCase" v-if="testCase.type==='testcase'"
+                                         ref="apiCaseConfig"/>
+                          <ms-edit-api-scenario :type="mark" v-if="testCase.type==='automation'" :currentScenario="currentScenario"
+                                                ref="autoScenarioConfig"></ms-edit-api-scenario>
+
                         </el-tab-pane>
                       </el-tabs>
                     </el-col>
                   </el-row>
 
-                  <el-row v-if="testCase.method && testCase.method !== 'auto'">
+                  <el-row v-if="testCase.type === 'function'">
                     <el-col :span="20" :offset="1">
                       <div>
                         <span class="cast_label">{{ $t('test_track.case.steps') }}：</span>
@@ -229,7 +230,8 @@
                 <i class="el-icon-refresh" @click="getComments(testCase)"
                    style="margin-left:10px;font-size: 14px; cursor: pointer"/>
               </template>
-              <review-comment :comments="comments" :case-id="testCase.caseId" :review-id="testCase.reviewId" @getComments="getComments"/>
+              <review-comment :comments="comments" :case-id="testCase.caseId" :review-id="testCase.reviewId"
+                              @getComments="getComments"/>
             </el-card>
           </el-col>
         </div>
@@ -248,9 +250,11 @@ import PerformanceTestDetail from "../../../plan/view/comonents/test/Performance
 import ApiTestResult from "../../../plan/view/comonents/test/ApiTestResult";
 import ApiTestDetail from "../../../plan/view/comonents/test/ApiTestDetail";
 import TestPlanTestCaseStatusButton from "../../../plan/common/TestPlanTestCaseStatusButton";
-import {listenGoBack, removeGoBackListener} from "@/common/js/utils";
+import {getCurrentProjectID, listenGoBack, removeGoBackListener} from "@/common/js/utils";
 import ReviewComment from "../../commom/ReviewComment";
 import TestCaseAttachment from "@/business/components/track/case/components/TestCaseAttachment";
+import ApiCaseItem from "@/business/components/api/definition/components/case/ApiCaseItem";
+import MsEditApiScenario from "@/business/components/api/automation/scenario/EditApiScenario"
 
 export default {
   name: "TestReviewTestCaseEdit",
@@ -261,7 +265,10 @@ export default {
     ApiTestDetail,
     TestPlanTestCaseStatusButton,
     ReviewComment,
-    TestCaseAttachment
+    TestCaseAttachment,
+    ApiCaseItem,
+    MsEditApiScenario
+
   },
   data() {
     return {
@@ -277,7 +284,11 @@ export default {
       users: [],
       activeName: 'comment',
       comments: [],
-      tableData: []
+      tableData: [],
+      currentScenario: {},
+      mark: 'detail',
+      api: {},
+      apiCase: {},
     };
   },
   props: {
@@ -378,16 +389,55 @@ export default {
       listenGoBack(this.handleClose);
       this.initData(testCase);
       this.getComments(testCase);
+      this.getApiTestCase(testCase);
+      this.getCurrentScenario(testCase)
+    },
+    getApiTestCase(testCase) {
+      let param = {}
+      param.projectId = getCurrentProjectID();
+      param.id = testCase.testId;
+      this.result = this.$post("/api/testcase/list", param, response => {
+        let apiCaseList = []
+        this.apiCaseList = response.data;
+        this.apiCaseList.forEach(apiCase => {
+          if (apiCase.tags && apiCase.tags.length > 0) {
+            apiCase.tags = JSON.parse(apiCase.tags);
+            this.$set(apiCase, 'selected', false);
+          }
+          if (Object.prototype.toString.call(apiCase.request).match(/\[object (\w+)\]/)[1].toLowerCase() != 'object') {
+            apiCase.request = JSON.parse(apiCase.request);
+          }
+          if (!apiCase.request.hashTree) {
+            apiCase.request.hashTree = [];
+          }
+          this.apiCase = apiCase
+          this.handleTestCase(apiCase)
+        })
+
+      });
+    },
+    getCurrentScenario(testCase) {
+      this.result = this.$get("/api/automation/getApiScenario/" + testCase.testId, response => {
+        this.currentScenario=response.data
+      });
+    },
+
+    handleTestCase(testCase) {
+      this.$get('/api/definition/get/' + testCase.apiDefinitionId, (response) => {
+        this.api = response.data;
+      });
     },
     initTest() {
       this.$nextTick(() => {
         if (this.testCase.testId && this.testCase.testId !== 'other') {
-          if (this.testCase.method === 'auto') {
-            if (this.$refs.apiTestDetail && this.testCase.type === 'api') {
-              this.$refs.apiTestDetail.init();
-            } else if (this.testCase.type === 'performance') {
-              this.$refs.performanceTestDetail.init();
-            }
+          if (this.$refs.apiTestDetail && this.testCase.type === 'api') {
+            this.$refs.apiTestDetail.init();
+          } else if (this.testCase.type === 'performance') {
+            this.$refs.performanceTestDetail.init();
+          } else if (this.testCase.type === 'testcase') {
+            this.$refs.apiCaseConfig.active(this.api);
+          } else if (this.testCase.type === 'automation') {
+             this.$refs.autoScenarioConfig.showAll();
           }
         }
       });
