@@ -8,4 +8,5 @@ import lombok.Setter;
 public class DemandDTO {
     private String id;
     private String name;
+    private String platform;
 }
