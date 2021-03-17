@@ -54,7 +54,6 @@ export default {
       /*this.optionalField = items*/
     },
     saveHeader() {
-      console.log(this.type)
       let param = {
         userId: getCurrentUser().id,
         type: this.type,
