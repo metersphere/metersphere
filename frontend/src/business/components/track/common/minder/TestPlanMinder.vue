@@ -4,6 +4,7 @@
     :tree-nodes="treeNodes"
     :data-map="dataMap"
     :tags="tags"
+    :distinct-tags="[...tags, '未开始']"
     @save="save"
   />
 </template>

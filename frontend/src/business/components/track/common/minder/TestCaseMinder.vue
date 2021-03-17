@@ -3,6 +3,7 @@
     v-loading="result.loading"
     :tree-nodes="treeNodes"
     :data-map="dataMap"
+    :tags="tags"
     @save="save"
   />
 </template>
@@ -17,6 +18,7 @@ name: "TestCaseMinder",
     return{
       testCase: [],
       dataMap: new Map(),
+      tags: ['用例', '测试步骤', '预期结果', '备注'],
       result: {}
     }
   },
