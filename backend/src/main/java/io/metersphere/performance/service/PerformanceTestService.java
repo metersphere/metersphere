@@ -238,9 +238,11 @@ public class PerformanceTestService {
         // 相减
         List<String> deleteFileIds = ListUtils.subtract(originFileIds, updatedFileIds);
         // 删除已经不相关的文件
-        LoadTestFileExample example3 = new LoadTestFileExample();
-        example3.createCriteria().andFileIdIn(deleteFileIds);
-        loadTestFileMapper.deleteByExample(example3);
+        if (!CollectionUtils.isEmpty(deleteFileIds)) {
+            LoadTestFileExample example3 = new LoadTestFileExample();
+            example3.createCriteria().andFileIdIn(deleteFileIds);
+            loadTestFileMapper.deleteByExample(example3);
+        }
 
         // 导入项目里其他的文件
         List<String> addFileIds = ListUtils.subtract(updatedFileIds, originFileIds);

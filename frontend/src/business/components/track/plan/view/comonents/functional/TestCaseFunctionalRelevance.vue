@@ -63,10 +63,6 @@
 
     <div v-if="!lineStatus" style="text-align: center">{{ $t('test_track.review_view.last_page') }}</div>
     <div style="text-align: center">共 {{ total }} 条</div>
-    <div style="margin-bottom: 15px;margin-right: 0">
-      <el-checkbox v-model="checked">同步添加关联的接口和性能测试</el-checkbox>
-    </div>
-
   </test-case-relevance-base>
 
 </template>
@@ -162,11 +158,12 @@ export default {
         this.projectId = projectId;
       },
 
-      saveCaseRelevance() {
+      saveCaseRelevance(item) {
         let param = {};
         param.planId = this.planId;
         param.testCaseIds = [...this.selectIds];
         param.request = this.condition;
+        param.checked = item
         // 选择全选则全部加入到评审，无论是否加载完全部
         if (this.testCases.length === param.testCaseIds.length) {
           param.testCaseIds = ['all'];

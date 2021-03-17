@@ -147,6 +147,9 @@ alter table schedule drop column custom_data;
 -- add sort column
 alter table load_test_file add sort int default 0;
 
+alter table file_metadata
+    add project_id VARCHAR(50) null;
+
 UPDATE file_metadata JOIN (SELECT file_id, project_id
                            FROM load_test_file
                                     JOIN load_test ON test_id = load_test.id) temp ON file_id = file_metadata.id
