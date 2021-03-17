@@ -3,6 +3,41 @@
              :destroy-on-close="true"
              :title="$t('load_test.exist_jmx')" width="70%"
              :visible.sync="loadFileVisible">
+    <el-row>
+
+      <el-upload
+        v-if="loadType === 'jmx'"
+        style="padding-right: 10px;"
+        accept=".jmx"
+        action=""
+        multiple
+        :limit="fileNumLimit"
+        :show-file-list="false"
+        :before-upload="beforeUploadFile"
+        :http-request="handleUpload"
+        :on-exceed="handleExceed"
+        :disabled="isReadOnly"
+        :file-list="fileList">
+        <ms-table-button :is-tester-permission="true" icon="el-icon-upload2"
+                         :content="$t('load_test.upload_jmx')"/>
+      </el-upload>
+      <el-upload
+        v-else
+        style="padding-right: 10px;"
+        accept=".jar,.csv,.json,.pdf,.jpg,.png,.jpeg,.doc,.docx,.xlsx"
+        action=""
+        :limit="fileNumLimit"
+        multiple
+        :show-file-list="false"
+        :before-upload="beforeUploadFile"
+        :http-request="handleUpload"
+        :on-exceed="handleExceed"
+        :disabled="isReadOnly"
+        :file-list="fileList">
+        <ms-table-button :is-tester-permission="true" icon="el-icon-upload2"
+                         :content="$t('load_test.upload_file')"/>
+      </el-upload>
+    </el-row>
 
     <el-table v-loading="projectLoadingResult.loading"
               class="basic-config"
@@ -11,10 +46,6 @@
               @select="handleSelectionChange">
 
       <el-table-column type="selection"/>
-      <el-table-column
-        prop="testName"
-        :label="$t('load_test.test')">
-      </el-table-column>
       <el-table-column
         prop="name"
         :label="$t('load_test.file_name')">
@@ -45,15 +76,18 @@ import MsDialogFooter from "@/business/components/common/components/MsDialogFoot
 import MsTablePagination from "@/business/components/common/pagination/TablePagination";
 import {getCurrentProjectID} from "@/common/js/utils";
 import {findThreadGroup} from "@/business/components/performance/test/model/ThreadGroup";
+import MsTableButton from "@/business/components/common/components/MsTableButton";
+import axios from "axios";
 
 export default {
   name: "ExistFiles",
-  components: {MsTablePagination, MsDialogFooter},
+  components: {MsTableButton, MsTablePagination, MsDialogFooter},
   props: {
     fileList: Array,
     tableData: Array,
     uploadList: Array,
-    scenarios: Array
+    scenarios: Array,
+    isReadOnly: Boolean,
   },
   data() {
     return {
@@ -65,6 +99,7 @@ export default {
       loadType: 'jmx',
       existFiles: [],
       selectIds: new Set,
+      fileNumLimit: 10,
     }
   },
   methods: {
@@ -106,6 +141,7 @@ export default {
     },
     handleImport() {
       if (this.selectIds.size === 0) {
+        this.loadFileVisible = false;
         return;
       }
 
@@ -162,6 +198,69 @@ export default {
         this.selectIds.clear();
       });
 
+    },
+    async beforeUploadFile(file) {
+      if (!this.fileValidator(file)) {
+        /// todo: 显示错误信息
+        return false;
+      }
+
+      if (this.tableData.filter(f => f.name === file.name).length > 0) {
+        this.$error(this.$t('load_test.delete_file'));
+        return false;
+      }
+      let valid = false;
+
+      // 检查数据库是否存在同名文件
+      async function f() {
+        return await axios.post('/performance/file/' + getCurrentProjectID() + '/getMetadataByName', {filename: file.name})
+      }
+
+      await f().then(res => {
+        let response = res.data;
+        if (response.data.length === 0) {
+          let type = file.name.substring(file.name.lastIndexOf(".") + 1);
+
+          this.tableData.push({
+            name: file.name,
+            size: (file.size / 1024).toFixed(2) + ' KB',
+            type: type.toUpperCase(),
+            updateTime: file.lastModified,
+          });
+          valid = true;
+        } else {
+          this.$error(this.$t('load_test.project_file_exist'));
+        }
+      });
+
+
+      return valid;
+    },
+    handleUpload(uploadResources) {
+      let self = this;
+      let file = uploadResources.file;
+      self.uploadList.push(file);
+      let type = file.name.substring(file.name.lastIndexOf(".") + 1);
+      if (type.toLowerCase() !== 'jmx') {
+        return;
+      }
+      let jmxReader = new FileReader();
+      jmxReader.onload = (event) => {
+        let threadGroups = findThreadGroup(event.target.result, file.name);
+        threadGroups.forEach(tg => {
+          tg.options = {};
+          this.scenarios.push(tg);
+        });
+        self.$emit('fileChange', self.scenarios);
+      };
+      jmxReader.readAsText(file);
+    },
+    handleExceed() {
+      this.$error(this.$t('load_test.file_size_limit'));
+    },
+    fileValidator(file) {
+      /// todo: 是否需要对文件内容和大小做限制
+      return file.size > 0;
     },
   }
 }

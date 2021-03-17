@@ -60,7 +60,7 @@
 
 <script>
 import MsDialogFooter from "../../common/components/MsDialogFooter";
-import {listenGoBack, removeGoBackListener} from "../../../../common/js/utils";
+import {listenGoBack, publicKeyEncrypt, removeGoBackListener} from "../../../../common/js/utils";
 
 export default {
   name: "LdapSetting",
@@ -204,9 +204,15 @@ export default {
       })
     },
     login(form) {
+      let publicKey = localStorage.getItem("publicKey");
+
       this.$refs[form].validate(valid => {
         if (valid) {
-          this.result = this.$post("/ldap/test/login", this.loginForm, () => {
+          let form = {
+            username: publicKeyEncrypt(this.loginForm.username, publicKey),
+            password: publicKeyEncrypt(this.loginForm.password, publicKey),
+          };
+          this.result = this.$post("/ldap/test/login", form, () => {
             this.$success(this.$t('ldap.login_success'));
           });
         } else {

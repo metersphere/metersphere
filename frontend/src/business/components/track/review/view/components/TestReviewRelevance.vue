@@ -133,6 +133,7 @@ export default {
     },
     data() {
       return {
+        checked: true,
         result: {},
         currentProject: {},
         dialogFormVisible: false,
@@ -202,6 +203,7 @@ export default {
         param.reviewId = this.reviewId;
         param.testCaseIds = [...this.selectIds];
         param.request = this.condition;
+        param.checked = this.checked;
         // 选择全选则全部加入到评审，无论是否加载完全部
         if (this.testReviews.length === param.testCaseIds.length) {
           param.testCaseIds = ['all'];

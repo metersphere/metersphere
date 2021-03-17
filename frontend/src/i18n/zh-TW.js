@@ -335,6 +335,7 @@ export default {
     delete: '刪除項目',
     delete_confirm: '確定要刪除這個項目嗎?',
     delete_tip: '刪除該項目，會刪除該項目下所有測試資源，確定要刪除嗎?',
+    file_delete_tip: '刪除該項目的文件: {0}？',
     search_by_name: '根據名稱搜索',
     search_by_name_jar: '根據名稱/jar包搜索',
     input_name: '請輸入項目名稱',
@@ -525,10 +526,11 @@ export default {
     exist_jmx: '已存在的文件',
     other_resource: '資源文件',
     upload_file: '上傳新文件',
-    load_exist_file: '加載已有文件',
-    load_exist_jmx: '加載已有 JMX 文件',
+    load_exist_file: '加載文件',
+    load_exist_jmx: '加載 JMX 文件',
     threadgroup_at_least_one: '至少啟用一個線程組',
     load_api_automation_jmx: '引用接口自動化場景',
+    project_file_exist: "項目中已存在該文件，請直接引用"
   },
   api_test: {
     creator: "創建人",

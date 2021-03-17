@@ -335,6 +335,7 @@ export default {
     delete: '删除项目',
     delete_confirm: '确定要删除这个项目吗?',
     delete_tip: '删除该项目，会删除该项目下所有测试资源，确定要删除吗?',
+    file_delete_tip: '删除该项目的文件: {0}？',
     search_by_name: '根据名称搜索',
     search_by_name_jar: '根据 名称 / jar包 搜索',
     input_name: '请输入项目名称',
@@ -525,10 +526,11 @@ export default {
     exist_jmx: '已存在的文件',
     other_resource: '资源文件',
     upload_file: '上传新文件',
-    load_exist_file: '加载已有文件',
-    load_exist_jmx: '加载已有 JMX 文件',
+    load_exist_file: '加载文件',
+    load_exist_jmx: '加载 JMX 文件',
     threadgroup_at_least_one: '至少启用一个线程组',
     load_api_automation_jmx: '引用接口自动化场景',
+    project_file_exist: "项目中已存在该文件，请直接引用"
   },
   api_test: {
     creator: "创建人",

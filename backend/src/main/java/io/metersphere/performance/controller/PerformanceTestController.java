@@ -15,7 +15,6 @@ import io.metersphere.dto.DashboardTestDTO;
 import io.metersphere.dto.LoadTestDTO;
 import io.metersphere.dto.ScheduleDao;
 import io.metersphere.performance.dto.LoadTestExportJmx;
-import io.metersphere.performance.dto.LoadTestFileDTO;
 import io.metersphere.performance.request.*;
 import io.metersphere.performance.service.PerformanceTestService;
 import io.metersphere.service.CheckPermissionService;
@@ -122,7 +121,7 @@ public class PerformanceTestController {
     }
 
     @GetMapping("/project/{loadType}/{projectId}/{goPage}/{pageSize}")
-    public Pager<List<LoadTestFileDTO>> getProjectFiles(@PathVariable String projectId, @PathVariable String loadType,
+    public Pager<List<FileMetadata>> getProjectFiles(@PathVariable String projectId, @PathVariable String loadType,
                                                         @PathVariable int goPage, @PathVariable int pageSize) {
         checkPermissionService.checkProjectOwner(projectId);
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
@@ -148,12 +147,17 @@ public class PerformanceTestController {
     @GetMapping("/file/metadata/{testId}")
     public List<FileMetadata> getFileMetadata(@PathVariable String testId) {
         checkPermissionService.checkPerformanceTestOwner(testId);
-        return fileService.getFileMetadataByTestId(testId);
+        return performanceTestService.getFileMetadataByTestId(testId);
     }
 
     @GetMapping("/file/getMetadataById/{metadataId}")
     public FileMetadata getMetadataById(@PathVariable String metadataId) {
         return fileService.getFileMetadataById(metadataId);
+    }
+
+    @PostMapping("/file/{projectId}/getMetadataByName")
+    public List<FileMetadata> getProjectMetadataByName(@PathVariable String projectId, @RequestBody QueryProjectFileRequest request) {
+        return fileService.getProjectFiles(projectId, request);
     }
 
     @PostMapping("/file/download")

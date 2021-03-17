@@ -90,10 +90,6 @@ ALTER TABLE test_case_review
 alter table test_plan_api_scenario
     change environment_id environment longtext null comment 'Relevance environment';
 
--- file add sort column
-alter table file_metadata
-    add sort int default 0;
-
 -- add Original state
 alter table api_definition add original_state varchar(64);
 alter table api_scenario add original_state varchar(64);
@@ -147,3 +143,19 @@ update schedule sch inner join swagger_url_project sup on
 	set sch.name = LEFT(SUBSTRING_INDEX(sup.swagger_url, '/', 3), 100);
 -- delete an unused colum
 alter table schedule drop column custom_data;
+
+-- add sort column
+alter table load_test_file add sort int default 0;
+
+alter table file_metadata
+    add project_id VARCHAR(50) null;
+
+UPDATE file_metadata JOIN (SELECT file_id, project_id
+                           FROM load_test_file
+                                    JOIN load_test ON test_id = load_test.id) temp ON file_id = file_metadata.id
+SET file_metadata.project_id = temp.project_id;
+
+UPDATE file_metadata JOIN (SELECT file_id, project_id
+                           FROM api_test_file
+                                    JOIN api_test ON test_id = api_test.id) temp ON file_id = file_metadata.id
+SET file_metadata.project_id = temp.project_id;
