@@ -79,7 +79,7 @@ public class EngineFactory {
         }
         if (type == ResourcePoolTypeEnum.K8S) {
             try {
-                return ConstructorUtils.invokeConstructor(kubernetesTestEngineClass, loadTest);
+                return (Engine) ConstructorUtils.invokeConstructor(kubernetesTestEngineClass, loadTest);
             } catch (Exception e) {
                 LogUtil.error(e);
                 return null;
