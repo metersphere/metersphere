@@ -19,7 +19,7 @@
         <slot name="footer"></slot>
       </div>
       <div v-else>
-        <div style="margin-bottom: 15px;margin-right: 0">
+        <div style="margin-bottom: 15px" v-if="flag">
           <el-checkbox v-model="checked">同步添加关联的接口和性能测试</el-checkbox>
         </div>
         <ms-dialog-footer @cancel="close" @confirm="save"/>
@@ -44,7 +44,7 @@
     },
     data() {
       return {
-        checked: true,
+        checked:true,
         result: {},
         currentProject: {},
         projectId: '',
@@ -62,6 +62,9 @@
         default() {
           return this.$t('test_track.plan_view.relevance_test_case');
         }
+      },
+      flag:{
+        type:Boolean,
       }
     },
     watch: {
@@ -74,7 +77,7 @@
       },
 
       save() {
-        this.$emit('save', this.checked);
+        this.$emit('save',this.checked);
       },
 
       close() {

@@ -1,5 +1,7 @@
 export default {
   commons: {
+    pass_rate:'Pass rate',
+    execution_times:'Execution times',
     cover: 'Cover',
     not_cover: 'Not Cover',
     import: 'Import',
