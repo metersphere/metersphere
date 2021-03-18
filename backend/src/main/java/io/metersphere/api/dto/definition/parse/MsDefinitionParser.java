@@ -22,9 +22,9 @@ public class MsDefinitionParser extends MsAbstractParser<ApiDefinitionImport> {
         String testStr = getApiTestStr(source);
         JSONObject testObject = JSONObject.parseObject(testStr, Feature.OrderedField);
         this.projectId = request.getProjectId();
-        if (testObject.get("projectName") != null || testObject.get("projectId") != null ) {
+        if (testObject.get("projectName") != null || testObject.get("projectId") != null ) {//  metersphere 格式导入
             return parseMsFormat(testStr, request);
-        } else {
+        } else {    //  chrome 插件录制格式导入
             request.setPlatform(ApiImportPlatform.Plugin.name());
             ApiDefinitionImport apiImport = new ApiDefinitionImport();
             apiImport.setProtocol(RequestType.HTTP);
