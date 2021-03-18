@@ -4,7 +4,7 @@
     :tree-nodes="treeNodes"
     :data-map="dataMap"
     :tags="tags"
-    :distinct-tags="[...tags, '未开始']"
+    :distinct-tags="[...tags, $t('test_track.plan.plan_status_prepare')]"
     @save="save"
   />
 </template>
@@ -19,7 +19,7 @@ name: "TestPlanMinder",
     return{
       dataMap: new Map(),
       result: {},
-      tags: ['通过', '失败', '阻塞', '跳过'],
+      tags: [this.$t('test_track.plan_view.pass'), this.$t('test_track.plan_view.failure'), this.$t('test_track.plan_view.blocking'), this.$t('test_track.plan_view.skip')],
     }
   },
   props: {
@@ -48,15 +48,15 @@ name: "TestPlanMinder",
         this.result = this.$get('/test/plan/case/list/minder/' + this.planId, response => {
           this.dataMap = getTestCaseDataMap(response.data, true, (data, item) => {
             if (item.stats === 'Pass') {
-              data.resource.push("通过");
+              data.resource.push(this.$t('test_track.plan_view.pass'));
             } else if (item.reviewStatus === 'Failure') {
-              data.resource.push("失败");
+              data.resource.push(this.$t('test_track.plan_view.failure'));
             } else if (item.reviewStatus === 'Blocking') {
-              data.resource.push("阻塞");
+              data.resource.push(this.$t('test_track.plan_view.blocking'));
             } else if (item.reviewStatus === 'Skip') {
-              data.resource.push("跳过");
+              data.resource.push(this.$t('test_track.plan_view.skip'));
             } else {
-              data.resource.push("未开始");
+              data.resource.push(this.$t('test_track.plan.plan_status_prepare'));
             }
           });
         });
@@ -71,7 +71,7 @@ name: "TestPlanMinder",
     },
     buildSaveCase(root, saveCases) {
       let data = root.data;
-      if (data.resource && data.resource.indexOf("用例") > -1) {
+      if (data.resource && data.resource.indexOf(this.$t('api_test.definition.request.case')) > -1) {
         this._buildSaveCase(root, saveCases, parent);
       } else {
         if (root.children) {
@@ -90,13 +90,13 @@ name: "TestPlanMinder",
         id: data.id,
       };
       if (data.resource.length > 1) {
-        if (data.resource.indexOf('失败') > -1) {
+        if (data.resource.indexOf(this.$t('test_track.plan_view.failure')) > -1) {
           testCase.status = 'Failure';
-        } else if (data.resource.indexOf('通过') > -1) {
+        } else if (data.resource.indexOf(this.$t('test_track.plan_view.pass')) > -1) {
           testCase.status = 'Pass';
-        } else if (data.resource.indexOf('阻塞') > -1) {
+        } else if (data.resource.indexOf(this.$t('test_track.plan_view.blocking')) > -1) {
           testCase.status = 'Blocking';
-        } else if (data.resource.indexOf('跳过') > -1) {
+        } else if (data.resource.indexOf(this.$t('test_track.plan_view.skip')) > -1) {
           testCase.status = 'Skip';
         }
       }
