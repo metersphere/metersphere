@@ -136,12 +136,12 @@
           <el-row>
             <el-col :span="10">
               <el-form-item label="关联需求" :label-width="formLabelWidth" prop="demandId">
-                <el-select filterable :disabled="readOnly" v-model="form.demandId"
+                <el-select filterable :disabled="readOnly" v-model="form.demandId" @visible-change="visibleChange"
                            :placeholder="$t('test_track.case.input_type')" class="ms-case-input">
                   <el-option
                     v-for="item in demandOptions"
                     :key="item.id"
-                    :label="item.name"
+                    :label="item.platform + ': '+item.name"
                     :value="item.id">
                   </el-option>
                 </el-select>
@@ -761,18 +761,31 @@ export default {
         });
       }
     },
+    visibleChange(flag) {
+      if (flag) {
+        this.getDemandOptions()
+      }
+    },
     getDemandOptions() {
-      this.projectId = getCurrentProjectID()
-      this.result = this.$get("demand/list/" + this.projectId, response => {
-        this.demandOptions = response.data;
-        this.demandOptions.unshift({id: 'other', name: this.$t('test_track.case.other')})
-      });
+      if (this.demandOptions.length === 0) {
+        this.projectId = getCurrentProjectID();
+        this.result = {loading : true};
+        this.$get("demand/list/" + this.projectId).then(response => {
+          this.demandOptions = response.data.data;
+          this.demandOptions.unshift({id: 'other', name: this.$t('test_track.case.other'), platform: 'Other'})
+          this.result = {loading : false};
+        }).catch(() => {
+          this.result = {loading : false};
+        })
+      }
     },
     getSelectOptions() {
       this.getModuleOptions();
       this.getMaintainerOptions();
       this.getTestOptions();
-      // this.getDemandOptions()
+      if (this.type === 'edit') {
+        this.getDemandOptions();
+      }
     },
 
     resetForm() {

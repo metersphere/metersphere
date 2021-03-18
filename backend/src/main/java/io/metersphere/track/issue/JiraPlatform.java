@@ -103,7 +103,7 @@ public class JiraPlatform extends AbstractIssuePlatform {
         String auth = EncryptUtils.base64Encoding(account + ":" + password);
 
         String testCaseId = issuesRequest.getTestCaseId();
-        String jiraKey = getProjectId();
+        String jiraKey = getProjectId(null);
 
 
         if (StringUtils.isBlank(jiraKey)) {
@@ -200,7 +200,10 @@ public class JiraPlatform extends AbstractIssuePlatform {
     }
 
     @Override
-    String getProjectId() {
+    String getProjectId(String projectId) {
+        if (StringUtils.isNotBlank(projectId)) {
+            return projectService.getProjectById(projectId).getJiraKey();
+        }
         TestCaseWithBLOBs testCase = testCaseService.getTestCase(testCaseId);
         Project project = projectService.getProjectById(testCase.getProjectId());
         return project.getJiraKey();

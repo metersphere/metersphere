@@ -66,7 +66,7 @@ public class LocalPlatform extends AbstractIssuePlatform {
     }
 
     @Override
-    String getProjectId() {
+    String getProjectId(String projectId) {
         return null;
     }
 

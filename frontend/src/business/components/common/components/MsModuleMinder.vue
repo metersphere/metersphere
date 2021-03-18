@@ -96,6 +96,15 @@ export default {
     },
     parse(root, children) {
       root.children = [];
+      if (root.data.id ===  'root') {
+        // nodeId 为空的用例
+        let rootChildData = this.dataMap.get("");
+        if (rootChildData) {
+          rootChildData.forEach((dataNode) => {
+            root.children.push(dataNode);
+          })
+        }
+      }
       // 添加数据节点
       let dataNodes = this.dataMap.get(root.data.id);
       if (dataNodes) {

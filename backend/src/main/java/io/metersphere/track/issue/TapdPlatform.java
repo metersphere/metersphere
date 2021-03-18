@@ -36,7 +36,7 @@ public class TapdPlatform extends AbstractIssuePlatform {
     @Override
     public List<Issues> getIssue() {
         List<Issues> list = new ArrayList<>();
-        String tapdId = getProjectId();
+        String tapdId = getProjectId("");
 
         TestCaseIssuesExample example = new TestCaseIssuesExample();
         example.createCriteria().andTestCaseIdEqualTo(testCaseId);
@@ -67,18 +67,22 @@ public class TapdPlatform extends AbstractIssuePlatform {
 
     @Override
     public List<DemandDTO> getDemandList(String projectId) {
-        System.out.println(projectId);
         List<DemandDTO> demandList = new ArrayList<>();
-        String url = "https://api.tapd.cn/stories?workspace_id=" + projectId;
-        ResultHolder call = call(url);
-        String listJson = JSON.toJSONString(call.getData());
-        JSONArray jsonArray = JSON.parseArray(listJson);
-        System.out.println(jsonArray);
-        for (int i = 0; i < jsonArray.size(); i++) {
-            JSONObject o = jsonArray.getJSONObject(i);
-            DemandDTO demand = o.getObject("Story", DemandDTO.class);
-            demandList.add(demand);
+        try {
+            String url = "https://api.tapd.cn/stories?workspace_id=" + getProjectId(projectId);
+            ResultHolder call = call(url);
+            String listJson = JSON.toJSONString(call.getData());
+            JSONArray jsonArray = JSON.parseArray(listJson);
+            for (int i = 0; i < jsonArray.size(); i++) {
+                JSONObject o = jsonArray.getJSONObject(i);
+                DemandDTO demand = o.getObject("Story", DemandDTO.class);
+                demand.setPlatform(IssuesManagePlatform.Tapd.name());
+                demandList.add(demand);
+            }
+        } catch (Exception e) {
+            LogUtil.error(e.getMessage());
         }
+
         return demandList;
     }
 
@@ -111,7 +115,7 @@ public class TapdPlatform extends AbstractIssuePlatform {
     public void addIssue(IssuesRequest issuesRequest) {
         String url = "https://api.tapd.cn/bugs";
         String testCaseId = issuesRequest.getTestCaseId();
-        String tapdId = getProjectId();
+        String tapdId = getProjectId("");
 
         if (StringUtils.isBlank(tapdId)) {
             MSException.throwException("未关联Tapd 项目ID");
@@ -172,7 +176,7 @@ public class TapdPlatform extends AbstractIssuePlatform {
     @Override
     public List<PlatformUser> getPlatformUser() {
         List<PlatformUser> users = new ArrayList<>();
-        String projectId = getProjectId();
+        String projectId = getProjectId("");
         String url = "https://api.tapd.cn/workspaces/users?workspace_id=" + projectId;
         ResultHolder call = call(url);
         String listJson = JSON.toJSONString(call.getData());
@@ -186,7 +190,10 @@ public class TapdPlatform extends AbstractIssuePlatform {
     }
 
     @Override
-    String getProjectId() {
+    String getProjectId(String projectId) {
+        if (StringUtils.isNotBlank(projectId)) {
+            return projectService.getProjectById(projectId).getTapdId();
+        }
         TestCaseWithBLOBs testCase = testCaseService.getTestCase(testCaseId);
         Project project = projectService.getProjectById(testCase.getProjectId());
         return project.getTapdId();

@@ -1,23 +1,25 @@
 <template>
-  <el-card class="api-component">
+  <el-card>
     <div class="header" @click="active(data)">
       <slot name="beforeHeaderLeft">
         <div v-if="data.index" class="el-step__icon is-text" style="margin-right: 10px;" :style="{'color': color, 'background-color': backgroundColor}">
           <div class="el-step__icon-inner">{{data.index}}</div>
         </div>
-        <el-tag class="ms-left-buttion" size="small" :style="{'color': color, 'background-color': backgroundColor}">{{title}}</el-tag>
+        <el-tag class="ms-left-btn" size="small" :style="{'color': color, 'background-color': backgroundColor}">{{title}}</el-tag>
         <el-tag size="mini" v-if="data.method">{{data.method}}</el-tag>
       </slot>
 
-      <span @click.stop>
+      <span>
         <slot name="headerLeft">
           <i class="icon el-icon-arrow-right" :class="{'is-active': data.active}"
-             @click="active(data)" v-if="data.type!='scenario'  && !isMax "/>
-          <el-input :draggable="draggable" v-if="isShowInput && isShowNameInput" size="mini" v-model="data.name" class="name-input"
-                    @blur="isShowInput = false" :placeholder="$t('commons.input_name')" ref="nameEdit" :disabled="data.disabled"/>
-          <span v-else>
+             @click="active(data)" v-if="data.type!='scenario' && data.type!='JmeterElement' && !isMax " @click.stop/>
+          <span @click.stop v-if="isShowInput && isShowNameInput">
+            <el-input :draggable="draggable" size="mini" v-model="data.name" class="name-input"
+                      @blur="isShowInput = false" :placeholder="$t('commons.input_name')" ref="nameEdit" :disabled="data.disabled"/>
+          </span>
+          <span :class="isMax?'ms-step-name':'scenario-name'" v-else>
             {{data.name}}
-            <i class="el-icon-edit" style="cursor:pointer" @click="editName" v-tester v-if="data.referenced!='REF' && !data.disabled"/>
+            <i class="el-icon-edit" style="cursor:pointer" @click="editName" v-tester v-if="data.referenced!='REF' && !data.disabled" @click.stop/>
           </span>
         </slot>
         <slot name="behindHeaderLeft" v-if="!isMax"></slot>
@@ -159,7 +161,8 @@
     margin-right: 5px;
   }
 
-  .ms-left-buttion {
+  .ms-left-btn {
+    font-size: 13px;
     margin-right: 15px;
   }
 
@@ -173,15 +176,24 @@
     margin-right: 10px;
   }
 
-  .node-title {
+  .ms-step-name {
     display: inline-block;
-    margin: 0px;
+    font-size: 13px;
+    margin: 0 5px;
     overflow-x: hidden;
     padding-bottom: 0;
     text-overflow: ellipsis;
     vertical-align: middle;
     white-space: nowrap;
-    width: 100px;
+    width: 180px;
+  }
+
+  .scenario-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 13px;
+    width: 100%;
   }
 
   /deep/ .el-step__icon {
