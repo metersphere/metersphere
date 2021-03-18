@@ -209,7 +209,7 @@ public class SystemParameterService {
     public String getValue(String key) {
         SystemParameter param = systemParameterMapper.selectByPrimaryKey(key);
         if (param == null || StringUtils.isBlank(param.getParamValue())) {
-            return "#783887";
+            return "";
         }
         return param.getParamValue();
     }
