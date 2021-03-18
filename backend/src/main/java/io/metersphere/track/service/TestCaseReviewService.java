@@ -377,7 +377,7 @@ public class TestCaseReviewService {
 
         sqlSession.flushStatements();
         //同步添加关联的接口和测试用例
-        if(request.getChecked()){
+     /*   if(request.getChecked()){
             if (!testCaseIds.isEmpty()) {
                 testCaseIds.forEach(caseId -> {
                     TestCaseWithBLOBs testDtail=testCaseMapper.selectByPrimaryKey(caseId);
@@ -434,7 +434,7 @@ public class TestCaseReviewService {
 
                 });
             }
-        }
+        }*/
         TestCaseReview testCaseReview = testCaseReviewMapper.selectByPrimaryKey(request.getReviewId());
         if (StringUtils.equals(testCaseReview.getStatus(), TestCaseReviewStatus.Prepare.name())
                 || StringUtils.equals(testCaseReview.getStatus(), TestCaseReviewStatus.Completed.name())) {
