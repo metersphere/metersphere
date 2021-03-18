@@ -26,6 +26,7 @@ import io.metersphere.dto.ScheduleDao;
 import io.metersphere.performance.service.PerformanceTestService;
 import io.metersphere.service.CheckPermissionService;
 import io.metersphere.service.ScheduleService;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.jorphan.collections.HashTree;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
@@ -342,12 +343,16 @@ public class APITestController {
         return returnList;
     }
 
-    @GetMapping("/runningTask/{projectID}")
-    public List<TaskInfoResult> runningTask(@PathVariable String projectID) {
-        List<String> typeFilter = Arrays.asList(   //  首页显示的运行中定时任务，只要这3种，不需要 性能测试、api_test(旧版)
-                ScheduleGroup.API_SCENARIO_TEST.name(),
-                ScheduleGroup.SWAGGER_IMPORT.name(),
-                ScheduleGroup.TEST_PLAN_TEST.name());
+    @GetMapping("/runningTask/{projectID}/{callFrom}")
+    public List<TaskInfoResult> runningTask(@PathVariable String projectID, @PathVariable String callFrom) {
+        List<String> typeFilter = new ArrayList<>();
+        if(StringUtils.equals(callFrom, "api_test")) {   //  接口测试首页显示的运行中定时任务，只要这3种，不需要 性能测试、api_test(旧版)
+            typeFilter.add(ScheduleGroup.API_SCENARIO_TEST.name());
+            typeFilter.add(ScheduleGroup.SWAGGER_IMPORT.name());
+            typeFilter.add(ScheduleGroup.TEST_PLAN_TEST.name());
+        } else if(StringUtils.equals(callFrom, "track_home")) { //  测试跟踪首页只显示测试计划的定时任务
+            typeFilter.add(ScheduleGroup.TEST_PLAN_TEST.name());
+        }
         List<TaskInfoResult> resultList = scheduleService.findRunningTaskInfoByProjectID(projectID, typeFilter);
         int dataIndex = 1;
         for (TaskInfoResult taskInfo :
