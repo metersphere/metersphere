@@ -79,8 +79,9 @@ public class TestPlanController {
 
     @PostMapping("/add")
     @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
-    public void addTestPlan(@RequestBody AddTestPlanRequest testPlan) {
-        testPlanService.addTestPlan(testPlan);
+    public String addTestPlan(@RequestBody AddTestPlanRequest testPlan) {
+        return testPlanService.addTestPlan(testPlan);
+
     }
 
     @PostMapping("/edit")
