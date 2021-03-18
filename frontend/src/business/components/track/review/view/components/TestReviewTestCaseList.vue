@@ -1,11 +1,7 @@
 <template>
   <div class="card-container">
-        <ms-table-header :is-tester-permission="true" :condition.sync="condition" @search="initTableData"
+        <ms-table-header :is-,tester-permission="true" :condition.sync="condition" @search="initTableData"
                          :show-create="false" :tip="$t('commons.search_by_name_or_id')">
-          <template v-slot:title>
-            <node-breadcrumb class="table-title" :nodes="selectParentNodes" @refresh="refresh"
-                             :title="$t('test_track.review_view.all_case')"/>
-          </template>
           <template v-slot:button>
             <ms-table-button :is-tester-permission="true" icon="el-icon-video-play"
                              :content="$t('test_track.review_view.start_review')" @click="startReview"/>
@@ -470,6 +466,12 @@ export default {
 <style scoped>
 .ms-table-header {
   margin: 20px;
+}
+
+/deep/ .table-title {
+  height: 0px;
+  font-weight: bold;
+  font-size: 0px;
 }
 </style>
 
