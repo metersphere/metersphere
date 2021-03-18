@@ -12,6 +12,7 @@ import org.apache.jmeter.modifiers.JSR223PreProcessor;
 import org.apache.jmeter.save.SaveService;
 import org.apache.jmeter.testelement.TestElement;
 import org.apache.jorphan.collections.HashTree;
+import org.graalvm.polyglot.Context;
 
 import java.util.List;
 
@@ -38,6 +39,8 @@ public class MsJSR223PreProcessor extends MsTestElement {
     }
 
     public JSR223PreProcessor getJSR223PreProcessor() {
+        Context.newBuilder().allowNativeAccess(true).build();
+
         JSR223PreProcessor processor = new JSR223PreProcessor();
         processor.setEnabled(this.isEnable());
         if (StringUtils.isNotEmpty(this.getName())) {
@@ -49,6 +52,13 @@ public class MsJSR223PreProcessor extends MsTestElement {
         processor.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("TestBeanGUI"));
         processor.setProperty("cacheKey", "true");
         processor.setProperty("scriptLanguage", this.getScriptLanguage());
+        if (StringUtils.isNotEmpty(this.getScriptLanguage()) && this.getScriptLanguage().equals("nashornScript")) {
+            processor.setProperty("scriptLanguage", "nashorn");
+        }
+        if (StringUtils.isNotEmpty(this.getScriptLanguage()) && this.getScriptLanguage().equals("graalVMScript")) {
+            processor.setProperty("scriptLanguage", "javascript");
+        }
+
         processor.setProperty("script", this.getScript());
         return processor;
     }
