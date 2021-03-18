@@ -1,7 +1,9 @@
 export default {
   commons: {
-    pass_rate:'通過率',
-    execution_times:'執行次數',
+    please_select_import_mode: '請選擇導入模式',
+    please_select_import_module: '請選擇導入模塊',
+    pass_rate: '通過率',
+    execution_times: '執行次數',
     cover: '覆蓋',
     not_cover: '不覆蓋',
     import: '導入',
@@ -1609,5 +1611,11 @@ export default {
     delete_prompt: '此操作會刪除認證源，是否繼續？ ',
     title: '認證設置',
     auth_name_valid: '名稱不支持特殊字符',
+  },
+  table: {
+    header_display_field: '表頭顯示欄位',
+    fields_to_be_selected: '待選欄位',
+    selected_fields: '已選欄位'
   }
+
 };

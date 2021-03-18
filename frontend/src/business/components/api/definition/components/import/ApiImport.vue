@@ -1,6 +1,7 @@
 <template>
   <el-dialog :close-on-click-modal="false" :title="$t('api_test.api_import.title')" width="30%"
-             :visible.sync="visible" class="api-import" v-loading="result.loading" @close="close">
+             :visible.sync="visible" class="api-import" v-loading="result.loading" @close="close"
+             :destroy-on-close="true">
 
     <div class="header-bar">
       <div>{{ $t('api_test.api_import.data_format') }}</div>
@@ -23,12 +24,12 @@
     <el-form :model="formData" :rules="rules" label-width="100px" v-loading="result.loading" ref="form">
       <el-row>
         <el-col :span="11">
-          <el-form-item :label="$t('commons.import_module')">
+          <el-form-item :label="$t('commons.import_module')" prop="moduleId">
             <el-select size="small" v-model="formData.moduleId" class="project-select" clearable>
               <el-option v-for="item in moduleOptions" :key="item.id" :label="item.path" :value="item.id"/>
             </el-select>
           </el-form-item>
-          <el-form-item v-if="!isScenarioModel&&!isHar" :label="$t('commons.import_mode')">
+          <el-form-item v-if="!isScenarioModel&&!isHar" :label="$t('commons.import_mode')" prop="modeId">
             <el-select size="small" v-model="formData.modeId" class="project-select" clearable>
               <el-option v-for="item in modeOptions" :key="item.id" :label="item.name" :value="item.id"/>
             </el-select>
@@ -167,7 +168,14 @@ export default {
         modeId: this.$t('commons.not_cover'),
         moduleId: '',
       },
-      rules: {},
+      rules: {
+        modeId: [
+          {required: true, message: this.$t('commons.please_select_import_mode'), trigger: 'change'},
+        ],
+        moduleId: [
+          {required: true, message: this.$t('commons.please_select_import_module'), trigger: 'change'},
+        ],
+      },
       currentModule: {},
       fileList: []
     }

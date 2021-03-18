@@ -1,7 +1,9 @@
 export default {
   commons: {
-    pass_rate:'通过率',
-    execution_times:'执行次数',
+    please_select_import_mode: '请选择导入模式',
+    please_select_import_module: '请选择导入模块',
+    pass_rate: '通过率',
+    execution_times: '执行次数',
     cover: '覆盖',
     not_cover: '不覆盖',
     import: '导入',
@@ -1611,5 +1613,10 @@ export default {
     delete_prompt: '此操作会删除认证源，是否继续？',
     title: '认证设置',
     auth_name_valid: '名称不支持特殊字符',
+  },
+  table: {
+    header_display_field: '表头显示字段',
+    fields_to_be_selected: '待选字段',
+    selected_fields: '已选字段'
   }
 };
