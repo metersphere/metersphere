@@ -4,9 +4,6 @@ import io.metersphere.base.domain.User;
 import io.metersphere.commons.constants.ParamConstants;
 import io.metersphere.commons.constants.UserSource;
 import io.metersphere.commons.exception.MSException;
-import io.metersphere.commons.utils.CommonBeanFactory;
-import io.metersphere.commons.utils.RsaKey;
-import io.metersphere.commons.utils.RsaUtil;
 import io.metersphere.controller.ResultHolder;
 import io.metersphere.controller.request.LoginRequest;
 import io.metersphere.i18n.Translator;
@@ -17,9 +14,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.springframework.ldap.core.DirContextOperations;
 import org.springframework.web.bind.annotation.*;
-
 import javax.annotation.Resource;
-import java.security.NoSuchAlgorithmException;
 
 @RestController
 @RequestMapping("/ldap")
@@ -33,7 +28,7 @@ public class LdapController {
     private SystemParameterService systemParameterService;
 
     @PostMapping(value = "/signin")
-    public ResultHolder login(@RequestBody LoginRequest request) throws NoSuchAlgorithmException {
+    public ResultHolder login(@RequestBody LoginRequest request) {
 
         String isOpen = systemParameterService.getValue(ParamConstants.LDAP.OPEN.getValue());
         if (StringUtils.isBlank(isOpen) || StringUtils.equals(Boolean.FALSE.toString(), isOpen)) {
@@ -75,8 +70,7 @@ public class LdapController {
 
         // 执行 ShiroDBRealm 中 LDAP 登录逻辑
         LoginRequest loginRequest = new LoginRequest();
-        RsaKey rsaKey = CommonBeanFactory.getBean(RsaKey.class);
-        loginRequest.setUsername(RsaUtil.publicEncrypt(userId,rsaKey.getPublicKey()));
+        loginRequest.setUsername(userId);
         return userService.login(loginRequest);
     }
 
