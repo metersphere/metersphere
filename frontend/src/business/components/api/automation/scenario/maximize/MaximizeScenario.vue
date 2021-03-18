@@ -459,11 +459,11 @@
         } else {
           this.operatingElements = [];
         }
-        if (data && data.type != "JmeterElement") {
+        if (data) {
           data.active = true;
           if (data.hashTree) {
             data.hashTree.forEach(item => {
-              if (item && item.type != "JmeterElement") {
+              if (item) {
                 item.active = true;
               }
             })
@@ -915,7 +915,7 @@
       setProjectEnvMap(projectEnvMap) {
         this.projectEnvMap = projectEnvMap;
       },
-      refReload(data,node) {
+      refReload(data, node) {
         this.selectedTreeNode = data;
         this.selectedNode = node;
         this.initProjectIds();

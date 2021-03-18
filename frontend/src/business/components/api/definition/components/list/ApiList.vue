@@ -524,7 +524,8 @@ export default {
       this.$emit('editApi', row);
     },
     runApi(row) {
-      let request = JSON.parse(row.request);
+
+      let request = row ? JSON.parse(row.request) : {};
       if (row.tags instanceof Array) {
         row.tags = JSON.stringify(row.tags);
       }
