@@ -12,7 +12,7 @@
       <span>
         <slot name="headerLeft">
           <i class="icon el-icon-arrow-right" :class="{'is-active': data.active}"
-             @click="active(data)" v-if="data.type!='scenario' && data.type!='JmeterElement' && !isMax " @click.stop/>
+             @click="active(data)" v-if="data.type!='scenario' && !isMax " @click.stop/>
           <span @click.stop v-if="isShowInput && isShowNameInput">
             <el-input :draggable="draggable" size="mini" v-model="data.name" class="name-input"
                       @blur="isShowInput = false" :placeholder="$t('commons.input_name')" ref="nameEdit" :disabled="data.disabled"/>
@@ -112,9 +112,6 @@
         this.$nextTick(() => {
           this.$refs.nameEdit.focus();
         });
-      }
-      if (this.data && this.data.type === "JmeterElement") {
-        this.data.active = false;
       }
       if (this.data && ELEMENTS.get("AllSamplerProxy").indexOf(this.data.type) != -1) {
         if (!this.data.method) {

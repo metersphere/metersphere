@@ -20,7 +20,7 @@ public class LoginRequest {
         try {
             RsaKey rsaKey = CommonBeanFactory.getBean(RsaKey.class);
             return RsaUtil.privateDecrypt(username, rsaKey.getPrivateKey());
-        } catch (NoSuchAlgorithmException e) {
+        } catch (Exception e) {
             return username;
         }
     }
@@ -29,7 +29,7 @@ public class LoginRequest {
         try {
             RsaKey rsaKey = CommonBeanFactory.getBean(RsaKey.class);
             return RsaUtil.privateDecrypt(password, rsaKey.getPrivateKey());
-        } catch (NoSuchAlgorithmException e) {
+        } catch (Exception e) {
             return password;
         }
     }

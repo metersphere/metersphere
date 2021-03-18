@@ -1,6 +1,6 @@
 <template>
-  <el-dialog title="表头显示字段" :visible.sync="dialogTableVisible"  :append-to-body="true">
-    <tree-transfer :title="['待选字段', '已选字段']"
+  <el-dialog :title="$t('table.header_display_field')" :visible.sync="dialogTableVisible" :append-to-body="true">
+    <tree-transfer :title="[$t('table.fields_to_be_selected'), $t('table.selected_fields')]"
                    :from_data='optionalFields'
                    :draggable="true"
                    :to_data='fieldSelected'
