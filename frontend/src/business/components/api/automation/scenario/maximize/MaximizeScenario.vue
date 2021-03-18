@@ -50,7 +50,7 @@
         </div>
       </ms-aside-container>
 
-      <ms-main-container>
+      <ms-main-container v-if="!loading">
         <!-- 第一层当前节点内容-->
         <ms-component-config
           :isMax="false"
@@ -234,6 +234,11 @@
       this.projectId = getCurrentProjectID();
       this.operatingElements = ELEMENTS.get("ALL");
       this.projectEnvMap = this.envMap;
+    },
+    watch: {
+      envMap() {
+        this.projectEnvMap = this.envMap;
+      }
     },
     directives: {OutsideClick},
     computed: {
@@ -877,8 +882,7 @@
           this.currentScenario.apiScenarioModuleId = this.currentModule.id;
         }
         this.currentScenario.projectId = this.projectId;
-      }
-      ,
+      },
       runRefresh() {
         this.debugVisible = true;
         this.loading = false;
@@ -911,7 +915,9 @@
       setProjectEnvMap(projectEnvMap) {
         this.projectEnvMap = projectEnvMap;
       },
-      refReload() {
+      refReload(data,node) {
+        this.selectedTreeNode = data;
+        this.selectedNode = node;
         this.initProjectIds();
         this.reload();
       },

@@ -124,14 +124,14 @@
         this.$emit('copyRow', row, node);
 
       },
-      openScenario(data){
+      openScenario(data) {
         this.$emit('openScenario', data);
       },
       suggestClick(node) {
         this.$emit('suggestClick', node);
       },
-      refReload() {
-        this.$emit('refReload');
+      refReload(data, node) {
+        this.$emit('refReload', data, node);
       }
     }
   }
