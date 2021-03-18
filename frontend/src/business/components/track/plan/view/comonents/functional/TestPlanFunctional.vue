@@ -11,10 +11,10 @@
     <template v-slot:main>
       <ms-tab-button
         :active-dom.sync="activeDom"
-        :left-tip="'用例列表'"
+        :left-tip="$t('api_test.definition.case_title')"
         :left-content="'CASE'"
-        :right-tip="'脑图'"
-        :right-content="'脑图'"
+        :right-tip="$t('test_track.case.minder')"
+        :right-content="$t('test_track.case.minder')"
         :middle-button-enable="false">
       <functional-test-case-list
         class="table-list"

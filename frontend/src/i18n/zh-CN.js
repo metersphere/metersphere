@@ -1106,6 +1106,7 @@ export default {
     cancel_relevance_success: "取消关联成功",
     switch_project: "切换项目",
     case: {
+      minder: "脑图",
       check_select: "请勾选用例",
       export_all_cases: '确定要导出全部用例吗?',
       input_test_case: '请输入关联用例名称',
@@ -1314,6 +1315,7 @@ export default {
       executor: "执行人",
       execute_result: "执行结果",
       pass: "通过",
+      not_pass: "不通过",
       failure: "失败",
       blocking: "阻塞",
       skip: "跳过",
