@@ -2,8 +2,17 @@
   <div>
     <el-card class="table-card" v-loading="result.loading">
 
-      <env-popover :env-map="projectEnvMap" :project-ids="projectIds" @setProjectEnvMap="setProjectEnvMap"
-                   :project-list="projectList" ref="envPopover" class="env-popover"/>
+      <template v-slot:header>
+        <el-row>
+          <el-col :span="8" :offset="11">
+            <el-input :placeholder="$t('api_test.definition.request.select_case')" @blur="search"
+                      @keyup.enter.native="search" class="search-input" size="small" v-model="condition.name"/>
+          </el-col>
+
+          <env-popover :env-map="projectEnvMap" :project-ids="projectIds" @setProjectEnvMap="setProjectEnvMap"
+                       :project-list="projectList" ref="envPopover" class="env-popover"/>
+        </el-row>
+      </template>
 
       <el-table ref="scenarioTable" border :data="tableData" class="adjust-table" @select-all="handleSelectAll" @select="handleSelect">
         <el-table-column type="selection"/>

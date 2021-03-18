@@ -46,7 +46,7 @@
           <ms-failure-test-case-list @redirectPage="redirectPage"/>
         </el-col>
         <el-col :span="12">
-          <ms-running-task-list @redirectPage="redirectPage"/>
+          <ms-running-task-list :call-from="'api_test'" @redirectPage="redirectPage"/>
         </el-col>
       </el-row>
 

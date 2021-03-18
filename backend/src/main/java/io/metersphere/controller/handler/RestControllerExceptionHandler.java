@@ -2,6 +2,7 @@ package io.metersphere.controller.handler;
 
 
 import io.metersphere.commons.exception.MSException;
+import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.controller.ResultHolder;
 import org.apache.shiro.ShiroException;
 import org.apache.shiro.authz.UnauthorizedException;
@@ -34,6 +35,7 @@ public class RestControllerExceptionHandler {
     @ExceptionHandler(SQLException.class)
     public ResultHolder sqlExceptionHandler(HttpServletRequest request, HttpServletResponse response, SQLException e) {
         response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
+        LogUtil.error(e);
         return ResultHolder.error("SQL error happened, please check logs.");
     }
 

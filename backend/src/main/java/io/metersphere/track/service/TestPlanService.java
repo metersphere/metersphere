@@ -194,7 +194,6 @@ public class TestPlanService {
                 testPlan.setActualEndTime(System.currentTimeMillis());
             }
         }
-        extScheduleMapper.updateNameByResourceID(testPlan.getId(), testPlan.getName());//   同步更新该测试的定时任务的name
 
         List<String> userIds = new ArrayList<>();
         userIds.add(testPlan.getPrincipal());
@@ -204,6 +203,7 @@ public class TestPlanService {
             i = testPlanMapper.updateByPrimaryKeySelective(testPlan);
         }
         else {  //  有修改字段的调用，为保证将某些时间置null的情况，使用updateByPrimaryKey
+            extScheduleMapper.updateNameByResourceID(testPlan.getId(), testPlan.getName());//   同步更新该测试的定时任务的name
             i = testPlanMapper.updateByPrimaryKey(testPlan); //  更新
         }
         if (!StringUtils.isBlank(testPlan.getStatus())) {
