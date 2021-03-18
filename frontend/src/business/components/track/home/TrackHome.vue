@@ -29,12 +29,12 @@
       <el-row :gutter="10">
         <el-col :span="6">
           <div class="square">
-            <case-count-card :track-count-data="trackCountData" class="track-card"/>
+            <case-count-card :track-count-data="trackCountData" class="track-card" @redirectPage="redirectPage"/>
           </div>
         </el-col>
         <el-col :span="6">
           <div class="square">
-            <relevance-case-card :relevance-count-data="relevanceCountData" class="track-card"/>
+            <relevance-case-card :relevance-count-data="relevanceCountData" class="track-card" @redirectPage="redirectPage"/>
           </div>
         </el-col>
         <el-col :span="12">
@@ -189,8 +189,12 @@ export default {
     redirectPage(page,dataType,selectType){
       //test_plan 页面跳转
       this.$router.push('/track/plan/view/'+selectType);
-    },
-
+      switch (page){
+        case "case":
+          this.$router.push({name:'testCase',params:{dataType:dataType,dataSelectRange:selectType, projectId: getCurrentProjectID()}});
+          break;
+      }
+    }
   }
 }
 </script>

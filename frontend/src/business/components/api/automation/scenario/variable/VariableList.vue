@@ -1,96 +1,101 @@
 <template>
   <el-dialog title="场景变量" :close-on-click-modal="false"
              :visible.sync="visible" class="visible-dialog" width="60%"
-             @close="close" v-loading="loading">
-    <el-tabs v-model="activeName">
-      <el-tab-pane :label="$t('api_test.scenario.variables')" name="variable">
-        <div style="margin-top: 10px">
-          <el-row style="margin-bottom: 10px">
-            <el-col :span="8">
-              <el-input placeholder="变量名称搜索" v-model="selectVariable" size="small" @change="filter"
-                        @keyup.enter="filter">
-                <el-select v-model="searchType" slot="prepend" placeholder="类型" style="width: 90px" @change="filter">
-                  <el-option value="CONSTANT" label="常量"></el-option>
-                  <el-option value="LIST" label="列表"></el-option>
-                  <el-option value="CSV" label="CSV"></el-option>
-                  <el-option value="COUNTER" label="计数器"></el-option>
-                  <el-option value="RANDOM" label="随机数"></el-option>
-                </el-select>
-              </el-input>
-            </el-col>
+             @close="close" v-loading="loading" append-to-body>
+    <fieldset :disabled="disabled" class="ms-fieldset">
+      <el-collapse-transition>
 
-            <el-col :span="6">
-              <el-dropdown split-button type="primary" @command="handleClick" @click="handleClick('CONSTANT')"
-                           size="small" style="margin-left: 10px">
-                {{ $t('commons.add') }}
-                <el-dropdown-menu slot="dropdown">
-                  <el-dropdown-item command="CONSTANT">常量</el-dropdown-item>
-                  <el-dropdown-item command="LIST">列表</el-dropdown-item>
-                  <el-dropdown-item command="CSV">CSV</el-dropdown-item>
-                  <el-dropdown-item command="COUNTER">计数器</el-dropdown-item>
-                  <el-dropdown-item command="RANDOM">随机数</el-dropdown-item>
-                </el-dropdown-menu>
-              </el-dropdown>
-              <el-button size="small" style="margin-left: 10px" @click="deleteVariable">{{ $t('commons.delete') }}
-              </el-button>
+        <el-tabs v-model="activeName">
+          <el-tab-pane :label="$t('api_test.scenario.variables')" name="variable">
+            <div style="margin-top: 10px">
+              <el-row style="margin-bottom: 10px">
+                <el-col :span="8">
+                  <el-input placeholder="变量名称搜索" v-model="selectVariable" size="small" @change="filter"
+                            @keyup.enter="filter">
+                    <el-select v-model="searchType" slot="prepend" placeholder="类型" style="width: 90px" @change="filter">
+                      <el-option value="CONSTANT" label="常量"></el-option>
+                      <el-option value="LIST" label="列表"></el-option>
+                      <el-option value="CSV" label="CSV"></el-option>
+                      <el-option value="COUNTER" label="计数器"></el-option>
+                      <el-option value="RANDOM" label="随机数"></el-option>
+                    </el-select>
+                  </el-input>
+                </el-col>
 
-            </el-col>
-          </el-row>
-          <el-row>
-            <el-col :span="12">
-              <div style="border:1px #DCDFE6 solid; min-height: 400px;border-radius: 4px ;width: 100% ;">
-                <el-table ref="table" border :data="variables" class="adjust-table" @select-all="select"
-                          @select="select"
-                          v-loading="loading" @row-click="edit" height="400px" :row-class-name="tableRowClassName">
-                  <el-table-column type="selection" width="38"/>
-                  <el-table-column prop="num" label="ID" sortable/>
-                  <el-table-column prop="name" :label="$t('api_test.variable_name')" sortable show-overflow-tooltip/>
-                  <el-table-column prop="type" :label="$t('test_track.case.type')">
-                    <template v-slot:default="scope">
-                      <span>{{ types.get(scope.row.type) }}</span>
-                    </template>
-                  </el-table-column>
-                  <el-table-column prop="value" :label="$t('api_test.value')" show-overflow-tooltip/>
-                </el-table>
-              </div>
-            </el-col>
-            <el-col :span="12">
-              <ms-edit-constant v-if="editData.type=='CONSTANT'" ref="parameters" :editData.sync="editData"/>
-              <ms-edit-counter v-if="editData.type=='COUNTER'" ref="counter" :editData.sync="editData"/>
-              <ms-edit-random v-if="editData.type=='RANDOM'" ref="random" :editData.sync="editData"/>
-              <ms-edit-list-value v-if="editData.type=='LIST'" ref="listValue" :editData="editData"/>
-              <ms-edit-csv v-if="editData.type=='CSV'" ref="csv" :editData.sync="editData"/>
-            </el-col>
-          </el-row>
-        </div>
+                <el-col :span="6">
+                  <el-dropdown split-button type="primary" @command="handleClick" @click="handleClick('CONSTANT')"
+                               size="small" style="margin-left: 10px">
+                    {{ $t('commons.add') }}
+                    <el-dropdown-menu slot="dropdown">
+                      <el-dropdown-item command="CONSTANT">常量</el-dropdown-item>
+                      <el-dropdown-item command="LIST">列表</el-dropdown-item>
+                      <el-dropdown-item command="CSV">CSV</el-dropdown-item>
+                      <el-dropdown-item command="COUNTER">计数器</el-dropdown-item>
+                      <el-dropdown-item command="RANDOM">随机数</el-dropdown-item>
+                    </el-dropdown-menu>
+                  </el-dropdown>
+                  <el-button size="small" style="margin-left: 10px" @click="deleteVariable">{{ $t('commons.delete') }}
+                  </el-button>
+
+                </el-col>
+              </el-row>
+              <el-row>
+                <el-col :span="12">
+                  <div style="border:1px #DCDFE6 solid; min-height: 400px;border-radius: 4px ;width: 100% ;">
+                    <el-table ref="table" border :data="variables" class="adjust-table" @select-all="select"
+                              @select="select"
+                              v-loading="loading" @row-click="edit" height="400px" :row-class-name="tableRowClassName">
+                      <el-table-column type="selection" width="38"/>
+                      <el-table-column prop="num" label="ID" sortable/>
+                      <el-table-column prop="name" :label="$t('api_test.variable_name')" sortable show-overflow-tooltip/>
+                      <el-table-column prop="type" :label="$t('test_track.case.type')">
+                        <template v-slot:default="scope">
+                          <span>{{ types.get(scope.row.type) }}</span>
+                        </template>
+                      </el-table-column>
+                      <el-table-column prop="value" :label="$t('api_test.value')" show-overflow-tooltip/>
+                    </el-table>
+                  </div>
+                </el-col>
+                <el-col :span="12">
+                  <ms-edit-constant v-if="editData.type=='CONSTANT'" ref="parameters" :editData.sync="editData"/>
+                  <ms-edit-counter v-if="editData.type=='COUNTER'" ref="counter" :editData.sync="editData"/>
+                  <ms-edit-random v-if="editData.type=='RANDOM'" ref="random" :editData.sync="editData"/>
+                  <ms-edit-list-value v-if="editData.type=='LIST'" ref="listValue" :editData="editData"/>
+                  <ms-edit-csv v-if="editData.type=='CSV'" ref="csv" :editData.sync="editData"/>
+                </el-col>
+              </el-row>
+            </div>
 
 
-      </el-tab-pane>
-      <el-tab-pane :label="$t('api_test.scenario.headers')" name="headers">
-        <!-- 请求头-->
-        <el-tooltip class="item-tabs" effect="dark" :content="$t('api_test.request.headers')" placement="top-start"
-                    slot="label">
+          </el-tab-pane>
+          <el-tab-pane :label="$t('api_test.scenario.headers')" name="headers">
+            <!-- 请求头-->
+            <el-tooltip class="item-tabs" effect="dark" :content="$t('api_test.request.headers')" placement="top-start"
+                        slot="label">
           <span>{{ $t('api_test.request.headers') }}
             <div class="el-step__icon is-text ms-api-col ms-variable-header" v-if="headers.length>1">
               <div class="el-step__icon-inner">{{ headers.length - 1 }}</div>
             </div>
           </span>
-        </el-tooltip>
-        <el-row>
-          <el-link class="ms-variable-link" @click="batchAdd" style="color: #783887"> {{ $t("commons.batch_add") }}
-          </el-link>
-        </el-row>
-        <div style="min-height: 400px">
-          <ms-api-key-value :items="headers" :suggestions="headerSuggestions"/>
-          <batch-add-parameter @batchSave="batchSave" ref="batchAddParameter"/>
-        </div>
-      </el-tab-pane>
-    </el-tabs>
-    <template v-slot:footer>
-      <div>
-        <el-button type="primary" @click="save">{{ $t('commons.confirm') }}</el-button>
-      </div>
-    </template>
+            </el-tooltip>
+            <el-row>
+              <el-link class="ms-variable-link" @click="batchAdd" style="color: #783887"> {{ $t("commons.batch_add") }}
+              </el-link>
+            </el-row>
+            <div style="min-height: 400px">
+              <ms-api-key-value :items="headers" :suggestions="headerSuggestions"/>
+              <batch-add-parameter @batchSave="batchSave" ref="batchAddParameter"/>
+            </div>
+          </el-tab-pane>
+        </el-tabs>
+        <template v-slot:footer>
+          <div>
+            <el-button type="primary" @click="save">{{ $t('commons.confirm') }}</el-button>
+          </div>
+        </template>
+      </el-collapse-transition>
+    </fieldset>
   </el-dialog>
 </template>
 
@@ -146,6 +151,7 @@
         pageSize: 10,
         total: 0,
         headerSuggestions: REQUEST_HEADERS,
+        disabled: false,
       }
     },
     methods: {
@@ -212,12 +218,13 @@
       isSelect(row) {
         return this.selection.includes(row.id)
       },
-      open: function (variables, headers) {
+      open: function (variables, headers, disabled) {
         this.variables = variables;
         this.headers = headers;
         this.visible = true;
         this.editData = {type: "CONSTANT"};
         this.addParameters(this.editData);
+        this.disabled = disabled;
       },
       save() {
         this.visible = false;
@@ -301,5 +308,12 @@
   .ms-variable-link {
     float: right;
     margin-right: 45px;
+  }
+  fieldset {
+    padding: 0px;
+    margin: 0px;
+    min-width: 100%;
+    min-inline-size: 0px;
+    border: 0px;
   }
 </style>

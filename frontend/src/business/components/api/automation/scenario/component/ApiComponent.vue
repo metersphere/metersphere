@@ -1,65 +1,67 @@
 <template>
-  <api-base-component
-    v-loading="loading"
-    @copy="copyRow"
-    @remove="remove"
-    @active="active"
-    :is-show-name-input="!isDeletedOrRef"
-    :data="request"
-    :draggable="true"
-    :color="displayColor.color"
-    :background-color="displayColor.backgroundColor"
-    :is-max="isMax"
-    :show-btn="showBtn"
-    :title="displayTitle">
+  <div>
+    <api-base-component
+      v-loading="loading"
+      @copy="copyRow"
+      @remove="remove"
+      @active="active"
+      :is-show-name-input="!isDeletedOrRef"
+      :data="request"
+      :draggable="draggable"
+      :color="displayColor.color"
+      :background-color="displayColor.backgroundColor"
+      :is-max="isMax"
+      :show-btn="showBtn"
+      :title="displayTitle">
 
-    <template v-slot:behindHeaderLeft>
-      <el-tag size="mini" class="ms-tag" v-if="request.referenced==='Deleted'" type="danger">{{$t('api_test.automation.reference_deleted')}}</el-tag>
-      <el-tag size="mini" class="ms-tag" v-if="request.referenced==='Copy'">{{ $t('commons.copy') }}</el-tag>
-      <el-tag size="mini" class="ms-tag" v-if="request.referenced ==='REF'">{{ $t('api_test.scenario.reference') }}</el-tag>
-      <span class="ms-tag">{{getProjectName(request.projectId)}}</span>
-      <ms-run :debug="true" :reportId="reportId" :run-data="runData" :env-map="envMap"
-              @runRefresh="runRefresh" ref="runTest"/>
+      <template v-slot:behindHeaderLeft>
+        <el-tag size="mini" class="ms-tag" v-if="request.referenced==='Deleted'" type="danger">{{$t('api_test.automation.reference_deleted')}}</el-tag>
+        <el-tag size="mini" class="ms-tag" v-if="request.referenced==='Copy'">{{ $t('commons.copy') }}</el-tag>
+        <el-tag size="mini" class="ms-tag" v-if="request.referenced ==='REF'">{{ $t('api_test.scenario.reference') }}</el-tag>
+        <span class="ms-tag">{{getProjectName(request.projectId)}}</span>
+      </template>
 
-    </template>
+      <template v-slot:button>
+        <el-tooltip :content="$t('api_test.run')" placement="top">
+          <el-button @click="run" icon="el-icon-video-play" class="ms-btn" size="mini" circle/>
+        </el-tooltip>
+      </template>
 
-    <template v-slot:button>
-      <el-tooltip :content="$t('api_test.run')" placement="top">
-        <el-button @click="run" icon="el-icon-video-play" class="ms-btn" size="mini" circle/>
-      </el-tooltip>
-    </template>
+      <customize-req-info :is-customize-req="isCustomizeReq" :request="request"/>
 
-    <customize-req-info :is-customize-req="isCustomizeReq" :request="request"/>
-
-    <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
-    <ms-api-request-form :isShowEnable="true" :referenced="true" :headers="request.headers " :request="request"
-                         v-if="request.protocol==='HTTP' || request.type==='HTTPSamplerProxy'"/>
-    <ms-tcp-basis-parameters :request="request" v-if="request.protocol==='TCP'|| request.type==='TCPSampler'" :showScript="false"/>
-    <ms-sql-basis-parameters :request="request" v-if="request.protocol==='SQL'|| request.type==='JDBCSampler'"
-                             :showScript="false"/>
-    <ms-dubbo-basis-parameters :request="request"
-                               v-if="request.protocol==='DUBBO' || request.protocol==='dubbo://'|| request.type==='DubboSampler'"
+      <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
+      <ms-api-request-form :isShowEnable="true" :referenced="true" :headers="request.headers " :request="request"
+                           v-if="request.protocol==='HTTP' || request.type==='HTTPSamplerProxy'"/>
+      <ms-tcp-basis-parameters :request="request" v-if="request.protocol==='TCP'|| request.type==='TCPSampler'" :showScript="false"/>
+      <ms-sql-basis-parameters :request="request" v-if="request.protocol==='SQL'|| request.type==='JDBCSampler'"
                                :showScript="false"/>
+      <ms-dubbo-basis-parameters :request="request"
+                                 v-if="request.protocol==='DUBBO' || request.protocol==='dubbo://'|| request.type==='DubboSampler'"
+                                 :showScript="false"/>
 
-    <p class="tip">{{ $t('api_test.definition.request.res_param') }} </p>
-    <div v-if="request.result">
-      <el-tabs v-model="request.activeName" closable class="ms-tabs">
-        <el-tab-pane :label="item.name" :name="item.name" v-for="(item,index) in request.result.scenarios" :key="index">
-          <div v-for="(result,i) in item.requestResults" :key="i" style="margin-bottom: 5px">
-            <api-response-component v-if="result.name===request.name" :result="result"/>
-          </div>
-        </el-tab-pane>
-      </el-tabs>
-    </div>
-    <api-response-component :currentProtocol="request.protocol" :result="request.requestResult" v-else/>
+      <p class="tip">{{ $t('api_test.definition.request.res_param') }} </p>
+      <div v-if="request.result">
+        <el-tabs v-model="request.activeName" closable class="ms-tabs">
+          <el-tab-pane :label="item.name" :name="item.name" v-for="(item,index) in request.result.scenarios" :key="index">
+            <div v-for="(result,i) in item.requestResults" :key="i" style="margin-bottom: 5px">
+              <api-response-component v-if="result.name===request.name" :result="result"/>
+            </div>
+          </el-tab-pane>
+        </el-tabs>
+      </div>
+      <api-response-component :currentProtocol="request.protocol" :result="request.requestResult" v-else/>
 
-    <!-- 保存操作 -->
-    <el-button type="primary" size="small" class="ms-btn-flot" @click="saveTestCase(item)"
-               v-if="!request.referenced">
-      {{ $t('commons.save') }}
-    </el-button>
+      <!-- 保存操作 -->
+      <el-button type="primary" size="small" class="ms-btn-flot" @click="saveTestCase(item)"
+                 v-if="!request.referenced">
+        {{ $t('commons.save') }}
+      </el-button>
+    </api-base-component>
+    <ms-run :debug="true" :reportId="reportId" :run-data="runData" :env-map="envMap"
+            @runRefresh="runRefresh" ref="runTest"/>
 
-  </api-base-component>
+
+  </div>
 </template>
 
 <script>
@@ -73,7 +75,6 @@
   import ApiBaseComponent from "../common/ApiBaseComponent";
   import ApiResponseComponent from "./ApiResponseComponent";
   import CustomizeReqInfo from "@/business/components/api/automation/scenario/common/CustomizeReqInfo";
-  import {ELEMENTS} from "../Setting";
 
   export default {
     name: "MsApiComponent",
@@ -133,11 +134,6 @@
           }
         }
       }
-      // if (this.isMax && this.request && ELEMENTS.get("AllSamplerProxy").indexOf(this.request.type) != -1
-      //   && this.request.hashTree && this.request.hashTree != null && this.request.hashTree.length > 0) {
-      //   this.request.hashTrees = JSON.parse(JSON.stringify(this.request.hashTree));
-      //   this.request.hashTree = undefined;
-      // }
     },
     computed: {
       displayColor() {
@@ -236,12 +232,6 @@
               if (!this.request.projectId) {
                 this.request.projectId = response.data.projectId;
               }
-              // if (this.isMax && this.request && ELEMENTS.get("AllSamplerProxy").indexOf(this.request.type) != -1) {
-              //   this.request.hashTrees = [];
-              //   Object.assign(this.request.hashTrees, this.request.hashTree);
-              //   this.request.hashTree = [];
-              // }
-
               this.reload();
               this.sort();
             } else {
@@ -285,7 +275,6 @@
             }
           }
         }
-
         this.request.active = true;
         this.loading = true;
         this.runData = [];
@@ -299,12 +288,13 @@
         };
         this.runData.push(debugData);
         /*触发执行操作*/
-        this.reportId = getUUID().substring(0, 8);
+        this.reportId = getUUID();
       },
       runRefresh(data) {
         this.request.requestResult = data;
         this.request.result = undefined;
         this.loading = false;
+        this.$emit('refReload',this.request,this.node);
       },
       reload() {
         this.loading = true
@@ -328,7 +318,7 @@
   }
 
   /deep/ .el-card__body {
-    padding: 15px;
+    padding: 10px;
   }
 
   .tip {
@@ -337,14 +327,6 @@
     border-radius: 4px;
     border-left: 4px solid #783887;
     margin: 20px 0;
-  }
-
-  .name-input {
-    width: 30%;
-  }
-
-  .el-icon-arrow-right {
-    margin-right: 5px;
   }
 
   .icon.is-active {

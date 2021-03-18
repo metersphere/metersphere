@@ -46,7 +46,7 @@ public class TestPlanLoadCaseService {
     private LoadTestMapper loadTestMapper;
 
     public List<LoadTest> relevanceList(LoadCaseRequest request) {
-        List<String> ids = extTestPlanLoadCaseMapper.selectIdsNotInPlan(request.getProjectId(), request.getTestPlanId());
+        List<String> ids = extTestPlanLoadCaseMapper.selectIdsNotInPlan(request);
         if (CollectionUtils.isEmpty(ids)) {
             return new ArrayList<>();
         }

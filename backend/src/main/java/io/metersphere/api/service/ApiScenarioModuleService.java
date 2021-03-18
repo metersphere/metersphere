@@ -100,7 +100,9 @@ public class ApiScenarioModuleService extends NodeTreeService<ApiScenarioModuleD
             scenarioModuleDTO.setName(name);
             scenarioModuleDTO.setLabel(name);
             scenarioModuleDTO.setChildren(nodeList);
-            list.add(scenarioModuleDTO);
+            if (!org.springframework.util.CollectionUtils.isEmpty(nodeList)) {
+                list.add(scenarioModuleDTO);
+            }
         });
         return list;
     }

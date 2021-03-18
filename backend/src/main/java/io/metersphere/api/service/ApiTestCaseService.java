@@ -18,10 +18,7 @@ import io.metersphere.api.dto.scenario.request.RequestType;
 import io.metersphere.api.jmeter.JMeterService;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
-import io.metersphere.base.mapper.ext.ExtApiDefinitionExecResultMapper;
-import io.metersphere.base.mapper.ext.ExtApiTestCaseMapper;
-import io.metersphere.base.mapper.ext.ExtTestPlanApiCaseMapper;
-import io.metersphere.base.mapper.ext.ExtTestPlanTestCaseMapper;
+import io.metersphere.base.mapper.ext.*;
 import io.metersphere.commons.constants.TestPlanStatus;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
@@ -52,6 +49,8 @@ import java.util.stream.Collectors;
 public class ApiTestCaseService {
     @Resource
     TestPlanMapper testPlanMapper;
+    @Resource
+    TestCaseReviewMapper  testCaseReviewMapper;
     @Resource
     private ApiTestCaseMapper apiTestCaseMapper;
     @Resource
@@ -313,7 +312,16 @@ public class ApiTestCaseService {
         List<ApiTestCase> apiTestCases = apiTestCaseMapper.selectByExample(example);
         relevance(apiTestCases, request);
     }
-
+    public void relevanceByApiByReview(ApiCaseRelevanceRequest request){
+        List<String> ids = request.getSelectIds();
+        if (CollectionUtils.isEmpty(ids)) {
+            return;
+        }
+        ApiTestCaseExample example = new ApiTestCaseExample();
+        example.createCriteria().andIdIn(ids);
+        List<ApiTestCase> apiTestCases = apiTestCaseMapper.selectByExample(example);
+        relevanceByReview(apiTestCases, request);
+    }
     public void relevanceByCase(ApiCaseRelevanceRequest request) {
         List<String> ids = request.getSelectIds();
         if (CollectionUtils.isEmpty(ids)) {
@@ -350,8 +358,32 @@ public class ApiTestCaseService {
         sqlSession.flushStatements();
     }
 
+    private void relevanceByReview(List<ApiTestCase> apiTestCases, ApiCaseRelevanceRequest request) {
+        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+        ExtTestCaseReviewApiCaseMapper batchMapper = sqlSession.getMapper(ExtTestCaseReviewApiCaseMapper.class);
+        apiTestCases.forEach(apiTestCase -> {
+            TestCaseReviewApiCase TestCaseReviewApiCase = new TestCaseReviewApiCase();
+            TestCaseReviewApiCase.setId(UUID.randomUUID().toString());
+            TestCaseReviewApiCase.setApiCaseId(apiTestCase.getId());
+            TestCaseReviewApiCase.setTestCaseReviewId(request.getReviewId());
+            TestCaseReviewApiCase.setEnvironmentId(request.getEnvironmentId());
+            TestCaseReviewApiCase.setCreateTime(System.currentTimeMillis());
+            TestCaseReviewApiCase.setUpdateTime(System.currentTimeMillis());
+            batchMapper.insertIfNotExists(TestCaseReviewApiCase);
+        });
+        TestCaseReview  testCaseReview=testCaseReviewMapper.selectByPrimaryKey(request.getReviewId());
+        if (StringUtils.equals(testCaseReview.getStatus(), TestPlanStatus.Prepare.name())
+                || StringUtils.equals(testCaseReview.getStatus(), TestPlanStatus.Completed.name())) {
+            testCaseReview.setStatus(TestPlanStatus.Underway.name());
+            testCaseReviewMapper.updateByPrimaryKey(testCaseReview);
+        }
+        sqlSession.flushStatements();
+    }
     public List<String> selectIdsNotExistsInPlan(String projectId, String planId) {
         return extApiTestCaseMapper.selectIdsNotExistsInPlan(projectId, planId);
+    }
+    public List<String> selectIdsNotExistsInReview(String projectId,String reviewId){
+        return extApiTestCaseMapper.selectIdsNotExistsInReview(projectId,reviewId);
     }
 
     public List<ApiDataCountResult> countProtocolByProjectID(String projectId) {

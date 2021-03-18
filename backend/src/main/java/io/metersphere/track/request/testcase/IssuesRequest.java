@@ -21,4 +21,10 @@ public class IssuesRequest {
      * zentao bug 影响版本
      */
     private List<String> zentaoBuilds;
+
+    /**
+     * issues id
+     */
+    private String id;
+    private String caseId;
 }

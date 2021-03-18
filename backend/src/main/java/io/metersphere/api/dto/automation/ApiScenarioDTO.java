@@ -18,4 +18,6 @@ public class ApiScenarioDTO extends ApiScenarioWithBLOBs {
      * 场景跨项目ID
      */
     private List<String> projectIds;
+
+    private String caseId;
 }

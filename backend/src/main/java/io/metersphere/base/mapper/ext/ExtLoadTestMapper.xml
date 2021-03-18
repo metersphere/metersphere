@@ -102,7 +102,12 @@
         <if test="request.orders != null and request.orders.size() > 0">
             ORDER BY
             <foreach collection="request.orders" separator="," item="order">
-                load_test.${order.name} ${order.type}
+                <if test="order.name == 'user_name'">
+                    user_name ${order.type}
+                </if>
+                <if test="order.name != 'user_name'">
+                    load_test.${order.name} ${order.type}
+                </if>
             </foreach>
         </if>
     </select>
@@ -132,11 +137,9 @@
         select * from load_test lt where lt.project_id = #{projectId} ORDER BY num DESC LIMIT 1;
     </select>
 
-    <select id="getProjectFiles" resultType="io.metersphere.performance.dto.LoadTestFileDTO">
-        SELECT file_metadata.*, load_test.id as testId, load_test.name as testName
-        FROM load_test
-                     JOIN load_test_file ON load_test.id = load_test_file.test_id
-                     JOIN file_metadata ON load_test_file.file_id = file_metadata.id
+    <select id="getProjectFiles" resultType="io.metersphere.base.domain.FileMetadata">
+        SELECT file_metadata.*
+        FROM file_metadata
         WHERE file_metadata.type IN
         <foreach collection="loadTypes" item="id" separator="," open="(" close=")">
             #{id}

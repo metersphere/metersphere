@@ -39,6 +39,13 @@ public class TestPlanTestCaseController {
         return testPlanTestCaseService.listByPlanId(request);
     }
 
+    @GetMapping("/list/minder/{planId}")
+    public List<TestPlanCaseDTO> listForMinder(@PathVariable String planId) {
+        QueryTestPlanCaseRequest request = new QueryTestPlanCaseRequest();
+        request.setPlanId(planId);
+        return testPlanTestCaseService.listForMinder(planId);
+    }
+
     @GetMapping("/list/node/{planId}/{nodePaths}")
     public List<TestPlanCaseDTO> getTestPlanCasesByNodePath(@PathVariable String planId, @PathVariable String nodePaths) {
         String nodePath = nodePaths.replace("f", "/");
@@ -92,6 +99,12 @@ public class TestPlanTestCaseController {
     @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
     public void editTestCase(@RequestBody TestPlanTestCaseWithBLOBs testPlanTestCase) {
         testPlanTestCaseService.editTestCase(testPlanTestCase);
+    }
+
+    @PostMapping("/minder/edit")
+    @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
+    public void editTestCaseForMinder(@RequestBody List<TestPlanTestCaseWithBLOBs> testPlanTestCases) {
+        testPlanTestCaseService.editTestCaseForMinder(testPlanTestCases);
     }
 
     @PostMapping("/batch/edit")

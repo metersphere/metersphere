@@ -6,10 +6,7 @@ import io.metersphere.base.mapper.ext.ExtProjectMapper;
 import io.metersphere.base.mapper.ext.ExtTestCaseMapper;
 import io.metersphere.base.mapper.ext.ExtTestCaseReviewMapper;
 import io.metersphere.base.mapper.ext.ExtTestReviewCaseMapper;
-import io.metersphere.commons.constants.NoticeConstants;
-import io.metersphere.commons.constants.TestCaseReviewStatus;
-import io.metersphere.commons.constants.TestPlanStatus;
-import io.metersphere.commons.constants.TestReviewCaseStatus;
+import io.metersphere.commons.constants.*;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.user.SessionUser;
 import io.metersphere.commons.utils.LogUtil;
@@ -77,6 +74,19 @@ public class TestCaseReviewService {
     private NoticeSendService noticeSendService;
     @Resource
     private SystemParameterService systemParameterService;
+    @Resource
+    private TestCaseReviewLoadMapper testCaseReviewLoadMapper;
+    @Resource
+    private TestCaseReviewApiCaseMapper testCaseReviewApiCaseMapper;
+    @Resource
+    private TestCaseReviewScenarioMapper testCaseReviewScenarioMapper;
+    @Resource
+    private ApiTestCaseMapper apiTestCaseMapper;
+    @Resource
+    private ApiScenarioMapper apiScenarioMapper;
+    @Resource
+    private ApiDefinitionMapper apiDefinitionMapper;
+
 
     public String saveTestCaseReview(SaveTestCaseReviewRequest reviewRequest) {
         checkCaseReviewExist(reviewRequest);
@@ -366,7 +376,65 @@ public class TestCaseReviewService {
         }
 
         sqlSession.flushStatements();
+        //同步添加关联的接口和测试用例
+        if(request.getChecked()){
+            if (!testCaseIds.isEmpty()) {
+                testCaseIds.forEach(caseId -> {
+                    TestCaseWithBLOBs testDtail=testCaseMapper.selectByPrimaryKey(caseId);
+                    if(StringUtils.equals(testDtail.getType(), TestCaseStatus.performance.name())){
+                        TestCaseReviewLoad t=new TestCaseReviewLoad();
+                        t.setId(UUID.randomUUID().toString());
+                        t.setTestCaseReviewId(request.getReviewId());
+                        t.setLoadCaseId(testDtail.getTestId());
+                        t.setCreateTime(System.currentTimeMillis());
+                        t.setUpdateTime(System.currentTimeMillis());
+                        TestCaseReviewLoadExample example=new TestCaseReviewLoadExample();
+                        example.createCriteria().andTestCaseReviewIdEqualTo(request.getReviewId()).andLoadCaseIdEqualTo(t.getLoadCaseId());
+                        if (testCaseReviewLoadMapper.countByExample(example) <=0) {
+                            testCaseReviewLoadMapper.insert(t);
+                        }
 
+                    }
+                    if(StringUtils.equals(testDtail.getType(),TestCaseStatus.testcase.name())){
+                        TestCaseReviewApiCase t=new TestCaseReviewApiCase();
+                        ApiTestCaseWithBLOBs apitest=apiTestCaseMapper.selectByPrimaryKey(testDtail.getTestId());
+                        ApiDefinitionWithBLOBs apidefinition=apiDefinitionMapper.selectByPrimaryKey(apitest.getApiDefinitionId());
+                        t.setId(UUID.randomUUID().toString());
+                        t.setTestCaseReviewId(request.getReviewId());
+                        t.setApiCaseId(testDtail.getTestId());
+                        t.setEnvironmentId(apidefinition.getEnvironmentId());
+                        t.setCreateTime(System.currentTimeMillis());
+                        t.setUpdateTime(System.currentTimeMillis());
+                        TestCaseReviewApiCaseExample example=new TestCaseReviewApiCaseExample();
+                        example.createCriteria().andTestCaseReviewIdEqualTo(request.getReviewId()).andApiCaseIdEqualTo(t.getApiCaseId());
+                        if(testCaseReviewApiCaseMapper.countByExample(example)<=0){
+                            testCaseReviewApiCaseMapper.insert(t);
+                        }
+
+                    }
+                    if(StringUtils.equals(testDtail.getType(),TestCaseStatus.automation.name())){
+                        TestCaseReviewScenario t=new TestCaseReviewScenario();
+                        ApiScenarioWithBLOBs testPlanApiScenario=apiScenarioMapper.selectByPrimaryKey(testDtail.getTestId());
+                        t.setId(UUID.randomUUID().toString());
+                        t.setTestCaseReviewId(request.getReviewId());
+                        t.setApiScenarioId(testDtail.getTestId());
+                        t.setLastResult(testPlanApiScenario.getLastResult());
+                        t.setPassRate(testPlanApiScenario.getPassRate());
+                        t.setReportId(testPlanApiScenario.getReportId());
+                        t.setStatus(testPlanApiScenario.getStatus());
+                        t.setCreateTime(System.currentTimeMillis());
+                        t.setUpdateTime(System.currentTimeMillis());
+                        TestCaseReviewScenarioExample example=new TestCaseReviewScenarioExample();
+                        example.createCriteria().andTestCaseReviewIdEqualTo(request.getReviewId()).andApiScenarioIdEqualTo(t.getApiScenarioId());
+                        if(testCaseReviewScenarioMapper.countByExample(example)<=0){
+                            testCaseReviewScenarioMapper.insert(t);
+                        }
+
+                    }
+
+                });
+            }
+        }
         TestCaseReview testCaseReview = testCaseReviewMapper.selectByPrimaryKey(request.getReviewId());
         if (StringUtils.equals(testCaseReview.getStatus(), TestCaseReviewStatus.Prepare.name())
                 || StringUtils.equals(testCaseReview.getStatus(), TestCaseReviewStatus.Completed.name())) {

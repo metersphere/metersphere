@@ -306,6 +306,9 @@
                 or test_case.num like CONCAT('%', #{request.name},'%')
                 or test_case.tags like CONCAT('%', #{request.name},'%'))
             </if>
+            <if test="request.createTime >0">
+                AND test_case.create_time >= #{request.createTime}
+            </if>
             <if test="request.nodeIds != null and request.nodeIds.size() > 0">
                 and test_case.node_id in
                 <foreach collection="request.nodeIds" item="nodeId" separator="," open="(" close=")">
@@ -316,6 +319,12 @@
                 and test_case.project_id = #{request.projectId}
             </if>
             <include refid="filters"/>
+            <if test="request.caseCoverage == 'uncoverage' ">
+                and test_case.test_id is null and test_case.type != 'functional'
+            </if>
+            <if test="request.caseCoverage == 'coverage' ">
+                and test_case.test_id is not null and test_case.type != 'functional'
+            </if>
         </where>
     </sql>
 

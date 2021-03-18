@@ -1303,6 +1303,66 @@ public class TestPlanExample {
             addCriterion("project_id not between", value1, value2, "projectId");
             return (Criteria) this;
         }
+
+        public Criteria andExecutionTimesIsNull() {
+            addCriterion("execution_times is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andExecutionTimesIsNotNull() {
+            addCriterion("execution_times is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andExecutionTimesEqualTo(Integer value) {
+            addCriterion("execution_times =", value, "executionTimes");
+            return (Criteria) this;
+        }
+
+        public Criteria andExecutionTimesNotEqualTo(Integer value) {
+            addCriterion("execution_times <>", value, "executionTimes");
+            return (Criteria) this;
+        }
+
+        public Criteria andExecutionTimesGreaterThan(Integer value) {
+            addCriterion("execution_times >", value, "executionTimes");
+            return (Criteria) this;
+        }
+
+        public Criteria andExecutionTimesGreaterThanOrEqualTo(Integer value) {
+            addCriterion("execution_times >=", value, "executionTimes");
+            return (Criteria) this;
+        }
+
+        public Criteria andExecutionTimesLessThan(Integer value) {
+            addCriterion("execution_times <", value, "executionTimes");
+            return (Criteria) this;
+        }
+
+        public Criteria andExecutionTimesLessThanOrEqualTo(Integer value) {
+            addCriterion("execution_times <=", value, "executionTimes");
+            return (Criteria) this;
+        }
+
+        public Criteria andExecutionTimesIn(List<Integer> values) {
+            addCriterion("execution_times in", values, "executionTimes");
+            return (Criteria) this;
+        }
+
+        public Criteria andExecutionTimesNotIn(List<Integer> values) {
+            addCriterion("execution_times not in", values, "executionTimes");
+            return (Criteria) this;
+        }
+
+        public Criteria andExecutionTimesBetween(Integer value1, Integer value2) {
+            addCriterion("execution_times between", value1, value2, "executionTimes");
+            return (Criteria) this;
+        }
+
+        public Criteria andExecutionTimesNotBetween(Integer value1, Integer value2) {
+            addCriterion("execution_times not between", value1, value2, "executionTimes");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {

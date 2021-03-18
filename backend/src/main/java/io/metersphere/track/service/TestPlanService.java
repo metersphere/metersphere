@@ -114,8 +114,20 @@ public class TestPlanService {
     private ApiTestCaseService apiTestCaseService;
     @Resource
     private PerformanceTestService performanceTestService;
+    @Resource
+    private TestPlanLoadCaseMapper testPlanLoadCaseMapper;
+    @Resource
+    private ApiTestCaseMapper  apiTestCaseMapper;
+    @Resource
+    private ApiDefinitionMapper  apiDefinitionMapper;
+    @Resource
+    private TestPlanApiCaseMapper  testPlanApiCaseMapper;
+    @Resource
+    private TestPlanApiScenarioMapper testPlanApiScenarioMapper;
+    @Resource
+    private ApiScenarioMapper apiScenarioMapper;
 
-    public synchronized void addTestPlan(AddTestPlanRequest testPlan) {
+    public synchronized String addTestPlan(AddTestPlanRequest testPlan) {
         if (getTestPlanByName(testPlan.getName()).size() > 0) {
             MSException.throwException(Translator.get("plan_name_already_exists"));
         }
@@ -144,6 +156,7 @@ public class TestPlanService {
                 .event(NoticeConstants.Event.CREATE)
                 .build();
         noticeSendService.send(NoticeConstants.TaskType.TEST_PLAN_TASK, noticeModel);
+        return testPlan.getId();
     }
 
     public List<TestPlan> getTestPlanByName(String name) {
@@ -416,7 +429,65 @@ public class TestPlanService {
         }
 
         sqlSession.flushStatements();
+        //同步添加关联的接口和测试用例
+        if(request.getChecked()){
+            if (!testCaseIds.isEmpty()) {
+                testCaseIds.forEach(caseId -> {
+                    TestCaseWithBLOBs testDtail=testCaseMapper.selectByPrimaryKey(caseId);
+                    if(StringUtils.equals(testDtail.getType(),TestCaseStatus.performance.name())){
+                        TestPlanLoadCase t = new TestPlanLoadCase();
+                        t.setId(UUID.randomUUID().toString());
+                        t.setTestPlanId(request.getPlanId());
+                        t.setLoadCaseId(testDtail.getTestId());
+                        t.setCreateTime(System.currentTimeMillis());
+                        t.setUpdateTime(System.currentTimeMillis());
+                        TestPlanLoadCaseExample testPlanLoadCaseExample=new TestPlanLoadCaseExample();
+                        testPlanLoadCaseExample.createCriteria().andTestPlanIdEqualTo(request.getPlanId()).andLoadCaseIdEqualTo(t.getLoadCaseId());
+                        if (testPlanLoadCaseMapper.countByExample(testPlanLoadCaseExample) <=0) {
+                            testPlanLoadCaseMapper.insert(t);
+                        }
 
+                    }
+                    if(StringUtils.equals(testDtail.getType(),TestCaseStatus.testcase.name())){
+                        TestPlanApiCase t=new TestPlanApiCase();
+                        ApiTestCaseWithBLOBs apitest=apiTestCaseMapper.selectByPrimaryKey(testDtail.getTestId());
+                        ApiDefinitionWithBLOBs apidefinition=apiDefinitionMapper.selectByPrimaryKey(apitest.getApiDefinitionId());
+                        t.setId(UUID.randomUUID().toString());
+                        t.setTestPlanId(request.getPlanId());
+                        t.setApiCaseId(testDtail.getTestId());
+                        t.setEnvironmentId(apidefinition.getEnvironmentId());
+                        t.setCreateTime(System.currentTimeMillis());
+                        t.setUpdateTime(System.currentTimeMillis());
+                        TestPlanApiCaseExample example=new TestPlanApiCaseExample();
+                        example.createCriteria().andTestPlanIdEqualTo(request.getPlanId()).andApiCaseIdEqualTo(t.getApiCaseId());
+                        if(testPlanApiCaseMapper.countByExample(example)<=0){
+                            testPlanApiCaseMapper.insert(t);
+                        }
+
+                    }
+                    if(StringUtils.equals(testDtail.getType(),TestCaseStatus.automation.name())){
+                        TestPlanApiScenario t=new TestPlanApiScenario();
+                        ApiScenarioWithBLOBs testPlanApiScenario=apiScenarioMapper.selectByPrimaryKey(testDtail.getTestId());
+                        t.setId(UUID.randomUUID().toString());
+                        t.setTestPlanId(request.getPlanId());
+                        t.setApiScenarioId(testDtail.getTestId());
+                        t.setLastResult(testPlanApiScenario.getLastResult());
+                        t.setPassRate(testPlanApiScenario.getPassRate());
+                        t.setReportId(testPlanApiScenario.getReportId());
+                        t.setStatus(testPlanApiScenario.getStatus());
+                        t.setCreateTime(System.currentTimeMillis());
+                        t.setUpdateTime(System.currentTimeMillis());
+                        TestPlanApiScenarioExample example=new TestPlanApiScenarioExample();
+                        example.createCriteria().andTestPlanIdEqualTo(request.getPlanId()).andApiScenarioIdEqualTo(t.getApiScenarioId());
+                       if(testPlanApiScenarioMapper.countByExample(example)<=0){
+                           testPlanApiScenarioMapper.insert(t);
+                       }
+
+                    }
+
+                });
+            }
+        }
         TestPlan testPlan = testPlanMapper.selectByPrimaryKey(request.getPlanId());
         if (StringUtils.equals(testPlan.getStatus(), TestPlanStatus.Prepare.name())
                 || StringUtils.equals(testPlan.getStatus(), TestPlanStatus.Completed.name())) {

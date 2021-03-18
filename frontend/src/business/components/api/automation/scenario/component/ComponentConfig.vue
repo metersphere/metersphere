@@ -2,8 +2,8 @@
   <div class="request-form">
     <component :is="component" :isMax="isMax" :show-btn="showBtn"
                :scenario="scenario" :controller="scenario" :timer="scenario" :assertions="scenario" :extract="scenario" :jsr223-processor="scenario" :request="scenario" :currentScenario="currentScenario" :currentEnvironmentId="currentEnvironmentId" :node="node"
-               :draggable="true" :title="title" :color="titleColor" :background-color="backgroundColor" @suggestClick="suggestClick(node)" :response="response"
-               @remove="remove" @copyRow="copyRow" @refReload="refReload" :project-list="projectList" :env-map="envMap"/>
+               :draggable="draggable" :title="title" :color="titleColor" :background-color="backgroundColor" @suggestClick="suggestClick(node)" :response="response"
+               @remove="remove" @copyRow="copyRow" @refReload="refReload" @openScenario="openScenario" :project-list="projectList" :env-map="envMap"/>
   </div>
 </template>
 
@@ -25,6 +25,10 @@
     props: {
       type: String,
       scenario: {},
+      draggable: {
+        type: Boolean,
+        default: true,
+      },
       isMax: {
         type: Boolean,
         default: false,
@@ -120,11 +124,14 @@
         this.$emit('copyRow', row, node);
 
       },
+      openScenario(data) {
+        this.$emit('openScenario', data);
+      },
       suggestClick(node) {
         this.$emit('suggestClick', node);
       },
-      refReload() {
-        this.$emit('refReload');
+      refReload(data, node) {
+        this.$emit('refReload', data, node);
       }
     }
   }

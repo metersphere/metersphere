@@ -1,5 +1,7 @@
 export default {
   commons: {
+    pass_rate:'Pass rate',
+    execution_times:'Execution times',
     cover: 'Cover',
     not_cover: 'Not Cover',
     import: 'Import',
@@ -338,6 +340,7 @@ export default {
     delete: 'Delete project',
     delete_confirm: 'Deleting this project will delete all test resources under this project. Are you sure you want to delete?',
     delete_tip: 'Deleting this project will delete all test resources under this project. Are you sure you want to delete?',
+    file_delete_tip: 'Deleting this project file: {0}？',
     search_by_name: 'Search by name',
     search_by_name_jar: 'Search by name/jar',
     input_name: 'Please enter a workspace name',
@@ -530,6 +533,7 @@ export default {
     load_exist_jmx: 'Load Project JMX',
     threadgroup_at_least_one: 'At least one ThreadGroup is enabled',
     load_api_automation_jmx: 'Import API automation scenario',
+    project_file_exist: "The file already exists in the project, please import it directly"
   },
   api_test: {
     creator: "Creator",
@@ -1100,6 +1104,7 @@ export default {
     cancel_relevance_success: "Unlinked successfully",
     switch_project: "Switch project",
     case: {
+      minder: "Minder",
       check_select: "Please check the case",
       export_all_cases: 'Are you sure you want to export all use cases?',
       input_test_case: 'Please enter the associated case name',
@@ -1308,6 +1313,7 @@ export default {
       executor: "Executor",
       execute_result: "Result",
       pass: "Pass",
+      not_pass: "UnPass",
       failure: "Failure",
       blocking: "Blocking",
       skip: "Skip",
