@@ -5,21 +5,32 @@
       <ms-aside-container>
         <!-- 场景步骤内容 -->
         <div v-loading="loading">
-          <el-tree node-key="resourceId" :props="props" :data="scenarioDefinition"
+          <el-tree node-key="resourceId"
+                   :props="props"
+                   :data="scenarioDefinition"
                    :default-expanded-keys="expandedNode"
                    :expand-on-click-node="false"
                    highlight-current
                    @node-expand="nodeExpand"
                    @node-collapse="nodeCollapse"
                    :allow-drop="allowDrop" @node-drag-end="allowDrag" @node-click="nodeClick" v-if="!loading" draggable>
-                    <span class="custom-tree-node father" slot-scope="{ node, data}">
-                      <!-- 步骤组件-->
-                       <ms-component-config :isMax="true" :type="data.type" :scenario="data" :response="response" :currentScenario="currentScenario"
-                                            :currentEnvironmentId="currentEnvironmentId" :node="node" :project-list="projectList" :env-map="projectEnvMap"
-                                            @remove="remove" @copyRow="copyRow" @suggestClick="suggestClick" @refReload="refReload" @openScenario="openScenario"/>
-                    </span>
+              <span class="custom-tree-node father" slot-scope="{ node, data}">
+                <!-- 步骤组件-->
+                 <ms-component-config
+                   :isMax="true"
+                   :type="data.type"
+                   :scenario="data"
+                   :response="response"
+                   :currentScenario="currentScenario"
+                   :currentEnvironmentId="currentEnvironmentId"
+                   :node="node"
+                   :project-list="projectList"
+                   :env-map="projectEnvMap"
+                   @remove="remove" @copyRow="copyRow"
+                   @suggestClick="suggestClick"
+                   @refReload="refReload" @openScenario="openScenario"/>
+              </span>
           </el-tree>
-
           <div @click="fabClick">
             <vue-fab id="fab" mainBtnColor="#783887" size="small" :global-options="globalOptions"
                      :click-auto-close="false">
@@ -41,39 +52,39 @@
 
       <ms-main-container>
         <!-- 第一层当前节点内容-->
-        <ms-component-config :isMax="false"
-                             :showBtn="false"
-                             :type="selectedTreeNode.type"
-                             :scenario="selectedTreeNode"
-                             :response="response"
-                             :currentScenario="currentScenario"
-                             :currentEnvironmentId="currentEnvironmentId"
-                             :node="selectedNode"
-                             :project-list="projectList"
-                             :env-map="projectEnvMap"
-                             :draggable="false"
-                             @remove="remove" @copyRow="copyRow" @suggestClick="suggestClick" @refReload="refReload" @openScenario="openScenario"
-                             v-if="selectedTreeNode && selectedNode"/>
+        <ms-component-config
+          :isMax="false"
+          :showBtn="false"
+          :type="selectedTreeNode.type"
+          :scenario="selectedTreeNode"
+          :response="response"
+          :currentScenario="currentScenario"
+          :currentEnvironmentId="currentEnvironmentId"
+          :node="selectedNode"
+          :project-list="projectList"
+          :env-map="projectEnvMap"
+          :draggable="false"
+          @remove="remove" @copyRow="copyRow" @suggestClick="suggestClick" @refReload="refReload" @openScenario="openScenario"
+          v-if="selectedTreeNode && selectedNode"/>
         <!-- 请求下还有的子步骤-->
         <div v-if="selectedTreeNode && selectedTreeNode.hashTree && showNode(selectedTreeNode)">
           <div v-for="item in selectedTreeNode.hashTree" :key="item.id" class="ms-col-one">
-            <ms-component-config :showBtn="false"
-                                 :isMax="false"
-                                 :type="item.type"
-                                 :scenario="item"
-                                 :response="response"
-                                 :currentScenario="currentScenario"
-                                 :currentEnvironmentId="currentEnvironmentId"
-                                 :project-list="projectList"
-                                 :env-map="projectEnvMap"
-                                 :draggable="false"
-                                 @remove="remove" @copyRow="copyRow" @suggestClick="suggestClick"
-                                 @refReload="refReload" @openScenario="openScenario"
-                                 v-if="selectedTreeNode && selectedNode"/>
-
+            <ms-component-config
+              :showBtn="false"
+              :isMax="false"
+              :type="item.type"
+              :scenario="item"
+              :response="response"
+              :currentScenario="currentScenario"
+              :currentEnvironmentId="currentEnvironmentId"
+              :project-list="projectList"
+              :env-map="projectEnvMap"
+              :draggable="false"
+              @remove="remove" @copyRow="copyRow" @suggestClick="suggestClick"
+              @refReload="refReload" @openScenario="openScenario"
+              v-if="selectedTreeNode && selectedNode"/>
           </div>
         </div>
-
       </ms-main-container>
     </ms-container>
 
