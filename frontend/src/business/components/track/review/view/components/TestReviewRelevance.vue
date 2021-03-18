@@ -82,10 +82,6 @@
       </el-container>
 
       <template v-slot:footer>
-        <div style="margin-bottom: 15px">
-          <el-checkbox v-model="checked">同步添加关联的接口和性能测试</el-checkbox>
-        </div>
-
         <ms-dialog-footer @cancel="dialogFormVisible = false" @confirm="saveReviewRelevance"/>
       </template>
 
@@ -203,7 +199,9 @@ export default {
         param.reviewId = this.reviewId;
         param.testCaseIds = [...this.selectIds];
         param.request = this.condition;
+/*
         param.checked = this.checked;
+*/
         // 选择全选则全部加入到评审，无论是否加载完全部
         if (this.testReviews.length === param.testCaseIds.length) {
           param.testCaseIds = ['all'];

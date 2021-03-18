@@ -18,7 +18,7 @@ name: "TestCaseMinder",
     return{
       testCase: [],
       dataMap: new Map(),
-      tags: ['用例', '前置条件', '备注'],
+      tags: [this.$t('api_test.definition.request.case'), this.$t('test_track.case.prerequisite'), this.$t('commons.remark')],
       result: {}
     }
   },
@@ -47,7 +47,6 @@ name: "TestCaseMinder",
       }
     },
     save(data) {
-      console.log(this.dataMap);
       let saveCases = [];
       this.buildSaveCase(data.root, saveCases, undefined);
       let param = {
@@ -60,7 +59,7 @@ name: "TestCaseMinder",
     },
     buildSaveCase(root, saveCases, parent) {
       let data = root.data;
-      if (data.resource && data.resource.indexOf("用例") > -1) {
+      if (data.resource && data.resource.indexOf(this.$t('api_test.definition.request.case')) > -1) {
         this._buildSaveCase(root, saveCases, parent);
       } else {
         if (root.children) {
@@ -92,9 +91,9 @@ name: "TestCaseMinder",
       if (node.children) {
         node.children.forEach((childNode) => {
           let childData = childNode.data;
-          if (childData.resource && childData.resource.indexOf('前置条件') > -1) {
+          if (childData.resource && childData.resource.indexOf(this.$t('test_track.case.prerequisite')) > -1) {
             testCase.prerequisite = childData.text;
-          } else if (childData.resource && childData.resource.indexOf('备注') > -1) {
+          } else if (childData.resource && childData.resource.indexOf(this.$t('commons.remark')) > -1) {
             testCase.remark = childData.text;
           } else {
             // 测试步骤

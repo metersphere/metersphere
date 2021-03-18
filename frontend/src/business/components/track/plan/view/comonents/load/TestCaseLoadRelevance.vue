@@ -13,48 +13,59 @@
                  ref="nodeTree"/>
     </template>
 
+    <el-card>
+      <template v-slot:header>
+        <el-row>
+          <el-col :span="8" :offset="16">
+            <el-input :placeholder="$t('api_test.definition.request.select_case')" @blur="getTestCases"
+                      @keyup.enter.native="getTestCases" class="search-input" size="small" v-model="condition.name"/>
+          </el-col>
+        </el-row>
+      </template>
 
-    <el-table
-      v-loading="result.loading"
-      :data="testCases"
-      row-key="id"
-      @select-all="handleSelectAll"
-      @select="handleSelectionChange"
-      height="50vh"
-      ref="table">
-      <el-table-column
-        type="selection"/>
-      <el-table-column
-        prop="name"
-        :label="$t('commons.name')"
-        show-overflow-tooltip>
-      </el-table-column>
-      <el-table-column
-        prop="status"
-        column-key="status"
-        :filters="statusFilters"
-        :label="$t('commons.status')">
-        <template v-slot:default="{row}">
-          <ms-performance-test-status :row="row"/>
-        </template>
-      </el-table-column>
-      <el-table-column
-        sortable
-        prop="createTime"
-        :label="$t('commons.create_time')">
-        <template v-slot:default="scope">
-          <span>{{ scope.row.createTime | timestampFormatDate }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column
-        sortable
-        prop="updateTime"
-        :label="$t('commons.update_time')">
-        <template v-slot:default="scope">
-          <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
-        </template>
-      </el-table-column>
-    </el-table>
+      <el-table
+        v-loading="result.loading"
+        :data="testCases"
+        row-key="id"
+        @select-all="handleSelectAll"
+        @select="handleSelectionChange"
+        height="50vh"
+        ref="table">
+        <el-table-column
+          type="selection"/>
+        <el-table-column
+          prop="name"
+          :label="$t('commons.name')"
+          show-overflow-tooltip>
+        </el-table-column>
+        <el-table-column
+          prop="status"
+          column-key="status"
+          :filters="statusFilters"
+          :label="$t('commons.status')">
+          <template v-slot:default="{row}">
+            <ms-performance-test-status :row="row"/>
+          </template>
+        </el-table-column>
+        <el-table-column
+          sortable
+          prop="createTime"
+          :label="$t('commons.create_time')">
+          <template v-slot:default="scope">
+            <span>{{ scope.row.createTime | timestampFormatDate }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column
+          sortable
+          prop="updateTime"
+          :label="$t('commons.update_time')">
+          <template v-slot:default="scope">
+            <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
+          </template>
+        </el-table-column>
+      </el-table>
+
+    </el-card>
     <ms-table-pagination :change="getTestCases" :current-page.sync="currentPage" :page-size.sync="pageSize"
                          :total="total"/>
   </test-case-relevance-base>

@@ -1,6 +1,6 @@
 <template>
   <div class="card-container">
-        <ms-table-header :is-,tester-permission="true" :condition.sync="condition" @search="initTableData"
+        <ms-table-header :tester-permission="true" :condition.sync="condition" @search="initTableData"
                          :show-create="false" :tip="$t('commons.search_by_name_or_id')">
           <template v-slot:button>
             <ms-table-button :is-tester-permission="true" icon="el-icon-video-play"
