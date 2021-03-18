@@ -69,17 +69,18 @@
            sch.id          AS taskID,
            sch.`value`     AS rule,
            sch.`enable`    AS `taskStatus`,
-           u.name        AS creator,
+           u.`name`        AS creator,
            sch.update_time AS updateTime,
            sch.type      AS taskType,
-           sch.group    AS taskGroup
+           sch.`group`    AS taskGroup,
+           sch.resource_id  AS scenarioId
         FROM (
           schedule sch left join user u
           ON sch.user_id = u.id
         )
         WHERE sch.`enable` = true
           AND sch.project_id = #{projectId,jdbcType=VARCHAR}
-          and sch.group in
+          and sch.`group` in
             <foreach collection="types" item="item" separator="," open="(" close=")">
                 #{item}
             </foreach>
