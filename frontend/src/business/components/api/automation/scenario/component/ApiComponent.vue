@@ -275,7 +275,6 @@
             }
           }
         }
-
         this.request.active = true;
         this.loading = true;
         this.runData = [];
@@ -295,6 +294,7 @@
         this.request.requestResult = data;
         this.request.result = undefined;
         this.loading = false;
+        this.$emit('refReload',this.request,this.node);
       },
       reload() {
         this.loading = true

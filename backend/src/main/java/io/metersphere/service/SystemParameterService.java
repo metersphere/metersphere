@@ -27,7 +27,10 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.Resource;
 import javax.mail.MessagingException;
 import javax.mail.internet.MimeMessage;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Properties;
+import java.util.UUID;
 
 
 @Service
@@ -111,13 +114,13 @@ public class SystemParameterService {
             LogUtil.error(e.getMessage(), e);
             MSException.throwException(Translator.get("connection_failed"));
         }
-        if(!StringUtils.isBlank(recipients)){
+        if (!StringUtils.isBlank(recipients)) {
             MimeMessage mimeMessage = javaMailSender.createMimeMessage();
             MimeMessageHelper helper = null;
             try {
                 helper = new MimeMessageHelper(mimeMessage, true);
                 helper.setFrom(javaMailSender.getUsername());
-                helper.setSubject("MeterSphere测试邮件 " );
+                helper.setSubject("MeterSphere测试邮件 ");
                 helper.setText("这是一封测试邮件，邮件发送成功", true);
                 helper.setTo(recipients);
                 javaMailSender.send(mimeMessage);
@@ -136,10 +139,10 @@ public class SystemParameterService {
 
     public MailInfo mailInfo(String type) {
         List<SystemParameter> paramList = this.getParamList(type);
-        MailInfo mailInfo=new MailInfo ();
+        MailInfo mailInfo = new MailInfo();
         if (!CollectionUtils.isEmpty(paramList)) {
             for (SystemParameter param : paramList) {
-                if (StringUtils.equals(param.getParamKey(),ParamConstants.MAIL.SERVER.getValue() )) {
+                if (StringUtils.equals(param.getParamKey(), ParamConstants.MAIL.SERVER.getValue())) {
                     mailInfo.setHost(param.getParamValue());
                 } else if (StringUtils.equals(param.getParamKey(), ParamConstants.MAIL.PORT.getValue())) {
                     mailInfo.setPort(param.getParamValue());
@@ -205,8 +208,8 @@ public class SystemParameterService {
 
     public String getValue(String key) {
         SystemParameter param = systemParameterMapper.selectByPrimaryKey(key);
-        if (param == null) {
-            return null;
+        if (param == null || StringUtils.isBlank(param.getParamValue())) {
+            return "";
         }
         return param.getParamValue();
     }
@@ -241,16 +244,16 @@ public class SystemParameterService {
 
     //保存表头
     public void saveHeader(UserHeader userHeader) {
-        UserHeaderExample example=new UserHeaderExample();
+        UserHeaderExample example = new UserHeaderExample();
         example.createCriteria().andUserIdEqualTo(userHeader.getUserId()).andTypeEqualTo(userHeader.getType());
-       if(userHeaderMapper.countByExample(example)>0){
-           userHeaderMapper.deleteByExample(example);
-           userHeader.setId(UUID.randomUUID().toString());
-           userHeaderMapper.insert(userHeader);
-       }else{
-           userHeader.setId(UUID.randomUUID().toString());
-           userHeaderMapper.insert(userHeader);
-       }
+        if (userHeaderMapper.countByExample(example) > 0) {
+            userHeaderMapper.deleteByExample(example);
+            userHeader.setId(UUID.randomUUID().toString());
+            userHeaderMapper.insert(userHeader);
+        } else {
+            userHeader.setId(UUID.randomUUID().toString());
+            userHeaderMapper.insert(userHeader);
+        }
         example.clear();
     }
 

@@ -92,6 +92,27 @@
           show-overflow-tooltip
           :key="index">
         </el-table-column>
+        <el-table-column  v-if="item.id == 'tags'" prop="tags"
+                         :label="$t('api_test.automation.tag')" :key="index">
+          <template v-slot:default="scope">
+            <ms-tag v-for="(itemName,index)  in scope.row.tags" :key="index" type="success" effect="plain"
+                    :content="itemName" style="margin-left: 5px"></ms-tag>
+          </template>
+        </el-table-column>
+        <el-table-column
+          v-if="item.id == 'executionTimes'"
+          prop="executionTimes"
+          :label="$t('commons.execution_times')"
+          show-overflow-tooltip
+          :key="index">
+        </el-table-column>
+        <el-table-column
+          v-if="item.id == 'passRate'"
+          prop="passRate"
+          :label="$t('commons.pass_rate')"
+          show-overflow-tooltip
+          :key="index">
+        </el-table-column>
         <el-table-column
           v-if="item.id == 'plannedStartTime'"
           sortable
@@ -206,11 +227,13 @@ import {TEST_CASE_LIST, TEST_PLAN_LIST} from "@/common/js/constants";
 import {Test_Plan_List, Track_Test_Case} from "@/business/components/common/model/JsonData";
 import HeaderCustom from "@/business/components/common/head/HeaderCustom";
 import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOperate";
+import MsTag from "@/business/components/common/components/MsTag";
 
 
 export default {
   name: "TestPlanList",
   components: {
+    MsTag,
     HeaderLabelOperate,
     HeaderCustom,
     MsDeleteConfirm,
@@ -281,7 +304,18 @@ export default {
         let data = response.data;
         this.total = data.itemCount;
         this.tableData = data.listObject;
+        this.tableData.forEach(item => {
+          if (item.tags && item.tags.length > 0) {
+            item.tags = JSON.parse(item.tags);
+          }
+          item.passRate=item.passRate+'%'
+        })
+        console.log(this.tableData)
+
       });
+    },
+    copyData(status) {
+      return JSON.parse(JSON.stringify(this.dataMap.get(status)))
     },
     buildPagePath(path) {
       return path + "/" + this.currentPage + "/" + this.pageSize;

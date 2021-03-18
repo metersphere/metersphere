@@ -4,6 +4,7 @@
     @setProject="setProject"
     @save="saveCaseRelevance"
     :plan-id="planId"
+    :flag="true"
     ref="baseRelevance">
 
     <template v-slot:aside>

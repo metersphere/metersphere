@@ -159,3 +159,6 @@ UPDATE file_metadata JOIN (SELECT file_id, project_id
                            FROM api_test_file
                                     JOIN api_test ON test_id = api_test.id) temp ON file_id = file_metadata.id
 SET file_metadata.project_id = temp.project_id;
+-- add execution_times testPlan
+alter table test_plan
+    add execution_times int null;

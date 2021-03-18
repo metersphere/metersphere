@@ -43,6 +43,14 @@
     position: relative;
   }
 
+  .scenario-aside {
+    position: relative;
+    border-radius: 4px;
+    border: 1px solid #EBEEF5;
+    box-sizing: border-box;
+  }
+
+
   .hiddenBottom i {
     margin-left: -2px;
   }

@@ -32,7 +32,7 @@ public class RestControllerExceptionHandler {
 
 
     @ExceptionHandler(SQLException.class)
-    public ResultHolder sqlExceptionHandler(HttpServletRequest request, HttpServletResponse response, MSException e) {
+    public ResultHolder sqlExceptionHandler(HttpServletRequest request, HttpServletResponse response, SQLException e) {
         response.setStatus(HttpStatus.INTERNAL_SERVER_ERROR.value());
         return ResultHolder.error("SQL error happened, please check logs.");
     }

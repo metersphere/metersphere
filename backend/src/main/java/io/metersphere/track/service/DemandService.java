@@ -32,9 +32,7 @@ public class DemandService {
     public List<DemandDTO> getDemandList(String projectId) {
         Project project = projectMapper.selectByPrimaryKey(projectId);
         SessionUser user = SessionUtils.getUser();
-/*
-        String orgId = "88aceecf-5764-4094-96a9-f82bd52e77ad";
-*/
+
         String orgId = user.getLastOrganizationId();
         boolean tapd = issuesService.isIntegratedPlatform(orgId, IssuesManagePlatform.Tapd.toString());
         boolean jira = issuesService.isIntegratedPlatform(orgId, IssuesManagePlatform.Jira.toString());
@@ -48,7 +46,6 @@ public class DemandService {
             if (StringUtils.isNotBlank(tapdId)) {
                 platforms.add(IssuesManagePlatform.Tapd.name());
             }
-            issueRequest.setProjectId(tapdId);
         }
 
         if (jira) {
@@ -56,7 +53,6 @@ public class DemandService {
             if (StringUtils.isNotBlank(jiraKey)) {
                 platforms.add(IssuesManagePlatform.Jira.name());
             }
-            issueRequest.setProjectId(jiraKey);
         }
 
         if (zentao) {
@@ -64,13 +60,14 @@ public class DemandService {
             if (StringUtils.isNotBlank(zentaoId)) {
                 platforms.add(IssuesManagePlatform.Zentao.name());
             }
-            issueRequest.setProjectId(zentaoId);
         }
+
         List<AbstractIssuePlatform> platformList = IssueFactory.createPlatforms(platforms, issueRequest);
         platformList.forEach(platform -> {
-            List<DemandDTO> demand = platform.getDemandList(issueRequest.getProjectId());
+            List<DemandDTO> demand = platform.getDemandList(projectId);
             list.addAll(demand);
         });
+
         return list;
     }
 }

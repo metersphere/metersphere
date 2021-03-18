@@ -1,5 +1,7 @@
 export default {
   commons: {
+    pass_rate:'通過率',
+    execution_times:'執行次數',
     cover: '覆蓋',
     not_cover: '不覆蓋',
     import: '導入',
