@@ -330,6 +330,9 @@
         <el-form-item :label="$t('member.new_password')" prop="newpassword">
           <el-input type="password" v-model="ruleForm.newpassword" autocomplete="off" show-password></el-input>
         </el-form-item>
+        <el-form-item :label="$t('member.repeat_password')" prop="confirmpassword">
+          <el-input type="password" v-model="ruleForm.confirmpassword" autocomplete="off" show-password></el-input>
+        </el-form-item>
         <el-form-item>
           <el-input v-model="ruleForm.id" autocomplete="off" :disabled="true" style="display:none"/>
         </el-form-item>
@@ -385,6 +388,15 @@ export default {
     ShowMoreBtn
   },
   data() {
+    const validateConfirmPwd = (rule, value, callback) => {
+      if(value === ''){
+        callback(new Error(this.$t('user.input_password')));
+      }else if((value !== this.ruleForm.newpassword)){
+        callback(new Error(this.$t('member.inconsistent_passwords')));
+      }else{
+        callback();
+      }
+    };
     return {
       referenced: false,
       queryPath: '/user/special/list',
@@ -479,7 +491,17 @@ export default {
             message: this.$t('member.password_format_is_incorrect'),
             trigger: 'blur'
           }
+        ],
+        confirmpassword: [
+          {
+            required: true,
+            pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[^]{8,30}$/,
+            message: this.$t('member.password_format_is_incorrect'),
+            trigger: 'blur'
+          },
+          {trigger: ['blur', 'change'], validator: validateConfirmPwd}
         ]
+
       }
     }
   },

@@ -2,7 +2,7 @@
   <div>
     <el-row :gutter="10" type="flex" justify="space-between" align="middle">
       <el-col>
-        <el-input :disabled="isReadOnly" v-model="xPath2.expression" maxlength="200" size="small" show-word-limit
+        <el-input :disabled="isReadOnly" v-model="xPath2.expression" maxlength="500" size="small" show-word-limit
                   :placeholder="$t('api_test.request.extract.xpath_expression')"/>
       </el-col>
       <el-col class="assertion-btn">

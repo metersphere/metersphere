@@ -46,6 +46,12 @@ public class MsJSR223Processor extends MsTestElement {
         processor.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("TestBeanGUI"));
         processor.setProperty("cacheKey", "true");
         processor.setProperty("scriptLanguage", this.getScriptLanguage());
+        if (StringUtils.isNotEmpty(this.getScriptLanguage()) && this.getScriptLanguage().equals("nashornScript")) {
+            processor.setProperty("scriptLanguage", "nashorn");
+        }
+        if (StringUtils.isNotEmpty(this.getScriptLanguage()) && this.getScriptLanguage().equals("graalVMScript")) {
+            processor.setProperty("scriptLanguage", "javascript");
+        }
         processor.setProperty("script", this.getScript());
 
         final HashTree jsr223PreTree = tree.add(processor);
