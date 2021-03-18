@@ -222,7 +222,9 @@
           }
 
           this.result = this.$post("/api/testcase/list", this.condition, response => {
-            this.apiCaseList = response.data;
+            if(response.data){
+              this.apiCaseList = response.data;
+            }
             this.apiCaseList.forEach(apiCase => {
               if (apiCase.tags && apiCase.tags.length > 0) {
                 apiCase.tags = JSON.parse(apiCase.tags);
@@ -236,7 +238,7 @@
               }
 
             })
-            if (!this.useEnvironment && this.apiCaseList[0].request && this.apiCaseList[0].request.useEnvironment) {
+            if (!this.useEnvironment && this.apiCaseList[0] && this.apiCaseList[0].request && this.apiCaseList[0].request.useEnvironment) {
               this.useEnvironment = this.apiCaseList[0].request.useEnvironment;
               this.environment = this.useEnvironment;
             }
