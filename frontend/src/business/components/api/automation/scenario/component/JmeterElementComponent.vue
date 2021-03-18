@@ -2,6 +2,7 @@
   <api-base-component
     @copy="copyRow"
     @remove="remove"
+    @active="active"
     :data="request"
     :draggable="draggable"
     :color="defColor"
@@ -9,7 +10,9 @@
     :show-btn="showBtn"
     :background-color="defBackgroundColor"
     :title="request.elementType">
-
+    <div style="height: 300px;width: 100%">
+      <ms-code-edit mode="xml" :data.sync="request.jmeterElement" theme="eclipse" ref="codeEdit"/>
+    </div>
   </api-base-component>
 </template>
 
@@ -55,6 +58,9 @@
       },
       copyRow() {
         this.$emit('copyRow', this.jsr223Processor, this.node);
+      },
+      active() {
+        this.request.active = !this.request.active;
       },
     }
   }
