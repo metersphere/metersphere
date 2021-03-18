@@ -332,8 +332,10 @@ public class ApiAutomationService {
     public ApiScenarioDTO getApiScenario(String id) {
         ApiScenarioDTO apiScenarioDTO = new ApiScenarioDTO();
         ApiScenarioWithBLOBs scenarioWithBLOBs = apiScenarioMapper.selectByPrimaryKey(id);
-        BeanUtils.copyBean(apiScenarioDTO, scenarioWithBLOBs);
-        setApiScenarioProjectIds(apiScenarioDTO);
+        if (scenarioWithBLOBs != null) {
+            BeanUtils.copyBean(apiScenarioDTO, scenarioWithBLOBs);
+            setApiScenarioProjectIds(apiScenarioDTO);
+        }
         return apiScenarioDTO;
     }
 
