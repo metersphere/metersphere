@@ -42,46 +42,15 @@ public class TestPlanScenarioCaseService {
         request.setProjectId(null);
         request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
         List<ApiScenarioDTO> apiTestCases = extTestPlanScenarioCaseMapper.list(request);
-        setApiScenarioProjectIds(apiTestCases);
         if (CollectionUtils.isEmpty(apiTestCases)) {
             return apiTestCases;
         }
         return apiTestCases;
     }
 
-    private void setApiScenarioProjectIds(List<ApiScenarioDTO> list) {
-        // 如果场景步骤涉及多项目，则把涉及到的项目ID保存在projectIds属性
-        list.forEach(data -> {
-            List<String> idList = new ArrayList<>();
-            String definition = data.getScenarioDefinition();
-            if (org.apache.commons.lang3.StringUtils.isNotBlank(definition)) {
-                RunDefinitionRequest d = JSON.parseObject(definition, RunDefinitionRequest.class);
-
-                if (d != null) {
-                    Map<String, String> map = d.getEnvironmentMap();
-                    if (map != null) {
-                        if (map.isEmpty()) {
-                            List<String> ids = (List<String>) JSONPath.read(definition, "$..projectId");
-                            idList.addAll(new HashSet<>(ids));
-                        } else {
-                            Set<String> set = d.getEnvironmentMap().keySet();
-                            idList = new ArrayList<>(set);
-                        }
-                    } else {
-                        // 兼容历史数据，无EnvironmentMap直接赋值场景所属项目
-                        idList.add(data.getProjectId());
-                    }
-                }
-
-            }
-            data.setProjectIds(idList);
-        });
-    }
-
     public List<ApiScenarioDTO> relevanceList(ApiScenarioRequest request) {
         request.setNotInTestPlan(true);
         List<ApiScenarioDTO> list = apiAutomationService.list(request);
-        setApiScenarioProjectIds(list);
         return list;
     }
 

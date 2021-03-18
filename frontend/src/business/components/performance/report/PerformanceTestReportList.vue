@@ -93,7 +93,7 @@ import MsTablePagination from "../../common/pagination/TablePagination";
 import MsContainer from "../../common/components/MsContainer";
 import MsMainContainer from "../../common/components/MsMainContainer";
 import MsPerformanceReportStatus from "./PerformanceReportStatus";
-import {getCurrentProjectID} from "../../../../common/js/utils";
+import {getCurrentProjectID} from "@/common/js/utils";
 import MsTableOperatorButton from "../../common/components/MsTableOperatorButton";
 import ReportTriggerModeItem from "../../common/tableItem/ReportTriggerModeItem";
 import {REPORT_CONFIGS} from "../../common/components/search/search-components";
@@ -104,7 +104,7 @@ import {_filter, _sort} from "@/common/js/tableUtils";
 
 
 export default {
-  name: "PerformanceTestReport",
+  name: "PerformanceTestReportList",
   components: {
     MsTableHeader,
     ReportTriggerModeItem,
@@ -186,10 +186,6 @@ export default {
       this.multipleSelection = val;
     },
     handleEdit(report) {
-      if (report.status === "Starting") {
-        this.$info(this.$t('report.being_generated'))
-        return false
-      }
       this.$router.push({
         path: '/performance/report/view/' + report.id
       })

@@ -150,4 +150,15 @@ public class TestPlanTestCaseService {
     public int updateTestCaseStates(List<String> ids, String reportStatus) {
         return extTestPlanTestCaseMapper.updateTestCaseStates(ids, reportStatus);
     }
+
+    public List<TestPlanCaseDTO> listForMinder(String planId) {
+        return extTestPlanTestCaseMapper.listForMinder(planId);
+    }
+
+    public void editTestCaseForMinder(List<TestPlanTestCaseWithBLOBs> testPlanTestCases) {
+        testPlanTestCases.forEach(item -> {
+            item.setUpdateTime(System.currentTimeMillis());
+            testPlanTestCaseMapper.updateByPrimaryKeySelective(item);
+        });
+    }
 }

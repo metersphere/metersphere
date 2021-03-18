@@ -98,7 +98,7 @@ public class APITestService {
         checkQuota();
         request.setBodyUploadIds(null);
         ApiTest test = createTest(request);
-        saveFile(test.getId(), file);
+        saveFile(test, file);
         return test;
     }
 
@@ -112,7 +112,7 @@ public class APITestService {
         request.setBodyUploadIds(null);
         ApiTest test = updateTest(request);
         createBodyFiles(test, bodyUploadIds, bodyFiles);
-        saveFile(test.getId(), file);
+        saveFile(test, file);
     }
 
     private void createBodyFiles(ApiTest test, List<String> bodyUploadIds, List<MultipartFile> bodyFiles) {
@@ -292,10 +292,10 @@ public class APITestService {
         return test;
     }
 
-    private void saveFile(String testId, MultipartFile file) {
-        final FileMetadata fileMetadata = fileService.saveFile(file);
+    private void saveFile(ApiTest apiTest, MultipartFile file) {
+        final FileMetadata fileMetadata = fileService.saveFile(file, apiTest.getProjectId());
         ApiTestFile apiTestFile = new ApiTestFile();
-        apiTestFile.setTestId(testId);
+        apiTestFile.setTestId(apiTest.getId());
         apiTestFile.setFileId(fileMetadata.getId());
         apiTestFileMapper.insert(apiTestFile);
     }
@@ -532,12 +532,12 @@ public class APITestService {
 
         //处理附件
         Map<String, String> attachmentFiles = new HashMap<>();
-        int fileIndex = 0;
+
         for (String filePath: attachmentFilePathList) {
             File file  = new File(filePath);
             if(file.exists() && file.isFile()){
                 try{
-                    FileMetadata fileMetadata = fileService.saveFile(file,FileUtil.readAsByteArray(file),fileIndex++);
+                    FileMetadata fileMetadata = fileService.saveFile(file,FileUtil.readAsByteArray(file));
                     attachmentFiles.put(fileMetadata.getId(),fileMetadata.getName());
                 }catch (Exception e){
                     e.printStackTrace();

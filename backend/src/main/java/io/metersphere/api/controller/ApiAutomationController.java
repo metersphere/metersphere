@@ -86,7 +86,7 @@ public class ApiAutomationController {
     }
 
     @GetMapping("/getApiScenario/{id}")
-    public ApiScenario getScenarioDefinition(@PathVariable String id) {
+    public ApiScenarioDTO getScenarioDefinition(@PathVariable String id) {
         return apiAutomationService.getApiScenario(id);
     }
 
@@ -142,6 +142,11 @@ public class ApiAutomationController {
     @PostMapping("/relevance")
     public void testPlanRelevance(@RequestBody ApiCaseRelevanceRequest request) {
         apiAutomationService.relevance(request);
+    }
+
+    @PostMapping("/relevance/review")
+    public  void testCaseReviewRelevance(@RequestBody ApiCaseRelevanceRequest request){
+        apiAutomationService.relevanceReview(request);
     }
 
     @PostMapping(value = "/schedule/update")

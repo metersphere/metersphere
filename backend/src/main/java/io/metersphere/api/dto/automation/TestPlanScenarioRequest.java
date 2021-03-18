@@ -25,4 +25,5 @@ public class TestPlanScenarioRequest {
     private Map<String, List<String>> filters;
     private Map<String, Object> combine;
     private List<String> ids;
+    private String reviewId;
 }

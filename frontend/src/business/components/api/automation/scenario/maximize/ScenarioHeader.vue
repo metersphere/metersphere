@@ -1,31 +1,32 @@
 <template>
-  <div class="ms-header" @click="showAll">
-    <el-row>
-      <div class="ms-div" v-loading="loading">
-        <!-- 调试部分 -->
-        <el-row style="margin: 5px">
-          <el-col :span="6" class="ms-col-one ms-font">
-            {{$t('api_test.automation.step_total')}}：{{scenarioDefinition.length}}
-          </el-col>
-          <el-col :span="6" class="ms-col-one ms-font">
-            <el-link class="head" @click="showScenarioParameters">{{$t('api_test.automation.scenario_total')}}</el-link>
-            ：{{varSize }}
-          </el-col>
-          <el-col :span="5" class="ms-col-one ms-font">
-            <el-checkbox v-model="enableCookieShare">共享cookie</el-checkbox>
-          </el-col>
-          <el-col :span="7">
-            <env-popover :env-map="envMap" :project-ids="projectIds" @setProjectEnvMap="setProjectEnvMap"
-                         :project-list="projectList" ref="envPopover" style="margin-top: 0px"/>
-          </el-col>
-        </el-row>
-      </div>
-      <div class="ms-header-right">
-        <el-button :disabled="scenarioDefinition.length < 1" size="small" type="primary" v-prevent-re-click @click="runDebug">{{$t('api_test.request.debug')}}</el-button>
-        ｜
-        <i class="el-icon-close alt-ico" @click="close"/>
-      </div>
-    </el-row>
+  <div class="ms-header">
+    <div class="ms-div" v-loading="loading" @click="showAll">
+      <!-- 调试部分 -->
+      <el-row class="ms-header-margin">
+        <el-col :span="8">
+          {{currentScenario.name}}
+        </el-col>
+        <el-col :span="8">
+          {{$t('api_test.automation.step_total')}}：{{scenarioDefinition.length}}
+        </el-col>
+        <el-col :span="8">
+          <el-link class="head" @click="showScenarioParameters">{{$t('api_test.automation.scenario_total')}}</el-link>
+          ：{{varSize }}
+        </el-col>
+      </el-row>
+    </div>
+    <div class="ms-header-right">
+      <el-checkbox v-model="cookieShare" @change="setCookieShare" style="margin-right: 20px">共享cookie</el-checkbox>
+
+      <env-popover :env-map="envMap" :project-ids="projectIds" @setProjectEnvMap="setProjectEnvMap"
+                   :project-list="projectList" ref="envPopover" class="ms-right"/>
+
+      <el-button :disabled="scenarioDefinition.length < 1" size="mini" type="primary" v-prevent-re-click @click="runDebug">{{$t('api_test.request.debug')}}</el-button>
+
+      <font-awesome-icon class="alt-ico" :icon="['fa', 'compress-alt']" size="lg" @click="unFullScreen"/>
+      ｜
+      <i class="el-icon-close alt-ico-close" @click="close"/>
+    </div>
   </div>
 </template>
 
@@ -43,11 +44,13 @@
         envMap: new Map,
         loading: false,
         varSize: 0,
+        cookieShare: false,
       }
     },
     mounted() {
       this.envMap = this.projectEnvMap;
       this.getVariableSize();
+      this.cookieShare = this.enableCookieShare;
     },
     methods: {
       handleExport() {
@@ -66,10 +69,16 @@
         this.$emit('showAllBtn');
       },
       close() {
-        this.$emit('closePage');
+        this.$emit('closePage', this.currentScenario.name);
+      },
+      unFullScreen() {
+        this.$emit('unFullScreen');
       },
       runDebug() {
         this.$emit('runDebug');
+      },
+      setCookieShare() {
+        this.$emit('setCookieShare', this.cookieShare);
       },
       showScenarioParameters() {
         this.$emit('showScenarioParameters');
@@ -92,6 +101,7 @@
         })
       },
       setProjectEnvMap(projectEnvMap) {
+        this.$emit('setProjectEnvMap', projectEnvMap);
         this.envMap = projectEnvMap;
       }
     },
@@ -101,46 +111,58 @@
 <style scoped>
   .ms-header {
     border-bottom: 1px solid #E6E6E6;
-    height: 65px;
+    height: 50px;
     background-color: #FFF;
   }
 
   .ms-div {
     float: left;
-    width: 80%;
+    width: 60%;
     margin-left: 20px;
     margin-top: 12px;
   }
 
-  .ms-span {
-    margin: 0px 10px 10px;
-  }
-
   .ms-header-right {
     float: right;
-    margin-bottom: 10px;
-    margin-top: 10px;
-    margin-right: 20px;
+    margin-top: 2px;
+    position: fixed;
+    right: 20px;
+    z-index: 1;
+
   }
 
   .alt-ico {
+    font-size: 16px;
+    margin: 10px 10px 0px;
+  }
+
+  .alt-ico-close {
     font-size: 18px;
-    margin: 10px 0px 0px;
+    margin: 10px 10px 10px;
+  }
+
+  .alt-ico-close:hover {
+    color: black;
+    cursor: pointer;
   }
 
   .alt-ico:hover {
     color: black;
     cursor: pointer;
-    font-size: 18px;
   }
 
-  .ms-font {
+  .ms-header-margin {
+    margin-top: 3px;
+  }
+
+  .ms-right {
+    margin-right: 40px;
+  }
+
+  .head {
+    border-bottom: 1px solid #303133;
     color: #303133;
     font-family: "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", Arial, sans-serif;
     font-size: 13px;
-  }
-
-  .ms-col-one {
-    margin-top: 5px;
   }
 </style>

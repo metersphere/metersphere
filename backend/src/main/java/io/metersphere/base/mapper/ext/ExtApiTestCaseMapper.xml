@@ -337,6 +337,15 @@
           where pc.test_plan_id = #{planId}
         )
     </select>
+    <select id="selectIdsNotExistsInReview" resultType="java.lang.String">
+        select c.id
+        from api_test_case c
+        where c.project_id = #{projectId} and c.id not in (
+            select pc.api_case_id
+            from test_case_review_api_case pc
+            where pc.test_case_review_id = #{reviewId}
+        )
+    </select>
 
     <select id="countProtocolByProjectID" resultType="io.metersphere.api.dto.datacount.ApiDataCountResult">
         SELECT apiDef.protocol AS groupField,COUNT(testCase.id) AS countNumber FROM api_test_case testCase

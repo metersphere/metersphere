@@ -59,6 +59,12 @@ public class ApiDefinitionController {
         request.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
         return PageUtils.setPageInfo(page, apiDefinitionService.listRelevance(request));
     }
+    @PostMapping("/list/relevance/review/{goPage}/{pageSize}")
+    public Pager<List<ApiDefinitionResult>> listRelevanceReview(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody ApiDefinitionRequest request) {
+        Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
+        request.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
+        return PageUtils.setPageInfo(page, apiDefinitionService.listRelevanceReview(request));
+    }
 
     @PostMapping("/list/all")
     public List<ApiDefinitionResult> list(@RequestBody ApiDefinitionRequest request) {
@@ -217,6 +223,10 @@ public class ApiDefinitionController {
     @PostMapping("/relevance")
     public void testPlanRelevance(@RequestBody ApiCaseRelevanceRequest request) {
         apiDefinitionService.testPlanRelevance(request);
+    }
+    @PostMapping("/relevance/review")
+    public void testCaseReviewRelevance(@RequestBody ApiCaseRelevanceRequest request){
+        apiDefinitionService.testCaseReviewRelevance(request);
     }
 
     @PostMapping("/preview")

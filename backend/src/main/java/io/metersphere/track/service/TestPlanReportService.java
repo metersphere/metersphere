@@ -91,7 +91,9 @@ public class TestPlanReportService {
      */
     public TestPlanReport genTestPlanReport(String planId, String userId,String triggerMode) {
         TestPlan testPlan = testPlanMapper.selectByPrimaryKey(planId);
-
+        testPlan.setExecutionTimes(1);
+        testPlan.setExecutionTimes(testPlan.getExecutionTimes() + 1);
+        testPlanMapper.updateByPrimaryKey(testPlan);
         TestPlanApiCaseExample apiExample = new TestPlanApiCaseExample();
         apiExample.createCriteria().andTestPlanIdEqualTo(planId);
         List<String> apiCaseIdList = testPlanApiCaseMapper.selectByExample(apiExample)

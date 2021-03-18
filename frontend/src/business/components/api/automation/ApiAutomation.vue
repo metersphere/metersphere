@@ -39,7 +39,7 @@
           :name="item.name"
           closable>
           <div class="ms-api-scenario-div">
-            <ms-edit-api-scenario @refresh="refresh" :currentScenario="item.currentScenario"
+            <ms-edit-api-scenario @refresh="refresh" @openScenario="editScenario" @closePage="closePage" :currentScenario="item.currentScenario"
                                   :moduleOptions="moduleOptions" ref="autoScenarioConfig"/>
           </div>
         </el-tab-pane>
@@ -94,7 +94,7 @@
         this.checkRedirectEditPage(redirectParam);
         return redirectParam;
       },
-      isReadOnly(){
+      isReadOnly() {
         return !checkoutTestManagerOrTestUser();
       }
     },
@@ -137,7 +137,7 @@
       exportAPI() {
         this.$refs.apiScenarioList.exportApi();
       },
-      exportJmx(){
+      exportJmx() {
         this.$refs.apiScenarioList.exportJmx();
       },
       checkRedirectEditPage(redirectParam) {
@@ -224,6 +224,15 @@
           default:
             this.addTab({name: 'add'});
             break;
+        }
+      },
+      closePage(targetName) {
+        this.tabs = this.tabs.filter(tab => tab.label !== targetName);
+        if (this.tabs.length > 0) {
+          this.activeName = this.tabs[this.tabs.length - 1].name;
+          this.addListener(); //  自动切换当前标签时，也添加监听
+        } else {
+          this.activeName = "default"
         }
       },
       removeTab(targetName) {

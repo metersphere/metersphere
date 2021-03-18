@@ -113,6 +113,9 @@ export default {
   props: {
     planId: {
       type: String
+    },
+    reviewId: {
+      type: String
     }
   },
   watch: {
@@ -126,6 +129,9 @@ export default {
       this.condition.projectId = this.projectId;
       this.getProjectNode();
       this.search();
+    },
+    reviewId() {
+      this.condition.reviewId = this.reviewId;
     }
   },
   methods: {
@@ -137,16 +143,30 @@ export default {
     },
     saveCaseRelevance() {
       let param = {};
-      param.testPlanId = this.planId;
       param.caseIds = [...this.selectIds];
-      this.result = this.$post('/test/plan/load/case/relevance', param, () => {
-        this.selectIds.clear();
-        this.$success(this.$t('commons.save_success'));
+      if (this.planId) {
+        param.testPlanId = this.planId;
+        this.result = this.$post('/test/plan/load/case/relevance', param, () => {
+          this.selectIds.clear();
+          this.$success(this.$t('commons.save_success'));
 
-        this.$refs.baseRelevance.close();
+          this.$refs.baseRelevance.close();
 
-        this.$emit('refresh');
-      });
+          this.$emit('refresh');
+        });
+      }
+      if (this.reviewId) {
+        param.testCaseReviewId = this.reviewId;
+        this.result = this.$post('/test/review/load/case/relevance', param, () => {
+          this.selectIds.clear();
+          this.$success(this.$t('commons.save_success'));
+
+          this.$refs.baseRelevance.close();
+
+          this.$emit('refresh');
+        });
+      }
+
     },
     buildPagePath(path) {
       return path + "/" + this.currentPage + "/" + this.pageSize;
@@ -159,14 +179,23 @@ export default {
     getTestCases() {
       if (this.planId) {
         this.condition.testPlanId = this.planId;
-      }
-      if (this.projectId) {
         this.condition.projectId = this.projectId;
         this.result = this.$post(this.buildPagePath('/test/plan/load/case/relevance/list'), this.condition, response => {
           let data = response.data;
           this.total = data.itemCount;
           this.testCases = data.listObject;
         });
+      }
+      if (this.reviewId) {
+        this.condition.testCaseReviewId = this.reviewId;
+        if (this.projectId) {
+          this.condition.projectId = this.projectId;
+          this.result = this.$post(this.buildPagePath('/test/review/load/case/relevance/list'), this.condition, response => {
+            let data = response.data;
+            this.total = data.itemCount;
+            this.testCases = data.listObject;
+          });
+        }
       }
     },
     handleSelectAll(selection) {

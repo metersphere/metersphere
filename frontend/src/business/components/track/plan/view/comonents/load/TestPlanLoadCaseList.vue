@@ -192,6 +192,7 @@ export default {
       default: false
     },
     planId: String,
+    reviewId: String,
     clickType: String,
   },
   created() {
@@ -225,12 +226,24 @@ export default {
         }
         this.status = 'all';
       }
-      this.$post("/test/plan/load/case/list/" + this.currentPage + "/" + this.pageSize, this.condition, response => {
-        let data = response.data;
-        let {itemCount, listObject} = data;
-        this.total = itemCount;
-        this.tableData = listObject;
-      })
+      if (this.planId) {
+        this.condition.testPlanId = this.planId;
+        this.$post("/test/plan/load/case/list/" + this.currentPage + "/" + this.pageSize, this.condition, response => {
+          let data = response.data;
+          let {itemCount, listObject} = data;
+          this.total = itemCount;
+          this.tableData = listObject;
+        })
+      }
+      if (this.reviewId) {
+        this.condition.testCaseReviewId = this.reviewId;
+        this.$post("/test/review/load/case/list/" + this.currentPage + "/" + this.pageSize, this.condition, response => {
+          let data = response.data;
+          let {itemCount, listObject} = data;
+          this.total = itemCount;
+          this.tableData = listObject;
+        })
+      }
     },
     refreshStatus() {
       this.refreshScheduler = setInterval(() => {
@@ -267,11 +280,20 @@ export default {
         callback: (action) => {
           if (action === 'confirm') {
             let ids = Array.from(this.selectRows).map(row => row.id);
-            this.result = this.$post('/test/plan/load/case/batch/delete', ids, () => {
-              this.selectRows.clear();
-              this.initTable();
-              this.$success(this.$t('test_track.cancel_relevance_success'));
-            });
+            if (this.planId) {
+              this.result = this.$post('/test/plan/load/case/batch/delete', ids, () => {
+                this.selectRows.clear();
+                this.initTable();
+                this.$success(this.$t('test_track.cancel_relevance_success'));
+              });
+            }
+            if (this.reviewId) {
+              this.result = this.$post('/test/review/load/case/batch/delete', ids, () => {
+                this.selectRows.clear();
+                this.initTable();
+                this.$success(this.$t('test_track.cancel_relevance_success'));
+              });
+            }
           }
         }
       })
@@ -306,14 +328,21 @@ export default {
       })
     },
     updateStatus(loadCase, status) {
-      this.$post('/test/plan/load/case/update', {id: loadCase.id, status: status}, () => {
-        this.$post('/test/plan/edit/status/' + loadCase.testPlanId, {}, () => {
+      if (this.planId) {
+        this.$post('/test/plan/load/case/update', {id: loadCase.id, status: status}, () => {
+          this.$post('/test/plan/edit/status/' + loadCase.testPlanId, {}, () => {
+            this.initTable();
+          });
+        });
+      }
+      if (this.reviewId) {
+        this.$post('/test/review/load/case/update', {id: loadCase.id, status: status}, () => {
           this.initTable();
         });
-      });
+      }
     },
     handleDelete(loadCase) {
-      this.result = this.$get('/test/plan/load/case/delete/' + loadCase.id, () => {
+      this.result = this.$get('/test/review/load/case/delete/' + loadCase.id, () => {
         this.$success(this.$t('test_track.cancel_relevance_success'));
         this.$emit('refresh');
         this.initTable();

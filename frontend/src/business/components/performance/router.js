@@ -4,7 +4,7 @@ const PerformanceTest = () => import('@/business/components/performance/Performa
 const PerformanceTestHome = () => import('@/business/components/performance/home/PerformanceTestHome')
 const EditPerformanceTest = () => import('@/business/components/performance/test/EditPerformanceTest')
 const PerformanceTestList = () => import('@/business/components/performance/test/PerformanceTestList')
-const PerformanceTestReport = () => import('@/business/components/performance/report/PerformanceTestReport')
+const PerformanceTestReportList = () => import('@/business/components/performance/report/PerformanceTestReportList')
 const PerformanceChart = () => import('@/business/components/performance/report/components/PerformanceChart')
 const PerformanceReportView = () => import('@/business/components/performance/report/PerformanceReportView')
 
@@ -51,7 +51,7 @@ export default {
     {
       path: "report/:type",
       name: "perReport",
-      component: PerformanceTestReport
+      component: PerformanceTestReportList
     },
     {
       path: "chart",

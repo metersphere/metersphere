@@ -590,6 +590,10 @@ public class ApiDefinitionService {
         apiTestCaseService.relevanceByApi(request);
     }
 
+    public void testCaseReviewRelevance(ApiCaseRelevanceRequest request) {
+        apiTestCaseService.relevanceByApiByReview(request);
+    }
+
     /**
      * 数据统计-接口类型
      *
@@ -671,6 +675,12 @@ public class ApiDefinitionService {
     public List<ApiDefinitionResult> listRelevance(ApiDefinitionRequest request) {
         request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
         List<ApiDefinitionResult> resList = extApiDefinitionMapper.listRelevance(request);
+        calculateResult(resList);
+        return resList;
+    }
+    public List<ApiDefinitionResult> listRelevanceReview(ApiDefinitionRequest request) {
+        request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
+        List<ApiDefinitionResult> resList = extApiDefinitionMapper.listRelevanceReview(request);
         calculateResult(resList);
         return resList;
     }

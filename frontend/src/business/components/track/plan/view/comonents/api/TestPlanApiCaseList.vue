@@ -262,6 +262,7 @@ export default {
       }
     },
     planId: String,
+    reviewId: String,
     clickType: String
   },
   created: function () {
@@ -279,6 +280,9 @@ export default {
       this.initTable();
     },
     planId() {
+      this.initTable();
+    },
+    reviewId() {
       this.initTable();
     }
   },
@@ -317,9 +321,6 @@ export default {
       this.selectRows = new Set();
       this.condition.status = "";
       this.condition.moduleIds = this.selectNodeIds;
-
-      this.condition.planId = this.planId;
-
       if (this.currentProtocol != null) {
         this.condition.protocol = this.currentProtocol;
       }
@@ -331,15 +332,31 @@ export default {
         }
         this.status = 'all';
       }
-      this.result = this.$post('/test/plan/api/case/list/' + this.currentPage + "/" + this.pageSize, this.condition, response => {
-        this.total = response.data.itemCount;
-        this.tableData = response.data.listObject;
-        this.tableData.forEach(item => {
-          if (item.tags && item.tags.length > 0) {
-            item.tags = JSON.parse(item.tags);
-          }
-        })
-      });
+      if (this.reviewId) {
+        this.condition.reviewId = this.reviewId;
+        this.result = this.$post('/test/case/review/api/case/list/' + this.currentPage + "/" + this.pageSize, this.condition, response => {
+          this.total = response.data.itemCount;
+          this.tableData = response.data.listObject;
+          this.tableData.forEach(item => {
+            if (item.tags && item.tags.length > 0) {
+              item.tags = JSON.parse(item.tags);
+            }
+          })
+        });
+      }
+      if (this.planId) {
+        this.condition.planId = this.planId;
+        this.result = this.$post('/test/plan/api/case/list/' + this.currentPage + "/" + this.pageSize, this.condition, response => {
+          this.total = response.data.itemCount;
+          this.tableData = response.data.listObject;
+          this.tableData.forEach(item => {
+            if (item.tags && item.tags.length > 0) {
+              item.tags = JSON.parse(item.tags);
+            }
+          })
+        });
+      }
+
     },
     handleSelect(selection, row) {
       row.hashTree = [];
@@ -399,13 +416,25 @@ export default {
           if (action === 'confirm') {
             let param = {};
             param.ids = Array.from(this.selectRows).map(row => row.id);
-            param.planId = this.planId;
-            this.$post('/test/plan/api/case/batch/delete', param, () => {
-              this.selectRows.clear();
-              this.initTable();
-              this.$emit('refresh');
-              this.$success(this.$t('test_track.cancel_relevance_success'));
-            });
+            if (this.reviewId) {
+              param.testCaseReviewId = this.reviewId
+              this.$post('/test/case/review/api/case/batch/delete', param, () => {
+                this.selectRows.clear();
+                this.initTable();
+                this.$emit('refresh');
+                this.$success(this.$t('test_track.cancel_relevance_success'));
+              });
+            }
+            if (this.planId) {
+              param.planId = this.planId;
+              this.$post('/test/plan/api/case/batch/delete', param, () => {
+                this.selectRows.clear();
+                this.initTable();
+                this.$emit('refresh');
+                this.$success(this.$t('test_track.cancel_relevance_success'));
+              });
+            }
+
           }
         }
       });
@@ -494,11 +523,20 @@ export default {
       });
     },
     handleDelete(apiCase) {
-      this.$get('/test/plan/api/case/delete/' + apiCase.id, () => {
-        this.$success(this.$t('test_track.cancel_relevance_success'));
-        this.$emit('refresh');
-        this.initTable();
-      });
+      if (this.planId) {
+        this.$get('/test/plan/api/case/delete/' + apiCase.id, () => {
+          this.$success(this.$t('test_track.cancel_relevance_success'));
+          this.$emit('refresh');
+          this.initTable();
+        });
+      }
+      if (this.reviewId) {
+        this.$get('/test/case/review/api/case/delete/' + apiCase.id, () => {
+          this.$success(this.$t('test_track.cancel_relevance_success'));
+          this.$emit('refresh');
+          this.initTable();
+        });
+      }
       return;
     },
     getProjectId() {
