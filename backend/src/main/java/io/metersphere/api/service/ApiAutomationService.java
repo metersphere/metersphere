@@ -72,7 +72,7 @@ public class ApiAutomationService {
     @Resource
     private TestPlanApiScenarioMapper testPlanApiScenarioMapper;
     @Resource
-    private TestCaseReviewScenarioMapper  testCaseReviewScenarioMapper;
+    private TestCaseReviewScenarioMapper testCaseReviewScenarioMapper;
     @Resource
     private JMeterService jMeterService;
     @Resource
@@ -96,11 +96,13 @@ public class ApiAutomationService {
         List<ApiScenarioDTO> list = extApiScenarioMapper.list(request);
         return list;
     }
+
     public List<ApiScenarioDTO> listReview(ApiScenarioRequest request) {
         request = this.initRequest(request, true, true);
         List<ApiScenarioDTO> list = extApiScenarioMapper.listReview(request);
         return list;
     }
+
     private void setApiScenarioProjectIds(ApiScenarioDTO data) {
         // 如果场景步骤涉及多项目，则把涉及到的项目ID保存在projectIds属性
         List<String> idList = new ArrayList<>();
@@ -335,8 +337,9 @@ public class ApiAutomationService {
         if (scenarioWithBLOBs != null) {
             BeanUtils.copyBean(apiScenarioDTO, scenarioWithBLOBs);
             setApiScenarioProjectIds(apiScenarioDTO);
+            return apiScenarioDTO;
         }
-        return apiScenarioDTO;
+        return null;
     }
 
     public List<ApiScenarioWithBLOBs> getApiScenarios(List<String> ids) {
@@ -715,14 +718,15 @@ public class ApiAutomationService {
             testPlanApiScenarioMapper.insert(testPlanApiScenario);
         });
     }
-    public void relevanceReview(ApiCaseRelevanceRequest request){
+
+    public void relevanceReview(ApiCaseRelevanceRequest request) {
         Map<String, List<String>> mapping = request.getMapping();
         Map<String, String> envMap = request.getEnvMap();
         Set<String> set = mapping.keySet();
         if (set.isEmpty()) {
             return;
         }
-        set.forEach(id->{
+        set.forEach(id -> {
             Map<String, String> newEnvMap = new HashMap<>(16);
             if (envMap != null && !envMap.isEmpty()) {
                 List<String> list = mapping.get(id);
@@ -730,7 +734,7 @@ public class ApiAutomationService {
                     newEnvMap.put(l, envMap.get(l));
                 });
             }
-            TestCaseReviewScenario testCaseReviewScenario=new TestCaseReviewScenario();
+            TestCaseReviewScenario testCaseReviewScenario = new TestCaseReviewScenario();
             testCaseReviewScenario.setId(UUID.randomUUID().toString());
             testCaseReviewScenario.setApiScenarioId(id);
             testCaseReviewScenario.setTestCaseReviewId(request.getReviewId());
@@ -741,6 +745,7 @@ public class ApiAutomationService {
 
         });
     }
+
     public List<ApiScenario> selectByIds(List<String> ids) {
         ApiScenarioExample example = new ApiScenarioExample();
         example.createCriteria().andIdIn(ids);

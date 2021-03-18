@@ -137,7 +137,9 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                 URL urlObject = new URL(url);
                 if (isUrl) {
                     sampler.setDomain(URLDecoder.decode(urlObject.getHost(), "UTF-8"));
-                    sampler.setPort(urlObject.getPort());
+                    if (urlObject.getPort() > 0) {
+                        sampler.setPort(urlObject.getPort());
+                    }
                     sampler.setProtocol(urlObject.getProtocol());
                 } else {
                     sampler.setDomain(config.getConfig().get(this.getProjectId()).getHttpConfig().getDomain());

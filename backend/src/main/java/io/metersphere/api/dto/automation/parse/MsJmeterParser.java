@@ -174,7 +174,7 @@ public class MsJmeterParser extends ApiImportAbstractParser<ScenarioImport> {
                     }
                 }
             }
-            samplerProxy.setPath(source.getPath());
+            samplerProxy.setPath("");
             samplerProxy.setMethod(source.getMethod());
             if (source.getUrl() != null) {
                 samplerProxy.setUrl(source.getUrl().toString());

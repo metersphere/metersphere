@@ -202,7 +202,7 @@
           new URL(url);
           this.request.url = url;
         } catch (e) {
-          if (url) {
+          if (url && (!url.startsWith("http://") || !url.startsWith("https://"))) {
             this.request.path = url;
             this.request.url = undefined;
           }
