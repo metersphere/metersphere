@@ -93,7 +93,10 @@ public class MsHTTPSamplerProxy extends MsTestElement {
 
     @Override
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, ParameterConfig config) {
-
+        // 非导出操作，且不是启用状态则跳过执行
+        if (!config.isOperating() && !this.isEnable()) {
+            return;
+        }
         if (this.getReferenced() != null && MsTestElementConstants.REF.name().equals(this.getReferenced())) {
             this.getRefElement(this);
         }
@@ -315,7 +318,9 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         headers.stream().filter(KeyValue::isValid).filter(KeyValue::isEnable).forEach(keyValue ->
                 headerManager.add(new Header(keyValue.getName(), keyValue.getValue()))
         );
-        tree.add(headerManager);
+        if (headerManager.getHeaders().size() > 0) {
+            tree.add(headerManager);
+        }
     }
 
     public boolean isURL(String str) {

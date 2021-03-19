@@ -101,7 +101,7 @@ export default {
       this.$emit("refreshTable");
     },
     refreshAll() {
-      this.selectRows.clear();
+      // this.selectRows.clear();
       this.$emit('refreshAll');
     },
     handleCommand(e) {
