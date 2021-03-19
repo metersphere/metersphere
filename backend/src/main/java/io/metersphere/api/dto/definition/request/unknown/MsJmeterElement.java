@@ -3,6 +3,7 @@ package io.metersphere.api.dto.definition.request.unknown;
 import com.alibaba.fastjson.annotation.JSONType;
 import io.metersphere.api.dto.definition.request.MsTestElement;
 import io.metersphere.api.dto.definition.request.ParameterConfig;
+import io.metersphere.commons.utils.LogUtil;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.collections.CollectionUtils;
@@ -36,17 +37,22 @@ public class MsJmeterElement extends MsTestElement {
                 Object scriptWrapper = SaveService.loadElement(inputSource);
                 HashTree elementTree = tree;
                 this.setElementType(scriptWrapper.getClass().getName());
+                if (scriptWrapper instanceof TestElement) {
+                    ((TestElement) scriptWrapper).setName(this.getName());
+                    ((TestElement) scriptWrapper).setEnabled(this.isEnable());
+                }
                 if (config.isOperating()) {
                     elementTree = tree.add(scriptWrapper);
                 } else if (!(scriptWrapper instanceof TestPlan) && !(scriptWrapper instanceof ThreadGroup)) {
                     elementTree = tree.add(scriptWrapper);
                 }
-                if (scriptWrapper instanceof TestElement) {
-                    ((TestElement) scriptWrapper).setName(this.getName());
-                }
-                if (CollectionUtils.isNotEmpty(hashTree)) {
-                    for (MsTestElement el : hashTree) {
-                        el.toHashTree(elementTree, el.getHashTree(), config);
+                if (!config.isOperating() && scriptWrapper instanceof ThreadGroup && !((ThreadGroup) scriptWrapper).isEnabled()) {
+                    LogUtil.info(((ThreadGroup) scriptWrapper).getName() + "是被禁用线程组不加入执行");
+                } else {
+                    if (CollectionUtils.isNotEmpty(hashTree)) {
+                        for (MsTestElement el : hashTree) {
+                            el.toHashTree(elementTree, el.getHashTree(), config);
+                        }
                     }
                 }
             }

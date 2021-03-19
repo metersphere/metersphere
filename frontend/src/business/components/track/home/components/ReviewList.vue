@@ -2,7 +2,7 @@
   <el-card class="table-card" v-loading="result.loading" body-style="padding:10px;">
     <div slot="header">
       <span class="title">
-        遗留缺陷统计
+        用例评审
       </span>
       <ms-table-button :is-tester-permission="true" v-if="!showMyCreator" icon="el-icon-view"
                        :content="$t('test_track.review.my_create')" @click="searchMyCreator" style="float: right"/>
