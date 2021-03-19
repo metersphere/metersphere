@@ -72,13 +72,14 @@
           ],
           isCodeEditAlive: true,
           languages: [
-            'beanshell', "python", "groovy", "javascript"
+            'beanshell', "python", "groovy", "nashornScript","graalVMScript"
           ],
           codeEditModeMap: {
             beanshell: 'java',
             python: 'python',
             groovy: 'java',
-            javascript: 'javascript',
+            nashornScript: 'javascript',
+            graalVMScript: 'javascript',
           }
         }
       },

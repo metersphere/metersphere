@@ -13,7 +13,7 @@ import java.util.List;
 
 public interface ExtApiScenarioMapper {
     List<ApiScenarioDTO> list(@Param("request") ApiScenarioRequest request);
-
+    List<ApiScenarioDTO> listReview(@Param("request") ApiScenarioRequest request);
     List<ApiScenarioWithBLOBs> selectByTagId(@Param("id") String id);
 
     List<ApiScenarioWithBLOBs> selectIds(@Param("ids") List<String> ids);

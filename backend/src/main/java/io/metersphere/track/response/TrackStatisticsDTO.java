@@ -144,20 +144,22 @@ public class TrackStatisticsDTO {
 
     public void countRelevance(List<TrackCountResult> relevanceResults) {
         for (TrackCountResult countResult : relevanceResults) {
-            switch (countResult.getGroupField().toUpperCase()){
+            switch (countResult.getGroupField()){
                 case TrackCount.API:
                     this.apiCaseCount += countResult.getCountNumber();
+                    this.allRelevanceCaseCount += countResult.getCountNumber();
                     break;
                 case TrackCount.PERFORMANCE:
                     this.performanceCaseCount += countResult.getCountNumber();
+                    this.allRelevanceCaseCount += countResult.getCountNumber();
                     break;
                 case TrackCount.AUTOMATION:
                     this.scenarioCaseCount += countResult.getCountNumber();
+                    this.allRelevanceCaseCount += countResult.getCountNumber();
                     break;
                 default:
                     break;
             }
-            this.allRelevanceCaseCount += countResult.getCountNumber();
         }
     }
 

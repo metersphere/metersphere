@@ -137,7 +137,7 @@ public class Swagger2Parser extends SwaggerAbstractParser {
 
     private String getBodyType(Operation operation) {
         if (CollectionUtils.isEmpty(operation.getConsumes())) {
-            return Body.RAW;
+            return Body.JSON;
         }
         String contentType = operation.getConsumes().get(0);
         return getBodyType(contentType);
@@ -238,12 +238,10 @@ public class Swagger2Parser extends SwaggerAbstractParser {
             return propertyList.toString();
         } else if (schema instanceof ModelImpl) {
             ModelImpl model = (ModelImpl) schema;
-            if (StringUtils.equals("object", model.getType())) {
-                model.getProperties();
-                if (model != null) {
-                    JSONObject bodyParameters = getBodyParameters(model.getProperties(), new HashSet<>());
-                    return bodyParameters.toJSONString();
-                }
+            Map<String, Property> properties = model.getProperties();
+            if (model != null && properties != null) {
+                JSONObject bodyParameters = getBodyParameters(properties, new HashSet<>());
+                return bodyParameters.toJSONString();
             }
         }
         return "";

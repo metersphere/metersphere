@@ -142,7 +142,7 @@ export default {
           status: [{required: true, message: this.$t('commons.please_select'), trigger: 'change'}],
         },
         httpForm: {environmentId: "", tags: []},
-        isShowEnable: false,
+        isShowEnable: true,
         maintainerOptions: [],
         currentModule: {},
         reqOptions: REQ_METHOD,

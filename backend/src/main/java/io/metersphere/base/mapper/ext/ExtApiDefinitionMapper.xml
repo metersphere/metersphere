@@ -363,6 +363,86 @@
             </foreach>
         </if>
     </select>
+    <select id="listRelevanceReview" resultType="io.metersphere.api.dto.definition.ApiDefinitionResult">
+        select
+        <include refid="io.metersphere.base.mapper.ApiDefinitionMapper.Base_Column_List"/>
+        from api_definition
+        <where>
+            <if test="request.combine != null">
+                <include refid="combine">
+                    <property name="condition" value="request.combine"/>
+                    <property name="name" value="request.name"/>
+                    <property name="objectKey" value="request.combine.tags"/>
+                </include>
+            </if>
+
+            <if test="request.name != null">
+                and api_definition.name like CONCAT('%', #{request.name},'%')
+            </if>
+            <if test="request.protocol != null">
+                AND api_definition.protocol = #{request.protocol}
+            </if>
+            <if test="request.id != null">
+                AND api_definition.id = #{request.id}
+            </if>
+            <if test="request.moduleId != null">
+                AND api_definition.module_id = #{request.moduleId}
+            </if>
+            <if test="request.projectId != null">
+                AND api_definition.project_id = #{request.projectId}
+            </if>
+            <if test="request.moduleIds != null and request.moduleIds.size() > 0">
+                AND api_definition.module_id in
+                <foreach collection="request.moduleIds" item="nodeId" separator="," open="(" close=")">
+                    #{nodeId}
+                </foreach>
+            </if>
+            <if test="request.filters != null and request.filters.size() > 0">
+                <foreach collection="request.filters.entrySet()" index="key" item="values">
+                    <if test="values != null and values.size() > 0">
+                        <choose>
+                            <when test="key=='status'">
+                                and api_definition.status in
+                                <foreach collection="values" item="value" separator="," open="(" close=")">
+                                    #{value}
+                                </foreach>
+                            </when>
+                            <when test="key=='method'">
+                                and api_definition.method in
+                                <foreach collection="values" item="value" separator="," open="(" close=")">
+                                    #{value}
+                                </foreach>
+                            </when>
+                            <when test="key=='user_id'">
+                                and api_definition.user_id in
+                                <foreach collection="values" item="value" separator="," open="(" close=")">
+                                    #{value}
+                                </foreach>
+                            </when>
+                        </choose>
+                    </if>
+                </foreach>
+            </if>
+            and exists (
+            select id
+            from api_test_case c
+            where c.api_definition_id = api_definition.id
+            and not exists (
+            select id
+            from test_case_review_api_case t
+            where t.api_case_id = c.id
+            and t.test_case_review_id = #{request.reviewId}
+            )
+            )
+        </where>
+        <if test="request.orders != null and request.orders.size() > 0">
+            order by
+            <foreach collection="request.orders" separator="," item="order">
+                api_definition.${order.name} ${order.type}
+            </foreach>
+        </if>
+    </select>
+
     <select id="selectScheduleList" resultType="io.metersphere.api.dto.definition.ApiSwaggerUrlDTO">
         SELECT apiScene.id     AS scenarioId,
                apiScene.`name` AS `name`,

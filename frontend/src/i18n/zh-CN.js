@@ -1,5 +1,9 @@
 export default {
   commons: {
+    please_select_import_mode: '请选择导入模式',
+    please_select_import_module: '请选择导入模块',
+    pass_rate: '通过率',
+    execution_times: '执行次数',
     cover: '覆盖',
     not_cover: '不覆盖',
     import: '导入',
@@ -335,6 +339,7 @@ export default {
     delete: '删除项目',
     delete_confirm: '确定要删除这个项目吗?',
     delete_tip: '删除该项目，会删除该项目下所有测试资源，确定要删除吗?',
+    file_delete_tip: '删除该项目的文件: {0}？',
     search_by_name: '根据名称搜索',
     search_by_name_jar: '根据 名称 / jar包 搜索',
     input_name: '请输入项目名称',
@@ -478,14 +483,14 @@ export default {
     delete_file: "文件已存在，请先删除同名文件！",
     thread_num: '并发用户数：',
     input_thread_num: '请输入线程数',
-    duration: '压测时长（秒）',
+    duration: '压测时长',
     granularity: '聚合时间（秒）',
     input_duration: '请输入时长',
     rps_limit: 'RPS上限：',
     input_rps_limit: '请输入限制',
     ramp_up_time_within: '在',
-    ramp_up_time_minutes: '秒内，分',
-    ramp_up_time_seconds: '秒内增加并发用户',
+    ramp_up_time_minutes: '{0}内，分',
+    ramp_up_time_seconds: '{0}内增加并发用户',
     iterate_num: '迭代次数 (次): ',
     by_iteration: '按迭代次数',
     by_duration: '按持续时间',
@@ -525,10 +530,11 @@ export default {
     exist_jmx: '已存在的文件',
     other_resource: '资源文件',
     upload_file: '上传新文件',
-    load_exist_file: '加载已有文件',
-    load_exist_jmx: '加载已有 JMX 文件',
+    load_exist_file: '加载文件',
+    load_exist_jmx: '加载 JMX 文件',
     threadgroup_at_least_one: '至少启用一个线程组',
     load_api_automation_jmx: '引用接口自动化场景',
+    project_file_exist: "项目中已存在该文件，请直接引用",
     report: {
       diff: "对比"
     }
@@ -622,6 +628,7 @@ export default {
         res_param: "响应内容",
         batch_delete: "批量删除",
         delete_confirm: "确认删除接口",
+        delete_case_confirm: "确认删除用例",
         delete_confirm_step: "确认删除步骤",
         assertions_rule: "断言规则",
         response_header: "响应头",
@@ -1036,6 +1043,7 @@ export default {
         },
         scenario_schedule: "场景",
         test_plan_schedule: "测试计划",
+        swagger_schedule: "swagger",
         confirm: {
           close_title: "要关闭这条定时任务吗？",
         }
@@ -1106,6 +1114,7 @@ export default {
     cancel_relevance_success: "取消关联成功",
     switch_project: "切换项目",
     case: {
+      minder: "脑图",
       check_select: "请勾选用例",
       export_all_cases: '确定要导出全部用例吗?',
       input_test_case: '请输入关联用例名称',
@@ -1314,6 +1323,7 @@ export default {
       executor: "执行人",
       execute_result: "执行结果",
       pass: "通过",
+      not_pass: "不通过",
       failure: "失败",
       blocking: "阻塞",
       skip: "跳过",
@@ -1607,5 +1617,10 @@ export default {
     delete_prompt: '此操作会删除认证源，是否继续？',
     title: '认证设置',
     auth_name_valid: '名称不支持特殊字符',
+  },
+  table: {
+    header_display_field: '表头显示字段',
+    fields_to_be_selected: '待选字段',
+    selected_fields: '已选字段'
   }
 };

@@ -27,4 +27,5 @@ public class ApiTestCaseRequest {
     private Map<String, Object> combine;
     private boolean isSelectThisWeedData;
     private long createTime = 0;
+    private String reviewId;
 }

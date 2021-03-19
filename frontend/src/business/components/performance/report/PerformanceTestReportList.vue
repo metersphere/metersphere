@@ -188,10 +188,6 @@ export default {
       this.multipleSelection = val;
     },
     handleEdit(report) {
-      if (report.status === "Starting") {
-        this.$info(this.$t('report.being_generated'))
-        return false
-      }
       this.$router.push({
         path: '/performance/report/view/' + report.id
       })

@@ -35,6 +35,9 @@ export const Test_Plan_List = [
   {id: 'plannedEndTime', label: i18n.t('test_track.plan.planned_end_time')},
   {id: 'actualStartTime', label: i18n.t('test_track.plan.actual_start_time')},
   {id: 'actualEndTime', label: i18n.t('test_track.plan.actual_end_time')},
+  {id:'tags',label:i18n.t('commons.tag')},
+  {id:'executionTimes',label:i18n.t('commons.execution_times')},
+  {id:'passRate',label:i18n.t('commons.pass_rate')}
 ]
 //接口定义-api列表
 export const Api_List = [

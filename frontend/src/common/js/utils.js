@@ -1,17 +1,17 @@
 import {
-    COUNT_NUMBER,
-    COUNT_NUMBER_SHALLOW,
-    LicenseKey,
-    ORIGIN_COLOR,
-    ORIGIN_COLOR_SHALLOW,
-    PROJECT_ID,
-    REFRESH_SESSION_USER_URL,
-    ROLE_ADMIN,
-    ROLE_ORG_ADMIN,
-    ROLE_TEST_MANAGER,
-    ROLE_TEST_USER,
-    ROLE_TEST_VIEWER,
-    TokenKey
+  COUNT_NUMBER,
+  COUNT_NUMBER_SHALLOW,
+  LicenseKey,
+  ORIGIN_COLOR,
+  ORIGIN_COLOR_SHALLOW, PRIMARY_COLOR,
+  PROJECT_ID,
+  REFRESH_SESSION_USER_URL,
+  ROLE_ADMIN,
+  ROLE_ORG_ADMIN,
+  ROLE_TEST_MANAGER,
+  ROLE_TEST_USER,
+  ROLE_TEST_VIEWER,
+  TokenKey
 } from "./constants";
 import axios from "axios";
 import {jsPDF} from "jspdf";
@@ -354,19 +354,19 @@ export function objToStrMap(obj) {
     return strMap;
 }
 
-export function getColor() {
-    return localStorage.getItem('color');
-}
-
-export function setColor(a, b, c, d) {
+export function setColor(a, b, c, d, e) {
+    // 顶部菜单背景色
     document.body.style.setProperty('--color', a);
     document.body.style.setProperty('--color_shallow', b);
+    // 首页颜色
     document.body.style.setProperty('--count_number', c);
     document.body.style.setProperty('--count_number_shallow', d);
+    // 主颜色
+    document.body.style.setProperty('--primary_color', e);
 }
 
-export function setOriginColor() {
-    setColor(ORIGIN_COLOR, ORIGIN_COLOR_SHALLOW, COUNT_NUMBER, COUNT_NUMBER_SHALLOW);
+export function setDefaultTheme() {
+    setColor(ORIGIN_COLOR, ORIGIN_COLOR_SHALLOW, COUNT_NUMBER, COUNT_NUMBER_SHALLOW, PRIMARY_COLOR);
 }
 
 export function publicKeyEncrypt(input, publicKey) {

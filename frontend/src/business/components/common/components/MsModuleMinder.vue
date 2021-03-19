@@ -1,8 +1,13 @@
 <template>
-  <div class="minder">
-    <minder-editor v-if="isActive"
+  <div class="minder" :class="{'full-screen': isFullScreen}">
+    <ms-full-screen-button :is-full-screen.sync="isFullScreen"/>
+    <minder-editor
+      v-if="isActive"
       class="minder-container"
       :import-json="importJson"
+      :progress-enable="false"
+      :tags="tags"
+      :distinct-tags="distinctTags"
       @save="save"
     />
   </div>
@@ -10,9 +15,10 @@
 
 <script>
 
+import MsFullScreenButton from "@/business/components/common/components/MsFullScreenButton";
 export default {
   name: "MsModuleMinder",
-  components: {},
+  components: {MsFullScreenButton},
   props: {
     treeNodes: {
       type: Array,
@@ -20,7 +26,19 @@ export default {
         return []
       }
     },
-    data: {
+    dataMap: {
+      type: Map,
+      default() {
+        return new Map();
+      }
+    },
+    tags: {
+      type: Array,
+      default() {
+        return []
+      }
+    },
+    distinctTags: {
       type: Array,
       default() {
         return []
@@ -29,66 +47,72 @@ export default {
   },
   data() {
     return {
-      importJsonTest: {
-        "root": {
-          "data": {
-            "text": "test111"
-          },
-          "children": [
-            { "data": { "text": "新闻"}},
-            { "data": { "text": "网页"} },
-            { "data": { "text": "贴吧"} },
-            { "data": { "text": "知道"} },
-            { "data": { "text": "音乐" } },
-            { "data": { "text": "图片"} },
-            { "data": { "text": "视频"} },
-            { "data": { "text": "地图" } },
-            { "data": { "text": "百科","expandState":"collapse"}}
-          ]
-        },
-        "template":"default"
-      },
       importJson: {
         root: {
           data: {
-            text: "全部用例",
-            disable: true
+            text: this.$t('test_track.review_view.all_case'),
+            disable: true,
+            id: "root",
+            path: ""
           },
           children: []
         },
         "template":"default"
       },
-      isActive: true
+      isActive: true,
+      isFullScreen: false
     }
   },
-  mounted() {
-    this.$nextTick(() => {
-      this.parse(this.importJson.root, this.treeNodes);
-      this.reload();
-    })
+  created() {
+  },
+  watch: {
+    dataMap() {
+      this.$nextTick(() => {
+        this.parse(this.importJson.root, this.treeNodes);
+        this.reload();
+      })
+    }
   },
   methods: {
     save(data) {
-      console.log(data);
-      // console.log(this.treeNodes);
+      this.$emit('save', data)
     },
     parse(root, children) {
+      root.children = [];
+      if (root.data.id ===  'root') {
+        // nodeId 为空的用例
+        let rootChildData = this.dataMap.get("");
+        if (rootChildData) {
+          rootChildData.forEach((dataNode) => {
+            root.children.push(dataNode);
+          })
+        }
+      }
+      // 添加数据节点
+      let dataNodes = this.dataMap.get(root.data.id);
+      if (dataNodes) {
+        dataNodes.forEach((dataNode) => {
+          root.children.push(dataNode);
+        })
+      }
+
       if (children == null || children.length < 1) {
         return;
       }
-      root.children = [];
+
       children.forEach((item) => {
         let node = {
           data: {
             text: item.name,
             id: item.id,
             disable: true,
-            // resource: ['#']
+            path: root.data.path + "/" + item.name,
+            expandState:"collapse"
           },
         }
         root.children.push(node);
         this.parse(node, item.children);
-      })
+      });
     },
     reload() {
       this.isActive = false;
@@ -101,4 +125,38 @@ export default {
 </script>
 
 <style scoped>
+.minder-container >>> .save-btn {
+  right: 30px;
+  bottom: auto;
+  top: 30px;
+}
+
+.minder {
+  position: relative;
+}
+
+.fulls-screen-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 1;
+}
+
+.full-screen {
+  position: fixed;
+  top: 0px;
+  left: 0px;
+  width: 100%;
+  background: white;
+  height: 100vh;
+  z-index: 999999;
+}
+
+.full-screen >>> .minder-container {
+  height: calc(100vh - 109px) !important;
+}
+
+.full-screen .fulls-screen-btn {
+  right: 30px;
+}
 </style>

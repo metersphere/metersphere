@@ -1,5 +1,9 @@
 export default {
   commons: {
+    please_select_import_mode: 'Please select import mode',
+    please_select_import_module: 'Please select import module',
+    pass_rate: 'Pass rate',
+    execution_times: 'Execution times',
     cover: 'Cover',
     not_cover: 'Not Cover',
     import: 'Import',
@@ -338,6 +342,7 @@ export default {
     delete: 'Delete project',
     delete_confirm: 'Deleting this project will delete all test resources under this project. Are you sure you want to delete?',
     delete_tip: 'Deleting this project will delete all test resources under this project. Are you sure you want to delete?',
+    file_delete_tip: 'Deleting this project file: {0}？',
     search_by_name: 'Search by name',
     search_by_name_jar: 'Search by name/jar',
     input_name: 'Please enter a workspace name',
@@ -481,7 +486,7 @@ export default {
     delete_file: "The file already exists, please delete the file with the same name first!",
     thread_num: 'Concurrent users:',
     input_thread_num: 'Please enter the number of threads',
-    duration: 'Duration time (seconds)',
+    duration: 'Duration time',
     granularity: 'Aggregation time (seconds)',
     input_duration: 'Please enter a duration',
     rps_limit: 'RPS Limit:',
@@ -530,6 +535,7 @@ export default {
     load_exist_jmx: 'Load Project JMX',
     threadgroup_at_least_one: 'At least one ThreadGroup is enabled',
     load_api_automation_jmx: 'Import API automation scenario',
+    project_file_exist: "The file already exists in the project, please import it directly",
     report: {
       diff: "Compare"
     }
@@ -621,6 +627,7 @@ export default {
         res_param: "Response content",
         batch_delete: "Batch deletion",
         delete_confirm: "Confirm deletion",
+        delete_case_confirm: "Confirm case deletion",
         delete_confirm_step: "Confirm deletion step",
         assertions_rule: "Assertion rule",
         response_header: "Response header",
@@ -1032,6 +1039,7 @@ export default {
         },
         scenario_schedule: "Scenario",
         test_plan_schedule: "Test plan",
+        swagger_schedule: "swagger",
         confirm: {
           close_title: "Do you want to close this scheduled task？",
         }
@@ -1102,6 +1110,7 @@ export default {
     cancel_relevance_success: "Unlinked successfully",
     switch_project: "Switch project",
     case: {
+      minder: "Minder",
       check_select: "Please check the case",
       export_all_cases: 'Are you sure you want to export all use cases?',
       input_test_case: 'Please enter the associated case name',
@@ -1310,6 +1319,7 @@ export default {
       executor: "Executor",
       execute_result: "Result",
       pass: "Pass",
+      not_pass: "UnPass",
       failure: "Failure",
       blocking: "Blocking",
       skip: "Skip",
@@ -1604,5 +1614,10 @@ export default {
     delete_prompt: 'This operation will delete the authentication source, do you want to continue? ',
     title: 'Auth Source',
     auth_name_valid: 'Name does not support special characters',
+  },
+  table: {
+    header_display_field: 'Header display field',
+    fields_to_be_selected: 'Fields to be selected',
+    selected_fields: 'Selected fields'
   }
 };

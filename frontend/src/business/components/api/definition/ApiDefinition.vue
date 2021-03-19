@@ -240,7 +240,6 @@ import MsTabButton from "@/business/components/common/components/MsTabButton";
       }
     },
     methods: {
-
       changeRedirectParam(redirectIDParam) {
         this.redirectID = redirectIDParam;
       },
@@ -349,7 +348,7 @@ import MsTabButton from "@/business/components/common/components/MsTabButton";
         this.showCasePage = true;
       },
       exportAPI(type) {
-        if (!this.isApiListEnable) {
+        if (this.activeDom !== 'left') {
           this.$warning('用例列表暂不支持导出，请切换成接口列表');
           return;
         }

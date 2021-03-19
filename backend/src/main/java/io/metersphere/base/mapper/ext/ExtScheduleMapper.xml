@@ -61,35 +61,34 @@
           AND create_time BETWEEN #{startTime} and #{endTime}
     </select>
     <select id="findRunningTaskInfoByProjectID" resultType="io.metersphere.api.dto.datacount.response.TaskInfoResult">
-        SELECT apiScene.id     AS scenarioId,
-               apiScene.`name` AS `name`,
-               sch.id          AS taskID,
-               sch.`value`     AS rule,
-               sch.`enable`    AS `taskStatus`,
-               u.`name`        AS creator,
-               sch.update_time AS updateTime,
-               'scenario'      AS taskType
-        FROM api_scenario apiScene
-                 INNER JOIN `schedule` sch ON apiScene.id = sch.resource_id
-                 INNER JOIN `user` u ON u.id = sch.user_id
+        SELECT sch.id AS taskID,
+           sch.`name` AS `name`,
+           sch.`value`     AS rule,
+           sch.`enable`    AS `taskStatus`,
+           sch.update_time AS updateTime,
+           sch.id          AS taskID,
+           sch.`value`     AS rule,
+           sch.`enable`    AS `taskStatus`,
+           u.`name`        AS creator,
+           sch.update_time AS updateTime,
+           sch.type      AS taskType,
+           sch.`group`    AS taskGroup,
+           sch.resource_id  AS scenarioId
+        FROM (
+          schedule sch left join user u
+          ON sch.user_id = u.id
+        )
         WHERE sch.`enable` = true
-          AND apiScene.project_id = #{0,jdbcType=VARCHAR}
-        UNION
-        SELECT testPlan.id     AS scenarioId,
-               testPlan.`name` AS `name`,
-               sch.id          AS taskID,
-               sch.`value`     AS rule,
-               sch.`enable`    AS `taskStatus`,
-               u.`name`        AS creator,
-               sch.update_time AS updateTime,
-               'testPlan'      AS taskType
-        FROM test_plan testPlan
-                 INNER JOIN `schedule` sch ON testPlan.id = sch.resource_id
-                 INNER JOIN `user` u ON u.id = sch.user_id
-        WHERE sch.`enable` = true
-          AND testPlan.project_id = #{0,jdbcType=VARCHAR}
+          AND sch.project_id = #{projectId,jdbcType=VARCHAR}
+          and sch.`group` in
+            <foreach collection="types" item="item" separator="," open="(" close=")">
+                #{item}
+            </foreach>
     </select>
     <select id="select" resultType="io.metersphere.api.dto.definition.ApiSwaggerUrlDTO">
         select * from swagger_url_project where id=#{id}
     </select>
+    <update id="updateNameByResourceID">
+        update schedule set name = #{name} where resource_id = #{resourceId}
+    </update>
 </mapper>

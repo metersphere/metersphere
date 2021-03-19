@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.Resource;
 import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -110,59 +111,58 @@ public class TrackService {
         return charts;
     }
 
-    public BugStatustics getBugStatustics(String projectId) {
+    public BugStatustics getBugStatistics(String projectId) {
         TestPlanExample example = new TestPlanExample();
         example.createCriteria().andProjectIdEqualTo(projectId);
         List<TestPlan> plans = testPlanMapper.selectByExample(example);
         List<TestPlanBugCount> list = new ArrayList<>();
         BugStatustics bugStatustics = new BugStatustics();
         int index = 1;
+        int totalBugSize = 0;
+        int totalCaseSize = 0;
         for (TestPlan plan : plans) {
             TestPlanBugCount testPlanBug = new TestPlanBugCount();
             testPlanBug.setIndex(index++);
             testPlanBug.setPlanName(plan.getName());
-            testPlanBug.setCreatTime(plan.getCreateTime());
+            testPlanBug.setCreateTime(plan.getCreateTime());
             testPlanBug.setStatus(plan.getStatus());
-            testPlanBug.setCaseSize(getPlanCaseSize(plan.getId()));
-            testPlanBug.setBugSize(getPlanBugSize(plan.getId()));
-            testPlanBug.setPassRage(getPlanPassRage(plan.getId()));
+
+            int planCaseSize = getPlanCaseSize(plan.getId());
+            testPlanBug.setCaseSize(planCaseSize);
+
+            int planBugSize = getPlanBugSize(plan.getId());
+            testPlanBug.setBugSize(planBugSize);
+            testPlanBug.setPassRage(getPlanPassRage(plan.getId(), planCaseSize));
             list.add(testPlanBug);
+
+            totalBugSize += planBugSize;
+            totalCaseSize += planCaseSize;
         }
 
-        // todo
         bugStatustics.setList(list);
-        bugStatustics.setRage("1");
-        bugStatustics.setBugTotalSize(2);
+        float rage =totalCaseSize == 0 ? 0 : (float) totalBugSize * 100 / totalCaseSize;
+        DecimalFormat df = new DecimalFormat("0.0");
+        bugStatustics.setRage(df.format(rage) + "%");
+        bugStatustics.setBugTotalSize(totalBugSize);
         return bugStatustics;
     }
 
     private int getPlanCaseSize(String planId) {
-        TestPlanTestCaseExample testPlanTestCaseExample = new TestPlanTestCaseExample();
-        testPlanTestCaseExample.createCriteria().andPlanIdEqualTo(planId);
-        List<TestPlanTestCase> testPlanTestCases = testPlanTestCaseMapper.selectByExample(testPlanTestCaseExample);
-
-        TestPlanApiCaseExample testPlanApiCaseExample = new TestPlanApiCaseExample();
-        testPlanApiCaseExample.createCriteria().andTestPlanIdEqualTo(planId);
-        List<TestPlanApiCase> testPlanApiCases = testPlanApiCaseMapper.selectByExample(testPlanApiCaseExample);
-
-        TestPlanLoadCaseExample example = new TestPlanLoadCaseExample();
-        example.createCriteria().andTestPlanIdEqualTo(planId);
-        List<TestPlanLoadCase> testPlanLoadCases = testPlanLoadCaseMapper.selectByExample(example);
-
-        TestPlanApiScenarioExample testPlanApiScenarioExample = new TestPlanApiScenarioExample();
-        testPlanApiCaseExample.createCriteria().andTestPlanIdEqualTo(planId);
-        List<TestPlanApiScenario> testPlanApiScenarios = testPlanApiScenarioMapper.selectByExample(testPlanApiScenarioExample);
-
-
-        return testPlanTestCases.size() + testPlanApiCases.size() + testPlanLoadCases.size() + testPlanApiScenarios.size();
+        return extTestCaseMapper.getTestPlanCase(planId);
 
     }
 
     private int getPlanBugSize(String planId) {
-        return 1;
+        return extTestCaseMapper.getTestPlanBug(planId);
     }
 
-    private String getPlanPassRage(String planId) {
-        return "10%";
+    private String getPlanPassRage(String planId, int totalSize) {
+        if (totalSize == 0) {
+            return "-";
+        }
+        int passSize = extTestCaseMapper.getTestPlanPassCase(planId);
+        float rage = (float) passSize * 100 / totalSize;
+        DecimalFormat df = new DecimalFormat("0.0");
+        return df.format(rage) + "%";
     }
 }

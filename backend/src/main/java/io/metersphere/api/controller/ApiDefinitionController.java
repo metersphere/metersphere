@@ -30,6 +30,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import java.net.MalformedURLException;
 import java.util.Date;
 import java.util.List;
 
@@ -57,6 +58,12 @@ public class ApiDefinitionController {
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         request.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
         return PageUtils.setPageInfo(page, apiDefinitionService.listRelevance(request));
+    }
+    @PostMapping("/list/relevance/review/{goPage}/{pageSize}")
+    public Pager<List<ApiDefinitionResult>> listRelevanceReview(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody ApiDefinitionRequest request) {
+        Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
+        request.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
+        return PageUtils.setPageInfo(page, apiDefinitionService.listRelevanceReview(request));
     }
 
     @PostMapping("/list/all")
@@ -157,7 +164,7 @@ public class ApiDefinitionController {
 
     //定时任务创建
     @PostMapping(value = "/schedule/create")
-    public void createSchedule(@RequestBody ScheduleRequest request) {
+    public void createSchedule(@RequestBody ScheduleRequest request) throws MalformedURLException {
         apiDefinitionService.createSchedule(request);
     }
     @PostMapping(value = "/schedule/update")
@@ -216,6 +223,10 @@ public class ApiDefinitionController {
     @PostMapping("/relevance")
     public void testPlanRelevance(@RequestBody ApiCaseRelevanceRequest request) {
         apiDefinitionService.testPlanRelevance(request);
+    }
+    @PostMapping("/relevance/review")
+    public void testCaseReviewRelevance(@RequestBody ApiCaseRelevanceRequest request){
+        apiDefinitionService.testCaseReviewRelevance(request);
     }
 
     @PostMapping("/preview")

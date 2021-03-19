@@ -23,11 +23,9 @@ import io.metersphere.api.parse.ApiImportParser;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ApiScenarioMapper;
 import io.metersphere.base.mapper.ApiScenarioReportMapper;
+import io.metersphere.base.mapper.TestCaseReviewScenarioMapper;
 import io.metersphere.base.mapper.TestPlanApiScenarioMapper;
-import io.metersphere.base.mapper.ext.ExtApiScenarioMapper;
-import io.metersphere.base.mapper.ext.ExtTestPlanApiCaseMapper;
-import io.metersphere.base.mapper.ext.ExtTestPlanMapper;
-import io.metersphere.base.mapper.ext.ExtTestPlanScenarioCaseMapper;
+import io.metersphere.base.mapper.ext.*;
 import io.metersphere.commons.constants.*;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
@@ -64,6 +62,8 @@ import java.util.stream.Collectors;
 @Transactional(rollbackFor = Exception.class)
 public class ApiAutomationService {
     @Resource
+    private ExtScheduleMapper extScheduleMapper;
+    @Resource
     private ApiScenarioMapper apiScenarioMapper;
     @Resource
     private APITestService apiTestService;
@@ -71,6 +71,8 @@ public class ApiAutomationService {
     private ExtApiScenarioMapper extApiScenarioMapper;
     @Resource
     private TestPlanApiScenarioMapper testPlanApiScenarioMapper;
+    @Resource
+    private TestCaseReviewScenarioMapper testCaseReviewScenarioMapper;
     @Resource
     private JMeterService jMeterService;
     @Resource
@@ -92,37 +94,40 @@ public class ApiAutomationService {
     public List<ApiScenarioDTO> list(ApiScenarioRequest request) {
         request = this.initRequest(request, true, true);
         List<ApiScenarioDTO> list = extApiScenarioMapper.list(request);
-        setApiScenarioProjectIds(list);
         return list;
     }
 
-    private void setApiScenarioProjectIds(List<ApiScenarioDTO> list) {
+    public List<ApiScenarioDTO> listReview(ApiScenarioRequest request) {
+        request = this.initRequest(request, true, true);
+        List<ApiScenarioDTO> list = extApiScenarioMapper.listReview(request);
+        return list;
+    }
+
+    private void setApiScenarioProjectIds(ApiScenarioDTO data) {
         // 如果场景步骤涉及多项目，则把涉及到的项目ID保存在projectIds属性
-        list.forEach(data -> {
-            List<String> idList = new ArrayList<>();
-            String definition = data.getScenarioDefinition();
-            if (StringUtils.isNotBlank(definition)) {
-                RunDefinitionRequest d = JSON.parseObject(definition, RunDefinitionRequest.class);
+        List<String> idList = new ArrayList<>();
+        String definition = data.getScenarioDefinition();
+        if (StringUtils.isNotBlank(definition)) {
+            RunDefinitionRequest d = JSON.parseObject(definition, RunDefinitionRequest.class);
 
-                if (d != null) {
-                    Map<String, String> map = d.getEnvironmentMap();
-                    if (map != null) {
-                        if (map.isEmpty()) {
-                            List<String> ids = (List<String>) JSONPath.read(definition, "$..projectId");
-                            idList.addAll(new HashSet<>(ids));
-                        } else {
-                            Set<String> set = d.getEnvironmentMap().keySet();
-                            idList = new ArrayList<>(set);
-                        }
+            if (d != null) {
+                Map<String, String> map = d.getEnvironmentMap();
+                if (map != null) {
+                    if (map.isEmpty()) {
+                        List<String> ids = (List<String>) JSONPath.read(definition, "$..projectId");
+                        idList.addAll(new HashSet<>(ids));
                     } else {
-                        // 兼容历史数据，无EnvironmentMap直接赋值场景所属项目
-                        idList.add(data.getProjectId());
+                        Set<String> set = d.getEnvironmentMap().keySet();
+                        idList = new ArrayList<>(set);
                     }
+                } else {
+                    // 兼容历史数据，无EnvironmentMap直接赋值场景所属项目
+                    idList.add(data.getProjectId());
                 }
-
             }
-            data.setProjectIds(idList);
-        });
+
+        }
+        data.setProjectIds(idList);
     }
 
     /**
@@ -196,6 +201,7 @@ public class ApiAutomationService {
 
         final ApiScenarioWithBLOBs scenario = buildSaveScenario(request);
         apiScenarioMapper.updateByPrimaryKeySelective(scenario);
+        extScheduleMapper.updateNameByResourceID(request.getId(), request.getName());//  修改场景name，同步到修改首页定时任务
     }
 
     public ApiScenarioWithBLOBs buildSaveScenario(SaveApiScenarioRequest request) {
@@ -325,8 +331,15 @@ public class ApiAutomationService {
         }
     }
 
-    public ApiScenarioWithBLOBs getApiScenario(String id) {
-        return apiScenarioMapper.selectByPrimaryKey(id);
+    public ApiScenarioDTO getApiScenario(String id) {
+        ApiScenarioDTO apiScenarioDTO = new ApiScenarioDTO();
+        ApiScenarioWithBLOBs scenarioWithBLOBs = apiScenarioMapper.selectByPrimaryKey(id);
+        if (scenarioWithBLOBs != null) {
+            BeanUtils.copyBean(apiScenarioDTO, scenarioWithBLOBs);
+            setApiScenarioProjectIds(apiScenarioDTO);
+            return apiScenarioDTO;
+        }
+        return null;
     }
 
     public List<ApiScenarioWithBLOBs> getApiScenarios(List<String> ids) {
@@ -706,6 +719,33 @@ public class ApiAutomationService {
         });
     }
 
+    public void relevanceReview(ApiCaseRelevanceRequest request) {
+        Map<String, List<String>> mapping = request.getMapping();
+        Map<String, String> envMap = request.getEnvMap();
+        Set<String> set = mapping.keySet();
+        if (set.isEmpty()) {
+            return;
+        }
+        set.forEach(id -> {
+            Map<String, String> newEnvMap = new HashMap<>(16);
+            if (envMap != null && !envMap.isEmpty()) {
+                List<String> list = mapping.get(id);
+                list.forEach(l -> {
+                    newEnvMap.put(l, envMap.get(l));
+                });
+            }
+            TestCaseReviewScenario testCaseReviewScenario = new TestCaseReviewScenario();
+            testCaseReviewScenario.setId(UUID.randomUUID().toString());
+            testCaseReviewScenario.setApiScenarioId(id);
+            testCaseReviewScenario.setTestCaseReviewId(request.getReviewId());
+            testCaseReviewScenario.setCreateTime(System.currentTimeMillis());
+            testCaseReviewScenario.setUpdateTime(System.currentTimeMillis());
+            testCaseReviewScenario.setEnvironment(JSON.toJSONString(newEnvMap));
+            testCaseReviewScenarioMapper.insert(testCaseReviewScenario);
+
+        });
+    }
+
     public List<ApiScenario> selectByIds(List<String> ids) {
         ApiScenarioExample example = new ApiScenarioExample();
         example.createCriteria().andIdIn(ids);
@@ -720,6 +760,9 @@ public class ApiAutomationService {
 
     public void createSchedule(ScheduleRequest request) {
         Schedule schedule = scheduleService.buildApiTestSchedule(request);
+        ApiScenarioWithBLOBs apiScene = apiScenarioMapper.selectByPrimaryKey(request.getResourceId());
+        schedule.setName(apiScene.getName());   //  add场景定时任务时，设置新增的数据库表字段的值
+        schedule.setProjectId(apiScene.getProjectId());
         schedule.setJob(ApiScenarioTestJob.class.getName());
         schedule.setGroup(ScheduleGroup.API_SCENARIO_TEST.name());
         schedule.setType(ScheduleType.CRON.name());

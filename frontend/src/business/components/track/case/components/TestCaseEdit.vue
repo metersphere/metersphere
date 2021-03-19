@@ -136,12 +136,12 @@
           <el-row>
             <el-col :span="10">
               <el-form-item label="关联需求" :label-width="formLabelWidth" prop="demandId">
-                <el-select filterable :disabled="readOnly" v-model="form.demandId"
-                           :placeholder="$t('test_track.case.input_type')" class="ms-case-input">
+                <el-select filterable :disabled="readOnly" v-model="form.demandId" @visible-change="visibleChange"
+                           placeholder="请选择要关联的需求" class="ms-case-input">
                   <el-option
                     v-for="item in demandOptions"
                     :key="item.id"
-                    :label="item.name"
+                    :label="item.platform + ': '+item.name"
                     :value="item.id">
                   </el-option>
                 </el-select>
@@ -472,7 +472,6 @@ export default {
     reload() {
       this.isStepTableAlive = false;
       this.$nextTick(() => (this.isStepTableAlive = true));
-      console.log(this.form)
     },
     open(testCase) {
       this.projectId = getCurrentProjectID();
@@ -552,9 +551,7 @@ export default {
       let tmp = {};
       Object.assign(tmp, testCase);
       tmp.steps = JSON.parse(testCase.steps);
-      console.log(tmp)
       Object.assign(this.form, tmp);
-      console.log(this.form)
       this.form.module = testCase.nodeId;
       this.getFileMetaData(testCase);
     },
@@ -631,7 +628,6 @@ export default {
           let param = this.buildParam();
           if (this.validate(param)) {
             let option = this.getOption(param);
-            console.log(option)
             this.result = this.$request(option, () => {
               this.$success(this.$t('commons.save_success'));
               if (this.operationType == 'add' && this.isCreateContinue) {
@@ -683,8 +679,6 @@ export default {
       return param;
     },
     getOption(param) {
-      console.log(this.type)
-      console.log("3452")
       let formData = new FormData();
       let type = this.type
       if (this.type === 'copy') {
@@ -767,18 +761,31 @@ export default {
         });
       }
     },
+    visibleChange(flag) {
+      if (flag) {
+        this.getDemandOptions();
+      }
+    },
     getDemandOptions() {
-      this.projectId = getCurrentProjectID()
-      this.result = this.$get("demand/list/" + this.projectId, response => {
-        this.demandOptions = response.data;
-        this.demandOptions.unshift({id: 'other', name: this.$t('test_track.case.other')})
-      });
+      if (this.demandOptions.length === 0) {
+        this.projectId = getCurrentProjectID();
+        this.result = {loading : true};
+        this.$get("demand/list/" + this.projectId).then(response => {
+          this.demandOptions = response.data.data;
+          this.demandOptions.unshift({id: 'other', name: this.$t('test_track.case.other'), platform: 'Other'})
+          this.result = {loading : false};
+        }).catch(() => {
+          this.result = {loading : false};
+        })
+      }
     },
     getSelectOptions() {
       this.getModuleOptions();
       this.getMaintainerOptions();
       this.getTestOptions();
-      // this.getDemandOptions()
+      if (this.type === 'edit') {
+        this.getDemandOptions();
+      }
     },
 
     resetForm() {

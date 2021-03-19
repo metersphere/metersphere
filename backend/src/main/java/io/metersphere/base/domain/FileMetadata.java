@@ -1,8 +1,7 @@
 package io.metersphere.base.domain;
 
-import lombok.Data;
-
 import java.io.Serializable;
+import lombok.Data;
 
 @Data
 public class FileMetadata implements Serializable {
@@ -18,7 +17,7 @@ public class FileMetadata implements Serializable {
 
     private Long size;
 
-    private Integer sort;
+    private String projectId;
 
     private static final long serialVersionUID = 1L;
 }

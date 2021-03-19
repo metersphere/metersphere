@@ -114,12 +114,13 @@
                 <el-col :span="3" class="ms-col-one ms-font">
                   <el-checkbox v-model="enableCookieShare">共享cookie</el-checkbox>
                 </el-col>
-                <el-col :span="7">
+                <el-col :span="6">
                   <env-popover :env-map="projectEnvMap" :project-ids="projectIds" @setProjectEnvMap="setProjectEnvMap"
                                :project-list="projectList" ref="envPopover"/>
                 </el-col>
-                <el-col :span="2">
-                  <el-button :disabled="scenarioDefinition.length < 1" size="small" type="primary" v-prevent-re-click @click="runDebug">{{$t('api_test.request.debug')}}</el-button>
+                <el-col :span="3">
+                  <el-button :disabled="scenarioDefinition.length < 1" size="mini" type="primary" v-prevent-re-click @click="runDebug">{{$t('api_test.request.debug')}}</el-button>
+                  <font-awesome-icon class="alt-ico" :icon="['fa', 'expand-alt']" size="lg" @click="fullScreen"/>
                 </el-col>
               </el-row>
             </div>
@@ -136,7 +137,7 @@
                       <!-- 步骤组件-->
                        <ms-component-config :type="data.type" :scenario="data" :response="response" :currentScenario="currentScenario"
                                             :currentEnvironmentId="currentEnvironmentId" :node="node" :project-list="projectList" :env-map="projectEnvMap"
-                                            @remove="remove" @copyRow="copyRow" @suggestClick="suggestClick" @refReload="refReload"/>
+                                            @remove="remove" @copyRow="copyRow" @suggestClick="suggestClick" @refReload="refReload" @openScenario="openScenario"/>
                     </span>
               </el-tree>
             </div>
@@ -192,6 +193,17 @@
                         class="ms-sc-variable-header"/>
       <!--外部导入-->
       <api-import v-if="type!=='detail'" ref="apiImport" :saved="false" @refresh="apiImport"/>
+
+      <!--步骤最大化-->
+      <ms-drawer :visible="drawer" :size="100" @close="close" direction="right" :show-full-screen="false" :is-show-close="false" style="overflow: hidden">
+        <template v-slot:header>
+          <scenario-header :currentScenario="currentScenario" :projectEnvMap="projectEnvMap" :projectIds="projectIds" :projectList="projectList" :scenarioDefinition="scenarioDefinition" :enableCookieShare="enableCookieShare"
+                           @closePage="close" @unFullScreen="unFullScreen" @showAllBtn="showAllBtn" @runDebug="runDebug" @setProjectEnvMap="setProjectEnvMap" @showScenarioParameters="showScenarioParameters" @setCookieShare="setCookieShare" ref="maximizeHeader"/>
+        </template>
+
+        <maximize-scenario :scenario-definition="scenarioDefinition" :envMap="projectEnvMap" :moduleOptions="moduleOptions" :currentScenario="currentScenario" :type="type" ref="maximizeScenario" @openScenario="openScenario"/>
+      </ms-drawer>
+
     </div>
   </el-card>
 </template>
@@ -210,7 +222,7 @@
   import {parseEnvironment} from "../../definition/model/EnvironmentModel";
   import {ELEMENT_TYPE, ELEMENTS} from "./Setting";
   import MsApiCustomize from "./ApiCustomize";
-  import {getCurrentProjectID, getUUID, objToStrMap, strMapToObj} from "@/common/js/utils";
+  import {getCurrentProjectID, getUUID, objToStrMap, strMapToObj, handleCtrlSEvent} from "@/common/js/utils";
   import ApiEnvironmentConfig from "../../definition/components/environment/ApiEnvironmentConfig";
   import MsInputTag from "./MsInputTag";
   import MsRun from "./DebugRun";
@@ -222,8 +234,10 @@
   import ScenarioApiRelevance from "./api/ApiRelevance";
   import ScenarioRelevance from "./api/ScenarioRelevance";
   import MsComponentConfig from "./component/ComponentConfig";
-  import {handleCtrlSEvent} from "../../../../../common/js/utils";
   import EnvPopover from "@/business/components/api/automation/scenario/EnvPopover";
+  import MaximizeScenario from "./maximize/MaximizeScenario";
+  import ScenarioHeader from "./maximize/ScenarioHeader";
+  import MsDrawer from "../../../common/components/MsDrawer";
 
   let jsonPath = require('jsonpath');
   export default {
@@ -243,7 +257,10 @@
       MsApiCustomize,
       ApiImport,
       MsComponentConfig,
-      EnvPopover
+      EnvPopover,
+      MaximizeScenario,
+      ScenarioHeader,
+      MsDrawer
     },
     data() {
       return {
@@ -293,6 +310,7 @@
         projectEnvMap: new Map,
         projectList: [],
         debugResult: new Map,
+        drawer: false,
       }
     },
     created() {
@@ -423,6 +441,16 @@
       }
     },
     methods: {
+      // 打开引用的场景
+      openScenario(data) {
+        this.$emit('openScenario', data);
+      },
+      setCookieShare(cookie) {
+        this.enableCookieShare = cookie;
+      },
+      showAllBtn() {
+        this.$refs.maximizeScenario.showAll();
+      },
       addListener() {
         document.addEventListener("keydown", this.createCtrlSHandle);
         // document.addEventListener("keydown", (even => handleCtrlSEvent(even, this.$refs.httpApi.saveApi)));
@@ -442,6 +470,9 @@
         if (this.path.endsWith("/update")) {
           // 直接更新场景防止编辑内容丢失
           this.editScenario();
+        }
+        if (this.$refs.maximizeHeader) {
+          this.$refs.maximizeHeader.getVariableSize();
         }
         this.reload();
       },
@@ -532,7 +563,6 @@
           this.operatingElements = ELEMENTS.get("ALL");
           this.selectedTreeNode = undefined;
         }
-        //this.reload();
       },
       apiListImport() {
         this.$refs.scenarioApiRelevance.open();
@@ -697,8 +727,7 @@
         }
         this.sort();
         this.reload();
-      }
-      ,
+      },
       reload() {
         this.loading = true
         this.$nextTick(() => {
@@ -1046,6 +1075,16 @@
         // 把执行结果分发给各个请求
         this.debugResult = result;
         this.sort()
+      },
+      fullScreen() {
+        this.drawer = true;
+      },
+      unFullScreen() {
+        this.drawer = false;
+      },
+      close(name) {
+        this.drawer = false;
+        this.$emit('closePage', name);
       }
     }
   }
@@ -1112,7 +1151,7 @@
   }
 
   /deep/ .el-card__body {
-    padding: 15px;
+    padding: 10px;
   }
 
   /deep/ .el-drawer__body {
@@ -1182,4 +1221,18 @@
   .ms-sc-variable-header >>> .el-dialog__body {
     padding: 0px 20px;
   }
+
+  .alt-ico {
+    font-size: 15px;
+    margin: 5px 10px 0px;
+    float: right;
+    color: #8c939d;
+  }
+
+  .alt-ico:hover {
+    color: black;
+    cursor: pointer;
+    font-size: 18px;
+  }
+
 </style>

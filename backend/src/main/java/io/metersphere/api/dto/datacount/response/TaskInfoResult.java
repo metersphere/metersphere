@@ -29,5 +29,7 @@ public class TaskInfoResult {
     private Long updateTime;
     //定时任务类型  情景定时任务/范围计划任务
     private String taskType;
+    //定时任务组别  swagger/scenario/testPlan 等
+    private String taskGroup;
 
 }

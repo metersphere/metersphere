@@ -1,5 +1,9 @@
 export default {
   commons: {
+    please_select_import_mode: '請選擇導入模式',
+    please_select_import_module: '請選擇導入模塊',
+    pass_rate: '通過率',
+    execution_times: '執行次數',
     cover: '覆蓋',
     not_cover: '不覆蓋',
     import: '導入',
@@ -335,6 +339,7 @@ export default {
     delete: '刪除項目',
     delete_confirm: '確定要刪除這個項目嗎?',
     delete_tip: '刪除該項目，會刪除該項目下所有測試資源，確定要刪除嗎?',
+    file_delete_tip: '刪除該項目的文件: {0}？',
     search_by_name: '根據名稱搜索',
     search_by_name_jar: '根據名稱/jar包搜索',
     input_name: '請輸入項目名稱',
@@ -478,7 +483,7 @@ export default {
     delete_file: "文件已存在，請先刪除同名文件！",
     thread_num: '並發用戶數：',
     input_thread_num: '請輸入線程數',
-    duration: '壓測時長（秒）',
+    duration: '壓測時長',
     granularity: '聚合時間（秒）',
     input_duration: '請輸入時長',
     rps_limit: 'RPS上限：',
@@ -525,10 +530,11 @@ export default {
     exist_jmx: '已存在的文件',
     other_resource: '資源文件',
     upload_file: '上傳新文件',
-    load_exist_file: '加載已有文件',
-    load_exist_jmx: '加載已有 JMX 文件',
+    load_exist_file: '加載文件',
+    load_exist_jmx: '加載 JMX 文件',
     threadgroup_at_least_one: '至少啟用一個線程組',
     load_api_automation_jmx: '引用接口自動化場景',
+    project_file_exist: "項目中已存在該文件，請直接引用",
     report: {
       diff: "對比"
     }
@@ -621,6 +627,7 @@ export default {
         res_param: "響應內容",
         batch_delete: "批量刪除",
         delete_confirm: "確認刪除接口",
+        delete_case_confirm: "確認刪除用例",
         delete_confirm_step: "確認刪除步驟",
         assertions_rule: "斷言規則",
         response_header: "響應頭",
@@ -1034,6 +1041,7 @@ export default {
         },
         scenario_schedule: "場景",
         test_plan_schedule: "測試計畫",
+        swagger_schedule: "swagger",
         confirm: {
           close_title: "要關閉這條定時任務嗎？",
         }
@@ -1104,6 +1112,7 @@ export default {
     cancel_relevance_success: "取消關聯成功",
     switch_project: "切換項目",
     case: {
+      minder: "腦圖",
       check_select: "請勾選用例",
       export_all_cases: '確定要導出全部用例嗎?',
       input_test_case: '請輸入關聯用例名稱',
@@ -1312,6 +1321,7 @@ export default {
       executor: "執行人",
       execute_result: "執行結果",
       pass: "通過",
+      not_pass: "不通過",
       failure: "失敗",
       blocking: "阻塞",
       skip: "跳過",
@@ -1605,5 +1615,11 @@ export default {
     delete_prompt: '此操作會刪除認證源，是否繼續？ ',
     title: '認證設置',
     auth_name_valid: '名稱不支持特殊字符',
+  },
+  table: {
+    header_display_field: '表頭顯示欄位',
+    fields_to_be_selected: '待選欄位',
+    selected_fields: '已選欄位'
   }
+
 };
