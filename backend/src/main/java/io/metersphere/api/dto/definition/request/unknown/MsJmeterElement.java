@@ -32,6 +32,10 @@ public class MsJmeterElement extends MsTestElement {
     @Override
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, ParameterConfig config) {
         try {
+            // 非导出操作，且不是启用状态则跳过执行
+            if (!config.isOperating() && !this.isEnable()) {
+                return;
+            }
             InputStream inputSource = getStrToStream(jmeterElement);
             if (inputSource != null) {
                 Object scriptWrapper = SaveService.loadElement(inputSource);
