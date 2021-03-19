@@ -260,9 +260,14 @@ export default {
           this.$warning(this.$t('commons.check_project_tip'));
           return;
         }
-/*
-        this.openRecentTestCaseEditDialog(caseId);
-*/
+        if (caseId) {
+          this.$get('test/case/get/' + caseId, response => {
+            let testCase = response.data;
+            this.editTestCase(testCase)
+          });
+        } else {
+          this.addTab({name: 'add'});
+        }
         this.$router.push('/track/case/all');
       }
     },

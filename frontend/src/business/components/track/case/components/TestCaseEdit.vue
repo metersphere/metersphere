@@ -551,7 +551,11 @@ export default {
       let tmp = {};
       Object.assign(tmp, testCase);
       tmp.steps = JSON.parse(testCase.steps);
+      if (tmp.steps == null) {
+        tmp.steps = []
+      }
       Object.assign(this.form, tmp);
+
       this.form.module = testCase.nodeId;
       this.getFileMetaData(testCase);
     },
@@ -962,6 +966,13 @@ export default {
 
 .ms-case-input {
   width: 100%;
+}
+
+/deep/ .el-button-group > .el-button:first-child {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
+  height: 32px;
+  width: 56px;
 }
 
 </style>
