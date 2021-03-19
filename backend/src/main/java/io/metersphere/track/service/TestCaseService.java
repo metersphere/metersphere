@@ -520,8 +520,8 @@ public class TestCaseService {
 
                 for (int j = 0; j < jsonArray.size(); j++) {
                     int num = j + 1;
-                    step.append(num + "." + jsonArray.getJSONObject(j).getString("desc") + "\n");
-                    result.append(num + "." + jsonArray.getJSONObject(j).getString("result") + "\n");
+                    step.append(num + "." + jsonArray.getJSONObject(j).getString("desc") + "\r\n");
+                    result.append(num + "." + jsonArray.getJSONObject(j).getString("result") + "\r\n");
 
                 }
                 data.setStepDesc(step.toString());
