@@ -310,8 +310,6 @@ export default {
           }
           item.passRate=item.passRate+'%'
         })
-        console.log(this.tableData)
-
       });
     },
     copyData(status) {
