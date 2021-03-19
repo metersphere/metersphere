@@ -591,17 +591,23 @@ export default {
           const project = res.data;
           if (project.tapdId) {
             this.hasTapdId = true;
-            this.result = this.$get("/issues/tapd/user/" + this.testCase.caseId, response => {
-              this.users = response.data;
+            this.result = this.$get("/issues/tapd/user/" + this.testCase.caseId).then(response => {
+              this.users = response.data.data;
+            }).catch(() => {
+              console.log("get tapd user error.");
             })
           }
           if (project.zentaoId) {
             this.hasZentaoId = true;
-            this.result = this.$get("/issues/zentao/builds/" + this.testCase.caseId, response => {
-              this.Builds = response.data;
+            this.result = this.$get("/issues/zentao/builds/" + this.testCase.caseId).then(response => {
+              this.Builds = response.data.data;
+            }).catch(() => {
+              console.log("get zentao builds error.");
             })
-            this.result = this.$get("/issues/zentao/user/" + this.testCase.caseId, response => {
-              this.zentaoUsers = response.data;
+            this.result = this.$get("/issues/zentao/user/" + this.testCase.caseId).then(response => {
+              this.zentaoUsers = response.data.data;
+            }).catch(() => {
+              console.log("get zentao user error.");
             })
           }
         })
@@ -649,8 +655,10 @@ export default {
       this.testCase.zentaoAssigned = "";
     },
     getIssues(caseId) {
-      this.result = this.$get("/issues/get/" + caseId, response => {
-        this.issues = response.data;
+      this.result = this.$get("/issues/get/" + caseId).then(response => {
+        this.issues = response.data.data;
+      }).catch(() => {
+        console.log("get issues error")
       })
     },
     closeIssue(row) {
