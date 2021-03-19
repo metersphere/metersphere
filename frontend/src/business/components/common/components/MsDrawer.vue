@@ -8,8 +8,7 @@
     <div class="ms-drawer-header">
       <slot name="header"></slot>
       <i v-if="isShowClose" class="el-icon-close" @click="close"/>
-      <font-awesome-icon v-if="!isFullScreen && showFullScreen" class="alt-ico" :icon="['fa', 'expand-alt']" size="lg" @click="fullScreen"/>
-      <font-awesome-icon v-if="isFullScreen && showFullScreen" class="alt-ico" :icon="['fa', 'compress-alt']" size="lg" @click="unFullScreen"/>
+      <ms-full-screen-button v-if="showFullScreen" :is-full-screen.sync="isFullScreen"/>
     </div>
     <div class="ms-drawer-body">
       <slot></slot>
@@ -23,9 +22,10 @@
     import MsRight2LeftDragBar from "./dragbar/MsRight2LeftDragBar";
     import MsLeft2RightDragBar from "./dragbar/MsLeft2RightDragBar";
     import MsBottom2TopDragBar from "./dragbar/MsBottom2TopDragBar";
+    import MsFullScreenButton from "@/business/components/common/components/MsFullScreenButton";
     export default {
       name: "MsDrawer",
-      components: {MsBottom2TopDragBar, MsLeft2RightDragBar, MsRight2LeftDragBar},
+      components: {MsFullScreenButton, MsBottom2TopDragBar, MsLeft2RightDragBar, MsRight2LeftDragBar},
       data() {
         return {
           x: 0,
@@ -73,6 +73,15 @@
       },
       mounted() {
         this.init();
+      },
+      watch: {
+        isFullScreen() {
+          if (this.isFullScreen) {
+            this.fullScreen()
+          } else {
+            this.unFullScreen();
+          }
+        }
       },
       methods: {
         init() {
@@ -123,12 +132,10 @@
           this.originalH = this.h;
           this.w = document.body.clientWidth;
           this.h = document.body.clientHeight;
-          this.isFullScreen = true;
         },
         unFullScreen() {
           this.w = this.originalW;
           this.h = this.originalH;
-          this.isFullScreen = false;
         },
         close() {
           this.$emit('close')
@@ -206,18 +213,10 @@
     color: red;
   }
 
-  .alt-ico {
+  /deep/ .alt-ico {
     position: absolute;
-    font-size: 15px;
     right: 40px;
     top: 15px;
-    color: #8c939d;
   }
-
-  .alt-ico:hover {
-    color: black;
-    font-size: 18px;
-  }
-
 
 </style>

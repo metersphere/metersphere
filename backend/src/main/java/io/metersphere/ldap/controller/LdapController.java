@@ -68,7 +68,7 @@ public class LdapController {
             userService.addLdapUser(user);
         }
 
-        // 执行 ShiroDBRealm 中 LDAP 登录逻辑
+        // 执行 LocalRealm 中 LDAP 登录逻辑
         LoginRequest loginRequest = new LoginRequest();
         loginRequest.setUsername(userId);
         return userService.login(loginRequest);

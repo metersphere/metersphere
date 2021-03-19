@@ -73,6 +73,10 @@ public class MsScenario extends MsTestElement {
 
     @Override
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, ParameterConfig config) {
+        // 非导出操作，且不是启用状态则跳过执行
+        if (!config.isOperating() && !this.isEnable()) {
+            return;
+        }
         if (this.getReferenced() != null && this.getReferenced().equals("Deleted")) {
             return;
         } else if (this.getReferenced() != null && this.getReferenced().equals("REF")) {
@@ -198,6 +202,8 @@ public class MsScenario extends MsTestElement {
             config.getConfig().get(this.getProjectId()).getCommonConfig().getVariables().stream().filter(KeyValue::isValid).filter(KeyValue::isEnable).forEach(keyValue ->
                     arguments.addArgument(keyValue.getName(), keyValue.getValue(), "=")
             );
+            // 清空变量，防止重复添加
+            config.getConfig().get(this.getProjectId()).getCommonConfig().getVariables().clear();
         }
         if (arguments.getArguments() != null && arguments.getArguments().size() > 0) {
             return arguments;

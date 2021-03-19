@@ -551,8 +551,8 @@ public class TestPlanService {
         queryTestPlanRequest.setId(planId);
 
         TestPlanDTO testPlan = extTestPlanMapper.list(queryTestPlanRequest).get(0);
-        String projectName = getProjectNameByPlanId(planId);
-        testPlan.setProjectName(projectName);
+        Project project = projectMapper.selectByPrimaryKey(testPlan.getProjectId());
+        testPlan.setProjectName(project.getName());
 
         TestCaseReport testCaseReport = testCaseReportMapper.selectByPrimaryKey(testPlan.getReportId());
         JSONObject content = JSONObject.parseObject(testCaseReport.getContent());
@@ -708,8 +708,8 @@ public class TestPlanService {
         queryTestPlanRequest.setId(planId);
 
         TestPlanDTO testPlan = extTestPlanMapper.list(queryTestPlanRequest).get(0);
-        String projectName = getProjectNameByPlanId(planId);
-        testPlan.setProjectName(projectName);
+        Project project = projectMapper.selectByPrimaryKey(testPlan.getProjectId());
+        testPlan.setProjectName(project.getName());
 
         TestCaseReport testCaseReport = testCaseReportMapper.selectByPrimaryKey(testPlan.getReportId());
         JSONObject content = JSONObject.parseObject(testCaseReport.getContent());

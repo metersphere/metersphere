@@ -115,7 +115,9 @@ public class ApiAutomationService {
                 if (map != null) {
                     if (map.isEmpty()) {
                         List<String> ids = (List<String>) JSONPath.read(definition, "$..projectId");
-                        idList.addAll(new HashSet<>(ids));
+                        if (CollectionUtils.isNotEmpty(ids)) {
+                            idList.addAll(new HashSet<>(ids));
+                        }
                     } else {
                         Set<String> set = d.getEnvironmentMap().keySet();
                         idList = new ArrayList<>(set);
@@ -601,6 +603,7 @@ public class ApiAutomationService {
         ParameterConfig config = new ParameterConfig();
         config.setConfig(envConfig);
         HashTree hashTree = request.getTestElement().generateHashTree(config);
+        System.out.println(request.getTestElement().getJmx(hashTree));
         // 调用执行方法
         APIScenarioReportResult reportResult = createScenarioReport(request.getId(), request.getScenarioId(), request.getScenarioName(), ReportTriggerMode.MANUAL.name(), request.getExecuteType(), request.getProjectId(),
                 SessionUtils.getUserId());
