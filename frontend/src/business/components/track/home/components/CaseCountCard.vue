@@ -94,8 +94,8 @@
                     <span class="default-property">
                       未通过
                       {{"\xa0\xa0"}}
-                      <el-link type="info" @click="redirectPage('Pass')" target="_blank" style="color: #000000">
-                        {{trackCountData.passCount}}
+                      <el-link type="info" @click="redirectPage('UnPass')" target="_blank" style="color: #000000">
+                        {{trackCountData.unPassCount}}
                       </el-link>
                     </span>
                   </el-col>
@@ -103,8 +103,8 @@
                     <span class="main-property">
                       已通过
                       {{"\xa0\xa0"}}
-                      <el-link type="info" @click="redirectPage('UnPass')" target="_blank" style="color: #000000">
-                        {{trackCountData.unPassCount}}
+                      <el-link type="info" @click="redirectPage('Pass')" target="_blank" style="color: #000000">
+                        {{trackCountData.passCount}}
                       </el-link>
                     </span>
                   </el-col>

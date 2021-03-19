@@ -624,6 +624,7 @@ export default {
         res_param: "Response content",
         batch_delete: "Batch deletion",
         delete_confirm: "Confirm deletion",
+        delete_case_confirm: "Confirm case deletion",
         delete_confirm_step: "Confirm deletion step",
         assertions_rule: "Assertion rule",
         response_header: "Response header",
