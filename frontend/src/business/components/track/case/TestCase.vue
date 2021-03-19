@@ -8,6 +8,7 @@
         @setTreeNodes="setTreeNodes"
         @exportTestCase="exportTestCase"
         @saveAsEdit="editTestCase"
+        @refreshAll="refreshAll"
         :type="'edit'"
         ref="nodeTree"
       />

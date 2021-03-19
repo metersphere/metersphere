@@ -159,7 +159,7 @@ export default {
   data() {
     return {
       timeout: 60000,
-      responseTimeout: null,
+      responseTimeout: 60000,
       statusCode: [],
       domains: [],
       params: [],
