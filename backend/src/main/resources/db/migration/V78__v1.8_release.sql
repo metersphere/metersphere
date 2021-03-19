@@ -159,6 +159,19 @@ UPDATE file_metadata JOIN (SELECT file_id, project_id
                            FROM api_test_file
                                     JOIN api_test ON test_id = api_test.id) temp ON file_id = file_metadata.id
 SET file_metadata.project_id = temp.project_id;
+
+CREATE TABLE IF NOT EXISTS `esb_api_params`
+(
+    id      varchar(50)   not null,
+    resource_id      varchar(50),
+    data_struct  LONGTEXT  null,
+    fronted_script   LONGTEXT null,
+    response_data_struct LONGTEXT null,
+    backed_script LONGTEXT null,
+    primary key (id),
+    UNIQUE KEY `resource_id` ( `resource_id` )
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4;
 -- add execution_times testPlan
 alter table test_plan
     add execution_times int null;

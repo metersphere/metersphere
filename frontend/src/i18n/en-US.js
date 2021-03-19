@@ -50,6 +50,7 @@ export default {
     create_time: 'Created Time',
     update_time: 'Updated Time',
     add: 'Add',
+    preview: 'Preview',
     member: 'Member',
     email: 'Email',
     phone: 'Phone',
@@ -117,6 +118,7 @@ export default {
     weeks_6: 'Sat',
     test_unit: 'tests',
     remove: 'Remove',
+    next_level: "Next level",
     remove_cancel: 'Remove Cancel',
     remove_success: 'Remove Success',
     tips: 'The authentication information has expired, please login again',
@@ -629,6 +631,7 @@ export default {
         assertions_rule: "Assertion rule",
         response_header: "Response header",
         response_body: "Response body",
+        response_template: "Response template",
         console: "Console",
         status_code: "Status code",
         query_info: "Follow the address bar? The following parameters, such as updateapi?id=112",
@@ -648,6 +651,15 @@ export default {
         other_config: "Other Config",
         message_template: "Message Template",
         tcp_parameter_tip: "The request parameters can be referenced in the request template ${XXX}",
+        esb_table: {
+          name: "name",
+          type: "type",
+          length: "length",
+          required: "Required",
+          desc: "Description",
+          value: "Data",
+          not_required: "Not required",
+        }
       },
       document: {
         order: "Order",
@@ -874,7 +886,9 @@ export default {
         code_template_set_global_variable: "Set Global variable",
         code_template_get_response_header: "Get Response Header",
         code_template_get_response_code: "Get Response Code",
-        code_template_get_response_result: "Get Response Result"
+        code_template_get_response_result: "Get Response Result",
+        code_add_report_length : "Add report length to head",
+        code_hide_report_length : "Hide report length"
       },
       dubbo: {
         protocol: "protocol",

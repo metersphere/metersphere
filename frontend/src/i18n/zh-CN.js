@@ -51,6 +51,7 @@ export default {
     create_time: '创建时间',
     update_time: '更新时间',
     add: '添加',
+    preview: '预览',
     member: '成员',
     email: '邮箱',
     phone: '电话',
@@ -118,6 +119,7 @@ export default {
     port_cannot_be_empty: '端口号不能为空',
     account_cannot_be_empty: '帐户不能为空',
     remove: '移除',
+    next_level: "下一级",
     remove_cancel: '移除取消',
     remove_success: '移除成功',
     tips: '认证信息已过期，请重新登录',
@@ -630,6 +632,7 @@ export default {
         assertions_rule: "断言规则",
         response_header: "响应头",
         response_body: "响应体",
+        response_template: "响应报文模版",
         console: "控制台",
         status_code: "状态码",
         query_info: "地址栏中跟在？后面的参数,如updateapi?id=112",
@@ -649,6 +652,15 @@ export default {
         other_config: "其他设置",
         message_template: "报文模版",
         tcp_parameter_tip: "请求参数可以在请求模版通过${xxx}引用",
+        esb_table: {
+          name: "参数名",
+          type: "类型",
+          length: "长度",
+          required: "必填",
+          desc: "描述",
+          value: "数据",
+          not_required: "非必填",
+        }
       },
       document: {
         order: "排序方式",
@@ -876,7 +888,9 @@ export default {
         code_template_set_global_variable: "设置全局变量",
         code_template_get_response_header: "获取响应头",
         code_template_get_response_code: "获取响应码",
-        code_template_get_response_result: "获取响应结果"
+        code_template_get_response_result: "获取响应结果",
+        code_add_report_length : "报文头添加长度",
+        code_hide_report_length : "隐藏报文长度"
       },
       dubbo: {
         protocol: "协议",

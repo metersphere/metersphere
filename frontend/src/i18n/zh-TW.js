@@ -51,6 +51,7 @@ export default {
     create_time: '創建時間',
     update_time: '更新時間',
     add: '添加',
+    preview: '預覽',
     member: '成員',
     email: '郵箱',
     phone: '電話',
@@ -118,6 +119,7 @@ export default {
     port_cannot_be_empty: '端口號不能為空',
     account_cannot_be_empty: '帳戶不能為空',
     remove: '移除',
+    next_level: "下一級",
     remove_cancel: '移除取消',
     remove_success: '移除成功',
     tips: '認證信息已過期，請重新登錄',
@@ -629,6 +631,7 @@ export default {
         assertions_rule: "斷言規則",
         response_header: "響應頭",
         response_body: "響應體",
+        response_template: "響應報文模板",
         console: "控制臺",
         status_code: "狀態碼",
         query_info: "地址欄中跟在？後面的參數,如updateapi?id=112",
@@ -648,6 +651,15 @@ export default {
         other_config: "其他設置",
         message_template: "報文模版",
         tcp_parameter_tip: "請求參數可以在請求模版通過${xxx}引用",
+        esb_table: {
+          name: "參數名",
+          type: "類型",
+          length: "長度",
+          required: "必填",
+          desc: "描述",
+          value: "數據",
+          not_required: "非必填",
+        }
       },
       document: {
         order: "排序方式",
@@ -875,7 +887,9 @@ export default {
         code_template_set_global_variable: "設置全局變量",
         code_template_get_response_header: "獲取響應頭",
         code_template_get_response_code: "獲取響應碼",
-        code_template_get_response_result: "獲取響應結果"
+        code_template_get_response_result: "獲取響應結果",
+        code_add_report_length : "報文头添加長度",
+        code_hide_report_length : "隱藏報文長度"
       },
       dubbo: {
         protocol: "協議",

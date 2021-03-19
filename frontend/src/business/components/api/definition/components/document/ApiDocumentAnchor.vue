@@ -301,6 +301,7 @@ export default {
       batchShareUrl:"",
       apiStepIndex: 0,
       showXpackCompnent:false,
+      apiShowArray: [],
       apiInfoArray: [],
       modes: ['text', 'json', 'xml', 'html'],
       formParamTypes: ['form-data', 'x-www-from-urlencoded', 'BINARY'],
@@ -413,11 +414,24 @@ export default {
         simpleRequest.moduleIds = this.moduleIds;
       }
 
-      let simpleInfoUrl = "/api/document/selectApiSimpleInfo";
+      let simpleInfoUrl = "/document/selectApiSimpleInfo";
       this.apiInfoArray = [];
       this.$post(simpleInfoUrl, simpleRequest, response => {
         this.apiInfoArray = response.data;
         this.apiStepIndex = 0;
+        if(response.data.length > 7){
+          this.apiShowArray = [
+            response.data[0],
+            response.data[1],
+            response.data[2],
+            response.data[3],
+            response.data[4],
+            response.data[5],
+            response.data[6],
+          ];
+        }else{
+          this.apiShowArray = response.data;
+        }
         if (this.apiInfoArray.length > 0) {
           this.checkApiInfoNode(this.apiStepIndex);
         }
@@ -444,7 +458,7 @@ export default {
       genShareInfoParam.shareApiIdList = shareIdArr;
       genShareInfoParam.shareType = shareType;
 
-      this.$post("/api/document/generateApiDocumentShareInfo", genShareInfoParam, res => {
+      this.$post("/document/generateApiDocumentShareInfo", genShareInfoParam, res => {
         if(shareType == "Batch"){
           this.batchShareUrl = thisHost+"/document"+res.data.shareUrl;
         }else{
@@ -454,7 +468,7 @@ export default {
       });
     },
     selectApiInfo(index,apiId) {
-      let simpleInfoUrl = "/api/document/selectApiInfoById/" + apiId;
+      let simpleInfoUrl = "/document/selectApiInfoById/" + apiId;
       this.$get(simpleInfoUrl, response => {
         let returnData = response.data;
         this.$set(this.apiInfoArray,index,returnData);
