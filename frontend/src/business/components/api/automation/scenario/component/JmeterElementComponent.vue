@@ -54,10 +54,10 @@
     },
     methods: {
       remove() {
-        this.$emit('remove', this.jsr223Processor, this.node);
+        this.$emit('remove', this.request, this.node);
       },
       copyRow() {
-        this.$emit('copyRow', this.jsr223Processor, this.node);
+        this.$emit('copyRow', this.request, this.node);
       },
       active() {
         this.request.active = !this.request.active;
