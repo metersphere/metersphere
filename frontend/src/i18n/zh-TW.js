@@ -433,7 +433,7 @@ export default {
     export: '導出',
     export_to_ms_format: '導出 Metersphere 格式',
     export_to_swagger3_format: '導出 Swagger3.0 格式',
-    compare: '比較',
+    compare: '報告比較',
     generation_error: '報告生成錯誤, 無法查看, 請檢查日誌詳情!',
     being_generated: '報告正在生成中...',
     delete_confirm: '確認刪除報告: ',

@@ -25,31 +25,26 @@
           <el-table-column
             prop="name"
             :label="$t('commons.name')"
-            width="150"
             show-overflow-tooltip>
           </el-table-column>
           <el-table-column
             prop="testName"
             :label="$t('report.test_name')"
-            width="150"
             show-overflow-tooltip>
           </el-table-column>
           <el-table-column
             prop="projectName"
             :label="$t('report.project_name')"
-            width="150"
             show-overflow-tooltip>
           </el-table-column>
           <el-table-column
             prop="userName"
             :label="$t('report.user_name')"
-            width="150"
             show-overflow-tooltip>
           </el-table-column>
           <el-table-column
             prop="createTime"
             sortable
-            width="250"
             :label="$t('commons.create_time')">
             <template v-slot:default="scope">
               <span>{{ scope.row.createTime | timestampFormatDate }}</span>
@@ -76,8 +71,8 @@
             <template v-slot:default="scope">
               <ms-table-operator-button :tip="$t('api_report.detail')" icon="el-icon-s-data"
                                         @exec="handleEdit(scope.row)" type="primary"/>
-              <ms-table-operator-button :tip="$t('load_test.report.diff')" icon="el-icon-more"
-                                        @exec="handleDiff(scope.row)" type="success"/>
+              <ms-table-operator-button :tip="$t('load_test.report.diff')" icon="el-icon-s-operation"
+                                        @exec="handleDiff(scope.row)" type="warning"/>
               <ms-table-operator-button :is-tester-permission="true" :tip="$t('api_report.delete')"
                                         icon="el-icon-delete" @exec="handleDelete(scope.row)" type="danger"/>
             </template>
@@ -87,6 +82,7 @@
                              :total="total"/>
       </el-card>
     </ms-main-container>
+    <compare-reports ref="compareReports"/>
   </ms-container>
 </template>
 
@@ -103,11 +99,14 @@ import MsTableHeader from "../../common/components/MsTableHeader";
 import {LIST_CHANGE, PerformanceEvent} from "@/business/components/common/head/ListEvent";
 import ShowMoreBtn from "../../track/case/components/ShowMoreBtn";
 import {_filter, _sort} from "@/common/js/tableUtils";
-
+import MsDialogFooter from "@/business/components/common/components/MsDialogFooter";
+import CompareReports from "@/business/components/performance/report/components/CompareReports";
 
 export default {
   name: "PerformanceTestReportList",
   components: {
+    CompareReports,
+    MsDialogFooter,
     MsTableHeader,
     ReportTriggerModeItem,
     MsTableOperatorButton,
@@ -203,7 +202,7 @@ export default {
       });
     },
     handleDiff(report) {
-      console.log("aaa");
+      this.$refs.compareReports.open(report);
     },
     _handleDeleteNoMsg(report) {
       this.result = this.$post(this.deletePath + report.id, {}, () => {
