@@ -2,6 +2,7 @@ package io.metersphere.excel.domain;
 
 import com.alibaba.excel.annotation.ExcelProperty;
 import com.alibaba.excel.annotation.write.style.ColumnWidth;
+import io.metersphere.excel.annotation.NotRequired;
 import lombok.Data;
 import org.hibernate.validator.constraints.Length;
 
@@ -37,6 +38,12 @@ public class TestCaseExcelDataTw extends TestCaseExcelData {
     @ExcelProperty("用例等級")
     @Pattern(regexp = "(^P0$)|(^P1$)|(^P2$)|(^P3$)", message = "{test_case_priority_validate}")
     private String priority;
+
+    @ColumnWidth(50)
+    @ExcelProperty("標簽")
+    @NotRequired
+    @Length(min = 0, max = 1000)
+    private String tags;
 
     @NotBlank(message = "{cannot_be_null}")
     @ExcelProperty("測試方式")
