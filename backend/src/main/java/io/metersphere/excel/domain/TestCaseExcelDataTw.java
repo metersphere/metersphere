@@ -45,10 +45,10 @@ public class TestCaseExcelDataTw extends TestCaseExcelData {
     @Length(min = 0, max = 1000)
     private String tags;
 
-    @NotBlank(message = "{cannot_be_null}")
-    @ExcelProperty("測試方式")
-    @Pattern(regexp = "(^manual$)|(^auto$)", message = "{test_case_method_validate}")
-    private String method;
+//    @NotBlank(message = "{cannot_be_null}")
+//    @ExcelProperty("測試方式")
+//    @Pattern(regexp = "(^manual$)|(^auto$)", message = "{test_case_method_validate}")
+//    private String method;
 
     @ColumnWidth(50)
     @ExcelProperty("前置條件")
