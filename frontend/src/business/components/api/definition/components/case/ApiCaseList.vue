@@ -260,6 +260,9 @@
           if (!request.hashTree) {
             request.hashTree = [];
           }
+          if(request.backScript != null){
+            request.hashTree.push(request.backScript);
+          }
           let uuid = getUUID();
           let obj = {apiDefinitionId: this.api.id, name: '', priority: 'P0', active: true, tags: [], uuid: uuid};
           obj.request = request;

@@ -75,12 +75,19 @@ public class ApiTestCaseService {
     private ApiDefinitionExecResultMapper apiDefinitionExecResultMapper;
     @Resource
     private TestPlanApiCaseMapper testPlanApiCaseMapper;
+    @Resource
+    private EsbApiParamService esbApiParamService;
 
     private static final String BODY_FILE_DIR = FileUtils.BODY_FILE_DIR;
 
     public List<ApiTestCaseResult> list(ApiTestCaseRequest request) {
         request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
-        return extApiTestCaseMapper.list(request);
+        List<ApiTestCaseResult> returnList =  extApiTestCaseMapper.list(request);
+
+        for (ApiTestCaseResult res : returnList) {
+            esbApiParamService.handleApiEsbParams(res);
+        }
+        return  returnList;
     }
 
     public List<ApiTestCaseDTO> listSimple(ApiTestCaseRequest request) {
@@ -169,6 +176,7 @@ public class ApiTestCaseService {
         deleteFileByTestId(testId);
         extApiDefinitionExecResultMapper.deleteByResourceId(testId);
         apiTestCaseMapper.deleteByPrimaryKey(testId);
+        esbApiParamService.deleteByResourceId(testId);
         deleteBodyFiles(testId);
     }
 
@@ -219,6 +227,11 @@ public class ApiTestCaseService {
 
     private ApiTestCase updateTest(SaveApiTestCaseRequest request) {
         checkNameExist(request);
+
+        if(StringUtils.isNotEmpty(request.getEsbDataStruct())){
+            request = esbApiParamService.handleEsbRequest(request);
+        }
+
         final ApiTestCaseWithBLOBs test = new ApiTestCaseWithBLOBs();
         test.setId(request.getId());
         test.setName(request.getName());
@@ -237,6 +250,11 @@ public class ApiTestCaseService {
     private ApiTestCase createTest(SaveApiTestCaseRequest request) {
         request.setId(UUID.randomUUID().toString());
         checkNameExist(request);
+
+        if(StringUtils.isNotEmpty(request.getEsbDataStruct())||StringUtils.isNotEmpty(request.getBackEsbDataStruct())){
+            request = esbApiParamService.handleEsbRequest(request);
+        }
+
         final ApiTestCaseWithBLOBs test = new ApiTestCaseWithBLOBs();
         test.setId(request.getId());
         test.setName(request.getName());

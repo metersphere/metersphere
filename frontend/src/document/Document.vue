@@ -9,12 +9,10 @@
 <script>
 
 import ApiDocumentItem from "@/business/components/api/definition/components/document/ApiDocumentItem";
-import TestScroll from "@/business/components/api/definition/components/document/TestScroll";
 
 export default {
   name: "ApiDocumentsPage",
   components: {
-    TestScroll,
     ApiDocumentItem,
   },
   data() {

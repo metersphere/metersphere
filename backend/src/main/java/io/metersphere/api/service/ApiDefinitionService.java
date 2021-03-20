@@ -91,6 +91,8 @@ public class ApiDefinitionService {
     private ApiTestCaseMapper apiTestCaseMapper;
     @Resource
     private ApiTestEnvironmentService environmentService;
+    @Resource
+    private EsbApiParamService esbApiParamService;
 
     private static Cache cache = Cache.newHardMemoryCache(0, 3600 * 24);
 
@@ -162,12 +164,14 @@ public class ApiDefinitionService {
         deleteFileByTestId(apiId);
         extApiDefinitionExecResultMapper.deleteByResourceId(apiId);
         apiDefinitionMapper.deleteByPrimaryKey(apiId);
+        esbApiParamService.deleteByResourceId(apiId);
         deleteBodyFiles(apiId);
     }
 
     public void deleteBatch(List<String> apiIds) {
         ApiDefinitionExample example = new ApiDefinitionExample();
         example.createCriteria().andIdIn(apiIds);
+        esbApiParamService.deleteByResourceIdIn(apiIds);
         apiDefinitionMapper.deleteByExample(example);
     }
 
@@ -229,6 +233,10 @@ public class ApiDefinitionService {
 
     private ApiDefinition updateTest(SaveApiDefinitionRequest request) {
         checkNameExist(request);
+        if(StringUtils.equals(request.getMethod(),"ESB")){
+            //ESB的接口类型数据，采用TCP方式去发送。并将方法类型改为TCP。 并修改发送数据
+            request = esbApiParamService.handleEsbRequest(request);
+        }
         final ApiDefinitionWithBLOBs test = new ApiDefinitionWithBLOBs();
         test.setId(request.getId());
         test.setName(request.getName());
@@ -254,6 +262,10 @@ public class ApiDefinitionService {
 
     private ApiDefinition createTest(SaveApiDefinitionRequest request) {
         checkNameExist(request);
+        if(StringUtils.equals(request.getMethod(),"ESB")){
+            //ESB的接口类型数据，采用TCP方式去发送。并将方法类型改为TCP。 并修改发送数据
+            request = esbApiParamService.handleEsbRequest(request);
+        }
         final ApiDefinitionWithBLOBs test = new ApiDefinitionWithBLOBs();
         test.setId(request.getId());
         test.setName(request.getName());
@@ -709,6 +721,10 @@ public class ApiDefinitionService {
                     res.setCaseTotal("-");
                     res.setCasePassingRate("-");
                     res.setCaseStatus("-");
+                }
+
+                if(StringUtils.equals("ESB",res.getMethod())){
+                    esbApiParamService.handleApiEsbParams(res);
                 }
             }
         }

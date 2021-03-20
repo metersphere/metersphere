@@ -233,6 +233,4 @@ public class ApiDefinitionController {
     public String preview(@RequestBody String jsonSchema) {
         return JSONSchemaGenerator.getJson(jsonSchema);
     }
-
-
 }
