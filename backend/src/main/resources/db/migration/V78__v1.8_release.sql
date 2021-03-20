@@ -175,3 +175,5 @@ CREATE TABLE IF NOT EXISTS `esb_api_params`
 -- add execution_times testPlan
 alter table test_plan
     add execution_times int null;
+
+alter table test_case modify method varchar(15) null comment 'Test case method type';
