@@ -29,6 +29,10 @@ public class MsJSR223Processor extends MsTestElement {
 
     @Override
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, ParameterConfig config) {
+        // 非导出操作，且不是启用状态则跳过执行
+        if (!config.isOperating() && !this.isEnable()) {
+            return;
+        }
         JSR223Sampler processor = new JSR223Sampler();
         processor.setEnabled(this.isEnable());
         if (StringUtils.isNotEmpty(this.getName())) {

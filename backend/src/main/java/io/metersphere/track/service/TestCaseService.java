@@ -131,8 +131,8 @@ public class TestCaseService {
                     .andNodePathEqualTo(testCase.getNodePath())
                     .andTypeEqualTo(testCase.getType())
                     .andMaintainerEqualTo(testCase.getMaintainer())
-                    .andPriorityEqualTo(testCase.getPriority())
-                    .andMethodEqualTo(testCase.getMethod());
+                    .andPriorityEqualTo(testCase.getPriority());
+//                    .andMethodEqualTo(testCase.getMethod());
 
 //            if (StringUtils.isNotBlank(testCase.getNodeId())) {
 //                criteria.andNodeIdEqualTo(testCase.getTestId());
@@ -432,7 +432,7 @@ public class TestCaseService {
         List<TestCaseExcelData> list = new ArrayList<>();
         StringBuilder path = new StringBuilder("");
         List<String> types = TestCaseConstants.Type.getValues();
-        List<String> methods = TestCaseConstants.Method.getValues();
+//        List<String> methods = TestCaseConstants.Method.getValues();
         SessionUser user = SessionUtils.getUser();
         for (int i = 1; i <= 5; i++) {
             TestCaseExcelData data = new TestCaseExcelData();
@@ -442,11 +442,11 @@ public class TestCaseService {
             data.setPriority("P" + i % 4);
             String type = types.get(i % 3);
             data.setType(type);
-            if (StringUtils.equals(TestCaseConstants.Type.Functional.getValue(), type)) {
-                data.setMethod(TestCaseConstants.Method.Manual.getValue());
-            } else {
-                data.setMethod(methods.get(i % 2));
-            }
+//            if (StringUtils.equals(TestCaseConstants.Type.Functional.getValue(), type)) {
+//                data.setMethod(TestCaseConstants.Method.Manual.getValue());
+//            } else {
+//                data.setMethod(methods.get(i % 2));
+//            }
             data.setPrerequisite(Translator.get("preconditions_optional"));
             data.setStepDesc("1. " + Translator.get("step_tip_separate") +
                     "\n2. " + Translator.get("step_tip_order") + "\n3. " + Translator.get("step_tip_optional"));
@@ -461,7 +461,7 @@ public class TestCaseService {
         explain.setName(Translator.get("do_not_modify_header_order"));
         explain.setNodePath(Translator.get("module_created_automatically"));
         explain.setType(Translator.get("options") + "（functional、performance、api）");
-        explain.setMethod(Translator.get("options") + "（manual、auto）");
+//        explain.setMethod(Translator.get("options") + "（manual、auto）");
         explain.setPriority(Translator.get("options") + "（P0、P1、P2、P3）");
         explain.setMaintainer(Translator.get("please_input_workspace_member"));
 
@@ -483,7 +483,11 @@ public class TestCaseService {
     private List<TestCaseExcelData> generateTestCaseExcel(TestCaseBatchRequest request) {
         ServiceUtils.getSelectAllIds(request, request.getCondition(),
                 (query) -> extTestCaseMapper.selectIds(query));
-        List<OrderRequest> orderList = ServiceUtils.getDefaultOrder(request.getOrders());
+        QueryTestCaseRequest condition = request.getCondition();
+        List<OrderRequest> orderList = new ArrayList<>();
+        if (condition != null) {
+            orderList = ServiceUtils.getDefaultOrder(condition.getOrders());
+        }
         OrderRequest order = new OrderRequest();
         order.setName("sort");
         order.setType("desc");
@@ -499,10 +503,10 @@ public class TestCaseService {
             data.setNodePath(t.getNodePath());
             data.setPriority(t.getPriority());
             data.setType(t.getType());
-            data.setMethod(t.getMethod());
+//            data.setMethod(t.getMethod());
             data.setPrerequisite(t.getPrerequisite());
             data.setTags(t.getTags());
-            if (t.getMethod().equals("manual")) {
+            if (StringUtils.equals(t.getMethod(), "manual") || StringUtils.isBlank(t.getMethod())) {
                 String steps = t.getSteps();
                 String setp = "";
                 setp = steps;
@@ -520,8 +524,8 @@ public class TestCaseService {
 
                 for (int j = 0; j < jsonArray.size(); j++) {
                     int num = j + 1;
-                    step.append(num + "." + jsonArray.getJSONObject(j).getString("desc") + "\n");
-                    result.append(num + "." + jsonArray.getJSONObject(j).getString("result") + "\n");
+                    step.append(num + "." + jsonArray.getJSONObject(j).getString("desc") + "\r\n");
+                    result.append(num + "." + jsonArray.getJSONObject(j).getString("result") + "\r\n");
 
                 }
                 data.setStepDesc(step.toString());
@@ -530,19 +534,19 @@ public class TestCaseService {
                 result.setLength(0);
                 data.setRemark(t.getRemark());
 
-            } else if (t.getMethod().equals("auto") && t.getType().equals("api")) {
+            } else if ("auto".equals(t.getMethod()) && "api".equals(t.getType())) {
                 data.setStepDesc("");
                 data.setStepResult("");
-                if (t.getTestId() != null && t.getTestId().equals("other")) {
+                if (t.getTestId() != null && "other".equals(t.getTestId())) {
                     data.setRemark(t.getOtherTestName());
                 } else {
                     data.setRemark("[" + t.getApiName() + "]" + "\n" + t.getRemark());
                 }
 
-            } else if (t.getMethod().equals("auto") && t.getType().equals("performance")) {
+            } else if ("auto".equals(t.getMethod()) && "performance".equals(t.getType())) {
                 data.setStepDesc("");
                 data.setStepResult("");
-                if (t.getTestId() != null && t.getTestId().equals("other")) {
+                if (t.getTestId() != null && "other".equals(t.getTestId())) {
                     data.setRemark(t.getOtherTestName());
                 } else {
                     data.setRemark(t.getPerformName());

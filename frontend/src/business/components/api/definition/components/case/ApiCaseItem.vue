@@ -194,7 +194,7 @@
         this.$emit('batchEditCase');
       },
       deleteCase(index, row) {
-        this.$alert(this.$t('api_test.definition.request.delete_confirm') + ' ' + row.name + " ？", '', {
+        this.$alert(this.$t('api_test.definition.request.delete_case_confirm') + ' ' + row.name + " ？", '', {
           confirmButtonText: this.$t('commons.confirm'),
           callback: (action) => {
             if (action === 'confirm') {
@@ -305,10 +305,6 @@
           row.id = data.id;
           row.createTime = data.createTime;
           row.updateTime = data.updateTime;
-          if (!row.message) {
-            this.$success(this.$t('commons.save_success'));
-            this.$emit('refresh');
-          }
         });
       },
       saveTestCase(row) {
@@ -317,7 +313,6 @@
         } else {
           this.saveCase(row);
         }
-
       },
       showInput(row) {
         // row.type = "create";

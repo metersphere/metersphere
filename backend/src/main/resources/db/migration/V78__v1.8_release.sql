@@ -162,3 +162,5 @@ SET file_metadata.project_id = temp.project_id;
 -- add execution_times testPlan
 alter table test_plan
     add execution_times int null;
+
+alter table test_case modify method varchar(15) null comment 'Test case method type';

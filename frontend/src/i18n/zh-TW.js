@@ -624,6 +624,7 @@ export default {
         res_param: "響應內容",
         batch_delete: "批量刪除",
         delete_confirm: "確認刪除接口",
+        delete_case_confirm: "確認刪除用例",
         delete_confirm_step: "確認刪除步驟",
         assertions_rule: "斷言規則",
         response_header: "響應頭",

@@ -26,6 +26,10 @@ public class MsIfController extends MsTestElement {
 
     @Override
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, ParameterConfig config) {
+        // 非导出操作，且不是启用状态则跳过执行
+        if (!config.isOperating() && !this.isEnable()) {
+            return;
+        }
         final HashTree groupTree = tree.add(ifController());
         if (CollectionUtils.isNotEmpty(hashTree)) {
             hashTree.forEach(el -> {

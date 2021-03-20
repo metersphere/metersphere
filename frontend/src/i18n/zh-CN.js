@@ -625,6 +625,7 @@ export default {
         res_param: "响应内容",
         batch_delete: "批量删除",
         delete_confirm: "确认删除接口",
+        delete_case_confirm: "确认删除用例",
         delete_confirm_step: "确认删除步骤",
         assertions_rule: "断言规则",
         response_header: "响应头",
