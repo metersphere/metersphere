@@ -103,16 +103,16 @@ export default {
 
 .active {
   border: solid 1px #6d317c;
-  background-color: var(--color);
+  background-color: var(--primary_color);
   color: #FFFFFF;
 }
 
 .case-button {
-  border-left: solid 1px var(--color);
+  border-left: solid 1px var(--primary_color);
 }
 
 .item{
-  border: solid 1px var(--color);
+  border: solid 1px var(--primary_color);
 }
 
 </style>

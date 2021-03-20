@@ -9,7 +9,7 @@
           @dataChange="changeReview"/>
       </template>
       <template v-slot:menu>
-        <el-menu v-if="isMenuShow" active-text-color="#6d317c"
+        <el-menu v-if="isMenuShow" :active-text-color="color"
                  class="el-menu-demo header-menu" mode="horizontal" @select="handleSelect"
                  :default-active="activeIndex">
           <el-menu-item index="functional">功能测试用例</el-menu-item>
@@ -78,6 +78,9 @@ export default {
   computed: {
     reviewId: function () {
       return this.$route.params.reviewId;
+    },
+    color: function () {
+      return `var(--primary_color)`
     }
   },
   mounted() {
