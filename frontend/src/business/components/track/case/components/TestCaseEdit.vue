@@ -775,6 +775,7 @@ export default {
           this.demandOptions.unshift({id: 'other', name: this.$t('test_track.case.other'), platform: 'Other'})
           this.result = {loading : false};
         }).catch(() => {
+          this.demandOptions.unshift({id: 'other', name: this.$t('test_track.case.other'), platform: 'Other'})
           this.result = {loading : false};
         })
       }
