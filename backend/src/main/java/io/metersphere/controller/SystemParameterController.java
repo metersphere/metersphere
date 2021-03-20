@@ -51,7 +51,6 @@ public class SystemParameterController {
     }
 
     @GetMapping("/base/info")
-    @RequiresRoles(value = {RoleConstants.ADMIN})
     public BaseSystemConfigDTO getBaseInfo () {
         return SystemParameterService.getBaseInfo();
     }
