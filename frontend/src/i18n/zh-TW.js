@@ -1037,6 +1037,7 @@ export default {
           case_type: {
             api: "接口用例",
             scene: "場景用例",
+            load: "性能用例"
           }
         }
       },

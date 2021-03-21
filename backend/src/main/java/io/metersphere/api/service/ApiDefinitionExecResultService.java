@@ -193,6 +193,8 @@ public class ApiDefinitionExecResultService {
                         planRequest.setScenarioId(item.getTestCaseID());
                     } else if ("apiCase".equals(item.getCaseType())) {
                         planRequest.setApiId(item.getTestCaseID());
+                    } else if ("load".equals(item.getCaseType())) {
+                        planRequest.setLoadId(item.getTestCaseID());
                     }
                     List<TestPlanDTO> dtoList = testPlanService.selectTestPlanByRelevancy(planRequest);
                     item.setTestPlanDTOList(dtoList);
