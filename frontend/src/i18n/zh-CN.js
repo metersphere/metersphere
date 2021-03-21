@@ -313,10 +313,12 @@ export default {
       password: '密码',
       jira_url: 'JIRA 地址',
       jira_issuetype: '问题类型',
+      jira_storytype: '需求类型',
       input_api_account: '请输入账号',
       input_api_password: '请输入密码',
       input_jira_url: '请输入Jira地址，例：https://metersphere.atlassian.net/',
       input_jira_issuetype: '请输入问题类型',
+      input_jira_storytype: '请输入需求类型',
       zentao_url: 'Zentao 地址',
       input_zentao_url: '请输入Zentao地址，例：http://xx.xx.xx.xx/zentao/',
       use_tip: '使用指引：',
@@ -1037,6 +1039,7 @@ export default {
           case_type: {
             api: "接口用例",
             scene: "场景用例",
+            load: "性能用例"
           }
         }
       },
