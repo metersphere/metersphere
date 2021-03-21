@@ -99,37 +99,15 @@
               </el-form-item>
             </el-col>
             <el-col :span="7">
-              <el-form-item :label="$t('test_track.case.type')" :label-width="formLabelWidth" prop="type">
-                <el-select @change="typeChange" :disabled="readOnly" v-model="form.type"
-                           :placeholder="$t('test_track.case.input_type')" class="ms-case-input">
-                  <el-option :label="$t('commons.performance')" value="performance"></el-option>
-                  <el-option :label="$t('commons.api')" value="api"></el-option>
-                  <el-option :label="$t('api_test.home_page.failed_case_list.table_value.case_type.api')"
-                             value="testcase"></el-option>
-                  <el-option :label="$t('api_test.home_page.failed_case_list.table_value.case_type.scene')"
-                             value="automation"></el-option>
-                </el-select>
-              </el-form-item>
+                <el-form-item :label="$t('test_track.case.relate_test')" :label-width="formLabelWidth" prop="testId">
+                  <el-cascader  show-all-levels	   v-model="form.selected" :props="props"  ></el-cascader>
+                </el-form-item>
             </el-col>
-
-            <el-col :span="7">
-              <el-form-item :label="$t('test_track.case.relate_test')" :label-width="formLabelWidth" prop="testId">
-                <el-select filterable :disabled="readOnly" v-model="form.testId"
-                           :placeholder="$t('test_track.case.input_type')" class="ms-case-input">
-                  <el-option
-                    v-for="item in testOptions"
-                    :key="item.id"
-                    :label="item.name"
-                    :value="item.id">
-                  </el-option>
-                </el-select>
-              </el-form-item>
-            </el-col>
-            <el-col :span="7" v-if="form.testId=='other'">
+<!--            <el-col :span="7" v-if="form.testId=='other'">
               <el-form-item :label="$t('test_track.case.test_name')" :label-width="formLabelWidth" prop="testId">
                 <el-input v-model="form.otherTestName" :placeholder="$t('test_track.case.input_test_case')"></el-input>
               </el-form-item>
-            </el-col>
+            </el-col>-->
 
           </el-row>
 
@@ -146,6 +124,7 @@
                   </el-option>
                 </el-select>
               </el-form-item>
+
             </el-col>
             <el-col :span="10">
               <el-form-item label="需求名称" :label-width="formLabelWidth" prop="demandName" v-if="form.demandId=='other'">
@@ -310,7 +289,6 @@
 </template>
 
 <script>
-
 import {TokenKey, WORKSPACE_ID} from '@/common/js/constants';
 import MsDialogFooter from '../../../common/components/MsDialogFooter'
 import {getCurrentUser, listenGoBack, removeGoBackListener} from "@/common/js/utils";
@@ -325,16 +303,59 @@ import MsPreviousNextButton from "../../../common/components/MsPreviousNextButto
 import {ELEMENTS} from "@/business/components/api/automation/scenario/Setting";
 import TestCaseComment from "@/business/components/track/case/components/TestCaseComment";
 import ReviewCommentItem from "@/business/components/track/review/commom/ReviewCommentItem";
-import {API_STATUS, REVIEW_STATUS} from "@/business/components/api/definition/model/JsonData";
+import {API_STATUS, REVIEW_STATUS, TEST} from "@/business/components/api/definition/model/JsonData";
 
 export default {
   name: "TestCaseEdit",
   components: {
+
     ReviewCommentItem,
     TestCaseComment, MsPreviousNextButton, MsInputTag, CaseComment, MsDialogFooter, TestCaseAttachment
   },
   data() {
     return {
+      props: {
+        multiple: true,
+        lazy: true,
+        lazyLoad: ((node, resolve) => {
+          const { level } = node;
+          if(node.level==0){
+            const nodes = TEST
+              .map(item => ({
+                value: item.id,
+                label: item.name,
+                leaf: level >= 1
+              }));
+            resolve(nodes)
+          }
+          if(node.level==1){
+            this.projectId = getCurrentProjectID()
+            this.testOptions = [];
+            let url = '';
+            this.form.type=node.data.value
+            console.log(this.form.type)
+            if (this.form.type === 'testcase' || this.form.type === 'automation') {
+              url = '/api/' + this.form.type + '/list/' + this.projectId
+            } else if (this.form.type === 'performance' || this.form.type === 'api') {
+              url = '/' + this.form.type + '/list/' + this.projectId
+            }
+            if (this.projectId && this.form.type != '' && this.form.type != 'undefined') {
+              this.$get(url, response => {
+                response.data.unshift({id: 'other', name: this.$t('test_track.case.other')})
+                const nodes = response.data
+                  .map(item => ({
+                    value: item.id,
+                    label: item.name,
+                    leaf: level >= 1
+                  }));
+                resolve(nodes)
+              });
+
+            }
+
+          }
+        }),
+      },
       options: REVIEW_STATUS,
       statuOptions:API_STATUS,
       comments: [],
@@ -356,6 +377,7 @@ export default {
           desc: '',
           result: ''
         }],
+        selected:[],
         remark: '',
         tags: [],
         demandId: '',
@@ -433,6 +455,7 @@ export default {
     }
   },
   methods: {
+
     handleCommand(e) {
       if (e === "ADD_AND_CREATE") {
         this.$refs['caseFrom'].validate((valid) => {
@@ -548,6 +571,7 @@ export default {
     },
     setFormData(testCase) {
       testCase.tags = JSON.parse(testCase.tags);
+      testCase.selected = JSON.parse(testCase.testId);
       let tmp = {};
       Object.assign(tmp, testCase);
       tmp.steps = JSON.parse(testCase.steps);
@@ -555,8 +579,8 @@ export default {
         tmp.steps = []
       }
       Object.assign(this.form, tmp);
-
       this.form.module = testCase.nodeId;
+      this.form.testId=testCase.testId
       this.getFileMetaData(testCase);
     },
     setTestCaseExtInfo(testCase) {
@@ -662,8 +686,8 @@ export default {
     },
     buildParam() {
       let param = {};
-
       Object.assign(param, this.form);
+      console.log(this.form)
       param.steps = JSON.stringify(this.form.steps);
       param.nodeId = this.form.module;
       this.moduleOptions.forEach(item => {
@@ -679,6 +703,7 @@ export default {
       if (this.form.tags instanceof Array) {
         this.form.tags = JSON.stringify(this.form.tags);
       }
+      param.testId=JSON.stringify(this.form.selected)
       param.tags = this.form.tags;
       return param;
     },
@@ -749,7 +774,8 @@ export default {
         this.maintainerOptions = response.data;
       });
     },
-    getTestOptions() {
+    getTestOptions(val) {
+      console.log(val)
       this.projectId = getCurrentProjectID()
       this.testOptions = [];
       let url = '';

@@ -162,18 +162,32 @@ SET file_metadata.project_id = temp.project_id;
 
 CREATE TABLE IF NOT EXISTS `esb_api_params`
 (
-    id      varchar(50)   not null,
-    resource_id      varchar(50),
-    data_struct  LONGTEXT  null,
-    fronted_script   LONGTEXT null,
-    response_data_struct LONGTEXT null,
-    backed_script LONGTEXT null,
+    id                   varchar(50) not null,
+    resource_id          varchar(50),
+    data_struct          LONGTEXT    null,
+    fronted_script       LONGTEXT    null,
+    response_data_struct LONGTEXT    null,
+    backed_script        LONGTEXT    null,
     primary key (id),
-    UNIQUE KEY `resource_id` ( `resource_id` )
+    UNIQUE KEY `resource_id` (`resource_id`)
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
 -- add execution_times testPlan
 alter table test_plan
     add execution_times int null;
 
-alter table test_case modify method varchar(15) null comment 'Test case method type';
+alter table test_case
+    modify method varchar(15) null comment 'Test case method type';
+-- add test_case_test
+create table test_case_test
+(
+    id           varchar(70) null,
+    test_case_id varchar(70) null,
+    test_id      varchar(70) null,
+    test_type    varchar(70) null,
+    constraint test_case_test_pk
+        primary key (id)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4;
+alter table test_case
+    modify test_id varchar(2000) null;

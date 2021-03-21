@@ -197,6 +197,7 @@ export default {
       }
     },
     addTab(tab) {
+      this.projectId=getCurrentProjectID();
       if (!this.projectId) {
         this.$warning(this.$t('commons.check_project_tip'));
         return;
@@ -257,6 +258,7 @@ export default {
           this.testCaseReadOnly = true;
         }
         let caseId = this.$route.params.caseId;
+        this.projectId=getCurrentProjectID();
         if (!this.projectId) {
           this.$warning(this.$t('commons.check_project_tip'));
           return;

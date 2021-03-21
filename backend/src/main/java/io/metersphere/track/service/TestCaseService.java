@@ -30,6 +30,7 @@ import io.metersphere.track.request.testcase.QueryTestCaseRequest;
 import io.metersphere.track.request.testcase.TestCaseBatchRequest;
 import io.metersphere.track.request.testcase.TestCaseMinderEditRequest;
 import io.metersphere.xmind.XmindCaseParser;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections4.ListUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
@@ -37,7 +38,6 @@ import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.apache.commons.collections.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
@@ -88,6 +88,8 @@ public class TestCaseService {
     FileService fileService;
     @Resource
     TestCaseFileMapper testCaseFileMapper;
+    @Resource
+    TestCaseTestMapper testCaseTestMapper;
 
     public TestCaseWithBLOBs addTestCase(TestCaseWithBLOBs testCase) {
         testCase.setName(testCase.getName());
@@ -181,6 +183,9 @@ public class TestCaseService {
         testPlanTestCaseMapper.deleteByExample(example);
         testCaseIssueService.delTestCaseIssues(testCaseId);
         testCaseCommentService.deleteCaseComment(testCaseId);
+        TestCaseTestExample examples = new TestCaseTestExample();
+        examples.createCriteria().andTestCaseIdEqualTo(testCaseId);
+        testCaseTestMapper.deleteByExample(examples);
         return testCaseMapper.deleteByPrimaryKey(testCaseId);
     }
 
@@ -652,7 +657,18 @@ public class TestCaseService {
         }
 
         final TestCaseWithBLOBs testCaseWithBLOBs = addTestCase(request);
-
+        //插入测试与用例关系表
+        if (!CollectionUtils.isEmpty(request.getSelected())) {
+            List<List<String>> selecteds = request.getSelected();
+            TestCaseTest test = new TestCaseTest();
+            selecteds.forEach(id -> {
+                test.setTestType(id.get(0));
+                test.setTestId(id.get(1));
+                test.setId(UUID.randomUUID().toString());
+                test.setTestCaseId(request.getId());
+                testCaseTestMapper.insert(test);
+            });
+        }
         // 复制用例时传入文件ID进行复制
         if (!CollectionUtils.isEmpty(request.getFileIds())) {
             List<String> fileIds = request.getFileIds();
@@ -664,6 +680,7 @@ public class TestCaseService {
                 testCaseFileMapper.insert(testCaseFile);
             });
         }
+
 
         files.forEach(file -> {
             final FileMetadata fileMetadata = fileService.saveFile(file, testCaseWithBLOBs.getProjectId());
@@ -680,7 +697,21 @@ public class TestCaseService {
         if (testCaseWithBLOBs == null) {
             MSException.throwException(Translator.get("edit_load_test_not_found") + request.getId());
         }
-
+        //插入测试与用例关系表
+        if (!CollectionUtils.isEmpty(request.getSelected())) {
+            TestCaseTestExample example = new TestCaseTestExample();
+            example.createCriteria().andTestCaseIdEqualTo(request.getId());
+            testCaseTestMapper.deleteByExample(example);
+            List<List<String>> selecteds = request.getSelected();
+            TestCaseTest test = new TestCaseTest();
+            selecteds.forEach(id -> {
+                test.setTestType(id.get(0));
+                test.setTestId(id.get(1));
+                test.setId(UUID.randomUUID().toString());
+                test.setTestCaseId(request.getId());
+                testCaseTestMapper.insert(test);
+            });
+        }
         // 新选择了一个文件，删除原来的文件
         List<FileMetadata> updatedFiles = request.getUpdatedFileList();
         List<FileMetadata> originFiles = fileService.getFileMetadataByCaseId(request.getId());
