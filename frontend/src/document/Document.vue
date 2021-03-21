@@ -1,19 +1,18 @@
 <template>
   <div>
-    <api-document-item :pageHeaderHeight="pageHeaderHeight" :project-id="projectId" :module-ids="moduleIds" :document-id="documentId" ref="apiDocumentItem"/>
-<!--    <test-scroll></test-scroll>-->
+    <api-document-anchor :pageHeaderHeight="pageHeaderHeight" :project-id="projectId" :module-ids="moduleIds" :document-id="documentId" ref="apiDocumentAnchor"/>
   </div>
 
 </template>
 
 <script>
 
-import ApiDocumentItem from "@/business/components/api/definition/components/document/ApiDocumentItem";
+import ApiDocumentAnchor from "@/business/components/api/definition/components/document/ApiDocumentAnchor";
 
 export default {
   name: "ApiDocumentsPage",
   components: {
-    ApiDocumentItem,
+    ApiDocumentAnchor,
   },
   data() {
     return {
@@ -47,8 +46,8 @@ export default {
     },
     selectDocumentInfo(){
       this.getUrlParam();
-      if(this.$refs.apiDocumentItem){
-        this.$refs.apiDocumentItem.initApiDocSimpleList();
+      if(this.$refs.apiDocumentAnchor){
+        this.$refs.apiDocumentAnchor.initApiDocSimpleList();
       }
     }
   },

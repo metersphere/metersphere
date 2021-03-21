@@ -29,7 +29,7 @@
         </el-row>
         <el-divider></el-divider>
         <div ref="apiDocInfoDiv" @scroll="handleScroll" >
-          <div v-for="(apiInfo) in apiInfoArray" :key="apiInfo.id" ref="apiDocInfoDivItem">
+          <div v-for="(apiInfo) in apiShowArray" :key="apiInfo.id" ref="apiDocInfoDivItem">
             <div style="font-size: 17px">
               <el-popover
                 v-if="projectId"
@@ -283,12 +283,13 @@ import ApiStatus from "@/business/components/api/definition/components/list/ApiS
 import {calculate} from "@/business/components/api/definition/model/ApiTestModel";
 import MsJsonCodeEdit from "@/business/components/common/json-schema/JsonSchemaEditor";
 import Api from "@/business/components/api/router";
+import {uuid} from "@/common/js/utils";
 
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
 const apiDocumentBatchShare = (requireComponent!=null&&requireComponent.keys().length) > 0 ? requireComponent("./share/ApiDocumentBatchShare.vue") : {};
 
 export default {
-  name: "ApiDocumentItem",
+  name: "ApiDocumentAnchor",
   components: {
     Api,
     MsJsonCodeEdit,
@@ -301,7 +302,6 @@ export default {
       batchShareUrl:"",
       apiStepIndex: 0,
       showXpackCompnent:false,
-      apiShowArray: [],
       apiInfoArray: [],
       modes: ['text', 'json', 'xml', 'html'],
       formParamTypes: ['form-data', 'x-www-from-urlencoded', 'BINARY'],
@@ -332,7 +332,11 @@ export default {
         responseCode: "无",
       },
       methodColorMap: new Map(API_METHOD_COLOUR),
-      clientHeight: '',//坚挺浏览器高度
+      clientHeight: '',//浏览器高度,
+      maxCompnentSize : 5, //浏览器最多渲染的api信息体数量
+      apiShowArray:[],//浏览器要渲染的api信息集合
+      needAsyncSelect: false, //是否需要异步查询api详细数据做展现。只有本次要展示的数据总量大于maxCompnentSize时为true
+      currentApiIndexInApiShowArray: 0,//当前主要展示的api信息在apiShowArray的索引
     }
   },
   props: {
@@ -414,26 +418,24 @@ export default {
         simpleRequest.moduleIds = this.moduleIds;
       }
 
-      let simpleInfoUrl = "/document/selectApiSimpleInfo";
+      let simpleInfoUrl = "/api/document/selectApiSimpleInfo";
       this.apiInfoArray = [];
       this.$post(simpleInfoUrl, simpleRequest, response => {
         this.apiInfoArray = response.data;
         this.apiStepIndex = 0;
-        if(response.data.length > 7){
-          this.apiShowArray = [
-            response.data[0],
-            response.data[1],
-            response.data[2],
-            response.data[3],
-            response.data[4],
-            response.data[5],
-            response.data[6],
-          ];
-        }else{
-          this.apiShowArray = response.data;
-        }
         if (this.apiInfoArray.length > 0) {
-          this.checkApiInfoNode(this.apiStepIndex);
+          this.checkApiInfoNode(this.apiStepIndex,true);
+        }
+        //拼接body展现数据
+        // for(let dataIndex = 0; dataIndex < this.maxCompnentSize; dataIndex ++){
+        //   if(dataIndex < response.data.length){
+        //     this.apiShowArray.push(response.data[dataIndex]);
+        //   }
+        // }
+        if(response.data.length > this.maxCompnentSize){
+          this.needAsyncSelect = true;
+        }else{
+          this.needAsyncSelect = false;
         }
       });
     },
@@ -458,7 +460,7 @@ export default {
       genShareInfoParam.shareApiIdList = shareIdArr;
       genShareInfoParam.shareType = shareType;
 
-      this.$post("/document/generateApiDocumentShareInfo", genShareInfoParam, res => {
+      this.$post("/api/document/generateApiDocumentShareInfo", genShareInfoParam, res => {
         if(shareType == "Batch"){
           this.batchShareUrl = thisHost+"/document"+res.data.shareUrl;
         }else{
@@ -468,11 +470,33 @@ export default {
       });
     },
     selectApiInfo(index,apiId) {
-      let simpleInfoUrl = "/document/selectApiInfoById/" + apiId;
+      let simpleInfoUrl = "/api/document/selectApiInfoById/" + apiId;
       this.$get(simpleInfoUrl, response => {
         let returnData = response.data;
         this.$set(this.apiInfoArray,index,returnData);
       });
+    },
+    //itemIndex,afterNodeIndex,beforeNodeIndex 三个是回调参数，用于重新构建showArray的数据 isRedirectScroll:是否调用跳转函数
+    selectApiInfoBatch(indexArr,apiIdArr,itemIndex,afterNodeIndex,beforeNodeIndex,isRedirectScroll) {
+      if(indexArr.length != apiIdArr.length){
+        return;
+      }else {
+        let params = {};
+        params.apiIdList = apiIdArr;
+        this.$post("/api/document/selectApiInfoByParam", params, response => {
+          let returnDatas = response.data;
+          for(let dataIndex = 0; dataIndex < returnDatas.length;dataIndex ++){
+            let index = indexArr[dataIndex];
+            let data = returnDatas[dataIndex];
+            this.$set(this.apiInfoArray,index,data);
+          }
+          this.updateShowArray(itemIndex,afterNodeIndex,beforeNodeIndex);
+          if(isRedirectScroll){
+            this.redirectScroll();
+          }
+        });
+      }
+
     },
     clickStep(apiId) {
       for (let index = 0; index < this.apiInfoArray.length; index++) {
@@ -482,9 +506,7 @@ export default {
         }
       }
       //检查数据
-      this.checkApiInfoNode(this.apiStepIndex);
-      //进行跳转
-      this.redirectScroll(this.apiStepIndex);
+      this.checkApiInfoNode(this.apiStepIndex,true);
     },
     stepClick(stepIndex) {
       this.apiStepIndex = stepIndex;
@@ -575,14 +597,12 @@ export default {
       this.$message.error(this.$t('api_report.error'));
     },
     handleScroll(){
-
       //apiDocInfoDiv的总高度，是(每个item的高度+20)数量
       let apiDocDivScrollTop = this.$refs.apiDocInfoDiv.scrollTop;
       let apiDocDivClientTop = this.$refs.apiDocInfoDiv.clientHeight;
-
       let scrolledHeigh = apiDocDivScrollTop+apiDocDivClientTop;
       let lastIndex = 0;
-      for (let index = 0; index < this.apiInfoArray.length; index++) {
+      for (let index = 0; index < this.apiShowArray.length; index++) {
         //判断移动到了第几个元素. 公式: 移动过的高度+页面显示高度-第index子元素的高度(含20px)>0 的 index最大值
         if(scrolledHeigh>0){
           lastIndex = index;
@@ -592,40 +612,82 @@ export default {
           break;
         }
       }
-      this.apiStepIndex = lastIndex;
-      //检查上下文 3个以内的节点有没有查询出来
-      this.checkApiInfoNode(this.apiStepIndex);
+
+      let names = "";
+      for(let i = 0;i<this.apiShowArray.length;i++){
+        names += this.apiShowArray[i].name+";";
+      }
+
+      console.log("["+apiDocDivScrollTop+":"+this.apiStepIndex+"]:["+lastIndex+":"+this.currentApiIndexInApiShowArray+"]-------->"+names);
+      if(lastIndex < this.currentApiIndexInApiShowArray){
+        //上移
+        if(this.needAsyncSelect){
+          //进行判断：是否还需要为apiShowArray 增加数据。 由于在当前数据前后最多展现2条数据，
+          //可得： apiStepIndex-1- 2 < apiInfoArray，需要添加数据
+          let dataIndex = this.apiStepIndex -3;
+          if(dataIndex >= 0){
+            let apiInfo = this.apiInfoArray[dataIndex];
+            this.apiShowArray.unshift(apiInfo);
+          }else{
+            this.currentApiIndexInApiShowArray--;
+          }
+
+          if(this.apiShowArray.length > (this.currentApiIndexInApiShowArray+3)){
+            this.apiShowArray.pop();
+          }
+        }
+        this.apiStepIndex --;
+      }else if(lastIndex > this.currentApiIndexInApiShowArray){
+        //下滚
+        if(this.needAsyncSelect){
+          //进行判断：是否还需要为apiShowArray 增加数据。 由于在当前数据前后最多展现2条数据，
+          //可得： apiStepIndex+1+ 2 < apiInfoArray，需要添加数据
+          let dataIndex = this.apiStepIndex +3;
+          if(dataIndex < this.apiInfoArray.length){
+            let apiInfo = this.apiInfoArray[dataIndex];
+            this.apiShowArray.push(apiInfo);
+          }
+
+          if(this.apiShowArray.length <= this.maxCompnentSize){
+            //判断currentApiIndexInApiShowArray 是否需要添加，以及是否需要删除第一个元素
+            this.currentApiIndexInApiShowArray++;
+          }else{
+            this.apiShowArray.shift();
+            let itemHeight = this.$refs.apiDocInfoDivItem[0].offsetHeight+20;
+            this.$refs.apiDocInfoDiv.scrollTop = (apiDocDivScrollTop-itemHeight);
+          }
+        }
+        this.apiStepIndex ++;
+      }
+
+      // this.apiStepIndex = lastIndex;
+      // //检查上下文 2个以内的节点有没有查询出来
+      // this.checkApiInfoNode(this.apiStepIndex);
     },
-    redirectScroll(itemIndex){
+    redirectScroll(){
       //滚动条跳转：将滚动条下拉到显示对应对api接口的位置
-      // let apiDocDivClientTop = this.$refs.apiDocInfoDiv.clientHeight;
       let apiDocDivClientTop = 0;
       let itemHeightCount = 0;
-      for (let i = 0; i <= itemIndex-1; i++) {
-        let itemHeight = this.$refs.apiDocInfoDivItem[i].offsetHeight+20;
-        itemHeightCount+=itemHeight;
+      if(this.currentApiIndexInApiShowArray > 0){
+        for (let i = 0; i <= this.currentApiIndexInApiShowArray-1; i++) {
+          let itemHeight = this.$refs.apiDocInfoDivItem[i].offsetHeight+20;
+          itemHeightCount+=itemHeight;
+        }
       }
       this.$refs.apiDocInfoDiv.scrollTop = (apiDocDivClientTop+itemHeightCount);
     },
-    checkApiInfoNode(itemIndex){
-      //检查要展示的api信息节点，和上下个3个及以内的范围内数据有没有查询过
-      let beforeNodeIndex = itemIndex<3?0:(itemIndex-3);
-      let afterNodeIndex = (itemIndex+3)<this.apiInfoArray.length?(itemIndex+3):this.apiInfoArray.length;
 
-      for(let beforeIndex = itemIndex;beforeIndex < afterNodeIndex;beforeIndex++){
-        let apiInfo = this.apiInfoArray[beforeIndex];
-        if(apiInfo==null){
-          continue;
-        }
-        if(apiInfo == null || !apiInfo.selectedFlag){
-          let apiId = apiInfo.id;
-          if(!apiInfo.isSearching){
-            apiInfo.isSearching = true;
-            this.selectApiInfo(beforeIndex,apiId);
-          }
-        }
-      }
+    //检查要展示的api信息节点，和上下个2个及以内的范围内数据有没有查询过。并赋值为showArray
+    //isRedirectScroll 最后是否调用跳转函数
+    checkApiInfoNode(itemIndex,isRedirectScroll){
+      let beforeNodeIndex = itemIndex<2?0:(itemIndex-2);
+      let afterNodeIndex = (itemIndex+2)<this.apiInfoArray.length?(itemIndex+2):this.apiInfoArray.length;
+      this.apiShowArray = [];
 
+      let selectIndexArr = [];
+      let selectApiId = [];
+
+      //查当前节点前两个
       for(let afterIndex = beforeNodeIndex;afterIndex <itemIndex;afterIndex++){
         let apiInfo = this.apiInfoArray[afterIndex];
         if(apiInfo==null){
@@ -635,9 +697,57 @@ export default {
           let apiId = apiInfo.id;
           if(!apiInfo.isSearching) {
             apiInfo.isSearching = true;
-            this.selectApiInfo(afterIndex,apiId);
+            selectIndexArr.push(afterIndex);
+            selectApiId.push(apiId);
           }
         }
+        this.apiShowArray.push(apiInfo);
+      }
+      this.currentApiIndexInApiShowArray = this.apiShowArray.length;
+      //查当前节点以及后三个
+      for(let beforeIndex = itemIndex;beforeIndex <= afterNodeIndex;beforeIndex++){
+        let apiInfo = this.apiInfoArray[beforeIndex];
+        if(apiInfo==null){
+          continue;
+        }
+        if(apiInfo == null || !apiInfo.selectedFlag){
+          let apiId = apiInfo.id;
+          if(!apiInfo.isSearching){
+            apiInfo.isSearching = true;
+            selectIndexArr.push(beforeIndex);
+            selectApiId.push(apiId);
+          }
+        }
+        this.apiShowArray.push(apiInfo);
+      }
+      if(selectIndexArr.length>0){
+        this.selectApiInfoBatch(selectIndexArr,selectApiId,itemIndex,afterNodeIndex,beforeNodeIndex,isRedirectScroll);
+      }else{
+        if(isRedirectScroll){
+          //进行跳转
+          this.redirectScroll();
+        }
+      }
+    },
+    //该方法只用于批量查询后的函数处理。 因为查询完成，数据更新，重新为apiShowArray赋值
+    updateShowArray(itemIndex,afterNodeIndex,beforeNodeIndex){
+      this.apiShowArray = [];
+      //查当前节点前两个
+      for(let afterIndex = beforeNodeIndex;afterIndex <itemIndex;afterIndex++){
+        let apiInfo = this.apiInfoArray[afterIndex];
+        if(apiInfo==null){
+          continue;
+        }
+        this.apiShowArray.push(apiInfo);
+      }
+      this.currentApiIndexInApiShowArray = this.apiShowArray.length;
+      //查当前节点以及后三个
+      for(let beforeIndex = itemIndex;beforeIndex <= afterNodeIndex;beforeIndex++){
+        let apiInfo = this.apiInfoArray[beforeIndex];
+        if(apiInfo==null){
+          continue;
+        }
+        this.apiShowArray.push(apiInfo);
       }
     }
   },
@@ -679,6 +789,8 @@ export default {
 .showDataDiv {
   background-color: #F5F7F9;
   margin: 20px 10px;
+  max-height: 300px;
+  overflow: auto;
 }
 
 /*
