@@ -1035,6 +1035,7 @@ export default {
           case_type: {
             api: "Api case",
             scene: "Scenario case",
+            load: "Load case"
           }
         }
       },
