@@ -65,7 +65,7 @@ html,body {
   border-right: 0 !important;
 }
 
-.adjust-table th {
+.adjust-table th:not([class*="el-table-column--selection"]) {
   border-right-color: white !important;
 }
 
