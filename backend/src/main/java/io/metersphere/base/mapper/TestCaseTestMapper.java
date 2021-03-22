@@ -2,16 +2,13 @@ package io.metersphere.base.mapper;
 
 import io.metersphere.base.domain.TestCaseTest;
 import io.metersphere.base.domain.TestCaseTestExample;
-import org.apache.ibatis.annotations.Param;
-
 import java.util.List;
+import org.apache.ibatis.annotations.Param;
 
 public interface TestCaseTestMapper {
     long countByExample(TestCaseTestExample example);
 
     int deleteByExample(TestCaseTestExample example);
-
-    int deleteByPrimaryKey(String id);
 
     int insert(TestCaseTest record);
 
@@ -19,13 +16,7 @@ public interface TestCaseTestMapper {
 
     List<TestCaseTest> selectByExample(TestCaseTestExample example);
 
-    TestCaseTest selectByPrimaryKey(String id);
-
     int updateByExampleSelective(@Param("record") TestCaseTest record, @Param("example") TestCaseTestExample example);
 
     int updateByExample(@Param("record") TestCaseTest record, @Param("example") TestCaseTestExample example);
-
-    int updateByPrimaryKeySelective(TestCaseTest record);
-
-    int updateByPrimaryKey(TestCaseTest record);
 }

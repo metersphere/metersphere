@@ -99,7 +99,7 @@
         protocol: "",
         platforms: [
           {
-            name: 'Metersphere',
+            name: 'MeterSphere',
             value: 'Metersphere',
             tip: this.$t('api_test.api_import.ms_tip'),
             exportTip: this.$t('api_test.api_import.ms_export_tip'),
@@ -113,14 +113,14 @@
             suffixes: new Set(['json'])
           },
           {
-            name: 'Jmeter',
+            name: 'JMeter',
             value: 'Jmeter',
             tip: this.$t('api_test.api_import.jmeter_tip'),
             exportTip: this.$t('api_test.api_import.jmeter_export_tip'),
             suffixes: new Set(['jmx'])
           },
           {
-            name: 'Har',
+            name: 'HAR',
             value: 'Har',
             tip: this.$t('api_test.api_import.har_tip'),
             exportTip: this.$t('api_test.api_import.har_export_tip'),
