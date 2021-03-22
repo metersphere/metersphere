@@ -9,7 +9,9 @@ import io.metersphere.api.dto.scenario.request.RequestType;
 import io.metersphere.api.parse.MsAbstractParser;
 import io.metersphere.base.domain.ApiDefinitionWithBLOBs;
 import io.metersphere.base.domain.ApiModule;
+import io.metersphere.base.domain.ApiTestCaseWithBLOBs;
 import io.metersphere.commons.constants.ApiImportPlatform;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.InputStream;
@@ -55,13 +57,23 @@ public class MsDefinitionParser extends MsAbstractParser<ApiDefinitionImport> {
 
     private ApiDefinitionImport parseMsFormat(String testStr, ApiTestImportRequest importRequest) {
         ApiDefinitionImport apiDefinitionImport = JSON.parseObject(testStr, ApiDefinitionImport.class);
+        Map<String, List<ApiTestCaseWithBLOBs>> caseMap = new HashMap<>();
+        apiDefinitionImport.getCases().forEach(item -> {
+            List<ApiTestCaseWithBLOBs> caseList = caseMap.get(item.getApiDefinitionId());
+            if (caseList == null) {
+                caseList = new ArrayList<>();
+                caseMap.put(item.getApiDefinitionId(), caseList);
+            }
+            caseList.add(item);
+        });
         apiDefinitionImport.getData().forEach(apiDefinition -> {
-            parseApiDefinition(apiDefinition, importRequest);
+            parseApiDefinition(apiDefinition, importRequest, caseMap);
         });
         return apiDefinitionImport;
     }
 
-    private void parseApiDefinition(ApiDefinitionWithBLOBs apiDefinition, ApiTestImportRequest importRequest) {
+    private void parseApiDefinition(ApiDefinitionWithBLOBs apiDefinition, ApiTestImportRequest importRequest, Map<String, List<ApiTestCaseWithBLOBs>> caseMap) {
+        String originId = apiDefinition.getId();
         String id = UUID.randomUUID().toString();
         if (StringUtils.isBlank(apiDefinition.getModulePath())) {
             apiDefinition.setModuleId(null);
@@ -73,6 +85,19 @@ public class MsDefinitionParser extends MsAbstractParser<ApiDefinitionImport> {
         JSONObject requestObj = JSONObject.parseObject(request);
         requestObj.put("id", id);
         apiDefinition.setRequest(JSONObject.toJSONString(requestObj));
+        parseCase(caseMap, apiDefinition, importRequest, originId);
+    }
+
+    private void parseCase(Map<String, List<ApiTestCaseWithBLOBs>> caseMap, ApiDefinitionWithBLOBs apiDefinition,
+                           ApiTestImportRequest importRequest, String originId) {
+        List<ApiTestCaseWithBLOBs> cases = caseMap.get(originId);
+        if (CollectionUtils.isEmpty(cases)) {
+            return;
+        }
+        cases.forEach(item -> {
+            item.setApiDefinitionId(apiDefinition.getId());
+            item.setProjectId(importRequest.getProjectId());
+        });
     }
 
     private void parseModule(String modulePath, ApiTestImportRequest importRequest, ApiDefinitionWithBLOBs apiDefinition) {

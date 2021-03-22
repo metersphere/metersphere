@@ -572,9 +572,16 @@ public class ApiDefinitionService {
             }
             item.setNum(num++);
             importCreate(item, batchMapper, apiTestCaseMapper, request, apiImport.getCases());
-            importMsCase(apiImport, sqlSession, apiTestCaseMapper);
             if (i % 300 == 0) {
                 sqlSession.flushStatements();
+            }
+        }
+        if (!CollectionUtils.isEmpty(apiImport.getCases())) {
+            for (int i = 0; i < apiImport.getCases().size(); i++) {
+                importMsCase(apiImport, sqlSession, apiTestCaseMapper);
+                if (i % 300 == 0) {
+                    sqlSession.flushStatements();
+                }
             }
         }
         sqlSession.flushStatements();
