@@ -47,7 +47,6 @@
 import MsTablePagination from "@/business/components/common/pagination/TablePagination";
 import MsDialogFooter from "@/business/components/common/components/MsDialogFooter";
 import ReportTriggerModeItem from "@/business/components/common/tableItem/ReportTriggerModeItem";
-import {getUUID} from "@/common/js/utils";
 
 export default {
   name: "SameTestReports",
@@ -84,10 +83,10 @@ export default {
       })
     },
     handleCompare() {
-      console.log(123);
       let reportIds = [...this.selectIds];
-      let uuid = getUUID();
-      this.$router.push({path: '/performance/report/compare', params: {redirectID: uuid, reportIds: reportIds}});
+      localStorage.setItem("compareReportIds", JSON.stringify(reportIds));
+      this.close();
+      this.$router.push({path: '/performance/report/compare/' + reportIds[0]});
     },
     handleSelectAll(selection) {
       if (selection.length > 0) {

@@ -1,7 +1,9 @@
 <template>
   <ms-container>
     <ms-main-container>
-      sss
+      <el-card>
+
+      </el-card>
     </ms-main-container>
   </ms-container>
 </template>
@@ -15,13 +17,12 @@ export default {
   name: "PerformanceReportCompare",
   components: {MsMainContainer, MsContainer},
   mounted() {
-    console.log(111);
+    let reportId = this.$route.path.split('/')[4];
+    console.log(reportId);
+    let items = localStorage.getItem("compareReportIds");
+    console.log(JSON.parse(items));
   },
   computed: {
-    queryDataType: function () {
-      let reportIds = this.$route.params.reportIds;
-      return reportIds;
-    },
     isReadOnly() {
       return !checkoutTestManagerOrTestUser();
     }

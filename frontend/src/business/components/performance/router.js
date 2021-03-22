@@ -1,5 +1,3 @@
-import MsProject from "@/business/components/settings/project/MsProject";
-
 const PerformanceTest = () => import('@/business/components/performance/PerformanceTest')
 const PerformanceTestHome = () => import('@/business/components/performance/home/PerformanceTestHome')
 const EditPerformanceTest = () => import('@/business/components/performance/test/EditPerformanceTest')
@@ -65,7 +63,7 @@ export default {
       component: PerformanceReportView
     },
     {
-      path: "report/compare",
+      path: "report/compare/:reportId",
       name: "ReportCompare",
       component: PerformanceReportCompare,
     },
