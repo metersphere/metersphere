@@ -21,6 +21,7 @@ import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import java.io.InputStream;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -75,6 +76,11 @@ public class HarParser extends HarAbstractParser {
             if (harRequest.url != null) {
                 String[] nameArr = harRequest.url.split("/");
                 reqName = nameArr[nameArr.length - 1];
+                //然后进行转码解码
+                try {
+                    reqName = URLDecoder.decode(reqName,"UTF-8");
+                }catch (Exception e){
+                }
             }
 
             if (harRequest != null) {
