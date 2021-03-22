@@ -136,6 +136,16 @@ public class ApiDefinitionService {
     public ApiDefinitionWithBLOBs getBLOBs(String id) {
         return apiDefinitionMapper.selectByPrimaryKey(id);
     }
+    public List<ApiDefinitionWithBLOBs> getBLOBs(List<String> idList) {
+        if(idList == null || idList.isEmpty()){
+            return  new ArrayList<>(0);
+        }else{
+            ApiDefinitionExample example = new ApiDefinitionExample();
+            example.createCriteria().andIdIn(idList);
+            example.setOrderByClause("create_time DESC ");
+            return apiDefinitionMapper.selectByExampleWithBLOBs(example);
+        }
+    }
 
     public void create(SaveApiDefinitionRequest request, List<MultipartFile> bodyFiles) {
         List<String> bodyUploadIds = new ArrayList<>(request.getBodyUploadIds());
