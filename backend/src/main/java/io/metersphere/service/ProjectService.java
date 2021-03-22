@@ -173,7 +173,7 @@ public class ProjectService {
         if (files != null) {
             for (MultipartFile file : files) {
                 QueryProjectFileRequest request = new QueryProjectFileRequest();
-                request.setFilename(file.getOriginalFilename());
+                request.setName(file.getOriginalFilename());
                 if (CollectionUtils.isEmpty(fileService.getProjectFiles(projectId, request))) {
                     fileService.saveFile(file, projectId);
                 } else {

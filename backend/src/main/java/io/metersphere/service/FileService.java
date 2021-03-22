@@ -202,8 +202,8 @@ public class FileService {
         FileMetadataExample example = new FileMetadataExample();
         FileMetadataExample.Criteria criteria = example.createCriteria();
         criteria.andProjectIdEqualTo(projectId);
-        if (!StringUtils.isEmpty(request.getFilename())) {
-            criteria.andNameEqualTo(request.getFilename());
+        if (!StringUtils.isEmpty(request.getName())) {
+            criteria.andNameEqualTo(request.getName());
         }
        return fileMetadataMapper.selectByExample(example);
     }
