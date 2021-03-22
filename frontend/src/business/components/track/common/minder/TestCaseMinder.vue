@@ -4,6 +4,7 @@
     :tree-nodes="treeNodes"
     :data-map="dataMap"
     :tags="tags"
+    :distinct-tags="tags"
     @save="save"
   />
 </template>
@@ -83,7 +84,7 @@ name: "TestCaseMinder",
         type: data.type ? data.type : 'functional',
         method: data.method ? data.method: 'manual',
         maintainer: data.maintainer,
-        priority: 'P' + (data.priority ? data.priority : 0),
+        priority: 'P' + (data.priority ? data.priority - 1 : 0),
       };
       if (data.changed) isChange = true;
       let steps = [];
