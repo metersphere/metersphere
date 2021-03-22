@@ -1132,6 +1132,7 @@ export default {
     case: {
       list: "列表",
       minder: "脑图",
+      minder_create_tip: "失败, 无法在脑图创建其父模块",
       check_select: "请勾选用例",
       export_all_cases: '确定要导出全部用例吗?',
       input_test_case: '请输入关联用例名称',

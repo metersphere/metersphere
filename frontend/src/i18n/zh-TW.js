@@ -1130,6 +1130,7 @@ export default {
     case: {
       list: "列表",
       minder: "腦圖",
+      minder_create_tip: "失敗, 無法在腦圖創建其父模塊",
       check_select: "請勾選用例",
       export_all_cases: '確定要導出全部用例嗎?',
       input_test_case: '請輸入關聯用例名稱',

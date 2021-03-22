@@ -4,6 +4,7 @@
     :tree-nodes="treeNodes"
     :data-map="dataMap"
     :tags="tags"
+    :distinct-tags="tags"
     @save="save"
   />
 </template>
@@ -60,6 +61,9 @@ name: "TestCaseMinder",
     buildSaveCase(root, saveCases, parent) {
       let data = root.data;
       if (data.resource && data.resource.indexOf(this.$t('api_test.definition.request.case')) > -1) {
+        if (root.parent) {
+          console.log(root.parent);
+        }
         this._buildSaveCase(root, saveCases, parent);
       } else {
         if (root.children) {
@@ -83,7 +87,7 @@ name: "TestCaseMinder",
         type: data.type ? data.type : 'functional',
         method: data.method ? data.method: 'manual',
         maintainer: data.maintainer,
-        priority: 'P' + (data.priority ? data.priority : 0),
+        priority: 'P' + (data.priority ? data.priority - 1 : 0),
       };
       if (data.changed) isChange = true;
       let steps = [];
@@ -116,6 +120,11 @@ name: "TestCaseMinder",
       testCase.steps = JSON.stringify(steps);
       if (isChange) {
         saveCases.push(testCase);
+      }
+      if (testCase.nodeId.length < 15) {
+        let tip = this.$t('test_track.case.create_case') + "'" + testCase.name + "'" + this.$t('test_track.case.minder_create_tip');
+        this.$error(tip)
+        throw new Error(tip);
       }
     },
 
