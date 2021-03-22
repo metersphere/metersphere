@@ -4,9 +4,12 @@
 <!--      <template v-slot:header>-->
         <ms-table-header :is-tester-permission="true" :condition.sync="condition" @search="initTableData"
                          :show-create="false" :tip="$t('commons.search_by_id_name_tag')">
+
+          <!-- 不显示 “全部用例” 标题,使标题为空 -->
           <template v-slot:title>
-            <node-breadcrumb class="table-title" :nodes="selectParentNodes" @refresh="breadcrumbRefresh"/>
+            <span></span>
           </template>
+
           <template v-slot:button>
             <ms-table-button :is-tester-permission="true" v-if="!showMyTestCase" icon="el-icon-s-custom"
                              :content="$t('test_track.plan_view.my_case')" @click="searchMyTestCase"/>
@@ -15,8 +18,11 @@
             <ms-table-button :is-tester-permission="true" icon="el-icon-connection"
                              :content="$t('test_track.plan_view.relevance_test_case')"
                              @click="$emit('openTestCaseRelevanceDialog')"/>
-            <ms-table-button :is-tester-permission="true" icon="el-icon-document-remove"
-                             :content="$t('test_track.plan_view.cancel_all_relevance')" @click="handleDeleteBatch"/>
+
+<!--            删除 “取消全部关联” 按钮-->
+<!--            <ms-table-button :is-tester-permission="true" icon="el-icon-document-remove"-->
+<!--                             :content="$t('test_track.plan_view.cancel_all_relevance')" @click="handleDeleteBatch"/>-->
+
           </template>
         </ms-table-header>
 <!--      </template>-->
