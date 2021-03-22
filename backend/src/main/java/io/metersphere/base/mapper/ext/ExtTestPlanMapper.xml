@@ -223,6 +223,9 @@
             <if test="request.apiId != null">
                 AND p.id IN (SELECT test_plan_id FROM test_plan_api_case WHERE api_case_id = #{request.apiId})
             </if>
+            <if test="request.loadId != null">
+                AND p.id IN (SELECT test_plan_id FROM test_plan_load_case WHERE load_case_id = #{request.loadId})
+            </if>
         </where>
     </select>
     <select id="findTestProjectNameByTestPlanID" resultType="java.lang.String">

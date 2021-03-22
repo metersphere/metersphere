@@ -125,7 +125,7 @@
       '$route'(to, from) {  //  路由改变时，把接口定义界面中的 ctrl s 保存快捷键监听移除
         if (to.path.indexOf('/api/automation') == -1) {
           if (this.$refs && this.$refs.autoScenarioConfig) {
-            console.log(this.$refs.autoScenarioConfig);
+            // console.log(this.$refs.autoScenarioConfig);
             this.$refs.autoScenarioConfig.forEach(item => {
               item.removeListener();
             });

@@ -60,13 +60,13 @@
           </el-table-column>
 
           <el-table-column
-            v-if="item.id == 'custom'"
-            sortable="custom"
-            prop="path"
-            min-width="180px"
-            :label="$t('api_test.definition.api_path')"
-            show-overflow-tooltip
-            :key="index"/>
+              v-if="item.id == 'path'"
+              sortable="custom"
+              prop="path"
+              min-width="180px"
+              :label="$t('api_test.definition.api_path')"
+              show-overflow-tooltip
+              :key="index"/>
 
           <el-table-column v-if="item.id=='tags'" prop="tags" min-width="120px" :label="$t('commons.tag')"
                            :key="index">
@@ -83,12 +83,12 @@
             :key="index"/>
 
           <el-table-column
-            v-if="item.id=='custom'"
-            sortable="custom"
-            min-width="160"
-            :label="$t('api_test.definition.api_last_time')"
-            prop="updateTime"
-            :key="index">
+              v-if="item.id=='updateTime'"
+              sortable="updateTime"
+              min-width="160"
+              :label="$t('api_test.definition.api_last_time')"
+              prop="updateTime"
+              :key="index">
             <template v-slot:default="scope">
               <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
             </template>
@@ -186,7 +186,7 @@ export default {
       return {
         type: API_CASE_LIST,
         headerItems: Api_Case_List,
-        tableLabel: Api_Case_List,
+        tableLabel: [],
         condition: {
           components: API_CASE_CONFIGS
         },
@@ -286,10 +286,11 @@ export default {
     },
     methods: {
       customHeader() {
+        getLabel(this, API_CASE_LIST);
         this.$refs.headerCustom.open(this.tableLabel)
       },
       initTable() {
-        getLabel(this, API_CASE_LIST);
+
         this.selectRows = new Set();
         this.condition.status = "";
         this.condition.moduleIds = this.selectNodeIds;
@@ -332,6 +333,7 @@ export default {
             })
           });
         }
+        getLabel(this, API_CASE_LIST);
       },
       open() {
         this.$refs.searchBar.open();

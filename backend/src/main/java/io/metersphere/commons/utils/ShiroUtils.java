@@ -13,6 +13,7 @@ public class ShiroUtils {
     public static void loadBaseFilterChain(Map<String, String> filterChainDefinitionMap){
 
         filterChainDefinitionMap.put("/resource/**", "anon");
+        filterChainDefinitionMap.put("/login", "anon");
         filterChainDefinitionMap.put("/signin", "anon");
         filterChainDefinitionMap.put("/ldap/signin", "anon");
         filterChainDefinitionMap.put("/ldap/open", "anon");
@@ -42,7 +43,7 @@ public class ShiroUtils {
 
         //api-对外文档页面提供的查询接口
         filterChainDefinitionMap.put("/api/document/**", "anon");
-//        filterChainDefinitionMap.put("/document/**", "anon");
+        filterChainDefinitionMap.put("/document/**", "anon");
         filterChainDefinitionMap.put("/system/theme", "anon");
 
     }

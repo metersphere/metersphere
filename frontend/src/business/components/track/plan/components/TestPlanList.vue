@@ -248,7 +248,7 @@ export default {
     return {
       type: TEST_PLAN_LIST,
       headerItems: Test_Plan_List,
-      tableLabel: Test_Plan_List,
+      tableLabel: [],
       result: {},
       enableDeleteTip: false,
       queryPath: "/test/plan/list",
@@ -290,7 +290,6 @@ export default {
       this.$refs.headerCustom.open(this.tableLabel)
     },
     initTableData() {
-      getLabel(this, TEST_PLAN_LIST);
       if (this.planId) {
         this.condition.planId = this.planId;
       }
@@ -308,9 +307,11 @@ export default {
           if (item.tags && item.tags.length > 0) {
             item.tags = JSON.parse(item.tags);
           }
-          item.passRate=item.passRate+'%'
+          item.passRate = item.passRate + '%'
         })
       });
+      getLabel(this, TEST_PLAN_LIST);
+
     },
     copyData(status) {
       return JSON.parse(JSON.stringify(this.dataMap.get(status)))

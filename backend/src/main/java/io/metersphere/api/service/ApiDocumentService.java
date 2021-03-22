@@ -1,24 +1,15 @@
 package io.metersphere.api.service;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import io.metersphere.api.dto.document.ApiDocumentInfoDTO;
-import io.metersphere.api.dto.document.ApiDocumentRequest;
-import io.metersphere.api.dto.document.ApiDocumentShareRequest;
-import io.metersphere.api.dto.document.ApiDocumentSimpleInfoDTO;
-import io.metersphere.api.dto.document.ApiDocumentShareType;
-import io.metersphere.api.dto.document.ApiDocumentShareDTO;
+import io.metersphere.api.dto.document.*;
 import io.metersphere.base.domain.ApiDefinitionWithBLOBs;
 import io.metersphere.base.domain.ApiDocumentShare;
-import io.metersphere.base.domain.ApiDocumentShareExample;
 import io.metersphere.base.mapper.ApiDocumentShareMapper;
 import io.metersphere.base.mapper.ext.ExtApiDocumentMapper;
 import io.metersphere.base.mapper.ext.ExtApiDocumentShareMapper;
-import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.dto.BaseSystemConfigDTO;
-import io.metersphere.i18n.Translator;
 import io.metersphere.service.SystemParameterService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -226,7 +217,7 @@ public class ApiDocumentService {
             //赋值响应头
             if (apiModel.getResponse() != null) {
                 JSONObject responseJsonObj = JSONObject.parseObject(apiModel.getResponse());
-                if (responseJsonObj.containsKey("headers")) {
+                if (responseJsonObj!=null && responseJsonObj.containsKey("headers")) {
                     JSONArray responseHeadDataArr = new JSONArray();
                     JSONArray headArr = responseJsonObj.getJSONArray("headers");
                     for (int index = 0; index < headArr.size(); index++) {
@@ -238,7 +229,7 @@ public class ApiDocumentService {
                     apiInfoDTO.setResponseHead(responseHeadDataArr.toJSONString());
                 }
                 // 赋值响应体
-                if (responseJsonObj.containsKey("body")) {
+                if (responseJsonObj!=null && responseJsonObj.containsKey("body")) {
                     JSONObject bodyObj = responseJsonObj.getJSONObject("body");
                     if (bodyObj.containsKey("type")) {
                         String type = bodyObj.getString("type");
@@ -295,7 +286,7 @@ public class ApiDocumentService {
                     }
                 }
                 // 赋值响应码
-                if (responseJsonObj.containsKey("statusCode")) {
+                if (responseJsonObj!=null && responseJsonObj.containsKey("statusCode")) {
                     JSONArray responseStatusDataArr = new JSONArray();
                     JSONArray statusArr = responseJsonObj.getJSONArray("statusCode");
                     for (int index = 0; index < statusArr.size(); index++) {
