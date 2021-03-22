@@ -1436,7 +1436,8 @@ export default {
     status_change_success: '狀態修改成功!',
     status_change_failed: '狀態修改失敗, 校驗不通過!',
     check_in: '校驗中',
-    node_selector_invalid: 'nodeSelector 必須是有效的JSON'
+    node_selector_invalid: 'nodeSelector 必須是有效的JSON',
+    pod_thread_limit: '單POD最大線程數'
   },
   system_parameter_setting: {
     mailbox_service_settings: '郵件設置',

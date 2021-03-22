@@ -893,8 +893,8 @@ export default {
         code_template_get_response_header: "获取响应头",
         code_template_get_response_code: "获取响应码",
         code_template_get_response_result: "获取响应结果",
-        code_add_report_length : "报文头添加长度",
-        code_hide_report_length : "隐藏报文长度"
+        code_add_report_length: "报文头添加长度",
+        code_hide_report_length: "隐藏报文长度"
       },
       dubbo: {
         protocol: "协议",
@@ -1438,7 +1438,8 @@ export default {
     status_change_success: '状态修改成功!',
     status_change_failed: '状态修改失败, 校验不通过!',
     check_in: '校验中',
-    node_selector_invalid: 'nodeSelector 必须是有效的JSON'
+    node_selector_invalid: 'nodeSelector 必须是有效的JSON',
+    pod_thread_limit: '单POD最大线程数'
   },
   system_parameter_setting: {
     mailbox_service_settings: '邮件设置',
