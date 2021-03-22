@@ -52,21 +52,27 @@ create table test_case_review_load
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
 -- test_resource_pool add column
-ALTER TABLE test_resource_pool ADD heap VARCHAR(200) NULL;
-ALTER TABLE test_resource_pool ADD gc_algo VARCHAR(200) NULL;
+ALTER TABLE test_resource_pool
+    ADD heap VARCHAR(200) NULL;
+ALTER TABLE test_resource_pool
+    ADD gc_algo VARCHAR(200) NULL;
 
 -- create tale api_document_share
-CREATE TABLE IF NOT EXISTS `api_document_share`  (
-     `id` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT 'Api Document Share Info ID',
-     `create_time` BIGINT ( 13 ) NOT NULL COMMENT 'Create timestamp',
-     `create_user_id` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
-     `update_time` BIGINT ( 13 ) NOT NULL COMMENT 'last visit timestamp',
-     `share_type` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT 'single or batch',
-     `share_api_id` longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT 'APiDefinition.id (JSONArray format. Order by TreeSet)',
-     PRIMARY KEY (`id`) USING BTREE,
-     INDEX `share_type`(`share_type`) USING BTREE,
-     INDEX `share_api_id`(`share_api_id`(125)) USING BTREE
-) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci ROW_FORMAT = Dynamic;
+CREATE TABLE IF NOT EXISTS `api_document_share`
+(
+    `id`             varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT 'Api Document Share Info ID',
+    `create_time`    BIGINT(13)                                                   NOT NULL COMMENT 'Create timestamp',
+    `create_user_id` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
+    `update_time`    BIGINT(13)                                                   NOT NULL COMMENT 'last visit timestamp',
+    `share_type`     varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT 'single or batch',
+    `share_api_id`   longtext CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci    NULL DEFAULT NULL COMMENT 'APiDefinition.id (JSONArray format. Order by TreeSet)',
+    PRIMARY KEY (`id`) USING BTREE,
+    INDEX `share_type` (`share_type`) USING BTREE,
+    INDEX `share_api_id` (`share_api_id`(125)) USING BTREE
+) ENGINE = InnoDB
+  CHARACTER SET = utf8mb4
+  COLLATE = utf8mb4_general_ci
+  ROW_FORMAT = Dynamic;
 
 -- swagger_url_project
 alter table swagger_url_project
@@ -91,61 +97,70 @@ alter table test_plan_api_scenario
     change environment_id environment longtext null comment 'Relevance environment';
 
 -- add Original state
-alter table api_definition add original_state varchar(64);
-alter table api_scenario add original_state varchar(64);
-update api_definition set original_state='Underway';
-update api_scenario set original_state='Underway';
+alter table api_definition
+    add original_state varchar(64);
+alter table api_scenario
+    add original_state varchar(64);
+update api_definition
+set original_state='Underway';
+update api_scenario
+set original_state='Underway';
 
 -- alter test_case_review_scenario
-alter table test_case_review_scenario modify environment longtext null;
+alter table test_case_review_scenario
+    modify environment longtext null;
 
 
 -- schedule table add project_id column
-alter table schedule add project_id varchar(50) NULL;
+alter table schedule
+    add project_id varchar(50) NULL;
 -- set values for new colums of exitsting data
 update schedule sch inner join test_plan testPlan on
-      testPlan.id = sch.resource_id
-      set sch.project_id = testPlan.project_id where
-            sch.resource_id = testPlan.id;
+    testPlan.id = sch.resource_id
+set sch.project_id = testPlan.project_id
+where sch.resource_id = testPlan.id;
 update schedule sch inner join swagger_url_project sup on
-      sup.id = sch.resource_id
-      set sch.project_id = sup.project_id where
-            sch.resource_id = sup.id;
+    sup.id = sch.resource_id
+set sch.project_id = sup.project_id
+where sch.resource_id = sup.id;
 update schedule sch inner join api_scenario apiScene on
-      apiScene.id = sch.resource_id
-      set sch.project_id = apiScene.project_id where
-            sch.resource_id = apiScene.id;
+    apiScene.id = sch.resource_id
+set sch.project_id = apiScene.project_id
+where sch.resource_id = apiScene.id;
 update schedule sch inner join load_test ldt on
-      ldt.id = sch.resource_id
-      set sch.project_id = ldt.project_id where
-            sch.resource_id = ldt.id;
+    ldt.id = sch.resource_id
+set sch.project_id = ldt.project_id
+where sch.resource_id = ldt.id;
 update schedule sch inner join api_test apiTest on
-      apiTest.id = sch.resource_id
-      set sch.project_id = apiTest.project_id where
-            sch.resource_id = apiTest.id;
+    apiTest.id = sch.resource_id
+set sch.project_id = apiTest.project_id
+where sch.resource_id = apiTest.id;
 -- schedule table add name column
-alter table schedule add name varchar(100) NULL;
+alter table schedule
+    add name varchar(100) NULL;
 -- set values for new colums of exitsting data
 update schedule sch inner join api_scenario apiScene on
-	apiScene.id = sch.resource_id
-	set sch.name = apiScene.name;
+    apiScene.id = sch.resource_id
+set sch.name = apiScene.name;
 update schedule sch inner join test_plan testPlan on
-	testPlan.id = sch.resource_id
-	set sch.name = testPlan.name;
+    testPlan.id = sch.resource_id
+set sch.name = testPlan.name;
 update schedule sch inner join load_test ldt on
-	ldt.id = sch.resource_id
-	set sch.name = ldt.name;
+    ldt.id = sch.resource_id
+set sch.name = ldt.name;
 update schedule sch inner join api_test apiTest on
-	apiTest.id = sch.resource_id
-	set sch.name = apiTest.name;
+    apiTest.id = sch.resource_id
+set sch.name = apiTest.name;
 update schedule sch inner join swagger_url_project sup on
-	sup.id = sch.resource_id
-	set sch.name = LEFT(SUBSTRING_INDEX(sup.swagger_url, '/', 3), 100);
+    sup.id = sch.resource_id
+set sch.name = LEFT(SUBSTRING_INDEX(sup.swagger_url, '/', 3), 100);
 -- delete an unused colum
-alter table schedule drop column custom_data;
+alter table schedule
+    drop column custom_data;
 
 -- add sort column
-alter table load_test_file add sort int default 0;
+alter table load_test_file
+    add sort int default 0;
 
 alter table file_metadata
     add project_id VARCHAR(50) null;
@@ -179,15 +194,14 @@ alter table test_plan
 alter table test_case
     modify method varchar(15) null comment 'Test case method type';
 -- add test_case_test
-create table test_case_test
+CREATE TABLE IF NOT EXISTS test_case_test
 (
-    id           varchar(70) null,
-    test_case_id varchar(70) null,
-    test_id      varchar(70) null,
-    test_type    varchar(70) null,
-    constraint test_case_test_pk
-        primary key (id)
+    test_case_id varchar(50) null,
+    test_id      varchar(50) null,
+    test_type    varchar(50) null,
+    UNIQUE KEY test_case_test_unique_key (test_case_id, test_id)
 ) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4;
+  DEFAULT CHARSET = utf8mb4 COMMENT ='测试用例和关联用例的关系表';
+
 alter table test_case
     modify test_id varchar(2000) null;
