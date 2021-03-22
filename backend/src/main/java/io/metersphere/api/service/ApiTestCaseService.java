@@ -75,12 +75,19 @@ public class ApiTestCaseService {
     private ApiDefinitionExecResultMapper apiDefinitionExecResultMapper;
     @Resource
     private TestPlanApiCaseMapper testPlanApiCaseMapper;
+    @Resource
+    private EsbApiParamService esbApiParamService;
 
     private static final String BODY_FILE_DIR = FileUtils.BODY_FILE_DIR;
 
     public List<ApiTestCaseResult> list(ApiTestCaseRequest request) {
         request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
-        return extApiTestCaseMapper.list(request);
+        List<ApiTestCaseResult> returnList =  extApiTestCaseMapper.list(request);
+
+        for (ApiTestCaseResult res : returnList) {
+            esbApiParamService.handleApiEsbParams(res);
+        }
+        return  returnList;
     }
 
     public List<ApiTestCaseDTO> listSimple(ApiTestCaseRequest request) {
@@ -138,7 +145,9 @@ public class ApiTestCaseService {
     }
 
     public ApiTestCaseWithBLOBs get(String id) {
-        return apiTestCaseMapper.selectByPrimaryKey(id);
+        ApiTestCaseWithBLOBs returnBlobs = apiTestCaseMapper.selectByPrimaryKey(id);
+        esbApiParamService.handleApiEsbParams(returnBlobs);
+        return returnBlobs;
     }
 
     public ApiTestCase create(SaveApiTestCaseRequest request, List<MultipartFile> bodyFiles) {
@@ -169,6 +178,7 @@ public class ApiTestCaseService {
         deleteFileByTestId(testId);
         extApiDefinitionExecResultMapper.deleteByResourceId(testId);
         apiTestCaseMapper.deleteByPrimaryKey(testId);
+        esbApiParamService.deleteByResourceId(testId);
         deleteBodyFiles(testId);
     }
 
@@ -219,6 +229,11 @@ public class ApiTestCaseService {
 
     private ApiTestCase updateTest(SaveApiTestCaseRequest request) {
         checkNameExist(request);
+
+        if(StringUtils.isNotEmpty(request.getEsbDataStruct())){
+            request = esbApiParamService.handleEsbRequest(request);
+        }
+
         final ApiTestCaseWithBLOBs test = new ApiTestCaseWithBLOBs();
         test.setId(request.getId());
         test.setName(request.getName());
@@ -237,6 +252,11 @@ public class ApiTestCaseService {
     private ApiTestCase createTest(SaveApiTestCaseRequest request) {
         request.setId(UUID.randomUUID().toString());
         checkNameExist(request);
+
+        if(StringUtils.isNotEmpty(request.getEsbDataStruct())||StringUtils.isNotEmpty(request.getBackEsbDataStruct())){
+            request = esbApiParamService.handleEsbRequest(request);
+        }
+
         final ApiTestCaseWithBLOBs test = new ApiTestCaseWithBLOBs();
         test.setId(request.getId());
         test.setName(request.getName());
@@ -417,6 +437,9 @@ public class ApiTestCaseService {
 
     public Map<String, String> getRequest(ApiTestCaseRequest request) {
         List<ApiTestCaseWithBLOBs> list = extApiTestCaseMapper.getRequest(request);
+        for (ApiTestCaseWithBLOBs model : list) {
+            esbApiParamService.handleApiEsbParams(model);
+        }
         return list.stream().collect(Collectors.toMap(ApiTestCaseWithBLOBs::getId, ApiTestCaseWithBLOBs::getRequest));
     }
 

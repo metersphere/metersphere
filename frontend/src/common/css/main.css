@@ -62,19 +62,19 @@ html,body {
 
 /* <-- 表格拖拽表头调整宽度，在 t-bable 上添加 border 属性，并添加 adjust-table 类名 */
 .adjust-table td {
-  border-right: 0;
+  border-right: 0 !important;
 }
 
 .adjust-table th {
-  border-right-color: white;
+  border-right-color: white !important;
 }
 
 .adjust-table {
-  border-color: white;
+  border-color: white !important;
 }
 
 .adjust-table:after {
-  background-color: white;
+  background-color: white !important;
 }
 
 .adjust-table th:not([class*="el-table-column--selection"]):hover:after {
@@ -84,11 +84,11 @@ html,body {
   right: 0;
   height: 50%;
   width: 2px;
-  background-color: #EBEEF5;
+  background-color: #EBEEF5 !important;
 }
 
 .adjust-table tr:hover td {
-  border-right: 0;
+  border-right: 0 !important;
 }
 
 /* 表格拖拽表头调整宽度 --> */

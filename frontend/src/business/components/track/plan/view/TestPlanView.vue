@@ -10,7 +10,7 @@
           @dataChange="changePlan"/>
       </template>
       <template v-slot:menu>
-        <el-menu v-if="isMenuShow" active-text-color="#6d317c" :default-active="activeIndex"
+        <el-menu v-if="isMenuShow" :active-text-color="color" :default-active="activeIndex"
                  class="el-menu-demo header-menu" mode="horizontal" @select="handleSelect">
           <el-menu-item index="functional">功能测试用例</el-menu-item>
           <el-menu-item index="api">接口测试用例</el-menu-item>
@@ -71,6 +71,9 @@
       computed: {
         planId: function () {
           return this.$route.params.planId;
+        },
+        color: function () {
+          return `var(--primary_color)`
         }
       },
       watch: {

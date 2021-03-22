@@ -30,6 +30,10 @@ public class MsExtract extends MsTestElement {
 
     @Override
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, ParameterConfig config) {
+        // 非导出操作，且不是启用状态则跳过执行
+        if (!config.isOperating() && !this.isEnable()) {
+            return;
+        }
         addRequestExtractors(tree);
     }
 
@@ -66,7 +70,8 @@ public class MsExtract extends MsTestElement {
 
         RegexExtractor extractor = new RegexExtractor();
         extractor.setEnabled(this.isEnable());
-        extractor.setName(StringUtils.isNotEmpty(this.getName()) ? this.getName() : " RegexExtractor");
+        extractor.setName(StringUtils.isNotEmpty(extractRegex.getVariable()) ? extractRegex.getVariable() : this.getName());
+        /*extractor.setName(StringUtils.isNotEmpty(this.getName()) ? this.getName() : " RegexExtractor");*/
         extractor.setProperty(TestElement.TEST_CLASS, RegexExtractor.class.getName());
         extractor.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("RegexExtractorGui"));
         extractor.setRefName(extractRegex.getVariable());
@@ -84,7 +89,8 @@ public class MsExtract extends MsTestElement {
     private XPath2Extractor xPath2Extractor(MsExtractXPath extractXPath, StringJoiner extract) {
         XPath2Extractor extractor = new XPath2Extractor();
         extractor.setEnabled(this.isEnable());
-        extractor.setName(StringUtils.isNotEmpty(this.getName()) ? this.getName() : " XPath2Extractor");
+        extractor.setName(StringUtils.isNotEmpty(extractXPath.getVariable()) ? extractXPath.getVariable() : this.getName());
+        /*extractor.setName(StringUtils.isNotEmpty(this.getName()) ? this.getName() : " XPath2Extractor");*/
         extractor.setProperty(TestElement.TEST_CLASS, XPath2Extractor.class.getName());
         extractor.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("XPath2ExtractorGui"));
         extractor.setRefName(extractXPath.getVariable());
@@ -99,7 +105,8 @@ public class MsExtract extends MsTestElement {
     private JSONPostProcessor jsonPostProcessor(MsExtractJSONPath extractJSONPath, StringJoiner extract) {
         JSONPostProcessor extractor = new JSONPostProcessor();
         extractor.setEnabled(this.isEnable());
-        extractor.setName(StringUtils.isNotEmpty(this.getName()) ? this.getName() : " JSONExtractor");
+        extractor.setName(StringUtils.isNotEmpty(extractJSONPath.getVariable()) ? extractJSONPath.getVariable() : this.getName());
+        /*extractor.setName(StringUtils.isNotEmpty(this.getName()) ? this.getName() : " JSONExtractor");*/
         extractor.setProperty(TestElement.TEST_CLASS, JSONPostProcessor.class.getName());
         extractor.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("JSONPostProcessorGui"));
         extractor.setRefNames(extractJSONPath.getVariable());

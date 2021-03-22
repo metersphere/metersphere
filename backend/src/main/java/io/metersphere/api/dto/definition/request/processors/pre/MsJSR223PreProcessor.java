@@ -30,6 +30,10 @@ public class MsJSR223PreProcessor extends MsTestElement {
 
     @Override
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, ParameterConfig config) {
+        // 非导出操作，且不是启用状态则跳过执行
+        if (!config.isOperating() && !this.isEnable()) {
+            return;
+        }
         final HashTree jsr223PreTree = tree.add(getJSR223PreProcessor());
         if (CollectionUtils.isNotEmpty(hashTree)) {
             hashTree.forEach(el -> {

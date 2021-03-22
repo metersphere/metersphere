@@ -63,30 +63,21 @@
 
                 <div class="case_container">
                   <el-row>
-                    <el-col :span="4" :offset="1">
+                    <el-col :span="9" :offset="1">
                       <span class="cast_label">{{ $t('test_track.case.priority') }}：</span>
                       <span class="cast_item">{{ testCase.priority }}</span>
                     </el-col>
-                    <el-col :span="5">
-                      <span class="cast_label">{{ $t('test_track.case.case_type') }}：</span>
-                      <span class="cast_item" v-if="testCase.type === 'automation'">
-                         场景用例
-                      </span>
-                      <span class="cast_item"
-                            v-if="testCase.type === 'performance'">{{ $t('commons.performance') }}</span>
-                      <span class="cast_item" v-if="testCase.type === 'api'">{{ $t('commons.api') }}</span>
-                      <span class="cast_item" v-if="testCase.type === 'testcase'">接口用例</span>
-
-                    </el-col>
-                  </el-row>
-
-                  <el-row>
-                    <el-col :offset="1">
+                    <el-col :span="10" :offset="1">
                       <span class="cast_label">{{ $t('test_track.case.module') }}：</span>
                       <span class="cast_item">{{ testCase.nodePath }}</span>
                     </el-col>
                   </el-row>
-
+                  <el-row>
+                    <el-col :offset="1">
+                      <span class="cast_label">{{ $t('test_track.plan_view.relevance_test_case') }}：</span>
+                      <span class="cast_item">{{ testCase.prerequisite }}</span>
+                    </el-col>
+                  </el-row>
                   <el-row>
                     <el-col :offset="1">
                       <span class="cast_label">{{ $t('test_track.case.prerequisite') }}：</span>
@@ -94,27 +85,27 @@
                     </el-col>
                   </el-row>
 
+                  <!--                  <el-row>
+                                      <el-col class="test-detail" :span="20" :offset="1">
+                                        <el-tabs v-model="activeTab" type="border-card">
+                                          <el-tab-pane name="detail" :label="$t('test_track.plan_view.test_detail')">
+                                            <api-test-detail :is-read-only="true" v-if="testCase.type === 'api'"
+                                                             :id="testCase.testId" ref="apiTestDetail"/>
+                                            <performance-test-detail v-if="testCase.type === 'performance'"
+                                                                     :is-read-only="true"
+                                                                     :id="testCase.testId"
+                                                                     ref="performanceTestDetail"/>
+                                            <api-case-item :type="mark" :api="api" :api-case="apiCase" v-if="testCase.type==='testcase'"
+                                                           ref="apiCaseConfig"/>
+                                            <ms-edit-api-scenario :type="mark" v-if="testCase.type==='automation'" :currentScenario="currentScenario"
+                                                                  ref="autoScenarioConfig"></ms-edit-api-scenario>
+
+                                          </el-tab-pane>
+                                        </el-tabs>
+                                      </el-col>
+                                    </el-row>-->
+
                   <el-row>
-                    <el-col class="test-detail" :span="20" :offset="1">
-                      <el-tabs v-model="activeTab" type="border-card">
-                        <el-tab-pane name="detail" :label="$t('test_track.plan_view.test_detail')">
-                          <api-test-detail :is-read-only="true" v-if="testCase.type === 'api'"
-                                           :id="testCase.testId" ref="apiTestDetail"/>
-                          <performance-test-detail v-if="testCase.type === 'performance'"
-                                                   :is-read-only="true"
-                                                   :id="testCase.testId"
-                                                   ref="performanceTestDetail"/>
-                          <api-case-item :type="mark" :api="api" :api-case="apiCase" v-if="testCase.type==='testcase'"
-                                         ref="apiCaseConfig"/>
-                          <ms-edit-api-scenario :type="mark" v-if="testCase.type==='automation'" :currentScenario="currentScenario"
-                                                ref="autoScenarioConfig"></ms-edit-api-scenario>
-
-                        </el-tab-pane>
-                      </el-tabs>
-                    </el-col>
-                  </el-row>
-
-                  <el-row v-if="testCase.type === 'function'">
                     <el-col :span="20" :offset="1">
                       <div>
                         <span class="cast_label">{{ $t('test_track.case.steps') }}：</span>
@@ -365,7 +356,7 @@ export default {
         this.testCase = item;
         this.getRelatedTest();
         this.getComments(item);
-        this.initTest();
+        /*  this.initTest();*/
         this.getFileMetaData(data);
       })
 
@@ -389,59 +380,22 @@ export default {
       listenGoBack(this.handleClose);
       this.initData(testCase);
       this.getComments(testCase);
-      this.getApiTestCase(testCase);
-      this.getCurrentScenario(testCase)
     },
-    getApiTestCase(testCase) {
-      let param = {}
-      param.projectId = getCurrentProjectID();
-      param.id = testCase.testId;
-      this.result = this.$post("/api/testcase/list", param, response => {
-        let apiCaseList = []
-        this.apiCaseList = response.data;
-        this.apiCaseList.forEach(apiCase => {
-          if (apiCase.tags && apiCase.tags.length > 0) {
-            apiCase.tags = JSON.parse(apiCase.tags);
-            this.$set(apiCase, 'selected', false);
-          }
-          if (Object.prototype.toString.call(apiCase.request).match(/\[object (\w+)\]/)[1].toLowerCase() != 'object') {
-            apiCase.request = JSON.parse(apiCase.request);
-          }
-          if (!apiCase.request.hashTree) {
-            apiCase.request.hashTree = [];
-          }
-          this.apiCase = apiCase
-          this.handleTestCase(apiCase)
-        })
-
-      });
-    },
-    getCurrentScenario(testCase) {
-      this.result = this.$get("/api/automation/getApiScenario/" + testCase.testId, response => {
-        this.currentScenario=response.data
-      });
-    },
-
-    handleTestCase(testCase) {
-      this.$get('/api/definition/get/' + testCase.apiDefinitionId, (response) => {
-        this.api = response.data;
-      });
-    },
-    initTest() {
-      this.$nextTick(() => {
-        if (this.testCase.testId && this.testCase.testId !== 'other') {
-          if (this.$refs.apiTestDetail && this.testCase.type === 'api') {
-            this.$refs.apiTestDetail.init();
-          } else if (this.testCase.type === 'performance') {
-            this.$refs.performanceTestDetail.init();
-          } else if (this.testCase.type === 'testcase') {
-            this.$refs.apiCaseConfig.active(this.api);
-          } else if (this.testCase.type === 'automation') {
-             this.$refs.autoScenarioConfig.showAll();
-          }
-        }
-      });
-    },
+    /* initTest() {
+       this.$nextTick(() => {
+         if (this.testCase.testId && this.testCase.testId !== 'other') {
+           if (this.$refs.apiTestDetail && this.testCase.type === 'api') {
+             this.$refs.apiTestDetail.init();
+           } else if (this.testCase.type === 'performance') {
+             this.$refs.performanceTestDetail.init();
+           } else if (this.testCase.type === 'testcase') {
+             this.$refs.apiCaseConfig.active(this.api);
+           } else if (this.testCase.type === 'automation') {
+              this.$refs.autoScenarioConfig.showAll();
+           }
+         }
+       });
+     },*/
     getComments(testCase) {
       let id = '';
       if (testCase) {

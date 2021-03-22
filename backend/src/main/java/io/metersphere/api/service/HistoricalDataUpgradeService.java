@@ -91,7 +91,7 @@ public class HistoricalDataUpgradeService {
         for (Request request : oldScenario.getRequests()) {
             // 条件控制器
             MsIfController ifController = null;
-            if (request.getController() != null && StringUtils.isNotEmpty(request.getController().getValue())
+            if (request.getController() != null && StringUtils.isNotEmpty(request.getController().getOperator())
                     && StringUtils.isNotEmpty(request.getController().getVariable())) {
                 ifController = new MsIfController();
                 BeanUtils.copyBean(ifController, request.getController());

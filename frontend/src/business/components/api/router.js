@@ -44,17 +44,12 @@ export default {
       component: () => import('@/business/components/api/report/ApiReportView'),
     },
     {
-      path: "definition",
+      path: "definition/:redirectID?/:dataType?/:dataSelectRange?",
       name: "ApiDefinition",
       component: () => import('@/business/components/api/definition/ApiDefinition'),
     },
     {
-      path: "definition/document/:documentId",
-      name: "ApiDefinitionDocument",
-      component: () => import('@/business/components/api/definition/components/document/ApiDocumentItem'),
-    },
-    {
-      path: "automation",
+      path: "automation/:redirectID?/:dataType?/:dataSelectRange?",
       name: "ApiAutomation",
       component: () => import('@/business/components/api/automation/ApiAutomation'),
     },

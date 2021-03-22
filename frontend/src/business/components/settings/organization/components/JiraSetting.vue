@@ -16,6 +16,9 @@
         <el-form-item :label="$t('organization.integration.jira_issuetype')" prop="issuetype">
           <el-input v-model="form.issuetype" :placeholder="$t('organization.integration.input_jira_issuetype')"/>
         </el-form-item>
+        <el-form-item :label="$t('organization.integration.jira_storytype')" prop="storytype">
+          <el-input v-model="form.storytype" :placeholder="$t('organization.integration.input_jira_storytype')"/>
+        </el-form-item>
       </el-form>
     </div>
 
@@ -79,6 +82,11 @@ export default {
           required: true,
           message: this.$t('organization.integration.input_jira_issuetype'),
           trigger: ['change', 'blur']
+        },
+        storytype: {
+          required: true,
+          message: this.$t('organization.integration.input_jira_storytype'),
+          trigger: ['change', 'blur']
         }
       },
     }
@@ -97,6 +105,7 @@ export default {
           this.$set(this.form, 'password', config.password);
           this.$set(this.form, 'url', config.url);
           this.$set(this.form, 'issuetype', config.issuetype);
+          this.$set(this.form, 'storytype', config.storytype);
         } else {
           this.clear();
         }
@@ -114,7 +123,8 @@ export default {
             account: this.form.account,
             password: this.form.password,
             url: formatUrl,
-            issuetype: this.form.issuetype
+            issuetype: this.form.issuetype,
+            storytype: this.form.storytype
           };
           const {lastOrganizationId} = getCurrentUser();
           param.organizationId = lastOrganizationId;
@@ -139,6 +149,7 @@ export default {
       this.$set(this.form, 'password', '');
       this.$set(this.form, 'url', '');
       this.$set(this.form, 'issuetype', '');
+      this.$set(this.form, 'storytype', '');
       this.$nextTick(() => {
         this.$refs.form.clearValidate();
       });

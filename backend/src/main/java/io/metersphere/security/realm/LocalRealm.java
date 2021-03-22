@@ -34,9 +34,9 @@ import java.util.stream.Collectors;
  * set realm
  * </p>
  */
-public class ShiroDBRealm extends AuthorizingRealm {
+public class LocalRealm extends AuthorizingRealm {
 
-    private Logger logger = LoggerFactory.getLogger(ShiroDBRealm.class);
+    private Logger logger = LoggerFactory.getLogger(LocalRealm.class);
     @Resource
     private UserService userService;
 

@@ -104,10 +104,16 @@
               </el-col>
             </el-row>
             <el-row>
-              <el-col>
+              <el-col :span="12">
                 <el-form-item :label="$t('test_resource_pool.max_threads')"
                               :rules="requiredRules">
                   <el-input-number v-model="item.maxConcurrency" :min="1" :max="1000000000"/>
+                </el-form-item>
+              </el-col>
+              <el-col :span="12">
+                <el-form-item :label="$t('test_resource_pool.pod_thread_limit')"
+                              :rules="requiredRules">
+                  <el-input-number v-model="item.podThreadLimit" :min="1" :max="1000000"/>
                 </el-form-item>
               </el-col>
             </el-row>
@@ -237,6 +243,7 @@ export default {
         info.masterUrl = '';
         info.token = '';
         info.namespace = '';
+        info.podThreadLimit = 5000;
       }
       info.maxConcurrency = 100;
       this.infoList.push(info);

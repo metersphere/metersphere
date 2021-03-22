@@ -74,6 +74,7 @@ public class TestResourcePoolService {
         if (StringUtils.isNotBlank(testResourcePoolDTO.getId())) {
             criteria.andIdNotEqualTo(testResourcePoolDTO.getId());
         }
+        criteria.andStatusNotEqualTo(DELETE.name());
 
         if (testResourcePoolMapper.countByExample(example) > 0) {
             MSException.throwException(Translator.get("test_resource_pool_name_already_exists"));

@@ -159,6 +159,36 @@ UPDATE file_metadata JOIN (SELECT file_id, project_id
                            FROM api_test_file
                                     JOIN api_test ON test_id = api_test.id) temp ON file_id = file_metadata.id
 SET file_metadata.project_id = temp.project_id;
+
+CREATE TABLE IF NOT EXISTS `esb_api_params`
+(
+    id                   varchar(50) not null,
+    resource_id          varchar(50),
+    data_struct          LONGTEXT    null,
+    fronted_script       LONGTEXT    null,
+    response_data_struct LONGTEXT    null,
+    backed_script        LONGTEXT    null,
+    primary key (id),
+    UNIQUE KEY `resource_id` (`resource_id`)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4;
 -- add execution_times testPlan
 alter table test_plan
     add execution_times int null;
+
+alter table test_case
+    modify method varchar(15) null comment 'Test case method type';
+-- add test_case_test
+CREATE TABLE IF NOT EXISTS test_case_test
+(
+    test_case_id varchar(50) null,
+    test_id      varchar(50) null,
+    test_type    varchar(50) null,
+    create_time  bigint(13)  null,
+    update_time  bigint(13)  null,
+    UNIQUE KEY test_case_test_unique_key (test_case_id, test_id)
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4 COMMENT ='测试用例和关联用例的关系表';
+
+alter table test_case
+    modify test_id varchar(2000) null;

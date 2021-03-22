@@ -219,8 +219,12 @@
         return this.selection.includes(row.id)
       },
       open: function (variables, headers, disabled) {
-        this.variables = variables;
-        this.headers = headers;
+        if(variables){
+          this.variables = variables;
+        }
+        if(headers){
+          this.headers = headers;
+        }
         this.visible = true;
         this.editData = {type: "CONSTANT"};
         this.addParameters(this.editData);

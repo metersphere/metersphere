@@ -8,6 +8,7 @@
         @setTreeNodes="setTreeNodes"
         @exportTestCase="exportTestCase"
         @saveAsEdit="editTestCase"
+        @refreshAll="refreshAll"
         :type="'edit'"
         ref="nodeTree"
       />
@@ -18,8 +19,8 @@
         <el-tab-pane name="default" :label="$t('api_test.definition.case_title')">
           <ms-tab-button
             :active-dom.sync="activeDom"
-            :left-tip="$t('api_test.definition.case_title')"
-            :left-content="'CASE'"
+            :left-tip="$t('test_track.case.list')"
+            :left-content="$t('test_track.case.list')"
             :right-tip="$t('test_track.case.minder')"
             :right-content="$t('test_track.case.minder')"
             :middle-button-enable="false">
@@ -196,6 +197,7 @@ export default {
       }
     },
     addTab(tab) {
+      this.projectId=getCurrentProjectID();
       if (!this.projectId) {
         this.$warning(this.$t('commons.check_project_tip'));
         return;
@@ -256,13 +258,19 @@ export default {
           this.testCaseReadOnly = true;
         }
         let caseId = this.$route.params.caseId;
+        this.projectId=getCurrentProjectID();
         if (!this.projectId) {
           this.$warning(this.$t('commons.check_project_tip'));
           return;
         }
-/*
-        this.openRecentTestCaseEditDialog(caseId);
-*/
+        if (caseId) {
+          this.$get('test/case/get/' + caseId, response => {
+            let testCase = response.data;
+            this.editTestCase(testCase)
+          });
+        } else {
+          this.addTab({name: 'add'});
+        }
         this.$router.push('/track/case/all');
       }
     },

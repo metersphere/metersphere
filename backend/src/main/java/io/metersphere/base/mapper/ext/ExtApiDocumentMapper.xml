@@ -2,30 +2,28 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="io.metersphere.base.mapper.ext.ExtApiDocumentMapper">
     <select id="findApiDocumentSimpleInfoByRequest" resultType="io.metersphere.api.dto.document.ApiDocumentInfoDTO">
-        SELECT api.id,api.name FROM Api_definition api
-        <where>
-            <if test="request.projectId != null">
-                AND api.project_Id = #{request.projectId}
-            </if>
-            <if test="request.name != null and request.name != '' ">
-                AND api.name like CONCAT('%', #{request.name},'%')
-            </if>
-            <if test="request.type != null and request.type != '' and request.type != 'ALL' ">
-                AND  api.method = #{request.type}
-            </if>
-            <if test="request.moduleIds != null and request.moduleIds.size() > 0">
-                AND api.module_id in
-                <foreach collection="request.moduleIds" item="nodeId" separator="," open="(" close=")">
-                    #{nodeId}
-                </foreach>
-            </if>
-            <if test="request.apiIdList != null and request.apiIdList.size() > 0">
-                AND api.id in
-                <foreach collection="request.apiIdList" item="apiId" separator="," open="(" close=")">
-                    #{apiId}
-                </foreach>
-            </if>
-        </where>
+        SELECT api.id,api.name FROM Api_definition api WHERE api.protocol = 'HTTP' AND api.status != 'Trash'
+        <if test="request.projectId != null">
+            AND api.project_Id = #{request.projectId}
+        </if>
+        <if test="request.name != null and request.name != '' ">
+            AND api.name like CONCAT('%', #{request.name},'%')
+        </if>
+        <if test="request.type != null and request.type != '' and request.type != 'ALL' ">
+            AND api.method = #{request.type}
+        </if>
+        <if test="request.moduleIds != null and request.moduleIds.size() > 0">
+            AND api.module_id in
+            <foreach collection="request.moduleIds" item="nodeId" separator="," open="(" close=")">
+                #{nodeId}
+            </foreach>
+        </if>
+        <if test="request.apiIdList != null and request.apiIdList.size() > 0">
+            AND api.id in
+            <foreach collection="request.apiIdList" item="apiId" separator="," open="(" close=")">
+                #{apiId}
+            </foreach>
+        </if>
         <if test="request.orderCondition == 'createTimeDesc'">
             ORDER BY api.create_time DESC
         </if>

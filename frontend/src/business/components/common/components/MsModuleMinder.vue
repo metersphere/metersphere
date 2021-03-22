@@ -1,10 +1,10 @@
 <template>
-  <div class="minder">
+  <div class="minder" :class="{'full-screen': isFullScreen}">
+    <ms-full-screen-button :is-full-screen.sync="isFullScreen"/>
     <minder-editor
       v-if="isActive"
       class="minder-container"
       :import-json="importJson"
-      :height="700"
       :progress-enable="false"
       :tags="tags"
       :distinct-tags="distinctTags"
@@ -15,9 +15,10 @@
 
 <script>
 
+import MsFullScreenButton from "@/business/components/common/components/MsFullScreenButton";
 export default {
   name: "MsModuleMinder",
-  components: {},
+  components: {MsFullScreenButton},
   props: {
     treeNodes: {
       type: Array,
@@ -58,10 +59,11 @@ export default {
         },
         "template":"default"
       },
-      isActive: true
+      isActive: true,
+      isFullScreen: false
     }
   },
-  mounted() {
+  created() {
   },
   watch: {
     dataMap() {
@@ -127,5 +129,34 @@ export default {
   right: 30px;
   bottom: auto;
   top: 30px;
+}
+
+.minder {
+  position: relative;
+}
+
+.fulls-screen-btn {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 1;
+}
+
+.full-screen {
+  position: fixed;
+  top: 0px;
+  left: 0px;
+  width: 100%;
+  background: white;
+  height: 100vh;
+  z-index: 999999;
+}
+
+.full-screen >>> .minder-container {
+  height: calc(100vh - 109px) !important;
+}
+
+.full-screen .fulls-screen-btn {
+  right: 30px;
 }
 </style>

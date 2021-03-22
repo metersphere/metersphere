@@ -276,7 +276,6 @@
 </template>
 
 <script>
-import MsAnchor from "./Anchor";
 import {API_METHOD_COLOUR} from "@/business/components/api/definition/model/JsonData";
 import MsCodeEdit from "@/business/components/common/components/MsCodeEdit";
 import {formatJson,} from "@/common/js/format-utils";
@@ -293,7 +292,7 @@ export default {
   components: {
     Api,
     MsJsonCodeEdit,
-    MsAnchor, ApiStatus, MsCodeEdit,
+    ApiStatus, MsCodeEdit,
     "ApiDocumentBatchShare": apiDocumentBatchShare.default
   },
   data() {

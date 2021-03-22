@@ -328,14 +328,20 @@ export default {
         return false;
       }
       return true;
-    }
+    },
+    beforeUploadJmx(file) {
+      this.$refs.existFiles.beforeUploadFile(file);
+    },
+    handleUpload(file) {
+      this.$refs.existFiles.handleUpload(file);
+    },
   },
 }
 </script>
 
 <style scoped>
 .basic-config {
-  width: 100%
+  width: 100%;
 }
 
 .last-modified {

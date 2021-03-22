@@ -236,7 +236,7 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
                     testPlanTestCaseService.updateTestCaseStates(ids, TestPlanTestCaseStatus.Failure.name());
                 }
             } catch (Exception e) {
-                LogUtil.error(e.getMessage(), e);
+
             }
         }
         sendTask(report, reportUrl, testResult);
@@ -247,26 +247,22 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
         NoticeSendService noticeSendService = CommonBeanFactory.getBean(NoticeSendService.class);
         assert systemParameterService != null;
         assert noticeSendService != null;
-
         BaseSystemConfigDTO baseSystemConfigDTO = systemParameterService.getBaseInfo();
-        String url = reportUrl;
-        String url2 = reportUrl;
-        if (StringUtils.isEmpty(url)) {
-            url = baseSystemConfigDTO.getUrl() + "/#/api/report/view/" + report.getId();
-            url2 = baseSystemConfigDTO.getUrl() + "/#/api/automation/report/view/" + report.getId();
-        }
+        String url = baseSystemConfigDTO.getUrl() + "/#/api/report/view/" + report.getId();
+        String url2 = baseSystemConfigDTO.getUrl() + "/#/api/automation/report/view/" + report.getId();
+
         String successContext = "";
         String failedContext = "";
         String subject = "";
         String event = "";
         if (StringUtils.equals(ReportTriggerMode.API.name(), report.getTriggerMode())) {
-            successContext = "接口测试 API任务通知:'" + report.getName() + "'执行成功" + "\n" + "请点击下面链接进入测试报告页面" + "\n" + "旧版接口测试路径" + url + "\n" + "新版接口测试路径" + url2;
-            failedContext = "接口测试 API任务通知:'" + report.getName() + "'执行失败" + "\n" + "请点击下面链接进入测试报告页面" + "\n" + "旧版接口测试路径" + url + "\n" + "新版接口测试路径" + url2;
+            successContext = "接口测试 API任务通知:'" + report.getName() + "'执行成功" + "\n" + "【接口定义暂无报告链接】" + "\n" + "请点击下面链接进入测试报告页面" + "\n" + "（旧版）接口测）路径" + url + "\n" + "（新版）接口测试路径" + url2;
+            failedContext = "接口测试 API任务通知:'" + report.getName() + "'执行失败" + "\n" + "【接口定义暂无报告链接】" + "\n" + "请点击下面链接进入测试报告页面" + "\n" + "（旧版）接口测试路径" + url + "\n" + "（新版）接口测试路径" + url2;
             subject = Translator.get("task_notification_jenkins");
         }
         if (StringUtils.equals(ReportTriggerMode.SCHEDULE.name(), report.getTriggerMode())) {
-            successContext = "接口测试定时任务通知:'" + report.getName() + "'执行成功" + "\n" + "请点击下面链接进入测试报告页面" + "\n" + "旧版接口测试路径" + url + "\n" + "新版接口测试路径" + url2;
-            failedContext = "接口测试定时任务通知:'" + report.getName() + "'执行失败" + "\n" + "请点击下面链接进入测试报告页面" + "\n" + "旧版接口测试路径" + url + "\n" + "新版接口测试路径" + url2;
+            successContext = "接口测试定时任务通知:'" + report.getName() + "'执行成功" + "\n" + "【接口定义暂无报告链接】" + "\n" + "请点击下面链接进入测试报告页面" + "\n" + "（旧版）接口测试路径" + url + "\n" + "（新版）接口测试路径" + url2;
+            failedContext = "接口测试定时任务通知:'" + report.getName() + "'执行失败" + "\n" + "【接口定义暂无报告链接】" + "\n" + "请点击下面链接进入测试报告页面" + "\n" + "（旧版）接口测试路径" + url + "\n" + "（新版）接口测试路径" + url2;
             subject = Translator.get("task_notification");
         }
         if (StringUtils.equals("Success", report.getStatus())) {

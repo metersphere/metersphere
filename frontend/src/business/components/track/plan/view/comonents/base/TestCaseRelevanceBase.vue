@@ -34,6 +34,7 @@
   import MsDialogFooter from '../../../../../common/components/MsDialogFooter'
   import SelectMenu from "../../../../common/SelectMenu";
   import RelevanceDialog from "./RelevanceDialog";
+  import {getCurrentProjectID} from "@/common/js/utils";
 
   export default {
     name: "TestCaseRelevanceBase",
@@ -93,10 +94,17 @@
         this.result = this.$get("/project/listAll", res => {
           let data = res.data;
           if (data) {
+            const index = data.findIndex(d => d.id === getCurrentProjectID());
             this.projects = data;
-            this.projectId = data[0].id;
-            this.projectName = data[0].name;
-            this.changeProject(data[0]);
+            if (index !== -1) {
+              this.projectId = data[index].id;
+              this.projectName = data[index].name;
+              this.changeProject(data[index]);
+            } else {
+              this.projectId = data[0].id;
+              this.projectName = data[0].name;
+              this.changeProject(data[0]);
+            }
           }
         })
       },

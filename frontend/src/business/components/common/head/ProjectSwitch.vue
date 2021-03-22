@@ -10,7 +10,7 @@
       </template>
       <search-list :current-project.sync="currentProject"/>
       <el-divider/>
-      <el-menu-item :index="'/setting/project/create'">
+      <el-menu-item :index="'/setting/project/create'" v-permission="['test_manager','test_user']">
         <font-awesome-icon :icon="['fa', 'plus']"/>
         <span style="padding-left: 7px;">{{ $t("project.create") }}</span>
       </el-menu-item>

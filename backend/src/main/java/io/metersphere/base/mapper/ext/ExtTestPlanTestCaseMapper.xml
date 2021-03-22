@@ -75,6 +75,7 @@
             <include refid="condition">
                 <property name="object" value="${condition}.type"/>
             </include>
+            test_case_review_users
         </if>
         <if test="${condition}.updateTime != null">
             and test_case.update_time
@@ -368,7 +369,7 @@
             </if>
         </where>
         UNION ALL
-        SELECT test_plan_api_scenario.id as reportId,test_plan_api_scenario.api_scenario_id as id,"scenario" as
+        SELECT test_plan_api_scenario.api_scenario_id as testId,test_plan_api_scenario.id as id,"scenario" as
         type,api_scenario.name,test_plan_api_scenario.status
         from test_plan_api_scenario
         left join
@@ -420,6 +421,9 @@
         <where>
             pc.plan_id = #{planId}
         </where>
+    </select>
+    <select id="listTestCaseTest" resultType="io.metersphere.track.dto.TestCaseTestDTO">
+        select * from test_case_test where test_case_id = #{caseId};
     </select>
 
     <update id="updateTestCaseStates" parameterType="java.lang.String">

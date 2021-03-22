@@ -49,4 +49,9 @@ public class SaveApiDefinitionRequest {
     private List<String> bodyUploadIds;
 
     private String tags;
+
+    //ESB参数。  可为null
+    private String esbDataStruct;
+    private String backEsbDataStruct;
+    private String backScript;
 }

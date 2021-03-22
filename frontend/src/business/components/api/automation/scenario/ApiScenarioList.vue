@@ -69,7 +69,7 @@
           <el-table-column v-if="item.id == 'tags'" prop="tags" min-width="120px"
                            :label="$t('api_test.automation.tag')" :key="index">
             <template v-slot:default="scope">
-              <ms-tag v-for="(itemName,index)  in scope.row.tags" :key="index" type="success" effect="plain" :content="itemName" style="margin-left: 5px"/>
+              <ms-tag v-for="(itemName,index)  in scope.row.tags" :key="index" type="success" effect="plain" :content="itemName" :show-tooltip="true" tooltip style="margin-left: 5px"/>
             </template>
           </el-table-column>
           <el-table-column v-if="item.id == 'userId'" prop="userId" min-width="120px"
@@ -244,7 +244,7 @@
       return {
         type: API_SCENARIO_LIST,
         headerItems: Api_Scenario_List,
-        tableLabel: Api_Scenario_List,
+        tableLabel: [],
         loading: false,
         screenHeight: document.documentElement.clientHeight - 280,//屏幕高度,
         condition: {
@@ -361,6 +361,7 @@
     },
     methods: {
       customHeader() {
+        getLabel(this, API_SCENARIO_LIST);
         this.$refs.headerCustom.open(this.tableLabel)
       },
       selectByParam() {
@@ -369,7 +370,6 @@
       },
       search(projectId) {
         this.selectRows = new Set();
-        getLabel(this, API_SCENARIO_LIST);
         this.condition.moduleIds = this.selectNodeIds;
         if (this.trashEnable) {
           this.condition.filters = {status: ["Trash"]};
@@ -421,6 +421,7 @@
             this.unSelection = data.listObject.map(s => s.id);
           });
         }
+        getLabel(this, API_SCENARIO_LIST);
       },
       handleCommand(cmd) {
         let table = this.$refs.scenarioTable;
@@ -756,7 +757,6 @@
   /deep/ .el-table__fixed-body-wrapper {
     z-index: auto !important;
   }
-
 
   /deep/ .el-table__fixed-right {
     height: 100% !important;

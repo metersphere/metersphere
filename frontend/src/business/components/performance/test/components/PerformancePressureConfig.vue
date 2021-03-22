@@ -42,12 +42,11 @@
               <br>
               <div v-if="threadGroup.threadType === 'DURATION'">
                 <el-form-item :label="$t('load_test.duration')">
-                  <!-- 最多两天的测试时长 -->
                   <el-input-number
                     :disabled="isReadOnly"
                     v-model="threadGroup.duration"
                     :min="1"
-                    :max="99999"
+                    :max="9999"
                     @change="calculateChart(threadGroup)"
                     size="mini"/>
                 </el-form-item>

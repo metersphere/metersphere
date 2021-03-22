@@ -148,7 +148,7 @@ export default {
     return {
       type: TEST_PLAN_SCENARIO_CASE,
       headerItems: Test_Plan_Scenario_Case,
-      tableLabel: Test_Plan_Scenario_Case,
+      tableLabel: [],
       loading: false,
       condition: {},
       currentScenario: {},
@@ -196,10 +196,11 @@ export default {
   },
   methods: {
     customHeader() {
+      getLabel(this, TEST_PLAN_SCENARIO_CASE);
+
       this.$refs.headerCustom.open(this.tableLabel)
     },
     search() {
-      getLabel(this, TEST_PLAN_SCENARIO_CASE);
       this.selectRows = new Set();
       this.loading = true;
       this.condition.moduleIds = this.selectNodeIds;
@@ -241,6 +242,7 @@ export default {
           this.loading = false;
         });
       }
+      getLabel(this, TEST_PLAN_SCENARIO_CASE);
 
     },
     reductionApi(row) {
@@ -272,7 +274,7 @@ export default {
     execute(row) {
       this.infoDb = false;
       let param = this.buildExecuteParam(row);
-
+      console.log(param)
       if (this.planId) {
         this.$post("/test/plan/scenario/case/run", param, response => {
           this.runVisible = true;
@@ -291,6 +293,7 @@ export default {
       // param.id = row.id;
       param.id = getUUID();
       param.planScenarioId = row.id;
+      console.log(row.id)
       param.projectId = row.projectId;
       param.planCaseIds = [];
       param.planCaseIds.push(row.id);

@@ -12,6 +12,7 @@ import io.metersphere.base.domain.ApiDocumentShare;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -32,6 +33,21 @@ public class ApiDocumentController {
     @PostMapping("/selectApiSimpleInfo")
     public List<ApiDocumentInfoDTO> list(@RequestBody ApiDocumentRequest request) {
         List<ApiDocumentInfoDTO> returnList = apiDocumentService.findApiDocumentSimpleInfoByRequest(request);
+        return returnList;
+    }
+
+    @PostMapping("/selectApiInfoByParam")
+    public List<ApiDocumentInfoDTO> selectApiInfoByParam(@RequestBody ApiDocumentRequest request) {
+        List<ApiDocumentInfoDTO> returnList = new ArrayList<>();
+        List<ApiDefinitionWithBLOBs> apiModels = apiDefinitionService.getBLOBs(request.getApiIdList());
+        for (ApiDefinitionWithBLOBs apiModel : apiModels) {
+            try{
+                ApiDocumentInfoDTO returnDTO = apiDocumentService.conversionModelToDTO(apiModel);
+                returnList.add(returnDTO);
+            }catch (Exception e){
+                e.printStackTrace();
+            }
+        }
         return returnList;
     }
 

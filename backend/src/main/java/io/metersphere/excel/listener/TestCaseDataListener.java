@@ -53,9 +53,9 @@ public class TestCaseDataListener extends EasyExcelListener<TestCaseExcelData> {
             }
         }
 
-        if (StringUtils.equals(data.getType(), TestCaseConstants.Type.Functional.getValue()) && StringUtils.equals(data.getMethod(), TestCaseConstants.Method.Auto.getValue())) {
-            stringBuilder.append(Translator.get("functional_method_tip") + "; ");
-        }
+//        if (StringUtils.equals(data.getType(), TestCaseConstants.Type.Functional.getValue()) && StringUtils.equals(data.getMethod(), TestCaseConstants.Method.Auto.getValue())) {
+//            stringBuilder.append(Translator.get("functional_method_tip") + "; ");
+//        }
 
         if (!userIds.contains(data.getMaintainer())) {
             stringBuilder.append(Translator.get("user_not_exists") + "：" + data.getMaintainer() + "; ");
@@ -144,12 +144,12 @@ public class TestCaseDataListener extends EasyExcelListener<TestCaseExcelData> {
         String[] stepRes = new String[1];
 
         if (data.getStepDesc() != null) {
-            stepDesc = data.getStepDesc().split("\n");
+            stepDesc = data.getStepDesc().split("\r\n");
         } else {
             stepDesc[0] = "";
         }
         if (data.getStepResult() != null) {
-            stepRes = data.getStepResult().split("\n");
+            stepRes = data.getStepResult().split("\r\n");
         } else {
             stepRes[0] = "";
         }
