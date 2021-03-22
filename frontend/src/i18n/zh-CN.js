@@ -1130,6 +1130,7 @@ export default {
     cancel_relevance_success: "取消关联成功",
     switch_project: "切换项目",
     case: {
+      list: "列表",
       minder: "脑图",
       check_select: "请勾选用例",
       export_all_cases: '确定要导出全部用例吗?',
