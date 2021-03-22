@@ -145,7 +145,9 @@ public class ApiTestCaseService {
     }
 
     public ApiTestCaseWithBLOBs get(String id) {
-        return apiTestCaseMapper.selectByPrimaryKey(id);
+        ApiTestCaseWithBLOBs returnBlobs = apiTestCaseMapper.selectByPrimaryKey(id);
+        esbApiParamService.handleApiEsbParams(returnBlobs);
+        return returnBlobs;
     }
 
     public ApiTestCase create(SaveApiTestCaseRequest request, List<MultipartFile> bodyFiles) {
@@ -435,6 +437,9 @@ public class ApiTestCaseService {
 
     public Map<String, String> getRequest(ApiTestCaseRequest request) {
         List<ApiTestCaseWithBLOBs> list = extApiTestCaseMapper.getRequest(request);
+        for (ApiTestCaseWithBLOBs model : list) {
+            esbApiParamService.handleApiEsbParams(model);
+        }
         return list.stream().collect(Collectors.toMap(ApiTestCaseWithBLOBs::getId, ApiTestCaseWithBLOBs::getRequest));
     }
 

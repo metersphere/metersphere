@@ -50,6 +50,7 @@ import MsMainContainer from "../../../../common/components/MsMainContainer";
 import ScenarioRelevanceApiList from "./RelevanceApiList";
 import RelevanceDialog from "../../../../track/plan/view/comonents/base/RelevanceDialog";
 import TestCaseRelevanceBase from "@/business/components/track/plan/view/comonents/base/TestCaseRelevanceBase";
+import {getUUID} from "@/common/js/utils";
 
 export default {
   name: "ApiRelevance",
@@ -97,6 +98,29 @@ export default {
           apiCases.forEach((item) => {
             item.request = response.data[item.id];
             item.projectId = this.projectId;
+
+            let requestObj = JSON.parse(item.request);
+            if(requestObj.esbDataStruct != null ){
+              //ESB接口
+              let param = {};
+              param.request = requestObj;
+              param.method = "ESB";
+              param.esbDataStruct = JSON.stringify(requestObj.esbDataStruct);
+              if(requestObj.backEsbDataStruct != null){
+                param.backEsbDataStruct = JSON.stringify(requestObj.backEsbDataStruct);
+              }else{
+                param.backEsbDataStruct = "";
+              }
+
+              this.$post("/api/definition/updateEsbRequest", param, response => {
+                if(response.data!=null){
+                  if(response.data.request!=null){
+                    item.request = JSON.stringify(response.data.request);
+                    param.method = "TCP";
+                  }
+                }
+              })
+            }
           });
           this.$emit('save', apiCases, 'CASE', reference);
           this.$refs.baseRelevance.close();
