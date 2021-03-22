@@ -28,10 +28,10 @@
       <div class="header-right" @click.stop>
         <slot name="message"></slot>
         <el-tooltip :content="$t('test_resource_pool.enable_disable')" placement="top" v-if="showBtn">
-          <el-switch v-model="data.enable" class="enable-switch" size="mini"/>
+          <el-switch v-model="data.enable" class="enable-switch" size="mini" :disabled="data.disabled"/>
         </el-tooltip>
         <slot name="button"></slot>
-        <step-extend-btns style="display: contents" :data="data" @copy="copyRow" @remove="remove" @openScenario="openScenario" v-if="showBtn"/>
+        <step-extend-btns style="display: contents" :data="data" @copy="copyRow" @remove="remove" @openScenario="openScenario" v-if="showBtn && !data.disabled"/>
       </div>
 
     </div>

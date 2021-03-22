@@ -19,8 +19,8 @@
         <el-tab-pane name="default" :label="$t('api_test.definition.case_title')">
           <ms-tab-button
             :active-dom.sync="activeDom"
-            :left-tip="$t('api_test.definition.case_title')"
-            :left-content="'CASE'"
+            :left-tip="$t('test_track.case.list')"
+            :left-content="$t('test_track.case.list')"
             :right-tip="$t('test_track.case.minder')"
             :right-content="$t('test_track.case.minder')"
             :middle-button-enable="false">
