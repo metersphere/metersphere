@@ -535,8 +535,12 @@ public class ApiAutomationService {
             }
 
             // 生成报告和HashTree
-            HashTree hashTree = generateHashTree(item, reportId, planEnvMap);
-
+            HashTree hashTree = null;
+            try {
+                hashTree = generateHashTree(item, reportId, planEnvMap);
+            } catch (Exception ex) {
+                MSException.throwException(ex.getMessage());
+            }
             //存储报告
             batchMapper.insert(report);
 
@@ -602,7 +606,12 @@ public class ApiAutomationService {
         }
         ParameterConfig config = new ParameterConfig();
         config.setConfig(envConfig);
-        HashTree hashTree = request.getTestElement().generateHashTree(config);
+        HashTree hashTree = null;
+        try {
+            hashTree = request.getTestElement().generateHashTree(config);
+        } catch (Exception e) {
+            MSException.throwException(e.getMessage());
+        }
         // 调用执行方法
         APIScenarioReportResult reportResult = createScenarioReport(request.getId(), request.getScenarioId(), request.getScenarioName(), ReportTriggerMode.MANUAL.name(), request.getExecuteType(), request.getProjectId(),
                 SessionUtils.getUserId());
