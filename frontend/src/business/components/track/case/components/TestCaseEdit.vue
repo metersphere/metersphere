@@ -705,6 +705,7 @@ export default {
       }
       param.testId=JSON.stringify(this.form.selected)
       param.tags = this.form.tags;
+      param.type = 'functional'
       return param;
     },
     getOption(param) {

@@ -244,7 +244,7 @@
       return {
         type: API_SCENARIO_LIST,
         headerItems: Api_Scenario_List,
-        tableLabel: Api_Scenario_List,
+        tableLabel: [],
         loading: false,
         screenHeight: document.documentElement.clientHeight - 280,//屏幕高度,
         condition: {
@@ -361,6 +361,7 @@
     },
     methods: {
       customHeader() {
+        getLabel(this, API_SCENARIO_LIST);
         this.$refs.headerCustom.open(this.tableLabel)
       },
       selectByParam() {
@@ -369,7 +370,6 @@
       },
       search(projectId) {
         this.selectRows = new Set();
-        getLabel(this, API_SCENARIO_LIST);
         this.condition.moduleIds = this.selectNodeIds;
         if (this.trashEnable) {
           this.condition.filters = {status: ["Trash"]};
@@ -421,6 +421,7 @@
             this.unSelection = data.listObject.map(s => s.id);
           });
         }
+        getLabel(this, API_SCENARIO_LIST);
       },
       handleCommand(cmd) {
         let table = this.$refs.scenarioTable;

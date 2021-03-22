@@ -259,7 +259,7 @@ export default {
     return {
       type: TEST_CASE_LIST,
       headerItems: Track_Test_Case,
-      tableLabel: Track_Test_Case,
+      tableLabel: [],
       result: {},
       deletePath: "/test/case/delete",
       condition: {
@@ -381,6 +381,7 @@ export default {
   },
   methods: {
     customHeader() {
+      getLabel(this, TEST_CASE_LIST);
       this.$refs.headerCustom.open(this.tableLabel)
     },
     getSelectDataRange() {
