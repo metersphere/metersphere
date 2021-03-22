@@ -3,6 +3,7 @@ package io.metersphere.track.controller;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.api.dto.automation.*;
+import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
@@ -52,6 +53,14 @@ public class TestPlanScenarioCaseController {
     @PostMapping(value = "/run")
     public String run(@RequestBody RunScenarioRequest request) {
         request.setExecuteType(ExecuteType.Completed.name());
+        return testPlanScenarioCaseService.run(request);
+    }
+
+    @PostMapping(value = "/jenkins/run")
+    public String runByRun(@RequestBody RunScenarioRequest request) {
+        request.setExecuteType(ExecuteType.Saved.name());
+        request.setTriggerMode(ApiRunMode.SCENARIO.name());
+        request.setRunMode(ApiRunMode.SCENARIO.name());
         return testPlanScenarioCaseService.run(request);
     }
 

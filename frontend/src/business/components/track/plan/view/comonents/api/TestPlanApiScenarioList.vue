@@ -274,7 +274,7 @@ export default {
     execute(row) {
       this.infoDb = false;
       let param = this.buildExecuteParam(row);
-
+      console.log(param)
       if (this.planId) {
         this.$post("/test/plan/scenario/case/run", param, response => {
           this.runVisible = true;
@@ -293,6 +293,7 @@ export default {
       // param.id = row.id;
       param.id = getUUID();
       param.planScenarioId = row.id;
+      console.log(row.id)
       param.projectId = row.projectId;
       param.planCaseIds = [];
       param.planCaseIds.push(row.id);

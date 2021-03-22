@@ -179,17 +179,16 @@ alter table test_plan
 alter table test_case
     modify method varchar(15) null comment 'Test case method type';
 -- add test_case_test
-create table test_case_test
+CREATE TABLE IF NOT EXISTS test_case_test
 (
-    id           varchar(70) null,
-    test_case_id varchar(70) null,
-    test_id      varchar(70) null,
-    test_type    varchar(70) null,
+    test_case_id varchar(50) null,
+    test_id      varchar(50) null,
+    test_type    varchar(50) null,
     create_time  bigint(13)  null,
     update_time  bigint(13)  null,
-    constraint test_case_test_pk
-        primary key (id)
+    UNIQUE KEY test_case_test_unique_key (test_case_id, test_id)
 ) ENGINE = InnoDB
-  DEFAULT CHARSET = utf8mb4;
+  DEFAULT CHARSET = utf8mb4 COMMENT ='测试用例和关联用例的关系表';
+
 alter table test_case
     modify test_id varchar(2000) null;

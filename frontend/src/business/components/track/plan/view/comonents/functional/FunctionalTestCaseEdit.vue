@@ -48,10 +48,8 @@
                       <span class="cast_item">{{ testCase.priority }}</span>
                     </el-col>
                     <el-col :span="5">
-                      <span class="cast_label">{{ $t('test_track.case.case_type') }}：</span>
-                      <span class="cast_item" v-if="testCase.type === 'functional'">{{ $t('commons.functional') }}</span>
-                      <span class="cast_item" v-if="testCase.type === 'performance'">{{ $t('commons.performance') }}</span>
-                      <span class="cast_item" v-if="testCase.type === 'api'">{{ $t('commons.api') }}</span>
+                      <span class="cast_label">{{ $t('test_track.case.module') }}：</span>
+                      <span class="cast_item">{{ testCase.nodePath }}</span>
                     </el-col>
                     <el-col :span="10">
                       <test-plan-test-case-status-button class="status-button"
@@ -63,15 +61,6 @@
                   </el-row>
 
                   <el-row>
-                    <el-col :span="4" :offset="1">
-                      <span class="cast_label">{{ $t('test_track.case.method') }}：</span>
-                      <span v-if="testCase.method === 'manual'">{{ $t('test_track.case.manual') }}</span>
-                      <span v-if="testCase.method === 'auto'">{{ $t('test_track.case.auto') }}</span>
-                    </el-col>
-                    <el-col :span="5">
-                      <span class="cast_label">{{ $t('test_track.case.module') }}：</span>
-                      <span class="cast_item">{{ testCase.nodePath }}</span>
-                    </el-col>
                     <el-col :span="4" :offset="1">
                       <span class="cast_label">{{ $t('test_track.plan.plan_project') }}：</span>
                       <span class="cast_item">{{ testCase.projectName }}</span>
