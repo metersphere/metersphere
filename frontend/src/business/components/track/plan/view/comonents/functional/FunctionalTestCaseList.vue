@@ -312,7 +312,7 @@ export default {
     return {
       type: TEST_PLAN_FUNCTION_TEST_CASE,
       headerItems: Test_Plan_Function_Test_Case,
-      tableLabel: Test_Plan_Function_Test_Case,
+      tableLabel: [],
       result: {},
       deletePath: "/test/case/delete",
       condition: {
@@ -416,11 +416,11 @@ export default {
   },
   methods: {
     customHeader() {
+      getLabel(this, TEST_PLAN_FUNCTION_TEST_CASE);
       this.$refs.headerCustom.open(this.tableLabel)
     },
 
     initTableData() {
-      getLabel(this, TEST_PLAN_FUNCTION_TEST_CASE);
       if (this.planId) {
         // param.planId = this.planId;
         this.condition.planId = this.planId;
@@ -464,6 +464,7 @@ export default {
           this.selectRows.clear();
         });
       }
+      getLabel(this, TEST_PLAN_FUNCTION_TEST_CASE);
     },
     showDetail(row, event, column) {
       this.isReadOnly = true;

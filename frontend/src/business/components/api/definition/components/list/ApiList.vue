@@ -272,7 +272,7 @@ export default {
     return {
       type: API_LIST,
       headerItems: Api_List,
-      tableLabel: Api_List,
+      tableLabel: [],
       condition: {
         components: API_DEFINITION_CONFIGS
       },
@@ -392,13 +392,13 @@ export default {
   },
   methods: {
     customHeader() {
+      getLabel(this, API_LIST);
       this.$refs.headerCustom.open(this.tableLabel)
     },
     handleBatchMove() {
       this.$refs.testCaseBatchMove.open(this.moduleTree, [], this.moduleOptions);
     },
     initTable() {
-      getLabel(this, API_LIST);
       this.selectRows = new Set();
       initCondition(this.condition);
       this.selectDataCounts = 0;
@@ -444,6 +444,7 @@ export default {
           })
         });
       }
+      getLabel(this, API_LIST);
     },
     genProtocalFilter(protocalType) {
       if (protocalType === "HTTP") {

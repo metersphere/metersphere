@@ -5,12 +5,17 @@ export const Track_Test_Case = [
   {id: 'num', label: i18n.t('commons.id')},
   {id: 'name', label: i18n.t('commons.name')},
   {id: 'priority', label: i18n.t('test_track.case.priority')},
-  {id: 'type', label: i18n.t('test_track.case.type')},
-  {id: 'method', label: i18n.t('test_track.case.method')},
+  /*
+    {id: 'type', label: i18n.t('test_track.case.type')},
+  */
+  /*
+    {id: 'method', label: i18n.t('test_track.case.method')},
+  */
   {id: 'reviewStatus', label: i18n.t('test_track.case.status')},
   {id: 'tags', label: i18n.t('commons.tag')},
   {id: 'nodePath', label: i18n.t('test_track.case.module')},
   {id: 'updateTime', label: i18n.t('commons.update_time')},
+  {id: 'status', label: i18n.t('commons.status')}
 ]
 //用例评审-测试用例
 export const Test_Case_Review = [

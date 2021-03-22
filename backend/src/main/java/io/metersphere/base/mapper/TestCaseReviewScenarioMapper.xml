@@ -2,18 +2,18 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="io.metersphere.base.mapper.TestCaseReviewScenarioMapper">
   <resultMap id="BaseResultMap" type="io.metersphere.base.domain.TestCaseReviewScenario">
-    <id column="id" jdbcType="VARCHAR" property="id"/>
-    <result column="test_case_review_id" jdbcType="VARCHAR" property="testCaseReviewId"/>
-    <result column="api_scenario_id" jdbcType="VARCHAR" property="apiScenarioId"/>
-    <result column="status" jdbcType="VARCHAR" property="status"/>
-    <result column="create_time" jdbcType="BIGINT" property="createTime"/>
-    <result column="update_time" jdbcType="BIGINT" property="updateTime"/>
-    <result column="pass_rate" jdbcType="VARCHAR" property="passRate"/>
-    <result column="last_result" jdbcType="VARCHAR" property="lastResult"/>
-    <result column="report_id" jdbcType="VARCHAR" property="reportId"/>
+      <id column="id" jdbcType="VARCHAR" property="id"/>
+      <result column="test_case_review_id" jdbcType="VARCHAR" property="testCaseReviewId"/>
+      <result column="api_scenario_id" jdbcType="VARCHAR" property="apiScenarioId"/>
+      <result column="status" jdbcType="VARCHAR" property="status"/>
+      <result column="create_time" jdbcType="BIGINT" property="createTime"/>
+      <result column="update_time" jdbcType="BIGINT" property="updateTime"/>
+      <result column="pass_rate" jdbcType="VARCHAR" property="passRate"/>
+      <result column="last_result" jdbcType="VARCHAR" property="lastResult"/>
+      <result column="report_id" jdbcType="VARCHAR" property="reportId"/>
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.TestCaseReviewScenario">
-    <result column="environment" jdbcType="LONGVARCHAR" property="environment"/>
+      <result column="environment" jdbcType="LONGVARCHAR" property="environment"/>
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -80,46 +80,46 @@
   <sql id="Blob_Column_List">
     environment
   </sql>
-  <select id="selectByExampleWithBLOBs" parameterType="io.metersphere.base.domain.TestCaseReviewScenarioExample"
-          resultMap="ResultMapWithBLOBs">
-    select
-    <if test="distinct">
-      distinct
-    </if>
-    <include refid="Base_Column_List"/>
-    ,
-    <include refid="Blob_Column_List"/>
-    from test_case_review_scenario
-    <if test="_parameter != null">
-      <include refid="Example_Where_Clause"/>
-    </if>
-    <if test="orderByClause != null">
-      order by ${orderByClause}
-    </if>
-  </select>
-  <select id="selectByExample" parameterType="io.metersphere.base.domain.TestCaseReviewScenarioExample"
-          resultMap="BaseResultMap">
-    select
-    <if test="distinct">
-      distinct
-    </if>
-    <include refid="Base_Column_List"/>
-    from test_case_review_scenario
-    <if test="_parameter != null">
-      <include refid="Example_Where_Clause"/>
+    <select id="selectByExampleWithBLOBs" parameterType="io.metersphere.base.domain.TestCaseReviewScenarioExample"
+            resultMap="ResultMapWithBLOBs">
+        select
+        <if test="distinct">
+            distinct
+        </if>
+        <include refid="Base_Column_List"/>
+        ,
+        <include refid="Blob_Column_List"/>
+        from test_case_review_scenario
+        <if test="_parameter != null">
+            <include refid="Example_Where_Clause"/>
     </if>
     <if test="orderByClause != null">
       order by ${orderByClause}
     </if>
   </select>
-  <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="ResultMapWithBLOBs">
-    select
-    <include refid="Base_Column_List"/>
-    ,
-    <include refid="Blob_Column_List"/>
-    from test_case_review_scenario
-    where id = #{id,jdbcType=VARCHAR}
+    <select id="selectByExample" parameterType="io.metersphere.base.domain.TestCaseReviewScenarioExample"
+            resultMap="BaseResultMap">
+        select
+        <if test="distinct">
+            distinct
+        </if>
+        <include refid="Base_Column_List"/>
+        from test_case_review_scenario
+        <if test="_parameter != null">
+            <include refid="Example_Where_Clause"/>
+        </if>
+        <if test="orderByClause != null">
+      order by ${orderByClause}
+    </if>
   </select>
+    <select id="selectByPrimaryKey" parameterType="java.lang.String" resultMap="ResultMapWithBLOBs">
+        select
+        <include refid="Base_Column_List"/>
+        ,
+        <include refid="Blob_Column_List"/>
+        from test_case_review_scenario
+        where id = #{id,jdbcType=VARCHAR}
+    </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
     delete from test_case_review_scenario
     where id = #{id,jdbcType=VARCHAR}
@@ -131,14 +131,14 @@
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.base.domain.TestCaseReviewScenario">
-    insert into test_case_review_scenario (id, test_case_review_id, api_scenario_id,
-                                           `status`, create_time, update_time,
-                                           pass_rate, last_result, report_id,
-                                           environment)
-    values (#{id,jdbcType=VARCHAR}, #{testCaseReviewId,jdbcType=VARCHAR}, #{apiScenarioId,jdbcType=VARCHAR},
-            #{status,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT},
-            #{passRate,jdbcType=VARCHAR}, #{lastResult,jdbcType=VARCHAR}, #{reportId,jdbcType=VARCHAR},
-            #{environment,jdbcType=LONGVARCHAR})
+      insert into test_case_review_scenario (id, test_case_review_id, api_scenario_id,
+                                             `status`, create_time, update_time,
+                                             pass_rate, last_result, report_id,
+                                             environment)
+      values (#{id,jdbcType=VARCHAR}, #{testCaseReviewId,jdbcType=VARCHAR}, #{apiScenarioId,jdbcType=VARCHAR},
+              #{status,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT},
+              #{passRate,jdbcType=VARCHAR}, #{lastResult,jdbcType=VARCHAR}, #{reportId,jdbcType=VARCHAR},
+              #{environment,jdbcType=LONGVARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.TestCaseReviewScenario">
     insert into test_case_review_scenario
@@ -248,37 +248,37 @@
       </if>
     </set>
     <if test="_parameter != null">
-      <include refid="Update_By_Example_Where_Clause"/>
+        <include refid="Update_By_Example_Where_Clause"/>
     </if>
   </update>
   <update id="updateByExampleWithBLOBs" parameterType="map">
-    update test_case_review_scenario
-    set id = #{record.id,jdbcType=VARCHAR},
-    test_case_review_id = #{record.testCaseReviewId,jdbcType=VARCHAR},
-    api_scenario_id = #{record.apiScenarioId,jdbcType=VARCHAR},
-    `status` = #{record.status,jdbcType=VARCHAR},
-    create_time = #{record.createTime,jdbcType=BIGINT},
-    update_time = #{record.updateTime,jdbcType=BIGINT},
-    pass_rate = #{record.passRate,jdbcType=VARCHAR},
-    last_result = #{record.lastResult,jdbcType=VARCHAR},
-    report_id = #{record.reportId,jdbcType=VARCHAR},
-    environment = #{record.environment,jdbcType=LONGVARCHAR}
-    <if test="_parameter != null">
-      <include refid="Update_By_Example_Where_Clause"/>
+      update test_case_review_scenario
+      set id = #{record.id,jdbcType=VARCHAR},
+      test_case_review_id = #{record.testCaseReviewId,jdbcType=VARCHAR},
+      api_scenario_id = #{record.apiScenarioId,jdbcType=VARCHAR},
+      `status` = #{record.status,jdbcType=VARCHAR},
+      create_time = #{record.createTime,jdbcType=BIGINT},
+      update_time = #{record.updateTime,jdbcType=BIGINT},
+      pass_rate = #{record.passRate,jdbcType=VARCHAR},
+      last_result = #{record.lastResult,jdbcType=VARCHAR},
+      report_id = #{record.reportId,jdbcType=VARCHAR},
+      environment = #{record.environment,jdbcType=LONGVARCHAR}
+      <if test="_parameter != null">
+          <include refid="Update_By_Example_Where_Clause"/>
     </if>
   </update>
   <update id="updateByExample" parameterType="map">
-    update test_case_review_scenario
-    set id = #{record.id,jdbcType=VARCHAR},
-    test_case_review_id = #{record.testCaseReviewId,jdbcType=VARCHAR},
-    api_scenario_id = #{record.apiScenarioId,jdbcType=VARCHAR},
-    `status` = #{record.status,jdbcType=VARCHAR},
-    create_time = #{record.createTime,jdbcType=BIGINT},
-    update_time = #{record.updateTime,jdbcType=BIGINT},
-    pass_rate = #{record.passRate,jdbcType=VARCHAR},
-    last_result = #{record.lastResult,jdbcType=VARCHAR},
+      update test_case_review_scenario
+      set id = #{record.id,jdbcType=VARCHAR},
+      test_case_review_id = #{record.testCaseReviewId,jdbcType=VARCHAR},
+      api_scenario_id = #{record.apiScenarioId,jdbcType=VARCHAR},
+      `status` = #{record.status,jdbcType=VARCHAR},
+      create_time = #{record.createTime,jdbcType=BIGINT},
+      update_time = #{record.updateTime,jdbcType=BIGINT},
+      pass_rate = #{record.passRate,jdbcType=VARCHAR},
+      last_result = #{record.lastResult,jdbcType=VARCHAR},
       report_id = #{record.reportId,jdbcType=VARCHAR}
-    <if test="_parameter != null">
+      <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
   </update>
@@ -316,28 +316,28 @@
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.metersphere.base.domain.TestCaseReviewScenario">
-    update test_case_review_scenario
-    set test_case_review_id = #{testCaseReviewId,jdbcType=VARCHAR},
-        api_scenario_id     = #{apiScenarioId,jdbcType=VARCHAR},
-        `status`            = #{status,jdbcType=VARCHAR},
-        create_time         = #{createTime,jdbcType=BIGINT},
-        update_time         = #{updateTime,jdbcType=BIGINT},
-        pass_rate           = #{passRate,jdbcType=VARCHAR},
-        last_result         = #{lastResult,jdbcType=VARCHAR},
-        report_id           = #{reportId,jdbcType=VARCHAR},
-        environment         = #{environment,jdbcType=LONGVARCHAR}
-    where id = #{id,jdbcType=VARCHAR}
+      update test_case_review_scenario
+      set test_case_review_id = #{testCaseReviewId,jdbcType=VARCHAR},
+          api_scenario_id     = #{apiScenarioId,jdbcType=VARCHAR},
+          `status`            = #{status,jdbcType=VARCHAR},
+          create_time         = #{createTime,jdbcType=BIGINT},
+          update_time         = #{updateTime,jdbcType=BIGINT},
+          pass_rate           = #{passRate,jdbcType=VARCHAR},
+          last_result         = #{lastResult,jdbcType=VARCHAR},
+          report_id           = #{reportId,jdbcType=VARCHAR},
+          environment         = #{environment,jdbcType=LONGVARCHAR}
+      where id = #{id,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKey" parameterType="io.metersphere.base.domain.TestCaseReviewScenario">
-    update test_case_review_scenario
-    set test_case_review_id = #{testCaseReviewId,jdbcType=VARCHAR},
-        api_scenario_id     = #{apiScenarioId,jdbcType=VARCHAR},
-        `status`            = #{status,jdbcType=VARCHAR},
-        create_time         = #{createTime,jdbcType=BIGINT},
-        update_time         = #{updateTime,jdbcType=BIGINT},
-        pass_rate           = #{passRate,jdbcType=VARCHAR},
-      last_result = #{lastResult,jdbcType=VARCHAR},
-      report_id = #{reportId,jdbcType=VARCHAR}
-    where id = #{id,jdbcType=VARCHAR}
+      update test_case_review_scenario
+      set test_case_review_id = #{testCaseReviewId,jdbcType=VARCHAR},
+          api_scenario_id     = #{apiScenarioId,jdbcType=VARCHAR},
+          `status`            = #{status,jdbcType=VARCHAR},
+          create_time         = #{createTime,jdbcType=BIGINT},
+          update_time         = #{updateTime,jdbcType=BIGINT},
+          pass_rate           = #{passRate,jdbcType=VARCHAR},
+          last_result         = #{lastResult,jdbcType=VARCHAR},
+          report_id           = #{reportId,jdbcType=VARCHAR}
+      where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

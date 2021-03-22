@@ -102,15 +102,28 @@
           </el-table-column>-->
 
           <el-table-column
-              v-if="item.id=='status'"
-              :filters="statusFilters"
-              column-key="status"
-              min-width="100px"
-              :label="$t('test_track.case.status')"
-              :key="index">
+            v-if="item.id=='reviewStatus'"
+            :filters="reviewStatusFilters"
+            column-key="reviewStatus"
+            min-width="100px"
+            :label="$t('test_track.case.status')"
+            :key="index">
             <template v-slot:default="scope">
             <span class="el-dropdown-link">
               <review-status :value="scope.row.reviewStatus"/>
+            </span>
+            </template>
+          </el-table-column>
+          <el-table-column
+            v-if="item.id=='status'"
+            :filters="statusFilters"
+            column-key="status"
+            min-width="100px"
+            :label="$t('commons.status')"
+            :key="index">
+            <template v-slot:default="scope">
+            <span class="el-dropdown-link">
+              <plan-status-table-item :value="scope.row.status"></plan-status-table-item>
             </span>
             </template>
           </el-table-column>
@@ -123,8 +136,8 @@
           </el-table-column>
 
           <el-table-column
-              v-if="item.id=='nodePath'"
-              prop="nodePath"
+            v-if="item.id=='nodePath'"
+            prop="nodePath"
               :label="$t('test_track.case.module')"
               min-width="150px"
               show-overflow-tooltip
@@ -213,10 +226,12 @@ import {Track_Test_Case} from "@/business/components/common/model/JsonData";
 import HeaderCustom from "@/business/components/common/head/HeaderCustom";
 import i18n from "@/i18n/i18n";
 import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOperate";
+import PlanStatusTableItem from "@/business/components/track/common/tableItems/plan/PlanStatusTableItem";
 
 export default {
   name: "TestCaseList",
   components: {
+    PlanStatusTableItem,
     HeaderLabelOperate,
     HeaderCustom,
     BatchMove,
@@ -244,7 +259,7 @@ export default {
     return {
       type: TEST_CASE_LIST,
       headerItems: Track_Test_Case,
-      tableLabel: Track_Test_Case,
+      tableLabel: [],
       result: {},
       deletePath: "/test/case/delete",
       condition: {
@@ -270,10 +285,15 @@ export default {
         {text: this.$t('commons.performance'), value: 'performance'},
         {text: this.$t('commons.api'), value: 'api'}
       ],
-      statusFilters: [
+      reviewStatusFilters: [
         {text: this.$t('test_track.case.status_prepare'), value: 'Prepare'},
         {text: this.$t('test_track.case.status_pass'), value: 'Pass'},
         {text: this.$t('test_track.case.status_un_pass'), value: 'UnPass'},
+      ],
+      statusFilters: [
+        {text: '未开始', value: 'Prepare'},
+        {text: '进行中', value: 'Underway'},
+        {text: '已完成', value: 'Completed'},
       ],
       showMore: false,
       buttons: [
@@ -361,6 +381,7 @@ export default {
   },
   methods: {
     customHeader() {
+      getLabel(this, TEST_CASE_LIST);
       this.$refs.headerCustom.open(this.tableLabel)
     },
     getSelectDataRange() {

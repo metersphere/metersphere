@@ -46,12 +46,20 @@ export default {
       return type !== 'inner';
     },
     open(items) {
+      this.defaultCheckedKeys = []
+
       this.dialogTableVisible = true
-      items.forEach(i => {
-          this.defaultCheckedKeys.push(i.id)
-        }
-      )
-      /*this.optionalField = items*/
+      this.fieldSelected = items
+      if (items.size <= 0) {
+        this.optionalField = this.optionalFields
+      } else {
+        items.forEach(i => {
+            this.defaultCheckedKeys.push(i.id)
+          }
+        )
+      }
+      console.log(this.defaultCheckedKeys)
+
     },
     saveHeader() {
       let param = {
