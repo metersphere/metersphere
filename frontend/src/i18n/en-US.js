@@ -1126,6 +1126,7 @@ export default {
     cancel_relevance_success: "Unlinked successfully",
     switch_project: "Switch project",
     case: {
+      list: "List",
       minder: "Minder",
       check_select: "Please check the case",
       export_all_cases: 'Are you sure you want to export all use cases?',
