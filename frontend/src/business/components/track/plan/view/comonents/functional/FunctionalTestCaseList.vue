@@ -173,6 +173,16 @@
             column-key="executor"
             :label="$t('test_track.plan_view.executor')">
           </el-table-column>
+          <!-- 责任人(创建该用例时所关联的责任人) -->
+          <el-table-column
+            v-if="item.id == 'maintainer'"
+            prop="maintainer"
+            :filters="maintainerFilters"
+            min-width="100px"
+            :key="index"
+            column-key="maintainer"
+            :label="$t('api_test.definition.request.responsible')">
+          </el-table-column>
 
           <el-table-column
             v-if="item.id == 'status'"
@@ -352,6 +362,7 @@ export default {
         {text: this.$t('test_track.plan.plan_status_running'), value: 'Underway'},
       ],
       executorFilters: [],
+      maintainerFilters: [],
       showMore: false,
       buttons: [
         {
@@ -664,6 +675,9 @@ export default {
         this.valueArr.executor = response.data;
         this.executorFilters = response.data.map(u => {
           return {text: u.name, value: u.id}
+        });
+        this.maintainerFilters = response.data.map(u => {
+          return {text: u.id + '(' + u.name + ')', value: u.id};
         });
       });
     }
