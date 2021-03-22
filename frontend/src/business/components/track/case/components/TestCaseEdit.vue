@@ -377,7 +377,7 @@ export default {
           desc: '',
           result: ''
         }],
-        selected:[],
+        selected:                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             [],
         remark: '',
         tags: [],
         demandId: '',
@@ -497,6 +497,8 @@ export default {
       this.$nextTick(() => (this.isStepTableAlive = true));
     },
     open(testCase) {
+      console.log("测试用例")
+      console.log(testCase)
       this.projectId = getCurrentProjectID();
       if (window.history && window.history.pushState) {
         history.pushState(null, null, document.URL);
@@ -580,7 +582,8 @@ export default {
       }
       Object.assign(this.form, tmp);
       this.form.module = testCase.nodeId;
-      this.form.testId=testCase.testId
+      this.form.testId=testCase.selected
+      console.log(this.form.testId)
       this.getFileMetaData(testCase);
     },
     setTestCaseExtInfo(testCase) {

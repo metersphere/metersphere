@@ -108,8 +108,16 @@ public class ApiAutomationController {
         return apiAutomationService.run(request);
     }
 
+    @PostMapping(value = "/run/jenkins")
+    public String runByJenkins(@RequestBody RunScenarioRequest request) {
+        request.setExecuteType(ExecuteType.Saved.name());
+        request.setTriggerMode(ApiRunMode.SCENARIO.name());
+        request.setRunMode(ApiRunMode.SCENARIO.name());
+        return apiAutomationService.run(request);
+    }
+
     @PostMapping(value = "/run/batch")
-    public String runBatch(@RequestBody RunScenarioRequest request) {
+    public String runBatcah(@RequestBody RunScenarioRequest request) {
         request.setExecuteType(ExecuteType.Saved.name());
         request.setTriggerMode(ApiRunMode.SCENARIO.name());
         request.setRunMode(ApiRunMode.SCENARIO.name());
