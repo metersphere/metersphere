@@ -185,6 +185,8 @@ create table test_case_test
     test_case_id varchar(70) null,
     test_id      varchar(70) null,
     test_type    varchar(70) null,
+    create_time  bigint(13)  null,
+    update_time  bigint(13)  null,
     constraint test_case_test_pk
         primary key (id)
 ) ENGINE = InnoDB
