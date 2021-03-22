@@ -272,7 +272,7 @@
       return {
         type: API_LIST,
         headerItems: Api_List,
-        tableLabel: [],
+        tableLabel: Api_List,
         condition: {
           components: API_DEFINITION_CONFIGS
         },

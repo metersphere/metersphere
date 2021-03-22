@@ -259,7 +259,7 @@ export default {
     return {
       type: TEST_CASE_LIST,
       headerItems: Track_Test_Case,
-      tableLabel: [],
+      tableLabel: Track_Test_Case,
       result: {},
       deletePath: "/test/case/delete",
       condition: {

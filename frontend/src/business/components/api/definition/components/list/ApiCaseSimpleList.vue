@@ -186,7 +186,7 @@ export default {
       return {
         type: API_CASE_LIST,
         headerItems: Api_Case_List,
-        tableLabel: [],
+        tableLabel: Api_Case_List,
         condition: {
           components: API_CASE_CONFIGS
         },

@@ -244,7 +244,7 @@
       return {
         type: API_SCENARIO_LIST,
         headerItems: Api_Scenario_List,
-        tableLabel: [],
+        tableLabel: Api_Scenario_List,
         loading: false,
         screenHeight: document.documentElement.clientHeight - 280,//屏幕高度,
         condition: {

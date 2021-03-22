@@ -312,7 +312,7 @@ export default {
     return {
       type: TEST_PLAN_FUNCTION_TEST_CASE,
       headerItems: Test_Plan_Function_Test_Case,
-      tableLabel: [],
+      tableLabel: Test_Plan_Function_Test_Case,
       result: {},
       deletePath: "/test/case/delete",
       condition: {

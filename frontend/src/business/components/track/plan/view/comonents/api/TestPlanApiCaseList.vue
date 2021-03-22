@@ -192,7 +192,7 @@ export default {
     return {
       type: TEST_PLAN_API_CASE,
       headerItems: Test_Plan_Api_Case,
-      tableLabel: [],
+      tableLabel: Test_Plan_Api_Case,
       condition: {},
       selectCase: {},
       result: {},
