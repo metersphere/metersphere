@@ -662,7 +662,9 @@ export default {
           desc: "描述",
           value: "数据",
           not_required: "非必填",
-        }
+        },
+        esb_copy_confirm: "确认复制当前节点的数据结构",
+        esb_title: "可以在报文模板中使用${参数名} 或 ${父节点参数名.子节点参数名}来生成xml数据结构",
       },
       document: {
         order: "排序方式",

@@ -661,7 +661,9 @@ export default {
           desc: "描述",
           value: "數據",
           not_required: "非必填",
-        }
+        },
+        esb_copy_confirm: "確認複製當前節點的數據結構",
+        esb_title: "可以在報文模板中使用${參數名} 或 ${父節點參數名.子節點參數名}來生成xml數據結構",
       },
       document: {
         order: "排序方式",

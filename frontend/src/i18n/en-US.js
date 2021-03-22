@@ -661,7 +661,9 @@ export default {
           desc: "Description",
           value: "Data",
           not_required: "Not required",
-        }
+        },
+        esb_copy_confirm: "Copy this node data struct",
+        esb_title: "You can use ${name} or ${parent name.child name} to generate xml struct in report template",
       },
       document: {
         order: "Order",
