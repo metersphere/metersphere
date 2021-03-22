@@ -69,7 +69,7 @@
           <el-table-column v-if="item.id == 'tags'" prop="tags" min-width="120px"
                            :label="$t('api_test.automation.tag')" :key="index">
             <template v-slot:default="scope">
-              <ms-tag v-for="(itemName,index)  in scope.row.tags" :key="index" type="success" effect="plain" :content="itemName" style="margin-left: 5px"/>
+              <ms-tag v-for="(itemName,index)  in scope.row.tags" :key="index" type="success" effect="plain" :content="itemName" :show-tooltip="true" tooltip style="margin-left: 5px"/>
             </template>
           </el-table-column>
           <el-table-column v-if="item.id == 'userId'" prop="userId" min-width="120px"
@@ -757,7 +757,6 @@
   /deep/ .el-table__fixed-body-wrapper {
     z-index: auto !important;
   }
-
 
   /deep/ .el-table__fixed-right {
     height: 100% !important;
