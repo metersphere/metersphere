@@ -188,7 +188,7 @@ export default {
     },
     redirectPage(page,dataType,selectType){
       //test_plan 页面跳转
-      this.$router.push('/track/plan/view/'+selectType);
+      // this.$router.push('/track/plan/view/'+selectType);
       switch (page){
         case "case":
           this.$router.push({name:'testCase',params:{dataType:dataType,dataSelectRange:selectType, projectId: getCurrentProjectID()}});

@@ -307,7 +307,7 @@
                 or test_case.tags like CONCAT('%', #{request.name},'%'))
             </if>
             <if test="request.createTime >0">
-                AND test_case.create_time >= #{request.createTime}
+                and test_case.id in (select test_case_id from test_case_test where test_case_test.create_time >= #{request.createTime})
             </if>
             <if test="request.nodeIds != null and request.nodeIds.size() > 0">
                 and test_case.node_id in
@@ -320,10 +320,10 @@
             </if>
             <include refid="filters"/>
             <if test="request.caseCoverage == 'uncoverage' ">
-                and test_case.test_id is null and test_case.type != 'functional'
+                and test_case.id not in (select distinct test_case_test.test_case_id from test_case_test)
             </if>
             <if test="request.caseCoverage == 'coverage' ">
-                and test_case.test_id is not null and test_case.type != 'functional'
+                and test_case.id in (select distinct test_case_test.test_case_id from test_case_test)
             </if>
         </where>
     </sql>
