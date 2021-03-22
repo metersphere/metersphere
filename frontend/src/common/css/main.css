@@ -65,8 +65,12 @@ html,body {
   border-right: 0 !important;
 }
 
-.adjust-table th:not([class*="el-table-column--selection"]) {
+.adjust-table th {
   border-right-color: white !important;
+}
+
+.adjust-table.ms-select-all-fixed th:first-child.el-table-column--selection {
+  border-right-color: #DCDFE6 !important;
 }
 
 .adjust-table {
