@@ -148,7 +148,7 @@ export default {
     return {
       type: TEST_PLAN_SCENARIO_CASE,
       headerItems: Test_Plan_Scenario_Case,
-      tableLabel: Test_Plan_Scenario_Case,
+      tableLabel: [],
       loading: false,
       condition: {},
       currentScenario: {},
@@ -196,10 +196,11 @@ export default {
   },
   methods: {
     customHeader() {
+      getLabel(this, TEST_PLAN_SCENARIO_CASE);
+
       this.$refs.headerCustom.open(this.tableLabel)
     },
     search() {
-      getLabel(this, TEST_PLAN_SCENARIO_CASE);
       this.selectRows = new Set();
       this.loading = true;
       this.condition.moduleIds = this.selectNodeIds;
@@ -241,6 +242,7 @@ export default {
           this.loading = false;
         });
       }
+      getLabel(this, TEST_PLAN_SCENARIO_CASE);
 
     },
     reductionApi(row) {

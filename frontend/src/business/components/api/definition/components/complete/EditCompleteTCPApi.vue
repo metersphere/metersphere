@@ -15,26 +15,39 @@
     <br/>
     <el-row>
       <el-col>
-        <ms-basis-api @createRootModelInTree="createRootModelInTree" :moduleOptions="moduleOptions" :basisData="basisData" ref="basicForm"
-                      @callback="callback"/>
+        <ms-tcp-basic-api :method-types="methodTypes" @createRootModelInTree="createRootModelInTree" :moduleOptions="moduleOptions" :basisData="basisData" ref="basicForm"
+          @changeApiProtocol="changeApiProtocol" @callback="callback"/>
       </el-col>
     </el-row>
-
     <!-- 请求参数 -->
-    <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
-    <ms-basis-parameters :show-script="false" :request="request"/>
+    <div v-if="apiProtocol=='TCP'">
+      <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
+      <ms-basis-parameters :show-script="false" :request="request"/>
+    </div>
+    <div v-else-if="apiProtocol=='ESB'">
+      <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
+      <esb-definition v-xpack v-if="showXpackCompnent" :show-script="false" :request="request" ref="esbDefinition"/>
+      <p class="tip">{{$t('api_test.definition.request.res_param')}}</p>
+      <esb-definition-response :is-api-component="true" :show-options-button="true" :request="request" />
+<!--      <api-response-component :currentProtocol="apiCase.request.protocol" :api-item="apiCase"/>-->
+    </div>
+
 
   </div>
 
 </template>
 
 <script>
-import MsBasisApi from "./BasisApi";
+import MsTcpBasicApi from "./TCPBasicApi";
 import MsBasisParameters from "../request/tcp/TcpBasisParameters";
-
+const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
+const esbDefinition = (requireComponent!=null&&requireComponent.keys().length) > 0 ? requireComponent("./apiDefinition/EsbDefinition.vue") : {};
+const esbDefinitionResponse = (requireComponent!=null&&requireComponent.keys().length) > 0 ? requireComponent("./apiDefinition/EsbDefinitionResponse.vue") : {};
 export default {
   name: "MsAddCompleteTcpApi",
-  components: {MsBasisApi, MsBasisParameters},
+  components: {MsTcpBasicApi, MsBasisParameters,
+    "esbDefinition": esbDefinition.default,
+    "esbDefinitionResponse": esbDefinitionResponse.default},
   props: {
     request: {},
     basisData: {},
@@ -48,6 +61,24 @@ export default {
   data() {
     return {
       validated: false,
+      apiProtocol: "TCP",
+      methodTypes:["TCP"],
+      showXpackCompnent:false,
+    }
+  },
+  created: function () {
+    if(this.basisData.method != 'TCP'&& this.basisData.method != 'ESB'){
+      this.basisData.method = this.basisData.protocol;
+    }
+    this.apiProtocol = this.basisData.method;
+    if(this.apiProtocol == null || this.apiProtocol == "" ){
+      this.apiProtocol = "TCP";
+    }
+    if (requireComponent != null && JSON.stringify(esbDefinition) != '{}'&& JSON.stringify(esbDefinitionResponse) != '{}') {
+      this.showXpackCompnent = true;
+      if(this.methodTypes.length == 1){
+        this.methodTypes.push("ESB");
+      }
     }
   },
   watch: {
@@ -68,7 +99,7 @@ export default {
           }
         });
       }
-    }
+    },
   },
   methods: {
     callback() {
@@ -76,7 +107,7 @@ export default {
     },
     validateApi() {
       this.validated = false;
-      this.basisData.method = "TCP";
+      this.basisData.method = this.apiProtocol;
       this.$refs['basicForm'].validate();
     },
     saveApi() {
@@ -84,6 +115,24 @@ export default {
       if (this.validated) {
         if (this.basisData.tags instanceof Array) {
           this.basisData.tags = JSON.stringify(this.basisData.tags);
+        }
+        if(this.basisData.method == 'ESB'){
+          let validataResult = this.$refs.esbDefinition.validateEsbDataStruct(this.request.esbDataStruct);
+          if(!validataResult){
+            return;
+          }
+          if(this.request.esbDataStruct != null){
+            this.esbDataStruct = JSON.stringify(this.request.esbDataStruct);
+            this.basisData.esbDataStruct = this.esbDataStruct;
+          }
+          if(this.request.backEsbDataStruct != null){
+            this.basisData.backEsbDataStruct = JSON.stringify(this.request.backEsbDataStruct);
+          }
+          if(this.request.backScript != null){
+            this.basisData.backScript = JSON.stringify(this.request.backScript);
+          }
+
+
         }
         this.$emit('saveApi', this.basisData);
       }
@@ -101,6 +150,9 @@ export default {
     createRootModelInTree() {
       this.$emit("createRootModelInTree");
     },
+    changeApiProtocol(protocol){
+      this.apiProtocol = protocol;
+    }
   },
 }
 </script>

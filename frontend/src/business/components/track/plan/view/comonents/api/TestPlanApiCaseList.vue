@@ -192,7 +192,7 @@ export default {
     return {
       type: TEST_PLAN_API_CASE,
       headerItems: Test_Plan_Api_Case,
-      tableLabel: Test_Plan_Api_Case,
+      tableLabel: [],
       condition: {},
       selectCase: {},
       result: {},
@@ -302,6 +302,8 @@ export default {
   },
   methods: {
     customHeader() {
+      getLabel(this, TEST_PLAN_API_CASE);
+
       this.$refs.headerCustom.open(this.tableLabel)
     },
     getMaintainerOptions() {
@@ -317,7 +319,6 @@ export default {
       this.$emit('isApiListEnableChange', data);
     },
     initTable() {
-      getLabel(this, TEST_PLAN_API_CASE);
       this.selectRows = new Set();
       this.condition.status = "";
       this.condition.moduleIds = this.selectNodeIds;
@@ -356,7 +357,7 @@ export default {
           })
         });
       }
-
+      getLabel(this, TEST_PLAN_API_CASE);
     },
     handleSelect(selection, row) {
       row.hashTree = [];

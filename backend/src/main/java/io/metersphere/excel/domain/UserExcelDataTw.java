@@ -50,7 +50,7 @@ public class UserExcelDataTw extends TestCaseExcelData {
 
     @Length(max = 100)
     @ColumnWidth(30)
-    @ExcelProperty("組織管理員工作空間")
+    @ExcelProperty("組織管理員組織名稱")
     private String orgAdminOrganization;
 
     @NotBlank(message = "{cannot_be_null}")
@@ -59,7 +59,7 @@ public class UserExcelDataTw extends TestCaseExcelData {
 
     @Length(max = 100)
     @ColumnWidth(30)
-    @ExcelProperty("組織成員工作空間")
+    @ExcelProperty("組織成員組織名稱")
     private String orgMemberOrganization;
 
     @NotBlank(message = "{cannot_be_null}")

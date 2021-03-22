@@ -23,6 +23,7 @@
         <template v-slot:default="scope">
           <ms-tag v-if="scope.row.caseType == 'apiCase'" type="success" effect="plain" :content="$t('api_test.home_page.failed_case_list.table_value.case_type.api')"/>
           <ms-tag v-if="scope.row.caseType == 'scenario'" type="warning" effect="plain" :content="$t('api_test.home_page.failed_case_list.table_value.case_type.scene')"/>
+          <ms-tag v-if="scope.row.caseType == 'load'" type="danger" effect="plain" :content="$t('api_test.home_page.failed_case_list.table_value.case_type.load')"/>
         </template>
       </el-table-column>
       <el-table-column prop="testPlan"  :label="$t('api_test.home_page.failed_case_list.table_coloum.test_plan')">

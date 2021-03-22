@@ -126,6 +126,8 @@ public class TestPlanService {
     private TestPlanApiScenarioMapper testPlanApiScenarioMapper;
     @Resource
     private ApiScenarioMapper apiScenarioMapper;
+    @Resource
+    private TestCaseTestMapper testCaseTestMapper;
 
     public synchronized String addTestPlan(AddTestPlanRequest testPlan) {
         if (getTestPlanByName(testPlan.getName()).size() > 0) {
@@ -433,57 +435,65 @@ public class TestPlanService {
         if(request.getChecked()){
             if (!testCaseIds.isEmpty()) {
                 testCaseIds.forEach(caseId -> {
-                    TestCaseWithBLOBs testDtail=testCaseMapper.selectByPrimaryKey(caseId);
-                    if(StringUtils.equals(testDtail.getType(),TestCaseStatus.performance.name())){
-                        TestPlanLoadCase t = new TestPlanLoadCase();
-                        t.setId(UUID.randomUUID().toString());
-                        t.setTestPlanId(request.getPlanId());
-                        t.setLoadCaseId(testDtail.getTestId());
-                        t.setCreateTime(System.currentTimeMillis());
-                        t.setUpdateTime(System.currentTimeMillis());
-                        TestPlanLoadCaseExample testPlanLoadCaseExample=new TestPlanLoadCaseExample();
-                        testPlanLoadCaseExample.createCriteria().andTestPlanIdEqualTo(request.getPlanId()).andLoadCaseIdEqualTo(t.getLoadCaseId());
-                        if (testPlanLoadCaseMapper.countByExample(testPlanLoadCaseExample) <=0) {
-                            testPlanLoadCaseMapper.insert(t);
+                    List<TestCaseTest> list=new ArrayList<>();
+                    TestCaseTestExample examp=new TestCaseTestExample();
+                    examp.createCriteria().andTestCaseIdEqualTo(caseId);
+                    if(testCaseTestMapper.countByExample(examp)>0){
+                        list=testCaseTestMapper.selectByExample(examp);
+                    }
+                    list.forEach(l->{
+                        if(StringUtils.equals(l.getTestType(),TestCaseStatus.performance.name())){
+                            TestPlanLoadCase t = new TestPlanLoadCase();
+                            t.setId(UUID.randomUUID().toString());
+                            t.setTestPlanId(request.getPlanId());
+                            t.setLoadCaseId(l.getTestId());
+                            t.setCreateTime(System.currentTimeMillis());
+                            t.setUpdateTime(System.currentTimeMillis());
+                            TestPlanLoadCaseExample testPlanLoadCaseExample=new TestPlanLoadCaseExample();
+                            testPlanLoadCaseExample.createCriteria().andTestPlanIdEqualTo(request.getPlanId()).andLoadCaseIdEqualTo(t.getLoadCaseId());
+                            if (testPlanLoadCaseMapper.countByExample(testPlanLoadCaseExample) <=0) {
+                                testPlanLoadCaseMapper.insert(t);
+                            }
+
                         }
+                        if(StringUtils.equals(l.getTestType(),TestCaseStatus.testcase.name())){
+                            TestPlanApiCase t=new TestPlanApiCase();
+                            ApiTestCaseWithBLOBs apitest=apiTestCaseMapper.selectByPrimaryKey(l.getTestId());
+                            ApiDefinitionWithBLOBs apidefinition=apiDefinitionMapper.selectByPrimaryKey(apitest.getApiDefinitionId());
+                            t.setId(UUID.randomUUID().toString());
+                            t.setTestPlanId(request.getPlanId());
+                            t.setApiCaseId(l.getTestId());
+                            t.setEnvironmentId(apidefinition.getEnvironmentId());
+                            t.setCreateTime(System.currentTimeMillis());
+                            t.setUpdateTime(System.currentTimeMillis());
+                            TestPlanApiCaseExample example=new TestPlanApiCaseExample();
+                            example.createCriteria().andTestPlanIdEqualTo(request.getPlanId()).andApiCaseIdEqualTo(t.getApiCaseId());
+                            if(testPlanApiCaseMapper.countByExample(example)<=0){
+                                testPlanApiCaseMapper.insert(t);
+                            }
 
-                    }
-                    if(StringUtils.equals(testDtail.getType(),TestCaseStatus.testcase.name())){
-                        TestPlanApiCase t=new TestPlanApiCase();
-                        ApiTestCaseWithBLOBs apitest=apiTestCaseMapper.selectByPrimaryKey(testDtail.getTestId());
-                        ApiDefinitionWithBLOBs apidefinition=apiDefinitionMapper.selectByPrimaryKey(apitest.getApiDefinitionId());
-                        t.setId(UUID.randomUUID().toString());
-                        t.setTestPlanId(request.getPlanId());
-                        t.setApiCaseId(testDtail.getTestId());
-                        t.setEnvironmentId(apidefinition.getEnvironmentId());
-                        t.setCreateTime(System.currentTimeMillis());
-                        t.setUpdateTime(System.currentTimeMillis());
-                        TestPlanApiCaseExample example=new TestPlanApiCaseExample();
-                        example.createCriteria().andTestPlanIdEqualTo(request.getPlanId()).andApiCaseIdEqualTo(t.getApiCaseId());
-                        if(testPlanApiCaseMapper.countByExample(example)<=0){
-                            testPlanApiCaseMapper.insert(t);
                         }
+                        if(StringUtils.equals(l.getTestType(),TestCaseStatus.automation.name())){
+                            TestPlanApiScenario t=new TestPlanApiScenario();
+                            ApiScenarioWithBLOBs testPlanApiScenario=apiScenarioMapper.selectByPrimaryKey(l.getTestId());
+                            t.setId(UUID.randomUUID().toString());
+                            t.setTestPlanId(request.getPlanId());
+                            t.setApiScenarioId(l.getTestId());
+                            t.setLastResult(testPlanApiScenario.getLastResult());
+                            t.setPassRate(testPlanApiScenario.getPassRate());
+                            t.setReportId(testPlanApiScenario.getReportId());
+                            t.setStatus(testPlanApiScenario.getStatus());
+                            t.setCreateTime(System.currentTimeMillis());
+                            t.setUpdateTime(System.currentTimeMillis());
+                            TestPlanApiScenarioExample example=new TestPlanApiScenarioExample();
+                            example.createCriteria().andTestPlanIdEqualTo(request.getPlanId()).andApiScenarioIdEqualTo(t.getApiScenarioId());
+                            if(testPlanApiScenarioMapper.countByExample(example)<=0){
+                                testPlanApiScenarioMapper.insert(t);
+                            }
 
-                    }
-                    if(StringUtils.equals(testDtail.getType(),TestCaseStatus.automation.name())){
-                        TestPlanApiScenario t=new TestPlanApiScenario();
-                        ApiScenarioWithBLOBs testPlanApiScenario=apiScenarioMapper.selectByPrimaryKey(testDtail.getTestId());
-                        t.setId(UUID.randomUUID().toString());
-                        t.setTestPlanId(request.getPlanId());
-                        t.setApiScenarioId(testDtail.getTestId());
-                        t.setLastResult(testPlanApiScenario.getLastResult());
-                        t.setPassRate(testPlanApiScenario.getPassRate());
-                        t.setReportId(testPlanApiScenario.getReportId());
-                        t.setStatus(testPlanApiScenario.getStatus());
-                        t.setCreateTime(System.currentTimeMillis());
-                        t.setUpdateTime(System.currentTimeMillis());
-                        TestPlanApiScenarioExample example=new TestPlanApiScenarioExample();
-                        example.createCriteria().andTestPlanIdEqualTo(request.getPlanId()).andApiScenarioIdEqualTo(t.getApiScenarioId());
-                       if(testPlanApiScenarioMapper.countByExample(example)<=0){
-                           testPlanApiScenarioMapper.insert(t);
-                       }
+                        }
+                    });
 
-                    }
 
                 });
             }

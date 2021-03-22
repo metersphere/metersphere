@@ -51,6 +51,7 @@ export default {
     create_time: '创建时间',
     update_time: '更新时间',
     add: '添加',
+    preview: '预览',
     member: '成员',
     email: '邮箱',
     phone: '电话',
@@ -118,6 +119,7 @@ export default {
     port_cannot_be_empty: '端口号不能为空',
     account_cannot_be_empty: '帐户不能为空',
     remove: '移除',
+    next_level: "下一级",
     remove_cancel: '移除取消',
     remove_success: '移除成功',
     tips: '认证信息已过期，请重新登录',
@@ -311,10 +313,12 @@ export default {
       password: '密码',
       jira_url: 'JIRA 地址',
       jira_issuetype: '问题类型',
+      jira_storytype: '需求类型',
       input_api_account: '请输入账号',
       input_api_password: '请输入密码',
       input_jira_url: '请输入Jira地址，例：https://metersphere.atlassian.net/',
       input_jira_issuetype: '请输入问题类型',
+      input_jira_storytype: '请输入需求类型',
       zentao_url: 'Zentao 地址',
       input_zentao_url: '请输入Zentao地址，例：http://xx.xx.xx.xx/zentao/',
       use_tip: '使用指引：',
@@ -630,6 +634,7 @@ export default {
         assertions_rule: "断言规则",
         response_header: "响应头",
         response_body: "响应体",
+        response_template: "响应报文模版",
         console: "控制台",
         status_code: "状态码",
         query_info: "地址栏中跟在？后面的参数,如updateapi?id=112",
@@ -649,6 +654,17 @@ export default {
         other_config: "其他设置",
         message_template: "报文模版",
         tcp_parameter_tip: "请求参数可以在请求模版通过${xxx}引用",
+        esb_table: {
+          name: "参数名",
+          type: "类型",
+          length: "长度",
+          required: "必填",
+          desc: "描述",
+          value: "数据",
+          not_required: "非必填",
+        },
+        esb_copy_confirm: "确认复制当前节点的数据结构",
+        esb_title: "可以在报文模板中使用${参数名} 或 ${父节点参数名.子节点参数名}来生成xml数据结构",
       },
       document: {
         order: "排序方式",
@@ -876,7 +892,9 @@ export default {
         code_template_set_global_variable: "设置全局变量",
         code_template_get_response_header: "获取响应头",
         code_template_get_response_code: "获取响应码",
-        code_template_get_response_result: "获取响应结果"
+        code_template_get_response_result: "获取响应结果",
+        code_add_report_length: "报文头添加长度",
+        code_hide_report_length: "隐藏报文长度"
       },
       dubbo: {
         protocol: "协议",
@@ -1023,6 +1041,7 @@ export default {
           case_type: {
             api: "接口用例",
             scene: "场景用例",
+            load: "性能用例"
           }
         }
       },
@@ -1419,7 +1438,8 @@ export default {
     status_change_success: '状态修改成功!',
     status_change_failed: '状态修改失败, 校验不通过!',
     check_in: '校验中',
-    node_selector_invalid: 'nodeSelector 必须是有效的JSON'
+    node_selector_invalid: 'nodeSelector 必须是有效的JSON',
+    pod_thread_limit: '单POD最大线程数'
   },
   system_parameter_setting: {
     mailbox_service_settings: '邮件设置',

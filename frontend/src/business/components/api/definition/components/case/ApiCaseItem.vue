@@ -87,13 +87,19 @@
       <div v-if="apiCase.active||type==='detail'">
         <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
         <ms-api-request-form :isShowEnable="true" :showScript="true" :is-read-only="isReadOnly" :headers="apiCase.request.headers " :request="apiCase.request" v-if="api.protocol==='HTTP'"/>
-        <ms-tcp-basis-parameters :showScript="true" :request="apiCase.request" v-if="api.protocol==='TCP'"/>
+        <ms-tcp-basis-parameters :showScript="true" :request="apiCase.request" v-if="api.method==='TCP' && apiCase.request.esbDataStruct == null"/>
+        <esb-definition v-xpack :request="apiCase.request" :showScript="true" v-if="showXpackCompnent&&api.method==='ESB'" ref="esbDefinition"/>
         <ms-sql-basis-parameters :showScript="true" :request="apiCase.request" v-if="api.protocol==='SQL'"/>
         <ms-dubbo-basis-parameters :showScript="true" :request="apiCase.request" v-if="api.protocol==='DUBBO'"/>
 
         <!-- HTTP 请求返回数据 -->
         <p class="tip">{{$t('api_test.definition.request.res_param')}}</p>
-        <api-response-component :currentProtocol="apiCase.request.protocol" :api-item="apiCase"/>
+        <div v-if="showXpackCompnent&&api.method==='ESB'">
+          <esb-definition-response :currentProtocol="apiCase.request.protocol" :request="apiCase.request" :is-api-component="false" :show-options-button="false" :show-header="true" :api-item="apiCase"/>
+        </div>
+        <div v-else>
+          <api-response-component :currentProtocol="apiCase.request.protocol" :api-item="apiCase"/>
+        </div>
 
         <ms-jmx-step :request="apiCase.request" :response="apiCase.responseData"/>
         <!-- 保存操作 -->
@@ -123,6 +129,9 @@
   import MsJmxStep from "../step/JmxStep";
   import ApiResponseComponent from "../../../automation/scenario/component/ApiResponseComponent";
   import ShowMoreBtn from "../../../../track/case/components/ShowMoreBtn";
+  const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
+  const esbDefinition = (requireComponent!=null&&requireComponent.keys().length) > 0 ? requireComponent("./apiDefinition/EsbDefinition.vue") : {};
+  const esbDefinitionResponse = (requireComponent!=null&&requireComponent.keys().length) > 0 ? requireComponent("./apiDefinition/EsbDefinitionResponse.vue") : {};
 
   export default {
     name: "ApiCaseItem",
@@ -140,12 +149,15 @@
       MsApiExtendBtns,
       MsRequestResultTail,
       MsJmxStep,
-      ShowMoreBtn
+      ShowMoreBtn,
+      "esbDefinition": esbDefinition.default,
+      "esbDefinitionResponse": esbDefinitionResponse.default
     },
     data() {
       return {
         result: {},
         grades: [],
+        showXpackCompnent:false,
         isReadOnly: false,
         selectedEvent: Object,
         priorities: PRIORITY,
@@ -184,6 +196,11 @@
       },
       type: String,
       isCaseEdit: Boolean,
+    },
+    created() {
+      if (requireComponent != null && JSON.stringify(esbDefinition) != '{}'&& JSON.stringify(esbDefinitionResponse) != '{}') {
+        this.showXpackCompnent = true;
+      }
     },
     watch: {},
     methods: {
@@ -297,6 +314,14 @@
             tmp.request.method = this.api.method;
           }
         }
+
+        if(tmp.request.esbDataStruct != null){
+          tmp.esbDataStruct = JSON.stringify(tmp.request.esbDataStruct);
+        }
+        if(tmp.request.backEsbDataStruct != null){
+          tmp.backEsbDataStruct = JSON.stringify(tmp.request.backEsbDataStruct);
+        }
+
         if (tmp.tags instanceof Array) {
           tmp.tags = JSON.stringify(tmp.tags);
         }
