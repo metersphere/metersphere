@@ -780,6 +780,12 @@ public class TestCaseService {
                 editTestCase(item);
             }
         });
+        List<String> ids = request.getIds();
+        if (CollectionUtils.isNotEmpty(ids)) {
+            TestCaseBatchRequest deleteRequest = new TestCaseBatchRequest();
+            deleteRequest.setIds(ids);
+            deleteTestCaseBath(deleteRequest);
+        }
     }
 
     public List<TestCase> getTestCaseByProjectId(String projectId) {
