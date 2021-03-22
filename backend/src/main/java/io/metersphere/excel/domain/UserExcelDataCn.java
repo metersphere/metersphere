@@ -59,7 +59,7 @@ public class UserExcelDataCn extends UserExcelData {
 
     @Length(max = 100)
     @ColumnWidth(30)
-    @ExcelProperty("组织成员工作空间")
+    @ExcelProperty("组织成员组织名称")
     private String orgMemberOrganization;
 
     @NotBlank(message = "{cannot_be_null}")
