@@ -82,7 +82,7 @@
                              :total="total"/>
       </el-card>
     </ms-main-container>
-    <compare-reports ref="compareReports"/>
+    <same-test-reports ref="compareReports"/>
   </ms-container>
 </template>
 
@@ -100,12 +100,12 @@ import {LIST_CHANGE, PerformanceEvent} from "@/business/components/common/head/L
 import ShowMoreBtn from "../../track/case/components/ShowMoreBtn";
 import {_filter, _sort} from "@/common/js/tableUtils";
 import MsDialogFooter from "@/business/components/common/components/MsDialogFooter";
-import CompareReports from "@/business/components/performance/report/components/CompareReports";
+import SameTestReports from "@/business/components/performance/report/components/SameTestReports";
 
 export default {
   name: "PerformanceTestReportList",
   components: {
-    CompareReports,
+    SameTestReports,
     MsDialogFooter,
     MsTableHeader,
     ReportTriggerModeItem,

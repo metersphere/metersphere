@@ -1,7 +1,7 @@
 <template>
   <el-dialog :close-on-click-modal="false"
              :destroy-on-close="true"
-             :title="$t('已完成的测试报告')" width="50%"
+             :title="$t('已完成的测试报告')" width="60%"
              :visible.sync="loadReportVisible">
     <el-table v-loading="reportLoadingResult.loading"
               class="basic-config"
@@ -19,6 +19,12 @@
         prop="userName"
         :label="$t('report.user_name')"
         show-overflow-tooltip>
+      </el-table-column>
+      <el-table-column prop="triggerMode"
+                       :label="$t('test_track.report.list.trigger_mode')">
+        <template v-slot:default="scope">
+          <report-trigger-mode-item :trigger-mode="scope.row.triggerMode"/>
+        </template>
       </el-table-column>
       <el-table-column
         :label="$t('commons.create_time')">
@@ -40,10 +46,12 @@
 <script>
 import MsTablePagination from "@/business/components/common/pagination/TablePagination";
 import MsDialogFooter from "@/business/components/common/components/MsDialogFooter";
+import ReportTriggerModeItem from "@/business/components/common/tableItem/ReportTriggerModeItem";
+import {getUUID} from "@/common/js/utils";
 
 export default {
-  name: "CompareReports",
-  components: {MsDialogFooter, MsTablePagination},
+  name: "SameTestReports",
+  components: {ReportTriggerModeItem, MsDialogFooter, MsTablePagination},
   data() {
     return {
       loadReportVisible: false,
@@ -76,7 +84,10 @@ export default {
       })
     },
     handleCompare() {
-      console.log(111);
+      console.log(123);
+      let reportIds = [...this.selectIds];
+      let uuid = getUUID();
+      this.$router.push({path: '/performance/report/compare', params: {redirectID: uuid, reportIds: reportIds}});
     },
     handleSelectAll(selection) {
       if (selection.length > 0) {

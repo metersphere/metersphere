@@ -82,7 +82,7 @@
         </div>
       </el-dialog>
     </ms-main-container>
-    <compare-reports ref="compareReports"/>
+    <same-test-reports ref="compareReports"/>
   </ms-container>
 </template>
 
@@ -99,13 +99,13 @@ import {checkoutTestManagerOrTestUser, exportPdf} from "@/common/js/utils";
 import html2canvas from 'html2canvas';
 import MsPerformanceReportExport from "./PerformanceReportExport";
 import {Message} from "element-ui";
-import CompareReports from "@/business/components/performance/report/components/CompareReports";
+import SameTestReports from "@/business/components/performance/report/components/SameTestReports";
 
 
 export default {
   name: "PerformanceReportView",
   components: {
-    CompareReports,
+    SameTestReports,
     MsPerformanceReportExport,
     MsReportErrorLog,
     MsReportLogDetails,
