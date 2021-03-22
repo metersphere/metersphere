@@ -3,22 +3,25 @@
              :destroy-on-close="true"
              :title="$t('load_test.exist_jmx')" width="70%"
              :visible.sync="loadFileVisible">
-    <el-row>
-      <el-upload
-        style="padding-right: 10px;"
-        accept=".jmx,.jar,.csv,.json,.pdf,.jpg,.png,.jpeg,.doc,.docx,.xlsx"
-        action=""
-        :limit="fileNumLimit"
-        multiple
-        :show-file-list="false"
-        :before-upload="beforeUploadFile"
-        :http-request="handleUpload"
-        :on-exceed="handleExceed"
-        :file-list="fileList">
-        <ms-table-button :is-tester-permission="true" icon="el-icon-upload2"
-                         :content="$t('load_test.upload_file')"/>
-      </el-upload>
-    </el-row>
+
+    <ms-table-header :is-tester-permission="true" title="" :condition.sync="condition" @search="getProjectFiles" :show-create="false">
+      <template v-slot:button>
+        <el-upload
+          style="margin-bottom: 10px;"
+          accept=".jmx,.jar,.csv,.json,.pdf,.jpg,.png,.jpeg,.doc,.docx,.xlsx"
+          action=""
+          :limit="fileNumLimit"
+          multiple
+          :show-file-list="false"
+          :before-upload="beforeUploadFile"
+          :http-request="handleUpload"
+          :on-exceed="handleExceed"
+          :file-list="fileList">
+          <ms-table-button :is-tester-permission="true" icon="el-icon-upload2"
+                           :content="$t('load_test.upload_file')"/>
+        </el-upload>
+      </template>
+    </ms-table-header>
 
     <el-table v-loading="projectLoadingResult.loading"
               class="basic-config"
@@ -64,10 +67,12 @@ import MsDialogFooter from "@/business/components/common/components/MsDialogFoot
 import {getCurrentProjectID} from "@/common/js/utils";
 import MsTableOperatorButton from "@/business/components/common/components/MsTableOperatorButton";
 import {Message} from "element-ui";
+import MsTableHeader from "@/business/components/common/components/MsTableHeader";
+import MsTableSearchBar from "@/business/components/common/components/MsTableSearchBar";
 
 export default {
   name: "MsResourceFiles",
-  components: {MsTableOperatorButton, MsDialogFooter, MsTableButton, MsTablePagination},
+  components: {MsTableSearchBar, MsTableHeader, MsTableOperatorButton, MsDialogFooter, MsTableButton, MsTablePagination},
   data() {
     return {
       loadFileVisible: false,
@@ -79,6 +84,7 @@ export default {
       fileList: [],
       uploadList: [],
       fileNumLimit: 10,
+      condition: {}
     }
   },
   methods: {
@@ -91,7 +97,7 @@ export default {
       this.selectIds.clear();
     },
     getProjectFiles() {
-      this.projectLoadingResult = this.$get('/performance/project/all/' + getCurrentProjectID() + "/" + this.currentPage + "/" + this.pageSize, res => {
+      this.projectLoadingResult = this.$post('/performance/project/all/' + getCurrentProjectID() + "/" + this.currentPage + "/" + this.pageSize, this.condition, res => {
         let data = res.data;
         this.total = data.itemCount;
         this.existFiles = data.listObject;
