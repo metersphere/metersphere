@@ -891,8 +891,8 @@ export default {
         code_template_get_response_header: "Get Response Header",
         code_template_get_response_code: "Get Response Code",
         code_template_get_response_result: "Get Response Result",
-        code_add_report_length : "Add report length to head",
-        code_hide_report_length : "Hide report length"
+        code_add_report_length: "Add report length to head",
+        code_hide_report_length: "Hide report length"
       },
       dubbo: {
         protocol: "protocol",
@@ -1434,7 +1434,8 @@ export default {
     status_change_success: 'Successfully changed the status!',
     status_change_failed: 'Failed to change the status, resource pool is invalid!',
     check_in: 'Check in',
-    node_selector_invalid: 'nodeSelector must be JSON'
+    node_selector_invalid: 'nodeSelector must be JSON',
+    pod_thread_limit: 'Maximum number of threads per POD'
   },
   system_parameter_setting: {
     mailbox_service_settings: 'Mailbox Settings',
