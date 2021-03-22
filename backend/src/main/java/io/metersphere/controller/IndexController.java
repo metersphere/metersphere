@@ -25,6 +25,6 @@ public class IndexController {
 
     @GetMapping(value = "/document")
     public String document() {
-        return "document:/";
+        return "document.html";
     }
 }
