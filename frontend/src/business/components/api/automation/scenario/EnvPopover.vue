@@ -8,7 +8,8 @@
     <env-select :project-ids="projectIds" :env-map="envMap" @close="visible = false"
                 ref="envSelect" @setProjectEnvMap="setProjectEnvMap" :project-list="projectList"/>
     <el-button type="primary" slot="reference" size="mini" style="margin-top: 2px;">
-      环境配置<i class="el-icon-caret-bottom el-icon--right"></i>
+      {{ $t('api_test.definition.request.run_env') }}
+      <i class="el-icon-caret-bottom el-icon--right"></i>
     </el-button>
   </el-popover>
 </template>
