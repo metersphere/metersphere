@@ -64,7 +64,6 @@ public class ApiAutomationController {
     public void update(@RequestPart("request") SaveApiScenarioRequest request, @RequestPart(value = "files") List<MultipartFile> bodyFiles) {
         apiAutomationService.update(request, bodyFiles);
     }
-
     @GetMapping("/delete/{id}")
     public void delete(@PathVariable String id) {
         apiAutomationService.delete(id);

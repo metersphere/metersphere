@@ -120,12 +120,13 @@ public class PerformanceTestController {
         return performanceTestService.exportJmx(fileIds);
     }
 
-    @GetMapping("/project/{loadType}/{projectId}/{goPage}/{pageSize}")
+    @PostMapping("/project/{loadType}/{projectId}/{goPage}/{pageSize}")
     public Pager<List<FileMetadata>> getProjectFiles(@PathVariable String projectId, @PathVariable String loadType,
-                                                        @PathVariable int goPage, @PathVariable int pageSize) {
+                                                     @PathVariable int goPage, @PathVariable int pageSize,
+                                                     @RequestBody QueryProjectFileRequest request) {
         checkPermissionService.checkProjectOwner(projectId);
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
-        return PageUtils.setPageInfo(page, performanceTestService.getProjectFiles(projectId, loadType));
+        return PageUtils.setPageInfo(page, performanceTestService.getProjectFiles(projectId, loadType, request));
     }
 
     @PostMapping("/delete")

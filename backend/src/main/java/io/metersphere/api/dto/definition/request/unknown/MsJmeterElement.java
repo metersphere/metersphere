@@ -3,11 +3,14 @@ package io.metersphere.api.dto.definition.request.unknown;
 import com.alibaba.fastjson.annotation.JSONType;
 import io.metersphere.api.dto.definition.request.MsTestElement;
 import io.metersphere.api.dto.definition.request.ParameterConfig;
+import io.metersphere.commons.exception.MSException;
+import io.metersphere.commons.utils.FileUtils;
 import io.metersphere.commons.utils.LogUtil;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.jmeter.config.CSVDataSet;
 import org.apache.jmeter.save.SaveService;
 import org.apache.jmeter.testelement.TestElement;
 import org.apache.jmeter.testelement.TestPlan;
@@ -15,6 +18,7 @@ import org.apache.jmeter.threads.ThreadGroup;
 import org.apache.jorphan.collections.HashTree;
 
 import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.InputStream;
 import java.util.List;
 
@@ -53,6 +57,13 @@ public class MsJmeterElement extends MsTestElement {
                 if (!config.isOperating() && scriptWrapper instanceof ThreadGroup && !((ThreadGroup) scriptWrapper).isEnabled()) {
                     LogUtil.info(((ThreadGroup) scriptWrapper).getName() + "是被禁用线程组不加入执行");
                 } else {
+                    // CSV数据检查文件路径是否还存在
+                    if (scriptWrapper instanceof CSVDataSet) {
+                        String path = ((CSVDataSet) scriptWrapper).getPropertyAsString("filename");
+                        if (!new File(path).exists()) {
+                            MSException.throwException(StringUtils.isEmpty(((CSVDataSet) scriptWrapper).getName()) ? "CSVDataSet" : ((CSVDataSet) scriptWrapper).getName() + "：[ CSV文件不存在 ]");
+                        }
+                    }
                     if (CollectionUtils.isNotEmpty(hashTree)) {
                         for (MsTestElement el : hashTree) {
                             el.toHashTree(elementTree, el.getHashTree(), config);
@@ -62,6 +73,7 @@ public class MsJmeterElement extends MsTestElement {
             }
         } catch (Exception ex) {
             ex.printStackTrace();
+            MSException.throwException(ex.getMessage());
         }
     }
 

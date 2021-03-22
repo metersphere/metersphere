@@ -3,42 +3,42 @@
              :destroy-on-close="true"
              :title="$t('load_test.exist_jmx')" width="70%"
              :visible.sync="loadFileVisible">
-    <el-row>
-
-      <el-upload
-        v-if="loadType === 'jmx'"
-        style="padding-right: 10px;"
-        accept=".jmx"
-        action=""
-        multiple
-        :limit="fileNumLimit"
-        :show-file-list="false"
-        :before-upload="beforeUploadFile"
-        :http-request="handleUpload"
-        :on-exceed="handleExceed"
-        :disabled="isReadOnly"
-        :file-list="fileList">
-        <ms-table-button :is-tester-permission="true" icon="el-icon-upload2"
-                         :content="$t('load_test.upload_jmx')"/>
-      </el-upload>
-      <el-upload
-        v-else
-        style="padding-right: 10px;"
-        accept=".jar,.csv,.json,.pdf,.jpg,.png,.jpeg,.doc,.docx,.xlsx"
-        action=""
-        :limit="fileNumLimit"
-        multiple
-        :show-file-list="false"
-        :before-upload="beforeUploadFile"
-        :http-request="handleUpload"
-        :on-exceed="handleExceed"
-        :disabled="isReadOnly"
-        :file-list="fileList">
-        <ms-table-button :is-tester-permission="true" icon="el-icon-upload2"
-                         :content="$t('load_test.upload_file')"/>
-      </el-upload>
-    </el-row>
-
+    <ms-table-header :is-tester-permission="true" title="" :condition.sync="condition" @search="getProjectFiles" :show-create="false">
+      <template v-slot:button>
+        <el-upload
+          v-if="loadType === 'jmx'"
+          style="margin-bottom: 10px"
+          accept=".jmx"
+          action=""
+          multiple
+          :limit="fileNumLimit"
+          :show-file-list="false"
+          :before-upload="beforeUploadFile"
+          :http-request="handleUpload"
+          :on-exceed="handleExceed"
+          :disabled="isReadOnly"
+          :file-list="fileList">
+          <ms-table-button :is-tester-permission="true" icon="el-icon-upload2"
+                           :content="$t('load_test.upload_jmx')"/>
+        </el-upload>
+        <el-upload
+          v-else
+          style="margin-bottom: 10px"
+          accept=".jar,.csv,.json,.pdf,.jpg,.png,.jpeg,.doc,.docx,.xlsx"
+          action=""
+          :limit="fileNumLimit"
+          multiple
+          :show-file-list="false"
+          :before-upload="beforeUploadFile"
+          :http-request="handleUpload"
+          :on-exceed="handleExceed"
+          :disabled="isReadOnly"
+          :file-list="fileList">
+          <ms-table-button :is-tester-permission="true" icon="el-icon-upload2"
+                           :content="$t('load_test.upload_file')"/>
+        </el-upload>
+      </template>
+    </ms-table-header>
     <el-table v-loading="projectLoadingResult.loading"
               class="basic-config"
               :data="existFiles"
@@ -78,10 +78,11 @@ import {getCurrentProjectID} from "@/common/js/utils";
 import {findThreadGroup} from "@/business/components/performance/test/model/ThreadGroup";
 import MsTableButton from "@/business/components/common/components/MsTableButton";
 import axios from "axios";
+import MsTableHeader from "@/business/components/common/components/MsTableHeader";
 
 export default {
   name: "ExistFiles",
-  components: {MsTableButton, MsTablePagination, MsDialogFooter},
+  components: {MsTableHeader, MsTableButton, MsTablePagination, MsDialogFooter},
   props: {
     fileList: Array,
     tableData: Array,
@@ -100,6 +101,7 @@ export default {
       existFiles: [],
       selectIds: new Set,
       fileNumLimit: 10,
+      condition: {}
     }
   },
   methods: {
@@ -133,7 +135,7 @@ export default {
       }
     },
     getProjectFiles() {
-      this.projectLoadingResult = this.$get('/performance/project/' + this.loadType + '/' + getCurrentProjectID() + "/" + this.currentPage + "/" + this.pageSize, res => {
+      this.projectLoadingResult = this.$post('/performance/project/' + this.loadType + '/' + getCurrentProjectID() + "/" + this.currentPage + "/" + this.pageSize, this.condition, res => {
         let data = res.data;
         this.total = data.itemCount;
         this.existFiles = data.listObject;

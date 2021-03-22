@@ -7,6 +7,7 @@ import io.metersphere.commons.utils.SessionUtils;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.authc.ExpiredCredentialsException;
 import org.apache.shiro.web.filter.authc.AnonymousFilter;
 import org.apache.shiro.web.util.WebUtils;
 import org.springframework.core.env.Environment;
@@ -84,7 +85,7 @@ public class CsrfFilter extends AnonymousFilter {
         Environment env = CommonBeanFactory.getBean(Environment.class);
         long timeout = env.getProperty("session.timeout", Long.class, 43200L);
         if (Math.abs(System.currentTimeMillis() - signatureTime) > timeout * 1000) {
-            throw new RuntimeException("expired token");
+            throw new ExpiredCredentialsException("expired token");
         }
         if (!StringUtils.equals(SessionUtils.getUserId(), signatureArray[0])) {
             throw new RuntimeException("Please check csrf token.");

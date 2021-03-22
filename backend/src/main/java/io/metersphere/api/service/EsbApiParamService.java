@@ -10,6 +10,7 @@ import io.metersphere.api.dto.definition.SaveApiDefinitionRequest;
 import io.metersphere.api.dto.definition.SaveApiTestCaseRequest;
 import io.metersphere.api.dto.definition.request.sampler.MsTCPSampler;
 import io.metersphere.api.dto.scenario.KeyValue;
+import io.metersphere.base.domain.ApiTestCaseWithBLOBs;
 import io.metersphere.base.domain.EsbApiParamsExample;
 import io.metersphere.base.domain.EsbApiParamsWithBLOBs;
 import io.metersphere.base.mapper.EsbApiParamsMapper;
@@ -110,25 +111,76 @@ public class EsbApiParamService {
         if (esbParamBlobs == null) {
             return;
         }
-        try {
-            if (StringUtils.isNotEmpty(res.getRequest())) {
-                JSONObject jsonObj = JSONObject.parseObject(res.getRequest());
-
-                JSONArray esbDataArray = JSONArray.parseArray(esbParamBlobs.getDataStruct());
-                jsonObj.put("esbDataStruct", esbDataArray);
-
-                JSONArray responseDataArray = JSONArray.parseArray(esbParamBlobs.getResponseDataStruct());
-                jsonObj.put("backEsbDataStruct", responseDataArray);
-
-                JSONObject backedScriptObj = JSONObject.parseObject(esbParamBlobs.getBackedScript());
-                jsonObj.put("backScript", backedScriptObj);
-
-                jsonObj.put("esbFrontedScript", esbParamBlobs.getFrontedScript());
-
+        if (StringUtils.isNotEmpty(res.getRequest())) {
+            JSONObject jsonObj = this.addEsbInfoToJsonString(esbParamBlobs, res.getRequest());
+            if (jsonObj != null) {
                 res.setRequest(jsonObj.toJSONString());
             }
-        } catch (Exception e) {
+
         }
+
+//        try {
+//            if (StringUtils.isNotEmpty(res.getRequest())) {
+//                JSONObject jsonObj = JSONObject.parseObject(res.getRequest());
+//
+//                JSONArray esbDataArray = JSONArray.parseArray(esbParamBlobs.getDataStruct());
+//                jsonObj.put("esbDataStruct", esbDataArray);
+//
+//                JSONArray responseDataArray = JSONArray.parseArray(esbParamBlobs.getResponseDataStruct());
+//                jsonObj.put("backEsbDataStruct", responseDataArray);
+//
+//                JSONObject backedScriptObj = JSONObject.parseObject(esbParamBlobs.getBackedScript());
+//                jsonObj.put("backScript", backedScriptObj);
+//
+//                jsonObj.put("esbFrontedScript", esbParamBlobs.getFrontedScript());
+//
+//                res.setRequest(jsonObj.toJSONString());
+//            }
+//        } catch (Exception e) {
+//        }
+    }
+
+    public void handleApiEsbParams(ApiTestCaseWithBLOBs res) {
+        EsbApiParamsWithBLOBs esbParamBlobs = this.getEsbParamBLOBsByResourceID(res.getId());
+        if (esbParamBlobs == null) {
+            return;
+        }
+        if (StringUtils.isNotEmpty(res.getRequest())) {
+            JSONObject jsonObj = this.addEsbInfoToJsonString(esbParamBlobs, res.getRequest());
+            if (jsonObj != null) {
+                res.setRequest(jsonObj.toJSONString());
+            }
+
+        }
+    }
+
+    private JSONObject addEsbInfoToJsonString(EsbApiParamsWithBLOBs esbParamBlobs, String requestString) {
+        JSONObject returnObj = null;
+        try {
+            returnObj = JSONObject.parseObject(requestString);
+
+            JSONArray esbDataArray = JSONArray.parseArray(esbParamBlobs.getDataStruct());
+            if (esbDataArray == null) {
+                returnObj.put("esbDataStruct", "");
+            } else {
+                returnObj.put("esbDataStruct", esbDataArray);
+            }
+
+            JSONArray responseDataArray = JSONArray.parseArray(esbParamBlobs.getResponseDataStruct());
+            if (responseDataArray == null) {
+                returnObj.put("backEsbDataStruct", "");
+            } else {
+                returnObj.put("backEsbDataStruct", responseDataArray);
+            }
+
+            returnObj.put("esbFrontedScript", esbParamBlobs.getFrontedScript());
+
+            JSONObject backedScriptObj = JSONObject.parseObject(esbParamBlobs.getBackedScript());
+            returnObj.put("backScript", backedScriptObj);
+        } catch (Exception e) {
+
+        }
+        return returnObj;
     }
 
     public void handleApiEsbParams(ApiTestCaseResult res) {
@@ -136,23 +188,30 @@ public class EsbApiParamService {
         if (esbParamBlobs == null) {
             return;
         }
-        try {
-            if (StringUtils.isNotEmpty(res.getRequest())) {
-                JSONObject jsonObj = JSONObject.parseObject(res.getRequest());
-                JSONArray esbDataArray = JSONArray.parseArray(esbParamBlobs.getDataStruct());
-                jsonObj.put("esbDataStruct", esbDataArray);
-                jsonObj.put("esbFrontedScript", esbParamBlobs.getFrontedScript());
-
-                JSONArray responseDataArray = JSONArray.parseArray(esbParamBlobs.getResponseDataStruct());
-                jsonObj.put("backEsbDataStruct", responseDataArray);
-
+        if (StringUtils.isNotEmpty(res.getRequest())) {
+            JSONObject jsonObj = this.addEsbInfoToJsonString(esbParamBlobs, res.getRequest());
+            if (jsonObj != null) {
                 res.setRequest(jsonObj.toJSONString());
             }
-        } catch (Exception e) {
+
         }
+//        try {
+//            if (StringUtils.isNotEmpty(res.getRequest())) {
+//                JSONObject jsonObj = JSONObject.parseObject(res.getRequest());
+//                JSONArray esbDataArray = JSONArray.parseArray(esbParamBlobs.getDataStruct());
+//                jsonObj.put("esbDataStruct", esbDataArray);
+//                jsonObj.put("esbFrontedScript", esbParamBlobs.getFrontedScript());
+//
+//                JSONArray responseDataArray = JSONArray.parseArray(esbParamBlobs.getResponseDataStruct());
+//                jsonObj.put("backEsbDataStruct", responseDataArray);
+//
+//                res.setRequest(jsonObj.toJSONString());
+//            }
+//        } catch (Exception e) {
+//        }
     }
 
-    public SaveApiDefinitionRequest handleEsbRequest(SaveApiDefinitionRequest request) {
+    public SaveApiDefinitionRequest updateEsbRequest(SaveApiDefinitionRequest request) {
         try {
             //修改reqeust.parameters
             //用户交互感受：ESB的发送数据以报文模板为主框架，同时前端不再有key-value的表格数据填充。
@@ -162,8 +221,27 @@ public class EsbApiParamService {
                 MsTCPSampler tcpSampler = (MsTCPSampler) request.getRequest();
                 List<KeyValue> keyValueList = this.genKeyValueListByDataStruct(tcpSampler, request.getEsbDataStruct());
                 tcpSampler.setParameters(keyValueList);
+                request.setRequest(tcpSampler);
             }
-
+            //更新EsbApiParams类
+//            EsbApiParamsWithBLOBs esbApiParams = this.createEsbApiParam(request.getId(), request.getEsbDataStruct(), request.getBackEsbDataStruct(), request.getBackScript());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return request;
+    }
+    public SaveApiDefinitionRequest handleEsbRequest(SaveApiDefinitionRequest request) {
+        try {
+            //修改reqeust.parameters
+            //用户交互感受：ESB的发送数据以报文模板为主框架，同时前端不再有key-value的表格数据填充。
+            //业务逻辑：   发送ESB接口数据时，使用报文模板中的数据，同时报文模板中的${取值}目的是为了拼接数据结构(比如xml的子节点)
+            //代码实现:    此处打算解析前端传来的EsbDataStruct数据结构，将数据结构按照报文模板中的${取值}为最高优先级组装keyValue对象。这样Jmeter会自动拼装为合适的xml
+            if (StringUtils.isNotEmpty(request.getEsbDataStruct())) {
+                MsTCPSampler tcpSampler = (MsTCPSampler) request.getRequest();
+                tcpSampler.setProtocol("ESB");
+                List<KeyValue> keyValueList = this.genKeyValueListByDataStruct(tcpSampler, request.getEsbDataStruct());
+                tcpSampler.setParameters(keyValueList);
+            }
             //更新EsbApiParams类
             EsbApiParamsWithBLOBs esbApiParams = this.createEsbApiParam(request.getId(), request.getEsbDataStruct(), request.getBackEsbDataStruct(), request.getBackScript());
         } catch (Exception e) {
@@ -171,6 +249,43 @@ public class EsbApiParamService {
         }
         return request;
     }
+
+//    public RunDefinitionRequest handleEsbRequest(RunDefinitionRequest request) {
+//        try {
+//            //修改reqeust.parameters
+//            //用户交互感受：ESB的发送数据以报文模板为主框架，同时前端不再有key-value的表格数据填充。
+//            //业务逻辑：   发送ESB接口数据时，使用报文模板中的数据，同时报文模板中的${取值}目的是为了拼接数据结构(比如xml的子节点)
+//            //代码实现:    此处打算解析前端传来的EsbDataStruct数据结构，将数据结构按照报文模板中的${取值}为最高优先级组装keyValue对象。这样Jmeter会自动拼装为合适的xml
+//            if (StringUtils.isNotEmpty(request.getEsbDataStruct())) {
+//                if(request.getTestElement() instanceof MsTestPlan){
+//                    MsTestPlan testPlan = (MsTestPlan)request.getTestElement();
+//                    for (MsTestElement testElement: testPlan.getHashTree()) {
+//                        if(testElement instanceof MsThreadGroup){
+//                            MsThreadGroup group = (MsThreadGroup)testElement;
+//                            for (MsTestElement groupElement: testPlan.getHashTree()) {
+//                                if(groupElement instanceof MsScenario){
+//                                    MsScenario scenario = (MsScenario)groupElement;
+//                                    for (MsTestElement scenarioElement: scenario.getHashTree()) {
+//                                        if(scenarioElement instanceof MsTCPSampler){
+//                                            MsTCPSampler tcpSampler = (MsTCPSampler) scenarioElement;
+//                                            List<KeyValue> keyValueList = this.genKeyValueListByDataStruct(tcpSampler, request.getEsbDataStruct());
+//                                            tcpSampler.setParameters(keyValueList);
+//                                        }
+//                                    }
+//                                }
+//                            }
+//                        }
+//                    }
+//                }
+//            }
+//
+//            //更新EsbApiParams类
+//            EsbApiParamsWithBLOBs esbApiParams = this.createEsbApiParam(request.getId(), request.getEsbDataStruct(), request.getBackEsbDataStruct(), request.getBackScript());
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//        return request;
+//    }
 
     //通过esb数据结构生成keyValue集合，以及发送参数
     private List<KeyValue> genKeyValueListByDataStruct(MsTCPSampler tcpSampler, String esbDataStruct) {

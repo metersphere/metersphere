@@ -329,10 +329,10 @@ export default {
       }
       return true;
     },
-    beforeUploadJmx(file){
+    beforeUploadJmx(file) {
       this.$refs.existFiles.beforeUploadFile(file);
     },
-    handleUpload(file){
+    handleUpload(file) {
       this.$refs.existFiles.handleUpload(file);
     },
   },
@@ -341,7 +341,7 @@ export default {
 
 <style scoped>
 .basic-config {
-  width: 100%
+  width: 100%;
 }
 
 .last-modified {

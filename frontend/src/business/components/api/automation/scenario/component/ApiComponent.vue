@@ -32,7 +32,9 @@
       <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
       <ms-api-request-form :isShowEnable="true" :referenced="true" :headers="request.headers " :request="request"
                            v-if="request.protocol==='HTTP' || request.type==='HTTPSamplerProxy'"/>
-      <ms-tcp-basis-parameters :request="request" v-if="request.protocol==='TCP'|| request.type==='TCPSampler'" :showScript="false"/>
+      <esb-definition v-xpack :request="request" :showScript="false" v-if="this.showXpackCompnent&&request.esbDataStruct!=null" ref="esbDefinition"/>
+      <ms-tcp-basis-parameters :request="request" v-if="(request.protocol==='TCP'|| request.type==='TCPSampler')&&request.esbDataStruct==null " :showScript="false"/>
+
       <ms-sql-basis-parameters :request="request" v-if="request.protocol==='SQL'|| request.type==='JDBCSampler'"
                                :showScript="false"/>
       <ms-dubbo-basis-parameters :request="request"
@@ -49,7 +51,13 @@
           </el-tab-pane>
         </el-tabs>
       </div>
-      <api-response-component :currentProtocol="request.protocol" :result="request.requestResult" v-else/>
+      <div v-else-if="showXpackCompnent&&request.backEsbDataStruct != null">
+        <esb-definition-response :currentProtocol="request.protocol" :request="request" :is-api-component="false"
+                                 :show-options-button="false" :show-header="true" :result="request.requestResult"/>
+      </div>
+      <div v-else>
+        <api-response-component :currentProtocol="request.protocol" :result="request.requestResult"/>
+      </div>
 
       <!-- 保存操作 -->
       <el-button type="primary" size="small" class="ms-btn-flot" @click="saveTestCase(item)"
@@ -75,6 +83,9 @@
   import ApiBaseComponent from "../common/ApiBaseComponent";
   import ApiResponseComponent from "./ApiResponseComponent";
   import CustomizeReqInfo from "@/business/components/api/automation/scenario/common/CustomizeReqInfo";
+  const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
+  const esbDefinition = (requireComponent!=null&&requireComponent.keys().length) > 0 ? requireComponent("./apiDefinition/EsbDefinition.vue") : {};
+  const esbDefinitionResponse = (requireComponent!=null&&requireComponent.keys().length) > 0 ? requireComponent("./apiDefinition/EsbDefinitionResponse.vue") : {};
 
   export default {
     name: "MsApiComponent",
@@ -101,7 +112,9 @@
     components: {
       CustomizeReqInfo,
       ApiBaseComponent, ApiResponseComponent,
-      MsSqlBasisParameters, MsTcpBasisParameters, MsDubboBasisParameters, MsApiRequestForm, MsRequestResultTail, MsRun
+      MsSqlBasisParameters, MsTcpBasisParameters, MsDubboBasisParameters, MsApiRequestForm, MsRequestResultTail, MsRun,
+      "esbDefinition": esbDefinition.default,
+      "esbDefinitionResponse": esbDefinitionResponse.default
     },
     data() {
       return {
@@ -109,6 +122,7 @@
         reportId: "",
         runData: [],
         isShowInput: false,
+        showXpackCompnent:false,
       }
     },
     created() {
@@ -121,6 +135,7 @@
       }
       // 加载引用对象数据
       this.getApiInfo();
+      console.log(JSON.stringify(this.request));
       if (this.request.protocol === 'HTTP') {
         this.setUrl(this.request.url);
         this.setUrl(this.request.path);
@@ -133,6 +148,9 @@
             }
           }
         }
+      }
+      if (requireComponent != null && JSON.stringify(esbDefinition) != '{}'&& JSON.stringify(esbDefinitionResponse) != '{}') {
+        this.showXpackCompnent = true;
       }
     },
     computed: {
@@ -284,7 +302,7 @@
         let debugData = {
           id: this.currentScenario.id, name: this.currentScenario.name, type: "scenario",
           variables: this.currentScenario.variables, referenced: 'Created', headers: this.currentScenario.headers,
-          enableCookieShare: this.enableCookieShare, environmentId: this.currentEnvironmentId, hashTree: [this.request]
+          enableCookieShare: this.enableCookieShare, environmentId: this.currentEnvironmentId, hashTree: [this.request],
         };
         this.runData.push(debugData);
         /*触发执行操作*/

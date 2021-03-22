@@ -422,6 +422,9 @@
             pc.plan_id = #{planId}
         </where>
     </select>
+    <select id="listTestCaseTest" resultType="io.metersphere.track.dto.TestCaseTestDTO">
+        select * from test_case_test where test_case_id = #{caseId};
+    </select>
 
     <update id="updateTestCaseStates" parameterType="java.lang.String">
         update test_plan_test_case

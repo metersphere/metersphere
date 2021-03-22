@@ -10,7 +10,7 @@ export function getTestCaseDataMap(testCase, isDisable, setParamCallback) {
       data: {
         id: item.id,
         text: item.name,
-        priority: Number.parseInt(item.priority.substring(item.priority.length - 1 )),
+        priority: Number.parseInt(item.priority.substring(item.priority.length - 1 )) + 1,
         resource: ["用例"],
         type: item.type,
         method: item.method,
