@@ -3,6 +3,8 @@ package io.metersphere.track.dto;
 import io.metersphere.base.domain.TestCaseWithBLOBs;
 import lombok.Getter;
 import lombok.Setter;
+import java.util.List;
+
 
 @Getter
 @Setter
@@ -18,4 +20,6 @@ public class TestPlanCaseDTO extends TestCaseWithBLOBs {
     private String reportId;
     private String model;
     private String projectName;
+
+    private List<TestCaseTestDTO> list;
 }
