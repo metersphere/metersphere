@@ -409,10 +409,14 @@ export default {
     getData() {
       this.getSelectDataRange();
       this.condition.selectThisWeedData = false;
+      this.condition.selectThisWeedRelevanceData = false;
       this.condition.caseCoverage = null;
       switch (this.selectDataRange) {
         case 'thisWeekCount':
           this.condition.selectThisWeedData = true;
+          break;
+        case 'thisWeekRelevanceCount':
+          this.condition.selectThisWeedRelevanceData = true;
           break;
         case 'uncoverage':
           this.condition.caseCoverage = 'uncoverage';

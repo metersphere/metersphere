@@ -439,6 +439,14 @@ export default {
     if (this.type === 'edit' || this.type === 'copy') {
       this.open(this.currentTestCaseInfo)
     }
+    // Cascader 级联选择器: 点击文本就让它自动点击前面的input就可以触发选择。
+    setInterval(function () {
+      document.querySelectorAll('.el-cascader-node__label').forEach(el => {
+        el.onclick = function () {
+          if (this.previousElementSibling) this.previousElementSibling.click();
+        };
+      });
+    }, 1000);
   },
   watch: {
     treeNodes() {
