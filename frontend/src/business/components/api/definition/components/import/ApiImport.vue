@@ -94,7 +94,6 @@
 <script>
 import MsDialogFooter from "../../../../common/components/MsDialogFooter";
 import {listenGoBack, removeGoBackListener} from "@/common/js/utils";
-import {getCurrentProjectID} from "../../../../../../common/js/utils";
 import ScheduleImport from "@/business/components/api/definition/components/import/ImportScheduleEdit";
 
 export default {
@@ -202,7 +201,10 @@ export default {
     },
     isScenarioModel() {
       return this.model === 'scenario';
-    }
+    },
+    projectId() {
+      return this.$store.state.projectId
+    },
   },
   methods: {
     scheduleEdit() {
@@ -283,7 +285,7 @@ export default {
         })
         param.modeId = this.formData.modeId
       }
-      param.projectId = getCurrentProjectID();
+      param.projectId = this.projectId;
       if (!this.swaggerUrlEnable) {
         param.swaggerUrl = undefined;
       }
