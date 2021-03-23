@@ -68,24 +68,36 @@ public class HarParser extends HarAbstractParser {
             harEntryList = har.log.entries;
         }
 
+        List<String> savedUrl = new ArrayList<>();
+
         for (HarEntry entry : harEntryList) {
             HarRequest harRequest = entry.request;
+            String url = harRequest.url;
+            if(url == null){
+                continue;
+            }
+
+            try {
+                url = URLDecoder.decode(url,"UTF-8");
+            }catch (Exception e){
+            }
+
+            if(savedUrl.contains(harRequest.url)){
+                continue;
+            }else {
+                savedUrl.add(harRequest.url);
+            }
 
             //默认取路径的最后一块
             String reqName = "";
             if (harRequest.url != null) {
-                String[] nameArr = harRequest.url.split("/");
+                String[] nameArr = url.split("/");
                 reqName = nameArr[nameArr.length - 1];
-                //然后进行转码解码
-                try {
-                    reqName = URLDecoder.decode(reqName,"UTF-8");
-                }catch (Exception e){
-                }
             }
 
             if (harRequest != null) {
-                MsHTTPSamplerProxy request = super.buildRequest(reqName, harRequest.url, harRequest.method);
-                ApiDefinitionWithBLOBs apiDefinition = super.buildApiDefinition(request.getId(), reqName, harRequest.url, harRequest.method, importRequest);
+                MsHTTPSamplerProxy request = super.buildRequest(reqName, url, harRequest.method);
+                ApiDefinitionWithBLOBs apiDefinition = super.buildApiDefinition(request.getId(), reqName, url, harRequest.method, importRequest);
                 parseParameters(harRequest, request);
                 parseRequestBody(harRequest, request.getBody());
                 addBodyHeader(request);
