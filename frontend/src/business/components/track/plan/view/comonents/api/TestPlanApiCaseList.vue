@@ -453,15 +453,12 @@ export default {
       this.initTable();
     },
     singleRun(row) {
-      if (!row.environmentId) {
-        this.$warning(this.$t('api_test.environment.select_environment'));
-        return;
-      }
       this.runData = [];
 
       this.rowLoading = row.id;
 
       this.$get('/api/testcase/get/' + row.caseId, (response) => {
+        console.log(response.data)
         let apiCase = response.data;
         let request = JSON.parse(apiCase.request);
         request.name = row.id;
