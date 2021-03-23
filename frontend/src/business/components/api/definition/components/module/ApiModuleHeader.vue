@@ -49,7 +49,7 @@
       @saveAsEdit="saveAsEdit"
       @refresh="refresh"
       ref="basisApi"/>
-    <api-import ref="apiImport" :moduleOptions="moduleOptions" @refresh="$emit('refresh')"/>
+    <api-import :propotal="condition.protocol" ref="apiImport" :moduleOptions="moduleOptions" @refresh="$emit('refresh')"/>
   </div>
 </template>
 
@@ -113,7 +113,7 @@ export default {
             return;
           }
           this.protocol = "HTTP";
-          this.result = this.$get("/api/module/list/" + this.projectId + "/" + this.protocol, response => {
+          this.result = this.$get("/api/module/list/" + this.projectId + "/" + this.condition.protocol, response => {
             if (response.data != undefined && response.data != null) {
               this.data = response.data;
               let moduleOptions = [];
@@ -122,8 +122,8 @@ export default {
               });
               this.moduleOptions = moduleOptions
             }
+            this.$refs.apiImport.open(this.moduleOptions);
           });
-          this.$refs.apiImport.open(this.currentModule);
           break;
       }
     },

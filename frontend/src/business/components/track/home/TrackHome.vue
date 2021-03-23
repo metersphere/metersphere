@@ -34,7 +34,8 @@
         </el-col>
         <el-col :span="6">
           <div class="square">
-            <relevance-case-card :relevance-count-data="relevanceCountData" class="track-card" @redirectPage="redirectPage"/>
+            <relevance-case-card :relevance-count-data="relevanceCountData" class="track-card"
+                                 @redirectPage="redirectPage"/>
           </div>
         </el-col>
         <el-col :span="12">
@@ -140,8 +141,8 @@ export default {
           xAxis.push(d.xAxis);
         }
       });
-      let yAxis1 = data.filter(d => d.groupName === 'FUNCTIONCASE').map(d => d.yAxis);
-      let yAxis2 = data.filter(d => d.groupName === 'RELEVANCECASE').map(d => d.yAxis);
+      let yAxis1 = data.filter(d => d.groupName === 'FUNCTIONCASE').map(d => [d.xAxis, d.yAxis]);
+      let yAxis2 = data.filter(d => d.groupName === 'RELEVANCECASE').map(d => [d.xAxis, d.yAxis]);
       let option = {
         tooltip: {
           trigger: 'axis',
@@ -190,10 +191,10 @@ export default {
       };
       this.caseOption = option;
     },
-    redirectPage(page,dataType,selectType){
+    redirectPage(page, dataType, selectType) {
       //test_plan 页面跳转
       // this.$router.push('/track/plan/view/'+selectType);
-      switch (page){
+      switch (page) {
         case "case":
           this.$router.push({
             name:'testCase',

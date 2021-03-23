@@ -110,7 +110,7 @@ export default {
           this.testCaseForm.projectId = this.projectId;
           this.testCaseForm.type = "";
           this.testCaseForm.priority = "P0";
-          if (this.currentModule && this.currentModule !== 0) {
+          if (this.currentModule && this.currentModule !== 0 && this.currentModule.path && this.currentModule.path !== 0) {
             this.testCaseForm.nodePath = this.currentModule.path;
             this.testCaseForm.nodeId = this.currentModule.id;
           } else {
@@ -118,7 +118,7 @@ export default {
             this.testCaseForm.nodeId = "root"
           }
           this.result = this.$post(path, this.testCaseForm, response => {
-            this.testCaseForm.id=response.data.id
+            this.testCaseForm.id = response.data.id
             this.$success(this.$t('commons.save_success'));
             this.visible = false;
             if (saveAs) {

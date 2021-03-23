@@ -90,8 +90,10 @@
             response.data.forEach(item => {
               let scenarioDefinition = JSON.parse(item.scenarioDefinition);
               if (scenarioDefinition && scenarioDefinition.hashTree) {
-                let obj = {id: item.id, name: item.name, type: "scenario", headers: scenarioDefinition.headers, variables: scenarioDefinition.variables, environmentMap: scenarioDefinition.environmentMap,
-                  referenced: 'Copy', resourceId: getUUID(), hashTree: scenarioDefinition.hashTree, projectId: item.projectId};
+                let obj = {
+                  id: item.id, name: item.name, type: "scenario", headers: scenarioDefinition.headers, variables: scenarioDefinition.variables, environmentMap: scenarioDefinition.environmentMap,
+                  referenced: 'Copy', resourceId: getUUID(), hashTree: scenarioDefinition.hashTree, projectId: item.projectId
+                };
                 scenarios.push(obj);
               }
             });
@@ -101,6 +103,7 @@
         })
       },
       close() {
+        this.$emit('close');
         this.refresh();
         this.$refs.relevanceDialog.close();
       },

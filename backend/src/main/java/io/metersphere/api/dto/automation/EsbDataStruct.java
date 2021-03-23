@@ -8,6 +8,7 @@ import org.dom4j.Element;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * //ESB数据格式
@@ -19,14 +20,68 @@ import java.util.List;
 @Getter
 @Setter
 public class EsbDataStruct {
+    private String uuid;
     private String name;
     private String value;
     private String type;
     private String systemName;
     private String contentType;
-    private String required;
+    private boolean required;
     private String description;
     private List<EsbDataStruct> children;
+
+    public void init(){
+        this.uuid = UUID.randomUUID().toString();
+        this.systemName = "";
+        this.description = "";
+        this.value="";
+        this.required = true;
+        this.contentType = "";
+        this.type = "";
+        this.children = new ArrayList<>();
+    }
+
+    public boolean initDefaultData(String name, String typeLength,String chineseName,String desc){
+        this.init();
+        if(StringUtils.isEmpty(name)){return  false; }
+        if(typeLength == null){
+            typeLength = "";
+        }else{
+            typeLength = typeLength.trim();
+            typeLength = typeLength.toLowerCase();
+        }
+
+        this.name = name;
+
+        if(typeLength.startsWith("string")){
+            this.type = "string";
+            String lengthStr = typeLength.substring(6);
+            if(lengthStr.startsWith("(") && lengthStr.endsWith(")")){
+                try {
+                    int length = Integer.parseInt(lengthStr.substring(1,lengthStr.length()-1));
+                    this.contentType = String.valueOf(length);
+                }catch (Exception e){ }
+
+            }
+        }else if(typeLength.startsWith("array")){
+            this.type = "array";
+        }else{
+            this.type = "object";
+        }
+
+        if(StringUtils.isEmpty(desc)){desc = "";}
+        if(StringUtils.isNotEmpty(chineseName)){
+            this.description = chineseName+":"+desc;
+        }else{
+            this.description =desc;
+        }
+
+        if(this.description.endsWith(":")){
+            this.description = this.description.substring(0,this.description.length()-1);
+        }
+
+        return  true;
+    }
 
     public EsbDataStruct copy(boolean copyChildren) {
         EsbDataStruct returnObj = new EsbDataStruct();
