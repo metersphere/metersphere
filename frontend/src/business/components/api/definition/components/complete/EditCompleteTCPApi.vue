@@ -41,8 +41,8 @@
 import MsTcpBasicApi from "./TCPBasicApi";
 import MsBasisParameters from "../request/tcp/TcpBasisParameters";
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
-const esbDefinition = (requireComponent!=null&&requireComponent.keys().length) > 0 ? requireComponent("./apiDefinition/EsbDefinition.vue") : {};
-const esbDefinitionResponse = (requireComponent!=null&&requireComponent.keys().length) > 0 ? requireComponent("./apiDefinition/EsbDefinitionResponse.vue") : {};
+const esbDefinition = (requireComponent!=null&&requireComponent.keys().length) > 0 ? requireComponent("./apidefinition/EsbDefinition.vue") : {};
+const esbDefinitionResponse = (requireComponent!=null&&requireComponent.keys().length) > 0 ? requireComponent("./apidefinition/EsbDefinitionResponse.vue") : {};
 export default {
   name: "MsAddCompleteTcpApi",
   components: {MsTcpBasicApi, MsBasisParameters,
