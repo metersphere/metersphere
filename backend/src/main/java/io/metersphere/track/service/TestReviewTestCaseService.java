@@ -1,16 +1,16 @@
 package io.metersphere.track.service;
 
 import io.metersphere.base.domain.*;
-import io.metersphere.base.mapper.TestCaseMapper;
-import io.metersphere.base.mapper.TestCaseReviewMapper;
-import io.metersphere.base.mapper.TestCaseReviewTestCaseMapper;
-import io.metersphere.base.mapper.TestCaseReviewUsersMapper;
+import io.metersphere.base.mapper.*;
+import io.metersphere.base.mapper.ext.ExtTestPlanTestCaseMapper;
 import io.metersphere.base.mapper.ext.ExtTestReviewCaseMapper;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.ServiceUtils;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.controller.request.member.QueryMemberRequest;
 import io.metersphere.service.UserService;
+import io.metersphere.track.dto.TestCaseTestDTO;
+import io.metersphere.track.dto.TestPlanCaseDTO;
 import io.metersphere.track.dto.TestReviewCaseDTO;
 import io.metersphere.track.request.testplancase.TestReviewCaseBatchRequest;
 import io.metersphere.track.request.testreview.DeleteRelevanceRequest;
@@ -29,7 +29,14 @@ import java.util.stream.Collectors;
 @Service
 @Transactional(rollbackFor = Exception.class)
 public class TestReviewTestCaseService {
-
+    @Resource
+    private TestCaseTestMapper testCaseTestMapper;
+    @Resource
+    private LoadTestMapper loadTestMapper;
+    @Resource
+    private ApiTestCaseMapper apiTestCaseMapper;
+    @Resource
+    private ApiScenarioMapper apiScenarioMapper;
     @Resource
     ExtTestReviewCaseMapper extTestReviewCaseMapper;
     @Resource
@@ -44,6 +51,8 @@ public class TestReviewTestCaseService {
     TestCaseReviewService testCaseReviewService;
     @Resource
     TestCaseMapper testCaseMapper;
+    @Resource
+    ExtTestPlanTestCaseMapper extTestPlanTestCaseMapper;
 
     public List<TestReviewCaseDTO> list(QueryCaseReviewRequest request) {
         request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
@@ -128,7 +137,40 @@ public class TestReviewTestCaseService {
     }
 
     public TestReviewCaseDTO get(String reviewId) {
-        return extTestReviewCaseMapper.get(reviewId);
+        TestReviewCaseDTO testReviewCaseDTO=extTestReviewCaseMapper.get(reviewId);
+        List<TestCaseTestDTO> testCaseTestDTOS = extTestPlanTestCaseMapper.listTestCaseTest(testReviewCaseDTO.getCaseId());
+        testCaseTestDTOS.forEach(dto -> {
+            setTestName(dto);
+        });
+        testReviewCaseDTO.setList(testCaseTestDTOS);
+        return testReviewCaseDTO;
+    }
+
+    private void setTestName(TestCaseTestDTO dto) {
+        String type = dto.getTestType();
+        String id = dto.getTestId();
+        switch (type) {
+            case "performance":
+                LoadTest loadTest = loadTestMapper.selectByPrimaryKey(id);
+                if (loadTest != null) {
+                    dto.setTestName(loadTest.getName());
+                }
+                break;
+            case "testcase":
+                ApiTestCaseWithBLOBs apiTestCaseWithBLOBs = apiTestCaseMapper.selectByPrimaryKey(id);
+                if (apiTestCaseWithBLOBs != null) {
+                    dto.setTestName(apiTestCaseWithBLOBs.getName());
+                }
+                break;
+            case "automation":
+                ApiScenarioWithBLOBs apiScenarioWithBLOBs = apiScenarioMapper.selectByPrimaryKey(id);
+                if (apiScenarioWithBLOBs != null) {
+                    dto.setTestName(apiScenarioWithBLOBs.getName());
+                }
+                break;
+            default:
+                break;
+        }
     }
 
     public void editTestCaseBatchStatus(TestReviewCaseBatchRequest request) {

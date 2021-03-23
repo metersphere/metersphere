@@ -17,6 +17,8 @@ import org.apache.jmeter.control.LoopController;
 import org.apache.jmeter.control.RunTime;
 import org.apache.jmeter.control.WhileController;
 import org.apache.jmeter.modifiers.CounterConfig;
+import org.apache.jmeter.modifiers.JSR223PreProcessor;
+import org.apache.jmeter.protocol.java.sampler.JSR223Sampler;
 import org.apache.jmeter.reporters.ResultAction;
 import org.apache.jmeter.save.SaveService;
 import org.apache.jmeter.testelement.TestElement;
@@ -24,6 +26,7 @@ import org.apache.jmeter.timers.ConstantTimer;
 import org.apache.jorphan.collections.HashTree;
 
 import java.util.List;
+import java.util.UUID;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -41,6 +44,9 @@ public class MsLoopController extends MsTestElement {
 
     @JSONField(ordinal = 23)
     private MsWhileController whileController;
+
+
+    private String ms_current_timer = UUID.randomUUID().toString();
 
     @Override
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, ParameterConfig config) {
@@ -122,7 +128,8 @@ public class MsLoopController extends MsTestElement {
             operator = "";
             value = "";
         }
-        return "${__jexl3(" + variable + operator + value + ")}";
+        ms_current_timer = UUID.randomUUID().toString();
+        return "${__jexl3(" + variable + operator + value + " && \"${" + ms_current_timer + "}\" !=\"stop\")}";
     }
 
     private WhileController initWhileController() {
@@ -151,6 +158,32 @@ public class MsLoopController extends MsTestElement {
         return controller;
     }
 
+    private String script() {
+        String script = "\n" +
+                "import java.util.*;\n" +
+                "import java.text.SimpleDateFormat;\n" +
+                "import org.apache.jmeter.threads.JMeterContextService;\n" +
+                "\n" +
+                "// 循环控制器超时后结束循环\n" +
+                "try{\n" +
+                "\tString ms_current_timer = vars.get(\"" + ms_current_timer + "\");\n" +
+                "\tlong _nowTime = System.currentTimeMillis(); \n" +
+                "\tif(ms_current_timer == null ){\n" +
+                "\t\tvars.put(\"" + ms_current_timer + "\",_nowTime.toString());\n" +
+                "\t}\n" +
+                "\tlong time = Long.parseLong(vars.get(\"" + ms_current_timer + "\"));\n" +
+                "\t if((_nowTime - time) > " + this.whileController.getTimeout() + " ){\n" +
+                "\t \tvars.put(\"" + ms_current_timer + "\", \"stop\");\n" +
+                "\t \tlog.info( \"结束循环\");\n" +
+                "\t }\n" +
+                "}catch (Exception e){\n" +
+                "\tlog.info( e.getMessage());\n" +
+                "\tvars.put(\"" + ms_current_timer + "\", \"stop\");\n" +
+                "}\n";
+
+        return script;
+    }
+
     private HashTree controller(HashTree tree) {
         if (StringUtils.equals(this.loopType, LoopConstants.WHILE.name()) && this.whileController != null) {
             RunTime runTime = new RunTime();
@@ -162,9 +195,17 @@ public class MsLoopController extends MsTestElement {
                 timeout = 1;
             }
             runTime.setRuntime(timeout);
+            HashTree hashTree = tree.add(initWhileController());
             // 添加超时处理，防止死循环
-            HashTree hashTree = tree.add(runTime);
-            return hashTree.add(initWhileController());
+            JSR223PreProcessor jsr223PreProcessor = new JSR223PreProcessor();
+            jsr223PreProcessor.setName("循环超时处理");
+            jsr223PreProcessor.setProperty(TestElement.TEST_CLASS, JSR223Sampler.class.getName());
+            jsr223PreProcessor.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("TestBeanGUI"));
+            jsr223PreProcessor.setProperty("cacheKey", "true");
+            jsr223PreProcessor.setProperty("scriptLanguage", "beanshell");
+            jsr223PreProcessor.setProperty("script", script());
+            hashTree.add(jsr223PreProcessor);
+            return hashTree;
         }
         if (StringUtils.equals(this.loopType, LoopConstants.FOREACH.name()) && this.forEachController != null) {
             return tree.add(initForeachController());

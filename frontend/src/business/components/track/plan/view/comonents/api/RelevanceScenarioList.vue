@@ -31,7 +31,7 @@
         </el-table-column>
         <el-table-column prop="tagNames" :label="$t('api_test.automation.tag')" min-width="120">
           <template v-slot:default="scope">
-              <ms-tag v-for="itemName in scope.row.tags" :key="itemName" type="success" effect="plain" :content="itemName" style="margin-left: 5px"/>
+              <ms-tag v-for="itemName in scope.row.tags" :key="itemName" type="success" effect="plain" :content="itemName" style="margin-left: 0px; margin-right: 2px"/>
           </template>
         </el-table-column>
         <el-table-column prop="userId" :label="$t('api_test.automation.creator')" show-overflow-tooltip/>

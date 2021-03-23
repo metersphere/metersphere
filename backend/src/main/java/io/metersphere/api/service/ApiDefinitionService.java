@@ -136,10 +136,11 @@ public class ApiDefinitionService {
     public ApiDefinitionWithBLOBs getBLOBs(String id) {
         return apiDefinitionMapper.selectByPrimaryKey(id);
     }
+
     public List<ApiDefinitionWithBLOBs> getBLOBs(List<String> idList) {
-        if(idList == null || idList.isEmpty()){
-            return  new ArrayList<>(0);
-        }else{
+        if (idList == null || idList.isEmpty()) {
+            return new ArrayList<>(0);
+        } else {
             ApiDefinitionExample example = new ApiDefinitionExample();
             example.createCriteria().andIdIn(idList);
             example.setOrderByClause("create_time DESC ");
@@ -189,13 +190,8 @@ public class ApiDefinitionService {
         extApiDefinitionMapper.removeToGc(apiIds);
     }
 
-    public void reduction(List<SaveApiDefinitionRequest> requests) {
-        List<String> apiIds = new ArrayList<>();
-        requests.forEach(item -> {
-            checkNameExist(item);
-            apiIds.add(item.getId());
-        });
-        extApiDefinitionMapper.reduction(apiIds);
+    public void reduction(ApiBatchRequest request) {
+        extApiDefinitionMapper.reduction(request.getIds());
     }
 
     public void deleteBodyFiles(String apiId) {
@@ -243,7 +239,7 @@ public class ApiDefinitionService {
 
     private ApiDefinition updateTest(SaveApiDefinitionRequest request) {
         checkNameExist(request);
-        if(StringUtils.equals(request.getMethod(),"ESB")){
+        if (StringUtils.equals(request.getMethod(), "ESB")) {
             //ESB的接口类型数据，采用TCP方式去发送。并将方法类型改为TCP。 并修改发送数据
             request = esbApiParamService.handleEsbRequest(request);
         }
@@ -272,7 +268,7 @@ public class ApiDefinitionService {
 
     private ApiDefinition createTest(SaveApiDefinitionRequest request) {
         checkNameExist(request);
-        if(StringUtils.equals(request.getMethod(),"ESB")){
+        if (StringUtils.equals(request.getMethod(), "ESB")) {
             //ESB的接口类型数据，采用TCP方式去发送。并将方法类型改为TCP。 并修改发送数据
             request = esbApiParamService.handleEsbRequest(request);
         }
@@ -709,6 +705,7 @@ public class ApiDefinitionService {
         calculateResult(resList);
         return resList;
     }
+
     public List<ApiDefinitionResult> listRelevanceReview(ApiDefinitionRequest request) {
         request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
         List<ApiDefinitionResult> resList = extApiDefinitionMapper.listRelevanceReview(request);
@@ -740,7 +737,7 @@ public class ApiDefinitionService {
                     res.setCaseStatus("-");
                 }
 
-                if(StringUtils.equals("ESB",res.getMethod())){
+                if (StringUtils.equals("ESB", res.getMethod())) {
                     esbApiParamService.handleApiEsbParams(res);
                 }
             }
@@ -827,8 +824,7 @@ public class ApiDefinitionService {
             ((MsApiExportResult) apiExportResult).setProtocol(request.getProtocol());
             ((MsApiExportResult) apiExportResult).setProjectId(request.getProjectId());
             ((MsApiExportResult) apiExportResult).setVersion(System.getenv("MS_VERSION"));
-        }
-        else { //  导出为 Swagger 格式
+        } else { //  导出为 Swagger 格式
             Swagger3Parser swagger3Parser = new Swagger3Parser();
             System.out.println(apiDefinitionMapper.selectByExampleWithBLOBs(example));
             apiExportResult = swagger3Parser.swagger3Export(apiDefinitionMapper.selectByExampleWithBLOBs(example));

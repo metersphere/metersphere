@@ -24,8 +24,10 @@ public class QueryTestCaseRequest extends BaseQueryRequest {
     private String reviewId;
 
     private boolean isSelectThisWeedData = false;
+    private boolean isSelectThisWeedRelevanceData = false;
 
     private String caseCoverage;
 
     private long createTime = 0;
+    private long relevanceCreateTime = 0;
 }

@@ -230,7 +230,8 @@
         }
         data.message = true;
         data.request.useEnvironment = this.environment;
-        this.saveTestCase(data);
+        //this.saveTestCase(data);
+
         this.$emit('singleRun', data);
       },
       copyCase(data) {

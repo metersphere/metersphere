@@ -28,7 +28,7 @@
         <el-table-column width="30" :resizable="false" align="center">
           <template v-slot:default="scope">
             <!-- 选中记录后浮现的按钮，提供对记录的批量操作 -->
-            <show-more-btn :is-show="scope.row.showMore" :buttons="buttons" :size="selectDataCounts" v-tester/>
+            <show-more-btn :is-show="scope.row.showMore" :buttons="trashEnable ? trashButtons : buttons" :size="selectDataCounts" v-tester/>
           </template>
         </el-table-column>
         <template v-for="(item, index) in tableLabel">
@@ -116,7 +116,7 @@
             min-width="120px"
             :key="index">
             <template v-slot:default="scope">
-              <ms-tag v-for="(itemName,index)  in scope.row.tags" :key="index" type="success" effect="plain" :show-tooltip="true" :content="itemName" style="margin-left: 5px"/>
+              <ms-tag v-for="(itemName,index)  in scope.row.tags" :key="index" type="success" effect="plain" :show-tooltip="true" :content="itemName" style="margin-left: 0px; margin-right: 2px"/>
             </template>
           </el-table-column>
 
@@ -272,7 +272,7 @@
       return {
         type: API_LIST,
         headerItems: Api_List,
-        tableLabel: [],
+        tableLabel: Api_List,
         condition: {
           components: API_DEFINITION_CONFIGS
         },
@@ -288,6 +288,12 @@
           {
             name: this.$t('api_test.definition.request.batch_move'), handleClick: this.handleBatchMove
           }
+        ],
+        trashButtons: [
+          {name: this.$t('api_test.definition.request.batch_delete'), handleClick: this.handleDeleteBatch},
+          {
+            name: "批量恢复", handleClick: this.handleBatchRestore
+          },
         ],
         typeArr: [
           {id: 'status', name: this.$t('api_test.definition.api_status')},
@@ -442,6 +448,10 @@
                 item.tags = JSON.parse(item.tags);
               }
             })
+            if (this.$refs.apiDefinitionTable) {
+              this.$refs.apiDefinitionTable.doLayout()
+            }
+
           });
         }
         getLabel(this, API_LIST);
@@ -560,13 +570,14 @@
       },
       reductionApi(row) {
         let tmp = JSON.parse(JSON.stringify(row));
-        tmp.request = null;
-        tmp.response = null;
-        if (tmp.tags instanceof Array) {
-          tmp.tags = JSON.stringify(tmp.tags);
-        }
-        let rows = [tmp];
+        let rows = {ids: [tmp.id]};
         this.$post('/api/definition/reduction/', rows, () => {
+          this.$success(this.$t('commons.save_success'));
+          this.search();
+        });
+      },
+      handleBatchRestore() {
+        this.$post('/api/definition/reduction/', buildBatchParam(this), () => {
           this.$success(this.$t('commons.save_success'));
           this.search();
         });
