@@ -105,15 +105,21 @@ export default {
           this.testCaseForm.projectId = getCurrentProjectID();
           this.testCaseForm.type = "";
           this.testCaseForm.priority = "P0";
-          if (this.currentModule !== undefined || this.currentModule !== null || this.currentModule !== 0 || this.currentModule !== "") {
-            this.testCaseForm.nodePath = this.currentModule.path;
-            this.testCaseForm.nodeId = this.currentModule.id;
+          console.log(this.currentModule)
+          if (this.currentModule !== undefined && this.currentModule !== null && this.currentModule !== 0 && this.currentModule !== "") {
+            if (this.currentModule.path !== undefined && this.currentModule.path !== null && this.currentModule.path !== 0 && this.currentModule.path !== "") {
+              this.testCaseForm.nodePath = this.currentModule.path;
+              this.testCaseForm.nodeId = this.currentModule.id;
+            } else {
+              this.testCaseForm.nodePath = "/全部用例"
+              this.testCaseForm.nodeId = "root"
+            }
           } else {
             this.testCaseForm.nodePath = "/全部用例"
             this.testCaseForm.nodeId = "root"
           }
           this.result = this.$post(path, this.testCaseForm, response => {
-            this.testCaseForm.id=response.data.id
+            this.testCaseForm.id = response.data.id
             this.$success(this.$t('commons.save_success'));
             this.visible = false;
             if (saveAs) {
