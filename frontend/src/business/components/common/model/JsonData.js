@@ -109,6 +109,7 @@ export const Test_Plan_Function_Test_Case = [
   {id: 'executorName', label: i18n.t('test_track.plan_view.executor')},
   {id: 'status', label: i18n.t('test_track.plan_view.execute_result')},
   {id: 'updateTime', label: i18n.t('commons.update_time')},
+  {id: 'maintainer', label: i18n.t('api_test.definition.request.responsible')}
 ]
 //测试计划-api用例
 export const Test_Plan_Api_Case = [
