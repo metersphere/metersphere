@@ -80,9 +80,9 @@ public class ESBParser extends EsbAbstractParser {
         font.setFontHeightInPoints((short) 9);
         Map<String, XSSFCellStyle> cellStyleMap = createCellStle(workbook);
         XSSFSheet headSheet = workbook.createSheet("公共报文头");
-        generateSheet(headSheet, font,cellStyleMap);
+        generateSheet(headSheet,true, font,cellStyleMap);
         XSSFSheet bodySheet = workbook.createSheet("接口报文信息");
-        generateSheet(bodySheet, font,cellStyleMap);
+        generateSheet(bodySheet, false,font,cellStyleMap);
         return workbook;
     }
 
@@ -116,7 +116,7 @@ public class ESBParser extends EsbAbstractParser {
         return cellStype;
     }
 
-    private static void generateSheet(XSSFSheet sheet, XSSFFont font,Map<String, XSSFCellStyle> cellStyleMap) {
+    private static void generateSheet(XSSFSheet sheet,boolean isHead, XSSFFont font,Map<String, XSSFCellStyle> cellStyleMap) {
         if (sheet == null) {
             return;
         }
@@ -125,18 +125,27 @@ public class ESBParser extends EsbAbstractParser {
         sheet.setColumnWidth(1, 4000);
         sheet.setColumnWidth(2, 4000);
         sheet.setColumnWidth(3, 4000);
-        sheet.setColumnWidth(4, 4000);
-        sheet.setColumnWidth(5, 880);
-        sheet.setColumnWidth(6, 4000);
-        sheet.setColumnWidth(7, 4000);
-        sheet.setColumnWidth(8, 4000);
-        sheet.setColumnWidth(9, 4000);
-        sheet.setColumnWidth(10, 4000);
+        if(isHead){
+            sheet.setColumnWidth(4, 880);
+            sheet.setColumnWidth(5, 4000);
+            sheet.setColumnWidth(6, 4000);
+            sheet.setColumnWidth(7, 4000);
+            sheet.setColumnWidth(8, 4000);
+            sheet.setColumnWidth(9, 4000);
+        }else {
+            sheet.setColumnWidth(4, 4000);
+            sheet.setColumnWidth(5, 880);
+            sheet.setColumnWidth(6, 4000);
+            sheet.setColumnWidth(7, 4000);
+            sheet.setColumnWidth(8, 4000);
+            sheet.setColumnWidth(9, 4000);
+            sheet.setColumnWidth(10, 4000);
+        }
 
         /**
          * 模版生成:
          * 字体大小：9
-         * row1: 1交易码 2交易名称  6(紫色[pop]背景空白单元格,下同) 7服务名称 8服务场景
+         * row1: 1交易码 2交易名称  （head的话是5）6(紫色[pop]背景空白单元格,下同) 7服务名称 8服务场景
          * row2: 1.请输入交易码(必填) 2请输入交易名称(必填) 7请输入服务名称(如果不填，则以交易名称为主) 8请输入服务场景(选填)
          * row3: 合并7-10单元格，输入：请输入系统名称 背景色:黄色[yellow]
          * row4: 1.英文名称2.中文名称3.数据类型/长度4.是否必输5.备注    7.英文名称8.数据类型/长度9.中文名称 10备注 背景色:黄色
@@ -151,57 +160,99 @@ public class ESBParser extends EsbAbstractParser {
         setCellValue("交易名称", row1.createCell(1), font,cellStyleMap.get("default"));
         setCellValue("", row1.createCell(2), font,cellStyleMap.get("default"));
         setCellValue("", row1.createCell(3), font,cellStyleMap.get("default"));
-        setCellValue("", row1.createCell(4), font,cellStyleMap.get("default"));
-        setCellValue("", row1.createCell(5), font,cellStyleMap.get("pop"));
-        setCellValue("服务名称", row1.createCell(6), font,cellStyleMap.get("default"));
-        setCellValue("服务场景", row1.createCell(7), font,cellStyleMap.get("default"));
-        setCellValue("", row1.createCell(8), font,cellStyleMap.get("default"));
-        setCellValue("", row1.createCell(9), font,cellStyleMap.get("default"));
-        setCellValue("", row1.createCell(10), font,cellStyleMap.get("default"));
+        if(isHead){
+            setCellValue("", row1.createCell(4), font,cellStyleMap.get("default"));
+            setCellValue("服务名称", row1.createCell(5), font,cellStyleMap.get("default"));
+            setCellValue("服务场景", row1.createCell(6), font,cellStyleMap.get("default"));
+            setCellValue("", row1.createCell(7), font,cellStyleMap.get("default"));
+            setCellValue("", row1.createCell(8), font,cellStyleMap.get("default"));
+            setCellValue("", row1.createCell(9), font,cellStyleMap.get("default"));
+
+        }else{
+            setCellValue("", row1.createCell(4), font,cellStyleMap.get("default"));
+            setCellValue("", row1.createCell(5), font,cellStyleMap.get("pop"));
+            setCellValue("服务名称", row1.createCell(6), font,cellStyleMap.get("default"));
+            setCellValue("服务场景", row1.createCell(7), font,cellStyleMap.get("default"));
+            setCellValue("", row1.createCell(8), font,cellStyleMap.get("default"));
+            setCellValue("", row1.createCell(9), font,cellStyleMap.get("default"));
+            setCellValue("", row1.createCell(10), font,cellStyleMap.get("default"));
+        }
+
 
         XSSFRow row2 = sheet.createRow(1);
         setCellValue("请输入交易码(必填)", row2.createCell(0), font,cellStyleMap.get("default"));
         setCellValue("请输入交易名称(必填)", row2.createCell(1), font,cellStyleMap.get("default"));
         setCellValue("", row2.createCell(2), font,cellStyleMap.get("default"));
         setCellValue("", row2.createCell(3), font,cellStyleMap.get("default"));
-        setCellValue("", row2.createCell(4), font,cellStyleMap.get("default"));
-        setCellValue("", row2.createCell(5), font,cellStyleMap.get("pop"));
-        setCellValue("请输入服务名称(如果不填，则以交易名称为主)", row2.createCell(6), font,null);
-        setCellValue("请输入服务场景(选填)", row2.createCell(7), font,cellStyleMap.get("default"));
-        setCellValue("", row2.createCell(8), font,cellStyleMap.get("default"));
-        setCellValue("", row2.createCell(9), font,cellStyleMap.get("default"));
-        setCellValue("", row2.createCell(10), font,cellStyleMap.get("default"));
+        if(isHead){
+            setCellValue("", row2.createCell(4), font,cellStyleMap.get("pop"));
+            setCellValue("请输入服务名称(如果不填，则以交易名称为主)", row2.createCell(5), font,null);
+            setCellValue("请输入服务场景(选填)", row2.createCell(6), font,cellStyleMap.get("default"));
+            setCellValue("", row2.createCell(7), font,cellStyleMap.get("default"));
+            setCellValue("", row2.createCell(8), font,cellStyleMap.get("default"));
+            setCellValue("", row2.createCell(9), font,cellStyleMap.get("default"));
+        }else{
+            setCellValue("", row2.createCell(4), font,cellStyleMap.get("default"));
+            setCellValue("", row2.createCell(5), font,cellStyleMap.get("pop"));
+            setCellValue("请输入服务名称(如果不填，则以交易名称为主)", row2.createCell(6), font,null);
+            setCellValue("请输入服务场景(选填)", row2.createCell(7), font,cellStyleMap.get("default"));
+            setCellValue("", row2.createCell(8), font,cellStyleMap.get("default"));
+            setCellValue("", row2.createCell(9), font,cellStyleMap.get("default"));
+            setCellValue("", row2.createCell(10), font,cellStyleMap.get("default"));
+        }
 
         XSSFRow row3 = sheet.createRow(2);
         setCellValue("", row3.createCell(0), font,cellStyleMap.get("yellow"));
         setCellValue("", row3.createCell(1), font,cellStyleMap.get("yellow"));
         setCellValue("", row3.createCell(2), font,cellStyleMap.get("yellow"));
         setCellValue("", row3.createCell(3), font,cellStyleMap.get("yellow"));
-        setCellValue("", row3.createCell(4), font,cellStyleMap.get("yellow"));
-        setCellValue("", row3.createCell(5), font,cellStyleMap.get("yellow"));
-        setCellValue("请输入系统名称", row3.createCell(6), font,cellStyleMap.get("yellow"));
-        setCellValue("", row3.createCell(7), font,cellStyleMap.get("yellow"));
-        setCellValue("", row3.createCell(8), font,cellStyleMap.get("yellow"));
-        setCellValue("", row3.createCell(9), font,cellStyleMap.get("yellow"));
-        setCellValue("", row3.createCell(10), font,cellStyleMap.get("yellow"));
-
-        CellRangeAddress region1 = new CellRangeAddress(2, 2, 0, 4);
-        sheet.addMergedRegion(region1);
-        CellRangeAddress region2 = new CellRangeAddress(2, 2, 6, 10);
-        sheet.addMergedRegion(region2);
+        if(isHead){
+            setCellValue("", row3.createCell(4), font,cellStyleMap.get("yellow"));
+            setCellValue("请输入系统名称", row3.createCell(5), font,cellStyleMap.get("yellow"));
+            setCellValue("", row3.createCell(6), font,cellStyleMap.get("yellow"));
+            setCellValue("", row3.createCell(7), font,cellStyleMap.get("yellow"));
+            setCellValue("", row3.createCell(8), font,cellStyleMap.get("yellow"));
+            setCellValue("", row3.createCell(9), font,cellStyleMap.get("yellow"));
+            CellRangeAddress region1 = new CellRangeAddress(2, 2, 0, 3);
+            sheet.addMergedRegion(region1);
+            CellRangeAddress region2 = new CellRangeAddress(2, 2, 5, 9);
+            sheet.addMergedRegion(region2);
+        }else{
+            setCellValue("", row3.createCell(4), font,cellStyleMap.get("yellow"));
+            setCellValue("", row3.createCell(5), font,cellStyleMap.get("yellow"));
+            setCellValue("请输入系统名称", row3.createCell(6), font,cellStyleMap.get("yellow"));
+            setCellValue("", row3.createCell(7), font,cellStyleMap.get("yellow"));
+            setCellValue("", row3.createCell(8), font,cellStyleMap.get("yellow"));
+            setCellValue("", row3.createCell(9), font,cellStyleMap.get("yellow"));
+            setCellValue("", row3.createCell(10), font,cellStyleMap.get("yellow"));
+            CellRangeAddress region1 = new CellRangeAddress(2, 2, 0, 4);
+            sheet.addMergedRegion(region1);
+            CellRangeAddress region2 = new CellRangeAddress(2, 2, 6, 10);
+            sheet.addMergedRegion(region2);
+        }
 
         XSSFRow row4 = sheet.createRow(3);
         setCellValue("英文名称", row4.createCell(0), font,cellStyleMap.get("yellow"));
         setCellValue("中文名称", row4.createCell(1), font,cellStyleMap.get("yellow"));
         setCellValue("数据类型/长度", row4.createCell(2), font,cellStyleMap.get("yellow"));
-        setCellValue("是否必输", row4.createCell(3), font,cellStyleMap.get("yellow"));
-        setCellValue("备注", row4.createCell(4), font,cellStyleMap.get("yellow"));
-        setCellValue("", row4.createCell(5), font,cellStyleMap.get("pop"));
-        setCellValue("英文名称", row4.createCell(6), font,cellStyleMap.get("yellow"));
-        setCellValue("数据类型/长度", row4.createCell(7), font,cellStyleMap.get("yellow"));
-        setCellValue("中文名称", row4.createCell(8), font,cellStyleMap.get("yellow"));
-        setCellValue("备注", row4.createCell(9), font,cellStyleMap.get("yellow"));
-        setCellValue("所在报文位置", row4.createCell(10), font,cellStyleMap.get("yellow"));
+        if(isHead){
+            setCellValue("备注", row4.createCell(3), font,cellStyleMap.get("yellow"));
+            setCellValue("", row4.createCell(4), font,cellStyleMap.get("pop"));
+            setCellValue("英文名称", row4.createCell(5), font,cellStyleMap.get("yellow"));
+            setCellValue("数据类型/长度", row4.createCell(6), font,cellStyleMap.get("yellow"));
+            setCellValue("中文名称", row4.createCell(7), font,cellStyleMap.get("yellow"));
+            setCellValue("备注", row4.createCell(8), font,cellStyleMap.get("yellow"));
+            setCellValue("所在报文位置", row4.createCell(9), font,cellStyleMap.get("yellow"));
+        }else {
+            setCellValue("是否必输", row4.createCell(3), font,cellStyleMap.get("yellow"));
+            setCellValue("备注", row4.createCell(4), font,cellStyleMap.get("yellow"));
+            setCellValue("", row4.createCell(5), font,cellStyleMap.get("pop"));
+            setCellValue("英文名称", row4.createCell(6), font,cellStyleMap.get("yellow"));
+            setCellValue("数据类型/长度", row4.createCell(7), font,cellStyleMap.get("yellow"));
+            setCellValue("中文名称", row4.createCell(8), font,cellStyleMap.get("yellow"));
+            setCellValue("备注", row4.createCell(9), font,cellStyleMap.get("yellow"));
+            setCellValue("所在报文位置", row4.createCell(10), font,cellStyleMap.get("yellow"));
+        }
 
         XSSFRow row5 = sheet.createRow(4);
         setCellValue("输入", row5.createCell(0), font,cellStyleMap.get("green"));
@@ -214,31 +265,54 @@ public class ESBParser extends EsbAbstractParser {
         setCellValue("", row5.createCell(7), font,cellStyleMap.get("green"));
         setCellValue("", row5.createCell(8), font,cellStyleMap.get("green"));
         setCellValue("", row5.createCell(9), font,cellStyleMap.get("green"));
-        setCellValue("", row5.createCell(10), font,cellStyleMap.get("green"));
+        if(!isHead){
+            setCellValue("", row5.createCell(10), font,cellStyleMap.get("green"));
+        }
 
         XSSFRow row6 = sheet.createRow(5);
+        setCellValue("", row6.createCell(0), font,cellStyleMap.get("default"));
         setCellValue("", row6.createCell(1), font,cellStyleMap.get("default"));
         setCellValue("请输入STRING(具体长度) 或 ARRAY", row6.createCell(2), font,cellStyleMap.get("default"));
         setCellValue("", row6.createCell(3), font,cellStyleMap.get("default"));
-        setCellValue("", row6.createCell(4), font,cellStyleMap.get("default"));
-        setCellValue("", row6.createCell(5), font,cellStyleMap.get("pop"));
-        setCellValue("", row6.createCell(6), font,cellStyleMap.get("default"));
-        setCellValue("请输入STRING(具体长度) 或 ARRAY", row6.createCell(7), font,cellStyleMap.get("default"));
-        setCellValue("", row6.createCell(8), font,cellStyleMap.get("default"));
-        setCellValue("", row6.createCell(9), font,cellStyleMap.get("default"));
-        setCellValue("", row6.createCell(10), font,cellStyleMap.get("default"));
+        if(isHead){
+            setCellValue("", row6.createCell(4), font,cellStyleMap.get("pop"));
+            setCellValue("", row6.createCell(5), font,cellStyleMap.get("default"));
+            setCellValue("请输入STRING(具体长度) 或 ARRAY", row6.createCell(6), font,cellStyleMap.get("default"));
+            setCellValue("", row6.createCell(7), font,cellStyleMap.get("default"));
+            setCellValue("", row6.createCell(8), font,cellStyleMap.get("default"));
+            setCellValue("", row6.createCell(9), font,cellStyleMap.get("default"));
+        }else {
+            setCellValue("", row6.createCell(4), font,cellStyleMap.get("default"));
+            setCellValue("", row6.createCell(5), font,cellStyleMap.get("pop"));
+            setCellValue("", row6.createCell(6), font,cellStyleMap.get("default"));
+            setCellValue("请输入STRING(具体长度) 或 ARRAY", row6.createCell(7), font,cellStyleMap.get("default"));
+            setCellValue("", row6.createCell(8), font,cellStyleMap.get("default"));
+            setCellValue("", row6.createCell(9), font,cellStyleMap.get("default"));
+            setCellValue("", row6.createCell(10), font,cellStyleMap.get("default"));
+        }
+
 
         XSSFRow row7 = sheet.createRow(6);
-        setCellValue("", row6.createCell(1), font,cellStyleMap.get("default"));
-        setCellValue("", row6.createCell(2), font,cellStyleMap.get("default"));
-        setCellValue("", row6.createCell(3), font,cellStyleMap.get("default"));
-        setCellValue("", row6.createCell(4), font,cellStyleMap.get("default"));
-        setCellValue("", row6.createCell(5), font,cellStyleMap.get("pop"));
-        setCellValue("", row6.createCell(6), font,cellStyleMap.get("default"));
-        setCellValue("", row6.createCell(7), font,cellStyleMap.get("default"));
-        setCellValue("", row6.createCell(8), font,cellStyleMap.get("default"));
-        setCellValue("", row6.createCell(9), font,cellStyleMap.get("default"));
-        setCellValue("", row6.createCell(10), font,cellStyleMap.get("default"));
+        setCellValue("", row7.createCell(1), font,cellStyleMap.get("default"));
+        setCellValue("", row7.createCell(2), font,cellStyleMap.get("default"));
+        setCellValue("", row7.createCell(3), font,cellStyleMap.get("default"));
+        if(isHead){
+            setCellValue("", row7.createCell(4), font,cellStyleMap.get("pop"));
+            setCellValue("", row7.createCell(5), font,cellStyleMap.get("default"));
+            setCellValue("", row7.createCell(6), font,cellStyleMap.get("default"));
+            setCellValue("", row7.createCell(7), font,cellStyleMap.get("default"));
+            setCellValue("", row7.createCell(8), font,cellStyleMap.get("default"));
+            setCellValue("", row7.createCell(9), font,cellStyleMap.get("default"));
+        }else {
+            setCellValue("", row7.createCell(4), font,cellStyleMap.get("default"));
+            setCellValue("", row7.createCell(5), font,cellStyleMap.get("pop"));
+            setCellValue("", row7.createCell(6), font,cellStyleMap.get("default"));
+            setCellValue("", row7.createCell(7), font,cellStyleMap.get("default"));
+            setCellValue("", row7.createCell(8), font,cellStyleMap.get("default"));
+            setCellValue("", row7.createCell(9), font,cellStyleMap.get("default"));
+            setCellValue("", row7.createCell(10), font,cellStyleMap.get("default"));
+        }
+
 
         XSSFRow row8 = sheet.createRow(7);
         setCellValue("输出", row8.createCell(0), font,cellStyleMap.get("green"));
@@ -251,20 +325,33 @@ public class ESBParser extends EsbAbstractParser {
         setCellValue("", row8.createCell(7), font,cellStyleMap.get("green"));
         setCellValue("", row8.createCell(8), font,cellStyleMap.get("green"));
         setCellValue("", row8.createCell(9), font,cellStyleMap.get("green"));
-        setCellValue("", row8.createCell(10), font,cellStyleMap.get("green"));
+        if(!isHead){
+            setCellValue("", row8.createCell(10), font,cellStyleMap.get("green"));
+        }
+
 
         XSSFRow row9 = sheet.createRow(8);
+        setCellValue("", row9.createCell(0), font,cellStyleMap.get("default"));
         setCellValue("", row9.createCell(1), font,cellStyleMap.get("default"));
         setCellValue("请输入STRING(具体长度) 或 ARRAY", row9.createCell(2), font,cellStyleMap.get("default"));
         setCellValue("", row9.createCell(3), font,cellStyleMap.get("default"));
-        setCellValue("", row9.createCell(4), font,cellStyleMap.get("default"));
-        setCellValue("", row9.createCell(5), font,cellStyleMap.get("pop"));
-        setCellValue("", row9.createCell(6), font,cellStyleMap.get("default"));
-        setCellValue("请输入STRING(具体长度) 或 ARRAY", row9.createCell(7), font,cellStyleMap.get("default"));
-        setCellValue("", row9.createCell(7), font,cellStyleMap.get("default"));
-        setCellValue("", row9.createCell(8), font,cellStyleMap.get("default"));
-        setCellValue("", row9.createCell(9), font,cellStyleMap.get("default"));
-        setCellValue("", row9.createCell(10), font,cellStyleMap.get("default"));
+        if(isHead){
+            setCellValue("", row9.createCell(4), font,cellStyleMap.get("pop"));
+            setCellValue("", row9.createCell(5), font,cellStyleMap.get("default"));
+            setCellValue("请输入STRING(具体长度) 或 ARRAY", row9.createCell(6), font,cellStyleMap.get("default"));
+            setCellValue("", row9.createCell(7), font,cellStyleMap.get("default"));
+            setCellValue("", row9.createCell(8), font,cellStyleMap.get("default"));
+            setCellValue("", row9.createCell(9), font,cellStyleMap.get("default"));
+        }else {
+            setCellValue("", row9.createCell(4), font,cellStyleMap.get("default"));
+            setCellValue("", row9.createCell(5), font,cellStyleMap.get("pop"));
+            setCellValue("", row9.createCell(6), font,cellStyleMap.get("default"));
+            setCellValue("请输入STRING(具体长度) 或 ARRAY", row9.createCell(7), font,cellStyleMap.get("default"));
+            setCellValue("", row9.createCell(7), font,cellStyleMap.get("default"));
+            setCellValue("", row9.createCell(8), font,cellStyleMap.get("default"));
+            setCellValue("", row9.createCell(9), font,cellStyleMap.get("default"));
+            setCellValue("", row9.createCell(10), font,cellStyleMap.get("default"));
+        }
 
     }
 
@@ -316,18 +403,35 @@ public class ESBParser extends EsbAbstractParser {
         if (headSheet == null) {
             return importDataStruct;
         }
+        int simpleCodeIndex = 0;
+        int simpleNameIndex = 1;
+        int apiNameIndex = 6;
+        int apiDescIndex = 7;
+        int chineNameIndex = 8;
+        int descIndex = 9;
+        int apiPositionIndex = 10;
+        int cellCount = 11;
+        if(isHeadSheet){
+            apiNameIndex = 5;
+            apiDescIndex = 6;
+            chineNameIndex = 7;
+            descIndex = 8;
+            apiPositionIndex = 9;
+            cellCount = 10;
+        }
+
         int rowCount = headSheet.getLastRowNum();
         //根据模版样式，如果不是报文头，则要取接口信息
         if (!isHeadSheet) {
             Row interfaceInfoRow = headSheet.getRow(1);
             if (interfaceInfoRow != null) {
-                List<String> rowDataArr = this.getRowDataByStartIndexAndEndIndex(interfaceInfoRow, 0, 9);
-                if (rowDataArr.size() > 8) {
-                    String interfaceCode = rowDataArr.get(0);
-                    String interfaceName = rowDataArr.get(6);
-                    String interfaceDesc = rowDataArr.get(7);
+                List<String> rowDataArr = this.getRowDataByStartIndexAndEndIndex(interfaceInfoRow, 0, cellCount-1);
+                if (rowDataArr.size() >= cellCount) {
+                    String interfaceCode = rowDataArr.get(simpleCodeIndex);
+                    String interfaceName = rowDataArr.get(apiNameIndex);
+                    String interfaceDesc = rowDataArr.get(apiDescIndex);
                     if (StringUtils.isEmpty(interfaceName)) {
-                        interfaceName = rowDataArr.get(1);
+                        interfaceName = rowDataArr.get(simpleNameIndex);
                     }
                     importDataStruct.setInterfaceInfo(interfaceCode, interfaceName, interfaceDesc);
                 }
@@ -339,8 +443,8 @@ public class ESBParser extends EsbAbstractParser {
         boolean isRequest = true;
         for (int startRow = REQUEST_MESSAGE_ROW; startRow < rowCount; startRow++) {
             Row row = headSheet.getRow(startRow);
-            List<String> rowDataArr = this.getRowDataByStartIndexAndEndIndex(row, 0, 9);
-            boolean isBlankRow = this.checkBlankRow(rowDataArr, 10);
+            List<String> rowDataArr = this.getRowDataByStartIndexAndEndIndex(row, 0, cellCount-1);
+            boolean isBlankRow = this.checkBlankRow(rowDataArr, cellCount);
             if (!isBlankRow) {
                 String cellFlag = rowDataArr.get(0);
                 if (StringUtils.equals(cellFlag, "输出")) {
@@ -358,13 +462,13 @@ public class ESBParser extends EsbAbstractParser {
             } else {
                 blankRowCount = 0;
                 EsbDataStruct dataStruct = new EsbDataStruct();
-                boolean initDataSuccess = dataStruct.initDefaultData(rowDataArr.get(6), rowDataArr.get(7), rowDataArr.get(8), rowDataArr.get(9));
+                boolean initDataSuccess = dataStruct.initDefaultData(rowDataArr.get(apiNameIndex), rowDataArr.get(apiDescIndex), rowDataArr.get(chineNameIndex), rowDataArr.get(descIndex));
                 if (!initDataSuccess) {
                     continue;
                 }
                 boolean isHead = isHeadSheet;
-                if (rowDataArr.size() > 10) {
-                    if (StringUtils.equals(rowDataArr.get(10), "SYS_HEAD")) {
+                if (rowDataArr.size() > cellCount) {
+                    if (StringUtils.equals(rowDataArr.get(apiPositionIndex), "SYS_HEAD")) {
                         isHead = true;
                     }
 
@@ -408,6 +512,8 @@ public class ESBParser extends EsbAbstractParser {
             Cell cell = row.getCell(i);
             if (cell != null) {
                 returnArray.add(getCellValue(cell));
+            }else {
+                returnArray.add("");
             }
         }
         return returnArray;
