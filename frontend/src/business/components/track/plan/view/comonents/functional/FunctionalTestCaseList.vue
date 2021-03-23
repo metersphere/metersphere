@@ -33,6 +33,7 @@
                    :select-ids="new Set(Array.from(this.selectRows).map(row => row.id))" @refresh="initTableData"/>
 
       <el-table
+        ref="table"
         class="adjust-table"
         border
         @select-all="handleSelectAll"
@@ -479,6 +480,9 @@ export default {
             }
           }
           this.selectRows.clear();
+          if (this.$refs.table) {
+            this.$refs.table.doLayout()
+          }
         });
       }
       getLabel(this, TEST_PLAN_FUNCTION_TEST_CASE);

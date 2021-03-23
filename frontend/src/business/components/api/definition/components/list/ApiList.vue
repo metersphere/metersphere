@@ -442,6 +442,10 @@
                 item.tags = JSON.parse(item.tags);
               }
             })
+            if (this.$refs.apiDefinitionTable) {
+              this.$refs.apiDefinitionTable.doLayout()
+            }
+
           });
         }
         getLabel(this, API_LIST);

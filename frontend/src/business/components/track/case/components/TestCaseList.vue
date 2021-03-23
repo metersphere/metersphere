@@ -443,6 +443,10 @@ export default {
               item.tags = JSON.parse(item.tags);
             }
           })
+          if (this.$refs.table) {
+            this.$refs.table.doLayout()
+          }
+
         });
       }
     },
