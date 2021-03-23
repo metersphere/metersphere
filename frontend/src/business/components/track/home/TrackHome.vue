@@ -73,7 +73,6 @@ import MsMainContainer from "@/business/components/common/components/MsMainConta
 import MsContainer from "@/business/components/common/components/MsContainer";
 import CaseCountCard from "@/business/components/track/home/components/CaseCountCard";
 import RelevanceCaseCard from "@/business/components/track/home/components/RelevanceCaseCard";
-import {getCurrentProjectID,getUUID} from "@/common/js/utils";
 import CaseMaintenance from "@/business/components/track/home/components/CaseMaintenance";
 import {COUNT_NUMBER, COUNT_NUMBER_SHALLOW} from "@/common/js/constants";
 import BugCountCard from "@/business/components/track/home/components/BugCountCard";
@@ -108,13 +107,18 @@ export default {
     this.checkTipsType();
     this.init();
   },
+  computed: {
+    projectId() {
+      return this.$store.state.projectId
+    },
+  },
   methods: {
     checkTipsType() {
       let random = Math.floor(Math.random() * (4 - 1 + 1)) + 1;
       this.tipsType = random + "";
     },
     init() {
-      let selectProjectId = getCurrentProjectID();
+      let selectProjectId = this.projectId;
 
       this.$get("/track/count/" + selectProjectId, response => {
         this.trackCountData = response.data;
@@ -191,7 +195,12 @@ export default {
       // this.$router.push('/track/plan/view/'+selectType);
       switch (page){
         case "case":
-          this.$router.push({name:'testCase',params:{dataType:dataType,dataSelectRange:selectType, projectId: getCurrentProjectID()}});
+          this.$router.push({
+            name:'testCase',
+            params:{
+              dataType:dataType,dataSelectRange:selectType, projectId: this.projectId
+            }
+          });
           break;
       }
     }

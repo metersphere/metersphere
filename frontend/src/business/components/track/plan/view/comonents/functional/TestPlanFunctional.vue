@@ -51,7 +51,6 @@
     import FunctionalTestCaseList from "./FunctionalTestCaseList";
     import MsTabButton from "@/business/components/common/components/MsTabButton";
     import TestPlanMinder from "@/business/components/track/common/minder/TestPlanMinder";
-    import {getCurrentProjectID} from "@/common/js/utils";
 
     export default {
       name: "TestPlanFunctional",
@@ -71,7 +70,6 @@
           selectParentNodes: [],
           treeNodes: [],
           activeDom: 'left',
-          projectId: ""
         }
       },
       props: [
@@ -80,8 +78,12 @@
         'clickType'
       ],
       mounted() {
-        this.projectId = getCurrentProjectID();
         this.initData();
+      },
+      computed: {
+        projectId() {
+          return this.$store.state.projectId
+        },
       },
       activated(){
         this.initData();

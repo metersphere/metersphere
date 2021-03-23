@@ -151,7 +151,7 @@ import MsBottomContainer from "../../../../../api/definition/components/BottomCo
 import ShowMoreBtn from "../../../../case/components/ShowMoreBtn";
 import BatchEdit from "@/business/components/track/case/components/BatchEdit";
 import {API_METHOD_COLOUR, CASE_PRIORITY, RESULT_MAP} from "../../../../../api/definition/model/JsonData";
-import {getCurrentProjectID, strMapToObj} from "@/common/js/utils";
+import {strMapToObj} from "@/common/js/utils";
 import ApiListContainer from "../../../../../api/definition/components/list/ApiListContainer";
 import PriorityTableItem from "../../../../common/tableItems/planview/PriorityTableItem";
 import {getBodyUploadFiles, getUUID} from "../../../../../../../common/js/utils";
@@ -539,7 +539,7 @@ export default {
     },
     getProjectId() {
       if (!this.isRelevanceModel) {
-        return getCurrentProjectID();
+        return this.$store.state.projectId;
       } else {
         return this.currentCaseProjectId;
       }

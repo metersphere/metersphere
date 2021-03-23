@@ -287,10 +287,8 @@
 import {TokenKey, WORKSPACE_ID} from '@/common/js/constants';
 import MsDialogFooter from '../../../common/components/MsDialogFooter'
 import {getCurrentUser, listenGoBack, removeGoBackListener} from "@/common/js/utils";
-import {LIST_CHANGE, TrackEvent} from "@/business/components/common/head/ListEvent";
 import {Message} from "element-ui";
 import TestCaseAttachment from "@/business/components/track/case/components/TestCaseAttachment";
-import {getCurrentProjectID} from "../../../../../common/js/utils";
 import {buildNodePath} from "../../../api/definition/model/NodeTree";
 import CaseComment from "@/business/components/track/case/components/CaseComment";
 import MsInputTag from "@/business/components/api/automation/scenario/MsInputTag";
@@ -324,11 +322,9 @@ export default {
             resolve(nodes)
           }
           if(node.level==1){
-            this.projectId = getCurrentProjectID()
             this.testOptions = [];
             let url = '';
             this.form.type=node.data.value
-            console.log(this.form.type)
             if (this.form.type === 'testcase' || this.form.type === 'automation') {
               url = '/api/' + this.form.type + '/list/' + this.projectId
             } else if (this.form.type === 'performance' || this.form.type === 'api') {
@@ -354,7 +350,6 @@ export default {
       statuOptions:API_STATUS,
       comments: [],
       result: {},
-      projectId: "",
       dialogFormVisible: false,
       form: {
         name: '',
@@ -434,6 +429,11 @@ export default {
     },
     type: String
   },
+  computed: {
+    projectId() {
+      return this.$store.state.projectId
+    },
+  },
   mounted() {
     this.getSelectOptions();
     if (this.type === 'edit' || this.type === 'copy') {
@@ -499,9 +499,6 @@ export default {
       this.$nextTick(() => (this.isStepTableAlive = true));
     },
     open(testCase) {
-      console.log("测试用例")
-      console.log(testCase)
-      this.projectId = getCurrentProjectID();
       if (window.history && window.history.pushState) {
         history.pushState(null, null, document.URL);
         window.addEventListener('popstate', this.close);
@@ -587,7 +584,6 @@ export default {
       /*
             this.form.testId=testCase.selected
       */
-      console.log(this.form.selected)
       this.getFileMetaData(testCase);
     },
     setTestCaseExtInfo(testCase) {
@@ -692,7 +688,6 @@ export default {
     buildParam() {
       let param = {};
       Object.assign(param, this.form);
-      console.log(this.form)
       param.steps = JSON.stringify(this.form.steps);
       param.nodeId = this.form.module;
       this.moduleOptions.forEach(item => {
@@ -781,7 +776,6 @@ export default {
       });
     },
     getTestOptions(val) {
-      this.projectId = getCurrentProjectID()
       this.testOptions = [];
       let url = '';
       if (this.form.type === 'testcase' || this.form.type === 'automation') {
@@ -803,7 +797,6 @@ export default {
     },
     getDemandOptions() {
       if (this.demandOptions.length === 0) {
-        this.projectId = getCurrentProjectID();
         this.result = {loading : true};
         this.$get("demand/list/" + this.projectId).then(response => {
           this.demandOptions = response.data.data;
