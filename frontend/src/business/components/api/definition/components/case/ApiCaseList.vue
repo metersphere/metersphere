@@ -222,7 +222,7 @@
           }
 
           this.result = this.$post("/api/testcase/list", this.condition, response => {
-            if(response.data){
+            if (response.data) {
               this.apiCaseList = response.data;
             }
             this.apiCaseList.forEach(apiCase => {
@@ -260,7 +260,7 @@
           if (!request.hashTree) {
             request.hashTree = [];
           }
-          if(request.backScript != null){
+          if (request.backScript != null) {
             request.hashTree.push(request.backScript);
           }
           let uuid = getUUID();
@@ -290,14 +290,11 @@
         this.singleLoading = true;
         this.singleRunId = row.id;
         row.request.name = row.id;
-        this.$get('/api/definition/get/' + row.request.id, response => {
-          row.request.path = response.data.path;  //  取的path是对应接口的path，因此查库以获得
-          row.request.useEnvironment = this.environment;
-          row.request.projectId = getCurrentProjectID();
-          this.runData.push(row.request);
-          /*触发执行操作*/
-          this.reportId = getUUID().substring(0, 8);
-        });
+        row.request.useEnvironment = this.environment;
+        row.request.projectId = getCurrentProjectID();
+        this.runData.push(row.request);
+        /*触发执行操作*/
+        this.reportId = getUUID().substring(0, 8);
       },
 
       batchRun() {
