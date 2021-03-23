@@ -17,13 +17,13 @@
       </el-col>
     </el-row>
     <el-row>
-      <el-col :span="10">
+      <el-col :span="12">
         <el-collapse v-model="activeNames" accordion>
           <el-collapse-item :name="index"
                             v-for="(threadGroup, index) in threadGroups.filter(th=>th.enabled === 'true' && th.deleted=='false')"
                             :key="index">
             <template slot="title">
-              <div style="padding-right: 10px">
+              <div style="padding-right: 20px; font-size: 16px;">
                 {{ threadGroup.attributes.testname }}
               </div>
               <el-tag type="primary" size="mini" v-if="threadGroup.threadType === 'DURATION'">
@@ -152,7 +152,8 @@
           </el-collapse-item>
         </el-collapse>
       </el-col>
-      <el-col :span="14">
+      <el-col :span="12">
+        <div class="title">{{ $t('load_test.pressure_prediction_chart') }}</div>
         <ms-chart class="chart-container" ref="chart1" :options="options" :autoresize="true"></ms-chart>
       </el-col>
     </el-row>
@@ -648,18 +649,33 @@ export default {
   border-bottom: 1px solid #DCDFE6;
 }
 
+/deep/ .el-collapse-item__content{
+  padding-left: 10px;
+  padding-bottom: 5px;
+  border-left-width: 8px;
+  border-left-style: solid;
+  border-left-color: #F5F7FA;
+  border-top-left-radius: 3px;
+  border-bottom-left-radius: 3px;
+}
+
 .chart-container {
   width: 100%;
   height: 300px;
 }
 
+.el-form-item {
+  margin-top: 5px;
+  margin-bottom: 5px;
+}
+
 .el-col .el-form {
-  margin-top: 15px;
+  margin-top: 5px;
   text-align: left;
 }
 
 .el-col {
-  margin-top: 15px;
+  margin-top: 5px;
   text-align: left;
 }
 
