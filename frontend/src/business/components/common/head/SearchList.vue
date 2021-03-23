@@ -28,6 +28,7 @@
 <script>
 import {getCurrentProjectID, getCurrentUser, hasRoles} from "@/common/js/utils";
 import {PROJECT_ID, ROLE_TEST_MANAGER, ROLE_TEST_USER, ROLE_TEST_VIEWER} from "@/common/js/constants";
+import {mapGetters} from "vuex";
 
 export default {
   name: "SearchList",
@@ -39,6 +40,10 @@ export default {
     this.init();
   },
   computed: {
+    ...mapGetters([
+      'isNewVersion',
+      'isOldVersion',
+    ]),
     currentProjectId() {
       return localStorage.getItem(PROJECT_ID)
     }
@@ -106,9 +111,9 @@ export default {
         localStorage.setItem(PROJECT_ID, projectId);
         let path = this.$route.matched[0].path ? this.$route.matched[0].path : '/';
         if (path === '/api') {
-          if (this.$store.state.switch.value === 'new') {
+          if (this.isNewVersion) {
             path = "/api/home";
-          } else if (this.$store.state.switch.value === 'old') {
+          } else if (this.isOldVersion) {
             path = "/api/home_obsolete";
           } else {
             path = '/';
