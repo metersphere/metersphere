@@ -23,7 +23,8 @@ public class ReportFailureAdvanceResultComponent extends ReportComponent {
 
     @Override
     public void readRecord(TestPlanCaseDTO testCase) {
-        if (StringUtils.equals(testCase.getStatus(), TestPlanTestCaseStatus.Failure.name())) {
+        if (StringUtils.equals(testCase.getStatus(), TestPlanTestCaseStatus.Failure.name()) ||
+            StringUtils.equals(testCase.getStatus(), TestPlanTestCaseStatus.Blocking.name())) {
             this.functionalTestCases.add(testCase);
         }
     }
