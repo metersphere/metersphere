@@ -316,13 +316,8 @@ public class ApiAutomationService {
         }
     }
 
-    public void reduction(List<SaveApiScenarioRequest> requests) {
-        List<String> apiIds = new ArrayList<>();
-        requests.forEach(item -> {
-            checkNameExist(item);
-            apiIds.add(item.getId());
-        });
-        extApiScenarioMapper.reduction(apiIds);
+    public void reduction(List<String> ids) {
+        extApiScenarioMapper.reduction(ids);
     }
 
     private void checkNameExist(SaveApiScenarioRequest request) {

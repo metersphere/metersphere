@@ -24,7 +24,7 @@
 
         <el-table-column v-if="!referenced" width="30" min-width="30" :resizable="false" align="center">
           <template v-slot:default="scope">
-            <show-more-btn :is-show="scope.row.showMore" :buttons="buttons" :size="selectDataCounts" v-tester/>
+            <show-more-btn :is-show="scope.row.showMore" :buttons="trashEnable ? trashButtons: buttons" :size="selectDataCounts" v-tester/>
           </template>
         </el-table-column>
         <template v-for="(item, index) in tableLabel">
@@ -285,6 +285,12 @@
           },
           {name: this.$t('api_test.definition.request.batch_delete'), handleClick: this.handleDeleteBatch},
 
+        ],
+        trashButtons: [
+          {name: this.$t('api_test.definition.request.batch_delete'), handleClick: this.handleDeleteBatch},
+          {
+            name: "批量恢复", handleClick: this.handleBatchRestore
+          },
         ],
         isSelectAllDate: false,
         selectRows: new Set(),
@@ -592,10 +598,14 @@
         this.$emit('edit', data);
       },
       reductionApi(row) {
-        row.scenarioDefinition = null;
-        row.tags = null;
-        let rows = [row];
-        this.$post("/api/automation/reduction", rows, response => {
+        this.$post("/api/automation/reduction", [row.id], response => {
+          this.$success(this.$t('commons.save_success'));
+          this.search();
+        })
+      },
+      handleBatchRestore() {
+        let ids = Array.from(this.selectRows).map(row => row.id);
+        this.$post("/api/automation/reduction", ids, response => {
           this.$success(this.$t('commons.save_success'));
           this.search();
         })
