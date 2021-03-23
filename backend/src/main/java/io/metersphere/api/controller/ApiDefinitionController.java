@@ -13,6 +13,7 @@ import io.metersphere.api.dto.swaggerurl.SwaggerTaskResult;
 import io.metersphere.api.dto.swaggerurl.SwaggerUrlRequest;
 import io.metersphere.api.service.ApiDefinitionService;
 import io.metersphere.api.service.EsbApiParamService;
+import io.metersphere.api.service.EsbImportService;
 import io.metersphere.base.domain.ApiDefinition;
 import io.metersphere.base.domain.Schedule;
 import io.metersphere.commons.constants.RoleConstants;
@@ -32,6 +33,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
 import java.net.MalformedURLException;
 import java.util.Date;
 import java.util.List;
@@ -49,6 +51,8 @@ public class ApiDefinitionController {
     private CheckPermissionService checkPermissionService;
     @Resource
     private EsbApiParamService esbApiParamService;
+    @Resource
+    private EsbImportService esbImportService;
 
     @PostMapping("/list/{goPage}/{pageSize}")
     public Pager<List<ApiDefinitionResult>> list(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody ApiDefinitionRequest request) {
@@ -253,5 +257,11 @@ public class ApiDefinitionController {
     @PostMapping("/preview")
     public String preview(@RequestBody String jsonSchema) {
         return JSONSchemaGenerator.getJson(jsonSchema);
+    }
+
+    @GetMapping("/export/esbExcelTemplate")
+    @RequiresRoles(value = {RoleConstants.ADMIN, RoleConstants.ORG_ADMIN, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
+    public void testCaseTemplateExport(HttpServletResponse response) {
+        esbImportService.templateExport(response);
     }
 }

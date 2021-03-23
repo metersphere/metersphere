@@ -29,10 +29,16 @@
               <el-option v-for="item in moduleOptions" :key="item.id" :label="item.path" :value="item.id"/>
             </el-select>
           </el-form-item>
-          <el-form-item v-if="!isScenarioModel&&!isHar" :label="$t('commons.import_mode')" prop="modeId">
+          <el-form-item v-if="!isScenarioModel&&showImportModel" :label="$t('commons.import_mode')" prop="modeId">
             <el-select size="small" v-model="formData.modeId" class="project-select" clearable>
               <el-option v-for="item in modeOptions" :key="item.id" :label="item.name" :value="item.id"/>
             </el-select>
+          </el-form-item>
+          <el-form-item v-if="showTemplate">
+            <el-link type="primary" class="download-template"
+                     @click="downloadTemplate"
+            >{{$t('test_track.case.import.download_template')}}
+            </el-link>
           </el-form-item>
           <el-form-item v-if="isSwagger2">
             <el-switch
@@ -105,6 +111,7 @@ export default {
       default: true,
     },
     moduleOptions: {},
+    propotal:String,
     model: {
       type: String,
       default: 'definition'
@@ -133,28 +140,35 @@ export default {
           exportTip: this.$t('api_test.api_import.ms_export_tip'),
           suffixes: new Set(['json'])
         },
-        {
-          name: 'Postman',
-          value: 'Postman',
-          tip: this.$t('api_test.api_import.postman_tip'),
-          exportTip: this.$t('api_test.api_import.post_export_tip'),
-          suffixes: new Set(['json'])
-        },
-        {
-          name: 'Swagger',
-          value: 'Swagger2',
-          tip: this.$t('api_test.api_import.swagger_tip'),
-          exportTip: this.$t('api_test.api_import.swagger_export_tip'),
-          suffixes: new Set(['json'])
-        },
-        {
-          name: 'HAR',
-          value: 'Har',
-          tip: this.$t('api_test.api_import.har_tip'),
-          exportTip: this.$t('api_test.api_import.har_export_tip'),
-          suffixes: new Set(['har'])
-        },
       ],
+      postmanPlanform:{
+        name: 'Postman',
+        value: 'Postman',
+        tip: this.$t('api_test.api_import.postman_tip'),
+        exportTip: this.$t('api_test.api_import.post_export_tip'),
+        suffixes: new Set(['json'])
+      },
+      swaggerPlanform:{
+        name: 'Swagger',
+        value: 'Swagger2',
+        tip: this.$t('api_test.api_import.swagger_tip'),
+        exportTip: this.$t('api_test.api_import.swagger_export_tip'),
+        suffixes: new Set(['json'])
+      },
+      harPlanform:{
+        name: 'HAR',
+        value: 'Har',
+        tip: this.$t('api_test.api_import.har_tip'),
+        exportTip: this.$t('api_test.api_import.har_export_tip'),
+        suffixes: new Set(['har'])
+      },
+      esbPlanform : {
+        name: 'ESB',
+        value: 'ESB',
+        tip: this.$t('api_test.api_import.esb_tip'),
+        exportTip: this.$t('api_test.api_import.esb_export_tip'),
+        suffixes: new Set(['xlsx','xls'])
+      },
       selectedPlatform: {},
       selectedPlatformValue: 'Metersphere',
       result: {},
@@ -182,6 +196,11 @@ export default {
   activated() {
     this.selectedPlatform = this.platforms[0];
   },
+  created() {
+    this.platforms.push(this.postmanPlanform);
+    this.platforms.push(this.swaggerPlanform);
+    this.platforms.push(this.harPlanform);
+  },
   watch: {
     selectedPlatformValue() {
       for (let i in this.platforms) {
@@ -191,13 +210,43 @@ export default {
         }
       }
     },
+    propotal(){
+      let postmanIndex = this.platforms.indexOf(this.postmanPlanform);
+      let swaggerPlanformIndex = this.platforms.indexOf(this.swaggerPlanform);
+      let harPlanformIndex = this.platforms.indexOf(this.harPlanform);
+      let esbPlanformIndex = this.platforms.indexOf(this.esbPlanform);
+      if(postmanIndex>=0){
+        this.platforms.splice(this.platforms.indexOf(this.postmanPlanform),1);
+      }
+      if(swaggerPlanformIndex>=0){
+        this.platforms.splice(this.platforms.indexOf(this.swaggerPlanform),1);
+      }
+      if(harPlanformIndex>=0){
+        this.platforms.splice(this.platforms.indexOf(this.harPlanform),1);
+      }
+      if(esbPlanformIndex>=0){
+        this.platforms.splice(this.platforms.indexOf(this.esbPlanform),1);
+      }
+      if(this.propotal === 'TCP'){
+        this.platforms.push(this.esbPlanform);
+        return true;
+      }else if(this.propotal === 'HTTP'){
+        this.platforms.push(this.postmanPlanform);
+        this.platforms.push(this.swaggerPlanform);
+        this.platforms.push(this.harPlanform);
+        return false;
+      }
+    }
   },
   computed: {
     isSwagger2() {
       return this.selectedPlatformValue === 'Swagger2';
     },
-    isHar() {
-      return this.selectedPlatformValue === 'Har';
+    showImportModel() {
+      return this.selectedPlatformValue != 'Har' && this.selectedPlatformValue != 'ESB';
+    },
+    showTemplate() {
+      return this.selectedPlatformValue === 'ESB';
     },
     isScenarioModel() {
       return this.model === 'scenario';
@@ -234,6 +283,11 @@ export default {
     },
     handleRemove(file, fileList) {
       this.formData.file = undefined;
+    },
+    downloadTemplate(){
+      if(this.selectedPlatformValue == "ESB"){
+        this.$fileDownload('/api/definition/export/esbExcelTemplate');
+      }
     },
     uploadValidate(file, fileList) {
       let suffix = file.name.substring(file.name.lastIndexOf('.') + 1);
@@ -307,7 +361,7 @@ export default {
 <style scoped>
 
 .api-import >>> .el-dialog {
-  min-width: 700px;
+  min-width: 750px;
 }
 
 .format-tip {

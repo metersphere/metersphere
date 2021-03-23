@@ -14,21 +14,33 @@
             </el-select>
           </el-form-item>
         </el-form>
-        <ms-chart class="chart-container" ref="chart1" :options="options" :autoresize="true"></ms-chart>
       </el-col>
     </el-row>
     <el-row>
-      <el-collapse v-model="activeNames">
-        <el-collapse-item :title="threadGroup.attributes.testname" :name="index"
-                          v-for="(threadGroup, index) in threadGroups.filter(th=>th.enabled === 'true' && th.deleted=='false')"
-                          :key="index">
-          <el-col :span="10">
+      <el-col :span="12">
+        <el-collapse v-model="activeNames" accordion>
+          <el-collapse-item :name="index"
+                            v-for="(threadGroup, index) in threadGroups.filter(th=>th.enabled === 'true' && th.deleted=='false')"
+                            :key="index">
+            <template slot="title">
+              <div style="padding-right: 20px; font-size: 16px;">
+                {{ threadGroup.attributes.testname }}
+              </div>
+              <el-tag type="primary" size="mini" v-if="threadGroup.threadType === 'DURATION'">
+                {{ $t('load_test.thread_num') }}{{ threadGroup.threadNumber }},
+                {{ $t('load_test.duration') }}: {{ threadGroup.duration }} {{ getUnitLabel(threadGroup) }}
+              </el-tag>
+              <el-tag type="primary" size="mini" v-if="threadGroup.threadType === 'ITERATION'">
+                {{ $t('load_test.thread_num') }} {{ threadGroup.threadNumber }},
+                {{$t('load_test.iterate_num')}} {{threadGroup.iterateNum}}
+              </el-tag>
+            </template>
             <el-form :inline="true">
               <el-form-item :label="$t('load_test.thread_num')">
                 <el-input-number
                   :disabled="isReadOnly"
                   v-model="threadGroup.threadNumber"
-                  @change="calculateChart(threadGroup)"
+                  @change="calculateTotalChart(threadGroup)"
                   :min="resourcePoolResourceLength"
                   size="mini"/>
               </el-form-item>
@@ -47,7 +59,7 @@
                     v-model="threadGroup.duration"
                     :min="1"
                     :max="9999"
-                    @change="calculateChart(threadGroup)"
+                    @change="calculateTotalChart(threadGroup)"
                     size="mini"/>
                 </el-form-item>
                 <el-form-item>
@@ -64,7 +76,7 @@
                   <el-input-number
                     :disabled="isReadOnly || !threadGroup.rpsLimitEnable"
                     v-model="threadGroup.rpsLimit"
-                    @change="calculateChart(threadGroup)"
+                    @change="calculateTotalChart(threadGroup)"
                     :min="1"
                     :max="99999"
                     size="mini"/>
@@ -77,7 +89,7 @@
                       :min="1"
                       :max="threadGroup.duration"
                       v-model="threadGroup.rampUpTime"
-                      @change="calculateChart(threadGroup)"
+                      @change="calculateTotalChart(threadGroup)"
                       size="mini"/>
                   </el-form-item>
                   <el-form-item :label="$t('load_test.ramp_up_time_minutes', [getUnitLabel(threadGroup)])">
@@ -86,7 +98,7 @@
                       :min="1"
                       :max="Math.min(threadGroup.threadNumber, threadGroup.rampUpTime)"
                       v-model="threadGroup.step"
-                      @change="calculateChart(threadGroup)"
+                      @change="calculateTotalChart(threadGroup)"
                       size="mini"/>
                   </el-form-item>
                   <el-form-item :label="$t('load_test.ramp_up_time_times')"/>
@@ -98,7 +110,7 @@
                       :disabled="isReadOnly"
                       :min="1"
                       v-model="threadGroup.rampUpTime"
-                      @change="calculateChart(threadGroup)"
+                      @change="calculateTotalChart(threadGroup)"
                       size="mini"/>
                   </el-form-item>
                   <el-form-item :label="$t('load_test.ramp_up_time_seconds', [getUnitLabel(threadGroup)])"/>
@@ -112,7 +124,7 @@
                     v-model="threadGroup.iterateNum"
                     :min="1"
                     :max="9999999"
-                    @change="calculateChart(threadGroup)"
+                    @change="calculateTotalChart(threadGroup)"
                     size="mini"/>
                 </el-form-item>
                 <br>
@@ -137,13 +149,13 @@
                 <el-form-item :label="$t('load_test.ramp_up_time_seconds', [getUnitLabel(threadGroup)])"/>
               </div>
             </el-form>
-          </el-col>
-          <el-col :span="14">
-            <div class="title">{{ $t('load_test.pressure_prediction_chart') }}</div>
-            <ms-chart class="chart-container" :options="threadGroup.options" :autoresize="true"></ms-chart>
-          </el-col>
-        </el-collapse-item>
-      </el-collapse>
+          </el-collapse-item>
+        </el-collapse>
+      </el-col>
+      <el-col :span="12">
+        <div class="title">{{ $t('load_test.pressure_prediction_chart') }}</div>
+        <ms-chart class="chart-container" ref="chart1" :options="options" :autoresize="true"></ms-chart>
+      </el-col>
     </el-row>
   </div>
 </template>
@@ -303,8 +315,6 @@ export default {
               this.$set(this.threadGroups[i], "enabled", this.threadGroups[i].enabled || 'true');
               this.$set(this.threadGroups[i], "deleted", this.threadGroups[i].deleted || 'false');
             })
-            this.calculateChart(this.threadGroups[i]);
-
           }
           this.calculateTotalChart();
         }
@@ -639,18 +649,33 @@ export default {
   border-bottom: 1px solid #DCDFE6;
 }
 
+/deep/ .el-collapse-item__content{
+  padding-left: 10px;
+  padding-bottom: 5px;
+  border-left-width: 8px;
+  border-left-style: solid;
+  border-left-color: #F5F7FA;
+  border-top-left-radius: 3px;
+  border-bottom-left-radius: 3px;
+}
+
 .chart-container {
   width: 100%;
   height: 300px;
 }
 
+.el-form-item {
+  margin-top: 5px;
+  margin-bottom: 5px;
+}
+
 .el-col .el-form {
-  margin-top: 15px;
+  margin-top: 5px;
   text-align: left;
 }
 
 .el-col {
-  margin-top: 15px;
+  margin-top: 5px;
   text-align: left;
 }
 
