@@ -54,6 +54,10 @@
                   {{ $t('test_track.plan.plan_status_running') }}
                 </el-dropdown-item>
                 <el-dropdown-item :disabled="!isTestManagerOrTestUser"
+                                  :command="{item: scope.row, status: 'Finished'}">
+                  {{ $t('test_track.plan.plan_status_finished') }}
+                </el-dropdown-item>
+                <el-dropdown-item :disabled="!isTestManagerOrTestUser"
                                   :command="{item: scope.row, status: 'Completed'}">
                   {{ $t('test_track.plan.plan_status_completed') }}
                 </el-dropdown-item>
@@ -82,7 +86,7 @@
           show-overflow-tooltip
           :key="index">
           <template v-slot:default="scope">
-            <el-progress :percentage="scope.row.testRate"></el-progress>
+            <el-progress :percentage="scope.row.passRate.substring(0, scope.row.passRate.length-1)"></el-progress>
           </template>
         </el-table-column>
         <el-table-column
@@ -264,6 +268,7 @@ export default {
       statusFilters: [
         {text: this.$t('test_track.plan.plan_status_prepare'), value: 'Prepare'},
         {text: this.$t('test_track.plan.plan_status_running'), value: 'Underway'},
+        {text: this.$t('test_track.plan.plan_status_finished'), value: 'Finished'},
         {text: this.$t('test_track.plan.plan_status_completed'), value: 'Completed'}
       ],
       stageFilters: [

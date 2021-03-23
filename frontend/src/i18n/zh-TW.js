@@ -1242,6 +1242,7 @@ export default {
       input_plan_stage: "請選擇測試階段",
       plan_status_prepare: "未開始",
       plan_status_running: "進行中",
+      plan_status_finished: "已結束",
       plan_status_completed: "已完成",
       plan_status_trash: "廢棄",
       planned_start_time: "計劃開始",
