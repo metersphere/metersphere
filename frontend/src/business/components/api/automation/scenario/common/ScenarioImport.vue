@@ -69,8 +69,7 @@
 
 <script>
   import MsDialogFooter from "../../../../common/components/MsDialogFooter";
-  import {listenGoBack, removeGoBackListener, getCurrentProjectID} from "@/common/js/utils";
-  import {buildNodePath} from "@/business/components/api/definition/model/NodeTree";
+  import {listenGoBack, removeGoBackListener} from "@/common/js/utils";
 
   export default {
     name: "ScenarioImport",
@@ -161,6 +160,9 @@
       isHar() {
         return this.selectedPlatformValue === 'Har';
       },
+      projectId() {
+        return this.$store.state.projectId
+      },
     },
     methods: {
       scheduleEdit() {
@@ -241,7 +243,7 @@
           })
           param.modeId = this.formData.modeId
         }
-        param.projectId = getCurrentProjectID();
+        param.projectId = this.projectId;
         if (!this.swaggerUrlEable) {
           param.swaggerUrl = undefined;
         }

@@ -135,7 +135,7 @@
   import {parseEnvironment} from "../../../definition/model/EnvironmentModel";
   import {ELEMENT_TYPE, ELEMENTS} from "../Setting";
   import MsApiCustomize from "../ApiCustomize";
-  import {getCurrentProjectID, getUUID, objToStrMap, strMapToObj} from "@/common/js/utils";
+  import {getUUID, strMapToObj} from "@/common/js/utils";
   import ApiEnvironmentConfig from "../../../definition/components/environment/ApiEnvironmentConfig";
   import MsInputTag from "../MsInputTag";
   import MsRun from "../DebugRun";
@@ -215,7 +215,6 @@
         path: "/api/automation/create",
         debugData: {},
         reportId: "",
-        projectId: "",
         enableCookieShare: false,
         globalOptions: {
           spacing: 30
@@ -231,7 +230,6 @@
       if (!this.currentScenario.apiScenarioModuleId) {
         this.currentScenario.apiScenarioModuleId = "";
       }
-      this.projectId = getCurrentProjectID();
       this.operatingElements = ELEMENTS.get("ALL");
       this.projectEnvMap = this.envMap;
     },
@@ -354,7 +352,10 @@
           }
         ];
         return buttons.filter(btn => btn.show);
-      }
+      },
+      projectId() {
+        return this.$store.state.projectId
+      },
     },
     methods: {
       // 打开引用的场景
@@ -496,7 +497,7 @@
             arr[i].countController.proceed = true;
           }
           if (!arr[i].projectId) {
-            arr[i].projectId = getCurrentProjectID();
+            arr[i].projectId = this.projectId;
           }
           if (arr[i].hashTree != undefined && arr[i].hashTree.length > 0) {
             this.recursiveSorting(arr[i].hashTree);
@@ -518,7 +519,7 @@
           }
           // 设置项目ID
           if (!this.scenarioDefinition[i].projectId) {
-            this.scenarioDefinition[i].projectId = getCurrentProjectID();
+            this.scenarioDefinition[i].projectId = this.projectId;
           }
           if (this.scenarioDefinition[i].hashTree != undefined && this.scenarioDefinition[i].hashTree.length > 0) {
             this.recursiveSorting(this.scenarioDefinition[i].hashTree);
@@ -858,7 +859,7 @@
 
       setParameter() {
         this.currentScenario.stepTotal = this.scenarioDefinition.length;
-        this.currentScenario.projectId = getCurrentProjectID();
+        this.currentScenario.projectId = this.projectId;
         this.currentScenario.modulePath = this.getPath(this.currentScenario.apiScenarioModuleId);
         // 构建一个场景对象 方便引用处理
         let scenario = {
