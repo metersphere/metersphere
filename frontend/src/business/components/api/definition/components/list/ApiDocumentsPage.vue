@@ -1,7 +1,7 @@
 <template>
   <div>
 <!--      <api-document-item :project-id="projectId" :module-ids="moduleIds"/>-->
-    <api-document-anchor :project-id="projectId" :module-ids="moduleIds"></api-document-anchor>
+    <api-document-anchor :is-share-page="isSharePage" :project-id="projectId" :module-ids="moduleIds"></api-document-anchor>
   </div>
 </template>
 
@@ -16,6 +16,7 @@ export default {
   },
   data() {
     return {
+      isSharePage:false,
     }
   },
   props: {
