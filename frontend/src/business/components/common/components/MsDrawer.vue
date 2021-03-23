@@ -85,6 +85,7 @@
       },
       methods: {
         init() {
+          window.addEventListener("resize", this.listenScreenChange,false);
           //  todo 其他方向待优化
           switch (this.direction) {
             case 'left':
@@ -138,7 +139,24 @@
           this.h = this.originalH;
         },
         close() {
-          this.$emit('close')
+          this.$emit('close');
+          window.removeEventListener("resize", this.listenScreenChange);
+        },
+        listenScreenChange() {
+          switch (this.direction) {
+            case 'left':
+              this.h = document.documentElement.clientHeight;
+              break;
+            case 'right':
+              this.h = document.documentElement.clientHeight;
+              break;
+            case 'top':
+              this.w = document.documentElement.clientWidth;
+              break;
+            case 'bottom':
+              this.w = document.documentElement.clientWidth;
+              break;
+          }
         }
       }
     }

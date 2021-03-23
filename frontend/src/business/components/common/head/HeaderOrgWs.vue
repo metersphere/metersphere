@@ -8,7 +8,11 @@
     <el-menu-item index="1" v-show="false">Placeholder</el-menu-item>
     <el-submenu index="1" popper-class="org-ws-submenu"
                 v-roles="['org_admin', 'test_manager', 'test_user', 'test_viewer']">
-      <template v-slot:title>{{ $t('commons.organization') }}: {{ currentOrganizationName }}</template>
+      <template v-slot:title>{{ $t('commons.organization') }}:
+        <span class="org-ws-name" :title="currentOrganizationName">
+          {{ currentOrganizationName }}
+        </span>
+      </template>
       <el-input :placeholder="$t('project.search_by_name')"
                 prefix-icon="el-icon-search"
                 v-model="searchOrg"
@@ -17,14 +21,20 @@
                 size="small"/>
       <div class="org-ws-menu">
         <el-menu-item @click="changeOrg(item)" v-for="(item,index) in organizationList" :key="index">
-          {{ item.name }}
+          <span class="title">
+            {{ item.name }}
+          </span>
           <i class="el-icon-check"
              v-if="item.id === currentUserInfo.lastOrganizationId"></i>
         </el-menu-item>
       </div>
     </el-submenu>
     <el-submenu index="2" popper-class="submenu" v-roles="['test_manager', 'test_user', 'test_viewer']">
-      <template v-slot:title>{{ $t('commons.workspace') }}: {{ currentWorkspaceName }}</template>
+      <template v-slot:title>{{ $t('commons.workspace') }}:
+        <span class="org-ws-name" :title="currentWorkspaceName">
+          {{ currentWorkspaceName }}
+        </span>
+      </template>
       <el-input :placeholder="$t('project.search_by_name')"
                 prefix-icon="el-icon-search"
                 v-model="searchWs"
@@ -33,7 +43,9 @@
                 size="small"/>
       <div class="org-ws-menu">
         <el-menu-item @click="changeWs(item)" v-for="(item,index) in workspaceList" :key="index">
-          {{ item.name }}
+          <span class="title">
+            {{ item.name }}
+          </span>
           <i class="el-icon-check" v-if="item.id === currentUserInfo.lastWorkspaceId"></i>
         </el-menu-item>
       </div>
@@ -219,4 +231,23 @@ export default {
   color: #d2ced8;
   border-color: #b4aebe;
 }
+
+.title {
+  display: inline-block;
+  padding-left: 15px;
+  max-width: 150px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.org-ws-name {
+  display: inline-block;
+  padding-left: 15px;
+  max-width: 110px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 </style>
