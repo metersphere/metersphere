@@ -58,6 +58,7 @@ public class Swagger2Parser extends SwaggerAbstractParser {
 
         ApiModule parentNode = ApiDefinitionImportUtil.getSelectModule(importRequest.getModuleId());
 
+        String basePath = swagger.getBasePath();
         for (String pathName : pathNames) {
             Path path = paths.get(pathName);
             Map<HttpMethod, Operation> operationMap = path.getOperationMap();
@@ -68,6 +69,10 @@ public class Swagger2Parser extends SwaggerAbstractParser {
                 ApiDefinitionWithBLOBs apiDefinition = buildApiDefinition(request.getId(), operation, pathName, method.name(),importRequest);
                 parseParameters(operation, request);
                 addBodyHeader(request);
+                if (StringUtils.isNotBlank(basePath)) {
+                    apiDefinition.setPath(basePath + apiDefinition.getPath());
+                    request.setPath(basePath + request.getPath());
+                }
                 apiDefinition.setRequest(JSON.toJSONString(request));
                 apiDefinition.setResponse(JSON.toJSONString(parseResponse(operation, operation.getResponses())));
                 buildModule(parentNode, apiDefinition, operation.getTags());

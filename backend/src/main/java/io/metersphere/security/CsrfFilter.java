@@ -42,7 +42,12 @@ public class CsrfFilter extends AnonymousFilter {
         // 请求头取出的token value
         String csrfToken = httpServletRequest.getHeader(TOKEN_NAME);
         // 校验 token
-        validateToken(csrfToken);
+        try {
+            validateToken(csrfToken);
+        } catch (ExpiredCredentialsException e) {
+            ((HttpServletResponse) response).setHeader("Authentication-Status", "invalid");
+            return true;
+        }
         // 校验 referer
         validateReferer(httpServletRequest);
         return true;
