@@ -99,7 +99,7 @@ import SelectMenu from "../common/SelectMenu";
 import MsContainer from "../../common/components/MsContainer";
 import MsAsideContainer from "../../common/components/MsAsideContainer";
 import MsMainContainer from "../../common/components/MsMainContainer";
-import {checkoutTestManagerOrTestUser, getCurrentProjectID, getUUID} from "../../../../common/js/utils";
+import {checkoutTestManagerOrTestUser, getUUID} from "../../../../common/js/utils";
 import TestCaseNodeTree from "../common/TestCaseNodeTree";
 
 import MsTabButton from "@/business/components/common/components/MsTabButton";
@@ -132,12 +132,10 @@ export default {
       loading: false,
       type:'',
       activeDom: 'left',
-      projectId: ""
     }
   },
   mounted() {
     this.init(this.$route);
-    this.projectId = getCurrentProjectID();
   },
   watch: {
     redirectID() {
@@ -151,7 +149,6 @@ export default {
       this.init(to);
       if (to.path.indexOf('/track/case/all') == -1) {
         if (this.$refs && this.$refs.autoScenarioConfig) {
-          console.log(this.$refs.autoScenarioConfig);
           this.$refs.autoScenarioConfig.forEach(item => {
             /*item.removeListener();*/
           });
@@ -168,7 +165,10 @@ export default {
     isRedirectEdit: function () {
       let redirectParam = this.$route.params.dataSelectRange;
       return redirectParam;
-    }
+    },
+    projectId() {
+      return this.$store.state.projectId
+    },
   },
   methods: {
     handleCommand(e) {
@@ -197,7 +197,6 @@ export default {
       }
     },
     addTab(tab) {
-      this.projectId=getCurrentProjectID();
       if (!this.projectId) {
         this.$warning(this.$t('commons.check_project_tip'));
         return;
@@ -238,6 +237,10 @@ export default {
       }
     },
     exportTestCase(){
+      if (this.activeDom !== 'left') {
+        this.$warning('请切换成接口列表导出！');
+        return;
+      }
       this.$refs.testCaseList.exportTestCase()
     },
     addListener() {
@@ -258,7 +261,6 @@ export default {
           this.testCaseReadOnly = true;
         }
         let caseId = this.$route.params.caseId;
-        this.projectId=getCurrentProjectID();
         if (!this.projectId) {
           this.$warning(this.$t('commons.check_project_tip'));
           return;

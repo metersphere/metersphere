@@ -49,7 +49,6 @@ import TestReviewRelevance from "@/business/components/track/review/view/compone
 import TestReviewTestCaseList from "@/business/components/track/review/view/components/TestReviewTestCaseList";
 import MsTabButton from "@/business/components/common/components/MsTabButton";
 import TestReviewMinder from "@/business/components/track/common/minder/TestReviewMinder";
-import {getCurrentProjectID} from "@/common/js/utils";
 
 export default {
   name: "TestReviewFunction",
@@ -69,7 +68,6 @@ export default {
       treeNodes: [],
       isMenuShow: true,
       activeDom: 'left',
-      projectId: ""
     }
   },
   props: [
@@ -79,11 +77,14 @@ export default {
   ],
   mounted() {
     this.getNodeTreeByReviewId()
-    this.projectId = getCurrentProjectID();
   },
   activated() {
     this.getNodeTreeByReviewId()
-
+  },
+  computed: {
+    projectId() {
+      return this.$store.state.projectId
+    },
   },
   methods: {
     refresh() {
