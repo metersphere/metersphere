@@ -272,7 +272,7 @@
       return {
         type: API_LIST,
         headerItems: Api_List,
-        tableLabel: [],
+        tableLabel: Api_List,
         condition: {
           components: API_DEFINITION_CONFIGS
         },
@@ -442,6 +442,10 @@
                 item.tags = JSON.parse(item.tags);
               }
             })
+            if (this.$refs.apiDefinitionTable) {
+              this.$refs.apiDefinitionTable.doLayout()
+            }
+
           });
         }
         getLabel(this, API_LIST);
