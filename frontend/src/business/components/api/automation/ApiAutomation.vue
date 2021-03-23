@@ -133,6 +133,9 @@
             });
           }
         }
+      },
+      selectNodeIds() {
+        this.activeName = "default";
       }
     },
     methods: {
