@@ -70,7 +70,6 @@
   import {getUUID, downloadFile, checkoutTestManagerOrTestUser} from "@/common/js/utils";
   import MsApiScenarioModule from "@/business/components/api/automation/scenario/ApiScenarioModule";
   import MsEditApiScenario from "./scenario/EditApiScenario";
-  import {getCurrentProjectID} from "../../../../common/js/utils";
 
   export default {
     name: "ApiAutomation",
@@ -96,7 +95,10 @@
       },
       isReadOnly() {
         return !checkoutTestManagerOrTestUser();
-      }
+      },
+      projectId() {
+        return this.$store.state.projectId
+      },
     },
     data() {
       return {
@@ -145,7 +147,7 @@
           let selectParamArr = redirectParam.split("edit:");
           if (selectParamArr.length == 2) {
             let scenarioId = selectParamArr[1];
-            let projectId = getCurrentProjectID();
+            let projectId = this.projectId;
             //查找单条数据，跳转修改页面
             let url = "/api/automation/list/" + 1 + "/" + 1;
             this.$post(url, {id: scenarioId, projectId: projectId}, response => {
@@ -176,7 +178,7 @@
         }
       },
       addTab(tab) {
-        if (!getCurrentProjectID()) {
+        if (!this.projectId) {
           this.$warning(this.$t('commons.check_project_tip'));
           return;
         }

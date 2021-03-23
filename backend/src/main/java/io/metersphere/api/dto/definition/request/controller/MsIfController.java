@@ -43,10 +43,13 @@ public class MsIfController extends MsTestElement {
     private IfController ifController() {
         IfController ifController = new IfController();
         ifController.setEnabled(this.isEnable());
-        ifController.setName(StringUtils.isEmpty(this.getName()) ? "IfController" : this.getName());
+        if (StringUtils.isEmpty(this.getName())) {
+            this.setName(getLabelName());
+        }
+        ifController.setName(this.getName());
         ifController.setProperty(TestElement.TEST_CLASS, IfController.class.getName());
         ifController.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("IfControllerPanel"));
-        ifController.setCondition(this.getCondition());
+        ifController.setCondition("true");
         ifController.setEvaluateAll(false);
         ifController.setUseExpression(true);
         return ifController;
@@ -61,13 +64,13 @@ public class MsIfController extends MsTestElement {
 
     public String getLabelName() {
         if (isValid()) {
-            String label = variable + " " + operator;
+            String label = "条件控制器：" + variable + " " + operator;
             if (StringUtils.isNotBlank(value)) {
                 label += " " + this.value;
             }
             return label;
         }
-        return "";
+        return "IfController";
     }
 
     public String getCondition() {
