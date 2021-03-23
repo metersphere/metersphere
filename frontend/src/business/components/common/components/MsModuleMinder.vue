@@ -7,6 +7,7 @@
       :import-json="importJson"
       :progress-enable="false"
       :tags="tags"
+      :height="height"
       :distinct-tags="distinctTags"
       @save="save"
     />
@@ -60,10 +61,12 @@ export default {
         "template":"default"
       },
       isActive: true,
-      isFullScreen: false
+      isFullScreen: false,
+      height: ""
     }
   },
   created() {
+    this.height = document.body.clientHeight - 340;
   },
   watch: {
     dataMap() {
