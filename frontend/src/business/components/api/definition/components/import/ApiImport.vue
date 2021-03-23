@@ -140,28 +140,35 @@ export default {
           exportTip: this.$t('api_test.api_import.ms_export_tip'),
           suffixes: new Set(['json'])
         },
-        {
-          name: 'Postman',
-          value: 'Postman',
-          tip: this.$t('api_test.api_import.postman_tip'),
-          exportTip: this.$t('api_test.api_import.post_export_tip'),
-          suffixes: new Set(['json'])
-        },
-        {
-          name: 'Swagger',
-          value: 'Swagger2',
-          tip: this.$t('api_test.api_import.swagger_tip'),
-          exportTip: this.$t('api_test.api_import.swagger_export_tip'),
-          suffixes: new Set(['json'])
-        },
-        {
-          name: 'HAR',
-          value: 'Har',
-          tip: this.$t('api_test.api_import.har_tip'),
-          exportTip: this.$t('api_test.api_import.har_export_tip'),
-          suffixes: new Set(['har'])
-        },
       ],
+      postmanPlanform:{
+        name: 'Postman',
+        value: 'Postman',
+        tip: this.$t('api_test.api_import.postman_tip'),
+        exportTip: this.$t('api_test.api_import.post_export_tip'),
+        suffixes: new Set(['json'])
+      },
+      swaggerPlanform:{
+        name: 'Swagger',
+        value: 'Swagger2',
+        tip: this.$t('api_test.api_import.swagger_tip'),
+        exportTip: this.$t('api_test.api_import.swagger_export_tip'),
+        suffixes: new Set(['json'])
+      },
+      harPlanform:{
+        name: 'HAR',
+        value: 'Har',
+        tip: this.$t('api_test.api_import.har_tip'),
+        exportTip: this.$t('api_test.api_import.har_export_tip'),
+        suffixes: new Set(['har'])
+      },
+      esbPlanform : {
+        name: 'ESB',
+        value: 'ESB',
+        tip: this.$t('api_test.api_import.esb_tip'),
+        exportTip: this.$t('api_test.api_import.esb_export_tip'),
+        suffixes: new Set(['xlsx','xls'])
+      },
       selectedPlatform: {},
       selectedPlatformValue: 'Metersphere',
       result: {},
@@ -189,6 +196,11 @@ export default {
   activated() {
     this.selectedPlatform = this.platforms[0];
   },
+  created() {
+    this.platforms.push(this.postmanPlanform);
+    this.platforms.push(this.swaggerPlanform);
+    this.platforms.push(this.harPlanform);
+  },
   watch: {
     selectedPlatformValue() {
       for (let i in this.platforms) {
@@ -199,22 +211,29 @@ export default {
       }
     },
     propotal(){
+      let postmanIndex = this.platforms.indexOf(this.postmanPlanform);
+      let swaggerPlanformIndex = this.platforms.indexOf(this.swaggerPlanform);
+      let harPlanformIndex = this.platforms.indexOf(this.harPlanform);
+      let esbPlanformIndex = this.platforms.indexOf(this.esbPlanform);
+      if(postmanIndex>=0){
+        this.platforms.splice(this.platforms.indexOf(this.postmanPlanform),1);
+      }
+      if(swaggerPlanformIndex>=0){
+        this.platforms.splice(this.platforms.indexOf(this.swaggerPlanform),1);
+      }
+      if(harPlanformIndex>=0){
+        this.platforms.splice(this.platforms.indexOf(this.harPlanform),1);
+      }
+      if(esbPlanformIndex>=0){
+        this.platforms.splice(this.platforms.indexOf(this.esbPlanform),1);
+      }
       if(this.propotal === 'TCP'){
-        if(this.platforms.length < 5){
-          let esbElement = {
-            name: 'ESB',
-            value: 'ESB',
-            tip: this.$t('api_test.api_import.esb_tip'),
-            exportTip: this.$t('api_test.api_import.esb_export_tip'),
-            suffixes: new Set(['xlsx','xls'])
-          };
-          this.platforms.push(esbElement);
-        }
+        this.platforms.push(this.esbPlanform);
         return true;
-      }else{
-        if(this.platforms.length == 5){
-          this.platforms.pop();
-        }
+      }else if(this.propotal === 'HTTP'){
+        this.platforms.push(this.postmanPlanform);
+        this.platforms.push(this.swaggerPlanform);
+        this.platforms.push(this.harPlanform);
         return false;
       }
     }
