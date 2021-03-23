@@ -74,8 +74,12 @@
                   </el-row>
                   <el-row>
                     <el-col :offset="1">
-                      <span class="cast_label">{{ $t('test_track.plan_view.relevance_test_case') }}：</span>
-                      <span class="cast_item">{{ testCase.prerequisite }}</span>
+                      <span class="cast_label">关联测试：</span>
+                      <span v-for="(item,index) in testCase.list" :key="index">
+                        <el-button @click="openTest(item)" type="text" style="margin-left: 7px;">{{
+                            item.testName
+                          }}</el-button>
+                      </span>
                     </el-col>
                   </el-row>
                   <el-row>
@@ -241,7 +245,7 @@ import PerformanceTestDetail from "../../../plan/view/comonents/test/Performance
 import ApiTestResult from "../../../plan/view/comonents/test/ApiTestResult";
 import ApiTestDetail from "../../../plan/view/comonents/test/ApiTestDetail";
 import TestPlanTestCaseStatusButton from "../../../plan/common/TestPlanTestCaseStatusButton";
-import {getCurrentProjectID, listenGoBack, removeGoBackListener} from "@/common/js/utils";
+import {getCurrentProjectID, getUUID, listenGoBack, removeGoBackListener} from "@/common/js/utils";
 import ReviewComment from "../../commom/ReviewComment";
 import TestCaseAttachment from "@/business/components/track/case/components/TestCaseAttachment";
 import ApiCaseItem from "@/business/components/api/definition/components/case/ApiCaseItem";
@@ -295,6 +299,35 @@ export default {
     }
   },
   methods: {
+    openTest(item) {
+      const type = item.testType;
+      const id = item.testId;
+      switch (type) {
+        case "performance": {
+          let performanceData = this.$router.resolve({
+            path: '/performance/test/edit/' + id,
+          })
+          window.open(performanceData.href, '_blank');
+          break;
+        }
+        case "testcase": {
+          let caseData = this.$router.resolve({
+            name: 'ApiDefinition',
+            params: {redirectID: getUUID(), dataType: "apiTestCase", dataSelectRange: 'single:' + id}
+          });
+          window.open(caseData.href, '_blank');
+          break;
+        }
+        case "automation": {
+          let automationData = this.$router.resolve({
+            name: 'ApiAutomation',
+            params: {redirectID: getUUID(), dataType: "scenario", dataSelectRange: 'edit:' + id}
+          });
+          window.open(automationData.href, '_blank');
+          break;
+        }
+      }
+    },
     handleClose() {
       removeGoBackListener(this.handleClose);
       this.showDialog = false;
@@ -354,6 +387,7 @@ export default {
           item.steptResults.push(item.steps[i]);
         }
         this.testCase = item;
+        console.log(this.testCase)
         this.getRelatedTest();
         this.getComments(item);
         /*  this.initTest();*/

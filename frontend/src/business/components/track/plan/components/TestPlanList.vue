@@ -248,7 +248,7 @@ export default {
     return {
       type: TEST_PLAN_LIST,
       headerItems: Test_Plan_List,
-      tableLabel: [],
+      tableLabel: Test_Plan_List,
       result: {},
       enableDeleteTip: false,
       queryPath: "/test/plan/list",

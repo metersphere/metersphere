@@ -148,7 +148,7 @@ export default {
     return {
       type: TEST_PLAN_SCENARIO_CASE,
       headerItems: Test_Plan_Scenario_Case,
-      tableLabel: [],
+      tableLabel: Test_Plan_Scenario_Case,
       loading: false,
       condition: {},
       currentScenario: {},

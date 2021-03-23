@@ -154,7 +154,7 @@ export default {
     return {
       type: TEST_PLAN_LOAD_CASE,
       headerItems: Test_Plan_Load_Case,
-      tableLabel: [],
+      tableLabel: Test_Plan_Load_Case,
       condition: {},
       result: {},
       tableData: [],

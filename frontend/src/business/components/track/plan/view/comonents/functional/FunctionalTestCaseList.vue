@@ -33,6 +33,7 @@
                    :select-ids="new Set(Array.from(this.selectRows).map(row => row.id))" @refresh="initTableData"/>
 
       <el-table
+        ref="table"
         class="adjust-table"
         border
         @select-all="handleSelectAll"
@@ -328,7 +329,7 @@ export default {
     return {
       type: TEST_PLAN_FUNCTION_TEST_CASE,
       headerItems: Test_Plan_Function_Test_Case,
-      tableLabel: [],
+      tableLabel: Test_Plan_Function_Test_Case,
       result: {},
       deletePath: "/test/case/delete",
       condition: {
@@ -479,6 +480,9 @@ export default {
             }
           }
           this.selectRows.clear();
+          if (this.$refs.table) {
+            this.$refs.table.doLayout()
+          }
         });
       }
       getLabel(this, TEST_PLAN_FUNCTION_TEST_CASE);
