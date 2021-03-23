@@ -36,7 +36,6 @@
 <script>
 import {listenGoBack, removeGoBackListener} from "@/common/js/utils";
 import {parseEnvironment} from "@/business/components/api/test/model/EnvironmentModel";
-import {getUUID, getCurrentProjectID} from "@/common/js/utils";
 
 export default {
   name: "MsSetEnvironment",
@@ -64,6 +63,11 @@ export default {
       this.environmentChange(this.environmentId);
     },
   },
+  computed: {
+    projectId() {
+      return this.$store.state.projectId
+    },
+  },
   methods: {
     environmentChange(value) {
       for (let i in this.environments) {
@@ -74,7 +78,7 @@ export default {
       }
     },
     getEnvironments() {
-      let selectProjectId = getCurrentProjectID();
+      let selectProjectId = this.projectId;
       if (selectProjectId) {
         this.$get('/api/environment/list/' + selectProjectId, response => {
           this.environments = response.data;

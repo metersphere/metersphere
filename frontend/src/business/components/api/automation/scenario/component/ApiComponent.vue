@@ -135,7 +135,6 @@
       }
       // 加载引用对象数据
       this.getApiInfo();
-      console.log(JSON.stringify(this.request));
       if (this.request.protocol === 'HTTP') {
         this.setUrl(this.request.url);
         this.setUrl(this.request.path);

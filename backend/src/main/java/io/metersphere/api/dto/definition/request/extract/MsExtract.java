@@ -34,10 +34,10 @@ public class MsExtract extends MsTestElement {
         if (!config.isOperating() && !this.isEnable()) {
             return;
         }
-        addRequestExtractors(tree);
+        addRequestExtractors(tree, config);
     }
 
-    private void addRequestExtractors(HashTree samplerHashTree) {
+    private void addRequestExtractors(HashTree samplerHashTree, ParameterConfig config) {
         StringJoiner extract = new StringJoiner(";");
 
         if (CollectionUtils.isNotEmpty(this.getRegex())) {
@@ -55,7 +55,7 @@ public class MsExtract extends MsTestElement {
                     samplerHashTree.add(jsonPostProcessor(extractJSONPath, extract))
             );
         }
-        if (Optional.ofNullable(extract).orElse(extract).length() > 0) {
+        if (Optional.ofNullable(extract).orElse(extract).length() > 0 && !config.isOperating()) {
             JSR223PostProcessor shell = new JSR223PostProcessor();
             shell.setEnabled(true);
             shell.setName(StringUtils.isEmpty(this.getName()) ? "JSR223PostProcessor" : this.getName());

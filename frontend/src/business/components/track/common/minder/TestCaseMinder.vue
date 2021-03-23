@@ -49,26 +49,29 @@ name: "TestCaseMinder",
     },
     save(data) {
       let saveCases = [];
-      this.buildSaveCase(data.root, saveCases, undefined);
+      let deleteCases = [];
+      this.buildSaveCase(data.root, saveCases, deleteCases, undefined);
       let param = {
         projectId: this.projectId,
-        data: saveCases
+        data: saveCases,
+        ids: deleteCases.map(item => item.id)
       }
       this.result = this.$post('/test/case/minder/edit', param, () => {
         this.$success(this.$t('commons.save_success'));
       });
     },
-    buildSaveCase(root, saveCases, parent) {
+    buildSaveCase(root, saveCases, deleteCases, parent) {
       let data = root.data;
       if (data.resource && data.resource.indexOf(this.$t('api_test.definition.request.case')) > -1) {
-        if (root.parent) {
-          console.log(root.parent);
-        }
         this._buildSaveCase(root, saveCases, parent);
       } else {
+        let deleteChild = data.deleteChild;
+        if (deleteChild && deleteChild.length > 0) {
+          deleteCases.push(...deleteChild);
+        }
         if (root.children) {
           root.children.forEach((childNode) => {
-            this.buildSaveCase(childNode, saveCases, root.data);
+            this.buildSaveCase(childNode, saveCases, deleteCases, root.data);
           })
         }
       }

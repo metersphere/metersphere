@@ -133,8 +133,8 @@ public class ApiDefinitionController {
     }
 
     @PostMapping("/reduction")
-    public void reduction(@RequestBody List<SaveApiDefinitionRequest> requests) {
-        apiDefinitionService.reduction(requests);
+    public void reduction(@RequestBody ApiBatchRequest request) {
+        apiDefinitionService.reduction(request);
     }
 
     @GetMapping("/get/{id}")

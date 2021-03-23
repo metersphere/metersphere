@@ -10,7 +10,7 @@ import router from "./components/common/router/router";
 import YanProgress from 'yan-progress';
 import './permission' // permission control
 import i18n from "../i18n/i18n";
-import store from "./store";
+import store from "../store";
 import {permission, roles, tester, xpack} from './permission'
 import chart from "../common/js/chart";
 import CalendarHeatmap from "../common/js/calendar-heatmap";

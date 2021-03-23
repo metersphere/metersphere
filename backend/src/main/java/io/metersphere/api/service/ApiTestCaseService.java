@@ -50,7 +50,7 @@ public class ApiTestCaseService {
     @Resource
     TestPlanMapper testPlanMapper;
     @Resource
-    TestCaseReviewMapper  testCaseReviewMapper;
+    TestCaseReviewMapper testCaseReviewMapper;
     @Resource
     private ApiTestCaseMapper apiTestCaseMapper;
     @Resource
@@ -82,12 +82,12 @@ public class ApiTestCaseService {
 
     public List<ApiTestCaseResult> list(ApiTestCaseRequest request) {
         request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
-        List<ApiTestCaseResult> returnList =  extApiTestCaseMapper.list(request);
+        List<ApiTestCaseResult> returnList = extApiTestCaseMapper.list(request);
 
         for (ApiTestCaseResult res : returnList) {
             esbApiParamService.handleApiEsbParams(res);
         }
-        return  returnList;
+        return returnList;
     }
 
     public List<ApiTestCaseDTO> listSimple(ApiTestCaseRequest request) {
@@ -230,7 +230,7 @@ public class ApiTestCaseService {
     private ApiTestCase updateTest(SaveApiTestCaseRequest request) {
         checkNameExist(request);
 
-        if(StringUtils.isNotEmpty(request.getEsbDataStruct())){
+        if (StringUtils.isNotEmpty(request.getEsbDataStruct())) {
             request = esbApiParamService.handleEsbRequest(request);
         }
 
@@ -253,7 +253,7 @@ public class ApiTestCaseService {
         request.setId(UUID.randomUUID().toString());
         checkNameExist(request);
 
-        if(StringUtils.isNotEmpty(request.getEsbDataStruct())||StringUtils.isNotEmpty(request.getBackEsbDataStruct())){
+        if (StringUtils.isNotEmpty(request.getEsbDataStruct()) || StringUtils.isNotEmpty(request.getBackEsbDataStruct())) {
             request = esbApiParamService.handleEsbRequest(request);
         }
 
@@ -332,7 +332,8 @@ public class ApiTestCaseService {
         List<ApiTestCase> apiTestCases = apiTestCaseMapper.selectByExample(example);
         relevance(apiTestCases, request);
     }
-    public void relevanceByApiByReview(ApiCaseRelevanceRequest request){
+
+    public void relevanceByApiByReview(ApiCaseRelevanceRequest request) {
         List<String> ids = request.getSelectIds();
         if (CollectionUtils.isEmpty(ids)) {
             return;
@@ -342,6 +343,7 @@ public class ApiTestCaseService {
         List<ApiTestCase> apiTestCases = apiTestCaseMapper.selectByExample(example);
         relevanceByReview(apiTestCases, request);
     }
+
     public void relevanceByCase(ApiCaseRelevanceRequest request) {
         List<String> ids = request.getSelectIds();
         if (CollectionUtils.isEmpty(ids)) {
@@ -391,7 +393,7 @@ public class ApiTestCaseService {
             TestCaseReviewApiCase.setUpdateTime(System.currentTimeMillis());
             batchMapper.insertIfNotExists(TestCaseReviewApiCase);
         });
-        TestCaseReview  testCaseReview=testCaseReviewMapper.selectByPrimaryKey(request.getReviewId());
+        TestCaseReview testCaseReview = testCaseReviewMapper.selectByPrimaryKey(request.getReviewId());
         if (StringUtils.equals(testCaseReview.getStatus(), TestPlanStatus.Prepare.name())
                 || StringUtils.equals(testCaseReview.getStatus(), TestPlanStatus.Completed.name())) {
             testCaseReview.setStatus(TestPlanStatus.Underway.name());
@@ -399,11 +401,13 @@ public class ApiTestCaseService {
         }
         sqlSession.flushStatements();
     }
+
     public List<String> selectIdsNotExistsInPlan(String projectId, String planId) {
         return extApiTestCaseMapper.selectIdsNotExistsInPlan(projectId, planId);
     }
-    public List<String> selectIdsNotExistsInReview(String projectId,String reviewId){
-        return extApiTestCaseMapper.selectIdsNotExistsInReview(projectId,reviewId);
+
+    public List<String> selectIdsNotExistsInReview(String projectId, String reviewId) {
+        return extApiTestCaseMapper.selectIdsNotExistsInReview(projectId, reviewId);
     }
 
     public List<ApiDataCountResult> countProtocolByProjectID(String projectId) {
@@ -497,7 +501,22 @@ public class ApiTestCaseService {
             sqlSession.flushStatements();
 
         }
+        if (StringUtils.isNotEmpty(request.getEnvId())) {
+            List<ApiTestCaseWithBLOBs> bloBs = apiTestCaseMapper.selectByExampleWithBLOBs(apiDefinitionExample);
+            SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+            ApiTestCaseMapper batchMapper = sqlSession.getMapper(ApiTestCaseMapper.class);
 
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+            bloBs.forEach(apiTestCase -> {
+                JSONObject req = JSON.parseObject(apiTestCase.getRequest());
+                req.put("useEnvironment", request.getEnvId());
+                String requestStr = JSON.toJSONString(req);
+                apiTestCase.setRequest(requestStr);
+                batchMapper.updateByPrimaryKeySelective(apiTestCase);
+            });
+            sqlSession.flushStatements();
+        }
     }
 
     private List<String> getAllApiCaseIdsByFontedSelect(Map<String, List<String>> filters, List<String> moduleIds, String name, String projectId, String protocol, List<String> unSelectIds, String status) {

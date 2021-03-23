@@ -80,7 +80,7 @@
             :label="$t('commons.tag')"
             :key="index">
             <template v-slot:default="scope">
-                <ms-tag v-for="(itemName,index)  in scope.row.tags" :key="index" type="success" effect="plain" :content="itemName" style="margin-left: 5px"/>
+                <ms-tag v-for="(itemName,index)  in scope.row.tags" :key="index" type="success" effect="plain" :content="itemName" style="margin-left: 0px; margin-right: 2px"/>
             </template>
           </el-table-column>
 
@@ -192,7 +192,7 @@ export default {
     return {
       type: TEST_PLAN_API_CASE,
       headerItems: Test_Plan_Api_Case,
-      tableLabel: [],
+      tableLabel: Test_Plan_Api_Case,
       condition: {},
       selectCase: {},
       result: {},
@@ -453,15 +453,12 @@ export default {
       this.initTable();
     },
     singleRun(row) {
-      if (!row.environmentId) {
-        this.$warning(this.$t('api_test.environment.select_environment'));
-        return;
-      }
       this.runData = [];
 
       this.rowLoading = row.id;
 
       this.$get('/api/testcase/get/' + row.caseId, (response) => {
+        console.log(response.data)
         let apiCase = response.data;
         let request = JSON.parse(apiCase.request);
         request.name = row.id;
