@@ -1,6 +1,6 @@
 <template>
   <div>
-    <api-document-anchor :pageHeaderHeight="pageHeaderHeight" :project-id="projectId" :module-ids="moduleIds" :document-id="documentId" ref="apiDocumentAnchor"/>
+    <api-document-anchor :share-page="sharePage" :pageHeaderHeight="pageHeaderHeight" :project-id="projectId" :module-ids="moduleIds" :document-id="documentId" ref="apiDocumentAnchor"/>
   </div>
 
 </template>
@@ -19,6 +19,7 @@ export default {
       documentId:"",
       projectId:"",
       pageHeaderHeight:100,
+      sharePage:true,
       moduleIds:[],
     }
   },
