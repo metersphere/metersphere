@@ -131,8 +131,6 @@ export default {
           if(this.request.backScript != null){
             this.basisData.backScript = JSON.stringify(this.request.backScript);
           }
-
-
         }
         this.$emit('saveApi', this.basisData);
       }

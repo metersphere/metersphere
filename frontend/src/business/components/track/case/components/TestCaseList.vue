@@ -259,7 +259,7 @@ export default {
     return {
       type: TEST_CASE_LIST,
       headerItems: Track_Test_Case,
-      tableLabel: [],
+      tableLabel: Track_Test_Case,
       result: {},
       deletePath: "/test/case/delete",
       condition: {
@@ -443,6 +443,10 @@ export default {
               item.tags = JSON.parse(item.tags);
             }
           })
+          if (this.$refs.table) {
+            this.$refs.table.doLayout()
+          }
+
         });
       }
     },

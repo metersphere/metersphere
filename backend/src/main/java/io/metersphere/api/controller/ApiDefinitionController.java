@@ -12,6 +12,7 @@ import io.metersphere.api.dto.definition.request.ScheduleInfoSwaggerUrlRequest;
 import io.metersphere.api.dto.swaggerurl.SwaggerTaskResult;
 import io.metersphere.api.dto.swaggerurl.SwaggerUrlRequest;
 import io.metersphere.api.service.ApiDefinitionService;
+import io.metersphere.api.service.EsbApiParamService;
 import io.metersphere.base.domain.ApiDefinition;
 import io.metersphere.base.domain.Schedule;
 import io.metersphere.commons.constants.RoleConstants;
@@ -24,6 +25,7 @@ import io.metersphere.controller.request.ScheduleRequest;
 import io.metersphere.service.CheckPermissionService;
 import io.metersphere.service.ScheduleService;
 import io.metersphere.track.request.testcase.ApiCaseRelevanceRequest;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.web.bind.annotation.*;
@@ -45,6 +47,8 @@ public class ApiDefinitionController {
     private ApiDefinitionService apiDefinitionService;
     @Resource
     private CheckPermissionService checkPermissionService;
+    @Resource
+    private EsbApiParamService esbApiParamService;
 
     @PostMapping("/list/{goPage}/{pageSize}")
     public Pager<List<ApiDefinitionResult>> list(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody ApiDefinitionRequest request) {
@@ -95,6 +99,15 @@ public class ApiDefinitionController {
     @RequiresRoles(value = {RoleConstants.TEST_MANAGER, RoleConstants.TEST_USER}, logical = Logical.OR)
     public void deleteBatch(@RequestBody List<String> ids) {
         apiDefinitionService.deleteBatch(ids);
+    }
+
+    @PostMapping(value = "/updateEsbRequest")
+    public SaveApiDefinitionRequest updateEsbRequest(@RequestBody SaveApiDefinitionRequest request) {
+        if(StringUtils.equals(request.getMethod(),"ESB")){
+            //ESB的接口类型数据，采用TCP方式去发送。并将方法类型改为TCP。 并修改发送数据
+            request = esbApiParamService.updateEsbRequest(request);
+        }
+        return request;
     }
 
     @PostMapping("/deleteBatchByParams")

@@ -664,8 +664,9 @@ public class TestCaseService {
             selecteds.forEach(id -> {
                 test.setTestType(id.get(0));
                 test.setTestId(id.get(1));
-                test.setId(UUID.randomUUID().toString());
                 test.setTestCaseId(request.getId());
+                test.setCreateTime(System.currentTimeMillis());
+                test.setUpdateTime(System.currentTimeMillis());
                 testCaseTestMapper.insert(test);
             });
         }
@@ -707,7 +708,8 @@ public class TestCaseService {
             selecteds.forEach(id -> {
                 test.setTestType(id.get(0));
                 test.setTestId(id.get(1));
-                test.setId(UUID.randomUUID().toString());
+                test.setCreateTime(System.currentTimeMillis());
+                test.setUpdateTime(System.currentTimeMillis());
                 test.setTestCaseId(request.getId());
                 testCaseTestMapper.insert(test);
             });
@@ -778,5 +780,17 @@ public class TestCaseService {
                 editTestCase(item);
             }
         });
+        List<String> ids = request.getIds();
+        if (CollectionUtils.isNotEmpty(ids)) {
+            TestCaseBatchRequest deleteRequest = new TestCaseBatchRequest();
+            deleteRequest.setIds(ids);
+            deleteTestCaseBath(deleteRequest);
+        }
+    }
+
+    public List<TestCase> getTestCaseByProjectId(String projectId) {
+        TestCaseExample example = new TestCaseExample();
+        example.createCriteria().andProjectIdEqualTo(projectId);
+        return testCaseMapper.selectByExample(example);
     }
 }

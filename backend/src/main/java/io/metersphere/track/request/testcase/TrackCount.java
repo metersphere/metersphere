@@ -6,7 +6,7 @@ public class TrackCount {
     public static final String P2 = "P2";
     public static final String P3 = "P3";
 
-    public static final String API = "api";
+    public static final String TESTCASE = "testcase";
     public static final String PERFORMANCE = "performance";
     public static final String AUTOMATION = "automation";
 }

@@ -148,7 +148,7 @@ export default {
     return {
       type: TEST_PLAN_SCENARIO_CASE,
       headerItems: Test_Plan_Scenario_Case,
-      tableLabel: [],
+      tableLabel: Test_Plan_Scenario_Case,
       loading: false,
       condition: {},
       currentScenario: {},
@@ -274,7 +274,7 @@ export default {
     execute(row) {
       this.infoDb = false;
       let param = this.buildExecuteParam(row);
-
+      console.log(param)
       if (this.planId) {
         this.$post("/test/plan/scenario/case/run", param, response => {
           this.runVisible = true;
@@ -293,6 +293,7 @@ export default {
       // param.id = row.id;
       param.id = getUUID();
       param.planScenarioId = row.id;
+      console.log(row.id)
       param.projectId = row.projectId;
       param.planCaseIds = [];
       param.planCaseIds.push(row.id);

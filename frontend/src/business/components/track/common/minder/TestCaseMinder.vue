@@ -4,6 +4,7 @@
     :tree-nodes="treeNodes"
     :data-map="dataMap"
     :tags="tags"
+    :distinct-tags="tags"
     @save="save"
   />
 </template>
@@ -48,23 +49,29 @@ name: "TestCaseMinder",
     },
     save(data) {
       let saveCases = [];
-      this.buildSaveCase(data.root, saveCases, undefined);
+      let deleteCases = [];
+      this.buildSaveCase(data.root, saveCases, deleteCases, undefined);
       let param = {
         projectId: this.projectId,
-        data: saveCases
+        data: saveCases,
+        ids: deleteCases.map(item => item.id)
       }
       this.result = this.$post('/test/case/minder/edit', param, () => {
         this.$success(this.$t('commons.save_success'));
       });
     },
-    buildSaveCase(root, saveCases, parent) {
+    buildSaveCase(root, saveCases, deleteCases, parent) {
       let data = root.data;
       if (data.resource && data.resource.indexOf(this.$t('api_test.definition.request.case')) > -1) {
         this._buildSaveCase(root, saveCases, parent);
       } else {
+        let deleteChild = data.deleteChild;
+        if (deleteChild && deleteChild.length > 0) {
+          deleteCases.push(...deleteChild);
+        }
         if (root.children) {
           root.children.forEach((childNode) => {
-            this.buildSaveCase(childNode, saveCases, root.data);
+            this.buildSaveCase(childNode, saveCases, deleteCases, root.data);
           })
         }
       }
@@ -83,7 +90,7 @@ name: "TestCaseMinder",
         type: data.type ? data.type : 'functional',
         method: data.method ? data.method: 'manual',
         maintainer: data.maintainer,
-        priority: 'P' + (data.priority ? data.priority : 0),
+        priority: 'P' + (data.priority ? data.priority - 1 : 0),
       };
       if (data.changed) isChange = true;
       let steps = [];
@@ -116,6 +123,11 @@ name: "TestCaseMinder",
       testCase.steps = JSON.stringify(steps);
       if (isChange) {
         saveCases.push(testCase);
+      }
+      if (testCase.nodeId.length < 15) {
+        let tip = this.$t('test_track.case.create_case') + "'" + testCase.name + "'" + this.$t('test_track.case.minder_create_tip');
+        this.$error(tip)
+        throw new Error(tip);
       }
     },
 

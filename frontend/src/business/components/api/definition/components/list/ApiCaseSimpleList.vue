@@ -186,7 +186,7 @@ export default {
       return {
         type: API_CASE_LIST,
         headerItems: Api_Case_List,
-        tableLabel: [],
+        tableLabel: Api_Case_List,
         condition: {
           components: API_CASE_CONFIGS
         },
@@ -260,6 +260,10 @@ export default {
     },
     created: function () {
       this.initTable();
+
+      this.$nextTick(() => {
+        this.$refs.caseTable.bodyWrapper.scrollTop = 5
+      })
     },
     watch: {
       selectNodeIds() {
@@ -277,24 +281,24 @@ export default {
         this.initTable();
       }
     },
-    computed: {
+  computed: {
 
-      // 接口定义用例列表
-      isApiModel() {
-        return this.model === 'api'
-      },
+    // 接口定义用例列表
+    isApiModel() {
+      return this.model === 'api'
     },
-    methods: {
-      customHeader() {
-        getLabel(this, API_CASE_LIST);
-        this.$refs.headerCustom.open(this.tableLabel)
-      },
-      initTable() {
+  },
+  methods: {
+    customHeader() {
+      getLabel(this, API_CASE_LIST);
+      this.$refs.headerCustom.open(this.tableLabel)
+    },
+    initTable() {
 
-        this.selectRows = new Set();
-        this.condition.status = "";
-        this.condition.moduleIds = this.selectNodeIds;
-        if (this.trashEnable) {
+      this.selectRows = new Set();
+      this.condition.status = "";
+      this.condition.moduleIds = this.selectNodeIds;
+      if (this.trashEnable) {
           this.condition.status = "Trash";
           this.condition.moduleIds = [];
         }
@@ -331,9 +335,13 @@ export default {
                 item.tags = JSON.parse(item.tags);
               }
             })
+            if (this.$refs.caseTable) {
+              this.$refs.caseTable.doLayout()
+            }
           });
         }
         getLabel(this, API_CASE_LIST);
+
       },
       open() {
         this.$refs.searchBar.open();
@@ -636,4 +644,7 @@ export default {
     top: -2px;
   }
 
+  /deep/ .el-table__fixed {
+    height: 100% !important;
+  }
 </style>

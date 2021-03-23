@@ -236,7 +236,7 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
                     testPlanTestCaseService.updateTestCaseStates(ids, TestPlanTestCaseStatus.Failure.name());
                 }
             } catch (Exception e) {
-                LogUtil.error(e.getMessage(), e);
+
             }
         }
         sendTask(report, reportUrl, testResult);

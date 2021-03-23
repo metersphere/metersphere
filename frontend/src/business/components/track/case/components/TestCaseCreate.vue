@@ -105,13 +105,12 @@ export default {
           this.testCaseForm.projectId = getCurrentProjectID();
           this.testCaseForm.type = "";
           this.testCaseForm.priority = "P0";
-          this.testCaseForm.method = "manual";
-          if(this.currentModule!==undefined){
+          if (this.currentModule !== undefined || this.currentModule !== null || this.currentModule !== 0 || this.currentModule !== "") {
             this.testCaseForm.nodePath = this.currentModule.path;
             this.testCaseForm.nodeId = this.currentModule.id;
-          }else{
-            this.testCaseForm.nodePath="/全部用例"
-            this.testCaseForm.nodeId="root"
+          } else {
+            this.testCaseForm.nodePath = "/全部用例"
+            this.testCaseForm.nodeId = "root"
           }
           this.result = this.$post(path, this.testCaseForm, response => {
             this.testCaseForm.id=response.data.id

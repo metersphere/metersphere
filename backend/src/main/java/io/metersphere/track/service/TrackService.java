@@ -80,7 +80,7 @@ public class TrackService {
         }
     }
 
-    public List<TrackCountResult> countCoverage(String projectId) {
+    public int countCoverage(String projectId) {
         return extTestCaseMapper.countCoverage(projectId);
     }
 
