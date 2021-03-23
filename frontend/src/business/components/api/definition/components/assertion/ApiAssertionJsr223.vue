@@ -18,6 +18,7 @@
         {{ assertion.desc }}
       </div>
       <div class="assertion-item btn circle">
+        <i class="el-icon-view el-button el-button--primary el-button--mini is-circle" circle @click="showPage"/>
         <el-button :disabled="isReadOnly" type="success" size="mini" icon="el-icon-edit" circle @click="detail"/>
         <el-button :disabled="isReadOnly" type="danger" size="mini" icon="el-icon-delete" circle @click="remove"/>
       </div>
@@ -27,23 +28,23 @@
       <el-row type="flex" justify="space-between" align="middle" class="quick-script-block">
         <div class="assertion-item input">
           <el-input size="small" v-model="assertion.variable"
-                    :placeholder="$t('api_test.request.assertions.variable_name')" @change="quickScript"/>
+                    :placeholder="$t('api_test.request.assertions.variable_name')" @change="quickScript" :disabled="disabled"/>
         </div>
 
         <div class="assertion-item select">
           <el-select v-model="assertion.operator" :placeholder="$t('commons.please_select')" size="small"
-                     @change="changeOperator">
+                     @change="changeOperator" :disabled="disabled">
             <el-option v-for="o in operators" :key="o.value" :label="$t(o.label)" :value="o.value"/>
           </el-select>
         </div>
         <div class="assertion-item input">
           <el-input size="small" v-model="assertion.value" :placeholder="$t('api_test.value')"
-                    @change="quickScript" v-if="!hasEmptyOperator"/>
+                    @change="quickScript" v-if="!hasEmptyOperator" :disabled="disabled"/>
         </div>
       </el-row>
       <el-input size="small" v-model="assertion.desc" :placeholder="$t('api_test.request.assertions.script_name')"
-                class="quick-script-block"/>
-      <ms-jsr233-processor ref="jsr233" :is-read-only="isReadOnly" :jsr223-processor="assertion" :templates="templates"
+                class="quick-script-block" :disabled="disabled"/>
+      <ms-jsr233-processor ref="jsr233" :is-read-only="disabled" :jsr223-processor="assertion" :templates="templates"
                            :height="300" @languageChange="quickScript"/>
       <template v-slot:footer v-if="!edit">
         <ms-dialog-footer
@@ -84,6 +85,7 @@
     data() {
       return {
         visible: false,
+        disabled: false,
         operators: {
           EQ: {
             label: "commons.adv_search.operators.equals",
@@ -260,6 +262,11 @@
         }
       },
       detail() {
+        this.disabled = false;
+        this.visible = true;
+      },
+      showPage() {
+        this.disabled = true;
         this.visible = true;
       },
       close() {
