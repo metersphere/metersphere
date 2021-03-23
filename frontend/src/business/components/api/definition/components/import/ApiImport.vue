@@ -29,10 +29,16 @@
               <el-option v-for="item in moduleOptions" :key="item.id" :label="item.path" :value="item.id"/>
             </el-select>
           </el-form-item>
-          <el-form-item v-if="!isScenarioModel&&!isHar" :label="$t('commons.import_mode')" prop="modeId">
+          <el-form-item v-if="!isScenarioModel&&showImportModel" :label="$t('commons.import_mode')" prop="modeId">
             <el-select size="small" v-model="formData.modeId" class="project-select" clearable>
               <el-option v-for="item in modeOptions" :key="item.id" :label="item.name" :value="item.id"/>
             </el-select>
+          </el-form-item>
+          <el-form-item v-if="showTemplate">
+            <el-link type="primary" class="download-template"
+                     @click="downloadTemplate"
+            >{{$t('test_track.case.import.download_template')}}
+            </el-link>
           </el-form-item>
           <el-form-item v-if="isSwagger2">
             <el-switch
@@ -106,6 +112,7 @@ export default {
       default: true,
     },
     moduleOptions: {},
+    propotal:String,
     model: {
       type: String,
       default: 'definition'
@@ -192,13 +199,36 @@ export default {
         }
       }
     },
+    propotal(){
+      if(this.propotal === 'TCP'){
+        if(this.platforms.length < 5){
+          let esbElement = {
+            name: 'ESB',
+            value: 'ESB',
+            tip: this.$t('api_test.api_import.esb_tip'),
+            exportTip: this.$t('api_test.api_import.esb_export_tip'),
+            suffixes: new Set(['xlsx','xls'])
+          };
+          this.platforms.push(esbElement);
+        }
+        return true;
+      }else{
+        if(this.platforms.length == 5){
+          this.platforms.pop();
+        }
+        return false;
+      }
+    }
   },
   computed: {
     isSwagger2() {
       return this.selectedPlatformValue === 'Swagger2';
     },
-    isHar() {
-      return this.selectedPlatformValue === 'Har';
+    showImportModel() {
+      return this.selectedPlatformValue != 'Har' && this.selectedPlatformValue != 'ESB';
+    },
+    showTemplate() {
+      return this.selectedPlatformValue === 'ESB';
     },
     isScenarioModel() {
       return this.model === 'scenario';
@@ -232,6 +262,11 @@ export default {
     },
     handleRemove(file, fileList) {
       this.formData.file = undefined;
+    },
+    downloadTemplate(){
+      if(this.selectedPlatformValue == "ESB"){
+        this.$fileDownload('/api/definition/export/esbExcelTemplate');
+      }
     },
     uploadValidate(file, fileList) {
       let suffix = file.name.substring(file.name.lastIndexOf('.') + 1);
@@ -305,7 +340,7 @@ export default {
 <style scoped>
 
 .api-import >>> .el-dialog {
-  min-width: 700px;
+  min-width: 750px;
 }
 
 .format-tip {
