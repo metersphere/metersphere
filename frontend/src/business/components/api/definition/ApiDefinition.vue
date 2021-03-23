@@ -140,7 +140,7 @@ import MsRunTestHttpPage from "./components/runtest/RunTestHTTPPage";
 import MsRunTestTcpPage from "./components/runtest/RunTestTCPPage";
 import MsRunTestSqlPage from "./components/runtest/RunTestSQLPage";
 import MsRunTestDubboPage from "./components/runtest/RunTestDubboPage";
-import {checkoutTestManagerOrTestUser, getCurrentProjectID, getCurrentUser, getUUID} from "@/common/js/utils";
+import {checkoutTestManagerOrTestUser, getCurrentUser, getUUID} from "@/common/js/utils";
 import MsApiModule from "./components/module/ApiModule";
 import ApiCaseSimpleList from "./components/list/ApiCaseSimpleList";
 
@@ -159,7 +159,10 @@ import MsTabButton from "@/business/components/common/components/MsTabButton";
       },
       isReadOnly(){
         return !checkoutTestManagerOrTestUser();
-      }
+      },
+      projectId() {
+        return this.$store.state.projectId
+      },
     },
     components: {
       MsTabButton,
@@ -211,12 +214,8 @@ import MsTabButton from "@/business/components/common/components/MsTabButton";
         }],
         activeDom: "left",
         syncTabs: [],
-        projectId: "",
         nodeTree: []
       }
-    },
-    mounted() {
-      this.projectId = getCurrentProjectID();
     },
     watch: {
       currentProtocol() {

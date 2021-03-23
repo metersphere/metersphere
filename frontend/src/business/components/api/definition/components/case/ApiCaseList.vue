@@ -50,7 +50,7 @@
   import ApiCaseHeader from "./ApiCaseHeader";
   import ApiCaseItem from "./ApiCaseItem";
   import MsRun from "../Run";
-  import {getCurrentProjectID, getUUID} from "@/common/js/utils";
+  import {getUUID} from "@/common/js/utils";
   import MsDrawer from "../../../../common/components/MsDrawer";
   import {CASE_ORDER} from "../../model/JsonData";
   import {API_CASE_CONFIGS} from "@/business/components/common/components/search/search-components";
@@ -89,7 +89,6 @@
         runData: [],
         selectdCases: [],
         reportId: "",
-        projectId: "",
         testCaseId: "",
         checkedCases: new Set(),
         visible: false,
@@ -128,7 +127,6 @@
     },
     created() {
       this.api = this.currentApi;
-      this.projectId = getCurrentProjectID();
       if (this.createCase) {
         this.sysAddition();
       }
@@ -136,7 +134,10 @@
     computed: {
       isCaseEdit() {
         return this.testCaseId ? true : false;
-      }
+      },
+      projectId() {
+        return this.$store.state.projectId
+      },
     },
     methods: {
       open(api, testCaseId) {
@@ -290,7 +291,7 @@
         this.singleRunId = row.id;
         row.request.name = row.id;
         row.request.useEnvironment = this.environment;
-        row.request.projectId = getCurrentProjectID();
+        row.request.projectId = this.projectId;
         this.runData.push(row.request);
         /*触发执行操作*/
         this.reportId = getUUID().substring(0, 8);
@@ -354,7 +355,7 @@
         if (form) {
           param[form.type] = form.value;
           param.ids = this.selectdCases;
-          param.projectId = getCurrentProjectID();
+          param.projectId = this.projectId;
           param.envId = form.envId;
           if (this.api) {
             param.protocol = this.api.protocol;

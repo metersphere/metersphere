@@ -38,7 +38,6 @@ import MsAddBasisApi from "../basis/AddBasisApi";
 import SelectMenu from "../../../../track/common/SelectMenu";
 import {OPTIONS} from "../../model/JsonData";
 import ApiImport from "../import/ApiImport";
-import {getCurrentProjectID} from "@/common/js/utils";
 import MsNodeTree from "../../../../track/common/NodeTree";
 import ApiModuleHeader from "./ApiModuleHeader";
 import {buildNodePath} from "../../model/NodeTree";
@@ -60,7 +59,6 @@ export default {
           filterText: "",
           trashEnable: false
         },
-        projectId: "",
         data: [],
         currentModule: {},
       }
@@ -85,10 +83,12 @@ export default {
       },
       isReviewModel() {
         return this.reviewId ? true : false;
-      }
+      },
+      projectId() {
+        return this.$store.state.projectId
+      },
     },
     mounted() {
-      this.projectId = getCurrentProjectID();
       this.$emit('protocolChange', this.condition.protocol);
       this.list();
     },

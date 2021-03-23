@@ -75,7 +75,10 @@ export default {
               let projectId = localStorage.getItem(PROJECT_ID);
               if (!projectId || projectId != userLastProjectId) {
                 localStorage.setItem(PROJECT_ID, userLastProjectId);
+                this.$store.commit('setProjectId', userLastProjectId);
                 window.location.reload();
+              } else {
+                this.$store.commit('setProjectId', projectId);
               }
             }
           }
@@ -109,6 +112,7 @@ export default {
       }
       this.$post("/user/update/current", {id: this.userId, lastProjectId: projectId}, () => {
         localStorage.setItem(PROJECT_ID, projectId);
+        this.$store.commit('setProjectId', projectId);
         let path = this.$route.matched[0].path ? this.$route.matched[0].path : '/';
         if (path === '/api') {
           if (this.isNewVersion) {

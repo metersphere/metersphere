@@ -114,9 +114,13 @@ public class ApiAutomationService {
                 Map<String, String> map = d.getEnvironmentMap();
                 if (map != null) {
                     if (map.isEmpty()) {
-                        List<String> ids = (List<String>) JSONPath.read(definition, "$..projectId");
-                        if (CollectionUtils.isNotEmpty(ids)) {
-                            idList.addAll(new HashSet<>(ids));
+                        try {
+                            List<String> ids = (List<String>) JSONPath.read(definition, "$..projectId");
+                            if (CollectionUtils.isNotEmpty(ids)) {
+                                idList.addAll(new HashSet<>(ids));
+                            }
+                        } catch (Exception e) {
+                            LogUtil.error("JSONPath.read projectId fail.");
                         }
                     } else {
                         Set<String> set = d.getEnvironmentMap().keySet();

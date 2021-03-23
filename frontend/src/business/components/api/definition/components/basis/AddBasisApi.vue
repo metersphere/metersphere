@@ -59,7 +59,7 @@
   import MsDialogFooter from "../../../../common/components/MsDialogFooter";
   import {WORKSPACE_ID} from '../../../../../../common/js/constants';
   import {REQ_METHOD} from "../../model/JsonData";
-  import {getCurrentProjectID, getCurrentUser} from "../../../../../../common/js/utils";
+  import {getCurrentUser} from "../../../../../../common/js/utils";
   import {createComponent, Request} from "../jmeter/components";
 
   export default {
@@ -94,8 +94,12 @@
         value: REQ_METHOD[0].id,
         options: REQ_METHOD,
       }
-    }
-    ,
+    },
+    computed: {
+      projectId() {
+        return this.$store.state.projectId
+      },
+    },
     methods: {
       saveApi(saveAs) {
         this.$refs['httpForm'].validate((valid) => {
@@ -137,7 +141,7 @@
             break;
         }
         this.httpForm.bodyUploadIds = [];
-        this.httpForm.projectId = getCurrentProjectID();
+        this.httpForm.projectId = this.projectId;
         this.httpForm.id = this.httpForm.request.id;
         this.httpForm.protocol = this.currentProtocol;
 
