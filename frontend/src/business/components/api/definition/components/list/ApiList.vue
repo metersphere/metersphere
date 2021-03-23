@@ -225,7 +225,6 @@
   import {API_METHOD_COLOUR, API_STATUS, DUBBO_METHOD, REQ_METHOD, SQL_METHOD, TCP_METHOD} from "../../model/JsonData";
   import {checkoutTestManagerOrTestUser, downloadFile, getUUID} from "@/common/js/utils";
   import {PROJECT_NAME} from '@/common/js/constants';
-  import {getCurrentProjectID, getCurrentUser} from "@/common/js/utils";
   import {API_LIST, TEST_CASE_LIST, WORKSPACE_ID} from '@/common/js/constants';
   import MsTableHeaderSelectPopover from "@/business/components/common/components/table/MsTableHeaderSelectPopover";
   import ApiStatus from "@/business/components/api/definition/components/list/ApiStatus";
@@ -370,6 +369,11 @@
         },
       }
     },
+    computed: {
+      projectId() {
+        return this.$store.state.projectId
+      },
+    },
     created: function () {
       if (this.trashEnable) {
         this.condition.filters = {status: ["Trash"]};
@@ -409,7 +413,7 @@
         initCondition(this.condition);
         this.selectDataCounts = 0;
         this.condition.moduleIds = this.selectNodeIds;
-        this.condition.projectId = getCurrentProjectID();
+        this.condition.projectId = this.projectId;
         if (this.currentProtocol != null) {
           this.condition.protocol = this.currentProtocol;
         }
@@ -636,7 +640,7 @@
         let arr = Array.from(this.selectRows);
         let ids = arr.map(row => row.id);
         param.ids = ids;
-        param.projectId = getCurrentProjectID();
+        param.projectId = this.projectId;
         param.moduleId = param.nodeId;
         param.condition = this.condition;
         param.selectAllDate = this.isSelectAllDate;

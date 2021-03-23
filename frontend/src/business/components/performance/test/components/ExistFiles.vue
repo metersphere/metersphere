@@ -215,7 +215,7 @@ export default {
 
       // 检查数据库是否存在同名文件
       async function f() {
-        return await axios.post('/performance/file/' + getCurrentProjectID() + '/getMetadataByName', {filename: file.name})
+        return await axios.post('/performance/file/' + getCurrentProjectID() + '/getMetadataByName', {name: file.name})
       }
 
       await f().then(res => {

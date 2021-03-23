@@ -164,7 +164,7 @@
   import MsTablePagination from "@/business/components/common/pagination/TablePagination";
   import ShowMoreBtn from "@/business/components/track/case/components/ShowMoreBtn";
   import MsTag from "../../../common/components/MsTag";
-  import {downloadFile, getCurrentProjectID, getCurrentUser, getUUID, strMapToObj} from "@/common/js/utils";
+  import {downloadFile, getUUID, strMapToObj} from "@/common/js/utils";
   import MsApiReportDetail from "../report/ApiReportDetail";
   import MsTableMoreBtn from "./TableMoreBtn";
   import MsScenarioExtendButtons from "@/business/components/api/automation/scenario/ScenarioExtendBtns";
@@ -264,7 +264,6 @@
         infoDb: false,
         runVisible: false,
         planVisible: false,
-        projectId: "",
         runData: [],
         report: {},
         selectDataSize: 0,
@@ -338,7 +337,6 @@
     },
     created() {
       this.condition.filters = {status: ["Prepare", "Underway", "Completed"]};
-      this.projectId = getCurrentProjectID();
       this.search();
       this.getPrincipalOptions([]);
     },
@@ -363,7 +361,10 @@
     computed: {
       isNotRunning() {
         return "Running" !== this.report.status;
-      }
+      },
+      projectId() {
+        return this.$store.state.projectId
+      },
     },
     methods: {
       customHeader() {
@@ -559,7 +560,7 @@
       },
       buildBatchParam(param) {
         param.ids = Array.from(this.selectRows).map(row => row.id);
-        param.projectId = getCurrentProjectID();
+        param.projectId = this.projectId;
         param.condition = this.condition;
       },
       handleBatchExecute() {
@@ -640,7 +641,7 @@
         let scenarioIds = [];
         scenarioIds.push(row.id);
         run.id = getUUID();
-        run.projectId = getCurrentProjectID();
+        run.projectId = this.projectId;
         run.ids = scenarioIds;
         this.$post(url, run, response => {
           let data = response.data;

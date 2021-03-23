@@ -123,7 +123,7 @@ export default {
   },
   methods: {
     importAPITest() {
-      let apiTest = this.$store.state.api.test;
+      let apiTest = this.$store.state.test;
       if (apiTest && apiTest.name) {
         this.$set(this.test, "name", apiTest.name);
         let blob = new Blob([apiTest.jmx.xml], {type: "application/octet-stream"});

@@ -58,7 +58,6 @@ import {OPTIONS} from "../../model/JsonData";
 import MsAddBasisApi from "../basis/AddBasisApi";
 import ApiImport from "../import/ApiImport";
 import ModuleTrashButton from "./ModuleTrashButton";
-import {getCurrentProjectID} from "../../../../../../common/js/utils";
 import {buildNodePath} from "@/business/components/api/definition/model/NodeTree";
 import TemplateComponent from "../../../../track/plan/view/comonents/report/TemplateComponent/TemplateComponent";
 
@@ -91,6 +90,11 @@ export default {
       }
     },
   },
+  computed: {
+    projectId() {
+      return this.$store.state.projectId
+    },
+  },
   methods: {
 
     handleCommand(e) {
@@ -104,12 +108,12 @@ export default {
         case "add-module":
           break;
         case "import":
-          if (!getCurrentProjectID()) {
+          if (!this.projectId) {
             this.$warning(this.$t('commons.check_project_tip'));
             return;
           }
           this.protocol = "HTTP";
-          this.result = this.$get("/api/module/list/" + getCurrentProjectID() + "/" + this.protocol, response => {
+          this.result = this.$get("/api/module/list/" + this.projectId + "/" + this.protocol, response => {
             if (response.data != undefined && response.data != null) {
               this.data = response.data;
               let moduleOptions = [];
@@ -124,7 +128,7 @@ export default {
       }
     },
     chooseExportType(e) {
-      if (!getCurrentProjectID()) {
+      if (!this.projectId) {
         this.$warning(this.$t('commons.check_project_tip'));
         return;
       }
@@ -138,7 +142,7 @@ export default {
       }
     },
     addApi() {
-      if (!getCurrentProjectID()) {
+      if (!this.projectId) {
         this.$warning(this.$t('commons.check_project_tip'));
         return;
       }
