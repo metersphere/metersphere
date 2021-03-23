@@ -6,7 +6,7 @@
           <div class="el-step__icon-inner">{{data.index}}</div>
         </div>
         <el-tag class="ms-left-btn" size="small" :style="{'color': color, 'background-color': backgroundColor}">{{title}}</el-tag>
-        <el-tag size="mini" v-if="data.method">{{data.method}}</el-tag>
+        <el-tag size="mini" v-if="data.method">{{getMethod()}}</el-tag>
       </slot>
 
       <span>
@@ -124,6 +124,17 @@
         // 这种写法性能极差，不要再放开了
         //this.$set(this.data, 'active', !this.data.active);
         this.$emit('active');
+      },
+      getMethod() {
+        if (this.data.protocol === "HTTP") {
+          return this.data.method;
+        }
+        else if (this.data.protocol === "dubbo://") {
+          return "DUBBO";
+        }
+        else {
+          return this.data.protocol;
+        }
       },
       copyRow() {
         this.$emit('copy');
