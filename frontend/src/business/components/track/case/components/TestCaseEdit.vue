@@ -5,9 +5,13 @@
 
         <!--操作按钮-->
         <div class="ms-opt-btn">
-          <el-button v-if="type!='add'" id="inputDelay" type="primary" size="small" @click="saveCase" title="ctrl + s">
-            {{ $t('commons.save') }}
-          </el-button>
+          <ms-table-button v-if="type!='add'" :is-tester-permission="true"
+                           id="inputDelay"
+                           type="primary"
+                           :content="$t('commons.save')"
+                           size="small" @exec="saveCase"
+                           icon=""
+                           title="ctrl + s"/>
           <el-dropdown v-else split-button type="primary" class="ms-api-buttion" @click="handleCommand"
                        @command="handleCommand" size="small" style="float: right;margin-right: 20px">
             {{ $t('commons.save') }}
@@ -297,10 +301,12 @@ import {ELEMENTS} from "@/business/components/api/automation/scenario/Setting";
 import TestCaseComment from "@/business/components/track/case/components/TestCaseComment";
 import ReviewCommentItem from "@/business/components/track/review/commom/ReviewCommentItem";
 import {API_STATUS, REVIEW_STATUS, TEST} from "@/business/components/api/definition/model/JsonData";
+import MsTableButton from "@/business/components/common/components/MsTableButton";
 
 export default {
   name: "TestCaseEdit",
   components: {
+    MsTableButton,
 
     ReviewCommentItem,
     TestCaseComment, MsPreviousNextButton, MsInputTag, CaseComment, MsDialogFooter, TestCaseAttachment
@@ -311,8 +317,8 @@ export default {
         multiple: true,
         lazy: true,
         lazyLoad: ((node, resolve) => {
-          const { level } = node;
-          if(node.level==0){
+          const {level} = node;
+          if (node.level == 0) {
             const nodes = TEST
               .map(item => ({
                 value: item.id,
@@ -321,10 +327,10 @@ export default {
               }));
             resolve(nodes)
           }
-          if(node.level==1){
+          if (node.level == 1) {
             this.testOptions = [];
             let url = '';
-            this.form.type=node.data.value
+            this.form.type = node.data.value
             if (this.form.type === 'testcase' || this.form.type === 'automation') {
               url = '/api/' + this.form.type + '/list/' + this.projectId
             } else if (this.form.type === 'performance' || this.form.type === 'api') {
@@ -347,7 +353,7 @@ export default {
         }),
       },
       options: REVIEW_STATUS,
-      statuOptions:API_STATUS,
+      statuOptions: API_STATUS,
       comments: [],
       result: {},
       dialogFormVisible: false,
@@ -366,13 +372,13 @@ export default {
           desc: '',
           result: ''
         }],
-        selected:                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             [],
+        selected: [],
         remark: '',
         tags: [],
         demandId: '',
         demandName: '',
-        status:'Prepare',
-        reviewStatus:'Prepare',
+        status: 'Prepare',
+        reviewStatus: 'Prepare',
       },
       readOnly: false,
       moduleOptions: [],
@@ -465,14 +471,15 @@ export default {
             this.saveCase();
           } else {
             this.saveCase();
-            let tab={}
-            tab.name='add'
-            this.$emit('addTab',tab)}
+            let tab = {}
+            tab.name = 'add'
+            this.$emit('addTab', tab)
+          }
         })
-      }else {
+      } else {
         this.saveCase();
       }
-      },
+    },
     openComment() {
       this.$refs.testCaseComment.open()
     },
@@ -649,9 +656,9 @@ export default {
       this.dialogFormVisible = false;
     },
     saveCase() {
-/*
-      document.getElementById("inputDelay").focus();
-*/
+      /*
+            document.getElementById("inputDelay").focus();
+      */
 
       //  保存前在input框自动失焦，以免保存失败
       this.$refs['caseFrom'].validate((valid) => {
@@ -703,7 +710,7 @@ export default {
       if (this.form.tags instanceof Array) {
         this.form.tags = JSON.stringify(this.form.tags);
       }
-      param.testId=JSON.stringify(this.form.selected)
+      param.testId = JSON.stringify(this.form.selected)
       param.tags = this.form.tags;
       param.type = 'functional'
       return param;
@@ -797,14 +804,14 @@ export default {
     },
     getDemandOptions() {
       if (this.demandOptions.length === 0) {
-        this.result = {loading : true};
+        this.result = {loading: true};
         this.$get("demand/list/" + this.projectId).then(response => {
           this.demandOptions = response.data.data;
           this.demandOptions.unshift({id: 'other', name: this.$t('test_track.case.other'), platform: 'Other'})
-          this.result = {loading : false};
+          this.result = {loading: false};
         }).catch(() => {
           this.demandOptions.unshift({id: 'other', name: this.$t('test_track.case.other'), platform: 'Other'})
-          this.result = {loading : false};
+          this.result = {loading: false};
         })
       }
     },

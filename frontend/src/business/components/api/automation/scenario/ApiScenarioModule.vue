@@ -20,28 +20,29 @@
           <template v-slot:append>
             <el-dropdown v-if="!isReadOnly" size="small" split-button type="primary" class="ms-api-button" @click="handleCommand('add-api')"
                          v-tester
-                         @command="handleCommand">
+                         @command="handleCommand" trigger="click">
               <el-button icon="el-icon-folder-add" @click="addScenario"></el-button>
               <el-dropdown-menu slot="dropdown">
                 <el-dropdown-item command="add-scenario">{{ $t('api_test.automation.add_scenario') }}</el-dropdown-item>
                 <el-dropdown-item command="import">{{ $t('api_test.api_import.label') }}</el-dropdown-item>
-                <el-dropdown-item command="export">{{ $t('report.export') }}MS</el-dropdown-item>
-                <el-dropdown-item command="exportJmx">{{ $t('report.export') }}JMX</el-dropdown-item>
+                <el-dropdown-item command="exports">
+                  <el-dropdown placement="right-start" @command="chooseExportType">
+                <span>
+                  {{ $t('report.export') }} <i class="el-icon-arrow-down el-icon--right"></i>
+                </span>
+                    <el-dropdown-menu slot="dropdown">
+                      <template>
+                        <el-dropdown-item command="export">{{ $t('report.export_to_ms_format') }}</el-dropdown-item>
+                        <el-dropdown-item command="exportJmx">{{ $t('report.export') }} JMETER 格式</el-dropdown-item>
+                      </template>
+                    </el-dropdown-menu>
+                  </el-dropdown>
+                </el-dropdown-item>
               </el-dropdown-menu>
             </el-dropdown>
           </template>
         </el-input>
         <module-trash-button v-if="!isReadOnly" :condition="condition" :exe="enableTrash"/>
-        <!-- 是否保留这个 -->
-        <!--<api-scenario-module-header-->
-        <!--:condition="condition"-->
-        <!--:current-module="currentModule"-->
-        <!--:is-read-only="isReadOnly"-->
-        <!--:project-id="projectId"-->
-        <!--@exportAPI="exportAPI"-->
-        <!--@addScenario="addScenario"-->
-        <!--@refreshTable="$emit('refreshTable')"-->
-        <!--@refresh="refresh"/>-->
       </template>
 
     </ms-node-tree>
@@ -142,6 +143,16 @@
             });
             this.$refs.apiImport.open(this.currentModule);
             break;
+          case "export":
+            this.$emit('exportAPI');
+            break;
+          case "exportJmx":
+            this.$emit('exportJmx');
+            break;
+        }
+      },
+      chooseExportType(e) {
+        switch (e) {
           case "export":
             this.$emit('exportAPI');
             break;
