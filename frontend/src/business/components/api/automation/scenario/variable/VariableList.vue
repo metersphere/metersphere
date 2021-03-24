@@ -80,7 +80,7 @@
           </span>
             </el-tooltip>
             <el-row>
-              <el-link class="ms-variable-link" @click="batchAdd" style="color: #783887"> {{ $t("commons.batch_add") }}
+              <el-link class="ms-variable-link" @click="batchAdd" style="color: #783887" :disabled="disabled"> {{ $t("commons.batch_add") }}
               </el-link>
             </el-row>
             <div style="min-height: 400px">
