@@ -11,7 +11,12 @@
 
 <script>
 import MsModuleMinder from "@/business/components/common/components/MsModuleMinder";
-import {getTestCaseDataMap} from "@/business/components/track/common/minder/minderUtils";
+import {
+  appendChild,
+  editNode,
+  getTestCaseDataMap,
+  parseCase
+} from "@/business/components/track/common/minder/minderUtils";
 export default {
 name: "TestCaseMinder",
   components: {MsModuleMinder},
@@ -48,6 +53,7 @@ name: "TestCaseMinder",
       }
     },
     save(data) {
+      console.log(data);
       let saveCases = [];
       let deleteCases = [];
       this.buildSaveCase(data.root, saveCases, deleteCases, undefined);
@@ -130,7 +136,14 @@ name: "TestCaseMinder",
         throw new Error(tip);
       }
     },
-
+    addCase(data, type) {
+      let nodeData = parseCase(data, new Map());
+      if (type === 'edit') {
+        editNode(nodeData);
+      } else {
+        appendChild(data.nodeId, nodeData);
+      }
+    }
   }
 }
 </script>

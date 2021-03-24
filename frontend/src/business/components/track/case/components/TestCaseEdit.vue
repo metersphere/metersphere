@@ -659,7 +659,7 @@ export default {
           let param = this.buildParam();
           if (this.validate(param)) {
             let option = this.getOption(param);
-            this.result = this.$request(option, () => {
+            this.result = this.$request(option, (response) => {
               this.$success(this.$t('commons.save_success'));
               if (this.operationType == 'add' && this.isCreateContinue) {
                 this.form.name = '';
@@ -678,6 +678,13 @@ export default {
               }
               this.dialogFormVisible = false;
               this.$emit("refresh");
+              if (this.type === 'add' || this.type === 'copy') {
+                param.id = response.data;
+                this.$emit("caseCreate", param);
+                this.close();
+              } else {
+                this.$emit("caseEdit", param);
+              }
             });
           }
         } else {

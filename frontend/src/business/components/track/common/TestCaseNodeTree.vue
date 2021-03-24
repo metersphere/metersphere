@@ -35,6 +35,7 @@
     <test-case-create
       :tree-nodes="treeNodes"
       @saveAsEdit="saveAsEdit"
+      @createCase="createCase"
       @refresh="refresh"
       ref="testCaseCreate"
     ></test-case-create>
@@ -97,6 +98,9 @@ export default {
     },
     saveAsEdit(data) {
       this.$emit('saveAsEdit', data);
+    },
+    createCase(data) {
+      this.$emit('createCase', data);
     },
     refresh() {
       this.$emit("refreshTable");

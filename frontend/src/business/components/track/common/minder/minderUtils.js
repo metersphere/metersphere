@@ -1,42 +1,53 @@
+import {getUUID} from "@/common/js/utils";
+
 export function getTestCaseDataMap(testCase, isDisable, setParamCallback) {
   let dataMap = new Map();
   if (testCase) {
     testCase.forEach(item => {
-      item.steps = JSON.parse(item.steps);
-      // if (item.tags && item.tags.length > 0) {
-      //   item.tags = JSON.parse(item.tags);
-      // }
-      let mapItem = dataMap.get(item.nodeId);
-      let nodeItem = {
-        data: {
-          id: item.id,
-          text: item.name,
-          priority: Number.parseInt(item.priority.substring(item.priority.length - 1 )) + 1,
-          resource: ["用例"],
-          type: item.type,
-          method: item.method,
-          maintainer: item.maintainer
-        }
-      }
-      if (setParamCallback) {
-        setParamCallback(nodeItem.data, item);
-      }
-      if (isDisable) {
-        nodeItem.data.disable = true;
-        // 用例节点可以打标签
-        nodeItem.data.allowDisabledTag = true;
-      }
-      parseChildren(nodeItem, item, isDisable);
-      if (mapItem) {
-        mapItem.push(nodeItem);
-      } else {
-        mapItem = [];
-        mapItem.push(nodeItem);
-        dataMap.set(item.nodeId, mapItem);
-      }
+      parseCase(item, dataMap, isDisable, setParamCallback);
     })
   }
   return dataMap;
+}
+
+export function parseCase(item, dataMap, isDisable, setParamCallback) {
+  if (item.steps) {
+    item.steps = JSON.parse(item.steps);
+  } else {
+    item.steps = [];
+  }
+  // if (item.tags && item.tags.length > 0) {
+  //   item.tags = JSON.parse(item.tags);
+  // }
+  let mapItem = dataMap.get(item.nodeId);
+  let nodeItem = {
+    data: {
+      id: item.id,
+      text: item.name,
+      priority: Number.parseInt(item.priority.substring(item.priority.length - 1 )) + 1,
+      resource: ["用例"],
+      type: item.type,
+      method: item.method,
+      maintainer: item.maintainer
+    }
+  }
+  if (setParamCallback) {
+    setParamCallback(nodeItem.data, item);
+  }
+  if (isDisable) {
+    nodeItem.data.disable = true;
+    // 用例节点可以打标签
+    nodeItem.data.allowDisabledTag = true;
+  }
+  parseChildren(nodeItem, item, isDisable);
+  if (mapItem) {
+    mapItem.push(nodeItem);
+  } else {
+    mapItem = [];
+    mapItem.push(nodeItem);
+    dataMap.set(item.nodeId, mapItem);
+  }
+  return nodeItem;
 }
 
 function parseChildren(nodeItem, item, isDisable) {
@@ -63,12 +74,79 @@ function _parseChildren(children, k, v, isDisable) {
       data: {
         text: k,
         resource: v ? [v] : []
-      }
+      },
+      children: []
     }
     if (isDisable) {
       node.data.disable = true;
     }
     children.push(node);
     return node;
+  }
+}
+
+export function appendChild(pId, appendNode) {
+  if (!pId) {
+    pId = 'root';
+  }
+  let minder = window.minder;
+  let nodes = minder.getAllNode();
+  let parent = undefined;
+  for (let index = nodes.length -1; index >= 0; index--) {
+    let item = nodes[index];
+    if(item.data.id === pId) {
+      parent = item;
+      break;
+    }
+  }
+  if (!parent) {
+    return;
+  }
+  let node = minder.createNode("", parent);
+  minder.select(node, true);
+  node.data = appendNode.data;
+  if (parent.isExpanded()) {
+    node.render();
+  } else {
+    parent.expand();
+    parent.renderTree();
+  }
+  minder.layout(600);
+
+  // 添加子节点
+  let children = appendNode.children;
+  if (children) {
+    children.forEach(child => {
+      child.data.id = getUUID();
+      appendChild(node.data.id, child);
+    })
+  }
+}
+
+export function editNode(node) {
+  let minder = window.minder;
+  let nodes = minder.getAllNode();
+  let children = [];
+  let item = undefined;
+  for (const index in nodes) {
+    item = nodes[index];
+    if(item.data.id === node.data.id) {
+      item.data = node.data;
+      children = node.children;
+      if (item.children) {
+        item.children.forEach(n => {
+          minder.removeNode(n);
+        })
+      }
+      item.render();
+      break;
+    }
+  }
+  minder.layout(600);
+  if (item) {
+    children.forEach(child => {
+      child.data.id = getUUID();
+      appendChild(item.data.id, child);
+    })
   }
 }
