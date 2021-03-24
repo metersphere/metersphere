@@ -99,8 +99,9 @@
             </el-col>
             <el-col :span="14">
               <el-form-item :label="$t('test_track.case.relate_test')" :label-width="formLabelWidth">
-                <el-cascader filterable placeholder="请选择要关联的测试" show-all-levels v-model="form.selected" :props="props"
-                             class="ms-case"></el-cascader>
+                <el-cascader :options="sysList" filterable placeholder="请选择要关联的测试" show-all-levels
+                             v-model="form.selected" :props="props"
+                             class="ms-case" @change="clearInput" ref="cascade"></el-cascader>
               </el-form-item>
             </el-col>
           </el-row>
@@ -311,47 +312,12 @@ export default {
     return {
       props: {
         multiple: true,
-        lazy: true,
-        lazyLoad: ((node, resolve) => {
-          const { level } = node;
-          if(node.level==0){
-            const nodes = TEST
-              .map(item => ({
-                value: item.id,
-                label: item.name,
-                leaf: level >= 1
-              }));
-            resolve(nodes)
-          }
-          if(node.level==1){
-            this.projectId = getCurrentProjectID()
-            this.testOptions = [];
-            let url = '';
-            this.form.type=node.data.value
-            console.log(this.form.type)
-            if (this.form.type === 'testcase' || this.form.type === 'automation') {
-              url = '/api/' + this.form.type + '/list/' + this.projectId
-            } else if (this.form.type === 'performance' || this.form.type === 'api') {
-              url = '/' + this.form.type + '/list/' + this.projectId
-            }
-            if (this.projectId && this.form.type != '' && this.form.type != 'undefined') {
-              this.$get(url, response => {
-                const nodes = response.data
-                  .map(item => ({
-                    value: item.id,
-                    label: item.name,
-                    leaf: level >= 1
-                  }));
-                resolve(nodes)
-              });
-
-            }
-
-          }
-        }),
+        //lazy: true,
+        //lazyLoad:this.lazyLoad
       },
+      sysList: [],//一级选择框的数据
       options: REVIEW_STATUS,
-      statuOptions:API_STATUS,
+      statuOptions: API_STATUS,
       comments: [],
       result: {},
       projectId: "",
@@ -434,6 +400,7 @@ export default {
     },
     type: String
   },
+
   mounted() {
     this.getSelectOptions();
     if (this.type === 'edit' || this.type === 'copy') {
@@ -456,8 +423,87 @@ export default {
       this.$emit('setModuleOptions', this.moduleOptions);
     }
   },
+  created() {
+    this.loadOptions()
+  },
   methods: {
-
+    clearInput() {
+      //this.$refs['cascade'].panel.clearCheckedNodes()
+    },
+    async loadOptions(sysLib) {
+      sysLib = TEST
+        .map(item => ({
+          value: item.id,
+          label: item.name,
+        }));
+      let array = [];
+      for (let i = 0; i < sysLib.length; i++) {
+        if (sysLib.length > 0) {
+          let res = await this.getTestOptions(sysLib[i].value);
+          sysLib[i].children = res;
+        }
+        array.push(sysLib[i]);
+      }
+      this.sysList = array;
+    },
+    getTestOptions(val) {
+      this.form.type = val
+      this.projectId = getCurrentProjectID()
+      this.testOptions = [];
+      let url = '';
+      if (this.form.type === 'testcase' || this.form.type === 'automation') {
+        url = '/api/' + this.form.type + '/list/' + this.projectId
+      } else if (this.form.type === 'performance' || this.form.type === 'api') {
+        url = '/' + this.form.type + '/list/' + this.projectId
+      }
+      return new Promise((resolve, reject) => {
+        this.$get(url).then(res => {
+          console.log(res.data.data)
+          const data = res.data.data.map(item => ({
+            value: item.id,
+            label: item.name,
+            leaf: true
+          }))
+          resolve(data)
+        }).catch((err) => {
+          reject(err)
+        })
+      })
+    },
+    /* lazyLoad(node, resolve){
+      const { level } = node;
+      if(node.level==0){
+        const nodes = TEST
+          .map(item => ({
+            value: item.id,
+            label: item.name,
+            leaf: level >= 1
+          }));
+        resolve(nodes)
+      }
+      if(node.level==1){
+        this.projectId = getCurrentProjectID()
+        this.testOptions = [];
+        let url = '';
+        this.form.type=node.data.value
+        if (this.form.type === 'testcase' || this.form.type === 'automation') {
+          url = '/api/' + this.form.type + '/list/' + this.projectId
+        } else if (this.form.type === 'performance' || this.form.type === 'api') {
+          url = '/' + this.form.type + '/list/' + this.projectId
+        }
+        if (this.projectId && this.form.type != '' && this.form.type != 'undefined') {
+          this.$get(url, response => {
+              const nodes = response.data
+                .map(item => ({
+                  value: item.id,
+                  label: item.name,
+                  leaf: level >= 1
+                }));
+              resolve(nodes)
+          });
+        }
+      }
+    },*/
     handleCommand(e) {
       if (e === "ADD_AND_CREATE") {
         this.$refs['caseFrom'].validate((valid) => {
@@ -465,9 +511,10 @@ export default {
             this.saveCase();
           } else {
             this.saveCase();
-            let tab={}
-            tab.name='add'
-            this.$emit('addTab',tab)}
+            let tab = {}
+            tab.name = 'add'
+            this.$emit('addTab', tab)
+          }
         })
       }else {
         this.saveCase();
@@ -499,8 +546,9 @@ export default {
       this.$nextTick(() => (this.isStepTableAlive = true));
     },
     open(testCase) {
-      console.log("测试用例")
-      console.log(testCase)
+      /*
+             this.form.selected=[["automation", "3edaaf31-3fa4-4a53-9654-320205c2953a"],["automation", "3aa58bd1-c986-448c-8060-d32713dbd4eb"]]
+      */
       this.projectId = getCurrentProjectID();
       if (window.history && window.history.pushState) {
         history.pushState(null, null, document.URL);
@@ -573,7 +621,7 @@ export default {
         })
       })
     },
-    setFormData(testCase) {
+    async setFormData(testCase) {
       testCase.tags = JSON.parse(testCase.tags);
       testCase.selected = JSON.parse(testCase.testId);
       let tmp = {};
@@ -583,12 +631,12 @@ export default {
         tmp.steps = []
       }
       Object.assign(this.form, tmp);
-      this.form.module = testCase.nodeId;
-      /*
-            this.form.testId=testCase.selected
-      */
       console.log(this.form.selected)
+      this.form.module = testCase.nodeId;
       this.getFileMetaData(testCase);
+      /* testCase.selected = JSON.parse(testCase.testId);
+       this.form.selected= testCase.selected*/
+      await this.loadOptions(this.sysList)
     },
     setTestCaseExtInfo(testCase) {
       this.testCase = {};
@@ -692,7 +740,6 @@ export default {
     buildParam() {
       let param = {};
       Object.assign(param, this.form);
-      console.log(this.form)
       param.steps = JSON.stringify(this.form.steps);
       param.nodeId = this.form.module;
       this.moduleOptions.forEach(item => {
@@ -780,22 +827,7 @@ export default {
         this.maintainerOptions = response.data;
       });
     },
-    getTestOptions(val) {
-      this.projectId = getCurrentProjectID()
-      this.testOptions = [];
-      let url = '';
-      if (this.form.type === 'testcase' || this.form.type === 'automation') {
-        url = '/api/' + this.form.type + '/list/' + this.projectId
-      } else if (this.form.type === 'performance' || this.form.type === 'api') {
-        url = '/' + this.form.type + '/list/' + this.projectId
-      }
-      if (this.projectId && this.form.type != '' && this.form.type != 'undefined') {
-        this.result = this.$get(url, response => {
-          this.testOptions = response.data;
-          this.testOptions.unshift({id: 'other', name: this.$t('test_track.case.other')})
-        });
-      }
-    },
+
     visibleChange(flag) {
       if (flag) {
         this.getDemandOptions();
