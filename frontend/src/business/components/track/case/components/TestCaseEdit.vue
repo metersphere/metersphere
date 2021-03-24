@@ -109,7 +109,6 @@
                              class="ms-case" @change="clearInput" ref="cascade"></el-cascader>
               </el-form-item>
             </el-col>
-
             <el-col :span="7">
               <el-form-item label="关联需求" :label-width="formLabelWidth" prop="demandId">
                 <el-select filterable :disabled="readOnly" v-model="form.demandId" @visible-change="visibleChange"
@@ -404,7 +403,7 @@ export default {
     type: String
   },
   computed: {
-    projectId() {
+    projectIds() {
       return this.$store.state.projectId
     },
   },
@@ -456,6 +455,7 @@ export default {
     },
     getTestOptions(val) {
       this.form.type = val
+      this.projectId = this.projectIds
       this.testOptions = [];
       let url = '';
       if (this.form.type === 'testcase' || this.form.type === 'automation') {
@@ -556,6 +556,7 @@ export default {
       /*
              this.form.selected=[["automation", "3edaaf31-3fa4-4a53-9654-320205c2953a"],["automation", "3aa58bd1-c986-448c-8060-d32713dbd4eb"]]
       */
+      this.projectId = this.projectIds;
       if (window.history && window.history.pushState) {
         history.pushState(null, null, document.URL);
         window.addEventListener('popstate', this.close);
