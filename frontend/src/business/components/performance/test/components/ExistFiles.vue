@@ -232,7 +232,7 @@ export default {
 
           callback();
         } else {
-          this.$error(this.$t('load_test.project_file_exist'));
+          this.$error(this.$t('load_test.project_file_exist') + ', name: ' + file.name);
         }
       });
     },

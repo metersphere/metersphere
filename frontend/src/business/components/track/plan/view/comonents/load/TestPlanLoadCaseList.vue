@@ -213,6 +213,7 @@ export default {
       this.$refs.headerCustom.open(this.tableLabel)
     },
     initTable() {
+      this.autoCheckStatus();
       this.selectRows = new Set();
       this.condition.testPlanId = this.planId;
       if (this.selectProjectId && this.selectProjectId !== 'root') {
@@ -246,6 +247,10 @@ export default {
       }
       getLabel(this, TEST_PLAN_LOAD_CASE);
 
+    },
+    autoCheckStatus() {
+      this.$post('/test/plan/autoCheck/' + this.planId, (response) => {
+      });
     },
     refreshStatus() {
       this.refreshScheduler = setInterval(() => {

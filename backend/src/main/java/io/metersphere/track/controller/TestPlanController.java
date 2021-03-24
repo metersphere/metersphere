@@ -37,6 +37,11 @@ public class TestPlanController {
     @Resource
     CheckPermissionService checkPermissionService;
 
+    @PostMapping("/autoCheck/{testPlanId}")
+    public void autoCheck(@PathVariable String testPlanId){
+        testPlanService.checkStatus(testPlanId);
+    }
+
     @PostMapping("/list/{goPage}/{pageSize}")
     public Pager<List<TestPlanDTOWithMetric>> list(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryTestPlanRequest request) {
         String currentWorkspaceId = SessionUtils.getCurrentWorkspaceId();
