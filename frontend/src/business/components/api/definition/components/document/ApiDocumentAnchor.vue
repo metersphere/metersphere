@@ -369,6 +369,10 @@ export default {
     moduleIds: Array,
     sharePage:Boolean,
     pageHeaderHeight:Number,
+    trashEnable: {
+      type: Boolean,
+      default: false,
+    },
   },
   activated() {
     this.initApiDocSimpleList();
@@ -409,6 +413,9 @@ export default {
     },
     clientHeight() {     //如果clientHeight 发生改变，这个函数就会运行
       this.changeFixed(this.clientHeight);
+    },
+    trashEnable() {
+      this.initApiDocSimpleList();
     }
   },
   methods: {
@@ -441,7 +448,10 @@ export default {
       }
       if (this.moduleIds.length > 0) {
         simpleRequest.moduleIds = this.moduleIds;
+      } else {
+        simpleRequest.moduleIds = [];
       }
+      simpleRequest.trashEnable = this.trashEnable;
 
       let simpleInfoUrl = "/api/document/selectApiSimpleInfo";
       this.apiInfoArray = [];
@@ -532,9 +542,6 @@ export default {
       }
       //检查数据
       this.checkApiInfoNode(this.apiStepIndex,true);
-    },
-    stepClick(stepIndex) {
-      this.apiStepIndex = stepIndex;
     },
     getColor(enable, method) {
       return this.methodColorMap.get(method);
@@ -642,8 +649,6 @@ export default {
       for(let i = 0;i<this.apiShowArray.length;i++){
         names += this.apiShowArray[i].name+";";
       }
-
-      console.log("["+apiDocDivScrollTop+":"+this.apiStepIndex+"]:["+lastIndex+":"+this.currentApiIndexInApiShowArray+"]-------->"+names);
       if(lastIndex < this.currentApiIndexInApiShowArray){
         //上移
         if(this.needAsyncSelect){
@@ -684,10 +689,6 @@ export default {
         }
         this.apiStepIndex ++;
       }
-
-      // this.apiStepIndex = lastIndex;
-      // //检查上下文 2个以内的节点有没有查询出来
-      // this.checkApiInfoNode(this.apiStepIndex);
     },
     redirectScroll(){
       //滚动条跳转：将滚动条下拉到显示对应对api接口的位置
