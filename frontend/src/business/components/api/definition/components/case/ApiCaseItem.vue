@@ -332,6 +332,10 @@
           row.id = data.id;
           row.createTime = data.createTime;
           row.updateTime = data.updateTime;
+          if (!row.message) {
+            this.$success(this.$t('commons.save_success'));
+            this.$emit('refresh');
+          }
         });
       },
       saveTestCase(row) {
