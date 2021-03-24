@@ -109,8 +109,6 @@
                              class="ms-case" @change="clearInput" ref="cascade"></el-cascader>
               </el-form-item>
             </el-col>
-          </el-row>
-
             <el-col :span="7">
               <el-form-item label="关联需求" :label-width="formLabelWidth" prop="demandId">
                 <el-select filterable :disabled="readOnly" v-model="form.demandId" @visible-change="visibleChange"
