@@ -267,6 +267,9 @@
       open(api) {
         if (api) {
           let data = JSON.parse(JSON.stringify(api));
+          if (data.protocol === "dubbo://") {
+            data.protocol = "DUBBO";
+          }
           data.id = getUUID();
           this.httpForm = {id: data.id, name: data.name, protocol: data.protocol, path: data.path, method: api.method, userId: getCurrentUser().id, request: data};
           this.getMaintainerOptions();
