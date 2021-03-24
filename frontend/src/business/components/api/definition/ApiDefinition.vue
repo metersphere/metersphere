@@ -81,13 +81,13 @@
             </div>
             <!-- 快捷调试 -->
             <div v-else-if="item.type=== 'debug'" class="ms-api-div">
-              <ms-debug-http-page :currentProtocol="currentProtocol" :testCase="item.api" @saveAs="editApi"
+              <ms-debug-http-page :currentProtocol="currentProtocol" :testCase="item.api" @saveAs="editApi" @refreshModule="refreshModule"
                                   v-if="currentProtocol==='HTTP'"/>
-              <ms-debug-jdbc-page :currentProtocol="currentProtocol" :testCase="item.api" @saveAs="editApi"
+              <ms-debug-jdbc-page :currentProtocol="currentProtocol" :testCase="item.api" @saveAs="editApi" @refreshModule="refreshModule"
                                   v-if="currentProtocol==='SQL'"/>
-              <ms-debug-tcp-page :currentProtocol="currentProtocol" :testCase="item.api" @saveAs="editApi"
+              <ms-debug-tcp-page :currentProtocol="currentProtocol" :testCase="item.api" @saveAs="editApi" @refreshModule="refreshModule"
                                  v-if="currentProtocol==='TCP'"/>
-              <ms-debug-dubbo-page :currentProtocol="currentProtocol" :testCase="item.api" @saveAs="editApi"
+              <ms-debug-dubbo-page :currentProtocol="currentProtocol" :testCase="item.api" @saveAs="editApi" @refreshModule="refreshModule"
                                    v-if="currentProtocol==='DUBBO'"/>
             </div>
 
@@ -355,6 +355,9 @@
           return;
         }
         this.$refs.apiList[0].exportApi(type);
+      },
+      refreshModule() {
+        this.$refs.nodeTree.list();
       },
       refresh(data) {
         this.$refs.apiList[0].initTable(data);
