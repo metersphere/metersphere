@@ -333,7 +333,8 @@ export default {
       this.$refs.existFiles.beforeUploadFile(file);
     },
     handleUpload(file) {
-      this.$refs.existFiles.handleUpload(file);
+      // 从api创建的测试
+      this.$refs.existFiles.handleUpload(file, true);
     },
   },
 }

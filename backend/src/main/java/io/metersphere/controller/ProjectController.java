@@ -2,6 +2,7 @@ package io.metersphere.controller;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import io.metersphere.base.domain.FileMetadata;
 import io.metersphere.base.domain.Project;
 import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.commons.utils.PageUtils;
@@ -86,8 +87,8 @@ public class ProjectController {
     }
 
     @PostMapping(value = "upload/files/{projectId}", consumes = {"multipart/form-data"})
-    public void uploadFiles(@PathVariable String projectId, @RequestPart(value = "file") List<MultipartFile> files) {
-        projectService.uploadFiles(projectId, files);
+    public List<FileMetadata> uploadFiles(@PathVariable String projectId, @RequestPart(value = "file") List<MultipartFile> files) {
+      return  projectService.uploadFiles(projectId, files);
     }
 
     @GetMapping(value = "delete/file/{fileId}")
