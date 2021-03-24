@@ -9,7 +9,7 @@
                            id="inputDelay"
                            type="primary"
                            :content="$t('commons.save')"
-                           size="small" @exec="saveCase"
+                           size="small" @click="saveCase"
                            icon=""
                            title="ctrl + s"/>
           <el-dropdown v-else split-button type="primary" class="ms-api-buttion" @click="handleCommand"
@@ -62,14 +62,14 @@
           </el-row>
 
           <el-row>
-            <el-col :span="7">
-              <el-form-item label="评审状态" :label-width="formLabelWidth" prop="reviewStatus">
-                <el-select size="small" v-model="form.reviewStatus" class="ms-case-input">
-                  <el-option v-for="item in options" :key="item.id" :label="item.label" :value="item.id">
-                  </el-option>
-                </el-select>
-              </el-form-item>
-            </el-col>
+<!--            <el-col :span="7">-->
+<!--              <el-form-item label="评审状态" :label-width="formLabelWidth" prop="reviewStatus">-->
+<!--                <el-select size="small" v-model="form.reviewStatus" class="ms-case-input">-->
+<!--                  <el-option v-for="item in options" :key="item.id" :label="item.label" :value="item.id">-->
+<!--                  </el-option>-->
+<!--                </el-select>-->
+<!--              </el-form-item>-->
+<!--            </el-col>-->
             <el-col :span="7">
               <el-form-item :label="$t('commons.tag')" :label-width="formLabelWidth" prop="tag">
                 <ms-input-tag :currentScenario="form" v-if="showInputTag" ref="tag" class="ms-case-input"/>
@@ -88,8 +88,6 @@
                 </el-select>
               </el-form-item>
             </el-col>
-          </el-row>
-          <el-row>
             <el-col :span="7">
               <el-form-item :label="$t('test_track.case.priority')" :label-width="formLabelWidth" prop="priority">
                 <el-select :disabled="readOnly" v-model="form.priority" clearable
@@ -101,17 +99,18 @@
                 </el-select>
               </el-form-item>
             </el-col>
-            <el-col :span="14">
+          </el-row>
+          <el-row>
+
+            <el-col :span="7">
               <el-form-item :label="$t('test_track.case.relate_test')" :label-width="formLabelWidth">
                 <el-cascader :options="sysList" filterable placeholder="请选择要关联的测试" show-all-levels
                              v-model="form.selected" :props="props"
                              class="ms-case" @change="clearInput" ref="cascade"></el-cascader>
               </el-form-item>
             </el-col>
-          </el-row>
 
-          <el-row>
-            <el-col :span="10">
+            <el-col :span="7">
               <el-form-item label="关联需求" :label-width="formLabelWidth" prop="demandId">
                 <el-select filterable :disabled="readOnly" v-model="form.demandId" @visible-change="visibleChange"
                            placeholder="请选择要关联的需求" class="ms-case-input">
@@ -125,7 +124,7 @@
               </el-form-item>
 
             </el-col>
-            <el-col :span="10" :offset="1">
+            <el-col :span="7">
               <el-form-item label="需求ID/名称" :label-width="formLabelWidth" prop="demandName"
                             v-if="form.demandId=='other'">
                 <el-input v-model="form.demandName"></el-input>
@@ -291,7 +290,7 @@
 <script>
 import {TokenKey, WORKSPACE_ID} from '@/common/js/constants';
 import MsDialogFooter from '../../../common/components/MsDialogFooter'
-import {getCurrentUser, listenGoBack, removeGoBackListener} from "@/common/js/utils";
+import {getCurrentUser, handleCtrlSEvent, listenGoBack, removeGoBackListener} from "@/common/js/utils";
 import {Message} from "element-ui";
 import TestCaseAttachment from "@/business/components/track/case/components/TestCaseAttachment";
 import {buildNodePath} from "../../../api/definition/model/NodeTree";
@@ -363,6 +362,7 @@ export default {
           {max: 255, message: this.$t('test_track.length_less_than') + '255', trigger: 'blur'}
         ],
         module: [{required: true, message: this.$t('test_track.case.input_module'), trigger: 'change'}],
+        demandName: [{required: true, message: this.$t('test_track.case.input_demand_name'), trigger: 'change'}],
         maintainer: [{required: true, message: this.$t('test_track.case.input_maintainer'), trigger: 'change'}],
         priority: [{required: true, message: this.$t('test_track.case.input_priority'), trigger: 'change'}],
         method: [{required: true, message: this.$t('test_track.case.input_method'), trigger: 'change'}],
@@ -431,7 +431,8 @@ export default {
     }
   },
   created() {
-    this.loadOptions()
+    this.loadOptions();
+    this.addListener(); //  添加 ctrl s 监听
   },
   methods: {
     clearInput() {
@@ -455,7 +456,6 @@ export default {
     },
     getTestOptions(val) {
       this.form.type = val
-      this.projectId = getCurrentProjectID()
       this.testOptions = [];
       let url = '';
       if (this.form.type === 'testcase' || this.form.type === 'automation') {
@@ -556,7 +556,6 @@ export default {
       /*
              this.form.selected=[["automation", "3edaaf31-3fa4-4a53-9654-320205c2953a"],["automation", "3aa58bd1-c986-448c-8060-d32713dbd4eb"]]
       */
-      this.projectId = getCurrentProjectID();
       if (window.history && window.history.pushState) {
         history.pushState(null, null, document.URL);
         window.addEventListener('popstate', this.close);
@@ -973,6 +972,15 @@ export default {
     fileValidator(file) {
       /// todo: 是否需要对文件内容和大小做限制
       return file.size > 0;
+    },
+    addListener() {
+      document.addEventListener("keydown", this.createCtrlSHandle);
+    },
+    removeListener() {
+      document.removeEventListener("keydown", this.createCtrlSHandle);
+    },
+    createCtrlSHandle(event) {
+      handleCtrlSEvent(event, this.saveCase);
     },
   }
 }

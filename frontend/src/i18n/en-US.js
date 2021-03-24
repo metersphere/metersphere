@@ -1166,6 +1166,7 @@ export default {
       input_type: "Please select type",
       input_method: "Please select method",
       input_prerequisite: "Please select prerequisite",
+      input_demand_name: "Please input demand id or name",
       delete_confirm: "Confirm delete test case",
       delete: "Delete case",
       save_create_continue: "Save and create continue",

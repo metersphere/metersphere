@@ -1168,6 +1168,7 @@ export default {
       input_type: "請選擇用例類型",
       input_method: "請選擇測試方式",
       input_prerequisite: "請輸入前置條件",
+      input_demand_name: "請輸入請求ID或名稱",
       delete_confirm: "確認刪除測試用例",
       delete: "刪除用例",
       save_create_continue: "保存並繼續創建",
