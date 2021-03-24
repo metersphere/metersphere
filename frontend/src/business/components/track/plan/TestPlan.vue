@@ -20,7 +20,6 @@
   import TestPlanEdit from './components/TestPlanEdit';
   import MsContainer from "../../common/components/MsContainer";
   import MsMainContainer from "../../common/components/MsMainContainer";
-  import {getCurrentProjectID} from "../../../../common/js/utils";
 
   export default {
     name: "TestPlan",
@@ -28,6 +27,11 @@
     data() {
       return {
       }
+    },
+    computed: {
+      projectId() {
+        return this.$store.state.projectId
+      },
     },
     mounted() {
       if (this.$route.path.indexOf("/track/plan/create") >= 0){
@@ -38,7 +42,7 @@
     watch: {
       '$route'(to, from) {
         if (to.path.indexOf("/track/plan/create") >= 0){
-          if (!getCurrentProjectID()) {
+          if (!this.projectId) {
             this.$warning(this.$t('commons.check_project_tip'));
             return;
           }

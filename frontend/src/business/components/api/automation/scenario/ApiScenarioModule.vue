@@ -59,7 +59,6 @@
 <script>
   import SelectMenu from "../../../track/common/SelectMenu";
   import MsAddBasisScenario from "@/business/components/api/automation/scenario/AddBasisScenario";
-  import {getCurrentProjectID} from "@/common/js/utils";
   import MsNodeTree from "../../../track/common/NodeTree";
   import {buildNodePath} from "../../definition/model/NodeTree";
   import ModuleTrashButton from "../../definition/components/module/ModuleTrashButton";
@@ -90,7 +89,10 @@
       },
       isRelevanceModel() {
         return this.relevanceProjectId ? true : false;
-      }
+      },
+      projectId() {
+        return this.$store.state.projectId
+      },
     },
     data() {
       return {
@@ -99,14 +101,12 @@
           filterText: "",
           trashEnable: false
         },
-        projectId: "",
         data: [],
         currentModule: undefined,
         moduleOptions: [],
       }
     },
     mounted() {
-      this.projectId = getCurrentProjectID();
       this.list();
     },
     watch: {
@@ -130,7 +130,7 @@
             this.addScenario();
             break;
           case "import":
-            this.result = this.$get("/api/automation/module/list/" + getCurrentProjectID(), response => {
+            this.result = this.$get("/api/automation/module/list/" + this.projectId, response => {
               if (response.data != undefined && response.data != null) {
                 this.data = response.data;
                 let moduleOptions = [];
@@ -238,7 +238,7 @@
         this.$emit("refreshTable");
       },
       addScenario() {
-        if (!getCurrentProjectID()) {
+        if (!this.projectId) {
           this.$warning(this.$t('commons.check_project_tip'));
           return;
         }

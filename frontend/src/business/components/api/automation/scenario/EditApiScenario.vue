@@ -164,7 +164,7 @@
       </div>
 
       <!--接口列表-->
-      <scenario-api-relevance @save="pushApiOrCase" ref="scenarioApiRelevance" v-if="type!=='detail'"/>
+      <scenario-api-relevance @save="pushApiOrCase" @close="setHideBtn" ref="scenarioApiRelevance" v-if="type!=='detail'"/>
 
       <!--自定义接口-->
       <el-drawer v-if="type!=='detail'" :visible.sync="customizeVisible" :destroy-on-close="true" direction="ltr"
@@ -173,7 +173,7 @@
         <ms-api-customize :request="customizeRequest" @addCustomizeApi="addCustomizeApi"/>
       </el-drawer>
       <!--场景导入 -->
-      <scenario-relevance v-if="type!=='detail'" @save="addScenario" ref="scenarioRelevance"/>
+      <scenario-relevance v-if="type!=='detail'" @save="addScenario" @close="setHideBtn" ref="scenarioRelevance"/>
 
       <!-- 环境 -->
       <api-environment-config v-if="type!=='detail'" ref="environmentConfig" @close="environmentConfigClose"/>
@@ -222,7 +222,7 @@
   import {parseEnvironment} from "../../definition/model/EnvironmentModel";
   import {ELEMENT_TYPE, ELEMENTS} from "./Setting";
   import MsApiCustomize from "./ApiCustomize";
-  import {getCurrentProjectID, getUUID, objToStrMap, strMapToObj, handleCtrlSEvent} from "@/common/js/utils";
+  import {getUUID, objToStrMap, strMapToObj, handleCtrlSEvent} from "@/common/js/utils";
   import ApiEnvironmentConfig from "../../definition/components/environment/ApiEnvironmentConfig";
   import MsInputTag from "./MsInputTag";
   import MsRun from "./DebugRun";
@@ -288,7 +288,7 @@
         loading: false,
         apiListVisible: false,
         customizeVisible: false,
-        scenarioVisible: false,
+        isBtnHide: false,
         debugVisible: false,
         customizeRequest: {protocol: "HTTP", type: "API", hashTree: [], referenced: 'Created', active: false},
         operatingElements: [],
@@ -300,7 +300,6 @@
         path: "/api/automation/create",
         debugData: {},
         reportId: "",
-        projectId: "",
         enableCookieShare: false,
         globalOptions: {
           spacing: 30
@@ -317,7 +316,6 @@
       if (!this.currentScenario.apiScenarioModuleId) {
         this.currentScenario.apiScenarioModuleId = "";
       }
-      this.projectId = getCurrentProjectID();
       this.operatingElements = ELEMENTS.get("ALL");
       this.getWsProjects();
       this.getMaintainerOptions();
@@ -438,9 +436,15 @@
           }
         ];
         return buttons.filter(btn => btn.show);
-      }
+      },
+      projectId() {
+        return this.$store.state.projectId
+      },
     },
     methods: {
+      setHideBtn() {
+        this.isBtnHide = false;
+      },
       // 打开引用的场景
       openScenario(data) {
         this.$emit('openScenario', data);
@@ -532,6 +536,7 @@
               this.scenarioDefinition.push(new LoopController());
             break;
           case ELEMENT_TYPE.scenario:
+            this.isBtnHide = true;
             this.$refs.scenarioRelevance.open();
             break;
           default:
@@ -559,22 +564,25 @@
         }
       },
       showAll() {
-        if (!this.customizeVisible) {
+        // 控制当有弹出页面操作时禁止刷新按钮列表
+        if (!this.customizeVisible && !this.isBtnHide) {
           this.operatingElements = ELEMENTS.get("ALL");
           this.selectedTreeNode = undefined;
         }
       },
       apiListImport() {
+        this.isBtnHide = true;
         this.$refs.scenarioApiRelevance.open();
       },
-      recursiveSorting(arr) {
+      recursiveSorting(arr, scenarioProjectId) {
         for (let i in arr) {
           arr[i].index = Number(i) + 1;
           if (arr[i].type === ELEMENT_TYPE.LoopController && arr[i].hashTree && arr[i].hashTree.length > 1) {
             arr[i].countController.proceed = true;
           }
           if (!arr[i].projectId) {
-            arr[i].projectId = getCurrentProjectID();
+            // 如果自身没有ID并且场景有ID则赋值场景ID，否则赋值当前项目ID
+            arr[i].projectId = scenarioProjectId ? scenarioProjectId : this.projectId;
           }
           if (arr[i].hashTree != undefined && arr[i].hashTree.length > 0) {
             this.recursiveSorting(arr[i].hashTree);
@@ -596,10 +604,10 @@
           }
           // 设置项目ID
           if (!this.scenarioDefinition[i].projectId) {
-            this.scenarioDefinition[i].projectId = getCurrentProjectID();
+            this.scenarioDefinition[i].projectId = this.projectId;
           }
           if (this.scenarioDefinition[i].hashTree != undefined && this.scenarioDefinition[i].hashTree.length > 0) {
-            this.recursiveSorting(this.scenarioDefinition[i].hashTree);
+            this.recursiveSorting(this.scenarioDefinition[i].hashTree, this.scenarioDefinition[i].projectId);
           }
           // 添加debug结果
           if (this.debugResult && this.debugResult.get(this.scenarioDefinition[i].id)) {
@@ -631,13 +639,17 @@
               item.hashTree = [];
             }
             item.enable === undefined ? item.enable = true : item.enable;
-            this.scenarioDefinition.push(item);
+            if (this.selectedTreeNode != undefined) {
+              this.selectedTreeNode.hashTree.push(item);
+            } else {
+              this.scenarioDefinition.push(item);
+            }
           })
         }
+        this.isBtnHide = false;
         this.sort();
         this.reload();
         this.initProjectIds();
-        this.scenarioVisible = false;
       },
       setApiParameter(item, refType, referenced) {
         let request = {};
@@ -676,6 +688,7 @@
         data.forEach(item => {
           this.setApiParameter(item, refType, referenced);
         });
+        this.isBtnHide = false;
         this.sort();
         this.reload();
         this.initProjectIds();
@@ -957,7 +970,7 @@
                     this.projectEnvMap = objToStrMap(obj.environmentMap);
                   } else {
                     // 兼容历史数据
-                    this.projectEnvMap.set(getCurrentProjectID(), obj.environmentId);
+                    this.projectEnvMap.set(this.projectId, obj.environmentId);
                   }
                   this.currentScenario.variables = [];
                   let index = 1;
@@ -994,7 +1007,7 @@
       },
       setParameter() {
         this.currentScenario.stepTotal = this.scenarioDefinition.length;
-        this.currentScenario.projectId = getCurrentProjectID();
+        this.currentScenario.projectId = this.projectId;
         this.currentScenario.modulePath = this.getPath(this.currentScenario.apiScenarioModuleId);
         // 构建一个场景对象 方便引用处理
         let scenario = {

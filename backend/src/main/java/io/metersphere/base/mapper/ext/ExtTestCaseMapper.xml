@@ -306,8 +306,11 @@
                 or test_case.num like CONCAT('%', #{request.name},'%')
                 or test_case.tags like CONCAT('%', #{request.name},'%'))
             </if>
-            <if test="request.createTime >0">
+            <if test="request.relevanceCreateTime >0">
                 and test_case.id in (select test_case_id from test_case_test where test_case_test.create_time >= #{request.createTime})
+            </if>
+            <if test="request.createTime >0">
+                and test_case.create_time >= #{request.createTime}
             </if>
             <if test="request.nodeIds != null and request.nodeIds.size() > 0">
                 and test_case.node_id in
@@ -384,7 +387,8 @@
                  union all
                  select tpac.id as s
                  from test_plan_api_case tpac join api_test_case on tpac.api_case_id = api_test_case.id
-                 where tpac.test_plan_id = #{planId}
+                                              join api_definition on api_test_case.api_definition_id = api_definition.id
+                 where tpac.test_plan_id = #{planId} and api_definition.status != 'Trash'
                  union all
                  select tplc.id as s
                  from test_plan_load_case tplc join load_test on tplc.load_case_id = load_test.id

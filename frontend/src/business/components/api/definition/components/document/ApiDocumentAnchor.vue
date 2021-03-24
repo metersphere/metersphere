@@ -2,7 +2,7 @@
   <div>
     <el-container>
       <el-main style="padding-top: 0px;padding-bottom: 0px">
-        <el-row style="margin-top: 10px">
+        <el-row v-if="sharePage" style="margin-top: 10px">
           <el-select size="small" :placeholder="$t('api_test.definition.document.order')" v-model="apiSearch.orderCondition" style="float: right;width: 180px;margin-right: 5px"
                      class="ms-api-header-select" @change="initApiDocSimpleList" clearable>
             <el-option key="createTimeDesc" :label="$t('api_test.definition.document.create_time_sort')" value="createTimeDesc" />
@@ -25,8 +25,32 @@
           <el-input :placeholder="$t('api_test.definition.document.search_by_api_name')" @blur="initApiDocSimpleList()" style="float: right;width: 180px;margin-right: 5px" size="small"
                     @keyup.enter.native="initApiDocSimpleList()" v-model="apiSearch.name"/>
           <api-document-batch-share v-xpack v-if="showXpackCompnent" @shareApiDocument="shareApiDocument" :project-id="projectId" :share-url="batchShareUrl" style="float: right;margin: 6px;font-size: 17px"/>
-          <!--          <api-document-batch-share v-xpack v-if="showXpackCompnent"/>-->
         </el-row>
+        <el-row v-else style="margin-top: 0px;position: fixed;float: right;margin-right: 0px;margin-left: 400px;top: 150px; right: 90px;">
+          <el-select size="small" :placeholder="$t('api_test.definition.document.order')" v-model="apiSearch.orderCondition" style="float: right;width: 180px;margin-right: 5px"
+                     class="ms-api-header-select" @change="initApiDocSimpleList" clearable>
+            <el-option key="createTimeDesc" :label="$t('api_test.definition.document.create_time_sort')" value="createTimeDesc" />
+            <el-option key="editTimeAsc" :label="$t('api_test.definition.document.edit_time_positive_sequence')" value="editTimeAsc"/>
+            <el-option key="editTimeDesc" :label="$t('api_test.definition.document.edit_time_Reverse_order')" value="editTimeDesc"/>
+          </el-select>
+
+          <el-select size="small" :placeholder="$t('api_test.definition.document.request_method')" v-model="apiSearch.type" style="float: right;width: 180px;margin-right: 5px"
+                     class="ms-api-header-select" @change="initApiDocSimpleList" clearable>
+            <el-option key="ALL" :label="$t('api_test.definition.document.data_set.all')" value="ALL"/>
+            <el-option key="GET" :label="'GET '+$t('api_test.definition.document.request_interface')" value="GET"/>
+            <el-option key="POST" :label="'POST '+$t('api_test.definition.document.request_interface')" value="POST"/>
+            <el-option key="PUT" :label="'PUT '+$t('api_test.definition.document.request_interface')" value="PUT"/>
+            <el-option key="DELETE" :label="'DELETE '+$t('api_test.definition.document.request_interface')" value="DELETE"/>
+            <el-option key="PATCH" :label="'PATCH '+$t('api_test.definition.document.request_interface')" value="PATCH"/>
+            <el-option key="OPTIONS" :label="'OPTIONS '+$t('api_test.definition.document.request_interface')" value="OPTIONS"/>
+            <el-option key="HEAD" :label="'HEAD '+$t('api_test.definition.document.request_interface')" value="HEAD"/>
+            <el-option key="CONNECT" :label="'CONNECT '+$t('api_test.definition.document.request_interface')" value="CONNECT"/>
+          </el-select>
+          <el-input :placeholder="$t('api_test.definition.document.search_by_api_name')" @blur="initApiDocSimpleList()" style="float: right;width: 180px;margin-right: 5px" size="small"
+                    @keyup.enter.native="initApiDocSimpleList()" v-model="apiSearch.name"/>
+          <api-document-batch-share v-xpack v-if="showXpackCompnent" @shareApiDocument="shareApiDocument" :project-id="projectId" :share-url="batchShareUrl" style="float: right;margin: 6px;font-size: 17px"/>
+        </el-row>
+
         <el-divider></el-divider>
         <div ref="apiDocInfoDiv" @scroll="handleScroll" >
           <div v-for="(apiInfo) in apiShowArray" :key="apiInfo.id" ref="apiDocInfoDivItem">
@@ -343,6 +367,7 @@ export default {
     projectId: String,
     documentId: String,
     moduleIds: Array,
+    sharePage:Boolean,
     pageHeaderHeight:Number,
   },
   activated() {
@@ -396,7 +421,7 @@ export default {
     },
     changeFixed(clientHeight) {
       if (this.$refs.apiDocInfoDiv) {
-        let countPageHeight = 350;
+        let countPageHeight = 300;
         if(this.pageHeaderHeight!=0 && this.pageHeaderHeight != null){
           countPageHeight = this.pageHeaderHeight
         }
@@ -606,7 +631,7 @@ export default {
         //判断移动到了第几个元素. 公式: 移动过的高度+页面显示高度-第index子元素的高度(含20px)>0 的 index最大值
         if(scrolledHeigh>0){
           lastIndex = index;
-          let itemHeight = this.$refs.apiDocInfoDivItem[index].offsetHeight+20;
+          let itemHeight = this.$refs.apiDocInfoDivItem[index].offsetHeight+10;
           scrolledHeigh = scrolledHeigh - itemHeight;
         }else{
           break;
@@ -653,7 +678,7 @@ export default {
             this.currentApiIndexInApiShowArray++;
           }else{
             this.apiShowArray.shift();
-            let itemHeight = this.$refs.apiDocInfoDivItem[0].offsetHeight+20;
+            let itemHeight = this.$refs.apiDocInfoDivItem[0].offsetHeight+10;
             this.$refs.apiDocInfoDiv.scrollTop = (apiDocDivScrollTop-itemHeight);
           }
         }
@@ -670,7 +695,7 @@ export default {
       let itemHeightCount = 0;
       if(this.currentApiIndexInApiShowArray > 0){
         for (let i = 0; i <= this.currentApiIndexInApiShowArray-1; i++) {
-          let itemHeight = this.$refs.apiDocInfoDivItem[i].offsetHeight+20;
+          let itemHeight = this.$refs.apiDocInfoDivItem[i].offsetHeight+10;
           itemHeightCount+=itemHeight;
         }
       }
@@ -768,7 +793,7 @@ export default {
 
 .smallFontClass {
   font-size: 13px;
-  margin: 20px 10px;
+  margin: 20px 5px;
 }
 
 .tip {
@@ -779,16 +804,20 @@ export default {
 }
 
 .apiInfoRow {
-  margin: 20px 10px;
+  margin: 10px 10px;
+}
+
+.apiInfoRow.el-row {
+  margin: 10px 10px;
 }
 
 .apiStatusTag {
-  margin: 20px 5px;
+  margin: 10px 10px;
 }
 
 .showDataDiv {
   background-color: #F5F7F9;
-  margin: 20px 10px;
+  margin: 10px 10px;
   max-height: 300px;
   overflow: auto;
 }
@@ -818,7 +847,7 @@ export default {
 }
 
 .document-table {
-  margin: 20px 10px;
+  margin: 10px 10px;
   width: auto;
 }
 

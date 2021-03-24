@@ -244,6 +244,9 @@
         });
       },
       list(data) {
+        if (data.protocol === "dubbo://") {
+          data.protocol = "DUBBO";
+        }
         let url = "/api/module/list/" + getCurrentProjectID() + "/" + data.protocol;
         this.result = this.$get(url, response => {
           if (response.data != undefined && response.data != null) {

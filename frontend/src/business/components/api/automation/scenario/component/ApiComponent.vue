@@ -84,8 +84,8 @@
   import ApiResponseComponent from "./ApiResponseComponent";
   import CustomizeReqInfo from "@/business/components/api/automation/scenario/common/CustomizeReqInfo";
   const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
-  const esbDefinition = (requireComponent!=null&&requireComponent.keys().length) > 0 ? requireComponent("./apiDefinition/EsbDefinition.vue") : {};
-  const esbDefinitionResponse = (requireComponent!=null&&requireComponent.keys().length) > 0 ? requireComponent("./apiDefinition/EsbDefinitionResponse.vue") : {};
+  const esbDefinition = (requireComponent!=null&&requireComponent.keys().length) > 0 ? requireComponent("./apidefinition/EsbDefinition.vue") : {};
+  const esbDefinitionResponse = (requireComponent!=null&&requireComponent.keys().length) > 0 ? requireComponent("./apidefinition/EsbDefinitionResponse.vue") : {};
 
   export default {
     name: "MsApiComponent",
@@ -135,7 +135,6 @@
       }
       // 加载引用对象数据
       this.getApiInfo();
-      console.log(JSON.stringify(this.request));
       if (this.request.protocol === 'HTTP') {
         this.setUrl(this.request.url);
         this.setUrl(this.request.path);

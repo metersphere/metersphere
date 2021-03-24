@@ -201,7 +201,7 @@ export default {
       });
 
     },
-    async beforeUploadFile(file) {
+    beforeUploadFile(file) {
       if (!this.fileValidator(file)) {
         /// todo: 显示错误信息
         return false;
@@ -211,14 +211,14 @@ export default {
         this.$error(this.$t('load_test.delete_file'));
         return false;
       }
-      let valid = false;
-
+    },
+    checkFileExist(file, callback) {
       // 检查数据库是否存在同名文件
       async function f() {
-        return await axios.post('/performance/file/' + getCurrentProjectID() + '/getMetadataByName', {filename: file.name})
+        return await axios.post('/performance/file/' + getCurrentProjectID() + '/getMetadataByName', {name: file.name})
       }
 
-      await f().then(res => {
+      f().then(res => {
         let response = res.data;
         if (response.data.length === 0) {
           let type = file.name.substring(file.name.lastIndexOf(".") + 1);
@@ -229,33 +229,34 @@ export default {
             type: type.toUpperCase(),
             updateTime: file.lastModified,
           });
-          valid = true;
+
+          callback();
         } else {
           this.$error(this.$t('load_test.project_file_exist'));
         }
       });
-
-
-      return valid;
     },
     handleUpload(uploadResources) {
       let self = this;
+
       let file = uploadResources.file;
-      self.uploadList.push(file);
-      let type = file.name.substring(file.name.lastIndexOf(".") + 1);
-      if (type.toLowerCase() !== 'jmx') {
-        return;
-      }
-      let jmxReader = new FileReader();
-      jmxReader.onload = (event) => {
-        let threadGroups = findThreadGroup(event.target.result, file.name);
-        threadGroups.forEach(tg => {
-          tg.options = {};
-          this.scenarios.push(tg);
-        });
-        self.$emit('fileChange', self.scenarios);
-      };
-      jmxReader.readAsText(file);
+      this.checkFileExist(file, () => {
+        self.uploadList.push(file);
+        let type = file.name.substring(file.name.lastIndexOf(".") + 1);
+        if (type.toLowerCase() !== 'jmx') {
+          return;
+        }
+        let jmxReader = new FileReader();
+        jmxReader.onload = (event) => {
+          let threadGroups = findThreadGroup(event.target.result, file.name);
+          threadGroups.forEach(tg => {
+            tg.options = {};
+            self.scenarios.push(tg);
+          });
+          self.$emit('fileChange', self.scenarios);
+        };
+        jmxReader.readAsText(file);
+      })
     },
     handleExceed() {
       this.$error(this.$t('load_test.file_size_limit'));

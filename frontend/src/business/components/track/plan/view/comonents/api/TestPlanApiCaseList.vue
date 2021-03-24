@@ -80,7 +80,7 @@
             :label="$t('commons.tag')"
             :key="index">
             <template v-slot:default="scope">
-                <ms-tag v-for="(itemName,index)  in scope.row.tags" :key="index" type="success" effect="plain" :content="itemName" style="margin-left: 5px"/>
+                <ms-tag v-for="(itemName,index)  in scope.row.tags" :key="index" type="success" effect="plain" :content="itemName" style="margin-left: 0px; margin-right: 2px"/>
             </template>
           </el-table-column>
 
@@ -151,7 +151,7 @@ import MsBottomContainer from "../../../../../api/definition/components/BottomCo
 import ShowMoreBtn from "../../../../case/components/ShowMoreBtn";
 import BatchEdit from "@/business/components/track/case/components/BatchEdit";
 import {API_METHOD_COLOUR, CASE_PRIORITY, RESULT_MAP} from "../../../../../api/definition/model/JsonData";
-import {getCurrentProjectID, strMapToObj} from "@/common/js/utils";
+import {strMapToObj} from "@/common/js/utils";
 import ApiListContainer from "../../../../../api/definition/components/list/ApiListContainer";
 import PriorityTableItem from "../../../../common/tableItems/planview/PriorityTableItem";
 import {getBodyUploadFiles, getUUID} from "../../../../../../../common/js/utils";
@@ -453,15 +453,12 @@ export default {
       this.initTable();
     },
     singleRun(row) {
-      if (!row.environmentId) {
-        this.$warning(this.$t('api_test.environment.select_environment'));
-        return;
-      }
       this.runData = [];
 
       this.rowLoading = row.id;
 
       this.$get('/api/testcase/get/' + row.caseId, (response) => {
+        console.log(response.data)
         let apiCase = response.data;
         let request = JSON.parse(apiCase.request);
         request.name = row.id;
@@ -542,7 +539,7 @@ export default {
     },
     getProjectId() {
       if (!this.isRelevanceModel) {
-        return getCurrentProjectID();
+        return this.$store.state.projectId;
       } else {
         return this.currentCaseProjectId;
       }

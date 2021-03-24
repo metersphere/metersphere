@@ -124,7 +124,7 @@ name: "TestCaseMinder",
       if (isChange) {
         saveCases.push(testCase);
       }
-      if (testCase.nodeId.length < 15) {
+      if (testCase.nodeId !== 'root' && testCase.nodeId.length < 15) {
         let tip = this.$t('test_track.case.create_case') + "'" + testCase.name + "'" + this.$t('test_track.case.minder_create_tip');
         this.$error(tip)
         throw new Error(tip);

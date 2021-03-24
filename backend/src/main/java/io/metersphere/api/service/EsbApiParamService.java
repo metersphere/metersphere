@@ -75,7 +75,7 @@ public class EsbApiParamService {
             kv.setType(request.getType());
             kv.setDescription(request.getDescription());
             kv.setContentType(request.getContentType());
-            kv.setRequired(Boolean.parseBoolean(request.getRequired()));
+            kv.setRequired(request.isRequired());
             returnList.add(kv);
             if (request.getChildren() != null) {
                 List<KeyValue> childValueList = this.genKeyValueByEsbDataStruct(request.getChildren(), itemName);
@@ -351,4 +351,5 @@ public class EsbApiParamService {
         example.createCriteria().andResourceIdIn(apiIds);
         esbApiParamsMapper.deleteByExample(example);
     }
+
 }

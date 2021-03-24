@@ -13,6 +13,7 @@ import io.metersphere.api.dto.swaggerurl.SwaggerTaskResult;
 import io.metersphere.api.dto.swaggerurl.SwaggerUrlRequest;
 import io.metersphere.api.service.ApiDefinitionService;
 import io.metersphere.api.service.EsbApiParamService;
+import io.metersphere.api.service.EsbImportService;
 import io.metersphere.base.domain.ApiDefinition;
 import io.metersphere.base.domain.Schedule;
 import io.metersphere.commons.constants.RoleConstants;
@@ -32,6 +33,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
 import java.net.MalformedURLException;
 import java.util.Date;
 import java.util.List;
@@ -49,6 +51,8 @@ public class ApiDefinitionController {
     private CheckPermissionService checkPermissionService;
     @Resource
     private EsbApiParamService esbApiParamService;
+    @Resource
+    private EsbImportService esbImportService;
 
     @PostMapping("/list/{goPage}/{pageSize}")
     public Pager<List<ApiDefinitionResult>> list(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody ApiDefinitionRequest request) {
@@ -63,6 +67,7 @@ public class ApiDefinitionController {
         request.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
         return PageUtils.setPageInfo(page, apiDefinitionService.listRelevance(request));
     }
+
     @PostMapping("/list/relevance/review/{goPage}/{pageSize}")
     public Pager<List<ApiDefinitionResult>> listRelevanceReview(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody ApiDefinitionRequest request) {
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
@@ -103,7 +108,7 @@ public class ApiDefinitionController {
 
     @PostMapping(value = "/updateEsbRequest")
     public SaveApiDefinitionRequest updateEsbRequest(@RequestBody SaveApiDefinitionRequest request) {
-        if(StringUtils.equals(request.getMethod(),"ESB")){
+        if (StringUtils.equals(request.getMethod(), "ESB")) {
             //ESB的接口类型数据，采用TCP方式去发送。并将方法类型改为TCP。 并修改发送数据
             request = esbApiParamService.updateEsbRequest(request);
         }
@@ -128,8 +133,8 @@ public class ApiDefinitionController {
     }
 
     @PostMapping("/reduction")
-    public void reduction(@RequestBody List<SaveApiDefinitionRequest> requests) {
-        apiDefinitionService.reduction(requests);
+    public void reduction(@RequestBody ApiBatchRequest request) {
+        apiDefinitionService.reduction(request);
     }
 
     @GetMapping("/get/{id}")
@@ -180,15 +185,18 @@ public class ApiDefinitionController {
     public void createSchedule(@RequestBody ScheduleRequest request) throws MalformedURLException {
         apiDefinitionService.createSchedule(request);
     }
+
     @PostMapping(value = "/schedule/update")
-    public void updateSchedule(@RequestBody Schedule request){
+    public void updateSchedule(@RequestBody Schedule request) {
         apiDefinitionService.updateSchedule(request);
     }
+
     //查找定时任务资源Id
     @PostMapping(value = "/getResourceId")
-    public String getResourceId(@RequestBody SwaggerUrlRequest swaggerUrlRequest){
+    public String getResourceId(@RequestBody SwaggerUrlRequest swaggerUrlRequest) {
         return apiDefinitionService.getResourceId(swaggerUrlRequest);
     }
+
     //查找定时任务列表
     @GetMapping("/scheduleTask/{projectId}")
     public List<SwaggerTaskResult> getSwaggerScheduleList(@PathVariable String projectId) {
@@ -198,12 +206,13 @@ public class ApiDefinitionController {
                 resultList) {
             swaggerTaskResult.setIndex(dataIndex++);
             Date nextExecutionTime = CronUtils.getNextTriggerTime(swaggerTaskResult.getRule());
-            if(nextExecutionTime!=null){
+            if (nextExecutionTime != null) {
                 swaggerTaskResult.setNextExecutionTime(nextExecutionTime.getTime());
             }
         }
-        return  resultList;
+        return resultList;
     }
+
     //更新定时任务
     @PostMapping(value = "/schedule/updateByPrimyKey")
     public void updateScheduleEnableByPrimyKey(@RequestBody ScheduleInfoSwaggerUrlRequest request) {
@@ -211,11 +220,13 @@ public class ApiDefinitionController {
         schedule.setEnable(request.getTaskStatus());
         apiDefinitionService.updateSchedule(schedule);
     }
+
     //删除定时任务和swaggereUrl
     @PostMapping("/schedule/deleteByPrimyKey")
     public void deleteSchedule(@RequestBody ScheduleInfoSwaggerUrlRequest request) {
         apiDefinitionService.deleteSchedule(request);
     }
+
     @PostMapping("/getReference")
     public ReferenceDTO getReference(@RequestBody ApiScenarioRequest request) {
         return apiDefinitionService.getReference(request);
@@ -237,13 +248,20 @@ public class ApiDefinitionController {
     public void testPlanRelevance(@RequestBody ApiCaseRelevanceRequest request) {
         apiDefinitionService.testPlanRelevance(request);
     }
+
     @PostMapping("/relevance/review")
-    public void testCaseReviewRelevance(@RequestBody ApiCaseRelevanceRequest request){
+    public void testCaseReviewRelevance(@RequestBody ApiCaseRelevanceRequest request) {
         apiDefinitionService.testCaseReviewRelevance(request);
     }
 
     @PostMapping("/preview")
     public String preview(@RequestBody String jsonSchema) {
         return JSONSchemaGenerator.getJson(jsonSchema);
+    }
+
+    @GetMapping("/export/esbExcelTemplate")
+    @RequiresRoles(value = {RoleConstants.ADMIN, RoleConstants.ORG_ADMIN, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
+    public void testCaseTemplateExport(HttpServletResponse response) {
+        esbImportService.templateExport(response);
     }
 }

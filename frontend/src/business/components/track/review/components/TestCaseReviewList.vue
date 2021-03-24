@@ -62,7 +62,7 @@
                          :label="$t('api_test.automation.tag')" :key="index">
           <template v-slot:default="scope">
             <ms-tag v-for="(itemName,index)  in scope.row.tags" :key="index" type="success" effect="plain"
-                    :content="itemName" style="margin-left: 5px"></ms-tag>
+                    :content="itemName" style="margin-left: 0px; margin-right: 2px"></ms-tag>
           </template>
         </el-table-column>
         <el-table-column
@@ -120,7 +120,6 @@ import MsCreateBox from "../../../settings/CreateBox";
 import MsTablePagination from "../../../common/pagination/TablePagination";
 import {
   checkoutTestManagerOrTestUser,
-  getCurrentProjectID, getCurrentUser,
   getCurrentWorkspaceId
 } from "../../../../../common/js/utils";
 import {_filter, _sort, getLabel} from "@/common/js/tableUtils";
@@ -176,6 +175,11 @@ export default {
     this.isTestManagerOrTestUser = checkoutTestManagerOrTestUser();
     this.initTableData();
   },
+  computed: {
+    projectId() {
+      return this.$store.state.projectId
+    },
+  },
   methods: {
     customHeader() {
       this.$refs.headerCustom.open(this.tableLabel)
@@ -185,10 +189,10 @@ export default {
       getLabel(this, TEST_CASE_REVIEW_LIST);
       let lastWorkspaceId = getCurrentWorkspaceId();
       this.condition.workspaceId = lastWorkspaceId;
-      if (!getCurrentProjectID()) {
+      if (!this.projectId) {
         return;
       }
-      this.condition.projectId = getCurrentProjectID();
+      this.condition.projectId = this.projectId;
       this.result = this.$post("/test/case/review/list/" + this.currentPage + "/" + this.pageSize, this.condition, response => {
         let data = response.data;
         this.total = data.itemCount;
@@ -219,7 +223,7 @@ export default {
       this.$router.push('/track/review/view/' + row.id);
     },
     testCaseReviewCreate() {
-      if (!getCurrentProjectID()) {
+      if (!this.projectId) {
         this.$warning(this.$t('commons.check_project_tip'));
         return;
       }

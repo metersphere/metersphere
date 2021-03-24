@@ -13,7 +13,6 @@
 import TestPlanReportList from './components/TestPlanReportList';
 import MsContainer from "../../common/components/MsContainer";
 import MsMainContainer from "../../common/components/MsMainContainer";
-import {getCurrentProjectID} from "../../../../common/js/utils";
 
 export default {
   name: "TestPlanReport",

@@ -1,152 +1,152 @@
 <template>
   <div>
-  <ms-container v-if="renderComponent">
-    <ms-aside-container>
-      <ms-api-module
-        @nodeSelectEvent="nodeChange"
-        @protocolChange="handleProtocolChange"
-        @refreshTable="refresh"
-        @exportAPI="exportAPI"
-        @debug="debug"
-        @saveAsEdit="editApi"
-        @setModuleOptions="setModuleOptions"
-        @setNodeTree="setNodeTree"
-        @enableTrash="enableTrash"
-        :type="'edit'"
-        ref="nodeTree"/>
-    </ms-aside-container>
+    <ms-container v-if="renderComponent">
+      <ms-aside-container>
+        <ms-api-module
+          @nodeSelectEvent="nodeChange"
+          @protocolChange="handleProtocolChange"
+          @refreshTable="refresh"
+          @exportAPI="exportAPI"
+          @debug="debug"
+          @saveAsEdit="editApi"
+          @setModuleOptions="setModuleOptions"
+          @setNodeTree="setNodeTree"
+          @enableTrash="enableTrash"
+          :type="'edit'"
+          ref="nodeTree"/>
+      </ms-aside-container>
 
-    <ms-main-container>
-      <!-- 主框架列表 -->
-      <el-tabs v-model="apiDefaultTab" @edit="handleTabRemove" @tab-click="addTab">
-        <el-tab-pane v-for="(item) in apiTabs"
-                     :key="item.name"
-                     :label="item.title"
-                     :closable="item.closable"
-                     :name="item.name">
-          <ms-tab-button
-            v-if="item.type === 'list'"
-            :active-dom.sync="activeDom"
-            :left-tip="$t('api_test.definition.api_title')"
-            :right-tip="$t('api_test.definition.doc_title')"
-            :middle-tip="$t('api_test.definition.case_title')"
-            left-content="API"
-            middle-content="CASE"
-            :right-content="$t('api_test.definition.doc_title')">
-            <!-- 列表集合 -->
-            <ms-api-list
-              v-if="activeDom==='left'"
-              @runTest="runTest"
-              :module-tree="nodeTree"
-              :module-options="moduleOptions"
-              :current-protocol="currentProtocol"
-              :visible="visible"
-              :currentRow="currentRow"
-              :select-node-ids="selectNodeIds"
-              :trash-enable="trashEnable"
-              :queryDataType="queryDataType"
-              :selectDataRange="selectDataRange"
-              :is-read-only="isReadOnly"
-              @changeSelectDataRangeAll="changeSelectDataRangeAll"
-              @editApi="editApi"
-              @handleCase="handleCase"
-              @showExecResult="showExecResult"
-              ref="apiList"/>
-            <!--测试用例列表-->
-            <api-case-simple-list
-              v-if="activeDom==='middle'"
-              :current-protocol="currentProtocol"
-              :visible="visible"
-              :currentRow="currentRow"
-              :select-node-ids="selectNodeIds"
-              :trash-enable="trashEnable"
-              :queryDataType="queryDataType"
-              :is-read-only="isReadOnly"
-              @changeSelectDataRangeAll="changeSelectDataRangeAll"
-              @handleCase="handleCase"
-              @showExecResult="showExecResult"
-              ref="apiList"/>
-            <api-documents-page class="api-doc-page"
-              v-if="activeDom==='right'"
-              :project-id="projectId"
-              :module-ids="selectNodeIds"/>
-          </ms-tab-button>
-          <!-- 添加/编辑测试窗口-->
-          <div v-if="item.type=== 'ADD'" class="ms-api-div">
-            <ms-api-config :syncTabs="syncTabs" @runTest="runTest" @saveApi="saveApi" @createRootModel="createRootModel" ref="apiConfig"
-                           :current-api="item.api"
-                           :project-id="projectId"
-                           :currentProtocol="currentProtocol"
-                           :moduleOptions="moduleOptions"/>
-          </div>
-          <!-- 快捷调试 -->
-          <div v-else-if="item.type=== 'debug'" class="ms-api-div">
-            <ms-debug-http-page :currentProtocol="currentProtocol" :testCase="item.api" @saveAs="editApi"
-                                v-if="currentProtocol==='HTTP'"/>
-            <ms-debug-jdbc-page :currentProtocol="currentProtocol" :testCase="item.api" @saveAs="editApi"
-                                v-if="currentProtocol==='SQL'"/>
-            <ms-debug-tcp-page :currentProtocol="currentProtocol" :testCase="item.api" @saveAs="editApi"
-                               v-if="currentProtocol==='TCP'"/>
-            <ms-debug-dubbo-page :currentProtocol="currentProtocol" :testCase="item.api" @saveAs="editApi"
-                                 v-if="currentProtocol==='DUBBO'"/>
-          </div>
+      <ms-main-container>
+        <!-- 主框架列表 -->
+        <el-tabs v-model="apiDefaultTab" @edit="handleTabRemove" @tab-click="addTab">
+          <el-tab-pane v-for="(item) in apiTabs"
+                       :key="item.name"
+                       :label="item.title"
+                       :closable="item.closable"
+                       :name="item.name">
+            <ms-tab-button
+              v-if="item.type === 'list'"
+              :active-dom.sync="activeDom"
+              :left-tip="$t('api_test.definition.api_title')"
+              :right-tip="$t('api_test.definition.doc_title')"
+              :middle-tip="$t('api_test.definition.case_title')"
+              left-content="API"
+              middle-content="CASE"
+              :right-content="$t('api_test.definition.doc_title')">
+              <!-- 列表集合 -->
+              <ms-api-list
+                v-if="activeDom==='left'"
+                @runTest="runTest"
+                :module-tree="nodeTree"
+                :module-options="moduleOptions"
+                :current-protocol="currentProtocol"
+                :visible="visible"
+                :currentRow="currentRow"
+                :select-node-ids="selectNodeIds"
+                :trash-enable="trashEnable"
+                :queryDataType="queryDataType"
+                :selectDataRange="selectDataRange"
+                :is-read-only="isReadOnly"
+                @changeSelectDataRangeAll="changeSelectDataRangeAll"
+                @editApi="editApi"
+                @handleCase="handleCase"
+                @showExecResult="showExecResult"
+                ref="apiList"/>
+              <!--测试用例列表-->
+              <api-case-simple-list
+                v-if="activeDom==='middle'"
+                :current-protocol="currentProtocol"
+                :visible="visible"
+                :currentRow="currentRow"
+                :select-node-ids="selectNodeIds"
+                :trash-enable="trashEnable"
+                :queryDataType="queryDataType"
+                :is-read-only="isReadOnly"
+                @changeSelectDataRangeAll="changeSelectDataRangeAll"
+                @handleCase="handleCase"
+                @showExecResult="showExecResult"
+                ref="apiList"/>
+              <api-documents-page class="api-doc-page"
+                                  v-if="activeDom==='right'"
+                                  :project-id="projectId"
+                                  :module-ids="selectNodeIds"/>
+            </ms-tab-button>
+            <!-- 添加/编辑测试窗口-->
+            <div v-if="item.type=== 'ADD'" class="ms-api-div">
+              <ms-api-config :syncTabs="syncTabs" @runTest="runTest" @saveApi="saveApi" @createRootModel="createRootModel" ref="apiConfig"
+                             :current-api="item.api"
+                             :project-id="projectId"
+                             :currentProtocol="currentProtocol"
+                             :moduleOptions="moduleOptions"/>
+            </div>
+            <!-- 快捷调试 -->
+            <div v-else-if="item.type=== 'debug'" class="ms-api-div">
+              <ms-debug-http-page :currentProtocol="currentProtocol" :testCase="item.api" @saveAs="editApi"
+                                  v-if="currentProtocol==='HTTP'"/>
+              <ms-debug-jdbc-page :currentProtocol="currentProtocol" :testCase="item.api" @saveAs="editApi"
+                                  v-if="currentProtocol==='SQL'"/>
+              <ms-debug-tcp-page :currentProtocol="currentProtocol" :testCase="item.api" @saveAs="editApi"
+                                 v-if="currentProtocol==='TCP'"/>
+              <ms-debug-dubbo-page :currentProtocol="currentProtocol" :testCase="item.api" @saveAs="editApi"
+                                   v-if="currentProtocol==='DUBBO'"/>
+            </div>
 
-          <!-- 测试-->
-          <div v-else-if="item.type=== 'TEST'" class="ms-api-div">
-            <ms-run-test-http-page :syncTabs="syncTabs" :currentProtocol="currentProtocol" :api-data="item.api" :project-id="projectId"
-                                   @saveAsApi="editApi" @refresh="refresh" v-if="currentProtocol==='HTTP'"/>
-            <ms-run-test-tcp-page :syncTabs="syncTabs" :currentProtocol="currentProtocol" :api-data="item.api" :project-id="projectId"
-                                  @saveAsApi="editApi" @refresh="refresh" v-if="currentProtocol==='TCP'"/>
-            <ms-run-test-sql-page :syncTabs="syncTabs" :currentProtocol="currentProtocol" :api-data="item.api" :project-id="projectId"
-                                  @saveAsApi="editApi" @refresh="refresh" v-if="currentProtocol==='SQL'"/>
-            <ms-run-test-dubbo-page :syncTabs="syncTabs" :currentProtocol="currentProtocol" :api-data="item.api" :project-id="projectId"
-                                    @saveAsApi="editApi" @refresh="refresh" v-if="currentProtocol==='DUBBO'"/>
-          </div>
-        </el-tab-pane>
+            <!-- 测试-->
+            <div v-else-if="item.type=== 'TEST'" class="ms-api-div">
+              <ms-run-test-http-page :syncTabs="syncTabs" :currentProtocol="currentProtocol" :api-data="item.api" :project-id="projectId"
+                                     @saveAsApi="editApi" @refresh="refresh" v-if="currentProtocol==='HTTP'"/>
+              <ms-run-test-tcp-page :syncTabs="syncTabs" :currentProtocol="currentProtocol" :api-data="item.api" :project-id="projectId"
+                                    @saveAsApi="editApi" @refresh="refresh" v-if="currentProtocol==='TCP'"/>
+              <ms-run-test-sql-page :syncTabs="syncTabs" :currentProtocol="currentProtocol" :api-data="item.api" :project-id="projectId"
+                                    @saveAsApi="editApi" @refresh="refresh" v-if="currentProtocol==='SQL'"/>
+              <ms-run-test-dubbo-page :syncTabs="syncTabs" :currentProtocol="currentProtocol" :api-data="item.api" :project-id="projectId"
+                                      @saveAsApi="editApi" @refresh="refresh" v-if="currentProtocol==='DUBBO'"/>
+            </div>
+          </el-tab-pane>
 
-        <el-tab-pane name="add">
-          <template v-slot:label>
-            <el-dropdown @command="handleCommand" v-tester>
-              <el-button type="primary" plain icon="el-icon-plus" size="mini" v-tester/>
-              <el-dropdown-menu slot="dropdown">
-                <el-dropdown-item command="debug">{{ $t('api_test.definition.request.fast_debug') }}</el-dropdown-item>
-                <el-dropdown-item command="ADD">{{ $t('api_test.definition.request.title') }}</el-dropdown-item>
-                <el-dropdown-item command="CLOSE_ALL">{{ $t('api_test.definition.request.close_all_label') }}
-                </el-dropdown-item>
-              </el-dropdown-menu>
-            </el-dropdown>
-          </template>
-        </el-tab-pane>
-      </el-tabs>
+          <el-tab-pane name="add">
+            <template v-slot:label>
+              <el-dropdown @command="handleCommand" v-tester>
+                <el-button type="primary" plain icon="el-icon-plus" size="mini" v-tester/>
+                <el-dropdown-menu slot="dropdown">
+                  <el-dropdown-item command="debug">{{ $t('api_test.definition.request.fast_debug') }}</el-dropdown-item>
+                  <el-dropdown-item command="ADD">{{ $t('api_test.definition.request.title') }}</el-dropdown-item>
+                  <el-dropdown-item command="CLOSE_ALL">{{ $t('api_test.definition.request.close_all_label') }}
+                  </el-dropdown-item>
+                </el-dropdown-menu>
+              </el-dropdown>
+            </template>
+          </el-tab-pane>
+        </el-tabs>
 
 
-    </ms-main-container>
-  </ms-container>
+      </ms-main-container>
+    </ms-container>
 
   </div>
 </template>
 <script>
-import MsApiList from './components/list/ApiList';
-import MsContainer from "../../common/components/MsContainer";
-import MsMainContainer from "../../common/components/MsMainContainer";
-import MsAsideContainer from "../../common/components/MsAsideContainer";
-import MsApiConfig from "./components/ApiConfig";
-import MsDebugHttpPage from "./components/debug/DebugHttpPage";
-import MsDebugJdbcPage from "./components/debug/DebugJdbcPage";
-import MsDebugTcpPage from "./components/debug/DebugTcpPage";
-import MsDebugDubboPage from "./components/debug/DebugDubboPage";
+  import MsApiList from './components/list/ApiList';
+  import MsContainer from "../../common/components/MsContainer";
+  import MsMainContainer from "../../common/components/MsMainContainer";
+  import MsAsideContainer from "../../common/components/MsAsideContainer";
+  import MsApiConfig from "./components/ApiConfig";
+  import MsDebugHttpPage from "./components/debug/DebugHttpPage";
+  import MsDebugJdbcPage from "./components/debug/DebugJdbcPage";
+  import MsDebugTcpPage from "./components/debug/DebugTcpPage";
+  import MsDebugDubboPage from "./components/debug/DebugDubboPage";
 
-import MsRunTestHttpPage from "./components/runtest/RunTestHTTPPage";
-import MsRunTestTcpPage from "./components/runtest/RunTestTCPPage";
-import MsRunTestSqlPage from "./components/runtest/RunTestSQLPage";
-import MsRunTestDubboPage from "./components/runtest/RunTestDubboPage";
-import {checkoutTestManagerOrTestUser, getCurrentProjectID, getCurrentUser, getUUID} from "@/common/js/utils";
-import MsApiModule from "./components/module/ApiModule";
-import ApiCaseSimpleList from "./components/list/ApiCaseSimpleList";
+  import MsRunTestHttpPage from "./components/runtest/RunTestHTTPPage";
+  import MsRunTestTcpPage from "./components/runtest/RunTestTCPPage";
+  import MsRunTestSqlPage from "./components/runtest/RunTestSQLPage";
+  import MsRunTestDubboPage from "./components/runtest/RunTestDubboPage";
+  import {checkoutTestManagerOrTestUser, getCurrentUser, getUUID} from "@/common/js/utils";
+  import MsApiModule from "./components/module/ApiModule";
+  import ApiCaseSimpleList from "./components/list/ApiCaseSimpleList";
 
   import ApiDocumentsPage from "@/business/components/api/definition/components/list/ApiDocumentsPage";
-import MsTableButton from "@/business/components/common/components/MsTableButton";
-import MsTabButton from "@/business/components/common/components/MsTabButton";
+  import MsTableButton from "@/business/components/common/components/MsTableButton";
+  import MsTabButton from "@/business/components/common/components/MsTabButton";
 
   export default {
     name: "ApiDefinition",
@@ -157,9 +157,12 @@ import MsTabButton from "@/business/components/common/components/MsTabButton";
         this.changeRedirectParam(redirectIDParam);
         return routeParam;
       },
-      isReadOnly(){
+      isReadOnly() {
         return !checkoutTestManagerOrTestUser();
-      }
+      },
+      projectId() {
+        return this.$store.state.projectId
+      },
     },
     components: {
       MsTabButton,
@@ -211,16 +214,15 @@ import MsTabButton from "@/business/components/common/components/MsTabButton";
         }],
         activeDom: "left",
         syncTabs: [],
-        projectId: "",
         nodeTree: []
       }
-    },
-    mounted() {
-      this.projectId = getCurrentProjectID();
     },
     watch: {
       currentProtocol() {
         this.handleCommand("CLOSE_ALL");
+      },
+      selectNodeIds() {
+        this.apiDefaultTab = "default";
       },
       redirectID() {
         this.renderComponent = false;

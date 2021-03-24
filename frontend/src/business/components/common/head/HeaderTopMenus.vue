@@ -30,6 +30,7 @@
 
 <script>
   import {LicenseKey} from '@/common/js/constants';
+  import {mapGetters} from "vuex";
 
   const requireContext = require.context('@/business/components/xpack/', true, /router\.js$/)
   const report = requireContext.keys().map(key => requireContext(key).report);
@@ -62,15 +63,21 @@
         this.isReport = false;
       }
     },
+    computed: {
+      ...mapGetters([
+        'isNewVersion',
+        'isOldVersion',
+      ])
+    },
     methods: {
       handleSelect(index) {
         this.activeIndex = index
       },
       active() {
         if (this.activeIndex === '/api') {
-          if (this.$store.state.switch.value == 'new') {
+          if (this.isNewVersion) {
             window.location.href = "/#/api/home";
-          } else if (this.$store.state.switch.value == 'old') {
+          } else if (this.isOldVersion) {
             window.location.href = "/#/api/home_obsolete";
           }
         }

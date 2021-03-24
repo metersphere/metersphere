@@ -130,8 +130,8 @@
   import ApiResponseComponent from "../../../automation/scenario/component/ApiResponseComponent";
   import ShowMoreBtn from "../../../../track/case/components/ShowMoreBtn";
   const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
-  const esbDefinition = (requireComponent!=null&&requireComponent.keys().length) > 0 ? requireComponent("./apiDefinition/EsbDefinition.vue") : {};
-  const esbDefinitionResponse = (requireComponent!=null&&requireComponent.keys().length) > 0 ? requireComponent("./apiDefinition/EsbDefinitionResponse.vue") : {};
+  const esbDefinition = (requireComponent!=null&&requireComponent.keys().length) > 0 ? requireComponent("./apidefinition/EsbDefinition.vue") : {};
+  const esbDefinitionResponse = (requireComponent!=null&&requireComponent.keys().length) > 0 ? requireComponent("./apidefinition/EsbDefinitionResponse.vue") : {};
 
   export default {
     name: "ApiCaseItem",
@@ -230,7 +230,8 @@
         }
         data.message = true;
         data.request.useEnvironment = this.environment;
-        this.saveTestCase(data);
+        //this.saveTestCase(data);
+
         this.$emit('singleRun', data);
       },
       copyCase(data) {

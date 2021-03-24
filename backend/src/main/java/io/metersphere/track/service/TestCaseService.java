@@ -210,13 +210,19 @@ public class TestCaseService {
      */
     private void initRequest(QueryTestCaseRequest request, boolean checkThisWeekData) {
         if (checkThisWeekData) {
+            Map<String, Date> weekFirstTimeAndLastTime = DateUtils.getWeedFirstTimeAndLastTime(new Date());
+            Date weekFirstTime = weekFirstTimeAndLastTime.get("firstTime");
             if (request.isSelectThisWeedData()) {
-                Map<String, Date> weekFirstTimeAndLastTime = DateUtils.getWeedFirstTimeAndLastTime(new Date());
-                Date weekFirstTime = weekFirstTimeAndLastTime.get("firstTime");
                 if (weekFirstTime != null) {
                     request.setCreateTime(weekFirstTime.getTime());
                 }
             }
+            if (request.isSelectThisWeedRelevanceData()) {
+                if (weekFirstTime != null) {
+                    request.setRelevanceCreateTime(weekFirstTime.getTime());
+                }
+            }
+
         }
     }
 

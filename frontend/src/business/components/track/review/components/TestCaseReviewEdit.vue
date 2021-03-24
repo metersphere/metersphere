@@ -101,7 +101,7 @@
 
 import TestPlanStatusButton from "../../plan/common/TestPlanStatusButton";
 import {WORKSPACE_ID} from "@/common/js/constants";
-import {getCurrentProjectID, listenGoBack, removeGoBackListener} from "@/common/js/utils";
+import {listenGoBack, removeGoBackListener} from "@/common/js/utils";
 import MsInputTag from "@/business/components/api/automation/scenario/MsInputTag";
 
 export default {
