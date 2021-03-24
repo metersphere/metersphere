@@ -52,7 +52,6 @@ export default {
           this.defaultCheckedKeys.push(i.id)
         }
       )
-      this.fieldSelected = items;
     },
     saveHeader() {
       let param = {

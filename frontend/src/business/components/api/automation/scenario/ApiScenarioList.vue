@@ -179,7 +179,7 @@
   import {PROJECT_NAME} from "../../../../../common/js/constants";
   import EnvironmentSelect from "../../definition/components/environment/EnvironmentSelect";
   import BatchMove from "../../../track/case/components/BatchMove";
-  import {_sort, getLabel} from "@/common/js/tableUtils";
+  import {_sort, getLabel, getSystemLabel} from "@/common/js/tableUtils";
   import {Api_Scenario_List} from "@/business/components/common/model/JsonData";
   import HeaderCustom from "@/business/components/common/head/HeaderCustom";
   import {
@@ -249,7 +249,7 @@
         result: {},
         type: API_SCENARIO_LIST,
         headerItems: Api_Scenario_List,
-        tableLabel: Api_Scenario_List,
+        tableLabel: [],
         screenHeight: document.documentElement.clientHeight - 280,//屏幕高度,
         condition: {
           components: API_SCENARIO_CONFIGS
@@ -343,6 +343,8 @@
       this.condition.filters = {status: ["Prepare", "Underway", "Completed"]};
       this.search();
       this.getPrincipalOptions([]);
+      getSystemLabel(this, this.type)
+
     },
     watch: {
       selectNodeIds() {

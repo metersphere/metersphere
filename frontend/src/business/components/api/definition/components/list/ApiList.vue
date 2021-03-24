@@ -235,7 +235,7 @@
   import {
     _handleSelect,
     _handleSelectAll, buildBatchParam, getLabel,
-    getSelectDataCounts, initCondition,
+    getSelectDataCounts, getSystemLabel, initCondition,
     setUnSelectIds, toggleAllSelection
   } from "@/common/js/tableUtils";
   import {_filter, _sort} from "@/common/js/tableUtils";
@@ -271,7 +271,7 @@
       return {
         type: API_LIST,
         headerItems: Api_List,
-        tableLabel: Api_List,
+        tableLabel: [],
         condition: {
           components: API_DEFINITION_CONFIGS
         },
@@ -381,6 +381,7 @@
         this.condition.filters = {status: ["Prepare", "Underway", "Completed"]};
       }
       this.initTable();
+      getSystemLabel(this, this.type)
       this.getMaintainerOptions();
     },
     watch: {

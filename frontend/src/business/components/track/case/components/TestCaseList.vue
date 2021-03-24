@@ -48,19 +48,6 @@
               show-overflow-tooltip
               :key="index"
           >
-<!--            <template v-slot:default="scope">
-              &lt;!&ndash;<div @mouseover="showDetail(scope.row)">
-                <p>{{ scope.row.name }}</p>
-              </div>&ndash;&gt;
-              <el-popover
-                  placement="right-end"
-                  :title="$t('test_track.case.view_case')"
-                  trigger="hover"
-              >
-                <test-case-detail v-if="currentCaseId === scope.row.id" :test-case-id="currentCaseId"/>
-                <span slot="reference">{{ scope.row.name }}</span>
-              </el-popover>
-            </template>-->
           </el-table-column>
           <el-table-column
               v-if="item.id == 'priority'"
@@ -75,32 +62,6 @@
               <priority-table-item :value="scope.row.priority"/>
             </template>
           </el-table-column>
-<!--          <el-table-column
-              v-if="item.id == 'type'"
-              prop="type"
-              :filters="typeFilters"
-              column-key="type"
-              :label="$t('test_track.case.type')"
-              show-overflow-tooltip
-              :key="index">
-            <template v-slot:default="scope">
-              <type-table-item :value="scope.row.type"/>
-            </template>
-          </el-table-column>-->
-<!--          <el-table-column
-              v-if="item.id=='method'"
-              prop="method"
-              column-key="method"
-              :filters="methodFilters"
-              min-width="100px"
-              :label="$t('test_track.case.method')"
-              show-overflow-tooltip
-              :key="index">
-            <template v-slot:default="scope">
-              <method-table-item :value="scope.row.method"/>
-            </template>
-          </el-table-column>-->
-
           <el-table-column
             v-if="item.id=='reviewStatus'"
             :filters="reviewStatusFilters"
@@ -114,20 +75,6 @@
             </span>
             </template>
           </el-table-column>
-          <el-table-column
-            v-if="item.id=='status'"
-            :filters="statusFilters"
-            column-key="status"
-            min-width="100px"
-            :label="$t('commons.status')"
-            :key="index">
-            <template v-slot:default="scope">
-            <span class="el-dropdown-link">
-              <plan-status-table-item :value="scope.row.status"></plan-status-table-item>
-            </span>
-            </template>
-          </el-table-column>
-
           <el-table-column v-if="item.id=='tags'" prop="tags" :label="$t('commons.tag')" :key="index">
             <template v-slot:default="scope">
               <ms-tag v-for="(itemName,index)  in scope.row.tags" :key="index" type="success" effect="plain"
@@ -215,7 +162,7 @@ import {
   _handleSelect,
   _handleSelectAll,
   _sort, buildBatchParam, getLabel,
-  getSelectDataCounts, initCondition,
+  getSelectDataCounts, getSystemLabel, initCondition,
   setUnSelectIds,
   toggleAllSelection
 } from "@/common/js/tableUtils";
@@ -257,7 +204,7 @@ export default {
     return {
       type: TEST_CASE_LIST,
       headerItems: Track_Test_Case,
-      tableLabel: Track_Test_Case,
+      tableLabel: [],
       result: {},
       deletePath: "/test/case/delete",
       condition: {
@@ -363,6 +310,7 @@ export default {
       this.condition.filters = {status: ["Prepare", "Pass", "UnPass"]};
     }
     this.initTableData();
+    getSystemLabel(this, this.type)
   },
   activated() {
     if (this.trashEnable) {
