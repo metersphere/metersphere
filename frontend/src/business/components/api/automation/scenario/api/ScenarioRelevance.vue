@@ -16,6 +16,7 @@
 
     <ms-api-scenario-list
       :select-node-ids="selectNodeIds"
+      :select-project-id="projectId"
       :referenced="true"
       :trash-enable="false"
       @selection="setData"
@@ -131,6 +132,7 @@
       },
       setProject(projectId) {
         this.projectId = projectId;
+        this.selectNodeIds = [];
       },
     }
   }

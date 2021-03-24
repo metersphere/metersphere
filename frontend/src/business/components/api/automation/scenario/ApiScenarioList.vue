@@ -218,6 +218,10 @@
         default: false,
       },
       selectNodeIds: Array,
+      selectProjectId: {
+        type: String,
+        default: ""
+      },
       trashEnable: {
         type: Boolean,
         default: false,
@@ -342,7 +346,7 @@
     },
     watch: {
       selectNodeIds() {
-        this.search();
+        this.selectProjectId ? this.search(this.selectProjectId) : this.search();
       },
       trashEnable() {
         if (this.trashEnable) {
