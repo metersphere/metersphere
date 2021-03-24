@@ -278,6 +278,7 @@
         let url = '/api/module/getModuleByName/' + getCurrentProjectID() + "/" + this.api.protocol;
         this.$get(url, response => {
           if (response.data) {
+            this.$emit('refreshModule');
             this.saveApi(row, response.data);
           }
         });
