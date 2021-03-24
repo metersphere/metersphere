@@ -64,6 +64,7 @@ export default {
   },
   methods: {
     init: function () {
+      this.$store.commit('setProjectId', undefined);
       if (hasRoles(ROLE_TEST_VIEWER, ROLE_TEST_USER, ROLE_TEST_MANAGER)) {
         this.result = this.$get("/project/listAll", response => {
           this.items = response.data;
