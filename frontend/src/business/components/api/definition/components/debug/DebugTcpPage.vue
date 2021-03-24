@@ -42,37 +42,37 @@
       <el-button style="float: right;margin: 20px" type="primary" @click="handleCommand('save_as_api')"> {{$t('commons.save')}}</el-button>
     </div>
     <!-- 加载用例 -->
-    <ms-api-case-list :loaded="false" ref="caseList"/>
+    <ms-api-case-list @refreshModule="refreshModule" :loaded="false" ref="caseList"/>
 
   </div>
 
 </template>
 
 <script>
-import MsApiRequestForm from "../request/http/ApiHttpRequestForm";
-import MsResponseResult from "../response/ResponseResult";
-import MsRequestMetric from "../response/RequestMetric";
-import {getUUID} from "@/common/js/utils";
-import MsResponseText from "../response/ResponseText";
-import MsRun from "../Run";
-import {createComponent} from "../jmeter/components";
-import {REQ_METHOD} from "../../model/JsonData";
-import MsRequestResultTail from "../response/RequestResultTail";
-import TcpBasisParameters from "../request/tcp/TcpBasisParameters";
-import MsJmxStep from "../step/JmxStep";
-import MsApiCaseList from "../case/ApiCaseList";
+  import MsApiRequestForm from "../request/http/ApiHttpRequestForm";
+  import MsResponseResult from "../response/ResponseResult";
+  import MsRequestMetric from "../response/RequestMetric";
+  import {getUUID} from "@/common/js/utils";
+  import MsResponseText from "../response/ResponseText";
+  import MsRun from "../Run";
+  import {createComponent} from "../jmeter/components";
+  import {REQ_METHOD} from "../../model/JsonData";
+  import MsRequestResultTail from "../response/RequestResultTail";
+  import TcpBasisParameters from "../request/tcp/TcpBasisParameters";
+  import MsJmxStep from "../step/JmxStep";
+  import MsApiCaseList from "../case/ApiCaseList";
 
-export default {
-  name: "ApiConfig",
-  components: {
-    MsJmxStep,
-    TcpBasisParameters,
-    MsRequestResultTail, MsResponseResult, MsApiRequestForm, MsRequestMetric, MsResponseText, MsRun, MsApiCaseList
-  },
-  props: {
-    currentProtocol: String,
-    scenario: Boolean,
-    testCase: {},
+  export default {
+    name: "ApiConfig",
+    components: {
+      MsJmxStep,
+      TcpBasisParameters,
+      MsRequestResultTail, MsResponseResult, MsApiRequestForm, MsRequestMetric, MsResponseText, MsRun, MsApiCaseList
+    },
+    props: {
+      currentProtocol: String,
+      scenario: Boolean,
+      testCase: {},
     },
     data() {
       return {
@@ -130,7 +130,9 @@ export default {
           this.$refs['requestForm'].validate();
         }
       },
-
+      refreshModule() {
+        this.$emit('refreshModule');
+      },
       runDebug() {
         this.loading = true;
         this.request.name = getUUID().substring(0, 8);

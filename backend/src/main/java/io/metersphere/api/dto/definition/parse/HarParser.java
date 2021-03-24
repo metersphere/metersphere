@@ -173,7 +173,7 @@ public class HarParser extends HarAbstractParser {
             return;
         }
         HarPostData content = requestBody.postData;
-        if (!StringUtils.equalsIgnoreCase("GET", requestBody.method) || requestBody.postData == null) {
+        if (StringUtils.equalsIgnoreCase("GET", requestBody.method) || requestBody.postData == null) {
             return;
         }
         String contentType = content.mimeType;

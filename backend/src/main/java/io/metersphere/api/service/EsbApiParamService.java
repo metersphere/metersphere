@@ -107,6 +107,9 @@ public class EsbApiParamService {
     }
 
     public void handleApiEsbParams(ApiDefinitionResult res) {
+        if(res == null){
+            return;
+        }
         EsbApiParamsWithBLOBs esbParamBlobs = this.getEsbParamBLOBsByResourceID(res.getId());
         if (esbParamBlobs == null) {
             return;
@@ -141,6 +144,9 @@ public class EsbApiParamService {
     }
 
     public void handleApiEsbParams(ApiTestCaseWithBLOBs res) {
+        if(res==null){
+            return;
+        }
         EsbApiParamsWithBLOBs esbParamBlobs = this.getEsbParamBLOBsByResourceID(res.getId());
         if (esbParamBlobs == null) {
             return;
@@ -184,6 +190,9 @@ public class EsbApiParamService {
     }
 
     public void handleApiEsbParams(ApiTestCaseResult res) {
+        if(res == null){
+            return;
+        }
         EsbApiParamsWithBLOBs esbParamBlobs = this.getEsbParamBLOBsByResourceID(res.getId());
         if (esbParamBlobs == null) {
             return;
@@ -195,20 +204,6 @@ public class EsbApiParamService {
             }
 
         }
-//        try {
-//            if (StringUtils.isNotEmpty(res.getRequest())) {
-//                JSONObject jsonObj = JSONObject.parseObject(res.getRequest());
-//                JSONArray esbDataArray = JSONArray.parseArray(esbParamBlobs.getDataStruct());
-//                jsonObj.put("esbDataStruct", esbDataArray);
-//                jsonObj.put("esbFrontedScript", esbParamBlobs.getFrontedScript());
-//
-//                JSONArray responseDataArray = JSONArray.parseArray(esbParamBlobs.getResponseDataStruct());
-//                jsonObj.put("backEsbDataStruct", responseDataArray);
-//
-//                res.setRequest(jsonObj.toJSONString());
-//            }
-//        } catch (Exception e) {
-//        }
     }
 
     public SaveApiDefinitionRequest updateEsbRequest(SaveApiDefinitionRequest request) {

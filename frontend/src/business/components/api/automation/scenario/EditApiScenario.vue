@@ -585,7 +585,7 @@
             arr[i].projectId = scenarioProjectId ? scenarioProjectId : this.projectId;
           }
           if (arr[i].hashTree != undefined && arr[i].hashTree.length > 0) {
-            this.recursiveSorting(arr[i].hashTree);
+            this.recursiveSorting(arr[i].hashTree, arr[i].projectId);
           }
           // 添加debug结果
           if (this.debugResult && this.debugResult.get(arr[i].id)) {

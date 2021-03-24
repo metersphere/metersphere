@@ -792,7 +792,7 @@ public class ApiDefinitionService {
                     res.setCaseStatus("-");
                 }
 
-                if (StringUtils.equals("ESB", res.getMethod())) {
+                if (StringUtils.equalsIgnoreCase("esb", res.getMethod())) {
                     esbApiParamService.handleApiEsbParams(res);
                 }
             }

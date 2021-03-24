@@ -1,7 +1,7 @@
 <template>
   <div>
 <!--      <api-document-item :project-id="projectId" :module-ids="moduleIds"/>-->
-    <api-document-anchor :is-share-page="isSharePage" :project-id="projectId" :module-ids="moduleIds"></api-document-anchor>
+    <api-document-anchor :is-share-page="isSharePage" :trash-enable="trashEnable" :project-id="projectId" :module-ids="moduleIds"></api-document-anchor>
   </div>
 </template>
 
@@ -23,6 +23,10 @@ export default {
     projectId:String,
     moduleIds:Array,
     activeDom:String,
+    trashEnable: {
+      type: Boolean,
+      default: false,
+    },
   },
   created: function () {
   },

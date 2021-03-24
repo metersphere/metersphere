@@ -90,26 +90,26 @@
                     </el-col>
                   </el-row>
 
-                  <el-row v-if="testCase.method === 'auto' && testCase.testId && testCase.testId != 'other'">
-                    <el-col class="test-detail" :span="20" :offset="1">
-                      <el-tabs v-model="activeTab" type="border-card" @tab-click="testTabChange">
-                        <el-tab-pane name="detail" :label="$t('test_track.plan_view.test_detail')">
-                          <api-test-detail :is-read-only="isReadOnly" v-if="testCase.type === 'api'" @runTest="testRun"
-                                           :id="testCase.testId" ref="apiTestDetail"/>
-                          <performance-test-detail :is-read-only="isReadOnly" v-if="testCase.type === 'performance'"
-                                                   @runTest="testRun" :id="testCase.testId" ref="performanceTestDetail"/>
-                        </el-tab-pane>
-                        <el-tab-pane name="result" :label="$t('test_track.plan_view.test_result')">
-                          <api-test-result :report-id="testCase.reportId" v-if=" testCase.type === 'api'"
-                                           ref="apiTestResult"/>
-                          <performance-test-result :is-read-only="isReadOnly" :report-id="testCase.reportId"
-                                                   v-if="testCase.type === 'performance'" ref="performanceTestResult"/>
-                        </el-tab-pane>
-                      </el-tabs>
-                    </el-col>
-                  </el-row>
+<!--                  <el-row v-if="testCase.method === 'auto' && testCase.testId && testCase.testId != 'other'">-->
+<!--                    <el-col class="test-detail" :span="20" :offset="1">-->
+<!--                      <el-tabs v-model="activeTab" type="border-card" @tab-click="testTabChange">-->
+<!--                        <el-tab-pane name="detail" :label="$t('test_track.plan_view.test_detail')">-->
+<!--                          <api-test-detail :is-read-only="isReadOnly" v-if="testCase.type === 'api'" @runTest="testRun"-->
+<!--                                           :id="testCase.testId" ref="apiTestDetail"/>-->
+<!--                          <performance-test-detail :is-read-only="isReadOnly" v-if="testCase.type === 'performance'"-->
+<!--                                                   @runTest="testRun" :id="testCase.testId" ref="performanceTestDetail"/>-->
+<!--                        </el-tab-pane>-->
+<!--                        <el-tab-pane name="result" :label="$t('test_track.plan_view.test_result')">-->
+<!--                          <api-test-result :report-id="testCase.reportId" v-if=" testCase.type === 'api'"-->
+<!--                                           ref="apiTestResult"/>-->
+<!--                          <performance-test-result :is-read-only="isReadOnly" :report-id="testCase.reportId"-->
+<!--                                                   v-if="testCase.type === 'performance'" ref="performanceTestResult"/>-->
+<!--                        </el-tab-pane>-->
+<!--                      </el-tabs>-->
+<!--                    </el-col>-->
+<!--                  </el-row>-->
 
-                  <el-row v-if="testCase.method && testCase.method !== 'auto'">
+                  <el-row>
                     <el-col :span="22" :offset="1">
                       <div>
                         <span class="cast_label">{{ $t('test_track.case.steps') }}：</span>
@@ -491,7 +491,7 @@ export default {
         }
         this.testCase = item;
         this.getRelatedTest();
-        this.initTest();
+        // this.initTest();
         this.getIssues(item.caseId);
         this.stepResultChange();
         this.getFileMetaData(item);
@@ -519,19 +519,19 @@ export default {
       listenGoBack(this.handleClose);
       this.initData(testCase);
     },
-    initTest() {
-      this.$nextTick(() => {
-        if (this.testCase.testId && this.testCase.testId !== 'other') {
-          if (this.testCase.method === 'auto') {
-            if (this.$refs.apiTestDetail && this.testCase.type === 'api') {
-              this.$refs.apiTestDetail.init();
-            } else if (this.testCase.type === 'performance') {
-              this.$refs.performanceTestDetail.init();
-            }
-          }
-        }
-      });
-    },
+    // initTest() {
+    //   this.$nextTick(() => {
+    //     if (this.testCase.testId && this.testCase.testId !== 'other') {
+    //       if (this.testCase.method === 'auto') {
+    //         if (this.$refs.apiTestDetail && this.testCase.type === 'api') {
+    //           this.$refs.apiTestDetail.init();
+    //         } else if (this.testCase.type === 'performance') {
+    //           this.$refs.performanceTestDetail.init();
+    //         }
+    //       }
+    //     }
+    //   });
+    // },
     testRun(reportId) {
       this.testCase.reportId = reportId;
       this.saveReport(reportId);
@@ -641,7 +641,7 @@ export default {
       this.$post('/test/plan/edit/status/' + planId);
     },
     stepResultChange() {
-      if (this.testCase.method === 'manual') {
+      if (this.testCase.method === 'manual' || !this.testCase.method) {
         this.isFailure = this.testCase.steptResults.filter(s => {
           return s.executeResult === 'Failure' || s.executeResult === 'Blocking';
         }).length > 0;

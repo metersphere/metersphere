@@ -30,44 +30,44 @@
       <el-button style="float: right;margin: 20px" type="primary" @click="handleCommand('save_as_api')"> {{$t('commons.save')}}</el-button>
     </div>
     <!-- 加载用例 -->
-    <ms-api-case-list :loaded="false" ref="caseList"/>
+    <ms-api-case-list @refreshModule="refreshModule" :loaded="false" ref="caseList"/>
 
   </div>
 </template>
 
 <script>
-import MsResponseResult from "../response/ResponseResult";
-import MsRequestMetric from "../response/RequestMetric";
-import {getUUID} from "@/common/js/utils";
-import MsResponseText from "../response/ResponseText";
-import MsRun from "../Run";
-import {createComponent} from "../jmeter/components";
-import {REQ_METHOD} from "../../model/JsonData";
-import MsRequestResultTail from "../response/RequestResultTail";
-import MsBasisParameters from "../request/dubbo/BasisParameters";
-import MsJmxStep from "../step/JmxStep";
-import MsApiCaseList from "../case/ApiCaseList";
+  import MsResponseResult from "../response/ResponseResult";
+  import MsRequestMetric from "../response/RequestMetric";
+  import {getUUID} from "@/common/js/utils";
+  import MsResponseText from "../response/ResponseText";
+  import MsRun from "../Run";
+  import {createComponent} from "../jmeter/components";
+  import {REQ_METHOD} from "../../model/JsonData";
+  import MsRequestResultTail from "../response/RequestResultTail";
+  import MsBasisParameters from "../request/dubbo/BasisParameters";
+  import MsJmxStep from "../step/JmxStep";
+  import MsApiCaseList from "../case/ApiCaseList";
 
-export default {
-  name: "ApiConfig",
-  components: {
-    MsRequestResultTail,
-    MsResponseResult,
-    MsRequestMetric,
-    MsResponseText,
-    MsRun,
-    MsBasisParameters,
-    MsJmxStep,
-    MsApiCaseList
-  },
-  props: {
-    currentProtocol: String,
-    scenario: Boolean,
-    testCase: {},
-  },
-  data() {
-    return {
-      rules: {
+  export default {
+    name: "ApiConfig",
+    components: {
+      MsRequestResultTail,
+      MsResponseResult,
+      MsRequestMetric,
+      MsResponseText,
+      MsRun,
+      MsBasisParameters,
+      MsJmxStep,
+      MsApiCaseList
+    },
+    props: {
+      currentProtocol: String,
+      scenario: Boolean,
+      testCase: {},
+    },
+    data() {
+      return {
+        rules: {
           method: [{required: true, message: this.$t('test_track.case.input_maintainer'), trigger: 'change'}],
           url: [{required: true, message: this.$t('api_test.definition.request.path_all_info'), trigger: 'blur'}],
         },
@@ -122,7 +122,9 @@ export default {
           this.runDebug();
         }
       },
-
+      refreshModule() {
+        this.$emit('refreshModule');
+      },
       runDebug() {
         this.loading = true;
         this.request.name = getUUID().substring(0, 8);

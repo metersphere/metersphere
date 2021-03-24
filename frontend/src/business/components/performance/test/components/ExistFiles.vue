@@ -221,18 +221,9 @@ export default {
       f().then(res => {
         let response = res.data;
         if (response.data.length === 0) {
-          let type = file.name.substring(file.name.lastIndexOf(".") + 1);
-
-          this.tableData.push({
-            name: file.name,
-            size: (file.size / 1024).toFixed(2) + ' KB',
-            type: type.toUpperCase(),
-            updateTime: file.lastModified,
-          });
-
           callback();
         } else {
-          this.$error(this.$t('load_test.project_file_exist'));
+          this.$error(this.$t('load_test.project_file_exist') + ', name: ' + file.name);
         }
       });
     },
@@ -241,21 +232,21 @@ export default {
 
       let file = uploadResources.file;
       this.checkFileExist(file, () => {
-        self.uploadList.push(file);
-        let type = file.name.substring(file.name.lastIndexOf(".") + 1);
-        if (type.toLowerCase() !== 'jmx') {
-          return;
+        let formData = new FormData();
+        let url = '/project/upload/files/' + getCurrentProjectID()
+        formData.append("file", file);
+        let options = {
+          method: 'POST',
+          url: url,
+          data: formData,
+          headers: {
+            'Content-Type': undefined
+          }
         }
-        let jmxReader = new FileReader();
-        jmxReader.onload = (event) => {
-          let threadGroups = findThreadGroup(event.target.result, file.name);
-          threadGroups.forEach(tg => {
-            tg.options = {};
-            self.scenarios.push(tg);
-          });
-          self.$emit('fileChange', self.scenarios);
-        };
-        jmxReader.readAsText(file);
+        self.$request(options, (response) => {
+          self.$success(this.$t('commons.save_success'));
+          self.getProjectFiles();
+        });
       })
     },
     handleExceed() {
