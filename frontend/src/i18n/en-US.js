@@ -1242,6 +1242,7 @@ export default {
       input_plan_stage: "Please select stage",
       plan_status_prepare: "Not started",
       plan_status_running: "Starting",
+      plan_status_finished: "Finished",
       plan_status_completed: "Completed",
       plan_status_trash: "Trashed",
       planned_start_time: "Scheduled Start Time",
