@@ -491,7 +491,7 @@ export default {
         }
         this.testCase = item;
         this.getRelatedTest();
-        this.initTest();
+        // this.initTest();
         this.getIssues(item.caseId);
         this.stepResultChange();
         this.getFileMetaData(item);
@@ -519,19 +519,19 @@ export default {
       listenGoBack(this.handleClose);
       this.initData(testCase);
     },
-    initTest() {
-      this.$nextTick(() => {
-        if (this.testCase.testId && this.testCase.testId !== 'other') {
-          if (this.testCase.method === 'auto') {
-            if (this.$refs.apiTestDetail && this.testCase.type === 'api') {
-              this.$refs.apiTestDetail.init();
-            } else if (this.testCase.type === 'performance') {
-              this.$refs.performanceTestDetail.init();
-            }
-          }
-        }
-      });
-    },
+    // initTest() {
+    //   this.$nextTick(() => {
+    //     if (this.testCase.testId && this.testCase.testId !== 'other') {
+    //       if (this.testCase.method === 'auto') {
+    //         if (this.$refs.apiTestDetail && this.testCase.type === 'api') {
+    //           this.$refs.apiTestDetail.init();
+    //         } else if (this.testCase.type === 'performance') {
+    //           this.$refs.performanceTestDetail.init();
+    //         }
+    //       }
+    //     }
+    //   });
+    // },
     testRun(reportId) {
       this.testCase.reportId = reportId;
       this.saveReport(reportId);
