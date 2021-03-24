@@ -194,6 +194,10 @@ export default {
         this.$warning(this.$t('test_track.length_less_than') + this.nameLimit);
         return;
       }
+      if (data.name.indexOf("\\") > -1) {
+        this.$warning(this.$t('commons.node_name_tip'));
+        return;
+      }
       let param = {};
       this.buildSaveParam(param, node.parent.data, data);
       if (param.type === 'edit') {

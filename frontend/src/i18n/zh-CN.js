@@ -145,6 +145,7 @@ export default {
     check_project_tip: "请先创建或选择项目",
     auth_redirect_tip: '即将跳转到认证源页面进行认证',
     tag_tip: "输入回车添加标签",
+    node_name_tip: "名称不能包含'\\'",
     table: {
       select_tip: "已选中 {0} 条数据"
     },
