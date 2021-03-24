@@ -192,3 +192,6 @@ CREATE TABLE IF NOT EXISTS test_case_test
 
 alter table test_case
     modify test_id varchar(2000) null;
+
+-- update history data
+update test_case set review_status = 'Prepare' where review_status is null;
