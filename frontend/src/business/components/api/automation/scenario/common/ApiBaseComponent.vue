@@ -31,7 +31,7 @@
           <el-switch v-model="data.enable" class="enable-switch" size="mini" :disabled="data.disabled"/>
         </el-tooltip>
         <slot name="button"></slot>
-        <step-extend-btns style="display: contents" :data="data" @copy="copyRow" @remove="remove" @openScenario="openScenario" v-if="showBtn && !data.disabled"/>
+        <step-extend-btns style="display: contents" :data="data" @copy="copyRow" @remove="remove" @openScenario="openScenario" v-if="showBtn && (!data.disabled || data.root)"/>
       </div>
 
     </div>

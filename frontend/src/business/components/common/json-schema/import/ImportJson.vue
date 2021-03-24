@@ -36,8 +36,8 @@
   import MsDialogFooter from '../../../common/components/MsDialogFooter'
   import MsCodeEdit from "../../../common/components/MsCodeEdit";
   import json5 from 'json5';
-
-  const GenerateSchema = require('generate-schema/src/schemas/json.js');
+  const Convert = require('../convert/convert.js');
+  const MsConvert = new Convert();
 
   export default {
     name: "MsImportJson",
@@ -93,7 +93,8 @@
             this.$error("导入的数据非JSON格式");
             return;
           }
-          let jsonData = GenerateSchema(json5.parse(this.json));
+          let jsonData = MsConvert.format(json5.parse(this.json));
+          //let jsonData = GenerateSchema(json5.parse(this.json));
           this.$emit('jsonData', jsonData);
         } else {
           if (!this.checkIsJsonSchema(this.jsonSchema)) {
