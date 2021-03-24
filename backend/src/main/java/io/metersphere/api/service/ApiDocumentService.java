@@ -372,7 +372,7 @@ public class ApiDocumentService {
         ApiDocumentShareDTO returnDTO = new ApiDocumentShareDTO();
         if (!StringUtils.isEmpty(apiShare.getShareApiId())) {
             BaseSystemConfigDTO baseSystemConfigDTO = systemParameterService.getBaseInfo();
-            String url = "/#/apiDocumentInfo?documentId=" + apiShare.getId();
+            String url = "?" + apiShare.getId();
             returnDTO.setId(apiShare.getId());
             returnDTO.setShareUrl(url);
         }

@@ -66,7 +66,6 @@ import MsTableOperatorButton from "../../../common/components/MsTableOperatorBut
 import MsTableOperator from "../../../common/components/MsTableOperator";
 import {checkoutTestManagerOrTestUser} from "@/common/js/utils";
 import {TEST_PLAN_REPORT_CONFIGS} from "../../../common/components/search/search-components";
-import {getCurrentProjectID} from "../../../../../common/js/utils";
 import TestPlanReportView from "@/business/components/track/report/components/TestPlanReportView";
 import ReportTriggerModeItem from "@/business/components/common/tableItem/ReportTriggerModeItem";
 import MsTag from "@/business/components/common/components/MsTag";
@@ -124,6 +123,9 @@ export default {
   },
   created() {
     this.projectId = this.$route.params.projectId;
+    if (!this.projectId) {
+      this.projectId = this.$store.state.projectId;
+    }
     this.isTestManagerOrTestUser = checkoutTestManagerOrTestUser();
     this.initTableData();
   },
@@ -139,7 +141,7 @@ export default {
       if (this.selectNodeIds && this.selectNodeIds.length > 0) {
         this.condition.nodeIds = this.selectNodeIds;
       }
-      if (!getCurrentProjectID()) {
+      if (!this.projectId) {
         return;
       }
       this.result = this.$post(this.buildPagePath(this.queryPath), this.condition, response => {
@@ -214,7 +216,7 @@ export default {
             let deleteParam = {};
             let ids = Array.from(this.selectRows).map(row => row.id);
             deleteParam.dataIds = ids;
-            deleteParam.projectId = getCurrentProjectID();
+            deleteParam.projectId = this.projectId;
             deleteParam.selectAllDate = this.isSelectAllDate;
             deleteParam.unSelectIds = this.unSelection;
             deleteParam = Object.assign(deleteParam, this.condition);

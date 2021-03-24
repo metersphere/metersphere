@@ -269,6 +269,9 @@ public class ApiAutomationService {
     }
 
     private void deleteApiScenarioReport(List<String> scenarioIds) {
+        if(scenarioIds == null || scenarioIds.isEmpty()){
+            return;
+        }
         ApiScenarioReportExample scenarioReportExample = new ApiScenarioReportExample();
         scenarioReportExample.createCriteria().andScenarioIdIn(scenarioIds);
         List<ApiScenarioReport> list = apiScenarioReportMapper.selectByExample(scenarioReportExample);

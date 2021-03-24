@@ -127,7 +127,7 @@
 
       <!-- 执行组件 -->
       <ms-run :debug="false" :type="'API_PLAN'" :reportId="reportId" :run-data="runData"
-              @runRefresh="runRefresh" ref="runTest"/>
+              @runRefresh="runRefresh" ref="runTest" @autoCheckStatus="autoCheckStatus"/>
 
       <!-- 批量编辑 -->
       <batch-edit :dialog-title="$t('test_track.case.batch_edit_case')" :type-arr="typeArr" :value-arr="valueArr"
@@ -151,7 +151,7 @@ import MsBottomContainer from "../../../../../api/definition/components/BottomCo
 import ShowMoreBtn from "../../../../case/components/ShowMoreBtn";
 import BatchEdit from "@/business/components/track/case/components/BatchEdit";
 import {API_METHOD_COLOUR, CASE_PRIORITY, RESULT_MAP} from "../../../../../api/definition/model/JsonData";
-import {getCurrentProjectID, strMapToObj} from "@/common/js/utils";
+import {strMapToObj} from "@/common/js/utils";
 import ApiListContainer from "../../../../../api/definition/components/list/ApiListContainer";
 import PriorityTableItem from "../../../../common/tableItems/planview/PriorityTableItem";
 import {getBodyUploadFiles, getUUID} from "../../../../../../../common/js/utils";
@@ -319,6 +319,7 @@ export default {
       this.$emit('isApiListEnableChange', data);
     },
     initTable() {
+      this.autoCheckStatus();
       this.selectRows = new Set();
       this.condition.status = "";
       this.condition.moduleIds = this.selectNodeIds;
@@ -520,6 +521,10 @@ export default {
       this.$fileUpload("/api/definition/run", null, bodyFiles, reqObj, response => {
       });
     },
+    autoCheckStatus() { //  检查执行结果，自动更新计划状态
+      this.$post('/test/plan/autoCheck/' + this.planId, (response) => {
+      });
+    },
     handleDelete(apiCase) {
       if (this.planId) {
         this.$get('/test/plan/api/case/delete/' + apiCase.id, () => {
@@ -539,7 +544,7 @@ export default {
     },
     getProjectId() {
       if (!this.isRelevanceModel) {
-        return getCurrentProjectID();
+        return this.$store.state.projectId;
       } else {
         return this.currentCaseProjectId;
       }

@@ -94,7 +94,7 @@
         this.result = this.$get("/project/listAll", res => {
           let data = res.data;
           if (data) {
-            const index = data.findIndex(d => d.id === getCurrentProjectID());
+            const index = data.findIndex(d => d.id === this.$store.state.projectId);
             this.projects = data;
             if (index !== -1) {
               this.projectId = data[index].id;

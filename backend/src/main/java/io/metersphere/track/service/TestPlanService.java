@@ -194,7 +194,10 @@ public class TestPlanService {
                     !TestPlanStatus.Completed.name().equals(res.getStatus())) {
                 //已完成，写入实际完成时间
                 testPlan.setActualEndTime(System.currentTimeMillis());
-            }
+            } else if (!res.getStatus().equals(TestPlanStatus.Finished.name()) &&
+                    TestPlanStatus.Finished.name().equals(testPlan.getStatus())) {
+                testPlan.setActualEndTime(System.currentTimeMillis());
+            }   //  非已结束->已结束，更新结束时间
         }
 
         List<String> userIds = new ArrayList<>();
@@ -367,7 +370,7 @@ public class TestPlanService {
 
             testPlan.setTotal(apiExecResults.size() + scenarioExecResults.size() + functionalExecResults.size() + loadResults.size());
 
-            testPlan.setPassRate(MathUtils.getPercentWithDecimal(testPlan.getTested() == 0 ? 0 : testPlan.getPassed() * 1.0 / testPlan.getTested()));
+            testPlan.setPassRate(MathUtils.getPercentWithDecimal(testPlan.getTested() == 0 ? 0 : testPlan.getPassed() * 1.0 / testPlan.getTotal()));
             testPlan.setTestRate(MathUtils.getPercentWithDecimal(testPlan.getTotal() == 0 ? 0 : testPlan.getTested() * 1.0 / testPlan.getTotal()));
         });
     }
@@ -381,6 +384,44 @@ public class TestPlanService {
         List<TestPlanDTOWithMetric> testPlans = extTestPlanMapper.list(request);
         calcTestPlanRate(testPlans);
         return testPlans;
+    }
+
+    public void checkStatus(String testPlanId) { //  检查执行结果，自动更新计划状态
+        List<String> statusList = new ArrayList<>();
+        statusList.addAll(extTestPlanTestCaseMapper.getExecResultByPlanId(testPlanId));
+        statusList.addAll(testPlanApiCaseService.getExecResultByPlanId(testPlanId));
+        statusList.addAll(testPlanScenarioCaseService.getExecResultByPlanId(testPlanId));
+        statusList.addAll(testPlanLoadCaseService.getStatus(testPlanId));
+//        Prepare, Pass, Failure, Blocking, Skip, Underway
+        TestPlanDTO testPlanDTO = new TestPlanDTO();
+        testPlanDTO.setId(testPlanId);
+        if(statusList.size() == 0) { //  原先status不是prepare, 但删除所有关联用例的情况
+            testPlanDTO.setStatus(TestPlanStatus.Prepare.name());
+            editTestPlan(testPlanDTO);
+            return;
+        }
+        int passNum = 0, prepareNum = 0, failNum = 0;
+        for(String res : statusList) {
+            if(StringUtils.equals(res, TestPlanTestCaseStatus.Pass.name())
+                    || StringUtils.equals(res, "success")
+                    || StringUtils.equals(res, ScenarioStatus.Success.name())) {
+                passNum++;
+            } else if (res == null) {
+                prepareNum++;
+            } else {
+                failNum++;
+            }
+        }
+        if(passNum == statusList.size()) {   //  全部通过
+            testPlanDTO.setStatus(TestPlanStatus.Completed.name());
+            this.editTestPlan(testPlanDTO);
+        } else if(prepareNum == 0 && passNum + failNum == statusList.size()) {  //  已结束
+            testPlanDTO.setStatus(TestPlanStatus.Finished.name());
+            editTestPlan(testPlanDTO);
+        } else if(prepareNum != 0) {    //  进行中
+            testPlanDTO.setStatus(TestPlanStatus.Underway.name());
+            editTestPlan(testPlanDTO);
+        }
     }
 
     public List<TestPlanDTOWithMetric> listTestPlanByProject(QueryTestPlanRequest request) {
@@ -570,6 +611,9 @@ public class TestPlanService {
 
         List<ReportComponent> components = ReportComponentFactory.createComponents(componentIds.toJavaList(String.class), testPlan);
         List<Issues> issues = buildFunctionalCaseReport(planId, components);
+        buildApiCaseReport(planId, components);
+        buildScenarioCaseReport(planId, components);
+        buildLoadCaseReport(planId, components);
 
         TestCaseReportMetricDTO testCaseReportMetricDTO = new TestCaseReportMetricDTO();
         components.forEach(component -> {

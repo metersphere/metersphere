@@ -54,6 +54,10 @@
                   {{ $t('test_track.plan.plan_status_running') }}
                 </el-dropdown-item>
                 <el-dropdown-item :disabled="!isTestManagerOrTestUser"
+                                  :command="{item: scope.row, status: 'Finished'}">
+                  {{ $t('test_track.plan.plan_status_finished') }}
+                </el-dropdown-item>
+                <el-dropdown-item :disabled="!isTestManagerOrTestUser"
                                   :command="{item: scope.row, status: 'Completed'}">
                   {{ $t('test_track.plan.plan_status_completed') }}
                 </el-dropdown-item>
@@ -82,7 +86,7 @@
           show-overflow-tooltip
           :key="index">
           <template v-slot:default="scope">
-            <el-progress :percentage="scope.row.testRate"></el-progress>
+            <el-progress :percentage="scope.row.passRate.substring(0, scope.row.passRate.length-1)"></el-progress>
           </template>
         </el-table-column>
         <el-table-column
@@ -220,11 +224,10 @@ import TestCaseReportView from "../view/comonents/report/TestCaseReportView";
 import MsDeleteConfirm from "../../../common/components/MsDeleteConfirm";
 import {TEST_PLAN_CONFIGS} from "../../../common/components/search/search-components";
 import {LIST_CHANGE, TrackEvent} from "@/business/components/common/head/ListEvent";
-import {getCurrentProjectID} from "../../../../../common/js/utils";
 import MsScheduleMaintain from "@/business/components/api/automation/schedule/ScheduleMaintain"
 import {_filter, _sort, getLabel} from "@/common/js/tableUtils";
-import {TEST_CASE_LIST, TEST_PLAN_LIST} from "@/common/js/constants";
-import {Test_Plan_List, Track_Test_Case} from "@/business/components/common/model/JsonData";
+import {TEST_PLAN_LIST} from "@/common/js/constants";
+import {Test_Plan_List} from "@/business/components/common/model/JsonData";
 import HeaderCustom from "@/business/components/common/head/HeaderCustom";
 import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOperate";
 import MsTag from "@/business/components/common/components/MsTag";
@@ -264,6 +267,7 @@ export default {
       statusFilters: [
         {text: this.$t('test_track.plan.plan_status_prepare'), value: 'Prepare'},
         {text: this.$t('test_track.plan.plan_status_running'), value: 'Underway'},
+        {text: this.$t('test_track.plan.plan_status_finished'), value: 'Finished'},
         {text: this.$t('test_track.plan.plan_status_completed'), value: 'Completed'}
       ],
       stageFilters: [
@@ -282,6 +286,9 @@ export default {
   },
   created() {
     this.projectId = this.$route.params.projectId;
+    if (!this.projectId) {
+      this.projectId = this.$store.state.projectId;
+    }
     this.isTestManagerOrTestUser = checkoutTestManagerOrTestUser();
     this.initTableData();
   },
@@ -296,7 +303,7 @@ export default {
       if (this.selectNodeIds && this.selectNodeIds.length > 0) {
         this.condition.nodeIds = this.selectNodeIds;
       }
-      if (!getCurrentProjectID()) {
+      if (!this.projectId) {
         return;
       }
       this.result = this.$post(this.buildPagePath(this.queryPath), this.condition, response => {
@@ -320,7 +327,7 @@ export default {
       return path + "/" + this.currentPage + "/" + this.pageSize;
     },
     testPlanCreate() {
-      if (!getCurrentProjectID()) {
+      if (!this.projectId) {
         this.$warning(this.$t('commons.check_project_tip'));
         return;
       }

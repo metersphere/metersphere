@@ -7,8 +7,6 @@
           <template v-slot:button>
             <ms-table-button :is-tester-permission="true" icon="el-icon-box"
                              :content="$t('api_test.jar_config.title')" @click="openJarConfig"/>
-            <ms-table-button :is-tester-permission="true" icon="el-icon-files"
-                             :content="$t('load_test.other_resource')" @click="openFiles"/>
           </template>
         </ms-table-header>
       </template>
@@ -45,6 +43,8 @@
               <template v-slot:behind>
                 <ms-table-operator-button :is-tester-permission="true" :tip="$t('api_test.environment.environment_config')" icon="el-icon-setting"
                                           type="info" @exec="openEnvironmentConfig(scope.row)"/>
+                <ms-table-operator-button :is-tester-permission="true" :tip="$t('load_test.other_resource')" icon="el-icon-files"
+                                          type="success" @exec="openFiles(scope.row)"/>
               </template>
             </ms-table-operator>
           </template>
@@ -228,8 +228,8 @@ export default {
     openJarConfig() {
       this.$refs.jarConfig.open();
     },
-    openFiles() {
-      this.$refs.resourceFiles.open();
+    openFiles(project) {
+      this.$refs.resourceFiles.open(project);
     },
     handleDelete(project) {
       this.$refs.deleteConfirm.open(project);

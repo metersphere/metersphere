@@ -5,9 +5,13 @@
 
         <!--操作按钮-->
         <div class="ms-opt-btn">
-          <el-button v-if="type!='add'" id="inputDelay" type="primary" size="small" @click="saveCase" title="ctrl + s">
-            {{ $t('commons.save') }}
-          </el-button>
+          <ms-table-button v-if="type!='add'" :is-tester-permission="true"
+                           id="inputDelay"
+                           type="primary"
+                           :content="$t('commons.save')"
+                           size="small" @exec="saveCase"
+                           icon=""
+                           title="ctrl + s"/>
           <el-dropdown v-else split-button type="primary" class="ms-api-buttion" @click="handleCommand"
                        @command="handleCommand" size="small" style="float: right;margin-right: 20px">
             {{ $t('commons.save') }}
@@ -288,10 +292,8 @@
 import {TokenKey, WORKSPACE_ID} from '@/common/js/constants';
 import MsDialogFooter from '../../../common/components/MsDialogFooter'
 import {getCurrentUser, listenGoBack, removeGoBackListener} from "@/common/js/utils";
-import {LIST_CHANGE, TrackEvent} from "@/business/components/common/head/ListEvent";
 import {Message} from "element-ui";
 import TestCaseAttachment from "@/business/components/track/case/components/TestCaseAttachment";
-import {getCurrentProjectID} from "../../../../../common/js/utils";
 import {buildNodePath} from "../../../api/definition/model/NodeTree";
 import CaseComment from "@/business/components/track/case/components/CaseComment";
 import MsInputTag from "@/business/components/api/automation/scenario/MsInputTag";
@@ -300,10 +302,12 @@ import {ELEMENTS} from "@/business/components/api/automation/scenario/Setting";
 import TestCaseComment from "@/business/components/track/case/components/TestCaseComment";
 import ReviewCommentItem from "@/business/components/track/review/commom/ReviewCommentItem";
 import {API_STATUS, REVIEW_STATUS, TEST} from "@/business/components/api/definition/model/JsonData";
+import MsTableButton from "@/business/components/common/components/MsTableButton";
 
 export default {
   name: "TestCaseEdit",
   components: {
+    MsTableButton,
 
     ReviewCommentItem,
     TestCaseComment, MsPreviousNextButton, MsInputTag, CaseComment, MsDialogFooter, TestCaseAttachment
@@ -320,7 +324,6 @@ export default {
       statuOptions: API_STATUS,
       comments: [],
       result: {},
-      projectId: "",
       dialogFormVisible: false,
       form: {
         name: '',
@@ -337,13 +340,13 @@ export default {
           desc: '',
           result: ''
         }],
-        selected:                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             [],
+        selected: [],
         remark: '',
         tags: [],
         demandId: '',
         demandName: '',
-        status:'Prepare',
-        reviewStatus:'Prepare',
+        status: 'Prepare',
+        reviewStatus: 'Prepare',
       },
       readOnly: false,
       moduleOptions: [],
@@ -400,7 +403,11 @@ export default {
     },
     type: String
   },
-
+  computed: {
+    projectId() {
+      return this.$store.state.projectId
+    },
+  },
   mounted() {
     this.getSelectOptions();
     if (this.type === 'edit' || this.type === 'copy') {
@@ -516,10 +523,10 @@ export default {
             this.$emit('addTab', tab)
           }
         })
-      }else {
+      } else {
         this.saveCase();
       }
-      },
+    },
     openComment() {
       this.$refs.testCaseComment.open()
     },
@@ -701,9 +708,9 @@ export default {
       this.dialogFormVisible = false;
     },
     saveCase() {
-/*
-      document.getElementById("inputDelay").focus();
-*/
+      /*
+            document.getElementById("inputDelay").focus();
+      */
 
       //  保存前在input框自动失焦，以免保存失败
       this.$refs['caseFrom'].validate((valid) => {
@@ -835,15 +842,14 @@ export default {
     },
     getDemandOptions() {
       if (this.demandOptions.length === 0) {
-        this.projectId = getCurrentProjectID();
-        this.result = {loading : true};
+        this.result = {loading: true};
         this.$get("demand/list/" + this.projectId).then(response => {
           this.demandOptions = response.data.data;
           this.demandOptions.unshift({id: 'other', name: this.$t('test_track.case.other'), platform: 'Other'})
-          this.result = {loading : false};
+          this.result = {loading: false};
         }).catch(() => {
           this.demandOptions.unshift({id: 'other', name: this.$t('test_track.case.other'), platform: 'Other'})
-          this.result = {loading : false};
+          this.result = {loading: false};
         })
       }
     },

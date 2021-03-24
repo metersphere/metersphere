@@ -244,6 +244,9 @@
         });
       },
       list(data) {
+        if (data.protocol === "dubbo://") {
+          data.protocol = "DUBBO";
+        }
         let url = "/api/module/list/" + getCurrentProjectID() + "/" + data.protocol;
         this.result = this.$get(url, response => {
           if (response.data != undefined && response.data != null) {
@@ -265,7 +268,7 @@
         if (api) {
           let data = JSON.parse(JSON.stringify(api));
           data.id = getUUID();
-          this.httpForm = {id: data.id, name: data.name, protocol: data.protocol, path: data.path, method: REQ_METHOD[0].id, userId: getCurrentUser().id, request: data};
+          this.httpForm = {id: data.id, name: data.name, protocol: data.protocol, path: data.path, method: api.method, userId: getCurrentUser().id, request: data};
           this.getMaintainerOptions();
           this.list(data);
           this.httpVisible = true;

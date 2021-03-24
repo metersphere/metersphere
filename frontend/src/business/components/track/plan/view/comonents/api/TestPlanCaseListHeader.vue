@@ -5,7 +5,7 @@
                    :show-create="false"
                    :tip="$t('commons.search_by_id_name_tag')">
     <template v-slot:title>
-       接口用例
+      {{ $t('api_test.home_page.failed_case_list.table_value.case_type.api') }}
     </template>
     <template v-slot:button>
       <ms-table-button :is-tester-permission="true" icon="el-icon-connection"

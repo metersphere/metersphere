@@ -56,7 +56,7 @@ public class MsLoopController extends MsTestElement {
         }
         final HashTree groupTree = controller(tree);
         if (CollectionUtils.isNotEmpty(config.getVariables())) {
-            this.addCsvDataSet(groupTree, config.getVariables());
+            this.addCsvDataSet(groupTree, config.getVariables(),config);
             this.addCounter(groupTree, config.getVariables());
             this.addRandom(groupTree, config.getVariables());
         }

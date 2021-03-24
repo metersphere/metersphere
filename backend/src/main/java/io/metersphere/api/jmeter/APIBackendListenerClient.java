@@ -197,11 +197,14 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
                 apiDefinitionExecResultService.saveApiResultByScheduleTask(testResult, ApiRunMode.SCHEDULE_API_PLAN.name());
                 List<String> testPlanReportIdList = new ArrayList<>();
                 testPlanReportIdList.add(debugReportId);
+                for(String testPlanReportId : testPlanReportIdList) {   //  更新每个测试计划的状态
+                    testPlanReportService.checkTestPlanStatus(testPlanReportId);
+                }
                 testPlanReportService.updateReport(testPlanReportIdList, ApiRunMode.SCHEDULE_API_PLAN.name(), ReportTriggerMode.SCHEDULE.name());
             } else {
                 apiDefinitionExecResultService.saveApiResult(testResult, ApiRunMode.API_PLAN.name());
             }
-        } else if (StringUtils.equalsAny(this.runMode, ApiRunMode.SCENARIO.name(), ApiRunMode.SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO_PLAN.name())) {
+        } else if (StringUtils.equalsAny(this.runMode, ApiRunMode.SCENARIO.name(), ApiRunMode.SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO_PLAN.name(),ApiRunMode.SCHEDULE_SCENARIO.name())) {
             // 执行报告不需要存储，由用户确认后在存储
             testResult.setTestId(testId);
             ApiScenarioReport scenarioReport = apiScenarioReportService.complete(testResult, this.runMode);

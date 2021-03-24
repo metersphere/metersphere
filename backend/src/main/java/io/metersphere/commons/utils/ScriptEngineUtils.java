@@ -22,7 +22,8 @@ public class ScriptEngineUtils {
         }
     }
 
-    public static String calculate(String input) {
+    // graal.js 禁止多线程同时访问，加上 synchronized
+    public synchronized static String calculate(String input) {
         try {
             return engine.eval("calculate('" + input + "')").toString();
         } catch (ScriptException e) {

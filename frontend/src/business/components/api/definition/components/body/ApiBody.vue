@@ -42,7 +42,7 @@
     </div>
 
     <div class="ms-body" v-if="body.type == 'XML'">
-      <ms-code-edit :read-only="isReadOnly" :data.sync="body.raw" :modes="modes" :mode="'xml'" ref="codeEdit"/>
+      <ms-code-edit :read-only="isReadOnly" :data.sync="body.raw" :modes="modes" :mode="'text'" ref="codeEdit"/>
     </div>
 
     <div class="ms-body" v-if="body.type == 'Raw'">

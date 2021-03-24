@@ -1,7 +1,6 @@
 package io.metersphere.service;
 
 import com.alibaba.excel.EasyExcelFactory;
-import io.metersphere.api.dto.automation.ApiScenarioRequest;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtOrganizationMapper;
@@ -10,7 +9,10 @@ import io.metersphere.base.mapper.ext.ExtUserRoleMapper;
 import io.metersphere.commons.constants.*;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.user.SessionUser;
-import io.metersphere.commons.utils.*;
+import io.metersphere.commons.utils.CodingUtil;
+import io.metersphere.commons.utils.CommonBeanFactory;
+import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.controller.ResultHolder;
 import io.metersphere.controller.request.LoginRequest;
 import io.metersphere.controller.request.member.AddMemberRequest;
@@ -26,20 +28,16 @@ import io.metersphere.dto.UserRoleDTO;
 import io.metersphere.dto.WorkspaceDTO;
 import io.metersphere.excel.domain.*;
 import io.metersphere.excel.listener.EasyExcelListener;
-import io.metersphere.excel.listener.TestCaseDataListener;
 import io.metersphere.excel.listener.UserDataListener;
 import io.metersphere.excel.utils.EasyExcelExporter;
 import io.metersphere.i18n.Translator;
 import io.metersphere.notice.domain.UserDetail;
 import io.metersphere.security.MsUserToken;
-import io.metersphere.track.request.testcase.QueryTestCaseRequest;
-import io.metersphere.xmind.XmindCaseParser;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.authc.*;
 import org.apache.shiro.authz.UnauthorizedException;
 import org.apache.shiro.subject.Subject;
-import org.python.antlr.ast.Str;
 import org.springframework.beans.BeanUtils;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
@@ -648,6 +646,8 @@ public class UserService {
             UserExcelData data = new UserExcelData();
             data.setId("user_id_" + i);
             data.setName(Translator.get("user") + i);
+            data.setPassword(Translator.get("required")+";"+Translator.get("password_format_is_incorrect"));
+            data.setEmail(Translator.get("required"));
             String workspace = "";
             for (int workspaceIndex = 1; workspaceIndex <= i; workspaceIndex++) {
                 if (workspaceIndex == 1) {
