@@ -149,10 +149,11 @@ public class ApiTestCaseService {
     public ApiTestCaseWithBLOBs get(String id) {
 //        ApiTestCaseWithBLOBs returnBlobs = apiTestCaseMapper.selectByPrimaryKey(id);
         ApiTestCaseInfo model = extApiTestCaseMapper.selectApiCaseInfoByPrimaryKey(id);
-        if(StringUtils.equalsIgnoreCase(model.getApiMethod(),"esb")){
-            esbApiParamService.handleApiEsbParams(model);
+        if(model != null ){
+            if(StringUtils.equalsIgnoreCase(model.getApiMethod(),"esb")){
+                esbApiParamService.handleApiEsbParams(model);
+            }
         }
-
         return model;
     }
 
