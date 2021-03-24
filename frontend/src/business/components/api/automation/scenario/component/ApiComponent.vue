@@ -83,9 +83,10 @@
   import ApiBaseComponent from "../common/ApiBaseComponent";
   import ApiResponseComponent from "./ApiResponseComponent";
   import CustomizeReqInfo from "@/business/components/api/automation/scenario/common/CustomizeReqInfo";
+
   const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
-  const esbDefinition = (requireComponent!=null&&requireComponent.keys().length) > 0 ? requireComponent("./apidefinition/EsbDefinition.vue") : {};
-  const esbDefinitionResponse = (requireComponent!=null&&requireComponent.keys().length) > 0 ? requireComponent("./apidefinition/EsbDefinitionResponse.vue") : {};
+  const esbDefinition = (requireComponent != null && requireComponent.keys().length) > 0 ? requireComponent("./apidefinition/EsbDefinition.vue") : {};
+  const esbDefinitionResponse = (requireComponent != null && requireComponent.keys().length) > 0 ? requireComponent("./apidefinition/EsbDefinitionResponse.vue") : {};
 
   export default {
     name: "MsApiComponent",
@@ -122,7 +123,7 @@
         reportId: "",
         runData: [],
         isShowInput: false,
-        showXpackCompnent:false,
+        showXpackCompnent: false,
       }
     },
     created() {
@@ -148,7 +149,7 @@
           }
         }
       }
-      if (requireComponent != null && JSON.stringify(esbDefinition) != '{}'&& JSON.stringify(esbDefinitionResponse) != '{}') {
+      if (requireComponent != null && JSON.stringify(esbDefinition) != '{}' && JSON.stringify(esbDefinitionResponse) != '{}') {
         this.showXpackCompnent = true;
       }
     },
@@ -245,7 +246,8 @@
               }
               this.request.requestResult = requestResult;
               this.request.id = response.data.id;
-              //this.request.disabled = true;
+              this.request.disabled = true;
+              this.request.root = true;
               if (!this.request.projectId) {
                 this.request.projectId = response.data.projectId;
               }
@@ -311,7 +313,7 @@
         this.request.requestResult = data;
         this.request.result = undefined;
         this.loading = false;
-        this.$emit('refReload',this.request,this.node);
+        this.$emit('refReload', this.request, this.node);
       },
       reload() {
         this.loading = true
