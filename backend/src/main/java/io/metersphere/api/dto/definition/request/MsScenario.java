@@ -140,7 +140,7 @@ public class MsScenario extends MsTestElement {
         if (arguments != null) {
             tree.add(config.valueSupposeMock(arguments));
         }
-        this.addCsvDataSet(tree, variables);
+        this.addCsvDataSet(tree, variables,config);
         this.addCounter(tree, variables);
         this.addRandom(tree, variables);
         if (CollectionUtils.isNotEmpty(this.headers)) {
