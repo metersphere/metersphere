@@ -21,8 +21,8 @@
 <script>
   import {schemaToJson} from './common';
   import MsImportJson from './import/ImportJson';
-
-  const GenerateSchema = require('generate-schema/src/schemas/json.js');
+  const Convert = require('./convert/convert.js');
+  const MsConvert = new Convert();
 
   export default {
     name: 'App',
@@ -32,7 +32,7 @@
     },
     created() {
       if (!this.body.jsonSchema && this.body.raw && this.checkIsJson(this.body.raw)) {
-        let obj = {"root": GenerateSchema(JSON.parse(this.body.raw))}
+        let obj = {"root": MsConvert.format(JSON.parse(this.body.raw))}
         this.schema = obj;
       }
       else if (this.body.jsonSchema) {
