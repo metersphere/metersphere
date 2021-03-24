@@ -62,14 +62,14 @@
           </el-row>
 
           <el-row>
-<!--            <el-col :span="7">-->
-<!--              <el-form-item label="评审状态" :label-width="formLabelWidth" prop="reviewStatus">-->
-<!--                <el-select size="small" v-model="form.reviewStatus" class="ms-case-input">-->
-<!--                  <el-option v-for="item in options" :key="item.id" :label="item.label" :value="item.id">-->
-<!--                  </el-option>-->
-<!--                </el-select>-->
-<!--              </el-form-item>-->
-<!--            </el-col>-->
+            <!--            <el-col :span="7">-->
+            <!--              <el-form-item label="评审状态" :label-width="formLabelWidth" prop="reviewStatus">-->
+            <!--                <el-select size="small" v-model="form.reviewStatus" class="ms-case-input">-->
+            <!--                  <el-option v-for="item in options" :key="item.id" :label="item.label" :value="item.id">-->
+            <!--                  </el-option>-->
+            <!--                </el-select>-->
+            <!--              </el-form-item>-->
+            <!--            </el-col>-->
             <el-col :span="7">
               <el-form-item :label="$t('commons.tag')" :label-width="formLabelWidth" prop="tag">
                 <ms-input-tag :currentScenario="form" v-if="showInputTag" ref="tag" class="ms-case-input"/>
@@ -463,6 +463,9 @@ export default {
       } else if (this.form.type === 'performance' || this.form.type === 'api') {
         url = '/' + this.form.type + '/list/' + this.projectId
       }
+      if (!url) {
+        return;
+      }
       return new Promise((resolve, reject) => {
         this.$get(url).then(res => {
           console.log(res.data.data)
@@ -475,7 +478,7 @@ export default {
         }).catch((err) => {
           reject(err)
         })
-      })
+      });
     },
     /* lazyLoad(node, resolve){
       const { level } = node;
@@ -769,7 +772,7 @@ export default {
       if (this.form.tags instanceof Array) {
         this.form.tags = JSON.stringify(this.form.tags);
       }
-      param.testId=JSON.stringify(this.form.selected)
+      param.testId = JSON.stringify(this.form.selected)
       param.tags = this.form.tags;
       param.type = 'functional'
       return param;

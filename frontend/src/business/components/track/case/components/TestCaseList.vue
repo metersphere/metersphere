@@ -206,7 +206,6 @@ import {TEST_CASE_CONFIGS} from "../../../common/components/search/search-compon
 import ShowMoreBtn from "./ShowMoreBtn";
 import BatchEdit from "./BatchEdit";
 import {PROJECT_NAME, TEST_CASE_LIST, WORKSPACE_ID} from "@/common/js/constants";
-import {LIST_CHANGE, TrackEvent} from "@/business/components/common/head/ListEvent";
 import StatusTableItem from "@/business/components/track/common/tableItems/planview/StatusTableItem";
 import TestCaseDetail from "./TestCaseDetail";
 import ReviewStatus from "@/business/components/track/case/components/ReviewStatus";
@@ -500,8 +499,6 @@ export default {
               this.selectRows.clear();
               this.$emit("refresh");
               this.$success(this.$t('commons.delete_success'));
-              // 发送广播，刷新 head 上的最新列表
-              TrackEvent.$emit(LIST_CHANGE);
             });
           }
         }
@@ -512,8 +509,6 @@ export default {
       this.$post('/test/case/delete/' + testCaseId, {}, () => {
         this.initTableData();
         this.$success(this.$t('commons.delete_success'));
-        // 发送广播，刷新 head 上的最新列表
-        TrackEvent.$emit(LIST_CHANGE);
       });
     },
     refresh() {
@@ -607,8 +602,6 @@ export default {
       this.$post('/test/case/batch/edit', param, () => {
         this.$success(this.$t('commons.save_success'));
         this.refresh();
-        // 发送广播，刷新 head 上的最新列表
-        TrackEvent.$emit(LIST_CHANGE);
       });
     },
     filter(filters) {
@@ -660,8 +653,6 @@ export default {
       this.result = this.$post('/test/case/batch/edit', param, () => {
         this.$success(this.$t('commons.save_success'));
         this.$refs.testBatchMove.close();
-        // 发送广播，刷新 head 上的最新列表
-        TrackEvent.$emit(LIST_CHANGE);
         this.refresh();
       });
     }
