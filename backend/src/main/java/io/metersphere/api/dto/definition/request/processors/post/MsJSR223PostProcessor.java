@@ -42,7 +42,7 @@ public class MsJSR223PostProcessor extends MsTestElement {
         }
         processor.setProperty(TestElement.TEST_CLASS, JSR223PostProcessor.class.getName());
         processor.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("TestBeanGUI"));
-        processor.setProperty("cacheKey", "true");
+        /*processor.setProperty("cacheKey", "true");*/
         processor.setProperty("scriptLanguage", this.getScriptLanguage());
         if (StringUtils.isNotEmpty(this.getScriptLanguage()) && this.getScriptLanguage().equals("nashornScript")) {
             processor.setProperty("scriptLanguage", "nashorn");

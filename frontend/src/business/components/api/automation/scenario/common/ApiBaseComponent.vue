@@ -37,14 +37,19 @@
     </div>
     <!--最大化不显示具体内容-->
     <div class="header" v-if="!isMax">
-      <fieldset :disabled="data.disabled" class="ms-fieldset">
-        <el-collapse-transition>
-          <div v-if="data.active && showCollapse" :draggable="draggable">
-            <el-divider></el-divider>
+      <el-collapse-transition>
+        <div v-if="data.active && showCollapse" :draggable="draggable">
+          <el-divider></el-divider>
+          <fieldset :disabled="data.disabled" class="ms-fieldset">
+            <!--四种协议请求内容-->
+            <slot name="request"></slot>
+            <!--其他模版内容，比如断言，提取等-->
             <slot></slot>
-          </div>
-        </el-collapse-transition>
-      </fieldset>
+          </fieldset>
+          <!--四种协议执行结果内容-->
+          <slot name="result"></slot>
+        </div>
+      </el-collapse-transition>
     </div>
 
   </el-card>
