@@ -69,6 +69,7 @@
               <api-documents-page class="api-doc-page"
                                   v-if="activeDom==='right'"
                                   :project-id="projectId"
+                                  :trash-enable="trashEnable"
                                   :module-ids="selectNodeIds"/>
             </ms-tab-button>
             <!-- 添加/编辑测试窗口-->
