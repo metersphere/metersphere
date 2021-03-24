@@ -64,10 +64,11 @@ export default {
   },
   methods: {
     search() {
-      let projectID = this.projectId;
-      this.result = this.$get("/api/faliureCaseAboutTestPlan/"+projectID+"/10", response => {
-        this.tableData = response.data;
-      });
+      if (this.projectId) {
+        this.result = this.$get("/api/faliureCaseAboutTestPlan/"+ this.projectId +"/10", response => {
+          this.tableData = response.data;
+        });
+      }
     },
     redirect(pageType,param){
       switch (pageType){

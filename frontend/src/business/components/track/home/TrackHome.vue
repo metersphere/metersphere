@@ -120,7 +120,9 @@ export default {
     },
     init() {
       let selectProjectId = this.projectId;
-
+      if (!selectProjectId) {
+        return;
+      }
       this.$get("/track/count/" + selectProjectId, response => {
         this.trackCountData = response.data;
       });
