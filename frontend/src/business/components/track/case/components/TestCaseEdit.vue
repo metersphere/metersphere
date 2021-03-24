@@ -5,9 +5,13 @@
 
         <!--操作按钮-->
         <div class="ms-opt-btn">
-          <el-button v-if="type!='add'" id="inputDelay" type="primary" size="small" @click="saveCase" title="ctrl + s">
-            {{ $t('commons.save') }}
-          </el-button>
+          <ms-table-button v-if="type!='add'" :is-tester-permission="true"
+                           id="inputDelay"
+                           type="primary"
+                           :content="$t('commons.save')"
+                           size="small" @click="saveCase"
+                           icon=""
+                           title="ctrl + s"/>
           <el-dropdown v-else split-button type="primary" class="ms-api-buttion" @click="handleCommand"
                        @command="handleCommand" size="small" style="float: right;margin-right: 20px">
             {{ $t('commons.save') }}
@@ -58,14 +62,14 @@
           </el-row>
 
           <el-row>
-            <el-col :span="7">
-              <el-form-item label="评审状态" :label-width="formLabelWidth" prop="reviewStatus">
-                <el-select size="small" v-model="form.reviewStatus" class="ms-case-input">
-                  <el-option v-for="item in options" :key="item.id" :label="item.label" :value="item.id">
-                  </el-option>
-                </el-select>
-              </el-form-item>
-            </el-col>
+<!--            <el-col :span="7">-->
+<!--              <el-form-item label="评审状态" :label-width="formLabelWidth" prop="reviewStatus">-->
+<!--                <el-select size="small" v-model="form.reviewStatus" class="ms-case-input">-->
+<!--                  <el-option v-for="item in options" :key="item.id" :label="item.label" :value="item.id">-->
+<!--                  </el-option>-->
+<!--                </el-select>-->
+<!--              </el-form-item>-->
+<!--            </el-col>-->
             <el-col :span="7">
               <el-form-item :label="$t('commons.tag')" :label-width="formLabelWidth" prop="tag">
                 <ms-input-tag :currentScenario="form" v-if="showInputTag" ref="tag" class="ms-case-input"/>
@@ -84,8 +88,6 @@
                 </el-select>
               </el-form-item>
             </el-col>
-          </el-row>
-          <el-row>
             <el-col :span="7">
               <el-form-item :label="$t('test_track.case.priority')" :label-width="formLabelWidth" prop="priority">
                 <el-select :disabled="readOnly" v-model="form.priority" clearable
@@ -97,16 +99,17 @@
                 </el-select>
               </el-form-item>
             </el-col>
-            <el-col :span="14">
+          </el-row>
+          <el-row>
+
+            <el-col :span="7">
               <el-form-item :label="$t('test_track.case.relate_test')" :label-width="formLabelWidth">
-                <el-cascader filterable placeholder="请选择要关联的测试" show-all-levels v-model="form.selected" :props="props"
-                             class="ms-case"></el-cascader>
+                <el-cascader :options="sysList" filterable placeholder="请选择要关联的测试" show-all-levels
+                             v-model="form.selected" :props="props"
+                             class="ms-case" @change="clearInput" ref="cascade"></el-cascader>
               </el-form-item>
             </el-col>
-          </el-row>
-
-          <el-row>
-            <el-col :span="10">
+            <el-col :span="7">
               <el-form-item label="关联需求" :label-width="formLabelWidth" prop="demandId">
                 <el-select filterable :disabled="readOnly" v-model="form.demandId" @visible-change="visibleChange"
                            placeholder="请选择要关联的需求" class="ms-case-input">
@@ -120,7 +123,7 @@
               </el-form-item>
 
             </el-col>
-            <el-col :span="10" :offset="1">
+            <el-col :span="7">
               <el-form-item label="需求ID/名称" :label-width="formLabelWidth" prop="demandName"
                             v-if="form.demandId=='other'">
                 <el-input v-model="form.demandName"></el-input>
@@ -286,7 +289,7 @@
 <script>
 import {TokenKey, WORKSPACE_ID} from '@/common/js/constants';
 import MsDialogFooter from '../../../common/components/MsDialogFooter'
-import {getCurrentUser, listenGoBack, removeGoBackListener} from "@/common/js/utils";
+import {getCurrentUser, handleCtrlSEvent, listenGoBack, removeGoBackListener} from "@/common/js/utils";
 import {Message} from "element-ui";
 import TestCaseAttachment from "@/business/components/track/case/components/TestCaseAttachment";
 import {buildNodePath} from "../../../api/definition/model/NodeTree";
@@ -297,10 +300,12 @@ import {ELEMENTS} from "@/business/components/api/automation/scenario/Setting";
 import TestCaseComment from "@/business/components/track/case/components/TestCaseComment";
 import ReviewCommentItem from "@/business/components/track/review/commom/ReviewCommentItem";
 import {API_STATUS, REVIEW_STATUS, TEST} from "@/business/components/api/definition/model/JsonData";
+import MsTableButton from "@/business/components/common/components/MsTableButton";
 
 export default {
   name: "TestCaseEdit",
   components: {
+    MsTableButton,
 
     ReviewCommentItem,
     TestCaseComment, MsPreviousNextButton, MsInputTag, CaseComment, MsDialogFooter, TestCaseAttachment
@@ -309,45 +314,12 @@ export default {
     return {
       props: {
         multiple: true,
-        lazy: true,
-        lazyLoad: ((node, resolve) => {
-          const { level } = node;
-          if(node.level==0){
-            const nodes = TEST
-              .map(item => ({
-                value: item.id,
-                label: item.name,
-                leaf: level >= 1
-              }));
-            resolve(nodes)
-          }
-          if(node.level==1){
-            this.testOptions = [];
-            let url = '';
-            this.form.type=node.data.value
-            if (this.form.type === 'testcase' || this.form.type === 'automation') {
-              url = '/api/' + this.form.type + '/list/' + this.projectId
-            } else if (this.form.type === 'performance' || this.form.type === 'api') {
-              url = '/' + this.form.type + '/list/' + this.projectId
-            }
-            if (this.projectId && this.form.type != '' && this.form.type != 'undefined') {
-              this.$get(url, response => {
-                const nodes = response.data
-                  .map(item => ({
-                    value: item.id,
-                    label: item.name,
-                    leaf: level >= 1
-                  }));
-                resolve(nodes)
-              });
-
-            }
-
-          }
-        }),
+        //lazy: true,
+        //lazyLoad:this.lazyLoad
       },
+      sysList: [],//一级选择框的数据
       options: REVIEW_STATUS,
-      statuOptions:API_STATUS,
+      statuOptions: API_STATUS,
       comments: [],
       result: {},
       dialogFormVisible: false,
@@ -366,13 +338,13 @@ export default {
           desc: '',
           result: ''
         }],
-        selected:                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             [],
+        selected: [],
         remark: '',
         tags: [],
         demandId: '',
         demandName: '',
-        status:'Prepare',
-        reviewStatus:'Prepare',
+        status: 'Prepare',
+        reviewStatus: 'Prepare',
       },
       readOnly: false,
       moduleOptions: [],
@@ -389,6 +361,7 @@ export default {
           {max: 255, message: this.$t('test_track.length_less_than') + '255', trigger: 'blur'}
         ],
         module: [{required: true, message: this.$t('test_track.case.input_module'), trigger: 'change'}],
+        demandName: [{required: true, message: this.$t('test_track.case.input_demand_name'), trigger: 'change'}],
         maintainer: [{required: true, message: this.$t('test_track.case.input_maintainer'), trigger: 'change'}],
         priority: [{required: true, message: this.$t('test_track.case.input_priority'), trigger: 'change'}],
         method: [{required: true, message: this.$t('test_track.case.input_method'), trigger: 'change'}],
@@ -430,7 +403,7 @@ export default {
     type: String
   },
   computed: {
-    projectId() {
+    projectIds() {
       return this.$store.state.projectId
     },
   },
@@ -456,8 +429,88 @@ export default {
       this.$emit('setModuleOptions', this.moduleOptions);
     }
   },
+  created() {
+    this.loadOptions();
+    this.addListener(); //  添加 ctrl s 监听
+  },
   methods: {
-
+    clearInput() {
+      //this.$refs['cascade'].panel.clearCheckedNodes()
+    },
+    async loadOptions(sysLib) {
+      sysLib = TEST
+        .map(item => ({
+          value: item.id,
+          label: item.name,
+        }));
+      let array = [];
+      for (let i = 0; i < sysLib.length; i++) {
+        if (sysLib.length > 0) {
+          let res = await this.getTestOptions(sysLib[i].value);
+          sysLib[i].children = res;
+        }
+        array.push(sysLib[i]);
+      }
+      this.sysList = array;
+    },
+    getTestOptions(val) {
+      this.form.type = val
+      this.projectId = this.projectIds
+      this.testOptions = [];
+      let url = '';
+      if (this.form.type === 'testcase' || this.form.type === 'automation') {
+        url = '/api/' + this.form.type + '/list/' + this.projectId
+      } else if (this.form.type === 'performance' || this.form.type === 'api') {
+        url = '/' + this.form.type + '/list/' + this.projectId
+      }
+      return new Promise((resolve, reject) => {
+        this.$get(url).then(res => {
+          console.log(res.data.data)
+          const data = res.data.data.map(item => ({
+            value: item.id,
+            label: item.name,
+            leaf: true
+          }))
+          resolve(data)
+        }).catch((err) => {
+          reject(err)
+        })
+      })
+    },
+    /* lazyLoad(node, resolve){
+      const { level } = node;
+      if(node.level==0){
+        const nodes = TEST
+          .map(item => ({
+            value: item.id,
+            label: item.name,
+            leaf: level >= 1
+          }));
+        resolve(nodes)
+      }
+      if(node.level==1){
+        this.projectId = getCurrentProjectID()
+        this.testOptions = [];
+        let url = '';
+        this.form.type=node.data.value
+        if (this.form.type === 'testcase' || this.form.type === 'automation') {
+          url = '/api/' + this.form.type + '/list/' + this.projectId
+        } else if (this.form.type === 'performance' || this.form.type === 'api') {
+          url = '/' + this.form.type + '/list/' + this.projectId
+        }
+        if (this.projectId && this.form.type != '' && this.form.type != 'undefined') {
+          this.$get(url, response => {
+              const nodes = response.data
+                .map(item => ({
+                  value: item.id,
+                  label: item.name,
+                  leaf: level >= 1
+                }));
+              resolve(nodes)
+          });
+        }
+      }
+    },*/
     handleCommand(e) {
       if (e === "ADD_AND_CREATE") {
         this.$refs['caseFrom'].validate((valid) => {
@@ -465,14 +518,15 @@ export default {
             this.saveCase();
           } else {
             this.saveCase();
-            let tab={}
-            tab.name='add'
-            this.$emit('addTab',tab)}
+            let tab = {}
+            tab.name = 'add'
+            this.$emit('addTab', tab)
+          }
         })
-      }else {
+      } else {
         this.saveCase();
       }
-      },
+    },
     openComment() {
       this.$refs.testCaseComment.open()
     },
@@ -499,6 +553,10 @@ export default {
       this.$nextTick(() => (this.isStepTableAlive = true));
     },
     open(testCase) {
+      /*
+             this.form.selected=[["automation", "3edaaf31-3fa4-4a53-9654-320205c2953a"],["automation", "3aa58bd1-c986-448c-8060-d32713dbd4eb"]]
+      */
+      this.projectId = this.projectIds;
       if (window.history && window.history.pushState) {
         history.pushState(null, null, document.URL);
         window.addEventListener('popstate', this.close);
@@ -570,7 +628,7 @@ export default {
         })
       })
     },
-    setFormData(testCase) {
+    async setFormData(testCase) {
       testCase.tags = JSON.parse(testCase.tags);
       testCase.selected = JSON.parse(testCase.testId);
       let tmp = {};
@@ -580,11 +638,12 @@ export default {
         tmp.steps = []
       }
       Object.assign(this.form, tmp);
+      console.log(this.form.selected)
       this.form.module = testCase.nodeId;
-      /*
-            this.form.testId=testCase.selected
-      */
       this.getFileMetaData(testCase);
+      /* testCase.selected = JSON.parse(testCase.testId);
+       this.form.selected= testCase.selected*/
+      await this.loadOptions(this.sysList)
     },
     setTestCaseExtInfo(testCase) {
       this.testCase = {};
@@ -649,9 +708,9 @@ export default {
       this.dialogFormVisible = false;
     },
     saveCase() {
-/*
-      document.getElementById("inputDelay").focus();
-*/
+      /*
+            document.getElementById("inputDelay").focus();
+      */
 
       //  保存前在input框自动失焦，以免保存失败
       this.$refs['caseFrom'].validate((valid) => {
@@ -782,21 +841,7 @@ export default {
         this.maintainerOptions = response.data;
       });
     },
-    getTestOptions(val) {
-      this.testOptions = [];
-      let url = '';
-      if (this.form.type === 'testcase' || this.form.type === 'automation') {
-        url = '/api/' + this.form.type + '/list/' + this.projectId
-      } else if (this.form.type === 'performance' || this.form.type === 'api') {
-        url = '/' + this.form.type + '/list/' + this.projectId
-      }
-      if (this.projectId && this.form.type != '' && this.form.type != 'undefined') {
-        this.result = this.$get(url, response => {
-          this.testOptions = response.data;
-          this.testOptions.unshift({id: 'other', name: this.$t('test_track.case.other')})
-        });
-      }
-    },
+
     visibleChange(flag) {
       if (flag) {
         this.getDemandOptions();
@@ -804,14 +849,14 @@ export default {
     },
     getDemandOptions() {
       if (this.demandOptions.length === 0) {
-        this.result = {loading : true};
+        this.result = {loading: true};
         this.$get("demand/list/" + this.projectId).then(response => {
           this.demandOptions = response.data.data;
           this.demandOptions.unshift({id: 'other', name: this.$t('test_track.case.other'), platform: 'Other'})
-          this.result = {loading : false};
+          this.result = {loading: false};
         }).catch(() => {
           this.demandOptions.unshift({id: 'other', name: this.$t('test_track.case.other'), platform: 'Other'})
-          this.result = {loading : false};
+          this.result = {loading: false};
         })
       }
     },
@@ -935,6 +980,15 @@ export default {
     fileValidator(file) {
       /// todo: 是否需要对文件内容和大小做限制
       return file.size > 0;
+    },
+    addListener() {
+      document.addEventListener("keydown", this.createCtrlSHandle);
+    },
+    removeListener() {
+      document.removeEventListener("keydown", this.createCtrlSHandle);
+    },
+    createCtrlSHandle(event) {
+      handleCtrlSEvent(event, this.saveCase);
     },
   }
 }

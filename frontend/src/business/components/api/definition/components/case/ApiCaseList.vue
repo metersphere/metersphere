@@ -25,6 +25,7 @@
             <api-case-item v-loading="singleLoading && singleRunId === item.id || batchLoadingIds.indexOf(item.id) > -1"
                            @refresh="refresh"
                            @singleRun="singleRun"
+                           @refreshModule="refreshModule"
                            @copyCase="copyCase"
                            @showExecResult="showExecResult"
                            @batchEditCase="batchEditCase"
@@ -181,7 +182,9 @@
         this.apiCaseList = [];
         this.visible = false;
       },
-
+      refreshModule(){
+        this.$emit('refreshModule');
+      },
       runRefresh() {
         this.batchLoadingIds = [];
         this.singleLoading = false;

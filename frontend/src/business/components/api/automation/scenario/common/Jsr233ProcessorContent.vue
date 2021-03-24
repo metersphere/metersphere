@@ -162,6 +162,7 @@
 
   .script-content {
     height: calc(100vh - 570px);
+    min-height: 250px;
   }
 
   .script-index {

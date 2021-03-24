@@ -84,7 +84,9 @@ public class MsTCPSampler extends MsTestElement {
             this.setProjectId(config.getProjectId());
             config.setConfig(getEnvironmentConfig(useEnvironment));
         }
-        parseEnvironment(config.getConfig().get(this.projectId));
+        if(config.getConfig()!=null){
+            parseEnvironment(config.getConfig().get(this.projectId));
+        }
 
         // 添加环境中的公共变量
         Arguments arguments = this.addArguments(config);

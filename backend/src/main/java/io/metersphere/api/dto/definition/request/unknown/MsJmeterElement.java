@@ -58,7 +58,7 @@ public class MsJmeterElement extends MsTestElement {
                     LogUtil.info(((ThreadGroup) scriptWrapper).getName() + "是被禁用线程组不加入执行");
                 } else {
                     // CSV数据检查文件路径是否还存在
-                    if (scriptWrapper instanceof CSVDataSet) {
+                    if (!config.isOperating() && scriptWrapper instanceof CSVDataSet) {
                         String path = ((CSVDataSet) scriptWrapper).getPropertyAsString("filename");
                         if (!new File(path).exists()) {
                             MSException.throwException(StringUtils.isEmpty(((CSVDataSet) scriptWrapper).getName()) ? "CSVDataSet" : ((CSVDataSet) scriptWrapper).getName() + "：[ CSV文件不存在 ]");

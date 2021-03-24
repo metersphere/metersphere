@@ -84,11 +84,13 @@ export default {
       fileList: [],
       uploadList: [],
       fileNumLimit: 10,
-      condition: {}
+      condition: {},
+      projectId: getCurrentProjectID(),
     }
   },
   methods: {
-    open() {
+    open(project) {
+      this.projectId = project.id;
       this.loadFileVisible = true;
       this.getProjectFiles();
     },
@@ -97,7 +99,7 @@ export default {
       this.selectIds.clear();
     },
     getProjectFiles() {
-      this.projectLoadingResult = this.$post('/performance/project/all/' + getCurrentProjectID() + "/" + this.currentPage + "/" + this.pageSize, this.condition, res => {
+      this.projectLoadingResult = this.$post('/performance/project/all/' + this.projectId + "/" + this.currentPage + "/" + this.pageSize, this.condition, res => {
         let data = res.data;
         this.total = data.itemCount;
         this.existFiles = data.listObject;
@@ -118,7 +120,7 @@ export default {
     handleUpload(uploadResources) {
       let file = uploadResources.file;
       let formData = new FormData();
-      let url = '/project/upload/files/' + getCurrentProjectID()
+      let url = '/project/upload/files/' + this.projectId
       formData.append("file", file);
       let options = {
         method: 'POST',

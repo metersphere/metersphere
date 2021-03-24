@@ -278,6 +278,7 @@
         let url = '/api/module/getModuleByName/' + getCurrentProjectID() + "/" + this.api.protocol;
         this.$get(url, response => {
           if (response.data) {
+            this.$emit('refreshModule');
             this.saveApi(row, response.data);
           }
         });
@@ -332,6 +333,10 @@
           row.id = data.id;
           row.createTime = data.createTime;
           row.updateTime = data.updateTime;
+          if (!row.message) {
+            this.$success(this.$t('commons.save_success'));
+            this.$emit('refresh');
+          }
         });
       },
       saveTestCase(row) {
