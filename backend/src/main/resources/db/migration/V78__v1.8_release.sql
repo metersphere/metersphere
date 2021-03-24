@@ -195,3 +195,7 @@ alter table test_case
 
 -- update history data
 update test_case set review_status = 'Prepare' where review_status is null;
+
+-- test_case_node update name
+alter table test_case_node
+    modify name varchar(100) NOT NULL COMMENT 'Node name';

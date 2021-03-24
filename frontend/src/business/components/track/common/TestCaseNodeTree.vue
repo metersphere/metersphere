@@ -5,6 +5,7 @@
       v-loading="result.loading"
       :tree-nodes="treeNodes"
       :type="'edit'"
+      :name-limit="100"
       @add="add"
       @edit="edit"
       @drag="drag"
