@@ -36,9 +36,12 @@
         SELECT * FROM (
             SELECT testCase.testCaseID,testCase.testCaseName AS caseName,testCase.testPlanName AS testPlan ,caseErrorCountData.dataCountNumber AS failureTimes,'apiCase' AS caseType
             FROM (
-            SELECT apiCase.id AS testCaseID,apiCase.`name` AS testCaseName,group_concat(testPlan.`name`)  AS testPlanName FROM api_test_case apiCase
+            SELECT apiCase.id AS testCaseID,apiCase.`name` AS testCaseName,group_concat(testPlan.`name`)  AS testPlanName, testPlanCase.update_time as updateTime
+            FROM api_test_case apiCase
+            inner join api_definition on api_definition.id = apiCase.api_definition_id
            INNER JOIN test_plan_api_case testPlanCase ON testPlanCase.api_case_id = apiCase.id
            INNER JOIN test_plan testPlan ON testPlan.id = testPlanCase.test_plan_id
+            and api_definition.status != 'Trash'
             GROUP BY apiCase.id
             ORDER BY apiCase.create_time DESC
             )testCase
@@ -48,7 +51,7 @@
                 SELECT id FROM api_test_case WHERE project_id = #{projectId}
                 ) and `status` = 'error' GROUP BY resource_id
             ) caseErrorCountData ON caseErrorCountData.testCaseID =testCase.testCaseID
-            WHERE caseErrorCountData.executeTime >= #{startTimestamp}
+            WHERE testCase.updateTime >= #{startTimestamp}
             UNION
             SELECT scene.id AS testCaseID,scene.`name` AS caseName,apiScene.testPlanName AS testPlan,count(report.id) AS failureTimes,'scenario' AS caseType
             FROM api_scenario_report report

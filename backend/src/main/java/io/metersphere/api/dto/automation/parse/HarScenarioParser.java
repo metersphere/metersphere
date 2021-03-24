@@ -46,8 +46,6 @@ public class HarScenarioParser extends HarScenarioAbstractParser<ScenarioImport>
         String harName = request.getFileName();
         // 场景步骤
         LinkedList<MsTestElement> apiScenarioWithBLOBs = new LinkedList<>();
-//        ApiScenarioWithBLOBs scenario = new ApiScenarioWithBLOBs();
-//        scenario.setName(harName);
 
         MsScenario msScenario = new MsScenario();
         msScenario.setName(harName);

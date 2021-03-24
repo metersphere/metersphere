@@ -128,6 +128,7 @@ export default {
       }
     },
     close() {
+      this.$emit('close');
       this.refresh();
       this.$refs.relevanceDialog.close();
     },

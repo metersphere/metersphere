@@ -1,6 +1,6 @@
 <template>
   <div>
-    <el-card class="table-card" v-loading="loading">
+    <el-card class="table-card" v-loading="result.loading">
       <template v-slot:header>
         <ms-table-header :condition.sync="condition" @search="selectByParam" title=""
                          :show-create="false" :tip="$t('commons.search_by_id_name_tag')"/>
@@ -24,7 +24,7 @@
 
         <el-table-column v-if="!referenced" width="30" min-width="30" :resizable="false" align="center">
           <template v-slot:default="scope">
-            <show-more-btn :is-show="scope.row.showMore" :buttons="buttons" :size="selectDataCounts" v-tester/>
+            <show-more-btn :is-show="scope.row.showMore" :buttons="trashEnable ? trashButtons: buttons" :size="selectDataCounts" v-tester/>
           </template>
         </el-table-column>
         <template v-for="(item, index) in tableLabel">
@@ -69,7 +69,7 @@
           <el-table-column v-if="item.id == 'tags'" prop="tags" min-width="120px"
                            :label="$t('api_test.automation.tag')" :key="index">
             <template v-slot:default="scope">
-              <ms-tag v-for="(itemName,index)  in scope.row.tags" :key="index" type="success" effect="plain" :content="itemName" :show-tooltip="true" tooltip style="margin-left: 5px"/>
+              <ms-tag v-for="(itemName,index)  in scope.row.tags" :key="index" type="success" effect="plain" :content="itemName" :show-tooltip="true" tooltip style="margin-left: 0px; margin-right: 2px"/>
             </template>
           </el-table-column>
           <el-table-column v-if="item.id == 'userId'" prop="userId" min-width="120px"
@@ -164,7 +164,7 @@
   import MsTablePagination from "@/business/components/common/pagination/TablePagination";
   import ShowMoreBtn from "@/business/components/track/case/components/ShowMoreBtn";
   import MsTag from "../../../common/components/MsTag";
-  import {downloadFile, getCurrentProjectID, getCurrentUser, getUUID, strMapToObj} from "@/common/js/utils";
+  import {downloadFile, getUUID, strMapToObj} from "@/common/js/utils";
   import MsApiReportDetail from "../report/ApiReportDetail";
   import MsTableMoreBtn from "./TableMoreBtn";
   import MsScenarioExtendButtons from "@/business/components/api/automation/scenario/ScenarioExtendBtns";
@@ -218,6 +218,10 @@
         default: false,
       },
       selectNodeIds: Array,
+      selectProjectId: {
+        type: String,
+        default: ""
+      },
       trashEnable: {
         type: Boolean,
         default: false,
@@ -242,10 +246,10 @@
     },
     data() {
       return {
+        result: {},
         type: API_SCENARIO_LIST,
         headerItems: Api_Scenario_List,
         tableLabel: Api_Scenario_List,
-        loading: false,
         screenHeight: document.documentElement.clientHeight - 280,//屏幕高度,
         condition: {
           components: API_SCENARIO_CONFIGS
@@ -264,7 +268,6 @@
         infoDb: false,
         runVisible: false,
         planVisible: false,
-        projectId: "",
         runData: [],
         report: {},
         selectDataSize: 0,
@@ -285,6 +288,12 @@
           },
           {name: this.$t('api_test.definition.request.batch_delete'), handleClick: this.handleDeleteBatch},
 
+        ],
+        trashButtons: [
+          {name: this.$t('api_test.definition.request.batch_delete'), handleClick: this.handleDeleteBatch},
+          {
+            name: "批量恢复", handleClick: this.handleBatchRestore
+          },
         ],
         isSelectAllDate: false,
         selectRows: new Set(),
@@ -332,13 +341,12 @@
     },
     created() {
       this.condition.filters = {status: ["Prepare", "Underway", "Completed"]};
-      this.projectId = getCurrentProjectID();
       this.search();
       this.getPrincipalOptions([]);
     },
     watch: {
       selectNodeIds() {
-        this.search();
+        this.selectProjectId ? this.search(this.selectProjectId) : this.search();
       },
       trashEnable() {
         if (this.trashEnable) {
@@ -350,14 +358,17 @@
         this.search();
       },
       batchReportId() {
-        this.loading = true;
+        this.result.loading = true;
         this.getReport();
       }
     },
     computed: {
       isNotRunning() {
         return "Running" !== this.report.status;
-      }
+      },
+      projectId() {
+        return this.$store.state.projectId
+      },
     },
     methods: {
       customHeader() {
@@ -407,7 +418,7 @@
         this.selectDataCounts = 0;
         let url = "/api/automation/list/" + this.currentPage + "/" + this.pageSize;
         if (this.condition.projectId) {
-          this.loading = true;
+          this.result.loading = true;
           this.$post(url, this.condition, response => {
             let data = response.data;
             this.total = data.itemCount;
@@ -417,7 +428,7 @@
                 item.tags = JSON.parse(item.tags);
               }
             });
-            this.loading = false;
+            this.result.loading = false;
             this.unSelection = data.listObject.map(s => s.id);
             if (this.$refs.scenarioTable) {
               this.$refs.scenarioTable.doLayout()
@@ -539,13 +550,13 @@
                 } catch (e) {
                   throw e;
                 }
-                this.loading = false;
+                this.result.loading = false;
                 this.$success("批量执行成功，请到报告页面查看详情！");
               } else {
                 setTimeout(this.getReport, 2000)
               }
             } else {
-              this.loading = false;
+              this.result.loading = false;
               this.$error(this.$t('api_report.not_exist'));
             }
           });
@@ -553,7 +564,7 @@
       },
       buildBatchParam(param) {
         param.ids = Array.from(this.selectRows).map(row => row.id);
-        param.projectId = getCurrentProjectID();
+        param.projectId = this.projectId;
         param.condition = this.condition;
       },
       handleBatchExecute() {
@@ -592,10 +603,14 @@
         this.$emit('edit', data);
       },
       reductionApi(row) {
-        row.scenarioDefinition = null;
-        row.tags = null;
-        let rows = [row];
-        this.$post("/api/automation/reduction", rows, response => {
+        this.$post("/api/automation/reduction", [row.id], response => {
+          this.$success(this.$t('commons.save_success'));
+          this.search();
+        })
+      },
+      handleBatchRestore() {
+        let ids = Array.from(this.selectRows).map(row => row.id);
+        this.$post("/api/automation/reduction", ids, response => {
           this.$success(this.$t('commons.save_success'));
           this.search();
         })
@@ -630,7 +645,7 @@
         let scenarioIds = [];
         scenarioIds.push(row.id);
         run.id = getUUID();
-        run.projectId = getCurrentProjectID();
+        run.projectId = this.projectId;
         run.ids = scenarioIds;
         this.$post(url, run, response => {
           let data = response.data;
@@ -708,9 +723,9 @@
           this.$warning(this.$t("api_test.automation.scenario.check_case"));
           return;
         }
-        this.loading = true;
+        this.result.loading = true;
         this.result = this.$post("/api/automation/export", param, response => {
-          this.loading = false;
+          this.result.loading = false;
           let obj = response.data;
           this.buildApiPath(obj.data);
           downloadFile("Metersphere_Scenario_" + localStorage.getItem(PROJECT_NAME) + ".json", JSON.stringify(obj));
@@ -723,9 +738,9 @@
           this.$warning(this.$t("api_test.automation.scenario.check_case"));
           return;
         }
-        this.loading = true;
+        this.result.loading = true;
         this.result = this.$post("/api/automation/export/jmx", param, response => {
-          this.loading = false;
+          this.result.loading = false;
           let obj = response.data;
           if (obj && obj.length > 0) {
             obj.forEach(item => {

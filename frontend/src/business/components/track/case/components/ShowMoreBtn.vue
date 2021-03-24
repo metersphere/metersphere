@@ -26,6 +26,11 @@
       row: Object,
       size: Number
     },
+    created() {
+      if (this.trashEnable) {
+        this.buttons.splice(1, 1);
+      }
+    },
     methods: {
       click(btn) {
         if (btn.handleClick instanceof Function) {

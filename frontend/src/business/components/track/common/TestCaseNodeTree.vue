@@ -44,9 +44,7 @@
 
 <script>
 import NodeEdit from "./NodeEdit";
-import {getCurrentProjectID} from "../../../../common/js/utils";
 import MsNodeTree from "./NodeTree";
-import {buildNodePath} from "@/business/components/api/definition/model/NodeTree";
 import TestCaseCreate from "@/business/components/track/case/components/TestCaseCreate";
 import TestCaseImport from "@/business/components/track/case/components/TestCaseImport";
 
@@ -61,7 +59,6 @@ export default {
       },
       result: {},
       treeNodes: [],
-      projectId: "",
       condition: {
         filterText: "",
         trashEnable: false
@@ -83,12 +80,16 @@ export default {
     },
   },
   mounted() {
-    this.projectId = getCurrentProjectID();
     this.list();
+  },
+  computed: {
+    projectId() {
+      return this.$store.state.projectId
+    },
   },
   methods: {
     addTestCase(){
-      if (!getCurrentProjectID()) {
+      if (!this.projectId) {
         this.$warning(this.$t('commons.check_project_tip'));
         return;
       }
@@ -109,7 +110,7 @@ export default {
           this.addTestCase();
           break;
         case "import":
-          if (!getCurrentProjectID()) {
+          if (!this.projectId) {
             this.$warning(this.$t('commons.check_project_tip'));
             return;
           }

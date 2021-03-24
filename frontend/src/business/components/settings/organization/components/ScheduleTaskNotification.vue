@@ -9,9 +9,9 @@
         <el-popover
           placement="right-end"
           title="示例"
-          width="400"
-          trigger="click"
-          :content="title">
+          width="600"
+          trigger="click">
+          <ms-code-edit :read-only="true" height="400px" :data.sync="title" :modes="modes" :mode="'html'"/>
           <el-button icon="el-icon-warning" plain size="mini" slot="reference">
             {{ $t('organization.message.mail_template_example') }}
           </el-button>
@@ -19,9 +19,9 @@
         <el-popover
           placement="right-end"
           title="示例"
-          width="400"
-          trigger="click"
-          :content="robotTitle">
+          width="200"
+          trigger="click" >
+          <ms-code-edit :read-only="true" height="200px" :data.sync="robotTitle" :modes="modes" :mode="'text'"/>
           <el-button icon="el-icon-warning" plain size="mini" slot="reference">
             {{ $t('organization.message.robot_template') }}
           </el-button>
@@ -136,6 +136,7 @@
 
 <script>
 import {hasLicense} from "@/common/js/utils";
+import MsCodeEdit from "@/business/components/common/components/MsCodeEdit";
 
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
 const noticeTemplate = requireComponent.keys().length > 0 ? requireComponent("./notice/NoticeTemplate.vue") : {};
@@ -143,6 +144,7 @@ const noticeTemplate = requireComponent.keys().length > 0 ? requireComponent("./
 export default {
   name: "ScheduleTaskNotification",
   components: {
+    MsCodeEdit,
     "NoticeTemplate": noticeTemplate.default
   },
   props: {
@@ -155,6 +157,7 @@ export default {
   },
   data() {
     return {
+      modes: ['text', 'html'],
       title: '<!DOCTYPE html>\n' +
         '<html lang="en">\n' +
         '<head>\n' +

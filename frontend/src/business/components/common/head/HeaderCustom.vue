@@ -52,10 +52,7 @@ export default {
           this.defaultCheckedKeys.push(i.id)
         }
       )
-      console.log(this.defaultCheckedKeys)
-      console.log(this.optionalFields)
-      console.log(this.fieldSelected)
-
+      this.fieldSelected = items;
     },
     saveHeader() {
       let param = {
@@ -67,8 +64,8 @@ export default {
         console.log(this.optionalFields)
         console.log(this.fieldSelected)
         this.$success(this.$t("commons.save_success"));
-        this.dialogTableVisible = false
         this.initTableData()
+        this.close();
       })
     },
     removeAt(idx) {

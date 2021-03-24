@@ -1,7 +1,5 @@
 <template>
   <div class="card-container">
-<!--    <el-card class="card-content" v-loading="result.loading">-->
-<!--      <template v-slot:header>-->
         <ms-table-header :is-tester-permission="true" :condition.sync="condition" @search="initTableData"
                          :show-create="false" :tip="$t('commons.search_by_id_name_tag')">
 
@@ -18,14 +16,8 @@
             <ms-table-button :is-tester-permission="true" icon="el-icon-connection"
                              :content="$t('test_track.plan_view.relevance_test_case')"
                              @click="$emit('openTestCaseRelevanceDialog')"/>
-
-<!--            删除 “取消全部关联” 按钮-->
-<!--            <ms-table-button :is-tester-permission="true" icon="el-icon-document-remove"-->
-<!--                             :content="$t('test_track.plan_view.cancel_all_relevance')" @click="handleDeleteBatch"/>-->
-
           </template>
         </ms-table-header>
-<!--      </template>-->
 
       <executor-edit ref="executorEdit" :select-ids="new Set(Array.from(this.selectRows).map(row => row.id))"
                      @refresh="initTableData"/>
@@ -101,7 +93,7 @@
                            :key="index"
           >
             <template v-slot:default="scope">
-                <ms-tag v-for="(tag, index) in scope.row.showTags" :key="tag + '_' + index" type="success" effect="plain" :content="tag" style="margin-left: 5px"/>
+                <ms-tag v-for="(tag, index) in scope.row.showTags" :key="tag + '_' + index" type="success" effect="plain" :content="tag" style="margin-left: 0px; margin-right: 2px"/>
             </template>
           </el-table-column>
 
@@ -716,5 +708,9 @@ export default {
 
 .el-tag {
   margin-left: 10px;
+}
+
+.ms-table-header >>> .table-title {
+  height: 0px;
 }
 </style>

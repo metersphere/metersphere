@@ -71,7 +71,7 @@
           <el-table-column v-if="item.id=='tags'" prop="tags" min-width="120px" :label="$t('commons.tag')"
                            :key="index">
             <template v-slot:default="scope">
-                <ms-tag  v-for="(itemName,index)  in scope.row.tags" :key="index" type="success" effect="plain" :content="itemName" style="margin-left: 5px"/>
+                <ms-tag  v-for="(itemName,index)  in scope.row.tags" :key="index" type="success" effect="plain" :content="itemName" style="margin-left: 0px; margin-right: 2px"/>
             </template>
           </el-table-column>
 
@@ -143,7 +143,7 @@ import ShowMoreBtn from "../../../../track/case/components/ShowMoreBtn";
 import MsBatchEdit from "../basis/BatchEdit";
 import {API_METHOD_COLOUR, CASE_PRIORITY, DUBBO_METHOD, REQ_METHOD, SQL_METHOD, TCP_METHOD} from "../../model/JsonData";
 
-import {getBodyUploadFiles, getCurrentProjectID, getCurrentUser} from "@/common/js/utils";
+import {getBodyUploadFiles} from "@/common/js/utils";
 import PriorityTableItem from "../../../../track/common/tableItems/planview/PriorityTableItem";
 import MsApiCaseTableExtendBtns from "../reference/ApiCaseTableExtendBtns";
 import MsReferenceView from "../reference/ReferenceView";
@@ -282,10 +282,12 @@ export default {
       }
     },
   computed: {
-
     // 接口定义用例列表
     isApiModel() {
       return this.model === 'api'
+    },
+    projectId() {
+      return this.$store.state.projectId
     },
   },
   methods: {
@@ -305,7 +307,7 @@ export default {
         this.selectAll = false;
         this.unSelection = [];
         this.selectDataCounts = 0;
-        this.condition.projectId = getCurrentProjectID();
+        this.condition.projectId = this.projectId;
 
         if (this.currentProtocol != null) {
           this.condition.protocol = this.currentProtocol;
@@ -409,7 +411,7 @@ export default {
           callback: (action) => {
             if (action === 'confirm') {
               let obj = {};
-              obj.projectId = getCurrentProjectID();
+              obj.projectId = this.projectId;
               obj.selectAllDate = this.isSelectAllDate;
               obj.unSelectIds = this.unSelection;
               obj.ids = Array.from(this.selectRows).map(row => row.id);
@@ -456,7 +458,7 @@ export default {
         let param = {};
         param[form.type] = form.value;
         param.ids = ids;
-        param.projectId = getCurrentProjectID();
+        param.projectId = this.projectId;
         param.selectAllDate = this.isSelectAllDate;
         param.unSelectIds = this.unSelection;
         param = Object.assign(param, this.condition);
@@ -528,7 +530,7 @@ export default {
       },
       showEnvironment(row) {
 
-        let projectID = getCurrentProjectID();
+        let projectID = this.projectId;
         if (this.projectId) {
           this.$get('/api/environment/list/' + this.projectId, response => {
             this.environments = response.data;
@@ -580,7 +582,7 @@ export default {
           id: row.id,
           testElement: testPlan,
           name: row.name,
-          projectId: getCurrentProjectID(),
+          projectId: this.projectId,
         };
         let bodyFiles = getBodyUploadFiles(reqObj, runData);
         reqObj.reportId = "run";

@@ -38,7 +38,7 @@
                            width="200px" :key="index">
             <template v-slot:default="scope">
               <ms-tag v-for="(itemName,index) in scope.row.tags" :key="index" type="success" effect="plain"
-                      :content="itemName" style="margin-left: 5px"/>
+                      :content="itemName" style="margin-left: 0px; margin-right: 2px"/>
             </template>
           </el-table-column>
           <el-table-column v-if="item.id == 'userId'" prop="userId" :label="$t('api_test.automation.creator')"
@@ -103,7 +103,7 @@ import MsTableHeader from "@/business/components/common/components/MsTableHeader
 import MsTablePagination from "@/business/components/common/pagination/TablePagination";
 import ShowMoreBtn from "@/business/components/track/case/components/ShowMoreBtn";
 import MsTag from "../../../../../common/components/MsTag";
-import {getUUID, getCurrentProjectID, getCurrentUser, strMapToObj} from "@/common/js/utils";
+import {getUUID, strMapToObj} from "@/common/js/utils";
 import MsApiReportDetail from "../../../../../api/automation/report/ApiReportDetail";
 import MsTableMoreBtn from "../../../../../api/automation/scenario/TableMoreBtn";
 import MsScenarioExtendButtons from "@/business/components/api/automation/scenario/ScenarioExtendBtns";
@@ -162,7 +162,6 @@ export default {
       status: 'default',
       infoDb: false,
       runVisible: false,
-      projectId: "",
       runData: [],
       buttons: [
         {
@@ -182,8 +181,12 @@ export default {
       },
     }
   },
+  computed: {
+    projectId() {
+      return this.$store.state.projectId
+    },
+  },
   created() {
-    this.projectId = getCurrentProjectID();
     this.search();
   },
   watch: {

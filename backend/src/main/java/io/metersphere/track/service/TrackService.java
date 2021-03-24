@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -87,18 +86,10 @@ public class TrackService {
     public List<ChartsData> getCaseMaintenanceBar(String projectId) {
         List<TrackCountResult> funcMaintainer = extTestCaseMapper.countFuncMaintainer(projectId);
         List<TrackCountResult> relevanceMaintainer = extTestCaseMapper.countRelevanceMaintainer(projectId);
-        List<String> list = relevanceMaintainer.stream().map(TrackCountResult::getGroupField).collect(Collectors.toList());
 
         List<ChartsData> charts = new ArrayList<>();
         for (TrackCountResult result : funcMaintainer) {
             String groupField = result.getGroupField();
-            if (!list.contains(groupField)) {
-                // 创建了功能用例，但是未关联测试
-                TrackCountResult trackCount = new TrackCountResult();
-                trackCount.setCountNumber(0);
-                trackCount.setGroupField(groupField);
-                relevanceMaintainer.add(trackCount);
-            }
             ChartsData chartsData = new ChartsData();
             chartsData.setxAxis(groupField);
             chartsData.setyAxis(BigDecimal.valueOf(result.getCountNumber()));

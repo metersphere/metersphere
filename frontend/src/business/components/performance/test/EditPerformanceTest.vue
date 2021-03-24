@@ -123,7 +123,7 @@ export default {
   },
   methods: {
     importAPITest() {
-      let apiTest = this.$store.state.api.test;
+      let apiTest = this.$store.state.test;
       if (apiTest && apiTest.name) {
         this.$set(this.test, "name", apiTest.name);
         let blob = new Blob([apiTest.jmx.xml], {type: "application/octet-stream"});
@@ -345,13 +345,11 @@ export default {
       this.$refs.basicConfig.threadGroups = threadGroups;
       this.$refs.pressureConfig.threadGroups = threadGroups;
 
-      threadGroups.forEach(tg => {
-        handler.calculateChart(tg);
-      })
+      handler.calculateTotalChart();
     },
     tgTypeChange(threadGroup) {
       let handler = this.$refs.pressureConfig;
-      handler.calculateChart(threadGroup);
+      handler.calculateTotalChart();
     }
   }
 }
