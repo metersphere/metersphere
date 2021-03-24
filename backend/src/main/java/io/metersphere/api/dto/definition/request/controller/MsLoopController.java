@@ -201,7 +201,7 @@ public class MsLoopController extends MsTestElement {
             jsr223PreProcessor.setName("循环超时处理");
             jsr223PreProcessor.setProperty(TestElement.TEST_CLASS, JSR223Sampler.class.getName());
             jsr223PreProcessor.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("TestBeanGUI"));
-            jsr223PreProcessor.setProperty("cacheKey", "true");
+            /*jsr223PreProcessor.setProperty("cacheKey", "true");*/
             jsr223PreProcessor.setProperty("scriptLanguage", "beanshell");
             jsr223PreProcessor.setProperty("script", script());
             hashTree.add(jsr223PreProcessor);
