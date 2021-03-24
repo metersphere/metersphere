@@ -93,7 +93,7 @@
                            :key="index"
           >
             <template v-slot:default="scope">
-                <ms-tag v-for="(tag, index) in scope.row.showTags" :key="tag + '_' + index" type="success" effect="plain" :content="tag" style="margin-left: 5px"/>
+                <ms-tag v-for="(tag, index) in scope.row.showTags" :key="tag + '_' + index" type="success" effect="plain" :content="tag" style="margin-left: 0px; margin-right: 2px"/>
             </template>
           </el-table-column>
 

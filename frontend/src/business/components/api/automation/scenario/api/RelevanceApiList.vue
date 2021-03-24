@@ -6,7 +6,7 @@
 
       <ms-environment-select :project-id="projectId" v-if="isTestPlan" :is-read-only="isReadOnly" @setEnvironment="setEnvironment"/>
 
-      <el-input :placeholder="$t('api_monitor.please_search')" @blur="initTable" class="search-input" size="small" @keyup.enter.native="initTable" v-model="condition.name"/>
+      <el-input :placeholder="$t('api_test.definition.request.select_api')" @blur="initTable" class="search-input" size="small" @keyup.enter.native="initTable" v-model="condition.name"/>
 
       <el-table v-loading="result.loading"
                 border
