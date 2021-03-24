@@ -602,6 +602,7 @@ export default {
         update_time_order_desc: "按更新时间从后到前",
         run_env: "运行环境",
         select_case: "搜索用例",
+        select_api: "搜索接口",
         case: "用例",
         responsible: "责任人",
         title: "创建接口",
