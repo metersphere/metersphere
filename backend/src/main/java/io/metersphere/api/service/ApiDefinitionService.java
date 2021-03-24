@@ -403,17 +403,24 @@ public class ApiDefinitionService {
 
     private void importMsCase(ApiDefinitionImport apiImport, SqlSession sqlSession, ApiTestCaseMapper apiTestCaseMapper) {
         List<ApiTestCaseWithBLOBs> cases = apiImport.getCases();
+        List<String> caseNames = apiTestCaseService.listPorjectAllCaseName(SessionUtils.getCurrentProjectId());
+        Set<String> existCaseName = new HashSet<>();
+        caseNames.forEach(item -> {
+            existCaseName.add(item);
+        });
         if (CollectionUtils.isNotEmpty(cases)) {
             int batchCount = 0;
             cases.forEach(item -> {
-                item.setId(UUID.randomUUID().toString());
-                item.setCreateTime(System.currentTimeMillis());
-                item.setUpdateTime(System.currentTimeMillis());
-                item.setCreateUserId(SessionUtils.getUserId());
-                item.setUpdateUserId(SessionUtils.getUserId());
-                item.setProjectId(SessionUtils.getCurrentProjectId());
-                item.setNum(getNextNum(item.getApiDefinitionId()));
-                apiTestCaseMapper.insert(item);
+                if(!existCaseName.contains(item.getName())) {
+                    item.setId(UUID.randomUUID().toString());
+                    item.setCreateTime(System.currentTimeMillis());
+                    item.setUpdateTime(System.currentTimeMillis());
+                    item.setCreateUserId(SessionUtils.getUserId());
+                    item.setUpdateUserId(SessionUtils.getUserId());
+                    item.setProjectId(SessionUtils.getCurrentProjectId());
+                    item.setNum(getNextNum(item.getApiDefinitionId()));
+                    apiTestCaseMapper.insert(item);
+                }
             });
             if (batchCount % 300 == 0) {
                 sqlSession.flushStatements();
@@ -628,12 +635,7 @@ public class ApiDefinitionService {
         }
 
         if (!CollectionUtils.isEmpty(apiImport.getCases())) {
-            for (int i = 0; i < apiImport.getCases().size(); i++) {
-                importMsCase(apiImport, sqlSession, apiTestCaseMapper);
-                if (i % 300 == 0) {
-                    sqlSession.flushStatements();
-                }
-            }
+            importMsCase(apiImport, sqlSession, apiTestCaseMapper);
         }
         sqlSession.flushStatements();
     }

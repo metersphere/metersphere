@@ -231,6 +231,9 @@ public class Swagger3Parser extends SwaggerAbstractParser {
         MediaType mediaType = content.get(contentType);
         if (mediaType == null) {
             Set<String> contentTypes = content.keySet();
+            if(contentTypes.size() == 0) {  //  防止空指针
+                return;
+            }
             contentType = contentTypes.iterator().next();
             if (StringUtils.isBlank(contentType)) {
                 return;
@@ -410,26 +413,34 @@ public class Swagger3Parser extends SwaggerAbstractParser {
         result.setInfo(new SwaggerInfo());
         result.setServers(new ArrayList<>());
         result.setTags(new ArrayList<>());
-        result.setComponents(new ArrayList<>());
+        result.setComponents(new JSONObject());
+        result.setExternalDocs(new JSONObject());
 
         JSONObject paths = new JSONObject();
-        JSONObject swaggerPath = new JSONObject();
         for(ApiDefinitionWithBLOBs apiDefinition : apiDefinitionList) {
             SwaggerApiInfo swaggerApiInfo = new SwaggerApiInfo();   //  {tags:, summary:, description:, parameters:}
             swaggerApiInfo.setSummary(apiDefinition.getName());
             //  设置导入后的模块名 （根据 api 的 moduleID 查库获得所属模块，作为导出的模块名）
             ApiModuleService apiModuleService = CommonBeanFactory.getBean(ApiModuleService.class);
-            String moduleName = apiModuleService.getNode(apiDefinition.getModuleId()).getName();
+            String moduleName = "";
+            if(apiDefinition.getModuleId() != null) {   //  module_id 可能为空
+                moduleName = apiModuleService.getNode(apiDefinition.getModuleId()).getName();
+            }
             swaggerApiInfo.setTags(Arrays.asList(moduleName));
             //  设置请求体
             JSONObject requestObject = JSON.parseObject(apiDefinition.getRequest());    //  将api的request属性转换成JSON对象以便获得参数
             JSONObject requestBody = buildRequestBody(requestObject);
             swaggerApiInfo.setRequestBody(requestBody);
+            //  设置响应体
+            swaggerApiInfo.setResponses(new JSONObject());
             //  设置请求参数列表
             List<JSONObject> paramsList = buildParameters(requestObject);
             swaggerApiInfo.setParameters(paramsList);
-            swaggerPath.put(apiDefinition.getMethod().toLowerCase(), JSON.parseObject(JSON.toJSONString(swaggerApiInfo)));   //  设置api的请求类型和api定义、参数
-            paths.put(apiDefinition.getPath(), swaggerPath);
+            JSONObject methodDetail = JSON.parseObject(JSON.toJSONString(swaggerApiInfo));
+            if(paths.getJSONObject(apiDefinition.getPath()) == null) {
+                paths.put(apiDefinition.getPath(), new JSONObject());
+            }   //  一个路径下有多个发方法，如post，get，因此是一个 JSONObject 类型
+            paths.getJSONObject(apiDefinition.getPath()).put(apiDefinition.getMethod().toLowerCase(), methodDetail);
         }
         result.setPaths(paths);
         return result;
@@ -477,7 +488,9 @@ public class Swagger3Parser extends SwaggerAbstractParser {
         schema.put("format", null);
         typeName.put("schema", schema);
         JSONObject content = new JSONObject();
-        content.put(typeMap.get(type), typeName);
+        if (type != null && StringUtils.isNotBlank(type)) {
+            content.put(typeMap.get(type), typeName);
+        }
         requestBody.put("content", content);
         return requestBody;
     }

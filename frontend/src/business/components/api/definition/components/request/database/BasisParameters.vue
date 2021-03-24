@@ -155,6 +155,11 @@
     created() {
       this.getEnvironments();
     },
+    computed: {
+      projectId() {
+        return this.$store.state.projectId
+      },
+    },
     methods: {
       addPre() {
         let jsr223PreProcessor = createComponent("JSR223PreProcessor");
@@ -210,7 +215,8 @@
 
       getEnvironments() {
         this.environments = [];
-        this.$get('/api/environment/list/' + getCurrentProjectID(), response => {
+        let id = this.request.projectId ? this.request.projectId : this.projectId;
+        this.$get('/api/environment/list/' + id, response => {
           this.environments = response.data;
           this.environments.forEach(environment => {
             parseEnvironment(environment);

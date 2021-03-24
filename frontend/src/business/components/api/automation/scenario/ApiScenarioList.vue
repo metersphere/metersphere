@@ -1,6 +1,6 @@
 <template>
   <div>
-    <el-card class="table-card" v-loading="loading">
+    <el-card class="table-card" v-loading="result.loading">
       <template v-slot:header>
         <ms-table-header :condition.sync="condition" @search="selectByParam" title=""
                          :show-create="false" :tip="$t('commons.search_by_id_name_tag')"/>
@@ -246,10 +246,10 @@
     },
     data() {
       return {
+        result: {},
         type: API_SCENARIO_LIST,
         headerItems: Api_Scenario_List,
         tableLabel: Api_Scenario_List,
-        loading: false,
         screenHeight: document.documentElement.clientHeight - 280,//屏幕高度,
         condition: {
           components: API_SCENARIO_CONFIGS
@@ -358,7 +358,7 @@
         this.search();
       },
       batchReportId() {
-        this.loading = true;
+        this.result.loading = true;
         this.getReport();
       }
     },
@@ -418,7 +418,7 @@
         this.selectDataCounts = 0;
         let url = "/api/automation/list/" + this.currentPage + "/" + this.pageSize;
         if (this.condition.projectId) {
-          this.loading = true;
+          this.result.loading = true;
           this.$post(url, this.condition, response => {
             let data = response.data;
             this.total = data.itemCount;
@@ -428,7 +428,7 @@
                 item.tags = JSON.parse(item.tags);
               }
             });
-            this.loading = false;
+            this.result.loading = false;
             this.unSelection = data.listObject.map(s => s.id);
             if (this.$refs.scenarioTable) {
               this.$refs.scenarioTable.doLayout()
@@ -550,13 +550,13 @@
                 } catch (e) {
                   throw e;
                 }
-                this.loading = false;
+                this.result.loading = false;
                 this.$success("批量执行成功，请到报告页面查看详情！");
               } else {
                 setTimeout(this.getReport, 2000)
               }
             } else {
-              this.loading = false;
+              this.result.loading = false;
               this.$error(this.$t('api_report.not_exist'));
             }
           });
@@ -723,9 +723,9 @@
           this.$warning(this.$t("api_test.automation.scenario.check_case"));
           return;
         }
-        this.loading = true;
+        this.result.loading = true;
         this.result = this.$post("/api/automation/export", param, response => {
-          this.loading = false;
+          this.result.loading = false;
           let obj = response.data;
           this.buildApiPath(obj.data);
           downloadFile("Metersphere_Scenario_" + localStorage.getItem(PROJECT_NAME) + ".json", JSON.stringify(obj));
@@ -738,9 +738,9 @@
           this.$warning(this.$t("api_test.automation.scenario.check_case"));
           return;
         }
-        this.loading = true;
+        this.result.loading = true;
         this.result = this.$post("/api/automation/export/jmx", param, response => {
-          this.loading = false;
+          this.result.loading = false;
           let obj = response.data;
           if (obj && obj.length > 0) {
             obj.forEach(item => {
