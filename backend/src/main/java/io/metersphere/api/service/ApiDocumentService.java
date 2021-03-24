@@ -87,7 +87,7 @@ public class ApiDocumentService {
 
             if (apiModel.getRequest() != null) {
                 JSONObject requestJsonObj = JSONObject.parseObject(apiModel.getRequest());
-                //head赋值
+                //head赋值conversionModelToDTO
                 if (requestJsonObj.containsKey("headers")) {
                     JSONArray requestHeadDataArr = new JSONArray();
                     //head赋值
@@ -300,6 +300,7 @@ public class ApiDocumentService {
             }
         }
         apiInfoDTO.setRequestPreviewData(previewJsonArray);
+        apiInfoDTO.setSelectedFlag(true);
         return apiInfoDTO;
     }
 
