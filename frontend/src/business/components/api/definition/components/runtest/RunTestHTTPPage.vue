@@ -190,8 +190,8 @@ export default {
         let req = this.api.request;
         req.id = getUUID();
         data.request = JSON.stringify(req);
-        data.method = this.api.method;
-        data.path = this.api.path;
+        data.method = req.method;
+        data.path = req.path;
         data.url = this.api.url;
         data.status = this.api.status;
         data.userId = this.api.userId;

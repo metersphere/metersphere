@@ -8,20 +8,10 @@
       </el-tab-pane>
 
       <el-tab-pane :label="$t('api_test.definition.request.response_header')" name="headers" class="pane">
-        <!--<div style="width: 400px">-->
-        <!--<pre>{{ response.responseResult.headers }}</pre>-->
-        <!--</div>-->
         <ms-code-edit :mode="'text'" :read-only="true" :data.sync="response.responseResult.headers"/>
-
       </el-tab-pane>
-      <!--<el-tab-pane label="Cookie" name="cookie" class="pane cookie">-->
-      <!--<pre>{{response.cookies}}</pre>-->
-      <!--</el-tab-pane>-->
 
       <el-tab-pane :label="$t('api_test.definition.request.console')" name="console" class="pane">
-        <!--<div style="width: 400px">-->
-        <!--<pre>{{response.responseResult.console}}</pre>-->
-        <!--</div>-->
         <ms-code-edit :mode="'text'" :read-only="true" :data.sync="response.responseResult.console"/>
       </el-tab-pane>
 
@@ -30,29 +20,10 @@
       </el-tab-pane>
 
       <el-tab-pane :label="$t('api_test.request.extract.label')" name="label" class="pane">
-        <!--<div style="width: 400px">-->
-        <!--<pre>{{response.responseResult.vars}}</pre>-->
-        <!--</div>-->
         <ms-code-edit :mode="'text'" :read-only="true" :data.sync="response.responseResult.vars"/>
       </el-tab-pane>
 
       <el-tab-pane :label="$t('api_report.request_body')" name="request_body" class="pane">
-        <!--<div class="ms-div">-->
-        <!--{{$t('api_test.request.address')}} :-->
-        <!--<pre>{{ response.url }}</pre>-->
-        <!--</div>-->
-        <!--<div class="ms-div">-->
-        <!--{{$t('api_test.scenario.headers')}} :-->
-        <!--<pre>{{ response.headers }}</pre>-->
-        <!--</div>-->
-        <!--<div class="ms-div">-->
-        <!--Cookies :-->
-        <!--<pre>{{response.cookies}}</pre>-->
-        <!--</div>-->
-        <!--<div class="ms-div">-->
-        <!--Body :-->
-        <!--<pre>{{response.body ? response.body:""}}</pre>-->
-        <!--</div>-->
         <ms-code-edit :mode="'text'" :read-only="true" :data.sync="reqMessages"/>
       </el-tab-pane>
 
