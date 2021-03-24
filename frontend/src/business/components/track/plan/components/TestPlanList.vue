@@ -86,7 +86,7 @@
           show-overflow-tooltip
           :key="index">
           <template v-slot:default="scope">
-            <el-progress :percentage="scope.row.passRate.substring(0, scope.row.passRate.length-1)"></el-progress>
+            <el-progress :percentage="calPassRate(scope)"></el-progress>
           </template>
         </el-table-column>
         <el-table-column
@@ -293,6 +293,10 @@ export default {
     this.initTableData();
   },
   methods: {
+    calPassRate(scope) {
+      let passRate = scope.row.passRate.substring(0, scope.row.passRate.length-1);
+      return Number.parseInt(passRate, 10);
+    },
     customHeader() {
       this.$refs.headerCustom.open(this.tableLabel)
     },
