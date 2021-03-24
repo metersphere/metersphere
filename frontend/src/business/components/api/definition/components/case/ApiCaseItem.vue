@@ -129,9 +129,10 @@
   import MsJmxStep from "../step/JmxStep";
   import ApiResponseComponent from "../../../automation/scenario/component/ApiResponseComponent";
   import ShowMoreBtn from "../../../../track/case/components/ShowMoreBtn";
+
   const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
-  const esbDefinition = (requireComponent!=null&&requireComponent.keys().length) > 0 ? requireComponent("./apiDefinition/EsbDefinition.vue") : {};
-  const esbDefinitionResponse = (requireComponent!=null&&requireComponent.keys().length) > 0 ? requireComponent("./apiDefinition/EsbDefinitionResponse.vue") : {};
+  const esbDefinition = (requireComponent != null && requireComponent.keys().length) > 0 ? requireComponent("./apidefinition/EsbDefinition.vue") : {};
+  const esbDefinitionResponse = (requireComponent != null && requireComponent.keys().length) > 0 ? requireComponent("./apidefinition/EsbDefinitionResponse.vue") : {};
 
   export default {
     name: "ApiCaseItem",
@@ -157,7 +158,7 @@
       return {
         result: {},
         grades: [],
-        showXpackCompnent:false,
+        showXpackCompnent: false,
         isReadOnly: false,
         selectedEvent: Object,
         priorities: PRIORITY,
@@ -198,7 +199,7 @@
       isCaseEdit: Boolean,
     },
     created() {
-      if (requireComponent != null && JSON.stringify(esbDefinition) != '{}'&& JSON.stringify(esbDefinitionResponse) != '{}') {
+      if (requireComponent != null && JSON.stringify(esbDefinition) != '{}' && JSON.stringify(esbDefinitionResponse) != '{}') {
         this.showXpackCompnent = true;
       }
     },
@@ -224,7 +225,7 @@
         });
       },
       singleRun(data) {
-        if (!this.environment) {
+        if (this.api.protocol != "DUBBO" && this.api.protocol != "dubbo://" && !this.environment) {
           this.$warning(this.$t('api_test.environment.select_environment'));
           return;
         }
@@ -316,10 +317,10 @@
           }
         }
 
-        if(tmp.request.esbDataStruct != null){
+        if (tmp.request.esbDataStruct != null) {
           tmp.esbDataStruct = JSON.stringify(tmp.request.esbDataStruct);
         }
-        if(tmp.request.backEsbDataStruct != null){
+        if (tmp.request.backEsbDataStruct != null) {
           tmp.backEsbDataStruct = JSON.stringify(tmp.request.backEsbDataStruct);
         }
 

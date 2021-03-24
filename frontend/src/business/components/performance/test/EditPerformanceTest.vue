@@ -345,13 +345,11 @@ export default {
       this.$refs.basicConfig.threadGroups = threadGroups;
       this.$refs.pressureConfig.threadGroups = threadGroups;
 
-      threadGroups.forEach(tg => {
-        handler.calculateChart(tg);
-      })
+      handler.calculateTotalChart();
     },
     tgTypeChange(threadGroup) {
       let handler = this.$refs.pressureConfig;
-      handler.calculateChart(threadGroup);
+      handler.calculateTotalChart();
     }
   }
 }

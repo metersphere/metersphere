@@ -490,14 +490,14 @@
       apiListImport() {
         this.$refs.scenarioApiRelevance.open();
       },
-      recursiveSorting(arr) {
+      recursiveSorting(arr, scenarioProjectId) {
         for (let i in arr) {
           arr[i].index = Number(i) + 1;
           if (arr[i].type === ELEMENT_TYPE.LoopController && arr[i].hashTree && arr[i].hashTree.length > 1) {
             arr[i].countController.proceed = true;
           }
           if (!arr[i].projectId) {
-            arr[i].projectId = this.projectId;
+            arr[i].projectId = scenarioProjectId ? scenarioProjectId : this.projectId;
           }
           if (arr[i].hashTree != undefined && arr[i].hashTree.length > 0) {
             this.recursiveSorting(arr[i].hashTree);
@@ -522,7 +522,7 @@
             this.scenarioDefinition[i].projectId = this.projectId;
           }
           if (this.scenarioDefinition[i].hashTree != undefined && this.scenarioDefinition[i].hashTree.length > 0) {
-            this.recursiveSorting(this.scenarioDefinition[i].hashTree);
+            this.recursiveSorting(this.scenarioDefinition[i].hashTree, this.scenarioDefinition[i].projectId);
           }
           // 添加debug结果
           if (this.debugResult && this.debugResult.get(this.scenarioDefinition[i].id)) {

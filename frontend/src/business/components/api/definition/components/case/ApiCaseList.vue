@@ -280,7 +280,7 @@
       },
 
       singleRun(row) {
-        if (!this.environment) {
+        if (this.currentApi.protocol != "DUBBO" && this.currentApi.protocol != "dubbo://" && !this.environment) {
           this.$warning(this.$t('api_test.environment.select_environment'));
           return;
         }
@@ -298,7 +298,7 @@
       },
 
       batchRun() {
-        if (!this.environment) {
+        if (this.currentApi.protocol != "DUBBO" && this.currentApi.protocol != "dubbo://" && !this.environment) {
           this.$warning(this.$t('api_test.environment.select_environment'));
           return;
         }

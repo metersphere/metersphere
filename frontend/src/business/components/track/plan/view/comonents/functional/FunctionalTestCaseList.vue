@@ -431,6 +431,7 @@ export default {
     },
 
     initTableData() {
+      this.autoCheckStatus();
       if (this.planId) {
         // param.planId = this.planId;
         this.condition.planId = this.planId;
@@ -478,6 +479,10 @@ export default {
         });
       }
       getLabel(this, TEST_PLAN_FUNCTION_TEST_CASE);
+    },
+    autoCheckStatus() {
+      this.$post('/test/plan/autoCheck/' + this.planId, (response) => {
+      });
     },
     showDetail(row, event, column) {
       this.isReadOnly = true;
