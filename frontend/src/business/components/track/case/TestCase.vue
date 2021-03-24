@@ -8,7 +8,7 @@
         @setTreeNodes="setTreeNodes"
         @exportTestCase="exportTestCase"
         @saveAsEdit="editTestCase"
-        @createCase="handleCaseCreateOrEdit($event, 'add')"
+        @createCase="handleCaseSimpleCreate($event, 'add')"
         @refreshAll="refreshAll"
         :type="'edit'"
         ref="nodeTree"
@@ -158,6 +158,11 @@ export default {
         }
       }
     },
+    activeName(newVal, oldVal) {
+      if (oldVal !== 'default' && newVal === 'default' && this.$refs.minder) {
+        this.$refs.minder.refresh();
+      }
+    }
   },
   computed: {
     checkRedirectID: function () {
@@ -301,6 +306,12 @@ export default {
     handleCaseCreateOrEdit(data, type) {
       if (this.$refs.minder) {
         this.$refs.minder.addCase(data, type);
+      }
+    },
+    handleCaseSimpleCreate(data, type) {
+      this.handleCaseCreateOrEdit(data, type);
+      if (this.$refs.minder) {
+        this.$refs.minder.refresh();
       }
     },
     copyTestCase(testCase) {

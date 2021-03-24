@@ -6,6 +6,7 @@
     :tags="tags"
     :distinct-tags="tags"
     @save="save"
+    ref="minder"
   />
 </template>
 
@@ -13,9 +14,8 @@
 import MsModuleMinder from "@/business/components/common/components/MsModuleMinder";
 import {
   appendChild,
-  editNode,
   getTestCaseDataMap,
-  parseCase
+  parseCase, updateNode
 } from "@/business/components/track/common/minder/minderUtils";
 export default {
 name: "TestCaseMinder",
@@ -138,10 +138,18 @@ name: "TestCaseMinder",
     },
     addCase(data, type) {
       let nodeData = parseCase(data, new Map());
+      let minder = window.minder;
+      let jsonImport = minder.exportJson();
       if (type === 'edit') {
-        editNode(nodeData);
+        updateNode(jsonImport.root, nodeData);
       } else {
-        appendChild(data.nodeId, nodeData);
+        appendChild(data.nodeId, jsonImport.root, nodeData);
+      }
+      this.$refs.minder.setJsonImport(jsonImport);
+    },
+    refresh() {
+      if (this.$refs.minder) {
+        this.$refs.minder.reload();
       }
     }
   }

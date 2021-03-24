@@ -85,68 +85,39 @@ function _parseChildren(children, k, v, isDisable) {
   }
 }
 
-export function appendChild(pId, appendNode) {
-  if (!pId) {
-    pId = 'root';
-  }
-  let minder = window.minder;
-  let nodes = minder.getAllNode();
-  let parent = undefined;
-  for (let index = nodes.length -1; index >= 0; index--) {
-    let item = nodes[index];
-    if(item.data.id === pId) {
-      parent = item;
-      break;
-    }
-  }
-  if (!parent) {
+export function appendChild(appendPid, root, node) {
+  if (root.data.id === appendPid) {
+    root.children.push(node);
     return;
   }
-  let node = minder.createNode("", parent);
-  minder.select(node, true);
-  node.data = appendNode.data;
-  if (parent.isExpanded()) {
-    node.render();
-  } else {
-    parent.expand();
-    parent.renderTree();
+  if (!root.children) {
+    root.children = [];
   }
-  minder.layout(600);
-
-  // 添加子节点
-  let children = appendNode.children;
-  if (children) {
-    children.forEach(child => {
-      child.data.id = getUUID();
-      appendChild(node.data.id, child);
-    })
+  let children = root.children;
+  for (const index in children) {
+    let item = children[index];
+    if (item.data.id === appendPid) {
+      item.data.expandState = "expand";
+      item.children.push(node);
+      return;
+    } else {
+      appendChild(appendPid, item, node);
+    }
   }
 }
 
-export function editNode(node) {
-  let minder = window.minder;
-  let nodes = minder.getAllNode();
-  let children = [];
-  let item = undefined;
-  for (const index in nodes) {
-    item = nodes[index];
-    if(item.data.id === node.data.id) {
-      item.data = node.data;
-      children = node.children;
-      if (item.children) {
-        item.children.forEach(n => {
-          minder.removeNode(n);
-        })
-      }
-      item.render();
-      break;
-    }
+export function updateNode(root, node) {
+  if (!root.children) {
+    root.children = [];
   }
-  minder.layout(600);
-  if (item) {
-    children.forEach(child => {
-      child.data.id = getUUID();
-      appendChild(item.data.id, child);
-    })
+  let children = root.children;
+  for (const index in children) {
+    let item = children[index];
+    if (item.data.id === node.data.id) {
+      children[index] = node;
+      return;
+    } else {
+      updateNode(item, node);
+    }
   }
 }
