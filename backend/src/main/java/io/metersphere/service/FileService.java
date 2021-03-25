@@ -73,9 +73,13 @@ public class FileService {
         fileContentMapper.deleteByExample(example2);
     }
 
-    public FileMetadata saveFile(MultipartFile file, String projectId) {
+    public FileMetadata saveFile(MultipartFile file, String projectId, String fileId) {
         final FileMetadata fileMetadata = new FileMetadata();
-        fileMetadata.setId(UUID.randomUUID().toString());
+        if (StringUtils.isEmpty(fileId)) {
+            fileMetadata.setId(UUID.randomUUID().toString());
+        } else {
+            fileMetadata.setId(fileId);
+        }
         fileMetadata.setName(file.getOriginalFilename());
         fileMetadata.setSize(file.getSize());
         fileMetadata.setProjectId(projectId);
@@ -95,6 +99,10 @@ public class FileService {
         fileContentMapper.insert(fileContent);
 
         return fileMetadata;
+    }
+
+    public FileMetadata saveFile(MultipartFile file, String projectId) {
+        return saveFile(file, projectId, null);
     }
 
     public FileMetadata saveFile(MultipartFile file) {
@@ -205,7 +213,7 @@ public class FileService {
         if (!StringUtils.isEmpty(request.getName())) {
             criteria.andNameEqualTo(request.getName());
         }
-       return fileMetadataMapper.selectByExample(example);
+        return fileMetadataMapper.selectByExample(example);
     }
 
     public List<FileMetadata> getFileMetadataByIds(List<String> fileIds) {
