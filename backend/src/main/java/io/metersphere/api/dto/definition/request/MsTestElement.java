@@ -288,13 +288,13 @@ public abstract class MsTestElement {
             if (MsTestElementConstants.LoopController.name().equals(parent.getType())) {
                 MsLoopController loopController = (MsLoopController) parent;
                 if (StringUtils.equals(loopController.getLoopType(), LoopConstants.WHILE.name()) && loopController.getWhileController() != null) {
-                    return "While 循环-" + "${LoopCounterConfigXXX}";
+                    return "While 循环-" + "${MS_LOOP_CONTROLLER_CONFIG}";
                 }
                 if (StringUtils.equals(loopController.getLoopType(), LoopConstants.FOREACH.name()) && loopController.getForEachController() != null) {
-                    return "ForEach 循环-" + "${LoopCounterConfigXXX}";
+                    return "ForEach 循环-" + "${MS_LOOP_CONTROLLER_CONFIG}";
                 }
                 if (StringUtils.equals(loopController.getLoopType(), LoopConstants.LOOP_COUNT.name()) && loopController.getCountController() != null) {
-                    return "次数循环-" + "${LoopCounterConfigXXX}";
+                    return "次数循环-" + "${MS_LOOP_CONTROLLER_CONFIG}";
                 }
             }
             // 获取全路径以备后面使用
