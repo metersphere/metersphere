@@ -103,6 +103,9 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         HTTPSamplerProxy sampler = new HTTPSamplerProxy();
         sampler.setEnabled(this.isEnable());
         sampler.setName(this.getName());
+        if (StringUtils.isEmpty(this.getName())) {
+            sampler.setName("HTTPSamplerProxy");
+        }
         String name = this.getParentName(this.getParent());
         if (StringUtils.isNotEmpty(name) && !config.isOperating()) {
             sampler.setName(this.getName() + "<->" + name);
@@ -126,7 +129,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         // 添加环境中的公共变量
         Arguments arguments = this.addArguments(config);
         if (arguments != null) {
-            tree.add(config.valueSupposeMock(arguments));
+            tree.add(ParameterConfig.valueSupposeMock(arguments));
         }
         try {
             if (config.isEffective(this.getProjectId())) {
