@@ -380,9 +380,10 @@
       } else {
         this.condition.filters = {status: ["Prepare", "Underway", "Completed"]};
       }
+      this.getSystemLabel(this.type)
       this.initTable();
-      getSystemLabel(this, this.type)
       this.getMaintainerOptions();
+      getLabel(this, API_LIST);
     },
     watch: {
       selectNodeIds() {
@@ -402,6 +403,15 @@
       }
     },
     methods: {
+      getSystemLabel(type) {
+        let param = {}
+        param.type = type
+        this.$post('/system/system/header', param, response => {
+          if (response.data != null) {
+            this.tableLabel = eval(response.data.props);
+          }
+        })
+      },
       customHeader() {
         getLabel(this, API_LIST);
         this.$refs.headerCustom.open(this.tableLabel)

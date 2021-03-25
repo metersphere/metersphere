@@ -632,7 +632,7 @@ export default {
       })
     },
     async setFormData(testCase) {
-      testCase.tags = JSON.parse(testCase.tags);
+      //testCase.tags = JSON.parse(testCase.tags);
       testCase.selected = JSON.parse(testCase.testId);
       let tmp = {};
       Object.assign(tmp, testCase);

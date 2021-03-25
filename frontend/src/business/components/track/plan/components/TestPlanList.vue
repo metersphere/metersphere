@@ -193,7 +193,7 @@
         </template>
       </el-table-column>
     </el-table>
-    <header-custom ref="headerCustom" :initTableData="initTableData" :optionalFields=headerItems
+    <header-custom ref="headerCustom" :initTableData="inite" :optionalFields=headerItems
                    :type=type></header-custom>
 
 
@@ -294,11 +294,16 @@ export default {
     getSystemLabel(this, this.type)
   },
   methods: {
+    inite() {
+      getLabel(this, TEST_PLAN_LIST);
+      this.initTableData()
+    },
     calPassRate(scope) {
-      let passRate = scope.row.passRate.substring(0, scope.row.passRate.length-1);
+      let passRate = scope.row.passRate.substring(0, scope.row.passRate.length - 1);
       return Number.parseInt(passRate, 10);
     },
     customHeader() {
+      getLabel(this, TEST_PLAN_LIST);
       this.$refs.headerCustom.open(this.tableLabel)
     },
     initTableData() {

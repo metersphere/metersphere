@@ -301,10 +301,10 @@ export default {
   },
   methods: {
     customHeader() {
+      getLabel(this, TEST_CASE_REVIEW_CASE_LIST);
       this.$refs.headerCustom.open(this.tableLabel)
     },
     initTableData() {
-      getLabel(this, TEST_CASE_REVIEW_CASE_LIST);
       if (this.reviewId) {
         this.condition.reviewId = this.reviewId;
       }
@@ -325,6 +325,8 @@ export default {
           this.selectRows.clear();
         });
       }
+      getLabel(this, TEST_CASE_REVIEW_CASE_LIST);
+
     },
     showDetail(row, event, column) {
       this.isReadOnly = true;

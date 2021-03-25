@@ -64,7 +64,6 @@
           </el-table-column>
           <el-table-column
             v-if="item.id=='reviewStatus'"
-            :filters="reviewStatusFilters"
             column-key="reviewStatus"
             min-width="100px"
             :label="$t('test_track.case.status')"
@@ -373,7 +372,7 @@ export default {
         case 'coverage':
           this.condition.caseCoverage = 'coverage';
           break;
-        case 'Prepare':
+       /* case 'Prepare':
           this.condition.filters.status = [this.selectDataRange];
           break;
         case 'Pass':
@@ -381,7 +380,7 @@ export default {
           break;
         case 'UnPass':
           this.condition.filters.status = [this.selectDataRange];
-          break;
+          break;*/
       }
       if (this.projectId) {
         this.condition.projectId = this.projectId;
@@ -391,11 +390,11 @@ export default {
           this.tableData = data.listObject;
           // this.selectIds.clear();
           this.selectRows.clear();
-          this.tableData.forEach(item => {
+          /*this.tableData.forEach(item => {
             if (item.tags && item.tags.length > 0) {
               item.tags = JSON.parse(item.tags);
             }
-          })
+          })*/
           if (this.$refs.table) {
             this.$refs.table.doLayout()
           }

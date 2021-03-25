@@ -111,7 +111,7 @@ public class ApiAutomationController {
     @PostMapping(value = "/run/jenkins")
     public String runByJenkins(@RequestBody RunScenarioRequest request) {
         request.setExecuteType(ExecuteType.Saved.name());
-        request.setTriggerMode(ApiRunMode.SCENARIO.name());
+        request.setTriggerMode(ApiRunMode.API.name());
         request.setRunMode(ApiRunMode.SCENARIO.name());
         return apiAutomationService.run(request);
     }

@@ -165,7 +165,7 @@ public class TestCaseService {
                     String steps = tc.getSteps();
                     String remark = tc.getRemark();
                     if (StringUtils.equals(steps, testCase.getSteps()) && StringUtils.equals(remark, caseRemark)) {
-                        // MSException.throwException(Translator.get("test_case_already_exists"));
+                         MSException.throwException(Translator.get("test_case_already_exists"));
                         isExt = true;
                     }
                 }

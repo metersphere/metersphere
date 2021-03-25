@@ -173,9 +173,8 @@ export default {
   },
   created() {
     this.isTestManagerOrTestUser = checkoutTestManagerOrTestUser();
-    this.initTableData();
     getSystemLabel(this, this.type)
-
+    this.initTableData();
   },
   computed: {
     projectId() {
@@ -184,11 +183,11 @@ export default {
   },
   methods: {
     customHeader() {
+      getLabel(this, TEST_CASE_REVIEW_LIST);
       this.$refs.headerCustom.open(this.tableLabel)
     },
 
     initTableData() {
-      getLabel(this, TEST_CASE_REVIEW_LIST);
       let lastWorkspaceId = getCurrentWorkspaceId();
       this.condition.workspaceId = lastWorkspaceId;
       if (!this.projectId) {
@@ -220,6 +219,7 @@ export default {
           })
         }
       });
+      getLabel(this, TEST_CASE_REVIEW_LIST);
     },
     intoReview(row) {
       this.$router.push('/track/review/view/' + row.id);

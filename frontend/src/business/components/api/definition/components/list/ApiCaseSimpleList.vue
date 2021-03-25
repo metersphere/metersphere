@@ -264,9 +264,11 @@ export default {
       this.$nextTick(() => {
         this.$refs.caseTable.bodyWrapper.scrollTop = 5
       })
+      getLabel(this, API_CASE_LIST);
     },
     watch: {
       selectNodeIds() {
+        getLabel(this, API_CASE_LIST);
         this.initTable();
       },
       currentProtocol() {
@@ -296,7 +298,7 @@ export default {
       this.$refs.headerCustom.open(this.tableLabel)
     },
     initTable() {
-
+      getLabel(this, API_CASE_LIST);
       this.selectRows = new Set();
       this.condition.status = "";
       this.condition.moduleIds = this.selectNodeIds;
