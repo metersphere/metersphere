@@ -127,7 +127,9 @@ export default {
       if (apiTest && apiTest.name) {
         this.$set(this.test, "name", apiTest.name);
         let blob = new Blob([apiTest.jmx.xml], {type: "application/octet-stream"});
-        let file = new File([blob], apiTest.jmx.name);
+        let suffixIndex = apiTest.jmx.name.lastIndexOf(".jmx");
+        let jmxName = apiTest.jmx.name.substring(0, suffixIndex) + "_" + new Date().getTime() + ".jmx";
+        let file = new File([blob], jmxName); // 保证每次从接口测试都能创建新的性能测试
         this.$refs.basicConfig.beforeUploadJmx(file);
         this.$refs.basicConfig.handleUpload({file: file});
         if (JSON.stringify(apiTest.jmx.attachFiles) != "{}") {
