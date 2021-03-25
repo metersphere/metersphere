@@ -251,6 +251,9 @@ export default {
 
     },
     autoCheckStatus() {
+      if (!this.planId) {
+        return;
+      }
       this.$post('/test/plan/autoCheck/' + this.planId, (response) => {
       });
     },

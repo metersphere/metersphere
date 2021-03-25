@@ -484,6 +484,9 @@ export default {
       getLabel(this, TEST_PLAN_FUNCTION_TEST_CASE);
     },
     autoCheckStatus() {
+      if (!this.planId) {
+        return;
+      }
       this.$post('/test/plan/autoCheck/' + this.planId, (response) => {
       });
     },
