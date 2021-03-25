@@ -13,7 +13,7 @@
         <el-table-column type="selection"/>
         <el-table-column width="40" :resizable="false" align="center">
           <template v-slot:default="{row}">
-            <show-more-btn :is-show="isSelect(row)" :buttons="buttons" :size="selectRows.length"/>
+            <show-more-btn :is-show="isSelect(row)" :buttons="buttons" :size="selectRows.size"/>
           </template>
         </el-table-column>
         <template v-for="(item, index) in tableLabel">

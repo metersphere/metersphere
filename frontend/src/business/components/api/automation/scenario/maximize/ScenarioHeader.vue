@@ -24,8 +24,7 @@
       <el-button :disabled="scenarioDefinition.length < 1" size="mini" type="primary" v-prevent-re-click @click="runDebug">{{$t('api_test.request.debug')}}</el-button>
 
       <font-awesome-icon class="ms-alt-ico" :icon="['fa', 'compress-alt']" size="lg" @click="unFullScreen"/>
-      ｜
-      <i class="el-icon-close alt-ico-close" @click="close"/>
+      <!-- <i class="el-icon-close alt-ico-close" @click="close"/>-->
     </div>
   </div>
 </template>
@@ -124,14 +123,9 @@
 
   .ms-header-right {
     float: right;
-    width: 420px;
-    margin-top: 2px;
+    width: 380px;
+    margin-top: 4px;
     z-index: 1;
-  }
-
-  .ms-alt-ico {
-    font-size: 16px;
-    margin: 10px 10px 0px;
   }
 
   .alt-ico-close {
@@ -142,6 +136,12 @@
   .alt-ico-close:hover {
     color: black;
     cursor: pointer;
+  }
+
+  .ms-alt-ico {
+    color: #8c939d;
+    font-size: 16px;
+    margin: 10px 30px 0px;
   }
 
   .ms-alt-ico:hover {

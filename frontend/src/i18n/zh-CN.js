@@ -539,7 +539,8 @@ export default {
     load_exist_jmx: '加载 JMX 文件',
     threadgroup_at_least_one: '至少启用一个线程组',
     load_api_automation_jmx: '引用接口自动化场景',
-    project_file_exist: "项目中已存在该文件，请直接引用"
+    project_file_exist: "项目中已存在该文件，请直接引用",
+    project_file_update_type_error: '更新的文件类型必须一致'
   },
   api_test: {
     creator: "创建人",
