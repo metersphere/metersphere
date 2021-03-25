@@ -206,7 +206,9 @@ create table system_header
 (
     type  varchar(150)  null,
     props varchar(1000) null
-);
+
+)ENGINE = InnoDB
+ DEFAULT CHARSET = utf8mb4;
 -- init system_header
 insert into system_header (type, props)
 values ('api_scenario_list',
