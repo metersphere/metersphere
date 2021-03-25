@@ -138,7 +138,7 @@ public class MsScenario extends MsTestElement {
         // 场景变量和环境变量
         Arguments arguments = arguments(config);
         if (arguments != null) {
-            tree.add(config.valueSupposeMock(arguments));
+            tree.add(ParameterConfig.valueSupposeMock(arguments));
         }
         this.addCsvDataSet(tree, variables,config);
         this.addCounter(tree, variables);

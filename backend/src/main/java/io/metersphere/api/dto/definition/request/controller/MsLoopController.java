@@ -87,7 +87,7 @@ public class MsLoopController extends MsTestElement {
 
     private CounterConfig addCounterConfig() {
         CounterConfig counterConfig = new CounterConfig();
-        counterConfig.setVarName("LoopCounterConfigXXX");
+        counterConfig.setVarName("MS_LOOP_CONTROLLER_CONFIG");
         counterConfig.setName("数循结果统计计数器");
         counterConfig.setEnabled(true);
         counterConfig.setProperty(TestElement.TEST_CLASS, CounterConfig.class.getName());
