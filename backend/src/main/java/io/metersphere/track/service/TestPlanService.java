@@ -173,7 +173,7 @@ public class TestPlanService {
         return Optional.ofNullable(testPlanMapper.selectByPrimaryKey(testPlanId)).orElse(new TestPlan());
     }
 
-    public int editTestPlan(TestPlanDTO testPlan) {
+    public int editTestPlan(TestPlanDTO testPlan, Boolean isSendMessage) {
         checkTestPlanExist(testPlan);
         TestPlan res = testPlanMapper.selectByPrimaryKey(testPlan.getId()); //  先查一次库
         testPlan.setUpdateTime(System.currentTimeMillis());
@@ -211,7 +211,7 @@ public class TestPlanService {
             extScheduleMapper.updateNameByResourceID(testPlan.getId(), testPlan.getName());//   同步更新该测试的定时任务的name
             i = testPlanMapper.updateByPrimaryKeyWithBLOBs(testPlan); //  更新
         }
-        if (!StringUtils.isBlank(testPlan.getStatus())) {
+        if (!StringUtils.isBlank(testPlan.getStatus()) && isSendMessage) {
             BeanUtils.copyBean(testPlans, getTestPlan(testPlan.getId()));
             String context = getTestPlanContext(testPlans, NoticeConstants.Event.UPDATE);
             User user = userMapper.selectByPrimaryKey(testPlans.getCreator());
@@ -397,7 +397,7 @@ public class TestPlanService {
         testPlanDTO.setId(testPlanId);
         if(statusList.size() == 0) { //  原先status不是prepare, 但删除所有关联用例的情况
             testPlanDTO.setStatus(TestPlanStatus.Prepare.name());
-            editTestPlan(testPlanDTO);
+            editTestPlan(testPlanDTO, false);
             return;
         }
         int passNum = 0, prepareNum = 0, failNum = 0;
@@ -414,13 +414,13 @@ public class TestPlanService {
         }
         if(passNum == statusList.size()) {   //  全部通过
             testPlanDTO.setStatus(TestPlanStatus.Completed.name());
-            this.editTestPlan(testPlanDTO);
+            this.editTestPlan(testPlanDTO, false);
         } else if(prepareNum == 0 && passNum + failNum == statusList.size()) {  //  已结束
             testPlanDTO.setStatus(TestPlanStatus.Finished.name());
-            editTestPlan(testPlanDTO);
+            editTestPlan(testPlanDTO, false);
         } else if(prepareNum != 0) {    //  进行中
             testPlanDTO.setStatus(TestPlanStatus.Underway.name());
-            editTestPlan(testPlanDTO);
+            editTestPlan(testPlanDTO, false);
         }
     }
 
