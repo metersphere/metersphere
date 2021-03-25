@@ -132,12 +132,13 @@ export default {
       this.projectLoadingResult = this.$post('api/automation/export/jmx', condition, response => {
         let data = response.data;
         data.forEach(d => {
-          let threadGroups = findThreadGroup(d.jmx, d.name + ".jmx")
+          let jmxName = d.name + "_" + new Date().getTime() + ".jmx";
+          let threadGroups = findThreadGroup(d.jmx, jmxName)
           threadGroups.forEach(tg => {
             tg.options = {};
             this.scenarios.push(tg);
           });
-          let file = new File([d.jmx], d.name + ".jmx");
+          let file = new File([d.jmx], jmxName);
           this.uploadList.push(file);
           this.tableData.push({
             name: file.name,

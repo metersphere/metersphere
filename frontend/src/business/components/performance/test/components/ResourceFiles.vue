@@ -16,7 +16,7 @@
           :before-upload="beforeUploadFile"
           :http-request="handleUpload"
           :on-exceed="handleExceed"
-          :file-list="fileList">
+        >
           <ms-table-button :is-tester-permission="true" icon="el-icon-upload2"
                            :content="$t('load_test.upload_file')"/>
         </el-upload>
@@ -34,6 +34,7 @@
       </el-table-column>
       <el-table-column
         prop="type"
+        width="100"
         :label="$t('load_test.file_type')">
       </el-table-column>
       <el-table-column
@@ -45,6 +46,23 @@
       </el-table-column>
       <el-table-column :label="$t('commons.operating')">
         <template v-slot:default="scope">
+          <el-upload
+            style="width: 38px; float: left;"
+            accept=".jmx,.jar,.csv,.json,.pdf,.jpg,.png,.jpeg,.doc,.docx,.xlsx"
+            action=""
+            :limit="fileNumLimit"
+            :show-file-list="false"
+            :before-upload="beforeUploadFile"
+            :http-request="handleUpdateUpload"
+            :on-exceed="handleExceed"
+          >
+            <el-button circle
+                       type="success"
+                       :disabled="!checkoutTestManagerOrTestUser()"
+                       icon="el-icon-edit"
+                       @click="handleEdit(scope.row)"
+                       size="mini"/>
+          </el-upload>
           <ms-table-operator-button :is-tester-permission="true"
                                     icon="el-icon-delete"
                                     type="danger"
@@ -64,7 +82,7 @@
 import MsTablePagination from "@/business/components/common/pagination/TablePagination";
 import MsTableButton from "@/business/components/common/components/MsTableButton";
 import MsDialogFooter from "@/business/components/common/components/MsDialogFooter";
-import {getCurrentProjectID} from "@/common/js/utils";
+import {checkoutTestManagerOrTestUser, getCurrentProjectID} from "@/common/js/utils";
 import MsTableOperatorButton from "@/business/components/common/components/MsTableOperatorButton";
 import {Message} from "element-ui";
 import MsTableHeader from "@/business/components/common/components/MsTableHeader";
@@ -86,9 +104,11 @@ export default {
       fileNumLimit: 10,
       condition: {},
       projectId: getCurrentProjectID(),
+      currentRow: null,
     }
   },
   methods: {
+    checkoutTestManagerOrTestUser,
     open(project) {
       this.projectId = project.id;
       this.loadFileVisible = true;
@@ -135,8 +155,39 @@ export default {
         this.getProjectFiles();
       });
     },
+    handleUpdateUpload(uploadResources) {
+      let file = uploadResources.file;
+      let i1 = file.name.lastIndexOf(".");
+      let i2 = this.currentRow.name.lastIndexOf(".");
+      let suffix1 = file.name.substring(i1);
+      let suffix2 = this.currentRow.name.substring(i2);
+      if (suffix1 !== suffix2) {
+        this.$error(this.$t('load_test.project_file_update_type_error'));
+        return;
+      }
+
+      let formData = new FormData();
+      let url = '/project/update/file/' + this.projectId + '/' + this.currentRow.id
+      formData.append("file", file);
+      let options = {
+        method: 'POST',
+        url: url,
+        data: formData,
+        headers: {
+          'Content-Type': undefined
+        }
+      }
+      this.$request(options, (response) => {
+        this.$success(this.$t('commons.save_success'));
+        this.currentRow = null;
+        this.getProjectFiles();
+      });
+    },
     handleExceed() {
       this.$error(this.$t('load_test.file_size_limit'));
+    },
+    handleEdit(row) {
+      this.currentRow = row;
     },
     handleDelete(row) {
       console.log(row);

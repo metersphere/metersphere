@@ -73,7 +73,7 @@ public class TestCaseDataListener extends EasyExcelListener<TestCaseExcelData> {
 
             if (dbExist) {
                 // db exist
-                stringBuilder.append(Translator.get("test_case_already_exists_excel") + "：" + data.getName() + "; ");
+                stringBuilder.append(Translator.get("test_case_already_exists") + "：" + data.getName() + "; ");
             } else {
                 // @Data 重写了 equals 和 hashCode 方法
                 excelExist = excelDataList.contains(data);

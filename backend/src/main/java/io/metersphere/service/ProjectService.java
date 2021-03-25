@@ -186,6 +186,18 @@ public class ProjectService {
         return result;
     }
 
+    public FileMetadata updateFile(String projectId, String fileId, MultipartFile file) {
+        QueryProjectFileRequest request = new QueryProjectFileRequest();
+        request.setName(file.getOriginalFilename());
+        if (CollectionUtils.isEmpty(fileService.getProjectFiles(projectId, request))) {
+            fileService.deleteFileById(fileId);
+            return fileService.saveFile(file, projectId);
+        } else {
+            MSException.throwException(Translator.get("project_file_already_exists"));
+        }
+        return null;
+    }
+
     public void deleteFile(String fileId) {
         LoadTestFileExample example1 = new LoadTestFileExample();
         example1.createCriteria().andFileIdEqualTo(fileId);
@@ -216,4 +228,5 @@ public class ProjectService {
         }
         fileService.deleteFileById(fileId);
     }
+
 }
