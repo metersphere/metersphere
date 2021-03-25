@@ -313,10 +313,17 @@ export default {
           this.$post("/test/case/review/projects", {reviewId: this.reviewId}, res => {
             let data = res.data;
             if (data) {
-              this.currentProject = data[0];
               this.projects = data;
-              this.projectId = data[0].id;
-              this.projectName = data[0].name;
+              const index = data.findIndex(d => d.id === this.$store.state.projectId);
+              if (index !== -1) {
+                this.projectId = data[index].id;
+                this.projectName = data[index].name;
+                this.currentProject = data[index];
+              } else {
+                this.projectId = data[0].id;
+                this.projectName = data[0].name;
+                this.currentProject = data[0];
+              }
             }
           })
         }
