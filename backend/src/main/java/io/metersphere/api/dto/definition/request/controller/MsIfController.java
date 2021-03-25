@@ -49,7 +49,7 @@ public class MsIfController extends MsTestElement {
         ifController.setName(this.getName());
         ifController.setProperty(TestElement.TEST_CLASS, IfController.class.getName());
         ifController.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("IfControllerPanel"));
-        ifController.setCondition("true");
+        ifController.setCondition(this.getCondition());
         ifController.setEvaluateAll(false);
         ifController.setUseExpression(true);
         return ifController;

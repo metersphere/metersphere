@@ -185,10 +185,7 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
             }
         } else if (StringUtils.equals(this.runMode, ApiRunMode.JENKINS.name())) {
             apiDefinitionService.addResult(testResult);
-            apiDefinitionExecResultService.saveApiResult(testResult, ApiRunMode.API.name());
-            ApiDefinitionExecResult api=apiTestCaseService.getInfo(testId);
-            report.setStatus(api.getStatus());
-
+            apiDefinitionExecResultService.saveApiResult(testResult, ApiRunMode.DEFINITION.name());
 
         } else if (StringUtils.equals(this.runMode, ApiRunMode.JENKINS_API_PLAN.name())) {
             apiDefinitionService.addResult(testResult);
@@ -257,6 +254,9 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
     }
 
     private static void sendTask(ApiTestReport report, String reportUrl, TestResult testResult) {
+        if (report == null) {
+            return;
+        }
         SystemParameterService systemParameterService = CommonBeanFactory.getBean(SystemParameterService.class);
         NoticeSendService noticeSendService = CommonBeanFactory.getBean(NoticeSendService.class);
         assert systemParameterService != null;

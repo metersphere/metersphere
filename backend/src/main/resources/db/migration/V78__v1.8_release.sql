@@ -239,7 +239,7 @@ values ('test_plan_list',
         '[{"id":"name","label":"名称"},{"id":"userName","label":"负责人"},{"id":"status","label":"当前状态"},{"id":"stage","label":"测试阶段"},{"id":"testRate","label":"测试进度"},{"id":"projectName","label":"所属项目"},{"id":"plannedStartTime","label":"计划开始"},{"id":"plannedEndTime","label":"计划结束"},{"id":"actualStartTime","label":"实际开始"},{"id":"actualEndTime","label":"实际结束"},{"id":"tags","label":"标签"},{"id":"executionTimes","label":"执行次数"},{"id":"passRate","label":"通过率"}]');
 insert into system_header (type, props)
 values ('test_case_list',
-        '[{"id":"tags","label":"标签"},{"id":"nodePath","label":"所属模块"},{"id":"updateTime","label":"更新时间"},{"id":"num","label":"ID"},{"id":"name","label":"名称"},{"id":"priority","label":"用例等级"},{"id":"reviewStatus","label":"评审状态"}]');
+        '[{"id":"num","label":"ID"},{"id":"name","label":"名称"},{"id":"priority","label":"用例等级"},{"id":"reviewStatus","label":"评审状态"},{"id":"tags","label":"标签"},{"id":"nodePath","label":"所属模块"},{"id":"updateTime","label":"更新时间"}]');
 insert into system_header (type, props)
 values ('test_plan_scenario_case',
         '[{"id":"num","label":"ID"},{"id":"name","label":"名称"},{"id":"level","label":"用例等级"},{"id":"tagNames","label":"标签"},{"id":"userId","label":"创建人"},{"id":"updateTime","label":"最后更新时间"},{"id":"stepTotal","label":"通过"},{"id":"lastResult","label":"失败"},{"id":"passRate","label":"通过率"}]');
