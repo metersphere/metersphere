@@ -34,6 +34,7 @@
       </el-table-column>
       <el-table-column
         prop="type"
+        width="100"
         :label="$t('load_test.file_type')">
       </el-table-column>
       <el-table-column
