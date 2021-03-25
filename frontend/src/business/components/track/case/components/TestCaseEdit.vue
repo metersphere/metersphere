@@ -640,6 +640,7 @@ export default {
       if (tmp.steps == null) {
         tmp.steps = []
       }
+      tmp.tags = JSON.parse(tmp.tags);
       Object.assign(this.form, tmp);
       console.log(this.form.selected)
       this.form.module = testCase.nodeId;
