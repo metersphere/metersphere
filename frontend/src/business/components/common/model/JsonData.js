@@ -5,17 +5,10 @@ export const Track_Test_Case = [
   {id: 'num', label: i18n.t('commons.id')},
   {id: 'name', label: i18n.t('commons.name')},
   {id: 'priority', label: i18n.t('test_track.case.priority')},
-  /*
-    {id: 'type', label: i18n.t('test_track.case.type')},
-  */
-  /*
-    {id: 'method', label: i18n.t('test_track.case.method')},
-  */
   {id: 'reviewStatus', label: i18n.t('test_track.case.status')},
   {id: 'tags', label: i18n.t('commons.tag')},
   {id: 'nodePath', label: i18n.t('test_track.case.module')},
   {id: 'updateTime', label: i18n.t('commons.update_time')},
-  {id: 'status', label: i18n.t('commons.status')}
 ]
 //用例评审-测试用例
 export const Test_Case_Review = [
@@ -70,7 +63,7 @@ export const Api_Case_List = [
 //接口自动化-场景列表
 export const Api_Scenario_List = [
   {id: 'num', label: "ID"},
-  {id: 'name', label: i18n.t('test_track.case.name')},
+  {id: 'name', label: i18n.t('api_report.scenario_name')},
   {id: 'level', label: i18n.t('api_test.automation.case_level')},
   {id: 'status', label: i18n.t('test_track.plan.plan_status')},
   {id: 'tags', label: i18n.t('commons.tag')},

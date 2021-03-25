@@ -235,7 +235,7 @@
   import {
     _handleSelect,
     _handleSelectAll, buildBatchParam, getLabel,
-    getSelectDataCounts, initCondition,
+    getSelectDataCounts, getSystemLabel, initCondition,
     setUnSelectIds, toggleAllSelection
   } from "@/common/js/tableUtils";
   import {_filter, _sort} from "@/common/js/tableUtils";
@@ -271,7 +271,7 @@
       return {
         type: API_LIST,
         headerItems: Api_List,
-        tableLabel: Api_List,
+        tableLabel: [],
         condition: {
           components: API_DEFINITION_CONFIGS
         },
@@ -380,8 +380,10 @@
       } else {
         this.condition.filters = {status: ["Prepare", "Underway", "Completed"]};
       }
+      this.getSystemLabel(this.type)
       this.initTable();
       this.getMaintainerOptions();
+      getLabel(this, API_LIST);
     },
     watch: {
       selectNodeIds() {
@@ -401,6 +403,15 @@
       }
     },
     methods: {
+      getSystemLabel(type) {
+        let param = {}
+        param.type = type
+        this.$post('/system/system/header', param, response => {
+          if (response.data != null) {
+            this.tableLabel = eval(response.data.props);
+          }
+        })
+      },
       customHeader() {
         getLabel(this, API_LIST);
         this.$refs.headerCustom.open(this.tableLabel)

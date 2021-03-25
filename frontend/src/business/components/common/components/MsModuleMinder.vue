@@ -122,6 +122,9 @@ export default {
       this.$nextTick(() => {
         this.isActive = true;
       })
+    },
+    setJsonImport(data) {
+      this.importJson = data;
     }
   }
 }

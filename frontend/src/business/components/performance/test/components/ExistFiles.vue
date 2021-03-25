@@ -141,7 +141,13 @@ export default {
         this.existFiles = data.listObject;
       })
     },
-    handleImport() {
+    handleImport(file) {
+      if (file) { // 接口测试创建的性能测试
+        console.log(file);
+        this.selectIds.add(file.id);
+        this.getJmxContents();
+        return;
+      }
       if (this.selectIds.size === 0) {
         this.loadFileVisible = false;
         return;
@@ -163,7 +169,7 @@ export default {
           this.tableData.push({
             name: row.name,
             size: (row.size / 1024).toFixed(2) + ' KB',
-            type: 'JMX',
+            type: row.type.toUpperCase(),
             updateTime: row.lastModified,
           });
         })
@@ -173,6 +179,9 @@ export default {
         return;
       }
 
+      this.getJmxContents();
+    },
+    getJmxContents() {
       this.projectLoadingResult = this.$post('/performance/export/jmx', [...this.selectIds], (response) => {
         let data = response.data;
         if (!data) {
@@ -199,7 +208,6 @@ export default {
         this.loadFileVisible = false;
         this.selectIds.clear();
       });
-
     },
     beforeUploadFile(file) {
       if (!this.fileValidator(file)) {
@@ -227,7 +235,7 @@ export default {
         }
       });
     },
-    handleUpload(uploadResources) {
+    handleUpload(uploadResources, apiImport) {
       let self = this;
 
       let file = uploadResources.file;
@@ -246,6 +254,10 @@ export default {
         self.$request(options, (response) => {
           self.$success(this.$t('commons.save_success'));
           self.getProjectFiles();
+          if (apiImport) {
+            let row = response.data[0];
+            self.handleImport(row);
+          }
         });
       })
     },

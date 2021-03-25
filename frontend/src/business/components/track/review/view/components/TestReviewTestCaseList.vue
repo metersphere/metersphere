@@ -202,7 +202,7 @@ import {
 } from "../../../../../../common/js/constants";
 import TestReviewTestCaseEdit from "./TestReviewTestCaseEdit";
 import ReviewStatus from "@/business/components/track/case/components/ReviewStatus";
-import {_filter, _sort, getLabel} from "@/common/js/tableUtils";
+import {_filter, _sort, getLabel, getSystemLabel} from "@/common/js/tableUtils";
 import HeaderCustom from "@/business/components/common/head/HeaderCustom";
 import {Test_Case_Review_Case_List, Track_Test_Case} from "@/business/components/common/model/JsonData";
 import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOperate";
@@ -221,7 +221,7 @@ export default {
     return {
       type: TEST_CASE_REVIEW_CASE_LIST,
       headerItems: Test_Case_Review_Case_List,
-      tableLabel: Test_Case_Review_Case_List,
+      tableLabel: [],
       result: {},
       condition: {},
       tableData: [],
@@ -296,12 +296,15 @@ export default {
     this.refreshTableAndReview();
     this.isTestManagerOrTestUser = checkoutTestManagerOrTestUser();
   },
+  created() {
+    getSystemLabel(this, this.type)
+  },
   methods: {
     customHeader() {
+      getLabel(this, TEST_CASE_REVIEW_CASE_LIST);
       this.$refs.headerCustom.open(this.tableLabel)
     },
     initTableData() {
-      getLabel(this, TEST_CASE_REVIEW_CASE_LIST);
       if (this.reviewId) {
         this.condition.reviewId = this.reviewId;
       }
@@ -322,6 +325,8 @@ export default {
           this.selectRows.clear();
         });
       }
+      getLabel(this, TEST_CASE_REVIEW_CASE_LIST);
+
     },
     showDetail(row, event, column) {
       this.isReadOnly = true;

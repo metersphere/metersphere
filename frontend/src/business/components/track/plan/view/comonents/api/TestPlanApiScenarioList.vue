@@ -109,7 +109,7 @@ import MsTableMoreBtn from "../../../../../api/automation/scenario/TableMoreBtn"
 import MsScenarioExtendButtons from "@/business/components/api/automation/scenario/ScenarioExtendBtns";
 import MsTestPlanList from "../../../../../api/automation/scenario/testplan/TestPlanList";
 import TestPlanScenarioListHeader from "./TestPlanScenarioListHeader";
-import {_handleSelect, _handleSelectAll, getLabel} from "../../../../../../../common/js/tableUtils";
+import {_handleSelect, _handleSelectAll, getLabel, getSystemLabel} from "../../../../../../../common/js/tableUtils";
 import MsTableOperatorButton from "../../../../../common/components/MsTableOperatorButton";
 import HeaderCustom from "@/business/components/common/head/HeaderCustom";
 import {TEST_CASE_LIST, TEST_PLAN_SCENARIO_CASE} from "@/common/js/constants";
@@ -148,7 +148,7 @@ export default {
     return {
       type: TEST_PLAN_SCENARIO_CASE,
       headerItems: Test_Plan_Scenario_Case,
-      tableLabel: Test_Plan_Scenario_Case,
+      tableLabel: [],
       loading: false,
       condition: {},
       currentScenario: {},
@@ -188,6 +188,8 @@ export default {
   },
   created() {
     this.search();
+    getSystemLabel(this, this.type)
+
   },
   watch: {
     selectNodeIds() {

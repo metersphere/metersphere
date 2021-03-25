@@ -88,10 +88,11 @@ export default {
 
   methods: {
     search() {
-      let projectID = this.projectId;
-      this.result = this.$get("/api/runningTask/"+projectID+"/"+this.callFrom, response => {
-        this.tableData = response.data;
-      });
+      if (this.projectId) {
+        this.result = this.$get("/api/runningTask/"+ this.projectId +"/"+this.callFrom, response => {
+          this.tableData = response.data;
+        });
+      }
     },
 
     closeTaskConfirm(row){

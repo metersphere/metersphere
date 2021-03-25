@@ -361,6 +361,7 @@ export default {
       apiShowArray:[],//浏览器要渲染的api信息集合
       needAsyncSelect: false, //是否需要异步查询api详细数据做展现。只有本次要展示的数据总量大于maxCompnentSize时为true
       currentApiIndexInApiShowArray: 0,//当前主要展示的api信息在apiShowArray的索引
+      clickStepFlag:false,
     }
   },
   props: {
@@ -461,12 +462,6 @@ export default {
         if (this.apiInfoArray.length > 0) {
           this.checkApiInfoNode(this.apiStepIndex,true);
         }
-        //拼接body展现数据
-        // for(let dataIndex = 0; dataIndex < this.maxCompnentSize; dataIndex ++){
-        //   if(dataIndex < response.data.length){
-        //     this.apiShowArray.push(response.data[dataIndex]);
-        //   }
-        // }
         if(response.data.length > this.maxCompnentSize){
           this.needAsyncSelect = true;
         }else{
@@ -629,66 +624,65 @@ export default {
       this.$message.error(this.$t('api_report.error'));
     },
     handleScroll(){
-      //apiDocInfoDiv的总高度，是(每个item的高度+20)数量
-      let apiDocDivScrollTop = this.$refs.apiDocInfoDiv.scrollTop;
-      let apiDocDivClientTop = this.$refs.apiDocInfoDiv.clientHeight;
-      let scrolledHeigh = apiDocDivScrollTop+apiDocDivClientTop;
-      let lastIndex = 0;
-      for (let index = 0; index < this.apiShowArray.length; index++) {
-        //判断移动到了第几个元素. 公式: 移动过的高度+页面显示高度-第index子元素的高度(含20px)>0 的 index最大值
-        if(scrolledHeigh>0){
-          lastIndex = index;
-          let itemHeight = this.$refs.apiDocInfoDivItem[index].offsetHeight+10;
-          scrolledHeigh = scrolledHeigh - itemHeight;
-        }else{
-          break;
-        }
-      }
-
-      let names = "";
-      for(let i = 0;i<this.apiShowArray.length;i++){
-        names += this.apiShowArray[i].name+";";
-      }
-      if(lastIndex < this.currentApiIndexInApiShowArray){
-        //上移
-        if(this.needAsyncSelect){
-          //进行判断：是否还需要为apiShowArray 增加数据。 由于在当前数据前后最多展现2条数据，
-          //可得： apiStepIndex-1- 2 < apiInfoArray，需要添加数据
-          let dataIndex = this.apiStepIndex -3;
-          if(dataIndex >= 0){
-            let apiInfo = this.apiInfoArray[dataIndex];
-            this.apiShowArray.unshift(apiInfo);
+      if(!this.clickStepFlag){
+        //apiDocInfoDiv的总高度，是(每个item的高度+20)数量
+        let apiDocDivScrollTop = this.$refs.apiDocInfoDiv.scrollTop;
+        let apiDocDivClientTop = this.$refs.apiDocInfoDiv.clientHeight;
+        let scrolledHeigh = apiDocDivScrollTop+apiDocDivClientTop;
+        let lastIndex = 0;
+        for (let index = 0; index < this.apiShowArray.length; index++) {
+          //判断移动到了第几个元素. 公式: 移动过的高度+页面显示高度-第index子元素的高度(含20px)>0 的 index最大值
+          if(scrolledHeigh>0){
+            lastIndex = index;
+            let itemHeight = this.$refs.apiDocInfoDivItem[index].offsetHeight+10;
+            scrolledHeigh = scrolledHeigh - itemHeight;
           }else{
-            this.currentApiIndexInApiShowArray--;
-          }
-
-          if(this.apiShowArray.length > (this.currentApiIndexInApiShowArray+3)){
-            this.apiShowArray.pop();
+            break;
           }
         }
-        this.apiStepIndex --;
-      }else if(lastIndex > this.currentApiIndexInApiShowArray){
-        //下滚
-        if(this.needAsyncSelect){
-          //进行判断：是否还需要为apiShowArray 增加数据。 由于在当前数据前后最多展现2条数据，
-          //可得： apiStepIndex+1+ 2 < apiInfoArray，需要添加数据
-          let dataIndex = this.apiStepIndex +3;
-          if(dataIndex < this.apiInfoArray.length){
-            let apiInfo = this.apiInfoArray[dataIndex];
-            this.apiShowArray.push(apiInfo);
-          }
 
-          if(this.apiShowArray.length <= this.maxCompnentSize){
-            //判断currentApiIndexInApiShowArray 是否需要添加，以及是否需要删除第一个元素
-            this.currentApiIndexInApiShowArray++;
-          }else{
-            this.apiShowArray.shift();
-            let itemHeight = this.$refs.apiDocInfoDivItem[0].offsetHeight+10;
-            this.$refs.apiDocInfoDiv.scrollTop = (apiDocDivScrollTop-itemHeight);
+        if(lastIndex < this.currentApiIndexInApiShowArray){
+          //上移
+          if(this.needAsyncSelect){
+            //进行判断：是否还需要为apiShowArray 增加数据。 由于在当前数据前后最多展现2条数据，
+            //可得： apiStepIndex-1- 2 < apiInfoArray，需要添加数据
+            let dataIndex = this.apiStepIndex -3;
+            if(dataIndex >= 0){
+              let apiInfo = this.apiInfoArray[dataIndex];
+              this.apiShowArray.unshift(apiInfo);
+            }else{
+              this.currentApiIndexInApiShowArray--;
+            }
+
+            if(this.apiShowArray.length > (this.currentApiIndexInApiShowArray+3)){
+              this.apiShowArray.pop();
+            }
           }
+          this.apiStepIndex --;
+        }else if(lastIndex > this.currentApiIndexInApiShowArray){
+          //下滚
+          if(this.needAsyncSelect){
+            //进行判断：是否还需要为apiShowArray 增加数据。 由于在当前数据前后最多展现2条数据，
+            //可得： apiStepIndex+1+ 2 < apiInfoArray，需要添加数据
+            let dataIndex = this.apiStepIndex +3;
+            if(dataIndex < this.apiInfoArray.length){
+              let apiInfo = this.apiInfoArray[dataIndex];
+              this.apiShowArray.push(apiInfo);
+            }
+
+            if(this.apiShowArray.length <= this.maxCompnentSize){
+              //判断currentApiIndexInApiShowArray 是否需要添加，以及是否需要删除第一个元素
+              this.currentApiIndexInApiShowArray++;
+            }else{
+              this.apiShowArray.shift();
+              let itemHeight = this.$refs.apiDocInfoDivItem[0].offsetHeight+10;
+              this.$refs.apiDocInfoDiv.scrollTop = (apiDocDivScrollTop-itemHeight);
+            }
+          }
+          this.apiStepIndex ++;
         }
-        this.apiStepIndex ++;
       }
+      this.clickStepFlag = false;
     },
     redirectScroll(){
       //滚动条跳转：将滚动条下拉到显示对应对api接口的位置
@@ -700,6 +694,7 @@ export default {
           itemHeightCount+=itemHeight;
         }
       }
+      this.clickStepFlag = true;
       this.$refs.apiDocInfoDiv.scrollTop = (apiDocDivClientTop+itemHeightCount);
     },
 

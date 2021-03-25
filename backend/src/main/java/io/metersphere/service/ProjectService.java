@@ -28,6 +28,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -169,18 +170,20 @@ public class ProjectService {
         return projectMapper.selectByPrimaryKey(id);
     }
 
-    public void uploadFiles(String projectId, List<MultipartFile> files) {
+    public List<FileMetadata> uploadFiles(String projectId, List<MultipartFile> files) {
+        List<FileMetadata> result = new ArrayList<>();
         if (files != null) {
             for (MultipartFile file : files) {
                 QueryProjectFileRequest request = new QueryProjectFileRequest();
                 request.setName(file.getOriginalFilename());
                 if (CollectionUtils.isEmpty(fileService.getProjectFiles(projectId, request))) {
-                    fileService.saveFile(file, projectId);
+                    result.add(fileService.saveFile(file, projectId));
                 } else {
                     MSException.throwException(Translator.get("project_file_already_exists"));
                 }
             }
         }
+        return result;
     }
 
     public void deleteFile(String fileId) {

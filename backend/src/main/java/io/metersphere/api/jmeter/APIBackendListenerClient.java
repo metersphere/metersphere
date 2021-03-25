@@ -1,5 +1,6 @@
 package io.metersphere.api.jmeter;
 
+import io.metersphere.api.dto.definition.ApiTestCaseInfo;
 import io.metersphere.api.dto.scenario.request.RequestType;
 import io.metersphere.api.service.*;
 import io.metersphere.base.domain.ApiDefinitionExecResult;
@@ -56,6 +57,7 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
 
     private ApiScenarioReportService apiScenarioReportService;
 
+    private ApiTestCaseService apiTestCaseService;
 
     public String runMode = ApiRunMode.RUN.name();
 
@@ -106,6 +108,10 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
         apiScenarioReportService = CommonBeanFactory.getBean(ApiScenarioReportService.class);
         if (apiScenarioReportService == null) {
             LogUtil.error("apiScenarioReportService is required");
+        }
+        apiTestCaseService = CommonBeanFactory.getBean(ApiTestCaseService.class);
+        if (apiTestCaseService == null) {
+            LogUtil.error("apiTestCaseService is required");
         }
 
         super.setupTest(context);
@@ -179,7 +185,10 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
             }
         } else if (StringUtils.equals(this.runMode, ApiRunMode.JENKINS.name())) {
             apiDefinitionService.addResult(testResult);
-            apiDefinitionExecResultService.saveApiResult(testResult, ApiRunMode.DEFINITION.name());
+            apiDefinitionExecResultService.saveApiResult(testResult, ApiRunMode.API.name());
+            ApiDefinitionExecResult api=apiTestCaseService.getInfo(testId);
+            report.setStatus(api.getStatus());
+
 
         } else if (StringUtils.equals(this.runMode, ApiRunMode.JENKINS_API_PLAN.name())) {
             apiDefinitionService.addResult(testResult);

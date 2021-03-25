@@ -122,7 +122,7 @@ import {
   checkoutTestManagerOrTestUser,
   getCurrentWorkspaceId
 } from "../../../../../common/js/utils";
-import {_filter, _sort, getLabel} from "@/common/js/tableUtils";
+import {_filter, _sort, getLabel, getSystemLabel} from "@/common/js/tableUtils";
 import PlanStatusTableItem from "../../common/tableItems/plan/PlanStatusTableItem";
 import {Test_Case_Review} from "@/business/components/common/model/JsonData";
 import {TEST_CASE_LIST, TEST_CASE_REVIEW_LIST} from "@/common/js/constants";
@@ -149,7 +149,7 @@ export default {
     return {
       type: TEST_CASE_REVIEW_LIST,
       headerItems: Test_Case_Review,
-      tableLabel: Test_Case_Review,
+      tableLabel: [],
       result: {},
       condition: {},
       tableData: [],
@@ -173,6 +173,7 @@ export default {
   },
   created() {
     this.isTestManagerOrTestUser = checkoutTestManagerOrTestUser();
+    getSystemLabel(this, this.type)
     this.initTableData();
   },
   computed: {
@@ -182,11 +183,11 @@ export default {
   },
   methods: {
     customHeader() {
+      getLabel(this, TEST_CASE_REVIEW_LIST);
       this.$refs.headerCustom.open(this.tableLabel)
     },
 
     initTableData() {
-      getLabel(this, TEST_CASE_REVIEW_LIST);
       let lastWorkspaceId = getCurrentWorkspaceId();
       this.condition.workspaceId = lastWorkspaceId;
       if (!this.projectId) {
@@ -218,6 +219,7 @@ export default {
           })
         }
       });
+      getLabel(this, TEST_CASE_REVIEW_LIST);
     },
     intoReview(row) {
       this.$router.push('/track/review/view/' + row.id);

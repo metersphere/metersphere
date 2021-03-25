@@ -8,6 +8,7 @@
         @setTreeNodes="setTreeNodes"
         @exportTestCase="exportTestCase"
         @saveAsEdit="editTestCase"
+        @createCase="handleCaseSimpleCreate($event, 'add')"
         @refreshAll="refreshAll"
         :type="'edit'"
         ref="nodeTree"
@@ -44,7 +45,7 @@
             :tree-nodes="treeNodes"
             :project-id="projectId"
             v-if="activeDom === 'right'"
-            ref="testCaseList"/>
+            ref="minder"/>
           </ms-tab-button>
         </el-tab-pane>
         <el-tab-pane
@@ -58,6 +59,8 @@
               :currentTestCaseInfo="item.testCaseInfo"
               @refresh="refreshTable"
               @setModuleOptions="setModuleOptions"
+              @caseEdit="handleCaseCreateOrEdit($event,'edit')"
+              @caseCreate="handleCaseCreateOrEdit($event,'add')"
               :read-only="testCaseReadOnly"
               :tree-nodes="treeNodes"
               :select-node="selectNode"
@@ -155,6 +158,11 @@ export default {
         }
       }
     },
+    activeName(newVal, oldVal) {
+      if (oldVal !== 'default' && newVal === 'default' && this.$refs.minder) {
+        this.$refs.minder.refresh();
+      }
+    }
   },
   computed: {
     checkRedirectID: function () {
@@ -282,7 +290,9 @@ export default {
       this.selectParentNodes = pNodes;
     },
     refreshTable() {
-      this.$refs.testCaseList.initTableData();
+      if ( this.$refs.testCaseList) {
+        this.$refs.testCaseList.initTableData();
+      }
     },
     editTestCase(testCase) {
       this.type="edit"
@@ -293,11 +303,20 @@ export default {
       }
       this.addTab({name: 'edit', testCaseInfo: testCase});
     },
-
+    handleCaseCreateOrEdit(data, type) {
+      if (this.$refs.minder) {
+        this.$refs.minder.addCase(data, type);
+      }
+    },
+    handleCaseSimpleCreate(data, type) {
+      this.handleCaseCreateOrEdit(data, type);
+      if (this.$refs.minder) {
+        this.$refs.minder.refresh();
+      }
+    },
     copyTestCase(testCase) {
       this.type="copy"
       this.testCaseReadOnly = false;
-      let item = {};
       testCase.isCopy = true;
       this.addTab({name: 'edit', testCaseInfo: testCase});
     },

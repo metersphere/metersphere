@@ -59,7 +59,7 @@ public class TestPlanScenarioCaseController {
     @PostMapping(value = "/jenkins/run")
     public String runByRun(@RequestBody RunScenarioRequest request) {
         request.setExecuteType(ExecuteType.Saved.name());
-        request.setTriggerMode(ApiRunMode.SCENARIO.name());
+        request.setTriggerMode(ApiRunMode.API.name());
         request.setRunMode(ApiRunMode.SCENARIO.name());
         return testPlanScenarioCaseService.run(request);
     }

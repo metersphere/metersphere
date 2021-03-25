@@ -125,6 +125,7 @@ export default {
               this.$emit('saveAsEdit', this.testCaseForm);
             } else {
               this.$emit('refresh');
+              this.$emit('createCase', this.testCaseForm);
             }
           })
         } else {

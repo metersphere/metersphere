@@ -1,9 +1,7 @@
 package io.metersphere.service;
 
-import io.metersphere.base.domain.SystemParameter;
-import io.metersphere.base.domain.SystemParameterExample;
-import io.metersphere.base.domain.UserHeader;
-import io.metersphere.base.domain.UserHeaderExample;
+import io.metersphere.base.domain.*;
+import io.metersphere.base.mapper.SystemHeaderMapper;
 import io.metersphere.base.mapper.SystemParameterMapper;
 import io.metersphere.base.mapper.UserHeaderMapper;
 import io.metersphere.base.mapper.ext.ExtSystemParameterMapper;
@@ -42,6 +40,8 @@ public class SystemParameterService {
     private SystemParameterMapper systemParameterMapper;
     @Resource
     private ExtSystemParameterMapper extSystemParameterMapper;
+    @Resource
+    private SystemHeaderMapper systemHeaderMapper;
 
     public String searchEmail() {
         return extSystemParameterMapper.email();
@@ -255,6 +255,11 @@ public class SystemParameterService {
             userHeaderMapper.insert(userHeader);
         }
         example.clear();
+    }
+
+    //默认表头
+    public SystemHeader getHeader(String type) {
+        return systemHeaderMapper.selectByPrimaryKey(type);
     }
 
     public UserHeader queryUserHeader(HeaderRequest headerRequest) {

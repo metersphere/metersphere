@@ -148,6 +148,8 @@
   import ApiDocumentsPage from "@/business/components/api/definition/components/list/ApiDocumentsPage";
   import MsTableButton from "@/business/components/common/components/MsTableButton";
   import MsTabButton from "@/business/components/common/components/MsTabButton";
+  import {getLabel} from "@/common/js/tableUtils";
+  import {API_CASE_LIST, API_LIST} from "@/common/js/constants";
 
   export default {
     name: "ApiDefinition",
@@ -218,6 +220,14 @@
         nodeTree: []
       }
     },
+    created() {
+      if (this.activeDom === 'left') {
+        getLabel(this, API_LIST);
+      } else if (this.activeDom === 'right') {
+        getLabel(this, API_CASE_LIST);
+
+      }
+    },
     watch: {
       currentProtocol() {
         this.handleCommand("CLOSE_ALL");
@@ -242,7 +252,9 @@
         }
       }
     },
+
     methods: {
+
       changeRedirectParam(redirectIDParam) {
         this.redirectID = redirectIDParam;
       },

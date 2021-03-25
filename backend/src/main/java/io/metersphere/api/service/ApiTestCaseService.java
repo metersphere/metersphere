@@ -160,6 +160,9 @@ public class ApiTestCaseService {
         }
         return model;
     }
+    public ApiTestCaseInfo getResult(String id){
+       return extApiTestCaseMapper.selectApiCaseInfoByPrimaryKey(id);
+    }
 
     public ApiTestCase create(SaveApiTestCaseRequest request, List<MultipartFile> bodyFiles) {
         List<String> bodyUploadIds = new ArrayList<>(request.getBodyUploadIds());
@@ -633,5 +636,8 @@ public class ApiTestCaseService {
     public String getExecResult(String id) {
         String status = apiDefinitionExecResultMapper.selectExecResult(id);
         return status;
+    }
+    public ApiDefinitionExecResult getInfo(String id){
+        return apiDefinitionExecResultMapper.selectByPrimaryKey(id);
     }
 }

@@ -62,14 +62,14 @@
           </el-row>
 
           <el-row>
-<!--            <el-col :span="7">-->
-<!--              <el-form-item label="评审状态" :label-width="formLabelWidth" prop="reviewStatus">-->
-<!--                <el-select size="small" v-model="form.reviewStatus" class="ms-case-input">-->
-<!--                  <el-option v-for="item in options" :key="item.id" :label="item.label" :value="item.id">-->
-<!--                  </el-option>-->
-<!--                </el-select>-->
-<!--              </el-form-item>-->
-<!--            </el-col>-->
+            <!--            <el-col :span="7">-->
+            <!--              <el-form-item label="评审状态" :label-width="formLabelWidth" prop="reviewStatus">-->
+            <!--                <el-select size="small" v-model="form.reviewStatus" class="ms-case-input">-->
+            <!--                  <el-option v-for="item in options" :key="item.id" :label="item.label" :value="item.id">-->
+            <!--                  </el-option>-->
+            <!--                </el-select>-->
+            <!--              </el-form-item>-->
+            <!--            </el-col>-->
             <el-col :span="7">
               <el-form-item :label="$t('commons.tag')" :label-width="formLabelWidth" prop="tag">
                 <ms-input-tag :currentScenario="form" v-if="showInputTag" ref="tag" class="ms-case-input"/>
@@ -463,6 +463,9 @@ export default {
       } else if (this.form.type === 'performance' || this.form.type === 'api') {
         url = '/' + this.form.type + '/list/' + this.projectId
       }
+      if (!url) {
+        return;
+      }
       return new Promise((resolve, reject) => {
         this.$get(url).then(res => {
           console.log(res.data.data)
@@ -475,7 +478,7 @@ export default {
         }).catch((err) => {
           reject(err)
         })
-      })
+      });
     },
     /* lazyLoad(node, resolve){
       const { level } = node;
@@ -629,7 +632,7 @@ export default {
       })
     },
     async setFormData(testCase) {
-      testCase.tags = JSON.parse(testCase.tags);
+      //testCase.tags = JSON.parse(testCase.tags);
       testCase.selected = JSON.parse(testCase.testId);
       let tmp = {};
       Object.assign(tmp, testCase);
@@ -718,7 +721,7 @@ export default {
           let param = this.buildParam();
           if (this.validate(param)) {
             let option = this.getOption(param);
-            this.result = this.$request(option, () => {
+            this.result = this.$request(option, (response) => {
               this.$success(this.$t('commons.save_success'));
               if (this.operationType == 'add' && this.isCreateContinue) {
                 this.form.name = '';
@@ -737,6 +740,13 @@ export default {
               }
               this.dialogFormVisible = false;
               this.$emit("refresh");
+              if (this.type === 'add' || this.type === 'copy') {
+                param.id = response.data;
+                this.$emit("caseCreate", param);
+                this.close();
+              } else {
+                this.$emit("caseEdit", param);
+              }
             });
           }
         } else {
@@ -762,7 +772,7 @@ export default {
       if (this.form.tags instanceof Array) {
         this.form.tags = JSON.stringify(this.form.tags);
       }
-      param.testId=JSON.stringify(this.form.selected)
+      param.testId = JSON.stringify(this.form.selected)
       param.tags = this.form.tags;
       param.type = 'functional'
       return param;
