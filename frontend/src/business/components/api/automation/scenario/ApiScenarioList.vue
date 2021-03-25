@@ -464,6 +464,7 @@
       moveSave(param) {
         this.buildBatchParam(param);
         param.apiScenarioModuleId = param.nodeId;
+        param.modulePath = param.nodePath;
         this.$post('/api/automation/batch/edit', param, () => {
           this.$success(this.$t('commons.save_success'));
           this.$refs.testBatchMove.close();
