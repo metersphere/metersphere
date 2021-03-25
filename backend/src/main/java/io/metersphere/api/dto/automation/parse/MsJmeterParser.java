@@ -137,7 +137,7 @@ public class MsJmeterParser extends ApiImportAbstractParser<ScenarioImport> {
             HTTPSamplerProxy source = (HTTPSamplerProxy) key;
             BeanUtils.copyBean(samplerProxy, source);
             if (source != null && source.getHTTPFiles().length > 0) {
-                samplerProxy.getBody().setBinary(new ArrayList<>());
+                samplerProxy.getBody().initBinary();
                 samplerProxy.getBody().setType(Body.FORM_DATA);
                 List<KeyValue> keyValues = new LinkedList<>();
                 for (HTTPFileArg arg : source.getHTTPFiles()) {
@@ -153,7 +153,12 @@ public class MsJmeterParser extends ApiImportAbstractParser<ScenarioImport> {
                     keyValue.setFiles(files);
                     keyValues.add(keyValue);
                 }
-                samplerProxy.getBody().setKvs(keyValues);
+                if (source.getPostBodyRaw() && CollectionUtils.isNotEmpty(keyValues)) {
+                    samplerProxy.getBody().setType(Body.RAW);
+                    samplerProxy.getBody().setRaw(keyValues.get(0).getValue());
+                } else {
+                    samplerProxy.getBody().setKvs(keyValues);
+                }
             }
             samplerProxy.setProtocol(RequestType.HTTP);
             samplerProxy.setPort(source.getPort() + "");
@@ -173,6 +178,7 @@ public class MsJmeterParser extends ApiImportAbstractParser<ScenarioImport> {
                         samplerProxy.setArguments(keyValues);
                     }
                 }
+                samplerProxy.getBody().initBinary();
             }
             samplerProxy.setPath("");
             samplerProxy.setMethod(source.getMethod());
