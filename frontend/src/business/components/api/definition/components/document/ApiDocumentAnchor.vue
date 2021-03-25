@@ -643,7 +643,7 @@ export default {
 
         if(lastIndex < this.currentApiIndexInApiShowArray){
           //上移
-          if(this.needAsyncSelect){
+          // if(this.needAsyncSelect){
             //进行判断：是否还需要为apiShowArray 增加数据。 由于在当前数据前后最多展现2条数据，
             //可得： apiStepIndex-1- 2 < apiInfoArray，需要添加数据
             let dataIndex = this.apiStepIndex -3;
@@ -657,11 +657,11 @@ export default {
             if(this.apiShowArray.length > (this.currentApiIndexInApiShowArray+3)){
               this.apiShowArray.pop();
             }
-          }
+          // }
           this.apiStepIndex --;
         }else if(lastIndex > this.currentApiIndexInApiShowArray){
           //下滚
-          if(this.needAsyncSelect){
+          // if(this.needAsyncSelect){
             //进行判断：是否还需要为apiShowArray 增加数据。 由于在当前数据前后最多展现2条数据，
             //可得： apiStepIndex+1+ 2 < apiInfoArray，需要添加数据
             let dataIndex = this.apiStepIndex +3;
@@ -678,7 +678,7 @@ export default {
               let itemHeight = this.$refs.apiDocInfoDivItem[0].offsetHeight+10;
               this.$refs.apiDocInfoDiv.scrollTop = (apiDocDivScrollTop-itemHeight);
             }
-          }
+          // }
           this.apiStepIndex ++;
         }
       }
