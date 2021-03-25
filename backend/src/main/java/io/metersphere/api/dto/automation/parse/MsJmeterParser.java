@@ -136,6 +136,8 @@ public class MsJmeterParser extends ApiImportAbstractParser<ScenarioImport> {
         try {
             HTTPSamplerProxy source = (HTTPSamplerProxy) key;
             BeanUtils.copyBean(samplerProxy, source);
+            samplerProxy.setRest(new ArrayList<KeyValue>(){{this.add(new KeyValue());}});
+            samplerProxy.setArguments(new ArrayList<KeyValue>(){{this.add(new KeyValue());}});
             if (source != null && source.getHTTPFiles().length > 0) {
                 samplerProxy.getBody().initBinary();
                 samplerProxy.getBody().setType(Body.FORM_DATA);
@@ -153,12 +155,7 @@ public class MsJmeterParser extends ApiImportAbstractParser<ScenarioImport> {
                     keyValue.setFiles(files);
                     keyValues.add(keyValue);
                 }
-                if (source.getPostBodyRaw() && CollectionUtils.isNotEmpty(keyValues)) {
-                    samplerProxy.getBody().setType(Body.RAW);
-                    samplerProxy.getBody().setRaw(keyValues.get(0).getValue());
-                } else {
-                    samplerProxy.getBody().setKvs(keyValues);
-                }
+                samplerProxy.getBody().setKvs(keyValues);
             }
             samplerProxy.setProtocol(RequestType.HTTP);
             samplerProxy.setPort(source.getPort() + "");
@@ -168,6 +165,7 @@ public class MsJmeterParser extends ApiImportAbstractParser<ScenarioImport> {
                     source.getArguments().getArgumentsAsMap().forEach((k, v) -> {
                         samplerProxy.getBody().setRaw(v);
                     });
+                    samplerProxy.getBody().initKvs();
                 } else {
                     List<KeyValue> keyValues = new LinkedList<>();
                     source.getArguments().getArgumentsAsMap().forEach((k, v) -> {
