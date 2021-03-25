@@ -468,7 +468,6 @@ export default {
       }
       return new Promise((resolve, reject) => {
         this.$get(url).then(res => {
-          console.log(res.data.data)
           const data = res.data.data.map(item => ({
             value: item.id,
             label: item.name,
@@ -642,7 +641,6 @@ export default {
       }
       tmp.tags = JSON.parse(tmp.tags);
       Object.assign(this.form, tmp);
-      console.log(this.form.selected)
       this.form.module = testCase.nodeId;
       this.getFileMetaData(testCase);
       /* testCase.selected = JSON.parse(testCase.testId);
