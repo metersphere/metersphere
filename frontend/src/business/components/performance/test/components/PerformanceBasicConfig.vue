@@ -116,6 +116,7 @@ import MsTableOperatorButton from "@/business/components/common/components/MsTab
 import MsDialogFooter from "@/business/components/common/components/MsDialogFooter";
 import ExistFiles from "@/business/components/performance/test/components/ExistFiles";
 import ExistScenarios from "@/business/components/performance/test/components/ExistScenarios";
+import {findThreadGroup} from "@/business/components/performance/test/model/ThreadGroup";
 
 export default {
   name: "PerformanceBasicConfig",
@@ -329,12 +330,30 @@ export default {
       }
       return true;
     },
-    beforeUploadJmx(file) {
-      this.$refs.existFiles.beforeUploadFile(file);
+    importScenario(scenarioId) {
+      this.$refs.existScenarios.selectIds.add(scenarioId);
     },
-    handleUpload(file) {
+    importCase(caseObj) {
+      console.log("case: ", caseObj);
+      let suffixIndex = caseObj.name.lastIndexOf(".jmx");
+      let jmxName = caseObj.name.substring(0, suffixIndex) + "_" + new Date().getTime() + ".jmx";
+      let threadGroups = findThreadGroup(caseObj.xml, jmxName);
+      threadGroups.forEach(tg => {
+        tg.options = {};
+      });
+      this.fileChange(threadGroups);
+      let file = new File([caseObj.xml], jmxName);
+      this.uploadList.push(file);
+      this.tableData.push({
+        name: file.name,
+        size: (file.size / 1024).toFixed(2) + ' KB',
+        type: 'JMX',
+        updateTime: file.lastModified,
+      });
+    },
+    handleUpload() {
       // 从api创建的测试
-      this.$refs.existFiles.handleUpload(file, true);
+      this.$refs.existScenarios.handleImport();
     },
   },
 }

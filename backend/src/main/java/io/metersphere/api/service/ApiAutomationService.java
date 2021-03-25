@@ -269,7 +269,7 @@ public class ApiAutomationService {
     }
 
     private void deleteApiScenarioReport(List<String> scenarioIds) {
-        if(scenarioIds == null || scenarioIds.isEmpty()){
+        if (scenarioIds == null || scenarioIds.isEmpty()) {
             return;
         }
         ApiScenarioReportExample scenarioReportExample = new ApiScenarioReportExample();
@@ -371,6 +371,9 @@ public class ApiAutomationService {
 
     public APIScenarioReportResult createScenarioReport(String id, String scenarioId, String scenarioName, String triggerMode, String execType, String projectId, String userID) {
         APIScenarioReportResult report = new APIScenarioReportResult();
+        if (triggerMode.equals(ApiRunMode.SCENARIO.name()) || triggerMode.equals(ApiRunMode.DEFINITION.name())) {
+            triggerMode = ReportTriggerMode.MANUAL.name();
+        }
         report.setId(id);
         report.setTestId(id);
         if (StringUtils.isNotEmpty(scenarioName)) {

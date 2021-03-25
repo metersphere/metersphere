@@ -254,6 +254,9 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
     }
 
     private static void sendTask(ApiTestReport report, String reportUrl, TestResult testResult) {
+        if (report == null) {
+            return;
+        }
         SystemParameterService systemParameterService = CommonBeanFactory.getBean(SystemParameterService.class);
         NoticeSendService noticeSendService = CommonBeanFactory.getBean(NoticeSendService.class);
         assert systemParameterService != null;
