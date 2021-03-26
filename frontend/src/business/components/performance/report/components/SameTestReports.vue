@@ -15,7 +15,7 @@
           :label="$t('commons.name')"
           show-overflow-tooltip>
         <template v-slot:default="scope">
-          <i v-if="scope.row.id === report.id" class="el-icon-star-on"></i> {{ scope.row.name }}
+          {{ scope.row.name }} <i v-if="scope.row.id === report.id" class="el-icon-star-on"></i>
         </template>
       </el-table-column>
       <el-table-column
