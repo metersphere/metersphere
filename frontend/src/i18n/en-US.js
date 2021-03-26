@@ -280,7 +280,7 @@ export default {
     none: 'None Organization',
     select: 'Select Organization',
     service_integration: 'Service integration',
-    defect_manage: 'Defect management platform',
+    defect_manage: 'Project management platform',
     message_settings: 'Message settings',
     message: {
       jenkins_task_notification: 'Jenkins task notification',
