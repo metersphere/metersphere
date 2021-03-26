@@ -282,7 +282,7 @@ export default {
     select: '选择组织',
     delete_warning: '删除该组织将同步删除该组织下所有相关工作空间和相关工作空间下的所有项目，以及项目中的所有用例、接口测试、性能测试等,确定要删除吗?',
     service_integration: '服务集成',
-    defect_manage: '缺陷管理平台',
+    defect_manage: '项目管理平台',
     message_settings: '消息设置',
     message: {
       jenkins_task_notification: 'Jenkins接口调用任务通知',
@@ -1197,7 +1197,7 @@ export default {
       batch_delete_case: '批量删除',
       batch_unlink: '批量取消关联',
       project_name: '所属项目',
-      status: '评审状态',
+      status: '评审结果',
       status_prepare: '未评审',
       status_pass: '通过',
       status_un_pass: '未通过',

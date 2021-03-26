@@ -374,7 +374,6 @@
     },
     methods: {
       customHeader() {
-        getLabel(this, API_SCENARIO_LIST);
         this.$refs.headerCustom.open(this.tableLabel)
       },
       selectByParam() {

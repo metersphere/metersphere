@@ -380,6 +380,7 @@ export default {
       testCases: [],
       index: 0,
       showInputTag: true,
+      tableType:"",
     };
   },
   props: {
@@ -631,8 +632,11 @@ export default {
       })
     },
     async setFormData(testCase) {
-      //testCase.tags = JSON.parse(testCase.tags);
-      testCase.selected = JSON.parse(testCase.testId);
+      try {
+        testCase.selected = JSON.parse(testCase.testId);
+      } catch (error) {
+        testCase.selected = testCase.testId
+      }
       let tmp = {};
       Object.assign(tmp, testCase);
       tmp.steps = JSON.parse(testCase.steps);
@@ -643,9 +647,8 @@ export default {
       Object.assign(this.form, tmp);
       this.form.module = testCase.nodeId;
       this.getFileMetaData(testCase);
-      /* testCase.selected = JSON.parse(testCase.testId);
-       this.form.selected= testCase.selected*/
       await this.loadOptions(this.sysList)
+
     },
     setTestCaseExtInfo(testCase) {
       this.testCase = {};
@@ -710,11 +713,6 @@ export default {
       this.dialogFormVisible = false;
     },
     saveCase() {
-      /*
-            document.getElementById("inputDelay").focus();
-      */
-
-      //  保存前在input框自动失焦，以免保存失败
       this.$refs['caseFrom'].validate((valid) => {
         if (valid) {
           let param = this.buildParam();
@@ -722,7 +720,10 @@ export default {
             let option = this.getOption(param);
             this.result = this.$request(option, (response) => {
               this.$success(this.$t('commons.save_success'));
-              if (this.operationType == 'add' && this.isCreateContinue) {
+              this.operationType="edit"
+              this.form.id=response.id;
+              this.$emit("refreshTestCase",)
+              /*if (this.operationType == 'add' && this.isCreateContinue) {
                 this.form.name = '';
                 this.form.prerequisite = '';
                 this.form.steps = [{
@@ -736,9 +737,11 @@ export default {
                 this.tableData = [];
                 this.$emit("refresh");
                 return;
-              }
-              this.dialogFormVisible = false;
-              this.$emit("refresh");
+              }*/
+              this.tableType='edit';
+              this.$emit("refresh",this.form);
+              console.log(response.data)
+              this.form.id=response.data
               if (this.type === 'add' || this.type === 'copy') {
                 param.id = response.data;
                 this.$emit("caseCreate", param);
@@ -777,11 +780,15 @@ export default {
       return param;
     },
     getOption(param) {
-      let formData = new FormData();
-      let type = this.type
-      if (this.type === 'copy') {
+      let type={}
+      if(this.tableType==='edit'){
+        type='edit'
+      }else if(this.type === 'copy'){
         type = 'add'
+      }else{
+        type=this.type
       }
+      let formData = new FormData();
       let url = '/test/case/' + type;
       this.uploadList.forEach(f => {
         formData.append("file", f);

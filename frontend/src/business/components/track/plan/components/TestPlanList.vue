@@ -295,7 +295,6 @@ export default {
   },
   methods: {
     inite() {
-      getLabel(this, TEST_PLAN_LIST);
       this.initTableData()
     },
     calPassRate(scope) {
@@ -303,7 +302,6 @@ export default {
       return Number.parseInt(passRate, 10);
     },
     customHeader() {
-      getLabel(this, TEST_PLAN_LIST);
       this.$refs.headerCustom.open(this.tableLabel)
     },
     initTableData() {

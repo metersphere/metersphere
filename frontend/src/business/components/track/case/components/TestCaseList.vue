@@ -305,7 +305,7 @@ export default {
     this.$emit('setCondition', this.condition);
     this.condition.filters = {reviewStatus: ["Prepare", "Pass", "UnPass"]};
     this.initTableData();
-    getSystemLabel(this, this.type)
+
   },
   activated() {
     this.condition.filters = {reviewStatus: ["Prepare", "Pass", "UnPass"]};
@@ -322,7 +322,6 @@ export default {
   },
   methods: {
     customHeader() {
-      getLabel(this, TEST_CASE_LIST);
       this.$refs.headerCustom.open(this.tableLabel)
     },
     getSelectDataRange() {
@@ -344,6 +343,7 @@ export default {
         this.condition.nodeIds = this.selectNodeIds;
       }
       getLabel(this, TEST_CASE_LIST);
+
       this.getData();
     },
     getData() {

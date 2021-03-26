@@ -211,7 +211,6 @@ export default {
   },
   methods: {
     customHeader() {
-      getLabel(this, TEST_PLAN_LOAD_CASE);
       this.$refs.headerCustom.open(this.tableLabel)
     },
     initTable() {

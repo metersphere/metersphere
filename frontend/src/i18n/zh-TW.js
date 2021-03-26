@@ -282,7 +282,7 @@ export default {
     select: '選擇組織',
     delete_warning: '刪除該組織將同步刪除該組織下所有相關工作空間和相關工作空間下的所有項目，以及項目中的所有用例、接口測試、性能測試等,確定要刪除嗎?',
     service_integration: '服務集成',
-    defect_manage: '缺陷管理平臺',
+    defect_manage: '項目管理平臺',
     message_settings: '消息設置',
     message: {
       jenkins_task_notification: 'Jenkins接口調用任務通知',

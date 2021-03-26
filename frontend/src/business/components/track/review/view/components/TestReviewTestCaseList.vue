@@ -301,7 +301,6 @@ export default {
   },
   methods: {
     customHeader() {
-      getLabel(this, TEST_CASE_REVIEW_CASE_LIST);
       this.$refs.headerCustom.open(this.tableLabel)
     },
     initTableData() {
