@@ -544,7 +544,6 @@ export default {
       diff: "对比"
     },
     project_file_update_type_error: '更新的文件类型必须一致',
-    project_file_exist: "项目中已存在该文件，请直接引用"
   },
   api_test: {
     creator: "创建人",
