@@ -1001,4 +1001,18 @@ public class ApiAutomationService {
             }
         });
     }
+
+    public void removeToGcByBatch(ApiScenarioBatchRequest request) {
+        ServiceUtils.getSelectAllIds(request, request.getCondition(),
+                (query) -> extApiScenarioMapper.selectIdsByQuery((ApiScenarioRequest) query));
+
+        this.removeToGc(request.getIds());
+    }
+
+    public void deleteBatchByCondition(ApiScenarioBatchRequest request) {
+        ServiceUtils.getSelectAllIds(request, request.getCondition(),
+                (query) -> extApiScenarioMapper.selectIdsByQuery((ApiScenarioRequest) query));
+
+        this.deleteBatch(request.getIds());
+    }
 }
