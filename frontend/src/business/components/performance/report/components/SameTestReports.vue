@@ -11,17 +11,17 @@
 
       <el-table-column type="selection"/>
       <el-table-column
-          prop="name"
-          :label="$t('commons.name')"
-          show-overflow-tooltip>
+        prop="name"
+        :label="$t('commons.name')"
+        show-overflow-tooltip>
         <template v-slot:default="scope">
           <i v-if="scope.row.id === report.id" class="el-icon-star-on"></i> {{ scope.row.name }}
         </template>
       </el-table-column>
       <el-table-column
-          prop="userName"
-          :label="$t('report.user_name')"
-          show-overflow-tooltip>
+        prop="userName"
+        :label="$t('report.user_name')"
+        show-overflow-tooltip>
       </el-table-column>
       <el-table-column prop="triggerMode"
                        :label="$t('test_track.report.list.trigger_mode')">
@@ -30,7 +30,7 @@
         </template>
       </el-table-column>
       <el-table-column
-          :label="$t('commons.create_time')">
+        :label="$t('commons.create_time')">
         <template v-slot:default="scope">
           <i class="el-icon-time"/>
           <span class="last-modified">{{ scope.row.createTime | timestampFormatDate }}</span>
@@ -70,6 +70,7 @@ export default {
   methods: {
     open(report) {
       this.report = report;
+      this.compareReports = [];
       this.getCompareReports(report);
 
       this.compareReports.push(report);
@@ -94,8 +95,8 @@ export default {
     handleCompare() {
       let reportIds = [...this.selectIds];
       this.tableData
-          .filter(r => reportIds.indexOf(r.id) > -1 && this.report.id !== r.id)
-          .forEach(r => this.compareReports.push(r));
+        .filter(r => reportIds.indexOf(r.id) > -1 && this.report.id !== r.id)
+        .forEach(r => this.compareReports.push(r));
 
       localStorage.setItem("compareReports", JSON.stringify(this.compareReports));
       this.close();
