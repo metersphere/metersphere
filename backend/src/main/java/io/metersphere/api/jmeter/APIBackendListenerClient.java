@@ -198,11 +198,11 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
             apiDefinitionService.addResult(testResult);
 
             //测试计划定时任务-接口执行逻辑的话，需要同步测试计划的报告数据
-            if (StringUtils.equals(this.runMode, ApiRunMode.SCHEDULE_API_PLAN.name())) {
+            if (StringUtils.equalsAny(this.runMode, ApiRunMode.SCHEDULE_API_PLAN.name(), ApiRunMode.JENKINS_API_PLAN.name())) {
                 apiDefinitionExecResultService.saveApiResultByScheduleTask(testResult, ApiRunMode.SCHEDULE_API_PLAN.name());
                 List<String> testPlanReportIdList = new ArrayList<>();
                 testPlanReportIdList.add(debugReportId);
-                for(String testPlanReportId : testPlanReportIdList) {   //  更新每个测试计划的状态
+                for (String testPlanReportId : testPlanReportIdList) {   //  更新每个测试计划的状态
                     testPlanReportService.checkTestPlanStatus(testPlanReportId);
                 }
                 testPlanReportService.updateReport(testPlanReportIdList, ApiRunMode.SCHEDULE_API_PLAN.name(), ReportTriggerMode.SCHEDULE.name());
