@@ -183,9 +183,16 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                 if (!url.startsWith("http://") && !url.startsWith("https://")) {
                     url = "http://" + url;
                 }
+                if (StringUtils.isNotEmpty(this.getPort()) && this.getPort().startsWith("${")) {
+                    url.replaceAll(this.getPort(), "10990");
+                }
                 URL urlObject = new URL(url);
                 sampler.setDomain(URLDecoder.decode(urlObject.getHost(), "UTF-8"));
-                sampler.setPort(urlObject.getPort());
+                if (urlObject.getPort() > 0 && urlObject.getPort() != 10990 && StringUtils.isNotEmpty(this.getPort()) && this.getPort().startsWith("${")) {
+                    sampler.setPort(urlObject.getPort());
+                } else {
+                    sampler.setProperty("HTTPSampler.port", this.getPort());
+                }
                 sampler.setProtocol(urlObject.getProtocol());
                 String envPath = StringUtils.equals(urlObject.getPath(), "/") ? "" : urlObject.getPath();
                 sampler.setPath(envPath);
