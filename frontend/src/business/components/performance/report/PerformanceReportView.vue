@@ -25,9 +25,6 @@
               <el-button :disabled="isReadOnly" type="info" plain size="mini" @click="handleExport(reportName)">
                 {{ $t('test_track.plan_view.export_report') }}
               </el-button>
-              <el-button :disabled="isReadOnly || report.status !== 'Completed'" type="default" plain size="mini" @click="compareReports()">
-                {{ $t('report.compare') }}
-              </el-button>
               <el-button :disabled="isReadOnly" type="warning" plain size="mini" @click="downloadJtl()">
                 {{ $t('report.downloadJtl') }}
               </el-button>
