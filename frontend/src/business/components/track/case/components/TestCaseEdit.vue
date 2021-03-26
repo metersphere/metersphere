@@ -631,8 +631,11 @@ export default {
       })
     },
     async setFormData(testCase) {
-      //testCase.tags = JSON.parse(testCase.tags);
-      testCase.selected = JSON.parse(testCase.testId);
+      try {
+        testCase.selected = JSON.parse(testCase.testId);
+      } catch (error) {
+        testCase.selected = testCase.testId
+      }
       let tmp = {};
       Object.assign(tmp, testCase);
       tmp.steps = JSON.parse(testCase.steps);
@@ -643,9 +646,8 @@ export default {
       Object.assign(this.form, tmp);
       this.form.module = testCase.nodeId;
       this.getFileMetaData(testCase);
-      /* testCase.selected = JSON.parse(testCase.testId);
-       this.form.selected= testCase.selected*/
       await this.loadOptions(this.sysList)
+
     },
     setTestCaseExtInfo(testCase) {
       this.testCase = {};
