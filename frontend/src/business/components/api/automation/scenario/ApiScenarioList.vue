@@ -348,6 +348,9 @@
     },
     watch: {
       selectNodeIds() {
+        this.condition.selectAll = false;
+        this.condition.unSelectIds = [];
+        this.selectDataCounts = 0;
         this.selectProjectId ? this.search(this.selectProjectId) : this.search();
       },
       trashEnable() {
@@ -357,6 +360,10 @@
         } else {
           this.condition.filters = {status: ["Prepare", "Underway", "Completed"]};
         }
+        this.condition.selectAll = false;
+        this.condition.unSelectIds = [];
+        this.selectDataCounts = 0;
+
         this.search();
       },
       batchReportId() {
@@ -415,9 +422,13 @@
             break;
         }
         this.selection = [];
-        this.selectAll = false;
-        this.unSelection = [];
-        this.selectDataCounts = 0;
+
+        if(!this.condition.selectAll){
+          this.condition.selectAll = false;
+          this.condition.unSelectIds = [];
+          this.selectDataCounts = 0;
+        }
+
         let url = "/api/automation/list/" + this.currentPage + "/" + this.pageSize;
         if (this.condition.projectId) {
           this.result.loading = true;
@@ -431,23 +442,53 @@
               }
             });
             this.result.loading = false;
-            this.unSelection = data.listObject.map(s => s.id);
             if (this.$refs.scenarioTable) {
               setTimeout(this.$refs.scenarioTable.doLayout,500)
             }
+
+            if(!this.condition.selectAll){
+              this.condition.unSelectIds = response.data.listObject.map(s => s.id);
+            }
+
+            this.$nextTick(function(){
+              this.checkTableRowIsSelect();
+            })
           });
         }
         getLabel(this, API_SCENARIO_LIST);
+      },
+      checkTableRowIsSelect(){
+        //如果默认全选的话，则选中应该选中的行
+        if(this.condition.selectAll){
+          let unSelectIds = this.condition.unSelectIds;
+          this.tableData.forEach(row=>{
+            if(unSelectIds.indexOf(row.id)<0){
+              this.$refs.scenarioTable.toggleRowSelection(row,true);
+
+              //默认全选，需要把选中对行添加到selectRows中。不然会影响到勾选函数统计
+              if (!this.selectRows.has(row)) {
+                this.$set(row, "showMore", true);
+                this.selectRows.add(row);
+              }
+            }else{
+              //不勾选的行，也要判断是否被加入了selectRow中。加入了的话就去除。
+              if (this.selectRows.has(row)) {
+                this.$set(row, "showMore", false);
+                this.selectRows.delete(row);
+              }
+            }
+          })
+        }
       },
       handleCommand(cmd) {
         let table = this.$refs.scenarioTable;
         switch (cmd) {
           case "table":
-            this.selectAll = false;
+            this.condition.selectAll = false;
             table.toggleAllSelection();
             break;
           case "all":
-            this.selectAll = true;
+            this.condition.selectAll = true;
             break
         }
       },
@@ -519,11 +560,6 @@
       },
       addTestPlan(params) {
         let obj = {planIds: params[0], scenarioIds: this.selection};
-
-        // obj.projectId = getCurrentProjectID();
-        // obj.selectAllDate = this.isSelectAllDate;
-        // obj.unSelectIds = this.unSelection;
-        // obj = Object.assign(obj, this.condition);
 
         // todo 选取全部数据
         if (this.isSelectAllDate) {
@@ -619,8 +655,10 @@
       },
       handleDeleteBatch(row) {
         if (this.trashEnable) {
-          let ids = Array.from(this.selectRows).map(row => row.id);
-          this.$post('/api/automation/deleteBatch/', ids, () => {
+          //let ids = Array.from(this.selectRows).map(row => row.id);
+          let param = {};
+          this.buildBatchParam(param);
+          this.$post('/api/automation/deleteBatchByCondition/', param, () => {
             this.$success(this.$t('commons.delete_success'));
             this.search();
           });
@@ -630,8 +668,10 @@
           confirmButtonText: this.$t('commons.confirm'),
           callback: (action) => {
             if (action === 'confirm') {
-              let ids = Array.from(this.selectRows).map(row => row.id);
-              this.$post('/api/automation/removeToGc/', ids, () => {
+              //let ids = Array.from(this.selectRows).map(row => row.id);
+              let param = {};
+              this.buildBatchParam(param);
+              this.$post('/api/automation/removeToGcByBatch/', param, () => {
                 this.$success(this.$t('commons.delete_success'));
                 this.search();
               });
@@ -686,8 +726,11 @@
           confirmButtonText: this.$t('commons.confirm'),
           callback: (action) => {
             if (action === 'confirm') {
-              let ids = [row.id];
-              this.$post('/api/automation/removeToGc/', ids, () => {
+              // let ids = [row.id];
+              let param = {};
+              this.buildBatchParam(param);
+              this.$post('/api/automation/removeToGcByBatch/', param, () => {
+              // this.$post('/api/automation/removeToGc/', ids, () => {
                 this.$success(this.$t('commons.delete_success'));
                 this.search();
               });

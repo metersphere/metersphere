@@ -43,7 +43,6 @@ export function setUnSelectIds(tableData, condition, selectRows) {
   condition.unSelectIds = allIDs.filter(function (val) {
     return ids.indexOf(val) === -1
   });
-
 }
 
 export function getSelectDataCounts(condition, total, selectRows) {
@@ -102,9 +101,11 @@ export function _sort(column, condition) {
   }
 }
 
-export function initCondition(condition) {
-  condition.selectAll = false;
-  condition.unSelectIds = [];
+export function initCondition(condition,isSelectAll) {
+  if(!isSelectAll){
+    condition.selectAll = false;
+    condition.unSelectIds = [];
+  }
 }
 
 export function getLabel(vueObj, type) {
