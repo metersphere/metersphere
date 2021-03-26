@@ -433,7 +433,7 @@
             this.result.loading = false;
             this.unSelection = data.listObject.map(s => s.id);
             if (this.$refs.scenarioTable) {
-              setTimeout(this.$refs.scenarioTable.doLayout,500)
+              setTimeout(this.$refs.scenarioTable.doLayout, 200)
             }
           });
         }
