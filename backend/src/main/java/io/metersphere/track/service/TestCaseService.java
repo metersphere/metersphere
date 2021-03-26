@@ -533,12 +533,15 @@ public class TestCaseService {
                     }
                 }
 
-                for (int j = 0; j < jsonArray.size(); j++) {
-                    int num = j + 1;
-                    step.append(num + "." + jsonArray.getJSONObject(j).getString("desc") + "\r\n");
-                    result.append(num + "." + jsonArray.getJSONObject(j).getString("result") + "\r\n");
+                if (CollectionUtils.isNotEmpty(jsonArray)) {
+                    for (int j = 0; j < jsonArray.size(); j++) {
+                        int num = j + 1;
+                        step.append(num + "." + jsonArray.getJSONObject(j).getString("desc") + "\r\n");
+                        result.append(num + "." + jsonArray.getJSONObject(j).getString("result") + "\r\n");
 
+                    }
                 }
+
                 data.setStepDesc(step.toString());
                 data.setStepResult(result.toString());
                 step.setLength(0);
