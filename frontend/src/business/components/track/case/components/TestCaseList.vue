@@ -303,20 +303,12 @@ export default {
   },
   created: function () {
     this.$emit('setCondition', this.condition);
-    if (this.trashEnable) {
-      this.condition.filters = {status: ["Trash"]};
-    } else {
-      this.condition.filters = {status: ["Prepare", "Pass", "UnPass"]};
-    }
+    this.condition.filters = {reviewStatus: ["Prepare", "Pass", "UnPass"]};
     this.initTableData();
     getSystemLabel(this, this.type)
   },
   activated() {
-    if (this.trashEnable) {
-      this.condition.filters = {status: ["Trash"]};
-    } else {
-      this.condition.filters = {status: ["Prepare", "Pass", "UnPass"]};
-    }
+    this.condition.filters = {reviewStatus: ["Prepare", "Pass", "UnPass"]};
     this.initTableData();
   },
   watch: {
@@ -374,15 +366,15 @@ export default {
         case 'coverage':
           this.condition.caseCoverage = 'coverage';
           break;
-       /* case 'Prepare':
-          this.condition.filters.status = [this.selectDataRange];
+        case 'Prepare':
+          this.condition.filters.reviewStatus = [this.selectDataRange];
           break;
         case 'Pass':
-          this.condition.filters.status = [this.selectDataRange];
+          this.condition.filters.reviewStatus = [this.selectDataRange];
           break;
         case 'UnPass':
-          this.condition.filters.status = [this.selectDataRange];
-          break;*/
+          this.condition.filters.reviewStatus = [this.selectDataRange];
+          break;
       }
       if (this.projectId) {
         this.condition.projectId = this.projectId;
@@ -401,7 +393,7 @@ export default {
             item.tags = JSON.parse(item.tags);
           })
           if (this.$refs.table) {
-            setTimeout(this.$refs.table.doLayout,500)
+            setTimeout(this.$refs.table.doLayout, 200)
           }
 
           this.$nextTick(function(){

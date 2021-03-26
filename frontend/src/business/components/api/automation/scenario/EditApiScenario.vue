@@ -577,7 +577,7 @@
       recursiveSorting(arr, scenarioProjectId) {
         for (let i in arr) {
           arr[i].index = Number(i) + 1;
-          if (arr[i].type === ELEMENT_TYPE.LoopController && arr[i].hashTree && arr[i].hashTree.length > 1) {
+          if (arr[i].type === ELEMENT_TYPE.LoopController && arr[i].loopType === "LOOP_COUNT" && arr[i].hashTree && arr[i].hashTree.length > 1) {
             arr[i].countController.proceed = true;
           }
           if (!arr[i].projectId) {
@@ -926,7 +926,7 @@
         return bodyUploadFiles;
       },
       editScenario() {
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve) => {
           document.getElementById("inputDelay").focus();  //  保存前在input框自动失焦，以免保存失败
           this.$refs['currentScenario'].validate((valid) => {
             if (valid) {

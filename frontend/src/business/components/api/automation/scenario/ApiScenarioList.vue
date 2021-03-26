@@ -443,7 +443,7 @@
             });
             this.result.loading = false;
             if (this.$refs.scenarioTable) {
-              setTimeout(this.$refs.scenarioTable.doLayout,500)
+              setTimeout(this.$refs.scenarioTable.doLayout, 200)
             }
 
             if(!this.condition.selectAll){
@@ -505,6 +505,7 @@
       moveSave(param) {
         this.buildBatchParam(param);
         param.apiScenarioModuleId = param.nodeId;
+        param.modulePath = param.nodePath;
         this.$post('/api/automation/batch/edit', param, () => {
           this.$success(this.$t('commons.save_success'));
           this.$refs.testBatchMove.close();

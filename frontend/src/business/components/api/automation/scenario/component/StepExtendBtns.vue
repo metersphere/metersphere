@@ -45,7 +45,7 @@
             this.$emit('remove');
             break;
           case "scenarioVar":
-            this.$refs.scenarioParameters.open(this.data.variables, this.data.headers, true);
+            this.$refs.scenarioParameters.open(this.data.variables, this.data.headers, this.data.referenced === 'REF');
             break;
           case "openScenario":
             this.getScenario();

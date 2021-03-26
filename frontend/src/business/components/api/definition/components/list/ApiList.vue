@@ -467,7 +467,7 @@
               }
             })
             if (this.$refs.apiDefinitionTable) {
-              setTimeout(this.$refs.apiDefinitionTable.doLayout, 500)
+              setTimeout(this.$refs.apiDefinitionTable.doLayout, 200)
             }
             // nexttick:表格加载完成之后触发。判断是否需要勾选行
             this.$nextTick(function(){

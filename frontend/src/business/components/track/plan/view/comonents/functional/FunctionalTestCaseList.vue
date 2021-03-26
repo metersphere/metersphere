@@ -477,7 +477,7 @@ export default {
           }
           this.selectRows.clear();
           if (this.$refs.table) {
-            setTimeout(this.$refs.table.doLayout,500)
+            setTimeout(this.$refs.table.doLayout, 200)
           }
         });
       }
