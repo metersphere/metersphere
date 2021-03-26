@@ -541,7 +541,10 @@ export default {
     threadgroup_at_least_one: 'At least one ThreadGroup is enabled',
     load_api_automation_jmx: 'Import API automation scenario',
     project_file_exist: "The file already exists in the project, please import it directly",
-    project_file_update_type_error: 'Updated file types must be consistent'
+    project_file_update_type_error: 'Updated file types must be consistent',
+    report: {
+      diff: "Compare"
+    },
   },
   api_test: {
     creator: "Creator",

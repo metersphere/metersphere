@@ -438,7 +438,7 @@ export default {
     export: '导出',
     export_to_ms_format: '导出 MeterSphere 格式',
     export_to_swagger3_format: '导出 Swagger3.0 格式',
-    compare: '比较',
+    compare: '报告对比',
     generation_error: '报告生成错误, 无法查看, 请检查日志详情!',
     being_generated: '报告正在生成中...',
     delete_confirm: '确认删除报告: ',
@@ -540,7 +540,10 @@ export default {
     threadgroup_at_least_one: '至少启用一个线程组',
     load_api_automation_jmx: '引用接口自动化场景',
     project_file_exist: "项目中已存在该文件，请直接引用",
-    project_file_update_type_error: '更新的文件类型必须一致'
+    report: {
+      diff: "对比"
+    },
+    project_file_update_type_error: '更新的文件类型必须一致',
   },
   api_test: {
     creator: "创建人",
