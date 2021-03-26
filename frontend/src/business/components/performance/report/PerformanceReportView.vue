@@ -28,10 +28,6 @@
               <el-button :disabled="isReadOnly" type="warning" plain size="mini" @click="downloadJtl()">
                 {{ $t('report.downloadJtl') }}
               </el-button>
-
-              <!--<el-button :disabled="isReadOnly" type="warning" plain size="mini">-->
-              <!--{{$t('report.compare')}}-->
-              <!--</el-button>-->
             </el-row>
           </el-col>
           <el-col :span="8">
@@ -83,6 +79,7 @@
         </div>
       </el-dialog>
     </ms-main-container>
+    <same-test-reports ref="compareReports"/>
   </ms-container>
 </template>
 
@@ -99,11 +96,13 @@ import {checkoutTestManagerOrTestUser, exportPdf} from "@/common/js/utils";
 import html2canvas from 'html2canvas';
 import MsPerformanceReportExport from "./PerformanceReportExport";
 import {Message} from "element-ui";
+import SameTestReports from "@/business/components/performance/report/components/SameTestReports";
 
 
 export default {
   name: "PerformanceReportView",
   components: {
+    SameTestReports,
     MsPerformanceReportExport,
     MsReportErrorLog,
     MsReportLogDetails,
@@ -312,6 +311,9 @@ export default {
           Message.error({message: JSON.parse(data).message || e.message, showClose: true});
         });
       });
+    },
+    compareReports() {
+      this.$refs.compareReports.open(this.report);
     }
   },
   created() {

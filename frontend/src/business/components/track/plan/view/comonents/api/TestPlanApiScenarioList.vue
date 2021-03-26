@@ -201,8 +201,6 @@ export default {
   },
   methods: {
     customHeader() {
-      getLabel(this, TEST_PLAN_SCENARIO_CASE);
-
       this.$refs.headerCustom.open(this.tableLabel)
     },
     search() {
