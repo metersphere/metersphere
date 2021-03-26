@@ -332,8 +332,6 @@ export default {
         this.$set(this.report, "id", this.reportId);
         this.$set(this.report, "status", data.status);
         this.$set(this.report, "testId", data.testId);
-        this.$set(this.report, "name", data.name);
-        this.$set(this.report, "createTime", data.createTime);
         this.$set(this.report, "loadConfiguration", data.loadConfiguration);
         this.checkReportStatus(data.status);
         if (this.status === "Completed" || this.status === "Running") {
