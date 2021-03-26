@@ -340,7 +340,7 @@ export default {
               }
             })
             if (this.$refs.caseTable) {
-              this.$refs.caseTable.doLayout()
+              setTimeout(this.$refs.caseTable.doLayout, 200)
             }
           });
         }

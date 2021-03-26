@@ -464,7 +464,7 @@
               }
             })
             if (this.$refs.apiDefinitionTable) {
-              this.$refs.apiDefinitionTable.doLayout()
+              setTimeout(this.$refs.apiDefinitionTable.doLayout, 200)
             }
 
           });

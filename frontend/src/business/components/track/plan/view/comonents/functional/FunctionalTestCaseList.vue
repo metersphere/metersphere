@@ -477,13 +477,16 @@ export default {
           }
           this.selectRows.clear();
           if (this.$refs.table) {
-            this.$refs.table.doLayout()
+            setTimeout(this.$refs.table.doLayout, 200)
           }
         });
       }
       getLabel(this, TEST_PLAN_FUNCTION_TEST_CASE);
     },
     autoCheckStatus() {
+      if (!this.planId) {
+        return;
+      }
       this.$post('/test/plan/autoCheck/' + this.planId, (response) => {
       });
     },

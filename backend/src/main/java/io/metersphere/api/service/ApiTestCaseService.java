@@ -19,6 +19,7 @@ import io.metersphere.api.jmeter.JMeterService;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.*;
+import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.constants.TestPlanStatus;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
@@ -551,7 +552,14 @@ public class ApiTestCaseService {
     }
 
     public String run(RunCaseRequest request) {
-        ApiTestCaseWithBLOBs testCaseWithBLOBs = apiTestCaseMapper.selectByPrimaryKey(request.getCaseId());
+        ApiTestCaseWithBLOBs testCaseWithBLOBs=new ApiTestCaseWithBLOBs();
+        if(StringUtils.equals(request.getRunMode(), ApiRunMode.JENKINS_API_PLAN.name())){
+            testCaseWithBLOBs= apiTestCaseMapper.selectByPrimaryKey(request.getReportId());
+            request.setCaseId(request.getReportId());
+        }else{
+            testCaseWithBLOBs= apiTestCaseMapper.selectByPrimaryKey(request.getCaseId());
+
+        }
         // 多态JSON普通转换会丢失内容，需要通过 ObjectMapper 获取
         if (testCaseWithBLOBs != null && StringUtils.isNotEmpty(testCaseWithBLOBs.getRequest())) {
             try {

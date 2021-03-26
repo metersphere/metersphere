@@ -433,7 +433,7 @@
             this.result.loading = false;
             this.unSelection = data.listObject.map(s => s.id);
             if (this.$refs.scenarioTable) {
-              this.$refs.scenarioTable.doLayout()
+              setTimeout(this.$refs.scenarioTable.doLayout, 200)
             }
           });
         }
@@ -464,6 +464,7 @@
       moveSave(param) {
         this.buildBatchParam(param);
         param.apiScenarioModuleId = param.nodeId;
+        param.modulePath = param.nodePath;
         this.$post('/api/automation/batch/edit', param, () => {
           this.$success(this.$t('commons.save_success'));
           this.$refs.testBatchMove.close();
