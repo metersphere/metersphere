@@ -41,7 +41,6 @@
 </template>
 
 <script>
-import {getCurrentProjectID} from "@/common/js/utils";
 import MsTag from "@/business/components/common/components/MsTag";
 
 export default {
@@ -58,13 +57,18 @@ export default {
       loading: false
     }
   },
-
+  computed: {
+    projectId() {
+      return this.$store.state.projectId
+    },
+  },
   methods: {
     search() {
-      let projectID = getCurrentProjectID();
-      this.result = this.$get("/api/faliureCaseAboutTestPlan/"+projectID+"/10", response => {
-        this.tableData = response.data;
-      });
+      if (this.projectId) {
+        this.result = this.$get("/api/faliureCaseAboutTestPlan/"+ this.projectId +"/10", response => {
+          this.tableData = response.data;
+        });
+      }
     },
     redirect(pageType,param){
       switch (pageType){

@@ -1,6 +1,6 @@
 <template>
   <div>
-    <api-document-anchor :pageHeaderHeight="pageHeaderHeight" :project-id="projectId" :module-ids="moduleIds" :document-id="documentId" ref="apiDocumentAnchor"/>
+    <api-document-anchor :share-page="sharePage" :pageHeaderHeight="pageHeaderHeight" :project-id="projectId" :module-ids="moduleIds" :document-id="documentId" ref="apiDocumentAnchor"/>
   </div>
 
 </template>
@@ -19,6 +19,7 @@ export default {
       documentId:"",
       projectId:"",
       pageHeaderHeight:100,
+      sharePage:true,
       moduleIds:[],
     }
   },
@@ -39,10 +40,17 @@ export default {
   },
   methods: {
     getUrlParam(){
-      let queryParams =this.$route.query;
-      let documentIdParam = queryParams['documentId'];
-      this.documentId = queryParams['documentId'];
-      return documentIdParam;
+      let herfUrl = window.location.href;
+      if(herfUrl.indexOf("?") > 0){
+        let paramArr = herfUrl.split("?");
+        if(paramArr.length > 1){
+          let documentId = paramArr[1];
+          if(documentId.indexOf("#") > 0){
+            documentId = documentId.split("#")[0];
+          }
+          this.documentId = documentId;
+        }
+      }
     },
     selectDocumentInfo(){
       this.getUrlParam();

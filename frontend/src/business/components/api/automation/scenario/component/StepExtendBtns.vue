@@ -13,7 +13,7 @@
       </el-dropdown-menu>
     </el-dropdown>
     <ms-variable-list ref="scenarioParameters"/>
-    <ms-add-basis-api ref="api"/>
+    <ms-add-basis-api :currentProtocol="currentProtocol" ref="api"/>
   </div>
 </template>
 
@@ -32,6 +32,7 @@
     data() {
       return {
         allSamplers: ELEMENTS.get('AllSamplerProxy'),
+        currentProtocol: "HTTP",
       }
     },
     methods: {
@@ -63,7 +64,8 @@
           }
         });
       },
-      saveAsApi(){
+      saveAsApi() {
+        this.currentProtocol = this.data.protocol;
         this.$refs.api.open(this.data);
       }
     }

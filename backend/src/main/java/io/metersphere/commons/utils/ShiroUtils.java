@@ -13,6 +13,7 @@ public class ShiroUtils {
     public static void loadBaseFilterChain(Map<String, String> filterChainDefinitionMap){
 
         filterChainDefinitionMap.put("/resource/**", "anon");
+        filterChainDefinitionMap.put("/*.worker.js", "anon");
         filterChainDefinitionMap.put("/login", "anon");
         filterChainDefinitionMap.put("/signin", "anon");
         filterChainDefinitionMap.put("/ldap/signin", "anon");
@@ -52,6 +53,7 @@ public class ShiroUtils {
         filterChainDefinitionMap.put("/", "apikey, authc"); // 跳转到 / 不用校验 csrf
         filterChainDefinitionMap.put("/language", "apikey, authc");// 跳转到 /language 不用校验 csrf
         filterChainDefinitionMap.put("/document", "apikey, authc"); // 跳转到 /document 不用校验 csrf
+        filterChainDefinitionMap.put("/test/case/file/preview/**", "apikey, authc"); // 预览测试用例附件 不用校验 csrf
     }
 
     public static Cookie getSessionIdCookie(){

@@ -145,5 +145,9 @@
             #{id}
         </foreach>
         AND project_id = #{projectId,jdbcType=VARCHAR}
+        <if test="request.name!=null">
+            AND file_metadata.name LIKE CONCAT('%', #{request.name}, '%')
+        </if>
+        order by update_time DESC
     </select>
 </mapper>

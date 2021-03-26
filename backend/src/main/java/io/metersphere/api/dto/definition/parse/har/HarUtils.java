@@ -29,6 +29,9 @@ import org.apache.commons.lang3.StringUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 
 /**
  * Utility class for working with HAR files.
@@ -50,5 +53,14 @@ public class HarUtils {
 		}
 		Har har = JSONObject.parseObject(harJson, Har.class);
 		return har;
+	}
+
+	public static void main(String[] args) throws UnsupportedEncodingException {
+//		String str = "%E6%B5%8B%AF";
+		String str = "测试";
+		str = URLEncoder.encode(str,"UTF-8");
+		System.out.println(str);
+		str = URLDecoder.decode(str,"UTF-8");
+		System.out.println(str);
 	}
 }

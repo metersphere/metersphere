@@ -2,7 +2,7 @@
   <div>
     <el-container>
       <el-main style="padding-top: 0px;padding-bottom: 0px">
-        <el-row style="margin-top: 10px">
+        <el-row v-if="sharePage" style="margin-top: 10px">
           <el-select size="small" :placeholder="$t('api_test.definition.document.order')" v-model="apiSearch.orderCondition" style="float: right;width: 180px;margin-right: 5px"
                      class="ms-api-header-select" @change="initApiDocSimpleList" clearable>
             <el-option key="createTimeDesc" :label="$t('api_test.definition.document.create_time_sort')" value="createTimeDesc" />
@@ -25,8 +25,32 @@
           <el-input :placeholder="$t('api_test.definition.document.search_by_api_name')" @blur="initApiDocSimpleList()" style="float: right;width: 180px;margin-right: 5px" size="small"
                     @keyup.enter.native="initApiDocSimpleList()" v-model="apiSearch.name"/>
           <api-document-batch-share v-xpack v-if="showXpackCompnent" @shareApiDocument="shareApiDocument" :project-id="projectId" :share-url="batchShareUrl" style="float: right;margin: 6px;font-size: 17px"/>
-          <!--          <api-document-batch-share v-xpack v-if="showXpackCompnent"/>-->
         </el-row>
+        <el-row v-else style="margin-top: 0px;position: fixed;float: right;margin-right: 0px;margin-left: 400px;top: 150px; right: 90px;">
+          <el-select size="small" :placeholder="$t('api_test.definition.document.order')" v-model="apiSearch.orderCondition" style="float: right;width: 180px;margin-right: 5px"
+                     class="ms-api-header-select" @change="initApiDocSimpleList" clearable>
+            <el-option key="createTimeDesc" :label="$t('api_test.definition.document.create_time_sort')" value="createTimeDesc" />
+            <el-option key="editTimeAsc" :label="$t('api_test.definition.document.edit_time_positive_sequence')" value="editTimeAsc"/>
+            <el-option key="editTimeDesc" :label="$t('api_test.definition.document.edit_time_Reverse_order')" value="editTimeDesc"/>
+          </el-select>
+
+          <el-select size="small" :placeholder="$t('api_test.definition.document.request_method')" v-model="apiSearch.type" style="float: right;width: 180px;margin-right: 5px"
+                     class="ms-api-header-select" @change="initApiDocSimpleList" clearable>
+            <el-option key="ALL" :label="$t('api_test.definition.document.data_set.all')" value="ALL"/>
+            <el-option key="GET" :label="'GET '+$t('api_test.definition.document.request_interface')" value="GET"/>
+            <el-option key="POST" :label="'POST '+$t('api_test.definition.document.request_interface')" value="POST"/>
+            <el-option key="PUT" :label="'PUT '+$t('api_test.definition.document.request_interface')" value="PUT"/>
+            <el-option key="DELETE" :label="'DELETE '+$t('api_test.definition.document.request_interface')" value="DELETE"/>
+            <el-option key="PATCH" :label="'PATCH '+$t('api_test.definition.document.request_interface')" value="PATCH"/>
+            <el-option key="OPTIONS" :label="'OPTIONS '+$t('api_test.definition.document.request_interface')" value="OPTIONS"/>
+            <el-option key="HEAD" :label="'HEAD '+$t('api_test.definition.document.request_interface')" value="HEAD"/>
+            <el-option key="CONNECT" :label="'CONNECT '+$t('api_test.definition.document.request_interface')" value="CONNECT"/>
+          </el-select>
+          <el-input :placeholder="$t('api_test.definition.document.search_by_api_name')" @blur="initApiDocSimpleList()" style="float: right;width: 180px;margin-right: 5px" size="small"
+                    @keyup.enter.native="initApiDocSimpleList()" v-model="apiSearch.name"/>
+          <api-document-batch-share v-xpack v-if="showXpackCompnent" @shareApiDocument="shareApiDocument" :project-id="projectId" :share-url="batchShareUrl" style="float: right;margin: 6px;font-size: 17px"/>
+        </el-row>
+
         <el-divider></el-divider>
         <div ref="apiDocInfoDiv" @scroll="handleScroll" >
           <div v-for="(apiInfo) in apiShowArray" :key="apiInfo.id" ref="apiDocInfoDivItem">
@@ -337,13 +361,19 @@ export default {
       apiShowArray:[],//浏览器要渲染的api信息集合
       needAsyncSelect: false, //是否需要异步查询api详细数据做展现。只有本次要展示的数据总量大于maxCompnentSize时为true
       currentApiIndexInApiShowArray: 0,//当前主要展示的api信息在apiShowArray的索引
+      clickStepFlag:false,
     }
   },
   props: {
     projectId: String,
     documentId: String,
     moduleIds: Array,
+    sharePage:Boolean,
     pageHeaderHeight:Number,
+    trashEnable: {
+      type: Boolean,
+      default: false,
+    },
   },
   activated() {
     this.initApiDocSimpleList();
@@ -384,6 +414,9 @@ export default {
     },
     clientHeight() {     //如果clientHeight 发生改变，这个函数就会运行
       this.changeFixed(this.clientHeight);
+    },
+    trashEnable() {
+      this.initApiDocSimpleList();
     }
   },
   methods: {
@@ -396,7 +429,7 @@ export default {
     },
     changeFixed(clientHeight) {
       if (this.$refs.apiDocInfoDiv) {
-        let countPageHeight = 350;
+        let countPageHeight = 300;
         if(this.pageHeaderHeight!=0 && this.pageHeaderHeight != null){
           countPageHeight = this.pageHeaderHeight
         }
@@ -416,7 +449,10 @@ export default {
       }
       if (this.moduleIds.length > 0) {
         simpleRequest.moduleIds = this.moduleIds;
+      } else {
+        simpleRequest.moduleIds = [];
       }
+      simpleRequest.trashEnable = this.trashEnable;
 
       let simpleInfoUrl = "/api/document/selectApiSimpleInfo";
       this.apiInfoArray = [];
@@ -426,12 +462,6 @@ export default {
         if (this.apiInfoArray.length > 0) {
           this.checkApiInfoNode(this.apiStepIndex,true);
         }
-        //拼接body展现数据
-        // for(let dataIndex = 0; dataIndex < this.maxCompnentSize; dataIndex ++){
-        //   if(dataIndex < response.data.length){
-        //     this.apiShowArray.push(response.data[dataIndex]);
-        //   }
-        // }
         if(response.data.length > this.maxCompnentSize){
           this.needAsyncSelect = true;
         }else{
@@ -507,9 +537,6 @@ export default {
       }
       //检查数据
       this.checkApiInfoNode(this.apiStepIndex,true);
-    },
-    stepClick(stepIndex) {
-      this.apiStepIndex = stepIndex;
     },
     getColor(enable, method) {
       return this.methodColorMap.get(method);
@@ -597,72 +624,65 @@ export default {
       this.$message.error(this.$t('api_report.error'));
     },
     handleScroll(){
-      //apiDocInfoDiv的总高度，是(每个item的高度+20)数量
-      let apiDocDivScrollTop = this.$refs.apiDocInfoDiv.scrollTop;
-      let apiDocDivClientTop = this.$refs.apiDocInfoDiv.clientHeight;
-      let scrolledHeigh = apiDocDivScrollTop+apiDocDivClientTop;
-      let lastIndex = 0;
-      for (let index = 0; index < this.apiShowArray.length; index++) {
-        //判断移动到了第几个元素. 公式: 移动过的高度+页面显示高度-第index子元素的高度(含20px)>0 的 index最大值
-        if(scrolledHeigh>0){
-          lastIndex = index;
-          let itemHeight = this.$refs.apiDocInfoDivItem[index].offsetHeight+20;
-          scrolledHeigh = scrolledHeigh - itemHeight;
-        }else{
-          break;
-        }
-      }
-
-      let names = "";
-      for(let i = 0;i<this.apiShowArray.length;i++){
-        names += this.apiShowArray[i].name+";";
-      }
-
-      console.log("["+apiDocDivScrollTop+":"+this.apiStepIndex+"]:["+lastIndex+":"+this.currentApiIndexInApiShowArray+"]-------->"+names);
-      if(lastIndex < this.currentApiIndexInApiShowArray){
-        //上移
-        if(this.needAsyncSelect){
-          //进行判断：是否还需要为apiShowArray 增加数据。 由于在当前数据前后最多展现2条数据，
-          //可得： apiStepIndex-1- 2 < apiInfoArray，需要添加数据
-          let dataIndex = this.apiStepIndex -3;
-          if(dataIndex >= 0){
-            let apiInfo = this.apiInfoArray[dataIndex];
-            this.apiShowArray.unshift(apiInfo);
+      if(!this.clickStepFlag){
+        //apiDocInfoDiv的总高度，是(每个item的高度+20)数量
+        let apiDocDivScrollTop = this.$refs.apiDocInfoDiv.scrollTop;
+        let apiDocDivClientTop = this.$refs.apiDocInfoDiv.clientHeight;
+        let scrolledHeigh = apiDocDivScrollTop+apiDocDivClientTop;
+        let lastIndex = 0;
+        for (let index = 0; index < this.apiShowArray.length; index++) {
+          //判断移动到了第几个元素. 公式: 移动过的高度+页面显示高度-第index子元素的高度(含20px)>0 的 index最大值
+          if(scrolledHeigh>0){
+            lastIndex = index;
+            let itemHeight = this.$refs.apiDocInfoDivItem[index].offsetHeight+10;
+            scrolledHeigh = scrolledHeigh - itemHeight;
           }else{
-            this.currentApiIndexInApiShowArray--;
-          }
-
-          if(this.apiShowArray.length > (this.currentApiIndexInApiShowArray+3)){
-            this.apiShowArray.pop();
+            break;
           }
         }
-        this.apiStepIndex --;
-      }else if(lastIndex > this.currentApiIndexInApiShowArray){
-        //下滚
-        if(this.needAsyncSelect){
-          //进行判断：是否还需要为apiShowArray 增加数据。 由于在当前数据前后最多展现2条数据，
-          //可得： apiStepIndex+1+ 2 < apiInfoArray，需要添加数据
-          let dataIndex = this.apiStepIndex +3;
-          if(dataIndex < this.apiInfoArray.length){
-            let apiInfo = this.apiInfoArray[dataIndex];
-            this.apiShowArray.push(apiInfo);
-          }
 
-          if(this.apiShowArray.length <= this.maxCompnentSize){
-            //判断currentApiIndexInApiShowArray 是否需要添加，以及是否需要删除第一个元素
-            this.currentApiIndexInApiShowArray++;
-          }else{
-            this.apiShowArray.shift();
-            let itemHeight = this.$refs.apiDocInfoDivItem[0].offsetHeight+20;
-            this.$refs.apiDocInfoDiv.scrollTop = (apiDocDivScrollTop-itemHeight);
-          }
+        if(lastIndex < this.currentApiIndexInApiShowArray){
+          //上移
+          // if(this.needAsyncSelect){
+            //进行判断：是否还需要为apiShowArray 增加数据。 由于在当前数据前后最多展现2条数据，
+            //可得： apiStepIndex-1- 2 < apiInfoArray，需要添加数据
+            let dataIndex = this.apiStepIndex -3;
+            if(dataIndex >= 0){
+              let apiInfo = this.apiInfoArray[dataIndex];
+              this.apiShowArray.unshift(apiInfo);
+            }else{
+              this.currentApiIndexInApiShowArray--;
+            }
+
+            if(this.apiShowArray.length > (this.currentApiIndexInApiShowArray+3)){
+              this.apiShowArray.pop();
+            }
+          // }
+          this.apiStepIndex --;
+        }else if(lastIndex > this.currentApiIndexInApiShowArray){
+          //下滚
+          // if(this.needAsyncSelect){
+            //进行判断：是否还需要为apiShowArray 增加数据。 由于在当前数据前后最多展现2条数据，
+            //可得： apiStepIndex+1+ 2 < apiInfoArray，需要添加数据
+            let dataIndex = this.apiStepIndex +3;
+            if(dataIndex < this.apiInfoArray.length){
+              let apiInfo = this.apiInfoArray[dataIndex];
+              this.apiShowArray.push(apiInfo);
+            }
+
+            if(this.apiShowArray.length <= this.maxCompnentSize){
+              //判断currentApiIndexInApiShowArray 是否需要添加，以及是否需要删除第一个元素
+              this.currentApiIndexInApiShowArray++;
+            }else{
+              this.apiShowArray.shift();
+              let itemHeight = this.$refs.apiDocInfoDivItem[0].offsetHeight+10;
+              this.$refs.apiDocInfoDiv.scrollTop = (apiDocDivScrollTop-itemHeight);
+            }
+          // }
+          this.apiStepIndex ++;
         }
-        this.apiStepIndex ++;
       }
-
-      // this.apiStepIndex = lastIndex;
-      // //检查上下文 2个以内的节点有没有查询出来
-      // this.checkApiInfoNode(this.apiStepIndex);
+      this.clickStepFlag = false;
     },
     redirectScroll(){
       //滚动条跳转：将滚动条下拉到显示对应对api接口的位置
@@ -670,10 +690,11 @@ export default {
       let itemHeightCount = 0;
       if(this.currentApiIndexInApiShowArray > 0){
         for (let i = 0; i <= this.currentApiIndexInApiShowArray-1; i++) {
-          let itemHeight = this.$refs.apiDocInfoDivItem[i].offsetHeight+20;
+          let itemHeight = this.$refs.apiDocInfoDivItem[i].offsetHeight+10;
           itemHeightCount+=itemHeight;
         }
       }
+      this.clickStepFlag = true;
       this.$refs.apiDocInfoDiv.scrollTop = (apiDocDivClientTop+itemHeightCount);
     },
 
@@ -768,7 +789,7 @@ export default {
 
 .smallFontClass {
   font-size: 13px;
-  margin: 20px 10px;
+  margin: 20px 5px;
 }
 
 .tip {
@@ -779,16 +800,20 @@ export default {
 }
 
 .apiInfoRow {
-  margin: 20px 10px;
+  margin: 10px 10px;
+}
+
+.apiInfoRow.el-row {
+  margin: 10px 10px;
 }
 
 .apiStatusTag {
-  margin: 20px 5px;
+  margin: 10px 10px;
 }
 
 .showDataDiv {
   background-color: #F5F7F9;
-  margin: 20px 10px;
+  margin: 10px 10px;
   max-height: 300px;
   overflow: auto;
 }
@@ -818,7 +843,7 @@ export default {
 }
 
 .document-table {
-  margin: 20px 10px;
+  margin: 10px 10px;
   width: auto;
 }
 

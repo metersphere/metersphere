@@ -48,19 +48,6 @@
               show-overflow-tooltip
               :key="index"
           >
-<!--            <template v-slot:default="scope">
-              &lt;!&ndash;<div @mouseover="showDetail(scope.row)">
-                <p>{{ scope.row.name }}</p>
-              </div>&ndash;&gt;
-              <el-popover
-                  placement="right-end"
-                  :title="$t('test_track.case.view_case')"
-                  trigger="hover"
-              >
-                <test-case-detail v-if="currentCaseId === scope.row.id" :test-case-id="currentCaseId"/>
-                <span slot="reference">{{ scope.row.name }}</span>
-              </el-popover>
-            </template>-->
           </el-table-column>
           <el-table-column
               v-if="item.id == 'priority'"
@@ -75,35 +62,8 @@
               <priority-table-item :value="scope.row.priority"/>
             </template>
           </el-table-column>
-<!--          <el-table-column
-              v-if="item.id == 'type'"
-              prop="type"
-              :filters="typeFilters"
-              column-key="type"
-              :label="$t('test_track.case.type')"
-              show-overflow-tooltip
-              :key="index">
-            <template v-slot:default="scope">
-              <type-table-item :value="scope.row.type"/>
-            </template>
-          </el-table-column>-->
-<!--          <el-table-column
-              v-if="item.id=='method'"
-              prop="method"
-              column-key="method"
-              :filters="methodFilters"
-              min-width="100px"
-              :label="$t('test_track.case.method')"
-              show-overflow-tooltip
-              :key="index">
-            <template v-slot:default="scope">
-              <method-table-item :value="scope.row.method"/>
-            </template>
-          </el-table-column>-->
-
           <el-table-column
             v-if="item.id=='reviewStatus'"
-            :filters="reviewStatusFilters"
             column-key="reviewStatus"
             min-width="100px"
             :label="$t('test_track.case.status')"
@@ -114,24 +74,10 @@
             </span>
             </template>
           </el-table-column>
-          <el-table-column
-            v-if="item.id=='status'"
-            :filters="statusFilters"
-            column-key="status"
-            min-width="100px"
-            :label="$t('commons.status')"
-            :key="index">
-            <template v-slot:default="scope">
-            <span class="el-dropdown-link">
-              <plan-status-table-item :value="scope.row.status"></plan-status-table-item>
-            </span>
-            </template>
-          </el-table-column>
-
           <el-table-column v-if="item.id=='tags'" prop="tags" :label="$t('commons.tag')" :key="index">
             <template v-slot:default="scope">
               <ms-tag v-for="(itemName,index)  in scope.row.tags" :key="index" type="success" effect="plain"
-                      :content="itemName" style="margin-left: 5px"/>
+                      :content="itemName" style="margin-left: 0px; margin-right: 2px"/>
             </template>
           </el-table-column>
 
@@ -206,18 +152,16 @@ import {TEST_CASE_CONFIGS} from "../../../common/components/search/search-compon
 import ShowMoreBtn from "./ShowMoreBtn";
 import BatchEdit from "./BatchEdit";
 import {PROJECT_NAME, TEST_CASE_LIST, WORKSPACE_ID} from "@/common/js/constants";
-import {LIST_CHANGE, TrackEvent} from "@/business/components/common/head/ListEvent";
 import StatusTableItem from "@/business/components/track/common/tableItems/planview/StatusTableItem";
 import TestCaseDetail from "./TestCaseDetail";
 import ReviewStatus from "@/business/components/track/case/components/ReviewStatus";
-import {downloadFile, getCurrentProjectID, getCurrentUser} from "../../../../../common/js/utils";
 import MsTag from "@/business/components/common/components/MsTag";
 import {
   _filter,
   _handleSelect,
   _handleSelectAll,
   _sort, buildBatchParam, getLabel,
-  getSelectDataCounts, initCondition,
+  getSelectDataCounts, getSystemLabel, initCondition,
   setUnSelectIds,
   toggleAllSelection
 } from "@/common/js/tableUtils";
@@ -330,7 +274,6 @@ export default {
         maintainer: [],
       },
       currentCaseId: null,
-      projectId: "",
       selectDataCounts: 0,
       selectDataRange: "all"
     }
@@ -353,6 +296,11 @@ export default {
       default: false,
     }
   },
+  computed: {
+    projectId() {
+      return this.$store.state.projectId
+    },
+  },
   created: function () {
     this.$emit('setCondition', this.condition);
     if (this.trashEnable) {
@@ -361,6 +309,7 @@ export default {
       this.condition.filters = {status: ["Prepare", "Pass", "UnPass"]};
     }
     this.initTableData();
+    getSystemLabel(this, this.type)
   },
   activated() {
     if (this.trashEnable) {
@@ -390,7 +339,6 @@ export default {
       this.selectDataRange = dataType === 'case' ? dataRange : 'all';
     },
     initTableData() {
-      this.projectId = getCurrentProjectID();
       this.condition.planId = "";
       this.condition.nodeIds = [];
       initCondition(this.condition);
@@ -409,10 +357,14 @@ export default {
     getData() {
       this.getSelectDataRange();
       this.condition.selectThisWeedData = false;
+      this.condition.selectThisWeedRelevanceData = false;
       this.condition.caseCoverage = null;
       switch (this.selectDataRange) {
         case 'thisWeekCount':
           this.condition.selectThisWeedData = true;
+          break;
+        case 'thisWeekRelevanceCount':
+          this.condition.selectThisWeedRelevanceData = true;
           break;
         case 'uncoverage':
           this.condition.caseCoverage = 'uncoverage';
@@ -420,7 +372,7 @@ export default {
         case 'coverage':
           this.condition.caseCoverage = 'coverage';
           break;
-        case 'Prepare':
+       /* case 'Prepare':
           this.condition.filters.status = [this.selectDataRange];
           break;
         case 'Pass':
@@ -428,7 +380,7 @@ export default {
           break;
         case 'UnPass':
           this.condition.filters.status = [this.selectDataRange];
-          break;
+          break;*/
       }
       if (this.projectId) {
         this.condition.projectId = this.projectId;
@@ -438,11 +390,18 @@ export default {
           this.tableData = data.listObject;
           // this.selectIds.clear();
           this.selectRows.clear();
-          this.tableData.forEach(item => {
+          /*this.tableData.forEach(item => {
             if (item.tags && item.tags.length > 0) {
               item.tags = JSON.parse(item.tags);
             }
+          })*/
+          this.tableData.forEach((item) => {
+            item.tags = JSON.parse(item.tags);
           })
+          if (this.$refs.table) {
+            setTimeout(this.$refs.table.doLayout, 200)
+          }
+
         });
       }
     },
@@ -490,8 +449,6 @@ export default {
               this.selectRows.clear();
               this.$emit("refresh");
               this.$success(this.$t('commons.delete_success'));
-              // 发送广播，刷新 head 上的最新列表
-              TrackEvent.$emit(LIST_CHANGE);
             });
           }
         }
@@ -502,8 +459,6 @@ export default {
       this.$post('/test/case/delete/' + testCaseId, {}, () => {
         this.initTableData();
         this.$success(this.$t('commons.delete_success'));
-        // 发送广播，刷新 head 上的最新列表
-        TrackEvent.$emit(LIST_CHANGE);
       });
     },
     refresh() {
@@ -530,14 +485,14 @@ export default {
       this.selectDataCounts = getSelectDataCounts(this.condition, this.total, this.selectRows);
     },
     importTestCase() {
-      if (!getCurrentProjectID()) {
+      if (!this.projectId) {
         this.$warning(this.$t('commons.check_project_tip'));
         return;
       }
       this.$refs.testCaseImport.open();
     },
     exportTestCase() {
-      if (!getCurrentProjectID()) {
+      if (!this.projectId) {
         this.$warning(this.$t('commons.check_project_tip'));
         return;
       }
@@ -597,8 +552,6 @@ export default {
       this.$post('/test/case/batch/edit', param, () => {
         this.$success(this.$t('commons.save_success'));
         this.refresh();
-        // 发送广播，刷新 head 上的最新列表
-        TrackEvent.$emit(LIST_CHANGE);
       });
     },
     filter(filters) {
@@ -650,8 +603,6 @@ export default {
       this.result = this.$post('/test/case/batch/edit', param, () => {
         this.$success(this.$t('commons.save_success'));
         this.$refs.testBatchMove.close();
-        // 发送广播，刷新 head 上的最新列表
-        TrackEvent.$emit(LIST_CHANGE);
         this.refresh();
       });
     }

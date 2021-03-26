@@ -89,6 +89,7 @@
           jmxObj.xml = response.data.xml;
           jmxObj.attachFiles = response.data.attachFiles;
           jmxObj.attachByteFiles = response.data.attachByteFiles;
+          jmxObj.caseId = reqObj.id;
           this.$store.commit('setTest', {
             name: row.name,
             jmx: jmxObj

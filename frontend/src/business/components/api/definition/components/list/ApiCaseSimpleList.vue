@@ -71,7 +71,7 @@
           <el-table-column v-if="item.id=='tags'" prop="tags" min-width="120px" :label="$t('commons.tag')"
                            :key="index">
             <template v-slot:default="scope">
-                <ms-tag  v-for="(itemName,index)  in scope.row.tags" :key="index" type="success" effect="plain" :content="itemName" style="margin-left: 5px"/>
+                <ms-tag  v-for="(itemName,index)  in scope.row.tags" :key="index" type="success" effect="plain" :content="itemName" style="margin-left: 0px; margin-right: 2px"/>
             </template>
           </el-table-column>
 
@@ -143,7 +143,7 @@ import ShowMoreBtn from "../../../../track/case/components/ShowMoreBtn";
 import MsBatchEdit from "../basis/BatchEdit";
 import {API_METHOD_COLOUR, CASE_PRIORITY, DUBBO_METHOD, REQ_METHOD, SQL_METHOD, TCP_METHOD} from "../../model/JsonData";
 
-import {getBodyUploadFiles, getCurrentProjectID, getCurrentUser} from "@/common/js/utils";
+import {getBodyUploadFiles} from "@/common/js/utils";
 import PriorityTableItem from "../../../../track/common/tableItems/planview/PriorityTableItem";
 import MsApiCaseTableExtendBtns from "../reference/ApiCaseTableExtendBtns";
 import MsReferenceView from "../reference/ReferenceView";
@@ -154,7 +154,7 @@ import {parseEnvironment} from "@/business/components/api/test/model/Environment
 import MsTableHeaderSelectPopover from "@/business/components/common/components/table/MsTableHeaderSelectPopover";
 import MsTableAdvSearchBar from "@/business/components/common/components/search/MsTableAdvSearchBar";
 import {API_CASE_CONFIGS} from "@/business/components/common/components/search/search-components";
-import {_filter, _handleSelect, _handleSelectAll, _sort, getLabel,} from "@/common/js/tableUtils";
+import {_filter, _handleSelect, _handleSelectAll, _sort, getLabel, getSystemLabel,} from "@/common/js/tableUtils";
 import {API_CASE_LIST} from "@/common/js/constants";
 import {Api_Case_List} from "@/business/components/common/model/JsonData";
 import HeaderCustom from "@/business/components/common/head/HeaderCustom";
@@ -260,9 +260,15 @@ export default {
     },
     created: function () {
       this.initTable();
+      getSystemLabel(this, this.type)
+      this.$nextTick(() => {
+        this.$refs.caseTable.bodyWrapper.scrollTop = 5
+      })
+      getLabel(this, API_CASE_LIST);
     },
     watch: {
       selectNodeIds() {
+        getLabel(this, API_CASE_LIST);
         this.initTable();
       },
       currentProtocol() {
@@ -277,31 +283,33 @@ export default {
         this.initTable();
       }
     },
-    computed: {
-
-      // 接口定义用例列表
-      isApiModel() {
-        return this.model === 'api'
-      },
+  computed: {
+    // 接口定义用例列表
+    isApiModel() {
+      return this.model === 'api'
     },
-    methods: {
-      customHeader() {
-        getLabel(this, API_CASE_LIST);
-        this.$refs.headerCustom.open(this.tableLabel)
-      },
-      initTable() {
-
-        this.selectRows = new Set();
-        this.condition.status = "";
-        this.condition.moduleIds = this.selectNodeIds;
-        if (this.trashEnable) {
+    projectId() {
+      return this.$store.state.projectId
+    },
+  },
+  methods: {
+    customHeader() {
+      getLabel(this, API_CASE_LIST);
+      this.$refs.headerCustom.open(this.tableLabel)
+    },
+    initTable() {
+      getLabel(this, API_CASE_LIST);
+      this.selectRows = new Set();
+      this.condition.status = "";
+      this.condition.moduleIds = this.selectNodeIds;
+      if (this.trashEnable) {
           this.condition.status = "Trash";
           this.condition.moduleIds = [];
         }
         this.selectAll = false;
         this.unSelection = [];
         this.selectDataCounts = 0;
-        this.condition.projectId = getCurrentProjectID();
+        this.condition.projectId = this.projectId;
 
         if (this.currentProtocol != null) {
           this.condition.protocol = this.currentProtocol;
@@ -331,9 +339,13 @@ export default {
                 item.tags = JSON.parse(item.tags);
               }
             })
+            if (this.$refs.caseTable) {
+              setTimeout(this.$refs.caseTable.doLayout, 200)
+            }
           });
         }
         getLabel(this, API_CASE_LIST);
+
       },
       open() {
         this.$refs.searchBar.open();
@@ -401,7 +413,7 @@ export default {
           callback: (action) => {
             if (action === 'confirm') {
               let obj = {};
-              obj.projectId = getCurrentProjectID();
+              obj.projectId = this.projectId;
               obj.selectAllDate = this.isSelectAllDate;
               obj.unSelectIds = this.unSelection;
               obj.ids = Array.from(this.selectRows).map(row => row.id);
@@ -448,7 +460,7 @@ export default {
         let param = {};
         param[form.type] = form.value;
         param.ids = ids;
-        param.projectId = getCurrentProjectID();
+        param.projectId = this.projectId;
         param.selectAllDate = this.isSelectAllDate;
         param.unSelectIds = this.unSelection;
         param = Object.assign(param, this.condition);
@@ -520,7 +532,7 @@ export default {
       },
       showEnvironment(row) {
 
-        let projectID = getCurrentProjectID();
+        let projectID = this.projectId;
         if (this.projectId) {
           this.$get('/api/environment/list/' + this.projectId, response => {
             this.environments = response.data;
@@ -572,7 +584,7 @@ export default {
           id: row.id,
           testElement: testPlan,
           name: row.name,
-          projectId: getCurrentProjectID(),
+          projectId: this.projectId,
         };
         let bodyFiles = getBodyUploadFiles(reqObj, runData);
         reqObj.reportId = "run";
@@ -585,6 +597,7 @@ export default {
           jmxObj.xml = response.data.xml;
           jmxObj.attachFiles = response.data.attachFiles;
           jmxObj.attachByteFiles = response.data.attachByteFiles;
+          jmxObj.caseId = reqObj.id;
           this.$store.commit('setTest', {
             name: row.name,
             jmx: jmxObj
@@ -636,4 +649,7 @@ export default {
     top: -2px;
   }
 
+  /deep/ .el-table__fixed {
+    height: 100% !important;
+  }
 </style>

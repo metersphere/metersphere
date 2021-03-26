@@ -37,6 +37,11 @@ public class TestPlanController {
     @Resource
     CheckPermissionService checkPermissionService;
 
+    @PostMapping("/autoCheck/{testPlanId}")
+    public void autoCheck(@PathVariable String testPlanId){
+        testPlanService.checkStatus(testPlanId);
+    }
+
     @PostMapping("/list/{goPage}/{pageSize}")
     public Pager<List<TestPlanDTOWithMetric>> list(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryTestPlanRequest request) {
         String currentWorkspaceId = SessionUtils.getCurrentWorkspaceId();
@@ -87,7 +92,7 @@ public class TestPlanController {
     @PostMapping("/edit")
     @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
     public void editTestPlan(@RequestBody TestPlanDTO testPlanDTO) {
-        testPlanService.editTestPlan(testPlanDTO);
+        testPlanService.editTestPlan(testPlanDTO, true);
     }
 
     @PostMapping("/edit/status/{planId}")

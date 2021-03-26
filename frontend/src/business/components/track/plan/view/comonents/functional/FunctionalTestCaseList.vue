@@ -1,12 +1,13 @@
 <template>
   <div class="card-container">
-<!--    <el-card class="card-content" v-loading="result.loading">-->
-<!--      <template v-slot:header>-->
         <ms-table-header :is-tester-permission="true" :condition.sync="condition" @search="initTableData"
                          :show-create="false" :tip="$t('commons.search_by_id_name_tag')">
+
+          <!-- 不显示 “全部用例” 标题,使标题为空 -->
           <template v-slot:title>
-            <node-breadcrumb class="table-title" :nodes="selectParentNodes" @refresh="breadcrumbRefresh"/>
+            <span></span>
           </template>
+
           <template v-slot:button>
             <ms-table-button :is-tester-permission="true" v-if="!showMyTestCase" icon="el-icon-s-custom"
                              :content="$t('test_track.plan_view.my_case')" @click="searchMyTestCase"/>
@@ -15,11 +16,8 @@
             <ms-table-button :is-tester-permission="true" icon="el-icon-connection"
                              :content="$t('test_track.plan_view.relevance_test_case')"
                              @click="$emit('openTestCaseRelevanceDialog')"/>
-            <ms-table-button :is-tester-permission="true" icon="el-icon-document-remove"
-                             :content="$t('test_track.plan_view.cancel_all_relevance')" @click="handleDeleteBatch"/>
           </template>
         </ms-table-header>
-<!--      </template>-->
 
       <executor-edit ref="executorEdit" :select-ids="new Set(Array.from(this.selectRows).map(row => row.id))"
                      @refresh="initTableData"/>
@@ -27,6 +25,7 @@
                    :select-ids="new Set(Array.from(this.selectRows).map(row => row.id))" @refresh="initTableData"/>
 
       <el-table
+        ref="table"
         class="adjust-table"
         border
         @select-all="handleSelectAll"
@@ -94,7 +93,7 @@
                            :key="index"
           >
             <template v-slot:default="scope">
-                <ms-tag v-for="(tag, index) in scope.row.showTags" :key="tag + '_' + index" type="success" effect="plain" :content="tag" style="margin-left: 5px"/>
+                <ms-tag v-for="(tag, index) in scope.row.showTags" :key="tag + '_' + index" type="success" effect="plain" :content="tag" style="margin-left: 0px; margin-right: 2px"/>
             </template>
           </el-table-column>
 
@@ -172,6 +171,16 @@
             :key="index"
             column-key="executor"
             :label="$t('test_track.plan_view.executor')">
+          </el-table-column>
+          <!-- 责任人(创建该用例时所关联的责任人) -->
+          <el-table-column
+            v-if="item.id == 'maintainer'"
+            prop="maintainer"
+            :filters="maintainerFilters"
+            min-width="100px"
+            :key="index"
+            column-key="maintainer"
+            :label="$t('api_test.definition.request.responsible')">
           </el-table-column>
 
           <el-table-column
@@ -287,7 +296,7 @@ import BatchEdit from "../../../../case/components/BatchEdit";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 import {hub} from "@/business/components/track/plan/event-bus";
 import MsTag from "@/business/components/common/components/MsTag";
-import {_filter, _sort, getLabel} from "@/common/js/tableUtils";
+import {_filter, _sort, getLabel, getSystemLabel} from "@/common/js/tableUtils";
 import HeaderCustom from "@/business/components/common/head/HeaderCustom";
 import {Test_Plan_Function_Test_Case} from "@/business/components/common/model/JsonData";
 import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOperate";
@@ -352,6 +361,7 @@ export default {
         {text: this.$t('test_track.plan.plan_status_running'), value: 'Underway'},
       ],
       executorFilters: [],
+      maintainerFilters: [],
       showMore: false,
       buttons: [
         {
@@ -414,6 +424,9 @@ export default {
   beforeDestroy() {
     hub.$off("openFailureTestCase");
   },
+  created() {
+    getSystemLabel(this, this.type)
+  },
   methods: {
     customHeader() {
       getLabel(this, TEST_PLAN_FUNCTION_TEST_CASE);
@@ -421,6 +434,7 @@ export default {
     },
 
     initTableData() {
+      this.autoCheckStatus();
       if (this.planId) {
         // param.planId = this.planId;
         this.condition.planId = this.planId;
@@ -462,9 +476,19 @@ export default {
             }
           }
           this.selectRows.clear();
+          if (this.$refs.table) {
+            setTimeout(this.$refs.table.doLayout, 200)
+          }
         });
       }
       getLabel(this, TEST_PLAN_FUNCTION_TEST_CASE);
+    },
+    autoCheckStatus() {
+      if (!this.planId) {
+        return;
+      }
+      this.$post('/test/plan/autoCheck/' + this.planId, (response) => {
+      });
     },
     showDetail(row, event, column) {
       this.isReadOnly = true;
@@ -665,6 +689,9 @@ export default {
         this.executorFilters = response.data.map(u => {
           return {text: u.name, value: u.id}
         });
+        this.maintainerFilters = response.data.map(u => {
+          return {text: u.id + '(' + u.name + ')', value: u.id};
+        });
       });
     }
   }
@@ -687,5 +714,9 @@ export default {
 
 .el-tag {
   margin-left: 10px;
+}
+
+.ms-table-header >>> .table-title {
+  height: 0px;
 }
 </style>

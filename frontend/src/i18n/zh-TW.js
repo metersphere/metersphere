@@ -145,6 +145,7 @@ export default {
     check_project_tip: "請先創建或選擇項目",
     auth_redirect_tip: '即將跳轉到認證源頁面進行認證',
     tag_tip: "輸入回車添加標簽",
+    node_name_tip: "名稱不能包含'\\'",
     table: {
       select_tip: "已选中 {0} 条数据"
     },
@@ -325,7 +326,7 @@ export default {
       use_tip_tapd: 'Tapd Basic Auth 賬號信息在"公司管理-安全與集成-開放平臺"中查詢',
       use_tip_jira: 'Jira software server 認證信息為 賬號密碼，Jira software cloud 認證信息為 賬號+令牌(賬戶設置-安全-創建API令牌)',
       use_tip_zentao: '賬號密碼為具有相應權限的Zentao賬號，賬號需要具有 超級model調用接口權限',
-      use_tip_two: '保存 Basic Auth 賬號信息後，需要在 Metersphere 項目中手動關聯 ID/key',
+      use_tip_two: '保存 Basic Auth 賬號信息後，需要在 MeterSphere 項目中手動關聯 ID/key',
       link_the_project_now: '馬上關聯項目',
       cancel_edit: '取消編輯',
       cancel_integration: '取消集成',
@@ -435,7 +436,7 @@ export default {
     test_execute_again: '再次執行',
     downloadJtl: '下載JTL',
     export: '導出',
-    export_to_ms_format: '導出 Metersphere 格式',
+    export_to_ms_format: '導出 MeterSphere 格式',
     export_to_swagger3_format: '導出 Swagger3.0 格式',
     compare: '報告比較',
     generation_error: '報告生成錯誤, 無法查看, 請檢查日誌詳情!',
@@ -541,7 +542,9 @@ export default {
     project_file_exist: "項目中已存在該文件，請直接引用",
     report: {
       diff: "對比"
-    }
+    },
+    project_file_exist: "項目中已存在該文件，請直接引用",
+    project_file_update_type_error: '更新的文件類型必須一致'
   },
   api_test: {
     creator: "創建人",
@@ -604,6 +607,7 @@ export default {
         update_time_order_desc: "按更新時間從後到前",
         run_env: "運行環境",
         select_case: "搜索用例",
+        select_api: "搜索接口",
         case: "用例",
         responsible: "責任人",
         title: "創建接口",
@@ -664,7 +668,9 @@ export default {
           desc: "描述",
           value: "數據",
           not_required: "非必填",
-        }
+        },
+        esb_copy_confirm: "確認複製當前節點的數據結構",
+        esb_title: "可以在報文模板中使用${參數名} 或 ${父節點參數名.子節點參數名}來生成xml數據結構",
       },
       document: {
         order: "排序方式",
@@ -810,7 +816,7 @@ export default {
       path_description: "例如：/login",
       url_invalid: "URL無效",
       parameters: "Query參數",
-      jmeter_func: "Jmeter 方法",
+      jmeter_func: "JMeter 方法",
       parameters_filter_example: "示例",
       parameters_filter_tips: "只支持 MockJs 函數結果預覽",
       parameters_advance: "高級參數設置",
@@ -946,16 +952,18 @@ export default {
       file_size_limit: "文件大小不超過 20 M",
       tip: "說明",
       export_tip: "導出方法",
-      ms_tip: "支持 Metersphere json 格式",
-      ms_export_tip: "通過 Metersphere 接口測試頁面或者瀏覽器插件導出 json 格式文件",
-      har_export_tip: "通过 瀏覽器到開發者工具 导出 Har 格式文件",
+      ms_tip: "支持 MeterSphere json 格式",
+      ms_export_tip: "通過 MeterSphere 接口測試頁面或者瀏覽器插件導出 json 格式文件",
+      har_export_tip: "通过 瀏覽器到開發者工具 导出 HAR 格式文件",
+      esb_export_tip: "暫時不支持ESB文件的导出",
       postman_tip: "只支持 Postman Collection v2.1 格式的 json 文件",
       swagger_tip: "支持 Swagger 2.0 與 3.0 版本的 json 文件",
-      har_tip: "只支持 Har 文件",
+      har_tip: "只支持 HAR 文件",
+      esb_tip: "只支持 ESB 模板的xlsx文件",
       post_export_tip: "通過 Postman 導出測試集合",
       swagger_export_tip: "通過 Swagger 頁面導出",
-      jmeter_export_tip: "通過 Jmeter 生成JMX文件",
-      jmeter_tip: "支持 Jmeter 5.2版本的JMX 文件",
+      jmeter_export_tip: "通過 JMeter 生成JMX文件",
+      jmeter_tip: "支持 JMeter 5.2版本的JMX 文件",
       suffixFormatErr: "文件格式不符合要求",
       swagger_url_import: "使用URL導入",
       timing_synchronization: "定時同步",
@@ -1129,7 +1137,9 @@ export default {
     cancel_relevance_success: "取消關聯成功",
     switch_project: "切換項目",
     case: {
+      list: "列表",
       minder: "腦圖",
+      minder_create_tip: "失敗, 無法在腦圖創建其父模塊",
       check_select: "請勾選用例",
       export_all_cases: '確定要導出全部用例嗎?',
       input_test_case: '請輸入關聯用例名稱',
@@ -1164,6 +1174,7 @@ export default {
       input_type: "請選擇用例類型",
       input_method: "請選擇測試方式",
       input_prerequisite: "請輸入前置條件",
+      input_demand_name: "請輸入請求ID或名稱",
       delete_confirm: "確認刪除測試用例",
       delete: "刪除用例",
       save_create_continue: "保存並繼續創建",
@@ -1241,6 +1252,7 @@ export default {
       input_plan_stage: "請選擇測試階段",
       plan_status_prepare: "未開始",
       plan_status_running: "進行中",
+      plan_status_finished: "已結束",
       plan_status_completed: "已完成",
       plan_status_trash: "廢棄",
       planned_start_time: "計劃開始",
@@ -1437,7 +1449,8 @@ export default {
     status_change_success: '狀態修改成功!',
     status_change_failed: '狀態修改失敗, 校驗不通過!',
     check_in: '校驗中',
-    node_selector_invalid: 'nodeSelector 必須是有效的JSON'
+    node_selector_invalid: 'nodeSelector 必須是有效的JSON',
+    pod_thread_limit: '單POD最大線程數'
   },
   system_parameter_setting: {
     mailbox_service_settings: '郵件設置',

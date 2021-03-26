@@ -47,13 +47,13 @@ name: "TestPlanMinder",
       if (this.projectId) {
         this.result = this.$get('/test/plan/case/list/minder/' + this.planId, response => {
           this.dataMap = getTestCaseDataMap(response.data, true, (data, item) => {
-            if (item.stats === 'Pass') {
+            if (item.status === 'Pass') {
               data.resource.push(this.$t('test_track.plan_view.pass'));
-            } else if (item.reviewStatus === 'Failure') {
+            } else if (item.status === 'Failure') {
               data.resource.push(this.$t('test_track.plan_view.failure'));
-            } else if (item.reviewStatus === 'Blocking') {
+            } else if (item.status === 'Blocking') {
               data.resource.push(this.$t('test_track.plan_view.blocking'));
-            } else if (item.reviewStatus === 'Skip') {
+            } else if (item.status === 'Skip') {
               data.resource.push(this.$t('test_track.plan_view.skip'));
             } else {
               data.resource.push(this.$t('test_track.plan.plan_status_prepare'));

@@ -27,39 +27,57 @@
         </el-tooltip>
       </template>
 
-      <customize-req-info :is-customize-req="isCustomizeReq" :request="request"/>
-
-      <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
-      <ms-api-request-form :isShowEnable="true" :referenced="true" :headers="request.headers " :request="request"
-                           v-if="request.protocol==='HTTP' || request.type==='HTTPSamplerProxy'"/>
-      <ms-tcp-basis-parameters :request="request" v-if="request.protocol==='TCP'|| request.type==='TCPSampler'" :showScript="false"/>
-      <ms-sql-basis-parameters :request="request" v-if="request.protocol==='SQL'|| request.type==='JDBCSampler'"
-                               :showScript="false"/>
-      <ms-dubbo-basis-parameters :request="request"
-                                 v-if="request.protocol==='DUBBO' || request.protocol==='dubbo://'|| request.type==='DubboSampler'"
+      <!--请求内容-->
+      <template v-slot:request>
+        <customize-req-info :is-customize-req="isCustomizeReq" :request="request"/>
+        <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
+        <ms-api-request-form v-if="request.protocol==='HTTP' || request.type==='HTTPSamplerProxy'"
+                             :isShowEnable="true"
+                             :referenced="true"
+                             :headers="request.headers "
+                             :request="request"/>
+        <esb-definition v-if="showXpackCompnent&&request.esbDataStruct!=null"
+                        v-xpack
+                        :request="request"
+                        :showScript="false"
+                        ref="esbDefinition"/>
+        <ms-tcp-basis-parameters v-if="(request.protocol==='TCP'|| request.type==='TCPSampler')&&request.esbDataStruct==null "
+                                 :request="request"
                                  :showScript="false"/>
-
-      <p class="tip">{{ $t('api_test.definition.request.res_param') }} </p>
-      <div v-if="request.result">
-        <el-tabs v-model="request.activeName" closable class="ms-tabs">
-          <el-tab-pane :label="item.name" :name="item.name" v-for="(item,index) in request.result.scenarios" :key="index">
-            <div v-for="(result,i) in item.requestResults" :key="i" style="margin-bottom: 5px">
-              <api-response-component v-if="result.name===request.name" :result="result"/>
-            </div>
-          </el-tab-pane>
-        </el-tabs>
-      </div>
-      <api-response-component :currentProtocol="request.protocol" :result="request.requestResult" v-else/>
-
-      <!-- 保存操作 -->
-      <el-button type="primary" size="small" class="ms-btn-flot" @click="saveTestCase(item)"
-                 v-if="!request.referenced">
-        {{ $t('commons.save') }}
-      </el-button>
+        <ms-sql-basis-parameters v-if="request.protocol==='SQL'|| request.type==='JDBCSampler'"
+                                 :request="request"
+                                 :showScript="false"/>
+        <ms-dubbo-basis-parameters v-if="request.protocol==='DUBBO' || request.protocol==='dubbo://'|| request.type==='DubboSampler'"
+                                   :request="request"
+                                   :showScript="false"/>
+      </template>
+      <!-- 执行结果内容 -->
+      <template v-slot:result>
+        <p class="tip">{{ $t('api_test.definition.request.res_param') }} </p>
+        <div v-if="request.result">
+          <el-tabs v-model="request.activeName" closable class="ms-tabs">
+            <el-tab-pane :label="item.name" :name="item.name" v-for="(item,index) in request.result.scenarios" :key="index">
+              <div v-for="(result,i) in item.requestResults" :key="i" style="margin-bottom: 5px">
+                <api-response-component v-if="result.name===request.name" :result="result"/>
+              </div>
+            </el-tab-pane>
+          </el-tabs>
+        </div>
+        <div v-else-if="showXpackCompnent&&request.backEsbDataStruct != null">
+          <esb-definition-response :currentProtocol="request.protocol" :request="request" :is-api-component="false"
+                                   :show-options-button="false" :show-header="true" :result="request.requestResult"/>
+        </div>
+        <div v-else>
+          <api-response-component :currentProtocol="request.protocol" :result="request.requestResult"/>
+        </div>
+        <!-- 保存操作 -->
+        <el-button type="primary" size="small" class="ms-btn-flot" @click="saveTestCase(item)" v-if="!request.referenced">
+          {{ $t('commons.save') }}
+        </el-button>
+      </template>
     </api-base-component>
     <ms-run :debug="true" :reportId="reportId" :run-data="runData" :env-map="envMap"
             @runRefresh="runRefresh" ref="runTest"/>
-
 
   </div>
 </template>
@@ -75,6 +93,10 @@
   import ApiBaseComponent from "../common/ApiBaseComponent";
   import ApiResponseComponent from "./ApiResponseComponent";
   import CustomizeReqInfo from "@/business/components/api/automation/scenario/common/CustomizeReqInfo";
+
+  const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
+  const esbDefinition = (requireComponent != null && requireComponent.keys().length) > 0 ? requireComponent("./apidefinition/EsbDefinition.vue") : {};
+  const esbDefinitionResponse = (requireComponent != null && requireComponent.keys().length) > 0 ? requireComponent("./apidefinition/EsbDefinitionResponse.vue") : {};
 
   export default {
     name: "MsApiComponent",
@@ -101,7 +123,9 @@
     components: {
       CustomizeReqInfo,
       ApiBaseComponent, ApiResponseComponent,
-      MsSqlBasisParameters, MsTcpBasisParameters, MsDubboBasisParameters, MsApiRequestForm, MsRequestResultTail, MsRun
+      MsSqlBasisParameters, MsTcpBasisParameters, MsDubboBasisParameters, MsApiRequestForm, MsRequestResultTail, MsRun,
+      "esbDefinition": esbDefinition.default,
+      "esbDefinitionResponse": esbDefinitionResponse.default
     },
     data() {
       return {
@@ -109,6 +133,7 @@
         reportId: "",
         runData: [],
         isShowInput: false,
+        showXpackCompnent: false,
       }
     },
     created() {
@@ -133,6 +158,9 @@
             }
           }
         }
+      }
+      if (requireComponent != null && JSON.stringify(esbDefinition) != '{}' && JSON.stringify(esbDefinitionResponse) != '{}') {
+        this.showXpackCompnent = true;
       }
     },
     computed: {
@@ -228,7 +256,8 @@
               }
               this.request.requestResult = requestResult;
               this.request.id = response.data.id;
-              //this.request.disabled = true;
+              this.request.disabled = true;
+              this.request.root = true;
               if (!this.request.projectId) {
                 this.request.projectId = response.data.projectId;
               }
@@ -284,7 +313,7 @@
         let debugData = {
           id: this.currentScenario.id, name: this.currentScenario.name, type: "scenario",
           variables: this.currentScenario.variables, referenced: 'Created', headers: this.currentScenario.headers,
-          enableCookieShare: this.enableCookieShare, environmentId: this.currentEnvironmentId, hashTree: [this.request]
+          enableCookieShare: this.enableCookieShare, environmentId: this.currentEnvironmentId, hashTree: [this.request],
         };
         this.runData.push(debugData);
         /*触发执行操作*/
@@ -294,7 +323,7 @@
         this.request.requestResult = data;
         this.request.result = undefined;
         this.loading = false;
-        this.$emit('refReload',this.request,this.node);
+        this.$emit('refReload', this.request, this.node);
       },
       reload() {
         this.loading = true

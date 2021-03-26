@@ -90,6 +90,7 @@
   import ApiResponseComponent from "./ApiResponseComponent";
   import MsRun from "../DebugRun";
   import {getUUID} from "@/common/js/utils";
+  import {ELEMENT_TYPE, ELEMENTS} from "../Setting";
 
   export default {
     name: "MsLoopController",
@@ -186,7 +187,37 @@
           this.controller.countController.proceed = true;
           return;
         }
+        // 递归遍历所有请求数量
+        if (this.controller.hashTree && this.controller.hashTree.length === 1
+          && this.controller.hashTree[0].hashTree && this.controller.hashTree[0].hashTree.length > 0) {
+          let count = 0;
+          this.controller.hashTree[0].hashTree.forEach(item => {
+            if (ELEMENTS.get("AllSamplerProxy").indexOf(item.type) != -1) {
+              count++;
+            }
+            if (item.hashTree && item.hashTree.length > 0) {
+              this.recursive(item.hashTree, count);
+            }
+          })
+
+          if (count > 1) {
+            this.$warning("当前循环下超过一个请求，不能关闭状态")
+            this.controller.countController.proceed = true;
+            return;
+          }
+        }
       },
+      recursive(arr, count) {
+        for (let i in arr) {
+          if (ELEMENTS.get("AllSamplerProxy").indexOf(arr[i].type) != -1) {
+            count++;
+          }
+          if (arr[i].hashTree && arr[i].hashTree.length > 0) {
+            this.recursive(arr[i].hashTree, count);
+          }
+        }
+      },
+
       runDebug() {
         if (!this.controller.hashTree || this.controller.hashTree.length < 1) {
           this.$warning("当前循环下没有请求，不能执行")

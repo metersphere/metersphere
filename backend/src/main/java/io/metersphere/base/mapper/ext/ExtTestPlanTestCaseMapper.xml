@@ -75,6 +75,7 @@
             <include refid="condition">
                 <property name="object" value="${condition}.type"/>
             </include>
+            test_case_review_users
         </if>
         <if test="${condition}.updateTime != null">
             and test_case.update_time
@@ -136,7 +137,7 @@
 
     <select id="list" resultType="io.metersphere.track.dto.TestPlanCaseDTO">
         select test_plan_test_case.id as id, test_case.id as caseId, test_case.name, test_case.priority,
-        test_case.type,test_case.test_id as testId,test_case.node_id, test_case.tags,
+        test_case.type,test_case.test_id as testId,test_case.node_id, test_case.tags, test_case.maintainer,
         test_case.node_path, test_case.method, test_case.num, test_plan_test_case.executor, test_plan_test_case.status,
         test_plan_test_case.update_time, test_case_node.name as model, project.name as projectName,
         test_plan_test_case.plan_id as planId
@@ -195,6 +196,12 @@
                             </when>
                             <when test="key=='method'">
                                 and test_case.method in
+                                <foreach collection="values" item="value" separator="," open="(" close=")">
+                                    #{value}
+                                </foreach>
+                            </when>
+                            <when test="key=='maintainer'">
+                                and test_case.maintainer in
                                 <foreach collection="values" item="value" separator="," open="(" close=")">
                                     #{value}
                                 </foreach>
@@ -368,7 +375,7 @@
             </if>
         </where>
         UNION ALL
-        SELECT test_plan_api_scenario.id as reportId,test_plan_api_scenario.api_scenario_id as id,"scenario" as
+        SELECT test_plan_api_scenario.api_scenario_id as testId,test_plan_api_scenario.id as id,"scenario" as
         type,api_scenario.name,test_plan_api_scenario.status
         from test_plan_api_scenario
         left join
@@ -420,6 +427,9 @@
         <where>
             pc.plan_id = #{planId}
         </where>
+    </select>
+    <select id="listTestCaseTest" resultType="io.metersphere.track.dto.TestCaseTestDTO">
+        select * from test_case_test where test_case_id = #{caseId};
     </select>
 
     <update id="updateTestCaseStates" parameterType="java.lang.String">

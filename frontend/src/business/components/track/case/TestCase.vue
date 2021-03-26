@@ -8,6 +8,7 @@
         @setTreeNodes="setTreeNodes"
         @exportTestCase="exportTestCase"
         @saveAsEdit="editTestCase"
+        @createCase="handleCaseSimpleCreate($event, 'add')"
         @refreshAll="refreshAll"
         :type="'edit'"
         ref="nodeTree"
@@ -19,8 +20,8 @@
         <el-tab-pane name="default" :label="$t('api_test.definition.case_title')">
           <ms-tab-button
             :active-dom.sync="activeDom"
-            :left-tip="$t('api_test.definition.case_title')"
-            :left-content="'CASE'"
+            :left-tip="$t('test_track.case.list')"
+            :left-content="$t('test_track.case.list')"
             :right-tip="$t('test_track.case.minder')"
             :right-content="$t('test_track.case.minder')"
             :middle-button-enable="false">
@@ -44,7 +45,7 @@
             :tree-nodes="treeNodes"
             :project-id="projectId"
             v-if="activeDom === 'right'"
-            ref="testCaseList"/>
+            ref="minder"/>
           </ms-tab-button>
         </el-tab-pane>
         <el-tab-pane
@@ -58,6 +59,8 @@
               :currentTestCaseInfo="item.testCaseInfo"
               @refresh="refreshTable"
               @setModuleOptions="setModuleOptions"
+              @caseEdit="handleCaseCreateOrEdit($event,'edit')"
+              @caseCreate="handleCaseCreateOrEdit($event,'add')"
               :read-only="testCaseReadOnly"
               :tree-nodes="treeNodes"
               :select-node="selectNode"
@@ -99,7 +102,7 @@ import SelectMenu from "../common/SelectMenu";
 import MsContainer from "../../common/components/MsContainer";
 import MsAsideContainer from "../../common/components/MsAsideContainer";
 import MsMainContainer from "../../common/components/MsMainContainer";
-import {checkoutTestManagerOrTestUser, getCurrentProjectID, getUUID} from "../../../../common/js/utils";
+import {checkoutTestManagerOrTestUser, getUUID} from "../../../../common/js/utils";
 import TestCaseNodeTree from "../common/TestCaseNodeTree";
 
 import MsTabButton from "@/business/components/common/components/MsTabButton";
@@ -132,12 +135,10 @@ export default {
       loading: false,
       type:'',
       activeDom: 'left',
-      projectId: ""
     }
   },
   mounted() {
     this.init(this.$route);
-    this.projectId = getCurrentProjectID();
   },
   watch: {
     redirectID() {
@@ -151,13 +152,17 @@ export default {
       this.init(to);
       if (to.path.indexOf('/track/case/all') == -1) {
         if (this.$refs && this.$refs.autoScenarioConfig) {
-          console.log(this.$refs.autoScenarioConfig);
           this.$refs.autoScenarioConfig.forEach(item => {
             /*item.removeListener();*/
           });
         }
       }
     },
+    activeName(newVal, oldVal) {
+      if (oldVal !== 'default' && newVal === 'default' && this.$refs.minder) {
+        this.$refs.minder.refresh();
+      }
+    }
   },
   computed: {
     checkRedirectID: function () {
@@ -168,7 +173,10 @@ export default {
     isRedirectEdit: function () {
       let redirectParam = this.$route.params.dataSelectRange;
       return redirectParam;
-    }
+    },
+    projectId() {
+      return this.$store.state.projectId
+    },
   },
   methods: {
     handleCommand(e) {
@@ -197,7 +205,6 @@ export default {
       }
     },
     addTab(tab) {
-      this.projectId=getCurrentProjectID();
       if (!this.projectId) {
         this.$warning(this.$t('commons.check_project_tip'));
         return;
@@ -238,6 +245,10 @@ export default {
       }
     },
     exportTestCase(){
+      if (this.activeDom !== 'left') {
+        this.$warning('请切换成接口列表导出！');
+        return;
+      }
       this.$refs.testCaseList.exportTestCase()
     },
     addListener() {
@@ -258,7 +269,6 @@ export default {
           this.testCaseReadOnly = true;
         }
         let caseId = this.$route.params.caseId;
-        this.projectId=getCurrentProjectID();
         if (!this.projectId) {
           this.$warning(this.$t('commons.check_project_tip'));
           return;
@@ -280,7 +290,9 @@ export default {
       this.selectParentNodes = pNodes;
     },
     refreshTable() {
-      this.$refs.testCaseList.initTableData();
+      if ( this.$refs.testCaseList) {
+        this.$refs.testCaseList.initTableData();
+      }
     },
     editTestCase(testCase) {
       this.type="edit"
@@ -291,11 +303,20 @@ export default {
       }
       this.addTab({name: 'edit', testCaseInfo: testCase});
     },
-
+    handleCaseCreateOrEdit(data, type) {
+      if (this.$refs.minder) {
+        this.$refs.minder.addCase(data, type);
+      }
+    },
+    handleCaseSimpleCreate(data, type) {
+      this.handleCaseCreateOrEdit(data, type);
+      if (this.$refs.minder) {
+        this.$refs.minder.refresh();
+      }
+    },
     copyTestCase(testCase) {
       this.type="copy"
       this.testCaseReadOnly = false;
-      let item = {};
       testCase.isCopy = true;
       this.addTab({name: 'edit', testCaseInfo: testCase});
     },

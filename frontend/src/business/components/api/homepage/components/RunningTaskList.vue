@@ -57,7 +57,7 @@
 </template>
 
 <script>
-import {checkoutTestManagerOrTestUser, getCurrentProjectID} from "@/common/js/utils";
+import {checkoutTestManagerOrTestUser} from "@/common/js/utils";
 import MsTag from "@/business/components/common/components/MsTag";
 export default {
   name: "MsRunningTaskList",
@@ -80,15 +80,19 @@ export default {
   computed:{
     isReadOnly(){
       return !checkoutTestManagerOrTestUser();
-    }
+    },
+    projectId() {
+      return this.$store.state.projectId
+    },
   },
 
   methods: {
     search() {
-      let projectID = getCurrentProjectID();
-      this.result = this.$get("/api/runningTask/"+projectID+"/"+this.callFrom, response => {
-        this.tableData = response.data;
-      });
+      if (this.projectId) {
+        this.result = this.$get("/api/runningTask/"+ this.projectId +"/"+this.callFrom, response => {
+          this.tableData = response.data;
+        });
+      }
     },
 
     closeTaskConfirm(row){

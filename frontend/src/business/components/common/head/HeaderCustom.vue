@@ -47,19 +47,11 @@ export default {
     },
     open(items) {
       this.defaultCheckedKeys = []
-
       this.dialogTableVisible = true
-      this.fieldSelected = items
-      if (items.size <= 0) {
-        this.optionalField = this.optionalFields
-      } else {
-        items.forEach(i => {
-            this.defaultCheckedKeys.push(i.id)
-          }
-        )
-      }
-      console.log(this.defaultCheckedKeys)
-
+      items.forEach(i => {
+          this.defaultCheckedKeys.push(i.id)
+        }
+      )
     },
     saveHeader() {
       let param = {
@@ -71,8 +63,8 @@ export default {
         console.log(this.optionalFields)
         console.log(this.fieldSelected)
         this.$success(this.$t("commons.save_success"));
-        this.dialogTableVisible = false
         this.initTableData()
+        this.close();
       })
     },
     removeAt(idx) {
@@ -81,7 +73,6 @@ export default {
     close() {
       this.dialogTableVisible = false
     },
-
 
 
     // 切换模式 现有树形穿梭框模式transfer 和通讯录模式addressList

@@ -95,6 +95,12 @@ export default {
         return this.$t("commons.all_label.case");
       }
     },
+    nameLimit: {
+      type: Number,
+      default() {
+        return 50;
+      }
+    },
   },
   watch: {
     treeNodes() {
@@ -184,8 +190,12 @@ export default {
         this.$warning(this.$t('test_track.case.input_name'));
         return;
       }
-      if (data.name.trim().length > 50) {
-        this.$warning(this.$t('test_track.length_less_than') + '50');
+      if (data.name.trim().length > this.nameLimit) {
+        this.$warning(this.$t('test_track.length_less_than') + this.nameLimit);
+        return;
+      }
+      if (data.name.indexOf("\\") > -1) {
+        this.$warning(this.$t('commons.node_name_tip'));
         return;
       }
       let param = {};

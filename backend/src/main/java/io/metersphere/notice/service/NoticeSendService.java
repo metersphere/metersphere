@@ -2,6 +2,7 @@ package io.metersphere.notice.service;
 
 import com.alibaba.nacos.client.utils.StringUtils;
 import io.metersphere.commons.constants.NoticeConstants;
+import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.notice.domain.MessageDetail;
 import io.metersphere.notice.sender.NoticeModel;
 import io.metersphere.notice.sender.NoticeSender;
@@ -44,22 +45,26 @@ public class NoticeSendService {
     }
 
     public void send(String taskType, NoticeModel noticeModel) {
-        List<MessageDetail> messageDetails;
-        switch (taskType) {
-            case NoticeConstants.Mode.API:
-                messageDetails = noticeService.searchMessageByType(NoticeConstants.TaskType.JENKINS_TASK);
-                break;
-            case NoticeConstants.Mode.SCHEDULE:
-                messageDetails = noticeService.searchMessageByTestId(noticeModel.getTestId());
-                break;
-            default:
-                messageDetails = noticeService.searchMessageByType(taskType);
-                break;
-        }
-        messageDetails.forEach(messageDetail -> {
-            if (StringUtils.equals(messageDetail.getEvent(), noticeModel.getEvent())) {
-                this.getNoticeSender(messageDetail).send(messageDetail, noticeModel);
+        try {
+            List<MessageDetail> messageDetails;
+            switch (taskType) {
+                case NoticeConstants.Mode.API:
+                    messageDetails = noticeService.searchMessageByType(NoticeConstants.TaskType.JENKINS_TASK);
+                    break;
+                case NoticeConstants.Mode.SCHEDULE:
+                    messageDetails = noticeService.searchMessageByTestId(noticeModel.getTestId());
+                    break;
+                default:
+                    messageDetails = noticeService.searchMessageByType(taskType);
+                    break;
             }
-        });
+            messageDetails.forEach(messageDetail -> {
+                if (StringUtils.equals(messageDetail.getEvent(), noticeModel.getEvent())) {
+                    this.getNoticeSender(messageDetail).send(messageDetail, noticeModel);
+                }
+            });
+        } catch (Exception e) {
+            LogUtil.error(e.getMessage(), e);
+        }
     }
 }

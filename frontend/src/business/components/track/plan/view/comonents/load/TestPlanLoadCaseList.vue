@@ -131,7 +131,7 @@ import MsTablePagination from "@/business/components/common/pagination/TablePagi
 import MsPerformanceTestStatus from "@/business/components/performance/test/PerformanceTestStatus";
 import MsTableOperatorButton from "@/business/components/common/components/MsTableOperatorButton";
 import LoadCaseReport from "@/business/components/track/plan/view/comonents/load/LoadCaseReport";
-import {_filter, _sort, getLabel} from "@/common/js/tableUtils";
+import {_filter, _sort, getLabel, getSystemLabel} from "@/common/js/tableUtils";
 import HeaderCustom from "@/business/components/common/head/HeaderCustom";
 import {TEST_CASE_LIST, TEST_PLAN_LOAD_CASE} from "@/common/js/constants";
 import {Test_Plan_Load_Case, Track_Test_Case} from "@/business/components/common/model/JsonData";
@@ -198,6 +198,8 @@ export default {
   created() {
     this.initTable();
     this.refreshStatus();
+    getSystemLabel(this, this.type)
+
   },
   watch: {
     selectProjectId() {
@@ -213,6 +215,7 @@ export default {
       this.$refs.headerCustom.open(this.tableLabel)
     },
     initTable() {
+      this.autoCheckStatus();
       this.selectRows = new Set();
       this.condition.testPlanId = this.planId;
       if (this.selectProjectId && this.selectProjectId !== 'root') {
@@ -246,6 +249,13 @@ export default {
       }
       getLabel(this, TEST_PLAN_LOAD_CASE);
 
+    },
+    autoCheckStatus() {
+      if (!this.planId) {
+        return;
+      }
+      this.$post('/test/plan/autoCheck/' + this.planId, (response) => {
+      });
     },
     refreshStatus() {
       this.refreshScheduler = setInterval(() => {

@@ -11,8 +11,8 @@
     <template v-slot:main>
       <ms-tab-button
         :active-dom.sync="activeDom"
-        :left-tip="$t('api_test.definition.case_title')"
-        :left-content="'CASE'"
+        :left-tip="$t('test_track.case.list')"
+        :left-content="$t('test_track.case.list')"
         :right-tip="$t('test_track.case.minder')"
         :right-content="$t('test_track.case.minder')"
         :middle-button-enable="false">
@@ -51,7 +51,6 @@
     import FunctionalTestCaseList from "./FunctionalTestCaseList";
     import MsTabButton from "@/business/components/common/components/MsTabButton";
     import TestPlanMinder from "@/business/components/track/common/minder/TestPlanMinder";
-    import {getCurrentProjectID} from "@/common/js/utils";
 
     export default {
       name: "TestPlanFunctional",
@@ -71,7 +70,6 @@
           selectParentNodes: [],
           treeNodes: [],
           activeDom: 'left',
-          projectId: ""
         }
       },
       props: [
@@ -80,8 +78,12 @@
         'clickType'
       ],
       mounted() {
-        this.projectId = getCurrentProjectID();
         this.initData();
+      },
+      computed: {
+        projectId() {
+          return this.$store.state.projectId
+        },
       },
       activated(){
         this.initData();

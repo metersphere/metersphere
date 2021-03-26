@@ -13,7 +13,7 @@
         <el-table-column type="selection"/>
         <el-table-column width="40" :resizable="false" align="center">
           <template v-slot:default="{row}">
-            <show-more-btn :is-show="isSelect(row)" :buttons="buttons" :size="selectRows.length"/>
+            <show-more-btn :is-show="isSelect(row)" :buttons="buttons" :size="selectRows.size"/>
           </template>
         </el-table-column>
         <template v-for="(item, index) in tableLabel">
@@ -38,7 +38,7 @@
                            width="200px" :key="index">
             <template v-slot:default="scope">
               <ms-tag v-for="(itemName,index) in scope.row.tags" :key="index" type="success" effect="plain"
-                      :content="itemName" style="margin-left: 5px"/>
+                      :content="itemName" style="margin-left: 0px; margin-right: 2px"/>
             </template>
           </el-table-column>
           <el-table-column v-if="item.id == 'userId'" prop="userId" :label="$t('api_test.automation.creator')"
@@ -103,13 +103,13 @@ import MsTableHeader from "@/business/components/common/components/MsTableHeader
 import MsTablePagination from "@/business/components/common/pagination/TablePagination";
 import ShowMoreBtn from "@/business/components/track/case/components/ShowMoreBtn";
 import MsTag from "../../../../../common/components/MsTag";
-import {getUUID, getCurrentProjectID, getCurrentUser, strMapToObj} from "@/common/js/utils";
+import {getUUID, strMapToObj} from "@/common/js/utils";
 import MsApiReportDetail from "../../../../../api/automation/report/ApiReportDetail";
 import MsTableMoreBtn from "../../../../../api/automation/scenario/TableMoreBtn";
 import MsScenarioExtendButtons from "@/business/components/api/automation/scenario/ScenarioExtendBtns";
 import MsTestPlanList from "../../../../../api/automation/scenario/testplan/TestPlanList";
 import TestPlanScenarioListHeader from "./TestPlanScenarioListHeader";
-import {_handleSelect, _handleSelectAll, getLabel} from "../../../../../../../common/js/tableUtils";
+import {_handleSelect, _handleSelectAll, getLabel, getSystemLabel} from "../../../../../../../common/js/tableUtils";
 import MsTableOperatorButton from "../../../../../common/components/MsTableOperatorButton";
 import HeaderCustom from "@/business/components/common/head/HeaderCustom";
 import {TEST_CASE_LIST, TEST_PLAN_SCENARIO_CASE} from "@/common/js/constants";
@@ -162,7 +162,6 @@ export default {
       status: 'default',
       infoDb: false,
       runVisible: false,
-      projectId: "",
       runData: [],
       buttons: [
         {
@@ -182,9 +181,15 @@ export default {
       },
     }
   },
+  computed: {
+    projectId() {
+      return this.$store.state.projectId
+    },
+  },
   created() {
-    this.projectId = getCurrentProjectID();
     this.search();
+    getSystemLabel(this, this.type)
+
   },
   watch: {
     selectNodeIds() {
@@ -274,7 +279,7 @@ export default {
     execute(row) {
       this.infoDb = false;
       let param = this.buildExecuteParam(row);
-
+      console.log(param)
       if (this.planId) {
         this.$post("/test/plan/scenario/case/run", param, response => {
           this.runVisible = true;
@@ -293,6 +298,7 @@ export default {
       // param.id = row.id;
       param.id = getUUID();
       param.planScenarioId = row.id;
+      console.log(row.id)
       param.projectId = row.projectId;
       param.planCaseIds = [];
       param.planCaseIds.push(row.id);

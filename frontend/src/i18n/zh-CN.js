@@ -145,6 +145,7 @@ export default {
     check_project_tip: "请先创建或选择项目",
     auth_redirect_tip: '即将跳转到认证源页面进行认证',
     tag_tip: "输入回车添加标签",
+    node_name_tip: "名称不能包含'\\'",
     table: {
       select_tip: "已选中 {0} 条数据"
     },
@@ -325,7 +326,7 @@ export default {
       use_tip_tapd: 'Tapd Basic Auth 账号信息在"公司管理-安全与集成-开放平台"中查询',
       use_tip_jira: 'Jira software server 认证信息为 账号密码，Jira software cloud 认证信息为 账号+令牌(账户设置-安全-创建API令牌)',
       use_tip_zentao: '账号密码为具有相应权限的Zentao账号，账号需要具有 超级model调用接口权限',
-      use_tip_two: '保存 Basic Auth 账号信息后，需要在 Metersphere 项目中手动关联 ID/key',
+      use_tip_two: '保存 Basic Auth 账号信息后，需要在 MeterSphere 项目中手动关联 ID/key',
       link_the_project_now: '马上关联项目',
       cancel_edit: '取消编辑',
       cancel_integration: '取消集成',
@@ -435,7 +436,7 @@ export default {
     test_execute_again: '再次执行',
     downloadJtl: '下载JTL',
     export: '导出',
-    export_to_ms_format: '导出 Metersphere 格式',
+    export_to_ms_format: '导出 MeterSphere 格式',
     export_to_swagger3_format: '导出 Swagger3.0 格式',
     compare: '报告对比',
     generation_error: '报告生成错误, 无法查看, 请检查日志详情!',
@@ -541,7 +542,9 @@ export default {
     project_file_exist: "项目中已存在该文件，请直接引用",
     report: {
       diff: "对比"
-    }
+    },
+    project_file_update_type_error: '更新的文件类型必须一致',
+    project_file_exist: "项目中已存在该文件，请直接引用"
   },
   api_test: {
     creator: "创建人",
@@ -605,6 +608,7 @@ export default {
         update_time_order_desc: "按更新时间从后到前",
         run_env: "运行环境",
         select_case: "搜索用例",
+        select_api: "搜索接口",
         case: "用例",
         responsible: "责任人",
         title: "创建接口",
@@ -665,7 +669,9 @@ export default {
           desc: "描述",
           value: "数据",
           not_required: "非必填",
-        }
+        },
+        esb_copy_confirm: "确认复制当前节点的数据结构",
+        esb_title: "可以在报文模板中使用${参数名} 或 ${父节点参数名.子节点参数名}来生成xml数据结构",
       },
       document: {
         order: "排序方式",
@@ -811,7 +817,7 @@ export default {
       path_description: "例如：/login",
       url_invalid: "URL无效",
       parameters: "Query参数",
-      jmeter_func: "Jmeter 方法",
+      jmeter_func: "JMeter 方法",
       parameters_filter_example: "示例",
       parameters_filter_tips: "只支持 MockJs 函数结果预览",
       parameters_advance: "return",
@@ -894,8 +900,8 @@ export default {
         code_template_get_response_header: "获取响应头",
         code_template_get_response_code: "获取响应码",
         code_template_get_response_result: "获取响应结果",
-        code_add_report_length : "报文头添加长度",
-        code_hide_report_length : "隐藏报文长度"
+        code_add_report_length: "报文头添加长度",
+        code_hide_report_length: "隐藏报文长度"
       },
       dubbo: {
         protocol: "协议",
@@ -947,16 +953,18 @@ export default {
       file_size_limit: "文件大小不超过 20 M",
       tip: "说明",
       export_tip: "导出方法",
-      ms_tip: "支持 Metersphere json 格式",
-      ms_export_tip: "通过 Metersphere 接口测试页面或者浏览器插件导出 json 格式文件",
-      har_export_tip: "通过 浏览器的开发者工具 导出 Har 格式文件",
+      ms_tip: "支持 MeterSphere json 格式",
+      ms_export_tip: "通过 MeterSphere 接口测试页面或者浏览器插件导出 json 格式文件",
+      har_export_tip: "通过 浏览器的开发者工具 导出 HAR 格式文件",
+      esb_export_tip: "暂时不支持ESB文件的导出",
       postman_tip: "只支持 Postman Collection v2.1 格式的 json 文件",
       swagger_tip: "支持 Swagger 2.0 与 3.0 版本的 json 文件",
-      har_tip: "只支持 Har 文件",
+      har_tip: "只支持 HAR 文件",
+      esb_tip: "只支持 ESB 模版的xlsx文件",
       post_export_tip: "通过 Postman 导出测试集合",
       swagger_export_tip: "通过 Swagger 页面导出",
-      jmeter_export_tip: "通过 Jmeter 生成JMX文件",
-      jmeter_tip: "支持 Jmeter 5.2版本的JMX 文件",
+      jmeter_export_tip: "通过 JMeter 生成JMX文件",
+      jmeter_tip: "支持 JMeter 5.2版本的JMX 文件",
       suffixFormatErr: "文件格式不符合要求",
       swagger_url_import: "使用URL导入",
       timing_synchronization: "定时同步",
@@ -1131,7 +1139,9 @@ export default {
     cancel_relevance_success: "取消关联成功",
     switch_project: "切换项目",
     case: {
+      list: "列表",
       minder: "脑图",
+      minder_create_tip: "失败, 无法在脑图创建其父模块",
       check_select: "请勾选用例",
       export_all_cases: '确定要导出全部用例吗?',
       input_test_case: '请输入关联用例名称',
@@ -1166,6 +1176,7 @@ export default {
       input_type: "请选择用例类型",
       input_method: "请选择测试方式",
       input_prerequisite: "请输入前置条件",
+      input_demand_name: "请输入需求ID或名称",
       delete_confirm: "确认删除测试用例",
       delete: "删除用例",
       save_create_continue: "保存并继续创建",
@@ -1243,6 +1254,7 @@ export default {
       input_plan_stage: "请选择测试阶段",
       plan_status_prepare: "未开始",
       plan_status_running: "进行中",
+      plan_status_finished: "已结束",
       plan_status_completed: "已完成",
       plan_status_trash: "废弃",
       planned_start_time: "计划开始",
@@ -1439,7 +1451,8 @@ export default {
     status_change_success: '状态修改成功!',
     status_change_failed: '状态修改失败, 校验不通过!',
     check_in: '校验中',
-    node_selector_invalid: 'nodeSelector 必须是有效的JSON'
+    node_selector_invalid: 'nodeSelector 必须是有效的JSON',
+    pod_thread_limit: '单POD最大线程数'
   },
   system_parameter_setting: {
     mailbox_service_settings: '邮件设置',

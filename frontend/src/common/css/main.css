@@ -69,6 +69,10 @@ html,body {
   border-right-color: white !important;
 }
 
+.adjust-table.ms-select-all-fixed th:first-child.el-table-column--selection {
+  border-right-color: #DCDFE6 !important;
+}
+
 .adjust-table {
   border-color: white !important;
 }

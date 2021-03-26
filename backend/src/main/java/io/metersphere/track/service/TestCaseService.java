@@ -165,7 +165,7 @@ public class TestCaseService {
                     String steps = tc.getSteps();
                     String remark = tc.getRemark();
                     if (StringUtils.equals(steps, testCase.getSteps()) && StringUtils.equals(remark, caseRemark)) {
-                        // MSException.throwException(Translator.get("test_case_already_exists"));
+                         MSException.throwException(Translator.get("test_case_already_exists"));
                         isExt = true;
                     }
                 }
@@ -210,13 +210,19 @@ public class TestCaseService {
      */
     private void initRequest(QueryTestCaseRequest request, boolean checkThisWeekData) {
         if (checkThisWeekData) {
+            Map<String, Date> weekFirstTimeAndLastTime = DateUtils.getWeedFirstTimeAndLastTime(new Date());
+            Date weekFirstTime = weekFirstTimeAndLastTime.get("firstTime");
             if (request.isSelectThisWeedData()) {
-                Map<String, Date> weekFirstTimeAndLastTime = DateUtils.getWeedFirstTimeAndLastTime(new Date());
-                Date weekFirstTime = weekFirstTimeAndLastTime.get("firstTime");
                 if (weekFirstTime != null) {
                     request.setCreateTime(weekFirstTime.getTime());
                 }
             }
+            if (request.isSelectThisWeedRelevanceData()) {
+                if (weekFirstTime != null) {
+                    request.setRelevanceCreateTime(weekFirstTime.getTime());
+                }
+            }
+
         }
     }
 
@@ -664,8 +670,9 @@ public class TestCaseService {
             selecteds.forEach(id -> {
                 test.setTestType(id.get(0));
                 test.setTestId(id.get(1));
-                test.setId(UUID.randomUUID().toString());
                 test.setTestCaseId(request.getId());
+                test.setCreateTime(System.currentTimeMillis());
+                test.setUpdateTime(System.currentTimeMillis());
                 testCaseTestMapper.insert(test);
             });
         }
@@ -707,7 +714,8 @@ public class TestCaseService {
             selecteds.forEach(id -> {
                 test.setTestType(id.get(0));
                 test.setTestId(id.get(1));
-                test.setId(UUID.randomUUID().toString());
+                test.setCreateTime(System.currentTimeMillis());
+                test.setUpdateTime(System.currentTimeMillis());
                 test.setTestCaseId(request.getId());
                 testCaseTestMapper.insert(test);
             });
@@ -778,5 +786,17 @@ public class TestCaseService {
                 editTestCase(item);
             }
         });
+        List<String> ids = request.getIds();
+        if (CollectionUtils.isNotEmpty(ids)) {
+            TestCaseBatchRequest deleteRequest = new TestCaseBatchRequest();
+            deleteRequest.setIds(ids);
+            deleteTestCaseBath(deleteRequest);
+        }
+    }
+
+    public List<TestCase> getTestCaseByProjectId(String projectId) {
+        TestCaseExample example = new TestCaseExample();
+        example.createCriteria().andProjectIdEqualTo(projectId);
+        return testCaseMapper.selectByExample(example);
     }
 }

@@ -54,6 +54,7 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
 
     private ApiScenarioReportService apiScenarioReportService;
 
+    private ApiTestCaseService apiTestCaseService;
 
     public String runMode = ApiRunMode.RUN.name();
 
@@ -104,6 +105,10 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
         apiScenarioReportService = CommonBeanFactory.getBean(ApiScenarioReportService.class);
         if (apiScenarioReportService == null) {
             LogUtil.error("apiScenarioReportService is required");
+        }
+        apiTestCaseService = CommonBeanFactory.getBean(ApiTestCaseService.class);
+        if (apiTestCaseService == null) {
+            LogUtil.error("apiTestCaseService is required");
         }
 
         super.setupTest(context);
@@ -197,11 +202,14 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
                 apiDefinitionExecResultService.saveApiResultByScheduleTask(testResult, ApiRunMode.SCHEDULE_API_PLAN.name());
                 List<String> testPlanReportIdList = new ArrayList<>();
                 testPlanReportIdList.add(debugReportId);
+                for(String testPlanReportId : testPlanReportIdList) {   //  更新每个测试计划的状态
+                    testPlanReportService.checkTestPlanStatus(testPlanReportId);
+                }
                 testPlanReportService.updateReport(testPlanReportIdList, ApiRunMode.SCHEDULE_API_PLAN.name(), ReportTriggerMode.SCHEDULE.name());
             } else {
                 apiDefinitionExecResultService.saveApiResult(testResult, ApiRunMode.API_PLAN.name());
             }
-        } else if (StringUtils.equalsAny(this.runMode, ApiRunMode.SCENARIO.name(), ApiRunMode.SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO_PLAN.name())) {
+        } else if (StringUtils.equalsAny(this.runMode, ApiRunMode.SCENARIO.name(), ApiRunMode.SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO_PLAN.name(),ApiRunMode.SCHEDULE_SCENARIO.name())) {
             // 执行报告不需要存储，由用户确认后在存储
             testResult.setTestId(testId);
             ApiScenarioReport scenarioReport = apiScenarioReportService.complete(testResult, this.runMode);
@@ -236,13 +244,19 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
                     testPlanTestCaseService.updateTestCaseStates(ids, TestPlanTestCaseStatus.Failure.name());
                 }
             } catch (Exception e) {
-                LogUtil.error(e.getMessage(), e);
+
             }
         }
-        sendTask(report, reportUrl, testResult);
+        if (StringUtils.equals(ReportTriggerMode.API.name(), report.getTriggerMode())||StringUtils.equals(ReportTriggerMode.SCHEDULE.name(), report.getTriggerMode())) {
+            sendTask(report, reportUrl, testResult);
+        }
+
     }
 
     private static void sendTask(ApiTestReport report, String reportUrl, TestResult testResult) {
+        if (report == null) {
+            return;
+        }
         SystemParameterService systemParameterService = CommonBeanFactory.getBean(SystemParameterService.class);
         NoticeSendService noticeSendService = CommonBeanFactory.getBean(NoticeSendService.class);
         assert systemParameterService != null;
