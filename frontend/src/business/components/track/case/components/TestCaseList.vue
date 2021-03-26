@@ -309,7 +309,7 @@ export default {
       this.condition.filters = {status: ["Prepare", "Pass", "UnPass"]};
     }
     this.initTableData();
-    getSystemLabel(this, this.type)
+
   },
   activated() {
     if (this.trashEnable) {
@@ -330,7 +330,6 @@ export default {
   },
   methods: {
     customHeader() {
-      getLabel(this, TEST_CASE_LIST);
       this.$refs.headerCustom.open(this.tableLabel)
     },
     getSelectDataRange() {
@@ -352,6 +351,7 @@ export default {
         this.condition.nodeIds = this.selectNodeIds;
       }
       getLabel(this, TEST_CASE_LIST);
+
       this.getData();
     },
     getData() {

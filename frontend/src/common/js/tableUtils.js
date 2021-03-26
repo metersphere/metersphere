@@ -114,15 +114,14 @@ export function getLabel(vueObj, type) {
   vueObj.result = vueObj.$post('/system/header/info', param, response => {
     if (response.data != null) {
       vueObj.tableLabel = eval(response.data.props);
-    }
-  })
-}
-export function getSystemLabel(vueObj, type) {
-  let param = {}
-  param.type=type
-  vueObj.result = vueObj.$post('/system/system/header',param, response => {
-    if (response.data != null) {
-      vueObj.tableLabel = eval(response.data.props);
+    }else{
+      let param = {}
+      param.type=type
+      vueObj.result = vueObj.$post('/system/system/header',param, response => {
+        if (response.data != null) {
+          vueObj.tableLabel = eval(response.data.props);
+        }
+      })
     }
   })
 }

@@ -383,7 +383,6 @@
       this.getSystemLabel(this.type)
       this.initTable();
       this.getMaintainerOptions();
-      getLabel(this, API_LIST);
     },
     watch: {
       selectNodeIds() {
@@ -413,7 +412,6 @@
         })
       },
       customHeader() {
-        getLabel(this, API_LIST);
         this.$refs.headerCustom.open(this.tableLabel)
       },
       handleBatchMove() {
