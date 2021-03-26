@@ -91,6 +91,9 @@ public class MsHTTPSamplerProxy extends MsTestElement {
     @JSONField(ordinal = 36)
     private MsAuthManager authManager;
 
+    @JSONField(ordinal = 37)
+    private boolean urlOrPath;
+
     @Override
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, ParameterConfig config) {
         // 非导出操作，且不是启用状态则跳过执行
@@ -140,23 +143,26 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                     url = this.getUrl();
                     isUrl = true;
                 }
-                URL urlObject = new URL(url);
                 if (isUrl) {
+                    if (StringUtils.isNotEmpty(this.getPort()) && this.getPort().startsWith("${")) {
+                        url.replaceAll(this.getPort(), "10990");
+                    }
+                    URL urlObject = new URL(url);
                     sampler.setDomain(URLDecoder.decode(urlObject.getHost(), "UTF-8"));
-                    if (urlObject.getPort() > 0) {
+                    if (urlObject.getPort() > 0 && urlObject.getPort() != 10990 && StringUtils.isNotEmpty(this.getPort()) && this.getPort().startsWith("${")) {
                         sampler.setPort(urlObject.getPort());
+                    } else {
+                        sampler.setProperty("HTTPSampler.port", this.getPort());
                     }
                     sampler.setProtocol(urlObject.getProtocol());
+                    sampler.setPath(urlObject.getPath());
                 } else {
                     sampler.setDomain(config.getConfig().get(this.getProjectId()).getHttpConfig().getDomain());
                     sampler.setPort(config.getConfig().get(this.getProjectId()).getHttpConfig().getPort());
                     sampler.setProtocol(config.getConfig().get(this.getProjectId()).getHttpConfig().getProtocol());
+                    sampler.setPath(this.getPath());
                 }
-                String envPath = StringUtils.equals(urlObject.getPath(), "/") ? "" : urlObject.getPath();
-                if (StringUtils.isNotBlank(this.getPath()) && !isUrl) {
-                    envPath += this.getPath();
-                    sampler.setPath(envPath);
-                }
+                String envPath = sampler.getPath();
                 if (CollectionUtils.isNotEmpty(this.getRest()) && this.isRest()) {
                     envPath = getRestParameters(URLDecoder.decode(envPath, "UTF-8"));
                     sampler.setPath(envPath);
@@ -177,9 +183,16 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                 if (!url.startsWith("http://") && !url.startsWith("https://")) {
                     url = "http://" + url;
                 }
+                if (StringUtils.isNotEmpty(this.getPort()) && this.getPort().startsWith("${")) {
+                    url.replaceAll(this.getPort(), "10990");
+                }
                 URL urlObject = new URL(url);
                 sampler.setDomain(URLDecoder.decode(urlObject.getHost(), "UTF-8"));
-                sampler.setPort(urlObject.getPort());
+                if (urlObject.getPort() > 0 && urlObject.getPort() != 10990 && StringUtils.isNotEmpty(this.getPort()) && this.getPort().startsWith("${")) {
+                    sampler.setPort(urlObject.getPort());
+                } else {
+                    sampler.setProperty("HTTPSampler.port", this.getPort());
+                }
                 sampler.setProtocol(urlObject.getProtocol());
                 String envPath = StringUtils.equals(urlObject.getPath(), "/") ? "" : urlObject.getPath();
                 sampler.setPath(envPath);
@@ -327,10 +340,16 @@ public class MsHTTPSamplerProxy extends MsTestElement {
     }
 
     public boolean isURL(String str) {
-        //转换为小写
         try {
-            new URL(str);
-            return true;
+            String regex = "^((https|http|ftp|rtsp|mms)?://)"
+                    + "?(([0-9a-z_!~*'().&=+$%-]+: )?[0-9a-z_!~*'().&=+$%-]+@)?"
+                    + "(([0-9]{1,3}\\.){3}[0-9]{1,3}" + "|" + "([0-9a-z_!~*'()-]+\\.)*"
+                    + "([0-9a-z][0-9a-z-]{0,61})?[0-9a-z]\\."
+                    + "[a-z]{2,6})"
+                    + "(:[0-9]{1,5})?"
+                    + "((/?)|"
+                    + "(/[0-9a-z_!~*'().;?:@&=+$,%#-]+)+/?)$";
+            return str.matches(regex) || (str.matches("^(http|https|ftp)://.*$") && str.matches(".*://\\$\\{.*$"));
         } catch (Exception e) {
             return false;
         }
@@ -339,5 +358,5 @@ public class MsHTTPSamplerProxy extends MsTestElement {
     private boolean isRest() {
         return this.getRest().stream().filter(KeyValue::isEnable).filter(KeyValue::isValid).toArray().length > 0;
     }
-
 }
+

@@ -285,6 +285,7 @@ export default {
       }
     },
     nodeChange(node, nodeIds, pNodes) {
+      this.activeName = "default";
       this.selectNodeIds = nodeIds;
       this.selectNode = node;
       this.selectParentNodes = pNodes;

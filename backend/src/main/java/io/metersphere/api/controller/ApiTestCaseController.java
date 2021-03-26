@@ -7,12 +7,12 @@ import io.metersphere.api.dto.definition.*;
 import io.metersphere.api.service.ApiTestCaseService;
 import io.metersphere.base.domain.ApiTestCase;
 import io.metersphere.base.domain.ApiTestCaseWithBLOBs;
-import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.track.request.testcase.ApiCaseRelevanceRequest;
+import io.metersphere.track.service.TestPlanApiCaseService;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.web.bind.annotation.*;
@@ -29,7 +29,8 @@ public class ApiTestCaseController {
 
     @Resource
     private ApiTestCaseService apiTestCaseService;
-
+    @Resource
+    private TestPlanApiCaseService testPlanApiCaseService;
     @PostMapping("/list")
     public List<ApiTestCaseResult> list(@RequestBody ApiTestCaseRequest request) {
         request.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
@@ -47,6 +48,12 @@ public class ApiTestCaseController {
         }else {
             return null;
         }
+    }
+    @GetMapping("/getStateByTestPlan/{id}")
+    public String getStateByTestPlan(@PathVariable String id ) {
+        String status=testPlanApiCaseService.getState(id);
+        return status;
+
     }
 
     @PostMapping("/list/{goPage}/{pageSize}")
@@ -131,7 +138,8 @@ public class ApiTestCaseController {
         return apiTestCaseService.run(request);
     }
     @GetMapping(value = "/jenkins/exec/result/{id}")
-    public String getExecResult(@PathVariable String  id) {
-        return apiTestCaseService.getExecResult(id);
+    public String getExecResult(@PathVariable String id) {
+           return  apiTestCaseService.getExecResult(id);
+
     }
 }
