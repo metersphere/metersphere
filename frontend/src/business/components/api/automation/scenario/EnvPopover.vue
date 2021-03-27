@@ -3,6 +3,7 @@
     v-model="visible"
     placement="bottom"
     width="400"
+    :disabled="isReadOnly"
     @show="showPopover"
     trigger="click">
     <env-select :project-ids="projectIds" :env-map="envMap" @close="visible = false"
@@ -24,6 +25,12 @@ export default {
     envMap: Map,
     projectIds: Set,
     projectList: Array,
+    isReadOnly: {
+      type: Boolean,
+      default() {
+        return false;
+      }
+    }
   },
   data() {
     return {
