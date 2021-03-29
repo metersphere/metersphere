@@ -29,9 +29,7 @@
             v-if="activeDom === 'left'"
             :checkRedirectID="checkRedirectID"
             :module-options="moduleOptions"
-            :select-node-ids="selectNodeIds"
             :isRedirectEdit="isRedirectEdit"
-            :select-parent-nodes="selectParentNodes"
             :tree-nodes="treeNodes"
             @testCaseEdit="editTestCase"
             @testCaseCopy="copyTestCase"
@@ -123,10 +121,7 @@ export default {
       result: {},
       projects: [],
       treeNodes: [],
-      selectNodeIds: [],
-      selectParentNodes: [],
       testCaseReadOnly: true,
-      selectNode: {},
       condition: {},
       moduleOptions: [],
       activeName: 'default',
@@ -177,6 +172,12 @@ export default {
     projectId() {
       return this.$store.state.projectId
     },
+    selectNodeIds() {
+      return this.$store.state.testCaseSelectNodeIds;
+    },
+    selectNode() {
+      return this.$store.state.testCaseSelectNode;
+    }
   },
   methods: {
     handleCommand(e) {
@@ -284,11 +285,8 @@ export default {
         this.$router.push('/track/case/all');
       }
     },
-    nodeChange(node, nodeIds, pNodes) {
+    nodeChange(node) {
       this.activeName = "default";
-      this.selectNodeIds = nodeIds;
-      this.selectNode = node;
-      this.selectParentNodes = pNodes;
     },
     refreshTable() {
       if ( this.$refs.testCaseList) {
@@ -325,12 +323,10 @@ export default {
       this.testCaseReadOnly = true;
     },
     refresh(data) {
-      this.selectNodeIds = [];
-      this.selectParentNodes = [];
-      this.selectNode = {};
+      this.$store.commit('setTestCaseSelectNode', {});
+      this.$store.commit('setTestCaseSelectNodeIds', []);
       this.refreshTable();
       this.setTable(data);
-
     },
     setTable(data) {
       console.log(data)

@@ -11,7 +11,10 @@ const state = {
   test: {},
   versionSwitch: "new",
   isReadOnly: true,
-  theme: undefined
+  theme: undefined,
+  testCaseSelectNode: undefined,
+  testCaseSelectNodeIds: [],
+  testCaseModuleOptions: []
 
 }
 

@@ -44,6 +44,9 @@ export default {
       default() {
         return []
       }
+    },
+    selectNode: {
+      type: undefined,
     }
   },
   data() {
@@ -54,11 +57,10 @@ export default {
             text: this.$t('test_track.review_view.all_case'),
             disable: true,
             id: "root",
-            path: ""
           },
           children: []
         },
-        "template":"default"
+        template: "default"
       },
       isActive: true,
       isFullScreen: false,
@@ -71,7 +73,11 @@ export default {
   watch: {
     dataMap() {
       this.$nextTick(() => {
-        this.parse(this.importJson.root, this.treeNodes);
+        if (this.selectNode && this.selectNode.data) {
+          this.handleNodeSelect(this.selectNode);
+        } else {
+          this.parse(this.importJson.root, this.treeNodes);
+        }
         this.reload();
       })
     }
@@ -109,7 +115,6 @@ export default {
             text: item.name,
             id: item.id,
             disable: true,
-            path: root.data.path + "/" + item.name,
             expandState:"collapse"
           },
         }
@@ -125,6 +130,27 @@ export default {
     },
     setJsonImport(data) {
       this.importJson = data;
+    },
+    handleNodeSelect(node) {
+      let nodeData = node.data;
+      let importJson = this.getImportJsonBySelectNode(nodeData);
+      this.parse(importJson.root, nodeData.children);
+      this.setJsonImport(importJson);
+      this.reload();
+    },
+    getImportJsonBySelectNode(nodeData) {
+      let importJson =  {
+        root: {
+          data: {
+            text: nodeData.name,
+            id: nodeData.id,
+            disable: true,
+          },
+          children: []
+        },
+        template: "default"
+      };
+      return importJson;
     }
   }
 }

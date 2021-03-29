@@ -281,12 +281,6 @@ export default {
     }
   },
   props: {
-    selectNodeIds: {
-      type: Array
-    },
-    selectParentNodes: {
-      type: Array
-    },
     treeNodes: {
       type: Array
     },
@@ -302,6 +296,9 @@ export default {
     projectId() {
       return this.$store.state.projectId
     },
+    selectNodeIds() {
+      return this.$store.state.testCaseSelectNodeIds;
+    }
   },
   created: function () {
     this.$emit('setCondition', this.condition);

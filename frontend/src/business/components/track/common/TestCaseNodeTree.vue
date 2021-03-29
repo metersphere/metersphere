@@ -38,6 +38,7 @@ import TestCaseCreate from "@/business/components/track/case/components/TestCase
 import TestCaseImport from "@/business/components/track/case/components/TestCaseImport";
 import MsSearchBar from "@/business/components/common/components/search/MsSearchBar";
 import {buildTree} from "../../api/definition/model/NodeTree";
+import {buildNodePath} from "@/business/components/api/definition/model/NodeTree";
 
 export default {
   name: "TestCaseNodeTree",
@@ -119,6 +120,7 @@ export default {
           this.treeNodes.forEach(node => {
             buildTree(node, {path: ''});
           });
+          this.setModuleOptions();
           if (this.$refs.nodeTree) {
             this.$refs.nodeTree.filter();
           }
@@ -167,7 +169,18 @@ export default {
         this.list();
       });
     },
+    setModuleOptions() {
+      let moduleOptions = [];
+      this.treeNodes.forEach(node => {
+        buildNodePath(node, {path: ''}, moduleOptions);
+      });
+      this.$store.commit('setTestCaseModuleOptions', moduleOptions);
+    },
     nodeChange(node, nodeIds, pNodes) {
+
+      this.$store.commit('setTestCaseSelectNode', node);
+      this.$store.commit('setTestCaseSelectNodeIds', nodeIds);
+
       this.$emit("nodeSelectEvent", node, nodeIds, pNodes);
       this.currentModule = node.data;
       if (node.data.id === 'root') {

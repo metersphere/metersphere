@@ -416,5 +416,11 @@
              ) as temp
     </select>
 
+    <select id="listForMinder" resultType="io.metersphere.base.domain.TestCaseWithBLOBs">
+        select
+        id, `name`, node_id, node_path, `type`, `method`, maintainer, priority, prerequisite, remark, steps
+        from test_case
+        <include refid="queryWhereCondition"/>
+    </select>
 
 </mapper>
