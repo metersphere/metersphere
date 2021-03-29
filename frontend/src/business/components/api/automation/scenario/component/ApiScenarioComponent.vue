@@ -105,11 +105,11 @@
       remove() {
         this.$emit('remove', this.scenario, this.node);
       },
-      active(item) {
-        if (item && item.active) {
-          item.active = !item.active;
+      active() {
+          if (this.node) {
+            this.node.expanded = !this.node.expanded;
+          }
           this.reload();
-        }
       },
       copyRow() {
         this.$emit('copyRow', this.scenario, this.node);

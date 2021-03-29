@@ -67,7 +67,7 @@
   import MsAsideContainer from "@/business/components/common/components/MsAsideContainer";
   import MsMainContainer from "@/business/components/common/components/MsMainContainer";
   import MsApiScenarioList from "@/business/components/api/automation/scenario/ApiScenarioList";
-  import {getUUID, downloadFile, checkoutTestManagerOrTestUser} from "@/common/js/utils";
+  import {getUUID, downloadFile, checkoutTestManagerOrTestUser,getCurrentUser} from "@/common/js/utils";
   import MsApiScenarioModule from "@/business/components/api/automation/scenario/ApiScenarioModule";
   import MsEditApiScenario from "./scenario/EditApiScenario";
 
@@ -189,6 +189,7 @@
           let name = getUUID().substring(0, 8);
           this.activeName = name;
           let currentScenario = {
+            status: "Underway", principal: getCurrentUser().id,
             apiScenarioModuleId: "root", id: getUUID(),
             modulePath: "/" + this.$t("commons.module_title")
           };

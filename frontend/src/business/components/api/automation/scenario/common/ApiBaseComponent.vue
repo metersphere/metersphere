@@ -28,9 +28,12 @@
       <div class="header-right" @click.stop>
         <slot name="message"></slot>
         <el-tooltip :content="$t('test_resource_pool.enable_disable')" placement="top" v-if="showBtn">
-          <el-switch v-model="data.enable" class="enable-switch" size="mini" :disabled="data.disabled && !data.root"/>
+          <el-switch v-model="data.enable" class="enable-switch" size="mini" :disabled="data.disabled && !data.root" style="width: 30px"/>
         </el-tooltip>
         <slot name="button"></slot>
+        <el-tooltip content="Copy" placement="top">
+          <el-button size="mini" icon="el-icon-copy-document" circle @click="copyRow" style="padding: 5px"/>
+        </el-tooltip>
         <step-extend-btns style="display: contents" :data="data" @copy="copyRow" @remove="remove" @openScenario="openScenario" v-if="showBtn && (!data.disabled || data.root)"/>
       </div>
 
