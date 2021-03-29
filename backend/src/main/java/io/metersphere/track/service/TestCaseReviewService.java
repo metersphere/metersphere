@@ -331,20 +331,6 @@ public class TestCaseReviewService {
     }
 
     public void testReviewRelevance(ReviewRelevanceRequest request) {
-        String reviewId = request.getReviewId();
-        List<String> userIds = getTestCaseReviewerIds(reviewId);
-
-        String creator = "";
-        TestCaseReview review = testCaseReviewMapper.selectByPrimaryKey(reviewId);
-        if (review != null) {
-            creator = review.getCreator();
-        }
-
-        String currentId = SessionUtils.getUser().getId();
-        if (!userIds.contains(currentId) && !StringUtils.equals(creator, currentId)) {
-            MSException.throwException("没有权限，不能关联用例！");
-        }
-
         List<String> testCaseIds = request.getTestCaseIds();
 
         if (testCaseIds.isEmpty()) {
