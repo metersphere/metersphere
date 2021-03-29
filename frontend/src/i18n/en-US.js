@@ -145,6 +145,7 @@ export default {
     auth_redirect_tip: 'Jump to the authentication source page for authentication',
     tag_tip: "Enter Enter to Add Label",
     node_name_tip: "The name cannot contain'\\'",
+    more_operator: "More operator",
     table: {
       select_tip: "Item {0} data is selected"
     },

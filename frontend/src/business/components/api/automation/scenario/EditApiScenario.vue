@@ -619,7 +619,10 @@
         }
       },
       canExecWithOutEnv(type, path) {
-        return type !== ELEMENT_TYPE.HTTPSamplerProxy ? !this.checkCanExec(type) : this.isHTTPFullPath(path);
+        if (type === ELEMENT_TYPE.HTTPSamplerProxy) {
+          return this.isHTTPFullPath(path);
+        }
+        return type === ELEMENT_TYPE.JSR223Processor ? true : !this.checkCanExec(type);
       },
       isHTTPFullPath(path) {
         return path ? path.startsWith("http://") || path.startsWith("https://") : false;
