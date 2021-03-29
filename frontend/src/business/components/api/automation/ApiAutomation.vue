@@ -127,7 +127,6 @@
       '$route'(to, from) {  //  路由改变时，把接口定义界面中的 ctrl s 保存快捷键监听移除
         if (to.path.indexOf('/api/automation') == -1) {
           if (this.$refs && this.$refs.autoScenarioConfig) {
-            // console.log(this.$refs.autoScenarioConfig);
             this.$refs.autoScenarioConfig.forEach(item => {
               item.removeListener();
             });
@@ -189,7 +188,15 @@
           let label = this.$t('api_test.automation.add_scenario');
           let name = getUUID().substring(0, 8);
           this.activeName = name;
-          this.tabs.push({label: label, name: name, currentScenario: {apiScenarioModuleId: "root", id: getUUID()}});
+          let currentScenario = {
+            apiScenarioModuleId: "root", id: getUUID(),
+            modulePath: "/" + this.$t("commons.module_title")
+          };
+          if (this.nodeTree && this.nodeTree.length > 0) {
+            currentScenario.apiScenarioModuleId = this.nodeTree[0].id;
+            currentScenario.modulePath = this.nodeTree[0].path;
+          }
+          this.tabs.push({label: label, name: name, currentScenario: currentScenario});
         }
         if (tab.name === 'edit') {
           let label = this.$t('api_test.automation.add_scenario');

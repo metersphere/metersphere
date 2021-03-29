@@ -415,6 +415,10 @@ export default {
         };
       });
     }, 1000);
+    if(this.selectNode && this.selectNode.data){
+      this.form.module = this.selectNode.data.id;
+      this.form.nodePath = this.selectNode.data.path;
+    }
   },
   watch: {
     treeNodes() {
@@ -738,7 +742,6 @@ export default {
               }*/
               this.tableType='edit';
               this.$emit("refresh",this.form);
-              console.log(response.data)
               this.form.id=response.data
               if (this.type === 'add' || this.type === 'copy') {
                 param.id = response.data;
