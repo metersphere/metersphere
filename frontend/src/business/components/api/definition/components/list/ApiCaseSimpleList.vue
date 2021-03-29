@@ -353,7 +353,10 @@ export default {
             }
           })
           if (this.$refs.caseTable) {
-            setTimeout(this.$refs.caseTable.doLayout, 200)
+            setTimeout(() => {
+              this.$refs.caseTable.doLayout();
+              this.result.loading = false;
+            }, 500)
           }
           this.$nextTick(function(){
             this.checkTableRowIsSelect();

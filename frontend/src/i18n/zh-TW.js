@@ -146,6 +146,7 @@ export default {
     auth_redirect_tip: '即將跳轉到認證源頁面進行認證',
     tag_tip: "輸入回車添加標簽",
     node_name_tip: "名稱不能包含'\\'",
+    more_operator: "更多操作",
     table: {
       select_tip: "已选中 {0} 条数据"
     },
