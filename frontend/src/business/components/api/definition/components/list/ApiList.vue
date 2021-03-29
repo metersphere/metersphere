@@ -235,7 +235,7 @@
   import {
     _handleSelect,
     _handleSelectAll, buildBatchParam, getLabel,
-    getSelectDataCounts, getSystemLabel, initCondition,
+    getSelectDataCounts, initCondition,
     setUnSelectIds, toggleAllSelection
   } from "@/common/js/tableUtils";
   import {_filter, _sort} from "@/common/js/tableUtils";
@@ -380,7 +380,6 @@
       } else {
         this.condition.filters = {status: ["Prepare", "Underway", "Completed"]};
       }
-      this.getSystemLabel(this.type)
       this.initTable();
       this.getMaintainerOptions();
     },
@@ -405,15 +404,6 @@
       }
     },
     methods: {
-      getSystemLabel(type) {
-        let param = {}
-        param.type = type
-        this.$post('/system/system/header', param, response => {
-          if (response.data != null) {
-            this.tableLabel = eval(response.data.props);
-          }
-        })
-      },
       customHeader() {
         this.$refs.headerCustom.open(this.tableLabel)
       },
