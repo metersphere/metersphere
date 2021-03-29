@@ -27,7 +27,7 @@
       </template>
 
       <template v-slot:button>
-        <el-button @click="runDebug" :tip="$t('api_test.run')" icon="el-icon-video-play" style="background-color: #409EFF;color: white;" size="mini" circle/>
+        <el-button @click="runDebug" :tip="$t('api_test.run')" icon="el-icon-video-play"  style="background-color: #409EFF;color: white;padding: 5px" size="mini" circle/>
       </template>
       <div v-if="controller.loopType==='LOOP_COUNT'" draggable>
         <el-row>
@@ -246,6 +246,9 @@
       },
       active(item) {
         item.active = !item.active;
+        if (this.node) {
+          this.node.expanded = item.active;
+        }
         this.reload();
       },
       changeRadio() {

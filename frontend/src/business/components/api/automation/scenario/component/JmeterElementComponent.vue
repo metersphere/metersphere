@@ -61,6 +61,9 @@
       },
       active() {
         this.request.active = !this.request.active;
+        if (this.node) {
+          this.node.expanded = this.request.active;
+        }
       },
     }
   }

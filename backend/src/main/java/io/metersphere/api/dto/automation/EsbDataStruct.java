@@ -29,6 +29,7 @@ public class EsbDataStruct {
     private boolean required;
     private String description;
     private List<EsbDataStruct> children;
+    private String status = "";
 
     public void init(){
         this.uuid = UUID.randomUUID().toString();
@@ -127,6 +128,9 @@ public class EsbDataStruct {
 
         if (element != null) {
             if (this.children == null || this.children.isEmpty()) {
+                if(this.value == null ){
+                    this.value = "";
+                }
                 element.addText(this.value);
             } else {
                 for (EsbDataStruct child : children) {
