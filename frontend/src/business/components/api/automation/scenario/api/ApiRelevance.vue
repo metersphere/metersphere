@@ -101,25 +101,25 @@ export default {
 
             let requestObj = JSON.parse(item.request);
             if(requestObj.esbDataStruct != null ){
-              //ESB接口
-              let param = {};
-              param.request = requestObj;
-              param.method = "ESB";
-              param.esbDataStruct = JSON.stringify(requestObj.esbDataStruct);
-              if(requestObj.backEsbDataStruct != null){
-                param.backEsbDataStruct = JSON.stringify(requestObj.backEsbDataStruct);
-              }else{
-                param.backEsbDataStruct = "";
-              }
+              // //ESB接口
+              // let param = {};
+              // param.request = requestObj;
+              // param.method = "ESB";
+              // param.esbDataStruct = JSON.stringify(requestObj.esbDataStruct);
+              // if(requestObj.backEsbDataStruct != null){
+              //   param.backEsbDataStruct = JSON.stringify(requestObj.backEsbDataStruct);
+              // }else{
+              //   param.backEsbDataStruct = "";
+              // }
 
-              this.$post("/api/definition/updateEsbRequest", param, response => {
-                if(response.data!=null){
-                  if(response.data.request!=null){
-                    item.request = JSON.stringify(response.data.request);
-                    param.method = "TCP";
-                  }
-                }
-              })
+              // this.$post("/api/definition/updateEsbRequest", param, response => {
+              //   if(response.data!=null){
+              //     if(response.data.request!=null){
+              //       item.request = JSON.stringify(response.data.request);
+              //       param.method = "TCP";
+              //     }
+              //   }
+              // })
             }
           });
           this.$emit('save', apiCases, 'CASE', reference);

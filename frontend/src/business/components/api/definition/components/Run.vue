@@ -68,8 +68,8 @@
 
         let projectId = "";
         // 如果envMap不存在，是单接口调用
-        if (!this.envMap) {
-          projectId = getCurrentProjectID();
+        if (!this.envMap || this.envMap.size === 0) {
+          projectId = this.$store.state.projectId;
         } else {
           // 场景步骤下接口调用
           projectId = this.runData.projectId;

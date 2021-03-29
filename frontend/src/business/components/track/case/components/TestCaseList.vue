@@ -161,7 +161,7 @@ import {
   _handleSelect,
   _handleSelectAll,
   _sort, buildBatchParam, getLabel,
-  getSelectDataCounts, getSystemLabel, initCondition,
+  getSelectDataCounts, initCondition,
   setUnSelectIds,
   toggleAllSelection
 } from "@/common/js/tableUtils";
