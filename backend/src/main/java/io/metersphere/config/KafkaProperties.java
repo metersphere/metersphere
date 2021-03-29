@@ -10,7 +10,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties;
 public class KafkaProperties {
     public static final String KAFKA_PREFIX = "kafka";
 
-    private String acks = "all";
+    private String acks = "0"; // 不要设置all
     private String topic;
     private String fields;
     private String timestamp;

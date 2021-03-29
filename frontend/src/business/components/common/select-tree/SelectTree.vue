@@ -152,10 +152,13 @@
         return JSON.stringify(this.data).indexOf(this.obj.children) !== -1 ? this.data : this.switchTree();
       },
     },
+    mounted() {
+      this.init();
+    },
     methods: {
       outsideClick(e) {
         e.stopPropagation();
-        this.isShowSelect=false;
+        this.isShowSelect = false;
       },
       init() {
         if (this.defaultKey != undefined && this.defaultKey.length > 0) {
@@ -340,10 +343,13 @@
         // 隐藏select自带的下拉框
         this.$refs.select.blur();
       },
-      treeData() {//监听tree数据
-        this.$nextTick(() => {
-          this.init();
-        })
+      treeData: {//监听tree数据
+        handler: function () {
+          this.$nextTick(() => {
+            this.init();
+          })
+        },
+        deep: true
       },
       filterText(val) {
         this.$nextTick(() => {

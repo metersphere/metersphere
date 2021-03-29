@@ -296,7 +296,7 @@
         }
         let api = {
           status: "Underway", method: "GET", userId: getCurrentUser().id,
-          url: "", protocol: this.currentProtocol, environmentId: ""
+          url: "", protocol: this.currentProtocol, environmentId: "", moduleId: 'root',
         };
         this.handleTabsEdit(this.$t('api_test.definition.request.title'), e, api);
       },
