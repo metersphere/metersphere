@@ -35,20 +35,8 @@
 
             <el-col :span="7">
               <el-form-item :label="$t('test_track.case.module')" :label-width="formLabelWidth" prop="module">
-                <el-select
-                  v-model="form.module"
-                  :disabled="readOnly"
-                  :placeholder="$t('test_track.case.input_module')"
-                  filterable
-                  class="ms-case-input">
-                  <el-option
-                    v-for="item in moduleOptions"
-                    :key="item.id"
-                    :label="item.path"
-                    :value="item.id"
-                  >
-                  </el-option>
-                </el-select>
+                <ms-select-tree :disabled="readOnly" :data="moduleOptions" :defaultKey="form.module" :obj="moduleObj"
+                                @getValue="setModule" clearable checkStrictly size="small" />
               </el-form-item>
             </el-col>
             <el-col :span="7">
@@ -292,7 +280,7 @@ import MsDialogFooter from '../../../common/components/MsDialogFooter'
 import {getCurrentUser, handleCtrlSEvent, listenGoBack, removeGoBackListener} from "@/common/js/utils";
 import {Message} from "element-ui";
 import TestCaseAttachment from "@/business/components/track/case/components/TestCaseAttachment";
-import {buildNodePath} from "../../../api/definition/model/NodeTree";
+import {buildNodePath,buildTree} from "../../../api/definition/model/NodeTree";
 import CaseComment from "@/business/components/track/case/components/CaseComment";
 import MsInputTag from "@/business/components/api/automation/scenario/MsInputTag";
 import MsPreviousNextButton from "../../../common/components/MsPreviousNextButton";
@@ -301,12 +289,13 @@ import TestCaseComment from "@/business/components/track/case/components/TestCas
 import ReviewCommentItem from "@/business/components/track/review/commom/ReviewCommentItem";
 import {API_STATUS, REVIEW_STATUS, TEST} from "@/business/components/api/definition/model/JsonData";
 import MsTableButton from "@/business/components/common/components/MsTableButton";
+import MsSelectTree from "../../../common/select-tree/SelectTree";
 
 export default {
   name: "TestCaseEdit",
   components: {
     MsTableButton,
-
+    MsSelectTree,
     ReviewCommentItem,
     TestCaseComment, MsPreviousNextButton, MsInputTag, CaseComment, MsDialogFooter, TestCaseAttachment
   },
@@ -325,7 +314,8 @@ export default {
       dialogFormVisible: false,
       form: {
         name: '',
-        module: '',
+        module: 'root',
+        nodePath:'',
         maintainer: getCurrentUser().id,
         priority: 'P0',
         type: '',
@@ -381,6 +371,10 @@ export default {
       index: 0,
       showInputTag: true,
       tableType:"",
+      moduleObj: {
+        id: 'id',
+        label: 'name',
+      },
     };
   },
   props: {
@@ -435,6 +429,10 @@ export default {
     this.addListener(); //  添加 ctrl s 监听
   },
   methods: {
+    setModule(id,data) {
+      this.form.module = id;
+      this.form.nodePath = data.path;
+    },
     clearInput() {
       //this.$refs['cascade'].panel.clearCheckedNodes()
     },
@@ -761,11 +759,6 @@ export default {
       Object.assign(param, this.form);
       param.steps = JSON.stringify(this.form.steps);
       param.nodeId = this.form.module;
-      this.moduleOptions.forEach(item => {
-        if (this.form.module === item.id) {
-          param.nodePath = item.path;
-        }
-      });
       if (this.projectId) {
         param.projectId = this.projectId;
       }
@@ -838,11 +831,16 @@ export default {
       this.getTestOptions()
     },
     getModuleOptions() {
-      let moduleOptions = [];
-      this.treeNodes.forEach(node => {
-        buildNodePath(node, {path: ''}, moduleOptions);
+      this.moduleOptions = [];
+      this.moduleOptions.unshift({
+        "id": "root",
+        "name": this.$t('commons.module_title'),
+        "level": 0,
+        "children": this.treeNodes,
       });
-      this.moduleOptions = moduleOptions;
+      this.moduleOptions.forEach(node => {
+        buildTree(node, {path: ''});
+      });
     },
     getMaintainerOptions() {
       let workspaceId = localStorage.getItem(WORKSPACE_ID);

@@ -281,7 +281,7 @@
         let data = this.api;
         data.name = this.apiCase.name;
         data.moduleId = module;
-        data.modulePath = '/默认模块';
+        data.modulePath ="/"+ this.$t('commons.module_title');
         this.setParameters(data);
         let bodyFiles = this.getBodyUploadFiles(data);
         this.$fileUpload("/api/definition/create", null, bodyFiles, data, () => {

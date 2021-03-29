@@ -5,6 +5,7 @@ export default {
     pass_rate: '通過率',
     execution_times: '執行次數',
     cover: '覆蓋',
+    module_title: '默認模塊',
     not_cover: '不覆蓋',
     import: '導入',
     import_success: '導入成功',

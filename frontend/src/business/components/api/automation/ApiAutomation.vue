@@ -189,7 +189,7 @@
           let label = this.$t('api_test.automation.add_scenario');
           let name = getUUID().substring(0, 8);
           this.activeName = name;
-          this.tabs.push({label: label, name: name, currentScenario: {apiScenarioModuleId: "", id: getUUID()}});
+          this.tabs.push({label: label, name: name, currentScenario: {apiScenarioModuleId: "root", id: getUUID()}});
         }
         if (tab.name === 'edit') {
           let label = this.$t('api_test.automation.add_scenario');
