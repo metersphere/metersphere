@@ -129,6 +129,11 @@ public class MsHTTPSamplerProxy extends MsTestElement {
             config.setConfig(getEnvironmentConfig(useEnvironment));
         }
 
+        // 1.8 之前历史数据
+        if(StringUtils.isEmpty(this.getProjectId()) && config.getConfig()!= null && !config.getConfig().isEmpty()){
+            this.setProjectId("historyProjectID");
+        }
+
         // 添加环境中的公共变量
         Arguments arguments = this.addArguments(config);
         if (arguments != null) {
