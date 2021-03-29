@@ -155,7 +155,7 @@ export default {
   width: 100%;
   background: white;
   height: 100vh;
-  z-index: 999999;
+  z-index: 2;
 }
 
 .full-screen >>> .minder-container {
