@@ -22,9 +22,7 @@
             </el-col>
             <el-col :span="7">
               <el-form-item :label="$t('test_track.module.module')" prop="apiScenarioModuleId">
-                <el-select class="ms-scenario-input" size="small" v-model="currentScenario.apiScenarioModuleId">
-                  <el-option v-for="item in moduleOptions" :key="item.id" :label="item.path" :value="item.id"/>
-                </el-select>
+                <ms-select-tree size="small" :data="moduleOptions" :defaultKey="currentScenario.apiScenarioModuleId" @getValue="setModule" :obj="moduleObj" clearable checkStrictly/>
               </el-form-item>
             </el-col>
             <el-col :span="7">
@@ -244,6 +242,7 @@
   import MaximizeScenario from "./maximize/MaximizeScenario";
   import ScenarioHeader from "./maximize/ScenarioHeader";
   import MsDrawer from "../../../common/components/MsDrawer";
+  import MsSelectTree from "../../../common/select-tree/SelectTree";
 
   let jsonPath = require('jsonpath');
   export default {
@@ -266,13 +265,18 @@
       EnvPopover,
       MaximizeScenario,
       ScenarioHeader,
-      MsDrawer
+      MsDrawer,
+      MsSelectTree
     },
     data() {
       return {
         props: {
           label: "label",
           children: "hashTree"
+        },
+        moduleObj: {
+          id: 'id',
+          label: 'name',
         },
         rules: {
           name: [
@@ -450,6 +454,10 @@
       },
     },
     methods: {
+      setModule(id,data) {
+        this.currentScenario.apiScenarioModuleId = id;
+        this.currentScenario.modulePath = data.path;
+      },
       setHideBtn() {
         this.isBtnHide = false;
       },
@@ -905,15 +913,6 @@
           this.expandedNode.splice(this.expandedNode.indexOf(data.resourceId), 1);
         }
       },
-      getPath(id) {
-        if (id === null) {
-          return null;
-        }
-        let path = this.moduleOptions.filter(function (item) {
-          return item.id === id ? item.path : "";
-        });
-        return path[0].path;
-      },
       setFiles(item, bodyUploadFiles, obj) {
         if (item.body) {
           if (item.body.kvs) {
@@ -1071,7 +1070,6 @@
       setParameter() {
         this.currentScenario.stepTotal = this.scenarioDefinition.length;
         this.currentScenario.projectId = this.projectId;
-        this.currentScenario.modulePath = this.getPath(this.currentScenario.apiScenarioModuleId);
         // 构建一个场景对象 方便引用处理
         let scenario = {
           id: this.currentScenario.id,

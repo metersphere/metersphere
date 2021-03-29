@@ -7,7 +7,6 @@
       v-loading="result.loading"
       :tree-nodes="data"
       :type="isReadOnly ? 'view' : 'edit'"
-      :allLabel="'默认模块'"
       @add="add"
       @edit="edit"
       @drag="drag"
@@ -135,7 +134,7 @@
             this.extendTreeNodes = [];
             this.extendTreeNodes.unshift({
               "id": "root",
-              "name": "默认模块",
+              "name": this.$t('commons.module_title'),
               "level": 0,
               "children": this.data,
             });

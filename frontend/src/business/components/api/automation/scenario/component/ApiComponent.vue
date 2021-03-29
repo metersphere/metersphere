@@ -23,7 +23,7 @@
 
       <template v-slot:button>
         <el-tooltip :content="$t('api_test.run')" placement="top">
-          <el-button @click="run" icon="el-icon-video-play" class="ms-btn" size="mini" circle/>
+          <el-button @click="run" icon="el-icon-video-play" style="padding: 5px" class="ms-btn" size="mini" circle/>
         </el-tooltip>
       </template>
 
@@ -289,6 +289,9 @@
       },
       active(item) {
         this.request.active = !this.request.active;
+        if (this.node) {
+          this.node.expanded = this.request.active;
+        }
         this.reload();
       },
       run() {

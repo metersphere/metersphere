@@ -236,7 +236,9 @@
       setKey(thisKey) {
         this.$refs.tree.setCurrentKey(thisKey);
         let node = this.$refs.tree.getNode(thisKey);
-        this.setData(node.data);
+        if (node && node.data) {
+          this.setData(node.data);
+        }
       },
       //单选：设置、初始化对象
       setData(data) {
@@ -287,7 +289,7 @@
       },
       //下拉框关闭执行
       popoverHide() {
-        this.$emit('getValue', this.returnDataKeys, this.returnDatas);
+        this.$emit('getValue', this.returnDataKeys, this.returnDatas ? this.returnDatas : {});
       },
       // 多选，清空所有勾选
       clearSelectedNodes() {
