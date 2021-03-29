@@ -517,7 +517,7 @@ public class ApiDefinitionService {
     }
 
     public void addResult(TestResult res) {
-        if (!res.getScenarios().isEmpty() && !res.getScenarios().get(0).getRequestResults().isEmpty()) {
+        if (res != null && CollectionUtils.isNotEmpty(res.getScenarios()) && res.getScenarios().get(0) != null && CollectionUtils.isNotEmpty(res.getScenarios().get(0).getRequestResults())) {
             RequestResult result = res.getScenarios().get(0).getRequestResults().get(0);
             if (result.getName().indexOf("<->") != -1) {
                 result.setName(result.getName().substring(0, result.getName().indexOf("<->")));
