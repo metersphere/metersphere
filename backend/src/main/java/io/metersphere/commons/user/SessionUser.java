@@ -1,6 +1,7 @@
 package io.metersphere.commons.user;
 
 import io.metersphere.commons.utils.CodingUtil;
+import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.dto.UserDTO;
 import lombok.Getter;
 import lombok.Setter;
@@ -28,7 +29,7 @@ public class SessionUser extends UserDTO implements Serializable {
         SessionUser sessionUser = new SessionUser();
         BeanUtils.copyProperties(user, sessionUser);
 
-        List<String> infos = Arrays.asList(user.getId(), RandomStringUtils.random(6), "" + System.currentTimeMillis());
+        List<String> infos = Arrays.asList(user.getId(), RandomStringUtils.randomAlphabetic(6), SessionUtils.getSessionId(), "" + System.currentTimeMillis());
         sessionUser.csrfToken = CodingUtil.aesEncrypt(StringUtils.join(infos, "|"), secret, iv);
         return sessionUser;
     }

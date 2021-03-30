@@ -58,14 +58,16 @@ public class MsDefinitionParser extends MsAbstractParser<ApiDefinitionImport> {
     private ApiDefinitionImport parseMsFormat(String testStr, ApiTestImportRequest importRequest) {
         ApiDefinitionImport apiDefinitionImport = JSON.parseObject(testStr, ApiDefinitionImport.class);
         Map<String, List<ApiTestCaseWithBLOBs>> caseMap = new HashMap<>();
-        apiDefinitionImport.getCases().forEach(item -> {
-            List<ApiTestCaseWithBLOBs> caseList = caseMap.get(item.getApiDefinitionId());
-            if (caseList == null) {
-                caseList = new ArrayList<>();
-                caseMap.put(item.getApiDefinitionId(), caseList);
-            }
-            caseList.add(item);
-        });
+        if (apiDefinitionImport.getCases() != null) {
+            apiDefinitionImport.getCases().forEach(item -> {
+                List<ApiTestCaseWithBLOBs> caseList = caseMap.get(item.getApiDefinitionId());
+                if (caseList == null) {
+                    caseList = new ArrayList<>();
+                    caseMap.put(item.getApiDefinitionId(), caseList);
+                }
+                caseList.add(item);
+            });
+        }
         apiDefinitionImport.getData().forEach(apiDefinition -> {
             parseApiDefinition(apiDefinition, importRequest, caseMap);
         });

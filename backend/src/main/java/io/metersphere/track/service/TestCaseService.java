@@ -19,7 +19,6 @@ import io.metersphere.excel.domain.ExcelErrData;
 import io.metersphere.excel.domain.ExcelResponse;
 import io.metersphere.excel.domain.TestCaseExcelData;
 import io.metersphere.excel.domain.TestCaseExcelDataFactory;
-import io.metersphere.excel.listener.EasyExcelListener;
 import io.metersphere.excel.listener.TestCaseDataListener;
 import io.metersphere.excel.utils.EasyExcelExporter;
 import io.metersphere.i18n.Translator;
@@ -126,11 +125,26 @@ public class TestCaseService {
 
         // 全部字段值相同才判断为用例存在
         if (testCase != null) {
+
+            /*
+            例如对于“/模块5”，用户的输入可能为“模块5”或者“/模块5/”或者“模块5/”。
+            不这样处理的话，下面进行判断时就会用用户输入的错误格式进行判断，而模块名为“/模块5”、
+            “模块5”、“/模块5/”、“模块5/”时，它们应该被认为是同一个模块。
+            数据库存储的node_path都是“/模块5”这种格式的
+             */
+            String nodePath = testCase.getNodePath();
+            if (!nodePath.startsWith("/")) {
+                nodePath = "/" + nodePath;
+            }
+            if (nodePath.endsWith("/")) {
+                nodePath = nodePath.substring(0, nodePath.length() - 1);
+            }
+
             TestCaseExample example = new TestCaseExample();
             TestCaseExample.Criteria criteria = example.createCriteria();
             criteria.andNameEqualTo(testCase.getName())
                     .andProjectIdEqualTo(testCase.getProjectId())
-                    .andNodePathEqualTo(testCase.getNodePath())
+                    .andNodePathEqualTo(nodePath)
                     .andTypeEqualTo(testCase.getType())
                     .andMaintainerEqualTo(testCase.getMaintainer())
                     .andPriorityEqualTo(testCase.getPriority());
@@ -165,13 +179,33 @@ public class TestCaseService {
                     String steps = tc.getSteps();
                     String remark = tc.getRemark();
                     if (StringUtils.equals(steps, testCase.getSteps()) && StringUtils.equals(remark, caseRemark)) {
-                         MSException.throwException(Translator.get("test_case_already_exists"));
+                         //MSException.throwException(Translator.get("test_case_already_exists"));
                         isExt = true;
                     }
                 }
             }
             if (isExt) {
                 return caseList.get(0);
+            }
+        }
+        return null;
+    }
+
+    /**
+     * 根据id和pojectId查询id是否在数据库中存在。
+     * 在数据库中单id的话是可重复的,id与projectId的组合是唯一的
+     */
+    public Integer checkIdExist(Integer id, String projectId){
+        TestCaseExample example = new TestCaseExample();
+        TestCaseExample.Criteria criteria = example.createCriteria();
+        if (null != id) {
+            criteria.andNumEqualTo(id);
+            criteria.andProjectIdEqualTo(projectId);
+            long count = testCaseMapper.countByExample(example);    //查询是否有包含此ID的数据
+            if(count == 0){  //如果ID不存在
+                return null;
+            }else { //有对应ID的数据
+                return id;
             }
         }
         return null;
@@ -286,6 +320,7 @@ public class TestCaseService {
     public ExcelResponse testCaseImport(MultipartFile multipartFile, String projectId, String userId) {
 
         ExcelResponse excelResponse = new ExcelResponse();
+        boolean isUpdated = false;  //判断是否更新了用例
         String currentWorkspaceId = SessionUtils.getCurrentWorkspaceId();
         QueryTestCaseRequest queryTestCaseRequest = new QueryTestCaseRequest();
         queryTestCaseRequest.setProjectId(projectId);
@@ -338,10 +373,15 @@ public class TestCaseService {
             Set<String> userIds = userRoleMapper.selectByExample(userRoleExample).stream().map(UserRole::getUserId).collect(Collectors.toSet());
 
             try {
+                //根据本地语言环境选择用哪种数据对象进行存放读取的数据
                 Class clazz = new TestCaseExcelDataFactory().getExcelDataByLocal();
-                EasyExcelListener easyExcelListener = new TestCaseDataListener(clazz, projectId, testCaseNames, userIds);
+
+                TestCaseDataListener easyExcelListener = new TestCaseDataListener(clazz, projectId, testCaseNames, userIds);
+                //读取excel数据
                 EasyExcelFactory.read(multipartFile.getInputStream(), clazz, easyExcelListener).sheet().doRead();
+
                 errList = easyExcelListener.getErrList();
+                isUpdated = easyExcelListener.isUpdated();
             } catch (Exception e) {
                 LogUtil.error(e.getMessage(), e);
                 MSException.throwException(e.getMessage());
@@ -352,6 +392,7 @@ public class TestCaseService {
         if (!errList.isEmpty()) {
             excelResponse.setSuccess(false);
             excelResponse.setErrList(errList);
+            excelResponse.setIsUpdated(isUpdated);
         } else {
             excelResponse.setSuccess(true);
         }
@@ -374,7 +415,7 @@ public class TestCaseService {
                 testcase.setSort(sort.getAndIncrement());
                 testcase.setNum(num.decrementAndGet());
                 testcase.setReviewStatus(TestCaseReviewStatus.Prepare.name());
-                mapper.insert(testcase);
+                    mapper.insert(testcase);
             });
         }
         sqlSession.flushStatements();
@@ -394,6 +435,43 @@ public class TestCaseService {
                 testcase.setSort(sort.getAndIncrement());
                 testcase.setNum(num.decrementAndGet());
                 testcase.setReviewStatus(TestCaseReviewStatus.Prepare.name());
+                mapper.updateByPrimaryKeySelective(testcase);
+            });
+        }
+        sqlSession.flushStatements();
+    }
+
+    /**
+     * 把Excel中带ID的数据更新到数据库
+     * @param testCases
+     * @param projectId
+     */
+    public void updateImportDataCarryId(List<TestCaseWithBLOBs> testCases, String projectId) {
+        Map<String, String> nodePathMap = testCaseNodeService.createNodeByTestCases(testCases, projectId);
+        SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+        TestCaseMapper mapper = sqlSession.getMapper(TestCaseMapper.class);
+
+        /*
+        获取用例的“网页上所显示id”与“数据库ID”映射。
+         */
+        List<Integer> nums = testCases.stream()
+                .map(TestCase::getNum)
+                .collect(Collectors.toList());
+        TestCaseExample example = new TestCaseExample();
+        example.createCriteria().andNumIn(nums)
+                .andProjectIdEqualTo(projectId);
+        List<TestCase> testCasesList = testCaseMapper.selectByExample(example);
+        Map<Integer, String> numIdMap = testCasesList.stream()
+                .collect(Collectors.toMap(TestCase::getNum, TestCase::getId));
+
+
+        if (!testCases.isEmpty()) {
+            AtomicInteger sort = new AtomicInteger();
+            testCases.forEach(testcase -> {
+                testcase.setUpdateTime(System.currentTimeMillis());
+                testcase.setNodeId(nodePathMap.get(testcase.getNodePath()));
+                testcase.setSort(sort.getAndIncrement());
+                testcase.setId(numIdMap.get(testcase.getNum()));
                 mapper.updateByPrimaryKeySelective(testcase);
             });
         }
@@ -510,6 +588,7 @@ public class TestCaseService {
         StringBuilder result = new StringBuilder("");
         TestCaseList.forEach(t -> {
             TestCaseExcelData data = new TestCaseExcelData();
+            data.setNum(t.getNum());
             data.setName(t.getName());
             data.setNodePath(t.getNodePath());
             data.setPriority(t.getPriority());
@@ -533,12 +612,15 @@ public class TestCaseService {
                     }
                 }
 
-                for (int j = 0; j < jsonArray.size(); j++) {
-                    int num = j + 1;
-                    step.append(num + "." + jsonArray.getJSONObject(j).getString("desc") + "\r\n");
-                    result.append(num + "." + jsonArray.getJSONObject(j).getString("result") + "\r\n");
+                if (CollectionUtils.isNotEmpty(jsonArray)) {
+                    for (int j = 0; j < jsonArray.size(); j++) {
+                        int num = j + 1;
+                        step.append(num + "." + jsonArray.getJSONObject(j).getString("desc") + "\r\n");
+                        result.append(num + "." + jsonArray.getJSONObject(j).getString("result") + "\r\n");
 
+                    }
                 }
+
                 data.setStepDesc(step.toString());
                 data.setStepResult(result.toString());
                 step.setLength(0);

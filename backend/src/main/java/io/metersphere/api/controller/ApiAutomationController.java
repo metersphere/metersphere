@@ -74,9 +74,19 @@ public class ApiAutomationController {
         apiAutomationService.deleteBatch(ids);
     }
 
+    @PostMapping("/deleteBatchByCondition")
+    public void deleteBatchByCondition(@RequestBody ApiScenarioBatchRequest request) {
+        apiAutomationService.deleteBatchByCondition(request);
+    }
+
     @PostMapping("/removeToGc")
     public void removeToGc(@RequestBody List<String> ids) {
         apiAutomationService.removeToGc(ids);
+    }
+
+    @PostMapping("/removeToGcByBatch")
+    public void removeToGcByBatch(@RequestBody ApiScenarioBatchRequest request) {
+        apiAutomationService.removeToGcByBatch(request);
     }
 
     @PostMapping("/reduction")

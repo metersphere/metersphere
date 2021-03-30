@@ -50,39 +50,41 @@
         </div>
       </ms-aside-container>
 
-      <ms-main-container v-if="!loading">
-        <!-- 第一层当前节点内容-->
-        <ms-component-config
-          :isMax="false"
-          :showBtn="false"
-          :type="selectedTreeNode.type"
-          :scenario="selectedTreeNode"
-          :response="response"
-          :currentScenario="currentScenario"
-          :currentEnvironmentId="currentEnvironmentId"
-          :node="selectedNode"
-          :project-list="projectList"
-          :env-map="projectEnvMap"
-          :draggable="false"
-          @remove="remove" @copyRow="copyRow" @suggestClick="suggestClick" @refReload="refReload" @openScenario="openScenario"
-          v-if="selectedTreeNode && selectedNode"/>
-        <!-- 请求下还有的子步骤-->
-        <div v-if="selectedTreeNode && selectedTreeNode.hashTree && showNode(selectedTreeNode)">
-          <div v-for="item in selectedTreeNode.hashTree" :key="item.id" class="ms-col-one">
-            <ms-component-config
-              :showBtn="false"
-              :isMax="false"
-              :type="item.type"
-              :scenario="item"
-              :response="response"
-              :currentScenario="currentScenario"
-              :currentEnvironmentId="currentEnvironmentId"
-              :project-list="projectList"
-              :env-map="projectEnvMap"
-              :draggable="false"
-              @remove="remove" @copyRow="copyRow" @suggestClick="suggestClick"
-              @refReload="refReload" @openScenario="openScenario"
-              v-if="selectedTreeNode && selectedNode"/>
+      <ms-main-container v-loading="loading">
+        <div v-if="!loading">
+          <!-- 第一层当前节点内容-->
+          <ms-component-config
+            :isMax="false"
+            :showBtn="false"
+            :type="selectedTreeNode.type"
+            :scenario="selectedTreeNode"
+            :response="response"
+            :currentScenario="currentScenario"
+            :currentEnvironmentId="currentEnvironmentId"
+            :node="selectedNode"
+            :project-list="projectList"
+            :env-map="projectEnvMap"
+            :draggable="false"
+            @remove="remove" @copyRow="copyRow" @suggestClick="suggestClick" @refReload="refReload" @openScenario="openScenario"
+            v-if="selectedTreeNode && selectedNode"/>
+          <!-- 请求下还有的子步骤-->
+          <div v-if="selectedTreeNode && selectedTreeNode.hashTree && showNode(selectedTreeNode)">
+            <div v-for="item in selectedTreeNode.hashTree" :key="item.id" class="ms-col-one">
+              <ms-component-config
+                :showBtn="false"
+                :isMax="false"
+                :type="item.type"
+                :scenario="item"
+                :response="response"
+                :currentScenario="currentScenario"
+                :currentEnvironmentId="currentEnvironmentId"
+                :project-list="projectList"
+                :env-map="projectEnvMap"
+                :draggable="false"
+                @remove="remove" @copyRow="copyRow" @suggestClick="suggestClick"
+                @refReload="refReload" @openScenario="openScenario"
+                v-if="selectedTreeNode && selectedNode"/>
+            </div>
           </div>
         </div>
       </ms-main-container>
@@ -474,6 +476,7 @@
         }
         this.selectedTreeNode = data;
         this.selectedNode = node;
+        this.reload();
       },
       suggestClick(node) {
         this.response = {};
@@ -493,7 +496,7 @@
       recursiveSorting(arr, scenarioProjectId) {
         for (let i in arr) {
           arr[i].index = Number(i) + 1;
-          if (arr[i].type === ELEMENT_TYPE.LoopController && arr[i].hashTree && arr[i].hashTree.length > 1) {
+          if (arr[i].type === ELEMENT_TYPE.LoopController && arr[i].loopType === "LOOP_COUNT" && arr[i].hashTree && arr[i].hashTree.length > 1) {
             arr[i].countController.proceed = true;
           }
           if (!arr[i].projectId) {
@@ -521,6 +524,7 @@
           if (!this.scenarioDefinition[i].projectId) {
             this.scenarioDefinition[i].projectId = this.projectId;
           }
+
           if (this.scenarioDefinition[i].hashTree != undefined && this.scenarioDefinition[i].hashTree.length > 0) {
             this.recursiveSorting(this.scenarioDefinition[i].hashTree, this.scenarioDefinition[i].projectId);
           }

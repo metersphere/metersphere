@@ -14,6 +14,10 @@ import javax.validation.constraints.Pattern;
 @ColumnWidth(15)
 public class TestCaseExcelDataUs extends TestCaseExcelData {
 
+    @ExcelProperty("ID")
+    @NotRequired
+    private Integer num;
+
     @NotBlank(message = "{cannot_be_null}")
     @Length(max = 255)
     @ExcelProperty("Name")

@@ -235,7 +235,7 @@
   import {
     _handleSelect,
     _handleSelectAll, buildBatchParam, getLabel,
-    getSelectDataCounts, getSystemLabel, initCondition,
+    getSelectDataCounts, initCondition,
     setUnSelectIds, toggleAllSelection
   } from "@/common/js/tableUtils";
   import {_filter, _sort} from "@/common/js/tableUtils";
@@ -380,16 +380,16 @@
       } else {
         this.condition.filters = {status: ["Prepare", "Underway", "Completed"]};
       }
-      this.getSystemLabel(this.type)
       this.initTable();
       this.getMaintainerOptions();
-      getLabel(this, API_LIST);
     },
     watch: {
       selectNodeIds() {
+        initCondition(this.condition,false);
         this.initTable();
       },
       currentProtocol() {
+        initCondition(this.condition,false);
         this.initTable();
       },
       trashEnable() {
@@ -399,21 +399,12 @@
         } else {
           this.condition.filters = {status: ["Prepare", "Underway", "Completed"]};
         }
+        initCondition(this.condition,false);
         this.initTable();
       }
     },
     methods: {
-      getSystemLabel(type) {
-        let param = {}
-        param.type = type
-        this.$post('/system/system/header', param, response => {
-          if (response.data != null) {
-            this.tableLabel = eval(response.data.props);
-          }
-        })
-      },
       customHeader() {
-        getLabel(this, API_LIST);
         this.$refs.headerCustom.open(this.tableLabel)
       },
       handleBatchMove() {
@@ -421,7 +412,7 @@
       },
       initTable() {
         this.selectRows = new Set();
-        initCondition(this.condition);
+        initCondition(this.condition,this.condition.selectAll);
         this.selectDataCounts = 0;
         this.condition.moduleIds = this.selectNodeIds;
         this.condition.projectId = this.projectId;
@@ -464,12 +455,41 @@
               }
             })
             if (this.$refs.apiDefinitionTable) {
-              this.$refs.apiDefinitionTable.doLayout()
+              setTimeout(() => {
+                this.$refs.apiDefinitionTable.doLayout();
+                this.result.loading = false;
+              }, 500)
             }
-
+            // nexttick:表格加载完成之后触发。判断是否需要勾选行
+            this.$nextTick(function(){
+              this.checkTableRowIsSelect();
+            })
           });
         }
         getLabel(this, API_LIST);
+      },
+      checkTableRowIsSelect(){
+        //如果默认全选的话，则选中应该选中的行
+        if(this.condition.selectAll){
+          let unSelectIds = this.condition.unSelectIds;
+          this.tableData.forEach(row=>{
+            if(unSelectIds.indexOf(row.id)<0){
+              this.$refs.apiDefinitionTable.toggleRowSelection(row,true);
+
+              //默认全选，需要把选中对行添加到selectRows中。不然会影响到勾选函数统计
+              if (!this.selectRows.has(row)) {
+                this.$set(row, "showMore", true);
+                this.selectRows.add(row);
+              }
+            }else{
+              //不勾选的行，也要判断是否被加入了selectRow中。加入了的话就去除。
+              if (this.selectRows.has(row)) {
+                this.$set(row, "showMore", false);
+                this.selectRows.delete(row);
+              }
+            }
+          })
+        }
       },
       genProtocalFilter(protocalType) {
         if (protocalType === "HTTP") {
