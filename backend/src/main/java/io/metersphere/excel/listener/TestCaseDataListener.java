@@ -19,6 +19,7 @@ import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class TestCaseDataListener extends EasyExcelListener<TestCaseExcelData> {
 
@@ -151,6 +152,7 @@ public class TestCaseDataListener extends EasyExcelListener<TestCaseExcelData> {
                     .map(item -> this.convert2TestCase(item))
                     .collect(Collectors.toList());
             testCaseService.saveImportData(result, projectId);
+            this.isUpdated = true;
         }
 
         if (!(updateList.size() == 0)) {
@@ -180,9 +182,11 @@ public class TestCaseDataListener extends EasyExcelListener<TestCaseExcelData> {
         if (nodePath.endsWith("/")) {
             nodePath = nodePath.substring(0, nodePath.length() - 1);
         }
-
         testCase.setNodePath(nodePath);
 
+        //将标签设置为前端可解析的格式
+        String modifiedTags = modifyTagPattern(data);
+        testCase.setTags(modifiedTags);
 
         String steps = getSteps(data);
         testCase.setSteps(steps);
@@ -201,6 +205,7 @@ public class TestCaseDataListener extends EasyExcelListener<TestCaseExcelData> {
         testCase.setProjectId(this.projectId);
         testCase.setUpdateTime(System.currentTimeMillis());
 
+        //调整nodePath格式
         String nodePath = data.getNodePath();
         if (!nodePath.startsWith("/")) {
             nodePath = "/" + nodePath;
@@ -213,8 +218,31 @@ public class TestCaseDataListener extends EasyExcelListener<TestCaseExcelData> {
         String steps = getSteps(data);
         testCase.setSteps(steps);
 
+        //将标签设置为前端可解析的格式
+        String modifiedTags = modifyTagPattern(data);
+        testCase.setTags(modifiedTags);
+
         return testCase;
     }
+
+    /**
+     *  调整tags格式，便于前端进行解析。
+     *  例如对于：标签1，标签2。将调整为:["标签1","标签2"]。
+     */
+    public String modifyTagPattern(TestCaseExcelData data){
+        String tags = data.getTags();
+        if (tags != null) {
+            Stream<String> stringStream = Arrays.stream(tags.split("[,;，；]"));  //当标签值以中英文的逗号和分号分隔时才能正确解析
+            List<String> tagList = stringStream.map(tag -> tag = "\"" + tag + "\"")
+                    .collect(Collectors.toList());
+            String modifiedTags = StringUtils.join(tagList, ",");
+            modifiedTags = "[" + modifiedTags + "]";
+            return modifiedTags;
+        }else {
+            return null;
+        }
+    }
+
 
     public String getSteps(TestCaseExcelData data) {
         JSONArray jsonArray = new JSONArray();
