@@ -243,7 +243,7 @@ public class ApiAutomationService {
             scenario.setUserId(request.getUserId());
         }
         if (StringUtils.isEmpty(request.getApiScenarioModuleId()) || StringUtils.isEmpty(request.getModulePath())) {
-            scenario.setApiScenarioModuleId("root");
+            scenario.setApiScenarioModuleId("default-module");
             scenario.setModulePath("/默认模块");
         }
         return scenario;

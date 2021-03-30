@@ -264,7 +264,7 @@ public class ApiDefinitionService {
         test.setTags(request.getTags());
         if (StringUtils.isEmpty(request.getModulePath()) || StringUtils.isEmpty(request.getModuleId())) {
             test.setModulePath("/默认模块");
-            test.setModuleId("root");
+            test.setModuleId("default-module");
         }
         apiDefinitionMapper.updateByPrimaryKeySelective(test);
         return test;
@@ -292,7 +292,7 @@ public class ApiDefinitionService {
         test.setModuleId(request.getModuleId());
         if (StringUtils.isEmpty(request.getModulePath()) || StringUtils.isEmpty(request.getModuleId())) {
             test.setModulePath("/默认模块");
-            test.setModuleId("root");
+            test.setModuleId("default-module");
         }
         test.setResponse(JSONObject.toJSONString(request.getResponse()));
         test.setEnvironmentId(request.getEnvironmentId());
@@ -605,7 +605,7 @@ public class ApiDefinitionService {
         for (int i = 0; i < data.size(); i++) {
             ApiDefinitionWithBLOBs item = data.get(i);
             if (StringUtils.isEmpty(item.getModuleId()) || StringUtils.isEmpty(item.getModulePath())) {
-                item.setModuleId("root");
+                item.setModuleId("default-module");
                 item.setModulePath("/默认模块");
             }
             if (item.getName().length() > 255) {

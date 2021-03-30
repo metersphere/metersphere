@@ -275,7 +275,7 @@
         }
       },
       addModule(row) {
-        this.saveApi(row, "root");
+        this.saveApi(row, "default-module");
       },
       saveApi(row, module) {
         let data = this.api;
