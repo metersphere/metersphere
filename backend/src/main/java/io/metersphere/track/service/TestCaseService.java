@@ -168,24 +168,18 @@ public class TestCaseService {
 
             List<TestCaseWithBLOBs> caseList = testCaseMapper.selectByExampleWithBLOBs(example);
 
-            // 如果上边字段全部相同，去检查 steps 和 remark
-            boolean isExt = false;
-            String caseRemark = testCase.getRemark();
-            if (StringUtils.isBlank(caseRemark)) {
-                caseRemark = "";
-            }
+            // 如果上边字段全部相同，去检查 remark 和 steps
             if (!CollectionUtils.isEmpty(caseList)) {
+                String caseRemark = testCase.getRemark();
+                String caseSteps = testCase.getSteps();
                 for (TestCaseWithBLOBs tc : caseList) {
                     String steps = tc.getSteps();
                     String remark = tc.getRemark();
-                    if (StringUtils.equals(steps, testCase.getSteps()) && StringUtils.equals(remark, caseRemark)) {
+                    if (StringUtils.equals(steps, caseSteps) && StringUtils.equals(remark, caseRemark)) {
                          //MSException.throwException(Translator.get("test_case_already_exists"));
-                        isExt = true;
+                        return tc;
                     }
                 }
-            }
-            if (isExt) {
-                return caseList.get(0);
             }
         }
         return null;
