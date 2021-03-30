@@ -52,6 +52,10 @@ export default {
           this.defaultCheckedKeys.push(i.id)
         }
       )
+      if(this.type==='api_list'||this.type==='api_case_list'||this.type==='api_scenario_list'||this.type==='test_plan_function_test_case'
+        ||this.type==='test_plan_api_case'||this.type==='test_plan_load_case'||this.type==='test_plan_scenario_case'){
+        this.fieldSelected=items
+      }
     },
     saveHeader() {
       let param = {

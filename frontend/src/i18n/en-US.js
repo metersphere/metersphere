@@ -5,6 +5,7 @@ export default {
     pass_rate: 'Pass rate',
     execution_times: 'Execution times',
     cover: 'Cover',
+    module_title: 'Default module',
     not_cover: 'Not Cover',
     import: 'Import',
     import_success: 'Import success',

@@ -50,39 +50,41 @@
         </div>
       </ms-aside-container>
 
-      <ms-main-container v-if="!loading">
-        <!-- 第一层当前节点内容-->
-        <ms-component-config
-          :isMax="false"
-          :showBtn="false"
-          :type="selectedTreeNode.type"
-          :scenario="selectedTreeNode"
-          :response="response"
-          :currentScenario="currentScenario"
-          :currentEnvironmentId="currentEnvironmentId"
-          :node="selectedNode"
-          :project-list="projectList"
-          :env-map="projectEnvMap"
-          :draggable="false"
-          @remove="remove" @copyRow="copyRow" @suggestClick="suggestClick" @refReload="refReload" @openScenario="openScenario"
-          v-if="selectedTreeNode && selectedNode"/>
-        <!-- 请求下还有的子步骤-->
-        <div v-if="selectedTreeNode && selectedTreeNode.hashTree && showNode(selectedTreeNode)">
-          <div v-for="item in selectedTreeNode.hashTree" :key="item.id" class="ms-col-one">
-            <ms-component-config
-              :showBtn="false"
-              :isMax="false"
-              :type="item.type"
-              :scenario="item"
-              :response="response"
-              :currentScenario="currentScenario"
-              :currentEnvironmentId="currentEnvironmentId"
-              :project-list="projectList"
-              :env-map="projectEnvMap"
-              :draggable="false"
-              @remove="remove" @copyRow="copyRow" @suggestClick="suggestClick"
-              @refReload="refReload" @openScenario="openScenario"
-              v-if="selectedTreeNode && selectedNode"/>
+      <ms-main-container v-loading="loading">
+        <div v-if="!loading">
+          <!-- 第一层当前节点内容-->
+          <ms-component-config
+            :isMax="false"
+            :showBtn="false"
+            :type="selectedTreeNode.type"
+            :scenario="selectedTreeNode"
+            :response="response"
+            :currentScenario="currentScenario"
+            :currentEnvironmentId="currentEnvironmentId"
+            :node="selectedNode"
+            :project-list="projectList"
+            :env-map="projectEnvMap"
+            :draggable="false"
+            @remove="remove" @copyRow="copyRow" @suggestClick="suggestClick" @refReload="refReload" @openScenario="openScenario"
+            v-if="selectedTreeNode && selectedNode"/>
+          <!-- 请求下还有的子步骤-->
+          <div v-if="selectedTreeNode && selectedTreeNode.hashTree && showNode(selectedTreeNode)">
+            <div v-for="item in selectedTreeNode.hashTree" :key="item.id" class="ms-col-one">
+              <ms-component-config
+                :showBtn="false"
+                :isMax="false"
+                :type="item.type"
+                :scenario="item"
+                :response="response"
+                :currentScenario="currentScenario"
+                :currentEnvironmentId="currentEnvironmentId"
+                :project-list="projectList"
+                :env-map="projectEnvMap"
+                :draggable="false"
+                @remove="remove" @copyRow="copyRow" @suggestClick="suggestClick"
+                @refReload="refReload" @openScenario="openScenario"
+                v-if="selectedTreeNode && selectedNode"/>
+            </div>
           </div>
         </div>
       </ms-main-container>
@@ -162,7 +164,6 @@
       type: String,
       scenarioDefinition: Array,
       envMap: Map,
-      projectList: Array
     },
     components: {
       MsVariableList,
@@ -223,10 +224,8 @@
         response: {},
         projectIds: new Set,
         projectEnvMap: new Map,
-        // projectList: [],
+        projectList: [],
         debugResult: new Map,
-        isHaveExec: false,
-        isExecWithOutEnv: true
       }
     },
     created() {
@@ -477,6 +476,7 @@
         }
         this.selectedTreeNode = data;
         this.selectedNode = node;
+        this.reload();
       },
       suggestClick(node) {
         this.response = {};
@@ -499,27 +499,8 @@
           if (arr[i].type === ELEMENT_TYPE.LoopController && arr[i].loopType === "LOOP_COUNT" && arr[i].hashTree && arr[i].hashTree.length > 1) {
             arr[i].countController.proceed = true;
           }
-          let type = arr[i].type;
-          const canExec = this.checkCanExec(type);
-          if (!this.isHaveExec) {
-            // 判断此步骤是否可执行
-            this.isHaveExec = canExec;
-            this.$emit("update:isHaveExec", canExec);
-          }
-          if (canExec) {
-            const execWithOutEnv = this.canExecWithOutEnv(type, arr[i].url);
-            if (!execWithOutEnv) {
-              if (!arr[i].projectId) {
-                // 如果自身没有ID并且场景有ID则赋值场景ID，否则赋值当前项目ID
-                arr[i].projectId = scenarioProjectId ? scenarioProjectId : this.projectId;
-              }
-              this.projectIds.add(arr[i].projectId);
-              this.$emit('update:projectIds', this.projectIds);
-            }
-          }
-          if (this.isExecWithOutEnv) {
-            this.isExecWithOutEnv = this.canExecWithOutEnv(type, arr[i].url);
-            this.$emit('update:isExecWithOutEnv', this.canExecWithOutEnv(type, arr[i].url))
+          if (!arr[i].projectId) {
+            arr[i].projectId = scenarioProjectId ? scenarioProjectId : this.projectId;
           }
           if (arr[i].hashTree != undefined && arr[i].hashTree.length > 0) {
             this.recursiveSorting(arr[i].hashTree, arr[i].projectId);
@@ -530,24 +511,7 @@
           }
         }
       },
-      canExecWithOutEnv(type, path) {
-        return type !== ELEMENT_TYPE.HTTPSamplerProxy ? !this.checkCanExec(type) : this.isHTTPFullPath(path);
-      },
-      isHTTPFullPath(path) {
-        return path ? path.startsWith("http://") || path.startsWith("https://") : false;
-      },
-      checkCanExec(type) {
-        const allCanExecType = ELEMENTS.get("AllCanExecType");
-        const index = allCanExecType.indexOf(type);
-        return index !== -1;
-      },
       sort() {
-        this.projectIds.clear();
-        this.$emit('update:projectIds', this.projectIds);
-        this.isHaveExec = false;
-        this.isExecWithOutEnv = true;
-        this.$emit('update:isHaveExec', false);
-        this.$emit('update:isExecWithOutEnv', true);
         for (let i in this.scenarioDefinition) {
           // 排序
           this.scenarioDefinition[i].index = Number(i) + 1;
@@ -559,25 +523,6 @@
           // 设置项目ID
           if (!this.scenarioDefinition[i].projectId) {
             this.scenarioDefinition[i].projectId = this.projectId;
-          }
-
-          let type = this.scenarioDefinition[i].type;
-          const canExec = this.checkCanExec(type);
-          if (!this.isHaveExec) {
-            // 判断此步骤是否可执行
-            this.isHaveExec = canExec;
-            this.$emit('update:isHaveExec', canExec);
-          }
-          if (canExec) {
-            const execWithOutEnv = this.canExecWithOutEnv(type, this.scenarioDefinition[i].url);
-            if (!execWithOutEnv) {
-              this.projectIds.add(this.scenarioDefinition[i].projectId);
-              this.$emit('update:projectIds', this.projectIds);
-            }
-          }
-          if (this.isExecWithOutEnv) {
-            this.isExecWithOutEnv = this.canExecWithOutEnv(type, this.scenarioDefinition[i].url);
-            this.$emit('update:isExecWithOutEnv', this.canExecWithOutEnv(type, this.scenarioDefinition[i].url));
           }
 
           if (this.scenarioDefinition[i].hashTree != undefined && this.scenarioDefinition[i].hashTree.length > 0) {
@@ -600,6 +545,7 @@
         this.customizeRequest = {};
         this.sort();
         this.reload();
+        this.initProjectIds();
       },
       addScenario(arr) {
         if (arr && arr.length > 0) {
@@ -617,6 +563,7 @@
         }
         this.sort();
         this.reload();
+        this.initProjectIds();
         this.scenarioVisible = false;
       },
       setApiParameter(item, refType, referenced) {
@@ -658,6 +605,7 @@
         });
         this.sort();
         this.reload();
+        this.initProjectIds();
       },
       openTagConfig() {
         if (!this.projectId) {
@@ -678,6 +626,7 @@
               hashTree.splice(index, 1);
               this.sort();
               this.reload();
+              this.initProjectIds();
             }
           }
         });
@@ -974,7 +923,18 @@
       refReload(data, node) {
         this.selectedTreeNode = data;
         this.selectedNode = node;
+        this.initProjectIds();
         this.reload();
+      },
+      initProjectIds() {
+        // 加载环境配置
+        this.$nextTick(() => {
+          this.projectIds.clear();
+          this.scenarioDefinition.forEach(data => {
+            let arr = jsonPath.query(data, "$..projectId");
+            arr.forEach(a => this.projectIds.add(a));
+          })
+        })
       },
       detailRefresh(result) {
         // 把执行结果分发给各个请求

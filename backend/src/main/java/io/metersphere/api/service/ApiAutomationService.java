@@ -90,6 +90,8 @@ public class ApiAutomationService {
     @Resource
     @Lazy
     private TestPlanScenarioCaseService testPlanScenarioCaseService;
+    @Resource
+    private EsbApiParamService esbApiParamService;
 
     public List<ApiScenarioDTO> list(ApiScenarioRequest request) {
         request = this.initRequest(request, true, true);
@@ -184,6 +186,9 @@ public class ApiAutomationService {
         scenario.setCreateTime(System.currentTimeMillis());
         scenario.setNum(getNextNum(request.getProjectId()));
 
+        //检查场景的请求步骤。如果含有ESB请求步骤的话，要做参数计算处理。
+        esbApiParamService.checkScenarioRequests(request);
+
         apiScenarioMapper.insert(scenario);
 
         List<String> bodyUploadIds = request.getBodyUploadIds();
@@ -204,6 +209,9 @@ public class ApiAutomationService {
         checkNameExist(request);
         List<String> bodyUploadIds = request.getBodyUploadIds();
         FileUtils.createBodyFiles(bodyUploadIds, bodyFiles);
+
+        //检查场景的请求步骤。如果含有ESB请求步骤的话，要做参数计算处理。
+        esbApiParamService.checkScenarioRequests(request);
 
         final ApiScenarioWithBLOBs scenario = buildSaveScenario(request);
         apiScenarioMapper.updateByPrimaryKeySelective(scenario);
@@ -233,6 +241,10 @@ public class ApiAutomationService {
             scenario.setUserId(SessionUtils.getUserId());
         } else {
             scenario.setUserId(request.getUserId());
+        }
+        if (StringUtils.isEmpty(request.getApiScenarioModuleId()) || StringUtils.isEmpty(request.getModulePath())) {
+            scenario.setApiScenarioModuleId("default-module");
+            scenario.setModulePath("/默认模块");
         }
         return scenario;
     }

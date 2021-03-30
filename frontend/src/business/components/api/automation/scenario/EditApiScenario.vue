@@ -22,9 +22,7 @@
             </el-col>
             <el-col :span="7">
               <el-form-item :label="$t('test_track.module.module')" prop="apiScenarioModuleId">
-                <el-select class="ms-scenario-input" size="small" v-model="currentScenario.apiScenarioModuleId">
-                  <el-option v-for="item in moduleOptions" :key="item.id" :label="item.path" :value="item.id"/>
-                </el-select>
+                <ms-select-tree size="small" :data="moduleOptions" :defaultKey="currentScenario.apiScenarioModuleId" @getValue="setModule" :obj="moduleObj" clearable checkStrictly/>
               </el-form-item>
             </el-col>
             <el-col :span="7">
@@ -116,9 +114,7 @@
                 </el-col>
                 <el-col :span="6">
                   <env-popover :env-map="projectEnvMap" :project-ids="projectIds" @setProjectEnvMap="setProjectEnvMap"
-                               :project-list="projectList" ref="envPopover"
-                               :disabled="scenarioDefinition.length < 1"
-                               :is-read-only="scenarioDefinition.length < 1"/>
+                               :project-list="projectList" ref="envPopover"/>
                 </el-col>
                 <el-col :span="3">
                   <el-button :disabled="scenarioDefinition.length < 1" size="mini" type="primary" v-prevent-re-click @click="runDebug">{{$t('api_test.request.debug')}}</el-button>
@@ -204,10 +200,7 @@
         </template>
 
         <maximize-scenario :scenario-definition="scenarioDefinition" :envMap="projectEnvMap" :moduleOptions="moduleOptions"
-                           :currentScenario="currentScenario" :type="type" ref="maximizeScenario" @openScenario="openScenario"
-                           :isHaveExec.sync="isHaveExec" :isExecWithOutEnv.sync="isExecWithOutEnv" :projectList="projectList"
-                           :projectIds.sync="projectIds"
-        />
+                           :currentScenario="currentScenario" :type="type" ref="maximizeScenario" @openScenario="openScenario"/>
       </ms-drawer>
 
     </div>
@@ -244,6 +237,7 @@
   import MaximizeScenario from "./maximize/MaximizeScenario";
   import ScenarioHeader from "./maximize/ScenarioHeader";
   import MsDrawer from "../../../common/components/MsDrawer";
+  import MsSelectTree from "../../../common/select-tree/SelectTree";
 
   let jsonPath = require('jsonpath');
   export default {
@@ -266,13 +260,18 @@
       EnvPopover,
       MaximizeScenario,
       ScenarioHeader,
-      MsDrawer
+      MsDrawer,
+      MsSelectTree
     },
     data() {
       return {
         props: {
           label: "label",
           children: "hashTree"
+        },
+        moduleObj: {
+          id: 'id',
+          label: 'name',
         },
         rules: {
           name: [
@@ -316,8 +315,6 @@
         projectList: [],
         debugResult: new Map,
         drawer: false,
-        isHaveExec: false,
-        isExecWithOutEnv: true
       }
     },
     created() {
@@ -450,6 +447,10 @@
       },
     },
     methods: {
+      setModule(id,data) {
+        this.currentScenario.apiScenarioModuleId = id;
+        this.currentScenario.modulePath = data.path;
+      },
       setHideBtn() {
         this.isBtnHide = false;
       },
@@ -588,25 +589,9 @@
           if (arr[i].type === ELEMENT_TYPE.LoopController && arr[i].loopType === "LOOP_COUNT" && arr[i].hashTree && arr[i].hashTree.length > 1) {
             arr[i].countController.proceed = true;
           }
-
-          let type = arr[i].type;
-          const canExec = this.checkCanExec(type);
-          if (!this.isHaveExec) {
-            // 判断此步骤是否可执行
-            this.isHaveExec = canExec;
-          }
-          if (canExec) {
-            const execWithOutEnv = this.canExecWithOutEnv(type, arr[i].url);
-            if (!execWithOutEnv) {
-              if (!arr[i].projectId) {
-                // 如果自身没有ID并且场景有ID则赋值场景ID，否则赋值当前项目ID
-                arr[i].projectId = scenarioProjectId ? scenarioProjectId : this.projectId;
-              }
-              this.projectIds.add(arr[i].projectId);
-            }
-          }
-          if (this.isExecWithOutEnv) {
-            this.isExecWithOutEnv = this.canExecWithOutEnv(type, arr[i].url)
+          if (!arr[i].projectId) {
+            // 如果自身没有ID并且场景有ID则赋值场景ID，否则赋值当前项目ID
+            arr[i].projectId = scenarioProjectId ? scenarioProjectId : this.projectId;
           }
 
           if (arr[i].hashTree != undefined && arr[i].hashTree.length > 0) {
@@ -618,21 +603,7 @@
           }
         }
       },
-      canExecWithOutEnv(type, path) {
-        return type !== ELEMENT_TYPE.HTTPSamplerProxy ? !this.checkCanExec(type) : this.isHTTPFullPath(path);
-      },
-      isHTTPFullPath(path) {
-        return path ? path.startsWith("http://") || path.startsWith("https://") : false;
-      },
-      checkCanExec(type) {
-        const allCanExecType = ELEMENTS.get("AllCanExecType");
-        const index = allCanExecType.indexOf(type);
-        return index !== -1;
-      },
       sort() {
-        this.projectIds.clear();
-        this.isHaveExec = false;
-        this.isExecWithOutEnv = true;
         for (let i in this.scenarioDefinition) {
           // 排序
           this.scenarioDefinition[i].index = Number(i) + 1;
@@ -644,22 +615,6 @@
           // 设置项目ID
           if (!this.scenarioDefinition[i].projectId) {
             this.scenarioDefinition[i].projectId = this.projectId;
-          }
-
-          let type = this.scenarioDefinition[i].type;
-          const canExec = this.checkCanExec(type);
-          if (!this.isHaveExec) {
-            // 判断此步骤是否可执行
-            this.isHaveExec = canExec;
-          }
-          if (canExec) {
-            const execWithOutEnv = this.canExecWithOutEnv(type, this.scenarioDefinition[i].url);
-            if (!execWithOutEnv) {
-              this.projectIds.add(this.scenarioDefinition[i].projectId);
-            }
-          }
-          if (this.isExecWithOutEnv) {
-            this.isExecWithOutEnv = this.canExecWithOutEnv(type, this.scenarioDefinition[i].url)
           }
 
           if (this.scenarioDefinition[i].hashTree != undefined && this.scenarioDefinition[i].hashTree.length > 0) {
@@ -682,6 +637,7 @@
         this.customizeRequest = {};
         this.sort();
         this.reload();
+        this.initProjectIds();
       },
       addScenario(arr) {
         if (arr && arr.length > 0) {
@@ -704,6 +660,7 @@
         this.isBtnHide = false;
         this.sort();
         this.reload();
+        this.initProjectIds();
       },
       setApiParameter(item, refType, referenced) {
         let request = {};
@@ -745,6 +702,7 @@
         this.isBtnHide = false;
         this.sort();
         this.reload();
+        this.initProjectIds();
       },
       getMaintainerOptions() {
         let workspaceId = localStorage.getItem(WORKSPACE_ID);
@@ -771,6 +729,7 @@
               hashTree.splice(index, 1);
               this.sort();
               this.reload();
+              this.initProjectIds();
             }
           }
         });
@@ -801,17 +760,9 @@
       },
       runDebug() {
         /*触发执行操作*/
-        if (!this.isHaveExec) {
-          this.$warning("无可执行步骤！");
+        let sign = this.$refs.envPopover.checkEnv();
+        if (!sign) {
           return;
-        }
-
-        // 运行时是否需要检查环境
-        if (!this.isExecWithOutEnv) {
-          let sign = this.$refs.envPopover.checkEnv();
-          if (!sign) {
-            return;
-          }
         }
 
         this.$refs['currentScenario'].validate((valid) => {
@@ -901,15 +852,6 @@
         if (data.resourceId) {
           this.expandedNode.splice(this.expandedNode.indexOf(data.resourceId), 1);
         }
-      },
-      getPath(id) {
-        if (id === null) {
-          return null;
-        }
-        let path = this.moduleOptions.filter(function (item) {
-          return item.id === id ? item.path : "";
-        });
-        return path[0].path;
       },
       setFiles(item, bodyUploadFiles, obj) {
         if (item.body) {
@@ -1061,6 +1003,7 @@
               }
             }
             this.sort();
+            this.initProjectIds();
             // this.getEnvironments();
           })
         }
@@ -1068,7 +1011,6 @@
       setParameter() {
         this.currentScenario.stepTotal = this.scenarioDefinition.length;
         this.currentScenario.projectId = this.projectId;
-        this.currentScenario.modulePath = this.getPath(this.currentScenario.apiScenarioModuleId);
         // 构建一个场景对象 方便引用处理
         let scenario = {
           id: this.currentScenario.id,
@@ -1131,7 +1073,18 @@
         })
       },
       refReload() {
+        this.initProjectIds();
         this.reload();
+      },
+      initProjectIds() {
+        // 加载环境配置
+        this.$nextTick(() => {
+          this.projectIds.clear();
+          this.scenarioDefinition.forEach(data => {
+            let arr = jsonPath.query(data, "$..projectId");
+            arr.forEach(a => this.projectIds.add(a));
+          })
+        })
       },
       detailRefresh(result) {
         // 把执行结果分发给各个请求

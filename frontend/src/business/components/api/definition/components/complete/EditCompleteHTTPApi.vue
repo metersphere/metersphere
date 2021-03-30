@@ -49,20 +49,7 @@
             </el-col>
             <el-col :span="7">
               <el-form-item :label="$t('test_track.module.module')" prop="moduleId">
-                <el-select class="ms-http-select" size="small" v-model="httpForm.moduleId">
-                  <div v-if="moduleOptions.length>0">
-                    <el-option v-for="item in moduleOptions" :key="item.id" :label="item.path" :value="item.id"/>
-                  </div>
-                  <div v-else>
-                    <el-option :key="0" :value="''">
-                      <div style="margin-left: 40px">
-                        <span style="font-size: 14px;color: #606266;font-weight: 48.93">{{ $t('api_test.definition.select_comp.no_data') }},
-                        </span>
-                        <el-link type="primary" @click="createModules">{{ $t('api_test.definition.select_comp.add_data') }}</el-link>
-                      </div>
-                    </el-option>
-                  </div>
-                </el-select>
+                <ms-select-tree size="small" :data="moduleOptions" :defaultKey="httpForm.moduleId" @getValue="setModule" :obj="moduleObj" clearable checkStrictly/>
               </el-form-item>
             </el-col>
 
@@ -109,25 +96,26 @@
 
 <script>
 
-import MsApiRequestForm from "../request/http/ApiHttpRequestForm";
-import MsResponseText from "../response/ResponseText";
-import {WORKSPACE_ID} from '../../../../../../common/js/constants';
-import {API_STATUS, REQ_METHOD} from "../../model/JsonData";
-import {KeyValue} from "../../model/ApiTestModel";
-import MsInputTag from "@/business/components/api/automation/scenario/MsInputTag";
-import MsJsr233Processor from "../../../automation/scenario/component/Jsr233Processor";
+  import MsApiRequestForm from "../request/http/ApiHttpRequestForm";
+  import MsResponseText from "../response/ResponseText";
+  import {WORKSPACE_ID} from '../../../../../../common/js/constants';
+  import {API_STATUS, REQ_METHOD} from "../../model/JsonData";
+  import {KeyValue} from "../../model/ApiTestModel";
+  import MsInputTag from "@/business/components/api/automation/scenario/MsInputTag";
+  import MsJsr233Processor from "../../../automation/scenario/component/Jsr233Processor";
+  import MsSelectTree from "../../../../common/select-tree/SelectTree";
 
-export default {
-  name: "MsAddCompleteHttpApi",
-  components: {MsJsr233Processor, MsResponseText, MsApiRequestForm, MsInputTag},
-  data() {
-    let validateURL = (rule, value, callback) => {
-      if (!this.httpForm.path.startsWith("/") || this.httpForm.path.match(/\s/) != null) {
-        callback(this.$t('api_test.definition.request.path_valid_info'));
-      }
-      callback();
-    };
-    return {
+  export default {
+    name: "MsAddCompleteHttpApi",
+    components: {MsJsr233Processor, MsResponseText, MsApiRequestForm, MsInputTag, MsSelectTree},
+    data() {
+      let validateURL = (rule, value, callback) => {
+        if (!this.httpForm.path.startsWith("/") || this.httpForm.path.match(/\s/) != null) {
+          callback(this.$t('api_test.definition.request.path_valid_info'));
+        }
+        callback();
+      };
+      return {
         rule: {
           name: [
             {required: true, message: this.$t('test_track.case.input_name'), trigger: 'blur'},
@@ -147,6 +135,11 @@ export default {
         currentModule: {},
         reqOptions: REQ_METHOD,
         options: API_STATUS,
+        moduleObj: {
+          id: 'id',
+          label: 'name',
+        },
+
       }
     },
     props: {moduleOptions: {}, request: {}, response: {}, basisData: {}, syncTabs: Array},
@@ -190,7 +183,6 @@ export default {
         });
       },
       setParameter() {
-        this.httpForm.modulePath = this.getPath(this.httpForm.moduleId);
         this.request.path = this.httpForm.path;
         this.request.method = this.httpForm.method;
         this.httpForm.request.useEnvironment = undefined;
@@ -210,15 +202,6 @@ export default {
       },
       createModules() {
         this.$emit("createRootModelInTree");
-      },
-      getPath(id) {
-        if (id === null) {
-          return null;
-        }
-        let path = this.moduleOptions.filter(function (item) {
-          return item.id === id ? item.path : "";
-        });
-        return path[0].path;
       },
       urlChange() {
         if (!this.httpForm.path || this.httpForm.path.indexOf('?') === -1) return;
@@ -248,6 +231,10 @@ export default {
           this.$error(this.$t('api_test.request.url_invalid'), 2000);
         }
       },
+      setModule(id,data) {
+        this.httpForm.moduleId = id;
+        this.httpForm.modulePath = data.path;
+      },
     },
 
     created() {
@@ -255,7 +242,6 @@ export default {
       if (!this.basisData.environmentId) {
         this.basisData.environmentId = "";
       }
-
       this.httpForm = JSON.parse(JSON.stringify(this.basisData));
     }
   }
