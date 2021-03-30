@@ -9,5 +9,7 @@ public class ExcelResponse<T> {
 
     private Boolean success;
     private List<ExcelErrData<T>> errList;
+    private Boolean isUpdated;  //是否有更新过用例
+
 
 }

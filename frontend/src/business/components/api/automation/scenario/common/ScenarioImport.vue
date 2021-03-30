@@ -22,11 +22,9 @@
       <el-row>
         <el-col :span="11">
           <el-form-item :label="$t('commons.import_module')">
-            <el-select size="small" v-model="formData.moduleId" class="project-select" clearable>
-              <el-option v-for="item in moduleOptions" :key="item.id" :label="item.path" :value="item.id"/>
-            </el-select>
+            <ms-select-tree size="small" :data="moduleOptions" :defaultKey="formData.moduleId" @getValue="setModule" :obj="moduleObj" clearable checkStrictly/>
           </el-form-item>
-          <el-form-item   v-if="!isHar" :label="$t('commons.import_mode')">
+          <el-form-item v-if="!isHar" :label="$t('commons.import_mode')">
             <el-select size="small" v-model="formData.modeId" class="project-select" clearable>
               <el-option v-for="item in modeOptions" :key="item.id" :label="item.name" :value="item.id"/>
             </el-select>
@@ -70,16 +68,17 @@
 <script>
   import MsDialogFooter from "../../../../common/components/MsDialogFooter";
   import {listenGoBack, removeGoBackListener} from "@/common/js/utils";
+  import MsSelectTree from "../../../../common/select-tree/SelectTree";
 
   export default {
     name: "ScenarioImport",
-    components: {MsDialogFooter},
+    components: {MsDialogFooter, MsSelectTree},
     props: {
       saved: {
         type: Boolean,
         default: true,
       },
-      moduleOptions: {}
+      moduleOptions: Array,
     },
     data() {
       return {
@@ -140,7 +139,11 @@
         },
         rules: {},
         currentModule: {},
-        fileList: []
+        fileList: [],
+        moduleObj: {
+          id: 'id',
+          label: 'name',
+        },
       }
     },
     activated() {
@@ -257,7 +260,11 @@
         this.fileList = [];
         removeGoBackListener(this.close);
         this.visible = false;
-      }
+      },
+      setModule(id, data) {
+        this.formData.moduleId = id;
+        this.formData.modulePath = data.path;
+      },
     }
   }
 </script>

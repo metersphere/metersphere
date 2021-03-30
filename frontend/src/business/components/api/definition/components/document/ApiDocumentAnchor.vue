@@ -178,6 +178,10 @@
                 <div v-else-if="apiInfo.requestBodyParamType == 'JSON-SCHEMA'" style="margin-left: 10px">
                   <ms-json-code-edit :body="apiInfo.jsonSchemaBody" ref="jsonCodeEdit"/>
                 </div>
+<!--                <div v-else-if="apiInfo.requestBodyParamType == 'XML'" style="margin-left: 10px">-->
+<!--                  <ms-json-code-edit :body="apiInfo.jsonSchemaBody" ref="jsonCodeEdit"/>-->
+<!--                  <editor v-model="formatData" :lang="mode" @init="editorInit" :theme="theme" :height="height"/>-->
+<!--                </div>-->
                 <div v-else class="showDataDiv">
                   <br/>
                   <p style="margin: 0px 20px;"
@@ -423,7 +427,12 @@ export default {
     formatRowData(dataType, data) {
       var returnData = data;
       if (data) {
-        returnData = data.replace(/\n/g, '<br>');
+
+        if(dataType === 'XML'){
+          returnData = "<xmp>"+returnData+"</xmp>";
+        }else{
+          returnData = data.replace(/\n/g, '<br>');
+        }
       }
       return returnData;
     },
@@ -643,7 +652,7 @@ export default {
 
         if(lastIndex < this.currentApiIndexInApiShowArray){
           //上移
-          if(this.needAsyncSelect){
+          // if(this.needAsyncSelect){
             //进行判断：是否还需要为apiShowArray 增加数据。 由于在当前数据前后最多展现2条数据，
             //可得： apiStepIndex-1- 2 < apiInfoArray，需要添加数据
             let dataIndex = this.apiStepIndex -3;
@@ -657,11 +666,11 @@ export default {
             if(this.apiShowArray.length > (this.currentApiIndexInApiShowArray+3)){
               this.apiShowArray.pop();
             }
-          }
+          // }
           this.apiStepIndex --;
         }else if(lastIndex > this.currentApiIndexInApiShowArray){
           //下滚
-          if(this.needAsyncSelect){
+          // if(this.needAsyncSelect){
             //进行判断：是否还需要为apiShowArray 增加数据。 由于在当前数据前后最多展现2条数据，
             //可得： apiStepIndex+1+ 2 < apiInfoArray，需要添加数据
             let dataIndex = this.apiStepIndex +3;
@@ -678,7 +687,7 @@ export default {
               let itemHeight = this.$refs.apiDocInfoDivItem[0].offsetHeight+10;
               this.$refs.apiDocInfoDiv.scrollTop = (apiDocDivScrollTop-itemHeight);
             }
-          }
+          // }
           this.apiStepIndex ++;
         }
       }

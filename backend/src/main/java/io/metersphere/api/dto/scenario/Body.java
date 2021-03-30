@@ -66,14 +66,11 @@ public class Body {
                 sampler.setDoMultipart(true);
             }
         } else {
-            if (!this.isJson()) {
-                sampler.setPostBodyRaw(true);
-            } else {
-                if (StringUtils.isNotEmpty(this.format) && "JSON-SCHEMA".equals(this.format) && this.getJsonSchema() != null) {
-                    this.raw = JSONSchemaGenerator.getJson(com.alibaba.fastjson.JSON.toJSONString(this.getJsonSchema()));
-                }
+            if (StringUtils.isNotEmpty(this.format) && "JSON-SCHEMA".equals(this.format) && this.getJsonSchema() != null) {
+                this.raw = JSONSchemaGenerator.getJson(com.alibaba.fastjson.JSON.toJSONString(this.getJsonSchema()));
             }
             KeyValue keyValue = new KeyValue("", "JSON-SCHEMA", this.getRaw(), true, true);
+            sampler.setPostBodyRaw(true);
             keyValue.setEnable(true);
             keyValue.setEncode(false);
             body.add(keyValue);

@@ -25,13 +25,12 @@
               <el-button :disabled="isReadOnly" type="info" plain size="mini" @click="handleExport(reportName)">
                 {{ $t('test_track.plan_view.export_report') }}
               </el-button>
+              <el-button :disabled="isReadOnly || report.status !== 'Completed'" type="default" plain size="mini" @click="compareReports()">
+                {{ $t('report.compare') }}
+              </el-button>
               <el-button :disabled="isReadOnly" type="warning" plain size="mini" @click="downloadJtl()">
                 {{ $t('report.downloadJtl') }}
               </el-button>
-
-              <!--<el-button :disabled="isReadOnly" type="warning" plain size="mini">-->
-              <!--{{$t('report.compare')}}-->
-              <!--</el-button>-->
             </el-row>
           </el-col>
           <el-col :span="8">
@@ -83,6 +82,7 @@
         </div>
       </el-dialog>
     </ms-main-container>
+    <same-test-reports ref="compareReports"/>
   </ms-container>
 </template>
 
@@ -99,11 +99,13 @@ import {checkoutTestManagerOrTestUser, exportPdf} from "@/common/js/utils";
 import html2canvas from 'html2canvas';
 import MsPerformanceReportExport from "./PerformanceReportExport";
 import {Message} from "element-ui";
+import SameTestReports from "@/business/components/performance/report/components/SameTestReports";
 
 
 export default {
   name: "PerformanceReportView",
   components: {
+    SameTestReports,
     MsPerformanceReportExport,
     MsReportErrorLog,
     MsReportLogDetails,
@@ -312,6 +314,9 @@ export default {
           Message.error({message: JSON.parse(data).message || e.message, showClose: true});
         });
       });
+    },
+    compareReports() {
+      this.$refs.compareReports.open(this.report);
     }
   },
   created() {
@@ -327,6 +332,8 @@ export default {
         this.$set(this.report, "id", this.reportId);
         this.$set(this.report, "status", data.status);
         this.$set(this.report, "testId", data.testId);
+        this.$set(this.report, "name", data.name);
+        this.$set(this.report, "createTime", data.createTime);
         this.$set(this.report, "loadConfiguration", data.loadConfiguration);
         this.checkReportStatus(data.status);
         if (this.status === "Completed" || this.status === "Running") {

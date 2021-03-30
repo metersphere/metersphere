@@ -225,7 +225,7 @@ import MsDeleteConfirm from "../../../common/components/MsDeleteConfirm";
 import {TEST_PLAN_CONFIGS} from "../../../common/components/search/search-components";
 import {LIST_CHANGE, TrackEvent} from "@/business/components/common/head/ListEvent";
 import MsScheduleMaintain from "@/business/components/api/automation/schedule/ScheduleMaintain"
-import {_filter, _sort, getLabel, getSystemLabel} from "@/common/js/tableUtils";
+import {_filter, _sort, getLabel} from "@/common/js/tableUtils";
 import {TEST_PLAN_LIST} from "@/common/js/constants";
 import {Test_Plan_List} from "@/business/components/common/model/JsonData";
 import HeaderCustom from "@/business/components/common/head/HeaderCustom";
@@ -291,11 +291,9 @@ export default {
     }
     this.isTestManagerOrTestUser = checkoutTestManagerOrTestUser();
     this.initTableData();
-    getSystemLabel(this, this.type)
   },
   methods: {
     inite() {
-      getLabel(this, TEST_PLAN_LIST);
       this.initTableData()
     },
     calPassRate(scope) {
@@ -303,7 +301,6 @@ export default {
       return Number.parseInt(passRate, 10);
     },
     customHeader() {
-      getLabel(this, TEST_PLAN_LIST);
       this.$refs.headerCustom.open(this.tableLabel)
     },
     initTableData() {

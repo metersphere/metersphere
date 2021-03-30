@@ -12,6 +12,7 @@ import java.util.Map;
 public class ReportRequest {
     private String name;
     private String workspaceId;
+    private String testId;
     private String userId;
     private List<OrderRequest> orders;
     private Map<String, List<String>> filters;

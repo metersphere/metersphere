@@ -92,7 +92,7 @@ export default {
     allLabel: {
       type: String,
       default() {
-        return this.$t("commons.all_label.case");
+        return this.$t('commons.module_title');
       }
     },
     nameLimit: {

@@ -121,7 +121,7 @@ export default {
       for (let i = 0; i < rows.length; i++) {
         let row = rows[i];
         if (this.tableData.filter(f => f.name === row.name + ".jmx").length > 0) {
-          this.$error(this.$t('load_test.delete_file'));
+          this.$error(this.$t('load_test.delete_file') + ', name: ' + row.name);
           return;
         }
       }

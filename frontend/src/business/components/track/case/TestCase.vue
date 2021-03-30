@@ -285,6 +285,7 @@ export default {
       }
     },
     nodeChange(node, nodeIds, pNodes) {
+      this.activeName = "default";
       this.selectNodeIds = nodeIds;
       this.selectNode = node;
       this.selectParentNodes = pNodes;
@@ -323,11 +324,23 @@ export default {
     showTestCaseDetail(testCase) {
       this.testCaseReadOnly = true;
     },
-    refresh() {
+    refresh(data) {
       this.selectNodeIds = [];
       this.selectParentNodes = [];
       this.selectNode = {};
       this.refreshTable();
+      this.setTable(data);
+
+    },
+    setTable(data) {
+      console.log(data)
+      for (let index in this.tabs) {
+        let tab = this.tabs[index];
+        if (tab.name === this.activeName) {
+          tab.label = data.name;
+          break;
+        }
+      }
     },
     refreshAll() {
       this.$refs.nodeTree.list();

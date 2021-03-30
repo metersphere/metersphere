@@ -5,6 +5,7 @@ export default {
     pass_rate: 'Pass rate',
     execution_times: 'Execution times',
     cover: 'Cover',
+    module_title: 'Default module',
     not_cover: 'Not Cover',
     import: 'Import',
     import_success: 'Import success',
@@ -145,6 +146,7 @@ export default {
     auth_redirect_tip: 'Jump to the authentication source page for authentication',
     tag_tip: "Enter Enter to Add Label",
     node_name_tip: "The name cannot contain'\\'",
+    more_operator: "More operator",
     table: {
       select_tip: "Item {0} data is selected"
     },
@@ -280,7 +282,7 @@ export default {
     none: 'None Organization',
     select: 'Select Organization',
     service_integration: 'Service integration',
-    defect_manage: 'Defect management platform',
+    defect_manage: 'Project management platform',
     message_settings: 'Message settings',
     message: {
       jenkins_task_notification: 'Jenkins task notification',
@@ -541,7 +543,10 @@ export default {
     threadgroup_at_least_one: 'At least one ThreadGroup is enabled',
     load_api_automation_jmx: 'Import API automation scenario',
     project_file_exist: "The file already exists in the project, please import it directly",
-    project_file_update_type_error: 'Updated file types must be consistent'
+    project_file_update_type_error: 'Updated file types must be consistent',
+    report: {
+      diff: "Compare"
+    },
   },
   api_test: {
     creator: "Creator",
