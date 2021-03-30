@@ -302,6 +302,9 @@
           api.moduleId = this.nodeTree[0].id;
           api.modulePath = this.nodeTree[0].path;
         }
+        if (this.selectNodeIds && this.selectNodeIds.length > 0) {
+          api.moduleId = this.selectNodeIds[0];
+        }
         this.handleTabsEdit(this.$t('api_test.definition.request.title'), e, api);
       },
       handleTabClose() {
