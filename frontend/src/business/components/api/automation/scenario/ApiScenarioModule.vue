@@ -139,13 +139,6 @@
             this.result = this.$get("/api/automation/module/list/" + this.projectId, response => {
               if (response.data != undefined && response.data != null) {
                 this.data = response.data;
-                this.data.unshift({
-                  "id": "default-module",
-                  "name": this.$t('commons.module_title'),
-                  "level": 0,
-                  "path": "/" + this.$t('commons.module_title'),
-                  "children": [],
-                });
                 this.data.forEach(node => {
                   buildTree(node, {path: ''});
                 });
@@ -166,13 +159,6 @@
           this.result = this.$get("/api/automation/module/list/" + this.projectId, response => {
             if (response.data != undefined && response.data != null) {
               this.data = response.data;
-              this.data.unshift({
-                "id": "default-module",
-                "name": this.$t('commons.module_title'),
-                "level": 0,
-                "path": "/" + this.$t('commons.module_title'),
-                "children": [],
-              });
               this.data.forEach(node => {
                 buildTree(node, {path: ''});
               });
@@ -196,13 +182,6 @@
         this.result = this.$get(url, response => {
           if (response.data != undefined && response.data != null) {
             this.data = response.data;
-            this.data.unshift({
-              "id": "default-module",
-              "name": this.$t('commons.module_title'),
-              "level": 0,
-              "path": "/" + this.$t('commons.module_title'),
-              "children": [],
-            });
             this.data.forEach(node => {
               buildTree(node, {path: ''});
             });

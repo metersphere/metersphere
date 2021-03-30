@@ -52,6 +52,8 @@ import java.util.stream.Collectors;
 @Service
 @Transactional(rollbackFor = Exception.class)
 public class TestCaseService {
+    @Resource
+    TestCaseNodeMapper testCaseNodeMapper;
 
     @Resource
     TestCaseMapper testCaseMapper;
@@ -90,6 +92,18 @@ public class TestCaseService {
     @Resource
     TestCaseTestMapper testCaseTestMapper;
 
+    private void setNode(TestCaseWithBLOBs testCase){
+        if (StringUtils.isEmpty(testCase.getNodeId()) || StringUtils.isEmpty(testCase.getNodePath()) || "default-module".equals(testCase.getNodeId())) {
+            TestCaseNodeExample example = new TestCaseNodeExample();
+            example.createCriteria().andProjectIdEqualTo(testCase.getProjectId()).andNameEqualTo("默认模块");
+            List<TestCaseNode> nodes = testCaseNodeMapper.selectByExample(example);
+            if (CollectionUtils.isNotEmpty(nodes)) {
+                testCase.setNodeId(nodes.get(0).getId());
+                testCase.setNodePath("/" + nodes.get(0).getName());
+            }
+        }
+    }
+
     public TestCaseWithBLOBs addTestCase(TestCaseWithBLOBs testCase) {
         testCase.setName(testCase.getName());
         checkTestCaseExist(testCase);
@@ -100,7 +114,7 @@ public class TestCaseService {
         testCase.setReviewStatus(TestCaseReviewStatus.Prepare.name());
         testCase.setDemandId(testCase.getDemandId());
         testCase.setDemandName(testCase.getDemandName());
-
+        this.setNode(testCase);
         testCaseMapper.insert(testCase);
         return testCase;
     }
@@ -179,7 +193,7 @@ public class TestCaseService {
                     String steps = tc.getSteps();
                     String remark = tc.getRemark();
                     if (StringUtils.equals(steps, testCase.getSteps()) && StringUtils.equals(remark, caseRemark)) {
-                         //MSException.throwException(Translator.get("test_case_already_exists"));
+                        //MSException.throwException(Translator.get("test_case_already_exists"));
                         isExt = true;
                     }
                 }
@@ -195,16 +209,16 @@ public class TestCaseService {
      * 根据id和pojectId查询id是否在数据库中存在。
      * 在数据库中单id的话是可重复的,id与projectId的组合是唯一的
      */
-    public Integer checkIdExist(Integer id, String projectId){
+    public Integer checkIdExist(Integer id, String projectId) {
         TestCaseExample example = new TestCaseExample();
         TestCaseExample.Criteria criteria = example.createCriteria();
         if (null != id) {
             criteria.andNumEqualTo(id);
             criteria.andProjectIdEqualTo(projectId);
             long count = testCaseMapper.countByExample(example);    //查询是否有包含此ID的数据
-            if(count == 0){  //如果ID不存在
+            if (count == 0) {  //如果ID不存在
                 return null;
-            }else { //有对应ID的数据
+            } else { //有对应ID的数据
                 return id;
             }
         }
@@ -415,7 +429,7 @@ public class TestCaseService {
                 testcase.setSort(sort.getAndIncrement());
                 testcase.setNum(num.decrementAndGet());
                 testcase.setReviewStatus(TestCaseReviewStatus.Prepare.name());
-                    mapper.insert(testcase);
+                mapper.insert(testcase);
             });
         }
         sqlSession.flushStatements();
@@ -443,6 +457,7 @@ public class TestCaseService {
 
     /**
      * 把Excel中带ID的数据更新到数据库
+     *
      * @param testCases
      * @param projectId
      */
@@ -821,14 +836,14 @@ public class TestCaseService {
 
         if (files != null) {
             files.forEach(file -> {
-                final FileMetadata fileMetadata = fileService.saveFile(file,testCaseWithBLOBs.getProjectId());
+                final FileMetadata fileMetadata = fileService.saveFile(file, testCaseWithBLOBs.getProjectId());
                 TestCaseFile testCaseFile = new TestCaseFile();
                 testCaseFile.setFileId(fileMetadata.getId());
                 testCaseFile.setCaseId(request.getId());
                 testCaseFileMapper.insert(testCaseFile);
             });
         }
-
+        this.setNode(request);
         editTestCase(request);
         return request.getId();
     }

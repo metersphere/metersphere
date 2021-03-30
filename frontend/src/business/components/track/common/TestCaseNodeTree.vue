@@ -116,13 +116,6 @@ export default {
       if (this.projectId) {
         this.result = this.$get("/case/node/list/" + this.projectId, response => {
           this.treeNodes = response.data;
-          this.treeNodes.unshift({
-            "id": "default-module",
-            "name": this.$t('commons.module_title'),
-            "level": 0,
-            "path": "/" + this.$t('commons.module_title'),
-            "children": [],
-          });
           this.treeNodes.forEach(node => {
             buildTree(node, {path: ''});
           });

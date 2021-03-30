@@ -315,7 +315,7 @@ export default {
       form: {
         name: '',
         module: 'default-module',
-        nodePath:'',
+        nodePath:'/默认模块',
         maintainer: getCurrentUser().id,
         priority: 'P0',
         type: '',
@@ -416,6 +416,10 @@ export default {
         };
       });
     }, 1000);
+    if(this.selectNode && this.selectNode.data && !this.form.id){
+      this.form.module = this.selectNode.data.id;
+      this.form.nodePath = this.selectNode.data.path;
+    }
   },
   watch: {
     treeNodes() {
@@ -428,9 +432,11 @@ export default {
   created() {
     this.loadOptions();
     this.addListener(); //  添加 ctrl s 监听
-    if(this.selectNode && this.selectNode.data && this.form.id){
+    if(this.selectNode && this.selectNode.data && !this.form.id){
       this.form.module = this.selectNode.data.id;
       this.form.nodePath = this.selectNode.data.path;
+    }else{
+      this.form.module =this.treeNodes && this.length>0? this.treeNodes[0].id:"";
     }
     if (this.type === 'edit' || this.type === 'copy') {
       this.form.module = this.currentTestCaseInfo.nodeId;
