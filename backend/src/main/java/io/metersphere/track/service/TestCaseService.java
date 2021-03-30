@@ -559,9 +559,10 @@ public class TestCaseService {
 
         list.add(new TestCaseExcelData());
         TestCaseExcelData explain = new TestCaseExcelData();
-        explain.setName(Translator.get("do_not_modify_header_order"));
+        explain.setName(Translator.get("do_not_modify_header_order") + "," + Translator.get("num_needed_modify_testcase") + "," + Translator.get("num_needless_create_testcase"));
         explain.setNodePath(Translator.get("module_created_automatically"));
         explain.setType(Translator.get("options") + "（functional、performance、api）");
+        explain.setTags(Translator.get("tag_tip_pattern"));
 //        explain.setMethod(Translator.get("options") + "（manual、auto）");
         explain.setPriority(Translator.get("options") + "（P0、P1、P2、P3）");
         explain.setMaintainer(Translator.get("please_input_workspace_member"));
