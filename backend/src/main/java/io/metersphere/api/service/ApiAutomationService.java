@@ -21,10 +21,7 @@ import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
 import io.metersphere.api.jmeter.JMeterService;
 import io.metersphere.api.parse.ApiImportParser;
 import io.metersphere.base.domain.*;
-import io.metersphere.base.mapper.ApiScenarioMapper;
-import io.metersphere.base.mapper.ApiScenarioReportMapper;
-import io.metersphere.base.mapper.TestCaseReviewScenarioMapper;
-import io.metersphere.base.mapper.TestPlanApiScenarioMapper;
+import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.*;
 import io.metersphere.commons.constants.*;
 import io.metersphere.commons.exception.MSException;
@@ -61,6 +58,8 @@ import java.util.stream.Collectors;
 @Service
 @Transactional(rollbackFor = Exception.class)
 public class ApiAutomationService {
+    @Resource
+    ApiScenarioModuleMapper apiScenarioModuleMapper;
     @Resource
     private ExtScheduleMapper extScheduleMapper;
     @Resource
@@ -242,9 +241,14 @@ public class ApiAutomationService {
         } else {
             scenario.setUserId(request.getUserId());
         }
-        if (StringUtils.isEmpty(request.getApiScenarioModuleId()) || StringUtils.isEmpty(request.getModulePath())) {
-            scenario.setApiScenarioModuleId("default-module");
-            scenario.setModulePath("/默认模块");
+        if (StringUtils.isEmpty(request.getApiScenarioModuleId()) || StringUtils.isEmpty(request.getModulePath()) || "default-module".equals(request.getApiScenarioModuleId())) {
+            ApiScenarioModuleExample example = new ApiScenarioModuleExample();
+            example.createCriteria().andProjectIdEqualTo(request.getProjectId()).andNameEqualTo("默认模块");
+            List<ApiScenarioModule> modules = apiScenarioModuleMapper.selectByExample(example);
+            if (CollectionUtils.isNotEmpty(modules)) {
+                scenario.setApiScenarioModuleId(modules.get(0).getId());
+                scenario.setModulePath(modules.get(0).getName());
+            }
         }
         return scenario;
     }

@@ -252,13 +252,6 @@
         this.result = this.$get(url, response => {
           if (response.data != undefined && response.data != null) {
             this.moduleOptions = response.data;
-            this.moduleOptions.unshift({
-              "id": "default-module",
-              "name": this.$t('commons.module_title'),
-              "level": 0,
-              "path": "/" + this.$t('commons.module_title'),
-              "children": [],
-            });
             this.moduleOptions.forEach(node => {
               buildTree(node, {path: ''});
             });
