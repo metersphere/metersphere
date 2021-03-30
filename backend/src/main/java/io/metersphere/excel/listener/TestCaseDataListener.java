@@ -152,6 +152,7 @@ public class TestCaseDataListener extends EasyExcelListener<TestCaseExcelData> {
                     .map(item -> this.convert2TestCase(item))
                     .collect(Collectors.toList());
             testCaseService.saveImportData(result, projectId);
+            this.isUpdated = true;
         }
 
         if (!(updateList.size() == 0)) {
