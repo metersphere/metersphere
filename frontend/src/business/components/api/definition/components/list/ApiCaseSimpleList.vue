@@ -157,7 +157,7 @@ import {parseEnvironment} from "@/business/components/api/test/model/Environment
 import MsTableHeaderSelectPopover from "@/business/components/common/components/table/MsTableHeaderSelectPopover";
 import MsTableAdvSearchBar from "@/business/components/common/components/search/MsTableAdvSearchBar";
 import {API_CASE_CONFIGS} from "@/business/components/common/components/search/search-components";
-import {_filter, _handleSelect, _handleSelectAll, _sort, getLabel, getSystemLabel,} from "@/common/js/tableUtils";
+import {_filter, _handleSelect, _handleSelectAll, _sort, getLabel} from "@/common/js/tableUtils";
 import {API_CASE_LIST} from "@/common/js/constants";
 import {Api_Case_List} from "@/business/components/common/model/JsonData";
 import HeaderCustom from "@/business/components/common/head/HeaderCustom";
@@ -263,7 +263,6 @@ export default {
   },
   created: function () {
     this.initTable();
-    getSystemLabel(this, this.type)
     this.$nextTick(() => {
       this.$refs.caseTable.bodyWrapper.scrollTop = 5
     })
@@ -353,7 +352,10 @@ export default {
             }
           })
           if (this.$refs.caseTable) {
-            setTimeout(this.$refs.caseTable.doLayout, 200)
+            setTimeout(() => {
+              this.$refs.caseTable.doLayout();
+              this.result.loading = false;
+            }, 500)
           }
           this.$nextTick(function(){
             this.checkTableRowIsSelect();

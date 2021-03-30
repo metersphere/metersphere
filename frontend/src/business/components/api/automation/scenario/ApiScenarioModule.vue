@@ -29,7 +29,7 @@
       @refresh="refresh"
       ref="basisScenario"/>
 
-    <api-import ref="apiImport" :moduleOptions="moduleOptions" @refreshAll="$emit('refreshAll')"/>
+    <api-import ref="apiImport" :moduleOptions="data" @refreshAll="$emit('refreshAll')"/>
   </div>
 
 </template>
@@ -38,7 +38,7 @@
   import SelectMenu from "../../../track/common/SelectMenu";
   import MsAddBasisScenario from "@/business/components/api/automation/scenario/AddBasisScenario";
   import MsNodeTree from "../../../track/common/NodeTree";
-  import {buildNodePath} from "../../definition/model/NodeTree";
+  import {buildNodePath, buildTree} from "../../definition/model/NodeTree";
   import ModuleTrashButton from "../../definition/components/module/ModuleTrashButton";
   import ApiImport from "./common/ScenarioImport";
   import MsSearchBar from "@/business/components/common/components/search/MsSearchBar";
@@ -83,8 +83,7 @@
         },
         data: [],
         currentModule: undefined,
-        moduleOptions: [],
-        operators:  [
+        operators: [
           {
             label: this.$t('api_test.automation.add_scenario'),
             callback: this.addScenario
@@ -97,7 +96,7 @@
             label: this.$t('report.export'),
             children: [
               {
-                label: this.$t('report.export_to_ms_format') ,
+                label: this.$t('report.export_to_ms_format'),
                 callback: () => {
                   this.$emit('exportAPI');
                 }
@@ -140,11 +139,9 @@
             this.result = this.$get("/api/automation/module/list/" + this.projectId, response => {
               if (response.data != undefined && response.data != null) {
                 this.data = response.data;
-                let moduleOptions = [];
                 this.data.forEach(node => {
-                  buildNodePath(node, {path: ''}, moduleOptions);
+                  buildTree(node, {path: ''});
                 });
-                this.moduleOptions = moduleOptions
               }
             });
             this.$refs.apiImport.open(this.currentModule);
@@ -162,11 +159,9 @@
           this.result = this.$get("/api/automation/module/list/" + this.projectId, response => {
             if (response.data != undefined && response.data != null) {
               this.data = response.data;
-              let moduleOptions = [];
               this.data.forEach(node => {
-                buildNodePath(node, {path: ''}, moduleOptions);
+                buildTree(node, {path: ''});
               });
-              this.moduleOptions = moduleOptions
             }
           });
           this.$refs.apiImport.open(this.currentModule);
@@ -187,11 +182,10 @@
         this.result = this.$get(url, response => {
           if (response.data != undefined && response.data != null) {
             this.data = response.data;
-            let moduleOptions = [];
             this.data.forEach(node => {
-              buildNodePath(node, {path: ''}, moduleOptions);
+              buildTree(node, {path: ''});
             });
-            this.$emit('setModuleOptions', moduleOptions);
+            this.$emit('setModuleOptions', this.data);
             this.$emit('setNodeTree', this.data);
             if (this.$refs.nodeTree) {
               this.$refs.nodeTree.filter(this.condition.filterText);

@@ -26,12 +26,15 @@ import io.swagger.v3.oas.models.parameters.*;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 import io.swagger.v3.oas.models.responses.ApiResponses;
 import io.swagger.v3.parser.core.models.SwaggerParseResult;
+import net.sf.saxon.ma.json.XMLToJsonFn;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.fife.ui.rsyntaxtextarea.parser.XmlParser;
 import org.springframework.http.HttpMethod;
 
 import java.io.InputStream;
+import java.math.BigDecimal;
 import java.util.*;
 
 
@@ -334,6 +337,16 @@ public class Swagger3Parser extends SwaggerAbstractParser {
         } else if (schema instanceof BinarySchema) {
             return getDefaultValueByPropertyType(schema);
         } else {
+            if(schema.getType() != null) {  //  特判属性不是对象的情况，直接将基本类型赋值进去
+                if(StringUtils.equals(schema.getType(), "string")) {
+                    String example = (String) schema.getExample();
+                    return example == null ? "" : example;
+                } else if(StringUtils.equals(schema.getType(), "boolean")) {
+                    return schema.getExample();
+                } else if(StringUtils.equals(schema.getType(), "double")) {
+                    return schema.getExample();
+                }
+            }
             Object propertiesResult = parseSchemaProperties(schema, refSet, infoMap);
             return propertiesResult == null ? getDefaultValueByPropertyType(schema) : propertiesResult;
         }
@@ -432,7 +445,9 @@ public class Swagger3Parser extends SwaggerAbstractParser {
             JSONObject requestBody = buildRequestBody(requestObject);
             swaggerApiInfo.setRequestBody(requestBody);
             //  设置响应体
-            swaggerApiInfo.setResponses(new JSONObject());
+//            JSONObject reponseObject = JSON.parseObject(apiDefinition.getResponse());
+//            swaggerApiInfo.setResponses(buildResponseBody(reponseObject));
+            //.....
             //  设置请求参数列表
             List<JSONObject> paramsList = buildParameters(requestObject);
             swaggerApiInfo.setParameters(paramsList);
@@ -459,6 +474,9 @@ public class Swagger3Parser extends SwaggerAbstractParser {
             if(params != null) {
                 for(int i = 0; i < params.size(); ++i) {
                     JSONObject param = params.getJSONObject(i); //  对于每个参数:
+                    if(param.get("name") == null || StringUtils.isEmpty(((String) param.get("name")))) {
+                        continue;
+                    }   //  否则无参数的情况，可能多出一行空行
                     SwaggerParams swaggerParam = new SwaggerParams();
                     swaggerParam.setIn(typeMap.get(type));  //  利用 map，根据 request 的 key 设置对应的参数类型
                     swaggerParam.setDescription((String) param.get("description"));
@@ -480,9 +498,20 @@ public class Swagger3Parser extends SwaggerAbstractParser {
             put("Form Data", org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE);
             put("WWW_FORM", org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED_VALUE);
         }};
+        JSONObject bodyInfo = new JSONObject();
+        if(request.getJSONObject("body") != null && request.getJSONObject("body").containsKey("raw")) {
+            String bodyType = request.getJSONObject("body").getString("type");
+            if(bodyType.equals("JSON")) {
+                bodyInfo = buildRequestBodyJsonInfo(request.getJSONObject("body").getJSONObject("raw"));
+            } else if(bodyType.equals("XML")) {
+                String xmlText = request.getJSONObject("body").getString("raw");
+                JSONObject xmlToJson = XMLUtils.XmlToJson(xmlText);
+                bodyInfo = buildRequestBodyJsonInfo(xmlToJson);
+            }
+        }
         String type = request.getJSONObject("body").getString("type");
         JSONObject requestBody = new JSONObject();
-        JSONObject schema = new JSONObject();
+        JSONObject schema = bodyInfo;   //  需要转换导出
         JSONObject typeName = new JSONObject();
         schema.put("type", null);
         schema.put("format", null);
@@ -493,5 +522,56 @@ public class Swagger3Parser extends SwaggerAbstractParser {
         }
         requestBody.put("content", content);
         return requestBody;
+    }
+
+    //  将请求体中的一个 json 对象转换成 swagger 格式的 json 对象返回
+    private JSONObject buildRequestBodyJsonInfo(JSONObject requestBody) {
+        JSONObject schema = new JSONObject();
+        schema.put("type", "object");
+        JSONObject properties = buildSchema(requestBody);
+        schema.put("properties", properties);
+        return schema;
+    }
+
+    //  设置一个 json 对象的属性在 swagger 格式中的类型、值
+    private JSONObject buildSchema(JSONObject requestBody) {
+        JSONObject schema = new JSONObject();
+        for(String key : requestBody.keySet()) {
+            Object param = requestBody.get(key);
+            JSONObject parsedParam = new JSONObject();
+            if(param instanceof java.lang.String) {
+                parsedParam.put("type", "string");
+                parsedParam.put("example", param == null? "" : param);
+            } else if(param instanceof java.lang.Integer) {
+                parsedParam.put("type", "integer");
+                parsedParam.put("format", "int64");
+                parsedParam.put("example", param);
+            } else if(param instanceof JSONObject) {
+                parsedParam = buildRequestBodyJsonInfo((JSONObject) param);
+            } else if(param instanceof java.lang.Boolean) {
+                parsedParam.put("type", "boolean");
+                parsedParam.put("example", param);
+            } else if(param instanceof java.math.BigDecimal) {  //  double 类型会被 fastJson 转换为 BigDecimal
+                parsedParam.put("type", "double");
+                parsedParam.put("example", param);
+            } else {    //  JSONOArray
+                parsedParam.put("type", "array");
+                JSONObject item = new JSONObject();
+                if(((JSONArray) param).size() > 0) {
+                    if(((JSONArray) param).get(0) instanceof JSONObject) {  ///
+                        item = buildRequestBodyJsonInfo((JSONObject) ((JSONArray) param).get(0));
+                    }
+                }
+                parsedParam.put("items", item);
+            }
+            schema.put(key, parsedParam);
+        }
+        return schema;
+    }
+
+    private JSONObject buildResponseBody(JSONObject reponse) {
+        JSONObject responseBody = new JSONObject();
+
+        return responseBody;
     }
 }

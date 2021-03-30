@@ -276,18 +276,18 @@
             <artifactId>spring-boot-starter-data-ldap</artifactId>
         </dependency>
 
-        <!-- swagger2 解析 -->
-        <dependency>
-            <groupId>io.swagger</groupId>
-            <artifactId>swagger-parser</artifactId>
-            <version>1.0.51</version>
-        </dependency>
-
-        <!-- swagger3 解析 最新版本会有swagger-core版本冲突 -->
+        <!-- swagger 解析 -->
         <dependency>
             <groupId>io.swagger.parser.v3</groupId>
             <artifactId>swagger-parser</artifactId>
-            <version>2.0.18</version>
+            <version>2.0.22</version>
+        </dependency>
+
+        <!-- ApacheJMeter_core scope 是 runtime，这里去掉scope -->
+        <dependency>
+            <groupId>org.codehaus.groovy</groupId>
+            <artifactId>groovy-jsr223</artifactId>
+            <version>2.5.10</version>
         </dependency>
 
         <!-- 执行 js 代码依赖 -->

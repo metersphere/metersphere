@@ -104,7 +104,7 @@
             </template>
           </el-table-column>
         </template>
-        <el-table-column v-if="!isReadOnly" :label="$t('commons.operating')" align="center">
+        <el-table-column  v-if="!isReadOnly" :label="$t('commons.operating')" >
           <template slot="header">
             <header-label-operate @exec="customHeader"/>
           </template>
@@ -161,7 +161,7 @@ import TestPlanApiCaseResult from "./TestPlanApiCaseResult";
 import TestPlan from "../../../../../api/definition/components/jmeter/components/test-plan";
 import ThreadGroup from "../../../../../api/definition/components/jmeter/components/thread-group";
 import {TEST_PLAN_API_CASE, WORKSPACE_ID} from "@/common/js/constants";
-import {_filter, _sort, getLabel, getSystemLabel} from "@/common/js/tableUtils";
+import {_filter, _sort, getLabel} from "@/common/js/tableUtils";
 import HeaderCustom from "@/business/components/common/head/HeaderCustom";
 import {Test_Plan_Api_Case} from "@/business/components/common/model/JsonData";
 import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOperate";
@@ -268,7 +268,6 @@ export default {
   created: function () {
     this.getMaintainerOptions();
     this.initTable();
-    getSystemLabel(this, this.type)
 
   },
   activated() {

@@ -32,7 +32,7 @@
 
         <span v-if="!disabled" class="node-operate child">
           <el-tooltip
-            v-if="data.id != 'root'"
+            v-if="data.id != 'root' && data.name !='默认模块'"
             class="item"
             effect="dark"
             :open-delay="200"
@@ -49,7 +49,7 @@
             <i @click.stop="append(node, data)" class="el-icon-circle-plus-outline"></i>
           </el-tooltip>
           <el-tooltip
-            v-if="data.id != 'root'"
+            v-if="data.id != 'root' && data.name !='默认模块'"
             class="item" effect="dark"
             :open-delay="200"
             :content="$t('commons.delete')"
@@ -230,7 +230,7 @@ export default {
       if (dropType === "none" || dropType === undefined) {
         return;
       }
-      if (dropNode.data.id === 'root' && dropType === 'before') {
+      if (dropNode.data.id === 'root' && dropType === 'before' || draggingNode.data.name==='默认模块') {
         this.$emit('refresh');
         return false;
       }

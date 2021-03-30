@@ -161,7 +161,7 @@ import {
   _handleSelect,
   _handleSelectAll,
   _sort, buildBatchParam, getLabel,
-  getSelectDataCounts, getSystemLabel, initCondition,
+  getSelectDataCounts, initCondition,
   setUnSelectIds,
   toggleAllSelection
 } from "@/common/js/tableUtils";
@@ -393,7 +393,10 @@ export default {
             item.tags = JSON.parse(item.tags);
           })
           if (this.$refs.table) {
-            setTimeout(this.$refs.table.doLayout, 200)
+            setTimeout(() => {
+              this.$refs.table.doLayout();
+              this.result.loading = false;
+            }, 500)
           }
 
           this.$nextTick(function(){

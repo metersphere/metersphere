@@ -3,10 +3,7 @@ package io.metersphere.api.service;
 import com.alibaba.fastjson.JSON;
 import io.metersphere.api.dto.datacount.ExecutedCaseInfoResult;
 import io.metersphere.api.jmeter.TestResult;
-import io.metersphere.base.domain.ApiDefinitionExecResult;
-import io.metersphere.base.domain.ApiDefinitionExecResultExample;
-import io.metersphere.base.domain.ApiTestCaseWithBLOBs;
-import io.metersphere.base.domain.TestPlanApiCase;
+import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ApiDefinitionExecResultMapper;
 import io.metersphere.base.mapper.ApiTestCaseMapper;
 import io.metersphere.base.mapper.ext.ExtApiDefinitionExecResultMapper;
@@ -43,7 +40,7 @@ public class ApiDefinitionExecResultService {
     @Resource
     private ApiTestCaseMapper apiTestCaseMapper;
     @Resource
-    private TestCaseReviewApiCaseService  testCaseReviewApiCaseService;
+    private TestCaseReviewApiCaseService testCaseReviewApiCaseService;
 
     @Resource
     SqlSessionFactory sqlSessionFactory;
@@ -73,6 +70,13 @@ public class ApiDefinitionExecResultService {
                     testCaseReviewApiCaseService.setExecResult(item.getName(), status);
 
                 }
+
+                // 清空上次执行结果的内容，只保留当前最新一条内容
+                ApiDefinitionExecResult prevResult = extApiDefinitionExecResultMapper.selectMaxResultByResourceIdAndType(item.getName(), type);
+                if (prevResult != null) {
+                    prevResult.setContent(null);
+                    definitionExecResultMapper.updateByPrimaryKeyWithBLOBs(prevResult);
+                }
                 // 更新用例最后执行结果
                 ApiTestCaseWithBLOBs apiTestCaseWithBLOBs = new ApiTestCaseWithBLOBs();
                 apiTestCaseWithBLOBs.setId(saveResult.getResourceId());
@@ -94,7 +98,7 @@ public class ApiDefinitionExecResultService {
      */
     public void saveApiResultByScheduleTask(TestResult result, String type) {
         String saveResultType = type;
-        if(StringUtils.equalsAny(ApiRunMode.SCHEDULE_API_PLAN.name(),saveResultType)){
+        if (StringUtils.equalsAny(ApiRunMode.SCHEDULE_API_PLAN.name(), saveResultType)) {
             saveResultType = ApiRunMode.API_PLAN.name();
         }
 
@@ -127,6 +131,12 @@ public class ApiDefinitionExecResultService {
             }
 
             saveResult.setUserId(userID);
+            // 前一条数据内容清空
+            ApiDefinitionExecResult prevResult = extApiDefinitionExecResultMapper.selectMaxResultByResourceIdAndType(item.getName(), finalSaveResultType);
+            if (prevResult != null) {
+                prevResult.setContent(null);
+                apiDefinitionExecResultMapper.updateByPrimaryKeyWithBLOBs(prevResult);
+            }
             apiDefinitionExecResultMapper.insert(saveResult);
         });
     }

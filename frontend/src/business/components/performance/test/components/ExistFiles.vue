@@ -154,35 +154,39 @@ export default {
       }
 
       let rows = this.existFiles.filter(f => this.selectIds.has(f.id));
+      let jmxIds = [];
       for (let i = 0; i < rows.length; i++) {
         let row = rows[i];
         if (this.tableData.filter(f => f.name === row.name).length > 0) {
-          this.$error(this.$t('load_test.delete_file'));
-          this.selectIds.clear();
-          return;
+          setTimeout(() => {
+            this.$warning(this.$t('load_test.delete_file') + 'name: ' + row.name);
+          }, 100);
+          continue;
         }
+        if (row.type.toUpperCase() === 'JMX') {
+          jmxIds.push(row.id);
+        }
+        this.tableData.push({
+          name: row.name,
+          size: (row.size / 1024).toFixed(2) + ' KB',
+          type: row.type.toUpperCase(),
+          updateTime: row.lastModified,
+        });
       }
 
       if (this.loadType === 'resource') {
         rows.forEach(row => {
           this.fileList.push(row);
-          this.tableData.push({
-            name: row.name,
-            size: (row.size / 1024).toFixed(2) + ' KB',
-            type: row.type.toUpperCase(),
-            updateTime: row.lastModified,
-          });
         })
         this.$success(this.$t('test_track.case.import.success'));
-        this.loadFileVisible = false;
-        this.selectIds.clear();
+        this.close();
         return;
       }
 
-      this.getJmxContents();
+      this.getJmxContents(jmxIds);
     },
-    getJmxContents() {
-      this.projectLoadingResult = this.$post('/performance/export/jmx', [...this.selectIds], (response) => {
+    getJmxContents(jmxIds) {
+      this.projectLoadingResult = this.$post('/performance/export/jmx', jmxIds, (response) => {
         let data = response.data;
         if (!data) {
           return;
@@ -195,18 +199,11 @@ export default {
           });
           let file = new File([d.jmx], d.name);
           this.uploadList.push(file);
-          this.tableData.push({
-            name: file.name,
-            size: (file.size / 1024).toFixed(2) + ' KB',
-            type: 'JMX',
-            updateTime: file.lastModified,
-          });
         });
 
         this.$emit('fileChange', this.scenarios);
         this.$success(this.$t('test_track.case.import.success'));
-        this.loadFileVisible = false;
-        this.selectIds.clear();
+        this.close();
       });
     },
     beforeUploadFile(file) {
@@ -216,7 +213,7 @@ export default {
       }
 
       if (this.tableData.filter(f => f.name === file.name).length > 0) {
-        this.$error(this.$t('load_test.delete_file'));
+        this.$error(this.$t('load_test.delete_file') + ', name: ' + file.name);
         return false;
       }
     },

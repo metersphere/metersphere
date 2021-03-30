@@ -163,7 +163,6 @@ public abstract class MsTestElement {
                 element = mapper.readValue(apiDefinition.getRequest(), new TypeReference<MsTestElement>() {
                 });
                 hashTree.add(element);
-                OldVersionUtil.transferHashTree(hashTree);
             }
         } catch (Exception ex) {
             ex.printStackTrace();
