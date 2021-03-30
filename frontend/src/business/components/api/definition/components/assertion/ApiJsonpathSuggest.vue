@@ -163,4 +163,9 @@ export default {
     margin-left: 6px;
   }
 
+  /deep/ .el-icon-close:hover {
+    font-size: 30px;
+    font-weight: bold;
+  }
+
 </style>
