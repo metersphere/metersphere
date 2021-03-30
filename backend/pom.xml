@@ -283,6 +283,13 @@
             <version>2.0.22</version>
         </dependency>
 
+        <!-- ApacheJMeter_core scope 是 runtime，这里去掉scope -->
+        <dependency>
+            <groupId>org.codehaus.groovy</groupId>
+            <artifactId>groovy-jsr223</artifactId>
+            <version>2.5.10</version>
+        </dependency>
+
         <!-- 执行 js 代码依赖 -->
         <dependency>
             <groupId>org.graalvm.sdk</groupId>

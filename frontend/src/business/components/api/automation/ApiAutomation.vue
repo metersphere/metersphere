@@ -197,6 +197,10 @@
             currentScenario.apiScenarioModuleId = this.nodeTree[0].id;
             currentScenario.modulePath = this.nodeTree[0].path;
           }
+
+          if (this.selectNodeIds && this.selectNodeIds.length > 0) {
+            currentScenario.apiScenarioModuleId = this.selectNodeIds[0];
+          }
           this.tabs.push({label: label, name: name, currentScenario: currentScenario});
         }
         if (tab.name === 'edit') {

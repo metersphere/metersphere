@@ -130,7 +130,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         }
 
         // 1.8 之前历史数据
-        if(StringUtils.isEmpty(this.getProjectId()) && config.getConfig()!= null && !config.getConfig().isEmpty()){
+        if (StringUtils.isEmpty(this.getProjectId()) && config.getConfig() != null && !config.getConfig().isEmpty()) {
             this.setProjectId("historyProjectID");
         }
 
@@ -154,10 +154,11 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                     }
                     URL urlObject = new URL(url);
                     sampler.setDomain(URLDecoder.decode(urlObject.getHost(), "UTF-8"));
-                    if (urlObject.getPort() > 0 && urlObject.getPort() != 10990 && StringUtils.isNotEmpty(this.getPort()) && this.getPort().startsWith("${")) {
-                        sampler.setPort(urlObject.getPort());
-                    } else {
+
+                    if (urlObject.getPort() > 0 && urlObject.getPort() == 10990 && StringUtils.isNotEmpty(this.getPort()) && this.getPort().startsWith("${")) {
                         sampler.setProperty("HTTPSampler.port", this.getPort());
+                    } else {
+                        sampler.setPort(urlObject.getPort());
                     }
                     sampler.setProtocol(urlObject.getProtocol());
                     sampler.setPath(urlObject.getPath());

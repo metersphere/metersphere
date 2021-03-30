@@ -28,7 +28,7 @@
       <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
       <esb-definition v-xpack v-if="showXpackCompnent" :show-script="false" :request="request" ref="esbDefinition"/>
       <p class="tip">{{$t('api_test.definition.request.res_param')}}</p>
-      <esb-definition-response :is-api-component="true" :show-options-button="true" :request="request" />
+      <esb-definition-response v-xpack v-if="showXpackCompnent" :is-api-component="true" :show-options-button="true" :request="request" />
 <!--      <api-response-component :currentProtocol="apiCase.request.protocol" :api-item="apiCase"/>-->
     </div>
 
