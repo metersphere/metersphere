@@ -296,7 +296,7 @@
         }
         let api = {
           status: "Underway", method: "GET", userId: getCurrentUser().id,
-          url: "", protocol: this.currentProtocol, environmentId: "", moduleId: 'root', modulePath: "/" + this.$t("commons.module_title")
+          url: "", protocol: this.currentProtocol, environmentId: "", moduleId: 'default-module', modulePath: "/" + this.$t("commons.module_title")
         };
         if (this.nodeTree && this.nodeTree.length > 0) {
           api.moduleId = this.nodeTree[0].id;
