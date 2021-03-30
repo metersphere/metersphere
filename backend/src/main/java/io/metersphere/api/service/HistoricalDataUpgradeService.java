@@ -82,11 +82,6 @@ public class HistoricalDataUpgradeService {
         scenario.setName(oldScenario.getName());
         scenario.setEnableCookieShare(oldScenario.isEnableCookieShare());
         scenario.setEnvironmentId(oldScenario.getEnvironmentId());
-        if (StringUtils.isNotEmpty(oldScenario.getEnvironmentId())) {
-            HashMap<String, String> envMap = new HashMap<>();
-            envMap.put(projectId, oldScenario.getEnvironmentId());
-            scenario.setEnvironmentMap(envMap);
-        }
         scenario.setReferenced("Upgrade");
         scenario.setId(oldScenario.getId());
         scenario.setResourceId(UUID.randomUUID().toString());
@@ -431,9 +426,6 @@ public class HistoricalDataUpgradeService {
             num++;
             scenarioTest.setHashTree(listSteps);
             if (StringUtils.isNotEmpty(envId)) {
-                HashMap<String, String> envMap = new HashMap<>();
-                envMap.put(saveHistoricalDataUpgrade.getProjectId(), envId);
-                scenarioTest.setEnvironmentMap(envMap);
                 scenarioTest.setEnvironmentId(envId);
             }
 

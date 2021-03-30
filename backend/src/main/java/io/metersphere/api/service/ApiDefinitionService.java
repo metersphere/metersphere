@@ -262,7 +262,7 @@ public class ApiDefinitionService {
         test.setEnvironmentId(request.getEnvironmentId());
         test.setUserId(request.getUserId());
         test.setTags(request.getTags());
-        if (StringUtils.isEmpty(request.getModulePath()) || StringUtils.isEmpty(request.getModuleId())) {
+        if (StringUtils.isEmpty(request.getModuleId())) {
             test.setModulePath("/默认模块");
             test.setModuleId("root");
         }
@@ -290,7 +290,7 @@ public class ApiDefinitionService {
         test.setStatus(APITestStatus.Underway.name());
         test.setModulePath(request.getModulePath());
         test.setModuleId(request.getModuleId());
-        if (StringUtils.isEmpty(request.getModulePath()) || StringUtils.isEmpty(request.getModuleId())) {
+        if (StringUtils.isEmpty(request.getModuleId())) {
             test.setModulePath("/默认模块");
             test.setModuleId("root");
         }
@@ -604,7 +604,7 @@ public class ApiDefinitionService {
         }
         for (int i = 0; i < data.size(); i++) {
             ApiDefinitionWithBLOBs item = data.get(i);
-            if (StringUtils.isEmpty(item.getModuleId()) || StringUtils.isEmpty(item.getModulePath())) {
+            if (StringUtils.isEmpty(item.getModuleId())) {
                 item.setModuleId("root");
                 item.setModulePath("/默认模块");
             }
