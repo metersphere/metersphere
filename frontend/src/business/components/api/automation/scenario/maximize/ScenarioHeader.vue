@@ -19,8 +19,6 @@
       <el-checkbox v-model="cookieShare" @change="setCookieShare" style="margin-right: 20px">共享cookie</el-checkbox>
 
       <env-popover :env-map="envMap" :project-ids="projectIds" @setProjectEnvMap="setProjectEnvMap"
-                   :disabled="scenarioDefinition.length < 1"
-                   :is-read-only="scenarioDefinition.length < 1"
                    :project-list="projectList" ref="envPopover" class="ms-right"/>
 
       <el-button :disabled="scenarioDefinition.length < 1" size="mini" type="primary" v-prevent-re-click @click="runDebug">{{$t('api_test.request.debug')}}</el-button>
