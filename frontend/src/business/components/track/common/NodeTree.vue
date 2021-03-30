@@ -32,7 +32,7 @@
 
         <span v-if="!disabled" class="node-operate child">
           <el-tooltip
-            v-if="data.id != 'root'"
+            v-if="data.id != 'root' && data.id !='default-module'"
             class="item"
             effect="dark"
             :open-delay="200"
@@ -49,7 +49,7 @@
             <i @click.stop="append(node, data)" class="el-icon-circle-plus-outline"></i>
           </el-tooltip>
           <el-tooltip
-            v-if="data.id != 'root'"
+            v-if="data.id != 'root' && data.id !='default-module'"
             class="item" effect="dark"
             :open-delay="200"
             :content="$t('commons.delete')"
