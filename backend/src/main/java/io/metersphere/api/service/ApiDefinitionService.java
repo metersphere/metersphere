@@ -264,7 +264,7 @@ public class ApiDefinitionService {
         test.setEnvironmentId(request.getEnvironmentId());
         test.setUserId(request.getUserId());
         test.setTags(request.getTags());
-        if (StringUtils.isEmpty(request.getModulePath()) || StringUtils.isEmpty(request.getModuleId()) || "default-module".equals(request.getModuleId())) {
+        if (StringUtils.isEmpty(request.getModuleId()) || "default-module".equals(request.getModuleId())) {
             ApiModuleExample example = new ApiModuleExample();
             example.createCriteria().andProjectIdEqualTo(test.getProjectId()).andProtocolEqualTo(test.getProtocol()).andNameEqualTo("默认模块");
             List<ApiModule> modules = apiModuleMapper.selectByExample(example);
@@ -297,7 +297,7 @@ public class ApiDefinitionService {
         test.setStatus(APITestStatus.Underway.name());
         test.setModulePath(request.getModulePath());
         test.setModuleId(request.getModuleId());
-        if (StringUtils.isEmpty(request.getModulePath()) || StringUtils.isEmpty(request.getModuleId()) || "default-module".equals(request.getModuleId())) {
+        if (StringUtils.isEmpty(request.getModuleId()) || "default-module".equals(request.getModuleId())) {
             ApiModuleExample example = new ApiModuleExample();
             example.createCriteria().andProjectIdEqualTo(test.getProjectId()).andProtocolEqualTo(test.getProtocol()).andNameEqualTo("默认模块");
             List<ApiModule> modules = apiModuleMapper.selectByExample(example);
@@ -616,7 +616,7 @@ public class ApiDefinitionService {
         }
         for (int i = 0; i < data.size(); i++) {
             ApiDefinitionWithBLOBs item = data.get(i);
-            if (StringUtils.isEmpty(item.getModuleId()) || StringUtils.isEmpty(item.getModulePath()) || "default-module".equals(item.getModuleId())) {
+            if (StringUtils.isEmpty(item.getModuleId()) || "default-module".equals(item.getModuleId())) {
                 ApiModuleExample example = new ApiModuleExample();
                 example.createCriteria().andProjectIdEqualTo(item.getProjectId()).andProtocolEqualTo(item.getProtocol()).andNameEqualTo("默认模块");
                 List<ApiModule> modules = apiModuleMapper.selectByExample(example);
