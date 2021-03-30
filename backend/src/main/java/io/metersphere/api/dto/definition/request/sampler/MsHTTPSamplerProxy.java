@@ -163,7 +163,11 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                     sampler.setProtocol(urlObject.getProtocol());
                     sampler.setPath(urlObject.getPath());
                 } else {
-                    sampler.setDomain(config.getConfig().get(this.getProjectId()).getHttpConfig().getDomain());
+                    String configStr = config.getConfig().get(this.getProjectId()).getHttpConfig().getSocket();
+                    sampler.setDomain(configStr);
+                    if (config.getConfig().get(this.getProjectId()).getHttpConfig().getPort() > 0) {
+                        sampler.setDomain(config.getConfig().get(this.getProjectId()).getHttpConfig().getDomain());
+                    }
                     sampler.setPort(config.getConfig().get(this.getProjectId()).getHttpConfig().getPort());
                     sampler.setProtocol(config.getConfig().get(this.getProjectId()).getHttpConfig().getProtocol());
                     sampler.setPath(this.getPath());
