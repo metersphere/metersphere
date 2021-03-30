@@ -118,6 +118,7 @@
                     <el-input-number
                       :disabled="isReadOnly"
                       :min="1"
+                      :max="threadGroup.duration"
                       v-model="threadGroup.rampUpTime"
                       @change="calculateTotalChart(threadGroup)"
                       size="mini"/>
