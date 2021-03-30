@@ -241,7 +241,7 @@ public class ApiAutomationService {
         } else {
             scenario.setUserId(request.getUserId());
         }
-        if (StringUtils.isEmpty(request.getApiScenarioModuleId()) || StringUtils.isEmpty(request.getModulePath()) || "default-module".equals(request.getApiScenarioModuleId())) {
+        if (StringUtils.isEmpty(request.getApiScenarioModuleId()) || "default-module".equals(request.getApiScenarioModuleId())) {
             ApiScenarioModuleExample example = new ApiScenarioModuleExample();
             example.createCriteria().andProjectIdEqualTo(request.getProjectId()).andNameEqualTo("默认模块");
             List<ApiScenarioModule> modules = apiScenarioModuleMapper.selectByExample(example);
