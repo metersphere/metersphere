@@ -100,7 +100,14 @@
             <div class="ms-debug-div" @click="showAll">
               <el-row style="margin: 5px">
                 <el-col :span="6" class="ms-col-one ms-font">
-                  {{ currentScenario.name === undefined || '' ? $t('api_test.scenario.name') : currentScenario.name }}
+                  <el-tooltip placement="top" effect="light">
+                    <template v-slot:content>
+                      <div>{{ currentScenario.name }}</div>
+                    </template>
+                    <span class="scenario-name">
+                        {{ currentScenario.name === undefined || '' ? $t('api_test.scenario.name') : currentScenario.name }}
+                    </span>
+                  </el-tooltip>
                 </el-col>
                 <el-col :span="3" class="ms-col-one ms-font">
                   {{$t('api_test.automation.step_total')}}：{{scenarioDefinition.length}}
@@ -447,7 +454,7 @@
       },
     },
     methods: {
-      setModule(id,data) {
+      setModule(id, data) {
         this.currentScenario.apiScenarioModuleId = id;
         this.currentScenario.modulePath = data.path;
       },
@@ -1250,4 +1257,14 @@
     font-size: 18px;
   }
 
+  .scenario-name {
+    display: inline-block;
+    margin: 0 5px;
+    overflow-x: hidden;
+    padding-bottom: 0;
+    text-overflow: ellipsis;
+    vertical-align: middle;
+    white-space: nowrap;
+    width: 200px;
+  }
 </style>

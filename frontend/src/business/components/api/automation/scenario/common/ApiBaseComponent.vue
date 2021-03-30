@@ -32,7 +32,7 @@
         </el-tooltip>
         <slot name="button"></slot>
         <el-tooltip content="Copy" placement="top">
-          <el-button size="mini" icon="el-icon-copy-document" circle @click="copyRow" style="padding: 5px"/>
+          <el-button size="mini" icon="el-icon-copy-document" circle @click="copyRow" style="padding: 5px" :disabled="data.disabled && !data.root"/>
         </el-tooltip>
         <step-extend-btns style="display: contents" :data="data" @copy="copyRow" @remove="remove" @openScenario="openScenario" v-if="showBtn && (!data.disabled || data.root)"/>
       </div>

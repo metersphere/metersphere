@@ -171,7 +171,7 @@ public class ApiDefinitionController {
     @PostMapping(value = "/import", consumes = {"multipart/form-data"})
     @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
     public ApiDefinitionImport testCaseImport(@RequestPart(value = "file", required = false) MultipartFile file, @RequestPart("request") ApiTestImportRequest request) {
-        return apiDefinitionService.apiTestImport(file, request);
+        return apiDefinitionService.apiTestImport(file, request);//95821329-9eaa-4d2a-aa24-e6f912994716"
     }
 
     @PostMapping(value = "/export/{type}")

@@ -37,6 +37,7 @@ import MsNodeTree from "./NodeTree";
 import TestCaseCreate from "@/business/components/track/case/components/TestCaseCreate";
 import TestCaseImport from "@/business/components/track/case/components/TestCaseImport";
 import MsSearchBar from "@/business/components/common/components/search/MsSearchBar";
+import {buildTree} from "../../api/definition/model/NodeTree";
 
 export default {
   name: "TestCaseNodeTree",
@@ -115,6 +116,9 @@ export default {
       if (this.projectId) {
         this.result = this.$get("/case/node/list/" + this.projectId, response => {
           this.treeNodes = response.data;
+          this.treeNodes.forEach(node => {
+            buildTree(node, {path: ''});
+          });
           if (this.$refs.nodeTree) {
             this.$refs.nodeTree.filter();
           }

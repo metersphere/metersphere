@@ -95,7 +95,7 @@
         <!-- HTTP 请求返回数据 -->
         <p class="tip">{{$t('api_test.definition.request.res_param')}}</p>
         <div v-if="showXpackCompnent&&api.method==='ESB'">
-          <esb-definition-response :currentProtocol="apiCase.request.protocol" :request="apiCase.request" :is-api-component="false" :show-options-button="false" :show-header="true" :api-item="apiCase"/>
+          <esb-definition-response v-xpack v-if="showXpackCompnent"  :currentProtocol="apiCase.request.protocol" :request="apiCase.request" :is-api-component="false" :show-options-button="false" :show-header="true" :api-item="apiCase"/>
         </div>
         <div v-else>
           <api-response-component :currentProtocol="apiCase.request.protocol" :api-item="apiCase"/>
@@ -275,7 +275,7 @@
         }
       },
       addModule(row) {
-        this.saveApi(row, "root");
+        this.saveApi(row, "default-module");
       },
       saveApi(row, module) {
         let data = this.api;
