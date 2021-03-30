@@ -333,10 +333,6 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
         for (SampleResult subResult : result.getSubResults()) {
             requestResult.getSubRequestResults().add(getRequestResult(subResult));
         }
-        for (SampleResult subResult : result.getSubResults()) {
-            requestResult.getSubRequestResults().add(getRequestResult(subResult));
-        }
-
         ResponseResult responseResult = requestResult.getResponseResult();
         responseResult.setBody(result.getResponseDataAsString());
         responseResult.setHeaders(result.getResponseHeaders());

@@ -97,7 +97,7 @@
 
 <script>
   import MsDialogFooter from "../../../../common/components/MsDialogFooter";
-  import {listenGoBack, removeGoBackListener} from "@/common/js/utils";
+  import {listenGoBack, removeGoBackListener,hasLicense} from "@/common/js/utils";
   import ScheduleImport from "@/business/components/api/definition/components/import/ImportScheduleEdit";
   import MsSelectTree from "../../../../common/select-tree/SelectTree";
 
@@ -122,6 +122,7 @@
         swaggerUrlEnable: false,
         swaggerSynchronization: false,
         showEnvironmentSelect: true,
+        showXpackCompnent:false,
         moduleObj: {
           id: 'id',
           label: 'name',
@@ -228,7 +229,9 @@
           this.platforms.splice(this.platforms.indexOf(this.esbPlanform), 1);
         }
         if (this.propotal === 'TCP') {
-          this.platforms.push(this.esbPlanform);
+          if(hasLicense()){
+            this.platforms.push(this.esbPlanform);
+          }
           return true;
         } else if (this.propotal === 'HTTP') {
           this.platforms.push(this.postmanPlanform);

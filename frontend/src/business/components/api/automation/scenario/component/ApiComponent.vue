@@ -64,7 +64,7 @@
           </el-tabs>
         </div>
         <div v-else-if="showXpackCompnent&&request.backEsbDataStruct != null">
-          <esb-definition-response :currentProtocol="request.protocol" :request="request" :is-api-component="false"
+          <esb-definition-response v-xpack v-if="showXpackCompnent"  :currentProtocol="request.protocol" :request="request" :is-api-component="false"
                                    :show-options-button="false" :show-header="true" :result="request.requestResult"/>
         </div>
         <div v-else>
