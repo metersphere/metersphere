@@ -117,6 +117,9 @@
         if (this.currentModule && this.currentModule.id != "root") {
           this.scenarioForm.modulePath = this.currentModule.method !== undefined ? this.currentModule.method : null;
           this.scenarioForm.apiScenarioModuleId = this.currentModule.id;
+        }else{
+          this.scenarioForm.modulePath = this.$t("commons.module_title");
+          this.scenarioForm.apiScenarioModuleId = "default-module";
         }
       },
       getMaintainerOptions() {

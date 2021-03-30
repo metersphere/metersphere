@@ -35,7 +35,7 @@
 
             <el-col :span="7">
               <el-form-item :label="$t('test_track.case.module')" :label-width="formLabelWidth" prop="module">
-                <ms-select-tree :disabled="readOnly" :data="moduleOptions" :defaultKey="form.module" :obj="moduleObj"
+                <ms-select-tree :disabled="readOnly" :data="treeNodes" :defaultKey="form.module" :obj="moduleObj"
                                 @getValue="setModule" clearable checkStrictly size="small" />
               </el-form-item>
             </el-col>
@@ -314,7 +314,7 @@ export default {
       dialogFormVisible: false,
       form: {
         name: '',
-        module: 'root',
+        module: 'default-module',
         nodePath:'',
         maintainer: getCurrentUser().id,
         priority: 'P0',
@@ -416,10 +416,6 @@ export default {
         };
       });
     }, 1000);
-    if(this.selectNode && this.selectNode.data){
-      this.form.module = this.selectNode.data.id;
-      this.form.nodePath = this.selectNode.data.path;
-    }
   },
   watch: {
     treeNodes() {
@@ -432,7 +428,14 @@ export default {
   created() {
     this.loadOptions();
     this.addListener(); //  添加 ctrl s 监听
-
+    if(this.selectNode && this.selectNode.data && this.form.id){
+      this.form.module = this.selectNode.data.id;
+      this.form.nodePath = this.selectNode.data.path;
+    }
+    if (this.type === 'edit' || this.type === 'copy') {
+      this.form.module = this.currentTestCaseInfo.nodeId;
+      this.form.nodePath = this.currentTestCaseInfo.nodePath;
+    }
   },
   methods: {
     setModule(id,data) {
@@ -836,16 +839,11 @@ export default {
       this.getTestOptions()
     },
     getModuleOptions() {
-      this.moduleOptions = [];
-      this.moduleOptions.unshift({
-        "id": "root",
-        "name": this.$t('commons.module_title'),
-        "level": 0,
-        "children": this.treeNodes,
+      let moduleOptions = [];
+      this.treeNodes.forEach(node => {
+        buildNodePath(node, {path: ''}, moduleOptions);
       });
-      this.moduleOptions.forEach(node => {
-        buildTree(node, {path: ''});
-      });
+      this.moduleOptions = moduleOptions;
     },
     getMaintainerOptions() {
       let workspaceId = localStorage.getItem(WORKSPACE_ID);

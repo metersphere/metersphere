@@ -190,7 +190,7 @@
           this.activeName = name;
           let currentScenario = {
             status: "Underway", principal: getCurrentUser().id,
-            apiScenarioModuleId: "root", id: getUUID(),
+            apiScenarioModuleId: "default-module", id: getUUID(),
             modulePath: "/" + this.$t("commons.module_title")
           };
           if (this.nodeTree && this.nodeTree.length > 0) {
