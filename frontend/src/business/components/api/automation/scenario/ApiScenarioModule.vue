@@ -29,7 +29,7 @@
       @refresh="refresh"
       ref="basisScenario"/>
 
-    <api-import ref="apiImport" :moduleOptions="extendTreeNodes" @refreshAll="$emit('refreshAll')"/>
+    <api-import ref="apiImport" :moduleOptions="data" @refreshAll="$emit('refreshAll')"/>
   </div>
 
 </template>
@@ -82,9 +82,7 @@
           trashEnable: false
         },
         data: [],
-        extendTreeNodes: [],
         currentModule: undefined,
-        moduleOptions: [],
         operators: [
           {
             label: this.$t('api_test.automation.add_scenario'),
@@ -141,11 +139,9 @@
             this.result = this.$get("/api/automation/module/list/" + this.projectId, response => {
               if (response.data != undefined && response.data != null) {
                 this.data = response.data;
-                let moduleOptions = [];
                 this.data.forEach(node => {
-                  buildNodePath(node, {path: ''}, moduleOptions);
+                  buildTree(node, {path: ''});
                 });
-                this.moduleOptions = moduleOptions
               }
             });
             this.$refs.apiImport.open(this.currentModule);
@@ -163,11 +159,9 @@
           this.result = this.$get("/api/automation/module/list/" + this.projectId, response => {
             if (response.data != undefined && response.data != null) {
               this.data = response.data;
-              let moduleOptions = [];
               this.data.forEach(node => {
-                buildNodePath(node, {path: ''}, moduleOptions);
+                buildTree(node, {path: ''});
               });
-              this.moduleOptions = moduleOptions
             }
           });
           this.$refs.apiImport.open(this.currentModule);
@@ -188,17 +182,10 @@
         this.result = this.$get(url, response => {
           if (response.data != undefined && response.data != null) {
             this.data = response.data;
-            this.extendTreeNodes = [];
-            this.extendTreeNodes.unshift({
-              "id": "root",
-              "name": this.$t('commons.module_title'),
-              "level": 0,
-              "children": this.data,
-            });
-            this.extendTreeNodes.forEach(node => {
+            this.data.forEach(node => {
               buildTree(node, {path: ''});
             });
-            this.$emit('setModuleOptions', this.extendTreeNodes);
+            this.$emit('setModuleOptions', this.data);
             this.$emit('setNodeTree', this.data);
             if (this.$refs.nodeTree) {
               this.$refs.nodeTree.filter(this.condition.filterText);

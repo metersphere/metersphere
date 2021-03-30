@@ -84,7 +84,7 @@
         callback();
       };
       return {
-        httpForm: {environmentId: "", moduleId: "root"},
+        httpForm: {environmentId: "", moduleId: "default-module"},
         moduleOptions: [],
         httpVisible: false,
         currentModule: {},
@@ -251,14 +251,7 @@
         let url = "/api/module/list/" + getCurrentProjectID() + "/" + data.protocol;
         this.result = this.$get(url, response => {
           if (response.data != undefined && response.data != null) {
-            let data = response.data;
-            this.moduleOptions = [];
-            this.moduleOptions.unshift({
-              "id": "root",
-              "name": this.$t('commons.module_title'),
-              "level": 0,
-              "children": data,
-            });
+            this.moduleOptions = response.data;
             this.moduleOptions.forEach(node => {
               buildTree(node, {path: ''});
             });
@@ -282,7 +275,7 @@
             data.protocol = "DUBBO";
           }
           data.id = getUUID();
-          this.httpForm = {id: data.id, name: data.name, protocol: data.protocol, path: data.path, method: api.method, userId: getCurrentUser().id, request: data, moduleId: "root"};
+          this.httpForm = {id: data.id, name: data.name, protocol: data.protocol, path: data.path, method: api.method, userId: getCurrentUser().id, request: data, moduleId: "default-module"};
           this.getMaintainerOptions();
           this.list(data);
           this.httpVisible = true;
