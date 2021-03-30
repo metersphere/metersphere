@@ -53,6 +53,22 @@ public class ApiScenarioModuleService extends NodeTreeService<ApiScenarioModuleD
     }
 
     public List<ApiScenarioModuleDTO> getNodeTreeByProjectId(String projectId) {
+        // 判断当前项目下是否有默认模块，没有添加默认模块
+        ApiScenarioModuleExample example = new ApiScenarioModuleExample();
+        example.createCriteria().andProjectIdEqualTo(projectId).andNameEqualTo("默认模块");
+        long count = apiScenarioModuleMapper.countByExample(example);
+        if (count <= 0) {
+            ApiScenarioModule record = new ApiScenarioModule();
+            record.setId(UUID.randomUUID().toString());
+            record.setName("默认模块");
+            record.setPos(1.0);
+            record.setLevel(1);
+            record.setCreateTime(System.currentTimeMillis());
+            record.setUpdateTime(System.currentTimeMillis());
+            record.setProjectId(projectId);
+            apiScenarioModuleMapper.insert(record);
+        }
+
         List<ApiScenarioModuleDTO> nodes = extApiScenarioModuleMapper.getNodeTreeByProjectId(projectId);
         return getNodeTrees(nodes);
     }

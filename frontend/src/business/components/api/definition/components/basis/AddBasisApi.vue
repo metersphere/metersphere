@@ -154,6 +154,9 @@
         if (this.currentModule != null) {
           this.httpForm.modulePath = this.currentModule.method != undefined ? this.currentModule.method : null;
           this.httpForm.moduleId = this.currentModule.id;
+        } else {
+          this.httpForm.modulePath = this.$t("commons.module_title");
+          this.httpForm.moduleId = "default-module";
         }
 
       },
