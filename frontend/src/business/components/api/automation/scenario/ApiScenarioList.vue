@@ -441,18 +441,12 @@ export default {
             }
           });
 
-          if (this.$refs.scenarioTable) {
-            setTimeout(() => {
-              this.$refs.scenarioTable.doLayout();
-              this.result.loading = false;
-            }, 500)
-          }
-
           if (!this.condition.selectAll) {
             this.condition.unSelectIds = response.data.listObject.map(s => s.id);
           }
 
           this.$nextTick(function () {
+            this.$refs.scenarioTable.doLayout();
             this.checkTableRowIsSelect();
           })
         });
@@ -837,5 +831,9 @@ export default {
 
 /deep/ .el-card__header {
   padding: 10px;
+}
+
+/deep/ .el-table__fixed-body-wrapper {
+  top: 60px !important;
 }
 </style>

@@ -351,13 +351,9 @@ export default {
               item.tags = JSON.parse(item.tags);
             }
           })
-          if (this.$refs.caseTable) {
-            setTimeout(() => {
-              this.$refs.caseTable.doLayout();
-              this.result.loading = false;
-            }, 500)
-          }
+
           this.$nextTick(function(){
+            this.$refs.caseTable.doLayout();
             this.checkTableRowIsSelect();
           })
         });
@@ -693,5 +689,9 @@ export default {
 
 /deep/ .el-table__fixed {
   height: 100% !important;
+}
+
+/deep/ .el-table__fixed-body-wrapper {
+  top: 60px !important;
 }
 </style>

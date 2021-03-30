@@ -93,7 +93,7 @@ public class TestCaseService {
     TestCaseTestMapper testCaseTestMapper;
 
     private void setNode(TestCaseWithBLOBs testCase){
-        if (StringUtils.isEmpty(testCase.getNodeId()) || StringUtils.isEmpty(testCase.getNodePath()) || "default-module".equals(testCase.getNodeId())) {
+        if (StringUtils.isEmpty(testCase.getNodeId()) || "default-module".equals(testCase.getNodeId())) {
             TestCaseNodeExample example = new TestCaseNodeExample();
             example.createCriteria().andProjectIdEqualTo(testCase.getProjectId()).andNameEqualTo("默认模块");
             List<TestCaseNode> nodes = testCaseNodeMapper.selectByExample(example);
