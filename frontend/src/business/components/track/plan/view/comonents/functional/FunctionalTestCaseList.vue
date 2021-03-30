@@ -472,12 +472,7 @@ export default {
             }
           }
           this.selectRows.clear();
-          if (this.$refs.table) {
-            setTimeout(() => {
-              this.$refs.table.doLayout();
-              this.result.loading = false;
-            }, 500)
-          }
+          this.$refs.table.doLayout();
         });
       }
       getLabel(this, TEST_PLAN_FUNCTION_TEST_CASE);
@@ -717,5 +712,9 @@ export default {
 
 .ms-table-header >>> .table-title {
   height: 0px;
+}
+
+/deep/ .el-table__fixed-body-wrapper {
+  top: 60px !important;
 }
 </style>

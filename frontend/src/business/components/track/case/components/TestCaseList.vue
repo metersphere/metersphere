@@ -392,14 +392,9 @@ export default {
           this.tableData.forEach((item) => {
             item.tags = JSON.parse(item.tags);
           })
-          if (this.$refs.table) {
-            setTimeout(() => {
-              this.$refs.table.doLayout();
-              this.result.loading = false;
-            }, 500)
-          }
 
           this.$nextTick(function(){
+            this.$refs.table.doLayout();
             this.checkTableRowIsSelect();
           })
         });
@@ -661,5 +656,9 @@ export default {
 
 .el-tag {
   margin-left: 10px;
+}
+
+/deep/ .el-table__fixed-body-wrapper {
+  top: 60px !important;
 }
 </style>

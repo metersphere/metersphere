@@ -454,18 +454,10 @@
                 item.tags = JSON.parse(item.tags);
               }
             })
-            if (this.$refs.apiDefinitionTable) {
-              setTimeout(() => {
-                this.$refs.apiDefinitionTable.doLayout();
-                this.result.loading = false;
-              }, 500)
-            }
+
             // nexttick:表格加载完成之后触发。判断是否需要勾选行
             this.$nextTick(function(){
-              // if (this.$refs.apiDefinitionTable) {
-              //   this.$refs.apiDefinitionTable.doLayout();
-              //   this.result.loading = false;
-              // }
+              this.$refs.apiDefinitionTable.doLayout();
               this.checkTableRowIsSelect();
             })
           });
@@ -836,6 +828,10 @@
 
   .ms-select-all >>> th:nth-child(2) .el-icon-arrow-down {
     top: -2px;
+  }
+
+  /deep/ .el-table__fixed-body-wrapper {
+    top: 60px !important;
   }
 
 </style>
