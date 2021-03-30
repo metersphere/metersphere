@@ -732,6 +732,9 @@ export default {
             // let ids = [row.id];
             let param = {};
             this.buildBatchParam(param);
+            if(param.ids && param.ids.length <=0){
+              param.ids =[row.id];
+            }
             this.$post('/api/automation/removeToGcByBatch/', param, () => {
               // this.$post('/api/automation/removeToGc/', ids, () => {
               this.$success(this.$t('commons.delete_success'));
