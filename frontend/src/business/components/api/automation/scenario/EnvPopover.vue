@@ -44,8 +44,8 @@ export default {
     setProjectEnvMap(map) {
       this.$emit("setProjectEnvMap", map);
     },
-    checkEnv() {
-      return this.$refs.envSelect.checkEnv();
+    checkEnv(data) {
+      return this.$refs.envSelect.checkEnv(data);
     }
   }
 
