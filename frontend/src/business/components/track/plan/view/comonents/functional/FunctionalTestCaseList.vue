@@ -472,7 +472,9 @@ export default {
             }
           }
           this.selectRows.clear();
-          this.$refs.table.doLayout();
+          if (this.$refs.table) {
+            this.$refs.table.doLayout();
+          }
         });
       }
       getLabel(this, TEST_PLAN_FUNCTION_TEST_CASE);
