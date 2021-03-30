@@ -441,18 +441,14 @@ export default {
             }
           });
 
-          if (this.$refs.scenarioTable) {
-            setTimeout(() => {
-              this.$refs.scenarioTable.doLayout();
-              this.result.loading = false;
-            }, 500)
-          }
-
           if (!this.condition.selectAll) {
             this.condition.unSelectIds = response.data.listObject.map(s => s.id);
           }
 
           this.$nextTick(function () {
+            if (this.$refs.scenarioTable) {
+              this.$refs.scenarioTable.doLayout();
+            }
             this.checkTableRowIsSelect();
           })
         });
@@ -732,8 +728,8 @@ export default {
             // let ids = [row.id];
             let param = {};
             this.buildBatchParam(param);
-            if(param.ids && param.ids.length <=0){
-              param.ids =[row.id];
+            if (param.ids && param.ids.length <= 0) {
+              param.ids = [row.id];
             }
             this.$post('/api/automation/removeToGcByBatch/', param, () => {
               // this.$post('/api/automation/removeToGc/', ids, () => {
@@ -837,5 +833,9 @@ export default {
 
 /deep/ .el-card__header {
   padding: 10px;
+}
+
+/deep/ .el-table__fixed-body-wrapper {
+  top: 60px !important;
 }
 </style>
