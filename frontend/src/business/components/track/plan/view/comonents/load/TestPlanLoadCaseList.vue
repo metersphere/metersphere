@@ -100,7 +100,7 @@
             </template>
           </el-table-column>
         </template>
-        <el-table-column v-if="!isReadOnly" :label="$t('commons.operating')" align="center">
+        <el-table-column v-if="!isReadOnly" :label="$t('commons.operating')" >
           <template slot="header">
             <header-label-operate @exec="customHeader"/>
           </template>

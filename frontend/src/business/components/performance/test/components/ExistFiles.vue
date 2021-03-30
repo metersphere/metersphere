@@ -157,7 +157,7 @@ export default {
       for (let i = 0; i < rows.length; i++) {
         let row = rows[i];
         if (this.tableData.filter(f => f.name === row.name).length > 0) {
-          this.$error(this.$t('load_test.delete_file'));
+          this.$error(this.$t('load_test.delete_file') + ', name: ' + row.name);
           this.selectIds.clear();
           return;
         }
@@ -216,7 +216,7 @@ export default {
       }
 
       if (this.tableData.filter(f => f.name === file.name).length > 0) {
-        this.$error(this.$t('load_test.delete_file'));
+        this.$error(this.$t('load_test.delete_file') + ', name: ' + file.name);
         return false;
       }
     },

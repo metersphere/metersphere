@@ -70,8 +70,9 @@ public class Swagger2Parser extends SwaggerAbstractParser {
                 parseParameters(operation, request);
                 addBodyHeader(request);
                 if (StringUtils.isNotBlank(basePath)) {
-                    apiDefinition.setPath(basePath + apiDefinition.getPath());
-                    request.setPath(basePath + request.getPath());
+                    String pathStr = basePath + apiDefinition.getPath().replaceAll("//","/");
+                    apiDefinition.setPath(pathStr);
+                    request.setPath(pathStr);
                 }
                 apiDefinition.setRequest(JSON.toJSONString(request));
                 apiDefinition.setResponse(JSON.toJSONString(parseResponse(operation, operation.getResponses())));

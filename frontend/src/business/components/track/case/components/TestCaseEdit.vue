@@ -309,7 +309,7 @@ export default {
       sysList: [],//一级选择框的数据
       options: REVIEW_STATUS,
       statuOptions: API_STATUS,
-      comments: [],
+       comments: [],
       result: {},
       dialogFormVisible: false,
       form: {
@@ -406,6 +406,7 @@ export default {
     this.getSelectOptions();
     if (this.type === 'edit' || this.type === 'copy') {
       this.open(this.currentTestCaseInfo)
+      this.getComments(this.currentTestCaseInfo)
     }
     // Cascader 级联选择器: 点击文本就让它自动点击前面的input就可以触发选择。
     setInterval(function () {
@@ -431,6 +432,7 @@ export default {
   created() {
     this.loadOptions();
     this.addListener(); //  添加 ctrl s 监听
+
   },
   methods: {
     setModule(id,data) {
@@ -921,7 +923,7 @@ export default {
       }
 
       if (this.tableData.filter(f => f.name === file.name).length > 0) {
-        this.$error(this.$t('load_test.delete_file'));
+        this.$error(this.$t('load_test.delete_file') + ', name: ' + file.name);
         return false;
       }
 
