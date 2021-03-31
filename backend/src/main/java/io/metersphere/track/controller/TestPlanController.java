@@ -91,8 +91,8 @@ public class TestPlanController {
 
     @PostMapping("/edit")
     @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
-    public void editTestPlan(@RequestBody TestPlanDTO testPlanDTO) {
-        testPlanService.editTestPlan(testPlanDTO, true);
+    public String editTestPlan(@RequestBody TestPlanDTO testPlanDTO) {
+        return testPlanService.editTestPlan(testPlanDTO, true);
     }
 
     @PostMapping("/edit/status/{planId}")
