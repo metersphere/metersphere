@@ -29,6 +29,7 @@ public class JmeterDocumentParser implements DocumentParser {
     private final static String HASH_TREE_ELEMENT = "hashTree";
     private final static String TEST_PLAN = "TestPlan";
     private final static String STRING_PROP = "stringProp";
+    private final static String BOOL_PROP = "boolProp";
     private final static String COLLECTION_PROP = "collectionProp";
     private final static String CONCURRENCY_THREAD_GROUP = "com.blazemeter.jmeter.threads.concurrency.ConcurrencyThreadGroup";
     private final static String VARIABLE_THROUGHPUT_TIMER = "kg.apc.jmeter.timers.VariableThroughputTimer";
@@ -94,6 +95,7 @@ public class JmeterDocumentParser implements DocumentParser {
                         processCheckoutDnsCacheManager(ele);
                         processCheckoutArguments(ele);
                         processCheckoutResponseAssertion(ele);
+                        processCheckoutSerializeThreadgroups(ele);
                     } else if (nodeNameEquals(ele, CONCURRENCY_THREAD_GROUP)) {
                         processThreadGroupName(ele);
                         processCheckoutTimer(ele);
@@ -136,6 +138,21 @@ public class JmeterDocumentParser implements DocumentParser {
                     if (isHTTPFileArg(ele)) {
                         processArgumentFiles(ele);
                     }
+                }
+            }
+        }
+    }
+
+    private void processCheckoutSerializeThreadgroups(Element element) {
+        NodeList childNodes = element.getChildNodes();
+        for (int i = 0; i < childNodes.getLength(); i++) {
+            Node item = childNodes.item(i);
+            if (nodeNameEquals(item, BOOL_PROP)) {
+                String serializeName = ((Element) item).getAttribute("name");
+                if (StringUtils.equals(serializeName, "TestPlan.serialize_threadgroups")) {
+                    // 保存线程组是否是顺序执行
+                    context.addProperty("serialize_threadgroups", item.getTextContent());
+                    break;
                 }
             }
         }
@@ -479,7 +496,7 @@ public class JmeterDocumentParser implements DocumentParser {
                     item.appendChild(elementProp);
                 }
             }
-            if (item instanceof Element && nodeNameEquals(item, "boolProp")
+            if (item instanceof Element && nodeNameEquals(item, BOOL_PROP)
                     && org.apache.commons.lang3.StringUtils.equals(((Element) item).getAttribute("name"), "DNSCacheManager.isCustomResolver")) {
                 item.getFirstChild().setNodeValue("true");
             }
@@ -511,7 +528,7 @@ public class JmeterDocumentParser implements DocumentParser {
     }
 
     private Element createBoolProp(Document document, String name, boolean value) {
-        Element boolProp = document.createElement("boolProp");
+        Element boolProp = document.createElement(BOOL_PROP);
         boolProp.setAttribute("name", name);
         boolProp.appendChild(document.createTextNode(String.valueOf(value)));
         return boolProp;
@@ -569,6 +586,8 @@ public class JmeterDocumentParser implements DocumentParser {
         collectionProp.appendChild(createKafkaProp(document, "test.name", context.getTestName()));
         collectionProp.appendChild(createKafkaProp(document, "test.startTime", context.getStartTime().toString()));
         collectionProp.appendChild(createKafkaProp(document, "test.reportId", context.getReportId()));
+        collectionProp.appendChild(createKafkaProp(document, "test.expectedEndTime", (String) context.getProperty("expectedEndTime")));
+        collectionProp.appendChild(createKafkaProp(document, "test.expectedDelayEndTime", kafkaProperties.getExpectedDelayEndTime())); // 30s
 
         elementProp.appendChild(collectionProp);
         // set elementProp
@@ -710,6 +729,8 @@ public class JmeterDocumentParser implements DocumentParser {
             default:
                 break;
         }
+        // 处理预计结束时间
+        processExpectedEndTime(duration);
 
         threadGroup.setAttribute("enabled", enabled);
         if (BooleanUtils.toBoolean(deleted)) {
@@ -815,6 +836,8 @@ public class JmeterDocumentParser implements DocumentParser {
             default:
                 break;
         }
+        // 处理预计结束时间
+        processExpectedEndTime(hold);
 
         threadGroup.setAttribute("enabled", enabled);
         if (BooleanUtils.toBoolean(deleted)) {
@@ -833,6 +856,27 @@ public class JmeterDocumentParser implements DocumentParser {
         // bzm - Concurrency Thread Group "Thread Iterations Limit:" 设置为空
 //        threadGroup.appendChild(createStringProp(document, "Iterations", "1"));
         threadGroup.appendChild(createStringProp(document, "Unit", "S"));
+    }
+
+    private void processExpectedEndTime(String duration) {
+        long startTime = context.getStartTime();
+        Long d = Long.parseLong(duration);
+        Object serialize = context.getProperty("TestPlan.serialize_threadgroups");
+        String expectedEndTime = (String) context.getProperty("expectedEndTime");
+        if (StringUtils.isBlank(expectedEndTime)) {
+            expectedEndTime = startTime + "";
+        }
+        long endTime = Long.parseLong(expectedEndTime);
+
+        if (BooleanUtils.toBoolean((String) serialize)) {
+            // 顺序执行线程组
+            context.addProperty("expectedEndTime", String.valueOf(endTime + d * 1000));
+        } else {
+            // 同时执行线程组
+            if (endTime < startTime + d * 1000) {
+                context.addProperty("expectedEndTime", String.valueOf(startTime + d * 1000));
+            }
+        }
     }
 
     private void processIterationThreadGroup(Element threadGroup) {
@@ -903,8 +947,11 @@ public class JmeterDocumentParser implements DocumentParser {
         threadGroup.appendChild(createStringProp(document, "ThreadGroup.duration", "10"));
         threadGroup.appendChild(createStringProp(document, "ThreadGroup.delay", ""));
         threadGroup.appendChild(createBoolProp(document, "ThreadGroup.same_user_on_next_iteration", true));
-    }
 
+        // 处理预计结束时间， (按照迭代次数 * 线程数)s
+        String duration = String.valueOf(Long.parseLong(loops) * Long.parseLong(threads));
+        processExpectedEndTime(duration);
+    }
 
     private void processCheckoutTimer(Element element) {
         /*

@@ -52,14 +52,27 @@
       <el-main style="padding: 5px;margin-top: 10px">
         <el-container>
           <el-aside width="60%" class="count-number-show" style="margin-bottom: 0px;margin-top: 0px">
-            <el-container>
-              <el-aside width="30%">
+            <el-container style="height: 50px;margin-top: 10px">
+              <el-aside width="50%" style="line-height: 40px;">
                 {{$t('api_test.home_page.detail_card.rate.pass')+":"}}
               </el-aside>
-              <el-main style="padding: 0px 0px 0px 0px; line-height: 100px; text-align: center;">
-                <span class="count-number">
+              <el-main style="padding: 0px 0px 0px 0px; line-height: 40px; text-align: center;">
+                <span class="rows-count-number">
                 {{sceneCountData.passRage}}
               </span>
+              </el-main>
+            </el-container>
+            <el-container style="height: 50px;margin-top: 1px">
+              <el-aside width="50%" style="line-height: 40px;">
+                <span>{{$t('api_test.home_page.detail_card.rate.interface_coverage')+":"}}</span>
+              </el-aside>
+              <el-main style="padding: 0px 0px 0px 0px; line-height: 40px; text-align: center;">
+                <span v-if="interfaceCoverage === 'waitting...'">
+                  <i class="el-icon-loading lading-icon"></i>
+                </span>
+                <span v-else class="rows-count-number">
+                  {{interfaceCoverage}}
+                </span>
               </el-main>
             </el-container>
           </el-aside>
@@ -120,6 +133,7 @@ export default {
 
   props:{
     sceneCountData:{},
+    interfaceCoverage:String,
   },
 
   methods: {
@@ -141,6 +155,17 @@ export default {
   margin:20px auto;
 }
 
+.rows-count-number{
+  font-family:'ArialMT', 'Arial', sans-serif;
+  font-size:30px;
+  color: var(--count_number);
+  margin:20px auto;
+}
+.lading-icon{
+  font-size: 25px;
+  color: var(--count_number);
+  font-weight: bold;
+}
 .main-number-show {
   width: 100px;
   height: 100px;
