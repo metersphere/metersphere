@@ -1005,6 +1005,7 @@ export default {
           coverage: "覆盖率",
           pass: "通过率",
           success: "成功率",
+          interface_coverage: "接口覆盖率",
         },
       },
       api_details_card: {

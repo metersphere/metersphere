@@ -243,13 +243,11 @@
               }
             })
           } else {
-            // this.checkFullUrl(data);
-            // sign = this.isFullUrl;
             sign = false;
           }
-
           // 校验是否全是全路径
-
+          //this.checkFullUrl(data);
+          //sign = this.isFullUrl;
         }
 
         if (!sign) {

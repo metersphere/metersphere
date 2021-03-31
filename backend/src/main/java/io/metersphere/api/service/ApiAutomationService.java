@@ -1,6 +1,7 @@
 package io.metersphere.api.service;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.JSONPath;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -29,6 +30,7 @@ import io.metersphere.commons.utils.*;
 import io.metersphere.controller.request.ScheduleRequest;
 import io.metersphere.i18n.Translator;
 import io.metersphere.job.sechedule.ApiScenarioTestJob;
+import io.metersphere.job.sechedule.SwaggerUrlImportJob;
 import io.metersphere.job.sechedule.TestPlanTestJob;
 import io.metersphere.service.ScheduleService;
 import io.metersphere.track.dto.TestPlanDTO;
@@ -230,6 +232,7 @@ public class ApiAutomationService {
         scenario.setPrincipal(request.getPrincipal());
         scenario.setStepTotal(request.getStepTotal());
         scenario.setUpdateTime(System.currentTimeMillis());
+        scenario.setDescription(request.getDescription());
         scenario.setScenarioDefinition(JSON.toJSONString(request.getScenarioDefinition()));
         if (StringUtils.isNotEmpty(request.getStatus())) {
             scenario.setStatus(request.getStatus());
@@ -710,6 +713,10 @@ public class ApiAutomationService {
         return extApiScenarioMapper.countByProjectID(projectId);
     }
 
+    public List<ApiScenarioWithBLOBs> selectIdAndScenarioByProjectId(String projectId) {
+        return extApiScenarioMapper.selectIdAndScenarioByProjectId(projectId);
+    }
+
     public long countScenarioByProjectIDAndCreatInThisWeek(String projectId) {
         Map<String, Date> startAndEndDateInWeek = DateUtils.getWeedFirstTimeAndLastTime(new Date());
         Date firstTime = startAndEndDateInWeek.get("firstTime");
@@ -811,7 +818,9 @@ public class ApiAutomationService {
         if (StringUtils.equals(request.getGroup(), ScheduleGroup.TEST_PLAN_TEST.name())) {
             scheduleService.addOrUpdateCronJob(
                     request, TestPlanTestJob.getJobKey(request.getResourceId()), TestPlanTestJob.getTriggerKey(request.getResourceId()), TestPlanTestJob.class);
-        } else {
+        }else if(StringUtils.equals(request.getGroup(), ScheduleGroup.SWAGGER_IMPORT.name())){
+            scheduleService.addOrUpdateCronJob(request, SwaggerUrlImportJob.getJobKey(request.getResourceId()), SwaggerUrlImportJob.getTriggerKey(request.getResourceId()), SwaggerUrlImportJob.class);
+        } else{
             scheduleService.addOrUpdateCronJob(
                     request, ApiScenarioTestJob.getJobKey(request.getResourceId()), ApiScenarioTestJob.getTriggerKey(request.getResourceId()), ApiScenarioTestJob.class);
         }
@@ -1030,5 +1039,132 @@ public class ApiAutomationService {
                 (query) -> extApiScenarioMapper.selectIdsByQuery((ApiScenarioRequest) query));
 
         this.deleteBatch(request.getIds());
+    }
+
+    /**
+     * 统计接口覆盖率
+     * 1.场景中复制的接口
+     * 2.场景中引用/复制的案例
+     * 3.场景中的自定义路径与接口定义中的匹配
+     *
+     * @param allScenarioInfoList     场景集合（id / scenario大字段 必须有数据）
+     * @param allEffectiveApiList     接口集合（id / path 必须有数据）
+     * @param allEffectiveApiCaseList 案例集合(id /api_definition_id 必须有数据)
+     * @return
+     */
+    public float countInterfaceCoverage(List<ApiScenarioWithBLOBs> allScenarioInfoList, List<ApiDefinition> allEffectiveApiList, List<ApiTestCase> allEffectiveApiCaseList) {
+//        float coverageRageNumber = (float) apiCountResult.getExecutionPassCount() * 100 / allCount;
+        float intetfaceCoverage = 0;
+        if (allEffectiveApiList == null || allEffectiveApiList.isEmpty()) {
+            return 100;
+        }
+
+        /**
+         * 前置工作：
+         *  1。将接口集合转化数据结构: map<url,List<id>> urlMap 用来做3的筛选
+         *  2。将案例集合转化数据结构：map<testCase.id,List<testCase.apiId>> caseIdMap 用来做2的筛选
+         *  3。将接口集合转化数据结构: List<id> allApiIdList 用来做1的筛选
+         *  4。自定义List<api.id> coveragedIdList 已覆盖的id集合。 最终计算公式是 coveragedIdList/allApiIdList
+         *
+         * 解析allScenarioList的scenarioDefinition字段。
+         * 1。提取每个步骤的url。 在 urlMap筛选
+         * 2。提取每个步骤的id.   在caseIdMap 和 allApiIdList。
+         */
+        Map<String, List<String>> urlMap = new HashMap<>();
+        List<String> allApiIdList = new ArrayList<>();
+        Map<String,List<String>> caseIdMap = new HashMap<>();
+        for (ApiDefinition model : allEffectiveApiList) {
+            String url = model.getPath();
+            String id = model.getId();
+            allApiIdList.add(id);
+            if (urlMap.containsKey(url)) {
+                urlMap.get(url).add(id);
+            } else {
+                List<String> list = new ArrayList<>();
+                list.add(id);
+                urlMap.put(url, list);
+            }
+        }
+        for (ApiTestCase model : allEffectiveApiCaseList){
+            String caseId = model.getId();
+            String apiId = model.getApiDefinitionId();
+            if (urlMap.containsKey(caseId)) {
+                urlMap.get(caseId).add(apiId);
+            } else {
+                List<String> list = new ArrayList<>();
+                list.add(apiId);
+                urlMap.put(caseId, list);
+            }
+        }
+
+        if (allApiIdList.isEmpty()) {
+            return 100;
+        }
+
+        List<String> urlList = new ArrayList<>();
+        List<String> idList=  new ArrayList<>();
+
+        for (ApiScenarioWithBLOBs model : allScenarioInfoList) {
+            String scenarioDefiniton = model.getScenarioDefinition();
+            this.addUrlAndIdToList(scenarioDefiniton,urlList,idList);
+        }
+
+        List<String> containsApiIdList = new ArrayList<>();
+
+        for (String url : urlList) {
+            List<String> apiIdList = urlMap.get(url);
+            if(apiIdList!=null ){
+                for (String api : apiIdList) {
+                    if(!containsApiIdList.contains(api)){
+                        containsApiIdList.add(api);
+                    }
+                }
+            }
+        }
+
+        for (String id : idList) {
+            List<String> apiIdList = caseIdMap.get(id);
+            if(apiIdList!=null ){
+                for (String api : apiIdList) {
+                    if(!containsApiIdList.contains(api)){
+                        containsApiIdList.add(api);
+                    }
+                }
+            }
+
+            if(allApiIdList.contains(id)){
+                if(!containsApiIdList.contains(id)){
+                    containsApiIdList.add(id);
+                }
+            }
+        }
+
+        float coverageRageNumber = (float) containsApiIdList.size() * 100 / allApiIdList.size();
+        return coverageRageNumber;
+    }
+
+    private void addUrlAndIdToList(String scenarioDefiniton, List<String> urlList, List<String> idList) {
+        try {
+            JSONObject scenarioObj = JSONObject.parseObject(scenarioDefiniton);
+            if(scenarioObj.containsKey("hashTree")){
+                JSONArray hashArr = scenarioObj.getJSONArray("hashTree");
+                for (int i = 0; i < hashArr.size(); i++) {
+                    JSONObject elementObj = hashArr.getJSONObject(i);
+                    if(elementObj.containsKey("id")){
+                        String id = elementObj.getString("id");
+                        idList.add(id);
+                    }
+                    if(elementObj.containsKey("url")){
+                        String url = elementObj.getString("url");
+                        urlList.add(url);
+                    }
+                    if(elementObj.containsKey("path")){
+                        String path = elementObj.getString("path");
+                        urlList.add(path);
+                    }
+                }
+            }
+        }catch (Exception e){
+        }
     }
 }
