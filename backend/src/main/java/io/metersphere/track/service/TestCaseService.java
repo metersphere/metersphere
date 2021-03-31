@@ -605,7 +605,20 @@ public class TestCaseService {
             data.setType(t.getType());
 //            data.setMethod(t.getMethod());
             data.setPrerequisite(t.getPrerequisite());
-            data.setTags(t.getTags());
+
+            /*
+            将数据库的标签值的格式改为excel上所显示的格式。
+            例如对于:["标签1","标签2"]。将改为:标签1,标签2。
+             */
+            String tags = t.getTags();
+            if (StringUtils.isNotBlank(tags)){
+                tags = tags.substring(1, tags.length() - 1);    //去除中括号
+                tags = Arrays.stream(tags.split(","))
+                        .map(tag -> tag = tag.substring(1, tag.length() - 1))   //去除双引号
+                        .collect(Collectors.joining(","));
+                data.setTags(tags);
+            }
+
             if (StringUtils.equals(t.getMethod(), "manual") || StringUtils.isBlank(t.getMethod())) {
                 String steps = t.getSteps();
                 String setp = "";
