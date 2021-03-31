@@ -214,6 +214,8 @@ public class MsJmeterParser extends ApiImportAbstractParser<ScenarioImport> {
                 samplerProxy.getBody().setKvs(keyValues);
             }
             samplerProxy.setProtocol(RequestType.HTTP);
+            samplerProxy.setConnectTimeout(source.getConnectTimeout()+"");
+            samplerProxy.setResponseTimeout(source.getResponseTimeout()+"");
             samplerProxy.setPort(source.getPropertyAsString("HTTPSampler.port"));
             samplerProxy.setDomain(source.getDomain());
             if (source.getArguments() != null) {
@@ -239,6 +241,7 @@ public class MsJmeterParser extends ApiImportAbstractParser<ScenarioImport> {
             samplerProxy.setMethod(source.getMethod());
             if (this.getUrl(source) != null) {
                 samplerProxy.setUrl(this.getUrl(source));
+                samplerProxy.setPath(null);
             }
             samplerProxy.setId(UUID.randomUUID().toString());
             samplerProxy.setType("HTTPSamplerProxy");
