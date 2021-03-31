@@ -423,7 +423,7 @@ public class TestCaseService {
                 testcase.setSort(sort.getAndIncrement());
                 testcase.setNum(num.decrementAndGet());
                 testcase.setReviewStatus(TestCaseReviewStatus.Prepare.name());
-                mapper.insert(testcase);
+                    mapper.insert(testcase);
             });
         }
         sqlSession.flushStatements();
@@ -451,7 +451,7 @@ public class TestCaseService {
 
     /**
      * 把Excel中带ID的数据更新到数据库
-     *
+     * feat(测试跟踪):通过Excel导入导出时有ID字段，可通过Excel导入来更新用例。 (#1727)
      * @param testCases
      * @param projectId
      */
@@ -556,9 +556,10 @@ public class TestCaseService {
 
         list.add(new TestCaseExcelData());
         TestCaseExcelData explain = new TestCaseExcelData();
-        explain.setName(Translator.get("do_not_modify_header_order"));
+        explain.setName(Translator.get("do_not_modify_header_order") + "," + Translator.get("num_needed_modify_testcase") + "," + Translator.get("num_needless_create_testcase"));
         explain.setNodePath(Translator.get("module_created_automatically"));
         explain.setType(Translator.get("options") + "（functional、performance、api）");
+        explain.setTags(Translator.get("tag_tip_pattern"));
 //        explain.setMethod(Translator.get("options") + "（manual、auto）");
         explain.setPriority(Translator.get("options") + "（P0、P1、P2、P3）");
         explain.setMaintainer(Translator.get("please_input_workspace_member"));
