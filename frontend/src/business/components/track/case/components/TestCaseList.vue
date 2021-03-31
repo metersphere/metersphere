@@ -397,7 +397,7 @@ export default {
 
           this.$nextTick(() => {
             if (this.$refs.table) {
-              this.$refs.table.doLayout();
+              setTimeout(this.$refs.table.doLayout, 200)
             }
             this.checkTableRowIsSelect();
           })
