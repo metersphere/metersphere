@@ -11,7 +11,6 @@
     <ms-node-tree
       v-loading="result.loading"
       :tree-nodes="data"
-      :allLabel="$t('commons.module.default_module')"
       @add="add"
       :type="'edit'"
       @edit="edit"
