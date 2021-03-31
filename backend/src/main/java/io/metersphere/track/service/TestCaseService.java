@@ -423,7 +423,7 @@ public class TestCaseService {
                 testcase.setSort(sort.getAndIncrement());
                 testcase.setNum(num.decrementAndGet());
                 testcase.setReviewStatus(TestCaseReviewStatus.Prepare.name());
-                mapper.insert(testcase);
+                    mapper.insert(testcase);
             });
         }
         sqlSession.flushStatements();
@@ -451,7 +451,7 @@ public class TestCaseService {
 
     /**
      * 把Excel中带ID的数据更新到数据库
-     *
+     * feat(测试跟踪):通过Excel导入导出时有ID字段，可通过Excel导入来更新用例。 (#1727)
      * @param testCases
      * @param projectId
      */

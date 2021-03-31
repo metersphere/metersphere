@@ -767,7 +767,7 @@
       },
       runDebug() {
         /*触发执行操作*/
-        let sign = this.$refs.envPopover.checkEnv();
+        let sign = this.$refs.envPopover.checkEnv(this.scenarioDefinition);
         if (!sign) {
           return;
         }
