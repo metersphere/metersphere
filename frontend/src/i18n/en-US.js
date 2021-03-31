@@ -1001,6 +1001,7 @@ export default {
           coverage: "Coverage rate",
           pass: "Pass rate",
           success: "Success rate",
+          interface_coverage: "Interface coverage",
         },
       },
       api_details_card: {

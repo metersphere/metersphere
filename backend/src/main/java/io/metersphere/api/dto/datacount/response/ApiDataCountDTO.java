@@ -111,6 +111,11 @@ public class ApiDataCountDTO {
      */
     private String successRage = " 0%";
 
+    /**
+     * 接口覆盖率
+     */
+    private String interfaceCoverage = " 0%";
+
     public ApiDataCountDTO(){}
 
     /**
