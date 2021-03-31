@@ -648,4 +648,8 @@ public class ApiTestCaseService {
     public ApiDefinitionExecResult getInfo(String id){
         return apiDefinitionExecResultMapper.selectByPrimaryKey(id);
     }
+
+    public List<ApiTestCase> selectEffectiveTestCaseByProjectId(String projectId) {
+        return extApiTestCaseMapper.selectEffectiveTestCaseByProjectId(projectId);
+    }
 }

@@ -912,4 +912,8 @@ public class ApiDefinitionService {
         }
         return apiExportResult;
     }
+
+    public List<ApiDefinition> selectEffectiveIdByProjectId(String projectId) {
+        return extApiDefinitionMapper.selectEffectiveIdByProjectId(projectId);
+    }
 }
