@@ -658,5 +658,4 @@ public class Swagger3Parser extends SwaggerAbstractParser {
         }
         return content;
     }
-
 }

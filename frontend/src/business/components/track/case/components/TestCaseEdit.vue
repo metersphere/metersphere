@@ -35,20 +35,8 @@
 
             <el-col :span="7">
               <el-form-item :label="$t('test_track.case.module')" :label-width="formLabelWidth" prop="module">
-                <el-select
-                  v-model="form.module"
-                  :disabled="readOnly"
-                  :placeholder="$t('test_track.case.input_module')"
-                  filterable
-                  class="ms-case-input">
-                  <el-option
-                    v-for="item in moduleOptions"
-                    :key="item.id"
-                    :label="item.path"
-                    :value="item.id"
-                  >
-                  </el-option>
-                </el-select>
+                <ms-select-tree :disabled="readOnly" :data="treeNodes" :defaultKey="form.module" :obj="moduleObj"
+                                @getValue="setModule" clearable checkStrictly size="small" />
               </el-form-item>
             </el-col>
             <el-col :span="7">
@@ -292,7 +280,7 @@ import MsDialogFooter from '../../../common/components/MsDialogFooter'
 import {getCurrentUser, handleCtrlSEvent, listenGoBack, removeGoBackListener} from "@/common/js/utils";
 import {Message} from "element-ui";
 import TestCaseAttachment from "@/business/components/track/case/components/TestCaseAttachment";
-import {buildNodePath} from "../../../api/definition/model/NodeTree";
+import {buildNodePath,buildTree} from "../../../api/definition/model/NodeTree";
 import CaseComment from "@/business/components/track/case/components/CaseComment";
 import MsInputTag from "@/business/components/api/automation/scenario/MsInputTag";
 import MsPreviousNextButton from "../../../common/components/MsPreviousNextButton";
@@ -301,12 +289,13 @@ import TestCaseComment from "@/business/components/track/case/components/TestCas
 import ReviewCommentItem from "@/business/components/track/review/commom/ReviewCommentItem";
 import {API_STATUS, REVIEW_STATUS, TEST} from "@/business/components/api/definition/model/JsonData";
 import MsTableButton from "@/business/components/common/components/MsTableButton";
+import MsSelectTree from "../../../common/select-tree/SelectTree";
 
 export default {
   name: "TestCaseEdit",
   components: {
     MsTableButton,
-
+    MsSelectTree,
     ReviewCommentItem,
     TestCaseComment, MsPreviousNextButton, MsInputTag, CaseComment, MsDialogFooter, TestCaseAttachment
   },
@@ -320,12 +309,13 @@ export default {
       sysList: [],//一级选择框的数据
       options: REVIEW_STATUS,
       statuOptions: API_STATUS,
-      comments: [],
+       comments: [],
       result: {},
       dialogFormVisible: false,
       form: {
         name: '',
-        module: '',
+        module: 'default-module',
+        nodePath:'/默认模块',
         maintainer: getCurrentUser().id,
         priority: 'P0',
         type: '',
@@ -380,6 +370,11 @@ export default {
       testCases: [],
       index: 0,
       showInputTag: true,
+      tableType:"",
+      moduleObj: {
+        id: 'id',
+        label: 'name',
+      },
     };
   },
   props: {
@@ -411,6 +406,7 @@ export default {
     this.getSelectOptions();
     if (this.type === 'edit' || this.type === 'copy') {
       this.open(this.currentTestCaseInfo)
+      this.getComments(this.currentTestCaseInfo)
     }
     // Cascader 级联选择器: 点击文本就让它自动点击前面的input就可以触发选择。
     setInterval(function () {
@@ -420,6 +416,10 @@ export default {
         };
       });
     }, 1000);
+    if(this.selectNode && this.selectNode.data && !this.form.id){
+      this.form.module = this.selectNode.data.id;
+      this.form.nodePath = this.selectNode.data.path;
+    }
   },
   watch: {
     treeNodes() {
@@ -432,8 +432,22 @@ export default {
   created() {
     this.loadOptions();
     this.addListener(); //  添加 ctrl s 监听
+    if(this.selectNode && this.selectNode.data && !this.form.id){
+      this.form.module = this.selectNode.data.id;
+      this.form.nodePath = this.selectNode.data.path;
+    }else{
+      this.form.module =this.treeNodes && this.length>0? this.treeNodes[0].id:"";
+    }
+    if (this.type === 'edit' || this.type === 'copy') {
+      this.form.module = this.currentTestCaseInfo.nodeId;
+      this.form.nodePath = this.currentTestCaseInfo.nodePath;
+    }
   },
   methods: {
+    setModule(id,data) {
+      this.form.module = id;
+      this.form.nodePath = data.path;
+    },
     clearInput() {
       //this.$refs['cascade'].panel.clearCheckedNodes()
     },
@@ -631,8 +645,11 @@ export default {
       })
     },
     async setFormData(testCase) {
-      //testCase.tags = JSON.parse(testCase.tags);
-      testCase.selected = JSON.parse(testCase.testId);
+      try {
+        testCase.selected = JSON.parse(testCase.testId);
+      } catch (error) {
+        testCase.selected = testCase.testId
+      }
       let tmp = {};
       Object.assign(tmp, testCase);
       tmp.steps = JSON.parse(testCase.steps);
@@ -643,9 +660,8 @@ export default {
       Object.assign(this.form, tmp);
       this.form.module = testCase.nodeId;
       this.getFileMetaData(testCase);
-      /* testCase.selected = JSON.parse(testCase.testId);
-       this.form.selected= testCase.selected*/
       await this.loadOptions(this.sysList)
+
     },
     setTestCaseExtInfo(testCase) {
       this.testCase = {};
@@ -710,11 +726,6 @@ export default {
       this.dialogFormVisible = false;
     },
     saveCase() {
-      /*
-            document.getElementById("inputDelay").focus();
-      */
-
-      //  保存前在input框自动失焦，以免保存失败
       this.$refs['caseFrom'].validate((valid) => {
         if (valid) {
           let param = this.buildParam();
@@ -722,7 +733,10 @@ export default {
             let option = this.getOption(param);
             this.result = this.$request(option, (response) => {
               this.$success(this.$t('commons.save_success'));
-              if (this.operationType == 'add' && this.isCreateContinue) {
+              this.operationType="edit"
+              this.form.id=response.id;
+              this.$emit("refreshTestCase",)
+              /*if (this.operationType == 'add' && this.isCreateContinue) {
                 this.form.name = '';
                 this.form.prerequisite = '';
                 this.form.steps = [{
@@ -736,9 +750,10 @@ export default {
                 this.tableData = [];
                 this.$emit("refresh");
                 return;
-              }
-              this.dialogFormVisible = false;
-              this.$emit("refresh");
+              }*/
+              this.tableType='edit';
+              this.$emit("refresh",this.form);
+              this.form.id=response.data
               if (this.type === 'add' || this.type === 'copy') {
                 param.id = response.data;
                 this.$emit("caseCreate", param);
@@ -758,11 +773,6 @@ export default {
       Object.assign(param, this.form);
       param.steps = JSON.stringify(this.form.steps);
       param.nodeId = this.form.module;
-      this.moduleOptions.forEach(item => {
-        if (this.form.module === item.id) {
-          param.nodePath = item.path;
-        }
-      });
       if (this.projectId) {
         param.projectId = this.projectId;
       }
@@ -777,11 +787,15 @@ export default {
       return param;
     },
     getOption(param) {
-      let formData = new FormData();
-      let type = this.type
-      if (this.type === 'copy') {
+      let type={}
+      if(this.tableType==='edit'){
+        type='edit'
+      }else if(this.type === 'copy'){
         type = 'add'
+      }else{
+        type=this.type
       }
+      let formData = new FormData();
       let url = '/test/case/' + type;
       this.uploadList.forEach(f => {
         formData.append("file", f);
@@ -913,7 +927,7 @@ export default {
       }
 
       if (this.tableData.filter(f => f.name === file.name).length > 0) {
-        this.$error(this.$t('load_test.delete_file'));
+        this.$error(this.$t('load_test.delete_file') + ', name: ' + file.name);
         return false;
       }
 

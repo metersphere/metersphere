@@ -116,7 +116,8 @@
             min-width="120px"
             :key="index">
             <template v-slot:default="scope">
-              <ms-tag v-for="(itemName,index)  in scope.row.tags" :key="index" type="success" effect="plain" :show-tooltip="true" :content="itemName" style="margin-left: 0px; margin-right: 2px"/>
+              <ms-tag v-for="(itemName,index)  in scope.row.tags" :key="index" type="success" effect="plain" :show-tooltip="true" :content="itemName"
+                      style="margin-left: 0px; margin-right: 2px"/>
             </template>
           </el-table-column>
 
@@ -211,101 +212,315 @@
 
 <script>
 
-  import MsTableHeader from '../../../../common/components/MsTableHeader';
-  import MsTableOperator from "../../../../common/components/MsTableOperator";
-  import MsTableOperatorButton from "../../../../common/components/MsTableOperatorButton";
-  import MsTableButton from "../../../../common/components/MsTableButton";
-  import MsTablePagination from "../../../../common/pagination/TablePagination";
-  import MsTag from "../../../../common/components/MsTag";
-  import MsApiCaseList from "../case/ApiCaseList";
-  import MsContainer from "../../../../common/components/MsContainer";
-  import MsBottomContainer from "../BottomContainer";
-  import ShowMoreBtn from "../../../../track/case/components/ShowMoreBtn";
-  import MsBatchEdit from "../basis/BatchEdit";
-  import {API_METHOD_COLOUR, API_STATUS, DUBBO_METHOD, REQ_METHOD, SQL_METHOD, TCP_METHOD} from "../../model/JsonData";
-  import {checkoutTestManagerOrTestUser, downloadFile, getUUID} from "@/common/js/utils";
-  import {PROJECT_NAME} from '@/common/js/constants';
-  import {API_LIST, TEST_CASE_LIST, WORKSPACE_ID} from '@/common/js/constants';
-  import MsTableHeaderSelectPopover from "@/business/components/common/components/table/MsTableHeaderSelectPopover";
-  import ApiStatus from "@/business/components/api/definition/components/list/ApiStatus";
-  import MsTableAdvSearchBar from "@/business/components/common/components/search/MsTableAdvSearchBar";
-  import {API_DEFINITION_CONFIGS} from "@/business/components/common/components/search/search-components";
-  import MsTipButton from "@/business/components/common/components/MsTipButton";
-  import CaseBatchMove from "@/business/components/api/definition/components/basis/BatchMove";
-  import {
-    _handleSelect,
-    _handleSelectAll, buildBatchParam, getLabel,
-    getSelectDataCounts, getSystemLabel, initCondition,
-    setUnSelectIds, toggleAllSelection
-  } from "@/common/js/tableUtils";
-  import {_filter, _sort} from "@/common/js/tableUtils";
-  import {Api_List} from "@/business/components/common/model/JsonData";
-  import HeaderCustom from "@/business/components/common/head/HeaderCustom";
-  import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOperate";
-  import {Body} from "@/business/components/api/definition/model/ApiTestModel";
+import MsTableHeader from '../../../../common/components/MsTableHeader';
+import MsTableOperator from "../../../../common/components/MsTableOperator";
+import MsTableOperatorButton from "../../../../common/components/MsTableOperatorButton";
+import MsTableButton from "../../../../common/components/MsTableButton";
+import MsTablePagination from "../../../../common/pagination/TablePagination";
+import MsTag from "../../../../common/components/MsTag";
+import MsApiCaseList from "../case/ApiCaseList";
+import MsContainer from "../../../../common/components/MsContainer";
+import MsBottomContainer from "../BottomContainer";
+import ShowMoreBtn from "../../../../track/case/components/ShowMoreBtn";
+import MsBatchEdit from "../basis/BatchEdit";
+import {API_METHOD_COLOUR, API_STATUS, DUBBO_METHOD, REQ_METHOD, SQL_METHOD, TCP_METHOD} from "../../model/JsonData";
+import {downloadFile} from "@/common/js/utils";
+import {API_LIST, PROJECT_NAME, WORKSPACE_ID} from '@/common/js/constants';
+import MsTableHeaderSelectPopover from "@/business/components/common/components/table/MsTableHeaderSelectPopover";
+import ApiStatus from "@/business/components/api/definition/components/list/ApiStatus";
+import MsTableAdvSearchBar from "@/business/components/common/components/search/MsTableAdvSearchBar";
+import {API_DEFINITION_CONFIGS} from "@/business/components/common/components/search/search-components";
+import MsTipButton from "@/business/components/common/components/MsTipButton";
+import CaseBatchMove from "@/business/components/api/definition/components/basis/BatchMove";
+import {
+  _filter,
+  _handleSelect,
+  _handleSelectAll,
+  _sort,
+  buildBatchParam,
+  getLabel,
+  getSelectDataCounts,
+  initCondition,
+  setUnSelectIds,
+  toggleAllSelection
+} from "@/common/js/tableUtils";
+import {Api_List} from "@/business/components/common/model/JsonData";
+import HeaderCustom from "@/business/components/common/head/HeaderCustom";
+import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOperate";
+import {Body} from "@/business/components/api/definition/model/ApiTestModel";
 
 
-  export default {
-    name: "ApiList",
-    components: {
-      HeaderLabelOperate,
-      HeaderCustom,
-      CaseBatchMove,
-      ApiStatus,
-      MsTableHeaderSelectPopover,
-      MsTableButton,
-      MsTableOperatorButton,
-      MsTableOperator,
-      MsTableHeader,
-      MsTablePagination,
-      MsTag,
-      MsApiCaseList,
-      MsContainer,
-      MsBottomContainer,
-      ShowMoreBtn,
-      MsBatchEdit,
-      MsTipButton,
-      MsTableAdvSearchBar
-    },
-    data() {
-      return {
-        type: API_LIST,
-        headerItems: Api_List,
-        tableLabel: [],
-        condition: {
-          components: API_DEFINITION_CONFIGS
+export default {
+  name: "ApiList",
+  components: {
+    HeaderLabelOperate,
+    HeaderCustom,
+    CaseBatchMove,
+    ApiStatus,
+    MsTableHeaderSelectPopover,
+    MsTableButton,
+    MsTableOperatorButton,
+    MsTableOperator,
+    MsTableHeader,
+    MsTablePagination,
+    MsTag,
+    MsApiCaseList,
+    MsContainer,
+    MsBottomContainer,
+    ShowMoreBtn,
+    MsBatchEdit,
+    MsTipButton,
+    MsTableAdvSearchBar
+  },
+  data() {
+    return {
+      type: API_LIST,
+      headerItems: Api_List,
+      tableLabel: [],
+      condition: {
+        components: API_DEFINITION_CONFIGS
+      },
+      selectApi: {},
+      result: {},
+      moduleId: "",
+      selectDataRange: "all",
+      deletePath: "/test/case/delete",
+      selectRows: new Set(),
+      buttons: [
+        {name: this.$t('api_test.definition.request.batch_delete'), handleClick: this.handleDeleteBatch},
+        {name: this.$t('api_test.definition.request.batch_edit'), handleClick: this.handleEditBatch},
+        {
+          name: this.$t('api_test.definition.request.batch_move'), handleClick: this.handleBatchMove
+        }
+      ],
+      trashButtons: [
+        {name: this.$t('api_test.definition.request.batch_delete'), handleClick: this.handleDeleteBatch},
+        {
+          name: "批量恢复", handleClick: this.handleBatchRestore
         },
-        selectApi: {},
-        result: {},
-        moduleId: "",
-        selectDataRange: "all",
-        deletePath: "/test/case/delete",
-        selectRows: new Set(),
-        buttons: [
-          {name: this.$t('api_test.definition.request.batch_delete'), handleClick: this.handleDeleteBatch},
-          {name: this.$t('api_test.definition.request.batch_edit'), handleClick: this.handleEditBatch},
-          {
-            name: this.$t('api_test.definition.request.batch_move'), handleClick: this.handleBatchMove
+      ],
+      typeArr: [
+        {id: 'status', name: this.$t('api_test.definition.api_status')},
+        {id: 'method', name: this.$t('api_test.definition.api_type')},
+        {id: 'userId', name: this.$t('api_test.definition.api_principal')},
+      ],
+      statusFilters: [
+        {text: this.$t('test_track.plan.plan_status_prepare'), value: 'Prepare'},
+        {text: this.$t('test_track.plan.plan_status_running'), value: 'Underway'},
+        {text: this.$t('test_track.plan.plan_status_completed'), value: 'Completed'},
+        {text: this.$t('test_track.plan.plan_status_trash'), value: 'Trash'},
+      ],
+      methodFilters: [
+        {text: 'GET', value: 'GET'},
+        {text: 'POST', value: 'POST'},
+        {text: 'PUT', value: 'PUT'},
+        {text: 'PATCH', value: 'PATCH'},
+        {text: 'DELETE', value: 'DELETE'},
+        {text: 'OPTIONS', value: 'OPTIONS'},
+        {text: 'HEAD', value: 'HEAD'},
+        {text: 'CONNECT', value: 'CONNECT'},
+        {text: 'DUBBO', value: 'DUBBO'},
+        {text: 'dubbo://', value: 'dubbo://'},
+        {text: 'SQL', value: 'SQL'},
+        {text: 'TCP', value: 'TCP'},
+      ],
+      userFilters: [],
+      valueArr: {
+        status: API_STATUS,
+        method: REQ_METHOD,
+        userId: [],
+      },
+      methodColorMap: new Map(API_METHOD_COLOUR),
+      tableData: [],
+      currentPage: 1,
+      pageSize: 10,
+      total: 0,
+      screenHeight: document.documentElement.clientHeight - 310,//屏幕高度,
+      environmentId: undefined,
+      selectDataCounts: 0,
+    }
+  },
+  props: {
+    currentProtocol: String,
+    selectNodeIds: Array,
+    isSelectThisWeek: String,
+    activeDom: String,
+    visible: {
+      type: Boolean,
+      default: false,
+    },
+    isCaseRelevance: {
+      type: Boolean,
+      default: false,
+    },
+    trashEnable: {
+      type: Boolean,
+      default: false,
+    },
+    isReadOnly: {
+      type: Boolean,
+      default: false
+    },
+    moduleTree: {
+      type: Array,
+      default() {
+        return []
+      },
+    },
+    moduleOptions: {
+      type: Array,
+      default() {
+        return []
+      },
+    }
+  },
+  computed: {
+    projectId() {
+      return this.$store.state.projectId
+    },
+  },
+  created: function () {
+    if (this.trashEnable) {
+      this.condition.filters = {status: ["Trash"]};
+    } else {
+      this.condition.filters = {status: ["Prepare", "Underway", "Completed"]};
+    }
+    this.initTable();
+    this.getMaintainerOptions();
+  },
+  watch: {
+    selectNodeIds() {
+      initCondition(this.condition, false);
+      this.initTable();
+    },
+    currentProtocol() {
+      initCondition(this.condition, false);
+      this.initTable();
+    },
+    trashEnable() {
+      if (this.trashEnable) {
+        this.condition.filters = {status: ["Trash"]};
+        this.condition.moduleIds = [];
+      } else {
+        this.condition.filters = {status: ["Prepare", "Underway", "Completed"]};
+      }
+      initCondition(this.condition, false);
+      this.initTable();
+    }
+  },
+  methods: {
+    customHeader() {
+      this.$refs.headerCustom.open(this.tableLabel)
+    },
+    handleBatchMove() {
+      this.$refs.testCaseBatchMove.open(this.moduleTree, [], this.moduleOptions);
+    },
+    initTable() {
+      this.selectRows = new Set();
+      initCondition(this.condition, this.condition.selectAll);
+      this.selectDataCounts = 0;
+      this.condition.moduleIds = this.selectNodeIds;
+      this.condition.projectId = this.projectId;
+      if (this.currentProtocol != null) {
+        this.condition.protocol = this.currentProtocol;
+      }
+
+      //检查是否只查询本周数据
+      this.getSelectDataRange();
+      this.condition.selectThisWeedData = false;
+      this.condition.apiCaseCoverage = null;
+      switch (this.selectDataRange) {
+        case 'thisWeekCount':
+          this.condition.selectThisWeedData = true;
+          break;
+        case 'uncoverage':
+          this.condition.apiCaseCoverage = 'uncoverage';
+          break;
+        case 'coverage':
+          this.condition.apiCaseCoverage = 'coverage';
+          break;
+        case 'Prepare':
+          this.condition.filters.status = [this.selectDataRange];
+          break;
+        case 'Completed':
+          this.condition.filters.status = [this.selectDataRange];
+          break;
+        case 'Underway':
+          this.condition.filters.status = [this.selectDataRange];
+          break;
+      }
+      if (this.condition.projectId) {
+        this.result = this.$post("/api/definition/list/" + this.currentPage + "/" + this.pageSize, this.condition, response => {
+          this.genProtocalFilter(this.condition.protocol);
+          this.total = response.data.itemCount;
+          this.tableData = response.data.listObject;
+          this.tableData.forEach(item => {
+            if (item.tags && item.tags.length > 0) {
+              item.tags = JSON.parse(item.tags);
+            }
+          })
+
+          // nexttick:表格加载完成之后触发。判断是否需要勾选行
+          this.$nextTick(function () {
+            if (this.$refs.apiDefinitionTable) {
+              setTimeout(this.$refs.apiDefinitionTable.doLayout, 200)
+            }
+            this.checkTableRowIsSelect();
+          })
+        });
+      }
+      getLabel(this, API_LIST);
+    },
+    checkTableRowIsSelect() {
+      //如果默认全选的话，则选中应该选中的行
+      if (this.condition.selectAll) {
+        let unSelectIds = this.condition.unSelectIds;
+        this.tableData.forEach(row => {
+          if (unSelectIds.indexOf(row.id) < 0) {
+            this.$refs.apiDefinitionTable.toggleRowSelection(row, true);
+
+            //默认全选，需要把选中对行添加到selectRows中。不然会影响到勾选函数统计
+            if (!this.selectRows.has(row)) {
+              this.$set(row, "showMore", true);
+              this.selectRows.add(row);
+            }
+          } else {
+            //不勾选的行，也要判断是否被加入了selectRow中。加入了的话就去除。
+            if (this.selectRows.has(row)) {
+              this.$set(row, "showMore", false);
+              this.selectRows.delete(row);
+            }
           }
-        ],
-        trashButtons: [
-          {name: this.$t('api_test.definition.request.batch_delete'), handleClick: this.handleDeleteBatch},
-          {
-            name: "批量恢复", handleClick: this.handleBatchRestore
-          },
-        ],
-        typeArr: [
-          {id: 'status', name: this.$t('api_test.definition.api_status')},
-          {id: 'method', name: this.$t('api_test.definition.api_type')},
-          {id: 'userId', name: this.$t('api_test.definition.api_principal')},
-        ],
-        statusFilters: [
-          {text: this.$t('test_track.plan.plan_status_prepare'), value: 'Prepare'},
-          {text: this.$t('test_track.plan.plan_status_running'), value: 'Underway'},
-          {text: this.$t('test_track.plan.plan_status_completed'), value: 'Completed'},
-          {text: this.$t('test_track.plan.plan_status_trash'), value: 'Trash'},
-        ],
-        methodFilters: [
+        })
+      }
+    },
+    genProtocalFilter(protocalType) {
+      if (protocalType === "HTTP") {
+        this.methodFilters = [
+          {text: 'GET', value: 'GET'},
+          {text: 'POST', value: 'POST'},
+          {text: 'PUT', value: 'PUT'},
+          {text: 'PATCH', value: 'PATCH'},
+          {text: 'DELETE', value: 'DELETE'},
+          {text: 'OPTIONS', value: 'OPTIONS'},
+          {text: 'HEAD', value: 'HEAD'},
+          {text: 'CONNECT', value: 'CONNECT'},
+        ];
+      } else if (protocalType === "TCP") {
+        this.methodFilters = [
+          {text: 'TCP', value: 'TCP'},
+        ];
+      } else if (protocalType === "SQL") {
+        this.methodFilters = [
+          {text: 'SQL', value: 'SQL'},
+        ];
+      } else if (protocalType === "DUBBO") {
+        this.methodFilters = [
+          {text: 'DUBBO', value: 'DUBBO'},
+          {text: 'dubbo://', value: 'dubbo://'},
+        ];
+      } else {
+        this.methodFilters = [
           {text: 'GET', value: 'GET'},
           {text: 'POST', value: 'POST'},
           {text: 'PUT', value: 'PUT'},
@@ -318,500 +533,311 @@
           {text: 'dubbo://', value: 'dubbo://'},
           {text: 'SQL', value: 'SQL'},
           {text: 'TCP', value: 'TCP'},
-        ],
-        userFilters: [],
-        valueArr: {
-          status: API_STATUS,
-          method: REQ_METHOD,
-          userId: [],
-        },
-        methodColorMap: new Map(API_METHOD_COLOUR),
-        tableData: [],
-        currentPage: 1,
-        pageSize: 10,
-        total: 0,
-        screenHeight: document.documentElement.clientHeight - 310,//屏幕高度,
-        environmentId: undefined,
-        selectDataCounts: 0,
+        ];
       }
     },
-    props: {
-      currentProtocol: String,
-      selectNodeIds: Array,
-      isSelectThisWeek: String,
-      activeDom: String,
-      visible: {
-        type: Boolean,
-        default: false,
-      },
-      isCaseRelevance: {
-        type: Boolean,
-        default: false,
-      },
-      trashEnable: {
-        type: Boolean,
-        default: false,
-      },
-      isReadOnly: {
-        type: Boolean,
-        default: false
-      },
-      moduleTree: {
-        type: Array,
-        default() {
-          return []
-        },
-      },
-      moduleOptions: {
-        type: Array,
-        default() {
-          return []
-        },
-      }
+    getMaintainerOptions() {
+      let workspaceId = localStorage.getItem(WORKSPACE_ID);
+      this.$post('/user/ws/member/tester/list', {workspaceId: workspaceId}, response => {
+        this.valueArr.userId = response.data;
+        this.userFilters = response.data.map(u => {
+          return {text: u.name, value: u.id}
+        });
+      });
     },
-    computed: {
-      projectId() {
-        return this.$store.state.projectId
-      },
+    handleSelectAll(selection) {
+      _handleSelectAll(this, selection, this.tableData, this.selectRows);
+      setUnSelectIds(this.tableData, this.condition, this.selectRows);
+      this.selectDataCounts = getSelectDataCounts(this.condition, this.total, this.selectRows);
     },
-    created: function () {
-      if (this.trashEnable) {
-        this.condition.filters = {status: ["Trash"]};
-      } else {
-        this.condition.filters = {status: ["Prepare", "Underway", "Completed"]};
-      }
-      this.getSystemLabel(this.type)
+    handleSelect(selection, row) {
+      _handleSelect(this, selection, row, this.selectRows);
+      setUnSelectIds(this.tableData, this.condition, this.selectRows);
+      this.selectDataCounts = getSelectDataCounts(this.condition, this.total, this.selectRows);
+    },
+    isSelectDataAll(data) {
+      this.condition.selectAll = data;
+      setUnSelectIds(this.tableData, this.condition, this.selectRows);
+      this.selectDataCounts = getSelectDataCounts(this.condition, this.total, this.selectRows);
+      toggleAllSelection(this.$refs.apiDefinitionTable, this.tableData, this.selectRows);
+    },
+    search() {
+      this.changeSelectDataRangeAll();
       this.initTable();
-      this.getMaintainerOptions();
-      getLabel(this, API_LIST);
     },
-    watch: {
-      selectNodeIds() {
-        this.initTable();
-      },
-      currentProtocol() {
-        this.initTable();
-      },
-      trashEnable() {
-        if (this.trashEnable) {
-          this.condition.filters = {status: ["Trash"]};
-          this.condition.moduleIds = [];
-        } else {
-          this.condition.filters = {status: ["Prepare", "Underway", "Completed"]};
-        }
-        this.initTable();
+    buildPagePath(path) {
+      return path + "/" + this.currentPage + "/" + this.pageSize;
+    },
+
+    editApi(row) {
+      this.$emit('editApi', row);
+    },
+    runApi(row) {
+
+      let request = row ? JSON.parse(row.request) : {};
+      if (row.tags instanceof Array) {
+        row.tags = JSON.stringify(row.tags);
       }
+      let response = ""
+      if (row.response != null && row.response != 'null' && row.response != undefined) {
+        if (Object.prototype.toString.call(row.response).match(/\[object (\w+)\]/)[1].toLowerCase() === 'object') {
+          response = row.response;
+        } else {
+          response = JSON.parse(row.response);
+        }
+      } else {
+        response = {headers: [], body: new Body(), statusCode: [], type: "HTTP"};
+      }
+      if (response.body) {
+        let body = new Body();
+        Object.assign(body, response.body);
+        if (!body.binary) {
+          body.binary = [];
+        }
+        if (!body.kvs) {
+          body.kvs = [];
+        }
+        if (!body.binary) {
+          body.binary = [];
+        }
+        response.body = body;
+      }
+      row.request = request
+      row.response = response
+      this.$emit('runTest', row);
     },
-    methods: {
-      getSystemLabel(type) {
-        let param = {}
-        param.type = type
-        this.$post('/system/system/header', param, response => {
-          if (response.data != null) {
-            this.tableLabel = eval(response.data.props);
-          }
-        })
-      },
-      customHeader() {
-        getLabel(this, API_LIST);
-        this.$refs.headerCustom.open(this.tableLabel)
-      },
-      handleBatchMove() {
-        this.$refs.testCaseBatchMove.open(this.moduleTree, [], this.moduleOptions);
-      },
-      initTable() {
-        this.selectRows = new Set();
-        initCondition(this.condition);
-        this.selectDataCounts = 0;
-        this.condition.moduleIds = this.selectNodeIds;
-        this.condition.projectId = this.projectId;
-        if (this.currentProtocol != null) {
-          this.condition.protocol = this.currentProtocol;
-        }
-
-        //检查是否只查询本周数据
-        this.getSelectDataRange();
-        this.condition.selectThisWeedData = false;
-        this.condition.apiCaseCoverage = null;
-        switch (this.selectDataRange) {
-          case 'thisWeekCount':
-            this.condition.selectThisWeedData = true;
-            break;
-          case 'uncoverage':
-            this.condition.apiCaseCoverage = 'uncoverage';
-            break;
-          case 'coverage':
-            this.condition.apiCaseCoverage = 'coverage';
-            break;
-          case 'Prepare':
-            this.condition.filters.status = [this.selectDataRange];
-            break;
-          case 'Completed':
-            this.condition.filters.status = [this.selectDataRange];
-            break;
-          case 'Underway':
-            this.condition.filters.status = [this.selectDataRange];
-            break;
-        }
-        if (this.condition.projectId) {
-          this.result = this.$post("/api/definition/list/" + this.currentPage + "/" + this.pageSize, this.condition, response => {
-            this.genProtocalFilter(this.condition.protocol);
-            this.total = response.data.itemCount;
-            this.tableData = response.data.listObject;
-            this.tableData.forEach(item => {
-              if (item.tags && item.tags.length > 0) {
-                item.tags = JSON.parse(item.tags);
-              }
-            })
-            if (this.$refs.apiDefinitionTable) {
-              this.$refs.apiDefinitionTable.doLayout()
-            }
-
-          });
-        }
-        getLabel(this, API_LIST);
-      },
-      genProtocalFilter(protocalType) {
-        if (protocalType === "HTTP") {
-          this.methodFilters = [
-            {text: 'GET', value: 'GET'},
-            {text: 'POST', value: 'POST'},
-            {text: 'PUT', value: 'PUT'},
-            {text: 'PATCH', value: 'PATCH'},
-            {text: 'DELETE', value: 'DELETE'},
-            {text: 'OPTIONS', value: 'OPTIONS'},
-            {text: 'HEAD', value: 'HEAD'},
-            {text: 'CONNECT', value: 'CONNECT'},
-          ];
-        } else if (protocalType === "TCP") {
-          this.methodFilters = [
-            {text: 'TCP', value: 'TCP'},
-          ];
-        } else if (protocalType === "SQL") {
-          this.methodFilters = [
-            {text: 'SQL', value: 'SQL'},
-          ];
-        } else if (protocalType === "DUBBO") {
-          this.methodFilters = [
-            {text: 'DUBBO', value: 'DUBBO'},
-            {text: 'dubbo://', value: 'dubbo://'},
-          ];
-        } else {
-          this.methodFilters = [
-            {text: 'GET', value: 'GET'},
-            {text: 'POST', value: 'POST'},
-            {text: 'PUT', value: 'PUT'},
-            {text: 'PATCH', value: 'PATCH'},
-            {text: 'DELETE', value: 'DELETE'},
-            {text: 'OPTIONS', value: 'OPTIONS'},
-            {text: 'HEAD', value: 'HEAD'},
-            {text: 'CONNECT', value: 'CONNECT'},
-            {text: 'DUBBO', value: 'DUBBO'},
-            {text: 'dubbo://', value: 'dubbo://'},
-            {text: 'SQL', value: 'SQL'},
-            {text: 'TCP', value: 'TCP'},
-          ];
-        }
-      },
-      getMaintainerOptions() {
-        let workspaceId = localStorage.getItem(WORKSPACE_ID);
-        this.$post('/user/ws/member/tester/list', {workspaceId: workspaceId}, response => {
-          this.valueArr.userId = response.data;
-          this.userFilters = response.data.map(u => {
-            return {text: u.name, value: u.id}
-          });
-        });
-      },
-      handleSelectAll(selection) {
-        _handleSelectAll(this, selection, this.tableData, this.selectRows);
-        setUnSelectIds(this.tableData, this.condition, this.selectRows);
-        this.selectDataCounts = getSelectDataCounts(this.condition, this.total, this.selectRows);
-      },
-      handleSelect(selection, row) {
-        _handleSelect(this, selection, row, this.selectRows);
-        setUnSelectIds(this.tableData, this.condition, this.selectRows);
-        this.selectDataCounts = getSelectDataCounts(this.condition, this.total, this.selectRows);
-      },
-      isSelectDataAll(data) {
-        this.condition.selectAll = data;
-        setUnSelectIds(this.tableData, this.condition, this.selectRows);
-        this.selectDataCounts = getSelectDataCounts(this.condition, this.total, this.selectRows);
-        toggleAllSelection(this.$refs.apiDefinitionTable, this.tableData, this.selectRows);
-      },
-      search() {
-        this.changeSelectDataRangeAll();
-        this.initTable();
-      },
-      buildPagePath(path) {
-        return path + "/" + this.currentPage + "/" + this.pageSize;
-      },
-
-      editApi(row) {
-        this.$emit('editApi', row);
-      },
-      runApi(row) {
-
-        let request = row ? JSON.parse(row.request) : {};
-        if (row.tags instanceof Array) {
-          row.tags = JSON.stringify(row.tags);
-        }
-        let response = ""
-        if (row.response != null && row.response != 'null' && row.response != undefined) {
-          if (Object.prototype.toString.call(row.response).match(/\[object (\w+)\]/)[1].toLowerCase() === 'object') {
-            response = row.response;
-          } else {
-            response = JSON.parse(row.response);
-          }
-        } else {
-          response = {headers: [], body: new Body(), statusCode: [], type: "HTTP"};
-        }
-        if (response.body) {
-          let body = new Body();
-          Object.assign(body, response.body);
-          if (!body.binary) {
-            body.binary = [];
-          }
-          if (!body.kvs) {
-            body.kvs = [];
-          }
-          if (!body.binary) {
-            body.binary = [];
-          }
-          response.body = body;
-        }
-        row.request = request
-        row.response = response
-        this.$emit('runTest', row);
-      },
-      reductionApi(row) {
-        let tmp = JSON.parse(JSON.stringify(row));
-        let rows = {ids: [tmp.id]};
-        this.$post('/api/definition/reduction/', rows, () => {
-          this.$success(this.$t('commons.save_success'));
-          this.search();
-        });
-      },
-      handleBatchRestore() {
-        this.$post('/api/definition/reduction/', buildBatchParam(this), () => {
-          this.$success(this.$t('commons.save_success'));
-          this.search();
-        });
-      },
-      handleDeleteBatch() {
-        if (this.trashEnable) {
-          this.$alert(this.$t('api_test.definition.request.delete_confirm') + "？", '', {
-            confirmButtonText: this.$t('commons.confirm'),
-            callback: (action) => {
-              if (action === 'confirm') {
-                this.$post('/api/definition/deleteBatchByParams/', buildBatchParam(this), () => {
-                  this.selectRows.clear();
-                  this.initTable();
-                  this.$success(this.$t('commons.delete_success'));
-                });
-              }
-            }
-          });
-        } else {
-          this.$alert(this.$t('api_test.definition.request.delete_confirm') + "？", '', {
-            confirmButtonText: this.$t('commons.confirm'),
-            callback: (action) => {
-              if (action === 'confirm') {
-                this.$post('/api/definition/removeToGcByParams/', buildBatchParam(this), () => {
-                  this.selectRows.clear();
-                  this.initTable();
-                  this.$success(this.$t('commons.delete_success'));
-                  this.$refs.caseList.apiCaseClose();
-                });
-              }
-            }
-          });
-        }
-      },
-      handleEditBatch() {
-        if (this.currentProtocol == 'HTTP') {
-          this.valueArr.method = REQ_METHOD;
-        } else if (this.currentProtocol == 'TCP') {
-          this.valueArr.method = TCP_METHOD;
-        } else if (this.currentProtocol == 'SQL') {
-          this.valueArr.method = SQL_METHOD;
-        } else if (this.currentProtocol == 'DUBBO') {
-          this.valueArr.method = DUBBO_METHOD;
-        }
-        this.$refs.batchEdit.open();
-      },
-      batchEdit(form) {
-        let param = buildBatchParam(this);
-        param[form.type] = form.value;
-        this.$post('/api/definition/batch/editByParams', param, () => {
-          this.$success(this.$t('commons.save_success'));
-          this.initTable();
-        });
-      },
-      moveSave(param) {
-        let arr = Array.from(this.selectRows);
-        let ids = arr.map(row => row.id);
-        param.ids = ids;
-        param.projectId = this.projectId;
-        param.moduleId = param.nodeId;
-        param.condition = this.condition;
-        param.selectAllDate = this.isSelectAllDate;
-        param.unSelectIds = this.unSelection;
-        param = Object.assign(param, this.condition);
-        param.moduleId = param.nodeId;
-        this.$post('/api/definition/batch/editByParams', param, () => {
-          this.$success(this.$t('commons.save_success'));
-          this.$refs.testCaseBatchMove.close();
-          this.initTable();
-        });
-      },
-      handleTestCase(api) {
-        this.selectApi = api;
-        let request = {};
-        if (Object.prototype.toString.call(api.request).match(/\[object (\w+)\]/)[1].toLowerCase() === 'object') {
-          request = api.request;
-        } else {
-          request = JSON.parse(api.request);
-        }
-        if (!request.hashTree) {
-          request.hashTree = [];
-        }
-        this.selectApi.url = request.path;
-        this.$refs.caseList.open(this.selectApi);
-      },
-      handleDelete(api) {
-        if (this.trashEnable) {
-          this.$get('/api/definition/delete/' + api.id, () => {
-            this.$success(this.$t('commons.delete_success'));
-            this.initTable();
-          });
-          return;
-        }
-        this.$alert(this.$t('api_test.definition.request.delete_confirm') + ' ' + api.name + " ？", '', {
+    reductionApi(row) {
+      let tmp = JSON.parse(JSON.stringify(row));
+      let rows = {ids: [tmp.id]};
+      this.$post('/api/definition/reduction/', rows, () => {
+        this.$success(this.$t('commons.save_success'));
+        this.search();
+      });
+    },
+    handleBatchRestore() {
+      this.$post('/api/definition/reduction/', buildBatchParam(this), () => {
+        this.$success(this.$t('commons.save_success'));
+        this.search();
+      });
+    },
+    handleDeleteBatch() {
+      if (this.trashEnable) {
+        this.$alert(this.$t('api_test.definition.request.delete_confirm') + "？", '', {
           confirmButtonText: this.$t('commons.confirm'),
           callback: (action) => {
             if (action === 'confirm') {
-              let ids = [api.id];
-              this.$post('/api/definition/removeToGc/', ids, () => {
-                this.$success(this.$t('commons.delete_success'));
+              this.$post('/api/definition/deleteBatchByParams/', buildBatchParam(this), () => {
+                this.selectRows.clear();
                 this.initTable();
+                this.$success(this.$t('commons.delete_success'));
+              });
+            }
+          }
+        });
+      } else {
+        this.$alert(this.$t('api_test.definition.request.delete_confirm') + "？", '', {
+          confirmButtonText: this.$t('commons.confirm'),
+          callback: (action) => {
+            if (action === 'confirm') {
+              this.$post('/api/definition/removeToGcByParams/', buildBatchParam(this), () => {
+                this.selectRows.clear();
+                this.initTable();
+                this.$success(this.$t('commons.delete_success'));
                 this.$refs.caseList.apiCaseClose();
               });
             }
           }
         });
-      },
-      getColor(enable, method) {
-        if (enable) {
-          return this.methodColorMap.get(method);
-        }
-      },
-      showExecResult(row) {
-        this.$emit('showExecResult', row);
-      },
-      //判断是否只显示本周的数据。  从首页跳转过来的请求会带有相关参数
-      getSelectDataRange() {
-        let dataRange = this.$route.params.dataSelectRange;
-        let dataType = this.$route.params.dataType;
-        if (dataType === 'api') {
-          this.selectDataRange = dataRange;
-        } else {
-          this.selectDataRange = 'all';
-        }
-      },
-      changeSelectDataRangeAll() {
-        this.$emit("changeSelectDataRangeAll", "api");
-      },
-      getIds(rowSets) {
-        let rowArray = Array.from(rowSets)
-        let ids = rowArray.map(s => s.id);
-        return ids;
-      },
-      exportApi(type) {
-        let param = buildBatchParam(this);
-        param.protocol = this.currentProtocol;
-        if (param.ids === undefined || param.ids.length < 1) {
-          this.$warning(this.$t("api_test.definition.check_select"));
-          return;
-        }
-        this.result = this.$post("/api/definition/export/" + type, param, response => {
-          let obj = response.data;
-          if (type == 'MS') {
-            obj.protocol = this.currentProtocol;
-            this.buildApiPath(obj.data);
-            downloadFile("Metersphere_Api_" + localStorage.getItem(PROJECT_NAME) + ".json", JSON.stringify(obj));
-          }
-          else {
-            downloadFile("Swagger_Api_" + localStorage.getItem(PROJECT_NAME) + ".json", JSON.stringify(obj));
-          }
-        });
-      },
-      buildApiPath(apis) {
-        apis.forEach((api) => {
-          this.moduleOptions.forEach(item => {
-            if (api.moduleId === item.id) {
-              api.modulePath = item.path;
-            }
-          });
-        });
-      },
-      sort(column) {
-        // 每次只对一个字段排序
-        if (this.condition.orders) {
-          this.condition.orders = [];
-        }
-        _sort(column, this.condition);
-        this.initTable();
-      },
-      filter(filters) {
-        _filter(filters, this.condition);
-        this.initTable();
-      },
-      headerDragend(newWidth, oldWidth, column, event) {
-        let finalWidth = newWidth;
-        if (column.minWidth > finalWidth) {
-          finalWidth = column.minWidth;
-        }
-        column.width = finalWidth;
-        column.realWidth = finalWidth;
-      },
-      open() {
-        this.$refs.searchBar.open();
       }
     },
-  }
+    handleEditBatch() {
+      if (this.currentProtocol == 'HTTP') {
+        this.valueArr.method = REQ_METHOD;
+      } else if (this.currentProtocol == 'TCP') {
+        this.valueArr.method = TCP_METHOD;
+      } else if (this.currentProtocol == 'SQL') {
+        this.valueArr.method = SQL_METHOD;
+      } else if (this.currentProtocol == 'DUBBO') {
+        this.valueArr.method = DUBBO_METHOD;
+      }
+      this.$refs.batchEdit.open();
+    },
+    batchEdit(form) {
+      let param = buildBatchParam(this);
+      param[form.type] = form.value;
+      this.$post('/api/definition/batch/editByParams', param, () => {
+        this.$success(this.$t('commons.save_success'));
+        this.initTable();
+      });
+    },
+    moveSave(param) {
+      let arr = Array.from(this.selectRows);
+      let ids = arr.map(row => row.id);
+      param.ids = ids;
+      param.projectId = this.projectId;
+      param.moduleId = param.nodeId;
+      param.condition = this.condition;
+      param.selectAllDate = this.isSelectAllDate;
+      param.unSelectIds = this.unSelection;
+      param = Object.assign(param, this.condition);
+      param.moduleId = param.nodeId;
+      this.$post('/api/definition/batch/editByParams', param, () => {
+        this.$success(this.$t('commons.save_success'));
+        this.$refs.testCaseBatchMove.close();
+        this.initTable();
+      });
+    },
+    handleTestCase(api) {
+      this.selectApi = api;
+      let request = {};
+      if (Object.prototype.toString.call(api.request).match(/\[object (\w+)\]/)[1].toLowerCase() === 'object') {
+        request = api.request;
+      } else {
+        request = JSON.parse(api.request);
+      }
+      if (!request.hashTree) {
+        request.hashTree = [];
+      }
+      this.selectApi.url = request.path;
+      this.$refs.caseList.open(this.selectApi);
+    },
+    handleDelete(api) {
+      if (this.trashEnable) {
+        this.$get('/api/definition/delete/' + api.id, () => {
+          this.$success(this.$t('commons.delete_success'));
+          this.initTable();
+        });
+        return;
+      }
+      this.$alert(this.$t('api_test.definition.request.delete_confirm') + ' ' + api.name + " ？", '', {
+        confirmButtonText: this.$t('commons.confirm'),
+        callback: (action) => {
+          if (action === 'confirm') {
+            let ids = [api.id];
+            this.$post('/api/definition/removeToGc/', ids, () => {
+              this.$success(this.$t('commons.delete_success'));
+              this.initTable();
+              this.$refs.caseList.apiCaseClose();
+            });
+          }
+        }
+      });
+    },
+    getColor(enable, method) {
+      if (enable) {
+        return this.methodColorMap.get(method);
+      }
+    },
+    showExecResult(row) {
+      this.$emit('showExecResult', row);
+    },
+    //判断是否只显示本周的数据。  从首页跳转过来的请求会带有相关参数
+    getSelectDataRange() {
+      let dataRange = this.$route.params.dataSelectRange;
+      let dataType = this.$route.params.dataType;
+      if (dataType === 'api') {
+        this.selectDataRange = dataRange;
+      } else {
+        this.selectDataRange = 'all';
+      }
+    },
+    changeSelectDataRangeAll() {
+      this.$emit("changeSelectDataRangeAll", "api");
+    },
+    getIds(rowSets) {
+      let rowArray = Array.from(rowSets)
+      let ids = rowArray.map(s => s.id);
+      return ids;
+    },
+    exportApi(type) {
+      let param = buildBatchParam(this);
+      param.protocol = this.currentProtocol;
+      if (param.ids === undefined || param.ids.length < 1) {
+        this.$warning(this.$t("api_test.definition.check_select"));
+        return;
+      }
+      this.result = this.$post("/api/definition/export/" + type, param, response => {
+        let obj = response.data;
+        if (type == 'MS') {
+          obj.protocol = this.currentProtocol;
+          this.buildApiPath(obj.data);
+          downloadFile("Metersphere_Api_" + localStorage.getItem(PROJECT_NAME) + ".json", JSON.stringify(obj));
+        } else {
+          downloadFile("Swagger_Api_" + localStorage.getItem(PROJECT_NAME) + ".json", JSON.stringify(obj));
+        }
+      });
+    },
+    buildApiPath(apis) {
+      apis.forEach((api) => {
+        this.moduleOptions.forEach(item => {
+          if (api.moduleId === item.id) {
+            api.modulePath = item.path;
+          }
+        });
+      });
+    },
+    sort(column) {
+      // 每次只对一个字段排序
+      if (this.condition.orders) {
+        this.condition.orders = [];
+      }
+      _sort(column, this.condition);
+      this.initTable();
+    },
+    filter(filters) {
+      _filter(filters, this.condition);
+      this.initTable();
+    },
+    headerDragend(newWidth, oldWidth, column, event) {
+      let finalWidth = newWidth;
+      if (column.minWidth > finalWidth) {
+        finalWidth = column.minWidth;
+      }
+      column.width = finalWidth;
+      column.realWidth = finalWidth;
+    },
+    open() {
+      this.$refs.searchBar.open();
+    }
+  },
+}
 </script>
 
 <style scoped>
-  .operate-button > div {
-    display: inline-block;
-    margin-left: 10px;
-  }
+.operate-button > div {
+  display: inline-block;
+  margin-left: 10px;
+}
 
-  .request-method {
-    padding: 0 5px;
-    color: #1E90FF;
-  }
+.request-method {
+  padding: 0 5px;
+  color: #1E90FF;
+}
 
-  .api-el-tag {
-    color: white;
-  }
+.api-el-tag {
+  color: white;
+}
 
-  .search-input {
-    float: right;
-    width: 300px;
-    margin-right: 10px;
-  }
+.search-input {
+  float: right;
+  width: 300px;
+  margin-right: 10px;
+}
 
-  .el-tag {
-    margin-left: 10px;
-  }
+.el-tag {
+  margin-left: 10px;
+}
 
-  .ms-select-all >>> th:first-child {
-    margin-top: 20px;
-  }
+.ms-select-all >>> th:first-child {
+  margin-top: 20px;
+}
 
-  .ms-select-all >>> th:nth-child(2) .el-icon-arrow-down {
-    top: -2px;
-  }
+.ms-select-all >>> th:nth-child(2) .el-icon-arrow-down {
+  top: -2px;
+}
+
+/deep/ .el-table__fixed-body-wrapper {
+  top: 60px !important;
+}
 
 </style>

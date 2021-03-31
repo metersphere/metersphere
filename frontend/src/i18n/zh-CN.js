@@ -5,6 +5,7 @@ export default {
     pass_rate: '通过率',
     execution_times: '执行次数',
     cover: '覆盖',
+    module_title: '默认模块',
     not_cover: '不覆盖',
     import: '导入',
     import_success: '导入成功',
@@ -146,6 +147,7 @@ export default {
     auth_redirect_tip: '即将跳转到认证源页面进行认证',
     tag_tip: "输入回车添加标签",
     node_name_tip: "名称不能包含'\\'",
+    more_operator: "更多操作",
     table: {
       select_tip: "已选中 {0} 条数据"
     },
@@ -281,7 +283,7 @@ export default {
     select: '选择组织',
     delete_warning: '删除该组织将同步删除该组织下所有相关工作空间和相关工作空间下的所有项目，以及项目中的所有用例、接口测试、性能测试等,确定要删除吗?',
     service_integration: '服务集成',
-    defect_manage: '缺陷管理平台',
+    defect_manage: '项目管理平台',
     message_settings: '消息设置',
     message: {
       jenkins_task_notification: 'Jenkins接口调用任务通知',
@@ -438,7 +440,7 @@ export default {
     export: '导出',
     export_to_ms_format: '导出 MeterSphere 格式',
     export_to_swagger3_format: '导出 Swagger3.0 格式',
-    compare: '比较',
+    compare: '报告对比',
     generation_error: '报告生成错误, 无法查看, 请检查日志详情!',
     being_generated: '报告正在生成中...',
     delete_confirm: '确认删除报告: ',
@@ -540,7 +542,10 @@ export default {
     threadgroup_at_least_one: '至少启用一个线程组',
     load_api_automation_jmx: '引用接口自动化场景',
     project_file_exist: "项目中已存在该文件，请直接引用",
-    project_file_update_type_error: '更新的文件类型必须一致'
+    report: {
+      diff: "对比"
+    },
+    project_file_update_type_error: '更新的文件类型必须一致',
   },
   api_test: {
     creator: "创建人",
@@ -1000,6 +1005,7 @@ export default {
           coverage: "覆盖率",
           pass: "通过率",
           success: "成功率",
+          interface_coverage: "接口覆盖率",
         },
       },
       api_details_card: {
@@ -1193,7 +1199,7 @@ export default {
       batch_delete_case: '批量删除',
       batch_unlink: '批量取消关联',
       project_name: '所属项目',
-      status: '评审状态',
+      status: '评审结果',
       status_prepare: '未评审',
       status_pass: '通过',
       status_un_pass: '未通过',

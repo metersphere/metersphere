@@ -20,7 +20,7 @@
 
       <el-table-column width="30" :resizable="false" align="center">
         <template v-slot:default="scope">
-          <show-more-btn :is-show="scope.row.showMore" :buttons="buttons" :size="selectDataCounts"/>
+          <show-more-btn :is-show="scope.row.showMore" :buttons="buttons" :size="selectDataCounts" v-tester/>
         </template>
       </el-table-column>
 
@@ -49,7 +49,7 @@
           <ms-table-operator-button :tip="$t('test_track.plan_view.view_report')" icon="el-icon-document"
             @exec="openReport(scope.row.id)"/>
           <ms-table-operator-button type="danger" :tip="$t('commons.delete')" icon="el-icon-delete"
-            @exec="handleDelete(scope.row)" />
+            @exec="handleDelete(scope.row)" v-tester/>
         </template>
       </el-table-column>
     </el-table>

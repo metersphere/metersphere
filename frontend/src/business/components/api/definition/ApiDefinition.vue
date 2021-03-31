@@ -296,8 +296,15 @@
         }
         let api = {
           status: "Underway", method: "GET", userId: getCurrentUser().id,
-          url: "", protocol: this.currentProtocol, environmentId: ""
+          url: "", protocol: this.currentProtocol, environmentId: "", moduleId: 'default-module', modulePath: "/" + this.$t("commons.module_title")
         };
+        if (this.nodeTree && this.nodeTree.length > 0) {
+          api.moduleId = this.nodeTree[0].id;
+          api.modulePath = this.nodeTree[0].path;
+        }
+        if (this.selectNodeIds && this.selectNodeIds.length > 0) {
+          api.moduleId = this.selectNodeIds[0];
+        }
         this.handleTabsEdit(this.$t('api_test.definition.request.title'), e, api);
       },
       handleTabClose() {

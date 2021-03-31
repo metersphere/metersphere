@@ -46,13 +46,15 @@
             icon: 'el-icon-delete',
             func: this.deleteEnvironment
           }
-        ]
+        ],
+        selectEnvironmentId: ''
       }
     },
     methods: {
-      open: function (projectId) {
+      open: function (projectId, envId) {
         this.visible = true;
         this.projectId = projectId;
+        this.selectEnvironmentId = envId;
         this.getEnvironments();
         listenGoBack(this.close);
       },
@@ -114,7 +116,16 @@
           this.result = this.$get('/api/environment/list/' + this.projectId, response => {
             this.environments = response.data;
             if (this.environments.length > 0) {
-              this.$refs.environmentItems.itemSelected(0, this.environments[0]);
+              if (this.selectEnvironmentId) {
+                const index = this.environments.findIndex(e => e.id === this.selectEnvironmentId);
+                if (index !== -1) {
+                  this.$refs.environmentItems.itemSelected(index, this.environments[index]);
+                } else {
+                  this.$refs.environmentItems.itemSelected(0, this.environments[0]);
+                }
+              } else {
+                this.$refs.environmentItems.itemSelected(0, this.environments[0]);
+              }
             } else {
               let item = new Environment({
                 projectId: this.projectId

@@ -296,7 +296,7 @@ import BatchEdit from "../../../../case/components/BatchEdit";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 import {hub} from "@/business/components/track/plan/event-bus";
 import MsTag from "@/business/components/common/components/MsTag";
-import {_filter, _sort, getLabel, getSystemLabel} from "@/common/js/tableUtils";
+import {_filter, _sort, getLabel} from "@/common/js/tableUtils";
 import HeaderCustom from "@/business/components/common/head/HeaderCustom";
 import {Test_Plan_Function_Test_Case} from "@/business/components/common/model/JsonData";
 import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOperate";
@@ -424,12 +424,8 @@ export default {
   beforeDestroy() {
     hub.$off("openFailureTestCase");
   },
-  created() {
-    getSystemLabel(this, this.type)
-  },
   methods: {
     customHeader() {
-      getLabel(this, TEST_PLAN_FUNCTION_TEST_CASE);
       this.$refs.headerCustom.open(this.tableLabel)
     },
 
@@ -477,13 +473,16 @@ export default {
           }
           this.selectRows.clear();
           if (this.$refs.table) {
-            this.$refs.table.doLayout()
+            setTimeout(this.$refs.table.doLayout, 200)
           }
         });
       }
       getLabel(this, TEST_PLAN_FUNCTION_TEST_CASE);
     },
     autoCheckStatus() {
+      if (!this.planId) {
+        return;
+      }
       this.$post('/test/plan/autoCheck/' + this.planId, (response) => {
       });
     },
@@ -715,5 +714,9 @@ export default {
 
 .ms-table-header >>> .table-title {
   height: 0px;
+}
+
+/deep/ .el-table__fixed-body-wrapper {
+  top: 60px !important;
 }
 </style>

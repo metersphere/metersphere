@@ -3,11 +3,13 @@ package io.metersphere.api.service;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import io.metersphere.api.dto.automation.EsbDataStruct;
+import io.metersphere.api.dto.automation.SaveApiScenarioRequest;
 import io.metersphere.api.dto.automation.parse.EsbDataParser;
 import io.metersphere.api.dto.definition.ApiDefinitionResult;
 import io.metersphere.api.dto.definition.ApiTestCaseResult;
 import io.metersphere.api.dto.definition.SaveApiDefinitionRequest;
 import io.metersphere.api.dto.definition.SaveApiTestCaseRequest;
+import io.metersphere.api.dto.definition.request.MsTestElement;
 import io.metersphere.api.dto.definition.request.sampler.MsTCPSampler;
 import io.metersphere.api.dto.scenario.KeyValue;
 import io.metersphere.base.domain.ApiTestCaseWithBLOBs;
@@ -313,6 +315,35 @@ public class EsbApiParamService {
         return keyValueList;
     }
 
+    private List<KeyValue> genKeyValueListByDataStruct(MsTCPSampler tcpSampler, List<EsbDataStruct> dataStructRequestList) {
+        List<KeyValue> keyValueList = new ArrayList<>();
+        String sendRequest = tcpSampler.getRequest();
+          String paramRegexStr = "\\$\\{([^}]*)\\}";
+        try {
+            if (StringUtils.isNotEmpty(sendRequest)) {
+                List<String> paramList = new ArrayList<>();
+                Pattern regex = Pattern.compile(paramRegexStr);
+                Matcher matcher = regex.matcher(sendRequest);
+                while (matcher.find()) {
+                    paramList.add(matcher.group(1));
+                }
+                for (String param : paramList) {
+                    String value = this.genValueFromEsbDataStructByParam(dataStructRequestList, param);
+                    if (StringUtils.isNotEmpty(value)) {
+                        KeyValue kv = new KeyValue();
+                        kv.setName(param);
+                        kv.setValue(value);
+                        kv.setRequired(true);
+                        keyValueList.add(kv);
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return keyValueList;
+    }
+
     //通过报文模版中的变量参数，解析报文数据结构，生成对应的xml数据
     private String genValueFromEsbDataStructByParam(List<EsbDataStruct> dataStructRequestList, String param) {
         String returnValue = "";
@@ -341,10 +372,32 @@ public class EsbApiParamService {
         return request;
     }
 
+    public void handleEsbRequest(MsTCPSampler tcpSampler) {
+        try {
+            //修改reqeust.parameters, 将树结构类型数据转化为表格类型数据，供执行时参数的提取
+            if (tcpSampler.getEsbDataStruct() != null ) {
+                List<KeyValue> keyValueList = this.genKeyValueListByDataStruct(tcpSampler, tcpSampler.getEsbDataStruct());
+                tcpSampler.setParameters(keyValueList);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     public void deleteByResourceIdIn(List<String> apiIds) {
         EsbApiParamsExample example = new EsbApiParamsExample();
         example.createCriteria().andResourceIdIn(apiIds);
         esbApiParamsMapper.deleteByExample(example);
     }
 
+    public void checkScenarioRequests(SaveApiScenarioRequest request) {
+        if(request.getScenarioDefinition() != null ){
+            List<MsTestElement> hashTreeList = request.getScenarioDefinition().getHashTree();
+            for (MsTestElement testElement :hashTreeList) {
+                if(testElement instanceof MsTCPSampler){
+                    this.handleEsbRequest((MsTCPSampler)testElement);
+                }
+            }
+        }
+    }
 }

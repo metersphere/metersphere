@@ -409,7 +409,7 @@ public class TestPlanService {
                     || StringUtils.equals(res, "success")
                     || StringUtils.equals(res, ScenarioStatus.Success.name())) {
                 passNum++;
-            } else if (res == null) {
+            } else if (res == null || StringUtils.equals(TestPlanStatus.Prepare.name(), res)) {
                 prepareNum++;
             } else {
                 failNum++;

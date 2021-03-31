@@ -22,9 +22,7 @@
             </el-col>
             <el-col :span="7">
               <el-form-item :label="$t('test_track.module.module')" prop="apiScenarioModuleId">
-                <el-select class="ms-scenario-input" size="small" v-model="currentScenario.apiScenarioModuleId">
-                  <el-option v-for="item in moduleOptions" :key="item.id" :label="item.path" :value="item.id"/>
-                </el-select>
+                <ms-select-tree size="small" :data="moduleOptions" :defaultKey="currentScenario.apiScenarioModuleId" @getValue="setModule" :obj="moduleObj" clearable checkStrictly/>
               </el-form-item>
             </el-col>
             <el-col :span="7">
@@ -102,7 +100,14 @@
             <div class="ms-debug-div" @click="showAll">
               <el-row style="margin: 5px">
                 <el-col :span="6" class="ms-col-one ms-font">
-                  {{ currentScenario.name === undefined || '' ? $t('api_test.scenario.name') : currentScenario.name }}
+                  <el-tooltip placement="top" effect="light">
+                    <template v-slot:content>
+                      <div>{{ currentScenario.name }}</div>
+                    </template>
+                    <span class="scenario-name">
+                        {{ currentScenario.name === undefined || '' ? $t('api_test.scenario.name') : currentScenario.name }}
+                    </span>
+                  </el-tooltip>
                 </el-col>
                 <el-col :span="3" class="ms-col-one ms-font">
                   {{$t('api_test.automation.step_total')}}：{{scenarioDefinition.length}}
@@ -201,7 +206,8 @@
                            @closePage="close" @unFullScreen="unFullScreen" @showAllBtn="showAllBtn" @runDebug="runDebug" @setProjectEnvMap="setProjectEnvMap" @showScenarioParameters="showScenarioParameters" @setCookieShare="setCookieShare" ref="maximizeHeader"/>
         </template>
 
-        <maximize-scenario :scenario-definition="scenarioDefinition" :envMap="projectEnvMap" :moduleOptions="moduleOptions" :currentScenario="currentScenario" :type="type" ref="maximizeScenario" @openScenario="openScenario"/>
+        <maximize-scenario :scenario-definition="scenarioDefinition" :envMap="projectEnvMap" :moduleOptions="moduleOptions"
+                           :currentScenario="currentScenario" :type="type" ref="maximizeScenario" @openScenario="openScenario"/>
       </ms-drawer>
 
     </div>
@@ -238,6 +244,7 @@
   import MaximizeScenario from "./maximize/MaximizeScenario";
   import ScenarioHeader from "./maximize/ScenarioHeader";
   import MsDrawer from "../../../common/components/MsDrawer";
+  import MsSelectTree from "../../../common/select-tree/SelectTree";
 
   let jsonPath = require('jsonpath');
   export default {
@@ -260,13 +267,18 @@
       EnvPopover,
       MaximizeScenario,
       ScenarioHeader,
-      MsDrawer
+      MsDrawer,
+      MsSelectTree
     },
     data() {
       return {
         props: {
           label: "label",
           children: "hashTree"
+        },
+        moduleObj: {
+          id: 'id',
+          label: 'name',
         },
         rules: {
           name: [
@@ -442,6 +454,10 @@
       },
     },
     methods: {
+      setModule(id, data) {
+        this.currentScenario.apiScenarioModuleId = id;
+        this.currentScenario.modulePath = data.path;
+      },
       setHideBtn() {
         this.isBtnHide = false;
       },
@@ -577,13 +593,14 @@
       recursiveSorting(arr, scenarioProjectId) {
         for (let i in arr) {
           arr[i].index = Number(i) + 1;
-          if (arr[i].type === ELEMENT_TYPE.LoopController && arr[i].hashTree && arr[i].hashTree.length > 1) {
+          if (arr[i].type === ELEMENT_TYPE.LoopController && arr[i].loopType === "LOOP_COUNT" && arr[i].hashTree && arr[i].hashTree.length > 1) {
             arr[i].countController.proceed = true;
           }
           if (!arr[i].projectId) {
             // 如果自身没有ID并且场景有ID则赋值场景ID，否则赋值当前项目ID
             arr[i].projectId = scenarioProjectId ? scenarioProjectId : this.projectId;
           }
+
           if (arr[i].hashTree != undefined && arr[i].hashTree.length > 0) {
             this.recursiveSorting(arr[i].hashTree, arr[i].projectId);
           }
@@ -606,6 +623,7 @@
           if (!this.scenarioDefinition[i].projectId) {
             this.scenarioDefinition[i].projectId = this.projectId;
           }
+
           if (this.scenarioDefinition[i].hashTree != undefined && this.scenarioDefinition[i].hashTree.length > 0) {
             this.recursiveSorting(this.scenarioDefinition[i].hashTree, this.scenarioDefinition[i].projectId);
           }
@@ -749,10 +767,11 @@
       },
       runDebug() {
         /*触发执行操作*/
-        let sign = this.$refs.envPopover.checkEnv();
+        let sign = this.$refs.envPopover.checkEnv(this.scenarioDefinition);
         if (!sign) {
           return;
         }
+
         this.$refs['currentScenario'].validate((valid) => {
           if (valid) {
             Promise.all([
@@ -841,15 +860,6 @@
           this.expandedNode.splice(this.expandedNode.indexOf(data.resourceId), 1);
         }
       },
-      getPath(id) {
-        if (id === null) {
-          return null;
-        }
-        let path = this.moduleOptions.filter(function (item) {
-          return item.id === id ? item.path : "";
-        });
-        return path[0].path;
-      },
       setFiles(item, bodyUploadFiles, obj) {
         if (item.body) {
           if (item.body.kvs) {
@@ -926,7 +936,7 @@
         return bodyUploadFiles;
       },
       editScenario() {
-        return new Promise((resolve, reject) => {
+        return new Promise((resolve) => {
           document.getElementById("inputDelay").focus();  //  保存前在input框自动失焦，以免保存失败
           this.$refs['currentScenario'].validate((valid) => {
             if (valid) {
@@ -1008,7 +1018,6 @@
       setParameter() {
         this.currentScenario.stepTotal = this.scenarioDefinition.length;
         this.currentScenario.projectId = this.projectId;
-        this.currentScenario.modulePath = this.getPath(this.currentScenario.apiScenarioModuleId);
         // 构建一个场景对象 方便引用处理
         let scenario = {
           id: this.currentScenario.id,
@@ -1248,4 +1257,14 @@
     font-size: 18px;
   }
 
+  .scenario-name {
+    display: inline-block;
+    margin: 0 5px;
+    overflow-x: hidden;
+    padding-bottom: 0;
+    text-overflow: ellipsis;
+    vertical-align: middle;
+    white-space: nowrap;
+    width: 200px;
+  }
 </style>

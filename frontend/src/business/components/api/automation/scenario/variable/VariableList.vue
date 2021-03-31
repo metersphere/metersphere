@@ -226,7 +226,7 @@
           this.headers = headers;
         }
         this.visible = true;
-        this.editData = {type: "CONSTANT"};
+        this.editData = {type: "CONSTANT", delimiter: ","};
         this.addParameters(this.editData);
         this.disabled = disabled;
       },

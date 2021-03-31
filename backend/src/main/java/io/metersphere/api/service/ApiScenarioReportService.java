@@ -253,6 +253,13 @@ public class ApiScenarioReportService {
                     String status = "Success";
                     report.setStatus(status);
                     scenarioReportMapper.updateByPrimaryKeySelective(report);
+                    // 把上一条调试的数据内容清空
+                    ApiScenarioReport prevResult = extApiScenarioReportMapper.selectPreviousReportByScenarioId(report.getScenarioId(), reportId);
+                    if (prevResult != null) {
+                        ApiScenarioReportDetailExample example = new ApiScenarioReportDetailExample();
+                        example.createCriteria().andReportIdEqualTo(prevResult.getId());
+                        apiScenarioReportDetailMapper.deleteByExample(example);
+                    }
                 });
                 sqlSession.flushStatements();
             }

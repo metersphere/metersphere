@@ -126,6 +126,11 @@ public class MsHTTPSamplerProxy extends MsTestElement {
             config.setConfig(getEnvironmentConfig(useEnvironment));
         }
 
+        // 1.8 之前历史数据
+        if (StringUtils.isEmpty(this.getProjectId()) && config.getConfig() != null && !config.getConfig().isEmpty()) {
+            this.setProjectId("historyProjectID");
+        }
+
         // 添加环境中的公共变量
         Arguments arguments = this.addArguments(config);
         if (arguments != null) {
@@ -140,23 +145,31 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                     url = this.getUrl();
                     isUrl = true;
                 }
-                URL urlObject = new URL(url);
                 if (isUrl) {
+                    if (StringUtils.isNotEmpty(this.getPort()) && this.getPort().startsWith("${")) {
+                        url.replaceAll(this.getPort(), "10990");
+                    }
+                    URL urlObject = new URL(url);
                     sampler.setDomain(URLDecoder.decode(urlObject.getHost(), "UTF-8"));
-                    if (urlObject.getPort() > 0) {
+
+                    if (urlObject.getPort() > 0 && urlObject.getPort() == 10990 && StringUtils.isNotEmpty(this.getPort()) && this.getPort().startsWith("${")) {
+                        sampler.setProperty("HTTPSampler.port", this.getPort());
+                    } else {
                         sampler.setPort(urlObject.getPort());
                     }
                     sampler.setProtocol(urlObject.getProtocol());
+                    sampler.setPath(urlObject.getPath());
                 } else {
-                    sampler.setDomain(config.getConfig().get(this.getProjectId()).getHttpConfig().getDomain());
+                    String configStr = config.getConfig().get(this.getProjectId()).getHttpConfig().getSocket();
+                    sampler.setDomain(configStr);
+                    if (config.getConfig().get(this.getProjectId()).getHttpConfig().getPort() > 0) {
+                        sampler.setDomain(config.getConfig().get(this.getProjectId()).getHttpConfig().getDomain());
+                    }
                     sampler.setPort(config.getConfig().get(this.getProjectId()).getHttpConfig().getPort());
                     sampler.setProtocol(config.getConfig().get(this.getProjectId()).getHttpConfig().getProtocol());
+                    sampler.setPath(this.getPath());
                 }
-                String envPath = StringUtils.equals(urlObject.getPath(), "/") ? "" : urlObject.getPath();
-                if (StringUtils.isNotBlank(this.getPath()) && !isUrl) {
-                    envPath += this.getPath();
-                    sampler.setPath(envPath);
-                }
+                String envPath = sampler.getPath();
                 if (CollectionUtils.isNotEmpty(this.getRest()) && this.isRest()) {
                     envPath = getRestParameters(URLDecoder.decode(envPath, "UTF-8"));
                     sampler.setPath(envPath);
@@ -177,9 +190,17 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                 if (!url.startsWith("http://") && !url.startsWith("https://")) {
                     url = "http://" + url;
                 }
+                if (StringUtils.isNotEmpty(this.getPort()) && this.getPort().startsWith("${")) {
+                    url.replaceAll(this.getPort(), "10990");
+                }
                 URL urlObject = new URL(url);
                 sampler.setDomain(URLDecoder.decode(urlObject.getHost(), "UTF-8"));
-                sampler.setPort(urlObject.getPort());
+                if (urlObject.getPort() > 0 && urlObject.getPort() == 10990 && StringUtils.isNotEmpty(this.getPort()) && this.getPort().startsWith("${")) {
+                    sampler.setProperty("HTTPSampler.port", this.getPort());
+
+                } else {
+                    sampler.setPort(urlObject.getPort());
+                }
                 sampler.setProtocol(urlObject.getProtocol());
                 String envPath = StringUtils.equals(urlObject.getPath(), "/") ? "" : urlObject.getPath();
                 sampler.setPath(envPath);
@@ -327,10 +348,16 @@ public class MsHTTPSamplerProxy extends MsTestElement {
     }
 
     public boolean isURL(String str) {
-        //转换为小写
         try {
-            new URL(str);
-            return true;
+            String regex = "^((https|http|ftp|rtsp|mms)?://)"
+                    + "?(([0-9a-z_!~*'().&=+$%-]+: )?[0-9a-z_!~*'().&=+$%-]+@)?"
+                    + "(([0-9]{1,3}\\.){3}[0-9]{1,3}" + "|" + "([0-9a-z_!~*'()-]+\\.)*"
+                    + "([0-9a-z][0-9a-z-]{0,61})?[0-9a-z]\\."
+                    + "[a-z]{2,6})"
+                    + "(:[0-9]{1,5})?"
+                    + "((/?)|"
+                    + "(/[0-9a-z_!~*'().;?:@&=+$,%#-]+)+/?)$";
+            return str.matches(regex) || (str.matches("^(http|https|ftp)://.*$") && str.matches(".*://\\$\\{.*$"));
         } catch (Exception e) {
             return false;
         }
@@ -339,5 +366,5 @@ public class MsHTTPSamplerProxy extends MsTestElement {
     private boolean isRest() {
         return this.getRest().stream().filter(KeyValue::isEnable).filter(KeyValue::isValid).toArray().length > 0;
     }
-
 }
+
