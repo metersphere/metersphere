@@ -93,7 +93,7 @@ public class TestCaseService {
     TestCaseTestMapper testCaseTestMapper;
 
     private void setNode(TestCaseWithBLOBs testCase){
-        if (StringUtils.isEmpty(testCase.getNodeId()) || StringUtils.isEmpty(testCase.getNodePath()) || "default-module".equals(testCase.getNodeId())) {
+        if (StringUtils.isEmpty(testCase.getNodeId()) || "default-module".equals(testCase.getNodeId())) {
             TestCaseNodeExample example = new TestCaseNodeExample();
             example.createCriteria().andProjectIdEqualTo(testCase.getProjectId()).andNameEqualTo("默认模块");
             List<TestCaseNode> nodes = testCaseNodeMapper.selectByExample(example);
@@ -423,7 +423,7 @@ public class TestCaseService {
                 testcase.setSort(sort.getAndIncrement());
                 testcase.setNum(num.decrementAndGet());
                 testcase.setReviewStatus(TestCaseReviewStatus.Prepare.name());
-                mapper.insert(testcase);
+                    mapper.insert(testcase);
             });
         }
         sqlSession.flushStatements();
@@ -451,7 +451,7 @@ public class TestCaseService {
 
     /**
      * 把Excel中带ID的数据更新到数据库
-     *
+     * feat(测试跟踪):通过Excel导入导出时有ID字段，可通过Excel导入来更新用例。 (#1727)
      * @param testCases
      * @param projectId
      */

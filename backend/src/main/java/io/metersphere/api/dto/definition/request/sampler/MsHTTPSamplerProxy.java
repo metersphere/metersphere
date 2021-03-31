@@ -91,9 +91,6 @@ public class MsHTTPSamplerProxy extends MsTestElement {
     @JSONField(ordinal = 36)
     private MsAuthManager authManager;
 
-    @JSONField(ordinal = 37)
-    private boolean urlOrPath;
-
     @Override
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, ParameterConfig config) {
         // 非导出操作，且不是启用状态则跳过执行
@@ -163,7 +160,11 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                     sampler.setProtocol(urlObject.getProtocol());
                     sampler.setPath(urlObject.getPath());
                 } else {
-                    sampler.setDomain(config.getConfig().get(this.getProjectId()).getHttpConfig().getDomain());
+                    String configStr = config.getConfig().get(this.getProjectId()).getHttpConfig().getSocket();
+                    sampler.setDomain(configStr);
+                    if (config.getConfig().get(this.getProjectId()).getHttpConfig().getPort() > 0) {
+                        sampler.setDomain(config.getConfig().get(this.getProjectId()).getHttpConfig().getDomain());
+                    }
                     sampler.setPort(config.getConfig().get(this.getProjectId()).getHttpConfig().getPort());
                     sampler.setProtocol(config.getConfig().get(this.getProjectId()).getHttpConfig().getProtocol());
                     sampler.setPath(this.getPath());
@@ -194,10 +195,11 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                 }
                 URL urlObject = new URL(url);
                 sampler.setDomain(URLDecoder.decode(urlObject.getHost(), "UTF-8"));
-                if (urlObject.getPort() > 0 && urlObject.getPort() != 10990 && StringUtils.isNotEmpty(this.getPort()) && this.getPort().startsWith("${")) {
-                    sampler.setPort(urlObject.getPort());
-                } else {
+                if (urlObject.getPort() > 0 && urlObject.getPort() == 10990 && StringUtils.isNotEmpty(this.getPort()) && this.getPort().startsWith("${")) {
                     sampler.setProperty("HTTPSampler.port", this.getPort());
+
+                } else {
+                    sampler.setPort(urlObject.getPort());
                 }
                 sampler.setProtocol(urlObject.getProtocol());
                 String envPath = StringUtils.equals(urlObject.getPath(), "/") ? "" : urlObject.getPath();

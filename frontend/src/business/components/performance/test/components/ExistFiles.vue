@@ -173,11 +173,12 @@ export default {
           updateTime: row.lastModified,
         });
       }
+      //
+      rows.forEach(row => {
+        this.fileList.push(row);
+      })
 
       if (this.loadType === 'resource') {
-        rows.forEach(row => {
-          this.fileList.push(row);
-        })
         this.$success(this.$t('test_track.case.import.success'));
         this.close();
         return;
@@ -197,8 +198,6 @@ export default {
             tg.options = {};
             this.scenarios.push(tg);
           });
-          let file = new File([d.jmx], d.name);
-          this.uploadList.push(file);
         });
 
         this.$emit('fileChange', this.scenarios);

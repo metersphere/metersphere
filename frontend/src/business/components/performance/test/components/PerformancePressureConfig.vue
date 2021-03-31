@@ -263,6 +263,8 @@ export default {
         if (response.data.filter(p => p.id === this.resourcePool).length === 0) {
           this.resourcePool = null;
         }
+
+        this.resourcePoolChange();
       })
     },
     getLoadConfig() {
@@ -354,7 +356,7 @@ export default {
         result[0].resources.forEach(resource => {
           threadNumber += JSON.parse(resource.configuration).maxConcurrency;
         })
-        this.maxThreadNumbers = threadNumber;
+        this.$set(this, 'maxThreadNumbers', threadNumber);
         this.threadGroups.forEach(tg => {
           if (tg.threadNumber > threadNumber) {
             this.$set(tg, "threadNumber", threadNumber);
