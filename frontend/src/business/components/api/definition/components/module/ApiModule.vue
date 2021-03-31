@@ -133,16 +133,11 @@
             this.data.forEach(node => {
               buildTree(node, {path: ''});
             });
+            this.$emit('setModuleOptions', this.data);
             this.$emit('setNodeTree', this.data);
             if (this.$refs.nodeTree) {
               this.$refs.nodeTree.filter(this.condition.filterText);
             }
-            let moduleOptions = [];
-            this.data.forEach(node => {
-              buildNodePath(node, {path: ''}, moduleOptions);
-            });
-            this.moduleOptions = moduleOptions;
-            this.$emit('setModuleOptions', moduleOptions);
           }
         });
       },

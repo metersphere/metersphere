@@ -306,6 +306,8 @@
           this.$warning(this.$t('api_test.environment.select_environment'));
           return;
         }
+        this.envMap = new Map();
+        this.envMap.set(this.$store.state.projectId,this.environment);
         this.runData = [];
         this.batchLoadingIds = [];
         this.selectdCases = [];
