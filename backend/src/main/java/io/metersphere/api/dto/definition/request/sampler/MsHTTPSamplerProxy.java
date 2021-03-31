@@ -160,14 +160,16 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                     sampler.setProtocol(urlObject.getProtocol());
                     sampler.setPath(urlObject.getPath());
                 } else {
-                    String configStr = config.getConfig().get(this.getProjectId()).getHttpConfig().getSocket();
-                    sampler.setDomain(configStr);
-                    if (config.getConfig().get(this.getProjectId()).getHttpConfig().getPort() > 0) {
-                        sampler.setDomain(config.getConfig().get(this.getProjectId()).getHttpConfig().getDomain());
+                    sampler.setDomain(config.getConfig().get(this.getProjectId()).getHttpConfig().getDomain());
+                    url = config.getConfig().get(this.getProjectId()).getHttpConfig().getProtocol() + "://" + config.getConfig().get(this.getProjectId()).getHttpConfig().getSocket();
+                    URL urlObject = new URL(url);
+                    String envPath = StringUtils.equals(urlObject.getPath(), "/") ? "" : urlObject.getPath();
+                    if (StringUtils.isNotBlank(this.getPath())) {
+                        envPath += this.getPath();
                     }
                     sampler.setPort(config.getConfig().get(this.getProjectId()).getHttpConfig().getPort());
                     sampler.setProtocol(config.getConfig().get(this.getProjectId()).getHttpConfig().getProtocol());
-                    sampler.setPath(this.getPath());
+                    sampler.setPath(envPath);
                 }
                 String envPath = sampler.getPath();
                 if (CollectionUtils.isNotEmpty(this.getRest()) && this.isRest()) {
@@ -187,7 +189,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                 }
             } else {
                 String url = this.getUrl();
-                if (!url.startsWith("http://") && !url.startsWith("https://")) {
+                if (StringUtils.isNotEmpty(url) && !url.startsWith("http://") && !url.startsWith("https://")) {
                     url = "http://" + url;
                 }
                 if (StringUtils.isNotEmpty(this.getPort()) && this.getPort().startsWith("${")) {
