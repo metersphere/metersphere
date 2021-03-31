@@ -9,6 +9,8 @@ import lombok.Setter;
 public class TestCaseExcelData {
 
     @ExcelIgnore
+    private Integer num;
+    @ExcelIgnore
     private String name;
     @ExcelIgnore
     private String nodePath;

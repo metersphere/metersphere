@@ -20,6 +20,7 @@
           :condition="condition"
           :current-module="currentModule"
           :is-read-only="isReadOnly"
+          :moduleOptions="data"
           @exportAPI="exportAPI"
           @saveAsEdit="saveAsEdit"
           @refreshTable="$emit('refreshTable')"
@@ -34,25 +35,25 @@
 </template>
 
 <script>
-import MsAddBasisApi from "../basis/AddBasisApi";
-import SelectMenu from "../../../../track/common/SelectMenu";
-import {OPTIONS} from "../../model/JsonData";
-import ApiImport from "../import/ApiImport";
-import MsNodeTree from "../../../../track/common/NodeTree";
-import ApiModuleHeader from "./ApiModuleHeader";
-import {buildNodePath} from "../../model/NodeTree";
+  import MsAddBasisApi from "../basis/AddBasisApi";
+  import SelectMenu from "../../../../track/common/SelectMenu";
+  import {OPTIONS} from "../../model/JsonData";
+  import ApiImport from "../import/ApiImport";
+  import MsNodeTree from "../../../../track/common/NodeTree";
+  import ApiModuleHeader from "./ApiModuleHeader";
+  import {buildNodePath, buildTree} from "../../model/NodeTree";
 
-export default {
-  name: 'MsApiModule',
-  components: {
-    ApiModuleHeader,
-    MsNodeTree,
-    MsAddBasisApi,
-    SelectMenu,
-    ApiImport
-  },
-  data() {
-    return {
+  export default {
+    name: 'MsApiModule',
+    components: {
+      ApiModuleHeader,
+      MsNodeTree,
+      MsAddBasisApi,
+      SelectMenu,
+      ApiImport
+    },
+    data() {
+      return {
         result: {},
         condition: {
           protocol: OPTIONS[0].value,
@@ -129,15 +130,19 @@ export default {
         this.result = this.$get(url, response => {
           if (response.data != undefined && response.data != null) {
             this.data = response.data;
-            let moduleOptions = [];
             this.data.forEach(node => {
-              buildNodePath(node, {path: ''}, moduleOptions);
+              buildTree(node, {path: ''});
             });
-            this.$emit('setModuleOptions', moduleOptions);
             this.$emit('setNodeTree', this.data);
             if (this.$refs.nodeTree) {
               this.$refs.nodeTree.filter(this.condition.filterText);
             }
+            let moduleOptions = [];
+            this.data.forEach(node => {
+              buildNodePath(node, {path: ''}, moduleOptions);
+            });
+            this.moduleOptions = moduleOptions;
+            this.$emit('setModuleOptions', moduleOptions);
           }
         });
       },

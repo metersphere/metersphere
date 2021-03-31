@@ -102,9 +102,9 @@ export default {
 <style scoped>
 
 .active {
-  border: solid 1px #6d317c;
-  background-color: var(--primary_color);
-  color: #FFFFFF;
+  border: solid 1px #6d317c!important;
+  background-color: var(--primary_color)!important;
+  color: #FFFFFF!important;
 }
 
 .case-button {

@@ -163,7 +163,6 @@ public abstract class MsTestElement {
                 element = mapper.readValue(apiDefinition.getRequest(), new TypeReference<MsTestElement>() {
                 });
                 hashTree.add(element);
-                OldVersionUtil.transferHashTree(hashTree);
             }
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -213,7 +212,7 @@ public abstract class MsTestElement {
                     csvDataSet.setName(StringUtils.isEmpty(item.getName()) ? "CSVDataSet" : item.getName());
                     csvDataSet.setProperty("fileEncoding", StringUtils.isEmpty(item.getEncoding()) ? "UTF-8" : item.getEncoding());
                     if (CollectionUtils.isNotEmpty(item.getFiles())) {
-                        if (!config.isOperating() && new File(BODY_FILE_DIR + "/" + item.getFiles().get(0).getId() + "_" + item.getFiles().get(0).getName()).exists()) {
+                        if (!config.isOperating() && !new File(BODY_FILE_DIR + "/" + item.getFiles().get(0).getId() + "_" + item.getFiles().get(0).getName()).exists()) {
                             MSException.throwException(StringUtils.isEmpty(item.getName()) ? "CSVDataSet" : item.getName() + "：[ CSV文件不存在 ]");
                         }
                         csvDataSet.setProperty("filename", BODY_FILE_DIR + "/" + item.getFiles().get(0).getId() + "_" + item.getFiles().get(0).getName());

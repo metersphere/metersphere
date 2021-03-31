@@ -16,32 +16,9 @@
       ref="nodeTree">
 
       <template v-slot:header>
-        <el-input :placeholder="$t('test_track.module.search')" v-model="condition.filterText" size="small">
-          <template v-slot:append>
-            <el-dropdown v-if="!isReadOnly" size="small" split-button type="primary" class="ms-api-button" @click="handleCommand('add-api')"
-                         v-tester
-                         @command="handleCommand" trigger="click">
-              <el-button icon="el-icon-folder-add" @click="addScenario"></el-button>
-              <el-dropdown-menu slot="dropdown">
-                <el-dropdown-item command="add-scenario">{{ $t('api_test.automation.add_scenario') }}</el-dropdown-item>
-                <el-dropdown-item command="import">{{ $t('api_test.api_import.label') }}</el-dropdown-item>
-                <el-dropdown-item command="exports">
-                  <el-dropdown placement="right-start" @command="chooseExportType">
-                <span>
-                  {{ $t('report.export') }} <i class="el-icon-arrow-down el-icon--right"></i>
-                </span>
-                    <el-dropdown-menu slot="dropdown">
-                      <template>
-                        <el-dropdown-item command="export">{{ $t('report.export_to_ms_format') }}</el-dropdown-item>
-                        <el-dropdown-item command="exportJmx">{{ $t('report.export') }} JMETER 格式</el-dropdown-item>
-                      </template>
-                    </el-dropdown-menu>
-                  </el-dropdown>
-                </el-dropdown-item>
-              </el-dropdown-menu>
-            </el-dropdown>
-          </template>
-        </el-input>
+        <ms-search-bar
+          :condition="condition"
+          :commands="operators"/>
         <module-trash-button v-if="!isReadOnly" :condition="condition" :exe="enableTrash"/>
       </template>
 
@@ -52,7 +29,7 @@
       @refresh="refresh"
       ref="basisScenario"/>
 
-    <api-import ref="apiImport" :moduleOptions="moduleOptions" @refreshAll="$emit('refreshAll')"/>
+    <api-import ref="apiImport" :moduleOptions="data" @refreshAll="$emit('refreshAll')"/>
   </div>
 
 </template>
@@ -61,13 +38,15 @@
   import SelectMenu from "../../../track/common/SelectMenu";
   import MsAddBasisScenario from "@/business/components/api/automation/scenario/AddBasisScenario";
   import MsNodeTree from "../../../track/common/NodeTree";
-  import {buildNodePath} from "../../definition/model/NodeTree";
+  import {buildNodePath, buildTree} from "../../definition/model/NodeTree";
   import ModuleTrashButton from "../../definition/components/module/ModuleTrashButton";
   import ApiImport from "./common/ScenarioImport";
+  import MsSearchBar from "@/business/components/common/components/search/MsSearchBar";
 
   export default {
     name: 'MsApiScenarioModule',
     components: {
+      MsSearchBar,
       ApiImport,
       ModuleTrashButton,
       MsNodeTree,
@@ -104,7 +83,33 @@
         },
         data: [],
         currentModule: undefined,
-        moduleOptions: [],
+        operators: [
+          {
+            label: this.$t('api_test.automation.add_scenario'),
+            callback: this.addScenario
+          },
+          {
+            label: this.$t('api_test.api_import.label'),
+            callback: this.handleImport
+          },
+          {
+            label: this.$t('report.export'),
+            children: [
+              {
+                label: this.$t('report.export_to_ms_format'),
+                callback: () => {
+                  this.$emit('exportAPI');
+                }
+              },
+              {
+                label: this.$t('report.export') + 'JMETER 格式',
+                callback: () => {
+                  this.$emit('exportJmx');
+                }
+              }
+            ]
+          }
+        ]
       }
     },
     mounted() {
@@ -134,11 +139,9 @@
             this.result = this.$get("/api/automation/module/list/" + this.projectId, response => {
               if (response.data != undefined && response.data != null) {
                 this.data = response.data;
-                let moduleOptions = [];
                 this.data.forEach(node => {
-                  buildNodePath(node, {path: ''}, moduleOptions);
+                  buildTree(node, {path: ''});
                 });
-                this.moduleOptions = moduleOptions
               }
             });
             this.$refs.apiImport.open(this.currentModule);
@@ -151,14 +154,17 @@
             break;
         }
       },
-      chooseExportType(e) {
-        switch (e) {
-          case "export":
-            this.$emit('exportAPI');
-            break;
-          case "exportJmx":
-            this.$emit('exportJmx');
-            break;
+      handleImport() {
+        if (this.projectId) {
+          this.result = this.$get("/api/automation/module/list/" + this.projectId, response => {
+            if (response.data != undefined && response.data != null) {
+              this.data = response.data;
+              this.data.forEach(node => {
+                buildTree(node, {path: ''});
+              });
+            }
+          });
+          this.$refs.apiImport.open(this.currentModule);
         }
       },
       list(projectId) {
@@ -176,11 +182,10 @@
         this.result = this.$get(url, response => {
           if (response.data != undefined && response.data != null) {
             this.data = response.data;
-            let moduleOptions = [];
             this.data.forEach(node => {
-              buildNodePath(node, {path: ''}, moduleOptions);
+              buildTree(node, {path: ''});
             });
-            this.$emit('setModuleOptions', moduleOptions);
+            this.$emit('setModuleOptions', this.data);
             this.$emit('setNodeTree', this.data);
             if (this.$refs.nodeTree) {
               this.$refs.nodeTree.filter(this.condition.filterText);

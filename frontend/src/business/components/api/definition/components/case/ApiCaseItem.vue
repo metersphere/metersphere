@@ -95,7 +95,7 @@
         <!-- HTTP 请求返回数据 -->
         <p class="tip">{{$t('api_test.definition.request.res_param')}}</p>
         <div v-if="showXpackCompnent&&api.method==='ESB'">
-          <esb-definition-response :currentProtocol="apiCase.request.protocol" :request="apiCase.request" :is-api-component="false" :show-options-button="false" :show-header="true" :api-item="apiCase"/>
+          <esb-definition-response v-xpack v-if="showXpackCompnent"  :currentProtocol="apiCase.request.protocol" :request="apiCase.request" :is-api-component="false" :show-options-button="false" :show-header="true" :api-item="apiCase"/>
         </div>
         <div v-else>
           <api-response-component :currentProtocol="apiCase.request.protocol" :api-item="apiCase"/>
@@ -275,19 +275,13 @@
         }
       },
       addModule(row) {
-        let url = '/api/module/getModuleByName/' + getCurrentProjectID() + "/" + this.api.protocol;
-        this.$get(url, response => {
-          if (response.data) {
-            this.$emit('refreshModule');
-            this.saveApi(row, response.data);
-          }
-        });
+        this.saveApi(row, "default-module");
       },
       saveApi(row, module) {
         let data = this.api;
         data.name = this.apiCase.name;
-        data.moduleId = module.id;
-        data.modulePath = '/bug';
+        data.moduleId = module;
+        data.modulePath ="/"+ this.$t('commons.module_title');
         this.setParameters(data);
         let bodyFiles = this.getBodyUploadFiles(data);
         this.$fileUpload("/api/definition/create", null, bodyFiles, data, () => {

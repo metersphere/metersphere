@@ -1,24 +1,32 @@
 <template>
   <div v-loading="result.loading" class="pressure-config-container">
     <el-row>
-      <el-col :span="10">
+      <el-col :span="12">
 
         <el-collapse v-model="activeNames" accordion>
           <el-collapse-item :name="index"
                             v-for="(threadGroup, index) in threadGroups.filter(th=>th.enabled === 'true' && th.deleted=='false')"
                             :key="index">
             <template slot="title">
-              <div style="padding-right: 10px">
-                {{ threadGroup.attributes.testname }}
-              </div>
-              <el-tag type="primary" size="mini" v-if="threadGroup.threadType === 'DURATION'">
-                {{ $t('load_test.thread_num') }}{{ threadGroup.threadNumber }},
-                {{ $t('load_test.duration') }}: {{ threadGroup.duration }} {{ getUnitLabel(threadGroup) }}
-              </el-tag>
-              <el-tag type="primary" size="mini" v-if="threadGroup.threadType === 'ITERATION'">
-                {{ $t('load_test.thread_num') }} {{ threadGroup.threadNumber }},
-                {{ $t('load_test.iterate_num') }} {{ threadGroup.iterateNum }}
-              </el-tag>
+              <el-row>
+                <el-col :span="14">
+                  <el-tooltip :content="threadGroup.attributes.testname" placement="top">
+                    <div style="padding-right:20px; font-size: 16px;" class="wordwrap">
+                      {{ threadGroup.attributes.testname }}
+                    </div>
+                  </el-tooltip>
+                </el-col>
+                <el-col :span="10">
+                  <el-tag type="primary" size="mini" v-if="threadGroup.threadType === 'DURATION'">
+                    {{ $t('load_test.thread_num') }}{{ threadGroup.threadNumber }},
+                    {{ $t('load_test.duration') }}: {{ threadGroup.duration }} {{ getUnitLabel(threadGroup) }}
+                  </el-tag>
+                  <el-tag type="primary" size="mini" v-if="threadGroup.threadType === 'ITERATION'">
+                    {{ $t('load_test.thread_num') }} {{ threadGroup.threadNumber }},
+                    {{ $t('load_test.iterate_num') }} {{ threadGroup.iterateNum }}
+                  </el-tag>
+                </el-col>
+              </el-row>
             </template>
             <el-form :inline="true">
               <el-form-item :label="$t('load_test.thread_num')">
@@ -134,7 +142,7 @@
           </el-collapse-item>
         </el-collapse>
       </el-col>
-      <el-col :span="14">
+      <el-col :span="12">
         <ms-chart class="chart-container" ref="chart1" :options="options" :autoresize="true"></ms-chart>
       </el-col>
     </el-row>
@@ -577,5 +585,10 @@ export default {
 
 .title {
   margin-left: 60px;
+}
+.wordwrap {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 </style>

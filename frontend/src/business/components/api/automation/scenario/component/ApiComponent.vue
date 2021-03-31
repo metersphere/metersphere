@@ -23,7 +23,7 @@
 
       <template v-slot:button>
         <el-tooltip :content="$t('api_test.run')" placement="top">
-          <el-button @click="run" icon="el-icon-video-play" class="ms-btn" size="mini" circle/>
+          <el-button @click="run" icon="el-icon-video-play" style="padding: 5px" class="ms-btn" size="mini" circle/>
         </el-tooltip>
       </template>
 
@@ -64,7 +64,7 @@
           </el-tabs>
         </div>
         <div v-else-if="showXpackCompnent&&request.backEsbDataStruct != null">
-          <esb-definition-response :currentProtocol="request.protocol" :request="request" :is-api-component="false"
+          <esb-definition-response v-xpack v-if="showXpackCompnent"  :currentProtocol="request.protocol" :request="request" :is-api-component="false"
                                    :show-options-button="false" :show-header="true" :result="request.requestResult"/>
         </div>
         <div v-else>
@@ -289,6 +289,9 @@
       },
       active(item) {
         this.request.active = !this.request.active;
+        if (this.node) {
+          this.node.expanded = this.request.active;
+        }
         this.reload();
       },
       run() {

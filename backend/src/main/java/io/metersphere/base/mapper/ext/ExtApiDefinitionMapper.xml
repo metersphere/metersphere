@@ -465,6 +465,11 @@
         <include refid="queryWhereCondition"/>
         <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
     </select>
+    <select id="selectEffectiveIdByProjectId" resultType="io.metersphere.base.domain.ApiDefinition">
+        select id,path
+        from api_definition
+        WHERE project_id = #{0} AND status != 'Trash'
+    </select>
 
     <sql id="queryWhereCondition">
         <where>

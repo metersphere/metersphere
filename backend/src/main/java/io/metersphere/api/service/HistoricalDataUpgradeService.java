@@ -76,7 +76,7 @@ public class HistoricalDataUpgradeService {
         return scenario;
     }
 
-    private MsScenario createScenario(Scenario oldScenario) {
+    private MsScenario createScenario(Scenario oldScenario, String projectId) {
         MsScenario scenario = new MsScenario();
         scenario.setOldVariables(oldScenario.getVariables());
         scenario.setName(oldScenario.getName());
@@ -397,6 +397,7 @@ public class HistoricalDataUpgradeService {
             MsScenario scenarioTest = createScenarioByTest(test);
             LinkedList<MsTestElement> listSteps = new LinkedList<>();
             List<Scenario> scenarios = JSON.parseArray(test.getScenarioDefinition(), Scenario.class);
+            String envId = null;
             if (CollectionUtils.isNotEmpty(scenarios)) {
                 // 批量处理
                 for (Scenario scenario : scenarios) {
@@ -405,7 +406,7 @@ public class HistoricalDataUpgradeService {
                     }
                     scenario.setId(test.getId() + "=" + scenario.getId());
                     scenario.setName(test.getName() + "_" + scenario.getName());
-                    MsScenario scenario1 = createScenario(scenario);
+                    MsScenario scenario1 = createScenario(scenario, saveHistoricalDataUpgrade.getProjectId());
                     String scenarioDefinition = JSON.toJSONString(scenario1);
                     num++;
                     createApiScenarioWithBLOBs(saveHistoricalDataUpgrade, scenario.getId(), scenario.getName(), scenario.getRequests().size(), scenarioDefinition, mapper, num);
@@ -417,10 +418,17 @@ public class HistoricalDataUpgradeService {
                     step.setResourceId(UUID.randomUUID().toString());
                     step.setReferenced("REF");
                     listSteps.add(step);
+                    if (StringUtils.isNotEmpty(scenario.getEnvironmentId())) {
+                        envId = scenario.getEnvironmentId();
+                    }
                 }
             }
             num++;
             scenarioTest.setHashTree(listSteps);
+            if (StringUtils.isNotEmpty(envId)) {
+                scenarioTest.setEnvironmentId(envId);
+            }
+
             String scenarioDefinition = JSON.toJSONString(scenarioTest);
             createApiScenarioWithBLOBs(saveHistoricalDataUpgrade, scenarioTest.getId(), scenarioTest.getName(), listSteps.size(), scenarioDefinition, mapper, num);
         }

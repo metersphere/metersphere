@@ -178,6 +178,10 @@
                 <div v-else-if="apiInfo.requestBodyParamType == 'JSON-SCHEMA'" style="margin-left: 10px">
                   <ms-json-code-edit :body="apiInfo.jsonSchemaBody" ref="jsonCodeEdit"/>
                 </div>
+<!--                <div v-else-if="apiInfo.requestBodyParamType == 'XML'" style="margin-left: 10px">-->
+<!--                  <ms-json-code-edit :body="apiInfo.jsonSchemaBody" ref="jsonCodeEdit"/>-->
+<!--                  <editor v-model="formatData" :lang="mode" @init="editorInit" :theme="theme" :height="height"/>-->
+<!--                </div>-->
                 <div v-else class="showDataDiv">
                   <br/>
                   <p style="margin: 0px 20px;"
@@ -423,7 +427,13 @@ export default {
     formatRowData(dataType, data) {
       var returnData = data;
       if (data) {
-        returnData = data.replace(/\n/g, '<br>');
+
+        // if(dataType === 'XML'){
+        //   returnData = "<xmp>"+returnData+"</xmp>";
+        // }else {
+        //
+        // }
+        returnData = "<xmp>"+returnData+"</xmp>";
       }
       return returnData;
     },

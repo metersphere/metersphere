@@ -75,6 +75,8 @@ import org.apache.jorphan.collections.HashTree;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.lang.reflect.Field;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.*;
 
 public class MsJmeterParser extends ApiImportAbstractParser<ScenarioImport> {
@@ -132,12 +134,68 @@ public class MsJmeterParser extends ApiImportAbstractParser<ScenarioImport> {
         return (HashTree) field.get(scriptWrapper);
     }
 
+    public boolean isProtocolDefaultPort(HTTPSamplerProxy source) {
+        String portAsString = source.getPropertyAsString("HTTPSampler.port");
+        if (portAsString != null && !portAsString.isEmpty()) {
+            return false;
+        } else {
+            return true;
+        }
+    }
+
+    public String url(String protocol, String host, String port, String file) {
+        protocol = protocol.toLowerCase();
+        if (StringUtils.isNotEmpty(file) && !file.startsWith("/")) {
+            file += "/";
+        }
+        return protocol + "://" + host + ":" + port + file;
+    }
+
+    public String getUrl(HTTPSamplerProxy source) throws MalformedURLException {
+        String path = source.getPath();
+        if (!path.startsWith("http://") && !path.startsWith("https://")) {
+            String domain = source.getDomain();
+            String protocol = source.getProtocol();
+            String method = source.getMethod();
+            StringBuilder pathAndQuery = new StringBuilder(100);
+            if ("file".equalsIgnoreCase(protocol)) {
+                domain = null;
+            } else if (!path.startsWith("/")) {
+                pathAndQuery.append('/');
+            }
+
+            pathAndQuery.append(path);
+            if ("GET".equals(method) || "DELETE".equals(method) || "OPTIONS".equals(method)) {
+                String queryString = source.getQueryString(source.getContentEncoding());
+                if (queryString.length() > 0) {
+                    if (path.contains("?")) {
+                        pathAndQuery.append("&");
+                    } else {
+                        pathAndQuery.append("?");
+                    }
+
+                    pathAndQuery.append(queryString);
+                }
+            }
+            String portAsString = source.getPropertyAsString("HTTPSampler.port");
+            return this.isProtocolDefaultPort(source) ? new URL(protocol, domain, pathAndQuery.toString()).toExternalForm() : this.url(protocol, domain, portAsString, pathAndQuery.toString());
+        } else {
+            return new URL(path).toExternalForm();
+        }
+    }
+
     private void convertHttpSampler(MsHTTPSamplerProxy samplerProxy, Object key) {
         try {
             HTTPSamplerProxy source = (HTTPSamplerProxy) key;
             BeanUtils.copyBean(samplerProxy, source);
+            samplerProxy.setRest(new ArrayList<KeyValue>() {{
+                this.add(new KeyValue());
+            }});
+            samplerProxy.setArguments(new ArrayList<KeyValue>() {{
+                this.add(new KeyValue());
+            }});
             if (source != null && source.getHTTPFiles().length > 0) {
-                samplerProxy.getBody().setBinary(new ArrayList<>());
+                samplerProxy.getBody().initBinary();
                 samplerProxy.getBody().setType(Body.FORM_DATA);
                 List<KeyValue> keyValues = new LinkedList<>();
                 for (HTTPFileArg arg : source.getHTTPFiles()) {
@@ -156,13 +214,17 @@ public class MsJmeterParser extends ApiImportAbstractParser<ScenarioImport> {
                 samplerProxy.getBody().setKvs(keyValues);
             }
             samplerProxy.setProtocol(RequestType.HTTP);
-            samplerProxy.setPort(source.getPort() + "");
+            samplerProxy.setConnectTimeout(source.getConnectTimeout()+"");
+            samplerProxy.setResponseTimeout(source.getResponseTimeout()+"");
+            samplerProxy.setPort(source.getPropertyAsString("HTTPSampler.port"));
+            samplerProxy.setDomain(source.getDomain());
             if (source.getArguments() != null) {
                 if (source.getPostBodyRaw()) {
                     samplerProxy.getBody().setType(Body.RAW);
                     source.getArguments().getArgumentsAsMap().forEach((k, v) -> {
                         samplerProxy.getBody().setRaw(v);
                     });
+                    samplerProxy.getBody().initKvs();
                 } else {
                     List<KeyValue> keyValues = new LinkedList<>();
                     source.getArguments().getArgumentsAsMap().forEach((k, v) -> {
@@ -173,11 +235,13 @@ public class MsJmeterParser extends ApiImportAbstractParser<ScenarioImport> {
                         samplerProxy.setArguments(keyValues);
                     }
                 }
+                samplerProxy.getBody().initBinary();
             }
-            samplerProxy.setPath("");
+            // samplerProxy.setPath(source.getPath());
             samplerProxy.setMethod(source.getMethod());
-            if (source.getUrl() != null) {
-                samplerProxy.setUrl(source.getUrl().toString());
+            if (this.getUrl(source) != null) {
+                samplerProxy.setUrl(this.getUrl(source));
+                samplerProxy.setPath(null);
             }
             samplerProxy.setId(UUID.randomUUID().toString());
             samplerProxy.setType("HTTPSamplerProxy");

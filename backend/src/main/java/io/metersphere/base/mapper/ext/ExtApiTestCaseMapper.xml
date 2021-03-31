@@ -394,5 +394,8 @@
     <select id="listPorjectAllCaseName" resultType="java.lang.String">
         select name from api_test_case where project_id = #{projectId}
     </select>
+    <select id="selectEffectiveTestCaseByProjectId" resultType="io.metersphere.base.domain.ApiTestCase">
+        select id,api_definition_id from api_test_case where project_id = #{projectId}
+    </select>
 
 </mapper>

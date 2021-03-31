@@ -5,7 +5,7 @@
         <el-icon class="el-icon-more"></el-icon>
       </el-link>
       <el-dropdown-menu slot="dropdown">
-        <el-dropdown-item command="copy">复制步骤</el-dropdown-item>
+        <!--<el-dropdown-item command="copy">复制步骤</el-dropdown-item>-->
         <el-dropdown-item command="remove" v-tester>删除步骤</el-dropdown-item>
         <el-dropdown-item command="scenarioVar" v-tester v-if="data.type==='scenario'">查看场景变量</el-dropdown-item>
         <el-dropdown-item command="openScenario" v-tester v-if="data.type==='scenario' && data.referenced==='REF'">打开场景</el-dropdown-item>
@@ -45,7 +45,7 @@
             this.$emit('remove');
             break;
           case "scenarioVar":
-            this.$refs.scenarioParameters.open(this.data.variables, this.data.headers, true);
+            this.$refs.scenarioParameters.open(this.data.variables, this.data.headers, this.data.referenced === 'REF');
             break;
           case "openScenario":
             this.getScenario();
