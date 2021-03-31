@@ -379,14 +379,17 @@
 
   .common-tree {
     overflow: auto;
-    height: 200px;
+    min-height: 200px;
+    max-height: 400px;
   }
 
   .ms-tree-select {
     width: 100%;
     z-index: 111;
   }
-
+  /deep/.el-tree-node__children{
+    overflow: inherit;
+  }
   .ok {
     float: right;
   }

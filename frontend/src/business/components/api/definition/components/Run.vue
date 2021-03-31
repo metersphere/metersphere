@@ -58,22 +58,26 @@
         }
       },
       run() {
-        let testPlan = new TestPlan();
-        let threadGroup = new ThreadGroup();
-        threadGroup.hashTree = [];
-        testPlan.hashTree = [threadGroup];
-        this.runData.forEach(item => {
-          threadGroup.hashTree.push(item);
-        })
-
-        let projectId = "";
+        let projectId  = this.$store.state.projectId;
         // 如果envMap不存在，是单接口调用
         if (!this.envMap || this.envMap.size === 0) {
           projectId = this.$store.state.projectId;
         } else {
           // 场景步骤下接口调用
-          projectId = this.runData.projectId;
+          if(this.runData.projectId){
+            projectId = this.runData.projectId;
+          }
         }
+
+        let testPlan = new TestPlan();
+        let threadGroup = new ThreadGroup();
+        threadGroup.hashTree = [];
+        testPlan.hashTree = [threadGroup];
+        this.runData.forEach(item => {
+          item.projectId = projectId;
+          threadGroup.hashTree.push(item);
+        })
+
         let reqObj = {id: this.reportId, testElement: testPlan, type: this.type,projectId: projectId, environmentMap: strMapToObj(this.envMap)};
         let bodyFiles = getBodyUploadFiles(reqObj, this.runData);
         let url = "";

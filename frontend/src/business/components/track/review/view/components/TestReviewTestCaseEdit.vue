@@ -549,4 +549,10 @@ export default {
 .comment-card >>> .el-card__body {
   height: calc(100vh - 120px);
 }
+
+.tb-edit >>> .el-textarea__inner {
+  border-style: hidden;
+  background-color: white;
+  color: #060505;
+}
 </style>

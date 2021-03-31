@@ -392,8 +392,8 @@
         }
       },
       runTest(data) {
-        this.setTabTitle(data);
         this.handleTabsEdit(this.$t("commons.api"), "TEST", data);
+        this.setTabTitle(data);
       },
       saveApi(data) {
         this.setTabTitle(data);
