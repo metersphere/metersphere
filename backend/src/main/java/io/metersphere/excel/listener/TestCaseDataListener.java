@@ -67,6 +67,16 @@ public class TestCaseDataListener extends EasyExcelListener<TestCaseExcelData> {
                     break;
                 }
             }
+            //增加字数校验，每一层不能超过100字
+            for (int i = 0; i < nodes.length; i++) {
+                String nodeStr = nodes[i];
+                if(StringUtils.isNotEmpty(nodeStr)){
+                    if(nodeStr.trim().length()>100){
+                        stringBuilder.append(Translator.get("module") + Translator.get("test_track.length_less_than") + "100:"+nodeStr);
+                        break;
+                    }
+                }
+            }
         }
 
 //        if (StringUtils.equals(data.getType(), TestCaseConstants.Type.Functional.getValue()) && StringUtils.equals(data.getMethod(), TestCaseConstants.Method.Auto.getValue())) {
