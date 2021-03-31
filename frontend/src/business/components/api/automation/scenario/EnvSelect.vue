@@ -54,20 +54,23 @@
     methods: {
       init() {
         this.projectIds.forEach(id => {
-          let item = {id: id, envs: [], selectEnv: ""};
-          this.data.push(item);
-          this.result = this.$get('/api/environment/list/' + id, res => {
-            let envs = res.data;
-            envs.forEach(environment => {
-              parseEnvironment(environment);
-            });
-            // 固定环境列表渲染顺序
-            let temp = this.data.find(dt => dt.id === id);
-            temp.envs = envs;
-            let envId = this.envMap.get(id);
-            // 选中环境是否存在
-            temp.selectEnv = envs.filter(e => e.id === envId).length === 0 ? null : envId;
-          })
+          const project = this.projectList.find(p => p.id === id);
+          if (project) {
+            let item = {id: id, envs: [], selectEnv: ""};
+            this.data.push(item);
+            this.result = this.$get('/api/environment/list/' + id, res => {
+              let envs = res.data;
+              envs.forEach(environment => {
+                parseEnvironment(environment);
+              });
+              // 固定环境列表渲染顺序
+              let temp = this.data.find(dt => dt.id === id);
+              temp.envs = envs;
+              let envId = this.envMap.get(id);
+              // 选中环境是否存在
+              temp.selectEnv = envs.filter(e => e.id === envId).length === 0 ? null : envId;
+            })
+          }
         })
       },
       open() {
@@ -240,13 +243,11 @@
               }
             })
           } else {
-            // this.checkFullUrl(data);
-            // sign = this.isFullUrl;
             sign = false;
           }
-
           // 校验是否全是全路径
-
+          //this.checkFullUrl(data);
+          //sign = this.isFullUrl;
         }
 
         if (!sign) {
