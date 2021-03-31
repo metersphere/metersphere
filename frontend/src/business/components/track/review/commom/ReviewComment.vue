@@ -18,8 +18,8 @@
         type="textarea"
         :placeholder="$t('test_track.comment.send_comment')"
         v-model="textarea"
-        maxlength="60"
-        show-word-limit
+        maxlength="180"
+        show-word-limt
         resize="none"
         :autosize="{ minRows: 4, maxRows: 4}"
         @keyup.ctrl.enter.native="sendComment"
