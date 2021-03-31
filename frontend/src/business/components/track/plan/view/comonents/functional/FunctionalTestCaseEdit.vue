@@ -711,7 +711,7 @@ export default {
 .border-hidden >>> .el-textarea__inner {
   border-style: hidden;
   background-color: white;
-  color: #606266;
+  color: #060505;
 }
 
 .cast_label {
@@ -785,4 +785,5 @@ p {
   height: 550px;
   overflow: auto;
 }
+
 </style>
