@@ -120,9 +120,11 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         sampler.setFollowRedirects(this.isFollowRedirects());
         sampler.setUseKeepAlive(true);
         sampler.setDoMultipart(this.isDoMultipartPost());
+
         if (config.getConfig() == null) {
-            // 单独接口执行
             this.setProjectId(config.getProjectId());
+        }
+        if (useEnvironment != null) {
             config.setConfig(getEnvironmentConfig(useEnvironment));
         }
 
