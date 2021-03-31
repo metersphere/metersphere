@@ -12,7 +12,8 @@
       :background-color="displayColor.backgroundColor"
       :is-max="isMax"
       :show-btn="showBtn"
-      :title="displayTitle">
+      :title="displayTitle"
+      :apiImport="apiImport()">
 
       <template v-slot:behindHeaderLeft>
         <el-tag size="mini" class="ms-tag" v-if="request.referenced==='Deleted'" type="danger">{{$t('api_test.automation.reference_deleted')}}</el-tag>
@@ -311,7 +312,8 @@
         this.loading = true;
         this.runData = [];
         this.runData.projectId = this.request.projectId;
-        this.request.useEnvironment = this.currentEnvironmentId;
+        //最新版currentEnvironmentId值为undefined
+        // this.request.useEnvironment = this.currentEnvironmentId;
         this.request.customizeReq = this.isCustomizeReq;
         let debugData = {
           id: this.currentScenario.id, name: this.currentScenario.name, type: "scenario",
@@ -333,6 +335,12 @@
         this.$nextTick(() => {
           this.loading = false
         })
+      },
+      apiImport() {
+        if (this.request.referenced != undefined && this.request.referenced === 'Deleted' || this.request.referenced == 'REF' || this.request.referenced === 'Copy') {
+          return true
+        }
+        return false;
       },
       getProjectName(id) {
         const project = this.projectList.find(p => p.id === id);

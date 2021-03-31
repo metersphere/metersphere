@@ -941,6 +941,26 @@
           this.$refs['currentScenario'].validate((valid) => {
             if (valid) {
               this.setParameter();
+              if (this.currentScenario.scenarioDefinition != null){
+                let hashTree = this.currentScenario.scenarioDefinition.hashTree;
+                for(var i in hashTree){
+                  var hasEnv = false;
+                  if(hashTree[i].type == "HTTPSamplerProxy"){
+                    for(var keyName in hashTree[i]){
+                      if(keyName == "useEnvironment"){
+                        if(hashTree[i].useEnvironment){
+                          hasEnv = true;
+                          break;
+                        }
+                      }
+                    }
+                    if (!hasEnv){
+                      let stepEnv = this.projectEnvMap.get(hashTree[i].projectId);
+                      this.currentScenario.scenarioDefinition.hashTree[i].useEnvironment = stepEnv;
+                    }
+                  }
+                }
+              }
               let bodyFiles = this.getBodyUploadFiles(this.currentScenario);
               this.$fileUpload(this.path, null, bodyFiles, this.currentScenario, response => {
                 this.$success(this.$t('commons.save_success'));
