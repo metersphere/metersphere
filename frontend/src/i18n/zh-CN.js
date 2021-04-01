@@ -706,6 +706,11 @@ export default {
       }
     },
     automation: {
+      view_scene_variables: "查看场景变量",
+      open_scene: "打开场景",
+      save_as_api: "另存为接口定义",
+      delete_step: "删除步骤",
+      reference_deleted_info: "引用场景已经被删除",
       follow_people: "关注人",
       create_tag: "创建Tag",
       scenario_step: "场景步骤",

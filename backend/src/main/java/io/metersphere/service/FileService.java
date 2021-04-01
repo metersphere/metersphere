@@ -43,6 +43,13 @@ public class FileService {
         return fileContentMapper.selectByPrimaryKey(fileId);
     }
 
+    public void setFileContent(String fileId, byte[] content) {
+        FileContent record = new FileContent();
+        record  .setFile(content);
+        record.setFileId(fileId);
+        fileContentMapper.updateByPrimaryKeySelective(record);
+    }
+
     public void deleteFileByIds(List<String> ids) {
         if (CollectionUtils.isEmpty(ids)) {
             return;

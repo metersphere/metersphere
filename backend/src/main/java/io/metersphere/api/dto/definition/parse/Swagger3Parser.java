@@ -320,6 +320,9 @@ public class Swagger3Parser extends SwaggerAbstractParser {
     }
 
     private Object parseSchema(Schema schema, Set<String> refSet, Map<String, Schema> infoMap) {
+        if (schema == null) {
+            return new JSONObject();
+        }
         infoMap.put(schema.getName(), schema);
         if (StringUtils.isNotBlank(schema.get$ref())) {
             if (refSet.contains(schema.get$ref())) {
