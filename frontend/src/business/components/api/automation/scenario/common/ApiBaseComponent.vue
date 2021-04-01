@@ -151,7 +151,7 @@
         this.environments.forEach(environment => {
           parseEnvironment(environment);
         });
-      })
+      });
     },
     methods: {
       active() {
