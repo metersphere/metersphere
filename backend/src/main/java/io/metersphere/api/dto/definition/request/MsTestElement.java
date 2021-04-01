@@ -160,6 +160,7 @@ public abstract class MsTestElement {
             mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
             ApiDefinitionWithBLOBs apiDefinition = apiDefinitionService.getBLOBs(element.getId());
             if (apiDefinition != null) {
+                element.setProjectId(apiDefinition.getProjectId());
                 element = mapper.readValue(apiDefinition.getRequest(), new TypeReference<MsTestElement>() {
                 });
                 hashTree.add(element);
