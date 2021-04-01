@@ -1,5 +1,5 @@
 <template>
-  <el-dialog title="场景变量" :close-on-click-modal="false"
+  <el-dialog :title="$t('api_test.automation.step_total')" :close-on-click-modal="false"
              :visible.sync="visible" class="visible-dialog" width="60%"
              @close="close" v-loading="loading" append-to-body>
     <fieldset :disabled="disabled" class="ms-fieldset">
@@ -10,14 +10,14 @@
             <div>
               <el-row style="margin-bottom: 10px">
                 <div style="float: left">
-                  <el-input placeholder="变量名称搜索" v-model="selectVariable" size="small" @change="filter"
+                  <el-input :placeholder="$t('commons.search_by_name')" v-model="selectVariable" size="small" @change="filter"
                             @keyup.enter="filter">
-                    <el-select v-model="searchType" slot="prepend" placeholder="类型" style="width: 90px" @change="filter">
-                      <el-option value="CONSTANT" label="常量"></el-option>
-                      <el-option value="LIST" label="列表"></el-option>
+                    <el-select v-model="searchType" slot="prepend" :placeholder="$t('test_resource_pool.type')" style="width: 90px" @change="filter">
+                      <el-option value="CONSTANT" :label="$t('api_test.automation.constant')"></el-option>
+                      <el-option value="LIST" :label="$t('test_track.case.list')"></el-option>
                       <el-option value="CSV" label="CSV"></el-option>
-                      <el-option value="COUNTER" label="计数器"></el-option>
-                      <el-option value="RANDOM" label="随机数"></el-option>
+                      <el-option value="COUNTER" :label="$t('api_test.automation.counter')"></el-option>
+                      <el-option value="RANDOM" :label="$t('api_test.automation.random')"></el-option>
                     </el-select>
                   </el-input>
                 </div>
@@ -27,11 +27,11 @@
                                size="small" style="margin-left: 10px">
                     {{ $t('commons.add') }}
                     <el-dropdown-menu slot="dropdown">
-                      <el-dropdown-item command="CONSTANT">常量</el-dropdown-item>
-                      <el-dropdown-item command="LIST">列表</el-dropdown-item>
+                      <el-dropdown-item command="CONSTANT">{{$t('api_test.automation.constant')}}</el-dropdown-item>
+                      <el-dropdown-item command="LIST">{{$t('test_track.case.list')}}</el-dropdown-item>
                       <el-dropdown-item command="CSV">CSV</el-dropdown-item>
-                      <el-dropdown-item command="COUNTER">计数器</el-dropdown-item>
-                      <el-dropdown-item command="RANDOM">随机数</el-dropdown-item>
+                      <el-dropdown-item command="COUNTER">{{$t('api_test.automation.counter')}}</el-dropdown-item>
+                      <el-dropdown-item command="RANDOM">{{$t('api_test.automation.random')}}</el-dropdown-item>
                     </el-dropdown-menu>
                   </el-dropdown>
                   <el-button size="small" style="margin-left: 10px" @click="deleteVariable">{{ $t('commons.delete') }}
@@ -137,11 +137,11 @@
         selectVariable: "",
         condition: {},
         types: new Map([
-          ['CONSTANT', '常量'],
-          ['LIST', '列表'],
+          ['CONSTANT', this.$t('api_test.automation.constant')],
+          ['LIST', this.$t('test_track.case.list')],
           ['CSV', 'CSV'],
-          ['COUNTER', '计数器'],
-          ['RANDOM', '随机数']
+          ['COUNTER', this.$t('api_test.automation.counter')],
+          ['RANDOM', this.$t('api_test.automation.random')]
         ]),
         visible: false,
         selection: [],
@@ -187,7 +187,7 @@
         }
       },
       handleClick(command) {
-        this.editData = {};
+        this.editData = {delimiter: ","};
         this.editData.type = command;
         this.addParameters(this.editData);
       },
@@ -226,7 +226,7 @@
           this.headers = headers;
         }
         this.visible = true;
-        this.editData = {type: "CONSTANT", delimiter: ","};
+        this.editData = {type: "CONSTANT"};
         this.addParameters(this.editData);
         this.disabled = disabled;
       },
