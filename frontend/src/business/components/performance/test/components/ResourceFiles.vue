@@ -167,7 +167,7 @@ export default {
       }
 
       let formData = new FormData();
-      let url = '/project/update/file/' + this.projectId + '/' + this.currentRow.id
+      let url = '/project/update/file/' + '/' + this.currentRow.id
       formData.append("file", file);
       let options = {
         method: 'POST',
