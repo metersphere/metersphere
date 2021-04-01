@@ -24,7 +24,6 @@
         :plan-id="planId"
         :clickType="clickType"
         :select-node-ids="selectNodeIds"
-        :select-parent-nodes="selectParentNodes"
         ref="testPlanTestCaseList"/>
         <test-plan-minder
           :tree-nodes="treeNodes"
@@ -67,9 +66,9 @@
         return {
           result: {},
           selectNodeIds: [],
-          selectParentNodes: [],
           treeNodes: [],
           activeDom: 'left',
+          selectNode: {}
         }
       },
       props: [
@@ -100,7 +99,7 @@
       methods: {
         refresh() {
           this.selectNodeIds = [];
-          this.selectParentNodes = [];
+          this.$store.commit('setTestPlanViewSelectNode', {});
           this.$refs.testCaseRelevance.search();
           this.getNodeTreeByPlanId();
         },
@@ -112,10 +111,12 @@
         },
         nodeChange(node, nodeIds, pNodes) {
           this.selectNodeIds = nodeIds;
-          this.selectParentNodes = pNodes;
+          this.$store.commit('setTestPlanViewSelectNode', node);
           // 切换node后，重置分页数
-          this.$refs.testPlanTestCaseList.currentPage = 1;
-          this.$refs.testPlanTestCaseList.pageSize = 10;
+          if (this.$refs.testPlanTestCaseList) {
+            this.$refs.testPlanTestCaseList.currentPage = 1;
+            this.$refs.testPlanTestCaseList.pageSize = 10;
+          }
         },
         getNodeTreeByPlanId() {
           if (this.planId) {
