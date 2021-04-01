@@ -3,13 +3,20 @@
     v-loading="result.loading"
     :tree-nodes="treeNodes"
     :data-map="dataMap"
+    :tags="tags"
+    :distinct-tags="tags"
     @save="save"
+    ref="minder"
   />
 </template>
 
 <script>
 import MsModuleMinder from "@/business/components/common/components/MsModuleMinder";
-import {getTestCaseDataMap} from "@/business/components/track/common/minder/minderUtils";
+import {
+  appendChild,
+  getTestCaseDataMap,
+  parseCase, updateNode
+} from "@/business/components/track/common/minder/minderUtils";
 export default {
 name: "TestCaseMinder",
   components: {MsModuleMinder},
@@ -17,6 +24,7 @@ name: "TestCaseMinder",
     return{
       testCase: [],
       dataMap: new Map(),
+      tags: [this.$t('api_test.definition.request.case'), this.$t('test_track.case.prerequisite'), this.$t('commons.remark')],
       result: {}
     }
   },
@@ -45,31 +53,40 @@ name: "TestCaseMinder",
       }
     },
     save(data) {
+      console.log(data);
       let saveCases = [];
-      this.buildSaveCase(data.root, saveCases, undefined);
-      console.log(saveCases);
+      let deleteCases = [];
+      this.buildSaveCase(data.root, saveCases, deleteCases, undefined);
       let param = {
         projectId: this.projectId,
-        data: saveCases
+        data: saveCases,
+        ids: deleteCases.map(item => item.id)
       }
       this.result = this.$post('/test/case/minder/edit', param, () => {
         this.$success(this.$t('commons.save_success'));
       });
     },
-    buildSaveCase(root, saveCases, parent) {
+    buildSaveCase(root, saveCases, deleteCases, parent) {
       let data = root.data;
-      if (data.resource && data.resource.indexOf("用例") > -1) {
+      if (data.resource && data.resource.indexOf(this.$t('api_test.definition.request.case')) > -1) {
         this._buildSaveCase(root, saveCases, parent);
       } else {
+        let deleteChild = data.deleteChild;
+        if (deleteChild && deleteChild.length > 0) {
+          deleteCases.push(...deleteChild);
+        }
         if (root.children) {
           root.children.forEach((childNode) => {
-            this.buildSaveCase(childNode, saveCases, root.data);
+            this.buildSaveCase(childNode, saveCases, deleteCases, root.data);
           })
         }
       }
     },
     _buildSaveCase(node, saveCases, parent) {
       let data = node.data;
+      if (!data.text) {
+        return;
+      }
       let isChange = false;
       let testCase = {
         id: data.id,
@@ -79,7 +96,7 @@ name: "TestCaseMinder",
         type: data.type ? data.type : 'functional',
         method: data.method ? data.method: 'manual',
         maintainer: data.maintainer,
-        priority: 'P' + data.priority,
+        priority: 'P' + (data.priority ? data.priority - 1 : 0),
       };
       if (data.changed) isChange = true;
       let steps = [];
@@ -87,9 +104,9 @@ name: "TestCaseMinder",
       if (node.children) {
         node.children.forEach((childNode) => {
           let childData = childNode.data;
-          if (childData.resource && childData.resource.indexOf('前置条件') > -1) {
+          if (childData.resource && childData.resource.indexOf(this.$t('test_track.case.prerequisite')) > -1) {
             testCase.prerequisite = childData.text;
-          } else if (childData.resource && childData.resource.indexOf('备注') > -1) {
+          } else if (childData.resource && childData.resource.indexOf(this.$t('commons.remark')) > -1) {
             testCase.remark = childData.text;
           } else {
             // 测试步骤
@@ -113,8 +130,28 @@ name: "TestCaseMinder",
       if (isChange) {
         saveCases.push(testCase);
       }
+      if (testCase.nodeId !== 'root' && testCase.nodeId.length < 15) {
+        let tip = this.$t('test_track.case.create_case') + "'" + testCase.name + "'" + this.$t('test_track.case.minder_create_tip');
+        this.$error(tip)
+        throw new Error(tip);
+      }
     },
-
+    addCase(data, type) {
+      let nodeData = parseCase(data, new Map());
+      let minder = window.minder;
+      let jsonImport = minder.exportJson();
+      if (type === 'edit') {
+        updateNode(jsonImport.root, nodeData);
+      } else {
+        appendChild(data.nodeId, jsonImport.root, nodeData);
+      }
+      this.$refs.minder.setJsonImport(jsonImport);
+    },
+    refresh() {
+      if (this.$refs.minder) {
+        this.$refs.minder.reload();
+      }
+    }
   }
 }
 </script>

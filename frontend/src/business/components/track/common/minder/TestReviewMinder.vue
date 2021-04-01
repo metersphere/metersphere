@@ -4,6 +4,7 @@
     :tree-nodes="treeNodes"
     :data-map="dataMap"
     :tags="tags"
+    :distinct-tags="[...tags, $t('test_track.plan.plan_status_prepare')]"
     @save="save"
   />
 </template>
@@ -16,9 +17,8 @@ name: "TestReviewMinder",
   components: {MsModuleMinder},
   data() {
     return{
-      testCase: [],
       dataMap: new Map(),
-      tags: ['通过', '不通过'],
+      tags: [this.$t('test_track.plan_view.pass'), this.$t('test_track.plan_view.not_pass')],
       result: {}
     }
   },
@@ -48,11 +48,11 @@ name: "TestReviewMinder",
         this.result = this.$post('/test/review/case/list/all', {reviewId: this.reviewId}, response => {
           this.dataMap = getTestCaseDataMap(response.data, true, (data, item) => {
             if (item.reviewStatus === 'Pass') {
-              data.resource.push("通过");
+              data.resource.push(this.$t('test_track.plan_view.pass'));
             } else if (item.reviewStatus === 'UnPass') {
-              data.resource.push("不通过");
+              data.resource.push(this.$t('test_track.plan_view.not_pass'));
             } else {
-              data.resource.push("未开始");
+              data.resource.push(this.$t('test_track.plan.plan_status_prepare'));
             }
             data.caseId = item.caseId;
           });
@@ -60,17 +60,15 @@ name: "TestReviewMinder",
       }
     },
     save(data) {
-      console.log(data);
       let saveCases = [];
       this.buildSaveCase(data.root, saveCases);
-      console.log(saveCases);
       this.result = this.$post('/test/review/case/minder/edit', saveCases, () => {
         this.$success(this.$t('commons.save_success'));
       });
     },
     buildSaveCase(root, saveCases) {
       let data = root.data;
-      if (data.resource && data.resource.indexOf("用例") > -1) {
+      if (data.resource && data.resource.indexOf(this.$t('api_test.definition.request.case')) > -1) {
         this._buildSaveCase(root, saveCases);
       } else {
         if (root.children) {
@@ -91,9 +89,9 @@ name: "TestReviewMinder",
         // name: data.text,
       };
       if (data.resource.length > 1) {
-        if (data.resource.indexOf('不通过')) {
+        if (data.resource.indexOf(this.$t('test_track.plan_view.not_pass')) > -1) {
           testCase.status = 'UnPass';
-        } else if (data.resource.indexOf('通过')) {
+        } else if (data.resource.indexOf(this.$t('test_track.plan_view.pass')) > -1) {
           testCase.status = 'Pass';
         }
       }

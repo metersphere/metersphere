@@ -2,19 +2,24 @@
   <el-dialog class="user-casecader" :title="title" :visible.sync="dialogVisible"
              @close="close">
     <div class="block" >
-<!--      <el-row>-->
-<!--        <span class="demonstration" v-html="lable"></span>-->
-<!--      </el-row>-->
       <el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-width="100px" class="demo-ruleForm">
         <el-form-item prop="workspace" label-width="0px">
-          <el-cascader
-            :options="options"
-            :props="props"
-            v-model="selectedIds"
-            ref="cascaderSelector"
-            style="width:100%"
-            :key="isResouceShow"
-            clearable></el-cascader>
+<!--          <el-cascader-->
+<!--            :options="options"-->
+<!--            :props="props"-->
+<!--            v-model="selectedIds"-->
+<!--            ref="cascaderSelector"-->
+<!--            style="width:100%;"-->
+<!--            :key="isResouceShow"-->
+<!--            clearable></el-cascader>-->
+
+          <el-cascader-panel :options="options"
+                             :props="props"
+                             v-model="selectedIds"
+                             ref="cascaderSelector"
+                             style="width:100%;"
+                             :key="isResouceShow"
+                             clearable></el-cascader-panel>
         </el-form-item>
       </el-form>
     </div>
@@ -37,7 +42,7 @@ export default {
   components: {ElUploadList, MsTableButton,MsDialogFooter},
   data() {
     var validateSelect = (rule, value, callback) => {
-      let checkNodes = this.$refs.cascaderSelector.checkedNodes;
+      let checkNodes = this.$refs.cascaderSelector.getCheckedNodes(true);
       if(checkNodes.length==0){
         callback(new Error(this.$t('workspace.select')));
       }
@@ -95,7 +100,7 @@ export default {
     confirm(){
       this.$refs.ruleForm.validate((valid) => {
         if (valid) {
-          let checkNodes = this.$refs.cascaderSelector.checkedNodes;
+          let checkNodes = this.$refs.cascaderSelector.getCheckedNodes(true);
           let selectValueArr = [];
           for (let i = 0; i < checkNodes.length; i++) {
             selectValueArr.push(checkNodes[i].value);
@@ -116,9 +121,19 @@ export default {
 <style scoped>
 
 .user-casecader >>> .el-dialog {
-  width: 400px;
+  width: 600px;
 }
 /deep/ .el-form-item__content{
   margin-left: 0px;
 }
+/*.el-cascader-menu {*/
+/*  height: 300px;*/
+/*}*/
+/*.el-cascader >>> .el-input--suffix {*/
+/*  max-height: 200px;*/
+/*}*/
+/*.el-cascader >>> .el-cascader__tags {*/
+/*  max-height: 190px;*/
+/*  overflow: auto;*/
+/*}*/
 </style>

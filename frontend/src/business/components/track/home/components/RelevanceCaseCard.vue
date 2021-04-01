@@ -40,7 +40,7 @@
         <el-row>
           <el-col>
             {{$t('api_test.home_page.api_details_card.this_week_add')}}
-            <el-link type="info" @click="redirectPage('thisWeekCount')" target="_blank" style="color: #000000">{{relevanceCountData.thisWeekAddedCount}}
+            <el-link type="info" @click="redirectPage('thisWeekRelevanceCount')" target="_blank" style="color: #000000">{{relevanceCountData.thisWeekAddedCount}}
             </el-link>
             {{$t('api_test.home_page.unit_of_measurement')}}
           </el-col>

@@ -67,10 +67,9 @@
   import MsAsideContainer from "@/business/components/common/components/MsAsideContainer";
   import MsMainContainer from "@/business/components/common/components/MsMainContainer";
   import MsApiScenarioList from "@/business/components/api/automation/scenario/ApiScenarioList";
-  import {getUUID, downloadFile, checkoutTestManagerOrTestUser} from "@/common/js/utils";
+  import {getUUID, downloadFile, checkoutTestManagerOrTestUser,getCurrentUser} from "@/common/js/utils";
   import MsApiScenarioModule from "@/business/components/api/automation/scenario/ApiScenarioModule";
   import MsEditApiScenario from "./scenario/EditApiScenario";
-  import {getCurrentProjectID} from "../../../../common/js/utils";
 
   export default {
     name: "ApiAutomation",
@@ -96,7 +95,10 @@
       },
       isReadOnly() {
         return !checkoutTestManagerOrTestUser();
-      }
+      },
+      projectId() {
+        return this.$store.state.projectId
+      },
     },
     data() {
       return {
@@ -125,12 +127,14 @@
       '$route'(to, from) {  //  路由改变时，把接口定义界面中的 ctrl s 保存快捷键监听移除
         if (to.path.indexOf('/api/automation') == -1) {
           if (this.$refs && this.$refs.autoScenarioConfig) {
-            console.log(this.$refs.autoScenarioConfig);
             this.$refs.autoScenarioConfig.forEach(item => {
               item.removeListener();
             });
           }
         }
+      },
+      selectNodeIds() {
+        this.activeName = "default";
       }
     },
     methods: {
@@ -145,7 +149,7 @@
           let selectParamArr = redirectParam.split("edit:");
           if (selectParamArr.length == 2) {
             let scenarioId = selectParamArr[1];
-            let projectId = getCurrentProjectID();
+            let projectId = this.projectId;
             //查找单条数据，跳转修改页面
             let url = "/api/automation/list/" + 1 + "/" + 1;
             this.$post(url, {id: scenarioId, projectId: projectId}, response => {
@@ -176,7 +180,7 @@
         }
       },
       addTab(tab) {
-        if (!getCurrentProjectID()) {
+        if (!this.projectId) {
           this.$warning(this.$t('commons.check_project_tip'));
           return;
         }
@@ -184,7 +188,20 @@
           let label = this.$t('api_test.automation.add_scenario');
           let name = getUUID().substring(0, 8);
           this.activeName = name;
-          this.tabs.push({label: label, name: name, currentScenario: {apiScenarioModuleId: "", id: getUUID()}});
+          let currentScenario = {
+            status: "Underway", principal: getCurrentUser().id,
+            apiScenarioModuleId: "default-module", id: getUUID(),
+            modulePath: "/" + this.$t("commons.module_title")
+          };
+          if (this.nodeTree && this.nodeTree.length > 0) {
+            currentScenario.apiScenarioModuleId = this.nodeTree[0].id;
+            currentScenario.modulePath = this.nodeTree[0].path;
+          }
+
+          if (this.selectNodeIds && this.selectNodeIds.length > 0) {
+            currentScenario.apiScenarioModuleId = this.selectNodeIds[0];
+          }
+          this.tabs.push({label: label, name: name, currentScenario: currentScenario});
         }
         if (tab.name === 'edit') {
           let label = this.$t('api_test.automation.add_scenario');

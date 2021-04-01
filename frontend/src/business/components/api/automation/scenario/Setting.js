@@ -18,7 +18,7 @@ export const ELEMENTS = new Map([
   ['CustomizeReq', ["ConstantTimer", "JSR223PreProcessor", "JSR223PostProcessor", "Assertions", "Extract"]],
   ['MaxSamplerProxy', ["JSR223PreProcessor", "JSR223PostProcessor", "Assertions", "Extract"]],
   ['AllSamplerProxy', ["HTTPSamplerProxy", "DubboSampler", "JDBCSampler", "TCPSampler"]],
-
+  ['AllCanExecType', ["HTTPSamplerProxy", "DubboSampler", "JDBCSampler", "TCPSampler", "JSR223Processor"]]
 ])
 
 export const ELEMENT_TYPE = {

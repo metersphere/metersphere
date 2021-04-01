@@ -152,10 +152,13 @@
         return JSON.stringify(this.data).indexOf(this.obj.children) !== -1 ? this.data : this.switchTree();
       },
     },
+    mounted() {
+      this.init();
+    },
     methods: {
       outsideClick(e) {
         e.stopPropagation();
-        this.isShowSelect=false;
+        this.isShowSelect = false;
       },
       init() {
         if (this.defaultKey != undefined && this.defaultKey.length > 0) {
@@ -233,7 +236,9 @@
       setKey(thisKey) {
         this.$refs.tree.setCurrentKey(thisKey);
         let node = this.$refs.tree.getNode(thisKey);
-        this.setData(node.data);
+        if (node && node.data) {
+          this.setData(node.data);
+        }
       },
       //单选：设置、初始化对象
       setData(data) {
@@ -284,7 +289,7 @@
       },
       //下拉框关闭执行
       popoverHide() {
-        this.$emit('getValue', this.returnDataKeys, this.returnDatas);
+        this.$emit('getValue', this.returnDataKeys, this.returnDatas ? this.returnDatas : {});
       },
       // 多选，清空所有勾选
       clearSelectedNodes() {
@@ -340,10 +345,13 @@
         // 隐藏select自带的下拉框
         this.$refs.select.blur();
       },
-      treeData() {//监听tree数据
-        this.$nextTick(() => {
-          this.init();
-        })
+      treeData: {//监听tree数据
+        handler: function () {
+          this.$nextTick(() => {
+            this.init();
+          })
+        },
+        deep: true
       },
       filterText(val) {
         this.$nextTick(() => {
@@ -371,14 +379,17 @@
 
   .common-tree {
     overflow: auto;
-    height: 200px;
+    min-height: 200px;
+    max-height: 400px;
   }
 
   .ms-tree-select {
     width: 100%;
     z-index: 111;
   }
-
+  /deep/.el-tree-node__children{
+    overflow: inherit;
+  }
   .ok {
     float: right;
   }

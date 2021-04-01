@@ -34,7 +34,8 @@
         </el-col>
         <el-col :span="6">
           <div class="square">
-            <relevance-case-card :relevance-count-data="relevanceCountData" class="track-card" @redirectPage="redirectPage"/>
+            <relevance-case-card :relevance-count-data="relevanceCountData" class="track-card"
+                                 @redirectPage="redirectPage"/>
           </div>
         </el-col>
         <el-col :span="12">
@@ -58,7 +59,7 @@
           <review-list class="track-card"/>
         </el-col>
         <el-col :span="12">
-          <ms-running-task-list class="track-card"/>
+          <ms-running-task-list :call-from="'track_home'" class="track-card" @redirectPage="redirectPage"/>
         </el-col>
       </el-row>
 
@@ -73,7 +74,6 @@ import MsMainContainer from "@/business/components/common/components/MsMainConta
 import MsContainer from "@/business/components/common/components/MsContainer";
 import CaseCountCard from "@/business/components/track/home/components/CaseCountCard";
 import RelevanceCaseCard from "@/business/components/track/home/components/RelevanceCaseCard";
-import {getCurrentProjectID, getUUID} from "@/common/js/utils";
 import CaseMaintenance from "@/business/components/track/home/components/CaseMaintenance";
 import {COUNT_NUMBER, COUNT_NUMBER_SHALLOW} from "@/common/js/constants";
 import BugCountCard from "@/business/components/track/home/components/BugCountCard";
@@ -108,14 +108,21 @@ export default {
     this.checkTipsType();
     this.init();
   },
+  computed: {
+    projectId() {
+      return this.$store.state.projectId
+    },
+  },
   methods: {
     checkTipsType() {
       let random = Math.floor(Math.random() * (4 - 1 + 1)) + 1;
       this.tipsType = random + "";
     },
     init() {
-      let selectProjectId = getCurrentProjectID();
-
+      let selectProjectId = this.projectId;
+      if (!selectProjectId) {
+        return;
+      }
       this.$get("/track/count/" + selectProjectId, response => {
         this.trackCountData = response.data;
       });
@@ -136,8 +143,8 @@ export default {
           xAxis.push(d.xAxis);
         }
       });
-      let yAxis1 = data.filter(d => d.groupName === 'FUNCTIONCASE').map(d => d.yAxis);
-      let yAxis2 = data.filter(d => d.groupName === 'RELEVANCECASE').map(d => d.yAxis);
+      let yAxis1 = data.filter(d => d.groupName === 'FUNCTIONCASE').map(d => [d.xAxis, d.yAxis]);
+      let yAxis2 = data.filter(d => d.groupName === 'RELEVANCECASE').map(d => [d.xAxis, d.yAxis]);
       let option = {
         tooltip: {
           trigger: 'axis',
@@ -169,7 +176,7 @@ export default {
           type: 'bar',
           itemStyle: {
             normal: {
-              color: this.$store.state.theme.theme ? this.$store.state.theme.theme : COUNT_NUMBER
+              color: this.$store.state.theme ? this.$store.state.theme : COUNT_NUMBER
             }
           }
         },
@@ -179,17 +186,24 @@ export default {
             type: 'bar',
             itemStyle: {
               normal: {
-                color: this.$store.state.theme.theme ? this.$store.state.theme.theme : COUNT_NUMBER_SHALLOW
+                color: this.$store.state.theme ? this.$store.state.theme : COUNT_NUMBER_SHALLOW
               }
             }
           }]
       };
       this.caseOption = option;
     },
-    redirectPage(page,dataType,selectType){
-      switch (page){
+    redirectPage(page, dataType, selectType) {
+      //test_plan 页面跳转
+      // this.$router.push('/track/plan/view/'+selectType);
+      switch (page) {
         case "case":
-          this.$router.push({name:'testCase',params:{dataType:dataType,dataSelectRange:selectType, projectId: getCurrentProjectID()}});
+          this.$router.push({
+            name:'testCase',
+            params:{
+              dataType:dataType,dataSelectRange:selectType, projectId: this.projectId
+            }
+          });
           break;
       }
     }

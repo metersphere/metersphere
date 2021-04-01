@@ -330,6 +330,9 @@
         <el-form-item :label="$t('member.new_password')" prop="newpassword">
           <el-input type="password" v-model="ruleForm.newpassword" autocomplete="off" show-password></el-input>
         </el-form-item>
+        <el-form-item :label="$t('member.repeat_password')" prop="confirmpassword">
+          <el-input type="password" v-model="ruleForm.confirmpassword" autocomplete="off" show-password></el-input>
+        </el-form-item>
         <el-form-item>
           <el-input v-model="ruleForm.id" autocomplete="off" :disabled="true" style="display:none"/>
         </el-form-item>
@@ -385,6 +388,15 @@ export default {
     ShowMoreBtn
   },
   data() {
+    const validateConfirmPwd = (rule, value, callback) => {
+      if(value === ''){
+        callback(new Error(this.$t('user.input_password')));
+      }else if((value !== this.ruleForm.newpassword)){
+        callback(new Error(this.$t('member.inconsistent_passwords')));
+      }else{
+        callback();
+      }
+    };
     return {
       referenced: false,
       queryPath: '/user/special/list',
@@ -479,7 +491,17 @@ export default {
             message: this.$t('member.password_format_is_incorrect'),
             trigger: 'blur'
           }
+        ],
+        confirmpassword: [
+          {
+            required: true,
+            pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[^]{8,30}$/,
+            message: this.$t('member.password_format_is_incorrect'),
+            trigger: 'blur'
+          },
+          {trigger: ['blur', 'change'], validator: validateConfirmPwd}
         ]
+
       }
     }
   },
@@ -576,7 +598,7 @@ export default {
         return;
       }
       this.selectRows = new Set();
-      this.condition.selectAll = false;
+      // this.condition.selectAll = false;
       this.result = this.$post(this.buildPagePath(this.queryPath), this.condition, response => {
         let data = response.data;
         this.total = data.itemCount;
@@ -593,8 +615,38 @@ export default {
             });
           }
         }
+
+        this.$nextTick(function(){
+          this.checkTableRowIsSelect();
+        });
+
       })
     },
+
+    checkTableRowIsSelect(){
+      //如果默认全选的话，则选中应该选中的行
+      if(this.condition.selectAll){
+        let unSelectIds = this.condition.unSelectIds;
+        this.tableData.forEach(row=>{
+          if(unSelectIds.indexOf(row.id)<0){
+            this.$refs.userTable.toggleRowSelection(row,true);
+
+            //默认全选，需要把选中对行添加到selectRows中。不然会影响到勾选函数统计
+            if (!this.selectRows.has(row)) {
+              this.$set(row, "showMore", true);
+              this.selectRows.add(row);
+            }
+          }else{
+            //不勾选的行，也要判断是否被加入了selectRow中。加入了的话就去除。
+            if (this.selectRows.has(row)) {
+              this.$set(row, "showMore", false);
+              this.selectRows.delete(row);
+            }
+          }
+        })
+      }
+    },
+
     handleClose() {
       this.form = {roles: [{id: ''}]};
       this.btnAddRole = false;

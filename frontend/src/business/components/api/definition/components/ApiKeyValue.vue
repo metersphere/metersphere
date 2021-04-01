@@ -4,7 +4,7 @@
       {{ description }}
     </span>
     <el-row>
-      <el-checkbox v-model="isSelectAll" v-if="items.length > 1"/>
+      <el-checkbox v-model="isSelectAll" v-if="isShowEnable === true && items.length > 1"/>
     </el-row>
     <div class="kv-row item" v-for="(item, index) in items" :key="index">
       <el-row type="flex" :gutter="20" justify="space-between" align="middle">
@@ -52,7 +52,6 @@
       valuePlaceholder: String,
       isShowEnable: {
         type: Boolean,
-        default: true
       },
       description: String,
       items: Array,

@@ -36,9 +36,12 @@
         SELECT * FROM (
             SELECT testCase.testCaseID,testCase.testCaseName AS caseName,testCase.testPlanName AS testPlan ,caseErrorCountData.dataCountNumber AS failureTimes,'apiCase' AS caseType
             FROM (
-            SELECT apiCase.id AS testCaseID,apiCase.`name` AS testCaseName,group_concat(testPlan.`name`)  AS testPlanName FROM api_test_case apiCase
+            SELECT apiCase.id AS testCaseID,apiCase.`name` AS testCaseName,group_concat(testPlan.`name`)  AS testPlanName, testPlanCase.update_time as updateTime
+            FROM api_test_case apiCase
+            inner join api_definition on api_definition.id = apiCase.api_definition_id
            INNER JOIN test_plan_api_case testPlanCase ON testPlanCase.api_case_id = apiCase.id
            INNER JOIN test_plan testPlan ON testPlan.id = testPlanCase.test_plan_id
+            and api_definition.status != 'Trash'
             GROUP BY apiCase.id
             ORDER BY apiCase.create_time DESC
             )testCase
@@ -48,7 +51,7 @@
                 SELECT id FROM api_test_case WHERE project_id = #{projectId}
                 ) and `status` = 'error' GROUP BY resource_id
             ) caseErrorCountData ON caseErrorCountData.testCaseID =testCase.testCaseID
-            WHERE caseErrorCountData.executeTime >= #{startTimestamp}
+            WHERE testCase.updateTime >= #{startTimestamp}
             UNION
             SELECT scene.id AS testCaseID,scene.`name` AS caseName,apiScene.testPlanName AS testPlan,count(report.id) AS failureTimes,'scenario' AS caseType
             FROM api_scenario_report report
@@ -63,6 +66,18 @@
             WHERE report.project_id = #{projectId}
               AND ( report.STATUS = 'Error' OR report.STATUS = 'Fail' )  AND report.create_time >= #{startTimestamp}
             GROUP BY scene.id
+            UNION
+            SELECT ltr.test_id as testCaseID, ltr.name as caseName,tplt.testPlanName AS testPlan, count(ltr.id) as failureTimes, 'load' as caseType FROM load_test_report ltr
+            join load_test on load_test.id = ltr.test_id
+            JOIN (
+                select tplc.load_case_id, group_concat(tp.`name`) AS testPlanName, tp.project_id
+                from test_plan_load_case tplc
+                join test_plan tp on tp.id = tplc.test_plan_id
+                GROUP BY tplc.load_case_id
+                ) tplt on tplt.load_case_id = ltr.test_id
+            WHERE load_test.project_id = #{projectId}
+              AND ltr.STATUS = 'Error' and ltr.trigger_mode = 'TEST_PLAN_SCHEDULE' AND ltr.create_time >= #{startTimestamp}
+            GROUP BY load_test.id
           ) showTable
         ORDER BY showTable.failureTimes DESC
     </select>

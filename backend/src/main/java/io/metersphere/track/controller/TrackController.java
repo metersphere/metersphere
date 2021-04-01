@@ -1,11 +1,13 @@
 package io.metersphere.track.controller;
 
 
+import io.metersphere.base.domain.TestCase;
 import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.performance.base.ChartsData;
 import io.metersphere.track.response.BugStatustics;
 import io.metersphere.track.response.TrackCountResult;
 import io.metersphere.track.response.TrackStatisticsDTO;
+import io.metersphere.track.service.TestCaseService;
 import io.metersphere.track.service.TrackService;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
@@ -25,6 +27,8 @@ public class TrackController {
 
     @Resource
     private TrackService trackService;
+    @Resource
+    private TestCaseService testCaseService;
 
     @GetMapping("/count/{projectId}")
     public TrackStatisticsDTO getTrackCount(@PathVariable String projectId) {
@@ -63,10 +67,11 @@ public class TrackController {
         long size = trackService.countRelevanceCreatedThisWeek(projectId);
         statistics.setThisWeekAddedCount(size);
 
-        List<TrackCountResult> coverageResults = trackService.countCoverage(projectId);
-        statistics.countCoverage(coverageResults);
-
-        long total = statistics.getUncoverageCount() + statistics.getCoverageCount();
+        List<TestCase> list = testCaseService.getTestCaseByProjectId(projectId);
+        long total = list.size();
+        int coverage = trackService.countCoverage(projectId);
+        statistics.setCoverageCount(coverage);
+        statistics.setUncoverageCount(total - coverage);
 
         if (total != 0) {
             float coverageRageNumber = (float) statistics.getCoverageCount() * 100 / total;

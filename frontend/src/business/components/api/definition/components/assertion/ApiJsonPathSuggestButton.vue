@@ -1,6 +1,6 @@
 <template>
   <el-row :gutter="10" class="json-path-suggest-button">
-    <el-button size="small" type="primary" @click="$emit('open')">
+    <el-button size="small" type="primary" @click="$emit('open')" @click.stop>
       {{openTip}}
     </el-button>
     <el-button size="small" type="danger" @click="$emit('clear')">

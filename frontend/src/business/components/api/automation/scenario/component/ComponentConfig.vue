@@ -101,7 +101,7 @@
       getComponent(type) {
         if (type === ELEMENT_TYPE.JSR223PreProcessor) {
           this.title = this.$t('api_test.definition.request.pre_script');
-          this.titleColor = "#B8741A";
+          this.titleColor = "#b8741a";
           this.backgroundColor = "#F9F1EA";
           return "MsJsr233Processor";
         } else if (type === ELEMENT_TYPE.JSR223PostProcessor) {
@@ -124,14 +124,14 @@
         this.$emit('copyRow', row, node);
 
       },
-      openScenario(data){
+      openScenario(data) {
         this.$emit('openScenario', data);
       },
       suggestClick(node) {
         this.$emit('suggestClick', node);
       },
-      refReload() {
-        this.$emit('refReload');
+      refReload(data, node) {
+        this.$emit('refReload', data, node);
       }
     }
   }

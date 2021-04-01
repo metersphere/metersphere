@@ -10,5 +10,6 @@ import java.util.List;
 @Setter
 public class TestCaseMinderEditRequest {
     private String projectId;
+    private List<String> ids;
     List<TestCaseWithBLOBs> data;
 }

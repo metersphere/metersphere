@@ -40,4 +40,7 @@ public class ApiTestBatchRequest extends ApiTestCaseWithBLOBs {
     private String protocol;
 
     private String status;
+
+    private String envId;
+
 }

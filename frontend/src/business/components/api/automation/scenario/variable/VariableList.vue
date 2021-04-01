@@ -7,9 +7,9 @@
 
         <el-tabs v-model="activeName">
           <el-tab-pane :label="$t('api_test.scenario.variables')" name="variable">
-            <div style="margin-top: 10px">
+            <div>
               <el-row style="margin-bottom: 10px">
-                <el-col :span="8">
+                <div style="float: left">
                   <el-input placeholder="变量名称搜索" v-model="selectVariable" size="small" @change="filter"
                             @keyup.enter="filter">
                     <el-select v-model="searchType" slot="prepend" placeholder="类型" style="width: 90px" @change="filter">
@@ -20,9 +20,9 @@
                       <el-option value="RANDOM" label="随机数"></el-option>
                     </el-select>
                   </el-input>
-                </el-col>
+                </div>
 
-                <el-col :span="6">
+                <div style="float: right">
                   <el-dropdown split-button type="primary" @command="handleClick" @click="handleClick('CONSTANT')"
                                size="small" style="margin-left: 10px">
                     {{ $t('commons.add') }}
@@ -37,7 +37,7 @@
                   <el-button size="small" style="margin-left: 10px" @click="deleteVariable">{{ $t('commons.delete') }}
                   </el-button>
 
-                </el-col>
+                </div>
               </el-row>
               <el-row>
                 <el-col :span="12">
@@ -80,7 +80,7 @@
           </span>
             </el-tooltip>
             <el-row>
-              <el-link class="ms-variable-link" @click="batchAdd" style="color: #783887"> {{ $t("commons.batch_add") }}
+              <el-link class="ms-variable-link" @click="batchAdd" style="color: #783887" :disabled="disabled"> {{ $t("commons.batch_add") }}
               </el-link>
             </el-row>
             <div style="min-height: 400px">
@@ -219,10 +219,14 @@
         return this.selection.includes(row.id)
       },
       open: function (variables, headers, disabled) {
-        this.variables = variables;
-        this.headers = headers;
+        if (variables) {
+          this.variables = variables;
+        }
+        if (headers) {
+          this.headers = headers;
+        }
         this.visible = true;
-        this.editData = {type: "CONSTANT"};
+        this.editData = {type: "CONSTANT", delimiter: ","};
         this.addParameters(this.editData);
         this.disabled = disabled;
       },
@@ -309,6 +313,7 @@
     float: right;
     margin-right: 45px;
   }
+
   fieldset {
     padding: 0px;
     margin: 0px;

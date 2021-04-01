@@ -126,7 +126,8 @@
         fileList: [],
         errList: [],
         xmindErrList: [],
-        isLoading: false
+        isLoading: false,
+        isUpdated: false
       }
     },
     methods: {
@@ -180,6 +181,12 @@
         this.fileList = [];
         this.errList = [];
         this.xmindErrList = [];
+
+        //通过excel导入更新过数据的话就刷新页面
+        if (this.isUpdated === true){
+          this.$emit("refreshAll");
+          this.isUpdated = false;
+        }
       },
       downloadTemplate() {
         this.$fileDownload('/test/case/export/template');
@@ -207,6 +214,7 @@
             this.$emit("refreshAll");
           } else {
             this.errList = res.errList;
+            this.isUpdated = res.isUpdated;
           }
           this.fileList = [];
         }, erro => {

@@ -31,7 +31,7 @@
 
       </el-form-item>
       <el-form-item :label="$t('test_track.module.module')" prop="moduleId">
-        <ms-select-tree size="small" :data="moduleOptions" @getValue="setModule" :obj="moduleObj" clearable checkStrictly/>
+        <ms-select-tree size="small" :data="moduleOptions" :defaultKey="httpForm.moduleId" @getValue="setModule" :obj="moduleObj" clearable checkStrictly/>
       </el-form-item>
 
       <el-form-item :label="$t('commons.description')" prop="description" style="margin-bottom: 29px">
@@ -64,6 +64,7 @@
   import {createComponent, Request} from "../../../definition/components/jmeter/components";
   import {getUUID} from "@/common/js/utils";
   import MsSelectTree from "@/business/components/common/select-tree/SelectTree";
+  import {buildTree} from "../../../definition/model/NodeTree";
 
 
   export default {
@@ -83,7 +84,7 @@
         callback();
       };
       return {
-        httpForm: {environmentId: ""},
+        httpForm: {environmentId: "", moduleId: "default-module"},
         moduleOptions: [],
         httpVisible: false,
         currentModule: {},
@@ -244,16 +245,22 @@
         });
       },
       list(data) {
+        if (data.protocol === "dubbo://") {
+          data.protocol = "DUBBO";
+        }
         let url = "/api/module/list/" + getCurrentProjectID() + "/" + data.protocol;
         this.result = this.$get(url, response => {
           if (response.data != undefined && response.data != null) {
             this.moduleOptions = response.data;
+            this.moduleOptions.forEach(node => {
+              buildTree(node, {path: ''});
+            });
           }
         });
       },
-      setModule(id) {
+      setModule(id, data) {
         this.httpForm.moduleId = id;
-        //this.reload();
+        this.httpForm.modulePath = data.path;
       },
       reload() {
         this.loading = true
@@ -264,8 +271,11 @@
       open(api) {
         if (api) {
           let data = JSON.parse(JSON.stringify(api));
+          if (data.protocol === "dubbo://") {
+            data.protocol = "DUBBO";
+          }
           data.id = getUUID();
-          this.httpForm = {id: data.id, name: data.name, protocol: data.protocol, path: data.path, method: REQ_METHOD[0].id, userId: getCurrentUser().id, request: data};
+          this.httpForm = {id: data.id, name: data.name, protocol: data.protocol, path: data.path, method: api.method, userId: getCurrentUser().id, request: data, moduleId: "default-module"};
           this.getMaintainerOptions();
           this.list(data);
           this.httpVisible = true;

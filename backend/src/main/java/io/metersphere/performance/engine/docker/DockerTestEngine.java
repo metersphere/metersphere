@@ -127,12 +127,18 @@ public class DockerTestEngine extends AbstractEngine {
             Integer port = node.getPort();
 
             String uri = String.format(BASE_URL + "/jmeter/container/stop/" + testId, ip, port);
-            ResultHolder result = restTemplateWithTimeOut.getForObject(uri, ResultHolder.class);
-            if (result == null) {
-                MSException.throwException(Translator.get("container_delete_fail"));
-            }
-            if (!result.isSuccess()) {
-                MSException.throwException(result.getMessage());
+            try {
+                ResultHolder result = restTemplateWithTimeOut.getForObject(uri, ResultHolder.class);
+                if (result == null) {
+                    MSException.throwException(Translator.get("container_delete_fail"));
+                }
+                if (!result.isSuccess()) {
+                    MSException.throwException(result.getMessage());
+                }
+            } catch (MSException e) {
+                throw e;
+            } catch (Exception e) {
+                MSException.throwException("Please check node-controller status.");
             }
         });
     }

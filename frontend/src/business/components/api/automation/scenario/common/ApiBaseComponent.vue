@@ -1,23 +1,25 @@
 <template>
-  <el-card class="api-component">
+  <el-card>
     <div class="header" @click="active(data)">
       <slot name="beforeHeaderLeft">
         <div v-if="data.index" class="el-step__icon is-text" style="margin-right: 10px;" :style="{'color': color, 'background-color': backgroundColor}">
           <div class="el-step__icon-inner">{{data.index}}</div>
         </div>
-        <el-tag class="ms-left-buttion" size="small" :style="{'color': color, 'background-color': backgroundColor}">{{title}}</el-tag>
-        <el-tag size="mini" v-if="data.method">{{data.method}}</el-tag>
+        <el-tag class="ms-left-btn" size="small" :style="{'color': color, 'background-color': backgroundColor}">{{title}}</el-tag>
+        <el-tag size="mini" v-if="data.method">{{getMethod()}}</el-tag>
       </slot>
 
-      <span @click.stop>
+      <span>
         <slot name="headerLeft">
           <i class="icon el-icon-arrow-right" :class="{'is-active': data.active}"
-             @click="active(data)" v-if="data.type!='scenario'  && !isMax "/>
-          <el-input :draggable="draggable" v-if="isShowInput && isShowNameInput" size="mini" v-model="data.name" class="name-input"
-                    @blur="isShowInput = false" :placeholder="$t('commons.input_name')" ref="nameEdit" :disabled="data.disabled"/>
-          <span v-else>
+             @click="active(data)" v-if="data.type!='scenario' && !isMax " @click.stop/>
+          <span @click.stop v-if="isShowInput && isShowNameInput">
+            <el-input :draggable="draggable" size="mini" v-model="data.name" class="name-input"
+                      @blur="isShowInput = false" :placeholder="$t('commons.input_name')" ref="nameEdit" :disabled="data.disabled"/>
+          </span>
+          <span :class="isMax?'ms-step-name':'scenario-name'" v-else>
             {{data.name}}
-            <i class="el-icon-edit" style="cursor:pointer" @click="editName" v-tester v-if="data.referenced!='REF' && !data.disabled"/>
+            <i class="el-icon-edit" style="cursor:pointer" @click="editName" v-tester v-if="data.referenced!='REF' && !data.disabled" @click.stop/>
           </span>
         </slot>
         <slot name="behindHeaderLeft" v-if="!isMax"></slot>
@@ -26,23 +28,31 @@
       <div class="header-right" @click.stop>
         <slot name="message"></slot>
         <el-tooltip :content="$t('test_resource_pool.enable_disable')" placement="top" v-if="showBtn">
-          <el-switch v-model="data.enable" class="enable-switch" size="mini"/>
+          <el-switch v-model="data.enable" class="enable-switch" size="mini" :disabled="data.disabled && !data.root" style="width: 30px"/>
         </el-tooltip>
         <slot name="button"></slot>
-        <step-extend-btns style="display: contents" :data="data" @copy="copyRow" @remove="remove" @openScenario="openScenario" v-if="showBtn"/>
+        <el-tooltip content="Copy" placement="top">
+          <el-button size="mini" icon="el-icon-copy-document" circle @click="copyRow" style="padding: 5px" :disabled="data.disabled && !data.root"/>
+        </el-tooltip>
+        <step-extend-btns style="display: contents" :data="data" @copy="copyRow" @remove="remove" @openScenario="openScenario" v-if="showBtn && (!data.disabled || data.root)"/>
       </div>
 
     </div>
     <!--最大化不显示具体内容-->
     <div class="header" v-if="!isMax">
-      <fieldset :disabled="data.disabled" class="ms-fieldset">
-        <el-collapse-transition>
-          <div v-if="data.active && showCollapse" :draggable="draggable">
-            <el-divider></el-divider>
+      <el-collapse-transition>
+        <div v-if="data.active && showCollapse" :draggable="draggable">
+          <el-divider></el-divider>
+          <fieldset :disabled="data.disabled" class="ms-fieldset">
+            <!--四种协议请求内容-->
+            <slot name="request"></slot>
+            <!--其他模版内容，比如断言，提取等-->
             <slot></slot>
-          </div>
-        </el-collapse-transition>
-      </fieldset>
+          </fieldset>
+          <!--四种协议执行结果内容-->
+          <slot name="result"></slot>
+        </div>
+      </el-collapse-transition>
     </div>
 
   </el-card>
@@ -111,9 +121,6 @@
           this.$refs.nameEdit.focus();
         });
       }
-      if (this.data && this.data.type === "JmeterElement") {
-        this.data.active = false;
-      }
       if (this.data && ELEMENTS.get("AllSamplerProxy").indexOf(this.data.type) != -1) {
         if (!this.data.method) {
           this.data.method = this.data.protocol;
@@ -125,6 +132,17 @@
         // 这种写法性能极差，不要再放开了
         //this.$set(this.data, 'active', !this.data.active);
         this.$emit('active');
+      },
+      getMethod() {
+        if (this.data.protocol === "HTTP") {
+          return this.data.method;
+        }
+        else if (this.data.protocol === "dubbo://") {
+          return "DUBBO";
+        }
+        else {
+          return this.data.protocol;
+        }
       },
       copyRow() {
         this.$emit('copy');
@@ -159,7 +177,8 @@
     margin-right: 5px;
   }
 
-  .ms-left-buttion {
+  .ms-left-btn {
+    font-size: 13px;
     margin-right: 15px;
   }
 
@@ -173,15 +192,24 @@
     margin-right: 10px;
   }
 
-  .node-title {
+  .ms-step-name {
     display: inline-block;
-    margin: 0px;
+    font-size: 13px;
+    margin: 0 5px;
     overflow-x: hidden;
     padding-bottom: 0;
     text-overflow: ellipsis;
     vertical-align: middle;
     white-space: nowrap;
-    width: 100px;
+    width: 180px;
+  }
+
+  .scenario-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 13px;
+    width: 100%;
   }
 
   /deep/ .el-step__icon {

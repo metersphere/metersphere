@@ -71,6 +71,11 @@ export const API_STATUS = [
   {id: 'Underway', label: '进行中'},
   {id: 'Completed', label: '已完成'}
 ]
+export const TEST = [
+    {id: 'performance', name: '性能测试'},
+    {id: 'testcase', name: '测试用例'},
+    {id: 'automation', name: '场景测试'}
+  ]
 
 export const API_METHOD_COLOUR = [
   ['GET', "#61AFFE"], ['POST', '#49CC90'], ['PUT', '#fca130'],

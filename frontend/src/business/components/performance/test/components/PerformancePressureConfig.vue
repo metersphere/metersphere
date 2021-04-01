@@ -4,7 +4,7 @@
       <el-col>
         <el-form :inline="true">
           <el-form-item :label="$t('load_test.select_resource_pool')">
-            <el-select v-model="resourcePool" :disabled="isReadOnly" size="mini">
+            <el-select v-model="resourcePool" :disabled="isReadOnly" size="mini" @change="resourcePoolChange">
               <el-option
                 v-for="item in resourcePools"
                 :key="item.id"
@@ -14,22 +14,43 @@
             </el-select>
           </el-form-item>
         </el-form>
-        <ms-chart class="chart-container" ref="chart1" :options="options" :autoresize="true"></ms-chart>
       </el-col>
     </el-row>
     <el-row>
-      <el-collapse v-model="activeNames">
-        <el-collapse-item :title="threadGroup.attributes.testname" :name="index"
-                          v-for="(threadGroup, index) in threadGroups.filter(th=>th.enabled === 'true' && th.deleted=='false')"
-                          :key="index">
-          <el-col :span="10">
+      <el-col :span="12">
+        <el-collapse v-model="activeNames" accordion>
+          <el-collapse-item :name="index"
+                            v-for="(threadGroup, index) in threadGroups.filter(th=>th.enabled === 'true' && th.deleted=='false')"
+                            :key="index">
+            <template slot="title">
+              <el-row>
+                <el-col :span="14">
+                  <el-tooltip :content="threadGroup.attributes.testname" placement="top">
+                    <div style="padding-right:20px; font-size: 16px;" class="wordwrap">
+                      {{ threadGroup.attributes.testname }}
+                    </div>
+                  </el-tooltip>
+                </el-col>
+                <el-col :span="10">
+                  <el-tag type="primary" size="mini" v-if="threadGroup.threadType === 'DURATION'">
+                    {{ $t('load_test.thread_num') }}{{ threadGroup.threadNumber }},
+                    {{ $t('load_test.duration') }}: {{ threadGroup.duration }} {{ getUnitLabel(threadGroup) }}
+                  </el-tag>
+                  <el-tag type="primary" size="mini" v-if="threadGroup.threadType === 'ITERATION'">
+                    {{ $t('load_test.thread_num') }} {{ threadGroup.threadNumber }},
+                    {{ $t('load_test.iterate_num') }} {{ threadGroup.iterateNum }}
+                  </el-tag>
+                </el-col>
+              </el-row>
+            </template>
             <el-form :inline="true">
               <el-form-item :label="$t('load_test.thread_num')">
                 <el-input-number
                   :disabled="isReadOnly"
                   v-model="threadGroup.threadNumber"
-                  @change="calculateChart(threadGroup)"
+                  @change="calculateTotalChart(threadGroup)"
                   :min="resourcePoolResourceLength"
+                  :max="maxThreadNumbers"
                   size="mini"/>
               </el-form-item>
               <br>
@@ -42,13 +63,12 @@
               <br>
               <div v-if="threadGroup.threadType === 'DURATION'">
                 <el-form-item :label="$t('load_test.duration')">
-                  <!-- 最多两天的测试时长 -->
                   <el-input-number
                     :disabled="isReadOnly"
                     v-model="threadGroup.duration"
                     :min="1"
-                    :max="99999"
-                    @change="calculateChart(threadGroup)"
+                    :max="9999"
+                    @change="calculateTotalChart(threadGroup)"
                     size="mini"/>
                 </el-form-item>
                 <el-form-item>
@@ -65,9 +85,9 @@
                   <el-input-number
                     :disabled="isReadOnly || !threadGroup.rpsLimitEnable"
                     v-model="threadGroup.rpsLimit"
-                    @change="calculateChart(threadGroup)"
+                    @change="calculateTotalChart(threadGroup)"
                     :min="1"
-                    :max="500"
+                    :max="99999"
                     size="mini"/>
                 </el-form-item>
                 <br>
@@ -78,7 +98,7 @@
                       :min="1"
                       :max="threadGroup.duration"
                       v-model="threadGroup.rampUpTime"
-                      @change="calculateChart(threadGroup)"
+                      @change="calculateTotalChart(threadGroup)"
                       size="mini"/>
                   </el-form-item>
                   <el-form-item :label="$t('load_test.ramp_up_time_minutes', [getUnitLabel(threadGroup)])">
@@ -87,7 +107,7 @@
                       :min="1"
                       :max="Math.min(threadGroup.threadNumber, threadGroup.rampUpTime)"
                       v-model="threadGroup.step"
-                      @change="calculateChart(threadGroup)"
+                      @change="calculateTotalChart(threadGroup)"
                       size="mini"/>
                   </el-form-item>
                   <el-form-item :label="$t('load_test.ramp_up_time_times')"/>
@@ -98,8 +118,9 @@
                     <el-input-number
                       :disabled="isReadOnly"
                       :min="1"
+                      :max="threadGroup.duration"
                       v-model="threadGroup.rampUpTime"
-                      @change="calculateChart(threadGroup)"
+                      @change="calculateTotalChart(threadGroup)"
                       size="mini"/>
                   </el-form-item>
                   <el-form-item :label="$t('load_test.ramp_up_time_seconds', [getUnitLabel(threadGroup)])"/>
@@ -112,8 +133,8 @@
                     :disabled="isReadOnly"
                     v-model="threadGroup.iterateNum"
                     :min="1"
-                    :max="10000"
-                    @change="calculateChart(threadGroup)"
+                    :max="9999999"
+                    @change="calculateTotalChart(threadGroup)"
                     size="mini"/>
                 </el-form-item>
                 <br>
@@ -124,7 +145,7 @@
                     :disabled="isReadOnly || !threadGroup.rpsLimitEnable"
                     v-model="threadGroup.rpsLimit"
                     :min="1"
-                    :max="500"
+                    :max="99999"
                     size="mini"/>
                 </el-form-item>
                 <br>
@@ -138,13 +159,13 @@
                 <el-form-item :label="$t('load_test.ramp_up_time_seconds', [getUnitLabel(threadGroup)])"/>
               </div>
             </el-form>
-          </el-col>
-          <el-col :span="14">
-            <div class="title">{{ $t('load_test.pressure_prediction_chart') }}</div>
-            <ms-chart class="chart-container" :options="threadGroup.options" :autoresize="true"></ms-chart>
-          </el-col>
-        </el-collapse-item>
-      </el-collapse>
+          </el-collapse-item>
+        </el-collapse>
+      </el-col>
+      <el-col :span="12">
+        <div class="title">{{ $t('load_test.pressure_prediction_chart') }}</div>
+        <ms-chart class="chart-container" ref="chart1" :options="options" :autoresize="true"></ms-chart>
+      </el-col>
     </el-row>
   </div>
 </template>
@@ -208,7 +229,8 @@ export default {
       resourcePools: [],
       activeNames: ["0"],
       threadGroups: [],
-      resourcePoolResourceLength: 1
+      resourcePoolResourceLength: 1,
+      maxThreadNumbers: 5000,
     }
   },
   mounted() {
@@ -241,6 +263,8 @@ export default {
         if (response.data.filter(p => p.id === this.resourcePool).length === 0) {
           this.resourcePool = null;
         }
+
+        this.resourcePoolChange();
       })
     },
     getLoadConfig() {
@@ -304,8 +328,6 @@ export default {
               this.$set(this.threadGroups[i], "enabled", this.threadGroups[i].enabled || 'true');
               this.$set(this.threadGroups[i], "deleted", this.threadGroups[i].deleted || 'false');
             })
-            this.calculateChart(this.threadGroups[i]);
-
           }
           this.calculateTotalChart();
         }
@@ -327,6 +349,22 @@ export default {
         });
       }
     },
+    resourcePoolChange() {
+      let result = this.resourcePools.filter(p => p.id === this.resourcePool);
+      if (result.length === 1) {
+        let threadNumber = 0;
+        result[0].resources.forEach(resource => {
+          threadNumber += JSON.parse(resource.configuration).maxConcurrency;
+        })
+        this.$set(this, 'maxThreadNumbers', threadNumber);
+        this.threadGroups.forEach(tg => {
+          if (tg.threadNumber > threadNumber) {
+            this.$set(tg, "threadNumber", threadNumber);
+          }
+        })
+        this.calculateTotalChart();
+      }
+    },
     calculateTotalChart() {
       let handler = this;
       if (handler.duration < handler.rampUpTime) {
@@ -334,6 +372,11 @@ export default {
       }
       if (handler.rampUpTime < handler.step) {
         handler.step = handler.rampUpTime;
+      }
+      // 线程数不能小于资源池节点的数量
+      let resourcePool = this.resourcePools.filter(v => v.id === this.resourcePool)[0];
+      if (resourcePool) {
+        this.resourcePoolResourceLength = resourcePool.resources.length;
       }
       let color = ['#60acfc', '#32d3eb', '#5bc49f', '#feb64d', '#ff7c7c', '#9287e7', '#ca8622', '#bda29a', '#6e7074', '#546570', '#c4ccd3'];
       handler.options = {
@@ -640,22 +683,43 @@ export default {
   border-bottom: 1px solid #DCDFE6;
 }
 
+/deep/ .el-collapse-item__content {
+  padding-left: 10px;
+  padding-bottom: 5px;
+  border-left-width: 8px;
+  border-left-style: solid;
+  border-left-color: #F5F7FA;
+  border-top-left-radius: 3px;
+  border-bottom-left-radius: 3px;
+}
+
 .chart-container {
   width: 100%;
   height: 300px;
 }
 
+.el-form-item {
+  margin-top: 5px;
+  margin-bottom: 5px;
+}
+
 .el-col .el-form {
-  margin-top: 15px;
+  margin-top: 5px;
   text-align: left;
 }
 
 .el-col {
-  margin-top: 15px;
+  margin-top: 5px;
   text-align: left;
 }
 
 .title {
   margin-left: 60px;
+}
+
+.wordwrap {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 </style>

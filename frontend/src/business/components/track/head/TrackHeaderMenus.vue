@@ -9,18 +9,22 @@
           <el-menu-item :index="'/track/home'">
             {{ $t("i18n.home") }}
           </el-menu-item>
-
-          <el-submenu v-permission="['test_manager','test_user','test_viewer']"
-                      index="6" popper-class="submenu">
-            <template v-slot:title>{{ $t('test_track.case.test_case') }}</template>
-            <ms-recent-list ref="caseRecent" :options="caseRecent"/>
-            <el-divider/>
-            <ms-show-all :index="'/track/case/all'"/>
-            <el-menu-item :index="testCaseEditPath" class="blank_item"></el-menu-item>
-            <el-menu-item :index="testCaseProjectPath" class="blank_item"></el-menu-item>
-            <ms-create-button v-permission="['test_manager','test_user']" :index="'/track/case/create'"
-                              :title="$t('test_track.case.create_case')"/>
-          </el-submenu>
+          <el-menu-item :index="'/track/case/all'">
+            {{ $t("test_track.case.test_case") }}
+          </el-menu-item>
+          <!--
+                    <el-submenu v-permission="['test_manager','test_user','test_viewer']"
+                                index="6" popper-class="submenu">
+                      <template v-slot:title>{{ $t('test_track.case.test_case') }}</template>
+                      <ms-recent-list ref="caseRecent" :options="caseRecent"/>
+                      <el-divider/>
+                      <ms-show-all :index="'/track/case/all'"/>
+                      <el-menu-item :index="testCaseEditPath" class="blank_item"></el-menu-item>
+                      <el-menu-item :index="testCaseProjectPath" class="blank_item"></el-menu-item>
+                      <ms-create-button v-permission="['test_manager','test_user']" :index="'/track/case/create'"
+                                        :title="$t('test_track.case.create_case')"/>
+                    </el-submenu>
+          -->
 
           <el-submenu v-permission="['test_manager','test_user','test_viewer']"
                       index="8" popper-class="submenu">
