@@ -468,7 +468,7 @@
     <select id="selectEffectiveIdByProjectId" resultType="io.metersphere.base.domain.ApiDefinition">
         select id,path
         from api_definition
-        WHERE project_id = #{0} AND status != 'Trash'
+        WHERE project_id = #{0} AND status != 'Trash' AND protocol = 'HTTP'
     </select>
 
     <sql id="queryWhereCondition">
