@@ -706,6 +706,9 @@ export default {
       }
     },
     automation: {
+      constant: "常量",
+      counter: "计数器",
+      random: "随机数",
       view_scene_variables: "查看场景变量",
       open_scene: "打开场景",
       save_as_api: "另存为接口定义",

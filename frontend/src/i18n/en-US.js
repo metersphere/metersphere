@@ -705,6 +705,9 @@ export default {
       }
     },
     automation: {
+      constant: "constant",
+      counter: "counter",
+      random: "random",
       view_scene_variables: "View scene variables",
       open_scene: "Open scene",
       save_as_api: "Save as api",
