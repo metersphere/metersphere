@@ -53,11 +53,10 @@ name: "TestCaseMinder",
   },
   watch: {
     selectNode() {
-      console.log("====");
       if (this.$refs.minder) {
         this.$refs.minder.handleNodeSelect(this.selectNode);
       }
-      // this.getTestCases();
+      this.getTestCases();
     }
   },
   mounted() {

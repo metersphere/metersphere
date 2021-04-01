@@ -12,9 +12,14 @@ const state = {
   versionSwitch: "new",
   isReadOnly: true,
   theme: undefined,
+
   testCaseSelectNode: undefined,
   testCaseSelectNodeIds: [],
-  testCaseModuleOptions: []
+  testCaseModuleOptions: [],
+
+  testReviewSelectNode: undefined,
+  testReviewSelectNodeIds: [],
+  testReviewModuleOptions: [],
 
 }
 
