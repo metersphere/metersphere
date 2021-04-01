@@ -148,9 +148,10 @@
           return parentId ? parentId : this.$store.state.projectId;
         } else {
           const project = this.projectList.find(p => p.id === projectId);
-          if (!project) {
-            return parentId ? parentId : this.$store.state.projectId;
+          if (project) {
+            return projectId;
           }
+          return parentId ? parentId : this.$store.state.projectId;
         }
       },
       getProjectName(id) {
