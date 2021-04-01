@@ -88,10 +88,6 @@ public class TestPlanReportService {
      */
     public TestPlanReport genTestPlanReport(TestPlanReportSaveRequest saveRequest) {
         TestPlan testPlan = testPlanMapper.selectByPrimaryKey(saveRequest.getPlanId());
-        testPlan.setExecutionTimes(1);
-        testPlan.setExecutionTimes(testPlan.getExecutionTimes() + 1);
-        testPlanMapper.updateByPrimaryKey(testPlan);
-
         String testPlanReportID = saveRequest.getReportID();
         TestPlanReport testPlanReport = new TestPlanReport();
         testPlanReport.setTestPlanId(saveRequest.getPlanId());
