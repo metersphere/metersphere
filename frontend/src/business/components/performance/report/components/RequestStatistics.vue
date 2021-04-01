@@ -36,7 +36,7 @@
         />
 
         <el-table-column
-          prop="ko"
+          prop="fail"
           label="FAIL"
           align="center"
         />
@@ -60,6 +60,10 @@
         <el-table-column
           prop="max"
           label="Max"
+        />
+        <el-table-column
+          prop="median"
+          label="Median"
         />
         <el-table-column
           prop="tp90"

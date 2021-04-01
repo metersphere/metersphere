@@ -109,7 +109,7 @@ export default {
       this.$get("/api/testSceneInfoCount/" + selectProjectId, response => {
         this.sceneCountData = response.data;
       });
-
+      this.interfaceCoverage = "waitting...";
       this.$get("/api/countInterfaceCoverage/" + selectProjectId, response => {
         this.interfaceCoverage = response.data;
       });
