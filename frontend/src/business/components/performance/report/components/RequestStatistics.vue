@@ -36,7 +36,7 @@
         />
 
         <el-table-column
-          prop="ko"
+          prop="fail"
           label="FAIL"
           align="center"
         />
