@@ -7,7 +7,8 @@
                :visible.sync="dialogFormVisible"
                @close="close"
                v-loading="result.loading"
-               width="65%">
+               width="65%"
+               v-if="isStepTableAlive">
 
       <el-form :model="form" :rules="rules" ref="reviewForm">
 
@@ -109,6 +110,7 @@ export default {
   components: {MsInputTag, TestPlanStatusButton},
   data() {
     return {
+      isStepTableAlive: true,
       dialogFormVisible: false,
       result: {},
       form: {
@@ -137,6 +139,10 @@ export default {
     };
   },
   methods: {
+    reload() {
+      this.isStepTableAlive = false;
+      this.$nextTick(() => (this.isStepTableAlive = true));
+    },
     openCaseReviewEditDialog(caseReview) {
       this.resetForm();
       this.setReviewerOptions();
@@ -148,9 +154,12 @@ export default {
         Object.assign(tmp, caseReview);
         Object.assign(this.form, tmp);
         this.dbProjectIds = JSON.parse(JSON.stringify(this.form.projectIds));
+      } else {
+        this.form.tags = [];
       }
       listenGoBack(this.close);
       this.dialogFormVisible = true;
+      this.reload();
     },
     reviewInfo() {
 

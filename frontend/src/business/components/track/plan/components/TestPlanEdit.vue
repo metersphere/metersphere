@@ -8,7 +8,7 @@
                @close="close"
                width="65%">
 
-      <el-form :model="form" :rules="rules" ref="planFrom">
+      <el-form :model="form" :rules="rules" ref="planFrom" v-if="isStepTableAlive">
 
         <el-row>
           <el-col :span="8" :offset="1">
@@ -31,7 +31,7 @@
             <el-form-item :label="$t('test_track.plan.plan_principal')" :label-width="formLabelWidth" prop="principal">
               <el-select v-model="form.principal" :placeholder="$t('test_track.plan.input_plan_principal')" filterable>
                 <el-option
-                  v-for="item in principalOptions"
+                  v-for="(item) in principalOptions"
                   :key="item.id"
                   :label="item.name"
                   :value="item.id">
@@ -134,6 +134,7 @@ export default {
   components: {TestPlanStatusButton, MsInputTag},
   data() {
     return {
+      isStepTableAlive: true,
       dialogFormVisible: false,
       form: {
         name: '',
@@ -159,6 +160,10 @@ export default {
     };
   },
   methods: {
+    reload() {
+      this.isStepTableAlive = false;
+      this.$nextTick(() => (this.isStepTableAlive = true));
+    },
     openTestPlanEditDialog(testPlan) {
       this.resetForm();
       this.setPrincipalOptions();
@@ -169,9 +174,12 @@ export default {
         let tmp = {};
         Object.assign(tmp, testPlan);
         Object.assign(this.form, tmp);
+      } else {
+        this.form.tags = [];
       }
       listenGoBack(this.close);
       this.dialogFormVisible = true;
+      this.reload();
     },
     testPlanInfo() {
       this.$refs['planFrom'].validate((valid) => {
