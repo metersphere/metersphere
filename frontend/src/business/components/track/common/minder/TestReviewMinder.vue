@@ -36,6 +36,12 @@ name: "TestReviewMinder",
     projectId: String
   },
   mounted() {
+    if (this.selectNode && this.selectNode.data) {
+      if (this.$refs.minder) {
+        let importJson = this.$refs.minder.getImportJsonBySelectNode(this.selectNode.data);
+        this.$refs.minder.setJsonImport(importJson);
+      }
+    }
     this.$nextTick(() => {
       this.getTestCases();
     })
