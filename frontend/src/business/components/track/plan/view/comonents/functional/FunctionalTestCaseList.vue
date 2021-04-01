@@ -399,9 +399,6 @@ export default {
     selectNodeIds: {
       type: Array
     },
-    selectParentNodes: {
-      type: Array
-    }
   },
   watch: {
     planId() {

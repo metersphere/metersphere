@@ -11,6 +11,16 @@
         from test_case_review
             join project on project.id = test_case_review.project_id
         left join user on test_case_review.creator = user.id
+        <include refid="queryWhereCondition"/>
+        <if test="request.orders != null and request.orders.size() > 0">
+            order by
+            <foreach collection="request.orders" separator="," item="order">
+                test_case_review.${order.name} ${order.type}
+            </foreach>
+        </if>
+    </select>
+
+    <sql id="queryWhereCondition">
         <where>
             <if test="request.name != null">
                 and test_case_review.name like CONCAT('%', #{request.name},'%')
@@ -19,13 +29,7 @@
                 and test_case_review.project_id = #{request.projectId}
             </if>
         </where>
-        <if test="request.orders != null and request.orders.size() > 0">
-            order by
-            <foreach collection="request.orders" separator="," item="order">
-                test_case_review.${order.name} ${order.type}
-            </foreach>
-        </if>
-    </select>
+    </sql>
 
     <select id="listByWorkspaceId" resultType="io.metersphere.track.dto.TestCaseReviewDTO"
             parameterType="io.metersphere.track.request.testreview.QueryCaseReviewRequest">

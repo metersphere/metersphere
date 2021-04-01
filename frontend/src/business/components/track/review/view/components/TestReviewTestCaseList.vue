@@ -17,6 +17,7 @@
                    :select-ids="new Set(Array.from(this.selectRows).map(row => row.id))" @refresh="initTableData"/>
 
       <el-table
+        v-loading="result.loading"
         class="adjust-table"
         border
         @select-all="handleSelectAll"
@@ -277,12 +278,6 @@ export default {
     reviewId: {
       type: String
     },
-    selectNodeIds: {
-      type: Array
-    },
-    selectParentNodes: {
-      type: Array
-    }
   },
   watch: {
     reviewId() {
@@ -290,6 +285,11 @@ export default {
     },
     selectNodeIds() {
       this.search();
+    }
+  },
+  computed: {
+    selectNodeIds() {
+      return this.$store.state.testReviewSelectNodeIds;
     }
   },
   mounted() {

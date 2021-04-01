@@ -138,6 +138,11 @@ export default {
       reviewerOptions: []
     };
   },
+  computed: {
+    projectId() {
+      return this.$store.state.projectId;
+    }
+  },
   methods: {
     reload() {
       this.isStepTableAlive = false;
@@ -180,10 +185,13 @@ export default {
           if (!this.compareTime(new Date().getTime(), this.form.endTime)) {
             return false;
           }
-          this.result = this.$post('/test/case/review/' + this.operationType, param, response => {
-            this.dialogFormVisible = false;
-            this.$router.push('/track/review/view/' + response.data);
-          });
+          param.projectId = this.projectId;
+          if (this.projectId) {
+            this.result = this.$post('/test/case/review/' + this.operationType, param, response => {
+              this.dialogFormVisible = false;
+              this.$router.push('/track/review/view/' + response.data);
+            });
+          }
         } else {
           return false;
         }
@@ -209,11 +217,14 @@ export default {
             return false;
           }
 
-          this.result = this.$post('/test/case/review/' + this.operationType, param, () => {
-            this.$success(this.$t('commons.save_success'));
-            this.dialogFormVisible = false;
-            this.$emit("refresh");
-          });
+          param.projectId = this.projectId;
+          if (this.projectId) {
+            this.result = this.$post('/test/case/review/' + this.operationType, param, () => {
+              this.$success(this.$t('commons.save_success'));
+              this.dialogFormVisible = false;
+              this.$emit("refresh");
+            });
+          }
 
         } else {
           return false;

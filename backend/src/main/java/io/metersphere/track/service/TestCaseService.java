@@ -893,12 +893,6 @@ public class TestCaseService {
         return extTestCaseMapper.list(request);
     }
 
-    public List<TestCaseWithBLOBs> listTestCaseDetail(String projectId) {
-        TestCaseExample testCaseExample = new TestCaseExample();
-        testCaseExample.createCriteria().andProjectIdEqualTo(projectId);
-        return testCaseMapper.selectByExampleWithBLOBs(testCaseExample);
-    }
-
     public void minderEdit(TestCaseMinderEditRequest request) {
         List<TestCaseWithBLOBs> data = request.getData();
         data.forEach(item -> {
@@ -926,5 +920,9 @@ public class TestCaseService {
         TestCaseExample example = new TestCaseExample();
         example.createCriteria().andProjectIdEqualTo(projectId);
         return testCaseMapper.selectByExample(example);
+    }
+
+    public List<TestCaseWithBLOBs> listTestCaseForMinder(QueryTestCaseRequest request) {
+        return extTestCaseMapper.listForMinder(request);
     }
 }
