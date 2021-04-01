@@ -62,6 +62,10 @@
           label="Max"
         />
         <el-table-column
+          prop="median"
+          label="Median"
+        />
+        <el-table-column
           prop="tp90"
           label="90% line"
         />
