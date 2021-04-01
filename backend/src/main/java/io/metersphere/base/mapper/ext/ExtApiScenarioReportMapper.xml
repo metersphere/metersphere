@@ -100,9 +100,10 @@
 
     <select id="list" resultMap="BaseResultMap">
         SELECT r.name AS test_name,
-        r.name, r.description, r.id, r.project_id, r.create_time, r.update_time, r.status, r.trigger_mode,r.scenario_name,
+        r.name, r.description, r.id, r.project_id, r.create_time, r.update_time, r.status, r.trigger_mode,s.name as scenario_name,
         project.name AS project_name, user.name AS user_name
         FROM api_scenario_report r
+        LEFT JOIN api_scenario s on r.scenario_id = s.id
         LEFT JOIN project ON project.id = r.project_id
         LEFT JOIN user ON user.id = r.user_id
         <where>
