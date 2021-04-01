@@ -91,9 +91,9 @@ public class ProjectController {
         return projectService.uploadFiles(projectId, files);
     }
 
-    @PostMapping(value = "/update/file/{projectId}/{fileId}", consumes = {"multipart/form-data"})
-    public FileMetadata updateFile(@PathVariable String projectId, @PathVariable String fileId, @RequestPart(value = "file") MultipartFile file) {
-        return projectService.updateFile(projectId, fileId, file);
+    @PostMapping(value = "/update/file/{fileId}", consumes = {"multipart/form-data"})
+    public FileMetadata updateFile(@PathVariable String fileId, @RequestPart(value = "file") MultipartFile file) {
+        return projectService.updateFile(fileId, file);
     }
 
     @GetMapping(value = "delete/file/{fileId}")
