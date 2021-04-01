@@ -122,7 +122,7 @@ public class TestPlanService {
     @Resource
     private ApiDefinitionMapper  apiDefinitionMapper;
     @Resource
-    private TestPlanApiCaseMapper  testPlanApiCaseMapper;
+    private TestPlanApiCaseMapper testPlanApiCaseMapper;
     @Resource
     private TestPlanApiScenarioMapper testPlanApiScenarioMapper;
     @Resource
@@ -131,6 +131,8 @@ public class TestPlanService {
     private TestCaseTestMapper testCaseTestMapper;
     @Resource
     private ApiScenarioReportMapper apiScenarioReportMapper;
+    @Resource
+    private TestPlanReportMapper testPlanReportMapper;
 
     public synchronized String addTestPlan(AddTestPlanRequest testPlan) {
         if (getTestPlanByName(testPlan.getName()).size() > 0) {
@@ -385,6 +387,11 @@ public class TestPlanService {
             request.setProjectId(projectId);
         }
         List<TestPlanDTOWithMetric> testPlans = extTestPlanMapper.list(request);
+        testPlans.forEach(item -> {
+            TestPlanReportExample example = new TestPlanReportExample();
+            example.createCriteria().andTestPlanIdEqualTo(item.getId());
+            item.setExecutionTimes((int) testPlanReportMapper.countByExample(example));
+        });
         calcTestPlanRate(testPlans);
         return testPlans;
     }
