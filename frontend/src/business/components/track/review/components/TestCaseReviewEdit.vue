@@ -155,11 +155,11 @@ export default {
         Object.assign(this.form, tmp);
         this.dbProjectIds = JSON.parse(JSON.stringify(this.form.projectIds));
       } else {
-        this.form.tags = []
+        this.form.tags = [];
       }
       listenGoBack(this.close);
       this.dialogFormVisible = true;
-      this.reload()
+      this.reload();
     },
     reviewInfo() {
 
