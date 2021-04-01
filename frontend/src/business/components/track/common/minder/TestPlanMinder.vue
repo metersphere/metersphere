@@ -6,6 +6,7 @@
     :tags="tags"
     :distinct-tags="[...tags, $t('test_track.plan.plan_status_prepare')]"
     @save="save"
+    ref="minder"
   />
 </template>
 
@@ -37,10 +38,29 @@ name: "TestPlanMinder",
     },
     projectId: String
   },
+  computed: {
+    selectNode() {
+      return this.$store.state.testPlanViewSelectNode;
+    }
+  },
   mounted() {
+    if (this.selectNode && this.selectNode.data) {
+      if (this.$refs.minder) {
+        let importJson = this.$refs.minder.getImportJsonBySelectNode(this.selectNode.data);
+        this.$refs.minder.setJsonImport(importJson);
+      }
+    }
     this.$nextTick(() => {
       this.getTestCases();
     })
+  },
+  watch: {
+    selectNode() {
+      if (this.$refs.minder) {
+        this.$refs.minder.handleNodeSelect(this.selectNode);
+      }
+      // this.getTestCases();
+    }
   },
   methods: {
     getTestCases() {

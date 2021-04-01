@@ -28,10 +28,7 @@
           <test-case-list
             v-if="activeDom === 'left'"
             :checkRedirectID="checkRedirectID"
-            :module-options="moduleOptions"
-            :select-node-ids="selectNodeIds"
             :isRedirectEdit="isRedirectEdit"
-            :select-parent-nodes="selectParentNodes"
             :tree-nodes="treeNodes"
             @testCaseEdit="editTestCase"
             @testCaseCopy="copyTestCase"
@@ -58,7 +55,6 @@
             <test-case-edit
               :currentTestCaseInfo="item.testCaseInfo"
               @refresh="refreshTable"
-              @setModuleOptions="setModuleOptions"
               @caseEdit="handleCaseCreateOrEdit($event,'edit')"
               @caseCreate="handleCaseCreateOrEdit($event,'add')"
               :read-only="testCaseReadOnly"
@@ -123,12 +119,8 @@ export default {
       result: {},
       projects: [],
       treeNodes: [],
-      selectNodeIds: [],
-      selectParentNodes: [],
       testCaseReadOnly: true,
-      selectNode: {},
       condition: {},
-      moduleOptions: [],
       activeName: 'default',
       tabs: [],
       renderComponent:true,
@@ -177,6 +169,15 @@ export default {
     projectId() {
       return this.$store.state.projectId
     },
+    selectNodeIds() {
+      return this.$store.state.testCaseSelectNodeIds;
+    },
+    selectNode() {
+      return this.$store.state.testCaseSelectNode;
+    },
+    moduleOptions() {
+      return this.$store.state.testCaseModuleOptions;
+    }
   },
   methods: {
     handleCommand(e) {
@@ -284,11 +285,8 @@ export default {
         this.$router.push('/track/case/all');
       }
     },
-    nodeChange(node, nodeIds, pNodes) {
+    nodeChange(node) {
       this.activeName = "default";
-      this.selectNodeIds = nodeIds;
-      this.selectNode = node;
-      this.selectParentNodes = pNodes;
     },
     refreshTable() {
       if ( this.$refs.testCaseList) {
@@ -310,6 +308,15 @@ export default {
       }
     },
     handleCaseSimpleCreate(data, type) {
+      if ('default-module' === data.nodeId) {
+        for (let i = 0; i < this.moduleOptions.length; i++) {
+          let item = this.moduleOptions[i];
+          if (item.path.indexOf('默认模块') > -1) {
+            data.nodeId = item.id;
+            break;
+          }
+        }
+      }
       this.handleCaseCreateOrEdit(data, type);
       if (this.$refs.minder) {
         this.$refs.minder.refresh();
@@ -325,15 +332,12 @@ export default {
       this.testCaseReadOnly = true;
     },
     refresh(data) {
-      this.selectNodeIds = [];
-      this.selectParentNodes = [];
-      this.selectNode = {};
+      this.$store.commit('setTestCaseSelectNode', {});
+      this.$store.commit('setTestCaseSelectNodeIds', []);
       this.refreshTable();
       this.setTable(data);
-
     },
     setTable(data) {
-      console.log(data)
       for (let index in this.tabs) {
         let tab = this.tabs[index];
         if (tab.name === this.activeName) {
@@ -367,9 +371,6 @@ export default {
     },
     setCondition(data) {
       this.condition = data;
-    },
-    setModuleOptions(data) {
-      this.moduleOptions = data;
     }
   }
 }

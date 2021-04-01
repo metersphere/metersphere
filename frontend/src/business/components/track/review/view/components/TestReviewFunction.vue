@@ -23,8 +23,6 @@
           @openTestReviewRelevanceDialog="openTestReviewRelevanceDialog"
           @refresh="refresh"
           :review-id="reviewId"
-          :select-node-ids="selectNodeIds"
-          :select-parent-nodes="selectParentNodes"
           :clickType="clickType"
           ref="testPlanTestCaseList"/>
         <test-review-minder
@@ -63,8 +61,8 @@ export default {
       result: {},
       testReviews: [],
       currentReview: {},
-      selectNodeIds: [],
-      selectParentNodes: [],
+      // selectNodeIds: [],
+      // selectParentNodes: [],
       treeNodes: [],
       isMenuShow: true,
       activeDom: 'left',
@@ -88,14 +86,14 @@ export default {
   },
   methods: {
     refresh() {
-      this.selectNodeIds = [];
-      this.selectParentNodes = [];
+      this.$store.commit('setTestReviewSelectNode', {});
+      this.$store.commit('setTestReviewSelectNodeIds', []);
       this.$refs.testReviewRelevance.search();
       this.getNodeTreeByReviewId();
     },
     nodeChange(node, nodeIds, pNodes) {
-      this.selectNodeIds = nodeIds;
-      this.selectParentNodes = pNodes;
+      this.$store.commit('setTestReviewSelectNode', node);
+      this.$store.commit('setTestReviewSelectNodeIds', nodeIds);
     },
     getNodeTreeByReviewId() {
       if (this.reviewId) {

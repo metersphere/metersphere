@@ -6,6 +6,7 @@
     :tags="tags"
     :distinct-tags="[...tags, $t('test_track.plan.plan_status_prepare')]"
     @save="save"
+    ref="minder"
   />
 </template>
 
@@ -29,23 +30,46 @@ name: "TestReviewMinder",
         return []
       }
     },
-    selectNodeIds: {
-      type: Array
-    },
     reviewId: {
       type: String
     },
     projectId: String
   },
   mounted() {
+    if (this.selectNode && this.selectNode.data) {
+      if (this.$refs.minder) {
+        let importJson = this.$refs.minder.getImportJsonBySelectNode(this.selectNode.data);
+        this.$refs.minder.setJsonImport(importJson);
+      }
+    }
     this.$nextTick(() => {
       this.getTestCases();
     })
   },
+  watch: {
+    selectNode() {
+      if (this.$refs.minder) {
+        this.$refs.minder.handleNodeSelect(this.selectNode);
+      }
+      // this.getTestCases();
+    }
+  },
+  computed: {
+    selectNodeIds() {
+      return this.$store.state.testReviewSelectNodeIds;
+    },
+    selectNode() {
+      return this.$store.state.testReviewSelectNode;
+    }
+  },
   methods: {
     getTestCases() {
       if (this.projectId) {
-        this.result = this.$post('/test/review/case/list/all', {reviewId: this.reviewId}, response => {
+        let param = {
+          reviewId: this.reviewId,
+          nodeIds: this.selectNodeIds
+        };
+        this.result = this.$post('/test/review/case/list/all', param, response => {
           this.dataMap = getTestCaseDataMap(response.data, true, (data, item) => {
             if (item.reviewStatus === 'Pass') {
               data.resource.push(this.$t('test_track.plan_view.pass'));
