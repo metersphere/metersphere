@@ -68,14 +68,16 @@
               obj = JSON.parse(response.data.scenarioDefinition);
               this.scenario.hashTree = obj.hashTree;
             }
+            this.scenario.projectId = response.data.projectId;
+            const pro = this.projectList.find(p => p.id === response.data.projectId);
+            if (!pro) {
+              this.scenario.projectId = this.$store.state.projectId;
+            }
             if (this.scenario.hashTree) {
-              this.setDisabled(this.scenario.hashTree);
+              this.setDisabled(this.scenario.hashTree, this.scenario.projectId);
             }
             //this.scenario.disabled = true;
             this.scenario.name = response.data.name;
-            if (!this.scenario.projectId) {
-              this.scenario.projectId = response.data.projectId;
-            }
             this.scenario.headers = obj.headers;
             this.scenario.variables = obj.variables;
             this.scenario.environmentMap = obj.environmentMap;
@@ -123,25 +125,36 @@
           this.loading = false
         })
       },
-      recursive(arr) {
+      recursive(arr, id) {
         for (let i in arr) {
           arr[i].disabled = true;
           if (!arr[i].projectId) {
-            arr[i].projectId = getCurrentProjectID();
+            // 如果自身没有ID并且场景有ID则赋值场景ID，否则赋值当前项目ID
+            arr[i].projectId = id ? id : this.$store.state.projectId;
+          } else {
+            const project = this.projectList.find(p => p.id === arr[i].projectId);
+            if (!project) {
+              arr[i].projectId = id ? id : this.$store.state.projectId;
+            }
           }
           if (arr[i].hashTree != undefined && arr[i].hashTree.length > 0) {
-            this.recursive(arr[i].hashTree);
+            this.recursive(arr[i].hashTree, arr[i].projectId);
           }
         }
       },
-      setDisabled(scenarioDefinition) {
+      setDisabled(scenarioDefinition, id) {
         for (let i in scenarioDefinition) {
           scenarioDefinition[i].disabled = true;
           if (!scenarioDefinition[i].projectId) {
-            scenarioDefinition[i].projectId = getCurrentProjectID();
+            scenarioDefinition[i].projectId = id ? id :this.$store.state.projectId;
+          } else {
+            const project = this.projectList.find(p => p.id === scenarioDefinition[i].projectId);
+            if (!project) {
+              scenarioDefinition[i].projectId = this.$store.state.projectId;
+            }
           }
           if (scenarioDefinition[i].hashTree != undefined && scenarioDefinition[i].hashTree.length > 0) {
-            this.recursive(scenarioDefinition[i].hashTree);
+            this.recursive(scenarioDefinition[i].hashTree, scenarioDefinition[i].projectId);
           }
         }
       },

@@ -61,6 +61,7 @@
           this.request.method = row.method;
         }
         this.request.resourceId = getUUID();
+        this.request.projectId = this.$store.state.projectId;
         let obj = {};
         Object.assign(obj, this.request);
         this.$emit('addCustomizeApi', obj);
