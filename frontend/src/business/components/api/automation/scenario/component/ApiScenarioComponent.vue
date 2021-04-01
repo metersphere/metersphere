@@ -68,14 +68,16 @@
               obj = JSON.parse(response.data.scenarioDefinition);
               this.scenario.hashTree = obj.hashTree;
             }
+            this.scenario.projectId = response.data.projectId;
+            const pro = this.projectList.find(p => p.id === response.data.projectId);
+            if (!pro) {
+              this.scenario.projectId = this.$store.state.projectId;
+            }
             if (this.scenario.hashTree) {
-              this.setDisabled(this.scenario.hashTree);
+              this.setDisabled(this.scenario.hashTree, this.scenario.projectId);
             }
             //this.scenario.disabled = true;
             this.scenario.name = response.data.name;
-            if (!this.scenario.projectId) {
-              this.scenario.projectId = response.data.projectId;
-            }
             this.scenario.headers = obj.headers;
             this.scenario.variables = obj.variables;
             this.scenario.environmentMap = obj.environmentMap;
@@ -123,25 +125,31 @@
           this.loading = false
         })
       },
-      recursive(arr) {
+      recursive(arr, id) {
         for (let i in arr) {
           arr[i].disabled = true;
-          if (!arr[i].projectId) {
-            arr[i].projectId = getCurrentProjectID();
-          }
+          arr[i].projectId = this.calcProjectId(arr[i].projectId, id);
           if (arr[i].hashTree != undefined && arr[i].hashTree.length > 0) {
-            this.recursive(arr[i].hashTree);
+            this.recursive(arr[i].hashTree, arr[i].projectId);
           }
         }
       },
-      setDisabled(scenarioDefinition) {
+      setDisabled(scenarioDefinition, id) {
         for (let i in scenarioDefinition) {
           scenarioDefinition[i].disabled = true;
-          if (!scenarioDefinition[i].projectId) {
-            scenarioDefinition[i].projectId = getCurrentProjectID();
-          }
+          scenarioDefinition[i].projectId = this.calcProjectId(scenarioDefinition[i].projectId, id);
           if (scenarioDefinition[i].hashTree != undefined && scenarioDefinition[i].hashTree.length > 0) {
-            this.recursive(scenarioDefinition[i].hashTree);
+            this.recursive(scenarioDefinition[i].hashTree, scenarioDefinition[i].projectId);
+          }
+        }
+      },
+      calcProjectId(projectId, parentId) {
+        if (!projectId) {
+          return parentId ? parentId : this.$store.state.projectId;
+        } else {
+          const project = this.projectList.find(p => p.id === projectId);
+          if (!project) {
+            return parentId ? parentId : this.$store.state.projectId;
           }
         }
       },
