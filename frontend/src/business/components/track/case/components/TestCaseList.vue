@@ -281,16 +281,7 @@ export default {
     }
   },
   props: {
-    selectNodeIds: {
-      type: Array
-    },
-    selectParentNodes: {
-      type: Array
-    },
     treeNodes: {
-      type: Array
-    },
-    moduleOptions: {
       type: Array
     },
     trashEnable: {
@@ -302,6 +293,12 @@ export default {
     projectId() {
       return this.$store.state.projectId
     },
+    selectNodeIds() {
+      return this.$store.state.testCaseSelectNodeIds;
+    },
+    moduleOptions() {
+      return this.$store.state.testCaseModuleOptions;
+    }
   },
   created: function () {
     this.$emit('setCondition', this.condition);
