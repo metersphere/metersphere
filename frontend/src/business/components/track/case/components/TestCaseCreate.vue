@@ -95,12 +95,15 @@ export default {
   watch: {
     treeNodes() {
       this.getModuleOptions();
-    },
+    }
   },
   computed: {
     projectId() {
       return this.$store.state.projectId
     },
+    moduleOptions() {
+      return this.$store.state.testCaseModuleOptions;
+    }
   },
   methods: {
     saveTestCase(saveAs) {
@@ -134,12 +137,12 @@ export default {
       })
     },
     getModuleOptions() {
-      let moduleOptions = [];
-      this.treeNodes.forEach(node => {
-        buildNodePath(node, {path: ''}, moduleOptions);
-      });
+      // let moduleOptions = [];
+      // this.treeNodes.forEach(node => {
+      //   buildNodePath(node, {path: ''}, moduleOptions);
+      // });
       if(this.currentModule!==undefined){
-        moduleOptions.forEach(item => {
+        this.moduleOptions.forEach(item => {
           if (this.currentModule.id === item.id) {
             this.currentModule.path = item.path;
           }

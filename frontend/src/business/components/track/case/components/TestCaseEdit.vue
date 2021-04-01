@@ -277,7 +277,7 @@
 <script>
 import {TokenKey, WORKSPACE_ID} from '@/common/js/constants';
 import MsDialogFooter from '../../../common/components/MsDialogFooter'
-import {getCurrentUser, handleCtrlSEvent, listenGoBack, removeGoBackListener} from "@/common/js/utils";
+import {getCurrentUser, getNodePath, handleCtrlSEvent, listenGoBack, removeGoBackListener} from "@/common/js/utils";
 import {Message} from "element-ui";
 import TestCaseAttachment from "@/business/components/track/case/components/TestCaseAttachment";
 import {buildNodePath,buildTree} from "../../../api/definition/model/NodeTree";
@@ -337,7 +337,6 @@ export default {
         reviewStatus: 'Prepare',
       },
       readOnly: false,
-      moduleOptions: [],
       maintainerOptions: [],
       testOptions: [],
       demandOptions: [],
@@ -382,9 +381,6 @@ export default {
       type: Array
     },
     currentTestCaseInfo: {},
-    setModuleOptions: {
-      type: Array
-    },
     /*readOnly: {
       type: Boolean,
       default: false
@@ -401,6 +397,9 @@ export default {
     projectIds() {
       return this.$store.state.projectId
     },
+    moduleOptions() {
+      return this.$store.state.testCaseModuleOptions;
+    }
   },
   mounted() {
     this.getSelectOptions();
@@ -421,14 +420,14 @@ export default {
       this.form.nodePath = this.selectNode.data.path;
     }
   },
-  watch: {
-    treeNodes() {
-      this.getModuleOptions();
-    },
-    moduleOptions() {
-      this.$emit('setModuleOptions', this.moduleOptions);
-    }
-  },
+  // watch: {
+    // treeNodes() {
+    //   this.getModuleOptions();
+    // },
+    // moduleOptions() {
+    //   this.$emit('setModuleOptions', this.moduleOptions);
+    // }
+  // },
   created() {
     this.loadOptions();
     this.addListener(); //  添加 ctrl s 监听
@@ -773,6 +772,7 @@ export default {
       Object.assign(param, this.form);
       param.steps = JSON.stringify(this.form.steps);
       param.nodeId = this.form.module;
+      param.nodePath = getNodePath(this.form.module, this.moduleOptions);
       if (this.projectId) {
         param.projectId = this.projectId;
       }
@@ -783,7 +783,7 @@ export default {
       }
       param.testId = JSON.stringify(this.form.selected)
       param.tags = this.form.tags;
-      param.type = 'functional'
+      param.type = 'functional';
       return param;
     },
     getOption(param) {
@@ -844,13 +844,6 @@ export default {
       this.form.testId = '';
       this.getTestOptions()
     },
-    getModuleOptions() {
-      let moduleOptions = [];
-      this.treeNodes.forEach(node => {
-        buildNodePath(node, {path: ''}, moduleOptions);
-      });
-      this.moduleOptions = moduleOptions;
-    },
     getMaintainerOptions() {
       let workspaceId = localStorage.getItem(WORKSPACE_ID);
       this.$post('/user/ws/member/tester/list', {workspaceId: workspaceId}, response => {
@@ -877,7 +870,6 @@ export default {
       }
     },
     getSelectOptions() {
-      this.getModuleOptions();
       this.getMaintainerOptions();
       this.getTestOptions();
       if (this.type === 'edit') {

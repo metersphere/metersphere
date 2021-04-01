@@ -376,3 +376,13 @@ export function publicKeyEncrypt(input, publicKey) {
 
     return jsencrypt.encrypt(input);
 }
+
+export function getNodePath(id, moduleOptions) {
+  for (let i = 0; i < moduleOptions.length; i++) {
+    let item = moduleOptions[i];
+    if (id === item.id) {
+      return item.path;
+    }
+  }
+  return '';
+}
