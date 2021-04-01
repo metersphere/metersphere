@@ -80,7 +80,7 @@
             :label="$t('commons.tag')"
             :key="index">
             <template v-slot:default="scope">
-                <ms-tag v-for="(itemName,index)  in scope.row.tags" :key="index" type="success" effect="plain" :content="itemName" style="margin-left: 5px"/>
+                <ms-tag v-for="(itemName,index)  in scope.row.tags" :key="index" type="success" effect="plain" :content="itemName" style="margin-left: 0px; margin-right: 2px"/>
             </template>
           </el-table-column>
 
@@ -104,7 +104,7 @@
             </template>
           </el-table-column>
         </template>
-        <el-table-column v-if="!isReadOnly" :label="$t('commons.operating')" align="center">
+        <el-table-column  v-if="!isReadOnly" :label="$t('commons.operating')" >
           <template slot="header">
             <header-label-operate @exec="customHeader"/>
           </template>
@@ -127,7 +127,7 @@
 
       <!-- 执行组件 -->
       <ms-run :debug="false" :type="'API_PLAN'" :reportId="reportId" :run-data="runData"
-              @runRefresh="runRefresh" ref="runTest"/>
+              @runRefresh="runRefresh" ref="runTest" @autoCheckStatus="autoCheckStatus"/>
 
       <!-- 批量编辑 -->
       <batch-edit :dialog-title="$t('test_track.case.batch_edit_case')" :type-arr="typeArr" :value-arr="valueArr"
@@ -151,7 +151,7 @@ import MsBottomContainer from "../../../../../api/definition/components/BottomCo
 import ShowMoreBtn from "../../../../case/components/ShowMoreBtn";
 import BatchEdit from "@/business/components/track/case/components/BatchEdit";
 import {API_METHOD_COLOUR, CASE_PRIORITY, RESULT_MAP} from "../../../../../api/definition/model/JsonData";
-import {getCurrentProjectID, strMapToObj} from "@/common/js/utils";
+import {strMapToObj} from "@/common/js/utils";
 import ApiListContainer from "../../../../../api/definition/components/list/ApiListContainer";
 import PriorityTableItem from "../../../../common/tableItems/planview/PriorityTableItem";
 import {getBodyUploadFiles, getUUID} from "../../../../../../../common/js/utils";
@@ -192,7 +192,7 @@ export default {
     return {
       type: TEST_PLAN_API_CASE,
       headerItems: Test_Plan_Api_Case,
-      tableLabel: Test_Plan_Api_Case,
+      tableLabel: [],
       condition: {},
       selectCase: {},
       result: {},
@@ -268,6 +268,7 @@ export default {
   created: function () {
     this.getMaintainerOptions();
     this.initTable();
+
   },
   activated() {
     this.status = 'default'
@@ -317,7 +318,7 @@ export default {
       this.$emit('isApiListEnableChange', data);
     },
     initTable() {
-      getLabel(this, TEST_PLAN_API_CASE);
+      this.autoCheckStatus();
       this.selectRows = new Set();
       this.condition.status = "";
       this.condition.moduleIds = this.selectNodeIds;
@@ -356,7 +357,7 @@ export default {
           })
         });
       }
-
+      getLabel(this, TEST_PLAN_API_CASE);
     },
     handleSelect(selection, row) {
       row.hashTree = [];
@@ -452,15 +453,12 @@ export default {
       this.initTable();
     },
     singleRun(row) {
-      if (!row.environmentId) {
-        this.$warning(this.$t('api_test.environment.select_environment'));
-        return;
-      }
       this.runData = [];
 
       this.rowLoading = row.id;
 
       this.$get('/api/testcase/get/' + row.caseId, (response) => {
+        console.log(response.data)
         let apiCase = response.data;
         let request = JSON.parse(apiCase.request);
         request.name = row.id;
@@ -522,6 +520,13 @@ export default {
       this.$fileUpload("/api/definition/run", null, bodyFiles, reqObj, response => {
       });
     },
+    autoCheckStatus() { //  检查执行结果，自动更新计划状态
+      if (!this.planId) {
+        return;
+      }
+      this.$post('/test/plan/autoCheck/' + this.planId, (response) => {
+      });
+    },
     handleDelete(apiCase) {
       if (this.planId) {
         this.$get('/test/plan/api/case/delete/' + apiCase.id, () => {
@@ -541,7 +546,7 @@ export default {
     },
     getProjectId() {
       if (!this.isRelevanceModel) {
-        return getCurrentProjectID();
+        return this.$store.state.projectId;
       } else {
         return this.currentCaseProjectId;
       }

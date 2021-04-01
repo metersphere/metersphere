@@ -27,7 +27,7 @@
             <i class="icon el-icon-arrow-right" :class="{'is-active': apiCase.active}" @click="active(apiCase)"/>
             <el-input v-if="!apiCase.id || isShowInput" size="small" v-model="apiCase.name" :name="index" :key="index"
                       class="ms-api-header-select" style="width: 180px"
-                      @blur="saveTestCase(apiCase)" :placeholder="$t('commons.input_name')" ref="nameEdit"/>
+                      @blur="saveTestCase(apiCase,true)" :placeholder="$t('commons.input_name')" ref="nameEdit"/>
             <span v-else>
               {{ apiCase.id ? apiCase.name : '' }}
               <i class="el-icon-edit" style="cursor:pointer" @click="showInput(apiCase)" v-tester/>
@@ -48,7 +48,7 @@
 
         <el-col :span="4">
           <div class="tag-item" @click.stop>
-            <ms-input-tag :currentScenario="apiCase" ref="tag" @keyup.enter.native="saveTestCase(apiCase)"/>
+            <ms-input-tag :currentScenario="apiCase" ref="tag" @keyup.enter.native="saveTestCase(apiCase,true)"/>
           </div>
         </el-col>
 
@@ -87,13 +87,19 @@
       <div v-if="apiCase.active||type==='detail'">
         <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
         <ms-api-request-form :isShowEnable="true" :showScript="true" :is-read-only="isReadOnly" :headers="apiCase.request.headers " :request="apiCase.request" v-if="api.protocol==='HTTP'"/>
-        <ms-tcp-basis-parameters :showScript="true" :request="apiCase.request" v-if="api.protocol==='TCP'"/>
+        <ms-tcp-basis-parameters :showScript="true" :request="apiCase.request" v-if="api.method==='TCP' && apiCase.request.esbDataStruct == null"/>
+        <esb-definition v-xpack :request="apiCase.request" :showScript="true" v-if="showXpackCompnent&&api.method==='ESB'" ref="esbDefinition"/>
         <ms-sql-basis-parameters :showScript="true" :request="apiCase.request" v-if="api.protocol==='SQL'"/>
         <ms-dubbo-basis-parameters :showScript="true" :request="apiCase.request" v-if="api.protocol==='DUBBO'"/>
 
         <!-- HTTP 请求返回数据 -->
         <p class="tip">{{$t('api_test.definition.request.res_param')}}</p>
-        <api-response-component :currentProtocol="apiCase.request.protocol" :api-item="apiCase"/>
+        <div v-if="showXpackCompnent&&api.method==='ESB'">
+          <esb-definition-response v-xpack v-if="showXpackCompnent"  :currentProtocol="apiCase.request.protocol" :request="apiCase.request" :is-api-component="false" :show-options-button="false" :show-header="true" :api-item="apiCase"/>
+        </div>
+        <div v-else>
+          <api-response-component :currentProtocol="apiCase.request.protocol" :api-item="apiCase"/>
+        </div>
 
         <ms-jmx-step :request="apiCase.request" :response="apiCase.responseData"/>
         <!-- 保存操作 -->
@@ -124,6 +130,10 @@
   import ApiResponseComponent from "../../../automation/scenario/component/ApiResponseComponent";
   import ShowMoreBtn from "../../../../track/case/components/ShowMoreBtn";
 
+  const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
+  const esbDefinition = (requireComponent != null && requireComponent.keys().length) > 0 ? requireComponent("./apidefinition/EsbDefinition.vue") : {};
+  const esbDefinitionResponse = (requireComponent != null && requireComponent.keys().length) > 0 ? requireComponent("./apidefinition/EsbDefinitionResponse.vue") : {};
+
   export default {
     name: "ApiCaseItem",
     components: {
@@ -140,12 +150,15 @@
       MsApiExtendBtns,
       MsRequestResultTail,
       MsJmxStep,
-      ShowMoreBtn
+      ShowMoreBtn,
+      "esbDefinition": esbDefinition.default,
+      "esbDefinitionResponse": esbDefinitionResponse.default
     },
     data() {
       return {
         result: {},
         grades: [],
+        showXpackCompnent: false,
         isReadOnly: false,
         selectedEvent: Object,
         priorities: PRIORITY,
@@ -185,6 +198,11 @@
       type: String,
       isCaseEdit: Boolean,
     },
+    created() {
+      if (requireComponent != null && JSON.stringify(esbDefinition) != '{}' && JSON.stringify(esbDefinitionResponse) != '{}') {
+        this.showXpackCompnent = true;
+      }
+    },
     watch: {},
     methods: {
       handleRunBatch() {
@@ -194,7 +212,7 @@
         this.$emit('batchEditCase');
       },
       deleteCase(index, row) {
-        this.$alert(this.$t('api_test.definition.request.delete_confirm') + ' ' + row.name + " ？", '', {
+        this.$alert(this.$t('api_test.definition.request.delete_case_confirm') + ' ' + row.name + " ？", '', {
           confirmButtonText: this.$t('commons.confirm'),
           callback: (action) => {
             if (action === 'confirm') {
@@ -207,13 +225,14 @@
         });
       },
       singleRun(data) {
-        if (!this.environment) {
+        if (this.api.protocol != "DUBBO" && this.api.protocol != "dubbo://" && !this.environment) {
           this.$warning(this.$t('api_test.environment.select_environment'));
           return;
         }
         data.message = true;
         data.request.useEnvironment = this.environment;
-        this.saveTestCase(data);
+        //this.saveTestCase(data);
+
         this.$emit('singleRun', data);
       },
       copyCase(data) {
@@ -256,18 +275,13 @@
         }
       },
       addModule(row) {
-        let url = '/api/module/getModuleByName/' + getCurrentProjectID() + "/" + this.api.protocol;
-        this.$get(url, response => {
-          if (response.data) {
-            this.saveApi(row, response.data);
-          }
-        });
+        this.saveApi(row, "default-module");
       },
       saveApi(row, module) {
         let data = this.api;
         data.name = this.apiCase.name;
-        data.moduleId = module.id;
-        data.modulePath = '/bug';
+        data.moduleId = module;
+        data.modulePath ="/"+ this.$t('commons.module_title');
         this.setParameters(data);
         let bodyFiles = this.getBodyUploadFiles(data);
         this.$fileUpload("/api/definition/create", null, bodyFiles, data, () => {
@@ -277,7 +291,7 @@
           }
         });
       },
-      saveCase(row) {
+      saveCase(row,hideAlert) {
         let tmp = JSON.parse(JSON.stringify(row));
         this.isShowInput = false;
         if (this.validate(tmp)) {
@@ -297,6 +311,14 @@
             tmp.request.method = this.api.method;
           }
         }
+
+        if (tmp.request.esbDataStruct != null) {
+          tmp.esbDataStruct = JSON.stringify(tmp.request.esbDataStruct);
+        }
+        if (tmp.request.backEsbDataStruct != null) {
+          tmp.backEsbDataStruct = JSON.stringify(tmp.request.backEsbDataStruct);
+        }
+
         if (tmp.tags instanceof Array) {
           tmp.tags = JSON.stringify(tmp.tags);
         }
@@ -306,18 +328,19 @@
           row.createTime = data.createTime;
           row.updateTime = data.updateTime;
           if (!row.message) {
-            this.$success(this.$t('commons.save_success'));
-            this.$emit('refresh');
+            if(!hideAlert){
+              this.$success(this.$t('commons.save_success'));
+              this.$emit('refresh');
+            }
           }
         });
       },
-      saveTestCase(row) {
+      saveTestCase(row,hideAlert) {
         if (this.api.saved) {
           this.addModule(row);
         } else {
-          this.saveCase(row);
+          this.saveCase(row,hideAlert);
         }
-
       },
       showInput(row) {
         // row.type = "create";

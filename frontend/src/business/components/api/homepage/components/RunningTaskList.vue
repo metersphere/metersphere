@@ -57,14 +57,16 @@
 </template>
 
 <script>
-import {checkoutTestManagerOrTestUser, getCurrentProjectID} from "@/common/js/utils";
+import {checkoutTestManagerOrTestUser} from "@/common/js/utils";
 import MsTag from "@/business/components/common/components/MsTag";
 export default {
   name: "MsRunningTaskList",
   components: {
     MsTag
   },
-
+  props: {
+    callFrom: String,
+  },
   data() {
     return {
       value: '100',
@@ -78,15 +80,19 @@ export default {
   computed:{
     isReadOnly(){
       return !checkoutTestManagerOrTestUser();
-    }
+    },
+    projectId() {
+      return this.$store.state.projectId
+    },
   },
 
   methods: {
     search() {
-      let projectID = getCurrentProjectID();
-      this.result = this.$get("/api/runningTask/"+projectID, response => {
-        this.tableData = response.data;
-      });
+      if (this.projectId) {
+        this.result = this.$get("/api/runningTask/"+ this.projectId +"/"+this.callFrom, response => {
+          this.tableData = response.data;
+        });
+      }
     },
 
     closeTaskConfirm(row){
@@ -109,9 +115,9 @@ export default {
       });
     },
     redirect(param){
-      if(param.taskType === 'testPlan'){
+      if(param.taskGroup === 'TEST_PLAN_TEST'){
         this.$emit('redirectPage','testPlanEdit','', param.scenarioId);
-      }else{
+      }else if(param.taskGroup === 'API_SCENARIO_TEST') {
         this.$emit('redirectPage','scenario','scenario', 'edit:'+param.scenarioId);
       }
     }

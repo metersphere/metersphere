@@ -10,7 +10,6 @@ import org.apache.shiro.subject.support.DefaultSubjectContext;
 
 import java.util.Collection;
 import java.util.Objects;
-import java.util.Optional;
 
 import static io.metersphere.commons.constants.SessionConstants.ATTR_USER;
 
@@ -30,6 +29,10 @@ public class SessionUtils {
         } catch (Exception e) {
             return null;
         }
+    }
+
+    public static String getSessionId() {
+        return (String) SecurityUtils.getSubject().getSession().getId();
     }
 
     private static Session getSessionByUsername(String username) {

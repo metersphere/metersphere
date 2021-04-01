@@ -9,20 +9,20 @@
           @dataChange="changeReview"/>
       </template>
       <template v-slot:menu>
-        <el-menu v-if="isMenuShow" active-text-color="#6d317c"
+        <el-menu v-if="isMenuShow" :active-text-color="color"
                  class="el-menu-demo header-menu" mode="horizontal" @select="handleSelect"
                  :default-active="activeIndex">
           <el-menu-item index="functional">功能测试用例</el-menu-item>
-          <el-menu-item index="api">接口测试用例</el-menu-item>
-          <el-menu-item index="load">性能测试用例</el-menu-item>
+<!--          <el-menu-item index="api">接口测试用例</el-menu-item>
+          <el-menu-item index="load">性能测试用例</el-menu-item>-->
           <!--          <el-menu-item index="report">报告统计</el-menu-item>-->
         </el-menu>
       </template>
     </ms-test-plan-header-bar>
     <test-review-function v-if="activeIndex === 'functional'" :redirectCharType="redirectCharType"
                           :clickType="clickType" :review-id="reviewId"></test-review-function>
-    <test-review-api v-if="activeIndex === 'api'" :review-id="reviewId"></test-review-api>
-    <test-review-load v-if="activeIndex === 'load'" :review-id="reviewId"></test-review-load>
+    <!--    <test-review-api v-if="activeIndex === 'api'" :review-id="reviewId"></test-review-api>
+        <test-review-load v-if="activeIndex === 'load'" :review-id="reviewId"></test-review-load>-->
 
   </div>
 
@@ -78,6 +78,9 @@ export default {
   computed: {
     reviewId: function () {
       return this.$route.params.reviewId;
+    },
+    color: function () {
+      return `var(--primary_color)`
     }
   },
   mounted() {

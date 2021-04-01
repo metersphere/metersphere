@@ -77,7 +77,7 @@
             this.$error(this.$t('api_test.select_project'));
             return;
           }
-          this.$refs.environmentConfig.open(this.projectId);
+          this.$refs.environmentConfig.open(this.projectId, this.environmentId);
         },
         environmentChange(value) {
           for (let i in this.environments) {

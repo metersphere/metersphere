@@ -44,44 +44,44 @@
       <el-button style="float: right;margin: 20px" type="primary" @click="handleCommand('save_as_api')"> {{$t('commons.save')}}</el-button>
     </div>
     <!-- 加载用例 -->
-    <ms-api-case-list :loaded="false" ref="caseList"/>
+    <ms-api-case-list @refreshModule="refreshModule" :loaded="false" ref="caseList"/>
   </div>
 </template>
 
 <script>
-import MsApiRequestForm from "../request/http/ApiHttpRequestForm";
-import MsResponseResult from "../response/ResponseResult";
-import MsRequestMetric from "../response/RequestMetric";
-import {getCurrentUser, getUUID} from "@/common/js/utils";
-import MsResponseText from "../response/ResponseText";
-import MsRun from "../Run";
-import {createComponent} from "../jmeter/components";
-import {REQ_METHOD} from "../../model/JsonData";
-import MsRequestResultTail from "../response/RequestResultTail";
-import MsJmxStep from "../step/JmxStep";
-import {KeyValue} from "../../model/ApiTestModel";
-import MsApiCaseList from "../case/ApiCaseList";
+  import MsApiRequestForm from "../request/http/ApiHttpRequestForm";
+  import MsResponseResult from "../response/ResponseResult";
+  import MsRequestMetric from "../response/RequestMetric";
+  import {getCurrentUser, getUUID} from "@/common/js/utils";
+  import MsResponseText from "../response/ResponseText";
+  import MsRun from "../Run";
+  import {createComponent} from "../jmeter/components";
+  import {REQ_METHOD} from "../../model/JsonData";
+  import MsRequestResultTail from "../response/RequestResultTail";
+  import MsJmxStep from "../step/JmxStep";
+  import {KeyValue} from "../../model/ApiTestModel";
+  import MsApiCaseList from "../case/ApiCaseList";
 
-export default {
-  name: "ApiConfig",
-  components: {
-    MsRequestResultTail,
-    MsResponseResult,
-    MsApiRequestForm,
-    MsRequestMetric,
-    MsResponseText,
-    MsRun,
-    MsJmxStep,
-    MsApiCaseList
-  },
-  props: {
-    currentProtocol: String,
-    testCase: {},
-    scenario: Boolean,
-  },
-  data() {
-    let validateURL = (rule, value, callback) => {
-      try {
+  export default {
+    name: "ApiConfig",
+    components: {
+      MsRequestResultTail,
+      MsResponseResult,
+      MsApiRequestForm,
+      MsRequestMetric,
+      MsResponseText,
+      MsRun,
+      MsJmxStep,
+      MsApiCaseList
+    },
+    props: {
+      currentProtocol: String,
+      testCase: {},
+      scenario: Boolean,
+    },
+    data() {
+      let validateURL = (rule, value, callback) => {
+        try {
           new URL(this.debugForm.url);
           callback();
         } catch (e) {
@@ -165,6 +165,9 @@ export default {
             this.reportId = getUUID().substring(0, 8);
           }
         })
+      },
+      refreshModule() {
+        this.$emit('refreshModule');
       },
       runRefresh(data) {
         this.responseData = data;

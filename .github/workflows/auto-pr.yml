@@ -1,0 +1,13 @@
+on: [push, pull_request, release]
+
+name: MeterSphere pull request handler
+
+jobs:
+  generic_handler:
+    name: Generic handler for MeterSphere Repos
+    runs-on: ubuntu-latest
+    steps:
+      - name: Add labels
+        uses: jumpserver/action-generic-handler@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUBTOKEN }}

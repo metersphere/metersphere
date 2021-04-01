@@ -14,7 +14,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.SecurityUtils;
 import org.springframework.ldap.core.DirContextOperations;
 import org.springframework.web.bind.annotation.*;
-
 import javax.annotation.Resource;
 
 @RestController
@@ -69,7 +68,7 @@ public class LdapController {
             userService.addLdapUser(user);
         }
 
-        // 执行 ShiroDBRealm 中 LDAP 登录逻辑
+        // 执行 LocalRealm 中 LDAP 登录逻辑
         LoginRequest loginRequest = new LoginRequest();
         loginRequest.setUsername(userId);
         return userService.login(loginRequest);

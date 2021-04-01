@@ -1,6 +1,11 @@
 export default {
   commons: {
+    please_select_import_mode: 'Please select import mode',
+    please_select_import_module: 'Please select import module',
+    pass_rate: 'Pass rate',
+    execution_times: 'Execution times',
     cover: 'Cover',
+    module_title: 'Default module',
     not_cover: 'Not Cover',
     import: 'Import',
     import_success: 'Import success',
@@ -46,6 +51,7 @@ export default {
     create_time: 'Created Time',
     update_time: 'Updated Time',
     add: 'Add',
+    preview: 'Preview',
     member: 'Member',
     email: 'Email',
     phone: 'Phone',
@@ -113,6 +119,7 @@ export default {
     weeks_6: 'Sat',
     test_unit: 'tests',
     remove: 'Remove',
+    next_level: "Next level",
     remove_cancel: 'Remove Cancel',
     remove_success: 'Remove Success',
     tips: 'The authentication information has expired, please login again',
@@ -138,6 +145,8 @@ export default {
     check_project_tip: "Create or select the project first",
     auth_redirect_tip: 'Jump to the authentication source page for authentication',
     tag_tip: "Enter Enter to Add Label",
+    node_name_tip: "The name cannot contain'\\'",
+    more_operator: "More operator",
     table: {
       select_tip: "Item {0} data is selected"
     },
@@ -273,7 +282,7 @@ export default {
     none: 'None Organization',
     select: 'Select Organization',
     service_integration: 'Service integration',
-    defect_manage: 'Defect management platform',
+    defect_manage: 'Project management platform',
     message_settings: 'Message settings',
     message: {
       jenkins_task_notification: 'Jenkins task notification',
@@ -308,18 +317,20 @@ export default {
       account: 'Account',
       password: 'Password',
       jira_url: 'JIRA url',
-      jira_issuetype: 'JIRA issuetype',
+      jira_issuetype: 'JIRA issue type',
+      jira_storytype: 'JIRA story type',
       input_api_account: 'please enter account',
       input_api_password: 'Please enter password',
       input_jira_url: 'Please enter Jira address, for example: https://metersphere.atlassian.net/',
-      input_jira_issuetype: 'Please enter the question type',
+      input_jira_issuetype: 'Please enter the issue type',
+      input_jira_storytype: 'Please enter the story type',
       zentao_url: 'Zentao url',
       input_zentao_url: 'Please enter Zentao address, for example: http://xx.xx.xx.xx/zentao/',
       use_tip: 'Usage guidelines:',
       use_tip_tapd: 'Basic Auth account information is queried in "Company Management-Security and Integration-Open Platform"',
       use_tip_jira: 'Jira software server authentication information is account password, Jira software cloud authentication information is account + token (account settings-security-create API token)',
       use_tip_zentao: 'The account password is a Zentao account with corresponding permissions, and the account needs to have super model calling interface permissions',
-      use_tip_two: 'After saving the Basic Auth account information, you need to manually associate the ID/key in the Metersphere project',
+      use_tip_two: 'After saving the Basic Auth account information, you need to manually associate the ID/key in the MeterSphere project',
       link_the_project_now: 'Link the project now',
       cancel_edit: 'Cancel edit',
       cancel_integration: 'Cancel integration',
@@ -429,7 +440,7 @@ export default {
     downloadJtl: 'Download JTL',
     test_execute_again: 'Test Execute Again',
     export: 'Export',
-    export_to_ms_format: 'Export to Metersphere format',
+    export_to_ms_format: 'Export to MeterSphere format',
     export_to_swagger3_format: 'Export to Swagger3.0 format',
     compare: 'Compare',
     generation_error: 'Report generation error, unable to view, please check log details!',
@@ -531,7 +542,11 @@ export default {
     load_exist_jmx: 'Load Project JMX',
     threadgroup_at_least_one: 'At least one ThreadGroup is enabled',
     load_api_automation_jmx: 'Import API automation scenario',
-    project_file_exist: "The file already exists in the project, please import it directly"
+    project_file_exist: "The file already exists in the project, please import it directly",
+    project_file_update_type_error: 'Updated file types must be consistent',
+    report: {
+      diff: "Compare"
+    },
   },
   api_test: {
     creator: "Creator",
@@ -594,6 +609,7 @@ export default {
         update_time_order_desc: "from back to front by update time",
         run_env: "Operating environment",
         select_case: "Search use cases",
+        select_api: "Search api",
         case: "Case",
         title: "Create api",
         path_info: "Please enter the URL of the interface, such as /api/demo/#{id}, where id is the path parameter",
@@ -620,10 +636,12 @@ export default {
         res_param: "Response content",
         batch_delete: "Batch deletion",
         delete_confirm: "Confirm deletion",
+        delete_case_confirm: "Confirm case deletion",
         delete_confirm_step: "Confirm deletion step",
         assertions_rule: "Assertion rule",
         response_header: "Response header",
         response_body: "Response body",
+        response_template: "Response template",
         console: "Console",
         status_code: "Status code",
         query_info: "Follow the address bar? The following parameters, such as updateapi?id=112",
@@ -643,6 +661,17 @@ export default {
         other_config: "Other Config",
         message_template: "Message Template",
         tcp_parameter_tip: "The request parameters can be referenced in the request template ${XXX}",
+        esb_table: {
+          name: "name",
+          type: "type",
+          length: "length",
+          required: "Required",
+          desc: "Description",
+          value: "Data",
+          not_required: "Not required",
+        },
+        esb_copy_confirm: "Copy this node data struct",
+        esb_title: "You can use ${name} or ${parent name.child name} to generate xml struct in report template",
       },
       document: {
         order: "Order",
@@ -788,7 +817,7 @@ export default {
       url_description: "etc: https://fit2cloud.com",
       path_description: "etc：/login",
       parameters: "Query parameters",
-      jmeter_func: "Jmeter Functions",
+      jmeter_func: "JMeter Functions",
       parameters_filter_example: "Example",
       parameters_filter_tips: "Only support MockJs function result preview",
       parameters_advance: "Advanced parameter settings",
@@ -869,7 +898,9 @@ export default {
         code_template_set_global_variable: "Set Global variable",
         code_template_get_response_header: "Get Response Header",
         code_template_get_response_code: "Get Response Code",
-        code_template_get_response_result: "Get Response Result"
+        code_template_get_response_result: "Get Response Result",
+        code_add_report_length: "Add report length to head",
+        code_hide_report_length: "Hide report length"
       },
       dubbo: {
         protocol: "protocol",
@@ -922,9 +953,11 @@ export default {
       export_tip: "Export Tip",
       ms_tip: "Support for MeterSphere JSON format",
       ms_export_tip: "Export jSON-formatted files via MeterSphere website or browser plug-ins",
-      har_export_tip: "Export Har files by browser dev-tool",
+      har_export_tip: "Export HAR files by browser dev-tool",
+      esb_export_tip: "Can not export esb files now",
       swagger_tip: "Swagger 2.0 and 3.0 json files are supported",
-      har_tip: "Only Har files are supported",
+      har_tip: "Only HAR files are supported",
+      esb_tip: "Only ESB xlsx files are supported",
       postman_tip: "Only Postman Collection V2.1 json files are supported",
       postman_export_tip: "Export the test collection by Postman",
       swagger_export_tip: "Export jSON-formatted files via Swagger website",
@@ -968,6 +1001,7 @@ export default {
           coverage: "Coverage rate",
           pass: "Pass rate",
           success: "Success rate",
+          interface_coverage: "Interface coverage",
         },
       },
       api_details_card: {
@@ -1014,6 +1048,7 @@ export default {
           case_type: {
             api: "Api case",
             scene: "Scenario case",
+            load: "Load case"
           }
         }
       },
@@ -1102,6 +1137,9 @@ export default {
     cancel_relevance_success: "Unlinked successfully",
     switch_project: "Switch project",
     case: {
+      list: "List",
+      minder: "Minder",
+      minder_create_tip: "failed, unable to create its parent module in minder",
       check_select: "Please check the case",
       export_all_cases: 'Are you sure you want to export all use cases?',
       input_test_case: 'Please enter the associated case name',
@@ -1136,6 +1174,7 @@ export default {
       input_type: "Please select type",
       input_method: "Please select method",
       input_prerequisite: "Please select prerequisite",
+      input_demand_name: "Please input demand id or name",
       delete_confirm: "Confirm delete test case",
       delete: "Delete case",
       save_create_continue: "Save and create continue",
@@ -1213,6 +1252,7 @@ export default {
       input_plan_stage: "Please select stage",
       plan_status_prepare: "Not started",
       plan_status_running: "Starting",
+      plan_status_finished: "Finished",
       plan_status_completed: "Completed",
       plan_status_trash: "Trashed",
       planned_start_time: "Scheduled Start Time",
@@ -1310,6 +1350,7 @@ export default {
       executor: "Executor",
       execute_result: "Result",
       pass: "Pass",
+      not_pass: "UnPass",
       failure: "Failure",
       blocking: "Blocking",
       skip: "Skip",
@@ -1408,7 +1449,8 @@ export default {
     status_change_success: 'Successfully changed the status!',
     status_change_failed: 'Failed to change the status, resource pool is invalid!',
     check_in: 'Check in',
-    node_selector_invalid: 'nodeSelector must be JSON'
+    node_selector_invalid: 'nodeSelector must be JSON',
+    pod_thread_limit: 'Maximum number of threads per POD'
   },
   system_parameter_setting: {
     mailbox_service_settings: 'Mailbox Settings',
@@ -1604,5 +1646,10 @@ export default {
     delete_prompt: 'This operation will delete the authentication source, do you want to continue? ',
     title: 'Auth Source',
     auth_name_valid: 'Name does not support special characters',
+  },
+  table: {
+    header_display_field: 'Header display field',
+    fields_to_be_selected: 'Fields to be selected',
+    selected_fields: 'Selected fields'
   }
 };

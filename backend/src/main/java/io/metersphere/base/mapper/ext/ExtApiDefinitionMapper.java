@@ -38,4 +38,6 @@ public interface ExtApiDefinitionMapper {
     List<ApiDefinitionResult> listRelevance(@Param("request")ApiDefinitionRequest request);
     List<ApiDefinitionResult>  listRelevanceReview(@Param("request")ApiDefinitionRequest request);
     List<String> selectIds(@Param("request") BaseQueryRequest query);
+
+    List<ApiDefinition> selectEffectiveIdByProjectId(String projectId);
 }

@@ -13,7 +13,7 @@
         <el-table-column type="selection"/>
         <el-table-column width="40" :resizable="false" align="center">
           <template v-slot:default="{row}">
-            <show-more-btn :is-show="isSelect(row)" :buttons="buttons" :size="selectRows.length"/>
+            <show-more-btn :is-show="isSelect(row)" :buttons="buttons" :size="selectRows.size"/>
           </template>
         </el-table-column>
         <template v-for="(item, index) in tableLabel">
@@ -38,7 +38,7 @@
                            width="200px" :key="index">
             <template v-slot:default="scope">
               <ms-tag v-for="(itemName,index) in scope.row.tags" :key="index" type="success" effect="plain"
-                      :content="itemName" style="margin-left: 5px"/>
+                      :content="itemName" style="margin-left: 0px; margin-right: 2px"/>
             </template>
           </el-table-column>
           <el-table-column v-if="item.id == 'userId'" prop="userId" :label="$t('api_test.automation.creator')"
@@ -103,7 +103,7 @@ import MsTableHeader from "@/business/components/common/components/MsTableHeader
 import MsTablePagination from "@/business/components/common/pagination/TablePagination";
 import ShowMoreBtn from "@/business/components/track/case/components/ShowMoreBtn";
 import MsTag from "../../../../../common/components/MsTag";
-import {getUUID, getCurrentProjectID, getCurrentUser, strMapToObj} from "@/common/js/utils";
+import {getUUID, strMapToObj} from "@/common/js/utils";
 import MsApiReportDetail from "../../../../../api/automation/report/ApiReportDetail";
 import MsTableMoreBtn from "../../../../../api/automation/scenario/TableMoreBtn";
 import MsScenarioExtendButtons from "@/business/components/api/automation/scenario/ScenarioExtendBtns";
@@ -148,7 +148,7 @@ export default {
     return {
       type: TEST_PLAN_SCENARIO_CASE,
       headerItems: Test_Plan_Scenario_Case,
-      tableLabel: Test_Plan_Scenario_Case,
+      tableLabel: [],
       loading: false,
       condition: {},
       currentScenario: {},
@@ -162,7 +162,6 @@ export default {
       status: 'default',
       infoDb: false,
       runVisible: false,
-      projectId: "",
       runData: [],
       buttons: [
         {
@@ -182,9 +181,14 @@ export default {
       },
     }
   },
+  computed: {
+    projectId() {
+      return this.$store.state.projectId
+    },
+  },
   created() {
-    this.projectId = getCurrentProjectID();
     this.search();
+
   },
   watch: {
     selectNodeIds() {
@@ -199,7 +203,6 @@ export default {
       this.$refs.headerCustom.open(this.tableLabel)
     },
     search() {
-      getLabel(this, TEST_PLAN_SCENARIO_CASE);
       this.selectRows = new Set();
       this.loading = true;
       this.condition.moduleIds = this.selectNodeIds;
@@ -241,6 +244,7 @@ export default {
           this.loading = false;
         });
       }
+      getLabel(this, TEST_PLAN_SCENARIO_CASE);
 
     },
     reductionApi(row) {
@@ -272,7 +276,7 @@ export default {
     execute(row) {
       this.infoDb = false;
       let param = this.buildExecuteParam(row);
-
+      console.log(param)
       if (this.planId) {
         this.$post("/test/plan/scenario/case/run", param, response => {
           this.runVisible = true;
@@ -291,6 +295,7 @@ export default {
       // param.id = row.id;
       param.id = getUUID();
       param.planScenarioId = row.id;
+      console.log(row.id)
       param.projectId = row.projectId;
       param.planCaseIds = [];
       param.planCaseIds.push(row.id);
@@ -358,15 +363,11 @@ export default {
     },
     handleBatchEdit() {
       this.$refs.batchEdit.open(this.selectRows.size);
-      this.$refs.batchEdit.setScenarioSelectRows(this.selectRows);
+      this.$refs.batchEdit.setScenarioSelectRows(this.selectRows, "planScenario");
     },
     batchEdit(form) {
       let param = {};
-      let map = new Map();
-      this.selectRows.forEach(row => {
-        map.set(row.id, row.projectIds);
-      })
-      param.mapping = strMapToObj(map);
+      param.mapping = strMapToObj(form.map);
       param.envMap = strMapToObj(form.projectEnvMap);
       if (this.planId) {
         this.$post('/test/plan/scenario/case/batch/update/env', param, () => {

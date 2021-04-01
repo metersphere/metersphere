@@ -60,6 +60,10 @@ public class MsDubboSampler extends MsTestElement {
 
     @Override
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, ParameterConfig config) {
+        // 非导出操作，且不是启用状态则跳过执行
+        if (!config.isOperating() && !this.isEnable()) {
+            return;
+        }
         if (this.getReferenced() != null && "Deleted".equals(this.getReferenced())) {
             return;
         }

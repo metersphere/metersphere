@@ -14,9 +14,9 @@ import java.util.List;
 public class SwaggerApiExportResult extends ApiExportResult{
     private String openapi;
     private SwaggerInfo info;
-    private String externalDocs;
+    private JSONObject externalDocs;
     private List<String> servers;
     private List<SwaggerTag> tags;
     private JSONObject paths;   //  Map<String, Object>, Object 里放 Operation 对象
-    private List<String> components;
+    private JSONObject components;
 }

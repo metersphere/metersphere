@@ -20,6 +20,8 @@ public class QueryTestPlanRequest extends TestPlan {
 
     private String apiId;
 
+    private String loadId;
+
     private List<OrderRequest> orders;
 
     private Map<String, List<String>> filters;

@@ -71,22 +71,13 @@ public class CsrfFilter extends AnonymousFilter {
         csrfToken = CodingUtil.aesDecrypt(csrfToken, SessionUser.secret, SessionUser.iv);
 
         String[] signatureArray = StringUtils.split(StringUtils.trimToNull(csrfToken), "|");
-        if (signatureArray.length != 3) {
+        if (signatureArray.length != 4) {
             throw new RuntimeException("invalid token");
         }
-
-        long signatureTime;
-        try {
-            signatureTime = Long.parseLong(signatureArray[2]);
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-        Environment env = CommonBeanFactory.getBean(Environment.class);
-        long timeout = env.getProperty("session.timeout", Long.class, 43200L);
-        if (Math.abs(System.currentTimeMillis() - signatureTime) > timeout * 1000) {
-            throw new RuntimeException("expired token");
-        }
         if (!StringUtils.equals(SessionUtils.getUserId(), signatureArray[0])) {
+            throw new RuntimeException("Please check csrf token.");
+        }
+        if (!StringUtils.equals(SessionUtils.getSessionId(), signatureArray[2])) {
             throw new RuntimeException("Please check csrf token.");
         }
     }

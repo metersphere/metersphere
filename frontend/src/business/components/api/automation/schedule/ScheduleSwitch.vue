@@ -5,8 +5,6 @@
           <i class="el-icon-date" size="small"></i>
           <span class="character">SCHEDULER</span>
         </span>
-<!--      <el-switch :disabled="!schedule.value || isReadOnly" v-model="schedule.enable" @change="scheduleChange"/>-->
-<!--      <el-switch :disabled="!schedule.value || isReadOnly" v-model="schedule.enable" />-->
       <el-switch :disabled="!schedule.value" v-model="schedule.enable" @change="scheduleChange"/>
     </div>
     <div>
@@ -14,7 +12,7 @@
           {{ $t('schedule.next_execution_time') }}：
           <span :class="{'disable-character': !schedule.enable}"
                 v-if="!schedule.enable">{{ $t('schedule.not_set') }}</span>
-          <crontab-result v-if="schedule.enable" :enable-simple-mode="true" :ex="schedule.value" ref="crontabResult"/>
+          <crontab-result v-if="schedule.enable" :enable-simple-mode="true" :ex="cornValue" ref="crontabResult"/>
         </span>
     </div>
   </div>
@@ -33,6 +31,7 @@ export default {
   props: {
     testId: String,
     schedule: Object,
+    cornValue:String,
     isReadOnly: {
       type: Boolean,
       default: false

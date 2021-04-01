@@ -1,6 +1,6 @@
 <template>
-  <el-dialog title="表头显示字段" :visible.sync="dialogTableVisible"  :append-to-body="true">
-    <tree-transfer :title="['待选字段', '已选字段']"
+  <el-dialog :title="$t('table.header_display_field')" :visible.sync="dialogTableVisible" :append-to-body="true">
+    <tree-transfer :title="[$t('table.fields_to_be_selected'), $t('table.selected_fields')]"
                    :from_data='optionalFields'
                    :draggable="true"
                    :to_data='fieldSelected'
@@ -46,15 +46,18 @@ export default {
       return type !== 'inner';
     },
     open(items) {
+      this.defaultCheckedKeys = []
       this.dialogTableVisible = true
       items.forEach(i => {
           this.defaultCheckedKeys.push(i.id)
         }
       )
-      /*this.optionalField = items*/
+      if(this.type==='api_list'||this.type==='api_case_list'||this.type==='api_scenario_list'||this.type==='test_plan_function_test_case'
+        ||this.type==='test_plan_api_case'||this.type==='test_plan_load_case'||this.type==='test_plan_scenario_case'){
+        this.fieldSelected=items
+      }
     },
     saveHeader() {
-      console.log(this.type)
       let param = {
         userId: getCurrentUser().id,
         type: this.type,
@@ -64,8 +67,8 @@ export default {
         console.log(this.optionalFields)
         console.log(this.fieldSelected)
         this.$success(this.$t("commons.save_success"));
-        this.dialogTableVisible = false
         this.initTableData()
+        this.close();
       })
     },
     removeAt(idx) {
@@ -74,7 +77,6 @@ export default {
     close() {
       this.dialogTableVisible = false
     },
-
 
 
     // 切换模式 现有树形穿梭框模式transfer 和通讯录模式addressList

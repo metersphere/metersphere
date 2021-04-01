@@ -58,7 +58,7 @@
 
 <script>
   import {WORKSPACE_ID} from '@/common/js/constants';
-  import {getCurrentUser, getUUID, getCurrentProjectID} from "@/common/js/utils";
+  import {getCurrentUser, getUUID} from "@/common/js/utils";
   import MsDialogFooter from "@/business/components/common/components/MsDialogFooter";
 
   export default {
@@ -84,6 +84,11 @@
         },
       }
     },
+    computed: {
+      projectId() {
+        return this.$store.state.projectId
+      },
+    },
     methods: {
       saveScenario(saveAs) {
         this.$refs['scenarioForm'].validate((valid) => {
@@ -105,13 +110,16 @@
         })
       },
       setParameter() {
-        this.scenarioForm.projectId = getCurrentProjectID();
+        this.scenarioForm.projectId = this.projectId;
         this.scenarioForm.id = getUUID().substring(0, 8);
         this.scenarioForm.protocol = this.currentProtocol;
 
         if (this.currentModule && this.currentModule.id != "root") {
           this.scenarioForm.modulePath = this.currentModule.method !== undefined ? this.currentModule.method : null;
           this.scenarioForm.apiScenarioModuleId = this.currentModule.id;
+        }else{
+          this.scenarioForm.modulePath = this.$t("commons.module_title");
+          this.scenarioForm.apiScenarioModuleId = "default-module";
         }
       },
       getMaintainerOptions() {

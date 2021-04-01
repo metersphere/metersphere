@@ -2,6 +2,7 @@ package io.metersphere.excel.domain;
 
 import com.alibaba.excel.annotation.ExcelProperty;
 import com.alibaba.excel.annotation.write.style.ColumnWidth;
+import io.metersphere.excel.annotation.NotRequired;
 import lombok.Data;
 import org.hibernate.validator.constraints.Length;
 
@@ -11,6 +12,10 @@ import javax.validation.constraints.Pattern;
 @Data
 @ColumnWidth(15)
 public class TestCaseExcelDataCn extends TestCaseExcelData {
+
+    @ExcelProperty("ID")
+    @NotRequired
+    private Integer num;
 
     @NotBlank(message = "{cannot_be_null}")
     @Length(max = 255)
@@ -40,13 +45,14 @@ public class TestCaseExcelDataCn extends TestCaseExcelData {
 
     @ColumnWidth(50)
     @ExcelProperty("标签")
+    @NotRequired
     @Length(min = 0, max = 1000)
     private String tags;
 
-    @NotBlank(message = "{cannot_be_null}")
-    @ExcelProperty("测试方式")
-    @Pattern(regexp = "(^manual$)|(^auto$)", message = "{test_case_method_validate}")
-    private String method;
+//    @NotBlank(message = "{cannot_be_null}")
+//    @ExcelProperty("测试方式")
+//    @Pattern(regexp = "(^manual$)|(^auto$)", message = "{test_case_method_validate}")
+//    private String method;
 
     @ColumnWidth(50)
     @ExcelProperty("前置条件")

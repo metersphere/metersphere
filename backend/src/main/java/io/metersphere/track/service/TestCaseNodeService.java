@@ -107,6 +107,21 @@ public class TestCaseNodeService extends NodeTreeService<TestCaseNodeDTO> {
     }
 
     public List<TestCaseNodeDTO> getNodeTreeByProjectId(String projectId) {
+        // 判断当前项目下是否有默认模块，没有添加默认模块
+        TestCaseNodeExample example = new TestCaseNodeExample();
+        example.createCriteria().andProjectIdEqualTo(projectId).andNameEqualTo("默认模块");
+        long count = testCaseNodeMapper.countByExample(example);
+        if (count <= 0) {
+            TestCaseNode record = new TestCaseNode();
+            record.setId(UUID.randomUUID().toString());
+            record.setName("默认模块");
+            record.setPos(1.0);
+            record.setLevel(1);
+            record.setCreateTime(System.currentTimeMillis());
+            record.setUpdateTime(System.currentTimeMillis());
+            record.setProjectId(projectId);
+            testCaseNodeMapper.insert(record);
+        }
         List<TestCaseNodeDTO> testCaseNodes = extTestCaseNodeMapper.getNodeTreeByProjectId(projectId);
         return getNodeTrees(testCaseNodes);
     }

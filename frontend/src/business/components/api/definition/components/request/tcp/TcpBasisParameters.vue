@@ -4,9 +4,7 @@
       <el-col :span="21" style="padding-bottom: 20px">
         <div style="border:1px #DCDFE6 solid; height: 100%;border-radius: 4px ;width: 100% ;margin: 10px">
           <el-form class="tcp" :model="request" :rules="rules" ref="request" :disabled="isReadOnly" style="margin: 20px">
-
             <el-tabs v-model="activeName" class="request-tabs">
-
               <!--query 参数-->
               <el-tab-pane name="parameters">
                 <template v-slot:label>
@@ -18,8 +16,7 @@
 
               <el-tab-pane :label="$t('api_test.definition.request.message_template')" name="request">
                 <div class="send-request">
-                  <ms-code-edit mode="text" :read-only="isReadOnly" :data.sync="request.request"
-                                :modes="['text', 'json', 'xml', 'html']" theme="eclipse"/>
+                  <ms-code-edit mode="text" :read-only="isReadOnly" :data.sync="request.request" :modes="['text', 'json', 'xml', 'html']" theme="eclipse"/>
                 </div>
               </el-tab-pane>
 
@@ -75,8 +72,6 @@
                     </el-form-item>
                   </el-col>
                 </el-row>
-
-
                 <el-row :gutter="10" style="margin-left: 30px">
                   <el-col :span="9">
                     <el-form-item :label="$t('api_test.request.tcp.re_use_connection')">
@@ -95,10 +90,7 @@
                   </el-col>
                 </el-row>
               </el-tab-pane>
-
             </el-tabs>
-
-
           </el-form>
         </div>
 

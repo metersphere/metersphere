@@ -3,12 +3,14 @@
     v-model="visible"
     placement="bottom"
     width="400"
+    :disabled="isReadOnly"
     @show="showPopover"
     trigger="click">
     <env-select :project-ids="projectIds" :env-map="envMap" @close="visible = false"
                 ref="envSelect" @setProjectEnvMap="setProjectEnvMap" :project-list="projectList"/>
     <el-button type="primary" slot="reference" size="mini" style="margin-top: 2px;">
-      环境配置<i class="el-icon-caret-bottom el-icon--right"></i>
+      {{ $t('api_test.definition.request.run_env') }}
+      <i class="el-icon-caret-bottom el-icon--right"></i>
     </el-button>
   </el-popover>
 </template>
@@ -23,6 +25,12 @@ export default {
     envMap: Map,
     projectIds: Set,
     projectList: Array,
+    isReadOnly: {
+      type: Boolean,
+      default() {
+        return false;
+      }
+    }
   },
   data() {
     return {
@@ -36,8 +44,8 @@ export default {
     setProjectEnvMap(map) {
       this.$emit("setProjectEnvMap", map);
     },
-    checkEnv() {
-      return this.$refs.envSelect.checkEnv();
+    checkEnv(data) {
+      return this.$refs.envSelect.checkEnv(data);
     }
   }
 

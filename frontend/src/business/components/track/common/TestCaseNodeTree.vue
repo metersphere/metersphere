@@ -5,6 +5,7 @@
       v-loading="result.loading"
       :tree-nodes="treeNodes"
       :type="'edit'"
+      :name-limit="100"
       @add="add"
       @edit="edit"
       @drag="drag"
@@ -13,28 +14,16 @@
       @refresh="list"
       ref="nodeTree">
       <template v-slot:header>
-        <el-input :placeholder="$t('test_track.module.search')" v-model="condition.filterText" size="small">
-          <template v-slot:append>
-            <el-dropdown  size="small" split-button type="primary" class="ms-api-button"
-                         @click="handleCommand('add-api')"
-                         v-tester
-                         @command="handleCommand">
-              <el-button icon="el-icon-folder-add" @click="addTestCase"></el-button>
-              <el-dropdown-menu slot="dropdown">
-                <el-dropdown-item command="add-testcase">{{ $t('test_track.case.create') }}</el-dropdown-item>
-                <el-dropdown-item command="import">{{ $t('api_test.api_import.label') }}</el-dropdown-item>
-                <el-dropdown-item command="export">{{ $t('api_test.export_config') }}</el-dropdown-item>
-
-              </el-dropdown-menu>
-            </el-dropdown>
-          </template>
-        </el-input>
+        <ms-search-bar
+          :condition="condition"
+          :commands="operators"/>
       </template>
     </ms-node-tree>
     <test-case-import @refreshAll="refreshAll" ref="testCaseImport"></test-case-import>
     <test-case-create
       :tree-nodes="treeNodes"
       @saveAsEdit="saveAsEdit"
+      @createCase="createCase"
       @refresh="refresh"
       ref="testCaseCreate"
     ></test-case-create>
@@ -44,15 +33,15 @@
 
 <script>
 import NodeEdit from "./NodeEdit";
-import {getCurrentProjectID} from "../../../../common/js/utils";
 import MsNodeTree from "./NodeTree";
-import {buildNodePath} from "@/business/components/api/definition/model/NodeTree";
 import TestCaseCreate from "@/business/components/track/case/components/TestCaseCreate";
 import TestCaseImport from "@/business/components/track/case/components/TestCaseImport";
+import MsSearchBar from "@/business/components/common/components/search/MsSearchBar";
+import {buildTree} from "../../api/definition/model/NodeTree";
 
 export default {
   name: "TestCaseNodeTree",
-  components: {TestCaseImport, TestCaseCreate, MsNodeTree, NodeEdit},
+  components: {MsSearchBar, TestCaseImport, TestCaseCreate, MsNodeTree, NodeEdit},
   data() {
     return {
       defaultProps: {
@@ -61,11 +50,24 @@ export default {
       },
       result: {},
       treeNodes: [],
-      projectId: "",
       condition: {
         filterText: "",
         trashEnable: false
       },
+      operators: [
+        {
+          label: this.$t('test_track.case.create'),
+          callback: this.addTestCase
+        },
+        {
+          label: this.$t('api_test.api_import.label'),
+          callback: this.handleImport
+        },
+        {
+          label: this.$t('api_test.export_config'),
+          callback: () => {this.$emit('exportTestCase')}
+        }
+      ]
     };
   },
   props: {
@@ -83,12 +85,16 @@ export default {
     },
   },
   mounted() {
-    this.projectId = getCurrentProjectID();
     this.list();
+  },
+  computed: {
+    projectId() {
+      return this.$store.state.projectId
+    },
   },
   methods: {
     addTestCase(){
-      if (!getCurrentProjectID()) {
+      if (!this.projectId) {
         this.$warning(this.$t('commons.check_project_tip'));
         return;
       }
@@ -97,35 +103,22 @@ export default {
     saveAsEdit(data) {
       this.$emit('saveAsEdit', data);
     },
+    createCase(data) {
+      this.$emit('createCase', data);
+    },
     refresh() {
       this.$emit("refreshTable");
     },
     refreshAll() {
-      this.selectRows.clear();
       this.$emit('refreshAll');
-    },
-    handleCommand(e) {
-      switch (e) {
-        case "add-testcase":
-          this.addTestCase();
-          break;
-        case "import":
-          if (!getCurrentProjectID()) {
-            this.$warning(this.$t('commons.check_project_tip'));
-            return;
-          }
-          this.$refs.testCaseImport.open();
-          break;
-        case "export":
-          this.$emit('exportTestCase')
-          break;
-
-      }
     },
     list() {
       if (this.projectId) {
         this.result = this.$get("/case/node/list/" + this.projectId, response => {
           this.treeNodes = response.data;
+          this.treeNodes.forEach(node => {
+            buildTree(node, {path: ''});
+          });
           if (this.$refs.nodeTree) {
             this.$refs.nodeTree.filter();
           }
@@ -150,6 +143,13 @@ export default {
       }, (error) => {
         this.list();
       });
+    },
+    handleImport() {
+      if (!this.projectId) {
+        this.$warning(this.$t('commons.check_project_tip'));
+        return;
+      }
+      this.$refs.testCaseImport.open();
     },
     remove(nodeIds) {
       this.$post("/case/node/delete", nodeIds, () => {

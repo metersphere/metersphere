@@ -100,7 +100,7 @@
             </template>
           </el-table-column>
         </template>
-        <el-table-column v-if="!isReadOnly" :label="$t('commons.operating')" align="center">
+        <el-table-column v-if="!isReadOnly" :label="$t('commons.operating')" >
           <template slot="header">
             <header-label-operate @exec="customHeader"/>
           </template>
@@ -154,7 +154,7 @@ export default {
     return {
       type: TEST_PLAN_LOAD_CASE,
       headerItems: Test_Plan_Load_Case,
-      tableLabel: Test_Plan_Load_Case,
+      tableLabel: [],
       condition: {},
       result: {},
       tableData: [],
@@ -198,6 +198,8 @@ export default {
   created() {
     this.initTable();
     this.refreshStatus();
+
+
   },
   watch: {
     selectProjectId() {
@@ -212,7 +214,7 @@ export default {
       this.$refs.headerCustom.open(this.tableLabel)
     },
     initTable() {
-      getLabel(this, TEST_PLAN_LOAD_CASE);
+      this.autoCheckStatus();
       this.selectRows = new Set();
       this.condition.testPlanId = this.planId;
       if (this.selectProjectId && this.selectProjectId !== 'root') {
@@ -244,6 +246,15 @@ export default {
           this.tableData = listObject;
         })
       }
+      getLabel(this, TEST_PLAN_LOAD_CASE);
+
+    },
+    autoCheckStatus() {
+      if (!this.planId) {
+        return;
+      }
+      this.$post('/test/plan/autoCheck/' + this.planId, (response) => {
+      });
     },
     refreshStatus() {
       this.refreshScheduler = setInterval(() => {
@@ -328,21 +339,14 @@ export default {
       })
     },
     updateStatus(loadCase, status) {
-      if (this.planId) {
-        this.$post('/test/plan/load/case/update', {id: loadCase.id, status: status}, () => {
-          this.$post('/test/plan/edit/status/' + loadCase.testPlanId, {}, () => {
-            this.initTable();
-          });
-        });
-      }
-      if (this.reviewId) {
-        this.$post('/test/review/load/case/update', {id: loadCase.id, status: status}, () => {
+      this.$post('/test/plan/load/case/update', {id: loadCase.id, status: status}, () => {
+        this.$post('/test/plan/edit/status/' + loadCase.testPlanId, {}, () => {
           this.initTable();
         });
-      }
+      });
     },
     handleDelete(loadCase) {
-      this.result = this.$get('/test/review/load/case/delete/' + loadCase.id, () => {
+      this.result = this.$get('/test/plan/load/case/delete/' + loadCase.id, () => {
         this.$success(this.$t('test_track.cancel_relevance_success'));
         this.$emit('refresh');
         this.initTable();

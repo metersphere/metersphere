@@ -58,7 +58,7 @@
 </template>
 
 <script>
-import {getCurrentProjectID, getCurrentUser, getUUID} from "@/common/js/utils";
+import {getCurrentUser} from "@/common/js/utils";
 import {WORKSPACE_ID} from "@/common/js/constants";
 import MsDialogFooter from "@/business/components/common/components/MsDialogFooter";
 import {buildNodePath} from "@/business/components/api/definition/model/NodeTree";
@@ -97,30 +97,35 @@ export default {
       this.getModuleOptions();
     },
   },
+  computed: {
+    projectId() {
+      return this.$store.state.projectId
+    },
+  },
   methods: {
     saveTestCase(saveAs) {
       this.$refs['testCaseForm'].validate((valid) => {
         if (valid) {
           let path = "/test/case/save";
-          this.testCaseForm.projectId = getCurrentProjectID();
+          this.testCaseForm.projectId = this.projectId;
           this.testCaseForm.type = "";
           this.testCaseForm.priority = "P0";
-          this.testCaseForm.method = "manual";
-          if(this.currentModule!==undefined){
+          if (this.currentModule && this.currentModule !== 0 && this.currentModule.path && this.currentModule.path !== 0) {
             this.testCaseForm.nodePath = this.currentModule.path;
             this.testCaseForm.nodeId = this.currentModule.id;
-          }else{
-            this.testCaseForm.nodePath="/全部用例"
-            this.testCaseForm.nodeId="root"
+          } else {
+            this.testCaseForm.nodePath = "/默认模块"
+            this.testCaseForm.nodeId = "default-module"
           }
           this.result = this.$post(path, this.testCaseForm, response => {
-            this.testCaseForm.id=response.data.id
+            this.testCaseForm.id = response.data.id
             this.$success(this.$t('commons.save_success'));
             this.visible = false;
             if (saveAs) {
               this.$emit('saveAsEdit', this.testCaseForm);
             } else {
               this.$emit('refresh');
+              this.$emit('createCase', this.testCaseForm);
             }
           })
         } else {

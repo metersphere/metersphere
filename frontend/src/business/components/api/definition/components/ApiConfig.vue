@@ -185,9 +185,6 @@ export default {
           }
           this.response.body = body;
         }
-        if (this.currentApi.moduleId && this.currentApi.moduleId === "root") {
-          this.currentApi.moduleId = "";
-        }
       },
       saveApi(data) {
         this.setParameters(data);

@@ -145,7 +145,7 @@ public class TrackStatisticsDTO {
     public void countRelevance(List<TrackCountResult> relevanceResults) {
         for (TrackCountResult countResult : relevanceResults) {
             switch (countResult.getGroupField()){
-                case TrackCount.API:
+                case TrackCount.TESTCASE:
                     this.apiCaseCount += countResult.getCountNumber();
                     this.allRelevanceCaseCount += countResult.getCountNumber();
                     break;
