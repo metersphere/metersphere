@@ -32,7 +32,7 @@
 
         <span v-if="!disabled" class="node-operate child">
           <el-tooltip
-            v-if="data.id != 'root'"
+            v-if="data.id != 'root' && data.name !='默认模块'"
             class="item"
             effect="dark"
             :open-delay="200"
@@ -49,7 +49,7 @@
             <i @click.stop="append(node, data)" class="el-icon-circle-plus-outline"></i>
           </el-tooltip>
           <el-tooltip
-            v-if="data.id != 'root'"
+            v-if="data.id != 'root' && data.name !='默认模块'"
             class="item" effect="dark"
             :open-delay="200"
             :content="$t('commons.delete')"
@@ -93,6 +93,12 @@ export default {
       type: String,
       default() {
         return this.$t("commons.all_label.case");
+      }
+    },
+    nameLimit: {
+      type: Number,
+      default() {
+        return 50;
       }
     },
   },
@@ -184,8 +190,12 @@ export default {
         this.$warning(this.$t('test_track.case.input_name'));
         return;
       }
-      if (data.name.trim().length > 50) {
-        this.$warning(this.$t('test_track.length_less_than') + '50');
+      if (data.name.trim().length > this.nameLimit) {
+        this.$warning(this.$t('test_track.length_less_than') + this.nameLimit);
+        return;
+      }
+      if (data.name.indexOf("\\") > -1) {
+        this.$warning(this.$t('commons.node_name_tip'));
         return;
       }
       let param = {};
@@ -220,7 +230,7 @@ export default {
       if (dropType === "none" || dropType === undefined) {
         return;
       }
-      if (dropNode.data.id === 'root' && dropType === 'before') {
+      if (dropNode.data.id === 'root' && dropType === 'before' || draggingNode.data.name==='默认模块') {
         this.$emit('refresh');
         return false;
       }

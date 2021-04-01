@@ -73,6 +73,10 @@ public class MsScenario extends MsTestElement {
 
     @Override
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, ParameterConfig config) {
+        // 非导出操作，且不是启用状态则跳过执行
+        if (!config.isOperating() && !this.isEnable()) {
+            return;
+        }
         if (this.getReferenced() != null && this.getReferenced().equals("Deleted")) {
             return;
         } else if (this.getReferenced() != null && this.getReferenced().equals("REF")) {
@@ -85,7 +89,6 @@ public class MsScenario extends MsTestElement {
                     JSONObject element = JSON.parseObject(scenario.getScenarioDefinition());
                     hashTree = mapper.readValue(element.getString("hashTree"), new TypeReference<LinkedList<MsTestElement>>() {
                     });
-                    OldVersionUtil.transferHashTree(hashTree);
                     // 场景变量
                     if (StringUtils.isNotEmpty(element.getString("variables"))) {
                         LinkedList<ScenarioVariable> variables = mapper.readValue(element.getString("variables"),
@@ -110,23 +113,26 @@ public class MsScenario extends MsTestElement {
         // 设置共享cookie
         config.setEnableCookieShare(enableCookieShare);
         Map<String, EnvironmentConfig> envConfig = new HashMap<>(16);
-        // 兼容历史数据
-        if (environmentMap == null || environmentMap.isEmpty()) {
-            environmentMap = new HashMap<>(16);
-            if (StringUtils.isNotBlank(environmentId)) {
-                environmentMap.put(SessionUtils.getCurrentProjectId(), environmentId);
-            }
-        }
-        if (environmentMap != null && !environmentMap.isEmpty()) {
-            environmentMap.keySet().forEach(projectId -> {
-                ApiTestEnvironmentService environmentService = CommonBeanFactory.getBean(ApiTestEnvironmentService.class);
-                ApiTestEnvironmentWithBLOBs environment = environmentService.get(environmentMap.get(projectId));
-                if (environment != null && environment.getConfig() != null) {
-                    EnvironmentConfig env = JSONObject.parseObject(environment.getConfig(), EnvironmentConfig.class);
-                    envConfig.put(projectId, env);
+        if (config.getConfig() == null) {
+            // 兼容历史数据
+            if (this.environmentMap == null || this.environmentMap.isEmpty()) {
+                this.environmentMap = new HashMap<>(16);
+                if (StringUtils.isNotBlank(environmentId)) {
+                    // 兼容1.8之前 没有environmentMap但有environmentId的数据
+                    this.environmentMap.put("historyProjectID", environmentId);
                 }
-            });
-            config.setConfig(envConfig);
+            }
+            if (this.environmentMap != null && !this.environmentMap.isEmpty()) {
+                this.environmentMap.keySet().forEach(projectId -> {
+                    ApiTestEnvironmentService environmentService = CommonBeanFactory.getBean(ApiTestEnvironmentService.class);
+                    ApiTestEnvironmentWithBLOBs environment = environmentService.get(this.environmentMap.get(projectId));
+                    if (environment != null && environment.getConfig() != null) {
+                        EnvironmentConfig env = JSONObject.parseObject(environment.getConfig(), EnvironmentConfig.class);
+                        envConfig.put(projectId, env);
+                    }
+                });
+                config.setConfig(envConfig);
+            }
         }
         if (CollectionUtils.isNotEmpty(this.getVariables())) {
             config.setVariables(this.variables);
@@ -134,9 +140,9 @@ public class MsScenario extends MsTestElement {
         // 场景变量和环境变量
         Arguments arguments = arguments(config);
         if (arguments != null) {
-            tree.add(config.valueSupposeMock(arguments));
+            tree.add(ParameterConfig.valueSupposeMock(arguments));
         }
-        this.addCsvDataSet(tree, variables);
+        this.addCsvDataSet(tree, variables,config);
         this.addCounter(tree, variables);
         this.addRandom(tree, variables);
         if (CollectionUtils.isNotEmpty(this.headers)) {
@@ -198,6 +204,8 @@ public class MsScenario extends MsTestElement {
             config.getConfig().get(this.getProjectId()).getCommonConfig().getVariables().stream().filter(KeyValue::isValid).filter(KeyValue::isEnable).forEach(keyValue ->
                     arguments.addArgument(keyValue.getName(), keyValue.getValue(), "=")
             );
+            // 清空变量，防止重复添加
+            config.getConfig().get(this.getProjectId()).getCommonConfig().getVariables().clear();
         }
         if (arguments.getArguments() != null && arguments.getArguments().size() > 0) {
             return arguments;

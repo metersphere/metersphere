@@ -5,26 +5,26 @@
       <el-col :span="14">
         <el-menu class="header-menu" :unique-opened="true" mode="horizontal" router :default-active='$route.path'>
 
-          <el-menu-item v-show="$store.state.switch.value=='new'" :index="'/api/home'">
+          <el-menu-item v-show="isNewVersion" :index="'/api/home'">
             {{ $t("i18n.home") }}
           </el-menu-item>
-          <el-menu-item v-show="$store.state.switch.value=='old'" :index="'/api/home_obsolete'">
+          <el-menu-item v-show="isOldVersion" :index="'/api/home_obsolete'">
             {{ $t("i18n.home") }}
           </el-menu-item>
 
-          <el-menu-item v-show="$store.state.switch.value=='new'" :index="'/api/definition'">
+          <el-menu-item v-show="isNewVersion" :index="'/api/definition'">
             {{ $t("i18n.definition") }}
           </el-menu-item>
 
-          <el-menu-item v-show="$store.state.switch.value=='new'" :index="'/api/automation'">
+          <el-menu-item v-show="isNewVersion" :index="'/api/automation'">
             {{ $t("i18n.automation") }}
           </el-menu-item>
 
-          <el-menu-item v-show="$store.state.switch.value=='new'" :index="'/api/automation/report'">
+          <el-menu-item v-show="isNewVersion" :index="'/api/automation/report'">
             {{ $t("i18n.report") }}
           </el-menu-item>
 
-          <el-submenu v-show="$store.state.switch.value=='old'"
+          <el-submenu v-show="isOldVersion"
                       v-permission="['test_manager','test_user','test_viewer']" index="4">
             <template v-slot:title>{{ $t('commons.test') }}</template>
             <ms-recent-list ref="testRecent" :options="testRecent"/>
@@ -35,7 +35,7 @@
                               :title="$t('load_test.create')"/>
           </el-submenu>
 
-          <el-submenu v-show="$store.state.switch.value=='old'"
+          <el-submenu v-show="isOldVersion"
                       v-permission="['test_manager','test_user','test_viewer']" index="5">
             <template v-slot:title>{{ $t('commons.report') }}</template>
             <ms-recent-list ref="reportRecent" :options="reportRecent"/>
@@ -44,7 +44,7 @@
           </el-submenu>
 
 
-          <el-menu-item v-show="$store.state.switch.value=='old'"
+          <el-menu-item v-show="isOldVersion"
                         v-permission="['test_manager','test_user','test_viewer']" :index="'/api/monitor/view'">
             {{ $t('commons.monitor') }}
           </el-menu-item>
@@ -64,6 +64,7 @@ import MsCreateTest from "../../common/head/CreateTest";
 import {ApiEvent, LIST_CHANGE} from "@/business/components/common/head/ListEvent";
 import SearchList from "@/business/components/common/head/SearchList";
 import ProjectChange from "@/business/components/common/head/ProjectSwitch";
+import {mapGetters} from "vuex";
 
 export default {
   name: "MsApiHeaderMenus",
@@ -93,6 +94,12 @@ export default {
       apiTestProjectPath: '',
       currentProject: ''
     }
+  },
+  computed: {
+    ...mapGetters([
+      'isNewVersion',
+      'isOldVersion',
+    ])
   },
   methods: {
     registerEvents() {

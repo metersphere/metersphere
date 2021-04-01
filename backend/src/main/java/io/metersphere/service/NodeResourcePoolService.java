@@ -7,13 +7,13 @@ import io.metersphere.base.mapper.TestResourceMapper;
 import io.metersphere.commons.constants.ResourceStatusEnum;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.controller.ResultHolder;
 import io.metersphere.dto.NodeDTO;
 import io.metersphere.dto.TestResourcePoolDTO;
 import io.metersphere.i18n.Translator;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.tuple.ImmutablePair;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -71,12 +71,18 @@ public class NodeResourcePoolService {
 
     private boolean validateNode(NodeDTO node) {
         try {
-            ResponseEntity<String> entity = restTemplateWithTimeOut.getForEntity(String.format(nodeControllerUrl, node.getIp(), node.getPort()), String.class);
-            return HttpStatus.OK.equals(entity.getStatusCode());
+            ResponseEntity<ResultHolder> entity = restTemplateWithTimeOut.getForEntity(String.format(nodeControllerUrl, node.getIp(), node.getPort()), ResultHolder.class);
+            ResultHolder body = entity.getBody();
+            if (body == null) {
+                return false;
+            }
+            if (body.getData() != null && StringUtils.equalsIgnoreCase("OK", body.getData().toString())) {
+                return true;
+            }
         } catch (Exception e) {
             LogUtil.error(e.getMessage(), e);
-            return false;
         }
+        return false;
     }
 
     private void updateTestResource(TestResource testResource) {

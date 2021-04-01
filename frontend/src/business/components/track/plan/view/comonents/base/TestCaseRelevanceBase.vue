@@ -19,7 +19,7 @@
         <slot name="footer"></slot>
       </div>
       <div v-else>
-        <div style="margin-bottom: 15px;margin-right: 0">
+        <div style="margin-bottom: 15px" v-if="flag">
           <el-checkbox v-model="checked">同步添加关联的接口和性能测试</el-checkbox>
         </div>
         <ms-dialog-footer @cancel="close" @confirm="save"/>
@@ -34,6 +34,7 @@
   import MsDialogFooter from '../../../../../common/components/MsDialogFooter'
   import SelectMenu from "../../../../common/SelectMenu";
   import RelevanceDialog from "./RelevanceDialog";
+  import {getCurrentProjectID} from "@/common/js/utils";
 
   export default {
     name: "TestCaseRelevanceBase",
@@ -44,7 +45,7 @@
     },
     data() {
       return {
-        checked: true,
+        checked:true,
         result: {},
         currentProject: {},
         projectId: '',
@@ -62,6 +63,9 @@
         default() {
           return this.$t('test_track.plan_view.relevance_test_case');
         }
+      },
+      flag:{
+        type:Boolean,
       }
     },
     watch: {
@@ -74,7 +78,7 @@
       },
 
       save() {
-        this.$emit('save');
+        this.$emit('save',this.checked);
       },
 
       close() {
@@ -90,10 +94,17 @@
         this.result = this.$get("/project/listAll", res => {
           let data = res.data;
           if (data) {
+            const index = data.findIndex(d => d.id === this.$store.state.projectId);
             this.projects = data;
-            this.projectId = data[0].id;
-            this.projectName = data[0].name;
-            this.changeProject(data[0]);
+            if (index !== -1) {
+              this.projectId = data[index].id;
+              this.projectName = data[index].name;
+              this.changeProject(data[index]);
+            } else {
+              this.projectId = data[0].id;
+              this.projectName = data[0].name;
+              this.changeProject(data[0]);
+            }
           }
         })
       },

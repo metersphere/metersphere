@@ -12,7 +12,10 @@ import io.metersphere.base.domain.ApiDocumentShare;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @author song.tianyang
@@ -32,6 +35,27 @@ public class ApiDocumentController {
     @PostMapping("/selectApiSimpleInfo")
     public List<ApiDocumentInfoDTO> list(@RequestBody ApiDocumentRequest request) {
         List<ApiDocumentInfoDTO> returnList = apiDocumentService.findApiDocumentSimpleInfoByRequest(request);
+        return returnList;
+    }
+
+    @PostMapping("/selectApiInfoByParam")
+    public List<ApiDocumentInfoDTO> selectApiInfoByParam(@RequestBody ApiDocumentRequest request) {
+        List<ApiDocumentInfoDTO> returnList = new ArrayList<>();
+        if(request.getApiIdList() != null){
+            //要根据ids的顺序进行返回排序
+            List<ApiDefinitionWithBLOBs> apiModels = apiDefinitionService.getBLOBs(request.getApiIdList());
+            Map<String,ApiDefinitionWithBLOBs> apiModelMaps = apiModels.stream().collect(Collectors.toMap(ApiDefinitionWithBLOBs :: getId,a->a,(k1,k2)->k1));
+            for(String id : request.getApiIdList()){
+                ApiDefinitionWithBLOBs model = apiModelMaps.get(id);
+                if(model == null){
+                    model = new ApiDefinitionWithBLOBs();
+                    model.setId(id);
+                    model.setName(id);
+                }
+                ApiDocumentInfoDTO returnDTO = apiDocumentService.conversionModelToDTO(model);
+                returnList.add(returnDTO);
+            }
+        }
         return returnList;
     }
 

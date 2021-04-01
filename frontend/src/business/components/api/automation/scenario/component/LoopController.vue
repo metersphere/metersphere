@@ -6,7 +6,7 @@
       @copy="copyRow"
       @remove="remove"
       :data="controller"
-      :draggable="true"
+      :draggable="draggable"
       :is-max="isMax"
       :show-btn="showBtn"
       color="#02A7F0"
@@ -15,9 +15,9 @@
 
       <template v-slot:headerLeft>
         <i class="icon el-icon-arrow-right" :class="{'is-active': controller.active}" @click="active(controller)" style="margin-right: 10px" v-if="!isMax"/>
-        <el-radio @change="changeRadio" class="ms-radio" v-model="controller.loopType" label="LOOP_COUNT">{{$t('loop.loops_title')}}</el-radio>
-        <el-radio @change="changeRadio" class="ms-radio" v-model="controller.loopType" label="FOREACH">{{$t('loop.foreach')}}</el-radio>
-        <el-radio @change="changeRadio" class="ms-radio" v-model="controller.loopType" label="WHILE">{{$t('loop.while')}}</el-radio>
+        <el-radio @change="changeRadio" class="ms-radio ms-radio-margin" v-model="controller.loopType" label="LOOP_COUNT">{{$t('loop.loops_title')}}</el-radio>
+        <el-radio @change="changeRadio" class="ms-radio ms-radio-margin" v-model="controller.loopType" label="FOREACH">{{$t('loop.foreach')}}</el-radio>
+        <el-radio @change="changeRadio" class="ms-radio ms-radio-margin" v-model="controller.loopType" label="WHILE">{{$t('loop.while')}}</el-radio>
       </template>
 
       <template v-slot:message>
@@ -27,7 +27,7 @@
       </template>
 
       <template v-slot:button>
-        <el-button @click="runDebug" :tip="$t('api_test.run')" icon="el-icon-video-play" style="background-color: #409EFF;color: white;" size="mini" circle/>
+        <el-button @click="runDebug" :tip="$t('api_test.run')" icon="el-icon-video-play"  style="background-color: #409EFF;color: white;padding: 5px" size="mini" circle/>
       </template>
       <div v-if="controller.loopType==='LOOP_COUNT'" draggable>
         <el-row>
@@ -86,36 +86,34 @@
 </template>
 
 <script>
-import ApiBaseComponent from "../common/ApiBaseComponent";
-import ApiResponseComponent from "./ApiResponseComponent";
-import MsRun from "../DebugRun";
-import {getUUID} from "@/common/js/utils";
+  import ApiBaseComponent from "../common/ApiBaseComponent";
+  import ApiResponseComponent from "./ApiResponseComponent";
+  import MsRun from "../DebugRun";
+  import {getUUID} from "@/common/js/utils";
+  import {ELEMENT_TYPE, ELEMENTS} from "../Setting";
 
-export default {
-  name: "MsLoopController",
-  components: {ApiBaseComponent, ApiResponseComponent, MsRun},
-  props: {
-    controller: {},
-    currentEnvironmentId: String,
-    currentScenario: {},
-    node: {},
-    isMax: {
-      type: Boolean,
-      default: false,
-    },
-    showBtn: {
-      type: Boolean,
-      default: true,
-    },
-    index: Object,
-    draggable: {
-      type: Boolean,
+  export default {
+    name: "MsLoopController",
+    components: {ApiBaseComponent, ApiResponseComponent, MsRun},
+    props: {
+      controller: {},
+      currentEnvironmentId: String,
+      currentScenario: {},
+      node: {},
+      isMax: {
+        type: Boolean,
         default: false,
       },
-    envMap: Map
-    },
-    created() {
-      // this.initResult();
+      showBtn: {
+        type: Boolean,
+        default: true,
+      },
+      index: Object,
+      draggable: {
+        type: Boolean,
+        default: false,
+      },
+      envMap: Map
     },
     data() {
       return {
@@ -189,7 +187,37 @@ export default {
           this.controller.countController.proceed = true;
           return;
         }
+        // 递归遍历所有请求数量
+        if (this.controller.hashTree && this.controller.hashTree.length === 1
+          && this.controller.hashTree[0].hashTree && this.controller.hashTree[0].hashTree.length > 0) {
+          let count = 0;
+          this.controller.hashTree[0].hashTree.forEach(item => {
+            if (ELEMENTS.get("AllSamplerProxy").indexOf(item.type) != -1) {
+              count++;
+            }
+            if (item.hashTree && item.hashTree.length > 0) {
+              this.recursive(item.hashTree, count);
+            }
+          })
+
+          if (count > 1) {
+            this.$warning("当前循环下超过一个请求，不能关闭状态")
+            this.controller.countController.proceed = true;
+            return;
+          }
+        }
       },
+      recursive(arr, count) {
+        for (let i in arr) {
+          if (ELEMENTS.get("AllSamplerProxy").indexOf(arr[i].type) != -1) {
+            count++;
+          }
+          if (arr[i].hashTree && arr[i].hashTree.length > 0) {
+            this.recursive(arr[i].hashTree, count);
+          }
+        }
+      },
+
       runDebug() {
         if (!this.controller.hashTree || this.controller.hashTree.length < 1) {
           this.$warning("当前循环下没有请求，不能执行")
@@ -218,6 +246,9 @@ export default {
       },
       active(item) {
         item.active = !item.active;
+        if (this.node) {
+          this.node.expanded = item.active;
+        }
         this.reload();
       },
       changeRadio() {
@@ -343,5 +374,9 @@ export default {
 
   .icon.is-active {
     transform: rotate(90deg);
+  }
+
+  /deep/ .el-radio {
+    margin-right: 5px;
   }
 </style>

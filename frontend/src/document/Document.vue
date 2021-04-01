@@ -1,27 +1,25 @@
 <template>
   <div>
-    <api-document-item :pageHeaderHeight="pageHeaderHeight" :project-id="projectId" :module-ids="moduleIds" :document-id="documentId" ref="apiDocumentItem"/>
-<!--    <test-scroll></test-scroll>-->
+    <api-document-anchor :share-page="sharePage" :pageHeaderHeight="pageHeaderHeight" :project-id="projectId" :module-ids="moduleIds" :document-id="documentId" ref="apiDocumentAnchor"/>
   </div>
 
 </template>
 
 <script>
 
-import ApiDocumentItem from "@/business/components/api/definition/components/document/ApiDocumentItem";
-import TestScroll from "@/business/components/api/definition/components/document/TestScroll";
+import ApiDocumentAnchor from "@/business/components/api/definition/components/document/ApiDocumentAnchor";
 
 export default {
   name: "ApiDocumentsPage",
   components: {
-    TestScroll,
-    ApiDocumentItem,
+    ApiDocumentAnchor,
   },
   data() {
     return {
       documentId:"",
       projectId:"",
       pageHeaderHeight:100,
+      sharePage:true,
       moduleIds:[],
     }
   },
@@ -42,15 +40,22 @@ export default {
   },
   methods: {
     getUrlParam(){
-      let queryParams =this.$route.query;
-      let documentIdParam = queryParams['documentId'];
-      this.documentId = queryParams['documentId'];
-      return documentIdParam;
+      let herfUrl = window.location.href;
+      if(herfUrl.indexOf("?") > 0){
+        let paramArr = herfUrl.split("?");
+        if(paramArr.length > 1){
+          let documentId = paramArr[1];
+          if(documentId.indexOf("#") > 0){
+            documentId = documentId.split("#")[0];
+          }
+          this.documentId = documentId;
+        }
+      }
     },
     selectDocumentInfo(){
       this.getUrlParam();
-      if(this.$refs.apiDocumentItem){
-        this.$refs.apiDocumentItem.initApiDocSimpleList();
+      if(this.$refs.apiDocumentAnchor){
+        this.$refs.apiDocumentAnchor.initApiDocSimpleList();
       }
     }
   },

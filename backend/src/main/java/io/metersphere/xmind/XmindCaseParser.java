@@ -113,8 +113,8 @@ public class XmindCaseParser {
             for (int i = 0; i < nodes.length; i++) {
                 if (i != 0 && StringUtils.equals(nodes[i].trim(), "")) {
                     process.add(Translator.get("module_not_null"), path);
-                } else if (nodes[i].trim().length() > 30) {
-                    process.add(Translator.get("module") + Translator.get("test_track.length_less_than") + "30", path + nodes[i].trim());
+                } else if (nodes[i].trim().length() > 100) {
+                    process.add(Translator.get("module") + Translator.get("test_track.length_less_than") + "100", path + nodes[i].trim());
                 } else {
                     path += nodes[i].trim() + "/";
                 }
@@ -150,8 +150,8 @@ public class XmindCaseParser {
                 if (i != 0 && StringUtils.equals(nodes[i].trim(), "")) {
                     process.add(Translator.get("test_case") + Translator.get("module_not_null"), nodePath + data.getName());
                     break;
-                } else if (nodes[i].trim().length() > 30) {
-                    process.add(Translator.get("module") + Translator.get("test_track.length_less_than") + "30 ", nodes[i].trim());
+                } else if (nodes[i].trim().length() > 100) {
+                    process.add(Translator.get("module") + Translator.get("test_track.length_less_than") + "100 ", nodes[i].trim());
                     break;
                 }
             }

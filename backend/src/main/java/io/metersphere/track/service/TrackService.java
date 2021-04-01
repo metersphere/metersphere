@@ -1,13 +1,19 @@
 package io.metersphere.track.service;
 
+import io.metersphere.api.dto.automation.ScenarioStatus;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtTestCaseMapper;
+import io.metersphere.base.mapper.ext.ExtTestPlanTestCaseMapper;
+import io.metersphere.commons.constants.TestPlanTestCaseStatus;
 import io.metersphere.commons.utils.DateUtils;
+import io.metersphere.commons.utils.MathUtils;
 import io.metersphere.performance.base.ChartsData;
+import io.metersphere.track.dto.TestPlanDTOWithMetric;
 import io.metersphere.track.response.BugStatustics;
 import io.metersphere.track.response.TestPlanBugCount;
 import io.metersphere.track.response.TrackCountResult;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.Resource;
@@ -17,7 +23,6 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -28,13 +33,13 @@ public class TrackService {
     @Resource
     private TestPlanMapper testPlanMapper;
     @Resource
-    private TestPlanTestCaseMapper testPlanTestCaseMapper;
+    private ExtTestPlanTestCaseMapper extTestPlanTestCaseMapper;
     @Resource
-    private TestPlanLoadCaseMapper testPlanLoadCaseMapper;
+    private TestPlanApiCaseService testPlanApiCaseService;
     @Resource
-    private TestPlanApiCaseMapper testPlanApiCaseMapper;
+    private TestPlanScenarioCaseService testPlanScenarioCaseService;
     @Resource
-    private TestPlanApiScenarioMapper testPlanApiScenarioMapper;
+    private TestPlanLoadCaseService testPlanLoadCaseService;
 
     public List<TrackCountResult> countPriority(String projectId) {
         return extTestCaseMapper.countPriority(projectId);
@@ -74,25 +79,17 @@ public class TrackService {
         }
     }
 
-    public List<TrackCountResult> countCoverage(String projectId) {
+    public int countCoverage(String projectId) {
         return extTestCaseMapper.countCoverage(projectId);
     }
 
     public List<ChartsData> getCaseMaintenanceBar(String projectId) {
         List<TrackCountResult> funcMaintainer = extTestCaseMapper.countFuncMaintainer(projectId);
         List<TrackCountResult> relevanceMaintainer = extTestCaseMapper.countRelevanceMaintainer(projectId);
-        List<String> list = relevanceMaintainer.stream().map(TrackCountResult::getGroupField).collect(Collectors.toList());
 
         List<ChartsData> charts = new ArrayList<>();
         for (TrackCountResult result : funcMaintainer) {
             String groupField = result.getGroupField();
-            if (!list.contains(groupField)) {
-                // 创建了功能用例，但是未关联测试
-                TrackCountResult trackCount = new TrackCountResult();
-                trackCount.setCountNumber(0);
-                trackCount.setGroupField(groupField);
-                relevanceMaintainer.add(trackCount);
-            }
             ChartsData chartsData = new ChartsData();
             chartsData.setxAxis(groupField);
             chartsData.setyAxis(BigDecimal.valueOf(result.getCountNumber()));
@@ -132,11 +129,13 @@ public class TrackService {
 
             int planBugSize = getPlanBugSize(plan.getId());
             testPlanBug.setBugSize(planBugSize);
-            testPlanBug.setPassRage(getPlanPassRage(plan.getId(), planCaseSize));
+            double planPassRage = getPlanPassRage(plan.getId());
+            testPlanBug.setPassRage(planPassRage + "%");
             list.add(testPlanBug);
 
             totalBugSize += planBugSize;
             totalCaseSize += planCaseSize;
+
         }
 
         bugStatustics.setList(list);
@@ -156,13 +155,52 @@ public class TrackService {
         return extTestCaseMapper.getTestPlanBug(planId);
     }
 
-    private String getPlanPassRage(String planId, int totalSize) {
-        if (totalSize == 0) {
-            return "-";
-        }
-        int passSize = extTestCaseMapper.getTestPlanPassCase(planId);
-        float rage = (float) passSize * 100 / totalSize;
-        DecimalFormat df = new DecimalFormat("0.0");
-        return df.format(rage) + "%";
+    private double getPlanPassRage(String planId) {
+        TestPlanDTOWithMetric testPlan = new TestPlanDTOWithMetric();
+        testPlan.setTested(0);
+        testPlan.setPassed(0);
+        testPlan.setTotal(0);
+
+        List<String> functionalExecResults = extTestPlanTestCaseMapper.getExecResultByPlanId(planId);
+        functionalExecResults.forEach(item -> {
+            if (!StringUtils.equals(item, TestPlanTestCaseStatus.Prepare.name())
+                    && !StringUtils.equals(item, TestPlanTestCaseStatus.Underway.name())) {
+                testPlan.setTested(testPlan.getTested() + 1);
+                if (StringUtils.equals(item, TestPlanTestCaseStatus.Pass.name())) {
+                    testPlan.setPassed(testPlan.getPassed() + 1);
+                }
+            }
+        });
+
+        List<String> apiExecResults = testPlanApiCaseService.getExecResultByPlanId(planId);
+        apiExecResults.forEach(item -> {
+            if (StringUtils.isNotBlank(item)) {
+                testPlan.setTested(testPlan.getTested() + 1);
+                if (StringUtils.equals(item, "success")) {
+                    testPlan.setPassed(testPlan.getPassed() + 1);
+                }
+            }
+        });
+
+        List<String> scenarioExecResults = testPlanScenarioCaseService.getExecResultByPlanId(planId);
+        scenarioExecResults.forEach(item -> {
+            if (StringUtils.isNotBlank(item)) {
+                testPlan.setTested(testPlan.getTested() + 1);
+                if (StringUtils.equals(item, ScenarioStatus.Success.name())) {
+                    testPlan.setPassed(testPlan.getPassed() + 1);
+                }
+            }
+        });
+
+        List<String> loadResults = testPlanLoadCaseService.getStatus(planId);
+        loadResults.forEach(item -> {
+            if (StringUtils.isNotBlank(item)) {
+                testPlan.setTested(testPlan.getTested() + 1);
+                if (StringUtils.equals(item, "success")) {
+                    testPlan.setPassed(testPlan.getPassed() + 1);
+                }
+            }
+        });
+        return MathUtils.getPercentWithDecimal(testPlan.getTested() == 0 ? 0 : testPlan.getPassed() * 1.0 / testPlan.getTested());
     }
 }

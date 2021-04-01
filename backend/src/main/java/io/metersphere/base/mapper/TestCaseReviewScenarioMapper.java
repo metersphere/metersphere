@@ -2,8 +2,9 @@ package io.metersphere.base.mapper;
 
 import io.metersphere.base.domain.TestCaseReviewScenario;
 import io.metersphere.base.domain.TestCaseReviewScenarioExample;
-import java.util.List;
 import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 public interface TestCaseReviewScenarioMapper {
     long countByExample(TestCaseReviewScenarioExample example);
@@ -16,15 +17,21 @@ public interface TestCaseReviewScenarioMapper {
 
     int insertSelective(TestCaseReviewScenario record);
 
+    List<TestCaseReviewScenario> selectByExampleWithBLOBs(TestCaseReviewScenarioExample example);
+
     List<TestCaseReviewScenario> selectByExample(TestCaseReviewScenarioExample example);
 
     TestCaseReviewScenario selectByPrimaryKey(String id);
 
     int updateByExampleSelective(@Param("record") TestCaseReviewScenario record, @Param("example") TestCaseReviewScenarioExample example);
 
+    int updateByExampleWithBLOBs(@Param("record") TestCaseReviewScenario record, @Param("example") TestCaseReviewScenarioExample example);
+
     int updateByExample(@Param("record") TestCaseReviewScenario record, @Param("example") TestCaseReviewScenarioExample example);
 
     int updateByPrimaryKeySelective(TestCaseReviewScenario record);
+
+    int updateByPrimaryKeyWithBLOBs(TestCaseReviewScenario record);
 
     int updateByPrimaryKey(TestCaseReviewScenario record);
 }

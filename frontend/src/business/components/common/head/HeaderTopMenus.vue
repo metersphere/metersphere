@@ -29,6 +29,9 @@
 </template>
 
 <script>
+  import {LicenseKey} from '@/common/js/constants';
+  import {mapGetters} from "vuex";
+
   const requireContext = require.context('@/business/components/xpack/', true, /router\.js$/)
   const report = requireContext.keys().map(key => requireContext(key).report);
   const isReport = report && report != null && report.length > 0 && report[0] != undefined ? true : false;
@@ -55,6 +58,16 @@
       if (this.$route.matched.length > 0) {
         this.activeIndex = this.$route.matched[0].path;
       }
+      let license = localStorage.getItem(LicenseKey);
+      if (license != "valid") {
+        this.isReport = false;
+      }
+    },
+    computed: {
+      ...mapGetters([
+        'isNewVersion',
+        'isOldVersion',
+      ])
     },
     methods: {
       handleSelect(index) {
@@ -62,9 +75,9 @@
       },
       active() {
         if (this.activeIndex === '/api') {
-          if (this.$store.state.switch.value == 'new') {
+          if (this.isNewVersion) {
             window.location.href = "/#/api/home";
-          } else if (this.$store.state.switch.value == 'old') {
+          } else if (this.isOldVersion) {
             window.location.href = "/#/api/home_obsolete";
           }
         }

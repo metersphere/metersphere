@@ -20,7 +20,7 @@
 
       <el-table-column prop="tags" :label="$t('api_test.automation.tag')" width="200px">
         <template v-slot:default="scope">
-            <ms-tag v-for="(itemName,index)  in scope.row.tags" :key="index" type="success" effect="plain" :content="itemName" style="margin-left: 5px"/>
+            <ms-tag v-for="(itemName,index)  in scope.row.tags" :key="index" type="success" effect="plain" :content="itemName" style="margin-left: 0px; margin-right: 2px"/>
         </template>
       </el-table-column>
 

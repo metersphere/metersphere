@@ -1,6 +1,11 @@
 export default {
   commons: {
+    please_select_import_mode: '請選擇導入模式',
+    please_select_import_module: '請選擇導入模塊',
+    pass_rate: '通過率',
+    execution_times: '執行次數',
     cover: '覆蓋',
+    module_title: '默認模塊',
     not_cover: '不覆蓋',
     import: '導入',
     import_success: '導入成功',
@@ -47,6 +52,7 @@ export default {
     create_time: '創建時間',
     update_time: '更新時間',
     add: '添加',
+    preview: '預覽',
     member: '成員',
     email: '郵箱',
     phone: '電話',
@@ -114,6 +120,7 @@ export default {
     port_cannot_be_empty: '端口號不能為空',
     account_cannot_be_empty: '帳戶不能為空',
     remove: '移除',
+    next_level: "下一級",
     remove_cancel: '移除取消',
     remove_success: '移除成功',
     tips: '認證信息已過期，請重新登錄',
@@ -139,6 +146,8 @@ export default {
     check_project_tip: "請先創建或選擇項目",
     auth_redirect_tip: '即將跳轉到認證源頁面進行認證',
     tag_tip: "輸入回車添加標簽",
+    node_name_tip: "名稱不能包含'\\'",
+    more_operator: "更多操作",
     table: {
       select_tip: "已选中 {0} 条数据"
     },
@@ -274,7 +283,7 @@ export default {
     select: '選擇組織',
     delete_warning: '刪除該組織將同步刪除該組織下所有相關工作空間和相關工作空間下的所有項目，以及項目中的所有用例、接口測試、性能測試等,確定要刪除嗎?',
     service_integration: '服務集成',
-    defect_manage: '缺陷管理平臺',
+    defect_manage: '項目管理平臺',
     message_settings: '消息設置',
     message: {
       jenkins_task_notification: 'Jenkins接口調用任務通知',
@@ -307,17 +316,19 @@ export default {
       password: '密碼',
       jira_url: 'JIRA 地址',
       jira_issuetype: '問題類型',
+      jira_storytype: '需求類型',
       input_api_account: '請輸入賬號',
       input_api_password: '請輸入密碼',
       input_jira_url: '請輸入Jira地址，例：https://metersphere.atlassian.net/',
       input_jira_issuetype: '請輸入問題類型',
+      input_jira_storytype: '請輸入需求類型',
       zentao_url: 'Zentao 地址',
       input_zentao_url: '請輸入Zentao地址，例：http://xx.xx.xx.xx/zentao/',
       use_tip: '使用指引：',
       use_tip_tapd: 'Tapd Basic Auth 賬號信息在"公司管理-安全與集成-開放平臺"中查詢',
       use_tip_jira: 'Jira software server 認證信息為 賬號密碼，Jira software cloud 認證信息為 賬號+令牌(賬戶設置-安全-創建API令牌)',
       use_tip_zentao: '賬號密碼為具有相應權限的Zentao賬號，賬號需要具有 超級model調用接口權限',
-      use_tip_two: '保存 Basic Auth 賬號信息後，需要在 Metersphere 項目中手動關聯 ID/key',
+      use_tip_two: '保存 Basic Auth 賬號信息後，需要在 MeterSphere 項目中手動關聯 ID/key',
       link_the_project_now: '馬上關聯項目',
       cancel_edit: '取消編輯',
       cancel_integration: '取消集成',
@@ -427,9 +438,9 @@ export default {
     test_execute_again: '再次執行',
     downloadJtl: '下載JTL',
     export: '導出',
-    export_to_ms_format: '導出 Metersphere 格式',
+    export_to_ms_format: '導出 MeterSphere 格式',
     export_to_swagger3_format: '導出 Swagger3.0 格式',
-    compare: '比較',
+    compare: '報告比較',
     generation_error: '報告生成錯誤, 無法查看, 請檢查日誌詳情!',
     being_generated: '報告正在生成中...',
     delete_confirm: '確認刪除報告: ',
@@ -530,7 +541,11 @@ export default {
     load_exist_jmx: '加載 JMX 文件',
     threadgroup_at_least_one: '至少啟用一個線程組',
     load_api_automation_jmx: '引用接口自動化場景',
-    project_file_exist: "項目中已存在該文件，請直接引用"
+    project_file_exist: "項目中已存在該文件，請直接引用",
+    project_file_update_type_error: '更新的文件類型必須一致',
+    report: {
+      diff: "對比"
+    },
   },
   api_test: {
     creator: "創建人",
@@ -593,6 +608,7 @@ export default {
         update_time_order_desc: "按更新時間從後到前",
         run_env: "運行環境",
         select_case: "搜索用例",
+        select_api: "搜索接口",
         case: "用例",
         responsible: "責任人",
         title: "創建接口",
@@ -620,10 +636,12 @@ export default {
         res_param: "響應內容",
         batch_delete: "批量刪除",
         delete_confirm: "確認刪除接口",
+        delete_case_confirm: "確認刪除用例",
         delete_confirm_step: "確認刪除步驟",
         assertions_rule: "斷言規則",
         response_header: "響應頭",
         response_body: "響應體",
+        response_template: "響應報文模板",
         console: "控制臺",
         status_code: "狀態碼",
         query_info: "地址欄中跟在？後面的參數,如updateapi?id=112",
@@ -643,6 +661,17 @@ export default {
         other_config: "其他設置",
         message_template: "報文模版",
         tcp_parameter_tip: "請求參數可以在請求模版通過${xxx}引用",
+        esb_table: {
+          name: "參數名",
+          type: "類型",
+          length: "長度",
+          required: "必填",
+          desc: "描述",
+          value: "數據",
+          not_required: "非必填",
+        },
+        esb_copy_confirm: "確認複製當前節點的數據結構",
+        esb_title: "可以在報文模板中使用${參數名} 或 ${父節點參數名.子節點參數名}來生成xml數據結構",
       },
       document: {
         order: "排序方式",
@@ -788,7 +817,7 @@ export default {
       path_description: "例如：/login",
       url_invalid: "URL無效",
       parameters: "Query參數",
-      jmeter_func: "Jmeter 方法",
+      jmeter_func: "JMeter 方法",
       parameters_filter_example: "示例",
       parameters_filter_tips: "只支持 MockJs 函數結果預覽",
       parameters_advance: "高級參數設置",
@@ -870,7 +899,9 @@ export default {
         code_template_set_global_variable: "設置全局變量",
         code_template_get_response_header: "獲取響應頭",
         code_template_get_response_code: "獲取響應碼",
-        code_template_get_response_result: "獲取響應結果"
+        code_template_get_response_result: "獲取響應結果",
+        code_add_report_length : "報文头添加長度",
+        code_hide_report_length : "隱藏報文長度"
       },
       dubbo: {
         protocol: "協議",
@@ -922,16 +953,18 @@ export default {
       file_size_limit: "文件大小不超過 20 M",
       tip: "說明",
       export_tip: "導出方法",
-      ms_tip: "支持 Metersphere json 格式",
-      ms_export_tip: "通過 Metersphere 接口測試頁面或者瀏覽器插件導出 json 格式文件",
-      har_export_tip: "通过 瀏覽器到開發者工具 导出 Har 格式文件",
+      ms_tip: "支持 MeterSphere json 格式",
+      ms_export_tip: "通過 MeterSphere 接口測試頁面或者瀏覽器插件導出 json 格式文件",
+      har_export_tip: "通过 瀏覽器到開發者工具 导出 HAR 格式文件",
+      esb_export_tip: "暫時不支持ESB文件的导出",
       postman_tip: "只支持 Postman Collection v2.1 格式的 json 文件",
       swagger_tip: "支持 Swagger 2.0 與 3.0 版本的 json 文件",
-      har_tip: "只支持 Har 文件",
+      har_tip: "只支持 HAR 文件",
+      esb_tip: "只支持 ESB 模板的xlsx文件",
       post_export_tip: "通過 Postman 導出測試集合",
       swagger_export_tip: "通過 Swagger 頁面導出",
-      jmeter_export_tip: "通過 Jmeter 生成JMX文件",
-      jmeter_tip: "支持 Jmeter 5.2版本的JMX 文件",
+      jmeter_export_tip: "通過 JMeter 生成JMX文件",
+      jmeter_tip: "支持 JMeter 5.2版本的JMX 文件",
       suffixFormatErr: "文件格式不符合要求",
       swagger_url_import: "使用URL導入",
       timing_synchronization: "定時同步",
@@ -970,6 +1003,7 @@ export default {
           coverage: "覆蓋率",
           pass: "通過率",
           success: "成功率",
+          interface_coverage: "接口覆蓋率",
         },
       },
       api_details_card: {
@@ -1016,6 +1050,7 @@ export default {
           case_type: {
             api: "接口用例",
             scene: "場景用例",
+            load: "性能用例"
           }
         }
       },
@@ -1104,6 +1139,9 @@ export default {
     cancel_relevance_success: "取消關聯成功",
     switch_project: "切換項目",
     case: {
+      list: "列表",
+      minder: "腦圖",
+      minder_create_tip: "失敗, 無法在腦圖創建其父模塊",
       check_select: "請勾選用例",
       export_all_cases: '確定要導出全部用例嗎?',
       input_test_case: '請輸入關聯用例名稱',
@@ -1138,6 +1176,7 @@ export default {
       input_type: "請選擇用例類型",
       input_method: "請選擇測試方式",
       input_prerequisite: "請輸入前置條件",
+      input_demand_name: "請輸入請求ID或名稱",
       delete_confirm: "確認刪除測試用例",
       delete: "刪除用例",
       save_create_continue: "保存並繼續創建",
@@ -1215,6 +1254,7 @@ export default {
       input_plan_stage: "請選擇測試階段",
       plan_status_prepare: "未開始",
       plan_status_running: "進行中",
+      plan_status_finished: "已結束",
       plan_status_completed: "已完成",
       plan_status_trash: "廢棄",
       planned_start_time: "計劃開始",
@@ -1312,6 +1352,7 @@ export default {
       executor: "執行人",
       execute_result: "執行結果",
       pass: "通過",
+      not_pass: "不通過",
       failure: "失敗",
       blocking: "阻塞",
       skip: "跳過",
@@ -1410,7 +1451,8 @@ export default {
     status_change_success: '狀態修改成功!',
     status_change_failed: '狀態修改失敗, 校驗不通過!',
     check_in: '校驗中',
-    node_selector_invalid: 'nodeSelector 必須是有效的JSON'
+    node_selector_invalid: 'nodeSelector 必須是有效的JSON',
+    pod_thread_limit: '單POD最大線程數'
   },
   system_parameter_setting: {
     mailbox_service_settings: '郵件設置',
@@ -1605,5 +1647,11 @@ export default {
     delete_prompt: '此操作會刪除認證源，是否繼續？ ',
     title: '認證設置',
     auth_name_valid: '名稱不支持特殊字符',
+  },
+  table: {
+    header_display_field: '表頭顯示欄位',
+    fields_to_be_selected: '待選欄位',
+    selected_fields: '已選欄位'
   }
+
 };

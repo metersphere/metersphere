@@ -102,7 +102,12 @@
         <if test="request.orders != null and request.orders.size() > 0">
             ORDER BY
             <foreach collection="request.orders" separator="," item="order">
-                load_test.${order.name} ${order.type}
+                <if test="order.name == 'user_name'">
+                    user_name ${order.type}
+                </if>
+                <if test="order.name != 'user_name'">
+                    load_test.${order.name} ${order.type}
+                </if>
             </foreach>
         </if>
     </select>
@@ -140,5 +145,9 @@
             #{id}
         </foreach>
         AND project_id = #{projectId,jdbcType=VARCHAR}
+        <if test="request.name!=null">
+            AND file_metadata.name LIKE CONCAT('%', #{request.name}, '%')
+        </if>
+        order by update_time DESC
     </select>
 </mapper>

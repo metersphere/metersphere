@@ -1,26 +1,32 @@
 <template>
   <div>
-      <api-document-item :project-id="projectId" :module-ids="moduleIds"/>
+<!--      <api-document-item :project-id="projectId" :module-ids="moduleIds"/>-->
+    <api-document-anchor :is-share-page="isSharePage" :trash-enable="trashEnable" :project-id="projectId" :module-ids="moduleIds"></api-document-anchor>
   </div>
 </template>
 
 <script>
 
-import ApiDocumentItem from "@/business/components/api/definition/components/document/ApiDocumentItem";
+import ApiDocumentAnchor from "@/business/components/api/definition/components/document/ApiDocumentAnchor";
 
 export default {
   name: "ApiDocumentsPage",
   components: {
-    ApiDocumentItem,
+    ApiDocumentAnchor
   },
   data() {
     return {
+      isSharePage:false,
     }
   },
   props: {
     projectId:String,
     moduleIds:Array,
     activeDom:String,
+    trashEnable: {
+      type: Boolean,
+      default: false,
+    },
   },
   created: function () {
   },

@@ -10,9 +10,12 @@
     <select id="selectIdsNotInPlan" resultType="java.lang.String">
         select load_test.id
         from load_test
-        where load_test.project_id = #{projectId}
+        where load_test.project_id = #{request.projectId}
+        <if test="request.name != null and request.name != ''">
+        and load_test.name like CONCAT('%', #{request.name},'%')
+        </if>
           and load_test.id not in (
-            select tplc.load_case_id from test_plan_load_case tplc where tplc.test_plan_id = #{planId}
+            select tplc.load_case_id from test_plan_load_case tplc where tplc.test_plan_id = #{request.testPlanId}
         )
     </select>
     <select id="selectTestPlanLoadCaseList" resultType="io.metersphere.track.dto.TestPlanLoadCaseDTO">

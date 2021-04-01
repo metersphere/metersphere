@@ -4,6 +4,7 @@
     @copy="copyRow"
     @remove="remove"
     @active="active"
+    @openScenario="openScenario"
     :data="scenario"
     :show-collapse="false"
     :is-show-name-input="!isDeletedOrRef"
@@ -62,8 +63,10 @@
         this.result = this.$get("/api/automation/getApiScenario/" + this.scenario.id, response => {
           if (response.data) {
             this.scenario.loaded = true;
+            let obj = {};
             if (response.data.scenarioDefinition) {
-              this.scenario.hashTree = JSON.parse(response.data.scenarioDefinition).hashTree;
+              obj = JSON.parse(response.data.scenarioDefinition);
+              this.scenario.hashTree = obj.hashTree;
             }
             if (this.scenario.hashTree) {
               this.setDisabled(this.scenario.hashTree);
@@ -73,7 +76,9 @@
             if (!this.scenario.projectId) {
               this.scenario.projectId = response.data.projectId;
             }
-
+            this.scenario.headers = obj.headers;
+            this.scenario.variables = obj.variables;
+            this.scenario.environmentMap = obj.environmentMap;
             this.$emit('refReload');
           } else {
             this.scenario.referenced = "Deleted";
@@ -100,14 +105,17 @@
       remove() {
         this.$emit('remove', this.scenario, this.node);
       },
-      active(item) {
-        if (item && item.active) {
-          item.active = !item.active;
+      active() {
+          if (this.node) {
+            this.node.expanded = !this.node.expanded;
+          }
           this.reload();
-        }
       },
       copyRow() {
         this.$emit('copyRow', this.scenario, this.node);
+      },
+      openScenario(data){
+        this.$emit('openScenario', data);
       },
       reload() {
         this.loading = true

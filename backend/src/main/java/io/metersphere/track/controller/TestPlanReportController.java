@@ -2,22 +2,20 @@ package io.metersphere.track.controller;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
-import io.metersphere.base.domain.TestCaseReport;
 import io.metersphere.base.domain.TestPlanReport;
 import io.metersphere.commons.constants.ReportTriggerMode;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.commons.utils.SessionUtils;
-import io.metersphere.track.dto.TestCaseReportMetricDTO;
-import io.metersphere.track.dto.TestPlanDTOWithMetric;
 import io.metersphere.track.dto.TestPlanReportDTO;
 import io.metersphere.track.request.report.QueryTestPlanReportRequest;
-import io.metersphere.track.request.testcase.QueryTestPlanRequest;
+import io.metersphere.track.request.report.TestPlanReportSaveRequest;
 import io.metersphere.track.service.TestPlanReportService;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import java.util.List;
+import java.util.UUID;
 
 /**
  * @author song.tianyang
@@ -62,14 +60,18 @@ public class TestPlanReportController {
 
     @GetMapping("/apiExecuteFinish/{planId}/{userId}")
     public void apiExecuteFinish(@PathVariable String planId,@PathVariable String userId) {
-        TestPlanReport report = testPlanReportService.genTestPlanReport(planId,userId,ReportTriggerMode.API.name());
+        String reportId = UUID.randomUUID().toString();
+        TestPlanReportSaveRequest saveRequest = new TestPlanReportSaveRequest(reportId,planId,userId,ReportTriggerMode.API.name());
+        TestPlanReport report = testPlanReportService.genTestPlanReport(saveRequest);
         testPlanReportService.countReportByTestPlanReportId(report.getId(),null, ReportTriggerMode.API.name());
     }
 
     @GetMapping("/saveTestPlanReport/{planId}/{triggerMode}")
     public String saveTestPlanReport(@PathVariable String planId,@PathVariable String triggerMode) {
         String userId = SessionUtils.getUser().getId();
-        TestPlanReport report = testPlanReportService.genTestPlanReport(planId,userId,triggerMode);
+        String reportId = UUID.randomUUID().toString();
+        TestPlanReportSaveRequest saveRequest = new TestPlanReportSaveRequest(reportId,planId,userId,triggerMode);
+        TestPlanReport report = testPlanReportService.genTestPlanReport(saveRequest);
         testPlanReportService.countReportByTestPlanReportId(report.getId(),null, triggerMode);
         return "success";
     }

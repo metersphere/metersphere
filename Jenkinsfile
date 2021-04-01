@@ -13,6 +13,9 @@ pipeline {
         stage('Build/Test') {
             steps {
                 configFileProvider([configFile(fileId: 'metersphere-maven', targetLocation: 'settings.xml')]) {
+                    sh "cd frontend"
+                    sh "yarn install"
+                    sh "cd .."
                     sh "mvn clean package --settings ./settings.xml"
                 }
             }

@@ -2,6 +2,7 @@ package io.metersphere.api.dto.definition.request.sampler;
 
 import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.annotation.JSONType;
+import io.metersphere.api.dto.automation.EsbDataStruct;
 import io.metersphere.api.dto.definition.request.MsTestElement;
 import io.metersphere.api.dto.definition.request.ParameterConfig;
 import io.metersphere.api.dto.definition.request.processors.pre.MsJSR223PreProcessor;
@@ -70,8 +71,18 @@ public class MsTCPSampler extends MsTestElement {
     @JSONField(ordinal = 39)
     private String projectId;
 
+    /**
+     * 新加两个参数，场景保存/修改时需要的参数。不会传递JMeter，只是用于最后的保留。
+     */
+    private List<EsbDataStruct> esbDataStruct;
+    private List<EsbDataStruct> backEsbDataStruct;
+
     @Override
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, ParameterConfig config) {
+        // 非导出操作，且不是启用状态则跳过执行
+        if (!config.isOperating() && !this.isEnable()) {
+            return;
+        }
         if (this.getReferenced() != null && MsTestElementConstants.REF.name().equals(this.getReferenced())) {
             this.getRefElement(this);
         }
@@ -80,7 +91,9 @@ public class MsTCPSampler extends MsTestElement {
             this.setProjectId(config.getProjectId());
             config.setConfig(getEnvironmentConfig(useEnvironment));
         }
-        parseEnvironment(config.getConfig().get(this.projectId));
+        if(config.getConfig()!=null){
+            parseEnvironment(config.getConfig().get(this.projectId));
+        }
 
         // 添加环境中的公共变量
         Arguments arguments = this.addArguments(config);

@@ -39,8 +39,6 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
     @Resource
     ExtApiModuleMapper extApiModuleMapper;
     @Resource
-    private ApiDefinitionMapper apiDefinitionMapper;
-    @Resource
     private ExtApiDefinitionMapper extApiDefinitionMapper;
     @Resource
     private TestPlanProjectService testPlanProjectService;
@@ -61,6 +59,22 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
     }
 
     public List<ApiModuleDTO> getNodeTreeByProjectId(String projectId, String protocol) {
+        // 判断当前项目下是否有默认模块，没有添加默认模块
+        ApiModuleExample example = new ApiModuleExample();
+        example.createCriteria().andProjectIdEqualTo(projectId).andProtocolEqualTo(protocol).andNameEqualTo("默认模块");
+        long count = apiModuleMapper.countByExample(example);
+        if (count <= 0) {
+            ApiModule record = new ApiModule();
+            record.setId(UUID.randomUUID().toString());
+            record.setName("默认模块");
+            record.setProtocol(protocol);
+            record.setPos(1.0);
+            record.setLevel(1);
+            record.setCreateTime(System.currentTimeMillis());
+            record.setUpdateTime(System.currentTimeMillis());
+            record.setProjectId(projectId);
+            apiModuleMapper.insert(record);
+        }
         List<ApiModuleDTO> apiModules = extApiModuleMapper.getNodeTreeByProjectId(projectId, protocol);
         return getNodeTrees(apiModules);
     }

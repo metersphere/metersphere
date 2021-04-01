@@ -32,6 +32,7 @@ import io.metersphere.base.domain.ApiDefinitionWithBLOBs;
 import io.metersphere.base.domain.ApiTestEnvironmentWithBLOBs;
 import io.metersphere.commons.constants.LoopConstants;
 import io.metersphere.commons.constants.MsTestElementConstants;
+import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.FileUtils;
 import io.metersphere.commons.utils.LogUtil;
@@ -48,6 +49,7 @@ import org.apache.jorphan.collections.HashTree;
 import org.apache.jorphan.collections.ListedHashTree;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -161,7 +163,6 @@ public abstract class MsTestElement {
                 element = mapper.readValue(apiDefinition.getRequest(), new TypeReference<MsTestElement>() {
                 });
                 hashTree.add(element);
-                OldVersionUtil.transferHashTree(hashTree);
             }
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -199,7 +200,7 @@ public abstract class MsTestElement {
         return null;
     }
 
-    protected void addCsvDataSet(HashTree tree, List<ScenarioVariable> variables) {
+    protected void addCsvDataSet(HashTree tree, List<ScenarioVariable> variables,ParameterConfig config) {
         if (CollectionUtils.isNotEmpty(variables)) {
             List<ScenarioVariable> list = variables.stream().filter(ScenarioVariable::isCSVValid).collect(Collectors.toList());
             if (CollectionUtils.isNotEmpty(list)) {
@@ -211,6 +212,9 @@ public abstract class MsTestElement {
                     csvDataSet.setName(StringUtils.isEmpty(item.getName()) ? "CSVDataSet" : item.getName());
                     csvDataSet.setProperty("fileEncoding", StringUtils.isEmpty(item.getEncoding()) ? "UTF-8" : item.getEncoding());
                     if (CollectionUtils.isNotEmpty(item.getFiles())) {
+                        if (!config.isOperating() && !new File(BODY_FILE_DIR + "/" + item.getFiles().get(0).getId() + "_" + item.getFiles().get(0).getName()).exists()) {
+                            MSException.throwException(StringUtils.isEmpty(item.getName()) ? "CSVDataSet" : item.getName() + "：[ CSV文件不存在 ]");
+                        }
                         csvDataSet.setProperty("filename", BODY_FILE_DIR + "/" + item.getFiles().get(0).getId() + "_" + item.getFiles().get(0).getName());
                     }
                     csvDataSet.setIgnoreFirstLine(false);
@@ -283,13 +287,13 @@ public abstract class MsTestElement {
             if (MsTestElementConstants.LoopController.name().equals(parent.getType())) {
                 MsLoopController loopController = (MsLoopController) parent;
                 if (StringUtils.equals(loopController.getLoopType(), LoopConstants.WHILE.name()) && loopController.getWhileController() != null) {
-                    return "While 循环-" + "${LoopCounterConfigXXX}";
+                    return "While 循环-" + "${MS_LOOP_CONTROLLER_CONFIG}";
                 }
                 if (StringUtils.equals(loopController.getLoopType(), LoopConstants.FOREACH.name()) && loopController.getForEachController() != null) {
-                    return "ForEach 循环-" + "${LoopCounterConfigXXX}";
+                    return "ForEach 循环-" + "${MS_LOOP_CONTROLLER_CONFIG}";
                 }
                 if (StringUtils.equals(loopController.getLoopType(), LoopConstants.LOOP_COUNT.name()) && loopController.getCountController() != null) {
-                    return "次数循环-" + "${LoopCounterConfigXXX}";
+                    return "次数循环-" + "${MS_LOOP_CONTROLLER_CONFIG}";
                 }
             }
             // 获取全路径以备后面使用

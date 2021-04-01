@@ -161,12 +161,12 @@
                                     #{value}
                                 </foreach>
                             </when>
-                            <otherwise>
-                                and test_case_review_test_case.status in
+                            <when test="key=='status'">
+                                and test_case.review_status in
                                 <foreach collection="values" item="value" separator="," open="(" close=")">
                                     #{value}
                                 </foreach>
-                            </otherwise>
+                            </when>
                         </choose>
                     </if>
                 </foreach>

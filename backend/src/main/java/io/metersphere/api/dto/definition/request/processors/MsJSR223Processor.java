@@ -29,6 +29,10 @@ public class MsJSR223Processor extends MsTestElement {
 
     @Override
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, ParameterConfig config) {
+        // 非导出操作，且不是启用状态则跳过执行
+        if (!config.isOperating() && !this.isEnable()) {
+            return;
+        }
         JSR223Sampler processor = new JSR223Sampler();
         processor.setEnabled(this.isEnable());
         if (StringUtils.isNotEmpty(this.getName())) {
@@ -44,8 +48,14 @@ public class MsJSR223Processor extends MsTestElement {
 
         processor.setProperty(TestElement.TEST_CLASS, JSR223Sampler.class.getName());
         processor.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("TestBeanGUI"));
-        processor.setProperty("cacheKey", "true");
+        /*processor.setProperty("cacheKey", "true");*/
         processor.setProperty("scriptLanguage", this.getScriptLanguage());
+        if (StringUtils.isNotEmpty(this.getScriptLanguage()) && this.getScriptLanguage().equals("nashornScript")) {
+            processor.setProperty("scriptLanguage", "nashorn");
+        }
+        if (StringUtils.isNotEmpty(this.getScriptLanguage()) && this.getScriptLanguage().equals("graalVMScript")) {
+            processor.setProperty("scriptLanguage", "javascript");
+        }
         processor.setProperty("script", this.getScript());
 
         final HashTree jsr223PreTree = tree.add(processor);
