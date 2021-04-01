@@ -27,7 +27,7 @@
             <i class="icon el-icon-arrow-right" :class="{'is-active': apiCase.active}" @click="active(apiCase)"/>
             <el-input v-if="!apiCase.id || isShowInput" size="small" v-model="apiCase.name" :name="index" :key="index"
                       class="ms-api-header-select" style="width: 180px"
-                      @blur="saveTestCase(apiCase)" :placeholder="$t('commons.input_name')" ref="nameEdit"/>
+                      @blur="saveTestCase(apiCase,true)" :placeholder="$t('commons.input_name')" ref="nameEdit"/>
             <span v-else>
               {{ apiCase.id ? apiCase.name : '' }}
               <i class="el-icon-edit" style="cursor:pointer" @click="showInput(apiCase)" v-tester/>
@@ -48,7 +48,7 @@
 
         <el-col :span="4">
           <div class="tag-item" @click.stop>
-            <ms-input-tag :currentScenario="apiCase" ref="tag" @keyup.enter.native="saveTestCase(apiCase)"/>
+            <ms-input-tag :currentScenario="apiCase" ref="tag" @keyup.enter.native="saveTestCase(apiCase,true)"/>
           </div>
         </el-col>
 
@@ -95,7 +95,7 @@
         <!-- HTTP 请求返回数据 -->
         <p class="tip">{{$t('api_test.definition.request.res_param')}}</p>
         <div v-if="showXpackCompnent&&api.method==='ESB'">
-          <esb-definition-response :currentProtocol="apiCase.request.protocol" :request="apiCase.request" :is-api-component="false" :show-options-button="false" :show-header="true" :api-item="apiCase"/>
+          <esb-definition-response v-xpack v-if="showXpackCompnent"  :currentProtocol="apiCase.request.protocol" :request="apiCase.request" :is-api-component="false" :show-options-button="false" :show-header="true" :api-item="apiCase"/>
         </div>
         <div v-else>
           <api-response-component :currentProtocol="apiCase.request.protocol" :api-item="apiCase"/>
@@ -275,7 +275,7 @@
         }
       },
       addModule(row) {
-        this.saveApi(row, "root");
+        this.saveApi(row, "default-module");
       },
       saveApi(row, module) {
         let data = this.api;
@@ -291,7 +291,7 @@
           }
         });
       },
-      saveCase(row) {
+      saveCase(row,hideAlert) {
         let tmp = JSON.parse(JSON.stringify(row));
         this.isShowInput = false;
         if (this.validate(tmp)) {
@@ -328,16 +328,18 @@
           row.createTime = data.createTime;
           row.updateTime = data.updateTime;
           if (!row.message) {
-            this.$success(this.$t('commons.save_success'));
-            this.$emit('refresh');
+            if(!hideAlert){
+              this.$success(this.$t('commons.save_success'));
+              this.$emit('refresh');
+            }
           }
         });
       },
-      saveTestCase(row) {
+      saveTestCase(row,hideAlert) {
         if (this.api.saved) {
           this.addModule(row);
         } else {
-          this.saveCase(row);
+          this.saveCase(row,hideAlert);
         }
       },
       showInput(row) {

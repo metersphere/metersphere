@@ -333,10 +333,6 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
         for (SampleResult subResult : result.getSubResults()) {
             requestResult.getSubRequestResults().add(getRequestResult(subResult));
         }
-        for (SampleResult subResult : result.getSubResults()) {
-            requestResult.getSubRequestResults().add(getRequestResult(subResult));
-        }
-
         ResponseResult responseResult = requestResult.getResponseResult();
         responseResult.setBody(result.getResponseDataAsString());
         responseResult.setHeaders(result.getResponseHeaders());
@@ -361,7 +357,8 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
                 requestResult.addPassAssertions();
             }
             //xpath 提取错误会添加断言错误
-            if (StringUtils.isBlank(responseAssertionResult.getMessage()) || !responseAssertionResult.getName().endsWith("XPath2Extractor")) {
+            if (StringUtils.isBlank(responseAssertionResult.getMessage()) ||
+                    (StringUtils.isNotBlank(responseAssertionResult.getName()) && !responseAssertionResult.getName().endsWith("XPath2Extractor"))) {
                 responseResult.getAssertions().add(responseAssertionResult);
             }
         }

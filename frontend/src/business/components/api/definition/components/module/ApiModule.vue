@@ -20,7 +20,7 @@
           :condition="condition"
           :current-module="currentModule"
           :is-read-only="isReadOnly"
-          :moduleOptions="extendTreeNodes"
+          :moduleOptions="data"
           @exportAPI="exportAPI"
           @saveAsEdit="saveAsEdit"
           @refreshTable="$emit('refreshTable')"
@@ -62,7 +62,6 @@
         },
         data: [],
         currentModule: {},
-        extendTreeNodes: [],
       }
     },
     props: {
@@ -131,17 +130,10 @@
         this.result = this.$get(url, response => {
           if (response.data != undefined && response.data != null) {
             this.data = response.data;
-            this.extendTreeNodes = [];
-            this.extendTreeNodes.unshift({
-              "id": "root",
-              "name": this.$t('commons.module_title'),
-              "level": 0,
-              "children": this.data,
-            });
-            this.extendTreeNodes.forEach(node => {
+            this.data.forEach(node => {
               buildTree(node, {path: ''});
             });
-            this.$emit('setModuleOptions', this.extendTreeNodes);
+            this.$emit('setModuleOptions', this.data);
             this.$emit('setNodeTree', this.data);
             if (this.$refs.nodeTree) {
               this.$refs.nodeTree.filter(this.condition.filterText);

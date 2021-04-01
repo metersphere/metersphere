@@ -1,30 +1,20 @@
-/*
- * Licensed to the Apache Software Foundation (ASF) under one or more
- * contributor license agreements.  See the NOTICE file distributed with
- * this work for additional information regarding copyright ownership.
- * The ASF licenses this file to You under the Apache License, Version 2.0
- * (the "License"); you may not use this file except in compliance with
- * the License.  You may obtain a copy of the License at
- *
- *   http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
- *
- */
+//
+// Source code recreated from a .class file by IntelliJ IDEA
+// (powered by Fernflower decompiler)
+//
 
 package org.apache.jmeter.assertions;
+
+import com.jayway.jsonpath.JsonPath;
+import com.jayway.jsonpath.Predicate;
 
 import java.io.Serializable;
 import java.text.DecimalFormat;
 import java.util.Map;
+import java.util.function.Supplier;
 
-import com.alibaba.fastjson.JSONArray;
-import com.alibaba.fastjson.JSONObject;
-import com.jayway.jsonpath.JsonPath;
+import net.minidev.json.JSONArray;
+import net.minidev.json.JSONObject;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.jmeter.samplers.SampleResult;
 import org.apache.jmeter.testelement.AbstractTestElement;
@@ -34,12 +24,6 @@ import org.apache.oro.text.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * This is main class for JSONPath Assertion which verifies assertion on
- * previous sample result using JSON path expression
- *
- * @since 4.0
- */
 public class JSONPathAssertion extends AbstractTestElement implements Serializable, Assertion, ThreadListener {
     private static final Logger log = LoggerFactory.getLogger(JSONPathAssertion.class);
     private static final long serialVersionUID = 2L;
@@ -49,119 +33,118 @@ public class JSONPathAssertion extends AbstractTestElement implements Serializab
     public static final String EXPECT_NULL = "EXPECT_NULL";
     public static final String INVERT = "INVERT";
     public static final String ISREGEX = "ISREGEX";
+    private static ThreadLocal<DecimalFormat> decimalFormatter = ThreadLocal.withInitial(JSONPathAssertion::createDecimalFormat);
 
-    private static ThreadLocal<DecimalFormat> decimalFormatter =
-            ThreadLocal.withInitial(JSONPathAssertion::createDecimalFormat);
+    public JSONPathAssertion() {
+    }
+
+    private static DecimalFormat createDecimalFormat() {
+        DecimalFormat decimalFormatter = new DecimalFormat("#.#");
+        decimalFormatter.setMaximumFractionDigits(340);
+        decimalFormatter.setMinimumFractionDigits(1);
+        return decimalFormatter;
+    }
 
     public String getOption() {
         return getPropertyAsString("ASS_OPTION");
     }
 
-    private static DecimalFormat createDecimalFormat() {
-        DecimalFormat decimalFormatter = new DecimalFormat("#.#");
-        decimalFormatter.setMaximumFractionDigits(340); // java.text.DecimalFormat.DOUBLE_FRACTION_DIGITS == 340
-        decimalFormatter.setMinimumFractionDigits(1);
-        return decimalFormatter;
-    }
-
     public String getJsonPath() {
-        return getPropertyAsString(JSONPATH);
+        return this.getPropertyAsString("JSON_PATH");
     }
 
     public void setJsonPath(String jsonPath) {
-        setProperty(JSONPATH, jsonPath);
+        this.setProperty("JSON_PATH", jsonPath);
     }
 
     public String getExpectedValue() {
-        return getPropertyAsString(EXPECTEDVALUE);
+        return this.getPropertyAsString("EXPECTED_VALUE");
     }
 
     public void setExpectedValue(String expectedValue) {
-        setProperty(EXPECTEDVALUE, expectedValue);
+        this.setProperty("EXPECTED_VALUE", expectedValue);
     }
 
     public void setJsonValidationBool(boolean jsonValidation) {
-        setProperty(JSONVALIDATION, jsonValidation);
+        this.setProperty("JSONVALIDATION", jsonValidation);
     }
 
     public void setExpectNull(boolean val) {
-        setProperty(EXPECT_NULL, val);
+        this.setProperty("EXPECT_NULL", val);
     }
 
     public boolean isExpectNull() {
-        return getPropertyAsBoolean(EXPECT_NULL);
+        return this.getPropertyAsBoolean("EXPECT_NULL");
     }
 
     public boolean isJsonValidationBool() {
-        return getPropertyAsBoolean(JSONVALIDATION);
+        return this.getPropertyAsBoolean("JSONVALIDATION");
     }
 
     public void setInvert(boolean invert) {
-        setProperty(INVERT, invert);
+        this.setProperty("INVERT", invert);
     }
 
     public boolean isInvert() {
-        return getPropertyAsBoolean(INVERT);
+        return this.getPropertyAsBoolean("INVERT");
     }
 
     public void setIsRegex(boolean flag) {
-        setProperty(ISREGEX, flag);
+        this.setProperty("ISREGEX", flag);
     }
 
     public boolean isUseRegex() {
-        return getPropertyAsBoolean(ISREGEX, true);
+        return this.getPropertyAsBoolean("ISREGEX", true);
     }
 
     private void doAssert(String jsonString) {
-        Object value = JsonPath.read(jsonString, getJsonPath());
-
-        if (!isJsonValidationBool()) {
-            return;
-        }
-
-        if (value instanceof JSONArray) {
-            if (arrayMatched((JSONArray) value)) {
+        Object value = JsonPath.read(jsonString, this.getJsonPath(), new Predicate[0]);
+        if (this.isJsonValidationBool()) {
+            if (value instanceof JSONArray) {
+                if (this.arrayMatched((JSONArray) value)) {
+                    return;
+                }
+            } else if (this.isExpectNull() && value == null || this.isEquals(value)) {
                 return;
             }
-        } else {
-            if ((isExpectNull() && value == null)
-                    || isEquals(value)) {
-                return;
-            }
-        }
 
-        if (isExpectNull()) {
-            throw new IllegalStateException(String.format("Value expected to be null, but found '%s'", value));
-        } else {
-            String msg;
-            if (isUseRegex()) {
-                msg = "Value expected to match regexp '%s', but it did not match: '%s'";
+            if (this.isExpectNull()) {
+                throw new IllegalStateException(String.format("Value expected to be null, but found '%s'", value));
             } else {
-                msg = "Value expected to be '%s', but found '%s'";
+                String msg;
+                if (this.isUseRegex()) {
+                    msg = "Value expected to match regexp '%s', but it did not match: '%s'";
+                } else {
+                    msg = "Value expected to be '%s', but found '%s'";
+                }
+
+                throw new IllegalStateException(String.format(msg, this.getExpectedValue(), objectToString(value)));
             }
-            throw new IllegalStateException(String.format(msg, getExpectedValue(), objectToString(value)));
         }
     }
 
     private boolean arrayMatched(JSONArray value) {
-        if (value.isEmpty() && "[]".equals(getExpectedValue())) {
+        if (value.isEmpty() && "[]".equals(this.getExpectedValue())) {
             return true;
-        }
+        } else {
+            Object[] var2 = value.toArray();
+            int var3 = var2.length;
 
-        for (Object subj : value.toArray()) {
-            if ((subj == null && isExpectNull())
-                    || isEquals(subj)) {
-                return true;
+            for (int var4 = 0; var4 < var3; ++var4) {
+                Object subj = var2[var4];
+                if (subj == null && this.isExpectNull() || this.isEquals(subj)) {
+                    return true;
+                }
             }
-        }
 
-        return isEquals(value);
+            return this.isEquals(value);
+        }
     }
 
     private boolean isEquals(Object subj) {
         String str = objectToString(subj);
-        if (isUseRegex()) {
-            Pattern pattern = JMeterUtils.getPatternCache().getPattern(getExpectedValue());
+        if (this.isUseRegex()) {
+            Pattern pattern = JMeterUtils.getPatternCache().getPattern(this.getExpectedValue());
             return JMeterUtils.getMatcher().matches(str, pattern);
         } else {
             if (StringUtils.isNotEmpty(getOption())) {
@@ -182,47 +165,46 @@ public class JSONPathAssertion extends AbstractTestElement implements Serializab
                 }
                 return refFlag;
             }
-            return str.equals(getExpectedValue());
+            return str.equals(this.getExpectedValue());
         }
     }
 
-    @Override
     public AssertionResult getResult(SampleResult samplerResult) {
-        AssertionResult result = new AssertionResult(getName());
+        AssertionResult result = new AssertionResult(this.getName());
         String responseData = samplerResult.getResponseDataAsString();
         if (responseData.isEmpty()) {
             return result.setResultForNull();
-        }
-
-        result.setFailure(false);
-        result.setFailureMessage("");
-
-        if (!isInvert()) {
-            try {
-                doAssert(responseData);
-            } catch (Exception e) {
-                log.debug("Assertion failed", e);
-                result.setFailure(true);
-                result.setFailureMessage(e.getMessage());
-            }
         } else {
-            try {
-                doAssert(responseData);
-                result.setFailure(true);
-                if (isJsonValidationBool()) {
-                    if (isExpectNull()) {
-                        result.setFailureMessage("Failed that JSONPath " + getJsonPath() + " not matches null");
-                    } else {
-                        result.setFailureMessage("Failed that JSONPath " + getJsonPath() + " not matches " + getExpectedValue());
-                    }
-                } else {
-                    result.setFailureMessage("Failed that JSONPath not exists: " + getJsonPath());
+            result.setFailure(false);
+            result.setFailureMessage("");
+            if (!this.isInvert()) {
+                try {
+                    this.doAssert(responseData);
+                } catch (Exception var6) {
+                    log.debug("Assertion failed", var6);
+                    result.setFailure(true);
+                    result.setFailureMessage(var6.getMessage());
                 }
-            } catch (Exception e) {
-                log.debug("Assertion failed, as expected", e);
+            } else {
+                try {
+                    this.doAssert(responseData);
+                    result.setFailure(true);
+                    if (this.isJsonValidationBool()) {
+                        if (this.isExpectNull()) {
+                            result.setFailureMessage("Failed that JSONPath " + this.getJsonPath() + " not matches null");
+                        } else {
+                            result.setFailureMessage("Failed that JSONPath " + this.getJsonPath() + " not matches " + this.getExpectedValue());
+                        }
+                    } else {
+                        result.setFailureMessage("Failed that JSONPath not exists: " + this.getJsonPath());
+                    }
+                } catch (Exception var5) {
+                    log.debug("Assertion failed, as expected", var5);
+                }
             }
+
+            return result;
         }
-        return result;
     }
 
     public static String objectToString(Object subj) {
@@ -230,22 +212,19 @@ public class JSONPathAssertion extends AbstractTestElement implements Serializab
         if (subj == null) {
             str = "null";
         } else if (subj instanceof Map) {
-            //noinspection unchecked
-            str = new JSONObject((Map<String, Object>) subj).toJSONString();
-        } else if (subj instanceof Double || subj instanceof Float) {
-            str = decimalFormatter.get().format(subj);
-        } else {
+            str = (new JSONObject((Map) subj)).toJSONString();
+        } else if (!(subj instanceof Double) && !(subj instanceof Float)) {
             str = subj.toString();
+        } else {
+            str = ((DecimalFormat) decimalFormatter.get()).format(subj);
         }
+
         return str;
     }
 
-    @Override
     public void threadStarted() {
-        // nothing to do on thread start
     }
 
-    @Override
     public void threadFinished() {
         decimalFormatter.remove();
     }

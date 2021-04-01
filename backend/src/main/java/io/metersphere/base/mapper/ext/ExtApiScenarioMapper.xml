@@ -304,6 +304,9 @@
     <select id="countByProjectID" resultType="java.lang.Long">
         SELECT COUNT(id) AS countNumber FROM api_scenario WHERE project_id = #{0} AND status != 'Trash'
     </select>
+    <select id="selectIdAndScenarioByProjectId" resultType="io.metersphere.base.domain.ApiScenarioWithBLOBs">
+        SELECT id,scenario_definition FROM api_scenario WHERE project_id = #{0} AND status != 'Trash'
+    </select>
     <select id="countByProjectIDAndCreatInThisWeek" resultType="java.lang.Long">
         SELECT count(id) AS countNumber FROM api_scenario
         WHERE project_id = #{projectId}  AND status != 'Trash'
