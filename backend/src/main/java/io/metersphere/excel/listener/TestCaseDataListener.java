@@ -269,12 +269,12 @@ public class TestCaseDataListener extends EasyExcelListener<TestCaseExcelData> {
         String[] stepRes = new String[1];
 
         if (data.getStepDesc() != null) {
-            stepDesc = data.getStepDesc().split("\r\n");
+            stepDesc = data.getStepDesc().split("\r\n|\n");
         } else {
             stepDesc[0] = "";
         }
         if (data.getStepResult() != null) {
-            stepRes = data.getStepResult().split("\r\n");
+            stepRes = data.getStepResult().split("\r\n|\n");
         } else {
             stepRes[0] = "";
         }
