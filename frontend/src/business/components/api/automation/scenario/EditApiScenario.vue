@@ -119,18 +119,21 @@
                 <el-col :span="3" class="ms-col-one ms-font">
                   <el-checkbox v-model="enableCookieShare">共享cookie</el-checkbox>
                 </el-col>
-                <el-col :span="6">
+                <el-col :span="5">
                   <env-popover :env-map="projectEnvMap" :project-ids="projectIds" @setProjectEnvMap="setProjectEnvMap"
                                :project-list="projectList" ref="envPopover"/>
                 </el-col>
-                <el-col :span="3">
+                <el-col :span="4">
                   <el-button :disabled="scenarioDefinition.length < 1" size="mini" type="primary" v-prevent-re-click @click="runDebug">{{$t('api_test.request.debug')}}</el-button>
+                  <el-tooltip class="item" effect="dark" :content="$t('commons.refresh')" placement="right-start">
+                    <el-button :disabled="scenarioDefinition.length < 1" size="mini"  icon ="el-icon-refresh" v-prevent-re-click @click="getApiScenario"></el-button>
+                  </el-tooltip>
                   <font-awesome-icon class="alt-ico" :icon="['fa', 'expand-alt']" size="lg" @click="fullScreen"/>
                 </el-col>
               </el-row>
             </div>
             <!-- 场景步骤内容 -->
-            <div v-loading="loading">
+            <div>
               <el-tree node-key="resourceId" :props="props" :data="scenarioDefinition" class="ms-tree"
                        :default-expanded-keys="expandedNode"
                        :expand-on-click-node="false"
@@ -959,6 +962,7 @@
         });
       },
       getApiScenario() {
+        this.loading = true;
         if (this.currentScenario.tags != undefined && !(this.currentScenario.tags instanceof Array)) {
           this.currentScenario.tags = JSON.parse(this.currentScenario.tags);
         }
@@ -1009,6 +1013,7 @@
                 this.path = "/api/automation/create";
               }
             }
+            this.loading = false;
             this.sort();
             this.initProjectIds();
             // this.getEnvironments();
