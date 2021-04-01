@@ -21,6 +21,8 @@ const state = {
   testReviewSelectNodeIds: [],
   testReviewModuleOptions: [],
 
+  testPlanViewSelectNode: undefined
+
 }
 
 const store = new Vuex.Store({

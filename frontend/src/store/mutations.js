@@ -12,6 +12,7 @@ const mutations = {
   setTestReviewSelectNode: (state, value) => state.testReviewSelectNode = value,
   setTestReviewSelectNodeIds: (state, value) => state.testReviewSelectNodeIds = value,
   setTestReviewModuleOptions: (state, value) => state.testReviewModuleOptions = value,
+  setTestPlanViewSelectNode: (state, value) => state.testPlanViewSelectNode = value,
 }
 
 export default mutations;
