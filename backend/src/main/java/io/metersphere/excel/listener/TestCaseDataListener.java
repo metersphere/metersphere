@@ -67,6 +67,16 @@ public class TestCaseDataListener extends EasyExcelListener<TestCaseExcelData> {
                     break;
                 }
             }
+            //增加字数校验，每一层不能超过100字
+            for (int i = 0; i < nodes.length; i++) {
+                String nodeStr = nodes[i];
+                if(StringUtils.isNotEmpty(nodeStr)){
+                    if(nodeStr.trim().length()>100){
+                        stringBuilder.append(Translator.get("module") + Translator.get("test_track.length_less_than") + "100:"+nodeStr);
+                        break;
+                    }
+                }
+            }
         }
 
 //        if (StringUtils.equals(data.getType(), TestCaseConstants.Type.Functional.getValue()) && StringUtils.equals(data.getMethod(), TestCaseConstants.Method.Auto.getValue())) {
@@ -142,7 +152,7 @@ public class TestCaseDataListener extends EasyExcelListener<TestCaseExcelData> {
     public void saveData() {
 
         //excel中用例都有错误时就返回，只要有用例可用于更新或者插入就不返回
-        if (!errList.isEmpty() && list.size() == 0 && updateList.size() == 0) {
+        if (!errList.isEmpty()) {
             return;
         }
 
@@ -231,15 +241,23 @@ public class TestCaseDataListener extends EasyExcelListener<TestCaseExcelData> {
      */
     public String modifyTagPattern(TestCaseExcelData data){
         String tags = data.getTags();
-        if (tags != null) {
-            Stream<String> stringStream = Arrays.stream(tags.split("[,;，；]"));  //当标签值以中英文的逗号和分号分隔时才能正确解析
-            List<String> tagList = stringStream.map(tag -> tag = "\"" + tag + "\"")
-                    .collect(Collectors.toList());
-            String modifiedTags = StringUtils.join(tagList, ",");
-            modifiedTags = "[" + modifiedTags + "]";
-            return modifiedTags;
-        }else {
-            return null;
+        try {
+            if (StringUtils.isNotBlank(tags)) {
+                JSONArray.parse(tags);
+                return tags;
+            }
+            return "[]";
+        } catch (Exception e) {
+            if (tags != null) {
+                Stream<String> stringStream = Arrays.stream(tags.split("[,;，；]"));  //当标签值以中英文的逗号和分号分隔时才能正确解析
+                List<String> tagList = stringStream.map(tag -> tag = "\"" + tag + "\"")
+                        .collect(Collectors.toList());
+                String modifiedTags = StringUtils.join(tagList, ",");
+                modifiedTags = "[" + modifiedTags + "]";
+                return modifiedTags;
+            } else {
+                return "[]";
+            }
         }
     }
 

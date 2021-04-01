@@ -9,7 +9,7 @@ public class Statistics {
 
     private String samples;
 
-    private String ko;
+    private String fail;
 
     private String error;
 
@@ -18,6 +18,8 @@ public class Statistics {
     private String min;
 
     private String max;
+
+    private String median;
 
     private String tp90;
 

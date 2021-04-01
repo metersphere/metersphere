@@ -34,7 +34,7 @@
           <ms-test-case-info-card @redirectPage="redirectPage" :test-case-count-data="testCaseCountData"/>
         </el-col>
         <el-col :span="6">
-          <ms-scene-info-card @redirectPage="redirectPage"  :scene-count-data="sceneCountData"/>
+          <ms-scene-info-card @redirectPage="redirectPage"  :scene-count-data="sceneCountData" :interface-coverage="interfaceCoverage"/>
         </el-col>
         <el-col :span="6">
           <ms-schedule-task-info-card :schedule-task-count-data="scheduleTaskCountData"/>
@@ -82,6 +82,7 @@ export default {
       sceneCountData: {},
       testCaseCountData: {},
       scheduleTaskCountData: {},
+      interfaceCoverage: "waitting...",
       tipsType: "1",
       result: {},
     }
@@ -107,6 +108,10 @@ export default {
 
       this.$get("/api/testSceneInfoCount/" + selectProjectId, response => {
         this.sceneCountData = response.data;
+      });
+      this.interfaceCoverage = "waitting...";
+      this.$get("/api/countInterfaceCoverage/" + selectProjectId, response => {
+        this.interfaceCoverage = response.data;
       });
 
       this.$get("/api/testCaseInfoCount/" + selectProjectId, response => {

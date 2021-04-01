@@ -14,6 +14,7 @@ import io.metersphere.api.service.ApiAutomationService;
 import io.metersphere.api.service.ApiTestEnvironmentService;
 import io.metersphere.base.domain.ApiScenarioWithBLOBs;
 import io.metersphere.base.domain.ApiTestEnvironmentWithBLOBs;
+import io.metersphere.commons.constants.MsTestElementConstants;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.FileUtils;
 import io.metersphere.commons.utils.SessionUtils;
@@ -77,9 +78,9 @@ public class MsScenario extends MsTestElement {
         if (!config.isOperating() && !this.isEnable()) {
             return;
         }
-        if (this.getReferenced() != null && this.getReferenced().equals("Deleted")) {
+        if (this.getReferenced() != null && this.getReferenced().equals(MsTestElementConstants.Deleted.name())) {
             return;
-        } else if (this.getReferenced() != null && this.getReferenced().equals("REF")) {
+        } else if (this.getReferenced() != null && MsTestElementConstants.REF.name().equals(this.getReferenced())) {
             try {
                 ApiAutomationService apiAutomationService = CommonBeanFactory.getBean(ApiAutomationService.class);
                 ObjectMapper mapper = new ObjectMapper();
@@ -87,6 +88,7 @@ public class MsScenario extends MsTestElement {
                 ApiScenarioWithBLOBs scenario = apiAutomationService.getApiScenario(this.getId());
                 if (scenario != null && StringUtils.isNotEmpty(scenario.getScenarioDefinition())) {
                     JSONObject element = JSON.parseObject(scenario.getScenarioDefinition());
+                    this.setName(scenario.getName());
                     hashTree = mapper.readValue(element.getString("hashTree"), new TypeReference<LinkedList<MsTestElement>>() {
                     });
                     // 场景变量
