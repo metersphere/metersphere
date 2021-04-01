@@ -415,11 +415,15 @@ export default {
         };
       });
     }, 1000);
-    if(this.selectNode && this.selectNode.data && !this.form.id){
+    if(this.selectNode && this.selectNode.data && !this.form.id) {
         this.form.module = this.selectNode.data.id;
         this.form.nodePath = this.selectNode.data.path;
     }
-    if((!this.form.module || this.form.module==="default-module" || this.form.module ==="root") && this.treeNodes.length > 0){
+    if((!this.form.module || this.form.module==="default-module" || this.form.module ==="root") && this.treeNodes.length > 0) {
+      this.form.module =  this.treeNodes[0].id;
+      this.form.nodePath = this.treeNodes[0].path;
+    }
+    if((!this.form.module || this.form.module==="default-module" || this.form.module ==="root") && this.treeNodes.length > 0) {
       this.form.module =  this.treeNodes[0].id;
       this.form.nodePath = this.treeNodes[0].path;
     }
