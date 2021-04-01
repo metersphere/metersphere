@@ -134,7 +134,7 @@ public class ScheduleService {
         Schedules.forEach(schedule -> {
             try {
                 if (schedule.getEnable()) {
-                    LogUtil.error("初始化任务：" + JSON.toJSONString(schedule));
+                    LogUtil.info("初始化任务：" + JSON.toJSONString(schedule));
                     scheduleManager.addOrUpdateCronJob(new JobKey(schedule.getKey(), schedule.getGroup()),
                             new TriggerKey(schedule.getKey(), schedule.getGroup()), Class.forName(schedule.getJob()), schedule.getValue(),
                             scheduleManager.getDefaultJobDataMap(schedule.getResourceId(), schedule.getValue(), schedule.getUserId()));
