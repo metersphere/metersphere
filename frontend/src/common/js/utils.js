@@ -378,11 +378,11 @@ export function publicKeyEncrypt(input, publicKey) {
 }
 
 export function getNodePath(id, moduleOptions) {
-  for (const index in moduleOptions) {
-    let item = moduleOptions[index];
+  for (let i = 0; i < moduleOptions.length; i++) {
+    let item = moduleOptions[i];
     if (id === item.id) {
       return item.path;
     }
   }
-  return "";
+  return '';
 }

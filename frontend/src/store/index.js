@@ -13,15 +13,15 @@ const state = {
   isReadOnly: true,
   theme: undefined,
 
-  testCaseSelectNode: undefined,
+  testCaseSelectNode: {},
   testCaseSelectNodeIds: [],
   testCaseModuleOptions: [],
 
-  testReviewSelectNode: undefined,
+  testReviewSelectNode: {},
   testReviewSelectNodeIds: [],
   testReviewModuleOptions: [],
 
-  testPlanViewSelectNode: undefined
+  testPlanViewSelectNode: {}
 
 }
 

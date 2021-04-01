@@ -46,7 +46,7 @@ export default {
       }
     },
     selectNode: {
-      type: undefined,
+      type: Object,
     }
   },
   data() {
@@ -56,15 +56,15 @@ export default {
           data: {
             text: this.$t('test_track.review_view.all_case'),
             disable: true,
-            id: "root",
+            id: 'root',
           },
           children: []
         },
-        template: "default"
+        template: 'default'
       },
       isActive: true,
       isFullScreen: false,
-      height: ""
+      height: ''
     }
   },
   created() {

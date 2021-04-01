@@ -86,16 +86,12 @@ export default {
   },
   methods: {
     refresh() {
-      // this.selectNodeIds = [];
-      // this.selectParentNodes = [];
-      this.$store.commit('setTestReviewSelectNode', undefined);
+      this.$store.commit('setTestReviewSelectNode', {});
       this.$store.commit('setTestReviewSelectNodeIds', []);
       this.$refs.testReviewRelevance.search();
       this.getNodeTreeByReviewId();
     },
     nodeChange(node, nodeIds, pNodes) {
-      // this.selectNodeIds = nodeIds;
-      // this.selectParentNodes = pNodes;
       this.$store.commit('setTestReviewSelectNode', node);
       this.$store.commit('setTestReviewSelectNodeIds', nodeIds);
     },

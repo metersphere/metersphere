@@ -99,7 +99,7 @@
       methods: {
         refresh() {
           this.selectNodeIds = [];
-          this.$store.commit('setTestPlanViewSelectNode', undefined);
+          this.$store.commit('setTestPlanViewSelectNode', {});
           this.$refs.testCaseRelevance.search();
           this.getNodeTreeByPlanId();
         },
