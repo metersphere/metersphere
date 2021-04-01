@@ -11,7 +11,17 @@ const state = {
   test: {},
   versionSwitch: "new",
   isReadOnly: true,
-  theme: undefined
+  theme: undefined,
+
+  testCaseSelectNode: {},
+  testCaseSelectNodeIds: [],
+  testCaseModuleOptions: [],
+
+  testReviewSelectNode: {},
+  testReviewSelectNodeIds: [],
+  testReviewModuleOptions: [],
+
+  testPlanViewSelectNode: {}
 
 }
 

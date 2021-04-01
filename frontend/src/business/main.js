@@ -67,7 +67,7 @@ Vue.directive('preventReClick', {
         el.disabled = true
         setTimeout(() => {
           el.disabled = false
-        }, binding.value || 2000)
+        }, binding.value || 3000)
       }
     })
   }
