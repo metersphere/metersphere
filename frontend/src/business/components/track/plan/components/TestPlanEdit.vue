@@ -175,11 +175,11 @@ export default {
         Object.assign(tmp, testPlan);
         Object.assign(this.form, tmp);
       } else {
-        this.form.tags = []
+        this.form.tags = [];
       }
       listenGoBack(this.close);
       this.dialogFormVisible = true;
-      this.reload()
+      this.reload();
     },
     testPlanInfo() {
       this.$refs['planFrom'].validate((valid) => {
