@@ -243,7 +243,9 @@
               }
             })
           } else {
-            sign = false;
+            if (!data) {
+              sign = false;
+            }
           }
           // 校验是否全是全路径
           //this.checkFullUrl(data);
