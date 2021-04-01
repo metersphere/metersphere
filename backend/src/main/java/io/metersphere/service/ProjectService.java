@@ -28,6 +28,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -186,16 +187,21 @@ public class ProjectService {
         return result;
     }
 
-    public FileMetadata updateFile(String projectId, String fileId, MultipartFile file) {
+    public FileMetadata updateFile( String fileId, MultipartFile file) {
         QueryProjectFileRequest request = new QueryProjectFileRequest();
         request.setName(file.getOriginalFilename());
-        if (CollectionUtils.isEmpty(fileService.getProjectFiles(projectId, request))) {
-            fileService.deleteFileById(fileId);
-            return fileService.saveFile(file, projectId);
-        } else {
-            MSException.throwException(Translator.get("project_file_already_exists"));
+        FileMetadata fileMetadata = fileService.getFileMetadataById(fileId);
+        if (fileMetadata != null) {
+            fileMetadata.setSize(file.getSize());
+            fileMetadata.setUpdateTime(System.currentTimeMillis());
+            fileService.updateFileMetadata(fileMetadata);
+            try {
+                fileService.setFileContent(fileId, file.getBytes());
+            } catch (IOException e) {
+                MSException.throwException(e);
+            }
         }
-        return null;
+        return fileMetadata;
     }
 
     public void deleteFile(String fileId) {
