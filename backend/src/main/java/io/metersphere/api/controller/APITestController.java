@@ -288,23 +288,11 @@ public class APITestController {
          * 接口覆盖率
          * 复制的接口定义/复制或引用的单接口用例/ 添加的自定义请求 url 路径与现有的接口定义一致的请求
          */
-        long startTime1 = System.currentTimeMillis();
         List<ApiScenarioWithBLOBs> allScenarioInfoList = apiAutomationService.selectIdAndScenarioByProjectId(projectId);
-        long startTime2 = System.currentTimeMillis();
-        System.out.println("Search data time : " + (startTime2 - startTime1));
-        startTime1 = System.currentTimeMillis();
         List<ApiDefinition> allEffectiveApiIdList = apiDefinitionService.selectEffectiveIdByProjectId(projectId);
-        startTime2 = System.currentTimeMillis();
-        System.out.println("Search data time （api info） : " + (startTime2 - startTime1));
         List<ApiTestCase> allEffectiveApiCaseList = apiTestCaseService.selectEffectiveTestCaseByProjectId(projectId);
-        long startTime3 = System.currentTimeMillis();
-        System.out.println("Search data time (case info): " + (startTime3 - startTime2));
-
         try {
-            startTime1 = System.currentTimeMillis();
             float intetfaceCoverageRageNumber = apiAutomationService.countInterfaceCoverage(allScenarioInfoList, allEffectiveApiIdList, allEffectiveApiCaseList);
-            startTime2 = System.currentTimeMillis();
-            System.out.println("Count data time  : " + (startTime2 - startTime1));
             DecimalFormat df = new DecimalFormat("0.0");
             returnStr = df.format(intetfaceCoverageRageNumber) + "%";
         }catch (Exception e){
