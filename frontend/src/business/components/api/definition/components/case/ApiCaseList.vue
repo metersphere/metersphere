@@ -162,8 +162,8 @@
         this.condition.projectId = this.projectId;
         this.condition.apiDefinitionId = this.api.id;
         this.$post("/api/testcase/list", this.condition, response => {
-          this.apiCaseList = response.data;
-          this.apiCaseList.forEach(apiCase => {
+          let data = response.data;
+          data.forEach(apiCase => {
             if (apiCase.tags && apiCase.tags.length > 0) {
               apiCase.tags = JSON.parse(apiCase.tags);
               this.$set(apiCase, 'selected', false);
@@ -175,6 +175,7 @@
               apiCase.request.hashTree = [];
             }
           })
+          this.apiCaseList = data;
           this.addCase();
         });
       },
@@ -224,10 +225,11 @@
           }
 
           this.result = this.$post("/api/testcase/list", this.condition, response => {
+            let data = [];
             if (response.data) {
-              this.apiCaseList = response.data;
+              data = response.data;
             }
-            this.apiCaseList.forEach(apiCase => {
+            data.forEach(apiCase => {
               if (apiCase.tags && apiCase.tags.length > 0) {
                 apiCase.tags = JSON.parse(apiCase.tags);
                 this.$set(apiCase, 'selected', false);
@@ -240,6 +242,7 @@
               }
 
             })
+            this.apiCaseList = data;
             if (!this.useEnvironment && this.apiCaseList[0] && this.apiCaseList[0].request && this.apiCaseList[0].request.useEnvironment) {
               this.useEnvironment = this.apiCaseList[0].request.useEnvironment;
               this.environment = this.useEnvironment;
