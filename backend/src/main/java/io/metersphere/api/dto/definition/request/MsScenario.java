@@ -88,6 +88,7 @@ public class MsScenario extends MsTestElement {
                 ApiScenarioWithBLOBs scenario = apiAutomationService.getApiScenario(this.getId());
                 if (scenario != null && StringUtils.isNotEmpty(scenario.getScenarioDefinition())) {
                     JSONObject element = JSON.parseObject(scenario.getScenarioDefinition());
+                    this.setName(scenario.getName());
                     hashTree = mapper.readValue(element.getString("hashTree"), new TypeReference<LinkedList<MsTestElement>>() {
                     });
                     // 场景变量
