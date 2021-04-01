@@ -11,6 +11,7 @@ public class KafkaProperties {
     public static final String KAFKA_PREFIX = "kafka";
 
     private String acks = "0"; // 不要设置all
+    private String expectedDelayEndTime = "30000"; // 30s
     private String topic;
     private String fields;
     private String timestamp;

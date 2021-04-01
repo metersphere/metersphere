@@ -68,7 +68,7 @@
               </el-aside>
               <el-main style="padding: 0px 0px 0px 0px; line-height: 40px; text-align: center;">
                 <span v-if="interfaceCoverage === 'waitting...'">
-                  {{interfaceCoverage}}
+                  <i class="el-icon-loading lading-icon"></i>
                 </span>
                 <span v-else class="rows-count-number">
                   {{interfaceCoverage}}
@@ -161,7 +161,11 @@ export default {
   color: var(--count_number);
   margin:20px auto;
 }
-
+.lading-icon{
+  font-size: 25px;
+  color: var(--count_number);
+  font-weight: bold;
+}
 .main-number-show {
   width: 100px;
   height: 100px;
