@@ -351,16 +351,13 @@ public class MsHTTPSamplerProxy extends MsTestElement {
 
     public boolean isURL(String str) {
         try {
-            String regex = "^((https|http|ftp|rtsp|mms)?://)"
-                    + "?(([0-9a-z_!~*'().&=+$%-]+: )?[0-9a-z_!~*'().&=+$%-]+@)?"
-                    + "(([0-9]{1,3}\\.){3}[0-9]{1,3}" + "|" + "([0-9a-z_!~*'()-]+\\.)*"
-                    + "([0-9a-z][0-9a-z-]{0,61})?[0-9a-z]\\."
-                    + "[a-z]{2,6})"
-                    + "(:[0-9]{1,5})?"
-                    + "((/?)|"
-                    + "(/[0-9a-z_!~*'().;?:@&=+$,%#-]+)+/?)$";
-            return str.matches(regex) || (str.matches("^(http|https|ftp)://.*$") && str.matches(".*://\\$\\{.*$"));
+            new URL(str);
+            return true;
         } catch (Exception e) {
+            // 支持包含变量的url
+            if (str.matches("^(http|https|ftp)://.*$") && str.matches(".*://\\$\\{.*$")) {
+                return true;
+            }
             return false;
         }
     }
