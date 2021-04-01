@@ -20,6 +20,7 @@
           :condition="condition"
           :current-module="currentModule"
           :is-read-only="isReadOnly"
+          :moduleOptions="data"
           @exportAPI="exportAPI"
           @saveAsEdit="saveAsEdit"
           @refreshTable="$emit('refreshTable')"
@@ -34,33 +35,31 @@
 </template>
 
 <script>
-import MsAddBasisApi from "../basis/AddBasisApi";
-import SelectMenu from "../../../../track/common/SelectMenu";
-import {OPTIONS} from "../../model/JsonData";
-import ApiImport from "../import/ApiImport";
-import {getCurrentProjectID} from "@/common/js/utils";
-import MsNodeTree from "../../../../track/common/NodeTree";
-import ApiModuleHeader from "./ApiModuleHeader";
-import {buildNodePath} from "../../model/NodeTree";
+  import MsAddBasisApi from "../basis/AddBasisApi";
+  import SelectMenu from "../../../../track/common/SelectMenu";
+  import {OPTIONS} from "../../model/JsonData";
+  import ApiImport from "../import/ApiImport";
+  import MsNodeTree from "../../../../track/common/NodeTree";
+  import ApiModuleHeader from "./ApiModuleHeader";
+  import {buildNodePath, buildTree} from "../../model/NodeTree";
 
-export default {
-  name: 'MsApiModule',
-  components: {
-    ApiModuleHeader,
-    MsNodeTree,
-    MsAddBasisApi,
-    SelectMenu,
-    ApiImport
-  },
-  data() {
-    return {
+  export default {
+    name: 'MsApiModule',
+    components: {
+      ApiModuleHeader,
+      MsNodeTree,
+      MsAddBasisApi,
+      SelectMenu,
+      ApiImport
+    },
+    data() {
+      return {
         result: {},
         condition: {
           protocol: OPTIONS[0].value,
           filterText: "",
           trashEnable: false
         },
-        projectId: "",
         data: [],
         currentModule: {},
       }
@@ -74,6 +73,7 @@ export default {
       },
       planId: String,
       relevanceProjectId: String,
+      reviewId: String
     },
     computed: {
       isPlanModel() {
@@ -81,10 +81,15 @@ export default {
       },
       isRelevanceModel() {
         return this.relevanceProjectId ? true : false;
-      }
+      },
+      isReviewModel() {
+        return this.reviewId ? true : false;
+      },
+      projectId() {
+        return this.$store.state.projectId
+      },
     },
     mounted() {
-      this.projectId = getCurrentProjectID();
       this.$emit('protocolChange', this.condition.protocol);
       this.list();
     },
@@ -104,17 +109,20 @@ export default {
       },
       relevanceProjectId() {
         this.list();
+      },
+      reviewId() {
+        this.list();
       }
     },
     methods: {
-      list() {
+      list(projectId) {
         let url = undefined;
         if (this.isPlanModel) {
           url = '/api/module/list/plan/' + this.planId + '/' + this.condition.protocol;
         } else if (this.isRelevanceModel) {
           url = "/api/module/list/" + this.relevanceProjectId + "/" + this.condition.protocol;
         } else {
-          url = "/api/module/list/" + this.projectId + "/" + this.condition.protocol;
+          url = "/api/module/list/" + (projectId ? projectId : this.projectId) + "/" + this.condition.protocol;
           if (!this.projectId) {
             return;
           }
@@ -122,11 +130,10 @@ export default {
         this.result = this.$get(url, response => {
           if (response.data != undefined && response.data != null) {
             this.data = response.data;
-            let moduleOptions = [];
             this.data.forEach(node => {
-              buildNodePath(node, {path: ''}, moduleOptions);
+              buildTree(node, {path: ''});
             });
-            this.$emit('setModuleOptions', moduleOptions);
+            this.$emit('setModuleOptions', this.data);
             this.$emit('setNodeTree', this.data);
             if (this.$refs.nodeTree) {
               this.$refs.nodeTree.filter(this.condition.filterText);
@@ -188,8 +195,8 @@ export default {
           this.$refs.nodeTree.append({}, dataArr[0]);
         }
       },
-      exportAPI() {
-        this.$emit('exportAPI');
+      exportAPI(type) {
+        this.$emit('exportAPI', type);
       },
       debug() {
         this.$emit('debug');

@@ -9,8 +9,16 @@
                  ref="nodeTree"/>
     </template>
     <template v-slot:main>
+      <ms-tab-button
+        :active-dom.sync="activeDom"
+        :left-tip="$t('test_track.case.list')"
+        :left-content="$t('test_track.case.list')"
+        :right-tip="$t('test_track.case.minder')"
+        :right-content="$t('test_track.case.minder')"
+        :middle-button-enable="false">
       <functional-test-case-list
         class="table-list"
+        v-if="activeDom === 'left'"
         @openTestCaseRelevanceDialog="openTestCaseRelevanceDialog"
         @refresh="refresh"
         :plan-id="planId"
@@ -18,6 +26,13 @@
         :select-node-ids="selectNodeIds"
         :select-parent-nodes="selectParentNodes"
         ref="testPlanTestCaseList"/>
+        <test-plan-minder
+          :tree-nodes="treeNodes"
+          :project-id="projectId"
+          :plan-id="planId"
+          v-if="activeDom === 'right'"
+        />
+      </ms-tab-button>
     </template>
 
     <test-case-functional-relevance
@@ -34,10 +49,14 @@
     import MsTestPlanCommonComponent from "../base/TestPlanCommonComponent";
     import TestCaseFunctionalRelevance from "./TestCaseFunctionalRelevance";
     import FunctionalTestCaseList from "./FunctionalTestCaseList";
+    import MsTabButton from "@/business/components/common/components/MsTabButton";
+    import TestPlanMinder from "@/business/components/track/common/minder/TestPlanMinder";
 
     export default {
       name: "TestPlanFunctional",
       components: {
+        TestPlanMinder,
+        MsTabButton,
         FunctionalTestCaseList,
         TestCaseFunctionalRelevance,
         MsTestPlanCommonComponent,
@@ -50,6 +69,7 @@
           selectNodeIds: [],
           selectParentNodes: [],
           treeNodes: [],
+          activeDom: 'left',
         }
       },
       props: [
@@ -59,6 +79,11 @@
       ],
       mounted() {
         this.initData();
+      },
+      computed: {
+        projectId() {
+          return this.$store.state.projectId
+        },
       },
       activated(){
         this.initData();
@@ -121,5 +146,7 @@
 </script>
 
 <style scoped>
-
+/deep/ .el-button-group>.el-button:first-child {
+  padding: 4px 1px !important;
+}
 </style>

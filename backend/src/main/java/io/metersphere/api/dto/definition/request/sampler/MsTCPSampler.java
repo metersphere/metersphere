@@ -2,6 +2,7 @@ package io.metersphere.api.dto.definition.request.sampler;
 
 import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.annotation.JSONType;
+import io.metersphere.api.dto.automation.EsbDataStruct;
 import io.metersphere.api.dto.definition.request.MsTestElement;
 import io.metersphere.api.dto.definition.request.ParameterConfig;
 import io.metersphere.api.dto.definition.request.processors.pre.MsJSR223PreProcessor;
@@ -23,9 +24,7 @@ import org.apache.jmeter.testelement.property.StringProperty;
 import org.apache.jorphan.collections.HashTree;
 import org.apache.jorphan.collections.ListedHashTree;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -59,7 +58,7 @@ public class MsTCPSampler extends MsTestElement {
     private String password = "";
     @JSONField(ordinal = 33)
     private String request;
-//    @JSONField(ordinal = 34)
+    //    @JSONField(ordinal = 34)
 //    private Object requestResult;
     @JSONField(ordinal = 35)
     private List<KeyValue> parameters;
@@ -72,13 +71,29 @@ public class MsTCPSampler extends MsTestElement {
     @JSONField(ordinal = 39)
     private String projectId;
 
+    /**
+     * 新加两个参数，场景保存/修改时需要的参数。不会传递JMeter，只是用于最后的保留。
+     */
+    private List<EsbDataStruct> esbDataStruct;
+    private List<EsbDataStruct> backEsbDataStruct;
+
     @Override
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, ParameterConfig config) {
+        // 非导出操作，且不是启用状态则跳过执行
+        if (!config.isOperating() && !this.isEnable()) {
+            return;
+        }
         if (this.getReferenced() != null && MsTestElementConstants.REF.name().equals(this.getReferenced())) {
             this.getRefElement(this);
         }
-//        config.setConfig(getEnvironmentConfig(useEnvironment));
-        parseEnvironment(config.getConfig().get(this.projectId));
+        if (config.getConfig() == null) {
+            // 单独接口执行
+            this.setProjectId(config.getProjectId());
+            config.setConfig(getEnvironmentConfig(useEnvironment));
+        }
+        if(config.getConfig()!=null){
+            parseEnvironment(config.getConfig().get(this.projectId));
+        }
 
         // 添加环境中的公共变量
         Arguments arguments = this.addArguments(config);
@@ -111,10 +126,11 @@ public class MsTCPSampler extends MsTestElement {
         TCPSampler tcpSampler = new TCPSampler();
         tcpSampler.setEnabled(this.isEnable());
         tcpSampler.setName(this.getName());
-        String name = this.getParentName(this.getParent(), config);
+        String name = this.getParentName(this.getParent());
         if (StringUtils.isNotEmpty(name) && !config.isOperating()) {
             tcpSampler.setName(this.getName() + "<->" + name);
         }
+        tcpSampler.setProperty("MS-ID", this.getId());
 
         tcpSampler.setProperty(TestElement.TEST_CLASS, TCPSampler.class.getName());
         tcpSampler.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("TCPSamplerGui"));

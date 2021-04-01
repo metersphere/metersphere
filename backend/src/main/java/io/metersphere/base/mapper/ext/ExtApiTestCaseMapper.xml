@@ -196,13 +196,25 @@
         </if>
 
     </sql>
+
+    <select id="selectApiCaseInfoByPrimaryKey" resultType="io.metersphere.api.dto.definition.ApiTestCaseInfo">
+        SELECT
+            t1.*,
+            a.method AS apiMethod
+        FROM
+            api_test_case t1
+            inner join api_definition a on  t1.api_definition_id = a.id
+        WHERE t1.id = #{0}
+    </select>
+
     <select id="list" resultType="io.metersphere.api.dto.definition.ApiTestCaseResult">
         SELECT
         t1.*,
         t2.STATUS AS execResult,
         t2.create_time AS execTime,
         u2.NAME AS createUser,
-        u1.NAME AS updateUser
+        u1.NAME AS updateUser,
+        a.method AS apiMethod
         FROM
         api_test_case t1
         LEFT JOIN api_definition_exec_result t2 ON t1.last_result_id = t2.id
@@ -337,6 +349,15 @@
           where pc.test_plan_id = #{planId}
         )
     </select>
+    <select id="selectIdsNotExistsInReview" resultType="java.lang.String">
+        select c.id
+        from api_test_case c
+        where c.project_id = #{projectId} and c.id not in (
+            select pc.api_case_id
+            from test_case_review_api_case pc
+            where pc.test_case_review_id = #{reviewId}
+        )
+    </select>
 
     <select id="countProtocolByProjectID" resultType="io.metersphere.api.dto.datacount.ApiDataCountResult">
         SELECT apiDef.protocol AS groupField,COUNT(testCase.id) AS countNumber FROM api_test_case testCase
@@ -352,15 +373,16 @@
         AND testCase.create_time BETWEEN #{firstDayTimestamp} AND #{lastDayTimestamp}
     </select>
 
-    <select id="getRequest" resultType="io.metersphere.base.domain.ApiTestCaseWithBLOBs">
-        select id, request
-        from api_test_case
+    <select id="getRequest" resultType="io.metersphere.api.dto.definition.ApiTestCaseInfo">
+        select t1.id, t1.request,a.method AS apiMethod
+        from api_test_case t1
+        inner join api_definition a on  t1.api_definition_id = a.id
         where 1
         <if test="request.id != null and request.id!=''">
-            and id = #{request.id}
+            and t1.id = #{request.id}
         </if>
         <if test="request.ids != null and request.ids.size() > 0">
-            and id in
+            and t1.id in
             <foreach collection="request.ids" item="caseId" separator="," open="(" close=")">
                 #{caseId}
             </foreach>
@@ -369,6 +391,11 @@
     <select id="getNextNum" resultType="io.metersphere.base.domain.ApiTestCase">
         SELECT * FROM api_test_case WHERE api_test_case.api_definition_id = #{definitionId} ORDER BY num DESC LIMIT 1;
     </select>
-
+    <select id="listPorjectAllCaseName" resultType="java.lang.String">
+        select name from api_test_case where project_id = #{projectId}
+    </select>
+    <select id="selectEffectiveTestCaseByProjectId" resultType="io.metersphere.base.domain.ApiTestCase">
+        select id,api_definition_id from api_test_case where project_id = #{projectId}
+    </select>
 
 </mapper>

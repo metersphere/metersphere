@@ -97,10 +97,13 @@
     </sql>
 
     <select id="list" resultType="io.metersphere.track.dto.TestReviewCaseDTO">
-        select test_case_review_test_case.id as id, test_case.id as caseId, test_case.name, test_case.priority,
-        test_case.type, test_case.node_path, test_case.method, test_case.num, test_case_review_test_case.reviewer,
-        test_case.review_status, test_case_review_test_case.update_time, test_case_node.name as model,
-        project.name as projectName, test_case_review_test_case.review_id as reviewId
+        select test_case_review_test_case.id as id, test_case_review_test_case.reviewer,
+        test_case_review_test_case.update_time, test_case_review_test_case.review_id as reviewId,
+        test_case.id as caseId, test_case.name, test_case.priority,  test_case.test_id as testId,
+        test_case.type, test_case.node_path, test_case.method, test_case.num, test_case.review_status,
+        test_case.remark as remark,  test_case.steps as steps, test_case.node_id as nodeId,
+        test_case_node.name as model,
+        project.name as projectName
         from test_case_review_test_case
         inner join test_case on test_case_review_test_case.case_id = test_case.id
         left join test_case_node on test_case_node.id=test_case.node_id
@@ -158,12 +161,12 @@
                                     #{value}
                                 </foreach>
                             </when>
-                            <otherwise>
-                                and test_case_review_test_case.status in
+                            <when test="key=='status'">
+                                and test_case.review_status in
                                 <foreach collection="values" item="value" separator="," open="(" close=")">
                                     #{value}
                                 </foreach>
-                            </otherwise>
+                            </when>
                         </choose>
                     </if>
                 </foreach>

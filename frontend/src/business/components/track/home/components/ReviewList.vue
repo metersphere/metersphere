@@ -1,14 +1,14 @@
 <template>
-  <home-base-component :title="$t('test_track.review.my_review')" v-loading>
-    <template slot="header-area">
-      <div style="float: right">
-        <ms-table-button :is-tester-permission="true" v-if="!showMyCreator" icon="el-icon-view"
-                         :content="$t('test_track.review.my_create')" @click="searchMyCreator"/>
-        <ms-table-button :is-tester-permission="true" v-if="showMyCreator" icon="el-icon-view"
-                         :content="$t('test_track.review.reviewed_by_me')" @click="searchMyCreator"/>
-      </div>
-
-    </template>
+  <el-card class="table-card" v-loading="result.loading" body-style="padding:10px;">
+    <div slot="header">
+      <span class="title">
+        用例评审
+      </span>
+      <ms-table-button :is-tester-permission="true" v-if="!showMyCreator" icon="el-icon-view"
+                       :content="$t('test_track.review.my_create')" @click="searchMyCreator" style="float: right"/>
+      <ms-table-button :is-tester-permission="true" v-if="showMyCreator" icon="el-icon-view"
+                       :content="$t('test_track.review.reviewed_by_me')" @click="searchMyCreator" style="float: right"/>
+    </div>
     <el-table
       class="adjust-table"
       border
@@ -60,7 +60,7 @@
 
     </el-table>
 
-  </home-base-component>
+  </el-card>
 </template>
 
 <script>
@@ -120,5 +120,7 @@ export default {
 </script>
 
 <style scoped>
-
+.el-card /deep/ .el-card__header {
+  border-bottom: 0px solid #EBEEF5;
+}
 </style>

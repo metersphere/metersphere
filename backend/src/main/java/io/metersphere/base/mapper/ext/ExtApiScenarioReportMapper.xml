@@ -216,4 +216,9 @@
         ) orderData ON orderData.id = report.id;
     </select>
 
+    <select id="selectPreviousReportByScenarioId" resultType="io.metersphere.base.domain.ApiScenarioReport">
+          select * from api_scenario_report
+            WHERE execute_type in ("Completed","Debug")  and scenario_id=#{scenarioId} and id != #{nowId} ORDER BY create_time desc LIMIT 1
+    </select>
+
 </mapper>

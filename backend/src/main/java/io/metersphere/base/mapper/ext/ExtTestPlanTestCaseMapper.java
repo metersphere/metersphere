@@ -1,6 +1,7 @@
 package io.metersphere.base.mapper.ext;
 
 import io.metersphere.track.dto.TestCaseReportStatusResultDTO;
+import io.metersphere.track.dto.TestCaseTestDTO;
 import io.metersphere.track.dto.TestPlanCaseDTO;
 import io.metersphere.track.request.testplancase.QueryTestPlanCaseRequest;
 import org.apache.ibatis.annotations.Param;
@@ -45,4 +46,8 @@ public interface ExtTestPlanTestCaseMapper {
     void deleteByTestCaseID(String id);
 
     List<String> getExecResultByPlanId(String planId);
+
+    List<TestPlanCaseDTO> listForMinder(@Param("planId") String planId);
+
+    List<TestCaseTestDTO> listTestCaseTest(@Param("caseId") String caseId);
 }

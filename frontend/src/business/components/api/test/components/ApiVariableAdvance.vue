@@ -2,6 +2,7 @@
   <el-dialog :title="$t('api_test.request.parameters_advance')"
              :visible.sync="itemValueVisible"
              class="advanced-item-value"
+             :append-to-body="true"
              width="70%">
     <el-tabs tab-position="top" style="height: 50vh;" @tab-click="selectTab">
       <el-tab-pane :label="$t('api_test.request.parameters_advance_mock')">

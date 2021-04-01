@@ -4,6 +4,7 @@
     @setProject="setProject"
     @save="saveCaseRelevance"
     :plan-id="planId"
+    :flag="true"
     ref="baseRelevance">
 
     <template v-slot:aside>
@@ -61,9 +62,8 @@
       </el-table-column>
     </el-table>
 
-    <div v-if="!lineStatus" style="text-align: center">{{$t('test_track.review_view.last_page')}}</div>
-    <div style="text-align: center">共 {{total}} 条</div>
-
+    <div v-if="!lineStatus" style="text-align: center">{{ $t('test_track.review_view.last_page') }}</div>
+    <div style="text-align: center">共 {{ total }} 条</div>
   </test-case-relevance-base>
 
 </template>
@@ -159,11 +159,12 @@ export default {
         this.projectId = projectId;
       },
 
-      saveCaseRelevance() {
+      saveCaseRelevance(item) {
         let param = {};
         param.planId = this.planId;
         param.testCaseIds = [...this.selectIds];
         param.request = this.condition;
+        param.checked = item
         // 选择全选则全部加入到评审，无论是否加载完全部
         if (this.testCases.length === param.testCaseIds.length) {
           param.testCaseIds = ['all'];

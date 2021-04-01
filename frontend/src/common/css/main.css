@@ -14,6 +14,13 @@ body {
   font-family: "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", Arial, sans-serif;
   font-size: 14px;
   margin: 0;
+  /*--color: #2c2a48;*/
+  /*--color_shallow: #595591;*/
+  --color: '';
+  --primary_color: '';
+  --color_shallow: '';
+  --count_number: '';
+  --count_number_shallow: '';
 }
 
 /* 解决 document.body.clientHeight 为0 */
@@ -55,19 +62,23 @@ html,body {
 
 /* <-- 表格拖拽表头调整宽度，在 t-bable 上添加 border 属性，并添加 adjust-table 类名 */
 .adjust-table td {
-  border-right: 0;
+  border-right: 0 !important;
 }
 
 .adjust-table th {
-  border-right-color: white;
+  border-right-color: white !important;
+}
+
+.adjust-table.ms-select-all-fixed th:first-child.el-table-column--selection {
+  border-right-color: #DCDFE6 !important;
 }
 
 .adjust-table {
-  border-color: white;
+  border-color: white !important;
 }
 
 .adjust-table:after {
-  background-color: white;
+  background-color: white !important;
 }
 
 .adjust-table th:not([class*="el-table-column--selection"]):hover:after {
@@ -77,11 +88,11 @@ html,body {
   right: 0;
   height: 50%;
   width: 2px;
-  background-color: #EBEEF5;
+  background-color: #EBEEF5 !important;
 }
 
 .adjust-table tr:hover td {
-  border-right: 0;
+  border-right: 0 !important;
 }
 
 /* 表格拖拽表头调整宽度 --> */

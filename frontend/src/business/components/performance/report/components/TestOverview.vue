@@ -14,7 +14,7 @@
         <el-card shadow="always" class="ms-card-index-2">
           <span class="ms-card-data">
             <span class="ms-card-data-digital">{{ avgTransactions }}</span>
-            <span class="ms-card-data-unit"> Transactions/s</span>
+            <span class="ms-card-data-unit"> TPS</span>
           </span>
           <span class="ms-card-desc">Avg.Transactions</span>
         </el-card>
@@ -467,7 +467,8 @@ export default {
         let items = {
           name: name,
           type: 'line',
-          data: d
+          data: d,
+          smooth: true
         };
         let seriesArrayNames = seriesArray.map(m => m.name);
         if (seriesArrayNames.includes(name)) {

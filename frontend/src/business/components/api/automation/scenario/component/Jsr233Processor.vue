@@ -6,6 +6,8 @@
     :data="jsr223Processor"
     :draggable="draggable"
     :color="color"
+    :is-max="isMax"
+    :show-btn="showBtn"
     :background-color="backgroundColor"
     :title="title" v-loading="loading">
 
@@ -32,6 +34,14 @@ export default {
     draggable: {
       type: Boolean,
       default: false,
+    },
+    isMax: {
+      type: Boolean,
+      default: false,
+    },
+    showBtn: {
+      type: Boolean,
+      default: true,
     },
     isReadOnly: {
       type: Boolean,

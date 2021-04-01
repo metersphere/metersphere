@@ -14,8 +14,7 @@ public class EngineContext {
     private String reportId;
     private Integer resourceIndex;
     private Map<String, Object> properties = new HashMap<>();
-    private Map<String, String> testData = new HashMap<>();
-    private Map<String, byte[]> testJars = new HashMap<>();
+    private Map<String, byte[]> testResourceFiles = new HashMap<>();
 
     public String getTestId() {
         return testId;
@@ -69,14 +68,6 @@ public class EngineContext {
         this.fileType = fileType;
     }
 
-    public Map<String, String> getTestData() {
-        return testData;
-    }
-
-    public void setTestData(Map<String, String> testData) {
-        this.testData = testData;
-    }
-
     public String getResourcePoolId() {
         return resourcePoolId;
     }
@@ -111,11 +102,11 @@ public class EngineContext {
     }
 
 
-    public Map<String, byte[]> getTestJars() {
-        return testJars;
+    public Map<String, byte[]> getTestResourceFiles() {
+        return testResourceFiles;
     }
 
-    public void setTestJars(Map<String, byte[]> testJars) {
-        this.testJars = testJars;
+    public void setTestResourceFiles(Map<String, byte[]> testResourceFiles) {
+        this.testResourceFiles = testResourceFiles;
     }
 }

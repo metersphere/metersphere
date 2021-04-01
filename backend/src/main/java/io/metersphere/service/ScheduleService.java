@@ -4,9 +4,7 @@ import com.alibaba.fastjson.JSON;
 import io.metersphere.api.dto.datacount.response.TaskInfoResult;
 import io.metersphere.api.dto.definition.ApiSwaggerUrlDTO;
 import io.metersphere.base.domain.*;
-import io.metersphere.base.mapper.ScheduleMapper;
-import io.metersphere.base.mapper.SwaggerUrlProjectMapper;
-import io.metersphere.base.mapper.UserMapper;
+import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtScheduleMapper;
 import io.metersphere.commons.constants.ScheduleGroup;
 import io.metersphere.commons.constants.ScheduleType;
@@ -17,6 +15,7 @@ import io.metersphere.commons.utils.ServiceUtils;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.controller.request.OrderRequest;
 import io.metersphere.controller.request.QueryScheduleRequest;
+import io.metersphere.controller.request.ScheduleRequest;
 import io.metersphere.dto.ScheduleDao;
 import io.metersphere.job.sechedule.*;
 import org.apache.commons.lang3.StringUtils;
@@ -37,6 +36,10 @@ import java.util.stream.Collectors;
 @Transactional(rollbackFor = Exception.class)
 public class ScheduleService {
 
+    @Resource
+    private TestPlanMapper testPlanMapper;
+    @Resource
+    private ApiScenarioMapper apiScenarioMapper;
     @Resource
     private ScheduleMapper scheduleMapper;
     @Resource
@@ -143,7 +146,7 @@ public class ScheduleService {
         });
     }
 
-    public Schedule buildApiTestSchedule(Schedule request) {
+    public Schedule buildApiTestSchedule(ScheduleRequest request) {
         Schedule schedule = new Schedule();
         schedule.setResourceId(request.getResourceId());
         schedule.setEnable(true);
@@ -213,12 +216,12 @@ public class ScheduleService {
         }
     }
 
-    public List<TaskInfoResult> findRunningTaskInfoByProjectID(String projectID) {
-        List<TaskInfoResult> runningTaskInfoList = extScheduleMapper.findRunningTaskInfoByProjectID(projectID);
+    public List<TaskInfoResult> findRunningTaskInfoByProjectID(String projectID, List<String> typeFilter) {
+        List<TaskInfoResult> runningTaskInfoList = extScheduleMapper.findRunningTaskInfoByProjectID(projectID, typeFilter);
         return  runningTaskInfoList;
     }
 
-    public void createSchedule(Schedule request) {
+    public void createSchedule(ScheduleRequest request) {
         Schedule schedule = this.buildApiTestSchedule(request);
         schedule.setJob(ApiScenarioTestJob.class.getName());
 
@@ -226,13 +229,19 @@ public class ScheduleService {
         TriggerKey triggerKey = null;
         Class clazz = null;
         if("testPlan".equals(request.getScheduleFrom())){
+            TestPlan testPlan = testPlanMapper.selectByPrimaryKey(request.getResourceId());
+            schedule.setName(testPlan.getName());
+            schedule.setProjectId(testPlan.getProjectId());
             schedule.setGroup(ScheduleGroup.TEST_PLAN_TEST.name());
             schedule.setType(ScheduleType.CRON.name());
             jobKey = TestPlanTestJob.getJobKey(request.getResourceId());
             triggerKey = TestPlanTestJob.getTriggerKey(request.getResourceId());
             clazz = TestPlanTestJob.class;
-        }else {
+        }else { //  实际上在场景中添加定时任务并不会执行到这里?
             //默认为情景
+            ApiScenarioWithBLOBs apiScene = apiScenarioMapper.selectByPrimaryKey(request.getResourceId());
+            schedule.setName(apiScene.getName());
+            schedule.setProjectId(apiScene.getProjectId());
             schedule.setGroup(ScheduleGroup.API_SCENARIO_TEST.name());
             schedule.setType(ScheduleType.CRON.name());
             jobKey = ApiScenarioTestJob.getJobKey(request.getResourceId());

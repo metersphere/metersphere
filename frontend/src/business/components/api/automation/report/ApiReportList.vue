@@ -68,12 +68,6 @@
                              :total="total"/>
       </el-card>
     </ms-main-container>
-
-    <el-drawer :visible.sync="debugVisible" :destroy-on-close="true" direction="ltr" :withHeader="false"
-               :title="$t('test_track.plan_view.test_result')" :modal="false" size="90%">
-      <ms-api-report-detail :report-id="reportId" :currentProjectId="currentProjectId" :info-db="true"
-                            @refresh="search"/>
-    </el-drawer>
   </ms-container>
 </template>
 
@@ -89,14 +83,13 @@ import ReportTriggerModeItem from "../../../common/tableItem/ReportTriggerModeIt
 import {REPORT_CONFIGS} from "../../../common/components/search/search-components";
 import {ApiEvent, LIST_CHANGE} from "@/business/components/common/head/ListEvent";
 import ShowMoreBtn from "../../../track/case/components/ShowMoreBtn";
-import MsApiReportDetail from "./ApiReportDetail";
 import {_filter, _sort} from "@/common/js/tableUtils";
 
 export default {
   components: {
     ReportTriggerModeItem,
     MsTableOperatorButton,
-    MsApiReportStatus, MsMainContainer, MsContainer, MsTableHeader, MsTablePagination, ShowMoreBtn, MsApiReportDetail
+    MsApiReportStatus, MsMainContainer, MsContainer, MsTableHeader, MsTablePagination, ShowMoreBtn
   },
   data() {
     return {
@@ -166,8 +159,15 @@ export default {
     },
     handleView(report) {
       this.reportId = report.id;
+      if(report.status ==='Running'){
+        this.$warning("正在运行中，请稍后查看")
+        return;
+      }
       this.currentProjectId = report.projectId;
-      this.debugVisible = true;
+        this.$router.push({
+          path: 'report/view/' + report.id,
+        })
+
     },
     handleDelete(report) {
       this.$alert(this.$t('api_report.delete_confirm') + report.name + "？", '', {

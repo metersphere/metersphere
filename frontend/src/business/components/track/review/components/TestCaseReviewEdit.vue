@@ -21,6 +21,11 @@
               <el-input v-model="form.name"/>
             </el-form-item>
           </el-col>
+          <el-col :span="10" :offset="1">
+            <el-form-item :label="$t('commons.tag')" :label-width="formLabelWidth" prop="tag">
+              <ms-input-tag :currentScenario="form" ref="tag"/>
+            </el-form-item>
+          </el-col>
         </el-row>
 
         <el-row>
@@ -80,6 +85,9 @@
           <el-button type="primary" @click="saveReview">
             {{ $t('test_track.confirm') }}
           </el-button>
+          <el-button type="primary" @click="reviewInfo">
+            {{ $t('test_track.planning_execution') }}
+          </el-button>
         </div>
       </template>
     </el-dialog>
@@ -93,11 +101,12 @@
 
 import TestPlanStatusButton from "../../plan/common/TestPlanStatusButton";
 import {WORKSPACE_ID} from "@/common/js/constants";
-import {getCurrentProjectID, listenGoBack, removeGoBackListener} from "@/common/js/utils";
+import {listenGoBack, removeGoBackListener} from "@/common/js/utils";
+import MsInputTag from "@/business/components/api/automation/scenario/MsInputTag";
 
 export default {
   name: "TestCaseReviewEdit",
-  components: {TestPlanStatusButton},
+  components: {MsInputTag, TestPlanStatusButton},
   data() {
     return {
       dialogFormVisible: false,
@@ -143,12 +152,45 @@ export default {
       listenGoBack(this.close);
       this.dialogFormVisible = true;
     },
+    reviewInfo() {
+
+      this.$refs['reviewForm'].validate((valid) => {
+        if (valid) {
+          let param = {};
+          Object.assign(param, this.form);
+          param.name = param.name.trim();
+          if (this.form.tags instanceof Array) {
+            this.form.tags = JSON.stringify(this.form.tags);
+          }
+          param.tags = this.form.tags;
+          if (param.name === '') {
+            this.$warning(this.$t('test_track.plan.input_plan_name'));
+            return;
+          }
+
+          if (!this.compareTime(new Date().getTime(), this.form.endTime)) {
+            return false;
+          }
+          this.result = this.$post('/test/case/review/' + this.operationType, param, response => {
+            this.dialogFormVisible = false;
+            this.$router.push('/track/review/view/' + response.data);
+          });
+        } else {
+          return false;
+        }
+      });
+    },
+
     saveReview() {
       this.$refs['reviewForm'].validate((valid) => {
         if (valid) {
           let param = {};
           Object.assign(param, this.form);
           param.name = param.name.trim();
+          if (this.form.tags instanceof Array) {
+            this.form.tags = JSON.stringify(this.form.tags);
+          }
+          param.tags = this.form.tags;
           if (param.name === '') {
             this.$warning(this.$t('test_track.plan.input_plan_name'));
             return;

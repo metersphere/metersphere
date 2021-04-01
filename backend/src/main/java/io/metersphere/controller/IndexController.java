@@ -22,4 +22,9 @@ public class IndexController {
             return "redirect:/";
         }
     }
+
+    @GetMapping(value = "/document")
+    public String document() {
+        return "document.html";
+    }
 }

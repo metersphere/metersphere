@@ -51,6 +51,16 @@
               value: 'props.get("variable_name")',
             },
             {
+              title: this.$t('api_test.request.processor.code_add_report_length'),
+              value: 'String report = ctx.getCurrentSampler().getRequestData();\n' +
+                'if(report!=null){\n' +
+                '    //补足8位长度，前置补0\n' +
+                '    String reportlengthStr = String.format("%08d",report.length());\n' +
+                '    report = reportlengthStr+report;\n' +
+                '    ctx.getCurrentSampler().setRequestData(report);\n' +
+                '}',
+            },
+            {
               title: this.$t('api_test.request.processor.code_template_set_global_variable'),
               value: 'props.put("variable_name", "variable_value")',
             },
@@ -68,17 +78,32 @@
               title: this.$t('api_test.request.processor.code_template_get_response_result'),
               value: 'prev.getResponseDataAsString()',
               disabled: this.isPreProcessor
+            },
+            {
+              title: this.$t('api_test.request.processor.code_hide_report_length'),
+              value: '//Get response data\n' +
+                'String returnData = prev.getResponseDataAsString();\n' +
+                'if(returnData!=null&&returnData.length()>8){\n' +
+                '//remove 8 report length \n' +
+                '    String subStringData = returnData.substring(8,returnData.length());\n' +
+                '    if(subStringData.startsWith("<")){\n' +
+                '        returnData = subStringData;\n' +
+                '        prev.setResponseData(returnData);\n' +
+                '    }\n' +
+                '}',
+              disabled: this.isPreProcessor
             }
           ],
           isCodeEditAlive: true,
           languages: [
-            'beanshell', "python", "groovy", "javascript"
+            'beanshell', "python", "groovy", "nashornScript","graalVMScript"
           ],
           codeEditModeMap: {
             beanshell: 'java',
             python: 'python',
             groovy: 'java',
-            javascript: 'javascript',
+            nashornScript: 'javascript',
+            graalVMScript: 'javascript',
           }
         }
       },
@@ -124,6 +149,7 @@
         },
         languageChange(language) {
           this.jsr223ProcessorData.scriptLanguage = language;
+          this.$emit("languageChange");
         },
       }
     }
@@ -136,6 +162,7 @@
 
   .script-content {
     height: calc(100vh - 570px);
+    min-height: 250px;
   }
 
   .script-index {

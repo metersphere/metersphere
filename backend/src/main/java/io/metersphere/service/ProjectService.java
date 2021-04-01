@@ -3,21 +3,21 @@ package io.metersphere.service;
 import io.metersphere.api.dto.DeleteAPITestRequest;
 import io.metersphere.api.dto.QueryAPITestRequest;
 import io.metersphere.api.service.APITestService;
-import io.metersphere.base.domain.LoadTest;
-import io.metersphere.base.domain.LoadTestExample;
-import io.metersphere.base.domain.Project;
-import io.metersphere.base.domain.ProjectExample;
+import io.metersphere.base.domain.*;
+import io.metersphere.base.mapper.ApiTestFileMapper;
+import io.metersphere.base.mapper.LoadTestFileMapper;
 import io.metersphere.base.mapper.LoadTestMapper;
 import io.metersphere.base.mapper.ProjectMapper;
-import io.metersphere.base.mapper.ext.*;
+import io.metersphere.base.mapper.ext.ExtProjectMapper;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.ServiceUtils;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.controller.request.ProjectRequest;
 import io.metersphere.dto.ProjectDTO;
 import io.metersphere.i18n.Translator;
+import io.metersphere.performance.request.DeleteTestPlanRequest;
+import io.metersphere.performance.request.QueryProjectFileRequest;
 import io.metersphere.performance.service.PerformanceTestService;
-import io.metersphere.track.request.testplan.DeleteTestPlanRequest;
 import io.metersphere.track.service.TestCaseService;
 import io.metersphere.track.service.TestPlanProjectService;
 import io.metersphere.track.service.TestPlanService;
@@ -25,8 +25,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -43,14 +45,6 @@ public class ProjectService {
     @Resource
     private LoadTestMapper loadTestMapper;
     @Resource
-    private ExtTestCaseMapper extTestCaseMapper;
-    @Resource
-    private ExtTestPlanMapper extTestPlanMapper;
-    @Resource
-    private ExtLoadTestMapper extLoadTestMapperMapper;
-    @Resource
-    private ExtApiTestMapper extApiTestMapper;
-    @Resource
     private TestPlanService testPlanService;
     @Resource
     private TestCaseService testCaseService;
@@ -58,6 +52,12 @@ public class ProjectService {
     private APITestService apiTestService;
     @Resource
     private TestPlanProjectService testPlanProjectService;
+    @Resource
+    private FileService fileService;
+    @Resource
+    private LoadTestFileMapper loadTestFileMapper;
+    @Resource
+    private ApiTestFileMapper apiTestFileMapper;
 
     public Project addProject(Project project) {
         if (StringUtils.isBlank(project.getName())) {
@@ -169,4 +169,64 @@ public class ProjectService {
     public Project getProjectById(String id) {
         return projectMapper.selectByPrimaryKey(id);
     }
+
+    public List<FileMetadata> uploadFiles(String projectId, List<MultipartFile> files) {
+        List<FileMetadata> result = new ArrayList<>();
+        if (files != null) {
+            for (MultipartFile file : files) {
+                QueryProjectFileRequest request = new QueryProjectFileRequest();
+                request.setName(file.getOriginalFilename());
+                if (CollectionUtils.isEmpty(fileService.getProjectFiles(projectId, request))) {
+                    result.add(fileService.saveFile(file, projectId));
+                } else {
+                    MSException.throwException(Translator.get("project_file_already_exists"));
+                }
+            }
+        }
+        return result;
+    }
+
+    public FileMetadata updateFile(String projectId, String fileId, MultipartFile file) {
+        QueryProjectFileRequest request = new QueryProjectFileRequest();
+        request.setName(file.getOriginalFilename());
+        if (CollectionUtils.isEmpty(fileService.getProjectFiles(projectId, request))) {
+            fileService.deleteFileById(fileId);
+            return fileService.saveFile(file, projectId);
+        } else {
+            MSException.throwException(Translator.get("project_file_already_exists"));
+        }
+        return null;
+    }
+
+    public void deleteFile(String fileId) {
+        LoadTestFileExample example1 = new LoadTestFileExample();
+        example1.createCriteria().andFileIdEqualTo(fileId);
+        List<LoadTestFile> loadTestFiles = loadTestFileMapper.selectByExample(example1);
+        String errorMessage = "";
+        if (loadTestFiles.size() > 0) {
+            List<String> testIds = loadTestFiles.stream().map(LoadTestFile::getTestId).distinct().collect(Collectors.toList());
+            LoadTestExample example = new LoadTestExample();
+            example.createCriteria().andIdIn(testIds);
+            List<LoadTest> loadTests = loadTestMapper.selectByExample(example);
+            errorMessage += Translator.get("load_test") + ": " + StringUtils.join(loadTests.stream().map(LoadTest::getName).toArray(), ",");
+            errorMessage += "\n";
+        }
+        ApiTestFileExample example2 = new ApiTestFileExample();
+        example2.createCriteria().andFileIdEqualTo(fileId);
+        List<ApiTestFile> apiTestFiles = apiTestFileMapper.selectByExample(example2);
+        if (apiTestFiles.size() > 0) {
+            List<String> testIds = apiTestFiles.stream().map(ApiTestFile::getTestId).distinct().collect(Collectors.toList());
+            LoadTestExample example = new LoadTestExample();
+            example.createCriteria().andIdIn(testIds);
+            QueryAPITestRequest request = new QueryAPITestRequest();
+            request.setIds(testIds);
+            List<ApiTest> apiTests = apiTestService.listByIds(request);
+            errorMessage += Translator.get("api_test") + ": " + StringUtils.join(apiTests.stream().map(ApiTest::getName).toArray(), ",");
+        }
+        if (StringUtils.isNotBlank(errorMessage)) {
+            MSException.throwException(errorMessage + Translator.get("project_file_in_use"));
+        }
+        fileService.deleteFileById(fileId);
+    }
+
 }

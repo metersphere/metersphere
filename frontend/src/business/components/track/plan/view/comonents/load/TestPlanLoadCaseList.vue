@@ -100,7 +100,7 @@
             </template>
           </el-table-column>
         </template>
-        <el-table-column v-if="!isReadOnly" :label="$t('commons.operating')" align="center">
+        <el-table-column v-if="!isReadOnly" :label="$t('commons.operating')" >
           <template slot="header">
             <header-label-operate @exec="customHeader"/>
           </template>
@@ -154,7 +154,7 @@ export default {
     return {
       type: TEST_PLAN_LOAD_CASE,
       headerItems: Test_Plan_Load_Case,
-      tableLabel: Test_Plan_Load_Case,
+      tableLabel: [],
       condition: {},
       result: {},
       tableData: [],
@@ -192,11 +192,14 @@ export default {
       default: false
     },
     planId: String,
+    reviewId: String,
     clickType: String,
   },
   created() {
     this.initTable();
     this.refreshStatus();
+
+
   },
   watch: {
     selectProjectId() {
@@ -211,7 +214,7 @@ export default {
       this.$refs.headerCustom.open(this.tableLabel)
     },
     initTable() {
-      getLabel(this, TEST_PLAN_LOAD_CASE);
+      this.autoCheckStatus();
       this.selectRows = new Set();
       this.condition.testPlanId = this.planId;
       if (this.selectProjectId && this.selectProjectId !== 'root') {
@@ -225,12 +228,33 @@ export default {
         }
         this.status = 'all';
       }
-      this.$post("/test/plan/load/case/list/" + this.currentPage + "/" + this.pageSize, this.condition, response => {
-        let data = response.data;
-        let {itemCount, listObject} = data;
-        this.total = itemCount;
-        this.tableData = listObject;
-      })
+      if (this.planId) {
+        this.condition.testPlanId = this.planId;
+        this.$post("/test/plan/load/case/list/" + this.currentPage + "/" + this.pageSize, this.condition, response => {
+          let data = response.data;
+          let {itemCount, listObject} = data;
+          this.total = itemCount;
+          this.tableData = listObject;
+        })
+      }
+      if (this.reviewId) {
+        this.condition.testCaseReviewId = this.reviewId;
+        this.$post("/test/review/load/case/list/" + this.currentPage + "/" + this.pageSize, this.condition, response => {
+          let data = response.data;
+          let {itemCount, listObject} = data;
+          this.total = itemCount;
+          this.tableData = listObject;
+        })
+      }
+      getLabel(this, TEST_PLAN_LOAD_CASE);
+
+    },
+    autoCheckStatus() {
+      if (!this.planId) {
+        return;
+      }
+      this.$post('/test/plan/autoCheck/' + this.planId, (response) => {
+      });
     },
     refreshStatus() {
       this.refreshScheduler = setInterval(() => {
@@ -267,11 +291,20 @@ export default {
         callback: (action) => {
           if (action === 'confirm') {
             let ids = Array.from(this.selectRows).map(row => row.id);
-            this.result = this.$post('/test/plan/load/case/batch/delete', ids, () => {
-              this.selectRows.clear();
-              this.initTable();
-              this.$success(this.$t('test_track.cancel_relevance_success'));
-            });
+            if (this.planId) {
+              this.result = this.$post('/test/plan/load/case/batch/delete', ids, () => {
+                this.selectRows.clear();
+                this.initTable();
+                this.$success(this.$t('test_track.cancel_relevance_success'));
+              });
+            }
+            if (this.reviewId) {
+              this.result = this.$post('/test/review/load/case/batch/delete', ids, () => {
+                this.selectRows.clear();
+                this.initTable();
+                this.$success(this.$t('test_track.cancel_relevance_success'));
+              });
+            }
           }
         }
       })

@@ -13,8 +13,6 @@ public class TestPlanApiScenario implements Serializable {
 
     private String status;
 
-    private String environmentId;
-
     private Long createTime;
 
     private Long updateTime;
@@ -24,6 +22,8 @@ public class TestPlanApiScenario implements Serializable {
     private String lastResult;
 
     private String reportId;
+
+    private String environment;
 
     private static final long serialVersionUID = 1L;
 }

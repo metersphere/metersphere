@@ -7,6 +7,7 @@
       class="batch-edit-dialog"
       :destroy-on-close="true"
       @close="handleClose"
+      v-loading="result.loading"
     >
       <el-form :model="form" label-position="right" label-width="150px" size="medium" ref="form" :rules="rules">
         <el-form-item :label="$t('test_track.case.batch_update', [size])" prop="type">
@@ -14,7 +15,11 @@
             <el-option v-for="(type, index) in typeArr" :key="index" :value="type.id" :label="type.name"/>
           </el-select>
         </el-form-item>
-        <el-form-item :label="$t('test_track.case.updated_attr_value')" prop="value">
+        <el-form-item  v-if="form.type === 'projectEnv'" :label="$t('test_track.case.updated_attr_value')">
+          <env-popover :env-map="projectEnvMap" :project-ids="projectIds" @setProjectEnvMap="setProjectEnvMap"
+                       :project-list="projectList" ref="envPopover"/>
+        </el-form-item>
+        <el-form-item v-else :label="$t('test_track.case.updated_attr_value')" prop="value">
           <el-select v-model="form.value" style="width: 80%" :filterable="filterable">
             <el-option v-for="(option, index) in options" :key="index" :value="option.id" :label="option.name">
               <div v-if="option.email">
@@ -35,11 +40,13 @@
 
 <script>
   import MsDialogFooter from "../../../common/components/MsDialogFooter";
-  import {listenGoBack, removeGoBackListener} from "../../../../../common/js/utils";
+  import {listenGoBack, removeGoBackListener} from "@/common/js/utils";
+  import EnvPopover from "@/business/components/api/automation/scenario/EnvPopover";
 
   export default {
     name: "BatchEdit",
     components: {
+      EnvPopover,
       MsDialogFooter
     },
     props: {
@@ -50,7 +57,7 @@
         default() {
           return this.$t('test_track.case.batch_operate')
         }
-      }
+      },
     },
     data() {
       return {
@@ -63,12 +70,26 @@
         },
         options: [],
         filterable: false,
+        projectList: [],
+        projectIds: new Set(),
+        selectRows: new Set(),
+        projectEnvMap: new Map(),
+        map: new Map(),
+        isScenario: '',
+        result: {}
       }
     },
     methods: {
       submit(form) {
         this.$refs[form].validate((valid) => {
           if (valid) {
+            this.form.projectEnvMap = this.projectEnvMap;
+            if (this.form.type === 'projectEnv') {
+              if (!this.$refs.envPopover.checkEnv()) {
+                return false;
+              }
+              this.form.map = this.map;
+            }
             this.$emit("batchEdit", this.form);
             this.dialogVisible = false;
           } else {
@@ -76,15 +97,30 @@
           }
         });
       },
+      setProjectEnvMap(projectEnvMap) {
+        this.projectEnvMap = projectEnvMap;
+      },
       open(size) {
         this.dialogVisible = true;
+        this.projectEnvMap.clear();
         if (size) {
           this.size = size;
         } else {
-          // this.size = this.$parent.selectRows.size;
           this.size = this.$parent.selectDataCounts;
         }
         listenGoBack(this.handleClose);
+        this.getWsProjects();
+      },
+      setSelectRows(rows) {
+        this.selectRows = rows;
+        this.projectIds.clear();
+        this.selectRows.forEach(row => {
+          this.projectIds.add(row.projectId)
+        })
+      },
+      setScenarioSelectRows(rows, sign) {
+        this.selectRows = rows;
+        this.isScenario = sign;
       },
       handleClose() {
         this.form = {};
@@ -93,6 +129,17 @@
       },
       changeType(val) {
         this.$set(this.form, "value", "");
+        if (val === 'projectEnv' && this.isScenario !== '') {
+          this.projectIds.clear();
+          this.selectRows.forEach(row => {
+            let id = this.isScenario === 'scenario' ? row.id : row.caseId;
+            this.result = this.$get('/api/automation/getApiScenario/' + id, res => {
+              let data = res.data;
+              data.projectIds.forEach(d => this.projectIds.add(d));
+              this.map.set(row.id, data.projectIds);
+            })
+          })
+        }
         this.filterable = val === "maintainer" || val === "executor";
         this.options = this.valueArr[val];
         this.typeArr.forEach(item => {
@@ -104,7 +151,12 @@
             return;
           }
         });
-      }
+      },
+      getWsProjects() {
+        this.$get("/project/listAll", res => {
+          this.projectList = res.data;
+        })
+      },
     }
   }
 </script>

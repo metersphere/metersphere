@@ -34,4 +34,14 @@ public class SaveApiPlanRequest {
 
     private String projectId;
 
+    /**
+     * 项目环境对应关系
+     */
+    private Map<String, String> envMap;
+
+    /**
+     * 用例的环境的对应关系
+     */
+    private Map<String, List<String>> mapping;
+
 }

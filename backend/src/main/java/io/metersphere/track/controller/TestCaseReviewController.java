@@ -45,8 +45,8 @@ public class TestCaseReviewController {
 
     @PostMapping("/save")
     @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
-    public void saveCaseReview(@RequestBody SaveTestCaseReviewRequest reviewRequest) {
-        testCaseReviewService.saveTestCaseReview(reviewRequest);
+    public String saveCaseReview(@RequestBody SaveTestCaseReviewRequest reviewRequest) {
+        return testCaseReviewService.saveTestCaseReview(reviewRequest);
     }
 
     @PostMapping("/project")
@@ -68,8 +68,8 @@ public class TestCaseReviewController {
 
     @PostMapping("/edit")
     @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
-    public void editCaseReview(@RequestBody SaveTestCaseReviewRequest testCaseReview) {
-        testCaseReviewService.editCaseReview(testCaseReview);
+    public String editCaseReview(@RequestBody SaveTestCaseReviewRequest testCaseReview) {
+        return testCaseReviewService.editCaseReview(testCaseReview);
     }
 
     @GetMapping("/delete/{reviewId}")

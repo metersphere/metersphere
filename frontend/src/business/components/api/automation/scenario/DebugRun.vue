@@ -2,7 +2,7 @@
   <div></div>
 </template>
 <script>
-  import {getUUID, getCurrentProjectID} from "@/common/js/utils";
+import {getUUID, getCurrentProjectID, strMapToObj} from "@/common/js/utils";
   import {createComponent} from "../../definition/components/jmeter/components";
 
   export default {
@@ -117,22 +117,15 @@
         threadGroup.hashTree.push(this.runData);
         testPlan.hashTree.push(threadGroup);
         let reqObj = {id: this.reportId, reportId: this.reportId, scenarioName: this.runData.name,
-          scenarioId: this.runData.id, testElement: testPlan, projectId: getCurrentProjectID(), environmentMap: this.strMapToObj(map)};
+          scenarioId: this.runData.id, testElement: testPlan, projectId: getCurrentProjectID(), environmentMap: strMapToObj(map)};
         let bodyFiles = this.getBodyUploadFiles(reqObj);
         let url = "/api/automation/run/debug";
         this.$fileUpload(url, null, bodyFiles, reqObj, response => {
           this.runId = response.data;
           this.$emit('runRefresh', {});
-        }, erro => {
+        }, error => {
         });
       },
-      strMapToObj(strMap){
-        let obj= Object.create(null);
-        for (let[k,v] of strMap) {
-          obj[k] = v;
-        }
-        return obj;
-      }
     }
   }
 </script>

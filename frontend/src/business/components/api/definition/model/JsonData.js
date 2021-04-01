@@ -61,11 +61,21 @@ export const CASE_PRIORITY = [
   {id: 'P3', label: 'P3'}
 ]
 
+export const REVIEW_STATUS = [
+  {id: 'Prepare', label: '未评审'},
+  {id: 'Pass', label: '通过'},
+  {id: 'UnPass', label: '未通过'}
+]
 export const API_STATUS = [
   {id: 'Prepare', label: '未开始'},
   {id: 'Underway', label: '进行中'},
   {id: 'Completed', label: '已完成'}
 ]
+export const TEST = [
+    {id: 'performance', name: '性能测试'},
+    {id: 'testcase', name: '测试用例'},
+    {id: 'automation', name: '场景测试'}
+  ]
 
 export const API_METHOD_COLOUR = [
   ['GET', "#61AFFE"], ['POST', '#49CC90'], ['PUT', '#fca130'],

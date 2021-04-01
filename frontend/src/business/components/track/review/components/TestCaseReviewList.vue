@@ -58,6 +58,13 @@
           </span>
           </template>
         </el-table-column>
+        <el-table-column v-if="item.id == 'tags'" prop="tags"
+                         :label="$t('api_test.automation.tag')" :key="index">
+          <template v-slot:default="scope">
+            <ms-tag v-for="(itemName,index)  in scope.row.tags" :key="index" type="success" effect="plain"
+                    :content="itemName" style="margin-left: 0px; margin-right: 2px"></ms-tag>
+          </template>
+        </el-table-column>
         <el-table-column
           v-if="item.id=='createTime'"
           prop="createTime"
@@ -113,7 +120,6 @@ import MsCreateBox from "../../../settings/CreateBox";
 import MsTablePagination from "../../../common/pagination/TablePagination";
 import {
   checkoutTestManagerOrTestUser,
-  getCurrentProjectID, getCurrentUser,
   getCurrentWorkspaceId
 } from "../../../../../common/js/utils";
 import {_filter, _sort, getLabel} from "@/common/js/tableUtils";
@@ -122,10 +128,12 @@ import {Test_Case_Review} from "@/business/components/common/model/JsonData";
 import {TEST_CASE_LIST, TEST_CASE_REVIEW_LIST} from "@/common/js/constants";
 import HeaderCustom from "@/business/components/common/head/HeaderCustom";
 import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOperate";
+import MsTag from "@/business/components/common/components/MsTag";
 
 export default {
   name: "TestCaseReviewList",
   components: {
+    MsTag,
     HeaderLabelOperate,
     HeaderCustom,
     MsDeleteConfirm,
@@ -141,7 +149,7 @@ export default {
     return {
       type: TEST_CASE_REVIEW_LIST,
       headerItems: Test_Case_Review,
-      tableLabel: Test_Case_Review,
+      tableLabel: [],
       result: {},
       condition: {},
       tableData: [],
@@ -167,23 +175,32 @@ export default {
     this.isTestManagerOrTestUser = checkoutTestManagerOrTestUser();
     this.initTableData();
   },
+  computed: {
+    projectId() {
+      return this.$store.state.projectId
+    },
+  },
   methods: {
     customHeader() {
       this.$refs.headerCustom.open(this.tableLabel)
     },
 
     initTableData() {
-      getLabel(this, TEST_CASE_REVIEW_LIST);
       let lastWorkspaceId = getCurrentWorkspaceId();
       this.condition.workspaceId = lastWorkspaceId;
-      if (!getCurrentProjectID()) {
+      if (!this.projectId) {
         return;
       }
-      this.condition.projectId = getCurrentProjectID();
+      this.condition.projectId = this.projectId;
       this.result = this.$post("/test/case/review/list/" + this.currentPage + "/" + this.pageSize, this.condition, response => {
         let data = response.data;
         this.total = data.itemCount;
         this.tableData = data.listObject;
+        this.tableData.forEach(item => {
+          if (item.tags && item.tags.length > 0) {
+            item.tags = JSON.parse(item.tags);
+          }
+        })
         for (let i = 0; i < this.tableData.length; i++) {
           let path = "/test/case/review/project";
           this.$post(path, {id: this.tableData[i].id}, res => {
@@ -200,12 +217,13 @@ export default {
           })
         }
       });
+      getLabel(this, TEST_CASE_REVIEW_LIST);
     },
     intoReview(row) {
       this.$router.push('/track/review/view/' + row.id);
     },
     testCaseReviewCreate() {
-      if (!getCurrentProjectID()) {
+      if (!this.projectId) {
         this.$warning(this.$t('commons.check_project_tip'));
         return;
       }

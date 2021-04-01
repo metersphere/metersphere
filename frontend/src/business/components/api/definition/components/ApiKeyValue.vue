@@ -3,12 +3,14 @@
     <span class="kv-description" v-if="description">
       {{ description }}
     </span>
+    <el-row>
+      <el-checkbox v-model="isSelectAll" v-if="isShowEnable === true && items.length > 1"/>
+    </el-row>
     <div class="kv-row item" v-for="(item, index) in items" :key="index">
       <el-row type="flex" :gutter="20" justify="space-between" align="middle">
         <el-col class="kv-checkbox" v-if="isShowEnable">
-          <input type="checkbox" v-if="!isDisable(index)" v-model="item.enable"
+          <el-checkbox v-if="!isDisable(index)" v-model="item.enable"
                  :disabled="isReadOnly"/>
-
         </el-col>
         <span style="margin-left: 10px" v-else></span>
 
@@ -19,7 +21,7 @@
           <el-input v-if="!suggestions" :disabled="isReadOnly" v-model="item.name" size="small" maxlength="200"
                     @change="change"
                     :placeholder="keyText" show-word-limit/>
-          <el-autocomplete :disabled="isReadOnly" :maxlength="200" v-if="suggestions" v-model="item.name" size="small"
+          <el-autocomplete :disabled="isReadOnly" :maxlength="400" v-if="suggestions" v-model="item.name" size="small"
                            :fetch-suggestions="querySearch" @change="change" :placeholder="keyText"
                            show-word-limit/>
 
@@ -50,7 +52,6 @@
       valuePlaceholder: String,
       isShowEnable: {
         type: Boolean,
-        default: false
       },
       description: String,
       items: Array,
@@ -64,6 +65,7 @@
       return {
         keyValues: [],
         loading: false,
+        isSelectAll: true
       }
     },
     computed: {
@@ -74,7 +76,15 @@
         return this.valuePlaceholder || this.$t("api_test.value");
       }
     },
-
+    watch: {
+      isSelectAll: function(to, from) {
+        if(from == false && to == true) {
+          this.selectAll();
+        } else if(from == true && to == false) {
+          this.invertSelect();
+        }
+      }
+    },
     methods: {
       moveBottom(index) {
         if (this.items.length < 2 || index === this.items.length - 2) {
@@ -137,6 +147,16 @@
         return (restaurant) => {
           return (restaurant.value.toLowerCase().indexOf(queryString.toLowerCase()) === 0);
         };
+      },
+      selectAll() {
+        this.items.forEach(item => {
+          item.enable = true;
+        });
+      },
+      invertSelect() {
+        this.items.forEach(item => {
+          item.enable = false;
+        });
       },
     },
     created() {

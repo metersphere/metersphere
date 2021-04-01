@@ -2,6 +2,18 @@
   <div>
     <el-card class="table-card" v-loading="result.loading">
 
+      <template v-slot:header>
+        <el-row>
+          <el-col :span="8" :offset="11">
+            <el-input :placeholder="$t('api_test.definition.request.select_case')" @blur="search"
+                      @keyup.enter.native="search" class="search-input" size="small" v-model="condition.name"/>
+          </el-col>
+
+          <env-popover :env-map="projectEnvMap" :project-ids="projectIds" @setProjectEnvMap="setProjectEnvMap"
+                       :project-list="projectList" ref="envPopover" class="env-popover"/>
+        </el-row>
+      </template>
+
       <el-table ref="scenarioTable" border :data="tableData" class="adjust-table" @select-all="handleSelectAll" @select="handleSelect">
         <el-table-column type="selection"/>
 
@@ -19,7 +31,7 @@
         </el-table-column>
         <el-table-column prop="tagNames" :label="$t('api_test.automation.tag')" min-width="120">
           <template v-slot:default="scope">
-              <ms-tag v-for="itemName in scope.row.tags" :key="itemName" type="success" effect="plain" :content="itemName" style="margin-left: 5px"/>
+              <ms-tag v-for="itemName in scope.row.tags" :key="itemName" type="success" effect="plain" :content="itemName" style="margin-left: 0px; margin-right: 2px"/>
           </template>
         </el-table-column>
         <el-table-column prop="userId" :label="$t('api_test.automation.creator')" show-overflow-tooltip/>
@@ -56,10 +68,12 @@
   import MsTestPlanList from "../../../../../api/automation/scenario/testplan/TestPlanList";
   import TestPlanScenarioListHeader from "./TestPlanScenarioListHeader";
   import {_handleSelect, _handleSelectAll} from "../../../../../../../common/js/tableUtils";
+  import EnvPopover from "@/business/components/api/automation/scenario/EnvPopover";
 
   export default {
     name: "RelevanceScenarioList",
     components: {
+      EnvPopover,
       TestPlanScenarioListHeader,
       MsTablePagination, MsTableMoreBtn, ShowMoreBtn, MsTableHeader, MsTag, MsApiReportDetail, MsTestPlanList},
     props: {
@@ -84,7 +98,11 @@
         total: 0,
         reportId: "",
         infoDb: false,
-        selectRows: new Set()
+        selectRows: new Set(),
+        projectEnvMap: new Map(),
+        projectList: [],
+        projectIds: new Set(),
+        map: new Map()
       }
     },
     watch: {
@@ -95,8 +113,13 @@
         this.search();
       },
     },
+    created() {
+      this.getWsProjects();
+    },
     methods: {
       search() {
+        this.projectEnvMap.clear();
+        this.projectIds.clear();
         if (!this.projectId) {
           return;
         }
@@ -129,10 +152,33 @@
       },
       handleSelectAll(selection) {
         _handleSelectAll(this, selection, this.tableData, this.selectRows);
+        this.initProjectIds();
       },
       handleSelect(selection, row) {
         _handleSelect(this, selection, row, this.selectRows);
+        this.initProjectIds();
       },
+      setProjectEnvMap(projectEnvMap) {
+        this.projectEnvMap = projectEnvMap;
+      },
+      getWsProjects() {
+        this.$get("/project/listAll", res => {
+          this.projectList = res.data;
+        })
+      },
+      initProjectIds() {
+        this.projectIds.clear();
+        this.selectRows.forEach(row => {
+          this.result = this.$get('/api/automation/getApiScenario/' + row.id, res => {
+            let data = res.data;
+            data.projectIds.forEach(d => this.projectIds.add(d));
+            this.map.set(row.id, data.projectIds);
+          })
+        })
+      },
+      checkEnv() {
+        return this.$refs.envPopover.checkEnv();
+      }
     }
   }
 </script>
@@ -140,5 +186,10 @@
 <style scoped>
   /deep/ .el-drawer__header {
     margin-bottom: 0px;
+  }
+
+  .env-popover {
+    float: right;
+    margin-top: 4px;
   }
 </style>

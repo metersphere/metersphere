@@ -16,6 +16,27 @@
         <result column="phone" jdbcType="VARCHAR" property="phone"/>
     </resultMap>
 
+    <sql id="queryWhereCondition">
+        <where>
+            <if test="request.id != null">
+                AND user.id like CONCAT('%', #{request.id},'%')
+            </if>
+            <if test="request.name != null">
+                AND user.name like CONCAT('%', #{request.name},'%')
+            </if>
+            <if test="request.email != null">
+                AND user.email like CONCAT('%', #{request.email},'%')
+            </if>
+
+            <if test="request.unSelectIds != null and request.unSelectIds.size() > 0">
+                AND user.id not in
+                <foreach collection="request.unSelectIds" item="itemId" separator="," open="(" close=")">
+                    #{itemId}
+                </foreach>
+            </if>
+        </where>
+    </sql>
+
     <select id="getUserList" resultMap="BaseResultMap">
         select u.id, u.name, u.email, u.phone, u.language, u.status, u.source,
         u.last_organization_id, u.last_workspace_id, u.language, u.create_time, u.update_time
@@ -72,4 +93,13 @@
         </foreach>
     </select>
 
+    <select id="selectAllId" resultType="java.lang.String">
+        select id from `user`
+    </select>
+
+    <select id="selectIdsByQuery" resultType="java.lang.String">
+        select user.id
+        from user
+        <include refid="queryWhereCondition"/>
+    </select>
 </mapper>

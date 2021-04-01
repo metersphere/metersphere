@@ -1,6 +1,6 @@
 <template>
 
-  <div>
+  <div class="ms-table-header">
     <el-row v-if="title" class="table-title" type="flex" justify="space-between" align="middle">
       <slot name="title">
         {{title}}
@@ -10,6 +10,8 @@
       <span class="operate-button">
         <ms-table-button :is-tester-permission="isTesterPermission" v-if="showCreate" icon="el-icon-circle-plus-outline"
                          :content="createTip" @click="create"/>
+        <ms-table-button :is-tester-permission="true" icon="el-icon-download" v-if="showImport"
+                         :content="importTip" @click="importData"/>
         <ms-table-button :is-tester-permission="isTesterPermission" v-if="showRun" icon="el-icon-video-play"
                          type="primary"
                          :content="runTip" @click="runTest"/>
@@ -47,6 +49,10 @@
         type: Boolean,
         default: true
       },
+      showImport: {
+        type: Boolean,
+        default: false
+      },
       showRun: {
         type: Boolean,
         default: false
@@ -58,6 +64,12 @@
         type: String,
         default() {
           return this.$t('commons.create');
+        }
+      },
+      importTip: {
+        type: String,
+        default() {
+          return this.$t('commons.import');
         }
       },
       runTip: {
@@ -83,6 +95,9 @@
       },
       create() {
         this.$emit('create');
+      },
+      importData() {
+        this.$emit('import');
       },
       runTest() {
         this.$emit('runTest')

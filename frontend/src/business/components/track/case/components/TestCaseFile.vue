@@ -29,6 +29,7 @@ export default {
   },
   methods: {
     open(file) {
+      console.log(file)
       this.file = file;
       this.dialogVisible = true;
     },

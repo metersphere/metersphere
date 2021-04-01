@@ -1,5 +1,6 @@
 package io.metersphere.controller;
 
+import io.metersphere.base.domain.SystemHeader;
 import io.metersphere.base.domain.SystemParameter;
 import io.metersphere.base.domain.UserHeader;
 import io.metersphere.commons.constants.ParamConstants;
@@ -39,6 +40,11 @@ public class SystemParameterController {
         return SystemParameterService.getVersion();
     }
 
+    @GetMapping("/theme")
+    public String getTheme() {
+        return SystemParameterService.getValue("ui.theme");
+    }
+
     @GetMapping("/mail/info")
     @RequiresRoles(value = {RoleConstants.ADMIN})
     public MailInfo mailInfo() {
@@ -46,14 +52,18 @@ public class SystemParameterController {
     }
 
     @GetMapping("/base/info")
-    @RequiresRoles(value = {RoleConstants.ADMIN})
-    public BaseSystemConfigDTO getBaseInfo () {
+    public BaseSystemConfigDTO getBaseInfo() {
         return SystemParameterService.getBaseInfo();
+    }
+
+    @PostMapping("/system/header")
+    public SystemHeader getHeader(@RequestBody SystemHeader systemHeader) {
+        return SystemParameterService.getHeader(systemHeader.getType());
     }
 
     @PostMapping("/save/base")
     @RequiresRoles(value = {RoleConstants.ADMIN})
-    public void saveBaseInfo (@RequestBody List<SystemParameter> systemParameter) {
+    public void saveBaseInfo(@RequestBody List<SystemParameter> systemParameter) {
         SystemParameterService.saveBaseInfo(systemParameter);
     }
 

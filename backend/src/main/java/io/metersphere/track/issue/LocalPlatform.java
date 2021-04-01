@@ -5,6 +5,7 @@ import io.metersphere.base.domain.TestCaseIssues;
 import io.metersphere.commons.constants.IssuesManagePlatform;
 import io.metersphere.commons.user.SessionUser;
 import io.metersphere.commons.utils.SessionUtils;
+import io.metersphere.track.dto.DemandDTO;
 import io.metersphere.track.issue.domain.PlatformUser;
 import io.metersphere.track.request.testcase.IssuesRequest;
 
@@ -20,6 +21,11 @@ public class LocalPlatform extends AbstractIssuePlatform {
     @Override
     public List<Issues> getIssue() {
         return extIssuesMapper.getIssues(testCaseId, IssuesManagePlatform.Local.toString());
+    }
+
+    @Override
+    public List<DemandDTO> getDemandList(String projectId) {
+        return null;
     }
 
     @Override
@@ -60,7 +66,7 @@ public class LocalPlatform extends AbstractIssuePlatform {
     }
 
     @Override
-    String getProjectId() {
+    String getProjectId(String projectId) {
         return null;
     }
 

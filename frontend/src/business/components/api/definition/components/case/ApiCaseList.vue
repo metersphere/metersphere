@@ -13,6 +13,7 @@
           :apiCaseList="apiCaseList"
           :is-read-only="isReadOnly"
           :project-id="projectId"
+          :useEnvironment="useEnvironment"
           :is-case-edit="isCaseEdit"
           ref="header"
         />
@@ -24,6 +25,7 @@
             <api-case-item v-loading="singleLoading && singleRunId === item.id || batchLoadingIds.indexOf(item.id) > -1"
                            @refresh="refresh"
                            @singleRun="singleRun"
+                           @refreshModule="refreshModule"
                            @copyCase="copyCase"
                            @showExecResult="showExecResult"
                            @batchEditCase="batchEditCase"
@@ -38,7 +40,7 @@
     </ms-drawer>
 
     <!-- 执行组件 -->
-    <ms-run :debug="false" :environment="environment" :reportId="reportId" :run-data="runData"
+    <ms-run :debug="false" :reportId="reportId" :run-data="runData" :env-map="envMap"
             @runRefresh="runRefresh" ref="runTest"/>
     <!--批量编辑-->
     <ms-batch-edit ref="batchEdit" @batchEdit="batchEdit" :typeArr="typeArr" :value-arr="valueArr"/>
@@ -49,7 +51,7 @@
   import ApiCaseHeader from "./ApiCaseHeader";
   import ApiCaseItem from "./ApiCaseItem";
   import MsRun from "../Run";
-  import {getCurrentProjectID, getUUID} from "@/common/js/utils";
+  import {getUUID} from "@/common/js/utils";
   import MsDrawer from "../../../../common/components/MsDrawer";
   import {CASE_ORDER} from "../../model/JsonData";
   import {API_CASE_CONFIGS} from "@/business/components/common/components/search/search-components";
@@ -77,7 +79,7 @@
       return {
         result: {},
         grades: [],
-        environment: {},
+        environment: "",
         isReadOnly: false,
         selectedEvent: Object,
         priorities: CASE_ORDER,
@@ -88,7 +90,6 @@
         runData: [],
         selectdCases: [],
         reportId: "",
-        projectId: "",
         testCaseId: "",
         checkedCases: new Set(),
         visible: false,
@@ -111,6 +112,8 @@
           priority: CASE_PRIORITY,
           method: REQ_METHOD,
         },
+        envMap: new Map,
+        useEnvironment: "",
       }
     },
     watch: {
@@ -125,7 +128,6 @@
     },
     created() {
       this.api = this.currentApi;
-      this.projectId = getCurrentProjectID();
       if (this.createCase) {
         this.sysAddition();
       }
@@ -133,7 +135,10 @@
     computed: {
       isCaseEdit() {
         return this.testCaseId ? true : false;
-      }
+      },
+      projectId() {
+        return this.$store.state.projectId
+      },
     },
     methods: {
       open(api, testCaseId) {
@@ -147,6 +152,7 @@
       saveApiAndCase(api) {
         this.visible = true;
         this.api = api;
+        this.currentApi = api;
         this.addCase();
       },
       setEnvironment(environment) {
@@ -177,8 +183,10 @@
         this.apiCaseList = [];
         this.visible = false;
       },
-
-      runRefresh(data) {
+      refreshModule(){
+        this.$emit('refreshModule');
+      },
+      runRefresh() {
         this.batchLoadingIds = [];
         this.singleLoading = false;
         this.singleRunId = "";
@@ -189,8 +197,10 @@
             this.$set(item, 'selected', false);
           })
         }
+        // 批量更新最后执行环境
+        let obj = {envId: this.environment, show: true};
+        this.batchEdit(obj);
         this.$success(this.$t('organization.integration.successful_operation'));
-        this.refresh();
       },
 
       refresh() {
@@ -203,17 +213,20 @@
         })
       },
       getApiTest(addCase) {
+        this.useEnvironment = "";
         if (this.api) {
           this.condition.projectId = this.projectId;
           if (this.isCaseEdit) {
             this.condition.id = this.testCaseId;
           }
-          if(this.api){
+          if (this.api) {
             this.condition.apiDefinitionId = this.api.id;
           }
 
           this.result = this.$post("/api/testcase/list", this.condition, response => {
-            this.apiCaseList = response.data;
+            if (response.data) {
+              this.apiCaseList = response.data;
+            }
             this.apiCaseList.forEach(apiCase => {
               if (apiCase.tags && apiCase.tags.length > 0) {
                 apiCase.tags = JSON.parse(apiCase.tags);
@@ -225,7 +238,12 @@
               if (!apiCase.request.hashTree) {
                 apiCase.request.hashTree = [];
               }
+
             })
+            if (!this.useEnvironment && this.apiCaseList[0] && this.apiCaseList[0].request && this.apiCaseList[0].request.useEnvironment) {
+              this.useEnvironment = this.apiCaseList[0].request.useEnvironment;
+              this.environment = this.useEnvironment;
+            }
             if (addCase && this.apiCaseList.length == 0 && !this.loaded) {
               this.addCase();
             }
@@ -243,6 +261,9 @@
           }
           if (!request.hashTree) {
             request.hashTree = [];
+          }
+          if (request.backScript != null) {
+            request.hashTree.push(request.backScript);
           }
           let uuid = getUUID();
           let obj = {apiDefinitionId: this.api.id, name: '', priority: 'P0', active: true, tags: [], uuid: uuid};
@@ -263,37 +284,41 @@
       },
 
       singleRun(row) {
-        if (!this.environment || !this.environment) {
+        if (this.currentApi.protocol != "DUBBO" && this.currentApi.protocol != "dubbo://" && !this.environment) {
           this.$warning(this.$t('api_test.environment.select_environment'));
           return;
         }
+        this.selectdCases = [];
+        this.selectdCases.push(row.id);
         this.runData = [];
         this.singleLoading = true;
         this.singleRunId = row.id;
         row.request.name = row.id;
-        this.$get('/api/definition/get/' + row.request.id, response => {
-          row.request.path = response.data.path;  //  取的path是对应接口的path，因此查库以获得
-          row.request.useEnvironment = this.environment.id;
-          this.runData.push(row.request);
-          /*触发执行操作*/
-          this.reportId = getUUID().substring(0, 8);
-        });
+        row.request.useEnvironment = this.environment;
+        row.request.projectId = this.projectId;
+        this.runData.push(row.request);
+        /*触发执行操作*/
+        this.reportId = getUUID().substring(0, 8);
       },
 
       batchRun() {
-        if (!this.environment) {
+        if (this.currentApi.protocol != "DUBBO" && this.currentApi.protocol != "dubbo://" && !this.environment) {
           this.$warning(this.$t('api_test.environment.select_environment'));
           return;
         }
+        this.envMap = new Map();
+        this.envMap.set(this.$store.state.projectId,this.environment);
         this.runData = [];
         this.batchLoadingIds = [];
+        this.selectdCases = [];
         if (this.apiCaseList.length > 0) {
           this.apiCaseList.forEach(item => {
             if (item.selected && item.id) {
               item.request.name = item.id;
-              item.request.useEnvironment = this.environment.id;
+              item.request.useEnvironment = this.environment;
               this.runData.push(item.request);
               this.batchLoadingIds.push(item.id);
+              this.selectdCases.push(item.id);
             }
           })
           if (this.runData.length > 0) {
@@ -333,17 +358,22 @@
       },
       batchEdit(form) {
         let param = {};
-        param[form.type] = form.value;
-        param.ids = this.selectdCases;
-        param.projectId = getCurrentProjectID();
-        if (this.api) {
-          param.protocol = this.api.protocol;
+        if (form) {
+          param[form.type] = form.value;
+          param.ids = this.selectdCases;
+          param.projectId = this.projectId;
+          param.envId = form.envId;
+          if (this.api) {
+            param.protocol = this.api.protocol;
+          }
+          param.selectAllDate = this.isSelectAllDate;
+          param.unSelectIds = this.unSelection;
+          param = Object.assign(param, this.condition);
         }
-        param.selectAllDate = this.isSelectAllDate;
-        param.unSelectIds = this.unSelection;
-        param = Object.assign(param, this.condition);
         this.$post('/api/testcase/batch/editByParam', param, () => {
-          this.$success(this.$t('commons.save_success'));
+          if (!form.show) {
+            this.$success(this.$t('commons.save_success'));
+          }
           this.selectdCases = [];
           this.getApiTest();
         });

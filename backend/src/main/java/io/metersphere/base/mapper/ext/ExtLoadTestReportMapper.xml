@@ -91,6 +91,9 @@
             <if test="reportRequest.projectId != null">
                 AND project.id = #{reportRequest.projectId,jdbcType=VARCHAR}
             </if>
+            <if test="reportRequest.testId != null">
+                AND ltr.test_id = #{reportRequest.testId,jdbcType=VARCHAR}
+            </if>
             <if test="reportRequest.filters != null and reportRequest.filters.size() > 0">
                 <foreach collection="reportRequest.filters.entrySet()" index="key" item="values">
                     <if test="values != null and values.size() > 0">

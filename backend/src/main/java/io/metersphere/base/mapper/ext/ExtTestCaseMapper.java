@@ -5,6 +5,7 @@ import io.metersphere.controller.request.BaseQueryRequest;
 import io.metersphere.track.dto.TestCaseDTO;
 import io.metersphere.track.request.testcase.QueryTestCaseRequest;
 import io.metersphere.track.request.testcase.TestCaseBatchRequest;
+import io.metersphere.track.response.TrackCountResult;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
@@ -48,4 +49,32 @@ public interface ExtTestCaseMapper {
     int checkIsHave(@Param("caseId") String caseId, @Param("workspaceIds") Set<String> workspaceIds);
 
     List<String> selectIds(@Param("request") BaseQueryRequest condition);
+
+    /**
+     * 按照用例等级统计
+     * @param projectId 项目ID
+     * @return 统计结果
+     */
+    List<TrackCountResult> countPriority(@Param("projectId") String projectId);
+
+    long countCreatedThisWeek(@Param("projectId") String projectId, @Param("firstDayTimestamp") long firstDayTimestamp, @Param("lastDayTimestamp") long lastDayTimestamp);
+
+    List<TrackCountResult> countStatus(@Param("projectId") String projectId);
+
+    List<TrackCountResult> countRelevance(@Param("projectId") String projectId);
+
+    long countRelevanceCreatedThisWeek(@Param("projectId") String projectId,@Param("firstDayTimestamp") long firstDayTimestamp, @Param("lastDayTimestamp") long lastDayTimestamp);
+
+    int countCoverage(@Param("projectId") String projectId);
+
+    List<TrackCountResult> countFuncMaintainer(@Param("projectId") String projectId);
+
+    List<TrackCountResult> countRelevanceMaintainer(@Param("projectId") String projectId);
+
+    int getTestPlanBug(@Param("planId") String planId);
+    int getTestPlanCase(@Param("planId") String planId);
+    int getTestPlanPassCase(@Param("planId") String planId);
+
+
+
 }

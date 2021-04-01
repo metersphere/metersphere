@@ -168,3 +168,9 @@ export const JMETER_FUNC = [
   {type: "String", name: "${__escapeHtml}", description: "Encode strings using HTML encoding"},
   {type: "String", name: "${__TestPlanName}", description: "Return name of current test plan"},
 ]
+
+export const ORIGIN_COLOR = '#2c2a48';
+export const ORIGIN_COLOR_SHALLOW = '#595591';
+export const COUNT_NUMBER = '#6C317C';
+export const COUNT_NUMBER_SHALLOW = '#CDB9D2';
+export const PRIMARY_COLOR = '#783887';

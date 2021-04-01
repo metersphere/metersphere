@@ -48,10 +48,8 @@
                       <span class="cast_item">{{ testCase.priority }}</span>
                     </el-col>
                     <el-col :span="5">
-                      <span class="cast_label">{{ $t('test_track.case.case_type') }}：</span>
-                      <span class="cast_item" v-if="testCase.type === 'functional'">{{ $t('commons.functional') }}</span>
-                      <span class="cast_item" v-if="testCase.type === 'performance'">{{ $t('commons.performance') }}</span>
-                      <span class="cast_item" v-if="testCase.type === 'api'">{{ $t('commons.api') }}</span>
+                      <span class="cast_label">{{ $t('test_track.case.module') }}：</span>
+                      <span class="cast_item">{{ testCase.nodePath }}</span>
                     </el-col>
                     <el-col :span="10">
                       <test-plan-test-case-status-button class="status-button"
@@ -63,15 +61,6 @@
                   </el-row>
 
                   <el-row>
-                    <el-col :span="4" :offset="1">
-                      <span class="cast_label">{{ $t('test_track.case.method') }}：</span>
-                      <span v-if="testCase.method === 'manual'">{{ $t('test_track.case.manual') }}</span>
-                      <span v-if="testCase.method === 'auto'">{{ $t('test_track.case.auto') }}</span>
-                    </el-col>
-                    <el-col :span="5">
-                      <span class="cast_label">{{ $t('test_track.case.module') }}：</span>
-                      <span class="cast_item">{{ testCase.nodePath }}</span>
-                    </el-col>
                     <el-col :span="4" :offset="1">
                       <span class="cast_label">{{ $t('test_track.plan.plan_project') }}：</span>
                       <span class="cast_item">{{ testCase.projectName }}</span>
@@ -87,31 +76,40 @@
 
                   <el-row>
                     <el-col :offset="1">
+                      <span class="cast_label">关联测试：</span>
+                      <span v-for="(item,index) in testCase.list" :key="index">
+                        <el-button @click="openTest(item)" type="text" style="margin-left: 7px;">{{ item.testName }}</el-button>
+                      </span>
+                    </el-col>
+                  </el-row>
+
+                  <el-row>
+                    <el-col :offset="1">
                       <span class="cast_label">{{ $t('test_track.case.prerequisite') }}：</span>
                       <span class="cast_item"><p>{{ testCase.prerequisite }}</p></span>
                     </el-col>
                   </el-row>
 
-                  <el-row v-if="testCase.method === 'auto' && testCase.testId && testCase.testId != 'other'">
-                    <el-col class="test-detail" :span="20" :offset="1">
-                      <el-tabs v-model="activeTab" type="border-card" @tab-click="testTabChange">
-                        <el-tab-pane name="detail" :label="$t('test_track.plan_view.test_detail')">
-                          <api-test-detail :is-read-only="isReadOnly" v-if="testCase.type === 'api'" @runTest="testRun"
-                                           :id="testCase.testId" ref="apiTestDetail"/>
-                          <performance-test-detail :is-read-only="isReadOnly" v-if="testCase.type === 'performance'"
-                                                   @runTest="testRun" :id="testCase.testId" ref="performanceTestDetail"/>
-                        </el-tab-pane>
-                        <el-tab-pane name="result" :label="$t('test_track.plan_view.test_result')">
-                          <api-test-result :report-id="testCase.reportId" v-if=" testCase.type === 'api'"
-                                           ref="apiTestResult"/>
-                          <performance-test-result :is-read-only="isReadOnly" :report-id="testCase.reportId"
-                                                   v-if="testCase.type === 'performance'" ref="performanceTestResult"/>
-                        </el-tab-pane>
-                      </el-tabs>
-                    </el-col>
-                  </el-row>
+<!--                  <el-row v-if="testCase.method === 'auto' && testCase.testId && testCase.testId != 'other'">-->
+<!--                    <el-col class="test-detail" :span="20" :offset="1">-->
+<!--                      <el-tabs v-model="activeTab" type="border-card" @tab-click="testTabChange">-->
+<!--                        <el-tab-pane name="detail" :label="$t('test_track.plan_view.test_detail')">-->
+<!--                          <api-test-detail :is-read-only="isReadOnly" v-if="testCase.type === 'api'" @runTest="testRun"-->
+<!--                                           :id="testCase.testId" ref="apiTestDetail"/>-->
+<!--                          <performance-test-detail :is-read-only="isReadOnly" v-if="testCase.type === 'performance'"-->
+<!--                                                   @runTest="testRun" :id="testCase.testId" ref="performanceTestDetail"/>-->
+<!--                        </el-tab-pane>-->
+<!--                        <el-tab-pane name="result" :label="$t('test_track.plan_view.test_result')">-->
+<!--                          <api-test-result :report-id="testCase.reportId" v-if=" testCase.type === 'api'"-->
+<!--                                           ref="apiTestResult"/>-->
+<!--                          <performance-test-result :is-read-only="isReadOnly" :report-id="testCase.reportId"-->
+<!--                                                   v-if="testCase.type === 'performance'" ref="performanceTestResult"/>-->
+<!--                        </el-tab-pane>-->
+<!--                      </el-tabs>-->
+<!--                    </el-col>-->
+<!--                  </el-row>-->
 
-                  <el-row v-if="testCase.method && testCase.method !== 'auto'">
+                  <el-row>
                     <el-col :span="22" :offset="1">
                       <div>
                         <span class="cast_label">{{ $t('test_track.case.steps') }}：</span>
@@ -351,7 +349,7 @@ import ApiTestDetail from "../test/ApiTestDetail";
 import ApiTestResult from "../test/ApiTestResult";
 import PerformanceTestDetail from "../test/PerformanceTestDetail";
 import PerformanceTestResult from "../test/PerformanceTestResult";
-import {listenGoBack, removeGoBackListener} from "@/common/js/utils";
+import {getUUID, listenGoBack, removeGoBackListener} from "@/common/js/utils";
 import TestCaseAttachment from "@/business/components/track/case/components/TestCaseAttachment";
 import CaseComment from "@/business/components/track/case/components/CaseComment";
 import MsPreviousNextButton from "../../../../../common/components/MsPreviousNextButton";
@@ -493,7 +491,7 @@ export default {
         }
         this.testCase = item;
         this.getRelatedTest();
-        this.initTest();
+        // this.initTest();
         this.getIssues(item.caseId);
         this.stepResultChange();
         this.getFileMetaData(item);
@@ -521,19 +519,19 @@ export default {
       listenGoBack(this.handleClose);
       this.initData(testCase);
     },
-    initTest() {
-      this.$nextTick(() => {
-        if (this.testCase.testId && this.testCase.testId !== 'other') {
-          if (this.testCase.method === 'auto') {
-            if (this.$refs.apiTestDetail && this.testCase.type === 'api') {
-              this.$refs.apiTestDetail.init();
-            } else if (this.testCase.type === 'performance') {
-              this.$refs.performanceTestDetail.init();
-            }
-          }
-        }
-      });
-    },
+    // initTest() {
+    //   this.$nextTick(() => {
+    //     if (this.testCase.testId && this.testCase.testId !== 'other') {
+    //       if (this.testCase.method === 'auto') {
+    //         if (this.$refs.apiTestDetail && this.testCase.type === 'api') {
+    //           this.$refs.apiTestDetail.init();
+    //         } else if (this.testCase.type === 'performance') {
+    //           this.$refs.performanceTestDetail.init();
+    //         }
+    //       }
+    //     }
+    //   });
+    // },
     testRun(reportId) {
       this.testCase.reportId = reportId;
       this.saveReport(reportId);
@@ -558,6 +556,29 @@ export default {
           }
         }
       });
+    },
+    openTest(item) {
+      const type = item.testType;
+      const id = item.testId;
+      switch (type) {
+        case "performance": {
+          let performanceData = this.$router.resolve({
+            path: '/performance/test/edit/' + id,
+          })
+          window.open(performanceData.href, '_blank');
+          break;
+        }
+        case "testcase": {
+          let caseData = this.$router.resolve({name:'ApiDefinition',params:{redirectID:getUUID(),dataType:"apiTestCase",dataSelectRange:'single:'+id}});
+          window.open(caseData.href, '_blank');
+          break;
+        }
+        case "automation": {
+          let automationData = this.$router.resolve({name:'ApiAutomation',params:{redirectID:getUUID(),dataType:"scenario",dataSelectRange:'edit:'+id}});
+          window.open(automationData.href, '_blank');
+          break;
+        }
+      }
     },
     getRelatedTest() {
       if (this.testCase.method === 'auto' && this.testCase.testId && this.testCase.testId !== 'other') {
@@ -591,17 +612,23 @@ export default {
           const project = res.data;
           if (project.tapdId) {
             this.hasTapdId = true;
-            this.result = this.$get("/issues/tapd/user/" + this.testCase.caseId, response => {
-              this.users = response.data;
+            this.result = this.$get("/issues/tapd/user/" + this.testCase.caseId).then(response => {
+              this.users = response.data.data;
+            }).catch(() => {
+              console.log("get tapd user error.");
             })
           }
           if (project.zentaoId) {
             this.hasZentaoId = true;
-            this.result = this.$get("/issues/zentao/builds/" + this.testCase.caseId, response => {
-              this.Builds = response.data;
+            this.result = this.$get("/issues/zentao/builds/" + this.testCase.caseId).then(response => {
+              this.Builds = response.data.data;
+            }).catch(() => {
+              console.log("get zentao builds error.");
             })
-            this.result = this.$get("/issues/zentao/user/" + this.testCase.caseId, response => {
-              this.zentaoUsers = response.data;
+            this.result = this.$get("/issues/zentao/user/" + this.testCase.caseId).then(response => {
+              this.zentaoUsers = response.data.data;
+            }).catch(() => {
+              console.log("get zentao user error.");
             })
           }
         })
@@ -614,7 +641,7 @@ export default {
       this.$post('/test/plan/edit/status/' + planId);
     },
     stepResultChange() {
-      if (this.testCase.method === 'manual') {
+      if (this.testCase.method === 'manual' || !this.testCase.method) {
         this.isFailure = this.testCase.steptResults.filter(s => {
           return s.executeResult === 'Failure' || s.executeResult === 'Blocking';
         }).length > 0;
@@ -649,8 +676,10 @@ export default {
       this.testCase.zentaoAssigned = "";
     },
     getIssues(caseId) {
-      this.result = this.$get("/issues/get/" + caseId, response => {
-        this.issues = response.data;
+      this.result = this.$get("/issues/get/" + caseId).then(response => {
+        this.issues = response.data.data;
+      }).catch(() => {
+        console.log("get issues error")
       })
     },
     closeIssue(row) {
@@ -664,8 +693,9 @@ export default {
       }
     },
     deleteIssue(row) {
-      this.result = this.$get("/issues/delete/" + row.id, () => {
-        this.getIssues(this.testCase.caseId);
+      let caseId = this.testCase.caseId;
+      this.result = this.$post("/issues/delete", {id: row.id, caseId: caseId}, () => {
+        this.getIssues(caseId);
         this.$success(this.$t('commons.delete_success'));
       })
     },
@@ -681,7 +711,7 @@ export default {
 .border-hidden >>> .el-textarea__inner {
   border-style: hidden;
   background-color: white;
-  color: #606266;
+  color: #060505;
 }
 
 .cast_label {
@@ -755,4 +785,5 @@ p {
   height: 550px;
   overflow: auto;
 }
+
 </style>

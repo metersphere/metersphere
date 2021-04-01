@@ -3,10 +3,7 @@ package io.metersphere.api.service;
 import com.alibaba.fastjson.JSON;
 import io.metersphere.api.dto.datacount.ExecutedCaseInfoResult;
 import io.metersphere.api.jmeter.TestResult;
-import io.metersphere.base.domain.ApiDefinitionExecResult;
-import io.metersphere.base.domain.ApiDefinitionExecResultExample;
-import io.metersphere.base.domain.ApiTestCaseWithBLOBs;
-import io.metersphere.base.domain.TestPlanApiCase;
+import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ApiDefinitionExecResultMapper;
 import io.metersphere.base.mapper.ApiTestCaseMapper;
 import io.metersphere.base.mapper.ext.ExtApiDefinitionExecResultMapper;
@@ -15,6 +12,7 @@ import io.metersphere.commons.utils.DateUtils;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.track.dto.TestPlanDTO;
 import io.metersphere.track.request.testcase.QueryTestPlanRequest;
+import io.metersphere.track.service.TestCaseReviewApiCaseService;
 import io.metersphere.track.service.TestPlanApiCaseService;
 import io.metersphere.track.service.TestPlanService;
 import org.apache.commons.collections4.CollectionUtils;
@@ -41,6 +39,8 @@ public class ApiDefinitionExecResultService {
     private TestPlanService testPlanService;
     @Resource
     private ApiTestCaseMapper apiTestCaseMapper;
+    @Resource
+    private TestCaseReviewApiCaseService testCaseReviewApiCaseService;
 
     @Resource
     SqlSessionFactory sqlSessionFactory;
@@ -67,6 +67,15 @@ public class ApiDefinitionExecResultService {
                 saveResult.setStatus(status);
                 if (StringUtils.equals(type, ApiRunMode.API_PLAN.name())) {
                     testPlanApiCaseService.setExecResult(item.getName(), status);
+                    testCaseReviewApiCaseService.setExecResult(item.getName(), status);
+
+                }
+
+                // 清空上次执行结果的内容，只保留当前最新一条内容
+                ApiDefinitionExecResult prevResult = extApiDefinitionExecResultMapper.selectMaxResultByResourceIdAndType(item.getName(), type);
+                if (prevResult != null) {
+                    prevResult.setContent(null);
+                    definitionExecResultMapper.updateByPrimaryKeyWithBLOBs(prevResult);
                 }
                 // 更新用例最后执行结果
                 ApiTestCaseWithBLOBs apiTestCaseWithBLOBs = new ApiTestCaseWithBLOBs();
@@ -89,7 +98,7 @@ public class ApiDefinitionExecResultService {
      */
     public void saveApiResultByScheduleTask(TestResult result, String type) {
         String saveResultType = type;
-        if(StringUtils.equalsAny(ApiRunMode.SCHEDULE_API_PLAN.name(),saveResultType)){
+        if (StringUtils.equalsAny(ApiRunMode.SCHEDULE_API_PLAN.name(), saveResultType)) {
             saveResultType = ApiRunMode.API_PLAN.name();
         }
 
@@ -118,9 +127,16 @@ public class ApiDefinitionExecResultService {
             } else {
                 userID = Objects.requireNonNull(SessionUtils.getUser()).getId();
                 testPlanApiCaseService.setExecResult(item.getName(), status);
+                testCaseReviewApiCaseService.setExecResult(item.getName(), status);
             }
 
             saveResult.setUserId(userID);
+            // 前一条数据内容清空
+            ApiDefinitionExecResult prevResult = extApiDefinitionExecResultMapper.selectMaxResultByResourceIdAndType(item.getName(), finalSaveResultType);
+            if (prevResult != null) {
+                prevResult.setContent(null);
+                apiDefinitionExecResultMapper.updateByPrimaryKeyWithBLOBs(prevResult);
+            }
             apiDefinitionExecResultMapper.insert(saveResult);
         });
     }
@@ -187,6 +203,8 @@ public class ApiDefinitionExecResultService {
                         planRequest.setScenarioId(item.getTestCaseID());
                     } else if ("apiCase".equals(item.getCaseType())) {
                         planRequest.setApiId(item.getTestCaseID());
+                    } else if ("load".equals(item.getCaseType())) {
+                        planRequest.setLoadId(item.getTestCaseID());
                     }
                     List<TestPlanDTO> dtoList = testPlanService.selectTestPlanByRelevancy(planRequest);
                     item.setTestPlanDTOList(dtoList);

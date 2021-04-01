@@ -12,6 +12,7 @@ import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.track.request.testcase.ApiCaseRelevanceRequest;
+import io.metersphere.track.service.TestPlanApiCaseService;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.web.bind.annotation.*;
@@ -28,7 +29,8 @@ public class ApiTestCaseController {
 
     @Resource
     private ApiTestCaseService apiTestCaseService;
-
+    @Resource
+    private TestPlanApiCaseService testPlanApiCaseService;
     @PostMapping("/list")
     public List<ApiTestCaseResult> list(@RequestBody ApiTestCaseRequest request) {
         request.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
@@ -44,8 +46,14 @@ public class ApiTestCaseController {
         if(!list.isEmpty()){
             return  list.get(0);
         }else {
-            return  null;
+            return null;
         }
+    }
+    @GetMapping("/getStateByTestPlan/{id}")
+    public String getStateByTestPlan(@PathVariable String id ) {
+        String status=testPlanApiCaseService.getState(id);
+        return status;
+
     }
 
     @PostMapping("/list/{goPage}/{pageSize}")
@@ -53,6 +61,14 @@ public class ApiTestCaseController {
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         request.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
         return PageUtils.setPageInfo(page, apiTestCaseService.listSimple(request));
+    }
+
+    @GetMapping("/list/{projectId}")
+    public List<ApiTestCaseDTO> list(@PathVariable String projectId) {
+        ApiTestCaseRequest request = new ApiTestCaseRequest();
+        request.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
+        request.setProjectId(projectId);
+        return apiTestCaseService.listSimple(request);
     }
 
     @PostMapping("/get/request")
@@ -112,13 +128,18 @@ public class ApiTestCaseController {
     public void testPlanRelevance(@RequestBody ApiCaseRelevanceRequest request) {
         apiTestCaseService.relevanceByCase(request);
     }
+    @PostMapping("/relevance/review")
+    public void testCaseReviewRelevance(@RequestBody ApiCaseRelevanceRequest request){
+        apiTestCaseService.relevanceByApiByReview(request);
+    }
 
     @PostMapping(value = "/jenkins/run")
     public String jenkinsRun(@RequestBody RunCaseRequest request) {
         return apiTestCaseService.run(request);
     }
     @GetMapping(value = "/jenkins/exec/result/{id}")
-    public String getExecResult(@PathVariable String  id) {
-        return apiTestCaseService.getExecResult(id);
+    public String getExecResult(@PathVariable String id) {
+           return  apiTestCaseService.getExecResult(id);
+
     }
 }

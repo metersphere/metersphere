@@ -2,6 +2,7 @@ package io.metersphere.controller;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import io.metersphere.base.domain.FileMetadata;
 import io.metersphere.base.domain.Project;
 import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.commons.utils.PageUtils;
@@ -14,6 +15,7 @@ import io.metersphere.service.ProjectService;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -84,4 +86,18 @@ public class ProjectController {
         projectService.updateProject(Project);
     }
 
+    @PostMapping(value = "upload/files/{projectId}", consumes = {"multipart/form-data"})
+    public List<FileMetadata> uploadFiles(@PathVariable String projectId, @RequestPart(value = "file") List<MultipartFile> files) {
+        return projectService.uploadFiles(projectId, files);
+    }
+
+    @PostMapping(value = "/update/file/{projectId}/{fileId}", consumes = {"multipart/form-data"})
+    public FileMetadata updateFile(@PathVariable String projectId, @PathVariable String fileId, @RequestPart(value = "file") MultipartFile file) {
+        return projectService.updateFile(projectId, fileId, file);
+    }
+
+    @GetMapping(value = "delete/file/{fileId}")
+    public void deleteFile(@PathVariable String fileId) {
+        projectService.deleteFile(fileId);
+    }
 }

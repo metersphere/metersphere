@@ -6,8 +6,8 @@
     :destroy-on-close="true"
     :before-close="handleClose">
 
-    <div v-for="pe in data" :key="pe.id">
-      <div>
+    <div v-loading="result.loading">
+      <div v-for="pe in data" :key="pe.id" style="margin-left: 20px;">
         {{ getProjectName(pe.id) }}
         <el-select v-model="pe['selectEnv']" placeholder="请选择环境" style="margin-left:10px; margin-top: 10px;"
                    size="small">
@@ -29,34 +29,37 @@
     </div>
 
     <span slot="footer" class="dialog-footer">
-    <el-button @click="dialogVisible = false" size="small">取 消</el-button>
-    <el-button type="primary" @click="handleConfirm" size="small">确 定</el-button>
-  </span>
+      <el-button @click="dialogVisible = false" size="small">取 消</el-button>
+      <el-button type="primary" @click="handleConfirm" size="small">确 定</el-button>
+    </span>
+
+    <!-- 环境配置 -->
     <api-environment-config ref="environmentConfig" @close="environmentConfigClose"/>
+
   </el-dialog>
 </template>
 
 <script>
 import {parseEnvironment} from "@/business/components/api/test/model/EnvironmentModel";
 import ApiEnvironmentConfig from "@/business/components/api/definition/components/environment/ApiEnvironmentConfig";
+
 export default {
   name: "ApiScenarioEnv",
   components: {ApiEnvironmentConfig},
   props: {
+    envMap: Map,
     projectIds: Set,
-    envMap: Map
+    projectList: Array
   },
   data() {
     return {
-      dialogVisible: false,
-      projects: [],
       data: [],
+      result: {},
+      projects: [],
       environmentId: '',
-      environments: []
+      environments: [],
+      dialogVisible: false
     }
-  },
-  created() {
-    this.getWsProjects();
   },
   methods: {
     handleClose() {
@@ -64,16 +67,17 @@ export default {
     },
     init() {
       this.projectIds.forEach(id => {
+        let item = {id: id, envs: [], selectEnv: ""};
+        this.data.push(item);
         this.result = this.$get('/api/environment/list/' + id, res => {
           let envs = res.data;
           envs.forEach(environment => {
             parseEnvironment(environment);
           });
-          let item = {};
-          item.id = id;
-          item.envs = envs;
-          item.selectEnv = this.envMap.get(id);
-          this.data.push(item)
+          // 固定环境列表渲染顺序
+          let temp = this.data.find(dt => dt.id === id);
+          temp.envs = envs;
+          temp.selectEnv = this.envMap.get(id);
         })
       })
     },
@@ -84,13 +88,8 @@ export default {
         this.init();
       }
     },
-    getWsProjects() {
-      this.$get("/project/listAll", res => {
-        this.projects = res.data;
-      })
-    },
     getProjectName(id) {
-      const project = this.projects.find(p => p.id === id);
+      const project = this.projectList.find(p => p.id === id);
       return project ? project.name : "";
     },
     openEnvironmentConfig(projectId) {
@@ -123,7 +122,7 @@ export default {
         this.data.forEach(dt => {
           if (!dt.selectEnv) {
             sign = false;
-            return;
+            return false;
           }
         })
       } else {
@@ -136,13 +135,16 @@ export default {
       }
       return true;
     },
-    environmentConfigClose(id) {
-      // todo
+    environmentConfigClose() {
+      this.data = [];
+      this.init();
     }
   }
 }
 </script>
 
 <style scoped>
-
+.ms-scenario-button {
+  margin-left: 20px;
+}
 </style>

@@ -7,6 +7,7 @@ import io.metersphere.base.domain.*;
 import io.metersphere.commons.constants.IssuesManagePlatform;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.track.dto.DemandDTO;
 import io.metersphere.track.issue.domain.PlatformUser;
 import io.metersphere.track.issue.domain.ZentaoBuild;
 import io.metersphere.track.request.testcase.IssuesRequest;
@@ -47,7 +48,10 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
     }
 
     @Override
-    String getProjectId() {
+    String getProjectId(String projectId) {
+        if (StringUtils.isNotBlank(projectId)) {
+            return projectService.getProjectById(projectId).getZentaoId();
+        }
         TestCaseWithBLOBs testCase = testCaseService.getTestCase(testCaseId);
         Project project = projectService.getProjectById(testCase.getProjectId());
         return project.getZentaoId();
@@ -83,6 +87,43 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
         });
         return list;
 
+    }
+
+    @Override
+    public List<DemandDTO> getDemandList(String projectId) {
+        //getTestStories
+        List<DemandDTO> list = new ArrayList<>();
+        try {
+            String session = login();
+            String key = getProjectId(projectId);
+            HttpEntity<MultiValueMap> requestEntity = new HttpEntity<>(new HttpHeaders());
+            RestTemplate restTemplate = new RestTemplate();
+            ResponseEntity<String> responseEntity = restTemplate.exchange(url + "api-getModel-story-getProductStories-productID={key}?zentaosid=" + session,
+                    HttpMethod.POST, requestEntity, String.class, key);
+            String body = responseEntity.getBody();
+            JSONObject obj = JSONObject.parseObject(body);
+
+            LogUtil.info("project story" + key + obj);
+
+            if (obj != null) {
+                JSONObject data = obj.getJSONObject("data");
+                String s = JSON.toJSONString(data);
+                Map<String, Object> map = JSONArray.parseObject(s, Map.class);
+                Collection<Object> values = map.values();
+                values.forEach(v -> {
+                    JSONObject jsonObject = JSONObject.parseObject(JSON.toJSONString(v));
+                    DemandDTO demandDTO = new DemandDTO();
+                    demandDTO.setId(jsonObject.getString("id"));
+                    demandDTO.setName(jsonObject.getString("title"));
+                    demandDTO.setPlatform(IssuesManagePlatform.Zentao.name());
+                    list.add(demandDTO);
+                });
+
+            }
+        } catch (Exception e) {
+            LogUtil.error("get zentao bug fail " + e.getMessage());
+        }
+        return list;
     }
 
     private Issues getZentaoIssues(String bugId) {
@@ -129,7 +170,7 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
     public void addIssue(IssuesRequest issuesRequest) {
 
         String session = login();
-        String projectId = getProjectId();
+        String projectId = getProjectId(null);
 
         if (StringUtils.isBlank(projectId)) {
             MSException.throwException("add zentao bug fail, project zentao id is null");
@@ -273,7 +314,7 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
 
     public List<ZentaoBuild> getBuilds() {
         String session = login();
-        String projectId = getProjectId();
+        String projectId = getProjectId(null);
         HttpHeaders httpHeaders = new HttpHeaders();
         HttpEntity<MultiValueMap> requestEntity = new HttpEntity<>(httpHeaders);
         RestTemplate restTemplate = new RestTemplate();

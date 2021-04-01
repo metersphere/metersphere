@@ -45,7 +45,7 @@
   import MsApiReportExport from "./ApiReportExport";
   import MsApiReportViewHeader from "./ApiReportViewHeader";
   import {RequestFactory} from "../../definition/model/ApiTestModel";
-  import {windowPrint, getCurrentProjectID} from "@/common/js/utils";
+  import {windowPrint} from "@/common/js/utils";
 
   export default {
     name: "MsApiReport",
@@ -100,6 +100,19 @@
       active() {
         this.isActive = !this.isActive;
       },
+      formatResult(res) {
+        let resMap = new Map;
+        if (res && res.scenarios) {
+          res.scenarios.forEach(item => {
+            if (item && item.requestResults) {
+              item.requestResults.forEach(req => {
+                resMap.set(req.id, req);
+              })
+            }
+          })
+        }
+        this.$emit('refresh', resMap);
+      },
       getReport() {
         this.init();
         if (this.reportId) {
@@ -113,7 +126,7 @@
                   if (!this.content) {
                     this.content = {scenarios: []};
                   }
-                  this.$emit('refresh');
+                  this.formatResult(this.content);
                 } catch (e) {
                   throw e;
                 }
@@ -198,7 +211,7 @@
           return;
         }
         this.loading = true;
-        this.report.projectId = getCurrentProjectID();
+        this.report.projectId = this.projectId;
         let url = "/api/scenario/report/update";
         this.result = this.$post(url, this.report, response => {
           this.$success(this.$t('commons.save_success'));
@@ -223,7 +236,10 @@
       },
       isNotRunning() {
         return "Running" !== this.report.status;
-      }
+      },
+      projectId() {
+        return this.$store.state.projectId
+      },
     }
   }
 </script>

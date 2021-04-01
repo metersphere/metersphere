@@ -22,7 +22,7 @@
 
     props: {
       value: [Number, String],
-      duration:{},
+      duration: {},
       edit: Boolean,
       callback: Function,
       isReadOnly: {
@@ -51,7 +51,7 @@
         this.$emit('input', value);
       },
       validate() {
-        if (Number(this.value) < 0 || this.value=='') {
+        if (this.value == '' || Number(this.value) <= 0) {
           this.$error(this.$t('commons.formatErr'));
           return false;
         }

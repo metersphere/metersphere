@@ -117,6 +117,36 @@
         </el-form>
       </el-col>
     </el-row>
+    <el-row>
+      <el-col :span="8">
+        <el-form :inline="true">
+          <el-form-item>
+            <div>
+              {{ $t('load_test.granularity') }}
+              <el-popover
+                placement="bottom"
+                width="400"
+                trigger="hover">
+                <el-table :data="granularityData">
+                  <el-table-column property="start" :label="$t('load_test.duration')">
+                    <template v-slot:default="scope">
+                      <span>{{ scope.row.start }}S - {{ scope.row.end }}S</span>
+                    </template>
+                  </el-table-column>
+                  <el-table-column property="granularity" :label="$t('load_test.granularity')"/>
+                </el-table>
+                <i slot="reference" class="el-icon-info pointer"/>
+              </el-popover>
+            </div>
+          </el-form-item>
+          <el-form-item>
+            <el-select v-model="granularity" :placeholder="$t('commons.please_select')" size="mini" clearable>
+              <el-option v-for="op in granularityData" :key="op.granularity" :label="op.granularity" :value="op.granularity"></el-option>
+            </el-select>
+          </el-form-item>
+        </el-form>
+      </el-col>
+    </el-row>
   </div>
 </template>
 
@@ -129,11 +159,23 @@ export default {
   data() {
     return {
       timeout: 60000,
-      responseTimeout: null,
+      responseTimeout: 60000,
       statusCode: [],
       domains: [],
       params: [],
       statusCodeStr: '',
+      granularity: undefined,
+      granularityData: [
+        {start: 0, end: 100, granularity: 1},
+        {start: 101, end: 500, granularity: 5},
+        {start: 501, end: 1000, granularity: 10},
+        {start: 1001, end: 3000, granularity: 30},
+        {start: 3001, end: 6000, granularity: 60},
+        {start: 6001, end: 30000, granularity: 300},
+        {start: 30001, end: 60000, granularity: 600},
+        {start: 60001, end: 180000, granularity: 1800},
+        {start: 180001, end: 360000, granularity: 3600},
+      ]
     }
   },
   props: {
@@ -166,6 +208,7 @@ export default {
           this.statusCodeStr = this.statusCode.join(',');
           this.domains = data.domains || [];
           this.params = data.params || [];
+          this.granularity = data.granularity;
         }
       });
     },
@@ -252,6 +295,7 @@ export default {
         statusCode: statusCode,
         params: this.params,
         domains: this.domains,
+        granularity: this.granularity,
       };
     },
   }
@@ -285,6 +329,10 @@ export default {
 
 .el-col .el-table {
   align: center;
+}
+
+.pointer {
+  cursor: pointer;
 }
 
 </style>

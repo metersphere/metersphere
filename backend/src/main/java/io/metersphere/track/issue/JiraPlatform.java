@@ -1,12 +1,14 @@
 package io.metersphere.track.issue;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import io.metersphere.base.domain.*;
 import io.metersphere.commons.constants.IssuesManagePlatform;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.EncryptUtils;
 import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.track.dto.DemandDTO;
 import io.metersphere.track.issue.domain.PlatformUser;
 import io.metersphere.track.request.testcase.IssuesRequest;
 import org.apache.commons.lang3.StringUtils;
@@ -79,6 +81,59 @@ public class JiraPlatform extends AbstractIssuePlatform {
     }
 
     @Override
+    public List<DemandDTO> getDemandList(String projectId) {
+        List<DemandDTO> list = new ArrayList<>();
+
+        try {
+            String key = this.getProjectId(projectId);
+            if (StringUtils.isBlank(key)) {
+                MSException.throwException("未关联Jira 项目Key");
+            }
+            String config = getPlatformConfig(IssuesManagePlatform.Jira.toString());
+            JSONObject object = JSON.parseObject(config);
+
+            if (object == null) {
+                MSException.throwException("jira config is null");
+            }
+
+            String account = object.getString("account");
+            String password = object.getString("password");
+            String url = object.getString("url");
+            String type = object.getString("storytype");
+            String auth = EncryptUtils.base64Encoding(account + ":" + password);
+            HttpHeaders requestHeaders = new HttpHeaders();
+            requestHeaders.add("Authorization", "Basic " + auth);
+            requestHeaders.setContentType(org.springframework.http.MediaType.APPLICATION_JSON);
+            //HttpEntity
+            HttpEntity<String> requestEntity = new HttpEntity<>(requestHeaders);
+            RestTemplate restTemplate = new RestTemplate();
+            //post
+            ResponseEntity<String> responseEntity = null;
+            responseEntity = restTemplate.exchange(url + "/rest/api/2/search?jql=project="+key+"+AND+issuetype="+type+"&fields=summary,issuetype",
+                    HttpMethod.GET, requestEntity, String.class);
+            String body = responseEntity.getBody();
+            JSONObject jsonObject = JSONObject.parseObject(body);
+            JSONArray jsonArray = jsonObject.getJSONArray("issues");
+            for (int i = 0; i < jsonArray.size(); i++) {
+                JSONObject o = jsonArray.getJSONObject(i);
+                String issueKey = o.getString("key");
+                JSONObject fields = o.getJSONObject("fields");
+                String summary = fields.getString("summary");
+                DemandDTO demandDTO = new DemandDTO();
+                demandDTO.setName(summary);
+                demandDTO.setId(issueKey);
+                demandDTO.setPlatform(IssuesManagePlatform.Jira.name());
+                list.add(demandDTO);
+            }
+        } catch (Exception e) {
+            LogUtil.error(e.getMessage(), e);
+            MSException.throwException("调用Jira查询需求失败");
+        }
+
+        return list;
+    }
+
+    @Override
     public void addIssue(IssuesRequest issuesRequest) {
         String config = getPlatformConfig(IssuesManagePlatform.Jira.toString());
         JSONObject object = JSON.parseObject(config);
@@ -97,7 +152,7 @@ public class JiraPlatform extends AbstractIssuePlatform {
         String auth = EncryptUtils.base64Encoding(account + ":" + password);
 
         String testCaseId = issuesRequest.getTestCaseId();
-        String jiraKey = getProjectId();
+        String jiraKey = getProjectId(null);
 
 
         if (StringUtils.isBlank(jiraKey)) {
@@ -180,8 +235,8 @@ public class JiraPlatform extends AbstractIssuePlatform {
             String url = object.getString("url");
             HttpHeaders headers = auth(account, password);
             HttpEntity<MultiValueMap> requestEntity = new HttpEntity<>(headers);
-            RestTemplate restTemplate = new RestTemplate();
-            restTemplate.exchange(url + "rest/api/2/issue/createmeta", HttpMethod.GET, requestEntity, String.class);
+            // 忽略ssl
+            restTemplateIgnoreSSL.exchange(url + "rest/api/2/issue/createmeta", HttpMethod.GET, requestEntity, String.class);
         } catch (Exception e) {
             LogUtil.error(e.getMessage(), e);
             MSException.throwException("验证失败！");
@@ -194,7 +249,10 @@ public class JiraPlatform extends AbstractIssuePlatform {
     }
 
     @Override
-    String getProjectId() {
+    String getProjectId(String projectId) {
+        if (StringUtils.isNotBlank(projectId)) {
+            return projectService.getProjectById(projectId).getJiraKey();
+        }
         TestCaseWithBLOBs testCase = testCaseService.getTestCase(testCaseId);
         Project project = projectService.getProjectById(testCase.getProjectId());
         return project.getJiraKey();

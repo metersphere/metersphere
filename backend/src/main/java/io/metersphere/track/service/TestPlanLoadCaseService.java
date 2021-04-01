@@ -4,13 +4,15 @@ import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.LoadTestMapper;
 import io.metersphere.base.mapper.LoadTestReportMapper;
 import io.metersphere.base.mapper.TestPlanLoadCaseMapper;
+import io.metersphere.base.mapper.TestPlanMapper;
 import io.metersphere.base.mapper.ext.ExtTestPlanLoadCaseMapper;
+import io.metersphere.commons.constants.TestPlanStatus;
 import io.metersphere.controller.request.OrderRequest;
+import io.metersphere.performance.request.RunTestPlanRequest;
 import io.metersphere.performance.service.PerformanceTestService;
 import io.metersphere.track.dto.TestPlanLoadCaseDTO;
 import io.metersphere.track.request.testplan.LoadCaseReportRequest;
 import io.metersphere.track.request.testplan.LoadCaseRequest;
-import io.metersphere.track.request.testplan.RunTestPlanRequest;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -28,7 +30,8 @@ import java.util.stream.Collectors;
 @Service
 @Transactional(rollbackFor = Exception.class)
 public class TestPlanLoadCaseService {
-
+    @Resource
+    TestPlanMapper testPlanMapper;
     @Resource
     private TestPlanLoadCaseMapper testPlanLoadCaseMapper;
     @Resource
@@ -43,7 +46,7 @@ public class TestPlanLoadCaseService {
     private LoadTestMapper loadTestMapper;
 
     public List<LoadTest> relevanceList(LoadCaseRequest request) {
-        List<String> ids = extTestPlanLoadCaseMapper.selectIdsNotInPlan(request.getProjectId(), request.getTestPlanId());
+        List<String> ids = extTestPlanLoadCaseMapper.selectIdsNotInPlan(request);
         if (CollectionUtils.isEmpty(ids)) {
             return new ArrayList<>();
         }
@@ -78,6 +81,14 @@ public class TestPlanLoadCaseService {
             t.setUpdateTime(System.currentTimeMillis());
             testPlanLoadCaseMapper.insert(t);
         });
+        TestPlan testPlan = testPlanMapper.selectByPrimaryKey(request.getTestPlanId());
+        if (org.apache.commons.lang3.StringUtils.equals(testPlan.getStatus(), TestPlanStatus.Prepare.name())
+                || org.apache.commons.lang3.StringUtils.equals(testPlan.getStatus(), TestPlanStatus.Completed.name())) {
+            testPlan.setStatus(TestPlanStatus.Underway.name());
+            testPlan.setActualStartTime(System.currentTimeMillis());  // 将状态更新为进行中时，开始时间也要更新
+            testPlan.setActualEndTime(null);
+            testPlanMapper.updateByPrimaryKey(testPlan);
+        }
         sqlSession.flushStatements();
     }
 

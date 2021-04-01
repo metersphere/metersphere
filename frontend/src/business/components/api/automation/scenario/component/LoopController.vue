@@ -1,21 +1,23 @@
 <template>
   <div>
-    <ms-run :debug="true" :environment="currentEnvironmentId" :reportId="reportId" :run-data="debugData"
+    <ms-run :debug="true" :environment="envMap" :reportId="reportId" :run-data="debugData"
             @runRefresh="runRefresh" ref="runTest"/>
     <api-base-component
       @copy="copyRow"
       @remove="remove"
       :data="controller"
-      :draggable="true"
+      :draggable="draggable"
+      :is-max="isMax"
+      :show-btn="showBtn"
       color="#02A7F0"
       background-color="#F4F4F5"
       :title="$t('api_test.automation.loop_controller')" v-loading="loading">
 
       <template v-slot:headerLeft>
-        <i class="icon el-icon-arrow-right" :class="{'is-active': controller.active}" @click="active(controller)" style="margin-right: 10px"/>
-        <el-radio @change="changeRadio" class="ms-radio" v-model="controller.loopType" label="LOOP_COUNT">{{$t('loop.loops_title')}}</el-radio>
-        <el-radio @change="changeRadio" class="ms-radio" v-model="controller.loopType" label="FOREACH">{{$t('loop.foreach')}}</el-radio>
-        <el-radio @change="changeRadio" class="ms-radio" v-model="controller.loopType" label="WHILE">{{$t('loop.while')}}</el-radio>
+        <i class="icon el-icon-arrow-right" :class="{'is-active': controller.active}" @click="active(controller)" style="margin-right: 10px" v-if="!isMax"/>
+        <el-radio @change="changeRadio" class="ms-radio ms-radio-margin" v-model="controller.loopType" label="LOOP_COUNT">{{$t('loop.loops_title')}}</el-radio>
+        <el-radio @change="changeRadio" class="ms-radio ms-radio-margin" v-model="controller.loopType" label="FOREACH">{{$t('loop.foreach')}}</el-radio>
+        <el-radio @change="changeRadio" class="ms-radio ms-radio-margin" v-model="controller.loopType" label="WHILE">{{$t('loop.while')}}</el-radio>
       </template>
 
       <template v-slot:message>
@@ -25,7 +27,7 @@
       </template>
 
       <template v-slot:button>
-        <el-button @click="runDebug" :tip="$t('api_test.run')" icon="el-icon-video-play" style="background-color: #409EFF;color: white;" size="mini" circle/>
+        <el-button @click="runDebug" :tip="$t('api_test.run')" icon="el-icon-video-play"  style="background-color: #409EFF;color: white;padding: 5px" size="mini" circle/>
       </template>
       <div v-if="controller.loopType==='LOOP_COUNT'" draggable>
         <el-row>
@@ -69,7 +71,6 @@
       </div>
       <div v-else draggable>
         <el-input size="small" v-model="controller.whileController.variable" style="width: 20%" :placeholder="$t('api_test.request.condition_variable')"/>
-
         <el-select v-model="controller.whileController.operator" :placeholder="$t('commons.please_select')" size="small"
                    @change="change" style="width: 10%;margin-left: 10px">
           <el-option v-for="o in operators" :key="o.value" :label="$t(o.label)" :value="o.value"/>
@@ -79,45 +80,40 @@
         <el-input-number size="small" v-model="controller.whileController.timeout" :placeholder="$t('commons.millisecond')" :max="1000*10000000" :min="3000" :step="1000"/>
         <span class="ms-span ms-radio">ms</span>
       </div>
-      <!--<p class="tip">{{$t('api_test.definition.request.res_param')}} </p>-->
-      <!--<div>-->
-      <!--<el-tabs v-model="activeName" closable class="ms-tabs">-->
-      <!--<el-tab-pane :label="item.name" :name="item.name" v-for="(item,index) in requestResult.scenarios" :key="index">-->
-      <!--<div v-for="(result,i) in item.requestResults" :key="i" style="margin-bottom: 5px">-->
-      <!--<api-response-component :result="result"/>-->
-      <!--</div>-->
-      <!--</el-tab-pane>-->
-      <!--</el-tabs>-->
-
-      <!--</div>-->
-
     </api-base-component>
 
   </div>
 </template>
 
 <script>
-import ApiBaseComponent from "../common/ApiBaseComponent";
-import ApiResponseComponent from "./ApiResponseComponent";
-import MsRun from "../DebugRun";
-import {getUUID} from "@/common/js/utils";
+  import ApiBaseComponent from "../common/ApiBaseComponent";
+  import ApiResponseComponent from "./ApiResponseComponent";
+  import MsRun from "../DebugRun";
+  import {getUUID} from "@/common/js/utils";
+  import {ELEMENT_TYPE, ELEMENTS} from "../Setting";
 
-export default {
-  name: "MsLoopController",
-  components: {ApiBaseComponent, ApiResponseComponent, MsRun},
-  props: {
-    controller: {},
-    currentEnvironmentId: String,
-    currentScenario: {},
-    node: {},
-    index: Object,
-    draggable: {
-      type: Boolean,
+  export default {
+    name: "MsLoopController",
+    components: {ApiBaseComponent, ApiResponseComponent, MsRun},
+    props: {
+      controller: {},
+      currentEnvironmentId: String,
+      currentScenario: {},
+      node: {},
+      isMax: {
+        type: Boolean,
         default: false,
       },
-    },
-    created() {
-      // this.initResult();
+      showBtn: {
+        type: Boolean,
+        default: true,
+      },
+      index: Object,
+      draggable: {
+        type: Boolean,
+        default: false,
+      },
+      envMap: Map
     },
     data() {
       return {
@@ -191,13 +187,38 @@ export default {
           this.controller.countController.proceed = true;
           return;
         }
-      },
-      runDebug() {
-        /*触发执行操作*/
-        if (!this.currentEnvironmentId) {
-          this.$error(this.$t('api_test.environment.select_environment'));
-          return;
+        // 递归遍历所有请求数量
+        if (this.controller.hashTree && this.controller.hashTree.length === 1
+          && this.controller.hashTree[0].hashTree && this.controller.hashTree[0].hashTree.length > 0) {
+          let count = 0;
+          this.controller.hashTree[0].hashTree.forEach(item => {
+            if (ELEMENTS.get("AllSamplerProxy").indexOf(item.type) != -1) {
+              count++;
+            }
+            if (item.hashTree && item.hashTree.length > 0) {
+              this.recursive(item.hashTree, count);
+            }
+          })
+
+          if (count > 1) {
+            this.$warning("当前循环下超过一个请求，不能关闭状态")
+            this.controller.countController.proceed = true;
+            return;
+          }
         }
+      },
+      recursive(arr, count) {
+        for (let i in arr) {
+          if (ELEMENTS.get("AllSamplerProxy").indexOf(arr[i].type) != -1) {
+            count++;
+          }
+          if (arr[i].hashTree && arr[i].hashTree.length > 0) {
+            this.recursive(arr[i].hashTree, count);
+          }
+        }
+      },
+
+      runDebug() {
         if (!this.controller.hashTree || this.controller.hashTree.length < 1) {
           this.$warning("当前循环下没有请求，不能执行")
           return;
@@ -225,6 +246,9 @@ export default {
       },
       active(item) {
         item.active = !item.active;
+        if (this.node) {
+          this.node.expanded = item.active;
+        }
         this.reload();
       },
       changeRadio() {
@@ -348,15 +372,11 @@ export default {
     font-weight: normal;
   }
 
-  .tip {
-    padding: 3px 5px;
-    font-size: 16px;
-    border-radius: 4px;
-    border-left: 4px solid #783887;
-    margin: 20px 0;
-  }
-
   .icon.is-active {
     transform: rotate(90deg);
+  }
+
+  /deep/ .el-radio {
+    margin-right: 5px;
   }
 </style>

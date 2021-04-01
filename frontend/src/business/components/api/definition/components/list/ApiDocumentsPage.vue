@@ -1,38 +1,29 @@
 <template>
   <div>
-    <api-list-container-with-doc
-      :is-api-list-enable="isApiListEnable"
-      :active-dom="activeDom"
-      @activeDomChange="activeDomChange"
-      @isApiListEnableChange="isApiListEnableChange">
-
-      <api-document-item :project-id="projectId" :module-ids="moduleIds"/>
-
-    </api-list-container-with-doc>
+<!--      <api-document-item :project-id="projectId" :module-ids="moduleIds"/>-->
+    <api-document-anchor :is-share-page="isSharePage" :trash-enable="trashEnable" :project-id="projectId" :module-ids="moduleIds"></api-document-anchor>
   </div>
-
 </template>
 
 <script>
 
-import ApiListContainerWithDoc from "@/business/components/api/definition/components/list/ApiListContainerWithDoc";
-import ApiDocumentItem from "@/business/components/api/definition/components/document/ApiDocumentItem";
+import ApiDocumentAnchor from "@/business/components/api/definition/components/document/ApiDocumentAnchor";
 
 export default {
   name: "ApiDocumentsPage",
   components: {
-    ApiListContainerWithDoc,
-    ApiDocumentItem,
+    ApiDocumentAnchor
   },
   data() {
     return {
+      isSharePage:false,
     }
   },
   props: {
     projectId:String,
     moduleIds:Array,
     activeDom:String,
-    isApiListEnable: {
+    trashEnable: {
       type: Boolean,
       default: false,
     },
@@ -45,12 +36,6 @@ export default {
 
   },
   methods: {
-    isApiListEnableChange(data){
-      this.$emit("isApiListEnableChange",data);
-    },
-    activeDomChange(data){
-      this.$emit("activeDomChange",data);
-    }
   },
 }
 </script>
