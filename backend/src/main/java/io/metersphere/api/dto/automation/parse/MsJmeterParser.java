@@ -153,6 +153,10 @@ public class MsJmeterParser extends ApiImportAbstractParser<ScenarioImport> {
 
     public String getUrl(HTTPSamplerProxy source) throws MalformedURLException {
         String path = source.getPath();
+        // Request Defaults
+        if (StringUtils.isEmpty(source.getDomain())) {
+            return null;
+        }
         if (!path.startsWith("http://") && !path.startsWith("https://")) {
             String domain = source.getDomain();
             String protocol = source.getProtocol();
@@ -214,8 +218,8 @@ public class MsJmeterParser extends ApiImportAbstractParser<ScenarioImport> {
                 samplerProxy.getBody().setKvs(keyValues);
             }
             samplerProxy.setProtocol(RequestType.HTTP);
-            samplerProxy.setConnectTimeout(source.getConnectTimeout()+"");
-            samplerProxy.setResponseTimeout(source.getResponseTimeout()+"");
+            samplerProxy.setConnectTimeout(source.getConnectTimeout() + "");
+            samplerProxy.setResponseTimeout(source.getResponseTimeout() + "");
             samplerProxy.setPort(source.getPropertyAsString("HTTPSampler.port"));
             samplerProxy.setDomain(source.getDomain());
             if (source.getArguments() != null) {

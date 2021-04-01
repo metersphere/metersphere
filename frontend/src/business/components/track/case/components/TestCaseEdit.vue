@@ -416,8 +416,12 @@ export default {
       });
     }, 1000);
     if(this.selectNode && this.selectNode.data && !this.form.id){
-      this.form.module = this.selectNode.data.id;
-      this.form.nodePath = this.selectNode.data.path;
+        this.form.module = this.selectNode.data.id;
+        this.form.nodePath = this.selectNode.data.path;
+    }
+    if((!this.form.module || this.form.module==="default-module" || this.form.module ==="root") && this.treeNodes.length > 0){
+      this.form.module =  this.treeNodes[0].id;
+      this.form.nodePath = this.treeNodes[0].path;
     }
   },
   // watch: {
@@ -440,6 +444,10 @@ export default {
     if (this.type === 'edit' || this.type === 'copy') {
       this.form.module = this.currentTestCaseInfo.nodeId;
       this.form.nodePath = this.currentTestCaseInfo.nodePath;
+    }
+    if((!this.form.module || this.form.module==="default-module" || this.form.module ==="root") && this.treeNodes.length > 0){
+      this.form.module =  this.treeNodes[0].id;
+      this.form.nodePath = this.treeNodes[0].path;
     }
   },
   methods: {
