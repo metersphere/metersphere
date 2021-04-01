@@ -705,6 +705,11 @@ export default {
       }
     },
     automation: {
+      view_scene_variables: "查看場景變量",
+      open_scene: "打開場景",
+      save_as_api: "另存為接口定義",
+      delete_step: "删除步骤",
+      reference_deleted_info: "引用場景已經被刪除",
       follow_people: "關註人",
       create_tag: "創建Tag",
       scenario_step: "場景步驟",

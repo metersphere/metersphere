@@ -705,6 +705,11 @@ export default {
       }
     },
     automation: {
+      view_scene_variables: "View scene variables",
+      open_scene: "Open scene",
+      save_as_api: "Save as api",
+      delete_step: "Delete step",
+      reference_deleted_info: "Reference scene has been deleted",
       follow_people: "Follow people",
       create_tag: "Create tag",
       scenario_step: "Ccenario step",
