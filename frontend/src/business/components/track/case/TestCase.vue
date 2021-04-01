@@ -28,7 +28,6 @@
           <test-case-list
             v-if="activeDom === 'left'"
             :checkRedirectID="checkRedirectID"
-            :module-options="moduleOptions"
             :isRedirectEdit="isRedirectEdit"
             :tree-nodes="treeNodes"
             @testCaseEdit="editTestCase"
@@ -56,7 +55,6 @@
             <test-case-edit
               :currentTestCaseInfo="item.testCaseInfo"
               @refresh="refreshTable"
-              @setModuleOptions="setModuleOptions"
               @caseEdit="handleCaseCreateOrEdit($event,'edit')"
               @caseCreate="handleCaseCreateOrEdit($event,'add')"
               :read-only="testCaseReadOnly"
@@ -123,7 +121,6 @@ export default {
       treeNodes: [],
       testCaseReadOnly: true,
       condition: {},
-      moduleOptions: [],
       activeName: 'default',
       tabs: [],
       renderComponent:true,
@@ -177,6 +174,9 @@ export default {
     },
     selectNode() {
       return this.$store.state.testCaseSelectNode;
+    },
+    moduleOptions() {
+      return this.$store.state.testCaseModuleOptions;
     }
   },
   methods: {
@@ -308,6 +308,15 @@ export default {
       }
     },
     handleCaseSimpleCreate(data, type) {
+      if ('default-module' === data.nodeId) {
+        for (let i = 0; i < this.moduleOptions.length; i++) {
+          let item = this.moduleOptions[i];
+          if (item.path.indexOf('默认模块') > -1) {
+            data.nodeId = item.id;
+            break;
+          }
+        }
+      }
       this.handleCaseCreateOrEdit(data, type);
       if (this.$refs.minder) {
         this.$refs.minder.refresh();
@@ -329,7 +338,6 @@ export default {
       this.setTable(data);
     },
     setTable(data) {
-      console.log(data)
       for (let index in this.tabs) {
         let tab = this.tabs[index];
         if (tab.name === this.activeName) {
@@ -363,9 +371,6 @@ export default {
     },
     setCondition(data) {
       this.condition = data;
-    },
-    setModuleOptions(data) {
-      this.moduleOptions = data;
     }
   }
 }

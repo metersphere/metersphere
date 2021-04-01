@@ -132,11 +132,13 @@ export default {
       this.importJson = data;
     },
     handleNodeSelect(node) {
-      let nodeData = node.data;
-      let importJson = this.getImportJsonBySelectNode(nodeData);
-      this.parse(importJson.root, nodeData.children);
-      this.setJsonImport(importJson);
-      this.reload();
+      if (node && node.data) {
+        let nodeData = node.data;
+        let importJson = this.getImportJsonBySelectNode(nodeData);
+        this.parse(importJson.root, nodeData.children);
+        this.setJsonImport(importJson);
+        this.reload();
+      }
     },
     getImportJsonBySelectNode(nodeData) {
       let importJson =  {

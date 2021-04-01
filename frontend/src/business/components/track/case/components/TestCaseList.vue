@@ -284,9 +284,6 @@ export default {
     treeNodes: {
       type: Array
     },
-    moduleOptions: {
-      type: Array
-    },
     trashEnable: {
       type: Boolean,
       default: false,
@@ -298,6 +295,9 @@ export default {
     },
     selectNodeIds() {
       return this.$store.state.testCaseSelectNodeIds;
+    },
+    moduleOptions() {
+      return this.$store.state.testCaseModuleOptions;
     }
   },
   created: function () {

@@ -381,9 +381,6 @@ export default {
       type: Array
     },
     currentTestCaseInfo: {},
-    setModuleOptions: {
-      type: Array
-    },
     /*readOnly: {
       type: Boolean,
       default: false
@@ -786,7 +783,7 @@ export default {
       }
       param.testId = JSON.stringify(this.form.selected)
       param.tags = this.form.tags;
-      param.type = 'functional'
+      param.type = 'functional';
       return param;
     },
     getOption(param) {
@@ -847,13 +844,6 @@ export default {
       this.form.testId = '';
       this.getTestOptions()
     },
-    // getModuleOptions() {
-    //   let moduleOptions = [];
-    //   this.treeNodes.forEach(node => {
-    //     buildNodePath(node, {path: ''}, moduleOptions);
-    //   });
-    //   this.moduleOptions = moduleOptions;
-    // },
     getMaintainerOptions() {
       let workspaceId = localStorage.getItem(WORKSPACE_ID);
       this.$post('/user/ws/member/tester/list', {workspaceId: workspaceId}, response => {
@@ -880,7 +870,6 @@ export default {
       }
     },
     getSelectOptions() {
-      // this.getModuleOptions();
       this.getMaintainerOptions();
       this.getTestOptions();
       if (this.type === 'edit') {

@@ -51,7 +51,7 @@ name: "TestReviewMinder",
       if (this.$refs.minder) {
         this.$refs.minder.handleNodeSelect(this.selectNode);
       }
-      this.getTestCases();
+      // this.getTestCases();
     }
   },
   computed: {
