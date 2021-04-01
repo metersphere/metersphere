@@ -51,6 +51,8 @@ public class XMLUtils {
     //  传入完整的 xml 文本，转换成 json 对象
     public static JSONObject XmlToJson(String xml) {
         JSONObject result = new JSONObject();
+        if(xml == null)
+            return null;
         List<String> list = preProcessXml(xml);
         try {
             result = (JSONObject) XmlTagToJsonObject(list);

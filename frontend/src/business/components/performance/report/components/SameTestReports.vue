@@ -5,7 +5,7 @@
              :visible.sync="loadReportVisible">
     <el-table v-loading="reportLoadingResult.loading"
               class="basic-config"
-              :data="compareReports"
+              :data="tableData"
               @select-all="handleSelectAll"
               @select="handleSelectionChange">
 
@@ -14,6 +14,9 @@
         prop="name"
         :label="$t('commons.name')"
         show-overflow-tooltip>
+        <template v-slot:default="scope">
+          <i v-if="scope.row.id === report.id" class="el-icon-star-on"></i> {{ scope.row.name }}
+        </template>
       </el-table-column>
       <el-table-column
         prop="userName"
@@ -55,46 +58,57 @@ export default {
     return {
       loadReportVisible: false,
       reportLoadingResult: {},
-      compareReports: [],
+      tableData: [],
       currentPage: 1,
       pageSize: 10,
       total: 0,
       selectIds: new Set,
+      report: {},
+      compareReports: [],
     }
   },
   methods: {
     open(report) {
-      this.getCompareReports(report.testId);
+      this.report = report;
+      this.compareReports = [];
+      this.getCompareReports(report);
+
+      this.compareReports.push(report);
+
       this.loadReportVisible = true;
     },
     close() {
       this.loadReportVisible = false;
     },
-    getCompareReports(testId) {
+    getCompareReports(report) {
 
       let condition = {
-        testId: testId,
+        testId: report.testId,
         filters: {status: ["Completed"]}
       };
       this.reportLoadingResult = this.$post('/performance/report/list/all/' + this.currentPage + "/" + this.pageSize, condition, res => {
         let data = res.data;
         this.total = data.itemCount;
-        this.compareReports = data.listObject;
+        this.tableData = data.listObject;
       })
     },
     handleCompare() {
       let reportIds = [...this.selectIds];
-      localStorage.setItem("compareReportIds", JSON.stringify(reportIds));
+      this.tableData
+        .filter(r => reportIds.indexOf(r.id) > -1 && this.report.id !== r.id)
+        .forEach(r => this.compareReports.push(r));
+
+      localStorage.setItem("compareReports", JSON.stringify(this.compareReports));
       this.close();
       this.$router.push({path: '/performance/report/compare/' + reportIds[0]});
     },
     handleSelectAll(selection) {
       if (selection.length > 0) {
-        this.compareReports.forEach(item => {
+        this.tableData.forEach(item => {
           this.selectIds.add(item.id);
         });
       } else {
-        this.compareReports.forEach(item => {
+        this.tableData.forEach(item => {
           if (this.selectIds.has(item.id)) {
             this.selectIds.delete(item.id);
           }
