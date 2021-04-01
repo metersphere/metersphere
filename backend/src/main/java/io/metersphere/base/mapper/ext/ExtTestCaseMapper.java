@@ -1,6 +1,7 @@
 package io.metersphere.base.mapper.ext;
 
 import io.metersphere.base.domain.TestCase;
+import io.metersphere.base.domain.TestCaseWithBLOBs;
 import io.metersphere.controller.request.BaseQueryRequest;
 import io.metersphere.track.dto.TestCaseDTO;
 import io.metersphere.track.request.testcase.QueryTestCaseRequest;
@@ -76,5 +77,5 @@ public interface ExtTestCaseMapper {
     int getTestPlanPassCase(@Param("planId") String planId);
 
 
-
+    List<TestCaseWithBLOBs> listForMinder(@Param("request") QueryTestCaseRequest request);
 }

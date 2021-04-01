@@ -58,10 +58,10 @@ public class TestCaseController {
         return testCaseService.listTestCase(request);
     }
 
-    @GetMapping("/list/detail/{projectId}")
-    public List<TestCaseWithBLOBs> listDetail(@PathVariable String projectId) {
-        checkPermissionService.checkProjectOwner(projectId);
-        return testCaseService.listTestCaseDetail(projectId);
+    @PostMapping("/list/minder")
+    public List<TestCaseWithBLOBs> listDetail(@RequestBody QueryTestCaseRequest request) {
+        checkPermissionService.checkProjectOwner(request.getProjectId());
+        return testCaseService.listTestCaseForMinder(request);
     }
 
    /*jenkins项目下所有接口和性能测试用例*/

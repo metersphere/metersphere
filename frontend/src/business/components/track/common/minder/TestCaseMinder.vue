@@ -4,6 +4,7 @@
     :tree-nodes="treeNodes"
     :data-map="dataMap"
     :tags="tags"
+    :select-node="selectNode"
     :distinct-tags="tags"
     @save="save"
     ref="minder"
@@ -17,6 +18,7 @@ import {
   getTestCaseDataMap,
   parseCase, updateNode
 } from "@/business/components/track/common/minder/minderUtils";
+import {getNodePath} from "@/common/js/utils";
 export default {
 name: "TestCaseMinder",
   components: {MsModuleMinder},
@@ -38,7 +40,32 @@ name: "TestCaseMinder",
     condition: Object,
     projectId: String
   },
+  computed: {
+    selectNodeIds() {
+      return this.$store.state.testCaseSelectNodeIds;
+    },
+    selectNode() {
+      return this.$store.state.testCaseSelectNode;
+    },
+    moduleOptions() {
+      return this.$store.state.testCaseModuleOptions;
+    }
+  },
+  watch: {
+    selectNode() {
+      if (this.$refs.minder) {
+        this.$refs.minder.handleNodeSelect(this.selectNode);
+      }
+      // this.getTestCases();
+    }
+  },
   mounted() {
+    if (this.selectNode && this.selectNode.data) {
+      if (this.$refs.minder) {
+        let importJson = this.$refs.minder.getImportJsonBySelectNode(this.selectNode.data);
+        this.$refs.minder.setJsonImport(importJson);
+      }
+    }
     this.$nextTick(() => {
       this.getTestCases();
     })
@@ -46,14 +73,17 @@ name: "TestCaseMinder",
   methods: {
     getTestCases() {
       if (this.projectId) {
-        this.result = this.$get('/test/case/list/detail/' + this.projectId,response => {
+        let param = {
+          projectId: this.projectId,
+          nodeIds: this.selectNodeIds
+        }
+        this.result = this.$post('/test/case/list/minder', param,response => {
           this.testCase = response.data;
           this.dataMap = getTestCaseDataMap(this.testCase);
         });
       }
     },
     save(data) {
-      console.log(data);
       let saveCases = [];
       let deleteCases = [];
       this.buildSaveCase(data.root, saveCases, deleteCases, undefined);
@@ -92,7 +122,7 @@ name: "TestCaseMinder",
         id: data.id,
         name: data.text,
         nodeId: parent ? parent.id : "",
-        nodePath: parent ? parent.path : "",
+        nodePath: getNodePath(parent ? parent.id : '', this.moduleOptions),
         type: data.type ? data.type : 'functional',
         method: data.method ? data.method: 'manual',
         maintainer: data.maintainer,
