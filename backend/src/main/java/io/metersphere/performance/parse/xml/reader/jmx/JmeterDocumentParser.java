@@ -41,6 +41,7 @@ public class JmeterDocumentParser implements DocumentParser {
     private final static String RESPONSE_ASSERTION = "ResponseAssertion";
     private final static String CSV_DATA_SET = "CSVDataSet";
     private EngineContext context;
+    private boolean containsIterationThread = false;
 
     @Override
     public String parse(EngineContext context, Document document) throws Exception {
@@ -96,10 +97,10 @@ public class JmeterDocumentParser implements DocumentParser {
                         processCheckoutArguments(ele);
                         processCheckoutResponseAssertion(ele);
                         processCheckoutSerializeThreadgroups(ele);
+                        processCheckoutBackendListener(ele);
                     } else if (nodeNameEquals(ele, CONCURRENCY_THREAD_GROUP)) {
                         processThreadGroupName(ele);
                         processCheckoutTimer(ele);
-                        processCheckoutBackendListener(ele);
                     } else if (nodeNameEquals(ele, VARIABLE_THROUGHPUT_TIMER)) {
                         processVariableThroughputTimer(ele);
                     } else if (nodeNameEquals(ele, THREAD_GROUP)) {
@@ -112,6 +113,7 @@ public class JmeterDocumentParser implements DocumentParser {
                             }
                             if ("ITERATION".equals(o)) {
                                 processIterationThreadGroup(ele);
+                                this.containsIterationThread = true; // 包括按照迭代次数的线程组
                             }
                         } else {
                             processThreadGroup(ele);
@@ -119,7 +121,6 @@ public class JmeterDocumentParser implements DocumentParser {
 
                         processThreadGroupName(ele);
                         processCheckoutTimer(ele);
-                        processCheckoutBackendListener(ele);
                     } else if (nodeNameEquals(ele, BACKEND_LISTENER)) {
                         processBackendListener(ele);
                     } else if (nodeNameEquals(ele, CONFIG_TEST_ELEMENT)) {
@@ -144,14 +145,19 @@ public class JmeterDocumentParser implements DocumentParser {
     }
 
     private void processCheckoutSerializeThreadgroups(Element element) {
+        Object serializeThreadGroups = context.getProperty("serializeThreadGroups");
+        String serializeThreadGroup = "false";
+        if (serializeThreadGroups instanceof List) {
+            Object o = ((List<?>) serializeThreadGroups).get(0);
+            serializeThreadGroup = o.toString();
+        }
         NodeList childNodes = element.getChildNodes();
         for (int i = 0; i < childNodes.getLength(); i++) {
             Node item = childNodes.item(i);
             if (nodeNameEquals(item, BOOL_PROP)) {
                 String serializeName = ((Element) item).getAttribute("name");
                 if (StringUtils.equals(serializeName, "TestPlan.serialize_threadgroups")) {
-                    // 保存线程组是否是顺序执行
-                    context.addProperty("serialize_threadgroups", item.getTextContent());
+                    item.setTextContent(serializeThreadGroup);
                     break;
                 }
             }
@@ -542,6 +548,15 @@ public class JmeterDocumentParser implements DocumentParser {
     }
 
     private void processBackendListener(Element backendListener) {
+        String duration = "0";
+        Object expectedDurations = context.getProperty("expectedDuration");
+        if (expectedDurations instanceof List) {
+            Object o = ((List<?>) expectedDurations).get(0);// 预计执行时间已经计算好
+            duration = o.toString() + "000"; // 转成 ms
+        }
+        if (this.containsIterationThread) {
+            duration = Integer.MAX_VALUE + ""; // 如果包含了按照迭代次数的线程组，预计执行时间很长
+        }
         KafkaProperties kafkaProperties = CommonBeanFactory.getBean(KafkaProperties.class);
         Document document = backendListener.getOwnerDocument();
         // 清空child
@@ -586,7 +601,7 @@ public class JmeterDocumentParser implements DocumentParser {
         collectionProp.appendChild(createKafkaProp(document, "test.name", context.getTestName()));
         collectionProp.appendChild(createKafkaProp(document, "test.startTime", context.getStartTime().toString()));
         collectionProp.appendChild(createKafkaProp(document, "test.reportId", context.getReportId()));
-        collectionProp.appendChild(createKafkaProp(document, "test.expectedDuration", (String) context.getProperty("expectedDuration")));
+        collectionProp.appendChild(createKafkaProp(document, "test.expectedDuration", duration));// ms
         collectionProp.appendChild(createKafkaProp(document, "test.expectedDelayEndTime", kafkaProperties.getExpectedDelayEndTime())); // 30s
 
         elementProp.appendChild(collectionProp);
@@ -610,15 +625,6 @@ public class JmeterDocumentParser implements DocumentParser {
         Node listenerParent = element.getNextSibling();
         while (!(listenerParent instanceof Element)) {
             listenerParent = listenerParent.getNextSibling();
-        }
-
-        NodeList childNodes = listenerParent.getChildNodes();
-        for (int i = 0, l = childNodes.getLength(); i < l; i++) {
-            Node item = childNodes.item(i);
-            if (nodeNameEquals(item, BACKEND_LISTENER)) {
-                // 如果已经存在，不再添加
-                return;
-            }
         }
 
         // add class name
@@ -729,8 +735,6 @@ public class JmeterDocumentParser implements DocumentParser {
             default:
                 break;
         }
-        // 处理预计结束时间
-        processExpectedDuration(duration);
 
         threadGroup.setAttribute("enabled", enabled);
         if (BooleanUtils.toBoolean(deleted)) {
@@ -824,30 +828,18 @@ public class JmeterDocumentParser implements DocumentParser {
             enabled = o.toString();
         }
 
-        Object durations = context.getProperty("duration");
-        String duration = "2";
-        if (durations instanceof List) {
-            Object o = ((List<?>) durations).get(0);
-            ((List<?>) durations).remove(0);
-            duration = o.toString();
-        }
-
         switch (unit) {
             case "M":
-                duration = String.valueOf(Long.parseLong(duration) * 60);
                 hold = String.valueOf(Long.parseLong(hold) * 60);
                 rampUp = String.valueOf(Long.parseLong(rampUp) * 60);
                 break;
             case "H":
-                duration = String.valueOf(Long.parseLong(duration) * 60 * 60);
                 hold = String.valueOf(Long.parseLong(hold) * 60 * 60);
                 rampUp = String.valueOf(Long.parseLong(rampUp) * 60 * 60);
                 break;
             default:
                 break;
         }
-        // 处理预计结束时间
-        processExpectedDuration(duration);
 
         threadGroup.setAttribute("enabled", enabled);
         if (BooleanUtils.toBoolean(deleted)) {
@@ -866,26 +858,6 @@ public class JmeterDocumentParser implements DocumentParser {
         // bzm - Concurrency Thread Group "Thread Iterations Limit:" 设置为空
 //        threadGroup.appendChild(createStringProp(document, "Iterations", "1"));
         threadGroup.appendChild(createStringProp(document, "Unit", "S"));
-    }
-
-    private void processExpectedDuration(String duration) {
-        Long d = Long.parseLong(duration);
-        Object serialize = context.getProperty("serialize_threadgroups");
-        String expectedDuration = (String) context.getProperty("expectedDuration");
-        if (StringUtils.isBlank(expectedDuration)) {
-            expectedDuration = "0";
-        }
-        long durationTime = Long.parseLong(expectedDuration);
-
-        if (BooleanUtils.toBoolean((String) serialize)) {
-            // 顺序执行线程组
-            context.addProperty("expectedDuration", String.valueOf(durationTime + d * 1000));
-        } else {
-            // 同时执行线程组
-            if (durationTime < d * 1000) {
-                context.addProperty("expectedDuration", String.valueOf(d * 1000));
-            }
-        }
     }
 
     private void processIterationThreadGroup(Element threadGroup) {
@@ -956,10 +928,6 @@ public class JmeterDocumentParser implements DocumentParser {
         threadGroup.appendChild(createStringProp(document, "ThreadGroup.duration", "10"));
         threadGroup.appendChild(createStringProp(document, "ThreadGroup.delay", ""));
         threadGroup.appendChild(createBoolProp(document, "ThreadGroup.same_user_on_next_iteration", true));
-
-        // 处理预计结束时间， (按照迭代次数 * 线程数)s
-        String duration = String.valueOf(Long.parseLong(loops) * Long.parseLong(threads));
-        processExpectedDuration(duration);
     }
 
     private void processCheckoutTimer(Element element) {
