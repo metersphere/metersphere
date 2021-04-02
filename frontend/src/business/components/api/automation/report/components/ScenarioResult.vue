@@ -2,11 +2,8 @@
   <div class="scenario-result">
     <div v-if="node.children && node.children.length >0 ">
       <el-card class="ms-card">
-        <div class="el-step__icon is-text ms-api-col" v-if="node.index%2 ==0">
+        <div class="el-step__icon is-text ms-api-col">
           <div class="el-step__icon-inner"> {{ node.index }}</div>
-        </div>
-        <div class="el-step__icon is-text ms-api-col-create" v-else>
-          <div class="el-step__icon-inner"> {{ node.index}}</div>
         </div>
         {{node.label}}
 
@@ -82,6 +79,7 @@
   .scenario-result .icon.is-active {
     transform: rotate(90deg);
   }
+
   .ms-api-col {
     background-color: #EFF0F0;
     border-color: #EFF0F0;
