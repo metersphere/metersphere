@@ -828,12 +828,22 @@ public class JmeterDocumentParser implements DocumentParser {
             enabled = o.toString();
         }
 
+        Object durations = context.getProperty("duration");
+        String duration = "2";
+        if (durations instanceof List) {
+            Object o = ((List<?>) durations).get(0);
+            ((List<?>) durations).remove(0);
+            duration = o.toString();
+        }
+
         switch (unit) {
             case "M":
+                duration = String.valueOf(Long.parseLong(duration) * 60);
                 hold = String.valueOf(Long.parseLong(hold) * 60);
                 rampUp = String.valueOf(Long.parseLong(rampUp) * 60);
                 break;
             case "H":
+                duration = String.valueOf(Long.parseLong(duration) * 60 * 60);
                 hold = String.valueOf(Long.parseLong(hold) * 60 * 60);
                 rampUp = String.valueOf(Long.parseLong(rampUp) * 60 * 60);
                 break;

@@ -784,16 +784,16 @@
       },
       runDebug() {
         /*触发执行操作*/
-        let sign = this.$refs.envPopover.checkEnv(this.isFullUrl);
-        if (!sign) {
-          return;
-        }
-
         this.$refs['currentScenario'].validate((valid) => {
           if (valid) {
-            Promise.all([
-              this.editScenario()]).then(val => {
-              if (val) {
+            let definition = JSON.parse(JSON.stringify(this.currentScenario));
+            definition.hashTree = this.scenarioDefinition;
+            this.getEnv(JSON.stringify(definition)).then(() => {
+              let sign = this.$refs.envPopover.checkEnv(this.isFullUrl);
+              if (!sign) {
+                return;
+              }
+              this.editScenario().then(() => {
                 this.debugData = {
                   id: this.currentScenario.id,
                   name: this.currentScenario.name,
@@ -806,8 +806,8 @@
                   hashTree: this.scenarioDefinition
                 };
                 this.reportId = getUUID().substring(0, 8);
-              }
-            });
+              })
+            })
           }
         })
       },
@@ -976,12 +976,15 @@
         });
       },
       getEnv(definition) {
-        this.$post("/api/automation/getApiScenarioEnv", {definition: definition}, res => {
-          if (res.data) {
-            this.projectIds = new Set(res.data.projectIds);
-            this.isFullUrl = res.data.fullUrl;
-          }
-        })
+        return new Promise((resolve) => {
+          this.$post("/api/automation/getApiScenarioEnv", {definition: definition}, res => {
+            if (res.data) {
+              this.projectIds = new Set(res.data.projectIds);
+              this.isFullUrl = res.data.fullUrl;
+            }
+            resolve();
+          })
+        });
       },
       getApiScenario() {
         this.loading = true;
