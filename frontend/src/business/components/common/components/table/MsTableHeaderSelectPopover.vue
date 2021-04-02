@@ -43,7 +43,7 @@
           this.isShow = false;
           this.$nextTick(() => {
             this.isShow = true;
-          })
+          });
         }
       }
     }
