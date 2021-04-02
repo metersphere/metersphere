@@ -714,6 +714,10 @@ export default {
   color: #060505;
 }
 
+.border-hidden >>> *[disabled] {
+  opacity: 0.7;
+}
+
 .cast_label {
   color: dimgray;
 }
