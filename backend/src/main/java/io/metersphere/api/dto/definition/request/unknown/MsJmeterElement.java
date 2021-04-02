@@ -66,6 +66,8 @@ public class MsJmeterElement extends MsTestElement {
                     }
                     if (CollectionUtils.isNotEmpty(hashTree)) {
                         for (MsTestElement el : hashTree) {
+                            // 给所有孩子加一个父亲标志
+                            el.setParent(this);
                             el.toHashTree(elementTree, el.getHashTree(), config);
                         }
                     }
