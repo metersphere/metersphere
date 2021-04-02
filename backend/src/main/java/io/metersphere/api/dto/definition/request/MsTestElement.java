@@ -201,7 +201,7 @@ public abstract class MsTestElement {
         return null;
     }
 
-    protected void addCsvDataSet(HashTree tree, List<ScenarioVariable> variables,ParameterConfig config) {
+    protected void addCsvDataSet(HashTree tree, List<ScenarioVariable> variables, ParameterConfig config) {
         if (CollectionUtils.isNotEmpty(variables)) {
             List<ScenarioVariable> list = variables.stream().filter(ScenarioVariable::isCSVValid).collect(Collectors.toList());
             if (CollectionUtils.isNotEmpty(list)) {
@@ -276,10 +276,7 @@ public abstract class MsTestElement {
         if (element.getParent() == null) {
             return;
         }
-        if (MsTestElementConstants.LoopController.name().equals(element.getType())) {
-            return;
-        }
-        path.append(element.getResourceId()).append("/");
+        path.append(StringUtils.isEmpty(element.getName()) ? element.getType() : element.getName()).append("^@~@^");
         getFullPath(element.getParent(), path);
     }
 
@@ -300,7 +297,6 @@ public abstract class MsTestElement {
             // 获取全路径以备后面使用
             StringBuilder fullPath = new StringBuilder();
             getFullPath(parent, fullPath);
-
             return fullPath + "<->" + parent.getName();
         }
         return "";
