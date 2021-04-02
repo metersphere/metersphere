@@ -586,7 +586,7 @@ public class JmeterDocumentParser implements DocumentParser {
         collectionProp.appendChild(createKafkaProp(document, "test.name", context.getTestName()));
         collectionProp.appendChild(createKafkaProp(document, "test.startTime", context.getStartTime().toString()));
         collectionProp.appendChild(createKafkaProp(document, "test.reportId", context.getReportId()));
-        collectionProp.appendChild(createKafkaProp(document, "test.expectedEndTime", (String) context.getProperty("expectedEndTime")));
+        collectionProp.appendChild(createKafkaProp(document, "test.expectedDuration", (String) context.getProperty("expectedDuration")));
         collectionProp.appendChild(createKafkaProp(document, "test.expectedDelayEndTime", kafkaProperties.getExpectedDelayEndTime())); // 30s
 
         elementProp.appendChild(collectionProp);
@@ -730,7 +730,7 @@ public class JmeterDocumentParser implements DocumentParser {
                 break;
         }
         // 处理预计结束时间
-        processExpectedEndTime(duration);
+        processExpectedDuration(duration);
 
         threadGroup.setAttribute("enabled", enabled);
         if (BooleanUtils.toBoolean(deleted)) {
@@ -847,7 +847,7 @@ public class JmeterDocumentParser implements DocumentParser {
                 break;
         }
         // 处理预计结束时间
-        processExpectedEndTime(duration);
+        processExpectedDuration(duration);
 
         threadGroup.setAttribute("enabled", enabled);
         if (BooleanUtils.toBoolean(deleted)) {
@@ -868,23 +868,22 @@ public class JmeterDocumentParser implements DocumentParser {
         threadGroup.appendChild(createStringProp(document, "Unit", "S"));
     }
 
-    private void processExpectedEndTime(String duration) {
-        long startTime = context.getStartTime();
+    private void processExpectedDuration(String duration) {
         Long d = Long.parseLong(duration);
         Object serialize = context.getProperty("TestPlan.serialize_threadgroups");
-        String expectedEndTime = (String) context.getProperty("expectedEndTime");
-        if (StringUtils.isBlank(expectedEndTime)) {
-            expectedEndTime = startTime + "";
+        String expectedDuration = (String) context.getProperty("expectedDuration");
+        if (StringUtils.isBlank(expectedDuration)) {
+            expectedDuration = "0";
         }
-        long endTime = Long.parseLong(expectedEndTime);
+        long durationTime = Long.parseLong(expectedDuration);
 
         if (BooleanUtils.toBoolean((String) serialize)) {
             // 顺序执行线程组
-            context.addProperty("expectedEndTime", String.valueOf(endTime + d * 1000));
+            context.addProperty("expectedDuration", String.valueOf(durationTime + d * 1000));
         } else {
             // 同时执行线程组
-            if (endTime < startTime + d * 1000) {
-                context.addProperty("expectedEndTime", String.valueOf(startTime + d * 1000));
+            if (durationTime < d * 1000) {
+                context.addProperty("expectedDuration", String.valueOf(d * 1000));
             }
         }
     }
@@ -960,7 +959,7 @@ public class JmeterDocumentParser implements DocumentParser {
 
         // 处理预计结束时间， (按照迭代次数 * 线程数)s
         String duration = String.valueOf(Long.parseLong(loops) * Long.parseLong(threads));
-        processExpectedEndTime(duration);
+        processExpectedDuration(duration);
     }
 
     private void processCheckoutTimer(Element element) {
