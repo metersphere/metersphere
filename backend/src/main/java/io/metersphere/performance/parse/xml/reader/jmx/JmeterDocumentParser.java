@@ -870,7 +870,7 @@ public class JmeterDocumentParser implements DocumentParser {
 
     private void processExpectedDuration(String duration) {
         Long d = Long.parseLong(duration);
-        Object serialize = context.getProperty("TestPlan.serialize_threadgroups");
+        Object serialize = context.getProperty("serialize_threadgroups");
         String expectedDuration = (String) context.getProperty("expectedDuration");
         if (StringUtils.isBlank(expectedDuration)) {
             expectedDuration = "0";
