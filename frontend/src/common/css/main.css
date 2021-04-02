@@ -28,6 +28,10 @@ html,body {
   height:100%
 }
 
+textarea {
+  font-family: "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB", Arial, sans-serif;
+}
+
 .main-content span.title {
   font-size: 16px;
   font-weight: 500;
