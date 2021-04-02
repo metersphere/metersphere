@@ -523,6 +523,7 @@ export default {
     create: '创建测试',
     run: '一键运行',
     select_resource_pool: '请选择资源池',
+    serialize_threadgroups: '场景是否顺序执行',
     resource_pool_is_null: '资源池为空',
     download_log_file: '下载完整日志文件',
     pressure_prediction_chart: '压力预估图',
