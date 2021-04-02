@@ -509,13 +509,14 @@ export default {
     },
     batchRun(runData, reportId) {
       let testPlan = new TestPlan();
+      let projectId = this.$store.state.projectId;
       let threadGroup = new ThreadGroup();
       threadGroup.hashTree = [];
       testPlan.hashTree = [threadGroup];
       runData.forEach(item => {
         threadGroup.hashTree.push(item);
       });
-      let reqObj = {id: reportId, testElement: testPlan, type: 'API_PLAN', reportId: "run"};
+      let reqObj = {id: reportId, testElement: testPlan, type: 'API_PLAN', reportId: "run", projectId: projectId};
       let bodyFiles = getBodyUploadFiles(reqObj, runData);
       this.$fileUpload("/api/definition/run", null, bodyFiles, reqObj, response => {
       });
