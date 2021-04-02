@@ -14,6 +14,7 @@
         <ms-table-header-select-popover v-show="total>0"
                                         :page-size="pageSize>total?total:pageSize"
                                         :total="total"
+                                        :select-data-counts="selectDataCounts"
                                         @selectPageAll="isSelectDataAll(false)"
                                         @selectAll="isSelectDataAll(true)"/>
         <el-table-column v-if="!referenced" width="30" min-width="30" :resizable="false" align="center">
@@ -361,7 +362,7 @@
         });
       },
       handleSelectAll(selection) {
-        _handleSelectAll(this, selection, this.tableData, this.selectRows);
+        _handleSelectAll(this, selection, this.tableData, this.selectRows, this.condition);
         setUnSelectIds(this.tableData, this.condition, this.selectRows);
         this.selectDataCounts = getSelectDataCounts(this.condition, this.total, this.selectRows);
         this.$emit('selection', selection);
