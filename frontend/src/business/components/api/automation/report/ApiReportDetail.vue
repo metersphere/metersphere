@@ -3,10 +3,8 @@
     <ms-main-container>
       <el-card>
         <section class="report-container" v-if="this.report.testId">
-
           <ms-api-report-view-header :debug="debug" :report="report" @reportExport="handleExport" @reportSave="handleSave"/>
-
-          <main v-if="this.isNotRunning">
+          <main v-if="isNotRunning">
             <ms-metric-chart :content="content" :totalTime="totalTime"/>
             <div>
               <el-tabs v-model="activeName" @tab-click="handleClick">
@@ -125,51 +123,38 @@
         array.map((item) => {
           let key = item.name;
           let nodeArray = key.split('^@~@^');
-          // 递归
           let children = tree;
-          // 构建根节点
-          if (children.length == 0) {
-            let root = {
-              label: nodeArray[0],
+          // 循环构建子节点
+          for (let i in nodeArray) {
+            let node = {
+              label: nodeArray[i],
               value: item,
             };
-            if (nodeArray.length > 1) {
-              root.children = [];
+            if (i != nodeArray.length) {
+              node.children = [];
             }
-            children.push(root);
-          } else {
-            // 循环构建子节点
-            for (let i in nodeArray) {
-              let node = {
-                label: nodeArray[i],
-                value: item,
-              };
-              if (i != nodeArray.length) {
-                node.children = [];
-              }
 
-              if (children.length == 0) {
-                children.push(node);
-              }
+            if (children.length == 0) {
+              children.push(node);
+            }
 
-              let isExist = false;
-              for (let j in children) {
-                if (children[j].label == node.label) {
-                  if (i != nodeArray.length - 1 && !children[j].children) {
-                    children[j].children = [];
-                  }
-                  children = (i == nodeArray.length - 1 ? children : children[j].children);
-                  isExist = true;
-                  break;
+            let isExist = false;
+            for (let j in children) {
+              if (children[j].label == node.label) {
+                if (i != nodeArray.length - 1 && !children[j].children) {
+                  children[j].children = [];
                 }
+                children = (i == nodeArray.length - 1 ? children : children[j].children);
+                isExist = true;
+                break;
               }
-              if (!isExist) {
-                children.push(node);
-                if (i != nodeArray.length - 1 && !children[children.length - 1].children) {
-                  children[children.length - 1].children = [];
-                }
-                children = (i == nodeArray.length - 1 ? children : children[children.length - 1].children);
+            }
+            if (!isExist) {
+              children.push(node);
+              if (i != nodeArray.length - 1 && !children[children.length - 1].children) {
+                children[children.length - 1].children = [];
               }
+              children = (i == nodeArray.length - 1 ? children : children[children.length - 1].children);
             }
           }
         })

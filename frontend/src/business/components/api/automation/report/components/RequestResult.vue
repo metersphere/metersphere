@@ -5,23 +5,21 @@
         <el-row :gutter="10" type="flex" align="middle" class="info">
           <el-col :span="10" v-if="indexNumber!=undefined">
             <div class="method">
-              <div class="el-step__icon is-text ms-api-col" v-if="indexNumber%2 ==0">
+              <div class="el-step__icon is-text ms-api-col-create">
                 <div class="el-step__icon-inner"> {{ indexNumber }}</div>
               </div>
-              <div class="el-step__icon is-text ms-api-col-create" v-else>
-                <div class="el-step__icon-inner"> {{ indexNumber }}</div>
-              </div>
-
-              <i class="icon el-icon-arrow-right" :class="{'is-active': isActive}"
-                 @click="active" @click.stop/>
+              <i class="icon el-icon-arrow-right" :class="{'is-active': isActive}" @click="active" @click.stop/>
               {{ getName(request.name) }}
             </div>
           </el-col>
-
           <el-col :span="9">
             <el-tooltip effect="dark" :content="request.responseResult.responseCode" placement="bottom" :open-delay="800">
-              <div style="color: #5daf34" v-if="request.success">{{ request.responseResult.responseCode }}</div>
-              <div style="color: #FE6F71" v-else>{{ request.responseResult.responseCode }}</div>
+              <div style="color: #5daf34" v-if="request.success">
+                {{ request.responseResult.responseCode }}
+              </div>
+              <div style="color: #FE6F71" v-else>
+                {{ request.responseResult.responseCode }}
+              </div>
             </el-tooltip>
           </el-col>
           <el-col :span="3">
@@ -32,7 +30,6 @@
             {{request.responseResult.responseTime}} ms
           </span>
           </el-col>
-
           <el-col :span="2">
             <div>
               <el-tag size="mini" type="success" v-if="request.success">
@@ -48,8 +45,8 @@
 
       <el-collapse-transition>
         <div v-show="isActive" style="width: 99%">
-          <ms-request-result-tail v-if="isActive" :request-type="requestType" :request="request"
-                                  :scenario-name="scenarioName"/>
+          <ms-request-result-tail :scenario-name="scenarioName" :request-type="requestType" :request="request"
+                                  v-if="isActive"/>
         </div>
       </el-collapse-transition>
     </div>
@@ -65,7 +62,13 @@
 
   export default {
     name: "MsRequestResult",
-    components: {MsResponseText, MsRequestText, MsAssertionResults, MsRequestMetric, MsRequestResultTail},
+    components: {
+      MsResponseText,
+      MsRequestText,
+      MsAssertionResults,
+      MsRequestMetric,
+      MsRequestResultTail
+    },
     props: {
       request: Object,
       scenarioName: String,
@@ -74,17 +77,17 @@
     data() {
       return {
         isActive: false,
-        requestType: undefined,
+        requestType: "",
         color: {
           type: String,
           default() {
-            return "#B8741A"
+            return "#B8741A";
           }
         },
         backgroundColor: {
           type: String,
           default() {
-            return "#F9F1EA"
+            return "#F9F1EA";
           }
         },
       }
@@ -92,7 +95,6 @@
     methods: {
       active() {
         this.isActive = !this.isActive;
-        //this.$emit("requestResult", {request: this.request, scenarioName: this.scenarioName});
       },
       getName(name) {
         if (name && name.indexOf("^@~@^") != -1) {
@@ -188,6 +190,7 @@
     background: 0 0;
     border-top: 1px solid #e8eaec;
   }
+
   .icon.is-active {
     transform: rotate(90deg);
   }
