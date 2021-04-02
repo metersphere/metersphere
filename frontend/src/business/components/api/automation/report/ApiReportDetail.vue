@@ -3,26 +3,21 @@
     <ms-main-container>
       <el-card>
         <section class="report-container" v-if="this.report.testId">
-
           <ms-api-report-view-header :debug="debug" :report="report" @reportExport="handleExport" @reportSave="handleSave"/>
-
-          <main v-if="this.isNotRunning">
+          <main v-if="isNotRunning">
             <ms-metric-chart :content="content" :totalTime="totalTime"/>
             <div>
-              <!--<ms-scenario-results :scenarios="content.scenarios" v-on:requestResult="requestResult"/>-->
-
               <el-tabs v-model="activeName" @tab-click="handleClick">
                 <el-tab-pane :label="$t('api_report.total')" name="total">
-                  <ms-scenario-results :scenarios="content.scenarios" v-on:requestResult="requestResult"/>
+                  <ms-scenario-results :treeData="fullTreeNodes" v-on:requestResult="requestResult"/>
                 </el-tab-pane>
                 <el-tab-pane name="fail">
                   <template slot="label">
                     <span class="fail">{{ $t('api_report.fail') }}</span>
                   </template>
-                  <ms-scenario-results v-on:requestResult="requestResult" :scenarios="fails"/>
+                  <ms-scenario-results v-on:requestResult="requestResult" :treeData="failsTreeNodes"/>
                 </el-tab-pane>
               </el-tabs>
-
             </div>
             <ms-api-report-export v-if="reportExportVisible" id="apiTestReport" :title="report.testName"
                                   :content="content" :total-time="totalTime"/>
@@ -62,6 +57,7 @@
         report: {},
         loading: true,
         fails: [],
+        failsTreeNodes: [],
         totalTime: 0,
         isRequestResult: false,
         request: {},
@@ -69,6 +65,7 @@
         scenarioName: null,
         reportExportVisible: false,
         requestType: undefined,
+        fullTreeNodes: [],
       }
     },
     activated() {
@@ -92,6 +89,8 @@
         this.content = {};
         this.fails = [];
         this.report = {};
+        this.fullTreeNodes = [];
+        this.failsTreeNodes = [];
         this.isRequestResult = false;
       },
       handleClick(tab, event) {
@@ -102,16 +101,87 @@
       },
       formatResult(res) {
         let resMap = new Map;
+        let array = [];
+        let i = 0;
         if (res && res.scenarios) {
           res.scenarios.forEach(item => {
             if (item && item.requestResults) {
               item.requestResults.forEach(req => {
                 resMap.set(req.id, req);
+                req.index = i;
+                i++;
+                array.push(req);
               })
             }
           })
         }
+        this.formatTree(array, this.fullTreeNodes);
+        this.sort(this.fullTreeNodes);
         this.$emit('refresh', resMap);
+      },
+      formatTree(array, tree) {
+        array.map((item) => {
+          let key = item.name;
+          let nodeArray = key.split('^@~@^');
+          let children = tree;
+          // 循环构建子节点
+          for (let i in nodeArray) {
+            if (!nodeArray[i]) {
+              continue;
+            }
+            let node = {
+              label: nodeArray[i],
+              value: item,
+            };
+            if (i !== nodeArray.length) {
+              node.children = [];
+            }
+
+            if (children.length === 0) {
+              children.push(node);
+            }
+
+            let isExist = false;
+            for (let j in children) {
+              if (children[j].label === node.label) {
+                if (i !== nodeArray.length - 1 && !children[j].children) {
+                  children[j].children = [];
+                }
+                children = (i === nodeArray.length - 1 ? children : children[j].children);
+                isExist = true;
+                break;
+              }
+            }
+            if (!isExist) {
+              children.push(node);
+              if (i !== nodeArray.length - 1 && !children[children.length - 1].children) {
+                children[children.length - 1].children = [];
+              }
+              children = (i === nodeArray.length - 1 ? children : children[children.length - 1].children);
+            }
+          }
+        })
+      },
+      recursiveSorting(arr) {
+        for (let i in arr) {
+          if (arr[i]) {
+            arr[i].index = Number(i) + 1;
+            if (arr[i].children && arr[i].children.length > 0) {
+              this.recursiveSorting(arr[i].children);
+            }
+          }
+        }
+      },
+      sort(scenarioDefinition) {
+        for (let i in scenarioDefinition) {
+          // 排序
+          if (scenarioDefinition[i]) {
+            scenarioDefinition[i].index = Number(i) + 1;
+            if (scenarioDefinition[i].children && scenarioDefinition[i].children.length > 0) {
+              this.recursiveSorting(scenarioDefinition[i].children);
+            }
+          }
+        }
       },
       getReport() {
         this.init();
@@ -146,6 +216,7 @@
       getFails() {
         if (this.isNotRunning) {
           this.fails = [];
+          let array = [];
           this.totalTime = 0
           if (this.content.scenarios) {
             this.content.scenarios.forEach((scenario) => {
@@ -158,11 +229,14 @@
                   if (!request.success) {
                     let failRequest = Object.assign({}, request);
                     failScenario.requestResults.push(failRequest);
+                    array.push(request);
                   }
                 })
               }
             })
           }
+          this.formatTree(array, this.failsTreeNodes);
+          this.sort(this.failsTreeNodes);
         }
       },
       computeTotalTime() {
