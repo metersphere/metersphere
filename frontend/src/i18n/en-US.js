@@ -523,6 +523,7 @@ export default {
     response_timeout: 'Timeout to response',
     custom_http_code: 'Custom HTTP response success status code',
     separated_by_commas: 'Separated by commas',
+    serialize_threadgroups:'Whether the scene is executed sequentially',
     create: 'Create Test',
     select_resource_pool: 'Please Select Resource Pool',
     resource_pool_is_null: 'Resource Pool is empty',
