@@ -9,12 +9,17 @@ import io.metersphere.api.dto.parse.postman.PostmanKeyValue;
 import io.metersphere.api.parse.PostmanAbstractParserParser;
 import io.metersphere.base.domain.ApiDefinitionWithBLOBs;
 import io.metersphere.base.domain.ApiModule;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
 public class PostmanDefinitionParser extends PostmanAbstractParserParser<ApiDefinitionImport> {
+
+    private ApiModule selectModule;
+
+    private String selectModulePath;
 
     @Override
     public ApiDefinitionImport parse(InputStream source, ApiTestImportRequest request) {
@@ -24,21 +29,25 @@ public class PostmanDefinitionParser extends PostmanAbstractParserParser<ApiDefi
         List<PostmanKeyValue> variables = postmanCollection.getVariable();
         ApiDefinitionImport apiImport = new ApiDefinitionImport();
         List<ApiDefinitionWithBLOBs> results = new ArrayList<>();
-        parseItem(postmanCollection.getItem(), variables, results,
-                ApiDefinitionImportUtil.buildModule(ApiDefinitionImportUtil.getSelectModule(request.getModuleId()), postmanCollection.getInfo().getName(), this.projectId), true);
+        this.selectModule = ApiDefinitionImportUtil.getSelectModule(request.getModuleId());
+        if (this.selectModule != null) {
+            this.selectModulePath = ApiDefinitionImportUtil.getSelectModulePath(this.selectModule.getName(), this.selectModule.getParentId());
+        }
+
+        ApiModule apiModule = ApiDefinitionImportUtil.buildModule(this.selectModule, postmanCollection.getInfo().getName(), this.projectId);
+        parseItem(postmanCollection.getItem(), variables, results, apiModule, apiModule.getName());
         apiImport.setData(results);
         return apiImport;
     }
 
-    protected void parseItem(List<PostmanItem> items, List<PostmanKeyValue> variables, List<ApiDefinitionWithBLOBs> results, ApiModule parentModule, Boolean isCreateModule) {
+    protected void parseItem(List<PostmanItem> items, List<PostmanKeyValue> variables, List<ApiDefinitionWithBLOBs> results,
+                             ApiModule parentModule, String path) {
         for (PostmanItem item : items) {
             List<PostmanItem> childItems = item.getItem();
             if (childItems != null) {
                 ApiModule module = null;
-                if (isCreateModule) {
-                    module = ApiDefinitionImportUtil.buildModule(parentModule, item.getName(), this.projectId);
-                }
-                parseItem(childItems, variables, results, module, isCreateModule);
+                module = ApiDefinitionImportUtil.buildModule(parentModule, item.getName(), this.projectId);
+                parseItem(childItems, variables, results, module, path + "/" + module.getName());
             } else {
                 MsHTTPSamplerProxy msHTTPSamplerProxy = parsePostman(item);
                 ApiDefinitionWithBLOBs request = buildApiDefinition(msHTTPSamplerProxy.getId(), msHTTPSamplerProxy.getName(),
@@ -51,6 +60,11 @@ public class PostmanDefinitionParser extends PostmanAbstractParserParser<ApiDefi
                 }
                 if (parentModule != null) {
                     request.setModuleId(parentModule.getId());
+                    if (StringUtils.isNotBlank(this.selectModulePath)) {
+                        request.setModulePath(this.selectModulePath + "/" + path);
+                    } else {
+                        request.setModulePath("/" + path);
+                    }
                 }
             }
         }
