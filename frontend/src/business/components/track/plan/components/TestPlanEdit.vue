@@ -163,7 +163,6 @@ export default {
     this.form.stage = 'smoke';
     const adminToken = JSON.parse(localStorage.getItem("Admin-Token"));
     this.form.principal = adminToken.name + "(" + adminToken.id + ")";
-    console.log(this.form.principal);
   },
   methods: {
     openTestPlanEditDialog(testPlan) {
