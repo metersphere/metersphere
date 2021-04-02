@@ -784,16 +784,18 @@
       },
       runDebug() {
         /*触发执行操作*/
-        let sign = this.$refs.envPopover.checkEnv(this.isFullUrl);
-        if (!sign) {
-          return;
-        }
-
         this.$refs['currentScenario'].validate((valid) => {
+          let definition = JSON.parse(JSON.stringify(this.currentScenario));
+          definition.hashTree = this.scenarioDefinition;
           if (valid) {
             Promise.all([
+              this.getEnv(JSON.stringify(definition)),
               this.editScenario()]).then(val => {
               if (val) {
+                let sign = this.$refs.envPopover.checkEnv(this.isFullUrl);
+                if (!sign) {
+                  return;
+                }
                 this.debugData = {
                   id: this.currentScenario.id,
                   name: this.currentScenario.name,
