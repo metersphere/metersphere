@@ -4,6 +4,7 @@
     :tree-nodes="treeNodes"
     :data-map="dataMap"
     :tags="tags"
+    :select-node="selectNode"
     :distinct-tags="[...tags, $t('test_track.plan.plan_status_prepare')]"
     @save="save"
     ref="minder"
