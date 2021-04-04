@@ -601,8 +601,6 @@ public class JmeterDocumentParser implements DocumentParser {
         collectionProp.appendChild(createKafkaProp(document, "test.name", context.getTestName()));
         collectionProp.appendChild(createKafkaProp(document, "test.startTime", context.getStartTime().toString()));
         collectionProp.appendChild(createKafkaProp(document, "test.reportId", context.getReportId()));
-        collectionProp.appendChild(createKafkaProp(document, "test.expectedDuration", duration));// ms
-        collectionProp.appendChild(createKafkaProp(document, "test.expectedDelayEndTime", kafkaProperties.getExpectedDelayEndTime())); // 30s
 
         elementProp.appendChild(collectionProp);
         // set elementProp
