@@ -100,6 +100,7 @@ public class JmeterDocumentParser implements DocumentParser {
                         processCheckoutBackendListener(ele);
                         processCheckoutAutoStopListener(ele);
                     } else if (nodeNameEquals(ele, CONCURRENCY_THREAD_GROUP)) {
+                        processThreadGroup(ele);
                         processThreadGroupName(ele);
                         processCheckoutTimer(ele);
                     } else if (nodeNameEquals(ele, VARIABLE_THROUGHPUT_TIMER)) {
