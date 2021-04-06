@@ -5,14 +5,12 @@
         <el-option v-for="(environment, index) in pe.envs" :key="index"
                    :label="environment.name + (environment.config.httpConfig.socket ? (': ' + environment.config.httpConfig.protocol + '://' + environment.config.httpConfig.socket) : '')"
                    :value="environment.id"/>
-        <el-button class="ms-scenario-button" size="mini" type="primary"
-                   @click="openEnvironmentConfig(pe.id, pe['selectEnv'])">
+        <el-button class="ms-scenario-button" size="mini" type="primary" @click="openEnvironmentConfig(pe.id, pe['selectEnv'])">
           {{ $t('api_test.environment.environment_config') }}
         </el-button>
         <template v-slot:empty>
           <div class="empty-environment">
-            <el-button class="ms-scenario-button" size="mini" type="primary"
-                       @click="openEnvironmentConfig(pe.id, pe['selectEnv'])">
+            <el-button class="ms-scenario-button" size="mini" type="primary" @click="openEnvironmentConfig(pe.id, pe['selectEnv'])">
               {{ $t('api_test.environment.environment_config') }}
             </el-button>
           </div>
@@ -33,7 +31,6 @@
 <script>
 import {parseEnvironment} from "@/business/components/api/test/model/EnvironmentModel";
 import ApiEnvironmentConfig from "@/business/components/api/definition/components/environment/ApiEnvironmentConfig";
-import {ELEMENTS} from "./Setting";
 
 export default {
   name: "EnvironmentSelect",
@@ -55,41 +52,31 @@ export default {
   },
   methods: {
     init() {
-      let arr = [];
       this.projectIds.forEach(id => {
         const project = this.projectList.find(p => p.id === id);
         if (project) {
           let item = {id: id, envs: [], selectEnv: ""};
           this.data.push(item);
-          let p = new Promise(resolve => {
-            this.result = this.$get('/api/environment/list/' + id, res => {
-              let envs = res.data;
-              envs.forEach(environment => {
-                parseEnvironment(environment);
-              });
-              // 固定环境列表渲染顺序
-              let temp = this.data.find(dt => dt.id === id);
-              temp.envs = envs;
-              let envId = this.envMap.get(id);
-              // 选中环境是否存在
-              temp.selectEnv = envs.filter(e => e.id === envId).length === 0 ? null : envId;
-              resolve();
-            })
+          this.result = this.$get('/api/environment/list/' + id, res => {
+            let envs = res.data;
+            envs.forEach(environment => {
+              parseEnvironment(environment);
+            });
+            // 固定环境列表渲染顺序
+            let temp = this.data.find(dt => dt.id === id);
+            temp.envs = envs;
+            let envId = this.envMap.get(id);
+            // 选中环境是否存在
+            temp.selectEnv = envs.filter(e => e.id === envId).length === 0 ? null : envId;
           })
-          arr.push(p);
         }
       })
-      return arr;
     },
     open() {
       this.data = [];
       if (this.projectIds.size > 0) {
         this.init();
       }
-    },
-    initEnv() {
-      this.data = [];
-      return Promise.all(this.init());
     },
     getProjectName(id) {
       const project = this.projectList.find(p => p.id === id);
@@ -235,7 +222,7 @@ export default {
         }
       }
     },
-    checkEnv(data) {
+    checkEnv() {
       let sign = true;
       this.isFullUrl = true;
       if (this.data.length > 0) {
@@ -255,9 +242,7 @@ export default {
             }
           })
         } else {
-          if (!data) {
-            sign = false;
-          }
+          sign = false;
         }
         // 校验是否全是全路径
         //this.checkFullUrl(data);
