@@ -152,9 +152,7 @@ import {TEST_PLAN_CONFIGS} from "../../../../common/components/search/search-com
 import {LIST_CHANGE, TrackEvent} from "@/business/components/common/head/ListEvent";
 import {getCurrentProjectID} from "../../../../../../common/js/utils";
 import {_filter, _sort} from "@/common/js/tableUtils";
-import EnvPopover from "@/business/components/api/automation/scenario/EnvPopover";
-
-
+import EnvPopover from "@/business/components/track/common/EnvPopover";
 export default {
   name: "TestPlanList",
   components: {
