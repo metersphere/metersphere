@@ -1,15 +1,5 @@
 <template>
     <div>
-      <el-row style="margin:0px 10px 10px">
-        <el-col>
-          <div class="document-url">
-            <el-link href="https://jmeter.apache.org/usermanual/component_reference.html#BeanShell_PostProcessor"
-                     target="componentReferenceDoc"
-                     type="primary">{{$t('commons.reference_documentation')}}
-            </el-link>
-          </div>
-        </el-col>
-      </el-row>
       <el-row>
         <el-col :span="20" class="script-content">
           <ms-code-edit v-if="isCodeEditAlive" :mode="codeEditModeMap[jsr223ProcessorData.scriptLanguage]"
@@ -19,6 +9,12 @@
         </el-col>
         <el-col :span="4" class="script-index">
           <ms-dropdown :default-command="jsr223ProcessorData.scriptLanguage" :commands="languages" @command="languageChange"/>
+          <div class="document-url">
+            <el-link href="https://jmeter.apache.org/usermanual/component_reference.html#BeanShell_PostProcessor"
+                     target="componentReferenceDoc"
+                     type="primary">{{$t('commons.reference_documentation')}}
+            </el-link>
+          </div>
           <div class="template-title">{{$t('api_test.request.processor.code_template')}}</div>
           <div v-for="(template, index) in codeTemplates" :key="index" class="code-template">
             <el-link :disabled="template.disabled" @click="addTemplate(template)">{{template.title}}</el-link>
@@ -162,7 +158,7 @@
 
   .script-content {
     height: calc(100vh - 570px);
-    min-height: 250px;
+    min-height: 400px;
   }
 
   .script-index {
@@ -176,7 +172,7 @@
   }
 
   .document-url {
-    margin-top: 10px;
+    margin-bottom: 12px;
   }
 
   .instructions-icon {
@@ -184,7 +180,7 @@
   }
 
   .ms-dropdown {
-    margin-bottom: 20px;
+    margin-bottom: 12px;
   }
 
 </style>
