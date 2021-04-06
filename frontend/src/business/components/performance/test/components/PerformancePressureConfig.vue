@@ -16,6 +16,19 @@
           <el-form-item :label="$t('load_test.serialize_threadgroups')">
             <el-switch v-model="serializeThreadGroups"/>
           </el-form-item>
+          <br>
+          <el-form-item :label="$t('自动停止开启')">
+            <el-switch v-model="autoStop"/>
+          </el-form-item>
+          <el-form-item :label="$t('到达执行时间')">
+            <el-input-number
+              :disabled="isReadOnly || !autoStop"
+              v-model="autoStopDelay"
+              :min="1"
+              :max="9999"
+              size="mini"/>
+          </el-form-item>
+          <el-form-item :label="$t('秒后停止测试')"/>
         </el-form>
       </el-col>
     </el-row>
@@ -181,6 +194,8 @@ import {findThreadGroup} from "@/business/components/performance/test/model/Thre
 const HANDLER = "handler";
 const THREAD_GROUP_TYPE = "tgType";
 const SERIALIZE_THREAD_GROUPS = "serializeThreadGroups";
+const AUTO_STOP = "autoStop";
+const AUTO_STOP_DELAY = "autoStopDelay";
 const TARGET_LEVEL = "TargetLevel";
 const RAMP_UP = "RampUp";
 const ITERATE_RAMP_UP = "iterateRampUpTime";
@@ -236,6 +251,8 @@ export default {
       resourcePoolResourceLength: 1,
       maxThreadNumbers: 5000,
       serializeThreadGroups: false,
+      autoStop: false,
+      autoStopDelay: 30,
     }
   },
   mounted() {
@@ -324,6 +341,12 @@ export default {
                   break;
                 case SERIALIZE_THREAD_GROUPS:
                   this.serializeThreadGroups = item.value;// 所有的线程组值一样
+                  break;
+                case AUTO_STOP:
+                  this.autoStop = item.value;// 所有的线程组值一样
+                  break;
+                case AUTO_STOP_DELAY:
+                  this.autoStopDelay = item.value;// 所有的线程组值一样
                   break;
                 default:
                   break;
@@ -670,6 +693,8 @@ export default {
           {key: DELETED, value: this.threadGroups[i].deleted},
           {key: THREAD_GROUP_TYPE, value: this.threadGroups[i].tgType},
           {key: SERIALIZE_THREAD_GROUPS, value: this.serializeThreadGroups},
+          {key: AUTO_STOP, value: this.autoStop},
+          {key: AUTO_STOP_DELAY, value: this.autoStopDelay},
         ]);
       }
 
