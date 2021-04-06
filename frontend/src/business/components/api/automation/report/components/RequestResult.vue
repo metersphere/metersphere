@@ -45,7 +45,9 @@
 
       <el-collapse-transition>
         <div v-show="isActive" style="width: 99%">
-          <ms-request-result-tail :scenario-name="scenarioName" :request-type="requestType" :request="request"
+          <ms-request-result-tail :scenario-name="scenarioName"
+                                  :request-type="requestType"
+                                  :request="request"
                                   v-if="isActive"/>
         </div>
       </el-collapse-transition>
