@@ -68,7 +68,7 @@
   import MsTestPlanList from "../../../../../api/automation/scenario/testplan/TestPlanList";
   import TestPlanScenarioListHeader from "./TestPlanScenarioListHeader";
   import {_handleSelect, _handleSelectAll} from "../../../../../../../common/js/tableUtils";
-  import EnvPopover from "@/business/components/api/automation/scenario/EnvPopover";
+  import EnvPopover from "@/business/components/track/common/EnvPopover";
 
   export default {
     name: "RelevanceScenarioList",

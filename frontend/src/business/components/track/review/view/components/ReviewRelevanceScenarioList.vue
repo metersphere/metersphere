@@ -56,7 +56,7 @@
 <script>
 import {_handleSelect, _handleSelectAll} from "@/common/js/tableUtils";
 import MsTag from "@/business/components/common/components/MsTag";
-import EnvPopover from "@/business/components/api/automation/scenario/EnvPopover";
+import EnvPopover from "@/business/components/track/common/EnvPopover";
 import MsTablePagination from "@/business/components/common/pagination/TablePagination";
 
 export default {

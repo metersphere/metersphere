@@ -41,8 +41,7 @@
 <script>
   import MsDialogFooter from "../../../common/components/MsDialogFooter";
   import {listenGoBack, removeGoBackListener} from "@/common/js/utils";
-  import EnvPopover from "@/business/components/api/automation/scenario/EnvPopover";
-
+  import EnvPopover from "@/business/components/track/common/EnvPopover";
   export default {
     name: "BatchEdit",
     components: {
