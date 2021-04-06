@@ -1,4 +1,4 @@
-import {getUUID} from "@/common/js/utils";
+import i18n from "@/i18n/i18n";
 
 export function getTestCaseDataMap(testCase, isDisable, setParamCallback) {
   let dataMap = new Map();
@@ -25,7 +25,7 @@ export function parseCase(item, dataMap, isDisable, setParamCallback) {
       id: item.id,
       text: item.name,
       priority: Number.parseInt(item.priority.substring(item.priority.length - 1 )) + 1,
-      resource: ["用例"],
+      resource: [i18n.t('api_test.definition.request.case')],
       type: item.type,
       method: item.method,
       maintainer: item.maintainer
@@ -53,7 +53,7 @@ export function parseCase(item, dataMap, isDisable, setParamCallback) {
 function parseChildren(nodeItem, item, isDisable) {
   nodeItem.children = [];
   let children = [];
-  _parseChildren(children, item.prerequisite, "前置条件", isDisable);
+  _parseChildren(children, item.prerequisite, i18n.t('test_track.case.prerequisite'), isDisable);
   if (item.steps) {
     item.steps.forEach((step) => {
       let descNode = _parseChildren(children, step.desc, undefined, isDisable);
@@ -64,7 +64,7 @@ function parseChildren(nodeItem, item, isDisable) {
       }
     });
   }
-  _parseChildren(children, item.remark, "备注", isDisable);
+  _parseChildren(children, item.remark, i18n.t('commons.remark'), isDisable);
   nodeItem.children = children;
 }
 
@@ -154,9 +154,9 @@ export function tagChildren(node, resourceName, distinctTags) {
   if (!children) {
     children = [];
   }
-  if (!resourceName || !/\S/.test(resourceName)) return;
+  if (!resourceName || !/\S/.test(resourceName)) {return;}
   children.forEach((item) => {
-    let isCaseNode = item.data.resource && item.data.resource.indexOf('用例') > -1;
+    let isCaseNode = item.data.resource && item.data.resource.indexOf(i18n.t('api_test.definition.request.case')) > -1;
     if (item.data.type === 'node' || isCaseNode) {
       let origin = item.data.resource;
       if (!origin) {
@@ -172,7 +172,7 @@ export function tagChildren(node, resourceName, distinctTags) {
           }
         }
       }
-      if (index != -1) {
+      if (index !== -1) {
         origin.splice(index, 1);
       } else {
         origin.push(resourceName);
@@ -185,6 +185,22 @@ export function tagChildren(node, resourceName, distinctTags) {
     }
   });
 }
+
+
+function modifyParentNodeTag(node, resourceName) {
+  let topNode = null;
+  while (node.parent) {
+    let pNode = node.parent;
+    let pResource = pNode.data.resource;
+    if (pResource && pResource.length > 0 && pResource.indexOf(resourceName) < 0) {
+      pNode.data.resource = [];
+      topNode = pNode;
+    }
+    node = pNode;
+  }
+  return topNode;
+}
+
 
 export function tagBatch(distinctTags) {
   listenBeforeExecCommand((even) => {
@@ -214,18 +230,3 @@ export function tagBatch(distinctTags) {
     }
   });
 }
-
-function modifyParentNodeTag(node, resourceName) {
-  let topNode = undefined;
-  while (node.parent) {
-    let pNode = node.parent;
-    let pResource = pNode.data.resource;
-    if (pResource && pResource.length > 0 && pResource.indexOf(resourceName) < 0) {
-      pNode.data.resource = [];
-      topNode = pNode;
-    }
-    node = pNode;
-  }
-  return topNode;
-}
-
