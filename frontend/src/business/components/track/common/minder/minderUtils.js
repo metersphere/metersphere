@@ -85,6 +85,33 @@ function _parseChildren(children, k, v, isDisable) {
   }
 }
 
+export function listenNodeSelected(callback) {
+  let minder = window.minder;
+  minder.on('selectionchange ', function (even) {
+    if (callback) {
+      callback(even);
+    }
+  });
+}
+
+export function listenNodeChange(callback) {
+  let minder = window.minder;
+  minder.on('contentchange ', function (even) {
+    if (callback) {
+      callback(even);
+    }
+  });
+}
+
+export function listenBeforeExecCommand(callback) {
+  let minder = window.minder;
+  minder.on('beforeExecCommand ', function (even) {
+    if (callback) {
+      callback(even);
+    }
+  });
+}
+
 export function appendChild(appendPid, root, node) {
   if (root.data.id === appendPid) {
     root.children.push(node);
@@ -121,3 +148,84 @@ export function updateNode(root, node) {
     }
   }
 }
+
+export function tagChildren(node, resourceName, distinctTags) {
+  let children = node.children;
+  if (!children) {
+    children = [];
+  }
+  if (!resourceName || !/\S/.test(resourceName)) return;
+  children.forEach((item) => {
+    let isCaseNode = item.data.resource && item.data.resource.indexOf('用例') > -1;
+    if (item.data.type === 'node' || isCaseNode) {
+      let origin = item.data.resource;
+      if (!origin) {
+        origin = [];
+      }
+      let index = origin.indexOf(resourceName);
+      // 先删除排他的标签
+      if (distinctTags.indexOf(resourceName) > -1) {
+        for (let i = 0; i < origin.length; i++) {
+          if (distinctTags.indexOf(origin[i]) > -1) {
+            origin.splice(i, 1);
+            i--;
+          }
+        }
+      }
+      if (index != -1) {
+        origin.splice(index, 1);
+      } else {
+        origin.push(resourceName);
+      }
+      item.data.resource = origin;
+      if (isCaseNode) {
+        item.data.changed = true;
+      }
+      tagChildren(item, resourceName, distinctTags);
+    }
+  });
+}
+
+export function tagBatch(distinctTags) {
+  listenBeforeExecCommand((even) => {
+    let minder = window.minder;
+    let selectNodes = window.minder.getSelectedNodes();
+    let args = even.commandArgs;
+    if (selectNodes) {
+      selectNodes.forEach((node) => {
+        if (node.data.type === 'node' && even.commandName === 'resource') {
+          // let origin = minder.queryCommandValue('resource');
+          if (args && args.length > 0) {
+            let origin = args[0];
+            if (origin && origin.length > 0) {
+              let resourceName = origin[0];
+              tagChildren(node, resourceName, distinctTags);
+              let modifyTopNode = modifyParentNodeTag(node, resourceName);
+              if (modifyTopNode) {
+                modifyTopNode.renderTree();
+              } else {
+                node.renderTree();
+              }
+              minder.layout(600);
+            }
+          }
+        }
+      });
+    }
+  });
+}
+
+function modifyParentNodeTag(node, resourceName) {
+  let topNode = undefined;
+  while (node.parent) {
+    let pNode = node.parent;
+    let pResource = pNode.data.resource;
+    if (pResource && pResource.length > 0 && pResource.indexOf(resourceName) < 0) {
+      pNode.data.resource = [];
+      topNode = pNode;
+    }
+    node = pNode;
+  }
+  return topNode;
+}
+
