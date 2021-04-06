@@ -147,7 +147,7 @@ export default {
 }
 
 .document-url {
-  margin-top: 10px;
+  margin-bottom: 12px;
 }
 
 .instructions-icon {
@@ -155,7 +155,7 @@ export default {
 }
 
 .ms-dropdown {
-  margin-bottom: 20px;
+  margin-bottom: 12px;
 }
 
 </style>
