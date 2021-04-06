@@ -392,9 +392,11 @@ public class ApiAutomationService {
                             ApiDefinition apiDefinition = apiDefinitionService.get(tr.getId());
                             http.setUrl(apiDefinition.getPath());
                         }
-                        if (StringUtils.isBlank(http.getUrl()) || !isURL(http.getUrl())) {
-                            env.getProjectIds().add(http.getProjectId());
-                            env.setFullUrl(false);
+                        if (http.isEnable()) {
+                            if (StringUtils.isBlank(http.getUrl()) || !isURL(http.getUrl())) {
+                                env.getProjectIds().add(http.getProjectId());
+                                env.setFullUrl(false);
+                            }
                         }
                     } else if (StringUtils.equals(tr.getType(), "TCPSampler")) {
                         if (StringUtils.equals(tr.getRefType(), "CASE")) {
@@ -405,11 +407,13 @@ public class ApiAutomationService {
                             env.getProjectIds().add(apiDefinition.getProjectId());
                         }
                     } else if (StringUtils.equals(tr.getType(), "scenario")) {
-                        ApiScenarioDTO apiScenario = getApiScenario(tr.getId());
-                        String scenarioDefinition = apiScenario.getScenarioDefinition();
-                        JSONObject element1 = JSON.parseObject(scenarioDefinition);
-                        LinkedList<MsTestElement> hashTree1 = mapper.readValue(element1.getString("hashTree"), new TypeReference<LinkedList<MsTestElement>>(){});
-                        tr.setHashTree(hashTree1);
+                        if (tr.isEnable()) {
+                            ApiScenarioDTO apiScenario = getApiScenario(tr.getId());
+                            String scenarioDefinition = apiScenario.getScenarioDefinition();
+                            JSONObject element1 = JSON.parseObject(scenarioDefinition);
+                            LinkedList<MsTestElement> hashTree1 = mapper.readValue(element1.getString("hashTree"), new TypeReference<LinkedList<MsTestElement>>(){});
+                            tr.setHashTree(hashTree1);
+                        }
                     }
                 } else {
                     if (StringUtils.equals(tr.getType(), "HTTPSamplerProxy")) {
@@ -424,6 +428,9 @@ public class ApiAutomationService {
                     } else if (StringUtils.equals(tr.getType(), "TCPSampler")) {
                         env.getProjectIds().add(tr.getProjectId());
                     }
+                }
+                if (!tr.isEnable()) {
+                    continue;
                 }
                 if (CollectionUtils.isNotEmpty(tr.getHashTree())) {
                     getHashTree(tr.getHashTree(), env);
@@ -452,9 +459,11 @@ public class ApiAutomationService {
                             ApiDefinition apiDefinition = apiDefinitionService.get(tr.getId());
                             http.setUrl(apiDefinition.getPath());
                         }
-                        if (StringUtils.isBlank(http.getUrl()) || !this.isURL(http.getUrl())) {
-                            env.setFullUrl(false);
-                            env.getProjectIds().add(http.getProjectId());
+                        if (http.isEnable()) {
+                            if (StringUtils.isBlank(http.getUrl()) || !this.isURL(http.getUrl())) {
+                                env.setFullUrl(false);
+                                env.getProjectIds().add(http.getProjectId());
+                            }
                         }
                     } else if (StringUtils.equals(tr.getType(), "TCPSampler")) {
                         if (StringUtils.equals(tr.getRefType(), "CASE")) {
@@ -465,11 +474,13 @@ public class ApiAutomationService {
                             env.getProjectIds().add(apiDefinition.getProjectId());
                         }
                     }  else if (StringUtils.equals(tr.getType(), "scenario")) {
-                        ApiScenarioDTO apiScenario = getApiScenario(tr.getId());
-                        String scenarioDefinition = apiScenario.getScenarioDefinition();
-                        JSONObject element1 = JSON.parseObject(scenarioDefinition);
-                        LinkedList<MsTestElement> hashTree1 = mapper.readValue(element1.getString("hashTree"), new TypeReference<LinkedList<MsTestElement>>(){});
-                        tr.setHashTree(hashTree1);
+                        if (tr.isEnable()) {
+                            ApiScenarioDTO apiScenario = getApiScenario(tr.getId());
+                            String scenarioDefinition = apiScenario.getScenarioDefinition();
+                            JSONObject element1 = JSON.parseObject(scenarioDefinition);
+                            LinkedList<MsTestElement> hashTree1 = mapper.readValue(element1.getString("hashTree"), new TypeReference<LinkedList<MsTestElement>>(){});
+                            tr.setHashTree(hashTree1);
+                        }
                     }
                 } else {
                     if (StringUtils.equals(tr.getType(), "HTTPSamplerProxy")) {
@@ -484,6 +495,9 @@ public class ApiAutomationService {
                     } else if (StringUtils.equals(tr.getType(), "TCPSampler")) {
                         env.getProjectIds().add(tr.getProjectId());
                     }
+                }
+                if (!tr.isEnable()) {
+                    continue;
                 }
                 if (CollectionUtils.isNotEmpty(tr.getHashTree())) {
                     getHashTree(tr.getHashTree(), env);
