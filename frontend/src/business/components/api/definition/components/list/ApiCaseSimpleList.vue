@@ -97,12 +97,16 @@
             </template>
           </el-table-column>
         </template>
-        <el-table-column fixed="right" v-if="!isReadOnly" :label="$t('commons.operating')" min-width="130"
+        <el-table-column fixed="right" v-if="!isReadOnly" :label="$t('commons.operating')" min-width="160"
                          align="center">
           <template slot="header">
             <header-label-operate @exec="customHeader"/>
           </template>
           <template v-slot:default="scope">
+            <ms-table-operator-button class="run-button" :is-tester-permission="true"
+                                      :tip="$t('api_test.automation.execute')"
+                                      icon="el-icon-video-play"
+                                      @exec="runTestCase(scope.row)"/>
             <ms-table-operator-button :tip="$t('commons.edit')" icon="el-icon-edit" @exec="handleTestCase(scope.row)"
                                       v-tester/>
             <ms-table-operator-button :tip="$t('commons.delete')" icon="el-icon-delete" @exec="handleDelete(scope.row)"
@@ -354,7 +358,7 @@ export default {
 
           this.$nextTick(function () {
             if (this.$refs.caseTable) {
-              setTimeout(this.$refs.caseTable.doLayout, 200)
+              setTimeout(this.$refs.caseTable.doLayout, 200);
             }
             this.checkTableRowIsSelect();
           })
@@ -412,7 +416,7 @@ export default {
     },
     handleSelectAll(selection) {
       _handleSelectAll(this, selection, this.tableData, this.selectRows);
-      this.selectRowsCount(this.selectRows)
+      this.selectRowsCount(this.selectRows);
     },
     search() {
       this.changeSelectDataRangeAll();
@@ -421,7 +425,23 @@ export default {
     buildPagePath(path) {
       return path + "/" + this.currentPage + "/" + this.pageSize;
     },
-
+    runTestCase(testCase) {
+      this.$get('/api/definition/get/' + testCase.apiDefinitionId, (response) => {
+        let api = response.data;
+        let selectApi = api;
+        let request = {};
+        if (Object.prototype.toString.call(api.request).match(/\[object (\w+)\]/)[1].toLowerCase() === 'object') {
+          request = api.request;
+        } else {
+          request = JSON.parse(api.request);
+        }
+        if (!request.hashTree) {
+          request.hashTree = [];
+        }
+        selectApi.url = request.path;
+        this.$refs.caseList.runTestCase(selectApi, testCase.id);
+      });
+    },
     handleTestCase(testCase) {
       this.$get('/api/definition/get/' + testCase.apiDefinitionId, (response) => {
         let api = response.data;

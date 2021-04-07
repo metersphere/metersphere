@@ -9,7 +9,7 @@ import java.util.Map;
 
 @Getter
 @Setter
-public class TestPlanApiCaseBatchRequest extends TestPlanTestCase {
+public class TestPlanScenarioCaseBatchRequest extends TestPlanTestCase {
     private List<String> ids;
 
     /**
@@ -22,5 +22,5 @@ public class TestPlanApiCaseBatchRequest extends TestPlanTestCase {
      */
     private Map<String, String> projectEnvMap;
 
-    private ApiCaseBatchCondition condition;
+    private ScenarioCaseBatchCondition condition;
 }

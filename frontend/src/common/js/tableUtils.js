@@ -17,7 +17,7 @@ export function _handleSelectAll(component, selection, tableData, selectRows) {
     selectRows.clear();
     tableData.forEach(item => {
       component.$set(item, "showMore", false);
-    })
+    });
   }
 }
 
@@ -33,15 +33,21 @@ export function _handleSelect(component, selection, row, selectRows) {
   let arr = Array.from(selectRows);
   arr.forEach(row => {
     component.$set(row, "showMore", true);
-  })
+  });
 }
 
 // 设置 unSelectIds 查询条件，返回当前选中的条数
 export function setUnSelectIds(tableData, condition, selectRows) {
   let ids = Array.from(selectRows).map(o => o.id);
   let allIDs = tableData.map(o => o.id);
-  condition.unSelectIds = allIDs.filter(function (val) {
-    return ids.indexOf(val) === -1
+  let thisUnSelectIds = allIDs.filter(function (val) {
+    return ids.indexOf(val) === -1;
+  });
+  let needPushIds = thisUnSelectIds.filter(function (val) {
+    return condition.unSelectIds.indexOf(val) === -1;
+  });
+  needPushIds.forEach(id => {
+    condition.unSelectIds.push(id);
   });
 }
 
@@ -58,6 +64,31 @@ export function toggleAllSelection(table, tableData, selectRows) {
   //如果已经全选，不需要再操作了
   if (selectRows.size != tableData.length) {
     table.toggleAllSelection(true);
+  }
+}
+
+//检查表格每一行是否应该选择(使用场景：全选数据时进行翻页操作)
+export function checkTableRowIsSelect(component, condition, tableData, table, selectRows) {
+  //如果默认全选的话，则选中应该选中的行
+  if (condition.selectAll) {
+    let unSelectIds = condition.unSelectIds;
+    tableData.forEach(row => {
+      if (unSelectIds.indexOf(row.id) < 0) {
+        table.toggleRowSelection(row, true);
+
+        //默认全选，需要把选中对行添加到selectRows中。不然会影响到勾选函数统计
+        if (!selectRows.has(row)) {
+          component.$set(row, "showMore", true);
+          selectRows.add(row);
+        }
+      } else {
+        //不勾选的行，也要判断是否被加入了selectRow中。加入了的话就去除。
+        if (selectRows.has(row)) {
+          component.$set(row, "showMore", false);
+          selectRows.delete(row);
+        }
+      }
+    });
   }
 }
 
@@ -101,30 +132,30 @@ export function _sort(column, condition) {
   }
 }
 
-export function initCondition(condition,isSelectAll) {
-  if(!isSelectAll){
+export function initCondition(condition, isSelectAll) {
+  if (!isSelectAll) {
     condition.selectAll = false;
     condition.unSelectIds = [];
   }
 }
 
 export function getLabel(vueObj, type) {
-  let param = {}
+  let param = {};
   param.userId = getCurrentUser().id;
   param.type = type;
   vueObj.result = vueObj.$post('/system/header/info', param, response => {
     if (response.data != null) {
       vueObj.tableLabel = eval(response.data.props);
-    }else{
-      let param = {}
-      param.type=type
-      vueObj.result = vueObj.$post('/system/system/header',param, response => {
+    } else {
+      let param = {};
+      param.type = type;
+      vueObj.result = vueObj.$post('/system/system/header', param, response => {
         if (response.data != null) {
           vueObj.tableLabel = eval(response.data.props);
         }
-      })
+      });
     }
-  })
+  });
 }
 
 

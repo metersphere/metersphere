@@ -19,6 +19,7 @@ export default {
     examples: 'examples',
     help_documentation: 'Help documentation',
     delete_cancelled: 'Delete cancelled',
+    option_cannot_spread_pages: 'This options not support spread pages.Do you want continue?',
     workspace: 'Workspace',
     organization: 'Organization',
     setting: 'Setting',
@@ -985,6 +986,15 @@ export default {
       unit_of_measurement: "",
       unit_of_count: "",
       unit_of_times: "times",
+      formula:{
+        completion: "finished api / all api * 100%",
+        coverage: "apis whitch have test case / all apis * 100%",
+        pass: "scenarios whitch final execute is sucess / all scenarios * 100%",
+        success: "execute success count number / all execute count number * 100%",
+        interface_coverage: "api whitch in scenario's step / all api * 100%",
+        review: "reviewd cases / all cases * 100%",
+        testplan_coverage: "relevance function cases / all function cases * 100%",
+      },
       api_count_card: {
         title: "API count",
       },

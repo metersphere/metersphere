@@ -124,7 +124,7 @@
       createCase() {
         this.api = this.currentApi;
         this.sysAddition();
-      }
+      },
     },
     created() {
       this.api = this.currentApi;
@@ -147,6 +147,14 @@
         this.testCaseId = testCaseId;
         this.condition = {components: API_CASE_CONFIGS};
         this.getApiTest(true);
+        this.visible = true;
+      },
+      runTestCase(api, testCaseId) {
+        this.api = api;
+        // testCaseId 不为空则为用例编辑页面
+        this.testCaseId = testCaseId;
+        this.condition = {components: API_CASE_CONFIGS};
+        this.getApiTestToRunTestCase(testCaseId);
         this.visible = true;
       },
       saveApiAndCase(api) {
@@ -211,9 +219,49 @@
       selectAll(isSelectAll) {
         this.apiCaseList.forEach(item => {
           this.$set(item, 'selected', isSelectAll);
-        })
+        });
       },
       getApiTest(addCase) {
+        this.useEnvironment = "";
+        if (this.api) {
+          this.condition.projectId = this.projectId;
+          if (this.isCaseEdit) {
+            this.condition.id = this.testCaseId;
+          }
+          if (this.api) {
+            this.condition.apiDefinitionId = this.api.id;
+          }
+
+          this.result = this.$post("/api/testcase/list", this.condition, response => {
+            let data = [];
+            if (response.data) {
+              data = response.data;
+            }
+            data.forEach(apiCase => {
+              if (apiCase.tags && apiCase.tags.length > 0) {
+                apiCase.tags = JSON.parse(apiCase.tags);
+                this.$set(apiCase, 'selected', false);
+              }
+              if (Object.prototype.toString.call(apiCase.request).match(/\[object (\w+)\]/)[1].toLowerCase() != 'object') {
+                apiCase.request = JSON.parse(apiCase.request);
+              }
+              if (!apiCase.request.hashTree) {
+                apiCase.request.hashTree = [];
+              }
+
+            });
+            this.apiCaseList = data;
+            if (!this.useEnvironment && this.apiCaseList[0] && this.apiCaseList[0].request && this.apiCaseList[0].request.useEnvironment) {
+              this.useEnvironment = this.apiCaseList[0].request.useEnvironment;
+              this.environment = this.useEnvironment;
+            }
+            if (addCase && this.apiCaseList.length == 0 && !this.loaded) {
+              this.addCase();
+            }
+          });
+        }
+      },
+      getApiTestToRunTestCase(testCaseId) {
         this.useEnvironment = "";
         if (this.api) {
           this.condition.projectId = this.projectId;
@@ -247,9 +295,17 @@
               this.useEnvironment = this.apiCaseList[0].request.useEnvironment;
               this.environment = this.useEnvironment;
             }
-            if (addCase && this.apiCaseList.length == 0 && !this.loaded) {
+            if (this.apiCaseList.length === 0 && !this.loaded) {
               this.addCase();
             }
+
+            this.apiCaseList.forEach(apicase => {
+              if (apicase.id === testCaseId) {
+                let data = apicase;
+                data.message = true;
+                this.singleRun(data);
+              }
+            });
           });
         }
       },

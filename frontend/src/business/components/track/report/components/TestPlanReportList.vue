@@ -8,8 +8,10 @@
     <el-table border :data="tableData"
               @select-all="handleSelectAll"
               @select="handleSelect"
+              :height="screenHeight"
+              ref="testPlanReportTable"
               row-key="id" class="test-content adjust-table ms-select-all"
-      @filter-change="filter" @sort-change="sort" ref="testPlanReportTable">
+      @filter-change="filter" @sort-change="sort" >
 
       <el-table-column width="50" type="selection"/>
       <ms-table-select-all
@@ -71,8 +73,15 @@ import ReportTriggerModeItem from "@/business/components/common/tableItem/Report
 import MsTag from "@/business/components/common/components/MsTag";
 import ShowMoreBtn from "@/business/components/track/case/components/ShowMoreBtn";
 import MsTableSelectAll from "@/business/components/common/components/table/MsTableSelectAll";
-import {_filter, _sort} from "@/common/js/tableUtils";
-
+import {
+  _filter,
+  _handleSelect,
+  _handleSelectAll,
+  _sort, checkTableRowIsSelect,
+  getSelectDataCounts,
+  initCondition,
+  setUnSelectIds, toggleAllSelection,
+} from "@/common/js/tableUtils";
 
 export default {
   name: "TestPlanReportList",
@@ -94,6 +103,7 @@ export default {
       pageSize: 10,
       isTestManagerOrTestUser: false,
       selectRows: new Set(),
+      screenHeight: document.documentElement.clientHeight - 296,//屏幕高度
       total: 0,
       tableData: [],
       statusFilters: [
@@ -109,8 +119,6 @@ export default {
       buttons: [
         {name: this.$t('api_test.definition.request.batch_delete'), handleClick: this.handleDeleteBatch},
       ],
-      selectAll: false,
-      unSelection: [],
       selectDataCounts: 0,
     }
   },
@@ -131,10 +139,8 @@ export default {
   },
   methods: {
     initTableData() {
+      initCondition(this.condition, this.condition.selectAll);
       this.selectRows = new Set();
-      this.selectAll = false;
-      this.unSelection = [];
-      this.selectDataCounts = 0;
       if (this.planId) {
         this.condition.planId = this.planId;
       }
@@ -148,51 +154,26 @@ export default {
         let data = response.data;
         this.total = data.itemCount;
         this.tableData = data.listObject;
-        this.unSelection = data.listObject.map(s => s.id);
+        if (this.$refs.testPlanReportTable) {
+          // setTimeout(this.$refs.testPlanReportTable,200);
+        }
+        this.$nextTick(() => {
+          checkTableRowIsSelect(this,this.condition,this.tableData,this.$refs.testPlanReportTable,this.selectRows);
+        });
       });
     },
     buildPagePath(path) {
       return path + "/" + this.currentPage + "/" + this.pageSize;
     },
     handleSelect(selection, row) {
-      row.hashTree = [];
-      if (this.selectRows.has(row)) {
-        this.$set(row, "showMore", false);
-        this.selectRows.delete(row);
-      } else {
-        this.$set(row, "showMore", true);
-        this.selectRows.add(row);
-      }
-      let arr = Array.from(this.selectRows);
-      // 选中1个以上的用例时显示更多操作
-      if (this.selectRows.size === 1) {
-        this.$set(arr[0], "showMore", true);
-      } else if (this.selectRows.size === 2) {
-        arr.forEach(row => {
-          this.$set(row, "showMore", true);
-        })
-      }
-      this.selectRowsCount(this.selectRows)
+      _handleSelect(this, selection, row, this.selectRows);
+      setUnSelectIds(this.tableData, this.condition, this.selectRows);
+      this.selectDataCounts = getSelectDataCounts(this.condition, this.total, this.selectRows);
     },
     handleSelectAll(selection) {
-      if (selection.length > 0) {
-        if (selection.length === 1) {
-          selection.hashTree = [];
-          this.selectRows.add(selection[0]);
-        } else {
-          this.tableData.forEach(item => {
-            item.hashTree = [];
-            this.$set(item, "showMore", true);
-            this.selectRows.add(item);
-          });
-        }
-      } else {
-        this.selectRows.clear();
-        this.tableData.forEach(row => {
-          this.$set(row, "showMore", false);
-        })
-      }
-      this.selectRowsCount(this.selectRows)
+      _handleSelectAll(this, selection, this.tableData, this.selectRows);
+      setUnSelectIds(this.tableData, this.condition, this.selectRows);
+      this.selectDataCounts = getSelectDataCounts(this.condition, this.total, this.selectRows);
     },
     handleDelete(testPlanReport) {
       this.$alert(this.$t('report.delete_confirm') + ' ' + testPlanReport.name + " ？", '', {
@@ -217,8 +198,8 @@ export default {
             let ids = Array.from(this.selectRows).map(row => row.id);
             deleteParam.dataIds = ids;
             deleteParam.projectId = this.projectId;
-            deleteParam.selectAllDate = this.isSelectAllDate;
-            deleteParam.unSelectIds = this.unSelection;
+            deleteParam.selectAllDate = this.condition.selectAll;
+            deleteParam.unSelectIds = this.condition.unSelection;
             deleteParam = Object.assign(deleteParam, this.condition);
             this.$post('/test/plan/report/deleteBatchByParams/', deleteParam, () => {
               this.$success(this.$t('commons.delete_success'));
@@ -247,25 +228,16 @@ export default {
         this.$refs.testPlanReportView.open(planId);
       }
     },
-    isSelectDataAll(dataType) {
-      this.isSelectAllDate = dataType;
-      this.selectRowsCount(this.selectRows)
-      //如果已经全选，不需要再操作了
-      if (this.selectRows.size != this.tableData.length) {
-        this.$refs.testPlanReportTable.toggleAllSelection(true);
-      }
-    },
-    selectRowsCount(selection) {
-      let selectedIDs = this.getIds(selection);
-      let allIDs = this.tableData.map(s => s.id);
-      this.unSelection = allIDs.filter(function (val) {
-        return selectedIDs.indexOf(val) === -1
-      });
-      if (this.isSelectAllDate) {
-        this.selectDataCounts = this.total - this.unSelection.length;
-      } else {
-        this.selectDataCounts = selection.size;
-      }
+    isSelectDataAll(data) {
+      this.condition.selectAll = data;
+      //设置勾选
+      toggleAllSelection(this.$refs.testPlanReportTable, this.tableData, this.selectRows);
+      //显示隐藏菜单
+      _handleSelectAll(this, this.tableData, this.tableData, this.selectRows);
+      //设置未选择ID(更新)
+      this.condition.unSelectIds = [];
+      //更新统计信息
+      this.selectDataCounts = getSelectDataCounts(this.condition, this.total, this.selectRows);
     },
   }
 }

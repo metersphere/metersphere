@@ -11,6 +11,7 @@ import io.metersphere.controller.request.OrderRequest;
 import io.metersphere.performance.request.RunTestPlanRequest;
 import io.metersphere.performance.service.PerformanceTestService;
 import io.metersphere.track.dto.TestPlanLoadCaseDTO;
+import io.metersphere.track.request.testplan.LoadCaseReportBatchRequest;
 import io.metersphere.track.request.testplan.LoadCaseReportRequest;
 import io.metersphere.track.request.testplan.LoadCaseRequest;
 import org.apache.ibatis.session.ExecutorType;
@@ -64,6 +65,19 @@ public class TestPlanLoadCaseService {
         }
         request.setOrders(orders);
         return extTestPlanLoadCaseMapper.selectTestPlanLoadCaseList(request);
+    }
+
+    public List<String> selectTestPlanLoadCaseIds(LoadCaseRequest request) {
+        List<OrderRequest> orders = request.getOrders();
+        if (orders == null || orders.size() < 1) {
+            OrderRequest orderRequest = new OrderRequest();
+            orderRequest.setName("create_time");
+            orderRequest.setType("desc");
+            orders = new ArrayList<>();
+            orders.add(orderRequest);
+        }
+        request.setOrders(orders);
+        return extTestPlanLoadCaseMapper.selectTestPlanLoadCaseId(request);
     }
 
     public void relevanceCase(LoadCaseRequest request) {
@@ -137,6 +151,23 @@ public class TestPlanLoadCaseService {
     }
 
     public void batchDelete(List<String> ids) {
+        if (CollectionUtils.isEmpty(ids)) {
+            return;
+        }
+        TestPlanLoadCaseExample example = new TestPlanLoadCaseExample();
+        example.createCriteria().andIdIn(ids);
+        testPlanLoadCaseMapper.deleteByExample(example);
+    }
+
+    public void batchDelete(LoadCaseReportBatchRequest request){
+        List<String> ids = request.getIds();
+        if(request.getCondition()!=null && request.getCondition().isSelectAll()){
+            ids = this.selectTestPlanLoadCaseIds(request.getCondition());
+            if(request.getCondition().getUnSelectIds()!=null){
+                ids.removeAll(request.getCondition().getUnSelectIds());
+            }
+        }
+
         if (CollectionUtils.isEmpty(ids)) {
             return;
         }
