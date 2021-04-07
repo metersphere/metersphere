@@ -5,12 +5,12 @@
         <el-option v-for="(environment, index) in pe.envs" :key="index"
                    :label="environment.name + (environment.config.httpConfig.socket ? (': ' + environment.config.httpConfig.protocol + '://' + environment.config.httpConfig.socket) : '')"
                    :value="environment.id"/>
-        <el-button class="ms-scenario-button" size="mini" type="primary" @click="openEnvironmentConfig(pe.id, pe['selectEnv'])">
+        <el-button class="ms-scenario-button" size="mini" type="primary" @click="openEnvironmentConfig(pe.id)">
           {{ $t('api_test.environment.environment_config') }}
         </el-button>
         <template v-slot:empty>
           <div class="empty-environment">
-            <el-button class="ms-scenario-button" size="mini" type="primary" @click="openEnvironmentConfig(pe.id, pe['selectEnv'])">
+            <el-button class="ms-scenario-button" size="mini" type="primary" @click="openEnvironmentConfig(pe.id)">
               {{ $t('api_test.environment.environment_config') }}
             </el-button>
           </div>
@@ -70,7 +70,7 @@ export default {
             temp.selectEnv = envs.filter(e => e.id === envId).length === 0 ? null : envId;
           });
         }
-      })
+      });
     },
     open() {
       this.data = [];
@@ -82,12 +82,12 @@ export default {
       const project = this.projectList.find(p => p.id === id);
       return project ? project.name : "";
     },
-    openEnvironmentConfig(projectId, envId) {
+    openEnvironmentConfig(projectId) {
       if (!projectId) {
         this.$error(this.$t('api_test.select_project'));
         return;
       }
-      this.$refs.environmentConfig.open(projectId, envId);
+      this.$refs.environmentConfig.open(projectId);
     },
     handleConfirm() {
       let map = new Map();
@@ -140,7 +140,7 @@ export default {
       // todo 关闭处理
     }
   }
-}
+};
 </script>
 
 <style scoped>
