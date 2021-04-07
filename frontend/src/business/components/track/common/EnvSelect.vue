@@ -98,7 +98,7 @@ export default {
           return;
         }
         map.set(dt.id, dt.selectEnv);
-      })
+      });
       if (!sign) {
         this.$warning("请为每个项目选择一个运行环境！");
         return;
