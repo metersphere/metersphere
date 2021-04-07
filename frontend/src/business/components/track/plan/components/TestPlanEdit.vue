@@ -33,7 +33,7 @@
                 <el-option
                   v-for="item in principalOptions"
                   :key="item.id"
-                  :label="item.name"
+                  :label="item.name + '(' + item.id + ')'"
                   :value="item.id">
                 </el-option>
               </el-select>
@@ -158,6 +158,12 @@ export default {
       principalOptions: []
     };
   },
+  created() {
+    //设置“测试阶段”和“负责人”的默认值
+    this.form.stage = 'smoke';
+    const adminToken = JSON.parse(localStorage.getItem("Admin-Token"));
+    this.form.principal = adminToken.name + "(" + adminToken.id + ")";
+  },
   methods: {
     openTestPlanEditDialog(testPlan) {
       this.resetForm();
@@ -259,8 +265,9 @@ export default {
           this.$refs['planFrom'].resetFields();
           this.form.name = '';
           this.form.projectIds = [];
-          this.form.principal = '';
-          this.form.stage = '';
+          const adminToken = JSON.parse(localStorage.getItem("Admin-Token"));
+          this.form.principal = adminToken.name + "(" + adminToken.id + ")";
+          this.form.stage = 'smoke';
           this.form.description = '';
           this.form.status = null;
           this.form.plannedStartTime = null;
