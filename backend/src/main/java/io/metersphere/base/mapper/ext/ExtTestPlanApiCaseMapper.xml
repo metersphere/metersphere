@@ -108,6 +108,97 @@
       </foreach>
     </if>
   </select>
+  <select id="selectIds" resultType="java.lang.String">
+    select
+    t.id
+    from
+    test_plan_api_case t
+    inner join
+    api_test_case c
+    on t.api_case_id = c.id
+    <if test="request.planId != null and request.planId!=''">
+      and t.test_plan_id = #{request.planId}
+    </if>
+    inner join
+    api_definition a
+    on
+    c.api_definition_id = a.id
+    <if test="request.protocol != null and request.protocol!=''">
+      and a.protocol = #{request.protocol}
+    </if>
+    <choose>
+      <when test="request.status == 'Trash'">
+        and a.status = 'Trash'
+      </when>
+      <when test="request.status == null">
+        and a.status != 'Trash'
+      </when>
+      <when test="request.status == ''">
+        and a.status != 'Trash'
+      </when>
+      <when test="request.status == 'running'">
+        and t.status IS NULL
+      </when>
+      <otherwise>
+        and t.status = #{request.status}
+      </otherwise>
+    </choose>
+    where 1
+    <if test="request.ids != null and request.ids.size() > 0">
+      <if test="request.projectId != null and request.projectId!=''">
+        and
+      </if>
+      t.id in
+      <foreach collection="request.ids" item="caseId" separator="," open="(" close=")">
+        #{caseId}
+      </foreach>
+    </if>
+    <if test="request.name != null and request.name!=''">
+      and (c.name like CONCAT('%', #{request.name},'%') or c.tags like CONCAT('%', #{request.name},'%'))
+    </if>
+    <if test="request.moduleIds != null and request.moduleIds.size() > 0">
+      and a.module_id in
+      <foreach collection="request.moduleIds" item="nodeId" separator="," open="(" close=")">
+        #{nodeId}
+      </foreach>
+    </if>
+    <if test="request.filters != null and request.filters.size() > 0">
+      <foreach collection="request.filters.entrySet()" index="key" item="values">
+        <if test="values != null and values.size() > 0">
+          <choose>
+            <when test="key == 'priority'">
+              and c.priority in
+              <foreach collection="values" item="value" separator="," open="(" close=")">
+                #{value}
+              </foreach>
+            </when>
+            <when test="key == 'user_id'">
+              and c.create_user_id in
+              <foreach collection="values" item="value" separator="," open="(" close=")">
+                #{value}
+              </foreach>
+            </when>
+          </choose>
+        </if>
+      </foreach>
+    </if>
+    <if test="request.orders != null and request.orders.size() > 0">
+      order by
+      <foreach collection="request.orders" separator="," item="order">
+        <choose>
+          <when test="order.name == 'update_time'">
+            t.${order.name} ${order.type}
+          </when>
+          <when test="order.name == 'create_user'">
+            create_user_id ${order.type}
+          </when>
+          <otherwise>
+            ${order.name} ${order.type}
+          </otherwise>
+        </choose>
+      </foreach>
+    </if>
+  </select>
   <select id="getExecResultByPlanId" resultType="java.lang.String">
     select status
     from

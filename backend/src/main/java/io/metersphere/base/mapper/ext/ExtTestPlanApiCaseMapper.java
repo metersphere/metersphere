@@ -19,4 +19,6 @@ public interface ExtTestPlanApiCaseMapper {
     List<String> getNotRelevanceCaseIds(@Param("planId")String planId, @Param("relevanceProjectIds")List<String> relevanceProjectIds);
 
     List<String> getStatusByTestPlanId(String id);
+
+    List<String> selectIds(@Param("request") ApiTestCaseRequest request);
 }

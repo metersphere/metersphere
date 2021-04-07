@@ -37,6 +37,7 @@ export default {
     copy_success: '復制成功',
     modify_success: '修改成功',
     delete_cancel: '已取消刪除',
+    option_cannot_spread_pages: '這個操作不能跨頁，是否繼續？',
     confirm: '確定',
     cancel: '取消',
     prompt: '提示',
@@ -987,6 +988,15 @@ export default {
       unit_of_measurement: "個",
       unit_of_count: "個",
       unit_of_times: "次",
+      formula:{
+        completion: "已完成的接口/接口總數*100%",
+        coverage: "有案例的接口/接口總數*100%",
+        pass: "最後一次執行成功的場景/場景總數*100%",
+        success: "執行成功的次數/执行總次數*100%",
+        interface_coverage: "被場景步驟包含的接口/接口總數*100%",
+        review: "評審通過的功能案例/所有功能案例 * 100%",
+        testplan_coverage: "關聯的功能案例數/所有功能案例 * 100%",
+      },
       api_count_card: {
         title: "接口數量統計",
       },

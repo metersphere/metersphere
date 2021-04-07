@@ -8,23 +8,30 @@
           @relevanceCase="$emit('relevanceCase', 'scenario')"/>
       </template>
 
-      <el-table ref="scenarioTable" border :data="tableData" class="adjust-table" @select-all="handleSelectAll"
+      <el-table ref="scenarioTable" border :data="tableData" class="test-content adjust-table ms-select-all-fixed" @select-all="handleSelectAll"
+                :height="screenHeight"
                 @select="handleSelect">
         <el-table-column type="selection"/>
-        <el-table-column width="40" :resizable="false" align="center">
+        <ms-table-header-select-popover v-show="total>0"
+                                        :page-size="pageSize > total ? total : pageSize"
+                                        :total="total"
+                                        @selectPageAll="isSelectDataAll(false)"
+                                        @selectAll="isSelectDataAll(true)"/>
+        <el-table-column width="20" :resizable="false" align="center">
           <template v-slot:default="{row}">
-            <show-more-btn :is-show="isSelect(row)" :buttons="buttons" :size="selectRows.size"/>
+            <show-more-btn :is-show="isSelect(row)" :buttons="buttons" :size="selectDataCounts"/>
           </template>
         </el-table-column>
         <template v-for="(item, index) in tableLabel">
           <el-table-column
             v-if="item.id == 'num'"
             prop="num"
+            min-width="80px"
             label="ID"
             :key="index"/>
-          <el-table-column v-if="item.id == 'name'" prop="name" :label="$t('api_test.automation.scenario_name')"
+          <el-table-column v-if="item.id == 'name'" prop="name" :label="$t('api_test.automation.scenario_name')" min-width="120px"
                            show-overflow-tooltip :key="index"/>
-          <el-table-column v-if="item.id == 'level'" prop="level" :label="$t('api_test.automation.case_level')"
+          <el-table-column v-if="item.id == 'level'" prop="level" :label="$t('api_test.automation.case_level')" min-width="100px"
                            show-overflow-tooltip :key="index">
             <template v-slot:default="scope">
               <ms-tag v-if="scope.row.level == 'P0'" type="info" effect="plain" content="P0"/>
@@ -35,23 +42,23 @@
 
           </el-table-column>
           <el-table-column v-if="item.id == 'tagNames'" prop="tagNames" :label="$t('api_test.automation.tag')"
-                           width="200px" :key="index">
+                           min-width="100px" :key="index">
             <template v-slot:default="scope">
               <ms-tag v-for="(itemName,index) in scope.row.tags" :key="index" type="success" effect="plain"
                       :content="itemName" style="margin-left: 0px; margin-right: 2px"/>
             </template>
           </el-table-column>
-          <el-table-column v-if="item.id == 'userId'" prop="userId" :label="$t('api_test.automation.creator')"
+          <el-table-column v-if="item.id == 'userId'" prop="userId" :label="$t('api_test.automation.creator')" min-width="100px"
                            show-overflow-tooltip :key="index"/>
-          <el-table-column v-if="item.id == 'updateTime'" prop="updateTime"
+          <el-table-column v-if="item.id == 'updateTime'" prop="updateTime" min-width="120px"
                            :label="$t('api_test.automation.update_time')" width="180" :key="index">
             <template v-slot:default="scope">
               <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
             </template>
           </el-table-column>
-          <el-table-column v-if="item.id == 'stepTotal'" prop="stepTotal" :label="$t('api_test.automation.step')"
+          <el-table-column v-if="item.id == 'stepTotal'" prop="stepTotal" :label="$t('api_test.automation.step')" min-width="80px"
                            show-overflow-tooltip :key="index"/>
-          <el-table-column v-if="item.id == 'lastResult'" prop="lastResult"
+          <el-table-column v-if="item.id == 'lastResult'" prop="lastResult" min-width="100px"
                            :label="$t('api_test.automation.last_result')" :key="index">
             <template v-slot:default="{row}">
               <el-link type="success" @click="showReport(row)" v-if="row.lastResult === 'Success'">
@@ -62,11 +69,11 @@
               </el-link>
             </template>
           </el-table-column>
-          <el-table-column v-if="item.id == 'passRate'" prop="passRate"
+          <el-table-column v-if="item.id == 'passRate'" prop="passRate" min-width="80px"
                            :label="$t('api_test.automation.passing_rate')"
                            show-overflow-tooltip :key="index"/>
         </template>
-        <el-table-column :label="$t('commons.operating')" width="200px" v-if="!referenced">
+        <el-table-column :label="$t('commons.operating')" fixed="right" min-width="100px" v-if="!referenced">
           <template slot="header">
             <header-label-operate @exec="customHeader"/>
           </template>
@@ -109,13 +116,26 @@ import MsTableMoreBtn from "../../../../../api/automation/scenario/TableMoreBtn"
 import MsScenarioExtendButtons from "@/business/components/api/automation/scenario/ScenarioExtendBtns";
 import MsTestPlanList from "../../../../../api/automation/scenario/testplan/TestPlanList";
 import TestPlanScenarioListHeader from "./TestPlanScenarioListHeader";
-import {_handleSelect, _handleSelectAll, getLabel} from "../../../../../../../common/js/tableUtils";
+import {
+  _handleSelect,
+  _handleSelectAll,
+  getLabel,
+  getSelectDataCounts,
+  setUnSelectIds,
+  _filter,
+  _sort,
+  initCondition,
+  buildBatchParam,
+  toggleAllSelection,
+  checkTableRowIsSelect
+} from "../../../../../../../common/js/tableUtils";
 import MsTableOperatorButton from "../../../../../common/components/MsTableOperatorButton";
 import HeaderCustom from "@/business/components/common/head/HeaderCustom";
 import {TEST_CASE_LIST, TEST_PLAN_SCENARIO_CASE} from "@/common/js/constants";
 import {Test_Plan_Scenario_Case, Track_Test_Case} from "@/business/components/common/model/JsonData";
 import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOperate";
 import BatchEdit from "@/business/components/track/case/components/BatchEdit";
+import MsTableHeaderSelectPopover from "@/business/components/common/components/table/MsTableHeaderSelectPopover";
 
 export default {
   name: "MsTestPlanApiScenarioList",
@@ -132,7 +152,8 @@ export default {
     MsApiReportDetail,
     MsScenarioExtendButtons,
     MsTestPlanList,
-    BatchEdit
+    BatchEdit,
+    MsTableHeaderSelectPopover
   },
   props: {
     referenced: {
@@ -148,6 +169,7 @@ export default {
     return {
       type: TEST_PLAN_SCENARIO_CASE,
       headerItems: Test_Plan_Scenario_Case,
+      screenHeight: document.documentElement.clientHeight - 348,//屏幕高度
       tableLabel: [],
       loading: false,
       condition: {},
@@ -156,6 +178,7 @@ export default {
       selectAll: false,
       tableData: [],
       currentPage: 1,
+      selectDataCounts:0,
       pageSize: 10,
       total: 0,
       reportId: "",
@@ -203,6 +226,7 @@ export default {
       this.$refs.headerCustom.open(this.tableLabel)
     },
     search() {
+      initCondition(this.condition,this.condition.selectAll);
       this.selectRows = new Set();
       this.loading = true;
       this.condition.moduleIds = this.selectNodeIds;
@@ -227,6 +251,12 @@ export default {
             }
           });
           this.loading = false;
+          if (this.$refs.scenarioTable) {
+            setTimeout(this.$refs.scenarioTable.doLayout, 200);
+          }
+          this.$nextTick(() => {
+            checkTableRowIsSelect(this,this.condition,this.tableData,this.$refs.scenarioTable,this.selectRows);
+          })
         });
       }
       if (this.reviewId) {
@@ -242,6 +272,12 @@ export default {
             }
           });
           this.loading = false;
+          if (this.$refs.scenarioTable) {
+            setTimeout(this.$refs.scenarioTable.doLayout, 200);
+          }
+          this.$nextTick(() => {
+            checkTableRowIsSelect(this,this.condition,this.tableData,this.$refs.scenarioTable,this.selectRows);
+          })
         });
       }
       getLabel(this, TEST_PLAN_SCENARIO_CASE);
@@ -256,22 +292,44 @@ export default {
       })
     },
     handleBatchExecute() {
-      if (this.reviewId) {
-        this.selectRows.forEach(row => {
-          let param = this.buildExecuteParam(row);
-          this.$post("/test/case/review/scenario/case/run", param, response => {
-          });
+      // 与同事对接此处功能时得知前段入口取消，if (this.reviewId) {} 函数不会执行。 暂时先注释掉。 By.Song Tianyang
+      // if (this.reviewId) {
+      //   this.selectRows.forEach(row => {
+      //     let param = this.buildExecuteParam(row);
+      //     this.$post("/test/case/review/scenario/case/run", param, response => {
+      //     });
+      //   });
+      // }
+
+      if(this.condition != null && this.condition.selectAll){
+        this.$alert(this.$t('commons.option_cannot_spread_pages'), '', {
+          confirmButtonText: this.$t('commons.confirm'),
+          callback: (action) => {
+            if (action === 'confirm') {
+              if (this.planId) {
+                this.selectRows.forEach(row => {
+                  let param = this.buildExecuteParam(row);
+                  this.$post("/test/plan/scenario/case/run", param, response => {
+                  });
+                });
+              }
+              this.$message('任务执行中，请稍后刷新查看结果');
+              this.search();
+            }
+          }
         });
-      }
-      if (this.planId) {
-        this.selectRows.forEach(row => {
-          let param = this.buildExecuteParam(row);
-          this.$post("/test/plan/scenario/case/run", param, response => {
+      }else {
+        if (this.planId) {
+          this.selectRows.forEach(row => {
+            let param = this.buildExecuteParam(row);
+            this.$post("/test/plan/scenario/case/run", param, response => {
+            });
           });
-        });
+        }
+        this.$message('任务执行中，请稍后刷新查看结果');
+        this.search();
       }
-      this.$message('任务执行中，请稍后刷新查看结果');
-      this.search();
+
     },
     execute(row) {
       this.infoDb = false;
@@ -328,16 +386,20 @@ export default {
     },
     handleSelectAll(selection) {
       _handleSelectAll(this, selection, this.tableData, this.selectRows);
+      setUnSelectIds(this.tableData, this.condition, this.selectRows);
+      this.selectDataCounts = getSelectDataCounts(this.condition, this.total, this.selectRows);
     },
     handleSelect(selection, row) {
       _handleSelect(this, selection, row, this.selectRows);
+      setUnSelectIds(this.tableData, this.condition, this.selectRows);
+      this.selectDataCounts = getSelectDataCounts(this.condition, this.total, this.selectRows);
     },
     handleDeleteBatch() {
       this.$alert(this.$t('api_test.definition.request.delete_confirm') + "？", '', {
         confirmButtonText: this.$t('commons.confirm'),
         callback: (action) => {
           if (action === 'confirm') {
-            let param = {};
+            let param = buildBatchParam(this);
             param.ids = Array.from(this.selectRows).map(row => row.id);
             if (this.planId) {
               param.planId = this.planId;
@@ -369,19 +431,46 @@ export default {
       let param = {};
       param.mapping = strMapToObj(form.map);
       param.envMap = strMapToObj(form.projectEnvMap);
-      if (this.planId) {
-        this.$post('/test/plan/scenario/case/batch/update/env', param, () => {
-          this.$success(this.$t('commons.save_success'));
-          this.search();
-        })
-      }
-      if (this.reviewId) {
-        this.$post('/test/case/review/scenario/case/batch/update/env', param, () => {
-          this.$success(this.$t('commons.save_success'));
-          this.search();
-        })
-      }
 
+      if(this.condition != null && this.condition.selectAll){
+        this.$alert(this.$t('commons.option_cannot_spread_pages'), '', {
+          confirmButtonText: this.$t('commons.confirm'),
+          callback: (action) => {
+            if (action === 'confirm') {
+              if (this.planId) {
+                this.$post('/test/plan/scenario/case/batch/update/env', param, () => {
+                  this.$success(this.$t('commons.save_success'));
+                  this.search();
+                })
+              }
+            }
+          }
+        });
+      }else {
+        if (this.planId) {
+          this.$post('/test/plan/scenario/case/batch/update/env', param, () => {
+            this.$success(this.$t('commons.save_success'));
+            this.search();
+          })
+        }
+      }
+      // if (this.reviewId) {
+      //   this.$post('/test/case/review/scenario/case/batch/update/env', param, () => {
+      //     this.$success(this.$t('commons.save_success'));
+      //     this.search();
+      //   })
+      // }
+    },
+    isSelectDataAll(data) {
+      this.condition.selectAll = data;
+      //设置勾选
+      toggleAllSelection(this.$refs.scenarioTable, this.tableData, this.selectRows);
+      //显示隐藏菜单
+      _handleSelectAll(this, this.tableData, this.tableData, this.selectRows);
+      //设置未选择ID(更新)
+      this.condition.unSelectIds = [];
+      //更新统计信息
+      this.selectDataCounts = getSelectDataCounts(this.condition, this.total, this.selectRows);
     },
   }
 }
@@ -390,5 +479,8 @@ export default {
 <style scoped>
 /deep/ .el-drawer__header {
   margin-bottom: 0px;
+}
+/deep/ .el-table__fixed-body-wrapper {
+  top: 59px !important;
 }
 </style>
