@@ -401,7 +401,7 @@ export default {
     apikey_delete_confirm: '這個 API Key 確定要刪除嗎?',
     input_id_placeholder: '請輸入ID (不支持中文)',
     source: '用戶來源',
-    button:{
+    button: {
       add_workspace_batch: '批量添加到工作空間',
       add_user_role_batch: '批量添加角色',
     }
@@ -524,6 +524,9 @@ export default {
     run: '壹鍵運行',
     select_resource_pool: '請選擇資源池',
     serialize_threadgroups: '場景是否順序執行',
+    autostop_threadgroups: '自動停止開啟',
+    reaches_duration: '到達執行時間',
+    autostop_delay: '秒後停止測試',
     resource_pool_is_null: '資源池為空',
     download_log_file: '下載完整日誌文件',
     pressure_prediction_chart: '壓力預估圖',
@@ -909,8 +912,8 @@ export default {
         code_template_get_response_header: "獲取響應頭",
         code_template_get_response_code: "獲取響應碼",
         code_template_get_response_result: "獲取響應結果",
-        code_add_report_length : "報文头添加長度",
-        code_hide_report_length : "隱藏報文長度"
+        code_add_report_length: "報文头添加長度",
+        code_hide_report_length: "隱藏報文長度"
       },
       dubbo: {
         protocol: "協議",
