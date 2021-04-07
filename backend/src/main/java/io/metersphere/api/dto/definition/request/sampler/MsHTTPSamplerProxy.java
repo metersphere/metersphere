@@ -341,8 +341,9 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         headerManager.setName(StringUtils.isNotEmpty(this.getName()) ? this.getName() + "HeaderManager" : "HeaderManager");
         headerManager.setProperty(TestElement.TEST_CLASS, HeaderManager.class.getName());
         headerManager.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("HeaderPanel"));
+        //  header 也支持 mock 参数
         headers.stream().filter(KeyValue::isValid).filter(KeyValue::isEnable).forEach(keyValue ->
-                headerManager.add(new Header(keyValue.getName(), keyValue.getValue()))
+                headerManager.add(new Header(keyValue.getName(), ScriptEngineUtils.calculate(keyValue.getValue())))
         );
         if (headerManager.getHeaders().size() > 0) {
             tree.add(headerManager);

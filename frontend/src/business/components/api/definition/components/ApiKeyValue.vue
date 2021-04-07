@@ -28,8 +28,24 @@
         </el-col>
 
         <el-col class="item">
-          <el-input :disabled="isReadOnly" v-model="item.value" size="small" @change="change"
+          <el-input v-if="!needMock" :disabled="isReadOnly" v-model="item.value" size="small" @change="change"
                     :placeholder="valueText" show-word-limit/>
+          <div v-if="needMock">
+            <el-autocomplete
+              :disabled="isReadOnly"
+              @change="change"
+              :placeholder="valueText"
+              size="small"
+              style="width: 100%;"
+              v-model="item.value"
+              value-key="name"
+              :fetch-suggestions="funcSearch"
+              highlight-first-item
+              show-word-limit>
+              <i slot="suffix" class="el-input__icon el-icon-edit pointer" @click="advanced"></i>
+            </el-autocomplete>
+            <ms-api-variable-advance ref="variableAdvance"/>
+          </div>
         </el-col>
         <el-col class="item kv-delete">
           <el-button size="mini" class="el-icon-delete-solid" circle @click="remove(index)"
@@ -43,10 +59,13 @@
 <script>
   import {KeyValue} from "../model/ApiTestModel";
   import Vue from 'vue';
+  import MsApiVariableAdvance from "./ApiVariableAdvance";
+  import {JMETER_FUNC, MOCKJS_FUNC} from "@/common/js/constants";
 
 
   export default {
     name: "MsApiKeyValue",
+    components: {MsApiVariableAdvance},
     props: {
       keyPlaceholder: String,
       valuePlaceholder: String,
@@ -60,6 +79,10 @@
         default: false
       },
       suggestions: Array,
+      needMock: {
+        type: Boolean,
+        default: false
+      }
     },
     data() {
       return {
@@ -86,6 +109,20 @@
       }
     },
     methods: {
+      advanced() {
+        this.$refs.variableAdvance.open();
+      },
+      funcFilter(queryString) {
+        return (func) => {
+          return (func.name.toLowerCase().indexOf(queryString.toLowerCase()) > -1);
+        };
+      },
+      funcSearch(queryString, cb) {
+        let funcs = MOCKJS_FUNC.concat(JMETER_FUNC);
+        let results = queryString ? funcs.filter(this.funcFilter(queryString)) : funcs;
+        // 调用 callback 返回建议列表的数据
+        cb(results);
+      },
       moveBottom(index) {
         if (this.items.length < 2 || index === this.items.length - 2) {
           return;
