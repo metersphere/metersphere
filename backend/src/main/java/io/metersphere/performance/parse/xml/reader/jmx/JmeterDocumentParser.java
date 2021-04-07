@@ -100,26 +100,13 @@ public class JmeterDocumentParser implements DocumentParser {
                         processCheckoutBackendListener(ele);
                         processCheckoutAutoStopListener(ele);
                     } else if (nodeNameEquals(ele, CONCURRENCY_THREAD_GROUP)) {
-                        processThreadGroup(ele);
+                        processThreadType(ele);
                         processThreadGroupName(ele);
                         processCheckoutTimer(ele);
                     } else if (nodeNameEquals(ele, VARIABLE_THROUGHPUT_TIMER)) {
                         processVariableThroughputTimer(ele);
                     } else if (nodeNameEquals(ele, THREAD_GROUP)) {
-                        Object threadType = context.getProperty("threadType");
-                        if (threadType instanceof List) {
-                            Object o = ((List<?>) threadType).get(0);
-                            ((List<?>) threadType).remove(0);
-                            if ("DURATION".equals(o)) {
-                                processThreadGroup(ele);
-                            }
-                            if ("ITERATION".equals(o)) {
-                                processIterationThreadGroup(ele);
-                            }
-                        } else {
-                            processThreadGroup(ele);
-                        }
-
+                        processThreadType(ele);
                         processThreadGroupName(ele);
                         processCheckoutTimer(ele);
                     } else if (nodeNameEquals(ele, BACKEND_LISTENER)) {
@@ -144,6 +131,22 @@ public class JmeterDocumentParser implements DocumentParser {
                     }
                 }
             }
+        }
+    }
+
+    private void processThreadType(Element ele) {
+        Object threadType = context.getProperty("threadType");
+        if (threadType instanceof List) {
+            Object o = ((List<?>) threadType).get(0);
+            ((List<?>) threadType).remove(0);
+            if ("DURATION".equals(o)) {
+                processThreadGroup(ele);
+            }
+            if ("ITERATION".equals(o)) {
+                processIterationThreadGroup(ele);
+            }
+        } else {
+            processThreadGroup(ele);
         }
     }
 
@@ -695,6 +698,10 @@ public class JmeterDocumentParser implements DocumentParser {
     }
 
     private void processBaseThreadGroup(Element threadGroup) {
+        Document document = threadGroup.getOwnerDocument();
+        document.renameNode(threadGroup, threadGroup.getNamespaceURI(), THREAD_GROUP);
+        threadGroup.setAttribute("guiclass", THREAD_GROUP + "Gui");
+        threadGroup.setAttribute("testclass", THREAD_GROUP);
         /*
         <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="登录" enabled="true">
         <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
@@ -711,7 +718,6 @@ public class JmeterDocumentParser implements DocumentParser {
       </ThreadGroup>
          */
         removeChildren(threadGroup);
-        Document document = threadGroup.getOwnerDocument();
         Object targetLevels = context.getProperty("TargetLevel");
         String threads = "10";
         if (targetLevels instanceof List) {
@@ -893,6 +899,10 @@ public class JmeterDocumentParser implements DocumentParser {
     }
 
     private void processIterationThreadGroup(Element threadGroup) {
+        Document document = threadGroup.getOwnerDocument();
+        document.renameNode(threadGroup, threadGroup.getNamespaceURI(), THREAD_GROUP);
+        threadGroup.setAttribute("guiclass", THREAD_GROUP + "Gui");
+        threadGroup.setAttribute("testclass", THREAD_GROUP);
         // 检查 threadgroup 后面的hashtree是否为空
         Node hashTree = threadGroup.getNextSibling();
         while (!(hashTree instanceof Element)) {
@@ -901,8 +911,6 @@ public class JmeterDocumentParser implements DocumentParser {
         if (!hashTree.hasChildNodes()) {
             MSException.throwException(Translator.get("jmx_content_valid"));
         }
-        // 重命名 tagName
-        Document document = threadGroup.getOwnerDocument();
         removeChildren(threadGroup);
 
         // 选择按照迭代次数处理线程组

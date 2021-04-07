@@ -3,7 +3,6 @@ package io.metersphere.service;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.FileContentMapper;
 import io.metersphere.base.mapper.FileMetadataMapper;
-import io.metersphere.base.mapper.LoadTestFileMapper;
 import io.metersphere.base.mapper.TestCaseFileMapper;
 import io.metersphere.commons.constants.FileType;
 import io.metersphere.commons.exception.MSException;
@@ -26,8 +25,6 @@ import java.util.stream.Collectors;
 public class FileService {
     @Resource
     private FileMetadataMapper fileMetadataMapper;
-    @Resource
-    private LoadTestFileMapper loadTestFileMapper;
     @Resource
     private FileContentMapper fileContentMapper;
     @Resource
@@ -61,23 +58,10 @@ public class FileService {
         FileContentExample example2 = new FileContentExample();
         example2.createCriteria().andFileIdIn(ids);
         fileContentMapper.deleteByExample(example2);
-
-        LoadTestFileExample example3 = new LoadTestFileExample();
-        example3.createCriteria().andFileIdIn(ids);
-        loadTestFileMapper.deleteByExample(example3);
     }
 
     public void deleteFileRelatedByIds(List<String> ids) {
-        if (CollectionUtils.isEmpty(ids)) {
-            return;
-        }
-        FileMetadataExample example = new FileMetadataExample();
-        example.createCriteria().andIdIn(ids);
-        fileMetadataMapper.deleteByExample(example);
-
-        FileContentExample example2 = new FileContentExample();
-        example2.createCriteria().andFileIdIn(ids);
-        fileContentMapper.deleteByExample(example2);
+        deleteFileByIds(ids);
     }
 
     public FileMetadata saveFile(MultipartFile file, String projectId, String fileId) {
