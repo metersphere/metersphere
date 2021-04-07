@@ -711,6 +711,8 @@ export default {
       }
     },
     automation: {
+      open_expansion: "一鍵展開",
+      close_expansion: "一鍵收起",
       constant: "常量",
       counter: "計數器",
       random: "随机器",
@@ -774,6 +776,7 @@ export default {
     environment: {
       name: "環境名稱",
       socket: "環境域名",
+      condition_enable: "啟用條件",
       globalVariable: "全局變量",
       environment_list: "環境列表",
       environment_config: "環境配置",

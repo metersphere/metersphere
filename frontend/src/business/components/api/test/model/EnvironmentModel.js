@@ -69,7 +69,7 @@ export class HttpConfig extends BaseConfig {
     this.headers = [];
     this.protocol = 'https';
     this.port = undefined;
-
+    this.conditions = [];
     this.set(options);
     this.sets({headers: KeyValue}, options);
   }

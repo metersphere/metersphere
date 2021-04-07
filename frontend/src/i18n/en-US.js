@@ -711,6 +711,8 @@ export default {
       }
     },
     automation: {
+      open_expansion: "One-click expansion",
+      close_expansion: "One-click storage",
       constant: "constant",
       counter: "counter",
       random: "random",
@@ -774,6 +776,7 @@ export default {
     environment: {
       name: "Environment Name",
       socket: "Socket",
+      condition_enable: "Activation conditions",
       globalVariable: "Global Variable",
       environment_list: "Environment List",
       environment_config: "Environment Config",

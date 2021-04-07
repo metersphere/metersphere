@@ -6,7 +6,7 @@
       <ms-aside-item :enable-aside-hidden="false" :title="$t('api_test.environment.environment_list')"
                      :data="environments" :item-operators="environmentOperators" :add-fuc="addEnvironment"
                      :delete-fuc="deleteEnvironment" @itemSelected="environmentSelected" ref="environmentItems"/>
-      <environment-edit :environment="currentEnvironment" ref="environmentEdit" @close="close"/>
+      <environment-edit :project-id="projectId" :environment="currentEnvironment" ref="environmentEdit" @close="close"/>
     </el-container>
   </el-dialog>
 </template>
