@@ -226,7 +226,7 @@ export default {
       }
       if (this.$refs && this.$refs.testCaseEdit) {
         this.$refs.testCaseEdit.forEach(item => {
-         /* item.removeListener();*/
+          /* item.removeListener();*/
         });  //  删除所有tab的 ctrl + s 监听
         this.addListener();
       }
@@ -256,9 +256,9 @@ export default {
       let index = this.tabs.findIndex(item => item.name === this.activeName); //  找到当前选中tab的index
       if (index != -1) {   //  为当前选中的tab添加监听
         this.$nextTick(() => {
-/*
-          this.$refs.testCaseEdit[index].addListener();
-*/
+          /*
+                    this.$refs.testCaseEdit[index].addListener();
+          */
         });
       }
     },
@@ -355,15 +355,15 @@ export default {
         // this.getProjectByCaseId(caseId);
         this.$get('/test/case/get/' + caseId, response => {
           if (response.data) {
-/*
-            this.$refs.testCaseEditDialog.open(response.data);
-*/
+            /*
+                        this.$refs.testCaseEditDialog.open(response.data);
+            */
           }
         });
       } else {
-/*
-        this.$refs.testCaseEditDialog.open();
-*/
+        /*
+                this.$refs.testCaseEditDialog.open();
+        */
       }
     },
     setTreeNodes(data) {
@@ -384,6 +384,11 @@ export default {
 
 /deep/ .el-button-group>.el-button:first-child {
   padding: 4px 1px !important;
+}
+
+/deep/ .el-tabs__header {
+  margin: 0 0 0px;
+  /*width: calc(100% - 90px);*/
 }
 
 </style>

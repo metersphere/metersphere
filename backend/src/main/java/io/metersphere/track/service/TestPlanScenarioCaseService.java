@@ -1,12 +1,10 @@
 package io.metersphere.track.service;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONPath;
 import io.metersphere.api.dto.automation.ApiScenarioDTO;
 import io.metersphere.api.dto.automation.ApiScenarioRequest;
 import io.metersphere.api.dto.automation.RunScenarioRequest;
 import io.metersphere.api.dto.automation.TestPlanScenarioRequest;
-import io.metersphere.api.dto.definition.RunDefinitionRequest;
 import io.metersphere.api.service.ApiAutomationService;
 import io.metersphere.api.service.ApiScenarioReportService;
 import io.metersphere.base.domain.TestPlanApiScenario;
@@ -16,11 +14,12 @@ import io.metersphere.base.mapper.ext.ExtTestPlanScenarioCaseMapper;
 import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.utils.ServiceUtils;
 import io.metersphere.track.dto.RelevanceScenarioRequest;
-import io.metersphere.track.request.testcase.TestPlanApiCaseBatchRequest;
+import io.metersphere.track.request.testcase.TestPlanScenarioCaseBatchRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
+
 import javax.annotation.Resource;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -48,6 +47,13 @@ public class TestPlanScenarioCaseService {
         return apiTestCases;
     }
 
+    public List<String> selectIds(TestPlanScenarioRequest request) {
+        request.setProjectId(null);
+        request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
+        List<String> idList = extTestPlanScenarioCaseMapper.selectIds(request);
+        return idList;
+    }
+
     public List<ApiScenarioDTO> relevanceList(ApiScenarioRequest request) {
         request.setNotInTestPlan(true);
         List<ApiScenarioDTO> list = apiAutomationService.list(request);
@@ -67,13 +73,18 @@ public class TestPlanScenarioCaseService {
         return testPlanApiScenarioMapper.deleteByExample(example);
     }
 
-    public void deleteApiCaseBath(TestPlanApiCaseBatchRequest request) {
-        if (CollectionUtils.isEmpty(request.getIds())) {
+    public void deleteApiCaseBath(TestPlanScenarioCaseBatchRequest request) {
+        List<String> ids = request.getIds();
+        if(request.getCondition()!=null && request.getCondition().isSelectAll()){
+            ids = this.selectIds(request.getCondition());
+        }
+
+        if (CollectionUtils.isEmpty(ids)) {
             return;
         }
         TestPlanApiScenarioExample example = new TestPlanApiScenarioExample();
         example.createCriteria()
-                .andIdIn(request.getIds());
+                .andIdIn(ids);
         List<String> reportIds = testPlanApiScenarioMapper.selectByExample(example).stream()
                 .map(TestPlanApiScenario::getReportId).collect(Collectors.toList());
         apiScenarioReportService.deleteByIds(reportIds);
@@ -109,14 +120,14 @@ public class TestPlanScenarioCaseService {
     }
 
     public void deleteByPlanId(String planId) {
-        TestPlanApiCaseBatchRequest request = new TestPlanApiCaseBatchRequest();
+        TestPlanScenarioCaseBatchRequest request = new TestPlanScenarioCaseBatchRequest();
         List<String> ids = extTestPlanScenarioCaseMapper.getIdsByPlanId(planId);
         request.setIds(ids);
         deleteApiCaseBath(request);
     }
 
     public void deleteByRelevanceProjectIds(String planId, List<String> relevanceProjectIds) {
-        TestPlanApiCaseBatchRequest request = new TestPlanApiCaseBatchRequest();
+        TestPlanScenarioCaseBatchRequest request = new TestPlanScenarioCaseBatchRequest();
         request.setIds(extTestPlanScenarioCaseMapper.getNotRelevanceCaseIds(planId, relevanceProjectIds));
         request.setPlanId(planId);
         deleteApiCaseBath(request);

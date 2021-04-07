@@ -19,6 +19,7 @@ export default {
     examples: 'examples',
     help_documentation: 'Help documentation',
     delete_cancelled: 'Delete cancelled',
+    option_cannot_spread_pages: 'This options not support spread pages.Do you want continue?',
     workspace: 'Workspace',
     organization: 'Organization',
     setting: 'Setting',

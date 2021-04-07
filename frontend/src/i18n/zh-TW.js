@@ -37,6 +37,7 @@ export default {
     copy_success: '復制成功',
     modify_success: '修改成功',
     delete_cancel: '已取消刪除',
+    option_cannot_spread_pages: '這個操作不能跨頁，是否繼續？',
     confirm: '確定',
     cancel: '取消',
     prompt: '提示',
