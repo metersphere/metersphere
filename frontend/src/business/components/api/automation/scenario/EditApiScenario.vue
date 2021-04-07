@@ -120,8 +120,8 @@
                   <el-checkbox v-model="enableCookieShare">共享cookie</el-checkbox>
                 </el-col>
                 <el-col :span="5">
-                  <env-popover :env-map="projectEnvMap" :project-ids="projectIds" @setProjectEnvMap="setProjectEnvMap"
-                               @showPopover="showPopover" :project-list="projectList" ref="envPopover"/>
+                  <env-popover :disabled="scenarioDefinition.length < 1" :env-map="projectEnvMap" :project-ids="projectIds" @setProjectEnvMap="setProjectEnvMap"
+                               :isReadOnly="scenarioDefinition.length < 1" @showPopover="showPopover" :project-list="projectList" ref="envPopover"/>
                 </el-col>
                 <el-col :span="4">
                   <el-button :disabled="scenarioDefinition.length < 1" size="mini" type="primary" v-prevent-re-click @click="runDebug">{{$t('api_test.request.debug')}}</el-button>
