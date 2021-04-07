@@ -15,6 +15,8 @@ import io.metersphere.track.dto.TestCaseTestDTO;
 import io.metersphere.track.dto.TestPlanCaseDTO;
 import io.metersphere.track.request.testcase.TestPlanCaseBatchRequest;
 import io.metersphere.track.request.testplancase.QueryTestPlanCaseRequest;
+import io.metersphere.track.request.testplancase.TestPlanFuncCaseBatchRequest;
+import io.metersphere.track.request.testplancase.TestPlanFuncCaseConditions;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -90,8 +92,15 @@ public class TestPlanTestCaseService {
     }
 
     public void editTestCaseBath(TestPlanCaseBatchRequest request) {
+        List<String> ids = request.getIds();
+        if(request.getCondition()!=null && request.getCondition().isSelectAll()){
+            ids = extTestPlanTestCaseMapper.selectIds(request.getCondition());
+            if(request.getCondition().getUnSelectIds()!=null){
+                ids.removeAll(request.getCondition().getUnSelectIds());
+            }
+        }
         TestPlanTestCaseExample testPlanTestCaseExample = new TestPlanTestCaseExample();
-        testPlanTestCaseExample.createCriteria().andIdIn(request.getIds());
+        testPlanTestCaseExample.createCriteria().andIdIn(ids);
 
         TestPlanTestCaseWithBLOBs testPlanTestCase = new TestPlanTestCaseWithBLOBs();
         BeanUtils.copyBean(testPlanTestCase, request);
@@ -199,5 +208,18 @@ public class TestPlanTestCaseService {
             item.setUpdateTime(System.currentTimeMillis());
             testPlanTestCaseMapper.updateByPrimaryKeySelective(item);
         });
+    }
+
+    public List<String> idList(TestPlanFuncCaseBatchRequest request) {
+        List<String> returnIdList = new ArrayList<>();
+        TestPlanFuncCaseConditions conditions = request.getCondition();
+        if(conditions!= null && conditions.isSelectAll()){
+            conditions.setOrders(ServiceUtils.getDefaultOrder(conditions.getOrders()));
+            returnIdList = extTestPlanTestCaseMapper.selectIds(conditions);
+            if(conditions.getUnSelectIds()!=null){
+                returnIdList.removeAll(conditions.getUnSelectIds());
+            }
+        }
+        return returnIdList;
     }
 }

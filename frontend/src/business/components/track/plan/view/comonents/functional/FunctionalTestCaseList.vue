@@ -26,12 +26,13 @@
 
       <el-table
         ref="table"
-        class="adjust-table"
+        class="test-content adjust-table ms-select-all-fixed"
         border
         @select-all="handleSelectAll"
         @filter-change="filter"
         @sort-change="sort"
         @select="handleSelectionChange"
+        :height="screenHeight"
         row-key="id"
         @row-click="showDetail"
         @header-dragend="headerDragend"
@@ -39,9 +40,14 @@
 
         <el-table-column
           type="selection"/>
-        <el-table-column width="40" :resizable="false" align="center">
+        <ms-table-header-select-popover v-show="total>0"
+                                        :page-size="pageSize > total ? total : pageSize"
+                                        :total="total"
+                                        @selectPageAll="isSelectDataAll(false)"
+                                        @selectAll="isSelectDataAll(true)"/>
+        <el-table-column width="30" :resizable="false" align="center">
           <template v-slot:default="scope">
-            <show-more-btn :is-show="scope.row.showMore" :buttons="buttons" :size="selectRows.size"/>
+            <show-more-btn :is-show="scope.row.showMore" :buttons="buttons" :size="selectDataCounts"/>
           </template>
         </el-table-column>
         <template v-for="(item, index) in tableLabel">
@@ -296,11 +302,22 @@ import BatchEdit from "../../../../case/components/BatchEdit";
 import ClassicEditor from "@ckeditor/ckeditor5-build-classic";
 import {hub} from "@/business/components/track/plan/event-bus";
 import MsTag from "@/business/components/common/components/MsTag";
-import {_filter, _sort, getLabel} from "@/common/js/tableUtils";
+import {
+  _filter,
+  _handleSelect,
+  _handleSelectAll,
+  _sort,
+  buildBatchParam,
+  getLabel,
+  getSelectDataCounts,
+  initCondition,
+  setUnSelectIds,
+  toggleAllSelection
+} from "@/common/js/tableUtils";
 import HeaderCustom from "@/business/components/common/head/HeaderCustom";
 import {Test_Plan_Function_Test_Case} from "@/business/components/common/model/JsonData";
 import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOperate";
-
+import MsTableHeaderSelectPopover from "@/business/components/common/components/table/MsTableHeaderSelectPopover";
 
 export default {
   name: "FunctionalTestCaseList",
@@ -315,12 +332,13 @@ export default {
     StatusTableItem,
     PriorityTableItem, StatusEdit, ExecutorEdit, MsTipButton, MsTablePagination,
     MsTableHeader, NodeBreadcrumb, MsTableButton, ShowMoreBtn,
-    BatchEdit, MsTag
+    BatchEdit, MsTag,MsTableHeaderSelectPopover
   },
   data() {
     return {
       type: TEST_PLAN_FUNCTION_TEST_CASE,
       headerItems: Test_Plan_Function_Test_Case,
+      screenHeight: document.documentElement.clientHeight-365,
       tableLabel: [],
       result: {},
       deletePath: "/test/case/delete",
@@ -389,6 +407,8 @@ export default {
         // 'increaseIndent','decreaseIndent'
         toolbar: [],
       },
+      selectDataCounts: 0,
+      selectDataRange: "all"
     }
   },
   props: {
@@ -427,6 +447,7 @@ export default {
     },
 
     initTableData() {
+      initCondition(this.condition, this.condition.selectAll);
       this.autoCheckStatus();
       if (this.planId) {
         // param.planId = this.planId;
@@ -470,8 +491,12 @@ export default {
           }
           this.selectRows.clear();
           if (this.$refs.table) {
-            setTimeout(this.$refs.table.doLayout, 200)
+            setTimeout(this.$refs.table.doLayout, 200);
           }
+
+          this.$nextTick(() => {
+            this.checkTableRowIsSelect();
+          })
         });
       }
       getLabel(this, TEST_PLAN_FUNCTION_TEST_CASE);
@@ -541,8 +566,16 @@ export default {
         callback: (action) => {
           if (action === 'confirm') {
             if (this.selectRows.size > 0) {
-              let ids = Array.from(this.selectRows).map(row => row.id);
-              this._handleBatchDelete(ids);
+              if(this.condition.selectAll){
+                let param = buildBatchParam(this);
+                this.$post('/test/plan/case/idList/all', param, res => {
+                  let ids = res.data;
+                  this._handleBatchDelete(ids);
+                })
+              }else {
+                let ids = Array.from(this.selectRows).map(row => row.id);
+                this._handleBatchDelete(ids);
+              }
             } else {
               if (this.planId) {
                 this.condition.planId = this.planId;
@@ -576,26 +609,14 @@ export default {
       });
     },
     handleSelectAll(selection) {
-      if (selection.length > 0) {
-        this.tableData.forEach(item => {
-          this.$set(item, "showMore", true);
-          this.selectRows.add(item);
-        });
-      } else {
-        this.selectRows.clear();
-        this.tableData.forEach(row => {
-          this.$set(row, "showMore", false);
-        })
-      }
+      _handleSelectAll(this, selection, this.tableData, this.selectRows);
+      setUnSelectIds(this.tableData, this.condition, this.selectRows);
+      this.selectDataCounts = getSelectDataCounts(this.condition, this.total, this.selectRows);
     },
     handleSelectionChange(selection, row) {
-      if (this.selectRows.has(row)) {
-        this.$set(row, "showMore", false);
-        this.selectRows.delete(row);
-      } else {
-        this.$set(row, "showMore", true);
-        this.selectRows.add(row);
-      }
+      _handleSelect(this, selection, row, this.selectRows);
+      setUnSelectIds(this.tableData, this.condition, this.selectRows);
+      this.selectDataCounts = getSelectDataCounts(this.condition, this.total, this.selectRows);
     },
     handleBatch(type) {
       if (this.selectRows.size < 1) {
@@ -660,7 +681,7 @@ export default {
       column.realWidth = finalWidth;
     },
     batchEdit(form) {
-      let param = {};
+      let param = buildBatchParam(this);
       param[form.type] = form.value;
       param.ids = Array.from(this.selectRows).map(row => row.id);
       this.$post('/test/plan/case/batch/edit', param, () => {
@@ -686,7 +707,41 @@ export default {
           return {text: u.id + '(' + u.name + ')', value: u.id};
         });
       });
-    }
+    },
+    checkTableRowIsSelect() {
+      //如果默认全选的话，则选中应该选中的行
+      if (this.condition.selectAll) {
+        let unSelectIds = this.condition.unSelectIds;
+        this.tableData.forEach(row => {
+          if (unSelectIds.indexOf(row.id) < 0) {
+            this.$refs.table.toggleRowSelection(row, true);
+
+            //默认全选，需要把选中对行添加到selectRows中。不然会影响到勾选函数统计
+            if (!this.selectRows.has(row)) {
+              this.$set(row, "showMore", true);
+              this.selectRows.add(row);
+            }
+          } else {
+            //不勾选的行，也要判断是否被加入了selectRow中。加入了的话就去除。
+            if (this.selectRows.has(row)) {
+              this.$set(row, "showMore", false);
+              this.selectRows.delete(row);
+            }
+          }
+        })
+      }
+    },
+    isSelectDataAll(data) {
+      this.condition.selectAll = data;
+      //设置勾选
+      toggleAllSelection(this.$refs.table, this.tableData, this.selectRows);
+      //显示隐藏菜单
+      _handleSelectAll(this, this.tableData, this.tableData, this.selectRows);
+      //设置未选择ID(更新)
+      this.condition.unSelectIds = [];
+      //更新统计信息
+      this.selectDataCounts = getSelectDataCounts(this.condition, this.total, this.selectRows);
+    },
   }
 }
 </script>
@@ -714,6 +769,6 @@ export default {
 }
 
 /deep/ .el-table__fixed-body-wrapper {
-  top: 60px !important;
+  top: 59px !important;
 }
 </style>

@@ -9,6 +9,7 @@ import io.metersphere.commons.utils.Pager;
 import io.metersphere.track.dto.TestPlanCaseDTO;
 import io.metersphere.track.request.testcase.TestPlanCaseBatchRequest;
 import io.metersphere.track.request.testplancase.QueryTestPlanCaseRequest;
+import io.metersphere.track.request.testplancase.TestPlanFuncCaseBatchRequest;
 import io.metersphere.track.service.TestPlanTestCaseService;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
@@ -89,6 +90,12 @@ public class TestPlanTestCaseController {
     public List<TestPlanCaseDTO> getTestPlanCases(@RequestBody QueryTestPlanCaseRequest request) {
         return testPlanTestCaseService.list(request);
     }
+
+    @PostMapping("/idList/all")
+    public List<String> getTestPlanCases(@RequestBody TestPlanFuncCaseBatchRequest request) {
+        return testPlanTestCaseService.idList(request);
+    }
+
 
     @PostMapping("/list/ids")
     public List<TestPlanCaseDTO> getTestPlanCaseIds(@RequestBody QueryTestPlanCaseRequest request) {
