@@ -198,6 +198,12 @@ public class MsJmeterParser extends ApiImportAbstractParser<ScenarioImport> {
             samplerProxy.setArguments(new ArrayList<KeyValue>() {{
                 this.add(new KeyValue());
             }});
+            // 初始化body
+            Body body = new Body();
+            body.init();
+            body.initKvs();
+            body.initBinary();
+            samplerProxy.setBody(body);
             if (source != null && source.getHTTPFiles().length > 0) {
                 samplerProxy.getBody().initBinary();
                 samplerProxy.getBody().setType(Body.FORM_DATA);
