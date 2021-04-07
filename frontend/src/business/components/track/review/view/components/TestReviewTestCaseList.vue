@@ -17,6 +17,7 @@
                  :select-ids="new Set(Array.from(this.selectRows).map(row => row.id))" @refresh="initTableData"/>
 
     <el-table
+      v-loading="result.loading"
       class="test-content adjust-table ms-select-all-fixed"
       border
       @select-all="handleSelectAll"
@@ -29,18 +30,6 @@
       @row-click="showDetail"
       ref="caseTable"
       :data="tableData">
-
-      <el-table
-        v-loading="result.loading"
-        class="adjust-table"
-        border
-        @select-all="handleSelectAll"
-        @filter-change="filter"
-        @sort-change="sort"
-        @select="handleSelectionChange"
-        row-key="id"
-        @row-click="showDetail"
-        :data="tableData">
 
       <el-table-column width="50" type="selection"/>
 
