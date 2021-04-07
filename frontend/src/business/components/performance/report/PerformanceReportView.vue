@@ -317,6 +317,28 @@ export default {
     },
     compareReports() {
       this.$refs.compareReports.open(this.report);
+    },
+    getReport(reportId) {
+      this.result = this.$get("/performance/report/" + reportId, res => {
+        let data = res.data;
+        if (data) {
+          this.status = data.status;
+          this.$set(this.report, "id", data.id);
+          this.$set(this.report, "status", data.status);
+          this.$set(this.report, "testId", data.testId);
+          this.$set(this.report, "name", data.name);
+          this.$set(this.report, "createTime", data.createTime);
+          this.$set(this.report, "loadConfiguration", data.loadConfiguration);
+          this.checkReportStatus(data.status);
+          if (this.status === "Completed" || this.status === "Running") {
+            this.initReportTimeInfo();
+          }
+          this.initBreadcrumb();
+          this.initWebSocket();
+        } else {
+          this.$error(this.$t('report.not_exist'))
+        }
+      });
     }
   },
   created() {
@@ -325,27 +347,7 @@ export default {
       this.isReadOnly = true;
     }
     this.reportId = this.$route.path.split('/')[4];
-    this.result = this.$get("/performance/report/" + this.reportId, res => {
-      let data = res.data;
-      if (data) {
-        this.status = data.status;
-        this.$set(this.report, "id", this.reportId);
-        this.$set(this.report, "status", data.status);
-        this.$set(this.report, "testId", data.testId);
-        this.$set(this.report, "name", data.name);
-        this.$set(this.report, "createTime", data.createTime);
-        this.$set(this.report, "loadConfiguration", data.loadConfiguration);
-        this.checkReportStatus(data.status);
-        if (this.status === "Completed" || this.status === "Running") {
-          this.initReportTimeInfo();
-        }
-        this.initBreadcrumb();
-        this.initWebSocket();
-      } else {
-        this.$error(this.$t('report.not_exist'))
-      }
-    });
-
+    this.getReport(this.reportId);
   },
   watch: {
     '$route'(to) {
@@ -354,14 +356,10 @@ export default {
         if (!checkoutTestManagerOrTestUser()) {
           this.isReadOnly = true;
         }
-        let reportId = to.path.split('/')[4];
-        this.reportId = reportId;
+        this.reportId = to.path.split('/')[4];
+        this.getReport(this.reportId);
         this.initBreadcrumb((response) => {
           let data = response.data;
-
-          this.$set(this.report, "id", reportId);
-          this.$set(this.report, "status", data.status);
-
           this.checkReportStatus(data.status);
           this.initReportTimeInfo();
         });
