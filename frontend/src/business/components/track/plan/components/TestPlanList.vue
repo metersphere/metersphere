@@ -343,11 +343,11 @@ export default {
     handleEdit(testPlan) {
       this.$emit('testPlanEdit', testPlan);
     },
-    statusChange(param) {
-      console.log(this.tableData);
-      let oldStatus = param.item.status;
-      let newStatus = param.status;
-      param = param.item;
+    statusChange(data) {
+      let oldStatus = data.item.status;
+      let newStatus = data.status;
+      let param = {};
+      param.id = data.item.id;
       param.status = newStatus;
       this.$post('/test/plan/edit', param, () => {
         for (let i = 0; i < this.tableData.length; i++) {
