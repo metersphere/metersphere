@@ -447,7 +447,7 @@ export default {
 
           this.$nextTick(function () {
             if (this.$refs.scenarioTable) {
-              setTimeout(this.$refs.scenarioTable.doLayout, 200)
+              setTimeout(this.$refs.scenarioTable.doLayout, 200);
             }
             this.checkTableRowIsSelect();
           })

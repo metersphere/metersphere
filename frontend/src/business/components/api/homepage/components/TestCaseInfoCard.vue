@@ -91,6 +91,10 @@
               <el-main style="padding: 0px 0px 0px 0px; line-height: 100px; text-align: center;">
                 <span class="count-number">
                 {{testCaseCountData.coverageRage}}
+                  <el-tooltip placement="top" class="info-tool-tip">
+                    <div slot="content">{{ $t('api_test.home_page.formula.coverage')}}</div>
+                    <el-button icon="el-icon-info" style="padding:0px;border: 0px"></el-button>
+                  </el-tooltip>
               </span>
               </el-main>
             </el-container>
@@ -174,6 +178,7 @@ export default {
   font-family:'ArialMT', 'Arial', sans-serif;
   font-size:33px;
   color: var(--count_number);
+  position: relative;
 }
 
 .main-number-show {
@@ -213,5 +218,9 @@ export default {
 }
 .count-info-div >>>p{
   font-size: 10px;
+}
+.info-tool-tip{
+  position: absolute;
+  top: 0;
 }
 </style>

@@ -9,7 +9,7 @@ import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.track.dto.RelevanceScenarioRequest;
-import io.metersphere.track.request.testcase.TestPlanApiCaseBatchRequest;
+import io.metersphere.track.request.testcase.TestPlanScenarioCaseBatchRequest;
 import io.metersphere.track.service.TestPlanScenarioCaseService;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
@@ -46,7 +46,7 @@ public class TestPlanScenarioCaseController {
 
     @PostMapping("/batch/delete")
     @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
-    public void deleteApiCaseBath(@RequestBody TestPlanApiCaseBatchRequest request) {
+    public void deleteApiCaseBath(@RequestBody TestPlanScenarioCaseBatchRequest request) {
         testPlanScenarioCaseService.deleteApiCaseBath(request);
     }
 
