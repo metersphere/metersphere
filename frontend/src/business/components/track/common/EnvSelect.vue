@@ -115,7 +115,7 @@ export default {
             sign = false;
             return false;
           }
-        })
+        });
       } else {
         // 如果有环境，检查环境
         if (this.envMap && this.envMap.size > 0) {
@@ -124,7 +124,7 @@ export default {
               sign = false;
               return false;
             }
-          })
+          });
         } else {
           sign = false;
         }
