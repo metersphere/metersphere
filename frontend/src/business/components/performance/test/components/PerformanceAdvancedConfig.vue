@@ -147,6 +147,136 @@
         </el-form>
       </el-col>
     </el-row>
+    <el-row>
+      <el-col :span="8">
+        <h3>监控集成</h3>
+        <el-button :disabled="readOnly" icon="el-icon-circle-plus-outline" plain size="mini" @click="add('params')">
+          {{ $t('commons.add') }}
+        </el-button>
+      </el-col>
+    </el-row>
+    <el-row>
+      <el-col :span="24">
+        <el-table :data="params" size="mini" class="tb-edit" align="center" border highlight-current-row>
+          <el-table-column
+            align="center"
+            :label="'ID'"
+            show-overflow-tooltip>
+            <template v-slot:default="{row}">
+              <el-input
+                size="mini"
+                v-if="!readOnly"
+                type="textarea"
+                :rows="1"
+                class="edit-input"
+                v-model="row.name"
+                :placeholder="$t('load_test.param_name')"
+                clearable>
+              </el-input>
+              <span>{{ row.name }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column
+            align="center"
+            :label="'名称'"
+            show-overflow-tooltip>
+            <template v-slot:default="{row}">
+              <el-input
+                size="mini"
+                v-if="!readOnly"
+                type="textarea"
+                :rows="1"
+                class="edit-input"
+                v-model="row.name"
+                :placeholder="$t('load_test.param_name')"
+                clearable>
+              </el-input>
+              <span>{{ row.name }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column
+            align="center"
+            :label="'所属环境'"
+            show-overflow-tooltip>
+            <template v-slot:default="{row}">
+              <el-switch
+                :disabled="!row.edit || readOnly"
+                size="mini"
+                v-model="row.enable"
+                inactive-color="#DCDFE6">
+              </el-switch>
+            </template>
+          </el-table-column>
+          <el-table-column
+            :label="'认证状态'"
+            show-overflow-tooltip align="center">
+            <template v-slot:default="{row}">
+              <!-- <template v-if="row.edit">
+                 <el-input v-model="row.value" class="edit-input" size="mini"/>
+               </template>
+               <span v-else>{{ row.value }}</span>-->
+              <el-input
+                size="mini"
+                v-if="!readOnly"
+                type="textarea"
+                class="edit-input"
+                :rows="1"
+                v-model="row.value"
+                :placeholder="$t('load_test.param_value')"
+                clearable></el-input>
+              <span>{{ row.value }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column
+            :label="'监控状态'"
+            show-overflow-tooltip align="center">
+            <template v-slot:default="{row}">
+              <!-- <template v-if="row.edit">
+                 <el-input v-model="row.value" class="edit-input" size="mini"/>
+               </template>
+               <span v-else>{{ row.value }}</span>-->
+              <el-input
+                size="mini"
+                v-if="!readOnly"
+                type="textarea"
+                class="edit-input"
+                :rows="1"
+                v-model="row.value"
+                :placeholder="$t('load_test.param_value')"
+                clearable></el-input>
+              <span>{{ row.value }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column
+            :label="'描述'"
+            show-overflow-tooltip align="center">
+            <template v-slot:default="{row}">
+              <!-- <template v-if="row.edit">
+                 <el-input v-model="row.value" class="edit-input" size="mini"/>
+               </template>
+               <span v-else>{{ row.value }}</span>-->
+              <el-input
+                size="mini"
+                v-if="!readOnly"
+                type="textarea"
+                class="edit-input"
+                :rows="1"
+                v-model="row.value"
+                :placeholder="$t('load_test.param_value')"
+                clearable></el-input>
+              <span>{{ row.value }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column align="center" :label="$t('load_test.operating')">
+            <template v-slot:default="{row, $index}">
+              <ms-table-operator-button :disabled="readOnly" :tip="$t('commons.delete')" icon="el-icon-delete"
+                                        type="danger"
+                                        @exec="del(row, 'params', $index)"/>
+            </template>
+          </el-table-column>
+        </el-table>
+      </el-col>
+    </el-row>
   </div>
 </template>
 
