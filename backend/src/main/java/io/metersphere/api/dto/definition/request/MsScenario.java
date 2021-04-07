@@ -89,6 +89,7 @@ public class MsScenario extends MsTestElement {
                 if (scenario != null && StringUtils.isNotEmpty(scenario.getScenarioDefinition())) {
                     JSONObject element = JSON.parseObject(scenario.getScenarioDefinition());
                     this.setName(scenario.getName());
+                    this.setProjectId(scenario.getProjectId());
                     hashTree = mapper.readValue(element.getString("hashTree"), new TypeReference<LinkedList<MsTestElement>>() {
                     });
                     // 场景变量
