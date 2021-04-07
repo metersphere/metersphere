@@ -44,7 +44,7 @@ export default {
     tagEnable: {
       type: Boolean,
       default() {
-        return false
+        return false;
       }
     },
     distinctTags: {
