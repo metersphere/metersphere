@@ -119,8 +119,8 @@
         return new Promise((resolve) => {
           this.$post("/api/automation/getApiScenarioEnv", {definition: definition}, res => {
             if (res.data) {
-              this.$emit("update:projectIds", new Set(res.data.projectIds))
-              this.$emit("update:isFullUrl", res.data.fullUrl)
+              this.$emit("update:projectIds", new Set(res.data.projectIds));
+              this.$emit("update:isFullUrl", res.data.fullUrl);
             }
             resolve();
           })
