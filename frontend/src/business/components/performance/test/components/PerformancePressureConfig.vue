@@ -17,10 +17,10 @@
             <el-switch v-model="serializeThreadGroups"/>
           </el-form-item>
           <br>
-          <el-form-item :label="$t('自动停止开启')">
+          <el-form-item :label="$t('load_test.autostop_threadgroups')">
             <el-switch v-model="autoStop"/>
           </el-form-item>
-          <el-form-item :label="$t('到达执行时间')">
+          <el-form-item :label="$t('load_test.reaches_duration')">
             <el-input-number
               :disabled="isReadOnly || !autoStop"
               v-model="autoStopDelay"
@@ -28,7 +28,7 @@
               :max="9999"
               size="mini"/>
           </el-form-item>
-          <el-form-item :label="$t('秒后停止测试')"/>
+          <el-form-item :label="$t('load_test.autostop_delay')"/>
         </el-form>
       </el-col>
     </el-row>
