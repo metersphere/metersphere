@@ -409,6 +409,7 @@ public class ApiAutomationService {
                     } else if (StringUtils.equals(tr.getType(), "scenario")) {
                         if (tr.isEnable()) {
                             ApiScenarioDTO apiScenario = getApiScenario(tr.getId());
+                            env.getProjectIds().add(apiScenario.getProjectId());
                             String scenarioDefinition = apiScenario.getScenarioDefinition();
                             JSONObject element1 = JSON.parseObject(scenarioDefinition);
                             LinkedList<MsTestElement> hashTree1 = mapper.readValue(element1.getString("hashTree"), new TypeReference<LinkedList<MsTestElement>>(){});
@@ -432,6 +433,7 @@ public class ApiAutomationService {
                 if (!tr.isEnable()) {
                     continue;
                 }
+                env.getProjectIds().add(tr.getProjectId());
                 if (CollectionUtils.isNotEmpty(tr.getHashTree())) {
                     getHashTree(tr.getHashTree(), env);
                 }
@@ -476,6 +478,7 @@ public class ApiAutomationService {
                     }  else if (StringUtils.equals(tr.getType(), "scenario")) {
                         if (tr.isEnable()) {
                             ApiScenarioDTO apiScenario = getApiScenario(tr.getId());
+                            env.getProjectIds().add(apiScenario.getProjectId());
                             String scenarioDefinition = apiScenario.getScenarioDefinition();
                             JSONObject element1 = JSON.parseObject(scenarioDefinition);
                             LinkedList<MsTestElement> hashTree1 = mapper.readValue(element1.getString("hashTree"), new TypeReference<LinkedList<MsTestElement>>(){});
@@ -499,6 +502,7 @@ public class ApiAutomationService {
                 if (!tr.isEnable()) {
                     continue;
                 }
+                env.getProjectIds().add(tr.getProjectId());
                 if (CollectionUtils.isNotEmpty(tr.getHashTree())) {
                     getHashTree(tr.getHashTree(), env);
                 }
