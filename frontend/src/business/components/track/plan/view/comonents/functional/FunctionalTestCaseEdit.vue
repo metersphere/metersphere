@@ -509,7 +509,7 @@ export default {
       });
 
       formData.append('request', new Blob([requestJson], {
-        type: "application/json ";
+        type: "application/json "
       }));
 
       return {
