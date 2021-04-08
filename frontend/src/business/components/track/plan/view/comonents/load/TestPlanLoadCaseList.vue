@@ -263,7 +263,7 @@ export default {
           this.total = itemCount;
           this.tableData = listObject;
           if (this.$refs.table) {
-            setTimeout(this.$refs.table.doLayout, 200)
+            setTimeout(this.$refs.table.doLayout, 200);
           }
           this.$nextTick(() => {
             checkTableRowIsSelect(this,this.condition,this.tableData,this.$refs.table,this.selectRows);

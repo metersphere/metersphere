@@ -252,7 +252,7 @@ export default {
           });
           this.loading = false;
           if (this.$refs.scenarioTable) {
-            setTimeout(this.$refs.scenarioTable.doLayout, 200)
+            setTimeout(this.$refs.scenarioTable.doLayout, 200);
           }
           this.$nextTick(() => {
             checkTableRowIsSelect(this,this.condition,this.tableData,this.$refs.scenarioTable,this.selectRows);

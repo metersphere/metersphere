@@ -295,12 +295,12 @@
               this.useEnvironment = this.apiCaseList[0].request.useEnvironment;
               this.environment = this.useEnvironment;
             }
-            if (this.apiCaseList.length == 0 && !this.loaded) {
+            if (this.apiCaseList.length === 0 && !this.loaded) {
               this.addCase();
             }
 
             this.apiCaseList.forEach(apicase => {
-              if (apicase.id == testCaseId) {
+              if (apicase.id === testCaseId) {
                 let data = apicase;
                 data.message = true;
                 this.singleRun(data);
