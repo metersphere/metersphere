@@ -517,7 +517,7 @@ export default {
         url: url,
         data: formData,
         headers: {
-          'Content-Type': undefined;
+          'Content-Type': undefined
         }
       };
     },
