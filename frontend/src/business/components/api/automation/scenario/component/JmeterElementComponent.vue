@@ -71,6 +71,7 @@
 
 <style scoped>
   /deep/ .el-divider {
-    margin-bottom: 10px;
+    margin-bottom: 8px;
+    margin-top: 8px;
   }
 </style>

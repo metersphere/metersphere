@@ -3,8 +3,8 @@
 
     <el-tabs v-model="activeName" v-show="isActive">
       <el-tab-pane :label="$t('api_test.definition.request.response_body')" name="body" class="pane">
-        <ms-sql-result-table v-if="isSqlType" :body="response.responseResult.body"/>
-        <ms-code-edit v-if="!isSqlType && isMsCodeEditShow" :mode="mode" :read-only="true" :modes="modes" :data.sync="response.responseResult.body" ref="codeEdit"/>
+        <ms-sql-result-table v-if="isSqlType" :body="response.responseResult.body" style="margin-top:1px"/>
+        <ms-code-edit style="margin-top:1px" v-if="!isSqlType && isMsCodeEditShow" :mode="mode" :read-only="true" :modes="modes" :data.sync="response.responseResult.body" ref="codeEdit"/>
       </el-tab-pane>
 
       <el-tab-pane :label="$t('api_test.definition.request.response_header')" name="headers" class="pane">
