@@ -221,6 +221,10 @@
       }
     },
     created() {
+      let dataRange = this.$route.params.dataSelectRange;
+      if (dataRange.length > 0) {
+        this.activeDom = 'middle';
+      }
       if (this.activeDom === 'left') {
         getLabel(this, API_LIST);
       } else if (this.activeDom === 'right') {

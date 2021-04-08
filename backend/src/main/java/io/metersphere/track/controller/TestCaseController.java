@@ -128,6 +128,12 @@ public class TestCaseController {
         return testCaseService.edit(request, files);
     }
 
+    @PostMapping(value = "/edit/testPlan", consumes = {"multipart/form-data"})
+    @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
+    public String editTestCaseByTestPlan(@RequestPart("request") EditTestCaseRequest request, @RequestPart(value = "file") List<MultipartFile> files) {
+        return testCaseService.editTestCase(request, files);
+    }
+
     @PostMapping("/delete/{testCaseId}")
     @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
     public int deleteTestCase(@PathVariable String testCaseId) {
