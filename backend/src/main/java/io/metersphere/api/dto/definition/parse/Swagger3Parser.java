@@ -26,15 +26,12 @@ import io.swagger.v3.oas.models.parameters.*;
 import io.swagger.v3.oas.models.responses.ApiResponse;
 import io.swagger.v3.oas.models.responses.ApiResponses;
 import io.swagger.v3.parser.core.models.SwaggerParseResult;
-import net.sf.saxon.ma.json.XMLToJsonFn;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.MapUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.fife.ui.rsyntaxtextarea.parser.XmlParser;
 import org.springframework.http.HttpMethod;
 
 import java.io.InputStream;
-import java.math.BigDecimal;
 import java.util.*;
 
 
@@ -84,7 +81,14 @@ public class Swagger3Parser extends SwaggerAbstractParser {
 
         List<ApiDefinitionWithBLOBs> results = new ArrayList<>();
 
-        ApiModule parentNode = ApiDefinitionImportUtil.getSelectModule(importRequest.getModuleId());
+        ApiModule selectModule = null;
+        String selectModulePath = null;
+        if (StringUtils.isNotBlank(importRequest.getModuleId())) {
+            selectModule = ApiDefinitionImportUtil.getSelectModule(importRequest.getModuleId());
+            if (selectModule != null) {
+                selectModulePath = ApiDefinitionImportUtil.getSelectModulePath(selectModule.getName(), selectModule.getParentId());
+            }
+        }
 
         for (String pathName : pathNames) {
             PathItem pathItem = paths.get(pathName);
@@ -109,7 +113,7 @@ public class Swagger3Parser extends SwaggerAbstractParser {
                     addBodyHeader(request);
                     apiDefinition.setRequest(JSON.toJSONString(request));
                     apiDefinition.setResponse(JSON.toJSONString(parseResponse(operation.getResponses())));
-                    buildModule(parentNode, apiDefinition, operation.getTags());
+                    buildModule(selectModule, apiDefinition, operation.getTags(), selectModulePath);
                     results.add(apiDefinition);
                 }
             }
