@@ -157,7 +157,7 @@
 
   .script-content {
     height: calc(100vh - 570px);
-    min-height: 300px;
+    min-height: 400px;
   }
 
   .script-index {
@@ -171,7 +171,7 @@
   }
 
   .document-url {
-    margin-top: 10px;
+    margin-bottom: 12px;
   }
 
   .instructions-icon {
@@ -179,7 +179,7 @@
   }
 
   .ms-dropdown {
-    margin-bottom: 20px;
+    margin-bottom: 12px;
   }
 
 </style>
