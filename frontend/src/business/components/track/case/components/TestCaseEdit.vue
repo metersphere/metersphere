@@ -661,7 +661,11 @@ export default {
       Object.assign(tmp, testCase);
       tmp.steps = JSON.parse(testCase.steps);
       if (tmp.steps == null) {
-        tmp.steps = []
+        tmp.steps = [{
+          num: 1,
+          desc: '',
+          result: ''
+        }];
       }
       tmp.tags = JSON.parse(tmp.tags);
       Object.assign(this.form, tmp);
