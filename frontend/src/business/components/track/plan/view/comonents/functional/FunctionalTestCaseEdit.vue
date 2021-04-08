@@ -436,7 +436,7 @@ export default {
   },
   computed: {
     projectId() {
-      return this.$store.state.projectId
+      return this.$store.state.projectId;
     },
   },
   methods: {
@@ -505,7 +505,7 @@ export default {
       });
       param.updatedFileList = this.fileList;
       let requestJson = JSON.stringify(param, function (key, value) {
-        return key === "file" ? undefined : value
+        return key === "file" ? undefined : value;
       });
 
       formData.append('request', new Blob([requestJson], {
@@ -517,7 +517,7 @@ export default {
         url: url,
         data: formData,
         headers: {
-          'Content-Type': undefined
+          'Content-Type': undefined;
         }
       };
     },
@@ -600,7 +600,7 @@ export default {
         this.getIssues(item.caseId);
         this.stepResultChange();
         this.getFileMetaData(item);
-        this.getComments(item)
+        this.getComments(item);
       })
     },
     getFileMetaData(testCase) {
