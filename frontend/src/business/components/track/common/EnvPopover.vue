@@ -16,7 +16,7 @@
 </template>
 
 <script>
-import EnvSelect from "@/business/components/api/automation/scenario/EnvSelect";
+import EnvSelect from "@/business/components/track/common/EnvSelect";
 
 export default {
   name: "EnvPopover",
@@ -35,27 +35,21 @@ export default {
   data() {
     return {
       visible: false
-    }
+    };
   },
   methods: {
     showPopover() {
-      this.$emit("showPopover");
-    },
-    openEnvSelect() {
-      return this.$refs.envSelect.open();
+      this.$refs.envSelect.open();
     },
     setProjectEnvMap(map) {
       this.$emit("setProjectEnvMap", map);
     },
-    initEnv() {
-      return this.$refs.envSelect.initEnv();
-    },
-    checkEnv(data) {
-      return this.$refs.envSelect.checkEnv(data);
+    checkEnv() {
+      return this.$refs.envSelect.checkEnv();
     }
   }
 
-}
+};
 </script>
 
 <style scoped>

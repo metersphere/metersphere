@@ -40,6 +40,7 @@ public class JmeterDocumentParser implements DocumentParser {
     private final static String ARGUMENTS = "Arguments";
     private final static String RESPONSE_ASSERTION = "ResponseAssertion";
     private final static String CSV_DATA_SET = "CSVDataSet";
+    private final static String THREAD_GROUP_AUTO_STOP = "io.metersphere.jmeter.reporters.ThreadGroupAutoStop";
     private EngineContext context;
 
     @Override
@@ -96,30 +97,18 @@ public class JmeterDocumentParser implements DocumentParser {
                         processCheckoutArguments(ele);
                         processCheckoutResponseAssertion(ele);
                         processCheckoutSerializeThreadgroups(ele);
+                        processCheckoutBackendListener(ele);
+                        processCheckoutAutoStopListener(ele);
                     } else if (nodeNameEquals(ele, CONCURRENCY_THREAD_GROUP)) {
+                        processThreadType(ele);
                         processThreadGroupName(ele);
                         processCheckoutTimer(ele);
-                        processCheckoutBackendListener(ele);
                     } else if (nodeNameEquals(ele, VARIABLE_THROUGHPUT_TIMER)) {
                         processVariableThroughputTimer(ele);
                     } else if (nodeNameEquals(ele, THREAD_GROUP)) {
-                        Object threadType = context.getProperty("threadType");
-                        if (threadType instanceof List) {
-                            Object o = ((List<?>) threadType).get(0);
-                            ((List<?>) threadType).remove(0);
-                            if ("DURATION".equals(o)) {
-                                processThreadGroup(ele);
-                            }
-                            if ("ITERATION".equals(o)) {
-                                processIterationThreadGroup(ele);
-                            }
-                        } else {
-                            processThreadGroup(ele);
-                        }
-
+                        processThreadType(ele);
                         processThreadGroupName(ele);
                         processCheckoutTimer(ele);
-                        processCheckoutBackendListener(ele);
                     } else if (nodeNameEquals(ele, BACKEND_LISTENER)) {
                         processBackendListener(ele);
                     } else if (nodeNameEquals(ele, CONFIG_TEST_ELEMENT)) {
@@ -133,6 +122,8 @@ public class JmeterDocumentParser implements DocumentParser {
                         processResponseAssertion(ele);
                     } else if (nodeNameEquals(ele, CSV_DATA_SET)) {
                         processCsvDataSet(ele);
+                    } else if (nodeNameEquals(ele, THREAD_GROUP_AUTO_STOP)) {
+                        processAutoStopListener(ele);
                     }
                     // 处理http上传的附件
                     if (isHTTPFileArg(ele)) {
@@ -143,15 +134,76 @@ public class JmeterDocumentParser implements DocumentParser {
         }
     }
 
+    private void processThreadType(Element ele) {
+        Object threadType = context.getProperty("threadType");
+        if (threadType instanceof List) {
+            Object o = ((List<?>) threadType).get(0);
+            ((List<?>) threadType).remove(0);
+            if ("DURATION".equals(o)) {
+                processThreadGroup(ele);
+            }
+            if ("ITERATION".equals(o)) {
+                processIterationThreadGroup(ele);
+            }
+        } else {
+            processThreadGroup(ele);
+        }
+    }
+
+    private void processAutoStopListener(Element autoStopListener) {
+        Object autoStopDelays = context.getProperty("autoStopDelay");
+        String autoStopDelay = "30";
+        if (autoStopDelays instanceof List) {
+            Object o = ((List<?>) autoStopDelays).get(0);
+            autoStopDelay = o.toString();
+        }
+        Document document = autoStopListener.getOwnerDocument();
+        // 清空child
+        removeChildren(autoStopListener);
+        autoStopListener.appendChild(createStringProp(document, "delay_seconds", autoStopDelay));
+    }
+
+    private void processCheckoutAutoStopListener(Element element) {
+        Object autoStops = context.getProperty("autoStop");
+        String autoStop = "false";
+        if (autoStops instanceof List) {
+            Object o = ((List<?>) autoStops).get(0);
+            autoStop = o.toString();
+        }
+        if (!BooleanUtils.toBoolean(autoStop)) {
+            return;
+        }
+
+        Document document = element.getOwnerDocument();
+        Node listenerParent = element.getNextSibling();
+        while (!(listenerParent instanceof Element)) {
+            listenerParent = listenerParent.getNextSibling();
+        }
+
+        // add class name
+        Element autoStopListener = document.createElement(THREAD_GROUP_AUTO_STOP);
+        autoStopListener.setAttribute("guiclass", "io.metersphere.jmeter.reporters.ThreadGroupAutoStopGui");
+        autoStopListener.setAttribute("testclass", "io.metersphere.jmeter.reporters.ThreadGroupAutoStop");
+        autoStopListener.setAttribute("testname", "MeterSphere - AutoStop Listener");
+        autoStopListener.setAttribute("enabled", "true");
+        listenerParent.appendChild(autoStopListener);
+        listenerParent.appendChild(document.createElement(HASH_TREE_ELEMENT));
+    }
+
     private void processCheckoutSerializeThreadgroups(Element element) {
+        Object serializeThreadGroups = context.getProperty("serializeThreadGroups");
+        String serializeThreadGroup = "false";
+        if (serializeThreadGroups instanceof List) {
+            Object o = ((List<?>) serializeThreadGroups).get(0);
+            serializeThreadGroup = o.toString();
+        }
         NodeList childNodes = element.getChildNodes();
         for (int i = 0; i < childNodes.getLength(); i++) {
             Node item = childNodes.item(i);
             if (nodeNameEquals(item, BOOL_PROP)) {
                 String serializeName = ((Element) item).getAttribute("name");
                 if (StringUtils.equals(serializeName, "TestPlan.serialize_threadgroups")) {
-                    // 保存线程组是否是顺序执行
-                    context.addProperty("serialize_threadgroups", item.getTextContent());
+                    item.setTextContent(serializeThreadGroup);
                     break;
                 }
             }
@@ -586,8 +638,6 @@ public class JmeterDocumentParser implements DocumentParser {
         collectionProp.appendChild(createKafkaProp(document, "test.name", context.getTestName()));
         collectionProp.appendChild(createKafkaProp(document, "test.startTime", context.getStartTime().toString()));
         collectionProp.appendChild(createKafkaProp(document, "test.reportId", context.getReportId()));
-        collectionProp.appendChild(createKafkaProp(document, "test.expectedEndTime", (String) context.getProperty("expectedEndTime")));
-        collectionProp.appendChild(createKafkaProp(document, "test.expectedDelayEndTime", kafkaProperties.getExpectedDelayEndTime())); // 30s
 
         elementProp.appendChild(collectionProp);
         // set elementProp
@@ -610,15 +660,6 @@ public class JmeterDocumentParser implements DocumentParser {
         Node listenerParent = element.getNextSibling();
         while (!(listenerParent instanceof Element)) {
             listenerParent = listenerParent.getNextSibling();
-        }
-
-        NodeList childNodes = listenerParent.getChildNodes();
-        for (int i = 0, l = childNodes.getLength(); i < l; i++) {
-            Node item = childNodes.item(i);
-            if (nodeNameEquals(item, BACKEND_LISTENER)) {
-                // 如果已经存在，不再添加
-                return;
-            }
         }
 
         // add class name
@@ -657,6 +698,10 @@ public class JmeterDocumentParser implements DocumentParser {
     }
 
     private void processBaseThreadGroup(Element threadGroup) {
+        Document document = threadGroup.getOwnerDocument();
+        document.renameNode(threadGroup, threadGroup.getNamespaceURI(), THREAD_GROUP);
+        threadGroup.setAttribute("guiclass", THREAD_GROUP + "Gui");
+        threadGroup.setAttribute("testclass", THREAD_GROUP);
         /*
         <ThreadGroup guiclass="ThreadGroupGui" testclass="ThreadGroup" testname="登录" enabled="true">
         <stringProp name="ThreadGroup.on_sample_error">continue</stringProp>
@@ -673,7 +718,6 @@ public class JmeterDocumentParser implements DocumentParser {
       </ThreadGroup>
          */
         removeChildren(threadGroup);
-        Document document = threadGroup.getOwnerDocument();
         Object targetLevels = context.getProperty("TargetLevel");
         String threads = "10";
         if (targetLevels instanceof List) {
@@ -729,8 +773,6 @@ public class JmeterDocumentParser implements DocumentParser {
             default:
                 break;
         }
-        // 处理预计结束时间
-        processExpectedEndTime(duration);
 
         threadGroup.setAttribute("enabled", enabled);
         if (BooleanUtils.toBoolean(deleted)) {
@@ -824,30 +866,18 @@ public class JmeterDocumentParser implements DocumentParser {
             enabled = o.toString();
         }
 
-        Object durations = context.getProperty("duration");
-        String duration = "2";
-        if (durations instanceof List) {
-            Object o = ((List<?>) durations).get(0);
-            ((List<?>) durations).remove(0);
-            duration = o.toString();
-        }
-
         switch (unit) {
             case "M":
-                duration = String.valueOf(Long.parseLong(duration) * 60);
                 hold = String.valueOf(Long.parseLong(hold) * 60);
                 rampUp = String.valueOf(Long.parseLong(rampUp) * 60);
                 break;
             case "H":
-                duration = String.valueOf(Long.parseLong(duration) * 60 * 60);
                 hold = String.valueOf(Long.parseLong(hold) * 60 * 60);
                 rampUp = String.valueOf(Long.parseLong(rampUp) * 60 * 60);
                 break;
             default:
                 break;
         }
-        // 处理预计结束时间
-        processExpectedEndTime(duration);
 
         threadGroup.setAttribute("enabled", enabled);
         if (BooleanUtils.toBoolean(deleted)) {
@@ -868,28 +898,11 @@ public class JmeterDocumentParser implements DocumentParser {
         threadGroup.appendChild(createStringProp(document, "Unit", "S"));
     }
 
-    private void processExpectedEndTime(String duration) {
-        long startTime = context.getStartTime();
-        Long d = Long.parseLong(duration);
-        Object serialize = context.getProperty("TestPlan.serialize_threadgroups");
-        String expectedEndTime = (String) context.getProperty("expectedEndTime");
-        if (StringUtils.isBlank(expectedEndTime)) {
-            expectedEndTime = startTime + "";
-        }
-        long endTime = Long.parseLong(expectedEndTime);
-
-        if (BooleanUtils.toBoolean((String) serialize)) {
-            // 顺序执行线程组
-            context.addProperty("expectedEndTime", String.valueOf(endTime + d * 1000));
-        } else {
-            // 同时执行线程组
-            if (endTime < startTime + d * 1000) {
-                context.addProperty("expectedEndTime", String.valueOf(startTime + d * 1000));
-            }
-        }
-    }
-
     private void processIterationThreadGroup(Element threadGroup) {
+        Document document = threadGroup.getOwnerDocument();
+        document.renameNode(threadGroup, threadGroup.getNamespaceURI(), THREAD_GROUP);
+        threadGroup.setAttribute("guiclass", THREAD_GROUP + "Gui");
+        threadGroup.setAttribute("testclass", THREAD_GROUP);
         // 检查 threadgroup 后面的hashtree是否为空
         Node hashTree = threadGroup.getNextSibling();
         while (!(hashTree instanceof Element)) {
@@ -898,8 +911,6 @@ public class JmeterDocumentParser implements DocumentParser {
         if (!hashTree.hasChildNodes()) {
             MSException.throwException(Translator.get("jmx_content_valid"));
         }
-        // 重命名 tagName
-        Document document = threadGroup.getOwnerDocument();
         removeChildren(threadGroup);
 
         // 选择按照迭代次数处理线程组
@@ -957,10 +968,6 @@ public class JmeterDocumentParser implements DocumentParser {
         threadGroup.appendChild(createStringProp(document, "ThreadGroup.duration", "10"));
         threadGroup.appendChild(createStringProp(document, "ThreadGroup.delay", ""));
         threadGroup.appendChild(createBoolProp(document, "ThreadGroup.same_user_on_next_iteration", true));
-
-        // 处理预计结束时间， (按照迭代次数 * 线程数)s
-        String duration = String.valueOf(Long.parseLong(loops) * Long.parseLong(threads));
-        processExpectedEndTime(duration);
     }
 
     private void processCheckoutTimer(Element element) {

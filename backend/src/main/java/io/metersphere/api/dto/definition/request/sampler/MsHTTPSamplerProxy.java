@@ -126,8 +126,14 @@ public class MsHTTPSamplerProxy extends MsTestElement {
             config.setConfig(getEnvironmentConfig(useEnvironment));
         }
 
-        // 1.8 之前历史数据
-        if (StringUtils.isEmpty(this.getProjectId()) && config.getConfig() != null && !config.getConfig().isEmpty()) {
+        // 数据兼容处理
+        if(config.getConfig() != null && StringUtils.isNotEmpty(this.getProjectId()) && config.getConfig().containsKey(this.getProjectId())){
+            // 1.8 之后 当前正常数据
+        } else if (config.getConfig() != null && config.getConfig().containsKey(getParentProjectId())) {
+            // 1.8 前后 混合数据
+            this.setProjectId(getParentProjectId());
+        } else {
+            // 1.8 之前 数据
             this.setProjectId("historyProjectID");
         }
 
@@ -277,6 +283,17 @@ public class MsHTTPSamplerProxy extends MsTestElement {
             }
         }
         return false;
+    }
+
+    private String getParentProjectId() {
+        MsTestElement parent = this.getParent();
+        while(parent != null) {
+            if (StringUtils.isNotBlank(parent.getProjectId())) {
+                return parent.getProjectId();
+            }
+            parent = parent.getParent();
+        }
+        return "";
     }
 
     private String getRestParameters(String path) {

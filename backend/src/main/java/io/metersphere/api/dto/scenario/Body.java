@@ -116,6 +116,12 @@ public class Body {
         return StringUtils.equals(type, XML);
     }
 
+    public void init() {
+        this.type = "";
+        this.raw = "";
+        this.format = "";
+    }
+
     public void initKvs() {
         this.kvs = new ArrayList<>();
         this.kvs.add(new KeyValue());

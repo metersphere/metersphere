@@ -555,4 +555,8 @@ export default {
   background-color: white;
   color: #060505;
 }
+
+.tb-edit >>> *[disabled] {
+  opacity: 0.7;
+}
 </style>

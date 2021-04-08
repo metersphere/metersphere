@@ -39,7 +39,7 @@
           </el-select>
         </el-col>
 
-        <el-col class="item" v-if="item.type !== 'file'">
+        <el-col class="item" v-if="isActive && item.type !== 'file'">
           <el-autocomplete
             :disabled="isReadOnly"
             size="small"
@@ -64,7 +64,7 @@
 
         </el-col>
 
-        <el-col v-if="item.type === 'file'" class="item">
+        <el-col v-if="isActive && item.type === 'file'" class="item">
           <ms-api-body-file-upload :parameter="item"/>
         </el-col>
 
@@ -126,6 +126,7 @@
         currentItem: null,
         requireds: REQUIRED,
         isSelectAll: true,
+        isActive: true
       }
     },
     watch: {
@@ -231,6 +232,7 @@
         } else {
           item.contentType = 'text/plain';
         }
+        this.reload();
       },
       selectAll() {
         this.parameters.forEach(item => {
@@ -242,6 +244,12 @@
           item.enable = false;
         });
       },
+      reload() {
+        this.isActive = false;
+        this.$nextTick(() => {
+          this.isActive = true;
+        });
+      }
     },
     created() {
       if (this.parameters.length === 0 || this.parameters[this.parameters.length - 1].name) {

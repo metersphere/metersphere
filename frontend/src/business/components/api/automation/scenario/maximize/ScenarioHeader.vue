@@ -18,8 +18,8 @@
     <div class="ms-header-right">
       <el-checkbox v-model="cookieShare" @change="setCookieShare" style="margin-right: 20px">共享cookie</el-checkbox>
 
-      <env-popover :env-map="envMap" :project-ids="projectIds" @setProjectEnvMap="setProjectEnvMap"
-                   :project-list="projectList" ref="envPopover" class="ms-right"/>
+      <env-popover :disabled="scenarioDefinition.length < 1" :isReadOnly="scenarioDefinition.length < 1" :env-map="envMap" :project-ids="projectIds" @setProjectEnvMap="setProjectEnvMap"
+                   @showPopover="showPopover" :project-list="projectList" ref="envPopover" class="ms-right"/>
 
       <el-button :disabled="scenarioDefinition.length < 1" size="mini" type="primary" v-prevent-re-click @click="runDebug">{{$t('api_test.request.debug')}}</el-button>
 
@@ -37,7 +37,12 @@
   export default {
     name: "ScenarioHeader",
     components: {EnvPopover},
-    props: {currentScenario: {}, scenarioDefinition: Array, enableCookieShare: Boolean, projectEnvMap: Map, projectIds: Set, projectList: Array},
+    props: {currentScenario: {}, scenarioDefinition: Array, enableCookieShare: Boolean,
+      projectEnvMap: Map,
+      projectIds: Set,
+      projectList: Array,
+      isFullUrl: Boolean
+    },
     data() {
       return {
         envMap: new Map,
@@ -102,7 +107,25 @@
       setProjectEnvMap(projectEnvMap) {
         this.$emit('setProjectEnvMap', projectEnvMap);
         this.envMap = projectEnvMap;
-      }
+      },
+      showPopover() {
+        let definition = JSON.parse(JSON.stringify(this.currentScenario));
+        definition.hashTree = this.scenarioDefinition;
+        this.getEnv(JSON.stringify(definition)).then(() => {
+          this.$refs.envPopover.openEnvSelect();
+        })
+      },
+      getEnv(definition) {
+        return new Promise((resolve) => {
+          this.$post("/api/automation/getApiScenarioEnv", {definition: definition}, res => {
+            if (res.data) {
+              this.$emit("update:projectIds", new Set(res.data.projectIds));
+              this.$emit("update:isFullUrl", res.data.fullUrl);
+            }
+            resolve();
+          })
+        });
+      },
     },
   }
 </script>

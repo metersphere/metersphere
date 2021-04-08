@@ -120,8 +120,8 @@
                   <el-checkbox v-model="enableCookieShare">共享cookie</el-checkbox>
                 </el-col>
                 <el-col :span="5">
-                  <env-popover :env-map="projectEnvMap" :project-ids="projectIds" @setProjectEnvMap="setProjectEnvMap"
-                               :project-list="projectList" ref="envPopover"/>
+                  <env-popover :disabled="scenarioDefinition.length < 1" :env-map="projectEnvMap" :project-ids="projectIds" @setProjectEnvMap="setProjectEnvMap"
+                               :isReadOnly="scenarioDefinition.length < 1" @showPopover="showPopover" :project-list="projectList" ref="envPopover"/>
                 </el-col>
                 <el-col :span="4">
                   <el-button :disabled="scenarioDefinition.length < 1" size="mini" type="primary" v-prevent-re-click @click="runDebug">{{$t('api_test.request.debug')}}</el-button>
@@ -205,8 +205,8 @@
       <!--步骤最大化-->
       <ms-drawer :visible="drawer" :size="100" @close="close" direction="right" :show-full-screen="false" :is-show-close="false" style="overflow: hidden">
         <template v-slot:header>
-          <scenario-header :currentScenario="currentScenario" :projectEnvMap="projectEnvMap" :projectIds="projectIds" :projectList="projectList" :scenarioDefinition="scenarioDefinition" :enableCookieShare="enableCookieShare"
-                           @closePage="close" @unFullScreen="unFullScreen" @showAllBtn="showAllBtn" @runDebug="runDebug" @setProjectEnvMap="setProjectEnvMap" @showScenarioParameters="showScenarioParameters" @setCookieShare="setCookieShare" ref="maximizeHeader"/>
+          <scenario-header :currentScenario="currentScenario" :projectEnvMap="projectEnvMap" :projectIds.sync="projectIds" :projectList="projectList" :scenarioDefinition="scenarioDefinition" :enableCookieShare="enableCookieShare"
+                           :isFullUrl.sync="isFullUrl" @closePage="close" @unFullScreen="unFullScreen" @showAllBtn="showAllBtn" @runDebug="runDebug" @setProjectEnvMap="setProjectEnvMap" @showScenarioParameters="showScenarioParameters" @setCookieShare="setCookieShare" ref="maximizeHeader"/>
         </template>
 
         <maximize-scenario :scenario-definition="scenarioDefinition" :envMap="projectEnvMap" :moduleOptions="moduleOptions"
@@ -778,36 +778,40 @@
         this.$nextTick(() => {
           this.loading = false
         });
-        let definition = JSON.parse(JSON.stringify(this.currentScenario));
-        definition.hashTree = this.scenarioDefinition;
-        this.getEnv(JSON.stringify(definition));
+        // let definition = JSON.parse(JSON.stringify(this.currentScenario));
+        // definition.hashTree = this.scenarioDefinition;
+        // this.getEnv(JSON.stringify(definition));
       },
       runDebug() {
         /*触发执行操作*/
-        let sign = this.$refs.envPopover.checkEnv(this.isFullUrl);
-        if (!sign) {
-          return;
-        }
-
         this.$refs['currentScenario'].validate((valid) => {
           if (valid) {
-            Promise.all([
-              this.editScenario()]).then(val => {
-              if (val) {
-                this.debugData = {
-                  id: this.currentScenario.id,
-                  name: this.currentScenario.name,
-                  type: "scenario",
-                  variables: this.currentScenario.variables,
-                  referenced: 'Created',
-                  enableCookieShare: this.enableCookieShare,
-                  headers: this.currentScenario.headers,
-                  environmentMap: this.projectEnvMap,
-                  hashTree: this.scenarioDefinition
-                };
-                this.reportId = getUUID().substring(0, 8);
-              }
-            });
+            let definition = JSON.parse(JSON.stringify(this.currentScenario));
+            definition.hashTree = this.scenarioDefinition;
+            this.getEnv(JSON.stringify(definition)).then(() => {
+              let promise = this.$refs.envPopover.initEnv();
+              promise.then(() => {
+                let sign = this.$refs.envPopover.checkEnv(this.isFullUrl);
+                if (!sign) {
+                  return;
+                }
+                this.editScenario().then(() => {
+                  this.debugData = {
+                    id: this.currentScenario.id,
+                    name: this.currentScenario.name,
+                    type: "scenario",
+                    variables: this.currentScenario.variables,
+                    referenced: 'Created',
+                    enableCookieShare: this.enableCookieShare,
+                    headers: this.currentScenario.headers,
+                    environmentMap: this.projectEnvMap,
+                    hashTree: this.scenarioDefinition
+                  };
+                  this.reportId = getUUID().substring(0, 8);
+                })
+              })
+
+            })
           }
         })
       },
@@ -976,12 +980,15 @@
         });
       },
       getEnv(definition) {
-        this.$post("/api/automation/getApiScenarioEnv", {definition: definition}, res => {
-          if (res.data) {
-            this.projectIds = new Set(res.data.projectIds);
-            this.isFullUrl = res.data.fullUrl;
-          }
-        })
+        return new Promise((resolve) => {
+          this.$post("/api/automation/getApiScenarioEnv", {definition: definition}, res => {
+            if (res.data) {
+              this.projectIds = new Set(res.data.projectIds);
+              this.isFullUrl = res.data.fullUrl;
+            }
+            resolve();
+          })
+        });
       },
       getApiScenario() {
         this.loading = true;
@@ -999,7 +1006,7 @@
             if (response.data) {
               this.path = "/api/automation/update";
               if (response.data.scenarioDefinition != null) {
-                this.getEnv(response.data.scenarioDefinition);
+                // this.getEnv(response.data.scenarioDefinition);
                 let obj = JSON.parse(response.data.scenarioDefinition);
                 if (obj) {
                   this.currentEnvironmentId = obj.environmentId;
@@ -1135,6 +1142,13 @@
       close(name) {
         this.drawer = false;
         this.$emit('closePage', name);
+      },
+      showPopover() {
+        let definition = JSON.parse(JSON.stringify(this.currentScenario));
+        definition.hashTree = this.scenarioDefinition;
+        this.getEnv(JSON.stringify(definition)).then(() => {
+          this.$refs.envPopover.openEnvSelect();
+        })
       }
     }
   }
@@ -1196,7 +1210,7 @@
 
   /deep/ .el-tree-node__content {
     height: 100%;
-    margin-top: 8px;
+    margin-top: 3px;
     vertical-align: center;
   }
 
