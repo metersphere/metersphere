@@ -361,15 +361,8 @@ public class ApiAutomationService {
         }
     }
 
-    public ApiScenarioDTO getApiScenario(String id) {
-        ApiScenarioDTO apiScenarioDTO = new ApiScenarioDTO();
-        ApiScenarioWithBLOBs scenarioWithBLOBs = apiScenarioMapper.selectByPrimaryKey(id);
-        if (scenarioWithBLOBs != null) {
-            BeanUtils.copyBean(apiScenarioDTO, scenarioWithBLOBs);
-            setApiScenarioProjectIds(apiScenarioDTO);
-            return apiScenarioDTO;
-        }
-        return null;
+    public ApiScenarioWithBLOBs getApiScenario(String id) {
+        return apiScenarioMapper.selectByPrimaryKey(id);
     }
 
     public ScenarioEnv getApiScenarioEnv(String definition) {
@@ -408,7 +401,7 @@ public class ApiAutomationService {
                         }
                     } else if (StringUtils.equals(tr.getType(), "scenario")) {
                         if (tr.isEnable()) {
-                            ApiScenarioDTO apiScenario = getApiScenario(tr.getId());
+                            ApiScenarioWithBLOBs apiScenario = getApiScenario(tr.getId());
                             env.getProjectIds().add(apiScenario.getProjectId());
                             String scenarioDefinition = apiScenario.getScenarioDefinition();
                             JSONObject element1 = JSON.parseObject(scenarioDefinition);
@@ -433,7 +426,9 @@ public class ApiAutomationService {
                 if (!tr.isEnable()) {
                     continue;
                 }
-                env.getProjectIds().add(tr.getProjectId());
+                if (StringUtils.equals(tr.getType(), "scenario")) {
+                    env.getProjectIds().add(tr.getProjectId());
+                }
                 if (CollectionUtils.isNotEmpty(tr.getHashTree())) {
                     getHashTree(tr.getHashTree(), env);
                 }
@@ -477,7 +472,7 @@ public class ApiAutomationService {
                         }
                     }  else if (StringUtils.equals(tr.getType(), "scenario")) {
                         if (tr.isEnable()) {
-                            ApiScenarioDTO apiScenario = getApiScenario(tr.getId());
+                            ApiScenarioWithBLOBs apiScenario = getApiScenario(tr.getId());
                             env.getProjectIds().add(apiScenario.getProjectId());
                             String scenarioDefinition = apiScenario.getScenarioDefinition();
                             JSONObject element1 = JSON.parseObject(scenarioDefinition);
@@ -502,7 +497,9 @@ public class ApiAutomationService {
                 if (!tr.isEnable()) {
                     continue;
                 }
-                env.getProjectIds().add(tr.getProjectId());
+                if (StringUtils.equals(tr.getType(), "scenario")) {
+                    env.getProjectIds().add(tr.getProjectId());
+                }
                 if (CollectionUtils.isNotEmpty(tr.getHashTree())) {
                     getHashTree(tr.getHashTree(), env);
                 }
@@ -1329,5 +1326,25 @@ public class ApiAutomationService {
             }
         }catch (Exception e){
         }
+    }
+
+    public ScenarioEnv getApiScenarioProjectId(String id) {
+        ApiScenarioWithBLOBs scenario = apiScenarioMapper.selectByPrimaryKey(id);
+        ScenarioEnv scenarioEnv = new ScenarioEnv();
+        if (scenario == null) {
+            return scenarioEnv;
+        }
+
+        String definition = scenario.getScenarioDefinition();
+        if (StringUtils.isBlank(definition)) {
+            return scenarioEnv;
+        }
+
+        scenarioEnv = getApiScenarioEnv(definition);
+        scenarioEnv.getProjectIds().remove(null);
+        if (scenarioEnv.getProjectIds().isEmpty()) {
+            scenarioEnv.getProjectIds().add(scenario.getProjectId());
+        }
+        return scenarioEnv;
     }
 }
