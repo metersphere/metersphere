@@ -1,5 +1,7 @@
 package io.metersphere.api.jmeter;
 
+import io.fabric8.kubernetes.client.extended.run.RunConfig;
+import io.metersphere.api.dto.automation.RunModeConfig;
 import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.LogUtil;
@@ -88,10 +90,41 @@ public class JMeterService {
         testPlan.add(testPlan.getArray()[0], backendListener);
     }
 
+    private void addBackendListener(String testId, String debugReportId, String runMode, HashTree testPlan, RunModeConfig config) {
+        BackendListener backendListener = new BackendListener();
+        backendListener.setName(testId);
+        Arguments arguments = new Arguments();
+        if (config != null && config.getMode().equals("serial") && config.getReportType().equals("setReport")) {
+            arguments.addArgument(APIBackendListenerClient.TEST_REPORT_NAME, config.getReportName());
+        }
+        arguments.addArgument(APIBackendListenerClient.TEST_ID, testId);
+        if (StringUtils.isNotBlank(runMode)) {
+            arguments.addArgument("runMode", runMode);
+        }
+        if (StringUtils.isNotBlank(debugReportId)) {
+            arguments.addArgument("debugReportId", debugReportId);
+        }
+        backendListener.setArguments(arguments);
+        backendListener.setClassname(APIBackendListenerClient.class.getCanonicalName());
+        testPlan.add(testPlan.getArray()[0], backendListener);
+    }
+
     public void runDefinition(String testId, HashTree testPlan, String debugReportId, String runMode) {
         try {
             init();
             addBackendListener(testId, debugReportId, runMode, testPlan);
+            LocalRunner runner = new LocalRunner(testPlan);
+            runner.run();
+        } catch (Exception e) {
+            LogUtil.error(e.getMessage(), e);
+            MSException.throwException(Translator.get("api_load_script_error"));
+        }
+    }
+
+    public void runSerial(String testId, HashTree testPlan, String debugReportId, String runMode, RunModeConfig config) {
+        try {
+            init();
+            addBackendListener(testId, debugReportId, runMode, testPlan, config);
             LocalRunner runner = new LocalRunner(testPlan);
             runner.run();
         } catch (Exception e) {

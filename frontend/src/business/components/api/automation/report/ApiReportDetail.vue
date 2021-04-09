@@ -100,14 +100,12 @@
       formatResult(res) {
         let resMap = new Map;
         let array = [];
-        let i = 0;
         if (res && res.scenarios) {
           res.scenarios.forEach(item => {
             if (item && item.requestResults) {
               item.requestResults.forEach(req => {
                 resMap.set(req.id, req);
-                req.index = i;
-                i++;
+                req.name = item.name + "^@~@^" + req.name;
                 array.push(req);
               })
             }

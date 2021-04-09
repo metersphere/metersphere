@@ -10,5 +10,6 @@ public class HttpConfig {
     private String domain;
     private String protocol = "https";
     private int port;
+    private List<HttpConfigCondition> conditions;
     private List<KeyValue> headers;
 }

@@ -10,7 +10,6 @@ export class Environment extends BaseConfig {
     this.name = undefined;
     this.id = undefined;
     this.config = undefined;
-
     this.set(options);
     this.sets({}, options);
   }
@@ -63,7 +62,6 @@ export class CommonConfig extends BaseConfig {
 export class HttpConfig extends BaseConfig {
   constructor(options = {}) {
     super();
-
     this.socket = undefined;
     this.domain = undefined;
     this.headers = [];
@@ -72,6 +70,7 @@ export class HttpConfig extends BaseConfig {
     this.conditions = [];
     this.set(options);
     this.sets({headers: KeyValue}, options);
+    this.sets({conditions: KeyValue}, options);
   }
 
   initOptions(options = {}) {

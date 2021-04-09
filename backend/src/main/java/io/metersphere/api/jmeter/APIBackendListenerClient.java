@@ -36,6 +36,8 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
 
     public final static String TEST_ID = "ms.test.id";
 
+    public final static String TEST_REPORT_NAME = "ms.test.report.name";
+
     private final static String THREAD_SPLIT = " ";
 
     private final static String ID_SPLIT = "-";
@@ -62,6 +64,8 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
     private String testId;
 
     private String debugReportId;
+    // 只有合并报告是这个有值
+    private String reportName;
 
     //获得控制台内容
     private PrintStream oldPrintStream = System.out;
@@ -125,7 +129,7 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
         TestResult testResult = new TestResult();
         testResult.setTestId(testId);
         testResult.setTotal(queue.size());
-
+        testResult.setReportName(this.reportName);
         // 一个脚本里可能包含多个场景(ThreadGroup)，所以要区分开，key: 场景Id
         final Map<String, ScenarioResult> scenarios = new LinkedHashMap<>();
         queue.forEach(result -> {
@@ -209,7 +213,7 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
             } else {
                 apiDefinitionExecResultService.saveApiResult(testResult, ApiRunMode.API_PLAN.name());
             }
-        } else if (StringUtils.equalsAny(this.runMode, ApiRunMode.SCENARIO.name(), ApiRunMode.SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO_PLAN.name(),ApiRunMode.SCHEDULE_SCENARIO.name())) {
+        } else if (StringUtils.equalsAny(this.runMode, ApiRunMode.SCENARIO.name(), ApiRunMode.SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO_PLAN.name(), ApiRunMode.SCHEDULE_SCENARIO.name())) {
             // 执行报告不需要存储，由用户确认后在存储
             testResult.setTestId(testId);
             ApiScenarioReport scenarioReport = apiScenarioReportService.complete(testResult, this.runMode);
@@ -247,7 +251,7 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
 
             }
         }
-        if (report != null && StringUtils.equals(ReportTriggerMode.API.name(), report.getTriggerMode())||StringUtils.equals(ReportTriggerMode.SCHEDULE.name(), report.getTriggerMode())) {
+        if (report != null && StringUtils.equals(ReportTriggerMode.API.name(), report.getTriggerMode()) || StringUtils.equals(ReportTriggerMode.SCHEDULE.name(), report.getTriggerMode())) {
             sendTask(report, reportUrl, testResult);
         }
 
@@ -394,6 +398,7 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
 
     private void setParam(BackendListenerContext context) {
         this.testId = context.getParameter(TEST_ID);
+        this.reportName = context.getParameter(TEST_REPORT_NAME);
         this.runMode = context.getParameter("runMode");
         this.debugReportId = context.getParameter("debugReportId");
         if (StringUtils.isBlank(this.runMode)) {

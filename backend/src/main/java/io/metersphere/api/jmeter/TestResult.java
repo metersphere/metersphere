@@ -12,6 +12,8 @@ public class TestResult {
 
     private String testId;
 
+    private String reportName;
+
     private int success = 0;
 
     private int error = 0;

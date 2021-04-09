@@ -157,7 +157,7 @@
     </batch-edit>
 
     <batch-move @refresh="search" @moveSave="moveSave" ref="testBatchMove"/>
-
+    <ms-run-mode @handleRunBatch="handleRunBatch" ref="runMode"/>
   </div>
 </template>
 
@@ -180,6 +180,8 @@ import BatchEdit from "../../../track/case/components/BatchEdit";
 import {API_SCENARIO_LIST, PROJECT_NAME, WORKSPACE_ID} from "../../../../../common/js/constants";
 import EnvironmentSelect from "../../definition/components/environment/EnvironmentSelect";
 import BatchMove from "../../../track/case/components/BatchMove";
+import MsRunMode from "./common/RunMode";
+
 import {
   _filter,
   _handleSelect,
@@ -213,7 +215,8 @@ export default {
     MsApiReportDetail,
     MsScenarioExtendButtons,
     MsTestPlanList,
-    MsTableOperatorButton
+    MsTableOperatorButton,
+    MsRunMode
   },
   props: {
     referenced: {
@@ -606,9 +609,13 @@ export default {
       param.condition = this.condition;
     },
     handleBatchExecute() {
+      this.$refs.runMode.open();
+
+    },
+    handleRunBatch(config){
       this.infoDb = false;
       let url = "/api/automation/run/batch";
-      let run = {};
+      let run = {config: config};
       run.id = getUUID();
       this.buildBatchParam(run);
       this.$post(url, run, response => {

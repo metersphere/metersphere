@@ -1680,5 +1680,14 @@ export default {
     header_display_field: '表头显示字段',
     fields_to_be_selected: '待选字段',
     selected_fields: '已选字段'
+  },
+  run_mode: {
+    title: "模式",
+    serial: "串行",
+    parallel: "并行",
+    other_config: "其他配置",
+    idd_report: "独立报告",
+    set_report: "集合报告",
+    report_name: "报告名称",
   }
 };

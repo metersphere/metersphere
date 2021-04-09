@@ -1677,5 +1677,14 @@ export default {
     header_display_field: 'Header display field',
     fields_to_be_selected: 'Fields to be selected',
     selected_fields: 'Selected fields'
+  },
+  run_mode: {
+    title: "Mode",
+    serial: "Serial",
+    parallel: "Parallel",
+    other_config: "Other config",
+    idd_report: "Report",
+    set_report: "Set report",
+    report_name: "Report name",
   }
 };

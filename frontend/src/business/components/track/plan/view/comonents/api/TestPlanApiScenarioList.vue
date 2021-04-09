@@ -101,7 +101,7 @@
     <!-- 批量编辑 -->
     <batch-edit :dialog-title="$t('test_track.case.batch_edit_case')" :type-arr="typeArr" :value-arr="valueArr"
                 :select-row="selectRows" ref="batchEdit" @batchEdit="batchEdit"/>
-
+    <ms-plan-run-mode @handleRunBatch="handleRunBatch" ref="runMode"/>
   </div>
 </template>
 
@@ -135,6 +135,7 @@ import {TEST_CASE_LIST, TEST_PLAN_SCENARIO_CASE} from "@/common/js/constants";
 import {Test_Plan_Scenario_Case, Track_Test_Case} from "@/business/components/common/model/JsonData";
 import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOperate";
 import BatchEdit from "@/business/components/track/case/components/BatchEdit";
+import MsPlanRunMode from "../../../common/PlanRunMode";
 import MsTableHeaderSelectPopover from "@/business/components/common/components/table/MsTableHeaderSelectPopover";
 
 export default {
@@ -153,6 +154,7 @@ export default {
     MsScenarioExtendButtons,
     MsTestPlanList,
     BatchEdit,
+    MsPlanRunMode,
     MsTableHeaderSelectPopover
   },
   props: {
@@ -292,49 +294,32 @@ export default {
       })
     },
     handleBatchExecute() {
-      // 与同事对接此处功能时得知前段入口取消，if (this.reviewId) {} 函数不会执行。 暂时先注释掉。 By.Song Tianyang
-      // if (this.reviewId) {
-      //   this.selectRows.forEach(row => {
-      //     let param = this.buildExecuteParam(row);
-      //     this.$post("/test/case/review/scenario/case/run", param, response => {
-      //     });
-      //   });
-      // }
-
-      if(this.condition != null && this.condition.selectAll){
-        this.$alert(this.$t('commons.option_cannot_spread_pages'), '', {
-          confirmButtonText: this.$t('commons.confirm'),
-          callback: (action) => {
-            if (action === 'confirm') {
-              if (this.planId) {
-                this.selectRows.forEach(row => {
-                  let param = this.buildExecuteParam(row);
-                  this.$post("/test/plan/scenario/case/run", param, response => {
-                  });
-                });
-              }
-              this.$message('任务执行中，请稍后刷新查看结果');
-              this.search();
-            }
-          }
+      this.$refs.runMode.open();
+    },
+    handleRunBatch(config){
+      if (this.reviewId) {
+        let param = {config : config,planCaseIds:[]};
+        this.selectRows.forEach(row => {
+          this.buildExecuteParam(param,row);
         });
-      }else {
-        if (this.planId) {
-          this.selectRows.forEach(row => {
-            let param = this.buildExecuteParam(row);
-            this.$post("/test/plan/scenario/case/run", param, response => {
-            });
-          });
-        }
-        this.$message('任务执行中，请稍后刷新查看结果');
-        this.search();
+        this.$post("/test/case/review/scenario/case/run", param, response => {});
       }
+      if (this.planId) {
+        let param = {config : config,planCaseIds:[]};
+        this.selectRows.forEach(row => {
+          this.buildExecuteParam(param,row);
+        });
+        console.log(param)
 
+        this.$post("/test/plan/scenario/case/run", param, response => {});
+      }
+      this.$message('任务执行中，请稍后刷新查看结果');
+      this.search();
     },
     execute(row) {
       this.infoDb = false;
-      let param = this.buildExecuteParam(row);
-      console.log(param)
+      let param ={planCaseIds: []};
+      this.buildExecuteParam(param,row);
       if (this.planId) {
         this.$post("/test/plan/scenario/case/run", param, response => {
           this.runVisible = true;
@@ -348,14 +333,11 @@ export default {
         });
       }
     },
-    buildExecuteParam(row) {
-      let param = {};
+    buildExecuteParam(param,row) {
       // param.id = row.id;
       param.id = getUUID();
       param.planScenarioId = row.id;
-      console.log(row.id)
       param.projectId = row.projectId;
-      param.planCaseIds = [];
       param.planCaseIds.push(row.id);
       return param;
     },

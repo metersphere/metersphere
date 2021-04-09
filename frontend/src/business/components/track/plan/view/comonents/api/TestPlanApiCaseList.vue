@@ -142,6 +142,7 @@
       <batch-edit :dialog-title="$t('test_track.case.batch_edit_case')" :type-arr="typeArr" :value-arr="valueArr"
                   :select-row="selectRows" ref="batchEdit" @batchEdit="batchEdit"/>
 
+      <ms-plan-run-mode @handleRunBatch="handleRunBatch" ref="runMode"/>
     </el-card>
   </div>
 
@@ -187,6 +188,7 @@ import HeaderCustom from "@/business/components/common/head/HeaderCustom";
 import {Test_Plan_Api_Case} from "@/business/components/common/model/JsonData";
 import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOperate";
 import MsTableHeaderSelectPopover from "@/business/components/common/components/table/MsTableHeaderSelectPopover";
+import MsPlanRunMode from "../../../common/PlanRunMode";
 
 
 export default {
@@ -209,7 +211,8 @@ export default {
     MsContainer,
     MsBottomContainer,
     ShowMoreBtn,
-    MsTableHeaderSelectPopover
+    MsTableHeaderSelectPopover,
+    MsPlanRunMode
   },
   data() {
     return {
@@ -461,22 +464,22 @@ export default {
               });
             }
 
+            }
           }
+        });
+      },
+      getResult(data) {
+        if (RESULT_MAP.get(data)) {
+          return RESULT_MAP.get(data);
+        } else {
+          return RESULT_MAP.get("default");
         }
-      });
-    },
-    getResult(data) {
-      if (RESULT_MAP.get(data)) {
-        return RESULT_MAP.get(data);
-      } else {
-        return RESULT_MAP.get("default");
-      }
-    },
-    runRefresh(data) {
-      this.rowLoading = "";
-      this.$success(this.$t('schedule.event_success'));
-      this.initTable();
-    },
+      },
+      runRefresh(data) {
+        this.rowLoading = "";
+        this.$success(this.$t('schedule.event_success'));
+        this.initTable();
+      },
     singleRun(row) {
       this.runData = [];
 
@@ -497,6 +500,26 @@ export default {
     handleBatchEdit() {
       this.$refs.batchEdit.open(this.selectRows.size);
       this.$refs.batchEdit.setSelectRows(this.selectRows);
+    },
+    getData() {
+      return new Promise((resolve) => {
+        let index = 1;
+        this.runData = [];
+        this.selectRows.forEach(row => {
+          this.$get('/api/testcase/get/' + row.caseId, (response) => {
+            let apiCase = response.data;
+            let request = JSON.parse(apiCase.request);
+            request.name = row.id;
+            request.id = row.id;
+            request.useEnvironment = row.environmentId;
+            this.runData.push(request);
+            if (this.selectRows.size === index) {
+              resolve();
+            }
+            index++;
+          });
+        });
+      });
     },
     batchEdit(form) {
       let param = {};
@@ -537,58 +560,44 @@ export default {
       }
     },
     handleBatchExecute() {
-      if(this.condition != null && this.condition.selectAll){
-        this.$alert(this.$t('commons.option_cannot_spread_pages'), '', {
-          confirmButtonText: this.$t('commons.confirm'),
-          callback: (action) => {
-            if (action === 'confirm') {
-              this.selectRows.forEach(row => {
-                this.$get('/api/testcase/get/' + row.caseId, (response) => {
-                  let apiCase = response.data;
-                  let request = JSON.parse(apiCase.request);
-                  request.name = row.id;
-                  request.id = row.id;
-                  request.useEnvironment = row.environmentId;
-                  let runData = [];
-                  runData.push(request);
-                  this.batchRun(runData, getUUID().substring(0, 8));
-                });
-              });
-              this.$message('任务执行中，请稍后刷新查看结果');
-              this.search();
-            }
-          }
-        });
-      }else {
-        this.selectRows.forEach(row => {
-          this.$get('/api/testcase/get/' + row.caseId, (response) => {
-            let apiCase = response.data;
-            let request = JSON.parse(apiCase.request);
-            request.name = row.id;
-            request.id = row.id;
-            request.useEnvironment = row.environmentId;
-            let runData = [];
-            runData.push(request);
-            this.batchRun(runData, getUUID().substring(0, 8));
-          });
-        });
-        this.$message('任务执行中，请稍后刷新查看结果');
-        this.search();
-      }
+      this.getData().then(() => {
+        if (this.runData && this.runData.length > 0) {
+          this.$refs.runMode.open();
+        }
+      });
     },
-    batchRun(runData, reportId) {
+    handleRunBatch(config) {
       let testPlan = new TestPlan();
       let projectId = this.$store.state.projectId;
-      let threadGroup = new ThreadGroup();
-      threadGroup.hashTree = [];
-      testPlan.hashTree = [threadGroup];
-      runData.forEach(item => {
-        threadGroup.hashTree.push(item);
-      });
-      let reqObj = {id: reportId, testElement: testPlan, type: 'API_PLAN', reportId: "run", projectId: projectId};
-      let bodyFiles = getBodyUploadFiles(reqObj, runData);
-      this.$fileUpload("/api/definition/run", null, bodyFiles, reqObj, response => {
-      });
+      if (config.mode === 'serial') {
+        testPlan.serializeThreadgroups = true;
+        testPlan.hashTree = [];
+        this.runData.forEach(item => {
+          let threadGroup = new ThreadGroup();
+          threadGroup.onSampleError = config.onSampleError;
+          threadGroup.hashTree = [];
+          threadGroup.hashTree.push(item);
+          testPlan.hashTree.push(threadGroup);
+        });
+        let reqObj = {id: getUUID().substring(0, 8), testElement: testPlan, type: 'API_PLAN', reportId: "run", projectId: projectId};
+        let bodyFiles = getBodyUploadFiles(reqObj, this.runData);
+        this.$fileUpload("/api/definition/run", null, bodyFiles, reqObj, response => {
+        });
+      } else {
+        testPlan.serializeThreadgroups = false;
+        let threadGroup = new ThreadGroup();
+        threadGroup.hashTree = [];
+        testPlan.hashTree = [threadGroup];
+        this.runData.forEach(item => {
+          threadGroup.hashTree.push(item);
+        });
+        let reqObj = {id: getUUID().substring(0, 8), testElement: testPlan, type: 'API_PLAN', reportId: "run", projectId: projectId};
+        let bodyFiles = getBodyUploadFiles(reqObj, this.runData);
+        this.$fileUpload("/api/definition/run", null, bodyFiles, reqObj, response => {
+        });
+      }
+      this.search();
+      this.$message('任务执行中，请稍后刷新查看结果');
     },
     autoCheckStatus() { //  检查执行结果，自动更新计划状态
       if (!this.planId) {
