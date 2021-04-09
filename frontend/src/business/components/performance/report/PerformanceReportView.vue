@@ -25,7 +25,8 @@
               <el-button :disabled="isReadOnly" type="info" plain size="mini" @click="handleExport(reportName)">
                 {{ $t('test_track.plan_view.export_report') }}
               </el-button>
-              <el-button :disabled="isReadOnly || report.status !== 'Completed'" type="default" plain size="mini" @click="compareReports()">
+              <el-button :disabled="isReadOnly || report.status !== 'Completed'" type="default" plain size="mini"
+                         @click="compareReports()">
                 {{ $t('report.compare') }}
               </el-button>
               <el-button :disabled="isReadOnly" type="warning" plain size="mini" @click="downloadJtl()">
@@ -33,7 +34,7 @@
               </el-button>
             </el-row>
           </el-col>
-          <el-col :span="8">
+          <el-col :span="6">
             <span class="ms-report-time-desc">
               {{ $t('report.test_duration', [this.minutes, this.seconds]) }}
             </span>
@@ -43,6 +44,22 @@
             <span class="ms-report-time-desc">
               {{ $t('report.test_end_time') }}：{{ endTime }}
             </span>
+          </el-col>
+          <el-col :span="2">
+            <el-select v-model="refreshTime"
+                       size="mini"
+                       @change="refresh"
+                       style="width: 100%;">
+              <template slot="prefix">
+                <i class="el-icon-refresh" style="cursor: pointer;padding-top: 8px;" @click="refresh"></i>
+              </template>
+              <el-option
+                v-for="item in refreshTimes"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value">
+              </el-option>
+            </el-select>
           </el-col>
         </el-row>
 
@@ -136,8 +153,19 @@ export default {
       websocket: null,
       dialogFormVisible: false,
       reportExportVisible: false,
-      testPlan: {testResourcePoolId: null}
-    }
+      testPlan: {testResourcePoolId: null},
+      refreshTime: '20',
+      refreshTimes: [
+        {value: '1', label: '1s'},
+        {value: '3', label: '3s'},
+        {value: '5', label: '5s'},
+        {value: '10', label: '10s'},
+        {value: '20', label: '20s'},
+        {value: '30', label: '30s'},
+        {value: '60', label: '1m'},
+        {value: '300', label: '5m'}
+      ]
+    };
   },
   methods: {
     initBreadcrumb(callback) {
@@ -155,7 +183,7 @@ export default {
           } else {
             this.$error(this.$t('report.not_exist'));
           }
-        })
+        });
       }
     },
     initReportTimeInfo() {
@@ -235,7 +263,7 @@ export default {
           this.$router.push({path: '/performance/report/view/' + this.reportId});
           // 注册 socket
           this.initWebSocket();
-        })
+        });
       }).catch(() => {
       });
     },
@@ -303,10 +331,10 @@ export default {
           aTag.download = this.reportId + ".zip";
           aTag.href = URL.createObjectURL(blob);
           aTag.click();
-          URL.revokeObjectURL(aTag.href)
+          URL.revokeObjectURL(aTag.href);
         } else {
           // IE10+下载
-          navigator.msSaveBlob(blob, this.filename)
+          navigator.msSaveBlob(blob, this.filename);
         }
       }).catch(e => {
         let text = e.response.data.text();
@@ -336,9 +364,14 @@ export default {
           this.initBreadcrumb();
           this.initWebSocket();
         } else {
-          this.$error(this.$t('report.not_exist'))
+          this.$error(this.$t('report.not_exist'));
         }
       });
+    },
+    refresh() {
+      if (this.status === 'Running') {
+        this.websocket.send(this.refreshTime);
+      }
     }
   },
   created() {
@@ -366,11 +399,11 @@ export default {
         this.initWebSocket();
       } else {
         // console.log("close socket.");
-        this.websocket.close() //离开路由之后断开websocket连接
+        this.websocket.close(); //离开路由之后断开websocket连接
       }
     }
   }
-}
+};
 </script>
 
 <style scoped>
