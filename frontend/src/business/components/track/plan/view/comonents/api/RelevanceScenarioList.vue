@@ -168,8 +168,9 @@
       },
       initProjectIds() {
         this.projectIds.clear();
+        this.map.clear();
         this.selectRows.forEach(row => {
-          this.result = this.$get('/api/automation/getApiScenario/' + row.id, res => {
+          this.result = this.$get('/api/automation/getApiScenarioProjectId/' + row.id, res => {
             let data = res.data;
             data.projectIds.forEach(d => this.projectIds.add(d));
             this.map.set(row.id, data.projectIds);
