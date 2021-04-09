@@ -50,7 +50,6 @@ import org.apache.jmeter.threads.JMeterContext;
 import org.apache.jmeter.threads.JMeterContextService;
 import org.apache.jmeter.threads.JMeterVariables;
 import org.apache.jorphan.util.JOrphanUtils;
-import org.codehaus.groovy.jsr223.GroovyScriptEngineImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -174,7 +173,6 @@ public abstract class JSR223TestElement extends ScriptingTestElement
     protected Object processFileOrScript(ScriptEngine scriptEngine, final Bindings pBindings)
             throws IOException, ScriptException {
 
-        this.loadGroovyJar(scriptEngine);
 
         Bindings bindings = pBindings;
         if (bindings == null) {
@@ -260,36 +258,6 @@ public abstract class JSR223TestElement extends ScriptingTestElement
         }
     }
 
-    /**
-     * groovy 使用的是自己的类加载器，
-     * 这里再执行脚本前，使用 groovy的加载器加载jar包，
-     * 解决groovy脚本无法使用jar包的问题
-     * @Auth jianxing
-     * @param scriptEngine
-     */
-    public static void loadGroovyJar(ScriptEngine scriptEngine) {
-        if (scriptEngine instanceof GroovyScriptEngineImpl) {
-            GroovyScriptEngineImpl groovyScriptEngine = (GroovyScriptEngineImpl) scriptEngine;
-
-            JarConfigService jarConfigService = CommonBeanFactory.getBean(JarConfigService.class);
-            List<JarConfig> jars = jarConfigService.list();
-
-            jars.forEach(jarConfig -> {
-                try {
-                    String path = jarConfig.getPath();
-                    File file = new File(path);
-                    if (file.isDirectory() && !path.endsWith("/")) {
-                        file = new File(path + "/");
-                    }
-                    groovyScriptEngine.getClassLoader().addURL(file.toURI().toURL());
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    LogUtil.error(e.getMessage(), e);
-                }
-            });
-
-        }
-    }
 
     /**
      * @return boolean true if element is not compilable or if compilation succeeds
