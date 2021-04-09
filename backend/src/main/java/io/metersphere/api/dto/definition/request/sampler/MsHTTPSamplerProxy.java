@@ -28,6 +28,7 @@ import org.apache.jorphan.collections.HashTree;
 import java.net.URL;
 import java.net.URLDecoder;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -134,7 +135,17 @@ public class MsHTTPSamplerProxy extends MsTestElement {
             this.setProjectId(getParentProjectId());
         } else {
             // 1.8 之前 数据
-            this.setProjectId("historyProjectID");
+            if (config.getConfig() != null) {
+                if (config.getConfig().containsKey("historyProjectID")) {
+                    this.setProjectId("historyProjectID");
+                } else {
+                    // 测试计划执行
+                    Iterator<String> it = config.getConfig().keySet().iterator();
+                    if (it.hasNext()) {
+                        this.setProjectId(it.next());
+                    }
+                }
+            }
         }
 
         // 添加环境中的公共变量
