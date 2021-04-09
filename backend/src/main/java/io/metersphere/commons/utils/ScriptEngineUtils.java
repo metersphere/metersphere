@@ -8,7 +8,7 @@ import javax.script.ScriptException;
 import java.nio.charset.StandardCharsets;
 
 public class ScriptEngineUtils {
-    private static final String ENGINE_NAME = "graal.js";
+    private static final String ENGINE_NAME = "rhino";
     private static ScriptEngine engine;
 
     static {
