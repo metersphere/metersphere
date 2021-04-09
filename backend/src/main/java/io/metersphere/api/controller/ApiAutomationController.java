@@ -97,13 +97,18 @@ public class ApiAutomationController {
     }
 
     @GetMapping("/getApiScenario/{id}")
-    public ApiScenarioDTO getScenarioDefinition(@PathVariable String id) {
+    public ApiScenarioWithBLOBs getScenarioDefinition(@PathVariable String id) {
         return apiAutomationService.getApiScenario(id);
     }
 
     @PostMapping("/getApiScenarioEnv")
     public ScenarioEnv getScenarioDefinition(@RequestBody ApiScenarioEnvRequest request) {
         return apiAutomationService.getApiScenarioEnv(request.getDefinition());
+    }
+
+    @GetMapping("/getApiScenarioProjectId/{id}")
+    public ScenarioEnv getApiScenarioProjectId(@PathVariable String id) {
+        return apiAutomationService.getApiScenarioProjectId(id);
     }
 
     @PostMapping("/getApiScenarios")
