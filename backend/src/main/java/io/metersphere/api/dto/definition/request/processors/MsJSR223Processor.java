@@ -53,7 +53,7 @@ public class MsJSR223Processor extends MsTestElement {
         if (StringUtils.isNotEmpty(this.getScriptLanguage()) && this.getScriptLanguage().equals("nashornScript")) {
             processor.setProperty("scriptLanguage", "nashorn");
         }
-        if (StringUtils.isNotEmpty(this.getScriptLanguage()) && this.getScriptLanguage().equals("graalVMScript")) {
+        if (StringUtils.isNotEmpty(this.getScriptLanguage()) && this.getScriptLanguage().equals("rhinoScript")) {
             processor.setProperty("scriptLanguage", "javascript");
         }
         processor.setProperty("script", this.getScript());
