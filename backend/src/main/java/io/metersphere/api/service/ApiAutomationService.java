@@ -422,8 +422,17 @@ public class ApiAutomationService {
                         MsHTTPSamplerProxy httpSamplerProxy = (MsHTTPSamplerProxy)tr;
                         if (httpSamplerProxy.isEnable()) {
                             if (StringUtils.isBlank(httpSamplerProxy.getUrl()) || !isURL(httpSamplerProxy.getUrl())) {
-                                env.getProjectIds().add(httpSamplerProxy.getProjectId());
                                 env.setFullUrl(false);
+                                if(httpSamplerProxy.getProjectId() != null){
+                                    env.getProjectIds().add(httpSamplerProxy.getProjectId());
+                                }else{
+                                    String scenarioId = element.getString("id");
+                                    ApiScenarioDTO myApiScenario = getApiScenario(scenarioId);
+                                    if(myApiScenario != null) {
+                                        String sceProjectId = myApiScenario.getProjectId();
+                                        env.getProjectIds().add(sceProjectId);
+                                    }
+                                }
                             }
                         }
                     } else if (StringUtils.equals(tr.getType(), "TCPSampler")) {
