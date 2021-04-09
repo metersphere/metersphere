@@ -1,7 +1,6 @@
 package io.metersphere.notice.sender.impl;
 
 import io.metersphere.notice.domain.MessageDetail;
-import io.metersphere.notice.message.TextMessage;
 import io.metersphere.notice.sender.AbstractNoticeSender;
 import io.metersphere.notice.sender.NoticeModel;
 import io.metersphere.notice.util.LarkClient;
