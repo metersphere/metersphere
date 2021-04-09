@@ -18,6 +18,7 @@ public interface NoticeConstants {
         String EMAIL = "EMAIL";
         String NAIL_ROBOT = "NAIL_ROBOT";
         String WECHAT_ROBOT = "WECHAT_ROBOT";
+        String LARK = "LARK";
     }
 
     interface Event {
