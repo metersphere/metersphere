@@ -201,7 +201,7 @@
           <el-row style="margin-top: 10px;">
             <el-col :span="1" :offset="1">{{ $t('commons.remark') }}:</el-col>
             <el-col :span="19">
-              <el-form-item prop="remark">
+              <el-form-item>
                 <el-input v-model="form.remark"
                           :autosize="{ minRows: 2, maxRows: 4}"
                           type="textarea"
@@ -218,7 +218,7 @@
           <el-row>
             <el-col :span="19" :offset="2">
               <el-upload
-                accept=".jpg,.jpeg,.png,.xlsx,.doc,.pdf,.docx"
+                accept=".jpg,.jpeg,.png,.xlsx,.doc,.pdf,.docx,.txt"
                 action=""
                 :show-file-list="false"
                 :before-upload="beforeUpload"

@@ -1229,7 +1229,7 @@ export default {
       cancel_relevance_project: "取消项目关联会同时取消该项目下已关联的测试用例",
       img_loading_fail: "图片加载失败",
       pdf_loading_fail: "PDF加载失败",
-      upload_tip: "只能上传jpg、jpeg、png、docx、doc、pdf、xlsx文件",
+      upload_tip: "只能上传jpg、jpeg、png、docx、doc、pdf、xlsx、txt文件",
       attachment: "附件",
       upload_time: "上传时间",
       import: {
