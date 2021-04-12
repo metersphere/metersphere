@@ -11,7 +11,7 @@
 
 <script>
     export default {
-      name: "MsTableSelectAll",
+      name: "MsTableHeaderSelectPopover",
       props: ['total', 'pageSize'],
       data() {
         return {
