@@ -76,8 +76,12 @@ public class MsIfController extends MsTestElement {
     public String getCondition() {
         String variable = "\"" + this.variable + "\"";
         String operator = this.operator;
-        String value = "\"" + this.value + "\"";
-
+        String value;
+        if (StringUtils.equals(operator, "<") || StringUtils.equals(operator, ">")) {
+            value = this.value;
+        } else {
+            value = "\"" + this.value + "\"";
+        }
         if (StringUtils.contains(operator, "~")) {
             value = "\".*" + this.value + ".*\"";
         }

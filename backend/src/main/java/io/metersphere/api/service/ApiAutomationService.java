@@ -533,7 +533,7 @@ public class ApiAutomationService {
     }
 
     public byte[] loadFileAsBytes(FileOperationRequest fileOperationRequest) {
-        File file = new File(FileUtils.BODY_FILE_DIR + fileOperationRequest.getId() + "_" + fileOperationRequest.getName());
+        File file = new File(FileUtils.BODY_FILE_DIR +"/"+ fileOperationRequest.getId() + "_" + fileOperationRequest.getName());
         try (FileInputStream fis = new FileInputStream(file);
              ByteArrayOutputStream bos = new ByteArrayOutputStream(1000);) {
             byte[] b = new byte[1000];

@@ -101,6 +101,9 @@
       getName(name) {
         if (name && name.indexOf("^@~@^") != -1) {
           let arr = name.split("^@~@^");
+          if (arr[arr.length - 1].indexOf("UUID=")) {
+            return arr[arr.length - 1].split("UUID=")[0];
+          }
           return arr[arr.length - 1];
         }
         return name;

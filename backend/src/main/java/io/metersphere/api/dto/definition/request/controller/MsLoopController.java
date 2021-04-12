@@ -56,7 +56,7 @@ public class MsLoopController extends MsTestElement {
         }
         final HashTree groupTree = controller(tree);
         if (CollectionUtils.isNotEmpty(config.getVariables())) {
-            this.addCsvDataSet(groupTree, config.getVariables(),config);
+            this.addCsvDataSet(groupTree, config.getVariables(), config);
             this.addCounter(groupTree, config.getVariables());
             this.addRandom(groupTree, config.getVariables());
         }
@@ -111,7 +111,12 @@ public class MsLoopController extends MsTestElement {
     private String getCondition() {
         String variable = "\"" + this.whileController.getVariable() + "\"";
         String operator = this.whileController.getOperator();
-        String value = "\"" + this.whileController.getValue() + "\"";
+        String value;
+        if (StringUtils.equals(operator, "<") || StringUtils.equals(operator, ">")) {
+            value = this.whileController.getValue();
+        } else {
+            value = "\"" + this.whileController.getValue() + "\"";
+        }
 
         if (StringUtils.contains(operator, "~")) {
             value = "\".*" + this.whileController.getValue() + ".*\"";

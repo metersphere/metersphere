@@ -248,14 +248,6 @@ public class MsHTTPSamplerProxy extends MsTestElement {
             LogUtil.error(e);
             MSException.throwException(e.getMessage());
         }
-        // REST参数
-        if (CollectionUtils.isNotEmpty(this.getRest())) {
-            sampler.setArguments(httpArguments(this.getRest()));
-        }
-        // 请求参数
-        if (CollectionUtils.isNotEmpty(this.getArguments())) {
-            sampler.setArguments(httpArguments(this.getArguments()));
-        }
         // 请求体
         if (!StringUtils.equals(this.getMethod(), "GET")) {
             if (this.body != null) {

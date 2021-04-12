@@ -29,6 +29,7 @@
 </template>
 
 <script>
+
   import MsRequestResult from "./components/RequestResult";
   import MsRequestResultTail from "./components/RequestResultTail";
   import MsScenarioResult from "./components/ScenarioResult";
@@ -39,7 +40,8 @@
   import MsApiReportExport from "./ApiReportExport";
   import MsApiReportViewHeader from "./ApiReportViewHeader";
   import {RequestFactory} from "../../definition/model/ApiTestModel";
-  import {windowPrint} from "@/common/js/utils";
+  import {windowPrint,getUUID} from "@/common/js/utils";
+
   export default {
     name: "MsApiReport",
     components: {
@@ -105,7 +107,7 @@
             if (item && item.requestResults) {
               item.requestResults.forEach(req => {
                 resMap.set(req.id, req);
-                req.name = item.name + "^@~@^" + req.name;
+                req.name = item.name + "^@~@^" + req.name+ "UUID="+getUUID();
                 array.push(req);
               })
             }
@@ -122,51 +124,60 @@
           let children = tree;
           // 循环构建子节点
           for (let i in nodeArray) {
+            if (!nodeArray[i]) {
+              continue;
+            }
             let node = {
               label: nodeArray[i],
               value: item,
             };
-            if (i != nodeArray.length) {
+            if (i !== nodeArray.length) {
               node.children = [];
             }
-            if (children.length == 0) {
+
+            if (children.length === 0) {
               children.push(node);
             }
+
             let isExist = false;
             for (let j in children) {
-              if (children[j].label == node.label) {
-                if (i != nodeArray.length - 1 && !children[j].children) {
+              if (children[j].label === node.label) {
+                if (i !== nodeArray.length - 1 && !children[j].children) {
                   children[j].children = [];
                 }
-                children = (i == nodeArray.length - 1 ? children : children[j].children);
+                children = (i === nodeArray.length - 1 ? children : children[j].children);
                 isExist = true;
                 break;
               }
             }
             if (!isExist) {
               children.push(node);
-              if (i != nodeArray.length - 1 && !children[children.length - 1].children) {
+              if (i !== nodeArray.length - 1 && !children[children.length - 1].children) {
                 children[children.length - 1].children = [];
               }
-              children = (i == nodeArray.length - 1 ? children : children[children.length - 1].children);
+              children = (i === nodeArray.length - 1 ? children : children[children.length - 1].children);
             }
           }
         })
       },
       recursiveSorting(arr) {
         for (let i in arr) {
-          arr[i].index = Number(i) + 1;
-          if (arr[i].children != undefined && arr[i].children.length > 0) {
-            this.recursiveSorting(arr[i].children);
+          if (arr[i]) {
+            arr[i].index = Number(i) + 1;
+            if (arr[i].children && arr[i].children.length > 0) {
+              this.recursiveSorting(arr[i].children);
+            }
           }
         }
       },
       sort(scenarioDefinition) {
         for (let i in scenarioDefinition) {
           // 排序
-          scenarioDefinition[i].index = Number(i) + 1;
-          if (scenarioDefinition[i].children != undefined && scenarioDefinition[i].children.length > 0) {
-            this.recursiveSorting(scenarioDefinition[i].children);
+          if (scenarioDefinition[i]) {
+            scenarioDefinition[i].index = Number(i) + 1;
+            if (scenarioDefinition[i].children && scenarioDefinition[i].children.length > 0) {
+              this.recursiveSorting(scenarioDefinition[i].children);
+            }
           }
         }
       },
@@ -216,7 +227,7 @@
                   if (!request.success) {
                     let failRequest = Object.assign({}, request);
                     failScenario.requestResults.push(failRequest);
-                    array.push(request)
+                    array.push(request);
                   }
                 })
               }
@@ -286,9 +297,11 @@
         this.$router.go(0);
       }
     },
+
     created() {
       this.getReport();
     },
+
     computed: {
       path() {
         return "/api/test/edit?id=" + this.report.testId;
@@ -309,30 +322,38 @@
 </style>
 
 <style scoped>
+
   .report-container {
     height: calc(100vh - 155px);
     min-height: 600px;
     overflow-y: auto;
   }
+
   .report-header {
     font-size: 15px;
   }
+
   .report-header a {
     text-decoration: none;
   }
+
   .report-header .time {
     color: #909399;
     margin-left: 10px;
   }
+
   .report-container .fail {
     color: #F56C6C;
   }
+
   .report-container .is-active .fail {
     color: inherit;
   }
+
   .export-button {
     float: right;
   }
+
   .scenario-result .icon.is-active {
     transform: rotate(90deg);
   }
