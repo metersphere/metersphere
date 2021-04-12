@@ -1,6 +1,5 @@
 package io.metersphere.api.jmeter;
 
-import io.fabric8.kubernetes.client.extended.run.RunConfig;
 import io.metersphere.api.dto.automation.RunModeConfig;
 import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.exception.MSException;
@@ -15,7 +14,6 @@ import org.apache.jmeter.visualizers.backend.BackendListener;
 import org.apache.jorphan.collections.HashTree;
 import org.springframework.context.i18n.LocaleContextHolder;
 import org.springframework.stereotype.Service;
-
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import java.io.File;

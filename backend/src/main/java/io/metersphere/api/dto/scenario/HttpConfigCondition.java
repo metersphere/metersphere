@@ -11,4 +11,5 @@ public class HttpConfigCondition {
     private String protocol;
     private String socket;
     private String domain;
+    private int port;
 }

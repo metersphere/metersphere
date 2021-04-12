@@ -14,7 +14,7 @@
     <el-form-item prop="enable">
       <span class="ms-env-span">{{$t('api_test.environment.condition_enable')}}</span>
       <el-radio-group v-model="condition.type" @change="typeChange">
-        <el-radio label="NO">{{ $t('api_test.definition.document.data_set.none') }}</el-radio>
+        <el-radio label="NONE">{{ $t('api_test.definition.document.data_set.none') }}</el-radio>
         <el-radio label="MODULE">{{$t('test_track.module.module')}}</el-radio>
         <el-radio label="PATH">{{$t('api_test.definition.api_path')}}</el-radio>
       </el-radio-group>
@@ -50,6 +50,11 @@
         <el-table-column prop="details" show-overflow-tooltip min-width="120px" :label="$t('api_test.value')">
           <template v-slot:default="{row}">
             {{getDetails(row)}}
+          </template>
+        </el-table-column>
+        <el-table-column prop="createTime" show-overflow-tooltip min-width="120px" :label="$t('commons.create_time')">
+          <template v-slot:default="{row}">
+            <span>{{ row.time | timestampFormatDate }}</span>
           </template>
         </el-table-column>
         <el-table-column :label="$t('commons.operating')" width="100px">
@@ -106,7 +111,7 @@
           label: "name",
         },
         pathDetails: new KeyValue({name: "", value: "contains"}),
-        condition: {type: "NO", details: [new KeyValue({name: "", value: "contains"})], protocol: "", socket: "", domain: ""},
+        condition: {type: "NONE", details: [new KeyValue({name: "", value: "contains"})], protocol: "http", socket: "", domain: "", port: 0},
       };
     },
     watch: {
@@ -114,9 +119,7 @@
         this.list();
       },
       httpConfig: function (o) {
-        this.condition.protocol = this.httpConfig.protocol;
-        this.condition.socket = this.httpConfig.socket;
-        this.condition.domain = this.httpConfig.domain;
+        this.condition = {type: "NONE", details: [new KeyValue({name: "", value: "contains"})], protocol: "http", socket: "", domain: "", port: 0};
       },
     },
     methods: {
@@ -125,7 +128,7 @@
       },
       getName(row) {
         switch (row.type) {
-          case "NO":
+          case "NONE":
             return this.$t("api_test.definition.document.data_set.none");
           case "MODULE":
             return this.$t("test_track.module.module");
@@ -155,6 +158,7 @@
         if (row) {
           this.httpConfig.socket = row.socket;
           this.httpConfig.protocol = row.protocol;
+          this.httpConfig.port = row.port;
           this.condition = row;
           if (row.type === "PATH" && row.details.length > 0) {
             this.pathDetails = row.details[0];
@@ -168,7 +172,7 @@
       },
       typeChange() {
         switch (this.condition.type) {
-          case "NO":
+          case "NONE":
             this.condition.details = [];
             break;
           case "MODULE":
@@ -197,20 +201,27 @@
       },
       update() {
         const index = this.httpConfig.conditions.findIndex((d) => d.id === this.condition.id);
-        let obj = {id: this.condition.id, type: this.condition.type, domain: this.httpConfig.domain, socket: this.httpConfig.socket, protocol: this.httpConfig.protocol, details: this.condition.details};
+        this.validateSocket(this.condition.socket);
+        let obj = {
+          id: this.condition.id, type: this.condition.type, domain: this.condition.domain, socket: this.condition.socket,
+          protocol: this.condition.protocol, details: this.condition.details, port: this.condition.port, time: this.condition.time
+        };
         if (index !== -1) {
           Vue.set(this.httpConfig.conditions[index], obj, 1);
-          this.condition = {type: "NO", details: [new KeyValue({name: "", value: "contains"})], protocol: "", socket: "", domain: ""};
+          this.condition = {type: "NONE", details: [new KeyValue({name: "", value: "contains"})], protocol: "", socket: "", domain: ""};
         }
       },
       add() {
-        let obj = {id: getUUID(), type: this.condition.type, socket: this.httpConfig.socket, protocol: this.httpConfig.protocol, domain: this.httpConfig.domain,};
+        let obj = {
+          id: getUUID(), type: this.condition.type, socket: this.condition.socket, protocol: this.condition.protocol,
+          domain: this.condition.domain, port: this.condition.port, time: new Date().getTime()
+        };
         if (this.condition.type === "PATH") {
           obj.details = [JSON.parse(JSON.stringify(this.pathDetails))];
         } else {
           obj.details = this.condition.details ? JSON.parse(JSON.stringify(this.condition.details)) : this.condition.details;
         }
-        this.httpConfig.conditions.push(obj);
+        this.httpConfig.conditions.unshift(obj);
       },
       remove(row) {
         const index = this.httpConfig.conditions.findIndex((d) => d.id === row.id);
@@ -227,21 +238,21 @@
       },
       validateSocket(socket) {
         if (!socket) return true;
-        let urlStr = this.httpConfig.protocol + "://" + socket;
+        let urlStr = this.condition.protocol + "://" + socket;
         let url = {};
         try {
           url = new URL(urlStr);
         } catch (e) {
           return false;
         }
-        this.httpConfig.domain = decodeURIComponent(url.hostname);
+        this.condition.domain = decodeURIComponent(url.hostname);
 
-        this.httpConfig.port = url.port;
+        this.condition.port = url.port;
         let path = url.pathname === "/" ? "" : url.pathname;
         if (url.port) {
-          this.httpConfig.socket = this.httpConfig.domain + ":" + url.port + path;
+          this.condition.socket = this.condition.domain + ":" + url.port + path;
         } else {
-          this.httpConfig.socket = this.httpConfig.domain + path;
+          this.condition.socket = this.condition.domain + path;
         }
         return true;
       },
