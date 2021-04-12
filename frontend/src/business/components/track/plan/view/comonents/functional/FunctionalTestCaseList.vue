@@ -484,7 +484,7 @@ export default {
       });
     },
     showDetail(row, event, column) {
-      this.isReadOnly = true;
+      this.isReadOnly = !this.isTestManagerOrTestUser;
       this.$refs.testPlanTestCaseEdit.openTestCaseEdit(row);
     },
     refresh() {
