@@ -174,3 +174,9 @@ export const ORIGIN_COLOR_SHALLOW = '#595591';
 export const COUNT_NUMBER = '#6C317C';
 export const COUNT_NUMBER_SHALLOW = '#CDB9D2';
 export const PRIMARY_COLOR = '#783887';
+
+export const CONFIG_TYPE = {
+  NOT: "NOT",
+  NORMAL: "NORMAL",
+  ABNORMAL: "ABNORMAL"
+}
