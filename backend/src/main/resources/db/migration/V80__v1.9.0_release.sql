@@ -19,12 +19,27 @@ CREATE TABLE IF NOT EXISTS `test_case_field_template` (
     `name`              varchar(64) NOT NULL COMMENT 'Field template name',
     `type`              varchar(30) NOT NULL COMMENT 'Field template type',
     `description`       varchar(255) DEFAULT NULL COMMENT 'Field template description',
-    `case_name`         varchar(30) NOT NULL COMMENT 'Test Case Name',
+    `case_name`         varchar(64) NOT NULL COMMENT 'Test Case Name',
     `workspace_id`      varchar(50) DEFAULT NULL COMMENT 'Workspace ID this field template belongs to',
     `prerequisite`      varchar(255) DEFAULT NULL COMMENT 'Test case prerequisite condition',
     `step_description`  text DEFAULT NULL COMMENT 'Test case steps desc',
     `expected_result`   text DEFAULT NULL COMMENT 'Test case expected result',
     `actual_result`     text DEFAULT NULL COMMENT 'Test case actual result',
+    `create_time`       bigint(13)  NOT NULL COMMENT 'Create timestamp',
+    `update_time`       bigint(13)  NOT NULL COMMENT 'Update timestamp',
+    PRIMARY KEY (`id`)
+)
+    ENGINE = InnoDB
+    DEFAULT CHARSET = utf8mb4;
+
+CREATE TABLE IF NOT EXISTS `issue_template` (
+    `id`                varchar(50) NOT NULL COMMENT 'Field template ID',
+    `name`              varchar(64) NOT NULL COMMENT 'Field template name',
+    `platform`          varchar(30) NOT NULL COMMENT 'Field template type',
+    `description`       varchar(255) DEFAULT NULL COMMENT 'Field template description',
+    `title`             varchar(64) NOT NULL COMMENT 'Issue title',
+    `workspace_id`      varchar(50) DEFAULT NULL COMMENT 'Workspace ID this field template belongs to',
+    `content`           text DEFAULT NULL COMMENT 'Issue content',
     `create_time`       bigint(13)  NOT NULL COMMENT 'Create timestamp',
     `update_time`       bigint(13)  NOT NULL COMMENT 'Update timestamp',
     PRIMARY KEY (`id`)

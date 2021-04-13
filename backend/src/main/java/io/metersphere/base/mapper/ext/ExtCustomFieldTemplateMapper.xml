@@ -16,7 +16,7 @@
         left join custom_field cf
         on cft.field_id = cf.id
         <if test="request.templateId != null">
-            and cft.template_id = #{request.templateId}
+            where cft.template_id = #{request.templateId}
         </if>
     </select>
 </mapper>

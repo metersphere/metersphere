@@ -147,7 +147,7 @@ export default {
       this.$refs.templateEdit.open(copyData);
     },
     handleDelete(data) {
-      this.result = this.$get('custom/field/delete/' + data.id,  () => {
+      this.result = this.$get('field/template/case/delete/' + data.id,  () => {
         this.$success(this.$t('commons.delete_success'));
         this.initTableData();
       });

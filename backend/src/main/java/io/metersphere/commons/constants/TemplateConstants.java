@@ -2,7 +2,7 @@ package io.metersphere.commons.constants;
 
 public class TemplateConstants {
 
-    public static enum FieldTemplateScene {
-        TEST_CASE, ISSUES
+    public enum FieldTemplateScene {
+        TEST_CASE, ISSUE
     }
 }

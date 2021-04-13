@@ -5,14 +5,14 @@
     :visible.sync="showDialog"
     :url="url"
     @refresh="$emit('refresh')"
-    scene="TEST_CASE"
+    scene="ISSUE"
     ref="fieldTemplateEdit">
 
     <template v-slot:base>
-      <el-form-item :label="'用例类型'" prop="type">
-        <el-select filterable v-model="form.type" placeholder="用例类型">
+      <el-form-item :label="'缺陷平台'" prop="type">
+        <el-select filterable v-model="form.platform" placeholder="用例类型">
           <el-option
-            v-for="item in caseTypeOption"
+            v-for="item in platformOption"
             :key="item.value"
             :label="item.text"
             :value="item.value">
@@ -22,20 +22,12 @@
     </template>
 
     <template v-slot:default>
-      <el-form-item :label="'用例名称'" prop="caseName">
-        <el-input v-model="form.caseName" autocomplete="off"></el-input>
+      <el-form-item :label="'标题'" prop="title">
+        <el-input v-model="form.title" autocomplete="off"></el-input>
       </el-form-item>
 
-      <el-form-item :label="'前置条件'" prop="prerequisite">
-        <el-input :autosize="{ minRows: 2, maxRows: 4}" type="textarea" v-model="form.prerequisite"></el-input>
-      </el-form-item>
-
-      <el-form-item :label="'用例步骤'" prop="stepDescription">
-        <el-input :autosize="{ minRows: 2, maxRows: 4}" type="textarea" v-model="form.stepDescription"></el-input>
-      </el-form-item>
-
-      <el-form-item :label="'预期结果'" prop="actualResult">
-        <el-input :autosize="{ minRows: 2, maxRows: 4}" type="textarea" v-model="form.actualResult"></el-input>
+      <el-form-item :label="'缺陷内容'" prop="content">
+        <el-input :autosize="{ minRows: 2, maxRows: 4}" type="textarea" v-model="form.content"></el-input>
       </el-form-item>
     </template>
 
@@ -49,13 +41,13 @@ import draggable from 'vuedraggable';
 import TemplateComponentEditHeader
   from "@/business/components/track/plan/view/comonents/report/TemplateComponentEditHeader";
 import MsFormDivider from "@/business/components/common/components/MsFormDivider";
-import {CASE_TYPE_OPTION} from "@/common/js/table-constants";
+import {ISSUE_PLATFORM_OPTION} from "@/common/js/table-constants";
 import CustomFieldFormList from "@/business/components/settings/workspace/template/CustomFieldFormList";
 import CustomFieldRelateList from "@/business/components/settings/workspace/template/CustomFieldRelateList";
 import FieldTemplateEdit from "@/business/components/settings/workspace/template/FieldTemplateEdit";
 
 export default {
-  name: "TestCaseTemplateEdit",
+  name: "IssueTemplateEdit",
   components: {
     FieldTemplateEdit,
     CustomFieldRelateList,
@@ -71,11 +63,8 @@ export default {
         name: "",
         type: '',
         description: '',
-        caseName: '',
-        prerequisite: '',
-        stepDescription: '',
-        expectedResult: '',
-        actualResult: '',
+        title: '',
+        content: '',
         customFieldIds: [],
       },
       rules: {},
@@ -85,8 +74,8 @@ export default {
     }
   },
   computed: {
-    caseTypeOption() {
-      return CASE_TYPE_OPTION;
+    platformOption() {
+      return ISSUE_PLATFORM_OPTION;
     }
   },
   methods: {
@@ -97,24 +86,21 @@ export default {
           this.form.options = data.options ? JSON.parse(data.options) : [];
         }
         if (data.id) {
-          this.url = 'field/template/case/update';
+          this.url = 'field/template/issue/update';
         } else {
           //copy
-          this.url = 'field/template/case/add';
+          this.url = 'field/template/issue/add';
         }
       } else {
         this.form = {
           name: "",
           type: '',
           description: '',
-          caseName: '',
-          prerequisite: '',
-          stepDescription: '',
-          expectedResult: '',
-          actualResult: '',
+          title: '',
+          content: '',
           customFieldIds: [],
         };
-        this.url = 'field/template/case/add';
+        this.url = 'field/template/issue/add';
       }
       this.$refs.fieldTemplateEdit.open(data);
     }

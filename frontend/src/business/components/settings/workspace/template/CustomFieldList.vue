@@ -117,8 +117,8 @@ export default {
         float: '浮点型'
       },
       sceneMap: {
-        issues: '缺陷模板',
-        testCase: '用例模板'
+        ISSUE: '缺陷模板',
+        TEST_CASE: '用例模板'
       },
       operators: [
         {

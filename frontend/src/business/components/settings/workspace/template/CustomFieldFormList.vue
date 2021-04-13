@@ -16,7 +16,7 @@
       :label="'默认值'"
       prop="type">
       <template v-slot="scope">
-        <el-select filterable v-model="scope.row.defaultValue" placeholder="使用场景">
+        <el-select filterable v-model="scope.row.defaultValue" placeholder="默认值">
           <el-option
             v-for="item in scope.row.options ? scope.row.options : []"
             :key="item.text"

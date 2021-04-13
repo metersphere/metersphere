@@ -77,8 +77,8 @@
         <table tableName="test_case_review_scenario"/>
         <table tableName="test_plan"/>
         <table tableName="test_case_test"/>-->
-        <table tableName="test_case_field_template"></table>
-        <table tableName="custom_field_template"></table>
+        <table tableName="issue_template"></table>
+<!--        <table tableName="custom_field_template"></table>-->
 
     </context>
 </generatorConfiguration>

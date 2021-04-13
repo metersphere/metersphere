@@ -35,7 +35,7 @@ public class TestCaseFieldTemplateService {
         testCaseFieldTemplate.setCreateTime(System.currentTimeMillis());
         testCaseFieldTemplate.setUpdateTime(System.currentTimeMillis());
         testCaseFieldTemplateMapper.insert(testCaseFieldTemplate);
-        customFieldTemplateService.create(request.getCustomFields(), request.getId(),
+        customFieldTemplateService.create(request.getCustomFields(), testCaseFieldTemplate.getId(),
                 TemplateConstants.FieldTemplateScene.TEST_CASE.name());
     }
 
@@ -53,7 +53,7 @@ public class TestCaseFieldTemplateService {
         BeanUtils.copyBean(testCaseFieldTemplate, request);
         testCaseFieldTemplate.setUpdateTime(System.currentTimeMillis());
         testCaseFieldTemplateMapper.updateByPrimaryKeySelective(testCaseFieldTemplate);
-        customFieldTemplateService.create(request.getCustomFields(), request.getId(),
+        customFieldTemplateService.create(request.getCustomFields(), testCaseFieldTemplate.getId(),
                 TemplateConstants.FieldTemplateScene.TEST_CASE.name());
     }
 }
