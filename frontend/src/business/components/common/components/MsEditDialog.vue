@@ -2,7 +2,9 @@
   <el-dialog :close-on-click-modal="false"
              :title="title"
              :width="width"
-             :visible="visible" destroy-on-close
+             :visible="visible"
+             destroy-on-close
+             :append-to-body="appendToBody"
              @close="handleClose">
 
     <slot name="header"></slot>
@@ -27,16 +29,23 @@ import MsDialogFooter from "@/business/components/common/components/MsDialogFoot
 export default {
   name: "MsEditDialog",
   components: {MsDialogFooter},
-  data() {
-    return {
-      visible: false
-    }
-  },
   props: {
     title: {
       type: String,
       default() {
         return 'title';
+      }
+    },
+    visible: {
+      type: Boolean,
+      default() {
+        return false;
+      }
+    },
+    appendToBody: {
+      type: Boolean,
+      default() {
+        return false;
       }
     },
     width: {
@@ -47,9 +56,6 @@ export default {
     }
   },
   methods: {
-    open() {
-      this.visible = true;
-    },
     handleConfirm() {
       this.$emit('confirm');
     },
@@ -58,7 +64,8 @@ export default {
       this.$emit('cancel');
     },
     handleClose() {
-      this.visible = false;
+      this.$emit('update:visible', false);
+      this.$emit('close');
     },
   }
 }

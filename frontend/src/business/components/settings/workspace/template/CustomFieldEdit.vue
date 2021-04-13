@@ -1,6 +1,7 @@
 <template>
   <ms-edit-dialog
     width="30%"
+    :visible.sync="visible"
     @confirm="save"
     :title="'创建字段'"
     ref="msEditDialog">
@@ -60,11 +61,12 @@ export default {
       form: {
         name: "",
         type: 'input',
-        scene: 'testCase',
+        scene: 'TEST_CASE',
         remark: '',
         options: []
       },
       rules: {},
+      visible: false,
       url: ''
     }
   },
@@ -78,7 +80,7 @@ export default {
   },
   methods: {
     open(data) {
-      this.$refs.msEditDialog.open();
+      this.visible = true;
       if (data) {
         Object.assign(this.form, data);
         if (!(data.options instanceof Array)) {
@@ -94,10 +96,10 @@ export default {
         this.form = {
           name: "",
           type: 'input',
-          scene: 'testCase',
+          scene: 'TEST_CASE',
           remark: '',
           options: []
-        },
+        };
         this.url = 'custom/field/add';
       }
     },
@@ -109,7 +111,7 @@ export default {
           param.workspaceId = getCurrentWorkspaceId();
           param.options = JSON.stringify(this.form.options);
           this.result = this.$post(this.url, param, () => {
-            this.$refs.msEditDialog.handleClose();
+            this.visible = false;
             this.$success(this.$t('commons.save_success'));
             this.$emit('refresh');
           });

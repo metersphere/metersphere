@@ -14,17 +14,18 @@
     components: {MsTableOperatorButton},
     props: {
       row: Object,
-      buttons: Array
+      buttons: Array,
+      index: Number
     },
     methods: {
       click(btn) {
         if (btn.exec instanceof Function) {
-          btn.exec(this.row);
+          btn.exec(this.row, this.index);
         }
       },
       clickStop(btn) {
         if (btn.stop instanceof Function) {
-          btn.stop(this.row);
+          btn.stop(this.row, this.index);
         }
       },
     },

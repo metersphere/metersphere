@@ -39,7 +39,7 @@
           <header-label-operate @exec="openCustomHeader"/>
         </template>
         <template v-slot:default="scope">
-          <ms-table-operators :buttons="operators" :row="scope.row"/>
+          <ms-table-operators :buttons="operators" :row="scope.row" :index="scope.$index"/>
         </template>
       </ms-table-column>
 
@@ -123,6 +123,11 @@ export default {
   },
   mounted() {
     getLabel(this, TEST_CASE_LIST);
+  },
+  computed: {
+    selectIds() {
+      return Array.from(this.selectRows).map(o => o.id);
+    }
   },
   methods: {
     openCustomHeader() {

@@ -10,7 +10,7 @@
     :sortable="sortable"
     :show-overflow-tooltip="showOverflowTooltip">
     <template v-slot:default="scope">
-      <slot :row="scope.row">
+      <slot :row="scope.row" :$index="scope.$index">
         {{scope.row[prop]}}
       </slot>
     </template>

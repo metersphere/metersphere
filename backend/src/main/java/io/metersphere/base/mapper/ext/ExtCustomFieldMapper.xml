@@ -15,6 +15,21 @@
         <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
     </select>
 
+    <select id="listIds" resultType="java.lang.String">
+        select id
+        from custom_field
+        <include refid="queryWhereCondition"/>
+    </select>
+
+    <select id="listRelate" resultType="io.metersphere.base.domain.CustomField">
+        select
+        <include refid="io.metersphere.base.mapper.CustomFieldMapper.Base_Column_List"/>,
+        <include refid="io.metersphere.base.mapper.CustomFieldMapper.Blob_Column_List"/>
+        from custom_field
+        <include refid="queryWhereCondition"/>
+        <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
+    </select>
+
     <sql id="queryWhereCondition">
         <where>
             <if test="request.name != null">
@@ -22,7 +37,21 @@
             </if>
 
             <if test="request.workspaceId != null">
-                AND custom_field.workspace_id = #{request.workspaceId}
+                and custom_field.workspace_id = #{request.workspaceId}
+            </if>
+
+            <if test="request.ids != null and request.ids.size() > 0">
+                and custom_field.id in
+                <foreach collection="request.ids" item="id" separator="," open="(" close=")">
+                    #{id}
+                </foreach>
+            </if>
+
+             <if test="request.templateContainIds != null and request.templateContainIds.size() > 0">
+                and custom_field.id not in
+                <foreach collection="request.templateContainIds" item="id" separator="," open="(" close=")">
+                    #{id}
+                </foreach>
             </if>
 
             <if test="request.filters != null and request.filters.size() > 0">

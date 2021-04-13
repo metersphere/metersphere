@@ -86,7 +86,7 @@ import MsTableColumn from "@/business/components/common/components/table/Ms-tabl
 import {CUSTOM_FIELD_LIST} from "@/common/js/default-table-header";
 import MsTableOperators from "@/business/components/common/components/MsTableOperators";
 import MsTableButton from "@/business/components/common/components/MsTableButton";
-import CustomFieldEdit from "@/business/components/settings/workspace/CustomFieldEdit";
+import CustomFieldEdit from "@/business/components/settings/workspace/template/CustomFieldEdit";
 import MsTablePagination from "@/business/components/common/pagination/TablePagination";
 import {CUSTOM_FIELD_SCENE_OPTION, CUSTOM_FIELD_TYPE_OPTION} from "@/common/js/table-constants";
 import MsTableHeader from "@/business/components/common/components/MsTableHeader";

@@ -19,23 +19,23 @@ export default {
     },
     {
       path: 'workspace/template/field',
-      component: () => import('@/business/components/settings/workspace/CustomFieldList'),
+      component: () => import('@/business/components/settings/workspace/template/CustomFieldList'),
       meta: {workspaceTemplate: true, title: '自定义字段'},
     },
     {
       path: 'workspace/template/case',
-      component: () => import('@/business/components/settings/workspace/TestCaseTemplateList'),
+      component: () => import('@/business/components/settings/workspace/template/TestCaseTemplateList'),
       meta: {workspaceTemplate: true, title: '用例模板'},
     },
     {
       path: 'workspace/template/issues',
-      component: () => import('@/business/components/settings/workspace/IssuesTemplateList'),
+      component: () => import('@/business/components/settings/workspace/template/IssuesTemplateList'),
       meta: {workspaceTemplate: true, title: '缺陷模板'},
     },
     {
       path: 'workspace/template/report',
       name: 'testCaseReportTemplate',
-      component: () => import('@/business/components/settings/workspace/TestCaseReportTemplate'),
+      component: () => import('@/business/components/settings/workspace/template/TestCaseReportTemplate'),
       meta: {workspaceTemplate: true, title: 'test_track.plan_view.report_template'}
     },
     {

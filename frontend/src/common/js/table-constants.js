@@ -13,6 +13,11 @@ export const CUSTOM_FIELD_TYPE_OPTION = [
 ]
 
 export const CUSTOM_FIELD_SCENE_OPTION = [
-  {value: 'testCase',text: '用例模板'},
-  {value: 'issues',text: '缺陷模板'},
+  {value: 'TEST_CASE',text: '用例模板'},
+  {value: 'ISSUES',text: '缺陷模板'},
 ]
+
+export const CASE_TYPE_OPTION = [
+  {value: 'functional',text: '功能用例'},
+]
+

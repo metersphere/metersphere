@@ -42,7 +42,7 @@
       title: {
         type: String,
         default() {
-          return this.$t('commons.name');
+          return null;
         }
       },
       showCreate: {

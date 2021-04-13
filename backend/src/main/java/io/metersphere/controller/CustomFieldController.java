@@ -34,6 +34,11 @@ public class CustomFieldController {
         return PageUtils.setPageInfo(page, customFieldService.list(request));
     }
 
+    @PostMapping("/list/relate/{goPage}/{pageSize}")
+    public Pager<List<CustomField>> listRelate(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody QueryCustomFieldRequest request) {
+        return customFieldService.listRelate(goPage, pageSize, request);
+    }
+
     @GetMapping("/delete/{id}")
     public void delete(@PathVariable(value = "id") String id) {
         customFieldService.delete(id);
@@ -44,4 +49,13 @@ public class CustomFieldController {
         customFieldService.update(customField);
     }
 
+    @PostMapping("/list/ids")
+    public List<String> list(@RequestBody QueryCustomFieldRequest request) {
+        return customFieldService.listIds(request);
+    }
+
+    @PostMapping("/list")
+    public List<CustomField> getList(@RequestBody QueryCustomFieldRequest request) {
+        return customFieldService.list(request);
+    }
 }
