@@ -65,7 +65,14 @@ export default {
         remark: '',
         options: []
       },
-      rules: {},
+      rules: {
+        name: [
+          {required: true, message: this.$t('test_track.case.input_name'), trigger: 'blur'},
+          {max: 64, message: this.$t('test_track.length_less_than') + '64', trigger: 'blur'}
+        ],
+        scene: [{required: true,  trigger: 'change'}],
+        type: [{required: true,  trigger: 'change'}],
+      },
       visible: false,
       url: ''
     }

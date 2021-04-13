@@ -4,7 +4,7 @@ import java.io.Serializable;
 import lombok.Data;
 
 @Data
-public class TestCaseFieldTemplate implements Serializable {
+public class TestCaseTemplate implements Serializable {
     private String id;
 
     private String name;

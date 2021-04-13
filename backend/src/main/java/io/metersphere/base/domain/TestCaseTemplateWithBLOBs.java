@@ -8,7 +8,7 @@ import lombok.ToString;
 @Data
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
-public class TestCaseFieldTemplateWithBLOBs extends TestCaseFieldTemplate implements Serializable {
+public class TestCaseTemplateWithBLOBs extends TestCaseTemplate implements Serializable {
     private String stepDescription;
 
     private String expectedResult;

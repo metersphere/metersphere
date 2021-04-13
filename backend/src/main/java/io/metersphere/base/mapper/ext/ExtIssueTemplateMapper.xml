@@ -25,14 +25,8 @@
                 <foreach collection="request.filters.entrySet()" index="key" item="values">
                     <if test="values != null and values.size() > 0">
                         <choose>
-                            <when test="key == 'scene'">
-                                AND it.scene IN
-                                <foreach collection="values" item="value" separator="," open="(" close=")">
-                                    #{value}
-                                </foreach>
-                            </when>
-                            <when test="key == 'type'">
-                                AND it.type IN
+                            <when test="key == 'platform'">
+                                AND it.platform IN
                                 <foreach collection="values" item="value" separator="," open="(" close=")">
                                     #{value}
                                 </foreach>

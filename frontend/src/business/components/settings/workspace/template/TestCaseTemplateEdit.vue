@@ -2,6 +2,7 @@
 
   <field-template-edit
     :form="form"
+    :rules="rules"
     :visible.sync="showDialog"
     :url="url"
     @refresh="$emit('refresh')"
@@ -69,7 +70,7 @@ export default {
       showDialog: false,
       form: {
         name: "",
-        type: '',
+        type: 'functional',
         description: '',
         caseName: '',
         prerequisite: '',
@@ -78,10 +79,15 @@ export default {
         actualResult: '',
         customFieldIds: [],
       },
-      rules: {},
+      rules: {
+        name: [
+          {required: true, message: this.$t('test_track.case.input_name'), trigger: 'blur'},
+          {max: 64, message: this.$t('test_track.length_less_than') + '64', trigger: 'blur'}
+        ],
+        type: [{required: true,  trigger: 'change'}],
+      },
       result: {},
       url: '',
-
     }
   },
   computed: {
@@ -105,7 +111,7 @@ export default {
       } else {
         this.form = {
           name: "",
-          type: '',
+          type: 'functional',
           description: '',
           caseName: '',
           prerequisite: '',

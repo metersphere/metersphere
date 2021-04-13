@@ -3,12 +3,17 @@ package io.metersphere.service;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.base.domain.CustomField;
+import io.metersphere.base.domain.CustomFieldExample;
 import io.metersphere.base.mapper.CustomFieldMapper;
 import io.metersphere.base.mapper.ext.ExtCustomFieldMapper;
+import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
+import io.metersphere.commons.utils.ServiceUtils;
 import io.metersphere.controller.request.QueryCustomFieldRequest;
+import io.metersphere.i18n.Translator;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -31,6 +36,7 @@ public class CustomFieldService {
     CustomFieldTemplateService customFieldTemplateService;
 
     public void add(CustomField customField) {
+        checkExist(customField);
         customField.setId(UUID.randomUUID().toString());
         customField.setCreateTime(System.currentTimeMillis());
         customField.setUpdateTime(System.currentTimeMillis());
@@ -38,6 +44,7 @@ public class CustomFieldService {
     }
 
     public List<CustomField> list(QueryCustomFieldRequest request) {
+        request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
         return extCustomFieldMapper.list(request);
     }
 
@@ -57,6 +64,7 @@ public class CustomFieldService {
     }
 
     public void update(CustomField customField) {
+        checkExist(customField);
         customField.setUpdateTime(System.currentTimeMillis());
         customFieldMapper.updateByPrimaryKeySelective(customField);
     }
@@ -64,4 +72,19 @@ public class CustomFieldService {
     public List<String> listIds(QueryCustomFieldRequest request) {
         return extCustomFieldMapper.listIds(request);
     }
+
+    private void checkExist(CustomField customField) {
+        if (customField.getName() != null) {
+            CustomFieldExample example = new CustomFieldExample();
+            CustomFieldExample.Criteria criteria = example.createCriteria();
+            criteria.andNameEqualTo(customField.getName());
+            if (StringUtils.isNotBlank(customField.getId())) {
+                criteria.andIdNotEqualTo(customField.getId());
+            }
+            if (customFieldMapper.selectByExample(example).size() > 0) {
+                MSException.throwException(Translator.get("custom_field_already") + customField.getName());
+            }
+        }
+    }
+
 }

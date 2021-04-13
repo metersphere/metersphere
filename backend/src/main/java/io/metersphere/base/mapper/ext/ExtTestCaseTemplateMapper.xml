@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
-<mapper namespace="io.metersphere.base.mapper.ext.ExtTestCaseFieldTemplateMapper">
+<mapper namespace="io.metersphere.base.mapper.ext.ExtTestCaseTemplateMapper">
 
-    <select id="list" resultType="io.metersphere.base.domain.TestCaseFieldTemplate">
+    <select id="list" resultType="io.metersphere.base.domain.TestCaseTemplate">
         select
-        <include refid="io.metersphere.base.mapper.TestCaseFieldTemplateMapper.Base_Column_List"/>
-        from test_case_field_template tcft
+        <include refid="io.metersphere.base.mapper.TestCaseTemplateMapper.Base_Column_List"/>
+        from test_case_template tcft
         <include refid="queryWhereCondition"/>
         <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
     </select>
@@ -24,12 +24,6 @@
                 <foreach collection="request.filters.entrySet()" index="key" item="values">
                     <if test="values != null and values.size() > 0">
                         <choose>
-                            <when test="key == 'scene'">
-                                AND tcft.scene IN
-                                <foreach collection="values" item="value" separator="," open="(" close=")">
-                                    #{value}
-                                </foreach>
-                            </when>
                             <when test="key == 'type'">
                                 AND tcft.type IN
                                 <foreach collection="values" item="value" separator="," open="(" close=")">

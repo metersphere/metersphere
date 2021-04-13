@@ -3,14 +3,14 @@ package io.metersphere.base.domain;
 import java.util.ArrayList;
 import java.util.List;
 
-public class TestCaseFieldTemplateExample {
+public class TestCaseTemplateExample {
     protected String orderByClause;
 
     protected boolean distinct;
 
     protected List<Criteria> oredCriteria;
 
-    public TestCaseFieldTemplateExample() {
+    public TestCaseTemplateExample() {
         oredCriteria = new ArrayList<Criteria>();
     }
 

@@ -2,14 +2,13 @@ package io.metersphere.controller;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
-import io.metersphere.base.domain.TestCaseFieldTemplate;
-import io.metersphere.base.domain.TestCaseFieldTemplateWithBLOBs;
+import io.metersphere.base.domain.TestCaseTemplate;
 import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.controller.request.BaseQueryRequest;
 import io.metersphere.controller.request.UpdateCaseFieldTemplateRequest;
-import io.metersphere.service.TestCaseFieldTemplateService;
+import io.metersphere.service.TestCaseTemplateService;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
 import org.springframework.web.bind.annotation.*;
@@ -20,30 +19,30 @@ import java.util.List;
 @RequestMapping("field/template/case")
 @RestController
 @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
-public class TestCaseFieldTemplateController {
+public class TestCaseTemplateController {
 
     @Resource
-    private TestCaseFieldTemplateService testCaseFieldTemplateService;
+    private TestCaseTemplateService testCaseTemplateService;
 
     @PostMapping("/add")
     public void add(@RequestBody UpdateCaseFieldTemplateRequest request) {
-        testCaseFieldTemplateService.add(request);
+        testCaseTemplateService.add(request);
     }
 
     @PostMapping("/list/{goPage}/{pageSize}")
-    public Pager<List<TestCaseFieldTemplate>> list(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody BaseQueryRequest request) {
-        Page<List<TestCaseFieldTemplate>> page = PageHelper.startPage(goPage, pageSize, true);
-        return PageUtils.setPageInfo(page, testCaseFieldTemplateService.list(request));
+    public Pager<List<TestCaseTemplate>> list(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody BaseQueryRequest request) {
+        Page<List<TestCaseTemplate>> page = PageHelper.startPage(goPage, pageSize, true);
+        return PageUtils.setPageInfo(page, testCaseTemplateService.list(request));
     }
 
     @GetMapping("/delete/{id}")
     public void delete(@PathVariable(value = "id") String id) {
-        testCaseFieldTemplateService.delete(id);
+        testCaseTemplateService.delete(id);
     }
 
     @PostMapping("/update")
     public void update(@RequestBody UpdateCaseFieldTemplateRequest request) {
-        testCaseFieldTemplateService.update(request);
+        testCaseTemplateService.update(request);
     }
 
 }

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="io.metersphere.base.mapper.TestCaseFieldTemplateMapper">
-  <resultMap id="BaseResultMap" type="io.metersphere.base.domain.TestCaseFieldTemplate">
+<mapper namespace="io.metersphere.base.mapper.TestCaseTemplateMapper">
+  <resultMap id="BaseResultMap" type="io.metersphere.base.domain.TestCaseTemplate">
     <id column="id" jdbcType="VARCHAR" property="id" />
     <result column="name" jdbcType="VARCHAR" property="name" />
     <result column="type" jdbcType="VARCHAR" property="type" />
@@ -12,7 +12,7 @@
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
     <result column="update_time" jdbcType="BIGINT" property="updateTime" />
   </resultMap>
-  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.TestCaseFieldTemplateWithBLOBs">
+  <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.TestCaseTemplateWithBLOBs">
     <result column="step_description" jdbcType="LONGVARCHAR" property="stepDescription" />
     <result column="expected_result" jdbcType="LONGVARCHAR" property="expectedResult" />
     <result column="actual_result" jdbcType="LONGVARCHAR" property="actualResult" />
@@ -82,7 +82,7 @@
   <sql id="Blob_Column_List">
     step_description, expected_result, actual_result
   </sql>
-  <select id="selectByExampleWithBLOBs" parameterType="io.metersphere.base.domain.TestCaseFieldTemplateExample" resultMap="ResultMapWithBLOBs">
+  <select id="selectByExampleWithBLOBs" parameterType="io.metersphere.base.domain.TestCaseTemplateExample" resultMap="ResultMapWithBLOBs">
     select
     <if test="distinct">
       distinct
@@ -90,7 +90,7 @@
     <include refid="Base_Column_List" />
     ,
     <include refid="Blob_Column_List" />
-    from test_case_field_template
+    from test_case_template
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
@@ -98,13 +98,13 @@
       order by ${orderByClause}
     </if>
   </select>
-  <select id="selectByExample" parameterType="io.metersphere.base.domain.TestCaseFieldTemplateExample" resultMap="BaseResultMap">
+  <select id="selectByExample" parameterType="io.metersphere.base.domain.TestCaseTemplateExample" resultMap="BaseResultMap">
     select
     <if test="distinct">
       distinct
     </if>
     <include refid="Base_Column_List" />
-    from test_case_field_template
+    from test_case_template
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
@@ -117,21 +117,21 @@
     <include refid="Base_Column_List" />
     ,
     <include refid="Blob_Column_List" />
-    from test_case_field_template
+    from test_case_template
     where id = #{id,jdbcType=VARCHAR}
   </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.String">
-    delete from test_case_field_template
+    delete from test_case_template
     where id = #{id,jdbcType=VARCHAR}
   </delete>
-  <delete id="deleteByExample" parameterType="io.metersphere.base.domain.TestCaseFieldTemplateExample">
-    delete from test_case_field_template
+  <delete id="deleteByExample" parameterType="io.metersphere.base.domain.TestCaseTemplateExample">
+    delete from test_case_template
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </delete>
-  <insert id="insert" parameterType="io.metersphere.base.domain.TestCaseFieldTemplateWithBLOBs">
-    insert into test_case_field_template (id, `name`, `type`, 
+  <insert id="insert" parameterType="io.metersphere.base.domain.TestCaseTemplateWithBLOBs">
+    insert into test_case_template (id, `name`, `type`, 
       description, case_name, workspace_id, 
       prerequisite, create_time, update_time, 
       step_description, expected_result, 
@@ -142,8 +142,8 @@
       #{stepDescription,jdbcType=LONGVARCHAR}, #{expectedResult,jdbcType=LONGVARCHAR}, 
       #{actualResult,jdbcType=LONGVARCHAR})
   </insert>
-  <insert id="insertSelective" parameterType="io.metersphere.base.domain.TestCaseFieldTemplateWithBLOBs">
-    insert into test_case_field_template
+  <insert id="insertSelective" parameterType="io.metersphere.base.domain.TestCaseTemplateWithBLOBs">
+    insert into test_case_template
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="id != null">
         id,
@@ -221,14 +221,14 @@
       </if>
     </trim>
   </insert>
-  <select id="countByExample" parameterType="io.metersphere.base.domain.TestCaseFieldTemplateExample" resultType="java.lang.Long">
-    select count(*) from test_case_field_template
+  <select id="countByExample" parameterType="io.metersphere.base.domain.TestCaseTemplateExample" resultType="java.lang.Long">
+    select count(*) from test_case_template
     <if test="_parameter != null">
       <include refid="Example_Where_Clause" />
     </if>
   </select>
   <update id="updateByExampleSelective" parameterType="map">
-    update test_case_field_template
+    update test_case_template
     <set>
       <if test="record.id != null">
         id = #{record.id,jdbcType=VARCHAR},
@@ -272,7 +272,7 @@
     </if>
   </update>
   <update id="updateByExampleWithBLOBs" parameterType="map">
-    update test_case_field_template
+    update test_case_template
     set id = #{record.id,jdbcType=VARCHAR},
       `name` = #{record.name,jdbcType=VARCHAR},
       `type` = #{record.type,jdbcType=VARCHAR},
@@ -290,7 +290,7 @@
     </if>
   </update>
   <update id="updateByExample" parameterType="map">
-    update test_case_field_template
+    update test_case_template
     set id = #{record.id,jdbcType=VARCHAR},
       `name` = #{record.name,jdbcType=VARCHAR},
       `type` = #{record.type,jdbcType=VARCHAR},
@@ -304,8 +304,8 @@
       <include refid="Update_By_Example_Where_Clause" />
     </if>
   </update>
-  <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.base.domain.TestCaseFieldTemplateWithBLOBs">
-    update test_case_field_template
+  <update id="updateByPrimaryKeySelective" parameterType="io.metersphere.base.domain.TestCaseTemplateWithBLOBs">
+    update test_case_template
     <set>
       <if test="name != null">
         `name` = #{name,jdbcType=VARCHAR},
@@ -343,8 +343,8 @@
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
-  <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.metersphere.base.domain.TestCaseFieldTemplateWithBLOBs">
-    update test_case_field_template
+  <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.metersphere.base.domain.TestCaseTemplateWithBLOBs">
+    update test_case_template
     set `name` = #{name,jdbcType=VARCHAR},
       `type` = #{type,jdbcType=VARCHAR},
       description = #{description,jdbcType=VARCHAR},
@@ -358,8 +358,8 @@
       actual_result = #{actualResult,jdbcType=LONGVARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
-  <update id="updateByPrimaryKey" parameterType="io.metersphere.base.domain.TestCaseFieldTemplate">
-    update test_case_field_template
+  <update id="updateByPrimaryKey" parameterType="io.metersphere.base.domain.TestCaseTemplate">
+    update test_case_template
     set `name` = #{name,jdbcType=VARCHAR},
       `type` = #{type,jdbcType=VARCHAR},
       description = #{description,jdbcType=VARCHAR},

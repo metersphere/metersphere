@@ -78,7 +78,6 @@ export default {
   },
   data() {
     return {
-      rules: {},
       result: {},
       templateContainIds: [],
       relateFields: []
@@ -93,6 +92,7 @@ export default {
     },
     scene: String,
     url:String,
+    rules: Object,
     form:{
       type: Object,
       default() {

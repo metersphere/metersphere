@@ -4,12 +4,13 @@
     :form="form"
     :visible.sync="showDialog"
     :url="url"
+    :rules="rules"
     @refresh="$emit('refresh')"
     scene="ISSUE"
     ref="fieldTemplateEdit">
 
     <template v-slot:base>
-      <el-form-item :label="'缺陷平台'" prop="type">
+      <el-form-item :label="'缺陷平台'" prop="platform">
         <el-select filterable v-model="form.platform" placeholder="用例类型">
           <el-option
             v-for="item in platformOption"
@@ -61,16 +62,21 @@ export default {
       showDialog: false,
       form: {
         name: "",
-        type: '',
+        platform: 'metersphere',
         description: '',
         title: '',
         content: '',
         customFieldIds: [],
       },
-      rules: {},
+      rules: {
+        name: [
+          {required: true, message: this.$t('test_track.case.input_name'), trigger: 'blur'},
+          {max: 64, message: this.$t('test_track.length_less_than') + '64', trigger: 'blur'}
+        ],
+        platform: [{required: true,  trigger: 'change'}],
+      },
       result: {},
       url: '',
-
     }
   },
   computed: {
@@ -94,7 +100,7 @@ export default {
       } else {
         this.form = {
           name: "",
-          type: '',
+          platform: 'metersphere',
           description: '',
           title: '',
           content: '',

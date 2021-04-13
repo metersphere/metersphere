@@ -14,7 +14,7 @@ CREATE TABLE IF NOT EXISTS `custom_field` (
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4;
 
-CREATE TABLE IF NOT EXISTS `test_case_field_template` (
+CREATE TABLE IF NOT EXISTS `test_case_template` (
     `id`                varchar(50) NOT NULL COMMENT 'Field template ID',
     `name`              varchar(64) NOT NULL COMMENT 'Field template name',
     `type`              varchar(30) NOT NULL COMMENT 'Field template type',
