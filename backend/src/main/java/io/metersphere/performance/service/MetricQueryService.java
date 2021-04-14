@@ -7,17 +7,21 @@ import com.alibaba.fastjson.JSONObject;
 import com.alibaba.nacos.client.utils.StringUtils;
 import io.metersphere.base.domain.LoadTestReportWithBLOBs;
 import io.metersphere.base.domain.LoadTestWithBLOBs;
+import io.metersphere.base.domain.TestResource;
 import io.metersphere.base.mapper.LoadTestMapper;
 import io.metersphere.base.mapper.LoadTestReportMapper;
+import io.metersphere.base.mapper.ext.ExtLoadTestReportMapper;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.DateUtils;
 import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.dto.NodeDTO;
 import io.metersphere.performance.base.ReportTimeInfo;
 import io.metersphere.performance.controller.request.MetricDataRequest;
 import io.metersphere.performance.controller.request.MetricQuery;
 import io.metersphere.performance.controller.request.MetricRequest;
 import io.metersphere.performance.dto.MetricData;
 import io.metersphere.performance.dto.Monitor;
+import io.metersphere.service.TestResourceService;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -43,6 +47,10 @@ public class MetricQueryService {
     private LoadTestMapper loadTestMapper;
     @Resource
     private ReportService reportService;
+    @Resource
+    private ExtLoadTestReportMapper extLoadTestReportMapper;
+    @Resource
+    private TestResourceService testResourceService;
 
 
     public List<MetricData> queryMetricData(MetricRequest metricRequest) {
@@ -140,9 +148,22 @@ public class MetricQueryService {
     }
 
     public List<MetricData> queryMetric(String reportId) {
+        List<String> instances = new ArrayList<>();
         LoadTestReportWithBLOBs report = loadTestReportMapper.selectByPrimaryKey(reportId);
         String testId = report.getTestId();
         LoadTestWithBLOBs loadTestWithBLOBs = loadTestMapper.selectByPrimaryKey(testId);
+        String poolId = loadTestWithBLOBs.getTestResourcePoolId();
+        List<TestResource> resourceList = testResourceService.getTestResourceList(poolId);
+        // 默认监控资源池下的节点
+        if (CollectionUtils.isNotEmpty(resourceList)) {
+            resourceList.forEach(resource -> {
+                NodeDTO dto = JSON.parseObject(resource.getConfiguration(), NodeDTO.class);
+                if (StringUtils.isNotBlank(dto.getIp())) {
+                    int port = dto.getMonitorPort() == null ? 9100 : dto.getMonitorPort();
+                    instances.add(dto.getIp() + ":" + port);
+                }
+            });
+        }
         String advancedConfiguration = loadTestWithBLOBs.getAdvancedConfiguration();
         JSONObject jsonObject = JSON.parseObject(advancedConfiguration);
         JSONArray monitorParams = jsonObject.getJSONArray("monitorParams");
@@ -150,11 +171,18 @@ public class MetricQueryService {
             return new ArrayList<>();
         }
         List<MetricDataRequest> list = new ArrayList<>();
+        // 加入高级设置中的监控配置
         for (int i = 0; i < monitorParams.size(); i++) {
             Monitor monitor = monitorParams.getObject(i, Monitor.class);
             String instance = monitor.getIp() + ":" + monitor.getPort();
-            getRequest(instance, list);
+            if (!instances.contains(instance)) {
+                instances.add(instance);
+            }
         }
+
+        instances.forEach(instance -> {
+            getRequest(instance, list);
+        });
 
         ReportTimeInfo reportTimeInfo = reportService.getReportTimeInfo(reportId);
         MetricRequest metricRequest = new MetricRequest();
@@ -184,5 +212,48 @@ public class MetricQueryService {
             request.setInstance(instance);
             list.add(request);
         });
+    }
+
+    public List<String> queryReportResource(String reportId) {
+        List<String> result = new ArrayList<>();
+        List<String> resourceIdAndIndexes = extLoadTestReportMapper.selectResourceId(reportId);
+        resourceIdAndIndexes.forEach(resourceIdAndIndex -> {
+            String[] split = org.apache.commons.lang3.StringUtils.split(resourceIdAndIndex, "_");
+            String resourceId = split[0];
+            TestResource testResource = testResourceService.getTestResource(resourceId);
+            if (testResource == null) {
+                return;
+            }
+            String configuration = testResource.getConfiguration();
+            if (org.apache.commons.lang3.StringUtils.isBlank(configuration)) {
+                return;
+            }
+            NodeDTO dto = JSON.parseObject(configuration, NodeDTO.class);
+            if (StringUtils.isNotBlank(dto.getIp())) {
+                Integer monitorPort = dto.getMonitorPort();
+                int port = monitorPort == null ? 9100 : monitorPort;
+                result.add(dto.getIp() + ":" + port);
+            }
+        });
+
+        LoadTestReportWithBLOBs report = loadTestReportMapper.selectByPrimaryKey(reportId);
+        String testId = report.getTestId();
+        LoadTestWithBLOBs loadTestWithBLOBs = loadTestMapper.selectByPrimaryKey(testId);
+        String advancedConfiguration = loadTestWithBLOBs.getAdvancedConfiguration();
+        JSONObject jsonObject = JSON.parseObject(advancedConfiguration);
+        JSONArray monitorParams = jsonObject.getJSONArray("monitorParams");
+        if (monitorParams == null) {
+            return result;
+        }
+
+        for (int i = 0; i < monitorParams.size(); i++) {
+            Monitor monitor = monitorParams.getObject(i, Monitor.class);
+            String instance = monitor.getIp() + ":" + monitor.getPort();
+            if (!result.contains(instance)) {
+                result.add(instance);
+            }
+        }
+
+        return result;
     }
 }
