@@ -104,7 +104,7 @@ public class ApiDefinitionService {
     public List<ApiDefinitionResult> list(ApiDefinitionRequest request) {
         request = this.initRequest(request, true, true);
         List<ApiDefinitionResult> resList = extApiDefinitionMapper.list(request);
-        calculateResult(resList);
+        calculateResult(resList, request.getProjectId());
         return resList;
     }
 
@@ -802,21 +802,21 @@ public class ApiDefinitionService {
     public List<ApiDefinitionResult> listRelevance(ApiDefinitionRequest request) {
         request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
         List<ApiDefinitionResult> resList = extApiDefinitionMapper.listRelevance(request);
-        calculateResult(resList);
+        calculateResult(resList, request.getProjectId());
         return resList;
     }
 
     public List<ApiDefinitionResult> listRelevanceReview(ApiDefinitionRequest request) {
         request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
         List<ApiDefinitionResult> resList = extApiDefinitionMapper.listRelevanceReview(request);
-        calculateResult(resList);
+        calculateResult(resList, request.getProjectId());
         return resList;
     }
 
-    public void calculateResult(List<ApiDefinitionResult> resList) {
+    public void calculateResult(List<ApiDefinitionResult> resList, String projectId) {
         if (!resList.isEmpty()) {
             List<String> ids = resList.stream().map(ApiDefinitionResult::getId).collect(Collectors.toList());
-            List<ApiComputeResult> results = extApiDefinitionMapper.selectByIds(ids);
+            List<ApiComputeResult> results = extApiDefinitionMapper.selectByIds(ids, projectId);
             Map<String, ApiComputeResult> resultMap = results.stream().collect(Collectors.toMap(ApiComputeResult::getApiDefinitionId, Function.identity()));
             for (ApiDefinitionResult res : resList) {
                 ApiComputeResult compRes = resultMap.get(res.getId());
