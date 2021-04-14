@@ -100,6 +100,22 @@ public class ApiAutomationService {
     private ApiTestCaseService apiTestCaseService;
     @Resource
     private ApiDefinitionService apiDefinitionService;
+    @Resource
+    private ApiTestEnvironmentMapper apiTestEnvironmentMapper;
+    @Resource
+    private UserMapper userMapper;
+
+    public ApiScenarioWithBLOBs getDto(String id) {
+        return apiScenarioMapper.selectByPrimaryKey(id);
+    }
+
+    public ApiTestEnvironment get(String id) {
+        return apiTestEnvironmentMapper.selectByPrimaryKey(id);
+    }
+
+    public User getUser(String id) {
+        return userMapper.selectByPrimaryKey(id);
+    }
 
     public List<ApiScenarioDTO> list(ApiScenarioRequest request) {
         request = this.initRequest(request, true, true);

@@ -304,7 +304,7 @@ export default {
         '       2.機器人選擇為群機器人，安全驗證選擇“自定義關鍵詞” ："任務通知";\n' +
         '       3.選擇接收人時必須是妳所建的群裏包含的人,接收人手機號為必填項且為釘釘企業所使用的手機號,',
       message: '事件，接收人，接收方式為必填項',
-      message_webhook: '接收方式為釘釘和企業機器人時，webhook為必填項',
+      message_webhook: '接收方式為釘釘和企業機器人，飛書時，webhook為必填項',
       template: "模版"
     },
     integration: {
@@ -459,6 +459,7 @@ export default {
     delete_batch_confirm: '確認批量刪除報告',
   },
   load_test: {
+    completed_test_report: '已完成的測試報告',
     test: '測試',
     name: '測試名稱',
     same_project_test: '只能運行同壹項目內的測試',
