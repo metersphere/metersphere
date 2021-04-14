@@ -71,10 +71,13 @@ export default {
       let option = {
         title: {
           left: 'center',
-          text: 'CPU',
+          text: 'CPU使用率',
           textStyle: {
-            color: '#99743C'
+            color: '#8492a6'
           },
+        },
+        tooltip: {
+          trigger: 'axis'
         },
         xAxis: {
           type: 'category',
@@ -102,10 +105,13 @@ export default {
       let option = {
         title: {
           left: 'center',
-          text: 'Disk',
+          text: '磁盘使用率',
           textStyle: {
-            color: '#99743C'
+            color: '#8492a6'
           },
+        },
+        tooltip: {
+          trigger: 'axis'
         },
         xAxis: {
           type: 'category',
@@ -133,10 +139,13 @@ export default {
       let option = {
         title: {
           left: 'center',
-          text: 'NetIn',
+          text: '入口流量',
           textStyle: {
-            color: '#99743C'
+            color: '#8492a6'
           },
+        },
+        tooltip: {
+          trigger: 'axis'
         },
         xAxis: {
           type: 'category',
@@ -164,10 +173,13 @@ export default {
       let option = {
         title: {
           left: 'center',
-          text: 'NetOut',
+          text: '出口流量',
           textStyle: {
-            color: '#99743C'
+            color: '#8492a6'
           },
+        },
+        tooltip: {
+          trigger: 'axis'
         },
         xAxis: {
           type: 'category',
@@ -195,10 +207,13 @@ export default {
       let option = {
         title: {
           left: 'center',
-          text: 'Memory',
+          text: '内存使用率',
           textStyle: {
-            color: '#99743C'
+            color: '#8492a6'
           },
+        },
+        tooltip: {
+          trigger: 'axis'
         },
         xAxis: {
           type: 'category',
