@@ -81,6 +81,9 @@
             <el-tab-pane :label="$t('report.test_log_details')">
               <ms-report-log-details :report="report"/>
             </el-tab-pane>
+            <el-tab-pane label="监控详情">
+              <monitor-card :report="report"/>
+            </el-tab-pane>
           </el-tabs>
         </div>
 
@@ -117,11 +120,13 @@ import html2canvas from 'html2canvas';
 import MsPerformanceReportExport from "./PerformanceReportExport";
 import {Message} from "element-ui";
 import SameTestReports from "@/business/components/performance/report/components/SameTestReports";
+import MonitorCard from "@/business/components/performance/report/components/MonitorCard";
 
 
 export default {
   name: "PerformanceReportView",
   components: {
+    MonitorCard,
     SameTestReports,
     MsPerformanceReportExport,
     MsReportErrorLog,
