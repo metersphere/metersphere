@@ -1181,7 +1181,7 @@ export default {
       steps: "执行步骤",
       number: "编号",
       prerequisite: "前置条件",
-      step_desc: "步骤描述",
+      step_desc: "用例步骤",
       expected_results: "预期结果",
       input_name: "请输入名称",
       input_module: "请选择模块",

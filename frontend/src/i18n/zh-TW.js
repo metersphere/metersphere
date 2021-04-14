@@ -1179,7 +1179,7 @@ export default {
       steps: "執行步驟",
       number: "編號",
       prerequisite: "前置條件",
-      step_desc: "步驟描述",
+      step_desc: "用例步驟",
       expected_results: "預期結果",
       input_name: "請輸入名稱",
       input_module: "請選擇模塊",
