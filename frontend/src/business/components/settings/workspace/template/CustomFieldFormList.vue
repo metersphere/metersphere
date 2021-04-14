@@ -16,16 +16,11 @@
       :label="'默认值'"
       prop="type">
       <template v-slot="scope">
-        <el-select filterable v-model="scope.row.defaultValue" placeholder="默认值">
-          <el-option
-            v-for="item in scope.row.options ? scope.row.options : []"
-            :key="item.text"
-            :label="item.text"
-            :value="item.text">
-          </el-option>
-        </el-select>
+        <default-value-table-item class="default-value-item" :data="scope.row"/>
       </template>
     </ms-table-column>
+
+    <field-custom-data-table-item :scene="scene"/>
 
     <ms-table-column
       :label="'是否必填'"
@@ -48,9 +43,11 @@
 import MsTableOperatorButton from "@/business/components/common/components/MsTableOperatorButton";
 import MsTable from "@/business/components/common/components/table/MsTable";
 import MsTableColumn from "@/business/components/common/components/table/Ms-table-column";
+import DefaultValueTableItem from "@/business/components/settings/workspace/template/DefaultValueTableItem";
+import FieldCustomDataTableItem from "@/business/components/settings/workspace/template/FieldCustomDataTableItem";
 export default {
   name: "CustomFieldFormList",
-  components: {MsTableColumn, MsTable, MsTableOperatorButton},
+  components: {FieldCustomDataTableItem, DefaultValueTableItem, MsTableColumn, MsTable, MsTableOperatorButton},
   data() {
     return {
       result: {},
@@ -67,8 +64,9 @@ export default {
       type: Array,
       default() {
         return []
-      }
+      },
     },
+    scene: String
   },
   watch: {
     'customFieldIds.length'() {
@@ -100,5 +98,7 @@ export default {
 </script>
 
 <style scoped>
-
+.default-value-item >>> .custom-with {
+  width: 207px;
+}
 </style>

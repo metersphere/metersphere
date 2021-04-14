@@ -12,47 +12,50 @@
 
       <template-component-edit-header :template="form" @cancel="handleClose" @save="handleSave"/>
 
-      <div class="container">
+      <el-main class="container">
+        <el-scrollbar>
+          <ms-form-divider :title="'基础信息'"/>
 
-        <ms-form-divider :title="'基础信息'"/>
+          <el-form :model="form" :rules="rules" label-position="right" label-width="140px" size="small" ref="form">
+            <el-form-item :label="'名称'" prop="name">
+              <el-input v-model="form.name" autocomplete="off"></el-input>
+            </el-form-item>
 
-        <el-form :model="form" :rules="rules" label-position="right" label-width="140px" size="small" ref="form">
-          <el-form-item :label="'名称'" prop="name">
-            <el-input v-model="form.name" autocomplete="off"></el-input>
-          </el-form-item>
+            <slot name="base"></slot>
 
-          <slot name="base"></slot>
+            <el-form-item :label="'描述'" prop="description">
+              <el-input :autosize="{ minRows: 2, maxRows: 4}" type="textarea" v-model="form.description"></el-input>
+            </el-form-item>
 
-          <el-form-item :label="'描述'" prop="description">
-            <el-input :autosize="{ minRows: 2, maxRows: 4}" type="textarea" v-model="form.description"></el-input>
-          </el-form-item>
+            <ms-form-divider :title="'模板设置'"/>
 
-          <ms-form-divider :title="'模板设置'"/>
+            <slot></slot>
 
-          <slot></slot>
+            <el-form-item :label="'已选字段'">
+              <el-button type="primary" @click="relateField">添加字段</el-button>
+              <el-button type="primary" plain>设置自定义字段</el-button>
+            </el-form-item>
 
-          <el-form-item :label="'已选字段'">
-            <el-button type="primary" @click="relateField">添加字段</el-button>
-            <el-button type="primary" plain>设置自定义字段</el-button>
-          </el-form-item>
+            <el-form-item>
+              <custom-field-form-list
+                :table-data="relateFields"
+                :scene="scene"
+                :custom-field-ids="form.customFieldIds"
+                ref="customFieldFormList"
+              />
+            </el-form-item>
 
-          <el-form-item>
-            <custom-field-form-list
-              :table-data="relateFields"
-              :custom-field-ids="form.customFieldIds"
-              ref="customFieldFormList"
-            />
-          </el-form-item>
+          </el-form>
 
-        </el-form>
+          <custom-field-relate-list
+            :template-id="form.id"
+            :template-contain-ids="templateContainIds"
+            @save="handleRelate"
+            :scene="scene"
+            ref="customFieldRelateList"/>
 
-        <custom-field-relate-list
-          :template-id="form.id"
-          :template-contain-ids="templateContainIds"
-          @save="handleRelate"
-          :scene="scene"
-          ref="customFieldRelateList"/>
-      </div>
+        </el-scrollbar>
+      </el-main>
     </template>
   </el-drawer>
 </template>
@@ -124,7 +127,13 @@ export default {
           Object.assign(param, this.form);
           param.workspaceId = getCurrentWorkspaceId();
           param.options = JSON.stringify(this.form.options);
-          param.customFields = this.relateFields;
+          let customFields = this.relateFields;
+          if (customFields) {
+            customFields.forEach(item => {
+              item.defaultValue = JSON.stringify(item.defaultValue);
+            })
+          }
+          param.customFields = customFields;
           this.result = this.$post(this.url, param, () => {
             this.handleClose();
             this.$success(this.$t('commons.save_success'));
@@ -147,6 +156,9 @@ export default {
               if (item.options) {
                 item.options = JSON.parse(item.options);
               }
+              if (item.defaultValue) {
+                item.defaultValue = JSON.parse(item.defaultValue);
+              }
             });
         });
       }
@@ -157,4 +169,7 @@ export default {
 
 <style scoped>
 
+.container {
+  height: calc(100vh - 62px);
+}
 </style>

@@ -37,7 +37,7 @@
         </el-select>
       </el-form-item>
 
-      <el-form-item v-if="form.type === 'multipleSelect'"
+      <el-form-item v-if="showOptions"
                     :label="'选项值'"
                     prop="options">
         <ms-single-handle-drag :data="form.options"/>
@@ -83,6 +83,12 @@ export default {
     },
     sceneOptions() {
       return CUSTOM_FIELD_SCENE_OPTION;
+    },
+    showOptions() {
+      if (['select', 'multipleSelect', 'radio', 'checkbox'].indexOf(this.form.type) > -1) {
+        return true;
+      }
+      return false;
     }
   },
   methods: {
