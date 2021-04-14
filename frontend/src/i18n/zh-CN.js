@@ -304,7 +304,7 @@ export default {
         '       2.机器人选择为群机器人，安全验证选择“自定义关键词” ："任务通知";\n' +
         '       3.选择接收人时必须是你所建的群里包含的人,接收人手机号为必填项且为钉钉企业所使用的手机号,',
       message: '事件，接收人，接收方式为必填项',
-      message_webhook: '接收方式为钉钉和企业机器人时，webhook为必填项',
+      message_webhook: '接收方式为钉钉和企业机器人,飞书时，webhook为必填项',
       template: "模版"
     },
     integration: {
@@ -459,6 +459,7 @@ export default {
     delete_batch_confirm: '确认批量删除报告',
   },
   load_test: {
+    completed_test_report: '已完成测试报告',
     test: '测试',
     name: '测试名称',
     same_project_test: '只能运行同一项目内的测试',

@@ -306,7 +306,7 @@ export default {
         '3. When selecting the receiver, it must be the person included in the group you created. The mobile phone number of the receiver is required and it is the mobile phone number used by the nailing enterprise,',
       message: 'Event, receiver and receiving method are required\n' +
         '\n',
-      message_webhook: 'Webhook is required when the receiving mode is nail or enterprise robot',
+      message_webhook: 'Webhook is required when the receiving mode is nail or enterprise robot or lark',
       template: "Template"
     },
     integration: {
@@ -461,6 +461,7 @@ export default {
     delete_batch_confirm: 'Confirm batch delete report',
   },
   load_test: {
+    completed_test_report: 'Completed test report',
     test: 'Test',
     name: 'Test Name',
     same_project_test: 'Only tests within the same project can be run',
