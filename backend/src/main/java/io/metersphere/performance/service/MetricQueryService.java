@@ -69,13 +69,14 @@ public class MetricQueryService {
 
         return metricDataList;
     }
-    
+
 
     private List<MetricData> queryPrometheusMetric(String promQL, String seriesName, long startTime, long endTime, int step, String instance) {
         DecimalFormat df = new DecimalFormat("#.###");
         String start = df.format(startTime / 1000.0);
         String end = df.format(endTime / 1000.0);
         JSONObject response = restTemplate.getForObject(prometheusHost + "/api/v1/query_range?query={promQL}&start={start}&end={end}&step={step}", JSONObject.class, promQL, start, end, step);
+        LogUtil.info(prometheusHost + "/api/v1/query_range?query={" + promQL + "}&start={" + start + "}&end{" + end + "}&step={" + step + "}");
         return handleResult(seriesName, response, instance);
     }
 
@@ -90,8 +91,7 @@ public class MetricQueryService {
 
             if (result.size() > 1) {
                 result.forEach(rObject -> {
-                    JSONObject resultObject = new JSONObject((Map)rObject);
-//                    JSONObject resultObject = JSONObject.parseObject(rObject.toString());
+                    JSONObject resultObject = new JSONObject((Map) rObject);
                     JSONObject metrics = resultObject.getJSONObject("metric");
 
                     if (metrics != null && metrics.size() > 0) {
@@ -108,7 +108,7 @@ public class MetricQueryService {
                 List<String> timestamps = new ArrayList<>();
                 List<Double> values = new ArrayList<>();
 
-                JSONObject resultObject = new JSONObject((Map)rObject);
+                JSONObject resultObject = new JSONObject((Map) rObject);
                 JSONObject metrics = resultObject.getJSONObject("metric");
                 JSONArray jsonArray = resultObject.getJSONArray("values");
                 jsonArray.forEach(value -> {
@@ -117,6 +117,7 @@ public class MetricQueryService {
                     try {
                         timestamps.add(DateUtils.getTimeString((long) (timestamp * 1000)));
                     } catch (Exception e) {
+                        LogUtil.error(e.getMessage(), e);
                         e.printStackTrace();
                     }
                     values.add(ja.getDouble(1));
@@ -165,7 +166,7 @@ public class MetricQueryService {
             metricRequest.setStartTime(startTime.getTime());
             metricRequest.setEndTime(endTime.getTime());
         } catch (Exception e) {
-            LogUtil.error(e, e.getMessage());
+            LogUtil.error(e.getMessage(), e);
             e.printStackTrace();
         }
 
