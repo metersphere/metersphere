@@ -1,6 +1,6 @@
 package io.metersphere.api.jmeter;
 
-import com.alibaba.fastjson.JSON;
+
 import com.alibaba.fastjson.JSONObject;
 import io.metersphere.api.dto.automation.ApiTestReportVariable;
 import io.metersphere.api.dto.scenario.request.RequestType;
