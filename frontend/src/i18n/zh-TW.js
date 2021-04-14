@@ -1146,6 +1146,10 @@ export default {
     date: "日期"
   },
   test_track: {
+    related_requirements: '關聯需求',
+    please_related_requirements: '請選擇要關聯的需求',
+    please_select_the_test_to_associate: "請選擇要關聯的測試",
+    person_responsible: "責任人",
     test_track: "測試跟蹤",
     confirm: "確 定",
     cancel: "取 消",

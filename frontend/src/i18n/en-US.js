@@ -1144,6 +1144,10 @@ export default {
     date: "Date"
   },
   test_track: {
+    related_requirements: 'Related requirements',
+    please_related_requirements: 'Please select the requirements to associate',
+    please_select_the_test_to_associate: "Please select the test to associate",
+    person_responsible: "Person Responsible",
     test_track: "Track",
     confirm: "Confirm",
     cancel: "Cancel",

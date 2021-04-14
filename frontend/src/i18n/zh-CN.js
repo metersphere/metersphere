@@ -1148,6 +1148,10 @@ export default {
     date: "日期"
   },
   test_track: {
+    related_requirements: '关联需求',
+    please_related_requirements: '请选择要关联的需求',
+    please_select_the_test_to_associate: "请选择需要关联的测试",
+    person_responsible: "责任人",
     test_track: "测试跟踪",
     planning_execution: "规划&执行",
     confirm: "确 定",
