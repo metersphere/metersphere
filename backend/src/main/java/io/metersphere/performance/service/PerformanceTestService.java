@@ -1,7 +1,5 @@
 package io.metersphere.performance.service;
 
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.ExtLoadTestMapper;
@@ -19,13 +17,10 @@ import io.metersphere.controller.request.QueryScheduleRequest;
 import io.metersphere.controller.request.ScheduleRequest;
 import io.metersphere.dto.DashboardTestDTO;
 import io.metersphere.dto.LoadTestDTO;
-import io.metersphere.dto.NodeDTO;
 import io.metersphere.dto.ScheduleDao;
 import io.metersphere.i18n.Translator;
 import io.metersphere.job.sechedule.PerformanceTestJob;
-import io.metersphere.performance.base.MonitorStatus;
 import io.metersphere.performance.dto.LoadTestExportJmx;
-import io.metersphere.performance.dto.Monitor;
 import io.metersphere.performance.engine.Engine;
 import io.metersphere.performance.engine.EngineFactory;
 import io.metersphere.performance.engine.producer.LoadTestProducer;
@@ -49,7 +44,6 @@ import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 @Service
@@ -87,8 +81,6 @@ public class PerformanceTestService {
     private TestResourcePoolMapper testResourcePoolMapper;
     @Resource
     private LoadTestProducer loadTestProducer;
-    @Resource
-    private TestResourceMapper testResourceMapper;
 
     public List<LoadTestDTO> list(QueryTestPlanRequest request) {
         request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
@@ -212,36 +204,6 @@ public class PerformanceTestService {
         }
 
         final LoadTestWithBLOBs loadTest = new LoadTestWithBLOBs();
-
-        String poolId = request.getTestResourcePoolId();
-        TestResourceExample testResourceExample = new TestResourceExample();
-        testResourceExample.createCriteria().andTestResourcePoolIdEqualTo(poolId);
-        List<TestResource> testResources = testResourceMapper.selectByExampleWithBLOBs(testResourceExample);
-        String advancedConfiguration = request.getAdvancedConfiguration();
-        JSONObject jsonObject = JSON.parseObject(advancedConfiguration);
-        List<Monitor> list = new ArrayList<>();
-
-        if (!CollectionUtils.isEmpty(testResources)) {
-            AtomicInteger index = new AtomicInteger(1);
-            testResources.forEach(testResource -> {
-                String configuration = testResource.getConfiguration();
-                NodeDTO nodeDTO = JSON.parseObject(configuration, NodeDTO.class);
-                Monitor monitor = new Monitor();
-                monitor.setName("名称" + index.getAndIncrement());
-                monitor.setDescription("默认生成");
-                monitor.setIp(nodeDTO.getIp());
-                monitor.setPort(9100);
-                monitor.setMonitorStatus(MonitorStatus.NORMAL.name());
-                list.add(monitor);
-            });
-        }
-
-        if (!CollectionUtils.isEmpty(list)) {
-            jsonObject.put("monitorParams", list);
-        }
-
-        advancedConfiguration = JSON.toJSONString(jsonObject);
-
         loadTest.setUserId(SessionUtils.getUser().getId());
         loadTest.setId(UUID.randomUUID().toString());
         loadTest.setName(request.getName());
@@ -250,7 +212,7 @@ public class PerformanceTestService {
         loadTest.setUpdateTime(System.currentTimeMillis());
         loadTest.setTestResourcePoolId(request.getTestResourcePoolId());
         loadTest.setLoadConfiguration(request.getLoadConfiguration());
-        loadTest.setAdvancedConfiguration(advancedConfiguration);
+        loadTest.setAdvancedConfiguration(request.getAdvancedConfiguration());
         loadTest.setStatus(PerformanceTestStatus.Saved.name());
         loadTest.setNum(getNextNum(request.getProjectId()));
         loadTestMapper.insert(loadTest);
