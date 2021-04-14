@@ -1,7 +1,7 @@
 <template>
   <div v-loading="result.loading">
     <el-tabs type="border-card" :stretch="true">
-      <el-tab-pane v-for="item in instances" :key="item" :label="item" class="logging-content">
+      <el-tab-pane v-for="(item,index) in instances" :key="index" :label="item" class="logging-content">
         <el-row>
           <el-col :span="10" :offset="2">
             <ms-chart ref="chart1" :options="getCpuOption(item)" :autoresize="true"></ms-chart>
@@ -38,8 +38,6 @@ export default {
   components: {MsChart},
   data() {
     return {
-      resource: [],
-      logContent: [],
       result: {},
       id: '',
       loading: false,
@@ -47,15 +45,19 @@ export default {
       data: []
     }
   },
+  created() {
+    this.data = [];
+    this.instances = [];
+  },
   methods: {
     getResource() {
+      this.result = this.$get("/metric/query/resource/" + this.report.id, data => {
+        this.instances = data.data;
+      })
+
       this.$get("/metric/query/" + this.report.id, result => {
         if (result) {
-          let data = result.data;
-          this.data = data;
-          let set = new Set()
-          data.map(d => set.add(d.instance));
-          this.instances = Array.from(set);
+          this.data = result.data;
         }
       });
     },
@@ -241,7 +243,7 @@ export default {
         if (status === "Completed" || status === "Running") {
           this.getResource();
         } else {
-          this.resource = [];
+          this.instances = [];
         }
       },
       deep: true
