@@ -163,11 +163,11 @@
           prop="name"
           label="名称">
         </el-table-column>
-        <el-table-column
-          align="center"
-          prop="environmentName"
-          label="所属环境">
-        </el-table-column>
+<!--        <el-table-column-->
+<!--          align="center"-->
+<!--          prop="environmentName"-->
+<!--          label="所属环境">-->
+<!--        </el-table-column>-->
 <!--        <el-table-column-->
 <!--          align="center"-->
 <!--          prop="authStatus"-->
@@ -242,7 +242,6 @@ export default {
     if (this.testId) {
       this.getAdvancedConfig();
     }
-    this.getEnv();
   },
   computed: {
     envName(id) {
@@ -371,14 +370,6 @@ export default {
     },
     refreshStatus() {
 
-    },
-    getEnv() {
-      let projectId = this.$store.state.projectId;
-      this.result = this.$get('/api/environment/list/' + projectId, response => {
-        if (response) {
-          this.environments = response.data;
-        }
-      });
     },
   }
 }

@@ -18,4 +18,9 @@ public class MetricQueryController {
     public List<MetricData> queryMetric(@PathVariable("id") String reportId) {
         return metricService.queryMetric(reportId);
     }
+
+    @GetMapping("/query/resource/{id}")
+    public List<String> queryReportResource(@PathVariable("id") String reportId) {
+        return metricService.queryReportResource(reportId);
+    }
 }

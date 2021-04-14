@@ -12,16 +12,6 @@
       <el-form-item :label="$t('commons.name')" prop="name">
         <el-input v-model="form.name" autocomplete="off"/>
       </el-form-item>
-      <el-form-item label="所属环境">
-        <el-select v-model="form.environmentId" placeholder="选择所属环境" @change="change">
-          <el-option
-            v-for="item in environments"
-            :key="item.id"
-            :label="item.name"
-            :value="item.id">
-          </el-option>
-        </el-select>
-      </el-form-item>
       <h4 style="margin-left: 80px;">监控配置</h4>
       <el-row>
         <el-col :span="12">
@@ -74,12 +64,6 @@ export default {
       dialogVisible: false,
       rule: {},
       index: '',
-      monitorList: [
-        {
-          indicator: '',
-          expression: '',
-        }
-      ]
     }
   },
   methods: {
@@ -112,8 +96,6 @@ export default {
     create() {
       this.$refs.monitorForm.validate(valid => {
         if (valid) {
-          this.form.loadTestId = this.testId;
-          this.form.authStatus = CONFIG_TYPE.NOT;
           this.form.monitorStatus = CONFIG_TYPE.NOT;
           this.list.push(this.form);
           this.$emit("update:list", this.list);
@@ -123,10 +105,6 @@ export default {
       })
       this.dialogVisible = false;
     },
-    change(data) {
-      let env = this.environments.find(env => env.id === data);
-      this.form.environmentName = env ? env.name : "";
-    }
   }
 }
 </script>
