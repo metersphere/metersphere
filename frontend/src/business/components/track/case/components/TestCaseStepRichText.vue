@@ -35,7 +35,7 @@
         },
         // shiftEnterMode: window.CKEditor.ENTER_P
         // startupMode: 'source'
-      }
+      };
     },
     props: {
       imagePath: {
