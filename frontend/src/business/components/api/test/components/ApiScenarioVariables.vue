@@ -80,7 +80,7 @@
       },
       isDisable: function (index) {
         return this.items.length - 1 === index;
-      }
+      },
     },
 
     created() {
