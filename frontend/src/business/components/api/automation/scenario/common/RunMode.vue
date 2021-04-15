@@ -19,7 +19,7 @@
         <el-radio label="setReport">{{ $t("run_mode.set_report") }}</el-radio>
       </el-radio-group>
     </div>
-    <div class="ms-mode-div" v-if="runConfig.reportType === 'setReport'">
+    <div class="ms-mode-div" v-if="runConfig.reportType === 'setReport' && runConfig.mode==='serial'">
       <span class="ms-mode-span">{{ $t("run_mode.report_name") }}：</span>
       <el-input
         v-model="runConfig.reportName"
