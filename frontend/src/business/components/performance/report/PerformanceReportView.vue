@@ -159,7 +159,7 @@ export default {
       dialogFormVisible: false,
       reportExportVisible: false,
       testPlan: {testResourcePoolId: null},
-      refreshTime: '20',
+      refreshTime: localStorage.getItem("reportRefreshTime") || "20",
       refreshTimes: [
         {value: '1', label: '1s'},
         {value: '3', label: '3s'},
@@ -273,6 +273,7 @@ export default {
       });
     },
     onOpen() {
+      this.refresh();
       // window.console.log("socket opening.");
     },
     onError(e) {
@@ -375,8 +376,11 @@ export default {
     },
     refresh() {
       if (this.status === 'Running') {
-        this.websocket.send(this.refreshTime);
+        if (this.websocket && this.websocket.readyState === 1) {
+          this.websocket.send(this.refreshTime);
+        }
       }
+      localStorage.setItem("reportRefreshTime", this.refreshTime);
     }
   },
   created() {
@@ -397,8 +401,6 @@ export default {
         this.reportId = to.path.split('/')[4];
         this.getReport(this.reportId);
         this.initBreadcrumb((response) => {
-          let data = response.data;
-          this.checkReportStatus(data.status);
           this.initReportTimeInfo();
         });
         this.initWebSocket();
