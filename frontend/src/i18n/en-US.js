@@ -991,7 +991,7 @@ export default {
       unit_of_measurement: "",
       unit_of_count: "",
       unit_of_times: "times",
-      formula:{
+      formula: {
         completion: "finished api / all api * 100%",
         coverage: "apis whitch have test case / all apis * 100%",
         pass: "scenarios whitch final execute is sucess / all scenarios * 100%",
@@ -1677,6 +1677,9 @@ export default {
     delete_prompt: 'This operation will delete the authentication source, do you want to continue? ',
     title: 'Auth Source',
     auth_name_valid: 'Name does not support special characters',
+  },
+  module: {
+    title: 'Module Management'
   },
   table: {
     header_display_field: 'Header display field',
