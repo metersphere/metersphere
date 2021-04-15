@@ -1676,6 +1676,9 @@ export default {
     title: '認證設置',
     auth_name_valid: '名稱不支持特殊字符',
   },
+  module: {
+    title: '模塊管理'
+  },
   table: {
     header_display_field: '表頭顯示欄位',
     fields_to_be_selected: '待選欄位',
