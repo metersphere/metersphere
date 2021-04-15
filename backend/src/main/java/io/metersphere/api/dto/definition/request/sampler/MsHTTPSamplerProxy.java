@@ -11,10 +11,7 @@ import io.metersphere.api.dto.scenario.HttpConfig;
 import io.metersphere.api.dto.scenario.HttpConfigCondition;
 import io.metersphere.api.dto.scenario.KeyValue;
 import io.metersphere.api.service.ApiDefinitionService;
-import io.metersphere.api.service.ApiModuleService;
-import io.metersphere.api.service.ApiTestEnvironmentService;
 import io.metersphere.base.domain.ApiDefinition;
-import io.metersphere.base.domain.ApiTestEnvironmentWithBLOBs;
 import io.metersphere.commons.constants.ConditionType;
 import io.metersphere.commons.constants.MsTestElementConstants;
 import io.metersphere.commons.exception.MSException;
@@ -193,7 +190,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                     sampler.setDomain(httpConfig.getDomain());
                     //1.9 增加对Mock环境的判断
                     if (this.isMockEnvironment()) {
-                        url = url = httpConfig.getProtocol() + "://" + httpConfig.getSocket(); + "/mock/" + this.getId();
+                        url = httpConfig.getProtocol() + "://" + httpConfig.getSocket() + "/mock/" + this.getId();
                     } else {
                         url = httpConfig.getProtocol() + "://" + httpConfig.getSocket();
                     }
