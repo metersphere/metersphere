@@ -55,7 +55,6 @@ export default {
   props: {
     testId: String,
     list: Array,
-    environments: Array
   },
   data() {
     return {
@@ -64,7 +63,7 @@ export default {
       dialogVisible: false,
       rule: {},
       index: '',
-    }
+    };
   },
   methods: {
     open(data, index) {
@@ -90,7 +89,7 @@ export default {
         } else {
           return false;
         }
-      })
+      });
       this.dialogVisible = false;
     },
     create() {
