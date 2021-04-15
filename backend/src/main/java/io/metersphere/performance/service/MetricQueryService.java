@@ -24,6 +24,7 @@ import io.metersphere.performance.dto.MetricData;
 import io.metersphere.performance.dto.Monitor;
 import io.metersphere.service.TestResourceService;
 import org.apache.commons.collections.CollectionUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
@@ -37,8 +38,8 @@ import java.util.*;
 @Transactional(rollbackFor = Exception.class)
 public class MetricQueryService {
 
-
-    private String prometheusHost = "http://192.168.1.8:9090";
+    @Value("${prometheus.host:http://127.0.0.1:9090}")
+    private String prometheusHost;
 
     @Resource
     private RestTemplate restTemplate;
@@ -81,12 +82,19 @@ public class MetricQueryService {
 
 
     private List<MetricData> queryPrometheusMetric(String promQL, String seriesName, long startTime, long endTime, int step, String instance) {
+        List<MetricData> metricData = new ArrayList<>();
         DecimalFormat df = new DecimalFormat("#.###");
         String start = df.format(startTime / 1000.0);
         String end = df.format(endTime / 1000.0);
-        JSONObject response = restTemplate.getForObject(prometheusHost + "/api/v1/query_range?query={promQL}&start={start}&end={end}&step={step}", JSONObject.class, promQL, start, end, step);
-        LogUtil.info(prometheusHost + "/api/v1/query_range?query={" + promQL + "}&start={" + start + "}&end{" + end + "}&step={" + step + "}");
-        return handleResult(seriesName, response, instance);
+        try {
+            JSONObject response = restTemplate.getForObject(prometheusHost + "/api/v1/query_range?query={promQL}&start={start}&end={end}&step={step}", JSONObject.class, promQL, start, end, step);
+            LogUtil.info(prometheusHost + "/api/v1/query_range?query={" + promQL + "}&start={" + start + "}&end{" + end + "}&step={" + step + "}");
+            metricData = handleResult(seriesName, response, instance);
+        } catch (Exception e) {
+            LogUtil.error("query prometheus metric fail.");
+            LogUtil.error(e.getMessage(), e);
+        }
+        return metricData;
     }
 
     private List<MetricData> handleResult(String seriesName, JSONObject response, String instance) {
