@@ -128,29 +128,29 @@
               label: nodeArray[i],
               value: item,
             };
-            if (i != nodeArray.length) {
+            if (i !== nodeArray.length) {
               node.children = [];
             }
-            if (children.length == 0) {
+            if (children.length === 0) {
               children.push(node);
             }
             let isExist = false;
             for (let j in children) {
-              if (children[j].label == node.label) {
-                if (i != nodeArray.length - 1 && !children[j].children) {
+              if (children[j].label === node.label) {
+                if (i !== nodeArray.length - 1 && !children[j].children) {
                   children[j].children = [];
                 }
-                children = (i == nodeArray.length - 1 ? children : children[j].children);
+                children = (i === nodeArray.length - 1 ? children : children[j].children);
                 isExist = true;
                 break;
               }
             }
             if (!isExist) {
               children.push(node);
-              if (i != nodeArray.length - 1 && !children[children.length - 1].children) {
+              if (i !== nodeArray.length - 1 && !children[children.length - 1].children) {
                 children[children.length - 1].children = [];
               }
-              children = (i == nodeArray.length - 1 ? children : children[children.length - 1].children);
+              children = (i === nodeArray.length - 1 ? children : children[children.length - 1].children);
             }
           }
         })
@@ -158,7 +158,7 @@
       recursiveSorting(arr) {
         for (let i in arr) {
           arr[i].index = Number(i) + 1;
-          if (arr[i].children != undefined && arr[i].children.length > 0) {
+          if (arr[i].children !== undefined && arr[i].children.length > 0) {
             this.recursiveSorting(arr[i].children);
           }
         }
@@ -167,7 +167,7 @@
         for (let i in scenarioDefinition) {
           // 排序
           scenarioDefinition[i].index = Number(i) + 1;
-          if (scenarioDefinition[i].children != undefined && scenarioDefinition[i].children.length > 0) {
+          if (scenarioDefinition[i].children !== undefined && scenarioDefinition[i].children.length > 0) {
             this.recursiveSorting(scenarioDefinition[i].children);
           }
         }
@@ -218,7 +218,7 @@
                   if (!request.success) {
                     let failRequest = Object.assign({}, request);
                     failScenario.requestResults.push(failRequest);
-                    array.push(request)
+                    array.push(request);
                   }
                 })
               }

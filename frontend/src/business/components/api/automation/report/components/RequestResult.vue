@@ -99,7 +99,7 @@
         this.isActive = !this.isActive;
       },
       getName(name) {
-        if (name && name.indexOf("^@~@^") != -1) {
+        if (name && name.indexOf("^@~@^") !== -1) {
           let arr = name.split("^@~@^");
           return arr[arr.length - 1];
         }
