@@ -196,7 +196,7 @@
       </el-table>
     </el-col>
 
-    <edit-monitor ref="monitorDialog" :testId="testId" :list.sync="monitorParams" :environments="environments"/>
+    <edit-monitor ref="monitorDialog" :testId="testId" :list.sync="monitorParams"/>
   </div>
 </template>
 
@@ -215,7 +215,6 @@ export default {
       domains: [],
       params: [],
       monitorParams: [],
-      environments: [],
       statusCodeStr: '',
       granularity: undefined,
       granularityData: [
@@ -241,12 +240,6 @@ export default {
   mounted() {
     if (this.testId) {
       this.getAdvancedConfig();
-    }
-  },
-  computed: {
-    envName(id) {
-      console.log(this.environments.find(env => env.id === id))
-      return this.environments.find(env => env.id === id).name || "";
     }
   },
   watch: {

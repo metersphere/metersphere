@@ -41,7 +41,7 @@ export default {
       loading: false,
       instances: [],
       data: []
-    }
+    };
   },
   created() {
     this.data = [];
@@ -51,7 +51,7 @@ export default {
     getResource() {
       this.result = this.$get("/metric/query/resource/" + this.report.id, data => {
         this.instances = data.data;
-      })
+      });
 
       this.$get("/metric/query/" + this.report.id, result => {
         if (result) {
