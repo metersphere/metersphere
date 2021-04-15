@@ -391,9 +391,6 @@
     <select id="getNextNum" resultType="io.metersphere.base.domain.ApiTestCase">
         SELECT * FROM api_test_case WHERE api_test_case.api_definition_id = #{definitionId} ORDER BY num DESC LIMIT 1;
     </select>
-    <select id="listPorjectAllCaseName" resultType="java.lang.String">
-        select name from api_test_case where project_id = #{projectId}
-    </select>
     <select id="selectEffectiveTestCaseByProjectId" resultType="io.metersphere.base.domain.ApiTestCase">
         select id,api_definition_id from api_test_case where project_id = #{projectId}
     </select>
