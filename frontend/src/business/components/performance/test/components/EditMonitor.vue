@@ -20,7 +20,7 @@
           </el-form-item>
         </el-col>
         <el-col :span="12">
-          <el-form-item label="Port">
+          <el-form-item label="Port" prop="port">
             <el-input-number v-model="form.port" :min="1" :max="65535"/>
           </el-form-item>
         </el-col>
@@ -61,7 +61,11 @@ export default {
       result: {},
       form: {},
       dialogVisible: false,
-      rule: {},
+      rule: {
+        name: {required: true, message: "名称必填", trigger: 'blur'},
+        ip: {required: true, message: "ip必填", trigger: 'blur'},
+        port: {required: true, message: "port必填", trigger: 'blur'},
+      },
       index: '',
     };
   },
@@ -86,23 +90,23 @@ export default {
         if (valid) {
           this.list.splice(this.index, 1, this.form);
           this.$emit("update:list", this.list);
+          this.dialogVisible = false;
         } else {
           return false;
         }
       });
-      this.dialogVisible = false;
     },
     create() {
       this.$refs.monitorForm.validate(valid => {
         if (valid) {
-          this.form.monitorStatus = CONFIG_TYPE.NOT;
+          // this.form.monitorStatus = CONFIG_TYPE.NOT;
           this.list.push(this.form);
           this.$emit("update:list", this.list);
+          this.dialogVisible = false;
         } else {
           return false;
         }
       });
-      this.dialogVisible = false;
     },
   }
 };

@@ -173,10 +173,19 @@
 <!--          prop="authStatus"-->
 <!--          label="认证状态">-->
 <!--        </el-table-column>-->
-        <el-table-column
+<!--        <el-table-column-->
+<!--          align="center"-->
+<!--          prop="monitorStatus"-->
+<!--          label="监控状态">-->
+          <el-table-column
           align="center"
-          prop="monitorStatus"
-          label="监控状态">
+          prop="ip"
+          label="IP">
+          </el-table-column>
+          <el-table-column
+          align="center"
+          prop="port"
+          label="Port">
         </el-table-column>
         <el-table-column
           align="center"
