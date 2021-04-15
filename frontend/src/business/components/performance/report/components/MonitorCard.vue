@@ -3,24 +3,22 @@
     <el-tabs type="border-card" :stretch="true">
       <el-tab-pane v-for="(item,index) in instances" :key="index" :label="item" class="logging-content">
         <el-row>
-          <el-col :span="10" :offset="2">
+          <el-col :span="8">
             <ms-chart ref="chart1" :options="getCpuOption(item)" :autoresize="true"></ms-chart>
           </el-col>
-          <el-col :span="10" :offset="2">
+          <el-col :span="8">
             <ms-chart ref="chart2" :options="getMemoryOption(item)" :autoresize="true"></ms-chart>
           </el-col>
-        </el-row>
-        <el-row>
-          <el-col :span="10" :offset="2">
+          <el-col :span="8">
             <ms-chart ref="chart3" :options="getDiskOption(item)" :autoresize="true"></ms-chart>
           </el-col>
-          <el-col :span="10" :offset="2">
-            <ms-chart ref="chart4" :options="getNetInOption(item)" :autoresize="true"></ms-chart>
-          </el-col>
         </el-row>
         <el-row>
-          <el-col :span="10" :offset="2">
+          <el-col :span="8">
             <ms-chart ref="chart3" :options="getNetOutOption(item)" :autoresize="true"></ms-chart>
+          </el-col>
+          <el-col :span="8">
+            <ms-chart ref="chart4" :options="getNetInOption(item)" :autoresize="true"></ms-chart>
           </el-col>
         </el-row>
       </el-tab-pane>
@@ -86,6 +84,7 @@ export default {
           data: xAxis
         },
         yAxis: {
+          name: '使用率(%)',
           type: 'value'
         },
         series: [{
@@ -120,6 +119,7 @@ export default {
           data: xAxis
         },
         yAxis: {
+          name: '使用率(%)',
           type: 'value'
         },
         series: [{
@@ -154,7 +154,8 @@ export default {
           data: xAxis
         },
         yAxis: {
-          type: 'value'
+          type: 'value',
+          name: '流量(MB/s)'
         },
         series: [{
           data: yAxis,
@@ -188,7 +189,8 @@ export default {
           data: xAxis
         },
         yAxis: {
-          type: 'value'
+          type: 'value',
+          name: '流量(MB/s)'
         },
         series: [{
           data: yAxis,
@@ -222,7 +224,8 @@ export default {
           data: xAxis
         },
         yAxis: {
-          type: 'value'
+          type: 'value',
+          name: '使用率(%)',
         },
         series: [{
           data: yAxis,
