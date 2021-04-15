@@ -15,6 +15,7 @@ import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.DateUtils;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.dto.NodeDTO;
+import io.metersphere.performance.base.GranularityData;
 import io.metersphere.performance.base.ReportTimeInfo;
 import io.metersphere.performance.controller.request.MetricDataRequest;
 import io.metersphere.performance.controller.request.MetricQuery;
@@ -57,13 +58,13 @@ public class MetricQueryService {
         List<MetricData> metricDataList = new ArrayList<>();
         long endTime = metricRequest.getEndTime();
         long startTime = metricRequest.getStartTime();
-        int step = metricRequest.getStep();
         long reliableEndTime;
         if (endTime > System.currentTimeMillis()) {
             reliableEndTime = System.currentTimeMillis();
         } else {
             reliableEndTime = endTime;
         }
+        int step = getGranularity(startTime, reliableEndTime);
 
         Optional.ofNullable(metricRequest.getMetricDataQueries()).ifPresent(metricDataQueries -> metricDataQueries.forEach(query -> {
             String promQL = query.getPromQL();
@@ -255,5 +256,22 @@ public class MetricQueryService {
         }
 
         return result;
+    }
+
+    private Integer getGranularity(long start, long end) {
+        Integer granularity = 15;
+        try {
+            int duration = (int) (end - start) / 1000;
+            Optional<GranularityData.Data> dataOptional = GranularityData.dataList.stream()
+                    .filter(data -> duration >= data.getStart() && duration <= data.getEnd())
+                    .findFirst();
+            if (dataOptional.isPresent()) {
+                GranularityData.Data data = dataOptional.get();
+                granularity = data.getGranularity();
+            }
+        } catch (Exception e) {
+            LogUtil.error(e.getMessage() ,e);
+        }
+        return granularity;
     }
 }
