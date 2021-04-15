@@ -73,7 +73,7 @@ export const API_STATUS = [
 ]
 export const TEST = [
     {id: 'performance', name: '性能测试'},
-    {id: 'testcase', name: '测试用例'},
+    {id: 'testcase', name: '接口用例'},
     {id: 'automation', name: '场景测试'}
   ]
 
