@@ -134,10 +134,10 @@
             </div>
             <!-- 场景步骤内容 -->
             <div>
-              <el-button class="ms-open-btn ms-open-btn-left" size="mini" v-prevent-re-click @click="openExpansion">
+              <el-button class="el-icon-files ms-open-btn ms-open-btn-left" size="mini" v-prevent-re-click @click="openExpansion">
                 {{$t('api_test.automation.open_expansion')}}
               </el-button>
-              <el-button class="ms-open-btn" size="mini" @click="closeExpansion">
+              <el-button class=" el-icon-notebook-1 ms-open-btn" size="mini" @click="closeExpansion">
                 {{$t('api_test.automation.close_expansion')}}
               </el-button>
               <el-tree node-key="resourceId" :props="props" :data="scenarioDefinition" class="ms-tree"
@@ -212,7 +212,8 @@
       <ms-drawer :visible="drawer" :size="100" @close="close" direction="right" :show-full-screen="false" :is-show-close="false" style="overflow: hidden">
         <template v-slot:header>
           <scenario-header :currentScenario="currentScenario" :projectEnvMap="projectEnvMap" :projectIds.sync="projectIds" :projectList="projectList" :scenarioDefinition="scenarioDefinition" :enableCookieShare="enableCookieShare"
-                           :isFullUrl.sync="isFullUrl" @closePage="close" @unFullScreen="unFullScreen" @showAllBtn="showAllBtn" @runDebug="runDebug" @setProjectEnvMap="setProjectEnvMap" @showScenarioParameters="showScenarioParameters" @setCookieShare="setCookieShare" ref="maximizeHeader"/>
+                           :isFullUrl.sync="isFullUrl" @closePage="close" @unFullScreen="unFullScreen" @showAllBtn="showAllBtn" @runDebug="runDebug" @setProjectEnvMap="setProjectEnvMap" @showScenarioParameters="showScenarioParameters" @setCookieShare="setCookieShare"
+                           ref="maximizeHeader"/>
         </template>
 
         <maximize-scenario :scenario-definition="scenarioDefinition" :envMap="projectEnvMap" :moduleOptions="moduleOptions"
@@ -1359,6 +1360,9 @@
 
   .ms-open-btn {
     margin: 5px 5px 0px;
+    font-size: 10px;
+    background-color: #F2F9EE;
+    color: #67C23A;
   }
 
   .ms-open-btn-left {

@@ -5,10 +5,10 @@
       <ms-aside-container style="padding-top: 0px">
         <!-- 场景步骤内容 -->
         <div v-loading="loading">
-          <el-button class="ms-open-btn ms-open-btn-left" size="mini" @click="openExpansion">
+          <el-button class="el-icon-files ms-open-btn ms-open-btn-left" size="mini" @click="openExpansion">
             {{$t('api_test.automation.open_expansion')}}
           </el-button>
-          <el-button class="ms-open-btn" size="mini" @click="closeExpansion">
+          <el-button class="el-icon-notebook-1 ms-open-btn" size="mini" @click="closeExpansion">
             {{$t('api_test.automation.close_expansion')}}
           </el-button>
           <el-tree node-key="resourceId"
@@ -1159,6 +1159,9 @@
 
   .ms-open-btn {
     margin: 5px 5px 0px;
+    font-size: 10px;
+    background-color: #F2F9EE;
+    color: #67C23A;
   }
 
   .ms-open-btn-left {
