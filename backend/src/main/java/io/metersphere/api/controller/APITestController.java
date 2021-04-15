@@ -18,10 +18,7 @@ import io.metersphere.api.service.*;
 import io.metersphere.base.domain.*;
 import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.commons.constants.ScheduleGroup;
-import io.metersphere.commons.utils.CronUtils;
-import io.metersphere.commons.utils.PageUtils;
-import io.metersphere.commons.utils.Pager;
-import io.metersphere.commons.utils.SessionUtils;
+import io.metersphere.commons.utils.*;
 import io.metersphere.controller.request.QueryScheduleRequest;
 import io.metersphere.controller.request.ScheduleRequest;
 import io.metersphere.dto.ScheduleDao;
@@ -398,6 +395,7 @@ public class APITestController {
 
     @PostMapping(value = "/genPerformanceTestXml", consumes = {"multipart/form-data"})
     public JmxInfoDTO genPerformanceTest(@RequestPart("request") RunDefinitionRequest runRequest, @RequestPart(value = "files") List<MultipartFile> bodyFiles) throws Exception {
+
         ParameterConfig config = new ParameterConfig();
         config.setProjectId(runRequest.getProjectId());
 

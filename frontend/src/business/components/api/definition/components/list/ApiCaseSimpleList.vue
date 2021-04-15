@@ -23,6 +23,7 @@
         <ms-table-header-select-popover v-show="total>0"
                                         :page-size="pageSize>total?total:pageSize"
                                         :total="total"
+                                        :select-data-counts="selectDataCounts"
                                         @selectPageAll="isSelectDataAll(false)"
                                         @selectAll="isSelectDataAll(true)"/>
 

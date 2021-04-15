@@ -1210,7 +1210,7 @@
 
   /deep/ .el-tree-node__content {
     height: 100%;
-    margin-top: 8px;
+    margin-top: 3px;
     vertical-align: center;
   }
 

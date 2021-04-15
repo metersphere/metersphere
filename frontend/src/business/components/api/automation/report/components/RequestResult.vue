@@ -1,55 +1,58 @@
 <template>
-  <div class="request-result">
-    <p class="el-divider--horizontal"></p>
-    <div @click="active">
-      <el-row :gutter="10" type="flex" align="middle" class="info">
-        <el-col :span="14" v-if="indexNumber!=undefined">
-          <div class="method">
-            <div class="el-step__icon is-text ms-api-col" v-if="indexNumber%2 ==0">
-              <div class="el-step__icon-inner"> {{ indexNumber+1 }}</div>
+  <el-card class="ms-cards">
+    <div class="request-result">
+      <div @click="active">
+        <el-row :gutter="10" type="flex" align="middle" class="info">
+          <el-col :span="10" v-if="indexNumber!=undefined">
+            <div class="method">
+              <div class="el-step__icon is-text ms-api-col-create">
+                <div class="el-step__icon-inner"> {{ indexNumber }}</div>
+              </div>
+              <i class="icon el-icon-arrow-right" :class="{'is-active': isActive}" @click="active" @click.stop/>
+              {{ getName(request.name) }}
             </div>
-            <div class="el-step__icon is-text ms-api-col-create" v-else>
-              <div class="el-step__icon-inner"> {{ indexNumber+1 }}</div>
-            </div>
-            {{ request.name }}
-          </div>
-        </el-col>
-
-        <el-col :span="5">
-          <el-tooltip effect="dark" :content="request.responseResult.responseCode" placement="bottom" :open-delay="800">
-            <div style="color: #5daf34" v-if="request.success">{{ request.responseResult.responseCode }}</div>
-            <div style="color: #FE6F71" v-else>{{ request.responseResult.responseCode }}</div>
-          </el-tooltip>
-        </el-col>
-        <el-col :span="3">
+          </el-col>
+          <el-col :span="9">
+            <el-tooltip effect="dark" :content="request.responseResult.responseCode" placement="bottom" :open-delay="800">
+              <div style="color: #5daf34" v-if="request.success">
+                {{ request.responseResult.responseCode }}
+              </div>
+              <div style="color: #FE6F71" v-else>
+                {{ request.responseResult.responseCode }}
+              </div>
+            </el-tooltip>
+          </el-col>
+          <el-col :span="3">
           <span v-if="request.success">
             {{request.responseResult.responseTime}} ms
           </span>
-          <span style="color: #FE6F71" v-else>
+            <span style="color: #FE6F71" v-else>
             {{request.responseResult.responseTime}} ms
           </span>
-        </el-col>
-
-        <el-col :span="2">
-          <div>
-            <el-tag size="mini" type="success" v-if="request.success">
-              {{ $t('api_report.success') }}
-            </el-tag>
-            <el-tag size="mini" type="danger" v-else>
-              {{ $t('api_report.fail') }}
-            </el-tag>
-          </div>
-        </el-col>
-      </el-row>
-    </div>
-
-    <el-collapse-transition>
-      <div v-show="isActive" style="width: 99%">
-        <ms-request-result-tail v-if="isActive" :request-type="requestType" :request="request"
-                                :scenario-name="scenarioName"/>
+          </el-col>
+          <el-col :span="2">
+            <div>
+              <el-tag size="mini" type="success" v-if="request.success">
+                {{ $t('api_report.success') }}
+              </el-tag>
+              <el-tag size="mini" type="danger" v-else>
+                {{ $t('api_report.fail') }}
+              </el-tag>
+            </div>
+          </el-col>
+        </el-row>
       </div>
-    </el-collapse-transition>
-  </div>
+
+      <el-collapse-transition>
+        <div v-show="isActive" style="width: 99%">
+          <ms-request-result-tail :scenario-name="scenarioName"
+                                  :request-type="requestType"
+                                  :request="request"
+                                  v-if="isActive"/>
+        </div>
+      </el-collapse-transition>
+    </div>
+  </el-card>
 </template>
 
 <script>
@@ -61,19 +64,46 @@
 
   export default {
     name: "MsRequestResult",
-    components: {MsResponseText, MsRequestText, MsAssertionResults, MsRequestMetric, MsRequestResultTail},
+    components: {
+      MsResponseText,
+      MsRequestText,
+      MsAssertionResults,
+      MsRequestMetric,
+      MsRequestResultTail
+    },
     props: {
       request: Object,
       scenarioName: String,
       indexNumber: Number,
     },
     data() {
-      return {isActive: false, requestType: undefined,}
+      return {
+        isActive: false,
+        requestType: "",
+        color: {
+          type: String,
+          default() {
+            return "#B8741A";
+          }
+        },
+        backgroundColor: {
+          type: String,
+          default() {
+            return "#F9F1EA";
+          }
+        },
+      }
     },
     methods: {
       active() {
         this.isActive = !this.isActive;
-        //this.$emit("requestResult", {request: this.request, scenarioName: this.scenarioName});
+      },
+      getName(name) {
+        if (name && name.indexOf("^@~@^") !== -1) {
+          let arr = name.split("^@~@^");
+          return arr[arr.length - 1];
+        }
+        return name;
       }
     },
   }
@@ -81,8 +111,7 @@
 
 <style scoped>
   .request-result {
-    width: 100%;
-    min-height: 40px;
+    min-height: 30px;
     padding: 2px 0;
   }
 
@@ -95,7 +124,7 @@
     color: #1E90FF;
     font-size: 14px;
     font-weight: 500;
-    line-height: 40px;
+    line-height: 35px;
     padding-left: 5px;
   }
 
@@ -128,6 +157,10 @@
     padding-left: 20px;
   }
 
+  .ms-cards >>> .el-card__body {
+    padding: 1px;
+  }
+
   .sub-result:last-child {
     border-bottom: 1px solid #EBEEF5;
   }
@@ -148,10 +181,20 @@
     color: #008080;
   }
 
+  /deep/ .el-step__icon {
+    width: 20px;
+    height: 20px;
+    font-size: 12px;
+  }
+
   .el-divider--horizontal {
     margin: 2px 0;
     background: 0 0;
     border-top: 1px solid #e8eaec;
+  }
+
+  .icon.is-active {
+    transform: rotate(90deg);
   }
 
 </style>

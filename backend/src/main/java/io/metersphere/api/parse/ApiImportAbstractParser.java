@@ -198,20 +198,14 @@ public abstract class ApiImportAbstractParser<T> implements ApiImportParser<T> {
     }
 
     protected ApiScenarioWithBLOBs parseScenario(MsScenario msScenario) {
-//        ApiScenarioModule module = ApiScenarioImportUtil.buildModule(ApiScenarioImportUtil.getSelectModule(request.getModuleId()), msScenario.getName(), this.projectId);
         ApiScenarioWithBLOBs scenarioWithBLOBs = new ApiScenarioWithBLOBs();
         scenarioWithBLOBs.setName(msScenario.getName());
         scenarioWithBLOBs.setProjectId(this.projectId);
         if (msScenario != null && CollectionUtils.isNotEmpty(msScenario.getHashTree())) {
             scenarioWithBLOBs.setStepTotal(msScenario.getHashTree().size());
         }
-//        if (module != null) {
-//            scenarioWithBLOBs.setApiScenarioModuleId(module.getId());
-//            scenarioWithBLOBs.setModulePath("/" + module.getName());
-//        }
         scenarioWithBLOBs.setId(UUID.randomUUID().toString());
         scenarioWithBLOBs.setScenarioDefinition(JSON.toJSONString(msScenario));
         return scenarioWithBLOBs;
-//        scenarioWithBLOBsList.add(scenarioWithBLOBs);
     }
 }

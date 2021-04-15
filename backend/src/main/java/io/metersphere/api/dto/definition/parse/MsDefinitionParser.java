@@ -19,11 +19,22 @@ import java.util.*;
 
 public class MsDefinitionParser extends MsAbstractParser<ApiDefinitionImport> {
 
+    private ApiModule selectModule;
+
+    private String selectModulePath;
+
     @Override
     public ApiDefinitionImport parse(InputStream source, ApiTestImportRequest request) {
         String testStr = getApiTestStr(source);
         JSONObject testObject = JSONObject.parseObject(testStr, Feature.OrderedField);
         this.projectId = request.getProjectId();
+        if (StringUtils.isNotBlank(request.getModuleId())) {
+            this.selectModule = ApiDefinitionImportUtil.getSelectModule(request.getModuleId());
+            if (this.selectModule != null) {
+                this.selectModulePath = ApiDefinitionImportUtil.getSelectModulePath(this.selectModule.getName(), this.selectModule.getParentId());
+            }
+        }
+
         if (testObject.get("projectName") != null || testObject.get("projectId") != null ) {//  metersphere 格式导入
             return parseMsFormat(testStr, request);
         } else {    //  chrome 插件录制格式导入
@@ -40,7 +51,7 @@ public class MsDefinitionParser extends MsAbstractParser<ApiDefinitionImport> {
         testObject.keySet().forEach(tag -> {
             String moduleId = null;
             if (isCreateModule) {
-                moduleId = ApiDefinitionImportUtil.buildModule(ApiDefinitionImportUtil.getSelectModule(importRequest.getModuleId()), tag, this.projectId).getId();
+                moduleId = ApiDefinitionImportUtil.buildModule(this.selectModule, tag, this.projectId).getId();
             }
             List<MsHTTPSamplerProxy> msHTTPSamplerProxies = parseMsHTTPSamplerProxy(testObject, tag);
             for (MsHTTPSamplerProxy msHTTPSamplerProxy : msHTTPSamplerProxies) {
@@ -113,13 +124,19 @@ public class MsDefinitionParser extends MsAbstractParser<ApiDefinitionImport> {
             modulePath = modulePath.substring(0, modulePath.length() - 1);
         }
         List<String> modules = Arrays.asList(modulePath.split("/"));
-        ApiModule parent = ApiDefinitionImportUtil.getSelectModule(importRequest.getModuleId());
+        ApiModule parent = this.selectModule;
         Iterator<String> iterator = modules.iterator();
         while (iterator.hasNext()) {
             String item = iterator.next();
             parent = ApiDefinitionImportUtil.buildModule(parent, item, this.projectId);
             if (!iterator.hasNext()) {
                 apiDefinition.setModuleId(parent.getId());
+                String path = apiDefinition.getModulePath() == null ? "" : apiDefinition.getModulePath();
+                if (StringUtils.isNotBlank(this.selectModulePath)) {
+                    apiDefinition.setModulePath(this.selectModulePath + path);
+                } else if (StringUtils.isBlank(importRequest.getModuleId())){
+                    apiDefinition.setModulePath("/默认模块" + path);
+                }
             }
         }
     }

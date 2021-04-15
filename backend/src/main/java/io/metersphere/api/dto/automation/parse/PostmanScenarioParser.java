@@ -46,11 +46,18 @@ public class PostmanScenarioParser extends PostmanAbstractParserParser<ScenarioI
     }
 
     private void parseScenarioWithBLOBs(List<ApiScenarioWithBLOBs> scenarioWithBLOBsList, MsScenario msScenario, ApiTestImportRequest request) {
-        ApiScenarioModule module = ApiScenarioImportUtil.buildModule(ApiScenarioImportUtil.getSelectModule(request.getModuleId()), msScenario.getName(), this.projectId);
+        ApiScenarioModule selectModule = ApiScenarioImportUtil.getSelectModule(request.getModuleId());
+
+        ApiScenarioModule module = ApiScenarioImportUtil.buildModule(selectModule, msScenario.getName(), this.projectId);
         ApiScenarioWithBLOBs scenarioWithBLOBs = parseScenario(msScenario);
         if (module != null) {
             scenarioWithBLOBs.setApiScenarioModuleId(module.getId());
-            scenarioWithBLOBs.setModulePath("/" + module.getName());
+            if (selectModule != null) {
+                String selectModulePath = ApiScenarioImportUtil.getSelectModulePath(selectModule.getName(), selectModule.getParentId());
+                scenarioWithBLOBs.setModulePath(selectModulePath + "/" + module.getName());
+            } else {
+                scenarioWithBLOBs.setModulePath("/" + module.getName());
+            }
         }
         scenarioWithBLOBsList.add(scenarioWithBLOBs);
     }
