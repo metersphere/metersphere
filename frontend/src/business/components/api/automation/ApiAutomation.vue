@@ -180,6 +180,9 @@
         }
       },
       addTab(tab) {
+        if(tab.name==='default'){
+          this.$refs.apiScenarioList.search();
+        }
         if (!this.projectId) {
           this.$warning(this.$t('commons.check_project_tip'));
           return;

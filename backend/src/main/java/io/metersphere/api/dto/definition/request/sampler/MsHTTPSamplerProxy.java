@@ -2,6 +2,9 @@ package io.metersphere.api.dto.definition.request.sampler;
 
 import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.annotation.JSONType;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.metersphere.api.dto.definition.request.MsTestElement;
 import io.metersphere.api.dto.definition.request.ParameterConfig;
 import io.metersphere.api.dto.definition.request.auth.MsAuthManager;
@@ -11,10 +14,10 @@ import io.metersphere.api.dto.scenario.HttpConfig;
 import io.metersphere.api.dto.scenario.HttpConfigCondition;
 import io.metersphere.api.dto.scenario.KeyValue;
 import io.metersphere.api.service.ApiDefinitionService;
-import io.metersphere.api.service.ApiModuleService;
-import io.metersphere.api.service.ApiTestEnvironmentService;
+import io.metersphere.api.service.ApiTestCaseService;
 import io.metersphere.base.domain.ApiDefinition;
-import io.metersphere.base.domain.ApiTestEnvironmentWithBLOBs;
+import io.metersphere.base.domain.ApiDefinitionWithBLOBs;
+import io.metersphere.base.domain.ApiTestCaseWithBLOBs;
 import io.metersphere.commons.constants.ConditionType;
 import io.metersphere.commons.constants.MsTestElementConstants;
 import io.metersphere.commons.exception.MSException;
@@ -102,6 +105,35 @@ public class MsHTTPSamplerProxy extends MsTestElement {
     @JSONField(ordinal = 36)
     private MsAuthManager authManager;
 
+    public void setRefElement() {
+        try {
+            ApiDefinitionService apiDefinitionService = CommonBeanFactory.getBean(ApiDefinitionService.class);
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+            if (StringUtils.equals(this.getRefType(), "CASE")) {
+                ApiTestCaseService apiTestCaseService = CommonBeanFactory.getBean(ApiTestCaseService.class);
+                ApiTestCaseWithBLOBs bloBs = apiTestCaseService.get(this.getId());
+                if (bloBs != null) {
+                    this.setProjectId(bloBs.getProjectId());
+                    MsHTTPSamplerProxy proxy = mapper.readValue(bloBs.getRequest(), new TypeReference<MsHTTPSamplerProxy>() {
+                    });
+                    this.setHashTree(proxy.getHashTree());
+                }
+            } else {
+                ApiDefinitionWithBLOBs apiDefinition = apiDefinitionService.getBLOBs(this.getId());
+                if (apiDefinition != null) {
+                    this.setProjectId(apiDefinition.getProjectId());
+                    MsHTTPSamplerProxy proxy = mapper.readValue(apiDefinition.getRequest(), new TypeReference<MsHTTPSamplerProxy>() {
+                    });
+                    this.setHashTree(proxy.getHashTree());
+                }
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            LogUtil.error(ex.getMessage());
+        }
+    }
+
     @Override
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, ParameterConfig config) {
         // 非导出操作，且不是启用状态则跳过执行
@@ -109,7 +141,8 @@ public class MsHTTPSamplerProxy extends MsTestElement {
             return;
         }
         if (this.getReferenced() != null && MsTestElementConstants.REF.name().equals(this.getReferenced())) {
-            this.getRefElement(this);
+            this.setRefElement();
+            hashTree = this.getHashTree();
         }
         HTTPSamplerProxy sampler = new HTTPSamplerProxy();
         sampler.setEnabled(this.isEnable());

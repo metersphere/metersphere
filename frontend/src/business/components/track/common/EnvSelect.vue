@@ -3,7 +3,7 @@
     <div v-for="pe in data" :key="pe.id" style="margin-left: 20px;">
       <el-select v-model="pe['selectEnv']" placeholder="请选择环境" style="margin-top: 8px;width: 200px;" size="small">
         <el-option v-for="(environment, index) in pe.envs" :key="index"
-                   :label="environment.name + (environment.config.httpConfig.socket ? (': ' + environment.config.httpConfig.protocol + '://' + environment.config.httpConfig.socket) : '')"
+                   :label="environment.name"
                    :value="environment.id"/>
         <el-button class="ms-scenario-button" size="mini" type="primary" @click="openEnvironmentConfig(pe.id)">
           {{ $t('api_test.environment.environment_config') }}

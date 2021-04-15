@@ -27,8 +27,10 @@ import io.metersphere.api.dto.definition.request.variable.ScenarioVariable;
 import io.metersphere.api.dto.scenario.KeyValue;
 import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
 import io.metersphere.api.service.ApiDefinitionService;
+import io.metersphere.api.service.ApiTestCaseService;
 import io.metersphere.api.service.ApiTestEnvironmentService;
 import io.metersphere.base.domain.ApiDefinitionWithBLOBs;
+import io.metersphere.base.domain.ApiTestCaseWithBLOBs;
 import io.metersphere.base.domain.ApiTestEnvironmentWithBLOBs;
 import io.metersphere.commons.constants.LoopConstants;
 import io.metersphere.commons.constants.MsTestElementConstants;
@@ -158,12 +160,23 @@ public abstract class MsTestElement {
             ApiDefinitionService apiDefinitionService = CommonBeanFactory.getBean(ApiDefinitionService.class);
             ObjectMapper mapper = new ObjectMapper();
             mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-            ApiDefinitionWithBLOBs apiDefinition = apiDefinitionService.getBLOBs(element.getId());
-            if (apiDefinition != null) {
-                element.setProjectId(apiDefinition.getProjectId());
-                element = mapper.readValue(apiDefinition.getRequest(), new TypeReference<MsTestElement>() {
-                });
-                hashTree.add(element);
+            if (StringUtils.equals(element.getRefType(), "CASE")) {
+                ApiTestCaseService apiTestCaseService = CommonBeanFactory.getBean(ApiTestCaseService.class);
+                ApiTestCaseWithBLOBs bloBs = apiTestCaseService.get(element.getId());
+                if (bloBs != null) {
+                    element.setProjectId(bloBs.getProjectId());
+                    element = mapper.readValue(bloBs.getRequest(), new TypeReference<MsTestElement>() {
+                    });
+                    hashTree.add(element);
+                }
+            } else {
+                ApiDefinitionWithBLOBs apiDefinition = apiDefinitionService.getBLOBs(element.getId());
+                if (apiDefinition != null) {
+                    element.setProjectId(apiDefinition.getProjectId());
+                    element = mapper.readValue(apiDefinition.getRequest(), new TypeReference<MsTestElement>() {
+                    });
+                    hashTree.add(element);
+                }
             }
         } catch (Exception ex) {
             ex.printStackTrace();
