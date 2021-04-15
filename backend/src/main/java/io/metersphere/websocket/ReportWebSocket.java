@@ -65,7 +65,7 @@ public class ReportWebSocket {
         }
         refreshTimes.put(session, refreshTime);
         try {
-            session.getBasicRemote().sendText("refresh-" + 0);
+            session.getBasicRemote().sendText("refresh-" + Math.random());
         } catch (IOException e) {
             LogUtil.error(e.getMessage(), e);
         }
