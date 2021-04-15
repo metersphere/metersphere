@@ -12,8 +12,6 @@ import java.util.List;
 
 public interface ExtApiTestCaseMapper {
 
-    List<String> listPorjectAllCaseName(@Param("projectId") String projectId);
-
     List<ApiTestCaseResult> list(@Param("request") ApiTestCaseRequest request);
 
     List<ApiTestCaseDTO> listSimple(@Param("request") ApiTestCaseRequest request);

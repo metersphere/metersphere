@@ -9,6 +9,7 @@
       :tags="tags"
       :height="height"
       :distinct-tags="distinctTags"
+      @afterMount="$emit('afterMount')"
       @save="save"
     />
   </div>
@@ -17,6 +18,7 @@
 <script>
 
 import MsFullScreenButton from "@/business/components/common/components/MsFullScreenButton";
+import {listenNodeSelected} from "@/business/components/track/common/minder/minderUtils";
 export default {
   name: "MsModuleMinder",
   components: {MsFullScreenButton},
@@ -39,6 +41,12 @@ export default {
         return []
       }
     },
+    tagEnable: {
+      type: Boolean,
+      default() {
+        return false;
+      }
+    },
     distinctTags: {
       type: Array,
       default() {
@@ -56,7 +64,10 @@ export default {
           data: {
             text: this.$t('test_track.review_view.all_case'),
             disable: true,
-            id: 'root',
+            id: "root",
+            type: 'node',
+            path: "",
+            tagEnable: this.tagEnable
           },
           children: []
         },
@@ -115,8 +126,13 @@ export default {
             text: item.name,
             id: item.id,
             disable: true,
+            type: 'node',
+            path: root.data.path + "/" + item.name,
             expandState:"collapse"
           },
+        }
+        if (this.tagEnable) {
+          node.data.tagEnable = this.tagEnable;
         }
         root.children.push(node);
         this.parse(node, item.children);
@@ -126,6 +142,9 @@ export default {
       this.isActive = false;
       this.$nextTick(() => {
         this.isActive = true;
+      })
+      this.$nextTick(() => {
+        listenNodeSelected();
       })
     },
     setJsonImport(data) {
@@ -147,6 +166,8 @@ export default {
             text: nodeData.name,
             id: nodeData.id,
             disable: true,
+            tagEnable: this.tagEnable,
+            type: 'node'
           },
           children: []
         },

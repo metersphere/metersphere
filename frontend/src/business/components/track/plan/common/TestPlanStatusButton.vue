@@ -15,6 +15,11 @@
                  :icon="status == 'Completed' ? 'el-icon-check' : ''"
                  @click="setStatus('Completed')"> {{$t('test_track.plan.plan_status_completed')}}</el-button>
     </el-col>
+    <el-col>
+      <el-button type="warning" round size="mini"
+                 :icon="status == 'Finished' ? 'el-icon-check' : ''"
+                 @click="setStatus('Finished')"> {{$t('test_track.plan.plan_status_finished')}}</el-button>
+    </el-col>
   </el-row>
 </template>
 
