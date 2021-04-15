@@ -74,7 +74,8 @@
             </ms-tab-button>
             <!-- 添加/编辑测试窗口-->
             <div v-if="item.type=== 'ADD'" class="ms-api-div">
-              <ms-api-config :syncTabs="syncTabs" @runTest="runTest" @saveApi="saveApi" @createRootModel="createRootModel" ref="apiConfig"
+              <ms-api-config :syncTabs="syncTabs" @runTest="runTest" @saveApi="saveApi" @mockConfig="mockConfig"
+                             @createRootModel="createRootModel" ref="apiConfig"
                              :current-api="item.api"
                              :project-id="projectId"
                              :currentProtocol="currentProtocol"
@@ -94,14 +95,21 @@
 
             <!-- 测试-->
             <div v-else-if="item.type=== 'TEST'" class="ms-api-div">
-              <ms-run-test-http-page :syncTabs="syncTabs" :currentProtocol="currentProtocol" :api-data="item.api" :project-id="projectId"
+              <ms-run-test-http-page :syncTabs="syncTabs" :currentProtocol="currentProtocol" :api-data="item.api"
+                                     :project-id="projectId"
                                      @saveAsApi="editApi" @refresh="refresh" v-if="currentProtocol==='HTTP'"/>
-              <ms-run-test-tcp-page :syncTabs="syncTabs" :currentProtocol="currentProtocol" :api-data="item.api" :project-id="projectId"
+              <ms-run-test-tcp-page :syncTabs="syncTabs" :currentProtocol="currentProtocol" :api-data="item.api"
+                                    :project-id="projectId"
                                     @saveAsApi="editApi" @refresh="refresh" v-if="currentProtocol==='TCP'"/>
-              <ms-run-test-sql-page :syncTabs="syncTabs" :currentProtocol="currentProtocol" :api-data="item.api" :project-id="projectId"
+              <ms-run-test-sql-page :syncTabs="syncTabs" :currentProtocol="currentProtocol" :api-data="item.api"
+                                    :project-id="projectId"
                                     @saveAsApi="editApi" @refresh="refresh" v-if="currentProtocol==='SQL'"/>
-              <ms-run-test-dubbo-page :syncTabs="syncTabs" :currentProtocol="currentProtocol" :api-data="item.api" :project-id="projectId"
+              <ms-run-test-dubbo-page :syncTabs="syncTabs" :currentProtocol="currentProtocol" :api-data="item.api"
+                                      :project-id="projectId"
                                       @saveAsApi="editApi" @refresh="refresh" v-if="currentProtocol==='DUBBO'"/>
+            </div>
+            <div v-else-if="item.type=== 'MOCK'" class="ms-api-div">
+              <mock-config :base-mock-config-data="item.mock"></mock-config>
             </div>
           </el-tab-pane>
 
@@ -151,6 +159,7 @@
   import {getLabel} from "@/common/js/tableUtils";
   import {API_CASE_LIST, API_LIST} from "@/common/js/constants";
 
+  import MockConfig from "@/business/components/api/definition/components/mock/MockConfig";
   export default {
     name: "ApiDefinition",
     computed: {
@@ -185,7 +194,8 @@
       MsRunTestTcpPage,
       MsRunTestSqlPage,
       MsRunTestDubboPage,
-      ApiDocumentsPage
+      ApiDocumentsPage,
+      MockConfig
     },
     props: {
       visible: {
@@ -338,6 +348,24 @@
       createRootModel() {
         this.$refs.nodeTree.createRootModel();
       },
+      handleMockTabsConfig(targetName, action, param) {
+        if (!this.projectId) {
+          this.$warning(this.$t('commons.check_project_tip'));
+          return;
+        }
+        if (targetName === undefined || targetName === null) {
+          targetName = this.$t('api_test.definition.request.title');
+        }
+        let newTabName = getUUID();
+        this.apiTabs.push({
+          title: targetName,
+          name: newTabName,
+          closable: true,
+          type: action,
+          mock: param,
+        });
+        this.apiDefaultTab = newTabName;
+      },
       handleTabsEdit(targetName, action, api) {
         if (!this.projectId) {
           this.$warning(this.$t('commons.check_project_tip'));
@@ -398,6 +426,9 @@
       runTest(data) {
         this.handleTabsEdit(this.$t("commons.api"), "TEST", data);
         this.setTabTitle(data);
+      },
+      mockConfig(data) {
+        this.handleMockTabsConfig(this.$t("commons.mock"), "MOCK", data);
       },
       saveApi(data) {
         this.setTabTitle(data);

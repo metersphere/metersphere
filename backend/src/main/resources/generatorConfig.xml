@@ -77,7 +77,8 @@
         <table tableName="test_case_review_scenario"/>
         <table tableName="test_plan"/>
         <table tableName="test_case_test"/>-->
-        <table tableName="system_header"></table>
+        <table tableName="mock_config"></table>
+        <table tableName="mock_expect_config"></table>
 
     </context>
 </generatorConfiguration>

@@ -149,6 +149,7 @@ export default {
     tag_tip: "輸入回車添加標簽",
     node_name_tip: "名稱不能包含'\\'",
     more_operator: "更多操作",
+    mock: "Mock 設置",
     table: {
       select_tip: "已选中 {0} 条数据"
     },
@@ -584,6 +585,20 @@ export default {
     batch_menus: {
       select_all_data: "選擇所有數據(共{0}條)",
       select_show_data: "選擇可見數據(共{0}條)",
+    },
+    mock: {
+      create_error: "接口信息未保存",
+      table: {
+        name: "期望名稱",
+        tag: "標籤",
+        creator: "創建人",
+        status: "狀態",
+        update_time: "更新時間"
+      },
+      expect_detail: "期望詳情",
+      base_info: "基本信息",
+      req_param: "請求參賽",
+      rsp_param: "響應內容",
     },
     definition: {
       api_title: "接口列表",
@@ -1406,6 +1421,7 @@ export default {
       operate_step: "操作步驟",
       edit_component: "編輯組件",
       base_info: "基礎信息",
+      mock_info: "Mock信息",
       test_result: "測試結果",
       result_distribution: "測試結果分布",
       custom_component: "自定義模塊",
