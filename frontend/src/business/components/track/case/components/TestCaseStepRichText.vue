@@ -60,7 +60,7 @@
       //   };
       // }
     }
-  }
+  };
 </script>
 
 <style scoped>
