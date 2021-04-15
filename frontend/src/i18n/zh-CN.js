@@ -995,7 +995,7 @@ export default {
       unit_of_measurement: "个",
       unit_of_count: "个",
       unit_of_times: "次",
-      formula:{
+      formula: {
         completion: "已完成的接口/接口总数*100%",
         coverage: "有案例的接口/接口总数*100%",
         pass: "最后一次执行成功的场景/场景总数*100%",
@@ -1680,6 +1680,9 @@ export default {
     delete_prompt: '此操作会删除认证源，是否继续？',
     title: '认证设置',
     auth_name_valid: '名称不支持特殊字符',
+  },
+  module: {
+    title: '模块管理'
   },
   table: {
     header_display_field: '表头显示字段',
