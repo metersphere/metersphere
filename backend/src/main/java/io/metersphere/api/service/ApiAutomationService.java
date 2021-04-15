@@ -371,13 +371,14 @@ public class ApiAutomationService {
         mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
         try {
             JSONObject element = JSON.parseObject(definition);
-            List<MsTestElement> hashTree = mapper.readValue(element.getString("hashTree"), new TypeReference<LinkedList<MsTestElement>>(){});
+            List<MsTestElement> hashTree = mapper.readValue(element.getString("hashTree"), new TypeReference<LinkedList<MsTestElement>>() {
+            });
             for (int i = 0; i < hashTree.size(); i++) {
                 MsTestElement tr = hashTree.get(i);
                 String referenced = tr.getReferenced();
                 if (StringUtils.equals(MsTestElementConstants.REF.name(), referenced)) {
                     if (StringUtils.equals(tr.getType(), "HTTPSamplerProxy")) {
-                        MsHTTPSamplerProxy http = (MsHTTPSamplerProxy)tr;
+                        MsHTTPSamplerProxy http = (MsHTTPSamplerProxy) tr;
                         String refType = tr.getRefType();
                         if (StringUtils.equals(refType, "CASE")) {
                             http.setUrl(null);
@@ -405,14 +406,15 @@ public class ApiAutomationService {
                             env.getProjectIds().add(apiScenario.getProjectId());
                             String scenarioDefinition = apiScenario.getScenarioDefinition();
                             JSONObject element1 = JSON.parseObject(scenarioDefinition);
-                            LinkedList<MsTestElement> hashTree1 = mapper.readValue(element1.getString("hashTree"), new TypeReference<LinkedList<MsTestElement>>(){});
+                            LinkedList<MsTestElement> hashTree1 = mapper.readValue(element1.getString("hashTree"), new TypeReference<LinkedList<MsTestElement>>() {
+                            });
                             tr.setHashTree(hashTree1);
                         }
                     }
                 } else {
                     if (StringUtils.equals(tr.getType(), "HTTPSamplerProxy")) {
                         // 校验是否是全路径
-                        MsHTTPSamplerProxy httpSamplerProxy = (MsHTTPSamplerProxy)tr;
+                        MsHTTPSamplerProxy httpSamplerProxy = (MsHTTPSamplerProxy) tr;
                         if (httpSamplerProxy.isEnable()) {
                             if (StringUtils.isBlank(httpSamplerProxy.getUrl()) || !isURL(httpSamplerProxy.getUrl())) {
                                 env.getProjectIds().add(httpSamplerProxy.getProjectId());
@@ -470,20 +472,21 @@ public class ApiAutomationService {
                             ApiDefinition apiDefinition = apiDefinitionService.get(tr.getId());
                             env.getProjectIds().add(apiDefinition.getProjectId());
                         }
-                    }  else if (StringUtils.equals(tr.getType(), "scenario")) {
+                    } else if (StringUtils.equals(tr.getType(), "scenario")) {
                         if (tr.isEnable()) {
                             ApiScenarioWithBLOBs apiScenario = getApiScenario(tr.getId());
                             env.getProjectIds().add(apiScenario.getProjectId());
                             String scenarioDefinition = apiScenario.getScenarioDefinition();
                             JSONObject element1 = JSON.parseObject(scenarioDefinition);
-                            LinkedList<MsTestElement> hashTree1 = mapper.readValue(element1.getString("hashTree"), new TypeReference<LinkedList<MsTestElement>>(){});
+                            LinkedList<MsTestElement> hashTree1 = mapper.readValue(element1.getString("hashTree"), new TypeReference<LinkedList<MsTestElement>>() {
+                            });
                             tr.setHashTree(hashTree1);
                         }
                     }
                 } else {
                     if (StringUtils.equals(tr.getType(), "HTTPSamplerProxy")) {
                         // 校验是否是全路径
-                        MsHTTPSamplerProxy httpSamplerProxy = (MsHTTPSamplerProxy)tr;
+                        MsHTTPSamplerProxy httpSamplerProxy = (MsHTTPSamplerProxy) tr;
                         if (httpSamplerProxy.isEnable()) {
                             if (StringUtils.isBlank(httpSamplerProxy.getUrl()) || !isURL(httpSamplerProxy.getUrl())) {
                                 env.setFullUrl(false);
@@ -533,7 +536,7 @@ public class ApiAutomationService {
     }
 
     public byte[] loadFileAsBytes(FileOperationRequest fileOperationRequest) {
-        File file = new File(FileUtils.BODY_FILE_DIR +"/"+ fileOperationRequest.getId() + "_" + fileOperationRequest.getName());
+        File file = new File(FileUtils.BODY_FILE_DIR + "/" + fileOperationRequest.getId() + "_" + fileOperationRequest.getName());
         try (FileInputStream fis = new FileInputStream(file);
              ByteArrayOutputStream bos = new ByteArrayOutputStream(1000);) {
             byte[] b = new byte[1000];
@@ -573,6 +576,7 @@ public class ApiAutomationService {
         report.setProjectId(projectId);
         report.setScenarioName(scenarioName);
         report.setScenarioId(scenarioId);
+        apiScenarioReportMapper.insert(report);
         return report;
     }
 
@@ -669,11 +673,12 @@ public class ApiAutomationService {
 
     /**
      * 场景测试并行执行
+     * 这种方法性能有问题 2021/04/12
      *
      * @param request
      * @return
      */
-    public String run(RunScenarioRequest request) {
+    public String abandonedRun(RunScenarioRequest request) {
         ServiceUtils.getSelectAllIds(request, request.getCondition(),
                 (query) -> extApiScenarioMapper.selectIdsByQuery((ApiScenarioRequest) query));
 
@@ -738,7 +743,7 @@ public class ApiAutomationService {
     }
 
     /**
-     * 生成串行HashTree
+     * 生成HashTree
      *
      * @param apiScenarios 场景
      * @param request      请求参数
@@ -748,7 +753,7 @@ public class ApiAutomationService {
     private HashTree generateHashTree(List<ApiScenarioWithBLOBs> apiScenarios, RunScenarioRequest request, List<String> reportIds) {
         HashTree jmeterHashTree = new ListedHashTree();
         MsTestPlan testPlan = new MsTestPlan();
-        testPlan.setSerializeThreadgroups(true);
+        testPlan.setSerializeThreadgroups(request.getConfig() != null && request.getConfig().getMode().equals("serial"));
         testPlan.setHashTree(new LinkedList<>());
         try {
             boolean isFirst = true;
@@ -764,7 +769,9 @@ public class ApiAutomationService {
                 MsThreadGroup group = new MsThreadGroup();
                 group.setLabel(item.getName());
                 group.setName(UUID.randomUUID().toString());
-                group.setOnSampleError(request.getConfig().isOnSampleError());
+                if (request.getConfig() != null) {
+                    group.setOnSampleError(request.getConfig().isOnSampleError());
+                }
                 // 批量执行的结果直接存储为报告
                 if (isFirst) {
                     group.setName(request.getId());
@@ -805,13 +812,11 @@ public class ApiAutomationService {
                                 scenario.setEnvironmentMap(JSON.parseObject(environment, Map.class));
                             }
                         }
-                        APIScenarioReportResult reportResult = createScenarioReport(group.getName(), testPlanScenarioId, item.getName(), request.getTriggerMode() == null ? ReportTriggerMode.MANUAL.name() : request.getTriggerMode(),
+                        createScenarioReport(group.getName(), testPlanScenarioId, item.getName(), request.getTriggerMode() == null ? ReportTriggerMode.MANUAL.name() : request.getTriggerMode(),
                                 request.getExecuteType(), item.getProjectId(), request.getReportUserID());
-                        apiScenarioReportMapper.insert(reportResult);
                     } else {
-                        APIScenarioReportResult reportResult = createScenarioReport(group.getName(), item.getId(), item.getName(), request.getTriggerMode() == null ? ReportTriggerMode.MANUAL.name() : request.getTriggerMode(),
+                        createScenarioReport(group.getName(), item.getId(), item.getName(), request.getTriggerMode() == null ? ReportTriggerMode.MANUAL.name() : request.getTriggerMode(),
                                 request.getExecuteType(), item.getProjectId(), request.getReportUserID());
-                        apiScenarioReportMapper.insert(reportResult);
                     }
                     reportIds.add(group.getName());
                 }
@@ -832,7 +837,7 @@ public class ApiAutomationService {
      * @param request
      * @return
      */
-    public String runSerial(RunScenarioRequest request) {
+    public String run(RunScenarioRequest request) {
         ServiceUtils.getSelectAllIds(request, request.getCondition(),
                 (query) -> extApiScenarioMapper.selectIdsByQuery((ApiScenarioRequest) query));
         List<String> ids = request.getIds();
@@ -914,9 +919,10 @@ public class ApiAutomationService {
             MSException.throwException(e.getMessage());
         }
         // 调用执行方法
-        APIScenarioReportResult reportResult = createScenarioReport(request.getId(), request.getScenarioId(), request.getScenarioName(), ReportTriggerMode.MANUAL.name(), request.getExecuteType(), request.getProjectId(),
+        createScenarioReport(request.getId(), request.getScenarioId(), request.getScenarioName(), ReportTriggerMode.MANUAL.name(), request.getExecuteType(), request.getProjectId(),
                 SessionUtils.getUserId());
-        apiScenarioReportMapper.insert(reportResult);
+        // 调用执行方法
+        // jMeterService.runTest(request.getId(), hashTree, ApiRunMode.SCENARIO.name(), null);
         // 调用执行方法
         jMeterService.runDefinition(request.getId(), hashTree, request.getReportId(), ApiRunMode.SCENARIO.name());
         return request.getId();
@@ -1095,9 +1101,9 @@ public class ApiAutomationService {
         if (StringUtils.equals(request.getGroup(), ScheduleGroup.TEST_PLAN_TEST.name())) {
             scheduleService.addOrUpdateCronJob(
                     request, TestPlanTestJob.getJobKey(request.getResourceId()), TestPlanTestJob.getTriggerKey(request.getResourceId()), TestPlanTestJob.class);
-        }else if(StringUtils.equals(request.getGroup(), ScheduleGroup.SWAGGER_IMPORT.name())){
+        } else if (StringUtils.equals(request.getGroup(), ScheduleGroup.SWAGGER_IMPORT.name())) {
             scheduleService.addOrUpdateCronJob(request, SwaggerUrlImportJob.getJobKey(request.getResourceId()), SwaggerUrlImportJob.getTriggerKey(request.getResourceId()), SwaggerUrlImportJob.class);
-        } else{
+        } else {
             scheduleService.addOrUpdateCronJob(
                     request, ApiScenarioTestJob.getJobKey(request.getResourceId()), ApiScenarioTestJob.getTriggerKey(request.getResourceId()), ApiScenarioTestJob.class);
         }
@@ -1349,7 +1355,7 @@ public class ApiAutomationService {
          */
         Map<String, List<String>> urlMap = new HashMap<>();
         List<String> allApiIdList = new ArrayList<>();
-        Map<String,List<String>> caseIdMap = new HashMap<>();
+        Map<String, List<String>> caseIdMap = new HashMap<>();
         for (ApiDefinition model : allEffectiveApiList) {
             String url = model.getPath();
             String id = model.getId();
@@ -1362,7 +1368,7 @@ public class ApiAutomationService {
                 urlMap.put(url, list);
             }
         }
-        for (ApiTestCase model : allEffectiveApiCaseList){
+        for (ApiTestCase model : allEffectiveApiCaseList) {
             String caseId = model.getId();
             String apiId = model.getApiDefinitionId();
             if (urlMap.containsKey(caseId)) {
@@ -1379,20 +1385,20 @@ public class ApiAutomationService {
         }
 
         List<String> urlList = new ArrayList<>();
-        List<String> idList=  new ArrayList<>();
+        List<String> idList = new ArrayList<>();
 
         for (ApiScenarioWithBLOBs model : allScenarioInfoList) {
             String scenarioDefiniton = model.getScenarioDefinition();
-            this.addUrlAndIdToList(scenarioDefiniton,urlList,idList);
+            this.addUrlAndIdToList(scenarioDefiniton, urlList, idList);
         }
 
         List<String> containsApiIdList = new ArrayList<>();
 
         for (String url : urlList) {
             List<String> apiIdList = urlMap.get(url);
-            if(apiIdList!=null ){
+            if (apiIdList != null) {
                 for (String api : apiIdList) {
-                    if(!containsApiIdList.contains(api)){
+                    if (!containsApiIdList.contains(api)) {
                         containsApiIdList.add(api);
                     }
                 }
@@ -1401,16 +1407,16 @@ public class ApiAutomationService {
 
         for (String id : idList) {
             List<String> apiIdList = caseIdMap.get(id);
-            if(apiIdList!=null ){
+            if (apiIdList != null) {
                 for (String api : apiIdList) {
-                    if(!containsApiIdList.contains(api)){
+                    if (!containsApiIdList.contains(api)) {
                         containsApiIdList.add(api);
                     }
                 }
             }
 
-            if(allApiIdList.contains(id)){
-                if(!containsApiIdList.contains(id)){
+            if (allApiIdList.contains(id)) {
+                if (!containsApiIdList.contains(id)) {
                     containsApiIdList.add(id);
                 }
             }
@@ -1423,25 +1429,25 @@ public class ApiAutomationService {
     private void addUrlAndIdToList(String scenarioDefiniton, List<String> urlList, List<String> idList) {
         try {
             JSONObject scenarioObj = JSONObject.parseObject(scenarioDefiniton);
-            if(scenarioObj.containsKey("hashTree")){
+            if (scenarioObj.containsKey("hashTree")) {
                 JSONArray hashArr = scenarioObj.getJSONArray("hashTree");
                 for (int i = 0; i < hashArr.size(); i++) {
                     JSONObject elementObj = hashArr.getJSONObject(i);
-                    if(elementObj.containsKey("id")){
+                    if (elementObj.containsKey("id")) {
                         String id = elementObj.getString("id");
                         idList.add(id);
                     }
-                    if(elementObj.containsKey("url")){
+                    if (elementObj.containsKey("url")) {
                         String url = elementObj.getString("url");
                         urlList.add(url);
                     }
-                    if(elementObj.containsKey("path")){
+                    if (elementObj.containsKey("path")) {
                         String path = elementObj.getString("path");
                         urlList.add(path);
                     }
                 }
             }
-        }catch (Exception e){
+        } catch (Exception e) {
         }
     }
 

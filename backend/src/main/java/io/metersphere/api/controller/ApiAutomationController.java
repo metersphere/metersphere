@@ -144,9 +144,6 @@ public class ApiAutomationController {
         request.setExecuteType(ExecuteType.Saved.name());
         request.setTriggerMode(ApiRunMode.SCENARIO.name());
         request.setRunMode(ApiRunMode.SCENARIO.name());
-        if (request.getConfig() != null && request.getConfig().getMode().equals("serial")) {
-            return apiAutomationService.runSerial(request);
-        }
         return apiAutomationService.run(request);
     }
 
