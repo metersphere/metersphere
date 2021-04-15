@@ -79,13 +79,13 @@ export default {
          exec: this.handleDelete
        }
      ],
-    }
+    };
   },
   props: {
     tableData: {
       type: Array,
       default() {
-        return []
+        return [];
       },
     },
     scene: String,

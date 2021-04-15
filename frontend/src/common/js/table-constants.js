@@ -11,22 +11,22 @@ export const CUSTOM_FIELD_TYPE_OPTION = [
   {value: 'data',text: '日期'},
   {value: 'int',text: '整型'},
   {value: 'float',text: '浮点型'}
-]
+];
 
 export const CUSTOM_FIELD_SCENE_OPTION = [
   {value: 'TEST_CASE',text: '用例模板'},
   {value: 'ISSUE',text: '缺陷模板'},
-]
+];
 
 export const CASE_TYPE_OPTION = [
   {value: 'functional',text: '功能用例'},
-]
+];
 
 export const ISSUE_PLATFORM_OPTION = [
   {value: 'metersphere',text: 'Metersphere'},
   {value: 'jira',text: 'JIRA'},
   {value: 'zentao',text: '禅道'},
-]
+];
 
 export const FIELD_TYPE_MAP = {
   input: '输入框',
@@ -40,12 +40,12 @@ export const FIELD_TYPE_MAP = {
   data: '日期',
   int: '整型',
   float: '浮点型'
-}
+};
 
 export const SCENE_MAP = {
   ISSUE: '缺陷模板',
   TEST_CASE: '用例模板'
-}
+};
 
 export const SYSTEM_FIELD_NAME_MAP = {
   case_status: '用例状态',
@@ -56,4 +56,4 @@ export const SYSTEM_FIELD_NAME_MAP = {
   issue_processor: '处理人',
   issue_status: '状态',
   issue_severity: '严重程度'
-}
+};

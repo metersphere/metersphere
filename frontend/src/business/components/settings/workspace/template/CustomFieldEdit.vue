@@ -78,7 +78,7 @@ export default {
       },
       visible: false,
       url: ''
-    }
+    };
   },
   computed: {
     fieldTypeOptions() {

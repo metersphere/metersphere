@@ -117,7 +117,7 @@ export default {
       pageSize: 10,
       currentPage: 1,
       result: {},
-    }
+    };
   },
   props: [
     'scene',

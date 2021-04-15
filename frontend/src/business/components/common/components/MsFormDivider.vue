@@ -6,7 +6,7 @@
 export default {
   name: "MsFormDivider",
   props: ['title']
-}
+};
 </script>
 
 <style scoped>

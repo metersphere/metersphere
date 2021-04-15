@@ -125,8 +125,7 @@ export default {
           isDisable: this.systemDisable
         }
       ],
-
-    }
+    };
   },
   activated() {
     this.initTableData();

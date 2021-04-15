@@ -56,7 +56,7 @@ export default {
       default() {
         return  [
           { name: "John", text: "text", id: 0 },
-        ]
+        ];
       }
     },
     operators: {

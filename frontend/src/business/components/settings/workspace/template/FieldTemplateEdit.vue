@@ -85,7 +85,7 @@ export default {
       result: {},
       templateContainIds: new Set(),
       relateFields: []
-    }
+    };
   },
   props: {
     visible:{
@@ -139,7 +139,7 @@ export default {
           if (customFields) {
             customFields.forEach(item => {
               item.defaultValue = JSON.stringify(item.defaultValue);
-            })
+            });
           }
           param.customFields = customFields;
           this.result = this.$post(this.url, param, () => {

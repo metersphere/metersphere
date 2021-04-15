@@ -89,7 +89,7 @@ export default {
       },
       result: {},
       url: '',
-    }
+    };
   },
   computed: {
     caseTypeOption() {

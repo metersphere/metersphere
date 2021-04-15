@@ -68,7 +68,7 @@ export default {
       this.$emit('close');
     },
   }
-}
+};
 </script>
 
 <style scoped>

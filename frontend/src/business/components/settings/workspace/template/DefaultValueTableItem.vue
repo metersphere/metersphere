@@ -82,7 +82,7 @@ export default {
   data() {
     return {
       memberOptions: []
-    }
+    };
   },
   mounted() {
     if (this.data.type === 'member' || this.data.type === 'multipleMember') {

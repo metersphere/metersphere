@@ -78,7 +78,7 @@ export default {
       },
       result: {},
       url: '',
-    }
+    };
   },
   computed: {
     platformOption() {

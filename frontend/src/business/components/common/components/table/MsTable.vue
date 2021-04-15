@@ -72,7 +72,7 @@ export default {
       buttons: [],
       selectDataCounts: 0,
       selectRows: new Set(),
-    }
+    };
   },
   props: {
     data: {
@@ -131,7 +131,7 @@ export default {
   },
   methods: {
     openCustomHeader() {
-      this.$refs.headerCustom.open(this.tableLabel)
+      this.$refs.headerCustom.open(this.tableLabel);
     },
     handleSelectAll(selection) {
       _handleSelectAll(this, selection, this.data, this.selectRows);
@@ -186,7 +186,7 @@ export default {
     },
     handleRefresh() {
       this.selectRows.clear();
-      this.$emit('refresh')
+      this.$emit('refresh');
     },
     handlePageChange() {
       this.$emit('pageChange');
