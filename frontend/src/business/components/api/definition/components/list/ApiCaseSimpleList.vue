@@ -632,6 +632,9 @@ export default {
       row.request = JSON.parse(row.request);
       row.request.name = row.id;
       row.request.useEnvironment = environment.id;
+      let map = new Map;
+      map.set(row.projectId,environment.id);
+      row.environmentMap = map;
       runData.push(row.request);
       /*触发执行操作*/
       let testPlan = new TestPlan();

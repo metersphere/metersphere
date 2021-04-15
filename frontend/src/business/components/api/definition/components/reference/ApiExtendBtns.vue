@@ -46,7 +46,7 @@
           this.$warning(this.$t('api_test.automation.save_case_info'))
         }
       },
-      createPerformance(row){
+      createPerformance(row) {
         /**
          * 思路：调用后台创建性能测试的方法，把当前案例的hashTree在后台转化为jmx并文件创建性能测试。
          * 然后跳转到修改性能测试的页面
@@ -61,7 +61,7 @@
         this.runData = [];
         this.singleLoading = true;
         this.row.request.name = this.row.id;
-        this.row.request.useEnvironment = this.environment.id;
+        this.row.request.useEnvironment = this.environment;
         this.runData.push(this.row.request);
         /*触发执行操作*/
         let testPlan = new TestPlan();
@@ -71,18 +71,21 @@
         this.runData.forEach(item => {
           threadGroup.hashTree.push(item);
         })
-        let reqObj = {id: this.row.id,
+        let reqObj = {
+          id: this.row.id,
           testElement: testPlan,
           type: this.type,
-          name:this.row.name,
-          projectId:getCurrentProjectID(),
+          name: this.row.name,
+          projectId: getCurrentProjectID(),
+          environmentMap: new Map([
+            [getCurrentProjectID(), this.environment.id]
+          ]),
         };
 
         let bodyFiles = getBodyUploadFiles(reqObj, this.runData);
         reqObj.reportId = "run";
         // let url = "/api/genPerformanceTest";
         let url = "/api/genPerformanceTestXml";
-
         this.$fileUpload(url, null, bodyFiles, reqObj, response => {
           let jmxObj = {};
           jmxObj.name = response.data.name;
@@ -97,12 +100,6 @@
           this.$router.push({
             path: "/performance/test/create"
           })
-          // let performanceId = response.data;
-          // if(performanceId!=null){
-          //   this.$router.push({
-          //     path: "/performance/test/edit/"+performanceId,
-          //   })
-          // }
         }, erro => {
           this.$emit('runRefresh', {});
         });

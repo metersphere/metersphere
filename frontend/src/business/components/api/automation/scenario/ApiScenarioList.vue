@@ -553,8 +553,6 @@ export default {
           if (!(environment.config instanceof Object)) {
             environment.config = JSON.parse(environment.config);
           }
-          environment.name = environment.name + (environment.config.httpConfig.socket ?
-            (': ' + environment.config.httpConfig.protocol + '://' + environment.config.httpConfig.socket) : '');
         });
       });
     },
