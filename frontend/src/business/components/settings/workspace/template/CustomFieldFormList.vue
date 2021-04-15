@@ -10,6 +10,14 @@
     <ms-table-column
       :label="'名称'"
       prop="name">
+      <template v-slot="scope">
+        <span v-if="scope.row.system">
+          {{caseSystemFieldMap[scope.row.name]}}
+        </span>
+        <span v-else>
+          {{scope.row.name}}
+        </span>
+      </template>
     </ms-table-column>
 
     <ms-table-column
@@ -31,6 +39,19 @@
     </ms-table-column>
 
     <ms-table-column
+    :label="'系统字段'"
+    prop="system">
+      <template v-slot="scope">
+        <span v-if="scope.row.system">
+          是
+        </span>
+        <span v-else>
+                否
+        </span>
+      </template>
+    </ms-table-column>
+
+    <ms-table-column
       :label="'备注'"
       prop="remark">
     </ms-table-column>
@@ -45,6 +66,7 @@ import MsTable from "@/business/components/common/components/table/MsTable";
 import MsTableColumn from "@/business/components/common/components/table/Ms-table-column";
 import DefaultValueTableItem from "@/business/components/settings/workspace/template/DefaultValueTableItem";
 import FieldCustomDataTableItem from "@/business/components/settings/workspace/template/FieldCustomDataTableItem";
+import {SYSTEM_FIELD_NAME_MAP} from "@/common/js/table-constants";
 export default {
   name: "CustomFieldFormList",
   components: {FieldCustomDataTableItem, DefaultValueTableItem, MsTableColumn, MsTable, MsTableOperatorButton},
@@ -66,15 +88,22 @@ export default {
         return []
       },
     },
-    scene: String
+    scene: String,
+    templateContainIds: Set
   },
   watch: {
     'customFieldIds.length'() {
       this.initTableData();
     }
   },
+  computed: {
+    caseSystemFieldMap() {
+      return SYSTEM_FIELD_NAME_MAP;
+    }
+  },
   methods: {
     handleDelete(item, index) {
+      this.templateContainIds.delete(item.fieldId);
       this.tableData.splice(index, 1);
     },
     refreshTable() {
@@ -86,6 +115,9 @@ export default {
         condition, (response) => {
           let data = response.data;
           data.forEach(item => {
+            if (item.id) {
+              this.templateContainIds.add(item.id);
+            }
             item.fieldId = item.id;
             item.id = null;
             item.options = JSON.parse(item.options);

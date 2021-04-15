@@ -1,6 +1,7 @@
 <template>
   <span>
     <ms-table-operator-button v-for="(btn, index) in buttons" :key="index" :isTesterPermission="isTesterPermission(btn)"
+                              :disabled="isDisable(btn)"
                               :tip="btn.tip" :icon="btn.icon" :type="btn.type"
                               @exec="click(btn)" @click.stop="clickStop(btn)"/>
   </span>
@@ -28,13 +29,19 @@
           btn.stop(this.row, this.index);
         }
       },
+      isDisable(btn) {
+        if (btn.isDisable) {
+          return btn.isDisable(this.row);
+        }
+        return false;
+      }
     },
     computed: {
       isTesterPermission() {
         return function (btn) {
           return btn.isTesterPermission !== false;
         }
-      }
+      },
     }
   }
 </script>

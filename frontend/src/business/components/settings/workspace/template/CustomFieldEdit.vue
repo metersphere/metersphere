@@ -8,7 +8,7 @@
 
     <el-form :model="form" :rules="rules" label-position="right" label-width="140px" size="small" ref="form">
       <el-form-item :label="'字段名'" prop="name">
-        <el-input v-model="form.name" autocomplete="off"></el-input>
+        <el-input :disabled="isSystem" v-model="form.name" autocomplete="off"></el-input>
       </el-form-item>
 
       <el-form-item :label="'字段备注'" prop="remark">
@@ -16,7 +16,7 @@
       </el-form-item>
 
       <el-form-item :label="'使用场景'" prop="type">
-        <el-select filterable v-model="form.scene" placeholder="使用场景">
+        <el-select :disabled="isSystem" filterable v-model="form.scene" placeholder="使用场景">
           <el-option
             v-for="item in sceneOptions"
             :key="item.value"
@@ -27,7 +27,7 @@
       </el-form-item>
 
       <el-form-item :label="'字段类型'" prop="type">
-        <el-select filterable v-model="form.type" placeholder="字段类型">
+        <el-select :disabled="isSystem" filterable v-model="form.type" placeholder="字段类型">
           <el-option
             v-for="item in fieldTypeOptions"
             :key="item.value"
@@ -37,10 +37,12 @@
         </el-select>
       </el-form-item>
 
-      <el-form-item v-if="showOptions"
-                    :label="'选项值'"
-                    prop="options">
-        <ms-single-handle-drag :data="form.options"/>
+      <el-form-item
+        v-if="showOptions"
+        :label="'选项值'"
+        prop="options">
+        <ms-single-handle-drag
+          :data="form.options"/>
       </el-form-item>
 
     </el-form>
@@ -63,6 +65,7 @@ export default {
         type: 'input',
         scene: 'TEST_CASE',
         remark: '',
+        system: false,
         options: []
       },
       rules: {
@@ -89,6 +92,9 @@ export default {
         return true;
       }
       return false;
+    },
+    isSystem() {
+      return this.form.system;
     }
   },
   methods: {
@@ -111,6 +117,7 @@ export default {
           type: 'input',
           scene: 'TEST_CASE',
           remark: '',
+          system: false,
           options: []
         };
         this.url = 'custom/field/add';

@@ -11,7 +11,7 @@
 
     <template v-slot:base>
       <el-form-item :label="'用例类型'" prop="type">
-        <el-select filterable v-model="form.type" placeholder="用例类型">
+        <el-select :disabled="isSystem" filterable v-model="form.type" placeholder="用例类型">
           <el-option
             v-for="item in caseTypeOption"
             :key="item.value"
@@ -54,6 +54,7 @@ import {CASE_TYPE_OPTION} from "@/common/js/table-constants";
 import CustomFieldFormList from "@/business/components/settings/workspace/template/CustomFieldFormList";
 import CustomFieldRelateList from "@/business/components/settings/workspace/template/CustomFieldRelateList";
 import FieldTemplateEdit from "@/business/components/settings/workspace/template/FieldTemplateEdit";
+import {getCurrentWorkspaceId} from "@/common/js/utils";
 
 export default {
   name: "TestCaseTemplateEdit",
@@ -93,6 +94,9 @@ export default {
   computed: {
     caseTypeOption() {
       return CASE_TYPE_OPTION;
+    },
+    isSystem() {
+      return this.form.system;
     }
   },
   methods: {
@@ -110,6 +114,7 @@ export default {
         }
       } else {
         this.form = {
+          id: "",
           name: "",
           type: 'functional',
           description: '',

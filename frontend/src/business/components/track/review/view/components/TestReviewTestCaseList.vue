@@ -249,9 +249,9 @@ export default {
         {text: this.$t('commons.api'), value: 'api'}
       ],
       statusFilters: [
-        {text: this.$t('test_track.case.status_prepare'), value: 'Prepare'},
-        {text: this.$t('test_track.case.status_pass'), value: 'Pass'},
-        {text: this.$t('test_track.case.status_un_pass'), value: 'UnPass'},
+        {text: this.$t('test_track.review.prepare'), value: 'Prepare'},
+        {text: this.$t('test_track.review.pass'), value: 'Pass'},
+        {text: this.$t('test_track.review.un_pass'), value: 'UnPass'},
       ],
       showMore: false,
       buttons: [
@@ -267,9 +267,9 @@ export default {
       ],
       valueArr: {
         status: [
-          {name: this.$t('test_track.case.status_prepare'), id: 'Prepare'},
-          {name: this.$t('test_track.case.status_pass'), id: 'Pass'},
-          {name: this.$t('test_track.case.status_un_pass'), id: 'UnPass'},
+          {name: this.$t('test_track.review.prepare'), id: 'Prepare'},
+          {name: this.$t('test_track.review.pass'), id: 'Pass'},
+          {name: this.$t('test_track.review.un_pass'), id: 'UnPass'},
         ]
       },
     }

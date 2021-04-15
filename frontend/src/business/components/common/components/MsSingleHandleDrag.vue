@@ -11,17 +11,21 @@
     <draggable :list="data" handle=".handle" class="list-group">
 
       <div class="list-group-item"
-        v-for="(element, idx) in data"
-        :key="idx">
+        v-for="(element, idx) in data" :key="idx">
         <font-awesome-icon class="handle" :icon="['fas', 'align-justify']"/>
 
         <el-input size="mini" type="text"
                   class="text-item"
                   v-if="editIndex === idx"
-                  @blur="editIndex = -1"
-                  v-model="element.text"/>
+                  @blur="handleEdit(element)"
+                  v-model="element.value"/>
         <span class="text-item" v-else>
-          {{element.text}}
+          <span v-if="element.system">
+             {{$t(element.text)}}
+          </span>
+          <span v-else>
+             {{element.text}}
+          </span>
         </span>
         <i class="operator-icon" v-for="(item, index) in operators"
            :key="index"
@@ -62,7 +66,9 @@ export default {
           {
             icon: 'el-icon-edit',
             click: (element, idx) => {
-              this.editIndex = idx;
+              if (!element.system) {
+                this.editIndex = idx;
+              }
             }
           },
           {
@@ -79,11 +85,22 @@ export default {
   methods: {
     add: function() {
       let item = {
-        text: ""
+        text: "",
+        value: ""
       };
-      this.$emit('add', item);
       this.data.push(item);
       this.editIndex = this.data.length - 1;
+    },
+    handleEdit(element) {
+      this.editIndex = -1;
+      element.text = element.value;
+    },
+    isSystem(element) {
+      if (element.system) {
+        return true;
+      } else {
+        return false;
+      }
     }
   }
 };
@@ -102,6 +119,7 @@ export default {
   font-size: 15px;
   font-weight: bold;
 }
+
 
 .operator-icon {
   margin-right: 6px;

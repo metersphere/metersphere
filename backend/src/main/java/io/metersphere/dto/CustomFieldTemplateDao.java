@@ -14,4 +14,6 @@ public class CustomFieldTemplateDao extends CustomFieldTemplate {
     private String remark;
 
     private String options;
+
+    private Boolean system;
 }

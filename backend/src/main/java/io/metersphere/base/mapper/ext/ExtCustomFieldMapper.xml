@@ -10,14 +10,14 @@
         select
         <include refid="io.metersphere.base.mapper.CustomFieldMapper.Base_Column_List"/>,
         <include refid="io.metersphere.base.mapper.CustomFieldMapper.Blob_Column_List"/>
-        from custom_field
+        from custom_field cf
         <include refid="queryWhereCondition"/>
         <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
     </select>
 
     <select id="listIds" resultType="java.lang.String">
         select id
-        from custom_field
+        from custom_field cf
         <include refid="queryWhereCondition"/>
     </select>
 
@@ -25,30 +25,41 @@
         select
         <include refid="io.metersphere.base.mapper.CustomFieldMapper.Base_Column_List"/>,
         <include refid="io.metersphere.base.mapper.CustomFieldMapper.Blob_Column_List"/>
-        from custom_field
+        from custom_field cf
         <include refid="queryWhereCondition"/>
         <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
     </select>
 
+<!--  如果创建了工作空间的字段，就去除全局的该字段-->
     <sql id="queryWhereCondition">
         <where>
             <if test="request.name != null">
-                and custom_field.name LIKE CONCAT('%', #{request.name}, '%')
+                and cf.name LIKE CONCAT('%', #{request.name}, '%')
             </if>
 
             <if test="request.workspaceId != null">
-                and custom_field.workspace_id = #{request.workspaceId}
+                and (
+                    cf.workspace_id = #{request.workspaceId}
+                    or (
+                        cf.global = 1 and
+                        not exists (
+                            select id
+                            from custom_field cf_child
+                            where cf_child.name = cf.name and cf_child.global != 1 and cf_child.workspace_id = #{request.workspaceId}
+                        )
+                    )
+                )
             </if>
 
             <if test="request.ids != null and request.ids.size() > 0">
-                and custom_field.id in
+                and cf.id in
                 <foreach collection="request.ids" item="id" separator="," open="(" close=")">
                     #{id}
                 </foreach>
             </if>
 
              <if test="request.templateContainIds != null and request.templateContainIds.size() > 0">
-                and custom_field.id not in
+                and cf.id not in
                 <foreach collection="request.templateContainIds" item="id" separator="," open="(" close=")">
                     #{id}
                 </foreach>
@@ -59,13 +70,13 @@
                     <if test="values != null and values.size() > 0">
                         <choose>
                             <when test="key == 'scene'">
-                                AND custom_field.scene IN
+                                AND cf.scene IN
                                 <foreach collection="values" item="value" separator="," open="(" close=")">
                                     #{value}
                                 </foreach>
                             </when>
                             <when test="key == 'type'">
-                                AND custom_field.type IN
+                                AND cf.type IN
                                 <foreach collection="values" item="value" separator="," open="(" close=")">
                                     #{value}
                                 </foreach>
@@ -76,23 +87,4 @@
             </if>
         </where>
     </sql>
-
-
-    <!--    <sql id="combine">-->
-<!--        <if test='${condition}.name != null and (${name} == null or ${name} == "")'>-->
-<!--            AND load_test.name-->
-<!--            <include refid="condition">-->
-<!--                <property name="object" value="${condition}.name"/>-->
-<!--            </include>-->
-<!--        </if>-->
-<!--    </sql>-->
-
-<!--    <select id="list" resultMap="BaseResultMap"-->
-<!--            parameterType="io.metersphere.performance.request.QueryTestPlanRequest">-->
-<!--        SELECT load_test.*, project.name AS project_name, user.name AS user_name-->
-<!--        FROM load_test-->
-<!--        LEFT JOIN project ON load_test.project_id = project.id-->
-<!--        LEFT JOIN user ON load_test.user_id = user.id-->
-<!--    </select>-->
-
 </mapper>

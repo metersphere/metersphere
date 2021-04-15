@@ -14,13 +14,16 @@ import io.metersphere.controller.request.QueryCustomFieldRequest;
 import io.metersphere.i18n.Translator;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -32,6 +35,15 @@ public class CustomFieldService {
     @Resource
     CustomFieldMapper customFieldMapper;
 
+    @Lazy
+    @Resource
+    TestCaseTemplateService testCaseTemplateService;
+
+    @Lazy
+    @Resource
+    IssueTemplateService issueTemplateService;
+
+    @Lazy
     @Resource
     CustomFieldTemplateService customFieldTemplateService;
 
@@ -40,9 +52,16 @@ public class CustomFieldService {
         customField.setId(UUID.randomUUID().toString());
         customField.setCreateTime(System.currentTimeMillis());
         customField.setUpdateTime(System.currentTimeMillis());
+        customField.setGlobal(false);
         customFieldMapper.insert(customField);
     }
 
+    /**
+     * 系统字段默认是查询的 workspace_id 为 null 的系统字段
+     * 如果创建了对应工作空间的系统字段，则过滤掉重复的 workspace_id 为 null 的系统字段
+     * @param request
+     * @return
+     */
     public List<CustomField> list(QueryCustomFieldRequest request) {
         request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
         return extCustomFieldMapper.list(request);
@@ -53,7 +72,6 @@ public class CustomFieldService {
         if (CollectionUtils.isEmpty(templateContainIds)) {
             templateContainIds = new ArrayList<>();
         }
-        templateContainIds.addAll(customFieldTemplateService.getCustomFieldIds(request.getTemplateId()));
         request.setTemplateContainIds(templateContainIds);
         Page<List<CustomField>> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, extCustomFieldMapper.listRelate(request));
@@ -61,12 +79,60 @@ public class CustomFieldService {
 
     public void delete(String id) {
         customFieldMapper.deleteByPrimaryKey(id);
+        customFieldTemplateService.deleteByFieldId(id);
     }
 
     public void update(CustomField customField) {
-        checkExist(customField);
-        customField.setUpdateTime(System.currentTimeMillis());
-        customFieldMapper.updateByPrimaryKeySelective(customField);
+        if (customField.getGlobal() != null && customField.getGlobal()) {
+            // 如果是全局字段，则创建对应工作空间字段
+            add(customField);
+            testCaseTemplateService.handleSystemFieldCreate(customField);
+            issueTemplateService.handleSystemFieldCreate(customField);
+        } else {
+            checkExist(customField);
+            customField.setUpdateTime(System.currentTimeMillis());
+            customFieldMapper.updateByPrimaryKeySelective(customField);
+        }
+    }
+
+    public List<CustomField> getGlobalField(String scene) {
+        CustomFieldExample example = new CustomFieldExample();
+        example.createCriteria()
+                .andGlobalEqualTo(true)
+                .andSceneEqualTo(scene);
+        return customFieldMapper.selectByExampleWithBLOBs(example);
+    }
+
+    public List<CustomField> getDefaultField(QueryCustomFieldRequest request) {
+        CustomFieldExample example = new CustomFieldExample();
+        example.createCriteria()
+                .andSystemEqualTo(true)
+                .andSceneEqualTo(request.getScene())
+                .andWorkspaceIdEqualTo(request.getWorkspaceId());
+        List<CustomField> workspaceSystemFields = customFieldMapper.selectByExampleWithBLOBs(example);
+        Set<String> workspaceSystemFieldNames = workspaceSystemFields.stream()
+                .map(CustomField::getName)
+                .collect(Collectors.toSet());
+        List<CustomField> globalFields = getGlobalField(request.getScene());
+        // 工作空间的系统字段加上全局的字段
+        globalFields.forEach(item -> {
+            if (!workspaceSystemFieldNames.contains(item.getName())) {
+                workspaceSystemFields.add(item);
+            }
+        });
+        return workspaceSystemFields;
+    }
+
+    public CustomField getGlobalFieldByName(String name) {
+        CustomFieldExample example = new CustomFieldExample();
+        example.createCriteria()
+                .andGlobalEqualTo(true)
+                .andNameEqualTo(name);
+        List<CustomField> customFields = customFieldMapper.selectByExampleWithBLOBs(example);
+        if (CollectionUtils.isNotEmpty(customFields)) {
+            return customFields.get(0);
+        }
+        return null;
     }
 
     public List<String> listIds(QueryCustomFieldRequest request) {
@@ -78,6 +144,7 @@ public class CustomFieldService {
             CustomFieldExample example = new CustomFieldExample();
             CustomFieldExample.Criteria criteria = example.createCriteria();
             criteria.andNameEqualTo(customField.getName());
+            criteria.andWorkspaceIdEqualTo(customField.getWorkspaceId());
             if (StringUtils.isNotBlank(customField.getId())) {
                 criteria.andIdNotEqualTo(customField.getId());
             }

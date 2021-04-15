@@ -4,6 +4,7 @@ export const CUSTOM_FIELD_LIST = new Set([
   'scene',
   'type',
   'remark',
+  'system',
   'createTime',
   'updateTime'
 ]);

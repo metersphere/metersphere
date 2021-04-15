@@ -7,6 +7,8 @@
     <result column="type" jdbcType="VARCHAR" property="type" />
     <result column="description" jdbcType="VARCHAR" property="description" />
     <result column="case_name" jdbcType="VARCHAR" property="caseName" />
+    <result column="system" jdbcType="BIT" property="system" />
+    <result column="global" jdbcType="BIT" property="global" />
     <result column="workspace_id" jdbcType="VARCHAR" property="workspaceId" />
     <result column="prerequisite" jdbcType="VARCHAR" property="prerequisite" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
@@ -76,8 +78,8 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, `name`, `type`, description, case_name, workspace_id, prerequisite, create_time, 
-    update_time
+    id, `name`, `type`, description, case_name, `system`, `global`, workspace_id, prerequisite, 
+    create_time, update_time
   </sql>
   <sql id="Blob_Column_List">
     step_description, expected_result, actual_result
@@ -132,15 +134,15 @@
   </delete>
   <insert id="insert" parameterType="io.metersphere.base.domain.TestCaseTemplateWithBLOBs">
     insert into test_case_template (id, `name`, `type`, 
-      description, case_name, workspace_id, 
-      prerequisite, create_time, update_time, 
-      step_description, expected_result, 
-      actual_result)
+      description, case_name, `system`, 
+      `global`, workspace_id, prerequisite, 
+      create_time, update_time, step_description, 
+      expected_result, actual_result)
     values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR}, 
-      #{description,jdbcType=VARCHAR}, #{caseName,jdbcType=VARCHAR}, #{workspaceId,jdbcType=VARCHAR}, 
-      #{prerequisite,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, 
-      #{stepDescription,jdbcType=LONGVARCHAR}, #{expectedResult,jdbcType=LONGVARCHAR}, 
-      #{actualResult,jdbcType=LONGVARCHAR})
+      #{description,jdbcType=VARCHAR}, #{caseName,jdbcType=VARCHAR}, #{system,jdbcType=BIT}, 
+      #{global,jdbcType=BIT}, #{workspaceId,jdbcType=VARCHAR}, #{prerequisite,jdbcType=VARCHAR}, 
+      #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, #{stepDescription,jdbcType=LONGVARCHAR}, 
+      #{expectedResult,jdbcType=LONGVARCHAR}, #{actualResult,jdbcType=LONGVARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.TestCaseTemplateWithBLOBs">
     insert into test_case_template
@@ -159,6 +161,12 @@
       </if>
       <if test="caseName != null">
         case_name,
+      </if>
+      <if test="system != null">
+        `system`,
+      </if>
+      <if test="global != null">
+        `global`,
       </if>
       <if test="workspaceId != null">
         workspace_id,
@@ -197,6 +205,12 @@
       </if>
       <if test="caseName != null">
         #{caseName,jdbcType=VARCHAR},
+      </if>
+      <if test="system != null">
+        #{system,jdbcType=BIT},
+      </if>
+      <if test="global != null">
+        #{global,jdbcType=BIT},
       </if>
       <if test="workspaceId != null">
         #{workspaceId,jdbcType=VARCHAR},
@@ -245,6 +259,12 @@
       <if test="record.caseName != null">
         case_name = #{record.caseName,jdbcType=VARCHAR},
       </if>
+      <if test="record.system != null">
+        `system` = #{record.system,jdbcType=BIT},
+      </if>
+      <if test="record.global != null">
+        `global` = #{record.global,jdbcType=BIT},
+      </if>
       <if test="record.workspaceId != null">
         workspace_id = #{record.workspaceId,jdbcType=VARCHAR},
       </if>
@@ -278,6 +298,8 @@
       `type` = #{record.type,jdbcType=VARCHAR},
       description = #{record.description,jdbcType=VARCHAR},
       case_name = #{record.caseName,jdbcType=VARCHAR},
+      `system` = #{record.system,jdbcType=BIT},
+      `global` = #{record.global,jdbcType=BIT},
       workspace_id = #{record.workspaceId,jdbcType=VARCHAR},
       prerequisite = #{record.prerequisite,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
@@ -296,6 +318,8 @@
       `type` = #{record.type,jdbcType=VARCHAR},
       description = #{record.description,jdbcType=VARCHAR},
       case_name = #{record.caseName,jdbcType=VARCHAR},
+      `system` = #{record.system,jdbcType=BIT},
+      `global` = #{record.global,jdbcType=BIT},
       workspace_id = #{record.workspaceId,jdbcType=VARCHAR},
       prerequisite = #{record.prerequisite,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
@@ -318,6 +342,12 @@
       </if>
       <if test="caseName != null">
         case_name = #{caseName,jdbcType=VARCHAR},
+      </if>
+      <if test="system != null">
+        `system` = #{system,jdbcType=BIT},
+      </if>
+      <if test="global != null">
+        `global` = #{global,jdbcType=BIT},
       </if>
       <if test="workspaceId != null">
         workspace_id = #{workspaceId,jdbcType=VARCHAR},
@@ -349,6 +379,8 @@
       `type` = #{type,jdbcType=VARCHAR},
       description = #{description,jdbcType=VARCHAR},
       case_name = #{caseName,jdbcType=VARCHAR},
+      `system` = #{system,jdbcType=BIT},
+      `global` = #{global,jdbcType=BIT},
       workspace_id = #{workspaceId,jdbcType=VARCHAR},
       prerequisite = #{prerequisite,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
@@ -364,6 +396,8 @@
       `type` = #{type,jdbcType=VARCHAR},
       description = #{description,jdbcType=VARCHAR},
       case_name = #{caseName,jdbcType=VARCHAR},
+      `system` = #{system,jdbcType=BIT},
+      `global` = #{global,jdbcType=BIT},
       workspace_id = #{workspaceId,jdbcType=VARCHAR},
       prerequisite = #{prerequisite,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},

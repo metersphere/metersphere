@@ -33,6 +33,20 @@
       </ms-table-column>
 
       <ms-table-column
+        :label="'系统模板'"
+        :fields="fields"
+        prop="system">
+        <template v-slot="scope">
+          <span v-if="scope.row.system">
+            是
+          </span>
+          <span v-else>
+            否
+          </span>
+        </template>
+      </ms-table-column>
+
+      <ms-table-column
         :label="'描述'"
         :fields="fields"
         prop="description">
@@ -103,10 +117,12 @@ export default {
           exec: this.handleEdit
         }, {
           tip: this.$t('commons.copy'), icon: "el-icon-copy-document", type: "success",
-          exec: this.handleCopy
+          exec: this.handleCopy,
+          isDisable: this.systemDisable
         }, {
           tip: this.$t('commons.delete'), icon: "el-icon-delete", type: "danger",
-          exec: this.handleDelete
+          exec: this.handleDelete,
+          isDisable: this.systemDisable
         }
       ],
 
@@ -151,6 +167,12 @@ export default {
         this.$success(this.$t('commons.delete_success'));
         this.initTableData();
       });
+    },
+    systemDisable(row) {
+      if (row.system) {
+        return true;
+      }
+      return false;
     }
   }
 }

@@ -4,10 +4,10 @@
                 :multiple="data.type === 'multipleSelect'"
                 filterable v-model="data.defaultValue" placeholder="默认值">
       <el-option
-        v-for="item in data.options ? data.options : []"
-        :key="item.text"
-        :label="item.text"
-        :value="item.text">
+        v-for="(item,index) in data.options ? data.options : []"
+        :key="index"
+        :label="getTranslateOption(item)"
+        :value="item.value">
       </el-option>
     </el-select>
 
@@ -23,17 +23,17 @@
     <el-checkbox-group
       v-else-if="data.type === 'checkbox'"
       v-model="data.defaultValue">
-      <el-checkbox v-for="item in data.options ? data.options : []"
-                   :key="item.text"
-                   :label="item.text"></el-checkbox>
+      <el-checkbox v-for="(item, index) in data.options ? data.options : []"
+                   :key="index"
+                   :label="getTranslateOption(item)"></el-checkbox>
     </el-checkbox-group>
 
     <el-radio
       v-else-if="data.type === 'radio'"
       v-model="data.defaultValue"
-      v-for="item in data.options ? data.options : []"
-      :key="item.text"
-      :label="item.text">{{ item.text }}</el-radio>
+      v-for="(item,index) in data.options ? data.options : []"
+      :key="index"
+      :label="getTranslateOption(item)"></el-radio>
 
     <el-input-number
       v-else-if="data.type === 'int'"
@@ -89,6 +89,11 @@ export default {
       this.$post('/user/ws/member/tester/list', {workspaceId: getCurrentWorkspaceId()}, response => {
         this.memberOptions = response.data;
       });
+    }
+  },
+  methods: {
+    getTranslateOption(item) {
+      return item.system ? this.$t(item.text) : item.text;
     }
   }
 }

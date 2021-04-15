@@ -15,6 +15,10 @@ public class TestCaseTemplate implements Serializable {
 
     private String caseName;
 
+    private Boolean system;
+
+    private Boolean global;
+
     private String workspaceId;
 
     private String prerequisite;

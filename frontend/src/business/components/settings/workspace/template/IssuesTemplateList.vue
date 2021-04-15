@@ -107,10 +107,12 @@ export default {
           exec: this.handleEdit
         }, {
           tip: this.$t('commons.copy'), icon: "el-icon-copy-document", type: "success",
-          exec: this.handleCopy
+          exec: this.handleCopy,
+          isDisable: this.systemDisable
         }, {
           tip: this.$t('commons.delete'), icon: "el-icon-delete", type: "danger",
-          exec: this.handleDelete
+          exec: this.handleDelete,
+          isDisable: this.systemDisable
         }
       ],
 
@@ -155,6 +157,12 @@ export default {
         this.$success(this.$t('commons.delete_success'));
         this.initTableData();
       });
+    },
+    systemDisable(row) {
+      if (row.system) {
+        return true;
+      }
+      return false;
     }
   }
 }

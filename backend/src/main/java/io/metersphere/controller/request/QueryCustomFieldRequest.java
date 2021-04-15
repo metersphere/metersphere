@@ -9,5 +9,7 @@ import java.util.List;
 @Setter
 public class QueryCustomFieldRequest extends BaseQueryRequest {
     private String templateId;
+    private String workspaceId;
+    private String scene;
     private List<String> templateContainIds;
 }

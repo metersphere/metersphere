@@ -58,4 +58,10 @@ public class CustomFieldController {
     public List<CustomField> getList(@RequestBody QueryCustomFieldRequest request) {
         return customFieldService.list(request);
     }
+
+    @PostMapping("/default")
+    public List<CustomField> getDefaultList(@RequestBody QueryCustomFieldRequest request) {
+        return customFieldService.getDefaultField(request);
+    }
+
 }

@@ -26,6 +26,14 @@
             :label="'名称'"
             :fields="fields"
             prop="name">
+            <template v-slot="scope">
+              <span v-if="scope.row.system">
+                {{caseSystemFieldMap[scope.row.name]}}
+              </span>
+                    <span v-else>
+                {{scope.row.name}}
+              </span>
+            </template>
           </ms-table-column>
 
           <ms-table-column
@@ -35,6 +43,20 @@
             prop="type">
             <template v-slot="scope">
               <span>{{ fieldTypeMap[scope.row.type] }}</span>
+            </template>
+          </ms-table-column>
+
+          <ms-table-column
+          :label="'系统字段'"
+          :fields="fields"
+          prop="system">
+            <template v-slot="scope">
+                <span v-if="scope.row.system">
+                  是
+                </span>
+              <span v-else>
+                  否
+                </span>
             </template>
           </ms-table-column>
 
@@ -77,7 +99,7 @@ import MsTableColumn from "@/business/components/common/components/table/Ms-tabl
 import {CUSTOM_FIELD_LIST} from "@/common/js/default-table-header";
 import MsTableButton from "@/business/components/common/components/MsTableButton";
 import MsTablePagination from "@/business/components/common/pagination/TablePagination";
-import {CUSTOM_FIELD_TYPE_OPTION} from "@/common/js/table-constants";
+import {SYSTEM_FIELD_NAME_MAP, CUSTOM_FIELD_TYPE_OPTION, FIELD_TYPE_MAP, SCENE_MAP} from "@/common/js/table-constants";
 import MsTableHeader from "@/business/components/common/components/MsTableHeader";
 import MsEditDialog from "@/business/components/common/components/MsEditDialog";
 export default {
@@ -95,23 +117,6 @@ export default {
       pageSize: 10,
       currentPage: 1,
       result: {},
-      fieldTypeMap:{
-        input: '输入框',
-        textarea: '文本框',
-        select: '单选下拉列表',
-        multipleSelect: '多选下拉列表',
-        radio: '单选框',
-        checkbox: '多选框',
-        member: '单选成员',
-        multipleMember: '多选成员',
-        data: '日期',
-        int: '整型',
-        float: '浮点型'
-      },
-      sceneMap: {
-        issues: '缺陷模板',
-        testCase: '用例模板'
-      },
     }
   },
   props: [
@@ -125,13 +130,22 @@ export default {
     },
     fieldFilters() {
       return CUSTOM_FIELD_TYPE_OPTION;
+    },
+    fieldTypeMap() {
+      return FIELD_TYPE_MAP;
+    },
+    sceneMap() {
+      return SCENE_MAP;
+    },
+    caseSystemFieldMap() {
+      return SYSTEM_FIELD_NAME_MAP;
     }
   },
   methods: {
     initTableData() {
       this.condition.workspaceId = getCurrentWorkspaceId();
       this.condition.templateId = this.templateId;
-      this.condition.templateContainIds = this.templateContainIds;
+      this.condition.templateContainIds = Array.from(this.templateContainIds);
       let filters = this.condition.filters;
       if (filters) {
         filters.scene = [this.scene];

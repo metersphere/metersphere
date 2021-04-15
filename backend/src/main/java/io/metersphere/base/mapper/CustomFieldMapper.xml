@@ -7,6 +7,8 @@
     <result column="scene" jdbcType="VARCHAR" property="scene" />
     <result column="type" jdbcType="VARCHAR" property="type" />
     <result column="remark" jdbcType="VARCHAR" property="remark" />
+    <result column="system" jdbcType="BIT" property="system" />
+    <result column="global" jdbcType="BIT" property="global" />
     <result column="workspace_id" jdbcType="VARCHAR" property="workspaceId" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
     <result column="update_time" jdbcType="BIGINT" property="updateTime" />
@@ -73,7 +75,8 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, `name`, scene, `type`, remark, workspace_id, create_time, update_time
+    id, `name`, scene, `type`, remark, `system`, `global`, workspace_id, create_time, 
+    update_time
   </sql>
   <sql id="Blob_Column_List">
     `options`
@@ -128,13 +131,13 @@
   </delete>
   <insert id="insert" parameterType="io.metersphere.base.domain.CustomField">
     insert into custom_field (id, `name`, scene, 
-      `type`, remark, workspace_id, 
-      create_time, update_time, `options`
-      )
+      `type`, remark, `system`, `global`, 
+      workspace_id, create_time, update_time, 
+      `options`)
     values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{scene,jdbcType=VARCHAR}, 
-      #{type,jdbcType=VARCHAR}, #{remark,jdbcType=VARCHAR}, #{workspaceId,jdbcType=VARCHAR}, 
-      #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, #{options,jdbcType=LONGVARCHAR}
-      )
+      #{type,jdbcType=VARCHAR}, #{remark,jdbcType=VARCHAR}, #{system,jdbcType=BIT}, #{global,jdbcType=BIT}, 
+      #{workspaceId,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, 
+      #{options,jdbcType=LONGVARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.CustomField">
     insert into custom_field
@@ -153,6 +156,12 @@
       </if>
       <if test="remark != null">
         remark,
+      </if>
+      <if test="system != null">
+        `system`,
+      </if>
+      <if test="global != null">
+        `global`,
       </if>
       <if test="workspaceId != null">
         workspace_id,
@@ -182,6 +191,12 @@
       </if>
       <if test="remark != null">
         #{remark,jdbcType=VARCHAR},
+      </if>
+      <if test="system != null">
+        #{system,jdbcType=BIT},
+      </if>
+      <if test="global != null">
+        #{global,jdbcType=BIT},
       </if>
       <if test="workspaceId != null">
         #{workspaceId,jdbcType=VARCHAR},
@@ -221,6 +236,12 @@
       <if test="record.remark != null">
         remark = #{record.remark,jdbcType=VARCHAR},
       </if>
+      <if test="record.system != null">
+        `system` = #{record.system,jdbcType=BIT},
+      </if>
+      <if test="record.global != null">
+        `global` = #{record.global,jdbcType=BIT},
+      </if>
       <if test="record.workspaceId != null">
         workspace_id = #{record.workspaceId,jdbcType=VARCHAR},
       </if>
@@ -245,6 +266,8 @@
       scene = #{record.scene,jdbcType=VARCHAR},
       `type` = #{record.type,jdbcType=VARCHAR},
       remark = #{record.remark,jdbcType=VARCHAR},
+      `system` = #{record.system,jdbcType=BIT},
+      `global` = #{record.global,jdbcType=BIT},
       workspace_id = #{record.workspaceId,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
       update_time = #{record.updateTime,jdbcType=BIGINT},
@@ -260,6 +283,8 @@
       scene = #{record.scene,jdbcType=VARCHAR},
       `type` = #{record.type,jdbcType=VARCHAR},
       remark = #{record.remark,jdbcType=VARCHAR},
+      `system` = #{record.system,jdbcType=BIT},
+      `global` = #{record.global,jdbcType=BIT},
       workspace_id = #{record.workspaceId,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
       update_time = #{record.updateTime,jdbcType=BIGINT}
@@ -282,6 +307,12 @@
       <if test="remark != null">
         remark = #{remark,jdbcType=VARCHAR},
       </if>
+      <if test="system != null">
+        `system` = #{system,jdbcType=BIT},
+      </if>
+      <if test="global != null">
+        `global` = #{global,jdbcType=BIT},
+      </if>
       <if test="workspaceId != null">
         workspace_id = #{workspaceId,jdbcType=VARCHAR},
       </if>
@@ -303,6 +334,8 @@
       scene = #{scene,jdbcType=VARCHAR},
       `type` = #{type,jdbcType=VARCHAR},
       remark = #{remark,jdbcType=VARCHAR},
+      `system` = #{system,jdbcType=BIT},
+      `global` = #{global,jdbcType=BIT},
       workspace_id = #{workspaceId,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
       update_time = #{updateTime,jdbcType=BIGINT},
@@ -315,6 +348,8 @@
       scene = #{scene,jdbcType=VARCHAR},
       `type` = #{type,jdbcType=VARCHAR},
       remark = #{remark,jdbcType=VARCHAR},
+      `system` = #{system,jdbcType=BIT},
+      `global` = #{global,jdbcType=BIT},
       workspace_id = #{workspaceId,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
       update_time = #{updateTime,jdbcType=BIGINT}

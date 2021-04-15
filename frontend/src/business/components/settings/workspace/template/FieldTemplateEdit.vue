@@ -18,7 +18,7 @@
 
           <el-form :model="form" :rules="rules" label-position="right" label-width="140px" size="small" ref="form">
             <el-form-item :label="'名称'" prop="name">
-              <el-input v-model="form.name" autocomplete="off"></el-input>
+              <el-input :disabled="isSystem" v-model="form.name" autocomplete="off"></el-input>
             </el-form-item>
 
             <slot name="base"></slot>
@@ -40,6 +40,7 @@
               <custom-field-form-list
                 :table-data="relateFields"
                 :scene="scene"
+                :template-contain-ids="templateContainIds"
                 :custom-field-ids="form.customFieldIds"
                 ref="customFieldFormList"
               />
@@ -66,9 +67,9 @@ import draggable from 'vuedraggable';
 import TemplateComponentEditHeader
   from "@/business/components/track/plan/view/comonents/report/TemplateComponentEditHeader";
 import MsFormDivider from "@/business/components/common/components/MsFormDivider";
-import {getCurrentWorkspaceId} from "@/common/js/utils";
 import CustomFieldFormList from "@/business/components/settings/workspace/template/CustomFieldFormList";
 import CustomFieldRelateList from "@/business/components/settings/workspace/template/CustomFieldRelateList";
+import {getCurrentWorkspaceId} from "@/common/js/utils";
 
 export default {
   name: "FieldTemplateEdit",
@@ -82,7 +83,7 @@ export default {
   data() {
     return {
       result: {},
-      templateContainIds: [],
+      templateContainIds: new Set(),
       relateFields: []
     }
   },
@@ -103,21 +104,28 @@ export default {
       }
     }
   },
+  computed: {
+    isSystem() {
+      return this.form.system;
+    }
+  },
   methods: {
     open() {
-      this.init();
-      this.getRelateFields();
-      this.$emit('update:visible', true);
+      this.$nextTick(() => {
+        this.init();
+        this.getRelateFields();
+        this.$emit('update:visible', true);
+      });
     },
     init() {
       this.relateFields = [];
-      this.templateContainIds = [];
+      this.templateContainIds = new Set();
     },
     handleClose() {
       this.$emit('update:visible', false);
     },
     handleRelate(data) {
-      this.templateContainIds.push(...data);
+      this.templateContainIds.add(...data);
       this.$refs.customFieldFormList.appendData(data);
     },
     handleSave() {
@@ -125,8 +133,8 @@ export default {
         if (valid) {
           let param = {};
           Object.assign(param, this.form);
-          param.workspaceId = getCurrentWorkspaceId();
           param.options = JSON.stringify(this.form.options);
+          param.workspaceId = getCurrentWorkspaceId();
           let customFields = this.relateFields;
           if (customFields) {
             customFields.forEach(item => {
@@ -159,9 +167,30 @@ export default {
               if (item.defaultValue) {
                 item.defaultValue = JSON.parse(item.defaultValue);
               }
+              this.templateContainIds.add(item.fieldId);
             });
-        });
+          });
+      } else {
+        this.appendDefaultFiled();
       }
+    },
+    appendDefaultFiled() {
+      let condition = {
+        workspaceId: getCurrentWorkspaceId(),
+        scene: this.scene
+      }
+      this.result = this.$post('custom/field/default', condition, (response) => {
+          let data = response.data;
+          data.forEach(item => {
+            if (item.id) {
+              this.templateContainIds.add(item.id);
+            }
+            item.fieldId = item.id;
+            item.id = null;
+            item.options = JSON.parse(item.options);
+          });
+          this.relateFields.push(...data);
+        });
     }
   }
 }

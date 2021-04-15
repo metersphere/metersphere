@@ -161,9 +161,9 @@ export default {
           {text: this.$t('commons.api'), value: 'api'}
         ],
         statusFilters: [
-          {text: this.$t('test_track.case.status_prepare'), value: 'Prepare'},
-          {text: this.$t('test_track.case.status_pass'), value: 'Pass'},
-          {text: this.$t('test_track.case.status_un_pass'), value: 'UnPass'},
+          {text: this.$t('test_track.review.prepare'), value: 'Prepare'},
+          {text: this.$t('test_track.review.pass'), value: 'Pass'},
+          {text: this.$t('test_track.review.un_pass'), value: 'UnPass'},
         ],
       };
     },

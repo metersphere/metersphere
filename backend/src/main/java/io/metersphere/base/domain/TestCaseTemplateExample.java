@@ -454,6 +454,126 @@ public class TestCaseTemplateExample {
             return (Criteria) this;
         }
 
+        public Criteria andSystemIsNull() {
+            addCriterion("`system` is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andSystemIsNotNull() {
+            addCriterion("`system` is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andSystemEqualTo(Boolean value) {
+            addCriterion("`system` =", value, "system");
+            return (Criteria) this;
+        }
+
+        public Criteria andSystemNotEqualTo(Boolean value) {
+            addCriterion("`system` <>", value, "system");
+            return (Criteria) this;
+        }
+
+        public Criteria andSystemGreaterThan(Boolean value) {
+            addCriterion("`system` >", value, "system");
+            return (Criteria) this;
+        }
+
+        public Criteria andSystemGreaterThanOrEqualTo(Boolean value) {
+            addCriterion("`system` >=", value, "system");
+            return (Criteria) this;
+        }
+
+        public Criteria andSystemLessThan(Boolean value) {
+            addCriterion("`system` <", value, "system");
+            return (Criteria) this;
+        }
+
+        public Criteria andSystemLessThanOrEqualTo(Boolean value) {
+            addCriterion("`system` <=", value, "system");
+            return (Criteria) this;
+        }
+
+        public Criteria andSystemIn(List<Boolean> values) {
+            addCriterion("`system` in", values, "system");
+            return (Criteria) this;
+        }
+
+        public Criteria andSystemNotIn(List<Boolean> values) {
+            addCriterion("`system` not in", values, "system");
+            return (Criteria) this;
+        }
+
+        public Criteria andSystemBetween(Boolean value1, Boolean value2) {
+            addCriterion("`system` between", value1, value2, "system");
+            return (Criteria) this;
+        }
+
+        public Criteria andSystemNotBetween(Boolean value1, Boolean value2) {
+            addCriterion("`system` not between", value1, value2, "system");
+            return (Criteria) this;
+        }
+
+        public Criteria andGlobalIsNull() {
+            addCriterion("`global` is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andGlobalIsNotNull() {
+            addCriterion("`global` is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andGlobalEqualTo(Boolean value) {
+            addCriterion("`global` =", value, "global");
+            return (Criteria) this;
+        }
+
+        public Criteria andGlobalNotEqualTo(Boolean value) {
+            addCriterion("`global` <>", value, "global");
+            return (Criteria) this;
+        }
+
+        public Criteria andGlobalGreaterThan(Boolean value) {
+            addCriterion("`global` >", value, "global");
+            return (Criteria) this;
+        }
+
+        public Criteria andGlobalGreaterThanOrEqualTo(Boolean value) {
+            addCriterion("`global` >=", value, "global");
+            return (Criteria) this;
+        }
+
+        public Criteria andGlobalLessThan(Boolean value) {
+            addCriterion("`global` <", value, "global");
+            return (Criteria) this;
+        }
+
+        public Criteria andGlobalLessThanOrEqualTo(Boolean value) {
+            addCriterion("`global` <=", value, "global");
+            return (Criteria) this;
+        }
+
+        public Criteria andGlobalIn(List<Boolean> values) {
+            addCriterion("`global` in", values, "global");
+            return (Criteria) this;
+        }
+
+        public Criteria andGlobalNotIn(List<Boolean> values) {
+            addCriterion("`global` not in", values, "global");
+            return (Criteria) this;
+        }
+
+        public Criteria andGlobalBetween(Boolean value1, Boolean value2) {
+            addCriterion("`global` between", value1, value2, "global");
+            return (Criteria) this;
+        }
+
+        public Criteria andGlobalNotBetween(Boolean value1, Boolean value2) {
+            addCriterion("`global` not between", value1, value2, "global");
+            return (Criteria) this;
+        }
+
         public Criteria andWorkspaceIdIsNull() {
             addCriterion("workspace_id is null");
             return (Criteria) this;

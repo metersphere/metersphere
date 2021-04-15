@@ -11,7 +11,7 @@
 
     <template v-slot:base>
       <el-form-item :label="'缺陷平台'" prop="platform">
-        <el-select filterable v-model="form.platform" placeholder="用例类型">
+        <el-select :disabled="isSystem"  filterable v-model="form.platform" placeholder="用例类型">
           <el-option
             v-for="item in platformOption"
             :key="item.value"
@@ -46,6 +46,7 @@ import {ISSUE_PLATFORM_OPTION} from "@/common/js/table-constants";
 import CustomFieldFormList from "@/business/components/settings/workspace/template/CustomFieldFormList";
 import CustomFieldRelateList from "@/business/components/settings/workspace/template/CustomFieldRelateList";
 import FieldTemplateEdit from "@/business/components/settings/workspace/template/FieldTemplateEdit";
+import {getCurrentWorkspaceId} from "@/common/js/utils";
 
 export default {
   name: "IssueTemplateEdit",
@@ -82,6 +83,9 @@ export default {
   computed: {
     platformOption() {
       return ISSUE_PLATFORM_OPTION;
+    },
+    isSystem() {
+      return this.form.system;
     }
   },
   methods: {
@@ -99,6 +103,7 @@ export default {
         }
       } else {
         this.form = {
+          id: "",
           name: "",
           platform: 'metersphere',
           description: '',

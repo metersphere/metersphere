@@ -20,6 +20,14 @@
           :label="'名称'"
           :fields="fields"
           prop="name">
+          <template v-slot="scope">
+            <span v-if="scope.row.system">
+              {{caseSystemFieldMap[scope.row.name]}}
+            </span>
+            <span v-else>
+              {{scope.row.name}}
+            </span>
+          </template>
         </ms-table-column>
 
         <ms-table-column
@@ -39,6 +47,20 @@
           prop="type">
           <template v-slot="scope">
             <span>{{ fieldTypeMap[scope.row.type] }}</span>
+          </template>
+        </ms-table-column>
+
+        <ms-table-column
+          :label="'系统字段'"
+          :fields="fields"
+          prop="system">
+          <template v-slot="scope">
+            <span v-if="scope.row.system">
+              是
+            </span>
+            <span v-else>
+              否
+            </span>
           </template>
         </ms-table-column>
 
@@ -67,6 +89,7 @@
             <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
           </template>
         </ms-table-column>
+
     </ms-table>
 
     <ms-table-pagination :change="getCustomFields" :current-page.sync="currentPage" :page-size.sync="pageSize" :total="total"/>
@@ -88,7 +111,13 @@ import MsTableOperators from "@/business/components/common/components/MsTableOpe
 import MsTableButton from "@/business/components/common/components/MsTableButton";
 import CustomFieldEdit from "@/business/components/settings/workspace/template/CustomFieldEdit";
 import MsTablePagination from "@/business/components/common/pagination/TablePagination";
-import {CUSTOM_FIELD_SCENE_OPTION, CUSTOM_FIELD_TYPE_OPTION} from "@/common/js/table-constants";
+import {
+  SYSTEM_FIELD_NAME_MAP,
+  CUSTOM_FIELD_SCENE_OPTION,
+  CUSTOM_FIELD_TYPE_OPTION,
+  FIELD_TYPE_MAP,
+  SCENE_MAP
+} from "@/common/js/table-constants";
 import MsTableHeader from "@/business/components/common/components/MsTableHeader";
 export default {
   name: "CustomFieldList",
@@ -103,33 +132,18 @@ export default {
       pageSize: 10,
       currentPage: 1,
       result: {},
-      fieldTypeMap:{
-        input: '输入框',
-        textarea: '文本框',
-        select: '单选下拉列表',
-        multipleSelect: '多选下拉列表',
-        radio: '单选框',
-        checkbox: '多选框',
-        member: '单选成员',
-        multipleMember: '多选成员',
-        data: '日期',
-        int: '整型',
-        float: '浮点型'
-      },
-      sceneMap: {
-        ISSUE: '缺陷模板',
-        TEST_CASE: '用例模板'
-      },
       operators: [
         {
           tip: this.$t('commons.edit'), icon: "el-icon-edit",
           exec: this.handleEdit
         }, {
           tip: this.$t('commons.copy'), icon: "el-icon-copy-document", type: "success",
-          exec: this.handleCopy
+          exec: this.handleCopy,
+          isDisable: this.systemDisable
         }, {
           tip: this.$t('commons.delete'), icon: "el-icon-delete", type: "danger",
-          exec: this.handleDelete
+          exec: this.handleDelete,
+          isDisable: this.systemDisable
         }
       ],
 
@@ -147,6 +161,15 @@ export default {
     },
     sceneFilters() {
       return CUSTOM_FIELD_SCENE_OPTION;
+    },
+    fieldTypeMap() {
+      return FIELD_TYPE_MAP;
+    },
+    sceneMap() {
+      return SCENE_MAP;
+    },
+    caseSystemFieldMap() {
+      return SYSTEM_FIELD_NAME_MAP;
     }
   },
   methods: {
@@ -177,6 +200,12 @@ export default {
         this.$success(this.$t('commons.delete_success'));
         this.getCustomFields();
       });
+    },
+    systemDisable(row) {
+      if (row.system) {
+        return true;
+      }
+      return false;
     }
   }
 }

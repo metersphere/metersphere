@@ -15,6 +15,10 @@ public class IssueTemplate implements Serializable {
 
     private String title;
 
+    private Boolean system;
+
+    private Boolean global;
+
     private String workspaceId;
 
     private Long createTime;

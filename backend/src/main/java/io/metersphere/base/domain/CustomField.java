@@ -15,6 +15,10 @@ public class CustomField implements Serializable {
 
     private String remark;
 
+    private Boolean system;
+
+    private Boolean global;
+
     private String workspaceId;
 
     private Long createTime;
