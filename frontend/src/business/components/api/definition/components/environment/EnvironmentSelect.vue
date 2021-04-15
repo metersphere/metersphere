@@ -79,8 +79,7 @@
                 return environment.name;
               }
             }
-            return environment.name + (environment.config.httpConfig.socket ?
-              (': ' + environment.config.httpConfig.protocol + '://' + environment.config.httpConfig.socket) : '');
+            return environment.name;
           }
           return "";
         },

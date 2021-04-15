@@ -22,7 +22,7 @@
       <el-button type="primary" v-else style="float: right" size="mini" @click="update">{{$t('commons.update')}}</el-button>
 
       <div v-if="condition.type === 'MODULE'">
-        <ms-select-tree size="small" :data="moduleOptions" :default-key="condition.ids" @getValue="setModule" :obj="moduleObj" clearable checkStrictly multiple/>
+        <ms-select-tree size="small" :data="moduleOptions" :default-key="condition.ids" @getValue="setModule" :obj="moduleObj" clearable checkStrictly multiple v-if="!loading"/>
       </div>
       <div v-if="condition.type === 'PATH'">
         <el-input v-model="pathDetails.name" :placeholder="$t('api_test.value')" clearable size="small">
@@ -36,7 +36,7 @@
       </div>
     </el-form-item>
     <div class="ms-border">
-      <el-table :data="httpConfig.conditions" highlight-current-row @current-change="selectRow">
+      <el-table :data="httpConfig.conditions" highlight-current-row @current-change="selectRow" v-if="!loading">
         <el-table-column prop="socket" :label="$t('load_test.domain')" width="180">
           <template v-slot:default="{row}">
             {{getUrl(row)}}
@@ -110,6 +110,7 @@
           id: "id",
           label: "name",
         },
+        loading: false,
         pathDetails: new KeyValue({name: "", value: "contains"}),
         condition: {type: "NONE", details: [new KeyValue({name: "", value: "contains"})], protocol: "http", socket: "", domain: "", port: 0},
       };
@@ -165,13 +166,14 @@
         }
       },
       selectRow(row) {
+        this.condition = {};
         if (row) {
           this.httpConfig.socket = row.socket;
           this.httpConfig.protocol = row.protocol;
           this.httpConfig.port = row.port;
           this.condition = row;
           if (row.type === "PATH" && row.details.length > 0) {
-            this.pathDetails = row.details[0];
+            this.pathDetails = JSON.parse(JSON.stringify(row.details[0]));
           } else if (row.type === "MODULE" && row.details.length > 0) {
             this.condition.ids = [];
             row.details.forEach((item) => {
@@ -179,6 +181,7 @@
             });
           }
         }
+        this.reload();
       },
       typeChange() {
         switch (this.condition.type) {
@@ -194,7 +197,7 @@
         }
       },
       list() {
-        let url = "/api/automation/module/list/" + this.projectId;
+        let url = "/api/module/list/" + this.projectId + "/HTTP";
         this.result = this.$get(url, (response) => {
           if (response.data !== undefined && response.data !== null) {
             this.moduleOptions = response.data;
@@ -216,10 +219,20 @@
           id: this.condition.id, type: this.condition.type, domain: this.condition.domain, socket: this.condition.socket,
           protocol: this.condition.protocol, details: this.condition.details, port: this.condition.port, time: this.condition.time
         };
+        if (obj.type === "PATH") {
+          this.httpConfig.conditions[index].details = [this.pathDetails];
+        }
         if (index !== -1) {
           Vue.set(this.httpConfig.conditions[index], obj, 1);
           this.condition = {type: "NONE", details: [new KeyValue({name: "", value: "contains"})], protocol: "", socket: "", domain: ""};
+          this.reload();
         }
+      },
+      reload() {
+        this.loading = true
+        this.$nextTick(() => {
+          this.loading = false
+        });
       },
       add() {
         let obj = {
@@ -243,9 +256,9 @@
       },
       copy(row) {
         const index = this.httpConfig.conditions.findIndex((d) => d.id === row.id);
-        let obj = {id: getUUID(), type: row.type, socket: row.socket, details: row.details, protocol: row.protocol, domain: row.domain,};
+        let obj = {id: getUUID(), type: row.type, socket: row.socket, details: row.details, protocol: row.protocol, domain: row.domain, time: new Date().getTime()};
         if (index != -1) {
-          this.httpConfig.conditions.splice(index + 1, 0, obj);
+          this.httpConfig.conditions.splice(index, 0, obj);
         } else {
           this.httpConfig.conditions.push(obj);
         }
