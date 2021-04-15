@@ -96,9 +96,9 @@ export default {
     },
     check(key) {
       if (module.default !== undefined) {
-        return true;
+        return this.modules[key] === 'ENABLE';
       }
-      return this.modules[key] === 'ENABLE';
+      return true;
     }
   }
 };
