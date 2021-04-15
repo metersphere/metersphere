@@ -24,6 +24,7 @@ import io.metersphere.api.dto.definition.request.sampler.MsTCPSampler;
 import io.metersphere.api.dto.definition.request.timer.MsConstantTimer;
 import io.metersphere.api.dto.definition.request.unknown.MsJmeterElement;
 import io.metersphere.api.dto.definition.request.variable.ScenarioVariable;
+import io.metersphere.api.dto.mockconfig.MockConfigStaticData;
 import io.metersphere.api.dto.scenario.KeyValue;
 import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
 import io.metersphere.api.service.ApiDefinitionService;
@@ -110,6 +111,8 @@ public abstract class MsTestElement {
     private boolean customizeReq;
     @JSONField(ordinal = 12)
     private String projectId;
+    @JSONField(ordinal = 13)
+    private boolean isMockEnvironment;
 
     private MsTestElement parent;
 
@@ -206,11 +209,16 @@ public abstract class MsTestElement {
         ApiTestEnvironmentService environmentService = CommonBeanFactory.getBean(ApiTestEnvironmentService.class);
         ApiTestEnvironmentWithBLOBs environment = environmentService.get(environmentId);
         if (environment != null && environment.getConfig() != null) {
+            if (StringUtils.equals(environment.getName(), MockConfigStaticData.MOCK_EVN_NAME)) {
+                isMockEnvironment = true;
+            }
             // 单独接口执行
             Map<String, EnvironmentConfig> map = new HashMap<>();
             map.put(this.getProjectId(), JSONObject.parseObject(environment.getConfig(), EnvironmentConfig.class));
             return map;
         }
+
+
         return null;
     }
 

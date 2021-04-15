@@ -12,9 +12,11 @@ import io.metersphere.api.dto.definition.request.ScheduleInfoSwaggerUrlRequest;
 import io.metersphere.api.dto.swaggerurl.SwaggerTaskResult;
 import io.metersphere.api.dto.swaggerurl.SwaggerUrlRequest;
 import io.metersphere.api.service.ApiDefinitionService;
+import io.metersphere.api.service.ApiTestEnvironmentService;
 import io.metersphere.api.service.EsbApiParamService;
 import io.metersphere.api.service.EsbImportService;
 import io.metersphere.base.domain.ApiDefinition;
+import io.metersphere.base.domain.ApiTestEnvironmentWithBLOBs;
 import io.metersphere.base.domain.Schedule;
 import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.commons.json.JSONSchemaGenerator;
@@ -33,6 +35,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.net.MalformedURLException;
 import java.util.Date;
@@ -53,6 +56,8 @@ public class ApiDefinitionController {
     private EsbApiParamService esbApiParamService;
     @Resource
     private EsbImportService esbImportService;
+    @Resource
+    private ApiTestEnvironmentService apiTestEnvironmentService;
 
     @PostMapping("/list/{goPage}/{pageSize}")
     public Pager<List<ApiDefinitionResult>> list(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody ApiDefinitionRequest request) {
@@ -264,4 +269,16 @@ public class ApiDefinitionController {
     public void testCaseTemplateExport(HttpServletResponse response) {
         esbImportService.templateExport(response);
     }
+
+    @GetMapping("/getMockEnvironment/{projectId}")
+    public ApiTestEnvironmentWithBLOBs getMockEnvironment(@PathVariable String projectId, HttpServletRequest request) {
+        System.out.println(request.getRequestURL());
+        String requestUrl = request.getRequestURI();
+        String baseUrl = "";
+        if (requestUrl.contains("/api/definition")) {
+            baseUrl = requestUrl.split("/api/definition")[0];
+        }
+        return apiTestEnvironmentService.getMockEnvironmentByProjectId(projectId, baseUrl);
+    }
+
 }
