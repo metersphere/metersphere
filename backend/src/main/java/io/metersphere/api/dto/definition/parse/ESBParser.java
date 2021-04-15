@@ -639,7 +639,7 @@ public class ESBParser extends EsbAbstractParser {
         MsJSR223PreProcessor preProcessor = new MsJSR223PreProcessor();
         tcpSampler.setTcpPreProcessor(preProcessor);
         tcpSampler.setProtocol("ESB");
-        tcpSampler.setClassname("TCPSampler");
+        tcpSampler.setClassname("TCPClientImpl");
 
         return JSON.toJSONString(tcpSampler);
     }

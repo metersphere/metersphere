@@ -79,10 +79,28 @@
           </el-row>
         </div>
 
+        <!-- MOCK信息 -->
+        <p class="tip">{{ $t('test_track.plan_view.mock_info') }} </p>
+        <div class="base-info">
+          <el-row>
+            <el-col :span="20">
+              Mock地址：
+              <el-link>
+                {{ this.mockBaseUrl + "/mock/" + this.projectId + (this.httpForm.path == null ? "" : this.httpForm.path) }}
+              </el-link>
+            </el-col>
+            <el-col :span="4">
+              <el-link @click="mockSetting" type="primary">Mock设置</el-link>
+            </el-col>
+          </el-row>
+
+        </div>
+
         <!-- 请求参数 -->
         <div>
           <p class="tip">{{ $t('api_test.definition.request.req_param') }} </p>
-          <ms-api-request-form :showScript="false" :request="request" :headers="request.headers" :isShowEnable="isShowEnable"/>
+          <ms-api-request-form :showScript="false" :request="request" :headers="request.headers"
+                               :isShowEnable="isShowEnable"/>
         </div>
 
       </el-form>
@@ -129,20 +147,21 @@
           moduleId: [{required: true, message: this.$t('test_track.case.input_module'), trigger: 'change'}],
           status: [{required: true, message: this.$t('commons.please_select'), trigger: 'change'}],
         },
-        httpForm: {environmentId: "", tags: []},
+        httpForm: {environmentId: "", path: "", tags: []},
         isShowEnable: true,
         maintainerOptions: [],
         currentModule: {},
         reqOptions: REQ_METHOD,
         options: API_STATUS,
+        mockEnvironment: {},
         moduleObj: {
           id: 'id',
           label: 'name',
         },
-
+        mockBaseUrl: "",
       }
     },
-    props: {moduleOptions: {}, request: {}, response: {}, basisData: {}, syncTabs: Array},
+    props: {moduleOptions: {}, request: {}, response: {}, basisData: {}, syncTabs: Array, projectId: String},
     watch: {
       syncTabs() {
         if (this.basisData && this.syncTabs && this.syncTabs.includes(this.basisData.id)) {
@@ -231,10 +250,34 @@
           this.$error(this.$t('api_test.request.url_invalid'), 2000);
         }
       },
-      setModule(id,data) {
+      setModule(id, data) {
         this.httpForm.moduleId = id;
         this.httpForm.modulePath = data.path;
       },
+      initMockEnvironment() {
+        let url = "/api/definition/getMockEnvironment/";
+        this.$get(url + this.projectId, response => {
+          this.mockEnvironment = response.data;
+          let httpConfig = JSON.parse(this.mockEnvironment.config);
+          if (httpConfig != null) {
+            this.mockBaseUrl = httpConfig.httpConfig.socket;
+          }
+        });
+      },
+      mockSetting() {
+        if (this.httpForm.id == null) {
+          this.$alert(this.$t('api_test.mock.create_error'));
+        } else {
+          let mockParam = {};
+          mockParam.projectId = this.projectId;
+          mockParam.apiId = this.httpForm.id;
+
+          this.$post('/mockConfig/genMockConfig', mockParam, response => {
+            let mockConfig = response.data;
+            this.$emit('mockConfig', mockConfig);
+          });
+        }
+      }
     },
 
     created() {
@@ -243,6 +286,8 @@
         this.basisData.environmentId = "";
       }
       this.httpForm = JSON.parse(JSON.stringify(this.basisData));
+
+      this.initMockEnvironment();
     }
   }
 </script>
