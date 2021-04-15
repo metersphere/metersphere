@@ -2,6 +2,7 @@ package io.metersphere.api.jmeter;
 
 import com.alibaba.fastjson.JSON;
 import io.github.ningyu.jmeter.plugin.dubbo.sample.DubboSample;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.jmeter.extractor.JSR223PostProcessor;
 import org.apache.jmeter.extractor.RegexExtractor;
 import org.apache.jmeter.extractor.XPath2Extractor;
@@ -31,32 +32,36 @@ public class JMeterVars {
      * @param vars
      * @param extract
      */
-     public static void addVars(Integer testId, JMeterVariables vars, String extract) {
-        JMeterVariables vs = new JMeterVariables();
+    public static void addVars(Integer testId, JMeterVariables vars, String extract) {
+        JMeterVariables vs = variables.get(testId);
+        if (vs == null) {
+            vs = new JMeterVariables();
+        }
         if (!StringUtils.isEmpty(extract) && vars != null) {
             List<String> extracts = Arrays.asList(extract.split(";"));
-            Optional.ofNullable(extracts).orElse(new ArrayList<>()).forEach(item -> {
-
-                String nrKey = item + "_matchNr";
-                Object nr = vars.get(nrKey);
-                if (nr != null) {
-                    int nrv = 0;
-                    try {
-                        nrv = Integer.valueOf(String.valueOf(nr));
-                    } catch (Exception e) {
-                    }
-                    if (nrv > 0) {
-                        List<Object> data = new ArrayList<>();
-                        for (int i = 1; i < nrv + 1; i++) {
-                            data.add(vars.get(item + "_" + i));
+            if (CollectionUtils.isNotEmpty(extracts)) {
+                for (String item : extracts) {
+                    String nrKey = item + "_matchNr";
+                    Object nr = vars.get(nrKey);
+                    if (nr != null) {
+                        int nrv = 0;
+                        try {
+                            nrv = Integer.valueOf(String.valueOf(nr));
+                        } catch (Exception e) {
                         }
-                        String array = JSON.toJSONString(data);
-                        vars.put(item, array);
+                        if (nrv > 0) {
+                            List<Object> data = new ArrayList<>();
+                            for (int i = 1; i < nrv + 1; i++) {
+                                data.add(vars.get(item + "_" + i));
+                            }
+                            String array = JSON.toJSONString(data);
+                            vars.put(item, array);
+                        }
                     }
+                    vs.put(item, vars.get(item) == null ? "" : vars.get(item));
                 }
-                vs.put(item, vars.get(item) == null ? "" : vars.get(item));
-            });
-            vs.remove("TESTSTART.MS"); // 标示变量移除
+                vs.remove("TESTSTART.MS"); // 标示变量移除
+            }
         }
 
         variables.put(testId, vs);

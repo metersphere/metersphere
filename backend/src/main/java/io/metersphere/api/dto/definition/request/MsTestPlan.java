@@ -18,6 +18,7 @@ import java.util.List;
 @JSONType(typeName = "TestPlan")
 public class MsTestPlan extends MsTestElement {
     private String type = "TestPlan";
+    private boolean serializeThreadgroups = false;
 
     @Override
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, ParameterConfig config) {
@@ -35,7 +36,7 @@ public class MsTestPlan extends MsTestElement {
         testPlan.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("TestPlanGui"));
         testPlan.setEnabled(true);
         testPlan.setFunctionalMode(false);
-        testPlan.setSerialized(true);
+        testPlan.setSerialized(serializeThreadgroups);
         testPlan.setTearDownOnShutdown(true);
         testPlan.setUserDefinedVariables(new Arguments());
         return testPlan;

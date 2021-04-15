@@ -248,7 +248,6 @@
               if (!apiCase.request.hashTree) {
                 apiCase.request.hashTree = [];
               }
-
             });
             this.apiCaseList = data;
             if (!this.useEnvironment && this.apiCaseList[0] && this.apiCaseList[0].request && this.apiCaseList[0].request.useEnvironment) {

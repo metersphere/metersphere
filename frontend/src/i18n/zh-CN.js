@@ -713,6 +713,8 @@ export default {
       }
     },
     automation: {
+      open_expansion: "一键展开",
+      close_expansion: "一键收起",
       constant: "常量",
       counter: "计数器",
       random: "随机数",
@@ -776,6 +778,7 @@ export default {
     environment: {
       name: "环境名称",
       socket: "环境域名",
+      condition_enable: "启用条件",
       globalVariable: "全局变量",
       environment_list: "环境列表",
       environment_config: "环境配置",
@@ -1682,5 +1685,14 @@ export default {
     header_display_field: '表头显示字段',
     fields_to_be_selected: '待选字段',
     selected_fields: '已选字段'
+  },
+  run_mode: {
+    title: "模式",
+    serial: "串行",
+    parallel: "并行",
+    other_config: "其他配置",
+    idd_report: "独立报告",
+    set_report: "集合报告",
+    report_name: "报告名称",
   }
 };

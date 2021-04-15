@@ -42,7 +42,7 @@
   import {Environment} from "../../model/EnvironmentModel";
   import MsApiHostTable from "./ApiHostTable";
   import MsDatabaseConfig from "../request/database/DatabaseConfig";
-  import MsEnvironmentHttpConfig from "./EnvironmentHttpConfig";
+  import MsEnvironmentHttpConfig from "../../../test/components/environment/EnvironmentHttpConfig";
   import MsEnvironmentCommonConfig from "./EnvironmentCommonConfig";
   import EnvironmentTcpConfig from "./EnvironmentTcpConfig";
 

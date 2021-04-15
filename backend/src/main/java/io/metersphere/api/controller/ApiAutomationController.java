@@ -66,6 +66,7 @@ public class ApiAutomationController {
     public void update(@RequestPart("request") SaveApiScenarioRequest request, @RequestPart(value = "files") List<MultipartFile> bodyFiles) {
         apiAutomationService.update(request, bodyFiles);
     }
+
     @GetMapping("/delete/{id}")
     public void delete(@PathVariable String id) {
         apiAutomationService.delete(id);
@@ -139,7 +140,7 @@ public class ApiAutomationController {
     }
 
     @PostMapping(value = "/run/batch")
-    public String runBatcah(@RequestBody RunScenarioRequest request) {
+    public String runBatch(@RequestBody RunScenarioRequest request) {
         request.setExecuteType(ExecuteType.Saved.name());
         request.setTriggerMode(ApiRunMode.SCENARIO.name());
         request.setRunMode(ApiRunMode.SCENARIO.name());
@@ -174,7 +175,7 @@ public class ApiAutomationController {
     }
 
     @PostMapping("/relevance/review")
-    public  void testCaseReviewRelevance(@RequestBody ApiCaseRelevanceRequest request){
+    public void testCaseReviewRelevance(@RequestBody ApiCaseRelevanceRequest request) {
         apiAutomationService.relevanceReview(request);
     }
 

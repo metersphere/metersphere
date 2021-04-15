@@ -1,16 +1,22 @@
 package io.metersphere.api.jmeter;
 
-import io.metersphere.commons.utils.BeanUtils;
 import lombok.Data;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 public class TestResult {
 
     private String testId;
+
+    private String reportName;
+
+    private boolean isDebug;
+
+    private String runMode;
 
     private int success = 0;
 

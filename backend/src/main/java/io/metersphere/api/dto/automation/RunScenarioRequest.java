@@ -21,7 +21,7 @@ public class RunScenarioRequest extends ApiScenarioWithBLOBs {
 
     private String runMode;
 
-    //测试情景和测试计划的关联ID
+    /**测试情景和测试计划的关联ID*/
     private String planScenarioId;
 
     private List<String> planCaseIds;
@@ -30,8 +30,9 @@ public class RunScenarioRequest extends ApiScenarioWithBLOBs {
 
     private String reportUserID;
 
-    private Map<String,String> scenarioTestPlanIdMap;
+    private Map<String, String> scenarioTestPlanIdMap;
 
     private ApiScenarioRequest condition;
 
+    private RunModeConfig config;
 }

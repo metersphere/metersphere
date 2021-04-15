@@ -40,7 +40,7 @@
   import MsApiReportExport from "./ApiReportExport";
   import MsApiReportViewHeader from "./ApiReportViewHeader";
   import {RequestFactory} from "../../definition/model/ApiTestModel";
-  import {windowPrint} from "@/common/js/utils";
+  import {windowPrint,getUUID} from "@/common/js/utils";
 
   export default {
     name: "MsApiReport",
@@ -102,14 +102,12 @@
       formatResult(res) {
         let resMap = new Map;
         let array = [];
-        let i = 0;
         if (res && res.scenarios) {
           res.scenarios.forEach(item => {
             if (item && item.requestResults) {
               item.requestResults.forEach(req => {
                 resMap.set(req.id, req);
-                req.index = i;
-                i++;
+                req.name = item.name + "^@~@^" + req.name+ "UUID="+getUUID();
                 array.push(req);
               })
             }
