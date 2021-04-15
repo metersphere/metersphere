@@ -252,7 +252,7 @@ export default {
       deep: true
     }
   },
-}
+};
 </script>
 
 <style scoped>

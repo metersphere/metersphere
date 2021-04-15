@@ -101,11 +101,11 @@ export default {
         } else {
           return false;
         }
-      })
+      });
       this.dialogVisible = false;
     },
   }
-}
+};
 </script>
 
 <style scoped>
