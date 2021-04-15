@@ -240,6 +240,19 @@ public class ApiDefinitionService {
         }
     }
 
+    private List<ApiDefinition> getSameRequestWithName(SaveApiDefinitionRequest request) {
+        ApiDefinitionExample example = new ApiDefinitionExample();
+        example.createCriteria()
+                .andMethodEqualTo(request.getMethod())
+                .andStatusNotEqualTo("Trash")
+                .andPathEqualTo(request.getPath())
+                .andNameEqualTo(request.getName())
+                .andProjectIdEqualTo(request.getProjectId())
+                .andIdNotEqualTo(request.getId());
+        return apiDefinitionMapper.selectByExample(example);
+
+    }
+
     private ApiDefinition updateTest(SaveApiDefinitionRequest request) {
         checkNameExist(request);
         if (StringUtils.equals(request.getMethod(), "ESB")) {
@@ -322,7 +335,8 @@ public class ApiDefinitionService {
     }
 
     private ApiDefinition importCreate(ApiDefinitionWithBLOBs apiDefinition, ApiDefinitionMapper batchMapper,
-                                       ApiTestCaseMapper apiTestCaseMapper, ApiTestImportRequest apiTestImportRequest, List<ApiTestCaseWithBLOBs> cases) {
+                                       ApiTestCaseMapper apiTestCaseMapper, ApiTestImportRequest apiTestImportRequest, List<ApiTestCaseWithBLOBs> cases,
+                                       Boolean repeatable) {
         SaveApiDefinitionRequest saveReq = new SaveApiDefinitionRequest();
         BeanUtils.copyBean(saveReq, apiDefinition);
         apiDefinition.setCreateTime(System.currentTimeMillis());
@@ -335,7 +349,13 @@ public class ApiDefinitionService {
         }
         apiDefinition.setDescription(apiDefinition.getDescription());
 
-        List<ApiDefinition> sameRequest = getSameRequest(saveReq);
+        List<ApiDefinition> sameRequest;
+        if (repeatable == null || repeatable == false) {
+            sameRequest = getSameRequest(saveReq);
+        } else {
+            // 如果勾选了允许重复，则判断更新要加上name字段
+            sameRequest = getSameRequestWithName(saveReq);
+        }
         if (StringUtils.equals("fullCoverage", apiTestImportRequest.getModeId())) {
             _importCreate(sameRequest, batchMapper, apiDefinition, apiTestCaseMapper, apiTestImportRequest, cases);
         } else if (StringUtils.equals("incrementalMerge", apiTestImportRequest.getModeId())) {
@@ -417,15 +437,13 @@ public class ApiDefinitionService {
 
     private void importMsCase(ApiDefinitionImport apiImport, SqlSession sqlSession, ApiTestCaseMapper apiTestCaseMapper) {
         List<ApiTestCaseWithBLOBs> cases = apiImport.getCases();
-        List<String> caseNames = apiTestCaseService.listPorjectAllCaseName(SessionUtils.getCurrentProjectId());
-        Set<String> existCaseName = new HashSet<>();
-        caseNames.forEach(item -> {
-            existCaseName.add(item);
-        });
+        SaveApiTestCaseRequest checkRequest = new SaveApiTestCaseRequest();
         if (CollectionUtils.isNotEmpty(cases)) {
             int batchCount = 0;
             cases.forEach(item -> {
-                if (!existCaseName.contains(item.getName())) {
+                checkRequest.setName(item.getName());
+                checkRequest.setApiDefinitionId(item.getApiDefinitionId());
+                if (!apiTestCaseService.hasSameCase(checkRequest)) {
                     item.setId(UUID.randomUUID().toString());
                     item.setCreateTime(System.currentTimeMillis());
                     item.setUpdateTime(System.currentTimeMillis());
@@ -615,6 +633,7 @@ public class ApiDefinitionService {
         List<ApiDefinitionWithBLOBs> data = apiImport.getData();
         ApiDefinitionMapper batchMapper = sqlSession.getMapper(ApiDefinitionMapper.class);
         ApiTestCaseMapper apiTestCaseMapper = sqlSession.getMapper(ApiTestCaseMapper.class);
+        Project project = projectMapper.selectByPrimaryKey(request.getProjectId());
         int num = 0;
         if (!CollectionUtils.isEmpty(data) && data.get(0) != null && data.get(0).getProjectId() != null) {
             num = getNextNum(data.get(0).getProjectId());
@@ -630,14 +649,14 @@ public class ApiDefinitionService {
             if (apiImport.getEsbApiParamsMap() != null) {
                 String apiId = item.getId();
                 EsbApiParamsWithBLOBs model = apiImport.getEsbApiParamsMap().get(apiId);
-                importCreate(item, batchMapper, apiTestCaseMapper, request, apiImport.getCases());
+                importCreate(item, batchMapper, apiTestCaseMapper, request, apiImport.getCases(), project.getRepeatable());
                 if (model != null) {
                     apiImport.getEsbApiParamsMap().remove(apiId);
                     model.setResourceId(item.getId());
                     apiImport.getEsbApiParamsMap().put(item.getId(), model);
                 }
             } else {
-                importCreate(item, batchMapper, apiTestCaseMapper, request, apiImport.getCases());
+                importCreate(item, batchMapper, apiTestCaseMapper, request, apiImport.getCases(), project.getRepeatable());
             }
             if (i % 300 == 0) {
                 sqlSession.flushStatements();

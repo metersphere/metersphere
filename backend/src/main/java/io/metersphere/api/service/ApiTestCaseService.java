@@ -81,10 +81,6 @@ public class ApiTestCaseService {
 
     private static final String BODY_FILE_DIR = FileUtils.BODY_FILE_DIR;
 
-    public List<String> listPorjectAllCaseName(String projectId) {
-        return extApiTestCaseMapper.listPorjectAllCaseName(projectId);
-    }
-
     public List<ApiTestCaseResult> list(ApiTestCaseRequest request) {
         request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
         List<ApiTestCaseResult> returnList = extApiTestCaseMapper.list(request);
@@ -233,14 +229,24 @@ public class ApiTestCaseService {
         }
     }
 
-    private void checkNameExist(SaveApiTestCaseRequest request) {
-        ApiTestCaseExample example = new ApiTestCaseExample();
-        example.createCriteria().andNameEqualTo(request.getName()).andApiDefinitionIdEqualTo(request.getApiDefinitionId()).andIdNotEqualTo(request.getId());
-        if (apiTestCaseMapper.countByExample(example) > 0) {
+    public void checkNameExist(SaveApiTestCaseRequest request) {
+        if (hasSameCase(request)) {
             MSException.throwException(Translator.get("load_test_already_exists"));
         }
     }
 
+    public Boolean hasSameCase(SaveApiTestCaseRequest request) {
+        ApiTestCaseExample example = new ApiTestCaseExample();
+        ApiTestCaseExample.Criteria criteria = example.createCriteria();
+        criteria.andNameEqualTo(request.getName()).andApiDefinitionIdEqualTo(request.getApiDefinitionId());
+        if (StringUtils.isNotBlank(request.getId())) {
+            criteria.andIdNotEqualTo(request.getId());
+        }
+        if (apiTestCaseMapper.countByExample(example) > 0) {
+            return true;
+        }
+        return false;
+    }
 
     private ApiTestCase updateTest(SaveApiTestCaseRequest request) {
         checkNameExist(request);

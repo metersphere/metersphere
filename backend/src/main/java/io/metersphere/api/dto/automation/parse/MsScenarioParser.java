@@ -17,11 +17,23 @@ import java.util.*;
 
 public class MsScenarioParser extends MsAbstractParser<ScenarioImport> {
 
+    private ApiScenarioModule selectModule;
+
+    private String selectModulePath;
+
     @Override
     public ScenarioImport parse(InputStream source, ApiTestImportRequest request) {
         String testStr = getApiTestStr(source);
         this.projectId = request.getProjectId();
         JSONObject testObject = JSONObject.parseObject(testStr, Feature.OrderedField);
+
+        if (StringUtils.isNotBlank(request.getModuleId())) {
+            this.selectModule = ApiScenarioImportUtil.getSelectModule(request.getModuleId());
+            if (this.selectModule != null) {
+                this.selectModulePath = ApiScenarioImportUtil.getSelectModulePath(this.selectModule.getName(), this.selectModule.getParentId());
+            }
+        }
+
         if (testObject.get("projectName") != null || testObject.get("projectId") != null ) {
             return parseMsFormat(testStr, request);
         } else {
@@ -73,13 +85,19 @@ public class MsScenarioParser extends MsAbstractParser<ScenarioImport> {
             modulePath = modulePath.substring(0, modulePath.length() - 1);
         }
         List<String> modules = Arrays.asList(modulePath.split("/"));
-        ApiScenarioModule parent = ApiScenarioImportUtil.getSelectModule(importRequest.getModuleId());
+        ApiScenarioModule parent = this.selectModule;
         Iterator<String> iterator = modules.iterator();
         while (iterator.hasNext()) {
             String item = iterator.next();
             parent = ApiScenarioImportUtil.buildModule(parent, item, this.projectId);
             if (!iterator.hasNext()) {
                 apiScenarioWithBLOBs.setApiScenarioModuleId(parent.getId());
+                String path = apiScenarioWithBLOBs.getModulePath() == null ? "" : apiScenarioWithBLOBs.getModulePath();
+                if (StringUtils.isNotBlank(this.selectModulePath)) {
+                    apiScenarioWithBLOBs.setModulePath(this.selectModulePath + path);
+                } else if (StringUtils.isBlank(importRequest.getModuleId())) {
+                    apiScenarioWithBLOBs.setModulePath("/默认模块" + path);
+                }
             }
         }
     }

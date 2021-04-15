@@ -24,6 +24,7 @@
       <ms-table-header-select-popover v-show="total>0"
                                       :page-size="pageSize > total ? total : pageSize"
                                       :total="total"
+                                      :select-data-counts="selectDataCounts"
                                       @selectPageAll="isSelectDataAll(false)"
                                       @selectAll="isSelectDataAll(true)"/>
 
@@ -499,7 +500,7 @@ export default {
       this.$emit('testCaseDetail', row);
     },
     handleSelectAll(selection) {
-      _handleSelectAll(this, selection, this.tableData, this.selectRows);
+      _handleSelectAll(this, selection, this.tableData, this.selectRows, this.condition);
       setUnSelectIds(this.tableData, this.condition, this.selectRows);
       this.selectDataCounts = getSelectDataCounts(this.condition, this.total, this.selectRows);
     },

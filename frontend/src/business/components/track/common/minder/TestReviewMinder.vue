@@ -4,7 +4,10 @@
     :tree-nodes="treeNodes"
     :data-map="dataMap"
     :tags="tags"
+    :tag-enable="true"
+    :select-node="selectNode"
     :distinct-tags="[...tags, $t('test_track.plan.plan_status_prepare')]"
+    @afterMount="handleAfterMount"
     @save="save"
     ref="minder"
   />
@@ -12,7 +15,7 @@
 
 <script>
 import MsModuleMinder from "@/business/components/common/components/MsModuleMinder";
-import {getTestCaseDataMap} from "@/business/components/track/common/minder/minderUtils";
+import {getTestCaseDataMap, tagBatch} from "@/business/components/track/common/minder/minderUtils";
 export default {
 name: "TestReviewMinder",
   components: {MsModuleMinder},
@@ -63,6 +66,9 @@ name: "TestReviewMinder",
     }
   },
   methods: {
+    handleAfterMount() {
+      tagBatch([...this.tags, this.$t('test_track.plan.plan_status_prepare')]);
+    },
     getTestCases() {
       if (this.projectId) {
         let param = {

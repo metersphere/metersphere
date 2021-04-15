@@ -1,7 +1,6 @@
 import {getCurrentProjectID, getCurrentUser, humpToLine} from "@/common/js/utils";
-import {TEST_CASE_LIST} from "@/common/js/constants";
 
-export function _handleSelectAll(component, selection, tableData, selectRows) {
+export function _handleSelectAll(component, selection, tableData, selectRows, condition) {
   if (selection.length > 0) {
     if (selection.length === 1) {
       selection.hashTree = [];
@@ -18,6 +17,9 @@ export function _handleSelectAll(component, selection, tableData, selectRows) {
     tableData.forEach(item => {
       component.$set(item, "showMore", false);
     });
+  }
+  if (selectRows.size < 1 && condition) {
+    condition.selectAll = false;
   }
 }
 
