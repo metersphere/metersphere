@@ -119,6 +119,16 @@
         this.list();
       },
       httpConfig: function (o) {
+        // 历史数据处理
+        if (this.httpConfig && this.httpConfig.socket) {
+          this.condition.type = "NONE";
+          this.condition.socket = this.httpConfig.socket;
+          this.condition.protocol = this.httpConfig.protocol;
+          this.condition.port = this.httpConfig.port;
+          this.condition.domain = this.httpConfig.domain;
+          this.condition.time = new Date().getTime();
+          this.add();
+        }
         this.condition = {type: "NONE", details: [new KeyValue({name: "", value: "contains"})], protocol: "http", socket: "", domain: "", port: 0};
       },
     },
@@ -222,6 +232,10 @@
           obj.details = this.condition.details ? JSON.parse(JSON.stringify(this.condition.details)) : this.condition.details;
         }
         this.httpConfig.conditions.unshift(obj);
+        this.httpConfig.socket = null;
+        this.httpConfig.protocol = null;
+        this.httpConfig.port = null;
+        this.httpConfig.domain = null;
       },
       remove(row) {
         const index = this.httpConfig.conditions.findIndex((d) => d.id === row.id);
