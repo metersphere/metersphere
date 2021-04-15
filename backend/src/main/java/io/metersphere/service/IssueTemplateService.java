@@ -1,9 +1,6 @@
 package io.metersphere.service;
 
-import io.metersphere.base.domain.CustomField;
-import io.metersphere.base.domain.CustomFieldTemplate;
-import io.metersphere.base.domain.IssueTemplate;
-import io.metersphere.base.domain.IssueTemplateExample;
+import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.IssueTemplateMapper;
 import io.metersphere.base.mapper.ext.ExtIssueTemplateMapper;
 import io.metersphere.commons.constants.TemplateConstants;
@@ -45,8 +42,8 @@ public class IssueTemplateService {
         template.setId(UUID.randomUUID().toString());
         template.setCreateTime(System.currentTimeMillis());
         template.setUpdateTime(System.currentTimeMillis());
-        if (request.getSystem() == null) {
-            request.setSystem(false);
+        if (template.getSystem() == null) {
+            template.setSystem(false);
         }
         template.setGlobal(false);
         issueTemplateMapper.insert(template);
@@ -139,5 +136,31 @@ public class IssueTemplateService {
                 MSException.throwException(Translator.get("template_already") + issueTemplate.getName());
             }
         }
+    }
+
+    public IssueTemplate getDefaultTemplate(String workspaceId) {
+        IssueTemplateExample example = new IssueTemplateExample();
+        example.createCriteria()
+                .andWorkspaceIdEqualTo(workspaceId)
+                .andSystemEqualTo(true);
+        List<IssueTemplate> issueTemplates = issueTemplateMapper.selectByExample(example);
+        if (CollectionUtils.isNotEmpty(issueTemplates)) {
+            return issueTemplates.get(0);
+        } else {
+            example.clear();
+            example.createCriteria()
+                    .andGlobalEqualTo(true);
+            return issueTemplateMapper.selectByExample(example).get(0);
+        }
+    }
+
+    public List<IssueTemplate> getOption(String workspaceId) {
+        IssueTemplateExample example = new IssueTemplateExample();
+        example.createCriteria()
+                .andWorkspaceIdEqualTo(workspaceId)
+                .andSystemEqualTo(false);
+        List<IssueTemplate> issueTemplates = issueTemplateMapper.selectByExample(example);
+        issueTemplates.add(getDefaultTemplate(workspaceId));
+        return issueTemplates;
     }
 }

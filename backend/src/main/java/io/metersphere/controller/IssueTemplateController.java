@@ -43,4 +43,9 @@ public class IssueTemplateController {
     public void update(@RequestBody UpdateIssueTemplateRequest request) {
         issueTemplateService.update(request);
     }
+
+    @GetMapping("/option/{workspaceId}")
+    public List<IssueTemplate> list(@PathVariable String workspaceId) {
+        return issueTemplateService.getOption(workspaceId);
+    }
 }

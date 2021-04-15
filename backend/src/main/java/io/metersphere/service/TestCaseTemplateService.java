@@ -43,8 +43,8 @@ public class TestCaseTemplateService {
         testCaseTemplate.setCreateTime(System.currentTimeMillis());
         testCaseTemplate.setUpdateTime(System.currentTimeMillis());
         testCaseTemplate.setGlobal(false);
-        if (request.getSystem() == null) {
-            request.setSystem(false);
+        if (testCaseTemplate.getSystem() == null) {
+            testCaseTemplate.setSystem(false);
         }
         testCaseTemplateMapper.insert(testCaseTemplate);
         customFieldTemplateService.create(request.getCustomFields(), testCaseTemplate.getId(),
@@ -136,5 +136,31 @@ public class TestCaseTemplateService {
                 MSException.throwException(Translator.get("template_already") + testCaseTemplate.getName());
             }
         }
+    }
+
+    public TestCaseTemplate getDefaultTemplate(String workspaceId) {
+        TestCaseTemplateExample example = new TestCaseTemplateExample();
+        example.createCriteria()
+                .andWorkspaceIdEqualTo(workspaceId)
+                .andSystemEqualTo(true);
+        List<TestCaseTemplate> testCaseTemplates = testCaseTemplateMapper.selectByExample(example);
+        if (CollectionUtils.isNotEmpty(testCaseTemplates)) {
+            return testCaseTemplates.get(0);
+        } else {
+            example.clear();
+            example.createCriteria()
+                    .andGlobalEqualTo(true);
+            return testCaseTemplateMapper.selectByExample(example).get(0);
+        }
+    }
+
+    public List<TestCaseTemplate> getOption(String workspaceId) {
+        TestCaseTemplateExample example = new TestCaseTemplateExample();
+        example.createCriteria()
+                .andWorkspaceIdEqualTo(workspaceId)
+                .andSystemNotEqualTo(true);
+        List<TestCaseTemplate> testCaseTemplates = testCaseTemplateMapper.selectByExample(example);
+        testCaseTemplates.add(getDefaultTemplate(workspaceId));
+        return testCaseTemplates;
     }
 }

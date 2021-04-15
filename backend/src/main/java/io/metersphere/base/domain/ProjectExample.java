@@ -773,6 +773,146 @@ public class ProjectExample {
             addCriterion("`repeatable` not between", value1, value2, "repeatable");
             return (Criteria) this;
         }
+
+        public Criteria andCaseTemplateIdIsNull() {
+            addCriterion("case_template_id is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andCaseTemplateIdIsNotNull() {
+            addCriterion("case_template_id is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andCaseTemplateIdEqualTo(String value) {
+            addCriterion("case_template_id =", value, "caseTemplateId");
+            return (Criteria) this;
+        }
+
+        public Criteria andCaseTemplateIdNotEqualTo(String value) {
+            addCriterion("case_template_id <>", value, "caseTemplateId");
+            return (Criteria) this;
+        }
+
+        public Criteria andCaseTemplateIdGreaterThan(String value) {
+            addCriterion("case_template_id >", value, "caseTemplateId");
+            return (Criteria) this;
+        }
+
+        public Criteria andCaseTemplateIdGreaterThanOrEqualTo(String value) {
+            addCriterion("case_template_id >=", value, "caseTemplateId");
+            return (Criteria) this;
+        }
+
+        public Criteria andCaseTemplateIdLessThan(String value) {
+            addCriterion("case_template_id <", value, "caseTemplateId");
+            return (Criteria) this;
+        }
+
+        public Criteria andCaseTemplateIdLessThanOrEqualTo(String value) {
+            addCriterion("case_template_id <=", value, "caseTemplateId");
+            return (Criteria) this;
+        }
+
+        public Criteria andCaseTemplateIdLike(String value) {
+            addCriterion("case_template_id like", value, "caseTemplateId");
+            return (Criteria) this;
+        }
+
+        public Criteria andCaseTemplateIdNotLike(String value) {
+            addCriterion("case_template_id not like", value, "caseTemplateId");
+            return (Criteria) this;
+        }
+
+        public Criteria andCaseTemplateIdIn(List<String> values) {
+            addCriterion("case_template_id in", values, "caseTemplateId");
+            return (Criteria) this;
+        }
+
+        public Criteria andCaseTemplateIdNotIn(List<String> values) {
+            addCriterion("case_template_id not in", values, "caseTemplateId");
+            return (Criteria) this;
+        }
+
+        public Criteria andCaseTemplateIdBetween(String value1, String value2) {
+            addCriterion("case_template_id between", value1, value2, "caseTemplateId");
+            return (Criteria) this;
+        }
+
+        public Criteria andCaseTemplateIdNotBetween(String value1, String value2) {
+            addCriterion("case_template_id not between", value1, value2, "caseTemplateId");
+            return (Criteria) this;
+        }
+
+        public Criteria andIssueTemplateIdIsNull() {
+            addCriterion("issue_template_id is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andIssueTemplateIdIsNotNull() {
+            addCriterion("issue_template_id is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andIssueTemplateIdEqualTo(String value) {
+            addCriterion("issue_template_id =", value, "issueTemplateId");
+            return (Criteria) this;
+        }
+
+        public Criteria andIssueTemplateIdNotEqualTo(String value) {
+            addCriterion("issue_template_id <>", value, "issueTemplateId");
+            return (Criteria) this;
+        }
+
+        public Criteria andIssueTemplateIdGreaterThan(String value) {
+            addCriterion("issue_template_id >", value, "issueTemplateId");
+            return (Criteria) this;
+        }
+
+        public Criteria andIssueTemplateIdGreaterThanOrEqualTo(String value) {
+            addCriterion("issue_template_id >=", value, "issueTemplateId");
+            return (Criteria) this;
+        }
+
+        public Criteria andIssueTemplateIdLessThan(String value) {
+            addCriterion("issue_template_id <", value, "issueTemplateId");
+            return (Criteria) this;
+        }
+
+        public Criteria andIssueTemplateIdLessThanOrEqualTo(String value) {
+            addCriterion("issue_template_id <=", value, "issueTemplateId");
+            return (Criteria) this;
+        }
+
+        public Criteria andIssueTemplateIdLike(String value) {
+            addCriterion("issue_template_id like", value, "issueTemplateId");
+            return (Criteria) this;
+        }
+
+        public Criteria andIssueTemplateIdNotLike(String value) {
+            addCriterion("issue_template_id not like", value, "issueTemplateId");
+            return (Criteria) this;
+        }
+
+        public Criteria andIssueTemplateIdIn(List<String> values) {
+            addCriterion("issue_template_id in", values, "issueTemplateId");
+            return (Criteria) this;
+        }
+
+        public Criteria andIssueTemplateIdNotIn(List<String> values) {
+            addCriterion("issue_template_id not in", values, "issueTemplateId");
+            return (Criteria) this;
+        }
+
+        public Criteria andIssueTemplateIdBetween(String value1, String value2) {
+            addCriterion("issue_template_id between", value1, value2, "issueTemplateId");
+            return (Criteria) this;
+        }
+
+        public Criteria andIssueTemplateIdNotBetween(String value1, String value2) {
+            addCriterion("issue_template_id not between", value1, value2, "issueTemplateId");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {

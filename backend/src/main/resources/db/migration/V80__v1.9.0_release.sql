@@ -1,4 +1,6 @@
 -- issues template and test case template
+
+-- 自定义字段表
 CREATE TABLE IF NOT EXISTS `custom_field` (
     `id`            varchar(50)  NOT NULL COMMENT 'Custom field ID',
     `name`          varchar(64)  NOT NULL COMMENT 'Custom field name',
@@ -39,7 +41,7 @@ VALUES ('beb57501-19c8-4ca3-8dfb-2cef7c0ea087','issue_status','ISSUE','select','
 INSERT INTO custom_field (id,name,scene,`type`,remark,`options`,`system`,`global`,workspace_id,create_time,update_time)
 VALUES ('d392af07-fdfe-4475-a459-87d59f0b1626','issue_severity','ISSUE','select','','[{"text":"P0","value":"P0","system": true},{"text":"P1","value":"P1","system": true},{"text":"P2","value":"P2","system": true},{"text":"P3","value":"P3","system": true}]',1,1,'global',unix_timestamp() * 1000,unix_timestamp() * 1000);
 
-
+-- 用例模板表
 CREATE TABLE IF NOT EXISTS `test_case_template` (
     `id`                varchar(50) NOT NULL COMMENT 'Field template ID',
     `name`              varchar(64) NOT NULL COMMENT 'Field template name',
@@ -60,9 +62,11 @@ CREATE TABLE IF NOT EXISTS `test_case_template` (
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4;
 
+-- 系统模板
 INSERT INTO test_case_template (id,name,`type`,description,case_name,prerequisite,step_description,expected_result,actual_result,`system`,`global`,workspace_id,create_time,update_time)
 VALUES ('b395d8fe-2ad6-4de7-81d3-2006b53a97c8','default','functional','Test case default template.','','','','','',1,1,'global',unix_timestamp() * 1000,unix_timestamp() * 1000);
 
+-- 缺陷模板表
 CREATE TABLE IF NOT EXISTS `issue_template` (
     `id`                varchar(50) NOT NULL COMMENT 'Field template ID',
     `name`              varchar(64) NOT NULL COMMENT 'Field template name',
@@ -80,9 +84,11 @@ CREATE TABLE IF NOT EXISTS `issue_template` (
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4;
 
+-- 系统模板
 INSERT INTO issue_template (id,`name`,platform,description,title,`global`,`system`,workspace_id,content,create_time,update_time)
 VALUES ('5d7c87d2-f405-4ec1-9a3d-71b514cdfda3','default','metersphere','','',1,1,'global','',unix_timestamp() * 1000,unix_timestamp() * 1000);
 
+-- 字段模板关联表
 CREATE TABLE IF NOT EXISTS `custom_field_template` (
     `id`                varchar(50) NOT NULL COMMENT 'Custom field field template related id',
     `field_id`          varchar(50) NOT NULL COMMENT 'Custom field ID',
@@ -97,6 +103,7 @@ CREATE TABLE IF NOT EXISTS `custom_field_template` (
     ENGINE = InnoDB
     DEFAULT CHARSET = utf8mb4;
 
+-- 系统用例模板关联系统字段
 INSERT INTO custom_field_template (id,field_id,template_id,scene,required,default_value)
 VALUES ('0d2b90ec-9c56-4f5d-ae06-522a93f48e93','46065143-9d1d-11eb-b418-0242ac120002','b395d8fe-2ad6-4de7-81d3-2006b53a97c8','TEST_CASE',1,'');
 INSERT INTO custom_field_template (id,field_id,template_id,scene,required,default_value)
@@ -104,6 +111,7 @@ VALUES ('661e1e29-c401-43b0-972e-a713b7b90c37','4619cc23-9d1d-11eb-b418-0242ac12
 INSERT INTO custom_field_template (id,field_id,template_id,scene,required,default_value)
 VALUES ('f448e8d2-fad1-4c23-a013-3f3ba282bb81','45f2de57-9d1d-11eb-b418-0242ac120002','b395d8fe-2ad6-4de7-81d3-2006b53a97c8','TEST_CASE',1,'"Prepare"');
 
+-- 系统缺陷模板关联系统字段
 INSERT INTO custom_field_template (id,field_id,template_id,scene,required,default_value)
 VALUES ('3d6a182f-cea7-452e-828d-4550edada409','d392af07-fdfe-4475-a459-87d59f0b1626','5d7c87d2-f405-4ec1-9a3d-71b514cdfda3','ISSUE',1,'"P0"');
 INSERT INTO custom_field_template (id,field_id,template_id,scene,required,default_value)
@@ -113,3 +121,5 @@ VALUES ('b8921cbc-05b3-4d8f-a96e-d1e4ae9d8664','a577bc60-75fe-47ec-8aa6-32dca23b
 INSERT INTO custom_field_template (id,field_id,template_id,scene,required,default_value)
 VALUES ('d5908553-1b29-4868-9001-e938822b92ef','beb57501-19c8-4ca3-8dfb-2cef7c0ea087','5d7c87d2-f405-4ec1-9a3d-71b514cdfda3','ISSUE',1,'"NEW"');
 
+ALTER TABLE project ADD case_template_id varchar(50) NULL COMMENT 'Relate test case template id';
+ALTER TABLE project ADD issue_template_id varchar(50) NULL COMMENT 'Relate test issue template id';

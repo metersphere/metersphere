@@ -45,4 +45,8 @@ public class TestCaseTemplateController {
         testCaseTemplateService.update(request);
     }
 
+    @GetMapping("/option/{workspaceId}")
+    public List<TestCaseTemplate> list(@PathVariable String workspaceId) {
+        return testCaseTemplateService.getOption(workspaceId);
+    }
 }
