@@ -50,11 +50,8 @@
           this.environmentChange(this.environmentId);
         },
         useEnvironment(){
-          this.environmentId = this.useEnvironment;
+          this.getEnvironments();
         }
-        // planEnvironmentId() {
-        //   this.environmentId = this.planEnvironmentId;
-        // }
       },
       methods: {
         getEnvironments() {
@@ -63,7 +60,7 @@
               this.environments = response.data;
               this.environments.forEach(environment => {
                 parseEnvironment(environment);
-                if (this.useEnvironment && this.useEnvironment.id === environment.id) {
+                if (this.useEnvironment && this.useEnvironment === environment.id) {
                   this.environmentId = this.useEnvironment;
                 }
               });
