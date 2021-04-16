@@ -1,6 +1,6 @@
 <template>
-  <el-dialog :title="$t('api_test.automation.step_total')" :close-on-click-modal="false"
-             :visible.sync="visible" class="visible-dialog" width="60%"
+  <el-dialog :title="$t('api_test.automation.scenario_total')" :close-on-click-modal="false"
+             :visible.sync="visible" class="visible-dialog" width="80%"
              @close="close" v-loading="loading" append-to-body>
     <fieldset :disabled="disabled" class="ms-fieldset">
       <el-collapse-transition>
@@ -46,9 +46,9 @@
                               @select="select"
                               v-loading="loading" @row-click="edit" height="400px" :row-class-name="tableRowClassName">
                       <el-table-column type="selection" width="38"/>
-                      <el-table-column prop="num" label="ID" sortable/>
+                      <el-table-column prop="num" label="ID" sortable width="60"/>
                       <el-table-column prop="name" :label="$t('api_test.variable_name')" sortable show-overflow-tooltip/>
-                      <el-table-column prop="type" :label="$t('test_track.case.type')">
+                      <el-table-column prop="type" :label="$t('test_track.case.type')" width="70">
                         <template v-slot:default="scope">
                           <span>{{ types.get(scope.row.type) }}</span>
                         </template>
