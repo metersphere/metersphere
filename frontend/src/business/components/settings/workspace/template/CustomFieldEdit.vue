@@ -8,7 +8,8 @@
 
     <el-form :model="form" :rules="rules" label-position="right" label-width="140px" size="small" ref="form">
       <el-form-item :label="'字段名'" prop="name">
-        <el-input :disabled="isSystem" v-model="form.name" autocomplete="off"></el-input>
+        <el-input v-if="isSystem" :disabled="isSystem" :value="$t(form.name)" autocomplete="off"></el-input>
+        <el-input v-else v-model="form.name" autocomplete="off"></el-input>
       </el-form-item>
 
       <el-form-item :label="'字段备注'" prop="remark">
@@ -138,7 +139,7 @@ export default {
         }
       });
     }
-  }
+  };
 }
 </script>
 

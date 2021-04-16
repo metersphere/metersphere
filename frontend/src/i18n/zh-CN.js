@@ -252,7 +252,16 @@ export default {
       url: '当前站点URL',
       url_tip: '例如：http://localhost:8081',
       url_is_null: '当前站点URL不能为空'
-    }
+    },
+  },
+  custom_field: {
+    case_status: '用例状态',
+    case_maintainer: '责任人',
+    case_priority: '用例等级',
+    issue_creator: '创建人',
+    issue_processor: '处理人',
+    issue_status: '状态',
+    issue_severity: '严重程度'
   },
   workspace: {
     create: '创建工作空间',

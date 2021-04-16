@@ -192,7 +192,7 @@ export default {
       this.$emit('pageChange');
     }
   }
-}
+};
 </script>
 
 <style scoped>

@@ -77,7 +77,7 @@ export default {
               this.data.splice(idx, 1);
             }
           },
-        ]
+        ];
       }
     }
 

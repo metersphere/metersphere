@@ -178,7 +178,7 @@ export default {
       let condition = {
         workspaceId: getCurrentWorkspaceId(),
         scene: this.scene
-      }
+      };
       this.result = this.$post('custom/field/default', condition, (response) => {
           let data = response.data;
           data.forEach(item => {

@@ -22,7 +22,7 @@
           prop="name">
           <template v-slot="scope">
             <span v-if="scope.row.system">
-              {{caseSystemFieldMap[scope.row.name]}}
+              {{$t(scope.row.name)}}
             </span>
             <span v-else>
               {{scope.row.name}}
@@ -112,7 +112,6 @@ import MsTableButton from "@/business/components/common/components/MsTableButton
 import CustomFieldEdit from "@/business/components/settings/workspace/template/CustomFieldEdit";
 import MsTablePagination from "@/business/components/common/pagination/TablePagination";
 import {
-  SYSTEM_FIELD_NAME_MAP,
   CUSTOM_FIELD_SCENE_OPTION,
   CUSTOM_FIELD_TYPE_OPTION,
   FIELD_TYPE_MAP,
@@ -166,9 +165,6 @@ export default {
     },
     sceneMap() {
       return SCENE_MAP;
-    },
-    caseSystemFieldMap() {
-      return SYSTEM_FIELD_NAME_MAP;
     }
   },
   methods: {
@@ -207,7 +203,7 @@ export default {
       return false;
     }
   }
-}
+};
 </script>
 
 <style scoped>

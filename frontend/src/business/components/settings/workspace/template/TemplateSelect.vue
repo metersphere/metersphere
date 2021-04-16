@@ -30,7 +30,7 @@ export default {
   data() {
     return {
       templateOptions: []
-    }
+    };
   },
   mounted() {
     this.getTemplateOptions();

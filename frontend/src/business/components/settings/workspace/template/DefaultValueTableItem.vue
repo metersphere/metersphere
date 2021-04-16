@@ -96,7 +96,7 @@ export default {
       return item.system ? this.$t(item.text) : item.text;
     }
   }
-}
+};
 </script>
 
 <style scoped>

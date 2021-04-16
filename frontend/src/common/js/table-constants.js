@@ -46,14 +46,3 @@ export const SCENE_MAP = {
   ISSUE: '缺陷模板',
   TEST_CASE: '用例模板'
 };
-
-export const SYSTEM_FIELD_NAME_MAP = {
-  case_status: '用例状态',
-  case_maintainer: '责任人',
-  case_priority: '用例等级',
-
-  issue_creator: '创建人',
-  issue_processor: '处理人',
-  issue_status: '状态',
-  issue_severity: '严重程度'
-};

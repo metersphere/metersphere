@@ -116,7 +116,7 @@ export default {
       this.$refs.fieldTemplateEdit.open(data);
     }
   }
-}
+};
 </script>
 
 <style scoped>

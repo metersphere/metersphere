@@ -164,7 +164,7 @@ export default {
       return false;
     }
   }
-}
+};
 </script>
 
 <style scoped>

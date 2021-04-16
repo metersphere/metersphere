@@ -12,7 +12,7 @@
       prop="name">
       <template v-slot="scope">
         <span v-if="scope.row.system">
-          {{caseSystemFieldMap[scope.row.name]}}
+          {{$t(scope.row.name)}}
         </span>
         <span v-else>
           {{scope.row.name}}
@@ -66,7 +66,6 @@ import MsTable from "@/business/components/common/components/table/MsTable";
 import MsTableColumn from "@/business/components/common/components/table/Ms-table-column";
 import DefaultValueTableItem from "@/business/components/settings/workspace/template/DefaultValueTableItem";
 import FieldCustomDataTableItem from "@/business/components/settings/workspace/template/FieldCustomDataTableItem";
-import {SYSTEM_FIELD_NAME_MAP} from "@/common/js/table-constants";
 export default {
   name: "CustomFieldFormList",
   components: {FieldCustomDataTableItem, DefaultValueTableItem, MsTableColumn, MsTable, MsTableOperatorButton},
@@ -96,11 +95,6 @@ export default {
       this.initTableData();
     }
   },
-  computed: {
-    caseSystemFieldMap() {
-      return SYSTEM_FIELD_NAME_MAP;
-    }
-  },
   methods: {
     handleDelete(item, index) {
       this.templateContainIds.delete(item.fieldId);
@@ -126,7 +120,7 @@ export default {
         });
     }
   }
-}
+};
 </script>
 
 <style scoped>
