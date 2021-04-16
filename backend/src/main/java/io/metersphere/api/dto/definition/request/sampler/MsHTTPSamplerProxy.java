@@ -224,7 +224,12 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                     sampler.setPath(urlObject.getPath());
                 } else {
                     sampler.setDomain(httpConfig.getDomain());
-                    url = httpConfig.getProtocol() + "://" + httpConfig.getSocket();
+                    //1.9 增加对Mock环境的判断
+                    if (this.isMockEnvironment()) {
+                        url = url = httpConfig.getProtocol() + "://" + httpConfig.getSocket() + "/mock/" + this.getId();
+                    } else {
+                        url = httpConfig.getProtocol() + "://" + httpConfig.getSocket();
+                    }
                     URL urlObject = new URL(url);
                     String envPath = StringUtils.equals(urlObject.getPath(), "/") ? "" : urlObject.getPath();
                     if (StringUtils.isNotBlank(this.getPath())) {

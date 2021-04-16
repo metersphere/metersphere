@@ -1,5 +1,8 @@
 package io.metersphere.api.service;
 
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+import io.metersphere.api.dto.mockconfig.MockConfigStaticData;
 import io.metersphere.base.domain.ApiTestEnvironmentExample;
 import io.metersphere.base.domain.ApiTestEnvironmentWithBLOBs;
 import io.metersphere.base.mapper.ApiTestEnvironmentMapper;
@@ -10,7 +13,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
@@ -64,5 +69,91 @@ public class ApiTestEnvironmentService {
                 MSException.throwException(Translator.get("api_test_environment_already_exists"));
             }
         }
+    }
+
+    /**
+     * 通过项目ID获取Mock环境  （暂时定义mock环境为： name = Mock环境）
+     *
+     * @param projectId
+     * @return
+     */
+    public synchronized ApiTestEnvironmentWithBLOBs getMockEnvironmentByProjectId(String projectId, String baseUrl) {
+        String apiName = MockConfigStaticData.MOCK_EVN_NAME;
+        ApiTestEnvironmentWithBLOBs returnModel = null;
+        ApiTestEnvironmentExample example = new ApiTestEnvironmentExample();
+        example.createCriteria().andProjectIdEqualTo(projectId).andNameEqualTo(apiName);
+        List<ApiTestEnvironmentWithBLOBs> list = this.selectByExampleWithBLOBs(example);
+        if (list.isEmpty()) {
+            returnModel = this.genHttpApiTestEnvironmentByUrl(projectId, apiName, baseUrl);
+            this.add(returnModel);
+        } else {
+            returnModel = list.get(0);
+        }
+        return returnModel;
+    }
+
+    private ApiTestEnvironmentWithBLOBs genHttpApiTestEnvironmentByUrl(String projectId, String name, String url) {
+        String protocol = "";
+        if (url.startsWith("http://")) {
+            protocol = "http";
+            url = url.substring(7);
+        } else if (url.startsWith("https://")) {
+            protocol = "https";
+            url = url.substring(8);
+        }
+
+        String portStr = "";
+        String ipStr = protocol;
+        if (url.contains(":") && !url.endsWith(":")) {
+            String[] urlArr = url.split(":");
+            int port = -1;
+            try {
+                port = Integer.parseInt(urlArr[urlArr.length - 1]);
+            } catch (Exception e) {
+            }
+            if (port > -1) {
+                portStr = String.valueOf(port);
+                ipStr = urlArr[0];
+            }
+        }
+
+        JSONObject commonConfigObj = new JSONObject();
+        JSONArray variablesArr = new JSONArray();
+        Map<String, Object> map = new HashMap<>();
+        map.put("enable", true);
+        variablesArr.add(map);
+        commonConfigObj.put("variables", variablesArr);
+        commonConfigObj.put("enableHost", false);
+        commonConfigObj.put("hosts", new String[]{});
+
+        JSONObject httpConfig = new JSONObject();
+        httpConfig.put("socket", url);
+        httpConfig.put("domain", ipStr);
+        httpConfig.put("headers", variablesArr);
+        httpConfig.put("protocol", protocol);
+        if (StringUtils.isNotEmpty(portStr)) {
+            httpConfig.put("port", portStr);
+        }
+
+        JSONArray databaseConfigObj = new JSONArray();
+
+        JSONObject tcpConfigObj = new JSONObject();
+        tcpConfigObj.put("classname", "TCPClientImpl");
+        tcpConfigObj.put("reUseConnection", true);
+        tcpConfigObj.put("nodelay", false);
+        tcpConfigObj.put("closeConnection", false);
+
+        JSONObject object = new JSONObject();
+        object.put("commonConfig", commonConfigObj);
+        object.put("httpConfig", httpConfig);
+        object.put("databaseConfigs", databaseConfigObj);
+        object.put("tcpConfig", tcpConfigObj);
+
+        ApiTestEnvironmentWithBLOBs blobs = new ApiTestEnvironmentWithBLOBs();
+        blobs.setProjectId(projectId);
+        blobs.setName(name);
+        blobs.setConfig(object.toString());
+
+        return blobs;
     }
 }

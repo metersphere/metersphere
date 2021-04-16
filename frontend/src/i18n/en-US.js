@@ -148,6 +148,7 @@ export default {
     tag_tip: "Enter Enter to Add Label",
     node_name_tip: "The name cannot contain'\\'",
     more_operator: "More operator",
+    mock: "Mock settings",
     table: {
       select_tip: "Item {0} data is selected"
     },
@@ -585,6 +586,20 @@ export default {
     batch_menus: {
       select_all_data: "Select all datas({0})",
       select_show_data: "Select show datas({0})",
+    },
+    mock: {
+      create_error: "Api info is not saved",
+      table: {
+        name: "Name",
+        tag: "Tag",
+        creator: "Creator",
+        status: "Status",
+        update_time: "Update time"
+      },
+      expect_detail: "Expect",
+      base_info: "Base info",
+      req_param: "Request params",
+      rsp_param: "Response Params",
     },
     definition: {
       api_title: "Api test",
@@ -1404,6 +1419,7 @@ export default {
       operate_step: "Operate step",
       edit_component: "Edit component",
       base_info: "Base info",
+      mock_info: "Mock info",
       test_result: "Test result",
       result_distribution: "Result distribution",
       custom_component: "Custom",
