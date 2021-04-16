@@ -7,7 +7,6 @@ import io.metersphere.base.domain.TestResourcePoolExample;
 import io.metersphere.base.mapper.TestResourceMapper;
 import io.metersphere.base.mapper.TestResourcePoolMapper;
 import io.metersphere.commons.exception.MSException;
-import io.metersphere.i18n.Translator;
 import org.apache.commons.collections.CollectionUtils;
 import org.springframework.stereotype.Service;
 
@@ -25,7 +24,7 @@ public class ResourcePoolCalculation {
     public TestResource getPool() {
         // 获取可以执行的资源池
         TestResourcePoolExample example = new TestResourcePoolExample();
-        example.createCriteria().andStatusEqualTo("VALID").andTypeEqualTo("NODE").andNameEqualTo("赵勇资源池");
+        example.createCriteria().andStatusEqualTo("VALID").andTypeEqualTo("NODE");
         List<TestResourcePool> pools = testResourcePoolMapper.selectByExample(example);
         // 暂时随机获取一个正常状态NODE
         TestResource testResource = null;
@@ -38,7 +37,7 @@ public class ResourcePoolCalculation {
             testResource = testResources.get(index);
         }
         if (testResource == null) {
-            MSException.throwException(Translator.get("run_load_test_file_init_error"));
+            MSException.throwException("未获取到资源池，请检查配置【系统设置-系统-测试资源池】");
         }
         return testResource;
     }
