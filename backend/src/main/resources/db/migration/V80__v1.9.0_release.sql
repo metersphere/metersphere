@@ -131,6 +131,18 @@ alter table test_case
     add expected_result text null;
 
 -- api_scenario_report modify column length
-ALTER TABLE api_scenario_report MODIFY COLUMN name VARCHAR(3000);
+ALTER TABLE api_scenario_report
+    MODIFY COLUMN name VARCHAR(3000);
 -- api_scenario_report modify column length
-ALTER TABLE api_scenario_report MODIFY COLUMN scenario_id VARCHAR(3000);
+ALTER TABLE api_scenario_report
+    MODIFY COLUMN scenario_id VARCHAR(3000);
+
+-- module management
+INSERT INTO system_parameter (param_key, param_value, type, sort)
+VALUES ('metersphere.module.api', 'ENABLE', 'text', 1);
+INSERT INTO system_parameter (param_key, param_value, type, sort)
+VALUES ('metersphere.module.performance', 'ENABLE', 'text', 1);
+INSERT INTO system_parameter (param_key, param_value, type, sort)
+VALUES ('metersphere.module.reportStat', 'ENABLE', 'text', 1);
+INSERT INTO system_parameter (param_key, param_value, type, sort)
+VALUES ('metersphere.module.testTrack', 'ENABLE', 'text', 1);
