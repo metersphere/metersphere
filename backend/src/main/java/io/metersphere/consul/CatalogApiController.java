@@ -82,7 +82,7 @@ public class CatalogApiController {
 
         int i = service.lastIndexOf("-");
         String address = service.substring(0, i);
-        String port = service.substring(i);
+        String port = service.substring(i + 1);
         String result = "[\n" +
                 "    {\n" +
                 "        \"Node\": {\n" +
