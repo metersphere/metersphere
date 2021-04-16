@@ -112,7 +112,6 @@
                   </el-option>
                 </el-select>
               </el-form-item>
-
             </el-col>
             <el-col :span="7">
               <el-form-item label="需求ID/名称" :label-width="formLabelWidth" prop="demandName"
@@ -124,126 +123,99 @@
 
           <div class="tip">步骤信息</div>
           <el-row style="margin-top: 10px;">
-            <el-col :span="1" :offset="1">{{ $t('test_track.case.prerequisite') }}:</el-col>
-            <el-col :span="19">
-              <el-form-item prop="prerequisite">
-                <el-input :disabled="readOnly" v-model="form.prerequisite"
-                          type="textarea"
-                          :autosize="{ minRows: 2, maxRows: 4}"
-                          :rows="2"
-                          :placeholder="$t('test_track.case.input_prerequisite')"></el-input>
-              </el-form-item>
+            <el-col :span="2" :offset="1">{{ $t('test_track.case.prerequisite') }}:</el-col>
+            <el-col :span="18">
+              <el-row :disabled="readOnly">
+                <ms-test-case-step-rich-text :content="form.prerequisite" @updateRichText="updatePrerequisite"/>
+              </el-row>
             </el-col>
           </el-row>
 
-          <el-row>
-            <el-col :span="1" :offset="1">{{ $t('test_track.case.steps') }}:</el-col>
-            <el-col :span="19">
-              <el-table
-                v-if="isStepTableAlive"
-                :data="form.steps"
-                class="tb-edit"
-                border
-                size="mini"
-                :default-sort="{prop: 'num', order: 'ascending'}"
-                highlight-current-row>
-                <el-table-column :label="$t('test_track.case.number')" prop="num" min-width="10%"></el-table-column>
-                <el-table-column :label="$t('test_track.case.step_desc')" prop="desc" min-width="35%">
-                  <template v-slot:default="scope">
-                    <el-input
-                      class="table-edit-input"
-                      size="mini"
-                      :disabled="readOnly"
-                      type="textarea"
-                      :autosize="{ minRows: 1, maxRows: 6}"
-                      :rows="2"
-                      v-model="scope.row.desc"
-                      :placeholder="$t('commons.input_content')"
-                      clearable/>
-                  </template>
-                </el-table-column>
-                <el-table-column :label="$t('test_track.case.expected_results')" prop="result" min-width="35%">
-                  <template v-slot:default="scope">
-                    <el-input
-                      class="table-edit-input"
-                      size="mini"
-                      :disabled="readOnly"
-                      type="textarea"
-                      :autosize="{ minRows: 1, maxRows: 6}"
-                      :rows="2"
-                      v-model="scope.row.result"
-                      :placeholder="$t('commons.input_content')"
-                      clearable/>
-                  </template>
-                </el-table-column>
-                <el-table-column :label="$t('commons.input_content')" min-width="25%">
-                  <template v-slot:default="scope">
-                    <el-button
-                      type="primary"
-                      :disabled="readOnly"
-                      icon="el-icon-plus"
-                      circle size="mini"
-                      @click="handleAddStep(scope.$index, scope.row)"></el-button>
-                    <el-button
-                      icon="el-icon-document-copy"
-                      type="success"
-                      :disabled="readOnly"
-                      circle size="mini"
-                      @click="handleCopyStep(scope.$index, scope.row)"></el-button>
-                    <el-button
-                      type="danger"
-                      icon="el-icon-delete"
-                      circle size="mini"
-                      @click="handleDeleteStep(scope.$index, scope.row)"
-                      :disabled="readOnly || (scope.$index == 0 && form.steps.length <= 1)"></el-button>
-                  </template>
-                </el-table-column>
-              </el-table>
+          <el-row style="margin-top: 20px;">
+            <el-col :span="2" :offset="1">{{ $t('test_track.case.step_desc') }}:</el-col>
+            <el-col :span="18">
+              <el-row v-if="isStepTableAlive">
+                <ms-test-case-step-rich-text :content="form.stepDesc" @updateRichText="updateStepDesc"/>
+              </el-row>
             </el-col>
           </el-row>
-          <el-row style="margin-top: 10px;">
-            <el-col :span="1" :offset="1">{{ $t('commons.remark') }}:</el-col>
-            <el-col :span="19">
-              <el-form-item>
-                <el-input v-model="form.remark"
-                          :autosize="{ minRows: 2, maxRows: 4}"
-                          type="textarea"
-                          :disabled="readOnly"
-                          :rows="2"
-                          :placeholder="$t('commons.input_content')"></el-input>
-              </el-form-item>
+          <el-row style="margin-top: 20px;margin-bottom: 20px;">
+            <el-col :span="2" :offset="1">{{ $t('test_track.case.expected_results') }}:</el-col>
+            <el-col :span="18">
+              <el-row v-if="isStepTableAlive">
+                <ms-test-case-step-rich-text :content="form.stepResult" @updateRichText="updateExpectRes"/>
+              </el-row>
             </el-col>
           </el-row>
           <div class="tip">其他信息</div>
+         
           <el-row>
-            <el-col :span="20" :offset="1">{{ $t('test_track.case.attachment') }}:</el-col>
-          </el-row>
-          <el-row>
-            <el-col :span="19" :offset="2">
-              <el-upload
-                accept=".jpg,.jpeg,.png,.xlsx,.doc,.pdf,.docx,.txt"
-                action=""
-                :show-file-list="false"
-                :before-upload="beforeUpload"
-                :http-request="handleUpload"
-                :on-exceed="handleExceed"
-                multiple
-                :limit="8"
-                :file-list="fileList">
-                <el-button icon="el-icon-plus" size="mini"></el-button>
-                <span slot="tip" class="el-upload__tip"> {{ $t('test_track.case.upload_tip') }} </span>
-              </el-upload>
+            <el-col :span="1" ><div v-html="'&nbsp;'"></div></el-col>
+            <el-col :span="20" style="margin-top: 10px">
+              <el-tabs v-model="tabActiveName">
+                <el-tab-pane :label="$t('commons.remark')" name="remark">
+                  <el-row :disabled="readOnly">
+                    <ms-test-case-step-rich-text :content="form.remark" @updateRichText="updateRemark"/>
+                  </el-row>
+                </el-tab-pane>
+                <el-tab-pane :label="$t('test_track.case.relate_test')" name="relateTest">
+                  <el-col :span="7" style="margin-top: 10px;">
+                    <el-form-item :label="$t('test_track.case.relate_test')" :label-width="formLabelWidth">
+                      <el-cascader :options="sysList" filterable placeholder="请选择要关联的测试" show-all-levels
+                                   v-model="form.selected" :props="props"
+                                   class="ms-case" @change="clearInput" ref="cascade"></el-cascader>
+                    </el-form-item>
+                  </el-col>
+                </el-tab-pane>
+                <el-tab-pane label="关联需求" name="demand">
+                  <el-col :span="7">
+                    <el-form-item label="关联需求" :label-width="formLabelWidth" prop="demandId">
+                      <el-select filterable :disabled="readOnly" v-model="form.demandId" @visible-change="visibleChange"
+                                 placeholder="请选择要关联的需求" class="ms-case-input">
+                        <el-option
+                          v-for="item in demandOptions"
+                          :key="item.id"
+                          :label="item.platform + ': '+item.name"
+                          :value="item.id">
+                        </el-option>
+                      </el-select>
+                    </el-form-item>
+                  </el-col>
+                </el-tab-pane>
+
+                <el-tab-pane label="关联缺陷" name="bug">关联缺陷</el-tab-pane>
+                <el-tab-pane :label="$t('test_track.case.attachment')" name="attachment">
+                  <el-row>
+                    <el-col :span="20" :offset="1">
+                      <el-upload
+                        accept=".jpg,.jpeg,.png,.xlsx,.doc,.pdf,.docx"
+                        action=""
+                        :show-file-list="false"
+                        :before-upload="beforeUpload"
+                        :http-request="handleUpload"
+                        :on-exceed="handleExceed"
+                        multiple
+                        :limit="8"
+                        :file-list="fileList">
+                        <el-button icon="el-icon-plus" size="mini"></el-button>
+                        <span slot="tip" class="el-upload__tip"> {{ $t('test_track.case.upload_tip') }} </span>
+                      </el-upload>
+                    </el-col>
+                  </el-row>
+                  <el-row>
+                    <el-col :span="19" :offset="2">
+                      <test-case-attachment :table-data="tableData"
+                                            :read-only="readOnly"
+                                            :is-delete="true"
+                                            @handleDelete="handleDelete"
+                      />
+                    </el-col>
+                  </el-row>
+                </el-tab-pane>
+              </el-tabs>
             </el-col>
           </el-row>
-          <el-row>
-            <el-col :span="19" :offset="2">
-              <test-case-attachment :table-data="tableData"
-                                    :read-only="readOnly"
-                                    :is-delete="true"
-                                    @handleDelete="handleDelete"
-              />
-            </el-col>
-          </el-row>
+
           <el-row style="margin-top: 10px" v-if="type!='add'">
             <el-col :span="20" :offset="1">{{ $t('test_track.review.comment') }}:
               <el-button icon="el-icon-plus" type="mini" @click="openComment"></el-button>
@@ -293,6 +265,7 @@ import ReviewCommentItem from "@/business/components/track/review/commom/ReviewC
 import {API_STATUS, REVIEW_STATUS, TEST} from "@/business/components/api/definition/model/JsonData";
 import MsTableButton from "@/business/components/common/components/MsTableButton";
 import MsSelectTree from "../../../common/select-tree/SelectTree";
+import MsTestCaseStepRichText from "./TestCaseStepRichText";
 
 export default {
   name: "TestCaseEdit",
@@ -300,7 +273,8 @@ export default {
     MsTableButton,
     MsSelectTree,
     ReviewCommentItem,
-    TestCaseComment, MsPreviousNextButton, MsInputTag, CaseComment, MsDialogFooter, TestCaseAttachment
+    TestCaseComment, MsPreviousNextButton, MsInputTag, CaseComment, MsDialogFooter, TestCaseAttachment,
+    MsTestCaseStepRichText
   },
   data() {
     return {
@@ -331,6 +305,8 @@ export default {
           desc: '',
           result: ''
         }],
+        stepDesc: '',
+        stepResult: '',
         selected: [],
         remark: '',
         tags: [],
@@ -360,6 +336,7 @@ export default {
         prerequisite: [{max: 500, message: this.$t('test_track.length_less_than') + '500', trigger: 'blur'}],
         remark: [{max: 1000, message: this.$t('test_track.length_less_than') + '1000', trigger: 'blur'}]
       },
+      tabActiveName: "remark",
       formLabelWidth: "120px",
       operationType: '',
       isCreateContinue: false,
@@ -663,12 +640,25 @@ export default {
       let tmp = {};
       Object.assign(tmp, testCase);
       tmp.steps = JSON.parse(testCase.steps);
-      if (tmp.steps == null) {
-        tmp.steps = [{
-          num: 1,
-          desc: '',
-          result: ''
-        }];
+      if(testCase.expectedResult != null) { //  改成富文本后加入的新数据 或 经过兼容的旧数据
+        tmp.stepResult = testCase.expectedResult + '<br>';
+      } else {  //  如果是旧数据
+        if(tmp.steps != null) {
+          tmp.stepResult = '';
+          tmp.steps.forEach(item => {
+            tmp.stepResult += item.num + ': ' + item.result + '<br>';
+          });
+        }
+      }
+      if(testCase.stepDescription != null) {
+        tmp.stepDesc = testCase.stepDescription + '<br>';
+      } else {
+        if(tmp.steps != null) {
+          tmp.stepDesc = '';
+          tmp.steps.forEach(item => {
+            tmp.stepDesc += item.num + ': ' + item.desc + '<br>';
+          });
+        }
       }
       tmp.tags = JSON.parse(tmp.tags);
       Object.assign(this.form, tmp);
@@ -785,7 +775,9 @@ export default {
     buildParam() {
       let param = {};
       Object.assign(param, this.form);
-      param.steps = JSON.stringify(this.form.steps);
+      param.steps = null; //  旧数据搬运到新字段后，不再用到，置空便于判断
+      param.expectedResult = this.form.stepResult;
+      param.stepDescription = this.form.stepDesc; //  设置数据到新字段
       param.nodeId = this.form.module;
       param.nodePath = getNodePath(this.form.module, this.moduleOptions);
       if (this.projectId) {
@@ -841,12 +833,14 @@ export default {
       };
     },
     validate(param) {
-      for (let i = 0; i < param.steps.length; i++) {
-        if ((param.steps[i].desc && param.steps[i].desc.length > 300) ||
-          (param.steps[i].result && param.steps[i].result.length > 300)) {
-          this.$warning(this.$t('test_track.case.step_desc') + ","
-            + this.$t('test_track.case.expected_results') + this.$t('test_track.length_less_than') + '300');
-          return false;
+      if(param.steps != null) {
+        for (let i = 0; i < param.steps.length; i++) {
+          if ((param.steps[i].desc && param.steps[i].desc.length > 300) ||
+            (param.steps[i].result && param.steps[i].result.length > 300)) {
+            this.$warning(this.$t('test_track.case.step_desc') + ","
+              + this.$t('test_track.case.expectedResults') + this.$t('test_track.length_less_than') + '300');
+            return false;
+          }
         }
       }
       if (param.name == '') {
@@ -1012,6 +1006,18 @@ export default {
     },
     createCtrlSHandle(event) {
       handleCtrlSEvent(event, this.saveCase);
+    },
+    updateExpectRes(text) {
+      this.form.stepResult = text;
+    },
+    updateStepDesc(text) {
+      this.form.stepDesc = text;
+    },
+    updatePrerequisite(text) {
+      this.form.prerequisite = text;
+    },
+    updateRemark(text) {
+      this.form.remark = text;
     },
   }
 }

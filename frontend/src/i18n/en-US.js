@@ -1196,7 +1196,7 @@ export default {
       steps: "Steps",
       number: "Number",
       prerequisite: "Prerequisite",
-      step_desc: "Step describe",
+      step_desc: "Case step",
       expected_results: "Expected results",
       input_name: "Please enter name",
       input_module: "Please select module",
