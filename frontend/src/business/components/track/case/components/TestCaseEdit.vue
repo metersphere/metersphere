@@ -39,119 +39,38 @@
                                 @getValue="setModule" clearable checkStrictly size="small" />
               </el-form-item>
             </el-col>
-            <el-col :span="7">
-              <el-form-item :label="$t('commons.status')" :label-width="formLabelWidth" prop="status">
-                <el-select size="small" v-model="form.status" class="ms-case-input">
-                  <el-option v-for="item in statuOptions" :key="item.id" :label="item.label" :value="item.id">
-                  </el-option>
-                </el-select>
-              </el-form-item>
-            </el-col>
-          </el-row>
 
-          <el-row>
-            <!--            <el-col :span="7">-->
-            <!--              <el-form-item label="评审状态" :label-width="formLabelWidth" prop="reviewStatus">-->
-            <!--                <el-select size="small" v-model="form.reviewStatus" class="ms-case-input">-->
-            <!--                  <el-option v-for="item in options" :key="item.id" :label="item.label" :value="item.id">-->
-            <!--                  </el-option>-->
-            <!--                </el-select>-->
-            <!--              </el-form-item>-->
-            <!--            </el-col>-->
             <el-col :span="7">
               <el-form-item :label="$t('commons.tag')" :label-width="formLabelWidth" prop="tag">
                 <ms-input-tag :currentScenario="form" v-if="showInputTag" ref="tag" class="ms-case-input"/>
               </el-form-item>
             </el-col>
-            <el-col :span="7">
-              <el-form-item :label="$t('test_track.person_responsible')" :label-width="formLabelWidth"
-                            prop="maintainer">
-                <el-select :disabled="readOnly" v-model="form.maintainer"
-                           :placeholder="$t('test_track.case.input_maintainer')" filterable class="ms-case-input">
-                  <el-option
-                    v-for="item in maintainerOptions"
-                    :key="item.id"
-                    :label="item.id + ' (' + item.name + ')'"
-                    :value="item.id">
-                  </el-option>
-                </el-select>
-              </el-form-item>
-            </el-col>
-            <el-col :span="7">
-              <el-form-item :label="$t('test_track.case.priority')" :label-width="formLabelWidth" prop="priority">
-                <el-select :disabled="readOnly" v-model="form.priority" clearable
-                           :placeholder="$t('test_track.case.input_priority')" class="ms-case-input">
-                  <el-option label="P0" value="P0"></el-option>
-                  <el-option label="P1" value="P1"></el-option>
-                  <el-option label="P2" value="P2"></el-option>
-                  <el-option label="P3" value="P3"></el-option>
-                </el-select>
-              </el-form-item>
-            </el-col>
           </el-row>
-          <el-row>
 
-            <el-col :span="7">
-              <el-form-item :label="$t('test_track.case.relate_test')" :label-width="formLabelWidth">
-                <el-cascader :options="sysList" filterable
-                             :placeholder="$t('test_track.please_select_the_test_to_associate')" show-all-levels
-                             v-model="form.selected" :props="props"
-                             class="ms-case" @change="clearInput" ref="cascade"></el-cascader>
-              </el-form-item>
-            </el-col>
-            <el-col :span="7">
-              <el-form-item :label="$t('test_track.related_requirements')" :label-width="formLabelWidth"
-                            prop="demandId">
-                <el-select filterable :disabled="readOnly" v-model="form.demandId" @visible-change="visibleChange"
-                           :placeholder="$t('test_track.please_related_requirements')" class="ms-case-input">
-                  <el-option
-                    v-for="item in demandOptions"
-                    :key="item.id"
-                    :label="item.platform + ': '+item.name"
-                    :value="item.id">
-                  </el-option>
-                </el-select>
-              </el-form-item>
-            </el-col>
-            <el-col :span="7">
-              <el-form-item label="需求ID/名称" :label-width="formLabelWidth" prop="demandName"
-                            v-if="form.demandId=='other'">
-                <el-input v-model="form.demandName"></el-input>
-              </el-form-item>
-            </el-col>
-          </el-row>
+          <!-- 自定义字段 -->
+          <el-form v-if="isFormAlive" :model="customFieldForm" :rules="customFieldRules" ref="customFieldForm"
+                   class="case-form">
+            <el-row>
+              <el-col :span="7" v-for="(item, index) in testCaseTemplate.customFields" :key="index">
+                <el-form-item :label="item.system ? $t(systemNameMap[item.name]) : item.name" :prop="item.name"
+                              :label-width="formLabelWidth">
+                  <custom-filed-component @reload="reloadForm" :data="item" :form="customFieldForm" prop="defaultValue"/>
+                </el-form-item>
+              </el-col>
+            </el-row>
+          </el-form>
 
           <div class="tip">步骤信息</div>
-          <el-row style="margin-top: 10px;">
-            <el-col :span="2" :offset="1">{{ $t('test_track.case.prerequisite') }}:</el-col>
-            <el-col :span="18">
-              <el-row :disabled="readOnly">
-                <ms-test-case-step-rich-text :content="form.prerequisite" @updateRichText="updatePrerequisite"/>
-              </el-row>
-            </el-col>
-          </el-row>
 
-          <el-row style="margin-top: 20px;">
-            <el-col :span="2" :offset="1">{{ $t('test_track.case.step_desc') }}:</el-col>
-            <el-col :span="18">
-              <el-row v-if="isStepTableAlive">
-                <ms-test-case-step-rich-text :content="form.stepDesc" @updateRichText="updateStepDesc"/>
-              </el-row>
-            </el-col>
-          </el-row>
-          <el-row style="margin-top: 20px;margin-bottom: 20px;">
-            <el-col :span="2" :offset="1">{{ $t('test_track.case.expected_results') }}:</el-col>
-            <el-col :span="18">
-              <el-row v-if="isStepTableAlive">
-                <ms-test-case-step-rich-text :content="form.stepResult" @updateRichText="updateExpectRes"/>
-              </el-row>
-            </el-col>
-          </el-row>
+          <div class="step-info">
+            <test-case-r-ich-text-item :title="$t('test_track.case.prerequisite')" :data="form" prop="prerequisite"/>
+            <test-case-r-ich-text-item :title="$t('test_track.case.step_desc')" :data="form" prop="stepDesc"/>
+            <test-case-r-ich-text-item :title="$t('test_track.case.expected_results')" :data="form" prop="stepResult"/>
+          </div>
+
+
           <div class="tip">其他信息</div>
-         
-          <el-row>
-            <el-col :span="1" ><div v-html="'&nbsp;'"></div></el-col>
-            <el-col :span="20" style="margin-top: 10px">
+
               <el-tabs v-model="tabActiveName">
                 <el-tab-pane :label="$t('commons.remark')" name="remark">
                   <el-row :disabled="readOnly">
@@ -167,11 +86,12 @@
                     </el-form-item>
                   </el-col>
                 </el-tab-pane>
-                <el-tab-pane label="关联需求" name="demand">
+                <el-tab-pane :label="$t('test_track.related_requirements')" name="demand">
                   <el-col :span="7">
-                    <el-form-item label="关联需求" :label-width="formLabelWidth" prop="demandId">
+                    <el-form-item :label="$t('test_track.related_requirements')" :label-width="formLabelWidth"
+                                  prop="demandId">
                       <el-select filterable :disabled="readOnly" v-model="form.demandId" @visible-change="visibleChange"
-                                 placeholder="请选择要关联的需求" class="ms-case-input">
+                                 :placeholder="$t('test_track.please_related_requirements')" class="ms-case-input">
                         <el-option
                           v-for="item in demandOptions"
                           :key="item.id"
@@ -179,6 +99,12 @@
                           :value="item.id">
                         </el-option>
                       </el-select>
+                    </el-form-item>
+                  </el-col>
+                  <el-col :span="7">
+                    <el-form-item label="需求ID/名称" :label-width="formLabelWidth" prop="demandName"
+                                  v-if="form.demandId=='other'">
+                      <el-input v-model="form.demandName"></el-input>
                     </el-form-item>
                   </el-col>
                 </el-tab-pane>
@@ -207,14 +133,12 @@
                       <test-case-attachment :table-data="tableData"
                                             :read-only="readOnly"
                                             :is-delete="true"
-                                            @handleDelete="handleDelete"
-                      />
+                                            @handleDelete="handleDelete"/>
                     </el-col>
                   </el-row>
                 </el-tab-pane>
               </el-tabs>
-            </el-col>
-          </el-row>
+
 
           <el-row style="margin-top: 10px" v-if="type!='add'">
             <el-col :span="20" :offset="1">{{ $t('test_track.review.comment') }}:
@@ -255,7 +179,6 @@ import MsDialogFooter from '../../../common/components/MsDialogFooter'
 import {getCurrentUser, getNodePath, handleCtrlSEvent, listenGoBack, removeGoBackListener} from "@/common/js/utils";
 import {Message} from "element-ui";
 import TestCaseAttachment from "@/business/components/track/case/components/TestCaseAttachment";
-import {buildNodePath,buildTree} from "../../../api/definition/model/NodeTree";
 import CaseComment from "@/business/components/track/case/components/CaseComment";
 import MsInputTag from "@/business/components/api/automation/scenario/MsInputTag";
 import MsPreviousNextButton from "../../../common/components/MsPreviousNextButton";
@@ -266,10 +189,16 @@ import {API_STATUS, REVIEW_STATUS, TEST} from "@/business/components/api/definit
 import MsTableButton from "@/business/components/common/components/MsTableButton";
 import MsSelectTree from "../../../common/select-tree/SelectTree";
 import MsTestCaseStepRichText from "./TestCaseStepRichText";
+import CustomFiledComponent from "@/business/components/settings/workspace/template/CustomFiledComponent";
+import {buildCustomFields, getTemplate, parseCustomField} from "@/common/js/custom_field";
+import {SYSTEM_FIELD_NAME_MAP} from "@/common/js/table-constants";
+import TestCaseRIchTextItem from "@/business/components/track/case/components/FormRIchTextItem";
 
 export default {
   name: "TestCaseEdit",
   components: {
+    TestCaseRIchTextItem,
+    CustomFiledComponent,
     MsTableButton,
     MsSelectTree,
     ReviewCommentItem,
@@ -283,6 +212,7 @@ export default {
         //lazy: true,
         //lazyLoad:this.lazyLoad
       },
+      testCaseTemplate: {},
       sysList: [],//一级选择框的数据
       options: REVIEW_STATUS,
       statuOptions: API_STATUS,
@@ -336,11 +266,14 @@ export default {
         prerequisite: [{max: 500, message: this.$t('test_track.length_less_than') + '500', trigger: 'blur'}],
         remark: [{max: 1000, message: this.$t('test_track.length_less_than') + '1000', trigger: 'blur'}]
       },
+      customFieldRules: {},
+      customFieldForm: {},
       tabActiveName: "remark",
       formLabelWidth: "120px",
       operationType: '',
       isCreateContinue: false,
       isStepTableAlive: true,
+      isFormAlive: true,
       methodOptions: [
         {value: 'auto', label: this.$t('test_track.case.auto')},
         {value: 'manual', label: this.$t('test_track.case.manual')}
@@ -361,10 +294,6 @@ export default {
       type: Array
     },
     currentTestCaseInfo: {},
-    /*readOnly: {
-      type: Boolean,
-      default: false
-    },*/
     selectNode: {
       type: Object
     },
@@ -379,6 +308,9 @@ export default {
     },
     moduleOptions() {
       return this.$store.state.testCaseModuleOptions;
+    },
+    systemNameMap() {
+      return SYSTEM_FIELD_NAME_MAP;
     }
   },
   mounted() {
@@ -404,31 +336,14 @@ export default {
       this.form.nodePath = this.treeNodes[0].path;
     }
   },
-  // watch: {
-    // treeNodes() {
-    //   this.getModuleOptions();
-    // },
-    // moduleOptions() {
-    //   this.$emit('setModuleOptions', this.moduleOptions);
-    // }
-  // },
   created() {
-    this.loadOptions();
-    this.addListener(); //  添加 ctrl s 监听
-    if(this.selectNode && this.selectNode.data && !this.form.id){
-      this.form.module = this.selectNode.data.id;
-      this.form.nodePath = this.selectNode.data.path;
-    }else{
-      this.form.module =this.treeNodes && this.length>0? this.treeNodes[0].id:"";
-    }
-    if (this.type === 'edit' || this.type === 'copy') {
-      this.form.module = this.currentTestCaseInfo.nodeId;
-      this.form.nodePath = this.currentTestCaseInfo.nodePath;
-    }
-    if((!this.form.module || this.form.module==="default-module" || this.form.module ==="root") && this.treeNodes.length > 0){
-      this.form.module =  this.treeNodes[0].id;
-      this.form.nodePath = this.treeNodes[0].path;
-    }
+    this.projectId = this.projectIds;
+    let initAddFuc = this.initAddFuc;
+    getTemplate('field/template/case/get/relate/', this)
+      .then((template) => {
+        this.testCaseTemplate = template;
+        initAddFuc();
+      });
   },
   methods: {
     setModule(id,data) {
@@ -437,6 +352,32 @@ export default {
     },
     clearInput() {
       //this.$refs['cascade'].panel.clearCheckedNodes()
+    },
+    initAddFuc() {
+      this.loadOptions();
+      this.addListener(); //  添加 ctrl s 监听
+      if(this.selectNode && this.selectNode.data && !this.form.id){
+        this.form.module = this.selectNode.data.id;
+        this.form.nodePath = this.selectNode.data.path;
+      }else{
+        this.form.module =this.treeNodes && this.length>0? this.treeNodes[0].id:"";
+      }
+      if (this.type === 'edit' || this.type === 'copy') {
+        this.form.module = this.currentTestCaseInfo.nodeId;
+        this.form.nodePath = this.currentTestCaseInfo.nodePath;
+      }
+      if((!this.form.module || this.form.module==="default-module" || this.form.module ==="root") && this.treeNodes.length > 0){
+        this.form.module =  this.treeNodes[0].id;
+        this.form.nodePath = this.treeNodes[0].path;
+      }
+      if (this.type === 'add') {
+        //设置自定义熟悉默认值
+        parseCustomField(this.form, this.testCaseTemplate, this.customFieldForm, this.customFieldRules, this.buildOldFields(this.form));
+        this.form.name = this.testCaseTemplate.caseName;
+        this.form.stepDesc = this.testCaseTemplate.stepDescription;
+        this.form.stepResult = this.testCaseTemplate.expectedResult;
+        this.form.prerequisite = this.testCaseTemplate.prerequisite;
+      }
     },
     async loadOptions(sysLib) {
       sysLib = TEST
@@ -455,14 +396,14 @@ export default {
       this.sysList = array;
     },
     getTestOptions(val) {
-      this.form.type = val
-      this.projectId = this.projectIds
+      this.form.type = val;
+      this.projectId = this.projectIds;
       this.testOptions = [];
       let url = '';
       if (this.form.type === 'testcase' || this.form.type === 'automation') {
-        url = '/api/' + this.form.type + '/list/' + this.projectId
+        url = '/api/' + this.form.type + '/list/' + this.projectId;
       } else if (this.form.type === 'performance' || this.form.type === 'api') {
-        url = '/' + this.form.type + '/list/' + this.projectId
+        url = '/' + this.form.type + '/list/' + this.projectId;
       }
       if (!url) {
         return;
@@ -480,40 +421,6 @@ export default {
         })
       });
     },
-    /* lazyLoad(node, resolve){
-      const { level } = node;
-      if(node.level==0){
-        const nodes = TEST
-          .map(item => ({
-            value: item.id,
-            label: item.name,
-            leaf: level >= 1
-          }));
-        resolve(nodes)
-      }
-      if(node.level==1){
-        this.projectId = getCurrentProjectID()
-        this.testOptions = [];
-        let url = '';
-        this.form.type=node.data.value
-        if (this.form.type === 'testcase' || this.form.type === 'automation') {
-          url = '/api/' + this.form.type + '/list/' + this.projectId
-        } else if (this.form.type === 'performance' || this.form.type === 'api') {
-          url = '/' + this.form.type + '/list/' + this.projectId
-        }
-        if (this.projectId && this.form.type != '' && this.form.type != 'undefined') {
-          this.$get(url, response => {
-              const nodes = response.data
-                .map(item => ({
-                  value: item.id,
-                  label: item.name,
-                  leaf: level >= 1
-                }));
-              resolve(nodes)
-          });
-        }
-      }
-    },*/
     handleCommand(e) {
       if (e === "ADD_AND_CREATE") {
         this.$refs['caseFrom'].validate((valid) => {
@@ -555,11 +462,23 @@ export default {
       this.isStepTableAlive = false;
       this.$nextTick(() => (this.isStepTableAlive = true));
     },
+    reloadForm() {
+      this.isFormAlive = false;
+      this.$nextTick(() => (this.isFormAlive = true));
+    },
     open(testCase) {
       /*
              this.form.selected=[["automation", "3edaaf31-3fa4-4a53-9654-320205c2953a"],["automation", "3aa58bd1-c986-448c-8060-d32713dbd4eb"]]
       */
       this.projectId = this.projectIds;
+      let initFuc = this.initEdit;
+      getTemplate('field/template/case/get/relate/', this)
+        .then((template) => {
+          this.testCaseTemplate = template;
+          initFuc(testCase);
+        });
+    },
+    initEdit(testCase) {
       if (window.history && window.history.pushState) {
         history.pushState(null, null, document.URL);
         window.addEventListener('popstate', this.close);
@@ -576,6 +495,8 @@ export default {
           this.setFormData(testCase);
           this.setTestCaseExtInfo(testCase);
           this.getSelectOptions();
+          //设置自定义熟悉默认值
+          parseCustomField(this.form, this.testCaseTemplate, this.customFieldForm, this.customFieldRules, this.buildOldFields(this.form));
           this.reload();
         } else {
           this.initTestCases(testCase);
@@ -595,6 +516,7 @@ export default {
         this.form.maintainer = user.id;
         this.form.tags = [];
         this.getSelectOptions();
+        parseCustomField(this.form, this.testCaseTemplate, this.customFieldForm, this.customFieldRules, this.buildOldFields(this.form));
         this.reload();
       }
     },
@@ -628,8 +550,8 @@ export default {
         this.reload();
         this.$nextTick(() => {
           this.showInputTag = true
-        })
-      })
+        });
+      });
     },
     async setFormData(testCase) {
       try {
@@ -663,9 +585,19 @@ export default {
       tmp.tags = JSON.parse(tmp.tags);
       Object.assign(this.form, tmp);
       this.form.module = testCase.nodeId;
+      //设置自定义熟悉默认值
+      parseCustomField(this.form, this.testCaseTemplate, this.customFieldForm, this.customFieldRules, this.buildOldFields(this.form));
       this.getFileMetaData(testCase);
-      await this.loadOptions(this.sysList)
-
+      await this.loadOptions(this.sysList);
+      // 重新渲染，显示自定义字段的必填校验
+      this.reloadForm();
+    },
+    buildOldFields(testCase) {
+      let oldFields = new Map();
+      oldFields.set('custom_field.case_status', testCase.status);
+      oldFields.set('custom_field.case_maintainer', testCase.maintainer);
+      oldFields.set('custom_field.case_priority', testCase.priority);
+      return oldFields;
     },
     setTestCaseExtInfo(testCase) {
       this.testCase = {};
@@ -730,47 +662,44 @@ export default {
       this.dialogFormVisible = false;
     },
     saveCase() {
+      let isValidate = true;
       this.$refs['caseFrom'].validate((valid) => {
-        if (valid) {
-          let param = this.buildParam();
-          if (this.validate(param)) {
-            let option = this.getOption(param);
-            this.result = this.$request(option, (response) => {
-              this.$success(this.$t('commons.save_success'));
-              this.operationType="edit"
-              this.form.id=response.id;
-              this.$emit("refreshTestCase",)
-              /*if (this.operationType == 'add' && this.isCreateContinue) {
-                this.form.name = '';
-                this.form.prerequisite = '';
-                this.form.steps = [{
-                  num: 1,
-                  desc: '',
-                  result: ''
-                }];
-                this.form.remark = '';
-                this.uploadList = [];
-                this.fileList = [];
-                this.tableData = [];
-                this.$emit("refresh");
-                return;
-              }*/
-              this.tableType='edit';
-              this.$emit("refresh",this.form);
-              this.form.id=response.data
-              if (this.type === 'add' || this.type === 'copy') {
-                param.id = response.data;
-                this.$emit("caseCreate", param);
-                this.close();
-              } else {
-                this.$emit("caseEdit", param);
-              }
-            });
-          }
-        } else {
+        if (!valid) {
+          isValidate = false;
           return false;
         }
       });
+      this.$refs['customFieldForm'].validate((valid) => {
+        if (!valid) {
+          isValidate = false;
+          return false;
+        }
+      });
+      if (isValidate) {
+        this._saveCase();
+      }
+    },
+    _saveCase() {
+      let param = this.buildParam();
+      if (this.validate(param)) {
+        let option = this.getOption(param);
+        this.result = this.$request(option, (response) => {
+          this.$success(this.$t('commons.save_success'));
+          this.operationType="edit"
+          this.form.id=response.id;
+          this.$emit("refreshTestCase",)
+          this.tableType='edit';
+          this.$emit("refresh",this.form);
+          this.form.id=response.data
+          if (this.type === 'add' || this.type === 'copy') {
+            param.id = response.data;
+            this.$emit("caseCreate", param);
+            this.close();
+          } else {
+            this.$emit("caseEdit", param);
+          }
+        });
+      }
     },
     buildParam() {
       let param = {};
@@ -791,7 +720,24 @@ export default {
       param.testId = JSON.stringify(this.form.selected)
       param.tags = this.form.tags;
       param.type = 'functional';
+      buildCustomFields(this.form, param, this.testCaseTemplate);
+      this.parseOldFields(param);
       return param;
+    },
+    parseOldFields(param) {
+      let customFieldsStr =  param.customFields;
+      if (customFieldsStr) {
+        let customFields = JSON.parse(customFieldsStr);
+        if (customFields['i43sf4_testCasePriority']) {
+          param.priority = JSON.parse(customFields['i43sf4_testCasePriority']);
+        }
+        if (customFields['i43sf4_testCaseMaintainer']) {
+          param.maintainer = JSON.parse(customFields['i43sf4_testCaseMaintainer']);
+        }
+        if (customFields['i43sf4_testCaseStatus']) {
+          param.status = JSON.parse(customFields['i43sf4_testCaseStatus']);
+        }
+      }
     },
     getOption(param) {
       let type={}
@@ -1007,15 +953,6 @@ export default {
     createCtrlSHandle(event) {
       handleCtrlSEvent(event, this.saveCase);
     },
-    updateExpectRes(text) {
-      this.form.stepResult = text;
-    },
-    updateStepDesc(text) {
-      this.form.stepDesc = text;
-    },
-    updatePrerequisite(text) {
-      this.form.prerequisite = text;
-    },
     updateRemark(text) {
       this.form.remark = text;
     },
@@ -1094,4 +1031,15 @@ export default {
   width: 56px;
 }
 
+.el-tabs >>> .el-tabs__content {
+  padding: 20px 0px;
+}
+
+.el-tabs {
+  padding: 30px 60px
+}
+
+.step-info {
+  padding: 30px;
+}
 </style>

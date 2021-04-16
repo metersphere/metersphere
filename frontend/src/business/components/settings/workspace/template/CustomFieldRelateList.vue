@@ -28,7 +28,7 @@
             prop="name">
             <template v-slot="scope">
               <span v-if="scope.row.system">
-                {{$t(scope.row.name)}}
+                {{$t(systemNameMap[scope.row.name])}}
               </span>
                     <span v-else>
                 {{scope.row.name}}
@@ -99,7 +99,7 @@ import MsTableColumn from "@/business/components/common/components/table/Ms-tabl
 import {CUSTOM_FIELD_LIST} from "@/common/js/default-table-header";
 import MsTableButton from "@/business/components/common/components/MsTableButton";
 import MsTablePagination from "@/business/components/common/pagination/TablePagination";
-import {CUSTOM_FIELD_TYPE_OPTION, FIELD_TYPE_MAP, SCENE_MAP} from "@/common/js/table-constants";
+import {CUSTOM_FIELD_TYPE_OPTION, FIELD_TYPE_MAP, SCENE_MAP, SYSTEM_FIELD_NAME_MAP} from "@/common/js/table-constants";
 import MsTableHeader from "@/business/components/common/components/MsTableHeader";
 import MsEditDialog from "@/business/components/common/components/MsEditDialog";
 export default {
@@ -136,6 +136,9 @@ export default {
     },
     sceneMap() {
       return SCENE_MAP;
+    },
+    systemNameMap() {
+      return SYSTEM_FIELD_NAME_MAP;
     }
   },
   methods: {

@@ -22,7 +22,7 @@
           prop="name">
           <template v-slot="scope">
             <span v-if="scope.row.system">
-              {{$t(scope.row.name)}}
+              {{$t(systemNameMap[scope.row.name])}}
             </span>
             <span v-else>
               {{scope.row.name}}
@@ -115,7 +115,7 @@ import {
   CUSTOM_FIELD_SCENE_OPTION,
   CUSTOM_FIELD_TYPE_OPTION,
   FIELD_TYPE_MAP,
-  SCENE_MAP
+  SCENE_MAP, SYSTEM_FIELD_NAME_MAP
 } from "@/common/js/table-constants";
 import MsTableHeader from "@/business/components/common/components/MsTableHeader";
 export default {
@@ -165,6 +165,9 @@ export default {
     },
     sceneMap() {
       return SCENE_MAP;
+    },
+    systemNameMap() {
+      return SYSTEM_FIELD_NAME_MAP;
     }
   },
   methods: {

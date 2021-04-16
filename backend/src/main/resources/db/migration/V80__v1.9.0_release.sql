@@ -20,26 +20,26 @@ CREATE TABLE IF NOT EXISTS `custom_field` (
 
 -- 用例系统字段
 INSERT INTO custom_field (id,name,scene,`type`,remark,`options`,`system`,`global`,workspace_id,create_time,update_time)
-VALUES ('45f2de57-9d1d-11eb-b418-0242ac120002','custom_field.case_status','TEST_CASE','select','',
+VALUES ('45f2de57-9d1d-11eb-b418-0242ac120002','i43sf4_testCaseStatus','TEST_CASE','select','',
         '[{"value":"Prepare", "text":"test_track.case.status_prepare", "system": true},{"value":"Underway", "text":"test_track.case.status_running","system": true},{"value":"Completed", "text":"test_track.case.status_finished", "system": true}]',
         1,1,'global',unix_timestamp() * 1000,unix_timestamp() * 1000);
 INSERT INTO custom_field (id,name,scene,`type`,remark,`options`,`system`,`global`,workspace_id,create_time,update_time)
-VALUES ('46065143-9d1d-11eb-b418-0242ac120002','custom_field.case_maintainer','TEST_CASE','member','',
+VALUES ('46065143-9d1d-11eb-b418-0242ac120002','i43sf4_testCaseMaintainer','TEST_CASE','member','',
         '[]',1,1,'global',unix_timestamp() * 1000,unix_timestamp() * 1000);
 INSERT INTO custom_field (id,name,scene,`type`,remark,`options`,`system`,`global`,workspace_id,create_time,update_time)
-VALUES ('4619cc23-9d1d-11eb-b418-0242ac120002','custom_field.case_priority','TEST_CASE','select','',
-        '[{"value":"PO", "text":"PO", "system": true},{"value":"P1", "text":"P1","system": true},{"value":"P2", "text":"P2", "system": true},{"value":"P3", "text":"P3", "system": true}]',
+VALUES ('4619cc23-9d1d-11eb-b418-0242ac120002','i43sf4_testCasePriority','TEST_CASE','select','',
+        '[{"value":"P0", "text":"P0", "system": true},{"value":"P1", "text":"P1","system": true},{"value":"P2", "text":"P2", "system": true},{"value":"P3", "text":"P3", "system": true}]',
         1,1,'global',unix_timestamp() * 1000,unix_timestamp() * 1000);
 
 -- 缺陷系统字段
 INSERT INTO custom_field (id,name,scene,`type`,remark,`options`,`system`,`global`,workspace_id,create_time,update_time)
-VALUES ('09642424-7b1b-4004-867e-ff9c798a1933','custom_field.issue_creator','ISSUE','member','','[]',1,1,'global',unix_timestamp() * 1000,unix_timestamp() * 1000);
+VALUES ('09642424-7b1b-4004-867e-ff9c798a1933','i43sf4_issueCreator','ISSUE','member','','[]',1,1,'global',unix_timestamp() * 1000,unix_timestamp() * 1000);
 INSERT INTO custom_field (id,name,scene,`type`,remark,`options`,`system`,`global`,workspace_id,create_time,update_time)
-VALUES ('a577bc60-75fe-47ec-8aa6-32dca23bf3d6','custom_field.issue_processor','ISSUE','member','','[]',1,1,'global',unix_timestamp() * 1000,unix_timestamp() * 1000);
+VALUES ('a577bc60-75fe-47ec-8aa6-32dca23bf3d6','i43sf4_issueProcessor','ISSUE','member','','[]',1,1,'global',unix_timestamp() * 1000,unix_timestamp() * 1000);
 INSERT INTO custom_field (id,name,scene,`type`,remark,`options`,`system`,`global`,workspace_id,create_time,update_time)
-VALUES ('beb57501-19c8-4ca3-8dfb-2cef7c0ea087','custom_field.issue_status','ISSUE','select','','[{"text":"test_track.issue.status_new","value":"NEW","system": true},{"text":"test_track.issue.status_resolved","value":"RESOLVED","system": true},{"text":"test_track.issue.status_closed","value":"CLOSED","system": true}]',1,1,'global',unix_timestamp() * 1000,unix_timestamp() * 1000);
+VALUES ('beb57501-19c8-4ca3-8dfb-2cef7c0ea087','i43sf4_issueStatus','ISSUE','select','','[{"text":"test_track.issue.status_new","value":"NEW","system": true},{"text":"test_track.issue.status_resolved","value":"RESOLVED","system": true},{"text":"test_track.issue.status_closed","value":"CLOSED","system": true}]',1,1,'global',unix_timestamp() * 1000,unix_timestamp() * 1000);
 INSERT INTO custom_field (id,name,scene,`type`,remark,`options`,`system`,`global`,workspace_id,create_time,update_time)
-VALUES ('d392af07-fdfe-4475-a459-87d59f0b1626','custom_field.issue_severity','ISSUE','select','','[{"text":"P0","value":"P0","system": true},{"text":"P1","value":"P1","system": true},{"text":"P2","value":"P2","system": true},{"text":"P3","value":"P3","system": true}]',1,1,'global',unix_timestamp() * 1000,unix_timestamp() * 1000);
+VALUES ('d392af07-fdfe-4475-a459-87d59f0b1626','i43sf4_issueSeverity','ISSUE','select','','[{"text":"P0","value":"P0","system": true},{"text":"P1","value":"P1","system": true},{"text":"P2","value":"P2","system": true},{"text":"P3","value":"P3","system": true}]',1,1,'global',unix_timestamp() * 1000,unix_timestamp() * 1000);
 
 -- 用例模板表
 CREATE TABLE IF NOT EXISTS `test_case_template` (
@@ -107,7 +107,7 @@ CREATE TABLE IF NOT EXISTS `custom_field_template` (
 INSERT INTO custom_field_template (id,field_id,template_id,scene,required,default_value)
 VALUES ('0d2b90ec-9c56-4f5d-ae06-522a93f48e93','46065143-9d1d-11eb-b418-0242ac120002','b395d8fe-2ad6-4de7-81d3-2006b53a97c8','TEST_CASE',1,'');
 INSERT INTO custom_field_template (id,field_id,template_id,scene,required,default_value)
-VALUES ('661e1e29-c401-43b0-972e-a713b7b90c37','4619cc23-9d1d-11eb-b418-0242ac120002','b395d8fe-2ad6-4de7-81d3-2006b53a97c8','TEST_CASE',1,'"PO"');
+VALUES ('661e1e29-c401-43b0-972e-a713b7b90c37','4619cc23-9d1d-11eb-b418-0242ac120002','b395d8fe-2ad6-4de7-81d3-2006b53a97c8','TEST_CASE',1,'"P0"');
 INSERT INTO custom_field_template (id,field_id,template_id,scene,required,default_value)
 VALUES ('f448e8d2-fad1-4c23-a013-3f3ba282bb81','45f2de57-9d1d-11eb-b418-0242ac120002','b395d8fe-2ad6-4de7-81d3-2006b53a97c8','TEST_CASE',1,'"Prepare"');
 
@@ -134,3 +134,9 @@ alter table test_case
 ALTER TABLE api_scenario_report MODIFY COLUMN name VARCHAR(3000);
 -- api_scenario_report modify column length
 ALTER TABLE api_scenario_report MODIFY COLUMN scenario_id VARCHAR(3000);
+
+
+ALTER TABLE test_case MODIFY COLUMN maintainer varchar(50) NULL COMMENT 'Test case maintainer';
+ALTER TABLE test_case MODIFY COLUMN priority varchar(50) NULL COMMENT 'Test case priority';
+ALTER TABLE test_case ADD custom_fields TEXT NULL COMMENT 'CustomField';
+

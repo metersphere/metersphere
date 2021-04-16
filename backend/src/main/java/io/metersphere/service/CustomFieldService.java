@@ -102,6 +102,15 @@ public class CustomFieldService {
                 .andSceneEqualTo(scene);
         return customFieldMapper.selectByExampleWithBLOBs(example);
     }
+    public List<CustomField> getFieldByIds(List<String> ids) {
+        if (CollectionUtils.isNotEmpty(ids)) {
+            CustomFieldExample example = new CustomFieldExample();
+            example.createCriteria()
+                    .andIdIn(ids);
+            return customFieldMapper.selectByExampleWithBLOBs(example);
+        }
+        return new ArrayList<>();
+    }
 
     public List<CustomField> getDefaultField(QueryCustomFieldRequest request) {
         CustomFieldExample example = new CustomFieldExample();

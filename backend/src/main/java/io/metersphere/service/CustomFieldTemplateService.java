@@ -37,6 +37,12 @@ public class CustomFieldTemplateService {
         return extCustomFieldTemplateMapper.getCustomFieldIds(templateId);
     }
 
+    public List<CustomFieldTemplate> getCustomFields(String templateId) {
+        CustomFieldTemplateExample example = new CustomFieldTemplateExample();
+        example.createCriteria().andTemplateIdEqualTo(templateId);
+        return customFieldTemplateMapper.selectByExample(example);
+    }
+
     public List<CustomFieldTemplateDao> list(CustomFieldTemplate request) {
         return extCustomFieldTemplateMapper.list(request);
     }

@@ -16,7 +16,10 @@
     computed: {
       textData: {
         get: function () {
-          return this.content;
+          if (this.content) {
+            return this.content;
+          }
+          return '';
         },
         set: function (val) {
           this.$emit('updateRichText', val);

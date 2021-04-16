@@ -17,5 +17,7 @@ public class TestCaseWithBLOBs extends TestCase implements Serializable {
 
     private String expectedResult;
 
+    private String customFields;
+
     private static final long serialVersionUID = 1L;
 }

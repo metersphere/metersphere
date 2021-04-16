@@ -4,7 +4,6 @@
   <resultMap id="BaseResultMap" type="io.metersphere.base.domain.TestCase">
     <id column="id" jdbcType="VARCHAR" property="id" />
     <result column="node_id" jdbcType="VARCHAR" property="nodeId" />
-    <result column="test_id" jdbcType="VARCHAR" property="testId" />
     <result column="node_path" jdbcType="VARCHAR" property="nodePath" />
     <result column="project_id" jdbcType="VARCHAR" property="projectId" />
     <result column="name" jdbcType="VARCHAR" property="name" />
@@ -15,6 +14,7 @@
     <result column="prerequisite" jdbcType="VARCHAR" property="prerequisite" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
     <result column="update_time" jdbcType="BIGINT" property="updateTime" />
+    <result column="test_id" jdbcType="VARCHAR" property="testId" />
     <result column="sort" jdbcType="INTEGER" property="sort" />
     <result column="num" jdbcType="INTEGER" property="num" />
     <result column="other_test_name" jdbcType="VARCHAR" property="otherTestName" />
@@ -30,6 +30,7 @@
     <result column="steps" jdbcType="LONGVARCHAR" property="steps" />
     <result column="step_description" jdbcType="LONGVARCHAR" property="stepDescription" />
     <result column="expected_result" jdbcType="LONGVARCHAR" property="expectedResult" />
+    <result column="custom_fields" jdbcType="LONGVARCHAR" property="customFields" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -90,12 +91,12 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, node_id, test_id, node_path, project_id, `name`, `type`, maintainer, priority, 
-    `method`, prerequisite, create_time, update_time, sort, num, other_test_name, review_status, 
+    id, node_id, node_path, project_id, `name`, `type`, maintainer, priority, `method`, 
+    prerequisite, create_time, update_time, test_id, sort, num, other_test_name, review_status, 
     tags, demand_id, demand_name, follow_people, `status`
   </sql>
   <sql id="Blob_Column_List">
-    remark, steps, step_description, expected_result
+    remark, steps, step_description, expected_result, custom_fields
   </sql>
   <select id="selectByExampleWithBLOBs" parameterType="io.metersphere.base.domain.TestCaseExample" resultMap="ResultMapWithBLOBs">
     select
@@ -146,26 +147,26 @@
     </if>
   </delete>
   <insert id="insert" parameterType="io.metersphere.base.domain.TestCaseWithBLOBs">
-    insert into test_case (id, node_id, test_id, 
-      node_path, project_id, `name`, 
-      `type`, maintainer, priority, 
-      `method`, prerequisite, create_time, 
-      update_time, sort, num, 
+    insert into test_case (id, node_id, node_path, 
+      project_id, `name`, `type`, 
+      maintainer, priority, `method`, 
+      prerequisite, create_time, update_time, 
+      test_id, sort, num, 
       other_test_name, review_status, tags, 
       demand_id, demand_name, follow_people, 
       `status`, remark, steps, 
-      step_description, expected_result
-      )
-    values (#{id,jdbcType=VARCHAR}, #{nodeId,jdbcType=VARCHAR}, #{testId,jdbcType=VARCHAR}, 
-      #{nodePath,jdbcType=VARCHAR}, #{projectId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, 
-      #{type,jdbcType=VARCHAR}, #{maintainer,jdbcType=VARCHAR}, #{priority,jdbcType=VARCHAR}, 
-      #{method,jdbcType=VARCHAR}, #{prerequisite,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, 
-      #{updateTime,jdbcType=BIGINT}, #{sort,jdbcType=INTEGER}, #{num,jdbcType=INTEGER}, 
+      step_description, expected_result, 
+      custom_fields)
+    values (#{id,jdbcType=VARCHAR}, #{nodeId,jdbcType=VARCHAR}, #{nodePath,jdbcType=VARCHAR}, 
+      #{projectId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR}, 
+      #{maintainer,jdbcType=VARCHAR}, #{priority,jdbcType=VARCHAR}, #{method,jdbcType=VARCHAR}, 
+      #{prerequisite,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, 
+      #{testId,jdbcType=VARCHAR}, #{sort,jdbcType=INTEGER}, #{num,jdbcType=INTEGER}, 
       #{otherTestName,jdbcType=VARCHAR}, #{reviewStatus,jdbcType=VARCHAR}, #{tags,jdbcType=VARCHAR}, 
       #{demandId,jdbcType=VARCHAR}, #{demandName,jdbcType=VARCHAR}, #{followPeople,jdbcType=VARCHAR}, 
       #{status,jdbcType=VARCHAR}, #{remark,jdbcType=LONGVARCHAR}, #{steps,jdbcType=LONGVARCHAR}, 
-      #{stepDescription,jdbcType=LONGVARCHAR}, #{expectedResult,jdbcType=LONGVARCHAR}
-      )
+      #{stepDescription,jdbcType=LONGVARCHAR}, #{expectedResult,jdbcType=LONGVARCHAR}, 
+      #{customFields,jdbcType=LONGVARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.TestCaseWithBLOBs">
     insert into test_case
@@ -175,9 +176,6 @@
       </if>
       <if test="nodeId != null">
         node_id,
-      </if>
-      <if test="testId != null">
-        test_id,
       </if>
       <if test="nodePath != null">
         node_path,
@@ -208,6 +206,9 @@
       </if>
       <if test="updateTime != null">
         update_time,
+      </if>
+      <if test="testId != null">
+        test_id,
       </if>
       <if test="sort != null">
         sort,
@@ -248,6 +249,9 @@
       <if test="expectedResult != null">
         expected_result,
       </if>
+      <if test="customFields != null">
+        custom_fields,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -255,9 +259,6 @@
       </if>
       <if test="nodeId != null">
         #{nodeId,jdbcType=VARCHAR},
-      </if>
-      <if test="testId != null">
-        #{testId,jdbcType=VARCHAR},
       </if>
       <if test="nodePath != null">
         #{nodePath,jdbcType=VARCHAR},
@@ -288,6 +289,9 @@
       </if>
       <if test="updateTime != null">
         #{updateTime,jdbcType=BIGINT},
+      </if>
+      <if test="testId != null">
+        #{testId,jdbcType=VARCHAR},
       </if>
       <if test="sort != null">
         #{sort,jdbcType=INTEGER},
@@ -328,6 +332,9 @@
       <if test="expectedResult != null">
         #{expectedResult,jdbcType=LONGVARCHAR},
       </if>
+      <if test="customFields != null">
+        #{customFields,jdbcType=LONGVARCHAR},
+      </if>
     </trim>
   </insert>
   <select id="countByExample" parameterType="io.metersphere.base.domain.TestCaseExample" resultType="java.lang.Long">
@@ -344,9 +351,6 @@
       </if>
       <if test="record.nodeId != null">
         node_id = #{record.nodeId,jdbcType=VARCHAR},
-      </if>
-      <if test="record.testId != null">
-        test_id = #{record.testId,jdbcType=VARCHAR},
       </if>
       <if test="record.nodePath != null">
         node_path = #{record.nodePath,jdbcType=VARCHAR},
@@ -377,6 +381,9 @@
       </if>
       <if test="record.updateTime != null">
         update_time = #{record.updateTime,jdbcType=BIGINT},
+      </if>
+      <if test="record.testId != null">
+        test_id = #{record.testId,jdbcType=VARCHAR},
       </if>
       <if test="record.sort != null">
         sort = #{record.sort,jdbcType=INTEGER},
@@ -417,6 +424,9 @@
       <if test="record.expectedResult != null">
         expected_result = #{record.expectedResult,jdbcType=LONGVARCHAR},
       </if>
+      <if test="record.customFields != null">
+        custom_fields = #{record.customFields,jdbcType=LONGVARCHAR},
+      </if>
     </set>
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
@@ -426,7 +436,6 @@
     update test_case
     set id = #{record.id,jdbcType=VARCHAR},
       node_id = #{record.nodeId,jdbcType=VARCHAR},
-      test_id = #{record.testId,jdbcType=VARCHAR},
       node_path = #{record.nodePath,jdbcType=VARCHAR},
       project_id = #{record.projectId,jdbcType=VARCHAR},
       `name` = #{record.name,jdbcType=VARCHAR},
@@ -437,6 +446,7 @@
       prerequisite = #{record.prerequisite,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
       update_time = #{record.updateTime,jdbcType=BIGINT},
+      test_id = #{record.testId,jdbcType=VARCHAR},
       sort = #{record.sort,jdbcType=INTEGER},
       num = #{record.num,jdbcType=INTEGER},
       other_test_name = #{record.otherTestName,jdbcType=VARCHAR},
@@ -449,7 +459,8 @@
       remark = #{record.remark,jdbcType=LONGVARCHAR},
       steps = #{record.steps,jdbcType=LONGVARCHAR},
       step_description = #{record.stepDescription,jdbcType=LONGVARCHAR},
-      expected_result = #{record.expectedResult,jdbcType=LONGVARCHAR}
+      expected_result = #{record.expectedResult,jdbcType=LONGVARCHAR},
+      custom_fields = #{record.customFields,jdbcType=LONGVARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -458,7 +469,6 @@
     update test_case
     set id = #{record.id,jdbcType=VARCHAR},
       node_id = #{record.nodeId,jdbcType=VARCHAR},
-      test_id = #{record.testId,jdbcType=VARCHAR},
       node_path = #{record.nodePath,jdbcType=VARCHAR},
       project_id = #{record.projectId,jdbcType=VARCHAR},
       `name` = #{record.name,jdbcType=VARCHAR},
@@ -469,6 +479,7 @@
       prerequisite = #{record.prerequisite,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
       update_time = #{record.updateTime,jdbcType=BIGINT},
+      test_id = #{record.testId,jdbcType=VARCHAR},
       sort = #{record.sort,jdbcType=INTEGER},
       num = #{record.num,jdbcType=INTEGER},
       other_test_name = #{record.otherTestName,jdbcType=VARCHAR},
@@ -487,9 +498,6 @@
     <set>
       <if test="nodeId != null">
         node_id = #{nodeId,jdbcType=VARCHAR},
-      </if>
-      <if test="testId != null">
-        test_id = #{testId,jdbcType=VARCHAR},
       </if>
       <if test="nodePath != null">
         node_path = #{nodePath,jdbcType=VARCHAR},
@@ -520,6 +528,9 @@
       </if>
       <if test="updateTime != null">
         update_time = #{updateTime,jdbcType=BIGINT},
+      </if>
+      <if test="testId != null">
+        test_id = #{testId,jdbcType=VARCHAR},
       </if>
       <if test="sort != null">
         sort = #{sort,jdbcType=INTEGER},
@@ -560,13 +571,15 @@
       <if test="expectedResult != null">
         expected_result = #{expectedResult,jdbcType=LONGVARCHAR},
       </if>
+      <if test="customFields != null">
+        custom_fields = #{customFields,jdbcType=LONGVARCHAR},
+      </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKeyWithBLOBs" parameterType="io.metersphere.base.domain.TestCaseWithBLOBs">
     update test_case
     set node_id = #{nodeId,jdbcType=VARCHAR},
-      test_id = #{testId,jdbcType=VARCHAR},
       node_path = #{nodePath,jdbcType=VARCHAR},
       project_id = #{projectId,jdbcType=VARCHAR},
       `name` = #{name,jdbcType=VARCHAR},
@@ -577,6 +590,7 @@
       prerequisite = #{prerequisite,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
       update_time = #{updateTime,jdbcType=BIGINT},
+      test_id = #{testId,jdbcType=VARCHAR},
       sort = #{sort,jdbcType=INTEGER},
       num = #{num,jdbcType=INTEGER},
       other_test_name = #{otherTestName,jdbcType=VARCHAR},
@@ -589,13 +603,13 @@
       remark = #{remark,jdbcType=LONGVARCHAR},
       steps = #{steps,jdbcType=LONGVARCHAR},
       step_description = #{stepDescription,jdbcType=LONGVARCHAR},
-      expected_result = #{expectedResult,jdbcType=LONGVARCHAR}
+      expected_result = #{expectedResult,jdbcType=LONGVARCHAR},
+      custom_fields = #{customFields,jdbcType=LONGVARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKey" parameterType="io.metersphere.base.domain.TestCase">
     update test_case
     set node_id = #{nodeId,jdbcType=VARCHAR},
-      test_id = #{testId,jdbcType=VARCHAR},
       node_path = #{nodePath,jdbcType=VARCHAR},
       project_id = #{projectId,jdbcType=VARCHAR},
       `name` = #{name,jdbcType=VARCHAR},
@@ -606,6 +620,7 @@
       prerequisite = #{prerequisite,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
       update_time = #{updateTime,jdbcType=BIGINT},
+      test_id = #{testId,jdbcType=VARCHAR},
       sort = #{sort,jdbcType=INTEGER},
       num = #{num,jdbcType=INTEGER},
       other_test_name = #{otherTestName,jdbcType=VARCHAR},
