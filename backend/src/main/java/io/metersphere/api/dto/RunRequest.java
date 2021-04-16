@@ -8,6 +8,8 @@ import lombok.Setter;
 @Setter
 public class RunRequest {
     private String testId;
+    private String userId;
+    private boolean isDebug;
     private String runMode;
     private String jmx;
     private RunModeConfig config;

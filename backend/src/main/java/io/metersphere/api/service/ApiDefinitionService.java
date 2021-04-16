@@ -535,7 +535,8 @@ public class ApiDefinitionService {
             runMode = ApiRunMode.API_PLAN.name();
         }
         // 调用执行方法
-        jMeterService.runDefinition(request.getId(), hashTree, request.getReportId(), runMode);
+        //jMeterService.runDefinition(request.getId(), hashTree, request.getReportId(), runMode);
+        jMeterService.runTest(request.getId(), hashTree, runMode, request.getReportId() != null, null);
         return request.getId();
     }
 
