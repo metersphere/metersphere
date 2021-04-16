@@ -49,41 +49,44 @@ public class ApiDefinitionExecResultService {
         if (CollectionUtils.isNotEmpty(result.getScenarios())) {
             SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
             ApiDefinitionExecResultMapper definitionExecResultMapper = sqlSession.getMapper(ApiDefinitionExecResultMapper.class);
-            result.getScenarios().get(0).getRequestResults().forEach(item -> {
-                ApiDefinitionExecResult saveResult = new ApiDefinitionExecResult();
-                saveResult.setId(UUID.randomUUID().toString());
-                saveResult.setCreateTime(System.currentTimeMillis());
-                saveResult.setUserId(Objects.requireNonNull(SessionUtils.getUser()).getId());
-                saveResult.setName(item.getName());
-                if (item.getName().indexOf("<->") != -1) {
-                    saveResult.setName(item.getName().substring(0, item.getName().indexOf("<->")));
-                }
-                saveResult.setResourceId(item.getName());
-                saveResult.setContent(JSON.toJSONString(item));
-                saveResult.setStartTime(item.getStartTime());
-                String status = item.isSuccess() ? "success" : "error";
-                saveResult.setEndTime(item.getResponseResult().getResponseTime());
-                saveResult.setType(type);
-                saveResult.setStatus(status);
-                if (StringUtils.equals(type, ApiRunMode.API_PLAN.name())) {
-                    testPlanApiCaseService.setExecResult(item.getName(), status);
-                    testCaseReviewApiCaseService.setExecResult(item.getName(), status);
+            result.getScenarios().forEach(scenarioResult -> {
+                if (scenarioResult != null && CollectionUtils.isNotEmpty(scenarioResult.getRequestResults())) {
+                    scenarioResult.getRequestResults().forEach(item -> {
+                        ApiDefinitionExecResult saveResult = new ApiDefinitionExecResult();
+                        saveResult.setId(UUID.randomUUID().toString());
+                        saveResult.setCreateTime(item.getStartTime());
+                        saveResult.setUserId(Objects.requireNonNull(SessionUtils.getUser()).getId());
+                        saveResult.setName(item.getName());
+                        if (item.getName().indexOf("<->") != -1) {
+                            saveResult.setName(item.getName().substring(0, item.getName().indexOf("<->")));
+                        }
+                        saveResult.setResourceId(item.getName());
+                        saveResult.setContent(JSON.toJSONString(item));
+                        saveResult.setStartTime(item.getStartTime());
+                        String status = item.isSuccess() ? "success" : "error";
+                        saveResult.setEndTime(item.getResponseResult().getResponseTime());
+                        saveResult.setType(type);
+                        saveResult.setStatus(status);
+                        if (StringUtils.equals(type, ApiRunMode.API_PLAN.name())) {
+                            testPlanApiCaseService.setExecResult(item.getName(), status, item.getStartTime());
+                            testCaseReviewApiCaseService.setExecResult(item.getName(), status, item.getStartTime());
+                        }
 
-                }
+                        // 清空上次执行结果的内容，只保留当前最新一条内容
+                        ApiDefinitionExecResult prevResult = extApiDefinitionExecResultMapper.selectMaxResultByResourceIdAndType(item.getName(), type);
+                        if (prevResult != null) {
+                            prevResult.setContent(null);
+                            definitionExecResultMapper.updateByPrimaryKeyWithBLOBs(prevResult);
+                        }
+                        // 更新用例最后执行结果
+                        ApiTestCaseWithBLOBs apiTestCaseWithBLOBs = new ApiTestCaseWithBLOBs();
+                        apiTestCaseWithBLOBs.setId(saveResult.getResourceId());
+                        apiTestCaseWithBLOBs.setLastResultId(saveResult.getId());
 
-                // 清空上次执行结果的内容，只保留当前最新一条内容
-                ApiDefinitionExecResult prevResult = extApiDefinitionExecResultMapper.selectMaxResultByResourceIdAndType(item.getName(), type);
-                if (prevResult != null) {
-                    prevResult.setContent(null);
-                    definitionExecResultMapper.updateByPrimaryKeyWithBLOBs(prevResult);
+                        apiTestCaseMapper.updateByPrimaryKeySelective(apiTestCaseWithBLOBs);
+                        definitionExecResultMapper.insert(saveResult);
+                    });
                 }
-                // 更新用例最后执行结果
-                ApiTestCaseWithBLOBs apiTestCaseWithBLOBs = new ApiTestCaseWithBLOBs();
-                apiTestCaseWithBLOBs.setId(saveResult.getResourceId());
-                apiTestCaseWithBLOBs.setLastResultId(saveResult.getId());
-
-                apiTestCaseMapper.updateByPrimaryKeySelective(apiTestCaseWithBLOBs);
-                definitionExecResultMapper.insert(saveResult);
             });
             sqlSession.flushStatements();
         }
@@ -126,8 +129,8 @@ public class ApiDefinitionExecResultService {
                 testPlanApiCaseService.updateByPrimaryKeySelective(apiCase);
             } else {
                 userID = Objects.requireNonNull(SessionUtils.getUser()).getId();
-                testPlanApiCaseService.setExecResult(item.getName(), status);
-                testCaseReviewApiCaseService.setExecResult(item.getName(), status);
+                testPlanApiCaseService.setExecResult(item.getName(), status, item.getStartTime());
+                testCaseReviewApiCaseService.setExecResult(item.getName(), status, item.getStartTime());
             }
 
             saveResult.setUserId(userID);

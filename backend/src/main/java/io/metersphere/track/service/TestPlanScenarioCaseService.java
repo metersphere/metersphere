@@ -92,14 +92,14 @@ public class TestPlanScenarioCaseService {
     }
 
     public String run(RunScenarioRequest request) {
-        TestPlanApiScenarioExample example = new TestPlanApiScenarioExample();
-        example.createCriteria().andIdIn(request.getPlanCaseIds());
-        List<TestPlanApiScenario> testPlanApiScenarioList = testPlanApiScenarioMapper.selectByExample(example);
-
+        StringBuilder idStr = new StringBuilder();
+        request.getPlanCaseIds().forEach(item -> {
+            idStr.append("\"").append(item).append("\"").append(",");
+        });
+        List<TestPlanApiScenario> testPlanApiScenarioList =extTestPlanScenarioCaseMapper.selectByIds(idStr.toString().substring(0, idStr.toString().length() - 1), "\"" + org.apache.commons.lang3.StringUtils.join(request.getPlanCaseIds(), ",") + "\"");
         List<String> scenarioIds = new ArrayList<>();
         Map<String,String> scenarioIdApiScarionMap = new HashMap<>();
-        for (TestPlanApiScenario apiScenario:
-                testPlanApiScenarioList) {
+        for (TestPlanApiScenario apiScenario: testPlanApiScenarioList) {
             scenarioIds.add(apiScenario.getApiScenarioId());
             scenarioIdApiScarionMap.put(apiScenario.getApiScenarioId(),apiScenario.getId());
         }

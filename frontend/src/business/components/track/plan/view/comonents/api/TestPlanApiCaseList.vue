@@ -486,7 +486,6 @@ export default {
       this.rowLoading = row.id;
 
       this.$get('/api/testcase/get/' + row.caseId, (response) => {
-        console.log(response.data)
         let apiCase = response.data;
         let request = JSON.parse(apiCase.request);
         request.name = row.id;
@@ -512,7 +511,7 @@ export default {
             request.name = row.id;
             request.id = row.id;
             request.useEnvironment = row.environmentId;
-            this.runData.push(request);
+            this.runData.unshift(request);
             if (this.selectRows.size === index) {
               resolve();
             }

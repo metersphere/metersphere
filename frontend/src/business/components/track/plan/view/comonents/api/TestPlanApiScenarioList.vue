@@ -309,8 +309,6 @@ export default {
         this.selectRows.forEach(row => {
           this.buildExecuteParam(param,row);
         });
-        console.log(param)
-
         this.$post("/test/plan/scenario/case/run", param, response => {});
       }
       this.$message('任务执行中，请稍后刷新查看结果');
