@@ -1363,7 +1363,7 @@ public class ApiAutomationService {
          *  1。将接口集合转化数据结构: map<url,List<id>> urlMap 用来做3的筛选
          *  2。将案例集合转化数据结构：map<testCase.id,List<testCase.apiId>> caseIdMap 用来做2的筛选
          *  3。将接口集合转化数据结构: List<id> allApiIdList 用来做1的筛选
-         *  4。自定义List<api.id> coveragedIdList 已覆盖的id集合。 最终计算公式是 coveragedIdList/allApiIdList
+         *  4。自定义List<api.id> coveragedIdList 已覆盖的id集合。 最终计算公式是 coveragedIdList/allApiIdList在
          *
          * 解析allScenarioList的scenarioDefinition字段。
          * 1。提取每个步骤的url。 在 urlMap筛选
