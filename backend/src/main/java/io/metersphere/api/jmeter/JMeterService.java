@@ -44,6 +44,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.lang.reflect.Field;
+import java.text.MessageFormat;
 import java.util.*;
 
 @Service
@@ -139,6 +140,7 @@ public class JMeterService {
     }
 
     public void runDefinition(String testId, HashTree testPlan, String debugReportId, String runMode) {
+        LogUtil.info(MessageFormat.format("Tid:{3},testId:{0},debugReportId:{1},runMode:{2}",testId,debugReportId,runMode,Thread.currentThread().getId()));
         try {
             init();
             addBackendListener(testId, debugReportId, runMode, testPlan);
