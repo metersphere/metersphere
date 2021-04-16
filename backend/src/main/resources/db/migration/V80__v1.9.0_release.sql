@@ -172,3 +172,14 @@ CREATE TABLE IF NOT EXISTS `mock_expect_config`
     INDEX `mock_config_id` (`mock_config_id`) USING BTREE
 ) ENGINE = InnoDB
   DEFAULT CHARSET = utf8mb4;
+
+-- module management
+INSERT INTO system_parameter (param_key, param_value, type, sort)
+VALUES ('metersphere.module.api', 'ENABLE', 'text', 1);
+INSERT INTO system_parameter (param_key, param_value, type, sort)
+VALUES ('metersphere.module.performance', 'ENABLE', 'text', 1);
+INSERT INTO system_parameter (param_key, param_value, type, sort)
+VALUES ('metersphere.module.reportStat', 'ENABLE', 'text', 1);
+INSERT INTO system_parameter (param_key, param_value, type, sort)
+VALUES ('metersphere.module.testTrack', 'ENABLE', 'text', 1);
+
