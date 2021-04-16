@@ -26,5 +26,9 @@ public class Project implements Serializable {
 
     private Boolean repeatable;
 
+    private String caseTemplateId;
+
+    private String issueTemplateId;
+
     private static final long serialVersionUID = 1L;
 }

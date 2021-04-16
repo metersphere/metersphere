@@ -1,0 +1,138 @@
+<template>
+
+  <field-template-edit
+    :form="form"
+    :rules="rules"
+    :visible.sync="showDialog"
+    :url="url"
+    @refresh="$emit('refresh')"
+    scene="TEST_CASE"
+    ref="fieldTemplateEdit">
+
+    <template v-slot:base>
+      <el-form-item :label="'用例类型'" prop="type">
+        <el-select :disabled="isSystem" filterable v-model="form.type" placeholder="用例类型">
+          <el-option
+            v-for="item in caseTypeOption"
+            :key="item.value"
+            :label="item.text"
+            :value="item.value">
+          </el-option>
+        </el-select>
+      </el-form-item>
+    </template>
+
+    <template v-slot:default>
+      <el-form-item :label="'用例名称'" prop="caseName">
+        <el-input v-model="form.caseName" autocomplete="off"></el-input>
+      </el-form-item>
+
+      <el-form-item :label="'前置条件'" prop="prerequisite">
+        <el-input :autosize="{ minRows: 2, maxRows: 4}" type="textarea" v-model="form.prerequisite"></el-input>
+      </el-form-item>
+
+      <el-form-item :label="'用例步骤'" prop="stepDescription">
+        <el-input :autosize="{ minRows: 2, maxRows: 4}" type="textarea" v-model="form.stepDescription"></el-input>
+      </el-form-item>
+
+      <el-form-item :label="'预期结果'" prop="actualResult">
+        <el-input :autosize="{ minRows: 2, maxRows: 4}" type="textarea" v-model="form.actualResult"></el-input>
+      </el-form-item>
+    </template>
+
+  </field-template-edit>
+
+</template>
+
+<script>
+
+import draggable from 'vuedraggable';
+import TemplateComponentEditHeader
+  from "@/business/components/track/plan/view/comonents/report/TemplateComponentEditHeader";
+import MsFormDivider from "@/business/components/common/components/MsFormDivider";
+import {CASE_TYPE_OPTION} from "@/common/js/table-constants";
+import CustomFieldFormList from "@/business/components/settings/workspace/template/CustomFieldFormList";
+import CustomFieldRelateList from "@/business/components/settings/workspace/template/CustomFieldRelateList";
+import FieldTemplateEdit from "@/business/components/settings/workspace/template/FieldTemplateEdit";
+import {getCurrentWorkspaceId} from "@/common/js/utils";
+
+export default {
+  name: "TestCaseTemplateEdit",
+  components: {
+    FieldTemplateEdit,
+    CustomFieldRelateList,
+    CustomFieldFormList,
+    MsFormDivider,
+    TemplateComponentEditHeader,
+    draggable
+  },
+  data() {
+    return {
+      showDialog: false,
+      form: {
+        name: "",
+        type: 'functional',
+        description: '',
+        caseName: '',
+        prerequisite: '',
+        stepDescription: '',
+        expectedResult: '',
+        actualResult: '',
+        customFieldIds: [],
+      },
+      rules: {
+        name: [
+          {required: true, message: this.$t('test_track.case.input_name'), trigger: 'blur'},
+          {max: 64, message: this.$t('test_track.length_less_than') + '64', trigger: 'blur'}
+        ],
+        type: [{required: true,  trigger: 'change'}],
+      },
+      result: {},
+      url: '',
+    };
+  },
+  computed: {
+    caseTypeOption() {
+      return CASE_TYPE_OPTION;
+    },
+    isSystem() {
+      return this.form.system;
+    }
+  },
+  methods: {
+    open(data) {
+      if (data) {
+        Object.assign(this.form, data);
+        if (!(data.options instanceof Array)) {
+          this.form.options = data.options ? JSON.parse(data.options) : [];
+        }
+        if (data.id) {
+          this.url = 'field/template/case/update';
+        } else {
+          //copy
+          this.url = 'field/template/case/add';
+        }
+      } else {
+        this.form = {
+          id: "",
+          name: "",
+          type: 'functional',
+          description: '',
+          caseName: '',
+          prerequisite: '',
+          stepDescription: '',
+          expectedResult: '',
+          actualResult: '',
+          customFieldIds: [],
+        };
+        this.url = 'field/template/case/add';
+      }
+      this.$refs.fieldTemplateEdit.open(data);
+    }
+  }
+};
+</script>
+
+<style scoped>
+
+</style>

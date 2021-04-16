@@ -253,7 +253,16 @@ export default {
       url: '当前站点URL',
       url_tip: '例如：http://localhost:8081',
       url_is_null: '当前站点URL不能为空'
-    }
+    },
+  },
+  custom_field: {
+    case_status: '用例状态',
+    case_maintainer: '责任人',
+    case_priority: '用例等级',
+    issue_creator: '创建人',
+    issue_processor: '处理人',
+    issue_status: '状态',
+    issue_severity: '严重程度'
   },
   workspace: {
     create: '创建工作空间',
@@ -1231,9 +1240,9 @@ export default {
       batch_unlink: '批量取消关联',
       project_name: '所属项目',
       status: '评审结果',
-      status_prepare: '未评审',
-      status_pass: '通过',
-      status_un_pass: '未通过',
+      status_prepare: '未开始',
+      status_running: '进行中',
+      status_finished: '已完成',
       cancel_relevance_project: "取消项目关联会同时取消该项目下已关联的测试用例",
       img_loading_fail: "图片加载失败",
       pdf_loading_fail: "PDF加载失败",
@@ -1330,6 +1339,7 @@ export default {
       no_link_case: "没有关联用例！",
       pass: "通过",
       un_pass: "未通过",
+      prepare: '未评审',
       comment: "评论",
       my_review: "我的评审",
       my_create: "我创建的评审",
@@ -1445,6 +1455,9 @@ export default {
       title_description_required: "标题和描述必填",
       close_success: "关闭成功",
       preview: "预览",
+      status_new: '新建',
+      status_resolved: '已解决',
+      status_closed: '已关闭',
       please_choose_current_owner: "请选择处理人",
       tapd_current_owner: "Tapd bug 处理人：",
       zentao_bug_build: "禅道 bug 影响版本",
