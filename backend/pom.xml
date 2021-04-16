@@ -145,7 +145,6 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-rsocket</artifactId>
-            <version>2.4.4</version>
         </dependency>
 
         <!-- jmeter -->
