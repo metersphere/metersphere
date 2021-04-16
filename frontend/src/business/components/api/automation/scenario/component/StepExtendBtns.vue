@@ -65,7 +65,10 @@
       },
       saveAsApi() {
         this.currentProtocol = this.data.protocol;
-        this.$refs.api.open(this.data);
+        let reqData = this.data;
+        delete reqData.index;
+        delete reqData.referenced;
+        this.$refs.api.open(reqData);
       }
     }
   }
