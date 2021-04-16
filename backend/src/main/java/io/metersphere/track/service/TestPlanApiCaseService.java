@@ -122,11 +122,11 @@ public class TestPlanApiCaseService {
         return testPlanApiCaseMapper.selectByPrimaryKey(id);
     }
 
-    public void setExecResult(String id, String status) {
+    public void setExecResult(String id, String status,Long time) {
         TestPlanApiCase apiCase = new TestPlanApiCase();
         apiCase.setId(id);
         apiCase.setStatus(status);
-        apiCase.setUpdateTime(System.currentTimeMillis());
+        apiCase.setUpdateTime(time);
         testPlanApiCaseMapper.updateByPrimaryKeySelective(apiCase);
     }
 

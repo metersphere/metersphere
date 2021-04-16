@@ -88,6 +88,9 @@
     </if>
   </select>
 
+  <select id="selectByIds" resultType="io.metersphere.base.domain.TestPlanApiScenario">
+    select t.* from test_plan_api_scenario t where t.id in (${ids}) ORDER BY FIND_IN_SET(t.id,${oderId})
+  </select>
   <select id="selectIds" resultType="java.lang.String">
     select
     t.id

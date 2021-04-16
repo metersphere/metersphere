@@ -567,7 +567,7 @@ public class ApiAutomationService {
         return null;
     }
 
-    public APIScenarioReportResult createScenarioReport(String id, String scenarioId, String scenarioName, String triggerMode, String execType, String projectId, String userID) {
+    public APIScenarioReportResult createScenarioReport(String id, String scenarioId, String scenarioName, String triggerMode, String execType, String projectId, String userID, RunModeConfig config) {
         APIScenarioReportResult report = new APIScenarioReportResult();
         if (triggerMode.equals(ApiRunMode.SCENARIO.name()) || triggerMode.equals(ApiRunMode.DEFINITION.name())) {
             triggerMode = ReportTriggerMode.MANUAL.name();
@@ -579,8 +579,12 @@ public class ApiAutomationService {
         } else {
             report.setName("场景调试");
         }
-        report.setCreateTime(System.currentTimeMillis());
         report.setUpdateTime(System.currentTimeMillis());
+        report.setCreateTime(System.currentTimeMillis());
+        if (config != null && config.getMode().equals("serial")) {
+            report.setCreateTime(System.currentTimeMillis() + 2000);
+            report.setUpdateTime(System.currentTimeMillis() + 2000);
+        }
         report.setStatus(APITestStatus.Running.name());
         if (StringUtils.isNotEmpty(userID)) {
             report.setUserId(userID);
@@ -733,10 +737,10 @@ public class ApiAutomationService {
                     }
                 }
                 report = createScenarioReport(reportId, testPlanScenarioId, item.getName(), request.getTriggerMode(),
-                        request.getExecuteType(), item.getProjectId(), request.getReportUserID());
+                        request.getExecuteType(), item.getProjectId(), request.getReportUserID(), null);
             } else {
                 report = createScenarioReport(reportId, item.getId(), item.getName(), request.getTriggerMode(),
-                        request.getExecuteType(), item.getProjectId(), request.getReportUserID());
+                        request.getExecuteType(), item.getProjectId(), request.getReportUserID(), null);
             }
 
             // 生成报告和HashTree
@@ -769,8 +773,13 @@ public class ApiAutomationService {
     private HashTree generateHashTree(List<ApiScenarioWithBLOBs> apiScenarios, RunScenarioRequest request, List<String> reportIds) {
         HashTree jmeterHashTree = new ListedHashTree();
         MsTestPlan testPlan = new MsTestPlan();
-        testPlan.setSerializeThreadgroups(request.getConfig() != null && request.getConfig().getMode().equals("serial"));
         testPlan.setHashTree(new LinkedList<>());
+        if (request.getConfig() != null && request.getConfig().getMode().equals("serial")) {
+            testPlan.setSerializeThreadgroups(true);
+            if (StringUtils.isNotEmpty(request.getConfig().getReportName())) {
+                request.setExecuteType(ExecuteType.Completed.name());
+            }
+        }
         try {
             boolean isFirst = true;
             for (ApiScenarioWithBLOBs item : apiScenarios) {
@@ -791,7 +800,6 @@ public class ApiAutomationService {
                 // 批量执行的结果直接存储为报告
                 if (isFirst) {
                     group.setName(request.getId());
-                    isFirst = false;
                 }
                 ObjectMapper mapper = new ObjectMapper();
                 mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
@@ -829,15 +837,16 @@ public class ApiAutomationService {
                             }
                         }
                         createScenarioReport(group.getName(), testPlanScenarioId, item.getName(), request.getTriggerMode() == null ? ReportTriggerMode.MANUAL.name() : request.getTriggerMode(),
-                                request.getExecuteType(), item.getProjectId(), request.getReportUserID());
+                                request.getExecuteType(), item.getProjectId(), request.getReportUserID(), request.getConfig());
                     } else {
                         createScenarioReport(group.getName(), item.getId(), item.getName(), request.getTriggerMode() == null ? ReportTriggerMode.MANUAL.name() : request.getTriggerMode(),
-                                request.getExecuteType(), item.getProjectId(), request.getReportUserID());
+                                request.getExecuteType(), item.getProjectId(), request.getReportUserID(), request.getConfig());
                     }
                     reportIds.add(group.getName());
                 }
                 group.setHashTree(scenarios);
                 testPlan.getHashTree().add(group);
+                isFirst = false;
             }
         } catch (Exception ex) {
             MSException.throwException(ex.getMessage());
@@ -859,7 +868,11 @@ public class ApiAutomationService {
         List<String> ids = request.getIds();
         //检查是否有正在执行中的情景
         this.checkScenarioIsRunning(ids);
-        List<ApiScenarioWithBLOBs> apiScenarios = extApiScenarioMapper.selectIds(ids);
+        StringBuilder idStr = new StringBuilder();
+        ids.forEach(item -> {
+            idStr.append("\"").append(item).append("\"").append(",");
+        });
+        List<ApiScenarioWithBLOBs> apiScenarios = extApiScenarioMapper.selectByIds(idStr.toString().substring(0, idStr.toString().length() - 1), "\"" + StringUtils.join(ids, ",") + "\"");
 
         String runMode = ApiRunMode.SCENARIO.name();
         if (StringUtils.isNotBlank(request.getRunMode()) && StringUtils.equals(request.getRunMode(), ApiRunMode.SCENARIO_PLAN.name())) {
@@ -936,7 +949,7 @@ public class ApiAutomationService {
         }
         // 调用执行方法
         createScenarioReport(request.getId(), request.getScenarioId(), request.getScenarioName(), ReportTriggerMode.MANUAL.name(), request.getExecuteType(), request.getProjectId(),
-                SessionUtils.getUserId());
+                SessionUtils.getUserId(), null);
         // 调用执行方法
         // jMeterService.runTest(request.getId(), hashTree, ApiRunMode.SCENARIO.name(), null);
         // 调用执行方法
