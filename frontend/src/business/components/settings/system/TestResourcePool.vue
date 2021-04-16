@@ -64,10 +64,10 @@
         <el-form-item :label="$t('commons.image')" prop="image">
           <el-input v-model="form.image"/>
         </el-form-item>
-        <el-form-item label="Jmeter HEAP" prop="HEAP">
+        <el-form-item label="JMeter HEAP" prop="HEAP">
           <el-input v-model="form.heap" placeholder="-Xms1g -Xmx1g -XX:MaxMetaspaceSize=256m"/>
         </el-form-item>
-        <el-form-item label="Jmeter GC_ALGO" prop="GC_ALGO">
+        <el-form-item label="JMeter GC_ALGO" prop="GC_ALGO">
           <el-input v-model="form.gcAlgo" placeholder="-XX:+UseG1GC -XX:MaxGCPauseMillis=100 -XX:G1ReservePercent=20"/>
         </el-form-item>
         <el-form-item :label="$t('test_resource_pool.type')" prop="type">
