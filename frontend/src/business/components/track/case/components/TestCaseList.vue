@@ -13,6 +13,7 @@
       @select="handleSelect"
       @header-dragend="headerDragend"
       @cell-mouse-enter="showPopover"
+      :height="screenHeight"
       row-key="id"
       class="test-content adjust-table ms-select-all-fixed"
       ref="table" @row-click="handleEdit">
@@ -23,10 +24,11 @@
       <ms-table-header-select-popover v-show="total>0"
                                       :page-size="pageSize > total ? total : pageSize"
                                       :total="total"
+                                      :select-data-counts="selectDataCounts"
                                       @selectPageAll="isSelectDataAll(false)"
                                       @selectAll="isSelectDataAll(true)"/>
 
-      <el-table-column width="40" :resizable="false" align="center">
+      <el-table-column width="30" :resizable="false" align="center">
         <template v-slot:default="scope">
           <show-more-btn :is-show="scope.row.showMore" :buttons="buttons" :size="selectDataCounts"/>
         </template>
@@ -39,6 +41,7 @@
           sortable="custom"
           :label="$t('commons.id')"
           :key="index"
+          width="80"
           show-overflow-tooltip>
         </el-table-column>
         <el-table-column
@@ -47,6 +50,7 @@
           :label="$t('commons.name')"
           show-overflow-tooltip
           :key="index"
+          width="120"
         >
         </el-table-column>
         <el-table-column
@@ -57,6 +61,7 @@
           min-width="100px"
           :label="$t('test_track.case.priority')"
           show-overflow-tooltip
+          width="100"
           :key="index">
           <template v-slot:default="scope">
             <priority-table-item :value="scope.row.priority"/>
@@ -74,7 +79,7 @@
             </span>
           </template>
         </el-table-column>
-        <el-table-column v-if="item.id=='tags'" prop="tags" :label="$t('commons.tag')" :key="index">
+        <el-table-column v-if="item.id=='tags'" prop="tags" :label="$t('commons.tag')" min-width="80"  :key="index">
           <template v-slot:default="scope">
             <ms-tag v-for="(itemName,index)  in scope.row.tags" :key="index" type="success" effect="plain"
                     :content="itemName" style="margin-left: 0px; margin-right: 2px"/>
@@ -204,6 +209,7 @@ export default {
   data() {
     return {
       type: TEST_CASE_LIST,
+      screenHeight: document.documentElement.clientHeight-310,
       headerItems: Track_Test_Case,
       tableLabel: [],
       result: {},
@@ -394,7 +400,7 @@ export default {
 
           this.$nextTick(() => {
             if (this.$refs.table) {
-              setTimeout(this.$refs.table.doLayout, 200)
+              setTimeout(this.$refs.table.doLayout, 200);
             }
             this.checkTableRowIsSelect();
           })
@@ -461,9 +467,9 @@ export default {
         confirmButtonText: this.$t('commons.confirm'),
         callback: (action) => {
           if (action === 'confirm') {
-            let param = {};
-            param.ids = Array.from(this.selectRows).map(row => row.id);
-            param.condition = this.condition;
+            let param = buildBatchParam(this);
+            // param.ids = Array.from(this.selectRows).map(row => row.id);
+            // param.condition = this.condition;
             this.$post('/test/case/batch/delete', param, () => {
               this.selectRows.clear();
               this.$emit("refresh");
@@ -494,7 +500,7 @@ export default {
       this.$emit('testCaseDetail', row);
     },
     handleSelectAll(selection) {
-      _handleSelectAll(this, selection, this.tableData, this.selectRows);
+      _handleSelectAll(this, selection, this.tableData, this.selectRows, this.condition);
       setUnSelectIds(this.tableData, this.condition, this.selectRows);
       this.selectDataCounts = getSelectDataCounts(this.condition, this.total, this.selectRows);
     },
@@ -605,9 +611,14 @@ export default {
     },
     isSelectDataAll(data) {
       this.condition.selectAll = data;
-      setUnSelectIds(this.tableData, this.condition, this.selectRows);
-      this.selectDataCounts = getSelectDataCounts(this.condition, this.total, this.selectRows);
+      //设置勾选
       toggleAllSelection(this.$refs.table, this.tableData, this.selectRows);
+      //显示隐藏菜单
+      _handleSelectAll(this, this.tableData, this.tableData, this.selectRows);
+      //设置未选择ID(更新)
+      this.condition.unSelectIds = [];
+      //更新统计信息
+      this.selectDataCounts = getSelectDataCounts(this.condition, this.total, this.selectRows);
     },
     headerDragend(newWidth, oldWidth, column, event) {
       let finalWidth = newWidth;

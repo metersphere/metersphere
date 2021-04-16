@@ -152,9 +152,7 @@ import {TEST_PLAN_CONFIGS} from "../../../../common/components/search/search-com
 import {LIST_CHANGE, TrackEvent} from "@/business/components/common/head/ListEvent";
 import {getCurrentProjectID} from "../../../../../../common/js/utils";
 import {_filter, _sort} from "@/common/js/tableUtils";
-import EnvPopover from "@/business/components/api/automation/scenario/EnvPopover";
-
-
+import EnvPopover from "@/business/components/track/common/EnvPopover";
 export default {
   name: "TestPlanList",
   components: {
@@ -237,8 +235,9 @@ export default {
       },
       setScenarioSelectRows(rows) {
         this.projectIds.clear();
+        this.map.clear();
         rows.forEach(row => {
-          this.result = this.$get('/api/automation/getApiScenario/' + row.id, res => {
+          this.result = this.$get('/api/automation/getApiScenarioProjectId/' + row.id, res => {
             let data = res.data;
             data.projectIds.forEach(d => this.projectIds.add(d));
             this.map.set(row.id, data.projectIds);

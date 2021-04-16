@@ -58,7 +58,7 @@ public class XMLUtils {
             result = (JSONObject) XmlTagToJsonObject(list);
         } catch (Exception e) {
             LogUtil.error(e.getMessage(), e);
-            MSException.throwException(Translator.get("illegal_xml_format"));
+//            MSException.throwException(Translator.get("illegal_xml_format"));
         }
         return result;
     }

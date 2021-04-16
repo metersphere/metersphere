@@ -56,7 +56,14 @@ public class Swagger2Parser extends SwaggerAbstractParser {
 
         List<ApiDefinitionWithBLOBs> results = new ArrayList<>();
 
-        ApiModule parentNode = ApiDefinitionImportUtil.getSelectModule(importRequest.getModuleId());
+        ApiModule selectModule = null;
+        String selectModulePath = null;
+        if (StringUtils.isNotBlank(importRequest.getModuleId())) {
+            selectModule = ApiDefinitionImportUtil.getSelectModule(importRequest.getModuleId());
+            if (selectModule != null) {
+                selectModulePath = ApiDefinitionImportUtil.getSelectModulePath(selectModule.getName(), selectModule.getParentId());
+            }
+        }
 
         String basePath = swagger.getBasePath();
         for (String pathName : pathNames) {
@@ -76,7 +83,7 @@ public class Swagger2Parser extends SwaggerAbstractParser {
                 }
                 apiDefinition.setRequest(JSON.toJSONString(request));
                 apiDefinition.setResponse(JSON.toJSONString(parseResponse(operation, operation.getResponses())));
-                buildModule(parentNode, apiDefinition, operation.getTags());
+                buildModule(selectModule, apiDefinition, operation.getTags(), selectModulePath);
                 results.add(apiDefinition);
             }
         }

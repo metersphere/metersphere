@@ -123,3 +123,9 @@ VALUES ('d5908553-1b29-4868-9001-e938822b92ef','beb57501-19c8-4ca3-8dfb-2cef7c0e
 
 ALTER TABLE project ADD case_template_id varchar(50) NULL COMMENT 'Relate test case template id';
 ALTER TABLE project ADD issue_template_id varchar(50) NULL COMMENT 'Relate test issue template id';
+
+-- add test_case
+alter table test_case
+    add step_description text null;
+alter table test_case
+    add expected_result text null;

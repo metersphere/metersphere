@@ -39,10 +39,16 @@ export default {
   },
   methods: {
     showPopover() {
-      this.$refs.envSelect.open();
+      this.$emit("showPopover");
+    },
+    openEnvSelect() {
+      return this.$refs.envSelect.open();
     },
     setProjectEnvMap(map) {
       this.$emit("setProjectEnvMap", map);
+    },
+    initEnv() {
+      return this.$refs.envSelect.initEnv();
     },
     checkEnv(data) {
       return this.$refs.envSelect.checkEnv(data);

@@ -7,6 +7,7 @@ import io.metersphere.notice.domain.MessageDetail;
 import io.metersphere.notice.sender.NoticeModel;
 import io.metersphere.notice.sender.NoticeSender;
 import io.metersphere.notice.sender.impl.DingNoticeSender;
+import io.metersphere.notice.sender.impl.LarkNoticeSender;
 import io.metersphere.notice.sender.impl.MailNoticeSender;
 import io.metersphere.notice.sender.impl.WeComNoticeSender;
 import org.springframework.stereotype.Component;
@@ -23,6 +24,8 @@ public class NoticeSendService {
     @Resource
     private DingNoticeSender dingNoticeSender;
     @Resource
+    private LarkNoticeSender larkNoticeSender;
+    @Resource
     private NoticeService noticeService;
 
     private NoticeSender getNoticeSender(MessageDetail messageDetail) {
@@ -37,6 +40,8 @@ public class NoticeSendService {
             case NoticeConstants.Type.NAIL_ROBOT:
                 noticeSender = dingNoticeSender;
                 break;
+            case NoticeConstants.Type.LARK:
+                noticeSender = larkNoticeSender;
             default:
                 break;
         }

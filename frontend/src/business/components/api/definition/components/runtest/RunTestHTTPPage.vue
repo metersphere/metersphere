@@ -145,7 +145,10 @@
         })
       },
       runRefresh(data) {
-        this.responseData = data;
+        this.responseData = {type: 'HTTP', responseResult: {responseCode: ""}, subRequestResults: []};
+        if (data) {
+          this.responseData = data;
+        }
         this.loading = false;
       },
       saveAs() {

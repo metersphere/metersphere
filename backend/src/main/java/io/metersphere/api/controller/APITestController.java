@@ -1,5 +1,6 @@
 package io.metersphere.api.controller;
 
+import com.alibaba.fastjson.JSONObject;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.api.dto.*;
@@ -10,15 +11,14 @@ import io.metersphere.api.dto.datacount.response.ApiDataCountDTO;
 import io.metersphere.api.dto.datacount.response.ExecutedCaseInfoDTO;
 import io.metersphere.api.dto.datacount.response.TaskInfoResult;
 import io.metersphere.api.dto.definition.RunDefinitionRequest;
+import io.metersphere.api.dto.definition.request.ParameterConfig;
+import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
 import io.metersphere.api.dto.scenario.request.dubbo.RegistryCenter;
 import io.metersphere.api.service.*;
 import io.metersphere.base.domain.*;
 import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.commons.constants.ScheduleGroup;
-import io.metersphere.commons.utils.CronUtils;
-import io.metersphere.commons.utils.PageUtils;
-import io.metersphere.commons.utils.Pager;
-import io.metersphere.commons.utils.SessionUtils;
+import io.metersphere.commons.utils.*;
 import io.metersphere.controller.request.QueryScheduleRequest;
 import io.metersphere.controller.request.ScheduleRequest;
 import io.metersphere.dto.ScheduleDao;
@@ -34,10 +34,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
 import java.text.DecimalFormat;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 
 import static io.metersphere.commons.utils.JsonPathUtils.getListJson;
 
@@ -70,6 +67,8 @@ public class APITestController {
     private CheckPermissionService checkPermissionService;
     @Resource
     private HistoricalDataUpgradeService historicalDataUpgradeService;
+    @Resource
+    private ApiTestEnvironmentService environmentService;
 
     @GetMapping("recent/{count}")
     public List<APITestResult> recentTest(@PathVariable int count) {
@@ -396,7 +395,19 @@ public class APITestController {
 
     @PostMapping(value = "/genPerformanceTestXml", consumes = {"multipart/form-data"})
     public JmxInfoDTO genPerformanceTest(@RequestPart("request") RunDefinitionRequest runRequest, @RequestPart(value = "files") List<MultipartFile> bodyFiles) throws Exception {
-        HashTree hashTree = runRequest.getTestElement().generateHashTree();
+
+        ParameterConfig config = new ParameterConfig();
+        config.setProjectId(runRequest.getProjectId());
+
+        Map<String, EnvironmentConfig> envConfig = new HashMap<>();
+        Map<String, String> map = runRequest.getEnvironmentMap();
+        if (map != null && map.size() > 0) {
+            ApiTestEnvironmentWithBLOBs environment = environmentService.get(map.get(runRequest.getProjectId()));
+            EnvironmentConfig env = JSONObject.parseObject(environment.getConfig(), EnvironmentConfig.class);
+            envConfig.put(runRequest.getProjectId(), env);
+            config.setConfig(envConfig);
+        }
+        HashTree hashTree = runRequest.getTestElement().generateHashTree(config);
         String jmxString = runRequest.getTestElement().getJmx(hashTree);
 
         String testName = runRequest.getName();

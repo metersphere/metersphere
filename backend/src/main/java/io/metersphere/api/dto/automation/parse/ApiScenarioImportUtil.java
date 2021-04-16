@@ -13,16 +13,27 @@ import java.util.List;
 public class ApiScenarioImportUtil {
 
     public static ApiScenarioModule getSelectModule(String moduleId) {
-        ApiScenarioModuleService apiModuleService = CommonBeanFactory.getBean(ApiScenarioModuleService.class);
+        ApiScenarioModuleService apiScenarioModuleService = CommonBeanFactory.getBean(ApiScenarioModuleService.class);
         if (StringUtils.isNotBlank(moduleId) && !StringUtils.equals("root", moduleId)) {
             ApiScenarioModule module = new ApiScenarioModule();
-            ApiScenarioModuleDTO moduleDTO = apiModuleService.getNode(moduleId);
+            ApiScenarioModuleDTO moduleDTO = apiScenarioModuleService.getNode(moduleId);
             if (moduleDTO != null) {
                 BeanUtils.copyBean(module, moduleDTO);
             }
             return module;
         }
         return null;
+    }
+
+    public static String getSelectModulePath(String path, String pid) {
+        ApiScenarioModuleService apiScenarioModuleService = CommonBeanFactory.getBean(ApiScenarioModuleService.class);
+        if (StringUtils.isNotBlank(pid)) {
+            ApiScenarioModuleDTO moduleDTO = apiScenarioModuleService.getNode(pid);
+            if (moduleDTO != null) {
+                return getSelectModulePath(moduleDTO.getName() + "/" + path, moduleDTO.getParentId());
+            }
+        }
+        return "/" + path;
     }
 
     public static ApiScenarioModule buildModule(ApiScenarioModule parentModule, String name, String projectId) {

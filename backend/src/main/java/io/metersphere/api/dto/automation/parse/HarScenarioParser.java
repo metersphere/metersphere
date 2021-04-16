@@ -18,6 +18,7 @@ import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
 import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.io.InputStream;
 import java.util.ArrayList;
@@ -62,16 +63,20 @@ public class HarScenarioParser extends HarScenarioAbstractParser<ScenarioImport>
     }
 
     private void parseScenarioWithBLOBs(List<ApiScenarioWithBLOBs> scenarioWithBLOBsList, MsScenario msScenario, ApiTestImportRequest request) {
-        ApiScenarioModule module = ApiScenarioImportUtil.getSelectModule(request.getModuleId());
-        if (module == null) {
-            ApiScenarioModuleService apiModuleService = CommonBeanFactory.getBean(ApiScenarioModuleService.class);
-            module = apiModuleService.getNewModule(msScenario.getName(), projectId, 1);
+        ApiScenarioModule selectModule = null;
+        if (StringUtils.isNotBlank(request.getModuleId())) {
+            selectModule = ApiScenarioImportUtil.getSelectModule(request.getModuleId());
         }
-
+        ApiScenarioModule module = ApiScenarioImportUtil.buildModule(selectModule, msScenario.getName(), this.projectId);
         ApiScenarioWithBLOBs scenarioWithBLOBs = parseScenario(msScenario);
         if (module != null) {
             scenarioWithBLOBs.setApiScenarioModuleId(module.getId());
-            scenarioWithBLOBs.setModulePath("/" + module.getName());
+            if (selectModule != null) {
+                String selectModulePath = ApiScenarioImportUtil.getSelectModulePath(selectModule.getName(), selectModule.getParentId());
+                scenarioWithBLOBs.setModulePath(selectModulePath + "/" + module.getName());
+            } else {
+                scenarioWithBLOBs.setModulePath("/" + module.getName());
+            }
         }
         scenarioWithBLOBsList.add(scenarioWithBLOBs);
     }

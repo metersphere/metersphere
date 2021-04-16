@@ -10,7 +10,6 @@ import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.controller.request.member.QueryMemberRequest;
 import io.metersphere.service.UserService;
 import io.metersphere.track.dto.TestCaseTestDTO;
-import io.metersphere.track.dto.TestPlanCaseDTO;
 import io.metersphere.track.dto.TestReviewCaseDTO;
 import io.metersphere.track.request.testplancase.TestReviewCaseBatchRequest;
 import io.metersphere.track.request.testreview.DeleteRelevanceRequest;
@@ -69,6 +68,12 @@ public class TestReviewTestCaseService {
         return list;
     }
 
+    public List<String> selectIds(QueryCaseReviewRequest request) {
+        request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
+        List<String> list = extTestReviewCaseMapper.selectIds(request);
+        return list;
+    }
+
     private List<String> getReviewUserIds(String reviewId) {
         TestCaseReviewUsersExample testCaseReviewUsersExample = new TestCaseReviewUsersExample();
         testCaseReviewUsersExample.createCriteria().andReviewIdEqualTo(reviewId);
@@ -109,8 +114,15 @@ public class TestReviewTestCaseService {
 
     public void deleteTestCaseBatch(TestReviewCaseBatchRequest request) {
         checkReviewer(request.getReviewId());
+        List<String> ids = request.getIds();
+        if(request.getCondition()!=null && request.getCondition().isSelectAll()){
+            ids = this.selectIds(request.getCondition());
+            if(request.getCondition().getUnSelectIds()!=null){
+                ids.removeAll(request.getCondition().getUnSelectIds());
+            }
+        }
         TestCaseReviewTestCaseExample example = new TestCaseReviewTestCaseExample();
-        example.createCriteria().andIdIn(request.getIds());
+        example.createCriteria().andIdIn(ids);
         testCaseReviewTestCaseMapper.deleteByExample(example);
     }
 
@@ -175,6 +187,12 @@ public class TestReviewTestCaseService {
 
     public void editTestCaseBatchStatus(TestReviewCaseBatchRequest request) {
         List<String> ids = request.getIds();
+        if(request.getCondition()!=null && request.getCondition().isSelectAll()){
+            ids = extTestReviewCaseMapper.selectTestCaseIds(request.getCondition());
+            if(request.getCondition().getUnSelectIds()!=null){
+                ids.removeAll(request.getCondition().getUnSelectIds());
+            }
+        }
         if (CollectionUtils.isEmpty(ids)) {
             return;
         }

@@ -1,14 +1,15 @@
 package io.metersphere.base.domain;
 
-import lombok.Data;
-
 import java.io.Serializable;
+import lombok.Data;
 
 @Data
 public class TestCase implements Serializable {
     private String id;
 
     private String nodeId;
+
+    private String testId;
 
     private String nodePath;
 
@@ -29,8 +30,6 @@ public class TestCase implements Serializable {
     private Long createTime;
 
     private Long updateTime;
-
-    private String testId;
 
     private Integer sort;
 

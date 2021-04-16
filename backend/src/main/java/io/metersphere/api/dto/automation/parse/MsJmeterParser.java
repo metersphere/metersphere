@@ -112,7 +112,15 @@ public class MsJmeterParser extends ApiImportAbstractParser<ScenarioImport> {
     private List<ApiScenarioWithBLOBs> paseObj(MsScenario msScenario, ApiTestImportRequest request) {
         List<ApiScenarioWithBLOBs> scenarioWithBLOBsList = new ArrayList<>();
         ApiScenarioWithBLOBs scenarioWithBLOBs = new ApiScenarioWithBLOBs();
-        ApiScenarioModule module = ApiScenarioImportUtil.buildModule(ApiScenarioImportUtil.getSelectModule(request.getModuleId()), msScenario.getName(), this.projectId);
+        ApiScenarioModule selectModule = null;
+        String selectModulePath = null;
+        if (StringUtils.isNotBlank(request.getModuleId())) {
+            selectModule = ApiScenarioImportUtil.getSelectModule(request.getModuleId());
+            if (selectModule != null) {
+                selectModulePath = ApiScenarioImportUtil.getSelectModulePath(selectModule.getName(), selectModule.getParentId());
+            }
+        }
+        ApiScenarioModule module = ApiScenarioImportUtil.buildModule(selectModule, msScenario.getName(), this.projectId);
         scenarioWithBLOBs.setName(msScenario.getName());
         scenarioWithBLOBs.setProjectId(request.getProjectId());
         if (msScenario != null && CollectionUtils.isNotEmpty(msScenario.getHashTree())) {
@@ -120,7 +128,11 @@ public class MsJmeterParser extends ApiImportAbstractParser<ScenarioImport> {
         }
         if (module != null) {
             scenarioWithBLOBs.setApiScenarioModuleId(module.getId());
-            scenarioWithBLOBs.setModulePath("/" + module.getName());
+            if (StringUtils.isNotBlank(selectModulePath)) {
+                scenarioWithBLOBs.setModulePath(selectModulePath + "/" + module.getName());
+            } else {
+                scenarioWithBLOBs.setModulePath("/" + module.getName());
+            }
         }
         scenarioWithBLOBs.setId(UUID.randomUUID().toString());
         scenarioWithBLOBs.setScenarioDefinition(JSON.toJSONString(msScenario));
@@ -198,6 +210,12 @@ public class MsJmeterParser extends ApiImportAbstractParser<ScenarioImport> {
             samplerProxy.setArguments(new ArrayList<KeyValue>() {{
                 this.add(new KeyValue());
             }});
+            // 初始化body
+            Body body = new Body();
+            body.init();
+            body.initKvs();
+            body.initBinary();
+            samplerProxy.setBody(body);
             if (source != null && source.getHTTPFiles().length > 0) {
                 samplerProxy.getBody().initBinary();
                 samplerProxy.getBody().setType(Body.FORM_DATA);

@@ -291,31 +291,46 @@
                   </el-row>
 
                   <el-row>
-                    <el-col :span="15" :offset="1">
+                    <el-col :span="20" :offset="1">
+                      <!--                      <div>
+                                              <span class="cast_label">{{ $t('commons.remark') }}：</span>
+                                              <span v-if="testCase.remark == null || testCase.remark === ''"
+                                                    style="color: darkgrey">{{ $t('commons.not_filled') }}</span>
+                                            </div>-->
+                      <span class="cast_label">{{ $t('commons.remark') }}：</span>
                       <div>
-                        <span class="cast_label">{{ $t('commons.remark') }}：</span>
-                        <span v-if="testCase.remark == null || testCase.remark === ''"
-                              style="color: darkgrey">{{ $t('commons.not_filled') }}</span>
-                      </div>
-                      <div>
-                        <el-input :rows="3"
+                        <el-input v-model="testCase.remark"
+                                  :autosize="{ minRows: 2, maxRows: 4}"
                                   type="textarea"
-                                  v-if="testCase.remark"
-                                  disabled
-                                  v-model="testCase.remark"></el-input>
+                                  :rows="3"
+                                  :placeholder="$t('commons.input_content')"></el-input>
                       </div>
                     </el-col>
                   </el-row>
-
                   <el-row>
-                    <el-col :span="15" :offset="1">
-                      <div>
-                        <span class="cast_label">{{ $t('test_track.case.attachment') }}:</span>
-                      </div>
+                    <el-col :span="20" :offset="1">
+                      <span class="cast_label">{{ $t('test_track.case.attachment') }}：</span>
+                      <el-upload
+                        accept=".jpg,.jpeg,.png,.xlsx,.doc,.pdf,.docx"
+                        action=""
+                        :show-file-list="false"
+                        :before-upload="beforeUpload"
+                        :http-request="handleUpload"
+                        :on-exceed="handleExceed"
+                        multiple
+                        :limit="8"
+                        :file-list="fileList">
+                        <el-button icon="el-icon-plus" size="mini"></el-button>
+                        <span slot="tip" class="el-upload__tip"> {{ $t('test_track.case.upload_tip') }} </span>
+                      </el-upload>
+                    </el-col>
+                  </el-row>
+                  <el-row>
+                    <el-col :span="20" :offset="1">
                       <div>
                         <test-case-attachment :table-data="tableData"
                                               :read-only="isReadOnly"
-                                              :is-delete="false"
+                                              :is-delete="true"
                                               @handleDelete="handleDelete"
                         />
                       </div>
@@ -327,7 +342,16 @@
             </el-card>
           </el-col>
           <el-col :span="7">
-            <case-comment :case-id="testCase ? testCase.caseId : ''" class="comment-card"/>
+            <el-card class="comment-card">
+              <template slot="header">
+                <span style="font-size: 15px; color: #1E90FF">{{ $t('test_track.review.comment') }}</span>
+                <i class="el-icon-refresh" @click="getComments(testCase)"
+                   style="margin-left:10px;font-size: 14px; cursor: pointer"/>
+              </template>
+              <review-comment :comments="comments" :case-id="testCase.caseId" :review-id="testCase.reviewId"
+                              @getComments="getComments"/>
+            </el-card>
+            <!--            <case-comment :case-id="testCase ? testCase.caseId : ''" class="comment-card"/>-->
           </el-col>
 
 
@@ -353,10 +377,12 @@ import {getUUID, listenGoBack, removeGoBackListener} from "@/common/js/utils";
 import TestCaseAttachment from "@/business/components/track/case/components/TestCaseAttachment";
 import CaseComment from "@/business/components/track/case/components/CaseComment";
 import MsPreviousNextButton from "../../../../../common/components/MsPreviousNextButton";
+import ReviewComment from "@/business/components/track/review/commom/ReviewComment";
 
 export default {
   name: "FunctionalTestCaseEdit",
   components: {
+    ReviewComment,
     MsPreviousNextButton,
     CaseComment,
     PerformanceTestResult,
@@ -391,6 +417,9 @@ export default {
       hasTapdId: false,
       hasZentaoId: false,
       tableData: [],
+      fileList: [],
+      uploadList: [],
+      comments: [],
     };
   },
   props: {
@@ -405,7 +434,55 @@ export default {
       default: false
     }
   },
+  computed: {
+    projectId() {
+      return this.$store.state.projectId;
+    },
+  },
   methods: {
+    getComments(testCase) {
+      let id = '';
+      if (testCase) {
+        id = testCase.caseId;
+      } else {
+        id = this.testCase.caseId;
+      }
+      this.result = this.$get('/test/case/comment/list/' + id, res => {
+        this.comments = res.data;
+      })
+    },
+    fileValidator(file) {
+      /// todo: 是否需要对文件内容和大小做限制
+      return file.size > 0;
+    },
+    handleExceed() {
+      this.$error(this.$t('load_test.file_size_limit'));
+    },
+    beforeUpload(file) {
+      if (!this.fileValidator(file)) {
+        /// todo: 显示错误信息
+        return false;
+      }
+
+      if (this.tableData.filter(f => f.name === file.name).length > 0) {
+        this.$error(this.$t('load_test.delete_file') + ', name: ' + file.name);
+        return false;
+      }
+
+      let type = file.name.substring(file.name.lastIndexOf(".") + 1);
+
+      this.tableData.push({
+        name: file.name,
+        size: file.size + ' Bytes', /// todo: 按照大小显示Byte、KB、MB等
+        type: type.toUpperCase(),
+        updateTime: new Date().getTime(),
+      });
+
+      return true;
+    },
+    handleUpload(uploadResources) {
+      this.uploadList.push(uploadResources.file);
+    },
     handleClose() {
       removeGoBackListener(this.handleClose);
       this.showDialog = false;
@@ -420,12 +497,38 @@ export default {
       this.testCase.status = status;
       this.saveCase();
     },
+    getOption(param) {
+      let formData = new FormData();
+      let url = '/test/case/edit/testPlan';
+      this.uploadList.forEach(f => {
+        formData.append("file", f);
+      });
+      param.updatedFileList = this.fileList;
+      let requestJson = JSON.stringify(param, function (key, value) {
+        return key === "file" ? undefined : value;
+      });
+
+      formData.append('request', new Blob([requestJson], {
+        type: "application/json "
+      }));
+
+      return {
+        method: 'POST',
+        url: url,
+        data: formData,
+        headers: {
+          'Content-Type': undefined
+        }
+      };
+    },
     saveCase() {
       let param = {};
       param.id = this.testCase.id;
       param.status = this.testCase.status;
       param.results = [];
-
+      param.remark = this.testCase.remark;
+      param.projectId = this.projectId;
+      let option = this.getOption(param);
       for (let i = 0; i < this.testCase.steptResults.length; i++) {
         let result = {};
         result.actualResult = this.testCase.steptResults[i].actualResult;
@@ -437,9 +540,11 @@ export default {
         }
         param.results.push(result);
       }
-
       param.results = JSON.stringify(param.results);
       this.$post('/test/plan/case/edit', param, () => {
+        this.$request(option, (response) => {
+
+        });
         this.$success(this.$t('commons.save_success'));
         this.updateTestCases(param);
         this.setPlanStatus(this.testCase.planId);
@@ -495,15 +600,18 @@ export default {
         this.getIssues(item.caseId);
         this.stepResultChange();
         this.getFileMetaData(item);
+        this.getComments(item);
       })
     },
     getFileMetaData(testCase) {
+      this.fileList = [];
       this.tableData = [];
       this.result = this.$get("test/case/file/metadata/" + testCase.caseId, response => {
         let files = response.data;
         if (!files) {
           return;
         }
+        this.fileList = JSON.parse(JSON.stringify(files));
         this.tableData = JSON.parse(JSON.stringify(files));
         this.tableData.map(f => {
           f.size = f.size + ' Bytes';
@@ -699,9 +807,24 @@ export default {
         this.$success(this.$t('commons.delete_success'));
       })
     },
-    handleDelete() {
-
-    }
+    handleDelete(file, index) {
+      this.$alert(this.$t('load_test.delete_file_confirm') + file.name + "？", '', {
+        confirmButtonText: this.$t('commons.confirm'),
+        callback: (action) => {
+          if (action === 'confirm') {
+            this._handleDelete(file, index);
+          }
+        }
+      });
+    },
+    _handleDelete(file, index) {
+      this.fileList.splice(index, 1);
+      this.tableData.splice(index, 1);
+      let i = this.uploadList.findIndex(upLoadFile => upLoadFile.name === file.name);
+      if (i > -1) {
+        this.uploadList.splice(i, 1);
+      }
+    },
   }
 }
 </script>

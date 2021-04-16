@@ -55,6 +55,13 @@ public class TestPlanApiCaseService {
         return apiTestCases;
     }
 
+    public List<String> selectIds(ApiTestCaseRequest request) {
+        request.setProjectId(null);
+        request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
+        List<String> idList = extTestPlanApiCaseMapper.selectIds(request);
+        return idList;
+    }
+
     public List<String> getExecResultByPlanId(String plan) {
         return extTestPlanApiCaseMapper.getExecResultByPlanId(plan);
     }
@@ -89,13 +96,18 @@ public class TestPlanApiCaseService {
     }
 
     public void deleteApiCaseBath(TestPlanApiCaseBatchRequest request) {
-        if (CollectionUtils.isEmpty(request.getIds())) {
+        List<String> deleteIds = request.getIds();
+        if(request.getCondition()!=null && request.getCondition().isSelectAll()){
+            deleteIds = this.selectIds(request.getCondition());
+        }
+
+        if (CollectionUtils.isEmpty(deleteIds)) {
             return;
         }
-        apiDefinitionExecResultService.deleteByResourceIds(request.getIds());
+        apiDefinitionExecResultService.deleteByResourceIds(deleteIds);
         TestPlanApiCaseExample example = new TestPlanApiCaseExample();
         example.createCriteria()
-                .andIdIn(request.getIds())
+                .andIdIn(deleteIds)
                 .andTestPlanIdEqualTo(request.getPlanId());
         testPlanApiCaseMapper.deleteByExample(example);
     }

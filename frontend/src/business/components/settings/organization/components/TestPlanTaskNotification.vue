@@ -192,7 +192,8 @@ export default {
       receiveTypeOptions: [
         {value: 'EMAIL', label: this.$t('organization.message.mail')},
         {value: 'NAIL_ROBOT', label: this.$t('organization.message.nail_robot')},
-        {value: 'WECHAT_ROBOT', label: this.$t('organization.message.enterprise_wechat_robot')}
+        {value: 'WECHAT_ROBOT', label: this.$t('organization.message.enterprise_wechat_robot')},
+        {value: 'LARK', label: this.$t('organization.message.lark')}
       ],
     };
   },
@@ -236,14 +237,14 @@ export default {
 
       if (data.event && data.userIds.length > 0 && data.type) {
         // console.log(data.type)
-        if (data.type === 'NAIL_ROBOT' || data.type === 'WECHAT_ROBOT') {
+        if (data.type === 'NAIL_ROBOT' || data.type === 'WECHAT_ROBOT' || data.type === 'LARK') {
           if (!data.webhook) {
             this.$warning(this.$t('organization.message.message_webhook'));
           } else {
-            this.addTask(data)
+            this.addTask(data);
           }
         } else {
-          this.addTask(data)
+          this.addTask(data);
         }
       } else {
         this.$warning(this.$t('organization.message.message'));

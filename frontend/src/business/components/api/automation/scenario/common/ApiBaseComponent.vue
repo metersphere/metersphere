@@ -14,7 +14,7 @@
           <i class="icon el-icon-arrow-right" :class="{'is-active': data.active}"
              @click="active(data)" v-if="data.type!='scenario' && !isMax " @click.stop/>
           <span @click.stop v-if="isShowInput && isShowNameInput">
-            <el-input :draggable="draggable" size="mini" v-model="data.name" class="name-input"
+            <el-input :draggable="draggable" size="mini" v-model="data.name" class="name-input" @focus="active(data)"
                       @blur="isShowInput = false" :placeholder="$t('commons.input_name')" ref="nameEdit" :disabled="data.disabled"/>
           </span>
           <span :class="isMax?'ms-step-name':'scenario-name'" v-else>

@@ -275,6 +275,9 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
     @Override
     public ApiModuleDTO getNode(String id) {
         ApiModule module = apiModuleMapper.selectByPrimaryKey(id);
+        if (module == null) {
+            return null;
+        }
         ApiModuleDTO dto = JSON.parseObject(JSON.toJSONString(module), ApiModuleDTO.class);
         return dto;
     }

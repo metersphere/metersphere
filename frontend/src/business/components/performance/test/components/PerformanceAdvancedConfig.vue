@@ -147,15 +147,75 @@
         </el-form>
       </el-col>
     </el-row>
+
+    <el-row>
+      <el-col :span="8">
+        <h3>监控集成</h3>
+        <el-button :disabled="readOnly" icon="el-icon-circle-plus-outline" plain size="mini" @click="addMonitor">
+          {{ $t('commons.add') }}
+        </el-button>
+      </el-col>
+    </el-row>
+    <el-col :span="24">
+      <el-table :data="monitorParams" size="mini" class="tb-edit" align="center" border highlight-current-row>
+        <el-table-column
+          align="center"
+          prop="name"
+          label="名称">
+        </el-table-column>
+<!--        <el-table-column-->
+<!--          align="center"-->
+<!--          prop="environmentName"-->
+<!--          label="所属环境">-->
+<!--        </el-table-column>-->
+<!--        <el-table-column-->
+<!--          align="center"-->
+<!--          prop="authStatus"-->
+<!--          label="认证状态">-->
+<!--        </el-table-column>-->
+<!--        <el-table-column-->
+<!--          align="center"-->
+<!--          prop="monitorStatus"-->
+<!--          label="监控状态">-->
+          <el-table-column
+          align="center"
+          prop="ip"
+          label="IP">
+          </el-table-column>
+          <el-table-column
+          align="center"
+          prop="port"
+          label="Port">
+        </el-table-column>
+        <el-table-column
+          align="center"
+          prop="description"
+          label="描述">
+        </el-table-column>
+        <el-table-column align="center" :label="$t('load_test.operating')">
+          <template v-slot:default="{row, $index}">
+            <ms-table-operator-button :disabled="readOnly" tip="编辑" icon="el-icon-edit"
+                                      type="primary"
+                                      @exec="modifyMonitor(row, $index)"/>
+            <ms-table-operator-button :disabled="readOnly" :tip="$t('commons.delete')" icon="el-icon-delete"
+                                      type="danger"
+                                      @exec="delMonitor(row, $index)"/>
+          </template>
+        </el-table-column>
+      </el-table>
+    </el-col>
+
+    <edit-monitor ref="monitorDialog" :testId="testId" :list.sync="monitorParams"/>
   </div>
 </template>
 
 <script>
 import MsTableOperatorButton from "../../../common/components/MsTableOperatorButton";
+import EditMonitor from "@/business/components/performance/test/components/EditMonitor";
 
 export default {
   name: "PerformanceAdvancedConfig",
-  components: {MsTableOperatorButton},
+  components: {EditMonitor, MsTableOperatorButton},
   data() {
     return {
       timeout: 60000,
@@ -163,6 +223,7 @@ export default {
       statusCode: [],
       domains: [],
       params: [],
+      monitorParams: [],
       statusCodeStr: '',
       granularity: undefined,
       granularityData: [
@@ -209,6 +270,7 @@ export default {
           this.domains = data.domains || [];
           this.params = data.params || [];
           this.granularity = data.granularity;
+          this.monitorParams = data.monitorParams || [];
         }
       });
     },
@@ -296,7 +358,20 @@ export default {
         params: this.params,
         domains: this.domains,
         granularity: this.granularity,
+        monitorParams: this.monitorParams
       };
+    },
+    addMonitor() {
+      this.$refs.monitorDialog.open();
+    },
+    modifyMonitor(row, index) {
+      this.$refs.monitorDialog.open(row, index);
+    },
+    delMonitor(row, index) {
+      this.monitorParams.splice(index, 1);
+    },
+    refreshStatus() {
+
     },
   }
 }

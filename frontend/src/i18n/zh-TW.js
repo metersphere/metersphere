@@ -37,6 +37,7 @@ export default {
     copy_success: '復制成功',
     modify_success: '修改成功',
     delete_cancel: '已取消刪除',
+    option_cannot_spread_pages: '這個操作不能跨頁，是否繼續？',
     confirm: '確定',
     cancel: '取消',
     prompt: '提示',
@@ -298,11 +299,12 @@ export default {
       mail: '郵件',
       nail_robot: '釘釘機器人',
       enterprise_wechat_robot: '企業微信機器人',
+      lark: '飛書機器人',
       notes: '1.釘釘和企業群裏新建壹個自定義機器人，然後復制 webhook 地址在我們平臺上;\n' +
         '       2.機器人選擇為群機器人，安全驗證選擇“自定義關鍵詞” ："任務通知";\n' +
         '       3.選擇接收人時必須是妳所建的群裏包含的人,接收人手機號為必填項且為釘釘企業所使用的手機號,',
       message: '事件，接收人，接收方式為必填項',
-      message_webhook: '接收方式為釘釘和企業機器人時，webhook為必填項',
+      message_webhook: '接收方式為釘釘和企業機器人，飛書時，webhook為必填項',
       template: "模版"
     },
     integration: {
@@ -457,6 +459,7 @@ export default {
     delete_batch_confirm: '確認批量刪除報告',
   },
   load_test: {
+    completed_test_report: '已完成的測試報告',
     test: '測試',
     name: '測試名稱',
     same_project_test: '只能運行同壹項目內的測試',
@@ -709,6 +712,8 @@ export default {
       }
     },
     automation: {
+      open_expansion: "一鍵展開",
+      close_expansion: "一鍵收起",
       constant: "常量",
       counter: "計數器",
       random: "随机器",
@@ -772,6 +777,7 @@ export default {
     environment: {
       name: "環境名稱",
       socket: "環境域名",
+      condition_enable: "啟用條件",
       globalVariable: "全局變量",
       environment_list: "環境列表",
       environment_config: "環境配置",
@@ -987,6 +993,15 @@ export default {
       unit_of_measurement: "個",
       unit_of_count: "個",
       unit_of_times: "次",
+      formula:{
+        completion: "已完成的接口/接口總數*100%",
+        coverage: "有案例的接口/接口總數*100%",
+        pass: "最後一次執行成功的場景/場景總數*100%",
+        success: "執行成功的次數/执行總次數*100%",
+        interface_coverage: "被場景步驟包含的接口/接口總數*100%",
+        review: "評審通過的功能案例/所有功能案例 * 100%",
+        testplan_coverage: "關聯的功能案例數/所有功能案例 * 100%",
+      },
       api_count_card: {
         title: "接口數量統計",
       },
@@ -1134,6 +1149,10 @@ export default {
     date: "日期"
   },
   test_track: {
+    related_requirements: '關聯需求',
+    please_related_requirements: '請選擇要關聯的需求',
+    please_select_the_test_to_associate: "請選擇要關聯的測試",
+    person_responsible: "責任人",
     test_track: "測試跟蹤",
     confirm: "確 定",
     cancel: "取 消",
@@ -1179,7 +1198,7 @@ export default {
       steps: "執行步驟",
       number: "編號",
       prerequisite: "前置條件",
-      step_desc: "步驟描述",
+      step_desc: "用例步驟",
       expected_results: "預期結果",
       input_name: "請輸入名稱",
       input_module: "請選擇模塊",
@@ -1216,7 +1235,7 @@ export default {
       cancel_relevance_project: "取消項目關聯會同時取消該項目下已關聯的測試用例",
       img_loading_fail: "圖片加載失敗",
       pdf_loading_fail: "PDF加載失敗",
-      upload_tip: "只能上傳jpg、jpeg、png、docx、doc、pdf、xlsx文件",
+      upload_tip: "只能上傳jpg、jpeg、png、docx、doc、pdf、xlsx、txt文件",
       attachment: "附件",
       upload_time: "上傳時間",
       import: {
@@ -1660,10 +1679,21 @@ export default {
     title: '認證設置',
     auth_name_valid: '名稱不支持特殊字符',
   },
+  module: {
+    title: '模塊管理'
+  },
   table: {
     header_display_field: '表頭顯示欄位',
     fields_to_be_selected: '待選欄位',
     selected_fields: '已選欄位'
+  },
+  run_mode: {
+    title: "模式",
+    serial: "串行",
+    parallel: "並行",
+    other_config: "其他配置",
+    idd_report: "獨立報告",
+    set_report: "集合報告",
+    report_name: "報告名稱",
   }
-
 };

@@ -1,16 +1,22 @@
 package io.metersphere.api.jmeter;
 
-import io.metersphere.commons.utils.BeanUtils;
 import lombok.Data;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 public class TestResult {
 
     private String testId;
+
+    private String reportName;
+
+    private boolean isDebug;
+
+    private String runMode;
 
     private int success = 0;
 
@@ -43,50 +49,16 @@ public class TestResult {
     private static final String SEPARATOR = "<->";
 
     public void addScenario(ScenarioResult result) {
-        Map<String, List<RequestResult>> requestResultMap = new LinkedHashMap<>();
         if (result != null && CollectionUtils.isNotEmpty(result.getRequestResults())) {
             result.getRequestResults().forEach(item -> {
                 if (StringUtils.isNotEmpty(item.getName()) && item.getName().indexOf(SEPARATOR) != -1) {
                     String array[] = item.getName().split(SEPARATOR);
-                    String scenarioName = item.getName().replace(array[0] + SEPARATOR, "");
-                    item.setName(array[0]);
-                    if (requestResultMap.containsKey(scenarioName)) {
-                        requestResultMap.get(scenarioName).add(item);
-                    } else {
-                        List<RequestResult> requestResults = new LinkedList<>();
-                        requestResults.add(item);
-                        requestResultMap.put(scenarioName, requestResults);
-                    }
+                    item.setName(array[1] + array[0]);
                     item.getSubRequestResults().forEach(subItem -> {
-                        subItem.setName(item.getName());
+                        subItem.setName(array[0]);
                     });
-                } else {
-                    if (requestResultMap.containsKey(result.getName())) {
-                        requestResultMap.get(result.getName()).add(item);
-                    } else {
-                        List<RequestResult> requestResults = new LinkedList<>();
-                        requestResults.add(item);
-                        requestResultMap.put(result.getName(), requestResults);
-                    }
-                    item.getSubRequestResults().forEach(subItem -> {
-                        subItem.setName(item.getName());
-                    });
-
                 }
             });
-        }
-        if (!requestResultMap.isEmpty()) {
-            requestResultMap.forEach((k, v) -> {
-                ScenarioResult scenarioResult = new ScenarioResult();
-                BeanUtils.copyBean(scenarioResult, result);
-                scenarioResult.setName(k);
-                if (k.indexOf(SEPARATOR) != -1) {
-                    scenarioResult.setName(k.split(SEPARATOR)[1]);
-                }
-                scenarioResult.setRequestResults(v);
-                scenarios.add(scenarioResult);
-            });
-        } else {
             scenarios.add(result);
         }
     }

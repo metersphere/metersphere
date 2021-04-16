@@ -19,6 +19,7 @@
         <ms-table-header-select-popover v-show="total>0"
                                         :page-size="pageSize>total?total:pageSize"
                                         :total="total"
+                                        :select-data-counts="selectDataCounts"
                                         @selectPageAll="isSelectDataAll(false)"
                                         @selectAll="isSelectDataAll(true)"/>
 
@@ -156,7 +157,7 @@
     </batch-edit>
 
     <batch-move @refresh="search" @moveSave="moveSave" ref="testBatchMove"/>
-
+    <ms-run-mode @handleRunBatch="handleRunBatch" ref="runMode"/>
   </div>
 </template>
 
@@ -179,6 +180,8 @@ import BatchEdit from "../../../track/case/components/BatchEdit";
 import {API_SCENARIO_LIST, PROJECT_NAME, WORKSPACE_ID} from "../../../../../common/js/constants";
 import EnvironmentSelect from "../../definition/components/environment/EnvironmentSelect";
 import BatchMove from "../../../track/case/components/BatchMove";
+import MsRunMode from "./common/RunMode";
+
 import {
   _filter,
   _handleSelect,
@@ -212,7 +215,8 @@ export default {
     MsApiReportDetail,
     MsScenarioExtendButtons,
     MsTestPlanList,
-    MsTableOperatorButton
+    MsTableOperatorButton,
+    MsRunMode
   },
   props: {
     referenced: {
@@ -447,7 +451,7 @@ export default {
 
           this.$nextTick(function () {
             if (this.$refs.scenarioTable) {
-              setTimeout(this.$refs.scenarioTable.doLayout, 200)
+              setTimeout(this.$refs.scenarioTable.doLayout, 200);
             }
             this.checkTableRowIsSelect();
           })
@@ -549,8 +553,6 @@ export default {
           if (!(environment.config instanceof Object)) {
             environment.config = JSON.parse(environment.config);
           }
-          environment.name = environment.name + (environment.config.httpConfig.socket ?
-            (': ' + environment.config.httpConfig.protocol + '://' + environment.config.httpConfig.socket) : '');
         });
       });
     },
@@ -605,9 +607,13 @@ export default {
       param.condition = this.condition;
     },
     handleBatchExecute() {
+      this.$refs.runMode.open();
+
+    },
+    handleRunBatch(config){
       this.infoDb = false;
       let url = "/api/automation/run/batch";
-      let run = {};
+      let run = {config: config};
       run.id = getUUID();
       this.buildBatchParam(run);
       this.$post(url, run, response => {
@@ -617,7 +623,7 @@ export default {
       });
     },
     handleSelectAll(selection) {
-      _handleSelectAll(this, selection, this.tableData, this.selectRows);
+      _handleSelectAll(this, selection, this.tableData, this.selectRows, this.condition);
       setUnSelectIds(this.tableData, this.condition, this.selectRows);
       this.selectDataCounts = getSelectDataCounts(this.condition, this.total, this.selectRows);
       this.$emit('selection', selection);
