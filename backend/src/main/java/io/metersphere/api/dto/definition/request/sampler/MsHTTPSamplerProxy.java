@@ -118,6 +118,12 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                     MsHTTPSamplerProxy proxy = mapper.readValue(bloBs.getRequest(), new TypeReference<MsHTTPSamplerProxy>() {
                     });
                     this.setHashTree(proxy.getHashTree());
+                    this.setName(bloBs.getName());
+                    this.setMethod(proxy.getMethod());
+                    this.setBody(proxy.getBody());
+                    this.setRest(proxy.getRest());
+                    this.setArguments(proxy.getArguments());
+                    this.setHeaders(proxy.getHeaders());
                 }
             } else {
                 ApiDefinitionWithBLOBs apiDefinition = apiDefinitionService.getBLOBs(this.getId());
@@ -126,6 +132,12 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                     MsHTTPSamplerProxy proxy = mapper.readValue(apiDefinition.getRequest(), new TypeReference<MsHTTPSamplerProxy>() {
                     });
                     this.setHashTree(proxy.getHashTree());
+                    this.setName(apiDefinition.getName());
+                    this.setMethod(proxy.getMethod());
+                    this.setBody(proxy.getBody());
+                    this.setRest(proxy.getRest());
+                    this.setArguments(proxy.getArguments());
+                    this.setHeaders(proxy.getHeaders());
                 }
             }
         } catch (Exception ex) {
