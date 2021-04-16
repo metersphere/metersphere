@@ -54,7 +54,11 @@ public class ConsulService {
             for (TestResource resource : resources) {
                 NodeDTO node = JSON.parseObject(resource.getConfiguration(), NodeDTO.class);
                 // 资源池默认9100
-                result.put(node.getIp() + "-" + node.getMonitorPort(), Collections.singletonList("metersphere"));
+                int port = 9100;
+                if (node.getMonitorPort() != null) {
+                    port = node.getMonitorPort();
+                }
+                result.put(node.getIp() + "-" + port, Collections.singletonList("metersphere"));
             }
         }
         return result;
