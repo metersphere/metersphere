@@ -19,6 +19,7 @@ export default {
     examples: 'examples',
     help_documentation: 'Help documentation',
     delete_cancelled: 'Delete cancelled',
+    option_cannot_spread_pages: 'This options not support spread pages.Do you want continue?',
     workspace: 'Workspace',
     organization: 'Organization',
     setting: 'Setting',
@@ -297,6 +298,7 @@ export default {
       mail: 'mail',
       nail_robot: 'Nail robot',
       enterprise_wechat_robot: 'Enterprise wechat robot',
+      lark: "Flying Book Robot",
       notes: '1. Nail and create a custom robot in the enterprise group, and then copy the webhook address on our platform;\n' +
         '\n' +
         '2. Robots are selected as swarm robots, and "custom keyword" is selected for security verification: "task notification";\n' +
@@ -304,7 +306,7 @@ export default {
         '3. When selecting the receiver, it must be the person included in the group you created. The mobile phone number of the receiver is required and it is the mobile phone number used by the nailing enterprise,',
       message: 'Event, receiver and receiving method are required\n' +
         '\n',
-      message_webhook: 'Webhook is required when the receiving mode is nail or enterprise robot',
+      message_webhook: 'Webhook is required when the receiving mode is nail or enterprise robot or lark',
       template: "Template"
     },
     integration: {
@@ -459,6 +461,7 @@ export default {
     delete_batch_confirm: 'Confirm batch delete report',
   },
   load_test: {
+    completed_test_report: 'Completed test report',
     test: 'Test',
     name: 'Test Name',
     same_project_test: 'Only tests within the same project can be run',
@@ -709,6 +712,8 @@ export default {
       }
     },
     automation: {
+      open_expansion: "One-click expansion",
+      close_expansion: "One-click storage",
       constant: "constant",
       counter: "counter",
       random: "random",
@@ -772,6 +777,7 @@ export default {
     environment: {
       name: "Environment Name",
       socket: "Socket",
+      condition_enable: "Activation conditions",
       globalVariable: "Global Variable",
       environment_list: "Environment List",
       environment_config: "Environment Config",
@@ -985,6 +991,15 @@ export default {
       unit_of_measurement: "",
       unit_of_count: "",
       unit_of_times: "times",
+      formula: {
+        completion: "finished api / all api * 100%",
+        coverage: "apis whitch have test case / all apis * 100%",
+        pass: "scenarios whitch final execute is sucess / all scenarios * 100%",
+        success: "execute success count number / all execute count number * 100%",
+        interface_coverage: "api whitch in scenario's step / all api * 100%",
+        review: "reviewd cases / all cases * 100%",
+        testplan_coverage: "relevance function cases / all function cases * 100%",
+      },
       api_count_card: {
         title: "API count",
       },
@@ -1132,6 +1147,10 @@ export default {
     date: "Date"
   },
   test_track: {
+    related_requirements: 'Related requirements',
+    please_related_requirements: 'Please select the requirements to associate',
+    please_select_the_test_to_associate: "Please select the test to associate",
+    person_responsible: "Person Responsible",
     test_track: "Track",
     confirm: "Confirm",
     cancel: "Cancel",
@@ -1214,7 +1233,7 @@ export default {
       cancel_relevance_project: "Disassociating the project will also cancel the associated test cases under the project",
       img_loading_fail: "Image failed to load",
       pdf_loading_fail: "PDF loading failed",
-      upload_tip: "Only jpg, jpeg, png, docx, doc, pdf, xlsx files can be uploaded",
+      upload_tip: "Only jpg, jpeg, png, docx, doc, pdf, xlsx, txt files can be uploaded",
       attachment: "Attachment",
       upload_time: "Upload Time",
       import: {
@@ -1659,9 +1678,21 @@ export default {
     title: 'Auth Source',
     auth_name_valid: 'Name does not support special characters',
   },
+  module: {
+    title: 'Module Management'
+  },
   table: {
     header_display_field: 'Header display field',
     fields_to_be_selected: 'Fields to be selected',
     selected_fields: 'Selected fields'
+  },
+  run_mode: {
+    title: "Mode",
+    serial: "Serial",
+    parallel: "Parallel",
+    other_config: "Other config",
+    idd_report: "Report",
+    set_report: "Set report",
+    report_name: "Report name",
   }
 };

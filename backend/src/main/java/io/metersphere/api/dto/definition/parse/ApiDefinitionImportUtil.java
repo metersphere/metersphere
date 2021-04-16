@@ -26,6 +26,24 @@ public class ApiDefinitionImportUtil {
         return null;
     }
 
+    public static String getSelectModulePath(String path, String pid) {
+        ApiModuleService apiModuleService = CommonBeanFactory.getBean(ApiModuleService.class);
+        if (StringUtils.isNotBlank(pid)) {
+            ApiModuleDTO moduleDTO = apiModuleService.getNode(pid);
+            if (moduleDTO != null) {
+                return getSelectModulePath(moduleDTO.getName() + "/" + path, moduleDTO.getParentId());
+            }
+        }
+        return "/" + path;
+    }
+
+    public static ApiModule getNodeTree(String projectId) {
+        ApiModuleService apiModuleService = CommonBeanFactory.getBean(ApiModuleService.class);
+        List<ApiModuleDTO> nodeTrees = apiModuleService.getNodeTreeByProjectId(projectId, RequestType.HTTP);
+
+        return null;
+    }
+
     public static ApiModule buildModule(ApiModule parentModule, String name, String projectId) {
         ApiModuleService apiModuleService = CommonBeanFactory.getBean(ApiModuleService.class);
         ApiModule module;

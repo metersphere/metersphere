@@ -37,6 +37,7 @@ export default {
     copy_success: '复制成功',
     modify_success: '修改成功',
     delete_cancel: '已取消删除',
+    option_cannot_spread_pages: '这个操作不支持跨页，是否继续？',
     confirm: '确定',
     cancel: '取消',
     prompt: '提示',
@@ -298,11 +299,12 @@ export default {
       mail: '邮件',
       nail_robot: '钉钉机器人',
       enterprise_wechat_robot: '企业微信机器人',
+      lark: '飞书机器人',
       notes: '1.钉钉和企业群里新建一个自定义机器人，然后复制 webhook 地址在我们平台上;\n' +
         '       2.机器人选择为群机器人，安全验证选择“自定义关键词” ："任务通知";\n' +
         '       3.选择接收人时必须是你所建的群里包含的人,接收人手机号为必填项且为钉钉企业所使用的手机号,',
       message: '事件，接收人，接收方式为必填项',
-      message_webhook: '接收方式为钉钉和企业机器人时，webhook为必填项',
+      message_webhook: '接收方式为钉钉和企业机器人,飞书时，webhook为必填项',
       template: "模版"
     },
     integration: {
@@ -457,6 +459,7 @@ export default {
     delete_batch_confirm: '确认批量删除报告',
   },
   load_test: {
+    completed_test_report: '已完成测试报告',
     test: '测试',
     name: '测试名称',
     same_project_test: '只能运行同一项目内的测试',
@@ -710,6 +713,8 @@ export default {
       }
     },
     automation: {
+      open_expansion: "一键展开",
+      close_expansion: "一键收起",
       constant: "常量",
       counter: "计数器",
       random: "随机数",
@@ -773,6 +778,7 @@ export default {
     environment: {
       name: "环境名称",
       socket: "环境域名",
+      condition_enable: "启用条件",
       globalVariable: "全局变量",
       environment_list: "环境列表",
       environment_config: "环境配置",
@@ -989,6 +995,15 @@ export default {
       unit_of_measurement: "个",
       unit_of_count: "个",
       unit_of_times: "次",
+      formula: {
+        completion: "已完成的接口/接口总数*100%",
+        coverage: "有案例的接口/接口总数*100%",
+        pass: "最后一次执行成功的场景/场景总数*100%",
+        success: "执行成功的次数/执行总次数*100%",
+        interface_coverage: "被场景步骤包含的接口/接口总数*100%",
+        review: "评审通过的功能案例/所有功能案例 * 100%",
+        testplan_coverage: "关联的功能案例/所有功能案例 * 100%",
+      },
       api_count_card: {
         title: "接口数量统计",
       },
@@ -1136,6 +1151,10 @@ export default {
     date: "日期"
   },
   test_track: {
+    related_requirements: '关联需求',
+    please_related_requirements: '请选择要关联的需求',
+    please_select_the_test_to_associate: "请选择需要关联的测试",
+    person_responsible: "责任人",
     test_track: "测试跟踪",
     planning_execution: "规划&执行",
     confirm: "确 定",
@@ -1218,7 +1237,7 @@ export default {
       cancel_relevance_project: "取消项目关联会同时取消该项目下已关联的测试用例",
       img_loading_fail: "图片加载失败",
       pdf_loading_fail: "PDF加载失败",
-      upload_tip: "只能上传jpg、jpeg、png、docx、doc、pdf、xlsx文件",
+      upload_tip: "只能上传jpg、jpeg、png、docx、doc、pdf、xlsx、txt文件",
       attachment: "附件",
       upload_time: "上传时间",
       import: {
@@ -1662,9 +1681,21 @@ export default {
     title: '认证设置',
     auth_name_valid: '名称不支持特殊字符',
   },
+  module: {
+    title: '模块管理'
+  },
   table: {
     header_display_field: '表头显示字段',
     fields_to_be_selected: '待选字段',
     selected_fields: '已选字段'
+  },
+  run_mode: {
+    title: "模式",
+    serial: "串行",
+    parallel: "并行",
+    other_config: "其他配置",
+    idd_report: "独立报告",
+    set_report: "集合报告",
+    report_name: "报告名称",
   }
 };

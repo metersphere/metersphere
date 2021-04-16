@@ -21,4 +21,6 @@ public class TestPlanApiCaseBatchRequest extends TestPlanTestCase {
      * 项目ID，环境ID对应关系
      */
     private Map<String, String> projectEnvMap;
+
+    private ApiCaseBatchCondition condition;
 }

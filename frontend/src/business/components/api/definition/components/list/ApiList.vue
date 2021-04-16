@@ -22,6 +22,7 @@
         <ms-table-header-select-popover v-show="total>0"
                                         :page-size="pageSize>total?total:pageSize"
                                         :total="total"
+                                        :select-data-counts="selectDataCounts"
                                         @selectPageAll="isSelectDataAll(false)"
                                         @selectAll="isSelectDataAll(true)"/>
 
@@ -464,7 +465,7 @@ export default {
           // nexttick:表格加载完成之后触发。判断是否需要勾选行
           this.$nextTick(function () {
             if (this.$refs.apiDefinitionTable) {
-              setTimeout(this.$refs.apiDefinitionTable.doLayout, 200)
+              setTimeout(this.$refs.apiDefinitionTable.doLayout, 200);
             }
             this.checkTableRowIsSelect();
           })
@@ -547,7 +548,7 @@ export default {
       });
     },
     handleSelectAll(selection) {
-      _handleSelectAll(this, selection, this.tableData, this.selectRows);
+      _handleSelectAll(this, selection, this.tableData, this.selectRows, this.condition);
       setUnSelectIds(this.tableData, this.condition, this.selectRows);
       this.selectDataCounts = getSelectDataCounts(this.condition, this.total, this.selectRows);
     },

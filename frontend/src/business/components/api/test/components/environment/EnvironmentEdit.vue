@@ -15,7 +15,7 @@
         </el-tab-pane>
 
         <el-tab-pane :label="$t('api_test.environment.http_config')" name="http">
-          <ms-environment-http-config :http-config="environment.config.httpConfig" ref="httpConfig"/>
+          <ms-environment-http-config :project-id="projectId" :http-config="environment.config.httpConfig" ref="httpConfig"/>
         </el-tab-pane>
         <el-tab-pane :label="$t('api_test.environment.database_config')" name="sql">
           <ms-database-config :configs="environment.config.databaseConfigs"/>
@@ -52,9 +52,11 @@
       MsTcpConfig,
       MsEnvironmentCommonConfig,
       MsEnvironmentHttpConfig,
-      MsDatabaseConfig, MsApiHostTable, MsDialogFooter, MsApiKeyValue, MsApiScenarioVariables},
+      MsDatabaseConfig, MsApiHostTable, MsDialogFooter, MsApiKeyValue, MsApiScenarioVariables
+    },
     props: {
       environment: new Environment(),
+      projectId: String,
     },
     data() {
 

@@ -171,7 +171,9 @@ export default {
         '        <p style="margin-left: 60px">您好:\n' +
         '    </div>\n' +
         '    <div style="margin-left: 100px">\n' +
-        '        <p>您所执行的 ${testName} 接口测试运行失败<br/>\n' +
+        '        <p>${executor}所执行的 ${testName} 接口测试运行失败<br/>\n' +
+        '        <p>执行环境:${executionEnvironment}</p>' +
+        '        <p>执行时间:${executionTime}</p>' +
         '            请点击下面链接进入测试报告页面</p>\n' +
         '        <a href="${url}/#/${type}/report/view/${id}">${url}/#/${type}/report/view/${id}</a>\n' +
         '        <p>新版接口测试报告路径</p>\n' +
@@ -182,7 +184,9 @@ export default {
         '</body>\n' +
         '</html>',
       robotTitle:
-        "测试【任务通知】:'您所执行的 ${testName} ${type}测试运行${status}\n" +
+        "测试【任务通知】:'${executor}所执行的 ${testName} ${type}测试运行${status}," +
+        "测试环境为:${executionEnvironment}," +
+        "执行时间：${executionTime}\n" +
         "请点击下面链接进入测试报告页面\n" +
         "${url}/#/${type}/report/view/${id}" +
         "新版接口测试报告路径\n" +
@@ -205,7 +209,8 @@ export default {
       receiveTypeOptions: [
         {value: 'EMAIL', label: this.$t('organization.message.mail')},
         {value: 'NAIL_ROBOT', label: this.$t('organization.message.nail_robot')},
-        {value: 'WECHAT_ROBOT', label: this.$t('organization.message.enterprise_wechat_robot')}
+        {value: 'WECHAT_ROBOT', label: this.$t('organization.message.enterprise_wechat_robot')},
+        {value: 'LARK', label: this.$t('organization.message.lark')}
       ],
     }
   },
@@ -251,14 +256,14 @@ export default {
     handleAddTask(index, data) {
       if (data.event && data.userIds.length > 0 && data.type) {
         // console.log(data.type)
-        if (data.type === 'NAIL_ROBOT' || data.type === 'WECHAT_ROBOT') {
+        if (data.type === 'NAIL_ROBOT' || data.type === 'WECHAT_ROBOT' || data.type === 'LARK') {
           if (!data.webhook) {
             this.$warning(this.$t('organization.message.message_webhook'));
           } else {
-            this.addTask(data)
+            this.addTask(data);
           }
         } else {
-          this.addTask(data)
+          this.addTask(data);
         }
       } else {
         this.$warning(this.$t('organization.message.message'));

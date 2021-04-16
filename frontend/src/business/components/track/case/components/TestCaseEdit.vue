@@ -40,7 +40,7 @@
               </el-form-item>
             </el-col>
             <el-col :span="7">
-              <el-form-item label="状态" :label-width="formLabelWidth" prop="status">
+              <el-form-item :label="$t('commons.status')" :label-width="formLabelWidth" prop="status">
                 <el-select size="small" v-model="form.status" class="ms-case-input">
                   <el-option v-for="item in statuOptions" :key="item.id" :label="item.label" :value="item.id">
                   </el-option>
@@ -64,7 +64,8 @@
               </el-form-item>
             </el-col>
             <el-col :span="7">
-              <el-form-item label="责任人" :label-width="formLabelWidth" prop="maintainer">
+              <el-form-item :label="$t('test_track.person_responsible')" :label-width="formLabelWidth"
+                            prop="maintainer">
                 <el-select :disabled="readOnly" v-model="form.maintainer"
                            :placeholder="$t('test_track.case.input_maintainer')" filterable class="ms-case-input">
                   <el-option
@@ -89,6 +90,29 @@
             </el-col>
           </el-row>
           <el-row>
+
+            <el-col :span="7">
+              <el-form-item :label="$t('test_track.case.relate_test')" :label-width="formLabelWidth">
+                <el-cascader :options="sysList" filterable
+                             :placeholder="$t('test_track.please_select_the_test_to_associate')" show-all-levels
+                             v-model="form.selected" :props="props"
+                             class="ms-case" @change="clearInput" ref="cascade"></el-cascader>
+              </el-form-item>
+            </el-col>
+            <el-col :span="7">
+              <el-form-item :label="$t('test_track.related_requirements')" :label-width="formLabelWidth"
+                            prop="demandId">
+                <el-select filterable :disabled="readOnly" v-model="form.demandId" @visible-change="visibleChange"
+                           :placeholder="$t('test_track.please_related_requirements')" class="ms-case-input">
+                  <el-option
+                    v-for="item in demandOptions"
+                    :key="item.id"
+                    :label="item.platform + ': '+item.name"
+                    :value="item.id">
+                  </el-option>
+                </el-select>
+              </el-form-item>
+            </el-col>
             <el-col :span="7">
               <el-form-item label="需求ID/名称" :label-width="formLabelWidth" prop="demandName"
                             v-if="form.demandId=='other'">
@@ -124,6 +148,7 @@
             </el-col>
           </el-row>
           <div class="tip">其他信息</div>
+         
           <el-row>
             <el-col :span="1" ><div v-html="'&nbsp;'"></div></el-col>
             <el-col :span="20" style="margin-top: 10px">

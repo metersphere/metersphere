@@ -61,7 +61,15 @@ public class HarParser extends HarAbstractParser {
     private List<ApiDefinitionWithBLOBs> parseRequests(Har har, ApiTestImportRequest importRequest) {
         List<ApiDefinitionWithBLOBs> results = new ArrayList<>();
 
-        ApiModule parentNode = ApiDefinitionImportUtil.getSelectModule(importRequest.getModuleId());
+        ApiModule selectModule = null;
+        String selectModulePath = null;
+        if (StringUtils.isNotBlank(importRequest.getModuleId())) {
+            selectModule = ApiDefinitionImportUtil.getSelectModule(importRequest.getModuleId());
+            if (selectModule != null) {
+                selectModulePath = ApiDefinitionImportUtil.getSelectModulePath(selectModule.getName(), selectModule.getParentId());
+            }
+        }
+
 
         List<HarEntry> harEntryList = new ArrayList<>();
         if (har.log != null && har.log.entries != null) {
@@ -103,7 +111,17 @@ public class HarParser extends HarAbstractParser {
                 addBodyHeader(request);
                 apiDefinition.setRequest(JSON.toJSONString(request));
                 apiDefinition.setResponse(JSON.toJSONString(parseResponse(entry.response)));
-                buildModule(parentNode, apiDefinition, null);
+                if (selectModule == null) {
+                    apiDefinition.setModuleId("default-module");
+
+                } else {
+                    apiDefinition.setModuleId(selectModule.getId());
+                }
+                if (StringUtils.isNotBlank(selectModulePath)) {
+                    apiDefinition.setModulePath(selectModulePath);
+                } else {
+                    apiDefinition.setModulePath("/默认模块");
+                }
                 results.add(apiDefinition);
             }
         }

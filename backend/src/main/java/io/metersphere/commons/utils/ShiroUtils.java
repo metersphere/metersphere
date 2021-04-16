@@ -47,6 +47,9 @@ public class ShiroUtils {
         filterChainDefinitionMap.put("/document/**", "anon");
         filterChainDefinitionMap.put("/system/theme", "anon");
 
+        filterChainDefinitionMap.put("/v1/catalog/**", "anon");
+        filterChainDefinitionMap.put("/v1/agent/**", "anon");
+        filterChainDefinitionMap.put("/v1/health/**", "anon");
     }
 
     public static void ignoreCsrfFilter(Map<String, String> filterChainDefinitionMap) {
