@@ -11,6 +11,7 @@ import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.commons.utils.UrlTestUtils;
 import io.metersphere.config.JmeterProperties;
 import io.metersphere.dto.BaseSystemConfigDTO;
@@ -49,6 +50,7 @@ import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 
 @Service
 public class JMeterService {
@@ -226,13 +228,16 @@ public class JMeterService {
                     file = new File(path + "/");
                 }
                 FileSystemResource resource = new FileSystemResource(file);
-                ByteArrayResource byteArrayResource = new ByteArrayResource(this.fileToByte(file)) {
-                    @Override
-                    public String getFilename() throws IllegalStateException {
-                        return resource.getFilename();
-                    }
-                };
-                jarFiles.add(byteArrayResource);
+                byte[] fileByte = this.fileToByte(file);
+                if (fileByte != null) {
+                    ByteArrayResource byteArrayResource = new ByteArrayResource(fileByte) {
+                        @Override
+                        public String getFilename() throws IllegalStateException {
+                            return resource.getFilename();
+                        }
+                    };
+                    jarFiles.add(byteArrayResource);
+                }
 
             } catch (Exception e) {
                 LogUtil.error(e.getMessage(), e);
@@ -251,20 +256,23 @@ public class JMeterService {
                 File file = new File(bodyFile.getName());
                 if (file != null && !file.exists()) {
                     FileSystemResource resource = new FileSystemResource(file);
-                    ByteArrayResource byteArrayResource = new ByteArrayResource(this.fileToByte(file)) {
-                        @Override
-                        public String getFilename() throws IllegalStateException {
-                            return resource.getFilename();
-                        }
-                    };
-                    multipartFiles.add(byteArrayResource);
+                    byte[] fileByte = this.fileToByte(file);
+                    if (fileByte != null) {
+                        ByteArrayResource byteArrayResource = new ByteArrayResource(fileByte) {
+                            @Override
+                            public String getFilename() throws IllegalStateException {
+                                return resource.getFilename();
+                            }
+                        };
+                        multipartFiles.add(byteArrayResource);
+                    }
                 }
             }
         }
         return multipartFiles;
     }
 
-    public void runTest(String testId, HashTree hashTree, String runMode, RunModeConfig config) {
+    public void runTest(String testId, HashTree hashTree, String runMode, boolean isDebug, RunModeConfig config) {
         // 获取JMX使用到的附件
         List<Object> multipartFiles = getMultipartFiles(hashTree);
         // 获取JAR
@@ -296,8 +304,10 @@ public class JMeterService {
         try {
             RunRequest runRequest = new RunRequest();
             runRequest.setTestId(testId);
+            runRequest.setDebug(isDebug);
             runRequest.setRunMode(runMode);
             runRequest.setConfig(config);
+            runRequest.setUserId(Objects.requireNonNull(SessionUtils.getUser()).getId());
             runRequest.setJmx(new MsTestPlan().getJmx(hashTree));
             MultiValueMap<String, Object> postParameters = new LinkedMultiValueMap<>();
             postParameters.put("files", multipartFiles);
@@ -310,11 +320,9 @@ public class JMeterService {
             HttpEntity<MultiValueMap<String, Object>> request = new HttpEntity<>(postParameters, headers);
 
             String result = restTemplate.postForObject(uri, request, String.class);
-            if (result == null) {
-                MSException.throwException(Translator.get("start_engine_fail"));
+            if (result == null || !StringUtils.equals("SUCCESS",result)) {
+                MSException.throwException("执行失败："+ result);
             }
-        } catch (MSException e) {
-            throw e;
         } catch (Exception e) {
             e.printStackTrace();
             MSException.throwException("Please check node-controller status.");

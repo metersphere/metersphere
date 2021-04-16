@@ -884,7 +884,8 @@ public class ApiAutomationService {
         // 调用执行方法
         List<String> reportIds = new LinkedList<>();
         HashTree hashTree = generateHashTree(apiScenarios, request, reportIds);
-        jMeterService.runSerial(JSON.toJSONString(reportIds), hashTree, request.getReportId(), runMode, request.getConfig());
+        // jMeterService.runSerial(JSON.toJSONString(reportIds), hashTree, request.getReportId(), runMode, request.getConfig());
+        jMeterService.runTest(JSON.toJSONString(reportIds), hashTree, runMode, false, request.getConfig());
         return request.getId();
     }
 
@@ -951,9 +952,9 @@ public class ApiAutomationService {
         createScenarioReport(request.getId(), request.getScenarioId(), request.getScenarioName(), ReportTriggerMode.MANUAL.name(), request.getExecuteType(), request.getProjectId(),
                 SessionUtils.getUserId(), null);
         // 调用执行方法
-        // jMeterService.runTest(request.getId(), hashTree, ApiRunMode.SCENARIO.name(), null);
+        jMeterService.runTest(request.getId(), hashTree, ApiRunMode.SCENARIO.name(), true, null);
         // 调用执行方法
-        jMeterService.runDefinition(request.getId(), hashTree, request.getReportId(), ApiRunMode.SCENARIO.name());
+        // jMeterService.runDefinition(request.getId(), hashTree, request.getReportId(), ApiRunMode.SCENARIO.name());
         return request.getId();
     }
 

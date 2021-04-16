@@ -146,10 +146,11 @@ public class MsKafkaListener {
 
             }
         }
-        if (report != null && StringUtils.equals(ReportTriggerMode.API.name(), report.getTriggerMode()) || StringUtils.equals(ReportTriggerMode.SCHEDULE.name(), report.getTriggerMode())) {
-            sendTask(report, reportUrl, testResult);
+        if (report != null) {
+            if (StringUtils.equals(ReportTriggerMode.API.name(), report.getTriggerMode()) || StringUtils.equals(ReportTriggerMode.SCHEDULE.name(), report.getTriggerMode())) {
+                sendTask(report, reportUrl, testResult);
+            }
         }
-
     }
 
     private static void sendTask(ApiTestReport report, String reportUrl, TestResult testResult) {

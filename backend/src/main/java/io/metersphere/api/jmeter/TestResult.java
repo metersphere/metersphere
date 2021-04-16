@@ -14,6 +14,8 @@ public class TestResult {
 
     private String reportName;
 
+    private String userId;
+
     private boolean isDebug;
 
     private String runMode;
