@@ -4,6 +4,7 @@ import io.metersphere.api.dto.mockconfig.response.MockConfigResponse;
 import io.metersphere.api.dto.mockconfig.response.MockExpectConfigResponse;
 import io.metersphere.api.service.ApiDefinitionService;
 import io.metersphere.api.service.MockConfigService;
+import io.metersphere.controller.handler.annotation.NoResultHolder;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.rsocket.RSocketRequester;
 import org.springframework.messaging.rsocket.annotation.ConnectMapping;
@@ -30,6 +31,7 @@ public class MockApiController {
     private ApiDefinitionService apiDefinitionService;
 
     @PostMapping("/{apiId}/**")
+    @NoResultHolder
     public String postRequest(@PathVariable String apiId, HttpServletRequest request, HttpServletResponse response) {
         Map<String, String> paramMap = mockConfigService.getPostParamMap(request);
         String returnStr = "";
@@ -46,6 +48,7 @@ public class MockApiController {
     }
 
     @GetMapping("/{apiId}/**")
+    @NoResultHolder
     public String getRequest(@PathVariable String apiId, HttpServletRequest request, HttpServletResponse response) {
         Map<String, String> paramMap = mockConfigService.getGetParamMap(request, apiId);
         String returnStr = "";
@@ -62,6 +65,7 @@ public class MockApiController {
     }
 
     @PutMapping("/{apiId}/**")
+    @NoResultHolder
     public String putRequest(@PathVariable String apiId, HttpServletRequest request, HttpServletResponse response) {
         Map<String, String> paramMap = mockConfigService.getPostParamMap(request);
 
@@ -79,6 +83,7 @@ public class MockApiController {
     }
 
     @PatchMapping("/{apiId}/**")
+    @NoResultHolder
     public String patchRequest(@PathVariable String apiId, HttpServletRequest request, HttpServletResponse response) {
         Map<String, String> paramMap = mockConfigService.getPostParamMap(request);
         String returnStr = "";
@@ -95,6 +100,7 @@ public class MockApiController {
     }
 
     @DeleteMapping("/{apiId}/**")
+    @NoResultHolder
     public String deleteRequest(@PathVariable String apiId, HttpServletRequest request, HttpServletResponse response) {
 
         Map<String, String> paramMap = mockConfigService.getGetParamMap(request, apiId);
@@ -113,6 +119,7 @@ public class MockApiController {
     }
 
     @RequestMapping(value = "/{apiId}/**", method = RequestMethod.OPTIONS)
+    @NoResultHolder
     public String optionsRequest(@PathVariable String apiId, HttpServletRequest request, HttpServletResponse response) {
 
         Map<String, String> paramMapPost = mockConfigService.getPostParamMap(request);
@@ -136,6 +143,7 @@ public class MockApiController {
     }
 
     @RequestMapping(value = "/{apiId}/**", method = RequestMethod.HEAD)
+    @NoResultHolder
     public void headRequest(@PathVariable String apiId, HttpServletRequest request, HttpServletResponse response) {
         Map<String, String> paramMap = mockConfigService.getGetParamMap(request, apiId);
         String returnStr = "";

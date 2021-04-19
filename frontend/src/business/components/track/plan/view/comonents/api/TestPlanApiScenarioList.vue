@@ -17,7 +17,7 @@
                                         :total="total"
                                         @selectPageAll="isSelectDataAll(false)"
                                         @selectAll="isSelectDataAll(true)"/>
-        <el-table-column width="20" :resizable="false" align="center">
+        <el-table-column width="40" :resizable="false" align="center">
           <template v-slot:default="{row}">
             <show-more-btn :is-show="isSelect(row)" :buttons="buttons" :size="selectDataCounts"/>
           </template>
@@ -110,7 +110,7 @@ import MsTableHeader from "@/business/components/common/components/MsTableHeader
 import MsTablePagination from "@/business/components/common/pagination/TablePagination";
 import ShowMoreBtn from "@/business/components/track/case/components/ShowMoreBtn";
 import MsTag from "../../../../../common/components/MsTag";
-import {getUUID, strMapToObj} from "@/common/js/utils";
+import {getCurrentProjectID, getUUID, strMapToObj} from "@/common/js/utils";
 import MsApiReportDetail from "../../../../../api/automation/report/ApiReportDetail";
 import MsTableMoreBtn from "../../../../../api/automation/scenario/TableMoreBtn";
 import MsScenarioExtendButtons from "@/business/components/api/automation/scenario/ScenarioExtendBtns";
@@ -305,11 +305,14 @@ export default {
         this.$post("/test/case/review/scenario/case/run", param, response => {});
       }
       if (this.planId) {
-        let param = {config : config,planCaseIds:[]};
+        let selectParam = buildBatchParam(this);
+        let param = {config: config, planCaseIds: []};
         this.selectRows.forEach(row => {
-          this.buildExecuteParam(param,row);
+          this.buildExecuteParam(param, row);
         });
-        this.$post("/test/plan/scenario/case/run", param, response => {});
+        param.condition = selectParam.condition;
+        this.$post("/test/plan/scenario/case/run", param, response => {
+        });
       }
       this.$message('任务执行中，请稍后刷新查看结果');
       this.search();
