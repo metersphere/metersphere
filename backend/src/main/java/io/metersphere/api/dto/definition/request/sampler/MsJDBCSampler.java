@@ -32,7 +32,9 @@ import org.apache.jmeter.save.SaveService;
 import org.apache.jmeter.testelement.TestElement;
 import org.apache.jorphan.collections.HashTree;
 
+import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
@@ -71,9 +73,43 @@ public class MsJDBCSampler extends MsTestElement {
         if (this.getReferenced() != null && MsTestElementConstants.REF.name().equals(this.getReferenced())) {
             this.setRefElement();
         }
-        if (StringUtils.isNotEmpty(dataSourceId)) {
+        if (config.getConfig() == null) {
+            // 单独接口执行
+            this.setProjectId(config.getProjectId());
+            config.setConfig(getEnvironmentConfig(useEnvironment));
+        }
+
+        // 数据兼容处理
+        if (config.getConfig() != null && StringUtils.isNotEmpty(this.getProjectId()) && config.getConfig().containsKey(this.getProjectId())) {
+            // 1.8 之后 当前正常数据
+        } else if (config.getConfig() != null && config.getConfig().containsKey(getParentProjectId())) {
+            // 1.8 前后 混合数据
+            this.setProjectId(getParentProjectId());
+        } else {
+            // 1.8 之前 数据
+            if (config.getConfig() != null) {
+                if (config.getConfig().containsKey("historyProjectID")) {
+                    this.setProjectId("historyProjectID");
+                } else {
+                    // 测试计划执行
+                    Iterator<String> it = config.getConfig().keySet().iterator();
+                    if (it.hasNext()) {
+                        this.setProjectId(it.next());
+                    }
+                }
+            }
+        }
+        // 自选了数据源
+        if (config.isEffective(this.getProjectId()) && CollectionUtils.isNotEmpty(config.getConfig().get(this.getProjectId()).getDatabaseConfigs())
+                && isDataSource(config.getConfig().get(this.getProjectId()).getDatabaseConfigs())) {
             this.dataSource = null;
             this.initDataSource();
+        } else {
+            this.dataSource = null;
+            // 取当前环境下默认的一个数据源
+            if (config.isEffective(this.getProjectId()) && CollectionUtils.isNotEmpty(config.getConfig().get(this.getProjectId()).getDatabaseConfigs())) {
+                this.dataSource = config.getConfig().get(this.getProjectId()).getDatabaseConfigs().get(0);
+            }
         }
         if (this.dataSource == null) {
             MSException.throwException("数据源为空无法执行");
@@ -89,6 +125,25 @@ public class MsJDBCSampler extends MsTestElement {
                 el.toHashTree(samplerHashTree, el.getHashTree(), config);
             });
         }
+    }
+
+    private boolean isDataSource(List<DatabaseConfig> databaseConfigs) {
+        List<String> ids = databaseConfigs.stream().map(DatabaseConfig::getId).collect(Collectors.toList());
+        if (StringUtils.isNotEmpty(this.dataSourceId) && ids.contains(this.dataSourceId)) {
+            return true;
+        }
+        return false;
+    }
+
+    private String getParentProjectId() {
+        MsTestElement parent = this.getParent();
+        while (parent != null) {
+            if (StringUtils.isNotBlank(parent.getProjectId())) {
+                return parent.getProjectId();
+            }
+            parent = parent.getParent();
+        }
+        return "";
     }
 
     private void setRefElement() {

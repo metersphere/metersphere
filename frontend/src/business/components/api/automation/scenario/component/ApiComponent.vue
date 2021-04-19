@@ -41,11 +41,11 @@
                         :request="request"
                         :showScript="false"
                         ref="esbDefinition"/>
-        <ms-tcp-basis-parameters v-if="(request.protocol==='TCP'|| request.type==='TCPSampler')&&request.esbDataStruct==null "
+        <ms-tcp-basis-parameters v-if="(request.protocol==='TCP'|| request.type==='TCPSampler')&& request.esbDataStruct==null "
                                  :request="request"
                                  :showScript="false"/>
         <ms-sql-basis-parameters v-if="request.protocol==='SQL'|| request.type==='JDBCSampler'"
-                                 :request="request"
+                                 :request="request" :is-scenario="true" :environment="environment"
                                  :showScript="false"/>
         <ms-dubbo-basis-parameters v-if="request.protocol==='DUBBO' || request.protocol==='dubbo://'|| request.type==='DubboSampler'"
                                    :request="request"
@@ -64,7 +64,7 @@
           </el-tabs>
         </div>
         <div v-else-if="showXpackCompnent&&request.backEsbDataStruct != null">
-          <esb-definition-response v-xpack v-if="showXpackCompnent"  :currentProtocol="request.protocol" :request="request" :is-api-component="false"
+          <esb-definition-response v-xpack v-if="showXpackCompnent" :currentProtocol="request.protocol" :request="request" :is-api-component="false"
                                    :show-options-button="false" :show-header="true" :result="request.requestResult"/>
         </div>
         <div v-else>
@@ -134,6 +134,7 @@
         runData: [],
         isShowInput: false,
         showXpackCompnent: false,
+        environment: {},
       }
     },
     created() {
@@ -161,6 +162,12 @@
       }
       if (requireComponent != null && JSON.stringify(esbDefinition) != '{}' && JSON.stringify(esbDefinitionResponse) != '{}') {
         this.showXpackCompnent = true;
+      }
+      this.getEnvironments();
+    },
+    watch: {
+      envMap() {
+        this.getEnvironments();
       }
     },
     computed: {
@@ -219,6 +226,13 @@
       },
     },
     methods: {
+      getEnvironments() {
+        this.environment = {};
+        let id = this.envMap.get(this.request.projectId);
+        this.$get('/api/environment/get/' + id, response => {
+          this.environment = response.data;
+        });
+      },
       remove() {
         this.$emit('remove', this.request, this.node);
       },
