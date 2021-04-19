@@ -29,9 +29,10 @@
         </template>
       </el-table-column>
       <el-table-column
-        label="ThreadGroup">
+        :label="$t('load_test.thread_group')">
         <template v-slot:default="{row}">
-          <el-select v-model="row.tgType" :placeholder="$t('commons.please_select')" size="small" @change="tgTypeChange(row)">
+          <el-select v-model="row.tgType" :placeholder="$t('commons.please_select')" size="small"
+                     @change="tgTypeChange(row)">
             <el-option v-for="tg in threadGroupForSelect" :key="tg.tagName" :label="tg.name"
                        :value="tg.testclass"></el-option>
           </el-select>
@@ -154,13 +155,13 @@ export default {
       selectIds: new Set(),
       threadGroupForSelect: [
         {
-          name: 'ThreadGroup',
+          name: this.$t('load_test.thread_group'),
           tagName: 'ThreadGroup',
           testclass: 'ThreadGroup',
           guiclass: 'ThreadGroupGui'
         },
         {
-          name: 'ConcurrencyThreadGroup',
+          name: this.$t('load_test.concurrency_thread_group'),
           tagName: 'com.blazemeter.jmeter.threads.concurrency.ConcurrencyThreadGroup',
           testclass: 'com.blazemeter.jmeter.threads.concurrency.ConcurrencyThreadGroup',
           guiclass: "com.blazemeter.jmeter.threads.concurrency.ConcurrencyThreadGroupGui"
