@@ -36,11 +36,12 @@
           </el-table-column>
           <el-table-column
             prop="maxUsers"
-            label="并发用户数">
+            :label="$t('report.max_users')">
           </el-table-column>
           <el-table-column
+            width="150"
             prop="avgResponseTime"
-            label="响应时间">
+            :label="$t('report.response_time')">
           </el-table-column>
           <el-table-column
             prop="tps"
@@ -188,6 +189,16 @@ export default {
         this.total = data.itemCount;
         this.tableData = data.listObject;
         this.selectRows = new Set();
+
+        this.tableData.forEach(report => {
+          if (!report.maxUsers) {
+            this.result = this.$get('/performance/report/content/testoverview/' + report.id, response => {
+              this.$set(report, 'maxUsers', response.data.maxUsers);
+              this.$set(report, 'avgResponseTime', response.data.avgResponseTime);
+              this.$set(report, 'tps', response.data.avgTransactions);
+            });
+          }
+        });
       });
     },
     search(combine) {

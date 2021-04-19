@@ -460,6 +460,8 @@ export default {
     not_exist: "Test report does not exist",
     batch_delete: "Delete reports in bulk",
     delete_batch_confirm: 'Confirm batch delete report',
+    response_time: 'Response Time(s)',
+    max_users: 'VUs'
   },
   load_test: {
     completed_test_report: 'Completed test report',

@@ -467,6 +467,8 @@ export default {
     not_exist: "测试报告不存在",
     batch_delete: "批量删除报告",
     delete_batch_confirm: '确认批量删除报告',
+    response_time: '响应时间(s)',
+    max_users: '并发数'
   },
   load_test: {
     completed_test_report: '已完成测试报告',
@@ -501,7 +503,7 @@ export default {
     delete_file_confirm: '确认删除文件: ',
     file_size_limit: "文件个数超出限制！",
     delete_file: "文件已存在，请先删除同名文件！",
-    thread_num: '并发用户数：',
+    thread_num: '并发用户数',
     input_thread_num: '请输入线程数',
     duration: '压测时长',
     granularity: '聚合时间（秒）',
