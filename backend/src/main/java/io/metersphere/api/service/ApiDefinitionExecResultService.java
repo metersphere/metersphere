@@ -55,7 +55,7 @@ public class ApiDefinitionExecResultService {
                         ApiDefinitionExecResult saveResult = new ApiDefinitionExecResult();
                         saveResult.setId(UUID.randomUUID().toString());
                         saveResult.setCreateTime(item.getStartTime());
-                        saveResult.setUserId(Objects.requireNonNull(SessionUtils.getUser()).getId());
+                        saveResult.setUserId(result.getUserId());
                         saveResult.setName(item.getName());
                         if (item.getName().indexOf("<->") != -1) {
                             saveResult.setName(item.getName().substring(0, item.getName().indexOf("<->")));
