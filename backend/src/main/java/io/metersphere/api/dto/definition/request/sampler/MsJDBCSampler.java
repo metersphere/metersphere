@@ -3,16 +3,24 @@ package io.metersphere.api.dto.definition.request.sampler;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.annotation.JSONType;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.metersphere.api.dto.definition.request.MsTestElement;
 import io.metersphere.api.dto.definition.request.ParameterConfig;
 import io.metersphere.api.dto.scenario.DatabaseConfig;
 import io.metersphere.api.dto.scenario.KeyValue;
 import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
+import io.metersphere.api.service.ApiDefinitionService;
+import io.metersphere.api.service.ApiTestCaseService;
 import io.metersphere.api.service.ApiTestEnvironmentService;
+import io.metersphere.base.domain.ApiDefinitionWithBLOBs;
+import io.metersphere.base.domain.ApiTestCaseWithBLOBs;
 import io.metersphere.base.domain.ApiTestEnvironmentWithBLOBs;
 import io.metersphere.commons.constants.MsTestElementConstants;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.CommonBeanFactory;
+import io.metersphere.commons.utils.LogUtil;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.collections.CollectionUtils;
@@ -46,8 +54,6 @@ public class MsJDBCSampler extends MsTestElement {
     private List<KeyValue> variables;
     @JSONField(ordinal = 26)
     private String environmentId;
-    //    @JSONField(ordinal = 27)
-//    private Object requestResult;
     @JSONField(ordinal = 28)
     private String dataSourceId;
     @JSONField(ordinal = 29)
@@ -63,7 +69,7 @@ public class MsJDBCSampler extends MsTestElement {
             return;
         }
         if (this.getReferenced() != null && MsTestElementConstants.REF.name().equals(this.getReferenced())) {
-            this.getRefElement(this);
+            this.setRefElement();
         }
         if (StringUtils.isNotEmpty(dataSourceId)) {
             this.dataSource = null;
@@ -82,6 +88,51 @@ public class MsJDBCSampler extends MsTestElement {
             hashTree.forEach(el -> {
                 el.toHashTree(samplerHashTree, el.getHashTree(), config);
             });
+        }
+    }
+
+    private void setRefElement() {
+        try {
+            ApiDefinitionService apiDefinitionService = CommonBeanFactory.getBean(ApiDefinitionService.class);
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+            if (StringUtils.equals(this.getRefType(), "CASE")) {
+                ApiTestCaseService apiTestCaseService = CommonBeanFactory.getBean(ApiTestCaseService.class);
+                ApiTestCaseWithBLOBs bloBs = apiTestCaseService.get(this.getId());
+                if (bloBs != null) {
+                    this.setProjectId(bloBs.getProjectId());
+                    MsJDBCSampler proxy = mapper.readValue(bloBs.getRequest(), new TypeReference<MsJDBCSampler>() {
+                    });
+                    this.setHashTree(proxy.getHashTree());
+                    this.setName(bloBs.getName());
+                    this.setDataSource(proxy.getDataSource());
+                    this.setDataSourceId(proxy.getDataSourceId());
+                    this.setQuery(proxy.getQuery());
+                    this.setVariables(proxy.getVariables());
+                    this.setVariableNames(proxy.getVariableNames());
+                    this.setResultVariable(proxy.getResultVariable());
+                    this.setQueryTimeout(proxy.getQueryTimeout());
+                }
+            } else {
+                ApiDefinitionWithBLOBs apiDefinition = apiDefinitionService.getBLOBs(this.getId());
+                if (apiDefinition != null) {
+                    this.setProjectId(apiDefinition.getProjectId());
+                    MsJDBCSampler proxy = mapper.readValue(apiDefinition.getRequest(), new TypeReference<MsJDBCSampler>() {
+                    });
+                    this.setHashTree(proxy.getHashTree());
+                    this.setName(apiDefinition.getName());
+                    this.setDataSource(proxy.getDataSource());
+                    this.setDataSourceId(proxy.getDataSourceId());
+                    this.setQuery(proxy.getQuery());
+                    this.setVariables(proxy.getVariables());
+                    this.setVariableNames(proxy.getVariableNames());
+                    this.setResultVariable(proxy.getResultVariable());
+                    this.setQueryTimeout(proxy.getQueryTimeout());
+                }
+            }
+        } catch (Exception ex) {
+            ex.printStackTrace();
+            LogUtil.error(ex.getMessage());
         }
     }
 

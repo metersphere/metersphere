@@ -35,11 +35,11 @@
       if (!this.result) {
         this.getExecResult();
         if (this.apiItem.isActive) {
-          this.isActive = true;
+         // this.isActive = true;
         }
       } else {
         this.response = this.result;
-        this.isActive = true;
+        // this.isActive = true;
       }
     },
     watch: {
