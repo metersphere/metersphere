@@ -14,6 +14,7 @@ import io.metersphere.i18n.Translator;
 import io.metersphere.notice.sender.NoticeModel;
 import io.metersphere.notice.service.NoticeSendService;
 import io.metersphere.service.SystemParameterService;
+import io.metersphere.track.service.TestPlanApiCaseService;
 import io.metersphere.track.service.TestPlanReportService;
 import io.metersphere.track.service.TestPlanTestCaseService;
 import org.apache.commons.collections4.CollectionUtils;
@@ -61,6 +62,8 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
     private ApiTestCaseService apiTestCaseService;
 
     private ApiAutomationService apiAutomationService;
+
+    private TestPlanApiCaseService testPlanApiCaseService;
 
     public String runMode = ApiRunMode.RUN.name();
 
@@ -121,6 +124,10 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
         apiAutomationService = CommonBeanFactory.getBean(ApiAutomationService.class);
         if (apiAutomationService == null) {
             LogUtil.error("apiAutomationService is required");
+        }
+        testPlanApiCaseService = CommonBeanFactory.getBean(TestPlanApiCaseService.class);
+        if (testPlanApiCaseService == null) {
+            LogUtil.error("testPlanApiCaseService is required");
         }
         super.setupTest(context);
     }
@@ -195,16 +202,60 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
         } else if (StringUtils.equals(this.runMode, ApiRunMode.JENKINS.name())) {
             apiDefinitionService.addResult(testResult);
             apiDefinitionExecResultService.saveApiResult(testResult, ApiRunMode.DEFINITION.name());
+            ApiTestCaseWithBLOBs apiTestCaseWithBLOBs = apiTestCaseService.getInfoJenkins(testResult.getTestId());
+            ApiDefinitionExecResult apiResult = apiDefinitionExecResultService.getInfo(apiTestCaseWithBLOBs.getLastResultId());
+            //环境
+            String name = apiAutomationService.get(debugReportId).getName();
+            //时间
+            Long time = apiTestCaseWithBLOBs.getUpdateTime();
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            String executionTime = null;
+            String time_ = String.valueOf(time);
+            if (!time_.equals("null")) {
+                executionTime = sdf.format(new Date(Long.parseLong(time_)));
+            }
+
+            //执行人
+            String userName = apiAutomationService.getUser(apiTestCaseWithBLOBs.getCreateUserId()).getName();
+
+            //报告内容
+            reportTask = new ApiTestReportVariable();
+            reportTask.setStatus(apiResult.getStatus());
+            reportTask.setId(apiResult.getId());
+            reportTask.setTriggerMode("API");
+            reportTask.setName(apiTestCaseWithBLOBs.getName());
+            reportTask.setExecutor(userName);
+            reportTask.setExecutionTime(executionTime);
+            reportTask.setExecutionEnvironment(name);
         } else if (StringUtils.equals(this.runMode, ApiRunMode.JENKINS_API_PLAN.name())) {
             apiDefinitionService.addResult(testResult);
             apiDefinitionExecResultService.saveApiResult(testResult, ApiRunMode.API_PLAN.name());
-            ApiDefinitionExecResult result = new ApiDefinitionExecResult();
-            result = apiDefinitionService.getResultByJenkins(debugReportId, ApiRunMode.API_PLAN.name());
-            report = new ApiTestReport();
-            report.setStatus(result.getStatus());
-            report.setId(result.getId());
-            report.setTriggerMode(ApiRunMode.API.name());
-            report.setName(apiDefinitionService.getApiCaseInfo(testId).getName());
+            ApiTestCaseWithBLOBs apiTestCaseWithBLOBs = apiTestCaseService.getInfoJenkins(testResult.getTestId());
+            ApiDefinitionExecResult apiResult = apiDefinitionExecResultService.getInfo(apiTestCaseWithBLOBs.getLastResultId());
+            //环境
+            TestPlanApiCase testPlanApiCase = testPlanApiCaseService.getInfo(testResult.getTestId(), debugReportId);
+            String name = apiAutomationService.get(testPlanApiCase.getEnvironmentId()).getName();
+            //时间
+            Long time = apiTestCaseWithBLOBs.getUpdateTime();
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+            String executionTime = null;
+            String time_ = String.valueOf(time);
+            if (!time_.equals("null")) {
+                executionTime = sdf.format(new Date(Long.parseLong(time_)));
+            }
+
+            //执行人
+            String userName = apiAutomationService.getUser(apiTestCaseWithBLOBs.getCreateUserId()).getName();
+
+            //报告内容
+            reportTask = new ApiTestReportVariable();
+            reportTask.setStatus(apiResult.getStatus());
+            reportTask.setId(apiResult.getId());
+            reportTask.setTriggerMode("API");
+            reportTask.setName(apiTestCaseWithBLOBs.getName());
+            reportTask.setExecutor(userName);
+            reportTask.setExecutionTime(executionTime);
+            reportTask.setExecutionEnvironment(name);
         } else if (StringUtils.equalsAny(this.runMode, ApiRunMode.API_PLAN.name(), ApiRunMode.SCHEDULE_API_PLAN.name())) {
             apiDefinitionService.addResult(testResult);
 

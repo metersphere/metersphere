@@ -81,12 +81,18 @@ public class ApiTestCaseService {
 
     private static final String BODY_FILE_DIR = FileUtils.BODY_FILE_DIR;
 
+    //查询测试用例详情
+    public ApiTestCaseWithBLOBs getInfoJenkins(String id) {
+        ApiTestCaseWithBLOBs apiTest = apiTestCaseMapper.selectByPrimaryKey(id);
+        return apiTest;
+    }
+
     public List<ApiTestCaseResult> list(ApiTestCaseRequest request) {
         request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
         List<ApiTestCaseResult> returnList = extApiTestCaseMapper.list(request);
 
         for (ApiTestCaseResult res : returnList) {
-            if(StringUtils.equalsIgnoreCase(res.getApiMethod(),"esb")){
+            if (StringUtils.equalsIgnoreCase(res.getApiMethod(), "esb")) {
                 esbApiParamService.handleApiEsbParams(res);
             }
         }
@@ -558,13 +564,20 @@ public class ApiTestCaseService {
     }
 
     public String run(RunCaseRequest request) {
-        ApiTestCaseWithBLOBs testCaseWithBLOBs=new ApiTestCaseWithBLOBs();
-        if(StringUtils.equals(request.getRunMode(), ApiRunMode.JENKINS_API_PLAN.name())){
-            testCaseWithBLOBs= apiTestCaseMapper.selectByPrimaryKey(request.getReportId());
+        ApiTestCaseWithBLOBs testCaseWithBLOBs = new ApiTestCaseWithBLOBs();
+        if (StringUtils.equals(request.getRunMode(), ApiRunMode.JENKINS_API_PLAN.name())) {
+            testCaseWithBLOBs = apiTestCaseMapper.selectByPrimaryKey(request.getReportId());
             request.setCaseId(request.getReportId());
-        }else{
-            testCaseWithBLOBs= apiTestCaseMapper.selectByPrimaryKey(request.getCaseId());
+        } else {
+            testCaseWithBLOBs = apiTestCaseMapper.selectByPrimaryKey(request.getCaseId());
 
+        }
+        if (StringUtils.equals(request.getRunMode(), ApiRunMode.JENKINS.name())) {
+            request.setReportId(request.getEnvironmentId());
+        }
+        if (StringUtils.equals(request.getRunMode(), ApiRunMode.JENKINS_API_PLAN.name())) {
+            //通过测试计划id查询环境
+            request.setReportId(request.getTestPlanId());
         }
         // 多态JSON普通转换会丢失内容，需要通过 ObjectMapper 获取
         if (testCaseWithBLOBs != null && StringUtils.isNotEmpty(testCaseWithBLOBs.getRequest())) {
