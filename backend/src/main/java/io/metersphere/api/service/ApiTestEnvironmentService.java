@@ -139,7 +139,7 @@ public class ApiTestEnvironmentService {
 
         JSONObject tcpConfigObj = new JSONObject();
         tcpConfigObj.put("classname", "TCPClientImpl");
-        tcpConfigObj.put("reUseConnection", true);
+        tcpConfigObj.put("reUseConnection", false);
         tcpConfigObj.put("nodelay", false);
         tcpConfigObj.put("closeConnection", false);
 

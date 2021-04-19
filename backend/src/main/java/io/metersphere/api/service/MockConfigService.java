@@ -10,7 +10,9 @@ import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.ApiDefinitionMapper;
 import io.metersphere.base.mapper.MockConfigMapper;
 import io.metersphere.base.mapper.MockExpectConfigMapper;
+import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.SessionUtils;
+import io.metersphere.i18n.Translator;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -88,6 +90,8 @@ public class MockConfigService {
     }
 
     public MockExpectConfig updateMockExpectConfig(MockExpectConfigRequest request) {
+        //检查名称是否存在
+        this.checkNameIsExists(request);
         boolean isSave = false;
         if (StringUtils.isEmpty(request.getId())) {
             isSave = true;
@@ -118,6 +122,15 @@ public class MockConfigService {
             mockExpectConfigMapper.updateByPrimaryKeySelective(model);
         }
         return model;
+    }
+
+    private void checkNameIsExists(MockExpectConfigRequest request) {
+        MockExpectConfigExample example = new MockExpectConfigExample();
+        example.createCriteria().andMockConfigIdEqualTo(request.getMockConfigId()).andNameEqualTo(request.getName().trim());
+        long count = mockExpectConfigMapper.countByExample(example);
+        if (count > 0) {
+            MSException.throwException(Translator.get("expect_name_exists") + ":" + request.getName());
+        }
     }
 
     public MockExpectConfigResponse findExpectConfig(List<MockExpectConfigResponse> mockExpectConfigList, Map<String, String> paramMap) {

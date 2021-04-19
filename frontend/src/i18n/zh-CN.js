@@ -619,6 +619,7 @@ export default {
       base_info: "基本信息",
       req_param: "请求参数",
       rsp_param: "响应内容",
+      delete_mock_expect: "确认删除这条预期吗？",
     },
     definition: {
       api_title: "接口列表",

@@ -610,6 +610,7 @@ export default {
       base_info: "Base info",
       req_param: "Request params",
       rsp_param: "Response Params",
+      delete_mock_expect: "Confirm to delete this expect info ?",
     },
     definition: {
       api_title: "Api test",

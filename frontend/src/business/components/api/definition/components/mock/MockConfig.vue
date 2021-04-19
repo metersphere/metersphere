@@ -3,7 +3,7 @@
     <p class="tip">期望列表</p>
     <div class="card">
       <el-input :placeholder="$t('commons.search_by_name')" class="search-input" size="small"
-                clearable="serchInputClearable"
+                :clearable="serchInputClearable"
                 v-model="tableSearch"/>
       <el-table ref="table" border
                 :data="mockConfigData.mockExpectConfigList.filter(data=>!tableSearch || data.name.toLowerCase().includes(tableSearch.toLowerCase()))"
@@ -117,7 +117,7 @@
                                 :items="mockExpectConfig.response.httpHeads" ref="rspHttpHead"/>
           </el-row>
           <el-row style="margin-top: 10px;">
-            <el-form-item label="Body:" label-width="50px" prop="response.body">
+            <el-form-item label="Body:" label-width="50px">
               <ms-code-edit height="200px" :mode="'txt'" ref="codeEdit" :data.sync="mockExpectConfig.response.body"
                             style="margin-top: 10px;"/>
             </el-form-item>
@@ -197,7 +197,6 @@ export default {
         response: {
           httpCode: [{required: true, message: this.$t('test_track.case.input_name'), trigger: 'blur'},],
           delayed: [{required: true, message: this.$t('test_track.case.input_name'), trigger: 'blur'},],
-          body: [{required: true, message: this.$t('test_track.case.input_name'), trigger: 'blur'},],
         },
       },
     };
@@ -244,16 +243,29 @@ export default {
       });
     },
     removeExpect(row) {
-      let mockInfoId = row.mockConfigId;
-      let selectUrl = "/mockConfig/deleteMockExpectConfig/" + row.id;
-      this.$get(selectUrl, response => {
-        this.cleanMockExpectConfig();
-        this.refreshMockInfo(mockInfoId);
+      this.$confirm(this.$t('api_test.mock.delete_mock_expect'), this.$t('commons.prompt'), {
+        confirmButtonText: this.$t('commons.confirm'),
+        cancelButtonText: this.$t('commons.cancel'),
+        type: 'warning'
+      }).then(() => {
+        let mockInfoId = row.mockConfigId;
+        let selectUrl = "/mockConfig/deleteMockExpectConfig/" + row.id;
+        this.$get(selectUrl, response => {
+          this.cleanMockExpectConfig();
+          this.refreshMockInfo(mockInfoId);
+          this.$message({
+            type: 'success',
+            message: this.$t('commons.delete_success'),
+          });
+        });
+      }).catch(() => {
       });
+
     },
     saveMockExpectConfig() {
       let mockConfigId = this.mockConfigData.mockConfig.id;
       this.mockExpectConfig.mockConfigId = mockConfigId;
+      this.mockExpectConfig.id = "";
       let formCheckResult = this.checkMockExpectForm("mockExpectForm");
       this.cleanMockExpectConfig();
     },
@@ -289,6 +301,10 @@ export default {
         let returnData = response.data;
         this.mockExpectConfig.id = returnData.id;
         this.refreshMockInfo(param.mockConfigId);
+        this.$message({
+          type: 'success',
+          message: this.$t('commons.save_success'),
+        });
       });
     },
     refreshMockInfo(mockConfigId) {
