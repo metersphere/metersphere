@@ -2,7 +2,9 @@ package io.metersphere.notice.service;
 
 import io.metersphere.base.domain.MessageTask;
 import io.metersphere.base.domain.MessageTaskExample;
+import io.metersphere.base.mapper.LoadTestReportMapper;
 import io.metersphere.base.mapper.MessageTaskMapper;
+import io.metersphere.base.mapper.UserMapper;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.user.SessionUser;
 import io.metersphere.commons.utils.LogUtil;
@@ -23,6 +25,10 @@ import java.util.stream.Collectors;
 public class NoticeService {
     @Resource
     private MessageTaskMapper messageTaskMapper;
+    @Resource
+    private LoadTestReportMapper loadTestReportMapper;
+    @Resource
+    private UserMapper userMapper;
 
     public void saveMessageTask(MessageDetail messageDetail) {
         MessageTaskExample example = new MessageTaskExample();
@@ -108,6 +114,42 @@ public class NoticeService {
             String orgId = user.getLastOrganizationId();
             List<MessageDetail> messageDetails = new ArrayList<>();
 
+            MessageTaskExample example = new MessageTaskExample();
+            example.createCriteria()
+                    .andTaskTypeEqualTo(type)
+                    .andOrganizationIdEqualTo(orgId);
+            List<MessageTask> messageTaskLists = messageTaskMapper.selectByExampleWithBLOBs(example);
+
+            Map<String, List<MessageTask>> messageTaskMap = messageTaskLists.stream()
+                    .collect(Collectors.groupingBy(NoticeService::fetchGroupKey));
+            messageTaskMap.forEach((k, v) -> {
+                MessageDetail messageDetail = getMessageDetail(v);
+                messageDetails.add(messageDetail);
+            });
+
+            return messageDetails.stream()
+                    .sorted(Comparator.comparing(MessageDetail::getCreateTime, Comparator.nullsLast(Long::compareTo)).reversed())
+                    .collect(Collectors.toList())
+                    .stream()
+                    .distinct()
+                    .collect(Collectors.toList());
+        } catch (Exception e) {
+            LogUtil.error(e.getMessage(), e);
+            return new ArrayList<>();
+        }
+    }
+
+    public List<MessageDetail> searchMessageByTypeBySend(String type, String id) {
+        try {
+            String orgId = "";
+            if (null == SessionUtils.getUser()) {
+                String userId = loadTestReportMapper.selectByPrimaryKey(id).getUserId();
+                orgId = userMapper.selectByPrimaryKey(userId).getLastOrganizationId();
+            } else {
+                SessionUser user = SessionUtils.getUser();
+                orgId = user.getLastOrganizationId();
+            }
+            List<MessageDetail> messageDetails = new ArrayList<>();
             MessageTaskExample example = new MessageTaskExample();
             example.createCriteria()
                     .andTaskTypeEqualTo(type)
