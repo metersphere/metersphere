@@ -5,6 +5,9 @@
 
     <ms-right2-left-drag-bar v-if="direction == 'right'"/>
 
+    <ms-right2-left-drag-bar v-if="direction == 'default'"/>
+
+
     <div class="ms-drawer-header">
       <slot name="header"></slot>
       <i v-if="isShowClose" class="el-icon-close" @click="close"/>
@@ -120,6 +123,14 @@
               this.directionStyle = 'bottom-style';
               this.dragBarDirection = 'vertical';
               break;
+            default:
+              this.w = this.getWidthPercentage(this.size);
+              this.h = this.getHeightPercentage(100);
+              this.x = document.body.clientWidth - this.w;
+              this.y = 0;
+              this.directionStyle = 'right-style';
+              this.dragBarDirection = 'horizontal';
+              break;
           }
         },
         getWidthPercentage(per) {
@@ -154,6 +165,10 @@
               this.w = document.documentElement.clientWidth;
               break;
             case 'bottom':
+              this.w = document.documentElement.clientWidth;
+              break;
+            default:
+              this.h = document.documentElement.clientHeight;
               this.w = document.documentElement.clientWidth;
               break;
           }
