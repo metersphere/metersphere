@@ -12,7 +12,6 @@
                   @select-all="handleSelectAll"
                   @select="handleSelect"
                   @sort-change="sort"
-                  @row-click="handleEdit"
                   @filter-change="filter"
         >
           <el-table-column
@@ -26,16 +25,9 @@
             prop="name"
             :label="$t('commons.name')"
             show-overflow-tooltip>
-          </el-table-column>
-          <el-table-column
-            prop="testName"
-            :label="$t('report.test_name')"
-            show-overflow-tooltip>
-          </el-table-column>
-          <el-table-column
-            prop="projectName"
-            :label="$t('report.project_name')"
-            show-overflow-tooltip>
+            <template v-slot:default="scope">
+              <span @click="handleEdit(scope.row)" style="cursor: pointer;">{{ scope.row.name }}</span>
+            </template>
           </el-table-column>
           <el-table-column
             prop="userName"
@@ -43,6 +35,19 @@
             show-overflow-tooltip>
           </el-table-column>
           <el-table-column
+            prop="maxUsers"
+            label="并发用户数">
+          </el-table-column>
+          <el-table-column
+            prop="avgResponseTime"
+            label="响应时间">
+          </el-table-column>
+          <el-table-column
+            prop="tps"
+            label="TPS">
+          </el-table-column>
+          <el-table-column
+            width="200"
             prop="createTime"
             sortable
             :label="$t('commons.create_time')">
@@ -50,7 +55,8 @@
               <span>{{ scope.row.createTime | timestampFormatDate }}</span>
             </template>
           </el-table-column>
-          <el-table-column prop="triggerMode" width="150" :label="$t('test_track.report.list.trigger_mode')" column-key="triggerMode"
+          <el-table-column prop="triggerMode" :label="$t('test_track.report.list.trigger_mode')"
+                           column-key="triggerMode"
                            :filters="triggerFilters">
             <template v-slot:default="scope">
               <report-trigger-mode-item :trigger-mode="scope.row.triggerMode"/>
@@ -117,6 +123,7 @@ export default {
     ShowMoreBtn,
   },
   created: function () {
+    this.testId = this.$route.path.split('/')[3];
     this.initTableData();
   },
   data() {
@@ -154,11 +161,15 @@ export default {
         }
       ],
       selectRows: new Set(),
-    }
+    };
   },
   watch: {
     '$route'(to) {
+      if (to.name !== 'perReport') {
+        return;
+      }
       this.projectId = to.params.projectId;
+      this.testId = this.$route.path.split('/')[3];
       this.initTableData();
     }
   },
@@ -166,6 +177,8 @@ export default {
     initTableData() {
       if (this.testId !== 'all') {
         this.condition.testId = this.testId;
+      } else {
+        this.condition.testId = null;
       }
       if (!getCurrentProjectID()) {
         return;
@@ -189,7 +202,7 @@ export default {
     handleEdit(report) {
       this.$router.push({
         path: '/performance/report/view/' + report.id
-      })
+      });
     },
     handleDelete(report) {
       this.$alert(this.$t('report.delete_confirm') + report.name + "？", '', {
@@ -246,7 +259,7 @@ export default {
         this.selectRows.clear();
         this.tableData.forEach(row => {
           this.$set(row, "showMore", false);
-        })
+        });
       }
     },
     handleBatchDelete() {
@@ -263,7 +276,7 @@ export default {
       });
     }
   }
-}
+};
 </script>
 
 <style scoped>
@@ -271,9 +284,4 @@ export default {
 .test-content {
   width: 100%;
 }
-
-.el-table {
-  cursor: pointer;
-}
-
 </style>

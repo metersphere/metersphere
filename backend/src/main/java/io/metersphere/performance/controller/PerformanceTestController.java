@@ -200,4 +200,9 @@ public class PerformanceTestController {
     public List<ScheduleDao> listSchedule(@RequestBody QueryScheduleRequest request) {
         return performanceTestService.listSchedule(request);
     }
+
+    @GetMapping("test/report-count/{testId}")
+    public Long getReportCount(@PathVariable String testId) {
+        return performanceTestService.getReportCountByTestId(testId);
+    }
 }

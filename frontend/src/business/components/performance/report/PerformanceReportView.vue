@@ -159,7 +159,7 @@ export default {
       dialogFormVisible: false,
       reportExportVisible: false,
       testPlan: {testResourcePoolId: null},
-      refreshTime: localStorage.getItem("reportRefreshTime") || "20",
+      refreshTime: localStorage.getItem("reportRefreshTime") || "10",
       refreshTimes: [
         {value: '1', label: '1s'},
         {value: '3', label: '3s'},
