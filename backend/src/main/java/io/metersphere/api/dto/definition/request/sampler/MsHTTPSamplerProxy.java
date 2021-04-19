@@ -490,9 +490,11 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         }
 
         // 环境中请求头
-        Arguments arguments = arguments(httpConfig.getHeaders());
-        if (arguments != null) {
-            tree.add(ParameterConfig.valueSupposeMock(arguments));
+        if (httpConfig != null) {
+            Arguments arguments = arguments(httpConfig.getHeaders());
+            if (arguments != null) {
+                tree.add(ParameterConfig.valueSupposeMock(arguments));
+            }
         }
         return httpConfig;
     }
