@@ -607,6 +607,7 @@ export default {
       base_info: "基本信息",
       req_param: "請求參賽",
       rsp_param: "響應內容",
+      delete_mock_expect: "確認刪除這條預期嗎？",
     },
     definition: {
       api_title: "接口列表",
