@@ -254,6 +254,12 @@ export default {
       url: '當前站點URL',
       url_tip: '例如：http://localhost:8081',
       url_is_null: '當前站點URL不能為空'
+    },
+    prometheus_config: '監控配置',
+    prometheus: {
+      host: 'Prometheus地址',
+      host_tip: '例如:http://ms-prometheus:9090',
+      host_is_null: 'Prometheus地址不能為空'
     }
   },
   workspace: {

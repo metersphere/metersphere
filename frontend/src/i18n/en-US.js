@@ -253,6 +253,12 @@ export default {
       url: 'Website URL',
       url_tip: 'example：http://localhost:8081',
       url_is_null: 'The current site URL cannot be empty'
+    },
+    prometheus_config: 'Prometheus Host',
+    prometheus: {
+      host: 'Prometheus Host',
+      host_tip: 'example: http://ms-prometheus:9090',
+      host_is_null: 'Prometheus Host cannot be empty'
     }
   },
   workspace: {

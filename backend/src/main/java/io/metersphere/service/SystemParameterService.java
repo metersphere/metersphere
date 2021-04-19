@@ -206,6 +206,11 @@ public class SystemParameterService {
         return ldap;
     }
 
+
+    /**
+     * @param key System Param
+     * @return 系统key对应的值 ｜ ""
+     */
     public String getValue(String key) {
         SystemParameter param = systemParameterMapper.selectByPrimaryKey(key);
         if (param == null || StringUtils.isBlank(param.getParamValue())) {
