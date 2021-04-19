@@ -192,3 +192,13 @@ VALUES ('metersphere.module.reportStat', 'ENABLE', 'text', 1);
 INSERT INTO system_parameter (param_key, param_value, type, sort)
 VALUES ('metersphere.module.testTrack', 'ENABLE', 'text', 1);
 
+-- 报告新增的字段
+alter table load_test_report
+    add max_users VARCHAR(10) null;
+
+alter table load_test_report
+    add avg_response_time VARCHAR(10) null;
+
+alter table load_test_report
+    add tps VARCHAR(10) null;
+
