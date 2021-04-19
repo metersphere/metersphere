@@ -255,6 +255,12 @@ export default {
       url_tip: '例如：http://localhost:8081',
       url_is_null: '当前站点URL不能为空'
     },
+    prometheus_config: '监控配置',
+    prometheus: {
+      host: 'Prometheus地址',
+      host_tip: '例如:http://ms-prometheus:9090',
+      host_is_null: 'Prometheus地址不能为空'
+    }
   },
   custom_field: {
     case_status: '用例状态',
