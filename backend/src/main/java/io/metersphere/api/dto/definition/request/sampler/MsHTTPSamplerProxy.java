@@ -118,6 +118,12 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                     MsHTTPSamplerProxy proxy = mapper.readValue(bloBs.getRequest(), new TypeReference<MsHTTPSamplerProxy>() {
                     });
                     this.setHashTree(proxy.getHashTree());
+                    this.setName(bloBs.getName());
+                    this.setMethod(proxy.getMethod());
+                    this.setBody(proxy.getBody());
+                    this.setRest(proxy.getRest());
+                    this.setArguments(proxy.getArguments());
+                    this.setHeaders(proxy.getHeaders());
                 }
             } else {
                 ApiDefinitionWithBLOBs apiDefinition = apiDefinitionService.getBLOBs(this.getId());
@@ -126,6 +132,12 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                     MsHTTPSamplerProxy proxy = mapper.readValue(apiDefinition.getRequest(), new TypeReference<MsHTTPSamplerProxy>() {
                     });
                     this.setHashTree(proxy.getHashTree());
+                    this.setName(apiDefinition.getName());
+                    this.setMethod(proxy.getMethod());
+                    this.setBody(proxy.getBody());
+                    this.setRest(proxy.getRest());
+                    this.setArguments(proxy.getArguments());
+                    this.setHeaders(proxy.getHeaders());
                 }
             }
         } catch (Exception ex) {
@@ -224,7 +236,12 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                     sampler.setPath(urlObject.getPath());
                 } else {
                     sampler.setDomain(httpConfig.getDomain());
-                    url = httpConfig.getProtocol() + "://" + httpConfig.getSocket();
+                    //1.9 增加对Mock环境的判断
+                    if (this.isMockEnvironment()) {
+                        url = url = httpConfig.getProtocol() + "://" + httpConfig.getSocket() + "/mock/" + this.getId();
+                    } else {
+                        url = httpConfig.getProtocol() + "://" + httpConfig.getSocket();
+                    }
                     URL urlObject = new URL(url);
                     String envPath = StringUtils.equals(urlObject.getPath(), "/") ? "" : urlObject.getPath();
                     if (StringUtils.isNotBlank(this.getPath())) {

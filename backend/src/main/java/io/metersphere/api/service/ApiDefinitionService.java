@@ -536,6 +536,7 @@ public class ApiDefinitionService {
         }
         // 调用执行方法
         jMeterService.runDefinition(request.getId(), hashTree, request.getReportId(), runMode);
+        //jMeterService.runTest(request.getId(), hashTree, runMode, request.getReportId() != null, null);
         return request.getId();
     }
 
@@ -936,4 +937,5 @@ public class ApiDefinitionService {
     public List<ApiDefinition> selectEffectiveIdByProjectId(String projectId) {
         return extApiDefinitionMapper.selectEffectiveIdByProjectId(projectId);
     }
+
 }

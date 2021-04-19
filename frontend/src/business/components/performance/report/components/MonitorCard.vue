@@ -4,21 +4,21 @@
       <el-tab-pane v-for="(item,index) in instances" :key="index" :label="item" class="logging-content">
         <el-row>
           <el-col :span="8">
-            <ms-chart ref="chart1" :options="getCpuOption(item)" :autoresize="true"></ms-chart>
+            <ms-chart ref="chart1" class="chart-config" :options="getCpuOption(item)" :autoresize="true"></ms-chart>
           </el-col>
           <el-col :span="8">
-            <ms-chart ref="chart2" :options="getMemoryOption(item)" :autoresize="true"></ms-chart>
+            <ms-chart ref="chart2" class="chart-config" :options="getMemoryOption(item)" :autoresize="true"></ms-chart>
           </el-col>
           <el-col :span="8">
-            <ms-chart ref="chart3" :options="getDiskOption(item)" :autoresize="true"></ms-chart>
+            <ms-chart ref="chart3" class="chart-config" :options="getDiskOption(item)" :autoresize="true"></ms-chart>
           </el-col>
         </el-row>
         <el-row>
           <el-col :span="8">
-            <ms-chart ref="chart3" :options="getNetOutOption(item)" :autoresize="true"></ms-chart>
+            <ms-chart ref="chart3" class="chart-config" :options="getNetOutOption(item)" :autoresize="true"></ms-chart>
           </el-col>
           <el-col :span="8">
-            <ms-chart ref="chart4" :options="getNetInOption(item)" :autoresize="true"></ms-chart>
+            <ms-chart ref="chart4" class="chart-config" :options="getNetInOption(item)" :autoresize="true"></ms-chart>
           </el-col>
         </el-row>
       </el-tab-pane>
@@ -256,5 +256,7 @@ export default {
 </script>
 
 <style scoped>
-
+.chart-config {
+  width: 100%;
+}
 </style>

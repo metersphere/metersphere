@@ -80,7 +80,9 @@ public class CatalogApiController {
                     .body(JSON.parseArray("[]"));
         }
 
-        String[] ipAndPort = service.split("-");
+        int i = service.lastIndexOf("-");
+        String address = service.substring(0, i);
+        String port = service.substring(i + 1);
         String result = "[\n" +
                 "    {\n" +
                 "        \"Node\": {\n" +
@@ -106,9 +108,9 @@ public class CatalogApiController {
                 "            \"Tags\": [\n" +
                 "                \"test\"\n" +
                 "            ],\n" +
-                "            \"Address\": \"" + ipAndPort[0] + "\",\n" +
+                "            \"Address\": \"" + address + "\",\n" +
                 "            \"Meta\": null,\n" +
-                "            \"Port\": " + ipAndPort[1] + ",\n" +
+                "            \"Port\": " + port + ",\n" +
                 "            \"Weights\": {\n" +
                 "                \"Passing\": 1,\n" +
                 "                \"Warning\": 1\n" +

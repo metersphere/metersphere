@@ -34,6 +34,7 @@
 <script>
 import {LicenseKey} from '@/common/js/constants';
 import {mapGetters} from "vuex";
+import {hasLicense} from "@/common/js/utils";
 
 const requireContext = require.context('@/business/components/xpack/', true, /router\.js$/);
 const report = requireContext.keys().map(key => requireContext(key).report);
@@ -95,7 +96,7 @@ export default {
       }
     },
     check(key) {
-      if (module.default !== undefined) {
+      if (module.default !== undefined && hasLicense()) {
         return this.modules[key] === 'ENABLE';
       }
       return true;

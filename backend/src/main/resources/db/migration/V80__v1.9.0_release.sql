@@ -121,8 +121,10 @@ VALUES ('b8921cbc-05b3-4d8f-a96e-d1e4ae9d8664','a577bc60-75fe-47ec-8aa6-32dca23b
 INSERT INTO custom_field_template (id,field_id,template_id,scene,required,default_value)
 VALUES ('d5908553-1b29-4868-9001-e938822b92ef','beb57501-19c8-4ca3-8dfb-2cef7c0ea087','5d7c87d2-f405-4ec1-9a3d-71b514cdfda3','ISSUE',1,'"NEW"');
 
-ALTER TABLE project ADD case_template_id varchar(50) NULL COMMENT 'Relate test case template id';
-ALTER TABLE project ADD issue_template_id varchar(50) NULL COMMENT 'Relate test issue template id';
+ALTER TABLE project
+    ADD case_template_id varchar(50) NULL COMMENT 'Relate test case template id';
+ALTER TABLE project
+    ADD issue_template_id varchar(50) NULL COMMENT 'Relate test issue template id';
 
 -- add test_case
 alter table test_case
@@ -131,13 +133,62 @@ alter table test_case
     add expected_result text null;
 
 -- api_scenario_report modify column length
-ALTER TABLE api_scenario_report MODIFY COLUMN name VARCHAR(3000);
+ALTER TABLE api_scenario_report
+    MODIFY COLUMN name VARCHAR(3000);
 -- api_scenario_report modify column length
 ALTER TABLE api_scenario_report MODIFY COLUMN scenario_id VARCHAR(3000);
 
-
+-- 自定义字段需要修改的用例字段
 ALTER TABLE test_case MODIFY COLUMN maintainer varchar(50) NULL COMMENT 'Test case maintainer';
 ALTER TABLE test_case MODIFY COLUMN priority varchar(50) NULL COMMENT 'Test case priority';
 ALTER TABLE test_case ADD custom_fields TEXT NULL COMMENT 'CustomField';
-
 ALTER TABLE test_plan_test_case ADD actual_result TEXT NULL;
+
+
+ALTER TABLE api_scenario_report
+    MODIFY COLUMN scenario_id VARCHAR(3000);
+
+-- create mock config
+CREATE TABLE IF NOT EXISTS `mock_config`
+(
+    id             varchar(50)   not null,
+    project_id     varchar(50)   not null,
+    api_id         varchar(50)   not null,
+    api_path       varchar(1000) null,
+    api_method     varchar(64)   null,
+    create_time    bigint(13)    null,
+    update_time    bigint(13)    null,
+    create_user_id VARCHAR(64)   null,
+    primary key (id),
+    INDEX `api_id` (`api_id`) USING BTREE,
+    INDEX `project_id` (`project_id`) USING BTREE
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4;
+
+CREATE TABLE IF NOT EXISTS `mock_expect_config`
+(
+    id             varchar(50)   not null,
+    mock_config_id varchar(50)   null,
+    `name`         varchar(255)  null,
+    `tags`         varchar(1000) null,
+    request        longtext      null,
+    response       longtext      null,
+    STATUS         VARCHAR(10)   null,
+    create_time    bigint(13)    null,
+    update_time    bigint(13)    null,
+    create_user_id VARCHAR(64)   null,
+    primary key (id),
+    INDEX `mock_config_id` (`mock_config_id`) USING BTREE
+) ENGINE = InnoDB
+  DEFAULT CHARSET = utf8mb4;
+
+-- module management
+INSERT INTO system_parameter (param_key, param_value, type, sort)
+VALUES ('metersphere.module.api', 'ENABLE', 'text', 1);
+INSERT INTO system_parameter (param_key, param_value, type, sort)
+VALUES ('metersphere.module.performance', 'ENABLE', 'text', 1);
+INSERT INTO system_parameter (param_key, param_value, type, sort)
+VALUES ('metersphere.module.reportStat', 'ENABLE', 'text', 1);
+INSERT INTO system_parameter (param_key, param_value, type, sort)
+VALUES ('metersphere.module.testTrack', 'ENABLE', 'text', 1);
+

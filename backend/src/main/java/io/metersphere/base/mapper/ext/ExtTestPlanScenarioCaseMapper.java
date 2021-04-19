@@ -19,4 +19,7 @@ public interface ExtTestPlanScenarioCaseMapper {
     List<String> getNotRelevanceCaseIds(String planId, List<String> relevanceProjectIds);
 
     List<String> selectIds(@Param("request")TestPlanScenarioRequest request);
+
+    List<TestPlanApiScenario> selectByIds(@Param("ids")String ids ,@Param("oderId")String oderId );
+
 }

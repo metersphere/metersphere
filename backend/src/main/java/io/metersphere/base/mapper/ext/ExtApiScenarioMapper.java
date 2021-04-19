@@ -17,9 +17,12 @@ public interface ExtApiScenarioMapper {
 
     List<ApiScenarioWithBLOBs> selectIds(@Param("ids") List<String> ids);
 
+    List<ApiScenarioWithBLOBs> selectByIds(@Param("ids") String ids,@Param("oderId") String oderId);
+
     List<ApiScenario> selectReference(@Param("request") ApiScenarioRequest request);
 
     int removeToGc(@Param("ids") List<String> ids);
+
 
     int removeToGcByExample(ApiScenarioExample example);
 

@@ -15,12 +15,13 @@ import io.metersphere.base.mapper.ApiScenarioReportDetailMapper;
 import io.metersphere.base.mapper.ApiScenarioReportMapper;
 import io.metersphere.base.mapper.TestPlanApiScenarioMapper;
 import io.metersphere.base.mapper.ext.ExtApiScenarioReportMapper;
-import io.metersphere.base.mapper.ext.ExtTestPlanScenarioCaseMapper;
-import io.metersphere.commons.constants.APITestStatus;
 import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.constants.ReportTriggerMode;
 import io.metersphere.commons.exception.MSException;
-import io.metersphere.commons.utils.*;
+import io.metersphere.commons.utils.CommonBeanFactory;
+import io.metersphere.commons.utils.DateUtils;
+import io.metersphere.commons.utils.ServiceUtils;
+import io.metersphere.commons.utils.SessionUtils;
 import io.metersphere.i18n.Translator;
 import io.metersphere.track.service.TestPlanReportService;
 import org.apache.commons.collections4.CollectionUtils;
@@ -57,9 +58,9 @@ public class ApiScenarioReportService {
         // 更新场景
         if (result != null) {
             if (StringUtils.equals(runMode, ApiRunMode.SCENARIO_PLAN.name())) {
-                return updatePlanCase(result,runMode);
+                return updatePlanCase(result, runMode);
             } else if (StringUtils.equals(runMode, ApiRunMode.SCHEDULE_SCENARIO_PLAN.name())) {
-                return updateSchedulePlanCase(result,runMode);
+                return updateSchedulePlanCase(result, runMode);
             } else {
                 updateScenarioStatus(result.getTestId());
                 return updateScenario(result, runMode);
@@ -114,11 +115,12 @@ public class ApiScenarioReportService {
         return report;
     }
 
-    public ApiScenarioReport editReport(ScenarioResult test) {
+    public ApiScenarioReport editReport(ScenarioResult test, long startTime) {
         ApiScenarioReport report = apiScenarioReportMapper.selectByPrimaryKey(test.getName());
         report.setId(report.getId());
         report.setName(report.getScenarioName() + "-" + DateUtils.getTimeStr(System.currentTimeMillis()));
-        report.setUpdateTime(System.currentTimeMillis());
+        report.setCreateTime(startTime);
+        report.setUpdateTime(startTime);
         String status = test.getError() == 0 ? "Success" : "Error";
         report.setStatus(status);
         apiScenarioReportMapper.updateByPrimaryKeySelective(report);
@@ -166,7 +168,7 @@ public class ApiScenarioReportService {
         return testResult;
     }
 
-    public ApiScenarioReport updatePlanCase(TestResult result,String runMode) {
+    public ApiScenarioReport updatePlanCase(TestResult result, String runMode) {
 //        TestPlanApiScenario testPlanApiScenario = testPlanApiScenarioMapper.selectByPrimaryKey(result.getTestId());
         List<ScenarioResult> scenarioResultList = result.getScenarios();
         ApiScenarioReport returnReport = null;
@@ -175,9 +177,13 @@ public class ApiScenarioReportService {
         String projectId = null;
         String userId = null;
         TestResult fullResult = createTestResult(result);
-        for (ScenarioResult scenarioResult :
-                scenarioResultList) {
-            ApiScenarioReport report = editReport(scenarioResult);
+        List<String> reportIds = new LinkedList<>();
+        for (ScenarioResult scenarioResult : scenarioResultList) {
+            long startTime = System.currentTimeMillis();
+            if (CollectionUtils.isNotEmpty(scenarioResult.getRequestResults()) && scenarioResult.getRequestResults().get(0).getStartTime() > 0) {
+                startTime = scenarioResult.getRequestResults().get(0).getStartTime();
+            }
+            ApiScenarioReport report = editReport(scenarioResult, startTime);
             // 报告详情内容
             ApiScenarioReportDetail detail = new ApiScenarioReportDetail();
             TestResult newResult = createTestResult(result.getTestId(), scenarioResult);
@@ -207,16 +213,17 @@ public class ApiScenarioReportService {
                 String passRate = new DecimalFormat("0%").format((float) scenarioResult.getSuccess() / (scenarioResult.getSuccess() + scenarioResult.getError()));
                 testPlanApiScenario.setPassRate(passRate);
                 testPlanApiScenario.setReportId(report.getId());
-                testPlanApiScenario.setUpdateTime(System.currentTimeMillis());
+                testPlanApiScenario.setUpdateTime(report.getCreateTime());
                 testPlanApiScenarioMapper.updateByPrimaryKeySelective(testPlanApiScenario);
             }
             returnReport = report;
+            reportIds.add(report.getId());
         }
-        margeReport(result, scenarioIds, scenarioNames, runMode, projectId, userId);
+        margeReport(result, scenarioIds, scenarioNames, runMode, projectId, userId, reportIds);
         return returnReport;
     }
 
-    public ApiScenarioReport updateSchedulePlanCase(TestResult result,String runMode) {
+    public ApiScenarioReport updateSchedulePlanCase(TestResult result, String runMode) {
         ApiScenarioReport lastReport = null;
         List<ScenarioResult> scenarioResultList = result.getScenarios();
 
@@ -226,9 +233,14 @@ public class ApiScenarioReportService {
         String projectId = null;
         String userId = null;
         TestResult fullResult = createTestResult(result);
+        List<String> reportIds = new ArrayList<>();
         for (ScenarioResult scenarioResult : scenarioResultList) {
             // 存储场景报告
-            ApiScenarioReport report = editReport(scenarioResult);
+            long startTime = System.currentTimeMillis();
+            if (CollectionUtils.isNotEmpty(scenarioResult.getRequestResults())) {
+                startTime = scenarioResult.getRequestResults().get(0).getStartTime();
+            }
+            ApiScenarioReport report = editReport(scenarioResult, startTime);
 
             /**
              * 测试计划的定时任务场景执行时，主键是提前生成的【测试报告ID】。也就是TestResult.id是【测试报告ID】。
@@ -280,9 +292,10 @@ public class ApiScenarioReportService {
             scenarioNames.append(report.getName()).append(",");
 
             lastReport = report;
+            reportIds.add(report.getId());
         }
         // 合并报告
-        margeReport(result, scenarioIds, scenarioNames, runMode, projectId, userId);
+        margeReport(result, scenarioIds, scenarioNames, runMode, projectId, userId, reportIds);
 
         TestPlanReportService testPlanReportService = CommonBeanFactory.getBean(TestPlanReportService.class);
         testPlanReportService.updateReport(testPlanReportIdList, ApiRunMode.SCHEDULE_SCENARIO_PLAN.name(), ReportTriggerMode.SCHEDULE.name());
@@ -323,9 +336,12 @@ public class ApiScenarioReportService {
         }
     }
 
-    private void margeReport(TestResult result, StringBuilder scenarioIds, StringBuilder scenarioNames, String runMode, String projectId, String userId) {
+    private void margeReport(TestResult result, StringBuilder scenarioIds, StringBuilder scenarioNames, String runMode, String projectId, String userId, List<String> reportIds) {
         // 合并生成一份报告
         if (StringUtils.isNotEmpty(result.getReportName())) {
+            // 清理其他报告保留一份合并后的报告
+            this.deleteByIds(reportIds);
+
             ApiScenarioReport report = createScenarioReport(scenarioIds.toString(), result.getReportName(), result.getError() > 0 ? "Error" : "Success", scenarioNames.toString().substring(0, scenarioNames.toString().length() - 1), runMode, projectId, userId);
             ApiScenarioReportDetail detail = new ApiScenarioReportDetail();
             detail.setContent(JSON.toJSONString(result).getBytes(StandardCharsets.UTF_8));
@@ -342,9 +358,14 @@ public class ApiScenarioReportService {
         String projectId = null;
         String userId = null;
         TestResult fullResult = createTestResult(result);
+        List<String> reportIds = new LinkedList<>();
         for (ScenarioResult item : result.getScenarios()) {
             // 更新报告状态
-            ApiScenarioReport report = editReport(item);
+            long startTime = System.currentTimeMillis();
+            if (CollectionUtils.isNotEmpty(item.getRequestResults())) {
+                startTime = item.getRequestResults().get(0).getStartTime();
+            }
+            ApiScenarioReport report = editReport(item, startTime);
             TestResult newResult = createTestResult(result.getTestId(), item);
             item.setName(report.getScenarioName());
             newResult.addScenario(item);
@@ -373,9 +394,10 @@ public class ApiScenarioReportService {
                 apiScenarioMapper.updateByPrimaryKey(scenario);
             }
             lastReport = report;
+            reportIds.add(report.getId());
         }
         // 合并生成一份报告
-        margeReport(result, scenarioIds, scenarioNames, runMode, projectId, userId);
+        margeReport(result, scenarioIds, scenarioNames, runMode, projectId, userId, reportIds);
         return lastReport;
     }
 

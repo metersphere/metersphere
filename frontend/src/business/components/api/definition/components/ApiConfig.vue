@@ -2,17 +2,26 @@
 
   <div class="card-container">
     <!-- HTTP 请求参数 -->
-    <ms-edit-complete-http-api @runTest="runTest" @saveApi="saveApi" @createRootModelInTree="createRootModelInTree" :request="request" :response="response"
-                               :basisData="currentApi" :moduleOptions="moduleOptions" :syncTabs="syncTabs" v-if="currentProtocol === 'HTTP'" ref="httpApi"/>
+    <ms-edit-complete-http-api @runTest="runTest" @saveApi="saveApi" @createRootModelInTree="createRootModelInTree"
+                               :request="request" :response="response" :project-id="projectId"
+                               @mockConfig="mockConfig"
+                               :basisData="currentApi" :moduleOptions="moduleOptions" :syncTabs="syncTabs"
+                               v-if="currentProtocol === 'HTTP'" ref="httpApi"/>
     <!-- TCP -->
-    <ms-edit-complete-tcp-api :request="request" @runTest="runTest" @createRootModelInTree="createRootModelInTree" @saveApi="saveApi" :basisData="currentApi"
-                              :moduleOptions="moduleOptions" :syncTabs="syncTabs" v-if="currentProtocol === 'TCP'" ref="tcpApi"/>
+    <ms-edit-complete-tcp-api :request="request" @runTest="runTest" @createRootModelInTree="createRootModelInTree"
+                              @saveApi="saveApi" :basisData="currentApi"
+                              :moduleOptions="moduleOptions" :syncTabs="syncTabs" v-if="currentProtocol === 'TCP'"
+                              ref="tcpApi"/>
     <!--DUBBO-->
-    <ms-edit-complete-dubbo-api :request="request" @runTest="runTest" @createRootModelInTree="createRootModelInTree" @saveApi="saveApi" :basisData="currentApi"
-                                :moduleOptions="moduleOptions" :syncTabs="syncTabs" v-if="currentProtocol === 'DUBBO'" ref="dubboApi"/>
+    <ms-edit-complete-dubbo-api :request="request" @runTest="runTest" @createRootModelInTree="createRootModelInTree"
+                                @saveApi="saveApi" :basisData="currentApi"
+                                :moduleOptions="moduleOptions" :syncTabs="syncTabs" v-if="currentProtocol === 'DUBBO'"
+                                ref="dubboApi"/>
     <!--SQL-->
-    <ms-edit-complete-sql-api :request="request" @runTest="runTest" @createRootModelInTree="createRootModelInTree" @saveApi="saveApi" :basisData="currentApi"
-                              :moduleOptions="moduleOptions" :syncTabs="syncTabs" v-if="currentProtocol === 'SQL'" ref="sqlApi"/>
+    <ms-edit-complete-sql-api :request="request" @runTest="runTest" @createRootModelInTree="createRootModelInTree"
+                              @saveApi="saveApi" :basisData="currentApi"
+                              :moduleOptions="moduleOptions" :syncTabs="syncTabs" v-if="currentProtocol === 'SQL'"
+                              ref="sqlApi"/>
   </div>
 </template>
 
@@ -96,7 +105,10 @@ export default {
           this.$success(this.$t('commons.save_success'));
           this.reqUrl = "/api/definition/update";
           this.$emit('runTest', data);
-        })
+        });
+      },
+      mockConfig(data) {
+        this.$emit('mockConfig', data);
       },
       createRootModelInTree() {
         this.$emit("createRootModel");
