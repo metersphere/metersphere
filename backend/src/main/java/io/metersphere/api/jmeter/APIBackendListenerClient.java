@@ -280,8 +280,10 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
 
             }
         }
-        if (reportTask != null && StringUtils.equals(ReportTriggerMode.API.name(), reportTask.getTriggerMode()) || StringUtils.equals(ReportTriggerMode.SCHEDULE.name(), reportTask.getTriggerMode())) {
-            sendTask(reportTask, reportUrl, testResult);
+        if (reportTask != null) {
+            if (StringUtils.equals(ReportTriggerMode.API.name(), reportTask.getTriggerMode()) || StringUtils.equals(ReportTriggerMode.SCHEDULE.name(), reportTask.getTriggerMode())) {
+                sendTask(reportTask, reportUrl, testResult);
+            }
         }
 
     }

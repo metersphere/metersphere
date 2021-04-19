@@ -1,5 +1,5 @@
 <template>
-  <el-form :model="condition" :rules="rules" ref="httpConfig">
+  <el-form :model="condition" :rules="rules" ref="httpConfig" class="ms-el-form-item__content">
     <el-form-item prop="socket">
       <span class="ms-env-span">{{$t('api_test.environment.socket')}}</span>
       <el-input v-model="condition.socket" style="width: 80%" :placeholder="$t('api_test.request.url_description')" clearable size="small">
@@ -34,15 +34,19 @@
           </template>
         </el-input>
       </div>
+
+      <p>{{$t('api_test.request.headers')}}</p>
+      <ms-api-key-value :items="condition.headers" :isShowEnable="true" :suggestions="headerSuggestions"/>
+
     </el-form-item>
     <div class="ms-border">
       <el-table :data="httpConfig.conditions" highlight-current-row @current-change="selectRow" v-if="!loading">
-        <el-table-column prop="socket" :label="$t('load_test.domain')" width="180">
+        <el-table-column prop="socket" :label="$t('load_test.domain')" show-overflow-tooltip width="180">
           <template v-slot:default="{row}">
             {{getUrl(row)}}
           </template>
         </el-table-column>
-        <el-table-column prop="type" :label="$t('api_test.environment.condition_enable')" show-overflow-tooltip min-width="120px">
+        <el-table-column prop="type" :label="$t('api_test.environment.condition_enable')" show-overflow-tooltip min-width="100px">
           <template v-slot:default="{row}">
             {{getName(row)}}
           </template>
@@ -65,8 +69,6 @@
         </el-table-column>
       </el-table>
     </div>
-    <span>{{$t('api_test.request.headers')}}</span>
-    <ms-api-key-value :items="httpConfig.headers" :isShowEnable="true" :suggestions="headerSuggestions"/>
   </el-form>
 </template>
 
@@ -112,7 +114,7 @@
         },
         loading: false,
         pathDetails: new KeyValue({name: "", value: "contains"}),
-        condition: {type: "NONE", details: [new KeyValue({name: "", value: "contains"})], protocol: "http", socket: "", domain: "", port: 0},
+        condition: {type: "NONE", details: [new KeyValue({name: "", value: "contains"})], protocol: "http", socket: "", domain: "", port: 0, headers: [new KeyValue()]},
       };
     },
     watch: {
@@ -121,16 +123,17 @@
       },
       httpConfig: function (o) {
         // 历史数据处理
-        if (this.httpConfig && this.httpConfig.socket) {
+        if (this.httpConfig && this.httpConfig.socket && this.httpConfig.conditions && this.httpConfig.conditions.length === 0) {
           this.condition.type = "NONE";
           this.condition.socket = this.httpConfig.socket;
           this.condition.protocol = this.httpConfig.protocol;
           this.condition.port = this.httpConfig.port;
           this.condition.domain = this.httpConfig.domain;
           this.condition.time = new Date().getTime();
+          this.condition.headers = this.httpConfig.headers;
           this.add();
         }
-        this.condition = {type: "NONE", details: [new KeyValue({name: "", value: "contains"})], protocol: "http", socket: "", domain: "", port: 0};
+        this.condition = {type: "NONE", details: [new KeyValue({name: "", value: "contains"})], protocol: "http", socket: "", domain: "", port: 0, headers: [new KeyValue()]};
       },
     },
     methods: {
@@ -172,6 +175,9 @@
           this.httpConfig.protocol = row.protocol;
           this.httpConfig.port = row.port;
           this.condition = row;
+          if (!this.condition.headers) {
+            this.condition.headers = [new KeyValue()];
+          }
           if (row.type === "PATH" && row.details.length > 0) {
             this.pathDetails = JSON.parse(JSON.stringify(row.details[0]));
           } else if (row.type === "MODULE" && row.details.length > 0) {
@@ -216,7 +222,7 @@
         const index = this.httpConfig.conditions.findIndex((d) => d.id === this.condition.id);
         this.validateSocket(this.condition.socket);
         let obj = {
-          id: this.condition.id, type: this.condition.type, domain: this.condition.domain, socket: this.condition.socket,
+          id: this.condition.id, type: this.condition.type, domain: this.condition.domain, socket: this.condition.socket, headers: this.condition.headers,
           protocol: this.condition.protocol, details: this.condition.details, port: this.condition.port, time: this.condition.time
         };
         if (obj.type === "PATH") {
@@ -224,7 +230,7 @@
         }
         if (index !== -1) {
           Vue.set(this.httpConfig.conditions[index], obj, 1);
-          this.condition = {type: "NONE", details: [new KeyValue({name: "", value: "contains"})], protocol: "", socket: "", domain: ""};
+          this.condition = {type: "NONE", details: [new KeyValue({name: "", value: "contains"})], protocol: "http", socket: "", domain: "", headers: [new KeyValue()]};
           this.reload();
         }
       },
@@ -235,8 +241,9 @@
         });
       },
       add() {
+        this.validateSocket();
         let obj = {
-          id: getUUID(), type: this.condition.type, socket: this.condition.socket, protocol: this.condition.protocol,
+          id: getUUID(), type: this.condition.type, socket: this.condition.socket, protocol: this.condition.protocol, headers: this.condition.headers,
           domain: this.condition.domain, port: this.condition.port, time: new Date().getTime()
         };
         if (this.condition.type === "PATH") {
@@ -256,7 +263,7 @@
       },
       copy(row) {
         const index = this.httpConfig.conditions.findIndex((d) => d.id === row.id);
-        let obj = {id: getUUID(), type: row.type, socket: row.socket, details: row.details, protocol: row.protocol, domain: row.domain, time: new Date().getTime()};
+        let obj = {id: getUUID(), type: row.type, socket: row.socket, details: row.details, protocol: row.protocol, headers: JSON.parse(JSON.stringify(this.condition.headers)), domain: row.domain, time: new Date().getTime()};
         if (index != -1) {
           this.httpConfig.conditions.splice(index, 0, obj);
         } else {
@@ -305,5 +312,9 @@
 
   /deep/ .el-form-item {
     margin-bottom: 10px;
+  }
+
+  .ms-el-form-item__content >>> .el-form-item__content {
+    line-height: 20px;
   }
 </style>
