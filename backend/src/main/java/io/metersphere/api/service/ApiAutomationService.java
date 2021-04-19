@@ -415,12 +415,14 @@ public class ApiAutomationService {
                     } else if (StringUtils.equals(tr.getType(), "scenario")) {
                         if (tr.isEnable()) {
                             ApiScenarioWithBLOBs apiScenario = getApiScenario(tr.getId());
-                            env.getProjectIds().add(apiScenario.getProjectId());
-                            String scenarioDefinition = apiScenario.getScenarioDefinition();
-                            JSONObject element1 = JSON.parseObject(scenarioDefinition);
-                            LinkedList<MsTestElement> hashTree1 = mapper.readValue(element1.getString("hashTree"), new TypeReference<LinkedList<MsTestElement>>() {
-                            });
-                            tr.setHashTree(hashTree1);
+                            if (apiScenario != null) {
+                                env.getProjectIds().add(apiScenario.getProjectId());
+                                String scenarioDefinition = apiScenario.getScenarioDefinition();
+                                JSONObject element1 = JSON.parseObject(scenarioDefinition);
+                                LinkedList<MsTestElement> hashTree1 = mapper.readValue(element1.getString("hashTree"), new TypeReference<LinkedList<MsTestElement>>() {
+                                });
+                                tr.setHashTree(hashTree1);
+                            }
                         }
                     }
                 } else {
@@ -487,12 +489,14 @@ public class ApiAutomationService {
                     } else if (StringUtils.equals(tr.getType(), "scenario")) {
                         if (tr.isEnable()) {
                             ApiScenarioWithBLOBs apiScenario = getApiScenario(tr.getId());
-                            env.getProjectIds().add(apiScenario.getProjectId());
-                            String scenarioDefinition = apiScenario.getScenarioDefinition();
-                            JSONObject element1 = JSON.parseObject(scenarioDefinition);
-                            LinkedList<MsTestElement> hashTree1 = mapper.readValue(element1.getString("hashTree"), new TypeReference<LinkedList<MsTestElement>>() {
-                            });
-                            tr.setHashTree(hashTree1);
+                            if (apiScenario != null) {
+                                env.getProjectIds().add(apiScenario.getProjectId());
+                                String scenarioDefinition = apiScenario.getScenarioDefinition();
+                                JSONObject element1 = JSON.parseObject(scenarioDefinition);
+                                LinkedList<MsTestElement> hashTree1 = mapper.readValue(element1.getString("hashTree"), new TypeReference<LinkedList<MsTestElement>>() {
+                                });
+                                tr.setHashTree(hashTree1);
+                            }
                         }
                     }
                 } else {
@@ -1491,9 +1495,7 @@ public class ApiAutomationService {
 
         scenarioEnv = getApiScenarioEnv(definition);
         scenarioEnv.getProjectIds().remove(null);
-        if (scenarioEnv.getProjectIds().isEmpty()) {
-            scenarioEnv.getProjectIds().add(scenario.getProjectId());
-        }
+        scenarioEnv.getProjectIds().add(scenario.getProjectId());
         return scenarioEnv;
     }
 }
