@@ -120,7 +120,7 @@
                   <el-checkbox v-model="enableCookieShare">共享cookie</el-checkbox>
                 </el-col>
                 <el-col :span="5">
-                  <env-popover :disabled="scenarioDefinition.length < 1" :env-map="projectEnvMap" :project-ids="projectIds" @setProjectEnvMap="setProjectEnvMap"
+                  <env-popover :disabled="scenarioDefinition.length < 1" :env-map="projectEnvMap" :project-ids="projectIds" @setProjectEnvMap="setProjectEnvMap" :result="envResult"
                                :isReadOnly="scenarioDefinition.length < 1" @showPopover="showPopover" :project-list="projectList" ref="envPopover"/>
                 </el-col>
                 <el-col :span="4">
@@ -334,6 +334,9 @@
         drawer: false,
         isFullUrl: true,
         expandedStatus: false,
+        envResult: {
+          loading: false
+        }
       }
     },
     created() {
@@ -1136,8 +1139,10 @@
       showPopover() {
         let definition = JSON.parse(JSON.stringify(this.currentScenario));
         definition.hashTree = this.scenarioDefinition;
+        this.envResult.loading = true;
         this.getEnv(JSON.stringify(definition)).then(() => {
           this.$refs.envPopover.openEnvSelect();
+          this.envResult.loading = false;
         })
       },
       shrinkTreeNode() {

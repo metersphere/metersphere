@@ -41,12 +41,18 @@ export default {
   props: {
     envMap: Map,
     projectIds: Set,
-    projectList: Array
+    projectList: Array,
+    result: {
+      type: Object,
+      default() {
+        return {loading: false}
+      }
+    }
   },
   data() {
     return {
       data: [],
-      result: {},
+      // result: {},
       projects: [],
       environments: [],
       dialogVisible: false,
@@ -62,7 +68,7 @@ export default {
           let item = {id: id, envs: [], selectEnv: ""};
           this.data.push(item);
           let p = new Promise(resolve => {
-            this.result = this.$get('/api/environment/list/' + id, res => {
+            this.$get('/api/environment/list/' + id, res => {
               let envs = res.data;
               envs.forEach(environment => {
                 parseEnvironment(environment);
