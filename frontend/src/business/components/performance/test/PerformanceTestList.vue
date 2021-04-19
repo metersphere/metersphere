@@ -54,7 +54,7 @@
           </el-table-column>
           <el-table-column
             prop="reportCount"
-            label="报告"
+            :label="$t('report.load_test_report')"
             width="150">
             <template v-slot:default="scope">
               <el-link v-if="scope.row.reportCount > 0" @click="reports(scope.row)">
