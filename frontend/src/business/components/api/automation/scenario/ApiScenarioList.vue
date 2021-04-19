@@ -618,10 +618,19 @@
       },
 
       isSelectDataAll(data) {
+        // this.condition.selectAll = data;
+        // setUnSelectIds(this.tableData, this.condition, this.selectRows);
+        // this.selectDataCounts = getSelectDataCounts(this.condition, this.total, this.selectRows);
+        // toggleAllSelection(this.$refs.scenarioTable, this.tableData, this.selectRows);
         this.condition.selectAll = data;
-        setUnSelectIds(this.tableData, this.condition, this.selectRows);
-        this.selectDataCounts = getSelectDataCounts(this.condition, this.total, this.selectRows);
+        //设置勾选
         toggleAllSelection(this.$refs.scenarioTable, this.tableData, this.selectRows);
+        //显示隐藏菜单
+        _handleSelectAll(this, this.tableData, this.tableData, this.selectRows);
+        //设置未选择ID(更新)
+        this.condition.unSelectIds = [];
+        //更新统计信息
+        this.selectDataCounts = getSelectDataCounts(this.condition, this.total, this.selectRows);
       },
       edit(row) {
         let data = JSON.parse(JSON.stringify(row));
