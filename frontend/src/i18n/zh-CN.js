@@ -477,6 +477,8 @@ export default {
     max_users: '并发数'
   },
   load_test: {
+    concurrency_thread_group: '并发读取组',
+    thread_group: '线程组',
     completed_test_report: '已完成测试报告',
     test: '测试',
     name: '测试名称',

@@ -468,6 +468,8 @@ export default {
     max_users: '並發数'
   },
   load_test: {
+    concurrency_thread_group: '併發讀取組',
+    thread_group: '線程組',
     completed_test_report: '已完成的測試報告',
     test: '測試',
     name: '測試名稱',

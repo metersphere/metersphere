@@ -470,6 +470,8 @@ export default {
     max_users: 'VUs'
   },
   load_test: {
+    concurrency_thread_group: 'Concurrent read group',
+    thread_group: 'ThreadGroup',
     completed_test_report: 'Completed test report',
     test: 'Test',
     name: 'Test Name',
