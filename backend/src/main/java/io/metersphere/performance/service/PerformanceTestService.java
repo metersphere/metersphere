@@ -605,4 +605,10 @@ public class PerformanceTestService {
         example.createCriteria().andIdIn(fileIds);
         return fileService.getFileMetadataByIds(fileIds);
     }
+
+    public Long getReportCountByTestId(String testId) {
+        LoadTestReportExample example = new LoadTestReportExample();
+        example.createCriteria().andTestIdEqualTo(testId);
+        return loadTestReportMapper.countByExample(example);
+    }
 }
