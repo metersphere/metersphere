@@ -4,7 +4,8 @@
 
     <select id="list" resultType="io.metersphere.base.domain.IssueTemplate">
         select
-        <include refid="io.metersphere.base.mapper.IssueTemplateMapper.Base_Column_List"/>
+        <include refid="io.metersphere.base.mapper.IssueTemplateMapper.Base_Column_List"/>,
+        <include refid="io.metersphere.base.mapper.IssueTemplateMapper.Blob_Column_List"/>
         from issue_template it
         <include refid="queryWhereCondition"/>
         <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>

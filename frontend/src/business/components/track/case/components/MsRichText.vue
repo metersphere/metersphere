@@ -1,5 +1,5 @@
 <template>
-    <ckeditor v-if="!isReportView"
+    <ckeditor :disabled="disabled"
               :editor="editor"
               v-model="textData"
               :config="editorConfig"
@@ -12,11 +12,14 @@
   import ClassicEditor from '@ckeditor/ckeditor5-build-classic';
 
   export default {
-    name: "TestCaseRichText",
+    name: "MsRichText",
     computed: {
       textData: {
         get: function () {
-          return this.content;
+          if (this.content) {
+            return this.content;
+          }
+          return '';
         },
         set: function (val) {
           this.$emit('updateRichText', val);
@@ -46,7 +49,7 @@
         type: String,
         default: null
       },
-      isReportView:
+      disabled:
         {
           type: Boolean,
           default: false

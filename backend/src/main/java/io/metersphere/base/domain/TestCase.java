@@ -9,8 +9,6 @@ public class TestCase implements Serializable {
 
     private String nodeId;
 
-    private String testId;
-
     private String nodePath;
 
     private String projectId;
@@ -30,6 +28,8 @@ public class TestCase implements Serializable {
     private Long createTime;
 
     private Long updateTime;
+
+    private String testId;
 
     private Integer sort;
 

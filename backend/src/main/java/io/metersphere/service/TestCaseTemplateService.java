@@ -9,6 +9,8 @@ import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.commons.utils.ServiceUtils;
 import io.metersphere.controller.request.BaseQueryRequest;
 import io.metersphere.controller.request.UpdateCaseFieldTemplateRequest;
+import io.metersphere.dto.CustomFieldDao;
+import io.metersphere.dto.TestCaseTemplateDao;
 import io.metersphere.i18n.Translator;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -16,8 +18,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -35,6 +40,9 @@ public class TestCaseTemplateService {
     @Resource
     CustomFieldService customFieldService;
 
+    @Resource
+    ProjectService projectService;
+
     public void add(UpdateCaseFieldTemplateRequest request) {
         checkExist(request);
         TestCaseTemplateWithBLOBs testCaseTemplate = new TestCaseTemplateWithBLOBs();
@@ -51,7 +59,7 @@ public class TestCaseTemplateService {
                 TemplateConstants.FieldTemplateScene.TEST_CASE.name());
     }
 
-    public List<TestCaseTemplate> list(BaseQueryRequest request) {
+    public List<TestCaseTemplateWithBLOBs> list(BaseQueryRequest request) {
         request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
         return extTestCaseTemplateMapper.list(request);
     }
@@ -138,19 +146,19 @@ public class TestCaseTemplateService {
         }
     }
 
-    public TestCaseTemplate getDefaultTemplate(String workspaceId) {
+    public TestCaseTemplateWithBLOBs getDefaultTemplate(String workspaceId) {
         TestCaseTemplateExample example = new TestCaseTemplateExample();
         example.createCriteria()
                 .andWorkspaceIdEqualTo(workspaceId)
                 .andSystemEqualTo(true);
-        List<TestCaseTemplate> testCaseTemplates = testCaseTemplateMapper.selectByExample(example);
+        List<TestCaseTemplateWithBLOBs> testCaseTemplates = testCaseTemplateMapper.selectByExampleWithBLOBs(example);
         if (CollectionUtils.isNotEmpty(testCaseTemplates)) {
             return testCaseTemplates.get(0);
         } else {
             example.clear();
             example.createCriteria()
                     .andGlobalEqualTo(true);
-            return testCaseTemplateMapper.selectByExample(example).get(0);
+            return testCaseTemplateMapper.selectByExampleWithBLOBs(example).get(0);
         }
     }
 
@@ -162,5 +170,37 @@ public class TestCaseTemplateService {
         List<TestCaseTemplate> testCaseTemplates = testCaseTemplateMapper.selectByExample(example);
         testCaseTemplates.add(getDefaultTemplate(workspaceId));
         return testCaseTemplates;
+    }
+
+    public TestCaseTemplateDao getTemplate(String projectId) {
+        Project project = projectService.getProjectById(projectId);
+        String caseTemplateId = project.getCaseTemplateId();
+        TestCaseTemplateWithBLOBs caseTemplate = null;
+        TestCaseTemplateDao caseTemplateDao = new TestCaseTemplateDao();
+        if (StringUtils.isNotBlank(caseTemplateId)) {
+            caseTemplate = testCaseTemplateMapper.selectByPrimaryKey(caseTemplateId);
+        } else {
+            caseTemplate = getDefaultTemplate(project.getWorkspaceId());
+        }
+        BeanUtils.copyBean(caseTemplateDao, caseTemplate);
+        List<CustomFieldTemplate> customFields = customFieldTemplateService.getCustomFields(caseTemplate.getId());
+        List<String> fieldIds = customFields.stream()
+                .map(CustomFieldTemplate::getFieldId)
+                .collect(Collectors.toList());
+
+        List<CustomField> fields = customFieldService.getFieldByIds(fieldIds);
+        Map<String, CustomField> fieldMap = fields.stream()
+                .collect(Collectors.toMap(CustomField::getId, item -> item));
+
+        List<CustomFieldDao> result = new ArrayList<>();
+        customFields.forEach((item) -> {
+            CustomFieldDao customFieldDao = new CustomFieldDao();
+            CustomField customField = fieldMap.get(item.getFieldId());
+            BeanUtils.copyBean(customFieldDao, customField);
+            BeanUtils.copyBean(customFieldDao, item);
+            result.add(customFieldDao);
+        });
+        caseTemplateDao.setCustomFields(result);
+        return caseTemplateDao;
     }
 }

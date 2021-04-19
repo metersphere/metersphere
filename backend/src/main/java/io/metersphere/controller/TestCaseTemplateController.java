@@ -3,11 +3,13 @@ package io.metersphere.controller;
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.base.domain.TestCaseTemplate;
+import io.metersphere.base.domain.TestCaseTemplateWithBLOBs;
 import io.metersphere.commons.constants.RoleConstants;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.controller.request.BaseQueryRequest;
 import io.metersphere.controller.request.UpdateCaseFieldTemplateRequest;
+import io.metersphere.dto.TestCaseTemplateDao;
 import io.metersphere.service.TestCaseTemplateService;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
@@ -30,8 +32,8 @@ public class TestCaseTemplateController {
     }
 
     @PostMapping("/list/{goPage}/{pageSize}")
-    public Pager<List<TestCaseTemplate>> list(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody BaseQueryRequest request) {
-        Page<List<TestCaseTemplate>> page = PageHelper.startPage(goPage, pageSize, true);
+    public Pager<List<TestCaseTemplateWithBLOBs>> list(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody BaseQueryRequest request) {
+        Page<List<TestCaseTemplateWithBLOBs>> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, testCaseTemplateService.list(request));
     }
 
@@ -48,5 +50,10 @@ public class TestCaseTemplateController {
     @GetMapping("/option/{workspaceId}")
     public List<TestCaseTemplate> list(@PathVariable String workspaceId) {
         return testCaseTemplateService.getOption(workspaceId);
+    }
+
+    @GetMapping("/get/relate/{projectId}")
+    public TestCaseTemplateDao getTemplate(@PathVariable String projectId) {
+        return testCaseTemplateService.getTemplate(projectId);
     }
 }

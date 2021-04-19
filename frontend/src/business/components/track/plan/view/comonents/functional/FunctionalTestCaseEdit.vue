@@ -28,7 +28,7 @@
                     </el-col>
 
                     <el-col class="head-right" :span="20">
-                      <ms-previous-next-button :index="index" @pre="handlePre" @next="handleNext" :list="testCases"/>
+                      <ms-previous-next-button :index="index" @pre="handlePre" @next="saveCase(true)" :list="testCases"/>
                     </el-col>
 
                   </el-row>
@@ -55,7 +55,6 @@
                       <test-plan-test-case-status-button class="status-button"
                                                          @statusChange="statusChange"
                                                          :is-read-only="isReadOnly"
-                                                         :is-failure="isFailure"
                                                          :status="testCase.status"/>
                     </el-col>
                   </el-row>
@@ -74,111 +73,26 @@
                     </el-col>
                   </el-row>
 
-                  <el-row>
-                    <el-col :offset="1">
-                      <span class="cast_label">关联测试：</span>
-                      <span v-for="(item,index) in testCase.list" :key="index">
-                        <el-button @click="openTest(item)" type="text" style="margin-left: 7px;">{{ item.testName }}</el-button>
-                      </span>
-                    </el-col>
-                  </el-row>
-
-                  <el-row>
-                    <el-col :offset="1">
-                      <span class="cast_label">{{ $t('test_track.case.prerequisite') }}：</span>
-                      <span class="cast_item"><p>{{ testCase.prerequisite }}</p></span>
-                    </el-col>
-                  </el-row>
-
-<!--                  <el-row v-if="testCase.method === 'auto' && testCase.testId && testCase.testId != 'other'">-->
-<!--                    <el-col class="test-detail" :span="20" :offset="1">-->
-<!--                      <el-tabs v-model="activeTab" type="border-card" @tab-click="testTabChange">-->
-<!--                        <el-tab-pane name="detail" :label="$t('test_track.plan_view.test_detail')">-->
-<!--                          <api-test-detail :is-read-only="isReadOnly" v-if="testCase.type === 'api'" @runTest="testRun"-->
-<!--                                           :id="testCase.testId" ref="apiTestDetail"/>-->
-<!--                          <performance-test-detail :is-read-only="isReadOnly" v-if="testCase.type === 'performance'"-->
-<!--                                                   @runTest="testRun" :id="testCase.testId" ref="performanceTestDetail"/>-->
-<!--                        </el-tab-pane>-->
-<!--                        <el-tab-pane name="result" :label="$t('test_track.plan_view.test_result')">-->
-<!--                          <api-test-result :report-id="testCase.reportId" v-if=" testCase.type === 'api'"-->
-<!--                                           ref="apiTestResult"/>-->
-<!--                          <performance-test-result :is-read-only="isReadOnly" :report-id="testCase.reportId"-->
-<!--                                                   v-if="testCase.type === 'performance'" ref="performanceTestResult"/>-->
-<!--                        </el-tab-pane>-->
-<!--                      </el-tabs>-->
-<!--                    </el-col>-->
-<!--                  </el-row>-->
+                  <el-form ref="customFieldForm"
+                           class="case-form">
+                    <el-row>
+                      <el-col :span="7" v-for="(item, index) in testCaseTemplate.customFields" :key="index">
+                        <el-form-item :label="item.system ? $t(systemNameMap[item.name]) : item.name" :prop="item.name"
+                                      label-width="120px">
+                          <custom-filed-component :disabled="true" :data="item" :form="{}" prop="defaultValue"/>
+                        </el-form-item>
+                      </el-col>
+                    </el-row>
+                  </el-form>
 
                   <el-row>
                     <el-col :span="22" :offset="1">
-                      <div>
-                        <span class="cast_label">{{ $t('test_track.case.steps') }}：</span>
+                      <div class="step-info">
+                        <form-rich-text-item :disabled="true" :title="$t('test_track.case.prerequisite')" :data="testCase" prop="prerequisite"/>
+                        <form-rich-text-item :disabled="true" :title="$t('test_track.case.step_desc')" :data="testCase" prop="stepDesc"/>
+                        <form-rich-text-item :disabled="true" :title="$t('test_track.case.expected_results')" :data="testCase" prop="stepResult"/>
+                        <form-rich-text-item :title="$t('test_track.plan_view.actual_result')" :data="testCase" prop="actualResult"/>
                       </div>
-                      <el-table
-                        :data="testCase.steptResults"
-                        class="tb-edit"
-                        size="mini"
-                        :border="true"
-                        :default-sort="{prop: 'num', order: 'ascending'}"
-                        highlight-current-row>
-                        <el-table-column :label="$t('test_track.case.number')" prop="num" min-width="5%"></el-table-column>
-
-                        <el-table-column :label="$t('test_track.case.step_desc')" prop="desc" min-width="21%">
-                          <template v-slot:default="scope">
-                            <el-input
-                              size="mini"
-                              class="border-hidden"
-                              type="textarea"
-                              :autosize="{ minRows: 1, maxRows: 4}"
-                              :disabled="true"
-                              v-model="scope.row.desc"/>
-                          </template>
-                        </el-table-column>
-                        <el-table-column :label="$t('test_track.case.expected_results')" prop="result" min-width="21%">
-                          <template v-slot:default="scope">
-                            <el-input
-                              size="mini"
-                              class="border-hidden"
-                              type="textarea"
-                              :autosize="{ minRows: 1, maxRows: 4}"
-                              :disabled="true"
-                              v-model="scope.row.result"/>
-                          </template>
-                        </el-table-column>
-                        <el-table-column :label="$t('test_track.plan_view.actual_result')" min-width="21%">
-                          <template v-slot:default="scope">
-                            <el-input
-                              class="table-edit-input"
-                              size="mini"
-                              type="textarea"
-                              :autosize="{ minRows: 2, maxRows: 4}"
-                              :rows="2"
-                              :disabled="isReadOnly"
-                              v-model="scope.row.actualResult"
-                              :placeholder="$t('commons.input_content')"
-                              clearable/>
-                          </template>
-                        </el-table-column>
-                        <el-table-column :label="$t('test_track.plan_view.step_result')" min-width="12%">
-                          <template v-slot:default="scope">
-                            <el-select
-                              :disabled="isReadOnly"
-                              v-model="scope.row.executeResult"
-                              @change="stepResultChange()"
-                              filterable
-                              size="mini">
-                              <el-option :label="$t('test_track.plan_view.pass')" value="Pass"
-                                         style="color: #7ebf50;"></el-option>
-                              <el-option :label="$t('test_track.plan_view.failure')" value="Failure"
-                                         style="color: #e57471;"></el-option>
-                              <el-option :label="$t('test_track.plan_view.blocking')" value="Blocking"
-                                         style="color: #dda451;"></el-option>
-                              <el-option :label="$t('test_track.plan_view.skip')" value="Skip"
-                                         style="color: #919399;"></el-option>
-                            </el-select>
-                          </template>
-                        </el-table-column>
-                      </el-table>
                     </el-col>
                   </el-row>
 
@@ -290,52 +204,9 @@
                     </el-col>
                   </el-row>
 
-                  <el-row>
-                    <el-col :span="20" :offset="1">
-                      <!--                      <div>
-                                              <span class="cast_label">{{ $t('commons.remark') }}：</span>
-                                              <span v-if="testCase.remark == null || testCase.remark === ''"
-                                                    style="color: darkgrey">{{ $t('commons.not_filled') }}</span>
-                                            </div>-->
-                      <span class="cast_label">{{ $t('commons.remark') }}：</span>
-                      <div>
-                        <el-input v-model="testCase.remark"
-                                  :autosize="{ minRows: 2, maxRows: 4}"
-                                  type="textarea"
-                                  :rows="3"
-                                  :placeholder="$t('commons.input_content')"></el-input>
-                      </div>
-                    </el-col>
-                  </el-row>
-                  <el-row>
-                    <el-col :span="20" :offset="1">
-                      <span class="cast_label">{{ $t('test_track.case.attachment') }}：</span>
-                      <el-upload
-                        accept=".jpg,.jpeg,.png,.xlsx,.doc,.pdf,.docx"
-                        action=""
-                        :show-file-list="false"
-                        :before-upload="beforeUpload"
-                        :http-request="handleUpload"
-                        :on-exceed="handleExceed"
-                        multiple
-                        :limit="8"
-                        :file-list="fileList">
-                        <el-button icon="el-icon-plus" size="mini"></el-button>
-                        <span slot="tip" class="el-upload__tip"> {{ $t('test_track.case.upload_tip') }} </span>
-                      </el-upload>
-                    </el-col>
-                  </el-row>
-                  <el-row>
-                    <el-col :span="20" :offset="1">
-                      <div>
-                        <test-case-attachment :table-data="tableData"
-                                              :read-only="isReadOnly"
-                                              :is-delete="true"
-                                              @handleDelete="handleDelete"
-                        />
-                      </div>
-                    </el-col>
-                  </el-row>
+                  <el-form>
+                    <test-case-edit-other-info @openTest="openTest" :read-only="true" :is-test-plan="true" :project-id="projectId" :form="testCase" :case-id="testCase.caseId" ref="otherInfo"/>
+                  </el-form>
                 </div>
 
               </el-scrollbar>
@@ -378,10 +249,20 @@ import TestCaseAttachment from "@/business/components/track/case/components/Test
 import CaseComment from "@/business/components/track/case/components/CaseComment";
 import MsPreviousNextButton from "../../../../../common/components/MsPreviousNextButton";
 import ReviewComment from "@/business/components/track/review/commom/ReviewComment";
+import {buildTestCaseOldFields, compatibleTestCaseStep, getTemplate, parseCustomField} from "@/common/js/custom_field";
+import FormRichTextItem from "@/business/components/track/case/components/FormRichTextItem";
+import MsFormDivider from "@/business/components/common/components/MsFormDivider";
+import TestCaseEditOtherInfo from "@/business/components/track/case/components/TestCaseEditOtherInfo";
+import CustomFiledComponent from "@/business/components/settings/workspace/template/CustomFiledComponent";
+import {SYSTEM_FIELD_NAME_MAP} from "@/common/js/table-constants";
 
 export default {
   name: "FunctionalTestCaseEdit",
   components: {
+    CustomFiledComponent,
+    TestCaseEditOtherInfo,
+    MsFormDivider,
+    FormRichTextItem,
     ReviewComment,
     MsPreviousNextButton,
     CaseComment,
@@ -408,7 +289,6 @@ export default {
       readConfig: {toolbar: []},
       test: {},
       activeTab: 'detail',
-      isFailure: true,
       users: [],
       Builds: [],
       zentaoBuilds: [],
@@ -417,9 +297,8 @@ export default {
       hasTapdId: false,
       hasZentaoId: false,
       tableData: [],
-      fileList: [],
-      uploadList: [],
       comments: [],
+      testCaseTemplate: {}
     };
   },
   props: {
@@ -438,6 +317,9 @@ export default {
     projectId() {
       return this.$store.state.projectId;
     },
+    systemNameMap() {
+      return SYSTEM_FIELD_NAME_MAP;
+    }
   },
   methods: {
     getComments(testCase) {
@@ -450,38 +332,6 @@ export default {
       this.result = this.$get('/test/case/comment/list/' + id, res => {
         this.comments = res.data;
       })
-    },
-    fileValidator(file) {
-      /// todo: 是否需要对文件内容和大小做限制
-      return file.size > 0;
-    },
-    handleExceed() {
-      this.$error(this.$t('load_test.file_size_limit'));
-    },
-    beforeUpload(file) {
-      if (!this.fileValidator(file)) {
-        /// todo: 显示错误信息
-        return false;
-      }
-
-      if (this.tableData.filter(f => f.name === file.name).length > 0) {
-        this.$error(this.$t('load_test.delete_file') + ', name: ' + file.name);
-        return false;
-      }
-
-      let type = file.name.substring(file.name.lastIndexOf(".") + 1);
-
-      this.tableData.push({
-        name: file.name,
-        size: file.size + ' Bytes', /// todo: 按照大小显示Byte、KB、MB等
-        type: type.toUpperCase(),
-        updateTime: new Date().getTime(),
-      });
-
-      return true;
-    },
-    handleUpload(uploadResources) {
-      this.uploadList.push(uploadResources.file);
     },
     handleClose() {
       removeGoBackListener(this.handleClose);
@@ -500,10 +350,21 @@ export default {
     getOption(param) {
       let formData = new FormData();
       let url = '/test/case/edit/testPlan';
-      this.uploadList.forEach(f => {
-        formData.append("file", f);
-      });
-      param.updatedFileList = this.fileList;
+
+      if (this.$refs.otherInfo && this.$refs.otherInfo.uploadList) {
+        this.$refs.otherInfo.uploadList.forEach(f => {
+          formData.append("file", f);
+        });
+      }
+
+      if (this.$refs.otherInfo && this.$refs.otherInfo.fileList) {
+        param.updatedFileList = this.$refs.otherInfo.fileList;
+      } else {
+        param.fileIds = [];
+        param.updatedFileList = [];
+      }
+
+      // param.updatedFileList = this.fileList;
       let requestJson = JSON.stringify(param, function (key, value) {
         return key === "file" ? undefined : value;
       });
@@ -521,26 +382,14 @@ export default {
         }
       };
     },
-    saveCase() {
+    saveCase(next) {
       let param = {};
       param.id = this.testCase.id;
       param.status = this.testCase.status;
-      param.results = [];
       param.remark = this.testCase.remark;
       param.projectId = this.projectId;
       let option = this.getOption(param);
-      for (let i = 0; i < this.testCase.steptResults.length; i++) {
-        let result = {};
-        result.actualResult = this.testCase.steptResults[i].actualResult;
-        result.executeResult = this.testCase.steptResults[i].executeResult;
-        if (result.actualResult && result.actualResult.length > 300) {
-          this.$warning(this.$t('test_track.plan_view.actual_result')
-            + this.$t('test_track.length_less_than') + '300');
-          return;
-        }
-        param.results.push(result);
-      }
-      param.results = JSON.stringify(param.results);
+      param.actualResult = this.testCase.actualResult;
       this.$post('/test/plan/case/edit', param, () => {
         this.$request(option, (response) => {
 
@@ -548,7 +397,7 @@ export default {
         this.$success(this.$t('commons.save_success'));
         this.updateTestCases(param);
         this.setPlanStatus(this.testCase.planId);
-        if (this.index < this.testCases.length - 1) {
+        if (next && this.index < this.testCases.length - 1) {
           this.handleNext();
         }
       });
@@ -580,43 +429,23 @@ export default {
         let item = {};
         Object.assign(item, response.data);
         item.results = JSON.parse(item.results);
-        item.steps = JSON.parse(item.steps);
         if (item.issues) {
           item.issues = JSON.parse(item.issues);
         } else {
           item.issues = {};
         }
-        item.steptResults = [];
-        for (let i = 0; i < item.steps.length; i++) {
-          if (item.results[i]) {
-            item.steps[i].actualResult = item.results[i].actualResult;
-            item.steps[i].executeResult = item.results[i].executeResult;
-          }
-          item.steptResults.push(item.steps[i]);
-        }
+        item.steps = JSON.parse(item.steps);
+        // 兼容旧版本的步骤
+        compatibleTestCaseStep(testCase, item);
         this.testCase = item;
-        this.getRelatedTest();
-        // this.initTest();
-        this.getIssues(item.caseId);
-        this.stepResultChange();
-        this.getFileMetaData(item);
-        this.getComments(item);
-      })
-    },
-    getFileMetaData(testCase) {
-      this.fileList = [];
-      this.tableData = [];
-      this.result = this.$get("test/case/file/metadata/" + testCase.caseId, response => {
-        let files = response.data;
-        if (!files) {
-          return;
+        parseCustomField(this.testCase, this.testCaseTemplate, null, null, buildTestCaseOldFields(this.testCase));
+        if (!this.testCase.actualResult) {
+          // 如果没值,使用模板的默认值
+          this.testCase.actualResult = this.testCaseTemplate.actualResult;
         }
-        this.fileList = JSON.parse(JSON.stringify(files));
-        this.tableData = JSON.parse(JSON.stringify(files));
-        this.tableData.map(f => {
-          f.size = f.size + ' Bytes';
-        });
-      })
+        this.getIssues(item.caseId);
+        this.getComments(item);
+      });
     },
     openTestCaseEdit(testCase) {
       this.showDialog = true;
@@ -625,21 +454,13 @@ export default {
       this.hasTapdId = false;
       this.hasZentaoId = false;
       listenGoBack(this.handleClose);
-      this.initData(testCase);
+      let initFuc = this.initData;
+      getTemplate('field/template/case/get/relate/', this)
+        .then((template) => {
+          this.testCaseTemplate = template;
+          initFuc(testCase);
+        });
     },
-    // initTest() {
-    //   this.$nextTick(() => {
-    //     if (this.testCase.testId && this.testCase.testId !== 'other') {
-    //       if (this.testCase.method === 'auto') {
-    //         if (this.$refs.apiTestDetail && this.testCase.type === 'api') {
-    //           this.$refs.apiTestDetail.init();
-    //         } else if (this.testCase.type === 'performance') {
-    //           this.$refs.performanceTestDetail.init();
-    //         }
-    //       }
-    //     }
-    //   });
-    // },
     testRun(reportId) {
       this.testCase.reportId = reportId;
       this.saveReport(reportId);
@@ -688,21 +509,6 @@ export default {
         }
       }
     },
-    getRelatedTest() {
-      if (this.testCase.method === 'auto' && this.testCase.testId && this.testCase.testId !== 'other') {
-        this.$get('/' + this.testCase.type + '/get/' + this.testCase.testId, response => {
-          let data = response.data;
-          if (data) {
-            this.test = data;
-          } else {
-            this.test = {};
-            this.$warning(this.$t("test_track.case.relate_test_not_find"));
-          }
-        });
-      } else if (this.testCase.testId === 'other' && this.testCase.method === 'auto') {
-        this.$warning(this.$t("test_track.case.other_relate_test_not_find"));
-      }
-    },
     issuesChange() {
       if (this.issuesSwitch) {
         let desc = this.addPLabel('[' + this.$t('test_track.plan_view.operate_step') + ']');
@@ -747,15 +553,6 @@ export default {
     },
     setPlanStatus(planId) {
       this.$post('/test/plan/edit/status/' + planId);
-    },
-    stepResultChange() {
-      if (this.testCase.method === 'manual' || !this.testCase.method) {
-        this.isFailure = this.testCase.steptResults.filter(s => {
-          return s.executeResult === 'Failure' || s.executeResult === 'Blocking';
-        }).length > 0;
-      } else {
-        this.isFailure = false;
-      }
     },
     saveIssues() {
       if (!this.testCase.issues.title || !this.testCase.issues.content) {
@@ -806,24 +603,6 @@ export default {
         this.getIssues(caseId);
         this.$success(this.$t('commons.delete_success'));
       })
-    },
-    handleDelete(file, index) {
-      this.$alert(this.$t('load_test.delete_file_confirm') + file.name + "？", '', {
-        confirmButtonText: this.$t('commons.confirm'),
-        callback: (action) => {
-          if (action === 'confirm') {
-            this._handleDelete(file, index);
-          }
-        }
-      });
-    },
-    _handleDelete(file, index) {
-      this.fileList.splice(index, 1);
-      this.tableData.splice(index, 1);
-      let i = this.uploadList.findIndex(upLoadFile => upLoadFile.name === file.name);
-      if (i > -1) {
-        this.uploadList.splice(i, 1);
-      }
     },
   }
 }
@@ -912,5 +691,15 @@ p {
   height: 550px;
   overflow: auto;
 }
+
+
+.el-tabs >>> .el-tabs__content {
+  padding: 20px 0px;
+}
+
+.el-tabs {
+  padding: 30px 60px
+}
+
 
 </style>

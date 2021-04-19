@@ -12,7 +12,7 @@
       prop="name">
       <template v-slot="scope">
         <span v-if="scope.row.system">
-          {{$t(scope.row.name)}}
+          {{$t(systemNameMap[scope.row.name])}}
         </span>
         <span v-else>
           {{scope.row.name}}
@@ -24,7 +24,7 @@
       :label="'默认值'"
       prop="type">
       <template v-slot="scope">
-        <default-value-table-item class="default-value-item" :data="scope.row"/>
+        <custom-filed-component class="default-value-item" :data="scope.row" prop="defaultValue"/>
       </template>
     </ms-table-column>
 
@@ -64,11 +64,14 @@
 import MsTableOperatorButton from "@/business/components/common/components/MsTableOperatorButton";
 import MsTable from "@/business/components/common/components/table/MsTable";
 import MsTableColumn from "@/business/components/common/components/table/Ms-table-column";
-import DefaultValueTableItem from "@/business/components/settings/workspace/template/DefaultValueTableItem";
 import FieldCustomDataTableItem from "@/business/components/settings/workspace/template/FieldCustomDataTableItem";
+import CustomFiledComponent from "@/business/components/settings/workspace/template/CustomFiledComponent";
+import {SYSTEM_FIELD_NAME_MAP} from "@/common/js/table-constants";
 export default {
   name: "CustomFieldFormList",
-  components: {FieldCustomDataTableItem, DefaultValueTableItem, MsTableColumn, MsTable, MsTableOperatorButton},
+  components: {
+    CustomFiledComponent,
+    FieldCustomDataTableItem, MsTableColumn, MsTable, MsTableOperatorButton},
   data() {
     return {
       result: {},
@@ -93,6 +96,11 @@ export default {
   watch: {
     'customFieldIds.length'() {
       this.initTableData();
+    }
+  },
+  computed: {
+    systemNameMap() {
+      return SYSTEM_FIELD_NAME_MAP;
     }
   },
   methods: {

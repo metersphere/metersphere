@@ -1,6 +1,7 @@
 <template>
 
   <el-drawer
+    class="field-template-edit"
     :before-close="handleClose"
     :visible.sync="visible"
     :with-header="false"
@@ -31,7 +32,7 @@
 
             <slot></slot>
 
-            <el-form-item :label="'已选字段'">
+            <el-form-item :label="'已选字段'" class="filed-list">
               <el-button type="primary" @click="relateField">添加字段</el-button>
               <el-button type="primary" plain>设置自定义字段</el-button>
             </el-form-item>
@@ -200,5 +201,9 @@ export default {
 
 .container {
   height: calc(100vh - 62px);
+}
+
+.filed-list {
+  margin-top: 30px;
 }
 </style>

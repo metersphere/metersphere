@@ -26,18 +26,10 @@
       <el-form-item :label="'用例名称'" prop="caseName">
         <el-input v-model="form.caseName" autocomplete="off"></el-input>
       </el-form-item>
-
-      <el-form-item :label="'前置条件'" prop="prerequisite">
-        <el-input :autosize="{ minRows: 2, maxRows: 4}" type="textarea" v-model="form.prerequisite"></el-input>
-      </el-form-item>
-
-      <el-form-item :label="'用例步骤'" prop="stepDescription">
-        <el-input :autosize="{ minRows: 2, maxRows: 4}" type="textarea" v-model="form.stepDescription"></el-input>
-      </el-form-item>
-
-      <el-form-item :label="'预期结果'" prop="actualResult">
-        <el-input :autosize="{ minRows: 2, maxRows: 4}" type="textarea" v-model="form.actualResult"></el-input>
-      </el-form-item>
+      <test-case-r-ich-text-item :title="$t('test_track.case.prerequisite')" :data="form" prop="prerequisite"/>
+      <test-case-r-ich-text-item :title="$t('test_track.case.step_desc')" :data="form" prop="stepDescription"/>
+      <test-case-r-ich-text-item :title="$t('test_track.case.expected_results')" :data="form" prop="expectedResult"/>
+      <test-case-r-ich-text-item :title="$t('test_track.plan_view.actual_result')" :data="form" prop="actualResult"/>
     </template>
 
   </field-template-edit>
@@ -54,11 +46,12 @@ import {CASE_TYPE_OPTION} from "@/common/js/table-constants";
 import CustomFieldFormList from "@/business/components/settings/workspace/template/CustomFieldFormList";
 import CustomFieldRelateList from "@/business/components/settings/workspace/template/CustomFieldRelateList";
 import FieldTemplateEdit from "@/business/components/settings/workspace/template/FieldTemplateEdit";
-import {getCurrentWorkspaceId} from "@/common/js/utils";
+import TestCaseRIchTextItem from "@/business/components/track/case/components/FormRichTextItem";
 
 export default {
   name: "TestCaseTemplateEdit",
   components: {
+    TestCaseRIchTextItem,
     FieldTemplateEdit,
     CustomFieldRelateList,
     CustomFieldFormList,

@@ -46,3 +46,15 @@ export const SCENE_MAP = {
   ISSUE: '缺陷模板',
   TEST_CASE: '用例模板'
 };
+
+export const SYSTEM_FIELD_NAME_MAP = {
+  //用例字段
+  i43sf4_testCaseStatus: 'custom_field.case_status',
+  i43sf4_testCaseMaintainer: 'custom_field.case_maintainer',
+  i43sf4_testCasePriority: 'custom_field.case_priority',
+  //缺陷字段
+  i43sf4_issueCreator: 'custom_field.issue_creator',
+  i43sf4_issueProcessor: 'custom_field.issue_processor',
+  i43sf4_issueStatus: 'custom_field.issue_status',
+  i43sf4_issueSeverity: 'custom_field.issue_severity',
+}

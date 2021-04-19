@@ -1,0 +1,25 @@
+<template>
+  <el-form>
+    <el-form-item :disable="true" :label="title">
+      <test-case-rich-text :disabled="disabled" :content="data[prop]" @updateRichText="updateData"/>
+    </el-form-item>
+  </el-form>
+</template>
+
+<script>
+import TestCaseRichText from "@/business/components/track/case/components/MsRichText";
+export default {
+  name: "FormRichTextItem",
+  components: {TestCaseRichText},
+  props: ['data', 'title', 'prop', 'disabled'],
+  methods: {
+    updateData(value) {
+      this.data[this.prop] = value;
+    }
+  }
+}
+</script>
+
+<style scoped>
+
+</style>

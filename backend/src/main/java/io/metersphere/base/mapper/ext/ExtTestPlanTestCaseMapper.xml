@@ -138,7 +138,7 @@
     <select id="list" resultType="io.metersphere.track.dto.TestPlanCaseDTO">
         select test_plan_test_case.id as id, test_case.id as caseId, test_case.name, test_case.priority,
         test_case.type,test_case.test_id as testId,test_case.node_id, test_case.tags, test_case.maintainer,
-        test_case.node_path, test_case.method, test_case.num, test_plan_test_case.executor, test_plan_test_case.status,
+        test_case.node_path, test_case.method, test_case.num, test_plan_test_case.executor, test_plan_test_case.status, test_plan_test_case.actual_result,
         test_plan_test_case.update_time, test_case_node.name as model, project.name as projectName,
         test_plan_test_case.plan_id as planId
         from test_plan_test_case

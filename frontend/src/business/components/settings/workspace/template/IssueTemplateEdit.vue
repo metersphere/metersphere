@@ -27,9 +27,8 @@
         <el-input v-model="form.title" autocomplete="off"></el-input>
       </el-form-item>
 
-      <el-form-item :label="'缺陷内容'" prop="content">
-        <el-input :autosize="{ minRows: 2, maxRows: 4}" type="textarea" v-model="form.content"></el-input>
-      </el-form-item>
+      <form-r-ich-text-item :title="$t('缺陷内容')" :data="form" prop="content"/>
+
     </template>
 
   </field-template-edit>
@@ -46,11 +45,12 @@ import {ISSUE_PLATFORM_OPTION} from "@/common/js/table-constants";
 import CustomFieldFormList from "@/business/components/settings/workspace/template/CustomFieldFormList";
 import CustomFieldRelateList from "@/business/components/settings/workspace/template/CustomFieldRelateList";
 import FieldTemplateEdit from "@/business/components/settings/workspace/template/FieldTemplateEdit";
-import {getCurrentWorkspaceId} from "@/common/js/utils";
+import FormRIchTextItem from "@/business/components/track/case/components/FormRichTextItem";
 
 export default {
   name: "IssueTemplateEdit",
   components: {
+    FormRIchTextItem,
     FieldTemplateEdit,
     CustomFieldRelateList,
     CustomFieldFormList,
