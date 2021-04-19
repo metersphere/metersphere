@@ -21,7 +21,7 @@
 
     <ms-view/>
 
-    <theme/>
+<!--    <theme/>-->
   </el-col>
 </template>
 
@@ -38,7 +38,7 @@ import {ORIGIN_COLOR} from "@/common/js/constants";
 const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
 const header = requireComponent.keys().length > 0 ? requireComponent("./license/LicenseMessage.vue") : {};
 const display = requireComponent.keys().length > 0 ? requireComponent("./display/Display.vue") : {};
-const theme = requireComponent.keys().length > 0 ? requireComponent("./display/Theme.vue") : {};
+// const theme = requireComponent.keys().length > 0 ? requireComponent("./display/Theme.vue") : {};
 
 export default {
   name: 'app',
@@ -106,7 +106,7 @@ export default {
     MsTopMenus,
     MsHeaderOrgWs,
     "LicenseMessage": header.default,
-    "Theme": theme.default
+    // "Theme": theme.default
   }
 }
 </script>
