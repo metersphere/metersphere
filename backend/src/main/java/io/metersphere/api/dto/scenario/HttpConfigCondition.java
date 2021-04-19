@@ -12,4 +12,5 @@ public class HttpConfigCondition {
     private String socket;
     private String domain;
     private int port;
+    private List<KeyValue> headers;
 }

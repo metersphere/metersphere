@@ -209,7 +209,7 @@
       <api-import v-if="type!=='detail'" ref="apiImport" :saved="false" @refresh="apiImport"/>
 
       <!--步骤最大化-->
-      <ms-drawer :visible="drawer" :size="100" @close="close" direction="right" :show-full-screen="false" :is-show-close="false" style="overflow: hidden">
+      <ms-drawer :visible="drawer" :size="100" @close="close" direction="default" :show-full-screen="false" :is-show-close="false" style="overflow: hidden">
         <template v-slot:header>
           <scenario-header :currentScenario="currentScenario" :projectEnvMap="projectEnvMap" :projectIds.sync="projectIds" :projectList="projectList" :scenarioDefinition="scenarioDefinition" :enableCookieShare="enableCookieShare"
                            :isFullUrl.sync="isFullUrl" @closePage="close" @unFullScreen="unFullScreen" @showAllBtn="showAllBtn" @runDebug="runDebug" @setProjectEnvMap="setProjectEnvMap" @showScenarioParameters="showScenarioParameters" @setCookieShare="setCookieShare"
@@ -668,7 +668,6 @@
         this.customizeRequest = {};
         this.sort();
         this.reload();
-        // this.initProjectIds();
       },
       addScenario(arr) {
         if (arr && arr.length > 0) {
@@ -691,7 +690,6 @@
         this.isBtnHide = false;
         this.sort();
         this.reload();
-        // this.initProjectIds();
       },
       setApiParameter(item, refType, referenced) {
         let request = {};
@@ -733,7 +731,6 @@
         this.isBtnHide = false;
         this.sort();
         this.reload();
-        // this.initProjectIds();
       },
       getMaintainerOptions() {
         let workspaceId = localStorage.getItem(WORKSPACE_ID);
@@ -760,7 +757,6 @@
               hashTree.splice(index, 1);
               this.sort();
               this.reload();
-              // this.initProjectIds();
             }
           }
         });
@@ -788,9 +784,6 @@
         this.$nextTick(() => {
           this.loading = false
         });
-        // let definition = JSON.parse(JSON.stringify(this.currentScenario));
-        // definition.hashTree = this.scenarioDefinition;
-        // this.getEnv(JSON.stringify(definition));
       },
       runDebug() {
         /*触发执行操作*/
@@ -1055,8 +1048,6 @@
             }
             this.loading = false;
             this.sort();
-            // this.initProjectIds();
-            // this.getEnvironments();
           })
         }
       },
@@ -1125,18 +1116,7 @@
         })
       },
       refReload() {
-        // this.initProjectIds();
         this.reload();
-      },
-      initProjectIds() {
-        // // 加载环境配置
-        // this.$nextTick(() => {
-        //   this.projectIds.clear();
-        //   this.scenarioDefinition.forEach(data => {
-        //     let arr = jsonPath.query(data, "$..projectId");
-        //     arr.forEach(a => this.projectIds.add(a));
-        //   })
-        // })
       },
       detailRefresh(result) {
         // 把执行结果分发给各个请求

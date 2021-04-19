@@ -105,7 +105,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
     @JSONField(ordinal = 36)
     private MsAuthManager authManager;
 
-    public void setRefElement() {
+    private void setRefElement() {
         try {
             ApiDefinitionService apiDefinitionService = CommonBeanFactory.getBean(ApiDefinitionService.class);
             ObjectMapper mapper = new ObjectMapper();
@@ -203,14 +203,9 @@ public class MsHTTPSamplerProxy extends MsTestElement {
             }
         }
 
-        // 添加环境中的公共变量
-        Arguments arguments = this.addArguments(config);
-        if (arguments != null) {
-            tree.add(ParameterConfig.valueSupposeMock(arguments));
-        }
         try {
             if (config.isEffective(this.getProjectId())) {
-                HttpConfig httpConfig = getHttpConfig(config.getConfig().get(this.getProjectId()).getHttpConfig());
+                HttpConfig httpConfig = getHttpConfig(config.getConfig().get(this.getProjectId()).getHttpConfig(), tree);
                 if (httpConfig == null) {
                     MSException.throwException("未匹配到环境，请检查环境配置");
                 }
@@ -453,29 +448,72 @@ public class MsHTTPSamplerProxy extends MsTestElement {
      * @param httpConfig
      * @return
      */
-    private HttpConfig getHttpConfig(HttpConfig httpConfig) {
+    private HttpConfig getHttpConfig(HttpConfig httpConfig, HashTree tree) {
+        boolean isNext = true;
         if (CollectionUtils.isNotEmpty(httpConfig.getConditions())) {
             for (HttpConfigCondition item : httpConfig.getConditions()) {
-                if (item.getType().equals(ConditionType.NONE.name())) {
-                    return httpConfig.initHttpConfig(item);
-                } else if (item.getType().equals(ConditionType.PATH.name())) {
+                if (item.getType().equals(ConditionType.PATH.name())) {
                     HttpConfig config = httpConfig.getPathCondition(this.getPath());
                     if (config != null) {
-                        return config;
+                        isNext = false;
+                        httpConfig = config;
+                        break;
                     }
                 } else if (item.getType().equals(ConditionType.MODULE.name())) {
+                    ApiDefinition apiDefinition;
                     ApiDefinitionService apiDefinitionService = CommonBeanFactory.getBean(ApiDefinitionService.class);
-                    ApiDefinition apiDefinition = apiDefinitionService.get(this.getId());
+                    if (StringUtils.isNotEmpty(this.getReferenced()) && this.getReferenced().equals("REF") && StringUtils.isNotEmpty(this.getRefType()) && this.getRefType().equals("CASE")) {
+                        ApiTestCaseService apiTestCaseService = CommonBeanFactory.getBean(ApiTestCaseService.class);
+                        ApiTestCaseWithBLOBs caseWithBLOBs = apiTestCaseService.get(this.getId());
+                        apiDefinition = apiDefinitionService.get(caseWithBLOBs.getApiDefinitionId());
+                    } else {
+                        apiDefinition = apiDefinitionService.get(this.getId());
+                    }
                     if (apiDefinition != null) {
                         HttpConfig config = httpConfig.getModuleCondition(apiDefinition.getModuleId());
                         if (config != null) {
-                            return config;
+                            isNext = false;
+                            httpConfig = config;
+                            break;
                         }
                     }
                 }
             }
+            if (isNext) {
+                for (HttpConfigCondition item : httpConfig.getConditions()) {
+                    if (item.getType().equals(ConditionType.NONE.name())) {
+                        httpConfig = httpConfig.initHttpConfig(item);
+                        break;
+                    }
+                }
+            }
+        }
+
+        // 环境中请求头
+        Arguments arguments = arguments(httpConfig.getHeaders());
+        if (arguments != null) {
+            tree.add(ParameterConfig.valueSupposeMock(arguments));
         }
         return httpConfig;
+    }
+
+    private Arguments arguments(List<KeyValue> headers) {
+        Arguments arguments = new Arguments();
+        arguments.setEnabled(true);
+        arguments.setName(StringUtils.isNotEmpty(this.getName()) ? this.getName() : "Arguments");
+        arguments.setProperty(TestElement.TEST_CLASS, Arguments.class.getName());
+        arguments.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("ArgumentsPanel"));
+
+        // HTTP放到请求中，按照域名匹配
+        if (CollectionUtils.isNotEmpty(headers)) {
+            headers.stream().filter(KeyValue::isValid).filter(KeyValue::isEnable).forEach(keyValue ->
+                    arguments.addArgument(keyValue.getName(), keyValue.getValue(), "=")
+            );
+        }
+        if (arguments.getArguments() != null && arguments.getArguments().size() > 0) {
+            return arguments;
+        }
+        return null;
     }
 
     private boolean isRest() {
