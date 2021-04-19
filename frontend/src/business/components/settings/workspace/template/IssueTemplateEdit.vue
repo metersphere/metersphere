@@ -45,8 +45,7 @@ import {ISSUE_PLATFORM_OPTION} from "@/common/js/table-constants";
 import CustomFieldFormList from "@/business/components/settings/workspace/template/CustomFieldFormList";
 import CustomFieldRelateList from "@/business/components/settings/workspace/template/CustomFieldRelateList";
 import FieldTemplateEdit from "@/business/components/settings/workspace/template/FieldTemplateEdit";
-import {getCurrentWorkspaceId} from "@/common/js/utils";
-import FormRIchTextItem from "@/business/components/track/case/components/FormRIchTextItem";
+import FormRIchTextItem from "@/business/components/track/case/components/FormRichTextItem";
 
 export default {
   name: "IssueTemplateEdit",

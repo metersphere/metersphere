@@ -29,7 +29,7 @@
                          v-if="isPreview(scope.row)"
                          icon="el-icon-view"
                          size="mini" circle/>
-              <el-button @click="handleDownload(scope.row)" :disabled="!scope.row.id || readOnly" type="primary"
+              <el-button @click="handleDownload(scope.row)"  type="primary"
                          icon="el-icon-download"
                          size="mini" circle/>
               <el-button :disabled="readOnly || !isDelete" @click="handleDelete(scope.row, scope.$index)" type="danger"
@@ -56,7 +56,7 @@ export default {
     tableData: Array,
     readOnly: {
       type: Boolean,
-      default: true
+      default: false
     },
     isDelete: {
       type: Boolean,

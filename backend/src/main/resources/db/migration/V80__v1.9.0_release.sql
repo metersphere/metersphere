@@ -140,3 +140,4 @@ ALTER TABLE test_case MODIFY COLUMN maintainer varchar(50) NULL COMMENT 'Test ca
 ALTER TABLE test_case MODIFY COLUMN priority varchar(50) NULL COMMENT 'Test case priority';
 ALTER TABLE test_case ADD custom_fields TEXT NULL COMMENT 'CustomField';
 
+ALTER TABLE test_plan_test_case ADD actual_result TEXT NULL;

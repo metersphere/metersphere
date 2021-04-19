@@ -84,3 +84,37 @@ export function getTemplate(baseUrl, vueObj) {
     });
   });
 }
+
+// 兼容旧版本的步骤
+export function compatibleTestCaseStep(testCase, tmp) {
+  if(testCase.expectedResult !== null) { //  改成富文本后加入的新数据 或 经过兼容的旧数据
+    tmp.stepResult = testCase.expectedResult + '<br>';
+  } else {  //  如果是旧数据
+    if(tmp.steps !== null) {
+      tmp.stepResult = '';
+      tmp.steps.forEach(item => {
+        tmp.stepResult += item.num + ': ' + item.result + '<br>';
+      });
+    }
+  }
+  if(testCase.stepDescription !== null) {
+    tmp.stepDesc = testCase.stepDescription + '<br>';
+  } else {
+    if(tmp.steps !== null) {
+      tmp.stepDesc = '';
+      tmp.steps.forEach(item => {
+        tmp.stepDesc += item.num + ': ' + item.desc + '<br>';
+      });
+    }
+  }
+  if(!testCase.actualResult) {
+    if(tmp.results !== null) {
+      tmp.actualResult = '';
+      tmp.results.forEach(item => {
+        if (item.actualResult) {
+          tmp.actualResult += item.actualResult + '<br>';
+        }
+      });
+    }
+  }
+}
