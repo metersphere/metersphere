@@ -27,9 +27,11 @@ export function parseCustomField(data, template, customFieldForm, rules, oldFiel
 
     if (item.required) {
       let msg = (item.system ? i18n.t(SYSTEM_FIELD_NAME_MAP[item.name]) : item.name) + i18n.t('commons.cannot_be_null');
-      rules[item.name] = [
-        {required: true,  message: msg,  trigger: 'blur'}
-      ];
+      if (rules) {
+        rules[item.name] = [
+          {required: true,  message: msg,  trigger: 'blur'}
+        ];
+      }
     }
 
     if (hasOldData && oldFields) {
@@ -50,8 +52,9 @@ export function parseCustomField(data, template, customFieldForm, rules, oldFiel
         }
       }
     }
-
-    customFieldForm[item.name] = item.defaultValue;
+    if (customFieldForm) {
+      customFieldForm[item.name] = item.defaultValue;
+    }
   });
 }
 
@@ -108,7 +111,7 @@ export function compatibleTestCaseStep(testCase, tmp) {
     }
   }
   if(!testCase.actualResult) {
-    if(tmp.results !== null) {
+    if(tmp.results) {
       tmp.actualResult = '';
       tmp.results.forEach(item => {
         if (item.actualResult) {
@@ -117,4 +120,13 @@ export function compatibleTestCaseStep(testCase, tmp) {
       });
     }
   }
+}
+
+// 兼容旧字段
+export function buildTestCaseOldFields(testCase) {
+  let oldFields = new Map();
+  oldFields.set('custom_field.case_status', testCase.status);
+  oldFields.set('custom_field.case_maintainer', testCase.maintainer);
+  oldFields.set('custom_field.case_priority', testCase.priority);
+  return oldFields;
 }

@@ -73,6 +73,18 @@
                     </el-col>
                   </el-row>
 
+                  <el-form ref="customFieldForm"
+                           class="case-form">
+                    <el-row>
+                      <el-col :span="7" v-for="(item, index) in testCaseTemplate.customFields" :key="index">
+                        <el-form-item :label="item.system ? $t(systemNameMap[item.name]) : item.name" :prop="item.name"
+                                      label-width="120px">
+                          <custom-filed-component :disabled="true" :data="item" :form="{}" prop="defaultValue"/>
+                        </el-form-item>
+                      </el-col>
+                    </el-row>
+                  </el-form>
+
                   <el-row>
                     <el-col :span="22" :offset="1">
                       <div class="step-info">
@@ -237,14 +249,17 @@ import TestCaseAttachment from "@/business/components/track/case/components/Test
 import CaseComment from "@/business/components/track/case/components/CaseComment";
 import MsPreviousNextButton from "../../../../../common/components/MsPreviousNextButton";
 import ReviewComment from "@/business/components/track/review/commom/ReviewComment";
-import {compatibleTestCaseStep} from "@/common/js/custom_field";
+import {buildTestCaseOldFields, compatibleTestCaseStep, getTemplate, parseCustomField} from "@/common/js/custom_field";
 import FormRichTextItem from "@/business/components/track/case/components/FormRichTextItem";
 import MsFormDivider from "@/business/components/common/components/MsFormDivider";
 import TestCaseEditOtherInfo from "@/business/components/track/case/components/TestCaseEditOtherInfo";
+import CustomFiledComponent from "@/business/components/settings/workspace/template/CustomFiledComponent";
+import {SYSTEM_FIELD_NAME_MAP} from "@/common/js/table-constants";
 
 export default {
   name: "FunctionalTestCaseEdit",
   components: {
+    CustomFiledComponent,
     TestCaseEditOtherInfo,
     MsFormDivider,
     FormRichTextItem,
@@ -283,6 +298,7 @@ export default {
       hasZentaoId: false,
       tableData: [],
       comments: [],
+      testCaseTemplate: {}
     };
   },
   props: {
@@ -301,6 +317,9 @@ export default {
     projectId() {
       return this.$store.state.projectId;
     },
+    systemNameMap() {
+      return SYSTEM_FIELD_NAME_MAP;
+    }
   },
   methods: {
     getComments(testCase) {
@@ -419,9 +438,14 @@ export default {
         // 兼容旧版本的步骤
         compatibleTestCaseStep(testCase, item);
         this.testCase = item;
+        parseCustomField(this.testCase, this.testCaseTemplate, null, null, buildTestCaseOldFields(this.testCase));
+        if (!this.testCase.actualResult) {
+          // 如果没值,使用模板的默认值
+          this.testCase.actualResult = this.testCaseTemplate.actualResult;
+        }
         this.getIssues(item.caseId);
         this.getComments(item);
-      })
+      });
     },
     openTestCaseEdit(testCase) {
       this.showDialog = true;
@@ -430,7 +454,12 @@ export default {
       this.hasTapdId = false;
       this.hasZentaoId = false;
       listenGoBack(this.handleClose);
-      this.initData(testCase);
+      let initFuc = this.initData;
+      getTemplate('field/template/case/get/relate/', this)
+        .then((template) => {
+          this.testCaseTemplate = template;
+          initFuc(testCase);
+        });
     },
     testRun(reportId) {
       this.testCase.reportId = reportId;

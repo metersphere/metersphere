@@ -1,6 +1,7 @@
 <template>
   <span>
      <el-select v-if="data.type === 'select' || data.type === 'multipleSelect'"
+                :disabled="disabled"
                 :multiple="data.type === 'multipleSelect'"
                 @change="handleChange"
                 filterable v-model="data[prop]" placeholder="默认值">
@@ -18,6 +19,7 @@
       type="textarea"
       @change="handleChange"
       :rows="2"
+      :disabled="disabled"
       placeholder="请输入内容"
       class="custom-with"
       v-model="data[prop]">
@@ -25,6 +27,7 @@
 
     <el-checkbox-group
       v-else-if="data.type === 'checkbox'"
+      :disabled="disabled"
       v-model="data[prop]">
       <el-checkbox v-for="(item, index) in data.options ? data.options : []"
                    :key="index"
@@ -35,6 +38,7 @@
     <el-radio
       v-else-if="data.type === 'radio'"
       v-model="data[prop]"
+      :disabled="disabled"
       v-for="(item,index) in data.options ? data.options : []"
       :key="index"
       @change="handleChange"
@@ -43,11 +47,13 @@
     <el-input-number
       v-else-if="data.type === 'int'"
       v-model="data[prop]"
+      :disabled="disabled"
       @change="handleChange"
       :min="1" :max="10" label="描述文字"></el-input-number>
 
     <el-input-number
       v-else-if="data.type === 'float'"
+      :disabled="disabled"
       @change="handleChange"
       v-model="data[prop]" :precision="2" :step="0.1" :max="10"></el-input-number>
 
@@ -55,6 +61,7 @@
        class="custom-with"
        @change="handleChange"
        v-else-if="data.type === 'data'"
+       :disabled="disabled"
        v-model="data[prop]"
        type="date"
        placeholder="选择日期">
@@ -63,6 +70,7 @@
     <el-select v-else-if="data.type === 'member' || data.type === 'multipleMember'"
                :multiple="data.type === 'multipleMember'"
                @change="handleChange"
+               :disabled="disabled"
                filterable v-model="data[prop]" placeholder="默认值">
        <el-option
          v-for="(item) in memberOptions"
@@ -74,6 +82,7 @@
 
     <el-input class="custom-with"
               @change="handleChange"
+              :disabled="disabled"
               v-else v-model="data[prop]"/>
 
   </span>
@@ -89,7 +98,8 @@ export default {
   props: [
     'data',
     'prop',
-    'form'
+    'form',
+    'disabled'
   ],
   data() {
     return {

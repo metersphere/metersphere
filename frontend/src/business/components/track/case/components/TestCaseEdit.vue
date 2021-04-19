@@ -122,7 +122,13 @@ import MsTableButton from "@/business/components/common/components/MsTableButton
 import MsSelectTree from "../../../common/select-tree/SelectTree";
 import MsTestCaseStepRichText from "./MsRichText";
 import CustomFiledComponent from "@/business/components/settings/workspace/template/CustomFiledComponent";
-import {buildCustomFields, compatibleTestCaseStep, getTemplate, parseCustomField} from "@/common/js/custom_field";
+import {
+  buildCustomFields,
+  buildTestCaseOldFields,
+  compatibleTestCaseStep,
+  getTemplate,
+  parseCustomField
+} from "@/common/js/custom_field";
 import {SYSTEM_FIELD_NAME_MAP} from "@/common/js/table-constants";
 import TestCaseRIchTextItem from "@/business/components/track/case/components/FormRichTextItem";
 import MsFormDivider from "@/business/components/common/components/MsFormDivider";
@@ -295,7 +301,7 @@ export default {
       }
       if (this.type === 'add') {
         //设置自定义熟悉默认值
-        parseCustomField(this.form, this.testCaseTemplate, this.customFieldForm, this.customFieldRules, this.buildOldFields(this.form));
+        parseCustomField(this.form, this.testCaseTemplate, this.customFieldForm, this.customFieldRules, buildTestCaseOldFields(this.form));
         this.form.name = this.testCaseTemplate.caseName;
         this.form.stepDesc = this.testCaseTemplate.stepDescription;
         this.form.stepResult = this.testCaseTemplate.expectedResult;
@@ -378,7 +384,7 @@ export default {
           this.setTestCaseExtInfo(testCase);
           this.getSelectOptions();
           //设置自定义熟悉默认值
-          parseCustomField(this.form, this.testCaseTemplate, this.customFieldForm, this.customFieldRules, this.buildOldFields(this.form));
+          parseCustomField(this.form, this.testCaseTemplate, this.customFieldForm, this.customFieldRules, buildTestCaseOldFields(this.form));
           this.reload();
         } else {
           this.initTestCases(testCase);
@@ -398,7 +404,7 @@ export default {
         this.form.maintainer = user.id;
         this.form.tags = [];
         this.getSelectOptions();
-        parseCustomField(this.form, this.testCaseTemplate, this.customFieldForm, this.customFieldRules, this.buildOldFields(this.form));
+        parseCustomField(this.form, this.testCaseTemplate, this.customFieldForm, this.customFieldRules, buildTestCaseOldFields(this.form));
         this.reload();
       }
     },
@@ -450,16 +456,9 @@ export default {
       Object.assign(this.form, tmp);
       this.form.module = testCase.nodeId;
       //设置自定义熟悉默认值
-      parseCustomField(this.form, this.testCaseTemplate, this.customFieldForm, this.customFieldRules, this.buildOldFields(this.form));
+      parseCustomField(this.form, this.testCaseTemplate, this.customFieldForm, this.customFieldRules, buildTestCaseOldFields(this.form));
       // 重新渲染，显示自定义字段的必填校验
       this.reloadForm();
-    },
-    buildOldFields(testCase) {
-      let oldFields = new Map();
-      oldFields.set('custom_field.case_status', testCase.status);
-      oldFields.set('custom_field.case_maintainer', testCase.maintainer);
-      oldFields.set('custom_field.case_priority', testCase.priority);
-      return oldFields;
     },
     setTestCaseExtInfo(testCase) {
       this.testCase = {};
