@@ -221,6 +221,10 @@ export default {
         type: [
           {required: true, message: this.$t('test_resource_pool.select_pool_type'), trigger: 'blur'}
         ]
+      },
+      updatePool: {
+        testName: '',
+        haveTestUsePool: false
       }
     };
   },
@@ -408,6 +412,40 @@ export default {
     changeSwitch(row) {
       this.result.loading = true;
       this.$info(this.$t('test_resource_pool.check_in'), 1000);
+      if (row.status === 'VALID') {
+        this.updatePoolStatus(row);
+        return false;
+      }
+      // 禁用时检查是否有正在使用该资源池的性能测试
+      if (row.status === 'INVALID') {
+        this.checkHaveTestUsePool(row).then(() => {
+          if (this.updatePool && this.updatePool.haveTestUsePool) {
+            this.$confirm(this.$t('test_resource_pool.update_prompt', [this.updatePool.testName]), this.$t('commons.prompt'), {
+              confirmButtonText: this.$t('commons.confirm'),
+              cancelButtonText: this.$t('commons.cancel'),
+              type: 'warning'
+            }).then(() => {
+              this.updatePoolStatus(row);
+            }).catch(() => {
+              row.status = 'VALID';
+              this.result.loading = false;
+              this.$info(this.$t('commons.cancel'));
+            });
+          } else {
+            this.updatePoolStatus(row);
+          }
+        })
+      }
+    },
+    checkHaveTestUsePool(row) {
+      return new Promise((resolve) => {
+        this.$get('/testresourcepool/check/use/' + row.id, result => {
+          this.updatePool = result.data;
+          resolve();
+        })
+      });
+    },
+    updatePoolStatus(row) {
       this.$get('/testresourcepool/update/' + row.id + '/' + row.status)
         .then(() => {
           this.$success(this.$t('test_resource_pool.status_change_success'));

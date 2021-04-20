@@ -4,14 +4,17 @@ import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.LoadTestMapper;
 import io.metersphere.base.mapper.TestResourceMapper;
 import io.metersphere.base.mapper.TestResourcePoolMapper;
+import io.metersphere.commons.constants.PerformanceTestStatus;
 import io.metersphere.commons.constants.ResourcePoolTypeEnum;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.controller.request.resourcepool.QueryResourcePoolRequest;
 import io.metersphere.dto.TestResourcePoolDTO;
+import io.metersphere.dto.UpdatePoolDTO;
 import io.metersphere.i18n.Translator;
 import org.apache.commons.beanutils.BeanUtils;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -39,6 +42,8 @@ public class TestResourcePoolService {
     private TestResourceMapper testResourceMapper;
     @Resource
     private NodeResourcePoolService nodeResourcePoolService;
+    @Resource
+    private LoadTestMapper loadTestMapper;
 
     public TestResourcePoolDTO addTestResourcePool(TestResourcePoolDTO testResourcePool) {
         checkTestResourcePool(testResourcePool);
@@ -109,6 +114,35 @@ public class TestResourcePoolService {
         } catch (IllegalAccessException | InvocationTargetException e) {
             LogUtil.error(e.getMessage(), e);
         }
+    }
+
+    /**
+     * 禁用资源池时，检查是否有测试正在使用
+     * @param poolId 资源池ID
+     * @return UpdatePoolDTO
+     */
+    public UpdatePoolDTO checkHaveTestUsePool(String poolId) {
+        TestResourcePool testResourcePool = testResourcePoolMapper.selectByPrimaryKey(poolId);
+        if (testResourcePool == null) {
+            MSException.throwException("Resource Pool not found.");
+        }
+        UpdatePoolDTO result = new UpdatePoolDTO();
+        StringBuilder builder = new StringBuilder();
+        LoadTestExample loadTestExample = new LoadTestExample();
+        loadTestExample.createCriteria().andTestResourcePoolIdEqualTo(poolId);
+        List<LoadTest> loadTests = loadTestMapper.selectByExample(loadTestExample);
+        if (CollectionUtils.isNotEmpty(loadTests)) {
+            loadTests.forEach(loadTest -> {
+                String testStatus = loadTest.getStatus();
+                if (StringUtils.equalsAny(testStatus, PerformanceTestStatus.Starting.name(),
+                        PerformanceTestStatus.Running.name(), PerformanceTestStatus.Reporting.name())) {
+                    builder.append(loadTest.getName()).append("; ");
+                    result.setHaveTestUsePool(true);
+                }
+            });
+        }
+        result.setTestName(builder.toString());
+        return result;
     }
 
     public List<TestResourcePoolDTO> listResourcePools(QueryResourcePoolRequest request) {

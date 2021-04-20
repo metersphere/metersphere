@@ -1521,6 +1521,7 @@ export default {
     cannot_empty: '资源池不能为空',
     fill_the_data: '请完善数据',
     delete_prompt: '此操作将永久删除该资源池, 是否继续?',
+    update_prompt: '{0}  等测试正在使用此资源池，禁用可能会影响报告的监控部分，是否继续？',
     status_change_success: '状态修改成功!',
     status_change_failed: '状态修改失败, 校验不通过!',
     check_in: '校验中',
