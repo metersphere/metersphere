@@ -111,8 +111,10 @@ public class TestPlanScenarioCaseService {
 
         RunScenarioRequest request = new RunScenarioRequest();
         request.setIds(scenarioIds);
+        request.setReportId(testPlanScenarioRequest.getId());
         request.setScenarioTestPlanIdMap(scenarioIdApiScarionMap);
         request.setRunMode(ApiRunMode.SCENARIO_PLAN.name());
+        request.setId(testPlanScenarioRequest.getId());
         return apiAutomationService.run(request);
     }
 
