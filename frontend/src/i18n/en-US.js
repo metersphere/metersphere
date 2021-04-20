@@ -207,7 +207,7 @@ export default {
       default_module: "Default module",
     },
     report_statistics: {
-      title: "Report statistics",
+      title: "Report Statistics",
       test_case_analysis: "Test case analysis",
       test_case_activity: "Test case activity",
       name: "Report",
