@@ -94,6 +94,7 @@ public class ApiTestEnvironmentService {
 
     private ApiTestEnvironmentWithBLOBs genHttpApiTestEnvironmentByUrl(String projectId, String name, String url) {
         String protocol = "";
+        String socket = "";
         if (url.startsWith("http://")) {
             protocol = "http";
             url = url.substring(7);
@@ -101,6 +102,7 @@ public class ApiTestEnvironmentService {
             protocol = "https";
             url = url.substring(8);
         }
+        socket = url;
 
         String portStr = "";
         String ipStr = protocol;
@@ -127,13 +129,42 @@ public class ApiTestEnvironmentService {
         commonConfigObj.put("hosts", new String[]{});
 
         JSONObject httpConfig = new JSONObject();
-        httpConfig.put("socket", url);
-        httpConfig.put("domain", ipStr);
-        httpConfig.put("headers", variablesArr);
-        httpConfig.put("protocol", protocol);
+//        httpConfig.put("socket", url);
+//        httpConfig.put("domain", ipStr);
+//        httpConfig.put("headers", variablesArr);
+//        httpConfig.put("protocol", protocol);
+//        if (StringUtils.isNotEmpty(portStr)) {
+//            httpConfig.put("port", portStr);
+//        }
+        httpConfig.put("socket", null);
+        httpConfig.put("domain", null);
+        httpConfig.put("headers", new JSONArray(variablesArr));
+        httpConfig.put("protocol", null);
+        httpConfig.put("port", null);
+        JSONArray httpItemArr = new JSONArray();
+        JSONObject httpItem = new JSONObject();
+        httpItem.put("id", UUID.randomUUID().toString());
+        httpItem.put("type", "NONE");
+        httpItem.put("socket", socket);
+        httpItem.put("protocol", protocol);
+        httpItem.put("headers", new JSONArray(variablesArr));
+        httpItem.put("domain", ipStr);
         if (StringUtils.isNotEmpty(portStr)) {
-            httpConfig.put("port", portStr);
+            httpItem.put("port", portStr);
+        } else {
+            httpItem.put("port", "");
         }
+        JSONArray detailArr = new JSONArray();
+        JSONObject detailObj = new JSONObject();
+        detailObj.put("name", "");
+        detailObj.put("value", "contains");
+        detailObj.put("enable", true);
+        detailArr.add(detailObj);
+        httpItem.put("details", detailArr);
+
+        httpItemArr.add(httpItem);
+        httpConfig.put("conditions", httpItemArr);
+        httpConfig.put("defaultCondition", "NONE");
 
         JSONArray databaseConfigObj = new JSONArray();
 

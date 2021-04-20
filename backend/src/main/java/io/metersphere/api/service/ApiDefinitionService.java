@@ -194,7 +194,11 @@ public class ApiDefinitionService {
     }
 
     public void reduction(ApiBatchRequest request) {
-        extApiDefinitionMapper.reduction(request.getIds());
+        ServiceUtils.getSelectAllIds(request, request.getCondition(),
+                (query) -> extApiDefinitionMapper.selectIds(query));
+        if (request.getIds() != null || !request.getIds().isEmpty()) {
+            extApiDefinitionMapper.reduction(request.getIds());
+        }
     }
 
     public void deleteBodyFiles(String apiId) {
