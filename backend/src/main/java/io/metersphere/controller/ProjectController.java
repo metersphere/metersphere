@@ -2,6 +2,7 @@ package io.metersphere.controller;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import io.metersphere.api.service.ApiTestEnvironmentService;
 import io.metersphere.base.domain.FileMetadata;
 import io.metersphere.base.domain.Project;
 import io.metersphere.commons.constants.RoleConstants;
@@ -18,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 
 @RestController
@@ -27,6 +29,8 @@ public class ProjectController {
     private ProjectService projectService;
     @Resource
     private CheckPermissionService checkPermissionService;
+    @Resource
+    private ApiTestEnvironmentService apiTestEnvironmentService;
 
     @GetMapping("/listAll")
     public List<ProjectDTO> listAll() {
@@ -62,8 +66,18 @@ public class ProjectController {
 
     @PostMapping("/add")
     @RequiresRoles(value = {RoleConstants.TEST_MANAGER, RoleConstants.TEST_USER,}, logical = Logical.OR)
-    public Project addProject(@RequestBody Project project) {
-        return projectService.addProject(project);
+    public Project addProject(@RequestBody Project project, HttpServletRequest request) {
+        Project returnModel = projectService.addProject(project);
+
+        //创建项目的时候默认增加Mock环境
+        String requestUrl = request.getRequestURL().toString();
+        String baseUrl = "";
+        if (requestUrl.contains("/project/add")) {
+            baseUrl = requestUrl.split("/project/add")[0];
+        }
+        apiTestEnvironmentService.getMockEnvironmentByProjectId(returnModel.getId(), baseUrl);
+
+        return returnModel;
     }
 
     @PostMapping("/list/{goPage}/{pageSize}")

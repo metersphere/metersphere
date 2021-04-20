@@ -1,14 +1,14 @@
 <template>
   <el-table-column
-    v-if="fields.has(prop) || fields.size < 1"
-    :width="width"
-    :fixed="fixed"
-    :filters="filters"
-    :prop="prop"
-    :column-key="prop"
-    :label="label"
-    :sortable="sortable"
-    :show-overflow-tooltip="showOverflowTooltip">
+      v-if="fields.has(prop) || fields.size < 1"
+      :min-width="width"
+      :fixed="fixed"
+      :filters="filters"
+      :prop="prop"
+      :column-key="prop"
+      :label="label"
+      :sortable="sortable"
+      :show-overflow-tooltip="showOverflowTooltip">
     <template v-slot:default="scope">
       <slot :row="scope.row" :$index="scope.$index">
         {{scope.row[prop]}}
@@ -35,7 +35,7 @@ export default {
     },
     // 开启排序，后端mapper添加ExtBaseMapper.orders
     sortable: {
-      type: Boolean,
+      type: [Boolean, String],
       default() {
         return false;
       }
