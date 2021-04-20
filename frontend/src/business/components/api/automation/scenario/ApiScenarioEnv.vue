@@ -41,7 +41,7 @@
 
 <script>
 import {parseEnvironment} from "@/business/components/api/test/model/EnvironmentModel";
-import ApiEnvironmentConfig from "@/business/components/api/definition/components/environment/ApiEnvironmentConfig";
+import ApiEnvironmentConfig from "@/business/components/api/test/components/ApiEnvironmentConfig";
 
 export default {
   name: "ApiScenarioEnv",

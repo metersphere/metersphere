@@ -146,7 +146,11 @@
       }
     },
     created() {
-      this.getEnvironments();
+      if(this.isScenario){
+        this.initDataSource();
+      }else{
+        this.getEnvironments();
+      }
     },
     computed: {
       projectId() {
