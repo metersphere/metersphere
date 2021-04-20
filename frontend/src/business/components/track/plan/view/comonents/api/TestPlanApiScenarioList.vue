@@ -294,9 +294,31 @@ export default {
       })
     },
     handleBatchExecute() {
-      this.$refs.runMode.open();
+      if(this.condition != null && this.condition.selectAll) {
+        this.$alert(this.$t('commons.option_cannot_spread_pages'), '', {
+          confirmButtonText: this.$t('commons.confirm'),
+          callback: (action) => {
+            if (action === 'confirm') {
+              this.$refs.runMode.open();
+            }
+          }
+        })
+      }else {
+        this.$refs.runMode.open();
+      }
+    },
+    orderBySelectRows(rows){
+      let selectIds = Array.from(rows).map(row => row.id);
+      let array = [];
+      for(let i in this.tableData){
+        if(selectIds.indexOf(this.tableData[i].id)!==-1){
+          array.push(this.tableData[i]);
+        }
+      }
+      this.selectRows = array;
     },
     handleRunBatch(config){
+      this.orderBySelectRows(this.selectRows);
       if (this.reviewId) {
         let param = {config : config,planCaseIds:[]};
         this.selectRows.forEach(row => {
@@ -320,6 +342,7 @@ export default {
     execute(row) {
       this.infoDb = false;
       let param ={planCaseIds: []};
+      this.reportId = "";
       this.buildExecuteParam(param,row);
       if (this.planId) {
         this.$post("/test/plan/scenario/case/run", param, response => {

@@ -6,7 +6,6 @@ import lombok.Data;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
-import java.beans.Beans;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -17,6 +16,7 @@ public class HttpConfig {
     private String protocol = "https";
     private String defaultCondition;
     private int port;
+    private boolean isMock;
     private List<HttpConfigCondition> conditions;
     private List<KeyValue> headers;
 

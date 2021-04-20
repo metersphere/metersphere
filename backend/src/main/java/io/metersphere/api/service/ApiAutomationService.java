@@ -798,7 +798,7 @@ public class ApiAutomationService {
                     group.setOnSampleError(request.getConfig().isOnSampleError());
                 }
                 // 批量执行的结果直接存储为报告
-                if (isFirst) {
+                if (isFirst && StringUtils.isNotEmpty(request.getId())) {
                     group.setName(request.getId());
                 }
                 ObjectMapper mapper = new ObjectMapper();
@@ -848,11 +848,11 @@ public class ApiAutomationService {
                 testPlan.getHashTree().add(group);
                 isFirst = false;
             }
+            testPlan.toHashTree(jmeterHashTree, testPlan.getHashTree(), new ParameterConfig());
         } catch (Exception ex) {
             MSException.throwException(ex.getMessage());
         }
 
-        testPlan.toHashTree(jmeterHashTree, testPlan.getHashTree(), new ParameterConfig());
         return jmeterHashTree;
     }
 
