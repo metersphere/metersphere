@@ -2,7 +2,7 @@
   <el-card>
     <div class="card-content">
       <el-tabs v-model="activeName" style="margin-left: 4px">
-        <el-tab-pane label="基础信息" name="BaseInfo">
+        <el-tab-pane label="基础信息" name="BaseInfo" class="overflow-y">
           <div class="ms-main-div" @click="showAll" v-if="type!=='detail'" style="margin-top: 4px">
             <!--操作按钮-->
             <div class="ms-opt-btn">
@@ -99,7 +99,7 @@
             </el-form>
           </div>
         </el-tab-pane>
-        <el-tab-pane label="场景步骤" name="Steps">
+        <el-tab-pane label="场景步骤" name="Steps" class="overflow-y">
           <!-- 场景步骤-->
           <div v-loading="loading" style="margin-top: 4px">
 <!--            <div @click="showAll">-->
@@ -188,184 +188,16 @@
             </el-row>
           </div>
         </el-tab-pane>
-        <el-tab-pane label="调试结果" name="Report">
+        <el-tab-pane label="调试结果" name="Report" class="overflow-y">
           <ms-api-report-detail v-if="debugVisible" :report-id="reportIdCopy" :debug="true" :currentProjectId="projectId" @refresh="detailRefresh"/>
         </el-tab-pane>
-        <el-tab-pane label="控制台日志" name="Console">
+        <el-tab-pane label="控制台日志" name="Console" class="overflow-y">
           <div>
             <pre style="overflow:auto">{{consoleText}} </pre>
           </div>
         </el-tab-pane>
       </el-tabs>
-<!--      <div class="ms-main-div" @click="showAll" v-if="type!=='detail'">-->
 
-<!--        &lt;!&ndash;操作按钮&ndash;&gt;-->
-<!--        <div class="ms-opt-btn">-->
-<!--          <el-button id="inputDelay" type="primary" size="small" v-prevent-re-click @click="editScenario" title="ctrl + s">-->
-<!--            {{ $t('commons.save') }}-->
-<!--          </el-button>-->
-<!--        </div>-->
-
-<!--        <div class="tip">{{ $t('test_track.plan_view.base_info') }}</div>-->
-<!--        <el-form :model="currentScenario" label-position="right" label-width="80px" size="small" :rules="rules"-->
-<!--                 ref="currentScenario" style="margin-right: 20px">-->
-<!--          &lt;!&ndash; 基础信息 &ndash;&gt;-->
-<!--          <el-row>-->
-<!--            <el-col :span="7">-->
-<!--              <el-form-item :label="$t('commons.name')" prop="name">-->
-<!--                <el-input class="ms-scenario-input" size="small" v-model="currentScenario.name"/>-->
-<!--              </el-form-item>-->
-<!--            </el-col>-->
-<!--            <el-col :span="7">-->
-<!--              <el-form-item :label="$t('test_track.module.module')" prop="apiScenarioModuleId">-->
-<!--                <ms-select-tree size="small" :data="moduleOptions" :defaultKey="currentScenario.apiScenarioModuleId" @getValue="setModule" :obj="moduleObj" clearable checkStrictly/>-->
-<!--              </el-form-item>-->
-<!--            </el-col>-->
-<!--            <el-col :span="7">-->
-<!--              <el-form-item :label="$t('commons.status')" prop="status">-->
-<!--                <el-select class="ms-scenario-input" size="small" v-model="currentScenario.status">-->
-<!--                  <el-option v-for="item in options" :key="item.id" :label="item.label" :value="item.id"/>-->
-<!--                </el-select>-->
-<!--              </el-form-item>-->
-<!--            </el-col>-->
-<!--          </el-row>-->
-<!--          <el-row>-->
-<!--            <el-col :span="7">-->
-<!--              <el-form-item :label="$t('api_test.definition.request.responsible')" prop="principal">-->
-<!--                <el-select v-model="currentScenario.principal"-->
-<!--                           :placeholder="$t('api_test.definition.request.responsible')" filterable size="small"-->
-<!--                           class="ms-scenario-input">-->
-<!--                  <el-option-->
-<!--                    v-for="item in maintainerOptions"-->
-<!--                    :key="item.id"-->
-<!--                    :label="item.id + ' (' + item.name + ')'"-->
-<!--                    :value="item.id">-->
-<!--                  </el-option>-->
-<!--                </el-select>-->
-<!--              </el-form-item>-->
-<!--            </el-col>-->
-<!--            <el-col :span="7">-->
-<!--              <el-form-item :label="$t('test_track.case.priority')" prop="level">-->
-<!--                <el-select class="ms-scenario-input" size="small" v-model="currentScenario.level">-->
-<!--                  <el-option v-for="item in levels" :key="item.id" :label="item.label" :value="item.id"/>-->
-<!--                </el-select>-->
-<!--              </el-form-item>-->
-<!--            </el-col>-->
-<!--            <el-col :span="7">-->
-<!--              <el-form-item :label="$t('api_test.automation.follow_people')" prop="followPeople">-->
-<!--                <el-select v-model="currentScenario.followPeople"-->
-<!--                           :placeholder="$t('api_test.automation.follow_people')" filterable size="small"-->
-<!--                           class="ms-scenario-input">-->
-<!--                  <el-option-->
-<!--                    v-for="item in maintainerOptions"-->
-<!--                    :key="item.id"-->
-<!--                    :label="item.id + ' (' + item.name + ')'"-->
-<!--                    :value="item.id">-->
-<!--                  </el-option>-->
-<!--                </el-select>-->
-<!--              </el-form-item>-->
-<!--            </el-col>-->
-<!--          </el-row>-->
-<!--          <el-row>-->
-<!--            <el-col :span="7">-->
-<!--              <el-form-item :label="$t('api_test.automation.tag')" prop="tags">-->
-<!--                <ms-input-tag :currentScenario="currentScenario" ref="tag"/>-->
-<!--              </el-form-item>-->
-<!--            </el-col>-->
-<!--            <el-col :span="7">-->
-<!--              <el-form-item :label="$t('commons.description')" prop="description">-->
-<!--                <el-input class="ms-http-textarea"-->
-<!--                          v-model="currentScenario.description"-->
-<!--                          type="textarea"-->
-<!--                          :autosize="{ minRows: 2, maxRows: 10}"-->
-<!--                          :rows="2" size="small"/>-->
-<!--              </el-form-item>-->
-<!--            </el-col>-->
-<!--          </el-row>-->
-
-<!--        </el-form>-->
-<!--      </div>-->
-      <!-- 场景步骤-->
-<!--      <div v-loading="loading">-->
-<!--        <div @click="showAll">-->
-<!--          <p class="tip">{{ $t('api_test.automation.scenario_step') }} </p>-->
-<!--        </div>-->
-<!--        <el-row>-->
-<!--          <el-col :span="21">-->
-<!--            &lt;!&ndash; 调试部分 &ndash;&gt;-->
-<!--            <div class="ms-debug-div" @click="showAll">-->
-<!--              <el-row style="margin: 5px">-->
-<!--                <el-col :span="6" class="ms-col-one ms-font">-->
-<!--                  <el-tooltip placement="top" effect="light">-->
-<!--                    <template v-slot:content>-->
-<!--                      <div>{{ currentScenario.name }}</div>-->
-<!--                    </template>-->
-<!--                    <span class="scenario-name">-->
-<!--                        {{ currentScenario.name === undefined || '' ? $t('api_test.scenario.name') : currentScenario.name }}-->
-<!--                    </span>-->
-<!--                  </el-tooltip>-->
-<!--                </el-col>-->
-<!--                <el-col :span="3" class="ms-col-one ms-font">-->
-<!--                  {{$t('api_test.automation.step_total')}}：{{scenarioDefinition.length}}-->
-<!--                </el-col>-->
-<!--                <el-col :span="3" class="ms-col-one ms-font">-->
-<!--                  <el-link class="head" @click="showScenarioParameters">{{$t('api_test.automation.scenario_total')}}</el-link>-->
-<!--                  ：{{ getVariableSize() }}-->
-<!--                </el-col>-->
-<!--                <el-col :span="3" class="ms-col-one ms-font">-->
-<!--                  <el-checkbox v-model="enableCookieShare">共享cookie</el-checkbox>-->
-<!--                </el-col>-->
-<!--                <el-col :span="5">-->
-<!--                  <env-popover :disabled="scenarioDefinition.length < 1" :env-map="projectEnvMap" :project-ids="projectIds" @setProjectEnvMap="setProjectEnvMap"-->
-<!--                               :isReadOnly="scenarioDefinition.length < 1" @showPopover="showPopover" :project-list="projectList" ref="envPopover"/>-->
-<!--                </el-col>-->
-<!--                <el-col :span="4">-->
-<!--                  <el-button :disabled="scenarioDefinition.length < 1" size="mini" type="primary" v-prevent-re-click @click="runDebug">{{$t('api_test.request.debug')}}</el-button>-->
-<!--                  <el-tooltip class="item" effect="dark" :content="$t('commons.refresh')" placement="right-start">-->
-<!--                    <el-button :disabled="scenarioDefinition.length < 1" size="mini"  icon ="el-icon-refresh" v-prevent-re-click @click="getApiScenario"></el-button>-->
-<!--                  </el-tooltip>-->
-<!--                  <font-awesome-icon class="alt-ico" :icon="['fa', 'expand-alt']" size="lg" @click="fullScreen"/>-->
-<!--                </el-col>-->
-<!--              </el-row>-->
-<!--            </div>-->
-<!--            &lt;!&ndash; 场景步骤内容 &ndash;&gt;-->
-<!--            <div>-->
-<!--              <el-tree node-key="resourceId" :props="props" :data="scenarioDefinition" class="ms-tree"-->
-<!--                       :default-expanded-keys="expandedNode"-->
-<!--                       :expand-on-click-node="false"-->
-<!--                       highlight-current-->
-<!--                       @node-expand="nodeExpand"-->
-<!--                       @node-collapse="nodeCollapse"-->
-<!--                       :allow-drop="allowDrop" @node-drag-end="allowDrag" @node-click="nodeClick" v-if="!loading" draggable>-->
-<!--                    <span class="custom-tree-node father" slot-scope="{ node, data}" style="width: 96%">-->
-<!--                      &lt;!&ndash; 步骤组件&ndash;&gt;-->
-<!--                       <ms-component-config :type="data.type" :scenario="data" :response="response" :currentScenario="currentScenario"-->
-<!--                                            :currentEnvironmentId="currentEnvironmentId" :node="node" :project-list="projectList" :env-map="projectEnvMap"-->
-<!--                                            @remove="remove" @copyRow="copyRow" @suggestClick="suggestClick" @refReload="refReload" @openScenario="openScenario"/>-->
-<!--                    </span>-->
-<!--              </el-tree>-->
-<!--            </div>-->
-<!--          </el-col>-->
-<!--          &lt;!&ndash; 按钮列表 &ndash;&gt;-->
-<!--          <el-col :span="3">-->
-<!--            <div @click="fabClick">-->
-<!--              <vue-fab id="fab" mainBtnColor="#783887" size="small" :global-options="globalOptions"-->
-<!--                       :click-auto-close="false" v-outside-click="outsideClick">-->
-<!--                <fab-item-->
-<!--                  v-for="(item, index) in buttons"-->
-<!--                  :key="index"-->
-<!--                  :idx="getIdx(index)"-->
-<!--                  :title="item.title"-->
-<!--                  :title-bg-color="item.titleBgColor"-->
-<!--                  :title-color="item.titleColor"-->
-<!--                  :color="item.titleColor"-->
-<!--                  :icon="item.icon"-->
-<!--                  @clickItem="item.click"/>-->
-<!--              </vue-fab>-->
-<!--            </div>-->
-<!--          </el-col>-->
-<!--        </el-row>-->
-<!--      </div>-->
 
       <!--接口列表-->
       <scenario-api-relevance @save="pushApiOrCase" @close="setHideBtn" ref="scenarioApiRelevance" v-if="type!=='detail'"/>
@@ -386,11 +218,6 @@
       <ms-run :debug="true" v-if="type!=='detail'" :environment="projectEnvMap" :reportId="reportId"
               :run-data="debugData"
               @runRefresh="runRefresh" ref="runTest"/>
-<!--      &lt;!&ndash; 调试结果 &ndash;&gt;-->
-<!--      <el-drawer v-if="type!=='detail'" :visible.sync="debugVisible" :destroy-on-close="true" direction="ltr"-->
-<!--                 :withHeader="true" :modal="false" size="90%">-->
-<!--        <ms-api-report-detail :report-id="reportId" :debug="true" :currentProjectId="projectId" @refresh="detailRefresh"/>-->
-<!--      </el-drawer>-->
 
       <!--场景公共参数-->
       <ms-variable-list v-if="type!=='detail'" @setVariables="setVariables" ref="scenarioParameters"
@@ -1409,8 +1236,11 @@
 
 <style scoped>
   .card-content {
-    height: calc(100vh - 196px);
+    height: calc(100vh - 164px);
+  }
+  .overflow-y{
     overflow-y: auto;
+    height: calc(100vh - 246px);
   }
 
   .ms-scenario-input {
@@ -1468,7 +1298,7 @@
   }
 
   /deep/ .el-card__body {
-    padding: 10px;
+    padding: 6px;
   }
 
   /deep/ .el-drawer__body {
