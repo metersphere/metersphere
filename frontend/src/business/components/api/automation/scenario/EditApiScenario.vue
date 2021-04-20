@@ -17,6 +17,13 @@
               <!-- 基础信息 -->
               <el-row>
                 <el-col :span="7">
+                  <el-form-item label="用例id:" style="margin-bottom: 0px">
+                    {{currentScenario.num}}
+                  </el-form-item>
+                </el-col>
+              </el-row>
+              <el-row>
+                <el-col :span="7">
                   <el-form-item :label="$t('commons.name')" prop="name">
                     <el-input class="ms-scenario-input" size="small" v-model="currentScenario.name"/>
                   </el-form-item>
