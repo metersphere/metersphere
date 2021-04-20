@@ -67,6 +67,12 @@ export default {
     }
     if (localStorage.getItem("store")) {
       this.$store.replaceState(Object.assign({}, this.$store.state, JSON.parse(localStorage.getItem("store"))))
+      this.$get("/project/listAll", response => {
+        let projectIds = response.data;
+        if (projectIds && projectIds.length <= 0) {
+          this.$store.commit('setProjectId', undefined);
+        }
+      })
     }
     window.addEventListener("beforeunload", () => {
       localStorage.setItem("store", JSON.stringify(this.$store.state))
