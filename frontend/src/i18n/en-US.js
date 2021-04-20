@@ -1504,6 +1504,7 @@ export default {
     cannot_empty: 'Resource pool cannot be empty',
     fill_the_data: 'Please complete the data',
     delete_prompt: 'This operation will permanently delete the resource pool, continue?',
+    update_prompt: '{0}  The other tests are using this resource pool. Disabling the monitoring part that may affect the report. Do you want to continue?',
     status_change_success: 'Successfully changed the status!',
     status_change_failed: 'Failed to change the status, resource pool is invalid!',
     check_in: 'Check in',
