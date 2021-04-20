@@ -12,19 +12,22 @@
       @cell-mouse-enter="showPopover"
       row-key="id"
       class="test-content adjust-table ms-select-all-fixed"
+      :height="screenHeight"
       ref="table" @row-click="handleRowClick">
 
       <el-table-column v-if="enableSelection" width="50" type="selection"/>
 
-      <ms-table-header-select-popover v-if="enableSelection" v-show="total > 0"
+      <ms-table-header-select-popover v-if="enableSelection" ref="selectPopover"
                                       :page-size="pageSize > total ? total : pageSize"
                                       :total="total"
                                       @selectPageAll="isSelectDataAll(false)"
                                       @selectAll="isSelectDataAll(true)"/>
 
-      <el-table-column v-if="enableSelection && buttons && buttons.length > 0" width="40" :resizable="false" align="center">
+      <el-table-column v-if="enableSelection && batchOperators && batchOperators.length > 0" width="40"
+                       :resizable="false" align="center">
         <template v-slot:default="scope">
-          <show-more-btn :is-show="scope.row.showMore" :buttons="buttons" :size="selectDataCounts"/>
+          <!-- 选中记录后浮现的按钮，提供对记录的批量操作 -->
+          <show-more-btn :is-show="scope.row.showMore" :buttons="batchOperators" :size="selectDataCounts" v-tester/>
         </template>
       </el-table-column>
 
@@ -55,12 +58,13 @@ import {
   _handleSelectAll, _sort, getLabel,
   getSelectDataCounts,
   setUnSelectIds,
-  toggleAllSelection
+  toggleAllSelection,
+  checkTableRowIsSelect,
 } from "@/common/js/tableUtils";
 import MsTableHeaderSelectPopover from "@/business/components/common/components/table/MsTableHeaderSelectPopover";
 import {TEST_CASE_LIST} from "@/common/js/constants";
 import MsTablePagination from "@/business/components/common/pagination/TablePagination";
-import ShowMoreBtn from "@/business/components/api/automation/scenario/TableMoreBtn";
+import ShowMoreBtn from "@/business/components/track/case/components/ShowMoreBtn";
 import MsTableColumn from "@/business/components/common/components/table/Ms-table-column";
 import MsTableOperators from "@/business/components/common/components/MsTableOperators";
 
@@ -69,12 +73,21 @@ export default {
   components: {MsTableOperators, MsTableColumn, ShowMoreBtn, MsTablePagination, MsTableHeaderSelectPopover},
   data() {
     return {
-      buttons: [],
       selectDataCounts: 0,
       selectRows: new Set(),
     };
   },
   props: {
+    screenHeight: {
+      type: Number,
+      default: 400,
+    },
+    selectNodeIds: {
+      type: Array,
+      default() {
+        return [];
+      }
+    },
     data: {
       type: Array,
       default() {
@@ -106,11 +119,18 @@ export default {
         return [];
       }
     },
+    //批量操作按钮
+    batchOperators: {
+      type: Array,
+      default() {
+        return [];
+      }
+    },
     // 操作列的宽度
     operatorWidth: {
       type: String,
       default() {
-        return '150';
+        return "150px";
       }
     },
     //开启全选
@@ -123,6 +143,14 @@ export default {
   },
   mounted() {
     getLabel(this, TEST_CASE_LIST);
+  },
+  created() {
+  },
+  watch: {
+    selectNodeIds() {
+      this.selectDataCounts = 0;
+      this.$refs.selectPopover.reload();
+    },
   },
   computed: {
     selectIds() {
@@ -145,9 +173,14 @@ export default {
     },
     isSelectDataAll(data) {
       this.condition.selectAll = data;
-      setUnSelectIds(this.data, this.condition, this.selectRows);
-      this.selectDataCounts = getSelectDataCounts(this.condition, this.total, this.selectRows);
+      //设置勾选
       toggleAllSelection(this.$refs.table, this.data, this.selectRows);
+      //显示隐藏菜单
+      _handleSelectAll(this, this.data, this.data, this.selectRows);
+      //设置未选择ID(更新)
+      this.condition.unSelectIds = [];
+      //更新统计信息
+      this.selectDataCounts = getSelectDataCounts(this.condition, this.total, this.selectRows);
     },
     headerDragend(newWidth, oldWidth, column, event) {
       // let finalWidth = newWidth;
@@ -161,6 +194,9 @@ export default {
       if (column.property === 'name') {
         this.currentCaseId = row.id;
       }
+    },
+    doLayout() {
+      this.$refs.table.doLayout();
     },
     filter(filters) {
       _filter(filters, this.condition);
@@ -182,7 +218,7 @@ export default {
       this.$refs.testBatchMove.open(this.treeNodes, Array.from(this.selectRows).map(row => row.id), this.moduleOptions);
     },
     handleRowClick() {
-
+      this.$emit("handleRowClick");
     },
     handleRefresh() {
       this.selectRows.clear();
@@ -190,6 +226,9 @@ export default {
     },
     handlePageChange() {
       this.$emit('pageChange');
+    },
+    checkTableRowIsSelect() {
+      checkTableRowIsSelect(this, this.condition, this.data, this.$refs.table, this.selectRows);
     }
   }
 };
