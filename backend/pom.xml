@@ -527,16 +527,16 @@
                         <phase>generate-resources</phase>
                         <configuration>
                             <target>
-                                <copy todir="src/main/resources/static">
+                                <move todir="src/main/resources/static">
                                     <fileset dir="../frontend/dist">
                                         <exclude name="*.html"/>
                                     </fileset>
-                                </copy>
-                                <copy todir="src/main/resources/templates">
+                                </move>
+                                <move todir="src/main/resources/templates">
                                     <fileset dir="../frontend/dist">
                                         <include name="*.html"/>
                                     </fileset>
-                                </copy>
+                                </move>
                                 <copy todir="src/main/resources/static/css">
                                     <fileset dir="../frontend/src/assets/theme">
                                         <include name="index.css"/>
