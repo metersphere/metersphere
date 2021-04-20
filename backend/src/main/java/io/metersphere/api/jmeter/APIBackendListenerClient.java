@@ -26,6 +26,7 @@ import org.apache.jmeter.visualizers.backend.AbstractBackendListenerClient;
 import org.apache.jmeter.visualizers.backend.BackendListenerContext;
 import org.springframework.http.HttpMethod;
 
+import java.io.*;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.io.Serializable;
@@ -75,15 +76,18 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
     private String setReportId;
 
     //获得控制台内容
-    private PrintStream oldPrintStream = System.out;
+//    private PrintStream oldPrintStream = System.out;
     private ByteArrayOutputStream bos = new ByteArrayOutputStream();
 
     private void setConsole() {
-        System.setOut(new PrintStream(bos)); //设置新的out
+        PrintStream printStream = new PrintStream(bos);
+        System.setOut(printStream);
+        System.setErr(printStream);
     }
 
     private String getConsole() {
-        System.setOut(oldPrintStream);
+        System.setOut(new PrintStream(new FileOutputStream(FileDescriptor.out)));
+        System.setErr(new PrintStream(new FileOutputStream(FileDescriptor.err)));
         return bos.toString();
     }
 
