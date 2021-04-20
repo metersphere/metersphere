@@ -122,7 +122,7 @@ import {getUUID, getCurrentProjectID, strMapToObj} from "@/common/js/utils";
         let url = "/api/automation/run/debug";
         this.$fileUpload(url, null, bodyFiles, reqObj, response => {
           this.runId = response.data;
-          this.$emit('runRefresh', {});
+          this.$emit('runRefresh', {});  //通知页面刷新
         }, error => {
         });
       },
