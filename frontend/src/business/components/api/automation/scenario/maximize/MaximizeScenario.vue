@@ -847,6 +847,7 @@
       editScenario() {
         return new Promise((resolve, reject) => {
           document.getElementById("inputDelay").focus();  //  保存前在input框自动失焦，以免保存失败
+          document.getElementById("inputDelay1").focus();
           this.$refs['currentScenario'].validate((valid) => {
             if (valid) {
               this.setParameter();
