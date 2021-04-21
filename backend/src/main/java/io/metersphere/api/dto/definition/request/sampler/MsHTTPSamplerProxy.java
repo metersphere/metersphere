@@ -229,7 +229,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                     sampler.setDomain(httpConfig.getDomain());
                     //1.9 增加对Mock环境的判断
                     if (this.isMockEnvironment()) {
-                        url = url = httpConfig.getProtocol() + "://" + httpConfig.getSocket() + "/mock/" + this.getId();
+                        url = url = httpConfig.getProtocol() + "://" + httpConfig.getSocket() + "/mock/" + this.getProjectId();
                     } else {
                         url = httpConfig.getProtocol() + "://" + httpConfig.getSocket();
                     }
