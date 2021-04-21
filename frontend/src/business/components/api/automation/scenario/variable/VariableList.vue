@@ -262,6 +262,7 @@
           this.variables.splice(index, 1);
         })
         this.selection = [];
+        this.editData = {type: "CONSTANT"};
       },
       filter() {
         let datas = [];
