@@ -33,6 +33,14 @@ public interface ExtTestCaseMapper {
     List<TestCase> getTestCaseByNotInPlan(@Param("request") QueryTestCaseRequest request);
 
     /**
+     * 获取不在测试缺陷中的用例
+     *
+     * @param request
+     * @return
+     */
+    List<TestCaseDTO> getTestCaseByNotInIssue(@Param("request") QueryTestCaseRequest request);
+
+    /**
      * 获取不在评审范围中的用例
      *
      * @param request
@@ -78,4 +86,6 @@ public interface ExtTestCaseMapper {
 
 
     List<TestCaseWithBLOBs> listForMinder(@Param("request") QueryTestCaseRequest request);
+
+    List<TestCaseDTO> getTestCaseByIds(@Param("ids")List<String> ids);
 }

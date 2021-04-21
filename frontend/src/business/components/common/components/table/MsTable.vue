@@ -1,5 +1,5 @@
 <template>
-  <div class="card-container" >
+  <div class="card-container">
 
     <el-table
       border
@@ -11,12 +11,13 @@
       @header-dragend="headerDragend"
       @cell-mouse-enter="showPopover"
       row-key="id"
-      class="test-content adjust-table ms-select-all-fixed"
+      class="test-content adjust-table"
+      :class="{'ms-select-all-fixed':showSelectAll}"
       ref="table" @row-click="handleRowClick">
 
       <el-table-column v-if="enableSelection" width="50" type="selection"/>
 
-      <ms-table-header-select-popover v-if="enableSelection" v-show="total > 0"
+      <ms-table-header-select-popover v-if="enableSelection && showSelectAll" v-show="total > 0"
                                       :page-size="pageSize > total ? total : pageSize"
                                       :total="total"
                                       @selectPageAll="isSelectDataAll(false)"
@@ -119,6 +120,12 @@ export default {
       default() {
         return true;
       }
+    }, //开启全选
+    showSelectAll: {
+      type: Boolean,
+      default() {
+        return true;
+      }
     }
   },
   mounted() {
@@ -185,11 +192,15 @@ export default {
 
     },
     handleRefresh() {
-      this.selectRows.clear();
+      this.clear();
       this.$emit('refresh');
     },
     handlePageChange() {
       this.$emit('pageChange');
+    },
+    clear() {
+      this.selectRows.clear();
+      this.selectDataCounts = 0;
     }
   }
 };

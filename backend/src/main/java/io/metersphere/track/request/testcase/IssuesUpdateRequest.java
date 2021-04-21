@@ -1,6 +1,6 @@
 package io.metersphere.track.request.testcase;
 
-import io.metersphere.controller.request.BaseQueryRequest;
+import io.metersphere.base.domain.IssuesWithBLOBs;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -8,10 +8,8 @@ import java.util.List;
 
 @Getter
 @Setter
-public class IssuesRequest extends BaseQueryRequest {
-    private String title;
+public class IssuesUpdateRequest extends IssuesWithBLOBs {
     private String content;
-    private String projectId;
     private String testCaseId;
     private List<String> tapdUsers;
     /**
@@ -22,13 +20,5 @@ public class IssuesRequest extends BaseQueryRequest {
      * zentao bug 影响版本
      */
     private List<String> zentaoBuilds;
-
-    /**
-     * issues id
-     */
-    private String id;
-    private String caseId;
-    private String platform;
-    private String customFields;
     private List<String> testCaseIds;
 }

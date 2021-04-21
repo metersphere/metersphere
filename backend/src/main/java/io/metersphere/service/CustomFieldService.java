@@ -4,13 +4,16 @@ import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
 import io.metersphere.base.domain.CustomField;
 import io.metersphere.base.domain.CustomFieldExample;
+import io.metersphere.base.domain.CustomFieldTemplate;
 import io.metersphere.base.mapper.CustomFieldMapper;
 import io.metersphere.base.mapper.ext.ExtCustomFieldMapper;
 import io.metersphere.commons.exception.MSException;
+import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.commons.utils.ServiceUtils;
 import io.metersphere.controller.request.QueryCustomFieldRequest;
+import io.metersphere.dto.CustomFieldDao;
 import io.metersphere.i18n.Translator;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -19,10 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -102,6 +102,28 @@ public class CustomFieldService {
                 .andSceneEqualTo(scene);
         return customFieldMapper.selectByExampleWithBLOBs(example);
     }
+
+    public List<CustomFieldDao> getCustomFieldByTemplateId(String templateId) {
+        List<CustomFieldTemplate> customFields = customFieldTemplateService.getCustomFields(templateId);
+        List<String> fieldIds = customFields.stream()
+                .map(CustomFieldTemplate::getFieldId)
+                .collect(Collectors.toList());
+
+        List<CustomField> fields = getFieldByIds(fieldIds);
+        Map<String, CustomField> fieldMap = fields.stream()
+                .collect(Collectors.toMap(CustomField::getId, item -> item));
+
+        List<CustomFieldDao> result = new ArrayList<>();
+        customFields.forEach((item) -> {
+            CustomFieldDao customFieldDao = new CustomFieldDao();
+            CustomField customField = fieldMap.get(item.getFieldId());
+            BeanUtils.copyBean(customFieldDao, customField);
+            BeanUtils.copyBean(customFieldDao, item);
+            result.add(customFieldDao);
+        });
+        return result;
+    }
+
     public List<CustomField> getFieldByIds(List<String> ids) {
         if (CollectionUtils.isNotEmpty(ids)) {
             CustomFieldExample example = new CustomFieldExample();

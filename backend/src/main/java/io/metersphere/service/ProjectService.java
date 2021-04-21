@@ -89,6 +89,15 @@ public class ProjectService {
         return extProjectMapper.getProjectWithWorkspace(request);
     }
 
+    public List<Project> getProjectByIds(List<String> ids) {
+        if (!CollectionUtils.isEmpty(ids)) {
+            ProjectExample example = new ProjectExample();
+            example.createCriteria().andIdIn(ids);
+            return projectMapper.selectByExample(example);
+        }
+        return new ArrayList<>();
+    }
+
     public void deleteProject(String projectId) {
         // delete test
         LoadTestExample loadTestExample = new LoadTestExample();

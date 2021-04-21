@@ -179,27 +179,14 @@ public class TestCaseTemplateService {
         TestCaseTemplateDao caseTemplateDao = new TestCaseTemplateDao();
         if (StringUtils.isNotBlank(caseTemplateId)) {
             caseTemplate = testCaseTemplateMapper.selectByPrimaryKey(caseTemplateId);
+            if (caseTemplate == null) {
+                caseTemplate = getDefaultTemplate(project.getWorkspaceId());
+            }
         } else {
             caseTemplate = getDefaultTemplate(project.getWorkspaceId());
         }
         BeanUtils.copyBean(caseTemplateDao, caseTemplate);
-        List<CustomFieldTemplate> customFields = customFieldTemplateService.getCustomFields(caseTemplate.getId());
-        List<String> fieldIds = customFields.stream()
-                .map(CustomFieldTemplate::getFieldId)
-                .collect(Collectors.toList());
-
-        List<CustomField> fields = customFieldService.getFieldByIds(fieldIds);
-        Map<String, CustomField> fieldMap = fields.stream()
-                .collect(Collectors.toMap(CustomField::getId, item -> item));
-
-        List<CustomFieldDao> result = new ArrayList<>();
-        customFields.forEach((item) -> {
-            CustomFieldDao customFieldDao = new CustomFieldDao();
-            CustomField customField = fieldMap.get(item.getFieldId());
-            BeanUtils.copyBean(customFieldDao, customField);
-            BeanUtils.copyBean(customFieldDao, item);
-            result.add(customFieldDao);
-        });
+        List<CustomFieldDao> result = customFieldService.getCustomFieldByTemplateId(caseTemplate.getId());
         caseTemplateDao.setCustomFields(result);
         return caseTemplateDao;
     }

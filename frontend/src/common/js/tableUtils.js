@@ -45,12 +45,14 @@ export function setUnSelectIds(tableData, condition, selectRows) {
   let thisUnSelectIds = allIDs.filter(function (val) {
     return ids.indexOf(val) === -1;
   });
-  let needPushIds = thisUnSelectIds.filter(function (val) {
-    return condition.unSelectIds.indexOf(val) === -1;
-  });
-  needPushIds.forEach(id => {
-    condition.unSelectIds.push(id);
-  });
+  if (condition.unSelectIds) {
+    let needPushIds = thisUnSelectIds.filter(function (val) {
+      return condition.unSelectIds.indexOf(val) === -1;
+    });
+    needPushIds.forEach(id => {
+      condition.unSelectIds.push(id);
+    });
+  }
 }
 
 export function getSelectDataCounts(condition, total, selectRows) {

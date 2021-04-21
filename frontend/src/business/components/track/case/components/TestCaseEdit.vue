@@ -63,9 +63,9 @@
           <ms-form-divider :title="$t('步骤信息')"/>
 
           <div class="step-info">
-            <test-case-r-ich-text-item :title="$t('test_track.case.prerequisite')" :data="form" prop="prerequisite"/>
-            <test-case-r-ich-text-item :title="$t('test_track.case.step_desc')" :data="form" prop="stepDesc"/>
-            <test-case-r-ich-text-item :title="$t('test_track.case.expected_results')" :data="form" prop="stepResult"/>
+            <form-rich-text-item :title="$t('test_track.case.prerequisite')" :data="form" prop="prerequisite"/>
+            <form-rich-text-item :title="$t('test_track.case.step_desc')" :data="form" prop="stepDesc"/>
+            <form-rich-text-item :title="$t('test_track.case.expected_results')" :data="form" prop="stepResult"/>
           </div>
 
           <ms-form-divider :title="$t('其他信息')"/>
@@ -109,7 +109,6 @@
 import {TokenKey, WORKSPACE_ID} from '@/common/js/constants';
 import MsDialogFooter from '../../../common/components/MsDialogFooter'
 import {getCurrentUser, getNodePath, handleCtrlSEvent, listenGoBack, removeGoBackListener} from "@/common/js/utils";
-import {Message} from "element-ui";
 import TestCaseAttachment from "@/business/components/track/case/components/TestCaseAttachment";
 import CaseComment from "@/business/components/track/case/components/CaseComment";
 import MsInputTag from "@/business/components/api/automation/scenario/MsInputTag";
@@ -130,16 +129,16 @@ import {
   parseCustomField
 } from "@/common/js/custom_field";
 import {SYSTEM_FIELD_NAME_MAP} from "@/common/js/table-constants";
-import TestCaseRIchTextItem from "@/business/components/track/case/components/FormRichTextItem";
 import MsFormDivider from "@/business/components/common/components/MsFormDivider";
 import TestCaseEditOtherInfo from "@/business/components/track/case/components/TestCaseEditOtherInfo";
+import FormRichTextItem from "@/business/components/track/case/components/FormRichTextItem";
 
 export default {
   name: "TestCaseEdit",
   components: {
+    FormRichTextItem,
     TestCaseEditOtherInfo,
     MsFormDivider,
-    TestCaseRIchTextItem,
     CustomFiledComponent,
     MsTableButton,
     MsSelectTree,
@@ -591,7 +590,7 @@ export default {
       if (this.$refs.otherInfo && this.$refs.otherInfo.fileList) {
         if (param.isCopy) {
           // 如果是copy，则把文件的ID传到后台进行文件复制
-          param.fileIds = this.$refs.fileList.map(f => f.id);
+          param.fileIds = this.$refs.otherInfo.fileList.map(f => f.id);
         }
         param.updatedFileList = this.$refs.otherInfo.fileList;
       } else {

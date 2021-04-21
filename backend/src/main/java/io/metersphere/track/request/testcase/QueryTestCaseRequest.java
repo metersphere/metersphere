@@ -19,6 +19,8 @@ public class QueryTestCaseRequest extends BaseQueryRequest {
 
     private String planId;
 
+    private String issuesId;
+
     private String userId;
 
     private String reviewId;
@@ -30,4 +32,5 @@ public class QueryTestCaseRequest extends BaseQueryRequest {
 
     private long createTime = 0;
     private long relevanceCreateTime = 0;
+    private List<String> testCaseContainIds;
 }
