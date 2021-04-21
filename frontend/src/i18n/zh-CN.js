@@ -809,6 +809,11 @@ export default {
       report_name_info: '请输入报告名称',
       save_case_info: '请先保存用例',
       reference_deleted: '引用已删除',
+      loop_name: "循环",
+      loop_content: "默认为开启，当循环下只有一个请求时，可以开启/关闭;当循环下超过一个请求时，则只能开启。",
+      loop_return_val: "定义变量名称",
+      loop_input_val: "变量前缀",
+      loop_message: "当前循环下超过一个请求，不能关闭状态",
     },
     environment: {
       name: "环境名称",

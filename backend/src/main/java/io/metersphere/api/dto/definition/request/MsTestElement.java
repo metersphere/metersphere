@@ -46,6 +46,7 @@ import org.apache.jorphan.collections.ListedHashTree;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -285,6 +286,18 @@ public abstract class MsTestElement {
             return fullPath + "<->" + parent.getName();
         }
         return "";
+    }
+    public boolean isURL(String str) {
+        try {
+            new URL(str);
+            return true;
+        } catch (Exception e) {
+            // 支持包含变量的url
+            if (str.matches("^(http|https|ftp)://.*$") && str.matches(".*://\\$\\{.*$")) {
+                return true;
+            }
+            return false;
+        }
     }
 }
 

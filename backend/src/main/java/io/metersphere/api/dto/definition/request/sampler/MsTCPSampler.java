@@ -129,33 +129,31 @@ public class MsTCPSampler extends MsTestElement {
             ApiDefinitionService apiDefinitionService = CommonBeanFactory.getBean(ApiDefinitionService.class);
             ObjectMapper mapper = new ObjectMapper();
             mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+            MsTCPSampler proxy = null;
             if (StringUtils.equals(this.getRefType(), "CASE")) {
                 ApiTestCaseService apiTestCaseService = CommonBeanFactory.getBean(ApiTestCaseService.class);
                 ApiTestCaseWithBLOBs bloBs = apiTestCaseService.get(this.getId());
                 if (bloBs != null) {
-                    this.setProjectId(bloBs.getProjectId());
-                    MsTCPSampler proxy = mapper.readValue(bloBs.getRequest(), new TypeReference<MsTCPSampler>() {
-                    });
-                    this.setHashTree(proxy.getHashTree());
                     this.setName(bloBs.getName());
-                    this.setClassname(proxy.getClassname());
-                    this.setServer(proxy.getServer());
-                    this.setPort(proxy.getPort());
-                    this.setRequest(proxy.getRequest());
+                    this.setProjectId(bloBs.getProjectId());
+                    proxy = mapper.readValue(bloBs.getRequest(), new TypeReference<MsTCPSampler>() {
+                    });
                 }
             } else {
                 ApiDefinitionWithBLOBs apiDefinition = apiDefinitionService.getBLOBs(this.getId());
                 if (apiDefinition != null) {
-                    this.setProjectId(apiDefinition.getProjectId());
-                    MsTCPSampler proxy = mapper.readValue(apiDefinition.getRequest(), new TypeReference<MsTCPSampler>() {
-                    });
-                    this.setHashTree(proxy.getHashTree());
                     this.setName(apiDefinition.getName());
-                    this.setClassname(proxy.getClassname());
-                    this.setServer(proxy.getServer());
-                    this.setPort(proxy.getPort());
-                    this.setRequest(proxy.getRequest());
+                    this.setProjectId(apiDefinition.getProjectId());
+                    proxy = mapper.readValue(apiDefinition.getRequest(), new TypeReference<MsTCPSampler>() {
+                    });
                 }
+            }
+            if (proxy != null) {
+                this.setHashTree(proxy.getHashTree());
+                this.setClassname(proxy.getClassname());
+                this.setServer(proxy.getServer());
+                this.setPort(proxy.getPort());
+                this.setRequest(proxy.getRequest());
             }
         } catch (Exception ex) {
             ex.printStackTrace();

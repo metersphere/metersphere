@@ -799,6 +799,11 @@ export default {
       report_name_info: '請輸入報告名稱',
       save_case_info: '請先保存用例',
       reference_deleted: '引用已刪除',
+      loop_name: "循環",
+      loop_content: "默認為開啟，當循環下只有一個請求時，可以開啟/關閉;當循環下超過一個請求時，則只能開啟。",
+      loop_return_val: "定義變量名稱",
+      loop_input_val: "變量前綴",
+      loop_message: "當前循環下超過一個請求，不能關閉狀態",
     },
     environment: {
       name: "環境名稱",
