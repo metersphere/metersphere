@@ -1,5 +1,5 @@
 <template>
-  <el-form-item :disable="true" :label="title">
+  <el-form-item :disable="true" :label="title" :prop="prop">
     <test-case-rich-text :disabled="disabled" :content="data[prop]" @updateRichText="updateData"/>
   </el-form-item>
 </template>

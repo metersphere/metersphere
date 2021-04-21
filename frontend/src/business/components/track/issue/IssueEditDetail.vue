@@ -1,17 +1,47 @@
 <template>
   <el-main v-loading="result.loading" class="container">
     <el-scrollbar>
-      <el-form :model="form" :rules="rules" label-position="right" label-width="140px" size="small" ref="form">
+      <el-form :model="form" :rules="rules" label-position="right" label-width="140px" ref="form">
 
         <el-form-item :label="'标题'" prop="title">
           <el-input v-model="form.title" autocomplete="off"></el-input>
         </el-form-item>
 
+        <el-row class="custom-field-row">
+          <el-col :span="8" v-if="hasTapdId">
+            <el-form-item :label="$t('test_track.issue.tapd_current_owner')" prop="tapdUsers">
+              <el-select v-model="form.tapdUsers" multiple filterable
+                         :placeholder="$t('test_track.issue.please_choose_current_owner')">
+                <el-option v-for="(userInfo, index) in tapdUsers" :key="index" :label="userInfo.user"
+                           :value="userInfo.user"/>
+              </el-select>
+            </el-form-item>
+          </el-col>
+          <el-col :span="8" v-if="hasZentaoId">
+            <el-form-item :label="$t('test_track.issue.zentao_bug_build')" prop="zentaoBuilds">
+              <el-select v-model="form.zentaoBuilds" multiple filterable
+                         :placeholder="$t('test_track.issue.zentao_bug_build')">
+                <el-option v-for="(build, index) in Builds" :key="index" :label="build.name"
+                           :value="build.id"/>
+              </el-select>
+            </el-form-item>
+          </el-col>
+          <el-col :span="8" v-if="hasZentaoId">
+            <el-form-item :label="$t('test_track.issue.zentao_bug_assigned')" prop="zentaoAssigned">
+              <el-select v-model="form.zentaoAssigned" filterable
+                         :placeholder="$t('test_track.issue.please_choose_current_owner')">
+                <el-option v-for="(userInfo, index) in zentaoUsers" :key="index" :label="userInfo.name"
+                           :value="userInfo.user"/>
+              </el-select>
+            </el-form-item>
+          </el-col>
+        </el-row>
+
         <!-- 自定义字段 -->
         <el-form v-if="isFormAlive" :model="customFieldForm" :rules="customFieldRules" ref="customFieldForm"
                  class="case-form">
           <el-row class="custom-field-row">
-            <el-col :span="7" v-for="(item, index) in issueTemplate.customFields" :key="index">
+            <el-col :span="8" v-for="(item, index) in issueTemplate.customFields" :key="index">
               <el-form-item :label="item.system ? $t(systemNameMap[item.name]) : item.name" :prop="item.name"
                             :label-width="formLabelWidth">
                 <custom-filed-component @reload="reloadForm" :data="item" :form="customFieldForm" prop="defaultValue"/>
@@ -22,7 +52,7 @@
 
         <form-rich-text-item :title="$t('缺陷内容')" :data="form" prop="description"/>
 
-        <el-form-item>
+        <el-form-item v-if="!isPlan">
           <test-case-issue-list :test-case-contain-ids="testCaseContainIds" :issues-id="form.id" ref="testCaseIssueList"/>
         </el-form-item>
 
@@ -69,17 +99,34 @@ export default {
       customFieldRules: {},
       rules: {
         title: [
-          {required: true, message: this.$t('标题'), trigger: 'blur'},
+          {required: true, message: this.$t('请填写标题'), trigger: 'blur'},
           {max: 64, message: this.$t('test_track.length_less_than') + '64', trigger: 'blur'}
         ],
+        description: [
+          {required: true, message: this.$t('请填写内容'), trigger: 'blur'},
+        ]
       },
       testCaseContainIds: new Set(),
       url: '',
       form:{
         title: '',
         description: ''
-      }
+      },
+      tapdUsers: [],
+      zentaoUsers: [],
+      Builds: [],
+      hasTapdId: false,
+      hasZentaoId: false
     };
+  },
+  props: {
+    isPlan: {
+      type: Boolean,
+      default() {
+        return false;
+      }
+    },
+    caseId: String
   },
   computed: {
     isSystem() {
@@ -100,6 +147,30 @@ export default {
           this.issueTemplate = template;
           initAddFuc(data);
         });
+    },
+    getThirdPartyInfo() {
+      let url = '/project/get/' + this.projectId;
+      if (this.isPlan) {
+        url = '/test/case/project/' + this.caseId;
+      }
+      this.$get(url, res => {
+        let project = res.data;
+        if (project.tapdId) {
+          this.hasTapdId = true;
+          this.result = this.$get("/issues/tapd/user/" + this.caseId, (response) => {
+            this.tapdUsers = response.data;
+          });
+        }
+        if (project.zentaoId) {
+          this.hasZentaoId = true;
+          this.result = this.$get("/issues/zentao/builds/" + this.caseId,response => {
+            this.Builds = response.data;
+          });
+          this.result = this.$get("/issues/zentao/user/" + this.caseId, response => {
+            this.zentaoUsers = response.data;
+          });
+        }
+      })
     },
     initEdit(data) {
       this.testCaseContainIds = new Set();
@@ -123,7 +194,9 @@ export default {
       }
       parseCustomField(this.form, this.issueTemplate, this.customFieldForm, this.customFieldRules, null);
       this.$nextTick(() => {
-        this.$refs.testCaseIssueList.initTableData();
+        if (this.$refs.testCaseIssueList) {
+          this.$refs.testCaseIssueList.initTableData();
+        }
       });
     },
     reloadForm() {
@@ -148,12 +221,20 @@ export default {
         this._save();
       }
     },
-    _save() {
+    buildPram() {
       let param = {};
       Object.assign(param, this.form);
       param.projectId = this.projectId;
       buildCustomFields(this.form, param, this.issueTemplate);
-      param.testCaseIds = Array.from(this.testCaseContainIds);
+      if (this.isPlan) {
+        param.testCaseIds = [this.caseId];
+      } else {
+        param.testCaseIds = Array.from(this.testCaseContainIds);
+      }
+      return param;
+    },
+    _save() {
+      let param = this.buildPram();
       this.parseOldFields(param);
       this.result = this.$post(this.url, param, () => {
         this.$emit('close');

@@ -120,6 +120,7 @@ public class IssuesService {
     public List<IssuesDao> getIssues(String caseId) {
         IssuesRequest issueRequest = new IssuesRequest();
         issueRequest.setTestCaseId(caseId);
+        ServiceUtils.getDefaultOrder(issueRequest.getOrders());
         Project project = getProjectByCaseId(caseId);
         return getIssuesByProject(issueRequest, project);
     }
