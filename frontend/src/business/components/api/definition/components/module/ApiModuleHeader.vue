@@ -14,6 +14,7 @@
       </el-col>
       <el-col :span="15">
         <ms-search-bar
+          :show-operator="showOperator"
           :condition="condition"
           :commands="operators"/>
       </el-col>
@@ -39,7 +40,7 @@
   import TemplateComponent from "../../../../track/plan/view/comonents/report/TemplateComponent/TemplateComponent";
   import MsSearchBar from "@/business/components/common/components/search/MsSearchBar";
   export default {
-    name: "ApiModuleHeader",
+      name: "ApiModuleHeader",
     components: {MsSearchBar, TemplateComponent, ModuleTrashButton, ApiImport, MsAddBasisApi},
     data() {
       return {
@@ -92,6 +93,7 @@
           return {}
         }
       },
+      showOperator: Boolean,
       moduleOptions: Array,
       currentModule: {
         type: Object,

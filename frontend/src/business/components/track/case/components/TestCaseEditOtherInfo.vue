@@ -1,5 +1,5 @@
 <template>
-  <el-tabs v-loading="result.loading" v-model="tabActiveName">
+  <el-tabs class="other-info-tabs" v-loading="result.loading" v-model="tabActiveName">
     <el-tab-pane :label="$t('commons.remark')" name="remark">
       <el-row >
         <ms-rich-text :disabled="readOnly" :content="form.remark" @updateRichText="updateRemark"/>
@@ -300,4 +300,11 @@ export default {
 
 <style scoped>
 
+.other-info-tabs >>> .el-tabs__content {
+  padding: 20px 0px;
+}
+
+.other-info-tabs {
+  padding: 30px 60px;
+}
 </style>
