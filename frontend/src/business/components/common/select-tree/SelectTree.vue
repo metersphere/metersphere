@@ -1,7 +1,8 @@
 <template>
   <div>
     <div class="mask" v-show="isShowSelect"></div>
-    <el-popover placement="bottom-start" :width="popoverWidth" trigger="manual" v-model="isShowSelect" @hide="popoverHide" v-outside-click="outsideClick">
+    <el-popover placement="bottom-start" :width="popoverWidth" trigger="manual" v-model="isShowSelect"
+                @hide="popoverHide" v-outside-click="outsideClick">
       <el-input
         size="mini"
         prefix-icon="el-icon-search"
@@ -13,8 +14,10 @@
                :check-strictly="checkStrictly"
                :expand-on-click-node="multiple&&expandClickNode"
                :check-on-click-node="checkClickNode"
+               :default-checked-keys="defaultKeys"
                :highlight-current="true"
                @check-change="nodeClick"
+               :default-expanded-keys="expandedNode"
                :filter-node-method="filterNode"
                @node-click="nodeClick"/>
       <el-select slot="reference" ref="select" :size="size"
@@ -30,7 +33,9 @@
         <el-option v-for="item in options" :key="item.value" :label="item.label" :value="item.value"></el-option>
       </el-select>
       <el-row>
-        <el-button v-if="multiple" class="ok" @click="isShowSelect=false" size="mini" type="text">{{$t('commons.confirm')}}</el-button>
+        <el-button v-if="multiple" class="ok" @click="isShowSelect=false" size="mini" type="text">
+          {{$t('commons.confirm')}}
+        </el-button>
       </el-row>
     </el-popover>
   </div>
@@ -139,11 +144,13 @@
     //上面是父组件可传入参数
     data() {
       return {
+        expandedNode: [],
         popoverWidth: "0px",//下拉框大小
         isShowSelect: false, // 是否显示树状选择器
         options: [],//select option选项
         returnDatas: [],//返回给父组件数组对象
         returnDataKeys: [],//返回父组件数组主键值
+        defaultKeys:[],
         filterText: "",
       };
     },
@@ -235,6 +242,8 @@
       //单选:设置、初始化值 key
       setKey(thisKey) {
         this.$refs.tree.setCurrentKey(thisKey);
+        this.$refs.tree.setCheckedKeys([thisKey]);
+        this.defaultKeys= [thisKey];
         let node = this.$refs.tree.getNode(thisKey);
         if (node && node.data) {
           this.setData(node.data);
@@ -246,18 +255,20 @@
         this.options.push({label: data[this.obj.label], value: data[this.obj.id]});
         this.returnDatas = data;
         this.returnDataKeys = data[this.obj.id]
-
       },
       //多选:设置、初始化值 keys
       setKeys(thisKeys) {
         this.$refs.tree.setCheckedKeys(thisKeys);
         this.returnDataKeys = thisKeys;
         let t = [];
+        let tkey = [];
         thisKeys.map((item) => {//设置option选项
           let node = this.$refs.tree.getNode(item); // 所有被选中的节点对应的node
+          tkey.push(node.key)
           t.push(node.data);
           return {label: node.label, value: node.key};
         });
+        this.defaultKeys= tkey;
         this.returnDatas = t;
         this.popoverHide()
       },
@@ -269,6 +280,7 @@
         data.map((item) => {//设置option选项
           t.push(item[this.obj.id]);
         });
+        this.defaultKeys= t;
         this.returnDataKeys = t;
         this.popoverHide()
       },
@@ -340,6 +352,17 @@
       },
     },
     watch: {
+      returnDatas: function (val) {
+        let cur = this.$refs.tree.getNode(val);
+        while (cur && cur.parent) {
+          cur = cur.parent;
+          if (cur && cur.data && cur.data.id) {
+            if (this.expandedNode.indexOf(cur.data.id) === -1) {
+              this.expandedNode.push(cur.data.id)
+            }
+          }
+        }
+      },
       // eslint-disable-next-line no-unused-vars
       isShowSelect(val) {
         // 隐藏select自带的下拉框
@@ -387,9 +410,11 @@
     width: 100%;
     z-index: 111;
   }
-  /deep/.el-tree-node__children{
+
+  /deep/ .el-tree-node__children {
     overflow: inherit;
   }
+
   .ok {
     float: right;
   }
