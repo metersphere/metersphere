@@ -280,8 +280,11 @@ public class ApiDefinitionService {
         test.setResponse(JSONObject.toJSONString(request.getResponse()));
         test.setEnvironmentId(request.getEnvironmentId());
         test.setUserId(request.getUserId());
-        test.setTags(request.getTags());
-        this.setModule(test);
+        if (StringUtils.isNotEmpty(request.getTags()) && !StringUtils.equals(request.getTags(), "[]")) {
+            test.setTags(request.getTags());
+        } else {
+            test.setTags(null);
+        }        this.setModule(test);
         apiDefinitionMapper.updateByPrimaryKeySelective(test);
         return test;
     }
@@ -324,7 +327,11 @@ public class ApiDefinitionService {
             test.setUserId(request.getUserId());
         }
         test.setDescription(request.getDescription());
-        test.setTags(request.getTags());
+        if (StringUtils.isNotEmpty(request.getTags()) && !StringUtils.equals(request.getTags(), "[]")) {
+            test.setTags(request.getTags());
+        } else {
+            test.setTags(null);
+        }
         apiDefinitionMapper.insert(test);
         return test;
     }
