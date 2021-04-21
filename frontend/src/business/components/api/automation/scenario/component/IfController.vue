@@ -111,11 +111,11 @@
 <style scoped>
   .ms-btn {
     width: 20%;
-    margin-left: 20px;
+    margin-left: 5px;
   }
 
   .ms-select {
-    width: 10%;
-    margin-left: 10px;
+    width: 15%;
+    margin-left: 5px;
   }
 </style>

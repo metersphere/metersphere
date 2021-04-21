@@ -255,6 +255,12 @@ export default {
       url_tip: '例如：http://localhost:8081',
       url_is_null: '当前站点URL不能为空'
     },
+    prometheus_config: '监控配置',
+    prometheus: {
+      host: 'Prometheus地址',
+      host_tip: '例如:http://ms-prometheus:9090',
+      host_is_null: 'Prometheus地址不能为空'
+    }
   },
   custom_field: {
     case_status: '用例状态',
@@ -467,8 +473,12 @@ export default {
     not_exist: "测试报告不存在",
     batch_delete: "批量删除报告",
     delete_batch_confirm: '确认批量删除报告',
+    response_time: '响应时间(s)',
+    max_users: '并发数'
   },
   load_test: {
+    concurrency_thread_group: '并发读取组',
+    thread_group: '线程组',
     completed_test_report: '已完成测试报告',
     test: '测试',
     name: '测试名称',
@@ -501,7 +511,7 @@ export default {
     delete_file_confirm: '确认删除文件: ',
     file_size_limit: "文件个数超出限制！",
     delete_file: "文件已存在，请先删除同名文件！",
-    thread_num: '并发用户数：',
+    thread_num: '并发用户数',
     input_thread_num: '请输入线程数',
     duration: '压测时长',
     granularity: '聚合时间（秒）',
@@ -609,6 +619,7 @@ export default {
       base_info: "基本信息",
       req_param: "请求参数",
       rsp_param: "响应内容",
+      delete_mock_expect: "确认删除这条预期吗？",
     },
     definition: {
       api_title: "接口列表",
@@ -798,6 +809,11 @@ export default {
       report_name_info: '请输入报告名称',
       save_case_info: '请先保存用例',
       reference_deleted: '引用已删除',
+      loop_name: "循环",
+      loop_content: "默认为开启，当循环下只有一个请求时，可以开启/关闭;当循环下超过一个请求时，则只能开启。",
+      loop_return_val: "定义变量名称",
+      loop_input_val: "变量前缀",
+      loop_message: "当前循环下超过一个请求，不能关闭状态",
     },
     environment: {
       name: "环境名称",
@@ -1510,6 +1526,7 @@ export default {
     cannot_empty: '资源池不能为空',
     fill_the_data: '请完善数据',
     delete_prompt: '此操作将永久删除该资源池, 是否继续?',
+    update_prompt: '{0}  等测试正在使用此资源池，禁用可能会影响报告的监控部分，是否继续？',
     status_change_success: '状态修改成功!',
     status_change_failed: '状态修改失败, 校验不通过!',
     check_in: '校验中',

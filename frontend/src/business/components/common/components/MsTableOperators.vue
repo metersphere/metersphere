@@ -2,7 +2,7 @@
   <span>
     <ms-table-operator-button v-for="(btn, index) in buttons" :key="index" :isTesterPermission="isTesterPermission(btn)"
                               :disabled="isDisable(btn)"
-                              :tip="btn.tip" :icon="btn.icon" :type="btn.type"
+                              :tip="btn.tip" :icon="btn.icon" :type="btn.type" :isDivButton="btn.isDivButton"
                               @exec="click(btn)" @click.stop="clickStop(btn)"/>
   </span>
 </template>

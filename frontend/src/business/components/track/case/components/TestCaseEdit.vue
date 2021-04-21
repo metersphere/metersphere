@@ -542,12 +542,15 @@ export default {
       if (this.projectId) {
         param.projectId = this.projectId;
       }
+      if (this.type === 'copy') {
+        param.num = "";
+      }
       param.name = param.name.trim();
 
       if (this.form.tags instanceof Array) {
         this.form.tags = JSON.stringify(this.form.tags);
       }
-      param.testId = JSON.stringify(this.form.selected)
+      param.testId = JSON.stringify(this.form.selected);
       param.tags = this.form.tags;
       param.type = 'functional';
       buildCustomFields(this.form, param, this.testCaseTemplate);

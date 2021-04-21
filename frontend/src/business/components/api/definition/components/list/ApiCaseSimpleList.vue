@@ -39,7 +39,7 @@
             <template slot-scope="scope">
               <!-- 为只读用户的话不能编辑 -->
               <span style="cursor:pointer" v-if="isReadOnly"> {{ scope.row.num }} </span>
-              <el-tooltip content="编辑" v-else>
+              <el-tooltip :content="$t('commons.edit')" v-else>
                 <a style="cursor:pointer" @click="handleTestCase(scope.row)"> {{ scope.row.num }} </a>
               </el-tooltip>
             </template>
@@ -67,7 +67,16 @@
             sortable="custom"
             prop="path"
             min-width="180px"
-            :label="$t('api_test.definition.api_path')"
+            :label="'API'+ $t('api_test.definition.api_path')"
+            show-overflow-tooltip
+            :key="index"/>
+
+          <el-table-column
+            v-if="item.id == 'casePath'"
+            sortable="custom"
+            prop="casePath"
+            min-width="180px"
+            :label="$t('api_test.definition.request.case')+ $t('api_test.definition.api_path')"
             show-overflow-tooltip
             :key="index"/>
 

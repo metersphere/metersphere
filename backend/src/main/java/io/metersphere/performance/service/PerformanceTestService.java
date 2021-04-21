@@ -280,10 +280,10 @@ public class PerformanceTestService {
         String testResourcePoolId = loadTest.getTestResourcePoolId();
         TestResourcePool testResourcePool = testResourcePoolMapper.selectByPrimaryKey(testResourcePoolId);
         if (testResourcePool == null) {
-            MSException.throwException("Test resource pool not exists.");
+            MSException.throwException(Translator.get("test_resource_pool_not_exists"));
         }
         if (ResourceStatusEnum.INVALID.name().equals(testResourcePool.getStatus())) {
-            MSException.throwException("Test resource pool invalid.");
+            MSException.throwException(Translator.get("test_resource_pool_invalid"));
         }
         // check kafka
         checkKafka();
@@ -604,5 +604,11 @@ public class PerformanceTestService {
         FileMetadataExample example = new FileMetadataExample();
         example.createCriteria().andIdIn(fileIds);
         return fileService.getFileMetadataByIds(fileIds);
+    }
+
+    public Long getReportCountByTestId(String testId) {
+        LoadTestReportExample example = new LoadTestReportExample();
+        example.createCriteria().andTestIdEqualTo(testId);
+        return loadTestReportMapper.countByExample(example);
     }
 }

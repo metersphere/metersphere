@@ -33,14 +33,14 @@ public class LarkClient {
             httpPost.setEntity(entity);
             // 执行http请求
             response = httpClient.execute(httpPost);
-            if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
+           /* if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
                 String result = EntityUtils.toString(response.getEntity());
                 JSONObject obj = JSONObject.parseObject(result);
                 Integer errcode = obj.getInteger("errcode");
                 sendResult.setErrorCode(errcode);
                 sendResult.setErrorMsg(obj.getString("errmsg"));
                 sendResult.setIsSuccess(errcode.equals(0));
-            }
+            }*/
         } catch (Exception e) {
             e.printStackTrace();
         } finally {

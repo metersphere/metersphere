@@ -1,10 +1,7 @@
 package io.metersphere.track.service;
 
 import com.alibaba.fastjson.JSON;
-import io.metersphere.api.dto.automation.ApiScenarioDTO;
-import io.metersphere.api.dto.automation.ApiScenarioRequest;
-import io.metersphere.api.dto.automation.RunScenarioRequest;
-import io.metersphere.api.dto.automation.TestPlanScenarioRequest;
+import io.metersphere.api.dto.automation.*;
 import io.metersphere.api.service.ApiAutomationService;
 import io.metersphere.api.service.ApiScenarioReportService;
 import io.metersphere.base.domain.TestPlanApiScenario;
@@ -91,21 +88,33 @@ public class TestPlanScenarioCaseService {
         testPlanApiScenarioMapper.deleteByExample(example);
     }
 
-    public String run(RunScenarioRequest request) {
+    public String run(RunTestPlanScenarioRequest testPlanScenarioRequest) {
         StringBuilder idStr = new StringBuilder();
-        request.getPlanCaseIds().forEach(item -> {
+        List<String> planCaseIdList = testPlanScenarioRequest.getPlanCaseIds();
+        if (testPlanScenarioRequest.getCondition() != null && testPlanScenarioRequest.getCondition().isSelectAll()) {
+            planCaseIdList = this.selectIds(testPlanScenarioRequest.getCondition());
+            if (testPlanScenarioRequest.getCondition().getUnSelectIds() != null) {
+                planCaseIdList.removeAll(testPlanScenarioRequest.getCondition().getUnSelectIds());
+            }
+        }
+        testPlanScenarioRequest.setPlanCaseIds(planCaseIdList);
+        planCaseIdList.forEach(item -> {
             idStr.append("\"").append(item).append("\"").append(",");
         });
-        List<TestPlanApiScenario> testPlanApiScenarioList =extTestPlanScenarioCaseMapper.selectByIds(idStr.toString().substring(0, idStr.toString().length() - 1), "\"" + org.apache.commons.lang3.StringUtils.join(request.getPlanCaseIds(), ",") + "\"");
+        List<TestPlanApiScenario> testPlanApiScenarioList = extTestPlanScenarioCaseMapper.selectByIds(idStr.toString().substring(0, idStr.toString().length() - 1), "\"" + org.apache.commons.lang3.StringUtils.join(testPlanScenarioRequest.getPlanCaseIds(), ",") + "\"");
         List<String> scenarioIds = new ArrayList<>();
-        Map<String,String> scenarioIdApiScarionMap = new HashMap<>();
-        for (TestPlanApiScenario apiScenario: testPlanApiScenarioList) {
+        Map<String, String> scenarioIdApiScarionMap = new HashMap<>();
+        for (TestPlanApiScenario apiScenario : testPlanApiScenarioList) {
             scenarioIds.add(apiScenario.getApiScenarioId());
-            scenarioIdApiScarionMap.put(apiScenario.getApiScenarioId(),apiScenario.getId());
+            scenarioIdApiScarionMap.put(apiScenario.getApiScenarioId(), apiScenario.getId());
         }
+
+        RunScenarioRequest request = new RunScenarioRequest();
         request.setIds(scenarioIds);
+        request.setReportId(testPlanScenarioRequest.getId());
         request.setScenarioTestPlanIdMap(scenarioIdApiScarionMap);
         request.setRunMode(ApiRunMode.SCENARIO_PLAN.name());
+        request.setId(testPlanScenarioRequest.getId());
         return apiAutomationService.run(request);
     }
 

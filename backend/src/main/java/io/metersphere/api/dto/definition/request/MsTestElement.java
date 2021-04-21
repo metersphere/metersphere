@@ -5,9 +5,6 @@ import com.alibaba.fastjson.annotation.JSONField;
 import com.alibaba.fastjson.annotation.JSONType;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import io.metersphere.api.dto.definition.request.assertions.MsAssertions;
 import io.metersphere.api.dto.definition.request.auth.MsAuthManager;
 import io.metersphere.api.dto.definition.request.configurations.MsHeaderManager;
@@ -27,11 +24,7 @@ import io.metersphere.api.dto.definition.request.variable.ScenarioVariable;
 import io.metersphere.api.dto.mockconfig.MockConfigStaticData;
 import io.metersphere.api.dto.scenario.KeyValue;
 import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
-import io.metersphere.api.service.ApiDefinitionService;
-import io.metersphere.api.service.ApiTestCaseService;
 import io.metersphere.api.service.ApiTestEnvironmentService;
-import io.metersphere.base.domain.ApiDefinitionWithBLOBs;
-import io.metersphere.base.domain.ApiTestCaseWithBLOBs;
 import io.metersphere.base.domain.ApiTestEnvironmentWithBLOBs;
 import io.metersphere.commons.constants.LoopConstants;
 import io.metersphere.commons.constants.MsTestElementConstants;
@@ -53,6 +46,7 @@ import org.apache.jorphan.collections.ListedHashTree;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.net.URL;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -156,35 +150,6 @@ public abstract class MsTestElement {
         HashTree jmeterTestPlanHashTree = new ListedHashTree();
         this.toHashTree(jmeterTestPlanHashTree, this.hashTree, new ParameterConfig());
         return jmeterTestPlanHashTree;
-    }
-
-    public void getRefElement(MsTestElement element) {
-        try {
-            ApiDefinitionService apiDefinitionService = CommonBeanFactory.getBean(ApiDefinitionService.class);
-            ObjectMapper mapper = new ObjectMapper();
-            mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-            if (StringUtils.equals(element.getRefType(), "CASE")) {
-                ApiTestCaseService apiTestCaseService = CommonBeanFactory.getBean(ApiTestCaseService.class);
-                ApiTestCaseWithBLOBs bloBs = apiTestCaseService.get(element.getId());
-                if (bloBs != null) {
-                    element.setProjectId(bloBs.getProjectId());
-                    element = mapper.readValue(bloBs.getRequest(), new TypeReference<MsTestElement>() {
-                    });
-                    hashTree.add(element);
-                }
-            } else {
-                ApiDefinitionWithBLOBs apiDefinition = apiDefinitionService.getBLOBs(element.getId());
-                if (apiDefinition != null) {
-                    element.setProjectId(apiDefinition.getProjectId());
-                    element = mapper.readValue(apiDefinition.getRequest(), new TypeReference<MsTestElement>() {
-                    });
-                    hashTree.add(element);
-                }
-            }
-        } catch (Exception ex) {
-            ex.printStackTrace();
-            LogUtil.error(ex.getMessage());
-        }
     }
 
     public Arguments addArguments(ParameterConfig config) {
@@ -321,6 +286,18 @@ public abstract class MsTestElement {
             return fullPath + "<->" + parent.getName();
         }
         return "";
+    }
+    public boolean isURL(String str) {
+        try {
+            new URL(str);
+            return true;
+        } catch (Exception e) {
+            // 支持包含变量的url
+            if (str.matches("^(http|https|ftp)://.*$") && str.matches(".*://\\$\\{.*$")) {
+                return true;
+            }
+            return false;
+        }
     }
 }
 

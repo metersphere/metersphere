@@ -159,7 +159,7 @@ export default {
       dialogFormVisible: false,
       reportExportVisible: false,
       testPlan: {testResourcePoolId: null},
-      refreshTime: localStorage.getItem("reportRefreshTime") || "20",
+      refreshTime: localStorage.getItem("reportRefreshTime") || "10",
       refreshTimes: [
         {value: '1', label: '1s'},
         {value: '3', label: '3s'},
@@ -266,8 +266,6 @@ export default {
         this.result = this.$post('/performance/run', {id: testId, triggerMode: 'MANUAL'}, (response) => {
           this.reportId = response.data;
           this.$router.push({path: '/performance/report/view/' + this.reportId});
-          // 注册 socket
-          this.initWebSocket();
         });
       }).catch(() => {
       });
@@ -375,7 +373,7 @@ export default {
       });
     },
     refresh() {
-      if (this.status === 'Running') {
+      if (this.status === 'Running' || this.status === 'Starting') {
         if (this.websocket && this.websocket.readyState === 1) {
           this.websocket.send(this.refreshTime);
         }
@@ -403,7 +401,6 @@ export default {
         this.initBreadcrumb((response) => {
           this.initReportTimeInfo();
         });
-        this.initWebSocket();
       } else {
         // console.log("close socket.");
         this.websocket.close(); //离开路由之后断开websocket连接

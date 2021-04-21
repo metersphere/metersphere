@@ -272,8 +272,7 @@ public class ApiDefinitionController {
 
     @GetMapping("/getMockEnvironment/{projectId}")
     public ApiTestEnvironmentWithBLOBs getMockEnvironment(@PathVariable String projectId, HttpServletRequest request) {
-        System.out.println(request.getRequestURL());
-        String requestUrl = request.getRequestURI();
+        String requestUrl = request.getRequestURL().toString();
         String baseUrl = "";
         if (requestUrl.contains("/api/definition")) {
             baseUrl = requestUrl.split("/api/definition")[0];

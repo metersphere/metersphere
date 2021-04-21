@@ -1,8 +1,8 @@
 package io.metersphere.base.domain;
 
-import java.io.Serializable;
-
 import lombok.Data;
+
+import java.io.Serializable;
 
 @Data
 public class MockConfig implements Serializable {
@@ -23,4 +23,5 @@ public class MockConfig implements Serializable {
     private String createUserId;
 
     private static final long serialVersionUID = 1L;
+
 }

@@ -192,16 +192,12 @@ VALUES ('metersphere.module.reportStat', 'ENABLE', 'text', 1);
 INSERT INTO system_parameter (param_key, param_value, type, sort)
 VALUES ('metersphere.module.testTrack', 'ENABLE', 'text', 1);
 
+
+-- issue表添加自定义字段和项目id列
 ALTER TABLE issues ADD custom_fields TEXT NULL COMMENT 'CustomField';
-
-alter table issues drop primary key;
-alter table issues
-    add constraint issues_pk
-        primary key (id);
-
-
 ALTER TABLE issues ADD project_id varchar(50) NULL;
 
+-- 兼容旧数据，初始化issue表的project_id
 update issues i
     inner join
     (
@@ -212,3 +208,25 @@ update issues i
     ) as tmp
 on i.id = tmp.issues_id
     set i.project_id = tmp.project_id;
+    
+-- 修改issue表主键
+alter table issues drop primary key;
+alter table issues
+    add constraint issues_pk
+        primary key (id);
+
+-- init prometheus host
+INSERT INTO system_parameter (param_key, param_value, type, sort)
+VALUES ('prometheus.host', 'http://ms-prometheus:9090', 'text', 1);
+
+-- 报告新增的字段
+alter table load_test_report
+    add max_users VARCHAR(10) null;
+
+alter table load_test_report
+    add avg_response_time VARCHAR(10) null;
+
+alter table load_test_report
+    add tps VARCHAR(10) null;
+
+

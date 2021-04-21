@@ -120,7 +120,7 @@
                   <el-checkbox v-model="enableCookieShare">共享cookie</el-checkbox>
                 </el-col>
                 <el-col :span="5">
-                  <env-popover :disabled="scenarioDefinition.length < 1" :env-map="projectEnvMap" :project-ids="projectIds" @setProjectEnvMap="setProjectEnvMap"
+                  <env-popover :disabled="scenarioDefinition.length < 1" :env-map="projectEnvMap" :project-ids="projectIds" @setProjectEnvMap="setProjectEnvMap" :result="envResult"
                                :isReadOnly="scenarioDefinition.length < 1" @showPopover="showPopover" :project-list="projectList" ref="envPopover"/>
                 </el-col>
                 <el-col :span="4">
@@ -209,7 +209,7 @@
       <api-import v-if="type!=='detail'" ref="apiImport" :saved="false" @refresh="apiImport"/>
 
       <!--步骤最大化-->
-      <ms-drawer :visible="drawer" :size="100" @close="close" direction="right" :show-full-screen="false" :is-show-close="false" style="overflow: hidden">
+      <ms-drawer :visible="drawer" :size="100" @close="close" direction="default" :show-full-screen="false" :is-show-close="false" style="overflow: hidden">
         <template v-slot:header>
           <scenario-header :currentScenario="currentScenario" :projectEnvMap="projectEnvMap" :projectIds.sync="projectIds" :projectList="projectList" :scenarioDefinition="scenarioDefinition" :enableCookieShare="enableCookieShare"
                            :isFullUrl.sync="isFullUrl" @closePage="close" @unFullScreen="unFullScreen" @showAllBtn="showAllBtn" @runDebug="runDebug" @setProjectEnvMap="setProjectEnvMap" @showScenarioParameters="showScenarioParameters" @setCookieShare="setCookieShare"
@@ -239,7 +239,7 @@
   import {ELEMENT_TYPE, ELEMENTS} from "./Setting";
   import MsApiCustomize from "./ApiCustomize";
   import {getUUID, objToStrMap, strMapToObj, handleCtrlSEvent} from "@/common/js/utils";
-  import ApiEnvironmentConfig from "../../definition/components/environment/ApiEnvironmentConfig";
+  import ApiEnvironmentConfig from "@/business/components/api/test/components/ApiEnvironmentConfig";
   import MsInputTag from "./MsInputTag";
   import MsRun from "./DebugRun";
   import MsApiReportDetail from "../report/ApiReportDetail";
@@ -334,6 +334,9 @@
         drawer: false,
         isFullUrl: true,
         expandedStatus: false,
+        envResult: {
+          loading: false
+        }
       }
     },
     created() {
@@ -668,7 +671,6 @@
         this.customizeRequest = {};
         this.sort();
         this.reload();
-        // this.initProjectIds();
       },
       addScenario(arr) {
         if (arr && arr.length > 0) {
@@ -691,7 +693,6 @@
         this.isBtnHide = false;
         this.sort();
         this.reload();
-        // this.initProjectIds();
       },
       setApiParameter(item, refType, referenced) {
         let request = {};
@@ -733,7 +734,6 @@
         this.isBtnHide = false;
         this.sort();
         this.reload();
-        // this.initProjectIds();
       },
       getMaintainerOptions() {
         let workspaceId = localStorage.getItem(WORKSPACE_ID);
@@ -760,7 +760,6 @@
               hashTree.splice(index, 1);
               this.sort();
               this.reload();
-              // this.initProjectIds();
             }
           }
         });
@@ -788,9 +787,6 @@
         this.$nextTick(() => {
           this.loading = false
         });
-        // let definition = JSON.parse(JSON.stringify(this.currentScenario));
-        // definition.hashTree = this.scenarioDefinition;
-        // this.getEnv(JSON.stringify(definition));
       },
       runDebug() {
         /*触发执行操作*/
@@ -1055,8 +1051,6 @@
             }
             this.loading = false;
             this.sort();
-            // this.initProjectIds();
-            // this.getEnvironments();
           })
         }
       },
@@ -1125,18 +1119,7 @@
         })
       },
       refReload() {
-        // this.initProjectIds();
         this.reload();
-      },
-      initProjectIds() {
-        // // 加载环境配置
-        // this.$nextTick(() => {
-        //   this.projectIds.clear();
-        //   this.scenarioDefinition.forEach(data => {
-        //     let arr = jsonPath.query(data, "$..projectId");
-        //     arr.forEach(a => this.projectIds.add(a));
-        //   })
-        // })
       },
       detailRefresh(result) {
         // 把执行结果分发给各个请求
@@ -1156,8 +1139,10 @@
       showPopover() {
         let definition = JSON.parse(JSON.stringify(this.currentScenario));
         definition.hashTree = this.scenarioDefinition;
+        this.envResult.loading = true;
         this.getEnv(JSON.stringify(definition)).then(() => {
           this.$refs.envPopover.openEnvSelect();
+          this.envResult.loading = false;
         })
       },
       shrinkTreeNode() {

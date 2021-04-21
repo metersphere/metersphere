@@ -11,7 +11,6 @@
         <el-table border :data="tableData" class="adjust-table test-content"
                   @sort-change="sort"
                   @filter-change="filter"
-                  @row-click="link"
         >
           <el-table-column
             prop="num"
@@ -22,14 +21,10 @@
           <el-table-column
             prop="name"
             :label="$t('commons.name')"
-            width="150"
             show-overflow-tooltip>
-          </el-table-column>
-          <el-table-column
-            prop="projectName"
-            :label="$t('load_test.project_name')"
-            width="150"
-            show-overflow-tooltip>
+            <template v-slot:default="scope">
+              <span @click="link(scope.row)" style="cursor: pointer;">{{ scope.row.name }}</span>
+            </template>
           </el-table-column>
           <el-table-column
             prop="userName"
@@ -37,11 +32,10 @@
             :filters="userFilters"
             column-key="user_id"
             :label="$t('load_test.user_name')"
-            width="150"
             show-overflow-tooltip>
           </el-table-column>
           <el-table-column
-            width="250"
+            width="200"
             sortable
             prop="createTime"
             :label="$t('commons.create_time')">
@@ -50,12 +44,23 @@
             </template>
           </el-table-column>
           <el-table-column
-            width="250"
+            width="200"
             sortable
             prop="updateTime"
             :label="$t('commons.update_time')">
             <template v-slot:default="scope">
               <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column
+            prop="reportCount"
+            :label="$t('report.load_test_report')"
+            width="150">
+            <template v-slot:default="scope">
+              <el-link v-if="scope.row.reportCount > 0" @click="reports(scope.row)">
+                {{ scope.row.reportCount }}
+              </el-link>
+              <span v-else> {{ scope.row.reportCount }}</span>
             </template>
           </el-table-column>
           <el-table-column
@@ -143,7 +148,7 @@ export default {
         {text: 'Error', value: 'Error'}
       ],
       userFilters: [],
-    }
+    };
   },
   watch: {
     '$route'(to) {
@@ -161,7 +166,7 @@ export default {
       let workspaceId = localStorage.getItem(WORKSPACE_ID);
       this.$post('/user/ws/member/tester/list', {workspaceId: workspaceId}, response => {
         this.userFilters = response.data.map(u => {
-          return {text: u.name, value: u.id}
+          return {text: u.name, value: u.id};
         });
       });
     },
@@ -176,6 +181,12 @@ export default {
         let data = response.data;
         this.total = data.itemCount;
         this.tableData = data.listObject;
+        // 查询报告数量
+        this.tableData.forEach(test => {
+          this.result = this.$get('/performance/test/report-count/' + test.id, response => {
+            this.$set(test, 'reportCount', response.data);
+          });
+        });
       });
     },
     search(combine) {
@@ -190,7 +201,7 @@ export default {
     handleEdit(test) {
       this.$router.push({
         path: '/performance/test/edit/' + test.id,
-      })
+      });
     },
     handleCopy(test) {
       this.result = this.$post("/performance/copy", {id: test.id}, () => {
@@ -231,7 +242,12 @@ export default {
     link(row) {
       this.$router.push({
         path: '/performance/test/edit/' + row.id,
-      })
+      });
+    },
+    reports(row) {
+      this.$router.push({
+        path: '/performance/report/' + row.id,
+      });
     },
     create() {
       if (!getCurrentProjectID()) {
@@ -241,7 +257,7 @@ export default {
       this.$router.push('/performance/test/create');
     }
   }
-}
+};
 </script>
 
 <style scoped>
@@ -256,7 +272,4 @@ export default {
   float: right;
 }
 
-.el-table {
-  cursor: pointer;
-}
 </style>

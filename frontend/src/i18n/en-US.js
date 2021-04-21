@@ -207,7 +207,7 @@ export default {
       default_module: "Default module",
     },
     report_statistics: {
-      title: "Report statistics",
+      title: "Report Statistics",
       test_case_analysis: "Test case analysis",
       test_case_activity: "Test case activity",
       name: "Report",
@@ -253,6 +253,12 @@ export default {
       url: 'Website URL',
       url_tip: 'example：http://localhost:8081',
       url_is_null: 'The current site URL cannot be empty'
+    },
+    prometheus_config: 'Prometheus Host',
+    prometheus: {
+      host: 'Prometheus Host',
+      host_tip: 'example: http://ms-prometheus:9090',
+      host_is_null: 'Prometheus Host cannot be empty'
     }
   },
   workspace: {
@@ -460,8 +466,12 @@ export default {
     not_exist: "Test report does not exist",
     batch_delete: "Delete reports in bulk",
     delete_batch_confirm: 'Confirm batch delete report',
+    response_time: 'Response Time(s)',
+    max_users: 'VUs'
   },
   load_test: {
+    concurrency_thread_group: 'Concurrent read group',
+    thread_group: 'ThreadGroup',
     completed_test_report: 'Completed test report',
     test: 'Test',
     name: 'Test Name',
@@ -600,6 +610,7 @@ export default {
       base_info: "Base info",
       req_param: "Request params",
       rsp_param: "Response Params",
+      delete_mock_expect: "Confirm to delete this expect info ?",
     },
     definition: {
       api_title: "Api test",
@@ -788,6 +799,11 @@ export default {
       report_name_info: 'Please enter the registration name',
       save_case_info: 'Please save the use case first',
       reference_deleted: 'Reference deleted',
+      loop_name: "Loop",
+      loop_content: "The default is on, when there is only one request in the loop, it can be turned on/off; when there is more than one request in the loop, it can only be turned on。",
+      loop_return_val: "Define variable name",
+      loop_input_val: "Variable prefix",
+      loop_message: "There is more than one request in the current cycle and cannot be closed",
     },
     environment: {
       name: "Environment Name",
@@ -1493,6 +1509,7 @@ export default {
     cannot_empty: 'Resource pool cannot be empty',
     fill_the_data: 'Please complete the data',
     delete_prompt: 'This operation will permanently delete the resource pool, continue?',
+    update_prompt: '{0}  The other tests are using this resource pool. Disabling the monitoring part that may affect the report. Do you want to continue?',
     status_change_success: 'Successfully changed the status!',
     status_change_failed: 'Failed to change the status, resource pool is invalid!',
     check_in: 'Check in',

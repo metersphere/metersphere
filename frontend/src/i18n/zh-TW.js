@@ -254,6 +254,12 @@ export default {
       url: '當前站點URL',
       url_tip: '例如：http://localhost:8081',
       url_is_null: '當前站點URL不能為空'
+    },
+    prometheus_config: '監控配置',
+    prometheus: {
+      host: 'Prometheus地址',
+      host_tip: '例如:http://ms-prometheus:9090',
+      host_is_null: 'Prometheus地址不能為空'
     }
   },
   workspace: {
@@ -458,8 +464,12 @@ export default {
     not_exist: "測試報告不存在",
     batch_delete: "批量刪除報告",
     delete_batch_confirm: '確認批量刪除報告',
+    response_time: '響應時間(s)',
+    max_users: '並發数'
   },
   load_test: {
+    concurrency_thread_group: '併發讀取組',
+    thread_group: '線程組',
     completed_test_report: '已完成的測試報告',
     test: '測試',
     name: '測試名稱',
@@ -599,6 +609,7 @@ export default {
       base_info: "基本信息",
       req_param: "請求參賽",
       rsp_param: "響應內容",
+      delete_mock_expect: "確認刪除這條預期嗎？",
     },
     definition: {
       api_title: "接口列表",
@@ -788,6 +799,11 @@ export default {
       report_name_info: '請輸入報告名稱',
       save_case_info: '請先保存用例',
       reference_deleted: '引用已刪除',
+      loop_name: "循環",
+      loop_content: "默認為開啟，當循環下只有一個請求時，可以開啟/關閉;當循環下超過一個請求時，則只能開啟。",
+      loop_return_val: "定義變量名稱",
+      loop_input_val: "變量前綴",
+      loop_message: "當前循環下超過一個請求，不能關閉狀態",
     },
     environment: {
       name: "環境名稱",
@@ -1495,6 +1511,7 @@ export default {
     cannot_empty: '資源池不能為空',
     fill_the_data: '請完善數據',
     delete_prompt: '此操作將永久刪除該資源池, 是否繼續?',
+    update_prompt: '{0}  等測試正在使用此資源池，禁用可能會影響報告的監控部分，是否繼續？',
     status_change_success: '狀態修改成功!',
     status_change_failed: '狀態修改失敗, 校驗不通過!',
     check_in: '校驗中',

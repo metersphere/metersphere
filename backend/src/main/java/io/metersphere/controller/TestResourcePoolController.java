@@ -7,6 +7,7 @@ import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.controller.request.resourcepool.QueryResourcePoolRequest;
 import io.metersphere.dto.TestResourcePoolDTO;
+import io.metersphere.dto.UpdatePoolDTO;
 import io.metersphere.service.TestResourcePoolService;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
@@ -41,6 +42,11 @@ public class TestResourcePoolController {
     @GetMapping("/update/{poolId}/{status}")
     public void updateTestResourcePoolStatus(@PathVariable String poolId, @PathVariable String status) {
         testResourcePoolService.updateTestResourcePoolStatus(poolId, status);
+    }
+
+    @GetMapping("/check/use/{poolId}")
+    public UpdatePoolDTO checkHaveTestUsePool(@PathVariable String poolId) {
+        return testResourcePoolService.checkHaveTestUsePool(poolId);
     }
 
     @PostMapping("list/{goPage}/{pageSize}")

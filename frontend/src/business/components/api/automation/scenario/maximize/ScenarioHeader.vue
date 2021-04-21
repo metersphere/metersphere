@@ -19,7 +19,7 @@
       <el-checkbox v-model="cookieShare" @change="setCookieShare" style="margin-right: 20px">共享cookie</el-checkbox>
 
       <env-popover :disabled="scenarioDefinition.length < 1" :isReadOnly="scenarioDefinition.length < 1" :env-map="envMap" :project-ids="projectIds" @setProjectEnvMap="setProjectEnvMap"
-                   @showPopover="showPopover" :project-list="projectList" ref="envPopover" class="ms-right"/>
+                   @showPopover="showPopover" :project-list="projectList" ref="envPopover" class="ms-right" :result="envResult"/>
 
       <el-button :disabled="scenarioDefinition.length < 1" size="mini" type="primary" v-prevent-re-click @click="runDebug">{{$t('api_test.request.debug')}}</el-button>
 
@@ -49,6 +49,9 @@
         loading: false,
         varSize: 0,
         cookieShare: false,
+        envResult: {
+          loading: false
+        }
       }
     },
     mounted() {
@@ -111,8 +114,10 @@
       showPopover() {
         let definition = JSON.parse(JSON.stringify(this.currentScenario));
         definition.hashTree = this.scenarioDefinition;
+        this.envResult.loading = true;
         this.getEnv(JSON.stringify(definition)).then(() => {
           this.$refs.envPopover.openEnvSelect();
+          this.envResult.loading = false;
         })
       },
       getEnv(definition) {

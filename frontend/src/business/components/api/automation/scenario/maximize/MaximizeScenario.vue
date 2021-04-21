@@ -144,7 +144,7 @@
   import {ELEMENT_TYPE, ELEMENTS} from "../Setting";
   import MsApiCustomize from "../ApiCustomize";
   import {getUUID, strMapToObj} from "@/common/js/utils";
-  import ApiEnvironmentConfig from "../../../definition/components/environment/ApiEnvironmentConfig";
+  import ApiEnvironmentConfig from "@/business/components/api/test/components/ApiEnvironmentConfig";
   import MsInputTag from "../MsInputTag";
   import MsRun from "../DebugRun";
   import MsApiReportDetail from "../../report/ApiReportDetail";
