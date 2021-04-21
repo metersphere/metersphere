@@ -171,7 +171,8 @@ export default {
         '        <p style="margin-left: 60px">您好:\n' +
         '    </div>\n' +
         '    <div style="margin-left: 100px">\n' +
-        '        <p>${executor}所执行的 ${testName} 接口测试运行失败<br/>\n' +
+        '        <p>${testName} 接口测试运行失败/成功<br/>\n' +
+        '        <p>执行人:${executor}</p>' +
         '        <p>执行环境:${executionEnvironment}</p>' +
         '        <p>执行时间:${executionTime}</p>' +
         '            请点击下面链接进入测试报告页面</p>\n' +
@@ -306,6 +307,20 @@ export default {
 <style scoped>
 .el-row {
   margin-bottom: 10px;
+}
+
+/deep/ .el-select .el-input.is-disabled .el-input__inner {
+  background-color: #F5F7FA;
+  border-color: #E4E7ED;
+  color: #0a0a0a;
+  cursor: not-allowed;
+}
+
+/deep/ .el-input.is-disabled .el-input__inner {
+  background-color: #F5F7FA;
+  border-color: #E4E7ED;
+  color: #0a0a0a;
+  cursor: not-allowed;
 }
 </style>
 
