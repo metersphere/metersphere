@@ -2,7 +2,7 @@
   <el-form :model="condition" :rules="rules" ref="httpConfig" class="ms-el-form-item__content">
     <el-form-item prop="socket">
       <span class="ms-env-span">{{$t('api_test.environment.socket')}}</span>
-      <el-input v-model="condition.socket" style="width: 80%" :placeholder="$t('api_test.request.url_description')" clearable size="small">
+      <el-input v-model="condition.socket" style="width: 80%" :placeholder="$t('api_test.request.url_description')" clearable size="small" :disabled="httpConfig.isMock">
         <template v-slot:prepend>
           <el-select v-model="condition.protocol" class="request-protocol-select" size="small">
             <el-option label="http://" value="http"/>
@@ -163,7 +163,7 @@
             return value;
           }
         } else if (row && row.type === "PATH" && row.details.length > 0 && row.details[0].name) {
-          return row.details[0].value === "equals" ? this.$t("commons.adv_search.operators.equals") : this.$t("api_test.request.assertions.contains") + row.details[0].name;
+          return row.details[0].value === "equals" ? this.$t("commons.adv_search.operators.equals")+ row.details[0].name : this.$t("api_test.request.assertions.contains") + row.details[0].name;
         } else {
           return "";
         }

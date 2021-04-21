@@ -151,39 +151,34 @@ public class MsJDBCSampler extends MsTestElement {
             ApiDefinitionService apiDefinitionService = CommonBeanFactory.getBean(ApiDefinitionService.class);
             ObjectMapper mapper = new ObjectMapper();
             mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+            MsJDBCSampler proxy = null;
             if (StringUtils.equals(this.getRefType(), "CASE")) {
                 ApiTestCaseService apiTestCaseService = CommonBeanFactory.getBean(ApiTestCaseService.class);
                 ApiTestCaseWithBLOBs bloBs = apiTestCaseService.get(this.getId());
                 if (bloBs != null) {
-                    this.setProjectId(bloBs.getProjectId());
-                    MsJDBCSampler proxy = mapper.readValue(bloBs.getRequest(), new TypeReference<MsJDBCSampler>() {
-                    });
-                    this.setHashTree(proxy.getHashTree());
                     this.setName(bloBs.getName());
-                    this.setDataSource(proxy.getDataSource());
-                    this.setDataSourceId(proxy.getDataSourceId());
-                    this.setQuery(proxy.getQuery());
-                    this.setVariables(proxy.getVariables());
-                    this.setVariableNames(proxy.getVariableNames());
-                    this.setResultVariable(proxy.getResultVariable());
-                    this.setQueryTimeout(proxy.getQueryTimeout());
+                    this.setProjectId(bloBs.getProjectId());
+                    proxy = mapper.readValue(bloBs.getRequest(), new TypeReference<MsJDBCSampler>() {
+                    });
                 }
             } else {
                 ApiDefinitionWithBLOBs apiDefinition = apiDefinitionService.getBLOBs(this.getId());
                 if (apiDefinition != null) {
                     this.setProjectId(apiDefinition.getProjectId());
-                    MsJDBCSampler proxy = mapper.readValue(apiDefinition.getRequest(), new TypeReference<MsJDBCSampler>() {
+                    proxy = mapper.readValue(apiDefinition.getRequest(), new TypeReference<MsJDBCSampler>() {
                     });
-                    this.setHashTree(proxy.getHashTree());
                     this.setName(apiDefinition.getName());
-                    this.setDataSource(proxy.getDataSource());
-                    this.setDataSourceId(proxy.getDataSourceId());
-                    this.setQuery(proxy.getQuery());
-                    this.setVariables(proxy.getVariables());
-                    this.setVariableNames(proxy.getVariableNames());
-                    this.setResultVariable(proxy.getResultVariable());
-                    this.setQueryTimeout(proxy.getQueryTimeout());
                 }
+            }
+            if (proxy != null) {
+                this.setHashTree(proxy.getHashTree());
+                this.setDataSource(proxy.getDataSource());
+                this.setDataSourceId(proxy.getDataSourceId());
+                this.setQuery(proxy.getQuery());
+                this.setVariables(proxy.getVariables());
+                this.setVariableNames(proxy.getVariableNames());
+                this.setResultVariable(proxy.getResultVariable());
+                this.setQueryTimeout(proxy.getQueryTimeout());
             }
         } catch (Exception ex) {
             ex.printStackTrace();

@@ -799,6 +799,11 @@ export default {
       report_name_info: 'Please enter the registration name',
       save_case_info: 'Please save the use case first',
       reference_deleted: 'Reference deleted',
+      loop_name: "Loop",
+      loop_content: "The default is on, when there is only one request in the loop, it can be turned on/off; when there is more than one request in the loop, it can only be turned on。",
+      loop_return_val: "Define variable name",
+      loop_input_val: "Variable prefix",
+      loop_message: "There is more than one request in the current cycle and cannot be closed",
     },
     environment: {
       name: "Environment Name",
