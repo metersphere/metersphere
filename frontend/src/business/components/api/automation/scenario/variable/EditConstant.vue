@@ -1,6 +1,6 @@
 <template>
   <div>
-    <el-form :model="editData" label-position="right" label-width="80px" size="small" ref="form">
+    <el-form :model="editData" label-position="right" label-width="80px" size="small" ref="form" :rules="rules">
       <el-form-item :label="$t('api_test.variable_name')" prop="name">
         <el-input v-model="editData.name" :placeholder="$t('api_test.variable_name')" ref="nameInput"></el-input>
       </el-form-item>
@@ -41,6 +41,15 @@
     components: {MsApiVariableAdvance},
     props: {
       editData: {},
+    },
+    data() {
+      return {
+        rules: {
+          name: [
+            {required: true, message: this.$t('test_track.case.input_name'), trigger: 'blur'},
+          ],
+        },
+      }
     },
     methods: {
       advanced() {
