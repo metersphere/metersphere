@@ -58,3 +58,10 @@ export const SYSTEM_FIELD_NAME_MAP = {
   i43sf4_issueStatus: 'custom_field.issue_status',
   i43sf4_issueSeverity: 'custom_field.issue_severity',
 }
+
+
+export const ISSUE_STATUS_MAP = {
+  'new': '新建',
+  'closed': '已关闭',
+  'resolved': '已解决'
+}

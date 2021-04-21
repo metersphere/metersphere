@@ -37,6 +37,12 @@ public class TestCaseNodeController {
         return testCaseNodeService.getAllNodeByPlanId(request);
     }
 
+    /*模块列表列表*/
+    @PostMapping("/list/project")
+    public List<TestCaseNodeDTO> getAllNodeByProjectId(@RequestBody QueryNodeRequest request) {
+        return testCaseNodeService.getAllNodeByProjectId(request);
+    }
+
     @PostMapping("/list/all/review")
     public List<TestCaseNodeDTO> getAllNodeByReviewId(@RequestBody QueryNodeRequest request) {
         return testCaseNodeService.getAllNodeByReviewId(request);

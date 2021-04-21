@@ -46,6 +46,10 @@
                               :title="$t('test_track.plan.create_plan')"/>
           </el-submenu>
 
+          <el-menu-item :index="'/track/issue'">
+            {{ $t("缺陷管理") }}
+          </el-menu-item>
+
           <el-menu-item :index="'/track/testPlan/reportList'">
             {{ $t("commons.report") }}
           </el-menu-item>

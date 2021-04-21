@@ -44,7 +44,11 @@
       </el-col>
     </el-tab-pane>
 
-    <el-tab-pane v-if="!isTestPlan" label="关联缺陷" name="bug">关联缺陷</el-tab-pane>
+    <el-tab-pane label="关联缺陷" name="bug">
+      <test-case-issue-relate
+        :case-id="caseId" ref="issue"/>
+    </el-tab-pane>
+
     <el-tab-pane :label="$t('test_track.case.attachment')" name="attachment">
       <el-row>
         <el-col :span="20" :offset="1">
@@ -81,10 +85,11 @@ import TestCaseRichText from "@/business/components/track/case/components/MsRich
 import MsRichText from "@/business/components/track/case/components/MsRichText";
 import {TEST} from "@/business/components/api/definition/model/JsonData";
 import TestCaseAttachment from "@/business/components/track/case/components/TestCaseAttachment";
+import TestCaseIssueRelate from "@/business/components/track/case/components/TestCaseIssueRelate";
 
 export default {
   name: "TestCaseEditOtherInfo",
-  components: {TestCaseAttachment, MsRichText, TestCaseRichText},
+  components: {TestCaseIssueRelate, TestCaseAttachment, MsRichText, TestCaseRichText},
   props: ['form', 'labelWidth', 'caseId', 'readOnly', 'projectId', 'isTestPlan'],
   data() {
     return {
@@ -109,7 +114,7 @@ export default {
       } else if (this.tabActiveName === 'demand') {
         this.getDemandOptions();
       } else if (this.tabActiveName === 'bug') {
-        //remark..
+        this.$refs.issue.getIssues();
       } else if (this.tabActiveName === 'attachment') {
         this.getFileMetaData();
       }

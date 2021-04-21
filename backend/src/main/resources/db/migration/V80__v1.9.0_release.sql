@@ -37,7 +37,7 @@ VALUES ('09642424-7b1b-4004-867e-ff9c798a1933','i43sf4_issueCreator','ISSUE','me
 INSERT INTO custom_field (id,name,scene,`type`,remark,`options`,`system`,`global`,workspace_id,create_time,update_time)
 VALUES ('a577bc60-75fe-47ec-8aa6-32dca23bf3d6','i43sf4_issueProcessor','ISSUE','member','','[]',1,1,'global',unix_timestamp() * 1000,unix_timestamp() * 1000);
 INSERT INTO custom_field (id,name,scene,`type`,remark,`options`,`system`,`global`,workspace_id,create_time,update_time)
-VALUES ('beb57501-19c8-4ca3-8dfb-2cef7c0ea087','i43sf4_issueStatus','ISSUE','select','','[{"text":"test_track.issue.status_new","value":"NEW","system": true},{"text":"test_track.issue.status_resolved","value":"RESOLVED","system": true},{"text":"test_track.issue.status_closed","value":"CLOSED","system": true}]',1,1,'global',unix_timestamp() * 1000,unix_timestamp() * 1000);
+VALUES ('beb57501-19c8-4ca3-8dfb-2cef7c0ea087','i43sf4_issueStatus','ISSUE','select','','[{"text":"test_track.issue.status_new","value":"new","system": true},{"text":"test_track.issue.status_resolved","value":"resolved","system": true},{"text":"test_track.issue.status_closed","value":"closed","system": true}]',1,1,'global',unix_timestamp() * 1000,unix_timestamp() * 1000);
 INSERT INTO custom_field (id,name,scene,`type`,remark,`options`,`system`,`global`,workspace_id,create_time,update_time)
 VALUES ('d392af07-fdfe-4475-a459-87d59f0b1626','i43sf4_issueSeverity','ISSUE','select','','[{"text":"P0","value":"P0","system": true},{"text":"P1","value":"P1","system": true},{"text":"P2","value":"P2","system": true},{"text":"P3","value":"P3","system": true}]',1,1,'global',unix_timestamp() * 1000,unix_timestamp() * 1000);
 
@@ -119,7 +119,7 @@ VALUES ('657e70c3-0d1b-4bbe-b52f-bfadee05148a','09642424-7b1b-4004-867e-ff9c798a
 INSERT INTO custom_field_template (id,field_id,template_id,scene,required,default_value)
 VALUES ('b8921cbc-05b3-4d8f-a96e-d1e4ae9d8664','a577bc60-75fe-47ec-8aa6-32dca23bf3d6','5d7c87d2-f405-4ec1-9a3d-71b514cdfda3','ISSUE',1,'');
 INSERT INTO custom_field_template (id,field_id,template_id,scene,required,default_value)
-VALUES ('d5908553-1b29-4868-9001-e938822b92ef','beb57501-19c8-4ca3-8dfb-2cef7c0ea087','5d7c87d2-f405-4ec1-9a3d-71b514cdfda3','ISSUE',1,'"NEW"');
+VALUES ('d5908553-1b29-4868-9001-e938822b92ef','beb57501-19c8-4ca3-8dfb-2cef7c0ea087','5d7c87d2-f405-4ec1-9a3d-71b514cdfda3','ISSUE',1,'"new"');
 
 ALTER TABLE project
     ADD case_template_id varchar(50) NULL COMMENT 'Relate test case template id';
@@ -192,6 +192,29 @@ VALUES ('metersphere.module.reportStat', 'ENABLE', 'text', 1);
 INSERT INTO system_parameter (param_key, param_value, type, sort)
 VALUES ('metersphere.module.testTrack', 'ENABLE', 'text', 1);
 
+
+-- issue表添加自定义字段和项目id列
+ALTER TABLE issues ADD custom_fields TEXT NULL COMMENT 'CustomField';
+ALTER TABLE issues ADD project_id varchar(50) NULL;
+
+-- 兼容旧数据，初始化issue表的project_id
+update issues i
+    inner join
+    (
+    select tc.project_id, tci.issues_id
+    from test_case_issues tci
+    inner join  test_case tc
+    on tci.test_case_id = tc.id
+    ) as tmp
+on i.id = tmp.issues_id
+    set i.project_id = tmp.project_id;
+    
+-- 修改issue表主键
+alter table issues drop primary key;
+alter table issues
+    add constraint issues_pk
+        primary key (id);
+
 -- init prometheus host
 INSERT INTO system_parameter (param_key, param_value, type, sort)
 VALUES ('prometheus.host', 'http://ms-prometheus:9090', 'text', 1);
@@ -205,4 +228,5 @@ alter table load_test_report
 
 alter table load_test_report
     add tps VARCHAR(10) null;
+
 

@@ -8,6 +8,7 @@ import io.metersphere.commons.utils.PageUtils;
 import io.metersphere.commons.utils.Pager;
 import io.metersphere.controller.request.BaseQueryRequest;
 import io.metersphere.controller.request.UpdateIssueTemplateRequest;
+import io.metersphere.dto.IssueTemplateDao;
 import io.metersphere.service.IssueTemplateService;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
@@ -47,5 +48,10 @@ public class IssueTemplateController {
     @GetMapping("/option/{workspaceId}")
     public List<IssueTemplate> list(@PathVariable String workspaceId) {
         return issueTemplateService.getOption(workspaceId);
+    }
+
+    @GetMapping("/get/relate/{projectId}")
+    public IssueTemplateDao getTemplate(@PathVariable String projectId) {
+        return issueTemplateService.getTemplate(projectId);
     }
 }

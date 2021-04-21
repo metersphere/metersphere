@@ -58,6 +58,7 @@ export function parseCustomField(data, template, customFieldForm, rules, oldFiel
   });
 }
 
+// 将template的属性值设置给customFields
 export function buildCustomFields(data, param, template) {
   if (template.customFields) {
     let customFields = data.customFields;

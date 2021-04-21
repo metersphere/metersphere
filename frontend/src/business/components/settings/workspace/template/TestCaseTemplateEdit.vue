@@ -26,10 +26,10 @@
       <el-form-item :label="'用例名称'" prop="caseName">
         <el-input v-model="form.caseName" autocomplete="off"></el-input>
       </el-form-item>
-      <test-case-r-ich-text-item :title="$t('test_track.case.prerequisite')" :data="form" prop="prerequisite"/>
-      <test-case-r-ich-text-item :title="$t('test_track.case.step_desc')" :data="form" prop="stepDescription"/>
-      <test-case-r-ich-text-item :title="$t('test_track.case.expected_results')" :data="form" prop="expectedResult"/>
-      <test-case-r-ich-text-item :title="$t('test_track.plan_view.actual_result')" :data="form" prop="actualResult"/>
+      <form-rich-text-item :title="$t('test_track.case.prerequisite')" :data="form" prop="prerequisite"/>
+      <form-rich-text-item :title="$t('test_track.case.step_desc')" :data="form" prop="stepDescription"/>
+      <form-rich-text-item :title="$t('test_track.case.expected_results')" :data="form" prop="expectedResult"/>
+      <form-rich-text-item :title="$t('test_track.plan_view.actual_result')" :data="form" prop="actualResult"/>
     </template>
 
   </field-template-edit>
@@ -46,12 +46,12 @@ import {CASE_TYPE_OPTION} from "@/common/js/table-constants";
 import CustomFieldFormList from "@/business/components/settings/workspace/template/CustomFieldFormList";
 import CustomFieldRelateList from "@/business/components/settings/workspace/template/CustomFieldRelateList";
 import FieldTemplateEdit from "@/business/components/settings/workspace/template/FieldTemplateEdit";
-import TestCaseRIchTextItem from "@/business/components/track/case/components/FormRichTextItem";
+import FormRichTextItem from "@/business/components/track/case/components/FormRichTextItem";
 
 export default {
   name: "TestCaseTemplateEdit",
   components: {
-    TestCaseRIchTextItem,
+    FormRichTextItem,
     FieldTemplateEdit,
     CustomFieldRelateList,
     CustomFieldFormList,

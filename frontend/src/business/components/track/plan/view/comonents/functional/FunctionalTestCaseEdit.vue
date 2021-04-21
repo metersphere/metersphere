@@ -42,169 +42,61 @@
                 </el-header>
 
                 <div class="case_container">
-                  <el-row>
-                    <el-col :span="4" :offset="1">
-                      <span class="cast_label">{{ $t('test_track.case.priority') }}：</span>
-                      <span class="cast_item">{{ testCase.priority }}</span>
-                    </el-col>
-                    <el-col :span="5">
-                      <span class="cast_label">{{ $t('test_track.case.module') }}：</span>
-                      <span class="cast_item">{{ testCase.nodePath }}</span>
-                    </el-col>
-                    <el-col :span="10">
-                      <test-plan-test-case-status-button class="status-button"
-                                                         @statusChange="statusChange"
-                                                         :is-read-only="isReadOnly"
-                                                         :status="testCase.status"/>
-                    </el-col>
-                  </el-row>
-
-                  <el-row>
-                    <el-col :span="4" :offset="1">
-                      <span class="cast_label">{{ $t('test_track.plan.plan_project') }}：</span>
-                      <span class="cast_item">{{ testCase.projectName }}</span>
-                    </el-col>
-                  </el-row>
-
-                  <el-row>
-                    <el-col :span="4" :offset="1" v-if="testCase.testId == 'other'">
-                      <span class="cast_label">{{ $t('test_track.case.test_name') }}：</span>
-                      <span class="cast_item">{{ testCase.otherTestName }}</span>
-                    </el-col>
-                  </el-row>
-
-                  <el-form ref="customFieldForm"
-                           class="case-form">
+                  <el-form>
                     <el-row>
-                      <el-col :span="7" v-for="(item, index) in testCaseTemplate.customFields" :key="index">
-                        <el-form-item :label="item.system ? $t(systemNameMap[item.name]) : item.name" :prop="item.name"
-                                      label-width="120px">
-                          <custom-filed-component :disabled="true" :data="item" :form="{}" prop="defaultValue"/>
-                        </el-form-item>
+                      <el-col :span="4" :offset="1">
+                        <span class="cast_label">{{ $t('test_track.case.priority') }}：</span>
+                        <span class="cast_item">{{ testCase.priority }}</span>
+                      </el-col>
+                      <el-col :span="5">
+                        <span class="cast_label">{{ $t('test_track.case.module') }}：</span>
+                        <span class="cast_item">{{ testCase.nodePath }}</span>
+                      </el-col>
+                      <el-col :span="10">
+                        <test-plan-test-case-status-button class="status-button"
+                                                           @statusChange="statusChange"
+                                                           :is-read-only="isReadOnly"
+                                                           :status="testCase.status"/>
                       </el-col>
                     </el-row>
-                  </el-form>
 
-                  <el-row>
-                    <el-col :span="22" :offset="1">
-                      <div class="step-info">
-                        <form-rich-text-item :disabled="true" :title="$t('test_track.case.prerequisite')" :data="testCase" prop="prerequisite"/>
-                        <form-rich-text-item :disabled="true" :title="$t('test_track.case.step_desc')" :data="testCase" prop="stepDesc"/>
-                        <form-rich-text-item :disabled="true" :title="$t('test_track.case.expected_results')" :data="testCase" prop="stepResult"/>
-                        <form-rich-text-item :title="$t('test_track.plan_view.actual_result')" :data="testCase" prop="actualResult"/>
-                      </div>
-                    </el-col>
-                  </el-row>
+                    <el-row>
+                      <el-col :span="4" :offset="1">
+                        <span class="cast_label">{{ $t('test_track.plan.plan_project') }}：</span>
+                        <span class="cast_item">{{ testCase.projectName }}</span>
+                      </el-col>
+                    </el-row>
 
-                  <el-row>
-                    <el-col :span="5" :offset="1">
-                      <el-switch
-                        :disabled="isReadOnly"
-                        v-model="issuesSwitch"
-                        @change="issuesChange"
-                        :active-text="$t('test_track.plan_view.submit_issues')">
-                      </el-switch>
-                      <el-tooltip class="item" effect="dark"
-                                  :content="$t('test_track.issue.platform_tip')"
-                                  placement="right">
-                        <i class="el-icon-info"/>
-                      </el-tooltip>
-                    </el-col>
-                  </el-row>
+                    <el-row>
+                      <el-col :span="4" :offset="1" v-if="testCase.testId == 'other'">
+                        <span class="cast_label">{{ $t('test_track.case.test_name') }}：</span>
+                        <span class="cast_item">{{ testCase.otherTestName }}</span>
+                      </el-col>
+                    </el-row>
 
-                  <el-row v-if="issuesSwitch">
-                    <el-col :span="20" :offset="1" class="issues-edit">
-                      <el-input
-                        type="text"
-                        :placeholder="$t('test_track.issue.input_title')"
-                        v-model="testCase.issues.title"
-                        maxlength="60"
-                        show-word-limit
-                      />
-                      <ckeditor :editor="editor" :disabled="isReadOnly" :config="editorConfig"
-                                v-model="testCase.issues.content"/>
-                      <el-row v-if="hasTapdId">
-                        {{ $t('test_track.issue.tapd_current_owner') }}
-                        <el-select v-model="testCase.tapdUsers"
-                                   multiple
-                                   filterable
-                                   style="width: 20%"
-                                   :placeholder="$t('test_track.issue.please_choose_current_owner')"
-                                   collapse-tags size="small">
-                          <el-option v-for="(userInfo, index) in users" :key="index" :label="userInfo.user"
-                                     :value="userInfo.user"/>
-                        </el-select>
+                    <el-form ref="customFieldForm"
+                             class="case-form">
+                      <el-row>
+                        <el-col :span="7" v-for="(item, index) in testCaseTemplate.customFields" :key="index">
+                          <el-form-item :label="item.system ? $t(systemNameMap[item.name]) : item.name" :prop="item.name"
+                                        label-width="120px">
+                            <custom-filed-component :disabled="true" :data="item" :form="{}" prop="defaultValue"/>
+                          </el-form-item>
+                        </el-col>
                       </el-row>
-                      <el-row v-if="hasZentaoId">
-                        {{ $t('test_track.issue.zentao_bug_build') }}
-                        <el-select v-model="testCase.zentaoBuilds"
-                                   multiple
-                                   filterable
-                                   style="width: 20%"
-                                   :placeholder="$t('test_track.issue.zentao_bug_build')"
-                                   collapse-tags size="small">
-                          <el-option v-for="(build, index) in Builds" :key="index" :label="build.name"
-                                     :value="build.id"/>
-                        </el-select>
-                        {{ $t('test_track.issue.zentao_bug_assigned') }}
-                        <el-select v-model="testCase.zentaoAssigned"
-                                   filterable
-                                   style="width: 20%"
-                                   :placeholder="$t('test_track.issue.please_choose_current_owner')"
-                                   collapse-tags size="small">
-                          <el-option v-for="(userInfo, index) in zentaoUsers" :key="index" :label="userInfo.name"
-                                     :value="userInfo.user"/>
-                        </el-select>
-                      </el-row>
-                      <el-button type="primary" size="small" @click="saveIssues">{{ $t('commons.save') }}</el-button>
-                      <el-button size="small" @click="issuesSwitch=false">{{ $t('commons.cancel') }}</el-button>
-                    </el-col>
-                  </el-row>
+                    </el-form>
 
-                  <el-row>
-                    <el-col :span="20" :offset="1" class="issues-edit">
-                      <el-table border class="adjust-table" :data="issues" style="width: 100%">
-                        <el-table-column prop="id" :label="$t('test_track.issue.id')" show-overflow-tooltip/>
-                        <el-table-column prop="title" :label="$t('test_track.issue.title')" show-overflow-tooltip/>
-                        <el-table-column prop="description" :label="$t('test_track.issue.description')">
-                          <template v-slot:default="scope">
-                            <el-popover
-                              placement="right"
-                              width="500"
-                              trigger="hover"
-                              popper-class="issues-popover"
-                            >
-                              <ckeditor :editor="editor" disabled :config="readConfig"
-                                        v-model="scope.row.description"/>
-                              <el-button slot="reference" type="text">{{ $t('test_track.issue.preview') }}</el-button>
-                            </el-popover>
-                          </template>
-                        </el-table-column>
-                        <el-table-column prop="status" :label="$t('test_track.issue.status')"/>
-                        <el-table-column prop="platform" :label="$t('test_track.issue.platform')"/>
-                        <el-table-column :label="$t('test_track.issue.operate')">
-                          <template v-slot:default="scope">
-                            <el-tooltip :content="$t('test_track.issue.close')"
-                                        placement="top" :enterable="false">
-                              <el-button type="danger" icon="el-icon-circle-close" size="mini"
-                                         circle v-if="scope.row.platform === 'Local'"
-                                         @click="closeIssue(scope.row)"
-                              />
-                            </el-tooltip>
-                            <el-tooltip :content="$t('test_track.issue.delete')"
-                                        placement="top" :enterable="false">
-                              <el-button type="danger" icon="el-icon-delete" size="mini"
-                                         circle v-if="scope.row.platform === 'Local'"
-                                         @click="deleteIssue(scope.row)"
-                              />
-                            </el-tooltip>
-                          </template>
-                        </el-table-column>
-                      </el-table>
-                    </el-col>
-                  </el-row>
+                    <el-row>
+                      <el-col :span="22" :offset="1">
+                        <div class="step-info">
+                          <form-rich-text-item :disabled="true" :title="$t('test_track.case.prerequisite')" :data="testCase" prop="prerequisite"/>
+                          <form-rich-text-item :disabled="true" :title="$t('test_track.case.step_desc')" :data="testCase" prop="stepDesc"/>
+                          <form-rich-text-item :disabled="true" :title="$t('test_track.case.expected_results')" :data="testCase" prop="stepResult"/>
+                          <form-rich-text-item :title="$t('test_track.plan_view.actual_result')" :data="testCase" prop="actualResult"/>
+                        </div>
+                      </el-col>
+                    </el-row>
 
-                  <el-form>
                     <test-case-edit-other-info @openTest="openTest" :read-only="true" :is-test-plan="true" :project-id="projectId" :form="testCase" :case-id="testCase.caseId" ref="otherInfo"/>
                   </el-form>
                 </div>
@@ -255,10 +147,12 @@ import MsFormDivider from "@/business/components/common/components/MsFormDivider
 import TestCaseEditOtherInfo from "@/business/components/track/case/components/TestCaseEditOtherInfo";
 import CustomFiledComponent from "@/business/components/settings/workspace/template/CustomFiledComponent";
 import {SYSTEM_FIELD_NAME_MAP} from "@/common/js/table-constants";
+import IssueDescriptionTableItem from "@/business/components/track/issue/IssueDescriptionTableItem";
 
 export default {
   name: "FunctionalTestCaseEdit",
   components: {
+    IssueDescriptionTableItem,
     CustomFiledComponent,
     TestCaseEditOtherInfo,
     MsFormDivider,
@@ -279,9 +173,7 @@ export default {
       showDialog: false,
       testCase: {},
       index: 0,
-      issuesSwitch: false,
       testCases: [],
-      issues: [],
       editor: ClassicEditor,
       editorConfig: {
         toolbar: ['heading', '|', 'bold', 'italic', 'link', 'bulletedList', 'numberedList', 'blockQuote', 'insertTable', '|', 'undo', 'redo'],
@@ -443,13 +335,11 @@ export default {
           // 如果没值,使用模板的默认值
           this.testCase.actualResult = this.testCaseTemplate.actualResult;
         }
-        this.getIssues(item.caseId);
         this.getComments(item);
       });
     },
     openTestCaseEdit(testCase) {
       this.showDialog = true;
-      this.issuesSwitch = false;
       this.activeTab = 'detail';
       this.hasTapdId = false;
       this.hasZentaoId = false;
@@ -509,101 +399,12 @@ export default {
         }
       }
     },
-    issuesChange() {
-      if (this.issuesSwitch) {
-        let desc = this.addPLabel('[' + this.$t('test_track.plan_view.operate_step') + ']');
-        let result = this.addPLabel('[' + this.$t('test_track.case.expected_results') + ']');
-        let actualResult = this.addPLabel('[' + this.$t('test_track.plan_view.actual_result') + ']');
-        this.testCase.steps.forEach(step => {
-          let stepPrefix = this.$t('test_track.plan_view.step') + step.num + ':';
-          desc += this.addPLabel(stepPrefix + (step.desc === undefined ? '' : step.desc));
-          result += this.addPLabel(stepPrefix + (step.result === undefined ? '' : step.result));
-          actualResult += this.addPLabel(stepPrefix + (step.actualResult === undefined ? '' : step.actualResult));
-        });
-        this.testCase.issues.content = desc + this.addPLabel('') + result + this.addPLabel('') + actualResult + this.addPLabel('');
-
-        this.$get("/test/case/project/" + this.testCase.caseId, res => {
-          const project = res.data;
-          if (project.tapdId) {
-            this.hasTapdId = true;
-            this.result = this.$get("/issues/tapd/user/" + this.testCase.caseId).then(response => {
-              this.users = response.data.data;
-            }).catch(() => {
-              console.log("get tapd user error.");
-            })
-          }
-          if (project.zentaoId) {
-            this.hasZentaoId = true;
-            this.result = this.$get("/issues/zentao/builds/" + this.testCase.caseId).then(response => {
-              this.Builds = response.data.data;
-            }).catch(() => {
-              console.log("get zentao builds error.");
-            })
-            this.result = this.$get("/issues/zentao/user/" + this.testCase.caseId).then(response => {
-              this.zentaoUsers = response.data.data;
-            }).catch(() => {
-              console.log("get zentao user error.");
-            })
-          }
-        })
-      }
-    },
     addPLabel(str) {
       return "<p>" + str + "</p>";
     },
     setPlanStatus(planId) {
       this.$post('/test/plan/edit/status/' + planId);
-    },
-    saveIssues() {
-      if (!this.testCase.issues.title || !this.testCase.issues.content) {
-        this.$warning(this.$t('test_track.issue.title_description_required'));
-        return;
-      }
-
-      let param = {};
-      param.title = this.testCase.issues.title;
-      param.content = this.testCase.issues.content;
-      param.testCaseId = this.testCase.caseId;
-      param.tapdUsers = this.testCase.tapdUsers;
-      param.zentaoBuilds = this.testCase.zentaoBuilds;
-      param.zentaoUser = this.testCase.zentaoAssigned;
-
-      this.result = this.$post("/issues/add", param, () => {
-        this.$success(this.$t('commons.save_success'));
-        this.getIssues(param.testCaseId);
-      });
-
-      this.issuesSwitch = false;
-      this.testCase.issues.title = "";
-      this.testCase.issues.content = "";
-      this.testCase.tapdUsers = [];
-      this.testCase.zentaoBuilds = [];
-      this.testCase.zentaoAssigned = "";
-    },
-    getIssues(caseId) {
-      this.result = this.$get("/issues/get/" + caseId).then(response => {
-        this.issues = response.data.data;
-      }).catch(() => {
-        console.log("get issues error")
-      })
-    },
-    closeIssue(row) {
-      if (row.status === 'closed') {
-        this.$success(this.$t('test_track.issue.close_success'));
-      } else {
-        this.result = this.$get("/issues/close/" + row.id, () => {
-          this.getIssues(this.testCase.caseId);
-          this.$success(this.$t('test_track.issue.close_success'));
-        });
-      }
-    },
-    deleteIssue(row) {
-      let caseId = this.testCase.caseId;
-      this.result = this.$post("/issues/delete", {id: row.id, caseId: caseId}, () => {
-        this.getIssues(caseId);
-        this.$success(this.$t('commons.delete_success'));
-      })
-    },
+    }
   }
 }
 </script>

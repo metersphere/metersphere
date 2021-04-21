@@ -133,6 +133,9 @@ public class TestPlanService {
     private ApiScenarioReportMapper apiScenarioReportMapper;
     @Resource
     private TestPlanReportMapper testPlanReportMapper;
+    @Lazy
+    @Resource
+    private IssuesService issuesService;
 
     public synchronized String addTestPlan(AddTestPlanRequest testPlan) {
         if (getTestPlanByName(testPlan.getName()).size() > 0) {
@@ -620,7 +623,7 @@ public class TestPlanService {
         JSONArray componentIds = content.getJSONArray("components");
 
         List<ReportComponent> components = ReportComponentFactory.createComponents(componentIds.toJavaList(String.class), testPlan);
-        List<Issues> issues = buildFunctionalCaseReport(planId, components);
+        List<IssuesDao> issues = buildFunctionalCaseReport(planId, components);
         buildApiCaseReport(planId, components);
         buildScenarioCaseReport(planId, components);
         buildLoadCaseReport(planId, components);
@@ -780,7 +783,7 @@ public class TestPlanService {
         JSONArray componentIds = content.getJSONArray("components");
 
         List<ReportComponent> components = ReportComponentFactory.createComponents(componentIds.toJavaList(String.class), testPlan);
-        List<Issues> issues = buildFunctionalCaseReport(planId, components);
+        List<IssuesDao> issues = buildFunctionalCaseReport(planId, components);
         buildApiCaseReport(planId, components);
         buildScenarioCaseReport(planId, components);
         buildLoadCaseReport(planId, components);
@@ -826,14 +829,13 @@ public class TestPlanService {
         }
     }
 
-    public List<Issues> buildFunctionalCaseReport(String planId, List<ReportComponent> components) {
-        IssuesService issuesService = (IssuesService) CommonBeanFactory.getBean("issuesService");
+    public List<IssuesDao> buildFunctionalCaseReport(String planId, List<ReportComponent> components) {
         List<TestPlanCaseDTO> testPlanTestCases = listTestCaseByPlanId(planId);
-        List<Issues> issues = new ArrayList<>();
+        List<IssuesDao> issues = new ArrayList<>();
         for (TestPlanCaseDTO testCase : testPlanTestCases) {
-            List<Issues> issue = issuesService.getIssues(testCase.getCaseId());
+            List<IssuesDao> issue = issuesService.getIssues(testCase.getCaseId());
             if (issue.size() > 0) {
-                for (Issues i : issue) {
+                for (IssuesDao i : issue) {
                     i.setModel(testCase.getNodePath());
                     i.setProjectName(testCase.getProjectName());
                     String des = i.getDescription().replaceAll("<p>", "").replaceAll("</p>", "");

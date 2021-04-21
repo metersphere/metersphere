@@ -9,6 +9,8 @@ import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.commons.utils.ServiceUtils;
 import io.metersphere.controller.request.BaseQueryRequest;
 import io.metersphere.controller.request.UpdateIssueTemplateRequest;
+import io.metersphere.dto.CustomFieldDao;
+import io.metersphere.dto.IssueTemplateDao;
 import io.metersphere.i18n.Translator;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -34,6 +36,9 @@ public class IssueTemplateService {
 
     @Resource
     CustomFieldService customFieldService;
+
+    @Resource
+    ProjectService projectService;
 
     public void add(UpdateIssueTemplateRequest request) {
         checkExist(request);
@@ -162,5 +167,24 @@ public class IssueTemplateService {
         List<IssueTemplate> issueTemplates = issueTemplateMapper.selectByExample(example);
         issueTemplates.add(getDefaultTemplate(workspaceId));
         return issueTemplates;
+    }
+
+    public IssueTemplateDao getTemplate(String projectId) {
+        Project project = projectService.getProjectById(projectId);
+        String caseTemplateId = project.getCaseTemplateId();
+        IssueTemplate issueTemplate = null;
+        IssueTemplateDao issueTemplateDao = new IssueTemplateDao();
+        if (StringUtils.isNotBlank(caseTemplateId)) {
+            issueTemplate = issueTemplateMapper.selectByPrimaryKey(caseTemplateId);
+            if (issueTemplate == null) {
+                issueTemplate = getDefaultTemplate(project.getWorkspaceId());
+            }
+        } else {
+            issueTemplate = getDefaultTemplate(project.getWorkspaceId());
+        }
+        BeanUtils.copyBean(issueTemplateDao, issueTemplate);
+        List<CustomFieldDao> result = customFieldService.getCustomFieldByTemplateId(issueTemplate.getId());
+        issueTemplateDao.setCustomFields(result);
+        return issueTemplateDao;
     }
 }
