@@ -17,6 +17,7 @@
 
       <template v-slot:header>
         <ms-search-bar
+          :show-operator="showOperator"
           :condition="condition"
           :commands="operators"/>
         <module-trash-button v-if="!isReadOnly" :condition="condition" :exe="enableTrash"/>
@@ -60,6 +61,7 @@
           return false
         }
       },
+      showOperator: Boolean,
       relevanceProjectId: String,
       planId: String
     },

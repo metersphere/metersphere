@@ -3,6 +3,7 @@
     <ms-container v-if="renderComponent">
       <ms-aside-container>
         <ms-api-module
+          :show-operator="true"
           @nodeSelectEvent="nodeChange"
           @protocolChange="handleProtocolChange"
           @refreshTable="refresh"
