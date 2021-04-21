@@ -842,6 +842,55 @@ public class ApiAutomationService {
         return jmeterHashTree;
     }
 
+    private boolean checkScenarioEnv(ApiScenarioWithBLOBs apiScenarioWithBLOBs) {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        String definition = apiScenarioWithBLOBs.getScenarioDefinition();
+        MsScenario scenario = JSONObject.parseObject(definition, MsScenario.class);
+        boolean sign = true;
+        Map<String, String> envMap = scenario.getEnvironmentMap();
+        if (envMap == null) {
+            sign = false;
+        } else {
+            Set<String> set = envMap.keySet();
+            if (CollectionUtils.isEmpty(set)) {
+                sign = false;
+            } else {
+                ScenarioEnv apiScenarioEnv = getApiScenarioEnv(definition);
+                // 所有请求非全路径检查环境
+                if (!apiScenarioEnv.getFullUrl()) {
+                    try {
+                        Set<String> projectIds = apiScenarioEnv.getProjectIds();
+                        if (CollectionUtils.isNotEmpty(set)) {
+                            for (String id : projectIds) {
+                                String s = envMap.get(id);
+                                if (StringUtils.isBlank(s)) {
+                                    sign = false;
+                                    break;
+                                }
+                            }
+                        } else {
+                            sign = false;
+                        }
+                    } catch (Exception e) {
+                        sign = false;
+                        LogUtil.error(e.getMessage(), e);
+                    }
+
+                }
+            }
+        }
+
+        // 1.8 之前环境是 environmentId
+        if (!sign) {
+            String envId = scenario.getEnvironmentId();
+            if (StringUtils.isNotBlank(envId)) {
+                sign = true;
+            }
+        }
+        return sign;
+    }
+
     /**
      * 场景执行
      *
@@ -860,6 +909,18 @@ public class ApiAutomationService {
         });
         List<ApiScenarioWithBLOBs> apiScenarios = extApiScenarioMapper.selectByIds(idStr.toString().substring(0, idStr.toString().length() - 1), "\"" + StringUtils.join(ids, ",") + "\"");
 
+        if (StringUtils.isNotBlank(request.getRunMode()) && StringUtils.equals(request.getRunMode(), ApiRunMode.SCENARIO.name())) {
+            StringBuilder builder = new StringBuilder();
+            for (ApiScenarioWithBLOBs apiScenarioWithBLOBs : apiScenarios) {
+                boolean haveEnv = checkScenarioEnv(apiScenarioWithBLOBs);
+                if (!haveEnv) {
+                    builder.append(apiScenarioWithBLOBs.getName()).append("; ");
+                }
+            }
+            if (builder.length() > 0) {
+                MSException.throwException("场景：" + builder.toString() + "运行环境未配置，请检查!");
+            }
+        }
         String runMode = ApiRunMode.SCENARIO.name();
         if (StringUtils.isNotBlank(request.getRunMode()) && StringUtils.equals(request.getRunMode(), ApiRunMode.SCENARIO_PLAN.name())) {
             runMode = ApiRunMode.SCENARIO_PLAN.name();
