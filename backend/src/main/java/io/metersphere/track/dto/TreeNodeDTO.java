@@ -25,6 +25,10 @@ public class TreeNodeDTO<T> {
 
     private String label;
 
+    private String fullPath;
+
+    private Long Count;
+
     private List<T> children;
 
     private static final long serialVersionUID = 1L;

@@ -45,6 +45,7 @@ public class NodeTreeService<T extends TreeNodeDTO> {
         });
         List<T> rootNodes = Optional.ofNullable(nodeLevelMap.get(1)).orElse(new ArrayList<>());
         rootNodes.forEach(rootNode -> {
+            rootNode.setFullPath("/"+rootNode.getName());
             nodeTreeList.add(buildNodeTree(nodeLevelMap, rootNode));
         });
         return nodeTreeList;
@@ -73,6 +74,7 @@ public class NodeTreeService<T extends TreeNodeDTO> {
 
         lowerNodes.forEach(node -> {
             if (node.getParentId() != null && node.getParentId().equals(rootNode.getId())) {
+                node.setFullPath(rootNode.getFullPath()+"/"+node.getName());
                 children.add(buildNodeTree(nodeLevelMap, node));
                 nodeTree.setChildren(children);
             }

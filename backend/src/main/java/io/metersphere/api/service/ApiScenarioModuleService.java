@@ -70,7 +70,23 @@ public class ApiScenarioModuleService extends NodeTreeService<ApiScenarioModuleD
         }
 
         List<ApiScenarioModuleDTO> nodes = extApiScenarioModuleMapper.getNodeTreeByProjectId(projectId);
-        return getNodeTrees(nodes);
+        Map<String, Long> moduleCount = apiAutomationService.getModuleCount(projectId);
+        List<ApiScenarioModuleDTO> nodeTrees = getNodeTrees(nodes);
+        updateNodeCount(nodeTrees, moduleCount);
+        return nodeTrees;
+    }
+
+    private Long updateNodeCount(List<ApiScenarioModuleDTO> nodeTrees, Map<String, Long> moduleCount) {
+        if (nodeTrees == null || nodeTrees.size() == 0) {
+            return 0L;
+        }
+        Long all = 0L;
+        for (ApiScenarioModuleDTO node : nodeTrees) {
+            node.setCount(moduleCount.getOrDefault(node.getFullPath(), 0L));
+            node.setCount(node.getCount() + updateNodeCount(node.getChildren(), moduleCount));
+            all += node.getCount();
+        }
+        return all;
     }
 
     private double getNextLevelPos(String projectId, int level, String parentId) {

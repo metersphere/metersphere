@@ -28,7 +28,7 @@
         <span v-if="!data.isEdit" class="node-icon">
           <i class="el-icon-folder"/>
         </span>
-        <span v-if="!data.isEdit" class="node-title" v-text="data.name"/>
+        <span v-if="!data.isEdit" class="node-title" v-text="getLabel(data)"/>
 
         <span v-if="!disabled" class="node-operate child">
           <el-tooltip
@@ -137,14 +137,29 @@ export default {
   methods: {
     init() {
       this.extendTreeNodes = [];
+      let all = 0;
+      this.treeNodes.forEach((v, i) =>{
+        if (v.hasOwnProperty("count")){
+          all += v.count;
+        }
+      });
+
       this.extendTreeNodes.unshift({
         "id": "root",
         "name": this.allLabel,
         "level": 0,
         "children": this.treeNodes,
+        "count": all,
       });
       if (this.expandedNode.length === 0) {
         this.expandedNode.push("root");
+      }
+    },
+    getLabel(data){
+      if (data.hasOwnProperty("count") && data.count) {
+        return data.name+` (${data.count})`;
+      } else {
+        return data.name;
       }
     },
     handleNodeSelect(node) {
@@ -366,6 +381,9 @@ export default {
 .el-dropdown-link {
   cursor: pointer;
   color: #409eff;
+}
+/deep/ .el-tree-node__content{
+  height: 29px !important;
 }
 
 .el-icon-arrow-down {
