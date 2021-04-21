@@ -237,6 +237,7 @@ export default {
     clear() {
       this.selectRows.clear();
       this.selectDataCounts = 0;
+    },
     checkTableRowIsSelect() {
       checkTableRowIsSelect(this, this.condition, this.data, this.$refs.table, this.selectRows);
     }
