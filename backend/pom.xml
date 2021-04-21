@@ -298,7 +298,7 @@
         <dependency>
             <groupId>org.codehaus.groovy</groupId>
             <artifactId>groovy-jsr223</artifactId>
-            <version>2.5.10</version>
+            <version>3.0.8</version>
         </dependency>
 
         <!-- 执行 js 代码依赖 -->
