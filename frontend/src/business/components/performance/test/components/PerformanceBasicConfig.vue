@@ -155,13 +155,13 @@ export default {
       selectIds: new Set(),
       threadGroupForSelect: [
         {
-          name: this.$t('load_test.thread_group'),
+          name: 'ThreadGroup',
           tagName: 'ThreadGroup',
           testclass: 'ThreadGroup',
           guiclass: 'ThreadGroupGui'
         },
         {
-          name: this.$t('load_test.concurrency_thread_group'),
+          name: 'ConcurrencyThreadGroup',
           tagName: 'com.blazemeter.jmeter.threads.concurrency.ConcurrencyThreadGroup',
           testclass: 'com.blazemeter.jmeter.threads.concurrency.ConcurrencyThreadGroup',
           guiclass: "com.blazemeter.jmeter.threads.concurrency.ConcurrencyThreadGroupGui"
