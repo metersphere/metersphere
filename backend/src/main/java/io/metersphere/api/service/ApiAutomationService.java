@@ -120,6 +120,15 @@ public class ApiAutomationService {
         return userMapper.selectByPrimaryKey(id);
     }
 
+    public Map<String,Long> getModuleCount(String projectId) {
+        Map<String,Long> numbers = new HashMap<String, Long>();
+        List<ApiDataCountResult> apiDataCountResults = extApiScenarioMapper.countModuleByProjectId(projectId);
+        for(ApiDataCountResult apiDataCountResult:apiDataCountResults){
+            numbers.put(apiDataCountResult.getGroupField(),apiDataCountResult.getCountNumber());
+        }
+        return numbers;
+    }
+
     public List<ApiScenarioDTO> list(ApiScenarioRequest request) {
         request = this.initRequest(request, true, true);
         List<ApiScenarioDTO> list = extApiScenarioMapper.list(request);

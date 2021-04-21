@@ -2,9 +2,9 @@
   <el-dialog :title="title"
              :visible.sync="dialogVisible"
              @close="close"
-             width="75%" v-loading="result.loading"
+             width="85%" v-loading="result.loading"
              :close-on-click-modal="false"
-             top="50px" append-to-body>
+             top="40px" append-to-body>
 
     <el-container class="main-content">
 
@@ -66,8 +66,15 @@
     max-height: 600px;
   }
 
+  .el-main {
+    padding: 0px 0px 0px 8px;
+  }
+
   .el-dialog >>> .el-dialog__body {
-    padding: 10px 20px;
+    padding: 8px 20px;
+  }
+  .el-dialog >>> .el-dialog__Header {
+    padding: 8px 20px;
   }
 
 </style>
