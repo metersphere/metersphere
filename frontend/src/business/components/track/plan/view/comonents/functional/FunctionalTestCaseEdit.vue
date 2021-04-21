@@ -492,15 +492,4 @@ p {
   height: 550px;
   overflow: auto;
 }
-
-
-.el-tabs >>> .el-tabs__content {
-  padding: 20px 0px;
-}
-
-.el-tabs {
-  padding: 30px 60px
-}
-
-
 </style>
