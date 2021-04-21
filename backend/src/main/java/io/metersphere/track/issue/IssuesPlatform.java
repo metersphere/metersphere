@@ -1,8 +1,6 @@
 package io.metersphere.track.issue;
 
-import io.metersphere.base.domain.Issues;
 import io.metersphere.base.domain.IssuesDao;
-import io.metersphere.base.domain.IssuesWithBLOBs;
 import io.metersphere.track.dto.DemandDTO;
 import io.metersphere.track.issue.domain.PlatformUser;
 import io.metersphere.track.request.testcase.IssuesRequest;
