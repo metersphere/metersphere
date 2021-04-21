@@ -120,11 +120,11 @@ public class ApiTestEnvironmentService {
         }
 
         JSONObject commonConfigObj = new JSONObject();
-        JSONArray variablesArr = new JSONArray();
-        Map<String, Object> map = new HashMap<>();
-        map.put("enable", true);
-        variablesArr.add(map);
-        commonConfigObj.put("variables", variablesArr);
+        JSONArray commonVariablesArr = new JSONArray();
+        Map<String, Object> commonMap = new HashMap<>();
+        commonMap.put("enable", true);
+        commonVariablesArr.add(commonMap);
+        commonConfigObj.put("variables", commonVariablesArr);
         commonConfigObj.put("enableHost", false);
         commonConfigObj.put("hosts", new String[]{});
 
@@ -138,7 +138,11 @@ public class ApiTestEnvironmentService {
 //        }
         httpConfig.put("socket", null);
         httpConfig.put("domain", null);
-        httpConfig.put("headers", new JSONArray(variablesArr));
+        JSONArray httpVariablesArr = new JSONArray();
+        Map<String, Object> httpMap = new HashMap<>();
+        httpMap.put("enable", true);
+        httpVariablesArr.add(httpMap);
+        httpConfig.put("headers", new JSONArray(httpVariablesArr));
         httpConfig.put("protocol", null);
         httpConfig.put("port", null);
         JSONArray httpItemArr = new JSONArray();
@@ -147,7 +151,11 @@ public class ApiTestEnvironmentService {
         httpItem.put("type", "NONE");
         httpItem.put("socket", socket);
         httpItem.put("protocol", protocol);
-        httpItem.put("headers", new JSONArray(variablesArr));
+        JSONArray protocolVariablesArr = new JSONArray();
+        Map<String, Object> protocolMap = new HashMap<>();
+        protocolMap.put("enable", true);
+        protocolVariablesArr.add(protocolMap);
+        httpItem.put("headers", new JSONArray(protocolVariablesArr));
         httpItem.put("domain", ipStr);
         if (StringUtils.isNotEmpty(portStr)) {
             httpItem.put("port", portStr);
