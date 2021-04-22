@@ -282,7 +282,7 @@ export function getBodyUploadFiles(obj, runData) {
 
 export function _getBodyUploadFiles(request, bodyUploadFiles, obj) {
     let body = null;
-    if (request.hashTree && request.hashTree.length > 0 && request.hashTree[0].body) {
+    if (request.hashTree && request.hashTree.length > 0 && request.hashTree[0] && request.hashTree[0].body) {
         body = request.hashTree[0].body;
     } else if (request.body) {
         body = request.body;
