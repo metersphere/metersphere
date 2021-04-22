@@ -144,7 +144,7 @@ export default {
     registerEvents() {
       TrackEvent.$on(LIST_CHANGE, () => {
         this.$refs.planRecent.recent();
-        this.$refs.caseRecent.recent();
+        // this.$refs.caseRecent.recent();
       });
     }
   },
