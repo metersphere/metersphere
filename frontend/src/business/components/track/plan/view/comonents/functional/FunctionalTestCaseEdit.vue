@@ -328,7 +328,7 @@ export default {
         }
         item.steps = JSON.parse(item.steps);
         // 兼容旧版本的步骤
-        compatibleTestCaseStep(testCase, item);
+        compatibleTestCaseStep(item, item);
         this.testCase = item;
         parseCustomField(this.testCase, this.testCaseTemplate, null, null, buildTestCaseOldFields(this.testCase));
         if (!this.testCase.actualResult) {
