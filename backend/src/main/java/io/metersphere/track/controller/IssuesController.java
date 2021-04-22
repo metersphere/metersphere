@@ -59,6 +59,11 @@ public class IssuesController {
         issuesService.deleteIssue(request);
     }
 
+    @GetMapping("/delete/{id}")
+    public void delete(@PathVariable String id) {
+        issuesService.delete(id);
+    }
+
     @GetMapping("/tapd/user/{caseId}")
     public List<PlatformUser> getTapdUsers(@PathVariable String caseId) {
         return issuesService.getTapdProjectUsers(caseId);

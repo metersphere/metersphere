@@ -4,7 +4,7 @@
 
       <template v-slot:header>
         <ms-table-header :is-tester-permission="true" :condition.sync="condition" @search="getIssues" @create="handleCreate"
-                         :create-tip="'创建缺陷'" :title="'缺陷列表'"/>
+                         :create-tip="'创建缺陷'" :title="'缺陷列表'"  :tip="'根据标题搜索'"/>
       </template>
 
       <ms-table
@@ -147,7 +147,7 @@ export default {
       this.$refs.issueEdit.open(copyData);
     },
     handleDelete(data) {
-      this.result = this.$get('custom/field/delete/' + data.id,  () => {
+      this.result = this.$get('issues/delete/' + data.id,  () => {
         this.$success(this.$t('commons.delete_success'));
         this.getIssues();
       });
