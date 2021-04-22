@@ -187,8 +187,8 @@ export default {
         }
       } else {
         this.form = {
-          title: '',
-          description: ''
+          title: this.issueTemplate.title,
+          description: this.issueTemplate.content
         }
         this.url = 'issues/add';
       }

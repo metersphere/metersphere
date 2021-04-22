@@ -173,11 +173,11 @@ public class IssueTemplateService extends TemplateBaseService {
 
     public IssueTemplateDao getTemplate(String projectId) {
         Project project = projectService.getProjectById(projectId);
-        String caseTemplateId = project.getCaseTemplateId();
+        String issueTemplateId = project.getIssueTemplateId();
         IssueTemplate issueTemplate = null;
         IssueTemplateDao issueTemplateDao = new IssueTemplateDao();
-        if (StringUtils.isNotBlank(caseTemplateId)) {
-            issueTemplate = issueTemplateMapper.selectByPrimaryKey(caseTemplateId);
+        if (StringUtils.isNotBlank(issueTemplateId)) {
+            issueTemplate = issueTemplateMapper.selectByPrimaryKey(issueTemplateId);
             if (issueTemplate == null) {
                 issueTemplate = getDefaultTemplate(project.getWorkspaceId());
             }
