@@ -48,13 +48,14 @@ public class CustomFieldService {
     @Resource
     CustomFieldTemplateService customFieldTemplateService;
 
-    public void add(CustomField customField) {
+    public String add(CustomField customField) {
         checkExist(customField);
         customField.setId(UUID.randomUUID().toString());
         customField.setCreateTime(System.currentTimeMillis());
         customField.setUpdateTime(System.currentTimeMillis());
         customField.setGlobal(false);
         customFieldMapper.insert(customField);
+        return customField.getId();
     }
 
     /**

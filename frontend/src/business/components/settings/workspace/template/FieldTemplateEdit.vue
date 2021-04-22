@@ -34,7 +34,7 @@
 
             <el-form-item :label="'已选字段'" class="filed-list">
               <el-button type="primary" @click="relateField">添加字段</el-button>
-              <el-button type="primary" plain>设置自定义字段</el-button>
+              <el-button type="primary" @click="addField" plain>设置自定义字段</el-button>
             </el-form-item>
 
             <el-form-item>
@@ -56,6 +56,8 @@
             :scene="scene"
             ref="customFieldRelateList"/>
 
+          <custom-field-edit :scene="scene" @save="handleCustomFieldAdd" ref="customFieldEdit"/>
+
         </el-scrollbar>
       </el-main>
     </template>
@@ -71,10 +73,12 @@ import MsFormDivider from "@/business/components/common/components/MsFormDivider
 import CustomFieldFormList from "@/business/components/settings/workspace/template/CustomFieldFormList";
 import CustomFieldRelateList from "@/business/components/settings/workspace/template/CustomFieldRelateList";
 import {getCurrentWorkspaceId} from "@/common/js/utils";
+import CustomFieldEdit from "@/business/components/settings/workspace/template/CustomFieldEdit";
 
 export default {
   name: "FieldTemplateEdit",
   components: {
+    CustomFieldEdit,
     CustomFieldRelateList,
     CustomFieldFormList,
     MsFormDivider,
@@ -151,8 +155,17 @@ export default {
         }
       });
     },
+    handleCustomFieldAdd(data) {
+      this.templateContainIds.add(data.id);
+      data.fieldId = data.id;
+      data.id = null;
+      this.relateFields.push(data);
+    },
     relateField() {
       this.$refs.customFieldRelateList.open();
+    },
+    addField() {
+      this.$refs.customFieldEdit.open();
     },
     getRelateFields() {
       let condition = {};

@@ -4,6 +4,7 @@
     :visible.sync="visible"
     @confirm="save"
     :title="'创建字段'"
+    append-to-body
     ref="msEditDialog">
 
     <el-form :model="form" :rules="rules" label-position="right" label-width="140px" size="small" ref="form">
@@ -17,7 +18,7 @@
       </el-form-item>
 
       <el-form-item :label="'使用场景'" prop="type">
-        <el-select :disabled="isSystem" filterable v-model="form.scene" placeholder="使用场景">
+        <el-select :disabled="isSystem || isTemplateEdit" filterable v-model="form.scene" placeholder="使用场景">
           <el-option
             v-for="item in sceneOptions"
             :key="item.value"
@@ -59,6 +60,7 @@ import {CUSTOM_FIELD_SCENE_OPTION, CUSTOM_FIELD_TYPE_OPTION, SYSTEM_FIELD_NAME_M
 export default {
   name: "CustomFieldEdit",
   components: {MsSingleHandleDrag, MsEditDialog},
+  props: ['scene'],
   data() {
     return {
       form: {
@@ -99,6 +101,9 @@ export default {
     },
     systemNameMap() {
       return SYSTEM_FIELD_NAME_MAP;
+    },
+    isTemplateEdit() {
+      return this.scene ? true : false;
     }
   },
   methods: {
@@ -124,6 +129,9 @@ export default {
           system: false,
           options: []
         };
+        if (this.isTemplateEdit) {
+          this.form.scene = this.scene;
+        }
         this.url = 'custom/field/add';
       }
     },
@@ -134,10 +142,12 @@ export default {
           Object.assign(param, this.form);
           param.workspaceId = getCurrentWorkspaceId();
           param.options = JSON.stringify(this.form.options);
-          this.result = this.$post(this.url, param, () => {
+          this.result = this.$post(this.url, param, (response) => {
             this.visible = false;
+            param.id = response.data;
             this.$success(this.$t('commons.save_success'));
             this.$emit('refresh');
+            this.$emit('save', param);
           });
         }
       });
