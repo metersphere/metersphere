@@ -197,7 +197,7 @@ export default {
         }
         if (this.projectId) {
           this.condition.projectId = this.projectId;
-          this.result = this.$post(this.buildPagePath('/test/case/name'), this.condition, response => {
+          this.result = this.$post(this.buildPagePath('/test/case/list'), this.condition, response => {
             let data = response.data;
             this.total = data.itemCount;
             let tableData = data.listObject;
@@ -206,7 +206,7 @@ export default {
             });
             flag ? this.testCases = tableData : this.testCases = this.testCases.concat(tableData);
             // 去重处理
-            let hash = {}
+            let hash = {};
             this.testCases = this.testCases.reduce((item, next) => {
               if (!hash[next.id]) {
                 hash[next.id] = true
