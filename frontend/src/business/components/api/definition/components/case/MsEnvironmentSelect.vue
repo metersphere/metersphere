@@ -55,6 +55,7 @@
       },
       methods: {
         getEnvironments() {
+          let flag = false;
           if (this.projectId) {
             this.$get('/api/environment/list/' + this.projectId, response => {
               this.environments = response.data;
@@ -62,11 +63,15 @@
                 parseEnvironment(environment);
                 if (this.useEnvironment && this.useEnvironment === environment.id) {
                   this.environmentId = this.useEnvironment;
+                  flag = true;
                 }
               });
             });
           } else {
             this.environmentId = undefined;
+          }
+          if(this.useEnvironment && !flag){
+            this.$emit('setEnvironment', {});
           }
         },
         openEnvironmentConfig() {
