@@ -300,10 +300,6 @@ export default {
 
 <style scoped>
 
-.other-info-tabs >>> .el-tabs__content {
-  padding: 20px 0px;
-}
-
 .other-info-tabs {
   padding: 30px 60px;
 }
