@@ -1,10 +1,10 @@
 <template>
   <div>
-    <el-card class="table-card" v-loading="result.loading">
-      <template v-slot:header>
-        <ms-table-header :condition.sync="condition" @search="selectByParam" title=""
-                         :show-create="false" :tip="$t('commons.search_by_id_name_tag')"/>
-      </template>
+    <el-card class="table-card-nopadding" v-loading="result.loading">
+      <!--      <template v-slot:header>-->
+      <ms-table-header :condition.sync="condition" @search="selectByParam" title=""
+                       :show-create="false" :tip="$t('commons.search_by_id_name_tag')"/>
+      <!--      </template>-->
 
       <el-table ref="scenarioTable" border :data="tableData" class="adjust-table ms-select-all-fixed"
                 @sort-change="sort"
@@ -800,6 +800,9 @@
           });
         });
       },
+      getConditions() {
+        return this.condition;
+      }
     }
   }
 </script>

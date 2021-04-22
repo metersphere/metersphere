@@ -240,7 +240,19 @@ export default {
     },
     checkTableRowIsSelect() {
       checkTableRowIsSelect(this, this.condition, this.data, this.$refs.table, this.selectRows);
-    }
+    },
+    clearSelection() {
+      this.selectRows = new Set();
+      if (this.$refs.table) {
+        this.$refs.table.clearSelection();
+      }
+    },
+    getSelectRows() {
+      return this.selectRows;
+    },
+    clearSelectRows() {
+      this.selectRows = new Set();
+    },
   }
 };
 </script>

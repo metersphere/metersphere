@@ -77,6 +77,14 @@ public class ApiTestCaseController {
         return apiTestCaseService.getRequest(request);
     }
 
+    @PostMapping("/get/caseBLOBs/request")
+    public List<ApiTestCaseInfo> getCaseBLOBs(@RequestBody ApiTestCaseRequest request) {
+
+        request.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
+        List<ApiTestCaseInfo> returnList = apiTestCaseService.findApiTestCaseBLOBs(request);
+        return returnList;
+    }
+
     @PostMapping(value = "/create", consumes = {"multipart/form-data"})
     public ApiTestCase create(@RequestPart("request") SaveApiTestCaseRequest request, @RequestPart(value = "files") List<MultipartFile> bodyFiles) {
         return apiTestCaseService.create(request, bodyFiles);

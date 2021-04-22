@@ -146,196 +146,6 @@
 
       </ms-table>
 
-      <!--      <el-table v-loading="result.loading"-->
-      <!--                ref="apiDefinitionTable"-->
-      <!--                border-->
-      <!--                @sort-change="sort"-->
-      <!--                @filter-change="filter"-->
-      <!--                :data="tableData" row-key="id" class="test-content adjust-table ms-select-all-fixed"-->
-      <!--                @select-all="handleSelectAll"-->
-      <!--                @header-dragend="headerDragend"-->
-      <!--                @select="handleSelect" :height="screenHeight">-->
-      <!--        <el-table-column width="50" type="selection"/>-->
-
-      <!--        <ms-table-header-select-popover v-show="total>0"-->
-      <!--                                        :page-size="pageSize>total?total:pageSize"-->
-      <!--                                        :total="total"-->
-      <!--                                        :select-data-counts="selectDataCounts"-->
-      <!--                                        @selectPageAll="isSelectDataAll(false)"-->
-      <!--                                        @selectAll="isSelectDataAll(true)"/>-->
-
-      <!--        <el-table-column width="30" :resizable="false" align="center">-->
-      <!--          <template v-slot:default="scope">-->
-      <!--            &lt;!&ndash; 选中记录后浮现的按钮，提供对记录的批量操作 &ndash;&gt;-->
-      <!--            <show-more-btn :is-show="scope.row.showMore" :buttons="trashEnable ? trashButtons : buttons" :size="selectDataCounts" v-tester/>-->
-      <!--          </template>-->
-      <!--        </el-table-column>-->
-      <!--        <template v-for="(item, index) in tableLabel">-->
-      <!--          <el-table-column-->
-      <!--            v-if="item.id == 'num'"-->
-      <!--            prop="num"-->
-      <!--            label="ID"-->
-      <!--            show-overflow-tooltip-->
-      <!--            min-width="80px"-->
-      <!--            sortable="custom"-->
-      <!--            :key="index">-->
-      <!--            <template slot-scope="scope">-->
-      <!--              &lt;!&ndash; 判断为只读用户的话不可点击ID进行编辑操作 &ndash;&gt;-->
-      <!--              <span style="cursor:pointer" v-if="isReadOnly"> {{ scope.row.num }} </span>-->
-      <!--              <el-tooltip v-else content="编辑">-->
-      <!--                <a style="cursor:pointer" @click="editApi(scope.row)"> {{ scope.row.num }} </a>-->
-      <!--              </el-tooltip>-->
-      <!--            </template>-->
-      <!--          </el-table-column>-->
-      <!--          <el-table-column-->
-      <!--            v-if="item.id == 'name'"-->
-      <!--            prop="name"-->
-      <!--            :label="$t('api_test.definition.api_name')"-->
-      <!--            show-overflow-tooltip-->
-      <!--            sortable="custom"-->
-      <!--            min-width="120px"-->
-      <!--            :key="index"/>-->
-      <!--          <el-table-column-->
-      <!--            v-if="item.id == 'status'"-->
-      <!--            prop="status"-->
-      <!--            column-key="status"-->
-      <!--            sortable="custom"-->
-      <!--            :filters="statusFilters"-->
-      <!--            :label="$t('api_test.definition.api_status')"-->
-      <!--            min-width="120px"-->
-      <!--            :key="index">-->
-      <!--            <template v-slot:default="scope">-->
-      <!--            <span class="el-dropdown-link">-->
-      <!--              <api-status :value="scope.row.status"/>-->
-      <!--            </span>-->
-      <!--            </template>-->
-      <!--          </el-table-column>-->
-
-      <!--          <el-table-column-->
-      <!--            v-if="item.id == 'method'"-->
-      <!--            prop="method"-->
-      <!--            sortable="custom"-->
-      <!--            column-key="method"-->
-      <!--            :filters="methodFilters"-->
-      <!--            :label="$t('api_test.definition.api_type')"-->
-      <!--            show-overflow-tooltip min-width="120px"-->
-      <!--            :key="index">-->
-      <!--            <template v-slot:default="scope" class="request-method">-->
-      <!--              <el-tag size="mini"-->
-      <!--                      :style="{'background-color': getColor(true, scope.row.method), border: getColor(true, scope.row.method)}"-->
-      <!--                      class="api-el-tag">-->
-      <!--                {{ scope.row.method }}-->
-      <!--              </el-tag>-->
-      <!--            </template>-->
-      <!--          </el-table-column>-->
-
-      <!--          <el-table-column-->
-      <!--            v-if="item.id == 'userName'"-->
-      <!--            prop="userName"-->
-      <!--            sortable="custom"-->
-      <!--            :filters="userFilters"-->
-      <!--            column-key="user_id"-->
-      <!--            :label="$t('api_test.definition.api_principal')"-->
-      <!--            show-overflow-tooltip-->
-      <!--            min-width="100px"-->
-      <!--            :key="index"/>-->
-
-      <!--          <el-table-column-->
-      <!--            v-if="item.id == 'path'"-->
-      <!--            prop="path"-->
-      <!--            min-width="120px"-->
-      <!--            :label="$t('api_test.definition.api_path')"-->
-      <!--            show-overflow-tooltip-->
-      <!--            :key="index"/>-->
-
-      <!--          <el-table-column-->
-      <!--            v-if="item.id == 'tags'"-->
-      <!--            prop="tags"-->
-      <!--            :label="$t('commons.tag')"-->
-      <!--            min-width="120px"-->
-      <!--            :key="index">-->
-      <!--            <template v-slot:default="scope">-->
-      <!--              <ms-tag v-for="(itemName,index)  in scope.row.tags" :key="index" type="success" effect="plain" :show-tooltip="true" :content="itemName"-->
-      <!--                      style="margin-left: 0px; margin-right: 2px"/>-->
-      <!--            </template>-->
-      <!--          </el-table-column>-->
-
-      <!--          <el-table-column-->
-      <!--            v-if="item.id == 'updateTime'"-->
-      <!--            width="160"-->
-      <!--            :label="$t('api_test.definition.api_last_time')"-->
-      <!--            sortable="custom"-->
-      <!--            min-width="160px"-->
-      <!--            prop="updateTime"-->
-      <!--            :key="index">-->
-      <!--            <template v-slot:default="scope">-->
-      <!--              <span>{{ scope.row.updateTime | timestampFormatDate }}</span>-->
-      <!--            </template>-->
-      <!--          </el-table-column>-->
-
-      <!--          <el-table-column-->
-      <!--            v-if="item.id == 'caseTotal'"-->
-      <!--            prop="caseTotal"-->
-      <!--            min-width="80px"-->
-      <!--            :label="$t('api_test.definition.api_case_number')"-->
-      <!--            show-overflow-tooltip-->
-      <!--            :key="index"/>-->
-
-      <!--          <el-table-column-->
-      <!--            v-if="item.id == 'caseStatus'"-->
-      <!--            prop="caseStatus"-->
-      <!--            min-width="80px"-->
-      <!--            :label="$t('api_test.definition.api_case_status')"-->
-      <!--            show-overflow-tooltip-->
-      <!--            :key="index"/>-->
-
-      <!--          <el-table-column-->
-      <!--            v-if="item.id == 'casePassingRate'"-->
-      <!--            prop="casePassingRate"-->
-      <!--            :width="100"-->
-      <!--            min-width="100px"-->
-      <!--            :label="$t('api_test.definition.api_case_passing_rate')"-->
-      <!--            show-overflow-tooltip-->
-      <!--            :key="index"/>-->
-      <!--        </template>-->
-      <!--        &lt;!&ndash; 操作 &ndash;&gt;-->
-      <!--        <el-table-column fixed="right" v-if="!isReadOnly" min-width="180"-->
-      <!--                         align="center">-->
-
-      <!--          <template slot="header">-->
-      <!--            <header-label-operate @exec="customHeader"/>-->
-      <!--          </template>-->
-
-      <!--          <template v-slot:default="scope">-->
-      <!--            <ms-table-operator-button class="run-button" :is-tester-permission="true"-->
-      <!--                                      :tip="$t('api_test.automation.execute')"-->
-      <!--                                      icon="el-icon-video-play"-->
-      <!--                                      @exec="runApi(scope.row)"/>-->
-      <!--            &lt;!&ndash; 回收站的恢复按钮 &ndash;&gt;-->
-      <!--            <ms-table-operator-button :tip="$t('commons.reduction')" icon="el-icon-refresh-left"-->
-      <!--                                      @exec="reductionApi(scope.row)" v-if="trashEnable" v-tester/>-->
-      <!--            <ms-table-operator-button :tip="$t('commons.edit')" icon="el-icon-edit" @exec="editApi(scope.row)" v-else-->
-      <!--                                      v-tester/>-->
-      <!--            <el-tooltip :content="$t('test_track.case.case_list')"-->
-      <!--                        placement="bottom"-->
-      <!--                        :enterable="false"-->
-      <!--                        effect="dark">-->
-      <!--              <el-button @click="handleTestCase(scope.row)"-->
-      <!--                         @keydown.enter.native.prevent-->
-      <!--                         type="primary"-->
-      <!--                         :disabled="isReadOnly"-->
-      <!--                         circle-->
-      <!--                         style="color:white;padding: 0px 0.1px;font-size: 11px;width: 28px;height: 28px;"-->
-      <!--                         size="mini">case-->
-      <!--              </el-button>-->
-      <!--            </el-tooltip>-->
-      <!--            <ms-table-operator-button :tip="$t('commons.delete')" icon="el-icon-delete" @exec="handleDelete(scope.row)"-->
-      <!--                                      type="danger" v-tester/>-->
-      <!--          </template>-->
-      <!--        </el-table-column>-->
-      <!--        <header-custom ref="headerCustom" :initTableData="initTable" :optionalFields=headerItems-->
-      <!--                       :type=type></header-custom>-->
-      <!--      </el-table>-->
       <ms-table-pagination :change="initTable" :current-page.sync="currentPage" :page-size.sync="pageSize"
                            :total="total"/>
     </div>
@@ -429,7 +239,6 @@ export default {
       moduleId: "",
       selectDataRange: "all",
       deletePath: "/test/case/delete",
-      selectRows: new Set(),
       buttons: [
         {name: this.$t('api_test.definition.request.batch_delete'), handleClick: this.handleDeleteBatch},
         {name: this.$t('api_test.definition.request.batch_edit'), handleClick: this.handleEditBatch},
@@ -453,6 +262,8 @@ export default {
       tableTrashOperatorButtons: [
         {tip: this.$t('api_test.automation.execute'), icon: "el-icon-video-play", exec: this.runApi},
         {tip: this.$t('commons.reduction'), icon: "el-icon-refresh-left", exec: this.reductionApi},
+        {tip: "CASE", exec: this.handleTestCase, isDivButton: true, type: "primary"},
+        {tip: this.$t('commons.delete'), exec: this.handleDelete, icon: "el-icon-delete", type: "danger"},
       ],
       typeArr: [
         {id: 'status', name: this.$t('api_test.definition.api_status')},
@@ -531,8 +342,11 @@ export default {
   },
   computed: {
     projectId() {
-      return this.$store.state.projectId
+      return this.$store.state.projectId;
     },
+    selectRows() {
+      return this.$refs.apiDefinitionTable.getSelectRows();
+    }
   },
   created: function () {
     if (this.trashEnable) {
@@ -577,7 +391,9 @@ export default {
       this.$refs.testCaseBatchMove.open(this.moduleTree, [], this.moduleOptions);
     },
     initTable() {
-      this.selectRows = new Set();
+      if (this.$refs.apiDefinitionTable) {
+        this.$refs.apiDefinitionTable.clearSelectRows();
+      }
       initCondition(this.condition, this.condition.selectAll);
       this.selectDataCounts = 0;
       this.condition.moduleIds = this.selectNodeIds;
@@ -683,22 +499,6 @@ export default {
         });
       });
     },
-    handleSelectAll(selection) {
-      _handleSelectAll(this, selection, this.tableData, this.selectRows, this.condition);
-      setUnSelectIds(this.tableData, this.condition, this.selectRows);
-      this.selectDataCounts = getSelectDataCounts(this.condition, this.total, this.selectRows);
-    },
-    handleSelect(selection, row) {
-      _handleSelect(this, selection, row, this.selectRows);
-      setUnSelectIds(this.tableData, this.condition, this.selectRows);
-      this.selectDataCounts = getSelectDataCounts(this.condition, this.total, this.selectRows);
-    },
-    isSelectDataAll(data) {
-      this.condition.selectAll = data;
-      setUnSelectIds(this.tableData, this.condition, this.selectRows);
-      this.selectDataCounts = getSelectDataCounts(this.condition, this.total, this.selectRows);
-      toggleAllSelection(this.$refs.apiDefinitionTable, this.tableData, this.selectRows);
-    },
     search() {
       this.changeSelectDataRangeAll();
       this.initTable();
@@ -765,7 +565,7 @@ export default {
           callback: (action) => {
             if (action === 'confirm') {
               this.$post('/api/definition/deleteBatchByParams/', buildBatchParam(this), () => {
-                this.selectRows.clear();
+                this.$refs.apiDefinitionTable.clearSelectRows();
                 this.initTable();
                 this.$success(this.$t('commons.delete_success'));
               });
@@ -778,7 +578,7 @@ export default {
           callback: (action) => {
             if (action === 'confirm') {
               this.$post('/api/definition/removeToGcByParams/', buildBatchParam(this), () => {
-                this.selectRows.clear();
+                this.$refs.apiDefinitionTable.clearSelectRows();
                 this.initTable();
                 this.$success(this.$t('commons.delete_success'));
                 this.$refs.caseList.apiCaseClose();

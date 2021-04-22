@@ -110,6 +110,13 @@ public class ApiTestCaseService {
         return apiTestCases;
     }
 
+    public List<String> idSimple(ApiTestCaseRequest request) {
+        request = this.initRequest(request, true, true);
+
+        List<String> ids = extApiTestCaseMapper.idSimple(request);
+        return ids;
+    }
+
     /**
      * 初始化部分参数
      *
@@ -478,7 +485,7 @@ public class ApiTestCaseService {
 
     public void deleteBatchByParam(ApiTestBatchRequest request) {
         List<String> ids = request.getIds();
-        if (request.isSelectAllDate()) {
+        if (request.isSelectAll()) {
             ids = this.getAllApiCaseIdsByFontedSelect(request.getFilters(), request.getModuleIds(), request.getName(), request.getProjectId(), request.getProtocol(), request.getUnSelectIds(), request.getStatus());
         }
         this.deleteBatch(ids);
@@ -486,7 +493,7 @@ public class ApiTestCaseService {
 
     public void editApiBathByParam(ApiTestBatchRequest request) {
         List<String> ids = request.getIds();
-        if (request.isSelectAllDate()) {
+        if (request.isSelectAll()) {
             ids = this.getAllApiCaseIdsByFontedSelect(request.getFilters(), request.getModuleIds(), request.getName(), request.getProjectId(), request.getProtocol(), request.getUnSelectIds(), request.getStatus());
         }
         ApiTestCaseExample apiDefinitionExample = new ApiTestCaseExample();
@@ -664,11 +671,29 @@ public class ApiTestCaseService {
         String status = apiDefinitionExecResultMapper.selectExecResult(id);
         return status;
     }
-    public ApiDefinitionExecResult getInfo(String id){
+
+    public ApiDefinitionExecResult getInfo(String id) {
         return apiDefinitionExecResultMapper.selectByPrimaryKey(id);
     }
 
     public List<ApiTestCase> selectEffectiveTestCaseByProjectId(String projectId) {
         return extApiTestCaseMapper.selectEffectiveTestCaseByProjectId(projectId);
+    }
+
+    public List<ApiTestCaseInfo> findApiTestCaseBLOBs(ApiTestCaseRequest request) {
+        List<String> ids = request.getIds();
+        if (request.isSelectAll()) {
+            ids = this.idSimple(request);
+            ids.removeAll(request.getUnSelectIds());
+            request.setIds(ids);
+        }
+        List<ApiTestCaseInfo> list = extApiTestCaseMapper.getCaseInfo(request);
+        for (ApiTestCaseInfo model : list) {
+            if (StringUtils.equalsIgnoreCase(model.getApiMethod(), "esb")) {
+                esbApiParamService.handleApiEsbParams(model);
+            }
+        }
+
+        return list;
     }
 }
