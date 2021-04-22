@@ -696,6 +696,7 @@
         let rowParam = JSON.parse(JSON.stringify(row));
         rowParam.copy = true;
         rowParam.name = 'copy_' + rowParam.name;
+      rowParam.num = '';
         this.$emit('edit', rowParam);
       },
       showReport(row) {
