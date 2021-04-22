@@ -228,10 +228,7 @@
           if (this.isCaseEdit) {
             this.condition.id = this.testCaseId;
           }
-          if (this.api) {
-            this.condition.apiDefinitionId = this.api.id;
-          }
-
+          this.condition.apiDefinitionId = this.api.id;
           this.result = this.$post("/api/testcase/list", this.condition, response => {
             let data = [];
             if (response.data) {
@@ -313,7 +310,7 @@
         }
       },
       addCase() {
-        if (this.api.request) {
+        if (this.api && this.api.request) {
           // 初始化对象
           let request = {};
           if (this.api.request instanceof Object) {
@@ -324,7 +321,7 @@
           if (!request.hashTree) {
             request.hashTree = [];
           }
-          if (request.backScript !== null) {
+          if (request.backScript) {
             request.hashTree.push(request.backScript);
           }
           let uuid = getUUID();
