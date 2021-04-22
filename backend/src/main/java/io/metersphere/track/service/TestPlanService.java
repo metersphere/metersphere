@@ -562,8 +562,8 @@ public class TestPlanService {
         }
     }
 
-    public List<TestPlan> recentTestPlans() {
-        return extTestPlanMapper.listRecent(SessionUtils.getUserId(), SessionUtils.getCurrentProjectId());
+    public List<TestPlan> recentTestPlans(String projectId) {
+        return extTestPlanMapper.listRecent(SessionUtils.getUserId(), projectId);
     }
 
     public List<TestPlan> listTestAllPlan(String currentWorkspaceId) {
