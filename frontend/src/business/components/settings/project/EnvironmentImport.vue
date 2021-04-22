@@ -64,7 +64,7 @@ export default {
   watch: {
     //导入框激活时重置选中的项目和文件
     dialogVisible(val, oldVal) {
-      if (oldVal == false) {
+      if (oldVal === false) {
         this.currentProjectId = '';
         this.uploadFiles = [];
       }
@@ -77,11 +77,13 @@ export default {
       this.uploadFiles = uploadFiles;
     },
     save() {
-      if (this.uploadFiles.length > 0) {  //加分号; 没有上传文件点确定的情况
+      if (this.uploadFiles.length > 0) { 
         for (let i = 0; i < this.uploadFiles.length; i++) {
           this.uploadValidate(this.uploadFiles[i]);
           let file = this.uploadFiles[i];
-          if (!file) continue;
+          if (!file) {
+            continue;
+          }
           let reader = new FileReader();
 
           reader.readAsText(file.raw)
@@ -89,7 +91,7 @@ export default {
             let fileString =  e.target.result;
             JSON.parse(fileString).map(env => {
               //projectId为空字符串要转换为null，空字符串会被认为有projectId
-              env.projectId = this.currentProjectId == '' ? null : this.currentProjectId;
+              env.projectId = this.currentProjectId === '' ? null : this.currentProjectId;
               this.$post('/api/environment/add', env, response => {
                 this.$emit('refresh');
                 this.$success(this.$t('commons.save_success'));
