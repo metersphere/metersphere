@@ -82,7 +82,7 @@ public class ApiScenarioModuleService extends NodeTreeService<ApiScenarioModuleD
         }
         Long all = 0L;
         for (ApiScenarioModuleDTO node : nodeTrees) {
-            node.setCount(moduleCount.getOrDefault(node.getFullPath(), 0L));
+            node.setCount(moduleCount.getOrDefault(node.getId(), 0L));
             node.setCount(node.getCount() + updateNodeCount(node.getChildren(), moduleCount));
             all += node.getCount();
         }
