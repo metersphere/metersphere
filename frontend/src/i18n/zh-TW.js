@@ -12,6 +12,7 @@ export default {
     import_mode: '導入模式',
     import_module: '導入模塊',
     import_user: '導入用戶',
+    export: "導出",
     please_fill_in_the_template: '請填寫模版內容',
     cut_back_old_version: '切回舊版',
     cut_back_new_version: '切回新版',
@@ -19,6 +20,7 @@ export default {
     examples: '示例',
     help_documentation: '幫助文檔',
     api_help_documentation: 'API文檔',
+    confirm_delete: '是否刪除',
     delete_cancelled: '已取消刪除',
     workspace: '工作空間',
     organization: '組織',
@@ -806,6 +808,7 @@ export default {
       loop_message: "當前循環下超過一個請求，不能關閉狀態",
     },
     environment: {
+      create: '創建環境',
       name: "環境名稱",
       socket: "環境域名",
       condition_enable: "啟用條件",
@@ -813,6 +816,7 @@ export default {
       environment_list: "環境列表",
       environment_config: "環境配置",
       config_environment: "配置環境",
+      copy_environment: "複製環境",
       environment: "環境",
       select_environment: "請選擇環境",
       please_save_test: "請先保存測試",
@@ -820,6 +824,7 @@ export default {
       http_config: "HTTP配置",
       database_config: "數據庫配置",
       tcp_config: "TCP配置",
+      import: "導入環境",
     },
     scenario: {
       scenario: "場景",
@@ -1018,7 +1023,8 @@ export default {
       swagger_url_import: "使用URL導入",
       timing_synchronization: "定時同步",
       next_synchronization_time: "下次同步時間",
-
+      ms_env_import_file_limit: "支持通過MeterSphere導出的json格式文件",
+      file_exceed_limit: "文件數量超出限制",
     },
     home_page: {
       unit_of_measurement: "個",

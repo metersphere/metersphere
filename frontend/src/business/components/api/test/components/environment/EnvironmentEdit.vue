@@ -1,5 +1,5 @@
 <template>
-  <el-main v-loading="result.loading">
+  <el-main v-loading="result.loading" class="environment-edit">
     <el-form :model="environment" :rules="rules" ref="environment">
 
       <span>{{$t('api_test.environment.name')}}</span>
@@ -108,6 +108,7 @@
             environment.id = response.data;
           }
           this.$success(this.$t('commons.save_success'));
+          this.$emit('refreshAfterSave');   //在EnvironmentList.vue中监听，使在数据修改后进行刷新
         });
       },
       buildParam: function (environment) {

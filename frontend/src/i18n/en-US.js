@@ -12,12 +12,14 @@ export default {
     import_mode: 'Import mode',
     import_module: 'Import module',
     import_user: 'Import user',
+    export: 'Export',
     please_fill_in_the_template: 'Please fill in the template',
     cut_back_old_version: 'Cut back to old version',
     cut_back_new_version: 'Switch back to new version',
     comment: 'comment',
     examples: 'examples',
     help_documentation: 'Help documentation',
+    confirm_delete: 'Whether to delete',
     delete_cancelled: 'Delete cancelled',
     option_cannot_spread_pages: 'This options not support spread pages.Do you want continue?',
     workspace: 'Workspace',
@@ -806,6 +808,7 @@ export default {
       loop_message: "There is more than one request in the current cycle and cannot be closed",
     },
     environment: {
+      create: 'Create environment',
       name: "Environment Name",
       socket: "Socket",
       condition_enable: "Activation conditions",
@@ -813,6 +816,7 @@ export default {
       environment_list: "Environment List",
       environment_config: "Environment Config",
       config_environment: "Config Environment",
+      copy_environment: "copy environment",
       environment: "Environment",
       select_environment: "Please select environment",
       please_save_test: "Please Save Test First",
@@ -820,6 +824,7 @@ export default {
       http_config: "HTTP Config",
       database_config: "Database Config",
       tcp_config: "TCP Config",
+      import: "Import Environment",
     },
     scenario: {
       scenario: "Scenario",
@@ -1016,7 +1021,8 @@ export default {
       swagger_url_import: "Import using URL",
       timing_synchronization: "Timing synchronization",
       next_synchronization_time: "Next synchronization time",
-
+      ms_env_import_file_limit: "It supports JSON format files exported through metersphere",
+      file_exceed_limit: "The number of files exceeds the limit",
     },
     home_page: {
       unit_of_measurement: "",

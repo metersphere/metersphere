@@ -99,6 +99,11 @@ export default {
       component: () => import('@/business/components/settings/project/MsProject'),
       meta: {project: true, title: 'project.manager'}
     },
+    {
+      path: 'envlist',
+      component: () => import('@/business/components/settings/project/EnvironmentList'),
+      meta: {project: true, title: 'api_test.environment.environment_config'}
+    }
 
   ]
 }
