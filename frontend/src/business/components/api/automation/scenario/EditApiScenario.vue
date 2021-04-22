@@ -1017,6 +1017,7 @@
                 this.path = "/api/automation/update";
                 if (response.data) {
                   this.currentScenario.id = response.data.id;
+                  this.currentScenario.num = response.data.num;
                 }
                 if (this.currentScenario.tags instanceof String) {
                   this.currentScenario.tags = JSON.parse(this.currentScenario.tags);

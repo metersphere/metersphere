@@ -13,6 +13,7 @@ module.exports = {
       // ['^(?!/login)']: {
       ['^((?!/login)(?!/document))']: {
         target: 'http://localhost:8081',
+        // target: 'http://172.26.33.18:8081',
         ws: true,
       },
     }
