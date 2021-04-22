@@ -23,7 +23,7 @@ import java.util.UUID;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
-public class IssueTemplateService {
+public class IssueTemplateService extends TemplateBaseService {
 
     @Resource
     ExtIssueTemplateMapper extIssueTemplateMapper;
@@ -62,6 +62,7 @@ public class IssueTemplateService {
     }
 
     public void delete(String id) {
+        checkTemplateUsed(id, projectService::getByIssueTemplateId);
         issueTemplateMapper.deleteByPrimaryKey(id);
         customFieldTemplateService.deleteByTemplateId(id);
     }
