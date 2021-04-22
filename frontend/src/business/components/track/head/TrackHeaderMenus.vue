@@ -101,7 +101,7 @@ export default {
       },
       planRecent: {
         title: this.$t('test_track.recent_plan'),
-        url: "/test/plan/recent/5",
+        url: this.$store.state.projectId === '' ? "/test/plan/recent/5/" + undefined : "/test/plan/recent/5/" + this.$store.state.projectId,
         index: function (item) {
           return '/track/plan/view/' + item.id;
         },
