@@ -7,6 +7,7 @@ import io.metersphere.base.domain.CustomFieldExample;
 import io.metersphere.base.domain.CustomFieldTemplate;
 import io.metersphere.base.mapper.CustomFieldMapper;
 import io.metersphere.base.mapper.ext.ExtCustomFieldMapper;
+import io.metersphere.commons.constants.TemplateConstants;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.BeanUtils;
 import io.metersphere.commons.utils.PageUtils;
@@ -86,8 +87,11 @@ public class CustomFieldService {
         if (customField.getGlobal() != null && customField.getGlobal()) {
             // 如果是全局字段，则创建对应工作空间字段
             add(customField);
-            testCaseTemplateService.handleSystemFieldCreate(customField);
-            issueTemplateService.handleSystemFieldCreate(customField);
+            if (StringUtils.equals(customField.getScene(), TemplateConstants.FieldTemplateScene.TEST_CASE.name())) {
+                testCaseTemplateService.handleSystemFieldCreate(customField);
+            } else {
+                issueTemplateService.handleSystemFieldCreate(customField);
+            }
         } else {
             checkExist(customField);
             customField.setUpdateTime(System.currentTimeMillis());

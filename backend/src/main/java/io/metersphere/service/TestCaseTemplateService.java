@@ -106,6 +106,7 @@ public class TestCaseTemplateService {
         testCaseTemplate.setName("default");
         testCaseTemplate.setType(TemplateConstants.TestCaseTemplateScene.functional.name());
         testCaseTemplate.setGlobal(false);
+        testCaseTemplate.setSystem(true);
         testCaseTemplate.setWorkspaceId(workspaceId);
         BeanUtils.copyBean(request, testCaseTemplate);
         List<CustomFieldTemplate> systemFieldCreateTemplate =

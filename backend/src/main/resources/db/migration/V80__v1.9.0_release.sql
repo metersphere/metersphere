@@ -208,7 +208,7 @@ update issues i
     ) as tmp
 on i.id = tmp.issues_id
     set i.project_id = tmp.project_id;
-    
+
 -- 修改issue表主键
 alter table issues drop primary key;
 alter table issues
@@ -229,4 +229,7 @@ alter table load_test_report
 alter table load_test_report
     add tps VARCHAR(10) null;
 
+-- 模板的字段不必填
+ALTER TABLE issue_template MODIFY COLUMN title varchar(64) NULL COMMENT 'Issue title';
+ALTER TABLE test_case_template MODIFY COLUMN case_name varchar(64) NULL COMMENT 'Test Case Name';
 

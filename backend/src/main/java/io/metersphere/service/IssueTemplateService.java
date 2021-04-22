@@ -115,6 +115,7 @@ public class IssueTemplateService {
         issueTemplate.setName("default");
         issueTemplate.setPlatform(TemplateConstants.IssueTemplatePlatform.metersphere.name());
         issueTemplate.setGlobal(false);
+        issueTemplate.setSystem(true);
         issueTemplate.setWorkspaceId(workspaceId);
         BeanUtils.copyBean(request, issueTemplate);
         List<CustomFieldTemplate> systemFieldCreateTemplate =

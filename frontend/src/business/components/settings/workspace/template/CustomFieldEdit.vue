@@ -8,7 +8,7 @@
 
     <el-form :model="form" :rules="rules" label-position="right" label-width="140px" size="small" ref="form">
       <el-form-item :label="'字段名'" prop="name">
-        <el-input v-if="isSystem" :disabled="isSystem" :value="$t(form.name)" autocomplete="off"></el-input>
+        <el-input v-if="isSystem" :disabled="isSystem" :value="$t(systemNameMap[form.name])" autocomplete="off"></el-input>
         <el-input v-else v-model="form.name" autocomplete="off"></el-input>
       </el-form-item>
 
@@ -55,7 +55,7 @@
 import MsEditDialog from "@/business/components/common/components/MsEditDialog";
 import MsSingleHandleDrag from "@/business/components/common/components/MsSingleHandleDrag";
 import {getCurrentWorkspaceId} from "@/common/js/utils";
-import {CUSTOM_FIELD_SCENE_OPTION, CUSTOM_FIELD_TYPE_OPTION} from "@/common/js/table-constants";
+import {CUSTOM_FIELD_SCENE_OPTION, CUSTOM_FIELD_TYPE_OPTION, SYSTEM_FIELD_NAME_MAP} from "@/common/js/table-constants";
 export default {
   name: "CustomFieldEdit",
   components: {MsSingleHandleDrag, MsEditDialog},
@@ -96,6 +96,9 @@ export default {
     },
     isSystem() {
       return this.form.system;
+    },
+    systemNameMap() {
+      return SYSTEM_FIELD_NAME_MAP;
     }
   },
   methods: {
