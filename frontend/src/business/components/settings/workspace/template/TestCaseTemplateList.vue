@@ -20,6 +20,10 @@
         :label="'名称'"
         :fields="fields"
         prop="name">
+        <template v-slot="scope">
+          <span v-if="scope.row.system">{{ scope.row.name }}(默认模板)</span>
+          <span v-else>{{ scope.row.name }}</span>
+        </template>
       </ms-table-column>
 
       <ms-table-column
