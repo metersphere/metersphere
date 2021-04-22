@@ -168,5 +168,7 @@ export default {
 </script>
 
 <style scoped>
-
+/deep/ .el-table__fixed-body-wrapper {
+  top: 58PX !IMPORTANT;
+}
 </style>

@@ -70,7 +70,7 @@
 
           <ms-form-divider :title="$t('其他信息')"/>
 
-          <test-case-edit-other-info :project-id="projectIds" :form="form" :label-width="formLabelWidth" :case-id="testCase.id" ref="otherInfo"/>
+          <test-case-edit-other-info :project-id="projectIds" :form="form" :label-width="formLabelWidth" :case-id="form.id" ref="otherInfo"/>
 
           <el-row style="margin-top: 10px" v-if="type!='add'">
             <el-col :span="20" :offset="1">{{ $t('test_track.review.comment') }}:

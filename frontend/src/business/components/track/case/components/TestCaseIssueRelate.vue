@@ -87,11 +87,17 @@ export default {
   },
   methods: {
     getIssues() {
-      this.result = this.$get("/issues/get/" + this.caseId, (response) => {
-        this.issues = response.data;
-      });
+      if (this.caseId) {
+        this.result = this.$get("/issues/get/" + this.caseId, (response) => {
+          this.issues = response.data;
+        });
+      }
     },
     appIssue() {
+      if (!this.caseId) {
+        this.$warning('请先保存用例');
+        return;
+      }
       this.$refs.issueEdit.open();
     },
     closeIssue(row) {
