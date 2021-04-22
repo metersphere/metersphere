@@ -435,7 +435,7 @@ public class ApiAutomationService {
                                 env.setFullUrl(false);
                             }
                         }
-                    } else if (StringUtils.equals(tr.getType(), "TCPSampler")) {
+                    } else if (StringUtils.equals(tr.getType(), "JDBCSampler") || StringUtils.equals(tr.getType(), "TCPSampler")) {
                         env.getProjectIds().add(tr.getProjectId());
                     }
                 }
@@ -478,7 +478,7 @@ public class ApiAutomationService {
                                 env.getProjectIds().add(http.getProjectId());
                             }
                         }
-                    } else if (StringUtils.equals(tr.getType(), "TCPSampler")) {
+                    } else if (StringUtils.equals(tr.getType(), "JDBCSampler") || StringUtils.equals(tr.getType(), "TCPSampler")) {
                         if (StringUtils.equals(tr.getRefType(), "CASE")) {
                             ApiTestCaseWithBLOBs apiTestCaseWithBLOBs = apiTestCaseService.get(tr.getId());
                             env.getProjectIds().add(apiTestCaseWithBLOBs.getProjectId());
@@ -509,7 +509,7 @@ public class ApiAutomationService {
                                 env.getProjectIds().add(httpSamplerProxy.getProjectId());
                             }
                         }
-                    } else if (StringUtils.equals(tr.getType(), "TCPSampler")) {
+                    } else if (StringUtils.equals(tr.getType(), "JDBCSampler") || StringUtils.equals(tr.getType(), "TCPSampler")) {
                         env.getProjectIds().add(tr.getProjectId());
                     }
                 }
@@ -527,7 +527,6 @@ public class ApiAutomationService {
             e.printStackTrace();
         }
     }
-
 
 
     public List<ApiScenarioWithBLOBs> getApiScenarios(List<String> ids) {
