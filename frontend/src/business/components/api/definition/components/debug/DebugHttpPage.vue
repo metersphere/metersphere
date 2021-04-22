@@ -44,7 +44,7 @@
       <el-button style="float: right;margin: 20px" type="primary" @click="handleCommand('save_as_api')"> {{$t('commons.save')}}</el-button>
     </div>
     <!-- 加载用例 -->
-    <ms-api-case-list @refreshModule="refreshModule" :loaded="false" ref="caseList"/>
+    <ms-api-case-list :currentApi="debugForm" @refreshModule="refreshModule" :loaded="false" ref="caseList"/>
   </div>
 </template>
 
@@ -212,7 +212,7 @@
       },
       urlChange() {
         if (!this.debugForm.url) return;
-        let url = this.getURL(this.addProtocol(this.debugForm.url));
+        let url = this.getURL(this.debugForm.url);
         if (url && url.pathname) {
           if (this.debugForm.url.indexOf('?') != -1) {
             this.debugForm.url = decodeURIComponent(this.debugForm.url.substr(0, this.debugForm.url.indexOf("?")));
@@ -222,14 +222,6 @@
           this.debugForm.path = url;
         }
 
-      },
-      addProtocol(url) {
-        if (url) {
-          if (!url.toLowerCase().startsWith("https") && !url.toLowerCase().startsWith("http")) {
-            return "https://" + url;
-          }
-        }
-        return url;
       },
       getURL(urlStr) {
         try {
