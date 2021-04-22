@@ -126,8 +126,8 @@ export function compatibleTestCaseStep(testCase, tmp) {
 // 兼容旧字段
 export function buildTestCaseOldFields(testCase) {
   let oldFields = new Map();
-  oldFields.set('custom_field.case_status', testCase.status);
-  oldFields.set('custom_field.case_maintainer', testCase.maintainer);
-  oldFields.set('custom_field.case_priority', testCase.priority);
+  oldFields.set('i43sf4_testCaseStatus', testCase.status);
+  oldFields.set('i43sf4_testCaseMaintainer', testCase.maintainer);
+  oldFields.set('i43sf4_testCasePriority', testCase.priority);
   return oldFields;
 }
