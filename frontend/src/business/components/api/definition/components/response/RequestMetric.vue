@@ -3,7 +3,13 @@
     <el-row type="flex">
       <el-col>
         <div style="font-size: 14px;color: #AAAAAA;float: left">{{$t('api_report.response_code')}} :</div>
-        <div style="font-size: 14px;color:#61C550;margin-top:2px;margin-left:10px;float: left">{{response.responseResult && response.responseResult.responseCode ? response.responseResult.responseCode :'0'}}</div>
+        <el-tooltip
+          :content="response.responseResult.responseCode"
+          placement="top">
+          <div class="node-title">
+            {{response.responseResult && response.responseResult.responseCode ? response.responseResult.responseCode :'0'}}
+          </div>
+        </el-tooltip>
       </el-col>
       <el-col>
         <div style="font-size: 14px;color: #AAAAAA;float: left">{{$t('api_report.response_time')}} :</div>
@@ -36,5 +42,19 @@
 <style scoped>
   .metric-container {
     padding-bottom: 20px;
+  }
+
+  .node-title {
+    width: 150px;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    flex: 1 1 auto;
+    padding: 0px 5px;
+    overflow: hidden;
+    font-size: 14px;
+    color: #61C550;
+    margin-top: 2px;
+    margin-left: 10px;
+    float: left
   }
 </style>

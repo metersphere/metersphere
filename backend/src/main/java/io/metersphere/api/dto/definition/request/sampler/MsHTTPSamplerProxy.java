@@ -18,12 +18,14 @@ import io.metersphere.api.service.ApiTestCaseService;
 import io.metersphere.base.domain.ApiDefinition;
 import io.metersphere.base.domain.ApiDefinitionWithBLOBs;
 import io.metersphere.base.domain.ApiTestCaseWithBLOBs;
+import io.metersphere.base.domain.TestPlanApiCase;
 import io.metersphere.commons.constants.ConditionType;
 import io.metersphere.commons.constants.MsTestElementConstants;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.ScriptEngineUtils;
+import io.metersphere.track.service.TestPlanApiCaseService;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import org.apache.commons.collections.CollectionUtils;
@@ -203,7 +205,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
             if (config.isEffective(this.getProjectId())) {
                 HttpConfig httpConfig = getHttpConfig(config.getConfig().get(this.getProjectId()).getHttpConfig(), tree);
                 if (httpConfig == null) {
-                    MSException.throwException("未匹配到环境，请检查环境配置");
+                    MSException.throwException(this.getName() + " 未匹配到环境，请检查环境配置");
                 }
                 String url = httpConfig.getProtocol() + "://" + httpConfig.getSocket();
                 // 补充如果是完整URL 则用自身URL
@@ -424,6 +426,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
             tree.add(headerManager);
         }
     }
+
     /**
      * 按照环境规则匹配环境
      *
@@ -444,12 +447,22 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                 } else if (item.getType().equals(ConditionType.MODULE.name())) {
                     ApiDefinition apiDefinition;
                     ApiDefinitionService apiDefinitionService = CommonBeanFactory.getBean(ApiDefinitionService.class);
+                    ApiTestCaseService apiTestCaseService = CommonBeanFactory.getBean(ApiTestCaseService.class);
                     if (StringUtils.isNotEmpty(this.getReferenced()) && this.getReferenced().equals("REF") && StringUtils.isNotEmpty(this.getRefType()) && this.getRefType().equals("CASE")) {
-                        ApiTestCaseService apiTestCaseService = CommonBeanFactory.getBean(ApiTestCaseService.class);
                         ApiTestCaseWithBLOBs caseWithBLOBs = apiTestCaseService.get(this.getId());
                         apiDefinition = apiDefinitionService.get(caseWithBLOBs.getApiDefinitionId());
                     } else {
                         apiDefinition = apiDefinitionService.get(this.getId());
+                        if (apiDefinition == null) {
+                            TestPlanApiCaseService testPlanApiCaseService = CommonBeanFactory.getBean(TestPlanApiCaseService.class);
+                            TestPlanApiCase testPlanApiCase = testPlanApiCaseService.getById(this.getId());
+                            if (testPlanApiCase != null) {
+                                ApiTestCaseWithBLOBs caseWithBLOBs = apiTestCaseService.get(testPlanApiCase.getApiCaseId());
+                                if (caseWithBLOBs != null) {
+                                    apiDefinition = apiDefinitionService.get(caseWithBLOBs.getApiDefinitionId());
+                                }
+                            }
+                        }
                     }
                     if (apiDefinition != null) {
                         HttpConfig config = httpConfig.getModuleCondition(apiDefinition.getModuleId(), item);
@@ -470,7 +483,9 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                 }
             }
         }
-
+        if (httpConfig != null && (StringUtils.isEmpty(httpConfig.getProtocol()) || StringUtils.isEmpty(httpConfig.getSocket()))) {
+            return null;
+        }
         // 环境中请求头
         if (httpConfig != null) {
             Arguments arguments = arguments(httpConfig.getHeaders());
