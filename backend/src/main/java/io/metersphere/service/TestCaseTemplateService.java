@@ -18,15 +18,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
-public class TestCaseTemplateService {
+public class TestCaseTemplateService extends TemplateBaseService {
 
     @Resource
     ExtTestCaseTemplateMapper extTestCaseTemplateMapper;
@@ -65,6 +62,7 @@ public class TestCaseTemplateService {
     }
 
     public void delete(String id) {
+        checkTemplateUsed(id, projectService::getByCaseTemplateId);
         testCaseTemplateMapper.deleteByPrimaryKey(id);
         customFieldTemplateService.deleteByTemplateId(id);
     }

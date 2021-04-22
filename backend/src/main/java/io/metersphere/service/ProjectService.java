@@ -180,6 +180,20 @@ public class ProjectService {
         return projectMapper.selectByPrimaryKey(id);
     }
 
+    public List<Project> getByCaseTemplateId(String templateId) {
+        ProjectExample example = new ProjectExample();
+        example.createCriteria()
+                .andCaseTemplateIdEqualTo(templateId);
+        return projectMapper.selectByExample(example);
+    }
+
+    public List<Project> getByIssueTemplateId(String templateId) {
+        ProjectExample example = new ProjectExample();
+        example.createCriteria()
+                .andIssueTemplateIdEqualTo(templateId);
+        return projectMapper.selectByExample(example);
+    }
+
     public List<FileMetadata> uploadFiles(String projectId, List<MultipartFile> files) {
         List<FileMetadata> result = new ArrayList<>();
         if (files != null) {
