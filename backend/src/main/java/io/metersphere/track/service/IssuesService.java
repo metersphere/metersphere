@@ -110,7 +110,7 @@ public class IssuesService {
         }
 
         if (CollectionUtils.isEmpty(platforms)) {
-            platforms.add("LOCAL");
+            platforms.add(IssuesManagePlatform.Local.toString());
         }
         IssuesRequest issuesRequest = new IssuesRequest();
         issuesRequest.setTestCaseId(updateRequest.getTestCaseId());

@@ -24,8 +24,8 @@ public class CustomFieldController {
     private CustomFieldService customFieldService;
 
     @PostMapping("/add")
-    public void add(@RequestBody CustomField customField) {
-        customFieldService.add(customField);
+    public String add(@RequestBody CustomField customField) {
+        return customFieldService.add(customField);
     }
 
     @PostMapping("/list/{goPage}/{pageSize}")

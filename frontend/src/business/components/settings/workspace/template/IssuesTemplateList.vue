@@ -103,6 +103,7 @@ export default {
       issuePlatformMap:{
         metersphere: 'Metersphere',
         jira: 'JIRA',
+        Tapd: 'Tapd',
         zentao: '禅道',
       },
       operators: [
