@@ -12,6 +12,7 @@ export default {
     import_mode: '导入模式',
     import_module: '导入模块',
     import_user: '导入用户',
+    export: '导出',
     please_fill_in_the_template: '请填写模版内容',
     cut_back_old_version: '切回旧版',
     cut_back_new_version: '切回新版',
@@ -19,6 +20,7 @@ export default {
     examples: '示例',
     help_documentation: '帮助文档',
     api_help_documentation: 'API文档',
+    confirm_delete: '是否删除',
     delete_cancelled: '已取消删除',
     workspace: '工作空间',
     organization: '组织',
@@ -771,12 +773,14 @@ export default {
       reference_deleted: '引用已删除',
     },
     environment: {
+      create: '创建环境',
       name: "环境名称",
       socket: "环境域名",
       globalVariable: "全局变量",
       environment_list: "环境列表",
       environment_config: "环境配置",
       config_environment: "配置环境",
+      copy_environment: "复制环境",
       environment: "环境",
       select_environment: "请选择环境",
       please_save_test: "请先保存测试",
@@ -784,6 +788,7 @@ export default {
       http_config: "HTTP配置",
       database_config: "数据库配置",
       tcp_config: "TCP配置",
+      import: "导入环境",
     },
     scenario: {
       scenario: "场景",
@@ -981,7 +986,9 @@ export default {
       suffixFormatErr: "文件格式不符合要求",
       swagger_url_import: "使用URL导入",
       timing_synchronization: "定时同步",
-      next_synchronization_time: "下次同步时间"
+      next_synchronization_time: "下次同步时间",
+      ms_env_import_file_limit: "支持通过MeterSphere导出的json格式文件",
+      file_exceed_limit: "文件数量超出限制",
 
 
     },
