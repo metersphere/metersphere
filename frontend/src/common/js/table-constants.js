@@ -25,6 +25,7 @@ export const CASE_TYPE_OPTION = [
 export const ISSUE_PLATFORM_OPTION = [
   {value: 'metersphere',text: 'Metersphere'},
   {value: 'jira',text: 'JIRA'},
+  {value: 'Tapd',text: 'Tapd'},
   {value: 'zentao',text: '禅道'},
 ];
 
