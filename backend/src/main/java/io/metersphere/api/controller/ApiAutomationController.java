@@ -48,6 +48,18 @@ public class ApiAutomationController {
         return PageUtils.setPageInfo(page, apiAutomationService.list(request));
     }
 
+    @PostMapping("/list/all")
+    @RequiresRoles(value = {RoleConstants.TEST_MANAGER, RoleConstants.TEST_USER, RoleConstants.TEST_VIEWER}, logical = Logical.OR)
+    public List<ApiScenarioWithBLOBs> listAll(@RequestBody ApiScenarioBatchRequest request) {
+        return apiAutomationService.listAll(request);
+    }
+
+    @PostMapping("/id/all")
+    @RequiresRoles(value = {RoleConstants.TEST_MANAGER, RoleConstants.TEST_USER, RoleConstants.TEST_VIEWER}, logical = Logical.OR)
+    public List<String> idAll(@RequestBody ApiScenarioBatchRequest request) {
+        return apiAutomationService.idAll(request);
+    }
+
     @GetMapping("/list/{projectId}")
     @RequiresRoles(value = {RoleConstants.TEST_MANAGER, RoleConstants.TEST_USER, RoleConstants.TEST_VIEWER}, logical = Logical.OR)
     public List<ApiScenarioDTO> list(@PathVariable String projectId) {

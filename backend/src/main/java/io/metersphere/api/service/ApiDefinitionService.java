@@ -108,6 +108,15 @@ public class ApiDefinitionService {
         return resList;
     }
 
+    public List<ApiDefinitionResult> listBatch(ApiBatchRequest request) {
+        ServiceUtils.getSelectAllIds(request, request.getCondition(),
+                (query) -> extApiDefinitionMapper.selectIds(query));
+        List<ApiDefinitionResult> resList = extApiDefinitionMapper.listByIds(request.getIds());
+        calculateResult(resList);
+        return resList;
+    }
+
+
     /**
      * 初始化部分参数
      *

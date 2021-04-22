@@ -137,6 +137,7 @@ public class ApiTestEnvironmentService {
 //            httpConfig.put("port", portStr);
 //        }
         httpConfig.put("socket", null);
+        httpConfig.put("isMock", true);
         httpConfig.put("domain", null);
         JSONArray httpVariablesArr = new JSONArray();
         Map<String, Object> httpMap = new HashMap<>();

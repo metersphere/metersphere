@@ -123,6 +123,19 @@ public class ApiAutomationService {
         return list;
     }
 
+    public List<ApiScenarioWithBLOBs> listAll(ApiScenarioBatchRequest request) {
+        ServiceUtils.getSelectAllIds(request, request.getCondition(),
+                (query) -> extApiScenarioMapper.selectIdsByQuery((ApiScenarioRequest) query));
+        List<ApiScenarioWithBLOBs> list = extApiScenarioMapper.selectIds(request.getIds());
+        return list;
+    }
+
+    public List<String> idAll(ApiScenarioBatchRequest request) {
+        ServiceUtils.getSelectAllIds(request, request.getCondition(),
+                (query) -> extApiScenarioMapper.selectIdsByQuery((ApiScenarioRequest) query));
+        return request.getIds();
+    }
+
     public List<ApiScenarioDTO> listReview(ApiScenarioRequest request) {
         request = this.initRequest(request, true, true);
         List<ApiScenarioDTO> list = extApiScenarioMapper.listReview(request);

@@ -85,6 +85,12 @@ public class ApiDefinitionController {
         return apiDefinitionService.list(request);
     }
 
+    @PostMapping("/list/batch")
+    public List<ApiDefinitionResult> listBatch(@RequestBody ApiBatchRequest request) {
+        return apiDefinitionService.listBatch(request);
+    }
+
+
     @PostMapping(value = "/create", consumes = {"multipart/form-data"})
     @RequiresRoles(value = {RoleConstants.TEST_MANAGER, RoleConstants.TEST_USER}, logical = Logical.OR)
     public void create(@RequestPart("request") SaveApiDefinitionRequest request, @RequestPart(value = "files") List<MultipartFile> bodyFiles) {

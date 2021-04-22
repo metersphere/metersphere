@@ -1,5 +1,6 @@
 package io.metersphere.api.dto.definition;
 
+import io.metersphere.controller.request.BaseQueryRequest;
 import io.metersphere.controller.request.OrderRequest;
 import lombok.Getter;
 import lombok.Setter;
@@ -9,7 +10,7 @@ import java.util.Map;
 
 @Getter
 @Setter
-public class ApiTestCaseRequest {
+public class ApiTestCaseRequest extends BaseQueryRequest {
     private String id;
     private List<String> ids;
     private String planId;
