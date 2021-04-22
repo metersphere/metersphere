@@ -21,6 +21,10 @@
     <sql id="queryWhereCondition">
         <where>
 
+            <if test="request.name != null">
+                and issues.title LIKE CONCAT('%', #{request.name}, '%')
+            </if>
+
             <if test="request.projectId != null and request.projectId != ''">
                 and issues.project_id = #{request.projectId}
             </if>

@@ -248,6 +248,14 @@ public class IssuesService {
         testCaseIssuesMapper.deleteByExample(example);
     }
 
+    public void delete(String id) {
+        issuesMapper.deleteByPrimaryKey(id);
+        TestCaseIssuesExample example = new TestCaseIssuesExample();
+        example.createCriteria()
+                .andIssuesIdEqualTo(id);
+        testCaseIssuesMapper.deleteByExample(example);
+    }
+
     private static String getIssuesContext(SessionUser user, IssuesUpdateRequest issuesRequest, String type) {
         String context = "";
         if (StringUtils.equals(NoticeConstants.Event.CREATE, type)) {
