@@ -1,11 +1,12 @@
 package io.metersphere.track.service;
 
 import io.metersphere.base.domain.*;
+import io.metersphere.base.mapper.IssueTemplateMapper;
 import io.metersphere.base.mapper.IssuesMapper;
 import io.metersphere.base.mapper.TestCaseIssuesMapper;
-import io.metersphere.base.mapper.ext.ExtIssuesMapper;
 import io.metersphere.commons.constants.IssuesManagePlatform;
 import io.metersphere.commons.constants.NoticeConstants;
+import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.user.SessionUser;
 import io.metersphere.commons.utils.ServiceUtils;
 import io.metersphere.commons.utils.SessionUtils;
@@ -24,16 +25,12 @@ import io.metersphere.track.request.testcase.IssuesRequest;
 import io.metersphere.track.request.testcase.IssuesUpdateRequest;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.ibatis.session.SqlSessionFactory;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -53,9 +50,7 @@ public class IssuesService {
     @Resource
     private TestCaseIssuesMapper testCaseIssuesMapper;
     @Resource
-    private SqlSessionFactory sqlSessionFactory;
-    @Resource
-    private ExtIssuesMapper extIssuesMapper;
+    private IssueTemplateMapper issueTemplateMapper;
 
     public void testAuth(String platform) {
         AbstractIssuePlatform abstractPlatform = IssueFactory.createPlatform(platform, new IssuesRequest());
@@ -100,13 +95,15 @@ public class IssuesService {
     }
 
     public List<AbstractIssuePlatform> getUpdatePlatforms(IssuesUpdateRequest updateRequest) {
-        List<String> platforms = null;
+        List<String> platforms = new ArrayList<>();
         if (StringUtils.isNotBlank(updateRequest.getTestCaseId())) {
             // 测试计划关联
-            platforms = getPlatformsByCaseId(updateRequest.getTestCaseId());
+            String p = getPlatformsByCaseId(updateRequest.getTestCaseId());
+            platforms.add(p);
         } else {
             // 缺陷管理关联
-            platforms = getPlatformsByProjectId(updateRequest.getProjectId());
+            String t = getIssueTemplate(updateRequest.getProjectId());
+            platforms.add(t);
         }
 
         if (CollectionUtils.isEmpty(platforms)) {
@@ -137,16 +134,24 @@ public class IssuesService {
         return list;
     }
 
-    public List<String> getPlatformsByProjectId(String projectId) {
-        return getPlatforms(projectService.getProjectById(projectId));
-    }
-
-    public List<String> getPlatformsByCaseId(String caseId) {
+    public String getPlatformsByCaseId(String caseId) {
         TestCaseWithBLOBs testCase = testCaseService.getTestCase(caseId);
         Project project = projectService.getProjectById(testCase.getProjectId());
-        List<String> platforms = getPlatforms(project);
-        platforms.add("LOCAL");
-        return getPlatforms(project);
+        return getIssueTemplate(project.getId());
+    }
+
+    public String getIssueTemplate(String projectId) {
+        Project project = projectService.getProjectById(projectId);
+        String id = project.getIssueTemplateId();
+        if (StringUtils.isBlank(id)) {
+            MSException.throwException("project issue template id is null.");
+        }
+        IssueTemplate issueTemplate = issueTemplateMapper.selectByPrimaryKey(id);
+        String platform = issueTemplate.getPlatform();
+        if (StringUtils.equals(platform, "metersphere")) {
+            return IssuesManagePlatform.Local.name();
+        }
+        return platform;
     }
 
     public List<String> getPlatforms(Project project) {
@@ -224,17 +229,13 @@ public class IssuesService {
         issuesMapper.updateByPrimaryKeySelective(issues);
     }
 
-    public List<PlatformUser> getTapdProjectUsers(String caseId) {
-        IssuesRequest issueRequest = new IssuesRequest();
-        issueRequest.setTestCaseId(caseId);
-        AbstractIssuePlatform platform = IssueFactory.createPlatform(IssuesManagePlatform.Tapd.name(), issueRequest);
+    public List<PlatformUser> getTapdProjectUsers(IssuesRequest request) {
+        AbstractIssuePlatform platform = IssueFactory.createPlatform(IssuesManagePlatform.Tapd.name(), request);
         return platform.getPlatformUser();
     }
 
-    public List<PlatformUser> getZentaoUsers(String caseId) {
-        IssuesRequest issueRequest = new IssuesRequest();
-        issueRequest.setTestCaseId(caseId);
-        AbstractIssuePlatform platform = IssueFactory.createPlatform(IssuesManagePlatform.Zentao.name(), issueRequest);
+    public List<PlatformUser> getZentaoUsers(IssuesRequest request) {
+        AbstractIssuePlatform platform = IssueFactory.createPlatform(IssuesManagePlatform.Zentao.name(), request);
         return platform.getPlatformUser();
     }
 
@@ -264,23 +265,36 @@ public class IssuesService {
         return context;
     }
 
-    public List<ZentaoBuild> getZentaoBuilds(String caseId) {
-        IssuesRequest issueRequest = new IssuesRequest();
-        issueRequest.setTestCaseId(caseId);
-        ZentaoPlatform platform = (ZentaoPlatform) IssueFactory.createPlatform(IssuesManagePlatform.Zentao.name(), issueRequest);
+    public List<ZentaoBuild> getZentaoBuilds(IssuesRequest request) {
+        ZentaoPlatform platform = (ZentaoPlatform) IssueFactory.createPlatform(IssuesManagePlatform.Zentao.name(), request);
         return platform.getBuilds();
     }
 
     public List<IssuesDao> list(IssuesRequest request) {
         request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
-        List<IssuesDao> issues = extIssuesMapper.getIssuesByProjectId(request);
-        Map<String, List<IssuesDao>> issueMap = getIssueMap(issues);
-        Map<String, AbstractIssuePlatform> platformMap = getPlatformMap(request);
-        issueMap.forEach((platformName, data) -> {
-            AbstractIssuePlatform platform = platformMap.get(platformName);
-            platform.filter(data);
+
+
+        List<IssuesDao> list = new ArrayList<>();
+        String projectId = request.getProjectId();
+        Project project = projectService.getProjectById(projectId);
+        List<String> platforms = getPlatforms(project);
+        platforms.add(IssuesManagePlatform.Local.toString());
+        List<AbstractIssuePlatform> platformList = IssueFactory.createPlatforms(platforms, request);
+        platformList.forEach(platform -> {
+            List<IssuesDao> issue = platform.getIssue(request);
+            list.addAll(issue);
         });
-        return issues;
+//        List<IssuesDao> issues = extIssuesMapper.getIssuesByProjectId(request);
+//        Map<String, List<IssuesDao>> issueMap = getIssueMap(issues);
+//        Map<String, AbstractIssuePlatform> platformMap = getPlatformMap(request);
+//        issueMap.forEach((platformName, data) -> {
+//            AbstractIssuePlatform platform = platformMap.get(platformName);
+//            if (platform != null) {
+//                platform.filter(data);
+//            }
+//        });
+//        return issues;
+        return list;
     }
 
     public Map<String, List<IssuesDao>> getIssueMap(List<IssuesDao> issues) {

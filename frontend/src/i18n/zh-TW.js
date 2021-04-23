@@ -1482,9 +1482,9 @@ export default {
       close_success: "關閉成功",
       preview: "預覽",
       please_choose_current_owner: "請選擇處理人",
-      tapd_current_owner: "Tapd bug 處理人：",
-      zentao_bug_build: "禪道 bug 影響版本",
-      zentao_bug_assigned: "禪道 bug 處理人",
+      tapd_current_owner: "Tapd 處理人",
+      zentao_bug_build: "禪道 影響版本",
+      zentao_bug_assigned: "禪道 處理人",
     },
     report: {
       name: "測試計畫包括",

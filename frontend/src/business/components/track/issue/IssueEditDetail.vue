@@ -7,6 +7,21 @@
           <el-input v-model="form.title" autocomplete="off"></el-input>
         </el-form-item>
 
+        <!-- 自定义字段 -->
+        <el-form v-if="isFormAlive" :model="customFieldForm" :rules="customFieldRules" ref="customFieldForm"
+                 class="case-form">
+          <el-row class="custom-field-row">
+            <el-col :span="8" v-for="(item, index) in issueTemplate.customFields" :key="index">
+              <el-form-item :label="item.system ? $t(systemNameMap[item.name]) : item.name" :prop="item.name"
+                            :label-width="formLabelWidth">
+                <custom-filed-component @reload="reloadForm" :data="item" :form="customFieldForm" prop="defaultValue"/>
+              </el-form-item>
+            </el-col>
+          </el-row>
+        </el-form>
+
+        <form-rich-text-item :title="$t('缺陷内容')" :data="form" prop="description"/>
+
         <el-row class="custom-field-row">
           <el-col :span="8" v-if="hasTapdId">
             <el-form-item :label="$t('test_track.issue.tapd_current_owner')" prop="tapdUsers">
@@ -37,23 +52,9 @@
           </el-col>
         </el-row>
 
-        <!-- 自定义字段 -->
-        <el-form v-if="isFormAlive" :model="customFieldForm" :rules="customFieldRules" ref="customFieldForm"
-                 class="case-form">
-          <el-row class="custom-field-row">
-            <el-col :span="8" v-for="(item, index) in issueTemplate.customFields" :key="index">
-              <el-form-item :label="item.system ? $t(systemNameMap[item.name]) : item.name" :prop="item.name"
-                            :label-width="formLabelWidth">
-                <custom-filed-component @reload="reloadForm" :data="item" :form="customFieldForm" prop="defaultValue"/>
-              </el-form-item>
-            </el-col>
-          </el-row>
-        </el-form>
-
-        <form-rich-text-item :title="$t('缺陷内容')" :data="form" prop="description"/>
-
         <el-form-item v-if="!isPlan">
-          <test-case-issue-list :test-case-contain-ids="testCaseContainIds" :issues-id="form.id" ref="testCaseIssueList"/>
+          <test-case-issue-list :test-case-contain-ids="testCaseContainIds" :issues-id="form.id"
+                                ref="testCaseIssueList"/>
         </el-form-item>
 
       </el-form>
@@ -108,7 +109,7 @@ export default {
       },
       testCaseContainIds: new Set(),
       url: '',
-      form:{
+      form: {
         title: '',
         description: ''
       },
@@ -145,32 +146,27 @@ export default {
       getTemplate('field/template/issue/get/relate/', this)
         .then((template) => {
           this.issueTemplate = template;
+          this.getThirdPartyInfo();
           initAddFuc(data);
         });
     },
     getThirdPartyInfo() {
-      let url = '/project/get/' + this.projectId;
-      if (this.isPlan) {
-        url = '/test/case/project/' + this.caseId;
+      let platform = this.issueTemplate.platform;
+      if (platform === 'Zentao') {
+        this.hasZentaoId = true;
+        this.result = this.$post("/issues/zentao/builds", {projectId: this.projectId}, response => {
+          this.Builds = response.data;
+        });
+        this.result = this.$post("/issues/zentao/user", {projectId: this.projectId}, response => {
+          this.zentaoUsers = response.data;
+        });
       }
-      this.$get(url, res => {
-        let project = res.data;
-        if (project.tapdId) {
-          this.hasTapdId = true;
-          this.result = this.$get("/issues/tapd/user/" + this.caseId, (response) => {
-            this.tapdUsers = response.data;
-          });
-        }
-        if (project.zentaoId) {
-          this.hasZentaoId = true;
-          this.result = this.$get("/issues/zentao/builds/" + this.caseId,response => {
-            this.Builds = response.data;
-          });
-          this.result = this.$get("/issues/zentao/user/" + this.caseId, response => {
-            this.zentaoUsers = response.data;
-          });
-        }
-      })
+      if (platform === 'Tapd') {
+        this.hasTapdId = true;
+        this.result = this.$post("/issues/tapd/user", {projectId: this.projectId}, (response) => {
+          this.tapdUsers = response.data;
+        });
+      }
     },
     initEdit(data) {
       this.testCaseContainIds = new Set();
@@ -243,7 +239,7 @@ export default {
       });
     },
     parseOldFields(param) {
-      let customFieldsStr =  param.customFields;
+      let customFieldsStr = param.customFields;
       if (customFieldsStr) {
         let customFields = JSON.parse(customFieldsStr);
         if (customFields['i43sf4_issueStatus']) {

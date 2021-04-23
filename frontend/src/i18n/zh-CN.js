@@ -1498,9 +1498,9 @@ export default {
       status_resolved: '已解决',
       status_closed: '已关闭',
       please_choose_current_owner: "请选择处理人",
-      tapd_current_owner: "Tapd bug 处理人：",
-      zentao_bug_build: "禅道 bug 影响版本",
-      zentao_bug_assigned: "禅道 bug 处理人",
+      tapd_current_owner: "Tapd 处理人",
+      zentao_bug_build: "禅道 影响版本",
+      zentao_bug_assigned: "禅道 处理人",
     },
     report: {
       name: "测试计划报告",
