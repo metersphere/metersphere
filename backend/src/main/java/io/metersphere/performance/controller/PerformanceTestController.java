@@ -145,6 +145,11 @@ public class PerformanceTestController {
         performanceTestService.stopTest(reportId, forceStop);
     }
 
+    @PostMapping("/file/delete/{fileId}")
+    public void deleteFile(@PathVariable String fileId) {
+        fileService.deleteFileById(fileId);
+    }
+
     @GetMapping("/file/metadata/{testId}")
     public List<FileMetadata> getFileMetadata(@PathVariable String testId) {
         checkPermissionService.checkPerformanceTestOwner(testId);

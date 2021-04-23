@@ -5,7 +5,7 @@ import io.metersphere.api.dto.RunRequest;
 import io.metersphere.api.dto.automation.RunModeConfig;
 import io.metersphere.api.dto.definition.request.MsTestPlan;
 import io.metersphere.api.dto.scenario.request.BodyFile;
-import io.metersphere.base.domain.JarConfig;
+import io.metersphere.base.domain.FileMetadata;
 import io.metersphere.base.domain.TestResource;
 import io.metersphere.commons.constants.ApiRunMode;
 import io.metersphere.commons.exception.MSException;
@@ -17,7 +17,7 @@ import io.metersphere.config.JmeterProperties;
 import io.metersphere.dto.BaseSystemConfigDTO;
 import io.metersphere.dto.NodeDTO;
 import io.metersphere.i18n.Translator;
-import io.metersphere.service.JarConfigService;
+import io.metersphere.service.FileService;
 import io.metersphere.service.SystemParameterService;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -218,8 +218,8 @@ public class JMeterService {
     private List<Object> getJar() {
         List<Object> jarFiles = new LinkedList<>();
         // jar 包
-        JarConfigService jarConfigService = CommonBeanFactory.getBean(JarConfigService.class);
-        List<JarConfig> jars = jarConfigService.list();
+        FileService fileService = CommonBeanFactory.getBean(FileService.class);
+        List<FileMetadata> jars = fileService.list();
         jars.forEach(jarConfig -> {
             try {
                 String path = jarConfig.getPath();

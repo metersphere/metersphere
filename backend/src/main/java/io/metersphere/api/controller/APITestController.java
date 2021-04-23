@@ -413,7 +413,7 @@ public class APITestController {
         String testName = runRequest.getName();
 
         //将jmx处理封装为通用方法
-        JmxInfoDTO dto = apiTestService.updateJmxString(jmxString, testName, false);
+        JmxInfoDTO dto = apiTestService.updateJmxString(jmxString, testName, false, runRequest.getProjectId());
         dto.setName(runRequest.getName() + ".jmx");
         return dto;
     }

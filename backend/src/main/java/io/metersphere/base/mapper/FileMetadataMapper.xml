@@ -5,10 +5,17 @@
     <id column="id" jdbcType="VARCHAR" property="id" />
     <result column="name" jdbcType="VARCHAR" property="name" />
     <result column="type" jdbcType="VARCHAR" property="type" />
+    <result column="size" jdbcType="BIGINT" property="size" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
     <result column="update_time" jdbcType="BIGINT" property="updateTime" />
-    <result column="size" jdbcType="BIGINT" property="size" />
+    <result column="sort" jdbcType="INTEGER" property="sort" />
     <result column="project_id" jdbcType="VARCHAR" property="projectId" />
+    <result column="file_name" jdbcType="VARCHAR" property="fileName" />
+    <result column="creator" jdbcType="VARCHAR" property="creator" />
+    <result column="modifier" jdbcType="VARCHAR" property="modifier" />
+    <result column="method" jdbcType="VARCHAR" property="method" />
+    <result column="path" jdbcType="VARCHAR" property="path" />
+    <result column="description" jdbcType="VARCHAR" property="description" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -69,7 +76,8 @@
     </where>
   </sql>
   <sql id="Base_Column_List">
-    id, `name`, `type`, create_time, update_time, `size`, project_id
+    id, `name`, `type`, `size`, create_time, update_time, sort, project_id, file_name, 
+    creator, modifier, `method`, `path`, description
   </sql>
   <select id="selectByExample" parameterType="io.metersphere.base.domain.FileMetadataExample" resultMap="BaseResultMap">
     select
@@ -103,11 +111,15 @@
   </delete>
   <insert id="insert" parameterType="io.metersphere.base.domain.FileMetadata">
     insert into file_metadata (id, `name`, `type`, 
-      create_time, update_time, `size`, 
-      project_id)
+      `size`, create_time, update_time, 
+      sort, project_id, file_name, 
+      creator, modifier, `method`, 
+      `path`, description)
     values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR}, 
-      #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, #{size,jdbcType=BIGINT}, 
-      #{projectId,jdbcType=VARCHAR})
+      #{size,jdbcType=BIGINT}, #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, 
+      #{sort,jdbcType=INTEGER}, #{projectId,jdbcType=VARCHAR}, #{fileName,jdbcType=VARCHAR}, 
+      #{creator,jdbcType=VARCHAR}, #{modifier,jdbcType=VARCHAR}, #{method,jdbcType=VARCHAR}, 
+      #{path,jdbcType=VARCHAR}, #{description,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.FileMetadata">
     insert into file_metadata
@@ -121,17 +133,38 @@
       <if test="type != null">
         `type`,
       </if>
+      <if test="size != null">
+        `size`,
+      </if>
       <if test="createTime != null">
         create_time,
       </if>
       <if test="updateTime != null">
         update_time,
       </if>
-      <if test="size != null">
-        `size`,
+      <if test="sort != null">
+        sort,
       </if>
       <if test="projectId != null">
         project_id,
+      </if>
+      <if test="fileName != null">
+        file_name,
+      </if>
+      <if test="creator != null">
+        creator,
+      </if>
+      <if test="modifier != null">
+        modifier,
+      </if>
+      <if test="method != null">
+        `method`,
+      </if>
+      <if test="path != null">
+        `path`,
+      </if>
+      <if test="description != null">
+        description,
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -144,17 +177,38 @@
       <if test="type != null">
         #{type,jdbcType=VARCHAR},
       </if>
+      <if test="size != null">
+        #{size,jdbcType=BIGINT},
+      </if>
       <if test="createTime != null">
         #{createTime,jdbcType=BIGINT},
       </if>
       <if test="updateTime != null">
         #{updateTime,jdbcType=BIGINT},
       </if>
-      <if test="size != null">
-        #{size,jdbcType=BIGINT},
+      <if test="sort != null">
+        #{sort,jdbcType=INTEGER},
       </if>
       <if test="projectId != null">
         #{projectId,jdbcType=VARCHAR},
+      </if>
+      <if test="fileName != null">
+        #{fileName,jdbcType=VARCHAR},
+      </if>
+      <if test="creator != null">
+        #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="modifier != null">
+        #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="method != null">
+        #{method,jdbcType=VARCHAR},
+      </if>
+      <if test="path != null">
+        #{path,jdbcType=VARCHAR},
+      </if>
+      <if test="description != null">
+        #{description,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
@@ -176,17 +230,38 @@
       <if test="record.type != null">
         `type` = #{record.type,jdbcType=VARCHAR},
       </if>
+      <if test="record.size != null">
+        `size` = #{record.size,jdbcType=BIGINT},
+      </if>
       <if test="record.createTime != null">
         create_time = #{record.createTime,jdbcType=BIGINT},
       </if>
       <if test="record.updateTime != null">
         update_time = #{record.updateTime,jdbcType=BIGINT},
       </if>
-      <if test="record.size != null">
-        `size` = #{record.size,jdbcType=BIGINT},
+      <if test="record.sort != null">
+        sort = #{record.sort,jdbcType=INTEGER},
       </if>
       <if test="record.projectId != null">
         project_id = #{record.projectId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.fileName != null">
+        file_name = #{record.fileName,jdbcType=VARCHAR},
+      </if>
+      <if test="record.creator != null">
+        creator = #{record.creator,jdbcType=VARCHAR},
+      </if>
+      <if test="record.modifier != null">
+        modifier = #{record.modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="record.method != null">
+        `method` = #{record.method,jdbcType=VARCHAR},
+      </if>
+      <if test="record.path != null">
+        `path` = #{record.path,jdbcType=VARCHAR},
+      </if>
+      <if test="record.description != null">
+        description = #{record.description,jdbcType=VARCHAR},
       </if>
     </set>
     <if test="_parameter != null">
@@ -198,10 +273,17 @@
     set id = #{record.id,jdbcType=VARCHAR},
       `name` = #{record.name,jdbcType=VARCHAR},
       `type` = #{record.type,jdbcType=VARCHAR},
+      `size` = #{record.size,jdbcType=BIGINT},
       create_time = #{record.createTime,jdbcType=BIGINT},
       update_time = #{record.updateTime,jdbcType=BIGINT},
-      `size` = #{record.size,jdbcType=BIGINT},
-      project_id = #{record.projectId,jdbcType=VARCHAR}
+      sort = #{record.sort,jdbcType=INTEGER},
+      project_id = #{record.projectId,jdbcType=VARCHAR},
+      file_name = #{record.fileName,jdbcType=VARCHAR},
+      creator = #{record.creator,jdbcType=VARCHAR},
+      modifier = #{record.modifier,jdbcType=VARCHAR},
+      `method` = #{record.method,jdbcType=VARCHAR},
+      `path` = #{record.path,jdbcType=VARCHAR},
+      description = #{record.description,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -215,17 +297,38 @@
       <if test="type != null">
         `type` = #{type,jdbcType=VARCHAR},
       </if>
+      <if test="size != null">
+        `size` = #{size,jdbcType=BIGINT},
+      </if>
       <if test="createTime != null">
         create_time = #{createTime,jdbcType=BIGINT},
       </if>
       <if test="updateTime != null">
         update_time = #{updateTime,jdbcType=BIGINT},
       </if>
-      <if test="size != null">
-        `size` = #{size,jdbcType=BIGINT},
+      <if test="sort != null">
+        sort = #{sort,jdbcType=INTEGER},
       </if>
       <if test="projectId != null">
         project_id = #{projectId,jdbcType=VARCHAR},
+      </if>
+      <if test="fileName != null">
+        file_name = #{fileName,jdbcType=VARCHAR},
+      </if>
+      <if test="creator != null">
+        creator = #{creator,jdbcType=VARCHAR},
+      </if>
+      <if test="modifier != null">
+        modifier = #{modifier,jdbcType=VARCHAR},
+      </if>
+      <if test="method != null">
+        `method` = #{method,jdbcType=VARCHAR},
+      </if>
+      <if test="path != null">
+        `path` = #{path,jdbcType=VARCHAR},
+      </if>
+      <if test="description != null">
+        description = #{description,jdbcType=VARCHAR},
       </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
@@ -234,10 +337,17 @@
     update file_metadata
     set `name` = #{name,jdbcType=VARCHAR},
       `type` = #{type,jdbcType=VARCHAR},
+      `size` = #{size,jdbcType=BIGINT},
       create_time = #{createTime,jdbcType=BIGINT},
       update_time = #{updateTime,jdbcType=BIGINT},
-      `size` = #{size,jdbcType=BIGINT},
-      project_id = #{projectId,jdbcType=VARCHAR}
+      sort = #{sort,jdbcType=INTEGER},
+      project_id = #{projectId,jdbcType=VARCHAR},
+      file_name = #{fileName,jdbcType=VARCHAR},
+      creator = #{creator,jdbcType=VARCHAR},
+      modifier = #{modifier,jdbcType=VARCHAR},
+      `method` = #{method,jdbcType=VARCHAR},
+      `path` = #{path,jdbcType=VARCHAR},
+      description = #{description,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

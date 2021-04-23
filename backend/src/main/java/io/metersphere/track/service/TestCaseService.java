@@ -801,7 +801,7 @@ public class TestCaseService {
         if (!CollectionUtils.isEmpty(request.getFileIds())) {
             List<String> fileIds = request.getFileIds();
             fileIds.forEach(id -> {
-                FileMetadata fileMetadata = fileService.copyFile(id);
+                FileMetadata fileMetadata = fileService.copyFile(id, request.getProjectId());
                 TestCaseFile testCaseFile = new TestCaseFile();
                 testCaseFile.setCaseId(testCaseWithBLOBs.getId());
                 testCaseFile.setFileId(fileMetadata.getId());

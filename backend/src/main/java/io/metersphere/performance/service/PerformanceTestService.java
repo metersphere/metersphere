@@ -103,7 +103,11 @@ public class PerformanceTestService {
 
             // delete load_test_report
             reportIdList.forEach(reportId -> {
-                reportService.deleteReport(reportId);
+                try {
+                    reportService.deleteReport(reportId);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
             });
         }
 
@@ -587,7 +591,17 @@ public class PerformanceTestService {
         List<LoadTestExportJmx> results = new ArrayList<>();
         fileIds.forEach(id -> {
             FileMetadata fileMetadata = fileService.getFileMetadataById(id);
-            FileContent fileContent = fileService.getFileContent(id);
+            FileContent fileContent = new FileContent();
+            if(fileMetadata.getMethod().equals("PATH")) {
+                fileContent.setFileId(fileMetadata.getId());
+                try {
+                    fileContent.setFile(fileService.getBinaryFile(fileMetadata.getPath()));
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            } else {
+                fileContent = fileService.getFileContent(id);
+            }
             results.add(new LoadTestExportJmx(fileMetadata.getName(), new String(fileContent.getFile(), StandardCharsets.UTF_8)));
         });
 

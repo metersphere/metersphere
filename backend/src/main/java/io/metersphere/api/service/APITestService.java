@@ -158,7 +158,7 @@ public class APITestService {
         // copy test file
         ApiTestFile apiTestFile = getFileByTestId(request.getId());
         if (apiTestFile != null) {
-            FileMetadata fileMetadata = fileService.copyFile(apiTestFile.getFileId());
+            FileMetadata fileMetadata = fileService.copyFile(apiTestFile.getFileId(), request.getProjectId());
             apiTestFile.setTestId(copy.getId());
             apiTestFile.setFileId(fileMetadata.getId());
             apiTestFileMapper.insert(apiTestFile);
@@ -475,7 +475,7 @@ public class APITestService {
      * @return
      * @author song tianyang
      */
-    public JmxInfoDTO updateJmxString(String jmxString, String testNameParam, boolean isFromScenario) {
+    public JmxInfoDTO updateJmxString(String jmxString, String testNameParam, boolean isFromScenario, String projectId) {
         //注： 与1.7分支合并时，如果该方法产生冲突，请以master为准
         String attribute_testName = "testname";
         String[] requestElementNameArr = new String[]{"HTTPSamplerProxy", "TCPSampler", "JDBCSampler", "DubboSample"};
@@ -537,7 +537,7 @@ public class APITestService {
             File file  = new File(filePath);
             if(file.exists() && file.isFile()){
                 try{
-                    FileMetadata fileMetadata = fileService.saveFile(file,FileUtil.readAsByteArray(file));
+                    FileMetadata fileMetadata = fileService.saveFile(file,FileUtil.readAsByteArray(file), projectId);
                     attachmentFiles.put(fileMetadata.getId(),fileMetadata.getName());
                 }catch (Exception e){
                     e.printStackTrace();

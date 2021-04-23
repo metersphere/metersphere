@@ -1212,7 +1212,7 @@ public class ApiAutomationService {
         }
         MsTestPlan testPlan = new MsTestPlan();
         testPlan.setHashTree(new LinkedList<>());
-        JmxInfoDTO dto = apiTestService.updateJmxString(generateJmx(apiScenarios.get(0)), testName, true);
+        JmxInfoDTO dto = apiTestService.updateJmxString(generateJmx(apiScenarios.get(0)), testName, true, request.getProjectId());
 
         String name = request.getName() + ".jmx";
         dto.setName(name);
@@ -1364,7 +1364,7 @@ public class ApiAutomationService {
             if (StringUtils.isNotEmpty(item.getScenarioDefinition())) {
                 String jmx = generateJmx(item);
                 if (StringUtils.isNotEmpty(jmx)) {
-                    ApiScenrioExportJmx scenrioExportJmx = new ApiScenrioExportJmx(item.getName(), apiTestService.updateJmxString(jmx, null, true).getXml());
+                    ApiScenrioExportJmx scenrioExportJmx = new ApiScenrioExportJmx(item.getName(), apiTestService.updateJmxString(jmx, null, true, request.getProjectId()).getXml());
                     resList.add(scenrioExportJmx);
                 }
             }

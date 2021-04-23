@@ -35,10 +35,10 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 
-import io.metersphere.base.domain.JarConfig;
+import io.metersphere.base.domain.FileMetadata;
 import io.metersphere.commons.utils.CommonBeanFactory;
 import io.metersphere.commons.utils.LogUtil;
-import io.metersphere.service.JarConfigService;
+import io.metersphere.service.FileService;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.collections.map.LRUMap;
 import org.apache.commons.lang3.StringUtils;
@@ -271,8 +271,8 @@ public abstract class JSR223TestElement extends ScriptingTestElement
         if (scriptEngine instanceof GroovyScriptEngineImpl) {
             GroovyScriptEngineImpl groovyScriptEngine = (GroovyScriptEngineImpl) scriptEngine;
 
-            JarConfigService jarConfigService = CommonBeanFactory.getBean(JarConfigService.class);
-            List<JarConfig> jars = jarConfigService.list();
+            FileService fileService = CommonBeanFactory.getBean(FileService.class);
+            List<FileMetadata> jars = fileService.list();
 
             jars.forEach(jarConfig -> {
                 try {

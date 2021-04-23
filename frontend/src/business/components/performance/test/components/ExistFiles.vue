@@ -46,8 +46,9 @@
               @select="handleSelectionChange">
 
       <el-table-column type="selection"/>
+      <!-- file_metadata 表新增了文件名字段，是用户起的别名，这里的文件名改用文件本身名称 -->
       <el-table-column
-        prop="name"
+        prop="fileName"
         :label="$t('load_test.file_name')">
       </el-table-column>
       <el-table-column
@@ -157,9 +158,9 @@ export default {
       let jmxIds = [];
       for (let i = 0; i < rows.length; i++) {
         let row = rows[i];
-        if (this.tableData.filter(f => f.name === row.name).length > 0) {
+        if (this.tableData.filter(f => f.fileName === row.fileName).length > 0) {
           setTimeout(() => {
-            this.$warning(this.$t('load_test.delete_file') + 'name: ' + row.name);
+            this.$warning(this.$t('load_test.delete_file') + 'name: ' + row.fileName);
           }, 100);
           continue;
         }
@@ -167,7 +168,7 @@ export default {
           jmxIds.push(row.id);
         }
         this.tableData.push({
-          name: row.name,
+          fileName: row.fileName,
           size: (row.size / 1024).toFixed(2) + ' KB',
           type: row.type.toUpperCase(),
           updateTime: row.lastModified,
@@ -193,7 +194,7 @@ export default {
           return;
         }
         data.forEach(d => {
-          let threadGroups = findThreadGroup(d.jmx, d.name);
+          let threadGroups = findThreadGroup(d.jmx, d.fileName);
           threadGroups.forEach(tg => {
             tg.options = {};
             this.scenarios.push(tg);
@@ -211,8 +212,8 @@ export default {
         return false;
       }
 
-      if (this.tableData.filter(f => f.name === file.name).length > 0) {
-        this.$error(this.$t('load_test.delete_file') + ', name: ' + file.name);
+      if (this.tableData.filter(f => f.fileName === file.fileName).length > 0) {
+        this.$error(this.$t('load_test.delete_file') + ', name: ' + file.fileName);
         return false;
       }
     },

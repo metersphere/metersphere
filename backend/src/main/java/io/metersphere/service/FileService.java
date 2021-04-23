@@ -1,24 +1,25 @@
 package io.metersphere.service;
 
+import io.metersphere.api.jmeter.NewDriverManager;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.FileContentMapper;
 import io.metersphere.base.mapper.FileMetadataMapper;
 import io.metersphere.base.mapper.TestCaseFileMapper;
 import io.metersphere.commons.constants.FileType;
 import io.metersphere.commons.exception.MSException;
+import io.metersphere.commons.utils.LogUtil;
+import io.metersphere.commons.utils.SessionUtils;
+import io.metersphere.i18n.Translator;
 import io.metersphere.performance.request.QueryProjectFileRequest;
+import org.aspectj.util.FileUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
-import java.io.File;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.UUID;
+import java.io.*;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -29,6 +30,9 @@ public class FileService {
     private FileContentMapper fileContentMapper;
     @Resource
     private TestCaseFileMapper testCaseFileMapper;
+
+    private static final String FILE_FILE_DIR = "/opt/metersphere/data/file";
+    private static final String JAR_FILE_DIR = "/opt/metersphere/data/jar";
 
     public byte[] loadFileAsBytes(String id) {
         FileContent fileContent = fileContentMapper.selectByPrimaryKey(id);
@@ -53,15 +57,172 @@ public class FileService {
         }
         FileMetadataExample example = new FileMetadataExample();
         example.createCriteria().andIdIn(ids);
+        List<FileMetadata> fileList = fileMetadataMapper.selectByExample(example);
         fileMetadataMapper.deleteByExample(example);
 
-        FileContentExample example2 = new FileContentExample();
+        for(FileMetadata file : fileList) {
+            if(file.getMethod().equals("PATH")) {   //  删除以路径方式存储的文件
+                String path = file.getPath();
+                if (existsFile(path)) {
+                    deleteIfExists(path);
+                }
+            }
+        }
+        FileContentExample example2 = new FileContentExample(); //  删除以二进制方式存在数据库的文件
         example2.createCriteria().andFileIdIn(ids);
         fileContentMapper.deleteByExample(example2);
     }
 
+    public static boolean existsFile(String path) {
+        File file = new File(path);
+        return file.exists() && file.isFile();
+    }
+
+    public static void deleteIfExists(String path) {
+        try {
+            deleteIfExists(new File(path));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public static void deleteIfExists(File file) throws IOException {
+        if (file.exists()) {
+            if (file.isFile()) {
+                if (!file.delete()) {
+                    throw new IOException("Delete file failure,path:" + file.getAbsolutePath());
+                }
+            } else {
+                File[] files = file.listFiles();
+                if (files != null && files.length > 0) {
+                    for (File temp : files) {
+                        deleteIfExists(temp);
+                    }
+                }
+                if (!file.delete()) {
+                    throw new IOException("Delete file failure,path:" + file.getAbsolutePath());
+                }
+            }
+        }
+    }
+
+    public FileMetadata get(String id) {
+        return fileMetadataMapper.selectByPrimaryKey(id);
+    }
+
+    public List<FileMetadata> list() {  //  jar 包管理
+        FileMetadataExample example = new FileMetadataExample();
+        List<FileMetadata> fileList = fileMetadataMapper.selectByExample(example);
+        fileList.stream().filter(f -> org.apache.commons.lang3.StringUtils.equalsIgnoreCase(f.getType(), FileType.JAR.name())).collect(Collectors.toList());
+        return fileList;
+    }
+
+    public List<FileMetadata> list(FileMetadata jarConfig) {  //  jar 包管理
+        FileMetadataExample example = new FileMetadataExample();
+        if (org.apache.commons.lang3.StringUtils.isNotBlank(jarConfig.getName())) {
+            example.createCriteria().andNameLike("%" + jarConfig.getName() + "%").andTypeEqualTo(FileType.JAR.name());
+        }
+        example.setOrderByClause("update_time desc");
+        List<FileMetadata> fileList = fileMetadataMapper.selectByExample(example);
+        fileList.stream().filter(f -> org.apache.commons.lang3.StringUtils.equalsIgnoreCase(f.getType(), FileType.JAR.name())).collect(Collectors.toList());
+        //  只显示 projectId = null 或 等于当前 projectId 的 jar 包
+        fileList = fileList.stream().filter(f -> (f.getProjectId() == null || f.getProjectId().equals(SessionUtils.getCurrentProjectId()))).collect(Collectors.toList());
+        return fileList;
+    }
+
+    public List<FileMetadata> searchList(FileMetadata jarConfig) {  //  jar 包管理
+        FileMetadataExample nameExample = new FileMetadataExample();
+        FileMetadataExample jarExample = new FileMetadataExample();
+        if (org.apache.commons.lang3.StringUtils.isNotBlank(jarConfig.getName())) {
+            nameExample.createCriteria().andNameLike("%" + jarConfig.getName() + "%");
+            jarExample.createCriteria().andFileNameLike("%" + jarConfig.getName() + "%");
+        }   //  根据jar包的文件名和自定义名称查找
+        nameExample.setOrderByClause("update_time desc");
+        jarExample.setOrderByClause("update_time desc");
+        List<FileMetadata> jarConfigList = fileMetadataMapper.selectByExample(jarExample);
+        //  合并两个查找结果并去重，按时间降序
+        jarConfigList.addAll(fileMetadataMapper.selectByExample(nameExample));
+        jarConfigList = jarConfigList.stream().filter(f -> org.apache.commons.lang3.StringUtils.equalsIgnoreCase(f.getType(), FileType.JAR.name())).distinct().collect(Collectors.toList());
+        //  只显示 projectId = null 或 等于当前 projectId 的 jar 包
+        jarConfigList = jarConfigList.stream().filter(f -> (f.getProjectId() == null || f.getProjectId().equals(SessionUtils.getCurrentProjectId()))).collect(Collectors.toList());
+        Collections.sort(jarConfigList, Comparator.comparing(FileMetadata::getUpdateTime).reversed());
+        return jarConfigList;
+    }
+
     public void deleteFileRelatedByIds(List<String> ids) {
         deleteFileByIds(ids);
+    }
+
+    public void updateJar(FileMetadata jarConfig, MultipartFile file) {
+        checkExist(jarConfig);
+        jarConfig.setModifier(SessionUtils.getUser().getId());
+        jarConfig.setUpdateTime(System.currentTimeMillis());
+        String path = jarConfig.getPath();
+        if (file != null) {
+            jarConfig.setFileName(file.getOriginalFilename());
+            if (jarConfig.getProjectId() != null) {
+                jarConfig.setPath(JAR_FILE_DIR + "/" + jarConfig.getProjectId() + "/" + file.getOriginalFilename());
+            } else {
+                jarConfig.setPath(JAR_FILE_DIR + "/" + file.getOriginalFilename());
+            }
+        }
+        fileMetadataMapper.updateByPrimaryKey(jarConfig);
+        if (file != null) {
+            if (existsFile(path)) { //  先删除，再保存
+                deleteIfExists(path);
+            }
+            saveFile(jarConfig, file);
+            NewDriverManager.loadJar(jarConfig.getPath());
+        }
+    }
+
+    public String saveFile(FileMetadata jarFile, MultipartFile file) {  //  jar 包保存的调用
+        jarFile.setMethod("PATH");
+        jarFile.setPath(JAR_FILE_DIR + "/" + SessionUtils.getCurrentProjectId() + "/" + file.getOriginalFilename());
+        jarFile.setProjectId(SessionUtils.getCurrentProjectId());
+//        if(existsFile(jarFile.getPath())) {
+//            MSException.throwException(Translator.get("already_exists"));
+//        }
+        checkExist(jarFile);
+        jarFile.setType("JAR");
+        if(jarFile.getId() == null) {   //  若是第一次创建
+            jarFile.setId(UUID.randomUUID().toString());
+            jarFile.setCreator(SessionUtils.getUser().getId());
+            jarFile.setCreateTime(System.currentTimeMillis());
+        }
+        jarFile.setModifier(SessionUtils.getUser().getId());
+        jarFile.setUpdateTime(System.currentTimeMillis());
+        jarFile.setSize(file.getSize());
+        jarFile.setFileName(file.getOriginalFilename());
+//        checkExist(jarFile);
+        File folder = new File(JAR_FILE_DIR + "/" + SessionUtils.getCurrentProjectId());
+        if (!folder.exists()) {
+            folder.mkdirs();
+        }
+        File newfile = new File(jarFile.getPath());
+        try (InputStream in = file.getInputStream(); OutputStream out = new FileOutputStream(newfile)) {
+            newfile.createNewFile();
+            FileUtil.copyStream(in, out);
+        } catch (IOException e) {
+            LogUtil.error(e.getMessage(), e);
+            MSException.throwException(Translator.get("upload_fail"));
+        }
+        fileMetadataMapper.insert(jarFile);
+        return jarFile.getId();
+    }
+
+    private void checkExist(FileMetadata jarConfig) {
+        if (jarConfig.getName() != null) {
+            FileMetadataExample example = new FileMetadataExample();
+            FileMetadataExample.Criteria criteria = example.createCriteria();
+            criteria.andNameEqualTo(jarConfig.getName());
+            if (org.apache.commons.lang3.StringUtils.isNotBlank(jarConfig.getId())) {
+                criteria.andIdNotEqualTo(jarConfig.getId());
+            }
+            if (fileMetadataMapper.selectByExample(example).size() > 0) {
+                MSException.throwException(Translator.get("already_exists"));
+            }
+        }
     }
 
     public FileMetadata saveFile(MultipartFile file, String projectId, String fileId) {
@@ -71,23 +232,45 @@ public class FileService {
         } else {
             fileMetadata.setId(fileId);
         }
+        FileType type = getFileType(file.getOriginalFilename());
+        File testDir;
+        if(type.toString().equals("JAR")) { //  jar 文件放在专门放 jar 的文件夹下
+            if(projectId != null && !projectId.isEmpty()) {
+                testDir = new File(JAR_FILE_DIR + "/" + projectId);
+            } else {
+                testDir = new File(JAR_FILE_DIR);
+            }
+        } else {
+            testDir = new File(FILE_FILE_DIR + "/" + projectId);
+        }
+        if (!testDir.exists()) {
+            testDir.mkdirs();
+        }
+        String filePath = testDir + "/" + file.getOriginalFilename();
+
+        fileMetadata.setPath(filePath);
         fileMetadata.setName(file.getOriginalFilename());
+        fileMetadata.setFileName(file.getOriginalFilename());
         fileMetadata.setSize(file.getSize());
         fileMetadata.setProjectId(projectId);
         fileMetadata.setCreateTime(System.currentTimeMillis());
         fileMetadata.setUpdateTime(System.currentTimeMillis());
+        fileMetadata.setCreator(SessionUtils.getUser().getId());
+        fileMetadata.setModifier(SessionUtils.getUser().getId());
+        fileMetadata.setMethod("PATH");
         FileType fileType = getFileType(fileMetadata.getName());
         fileMetadata.setType(fileType.name());
-        fileMetadataMapper.insert(fileMetadata);
+        checkExist(fileMetadata);
 
-        FileContent fileContent = new FileContent();
-        fileContent.setFileId(fileMetadata.getId());
-        try {
-            fileContent.setFile(file.getBytes());
+        File newfile = new File(filePath);  //  上传文件到服务器而不是以二进制文件存于数据库
+        try (InputStream in = file.getInputStream(); OutputStream out = new FileOutputStream(newfile)) {
+            newfile.createNewFile();
+            FileUtil.copyStream(in, out);
         } catch (IOException e) {
-            MSException.throwException(e);
+            LogUtil.error(e.getMessage(), e);
+            MSException.throwException(Translator.get("upload_fail"));
         }
-        fileContentMapper.insert(fileContent);
+        fileMetadataMapper.insert(fileMetadata);
 
         return fileMetadata;
     }
@@ -100,23 +283,60 @@ public class FileService {
         return saveFile(file, null);
     }
 
-    public FileMetadata saveFile(File file, byte[] fileByte) {
+    public FileMetadata saveFile(File file, byte[] fileByte, String projectId) {
         final FileMetadata fileMetadata = new FileMetadata();
         fileMetadata.setId(UUID.randomUUID().toString());
         fileMetadata.setName(file.getName());
+        fileMetadata.setFileName(file.getName());
         fileMetadata.setSize(file.length());
         fileMetadata.setCreateTime(System.currentTimeMillis());
         fileMetadata.setUpdateTime(System.currentTimeMillis());
+        fileMetadata.setCreator(SessionUtils.getUser().getId());
+        fileMetadata.setModifier(SessionUtils.getUser().getId());
         FileType fileType = getFileType(fileMetadata.getName());
         fileMetadata.setType(fileType.name());
+        fileMetadata.setMethod("PATH");
+        saveBinaryFile(fileByte, file.getName(), projectId);
+
         fileMetadataMapper.insert(fileMetadata);
-
-        FileContent fileContent = new FileContent();
-        fileContent.setFileId(fileMetadata.getId());
-        fileContent.setFile(fileByte);
-        fileContentMapper.insert(fileContent);
-
         return fileMetadata;
+    }
+
+    private void saveBinaryFile(byte[] fileByte, String fileName, String projectId) {
+        File copyFile;
+        BufferedOutputStream bos = null;
+        FileOutputStream fos = null;
+        try {
+            File dir = new File(FILE_FILE_DIR);
+            if (!dir.exists()) {// 判断文件目录是否存在
+                dir.mkdirs();
+            }
+            copyFile = new File(FILE_FILE_DIR + "/" + projectId + "/" + fileName);
+            fos = new FileOutputStream(copyFile);
+            bos = new BufferedOutputStream(fos);
+            bos.write(fileByte);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (bos != null) {
+                try {
+                    bos.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            if (fos != null) {
+                try {
+                    fos.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    public byte[] getBinaryFile(String path) throws IOException {
+        return FileUtil.readAsByteArray(new File(path));
     }
 
     public FileMetadata saveFile(byte[] fileByte, String fileName, Long fileSize) {
@@ -126,6 +346,8 @@ public class FileService {
         fileMetadata.setSize(fileSize);
         fileMetadata.setCreateTime(System.currentTimeMillis());
         fileMetadata.setUpdateTime(System.currentTimeMillis());
+        fileMetadata.setCreator(SessionUtils.getUser().getId());
+        fileMetadata.setModifier(SessionUtils.getUser().getId());
         FileType fileType = getFileType(fileMetadata.getName());
         fileMetadata.setType(fileType.name());
         fileMetadataMapper.insert(fileMetadata);
@@ -138,13 +360,18 @@ public class FileService {
         return fileMetadata;
     }
 
-    public FileMetadata copyFile(String fileId) {
+    public FileMetadata copyFile(String fileId, String projectId) {
         FileMetadata fileMetadata = fileMetadataMapper.selectByPrimaryKey(fileId);
         FileContent fileContent = getFileContent(fileId);
-        if (fileMetadata != null && fileContent != null) {
+        if (fileMetadata != null) {
             fileMetadata.setId(UUID.randomUUID().toString());
             fileMetadata.setCreateTime(System.currentTimeMillis());
             fileMetadata.setUpdateTime(System.currentTimeMillis());
+            fileMetadata.setCreator(SessionUtils.getUser().getId());
+            fileMetadata.setModifier(SessionUtils.getUser().getId());
+            fileMetadata.setMethod("PATH");
+            saveBinaryFile(fileContent.getFile(), fileMetadata.getFileName(), projectId);  //  上传文件到服务器而不是以二进制文件存于数据库
+
             fileMetadataMapper.insert(fileMetadata);
 
             fileContent.setFileId(fileMetadata.getId());
@@ -175,14 +402,29 @@ public class FileService {
     }
 
     public void deleteFileById(String fileId) {
-        deleteFileByIds(Collections.singletonList(fileId));
+        try {
+            deleteFileByIds(Collections.singletonList(fileId));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     public FileMetadata getFileMetadataById(String fileId) {
         return fileMetadataMapper.selectByPrimaryKey(fileId);
     }
 
-    public void updateFileMetadata(FileMetadata fileMetadata) {
+    public void updateFileMetadata(byte[] bytes, FileMetadata fileMetadata) {
+        if(fileMetadata.getMethod().equals("PATH")) {
+            String path = fileMetadata.getPath();
+            File file = new File(path);
+            String fatherPath1 = file.getParent();
+            String fatherPath2 = new File(fatherPath1).getParent();
+            String projectId = fatherPath1.substring(fatherPath2.length() + 1);
+            if (existsFile(path)) { //  先删除，再保存
+                deleteIfExists(path);
+            }
+            saveBinaryFile(bytes, fileMetadata.getFileName(), projectId);
+        }
         fileMetadataMapper.updateByPrimaryKeySelective(fileMetadata);
     }
 
@@ -202,7 +444,7 @@ public class FileService {
         FileMetadataExample.Criteria criteria = example.createCriteria();
         criteria.andProjectIdEqualTo(projectId);
         if (!StringUtils.isEmpty(request.getName())) {
-            criteria.andNameEqualTo(request.getName());
+            criteria.andFileNameEqualTo(request.getName());   //  根据文件名判断是否重复
         }
         return fileMetadataMapper.selectByExample(example);
     }

@@ -28,131 +28,131 @@ public class JarConfigService {
     @Resource
     private JarConfigMapper jarConfigMapper;
 
-    public List<JarConfig> list() {
-        JarConfigExample example = new JarConfigExample();
-        return jarConfigMapper.selectByExample(example);
-    }
-
-    public List<JarConfig> list(JarConfig jarConfig) {
-        JarConfigExample example = new JarConfigExample();
-        if (StringUtils.isNotBlank(jarConfig.getName())) {
-            example.createCriteria().andNameLike("%" + jarConfig.getName() + "%");
-        }
-        example.setOrderByClause("update_time desc");
-        return jarConfigMapper.selectByExample(example);
-    }
-
-    public List<JarConfig> searchList(JarConfig jarConfig) {
-        JarConfigExample nameExample = new JarConfigExample();
-        JarConfigExample jarExample = new JarConfigExample();
-        if (StringUtils.isNotBlank(jarConfig.getName())) {
-            nameExample.createCriteria().andNameLike("%" + jarConfig.getName() + "%");
-            jarExample.createCriteria().andFileNameLike("%" + jarConfig.getName() + "%");
-        }   //  根据jar包的文件名和自定义名称查找
-        nameExample.setOrderByClause("update_time desc");
-        jarExample.setOrderByClause("update_time desc");
-        List<JarConfig> jarConfigList = jarConfigMapper.selectByExample(jarExample);
-        //  合并两个查找结果并去重，按时间降序
-        jarConfigList.addAll(jarConfigMapper.selectByExample(nameExample));
-        jarConfigList = jarConfigList.stream().distinct().collect(Collectors.toList());
-        Collections.sort(jarConfigList, Comparator.comparing(JarConfig::getUpdateTime).reversed());
-        return jarConfigList;
-    }
-
-    public JarConfig get(String id) {
-        return jarConfigMapper.selectByPrimaryKey(id);
-    }
-
-    public void delete(String id) {
-        JarConfig JarConfig = jarConfigMapper.selectByPrimaryKey(id);
-        deleteJarFile(JarConfig.getPath());
-        jarConfigMapper.deleteByPrimaryKey(id);
-    }
-
-    public void update(JarConfig jarConfig, MultipartFile file) {
-        checkExist(jarConfig);
-        jarConfig.setEnable(true);// todo 审批机制时需修改
-        jarConfig.setModifier(SessionUtils.getUser().getId());
-        jarConfig.setUpdateTime(System.currentTimeMillis());
-        String deletePath = jarConfig.getPath();
-        if (file != null) {
-            jarConfig.setFileName(file.getOriginalFilename());
-            jarConfig.setPath(getJarPath(file));
-        }
-        jarConfigMapper.updateByPrimaryKey(jarConfig);
-        if (file != null) {
-            deleteJarFile(deletePath);
-            createJarFiles(file);
-            NewDriverManager.loadJar(jarConfig.getPath());
-        }
-    }
-
-    public String add(JarConfig jarConfig, MultipartFile file) {
-        jarConfig.setId(UUID.randomUUID().toString());
-        jarConfig.setCreator(SessionUtils.getUser().getId());
-        jarConfig.setModifier(SessionUtils.getUser().getId());
-        checkExist(jarConfig);
-        jarConfig.setEnable(true);// todo 审批机制时需修改
-        jarConfig.setCreateTime(System.currentTimeMillis());
-        jarConfig.setUpdateTime(System.currentTimeMillis());
-        jarConfig.setPath(getJarPath(file));
-        jarConfig.setFileName(file.getOriginalFilename());
-        jarConfigMapper.insert(jarConfig);
-        createJarFiles(file);
-        NewDriverManager.loadJar(jarConfig.getPath());
-        return jarConfig.getId();
-    }
-
-    public void deleteJarFiles(String testId) {
-        File file = new File(JAR_FILE_DIR + "/" + testId);
-        FileUtil.deleteContents(file);
-        if (file.exists()) {
-            file.delete();
-        }
-    }
-
-    public void deleteJarFile(String path) {
-        File file = new File(path);
-        if (file.exists()) {
-            file.delete();
-        }
-    }
-
-    public String getJarPath(MultipartFile file) {
-        return JAR_FILE_DIR + "/" + file.getOriginalFilename();
-    }
-
-    private String createJarFiles(MultipartFile jar) {
-        if (jar == null) {
-            return null;
-        }
-        File testDir = new File(JAR_FILE_DIR);
-        if (!testDir.exists()) {
-            testDir.mkdirs();
-        }
-        String filePath = testDir + "/" + jar.getOriginalFilename();
-        File file = new File(filePath);
-        try (InputStream in = jar.getInputStream(); OutputStream out = new FileOutputStream(file)) {
-            file.createNewFile();
-            FileUtil.copyStream(in, out);
-        } catch (IOException e) {
-            LogUtil.error(e.getMessage(), e);
-            MSException.throwException(Translator.get("upload_fail"));
-        }
-        return filePath;
-    }
-
-    private void checkExist(JarConfig jarConfig) {
-        if (jarConfig.getName() != null) {
-            JarConfigExample example = new JarConfigExample();
-            JarConfigExample.Criteria criteria = example.createCriteria();
-            criteria.andNameEqualTo(jarConfig.getName());
-            if (StringUtils.isNotBlank(jarConfig.getId())) {
-                criteria.andIdNotEqualTo(jarConfig.getId());
-            }
-            if (jarConfigMapper.selectByExample(example).size() > 0) {
-                MSException.throwException(Translator.get("already_exists"));
-            }
-        }
-    }
+//    public List<JarConfig> list() {
+//        JarConfigExample example = new JarConfigExample();
+//        return jarConfigMapper.selectByExample(example);
+//    }
+//
+//    public List<JarConfig> list(JarConfig jarConfig) {
+//        JarConfigExample example = new JarConfigExample();
+//        if (StringUtils.isNotBlank(jarConfig.getName())) {
+//            example.createCriteria().andNameLike("%" + jarConfig.getName() + "%");
+//        }
+//        example.setOrderByClause("update_time desc");
+//        return jarConfigMapper.selectByExample(example);
+//    }
+//
+//    public List<JarConfig> searchList(JarConfig jarConfig) {
+//        JarConfigExample nameExample = new JarConfigExample();
+//        JarConfigExample jarExample = new JarConfigExample();
+//        if (StringUtils.isNotBlank(jarConfig.getName())) {
+//            nameExample.createCriteria().andNameLike("%" + jarConfig.getName() + "%");
+//            jarExample.createCriteria().andFileNameLike("%" + jarConfig.getName() + "%");
+//        }   //  根据jar包的文件名和自定义名称查找
+//        nameExample.setOrderByClause("update_time desc");
+//        jarExample.setOrderByClause("update_time desc");
+//        List<JarConfig> jarConfigList = jarConfigMapper.selectByExample(jarExample);
+//        //  合并两个查找结果并去重，按时间降序
+//        jarConfigList.addAll(jarConfigMapper.selectByExample(nameExample));
+//        jarConfigList = jarConfigList.stream().distinct().collect(Collectors.toList());
+//        Collections.sort(jarConfigList, Comparator.comparing(JarConfig::getUpdateTime).reversed());
+//        return jarConfigList;
+//    }
+//
+//    public JarConfig get(String id) {
+//        return jarConfigMapper.selectByPrimaryKey(id);
+//    }
+//
+//    public void delete(String id) {
+//        JarConfig JarConfig = jarConfigMapper.selectByPrimaryKey(id);
+//        deleteJarFile(JarConfig.getPath());
+//        jarConfigMapper.deleteByPrimaryKey(id);
+//    }
+//
+//    public void update(JarConfig jarConfig, MultipartFile file) {
+//        checkExist(jarConfig);
+//        jarConfig.setEnable(true);// todo 审批机制时需修改
+//        jarConfig.setModifier(SessionUtils.getUser().getId());
+//        jarConfig.setUpdateTime(System.currentTimeMillis());
+//        String deletePath = jarConfig.getPath();
+//        if (file != null) {
+//            jarConfig.setFileName(file.getOriginalFilename());
+//            jarConfig.setPath(getJarPath(file));
+//        }
+//        jarConfigMapper.updateByPrimaryKey(jarConfig);
+//        if (file != null) {
+//            deleteJarFile(deletePath);
+//            createJarFiles(file);
+//            NewDriverManager.loadJar(jarConfig.getPath());
+//        }
+//    }
+//
+//    public String add(JarConfig jarConfig, MultipartFile file) {
+//        jarConfig.setId(UUID.randomUUID().toString());
+//        jarConfig.setCreator(SessionUtils.getUser().getId());
+//        jarConfig.setModifier(SessionUtils.getUser().getId());
+//        checkExist(jarConfig);
+//        jarConfig.setEnable(true);// todo 审批机制时需修改
+//        jarConfig.setCreateTime(System.currentTimeMillis());
+//        jarConfig.setUpdateTime(System.currentTimeMillis());
+//        jarConfig.setPath(getJarPath(file));
+//        jarConfig.setFileName(file.getOriginalFilename());
+//        jarConfigMapper.insert(jarConfig);
+//        createJarFiles(file);
+//        NewDriverManager.loadJar(jarConfig.getPath());
+//        return jarConfig.getId();
+//    }
+//
+//    public void deleteJarFiles(String testId) {
+//        File file = new File(JAR_FILE_DIR + "/" + testId);
+//        FileUtil.deleteContents(file);
+//        if (file.exists()) {
+//            file.delete();
+//        }
+//    }
+//
+//    public void deleteJarFile(String path) {
+//        File file = new File(path);
+//        if (file.exists()) {
+//            file.delete();
+//        }
+//    }
+//
+//    public String getJarPath(MultipartFile file) {
+//        return JAR_FILE_DIR + "/" + file.getOriginalFilename();
+//    }
+//
+//    private String createJarFiles(MultipartFile jar) {
+//        if (jar == null) {
+//            return null;
+//        }
+//        File testDir = new File(JAR_FILE_DIR);
+//        if (!testDir.exists()) {
+//            testDir.mkdirs();
+//        }
+//        String filePath = testDir + "/" + jar.getOriginalFilename();
+//        File file = new File(filePath);
+//        try (InputStream in = jar.getInputStream(); OutputStream out = new FileOutputStream(file)) {
+//            file.createNewFile();
+//            FileUtil.copyStream(in, out);
+//        } catch (IOException e) {
+//            LogUtil.error(e.getMessage(), e);
+//            MSException.throwException(Translator.get("upload_fail"));
+//        }
+//        return filePath;
+//    }
+//
+//    private void checkExist(JarConfig jarConfig) {
+//        if (jarConfig.getName() != null) {
+//            JarConfigExample example = new JarConfigExample();
+//            JarConfigExample.Criteria criteria = example.createCriteria();
+//            criteria.andNameEqualTo(jarConfig.getName());
+//            if (StringUtils.isNotBlank(jarConfig.getId())) {
+//                criteria.andIdNotEqualTo(jarConfig.getId());
+//            }
+//            if (jarConfigMapper.selectByExample(example).size() > 0) {
+//                MSException.throwException(Translator.get("already_exists"));
+//            }
+//        }
+//    }
 }

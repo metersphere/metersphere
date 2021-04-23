@@ -217,7 +217,13 @@ public class ProjectService {
         if (fileMetadata != null) {
             fileMetadata.setSize(file.getSize());
             fileMetadata.setUpdateTime(System.currentTimeMillis());
-            fileService.updateFileMetadata(fileMetadata);
+            try {
+                fileService.updateFileMetadata(file.getBytes(), fileMetadata);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            if(fileMetadata.getMethod().equals("PATH"))
+                return fileMetadata;
             try {
                 fileService.setFileContent(fileId, file.getBytes());
             } catch (IOException e) {

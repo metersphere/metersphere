@@ -2,9 +2,9 @@ package io.metersphere.listener;
 
 import io.metersphere.api.jmeter.JMeterService;
 import io.metersphere.api.jmeter.NewDriverManager;
-import io.metersphere.base.domain.JarConfig;
+import io.metersphere.base.domain.FileMetadata;
 import io.metersphere.commons.utils.LogUtil;
-import io.metersphere.service.JarConfigService;
+import io.metersphere.service.FileService;
 import io.metersphere.service.ScheduleService;
 import org.python.core.Options;
 import org.python.util.PythonInterpreter;
@@ -24,7 +24,7 @@ public class AppStartListener implements ApplicationListener<ApplicationReadyEve
     @Resource
     private JMeterService jMeterService;
     @Resource
-    private JarConfigService jarConfigService;
+    FileService fileService;
     @Value("${jmeter.home}")
     private String jmeterHome;
 
@@ -71,7 +71,7 @@ public class AppStartListener implements ApplicationListener<ApplicationReadyEve
      * 加载jar包
      */
     private void loadJars() {
-        List<JarConfig> jars = jarConfigService.list();
+        List<FileMetadata> jars = fileService.list();
 
         jars.forEach(jarConfig -> {
             try {
