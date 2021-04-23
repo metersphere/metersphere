@@ -18,9 +18,9 @@
         <el-table-column type="selection"/>
 
         <el-table-column prop="name" :label="$t('api_test.automation.scenario_name')"
-                         show-overflow-tooltip/>
+                         show-overflow-tooltip min-width="240"/>
         <el-table-column prop="level" :label="$t('api_test.automation.case_level')"
-                         show-overflow-tooltip>
+                         show-overflow-tooltip width="120">
           <template v-slot:default="scope">
             <ms-tag v-if="scope.row.level == 'P0'" type="info" effect="plain" content="P0"/>
             <ms-tag v-if="scope.row.level == 'P1'" type="warning" effect="plain" content="P1"/>
@@ -29,26 +29,36 @@
           </template>
 
         </el-table-column>
-        <el-table-column prop="tagNames" :label="$t('api_test.automation.tag')" min-width="120">
+        <el-table-column prop="tagNames" :label="$t('api_test.automation.tag')" width="120">
           <template v-slot:default="scope">
               <ms-tag v-for="itemName in scope.row.tags" :key="itemName" type="success" effect="plain" :content="itemName" style="margin-left: 0px; margin-right: 2px"/>
           </template>
         </el-table-column>
-        <el-table-column prop="userId" :label="$t('api_test.automation.creator')" show-overflow-tooltip/>
+        <el-table-column prop="userId" :label="$t('api_test.automation.creator')" show-overflow-tooltip width="120"/>
         <el-table-column prop="updateTime" :label="$t('api_test.automation.update_time')" width="180">
           <template v-slot:default="scope">
             <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
           </template>
         </el-table-column>
-        <el-table-column prop="stepTotal" :label="$t('api_test.automation.step')" show-overflow-tooltip/>
-        <el-table-column prop="lastResult" :label="$t('api_test.automation.last_result')">
+        <el-table-column  prop="status" :label="$t('commons.status')"
+                         sortable="custom"
+                         column-key="status"
+                          :filters="statusFilters"
+                         show-overflow-tooltip width="120" :key="index">
+          <template v-slot:default="scope">
+            <plan-status-table-item :value="scope.row.status"/>
+          </template>
+        </el-table-column>
+
+        <el-table-column prop="stepTotal" :label="$t('api_test.automation.step')" show-overflow-tooltip width="72"/>
+        <el-table-column prop="lastResult" :label="$t('api_test.automation.last_result')" width="90">
           <template v-slot:default="{row}">
             <el-link type="success" @click="showReport(row)" v-if="row.lastResult === 'Success'">{{ $t('api_test.automation.success') }}</el-link>
             <el-link type="danger" @click="showReport(row)" v-if="row.lastResult === 'Fail'">{{ $t('api_test.automation.fail') }}</el-link>
           </template>
         </el-table-column>
         <el-table-column prop="passRate" :label="$t('api_test.automation.passing_rate')"
-                         show-overflow-tooltip/>
+                         show-overflow-tooltip width="90"/>
       </el-table>
       <ms-table-pagination :change="search" :current-page.sync="currentPage" :page-size.sync="pageSize"
                            :total="total"/>
@@ -69,12 +79,14 @@
   import TestPlanScenarioListHeader from "./TestPlanScenarioListHeader";
   import {_handleSelect, _handleSelectAll} from "../../../../../../../common/js/tableUtils";
   import EnvPopover from "@/business/components/track/common/EnvPopover";
+  import PlanStatusTableItem from "@/business/components/track/common/tableItems/plan/PlanStatusTableItem";
 
   export default {
     name: "RelevanceScenarioList",
     components: {
       EnvPopover,
       TestPlanScenarioListHeader,
+      PlanStatusTableItem,
       MsTablePagination, MsTableMoreBtn, ShowMoreBtn, MsTableHeader, MsTag, MsApiReportDetail, MsTestPlanList},
     props: {
       referenced: {
@@ -87,6 +99,11 @@
     },
     data() {
       return {
+        statusFilters: [
+          {text: this.$t('test_track.plan.plan_status_prepare'), value: 'Prepare'},
+          {text: this.$t('test_track.plan.plan_status_running'), value: 'Underway'},
+          {text: this.$t('test_track.plan.plan_status_completed'), value: 'Completed'}
+        ],
         result: {},
         condition: {},
         currentScenario: {},
