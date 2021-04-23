@@ -275,6 +275,10 @@
         this.httpConfig.conditions.splice(index, 1);
       },
       copy(row) {
+        if (row.type === "NONE") {
+          this.$warning("启用条件为 '无' 的域名不支持复制！");
+          return;
+        }
         const index = this.httpConfig.conditions.findIndex((d) => d.id === row.id);
         let obj = {id: getUUID(), type: row.type, socket: row.socket, details: row.details, protocol: row.protocol, headers: JSON.parse(JSON.stringify(this.condition.headers)), domain: row.domain, time: new Date().getTime()};
         if (index != -1) {
