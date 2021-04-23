@@ -542,6 +542,9 @@ public class Swagger3Parser extends SwaggerAbstractParser {
             } else {    //  JSONOArray
                 parsedParam.put("type", "array");
                 JSONObject item = new JSONObject();
+                if (param == null) {
+                    param = new JSONArray();
+                }
                 if(((JSONArray) param).size() > 0) {
                     if(((JSONArray) param).get(0) instanceof JSONObject) {  ///
                         item = buildRequestBodyJsonInfo((JSONObject) ((JSONArray) param).get(0));
@@ -591,11 +594,14 @@ public class Swagger3Parser extends SwaggerAbstractParser {
     }
 */
     private JSONObject buildResponseBody(JSONObject response) {
+        if (response == null) {
+            return new JSONObject();
+        }
         JSONObject responseBody = new JSONObject();
         JSONObject statusCodeInfo = new JSONObject();
         //  build 请求头
         JSONObject headers = new JSONObject();
-        JSONArray headValueList =response.getJSONArray("headers");
+        JSONArray headValueList = response.getJSONArray("headers");
         if(headValueList != null) {
             for(Object item : headValueList) {
                 if(item instanceof JSONObject && ((JSONObject) item).getString("name") != null) {
@@ -654,12 +660,14 @@ public class Swagger3Parser extends SwaggerAbstractParser {
             }
         }
         String type = respOrReq.getJSONObject("body").getString("type");
+        JSONObject content = new JSONObject();
         JSONObject schema = bodyInfo;   //  请求体部分
         JSONObject typeName = new JSONObject();
-        schema.put("type", null);
-        schema.put("format", null);
-        typeName.put("schema", schema);
-        JSONObject content = new JSONObject();
+        if (schema != null) {
+            schema.put("type", null);
+            schema.put("format", null);
+            typeName.put("schema", schema);
+        }
         if (type != null && StringUtils.isNotBlank(type)) {
             content.put(typeMap.get(type), typeName);
         }
