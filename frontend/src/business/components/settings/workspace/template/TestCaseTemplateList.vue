@@ -13,6 +13,7 @@
       :total="total"
       :page-size.sync="pageSize"
       :operators="operators"
+      :screen-height="tableHeight"
       @handlePageChange="initTableData"
       @refresh="initTableData">
 
@@ -87,7 +88,7 @@
 <script>
 import {CUSTOM_FIELD_LIST} from "@/common/js/default-table-header";
 import {CASE_TYPE_OPTION} from "@/common/js/table-constants";
-import {getCurrentWorkspaceId} from "@/common/js/utils";
+import {getCurrentWorkspaceId, getDefaultTableHeight} from "@/common/js/utils";
 import MsTableHeader from "@/business/components/common/components/MsTableHeader";
 import MsTablePagination from "@/business/components/common/pagination/TablePagination";
 import MsTableButton from "@/business/components/common/components/MsTableButton";
@@ -140,6 +141,9 @@ export default {
     },
     caseTypeFilters() {
       return CASE_TYPE_OPTION;
+    },
+    tableHeight() {
+      return getDefaultTableHeight;
     }
   },
   methods: {

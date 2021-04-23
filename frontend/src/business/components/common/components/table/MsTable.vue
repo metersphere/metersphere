@@ -1,7 +1,5 @@
 <template>
-  <div class="card-container">
-
-    <el-table
+  <el-table
       border
       :data="data"
       @sort-change="sort"
@@ -10,8 +8,7 @@
       @select="handleSelect"
       @header-dragend="headerDragend"
       @cell-mouse-enter="showPopover"
-      row-key="id"
-      class="test-content adjust-table"
+      class="test-content adjust-table ms-table"
       :class="{'ms-select-all-fixed':showSelectAll}"
       :height="screenHeight"
       ref="table" @row-click="handleRowClick">
@@ -48,8 +45,6 @@
       </ms-table-column>
 
     </el-table>
-
-  </div>
 </template>
 
 <script>

@@ -4,6 +4,7 @@
     :enable-selection="false"
     :operators="operators"
     :data="tableData"
+    :screen-height="null"
     @refresh="refreshTable"
     ref="table">
 
