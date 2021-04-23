@@ -94,6 +94,7 @@ name: "TestCaseMinder",
       }
       this.result = this.$post('/test/case/minder/edit', param, () => {
         this.$success(this.$t('commons.save_success'));
+        this.getTestCases();
       });
     },
     buildSaveCase(root, saveCases, deleteCases, parent) {
