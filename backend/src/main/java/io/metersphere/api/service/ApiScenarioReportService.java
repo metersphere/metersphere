@@ -1,6 +1,7 @@
 package io.metersphere.api.service;
 
 import com.alibaba.fastjson.JSON;
+import io.metersphere.api.dto.APIReportBatchRequest;
 import io.metersphere.api.dto.DeleteAPIReportRequest;
 import io.metersphere.api.dto.QueryAPIReportRequest;
 import io.metersphere.api.dto.automation.APIScenarioReportResult;
@@ -36,7 +37,6 @@ import javax.annotation.Resource;
 import java.nio.charset.StandardCharsets;
 import java.text.DecimalFormat;
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional(rollbackFor = Exception.class)
@@ -81,6 +81,11 @@ public class ApiScenarioReportService {
     public List<APIScenarioReportResult> list(QueryAPIReportRequest request) {
         request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
         return extApiScenarioReportMapper.list(request);
+    }
+
+    public List<String> idList(QueryAPIReportRequest request) {
+        request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
+        return extApiScenarioReportMapper.idList(request);
     }
 
     private void checkNameExist(APIScenarioReportResult request) {
@@ -438,16 +443,13 @@ public class ApiScenarioReportService {
         apiScenarioReportMapper.deleteByExample(example);
     }
 
-    public void deleteAPIReportBatch(DeleteAPIReportRequest reportRequest) {
+    public void deleteAPIReportBatch(APIReportBatchRequest reportRequest) {
         List<String> ids = reportRequest.getIds();
         if (reportRequest.isSelectAllDate()) {
-            QueryAPIReportRequest selectRequest = new QueryAPIReportRequest();
-            selectRequest.setWorkspaceId(SessionUtils.getCurrentWorkspaceId());
-            selectRequest.setName(reportRequest.getName());
-            selectRequest.setProjectId(reportRequest.getProjectId());
-            List<APIScenarioReportResult> list = extApiScenarioReportMapper.list(selectRequest);
-            List<String> allIds = list.stream().map(APIScenarioReportResult::getId).collect(Collectors.toList());
-            ids = allIds.stream().filter(id -> !reportRequest.getUnSelectIds().contains(id)).collect(Collectors.toList());
+            ids = this.idList(reportRequest);
+            if (reportRequest.getUnSelectIds() != null) {
+                ids.removeAll(reportRequest.getUnSelectIds());
+            }
         }
 
         //为预防数量太多，调用删除方法时引起SQL过长的Bug，此处采取分批执行的方式。

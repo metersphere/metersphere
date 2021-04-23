@@ -937,7 +937,6 @@ public class TestPlanService {
                             request.getExecuteType(), item.getProjectId(), request.getReportUserID(),null);
                     group.setHashTree(scenarios);
                     testPlan.getHashTree().add(group);
-                    apiScenarioReportMapper.insert(report);
                     returnId = request.getId();
                 }
 
