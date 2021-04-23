@@ -133,7 +133,7 @@
           this.condition.headers = this.httpConfig.headers;
           this.add();
         }
-        this.condition = {type: "NONE", details: [new KeyValue({name: "", value: "contains"})], protocol: "http", socket: "", domain: "", port: 0, headers: [new KeyValue()]};
+        this.condition = {id: undefined, type: "NONE", details: [new KeyValue({name: "", value: "contains"})], protocol: "http", socket: "", domain: "", port: 0, headers: [new KeyValue()]};
       },
     },
     methods: {
@@ -250,7 +250,7 @@
         return index > 1;
       },
       add() {
-        if(this.checkNode()){
+        if (this.condition.type ==="NONE" && this.checkNode()) {
           this.$warning("启用条件为 '无' 的域名已经存在请更新！");
           return;
         }
