@@ -1042,6 +1042,13 @@
                     this.currentScenario.headers = obj.headers;
                   }
                   this.enableCookieShare = obj.enableCookieShare;
+                  if (obj.hashTree) {
+                    obj.hashTree.forEach(item => {
+                      if (!item.hashTree) {
+                        item.hashTree = [];
+                      }
+                    });
+                  }
                   this.scenarioDefinition = obj.hashTree;
                 }
               }
