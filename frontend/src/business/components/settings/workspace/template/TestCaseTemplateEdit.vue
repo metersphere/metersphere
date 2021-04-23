@@ -93,17 +93,16 @@ export default {
     }
   },
   methods: {
-    open(data) {
+    open(data, isCopy) {
       if (data) {
         Object.assign(this.form, data);
         if (!(data.options instanceof Array)) {
           this.form.options = data.options ? JSON.parse(data.options) : [];
         }
-        if (data.id) {
-          this.url = 'field/template/case/update';
-        } else {
-          //copy
+        if (isCopy) {
           this.url = 'field/template/case/add';
+        } else {
+          this.url = 'field/template/case/update';
         }
       } else {
         this.form = {
