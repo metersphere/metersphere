@@ -324,7 +324,9 @@ export default {
         this.selectRows.forEach(row => {
           this.buildExecuteParam(param,row);
         });
-        this.$post("/test/case/review/scenario/case/run", param, response => {});
+        this.$post("/test/case/review/scenario/case/run", param, response => {
+          this.$message('任务执行中，请稍后刷新查看结果');
+        });
       }
       if (this.planId) {
         let selectParam = buildBatchParam(this);
@@ -334,9 +336,9 @@ export default {
         });
         param.condition = selectParam.condition;
         this.$post("/test/plan/scenario/case/run", param, response => {
+          this.$message('任务执行中，请稍后刷新查看结果');
         });
       }
-      this.$message('任务执行中，请稍后刷新查看结果');
       this.search();
     },
     execute(row) {
