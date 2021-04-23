@@ -6,6 +6,7 @@
            active-text-color="#fff"
            :default-active="activeIndex"
            @select="handleSelect"
+           :key="menuKey"
            router>
 
     <el-menu-item index="/track" v-if="check('testTrack')" v-permission="['test_manager','test_user','test_viewer']">
@@ -35,6 +36,7 @@
 import {LicenseKey} from '@/common/js/constants';
 import {mapGetters} from "vuex";
 import {hasLicense} from "@/common/js/utils";
+import {MODULE_CHANGE, ModuleEvent} from "@/business/components/common/head/ListEvent";
 
 const requireContext = require.context('@/business/components/xpack/', true, /router\.js$/);
 const report = requireContext.keys().map(key => requireContext(key).report);
@@ -49,7 +51,8 @@ export default {
     return {
       activeIndex: '/',
       isReport: isReport,
-      modules: {}
+      modules: {},
+      menuKey: 0,
     };
   },
   props: {
@@ -75,6 +78,8 @@ export default {
         module.default.listModules(this);
       }
     }
+
+    this.registerEvents();
   },
   computed: {
     ...mapGetters([
@@ -100,6 +105,15 @@ export default {
         return this.modules[key] === 'ENABLE';
       }
       return true;
+    },
+    registerEvents() {
+      ModuleEvent.$on(MODULE_CHANGE, () => {
+        if (module.default) {
+          module.default.listModules(this).then(() => {
+            this.menuKey++;
+          });
+        }
+      });
     }
   }
 };
