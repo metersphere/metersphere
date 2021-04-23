@@ -1,17 +1,19 @@
 <template>
   <el-tabs class="other-info-tabs" v-loading="result.loading" v-model="tabActiveName">
     <el-tab-pane :label="$t('commons.remark')" name="remark">
-      <el-row >
+      <el-row>
         <ms-rich-text :disabled="readOnly" :content="form.remark" @updateRichText="updateRemark"/>
       </el-row>
     </el-tab-pane>
     <el-tab-pane :label="$t('test_track.case.relate_test')" name="relateTest">
-        <el-col  v-if="form.list" :span="7"  :offset="1">
-          <span class="cast_label">关联测试：</span>
-          <span v-for="(item,index) in form.list" :key="index">
-                        <el-button @click="openTest(item)" type="text" style="margin-left: 7px;">{{ item.testName }}</el-button>
+      <el-col v-if="form.list" :span="7" :offset="1">
+        <span class="cast_label">关联测试：</span>
+        <span v-for="(item,index) in form.list" :key="index">
+                        <el-button @click="openTest(item)" type="text" style="margin-left: 7px;">{{
+                            item.testName
+                          }}</el-button>
                       </span>
-        </el-col>
+      </el-col>
       <el-col v-else :span="7" style="margin-top: 10px;">
         <el-form-item :label="$t('test_track.case.relate_test')" :label-width="labelWidth">
           <el-cascader :options="sysList" filterable placeholder="请选择要关联的测试" show-all-levels
@@ -86,6 +88,7 @@ import MsRichText from "@/business/components/track/case/components/MsRichText";
 import {TEST} from "@/business/components/api/definition/model/JsonData";
 import TestCaseAttachment from "@/business/components/track/case/components/TestCaseAttachment";
 import TestCaseIssueRelate from "@/business/components/track/case/components/TestCaseIssueRelate";
+import {enableModules} from "@/common/js/utils";
 
 export default {
   name: "TestCaseEditOtherInfo",
@@ -105,7 +108,7 @@ export default {
         //lazy: true,
         //lazyLoad:this.lazyLoad
       },
-    }
+    };
   },
   watch: {
     tabActiveName() {
@@ -177,10 +180,10 @@ export default {
           aTag.download = file.name;
           aTag.href = URL.createObjectURL(blob);
           aTag.click();
-          URL.revokeObjectURL(aTag.href)
+          URL.revokeObjectURL(aTag.href);
         } else {
           // IE10+下载
-          navigator.msSaveBlob(blob, this.filename)
+          navigator.msSaveBlob(blob, this.filename);
         }
       }).catch(e => {
         Message.error({message: e.message, showClose: true});
@@ -240,19 +243,23 @@ export default {
         this.result = {loading: true};
         this.$get("demand/list/" + this.projectId).then(response => {
           this.demandOptions = response.data.data;
-          this.demandOptions.unshift({id: 'other', name: this.$t('test_track.case.other'), platform: 'Other'})
+          this.demandOptions.unshift({id: 'other', name: this.$t('test_track.case.other'), platform: 'Other'});
           this.result = {loading: false};
         }).catch(() => {
-          this.demandOptions.unshift({id: 'other', name: this.$t('test_track.case.other'), platform: 'Other'})
+          this.demandOptions.unshift({id: 'other', name: this.$t('test_track.case.other'), platform: 'Other'});
           this.result = {loading: false};
-        })
+        });
       }
     },
     async loadOptions(sysLib) {
       if (this.form.list) {
         return;
       }
+
       sysLib = TEST
+        .filter(item => {
+          return enableModules([item.module]);
+        })// 模块启用禁用过滤
         .map(item => ({
           value: item.id,
           label: item.name,
@@ -288,14 +295,14 @@ export default {
             leaf: true
           }));
           this.result.loading = false;
-          resolve(data)
+          resolve(data);
         }).catch((err) => {
-          reject(err)
+          reject(err);
         });
       });
     },
   }
-}
+};
 </script>
 
 <style scoped>
