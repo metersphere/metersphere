@@ -227,6 +227,9 @@ public class SystemParameterService {
                 if (StringUtils.equals(param.getParamKey(), ParamConstants.BASE.URL.getValue())) {
                     baseSystemConfigDTO.setUrl(param.getParamValue());
                 }
+                if (StringUtils.equals(param.getParamKey(), ParamConstants.BASE.CONCURRENCY.getValue())) {
+                    baseSystemConfigDTO.setConcurrency(param.getParamValue());
+                }
             }
         }
         return baseSystemConfigDTO;

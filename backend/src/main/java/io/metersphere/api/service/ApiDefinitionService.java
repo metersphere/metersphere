@@ -30,10 +30,12 @@ import io.metersphere.commons.constants.*;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
 import io.metersphere.controller.request.ScheduleRequest;
+import io.metersphere.dto.BaseSystemConfigDTO;
 import io.metersphere.i18n.Translator;
 import io.metersphere.job.sechedule.SwaggerUrlImportJob;
 import io.metersphere.service.FileService;
 import io.metersphere.service.ScheduleService;
+import io.metersphere.service.SystemParameterService;
 import io.metersphere.track.request.testcase.ApiCaseRelevanceRequest;
 import io.metersphere.track.request.testcase.QueryTestPlanRequest;
 import org.apache.commons.collections.CollectionUtils;
@@ -43,7 +45,6 @@ import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.jorphan.collections.HashTree;
 import org.aspectj.util.FileUtil;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -97,6 +98,8 @@ public class ApiDefinitionService {
     private EsbApiParamService esbApiParamService;
     @Resource
     ApiModuleMapper apiModuleMapper;
+    @Resource
+    private SystemParameterService systemParameterService ;
 
     private static Cache cache = Cache.newHardMemoryCache(0, 3600 * 24);
 
@@ -528,9 +531,6 @@ public class ApiDefinitionService {
         }
     }
 
-    @Value("${run.concurrency}")
-    private String concurrency;
-
     /**
      * 测试执行
      *
@@ -540,8 +540,9 @@ public class ApiDefinitionService {
      */
     public String run(RunDefinitionRequest request, List<MultipartFile> bodyFiles) {
         int count = 100;
-        if (StringUtils.isNotEmpty(concurrency)) {
-            count = Integer.parseInt(concurrency);
+        BaseSystemConfigDTO dto = systemParameterService.getBaseInfo();
+        if (StringUtils.isNotEmpty(dto.getConcurrency())) {
+            count = Integer.parseInt(dto.getConcurrency());
         }
         if (request.getTestElement() != null && request.getTestElement().getHashTree().size() == 1 && request.getTestElement().getHashTree().get(0).getHashTree().size() > count) {
             MSException.throwException("并发数量过大，请重新选择！");
