@@ -3,7 +3,7 @@
 
     <template v-slot:header>
       <ms-table-header :is-tester-permission="true" :condition.sync="condition" @search="initTableData" @create="handleCreate"
-                       :create-tip="'创建缺陷'" :title="'缺陷模板'"/>
+                       :create-tip="'创建缺陷模版'" :title="'缺陷模板'"/>
     </template>
 
     <ms-table
@@ -102,9 +102,9 @@ export default {
       result: {},
       issuePlatformMap:{
         metersphere: 'Metersphere',
-        jira: 'JIRA',
+        Jira: 'JIRA',
         Tapd: 'Tapd',
-        zentao: '禅道',
+        Zentao: '禅道',
       },
       operators: [
         {

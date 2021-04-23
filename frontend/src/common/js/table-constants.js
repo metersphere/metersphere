@@ -24,9 +24,9 @@ export const CASE_TYPE_OPTION = [
 
 export const ISSUE_PLATFORM_OPTION = [
   {value: 'metersphere',text: 'Metersphere'},
-  {value: 'jira',text: 'JIRA'},
+  {value: 'Jira',text: 'JIRA'},
   {value: 'Tapd',text: 'Tapd'},
-  {value: 'zentao',text: '禅道'},
+  {value: 'Zentao',text: '禅道'},
 ];
 
 export const FIELD_TYPE_MAP = {
@@ -64,5 +64,6 @@ export const SYSTEM_FIELD_NAME_MAP = {
 export const ISSUE_STATUS_MAP = {
   'new': '新建',
   'closed': '已关闭',
-  'resolved': '已解决'
+  'resolved': '已解决',
+  'active': '激活'
 }
