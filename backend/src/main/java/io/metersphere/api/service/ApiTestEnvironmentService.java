@@ -88,6 +88,34 @@ public class ApiTestEnvironmentService {
             this.add(returnModel);
         } else {
             returnModel = list.get(0);
+            returnModel = this.checkMockEvnIsRightful(returnModel, projectId, apiName, baseUrl);
+        }
+        return returnModel;
+    }
+
+    private ApiTestEnvironmentWithBLOBs checkMockEvnIsRightful(ApiTestEnvironmentWithBLOBs returnModel, String projectId, String name, String url) {
+        boolean needUpdate = true;
+        if (returnModel.getConfig() != null) {
+            try {
+                JSONObject configObj = JSONObject.parseObject(returnModel.getConfig());
+                if (configObj.containsKey("httpConfig")) {
+                    JSONObject httpObj = configObj.getJSONObject("httpConfig");
+                    if (httpObj.containsKey("isMock") && httpObj.getBoolean("isMock")) {
+                        if (httpObj.containsKey("conditions")) {
+                            JSONArray conditions = httpObj.getJSONArray("conditions");
+                            needUpdate = false;
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        if (needUpdate) {
+            String id = returnModel.getId();
+            returnModel = this.genHttpApiTestEnvironmentByUrl(projectId, name, url);
+            returnModel.setId(id);
+            apiTestEnvironmentMapper.updateByPrimaryKeyWithBLOBs(returnModel);
         }
         return returnModel;
     }
