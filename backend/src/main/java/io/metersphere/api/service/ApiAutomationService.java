@@ -287,7 +287,11 @@ public class ApiAutomationService {
         } else {
             scenario.setStatus(ScenarioStatus.Underway.name());
         }
-        scenario.setUserId(SessionUtils.getUserId());
+        if (request.getUserId() == null) {
+            scenario.setUserId(SessionUtils.getUserId());
+        } else {
+            scenario.setUserId(request.getUserId());
+        }
         if (StringUtils.isEmpty(request.getApiScenarioModuleId()) || "default-module".equals(request.getApiScenarioModuleId())) {
             ApiScenarioModuleExample example = new ApiScenarioModuleExample();
             example.createCriteria().andProjectIdEqualTo(request.getProjectId()).andNameEqualTo("默认模块");

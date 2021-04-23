@@ -697,6 +697,7 @@
         rowParam.copy = true;
         rowParam.name = 'copy_' + rowParam.name;
       rowParam.num = '';
+      rowParam.userId = null;
         this.$emit('edit', rowParam);
       },
       showReport(row) {
