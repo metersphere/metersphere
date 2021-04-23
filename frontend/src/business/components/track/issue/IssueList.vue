@@ -4,7 +4,7 @@
 
       <template v-slot:header>
         <ms-table-header :is-tester-permission="true" :condition.sync="condition" @search="getIssues" @create="handleCreate"
-                         :create-tip="'创建缺陷'" :title="'缺陷列表'"  :tip="'根据标题搜索'"/>
+                         :create-tip="'创建缺陷'" :title="'缺陷列表'"  :tip="'根据标题搜索'" :have-search="false"/>
       </template>
 
       <ms-table
@@ -32,7 +32,7 @@
           :label="$t('test_track.issue.status')"
           prop="status">
           <template v-slot="scope">
-            <span>{{ issueStatusMap[scope.row.status] }}</span>
+            <span>{{ issueStatusMap[scope.row.status] ? issueStatusMap[scope.row.status] : scope.row.status }}</span>
           </template>
         </ms-table-column>
 
@@ -87,15 +87,16 @@ export default {
       operators: [
         {
           tip: this.$t('commons.edit'), icon: "el-icon-edit",
-          exec: this.handleEdit
+          exec: this.handleEdit,
+          isDisable: this.btnDisable
         }, {
           tip: this.$t('commons.copy'), icon: "el-icon-copy-document", type: "success",
           exec: this.handleCopy,
-          isDisable: this.systemDisable
+          isDisable: this.btnDisable
         }, {
           tip: this.$t('commons.delete'), icon: "el-icon-delete", type: "danger",
           exec: this.handleDelete,
-          isDisable: this.systemDisable
+          isDisable: this.btnDisable
         }
       ],
     };
@@ -152,6 +153,12 @@ export default {
         this.getIssues();
       });
     },
+    btnDisable(row) {
+      if (row.platform === 'Local') {
+        return false;
+      }
+      return true;
+    }
   }
 };
 </script>

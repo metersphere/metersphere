@@ -10,6 +10,7 @@ import io.metersphere.track.dto.DemandDTO;
 import io.metersphere.track.issue.domain.PlatformUser;
 import io.metersphere.track.request.testcase.IssuesRequest;
 import io.metersphere.track.request.testcase.IssuesUpdateRequest;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.List;
 import java.util.UUID;
@@ -24,7 +25,11 @@ public class LocalPlatform extends AbstractIssuePlatform {
 
     @Override
     public List<IssuesDao> getIssue(IssuesRequest issuesRequest) {
+        String projectId = issuesRequest.getProjectId();
         issuesRequest.setPlatform(IssuesManagePlatform.Local.toString());
+        if (StringUtils.isNotBlank(projectId)) {
+            return extIssuesMapper.getIssuesByProjectId(issuesRequest);
+        }
         return extIssuesMapper.getIssuesByCaseId(issuesRequest);
     }
 

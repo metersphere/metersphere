@@ -38,13 +38,18 @@ public class TapdPlatform extends AbstractIssuePlatform {
     @Override
     public List<IssuesDao> getIssue(IssuesRequest issuesRequest) {
         List<IssuesDao> list = new ArrayList<>();
-        String tapdId = getProjectId("");
+        String tapdId = getProjectId(issuesRequest.getProjectId());
 
-        TestCaseIssuesExample example = new TestCaseIssuesExample();
-        example.createCriteria().andTestCaseIdEqualTo(testCaseId);
+//        TestCaseIssuesExample example = new TestCaseIssuesExample();
+//        example.createCriteria().andTestCaseIdEqualTo(testCaseId);
 
         issuesRequest.setPlatform(IssuesManagePlatform.Tapd.toString());
-        List<IssuesDao> issues = extIssuesMapper.getIssuesByCaseId(issuesRequest);
+        List<IssuesDao> issues;
+        if (StringUtils.isNotBlank(issuesRequest.getProjectId())) {
+            issues = extIssuesMapper.getIssuesByProjectId(issuesRequest);
+        } else {
+            issues = extIssuesMapper.getIssuesByCaseId(issuesRequest);
+        }
 
         List<String> issuesIds = issues.stream().map(Issues::getId).collect(Collectors.toList());
         issuesIds.forEach(issuesId -> {
@@ -52,9 +57,11 @@ public class TapdPlatform extends AbstractIssuePlatform {
             if (StringUtils.isBlank(dto.getId())) {
                 // 缺陷不存在，解除用例和缺陷的关联
                 TestCaseIssuesExample issuesExample = new TestCaseIssuesExample();
-                issuesExample.createCriteria()
-                        .andTestCaseIdEqualTo(testCaseId)
-                        .andIssuesIdEqualTo(issuesId);
+                TestCaseIssuesExample.Criteria criteria = issuesExample.createCriteria();
+                if (StringUtils.isNotBlank(testCaseId)) {
+                    criteria.andTestCaseIdEqualTo(testCaseId);
+                }
+                criteria.andIssuesIdEqualTo(issuesId);
                 testCaseIssuesMapper.deleteByExample(issuesExample);
                 issuesMapper.deleteByPrimaryKey(issuesId);
             } else {
@@ -144,7 +151,7 @@ public class TapdPlatform extends AbstractIssuePlatform {
 
         String url = "https://api.tapd.cn/bugs";
         String testCaseId = issuesRequest.getTestCaseId();
-        String tapdId = getProjectId("");
+        String tapdId = getProjectId(issuesRequest.getProjectId());
 
         if (StringUtils.isBlank(tapdId)) {
             MSException.throwException("未关联Tapd 项目ID");
@@ -206,8 +213,8 @@ public class TapdPlatform extends AbstractIssuePlatform {
     @Override
     public List<PlatformUser> getPlatformUser() {
         List<PlatformUser> users = new ArrayList<>();
-        String projectId = getProjectId("");
-        String url = "https://api.tapd.cn/workspaces/users?workspace_id=" + projectId;
+        String id = getProjectId(projectId);
+        String url = "https://api.tapd.cn/workspaces/users?workspace_id=" + id;
         ResultHolder call = call(url);
         String listJson = JSON.toJSONString(call.getData());
         JSONArray jsonArray = JSON.parseArray(listJson);

@@ -45,6 +45,7 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
     protected RestTemplate restTemplateIgnoreSSL;
 
     protected String testCaseId;
+    protected String projectId;
     protected String key;
 
     public String getKey() {
@@ -78,6 +79,7 @@ public abstract class AbstractIssuePlatform implements IssuesPlatform {
         this.issuesMapper = CommonBeanFactory.getBean(IssuesMapper.class);
         this.extIssuesMapper = CommonBeanFactory.getBean(ExtIssuesMapper.class);
         this.testCaseId = issuesRequest.getTestCaseId();
+        this.projectId = issuesRequest.getProjectId();
         //
         this.restTemplateIgnoreSSL = restTemplate;
     }

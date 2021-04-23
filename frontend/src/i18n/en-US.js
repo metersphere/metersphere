@@ -1480,9 +1480,9 @@ export default {
       close_success: "Closed successfully",
       preview: "Preview",
       please_choose_current_owner: "Please choose current owner",
-      tapd_current_owner: "Tapd Current Owner：",
-      zentao_bug_build: "Zentao bug Impact version",
-      zentao_bug_assigned: "Zentao bug handler",
+      tapd_current_owner: "Tapd Current Owner",
+      zentao_bug_build: "Zentao Impact version",
+      zentao_bug_assigned: "Zentao handler",
     },
     report: {
       name: "Test Plan Report",

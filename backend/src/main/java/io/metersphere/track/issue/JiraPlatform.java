@@ -45,7 +45,12 @@ public class JiraPlatform extends AbstractIssuePlatform {
         List<IssuesDao> list = new ArrayList<>();
 
         issuesRequest.setPlatform(IssuesManagePlatform.Jira.toString());
-        List<IssuesDao> issues = extIssuesMapper.getIssuesByCaseId(issuesRequest);
+        List<IssuesDao> issues;
+        if (StringUtils.isNotBlank(issuesRequest.getProjectId())) {
+            issues = extIssuesMapper.getIssuesByProjectId(issuesRequest);
+        } else {
+            issues = extIssuesMapper.getIssuesByCaseId(issuesRequest);
+        }
 
         String config = getPlatformConfig(IssuesManagePlatform.Jira.toString());
         JSONObject object = JSON.parseObject(config);
@@ -176,7 +181,7 @@ public class JiraPlatform extends AbstractIssuePlatform {
         }
         String auth = EncryptUtils.base64Encoding(account + ":" + password);
 
-        String jiraKey = getProjectId(null);
+        String jiraKey = getProjectId(issuesRequest.getProjectId());
 
 
         if (StringUtils.isBlank(jiraKey)) {
