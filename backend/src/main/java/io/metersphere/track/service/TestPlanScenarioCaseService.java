@@ -115,6 +115,7 @@ public class TestPlanScenarioCaseService {
         request.setScenarioTestPlanIdMap(scenarioIdApiScarionMap);
         request.setRunMode(ApiRunMode.SCENARIO_PLAN.name());
         request.setId(testPlanScenarioRequest.getId());
+        request.setExecuteType(ExecuteType.Saved.name());
         return apiAutomationService.run(request);
     }
 

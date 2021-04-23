@@ -8,8 +8,8 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.metersphere.api.dto.APIReportBatchRequest;
 import io.metersphere.api.dto.ApiTestImportRequest;
-import io.metersphere.api.dto.DeleteAPIReportRequest;
 import io.metersphere.api.dto.JmxInfoDTO;
 import io.metersphere.api.dto.ScenarioEnv;
 import io.metersphere.api.dto.automation.*;
@@ -328,7 +328,7 @@ public class ApiAutomationService {
         List<ApiScenarioReport> list = apiScenarioReportMapper.selectByExample(scenarioReportExample);
         if (CollectionUtils.isNotEmpty(list)) {
             List<String> ids = list.stream().map(ApiScenarioReport::getId).collect(Collectors.toList());
-            DeleteAPIReportRequest reportRequest = new DeleteAPIReportRequest();
+            APIReportBatchRequest reportRequest = new APIReportBatchRequest();
             reportRequest.setIds(ids);
             apiReportService.deleteAPIReportBatch(reportRequest);
         }
@@ -942,8 +942,13 @@ public class ApiAutomationService {
         }
         // 调用执行方法
         List<String> reportIds = new LinkedList<>();
-        HashTree hashTree = generateHashTree(apiScenarios, request, reportIds);
-        jMeterService.runSerial(JSON.toJSONString(reportIds), hashTree, request.getReportId(), runMode, request.getConfig());
+        try {
+            HashTree hashTree = generateHashTree(apiScenarios, request, reportIds);
+            jMeterService.runSerial(JSON.toJSONString(reportIds), hashTree, request.getReportId(), runMode, request.getConfig());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
         // jMeterService.runTest(JSON.toJSONString(reportIds), hashTree, runMode, false, request.getConfig());
         return request.getId();
     }
