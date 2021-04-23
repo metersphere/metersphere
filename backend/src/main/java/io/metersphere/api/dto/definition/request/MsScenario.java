@@ -201,7 +201,7 @@ public class MsScenario extends MsTestElement {
                 }
             });
         }
-        // HTTP放到请求中，按照域名匹配
+        // 环境通用变量
         if (config.isEffective(this.getProjectId()) && config.getConfig().get(this.getProjectId()).getCommonConfig() != null
                 && CollectionUtils.isNotEmpty(config.getConfig().get(this.getProjectId()).getCommonConfig().getVariables())) {
             config.getConfig().get(this.getProjectId()).getCommonConfig().getVariables().stream().filter(KeyValue::isValid).filter(KeyValue::isEnable).forEach(keyValue ->
