@@ -205,7 +205,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
             if (config.isEffective(this.getProjectId())) {
                 HttpConfig httpConfig = getHttpConfig(config.getConfig().get(this.getProjectId()).getHttpConfig(), tree);
                 if (httpConfig == null) {
-                    MSException.throwException(this.getName() + " 未匹配到环境，请检查环境配置");
+                    MSException.throwException("未匹配到环境，请检查环境配置");
                 }
                 String url = httpConfig.getProtocol() + "://" + httpConfig.getSocket();
                 // 补充如果是完整URL 则用自身URL
@@ -317,6 +317,11 @@ public class MsHTTPSamplerProxy extends MsTestElement {
             setHeader(httpSamplerTree, config.getConfig().get(this.getProjectId()).getHttpConfig().getHeaders());
         }
 
+        // 环境通用请求头
+        Arguments arguments = getConfigArguments(config);
+        if (arguments != null) {
+            httpSamplerTree.add(arguments);
+        }
         //判断是否要开启DNS
         if (config.isEffective(this.getProjectId()) && config.getConfig().get(this.getProjectId()).getCommonConfig() != null
                 && config.getConfig().get(this.getProjectId()).getCommonConfig().isEnableHost()) {
@@ -486,7 +491,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         if (httpConfig != null && (StringUtils.isEmpty(httpConfig.getProtocol()) || StringUtils.isEmpty(httpConfig.getSocket()))) {
             return null;
         }
-        // 环境中请求头
+        // HTTP 环境中请求头
         if (httpConfig != null) {
             Arguments arguments = arguments(httpConfig.getHeaders());
             if (arguments != null) {
@@ -494,6 +499,30 @@ public class MsHTTPSamplerProxy extends MsTestElement {
             }
         }
         return httpConfig;
+    }
+
+    /**
+     * 环境通用变量，这里只适用用接口定义和用例，场景自动化会加到场景中
+     */
+    private Arguments getConfigArguments(ParameterConfig config) {
+        Arguments arguments = new Arguments();
+        arguments.setEnabled(true);
+        arguments.setName(StringUtils.isNotEmpty(this.getName()) ? this.getName() : "Arguments");
+        arguments.setProperty(TestElement.TEST_CLASS, Arguments.class.getName());
+        arguments.setProperty(TestElement.GUI_CLASS, SaveService.aliasToClass("ArgumentsPanel"));
+        // 环境通用变量
+        if (config.isEffective(this.getProjectId()) && config.getConfig().get(this.getProjectId()).getCommonConfig() != null
+                && CollectionUtils.isNotEmpty(config.getConfig().get(this.getProjectId()).getCommonConfig().getVariables())) {
+            config.getConfig().get(this.getProjectId()).getCommonConfig().getVariables().stream().filter(KeyValue::isValid).filter(KeyValue::isEnable).forEach(keyValue ->
+                    arguments.addArgument(keyValue.getName(), keyValue.getValue(), "=")
+            );
+            // 清空变量，防止重复添加
+            config.getConfig().get(this.getProjectId()).getCommonConfig().getVariables().clear();
+        }
+        if (arguments.getArguments() != null && arguments.getArguments().size() > 0) {
+            return arguments;
+        }
+        return null;
     }
 
     private Arguments arguments(List<KeyValue> headers) {
