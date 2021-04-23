@@ -31,11 +31,13 @@ import io.metersphere.commons.constants.*;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.*;
 import io.metersphere.controller.request.ScheduleRequest;
+import io.metersphere.dto.BaseSystemConfigDTO;
 import io.metersphere.i18n.Translator;
 import io.metersphere.job.sechedule.ApiScenarioTestJob;
 import io.metersphere.job.sechedule.SwaggerUrlImportJob;
 import io.metersphere.job.sechedule.TestPlanTestJob;
 import io.metersphere.service.ScheduleService;
+import io.metersphere.service.SystemParameterService;
 import io.metersphere.track.dto.TestPlanDTO;
 import io.metersphere.track.request.testcase.ApiCaseRelevanceRequest;
 import io.metersphere.track.request.testcase.QueryTestPlanRequest;
@@ -48,7 +50,6 @@ import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.jorphan.collections.HashTree;
 import org.apache.jorphan.collections.ListedHashTree;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -105,6 +106,8 @@ public class ApiAutomationService {
     private ApiTestEnvironmentMapper apiTestEnvironmentMapper;
     @Resource
     private UserMapper userMapper;
+    @Resource
+    private SystemParameterService systemParameterService ;
 
     public ApiScenarioWithBLOBs getDto(String id) {
         return apiScenarioMapper.selectByPrimaryKey(id);
@@ -955,17 +958,15 @@ public class ApiAutomationService {
         return request.getId();
     }
 
-    @Value("${run.concurrency}")
-    private String concurrency;
-
     public String run(RunScenarioRequest request) {
         if (request.getConfig() != null && request.getConfig().getMode().equals("serial")) {
             return this.serialRun(request);
         } else {
             // 校验并发数量
             int count = 50;
-            if (StringUtils.isNotEmpty(concurrency)) {
-                count = Integer.parseInt(concurrency);
+            BaseSystemConfigDTO dto = systemParameterService.getBaseInfo();
+            if (StringUtils.isNotEmpty(dto.getConcurrency())) {
+                count = Integer.parseInt(dto.getConcurrency());
             }
             if (request.getIds().size() > count) {
                 MSException.throwException("并发数量过大，请重新选择！");
