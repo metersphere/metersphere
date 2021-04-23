@@ -152,9 +152,8 @@ export default {
     handleCopy(data) {
       let copyData = {};
       Object.assign(copyData, data);
-      copyData.id = null;
       copyData.name = data.name + '_copy';
-      this.$refs.templateEdit.open(copyData);
+      this.$refs.templateEdit.open(copyData, true);
     },
     handleDelete(data) {
       this.result = this.$get('field/template/issue/delete/' + data.id,  () => {
