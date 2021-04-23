@@ -48,6 +48,7 @@ import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.jorphan.collections.HashTree;
 import org.apache.jorphan.collections.ListedHashTree;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -594,7 +595,6 @@ public class ApiAutomationService {
         report.setProjectId(projectId);
         report.setScenarioName(scenarioName);
         report.setScenarioId(scenarioId);
-        apiScenarioReportMapper.insert(report);
         return report;
     }
 
@@ -696,7 +696,7 @@ public class ApiAutomationService {
      * @param request
      * @return
      */
-    public String abandonedRun(RunScenarioRequest request) {
+    public String parallelRun(RunScenarioRequest request) {
         ServiceUtils.getSelectAllIds(request, request.getCondition(),
                 (query) -> extApiScenarioMapper.selectIdsByQuery((ApiScenarioRequest) query));
 
@@ -823,6 +823,7 @@ public class ApiAutomationService {
                 // 创建场景报告
                 if (reportIds != null) {
                     //如果是测试计划页面触发的执行方式，生成报告时createScenarioReport第二个参数需要特殊处理
+                    APIScenarioReportResult report = null;
                     if (StringUtils.equals(request.getRunMode(), ApiRunMode.SCENARIO_PLAN.name())) {
                         String testPlanScenarioId = item.getId();
                         if (request.getScenarioTestPlanIdMap() != null && request.getScenarioTestPlanIdMap().containsKey(item.getId())) {
@@ -834,12 +835,13 @@ public class ApiAutomationService {
                                 scenario.setEnvironmentMap(JSON.parseObject(environment, Map.class));
                             }
                         }
-                        createScenarioReport(group.getName(), testPlanScenarioId, item.getName(), request.getTriggerMode() == null ? ReportTriggerMode.MANUAL.name() : request.getTriggerMode(),
+                        report = createScenarioReport(group.getName(), testPlanScenarioId, item.getName(), request.getTriggerMode() == null ? ReportTriggerMode.MANUAL.name() : request.getTriggerMode(),
                                 request.getExecuteType(), item.getProjectId(), request.getReportUserID(), request.getConfig());
                     } else {
-                        createScenarioReport(group.getName(), item.getId(), item.getName(), request.getTriggerMode() == null ? ReportTriggerMode.MANUAL.name() : request.getTriggerMode(),
+                        report = createScenarioReport(group.getName(), item.getId(), item.getName(), request.getTriggerMode() == null ? ReportTriggerMode.MANUAL.name() : request.getTriggerMode(),
                                 request.getExecuteType(), item.getProjectId(), request.getReportUserID(), request.getConfig());
                     }
+                    apiScenarioReportMapper.insert(report);
                     reportIds.add(group.getName());
                 }
                 group.setHashTree(scenarios);
@@ -909,7 +911,7 @@ public class ApiAutomationService {
      * @param request
      * @return
      */
-    public String run(RunScenarioRequest request) {
+    public String serialRun(RunScenarioRequest request) {
         ServiceUtils.getSelectAllIds(request, request.getCondition(),
                 (query) -> extApiScenarioMapper.selectIdsByQuery((ApiScenarioRequest) query));
         List<String> ids = request.getIds();
@@ -951,6 +953,25 @@ public class ApiAutomationService {
 
         // jMeterService.runTest(JSON.toJSONString(reportIds), hashTree, runMode, false, request.getConfig());
         return request.getId();
+    }
+
+    @Value("${run.concurrency}")
+    private String concurrency;
+
+    public String run(RunScenarioRequest request) {
+        if (request.getConfig() != null && request.getConfig().getMode().equals("serial")) {
+            return this.serialRun(request);
+        } else {
+            // 校验并发数量
+            int count = 50;
+            if (StringUtils.isNotEmpty(concurrency)) {
+                count = Integer.parseInt(concurrency);
+            }
+            if (request.getIds().size() > count) {
+                MSException.throwException("并发数量过大，请重新选择！");
+            }
+            return this.parallelRun(request);
+        }
     }
 
     public void checkScenarioIsRunning(List<String> ids) {
@@ -1013,8 +1034,9 @@ public class ApiAutomationService {
             MSException.throwException(e.getMessage());
         }
         // 调用执行方法
-        createScenarioReport(request.getId(), request.getScenarioId(), request.getScenarioName(), ReportTriggerMode.MANUAL.name(), request.getExecuteType(), request.getProjectId(),
+        APIScenarioReportResult report = createScenarioReport(request.getId(), request.getScenarioId(), request.getScenarioName(), ReportTriggerMode.MANUAL.name(), request.getExecuteType(), request.getProjectId(),
                 SessionUtils.getUserId(), null);
+        apiScenarioReportMapper.insert(report);
         // 调用执行方法
         // jMeterService.runTest(request.getId(), hashTree, ApiRunMode.SCENARIO.name(), true, null);
         // 调用执行方法
@@ -1037,11 +1059,6 @@ public class ApiAutomationService {
         if (CollectionUtils.isEmpty(request.getPlanIds())) {
             MSException.throwException(Translator.get("plan id is null "));
         }
-//        List<String> scenarioIds = request.getScenarioIds();
-//        if (request.isSelectAllDate()) {
-//            scenarioIds = this.getAllScenarioIdsByFontedSelect(
-//                    request.getModuleIds(), request.getName(), request.getProjectId(), request.getFilters(), request.getUnSelectIds());
-//        }
         Map<String, List<String>> mapping = request.getMapping();
         Map<String, String> envMap = request.getEnvMap();
         Set<String> set = mapping.keySet();
@@ -1158,7 +1175,6 @@ public class ApiAutomationService {
             testCaseReviewScenario.setUpdateTime(System.currentTimeMillis());
             testCaseReviewScenario.setEnvironment(JSON.toJSONString(newEnvMap));
             testCaseReviewScenarioMapper.insert(testCaseReviewScenario);
-
         });
     }
 

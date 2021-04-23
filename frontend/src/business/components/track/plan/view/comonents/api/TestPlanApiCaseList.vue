@@ -605,6 +605,7 @@ export default {
         let reqObj = {id: getUUID().substring(0, 8), testElement: testPlan, type: 'API_PLAN', reportId: "run", projectId: projectId};
         let bodyFiles = getBodyUploadFiles(reqObj, this.runData);
         this.$fileUpload("/api/definition/run", null, bodyFiles, reqObj, response => {
+          this.$message('任务执行中，请稍后刷新查看结果');
         });
       } else {
         testPlan.serializeThreadgroups = false;
@@ -617,10 +618,10 @@ export default {
         let reqObj = {id: getUUID().substring(0, 8), testElement: testPlan, type: 'API_PLAN', reportId: "run", projectId: projectId};
         let bodyFiles = getBodyUploadFiles(reqObj, this.runData);
         this.$fileUpload("/api/definition/run", null, bodyFiles, reqObj, response => {
+          this.$message('任务执行中，请稍后刷新查看结果');
         });
       }
       this.search();
-      this.$message('任务执行中，请稍后刷新查看结果');
     },
     autoCheckStatus() { //  检查执行结果，自动更新计划状态
       if (!this.planId) {

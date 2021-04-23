@@ -43,6 +43,7 @@ import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
 import org.apache.jorphan.collections.HashTree;
 import org.aspectj.util.FileUtil;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -293,7 +294,8 @@ public class ApiDefinitionService {
             test.setTags(request.getTags());
         } else {
             test.setTags(null);
-        }        this.setModule(test);
+        }
+        this.setModule(test);
         apiDefinitionMapper.updateByPrimaryKeySelective(test);
         return test;
     }
@@ -526,6 +528,9 @@ public class ApiDefinitionService {
         }
     }
 
+    @Value("${run.concurrency}")
+    private String concurrency;
+
     /**
      * 测试执行
      *
@@ -534,6 +539,13 @@ public class ApiDefinitionService {
      * @return
      */
     public String run(RunDefinitionRequest request, List<MultipartFile> bodyFiles) {
+        int count = 100;
+        if (StringUtils.isNotEmpty(concurrency)) {
+            count = Integer.parseInt(concurrency);
+        }
+        if (request.getTestElement() != null && request.getTestElement().getHashTree().size() == 1 && request.getTestElement().getHashTree().get(0).getHashTree().size() > count) {
+            MSException.throwException("并发数量过大，请重新选择！");
+        }
         List<String> bodyUploadIds = new ArrayList<>(request.getBodyUploadIds());
         FileUtils.createBodyFiles(bodyUploadIds, bodyFiles);
 
