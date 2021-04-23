@@ -486,7 +486,11 @@ export default {
 /deep/ .el-drawer__header {
   margin-bottom: 0px;
 }
-/deep/ .el-table__fixed-body-wrapper {
-  top: 59px !important;
+
+.ms-select-all-fixed >>> th:nth-child(2) .el-icon-arrow-down {
+  top: -3px;
 }
+/*/deep/ .el-table__fixed-body-wrapper {*/
+/*  top: 59px !important;*/
+/*}*/
 </style>
