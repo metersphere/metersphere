@@ -237,7 +237,7 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
             TestPlanApiCase testPlanApiCase = testPlanApiCaseService.getInfo(testResult.getTestId(), debugReportId);
             String name = apiAutomationService.get(testPlanApiCase.getEnvironmentId()).getName();
             //时间
-            Long time = apiTestCaseWithBLOBs.getUpdateTime();
+            Long time = apiTestCaseWithBLOBs.getCreateTime();
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             String executionTime = null;
             String time_ = String.valueOf(time);
@@ -250,8 +250,13 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
 
             //报告内容
             reportTask = new ApiTestReportVariable();
-            reportTask.setStatus(apiResult.getStatus());
-            reportTask.setId(apiResult.getId());
+            if (null != apiResult) {
+                reportTask.setStatus(apiResult.getStatus());
+                reportTask.setId(apiResult.getId());
+            } else {
+                reportTask.setStatus(testPlanApiCase.getStatus());
+                reportTask.setId(testPlanApiCase.getId());
+            }
             reportTask.setTriggerMode("API");
             reportTask.setName(apiTestCaseWithBLOBs.getName());
             reportTask.setExecutor(userName);
@@ -280,22 +285,24 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
             ApiScenarioWithBLOBs apiScenario = apiAutomationService.getDto(scenarioReport.getScenarioId());
             String executionEnvironment = apiScenario.getScenarioDefinition();
             JSONObject json = JSONObject.parseObject(executionEnvironment);
-            JSONObject environment = JSONObject.parseObject(json.getString("environmentMap"));
-            String environmentId = environment.get(apiScenario.getProjectId()).toString();
-            String name = apiAutomationService.get(environmentId).getName();
+            String name = "";
+            if (json.getString("environmentMap").length() > 0) {
+                JSONObject environment = JSONObject.parseObject(json.getString("environmentMap"));
+                String environmentId = environment.get(apiScenario.getProjectId()).toString();
+                name = apiAutomationService.get(environmentId).getName();
+            }
+
 
             //时间
-            Long time = apiScenario.getUpdateTime();
+            Long time = scenarioReport.getUpdateTime();
             SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
             String executionTime = null;
             String time_ = String.valueOf(time);
             if (!time_.equals("null")) {
                 executionTime = sdf.format(new Date(Long.parseLong(time_)));
             }
-
             //执行人
             String userName = apiAutomationService.getUser(apiScenario.getUserId()).getName();
-
             //报告内容
             reportTask = new ApiTestReportVariable();
             reportTask.setStatus(scenarioReport.getStatus());
@@ -309,7 +316,6 @@ public class APIBackendListenerClient extends AbstractBackendListenerClient impl
             assert systemParameterService != null;
             BaseSystemConfigDTO baseSystemConfigDTO = systemParameterService.getBaseInfo();
             reportUrl = baseSystemConfigDTO.getUrl() + "/#/api/automation/report";
-
             testResult.setTestId(scenarioReport.getScenarioId());
         } else {
             apiTestService.changeStatus(testId, APITestStatus.Completed);
