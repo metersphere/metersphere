@@ -64,19 +64,19 @@ public class IssuesController {
         issuesService.delete(id);
     }
 
-    @GetMapping("/tapd/user/{caseId}")
-    public List<PlatformUser> getTapdUsers(@PathVariable String caseId) {
-        return issuesService.getTapdProjectUsers(caseId);
+    @PostMapping("/tapd/user")
+    public List<PlatformUser> getTapdUsers(@RequestBody IssuesRequest request) {
+        return issuesService.getTapdProjectUsers(request);
     }
 
-    @GetMapping("/zentao/user/{caseId}")
-    public List<PlatformUser> getZentaoUsers(@PathVariable String caseId) {
-        return issuesService.getZentaoUsers(caseId);
+    @PostMapping("/zentao/user")
+    public List<PlatformUser> getZentaoUsers(@RequestBody IssuesRequest request) {
+        return issuesService.getZentaoUsers(request);
     }
 
-    @GetMapping("/zentao/builds/{caseId}")
-    public List<ZentaoBuild> getZentaoBuilds(@PathVariable String caseId) {
-        return issuesService.getZentaoBuilds(caseId);
+    @PostMapping("/zentao/builds")
+    public List<ZentaoBuild> getZentaoBuilds(@RequestBody IssuesRequest request) {
+        return issuesService.getZentaoBuilds(request);
     }
 
 

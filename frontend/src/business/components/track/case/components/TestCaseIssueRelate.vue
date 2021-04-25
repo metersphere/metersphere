@@ -28,7 +28,7 @@
         :label="$t('test_track.issue.status')"
         prop="status">
         <template v-slot="scope">
-          <span>{{ issueStatusMap[scope.row.status] }}</span>
+          <span>{{ issueStatusMap[scope.row.status] ? issueStatusMap[scope.row.status] : scope.row.status }}</span>
         </template>
       </ms-table-column>
 
