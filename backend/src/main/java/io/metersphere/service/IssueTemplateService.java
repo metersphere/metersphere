@@ -164,10 +164,11 @@ public class IssueTemplateService extends TemplateBaseService {
     public List<IssueTemplate> getOption(String workspaceId) {
         IssueTemplateExample example = new IssueTemplateExample();
         example.createCriteria()
-                .andWorkspaceIdEqualTo(workspaceId)
-                .andSystemEqualTo(false);
+                .andWorkspaceIdEqualTo(workspaceId);
+        example.or().andGlobalEqualTo(true);
+//                .andSystemEqualTo(false);
         List<IssueTemplate> issueTemplates = issueTemplateMapper.selectByExample(example);
-        issueTemplates.add(getDefaultTemplate(workspaceId));
+//        issueTemplates.add(getDefaultTemplate(workspaceId));
         return issueTemplates;
     }
 
