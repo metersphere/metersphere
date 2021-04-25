@@ -156,12 +156,15 @@ public class JmeterDocumentParser {
                     if (!StringUtils.equals("?", u)) {
                         u += "&";
                     }
-                    v = ScriptEngineUtils.calculate(v);
-                    // urlencoder
-                    try {
-                        v = URLEncoder.encode(v, "UTF-8");
-                    } catch (UnsupportedEncodingException e) {
-                        LogUtil.error(e);
+                    // 排除 jmeter 内置的函数
+                    if (!v.startsWith("$")) {
+                        v = ScriptEngineUtils.calculate(v);
+                        // urlencoder
+                        try {
+                            v = URLEncoder.encode(v, "UTF-8");
+                        } catch (UnsupportedEncodingException e) {
+                            LogUtil.error(e);
+                        }
                     }
                     u += k + "=" + v;
                     return u;
