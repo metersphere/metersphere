@@ -4,9 +4,8 @@
       <el-link
         :class="{'selected-link': selectDataCounts === total}"
         @click.native.stop="click('selectAll')"
-        :type="selectAllLinkType"
         ref="selectAllLink">
-        <span>
+        <span :style="selectAllFontColor">
           {{ $t('api_test.batch_menus.select_all_data', [total]) }}
         </span>
 
@@ -16,9 +15,8 @@
       <el-link
         :class="{'selected-link': selectDataCounts === this.pageSize}"
         @click.native.stop="click('selectPageAll')"
-        :type="selectPageLinkType"
         ref="selectPageAllLink">
-          <span>
+          <span :style="selectPageFontColor">
             {{ $t('api_test.batch_menus.select_show_data', [pageSize]) }}
           </span>
       </el-link>
@@ -56,45 +54,52 @@
         return {
           selectType: "",
           isShow: true,
-          selectAllLinkType: "info",
-          selectPageLinkType: "info",
+          selectAllFontColor: {
+            color: "gray",
+          },
+          selectPageFontColor: {
+            color: "gray",
+          },
+
         };
       },
       watch: {
-        selectDataCounts() {
-          this.reload();
-        },
-        total() {
-          this.reload();
-        }
+        // selectDataCounts() {
+        //   this.reload();
+        // },
+        // total() {
+        //   this.reload();
+        // }
       },
       methods: {
         click(even) {
           if (even === 'selectPageAll') {
-            this.selectAllLinkType = "info";
-            this.selectPageLinkType = "primary";
+            this.selectPageFontColor.color = document.body.style.getPropertyValue("--count_number");
+            this.selectAllFontColor.color = "gray";
+
           } else if (even === 'selectAll') {
-            this.selectAllLinkType = "primary";
-            this.selectPageLinkType = "info";
+            this.selectAllFontColor.color = document.body.style.getPropertyValue("--count_number");
+            this.selectPageFontColor.color = "gray";
+
           } else {
-            this.selectAllLinkType = "info";
-            this.selectPageLinkType = "info";
+            this.selectAllSimpleStyle.color = "gray";
+            this.selectPageFontColor.color = "gray";
           }
           this.$emit(even);
-          this.isShow = false;
-          this.$nextTick(() => {
-            this.isShow = true;
-          });
+          // this.isShow = false;
+          // this.$nextTick(() => {
+          //   this.isShow = true;
+          // });
 
         },
-        reload() {
-          this.isShow = false;
-          this.selectAllLinkType = "info";
-          this.selectPageLinkType = "info";
-          this.$nextTick(() => {
-            this.isShow = true;
-          });
-        }
+        // reload() {
+        //   this.isShow = false;
+        //   this.selectAllLinkType = "info";
+        //   this.selectPageLinkType = "info";
+        //   this.$nextTick(() => {
+        //     this.isShow = true;
+        //   });
+        // }
       }
     }
 </script>
