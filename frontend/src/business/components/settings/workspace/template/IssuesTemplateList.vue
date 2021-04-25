@@ -134,7 +134,7 @@ export default {
       return ISSUE_PLATFORM_OPTION;
     },
     tableHeight() {
-      return getDefaultTableHeight;
+      return getDefaultTableHeight();
     }
   },
   methods: {

@@ -143,7 +143,7 @@ export default {
       return CASE_TYPE_OPTION;
     },
     tableHeight() {
-      return getDefaultTableHeight;
+      return getDefaultTableHeight();
     }
   },
   methods: {
