@@ -447,6 +447,7 @@ export default {
     test_request_statistics: '请求统计',
     test_error_log: '错误记录',
     test_log_details: '日志详情',
+    test_monitor_details: '监控详情',
     test_details: '测试详情',
     test_duration: '当前执行时长：{0} 分钟 {1} 秒',
     test_start_time: '开始执行时间',

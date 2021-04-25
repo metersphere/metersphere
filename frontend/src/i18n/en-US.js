@@ -440,6 +440,7 @@ export default {
     test_request_statistics: 'Test Request Statistics',
     test_error_log: 'Test Error Log',
     test_log_details: 'Test Log Details',
+    test_monitor_details: 'Test Monitor Details',
     test_details: 'Test Details',
     test_duration: 'Current Execution Time：{0} minutes {1} seconds',
     test_start_time: 'Start Execution Time',
