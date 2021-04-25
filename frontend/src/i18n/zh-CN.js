@@ -624,6 +624,9 @@ export default {
       req_param: "请求参数",
       rsp_param: "响应内容",
       delete_mock_expect: "确认删除这条预期吗？",
+      rule: {
+        input_code: "请输入 HTTP Code"
+      }
     },
     definition: {
       api_title: "接口列表",

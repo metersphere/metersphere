@@ -26,15 +26,21 @@
                     @keyup.enter.native="initApiDocSimpleList()" v-model="apiSearch.name"/>
           <api-document-batch-share v-xpack v-if="showXpackCompnent" @shareApiDocument="shareApiDocument" :project-id="projectId" :share-url="batchShareUrl" style="float: right;margin: 6px;font-size: 17px"/>
         </el-row>
-        <el-row v-else style="margin-top: 0px;position: fixed;float: right;margin-right: 0px;margin-left: 400px;top: 150px; right: 90px;">
-          <el-select size="small" :placeholder="$t('api_test.definition.document.order')" v-model="apiSearch.orderCondition" style="float: right;width: 180px;margin-right: 5px"
+        <el-row v-else
+                style="margin-top: 0px;position: fixed;float: right;margin-right: 0px;margin-left: 400px;top: 150px; right: 90px; z-index: 9999">
+          <el-select size="small" :placeholder="$t('api_test.definition.document.order')"
+                     v-model="apiSearch.orderCondition" style="float: right;width: 180px;margin-right: 5px"
                      class="ms-api-header-select" @change="initApiDocSimpleList" clearable>
-            <el-option key="createTimeDesc" :label="$t('api_test.definition.document.create_time_sort')" value="createTimeDesc" />
-            <el-option key="editTimeAsc" :label="$t('api_test.definition.document.edit_time_positive_sequence')" value="editTimeAsc"/>
-            <el-option key="editTimeDesc" :label="$t('api_test.definition.document.edit_time_Reverse_order')" value="editTimeDesc"/>
+            <el-option key="createTimeDesc" :label="$t('api_test.definition.document.create_time_sort')"
+                       value="createTimeDesc"/>
+            <el-option key="editTimeAsc" :label="$t('api_test.definition.document.edit_time_positive_sequence')"
+                       value="editTimeAsc"/>
+            <el-option key="editTimeDesc" :label="$t('api_test.definition.document.edit_time_Reverse_order')"
+                       value="editTimeDesc"/>
           </el-select>
 
-          <el-select size="small" :placeholder="$t('api_test.definition.document.request_method')" v-model="apiSearch.type" style="float: right;width: 180px;margin-right: 5px"
+          <el-select size="small" :placeholder="$t('api_test.definition.document.request_method')"
+                     v-model="apiSearch.type" style="float: right;width: 180px;margin-right: 5px"
                      class="ms-api-header-select" @change="initApiDocSimpleList" clearable>
             <el-option key="ALL" :label="$t('api_test.definition.document.data_set.all')" value="ALL"/>
             <el-option key="GET" :label="'GET '+$t('api_test.definition.document.request_interface')" value="GET"/>
