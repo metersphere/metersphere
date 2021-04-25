@@ -150,6 +150,12 @@
             return this.$t("api_test.definition.api_path");
         }
       },
+      clearHisData() {
+        this.httpConfig.socket = undefined;
+        this.httpConfig.protocol = undefined;
+        this.httpConfig.port = undefined;
+        this.httpConfig.domain = undefined;
+      },
       getDetails(row) {
         if (row && row.type === "MODULE") {
           if (row.details && row.details instanceof Array) {
@@ -250,7 +256,7 @@
         return index > 1;
       },
       add() {
-        if (this.condition.type ==="NONE" && this.checkNode()) {
+        if (this.condition.type === "NONE" && this.checkNode()) {
           this.$warning("启用条件为 '无' 的域名已经存在请更新！");
           return;
         }
@@ -265,14 +271,12 @@
           obj.details = this.condition.details ? JSON.parse(JSON.stringify(this.condition.details)) : this.condition.details;
         }
         this.httpConfig.conditions.unshift(obj);
-        this.httpConfig.socket = null;
-        this.httpConfig.protocol = null;
-        this.httpConfig.port = null;
-        this.httpConfig.domain = null;
+        this.clearHisData();
       },
       remove(row) {
         const index = this.httpConfig.conditions.findIndex((d) => d.id === row.id);
         this.httpConfig.conditions.splice(index, 1);
+        this.clearHisData();
       },
       copy(row) {
         if (row.type === "NONE") {

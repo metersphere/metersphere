@@ -204,7 +204,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
         try {
             if (config.isEffective(this.getProjectId())) {
                 HttpConfig httpConfig = getHttpConfig(config.getConfig().get(this.getProjectId()).getHttpConfig(), tree);
-                if (httpConfig == null) {
+                if (httpConfig == null && !isURL(this.getUrl())) {
                     MSException.throwException("未匹配到环境，请检查环境配置");
                 }
                 String url = httpConfig.getProtocol() + "://" + httpConfig.getSocket();
@@ -228,10 +228,9 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                     sampler.setProtocol(urlObject.getProtocol());
                     sampler.setPath(urlObject.getPath());
                 } else {
-                    sampler.setDomain(httpConfig.getDomain());
                     //1.9 增加对Mock环境的判断
                     if (this.isMockEnvironment()) {
-                        url = url = httpConfig.getProtocol() + "://" + httpConfig.getSocket() + "/mock/" + this.getProjectId();
+                        url = httpConfig.getProtocol() + "://" + httpConfig.getSocket() + "/mock/" + this.getProjectId();
                     } else {
                         url = httpConfig.getProtocol() + "://" + httpConfig.getSocket();
                     }
@@ -240,8 +239,14 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                     if (StringUtils.isNotBlank(this.getPath())) {
                         envPath += this.getPath();
                     }
+                    if (StringUtils.isNotEmpty(httpConfig.getDomain())) {
+                        sampler.setDomain(httpConfig.getDomain());
+                        sampler.setProtocol(httpConfig.getProtocol());
+                    } else {
+                        sampler.setDomain("");
+                        sampler.setProtocol("");
+                    }
                     sampler.setPort(httpConfig.getPort());
-                    sampler.setProtocol(httpConfig.getProtocol());
                     sampler.setPath(envPath);
                 }
                 String envPath = sampler.getPath();
@@ -258,7 +263,7 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                         String port = sampler.getPort() != 80 ? ":" + sampler.getPort() : "";
                         path = sampler.getProtocol() + "://" + sampler.getDomain() + port + path;
                     }
-                    sampler.setPath(path);
+                    sampler.setProperty("HTTPSampler.path", path);
                 }
             } else {
                 String url = this.getUrl();
@@ -487,9 +492,6 @@ public class MsHTTPSamplerProxy extends MsTestElement {
                     }
                 }
             }
-        }
-        if (httpConfig != null && (StringUtils.isEmpty(httpConfig.getProtocol()) || StringUtils.isEmpty(httpConfig.getSocket()))) {
-            return null;
         }
         // HTTP 环境中请求头
         if (httpConfig != null) {

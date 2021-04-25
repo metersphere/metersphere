@@ -35,6 +35,15 @@
           </span>
 
           <div v-if="apiCase.id" style="color: #999999;font-size: 12px">
+             <span v-if="api.protocol==='HTTP'">
+                <el-tag size="mini"
+                        :style="{'background-color': getColor(true, apiCase.request.method), border: getColor(true, apiCase.request.method)}"
+                        class="api-el-tag">
+                {{ apiCase.request.method }}
+              </el-tag>
+               {{apiCase.request.path}}
+               <br/>
+             </span>
             <span>
               {{ apiCase.createTime | timestampFormatDate }}
               {{ apiCase.createUser }} {{ $t('api_test.definition.request.create_info') }}
@@ -95,7 +104,7 @@
         <!-- HTTP 请求返回数据 -->
         <p class="tip">{{$t('api_test.definition.request.res_param')}}</p>
         <div v-if="showXpackCompnent&&api.method==='ESB'">
-          <esb-definition-response v-xpack v-if="showXpackCompnent"  :currentProtocol="apiCase.request.protocol" :request="apiCase.request" :is-api-component="false" :show-options-button="false" :show-header="true" :api-item="apiCase"/>
+          <esb-definition-response v-xpack v-if="showXpackCompnent" :currentProtocol="apiCase.request.protocol" :request="apiCase.request" :is-api-component="false" :show-options-button="false" :show-header="true" :api-item="apiCase"/>
         </div>
         <div v-else>
           <api-response-component :currentProtocol="apiCase.request.protocol" :api-item="apiCase"/>
@@ -133,6 +142,7 @@
   const requireComponent = require.context('@/business/components/xpack/', true, /\.vue$/);
   const esbDefinition = (requireComponent != null && requireComponent.keys().length) > 0 ? requireComponent("./apidefinition/EsbDefinition.vue") : {};
   const esbDefinitionResponse = (requireComponent != null && requireComponent.keys().length) > 0 ? requireComponent("./apidefinition/EsbDefinitionResponse.vue") : {};
+  import {API_METHOD_COLOUR} from "../../model/JsonData";
 
   export default {
     name: "ApiCaseItem",
@@ -173,6 +183,7 @@
           {name: this.$t('api_test.automation.batch_execute'), handleClick: this.handleRunBatch},
           {name: this.$t('test_track.case.batch_edit_case'), handleClick: this.handleEditBatch}
         ],
+        methodColorMap: new Map(API_METHOD_COLOUR),
       }
     },
     props: {
@@ -207,6 +218,11 @@
     methods: {
       handleRunBatch() {
         this.$emit('batchRun');
+      },
+      getColor(enable, method) {
+        if (enable) {
+          return this.methodColorMap.get(method);
+        }
       },
       handleEditBatch() {
         this.$emit('batchEditCase');
@@ -281,7 +297,7 @@
         let data = this.api;
         data.name = this.apiCase.name;
         data.moduleId = module;
-        data.modulePath ="/"+ this.$t('commons.module_title');
+        data.modulePath = "/" + this.$t('commons.module_title');
         this.setParameters(data);
         let bodyFiles = this.getBodyUploadFiles(data);
         this.$fileUpload("/api/definition/create", null, bodyFiles, data, () => {
@@ -291,7 +307,7 @@
           }
         });
       },
-      saveCase(row,hideAlert) {
+      saveCase(row, hideAlert) {
         let tmp = JSON.parse(JSON.stringify(row));
         this.isShowInput = false;
         if (this.validate(tmp)) {
@@ -328,18 +344,18 @@
           row.createTime = data.createTime;
           row.updateTime = data.updateTime;
           if (!row.message) {
-            if(!hideAlert){
+            if (!hideAlert) {
               this.$success(this.$t('commons.save_success'));
               this.$emit('refresh');
             }
           }
         });
       },
-      saveTestCase(row,hideAlert) {
+      saveTestCase(row, hideAlert) {
         if (this.api.saved) {
           this.addModule(row);
         } else {
-          this.saveCase(row,hideAlert);
+          this.saveCase(row, hideAlert);
         }
       },
       showInput(row) {
@@ -427,6 +443,12 @@
     position: fixed;
     left: 60px;
     z-index: 1;
+  }
+
+  .api-el-tag {
+    margin-left: 20px;
+    margin-right: 10px;
+    color: white;
   }
 
   .tag-item {

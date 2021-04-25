@@ -12,7 +12,7 @@ public class TestResult {
 
     private String testId;
 
-    private String reportName;
+    private String setReportId;
 
     private String userId;
 
