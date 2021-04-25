@@ -46,6 +46,11 @@ export function setUnSelectIds(tableData, condition, selectRows) {
     return ids.indexOf(val) === -1;
   });
   if (condition.unSelectIds) {
+    //首先将选择的ID从unSelectIds中排除
+    condition.unSelectIds = condition.unSelectIds.filter(function (val) {
+      return ids.indexOf(val) === -1;
+    });
+    //去掉unselectIds中存在的ID
     let needPushIds = thisUnSelectIds.filter(function (val) {
       return condition.unSelectIds.indexOf(val) === -1;
     });

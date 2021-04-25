@@ -413,7 +413,9 @@ public class ApiAutomationService {
                             http.setUrl(null);
                         } else {
                             ApiDefinition apiDefinition = apiDefinitionService.get(tr.getId());
-                            http.setUrl(apiDefinition.getPath());
+                            if (apiDefinition != null) {
+                                http.setUrl(apiDefinition.getPath());
+                            }
                         }
                         if (http.isEnable()) {
                             if (StringUtils.isBlank(http.getUrl()) || !tr.isURL(http.getUrl())) {
@@ -424,10 +426,14 @@ public class ApiAutomationService {
                     } else if (StringUtils.equals(tr.getType(), "JDBCSampler") || StringUtils.equals(tr.getType(), "TCPSampler")) {
                         if (StringUtils.equals(tr.getRefType(), "CASE")) {
                             ApiTestCaseWithBLOBs apiTestCaseWithBLOBs = apiTestCaseService.get(tr.getId());
-                            env.getProjectIds().add(apiTestCaseWithBLOBs.getProjectId());
+                            if (apiTestCaseWithBLOBs != null) {
+                                env.getProjectIds().add(apiTestCaseWithBLOBs.getProjectId());
+                            }
                         } else {
                             ApiDefinition apiDefinition = apiDefinitionService.get(tr.getId());
-                            env.getProjectIds().add(apiDefinition.getProjectId());
+                            if (apiDefinition != null) {
+                                env.getProjectIds().add(apiDefinition.getProjectId());
+                            }
                         }
                     } else if (StringUtils.equals(tr.getType(), "scenario")) {
                         if (tr.isEnable()) {

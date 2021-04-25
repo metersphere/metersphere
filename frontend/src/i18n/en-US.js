@@ -615,6 +615,9 @@ export default {
       req_param: "Request params",
       rsp_param: "Response Params",
       delete_mock_expect: "Confirm to delete this expect info ?",
+      rule: {
+        input_code: "Please input HTTP Code"
+      }
     },
     definition: {
       api_title: "Api test",

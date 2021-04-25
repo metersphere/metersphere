@@ -2,7 +2,6 @@
 
   <div class="card-container">
     <el-card class="card-content" v-loading="httpForm.loading">
-
       <el-form :model="httpForm" :rules="rule" ref="httpForm" label-width="80px" label-position="right">
         <!-- 操作按钮 -->
         <div style="float: right;margin-right: 20px">
@@ -190,6 +189,10 @@
           return this.mockBaseUrl + "/mock/" + this.projectId;
         } else {
           let path = this.httpForm.path;
+          let prefix = "";
+          if (path.endsWith("/")) {
+            prefix = "/";
+          }
           let protocol = this.httpForm.method;
           if (protocol === 'GET' || protocol === 'DELETE') {
             if (this.httpForm.request != null && this.httpForm.request.rest != null) {
@@ -215,7 +218,8 @@
               }
             }
           }
-          return this.mockBaseUrl + "/mock/" + this.projectId + path;
+
+          return this.mockBaseUrl + "/mock/" + this.projectId + path + prefix;
         }
       }
     },
@@ -316,6 +320,7 @@
 
           this.$post('/mockConfig/genMockConfig', mockParam, response => {
             let mockConfig = response.data;
+            mockConfig.apiName = this.httpForm.name;
             this.$emit('mockConfig', mockConfig);
           });
         }
