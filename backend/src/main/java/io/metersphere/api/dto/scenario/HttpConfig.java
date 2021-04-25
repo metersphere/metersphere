@@ -13,16 +13,10 @@ public class HttpConfig {
     private String socket;
     private String domain;
     private String protocol = "https";
-    private String defaultCondition;
     private int port;
     private boolean isMock;
     private List<HttpConfigCondition> conditions;
     private List<KeyValue> headers;
-
-
-    public boolean isNode(String type) {
-        return StringUtils.equals(defaultCondition, type);
-    }
 
     public HttpConfig initHttpConfig(HttpConfigCondition configCondition) {
         HttpConfig config = new HttpConfig();

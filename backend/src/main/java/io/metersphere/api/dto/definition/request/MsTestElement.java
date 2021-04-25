@@ -287,8 +287,12 @@ public abstract class MsTestElement {
         }
         return "";
     }
+
     public boolean isURL(String str) {
         try {
+            if (StringUtils.isEmpty(str)) {
+                return false;
+            }
             new URL(str);
             return true;
         } catch (Exception e) {

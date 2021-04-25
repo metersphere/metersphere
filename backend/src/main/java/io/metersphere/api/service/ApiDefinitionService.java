@@ -366,7 +366,9 @@ public class ApiDefinitionService {
         BeanUtils.copyBean(saveReq, apiDefinition);
         apiDefinition.setCreateTime(System.currentTimeMillis());
         apiDefinition.setUpdateTime(System.currentTimeMillis());
-        apiDefinition.setStatus(APITestStatus.Underway.name());
+        if(StringUtils.isEmpty(apiDefinition.getStatus())) {
+            apiDefinition.setStatus(APITestStatus.Underway.name());
+        }
         if (apiDefinition.getUserId() == null) {
             apiDefinition.setUserId(Objects.requireNonNull(SessionUtils.getUser()).getId());
         } else {
