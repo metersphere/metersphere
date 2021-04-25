@@ -88,6 +88,16 @@ CREATE TABLE IF NOT EXISTS `issue_template` (
 INSERT INTO issue_template (id,`name`,platform,description,title,`global`,`system`,workspace_id,content,create_time,update_time)
 VALUES ('5d7c87d2-f405-4ec1-9a3d-71b514cdfda3','default','metersphere','','',1,1,'global','',unix_timestamp() * 1000,unix_timestamp() * 1000);
 
+insert into issue_template (id,name,platform,description,title,`system`,`global`,workspace_id,content,create_time,update_time)
+values ('c7f26296-cf62-4149-a4d2-ce2492729e41','JIRA-默认模版','Jira','JIRA默认模版','',1,1,'global','',unix_timestamp() * 1000,unix_timestamp() * 1000);
+
+insert into issue_template (id,name,platform,description,title,`system`,`global`,workspace_id,content,create_time,update_time)
+values ('f2b70824-471e-426e-9219-f82aba6dd560','禅道-默认模版','Zentao','禅道默认模版','',1,1,'global','', unix_timestamp() * 1000,unix_timestamp() * 1000);
+
+insert into issue_template (id,name,platform,description,title,`system`,`global`,workspace_id,content,create_time,update_time)
+values ('f2cd9e48-f136-4528-8249-a649c15aa3a4','TAPD-默认模版','Tapd','TAPD默认模版','',1,1,'global','',unix_timestamp() * 1000,unix_timestamp() * 1000);
+
+
 -- 字段模板关联表
 CREATE TABLE IF NOT EXISTS `custom_field_template` (
     `id`                varchar(50) NOT NULL COMMENT 'Custom field field template related id',
