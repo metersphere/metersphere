@@ -24,9 +24,9 @@ export const CASE_TYPE_OPTION = [
 
 export const ISSUE_PLATFORM_OPTION = [
   {value: 'metersphere',text: 'Metersphere'},
-  {value: 'Jira',text: 'JIRA'},
-  {value: 'Tapd',text: 'Tapd'},
-  {value: 'Zentao',text: '禅道'},
+  // {value: 'Jira',text: 'JIRA'},
+  // {value: 'Tapd',text: 'Tapd'},
+  // {value: 'Zentao',text: '禅道'},
 ];
 
 export const FIELD_TYPE_MAP = {
