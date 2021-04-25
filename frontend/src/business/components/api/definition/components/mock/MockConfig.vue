@@ -266,8 +266,7 @@ export default {
       let mockConfigId = this.mockConfigData.mockConfig.id;
       this.mockExpectConfig.mockConfigId = mockConfigId;
       this.mockExpectConfig.id = "";
-      let formCheckResult = this.checkMockExpectForm("mockExpectForm");
-      this.cleanMockExpectConfig();
+      let formCheckResult = this.checkMockExpectForm("mockExpectForm", true);
     },
     cleanMockExpectConfig() {
       this.showHeadTable = false;
@@ -294,13 +293,16 @@ export default {
     updateMockExpectConfig() {
       this.checkMockExpectForm("mockExpectForm");
     },
-    uploadMockExpectConfig() {
+    uploadMockExpectConfig(clearForm) {
       let url = "/mockConfig/updateMockExpectConfig";
       let param = this.mockExpectConfig;
       this.$post(url, param, response => {
         let returnData = response.data;
         this.mockExpectConfig.id = returnData.id;
         this.refreshMockInfo(param.mockConfigId);
+        if (clearForm) {
+          this.cleanMockExpectConfig();
+        }
         this.$message({
           type: 'success',
           message: this.$t('commons.save_success'),
@@ -314,10 +316,10 @@ export default {
         this.mockConfigData = response.data;
       });
     },
-    checkMockExpectForm(formName) {
+    checkMockExpectForm(formName, clearForm) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
-          this.uploadMockExpectConfig();
+          this.uploadMockExpectConfig(clearForm);
           return true;
         } else {
           return false;

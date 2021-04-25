@@ -935,6 +935,7 @@ public class TestPlanService {
                             planScenarioID + ":" + request.getTestPlanReportId(),
                             item.getName(), request.getTriggerMode() == null ? ReportTriggerMode.MANUAL.name() : request.getTriggerMode(),
                             request.getExecuteType(), item.getProjectId(), request.getReportUserID(),null);
+                    apiScenarioReportMapper.insert(report);
                     group.setHashTree(scenarios);
                     testPlan.getHashTree().add(group);
                     returnId = request.getId();
@@ -1056,7 +1057,6 @@ public class TestPlanService {
 
         //执行场景执行任务
         if (!planScenarioIdMap.isEmpty()) {
-            LogUtil.info("-------------- testplan schedule ---------- api case over -----------------");
             SchedulePlanScenarioExecuteRequest scenarioRequest = new SchedulePlanScenarioExecuteRequest();
             String senarionReportID = UUID.randomUUID().toString();
             scenarioRequest.setId(senarionReportID);
@@ -1076,7 +1076,6 @@ public class TestPlanService {
                 scenarioIsExcuting = true;
                 scenarioCaseIdArray= JSONArray.toJSONString(new ArrayList<>(planScenarioIdMap.keySet()));
             }
-            LogUtil.info("-------------- testplan schedule ---------- scenario case over -----------------");
         }
 
 
