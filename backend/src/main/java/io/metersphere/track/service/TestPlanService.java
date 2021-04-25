@@ -511,20 +511,23 @@ public class TestPlanService {
 
                         }
                         if(StringUtils.equals(l.getTestType(),TestCaseStatus.testcase.name())){
-                            TestPlanApiCase t=new TestPlanApiCase();
-                            ApiTestCaseWithBLOBs apitest=apiTestCaseMapper.selectByPrimaryKey(l.getTestId());
-                            ApiDefinitionWithBLOBs apidefinition=apiDefinitionMapper.selectByPrimaryKey(apitest.getApiDefinitionId());
-                            t.setId(UUID.randomUUID().toString());
-                            t.setTestPlanId(request.getPlanId());
-                            t.setApiCaseId(l.getTestId());
-                            t.setEnvironmentId(apidefinition.getEnvironmentId());
-                            t.setCreateTime(System.currentTimeMillis());
-                            t.setUpdateTime(System.currentTimeMillis());
-                            TestPlanApiCaseExample example=new TestPlanApiCaseExample();
-                            example.createCriteria().andTestPlanIdEqualTo(request.getPlanId()).andApiCaseIdEqualTo(t.getApiCaseId());
-                            if(testPlanApiCaseMapper.countByExample(example)<=0){
-                                testPlanApiCaseMapper.insert(t);
+                            TestPlanApiCase t = new TestPlanApiCase();
+                            ApiTestCaseWithBLOBs apitest = apiTestCaseMapper.selectByPrimaryKey(l.getTestId());
+                            if (null != apitest) {
+                                ApiDefinitionWithBLOBs apidefinition = apiDefinitionMapper.selectByPrimaryKey(apitest.getApiDefinitionId());
+                                t.setId(UUID.randomUUID().toString());
+                                t.setTestPlanId(request.getPlanId());
+                                t.setApiCaseId(l.getTestId());
+                                t.setEnvironmentId(apidefinition.getEnvironmentId());
+                                t.setCreateTime(System.currentTimeMillis());
+                                t.setUpdateTime(System.currentTimeMillis());
+                                TestPlanApiCaseExample example = new TestPlanApiCaseExample();
+                                example.createCriteria().andTestPlanIdEqualTo(request.getPlanId()).andApiCaseIdEqualTo(t.getApiCaseId());
+                                if (testPlanApiCaseMapper.countByExample(example) <= 0) {
+                                    testPlanApiCaseMapper.insert(t);
+                                }
                             }
+
 
                         }
                         if(StringUtils.equals(l.getTestType(),TestCaseStatus.automation.name())){
