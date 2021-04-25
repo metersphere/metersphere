@@ -171,7 +171,7 @@ export default {
       return SYSTEM_FIELD_NAME_MAP;
     },
     tableHeight() {
-      return getDefaultTableHeight;
+      return getDefaultTableHeight();
     }
   },
   methods: {
