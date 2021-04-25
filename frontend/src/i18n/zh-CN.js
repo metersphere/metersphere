@@ -380,7 +380,8 @@ export default {
     manager: '项目管理',
     no_data: '无数据',
     select: '选择项目',
-    repeatable: '接口定义URL可重复'
+    repeatable: '接口定义URL可重复',
+    upload_file_again: '重新上传'
   },
   member: {
     create: '添加成员',
