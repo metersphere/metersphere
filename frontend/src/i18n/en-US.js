@@ -373,7 +373,8 @@ export default {
     manager: 'Manager',
     no_data: 'No Data',
     select: 'Select',
-    repeatable: 'Interface definition URL repeatable'
+    repeatable: 'Interface definition URL repeatable',
+    upload_file_again: 'Upload again'
   },
   member: {
     create: 'Create',
