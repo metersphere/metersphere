@@ -151,7 +151,6 @@ export default {
   watch: {
     selectNodeIds() {
       this.selectDataCounts = 0;
-      this.$refs.selectPopover.reload();
     },
   },
   computed: {
