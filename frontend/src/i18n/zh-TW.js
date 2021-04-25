@@ -439,6 +439,7 @@ export default {
     test_request_statistics: '請求統計',
     test_error_log: '錯誤記錄',
     test_log_details: '日誌詳情',
+    test_monitor_details: '監控詳情',
     test_details: '測試詳情',
     test_duration: '當前執行時長：{0} 分鐘 {1} 秒',
     test_start_time: '開始執行時間',
