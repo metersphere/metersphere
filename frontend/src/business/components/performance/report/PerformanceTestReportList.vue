@@ -191,7 +191,7 @@ export default {
         this.selectRows = new Set();
 
         this.tableData.forEach(report => {
-          if (!report.maxUsers) {
+          if (report.status === 'Completed' && !report.maxUsers) {
             this.result = this.$get('/performance/report/content/testoverview/' + report.id, response => {
               this.$set(report, 'maxUsers', response.data.maxUsers);
               this.$set(report, 'avgResponseTime', response.data.avgResponseTime);
