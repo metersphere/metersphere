@@ -257,7 +257,8 @@ export default {
             setTimeout(this.$refs.scenarioTable.doLayout, 200);
           }
           this.$nextTick(() => {
-            checkTableRowIsSelect(this,this.condition,this.tableData,this.$refs.scenarioTable,this.selectRows);
+            checkTableRowIsSelect(this, this.condition, this.tableData, this.$refs.scenarioTable, this.selectRows);
+            this.selectDataCounts = getSelectDataCounts(this.condition, this.total, this.selectRows);
           })
         });
       }
@@ -278,7 +279,8 @@ export default {
             setTimeout(this.$refs.scenarioTable.doLayout, 200);
           }
           this.$nextTick(() => {
-            checkTableRowIsSelect(this,this.condition,this.tableData,this.$refs.scenarioTable,this.selectRows);
+            checkTableRowIsSelect(this, this.condition, this.tableData, this.$refs.scenarioTable, this.selectRows);
+            this.selectDataCounts = getSelectDataCounts(this.condition, this.total, this.selectRows);
           })
         });
       }
@@ -294,18 +296,7 @@ export default {
       })
     },
     handleBatchExecute() {
-      if(this.condition != null && this.condition.selectAll) {
-        this.$alert(this.$t('commons.option_cannot_spread_pages'), '', {
-          confirmButtonText: this.$t('commons.confirm'),
-          callback: (action) => {
-            if (action === 'confirm') {
-              this.$refs.runMode.open();
-            }
-          }
-        })
-      }else {
-        this.$refs.runMode.open();
-      }
+      this.$refs.runMode.open();
     },
     orderBySelectRows(rows){
       let selectIds = Array.from(rows).map(row => row.id);
