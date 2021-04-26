@@ -224,4 +224,33 @@ public class TestPlanLoadCaseService {
     public List<String> getStatus(String planId) {
         return extTestPlanLoadCaseMapper.getStatusByTestPlanId(planId);
     }
+
+    public List<TestPlanLoadCaseDTO> selectAllTableRows(LoadCaseReportBatchRequest request) {
+        List<String> ids = request.getIds();
+        if (request.getCondition() != null && request.getCondition().isSelectAll()) {
+            ids = this.selectTestPlanLoadCaseIds(request.getCondition());
+            if (request.getCondition().getUnSelectIds() != null) {
+                ids.removeAll(request.getCondition().getUnSelectIds());
+            }
+        }
+
+        if (ids == null || ids.isEmpty()) {
+            return new ArrayList<>();
+        }
+
+        List<OrderRequest> orders = request.getCondition().getOrders();
+        if (orders == null || orders.size() < 1) {
+            OrderRequest orderRequest = new OrderRequest();
+            orderRequest.setName("create_time");
+            orderRequest.setType("desc");
+            orders = new ArrayList<>();
+            orders.add(orderRequest);
+        }
+
+        LoadCaseRequest tableReq = new LoadCaseRequest();
+        tableReq.setIds(ids);
+        tableReq.setOrders(orders);
+        List<TestPlanLoadCaseDTO> list = extTestPlanLoadCaseMapper.selectByIdIn(tableReq);
+        return list;
+    }
 }
