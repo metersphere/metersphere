@@ -133,7 +133,5 @@ export default {
 </script>
 
 <style scoped>
-.default-value-item >>> .custom-with {
-  width: 207px;
-}
+
 </style>

@@ -1,5 +1,5 @@
 <template>
-  <span>
+  <span v-if="isActive">
      <el-select v-if="data.type === 'select' || data.type === 'multipleSelect'"
                 :disabled="disabled"
                 :multiple="data.type === 'multipleSelect'"
@@ -49,13 +49,13 @@
       v-model="data[prop]"
       :disabled="disabled"
       @change="handleChange"
-      :min="1" :max="10" label="描述文字"></el-input-number>
+      label="描述文字"></el-input-number>
 
     <el-input-number
       v-else-if="data.type === 'float'"
       :disabled="disabled"
       @change="handleChange"
-      v-model="data[prop]" :precision="2" :step="0.1" :max="10"></el-input-number>
+      v-model="data[prop]" :precision="2" :step="0.1"></el-input-number>
 
      <el-date-picker
        class="custom-with"
@@ -103,7 +103,8 @@ export default {
   ],
   data() {
     return {
-      memberOptions: []
+      memberOptions: [],
+      isActive: false
     };
   },
   mounted() {
@@ -112,6 +113,16 @@ export default {
         this.memberOptions = response.data;
       });
     }
+
+    if (this.data.type === 'checkbox' || this.data.type === 'multipleSelect'
+    || this.data.type === 'multipleMember') {
+      this.data[this.prop] = [];
+    } else if (this.data.type === 'float' || this.data.type === 'int') {
+      this.data[this.prop] = null;
+    } else {
+      this.data[this.prop] = "";
+    }
+    this.isActive = true;
   },
   methods: {
     getTranslateOption(item) {
@@ -128,5 +139,4 @@ export default {
 </script>
 
 <style scoped>
-
 </style>
