@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.util.Iterator;
 import java.util.List;
 import java.util.UUID;
 
@@ -145,6 +146,26 @@ public class IssueTemplateService extends TemplateBaseService {
         }
     }
 
+    public List<IssueTemplate> getSystemTemplates(String workspaceId) {
+        IssueTemplateExample example = new IssueTemplateExample();
+        example.createCriteria().andWorkspaceIdEqualTo(workspaceId)
+                .andSystemEqualTo(true);
+        example.or(example.createCriteria().andGlobalEqualTo(true));
+        List<IssueTemplate> issueTemplates = issueTemplateMapper.selectByExample(example);
+        Iterator<IssueTemplate> iterator = issueTemplates.iterator();
+        while (iterator.hasNext()) {
+            IssueTemplate next = iterator.next();
+            for (IssueTemplate item: issueTemplates) {
+                if (next.getGlobal() && !item.getGlobal() && StringUtils.equals(item.getName(), next.getName())) {
+                    // 如果有工作空间的模板则过滤掉全局模板
+                    iterator.remove();
+                    break;
+                }
+            }
+        }
+        return issueTemplates;
+    }
+
     public IssueTemplate getDefaultTemplate(String workspaceId) {
         IssueTemplateExample example = new IssueTemplateExample();
         example.createCriteria()
@@ -164,11 +185,10 @@ public class IssueTemplateService extends TemplateBaseService {
     public List<IssueTemplate> getOption(String workspaceId) {
         IssueTemplateExample example = new IssueTemplateExample();
         example.createCriteria()
-                .andWorkspaceIdEqualTo(workspaceId);
-        example.or().andGlobalEqualTo(true);
-//                .andSystemEqualTo(false);
+                .andWorkspaceIdEqualTo(workspaceId)
+                .andSystemEqualTo(false);
         List<IssueTemplate> issueTemplates = issueTemplateMapper.selectByExample(example);
-//        issueTemplates.add(getDefaultTemplate(workspaceId));
+        issueTemplates.addAll(getSystemTemplates(workspaceId));
         return issueTemplates;
     }
 
