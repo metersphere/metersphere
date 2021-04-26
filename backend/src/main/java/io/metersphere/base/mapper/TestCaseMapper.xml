@@ -513,6 +513,7 @@
       `status` = #{record.status,jdbcType=VARCHAR},
       custom_num = #{record.customNum,jdbcType=VARCHAR},
       step_model = #{record.stepModel,jdbcType=VARCHAR}
+      custom_num = #{record.customNum,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -664,6 +665,7 @@
       `status` = #{status,jdbcType=VARCHAR},
       custom_num = #{customNum,jdbcType=VARCHAR},
       step_model = #{stepModel,jdbcType=VARCHAR}
+      custom_num = #{customNum,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>

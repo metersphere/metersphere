@@ -145,6 +145,9 @@ public class ProjectService {
         project.setCreateTime(null);
         project.setUpdateTime(System.currentTimeMillis());
         checkProjectExist(project);
+        if (project.getCustomNum()) {
+            testCaseService.updateTestCaseCustomNumByProjectId(project.getId());
+        }
         projectMapper.updateByPrimaryKeySelective(project);
     }
 

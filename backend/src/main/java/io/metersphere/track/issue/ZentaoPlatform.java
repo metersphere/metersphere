@@ -223,8 +223,8 @@ public class ZentaoPlatform extends AbstractIssuePlatform {
         } else {
             paramMap.add("openedBuild", "trunk");
         }
-        if (StringUtils.isNotBlank(issuesRequest.getZentaoUser())) {
-            paramMap.add("assignedTo", issuesRequest.getZentaoUser());
+        if (StringUtils.isNotBlank(issuesRequest.getZentaoAssigned())) {
+            paramMap.add("assignedTo", issuesRequest.getZentaoAssigned());
         }
 
         HttpEntity<MultiValueMap> requestEntity = new HttpEntity<>(paramMap, new HttpHeaders());

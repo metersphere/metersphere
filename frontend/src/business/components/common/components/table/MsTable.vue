@@ -63,10 +63,14 @@ import MsTablePagination from "@/business/components/common/pagination/TablePagi
 import ShowMoreBtn from "@/business/components/track/case/components/ShowMoreBtn";
 import MsTableColumn from "@/business/components/common/components/table/Ms-table-column";
 import MsTableOperators from "@/business/components/common/components/MsTableOperators";
+import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOperate";
 
 export default {
   name: "MsTable",
-  components: {MsTableOperators, MsTableColumn, ShowMoreBtn, MsTablePagination, MsTableHeaderSelectPopover},
+  components: {
+    HeaderLabelOperate,
+    MsTableOperators, MsTableColumn, ShowMoreBtn, MsTablePagination, MsTableHeaderSelectPopover
+  },
   data() {
     return {
       selectDataCounts: 0,
@@ -197,7 +201,7 @@ export default {
       }
     },
     doLayout() {
-      this.$refs.table.doLayout();
+      setTimeout(this.$refs.table.doLayout(), 200);
     },
     filter(filters) {
       _filter(filters, this.condition);

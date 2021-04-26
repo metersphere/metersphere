@@ -877,15 +877,11 @@
           this.reload();
         }
       },
-      nodeExpand(data) {
-        if (data.resourceId) {
-          this.expandedNode.push(data.resourceId);
-        }
+      nodeExpand(data, node) {
+        node.expanded = true;
       },
-      nodeCollapse(data) {
-        if (data.resourceId) {
-          this.expandedNode.splice(this.expandedNode.indexOf(data.resourceId), 1);
-        }
+      nodeCollapse(data,node) {
+        node.expanded = false;
       },
       setFiles(item, bodyUploadFiles, obj) {
         if (item.body) {

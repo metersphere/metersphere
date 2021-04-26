@@ -84,6 +84,9 @@
         <el-form-item :label="$t('project.repeatable')" prop="repeatable">
           <el-switch v-model="form.repeatable"></el-switch>
         </el-form-item>
+        <el-form-item label="测试用例自定义ID" prop="customNum">
+          <el-switch v-model="form.customNum"></el-switch>
+        </el-form-item>
       </el-form>
       <template v-slot:footer>
         <div class="dialog-footer">

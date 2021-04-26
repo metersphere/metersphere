@@ -6,16 +6,22 @@
         set status = #{status}
         where tplc.load_report_id = #{reportId}
     </update>
+    <update id="updateCaseStatusByApi">
+        update test_plan_load_case tplc
+        set status = #{status}
+        where tplc.load_case_id = #{loadCaseId}
+          and tplc.test_plan_id = #{testPlanId}
+    </update>
 
     <select id="selectIdsNotInPlan" resultType="java.lang.String">
         select load_test.id
         from load_test
         where load_test.project_id = #{request.projectId}
         <if test="request.name != null and request.name != ''">
-        and load_test.name like CONCAT('%', #{request.name},'%')
+            and load_test.name like CONCAT('%', #{request.name},'%')
         </if>
-          and load_test.id not in (
-            select tplc.load_case_id from test_plan_load_case tplc where tplc.test_plan_id = #{request.testPlanId}
+        and load_test.id not in (
+        select tplc.load_case_id from test_plan_load_case tplc where tplc.test_plan_id = #{request.testPlanId}
         )
     </select>
     <select id="selectTestPlanLoadCaseList" resultType="io.metersphere.track.dto.TestPlanLoadCaseDTO">
@@ -61,6 +67,35 @@
                 </foreach>
             </if>
         </where>
+        <if test="request.orders != null and request.orders.size() > 0">
+            order by
+            <foreach collection="request.orders" separator="," item="order">
+                tplc.${order.name} ${order.type}
+            </foreach>
+        </if>
+    </select>
+
+    <select id="selectByIdIn" resultType="io.metersphere.track.dto.TestPlanLoadCaseDTO">
+        select tplc.id,
+        u.name as userName,
+        tplc.create_time,
+        tplc.update_time,
+        tplc.test_plan_id,
+        tplc.load_case_id,
+        lt.status,
+        lt.num,
+        tplc.status as caseStatus,
+        lt.name as caseName,
+        tplc.load_report_id,
+        p.name as projectName
+        from test_plan_load_case tplc
+        inner join load_test lt on tplc.load_case_id = lt.id
+        inner join user u on lt.user_id = u.id
+        inner join project p on lt.project_id = p.id
+        WHERE tplc.id in
+        <foreach collection="request.ids" item="value" separator="," open="(" close=")">
+            #{value}
+        </foreach>
         <if test="request.orders != null and request.orders.size() > 0">
             order by
             <foreach collection="request.orders" separator="," item="order">

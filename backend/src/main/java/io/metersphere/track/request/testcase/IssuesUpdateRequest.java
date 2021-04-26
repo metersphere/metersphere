@@ -16,6 +16,7 @@ public class IssuesUpdateRequest extends IssuesWithBLOBs {
      * zentao bug 处理人
      */
     private String zentaoUser;
+    private String zentaoAssigned;
     /**
      * zentao bug 影响版本
      */

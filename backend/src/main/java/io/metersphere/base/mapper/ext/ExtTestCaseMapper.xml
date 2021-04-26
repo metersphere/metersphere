@@ -71,6 +71,9 @@
             </include>
         </if>
     </sql>
+    <update id="updateTestCaseCustomNumByProjectId">
+        update test_case set custom_num = num where (custom_num is null or custom_num = '') and project_id = #{projectId}
+    </update>
 
     <select id="getTestCaseByNotInReview" resultType="io.metersphere.base.domain.TestCase">
         select test_case.id, test_case.name, test_case.priority, test_case.type, test_case.review_status from test_case
@@ -297,7 +300,8 @@
             <if test="request.name != null">
                 and (test_case.name like CONCAT('%', #{request.name},'%')
                 or test_case.num like CONCAT('%', #{request.name},'%')
-                or test_case.tags like CONCAT('%', #{request.name},'%'))
+                or test_case.tags like CONCAT('%', #{request.name},'%')
+                or test_case.custom_num like CONCAT('%', #{request.name},'%'))
             </if>
             <if test="request.relevanceCreateTime >0">
                 and test_case.id in (select test_case_id from test_case_test where test_case_test.create_time >= #{request.createTime})

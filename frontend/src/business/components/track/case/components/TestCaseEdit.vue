@@ -60,6 +60,15 @@
             </el-row>
           </el-form>
 
+          <el-row v-if="customNum">
+            <el-col :span="7">
+              <el-form-item label="ID" :label-width="formLabelWidth" prop="customNum">
+                <el-input :disabled="readOnly" v-model="form.customNum" size="small" class="ms-case-input"></el-input>
+              </el-form-item>
+            </el-col>
+          </el-row>
+
+
           <ms-form-divider :title="$t('步骤信息')"/>
 
           <div class="step-info">
@@ -190,6 +199,7 @@ export default {
         stepDescription: '',
         expectedResult: '',
         stepModel: 'STEP'
+        customNum: ''
       },
       readOnly: false,
       maintainerOptions: [],
@@ -201,6 +211,10 @@ export default {
           {max: 255, message: this.$t('test_track.length_less_than') + '255', trigger: 'blur'}
         ],
         module: [{required: true, message: this.$t('test_track.case.input_module'), trigger: 'change'}],
+        customNum: [
+          {required: true, message: "ID必填", trigger: 'blur'},
+          {max: 50, message: this.$t('test_track.length_less_than') + '50', trigger: 'blur'}
+        ],
         demandName: [{required: true, message: this.$t('test_track.case.input_demand_name'), trigger: 'change'}],
         maintainer: [{required: true, message: this.$t('test_track.case.input_maintainer'), trigger: 'change'}],
         priority: [{required: true, message: this.$t('test_track.case.input_priority'), trigger: 'change'}],
@@ -241,7 +255,11 @@ export default {
     selectCondition: {
       type: Object
     },
-    type: String
+    type: String,
+    customNum: {
+      type: Boolean,
+      default: false
+    }
   },
   computed: {
     projectIds() {
@@ -686,6 +704,7 @@ export default {
         desc: '',
         result: ''
       }];
+      this.form.customNum = '';
     },
     addListener() {
       document.addEventListener("keydown", this.createCtrlSHandle);
