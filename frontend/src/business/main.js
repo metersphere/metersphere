@@ -11,7 +11,7 @@ import YanProgress from 'yan-progress';
 import './permission' // permission control
 import i18n from "../i18n/i18n";
 import store from "../store";
-import {permission, roles, tester, xpack} from './permission'
+import {permission, roles, tester, xpack, modules} from './permission';
 import chart from "../common/js/chart";
 import CalendarHeatmap from "../common/js/calendar-heatmap";
 import '../common/css/menu-header.css';
@@ -54,6 +54,8 @@ Vue.directive('roles', roles);
 Vue.directive('xpack', xpack);
 
 Vue.directive('tester', tester);
+
+Vue.directive('modules', modules);
 
 //支持左右拖拽
 Vue.directive('left-to-right-drag', left2RightDrag);

@@ -3,6 +3,7 @@
     <ms-container v-if="renderComponent">
       <ms-aside-container>
         <ms-api-module
+          :show-operator="true"
           @nodeSelectEvent="nodeChange"
           @protocolChange="handleProtocolChange"
           @refreshTable="refresh"
@@ -428,7 +429,8 @@
         this.setTabTitle(data);
       },
       mockConfig(data) {
-        this.handleMockTabsConfig(this.$t("commons.mock"), "MOCK", data);
+        let targetName = this.$t("commons.mock") + "-" + data.apiName;
+        this.handleMockTabsConfig(targetName, "MOCK", data);
       },
       saveApi(data) {
         this.setTabTitle(data);

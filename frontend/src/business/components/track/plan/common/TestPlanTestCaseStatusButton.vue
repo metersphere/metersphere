@@ -1,7 +1,7 @@
 <template>
   <el-row type="flex" justify="start" :gutter="20" class="status-button">
     <el-col>
-      <el-button :disabled="isReadOnly || isFailure" type="success" round size="mini"
+      <el-button :disabled="isReadOnly" type="success" round size="mini"
                  :icon="status == 'Pass' ? 'el-icon-check' : ''"
                  @click="setStatus('Pass')"> {{$t('test_track.plan_view.pass')}}
       </el-button>
@@ -35,10 +35,6 @@
         type: String
       },
       isReadOnly: {
-        type: Boolean,
-        default: false
-      },
-      isFailure: {
         type: Boolean,
         default: false
       }

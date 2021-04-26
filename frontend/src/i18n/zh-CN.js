@@ -12,6 +12,7 @@ export default {
     import_mode: '导入模式',
     import_module: '导入模块',
     import_user: '导入用户',
+    export: '导出',
     please_fill_in_the_template: '请填写模版内容',
     cut_back_old_version: '切回旧版',
     cut_back_new_version: '切回新版',
@@ -19,6 +20,7 @@ export default {
     examples: '示例',
     help_documentation: '帮助文档',
     api_help_documentation: 'API文档',
+    confirm_delete: '是否删除',
     delete_cancelled: '已取消删除',
     workspace: '工作空间',
     organization: '组织',
@@ -254,7 +256,22 @@ export default {
       url: '当前站点URL',
       url_tip: '例如：http://localhost:8081',
       url_is_null: '当前站点URL不能为空'
+    },
+    prometheus_config: '监控配置',
+    prometheus: {
+      host: 'Prometheus地址',
+      host_tip: '例如:http://ms-prometheus:9090',
+      host_is_null: 'Prometheus地址不能为空'
     }
+  },
+  custom_field: {
+    case_status: '用例状态',
+    case_maintainer: '责任人',
+    case_priority: '用例等级',
+    issue_creator: '创建人',
+    issue_processor: '处理人',
+    issue_status: '状态',
+    issue_severity: '严重程度'
   },
   workspace: {
     create: '创建工作空间',
@@ -363,7 +380,8 @@ export default {
     manager: '项目管理',
     no_data: '无数据',
     select: '选择项目',
-    repeatable: '接口定义URL可重复'
+    repeatable: '接口定义URL可重复',
+    upload_file_again: '重新上传'
   },
   member: {
     create: '添加成员',
@@ -430,6 +448,7 @@ export default {
     test_request_statistics: '请求统计',
     test_error_log: '错误记录',
     test_log_details: '日志详情',
+    test_monitor_details: '监控详情',
     test_details: '测试详情',
     test_duration: '当前执行时长：{0} 分钟 {1} 秒',
     test_start_time: '开始执行时间',
@@ -458,8 +477,12 @@ export default {
     not_exist: "测试报告不存在",
     batch_delete: "批量删除报告",
     delete_batch_confirm: '确认批量删除报告',
+    response_time: '响应时间(s)',
+    max_users: '并发数'
   },
   load_test: {
+    concurrency_thread_group: '并发读取组',
+    thread_group: '线程组',
     completed_test_report: '已完成测试报告',
     test: '测试',
     name: '测试名称',
@@ -492,7 +515,7 @@ export default {
     delete_file_confirm: '确认删除文件: ',
     file_size_limit: "文件个数超出限制！",
     delete_file: "文件已存在，请先删除同名文件！",
-    thread_num: '并发用户数：',
+    thread_num: '并发用户数',
     input_thread_num: '请输入线程数',
     duration: '压测时长',
     granularity: '聚合时间（秒）',
@@ -600,6 +623,10 @@ export default {
       base_info: "基本信息",
       req_param: "请求参数",
       rsp_param: "响应内容",
+      delete_mock_expect: "确认删除这条预期吗？",
+      rule: {
+        input_code: "请输入 HTTP Code"
+      }
     },
     definition: {
       api_title: "接口列表",
@@ -789,8 +816,14 @@ export default {
       report_name_info: '请输入报告名称',
       save_case_info: '请先保存用例',
       reference_deleted: '引用已删除',
+      loop_name: "循环",
+      loop_content: "默认为开启，当循环下只有一个请求时，可以开启/关闭;当循环下超过一个请求时，则只能开启。",
+      loop_return_val: "定义变量名称",
+      loop_input_val: "变量前缀",
+      loop_message: "当前循环下超过一个请求，不能关闭状态",
     },
     environment: {
+      create: '创建环境',
       name: "环境名称",
       socket: "环境域名",
       condition_enable: "启用条件",
@@ -798,6 +831,7 @@ export default {
       environment_list: "环境列表",
       environment_config: "环境配置",
       config_environment: "配置环境",
+      copy_environment: "复制环境",
       environment: "环境",
       select_environment: "请选择环境",
       please_save_test: "请先保存测试",
@@ -805,6 +839,7 @@ export default {
       http_config: "HTTP配置",
       database_config: "数据库配置",
       tcp_config: "TCP配置",
+      import: "导入环境",
     },
     scenario: {
       scenario: "场景",
@@ -1002,7 +1037,9 @@ export default {
       suffixFormatErr: "文件格式不符合要求",
       swagger_url_import: "使用URL导入",
       timing_synchronization: "定时同步",
-      next_synchronization_time: "下次同步时间"
+      next_synchronization_time: "下次同步时间",
+      ms_env_import_file_limit: "支持通过MeterSphere导出的json格式文件",
+      file_exceed_limit: "文件数量超出限制",
 
 
     },
@@ -1215,7 +1252,7 @@ export default {
       steps: "执行步骤",
       number: "编号",
       prerequisite: "前置条件",
-      step_desc: "步骤描述",
+      step_desc: "用例步骤",
       expected_results: "预期结果",
       input_name: "请输入名称",
       input_module: "请选择模块",
@@ -1246,9 +1283,9 @@ export default {
       batch_unlink: '批量取消关联',
       project_name: '所属项目',
       status: '评审结果',
-      status_prepare: '未评审',
-      status_pass: '通过',
-      status_un_pass: '未通过',
+      status_prepare: '未开始',
+      status_running: '进行中',
+      status_finished: '已完成',
       cancel_relevance_project: "取消项目关联会同时取消该项目下已关联的测试用例",
       img_loading_fail: "图片加载失败",
       pdf_loading_fail: "PDF加载失败",
@@ -1345,6 +1382,7 @@ export default {
       no_link_case: "没有关联用例！",
       pass: "通过",
       un_pass: "未通过",
+      prepare: '未评审',
       comment: "评论",
       my_review: "我的评审",
       my_create: "我创建的评审",
@@ -1461,10 +1499,13 @@ export default {
       title_description_required: "标题和描述必填",
       close_success: "关闭成功",
       preview: "预览",
+      status_new: '新建',
+      status_resolved: '已解决',
+      status_closed: '已关闭',
       please_choose_current_owner: "请选择处理人",
-      tapd_current_owner: "Tapd bug 处理人：",
-      zentao_bug_build: "禅道 bug 影响版本",
-      zentao_bug_assigned: "禅道 bug 处理人",
+      tapd_current_owner: "Tapd 处理人",
+      zentao_bug_build: "禅道 影响版本",
+      zentao_bug_assigned: "禅道 处理人",
     },
     report: {
       name: "测试计划报告",
@@ -1497,6 +1538,7 @@ export default {
     cannot_empty: '资源池不能为空',
     fill_the_data: '请完善数据',
     delete_prompt: '此操作将永久删除该资源池, 是否继续?',
+    update_prompt: '{0}  等测试正在使用此资源池，禁用可能会影响报告的监控部分，是否继续？',
     status_change_success: '状态修改成功!',
     status_change_failed: '状态修改失败, 校验不通过!',
     check_in: '校验中',

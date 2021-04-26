@@ -4,69 +4,207 @@
       :is-api-list-enable="isApiListEnable"
       @isApiListEnableChange="isApiListEnableChange">
 
-      <ms-environment-select :project-id="projectId" v-if="isTestPlan" :is-read-only="isReadOnly" @setEnvironment="setEnvironment"/>
+      <ms-environment-select :project-id="projectId" v-if="isTestPlan" :is-read-only="isReadOnly"
+                             @setEnvironment="setEnvironment"/>
 
-      <el-input :placeholder="$t('api_test.definition.request.select_api')" @blur="initTable" class="search-input" size="small" @keyup.enter.native="initTable" v-model="condition.name"/>
+      <el-input :placeholder="$t('commons.search_by_name_or_id')" @blur="initTable" class="search-input" size="small"
+                @keyup.enter.native="initTable" v-model="condition.name"/>
 
-      <el-table v-loading="result.loading"
-                border
-                :data="tableData" row-key="id" class="test-content adjust-table"
-                @select-all="handleSelectAll"
-                @select="handleSelect" ref="table">
-        <el-table-column reserve-selection type="selection"/>
+      <ms-table :data="tableData" :select-node-ids="selectNodeIds" :condition="condition" :page-size="pageSize"
+                :total="total" enableSelection
+                :screenHeight="screenHeight"
+                operator-width="170px"
+                ref="apitable">
+        <template v-for="(item, index) in tableLabel">
+          <ms-table-column
+            v-if="item.id == 'num'"
+            prop="num"
+            label="ID"
+            show-overflow-tooltip
+            min-width="80px"
+            sortable=true
+            :key="index">
+            <template slot-scope="scope">
+              <!-- 判断为只读用户的话不可点击ID进行编辑操作 -->
+              <span style="cursor:pointer" v-if="isReadOnly"> {{ scope.row.num }} </span>
+              <el-tooltip v-else content="编辑">
+                <a style="cursor:pointer" @click="editApi(scope.row)"> {{ scope.row.num }} </a>
+              </el-tooltip>
+            </template>
+          </ms-table-column>
+          <ms-table-column
+            v-if="item.id == 'name'"
+            prop="name"
+            :label="$t('api_test.definition.api_name')"
+            show-overflow-tooltip
+            sortable="custom"
+            width="120px"
+            :key="index"/>
+          <ms-table-column
+            v-if="item.id == 'status'"
+            prop="status"
+            column-key="status"
+            sortable="custom"
+            :filters="statusFilters"
+            :label="$t('api_test.definition.api_status')"
+            width="120px"
+            :key="index">
+            <template v-slot:default="scope">
+            <span class="el-dropdown-link">
+              <api-status :value="scope.row.status"/>
+            </span>
+            </template>
+          </ms-table-column>
 
-        <el-table-column prop="name" :label="$t('api_test.definition.api_name')" show-overflow-tooltip/>
+          <ms-table-column
+            v-if="item.id == 'method'"
+            prop="method"
+            sortable="custom"
+            column-key="method"
+            :filters="methodFilters"
+            :label="$t('api_test.definition.api_type')"
+            show-overflow-tooltip
+            width="120px"
+            :key="index">
+            <template v-slot:default="scope" class="request-method">
+              <el-tag size="mini"
+                      :style="{'background-color': getColor(true, scope.row.method), border: getColor(true, scope.row.method)}"
+                      class="api-el-tag">
+                {{ scope.row.method }}
+              </el-tag>
+            </template>
+          </ms-table-column>
 
-        <el-table-column
-          prop="status"
-          column-key="api_status"
-          :label="$t('api_test.definition.api_status')"
-          show-overflow-tooltip>
-          <template v-slot:default="scope">
-            <ms-tag v-if="scope.row.status == 'Prepare'" type="info" effect="plain" :content="$t('test_track.plan.plan_status_prepare')"/>
-            <ms-tag v-if="scope.row.status == 'Underway'" type="warning" effect="plain" :content="$t('test_track.plan.plan_status_running')"/>
-            <ms-tag v-if="scope.row.status == 'Completed'" type="success" effect="plain" :content="$t('test_track.plan.plan_status_completed')"/>
-            <ms-tag v-if="scope.row.status == 'Trash'" type="danger" effect="plain" :content="$t('test_track.plan.plan_status_trash')"/>
-          </template>
-        </el-table-column>
+          <ms-table-column
+            v-if="item.id == 'userName'"
+            prop="userName"
+            sortable="custom"
+            :filters="userFilters"
+            column-key="user_id"
+            :label="$t('api_test.definition.api_principal')"
+            show-overflow-tooltip
+            width="100px"
+            :key="index"/>
 
-        <el-table-column
-          prop="method"
-          :label="$t('api_test.definition.api_type')"
-          show-overflow-tooltip>
-          <template v-slot:default="scope" class="request-method">
-            <el-tag size="mini" :style="{'background-color': getColor(scope.row.method), border: getColor(true, scope.row.method)}" class="api-el-tag">
-              {{ scope.row.method }}
-            </el-tag>
-          </template>
-        </el-table-column>
+          <ms-table-column
+            v-if="item.id == 'path'"
+            prop="path"
+            width="120px"
+            :label="$t('api_test.definition.api_path')"
+            show-overflow-tooltip
+            :key="index"/>
 
-        <el-table-column
-          prop="path"
-          :label="$t('api_test.definition.api_path')"
-          show-overflow-tooltip/>
+          <ms-table-column
+            v-if="item.id == 'tags'"
+            prop="tags"
+            :label="$t('commons.tag')"
+            width="120px"
+            :key="index">
+            <template v-slot:default="scope">
+              <ms-tag v-for="(itemName,index)  in scope.row.tags" :key="index" type="success" effect="plain"
+                      :show-tooltip="true" :content="itemName"
+                      style="margin-left: 0px; margin-right: 2px"/>
+            </template>
+          </ms-table-column>
 
-        <el-table-column width="160" :label="$t('api_test.definition.api_last_time')" prop="updateTime">
-          <template v-slot:default="scope">
-            <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
-          </template>
-        </el-table-column>
+          <ms-table-column
+            v-if="item.id == 'updateTime'"
+            width="160"
+            :label="$t('api_test.definition.api_last_time')"
+            sortable="custom"
+            prop="updateTime"
+            :key="index">
+            <template v-slot:default="scope">
+              <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
+            </template>
+          </ms-table-column>
 
-        <el-table-column
-          prop="caseTotal"
-          :label="$t('api_test.definition.api_case_number')"
-          show-overflow-tooltip/>
+          <ms-table-column
+            v-if="item.id == 'caseTotal'"
+            prop="caseTotal"
+            width="80px"
+            :label="$t('api_test.definition.api_case_number')"
+            show-overflow-tooltip
+            :key="index"/>
 
-        <el-table-column
-          prop="caseStatus"
-          :label="$t('api_test.definition.api_case_status')"
-          show-overflow-tooltip/>
+          <ms-table-column
+            v-if="item.id == 'caseStatus'"
+            prop="caseStatus"
+            width="80px"
+            :label="$t('api_test.definition.api_case_status')"
+            show-overflow-tooltip
+            :key="index"/>
 
-        <el-table-column
-          prop="casePassingRate"
-          :label="$t('api_test.definition.api_case_passing_rate')"
-          show-overflow-tooltip/>
-      </el-table>
+          <ms-table-column
+            v-if="item.id == 'casePassingRate'"
+            width="100px"
+            prop="casePassingRate"
+            :label="$t('api_test.definition.api_case_passing_rate')"
+            show-overflow-tooltip
+            :key="index"/>
+        </template>
+
+
+      </ms-table>
+      <!--      <el-table v-loading="result.loading"-->
+      <!--                border-->
+      <!--                :data="tableData" row-key="id" class="test-content adjust-table"-->
+      <!--                @select-all="handleSelectAll"-->
+      <!--                @select="handleSelect" ref="table">-->
+      <!--        <el-table-column reserve-selection type="selection"/>-->
+
+      <!--        <el-table-column prop="name" :label="$t('api_test.definition.api_name')" show-overflow-tooltip/>-->
+
+      <!--        <el-table-column-->
+      <!--          prop="status"-->
+      <!--          column-key="api_status"-->
+      <!--          :label="$t('api_test.definition.api_status')"-->
+      <!--          show-overflow-tooltip>-->
+      <!--          <template v-slot:default="scope">-->
+      <!--            <ms-tag v-if="scope.row.status == 'Prepare'" type="info" effect="plain" :content="$t('test_track.plan.plan_status_prepare')"/>-->
+      <!--            <ms-tag v-if="scope.row.status == 'Underway'" type="warning" effect="plain" :content="$t('test_track.plan.plan_status_running')"/>-->
+      <!--            <ms-tag v-if="scope.row.status == 'Completed'" type="success" effect="plain" :content="$t('test_track.plan.plan_status_completed')"/>-->
+      <!--            <ms-tag v-if="scope.row.status == 'Trash'" type="danger" effect="plain" :content="$t('test_track.plan.plan_status_trash')"/>-->
+      <!--          </template>-->
+      <!--        </el-table-column>-->
+
+      <!--        <el-table-column-->
+      <!--          prop="method"-->
+      <!--          :label="$t('api_test.definition.api_type')"-->
+      <!--          show-overflow-tooltip>-->
+      <!--          <template v-slot:default="scope" class="request-method">-->
+      <!--            <el-tag size="mini" :style="{'background-color': getColor(scope.row.method), border: getColor(true, scope.row.method)}" class="api-el-tag">-->
+      <!--              {{ scope.row.method }}-->
+      <!--            </el-tag>-->
+      <!--          </template>-->
+      <!--        </el-table-column>-->
+
+      <!--        <el-table-column-->
+      <!--          prop="path"-->
+      <!--          :label="$t('api_test.definition.api_path')"-->
+      <!--          show-overflow-tooltip/>-->
+
+      <!--        <el-table-column width="160" :label="$t('api_test.definition.api_last_time')" prop="updateTime">-->
+      <!--          <template v-slot:default="scope">-->
+      <!--            <span>{{ scope.row.updateTime | timestampFormatDate }}</span>-->
+      <!--          </template>-->
+      <!--        </el-table-column>-->
+
+      <!--        <el-table-column-->
+      <!--          prop="caseTotal"-->
+      <!--          :label="$t('api_test.definition.api_case_number')"-->
+      <!--          show-overflow-tooltip/>-->
+
+      <!--        <el-table-column-->
+      <!--          prop="caseStatus"-->
+      <!--          :label="$t('api_test.definition.api_case_status')"-->
+      <!--          show-overflow-tooltip/>-->
+
+      <!--        <el-table-column-->
+      <!--          prop="casePassingRate"-->
+      <!--          :label="$t('api_test.definition.api_case_passing_rate')"-->
+      <!--          show-overflow-tooltip/>-->
+      <!--      </el-table>-->
       <ms-table-pagination :change="initTable" :current-page.sync="currentPage" :page-size.sync="pageSize"
                            :total="total"/>
     </api-list-container>
@@ -77,6 +215,8 @@
 
 <script>
 
+import MsTable from "@/business/components/common/components/table/MsTable";
+import MsTableColumn from "@/business/components/common/components/table/Ms-table-column";
 import MsTableOperator from "../../../../common/components/MsTableOperator";
 import MsTableOperatorButton from "../../../../common/components/MsTableOperatorButton";
 import MsTablePagination from "../../../../common/pagination/TablePagination";
@@ -90,7 +230,8 @@ import ApiListContainer from "../../../definition/components/list/ApiListContain
 import PriorityTableItem from "../../../../track/common/tableItems/planview/PriorityTableItem";
 import MsEnvironmentSelect from "../../../definition/components/case/MsEnvironmentSelect";
 import TableSelectCountBar from "./TableSelectCountBar";
-import {_filter, _handleSelect, _handleSelectAll, _sort,} from "@/common/js/tableUtils";
+import {_filter, _handleSelect, _handleSelectAll, _sort, buildBatchParam, getLabel,} from "@/common/js/tableUtils";
+import {API_LIST, WORKSPACE_ID} from "@/common/js/constants";
 
 export default {
   name: "RelevanceApiList",
@@ -105,16 +246,19 @@ export default {
     MsTag,
     MsBottomContainer,
     ShowMoreBtn,
-    MsBatchEdit
+    MsBatchEdit,
+    MsTable,
+    MsTableColumn
   },
   data() {
     return {
       condition: {},
       selectCase: {},
+      tableLabel: [],
       result: {},
       moduleId: "",
       deletePath: "/test/case/delete",
-      selectRows: new Set(),
+      screenHeight: document.documentElement.clientHeight - 310,//屏幕高度,
       typeArr: [
         {id: 'priority', name: this.$t('test_track.case.priority')},
       ],
@@ -132,7 +276,22 @@ export default {
       currentPage: 1,
       pageSize: 10,
       total: 0,
-      environmentId: ""
+      environmentId: "",
+      methodFilters: [
+        {text: 'GET', value: 'GET'},
+        {text: 'POST', value: 'POST'},
+        {text: 'PUT', value: 'PUT'},
+        {text: 'PATCH', value: 'PATCH'},
+        {text: 'DELETE', value: 'DELETE'},
+        {text: 'OPTIONS', value: 'OPTIONS'},
+        {text: 'HEAD', value: 'HEAD'},
+        {text: 'CONNECT', value: 'CONNECT'},
+        {text: 'DUBBO', value: 'DUBBO'},
+        {text: 'dubbo://', value: 'dubbo://'},
+        {text: 'SQL', value: 'SQL'},
+        {text: 'TCP', value: 'TCP'},
+      ],
+      userFilters: [],
     }
   },
   props: {
@@ -159,8 +318,11 @@ export default {
     isTestPlan: Boolean
   },
   created: function () {
-    this.selectRows = new Set();
+    if (this.$refs.apitable) {
+      this.$refs.apitable.clearSelectRows();
+    }
     this.initTable();
+    this.getMaintainerOptions();
   },
   watch: {
     selectNodeIds() {
@@ -173,7 +335,15 @@ export default {
       this.initTable();
     }
   },
-  computed: {},
+  computed: {
+    selectRows() {
+      if (this.$refs.apitable) {
+        return this.$refs.apitable.getSelectRows();
+      } else {
+        return new Set();
+      }
+    }
+  },
   methods: {
     isApiListEnableChange(data) {
       this.$emit('isApiListEnableChange', data);
@@ -205,12 +375,17 @@ export default {
       this.result = this.$post(url + this.currentPage + "/" + this.pageSize, this.condition, response => {
         this.total = response.data.itemCount;
         this.tableData = response.data.listObject;
+        this.genProtocalFilter(this.condition.protocol);
+        this.$nextTick(function () {
+          if (this.$refs.apitable) {
+            this.$refs.apitable.checkTableRowIsSelect();
+          }
+        });
       });
+      //添加自定义列的查询
+      getLabel(this, API_LIST);
     },
 
-    handleSelect(selection, row) {
-      _handleSelect(this, selection, row, this.selectRows);
-    },
     showExecResult(row) {
       this.visible = false;
       this.$emit('showExecResult', row);
@@ -227,9 +402,6 @@ export default {
       _sort(column, this.condition);
       this.initTable();
     },
-    handleSelectAll(selection) {
-      _handleSelectAll(this, selection, this.tableData, this.selectRows);
-    },
     buildPagePath(path) {
       return path + "/" + this.currentPage + "/" + this.pageSize;
     },
@@ -240,10 +412,67 @@ export default {
       this.environmentId = data.id;
     },
     clearSelection() {
-      this.selectRows = new Set();
-      if (this.$refs.table) {
-        this.$refs.table.clearSelection();
+      if (this.$refs.apitable) {
+        this.$refs.apitable.clearSelectRows();
+        this.$refs.apitable.clearSelection();
       }
+    },
+    genProtocalFilter(protocalType) {
+      if (protocalType === "HTTP") {
+        this.methodFilters = [
+          {text: 'GET', value: 'GET'},
+          {text: 'POST', value: 'POST'},
+          {text: 'PUT', value: 'PUT'},
+          {text: 'PATCH', value: 'PATCH'},
+          {text: 'DELETE', value: 'DELETE'},
+          {text: 'OPTIONS', value: 'OPTIONS'},
+          {text: 'HEAD', value: 'HEAD'},
+          {text: 'CONNECT', value: 'CONNECT'},
+        ];
+      } else if (protocalType === "TCP") {
+        this.methodFilters = [
+          {text: 'TCP', value: 'TCP'},
+        ];
+      } else if (protocalType === "SQL") {
+        this.methodFilters = [
+          {text: 'SQL', value: 'SQL'},
+        ];
+      } else if (protocalType === "DUBBO") {
+        this.methodFilters = [
+          {text: 'DUBBO', value: 'DUBBO'},
+          {text: 'dubbo://', value: 'dubbo://'},
+        ];
+      } else {
+        this.methodFilters = [
+          {text: 'GET', value: 'GET'},
+          {text: 'POST', value: 'POST'},
+          {text: 'PUT', value: 'PUT'},
+          {text: 'PATCH', value: 'PATCH'},
+          {text: 'DELETE', value: 'DELETE'},
+          {text: 'OPTIONS', value: 'OPTIONS'},
+          {text: 'HEAD', value: 'HEAD'},
+          {text: 'CONNECT', value: 'CONNECT'},
+          {text: 'DUBBO', value: 'DUBBO'},
+          {text: 'dubbo://', value: 'dubbo://'},
+          {text: 'SQL', value: 'SQL'},
+          {text: 'TCP', value: 'TCP'},
+        ];
+      }
+    },
+    getMaintainerOptions() {
+      let workspaceId = localStorage.getItem(WORKSPACE_ID);
+      this.$post('/user/ws/member/tester/list', {workspaceId: workspaceId}, response => {
+        this.valueArr.userId = response.data;
+        this.userFilters = response.data.map(u => {
+          return {text: u.name, value: u.id};
+        });
+      });
+    },
+    getConditions() {
+      let sampleSelectRows = this.$refs.apitable.getSelectRows();
+      let param = buildBatchParam(this);
+      param.ids = Array.from(sampleSelectRows).map(row => row.id);
+      return param;
     }
   },
 }

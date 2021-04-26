@@ -206,6 +206,11 @@ public class SystemParameterService {
         return ldap;
     }
 
+
+    /**
+     * @param key System Param
+     * @return 系统key对应的值 ｜ ""
+     */
     public String getValue(String key) {
         SystemParameter param = systemParameterMapper.selectByPrimaryKey(key);
         if (param == null || StringUtils.isBlank(param.getParamValue())) {
@@ -221,6 +226,9 @@ public class SystemParameterService {
             for (SystemParameter param : paramList) {
                 if (StringUtils.equals(param.getParamKey(), ParamConstants.BASE.URL.getValue())) {
                     baseSystemConfigDTO.setUrl(param.getParamValue());
+                }
+                if (StringUtils.equals(param.getParamKey(), ParamConstants.BASE.CONCURRENCY.getValue())) {
+                    baseSystemConfigDTO.setConcurrency(param.getParamValue());
                 }
             }
         }

@@ -11,6 +11,7 @@ import io.metersphere.track.dto.TestPlanLoadCaseDTO;
 import io.metersphere.track.request.testplan.LoadCaseReportBatchRequest;
 import io.metersphere.track.request.testplan.LoadCaseReportRequest;
 import io.metersphere.track.request.testplan.LoadCaseRequest;
+import io.metersphere.track.request.testplan.RunBatchTestPlanRequest;
 import io.metersphere.track.service.TestPlanLoadCaseService;
 import org.springframework.web.bind.annotation.*;
 
@@ -49,6 +50,11 @@ public class TestPlanLoadCaseController {
     @PostMapping("/run")
     public String run(@RequestBody RunTestPlanRequest request) {
         return testPlanLoadCaseService.run(request);
+    }
+
+    @PostMapping("/run/batch")
+    public void runBatch(@RequestBody RunBatchTestPlanRequest request) {
+        testPlanLoadCaseService.runBatch(request);
     }
 
     @PostMapping("/report/exist")

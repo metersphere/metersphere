@@ -1,61 +1,25 @@
 package io.metersphere.track.controller;
 
-import io.metersphere.base.domain.Issues;
-import io.metersphere.track.issue.domain.PlatformUser;
-import io.metersphere.track.issue.domain.ZentaoBuild;
-import io.metersphere.track.service.IssuesService;
-import io.metersphere.track.request.testcase.IssuesRequest;
-import org.springframework.web.bind.annotation.*;
+import io.metersphere.track.dto.TestCaseDTO;
+import io.metersphere.track.request.issues.IssuesRelevanceRequest;
+import io.metersphere.track.service.TestCaseIssueService;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
 import java.util.List;
 
-@RequestMapping("issues")
+@RequestMapping("test/case/issues")
 @RestController
 public class TestCaseIssuesController {
 
     @Resource
-    private IssuesService issuesService;
+    private TestCaseIssueService testCaseIssueService;
 
-    @PostMapping("/add")
-    public void addIssues(@RequestBody IssuesRequest issuesRequest) {
-        issuesService.addIssues(issuesRequest);
+    @PostMapping("/list")
+    public List<TestCaseDTO> list(@RequestBody IssuesRelevanceRequest request) {
+        return testCaseIssueService.list(request);
     }
-
-    @GetMapping("/get/{id}")
-    public List<Issues> getIssues(@PathVariable String id) {
-        return issuesService.getIssues(id);
-    }
-
-    @GetMapping("/auth/{platform}")
-    public void testAuth(@PathVariable String platform) {
-        issuesService.testAuth(platform);
-    }
-
-    @GetMapping("/close/{id}")
-    public void closeLocalIssue(@PathVariable String id) {
-        issuesService.closeLocalIssue(id);
-    }
-
-    @PostMapping("/delete")
-    public void deleteIssue(@RequestBody IssuesRequest request) {
-        issuesService.deleteIssue(request);
-    }
-
-    @GetMapping("/tapd/user/{caseId}")
-    public List<PlatformUser> getTapdUsers(@PathVariable String caseId) {
-        return issuesService.getTapdProjectUsers(caseId);
-    }
-
-    @GetMapping("/zentao/user/{caseId}")
-    public List<PlatformUser> getZentaoUsers(@PathVariable String caseId) {
-        return issuesService.getZentaoUsers(caseId);
-    }
-
-    @GetMapping("/zentao/builds/{caseId}")
-    public List<ZentaoBuild> getZentaoBuilds(@PathVariable String caseId) {
-        return issuesService.getZentaoBuilds(caseId);
-    }
-
-
 }

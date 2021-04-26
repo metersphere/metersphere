@@ -130,6 +130,7 @@
       <ms-table-pagination :change="initTable" :current-page.sync="currentPage" :page-size.sync="pageSize"
                            :total="total"/>
     </el-card>
+    <ms-plan-run-mode @handleRunBatch="runBatch" ref="runMode"/>
 
     <load-case-report :report-id="reportId" ref="loadCaseReport" @refresh="initTable"/>
   </div>
@@ -162,6 +163,7 @@ import {Test_Plan_Load_Case, Track_Test_Case} from "@/business/components/common
 import {getCurrentUser} from "@/common/js/utils";
 import HeaderLabelOperate from "@/business/components/common/head/HeaderLabelOperate";
 import MsTableHeaderSelectPopover from "@/business/components/common/components/table/MsTableHeaderSelectPopover";
+import MsPlanRunMode from "../../../common/PlanRunMode";
 
 export default {
   name: "TestPlanLoadCaseList",
@@ -174,7 +176,8 @@ export default {
     MsTablePagination,
     MsPerformanceTestStatus,
     MsTableOperatorButton,
-    MsTableHeaderSelectPopover
+    MsTableHeaderSelectPopover,
+    MsPlanRunMode
   },
   data() {
     return {
@@ -225,8 +228,6 @@ export default {
   created() {
     this.initTable();
     this.refreshStatus();
-
-
   },
   watch: {
     selectProjectId() {
@@ -237,6 +238,60 @@ export default {
     }
   },
   methods: {
+    orderBySelectRows(rows){
+      let selectIds = Array.from(rows).map(row => row.id);
+      let array = [];
+      for(let i in this.tableData){
+        if(selectIds.indexOf(this.tableData[i].id)!==-1){
+          array.push(this.tableData[i]);
+        }
+      }
+      this.selectRows = array;
+    },
+    runBatch(config){
+      this.orderBySelectRows(this.selectRows);
+      if(this.condition != null && this.condition.selectAll){
+        this.$alert(this.$t('commons.option_cannot_spread_pages'), '', {
+          confirmButtonText: this.$t('commons.confirm'),
+          callback: (action) => {
+            if (action === 'confirm') {
+              let runArr = [];
+              this.selectRows.forEach(loadCase => {
+                 runArr.push( {
+                   id: loadCase.loadCaseId,
+                   testPlanLoadId: loadCase.id,
+                   triggerMode: 'CASE'
+                 })
+              });
+              let obj = {config:config,requests:runArr,userId:getCurrentUser().id};
+              this._runBatch(obj);
+              this.refreshStatus();
+            }
+          }
+        });
+      }else {
+        let runArr = [];
+        this.selectRows.forEach(loadCase => {
+          runArr.push( {
+            id: loadCase.loadCaseId,
+            testPlanLoadId: loadCase.id,
+            triggerMode: 'CASE'
+          })
+        });
+        let obj = {config:config,requests:runArr,userId:getCurrentUser().id};
+        this._runBatch(obj);
+        this.initTable();
+        this.refreshStatus();
+      }
+    },
+    _runBatch(loadCases) {
+      this.$post('/test/plan/load/case/run/batch',loadCases, response => {
+      });
+      this.$success(this.$t('test_track.plan.load_case.exec'));
+      this.initTable();
+      this.refreshStatus();
+    },
+
     customHeader() {
       this.$refs.headerCustom.open(this.tableLabel)
     },
@@ -338,24 +393,7 @@ export default {
       })
     },
     handleRunBatch() {
-      if(this.condition != null && this.condition.selectAll){
-        this.$alert(this.$t('commons.option_cannot_spread_pages'), '', {
-          confirmButtonText: this.$t('commons.confirm'),
-          callback: (action) => {
-            if (action === 'confirm') {
-              this.selectRows.forEach(loadCase => {
-                this._run(loadCase);
-              });
-              this.refreshStatus();
-            }
-          }
-        });
-      }else {
-        this.selectRows.forEach(loadCase => {
-          this._run(loadCase);
-        });
-        this.refreshStatus();
-      }
+      this.$refs.runMode.open();
     },
     run(loadCase) {
       this._run(loadCase);

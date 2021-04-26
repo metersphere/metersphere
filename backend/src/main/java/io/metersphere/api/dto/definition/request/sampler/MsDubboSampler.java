@@ -38,7 +38,9 @@ import java.util.stream.Collectors;
 @EqualsAndHashCode(callSuper = true)
 @JSONType(typeName = "DubboSampler")
 public class MsDubboSampler extends MsTestElement {
-    /** type 必须放最前面，以便能够转换正确的类 */
+    /**
+     * type 必须放最前面，以便能够转换正确的类
+     */
     private String type = "DubboSampler";
 
     @JSONField(ordinal = 52)
@@ -90,39 +92,34 @@ public class MsDubboSampler extends MsTestElement {
             ApiDefinitionService apiDefinitionService = CommonBeanFactory.getBean(ApiDefinitionService.class);
             ObjectMapper mapper = new ObjectMapper();
             mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+            MsDubboSampler proxy = null;
             if (StringUtils.equals(this.getRefType(), "CASE")) {
                 ApiTestCaseService apiTestCaseService = CommonBeanFactory.getBean(ApiTestCaseService.class);
                 ApiTestCaseWithBLOBs bloBs = apiTestCaseService.get(this.getId());
                 if (bloBs != null) {
                     this.setProjectId(bloBs.getProjectId());
-                    MsDubboSampler proxy = mapper.readValue(bloBs.getRequest(), new TypeReference<MsDubboSampler>() {
+                    proxy = mapper.readValue(bloBs.getRequest(), new TypeReference<MsDubboSampler>() {
                     });
-                    this.setHashTree(proxy.getHashTree());
                     this.setName(bloBs.getName());
-                    this.setMethod(proxy.getMethod());
-                    this.set_interface(proxy.get_interface());
-                    this.setAttachmentArgs(proxy.getAttachmentArgs());
-                    this.setArgs(proxy.getArgs());
-                    this.setConsumerAndService(proxy.getConsumerAndService());
-                    this.setRegistryCenter(proxy.getRegistryCenter());
-                    this.setConfigCenter(proxy.getConfigCenter());
                 }
             } else {
                 ApiDefinitionWithBLOBs apiDefinition = apiDefinitionService.getBLOBs(this.getId());
                 if (apiDefinition != null) {
                     this.setProjectId(apiDefinition.getProjectId());
-                    MsDubboSampler proxy = mapper.readValue(apiDefinition.getRequest(), new TypeReference<MsDubboSampler>() {
+                    proxy = mapper.readValue(apiDefinition.getRequest(), new TypeReference<MsDubboSampler>() {
                     });
-                    this.setHashTree(proxy.getHashTree());
                     this.setName(apiDefinition.getName());
-                    this.setMethod(proxy.getMethod());
-                    this.set_interface(proxy.get_interface());
-                    this.setAttachmentArgs(proxy.getAttachmentArgs());
-                    this.setArgs(proxy.getArgs());
-                    this.setConsumerAndService(proxy.getConsumerAndService());
-                    this.setRegistryCenter(proxy.getRegistryCenter());
-                    this.setConfigCenter(proxy.getConfigCenter());
                 }
+            }
+            if (proxy != null) {
+                this.setHashTree(proxy.getHashTree());
+                this.setMethod(proxy.getMethod());
+                this.set_interface(proxy.get_interface());
+                this.setAttachmentArgs(proxy.getAttachmentArgs());
+                this.setArgs(proxy.getArgs());
+                this.setConsumerAndService(proxy.getConsumerAndService());
+                this.setRegistryCenter(proxy.getRegistryCenter());
+                this.setConfigCenter(proxy.getConfigCenter());
             }
         } catch (Exception ex) {
             ex.printStackTrace();

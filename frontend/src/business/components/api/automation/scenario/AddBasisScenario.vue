@@ -95,15 +95,16 @@
           if (valid) {
             let path = "/api/automation/create";
             this.setParameter();
-            this.$fileUpload(path, null, [], this.scenarioForm, () => {
+            if (saveAs) {
+              this.scenarioForm.request = JSON.stringify(this.scenarioForm.request);
+              this.$emit('saveAsEdit', this.scenarioForm);
               this.visible = false;
-              if (saveAs) {
-                this.scenarioForm.request = JSON.stringify(this.scenarioForm.request);
-                this.$emit('saveAsEdit', this.scenarioForm);
-              } else {
+            } else {
+              this.$fileUpload(path, null, [], this.scenarioForm, () => {
+                this.visible = false;
                 this.$emit('refresh');
-              }
-            });
+              });
+            }
           } else {
             return false;
           }
@@ -117,7 +118,7 @@
         if (this.currentModule && this.currentModule.id != "root") {
           this.scenarioForm.modulePath = this.currentModule.method !== undefined ? this.currentModule.method : null;
           this.scenarioForm.apiScenarioModuleId = this.currentModule.id;
-        }else{
+        } else {
           this.scenarioForm.modulePath = this.$t("commons.module_title");
           this.scenarioForm.apiScenarioModuleId = "default-module";
         }

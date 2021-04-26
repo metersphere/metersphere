@@ -8,6 +8,9 @@
             <el-input v-model="formInline.url" :placeholder="$t('system_config.base.url_tip')"/>
             <i>({{$t('commons.examples')}}:https://rdmetersphere.fit2cloud.com)</i>
           </el-form-item>
+          <el-form-item :label="$t('report.max_users')" prop="concurrency">
+            <el-input v-model="formInline.concurrency" :placeholder="$t('report.max_users')"/>
+          </el-form-item>
         </el-col>
       </el-row>
     </el-form>
@@ -75,6 +78,7 @@ export default {
       this.show = true;
       let param = [
         {paramKey: "base.url", paramValue: this.formInline.url, type: "text", sort: 1},
+        {paramKey: "base.concurrency", paramValue: this.formInline.concurrency, type: "text", sort: 2},
       ];
 
       this.$refs[formInline].validate(valid => {

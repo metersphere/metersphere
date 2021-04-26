@@ -59,6 +59,16 @@
         <el-form-item :label="$t('commons.name')" prop="name">
           <el-input v-model="form.name" autocomplete="off"></el-input>
         </el-form-item>
+
+
+        <el-form-item :label="$t('用例模板')" prop="caseTemplateId">
+          <template-select :data="form" scene="API_CASE" prop="caseTemplateId" ref="caseTemplate"/>
+        </el-form-item>
+        <el-form-item :label="$t('缺陷模板')" prop="issueTemplateId">
+          <template-select :data="form" scene="ISSUE" prop="issueTemplateId" ref="issueTemplate"/>
+        </el-form-item>
+
+
         <el-form-item :label="$t('commons.description')" prop="description">
           <el-input :autosize="{ minRows: 2, maxRows: 4}" type="textarea" v-model="form.description"></el-input>
         </el-form-item>
@@ -113,10 +123,12 @@ import MsJarConfig from "../../api/test/components/jar/JarConfig";
 import MsTableButton from "../../common/components/MsTableButton";
 import {_sort} from "@/common/js/tableUtils";
 import MsResourceFiles from "@/business/components/performance/test/components/ResourceFiles";
+import TemplateSelect from "@/business/components/settings/workspace/template/TemplateSelect";
 
 export default {
   name: "MsProject",
   components: {
+    TemplateSelect,
     MsResourceFiles,
     MsTableButton,
     MsJarConfig,
@@ -150,6 +162,8 @@ export default {
         description: [
           {max: 250, message: this.$t('commons.input_limit', [0, 250]), trigger: 'blur'}
         ],
+        // caseTemplateId: [{required: true}],
+        // issueTemplateId: [{required: true}],
       },
     }
   },
@@ -180,6 +194,7 @@ export default {
   methods: {
     create() {
       let workspaceId = this.currentUser.lastWorkspaceId;
+      this.getOptions();
       if (!workspaceId) {
         this.$warning(this.$t('project.please_choose_workspace'));
         return false;
@@ -189,8 +204,18 @@ export default {
       this.createVisible = true;
       this.form = {};
     },
+    getOptions() {
+
+      if (this.$refs.issueTemplate) {
+        this.$refs.issueTemplate.getTemplateOptions();
+      }
+      if (this.$refs.caseTemplate) {
+        this.$refs.caseTemplate.getTemplateOptions();
+      }
+    },
     edit(row) {
       this.title = this.$t('project.edit');
+      this.getOptions();
       this.createVisible = true;
       listenGoBack(this.handleClose);
       this.form = Object.assign({}, row);

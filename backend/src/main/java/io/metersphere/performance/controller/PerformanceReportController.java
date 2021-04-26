@@ -29,13 +29,9 @@ public class PerformanceReportController {
     @Resource
     private ReportService reportService;
 
-    @GetMapping("/recent/{count}")
+    @PostMapping("/recent/{count}")
     @RequiresRoles(value = {RoleConstants.TEST_MANAGER, RoleConstants.TEST_USER, RoleConstants.TEST_VIEWER}, logical = Logical.OR)
-    public List<ReportDTO> recentProjects(@PathVariable int count) {
-        String currentWorkspaceId = SessionUtils.getCurrentWorkspaceId();
-        ReportRequest request = new ReportRequest();
-        request.setWorkspaceId(currentWorkspaceId);
-        request.setUserId(SessionUtils.getUserId());
+    public List<ReportDTO> recentProjects(@PathVariable int count, @RequestBody ReportRequest request) {
         // 最近 `count` 个项目
         PageHelper.startPage(1, count);
         return reportService.getRecentReportList(request);
@@ -43,8 +39,6 @@ public class PerformanceReportController {
 
     @PostMapping("/list/all/{goPage}/{pageSize}")
     public Pager<List<ReportDTO>> getReportList(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody ReportRequest request) {
-        String currentWorkspaceId = SessionUtils.getCurrentWorkspaceId();
-        request.setWorkspaceId(currentWorkspaceId);
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
         return PageUtils.setPageInfo(page, reportService.getReportList(request));
     }
@@ -109,6 +103,11 @@ public class PerformanceReportController {
     @GetMapping("/{reportId}")
     public LoadTestReportWithBLOBs getLoadTestReport(@PathVariable String reportId) {
         return reportService.getLoadTestReport(reportId);
+    }
+
+    @GetMapping("/pool/type/{reportId}")
+    public String getPoolTypeByReportId(@PathVariable String reportId) {
+        return reportService.getPoolTypeByReportId(reportId);
     }
 
     @GetMapping("log/resource/{reportId}")

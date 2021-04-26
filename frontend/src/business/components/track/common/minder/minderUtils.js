@@ -230,3 +230,27 @@ export function tagBatch(distinctTags) {
     }
   });
 }
+
+export function tagEditCheck(resourceName) {
+  let minder = window.minder;
+  let selectNodes = minder.getSelectedNodes();
+  if (selectNodes && selectNodes.length > 0) {
+    let resource = selectNodes[0].getParent().data.resource;
+    if (resource && resource.indexOf('用例') > -1 && resourceName === '用例') {
+      return false;
+    }
+  }
+  return true;
+}
+
+export function priorityDisableCheck() {
+  let minder = window.minder;
+  let selectNodes = minder.getSelectedNodes();
+  if (selectNodes && selectNodes.length > 0) {
+    let resource = selectNodes[0].getParent().data.resource;
+    if (resource && resource.indexOf('用例') > -1) {
+      return true;
+    }
+  }
+  return false;
+}

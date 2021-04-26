@@ -2,7 +2,6 @@
 
   <div class="card-container">
     <el-card class="card-content" v-loading="httpForm.loading">
-
       <el-form :model="httpForm" :rules="rule" ref="httpForm" label-width="80px" label-position="right">
         <!-- 操作按钮 -->
         <div style="float: right;margin-right: 20px">
@@ -85,8 +84,8 @@
           <el-row>
             <el-col :span="20">
               Mock地址：
-              <el-link>
-                {{ this.mockBaseUrl + "/mock/" + this.projectId + (this.httpForm.path == null ? "" : this.httpForm.path) }}
+              <el-link :href="getUrlPrefix" target="_blank" style="color: black"
+                       type="primary">{{ this.getUrlPrefix }}
               </el-link>
             </el-col>
             <el-col :span="4">
@@ -184,6 +183,46 @@
         }
       }
     },
+    computed: {
+      getUrlPrefix() {
+        if (this.httpForm.path == null) {
+          return this.mockBaseUrl + "/mock/" + this.projectId;
+        } else {
+          let path = this.httpForm.path;
+          let prefix = "";
+          if (path.endsWith("/")) {
+            prefix = "/";
+          }
+          let protocol = this.httpForm.method;
+          if (protocol === 'GET' || protocol === 'DELETE') {
+            if (this.httpForm.request != null && this.httpForm.request.rest != null) {
+              let pathUrlArr = path.split("/");
+              let newPath = "";
+              pathUrlArr.forEach(item => {
+                if (item !== "") {
+                  let pathItem = item;
+                  if (item.indexOf("{") === 0 && item.indexOf("}") === (item.length - 1)) {
+                    let paramItem = item.substr(1, item.length - 2);
+                    for (let i = 0; i < this.httpForm.request.rest.length; i++) {
+                      let param = this.httpForm.request.rest[i];
+                      if (param.name === paramItem) {
+                        pathItem = param.value;
+                      }
+                    }
+                  }
+                  newPath += "/" + pathItem;
+                }
+              });
+              if (newPath !== "") {
+                path = newPath;
+              }
+            }
+          }
+
+          return this.mockBaseUrl + "/mock/" + this.projectId + path + prefix;
+        }
+      }
+    },
     methods: {
       runTest() {
         this.$refs['httpForm'].validate((valid) => {
@@ -193,7 +232,7 @@
           } else {
             return false;
           }
-        })
+        });
       },
       getMaintainerOptions() {
         let workspaceId = localStorage.getItem(WORKSPACE_ID);
@@ -260,7 +299,14 @@
           this.mockEnvironment = response.data;
           let httpConfig = JSON.parse(this.mockEnvironment.config);
           if (httpConfig != null) {
-            this.mockBaseUrl = httpConfig.httpConfig.socket;
+            httpConfig = httpConfig.httpConfig;
+            let httpType = httpConfig.defaultCondition;
+            let conditions = httpConfig.conditions;
+            conditions.forEach(condition => {
+              if (condition.type === httpType) {
+                this.mockBaseUrl = condition.protocol + "://" + condition.socket;
+              }
+            });
           }
         });
       },
@@ -274,6 +320,7 @@
 
           this.$post('/mockConfig/genMockConfig', mockParam, response => {
             let mockConfig = response.data;
+            mockConfig.apiName = this.httpForm.name;
             this.$emit('mockConfig', mockConfig);
           });
         }

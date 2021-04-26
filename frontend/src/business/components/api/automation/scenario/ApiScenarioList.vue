@@ -1,10 +1,10 @@
 <template>
   <div>
-    <el-card class="table-card" v-loading="result.loading">
-      <template v-slot:header>
-        <ms-table-header :condition.sync="condition" @search="selectByParam" title=""
-                         :show-create="false" :tip="$t('commons.search_by_id_name_tag')"/>
-      </template>
+    <el-card class="table-card-nopadding" v-loading="result.loading">
+      <!--      <template v-slot:header>-->
+      <ms-table-header :condition.sync="condition" @search="selectByParam" title=""
+                       :show-create="false" :tip="$t('commons.search_by_id_name_tag')"/>
+      <!--      </template>-->
 
       <el-table ref="scenarioTable" border :data="tableData" class="adjust-table ms-select-all-fixed"
                 @sort-change="sort"
@@ -618,10 +618,19 @@
       },
 
       isSelectDataAll(data) {
+        // this.condition.selectAll = data;
+        // setUnSelectIds(this.tableData, this.condition, this.selectRows);
+        // this.selectDataCounts = getSelectDataCounts(this.condition, this.total, this.selectRows);
+        // toggleAllSelection(this.$refs.scenarioTable, this.tableData, this.selectRows);
         this.condition.selectAll = data;
-        setUnSelectIds(this.tableData, this.condition, this.selectRows);
-        this.selectDataCounts = getSelectDataCounts(this.condition, this.total, this.selectRows);
+        //设置勾选
         toggleAllSelection(this.$refs.scenarioTable, this.tableData, this.selectRows);
+        //显示隐藏菜单
+        _handleSelectAll(this, this.tableData, this.tableData, this.selectRows);
+        //设置未选择ID(更新)
+        this.condition.unSelectIds = [];
+        //更新统计信息
+        this.selectDataCounts = getSelectDataCounts(this.condition, this.total, this.selectRows);
       },
       edit(row) {
         let data = JSON.parse(JSON.stringify(row));
@@ -716,9 +725,7 @@
               // let ids = [row.id];
               let param = {};
               this.buildBatchParam(param);
-              if (param.ids && param.ids.length <= 0) {
-                param.ids = [row.id];
-              }
+              param.ids = [row.id];
               this.$post('/api/automation/removeToGcByBatch/', param, () => {
                 // this.$post('/api/automation/removeToGc/', ids, () => {
                 this.$success(this.$t('commons.delete_success'));
@@ -793,6 +800,9 @@
           });
         });
       },
+      getConditions() {
+        return this.condition;
+      }
     }
   }
 </script>

@@ -271,7 +271,7 @@ public class TestPlanReportService {
         testPlanService.buildLoadCaseReport(testPlanReport.getTestPlanId(), components);
 
         if (StringUtils.equals(ReportTriggerMode.MANUAL.name(), triggerMode)) {
-            List<Issues> issues = testPlanService.buildFunctionalCaseReport(testPlanReport.getTestPlanId(), components);
+            List<IssuesDao> issues = testPlanService.buildFunctionalCaseReport(testPlanReport.getTestPlanId(), components);
             issuesInfo = JSONArray.toJSONString(issues);
         }
 

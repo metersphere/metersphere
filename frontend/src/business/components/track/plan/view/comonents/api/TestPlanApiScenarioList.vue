@@ -17,7 +17,7 @@
                                         :total="total"
                                         @selectPageAll="isSelectDataAll(false)"
                                         @selectAll="isSelectDataAll(true)"/>
-        <el-table-column width="20" :resizable="false" align="center">
+        <el-table-column width="40" :resizable="false" align="center">
           <template v-slot:default="{row}">
             <show-more-btn :is-show="isSelect(row)" :buttons="buttons" :size="selectDataCounts"/>
           </template>
@@ -110,7 +110,7 @@ import MsTableHeader from "@/business/components/common/components/MsTableHeader
 import MsTablePagination from "@/business/components/common/pagination/TablePagination";
 import ShowMoreBtn from "@/business/components/track/case/components/ShowMoreBtn";
 import MsTag from "../../../../../common/components/MsTag";
-import {getUUID, strMapToObj} from "@/common/js/utils";
+import {getCurrentProjectID, getUUID, strMapToObj} from "@/common/js/utils";
 import MsApiReportDetail from "../../../../../api/automation/report/ApiReportDetail";
 import MsTableMoreBtn from "../../../../../api/automation/scenario/TableMoreBtn";
 import MsScenarioExtendButtons from "@/business/components/api/automation/scenario/ScenarioExtendBtns";
@@ -294,29 +294,57 @@ export default {
       })
     },
     handleBatchExecute() {
-      this.$refs.runMode.open();
+      if(this.condition != null && this.condition.selectAll) {
+        this.$alert(this.$t('commons.option_cannot_spread_pages'), '', {
+          confirmButtonText: this.$t('commons.confirm'),
+          callback: (action) => {
+            if (action === 'confirm') {
+              this.$refs.runMode.open();
+            }
+          }
+        })
+      }else {
+        this.$refs.runMode.open();
+      }
+    },
+    orderBySelectRows(rows){
+      let selectIds = Array.from(rows).map(row => row.id);
+      let array = [];
+      for(let i in this.tableData){
+        if(selectIds.indexOf(this.tableData[i].id)!==-1){
+          array.push(this.tableData[i]);
+        }
+      }
+      this.selectRows = array;
     },
     handleRunBatch(config){
+      this.orderBySelectRows(this.selectRows);
       if (this.reviewId) {
         let param = {config : config,planCaseIds:[]};
         this.selectRows.forEach(row => {
           this.buildExecuteParam(param,row);
         });
-        this.$post("/test/case/review/scenario/case/run", param, response => {});
+        this.$post("/test/case/review/scenario/case/run", param, response => {
+          this.$message('任务执行中，请稍后刷新查看结果');
+        });
       }
       if (this.planId) {
-        let param = {config : config,planCaseIds:[]};
+        let selectParam = buildBatchParam(this);
+        let param = {config: config, planCaseIds: []};
         this.selectRows.forEach(row => {
-          this.buildExecuteParam(param,row);
+          this.buildExecuteParam(param, row);
         });
-        this.$post("/test/plan/scenario/case/run", param, response => {});
+        param.condition = selectParam.condition;
+        this.$post("/test/plan/scenario/case/run", param, response => {
+          this.$message('任务执行中，请稍后刷新查看结果');
+        });
       }
-      this.$message('任务执行中，请稍后刷新查看结果');
       this.search();
     },
     execute(row) {
       this.infoDb = false;
       let param ={planCaseIds: []};
+      this.reportId = "";
       this.buildExecuteParam(param,row);
       if (this.planId) {
         this.$post("/test/plan/scenario/case/run", param, response => {
@@ -460,7 +488,11 @@ export default {
 /deep/ .el-drawer__header {
   margin-bottom: 0px;
 }
-/deep/ .el-table__fixed-body-wrapper {
-  top: 59px !important;
+
+.ms-select-all-fixed >>> th:nth-child(2) .el-icon-arrow-down {
+  top: -3px;
 }
+/*/deep/ .el-table__fixed-body-wrapper {*/
+/*  top: 59px !important;*/
+/*}*/
 </style>

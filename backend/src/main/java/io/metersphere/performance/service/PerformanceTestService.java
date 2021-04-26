@@ -280,10 +280,10 @@ public class PerformanceTestService {
         String testResourcePoolId = loadTest.getTestResourcePoolId();
         TestResourcePool testResourcePool = testResourcePoolMapper.selectByPrimaryKey(testResourcePoolId);
         if (testResourcePool == null) {
-            MSException.throwException("Test resource pool not exists.");
+            MSException.throwException(Translator.get("test_resource_pool_not_exists"));
         }
         if (ResourceStatusEnum.INVALID.name().equals(testResourcePool.getStatus())) {
-            MSException.throwException("Test resource pool invalid.");
+            MSException.throwException(Translator.get("test_resource_pool_invalid"));
         }
         // check kafka
         checkKafka();
@@ -382,7 +382,6 @@ public class PerformanceTestService {
         orderRequest.setType("desc");
         orders.add(orderRequest);
         request.setOrders(orders);
-        request.setProjectId(SessionUtils.getCurrentProjectId());
         return extLoadTestMapper.list(request);
     }
 
@@ -524,8 +523,8 @@ public class PerformanceTestService {
         if (!resourceIds.isEmpty()) {
             LoadTestExample example = new LoadTestExample();
             LoadTestExample.Criteria criteria = example.createCriteria();
-            if (StringUtils.isNotBlank(SessionUtils.getCurrentProjectId())) {
-                criteria.andProjectIdEqualTo(SessionUtils.getCurrentProjectId());
+            if (StringUtils.isNotBlank(request.getProjectId())) {
+                criteria.andProjectIdEqualTo(request.getProjectId());
             }
             criteria.andIdIn(resourceIds);
             List<LoadTest> loadTests = loadTestMapper.selectByExample(example);
@@ -604,5 +603,11 @@ public class PerformanceTestService {
         FileMetadataExample example = new FileMetadataExample();
         example.createCriteria().andIdIn(fileIds);
         return fileService.getFileMetadataByIds(fileIds);
+    }
+
+    public Long getReportCountByTestId(String testId) {
+        LoadTestReportExample example = new LoadTestReportExample();
+        example.createCriteria().andTestIdEqualTo(testId);
+        return loadTestReportMapper.countByExample(example);
     }
 }

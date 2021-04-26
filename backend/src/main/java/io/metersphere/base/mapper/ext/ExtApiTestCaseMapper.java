@@ -31,4 +31,8 @@ public interface ExtApiTestCaseMapper {
     ApiTestCaseInfo selectApiCaseInfoByPrimaryKey(String id);
 
     List<ApiTestCase> selectEffectiveTestCaseByProjectId(String projectId);
+
+    List<String> idSimple(@Param("request") ApiTestCaseRequest request);
+
+    List<ApiTestCaseInfo> getCaseInfo(@Param("request") ApiTestCaseRequest request);
 }

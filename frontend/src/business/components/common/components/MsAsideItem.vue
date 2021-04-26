@@ -10,12 +10,18 @@
         </span>
       </slot>
     </div>
-    <div :style="{'height': itemBarHeight + 'px'}" v-for="(item, index) in data" :key="index" class="item-bar" @click="itemSelected(index, item)" :class="{'item-selected' : index == selectIndex}">
-      <input class="item-input" :style="{'height': itemBarHeight - 12 + 'px', 'line-height': itemBarHeight - 12 + 'px', 'width': width - 90 + 'px'}" v-model="item.name" :placeholder="$t('commons.input_content')"/>
-      <span :style="{'line-height': itemBarHeight - 10 + 'px'}" class="item-right">
-        <i v-for="(operator, operatorIndex) in itemOperators" :key="operatorIndex" :class="operator.icon" @click.stop="operator.func(item, index)"/>
+    <slot name="content">
+      <div :style="{'height': itemBarHeight + 'px'}" v-for="(item, index) in data" :key="index" class="item-bar"
+           @click="itemSelected(index, item)" :class="{'item-selected' : index == selectIndex}">
+        <input class="item-input"
+               :style="{'height': itemBarHeight - 12 + 'px', 'line-height': itemBarHeight - 12 + 'px', 'width': width - 90 + 'px'}"
+               v-model="item.name" :placeholder="$t('commons.input_content')"/>
+        <span :style="{'line-height': itemBarHeight - 10 + 'px'}" class="item-right">
+          <i v-for="(operator, operatorIndex) in itemOperators" :key="operatorIndex" :class="operator.icon"
+           @click.stop="operator.func(item, index)"/>
       </span>
-    </div>
+      </div>
+    </slot>
   </ms-aside-container>
 </template>
 
