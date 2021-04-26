@@ -46,7 +46,7 @@ import MsShowAll from "../../common/head/ShowAll";
 import {LIST_CHANGE, PerformanceEvent} from "@/business/components/common/head/ListEvent";
 import SearchList from "@/business/components/common/head/SearchList";
 import ProjectChange from "@/business/components/common/head/ProjectSwitch";
-import {getCurrentProjectID, getCurrentWorkspaceId} from "@/common/js/utils";
+import {getCurrentProjectID, getCurrentUserId, getCurrentWorkspaceId} from "@/common/js/utils";
 
 export default {
   name: "PerformanceHeaderMenus",
@@ -63,6 +63,11 @@ export default {
       testRecent: {
         title: this.$t('load_test.recent'),
         url: "/performance/recent/5",
+        condition: {
+          workspaceId: getCurrentWorkspaceId(),
+          projectId: getCurrentProjectID(),
+          userId: getCurrentUserId()
+        },
         index(item) {
           return '/performance/test/edit/' + item.id;
         },
@@ -75,6 +80,7 @@ export default {
         condition: {
           workspaceId: getCurrentWorkspaceId(),
           projectId: getCurrentProjectID(),
+          userId: getCurrentUserId()
         },
         showTime: true,
         index(item) {

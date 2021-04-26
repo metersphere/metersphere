@@ -32,7 +32,6 @@ public class PerformanceReportController {
     @PostMapping("/recent/{count}")
     @RequiresRoles(value = {RoleConstants.TEST_MANAGER, RoleConstants.TEST_USER, RoleConstants.TEST_VIEWER}, logical = Logical.OR)
     public List<ReportDTO> recentProjects(@PathVariable int count, @RequestBody ReportRequest request) {
-        request.setUserId(SessionUtils.getUserId());
         // 最近 `count` 个项目
         PageHelper.startPage(1, count);
         return reportService.getRecentReportList(request);

@@ -95,6 +95,11 @@ export function getCurrentUser() {
   return JSON.parse(localStorage.getItem(TokenKey));
 }
 
+export function getCurrentUserId() {
+  let user = JSON.parse(localStorage.getItem(TokenKey));
+  return user.id;
+}
+
 export function getCurrentProjectID() {
   return localStorage.getItem(PROJECT_ID);
 }
