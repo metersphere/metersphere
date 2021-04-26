@@ -46,7 +46,7 @@
       <template v-for="(item, index) in tableLabel">
         <el-table-column
           v-if="item.id == 'num'"
-          prop="num"
+          prop="customNum"
           sortable="custom"
           min-width="100"
           :label="$t('commons.id')"
