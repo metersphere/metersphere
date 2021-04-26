@@ -104,20 +104,6 @@
           </el-table-column>
 
           <el-table-column
-            v-if="item.id=='method'"
-            prop="method"
-            :filters="methodFilters"
-            column-key="method"
-            :label="$t('test_track.case.method')"
-            min-width="100px"
-            :key="index"
-            show-overflow-tooltip>
-            <template v-slot:default="scope">
-              <method-table-item :value="scope.row.method"/>
-            </template>
-          </el-table-column>
-
-          <el-table-column
             v-if="item.id=='nodePath'"
             prop="nodePath"
             :label="$t('test_track.case.module')"
