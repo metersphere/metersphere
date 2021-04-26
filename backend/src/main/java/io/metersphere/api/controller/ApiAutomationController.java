@@ -2,10 +2,7 @@ package io.metersphere.api.controller;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
-import io.metersphere.api.dto.ApiScenarioEnvRequest;
-import io.metersphere.api.dto.ApiTestImportRequest;
-import io.metersphere.api.dto.JmxInfoDTO;
-import io.metersphere.api.dto.ScenarioEnv;
+import io.metersphere.api.dto.*;
 import io.metersphere.api.dto.automation.*;
 import io.metersphere.api.dto.automation.parse.ScenarioImport;
 import io.metersphere.api.dto.definition.RunDefinitionRequest;
@@ -122,6 +119,11 @@ public class ApiAutomationController {
     @GetMapping("/getApiScenarioProjectId/{id}")
     public ScenarioEnv getApiScenarioProjectId(@PathVariable String id) {
         return apiAutomationService.getApiScenarioProjectId(id);
+    }
+
+    @PostMapping("/getApiScenarioProjectIdByConditions")
+    public List<ScenarioIdProjectInfo> getApiScenarioProjectIdByConditions(@RequestBody ApiScenarioBatchRequest request) {
+        return apiAutomationService.getApiScenarioProjectIdByConditions(request);
     }
 
     @PostMapping("/getApiScenarios")
