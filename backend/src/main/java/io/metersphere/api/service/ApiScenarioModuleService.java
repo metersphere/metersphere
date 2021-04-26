@@ -189,18 +189,20 @@ public class ApiScenarioModuleService extends NodeTreeService<ApiScenarioModuleD
     public int editNode(DragApiScenarioModuleRequest request) {
         request.setUpdateTime(System.currentTimeMillis());
         checkApiScenarioModuleExist(request);
-//        List<ApiScenarioDTO> apiScenarios = queryByModuleIds(request);
-//        apiScenarios.forEach(apiScenario -> {
-//            StringBuilder path = new StringBuilder(apiScenario.getModulePath());
-//            List<String> pathLists = Arrays.asList(path.toString().split("/"));
-//            pathLists.set(request.getLevel(), request.getName());
-//            path.delete(0, path.length());
-//            for (int i = 1; i < pathLists.size(); i++) {
-//                path.append("/").append(pathLists.get(i));
-//            }
-//            apiScenario.setModulePath(path.toString());
-//        });
-//        batchUpdateApiScenario(apiScenarios);
+        List<ApiScenarioDTO> apiScenarios = queryByModuleIds(request);
+        apiScenarios.forEach(apiScenario -> {
+            StringBuilder path = new StringBuilder(apiScenario.getModulePath());
+            List<String> pathLists = Arrays.asList(path.toString().split("/"));
+            if (pathLists.size() > request.getLevel()) {
+                pathLists.set(request.getLevel(), request.getName());
+                path.delete(0, path.length());
+                for (int i = 1; i < pathLists.size(); i++) {
+                    path.append("/").append(pathLists.get(i));
+                }
+                apiScenario.setModulePath(path.toString());
+            }
+        });
+        batchUpdateApiScenario(apiScenarios);
 
         return apiScenarioModuleMapper.updateByPrimaryKeySelective(request);
     }

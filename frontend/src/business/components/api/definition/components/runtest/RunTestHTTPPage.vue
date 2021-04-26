@@ -65,7 +65,7 @@
 
     <!-- 执行组件 -->
     <ms-run :debug="false" :environment="api.environment" :reportId="reportId" :run-data="runData" :env-map="envMap"
-            @runRefresh="runRefresh" ref="runTest"/>
+            @runRefresh="runRefresh" @errorRefresh="errorRefresh" ref="runTest"/>
 
   </div>
 </template>
@@ -143,6 +143,9 @@
             this.reportId = getUUID().substring(0, 8);
           }
         })
+      },
+      errorRefresh(){
+        this.loading = false;
       },
       runRefresh(data) {
         this.responseData = {type: 'HTTP', responseResult: {responseCode: ""}, subRequestResults: []};
