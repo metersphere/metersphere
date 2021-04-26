@@ -71,4 +71,9 @@ public class TestPlanLoadCaseController {
     public void update(@RequestBody TestPlanLoadCase testPlanLoadCase) {
         testPlanLoadCaseService.update(testPlanLoadCase);
     }
+
+    @PostMapping("/update/api")
+    public void updateByApi(@RequestBody TestPlanLoadCase testPlanLoadCase) {
+        testPlanLoadCaseService.updateByApi(testPlanLoadCase);
+    }
 }
