@@ -50,6 +50,7 @@
 import MsTablePagination from "@/business/components/common/pagination/TablePagination";
 import MsDialogFooter from "@/business/components/common/components/MsDialogFooter";
 import ReportTriggerModeItem from "@/business/components/common/tableItem/ReportTriggerModeItem";
+import {WORKSPACE_ID} from "@/common/js/constants";
 
 export default {
   name: "SameTestReports",

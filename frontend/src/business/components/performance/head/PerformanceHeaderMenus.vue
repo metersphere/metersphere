@@ -27,7 +27,7 @@
           </el-submenu>
         </el-menu>
       </el-col>
-      <el-col :span="4" >
+      <el-col :span="4">
         <el-row type="flex" justify="center">
           <ms-create-test :to="'/performance/test/create'"/>
         </el-row>
@@ -46,6 +46,7 @@ import MsShowAll from "../../common/head/ShowAll";
 import {LIST_CHANGE, PerformanceEvent} from "@/business/components/common/head/ListEvent";
 import SearchList from "@/business/components/common/head/SearchList";
 import ProjectChange from "@/business/components/common/head/ProjectSwitch";
+import {getCurrentProjectID, getCurrentWorkspaceId} from "@/common/js/utils";
 
 export default {
   name: "PerformanceHeaderMenus",
@@ -71,6 +72,10 @@ export default {
       reportRecent: {
         title: this.$t('report.recent'),
         url: "/performance/report/recent/5",
+        condition: {
+          workspaceId: getCurrentWorkspaceId(),
+          projectId: getCurrentProjectID(),
+        },
         showTime: true,
         index(item) {
           return '/performance/report/view/' + item.id;
@@ -79,7 +84,7 @@ export default {
         }
       },
       currentProject: ''
-    }
+    };
   },
   methods: {
     registerEvents() {
@@ -95,7 +100,7 @@ export default {
   beforeDestroy() {
     PerformanceEvent.$off(LIST_CHANGE);
   }
-}
+};
 
 </script>
 

@@ -69,13 +69,11 @@ public class ReportService {
         orderRequest.setType("desc");
         orders.add(orderRequest);
         request.setOrders(orders);
-        request.setProjectId(SessionUtils.getCurrentProjectId());
         return extLoadTestReportMapper.getReportList(request);
     }
 
     public List<ReportDTO> getReportList(ReportRequest request) {
         request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
-        request.setProjectId(SessionUtils.getCurrentProjectId());
         return extLoadTestReportMapper.getReportList(request);
     }
 
