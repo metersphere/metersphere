@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import io.metersphere.api.dto.ApiTestImportRequest;
+import io.metersphere.api.dto.definition.ApiModuleDTO;
 import io.metersphere.api.dto.definition.SwaggerApiExportResult;
 import io.metersphere.api.dto.definition.parse.swagger.*;
 import io.metersphere.api.dto.definition.request.sampler.MsHTTPSamplerProxy;
@@ -450,7 +451,10 @@ public class Swagger3Parser extends SwaggerAbstractParser {
             ApiModuleService apiModuleService = CommonBeanFactory.getBean(ApiModuleService.class);
             String moduleName = "";
             if(apiDefinition.getModuleId() != null) {   //  module_id 可能为空
-                moduleName = apiModuleService.getNode(apiDefinition.getModuleId()).getName();
+                ApiModuleDTO node = apiModuleService.getNode(apiDefinition.getModuleId());
+                if (node != null) {
+                    moduleName = node.getName();
+                }
             }
             swaggerApiInfo.setTags(Arrays.asList(moduleName));
             //  设置请求体
@@ -614,8 +618,11 @@ public class Swagger3Parser extends SwaggerAbstractParser {
             }
         }
         statusCodeInfo.put("headers", headers);
+
+        JSONArray statusCode = response.getJSONArray("statusCode");
+
         //  build 请求体
-        if(((JSONObject) response.getJSONArray("statusCode").get(0)).getString("name") == null) {
+        if (statusCode == null || statusCode.size() < 1 || statusCode.getJSONObject(0).getString("name") == null) {
             return response;
         }
         statusCodeInfo.put("content", buildContent(response));
@@ -644,21 +651,28 @@ public class Swagger3Parser extends SwaggerAbstractParser {
             put("WWW_FORM", org.springframework.http.MediaType.APPLICATION_FORM_URLENCODED_VALUE);
         }};
         JSONObject bodyInfo = new JSONObject();
-        if(respOrReq.getJSONObject("body") != null) { //  将请求体转换成相应的格式导出
-            String bodyType = respOrReq.getJSONObject("body").getString("type");
-            if(bodyType == null) {
+        JSONObject body = respOrReq.getJSONObject("body");
 
-            }else if(bodyType.equals("JSON")) {
-                bodyInfo = buildRequestBodyJsonInfo(respOrReq.getJSONObject("body").getJSONObject("raw"));
-            } else if(bodyType.equals("XML")) {
-                String xmlText = respOrReq.getJSONObject("body").getString("raw");
-                JSONObject xmlToJson = XMLUtils.XmlToJson(xmlText);
-                bodyInfo = buildRequestBodyJsonInfo(xmlToJson);
-            } else if(bodyType.equals("WWW_FORM") || bodyType.equals("Form Data") || bodyType.equals("BINARY")) {    //  key-value 类格式
-                JSONObject formData = getformDataProperties(respOrReq.getJSONObject("body").getJSONArray("kvs"));
-                bodyInfo = buildformDataSchema(formData);
+        try {
+            if(body != null) { //  将请求体转换成相应的格式导出
+                String bodyType = body.getString("type");
+                if(bodyType == null) {
+
+                }else if(bodyType.equals("JSON")) {
+                    bodyInfo = buildRequestBodyJsonInfo(body.getJSONObject("raw"));
+                } else if(bodyType.equals("XML")) {
+                    String xmlText = body.getString("raw");
+                    JSONObject xmlToJson = XMLUtils.XmlToJson(xmlText);
+                    bodyInfo = buildRequestBodyJsonInfo(xmlToJson);
+                } else if(bodyType.equals("WWW_FORM") || bodyType.equals("Form Data") || bodyType.equals("BINARY")) {    //  key-value 类格式
+                    JSONObject formData = getformDataProperties(body.getJSONArray("kvs"));
+                    bodyInfo = buildformDataSchema(formData);
+                }
             }
+        } catch (Exception e) {
+            LogUtil.error(e.getMessage(), e);
         }
+
         String type = respOrReq.getJSONObject("body").getString("type");
         JSONObject content = new JSONObject();
         JSONObject schema = bodyInfo;   //  请求体部分
