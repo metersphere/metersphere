@@ -221,6 +221,13 @@ public class TestPlanLoadCaseService {
         }
     }
 
+    public void updateByApi(TestPlanLoadCase testPlanLoadCase) {
+        String testPlanId = testPlanLoadCase.getTestPlanId();
+        String loadCaseId = testPlanLoadCase.getLoadCaseId();
+        String status = testPlanLoadCase.getStatus();
+        extTestPlanLoadCaseMapper.updateCaseStatusByApi(testPlanId, loadCaseId, status);
+    }
+
     public List<String> getStatus(String planId) {
         return extTestPlanLoadCaseMapper.getStatusByTestPlanId(planId);
     }
