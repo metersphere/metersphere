@@ -382,7 +382,6 @@ public class PerformanceTestService {
         orderRequest.setType("desc");
         orders.add(orderRequest);
         request.setOrders(orders);
-        request.setProjectId(SessionUtils.getCurrentProjectId());
         return extLoadTestMapper.list(request);
     }
 
