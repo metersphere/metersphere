@@ -72,7 +72,7 @@
         </if>
     </sql>
     <update id="updateTestCaseCustomNumByProjectId">
-        update test_case set custom_num = num where custom_num is null and project_id = #{projectId}
+        update test_case set custom_num = num where (custom_num is null or custom_num = '') and project_id = #{projectId}
     </update>
 
     <select id="getTestCaseByNotInReview" resultType="io.metersphere.base.domain.TestCase">
