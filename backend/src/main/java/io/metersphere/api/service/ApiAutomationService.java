@@ -878,7 +878,7 @@ public class ApiAutomationService {
             }
             testPlan.toHashTree(jmeterHashTree, testPlan.getHashTree(), new ParameterConfig());
             // 生成集成报告
-            if (request.getConfig() != null && request.getConfig().getMode().equals("serial")) {
+            if (request.getConfig() != null && request.getConfig().getMode().equals("serial") && StringUtils.isNotEmpty(request.getConfig().getReportName())) {
                 request.getConfig().setReportId(UUID.randomUUID().toString());
                 APIScenarioReportResult report = createScenarioReport(request.getConfig().getReportId(), JSON.toJSONString(reportList), request.getConfig().getReportName(), request.getTriggerMode() == null ? ReportTriggerMode.MANUAL.name() : request.getTriggerMode(),
                         ExecuteType.Saved.name(), request.getProjectId(), request.getReportUserID(), request.getConfig());
