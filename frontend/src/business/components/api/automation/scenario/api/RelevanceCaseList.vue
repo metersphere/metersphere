@@ -291,6 +291,7 @@ export default {
 
         this.$nextTick(function () {
           if (this.$refs.table) {
+            this.$refs.table.doLayout();
             this.$refs.table.checkTableRowIsSelect();
           }
         });

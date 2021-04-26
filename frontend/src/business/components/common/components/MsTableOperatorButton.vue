@@ -10,8 +10,9 @@
                circle
                style="color:white;padding: 0px 0.1px;width: 28px;height: 28px;"
                size="mini">
-      <span style=" font-size: 11px; transform: scale(0.8);">{{ tip }}</span>
-
+      <div style="transform: scale(0.8)">
+        <span style="margin-left: -4px;line-height: 27px;">{{ tip }}</span>
+      </div>
     </el-button>
   </el-tooltip>
   <ms-tip-button v-else
