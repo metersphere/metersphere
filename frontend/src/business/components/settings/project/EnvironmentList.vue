@@ -285,7 +285,7 @@
       },
       exportJSON() {
         if (this.selectRows.length < 1) {
-          this.$warning('请选择想要导出的环境');
+          this.$warning(this.$t('api_test.environment.select_environment'));
           return;
         }
         //拷贝一份选中的数据，不然下面删除id和projectId的时候会影响原数据
