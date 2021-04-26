@@ -251,23 +251,22 @@ export default {
     runBatch(config){
       this.orderBySelectRows(this.selectRows);
       if(this.condition != null && this.condition.selectAll){
-        this.$alert(this.$t('commons.option_cannot_spread_pages'), '', {
-          confirmButtonText: this.$t('commons.confirm'),
-          callback: (action) => {
-            if (action === 'confirm') {
-              let runArr = [];
-              this.selectRows.forEach(loadCase => {
-                 runArr.push( {
-                   id: loadCase.loadCaseId,
-                   testPlanLoadId: loadCase.id,
-                   triggerMode: 'CASE'
-                 })
-              });
-              let obj = {config:config,requests:runArr,userId:getCurrentUser().id};
-              this._runBatch(obj);
-              this.refreshStatus();
-            }
-          }
+        let selectAllRowParams = buildBatchParam(this);
+        selectAllRowParams.ids = Array.from(this.selectRows).map(row => row.id);
+        this.$post('/test/plan/load/case/selectAllTableRows', selectAllRowParams, response => {
+          let dataRows = response.data;
+          let runArr = [];
+          dataRows.forEach(loadCase => {
+            runArr.push({
+              id: loadCase.loadCaseId,
+              testPlanLoadId: loadCase.id,
+              triggerMode: 'CASE'
+            });
+          });
+          let obj = {config: config, requests: runArr, userId: getCurrentUser().id};
+          this._runBatch(obj);
+          this.initTable();
+          this.refreshStatus();
         });
       }else {
         let runArr = [];

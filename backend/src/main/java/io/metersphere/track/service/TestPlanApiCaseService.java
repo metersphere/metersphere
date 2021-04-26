@@ -105,6 +105,9 @@ public class TestPlanApiCaseService {
         List<String> deleteIds = request.getIds();
         if(request.getCondition()!=null && request.getCondition().isSelectAll()){
             deleteIds = this.selectIds(request.getCondition());
+            if (request.getCondition() != null && request.getCondition().getUnSelectIds() != null) {
+                deleteIds.removeAll(request.getCondition().getUnSelectIds());
+            }
         }
 
         if (CollectionUtils.isEmpty(deleteIds)) {
@@ -167,5 +170,22 @@ public class TestPlanApiCaseService {
         example.createCriteria().andApiCaseIdEqualTo(id);
         return testPlanApiCaseMapper.selectByExample(example).get(0).getStatus();
 
+    }
+
+    public List<TestPlanApiCaseDTO> selectAllTableRows(TestPlanApiCaseBatchRequest request) {
+        List<String> ids = request.getIds();
+        if (request.getCondition() != null && request.getCondition().isSelectAll()) {
+            ids = this.selectIds(request.getCondition());
+            if (request.getCondition() != null && request.getCondition().getUnSelectIds() != null) {
+                ids.removeAll(request.getCondition().getUnSelectIds());
+            }
+        }
+        if (ids == null || ids.isEmpty()) {
+            return new ArrayList<>();
+        }
+        ApiTestCaseRequest selectReq = new ApiTestCaseRequest();
+        selectReq.setIds(ids);
+        List<TestPlanApiCaseDTO> returnList = extTestPlanApiCaseMapper.list(selectReq);
+        return returnList;
     }
 }
