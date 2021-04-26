@@ -29,9 +29,10 @@
         </template>
       </el-table-column>
       <el-table-column
-        label="ThreadGroup">
+        :label="$t('load_test.thread_group')">
         <template v-slot:default="{row}">
-          <el-select v-model="row.tgType" :placeholder="$t('commons.please_select')" size="small" @change="tgTypeChange(row)">
+          <el-select v-model="row.tgType" :placeholder="$t('commons.please_select')" size="small"
+                     @change="tgTypeChange(row)">
             <el-option v-for="tg in threadGroupForSelect" :key="tg.tagName" :label="tg.name"
                        :value="tg.testclass"></el-option>
           </el-select>

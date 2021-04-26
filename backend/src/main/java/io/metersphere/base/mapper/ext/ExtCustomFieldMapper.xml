@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="io.metersphere.base.mapper.ext.ExtCustomFieldMapper">
+
+    <sql id="condition">
+        <include refid="io.metersphere.base.mapper.ext.ExtCustomFieldMapper.condition"/>
+    </sql>
+
+    <select id="list" resultType="io.metersphere.base.domain.CustomField">
+        select
+        <include refid="io.metersphere.base.mapper.CustomFieldMapper.Base_Column_List"/>,
+        <include refid="io.metersphere.base.mapper.CustomFieldMapper.Blob_Column_List"/>
+        from custom_field cf
+        <include refid="queryWhereCondition"/>
+        <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
+    </select>
+
+    <select id="listIds" resultType="java.lang.String">
+        select id
+        from custom_field cf
+        <include refid="queryWhereCondition"/>
+    </select>
+
+    <select id="listRelate" resultType="io.metersphere.base.domain.CustomField">
+        select
+        <include refid="io.metersphere.base.mapper.CustomFieldMapper.Base_Column_List"/>,
+        <include refid="io.metersphere.base.mapper.CustomFieldMapper.Blob_Column_List"/>
+        from custom_field cf
+        <include refid="queryWhereCondition"/>
+        <include refid="io.metersphere.base.mapper.ext.ExtBaseMapper.orders"/>
+    </select>
+
+<!--  如果创建了工作空间的字段，就去除全局的该字段-->
+    <sql id="queryWhereCondition">
+        <where>
+            <if test="request.name != null">
+                and cf.name LIKE CONCAT('%', #{request.name}, '%')
+            </if>
+
+            <if test="request.workspaceId != null">
+                and (
+                    cf.workspace_id = #{request.workspaceId}
+                    or (
+                        cf.global = 1 and
+                        not exists (
+                            select id
+                            from custom_field cf_child
+                            where cf_child.name = cf.name and cf_child.global != 1 and cf_child.workspace_id = #{request.workspaceId}
+                        )
+                    )
+                )
+            </if>
+
+            <if test="request.ids != null and request.ids.size() > 0">
+                and cf.id in
+                <foreach collection="request.ids" item="id" separator="," open="(" close=")">
+                    #{id}
+                </foreach>
+            </if>
+
+             <if test="request.templateContainIds != null and request.templateContainIds.size() > 0">
+                and cf.id not in
+                <foreach collection="request.templateContainIds" item="id" separator="," open="(" close=")">
+                    #{id}
+                </foreach>
+            </if>
+
+            <if test="request.filters != null and request.filters.size() > 0">
+                <foreach collection="request.filters.entrySet()" index="key" item="values">
+                    <if test="values != null and values.size() > 0">
+                        <choose>
+                            <when test="key == 'scene'">
+                                AND cf.scene IN
+                                <foreach collection="values" item="value" separator="," open="(" close=")">
+                                    #{value}
+                                </foreach>
+                            </when>
+                            <when test="key == 'type'">
+                                AND cf.type IN
+                                <foreach collection="values" item="value" separator="," open="(" close=")">
+                                    #{value}
+                                </foreach>
+                            </when>
+                        </choose>
+                    </if>
+                </foreach>
+            </if>
+        </where>
+    </sql>
+</mapper>

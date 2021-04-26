@@ -120,7 +120,7 @@
                   <el-checkbox v-model="enableCookieShare">共享cookie</el-checkbox>
                 </el-col>
                 <el-col :span="5">
-                  <env-popover :disabled="scenarioDefinition.length < 1" :env-map="projectEnvMap" :project-ids="projectIds" @setProjectEnvMap="setProjectEnvMap"
+                  <env-popover :disabled="scenarioDefinition.length < 1" :env-map="projectEnvMap" :project-ids="projectIds" @setProjectEnvMap="setProjectEnvMap" :result="envResult"
                                :isReadOnly="scenarioDefinition.length < 1" @showPopover="showPopover" :project-list="projectList" ref="envPopover"/>
                 </el-col>
                 <el-col :span="4">
@@ -239,7 +239,7 @@
   import {ELEMENT_TYPE, ELEMENTS} from "./Setting";
   import MsApiCustomize from "./ApiCustomize";
   import {getUUID, objToStrMap, strMapToObj, handleCtrlSEvent} from "@/common/js/utils";
-  import ApiEnvironmentConfig from "../../definition/components/environment/ApiEnvironmentConfig";
+  import ApiEnvironmentConfig from "@/business/components/api/test/components/ApiEnvironmentConfig";
   import MsInputTag from "./MsInputTag";
   import MsRun from "./DebugRun";
   import MsApiReportDetail from "../report/ApiReportDetail";
@@ -334,6 +334,9 @@
         drawer: false,
         isFullUrl: true,
         expandedStatus: false,
+        envResult: {
+          loading: false
+        }
       }
     },
     created() {
@@ -1039,6 +1042,13 @@
                     this.currentScenario.headers = obj.headers;
                   }
                   this.enableCookieShare = obj.enableCookieShare;
+                  if (obj.hashTree) {
+                    obj.hashTree.forEach(item => {
+                      if (!item.hashTree) {
+                        item.hashTree = [];
+                      }
+                    });
+                  }
                   this.scenarioDefinition = obj.hashTree;
                 }
               }
@@ -1136,8 +1146,10 @@
       showPopover() {
         let definition = JSON.parse(JSON.stringify(this.currentScenario));
         definition.hashTree = this.scenarioDefinition;
+        this.envResult.loading = true;
         this.getEnv(JSON.stringify(definition)).then(() => {
           this.$refs.envPopover.openEnvSelect();
+          this.envResult.loading = false;
         })
       },
       shrinkTreeNode() {

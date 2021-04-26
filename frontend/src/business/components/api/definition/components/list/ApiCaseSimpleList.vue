@@ -8,95 +8,92 @@
                 class="search-input" size="small"
                 v-model="condition.name"/>
 
-      <el-table v-loading="result.loading"
+      <ms-table :data="tableData" :select-node-ids="selectNodeIds" :condition="condition" :page-size="pageSize"
+                :total="total" enableSelection
+                :batch-operators="buttons" :screenHeight="screenHeight"
+                operator-width="170px"
                 ref="caseTable"
-                border
-                :data="tableData" row-key="id" class="test-content adjust-table ms-select-all-fixed"
-                @select-all="handleSelectAll"
-                @filter-change="filter"
-                @sort-change="sort"
-                @header-dragend="headerDragend"
-                @select="handleSelect" :height="screenHeight">
-
-        <el-table-column type="selection" width="50"/>
-
-        <ms-table-header-select-popover v-show="total>0"
-                                        :page-size="pageSize>total?total:pageSize"
-                                        :total="total"
-                                        :select-data-counts="selectDataCounts"
-                                        @selectPageAll="isSelectDataAll(false)"
-                                        @selectAll="isSelectDataAll(true)"/>
-
-        <el-table-column width="30" :resizable="false" min-width="30px" align="center">
-          <template v-slot:default="scope">
-            <!-- 选中后浮现提供批量操作的按钮-->
-            <show-more-btn :is-show="scope.row.showMore" :buttons="buttons" :size="selectDataCounts" v-tester/>
-          </template>
-        </el-table-column>
+      >
         <template v-for="(item, index) in tableLabel">
-          <el-table-column v-if="item.id == 'num'" prop="num" label="ID" min-width="120px" show-overflow-tooltip
-                           :key="index">
+
+          <ms-table-column
+              v-if="item.id == 'num'"
+              prop="num"
+              label="ID"
+              show-overflow-tooltip
+              width="80px"
+              sortable=true
+              :key="index">
             <template slot-scope="scope">
-              <!-- 为只读用户的话不能编辑 -->
+              <!-- 判断为只读用户的话不可点击ID进行编辑操作 -->
               <span style="cursor:pointer" v-if="isReadOnly"> {{ scope.row.num }} </span>
-              <el-tooltip content="编辑" v-else>
-                <a style="cursor:pointer" @click="handleTestCase(scope.row)"> {{ scope.row.num }} </a>
+              <el-tooltip v-else content="编辑">
+                <a style="cursor:pointer" @click="editApi(scope.row)"> {{ scope.row.num }} </a>
               </el-tooltip>
             </template>
-          </el-table-column>
+          </ms-table-column>
 
-          <el-table-column v-if="item.id == 'name'" prop="name" min-width="160px" :label="$t('test_track.case.name')"
+          <ms-table-column v-if="item.id == 'name'" prop="name" width="160px" :label="$t('test_track.case.name')"
                            show-overflow-tooltip :key="index"/>
 
-          <el-table-column
-            v-if="item.id == 'priority'"
-            prop="priority"
-            :filters="priorityFilters"
-            column-key="priority"
-            min-width="120px"
-            :label="$t('test_track.case.priority')"
-            show-overflow-tooltip
-            :key="index">
+          <ms-table-column
+              v-if="item.id == 'priority'"
+              prop="priority"
+              :filters="priorityFilters"
+              column-key="priority"
+              width="120px"
+              :label="$t('test_track.case.priority')"
+              show-overflow-tooltip
+              :key="index">
             <template v-slot:default="scope">
               <priority-table-item :value="scope.row.priority"/>
             </template>
-          </el-table-column>
+          </ms-table-column>
 
-          <el-table-column
-            v-if="item.id == 'path'"
-            sortable="custom"
-            prop="path"
-            min-width="180px"
-            :label="$t('api_test.definition.api_path')"
-            show-overflow-tooltip
-            :key="index"/>
+          <ms-table-column
+              v-if="item.id == 'path'"
+              sortable="custom"
+              prop="path"
+              width="180px"
+              :label="'API'+ $t('api_test.definition.api_path')"
+              show-overflow-tooltip
+              :key="index"/>
 
-          <el-table-column v-if="item.id=='tags'" prop="tags" min-width="120px" :label="$t('commons.tag')"
+          <ms-table-column
+              v-if="item.id == 'casePath'"
+              sortable="custom"
+              prop="casePath"
+              width="180px"
+              :label="$t('api_test.definition.request.case')+ $t('api_test.definition.api_path')"
+              show-overflow-tooltip
+              :key="index"/>
+
+          <ms-table-column v-if="item.id=='tags'" prop="tags" width="120px" :label="$t('commons.tag')"
                            :key="index">
             <template v-slot:default="scope">
               <ms-tag v-for="(itemName,index)  in scope.row.tags" :key="index" type="success" effect="plain"
                       :content="itemName" style="margin-left: 0px; margin-right: 2px"/>
             </template>
-          </el-table-column>
+          </ms-table-column>
 
-          <el-table-column
-            v-if="item.id=='createUser'"
-            prop="createUser"
-            :label="'创建人'"
-            show-overflow-tooltip
-            :key="index"/>
+          <ms-table-column
+              v-if="item.id=='createUser'"
+              prop="createUser"
+              :label="'创建人'"
+              show-overflow-tooltip
+              :key="index"/>
 
-          <el-table-column
-            v-if="item.id=='updateTime'"
-            sortable="updateTime"
-            min-width="160"
-            :label="$t('api_test.definition.api_last_time')"
-            prop="updateTime"
-            :key="index">
+          <ms-table-column
+              v-if="item.id=='updateTime'"
+              sortable="updateTime"
+              width="160px"
+              :label="$t('api_test.definition.api_last_time')"
+              prop="updateTime"
+              :key="index">
             <template v-slot:default="scope">
               <span>{{ scope.row.updateTime | timestampFormatDate }}</span>
             </template>
-          </el-table-column>
+          </ms-table-column>
         </template>
         <el-table-column fixed="right" v-if="!isReadOnly" :label="$t('commons.operating')" min-width="160"
                          align="center">
@@ -116,7 +113,9 @@
                                            @createPerformance="createPerformance" :row="scope.row" v-tester/>
           </template>
         </el-table-column>
-      </el-table>
+
+      </ms-table>
+
       <header-custom ref="headerCustom" :initTableData="initTable" :optionalFields=headerItems
                      :type=type></header-custom>
       <ms-table-pagination :change="initTable" :current-page.sync="currentPage" :page-size.sync="pageSize"
@@ -139,6 +138,8 @@
 
 <script>
 
+import MsTable from "@/business/components/common/components/table/MsTable";
+import MsTableColumn from "@/business/components/common/components/table/Ms-table-column";
 import MsTableOperator from "../../../../common/components/MsTableOperator";
 import MsTableOperatorButton from "../../../../common/components/MsTableOperatorButton";
 import MsTablePagination from "../../../../common/pagination/TablePagination";
@@ -188,7 +189,9 @@ export default {
     MsBatchEdit,
     MsApiCaseTableExtendBtns,
     MsReferenceView,
-    MsTableAdvSearchBar
+    MsTableAdvSearchBar,
+    MsTable,
+    MsTableColumn
   },
   data() {
     return {
@@ -203,7 +206,6 @@ export default {
       moduleId: "",
       selectDataRange: "all",
       deletePath: "/test/case/delete",
-      selectRows: new Set(),
       clickRow: {},
       buttons: [
         {name: this.$t('api_test.definition.request.batch_delete'), handleClick: this.handleDeleteBatch},
@@ -268,9 +270,9 @@ export default {
   },
   created: function () {
     this.initTable();
-    this.$nextTick(() => {
-      this.$refs.caseTable.bodyWrapper.scrollTop = 5
-    })
+    // this.$nextTick(() => {
+    //   this.$refs.caseTable.bodyWrapper.scrollTop = 5
+    // })
   },
   watch: {
     selectNodeIds() {
@@ -300,18 +302,23 @@ export default {
   computed: {
     // 接口定义用例列表
     isApiModel() {
-      return this.model === 'api'
+      return this.model === 'api';
     },
     projectId() {
-      return this.$store.state.projectId
+      return this.$store.state.projectId;
     },
+    selectRows() {
+      return this.$refs.caseTable.getSelectRows();
+    }
   },
   methods: {
     customHeader() {
       this.$refs.headerCustom.open(this.tableLabel)
     },
     initTable() {
-      this.selectRows = new Set();
+      if (this.$refs.caseTable) {
+        this.$refs.caseTable.clearSelectRows();
+      }
       this.condition.status = "";
       this.condition.moduleIds = this.selectNodeIds;
       if (this.trashEnable) {
@@ -360,44 +367,17 @@ export default {
           this.$nextTick(function () {
             if (this.$refs.caseTable) {
               setTimeout(this.$refs.caseTable.doLayout, 200);
+              this.$refs.caseTable.checkTableRowIsSelect();
             }
-            this.checkTableRowIsSelect();
           })
         });
       }
       getLabel(this, API_CASE_LIST);
 
     },
-    checkTableRowIsSelect() {
-      //如果默认全选的话，则选中应该选中的行
-      if (this.selectAll) {
-        let unSelectIds = this.unSelection;
-        this.tableData.forEach(row => {
-          if (unSelectIds.indexOf(row.id) < 0) {
-            this.$refs.caseTable.toggleRowSelection(row, true);
-
-            //默认全选，需要把选中对行添加到selectRows中。不然会影响到勾选函数统计
-            if (!this.selectRows.has(row)) {
-              this.$set(row, "showMore", true);
-              this.selectRows.add(row);
-            }
-          } else {
-            //不勾选的行，也要判断是否被加入了selectRow中。加入了的话就去除。
-            if (this.selectRows.has(row)) {
-              this.$set(row, "showMore", false);
-              this.selectRows.delete(row);
-            }
-          }
-        })
-      }
-    },
 
     open() {
       this.$refs.searchBar.open();
-    },
-    handleSelect(selection, row) {
-      _handleSelect(this, selection, row, this.selectRows);
-      this.selectRowsCount(this.selectRows)
     },
     showExecResult(row) {
       this.visible = false;
@@ -414,10 +394,6 @@ export default {
       }
       _sort(column, this.condition);
       this.initTable();
-    },
-    handleSelectAll(selection) {
-      _handleSelectAll(this, selection, this.tableData, this.selectRows);
-      this.selectRowsCount(this.selectRows);
     },
     search() {
       this.changeSelectDataRangeAll();
@@ -480,28 +456,13 @@ export default {
             obj.ids = Array.from(this.selectRows).map(row => row.id);
             obj = Object.assign(obj, this.condition);
             this.$post('/api/testcase/deleteBatchByParam/', obj, () => {
-              this.selectRows.clear();
+              this.$refs.caseTable.clearSelectRows();
               this.initTable();
               this.$success(this.$t('commons.delete_success'));
             });
           }
         }
       });
-      // } else {
-      //   this.$alert(this.$t('api_test.definition.request.delete_confirm') + "？", '', {
-      //     confirmButtonText: this.$t('commons.confirm'),
-      //     callback: (action) => {
-      //       if (action === 'confirm') {
-      //         let ids = Array.from(this.selectRows).map(row => row.id);
-      //         this.$post('/api/testcase/removeToGc/', ids, () => {
-      //           this.selectRows.clear();
-      //           this.initTable();
-      //           this.$success(this.$t('commons.delete_success'));
-      //         });
-      //       }
-      //     }
-      //   });
-      // }
     },
     handleEditBatch() {
       if (this.currentProtocol == 'HTTP') {
@@ -558,14 +519,6 @@ export default {
         this.selectDataCounts = this.total - this.unSelection.length;
       } else {
         this.selectDataCounts = selection.size;
-      }
-    },
-    isSelectDataAll(dataType) {
-      this.selectAll = dataType;
-      this.selectRowsCount(this.selectRows)
-      //如果已经全选，不需要再操作了
-      if (this.selectRows.size != this.tableData.length) {
-        this.$refs.caseTable.toggleAllSelection(true);
       }
     },
     //判断是否只显示本周的数据。  从首页跳转过来的请求会带有相关参数

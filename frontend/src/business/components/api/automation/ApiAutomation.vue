@@ -2,6 +2,7 @@
   <ms-container v-if="renderComponent" v-loading="loading">
     <ms-aside-container>
       <ms-api-scenario-module
+        :show-operator="true"
         @nodeSelectEvent="nodeChange"
         @refreshTable="refresh"
         @saveAsEdit="editScenario"

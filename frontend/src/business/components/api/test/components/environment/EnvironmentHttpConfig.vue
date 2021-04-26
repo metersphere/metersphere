@@ -2,8 +2,8 @@
   <el-form :model="condition" :rules="rules" ref="httpConfig" class="ms-el-form-item__content">
     <el-form-item prop="socket">
       <span class="ms-env-span">{{$t('api_test.environment.socket')}}</span>
-      <el-input v-model="condition.socket" style="width: 80%" :placeholder="$t('api_test.request.url_description')" clearable size="small">
-        <template v-slot:prepend>
+      <el-input v-model="condition.socket" style="width: 80%" :placeholder="$t('api_test.request.url_description')" clearable size="small" :disabled="httpConfig.isMock">
+        <template slot="prepend">
           <el-select v-model="condition.protocol" class="request-protocol-select" size="small">
             <el-option label="http://" value="http"/>
             <el-option label="https://" value="https"/>
@@ -13,7 +13,7 @@
     </el-form-item>
     <el-form-item prop="enable">
       <span class="ms-env-span">{{$t('api_test.environment.condition_enable')}}</span>
-      <el-radio-group v-model="condition.type" @change="typeChange">
+      <el-radio-group v-model="condition.type" @change="typeChange" :disabled="condition.id!==undefined && condition.id!==''">
         <el-radio label="NONE">{{ $t('api_test.definition.document.data_set.none') }}</el-radio>
         <el-radio label="MODULE">{{$t('test_track.module.module')}}</el-radio>
         <el-radio label="PATH">{{$t('api_test.definition.api_path')}}</el-radio>
@@ -133,7 +133,7 @@
           this.condition.headers = this.httpConfig.headers;
           this.add();
         }
-        this.condition = {type: "NONE", details: [new KeyValue({name: "", value: "contains"})], protocol: "http", socket: "", domain: "", port: 0, headers: [new KeyValue()]};
+        this.condition = {id: undefined, type: "NONE", details: [new KeyValue({name: "", value: "contains"})], protocol: "http", socket: "", domain: "", port: 0, headers: [new KeyValue()]};
       },
     },
     methods: {
@@ -150,6 +150,12 @@
             return this.$t("api_test.definition.api_path");
         }
       },
+      clearHisData() {
+        this.httpConfig.socket = undefined;
+        this.httpConfig.protocol = undefined;
+        this.httpConfig.port = undefined;
+        this.httpConfig.domain = undefined;
+      },
       getDetails(row) {
         if (row && row.type === "MODULE") {
           if (row.details && row.details instanceof Array) {
@@ -163,7 +169,7 @@
             return value;
           }
         } else if (row && row.type === "PATH" && row.details.length > 0 && row.details[0].name) {
-          return row.details[0].value === "equals" ? this.$t("commons.adv_search.operators.equals") : this.$t("api_test.request.assertions.contains") + row.details[0].name;
+          return row.details[0].value === "equals" ? this.$t("commons.adv_search.operators.equals") + row.details[0].name : this.$t("api_test.request.assertions.contains") + row.details[0].name;
         } else {
           return "";
         }
@@ -240,7 +246,20 @@
           this.loading = false
         });
       },
+      checkNode() {
+        let index = 1;
+        this.httpConfig.conditions.forEach(item => {
+          if (item.type === "NONE") {
+            index++;
+          }
+        })
+        return index > 1;
+      },
       add() {
+        if (this.condition.type === "NONE" && this.checkNode()) {
+          this.$warning("启用条件为 '无' 的域名已经存在请更新！");
+          return;
+        }
         this.validateSocket();
         let obj = {
           id: getUUID(), type: this.condition.type, socket: this.condition.socket, protocol: this.condition.protocol, headers: this.condition.headers,
@@ -252,16 +271,18 @@
           obj.details = this.condition.details ? JSON.parse(JSON.stringify(this.condition.details)) : this.condition.details;
         }
         this.httpConfig.conditions.unshift(obj);
-        this.httpConfig.socket = null;
-        this.httpConfig.protocol = null;
-        this.httpConfig.port = null;
-        this.httpConfig.domain = null;
+        this.clearHisData();
       },
       remove(row) {
         const index = this.httpConfig.conditions.findIndex((d) => d.id === row.id);
         this.httpConfig.conditions.splice(index, 1);
+        this.clearHisData();
       },
       copy(row) {
+        if (row.type === "NONE") {
+          this.$warning("启用条件为 '无' 的域名不支持复制！");
+          return;
+        }
         const index = this.httpConfig.conditions.findIndex((d) => d.id === row.id);
         let obj = {id: getUUID(), type: row.type, socket: row.socket, details: row.details, protocol: row.protocol, headers: JSON.parse(JSON.stringify(this.condition.headers)), domain: row.domain, time: new Date().getTime()};
         if (index != -1) {
@@ -311,7 +332,7 @@
   }
 
   /deep/ .el-form-item {
-    margin-bottom: 10px;
+    margin-bottom: 15px;
   }
 
   .ms-el-form-item__content >>> .el-form-item__content {

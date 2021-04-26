@@ -2,6 +2,7 @@ package io.metersphere.api.controller;
 
 import com.github.pagehelper.Page;
 import com.github.pagehelper.PageHelper;
+import io.metersphere.api.dto.APIReportBatchRequest;
 import io.metersphere.api.dto.DeleteAPIReportRequest;
 import io.metersphere.api.dto.QueryAPIReportRequest;
 import io.metersphere.api.dto.automation.APIScenarioReportResult;
@@ -51,7 +52,7 @@ public class APIScenarioReportController {
     }
 
     @PostMapping("/batch/delete")
-    public void deleteAPIReportBatch(@RequestBody DeleteAPIReportRequest reportRequest) {
+    public void deleteAPIReportBatch(@RequestBody APIReportBatchRequest reportRequest) {
         apiReportService.deleteAPIReportBatch(reportRequest);
     }
 

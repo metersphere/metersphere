@@ -45,6 +45,10 @@ public class ApiDefinitionExecResultService {
     @Resource
     SqlSessionFactory sqlSessionFactory;
 
+    public ApiDefinitionExecResult getInfo(String id) {
+        return apiDefinitionExecResultMapper.selectByPrimaryKey(id);
+    }
+
     public void saveApiResult(TestResult result, String type) {
         if (CollectionUtils.isNotEmpty(result.getScenarios())) {
             SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);

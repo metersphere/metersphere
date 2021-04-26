@@ -11,6 +11,7 @@ import io.metersphere.base.domain.TestResource;
 import io.metersphere.base.mapper.LoadTestMapper;
 import io.metersphere.base.mapper.LoadTestReportMapper;
 import io.metersphere.base.mapper.ext.ExtLoadTestReportMapper;
+import io.metersphere.commons.constants.SystemParam;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.DateUtils;
 import io.metersphere.commons.utils.LogUtil;
@@ -22,9 +23,9 @@ import io.metersphere.performance.controller.request.MetricQuery;
 import io.metersphere.performance.controller.request.MetricRequest;
 import io.metersphere.performance.dto.MetricData;
 import io.metersphere.performance.dto.Monitor;
+import io.metersphere.service.SystemParameterService;
 import io.metersphere.service.TestResourceService;
 import org.apache.commons.collections.CollectionUtils;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
@@ -38,7 +39,6 @@ import java.util.*;
 @Transactional(rollbackFor = Exception.class)
 public class MetricQueryService {
 
-    @Value("${prometheus.host:http://127.0.0.1:9090}")
     private String prometheusHost;
 
     @Resource
@@ -53,9 +53,13 @@ public class MetricQueryService {
     private ExtLoadTestReportMapper extLoadTestReportMapper;
     @Resource
     private TestResourceService testResourceService;
+    @Resource
+    private SystemParameterService systemParameterService;
 
 
     public List<MetricData> queryMetricData(MetricRequest metricRequest) {
+        String host = systemParameterService.getValue(SystemParam.PROMETHEUS_HOST);
+        prometheusHost = StringUtils.isNotBlank(host) ? host : "http://ms-prometheus:9090";
         List<MetricData> metricDataList = new ArrayList<>();
         long endTime = metricRequest.getEndTime();
         long startTime = metricRequest.getStartTime();

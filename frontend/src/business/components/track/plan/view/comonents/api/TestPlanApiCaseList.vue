@@ -463,7 +463,6 @@ export default {
                 this.$success(this.$t('test_track.cancel_relevance_success'));
               });
             }
-
             }
           }
         });
@@ -482,9 +481,7 @@ export default {
       },
     singleRun(row) {
       this.runData = [];
-
       this.rowLoading = row.id;
-
       this.$get('/api/testcase/get/' + row.caseId, (response) => {
         let apiCase = response.data;
         let request = JSON.parse(apiCase.request);
@@ -504,6 +501,8 @@ export default {
       return new Promise((resolve) => {
         let index = 1;
         this.runData = [];
+        // 按照列表顺序排序
+        this.orderBySelectRows(this.selectRows);
         this.selectRows.forEach(row => {
           this.$get('/api/testcase/get/' + row.caseId, (response) => {
             let apiCase = response.data;
@@ -512,7 +511,7 @@ export default {
             request.id = row.id;
             request.useEnvironment = row.environmentId;
             this.runData.unshift(request);
-            if (this.selectRows.size === index) {
+            if (this.selectRows.length === index) {
               resolve();
             }
             index++;
@@ -558,12 +557,37 @@ export default {
         // 批量修改其它
       }
     },
-    handleBatchExecute() {
-      this.getData().then(() => {
-        if (this.runData && this.runData.length > 0) {
-          this.$refs.runMode.open();
+    orderBySelectRows(rows){
+      let selectIds = Array.from(rows).map(row => row.id);
+      let array = [];
+      for(let i in this.tableData){
+        if(selectIds.indexOf(this.tableData[i].id)!==-1){
+          array.push(this.tableData[i]);
         }
-      });
+      }
+      this.selectRows = array;
+    },
+    handleBatchExecute() {
+      if(this.condition != null && this.condition.selectAll) {
+        this.$alert(this.$t('commons.option_cannot_spread_pages'), '', {
+          confirmButtonText: this.$t('commons.confirm'),
+          callback: (action) => {
+            if (action === 'confirm') {
+              this.getData().then(() => {
+                if (this.runData && this.runData.length > 0) {
+                  this.$refs.runMode.open();
+                }
+              });
+            }
+          }
+        })
+      }else {
+        this.getData().then(() => {
+          if (this.runData && this.runData.length > 0) {
+            this.$refs.runMode.open();
+          }
+        });
+      }
     },
     handleRunBatch(config) {
       let testPlan = new TestPlan();
@@ -581,6 +605,7 @@ export default {
         let reqObj = {id: getUUID().substring(0, 8), testElement: testPlan, type: 'API_PLAN', reportId: "run", projectId: projectId};
         let bodyFiles = getBodyUploadFiles(reqObj, this.runData);
         this.$fileUpload("/api/definition/run", null, bodyFiles, reqObj, response => {
+          this.$message('任务执行中，请稍后刷新查看结果');
         });
       } else {
         testPlan.serializeThreadgroups = false;
@@ -593,10 +618,10 @@ export default {
         let reqObj = {id: getUUID().substring(0, 8), testElement: testPlan, type: 'API_PLAN', reportId: "run", projectId: projectId};
         let bodyFiles = getBodyUploadFiles(reqObj, this.runData);
         this.$fileUpload("/api/definition/run", null, bodyFiles, reqObj, response => {
+          this.$message('任务执行中，请稍后刷新查看结果');
         });
       }
       this.search();
-      this.$message('任务执行中，请稍后刷新查看结果');
     },
     autoCheckStatus() { //  检查执行结果，自动更新计划状态
       if (!this.planId) {

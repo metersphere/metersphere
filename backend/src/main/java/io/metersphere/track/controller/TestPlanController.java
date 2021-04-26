@@ -70,10 +70,10 @@ public class TestPlanController {
         return testPlanService.listRelateAllPlan();
     }
 
-    @GetMapping("recent/{count}")
-    public List<TestPlan> recentTestPlans(@PathVariable int count) {
+    @GetMapping("recent/{count}/{id}")
+    public List<TestPlan> recentTestPlans(@PathVariable("count") int count, @PathVariable("id") String projectId) {
         PageHelper.startPage(1, count, true);
-        return testPlanService.recentTestPlans();
+        return testPlanService.recentTestPlans(projectId);
     }
 
     @PostMapping("/get/{testPlanId}")

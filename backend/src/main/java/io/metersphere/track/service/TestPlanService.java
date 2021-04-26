@@ -133,6 +133,9 @@ public class TestPlanService {
     private ApiScenarioReportMapper apiScenarioReportMapper;
     @Resource
     private TestPlanReportMapper testPlanReportMapper;
+    @Lazy
+    @Resource
+    private IssuesService issuesService;
 
     public synchronized String addTestPlan(AddTestPlanRequest testPlan) {
         if (getTestPlanByName(testPlan.getName()).size() > 0) {
@@ -508,20 +511,23 @@ public class TestPlanService {
 
                         }
                         if(StringUtils.equals(l.getTestType(),TestCaseStatus.testcase.name())){
-                            TestPlanApiCase t=new TestPlanApiCase();
-                            ApiTestCaseWithBLOBs apitest=apiTestCaseMapper.selectByPrimaryKey(l.getTestId());
-                            ApiDefinitionWithBLOBs apidefinition=apiDefinitionMapper.selectByPrimaryKey(apitest.getApiDefinitionId());
-                            t.setId(UUID.randomUUID().toString());
-                            t.setTestPlanId(request.getPlanId());
-                            t.setApiCaseId(l.getTestId());
-                            t.setEnvironmentId(apidefinition.getEnvironmentId());
-                            t.setCreateTime(System.currentTimeMillis());
-                            t.setUpdateTime(System.currentTimeMillis());
-                            TestPlanApiCaseExample example=new TestPlanApiCaseExample();
-                            example.createCriteria().andTestPlanIdEqualTo(request.getPlanId()).andApiCaseIdEqualTo(t.getApiCaseId());
-                            if(testPlanApiCaseMapper.countByExample(example)<=0){
-                                testPlanApiCaseMapper.insert(t);
+                            TestPlanApiCase t = new TestPlanApiCase();
+                            ApiTestCaseWithBLOBs apitest = apiTestCaseMapper.selectByPrimaryKey(l.getTestId());
+                            if (null != apitest) {
+                                ApiDefinitionWithBLOBs apidefinition = apiDefinitionMapper.selectByPrimaryKey(apitest.getApiDefinitionId());
+                                t.setId(UUID.randomUUID().toString());
+                                t.setTestPlanId(request.getPlanId());
+                                t.setApiCaseId(l.getTestId());
+                                t.setEnvironmentId(apidefinition.getEnvironmentId());
+                                t.setCreateTime(System.currentTimeMillis());
+                                t.setUpdateTime(System.currentTimeMillis());
+                                TestPlanApiCaseExample example = new TestPlanApiCaseExample();
+                                example.createCriteria().andTestPlanIdEqualTo(request.getPlanId()).andApiCaseIdEqualTo(t.getApiCaseId());
+                                if (testPlanApiCaseMapper.countByExample(example) <= 0) {
+                                    testPlanApiCaseMapper.insert(t);
+                                }
                             }
+
 
                         }
                         if(StringUtils.equals(l.getTestType(),TestCaseStatus.automation.name())){
@@ -559,8 +565,8 @@ public class TestPlanService {
         }
     }
 
-    public List<TestPlan> recentTestPlans() {
-        return extTestPlanMapper.listRecent(SessionUtils.getUserId(), SessionUtils.getCurrentProjectId());
+    public List<TestPlan> recentTestPlans(String projectId) {
+        return extTestPlanMapper.listRecent(SessionUtils.getUserId(), projectId);
     }
 
     public List<TestPlan> listTestAllPlan(String currentWorkspaceId) {
@@ -620,7 +626,7 @@ public class TestPlanService {
         JSONArray componentIds = content.getJSONArray("components");
 
         List<ReportComponent> components = ReportComponentFactory.createComponents(componentIds.toJavaList(String.class), testPlan);
-        List<Issues> issues = buildFunctionalCaseReport(planId, components);
+        List<IssuesDao> issues = buildFunctionalCaseReport(planId, components);
         buildApiCaseReport(planId, components);
         buildScenarioCaseReport(planId, components);
         buildLoadCaseReport(planId, components);
@@ -780,7 +786,7 @@ public class TestPlanService {
         JSONArray componentIds = content.getJSONArray("components");
 
         List<ReportComponent> components = ReportComponentFactory.createComponents(componentIds.toJavaList(String.class), testPlan);
-        List<Issues> issues = buildFunctionalCaseReport(planId, components);
+        List<IssuesDao> issues = buildFunctionalCaseReport(planId, components);
         buildApiCaseReport(planId, components);
         buildScenarioCaseReport(planId, components);
         buildLoadCaseReport(planId, components);
@@ -826,14 +832,13 @@ public class TestPlanService {
         }
     }
 
-    public List<Issues> buildFunctionalCaseReport(String planId, List<ReportComponent> components) {
-        IssuesService issuesService = (IssuesService) CommonBeanFactory.getBean("issuesService");
+    public List<IssuesDao> buildFunctionalCaseReport(String planId, List<ReportComponent> components) {
         List<TestPlanCaseDTO> testPlanTestCases = listTestCaseByPlanId(planId);
-        List<Issues> issues = new ArrayList<>();
+        List<IssuesDao> issues = new ArrayList<>();
         for (TestPlanCaseDTO testCase : testPlanTestCases) {
-            List<Issues> issue = issuesService.getIssues(testCase.getCaseId());
+            List<IssuesDao> issue = issuesService.getIssues(testCase.getCaseId());
             if (issue.size() > 0) {
-                for (Issues i : issue) {
+                for (IssuesDao i : issue) {
                     i.setModel(testCase.getNodePath());
                     i.setProjectName(testCase.getProjectName());
                     String des = i.getDescription().replaceAll("<p>", "").replaceAll("</p>", "");
@@ -933,9 +938,9 @@ public class TestPlanService {
                             planScenarioID + ":" + request.getTestPlanReportId(),
                             item.getName(), request.getTriggerMode() == null ? ReportTriggerMode.MANUAL.name() : request.getTriggerMode(),
                             request.getExecuteType(), item.getProjectId(), request.getReportUserID(),null);
+                    apiScenarioReportMapper.insert(report);
                     group.setHashTree(scenarios);
                     testPlan.getHashTree().add(group);
-                    apiScenarioReportMapper.insert(report);
                     returnId = request.getId();
                 }
 
@@ -1055,7 +1060,6 @@ public class TestPlanService {
 
         //执行场景执行任务
         if (!planScenarioIdMap.isEmpty()) {
-            LogUtil.info("-------------- testplan schedule ---------- api case over -----------------");
             SchedulePlanScenarioExecuteRequest scenarioRequest = new SchedulePlanScenarioExecuteRequest();
             String senarionReportID = UUID.randomUUID().toString();
             scenarioRequest.setId(senarionReportID);
@@ -1075,7 +1079,6 @@ public class TestPlanService {
                 scenarioIsExcuting = true;
                 scenarioCaseIdArray= JSONArray.toJSONString(new ArrayList<>(planScenarioIdMap.keySet()));
             }
-            LogUtil.info("-------------- testplan schedule ---------- scenario case over -----------------");
         }
 
 

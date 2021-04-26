@@ -12,6 +12,7 @@ export default {
     import_mode: '導入模式',
     import_module: '導入模塊',
     import_user: '導入用戶',
+    export: "導出",
     please_fill_in_the_template: '請填寫模版內容',
     cut_back_old_version: '切回舊版',
     cut_back_new_version: '切回新版',
@@ -19,6 +20,7 @@ export default {
     examples: '示例',
     help_documentation: '幫助文檔',
     api_help_documentation: 'API文檔',
+    confirm_delete: '是否刪除',
     delete_cancelled: '已取消刪除',
     workspace: '工作空間',
     organization: '組織',
@@ -254,6 +256,12 @@ export default {
       url: '當前站點URL',
       url_tip: '例如：http://localhost:8081',
       url_is_null: '當前站點URL不能為空'
+    },
+    prometheus_config: '監控配置',
+    prometheus: {
+      host: 'Prometheus地址',
+      host_tip: '例如:http://ms-prometheus:9090',
+      host_is_null: 'Prometheus地址不能為空'
     }
   },
   workspace: {
@@ -363,7 +371,8 @@ export default {
     manager: '項目管理',
     no_data: '無數據',
     select: '選擇項目',
-    repeatable: '接口定義URL可重復'
+    repeatable: '接口定義URL可重復',
+    upload_file_again: '重新上傳'
   },
   member: {
     create: '添加成員',
@@ -430,6 +439,7 @@ export default {
     test_request_statistics: '請求統計',
     test_error_log: '錯誤記錄',
     test_log_details: '日誌詳情',
+    test_monitor_details: '監控詳情',
     test_details: '測試詳情',
     test_duration: '當前執行時長：{0} 分鐘 {1} 秒',
     test_start_time: '開始執行時間',
@@ -458,8 +468,12 @@ export default {
     not_exist: "測試報告不存在",
     batch_delete: "批量刪除報告",
     delete_batch_confirm: '確認批量刪除報告',
+    response_time: '響應時間(s)',
+    max_users: '並發数'
   },
   load_test: {
+    concurrency_thread_group: '併發讀取組',
+    thread_group: '線程組',
     completed_test_report: '已完成的測試報告',
     test: '測試',
     name: '測試名稱',
@@ -599,6 +613,10 @@ export default {
       base_info: "基本信息",
       req_param: "請求參賽",
       rsp_param: "響應內容",
+      delete_mock_expect: "確認刪除這條預期嗎？",
+      rule: {
+        input_code: "請輸入 HTTP Code"
+      }
     },
     definition: {
       api_title: "接口列表",
@@ -788,8 +806,14 @@ export default {
       report_name_info: '請輸入報告名稱',
       save_case_info: '請先保存用例',
       reference_deleted: '引用已刪除',
+      loop_name: "循環",
+      loop_content: "默認為開啟，當循環下只有一個請求時，可以開啟/關閉;當循環下超過一個請求時，則只能開啟。",
+      loop_return_val: "定義變量名稱",
+      loop_input_val: "變量前綴",
+      loop_message: "當前循環下超過一個請求，不能關閉狀態",
     },
     environment: {
+      create: '創建環境',
       name: "環境名稱",
       socket: "環境域名",
       condition_enable: "啟用條件",
@@ -797,6 +821,7 @@ export default {
       environment_list: "環境列表",
       environment_config: "環境配置",
       config_environment: "配置環境",
+      copy_environment: "複製環境",
       environment: "環境",
       select_environment: "請選擇環境",
       please_save_test: "請先保存測試",
@@ -804,6 +829,7 @@ export default {
       http_config: "HTTP配置",
       database_config: "數據庫配置",
       tcp_config: "TCP配置",
+      import: "導入環境",
     },
     scenario: {
       scenario: "場景",
@@ -1002,7 +1028,8 @@ export default {
       swagger_url_import: "使用URL導入",
       timing_synchronization: "定時同步",
       next_synchronization_time: "下次同步時間",
-
+      ms_env_import_file_limit: "支持通過MeterSphere導出的json格式文件",
+      file_exceed_limit: "文件數量超出限制",
     },
     home_page: {
       unit_of_measurement: "個",
@@ -1213,7 +1240,7 @@ export default {
       steps: "執行步驟",
       number: "編號",
       prerequisite: "前置條件",
-      step_desc: "步驟描述",
+      step_desc: "用例步驟",
       expected_results: "預期結果",
       input_name: "請輸入名稱",
       input_module: "請選擇模塊",
@@ -1460,9 +1487,9 @@ export default {
       close_success: "關閉成功",
       preview: "預覽",
       please_choose_current_owner: "請選擇處理人",
-      tapd_current_owner: "Tapd bug 處理人：",
-      zentao_bug_build: "禪道 bug 影響版本",
-      zentao_bug_assigned: "禪道 bug 處理人",
+      tapd_current_owner: "Tapd 處理人",
+      zentao_bug_build: "禪道 影響版本",
+      zentao_bug_assigned: "禪道 處理人",
     },
     report: {
       name: "測試計畫包括",
@@ -1495,6 +1522,7 @@ export default {
     cannot_empty: '資源池不能為空',
     fill_the_data: '請完善數據',
     delete_prompt: '此操作將永久刪除該資源池, 是否繼續?',
+    update_prompt: '{0}  等測試正在使用此資源池，禁用可能會影響報告的監控部分，是否繼續？',
     status_change_success: '狀態修改成功!',
     status_change_failed: '狀態修改失敗, 校驗不通過!',
     check_in: '校驗中',

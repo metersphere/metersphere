@@ -23,7 +23,7 @@ public class ApiTestBatchRequest extends ApiTestCaseWithBLOBs {
      * unSelectIds：是否在页面上有未勾选的数据，有的话他们的ID是哪些。
      * filters/name/moduleIds/unSeelctIds 只在isSelectAllDate为true时需要。为了让程序能明确批量的范围。
      */
-    private boolean isSelectAllDate;
+    private boolean isSelectAll;
 
     private Map<String, List<String>> filters;
 

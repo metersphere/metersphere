@@ -8,6 +8,7 @@
         @setTreeNodes="setTreeNodes"
         @exportTestCase="exportTestCase"
         @saveAsEdit="editTestCase"
+        :show-operator="true"
         @createCase="handleCaseSimpleCreate($event, 'add')"
         @refreshAll="refreshAll"
         :type="'edit'"

@@ -7,6 +7,7 @@ import io.metersphere.base.mapper.TestPlanLoadCaseMapper;
 import io.metersphere.base.mapper.TestPlanMapper;
 import io.metersphere.base.mapper.ext.ExtTestPlanLoadCaseMapper;
 import io.metersphere.commons.constants.TestPlanStatus;
+import io.metersphere.commons.exception.MSException;
 import io.metersphere.controller.request.OrderRequest;
 import io.metersphere.performance.request.RunTestPlanRequest;
 import io.metersphere.performance.service.PerformanceTestService;
@@ -14,6 +15,9 @@ import io.metersphere.track.dto.TestPlanLoadCaseDTO;
 import io.metersphere.track.request.testplan.LoadCaseReportBatchRequest;
 import io.metersphere.track.request.testplan.LoadCaseReportRequest;
 import io.metersphere.track.request.testplan.LoadCaseRequest;
+import io.metersphere.track.request.testplan.RunBatchTestPlanRequest;
+import io.metersphere.track.service.utils.ParallelExecTask;
+import io.metersphere.track.service.utils.SerialExecTask;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
@@ -26,6 +30,9 @@ import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 
 @Service
@@ -121,6 +128,38 @@ public class TestPlanLoadCaseService {
         return reportId;
     }
 
+    public void runBatch(RunBatchTestPlanRequest request) {
+        if (request.getConfig() != null && request.getConfig().getMode().equals("serial")) {
+            try {
+                serialRun(request);
+            } catch (Exception e) {
+                MSException.throwException(e.getMessage());
+            }
+        } else {
+            ExecutorService executorService = Executors.newFixedThreadPool(request.getRequests().size());
+            request.getRequests().forEach(item -> {
+                executorService.submit(new ParallelExecTask(performanceTestService, testPlanLoadCaseMapper, item));
+            });
+        }
+    }
+
+    private void serialRun(RunBatchTestPlanRequest request) throws Exception {
+        ExecutorService executorService = Executors.newFixedThreadPool(request.getRequests().size());
+        for (RunTestPlanRequest runTestPlanRequest : request.getRequests()) {
+            Future<LoadTestReportWithBLOBs> future = executorService.submit(new SerialExecTask(performanceTestService, testPlanLoadCaseMapper, loadTestReportMapper, runTestPlanRequest, request.getConfig()));
+            LoadTestReportWithBLOBs report = future.get();
+            // 如果开启失败结束执行，则判断返回结果状态
+            if (request.getConfig().isOnSampleError()) {
+                TestPlanLoadCaseExample example = new TestPlanLoadCaseExample();
+                example.createCriteria().andLoadReportIdEqualTo(report.getId());
+                List<TestPlanLoadCase> cases = testPlanLoadCaseMapper.selectByExample(example);
+                if (CollectionUtils.isEmpty(cases) || !cases.get(0).getStatus().equals("success")) {
+                    break;
+                }
+            }
+        }
+    }
+
     public Boolean isExistReport(LoadCaseReportRequest request) {
         String reportId = request.getReportId();
         String testPlanLoadCaseId = request.getTestPlanLoadCaseId();
@@ -159,11 +198,11 @@ public class TestPlanLoadCaseService {
         testPlanLoadCaseMapper.deleteByExample(example);
     }
 
-    public void batchDelete(LoadCaseReportBatchRequest request){
+    public void batchDelete(LoadCaseReportBatchRequest request) {
         List<String> ids = request.getIds();
-        if(request.getCondition()!=null && request.getCondition().isSelectAll()){
+        if (request.getCondition() != null && request.getCondition().isSelectAll()) {
             ids = this.selectTestPlanLoadCaseIds(request.getCondition());
-            if(request.getCondition().getUnSelectIds()!=null){
+            if (request.getCondition().getUnSelectIds() != null) {
                 ids.removeAll(request.getCondition().getUnSelectIds());
             }
         }

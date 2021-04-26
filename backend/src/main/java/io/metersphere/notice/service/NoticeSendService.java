@@ -50,11 +50,12 @@ public class NoticeSendService {
     }
 
     public void send(String taskType, NoticeModel noticeModel) {
+        String loadReportId = (String) noticeModel.getParamMap().get("id");
         try {
             List<MessageDetail> messageDetails;
             switch (taskType) {
                 case NoticeConstants.Mode.API:
-                    messageDetails = noticeService.searchMessageByType(NoticeConstants.TaskType.JENKINS_TASK);
+                    messageDetails = noticeService.searchMessageByTypeBySend(NoticeConstants.TaskType.JENKINS_TASK, loadReportId);
                     break;
                 case NoticeConstants.Mode.SCHEDULE:
                     messageDetails = noticeService.searchMessageByTestId(noticeModel.getTestId());

@@ -68,7 +68,7 @@ export class HttpConfig extends BaseConfig {
     this.protocol = 'https';
     this.port = undefined;
     this.conditions = [];
-    this.defaultCondition = "NONE";
+    this.isMock = false;
     this.set(options);
     this.sets({headers: KeyValue}, options);
     this.sets({conditions: KeyValue}, options);

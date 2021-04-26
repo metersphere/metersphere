@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import io.metersphere.base.domain.*;
 import io.metersphere.commons.constants.IssuesManagePlatform;
+import io.metersphere.commons.constants.IssuesStatus;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.SessionUtils;
@@ -12,6 +13,7 @@ import io.metersphere.controller.ResultHolder;
 import io.metersphere.track.dto.DemandDTO;
 import io.metersphere.track.issue.domain.PlatformUser;
 import io.metersphere.track.request.testcase.IssuesRequest;
+import io.metersphere.track.request.testcase.IssuesUpdateRequest;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
@@ -23,46 +25,78 @@ import org.springframework.web.client.RestTemplate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 public class TapdPlatform extends AbstractIssuePlatform {
 
+    protected String key = IssuesManagePlatform.Tapd.toString();
 
     public TapdPlatform(IssuesRequest issueRequest) {
         super(issueRequest);
     }
 
     @Override
-    public List<Issues> getIssue() {
-        List<Issues> list = new ArrayList<>();
-        String tapdId = getProjectId("");
+    public List<IssuesDao> getIssue(IssuesRequest issuesRequest) {
+        List<IssuesDao> list = new ArrayList<>();
+        String tapdId = getProjectId(issuesRequest.getProjectId());
 
-        TestCaseIssuesExample example = new TestCaseIssuesExample();
-        example.createCriteria().andTestCaseIdEqualTo(testCaseId);
+//        TestCaseIssuesExample example = new TestCaseIssuesExample();
+//        example.createCriteria().andTestCaseIdEqualTo(testCaseId);
 
-        List<Issues> issues = extIssuesMapper.getIssues(testCaseId, IssuesManagePlatform.Tapd.toString());
+        issuesRequest.setPlatform(IssuesManagePlatform.Tapd.toString());
+        List<IssuesDao> issues;
+        if (StringUtils.isNotBlank(issuesRequest.getProjectId())) {
+            issues = extIssuesMapper.getIssuesByProjectId(issuesRequest);
+        } else {
+            issues = extIssuesMapper.getIssuesByCaseId(issuesRequest);
+        }
 
         List<String> issuesIds = issues.stream().map(Issues::getId).collect(Collectors.toList());
         issuesIds.forEach(issuesId -> {
-            Issues dto = getTapdIssues(tapdId, issuesId);
+            IssuesDao dto = getTapdIssues(tapdId, issuesId);
             if (StringUtils.isBlank(dto.getId())) {
                 // 缺陷不存在，解除用例和缺陷的关联
                 TestCaseIssuesExample issuesExample = new TestCaseIssuesExample();
-                issuesExample.createCriteria()
-                        .andTestCaseIdEqualTo(testCaseId)
-                        .andIssuesIdEqualTo(issuesId);
+                TestCaseIssuesExample.Criteria criteria = issuesExample.createCriteria();
+                if (StringUtils.isNotBlank(testCaseId)) {
+                    criteria.andTestCaseIdEqualTo(testCaseId);
+                }
+                criteria.andIssuesIdEqualTo(issuesId);
                 testCaseIssuesMapper.deleteByExample(issuesExample);
                 issuesMapper.deleteByPrimaryKey(issuesId);
             } else {
                 dto.setPlatform(IssuesManagePlatform.Tapd.toString());
                 // 缺陷状态为 关闭，则不显示
-                if (!StringUtils.equals("closed", dto.getStatus())) {
+                if (!StringUtils.equals(IssuesStatus.CLOSED.toString(), dto.getStatus())) {
                     list.add(dto);
                 }
             }
         });
         return list;
+    }
+
+    @Override
+    public void filter(List<IssuesDao> issues) {
+        String tapdId = "";
+        for (IssuesDao item : issues) {
+            if (StringUtils.isNotBlank(item.getProjectId())) {
+                tapdId = getProjectId(issues.get(0).getProjectId());
+                break;
+            }
+        }
+
+        for (IssuesDao item : issues) {
+            IssuesDao dto = getTapdIssues(tapdId, item.getId());
+            if (StringUtils.isBlank(dto.getId())) {
+                // 标记成删除
+                item.setStatus(IssuesStatus.DELETE.toString());
+            } else {
+                // 缺陷状态为 完成，则不显示
+                if (!StringUtils.equals(IssuesStatus.CLOSED.toString(), dto.getStatus())) {
+                    item.setStatus(IssuesStatus.CLOSED.toString());
+                }
+            }
+        }
     }
 
     @Override
@@ -86,17 +120,17 @@ public class TapdPlatform extends AbstractIssuePlatform {
         return demandList;
     }
 
-    private Issues getTapdIssues(String projectId, String issuesId) {
+    private IssuesDao getTapdIssues(String projectId, String issuesId) {
         String url = "https://api.tapd.cn/bugs?workspace_id=" + projectId + "&id=" + issuesId;
         ResultHolder call = call(url);
         String listJson = JSON.toJSONString(call.getData());
         if (StringUtils.equals(Boolean.FALSE.toString(), listJson)) {
-            return new Issues();
+            return new IssuesDao();
         }
         JSONObject jsonObject = JSONObject.parseObject(listJson);
         JSONObject bug = jsonObject.getJSONObject("Bug");
         Long created = bug.getLong("created");
-        Issues issues = jsonObject.getObject("Bug", Issues.class);
+        IssuesDao issues = jsonObject.getObject("Bug", IssuesDao.class);
 
         // 获取工作流中缺陷状态名称
         String workflow = "https://api.tapd.cn/workflows/status_map?workspace_id=" + projectId + "&system=bug";
@@ -112,10 +146,12 @@ public class TapdPlatform extends AbstractIssuePlatform {
     }
 
     @Override
-    public void addIssue(IssuesRequest issuesRequest) {
+    public void addIssue(IssuesUpdateRequest issuesRequest) {
+        issuesRequest.setPlatform(IssuesManagePlatform.Tapd.toString());
+
         String url = "https://api.tapd.cn/bugs";
         String testCaseId = issuesRequest.getTestCaseId();
-        String tapdId = getProjectId("");
+        String tapdId = getProjectId(issuesRequest.getProjectId());
 
         if (StringUtils.isBlank(tapdId)) {
             MSException.throwException("未关联Tapd 项目ID");
@@ -129,7 +165,7 @@ public class TapdPlatform extends AbstractIssuePlatform {
         MultiValueMap<String, Object> paramMap = new LinkedMultiValueMap<>();
         paramMap.add("title", issuesRequest.getTitle());
         paramMap.add("workspace_id", tapdId);
-        paramMap.add("description", issuesRequest.getContent());
+        paramMap.add("description", issuesRequest.getDescription());
         paramMap.add("reporter", username);
         paramMap.add("current_owner", usersStr);
 
@@ -139,18 +175,19 @@ public class TapdPlatform extends AbstractIssuePlatform {
         JSONObject jsonObject = JSONObject.parseObject(listJson);
         String issuesId = jsonObject.getObject("Bug", Issues.class).getId();
 
+        issuesRequest.setId(issuesId);
         // 用例与第三方缺陷平台中的缺陷关联
-        TestCaseIssues testCaseIssues = new TestCaseIssues();
-        testCaseIssues.setId(UUID.randomUUID().toString());
-        testCaseIssues.setIssuesId(issuesId);
-        testCaseIssues.setTestCaseId(testCaseId);
-        testCaseIssuesMapper.insert(testCaseIssues);
+        handleTestCaseIssues(issuesRequest);
 
         // 插入缺陷表
-        Issues issues = new Issues();
-        issues.setId(issuesId);
-        issues.setPlatform(IssuesManagePlatform.Tapd.toString());
-        issuesMapper.insert(issues);
+        insertIssuesWithoutContext(issuesId, issuesRequest);
+    }
+
+    @Override
+    public void updateIssue(IssuesUpdateRequest request) {
+        // todo 调用接口
+        request.setDescription(null);
+        handleIssueUpdate(request);
     }
 
     @Override
@@ -176,8 +213,8 @@ public class TapdPlatform extends AbstractIssuePlatform {
     @Override
     public List<PlatformUser> getPlatformUser() {
         List<PlatformUser> users = new ArrayList<>();
-        String projectId = getProjectId("");
-        String url = "https://api.tapd.cn/workspaces/users?workspace_id=" + projectId;
+        String id = getProjectId(projectId);
+        String url = "https://api.tapd.cn/workspaces/users?workspace_id=" + id;
         ResultHolder call = call(url);
         String listJson = JSON.toJSONString(call.getData());
         JSONArray jsonArray = JSON.parseArray(listJson);

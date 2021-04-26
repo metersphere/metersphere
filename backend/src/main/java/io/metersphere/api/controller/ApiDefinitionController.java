@@ -85,6 +85,12 @@ public class ApiDefinitionController {
         return apiDefinitionService.list(request);
     }
 
+    @PostMapping("/list/batch")
+    public List<ApiDefinitionResult> listBatch(@RequestBody ApiBatchRequest request) {
+        return apiDefinitionService.listBatch(request);
+    }
+
+
     @PostMapping(value = "/create", consumes = {"multipart/form-data"})
     @RequiresRoles(value = {RoleConstants.TEST_MANAGER, RoleConstants.TEST_USER}, logical = Logical.OR)
     public void create(@RequestPart("request") SaveApiDefinitionRequest request, @RequestPart(value = "files") List<MultipartFile> bodyFiles) {
@@ -176,7 +182,7 @@ public class ApiDefinitionController {
     @PostMapping(value = "/import", consumes = {"multipart/form-data"})
     @RequiresRoles(value = {RoleConstants.TEST_USER, RoleConstants.TEST_MANAGER}, logical = Logical.OR)
     public ApiDefinitionImport testCaseImport(@RequestPart(value = "file", required = false) MultipartFile file, @RequestPart("request") ApiTestImportRequest request) {
-        return apiDefinitionService.apiTestImport(file, request);//95821329-9eaa-4d2a-aa24-e6f912994716"
+        return apiDefinitionService.apiTestImport(file, request);
     }
 
     @PostMapping(value = "/export/{type}")
@@ -272,8 +278,7 @@ public class ApiDefinitionController {
 
     @GetMapping("/getMockEnvironment/{projectId}")
     public ApiTestEnvironmentWithBLOBs getMockEnvironment(@PathVariable String projectId, HttpServletRequest request) {
-        System.out.println(request.getRequestURL());
-        String requestUrl = request.getRequestURI();
+        String requestUrl = request.getRequestURL().toString();
         String baseUrl = "";
         if (requestUrl.contains("/api/definition")) {
             baseUrl = requestUrl.split("/api/definition")[0];
