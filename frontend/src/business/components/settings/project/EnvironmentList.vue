@@ -58,7 +58,7 @@
         </el-select>
       </div>
       <environment-edit :environment="currentEnvironment" ref="environmentEdit" @close="close"
-                        @refreshAfterSave="refresh">
+                        :project-id="currentProjectId" @refreshAfterSave="refresh">
       </environment-edit>
     </el-dialog>
     <environment-import :project-list="projectList" @refresh="refresh" ref="envImport"></environment-import>
@@ -291,7 +291,14 @@
         //拷贝一份选中的数据，不然下面删除id和projectId的时候会影响原数据
         const envs = JSON.parse(JSON.stringify(this.selectRows));
 
-        envs.map(env => {  //不导出id和projectId
+        envs.map(env => {  //不导出id和projectId和启用条件
+          if (env.config){  //旧环境可能没有config数据
+            let tempConfig = JSON.parse(env.config);
+            if (tempConfig.httpConfig.conditions) {
+              delete tempConfig.httpConfig.conditions;  //删除”启用条件“，因为导入导出环境对应的项目不同，模块也就不同，
+              env.config = JSON.stringify(tempConfig);
+            }
+          }
           delete env.id;
           delete env.projectId;
         })
