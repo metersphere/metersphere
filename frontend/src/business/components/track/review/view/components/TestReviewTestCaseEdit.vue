@@ -416,7 +416,6 @@ export default {
       param.caseId = this.testCase.caseId;
       param.reviewId = this.testCase.reviewId;
       param.status = status;
-      console.log(param);
       this.$post('/test/review/case/edit', param, () => {
         this.$success(this.$t('commons.save_success'));
         this.updateTestCases(param);
@@ -464,13 +463,11 @@ export default {
         // 兼容旧版本的步骤
         compatibleTestCaseStep(item, item);
         this.testCase = item;
-        console.log(this.testCaseTemplate);
         //parseCustomField(this.testCase, this.testCaseTemplate, null, null, buildTestCaseOldFields(this.testCase));
         if (!this.testCase.actualResult) {
           // 如果没值,使用模板的默认值
           this.testCase.actualResult = this.testCaseTemplate.actualResult;
         }
-        console.log(this.testCase);
         // this.getRelatedTest();
         this.getComments(item);
         /*  this.initTest();*/
