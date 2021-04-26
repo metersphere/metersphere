@@ -49,5 +49,7 @@ public class TestCase implements Serializable {
 
     private String status;
 
+    private String customNum;
+
     private static final long serialVersionUID = 1L;
 }
