@@ -524,8 +524,8 @@ public class PerformanceTestService {
         if (!resourceIds.isEmpty()) {
             LoadTestExample example = new LoadTestExample();
             LoadTestExample.Criteria criteria = example.createCriteria();
-            if (StringUtils.isNotBlank(SessionUtils.getCurrentProjectId())) {
-                criteria.andProjectIdEqualTo(SessionUtils.getCurrentProjectId());
+            if (StringUtils.isNotBlank(request.getProjectId())) {
+                criteria.andProjectIdEqualTo(request.getProjectId());
             }
             criteria.andIdIn(resourceIds);
             List<LoadTest> loadTests = loadTestMapper.selectByExample(example);

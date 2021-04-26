@@ -94,11 +94,11 @@ import MsContainer from "../../common/components/MsContainer";
 import MsMainContainer from "../../common/components/MsMainContainer";
 import MsPerformanceTestStatus from "./PerformanceTestStatus";
 import MsTableOperators from "../../common/components/MsTableOperators";
-import {getCurrentProjectID} from "@/common/js/utils";
+import {getCurrentProjectID, getCurrentWorkspaceId} from "@/common/js/utils";
 import MsTableHeader from "../../common/components/MsTableHeader";
 import {TEST_CONFIGS} from "../../common/components/search/search-components";
 import {LIST_CHANGE, PerformanceEvent} from "@/business/components/common/head/ListEvent";
-import {WORKSPACE_ID} from "@/common/js/constants";
+import {PROJECT_ID, WORKSPACE_ID} from "@/common/js/constants";
 import {_filter, _sort} from "@/common/js/tableUtils";
 
 export default {
@@ -114,7 +114,6 @@ export default {
   data() {
     return {
       result: {},
-      queryPath: "/performance/list",
       deletePath: "/performance/delete",
       condition: {
         components: TEST_CONFIGS
@@ -163,7 +162,7 @@ export default {
   },
   methods: {
     getMaintainerOptions() {
-      let workspaceId = localStorage.getItem(WORKSPACE_ID);
+      let workspaceId = getCurrentWorkspaceId();
       this.$post('/user/ws/member/tester/list', {workspaceId: workspaceId}, response => {
         this.userFilters = response.data.map(u => {
           return {text: u.name, value: u.id};
@@ -171,13 +170,9 @@ export default {
       });
     },
     initTableData() {
-      if (this.projectId !== 'all') {
-        this.condition.projectId = this.projectId;
-        if (!this.condition.projectId) {
-          return;
-        }
-      }
-      this.result = this.$post(this.buildPagePath(this.queryPath), this.condition, response => {
+      this.condition.projectId = getCurrentProjectID();
+      this.condition.workspaceId = getCurrentWorkspaceId();
+      this.result = this.$post(this.buildPagePath('/performance/list'), this.condition, response => {
         let data = response.data;
         this.total = data.itemCount;
         this.tableData = data.listObject;

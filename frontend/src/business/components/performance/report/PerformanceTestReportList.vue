@@ -98,7 +98,7 @@ import MsTablePagination from "../../common/pagination/TablePagination";
 import MsContainer from "../../common/components/MsContainer";
 import MsMainContainer from "../../common/components/MsMainContainer";
 import MsPerformanceReportStatus from "./PerformanceReportStatus";
-import {getCurrentProjectID} from "@/common/js/utils";
+import {getCurrentProjectID, getCurrentWorkspaceId} from "@/common/js/utils";
 import MsTableOperatorButton from "../../common/components/MsTableOperatorButton";
 import ReportTriggerModeItem from "../../common/tableItem/ReportTriggerModeItem";
 import {REPORT_CONFIGS} from "../../common/components/search/search-components";
@@ -130,7 +130,6 @@ export default {
   data() {
     return {
       result: {},
-      queryPath: "/performance/report/list/all",
       deletePath: "/performance/report/delete/",
       condition: {
         components: REPORT_CONFIGS
@@ -184,7 +183,9 @@ export default {
       if (!getCurrentProjectID()) {
         return;
       }
-      this.result = this.$post(this.buildPagePath(this.queryPath), this.condition, response => {
+      this.condition.workspaceId = getCurrentWorkspaceId();
+      this.condition.projectId = getCurrentProjectID();
+      this.result = this.$post(this.buildPagePath('/performance/report/list/all'), this.condition, response => {
         let data = response.data;
         this.total = data.itemCount;
         this.tableData = data.listObject;
