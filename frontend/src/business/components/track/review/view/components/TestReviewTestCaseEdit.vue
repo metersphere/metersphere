@@ -62,7 +62,7 @@
                 </el-header>
 
                 <div class="case_container">
-                  <el-row>
+<!--                  <el-row>
                     <el-col :span="9" :offset="1">
                       <span class="cast_label">{{ $t('test_track.case.priority') }}：</span>
                       <span class="cast_item">{{ testCase.priority }}</span>
@@ -89,7 +89,7 @@
                     </el-col>
                   </el-row>
 
-                  <!--                  <el-row>
+                  &lt;!&ndash;                  <el-row>
                                       <el-col class="test-detail" :span="20" :offset="1">
                                         <el-tabs v-model="activeTab" type="border-card">
                                           <el-tab-pane name="detail" :label="$t('test_track.plan_view.test_detail')">
@@ -107,7 +107,7 @@
                                           </el-tab-pane>
                                         </el-tabs>
                                       </el-col>
-                                    </el-row>-->
+                                    </el-row>&ndash;&gt;
 
                   <el-row>
                     <el-col :span="20" :offset="1">
@@ -211,8 +211,63 @@
                         />
                       </div>
                     </el-col>
-                  </el-row>
+                  </el-row>-->
+                  <el-form>
+                    <el-row>
+                      <el-col :span="4" :offset="1">
+                        <span class="cast_label">{{ $t('test_track.case.priority') }}：</span>
+                        <span class="cast_item">{{ testCase.priority }}</span>
+                      </el-col>
+                      <el-col :span="5">
+                        <span class="cast_label">{{ $t('test_track.case.module') }}：</span>
+                        <span class="cast_item">{{ testCase.nodePath }}</span>
+                      </el-col>
+                    </el-row>
 
+                    <el-row>
+                      <el-col :span="4" :offset="1">
+                        <span class="cast_label">{{ $t('test_track.plan.plan_project') }}：</span>
+                        <span class="cast_item">{{ testCase.projectName }}</span>
+                      </el-col>
+                    </el-row>
+
+                    <el-row>
+                      <el-col :span="4" :offset="1" v-if="testCase.testId == 'other'">
+                        <span class="cast_label">{{ $t('test_track.case.test_name') }}：</span>
+                        <span class="cast_item">{{ testCase.otherTestName }}</span>
+                      </el-col>
+                    </el-row>
+
+                    <!--                    <el-form ref="customFieldForm"
+                                                 class="case-form">
+                                          <el-row>
+                                            <el-col :span="7" v-for="(item, index) in testCaseTemplate.customFields" :key="index">
+                                              <el-form-item :label="item.system ? $t(systemNameMap[item.name]) : item.name" :prop="item.name"
+                                                            label-width="120px">
+                                                <custom-filed-component :disabled="true" :data="item" :form="{}" prop="defaultValue"/>
+                                              </el-form-item>
+                                            </el-col>
+                                          </el-row>
+                                        </el-form>-->
+
+                    <el-row>
+                      <el-col :span="22" :offset="1">
+                        <div class="step-info">
+                          <form-rich-text-item :disabled="true" :title="$t('test_track.case.prerequisite')"
+                                               :data="testCase" prop="prerequisite"/>
+                          <form-rich-text-item :disabled="true" :title="$t('test_track.case.step_desc')"
+                                               :data="testCase" prop="stepDesc"/>
+                          <form-rich-text-item :disabled="true" :title="$t('test_track.case.expected_results')"
+                                               :data="testCase" prop="stepResult"/>
+                          <form-rich-text-item :title="$t('test_track.plan_view.actual_result')" :data="testCase"
+                                               prop="actualResult"/>
+                        </div>
+                      </el-col>
+                    </el-row>
+                    <test-case-edit-other-info @openTest="openTest" :read-only="true" :is-test-plan="true"
+                                               :project-id="projectId" :form="testCase" :case-id="testCase.caseId"
+                                               ref="otherInfo"/>
+                  </el-form>
                 </div>
 
               </el-scrollbar>
@@ -245,15 +300,23 @@ import PerformanceTestDetail from "../../../plan/view/comonents/test/Performance
 import ApiTestResult from "../../../plan/view/comonents/test/ApiTestResult";
 import ApiTestDetail from "../../../plan/view/comonents/test/ApiTestDetail";
 import TestPlanTestCaseStatusButton from "../../../plan/common/TestPlanTestCaseStatusButton";
-import {getCurrentProjectID, getUUID, listenGoBack, removeGoBackListener} from "@/common/js/utils";
+import {getUUID, listenGoBack, removeGoBackListener} from "@/common/js/utils";
 import ReviewComment from "../../commom/ReviewComment";
 import TestCaseAttachment from "@/business/components/track/case/components/TestCaseAttachment";
 import ApiCaseItem from "@/business/components/api/definition/components/case/ApiCaseItem";
-import MsEditApiScenario from "@/business/components/api/automation/scenario/EditApiScenario"
+import MsEditApiScenario from "@/business/components/api/automation/scenario/EditApiScenario";
+import {buildTestCaseOldFields, compatibleTestCaseStep, getTemplate, parseCustomField} from "@/common/js/custom_field";
+import TestCaseEditOtherInfo from "@/business/components/track/case/components/TestCaseEditOtherInfo";
+import {SYSTEM_FIELD_NAME_MAP} from "@/common/js/table-constants";
+import FormRichTextItem from "@/business/components/track/case/components/FormRichTextItem";
+import CustomFiledComponent from "@/business/components/settings/workspace/template/CustomFiledComponent";
 
 export default {
   name: "TestReviewTestCaseEdit",
   components: {
+    CustomFiledComponent,
+    FormRichTextItem,
+    TestCaseEditOtherInfo,
     PerformanceTestResult,
     PerformanceTestDetail,
     ApiTestResult,
@@ -284,6 +347,9 @@ export default {
       mark: 'detail',
       api: {},
       apiCase: {},
+      testCaseTemplate: {},
+      hasTapdId: false,
+      hasZentaoId: false,
     };
   },
   props: {
@@ -298,6 +364,14 @@ export default {
       default: false
     }
   },
+  computed: {
+    projectId() {
+      return this.$store.state.projectId;
+    },
+    systemNameMap() {
+      return SYSTEM_FIELD_NAME_MAP;
+    }
+  },
   methods: {
     openTest(item) {
       const type = item.testType;
@@ -306,7 +380,7 @@ export default {
         case "performance": {
           let performanceData = this.$router.resolve({
             path: '/performance/test/edit/' + id,
-          })
+          });
           window.open(performanceData.href, '_blank');
           break;
         }
@@ -342,6 +416,7 @@ export default {
       param.caseId = this.testCase.caseId;
       param.reviewId = this.testCase.reviewId;
       param.status = status;
+      console.log(param);
       this.$post('/test/review/case/edit', param, () => {
         this.$success(this.$t('commons.save_success'));
         this.updateTestCases(param);
@@ -379,19 +454,27 @@ export default {
         let item = {};
         let data = response.data;
         Object.assign(item, data);
-        item.steps = JSON.parse(item.steps);
-        item.steptResults = [];
-        for (let i = 0; i < item.steps.length; i++) {
-          item.steps[i].actualResult = '';
-          item.steps[i].executeResult = '';
-          item.steptResults.push(item.steps[i]);
+        item.results = JSON.parse(item.results);
+        if (item.issues) {
+          item.issues = JSON.parse(item.issues);
+        } else {
+          item.issues = {};
         }
+        item.steps = JSON.parse(item.steps);
+        // 兼容旧版本的步骤
+        compatibleTestCaseStep(item, item);
         this.testCase = item;
-        console.log(this.testCase)
-        this.getRelatedTest();
+        console.log(this.testCaseTemplate);
+        //parseCustomField(this.testCase, this.testCaseTemplate, null, null, buildTestCaseOldFields(this.testCase));
+        if (!this.testCase.actualResult) {
+          // 如果没值,使用模板的默认值
+          this.testCase.actualResult = this.testCaseTemplate.actualResult;
+        }
+        console.log(this.testCase);
+        // this.getRelatedTest();
         this.getComments(item);
         /*  this.initTest();*/
-        this.getFileMetaData(data);
+        //this.getFileMetaData(data);
       })
 
     },
@@ -411,9 +494,17 @@ export default {
     openTestCaseEdit(testCase) {
       this.showDialog = true;
       this.activeTab = 'detail';
-      listenGoBack(this.handleClose);
       this.initData(testCase);
       this.getComments(testCase);
+      this.hasTapdId = false;
+      this.hasZentaoId = false;
+      listenGoBack(this.handleClose);
+      let initFuc = this.initData;
+      getTemplate('field/template/case/get/relate/', this)
+        .then((template) => {
+          this.testCaseTemplate = template;
+          initFuc(testCase);
+        });
     },
     /* initTest() {
        this.$nextTick(() => {
