@@ -76,7 +76,7 @@ public class MsJDBCSampler extends MsTestElement {
         if (config.getConfig() == null) {
             // 单独接口执行
             this.setProjectId(config.getProjectId());
-            config.setConfig(getEnvironmentConfig(useEnvironment));
+            config.setConfig(getEnvironmentConfig(StringUtils.isNotEmpty(useEnvironment) ? useEnvironment : environmentId));
         }
 
         // 数据兼容处理

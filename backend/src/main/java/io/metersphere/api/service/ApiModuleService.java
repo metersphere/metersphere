@@ -240,12 +240,14 @@ public class ApiModuleService extends NodeTreeService<ApiModuleDTO> {
                 if (apiDefinition != null && StringUtils.isNotBlank(apiDefinition.getModulePath())) {
                     StringBuilder path = new StringBuilder(apiDefinition.getModulePath());
                     List<String> pathLists = Arrays.asList(path.toString().split("/"));
-                    pathLists.set(request.getLevel(), request.getName());
-                    path.delete(0, path.length());
-                    for (int i = 1; i < pathLists.size(); i++) {
-                        path = path.append("/").append(pathLists.get(i));
+                    if (pathLists.size() > request.getLevel()) {
+                        pathLists.set(request.getLevel(), request.getName());
+                        path.delete(0, path.length());
+                        for (int i = 1; i < pathLists.size(); i++) {
+                            path = path.append("/").append(pathLists.get(i));
+                        }
+                        apiDefinition.setModulePath(path.toString());
                     }
-                    apiDefinition.setModulePath(path.toString());
                 }
             });
             batchUpdateApiDefinition(apiDefinitionResults);
