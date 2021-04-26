@@ -85,7 +85,7 @@ public class ReportResultAdvancedChartComponent extends ReportComponent {
         List<TestCaseReportStatusResultDTO> apiStatusResult = new ArrayList<>();
         addToReportStatusResultList(apiStatusResultMap, apiStatusResult, TestPlanTestCaseStatus.Pass.name());
         addToReportStatusResultList(apiStatusResultMap, apiStatusResult, TestPlanTestCaseStatus.Failure.name());
-        addToReportStatusResultList(apiStatusResultMap, apiStatusResult, TestPlanTestCaseStatus.Underway.name());
+        addToReportStatusResultList(apiStatusResultMap, apiStatusResult, TestPlanTestCaseStatus.Prepare.name());
         reportStatusResult.setApiResult(apiStatusResult);
     }
 
@@ -93,7 +93,7 @@ public class ReportResultAdvancedChartComponent extends ReportComponent {
         List<TestCaseReportStatusResultDTO> scenarioStatusResult = new ArrayList<>();
         addToReportStatusResultList(scenarioStatusResultMap, scenarioStatusResult, TestPlanTestCaseStatus.Pass.name());
         addToReportStatusResultList(scenarioStatusResultMap, scenarioStatusResult, TestPlanTestCaseStatus.Failure.name());
-        addToReportStatusResultList(scenarioStatusResultMap, scenarioStatusResult, TestPlanTestCaseStatus.Underway.name());
+        addToReportStatusResultList(scenarioStatusResultMap, scenarioStatusResult, TestPlanTestCaseStatus.Prepare.name());
         reportStatusResult.setScenarioResult(scenarioStatusResult);
     }
 
@@ -101,7 +101,7 @@ public class ReportResultAdvancedChartComponent extends ReportComponent {
         List<TestCaseReportStatusResultDTO> loadStatusResult = new ArrayList<>();
         addToReportStatusResultList(loadStatusResultMap, loadStatusResult, TestPlanTestCaseStatus.Pass.name());
         addToReportStatusResultList(loadStatusResultMap, loadStatusResult, TestPlanTestCaseStatus.Failure.name());
-        addToReportStatusResultList(loadStatusResultMap, loadStatusResult, TestPlanTestCaseStatus.Underway.name());
+        addToReportStatusResultList(loadStatusResultMap, loadStatusResult, TestPlanTestCaseStatus.Prepare.name());
         reportStatusResult.setLoadResult(loadStatusResult);
     }
 
@@ -113,7 +113,7 @@ public class ReportResultAdvancedChartComponent extends ReportComponent {
 
     private void getStatusResultMap(Map<String, TestCaseReportStatusResultDTO> reportStatusResultMap, String result) {
         if (StringUtils.isBlank(result)) {
-            result = TestPlanTestCaseStatus.Underway.name();
+            result = TestPlanTestCaseStatus.Prepare.name();
         }
         TestCaseReportStatusResultDTO statusResult = reportStatusResultMap.get(result);
         if (statusResult == null) {

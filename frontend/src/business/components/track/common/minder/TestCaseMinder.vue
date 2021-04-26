@@ -6,6 +6,8 @@
     :tags="tags"
     :select-node="selectNode"
     :distinct-tags="tags"
+    :tag-edit-check="tagEditCheck()"
+    :priority-disable-check="priorityDisableCheck()"
     @save="save"
     ref="minder"
   />
@@ -16,7 +18,7 @@ import MsModuleMinder from "@/business/components/common/components/MsModuleMind
 import {
   appendChild,
   getTestCaseDataMap,
-  parseCase, updateNode
+  parseCase, priorityDisableCheck, tagEditCheck, updateNode
 } from "@/business/components/track/common/minder/minderUtils";
 import {getNodePath} from "@/common/js/utils";
 export default {
@@ -94,6 +96,7 @@ name: "TestCaseMinder",
       }
       this.result = this.$post('/test/case/minder/edit', param, () => {
         this.$success(this.$t('commons.save_success'));
+        this.getTestCases();
       });
     },
     buildSaveCase(root, saveCases, deleteCases, parent) {
@@ -165,6 +168,12 @@ name: "TestCaseMinder",
         this.$error(tip)
         throw new Error(tip);
       }
+    },
+    tagEditCheck() {
+      return tagEditCheck;
+    },
+    priorityDisableCheck() {
+      return priorityDisableCheck;
     },
     addCase(data, type) {
       let nodeData = parseCase(data, new Map());

@@ -12,10 +12,12 @@
     </div>
     <div style="margin-left: 100px">
 
-
-        <p>您所执行的 ${testName} 接口测试运行失败<br/>
-            请点击下面链接进入测试报告页面【接口定义暂无报告路径】<br/>
-            【旧版接口测试报告路径】</p>
+        <p>${testName} 接口测试运行失败<br/>
+        <p>执行人:${executor}</p>
+        <p>执行环境:${executionEnvironment}</p>
+        <p>执行时间:${executionTime}</p>
+        请点击下面链接进入测试报告页面【接口定义暂无报告路径】<br/>
+        【旧版接口测试报告路径】</p>
         <a href="${url}/#/${type}/report/view/${id}">${url}/#/${type}/report/view/${id}</a>
         <p>【新版接口测试报告路径】</p>
         <a href="${url}/#/api/automation/report/view/${id}">${url}/#/api/automation/report/view/${id}</a>

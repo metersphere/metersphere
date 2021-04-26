@@ -44,6 +44,12 @@ public class TestPlanApiCaseService {
     @Resource
     ApiDefinitionExecResultService apiDefinitionExecResultService;
 
+    public TestPlanApiCase getInfo(String caseId, String testPlanId) {
+        TestPlanApiCaseExample example = new TestPlanApiCaseExample();
+        example.createCriteria().andApiCaseIdEqualTo(caseId).andTestPlanIdEqualTo(testPlanId);
+        return testPlanApiCaseMapper.selectByExample(example).get(0);
+    }
+
     public List<TestPlanApiCaseDTO> list(ApiTestCaseRequest request) {
         request.setProjectId(null);
         request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));

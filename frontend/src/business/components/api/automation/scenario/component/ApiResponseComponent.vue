@@ -46,6 +46,9 @@
       result() {
         this.response = this.result;
         this.isActive = true;
+      },
+      apiItem(){
+        this.getExecResult();
       }
     },
     methods: {

@@ -4,7 +4,9 @@
       <el-row>
         <el-col :span="api.protocol==='HTTP'? 3:5">
           <el-checkbox v-model="isSelectAll" class="select-all"/>
-          <span class="variable-combine"> {{api.name}}</span>
+          <el-tooltip :content="api.name">
+            <span class="ms-col-name"> {{api.name}}</span>
+          </el-tooltip>
         </el-col>
         <el-col :span="api.protocol==='HTTP'? 1:3">
           <el-tag size="mini" :style="{'background-color': getColor(true, api.method), border: getColor(true, api.method)}" class="api-el-tag">
@@ -176,4 +178,14 @@
     margin-right: 10px;
   }
 
+  .ms-col-name {
+    display: inline-block;
+    margin: 0 5px;
+    overflow-x: hidden;
+    padding-bottom: 0;
+    text-overflow: ellipsis;
+    vertical-align: middle;
+    white-space: nowrap;
+    width: 100px;
+  }
 </style>

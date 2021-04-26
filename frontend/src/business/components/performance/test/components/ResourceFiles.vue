@@ -4,7 +4,8 @@
              :title="$t('load_test.exist_jmx')" width="70%"
              :visible.sync="loadFileVisible">
 
-    <ms-table-header :is-tester-permission="true" title="" :condition.sync="condition" @search="getProjectFiles" :show-create="false">
+    <ms-table-header :is-tester-permission="true" title="" :condition.sync="condition" @search="getProjectFiles"
+                     :show-create="false">
       <template v-slot:button>
         <el-upload
           style="margin-bottom: 10px;"
@@ -54,14 +55,15 @@
             :show-file-list="false"
             :before-upload="beforeUploadFile"
             :http-request="handleUpdateUpload"
-            :on-exceed="handleExceed"
-          >
-            <el-button circle
-                       type="success"
-                       :disabled="!checkoutTestManagerOrTestUser()"
-                       icon="el-icon-edit"
-                       @click="handleEdit(scope.row)"
-                       size="mini"/>
+            :on-exceed="handleExceed">
+            <el-tooltip effect="dark" :content="$t('project.upload_file_again')" placement="bottom">
+              <el-button circle
+                         type="success"
+                         :disabled="!checkoutTestManagerOrTestUser()"
+                         icon="el-icon-upload"
+                         @click="handleEdit(scope.row)"
+                         size="mini"/>
+            </el-tooltip>
           </el-upload>
           <ms-table-operator-button :is-tester-permission="true"
                                     icon="el-icon-delete"
@@ -90,7 +92,14 @@ import MsTableSearchBar from "@/business/components/common/components/MsTableSea
 
 export default {
   name: "MsResourceFiles",
-  components: {MsTableSearchBar, MsTableHeader, MsTableOperatorButton, MsDialogFooter, MsTableButton, MsTablePagination},
+  components: {
+    MsTableSearchBar,
+    MsTableHeader,
+    MsTableOperatorButton,
+    MsDialogFooter,
+    MsTableButton,
+    MsTablePagination
+  },
   data() {
     return {
       loadFileVisible: false,
@@ -105,7 +114,7 @@ export default {
       condition: {},
       projectId: getCurrentProjectID(),
       currentRow: null,
-    }
+    };
   },
   methods: {
     checkoutTestManagerOrTestUser,
@@ -123,7 +132,7 @@ export default {
         let data = res.data;
         this.total = data.itemCount;
         this.existFiles = data.listObject;
-      })
+      });
     },
     fileValidator(file) {
       /// todo: 是否需要对文件内容和大小做限制
@@ -140,7 +149,7 @@ export default {
     handleUpload(uploadResources) {
       let file = uploadResources.file;
       let formData = new FormData();
-      let url = '/project/upload/files/' + this.projectId
+      let url = '/project/upload/files/' + this.projectId;
       formData.append("file", file);
       let options = {
         method: 'POST',
@@ -149,7 +158,7 @@ export default {
         headers: {
           'Content-Type': undefined
         }
-      }
+      };
       this.$request(options, (response) => {
         this.$success(this.$t('commons.save_success'));
         this.getProjectFiles();
@@ -167,7 +176,7 @@ export default {
       }
 
       let formData = new FormData();
-      let url = '/project/update/file/' + this.currentRow.id
+      let url = '/project/update/file/' + this.currentRow.id;
       formData.append("file", file);
       let options = {
         method: 'POST',
@@ -176,7 +185,7 @@ export default {
         headers: {
           'Content-Type': undefined
         }
-      }
+      };
       this.$request(options, (response) => {
         this.$success(this.$t('commons.save_success'));
         this.currentRow = null;
@@ -205,7 +214,7 @@ export default {
       });
     }
   }
-}
+};
 </script>
 
 <style scoped>

@@ -3,10 +3,8 @@ package io.metersphere.base.mapper.ext;
 import io.metersphere.api.dto.QueryAPIReportRequest;
 import io.metersphere.api.dto.automation.APIScenarioReportResult;
 import io.metersphere.api.dto.datacount.ApiDataCountResult;
-import io.metersphere.base.domain.ApiDefinitionExecResult;
 import io.metersphere.base.domain.ApiScenarioReport;
 import org.apache.ibatis.annotations.Param;
-import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
 
@@ -27,4 +25,5 @@ public interface ExtApiScenarioReportMapper {
 
     ApiScenarioReport selectPreviousReportByScenarioId(@Param("scenarioId") String scenarioId, @Param("nowId") String nowId);
 
+    List<String> idList(@Param("request") QueryAPIReportRequest request);
 }

@@ -322,4 +322,18 @@ export default {
 .el-button {
   margin-left: 10px;
 }
+
+/deep/ .el-select .el-input.is-disabled .el-input__inner {
+  background-color: #F5F7FA;
+  border-color: #E4E7ED;
+  color: #0a0a0a;
+  cursor: not-allowed;
+}
+
+/deep/ .el-input.is-disabled .el-input__inner {
+  background-color: #F5F7FA;
+  border-color: #E4E7ED;
+  color: #0a0a0a;
+  cursor: not-allowed;
+}
 </style>

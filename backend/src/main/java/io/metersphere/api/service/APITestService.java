@@ -555,17 +555,32 @@ public class APITestService {
         List<Element> parentElementList = parentHashTreeElement.elements();
         for (Element parentElement: parentElementList) {
             String qname = parentElement.getQName().getName();
-            if (StringUtils.equals(qname,"HTTPSamplerProxy")){
+            if (StringUtils.equals(qname, "CSVDataSet")) {
+                try {
+                    List<Element> propElementList = parentElement.elements();
+                    for (Element propElement : propElementList) {
+                        if (StringUtils.equals("filename", propElement.attributeValue("name"))) {
+                            String filePath = propElement.getText();
+                            File file = new File(filePath);
+                            if (file.exists() && file.isFile()) {
+                                attachmentFilePathList.add(filePath);
+                                String fileName = file.getName();
+                            }
+                        }
+                    }
+                } catch (Exception e) {
+                }
+            } else if (StringUtils.equals(qname, "HTTPSamplerProxy")) {
                 List<Element> elementPropElementList = parentElement.elements("elementProp");
                 for (Element element : elementPropElementList) {
-                    if(StringUtils.equals(element.attributeValue("name"),"HTTPsampler.Files")){
+                    if (StringUtils.equals(element.attributeValue("name"), "HTTPsampler.Files")) {
                         String name = element.getName();
                         List<Element> collectionPropList = element.elements("collectionProp");
-                        for (Element prop: collectionPropList) {
+                        for (Element prop : collectionPropList) {
                             List<Element> elementProps = prop.elements();
-                            for (Element elementProp: elementProps) {
-                                if(StringUtils.equals(elementProp.attributeValue("elementType"),"HTTPFileArg")){
-                                    try{
+                            for (Element elementProp : elementProps) {
+                                if (StringUtils.equals(elementProp.attributeValue("elementType"), "HTTPFileArg")) {
+                                    try {
                                         String filePath = elementProp.attributeValue("name");
                                         File file = new File(filePath);
                                         if(file.exists() && file.isFile()){

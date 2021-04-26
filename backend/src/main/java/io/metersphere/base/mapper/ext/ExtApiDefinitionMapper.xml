@@ -233,6 +233,21 @@
         </if>
     </select>
 
+    <select id="listByIds" resultType="io.metersphere.api.dto.definition.ApiDefinitionResult">
+        select api_definition.id, api_definition.project_id, api_definition.num, api_definition.tags,
+        api_definition.name,api_definition.protocol,api_definition.path,api_definition.module_id,api_definition.module_path,api_definition.method,
+        api_definition.description,api_definition.request,api_definition.response,api_definition.environment_id,
+        api_definition.status, api_definition.user_id, api_definition.create_time, api_definition.update_time,
+        project.name as
+        project_name, user.name as user_name
+        from api_definition
+        left join project on api_definition.project_id = project.id
+        left join user on api_definition.user_id = user.id
+        WHERE api_definition.id IN
+        <foreach collection="ids" item="v" separator="," open="(" close=")">
+            #{v}
+        </foreach>
+    </select>
     <update id="removeToGc">
         update api_definition
         set original_state=status,

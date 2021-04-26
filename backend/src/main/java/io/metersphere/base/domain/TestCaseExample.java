@@ -244,76 +244,6 @@ public class TestCaseExample {
             return (Criteria) this;
         }
 
-        public Criteria andTestIdIsNull() {
-            addCriterion("test_id is null");
-            return (Criteria) this;
-        }
-
-        public Criteria andTestIdIsNotNull() {
-            addCriterion("test_id is not null");
-            return (Criteria) this;
-        }
-
-        public Criteria andTestIdEqualTo(String value) {
-            addCriterion("test_id =", value, "testId");
-            return (Criteria) this;
-        }
-
-        public Criteria andTestIdNotEqualTo(String value) {
-            addCriterion("test_id <>", value, "testId");
-            return (Criteria) this;
-        }
-
-        public Criteria andTestIdGreaterThan(String value) {
-            addCriterion("test_id >", value, "testId");
-            return (Criteria) this;
-        }
-
-        public Criteria andTestIdGreaterThanOrEqualTo(String value) {
-            addCriterion("test_id >=", value, "testId");
-            return (Criteria) this;
-        }
-
-        public Criteria andTestIdLessThan(String value) {
-            addCriterion("test_id <", value, "testId");
-            return (Criteria) this;
-        }
-
-        public Criteria andTestIdLessThanOrEqualTo(String value) {
-            addCriterion("test_id <=", value, "testId");
-            return (Criteria) this;
-        }
-
-        public Criteria andTestIdLike(String value) {
-            addCriterion("test_id like", value, "testId");
-            return (Criteria) this;
-        }
-
-        public Criteria andTestIdNotLike(String value) {
-            addCriterion("test_id not like", value, "testId");
-            return (Criteria) this;
-        }
-
-        public Criteria andTestIdIn(List<String> values) {
-            addCriterion("test_id in", values, "testId");
-            return (Criteria) this;
-        }
-
-        public Criteria andTestIdNotIn(List<String> values) {
-            addCriterion("test_id not in", values, "testId");
-            return (Criteria) this;
-        }
-
-        public Criteria andTestIdBetween(String value1, String value2) {
-            addCriterion("test_id between", value1, value2, "testId");
-            return (Criteria) this;
-        }
-
-        public Criteria andTestIdNotBetween(String value1, String value2) {
-            addCriterion("test_id not between", value1, value2, "testId");
-            return (Criteria) this;
-        }
-
         public Criteria andNodePathIsNull() {
             addCriterion("node_path is null");
             return (Criteria) this;
@@ -991,6 +921,76 @@ public class TestCaseExample {
 
         public Criteria andUpdateTimeNotBetween(Long value1, Long value2) {
             addCriterion("update_time not between", value1, value2, "updateTime");
+            return (Criteria) this;
+        }
+
+        public Criteria andTestIdIsNull() {
+            addCriterion("test_id is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andTestIdIsNotNull() {
+            addCriterion("test_id is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andTestIdEqualTo(String value) {
+            addCriterion("test_id =", value, "testId");
+            return (Criteria) this;
+        }
+
+        public Criteria andTestIdNotEqualTo(String value) {
+            addCriterion("test_id <>", value, "testId");
+            return (Criteria) this;
+        }
+
+        public Criteria andTestIdGreaterThan(String value) {
+            addCriterion("test_id >", value, "testId");
+            return (Criteria) this;
+        }
+
+        public Criteria andTestIdGreaterThanOrEqualTo(String value) {
+            addCriterion("test_id >=", value, "testId");
+            return (Criteria) this;
+        }
+
+        public Criteria andTestIdLessThan(String value) {
+            addCriterion("test_id <", value, "testId");
+            return (Criteria) this;
+        }
+
+        public Criteria andTestIdLessThanOrEqualTo(String value) {
+            addCriterion("test_id <=", value, "testId");
+            return (Criteria) this;
+        }
+
+        public Criteria andTestIdLike(String value) {
+            addCriterion("test_id like", value, "testId");
+            return (Criteria) this;
+        }
+
+        public Criteria andTestIdNotLike(String value) {
+            addCriterion("test_id not like", value, "testId");
+            return (Criteria) this;
+        }
+
+        public Criteria andTestIdIn(List<String> values) {
+            addCriterion("test_id in", values, "testId");
+            return (Criteria) this;
+        }
+
+        public Criteria andTestIdNotIn(List<String> values) {
+            addCriterion("test_id not in", values, "testId");
+            return (Criteria) this;
+        }
+
+        public Criteria andTestIdBetween(String value1, String value2) {
+            addCriterion("test_id between", value1, value2, "testId");
+            return (Criteria) this;
+        }
+
+        public Criteria andTestIdNotBetween(String value1, String value2) {
+            addCriterion("test_id not between", value1, value2, "testId");
             return (Criteria) this;
         }
 

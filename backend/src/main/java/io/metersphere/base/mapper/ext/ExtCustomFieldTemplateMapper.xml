@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="io.metersphere.base.mapper.ext.ExtCustomFieldTemplateMapper">
+
+    <select id="getCustomFieldIds" resultType="java.lang.String">
+        select field_id
+        from custom_field_template
+        where custom_field_template.template_id = #{templateId}
+    </select>
+    <select id="list" resultType="io.metersphere.dto.CustomFieldTemplateDao">
+        select
+        field_id, template_id, required, default_value, custom_data,
+        cft.id as id,
+        cf.name as name, cf.type as type, cf.remark as remark, cf.`system` as system, cf.options as options
+        from custom_field_template cft
+        inner join custom_field cf
+        on cft.field_id = cf.id
+        <if test="request.templateId != null">
+            where cft.template_id = #{request.templateId}
+        </if>
+    </select>
+</mapper>

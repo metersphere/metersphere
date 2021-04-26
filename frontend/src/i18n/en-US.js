@@ -12,12 +12,14 @@ export default {
     import_mode: 'Import mode',
     import_module: 'Import module',
     import_user: 'Import user',
+    export: 'Export',
     please_fill_in_the_template: 'Please fill in the template',
     cut_back_old_version: 'Cut back to old version',
     cut_back_new_version: 'Switch back to new version',
     comment: 'comment',
     examples: 'examples',
     help_documentation: 'Help documentation',
+    confirm_delete: 'Whether to delete',
     delete_cancelled: 'Delete cancelled',
     option_cannot_spread_pages: 'This options not support spread pages.Do you want continue?',
     workspace: 'Workspace',
@@ -207,7 +209,7 @@ export default {
       default_module: "Default module",
     },
     report_statistics: {
-      title: "Report statistics",
+      title: "Report Statistics",
       test_case_analysis: "Test case analysis",
       test_case_activity: "Test case activity",
       name: "Report",
@@ -253,6 +255,12 @@ export default {
       url: 'Website URL',
       url_tip: 'example：http://localhost:8081',
       url_is_null: 'The current site URL cannot be empty'
+    },
+    prometheus_config: 'Prometheus Host',
+    prometheus: {
+      host: 'Prometheus Host',
+      host_tip: 'example: http://ms-prometheus:9090',
+      host_is_null: 'Prometheus Host cannot be empty'
     }
   },
   workspace: {
@@ -365,7 +373,8 @@ export default {
     manager: 'Manager',
     no_data: 'No Data',
     select: 'Select',
-    repeatable: 'Interface definition URL repeatable'
+    repeatable: 'Interface definition URL repeatable',
+    upload_file_again: 'Upload again'
   },
   member: {
     create: 'Create',
@@ -432,6 +441,7 @@ export default {
     test_request_statistics: 'Test Request Statistics',
     test_error_log: 'Test Error Log',
     test_log_details: 'Test Log Details',
+    test_monitor_details: 'Test Monitor Details',
     test_details: 'Test Details',
     test_duration: 'Current Execution Time：{0} minutes {1} seconds',
     test_start_time: 'Start Execution Time',
@@ -460,8 +470,12 @@ export default {
     not_exist: "Test report does not exist",
     batch_delete: "Delete reports in bulk",
     delete_batch_confirm: 'Confirm batch delete report',
+    response_time: 'Response Time(s)',
+    max_users: 'VUs'
   },
   load_test: {
+    concurrency_thread_group: 'Concurrent read group',
+    thread_group: 'ThreadGroup',
     completed_test_report: 'Completed test report',
     test: 'Test',
     name: 'Test Name',
@@ -600,6 +614,10 @@ export default {
       base_info: "Base info",
       req_param: "Request params",
       rsp_param: "Response Params",
+      delete_mock_expect: "Confirm to delete this expect info ?",
+      rule: {
+        input_code: "Please input HTTP Code"
+      }
     },
     definition: {
       api_title: "Api test",
@@ -788,8 +806,14 @@ export default {
       report_name_info: 'Please enter the registration name',
       save_case_info: 'Please save the use case first',
       reference_deleted: 'Reference deleted',
+      loop_name: "Loop",
+      loop_content: "The default is on, when there is only one request in the loop, it can be turned on/off; when there is more than one request in the loop, it can only be turned on。",
+      loop_return_val: "Define variable name",
+      loop_input_val: "Variable prefix",
+      loop_message: "There is more than one request in the current cycle and cannot be closed",
     },
     environment: {
+      create: 'Create environment',
       name: "Environment Name",
       socket: "Socket",
       condition_enable: "Activation conditions",
@@ -797,6 +821,7 @@ export default {
       environment_list: "Environment List",
       environment_config: "Environment Config",
       config_environment: "Config Environment",
+      copy_environment: "copy environment",
       environment: "Environment",
       select_environment: "Please select environment",
       please_save_test: "Please Save Test First",
@@ -804,6 +829,7 @@ export default {
       http_config: "HTTP Config",
       database_config: "Database Config",
       tcp_config: "TCP Config",
+      import: "Import Environment",
     },
     scenario: {
       scenario: "Scenario",
@@ -1000,7 +1026,8 @@ export default {
       swagger_url_import: "Import using URL",
       timing_synchronization: "Timing synchronization",
       next_synchronization_time: "Next synchronization time",
-
+      ms_env_import_file_limit: "It supports JSON format files exported through metersphere",
+      file_exceed_limit: "The number of files exceeds the limit",
     },
     home_page: {
       unit_of_measurement: "",
@@ -1211,7 +1238,7 @@ export default {
       steps: "Steps",
       number: "Number",
       prerequisite: "Prerequisite",
-      step_desc: "Step describe",
+      step_desc: "Case step",
       expected_results: "Expected results",
       input_name: "Please enter name",
       input_module: "Please select module",
@@ -1458,9 +1485,9 @@ export default {
       close_success: "Closed successfully",
       preview: "Preview",
       please_choose_current_owner: "Please choose current owner",
-      tapd_current_owner: "Tapd Current Owner：",
-      zentao_bug_build: "Zentao bug Impact version",
-      zentao_bug_assigned: "Zentao bug handler",
+      tapd_current_owner: "Tapd Current Owner",
+      zentao_bug_build: "Zentao Impact version",
+      zentao_bug_assigned: "Zentao handler",
     },
     report: {
       name: "Test Plan Report",
@@ -1493,6 +1520,7 @@ export default {
     cannot_empty: 'Resource pool cannot be empty',
     fill_the_data: 'Please complete the data',
     delete_prompt: 'This operation will permanently delete the resource pool, continue?',
+    update_prompt: '{0}  The other tests are using this resource pool. Disabling the monitoring part that may affect the report. Do you want to continue?',
     status_change_success: 'Successfully changed the status!',
     status_change_failed: 'Failed to change the status, resource pool is invalid!',
     check_in: 'Check in',

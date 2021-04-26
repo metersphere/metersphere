@@ -3,7 +3,7 @@
 <mapper namespace="io.metersphere.base.mapper.ext.ExtProjectMapper">
 
     <select id="getProjectWithWorkspace" resultType="io.metersphere.dto.ProjectDTO">
-        select p.id, p.workspace_id, p.name, p.description, p.update_time,
+        select p.id, p.workspace_id, p.name, p.description, p.update_time, p.issue_template_id, p.case_template_id,
         p.create_time, w.id as workspaceId, w.name as workspaceName, p.tapd_id, p.jira_key, p.zentao_id,p.repeatable
         from project p
         join workspace w on p.workspace_id = w.id

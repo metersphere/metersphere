@@ -26,6 +26,7 @@ public class PerformanceNoticeEvent implements LoadTestFinishEvent {
     private NoticeSendService noticeSendService;
 
     public void sendNotice(LoadTestReport loadTestReport) {
+
         BaseSystemConfigDTO baseSystemConfigDTO = systemParameterService.getBaseInfo();
         String url = baseSystemConfigDTO.getUrl() + "/#/performance/report/view/" + loadTestReport.getId();
         String successContext = "";
@@ -71,7 +72,7 @@ public class PerformanceNoticeEvent implements LoadTestFinishEvent {
 
     @Override
     public void execute(LoadTestReport loadTestReport) {
-        LogUtil.info("PerformanceNoticeEvent OVER:" + loadTestReport.getTriggerMode()+";"+loadTestReport.getStatus());
+        LogUtil.info("PerformanceNoticeEvent OVER:" + loadTestReport.getTriggerMode() + ";" + loadTestReport.getStatus() + ";" + loadTestReport.getName());
         if (StringUtils.equals(ReportTriggerMode.API.name(), loadTestReport.getTriggerMode())
                 || StringUtils.equals(ReportTriggerMode.SCHEDULE.name(), loadTestReport.getTriggerMode())) {
             if (StringUtils.equalsAny(loadTestReport.getStatus(),

@@ -92,7 +92,7 @@
           this.getResult();
           this.$emit('autoCheckStatus');  //   执行结束后，自动更新计划状态
         }, error => {
-          this.$emit('runRefresh', {});
+           this.$emit('errorRefresh', {});
         });
       }
     }

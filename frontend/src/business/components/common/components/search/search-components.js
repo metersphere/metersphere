@@ -454,9 +454,9 @@ export const CASE_REVIEW_STATUS = {
     options: [OPERATORS.IN, OPERATORS.NOT_IN]
   },
   options: [
-    {label: "test_track.case.status_prepare", value: "Prepare"},
-    {label: "test_track.case.status_pass", value: "Pass"},
-    {label: "test_track.case.status_un_pass", value: "UnPass"},
+    {label: "test_track.review.prepare", value: "Prepare"},
+    {label: "test_track.review.pass", value: "Pass"},
+    {label: "test_track.review.un_pass", value: "UnPass"},
   ],
   props: {
     multiple: true

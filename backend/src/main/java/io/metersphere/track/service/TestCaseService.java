@@ -23,6 +23,7 @@ import io.metersphere.excel.listener.TestCaseDataListener;
 import io.metersphere.excel.utils.EasyExcelExporter;
 import io.metersphere.i18n.Translator;
 import io.metersphere.service.FileService;
+import io.metersphere.service.ProjectService;
 import io.metersphere.track.dto.TestCaseDTO;
 import io.metersphere.track.request.testcase.EditTestCaseRequest;
 import io.metersphere.track.request.testcase.QueryTestCaseRequest;
@@ -35,6 +36,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.ibatis.session.ExecutorType;
 import org.apache.ibatis.session.SqlSession;
 import org.apache.ibatis.session.SqlSessionFactory;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -69,6 +71,10 @@ public class TestCaseService {
 
     @Resource
     ProjectMapper projectMapper;
+
+    @Lazy
+    @Resource
+    ProjectService projectService;
 
     @Resource
     SqlSessionFactory sqlSessionFactory;
@@ -278,14 +284,39 @@ public class TestCaseService {
      * @param request
      * @return
      */
-    public List<TestCase> getTestCaseNames(QueryTestCaseRequest request) {
+    public List<TestCase> getTestCaseRelateList(QueryTestCaseRequest request) {
         List<OrderRequest> orderList = ServiceUtils.getDefaultOrder(request.getOrders());
         OrderRequest order = new OrderRequest();
         order.setName("sort");
         order.setType("desc");
         orderList.add(order);
         request.setOrders(orderList);
+        return getTestCaseByNotInPlan(request);
+    }
+
+    public List<TestCase> getTestCaseByNotInPlan(QueryTestCaseRequest request) {
         return extTestCaseMapper.getTestCaseByNotInPlan(request);
+    }
+
+    public List<TestCaseDTO> getTestCaseByNotInIssue(QueryTestCaseRequest request) {
+        List<TestCaseDTO> list = extTestCaseMapper.getTestCaseByNotInIssue(request);
+        addProjectName(list);
+        return list;
+    }
+
+    public void addProjectName(List<TestCaseDTO> list) {
+        List<String> projectIds = list.stream()
+                .map(TestCase::getProjectId)
+                .collect(Collectors.toList());
+        List<Project> projects = projectService.getProjectByIds(projectIds);
+        Map<String, String> projectMap = projects.stream()
+                .collect(Collectors.toMap(Project::getId, Project::getName));
+        list.forEach(item -> {
+            String projectName = projectMap.get(item.getProjectId());
+            if (StringUtils.isNotBlank(projectName)) {
+                item.setProjectName(projectName);
+            }
+        });
     }
 
     public List<TestCase> getReviewCase(QueryTestCaseRequest request) {
@@ -924,5 +955,18 @@ public class TestCaseService {
 
     public List<TestCaseWithBLOBs> listTestCaseForMinder(QueryTestCaseRequest request) {
         return extTestCaseMapper.listForMinder(request);
+    }
+
+    public List<TestCaseDTO> getTestCaseByIds(List<String> testCaseIds) {
+        if (CollectionUtils.isNotEmpty(testCaseIds)) {
+            return extTestCaseMapper.getTestCaseByIds(testCaseIds);
+        } else {
+            return new ArrayList<>();
+        }
+    }
+
+    public List<TestCaseDTO> getTestCaseIssueRelateList(QueryTestCaseRequest request) {
+        request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
+        return getTestCaseByNotInIssue(request);
     }
 }
