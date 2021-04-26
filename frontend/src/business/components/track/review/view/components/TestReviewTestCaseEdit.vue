@@ -305,7 +305,7 @@ import ReviewComment from "../../commom/ReviewComment";
 import TestCaseAttachment from "@/business/components/track/case/components/TestCaseAttachment";
 import ApiCaseItem from "@/business/components/api/definition/components/case/ApiCaseItem";
 import MsEditApiScenario from "@/business/components/api/automation/scenario/EditApiScenario";
-import {buildTestCaseOldFields, compatibleTestCaseStep, getTemplate, parseCustomField} from "@/common/js/custom_field";
+import {getTemplate} from "@/common/js/custom_field";
 import TestCaseEditOtherInfo from "@/business/components/track/case/components/TestCaseEditOtherInfo";
 import {SYSTEM_FIELD_NAME_MAP} from "@/common/js/table-constants";
 import FormRichTextItem from "@/business/components/track/case/components/FormRichTextItem";
@@ -460,8 +460,7 @@ export default {
           item.issues = {};
         }
         item.steps = JSON.parse(item.steps);
-        // 兼容旧版本的步骤
-        compatibleTestCaseStep(item, item);
+
         this.testCase = item;
         //parseCustomField(this.testCase, this.testCaseTemplate, null, null, buildTestCaseOldFields(this.testCase));
         if (!this.testCase.actualResult) {

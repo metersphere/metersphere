@@ -243,3 +243,9 @@ alter table load_test_report
 ALTER TABLE issue_template MODIFY COLUMN title varchar(64) NULL COMMENT 'Issue title';
 ALTER TABLE test_case_template MODIFY COLUMN case_name varchar(64) NULL COMMENT 'Test Case Name';
 
+
+ALTER TABLE test_case_template ADD step_model varchar(10) NULL COMMENT 'Step model';
+ALTER TABLE test_case_template ADD steps TEXT NULL COMMENT 'Test case step';
+ALTER TABLE test_case ADD step_model varchar(10) NULL COMMENT 'Test case step model';
+
+

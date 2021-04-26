@@ -86,16 +86,12 @@
                       </el-row>
                     </el-form>
 
-                    <el-row>
-                      <el-col :span="22" :offset="1">
-                        <div class="step-info">
-                          <form-rich-text-item :disabled="true" :title="$t('test_track.case.prerequisite')" :data="testCase" prop="prerequisite"/>
-                          <form-rich-text-item :disabled="true" :title="$t('test_track.case.step_desc')" :data="testCase" prop="stepDesc"/>
-                          <form-rich-text-item :disabled="true" :title="$t('test_track.case.expected_results')" :data="testCase" prop="stepResult"/>
-                          <form-rich-text-item :title="$t('test_track.plan_view.actual_result')" :data="testCase" prop="actualResult"/>
-                        </div>
-                      </el-col>
-                    </el-row>
+                    <form-rich-text-item :disabled="true" :title="$t('test_track.case.prerequisite')" :data="testCase" prop="prerequisite"/>
+                    <step-change-item :form="testCase"/>
+                    <test-plan-case-step-results-item :is-read-only="isReadOnly" v-if="testCase.stepModel === 'STEP'" :test-case="testCase"/>
+                    <form-rich-text-item v-if="testCase.stepModel === 'TEXT'" :disabled="true" :title="$t('test_track.case.step_desc')" :data="testCase" prop="stepDescription"/>
+                    <form-rich-text-item v-if="testCase.stepModel === 'TEXT'" :disabled="true" :title="$t('test_track.case.expected_results')" :data="testCase" prop="expectedResult"/>
+                    <form-rich-text-item v-if="testCase.stepModel === 'TEXT'" :title="$t('test_track.plan_view.actual_result')" :data="testCase" prop="actualResult"/>
 
                     <test-case-edit-other-info @openTest="openTest" :read-only="true" :is-test-plan="true" :project-id="projectId" :form="testCase" :case-id="testCase.caseId" ref="otherInfo"/>
                   </el-form>
@@ -141,17 +137,23 @@ import TestCaseAttachment from "@/business/components/track/case/components/Test
 import CaseComment from "@/business/components/track/case/components/CaseComment";
 import MsPreviousNextButton from "../../../../../common/components/MsPreviousNextButton";
 import ReviewComment from "@/business/components/track/review/commom/ReviewComment";
-import {buildTestCaseOldFields, compatibleTestCaseStep, getTemplate, parseCustomField} from "@/common/js/custom_field";
+import {buildTestCaseOldFields, getTemplate, parseCustomField} from "@/common/js/custom_field";
 import FormRichTextItem from "@/business/components/track/case/components/FormRichTextItem";
 import MsFormDivider from "@/business/components/common/components/MsFormDivider";
 import TestCaseEditOtherInfo from "@/business/components/track/case/components/TestCaseEditOtherInfo";
 import CustomFiledComponent from "@/business/components/settings/workspace/template/CustomFiledComponent";
 import {SYSTEM_FIELD_NAME_MAP} from "@/common/js/table-constants";
 import IssueDescriptionTableItem from "@/business/components/track/issue/IssueDescriptionTableItem";
+import StepChangeItem from "@/business/components/track/case/components/StepChangeItem";
+import TestCaseStepItem from "@/business/components/track/case/components/TestCaseStepItem";
+import TestPlanCaseStepResultsItem from "@/business/components/track/plan/view/comonents/functional/TestPlanCaseStepResultsItem";
 
 export default {
   name: "FunctionalTestCaseEdit",
   components: {
+    TestPlanCaseStepResultsItem,
+    TestCaseStepItem,
+    StepChangeItem,
     IssueDescriptionTableItem,
     CustomFiledComponent,
     TestCaseEditOtherInfo,
@@ -278,9 +280,22 @@ export default {
       let param = {};
       param.id = this.testCase.id;
       param.status = this.testCase.status;
+      param.results = [];
       param.remark = this.testCase.remark;
       param.projectId = this.projectId;
       let option = this.getOption(param);
+      for (let i = 0; i < this.testCase.steptResults.length; i++) {
+        let result = {};
+        result.actualResult = this.testCase.steptResults[i].actualResult;
+        result.executeResult = this.testCase.steptResults[i].executeResult;
+        if (result.actualResult && result.actualResult.length > 300) {
+          this.$warning(this.$t('test_track.plan_view.actual_result')
+            + this.$t('test_track.length_less_than') + '300');
+          return;
+        }
+        param.results.push(result);
+      }
+      param.results = JSON.stringify(param.results);
       param.actualResult = this.testCase.actualResult;
       this.$post('/test/plan/case/edit', param, () => {
         this.$request(option, (response) => {
@@ -327,8 +342,26 @@ export default {
           item.issues = {};
         }
         item.steps = JSON.parse(item.steps);
-        // 兼容旧版本的步骤
-        compatibleTestCaseStep(item, item);
+        if (!item.stepModel) {
+          item.stepModel = 'STEP';
+        }
+        item.steptResults = [];
+        if (item.steps) {
+          for (let i = 0; i < item.steps.length; i++) {
+            if (item.results) {
+              if (item.results[i]) {
+                item.steps[i].actualResult = item.results[i].actualResult;
+                item.steps[i].executeResult = item.results[i].executeResult;
+              }
+              item.steptResults.push(item.steps[i]);
+            } else {
+              item.steptResults.push({
+                actualResult: '',
+                executeResult: ''
+              });
+            }
+          }
+        }
         this.testCase = item;
         parseCustomField(this.testCase, this.testCaseTemplate, null, null, buildTestCaseOldFields(this.testCase));
         if (!this.testCase.actualResult) {

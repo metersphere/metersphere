@@ -138,6 +138,9 @@ export default {
         if (valid) {
           let param = {};
           Object.assign(param, this.form);
+          if (this.form.steps) {
+            param.steps = JSON.stringify(this.form.steps);
+          }
           param.options = JSON.stringify(this.form.options);
           param.workspaceId = getCurrentWorkspaceId();
           let customFields = this.relateFields;

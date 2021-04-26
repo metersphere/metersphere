@@ -833,6 +833,76 @@ public class TestCaseTemplateExample {
             addCriterion("update_time not between", value1, value2, "updateTime");
             return (Criteria) this;
         }
+
+        public Criteria andStepModelIsNull() {
+            addCriterion("step_model is null");
+            return (Criteria) this;
+        }
+
+        public Criteria andStepModelIsNotNull() {
+            addCriterion("step_model is not null");
+            return (Criteria) this;
+        }
+
+        public Criteria andStepModelEqualTo(String value) {
+            addCriterion("step_model =", value, "stepModel");
+            return (Criteria) this;
+        }
+
+        public Criteria andStepModelNotEqualTo(String value) {
+            addCriterion("step_model <>", value, "stepModel");
+            return (Criteria) this;
+        }
+
+        public Criteria andStepModelGreaterThan(String value) {
+            addCriterion("step_model >", value, "stepModel");
+            return (Criteria) this;
+        }
+
+        public Criteria andStepModelGreaterThanOrEqualTo(String value) {
+            addCriterion("step_model >=", value, "stepModel");
+            return (Criteria) this;
+        }
+
+        public Criteria andStepModelLessThan(String value) {
+            addCriterion("step_model <", value, "stepModel");
+            return (Criteria) this;
+        }
+
+        public Criteria andStepModelLessThanOrEqualTo(String value) {
+            addCriterion("step_model <=", value, "stepModel");
+            return (Criteria) this;
+        }
+
+        public Criteria andStepModelLike(String value) {
+            addCriterion("step_model like", value, "stepModel");
+            return (Criteria) this;
+        }
+
+        public Criteria andStepModelNotLike(String value) {
+            addCriterion("step_model not like", value, "stepModel");
+            return (Criteria) this;
+        }
+
+        public Criteria andStepModelIn(List<String> values) {
+            addCriterion("step_model in", values, "stepModel");
+            return (Criteria) this;
+        }
+
+        public Criteria andStepModelNotIn(List<String> values) {
+            addCriterion("step_model not in", values, "stepModel");
+            return (Criteria) this;
+        }
+
+        public Criteria andStepModelBetween(String value1, String value2) {
+            addCriterion("step_model between", value1, value2, "stepModel");
+            return (Criteria) this;
+        }
+
+        public Criteria andStepModelNotBetween(String value1, String value2) {
+            addCriterion("step_model not between", value1, value2, "stepModel");
+            return (Criteria) this;
+        }
     }
 
     public static class Criteria extends GeneratedCriteria {
