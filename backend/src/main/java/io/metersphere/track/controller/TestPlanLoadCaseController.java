@@ -42,6 +42,11 @@ public class TestPlanLoadCaseController {
         return PageUtils.setPageInfo(page, testPlanLoadCaseService.list(request));
     }
 
+    @PostMapping("/selectAllTableRows")
+    public List<TestPlanLoadCaseDTO> selectAllTableRows(@RequestBody LoadCaseReportBatchRequest request) {
+        return testPlanLoadCaseService.selectAllTableRows(request);
+    }
+
     @GetMapping("/delete/{id}")
     public void delete(@PathVariable String id) {
         testPlanLoadCaseService.delete(id);

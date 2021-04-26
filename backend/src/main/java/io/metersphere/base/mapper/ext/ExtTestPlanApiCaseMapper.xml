@@ -55,9 +55,9 @@
     where 1
     <if test="request.ids != null and request.ids.size() > 0">
       <if test="request.projectId != null and request.projectId!=''">
-        and
+        and a.projectId = #{request.projectId}
       </if>
-      t.id in
+      and t.id in
       <foreach collection="request.ids" item="caseId" separator="," open="(" close=")">
         #{caseId}
       </foreach>
