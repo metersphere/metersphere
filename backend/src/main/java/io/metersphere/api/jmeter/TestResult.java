@@ -16,8 +16,6 @@ public class TestResult {
 
     private String userId;
 
-    private String userId;
-
     private boolean isDebug;
 
     private String runMode;
