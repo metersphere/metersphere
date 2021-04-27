@@ -60,6 +60,9 @@ public class ApiDefinitionImportUtil {
     public static void createModule(ApiModule module) {
         ApiModuleService apiModuleService = CommonBeanFactory.getBean(ApiModuleService.class);
         module.setProtocol(RequestType.HTTP);
+        if (module.getName().length() > 64) {
+            module.setName(module.getName().substring(0, 64));
+        }
         List<ApiModule> apiModules = apiModuleService.selectSameModule(module);
         if (CollectionUtils.isEmpty(apiModules)) {
             apiModuleService.addNode(module);
