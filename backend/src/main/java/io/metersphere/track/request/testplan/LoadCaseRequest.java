@@ -11,6 +11,7 @@ import java.util.Map;
 @Getter
 @Setter
 public class LoadCaseRequest extends TestPlanLoadCase {
+    private List<String> ids;
     private String projectId;
     private List<String> caseIds;
     private String name;

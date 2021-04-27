@@ -18,13 +18,13 @@
           <ms-form-divider :title="'基础信息'"/>
 
           <el-form :model="form" :rules="rules" label-position="right" label-width="140px" size="small" ref="form">
-            <el-form-item :label="'名称'" prop="name">
+            <el-form-item :label="'名称'" prop="name" :label-width="labelWidth">
               <el-input :disabled="isSystem" v-model="form.name" autocomplete="off"></el-input>
             </el-form-item>
 
             <slot name="base"></slot>
 
-            <el-form-item :label="'描述'" prop="description">
+            <el-form-item :label="'描述'" prop="description" :label-width="labelWidth">
               <el-input :autosize="{ minRows: 2, maxRows: 4}" type="textarea" v-model="form.description"></el-input>
             </el-form-item>
 
@@ -32,12 +32,12 @@
 
             <slot></slot>
 
-            <el-form-item :label="'已选字段'" class="filed-list">
+            <el-form-item :label="'已选字段'" class="filed-list" :label-width="labelWidth">
               <el-button type="primary" @click="relateField">添加字段</el-button>
               <el-button type="primary" @click="addField" plain>设置自定义字段</el-button>
             </el-form-item>
 
-            <el-form-item>
+            <el-form-item :label-width="labelWidth">
               <custom-field-form-list
                 :table-data="relateFields"
                 :scene="scene"
@@ -56,7 +56,7 @@
             :scene="scene"
             ref="customFieldRelateList"/>
 
-          <custom-field-edit :scene="scene" @save="handleCustomFieldAdd" ref="customFieldEdit"/>
+          <custom-field-edit :label-width="labelWidth" :scene="scene" @save="handleCustomFieldAdd" ref="customFieldEdit"/>
 
         </el-scrollbar>
       </el-main>
@@ -102,6 +102,7 @@ export default {
     scene: String,
     url:String,
     rules: Object,
+    labelWidth: String,
     form:{
       type: Object,
       default() {
@@ -138,6 +139,9 @@ export default {
         if (valid) {
           let param = {};
           Object.assign(param, this.form);
+          if (this.form.steps) {
+            param.steps = JSON.stringify(this.form.steps);
+          }
           param.options = JSON.stringify(this.form.options);
           param.workspaceId = getCurrentWorkspaceId();
           let customFields = this.relateFields;
@@ -180,6 +184,8 @@ export default {
               }
               if (item.defaultValue) {
                 item.defaultValue = JSON.parse(item.defaultValue);
+              } else if (item.type === 'checkbox') {
+                item.defaultValue = [];
               }
               this.templateContainIds.add(item.fieldId);
             });
@@ -202,6 +208,9 @@ export default {
             item.fieldId = item.id;
             item.id = null;
             item.options = JSON.parse(item.options);
+            if (item.type === 'checkbox') {
+              item.defaultValue = [];
+            }
           });
           this.relateFields.push(...data);
         });

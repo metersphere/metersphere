@@ -312,6 +312,6 @@ export default {
 }
 
 .other-info-tabs {
-  padding: 30px 60px;
+  padding: 10px 60px;
 }
 </style>

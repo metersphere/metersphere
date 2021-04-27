@@ -36,8 +36,17 @@
       <template v-for="(item, index) in tableLabel">
 
         <el-table-column
-          v-if="item.id == 'num'"
+          v-if="item.id === 'num' && !customNum"
           prop="num"
+          sortable="custom"
+          :label="$t('commons.id')"
+          :key="index"
+          width="80"
+          show-overflow-tooltip>
+        </el-table-column>
+        <el-table-column
+          v-if="item.id === 'num' && customNum"
+          prop="customNum"
           sortable="custom"
           :label="$t('commons.id')"
           :key="index"
@@ -293,6 +302,10 @@ export default {
     trashEnable: {
       type: Boolean,
       default: false,
+    },
+    customNum: {
+      type: Boolean,
+      default: false
     }
   },
   computed: {

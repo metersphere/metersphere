@@ -8,10 +8,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.metersphere.api.dto.APIReportBatchRequest;
-import io.metersphere.api.dto.ApiTestImportRequest;
-import io.metersphere.api.dto.JmxInfoDTO;
-import io.metersphere.api.dto.ScenarioEnv;
+import io.metersphere.api.dto.*;
 import io.metersphere.api.dto.automation.*;
 import io.metersphere.api.dto.automation.parse.ScenarioImport;
 import io.metersphere.api.dto.automation.parse.ScenarioImportParserFactory;
@@ -881,7 +878,7 @@ public class ApiAutomationService {
             }
             testPlan.toHashTree(jmeterHashTree, testPlan.getHashTree(), new ParameterConfig());
             // 生成集成报告
-            if (request.getConfig() != null && request.getConfig().getMode().equals("serial")) {
+            if (request.getConfig() != null && request.getConfig().getMode().equals("serial") && StringUtils.isNotEmpty(request.getConfig().getReportName())) {
                 request.getConfig().setReportId(UUID.randomUUID().toString());
                 APIScenarioReportResult report = createScenarioReport(request.getConfig().getReportId(), JSON.toJSONString(reportList), request.getConfig().getReportName(), request.getTriggerMode() == null ? ReportTriggerMode.MANUAL.name() : request.getTriggerMode(),
                         ExecuteType.Saved.name(), request.getProjectId(), request.getReportUserID(), request.getConfig());
@@ -972,11 +969,12 @@ public class ApiAutomationService {
         try {
             HashTree hashTree = generateHashTree(apiScenarios, request, reportIds);
             jMeterService.runSerial(JSON.toJSONString(reportIds), hashTree, request.getReportId(), runMode, request.getConfig());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+            // jMeterService.runTest(JSON.toJSONString(reportIds), hashTree, runMode, false, request.getConfig());
 
-        // jMeterService.runTest(JSON.toJSONString(reportIds), hashTree, runMode, false, request.getConfig());
+        } catch (Exception e) {
+            LogUtil.error(e.getMessage());
+            MSException.throwException(e.getMessage());
+        }
         return request.getId();
     }
 
@@ -1604,5 +1602,38 @@ public class ApiAutomationService {
         scenarioEnv.getProjectIds().remove(null);
         scenarioEnv.getProjectIds().add(scenario.getProjectId());
         return scenarioEnv;
+    }
+
+    public List<ScenarioIdProjectInfo> getApiScenarioProjectIdByConditions(ApiScenarioBatchRequest request) {
+        List<ScenarioIdProjectInfo> returnList = new ArrayList<>();
+        if (request.getIds() == null) {
+            request.setIds(new ArrayList<>(0));
+        }
+        ServiceUtils.getSelectAllIds(request, request.getCondition(),
+                (query) -> extApiScenarioMapper.selectIdsByQuery((ApiScenarioRequest) query));
+
+        if (!request.getIds().isEmpty()) {
+            ApiScenarioExample example = new ApiScenarioExample();
+            example.createCriteria().andIdIn(request.getIds());
+            List<ApiScenarioWithBLOBs> scenarioList = apiScenarioMapper.selectByExampleWithBLOBs(example);
+            for (ApiScenarioWithBLOBs scenario : scenarioList) {
+                ScenarioEnv scenarioEnv = new ScenarioEnv();
+                if (scenario == null) {
+                    continue;
+                }
+                String definition = scenario.getScenarioDefinition();
+                if (StringUtils.isBlank(definition)) {
+                    continue;
+                }
+                scenarioEnv = getApiScenarioEnv(definition);
+                scenarioEnv.getProjectIds().add(scenario.getProjectId());
+                ScenarioIdProjectInfo info = new ScenarioIdProjectInfo();
+
+                info.setProjectIds(scenarioEnv.getProjectIds());
+                info.setId(scenario.getId());
+                returnList.add(info);
+            }
+        }
+        return returnList;
     }
 }

@@ -53,12 +53,12 @@
         <div>
           {{$t('project.select')}}
         </div>
-        <el-select v-model="currentProjectId" filterable clearable>
+        <el-select @change="handleProjectChange" v-model="currentProjectId" filterable clearable>
           <el-option v-for="item in projectList" :key="item.id" :label="item.name" :value="item.id"></el-option>
         </el-select>
       </div>
       <environment-edit :environment="currentEnvironment" ref="environmentEdit" @close="close"
-                        @refreshAfterSave="refresh">
+                        :project-id="currentProjectId" @refreshAfterSave="refresh">
       </environment-edit>
     </el-dialog>
     <environment-import :project-list="projectList" @refresh="refresh" ref="envImport"></environment-import>
@@ -285,18 +285,27 @@
       },
       exportJSON() {
         if (this.selectRows.length < 1) {
-          this.$warning('请选择想要导出的环境');
+          this.$warning(this.$t('api_test.environment.select_environment'));
           return;
         }
         //拷贝一份选中的数据，不然下面删除id和projectId的时候会影响原数据
         const envs = JSON.parse(JSON.stringify(this.selectRows));
-
-        envs.map(env => {  //不导出id和projectId
+        envs.map(env => {  //不导出id和projectId和启用条件
+          if (env.config){  //旧环境可能没有config数据
+            let tempConfig = JSON.parse(env.config);
+            if (tempConfig.httpConfig.conditions) {
+              delete tempConfig.httpConfig.conditions;  //删除”启用条件“，因为导入导出环境对应的项目不同，模块也就不同，
+              env.config = JSON.stringify(tempConfig);
+            }
+          }
           delete env.id;
           delete env.projectId;
         })
         downloadFile('MS_' + envs.length + '_Environments.json', JSON.stringify(envs));
 
+      },
+      handleProjectChange() {   //项目选择下拉框选择其他项目后清空“启用条件”,因为项目变了模块也就变了。
+        this.currentEnvironment.config.httpConfig.conditions = [];
       },
       parseDomainName(environment) {   //解析出环境域名用于前端展示
         if (environment.config) {

@@ -74,6 +74,9 @@ public class TestPlanScenarioCaseService {
         List<String> ids = request.getIds();
         if(request.getCondition()!=null && request.getCondition().isSelectAll()){
             ids = this.selectIds(request.getCondition());
+            if (request.getCondition() != null && request.getCondition().getUnSelectIds() != null) {
+                ids.removeAll(request.getCondition().getUnSelectIds());
+            }
         }
 
         if (CollectionUtils.isEmpty(ids)) {
@@ -117,6 +120,7 @@ public class TestPlanScenarioCaseService {
         request.setId(testPlanScenarioRequest.getId());
         request.setExecuteType(ExecuteType.Saved.name());
         request.setTriggerMode(testPlanScenarioRequest.getTriggerMode());
+        request.setConfig(testPlanScenarioRequest.getConfig());
         return apiAutomationService.run(request);
     }
 
@@ -178,5 +182,21 @@ public class TestPlanScenarioCaseService {
         });
 
 
+    }
+
+    public List<ApiScenarioDTO> selectAllTableRows(TestPlanScenarioCaseBatchRequest request) {
+        List<String> ids = request.getIds();
+        if (request.getCondition() != null && request.getCondition().isSelectAll()) {
+            ids = this.selectIds(request.getCondition());
+            if (request.getCondition() != null && request.getCondition().getUnSelectIds() != null) {
+                ids.removeAll(request.getCondition().getUnSelectIds());
+            }
+        }
+        if (ids == null || ids.isEmpty()) {
+            return new ArrayList<>();
+        }
+        TestPlanScenarioRequest tableRequest = new TestPlanScenarioRequest();
+        tableRequest.setIds(ids);
+        return extTestPlanScenarioCaseMapper.list(tableRequest);
     }
 }

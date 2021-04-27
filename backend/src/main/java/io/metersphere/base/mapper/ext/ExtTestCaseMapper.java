@@ -88,4 +88,6 @@ public interface ExtTestCaseMapper {
     List<TestCaseWithBLOBs> listForMinder(@Param("request") QueryTestCaseRequest request);
 
     List<TestCaseDTO> getTestCaseByIds(@Param("ids")List<String> ids);
+
+    void updateTestCaseCustomNumByProjectId(@Param("projectId") String projectId);
 }

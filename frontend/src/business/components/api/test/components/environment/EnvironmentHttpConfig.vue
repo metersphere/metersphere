@@ -77,7 +77,7 @@
 <script>
   import {HttpConfig} from "../../model/EnvironmentModel";
   import MsApiKeyValue from "../ApiKeyValue";
-  import {REQUEST_HEADERS} from "../../../../../../common/js/constants";
+  import {REQUEST_HEADERS} from "@/common/js/constants";
   import MsSelectTree from "../../../../common/select-tree/SelectTree";
   import MsTableOperatorButton from "@/business/components/common/components/MsTableOperatorButton";
   import {getUUID} from "@/common/js/utils";
@@ -211,12 +211,16 @@
         }
       },
       list() {
-        let url = "/api/module/list/" + this.projectId + "/HTTP";
-        this.result = this.$get(url, (response) => {
-          if (response.data !== undefined && response.data !== null) {
-            this.moduleOptions = response.data;
-          }
-        });
+        if (this.projectId) {
+          let url = "/api/module/list/" + this.projectId + "/HTTP";
+          this.result = this.$get(url, (response) => {
+            if (response.data !== undefined && response.data !== null) {
+              this.moduleOptions = response.data;
+            }
+          });
+        } else {    //创建环境时一开始没有传入projectId，就不请求数据了
+          this.moduleOptions = [];
+        }
       },
       setModule(id, data) {
         if (data && data.length > 0) {
@@ -259,7 +263,7 @@
       },
       add() {
         if (this.condition.type === "NONE" && this.checkNode()) {
-          this.$warning("启用条件为 '无' 的域名已经存在请更新！");
+          this.$warning("启用条件为 '无' 的域名已经存在，请更新！");
           return;
         }
         this.validateSocket();
