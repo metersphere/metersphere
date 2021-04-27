@@ -9,6 +9,8 @@ import lombok.ToString;
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
 public class TestCaseWithBLOBs extends TestCase implements Serializable {
+    private String prerequisite;
+
     private String remark;
 
     private String steps;
