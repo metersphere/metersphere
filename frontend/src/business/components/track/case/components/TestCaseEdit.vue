@@ -196,7 +196,7 @@ export default {
         reviewStatus: 'Prepare',
         stepDescription: '',
         expectedResult: '',
-        stepModel: 'STEP'
+        stepModel: 'STEP',
         customNum: ''
       },
       readOnly: false,
