@@ -969,11 +969,12 @@ public class ApiAutomationService {
         try {
             HashTree hashTree = generateHashTree(apiScenarios, request, reportIds);
             jMeterService.runSerial(JSON.toJSONString(reportIds), hashTree, request.getReportId(), runMode, request.getConfig());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+            // jMeterService.runTest(JSON.toJSONString(reportIds), hashTree, runMode, false, request.getConfig());
 
-        // jMeterService.runTest(JSON.toJSONString(reportIds), hashTree, runMode, false, request.getConfig());
+        } catch (Exception e) {
+            LogUtil.error(e.getMessage());
+            MSException.throwException(e.getMessage());
+        }
         return request.getId();
     }
 
