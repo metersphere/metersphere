@@ -64,7 +64,7 @@ export default {
     return {
       testPlans: [],
       currentPlan: {},
-      activeIndex: "functional",
+          activeIndex: "api",
       isMenuShow: true,
       //报表跳转过来的参数-通过哪个图表跳转的
       redirectCharType: '',

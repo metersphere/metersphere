@@ -118,7 +118,7 @@
           currentModule: null,
           selectNodeIds: [],
           moduleOptions: {},
-          model: 'api'
+          model: 'scenario'
         }
       },
       props: [
@@ -135,19 +135,19 @@
           this.moduleOptions = {};
         },
         redirectCharType(){
-          if(this.redirectCharType=='scenario'){
-            this.model = 'scenario';
-          }else{
+          if(this.redirectCharType==='api'){
             this.model = 'api';
+          }else{
+            this.model = 'scenario';
           }
         }
       },
       methods: {
         checkRedirectCharType(){
-          if(this.redirectCharType=='scenario'){
-            this.model = 'scenario';
-          }else{
+          if(this.redirectCharType==='api'){
             this.model = 'api';
+          }else{
+            this.model = 'scenario';
           }
         },
         refresh() {
