@@ -1,5 +1,5 @@
 <template>
-  <el-form-item :label="form.stepModel === 'STEP' ? '步骤描述' : '文本描述'">
+  <el-form-item :label="form.stepModel === 'STEP' ? '步骤描述' : '文本描述'" :label-width="labelWidth">
     <el-dropdown placement="bottom-start" @command="handleCommand">
                   <span class="el-dropdown-link">
                     更改类型<i class="el-icon-arrow-down el-icon--right"/>
@@ -21,7 +21,7 @@
 <script>
 export default {
   name: "StepChangeItem",
-  props: ['form'],
+  props: ['form','labelWidth'],
   created() {
     if (!this.form.stepModel) {
       this.form.stepModel = "STEP";

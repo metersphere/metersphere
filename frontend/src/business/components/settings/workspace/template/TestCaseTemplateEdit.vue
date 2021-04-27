@@ -1,6 +1,7 @@
 <template>
 
   <field-template-edit
+    :label-width="labelWidth"
     :form="form"
     :rules="rules"
     :visible.sync="showDialog"
@@ -10,7 +11,7 @@
     ref="fieldTemplateEdit">
 
     <template v-slot:base>
-      <el-form-item :label="'用例类型'" prop="type">
+      <el-form-item :label="'用例类型'" prop="type" :label-width="labelWidth">
         <el-select :disabled="isSystem" filterable v-model="form.type" placeholder="用例类型">
           <el-option
             v-for="item in caseTypeOption"
@@ -23,19 +24,19 @@
     </template>
 
     <template v-slot:default>
-      <el-form-item :label="'用例名称'" prop="caseName">
+      <el-form-item :label="'用例名称'" prop="caseName" :label-width="labelWidth">
         <el-input v-model="form.caseName" autocomplete="off"></el-input>
       </el-form-item>
 
-      <form-rich-text-item :title="$t('test_track.case.prerequisite')" :data="form" prop="prerequisite"/>
+      <form-rich-text-item :label-width="labelWidth" :title="$t('test_track.case.prerequisite')" :data="form" prop="prerequisite"/>
 
-      <form-rich-text-item :title="$t('test_track.case.prerequisite')" :data="form" prop="prerequisite"/>
+      <form-rich-text-item :label-width="labelWidth" :title="$t('test_track.case.prerequisite')" :data="form" prop="prerequisite"/>
 
       <step-change-item :form="form"/>
-      <test-case-step-item v-if="form.stepModel === 'STEP'" :form="form"/>
-      <form-rich-text-item v-if="form.stepModel === 'TEXT'" :title="$t('test_track.case.step_desc')" :data="form" prop="stepDescription"/>
-      <form-rich-text-item v-if="form.stepModel === 'TEXT'" :title="$t('test_track.case.expected_results')" :data="form" prop="expectedResult"/>
-      <form-rich-text-item v-if="form.stepModel === 'TEXT'" :title="$t('test_track.plan_view.actual_result')" :data="form" prop="actualResult"/>
+      <test-case-step-item :label-width="labelWidth" v-if="form.stepModel === 'STEP'" :form="form"/>
+      <form-rich-text-item :label-width="labelWidth" v-if="form.stepModel === 'TEXT'" :title="$t('test_track.case.step_desc')" :data="form" prop="stepDescription"/>
+      <form-rich-text-item :label-width="labelWidth" v-if="form.stepModel === 'TEXT'" :title="$t('test_track.case.expected_results')" :data="form" prop="expectedResult"/>
+      <form-rich-text-item :label-width="labelWidth" v-if="form.stepModel === 'TEXT'" :title="$t('test_track.plan_view.actual_result')" :data="form" prop="actualResult"/>
     </template>
 
   </field-template-edit>
@@ -83,8 +84,9 @@ export default {
         actualResult: '',
         customFieldIds: [],
         stepModel: 'STEP',
-        steps: []
+        steps: [],
       },
+      labelWidth: '120px',
       rules: {
         name: [
           {required: true, message: this.$t('test_track.case.input_name'), trigger: 'blur'},

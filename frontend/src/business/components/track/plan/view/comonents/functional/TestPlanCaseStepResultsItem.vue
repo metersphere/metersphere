@@ -1,5 +1,5 @@
 <template>
-  <el-form-item class="result-item">
+  <el-form-item class="result-item" :label-width="labelWidth">
     <el-table
       :data="testCase.steptResults"
       class="tb-edit"
@@ -71,7 +71,7 @@
 <script>
 export default {
   name: "TestPlanCaseStepResultsItem",
-  props: ['testCase', 'isReadOnly'],
+  props: ['testCase', 'isReadOnly', 'labelWidth'],
   methods: {
     stepResultChange() {
       if (this.testCase.method === 'manual' || !this.testCase.method) {
@@ -87,8 +87,4 @@ export default {
 </script>
 
 <style scoped>
-.result-item {
-  padding-left: 40px;
-  padding-right: 15px;
-}
 </style>

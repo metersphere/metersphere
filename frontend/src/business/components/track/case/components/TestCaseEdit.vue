@@ -62,15 +62,13 @@
 
           <ms-form-divider :title="$t('步骤信息')"/>
 
-          <div class="step-info">
-            <form-rich-text-item :title="$t('test_track.case.prerequisite')" :data="form" prop="prerequisite"/>
+          <form-rich-text-item :label-width="formLabelWidth" :title="$t('test_track.case.prerequisite')" :data="form" prop="prerequisite"/>
 
-            <step-change-item :form="form"/>
-            <form-rich-text-item v-if="form.stepModel === 'TEXT'"  :title="$t('test_track.case.step_desc')" :data="form" prop="stepDescription"/>
-            <form-rich-text-item v-if="form.stepModel === 'TEXT'"  :title="$t('test_track.case.expected_results')" :data="form" prop="expectedResult"/>
-          </div>
+          <step-change-item :label-width="formLabelWidth" :form="form"/>
+          <form-rich-text-item :label-width="formLabelWidth" v-if="form.stepModel === 'TEXT'"  :title="$t('test_track.case.step_desc')" :data="form" prop="stepDescription"/>
+          <form-rich-text-item :label-width="formLabelWidth" v-if="form.stepModel === 'TEXT'"  :title="$t('test_track.case.expected_results')" :data="form" prop="expectedResult"/>
 
-          <test-case-step-item v-if="form.stepModel === 'STEP'" :form="form" :read-only="readOnly"/>
+          <test-case-step-item :label-width="formLabelWidth" v-if="form.stepModel === 'STEP'" :form="form" :read-only="readOnly"/>
 
           <ms-form-divider :title="$t('其他信息')"/>
 
@@ -762,9 +760,5 @@ export default {
   border-bottom-right-radius: 0;
   height: 32px;
   width: 56px;
-}
-
-.step-info {
-  padding: 0px 30px;
 }
 </style>

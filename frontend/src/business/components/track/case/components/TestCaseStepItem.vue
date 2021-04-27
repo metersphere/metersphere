@@ -1,7 +1,6 @@
 <template>
 
-  <el-form-item :label-width="formLabelWidth" prop="steps">
-<!-- v-if="isStepTableAlive"-->
+  <el-form-item :label-width="labelWidth" prop="steps">
     <el-table
       :data="form.steps"
       class="tb-edit"
@@ -68,12 +67,7 @@
 export default {
   name: "TestCaseStepItem",
   props: {
-    formLabelWidth: {
-      type: String,
-      default() {
-        return '120px';
-      }
-    },
+    labelWidth: String,
     form: Object,
     readOnly: Boolean
   },
