@@ -324,7 +324,7 @@ export default {
     return {
       type: TEST_PLAN_FUNCTION_TEST_CASE,
       headerItems: Test_Plan_Function_Test_Case,
-      screenHeight: document.documentElement.clientHeight-365,
+      screenHeight: 'calc(100vh - 365px)',
       tableLabel: [],
       result: {},
       deletePath: "/test/case/delete",
