@@ -256,3 +256,6 @@ WHERE `type`='test_plan_function_test_case';
 -- 自定义用例ID
 alter table project add custom_num tinyint(1) default 0 null comment '是否开启自定义ID(默认关闭)';
 alter table test_case add custom_num varchar(64) null comment 'custom num';
+
+-- 修改前置条件为text
+ALTER TABLE test_case MODIFY COLUMN prerequisite text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL COMMENT 'Test case prerequisite condition';

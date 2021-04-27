@@ -77,7 +77,7 @@
         <table tableName="test_case_review_scenario"/>
         <table tableName="test_plan"/>
         <table tableName="test_case_test"/>-->
-        <table tableName="test_case_template"></table>
+        <table tableName="test_case"></table>
 <!--        <table tableName="custom_field"></table>-->
 <!--        <table tableName="test_case"></table>-->
         <table tableName="test_case"></table>

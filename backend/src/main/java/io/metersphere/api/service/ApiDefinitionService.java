@@ -99,7 +99,7 @@ public class ApiDefinitionService {
     @Resource
     ApiModuleMapper apiModuleMapper;
     @Resource
-    private SystemParameterService systemParameterService ;
+    private SystemParameterService systemParameterService;
 
     private static Cache cache = Cache.newHardMemoryCache(0, 3600 * 24);
 
@@ -116,7 +116,7 @@ public class ApiDefinitionService {
         ServiceUtils.getSelectAllIds(request, request.getCondition(),
                 (query) -> extApiDefinitionMapper.selectIds(query));
         List<ApiDefinitionResult> resList = extApiDefinitionMapper.listByIds(request.getIds());
-        calculateResult(resList);
+        calculateResult(resList, request.getProjectId());
         return resList;
     }
 
@@ -366,7 +366,7 @@ public class ApiDefinitionService {
         BeanUtils.copyBean(saveReq, apiDefinition);
         apiDefinition.setCreateTime(System.currentTimeMillis());
         apiDefinition.setUpdateTime(System.currentTimeMillis());
-        if(StringUtils.isEmpty(apiDefinition.getStatus())) {
+        if (StringUtils.isEmpty(apiDefinition.getStatus())) {
             apiDefinition.setStatus(APITestStatus.Underway.name());
         }
         if (apiDefinition.getUserId() == null) {
@@ -422,6 +422,7 @@ public class ApiDefinitionService {
                 String request = setImportHashTree(apiDefinition);
                 apiDefinition.setModuleId(sameRequest.get(0).getModuleId());
                 apiDefinition.setModulePath(sameRequest.get(0).getModulePath());
+                apiDefinition.setNum(sameRequest.get(0).getNum()); //id 不变
                 apiDefinitionMapper.updateByPrimaryKeyWithBLOBs(apiDefinition);
                 apiDefinition.setRequest(request);
                 importApiCase(apiDefinition, apiTestCaseMapper, apiTestImportRequest, false);
