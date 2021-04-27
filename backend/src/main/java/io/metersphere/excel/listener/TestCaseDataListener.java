@@ -184,6 +184,7 @@ public class TestCaseDataListener extends EasyExcelListener<TestCaseExcelData> {
         testCase.setProjectId(this.projectId);
         testCase.setCreateTime(System.currentTimeMillis());
         testCase.setUpdateTime(System.currentTimeMillis());
+        testCase.setCustomNum(data.getCustomNum());
         String nodePath = data.getNodePath();
 
         if (!nodePath.startsWith("/")) {

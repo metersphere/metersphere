@@ -18,6 +18,11 @@ public class TestCaseExcelDataUs extends TestCaseExcelData {
     @NotRequired
     private Integer num;
 
+    @ColumnWidth(50)
+    @ExcelProperty("Custom ID")
+    @NotRequired
+    private String customNum;
+
     @NotBlank(message = "{cannot_be_null}")
     @Length(max = 255)
     @ExcelProperty("Name")
