@@ -250,8 +250,8 @@ export default {
       currentPage: 1,
       pageSize: 10,
       total: 0,
-      selectDataCounts:0,
-      screenHeight: document.documentElement.clientHeight - 368,//屏幕高度
+      selectDataCounts: 0,
+      screenHeight: 'calc(100vh - 330px)',//屏幕高度
       // environmentId: undefined,
       currentCaseProjectId: "",
       runData: [],
