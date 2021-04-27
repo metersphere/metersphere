@@ -591,13 +591,13 @@ export default {
       if (customFieldsStr) {
         let customFields = JSON.parse(customFieldsStr);
         customFields.forEach(item => {
-          if (item.name === 'i43sf4_testCasePriority') {
+          if (item.name === '用例等级') {
             param.priority = item.value;
           }
-          if (item.name === 'i43sf4_testCaseMaintainer') {
+          if (item.name === '责任人') {
             param.maintainer = item.value;
           }
-          if (item.name === 'i43sf4_testCaseStatus') {
+          if (item.name === '用例状态') {
             param.status = item.value;
           }
         });
