@@ -35,6 +35,7 @@
       :height="screenHeight"
       row-key="id"
       @row-click="showDetail"
+      style="margin-top: 5px"
       @header-dragend="headerDragend"
       :data="tableData">
 
@@ -734,9 +735,6 @@ export default {
 </script>
 
 <style scoped>
-.ms-table-header {
-  margin: 20px;
-}
 
 .search {
   margin-left: 10px;
