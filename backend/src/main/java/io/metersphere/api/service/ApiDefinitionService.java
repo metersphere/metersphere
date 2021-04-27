@@ -422,6 +422,7 @@ public class ApiDefinitionService {
                 String request = setImportHashTree(apiDefinition);
                 apiDefinition.setModuleId(sameRequest.get(0).getModuleId());
                 apiDefinition.setModulePath(sameRequest.get(0).getModulePath());
+                apiDefinition.setNum(sameRequest.get(0).getNum()); //id 不变
                 apiDefinitionMapper.updateByPrimaryKeyWithBLOBs(apiDefinition);
                 apiDefinition.setRequest(request);
                 importApiCase(apiDefinition, apiTestCaseMapper, apiTestImportRequest, false);
