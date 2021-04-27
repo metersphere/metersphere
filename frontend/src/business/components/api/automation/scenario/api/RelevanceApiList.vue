@@ -258,7 +258,7 @@ export default {
       result: {},
       moduleId: "",
       deletePath: "/test/case/delete",
-      screenHeight: document.documentElement.clientHeight - 310,//屏幕高度,
+      screenHeight: document.documentElement.clientHeight - 500,//屏幕高度,
       typeArr: [
         {id: 'priority', name: this.$t('test_track.case.priority')},
       ],
