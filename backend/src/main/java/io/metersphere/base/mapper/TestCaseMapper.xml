@@ -25,6 +25,7 @@
     <result column="follow_people" jdbcType="VARCHAR" property="followPeople" />
     <result column="status" jdbcType="VARCHAR" property="status" />
     <result column="custom_num" jdbcType="VARCHAR" property="customNum" />
+    <result column="step_model" jdbcType="VARCHAR" property="stepModel" />
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.TestCaseWithBLOBs">
     <result column="remark" jdbcType="LONGVARCHAR" property="remark" />
@@ -94,7 +95,7 @@
   <sql id="Base_Column_List">
     id, node_id, node_path, project_id, `name`, `type`, maintainer, priority, `method`, 
     prerequisite, create_time, update_time, test_id, sort, num, other_test_name, review_status, 
-    tags, demand_id, demand_name, follow_people, `status`, custom_num
+    tags, demand_id, demand_name, follow_people, `status`, custom_num, step_model
   </sql>
   <sql id="Blob_Column_List">
     remark, steps, step_description, expected_result, custom_fields
@@ -155,9 +156,9 @@
       test_id, sort, num, 
       other_test_name, review_status, tags, 
       demand_id, demand_name, follow_people, 
-      `status`, custom_num, remark, 
-      steps, step_description, expected_result, 
-      custom_fields)
+      `status`, custom_num, step_model, 
+      remark, steps, step_description, 
+      expected_result, custom_fields)
     values (#{id,jdbcType=VARCHAR}, #{nodeId,jdbcType=VARCHAR}, #{nodePath,jdbcType=VARCHAR}, 
       #{projectId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR}, 
       #{maintainer,jdbcType=VARCHAR}, #{priority,jdbcType=VARCHAR}, #{method,jdbcType=VARCHAR}, 
@@ -165,9 +166,9 @@
       #{testId,jdbcType=VARCHAR}, #{sort,jdbcType=INTEGER}, #{num,jdbcType=INTEGER}, 
       #{otherTestName,jdbcType=VARCHAR}, #{reviewStatus,jdbcType=VARCHAR}, #{tags,jdbcType=VARCHAR}, 
       #{demandId,jdbcType=VARCHAR}, #{demandName,jdbcType=VARCHAR}, #{followPeople,jdbcType=VARCHAR}, 
-      #{status,jdbcType=VARCHAR}, #{customNum,jdbcType=VARCHAR}, #{remark,jdbcType=LONGVARCHAR}, 
-      #{steps,jdbcType=LONGVARCHAR}, #{stepDescription,jdbcType=LONGVARCHAR}, #{expectedResult,jdbcType=LONGVARCHAR}, 
-      #{customFields,jdbcType=LONGVARCHAR})
+      #{status,jdbcType=VARCHAR}, #{customNum,jdbcType=VARCHAR}, #{stepModel,jdbcType=VARCHAR}, 
+      #{remark,jdbcType=LONGVARCHAR}, #{steps,jdbcType=LONGVARCHAR}, #{stepDescription,jdbcType=LONGVARCHAR}, 
+      #{expectedResult,jdbcType=LONGVARCHAR}, #{customFields,jdbcType=LONGVARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.TestCaseWithBLOBs">
     insert into test_case
@@ -240,6 +241,9 @@
       </if>
       <if test="customNum != null">
         custom_num,
+      </if>
+      <if test="stepModel != null">
+        step_model,
       </if>
       <if test="remark != null">
         remark,
@@ -326,6 +330,9 @@
       </if>
       <if test="customNum != null">
         #{customNum,jdbcType=VARCHAR},
+      </if>
+      <if test="stepModel != null">
+        #{stepModel,jdbcType=VARCHAR},
       </if>
       <if test="remark != null">
         #{remark,jdbcType=LONGVARCHAR},
@@ -422,6 +429,9 @@
       <if test="record.customNum != null">
         custom_num = #{record.customNum,jdbcType=VARCHAR},
       </if>
+      <if test="record.stepModel != null">
+        step_model = #{record.stepModel,jdbcType=VARCHAR},
+      </if>
       <if test="record.remark != null">
         remark = #{record.remark,jdbcType=LONGVARCHAR},
       </if>
@@ -467,6 +477,7 @@
       follow_people = #{record.followPeople,jdbcType=VARCHAR},
       `status` = #{record.status,jdbcType=VARCHAR},
       custom_num = #{record.customNum,jdbcType=VARCHAR},
+      step_model = #{record.stepModel,jdbcType=VARCHAR},
       remark = #{record.remark,jdbcType=LONGVARCHAR},
       steps = #{record.steps,jdbcType=LONGVARCHAR},
       step_description = #{record.stepDescription,jdbcType=LONGVARCHAR},
@@ -500,7 +511,8 @@
       demand_name = #{record.demandName,jdbcType=VARCHAR},
       follow_people = #{record.followPeople,jdbcType=VARCHAR},
       `status` = #{record.status,jdbcType=VARCHAR},
-      custom_num = #{record.customNum,jdbcType=VARCHAR}
+      custom_num = #{record.customNum,jdbcType=VARCHAR},
+      step_model = #{record.stepModel,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -574,6 +586,9 @@
       <if test="customNum != null">
         custom_num = #{customNum,jdbcType=VARCHAR},
       </if>
+      <if test="stepModel != null">
+        step_model = #{stepModel,jdbcType=VARCHAR},
+      </if>
       <if test="remark != null">
         remark = #{remark,jdbcType=LONGVARCHAR},
       </if>
@@ -616,6 +631,7 @@
       follow_people = #{followPeople,jdbcType=VARCHAR},
       `status` = #{status,jdbcType=VARCHAR},
       custom_num = #{customNum,jdbcType=VARCHAR},
+      step_model = #{stepModel,jdbcType=VARCHAR},
       remark = #{remark,jdbcType=LONGVARCHAR},
       steps = #{steps,jdbcType=LONGVARCHAR},
       step_description = #{stepDescription,jdbcType=LONGVARCHAR},
@@ -646,7 +662,8 @@
       demand_name = #{demandName,jdbcType=VARCHAR},
       follow_people = #{followPeople,jdbcType=VARCHAR},
       `status` = #{status,jdbcType=VARCHAR},
-      custom_num = #{customNum,jdbcType=VARCHAR}
+      custom_num = #{customNum,jdbcType=VARCHAR},
+      step_model = #{stepModel,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>
