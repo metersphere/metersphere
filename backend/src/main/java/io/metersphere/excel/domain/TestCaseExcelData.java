@@ -32,4 +32,6 @@ public class TestCaseExcelData {
     private String stepDesc;
     @ExcelIgnore
     private String stepResult;
+    @ExcelIgnore
+    private String stepModel;
 }

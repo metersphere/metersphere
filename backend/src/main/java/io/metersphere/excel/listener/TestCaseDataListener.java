@@ -198,9 +198,14 @@ public class TestCaseDataListener extends EasyExcelListener<TestCaseExcelData> {
         String modifiedTags = modifyTagPattern(data);
         testCase.setTags(modifiedTags);
 
-        String steps = getSteps(data);
-        testCase.setSteps(steps);
-
+        if (StringUtils.isNotBlank(data.getStepModel())
+                && StringUtils.equals(data.getStepModel(), TestCaseConstants.StepModel.TEXT.name())) {
+            testCase.setStepDescription(data.getStepDesc());
+            testCase.setExpectedResult(data.getStepResult());
+        } else {
+            String steps = getSteps(data);
+            testCase.setSteps(steps);
+        }
         return testCase;
 }
 
