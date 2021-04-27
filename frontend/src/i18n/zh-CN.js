@@ -363,6 +363,8 @@ export default {
     recent: '最近的项目',
     create: '创建项目',
     edit: '编辑项目',
+    custom_name: '名称',
+    edit_file: '编辑文件',
     delete: '删除项目',
     delete_confirm: '确定要删除这个项目吗?',
     delete_tip: '删除该项目，会删除该项目下所有测试资源，确定要删除吗?',
@@ -378,6 +380,7 @@ export default {
     jira_key: 'JIRA项目key',
     zentao_id: 'Zentao项目ID',
     manager: '项目管理',
+    file_manager: '文件管理',
     no_data: '无数据',
     select: '选择项目',
     repeatable: '接口定义URL可重复'

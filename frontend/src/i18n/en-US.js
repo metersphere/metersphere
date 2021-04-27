@@ -356,7 +356,9 @@ export default {
     name: 'Project name',
     recent: 'Recent Projects',
     create: 'Create Project',
+    custom_name: 'Name',
     edit: 'Edit Project',
+    edit_file: 'Edit File',
     delete: 'Delete project',
     delete_confirm: 'Deleting this project will delete all test resources under this project. Are you sure you want to delete?',
     delete_tip: 'Deleting this project will delete all test resources under this project. Are you sure you want to delete?',
@@ -371,6 +373,7 @@ export default {
     jira_key: 'JIRA Project key',
     zentao_id: 'Zentao Project ID',
     manager: 'Manager',
+    file_manager: 'File Manager',
     no_data: 'No Data',
     select: 'Select',
     repeatable: 'Interface definition URL repeatable'

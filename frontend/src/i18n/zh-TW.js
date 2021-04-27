@@ -354,6 +354,8 @@ export default {
     recent: '最近的項目',
     create: '創建項目',
     edit: '編輯項目',
+    custom_name: '名稱',
+    edit_file: '編輯文件',
     delete: '刪除項目',
     delete_confirm: '確定要刪除這個項目嗎?',
     delete_tip: '刪除該項目，會刪除該項目下所有測試資源，確定要刪除嗎?',
@@ -369,6 +371,7 @@ export default {
     jira_key: 'JIRA項目key',
     zentao_id: 'Zentao項目ID',
     manager: '項目管理',
+    file_manager: '文件管理',
     no_data: '無數據',
     select: '選擇項目',
     repeatable: '接口定義URL可重復'

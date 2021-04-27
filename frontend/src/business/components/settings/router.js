@@ -103,6 +103,11 @@ export default {
       path: 'envlist',
       component: () => import('@/business/components/settings/project/EnvironmentList'),
       meta: {project: true, title: 'api_test.environment.environment_config'}
+    },
+    {
+      path: 'filelist',
+      component: () => import('@/business/components/settings/project/FileList'),
+      meta: {project: true, title: 'project.file_manager'}
     }
 
   ]

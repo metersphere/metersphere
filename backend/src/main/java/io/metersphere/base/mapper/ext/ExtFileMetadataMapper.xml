@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="io.metersphere.base.mapper.ext.ExtFileMetadataMapper">
+    <resultMap id="BaseResultMap" type="io.metersphere.base.domain.FileMetadata">
+        <id column="id" jdbcType="VARCHAR" property="id" />
+        <result column="name" jdbcType="VARCHAR" property="name" />
+        <result column="type" jdbcType="VARCHAR" property="type" />
+        <result column="size" jdbcType="BIGINT" property="size" />
+        <result column="create_time" jdbcType="BIGINT" property="createTime" />
+        <result column="update_time" jdbcType="BIGINT" property="updateTime" />
+        <result column="sort" jdbcType="INTEGER" property="sort" />
+        <result column="project_id" jdbcType="VARCHAR" property="projectId" />
+        <result column="file_name" jdbcType="VARCHAR" property="fileName" />
+        <result column="creator" jdbcType="VARCHAR" property="creator" />
+        <result column="modifier" jdbcType="VARCHAR" property="modifier" />
+        <result column="method" jdbcType="VARCHAR" property="method" />
+        <result column="path" jdbcType="VARCHAR" property="path" />
+        <result column="description" jdbcType="VARCHAR" property="description" />
+    </resultMap>
+
+    <select id="selectFileOrJar" resultType="io.metersphere.base.domain.FileMetadata">
+        SELECT *
+        FROM file_metadata
+        WHERE (file_metadata.project_id = null)
+        OR (file_metadata.project_id in
+        <foreach collection="projectIds" item="item" separator="," open="(" close=")">
+            #{item}
+        </foreach>)
+        <if test="request.orders != null and request.orders.size() > 0">
+            order by
+            <foreach collection="request.orders" separator="," item="order">
+                ${order.name} ${order.type}
+            </foreach>
+        </if>
+    </select>
+
+</mapper>

@@ -1,62 +1,70 @@
 <template>
-  <el-form :model="currentConfig" :rules="rules" label-width="100px" v-loading="result.loading" ref="form">
-    <el-row>
-      <el-col :span="12">
-        <el-form-item label="选择项目" prop="projectName">
-          <el-autocomplete
-            size="small"
-            v-model="currentConfig.projectName"
-            :fetch-suggestions="querySearch"
-            placeholder="请输入内容"
-            @select="handleSelect"
-            clearable show-word-limit
-          ></el-autocomplete>
-        </el-form-item>
-        <el-form-item :label="$t('commons.name')" prop="name">
-          <el-input size="small" v-model="currentConfig.name" clearable show-word-limit/>
-        </el-form-item>
-        <el-form-item :label="$t('commons.description')" prop="description">
-          <el-input :disabled="readOnly" v-model="currentConfig.description"
-                    type="textarea"
-                    :autosize="{ minRows: 2, maxRows: 4}"
-                    :rows="2"
-                    :placeholder="$t('commons.input_content')"/>
-        </el-form-item>
+  <el-dialog
+    width="50%"
+    :visible.sync="visible"
+    @confirm="save"
+    :title="title"
+    append-to-body>
 
-      </el-col>
+    <el-form :model="currentConfig" :rules="rules" label-width="100px" v-loading="result.loading" ref="form">
+      <el-row>
+        <el-col :span="12">
+          <el-form-item :label="$t('project.select')" prop="projectName">
+            <el-autocomplete
+              size="small"
+              v-model="currentConfig.projectName"
+              :fetch-suggestions="querySearch"
+              :placeholder="$t('commons.input_content')"
+              @select="handleSelect"
+              clearable show-word-limit
+            ></el-autocomplete>
+          </el-form-item>
+          <el-form-item :label="$t('commons.name')" prop="name">
+            <el-input size="small" v-model="currentConfig.name" clearable show-word-limit/>
+          </el-form-item>
+          <el-form-item :label="$t('commons.description')" prop="description">
+            <el-input :disabled="readOnly" v-model="currentConfig.description"
+                      type="textarea"
+                      :autosize="{ minRows: 2, maxRows: 4}"
+                      :rows="2"
+                      :placeholder="$t('commons.input_content')"/>
+          </el-form-item>
 
-      <el-col :span="1">
-        <el-divider direction="vertical"/>
-      </el-col>
+        </el-col>
 
-      <el-col :span="11">
-        <el-upload
-          class="jar-upload"
-          drag
-          action="#"
-          :accept="acceptFileString"
-          :http-request="upload"
-          :limit="1"
-          :beforeUpload="uploadValidate"
-          :on-remove="handleRemove"
-          :on-exceed="handleExceed"
-          :file-list="fileList"
-          ref="fileUpload">
-          <i class="el-icon-upload"></i>
-          <div class="el-upload__text" v-html="$t('load_test.upload_tips')"></div>
-          <div class="el-upload__tip" slot="tip">{{$t('api_test.api_import.file_size_limit')}}</div>
-        </el-upload>
-      </el-col>
+        <el-col :span="1">
+          <el-divider direction="vertical"/>
+        </el-col>
 
-      <el-col>
-        <div class="buttons">
-          <el-button type="primary" v-show="currentConfig.id" size="small" @click="save('update')">{{$t('commons.update')}}</el-button>
-          <el-button type="primary" size="small" @click="save('add')">{{$t('commons.add')}}</el-button>
-        </div>
-      </el-col>
+        <el-col :span="11">
+          <el-upload
+            class="jar-upload"
+            drag
+            action=""
+            :accept="acceptFileString"
+            :http-request="upload"
+            :limit="1"
+            :beforeUpload="uploadValidate"
+            :on-remove="handleRemove"
+            :on-exceed="handleExceed"
+            :file-list="fileList"
+            ref="fileUpload">
+            <i class="el-icon-upload"></i>
+            <div class="el-upload__text" v-html="$t('load_test.upload_tips')"></div>
+            <div class="el-upload__tip" slot="tip">{{$t('api_test.api_import.file_size_limit')}}</div>
+          </el-upload>
+        </el-col>
 
-    </el-row>
-  </el-form>
+        <el-col>
+          <div class="buttons">
+            <el-button type="primary" v-show="currentConfig.id" size="small" @click="save('update')">{{ $t('commons.update') }}</el-button>
+            <el-button type="primary" v-show="!currentConfig.id" size="small" @click="save('add')">{{$t('commons.add')}}</el-button>
+          </div>
+        </el-col>
+
+      </el-row>
+    </el-form>
+  </el-dialog>
 </template>
 
 <script>
@@ -77,13 +85,14 @@
             description: '',
             fileName: '',
           },
+          title: '',
           rules: {
             projectName: [
               {required: true, message: this.$t('commons.input_name'), trigger: 'blur'},
               {max: 60, message: this.$t('commons.input_limit', [1, 60]), trigger: 'blur'}
             ],
             name: [
-              {required: true, message: this.$t('commons.input_name'), trigger: 'blur'},
+              {required: false, message: this.$t('commons.input_name'), trigger: 'blur'},
               {max: 60, message: this.$t('commons.input_limit', [1, 60]), trigger: 'blur'}
             ],
             description: [
@@ -139,9 +148,28 @@
         }
       },
       methods: {
+        open(data) {
+          this.visible = true;
+          this.currentConfig = data;
+
+          if (data) {
+            this.url = '/file/update/';
+            this.title = this.$t('project.edit_file');
+            this.projectArray.forEach(item => {
+              if(item.id == this.currentConfig.projectId) {
+                this.currentConfig.projectName = item.name;
+                this.currentConfig.projectId = item.id;
+              }
+            });
+          } else {
+            this.url = '/file/upload/';
+            this.title = this.$t('load_test.upload_file');
+            this.fileList = [];
+            this.currentConfig = {};
+          }
+        },
         querySearch(queryString, cb) {
           let projects = [];
-          projects.push({value: '全局项目', id: 'global'});
           this.projectArray.forEach(item => {
             projects.push({value: item.name, id: item.id});
           });
@@ -193,9 +221,11 @@
               }
               if (this.callback) {
                 if (type === 'add') {
-                  this.currentConfig.id = undefined;
+                  // this.currentConfig.id = undefined;
+                  this.callback(type, '/file/upload', this.currentConfig.projectId, null, this.fileList[0]);
+                } else {  //  type = 'upload'
+                  this.callback(type, '/file/update', this.currentConfig.projectId, this.currentConfig, this.fileList[0]);
                 }
-                this.callback(this.currentConfig, this.fileList[0]);
               }
             } else {
               return false;

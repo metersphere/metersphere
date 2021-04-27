@@ -144,7 +144,6 @@ export default {
     },
     handleImport(file) {
       if (file) { // 接口测试创建的性能测试
-        console.log(file);
         this.selectIds.add(file.id);
         this.getJmxContents();
         return;
@@ -171,7 +170,7 @@ export default {
           fileName: row.fileName,
           size: (row.size / 1024).toFixed(2) + ' KB',
           type: row.type.toUpperCase(),
-          updateTime: row.lastModified,
+          updateTime: row.updateTime
         });
       }
       //

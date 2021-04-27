@@ -60,7 +60,7 @@
     </el-row>
     <el-table class="basic-config" :data="tableData">
       <el-table-column
-        prop="name"
+        prop="fileName"
         :label="$t('load_test.file_name')">
       </el-table-column>
       <el-table-column
@@ -346,7 +346,7 @@ export default {
       let file = new File([caseObj.xml], jmxName);
       this.uploadList.push(file);
       this.tableData.push({
-        name: file.name,
+        fileName: file.fileName,
         size: (file.size / 1024).toFixed(2) + ' KB',
         type: 'JMX',
         updateTime: file.lastModified,

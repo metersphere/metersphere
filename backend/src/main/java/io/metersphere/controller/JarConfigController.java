@@ -13,7 +13,6 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.Resource;
-import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -38,7 +37,7 @@ public class JarConfigController {
 
     @PostMapping("list")
     public List<FileMetadata> list(@RequestBody FileMetadata jarConfig) {
-        return fileService.searchList(jarConfig);
+        return fileService.searchList(jarConfig, true);
     }
 
     @GetMapping("/get/{id}")
@@ -54,8 +53,8 @@ public class JarConfigController {
 
     @PostMapping(value = "/update", consumes = {"multipart/form-data"})
     @RequiresRoles(value = {RoleConstants.TEST_MANAGER, RoleConstants.TEST_USER,}, logical = Logical.OR)
-    public void update(@RequestPart("request") FileMetadata request, @RequestPart(value = "file", required = false) MultipartFile file) throws IOException {
-        fileService.updateJar(request, file);
+    public void update(@RequestPart("request") FileMetadata request, @RequestPart(value = "file", required = false) MultipartFile file) {
+        fileService.updateFile(request, file);
     }
 
     @GetMapping("/delete/{id}")
