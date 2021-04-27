@@ -145,7 +145,9 @@ public class TestCaseService {
 
     private void checkCustomNumExist(TestCaseWithBLOBs testCase) {
         TestCaseExample example = new TestCaseExample();
-        example.createCriteria().andCustomNumEqualTo(testCase.getCustomNum())
+        example.createCriteria()
+                .andCustomNumEqualTo(testCase.getCustomNum())
+                .andProjectIdEqualTo(testCase.getProjectId())
                 .andIdNotEqualTo(testCase.getId());
         List<TestCase> list = testCaseMapper.selectByExample(example);
         if (CollectionUtils.isNotEmpty(list)) {
