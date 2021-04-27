@@ -11,7 +11,6 @@
     <result column="maintainer" jdbcType="VARCHAR" property="maintainer" />
     <result column="priority" jdbcType="VARCHAR" property="priority" />
     <result column="method" jdbcType="VARCHAR" property="method" />
-    <result column="prerequisite" jdbcType="VARCHAR" property="prerequisite" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
     <result column="update_time" jdbcType="BIGINT" property="updateTime" />
     <result column="test_id" jdbcType="VARCHAR" property="testId" />
@@ -28,6 +27,7 @@
     <result column="step_model" jdbcType="VARCHAR" property="stepModel" />
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.TestCaseWithBLOBs">
+    <result column="prerequisite" jdbcType="LONGVARCHAR" property="prerequisite" />
     <result column="remark" jdbcType="LONGVARCHAR" property="remark" />
     <result column="steps" jdbcType="LONGVARCHAR" property="steps" />
     <result column="step_description" jdbcType="LONGVARCHAR" property="stepDescription" />
@@ -94,11 +94,11 @@
   </sql>
   <sql id="Base_Column_List">
     id, node_id, node_path, project_id, `name`, `type`, maintainer, priority, `method`, 
-    prerequisite, create_time, update_time, test_id, sort, num, other_test_name, review_status, 
-    tags, demand_id, demand_name, follow_people, `status`, custom_num, step_model
+    create_time, update_time, test_id, sort, num, other_test_name, review_status, tags, 
+    demand_id, demand_name, follow_people, `status`, custom_num, step_model
   </sql>
   <sql id="Blob_Column_List">
-    remark, steps, step_description, expected_result, custom_fields
+    prerequisite, remark, steps, step_description, expected_result, custom_fields
   </sql>
   <select id="selectByExampleWithBLOBs" parameterType="io.metersphere.base.domain.TestCaseExample" resultMap="ResultMapWithBLOBs">
     select
@@ -152,21 +152,21 @@
     insert into test_case (id, node_id, node_path, 
       project_id, `name`, `type`, 
       maintainer, priority, `method`, 
-      prerequisite, create_time, update_time, 
-      test_id, sort, num, 
-      other_test_name, review_status, tags, 
-      demand_id, demand_name, follow_people, 
-      `status`, custom_num, step_model, 
+      create_time, update_time, test_id, 
+      sort, num, other_test_name, 
+      review_status, tags, demand_id, 
+      demand_name, follow_people, `status`, 
+      custom_num, step_model, prerequisite, 
       remark, steps, step_description, 
       expected_result, custom_fields)
     values (#{id,jdbcType=VARCHAR}, #{nodeId,jdbcType=VARCHAR}, #{nodePath,jdbcType=VARCHAR}, 
       #{projectId,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR}, 
       #{maintainer,jdbcType=VARCHAR}, #{priority,jdbcType=VARCHAR}, #{method,jdbcType=VARCHAR}, 
-      #{prerequisite,jdbcType=VARCHAR}, #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, 
-      #{testId,jdbcType=VARCHAR}, #{sort,jdbcType=INTEGER}, #{num,jdbcType=INTEGER}, 
-      #{otherTestName,jdbcType=VARCHAR}, #{reviewStatus,jdbcType=VARCHAR}, #{tags,jdbcType=VARCHAR}, 
-      #{demandId,jdbcType=VARCHAR}, #{demandName,jdbcType=VARCHAR}, #{followPeople,jdbcType=VARCHAR}, 
-      #{status,jdbcType=VARCHAR}, #{customNum,jdbcType=VARCHAR}, #{stepModel,jdbcType=VARCHAR}, 
+      #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, #{testId,jdbcType=VARCHAR}, 
+      #{sort,jdbcType=INTEGER}, #{num,jdbcType=INTEGER}, #{otherTestName,jdbcType=VARCHAR}, 
+      #{reviewStatus,jdbcType=VARCHAR}, #{tags,jdbcType=VARCHAR}, #{demandId,jdbcType=VARCHAR}, 
+      #{demandName,jdbcType=VARCHAR}, #{followPeople,jdbcType=VARCHAR}, #{status,jdbcType=VARCHAR}, 
+      #{customNum,jdbcType=VARCHAR}, #{stepModel,jdbcType=VARCHAR}, #{prerequisite,jdbcType=LONGVARCHAR}, 
       #{remark,jdbcType=LONGVARCHAR}, #{steps,jdbcType=LONGVARCHAR}, #{stepDescription,jdbcType=LONGVARCHAR}, 
       #{expectedResult,jdbcType=LONGVARCHAR}, #{customFields,jdbcType=LONGVARCHAR})
   </insert>
@@ -199,9 +199,6 @@
       </if>
       <if test="method != null">
         `method`,
-      </if>
-      <if test="prerequisite != null">
-        prerequisite,
       </if>
       <if test="createTime != null">
         create_time,
@@ -244,6 +241,9 @@
       </if>
       <if test="stepModel != null">
         step_model,
+      </if>
+      <if test="prerequisite != null">
+        prerequisite,
       </if>
       <if test="remark != null">
         remark,
@@ -289,9 +289,6 @@
       <if test="method != null">
         #{method,jdbcType=VARCHAR},
       </if>
-      <if test="prerequisite != null">
-        #{prerequisite,jdbcType=VARCHAR},
-      </if>
       <if test="createTime != null">
         #{createTime,jdbcType=BIGINT},
       </if>
@@ -333,6 +330,9 @@
       </if>
       <if test="stepModel != null">
         #{stepModel,jdbcType=VARCHAR},
+      </if>
+      <if test="prerequisite != null">
+        #{prerequisite,jdbcType=LONGVARCHAR},
       </if>
       <if test="remark != null">
         #{remark,jdbcType=LONGVARCHAR},
@@ -387,9 +387,6 @@
       <if test="record.method != null">
         `method` = #{record.method,jdbcType=VARCHAR},
       </if>
-      <if test="record.prerequisite != null">
-        prerequisite = #{record.prerequisite,jdbcType=VARCHAR},
-      </if>
       <if test="record.createTime != null">
         create_time = #{record.createTime,jdbcType=BIGINT},
       </if>
@@ -432,6 +429,9 @@
       <if test="record.stepModel != null">
         step_model = #{record.stepModel,jdbcType=VARCHAR},
       </if>
+      <if test="record.prerequisite != null">
+        prerequisite = #{record.prerequisite,jdbcType=LONGVARCHAR},
+      </if>
       <if test="record.remark != null">
         remark = #{record.remark,jdbcType=LONGVARCHAR},
       </if>
@@ -463,7 +463,6 @@
       maintainer = #{record.maintainer,jdbcType=VARCHAR},
       priority = #{record.priority,jdbcType=VARCHAR},
       `method` = #{record.method,jdbcType=VARCHAR},
-      prerequisite = #{record.prerequisite,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
       update_time = #{record.updateTime,jdbcType=BIGINT},
       test_id = #{record.testId,jdbcType=VARCHAR},
@@ -478,6 +477,7 @@
       `status` = #{record.status,jdbcType=VARCHAR},
       custom_num = #{record.customNum,jdbcType=VARCHAR},
       step_model = #{record.stepModel,jdbcType=VARCHAR},
+      prerequisite = #{record.prerequisite,jdbcType=LONGVARCHAR},
       remark = #{record.remark,jdbcType=LONGVARCHAR},
       steps = #{record.steps,jdbcType=LONGVARCHAR},
       step_description = #{record.stepDescription,jdbcType=LONGVARCHAR},
@@ -498,7 +498,6 @@
       maintainer = #{record.maintainer,jdbcType=VARCHAR},
       priority = #{record.priority,jdbcType=VARCHAR},
       `method` = #{record.method,jdbcType=VARCHAR},
-      prerequisite = #{record.prerequisite,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
       update_time = #{record.updateTime,jdbcType=BIGINT},
       test_id = #{record.testId,jdbcType=VARCHAR},
@@ -544,9 +543,6 @@
       <if test="method != null">
         `method` = #{method,jdbcType=VARCHAR},
       </if>
-      <if test="prerequisite != null">
-        prerequisite = #{prerequisite,jdbcType=VARCHAR},
-      </if>
       <if test="createTime != null">
         create_time = #{createTime,jdbcType=BIGINT},
       </if>
@@ -589,6 +585,9 @@
       <if test="stepModel != null">
         step_model = #{stepModel,jdbcType=VARCHAR},
       </if>
+      <if test="prerequisite != null">
+        prerequisite = #{prerequisite,jdbcType=LONGVARCHAR},
+      </if>
       <if test="remark != null">
         remark = #{remark,jdbcType=LONGVARCHAR},
       </if>
@@ -617,7 +616,6 @@
       maintainer = #{maintainer,jdbcType=VARCHAR},
       priority = #{priority,jdbcType=VARCHAR},
       `method` = #{method,jdbcType=VARCHAR},
-      prerequisite = #{prerequisite,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
       update_time = #{updateTime,jdbcType=BIGINT},
       test_id = #{testId,jdbcType=VARCHAR},
@@ -632,6 +630,7 @@
       `status` = #{status,jdbcType=VARCHAR},
       custom_num = #{customNum,jdbcType=VARCHAR},
       step_model = #{stepModel,jdbcType=VARCHAR},
+      prerequisite = #{prerequisite,jdbcType=LONGVARCHAR},
       remark = #{remark,jdbcType=LONGVARCHAR},
       steps = #{steps,jdbcType=LONGVARCHAR},
       step_description = #{stepDescription,jdbcType=LONGVARCHAR},
@@ -649,7 +648,6 @@
       maintainer = #{maintainer,jdbcType=VARCHAR},
       priority = #{priority,jdbcType=VARCHAR},
       `method` = #{method,jdbcType=VARCHAR},
-      prerequisite = #{prerequisite,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
       update_time = #{updateTime,jdbcType=BIGINT},
       test_id = #{testId,jdbcType=VARCHAR},

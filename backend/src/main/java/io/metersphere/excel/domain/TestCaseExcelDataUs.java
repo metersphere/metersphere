@@ -57,21 +57,17 @@ public class TestCaseExcelDataUs extends TestCaseExcelData {
 
     @ColumnWidth(50)
     @ExcelProperty("Prerequisite")
-    @Length(min = 0, max = 1000)
     private String prerequisite;
 
     @ColumnWidth(50)
     @ExcelProperty("Remark")
-    @Length(max = 1000)
     private String remark;
 
     @ColumnWidth(50)
     @ExcelProperty("Step description")
-    @Length(max = 1000)
     private String stepDesc;
 
     @ColumnWidth(50)
     @ExcelProperty("Step result")
-    @Length(max = 1000)
     private String stepResult;
 }
