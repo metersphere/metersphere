@@ -151,7 +151,7 @@ public class TestCaseService {
                 .andIdNotEqualTo(testCase.getId());
         List<TestCase> list = testCaseMapper.selectByExample(example);
         if (CollectionUtils.isNotEmpty(list)) {
-            MSException.throwException("test case custom num is exist.");
+            MSException.throwException(Translator.get("custom_num_is_exist"));
         }
     }
 
