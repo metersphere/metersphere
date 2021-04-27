@@ -49,8 +49,8 @@ export function parseCustomField(data, template, customFieldForm, rules, oldFiel
 
     // 将保存的值赋值给template
     if (data.customFields instanceof Array) {
-      for (const index in data.customFields) {
-        let customField = data.customFields[index];
+      for (let i = 0; i < data.customFields.length; i++) {
+        let customField = data.customFields[i];
         if (customField.id === item.id) {
           item.defaultValue = customField.value;
           break;
@@ -124,8 +124,8 @@ export function getTemplate(baseUrl, vueObj) {
 // 兼容旧字段
 export function buildTestCaseOldFields(testCase) {
   let oldFields = new Map();
-  oldFields.set('i43sf4_testCaseStatus', testCase.status);
-  oldFields.set('i43sf4_testCaseMaintainer', testCase.maintainer);
-  oldFields.set('i43sf4_testCasePriority', testCase.priority);
+  oldFields.set('用例状态', testCase.status);
+  oldFields.set('责任人', testCase.maintainer);
+  oldFields.set('用例等级', testCase.priority);
   return oldFields;
 }
