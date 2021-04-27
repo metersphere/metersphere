@@ -1,7 +1,8 @@
 <template>
   <el-table-column
       v-if="fields.has(prop) || fields.size < 1"
-      :min-width="width"
+      :min-width="minWidth"
+      :width="width"
       :fixed="fixed"
       :filters="filters"
       :prop="prop"
@@ -24,6 +25,7 @@ export default {
     prop: String,
     label: String,
     width: String,
+    minWidth: String,
     fixed: String,
     // 排序列， 后端mapper处理filters
     filters: Array,
