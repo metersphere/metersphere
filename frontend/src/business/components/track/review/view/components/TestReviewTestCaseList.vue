@@ -46,7 +46,7 @@
       <template v-for="(item, index) in tableLabel">
         <el-table-column
           v-if="item.id == 'num'"
-          prop="num"
+          prop="customNum"
           sortable="custom"
           min-width="100"
           :label="$t('commons.id')"
@@ -239,7 +239,7 @@ export default {
     return {
       type: TEST_CASE_REVIEW_CASE_LIST,
       headerItems: Test_Case_Review_Case_List,
-      screenHeight: document.documentElement.clientHeight - 278,
+      screenHeight: 'calc(100vh - 330px)',
       tableLabel: [],
       result: {},
       condition: {},

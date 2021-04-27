@@ -48,8 +48,4 @@
 </script>
 
 <style scoped>
-  .el-row {
-    width: 50%;
-  }
-
 </style>

@@ -124,6 +124,9 @@ export default {
             item.fieldId = item.id;
             item.id = null;
             item.options = JSON.parse(item.options);
+            if (item.type === 'checkbox') {
+              item.defaultValue = [];
+            }
           });
           this.tableData.push(...data);
         });
@@ -133,7 +136,5 @@ export default {
 </script>
 
 <style scoped>
-.default-value-item >>> .custom-with {
-  width: 207px;
-}
+
 </style>

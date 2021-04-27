@@ -77,7 +77,7 @@ export default {
       this.uploadFiles = uploadFiles;
     },
     save() {
-      if (this.uploadFiles.length > 0) { 
+      if (this.uploadFiles.length > 0) {
         for (let i = 0; i < this.uploadFiles.length; i++) {
           this.uploadValidate(this.uploadFiles[i]);
           let file = this.uploadFiles[i];
@@ -87,18 +87,22 @@ export default {
           let reader = new FileReader();
 
           reader.readAsText(file.raw)
-          reader.onload = (e) => {
-            let fileString =  e.target.result;
-            JSON.parse(fileString).map(env => {
-              //projectId为空字符串要转换为null，空字符串会被认为有projectId
-              env.projectId = this.currentProjectId === '' ? null : this.currentProjectId;
-              this.$post('/api/environment/add', env, response => {
-                this.$emit('refresh');
-                this.$success(this.$t('commons.save_success'));
-              })
-            })
+            reader.onload = (e) => {
+              let fileString = e.target.result;
+              try {
+                JSON.parse(fileString).map(env => {
+                  //projectId为空字符串要转换为null，空字符串会被认为有projectId
+                  env.projectId = this.currentProjectId === '' ? null : this.currentProjectId;
+                  this.$post('/api/environment/add', env, response => {
+                    this.$emit('refresh');
+                    this.$success(this.$t('commons.save_success'));
+                  })
+                })
+              } catch (exception) {
+                this.$warning(this.$t('api_test.api_import.ms_env_import_file_limit'));
+              }
+            }
 
-          }
         }
       }
     },

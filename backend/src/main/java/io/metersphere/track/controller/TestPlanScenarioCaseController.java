@@ -31,6 +31,11 @@ public class TestPlanScenarioCaseController {
         return PageUtils.setPageInfo(page, testPlanScenarioCaseService.list(request));
     }
 
+    @PostMapping("/selectAllTableRows")
+    public List<ApiScenarioDTO> selectAllTableRows(@RequestBody TestPlanScenarioCaseBatchRequest request) {
+        return testPlanScenarioCaseService.selectAllTableRows(request);
+    }
+
     @PostMapping("/relevance/list/{goPage}/{pageSize}")
     public Pager<List<ApiScenarioDTO>> relevanceList(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody ApiScenarioRequest request) {
         Page<Object> page = PageHelper.startPage(goPage, pageSize, true);

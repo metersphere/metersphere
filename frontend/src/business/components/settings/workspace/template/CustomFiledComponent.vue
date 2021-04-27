@@ -49,13 +49,13 @@
       v-model="data[prop]"
       :disabled="disabled"
       @change="handleChange"
-      :min="1" :max="10" label="描述文字"></el-input-number>
+      label="描述文字"></el-input-number>
 
     <el-input-number
       v-else-if="data.type === 'float'"
       :disabled="disabled"
       @change="handleChange"
-      v-model="data[prop]" :precision="2" :step="0.1" :max="10"></el-input-number>
+      v-model="data[prop]" :precision="2" :step="0.1"></el-input-number>
 
      <el-date-picker
        class="custom-with"
@@ -103,7 +103,7 @@ export default {
   ],
   data() {
     return {
-      memberOptions: []
+      memberOptions: [],
     };
   },
   mounted() {
@@ -128,5 +128,4 @@ export default {
 </script>
 
 <style scoped>
-
 </style>

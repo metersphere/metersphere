@@ -60,13 +60,24 @@
             </el-row>
           </el-form>
 
+          <el-row v-if="customNum">
+            <el-col :span="7">
+              <el-form-item label="ID" :label-width="formLabelWidth" prop="customNum">
+                <el-input :disabled="readOnly" v-model="form.customNum" size="small" class="ms-case-input"></el-input>
+              </el-form-item>
+            </el-col>
+          </el-row>
+
+
           <ms-form-divider :title="$t('步骤信息')"/>
 
-          <div class="step-info">
-            <form-rich-text-item :title="$t('test_track.case.prerequisite')" :data="form" prop="prerequisite"/>
-            <form-rich-text-item :title="$t('test_track.case.step_desc')" :data="form" prop="stepDesc"/>
-            <form-rich-text-item :title="$t('test_track.case.expected_results')" :data="form" prop="stepResult"/>
-          </div>
+          <form-rich-text-item :label-width="formLabelWidth" :title="$t('test_track.case.prerequisite')" :data="form" prop="prerequisite"/>
+
+          <step-change-item :label-width="formLabelWidth" :form="form"/>
+          <form-rich-text-item :label-width="formLabelWidth" v-if="form.stepModel === 'TEXT'"  :title="$t('test_track.case.step_desc')" :data="form" prop="stepDescription"/>
+          <form-rich-text-item :label-width="formLabelWidth" v-if="form.stepModel === 'TEXT'"  :title="$t('test_track.case.expected_results')" :data="form" prop="expectedResult"/>
+
+          <test-case-step-item :label-width="formLabelWidth" v-if="form.stepModel === 'STEP'" :form="form" :read-only="readOnly"/>
 
           <ms-form-divider :title="$t('其他信息')"/>
 
@@ -124,7 +135,6 @@ import CustomFiledComponent from "@/business/components/settings/workspace/templ
 import {
   buildCustomFields,
   buildTestCaseOldFields,
-  compatibleTestCaseStep,
   getTemplate,
   parseCustomField
 } from "@/common/js/custom_field";
@@ -132,10 +142,14 @@ import {SYSTEM_FIELD_NAME_MAP} from "@/common/js/table-constants";
 import MsFormDivider from "@/business/components/common/components/MsFormDivider";
 import TestCaseEditOtherInfo from "@/business/components/track/case/components/TestCaseEditOtherInfo";
 import FormRichTextItem from "@/business/components/track/case/components/FormRichTextItem";
+import TestCaseStepItem from "@/business/components/track/case/components/TestCaseStepItem";
+import StepChangeItem from "@/business/components/track/case/components/StepChangeItem";
 
 export default {
   name: "TestCaseEdit",
   components: {
+    StepChangeItem,
+    TestCaseStepItem,
     FormRichTextItem,
     TestCaseEditOtherInfo,
     MsFormDivider,
@@ -180,6 +194,10 @@ export default {
         demandName: '',
         status: 'Prepare',
         reviewStatus: 'Prepare',
+        stepDescription: '',
+        expectedResult: '',
+        stepModel: 'STEP',
+        customNum: ''
       },
       readOnly: false,
       maintainerOptions: [],
@@ -191,6 +209,10 @@ export default {
           {max: 255, message: this.$t('test_track.length_less_than') + '255', trigger: 'blur'}
         ],
         module: [{required: true, message: this.$t('test_track.case.input_module'), trigger: 'change'}],
+        customNum: [
+          {required: true, message: "ID必填", trigger: 'blur'},
+          {max: 50, message: this.$t('test_track.length_less_than') + '50', trigger: 'blur'}
+        ],
         demandName: [{required: true, message: this.$t('test_track.case.input_demand_name'), trigger: 'change'}],
         maintainer: [{required: true, message: this.$t('test_track.case.input_maintainer'), trigger: 'change'}],
         priority: [{required: true, message: this.$t('test_track.case.input_priority'), trigger: 'change'}],
@@ -231,7 +253,11 @@ export default {
     selectCondition: {
       type: Object
     },
-    type: String
+    type: String,
+    customNum: {
+      type: Boolean,
+      default: false
+    }
   },
   computed: {
     projectIds() {
@@ -316,9 +342,12 @@ export default {
         //设置自定义熟悉默认值
         parseCustomField(this.form, this.testCaseTemplate, this.customFieldForm, this.customFieldRules, buildTestCaseOldFields(this.form));
         this.form.name = this.testCaseTemplate.caseName;
-        this.form.stepDesc = this.testCaseTemplate.stepDescription;
-        this.form.stepResult = this.testCaseTemplate.expectedResult;
+        this.form.stepDescription = this.testCaseTemplate.stepDescription;
+        this.form.expectedResult = this.testCaseTemplate.expectedResult;
         this.form.prerequisite = this.testCaseTemplate.prerequisite;
+        if (this.testCaseTemplate.steps) {
+          this.form.steps = JSON.parse(this.testCaseTemplate.steps);
+        }
       }
     },
 
@@ -463,10 +492,18 @@ export default {
       let tmp = {};
       Object.assign(tmp, testCase);
       tmp.steps = JSON.parse(testCase.steps);
-      // 兼容旧版本的步骤
-      compatibleTestCaseStep(testCase, tmp);
+      if (!tmp.steps || tmp.steps.length < 1) {
+        tmp.steps = [{
+          num: 1,
+          desc: '',
+          result: ''
+        }];
+      }
       tmp.tags = JSON.parse(tmp.tags);
       Object.assign(this.form, tmp);
+      if (!this.form.stepModel) {
+        this.form.stepModel = "STEP";
+      }
       this.form.module = testCase.nodeId;
       //设置自定义熟悉默认值
       parseCustomField(this.form, this.testCaseTemplate, this.customFieldForm, this.customFieldRules, buildTestCaseOldFields(this.form));
@@ -479,26 +516,6 @@ export default {
         // 复制 不查询评论
         this.testCase = testCase.isCopy ? {} : testCase;
       }
-    },
-    handleAddStep(index, data) {
-      let step = {};
-      step.num = data.num + 1;
-      step.desc = "";
-      step.result = "";
-      this.form.steps.forEach(step => {
-        if (step.num > data.num) {
-          step.num++;
-        }
-      });
-      this.form.steps.splice(index + 1, 0, step);
-    },
-    handleDeleteStep(index, data) {
-      this.form.steps.splice(index, 1);
-      this.form.steps.forEach(step => {
-        if (step.num > data.num) {
-          step.num--;
-        }
-      });
     },
     close() {
       //移除监听，防止监听其他页面
@@ -548,9 +565,7 @@ export default {
     buildParam() {
       let param = {};
       Object.assign(param, this.form);
-      param.steps = null; //  旧数据搬运到新字段后，不再用到，置空便于判断
-      param.expectedResult = this.form.stepResult;
-      param.stepDescription = this.form.stepDesc; //  设置数据到新字段
+      param.steps = JSON.stringify(this.form.steps);
       param.nodeId = this.form.module;
       param.nodePath = getNodePath(this.form.module, this.moduleOptions);
       if (this.projectId) {
@@ -633,14 +648,12 @@ export default {
       };
     },
     validate(param) {
-      if(param.steps != null) {
-        for (let i = 0; i < param.steps.length; i++) {
-          if ((param.steps[i].desc && param.steps[i].desc.length > 300) ||
-            (param.steps[i].result && param.steps[i].result.length > 300)) {
-            this.$warning(this.$t('test_track.case.step_desc') + ","
-              + this.$t('test_track.case.expectedResults') + this.$t('test_track.length_less_than') + '300');
-            return false;
-          }
+      for (let i = 0; i < param.steps.length; i++) {
+        if ((param.steps[i].desc && param.steps[i].desc.length > 300) ||
+          (param.steps[i].result && param.steps[i].result.length > 300)) {
+          this.$warning(this.$t('test_track.case.step_desc') + ","
+            + this.$t('test_track.case.expected_results') + this.$t('test_track.length_less_than') + '300');
+          return false;
         }
       }
       if (param.name == '') {
@@ -689,6 +702,7 @@ export default {
         desc: '',
         result: ''
       }];
+      this.form.customNum = '';
     },
     addListener() {
       document.addEventListener("keydown", this.createCtrlSHandle);
@@ -765,9 +779,5 @@ export default {
   border-bottom-right-radius: 0;
   height: 32px;
   width: 56px;
-}
-
-.step-info {
-  padding: 30px;
 }
 </style>

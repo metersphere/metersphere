@@ -1,6 +1,7 @@
 <template>
 
   <field-template-edit
+    :label-width="labelWidth"
     :form="form"
     :rules="rules"
     :visible.sync="showDialog"
@@ -10,7 +11,7 @@
     ref="fieldTemplateEdit">
 
     <template v-slot:base>
-      <el-form-item :label="'用例类型'" prop="type">
+      <el-form-item :label="'用例类型'" prop="type" :label-width="labelWidth">
         <el-select :disabled="isSystem" filterable v-model="form.type" placeholder="用例类型">
           <el-option
             v-for="item in caseTypeOption"
@@ -23,13 +24,19 @@
     </template>
 
     <template v-slot:default>
-      <el-form-item :label="'用例名称'" prop="caseName">
+      <el-form-item :label="'用例名称'" prop="caseName" :label-width="labelWidth">
         <el-input v-model="form.caseName" autocomplete="off"></el-input>
       </el-form-item>
-      <form-rich-text-item :title="$t('test_track.case.prerequisite')" :data="form" prop="prerequisite"/>
-      <form-rich-text-item :title="$t('test_track.case.step_desc')" :data="form" prop="stepDescription"/>
-      <form-rich-text-item :title="$t('test_track.case.expected_results')" :data="form" prop="expectedResult"/>
-      <form-rich-text-item :title="$t('test_track.plan_view.actual_result')" :data="form" prop="actualResult"/>
+
+      <form-rich-text-item :label-width="labelWidth" :title="$t('test_track.case.prerequisite')" :data="form" prop="prerequisite"/>
+
+      <form-rich-text-item :label-width="labelWidth" :title="$t('test_track.case.prerequisite')" :data="form" prop="prerequisite"/>
+
+      <step-change-item :form="form"/>
+      <test-case-step-item :label-width="labelWidth" v-if="form.stepModel === 'STEP'" :form="form"/>
+      <form-rich-text-item :label-width="labelWidth" v-if="form.stepModel === 'TEXT'" :title="$t('test_track.case.step_desc')" :data="form" prop="stepDescription"/>
+      <form-rich-text-item :label-width="labelWidth" v-if="form.stepModel === 'TEXT'" :title="$t('test_track.case.expected_results')" :data="form" prop="expectedResult"/>
+      <form-rich-text-item :label-width="labelWidth" v-if="form.stepModel === 'TEXT'" :title="$t('test_track.plan_view.actual_result')" :data="form" prop="actualResult"/>
     </template>
 
   </field-template-edit>
@@ -47,10 +54,14 @@ import CustomFieldFormList from "@/business/components/settings/workspace/templa
 import CustomFieldRelateList from "@/business/components/settings/workspace/template/CustomFieldRelateList";
 import FieldTemplateEdit from "@/business/components/settings/workspace/template/FieldTemplateEdit";
 import FormRichTextItem from "@/business/components/track/case/components/FormRichTextItem";
+import TestCaseStepItem from "@/business/components/track/case/components/TestCaseStepItem";
+import StepChangeItem from "@/business/components/track/case/components/StepChangeItem";
 
 export default {
   name: "TestCaseTemplateEdit",
   components: {
+    StepChangeItem,
+    TestCaseStepItem,
     FormRichTextItem,
     FieldTemplateEdit,
     CustomFieldRelateList,
@@ -72,7 +83,10 @@ export default {
         expectedResult: '',
         actualResult: '',
         customFieldIds: [],
+        stepModel: 'STEP',
+        steps: [],
       },
+      labelWidth: '120px',
       rules: {
         name: [
           {required: true, message: this.$t('test_track.case.input_name'), trigger: 'blur'},
@@ -96,6 +110,7 @@ export default {
     open(data, isCopy) {
       if (data) {
         Object.assign(this.form, data);
+        this.form.steps = data.steps ? JSON.parse(data.steps) : [];
         if (!(data.options instanceof Array)) {
           this.form.options = data.options ? JSON.parse(data.options) : [];
         }
@@ -116,6 +131,7 @@ export default {
           expectedResult: '',
           actualResult: '',
           customFieldIds: [],
+          steps: []
         };
         this.url = 'field/template/case/add';
       }

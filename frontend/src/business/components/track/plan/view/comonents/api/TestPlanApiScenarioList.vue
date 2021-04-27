@@ -257,7 +257,8 @@ export default {
             setTimeout(this.$refs.scenarioTable.doLayout, 200);
           }
           this.$nextTick(() => {
-            checkTableRowIsSelect(this,this.condition,this.tableData,this.$refs.scenarioTable,this.selectRows);
+            checkTableRowIsSelect(this, this.condition, this.tableData, this.$refs.scenarioTable, this.selectRows);
+            this.selectDataCounts = getSelectDataCounts(this.condition, this.total, this.selectRows);
           })
         });
       }
@@ -278,7 +279,8 @@ export default {
             setTimeout(this.$refs.scenarioTable.doLayout, 200);
           }
           this.$nextTick(() => {
-            checkTableRowIsSelect(this,this.condition,this.tableData,this.$refs.scenarioTable,this.selectRows);
+            checkTableRowIsSelect(this, this.condition, this.tableData, this.$refs.scenarioTable, this.selectRows);
+            this.selectDataCounts = getSelectDataCounts(this.condition, this.total, this.selectRows);
           })
         });
       }
@@ -294,18 +296,7 @@ export default {
       })
     },
     handleBatchExecute() {
-      if(this.condition != null && this.condition.selectAll) {
-        this.$alert(this.$t('commons.option_cannot_spread_pages'), '', {
-          confirmButtonText: this.$t('commons.confirm'),
-          callback: (action) => {
-            if (action === 'confirm') {
-              this.$refs.runMode.open();
-            }
-          }
-        })
-      }else {
-        this.$refs.runMode.open();
-      }
+      this.$refs.runMode.open();
     },
     orderBySelectRows(rows){
       let selectIds = Array.from(rows).map(row => row.id);
@@ -432,42 +423,30 @@ export default {
       });
     },
     handleBatchEdit() {
-      this.$refs.batchEdit.open(this.selectRows.size);
-      this.$refs.batchEdit.setScenarioSelectRows(this.selectRows, "planScenario");
+      if (this.condition != null && this.condition.selectAll) {
+        let selectAllRowParams = buildBatchParam(this);
+        selectAllRowParams.ids = Array.from(this.selectRows).map(row => row.id);
+        this.$post('/test/plan/scenario/case/selectAllTableRows', selectAllRowParams, response => {
+          let dataRows = response.data;
+          this.$refs.batchEdit.open(dataRows.size);
+          this.$refs.batchEdit.setScenarioSelectRows(dataRows, "planScenario");
+        });
+      } else {
+        this.$refs.batchEdit.open(this.selectRows.size);
+        this.$refs.batchEdit.setScenarioSelectRows(this.selectRows, "planScenario");
+      }
     },
     batchEdit(form) {
       let param = {};
       param.mapping = strMapToObj(form.map);
       param.envMap = strMapToObj(form.projectEnvMap);
 
-      if(this.condition != null && this.condition.selectAll){
-        this.$alert(this.$t('commons.option_cannot_spread_pages'), '', {
-          confirmButtonText: this.$t('commons.confirm'),
-          callback: (action) => {
-            if (action === 'confirm') {
-              if (this.planId) {
-                this.$post('/test/plan/scenario/case/batch/update/env', param, () => {
-                  this.$success(this.$t('commons.save_success'));
-                  this.search();
-                })
-              }
-            }
-          }
+      if (this.planId) {
+        this.$post('/test/plan/scenario/case/batch/update/env', param, () => {
+          this.$success(this.$t('commons.save_success'));
+          this.search();
         });
-      }else {
-        if (this.planId) {
-          this.$post('/test/plan/scenario/case/batch/update/env', param, () => {
-            this.$success(this.$t('commons.save_success'));
-            this.search();
-          })
-        }
       }
-      // if (this.reviewId) {
-      //   this.$post('/test/case/review/scenario/case/batch/update/env', param, () => {
-      //     this.$success(this.$t('commons.save_success'));
-      //     this.search();
-      //   })
-      // }
     },
     isSelectDataAll(data) {
       this.condition.selectAll = data;

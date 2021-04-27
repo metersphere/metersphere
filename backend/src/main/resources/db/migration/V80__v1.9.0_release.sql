@@ -243,3 +243,16 @@ alter table load_test_report
 ALTER TABLE issue_template MODIFY COLUMN title varchar(64) NULL COMMENT 'Issue title';
 ALTER TABLE test_case_template MODIFY COLUMN case_name varchar(64) NULL COMMENT 'Test Case Name';
 
+-- 用例步骤支持两种编辑模式
+ALTER TABLE test_case_template ADD step_model varchar(10) NULL COMMENT 'Step model';
+ALTER TABLE test_case_template ADD steps TEXT NULL COMMENT 'Test case step';
+ALTER TABLE test_case ADD step_model varchar(10) NULL COMMENT 'Test case step model';
+
+-- 去掉测试方式
+UPDATE system_header
+SET props='[{"id":"num","label":"ID"},{"id":"name","label":"名称"},{"id":"priority","label":"用例等级"},{"id":"type","label":"类型"},{"id":"tags","label":"标签"},{"id":"nodePath","label":"所属模块"},{"id":"projectName","label":"所属项目"},{"id":"issuesContent","label":"缺陷"},{"id":"executorName","label":"执行人"},{"id":"status","label":"执行结果"},{"id":"updateTime","label":"更新时间"},{"id":"maintainer","label":"责任人"}]'
+WHERE `type`='test_plan_function_test_case';
+
+-- 自定义用例ID
+alter table project add custom_num tinyint(1) default 0 null comment '是否开启自定义ID(默认关闭)';
+alter table test_case add custom_num varchar(64) null comment 'custom num';

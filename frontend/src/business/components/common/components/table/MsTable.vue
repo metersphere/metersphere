@@ -201,7 +201,7 @@ export default {
       }
     },
     doLayout() {
-      this.$refs.table.doLayout();
+      setTimeout(this.$refs.table.doLayout(), 200);
     },
     filter(filters) {
       _filter(filters, this.condition);

@@ -441,7 +441,7 @@ export default {
           this.$nextTick(function () {
             if (this.$refs.apiDefinitionTable) {
               this.$refs.apiDefinitionTable.checkTableRowIsSelect();
-              setTimeout(this.$refs.apiDefinitionTable.doLayout(), 200);
+              this.$refs.apiDefinitionTable.doLayout();
             }
           })
         });

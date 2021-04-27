@@ -1,6 +1,7 @@
 <template>
 
   <field-template-edit
+    :label-width="labelWidth"
     :form="form"
     :visible.sync="showDialog"
     :url="url"
@@ -10,7 +11,7 @@
     ref="fieldTemplateEdit">
 
     <template v-slot:base>
-      <el-form-item :label="'缺陷平台'" prop="platform">
+      <el-form-item :label="'缺陷平台'" prop="platform" :label-width="labelWidth" >
         <el-select :disabled="isSystem"  filterable v-model="form.platform" placeholder="用例类型">
           <el-option
             v-for="item in platformOption"
@@ -23,11 +24,11 @@
     </template>
 
     <template v-slot:default>
-      <el-form-item :label="'标题'" prop="title">
+      <el-form-item :label="'标题'" prop="title" :label-width="labelWidth">
         <el-input v-model="form.title" autocomplete="off"></el-input>
       </el-form-item>
 
-      <form-r-ich-text-item :title="$t('缺陷内容')" :data="form" prop="content"/>
+      <form-r-ich-text-item :label-width="labelWidth" :title="$t('缺陷内容')" :data="form" prop="content"/>
 
     </template>
 
@@ -67,8 +68,9 @@ export default {
         description: '',
         title: '',
         content: '',
-        customFieldIds: [],
+        customFieldIds: []
       },
+      labelWidth: '120px',
       rules: {
         name: [
           {required: true, message: this.$t('test_track.case.input_name'), trigger: 'blur'},
