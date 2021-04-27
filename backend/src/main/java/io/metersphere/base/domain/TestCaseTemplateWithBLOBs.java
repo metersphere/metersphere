@@ -15,5 +15,7 @@ public class TestCaseTemplateWithBLOBs extends TestCaseTemplate implements Seria
 
     private String actualResult;
 
+    private String steps;
+
     private static final long serialVersionUID = 1L;
 }

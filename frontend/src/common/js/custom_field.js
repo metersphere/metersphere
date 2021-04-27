@@ -25,6 +25,7 @@ export function parseCustomField(data, template, customFieldForm, rules, oldFiel
       item.defaultValue = JSON.parse(item.defaultValue);
     }
 
+    // 添加自定义字段必填校验
     if (item.required) {
       let msg = (item.system ? i18n.t(SYSTEM_FIELD_NAME_MAP[item.name]) : item.name) + i18n.t('commons.cannot_be_null');
       if (rules) {
@@ -87,40 +88,6 @@ export function getTemplate(baseUrl, vueObj) {
       resolve(template);
     });
   });
-}
-
-// 兼容旧版本的步骤
-export function compatibleTestCaseStep(testCase, tmp) {
-  if(testCase.expectedResult !== null) { //  改成富文本后加入的新数据 或 经过兼容的旧数据
-    tmp.stepResult = testCase.expectedResult + '<br>';
-  } else {  //  如果是旧数据
-    if(tmp.steps !== null) {
-      tmp.stepResult = '';
-      tmp.steps.forEach(item => {
-        tmp.stepResult += item.num + ': ' + item.result + '<br>';
-      });
-    }
-  }
-  if(testCase.stepDescription !== null) {
-    tmp.stepDesc = testCase.stepDescription + '<br>';
-  } else {
-    if(tmp.steps !== null) {
-      tmp.stepDesc = '';
-      tmp.steps.forEach(item => {
-        tmp.stepDesc += item.num + ': ' + item.desc + '<br>';
-      });
-    }
-  }
-  if(!testCase.actualResult) {
-    if(tmp.results) {
-      tmp.actualResult = '';
-      tmp.results.forEach(item => {
-        if (item.actualResult) {
-          tmp.actualResult += item.actualResult + '<br>';
-        }
-      });
-    }
-  }
 }
 
 // 兼容旧字段

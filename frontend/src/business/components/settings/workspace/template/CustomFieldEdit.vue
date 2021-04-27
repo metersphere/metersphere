@@ -8,16 +8,16 @@
     ref="msEditDialog">
 
     <el-form :model="form" :rules="rules" label-position="right" label-width="140px" size="small" ref="form">
-      <el-form-item :label="'字段名'" prop="name">
+      <el-form-item :label="'字段名'" prop="name" :label-width="labelWidth">
         <el-input v-if="isSystem" :disabled="isSystem" :value="$t(systemNameMap[form.name])" autocomplete="off"></el-input>
         <el-input v-else v-model="form.name" autocomplete="off"></el-input>
       </el-form-item>
 
-      <el-form-item :label="'字段备注'" prop="remark">
+      <el-form-item :label="'字段备注'" prop="remark" :label-width="labelWidth">
         <el-input :autosize="{ minRows: 2, maxRows: 4}" type="textarea" v-model="form.remark"></el-input>
       </el-form-item>
 
-      <el-form-item :label="'使用场景'" prop="type">
+      <el-form-item :label="'使用场景'" prop="type" :label-width="labelWidth">
         <el-select :disabled="isSystem || isTemplateEdit" filterable v-model="form.scene" placeholder="使用场景">
           <el-option
             v-for="item in sceneOptions"
@@ -28,7 +28,7 @@
         </el-select>
       </el-form-item>
 
-      <el-form-item :label="'字段类型'" prop="type">
+      <el-form-item :label="'字段类型'" prop="type" :label-width="labelWidth">
         <el-select :disabled="isSystem" filterable v-model="form.type" placeholder="字段类型">
           <el-option
             v-for="item in fieldTypeOptions"
@@ -42,7 +42,7 @@
       <el-form-item
         v-if="showOptions"
         :label="'选项值'"
-        prop="options">
+        prop="options" :label-width="labelWidth">
         <ms-single-handle-drag
           :data="form.options"/>
       </el-form-item>
@@ -60,7 +60,7 @@ import {CUSTOM_FIELD_SCENE_OPTION, CUSTOM_FIELD_TYPE_OPTION, SYSTEM_FIELD_NAME_M
 export default {
   name: "CustomFieldEdit",
   components: {MsSingleHandleDrag, MsEditDialog},
-  props: ['scene'],
+  props: ['scene','labelWidth'],
   data() {
     return {
       form: {

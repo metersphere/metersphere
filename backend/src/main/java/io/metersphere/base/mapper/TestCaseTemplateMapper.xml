@@ -13,11 +13,13 @@
     <result column="prerequisite" jdbcType="VARCHAR" property="prerequisite" />
     <result column="create_time" jdbcType="BIGINT" property="createTime" />
     <result column="update_time" jdbcType="BIGINT" property="updateTime" />
+    <result column="step_model" jdbcType="VARCHAR" property="stepModel" />
   </resultMap>
   <resultMap extends="BaseResultMap" id="ResultMapWithBLOBs" type="io.metersphere.base.domain.TestCaseTemplateWithBLOBs">
     <result column="step_description" jdbcType="LONGVARCHAR" property="stepDescription" />
     <result column="expected_result" jdbcType="LONGVARCHAR" property="expectedResult" />
     <result column="actual_result" jdbcType="LONGVARCHAR" property="actualResult" />
+    <result column="steps" jdbcType="LONGVARCHAR" property="steps" />
   </resultMap>
   <sql id="Example_Where_Clause">
     <where>
@@ -79,10 +81,10 @@
   </sql>
   <sql id="Base_Column_List">
     id, `name`, `type`, description, case_name, `system`, `global`, workspace_id, prerequisite, 
-    create_time, update_time
+    create_time, update_time, step_model
   </sql>
   <sql id="Blob_Column_List">
-    step_description, expected_result, actual_result
+    step_description, expected_result, actual_result, steps
   </sql>
   <select id="selectByExampleWithBLOBs" parameterType="io.metersphere.base.domain.TestCaseTemplateExample" resultMap="ResultMapWithBLOBs">
     select
@@ -136,13 +138,15 @@
     insert into test_case_template (id, `name`, `type`, 
       description, case_name, `system`, 
       `global`, workspace_id, prerequisite, 
-      create_time, update_time, step_description, 
-      expected_result, actual_result)
+      create_time, update_time, step_model, 
+      step_description, expected_result, 
+      actual_result, steps)
     values (#{id,jdbcType=VARCHAR}, #{name,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR}, 
       #{description,jdbcType=VARCHAR}, #{caseName,jdbcType=VARCHAR}, #{system,jdbcType=BIT}, 
       #{global,jdbcType=BIT}, #{workspaceId,jdbcType=VARCHAR}, #{prerequisite,jdbcType=VARCHAR}, 
-      #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, #{stepDescription,jdbcType=LONGVARCHAR}, 
-      #{expectedResult,jdbcType=LONGVARCHAR}, #{actualResult,jdbcType=LONGVARCHAR})
+      #{createTime,jdbcType=BIGINT}, #{updateTime,jdbcType=BIGINT}, #{stepModel,jdbcType=VARCHAR}, 
+      #{stepDescription,jdbcType=LONGVARCHAR}, #{expectedResult,jdbcType=LONGVARCHAR}, 
+      #{actualResult,jdbcType=LONGVARCHAR}, #{steps,jdbcType=LONGVARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="io.metersphere.base.domain.TestCaseTemplateWithBLOBs">
     insert into test_case_template
@@ -180,6 +184,9 @@
       <if test="updateTime != null">
         update_time,
       </if>
+      <if test="stepModel != null">
+        step_model,
+      </if>
       <if test="stepDescription != null">
         step_description,
       </if>
@@ -188,6 +195,9 @@
       </if>
       <if test="actualResult != null">
         actual_result,
+      </if>
+      <if test="steps != null">
+        steps,
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -224,6 +234,9 @@
       <if test="updateTime != null">
         #{updateTime,jdbcType=BIGINT},
       </if>
+      <if test="stepModel != null">
+        #{stepModel,jdbcType=VARCHAR},
+      </if>
       <if test="stepDescription != null">
         #{stepDescription,jdbcType=LONGVARCHAR},
       </if>
@@ -232,6 +245,9 @@
       </if>
       <if test="actualResult != null">
         #{actualResult,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="steps != null">
+        #{steps,jdbcType=LONGVARCHAR},
       </if>
     </trim>
   </insert>
@@ -277,6 +293,9 @@
       <if test="record.updateTime != null">
         update_time = #{record.updateTime,jdbcType=BIGINT},
       </if>
+      <if test="record.stepModel != null">
+        step_model = #{record.stepModel,jdbcType=VARCHAR},
+      </if>
       <if test="record.stepDescription != null">
         step_description = #{record.stepDescription,jdbcType=LONGVARCHAR},
       </if>
@@ -285,6 +304,9 @@
       </if>
       <if test="record.actualResult != null">
         actual_result = #{record.actualResult,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="record.steps != null">
+        steps = #{record.steps,jdbcType=LONGVARCHAR},
       </if>
     </set>
     <if test="_parameter != null">
@@ -304,9 +326,11 @@
       prerequisite = #{record.prerequisite,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
       update_time = #{record.updateTime,jdbcType=BIGINT},
+      step_model = #{record.stepModel,jdbcType=VARCHAR},
       step_description = #{record.stepDescription,jdbcType=LONGVARCHAR},
       expected_result = #{record.expectedResult,jdbcType=LONGVARCHAR},
-      actual_result = #{record.actualResult,jdbcType=LONGVARCHAR}
+      actual_result = #{record.actualResult,jdbcType=LONGVARCHAR},
+      steps = #{record.steps,jdbcType=LONGVARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -323,7 +347,8 @@
       workspace_id = #{record.workspaceId,jdbcType=VARCHAR},
       prerequisite = #{record.prerequisite,jdbcType=VARCHAR},
       create_time = #{record.createTime,jdbcType=BIGINT},
-      update_time = #{record.updateTime,jdbcType=BIGINT}
+      update_time = #{record.updateTime,jdbcType=BIGINT},
+      step_model = #{record.stepModel,jdbcType=VARCHAR}
     <if test="_parameter != null">
       <include refid="Update_By_Example_Where_Clause" />
     </if>
@@ -361,6 +386,9 @@
       <if test="updateTime != null">
         update_time = #{updateTime,jdbcType=BIGINT},
       </if>
+      <if test="stepModel != null">
+        step_model = #{stepModel,jdbcType=VARCHAR},
+      </if>
       <if test="stepDescription != null">
         step_description = #{stepDescription,jdbcType=LONGVARCHAR},
       </if>
@@ -369,6 +397,9 @@
       </if>
       <if test="actualResult != null">
         actual_result = #{actualResult,jdbcType=LONGVARCHAR},
+      </if>
+      <if test="steps != null">
+        steps = #{steps,jdbcType=LONGVARCHAR},
       </if>
     </set>
     where id = #{id,jdbcType=VARCHAR}
@@ -385,9 +416,11 @@
       prerequisite = #{prerequisite,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
       update_time = #{updateTime,jdbcType=BIGINT},
+      step_model = #{stepModel,jdbcType=VARCHAR},
       step_description = #{stepDescription,jdbcType=LONGVARCHAR},
       expected_result = #{expectedResult,jdbcType=LONGVARCHAR},
-      actual_result = #{actualResult,jdbcType=LONGVARCHAR}
+      actual_result = #{actualResult,jdbcType=LONGVARCHAR},
+      steps = #{steps,jdbcType=LONGVARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
   <update id="updateByPrimaryKey" parameterType="io.metersphere.base.domain.TestCaseTemplate">
@@ -401,7 +434,8 @@
       workspace_id = #{workspaceId,jdbcType=VARCHAR},
       prerequisite = #{prerequisite,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=BIGINT},
-      update_time = #{updateTime,jdbcType=BIGINT}
+      update_time = #{updateTime,jdbcType=BIGINT},
+      step_model = #{stepModel,jdbcType=VARCHAR}
     where id = #{id,jdbcType=VARCHAR}
   </update>
 </mapper>
