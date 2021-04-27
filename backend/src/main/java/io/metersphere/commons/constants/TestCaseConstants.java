@@ -45,4 +45,8 @@ public class TestCaseConstants {
             return  types.stream().map(Method::getValue).collect(Collectors.toList());
         }
     }
+
+    public enum StepModel {
+        TEXT, STEP
+    }
 }
