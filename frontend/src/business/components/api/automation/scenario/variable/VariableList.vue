@@ -1,6 +1,7 @@
 <template>
   <el-dialog :title="$t('api_test.automation.scenario_total')" :close-on-click-modal="false"
-             :visible.sync="visible" class="visible-dialog" width="80%"
+             :visible.sync="visible" class="visible-dialog" width="65%" top="40px"
+             :before-close="handleClose"
              @close="close" v-loading="loading" append-to-body>
     <fieldset :disabled="disabled" class="ms-fieldset">
       <el-collapse-transition>
@@ -8,11 +9,13 @@
         <el-tabs v-model="activeName">
           <el-tab-pane :label="$t('api_test.scenario.variables')" name="variable">
             <div>
-              <el-row style="margin-bottom: 10px">
+              <el-row style="margin-bottom: 10px" v-if="!disabled">
                 <div style="float: left">
-                  <el-input :placeholder="$t('commons.search_by_name')" v-model="selectVariable" size="small" @change="filter"
+                  <el-input :placeholder="$t('commons.search_by_name')" v-model="selectVariable" size="small"
+                            @change="filter"
                             @keyup.enter="filter">
-                    <el-select v-model="searchType" slot="prepend" :placeholder="$t('test_resource_pool.type')" style="width: 90px" @change="filter">
+                    <el-select v-model="searchType" slot="prepend" :placeholder="$t('test_resource_pool.type')"
+                               style="width: 90px" @change="filter">
                       <el-option value="CONSTANT" :label="$t('api_test.automation.constant')"></el-option>
                       <el-option value="LIST" :label="$t('test_track.case.list')"></el-option>
                       <el-option value="CSV" label="CSV"></el-option>
@@ -22,21 +25,36 @@
                   </el-input>
                 </div>
 
-                <div style="float: right">
-                  <el-dropdown split-button type="primary" @command="handleClick" @click="handleClick('CONSTANT')"
-                               size="small" style="margin-left: 10px">
-                    {{ $t('commons.add') }}
-                    <el-dropdown-menu slot="dropdown">
-                      <el-dropdown-item command="CONSTANT">{{$t('api_test.automation.constant')}}</el-dropdown-item>
-                      <el-dropdown-item command="LIST">{{$t('test_track.case.list')}}</el-dropdown-item>
-                      <el-dropdown-item command="CSV">CSV</el-dropdown-item>
-                      <el-dropdown-item command="COUNTER">{{$t('api_test.automation.counter')}}</el-dropdown-item>
-                      <el-dropdown-item command="RANDOM">{{$t('api_test.automation.random')}}</el-dropdown-item>
-                    </el-dropdown-menu>
-                  </el-dropdown>
-                  <el-button size="small" style="margin-left: 10px" @click="deleteVariable">{{ $t('commons.delete') }}
+                <div style="float: right" >
+                  <el-button size="small" type="primary" class="add-button" icon="el-icon-plus"
+                             @click="handleClick('CONSTANT')">{{ $t('api_test.automation.constant') }}
+                  </el-button>
+                  <el-button size="small" type="primary" class="add-button" icon="el-icon-plus"
+                             @click="handleClick('LIST')">{{ $t('test_track.case.list') }}
+                  </el-button>
+                  <el-button size="small" type="primary" class="add-button" icon="el-icon-plus"
+                             @click="handleClick('CSV')">CSV
+                  </el-button>
+                  <el-button size="small" type="primary" class="add-button" icon="el-icon-plus"
+                             @click="handleClick('COUNTER')">{{ $t('api_test.automation.counter') }}
+                  </el-button>
+                  <el-button size="small" type="primary" class="add-button" icon="el-icon-plus"
+                             @click="handleClick('RANDOM')">{{ $t('api_test.automation.random') }}
                   </el-button>
 
+                  <!--                  <el-dropdown split-button type="primary" @command="handleClick" @click="handleClick('CONSTANT')"-->
+                  <!--                               size="small" style="margin-left: 10px">-->
+                  <!--                    {{ $t('commons.add') }}-->
+                  <!--                    <el-dropdown-menu slot="dropdown">-->
+                  <!--                      <el-dropdown-item command="CONSTANT">{{$t('api_test.automation.constant')}}</el-dropdown-item>-->
+                  <!--                      <el-dropdown-item command="LIST">{{$t('test_track.case.list')}}</el-dropdown-item>-->
+                  <!--                      <el-dropdown-item command="CSV">CSV</el-dropdown-item>-->
+                  <!--                      <el-dropdown-item command="COUNTER">{{$t('api_test.automation.counter')}}</el-dropdown-item>-->
+                  <!--                      <el-dropdown-item command="RANDOM">{{$t('api_test.automation.random')}}</el-dropdown-item>-->
+                  <!--                    </el-dropdown-menu>-->
+                  <!--                  </el-dropdown>-->
+                  <el-button size="small" style="margin-left: 20px" @click="deleteVariable">{{ $t('commons.delete') }}
+                  </el-button>
                 </div>
               </el-row>
               <el-row>
@@ -48,18 +66,19 @@
                               @row-click="edit"
                               v-loading="loading" height="400px">
                       <el-table-column type="selection" width="38"/>
-                      <el-table-column prop="num" label="ID" sortable width="60"/>
-                      <el-table-column prop="name" :label="$t('api_test.variable_name')" sortable show-overflow-tooltip/>
-                      <el-table-column prop="type" :label="$t('test_track.case.type')" width="70">
+                      <el-table-column prop="num" label="ID" width="56px"/>
+                      <el-table-column prop="name" :label="$t('api_test.variable_name')" sortable
+                                       show-overflow-tooltip/>
+                      <el-table-column prop="type" :label="$t('test_track.case.type')" width="72px">
                         <template v-slot:default="scope">
-                          <span>{{ types.get(scope.row.type) }}</span>
+                          <span :style="getStyle(scope.row.type)">{{ types.get(scope.row.type) }}</span>
                         </template>
                       </el-table-column>
                       <el-table-column prop="value" :label="$t('api_test.value')" show-overflow-tooltip/>
                     </el-table>
                   </div>
                 </el-col>
-                <el-col :span="12">
+                <el-col :span="12" >
                   <ms-edit-constant v-if="editData.type=='CONSTANT'" ref="parameters" :editData.sync="editData"/>
                   <ms-edit-counter v-if="editData.type=='COUNTER'" ref="counter" :editData.sync="editData"/>
                   <ms-edit-random v-if="editData.type=='RANDOM'" ref="random" :editData.sync="editData"/>
@@ -82,7 +101,8 @@
           </span>
             </el-tooltip>
             <el-row>
-              <el-link class="ms-variable-link" @click="batchAdd" style="color: #783887" :disabled="disabled"> {{ $t("commons.batch_add") }}
+              <el-link class="ms-variable-link" @click="batchAdd" style="color: #783887" :disabled="disabled"> {{
+                $t("commons.batch_add") }}
               </el-link>
             </el-row>
             <div style="min-height: 400px">
@@ -91,13 +111,11 @@
             </div>
           </el-tab-pane>
         </el-tabs>
-        <template v-slot:footer>
-          <div>
-            <el-button type="primary" @click="save">{{ $t('commons.confirm') }}</el-button>
-          </div>
-        </template>
       </el-collapse-transition>
     </fieldset>
+    <div slot="footer" class="dialog-footer" v-if="!disabled">
+      <el-button type="primary" @click="save">{{ $t('commons.save') }}</el-button>
+    </div>
   </el-dialog>
 </template>
 
@@ -157,6 +175,28 @@
       }
     },
     methods: {
+      getStyle(t){
+        if (t === 'LIST'){
+          return "color:red";
+        } else if (t === 'CSV'){
+          return "color:#E6A23C";
+        } else if (t === 'COUNTER'){
+          return "color:#02A7F0";
+        } else if (t === 'RANDOM'){
+          return "color:#67C23A";
+        }
+      },
+      handleClose(done) {
+        if (!this.disabled && (this.variables.length + this.headers.length !== this.total)) {
+          this.$confirm('放弃已添加？')
+            .then(_ => {
+              done();
+            }).catch(_ => {
+          });
+        } else {
+          done();
+        }
+      },
       batchAdd() {
         this.$refs.batchAddParameter.open();
       },
@@ -223,22 +263,28 @@
       isSelect(row) {
         return this.selection.includes(row.id)
       },
+      show() {
+        this.visible = true;
+      },
       open: function (variables, headers, disabled) {
         if (variables) {
-          this.variables = variables;
+          this.variables = Array.from(variables);
+          this.total = this.variables.length;
         }
         if (headers) {
-          this.headers = headers;
+          this.headers = Array.from(headers);
+          this.total += this.headers.length;
         }
         this.visible = true;
-        this.editData = {type: "CONSTANT"};
-        this.addParameters(this.editData);
+        this.editData = {};
+        // this.editData = {type: "CONSTANT"};
+        // this.addParameters(this.editData);
         this.disabled = disabled;
       },
-      save() {
+      close() {
         this.visible = false;
       },
-      close() {
+      save() {
         this.visible = false;
         let saveVariables = [];
         this.variables.forEach(item => {
@@ -253,7 +299,7 @@
       },
       deleteVariable() {
         let ids = Array.from(this.selection);
-        if (ids.length == 0) {
+        if (ids.length === 0) {
           this.$warning("请选择一条数据删除");
           return;
         }
@@ -273,15 +319,13 @@
             } else {
               item.hidden = undefined;
             }
-          }
-          else if (this.selectVariable && this.selectVariable != "") {
+          } else if (this.selectVariable && this.selectVariable != "") {
             if (item.name && item.name.toLowerCase().indexOf(this.selectVariable.toLowerCase()) == -1) {
               item.hidden = true;
             } else {
               item.hidden = undefined;
             }
-          }
-          else if (this.searchType && this.searchType != "") {
+          } else if (this.searchType && this.searchType != "") {
             if (item.type && item.type.toLowerCase().indexOf(this.searchType.toLowerCase()) == -1) {
               item.hidden = true;
             } else {
@@ -326,5 +370,19 @@
     min-width: 100%;
     min-inline-size: 0px;
     border: 0px;
+  }
+
+  .add-button {
+    margin-left: 4px;
+    padding-right: 8px !important;
+    padding-left: 8px !important;
+  }
+
+  .dialog-footer {
+    padding: 4px 20px 4px 10px;
+  }
+
+  .el-table td, .el-table th{
+    padding: 6px 0px !important;
   }
 </style>
