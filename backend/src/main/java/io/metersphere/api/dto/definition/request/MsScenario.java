@@ -8,6 +8,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.metersphere.api.dto.definition.request.variable.ScenarioVariable;
+import io.metersphere.api.dto.mockconfig.MockConfigStaticData;
 import io.metersphere.api.dto.scenario.KeyValue;
 import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
 import io.metersphere.api.service.ApiAutomationService;
@@ -73,6 +74,7 @@ public class MsScenario extends MsTestElement {
 
     @Override
     public void toHashTree(HashTree tree, List<MsTestElement> hashTree, ParameterConfig config) {
+        boolean isMockEvn = false;
         // 非导出操作，且不是启用状态则跳过执行
         if (!config.isOperating() && !this.isEnable()) {
             return;
@@ -131,6 +133,9 @@ public class MsScenario extends MsTestElement {
                     if (environment != null && environment.getConfig() != null) {
                         EnvironmentConfig env = JSONObject.parseObject(environment.getConfig(), EnvironmentConfig.class);
                         envConfig.put(projectId, env);
+                        if (StringUtils.equals(environment.getName(), MockConfigStaticData.MOCK_EVN_NAME)) {
+                            this.setMockEnvironment(true);
+                        }
                     }
                 });
                 config.setConfig(envConfig);
@@ -154,6 +159,7 @@ public class MsScenario extends MsTestElement {
             for (MsTestElement el : hashTree) {
                 // 给所有孩子加一个父亲标志
                 el.setParent(this);
+                el.setMockEnvironment(this.isMockEnvironment());
                 el.toHashTree(tree, el.getHashTree(), config);
             }
         }
