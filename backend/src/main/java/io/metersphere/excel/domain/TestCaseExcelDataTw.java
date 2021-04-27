@@ -69,4 +69,10 @@ public class TestCaseExcelDataTw extends TestCaseExcelData {
     @ColumnWidth(50)
     @ExcelProperty("預期結果")
     private String stepResult;
+
+    @ColumnWidth(50)
+    @ExcelProperty("編輯模式")
+    @NotRequired
+    @Pattern(regexp = "(^TEXT$)|(^STEP$)", message = "{test_case_step_model_validate}")
+    private String stepModel;
 }
