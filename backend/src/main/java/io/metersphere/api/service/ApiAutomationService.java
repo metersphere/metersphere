@@ -770,7 +770,7 @@ public class ApiAutomationService {
             try {
                 hashTree = generateHashTree(item, reportId, planEnvMap);
             } catch (Exception ex) {
-                MSException.throwException(ex.getMessage());
+                MSException.throwException("解析运行步骤失败！场景名称：" + item.getName());
             }
             //存储报告
             batchMapper.insert(report);

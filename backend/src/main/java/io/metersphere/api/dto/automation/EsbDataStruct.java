@@ -134,7 +134,7 @@ public class EsbDataStruct {
                 element.addText(this.value);
             } else {
                 for (EsbDataStruct child : children) {
-                    child.genXmlElementByChildren(document);
+                    child.genXmlElementByChildren(element);
                 }
             }
         }
