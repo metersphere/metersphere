@@ -483,7 +483,7 @@ public class TestCaseService {
                 testcase.setSort(sort.getAndIncrement());
                 int number = num.decrementAndGet();
                 testcase.setNum(number);
-                if (project.getCustomNum()) {
+                if (project.getCustomNum() && StringUtils.isBlank(testcase.getCustomNum())) {
                     testcase.setCustomNum(String.valueOf(number));
                 }
                 testcase.setReviewStatus(TestCaseReviewStatus.Prepare.name());
@@ -667,6 +667,7 @@ public class TestCaseService {
             data.setNodePath(t.getNodePath());
             data.setPriority(t.getPriority());
             data.setType(t.getType());
+            data.setCustomNum(t.getCustomNum());
             if (StringUtils.isBlank(t.getStepModel())) {
                 data.setStepModel(TestCaseConstants.StepModel.STEP.name());
             } else {
