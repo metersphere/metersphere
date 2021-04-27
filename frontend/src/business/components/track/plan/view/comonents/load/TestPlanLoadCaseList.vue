@@ -191,9 +191,9 @@ export default {
       currentPage: 1,
       pageSize: 10,
       total: 0,
-      selectDataCounts:0,
+      selectDataCounts: 0,
       status: 'default',
-      screenHeight: document.documentElement.clientHeight - 368,//屏幕高度
+      screenHeight: 'calc(100vh - 330px)',//屏幕高度
       buttons: [
         {
           name: this.$t('test_track.plan.load_case.unlink_in_bulk'), handleClick: this.handleDeleteBatch
