@@ -1,5 +1,5 @@
 <template>
-  <span v-if="isActive">
+  <span>
      <el-select v-if="data.type === 'select' || data.type === 'multipleSelect'"
                 :disabled="disabled"
                 :multiple="data.type === 'multipleSelect'"
@@ -104,7 +104,6 @@ export default {
   data() {
     return {
       memberOptions: [],
-      isActive: false
     };
   },
   mounted() {
@@ -113,16 +112,6 @@ export default {
         this.memberOptions = response.data;
       });
     }
-
-    if (this.data.type === 'checkbox' || this.data.type === 'multipleSelect'
-    || this.data.type === 'multipleMember') {
-      this.data[this.prop] = [];
-    } else if (this.data.type === 'float' || this.data.type === 'int') {
-      this.data[this.prop] = null;
-    } else {
-      this.data[this.prop] = "";
-    }
-    this.isActive = true;
   },
   methods: {
     getTranslateOption(item) {
