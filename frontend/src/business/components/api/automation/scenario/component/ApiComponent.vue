@@ -308,7 +308,7 @@
       },
       run() {
         if (this.isApiImport) {
-          if (!this.envMap || this.envMap.size === 0) {
+          if (this.request.type && (this.request.type === "HTTPSamplerProxy" || this.request.type === "JDBCSampler" || this.request.type === "TCPSampler")) {
             this.$warning("请在环境配置中为该步骤所属项目选择运行环境！");
             return false;
           } else if (this.envMap && this.envMap.size > 0) {

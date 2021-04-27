@@ -285,7 +285,7 @@ public class EsbApiParamService {
 //    }
 
     //通过esb数据结构生成keyValue集合，以及发送参数
-    private List<KeyValue> genKeyValueListByDataStruct(MsTCPSampler tcpSampler, String esbDataStruct) {
+    public List<KeyValue> genKeyValueListByDataStruct(MsTCPSampler tcpSampler, String esbDataStruct) {
         List<KeyValue> keyValueList = new ArrayList<>();
         String sendRequest = tcpSampler.getRequest();
         String paramRegexStr = "\\$\\{([^}]*)\\}";

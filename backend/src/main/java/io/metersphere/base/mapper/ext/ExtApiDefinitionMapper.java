@@ -17,7 +17,9 @@ public interface ExtApiDefinitionMapper {
 
     List<ApiDefinitionResult> list(@Param("request") ApiDefinitionRequest request);
 
-    List<ApiComputeResult> selectByIds(@Param("ids") List<String> ids);
+    //List<ApiComputeResult> selectByIds(@Param("ids") List<String> ids);
+
+    List<ApiComputeResult> selectByIds(@Param("ids") List<String> ids, @Param("projectId") String projectId);
 
     int removeToGc(@Param("ids") List<String> ids);
 

@@ -163,7 +163,7 @@ export default {
     //设置“测试阶段”和“负责人”的默认值
     this.form.stage = 'smoke';
     const adminToken = JSON.parse(localStorage.getItem("Admin-Token"));
-    this.form.principal = adminToken.name + "(" + adminToken.id + ")";
+    this.form.principal = adminToken.id;
   },
   methods: {
     reload() {
@@ -274,7 +274,7 @@ export default {
           this.form.name = '';
           this.form.projectIds = [];
           const adminToken = JSON.parse(localStorage.getItem("Admin-Token"));
-          this.form.principal = adminToken.name + "(" + adminToken.id + ")";
+          this.form.principal = adminToken.id;
           this.form.stage = 'smoke';
           this.form.description = '';
           this.form.status = null;

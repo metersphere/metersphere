@@ -56,21 +56,17 @@ public class TestCaseExcelDataTw extends TestCaseExcelData {
 
     @ColumnWidth(50)
     @ExcelProperty("前置條件")
-    @Length(min = 0, max = 1000)
     private String prerequisite;
 
     @ColumnWidth(50)
     @ExcelProperty("備註")
-    @Length(max = 1000)
     private String remark;
 
     @ColumnWidth(50)
     @ExcelProperty("步驟描述")
-    @Length(max = 1000)
     private String stepDesc;
 
     @ColumnWidth(50)
     @ExcelProperty("預期結果")
-    @Length(max = 1000)
     private String stepResult;
 }

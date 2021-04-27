@@ -169,7 +169,37 @@ public class MockConfigService {
         MockExpectConfigResponse returnModel = null;
 
         if (reqJsonObj == null || reqJsonObj.isEmpty()) {
-            return returnModel;
+            for (MockExpectConfigResponse model : mockExpectConfigList) {
+                if (!model.isStatus()) {
+                    continue;
+                }
+                JSONObject requestObj = model.getRequest();
+                boolean isJsonParam = requestObj.getBoolean("jsonParam");
+                JSONObject mockExpectJson = new JSONObject();
+                if (isJsonParam) {
+                    mockExpectJson = JSONObject.parseObject(requestObj.getString("jsonData"));
+                } else {
+                    JSONArray jsonArray = requestObj.getJSONArray("variables");
+                    for (int i = 0; i < jsonArray.size(); i++) {
+                        JSONObject object = jsonArray.getJSONObject(i);
+                        String name = "";
+                        String value = "";
+                        if (object.containsKey("name")) {
+                            name = String.valueOf(object.get("name")).trim();
+                        }
+                        if (object.containsKey("value")) {
+                            value = String.valueOf(object.get("value")).trim();
+                        }
+                        if (StringUtils.isNotEmpty(name)) {
+                            mockExpectJson.put(name, value);
+                        }
+                    }
+                }
+                if (mockExpectJson.isEmpty()) {
+                    return model;
+                }
+
+            }
         }
         for (MockExpectConfigResponse model : mockExpectConfigList) {
             try {
@@ -353,13 +383,19 @@ public class MockConfigService {
         mockExpectConfigMapper.deleteByPrimaryKey(id);
     }
 
-    public JSONObject getGetParamMap(String urlParams, ApiDefinitionWithBLOBs api) {
+    public JSONObject getGetParamMap(String urlParams, ApiDefinitionWithBLOBs api, HttpServletRequest request) {
         JSONObject paramMap = this.getSendRestParamMapByIdAndUrl(api, urlParams);
+        Enumeration<String> paramNameItor = request.getParameterNames();
+        JSONObject object = new JSONObject();
+        while (paramNameItor.hasMoreElements()) {
+            String key = paramNameItor.nextElement();
+            String value = request.getParameter(key);
+            paramMap.put(key, value);
+        }
         return paramMap;
     }
 
     public JSONObject getPostParamMap(HttpServletRequest request) {
-        System.out.println(request.getContentType());
         if (StringUtils.equalsIgnoreCase("application/JSON", request.getContentType())) {
             JSONObject object = null;
             try {
@@ -572,7 +608,8 @@ public class MockConfigService {
          */
         boolean isMatch = false;
         for (ApiDefinitionWithBLOBs api : aualifiedApiList) {
-            JSONObject paramMap = this.getGetParamMap(urlSuffix, api);
+            JSONObject paramMap = this.getGetParamMap(urlSuffix, api, request);
+
             MockConfigResponse mockConfigData = this.findByApiId(api.getId());
             if (mockConfigData != null && mockConfigData.getMockExpectConfigList() != null) {
                 MockExpectConfigResponse finalExpectConfig = this.findExpectConfig(mockConfigData.getMockExpectConfigList(), paramMap);

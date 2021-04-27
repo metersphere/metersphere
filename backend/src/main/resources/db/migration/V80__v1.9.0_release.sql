@@ -20,26 +20,26 @@ CREATE TABLE IF NOT EXISTS `custom_field` (
 
 -- 用例系统字段
 INSERT INTO custom_field (id,name,scene,`type`,remark,`options`,`system`,`global`,workspace_id,create_time,update_time)
-VALUES ('45f2de57-9d1d-11eb-b418-0242ac120002','i43sf4_testCaseStatus','TEST_CASE','select','',
+VALUES ('45f2de57-9d1d-11eb-b418-0242ac120002','用例状态','TEST_CASE','select','',
         '[{"value":"Prepare", "text":"test_track.case.status_prepare", "system": true},{"value":"Underway", "text":"test_track.case.status_running","system": true},{"value":"Completed", "text":"test_track.case.status_finished", "system": true}]',
         1,1,'global',unix_timestamp() * 1000,unix_timestamp() * 1000);
 INSERT INTO custom_field (id,name,scene,`type`,remark,`options`,`system`,`global`,workspace_id,create_time,update_time)
-VALUES ('46065143-9d1d-11eb-b418-0242ac120002','i43sf4_testCaseMaintainer','TEST_CASE','member','',
+VALUES ('46065143-9d1d-11eb-b418-0242ac120002','责任人','TEST_CASE','member','',
         '[]',1,1,'global',unix_timestamp() * 1000,unix_timestamp() * 1000);
 INSERT INTO custom_field (id,name,scene,`type`,remark,`options`,`system`,`global`,workspace_id,create_time,update_time)
-VALUES ('4619cc23-9d1d-11eb-b418-0242ac120002','i43sf4_testCasePriority','TEST_CASE','select','',
+VALUES ('4619cc23-9d1d-11eb-b418-0242ac120002','用例等级','TEST_CASE','select','',
         '[{"value":"P0", "text":"P0", "system": true},{"value":"P1", "text":"P1","system": true},{"value":"P2", "text":"P2", "system": true},{"value":"P3", "text":"P3", "system": true}]',
         1,1,'global',unix_timestamp() * 1000,unix_timestamp() * 1000);
 
 -- 缺陷系统字段
 INSERT INTO custom_field (id,name,scene,`type`,remark,`options`,`system`,`global`,workspace_id,create_time,update_time)
-VALUES ('09642424-7b1b-4004-867e-ff9c798a1933','i43sf4_issueCreator','ISSUE','member','','[]',1,1,'global',unix_timestamp() * 1000,unix_timestamp() * 1000);
+VALUES ('09642424-7b1b-4004-867e-ff9c798a1933','创建人','ISSUE','member','','[]',1,1,'global',unix_timestamp() * 1000,unix_timestamp() * 1000);
 INSERT INTO custom_field (id,name,scene,`type`,remark,`options`,`system`,`global`,workspace_id,create_time,update_time)
-VALUES ('a577bc60-75fe-47ec-8aa6-32dca23bf3d6','i43sf4_issueProcessor','ISSUE','member','','[]',1,1,'global',unix_timestamp() * 1000,unix_timestamp() * 1000);
+VALUES ('a577bc60-75fe-47ec-8aa6-32dca23bf3d6','处理人','ISSUE','member','','[]',1,1,'global',unix_timestamp() * 1000,unix_timestamp() * 1000);
 INSERT INTO custom_field (id,name,scene,`type`,remark,`options`,`system`,`global`,workspace_id,create_time,update_time)
-VALUES ('beb57501-19c8-4ca3-8dfb-2cef7c0ea087','i43sf4_issueStatus','ISSUE','select','','[{"text":"test_track.issue.status_new","value":"new","system": true},{"text":"test_track.issue.status_resolved","value":"resolved","system": true},{"text":"test_track.issue.status_closed","value":"closed","system": true}]',1,1,'global',unix_timestamp() * 1000,unix_timestamp() * 1000);
+VALUES ('beb57501-19c8-4ca3-8dfb-2cef7c0ea087','状态','ISSUE','select','','[{"text":"test_track.issue.status_new","value":"new","system": true},{"text":"test_track.issue.status_resolved","value":"resolved","system": true},{"text":"test_track.issue.status_closed","value":"closed","system": true}]',1,1,'global',unix_timestamp() * 1000,unix_timestamp() * 1000);
 INSERT INTO custom_field (id,name,scene,`type`,remark,`options`,`system`,`global`,workspace_id,create_time,update_time)
-VALUES ('d392af07-fdfe-4475-a459-87d59f0b1626','i43sf4_issueSeverity','ISSUE','select','','[{"text":"P0","value":"P0","system": true},{"text":"P1","value":"P1","system": true},{"text":"P2","value":"P2","system": true},{"text":"P3","value":"P3","system": true}]',1,1,'global',unix_timestamp() * 1000,unix_timestamp() * 1000);
+VALUES ('d392af07-fdfe-4475-a459-87d59f0b1626','严重程度','ISSUE','select','','[{"text":"P0","value":"P0","system": true},{"text":"P1","value":"P1","system": true},{"text":"P2","value":"P2","system": true},{"text":"P3","value":"P3","system": true}]',1,1,'global',unix_timestamp() * 1000,unix_timestamp() * 1000);
 
 -- 用例模板表
 CREATE TABLE IF NOT EXISTS `test_case_template` (
@@ -256,3 +256,6 @@ WHERE `type`='test_plan_function_test_case';
 -- 自定义用例ID
 alter table project add custom_num tinyint(1) default 0 null comment '是否开启自定义ID(默认关闭)';
 alter table test_case add custom_num varchar(64) null comment 'custom num';
+
+-- 修改前置条件为text
+ALTER TABLE test_case MODIFY COLUMN prerequisite text CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL COMMENT 'Test case prerequisite condition';

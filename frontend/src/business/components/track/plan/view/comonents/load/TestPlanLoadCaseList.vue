@@ -17,7 +17,7 @@
                 @filter-change="filter"
                 @sort-change="sort"
                 @select="handleSelectionChange" :height="screenHeight">
-        <el-table-column type="selection"/>
+        <el-table-column width="50" type="selection"/>
         <ms-table-header-select-popover v-show="total>0"
                                         :page-size="pageSize > total ? total : pageSize"
                                         :total="total"

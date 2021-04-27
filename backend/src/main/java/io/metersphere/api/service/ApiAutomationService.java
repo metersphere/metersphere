@@ -699,9 +699,13 @@ public class ApiAutomationService {
         if (StringUtils.isNotBlank(request.getRunMode()) && StringUtils.equals(request.getRunMode(), ApiRunMode.SCENARIO.name())) {
             StringBuilder builder = new StringBuilder();
             for (ApiScenarioWithBLOBs apiScenarioWithBLOBs : apiScenarios) {
-                boolean haveEnv = checkScenarioEnv(apiScenarioWithBLOBs);
-                if (!haveEnv) {
-                    builder.append(apiScenarioWithBLOBs.getName()).append("; ");
+                try {
+                    boolean haveEnv = checkScenarioEnv(apiScenarioWithBLOBs);
+                    if (!haveEnv) {
+                        builder.append(apiScenarioWithBLOBs.getName()).append("; ");
+                    }
+                } catch (Exception e) {
+                    MSException.throwException("场景：" + builder.toString() + "运行环境未配置，请检查!");
                 }
             }
             if (builder.length() > 0) {
@@ -770,7 +774,7 @@ public class ApiAutomationService {
             try {
                 hashTree = generateHashTree(item, reportId, planEnvMap);
             } catch (Exception ex) {
-                MSException.throwException(ex.getMessage());
+                MSException.throwException("解析运行步骤失败！场景名称：" + item.getName());
             }
             //存储报告
             batchMapper.insert(report);
@@ -1309,6 +1313,7 @@ public class ApiAutomationService {
         } else {
             //如果存在则修改
             scenarioWithBLOBs.setId(sameRequest.get(0).getId());
+            scenarioWithBLOBs.setNum(sameRequest.get(0).getNum());
             batchMapper.updateByPrimaryKeyWithBLOBs(scenarioWithBLOBs);
         }
     }

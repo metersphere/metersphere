@@ -590,15 +590,17 @@ export default {
       let customFieldsStr =  param.customFields;
       if (customFieldsStr) {
         let customFields = JSON.parse(customFieldsStr);
-        if (customFields['i43sf4_testCasePriority']) {
-          param.priority = JSON.parse(customFields['i43sf4_testCasePriority']);
-        }
-        if (customFields['i43sf4_testCaseMaintainer']) {
-          param.maintainer = JSON.parse(customFields['i43sf4_testCaseMaintainer']);
-        }
-        if (customFields['i43sf4_testCaseStatus']) {
-          param.status = JSON.parse(customFields['i43sf4_testCaseStatus']);
-        }
+        customFields.forEach(item => {
+          if (item.name === '用例等级') {
+            param.priority = item.value;
+          }
+          if (item.name === '责任人') {
+            param.maintainer = item.value;
+          }
+          if (item.name === '用例状态') {
+            param.status = item.value;
+          }
+        });
       }
     },
     getOption(param) {

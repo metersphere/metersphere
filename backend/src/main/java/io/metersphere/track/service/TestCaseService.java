@@ -151,7 +151,7 @@ public class TestCaseService {
                 .andIdNotEqualTo(testCase.getId());
         List<TestCase> list = testCaseMapper.selectByExample(example);
         if (CollectionUtils.isNotEmpty(list)) {
-            MSException.throwException("test case custom num is exist.");
+            MSException.throwException(Translator.get("custom_num_is_exist"));
         }
     }
 
@@ -208,10 +208,6 @@ public class TestCaseService {
                 criteria.andTestIdEqualTo(testCase.getTestId());
             }
 
-            if (StringUtils.isNotBlank(testCase.getPrerequisite())) {
-                criteria.andPrerequisiteEqualTo(testCase.getPrerequisite());
-            }
-
             if (StringUtils.isNotBlank(testCase.getId())) {
                 criteria.andIdNotEqualTo(testCase.getId());
             }
@@ -222,10 +218,12 @@ public class TestCaseService {
             if (!CollectionUtils.isEmpty(caseList)) {
                 String caseRemark = testCase.getRemark();
                 String caseSteps = testCase.getSteps();
+                String casePrerequisite = testCase.getPrerequisite();
                 for (TestCaseWithBLOBs tc : caseList) {
                     String steps = tc.getSteps();
                     String remark = tc.getRemark();
-                    if (StringUtils.equals(steps, caseSteps) && StringUtils.equals(remark, caseRemark)) {
+                    String prerequisite = tc.getPrerequisite();
+                    if (StringUtils.equals(steps, caseSteps) && StringUtils.equals(remark, caseRemark) && StringUtils.equals(prerequisite, casePrerequisite)) {
                          //MSException.throwException(Translator.get("test_case_already_exists"));
                         return tc;
                     }

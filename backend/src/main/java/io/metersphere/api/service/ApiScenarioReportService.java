@@ -123,13 +123,15 @@ public class ApiScenarioReportService {
 
     public ApiScenarioReport editReport(ScenarioResult test, long startTime) {
         ApiScenarioReport report = apiScenarioReportMapper.selectByPrimaryKey(test.getName());
-        report.setId(report.getId());
-        report.setName(report.getScenarioName() + "-" + DateUtils.getTimeStr(System.currentTimeMillis()));
-        report.setCreateTime(startTime);
-        report.setUpdateTime(startTime);
-        String status = test.getError() == 0 ? "Success" : "Error";
-        report.setStatus(status);
-        apiScenarioReportMapper.updateByPrimaryKeySelective(report);
+        if (report != null) {
+            report.setId(report.getId());
+            report.setName(report.getScenarioName() + "-" + DateUtils.getTimeStr(System.currentTimeMillis()));
+            report.setCreateTime(startTime);
+            report.setUpdateTime(startTime);
+            String status = test.getError() == 0 ? "Success" : "Error";
+            report.setStatus(status);
+            apiScenarioReportMapper.updateByPrimaryKeySelective(report);
+        }
         return report;
     }
 
@@ -175,7 +177,6 @@ public class ApiScenarioReportService {
     }
 
     public ApiScenarioReport updatePlanCase(TestResult result, String runMode) {
-//        TestPlanApiScenario testPlanApiScenario = testPlanApiScenarioMapper.selectByPrimaryKey(result.getTestId());
         List<ScenarioResult> scenarioResultList = result.getScenarios();
         ApiScenarioReport returnReport = null;
         StringBuilder scenarioIds = new StringBuilder();
@@ -190,6 +191,9 @@ public class ApiScenarioReportService {
                 startTime = scenarioResult.getRequestResults().get(0).getStartTime();
             }
             ApiScenarioReport report = editReport(scenarioResult, startTime);
+            report.setTriggerMode(ReportTriggerMode.CASE.name());
+            apiScenarioReportMapper.updateByPrimaryKeySelective(report);
+
             // 报告详情内容
             ApiScenarioReportDetail detail = new ApiScenarioReportDetail();
             TestResult newResult = createTestResult(result.getTestId(), scenarioResult);
