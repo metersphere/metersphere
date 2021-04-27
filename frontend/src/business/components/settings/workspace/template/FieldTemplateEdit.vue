@@ -163,6 +163,10 @@ export default {
       this.templateContainIds.add(data.id);
       data.fieldId = data.id;
       data.id = null;
+      data.options = JSON.parse(data.options);
+      if (data.type === 'checkbox') {
+        data.defaultValue = [];
+      }
       this.relateFields.push(data);
     },
     relateField() {
