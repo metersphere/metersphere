@@ -68,7 +68,8 @@
         select ltr.id, ltr.name, ltr.test_id as testId, ltr.max_users maxUsers, ltr.avg_response_time avgResponseTime,
         ltr.tps, ltr.description, user.name as userName, project.name as
         projectName, ltr.trigger_mode,
-        ltr.create_time as createTime, ltr.update_time as updateTime, ltr.status as status, lt.name as testName
+        ltr.create_time as createTime, ltr.update_time as updateTime, ltr.status as status, lt.name as testName,
+        project_id as projectId
         from load_test_report ltr
         join load_test lt on ltr.test_id = lt.id
         join user on ltr.user_id = user.id
