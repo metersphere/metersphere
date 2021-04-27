@@ -52,6 +52,6 @@ public class TestCase implements Serializable {
     private String customNum;
 
     private String stepModel;
-
+  
     private static final long serialVersionUID = 1L;
 }

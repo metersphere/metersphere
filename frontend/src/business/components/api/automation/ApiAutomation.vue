@@ -68,7 +68,7 @@
   import MsAsideContainer from "@/business/components/common/components/MsAsideContainer";
   import MsMainContainer from "@/business/components/common/components/MsMainContainer";
   import MsApiScenarioList from "@/business/components/api/automation/scenario/ApiScenarioList";
-  import {getUUID, downloadFile, checkoutTestManagerOrTestUser,getCurrentUser} from "@/common/js/utils";
+  import {getUUID, downloadFile, checkoutTestManagerOrTestUser, getCurrentUser} from "@/common/js/utils";
   import MsApiScenarioModule from "@/business/components/api/automation/scenario/ApiScenarioModule";
   import MsEditApiScenario from "./scenario/EditApiScenario";
 
@@ -114,7 +114,8 @@
         loading: false,
         trashEnable: false,
         selectNodeIds: [],
-        nodeTree: []
+        nodeTree: [],
+        currentModulePath: "",
       }
     },
     watch: {
@@ -180,14 +181,30 @@
           this.redirectFlag = "none";
         }
       },
+      getPath(id, arr) {
+        if (id === null) {
+          return null;
+        }
+        if(arr) {
+          arr.forEach(item => {
+            if (item.id === id) {
+              this.currentModulePath = item.path;
+            }
+            if (item.children && item.children.length > 0) {
+              this.getPath(id, item.children);
+            }
+          });
+        }
+      },
       addTab(tab) {
-        if(tab.name==='default'){
+        if (tab.name === 'default') {
           this.$refs.apiScenarioList.search();
         }
         if (!this.projectId) {
           this.$warning(this.$t('commons.check_project_tip'));
           return;
         }
+        this.currentModulePath = "";
         if (tab.name === 'add') {
           let label = this.$t('api_test.automation.add_scenario');
           let name = getUUID().substring(0, 8);
@@ -199,11 +216,14 @@
           };
           if (this.nodeTree && this.nodeTree.length > 0) {
             currentScenario.apiScenarioModuleId = this.nodeTree[0].id;
-            currentScenario.modulePath = this.nodeTree[0].path;
+            this.getPath(this.nodeTree[0].id, this.moduleOptions);
+            currentScenario.modulePath = this.currentModulePath;
           }
 
           if (this.selectNodeIds && this.selectNodeIds.length > 0) {
             currentScenario.apiScenarioModuleId = this.selectNodeIds[0];
+            this.getPath(this.selectNodeIds[0], this.moduleOptions);
+            currentScenario.modulePath = this.currentModulePath;
           }
           this.tabs.push({label: label, name: name, currentScenario: currentScenario});
         }

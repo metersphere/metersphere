@@ -250,8 +250,8 @@ export default {
       currentPage: 1,
       pageSize: 10,
       total: 0,
-      selectDataCounts:0,
-      screenHeight: document.documentElement.clientHeight - 368,//屏幕高度
+      selectDataCounts: 0,
+      screenHeight: 'calc(100vh - 330px)',//屏幕高度
       // environmentId: undefined,
       currentCaseProjectId: "",
       runData: [],
@@ -501,58 +501,67 @@ export default {
       return new Promise((resolve) => {
         let index = 1;
         this.runData = [];
-        // 按照列表顺序排序
-        this.orderBySelectRows(this.selectRows);
-        this.selectRows.forEach(row => {
-          this.$get('/api/testcase/get/' + row.caseId, (response) => {
-            let apiCase = response.data;
-            let request = JSON.parse(apiCase.request);
-            request.name = row.id;
-            request.id = row.id;
-            request.useEnvironment = row.environmentId;
-            this.runData.unshift(request);
-            if (this.selectRows.length === index) {
-              resolve();
-            }
-            index++;
+        if (this.condition != null && this.condition.selectAll) {
+          let selectAllRowParams = buildBatchParam(this);
+          selectAllRowParams.ids = Array.from(this.selectRows).map(row => row.id);
+          this.$post('/test/plan/api/case/selectAllTableRows', selectAllRowParams, response => {
+            let dataRows = response.data;
+            // 按照列表顺序排序
+            this.orderBySelectRows(dataRows);
+            dataRows.forEach(row => {
+              this.$get('/api/testcase/get/' + row.caseId, (response) => {
+                let apiCase = response.data;
+                let request = JSON.parse(apiCase.request);
+                request.name = row.id;
+                request.id = row.id;
+                request.useEnvironment = row.environmentId;
+                this.runData.unshift(request);
+                if (dataRows.length === index) {
+                  resolve();
+                }
+                index++;
+              });
+            });
           });
-        });
+        } else {
+          // 按照列表顺序排序
+          this.orderBySelectRows(this.selectRows);
+          this.selectRows.forEach(row => {
+            this.$get('/api/testcase/get/' + row.caseId, (response) => {
+              let apiCase = response.data;
+              let request = JSON.parse(apiCase.request);
+              request.name = row.id;
+              request.id = row.id;
+              request.useEnvironment = row.environmentId;
+              this.runData.unshift(request);
+              if (this.selectRows.length === index) {
+                resolve();
+              }
+              index++;
+            });
+          });
+        }
       });
     },
     batchEdit(form) {
       let param = {};
       // 批量修改环境
       if (form.type === 'projectEnv') {
-        if(this.condition != null && this.condition.selectAll){
-          this.$alert(this.$t('commons.option_cannot_spread_pages'), '', {
-            confirmButtonText: this.$t('commons.confirm'),
-            callback: (action) => {
-              if (action === 'confirm') {
-                let map = new Map();
-                param.projectEnvMap = strMapToObj(form.projectEnvMap);
-                this.selectRows.forEach(row => {
-                  map[row.id] = row.projectId;
-                })
-                param.selectRows = map;
-                this.$post('/test/plan/api/case/batch/update/env', param, () => {
-                  this.$success(this.$t('commons.save_success'));
-                  this.initTable();
-                });
-              }
-            }
-          });
-        }else {
+        let selectAllRowParams = buildBatchParam(this);
+        selectAllRowParams.ids = Array.from(this.selectRows).map(row => row.id);
+        this.$post('/test/plan/api/case/selectAllTableRows', selectAllRowParams, response => {
+          let dataRows = response.data;
           let map = new Map();
           param.projectEnvMap = strMapToObj(form.projectEnvMap);
-          this.selectRows.forEach(row => {
+          dataRows.forEach(row => {
             map[row.id] = row.projectId;
-          })
+          });
           param.selectRows = map;
           this.$post('/test/plan/api/case/batch/update/env', param, () => {
             this.$success(this.$t('commons.save_success'));
             this.initTable();
           });
-        }
+        });
       } else {
         // 批量修改其它
       }
@@ -568,26 +577,11 @@ export default {
       this.selectRows = array;
     },
     handleBatchExecute() {
-      if(this.condition != null && this.condition.selectAll) {
-        this.$alert(this.$t('commons.option_cannot_spread_pages'), '', {
-          confirmButtonText: this.$t('commons.confirm'),
-          callback: (action) => {
-            if (action === 'confirm') {
-              this.getData().then(() => {
-                if (this.runData && this.runData.length > 0) {
-                  this.$refs.runMode.open();
-                }
-              });
-            }
-          }
-        })
-      }else {
-        this.getData().then(() => {
-          if (this.runData && this.runData.length > 0) {
-            this.$refs.runMode.open();
-          }
-        });
-      }
+      this.getData().then(() => {
+        if (this.runData && this.runData.length > 0) {
+          this.$refs.runMode.open();
+        }
+      });
     },
     handleRunBatch(config) {
       let testPlan = new TestPlan();

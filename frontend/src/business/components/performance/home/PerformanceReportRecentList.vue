@@ -1,7 +1,7 @@
 <template>
   <el-card class="table-card" v-loading="result.loading">
     <template v-slot:header>
-      <span class="title">{{$t('api_report.title')}}</span>
+      <span class="title">{{ $t('api_report.title') }}</span>
     </template>
     <el-table border :data="tableData" class="adjust-table table-content" @row-click="link" height="300px">
       <el-table-column prop="name" :label="$t('commons.name')" width="150" show-overflow-tooltip/>
@@ -20,7 +20,7 @@
           <report-trigger-mode-item :trigger-mode="scope.row.triggerMode"/>
         </template>
       </el-table-column>
-      <el-table-column  prop="status" :label="$t('commons.status')">
+      <el-table-column prop="status" :label="$t('commons.status')">
         <template v-slot:default="{row}">
           <ms-performance-report-status :row="row"/>
         </template>
@@ -31,45 +31,50 @@
 
 <script>
 
-  import MsPerformanceReportStatus from "../report/PerformanceReportStatus";
-  import ReportTriggerModeItem from "../../common/tableItem/ReportTriggerModeItem";
+import MsPerformanceReportStatus from "../report/PerformanceReportStatus";
+import ReportTriggerModeItem from "../../common/tableItem/ReportTriggerModeItem";
+import {getCurrentProjectID, getCurrentWorkspaceId} from "@/common/js/utils";
 
-  export default {
-    name: "MsPerformanceReportRecentList",
-    components: {ReportTriggerModeItem, MsPerformanceReportStatus},
-    data() {
-      return {
-        result: {},
-        tableData: []
-      }
-    },
+export default {
+  name: "MsPerformanceReportRecentList",
+  components: {ReportTriggerModeItem, MsPerformanceReportStatus},
+  data() {
+    return {
+      result: {},
+      tableData: []
+    };
+  },
 
-    methods: {
-      search() {
-        this.result = this.$get("/performance/report/recent/5", response => {
-          this.tableData = response.data;
-        });
-      },
-      link(row) {
-        this.$router.push({
-          path: '/performance/report/view/' + row.id,
-        })
-      }
+  methods: {
+    search() {
+      let condition = {
+        workspaceId: getCurrentWorkspaceId(),
+        projectId: getCurrentProjectID(),
+      };
+      this.result = this.$post("/performance/report/recent/5", condition, response => {
+        this.tableData = response.data;
+      });
     },
-
-    created() {
-      this.search();
-    },
-    activated() {
-      this.search();
+    link(row) {
+      this.$router.push({
+        path: '/performance/report/view/' + row.id,
+      });
     }
+  },
+
+  created() {
+    this.search();
+  },
+  activated() {
+    this.search();
   }
+};
 </script>
 
 <style scoped>
 
-  .el-table {
-    cursor:pointer;
-  }
+.el-table {
+  cursor: pointer;
+}
 
 </style>

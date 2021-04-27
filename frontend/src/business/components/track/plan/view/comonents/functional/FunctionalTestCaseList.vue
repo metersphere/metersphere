@@ -53,7 +53,7 @@
         <template v-for="(item, index) in tableLabel">
           <el-table-column
             v-if="item.id == 'num'"
-            prop="num"
+            prop="customNum"
             sortable="custom"
             :label="$t('commons.id')"
             min-width="120px"
@@ -100,20 +100,6 @@
           >
             <template v-slot:default="scope">
                 <ms-tag v-for="(tag, index) in scope.row.showTags" :key="tag + '_' + index" type="success" effect="plain" :content="tag" style="margin-left: 0px; margin-right: 2px"/>
-            </template>
-          </el-table-column>
-
-          <el-table-column
-            v-if="item.id=='method'"
-            prop="method"
-            :filters="methodFilters"
-            column-key="method"
-            :label="$t('test_track.case.method')"
-            min-width="100px"
-            :key="index"
-            show-overflow-tooltip>
-            <template v-slot:default="scope">
-              <method-table-item :value="scope.row.method"/>
             </template>
           </el-table-column>
 
@@ -338,7 +324,7 @@ export default {
     return {
       type: TEST_PLAN_FUNCTION_TEST_CASE,
       headerItems: Test_Plan_Function_Test_Case,
-      screenHeight: document.documentElement.clientHeight-365,
+      screenHeight: 'calc(100vh - 365px)',
       tableLabel: [],
       result: {},
       deletePath: "/test/case/delete",

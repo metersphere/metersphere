@@ -1743,6 +1743,7 @@ public class TestCaseExample {
             addCriterion("step_model not between", value1, value2, "stepModel");
             return (Criteria) this;
         }
+
     }
 
     public static class Criteria extends GeneratedCriteria {

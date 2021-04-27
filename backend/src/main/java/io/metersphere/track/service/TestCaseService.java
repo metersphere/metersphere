@@ -115,6 +115,7 @@ public class TestCaseService {
         testCase.setId(UUID.randomUUID().toString());
         testCase.setCreateTime(System.currentTimeMillis());
         testCase.setUpdateTime(System.currentTimeMillis());
+        checkTestCustomNum(testCase);
         testCase.setNum(getNextNum(testCase.getProjectId()));
         testCase.setReviewStatus(TestCaseReviewStatus.Prepare.name());
         testCase.setDemandId(testCase.getDemandId());
@@ -122,6 +123,36 @@ public class TestCaseService {
         this.setNode(testCase);
         testCaseMapper.insert(testCase);
         return testCase;
+    }
+
+    private void checkTestCustomNum(TestCaseWithBLOBs testCase) {
+        if (StringUtils.isNotBlank(testCase.getCustomNum())) {
+            String projectId = testCase.getProjectId();
+            Project project = projectService.getProjectById(projectId);
+            if (project != null) {
+                Boolean customNum = project.getCustomNum();
+                // 未开启自定义ID
+                if (!customNum) {
+                    testCase.setCustomNum(null);
+                } else {
+                    checkCustomNumExist(testCase);
+                }
+            } else {
+                MSException.throwException("add test case fail, project is not find.");
+            }
+        }
+    }
+
+    private void checkCustomNumExist(TestCaseWithBLOBs testCase) {
+        TestCaseExample example = new TestCaseExample();
+        example.createCriteria()
+                .andCustomNumEqualTo(testCase.getCustomNum())
+                .andProjectIdEqualTo(testCase.getProjectId())
+                .andIdNotEqualTo(testCase.getId());
+        List<TestCase> list = testCaseMapper.selectByExample(example);
+        if (CollectionUtils.isNotEmpty(list)) {
+            MSException.throwException("test case custom num is exist.");
+        }
     }
 
     public List<TestCase> getTestCaseByNodeId(List<String> nodeIds) {
@@ -135,6 +166,7 @@ public class TestCaseService {
     }
 
     public int editTestCase(TestCaseWithBLOBs testCase) {
+        checkTestCustomNum(testCase);
         testCase.setUpdateTime(System.currentTimeMillis());
         return testCaseMapper.updateByPrimaryKeySelective(testCase);
     }
@@ -439,6 +471,7 @@ public class TestCaseService {
     public void saveImportData(List<TestCaseWithBLOBs> testCases, String projectId) {
         Map<String, String> nodePathMap = testCaseNodeService.createNodeByTestCases(testCases, projectId);
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
+        Project project = projectService.getProjectById(projectId);
         TestCaseMapper mapper = sqlSession.getMapper(TestCaseMapper.class);
         if (!testCases.isEmpty()) {
             AtomicInteger sort = new AtomicInteger();
@@ -450,7 +483,11 @@ public class TestCaseService {
                 testcase.setUpdateTime(System.currentTimeMillis());
                 testcase.setNodeId(nodePathMap.get(testcase.getNodePath()));
                 testcase.setSort(sort.getAndIncrement());
-                testcase.setNum(num.decrementAndGet());
+                int number = num.decrementAndGet();
+                testcase.setNum(number);
+                if (project.getCustomNum()) {
+                    testcase.setCustomNum(String.valueOf(number));
+                }
                 testcase.setReviewStatus(TestCaseReviewStatus.Prepare.name());
                     mapper.insert(testcase);
             });
@@ -968,5 +1005,13 @@ public class TestCaseService {
     public List<TestCaseDTO> getTestCaseIssueRelateList(QueryTestCaseRequest request) {
         request.setOrders(ServiceUtils.getDefaultOrder(request.getOrders()));
         return getTestCaseByNotInIssue(request);
+    }
+
+    /**
+     * 更新项目下用例的CustomNum值
+     * @param projectId 项目ID
+     */
+    public void updateTestCaseCustomNumByProjectId(String projectId) {
+        extTestCaseMapper.updateTestCaseCustomNumByProjectId(projectId);
     }
 }

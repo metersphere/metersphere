@@ -1,7 +1,7 @@
 <template>
   <el-card class="table-card" v-loading="result.loading">
     <template v-slot:header>
-      <span class="title">{{$t('commons.test')}}</span>
+      <span class="title">{{ $t('commons.test') }}</span>
     </template>
     <el-table border :data="tableData" class="adjust-table table-content" @row-click="link" height="300px">
       <el-table-column prop="name" :label="$t('commons.name')" width="150" show-overflow-tooltip/>
@@ -27,44 +27,49 @@
 
 <script>
 
-  import MsPerformanceTestStatus from "../test/PerformanceTestStatus";
+import MsPerformanceTestStatus from "../test/PerformanceTestStatus";
+import {getCurrentProjectID, getCurrentWorkspaceId} from "@/common/js/utils";
 
-  export default {
-    name: "MsPerformanceTestRecentList",
-    components: {MsPerformanceTestStatus},
-    data() {
-      return {
-        result: {},
-        tableData: []
-      }
-    },
+export default {
+  name: "MsPerformanceTestRecentList",
+  components: {MsPerformanceTestStatus},
+  data() {
+    return {
+      result: {},
+      tableData: []
+    };
+  },
 
-    methods: {
-      search() {
-        this.result = this.$get("/performance/recent/5", response => {
-          this.tableData = response.data;
-        });
-      },
-      link(row) {
-        this.$router.push({
-          path: '/performance/test/edit/' + row.id,
-        })
-      }
+  methods: {
+    search() {
+      let condition = {
+        workspaceId: getCurrentWorkspaceId(),
+        projectId: getCurrentProjectID()
+      };
+      this.result = this.$post("/performance/recent/5", condition, response => {
+        this.tableData = response.data;
+      });
     },
-
-    created() {
-      this.search();
-    },
-    activated() {
-      this.search();
+    link(row) {
+      this.$router.push({
+        path: '/performance/test/edit/' + row.id,
+      });
     }
+  },
+
+  created() {
+    this.search();
+  },
+  activated() {
+    this.search();
   }
+};
 </script>
 
 <style scoped>
 
-  .el-table {
-    cursor:pointer;
-  }
+.el-table {
+  cursor: pointer;
+}
 
 </style>

@@ -164,7 +164,8 @@ export default {
     MsTableOperator, MsTableOperatorButton, MsDialogFooter, MsTableHeader, MsCreateBox, MsTablePagination, EnvPopover
   },
   props: {
-    row: Set
+    row: Set,
+    scenarioCondition: {},
   },
   data() {
       return {
@@ -236,13 +237,25 @@ export default {
       setScenarioSelectRows(rows) {
         this.projectIds.clear();
         this.map.clear();
-        rows.forEach(row => {
-          this.result = this.$get('/api/automation/getApiScenarioProjectId/' + row.id, res => {
+        if (this.scenarioCondition != null) {
+          let params = {};
+          params.condition = this.scenarioCondition;
+          this.$post('/api/automation/getApiScenarioProjectIdByConditions', params, res => {
             let data = res.data;
-            data.projectIds.forEach(d => this.projectIds.add(d));
-            this.map.set(row.id, data.projectIds);
-          })
-        })
+            data.forEach(scenario => {
+              scenario.projectIds.forEach(d => this.projectIds.add(d));
+              this.map.set(scenario.id, scenario.projectIds);
+            });
+          });
+        } else {
+          rows.forEach(row => {
+            this.result = this.$get('/api/automation/getApiScenarioProjectId/' + row.id, res => {
+              let data = res.data;
+              data.projectIds.forEach(d => this.projectIds.add(d));
+              this.map.set(row.id, data.projectIds);
+            });
+          });
+        }
       },
       initTableData() {
         if (this.planId) {
