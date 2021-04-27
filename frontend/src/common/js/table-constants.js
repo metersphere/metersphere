@@ -50,14 +50,14 @@ export const SCENE_MAP = {
 
 export const SYSTEM_FIELD_NAME_MAP = {
   //用例字段
-  i43sf4_testCaseStatus: 'custom_field.case_status',
-  i43sf4_testCaseMaintainer: 'custom_field.case_maintainer',
-  i43sf4_testCasePriority: 'custom_field.case_priority',
+  用例状态: 'custom_field.case_status',
+  责任人: 'custom_field.case_maintainer',
+  用例等级: 'custom_field.case_priority',
   //缺陷字段
-  i43sf4_issueCreator: 'custom_field.issue_creator',
-  i43sf4_issueProcessor: 'custom_field.issue_processor',
-  i43sf4_issueStatus: 'custom_field.issue_status',
-  i43sf4_issueSeverity: 'custom_field.issue_severity',
+  创建人: 'custom_field.issue_creator',
+  处理人: 'custom_field.issue_processor',
+  状态: 'custom_field.issue_status',
+  严重程度: 'custom_field.issue_severity',
 }
 
 
