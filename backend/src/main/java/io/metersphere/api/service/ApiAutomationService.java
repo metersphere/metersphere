@@ -1309,6 +1309,7 @@ public class ApiAutomationService {
         } else {
             //如果存在则修改
             scenarioWithBLOBs.setId(sameRequest.get(0).getId());
+            scenarioWithBLOBs.setNum(sameRequest.get(0).getNum());
             batchMapper.updateByPrimaryKeyWithBLOBs(scenarioWithBLOBs);
         }
     }
