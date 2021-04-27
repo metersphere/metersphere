@@ -808,7 +808,7 @@ export class AssertionJSR223 extends AssertionType {
 
     this.name = undefined;
     this.script = undefined;
-    this.scriptLanguage = "beanshell";
+    this.scriptLanguage = "groovy";
     this.set(options);
   }
 
