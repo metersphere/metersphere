@@ -169,7 +169,37 @@ public class MockConfigService {
         MockExpectConfigResponse returnModel = null;
 
         if (reqJsonObj == null || reqJsonObj.isEmpty()) {
-            return returnModel;
+            for (MockExpectConfigResponse model : mockExpectConfigList) {
+                if (!model.isStatus()) {
+                    continue;
+                }
+                JSONObject requestObj = model.getRequest();
+                boolean isJsonParam = requestObj.getBoolean("jsonParam");
+                JSONObject mockExpectJson = new JSONObject();
+                if (isJsonParam) {
+                    mockExpectJson = JSONObject.parseObject(requestObj.getString("jsonData"));
+                } else {
+                    JSONArray jsonArray = requestObj.getJSONArray("variables");
+                    for (int i = 0; i < jsonArray.size(); i++) {
+                        JSONObject object = jsonArray.getJSONObject(i);
+                        String name = "";
+                        String value = "";
+                        if (object.containsKey("name")) {
+                            name = String.valueOf(object.get("name")).trim();
+                        }
+                        if (object.containsKey("value")) {
+                            value = String.valueOf(object.get("value")).trim();
+                        }
+                        if (StringUtils.isNotEmpty(name)) {
+                            mockExpectJson.put(name, value);
+                        }
+                    }
+                }
+                if (mockExpectJson.isEmpty()) {
+                    return model;
+                }
+
+            }
         }
         for (MockExpectConfigResponse model : mockExpectConfigList) {
             try {
