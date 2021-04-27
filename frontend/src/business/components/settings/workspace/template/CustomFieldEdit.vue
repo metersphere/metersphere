@@ -7,7 +7,7 @@
     append-to-body
     ref="msEditDialog">
 
-    <el-form :model="form" :rules="rules" label-position="right" label-width="140px" size="small" ref="form">
+    <el-form :model="form" :rules="rules" label-position="right" label-width="auto" size="small" ref="form">
       <el-form-item :label="'字段名'" prop="name" :label-width="labelWidth">
         <el-input v-if="isSystem" :disabled="isSystem" :value="$t(systemNameMap[form.name])" autocomplete="off"></el-input>
         <el-input v-else v-model="form.name" autocomplete="off"></el-input>
