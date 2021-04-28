@@ -2,8 +2,8 @@
   <div class="ms-single-handle-drag">
     <div>
       <slot name="header">
-        <el-link class="add-text" :underline="false">
-          <i class="el-icon-plus" @click="add">添加选项</i>
+        <el-link class="add-text" :underline="false" :disabled="disable"  @click="add">
+          <i class="el-icon-plus">添加选项</i>
         </el-link>
       </slot>
     </div>
@@ -30,6 +30,7 @@
         <i class="operator-icon" v-for="(item, index) in operators"
            :key="index"
            :class="item.icon"
+           :disabled="disable"
            @click="item.click(element, idx)"/>
 
       </div>
@@ -51,6 +52,7 @@ export default {
     };
   },
   props: {
+    disable: Boolean,
     data: {
       type: Array,
       default() {
@@ -66,6 +68,9 @@ export default {
           {
             icon: 'el-icon-edit',
             click: (element, idx) => {
+              if (this.disable) {
+                return;
+              }
               if (!element.system) {
                 this.editIndex = idx;
               }
@@ -74,6 +79,9 @@ export default {
           {
             icon: 'el-icon-close',
             click: (element, idx) => {
+              if (this.disable) {
+                return;
+              }
               this.data.splice(idx, 1);
             }
           },

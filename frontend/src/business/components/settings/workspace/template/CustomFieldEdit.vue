@@ -44,6 +44,7 @@
         :label="$t('custom_field.field_option')"
         prop="options" :label-width="labelWidth">
         <ms-single-handle-drag
+          :disable="form.name === '用例等级'"
           :data="form.options"/>
       </el-form-item>
 
