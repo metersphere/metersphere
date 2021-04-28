@@ -11,6 +11,7 @@ import java.util.List;
 @Setter
 public class ApiBatchRequest extends ApiDefinitionWithBLOBs {
     private List<String> ids;
+    private String name;
     private List<OrderRequest> orders;
     private String projectId;
     private String moduleId;

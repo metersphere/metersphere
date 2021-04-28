@@ -103,6 +103,11 @@ export default {
       path: 'envlist',
       component: () => import('@/business/components/settings/project/EnvironmentList'),
       meta: {project: true, title: 'api_test.environment.environment_config'}
+    },
+    {
+      path: 'operatingLog',
+      component: () => import('@/business/components/settings/operatinglog/OperatingLog'),
+      meta: {system: true, title: 'operating_log.title'}
     }
 
   ]

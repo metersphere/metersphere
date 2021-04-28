@@ -58,13 +58,13 @@
         }
       },
       run() {
-        let projectId  = this.$store.state.projectId;
+        let projectId = this.$store.state.projectId;
         // 如果envMap不存在，是单接口调用
         if (!this.envMap || this.envMap.size === 0) {
           projectId = this.$store.state.projectId;
         } else {
           // 场景步骤下接口调用
-          if(this.runData.projectId){
+          if (this.runData.projectId) {
             projectId = this.runData.projectId;
           }
         }
@@ -77,9 +77,13 @@
           item.projectId = projectId;
           threadGroup.hashTree.push(item);
         })
-
-        let reqObj = {id: this.reportId, testElement: testPlan, type: this.type,projectId: projectId, environmentMap: strMapToObj(this.envMap)};
+        let reqObj = {id: this.reportId, testElement: testPlan, type: this.type, projectId: projectId, environmentMap: strMapToObj(this.envMap)};
         let bodyFiles = getBodyUploadFiles(reqObj, this.runData);
+        if (this.runData[0].url) {
+          reqObj.name = this.runData[0].url;
+        } else {
+          reqObj.name = this.runData[0].path;
+        }
         let url = "";
         if (this.debug) {
           reqObj.reportId = this.reportId;
@@ -92,7 +96,7 @@
           this.getResult();
           this.$emit('autoCheckStatus');  //   执行结束后，自动更新计划状态
         }, error => {
-           this.$emit('errorRefresh', {});
+          this.$emit('errorRefresh', {});
         });
       }
     }

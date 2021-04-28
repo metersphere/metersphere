@@ -1,0 +1,123 @@
+<template>
+
+  <el-dialog :close-on-click-modal="false" :title="getType(detail.operType)+title" :visible.sync="infoVisible" width="60%" :destroy-on-close="true"
+             @close="handleClose">
+    <div>
+      <p class="tip">{{ this.$t('operating_log.user') }} ：{{detail.operUser}}</p>
+    </div>
+    <div>
+      <p class="tip">{{ this.$t('operating_log.time') }} ：{{ detail.operTime | timestampFormatDate }}</p>
+    </div>
+    <div>
+      <p class="tip">{{ this.$t('report.test_log_details') }} </p>
+      <div v-if="detail && detail.operType !== 'CREATE' && detail && detail.details && detail.details.columns && detail.details.columns.length >0 ">
+        <div v-if="detail && detail.details && detail.details.columns" style="margin-left: 20px">
+          <el-table :data="detail.details.columns">
+            <el-table-column prop="columnTitle" :label="$t('operating_log.change_field')"/>
+            <el-table-column prop="originalValue" :label="$t('operating_log.before_change')"/>
+            <el-table-column prop="newValue" :label="$t('operating_log.after_change')"/>
+          </el-table>
+        </div>
+      </div>
+      <div v-else-if="detail && (detail.details === null || (detail.details && detail.details.columns && detail.details.columns.length === 0))">
+        <span>{{detail.operTitle}} </span>
+        <span style="color: #409EFF">{{getType(detail.operType)}} </span>
+        <span style="color: #409EFF"> {{$t('api_test.home_page.detail_card.success')}}</span>
+      </div>
+      <div v-else>
+        <div v-if="detail && detail.details && detail.details.columns" style="margin-left: 20px">
+          <p v-for="n in detail.details.columns" :key="n.id">{{n.columnTitle}}：{{n.originalValue}}</p>
+        </div>
+      </div>
+    </div>
+  </el-dialog>
+
+</template>
+
+<script>
+  export default {
+    name: "MsLogDetail",
+    components: {},
+    props: {
+      title: String,
+    },
+    data() {
+      return {
+        infoVisible: false,
+        detail: {},
+        LOG_TYPE: [
+          {id: 'CREATE', label: this.$t('api_test.definition.request.create_info')},
+          {id: 'DELETE', label: this.$t('commons.delete')},
+          {id: 'UPDATE', label: this.$t('commons.update')},
+          {id: 'IMPORT', label: this.$t('api_test.api_import.label')},
+          {id: 'EXPORT', label: this.$t('commons.export')},
+          {id: 'ASSOCIATE_CASE', label: this.$t('test_track.review_view.relevance_case')},
+          {id: 'REVIEW', label: this.$t('test_track.review_view.start_review')},
+          {id: 'COPY', label: this.$t('commons.copy')},
+          {id: 'EXECUTE', label: this.$t('api_test.automation.execute')},
+          {id: 'CREATE_PRE_TEST', label: this.$t('api_test.create_performance_test')},
+          {id: 'SHARE', label: this.$t('operating_log.share')},
+          {id: 'LOGIN', label: this.$t('commons.login')},
+          {id: 'RESTORE', label: this.$t('commons.reduction')},
+          {id: 'DEBUG', label: this.$t('api_test.request.debug')},
+          {id: 'GC', label: this.$t('api_test.automation.trash')},
+          {id: 'BATCH_DEL', label: this.$t('api_test.definition.request.batch_delete')},
+          {id: 'BATCH_UPDATE', label: this.$t('api_test.definition.request.batch_edit')},
+          {id: 'BATCH_ADD', label: this.$t('commons.batch_add')},
+          {id: 'BATCH_RESTORE', label: "批量恢复"},
+          {id: 'BATCH_GC', label: "批量回收"}
+        ],
+        LOG_TYPE_MAP: new Map([
+          ['CREATE', this.$t('api_test.definition.request.create_info')],
+          ['DELETE', this.$t('commons.delete')],
+          ['UPDATE', this.$t('commons.update')],
+          ['IMPORT', this.$t('api_test.api_import.label')],
+          ['EXPORT', this.$t('commons.export')],
+          ['ASSOCIATE_CASE', this.$t('test_track.review_view.relevance_case')],
+          ['REVIEW', this.$t('test_track.review_view.start_review')],
+          ['COPY', this.$t('commons.copy')],
+          ['EXECUTE', this.$t('api_test.automation.execute')],
+          ['CREATE_PRE_TEST', this.$t('api_test.create_performance_test')],
+          ['SHARE', this.$t('operating_log.share')],
+          ['LOGIN', this.$t('commons.login')],
+          ['RESTORE', this.$t('commons.reduction')],
+          ['DEBUG', this.$t('api_test.request.debug')],
+          ['GC', this.$t('api_test.automation.trash')],
+          ['BATCH_DEL', this.$t('api_test.definition.request.batch_delete')],
+          ['BATCH_UPDATE', this.$t('api_test.definition.request.batch_edit')],
+          ['BATCH_ADD', this.$t('commons.batch_add')],
+          ['BATCH_RESTORE', "批量恢复"],
+          ['BATCH_GC', "批量回收"],
+        ])
+      }
+    },
+    methods: {
+      handleClose() {
+        this.infoVisible = false;
+      },
+      getDetails(id) {
+        this.result = this.$get("/operating/log/get/" + id, response => {
+          let data = response.data;
+          this.detail = data;
+        })
+      },
+      open(id) {
+        this.infoVisible = true;
+        this.getDetails(id);
+      },
+      getType(type) {
+        return this.LOG_TYPE_MAP.get(type);
+      },
+    }
+  }
+</script>
+
+<style scoped>
+
+  .tip {
+    padding: 3px 5px;
+    font-size: 16px;
+    border-radius: 4px;
+    border-left: 4px solid #783887;
+  }
+</style>

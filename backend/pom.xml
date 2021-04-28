@@ -423,6 +423,11 @@
             <artifactId>json-path</artifactId>
             <version>2.5.0</version>
         </dependency>
+        <dependency>
+            <groupId>com.flipkart.zjsonpatch</groupId>
+            <artifactId>zjsonpatch</artifactId>
+            <version>0.4.11</version>
+        </dependency>
 
     </dependencies>
 
