@@ -361,7 +361,6 @@ public class ApiScenarioReportService {
             } else {
                 report.setUserId(SessionUtils.getUserId());
             }
-            report.setTriggerMode(runMode);
             report.setExecuteType(ExecuteType.Saved.name());
             report.setProjectId(projectId);
             report.setScenarioName(scenarioNames.toString().substring(0, scenarioNames.toString().length() - 1));

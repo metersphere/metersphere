@@ -1,11 +1,11 @@
-const isBoolean = require("lodash.isboolean")
-const isEmpty = require("lodash.isempty")
-const isInteger = require("lodash.isinteger")
-const isNull = require("lodash.isnull")
-const isNumber = require("lodash.isnumber")
-const isObject = require("lodash.isobject")
-const isString = require("lodash.isstring")
-const isArray = Array.isArray
+const isBoolean = require("lodash.isboolean");
+const isEmpty = require("lodash.isempty");
+const isInteger = require("lodash.isinteger");
+const isNull = require("lodash.isnull");
+const isNumber = require("lodash.isnumber");
+const isObject = require("lodash.isobject");
+const isString = require("lodash.isstring");
+const isArray = Array.isArray;
 
 
 class Convert {
@@ -14,7 +14,7 @@ class Convert {
       $id: "http://example.com/root.json",
       $schema: "http://json-schema.org/draft-07/schema#",
     }
-    this._object = null
+    this._object = null;
   }
 
   /**
@@ -25,22 +25,22 @@ class Convert {
   format(object, option = {}) {
     // 数据校验，确保传入的的object只能是对象或数组
     if (!isObject(object)) {
-      throw new TypeError("传入参数只能是对象或数组")
+      throw new TypeError("传入参数只能是对象或数组");
     }
     // 合并属性
-    this._option = Object.assign(this._option, option)
+    this._option = Object.assign(this._option, option);
     // 需要转换的对象
-    this._object = object
-    let convertRes
+    this._object = object;
+    let convertRes;
     // 数组类型和对象类型结构不一样
     if (isArray(object)) {
-      convertRes = this._arrayToSchema()
+      convertRes = this._arrayToSchema();
     } else {
-      convertRes = this._objectToSchema()
+      convertRes = this._objectToSchema();
     }
     // 释放
-    this._object = null
-    return convertRes
+    this._object = null;
+    return convertRes;
   }
 
   /**
@@ -48,16 +48,16 @@ class Convert {
    */
   _arrayToSchema() {
     // root节点基本信息
-    let result = this._value2object(this._object, this._option.$id, "", true)
+    let result = this._value2object(this._object, this._option.$id, "", true);
     if (this._object.length > 0) {
       // 创建items对象的基本信息
       let objectItem = this._object[0]
-      result["items"] = this._value2object(objectItem, `#/items`, 'items')
+      result["items"] = this._value2object(objectItem, `#/items`, 'items');
       if (isObject(objectItem) && !isEmpty(objectItem)) {
         // 递归遍历
-        let objectItemSchema = this._json2schema(objectItem, `#/items`)
+        let objectItemSchema = this._json2schema(objectItem, `#/items`);
         // 合并对象
-        result["items"] = Object.assign(result["items"], objectItemSchema)
+        result["items"] = Object.assign(result["items"], objectItemSchema);
       }
     }
     return result
@@ -90,9 +90,9 @@ class Convert {
     let result = {};
     // 判断传入object是对象还是数组。
     if (isArray(object)) {
-      result.items = {}
+      result.items = {};
     } else {
-      result.properties = {}
+      result.properties = {};
     }
     // 遍历传入的对象
     for (const key in object) {
@@ -100,7 +100,7 @@ class Convert {
         const element = object[key];
         // 如果只是undefined。跳过
         if (element === undefined) {
-          continue
+          continue;
         }
         let $id = `${name}/properties/${key}`
         // 判断当前 element 的值 是否也是对象，如果是就继续递归，不是就赋值给result
@@ -111,22 +111,22 @@ class Convert {
             // 针对空数组和有值的数组做不同处理
             if (element.length > 0) {
               // 如果是数组，那么就取第一项
-              let elementItem = element[0]
+              let elementItem = element[0];
               // 创建items对象的基本信息
-              result["properties"][key]["items"] = this._value2object(elementItem, `${$id}/items`, key + 'items')
+              result["properties"][key]["items"] = this._value2object(elementItem, `${$id}/items`, key + 'items');
               // 判断第一项是否是对象,且对象属性不为空
               if (isObject(elementItem) && !isEmpty(elementItem)) {
                 // 新增的properties才合并进来
-                result["properties"][key]["items"] = Object.assign(result["properties"][key]["items"], this._json2schema(elementItem, `${$id}/items`))
+                result["properties"][key]["items"] = Object.assign(result["properties"][key]["items"], this._json2schema(elementItem, `${$id}/items`));
               }
             }
           } else {
             // 不是数组，递归遍历获取，然后合并对象属性
-            result["properties"][key] = Object.assign(result["properties"][key], this._json2schema(element, $id))
+            result["properties"][key] = Object.assign(result["properties"][key], this._json2schema(element, $id));
           }
         } else {
           // 一般属性直接获取基本信息
-          result["properties"][key] = this._value2object(element, $id, key)
+          result["properties"][key] = this._value2object(element, $id, key);
         }
       }
     }
@@ -150,29 +150,31 @@ class Convert {
 
     // 判断是否为初始化root数据
     if (root) {
-      objectTemplate["$schema"] = this._option.$schema
-      objectTemplate["title"] = `The Root Schema`
-      objectTemplate["mock"] = undefined
+      objectTemplate["$schema"] = this._option.$schema;
+      objectTemplate["title"] = `The Root Schema`;
+      objectTemplate["mock"] = undefined;
     }
 
     if (isInteger(value)) {
-      objectTemplate.type = "integer"
+      objectTemplate.type = "integer";
     } else if (isNumber(value)) {
-      objectTemplate.type = "number"
+      objectTemplate.type = "number";
     } else if (isString(value)) {
-      objectTemplate.type = "string"
+      objectTemplate.type = "string";
     } else if (isBoolean(value)) {
-      objectTemplate.type = "boolean"
+      objectTemplate.type = "boolean";
     } else if (isNull(value)) {
-      objectTemplate.type = "null"
+      objectTemplate.type = "null";
     } else if (isArray(value)) {
-      objectTemplate.type = "array"
+      objectTemplate.type = "array";
+      objectTemplate["mock"] = undefined;
     } else if (isObject(value)) {
       objectTemplate.type = "object"
+      objectTemplate["mock"] = undefined;
     }
 
-    return objectTemplate
+    return objectTemplate;
   }
 }
 
-module.exports = Convert
+module.exports = Convert;

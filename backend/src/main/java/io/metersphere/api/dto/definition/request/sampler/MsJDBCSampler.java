@@ -111,8 +111,16 @@ public class MsJDBCSampler extends MsTestElement {
                 this.dataSource = config.getConfig().get(this.getProjectId()).getDatabaseConfigs().get(0);
             }
         }
+
         if (this.dataSource == null) {
-            MSException.throwException("数据源为空无法执行");
+            // 用自身的数据
+            if (StringUtils.isNotEmpty(dataSourceId)) {
+                this.dataSource = null;
+                this.initDataSource();
+            }
+            if (this.dataSource == null) {
+                MSException.throwException("数据源为空无法执行");
+            }
         }
         final HashTree samplerHashTree = tree.add(jdbcSampler(config));
         tree.add(jdbcDataSource());

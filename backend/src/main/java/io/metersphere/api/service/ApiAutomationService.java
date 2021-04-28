@@ -21,6 +21,7 @@ import io.metersphere.api.dto.definition.request.variable.ScenarioVariable;
 import io.metersphere.api.dto.scenario.environment.EnvironmentConfig;
 import io.metersphere.api.jmeter.JMeterService;
 import io.metersphere.api.parse.ApiImportParser;
+import io.metersphere.api.service.task.ParallelExecTask;
 import io.metersphere.base.domain.*;
 import io.metersphere.base.mapper.*;
 import io.metersphere.base.mapper.ext.*;
@@ -57,6 +58,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.*;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 @Service
@@ -743,6 +746,8 @@ public class ApiAutomationService {
         SqlSession sqlSession = sqlSessionFactory.openSession(ExecutorType.BATCH);
         ApiScenarioReportMapper batchMapper = sqlSession.getMapper(ApiScenarioReportMapper.class);
         String reportId = request.getId();
+
+        Map<String, HashTree> map = new LinkedHashMap<>();
         // 按照场景执行
         for (ApiScenarioWithBLOBs item : apiScenarios) {
             if (item.getStepTotal() == null || item.getStepTotal() == 0) {
@@ -780,11 +785,18 @@ public class ApiAutomationService {
             batchMapper.insert(report);
 
             // 调用执行方法
-            jMeterService.runDefinition(report.getId(), hashTree, request.getReportId(), request.getRunMode());
+            // jMeterService.runDefinition(report.getId(), hashTree, request.getReportId(), request.getRunMode());
+            map.put(report.getId(), hashTree);
             // 重置报告ID
             reportId = UUID.randomUUID().toString();
         }
         sqlSession.flushStatements();
+        // 开始执行
+        ExecutorService executorService = Executors.newFixedThreadPool(map.size());
+        for (String key : map.keySet()) {
+            executorService.submit(new ParallelExecTask(jMeterService, key, map.get(key), request));
+        }
+
         return request.getId();
     }
 
@@ -884,7 +896,7 @@ public class ApiAutomationService {
             // 生成集成报告
             if (request.getConfig() != null && request.getConfig().getMode().equals("serial") && StringUtils.isNotEmpty(request.getConfig().getReportName())) {
                 request.getConfig().setReportId(UUID.randomUUID().toString());
-                APIScenarioReportResult report = createScenarioReport(request.getConfig().getReportId(), JSON.toJSONString(reportList), request.getConfig().getReportName(), request.getTriggerMode() == null ? ReportTriggerMode.MANUAL.name() : request.getTriggerMode(),
+                APIScenarioReportResult report = createScenarioReport(request.getConfig().getReportId(), JSON.toJSONString(reportList), request.getConfig().getReportName(), ReportTriggerMode.MANUAL.name(),
                         ExecuteType.Saved.name(), request.getProjectId(), request.getReportUserID(), request.getConfig());
                 batchMapper.insert(report);
             }
