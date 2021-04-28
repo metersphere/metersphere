@@ -7,6 +7,7 @@ import io.metersphere.base.domain.ApiTestEnvironmentExample;
 import io.metersphere.base.domain.ApiTestEnvironmentWithBLOBs;
 import io.metersphere.base.mapper.ApiTestEnvironmentMapper;
 import io.metersphere.commons.exception.MSException;
+import io.metersphere.controller.request.EnvironmentRequest;
 import io.metersphere.i18n.Translator;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
@@ -28,6 +29,17 @@ public class ApiTestEnvironmentService {
     public List<ApiTestEnvironmentWithBLOBs> list(String projectId) {
         ApiTestEnvironmentExample example = new ApiTestEnvironmentExample();
         example.createCriteria().andProjectIdEqualTo(projectId);
+        return apiTestEnvironmentMapper.selectByExampleWithBLOBs(example);
+    }
+
+    public List<ApiTestEnvironmentWithBLOBs> listByConditions(EnvironmentRequest environmentRequest) {
+        ApiTestEnvironmentExample example = new ApiTestEnvironmentExample();
+        ApiTestEnvironmentExample.Criteria criteria = example.createCriteria();
+        criteria.andProjectIdIn(environmentRequest.getProjectIds());
+        if (StringUtils.isNotBlank(environmentRequest.getName())) {
+            environmentRequest.setName(StringUtils.wrapIfMissing(environmentRequest.getName(),'%'));    //使搜索文本变成数据库中的正则表达式
+            criteria.andNameLike(environmentRequest.getName());
+        }
         return apiTestEnvironmentMapper.selectByExampleWithBLOBs(example);
     }
 
