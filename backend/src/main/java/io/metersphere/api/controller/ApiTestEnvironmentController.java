@@ -1,8 +1,13 @@
 package io.metersphere.api.controller;
 
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
 import io.metersphere.api.service.ApiTestEnvironmentService;
 import io.metersphere.base.domain.ApiTestEnvironmentWithBLOBs;
 import io.metersphere.commons.constants.RoleConstants;
+import io.metersphere.commons.utils.PageUtils;
+import io.metersphere.commons.utils.Pager;
+import io.metersphere.controller.request.EnvironmentRequest;
 import io.metersphere.service.CheckPermissionService;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresRoles;
@@ -25,6 +30,23 @@ public class ApiTestEnvironmentController {
     public List<ApiTestEnvironmentWithBLOBs> list(@PathVariable String projectId) {
         checkPermissionService.checkProjectOwner(projectId);
         return apiTestEnvironmentService.list(projectId);
+    }
+
+    /**
+     * 查询指定项目和指定名称的环境
+     * @param goPage
+     * @param pageSize
+     * @param environmentRequest
+     * @return
+     */
+    @PostMapping("/list/{goPage}/{pageSize}")
+    public Pager<List<ApiTestEnvironmentWithBLOBs>> listByCondition(@PathVariable int goPage, @PathVariable int pageSize, @RequestBody EnvironmentRequest environmentRequest) {
+        List<String> projectIds = environmentRequest.getProjectIds();
+        for (String projectId : projectIds) {
+            checkPermissionService.checkProjectOwner(projectId);
+        }
+        Page<Object> page = PageHelper.startPage(goPage, pageSize, true);
+        return PageUtils.setPageInfo(page, apiTestEnvironmentService.listByConditions(environmentRequest));
     }
 
     @GetMapping("/get/{id}")

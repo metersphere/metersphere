@@ -14,9 +14,8 @@
         </ms-table-header>
       </template>
       <!-- 环境列表内容 -->
-      <!-- 实现搜索,根据搜索内容变换显示的环境列表 -->
-      <el-table border :data="environments.filter(env => !searchText || env.name.toLowerCase().includes(searchText.toLowerCase()))"
-                @selection-change="handleSelectionChange" max-height="515" class="adjust-table" style="width: 100%" ref="table">
+      <el-table border :data="environments"
+                @selection-change="handleSelectionChange" class="adjust-table" style="width: 100%" ref="table">
         <el-table-column type="selection"></el-table-column>
         <el-table-column :label="$t('commons.project')" width="250" show-overflow-tooltip>
           <template v-slot="scope">
@@ -42,9 +41,8 @@
           </template>
         </el-table-column>
       </el-table>
-      <el-row type="flex" justify="end">
-        <el-pagination layout="total" :total="total"></el-pagination>
-      </el-row>
+      <ms-table-pagination :change="list" :current-page.sync="currentPage" :page-size.sync="pageSize"
+                           :total="total"/>
     </el-card>
 
     <!-- 创建、编辑、复制环境时的对话框 -->
@@ -126,7 +124,7 @@
       return {
         btnTips: this.$t('api_test.environment.create'),
         projectList: [],
-        condition: {envName: ''},   //用于搜索框
+        condition: {},   //封装传递给后端的查询条件
         environments: [],
         currentEnvironment: new Environment(),
         result: {},
@@ -138,20 +136,21 @@
         isTesterPermission: false,
         domainVisible: false,
         conditions: [],
+        currentPage: 1,
+        pageSize: 10,
+        total: 0,
+        projectIds: [],   //当前工作空间所拥有的所有项目id
       }
     },
-    computed: {
-      searchText() {    //搜索框的文本
-        return this.condition.name;
-      },
-      /*
-      搜索后对应的总条目。搜索内容为空的话就是全部记录条数；搜索内容不为空的话就是匹配的记录条数
-       */
-      total() {
-        return this.environments
-          .filter(env => !this.searchText || env.name.toLowerCase().includes(this.searchText.toLowerCase())).length;
-      },
+    created() {
+      this.isTesterPermission = checkoutTestManagerOrTestUser();
+
     },
+
+    activated() {
+      this.list();
+    },
+
     watch: {
       //当创建及复制环境所选择的项目变化时，改变当前环境对应的projectId
       currentProjectId() {
@@ -203,22 +202,26 @@
         }
       },
       list() {
-        this.environments = [];
-        let url = "/project/listAll";
-        this.result = this.$get(url, (response) => {   //请求未成功怎么办？
-          this.projectList = response.data;  //获取当前工作空间所拥有的项目,
-          this.projectList.forEach(project => {
-            this.idNameMap.set(project.id, project.name);
-          });
-          //获取每个项目所对应的环境列表
-          this.projectList.map((project) => {
-            this.$get('/api/environment/list/' + project.id, response => {
-              let envData = response.data;
-              envData.forEach(env => {
-                this.environments.push(env);
-              })
-            })
+        if (!this.projectList || this.projectList.length === 0) {   //没有项目数据的话请求项目数据
+          this.$get("/project/listAll", (response) => {
+            this.projectList = response.data;  //获取当前工作空间所拥有的项目,
+            this.projectList.forEach(project => {
+              this.idNameMap.set(project.id, project.name);
+              this.projectIds.push(project.id);
+            });
+            this.getEnvironments();
           })
+        } else {
+          this.getEnvironments()
+        }
+      },
+      getEnvironments(){
+        this.environments = [];
+        this.condition.projectIds = this.projectIds;
+        let url = '/api/environment/list/' + this.currentPage + '/' + this.pageSize;
+        this.result = this.$post(url, this.condition, response => {
+          this.environments = response.data.listObject;
+          this.total = response.data.itemCount;
         })
       },
       createEnv() {
@@ -227,7 +230,8 @@
         this.dialogVisible = true;
         this.currentEnvironment = new Environment();
       },
-      search(searchText) {
+      search() {
+        this.list()
       },
       editEnv(environment) {
         this.dialogTitle = this.$t('api_test.environment.config_environment');
@@ -334,13 +338,7 @@
       }
 
     },
-    created() {
-      this.isTesterPermission = checkoutTestManagerOrTestUser();
-    },
 
-    activated() {
-      this.list();
-    },
 
 
   }
