@@ -15,26 +15,26 @@
 
       <el-main class="container">
         <el-scrollbar>
-          <ms-form-divider :title="'基础信息'"/>
+          <ms-form-divider :title="$t('test_track.plan_view.base_info')"/>
 
           <el-form :model="form" :rules="rules" label-position="right" label-width="140px" size="small" ref="form">
-            <el-form-item :label="'名称'" prop="name" :label-width="labelWidth">
+            <el-form-item :label="$t('commons.name')" prop="name" :label-width="labelWidth">
               <el-input :disabled="isSystem" v-model="form.name" autocomplete="off"></el-input>
             </el-form-item>
 
             <slot name="base"></slot>
 
-            <el-form-item :label="'描述'" prop="description" :label-width="labelWidth">
+            <el-form-item :label="$t('commons.description')" prop="description" :label-width="labelWidth">
               <el-input :autosize="{ minRows: 2, maxRows: 4}" type="textarea" v-model="form.description"></el-input>
             </el-form-item>
 
-            <ms-form-divider :title="'模板设置'"/>
+            <ms-form-divider :title="$t('custom_field.template_setting')"/>
 
             <slot></slot>
 
-            <el-form-item :label="'已选字段'" class="filed-list" :label-width="labelWidth">
-              <el-button type="primary" @click="relateField">添加字段</el-button>
-              <el-button type="primary" @click="addField" plain>设置自定义字段</el-button>
+            <el-form-item :label="$t('table.selected_fields')" class="filed-list" :label-width="labelWidth">
+              <el-button type="primary" @click="relateField">{{$t('custom_field.add_field')}}</el-button>
+              <el-button type="primary" @click="addField" plain>{{ $t('custom_field.custom_field_setting') }}</el-button>
             </el-form-item>
 
             <el-form-item :label-width="labelWidth">

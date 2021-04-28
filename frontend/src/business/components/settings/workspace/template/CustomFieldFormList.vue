@@ -9,7 +9,7 @@
     ref="table">
 
     <ms-table-column
-      :label="'名称'"
+      :label="$t('commons.name')"
       prop="name">
       <template v-slot="scope">
         <span v-if="scope.row.system">
@@ -22,7 +22,7 @@
     </ms-table-column>
 
     <ms-table-column
-      :label="'默认值'"
+      :label="$t('commons.default')"
       min-width="200"
       prop="type">
       <template v-slot="scope">
@@ -35,7 +35,7 @@
     <field-custom-data-table-item :scene="scene"/>
 
     <ms-table-column
-      :label="'是否必填'"
+      :label="$t('api_test.definition.document.table_coloum.is_required')"
       width="80"
       prop="type">
       <template v-slot="scope">
@@ -44,21 +44,21 @@
     </ms-table-column>
 
     <ms-table-column
-    :label="'系统字段'"
+    :label="$t('custom_field.system_field')"
     width="80"
     prop="system">
       <template v-slot="scope">
         <span v-if="scope.row.system">
-          是
+          {{$t('commons.yes')}}
         </span>
         <span v-else>
-                否
+          {{$t('commons.no')}}
         </span>
       </template>
     </ms-table-column>
 
     <ms-table-column
-      :label="'备注'"
+      :label="$t('commons.remark')"
       prop="remark">
     </ms-table-column>
 

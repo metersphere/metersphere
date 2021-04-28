@@ -1,5 +1,5 @@
 <template>
-  <el-form-item :label="form.stepModel === 'STEP' ? '步骤描述' : '文本描述'" :label-width="labelWidth">
+  <el-form-item :label="form.stepModel === 'STEP' ? $t('test_track.case.create_case') $t('step_describe') : '文本描述'" :label-width="labelWidth">
     <el-dropdown placement="bottom-start" @command="handleCommand">
                   <span class="el-dropdown-link">
                     更改类型<i class="el-icon-arrow-down el-icon--right"/>

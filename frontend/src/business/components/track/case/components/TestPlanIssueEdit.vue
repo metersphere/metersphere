@@ -3,7 +3,7 @@
     width="60%"
     :visible.sync="visible"
     @confirm="confirm"
-    :title="'创建字段'"
+    :title="$t('test_track.issue.create_issue')"
     append-to-body
     ref="msEditDialog">
     <template v-slot:default="scope">

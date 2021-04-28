@@ -20,7 +20,7 @@ export default {
     {
       path: 'workspace/template/field',
       component: () => import('@/business/components/settings/workspace/template/CustomFieldList'),
-      meta: {workspaceTemplate: true, title: '自定义字段'},
+      meta: {workspaceTemplate: true, title: 'custom_field.name'},
     },
     {
       path: 'workspace/template/case',

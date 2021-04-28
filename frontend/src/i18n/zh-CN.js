@@ -1,5 +1,8 @@
 export default {
   commons: {
+    yes: "是",
+    no: "否",
+    default: "默认值",
     please_select_import_mode: '请选择导入模式',
     please_select_import_module: '请选择导入模块',
     pass_rate: '通过率',
@@ -14,6 +17,7 @@ export default {
     import_user: '导入用户',
     export: '导出',
     please_fill_in_the_template: '请填写模版内容',
+    please_fill_content: '请填写内容',
     cut_back_old_version: '切回旧版',
     cut_back_new_version: '切回新版',
     comment: '评论',
@@ -271,7 +275,28 @@ export default {
     issue_creator: '创建人',
     issue_processor: '处理人',
     issue_status: '状态',
-    issue_severity: '严重程度'
+    issue_severity: '严重程度',
+    create: '创建字段',
+    name: '自定义字段',
+    system_field: '系统字段',
+    scene: '使用场景',
+    attribute_type: '属性类型',
+    field_name: '字段名',
+    field_remark: '字段备注',
+    field_type: '字段类型',
+    field_option: '选项值',
+    add_field: '添加字段',
+    api_field_name: 'API字段名',
+    template_setting: '模板设置',
+    custom_field_setting: '设置自定义字段',
+    create_issue_template: '创建缺陷模版',
+    issue_template: '缺陷模版',
+    issue_platform: '缺陷平台',
+    issue_content: '缺陷内容',
+    template_create: '创建模板',
+    case_template: '测试用例模板',
+    default_template: '默认模板',
+    system_template: '系统模板',
   },
   workspace: {
     create: '创建工作空间',
@@ -1131,7 +1156,8 @@ export default {
           case_type: {
             api: "接口用例",
             scene: "场景用例",
-            load: "性能用例"
+            load: "性能用例",
+            functional: "功能用例"
           }
         }
       },
@@ -1226,6 +1252,9 @@ export default {
     case: {
       list: "列表",
       minder: "脑图",
+      step_info: "步骤信息",
+      other_info: "其他信息",
+      step_describe: "步骤描述",
       minder_create_tip: "失败, 无法在脑图创建其父模块",
       check_select: "请勾选用例",
       export_all_cases: '确定要导出全部用例吗?',
@@ -1268,6 +1297,9 @@ export default {
       please_create_project: "暂无项目，请先创建项目",
       create_module_first: "请先新建模块",
       relate_test: "关联测试",
+      relate_issue: "关联缺陷",
+      demand_name_id: "需求ID/名称",
+      please_select_relate_test: "请选择要关联的测试",
       relate_test_not_find: '关联的测试不存在,请检查用例',
       other_relate_test_not_find: '关联的测试名，请前往第三方平台执行',
       batch_handle: '批量处理 (选中{0}项)',
@@ -1486,6 +1518,10 @@ export default {
     },
     issue: {
       issue: "缺陷",
+      create_issue: "创建缺陷",
+      add_issue: "添加缺陷",
+      issue_list: "缺陷列表",
+      search_name: "根据标题搜索",
       platform_tip: "在系统设置-组织-服务集成中集成缺陷管理平台可以自动提交缺陷到指定缺陷管理平台",
       input_title: "请输入标题",
       id: "缺陷ID",

@@ -4,7 +4,7 @@
                 :disabled="disabled"
                 :multiple="data.type === 'multipleSelect'"
                 @change="handleChange"
-                filterable v-model="data[prop]" placeholder="默认值">
+                filterable v-model="data[prop]" :placeholder="$t('commons.default')">
       <el-option
         v-for="(item,index) in data.options ? data.options : []"
         :key="index"
@@ -20,7 +20,7 @@
       @change="handleChange"
       :rows="2"
       :disabled="disabled"
-      placeholder="请输入内容"
+      :placeholder="$t('commons.input_content')"
       class="custom-with"
       v-model="data[prop]">
     </el-input>
@@ -48,8 +48,7 @@
       v-else-if="data.type === 'int'"
       v-model="data[prop]"
       :disabled="disabled"
-      @change="handleChange"
-      label="描述文字"></el-input-number>
+      @change="handleChange"></el-input-number>
 
     <el-input-number
       v-else-if="data.type === 'float'"
@@ -64,14 +63,14 @@
        :disabled="disabled"
        v-model="data[prop]"
        type="date"
-       placeholder="选择日期">
+       :placeholder="$t('commons.select_date')">
     </el-date-picker>
 
     <el-select v-else-if="data.type === 'member' || data.type === 'multipleMember'"
                :multiple="data.type === 'multipleMember'"
                @change="handleChange"
                :disabled="disabled"
-               filterable v-model="data[prop]" placeholder="默认值">
+               filterable v-model="data[prop]" :placeholder="$t('commons.default')">
        <el-option
          v-for="(item) in memberOptions"
          :key="item.id"

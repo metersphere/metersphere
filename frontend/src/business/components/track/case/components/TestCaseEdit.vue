@@ -69,7 +69,7 @@
           </el-row>
 
 
-          <ms-form-divider :title="$t('步骤信息')"/>
+          <ms-form-divider :title="$t('test_track.case.step_info')"/>
 
           <form-rich-text-item :label-width="formLabelWidth" :title="$t('test_track.case.prerequisite')" :data="form" prop="prerequisite"/>
 
@@ -79,7 +79,7 @@
 
           <test-case-step-item :label-width="formLabelWidth" v-if="form.stepModel === 'STEP'" :form="form" :read-only="readOnly"/>
 
-          <ms-form-divider :title="$t('其他信息')"/>
+          <ms-form-divider :title="$t('test_track.case.other_info')"/>
 
           <test-case-edit-other-info :project-id="projectIds" :form="form" :label-width="formLabelWidth" :case-id="form.id" ref="otherInfo"/>
 

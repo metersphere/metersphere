@@ -1,6 +1,6 @@
 <template>
   <div>
-    <el-button class="add-btn" type="primary" size="mini" @click="appIssue">添加缺陷</el-button>
+    <el-button class="add-btn" type="primary" size="mini" @click="appIssue">{{ $t('test_track.issue.add_issue') }}</el-button>
     <el-tooltip class="item" effect="dark"
                 :content="$t('test_track.issue.platform_tip')"
                 placement="right">
@@ -95,7 +95,7 @@ export default {
     },
     appIssue() {
       if (!this.caseId) {
-        this.$warning('请先保存用例');
+        this.$warning(this.$t('api_test.automation.save_case_info'));
         return;
       }
       this.$refs.issueEdit.open();
