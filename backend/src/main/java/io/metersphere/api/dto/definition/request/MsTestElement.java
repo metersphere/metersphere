@@ -206,6 +206,7 @@ public abstract class MsTestElement {
                     }
                     csvDataSet.setIgnoreFirstLine(false);
                     csvDataSet.setRecycle(true);
+                    csvDataSet.setProperty("shareMode","shareMode.thread");
                     csvDataSet.setProperty("recycle", true);
                     csvDataSet.setProperty("delimiter", item.getDelimiter());
                     csvDataSet.setComment(StringUtils.isEmpty(item.getDescription()) ? "" : item.getDescription());
