@@ -10,8 +10,6 @@ import io.metersphere.commons.constants.FileType;
 import io.metersphere.commons.exception.MSException;
 import io.metersphere.commons.utils.LogUtil;
 import io.metersphere.commons.utils.SessionUtils;
-import io.metersphere.controller.request.BaseQueryRequest;
-import io.metersphere.controller.request.OrderRequest;
 import io.metersphere.controller.request.QueryCustomFieldRequest;
 import io.metersphere.i18n.Translator;
 import io.metersphere.performance.request.QueryProjectFileRequest;
@@ -143,17 +141,14 @@ public class FileService {
     }
 
     public List<FileMetadata> searchList(FileMetadata fileMetadata, boolean isJar) {  //  jar 包管理、文件管理中调用
-        FileMetadataExample nameExample = new FileMetadataExample();
-        FileMetadataExample fileExample = new FileMetadataExample();
+        FileMetadataExample example = new FileMetadataExample();
         if (org.apache.commons.lang3.StringUtils.isNotBlank(fileMetadata.getName())) {
-            nameExample.createCriteria().andNameLike("%" + fileMetadata.getName() + "%");
-            fileExample.createCriteria().andFileNameLike("%" + fileMetadata.getName() + "%");
+            example.createCriteria().andNameLike("%" + fileMetadata.getName() + "%");
+            example.or(example.createCriteria().andFileNameLike("%" + fileMetadata.getName() + "%"));
         }   //  根据文件名和自定义名称查找
-        nameExample.setOrderByClause("update_time desc");
-        fileExample.setOrderByClause("update_time desc");
-        List<FileMetadata> fileList = fileMetadataMapper.selectByExample(fileExample);
+        example.setOrderByClause("update_time desc");
         //  合并两个查找结果并去重，按时间降序
-        fileList.addAll(fileMetadataMapper.selectByExample(nameExample));
+        List<FileMetadata> fileList = fileMetadataMapper.selectByExample(example);
         if(isJar == true) {
             fileList = fileList.stream().filter(f -> org.apache.commons.lang3.StringUtils.equalsIgnoreCase(f.getType(), FileType.JAR.name())).distinct().collect(Collectors.toList());
             //  只显示 projectId = null 或 等于当前 projectId 的 jar 包

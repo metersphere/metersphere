@@ -152,12 +152,12 @@
     },
     methods: {
       saveFile(type, url, projectId, fileConfig, file) {
-        if(type == 'update') {
+        if(type === 'update') {
           this.result = this.$fileUpload(url, file, null, fileConfig, () => {
             this.$success(this.$t('commons.save_success'));
             this.getFiles();
           });
-        } else if(type == 'add') {
+        } else if(type === 'add') {
           this.$fileUpload(url + '/' + projectId, file, null, null, () => {
             this.$success(this.$t('commons.save_success'));
             this.getFiles();
@@ -165,7 +165,7 @@
         }
       },
       getFiles() {
-        if(this.condition.name == null || this.condition.name == '') {
+        if(this.condition.name === null || this.condition.name === '') {
           this.condition.workspaceId = getCurrentWorkspaceId();
           this.result = this.$post('file/listAll/' + this.currentPage + '/' + this.pageSize,
             this.condition, (response) => {

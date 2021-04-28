@@ -156,7 +156,7 @@
             this.url = '/file/update/';
             this.title = this.$t('project.edit_file');
             this.projectArray.forEach(item => {
-              if(item.id == this.currentConfig.projectId) {
+              if(item.id === this.currentConfig.projectId) {
                 this.currentConfig.projectName = item.name;
                 this.currentConfig.projectId = item.id;
               }
@@ -198,7 +198,7 @@
           let suffix = file.name.substring(file.name.lastIndexOf('.') + 1);
           let flag = false;
           this.acceptFileType.forEach(type => {
-            if(suffix == type) {
+            if(suffix === type) {
               flag = true;
             }
           });
