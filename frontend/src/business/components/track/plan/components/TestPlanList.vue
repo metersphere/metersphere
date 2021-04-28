@@ -26,7 +26,7 @@
         </el-table-column>
         <el-table-column
           v-if="item.id == 'userName'"
-          prop="principal"
+          prop="userName"
           :label="$t('test_track.plan.plan_principal')"
           show-overflow-tooltip
           :key="index">
