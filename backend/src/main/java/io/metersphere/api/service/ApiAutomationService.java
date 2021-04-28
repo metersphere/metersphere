@@ -917,6 +917,12 @@ public class ApiAutomationService {
                             if (StringUtils.isBlank(s)) {
                                 isEnv = false;
                                 break;
+                            } else {
+                                ApiTestEnvironmentWithBLOBs env = apiTestEnvironmentMapper.selectByPrimaryKey(s);
+                                if (env == null) {
+                                    isEnv = false;
+                                    break;
+                                }
                             }
                         }
                     } else {
@@ -933,7 +939,10 @@ public class ApiAutomationService {
         if (!isEnv) {
             String envId = scenario.getEnvironmentId();
             if (StringUtils.isNotBlank(envId)) {
-                isEnv = true;
+                ApiTestEnvironmentWithBLOBs env = apiTestEnvironmentMapper.selectByPrimaryKey(envId);
+                if (env != null) {
+                    isEnv = true;
+                }
             }
         }
         return isEnv;
