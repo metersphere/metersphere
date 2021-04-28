@@ -18,6 +18,11 @@ public class TestCaseExcelDataUs extends TestCaseExcelData {
     @NotRequired
     private Integer num;
 
+    @ColumnWidth(50)
+    @ExcelProperty("Custom ID")
+    @NotRequired
+    private String customNum;
+
     @NotBlank(message = "{cannot_be_null}")
     @Length(max = 255)
     @ExcelProperty("Name")
@@ -70,4 +75,10 @@ public class TestCaseExcelDataUs extends TestCaseExcelData {
     @ColumnWidth(50)
     @ExcelProperty("Step result")
     private String stepResult;
+
+    @ColumnWidth(50)
+    @ExcelProperty("Edit Model")
+    @NotRequired
+    @Pattern(regexp = "(^TEXT$)|(^STEP$)", message = "{test_case_step_model_validate}")
+    private String stepModel;
 }

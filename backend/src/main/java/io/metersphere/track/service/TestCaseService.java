@@ -483,7 +483,7 @@ public class TestCaseService {
                 testcase.setSort(sort.getAndIncrement());
                 int number = num.decrementAndGet();
                 testcase.setNum(number);
-                if (project.getCustomNum()) {
+                if (project.getCustomNum() && StringUtils.isBlank(testcase.getCustomNum())) {
                     testcase.setCustomNum(String.valueOf(number));
                 }
                 testcase.setReviewStatus(TestCaseReviewStatus.Prepare.name());
@@ -667,38 +667,50 @@ public class TestCaseService {
             data.setNodePath(t.getNodePath());
             data.setPriority(t.getPriority());
             data.setType(t.getType());
+            data.setCustomNum(t.getCustomNum());
+            if (StringUtils.isBlank(t.getStepModel())) {
+                data.setStepModel(TestCaseConstants.StepModel.STEP.name());
+            } else {
+                data.setStepModel(t.getStepModel());
+            }
 //            data.setMethod(t.getMethod());
             data.setPrerequisite(t.getPrerequisite());
             data.setTags(t.getTags());
             if (StringUtils.equals(t.getMethod(), "manual") || StringUtils.isBlank(t.getMethod())) {
-                String steps = t.getSteps();
-                String setp = "";
-                setp = steps;
-                JSONArray jsonArray = null;
 
-                //解决旧版本保存用例导出报错
-                try {
-                    jsonArray = JSON.parseArray(setp);
-                } catch (Exception e) {
-                    if (steps.contains("null") && !steps.contains("\"null\"")) {
-                        setp = steps.replace("null", "\"\"");
+                if (StringUtils.equals(data.getStepModel(), TestCaseConstants.StepModel.TEXT.name())) {
+                    data.setStepDesc(t.getStepDescription());
+                    data.setStepResult(t.getExpectedResult());
+                } else {
+                    String steps = t.getSteps();
+                    String setp = "";
+                    setp = steps;
+                    JSONArray jsonArray = null;
+
+                    //解决旧版本保存用例导出报错
+                    try {
                         jsonArray = JSON.parseArray(setp);
+                    } catch (Exception e) {
+                        if (steps.contains("null") && !steps.contains("\"null\"")) {
+                            setp = steps.replace("null", "\"\"");
+                            jsonArray = JSON.parseArray(setp);
+                        }
                     }
-                }
 
-                if (CollectionUtils.isNotEmpty(jsonArray)) {
-                    for (int j = 0; j < jsonArray.size(); j++) {
-                        int num = j + 1;
-                        step.append(num + "." + jsonArray.getJSONObject(j).getString("desc") + "\r\n");
-                        result.append(num + "." + jsonArray.getJSONObject(j).getString("result") + "\r\n");
+                    if (CollectionUtils.isNotEmpty(jsonArray)) {
+                        for (int j = 0; j < jsonArray.size(); j++) {
+                            int num = j + 1;
+                            step.append(num + "." + jsonArray.getJSONObject(j).getString("desc") + "\r\n");
+                            result.append(num + "." + jsonArray.getJSONObject(j).getString("result") + "\r\n");
 
+                        }
                     }
-                }
 
-                data.setStepDesc(step.toString());
-                data.setStepResult(result.toString());
-                step.setLength(0);
-                result.setLength(0);
+                    data.setStepDesc(step.toString());
+                    data.setStepResult(result.toString());
+                    step.setLength(0);
+                    result.setLength(0);
+                }
                 data.setRemark(t.getRemark());
 
             } else if ("auto".equals(t.getMethod()) && "api".equals(t.getType())) {
